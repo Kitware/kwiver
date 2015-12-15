@@ -281,7 +281,11 @@ option(KWIVER_BUILD_KWIVER_PROCESSES "Should the KWIVER Sprokit Processes Be Bui
 
 if (KWIVER_BUILD_KWIVER_PROCESSES)
 add_subdirectory(kwiver_util)
+
+# may want to make this optional.
+add_subdirectory(examples)
 endif()
+
 
 ##################################################################
 # Top level installation

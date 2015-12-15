@@ -28,64 +28,62 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file
- * \brief Accept vector of doubles from descriptor.
- */
-
-#include "read_descriptor_process.h"
+#include "supply_image.h"
+#include "io_mgr.h"
 
 #include <vital/vital_types.h>
+#include <vital/types/image_container.h>
+#include <vital/types/image.h>
+#include <vital/algorithm_plugin_manager.h>
+
+#include <maptk/plugins/ocv/image_container.h>
 
 #include <kwiver_util/kwiver_type_traits.h>
-#include <sprokit/pipeline/process_exception.h>
 
-namespace kwiver
-{
+// -- DEBUG
+#if defined DEBUG
+#include <opencv2/highgui/highgui.hpp>
+using namespace cv;
+#endif
 
-// should be promoted to project level include
-create_port_trait( d_vector, double_vector, "Vector of doubles from descriptor" );
-
-// config items
-//          None for now
+namespace kwiver {
 
 //----------------------------------------------------------------
 // Private implementation class
-class read_descriptor_process::priv
+class supply_image::priv
 {
 public:
   priv();
   ~priv();
 
-
-  // empty for now
-};
+  bool first;
+}; // end priv class
 
 
 // ================================================================
 
-read_descriptor_process
-::read_descriptor_process( kwiver::vital::config_block_sptr const& config )
+supply_image
+::supply_image( kwiver::vital::config_block_sptr const& config )
   : process( config ),
-    d( new read_descriptor_process::priv )
+    d( new supply_image::priv )
 {
   // Attach our logger name to process logger
-  attach_logger( kwiver::vital::get_logger( name() ) );
+  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
+  kwiver::vital::algorithm_plugin_manager::load_plugins_once();
 
   make_ports();
   make_config();
 }
 
 
-read_descriptor_process
-::~read_descriptor_process()
+supply_image
+::~supply_image()
 {
 }
 
 
 // ----------------------------------------------------------------
-void
-read_descriptor_process
+void supply_image
 ::_configure()
 {
 
@@ -94,57 +92,75 @@ read_descriptor_process
 
 
 // ----------------------------------------------------------------
-void
-read_descriptor_process
+void supply_image
 ::_step()
 {
-  kwiver::vital::double_vector_sptr vect = grab_from_port_using_trait( d_vector );
+  LOG_DEBUG( logger(), "supplying image" );
 
-  std::cout << "Vector size: " << vect->size() << " -- " << std::endl;
-
-  for (int i = 0; i < 50; i++)
+  if ( d->first )
   {
-    std::cout << " " << vect->at(i);
+    d->first = false;
+
+    // Convert image to a image container.
+    kwiver::vital::image_container_sptr const img_c( new kwiver::maptk::ocv::image_container( io_mgr::Instance()->GetImage() ) );
+
+    // --- debug
+#if defined DEBUG
+    cv::Mat image = maptk::ocv::image_container::maptk_to_ocv( img_c->get_image() );
+    namedWindow( "Display window", cv::WINDOW_NORMAL );// Create a window for display.
+    imshow( "Display window", image );                   // Show our image inside it.
+
+    waitKey(0);                 // Wait for a keystroke in the window
+#endif
+    // -- end debug
+
+    push_to_port_using_trait( image, img_c );
   }
-  std::cout << std::endl;
+  else
+  {
+    LOG_DEBUG( logger(), "End of input reached, process terminating" );
+    // indicate done
+    mark_process_as_complete();
+    const sprokit::datum_t dat= sprokit::datum::complete_datum();
+
+    push_datum_to_port_using_trait( image, dat );
+  }
 
   sprokit::process::_step();
 }
 
 
 // ----------------------------------------------------------------
-void
-read_descriptor_process
+void supply_image
 ::make_ports()
 {
   // Set up for required ports
   sprokit::process::port_flags_t required;
-
   required.insert( flag_required );
 
-  // -- input --
-  declare_input_port_using_trait( d_vector, required );
+  declare_output_port_using_trait( image, required );
 }
 
 
 // ----------------------------------------------------------------
-void
-read_descriptor_process
+void supply_image
 ::make_config()
 {
 }
 
 
 // ================================================================
-read_descriptor_process::priv
+supply_image::priv
 ::priv()
+  : first(true)
 {
 }
 
 
-read_descriptor_process::priv
+supply_image::priv
 ::~priv()
 {
 }
+
 
 } // end namespace

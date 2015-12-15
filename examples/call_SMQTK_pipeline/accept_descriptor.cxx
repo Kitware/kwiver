@@ -33,15 +33,15 @@
  * \brief Accept vector of doubles from descriptor.
  */
 
-#include "read_descriptor_process.h"
+#include "accept_descriptor.h"
+#include "io_mgr.h"
 
 #include <vital/vital_types.h>
 
 #include <kwiver_util/kwiver_type_traits.h>
 #include <sprokit/pipeline/process_exception.h>
 
-namespace kwiver
-{
+namespace kwiver {
 
 // should be promoted to project level include
 create_port_trait( d_vector, double_vector, "Vector of doubles from descriptor" );
@@ -51,7 +51,7 @@ create_port_trait( d_vector, double_vector, "Vector of doubles from descriptor" 
 
 //----------------------------------------------------------------
 // Private implementation class
-class read_descriptor_process::priv
+class accept_descriptor::priv
 {
 public:
   priv();
@@ -64,10 +64,10 @@ public:
 
 // ================================================================
 
-read_descriptor_process
-::read_descriptor_process( kwiver::vital::config_block_sptr const& config )
+accept_descriptor
+::accept_descriptor( kwiver::vital::config_block_sptr const& config )
   : process( config ),
-    d( new read_descriptor_process::priv )
+    d( new accept_descriptor::priv )
 {
   // Attach our logger name to process logger
   attach_logger( kwiver::vital::get_logger( name() ) );
@@ -77,15 +77,15 @@ read_descriptor_process
 }
 
 
-read_descriptor_process
-::~read_descriptor_process()
+accept_descriptor
+::~accept_descriptor()
 {
 }
 
 
 // ----------------------------------------------------------------
 void
-read_descriptor_process
+accept_descriptor
 ::_configure()
 {
 
@@ -95,18 +95,12 @@ read_descriptor_process
 
 // ----------------------------------------------------------------
 void
-read_descriptor_process
+accept_descriptor
 ::_step()
 {
   kwiver::vital::double_vector_sptr vect = grab_from_port_using_trait( d_vector );
 
-  std::cout << "Vector size: " << vect->size() << " -- " << std::endl;
-
-  for (int i = 0; i < 50; i++)
-  {
-    std::cout << " " << vect->at(i);
-  }
-  std::cout << std::endl;
+  kwiver::io_mgr::Instance()->SetDescriptor( vect );
 
   sprokit::process::_step();
 }
@@ -114,7 +108,7 @@ read_descriptor_process
 
 // ----------------------------------------------------------------
 void
-read_descriptor_process
+accept_descriptor
 ::make_ports()
 {
   // Set up for required ports
@@ -129,20 +123,20 @@ read_descriptor_process
 
 // ----------------------------------------------------------------
 void
-read_descriptor_process
+accept_descriptor
 ::make_config()
 {
 }
 
 
 // ================================================================
-read_descriptor_process::priv
+accept_descriptor::priv
 ::priv()
 {
 }
 
 
-read_descriptor_process::priv
+accept_descriptor::priv
 ::~priv()
 {
 }
