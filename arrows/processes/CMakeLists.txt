@@ -7,6 +7,7 @@ option(ARROWS_ENABLE_PROCESS_EXAMPLES "Enable building process examples" ON )
 
 add_subdirectory( bindings )
 add_subdirectory( core )
+add_subdirectory( adapters )
 add_subdirectory( examples )
 
 if (ARROWS_ENABLE_VXL)
