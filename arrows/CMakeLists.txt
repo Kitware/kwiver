@@ -3,6 +3,8 @@
 #
 project( arrows )
 
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+
 CMAKE_DEPENDENT_OPTION(ARROWS_ENABLE_CERES "Enable building arrows that depend on Ceres" ON
   KWIVER_ENABLE_CERES OFF )
 

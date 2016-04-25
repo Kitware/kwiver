@@ -1,5 +1,5 @@
 #
-# KWIVER processes
+# KWIVER core processes
 #
 project( kwiver_core_processes )
 
