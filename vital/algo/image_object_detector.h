@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,44 +28,48 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sprokit/pipeline/process_registry.h>
-
-// -- list processes to register --
-#include "draw_detected_object_boxes_process.h"
-#include "view_image_process.h"
-
-extern "C"
-KWIVER_OCV_PROCESSES_EXPORT void register_processes();
-
-
-// ----------------------------------------------------------------
-/*! \brief Regsiter processes
- *
- *
+/**
+ * \file
+ * \brief Header defining abstract \link kwiver::vital::algo::track_features feature
+ *        tracking \endlink algorithm
  */
-void register_processes()
+
+#ifndef VITAL_ALGO_IMAGE_OBJECT_DETECTOR_H_
+#define VITAL_ALGO_IMAGE_OBJECT_DETECTOR_H_
+
+#include <vital/algo/algorithm.h>
+#include <vital/types/image_container.h>
+#include <vital/types/detected_object_set.h>
+
+#include <vector>
+
+namespace kwiver {
+namespace vital {
+namespace algo {
+
+/// An abstract base class for detecting objects in images
+class VITAL_EXPORT image_object_detector
+: public algorithm_def<image_object_detector>
 {
-  static sprokit::process_registry::module_t const module_name =
-    sprokit::process_registry::module_t( "kwiver_processes_ocv" );
+public:
+  /// Return the name of this algorithm
+  static std::string static_type_name() { return "image_object_detector"; }
 
-  sprokit::process_registry_t const registry( sprokit::process_registry::self() );
+  /// Find all objects on the provided image
+  /**
+   * \param [in] image_data the image pixels
+   * \returns vector of image objects found
+   */
+  virtual detected_object_set_sptr
+      detect( image_container_sptr image_data) const = 0;
 
-  if ( registry->is_module_loaded( module_name ) )
-  {
-    return;
-  }
+protected:
+  image_object_detector();
+};
 
-  // ----------------------------------------------------------------
+/// Shared pointer for generic image_object_detector definition type.
+typedef std::shared_ptr<image_object_detector> image_object_detector_sptr;
 
-  registry->register_process(
-    "draw_detections", "draws the boxes to an image",
-    sprokit::create_process< kwiver::draw_detected_object_boxes_process> );
+} } } // end namespace
 
-
-  registry->register_process(
-    "view_image", "Display input image and delay",
-    sprokit::create_process< kwiver::view_image_process > );
-
-  // - - - - - - - - - - - - - - - - - - - - - - -
-  registry->mark_module_as_loaded( module_name );
-}
+#endif //VITAL_ALGO_IMAGE_OBJECT_DETECTOR_H_

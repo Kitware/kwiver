@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,44 +28,51 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sprokit/pipeline/process_registry.h>
+#include "detected_object.h"
 
-// -- list processes to register --
-#include "draw_detected_object_boxes_process.h"
-#include "view_image_process.h"
+namespace kwiver {
+namespace vital {
 
-extern "C"
-KWIVER_OCV_PROCESSES_EXPORT void register_processes();
-
-
-// ----------------------------------------------------------------
-/*! \brief Regsiter processes
- *
- *
- */
-void register_processes()
+detected_object::detected_object()
+: confidence_(1.0), classifications_(NULL)
 {
-  static sprokit::process_registry::module_t const module_name =
-    sprokit::process_registry::module_t( "kwiver_processes_ocv" );
+}
 
-  sprokit::process_registry_t const registry( sprokit::process_registry::self() );
+detected_object::detected_object(bounding_box bbox, double confidence,
+                           object_type_sptr classifications)
+: bounding_box_(bbox), confidence_(confidence), classifications_(classifications)
+{
+}
 
-  if ( registry->is_module_loaded( module_name ) )
-  {
-    return;
-  }
+detected_object::bounding_box detected_object::get_bounding_box() const
+{
+  return bounding_box_;
+}
 
-  // ----------------------------------------------------------------
+void detected_object::set_bounding_box(detected_object::bounding_box bbox)
+{
+  bounding_box_ = bbox;
+}
 
-  registry->register_process(
-    "draw_detections", "draws the boxes to an image",
-    sprokit::create_process< kwiver::draw_detected_object_boxes_process> );
+double detected_object::get_confidence() const
+{
+  return confidence_;
+}
 
+void detected_object::set_confidence(double d)
+{
+  confidence_ = d;
+}
 
-  registry->register_process(
-    "view_image", "Display input image and delay",
-    sprokit::create_process< kwiver::view_image_process > );
+object_type_sptr detected_object::get_classifications()
+{
+  return classifications_;
+}
 
-  // - - - - - - - - - - - - - - - - - - - - - - -
-  registry->mark_module_as_loaded( module_name );
+void detected_object::set_classifications( object_type_sptr c )
+{
+  classifications_ = c;
+}
+
+}
 }

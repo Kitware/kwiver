@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,44 +28,39 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sprokit/pipeline/process_registry.h>
+#ifndef _KWIVER_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H
+#define _KWIVER_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H
 
-// -- list processes to register --
-#include "draw_detected_object_boxes_process.h"
-#include "view_image_process.h"
+#include <sprokit/pipeline/process.h>
+#include "kwiver_ocv_processes_export.h"
 
-extern "C"
-KWIVER_OCV_PROCESSES_EXPORT void register_processes();
+#include <memory>
 
-
-// ----------------------------------------------------------------
-/*! \brief Regsiter processes
- *
- *
- */
-void register_processes()
+namespace kwiver
 {
-  static sprokit::process_registry::module_t const module_name =
-    sprokit::process_registry::module_t( "kwiver_processes_ocv" );
 
-  sprokit::process_registry_t const registry( sprokit::process_registry::self() );
+class KWIVER_OCV_PROCESSES_NO_EXPORT draw_detected_object_boxes_process
+  : public sprokit::process
+{
+public:
+  // -- CONSTRUCTORS --
+  draw_detected_object_boxes_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~draw_detected_object_boxes_process();
 
-  if ( registry->is_module_loaded( module_name ) )
-  {
-    return;
-  }
+protected:
+  virtual void _configure();
+  virtual void _step();
 
-  // ----------------------------------------------------------------
-
-  registry->register_process(
-    "draw_detections", "draws the boxes to an image",
-    sprokit::create_process< kwiver::draw_detected_object_boxes_process> );
+private:
+  void make_ports();
+  void make_config();
 
 
-  registry->register_process(
-    "view_image", "Display input image and delay",
-    sprokit::create_process< kwiver::view_image_process > );
+  class priv;
+  const std::unique_ptr<priv> d;
 
-  // - - - - - - - - - - - - - - - - - - - - - - -
-  registry->mark_module_as_loaded( module_name );
+}; // end class draw_detected_object_boxes_process
+
 }
+
+#endif //_KWIVER_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H

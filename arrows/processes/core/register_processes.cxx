@@ -33,12 +33,14 @@
 // -- list processes to register --
 #include "compute_homography_process.h"
 #include "detect_features_process.h"
+#include "detected_object_filter_process.h"
 #include "draw_tracks_process.h"
 #include "extract_descriptors_process.h"
 #include "frame_list_process.h"
 #include "matcher_process.h"
 #include "read_descriptor_process.h"
 #include "stabilize_image_process.h"
+#include "object_detector_process.h"
 
 extern "C"
 KWIVER_CORE_PROCESSES_EXPORT void register_processes();
@@ -96,6 +98,13 @@ void register_processes()
   registry->register_process(
     "read_d_vector", "Read vector of doubles",
     sprokit::create_process< kwiver::read_descriptor_process > );
+
+  registry->register_process(
+    "object_detector", "TODO",
+    sprokit::create_process< kwiver::object_detector_process > );
+  
+  registry->register_process("detected_object_filter", "filters detected objects",
+                              sprokit::create_process< kwiver::detected_object_filter_process > );
 
 
   // - - - - - - - - - - - - - - - - - - - - - - -

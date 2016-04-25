@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2014-2015 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,44 +28,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sprokit/pipeline/process_registry.h>
-
-// -- list processes to register --
-#include "draw_detected_object_boxes_process.h"
-#include "view_image_process.h"
-
-extern "C"
-KWIVER_OCV_PROCESSES_EXPORT void register_processes();
-
-
-// ----------------------------------------------------------------
-/*! \brief Regsiter processes
- *
- *
+/**
+ * \file
+ * \brief Defaults plugin algorithm registration interface impl
  */
-void register_processes()
+
+#include <arrows/algorithms/caffe/register_algorithms.h>
+#include <arrows/algorithms/algorithm_plugin_interface.h>
+#include <vital/registrar.h>
+
+
+int register_algo_impls(kwiver::vital::registrar &reg)
 {
-  static sprokit::process_registry::module_t const module_name =
-    sprokit::process_registry::module_t( "kwiver_processes_ocv" );
-
-  sprokit::process_registry_t const registry( sprokit::process_registry::self() );
-
-  if ( registry->is_module_loaded( module_name ) )
-  {
-    return;
-  }
-
-  // ----------------------------------------------------------------
-
-  registry->register_process(
-    "draw_detections", "draws the boxes to an image",
-    sprokit::create_process< kwiver::draw_detected_object_boxes_process> );
-
-
-  registry->register_process(
-    "view_image", "Display input image and delay",
-    sprokit::create_process< kwiver::view_image_process > );
-
-  // - - - - - - - - - - - - - - - - - - - - - - -
-  registry->mark_module_as_loaded( module_name );
+  return kwiver::arrows::caffe::register_algorithms( reg );
 }
