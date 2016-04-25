@@ -195,7 +195,7 @@ void video_input_process
 
     // indicate done
     mark_process_as_complete();
-    const sprokit::datum_t dat= sprokit::datum::complete_datum();
+    const sprokit::datum_t dat = sprokit::datum::complete_datum();
 
     push_datum_to_port_using_trait( timestamp, dat );
     push_datum_to_port_using_trait( image, dat );
