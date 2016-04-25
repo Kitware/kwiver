@@ -257,6 +257,7 @@ edge
 
   priv::shared_lock_t lock(d->mutex);
 
+  // Wait until the selected element in queue is there.
   while (d->q.size() <= idx)
   {
     d->cond_have_data.wait(lock);

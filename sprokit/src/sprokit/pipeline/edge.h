@@ -136,12 +136,14 @@ class SPROKIT_PIPELINE_EXPORT edge
      * \returns True if there is data available within the edge, false otherwise.
      */
     bool has_data() const;
+
     /**
      * \brief Query whether the edge can accept more data or not.
      *
      * \returns True if the edge can hold no more data, false otherwise.
      */
     bool full_of_data() const;
+
     /**
      * \brief Query how many results are in the edge.
      *
@@ -165,6 +167,7 @@ class SPROKIT_PIPELINE_EXPORT edge
      * \param datum The datum to put into the edge.
      */
     void push_datum(edge_datum_t const& datum);
+
     /**
      * \brief Extract a datum from the edge.
      *
@@ -189,6 +192,7 @@ class SPROKIT_PIPELINE_EXPORT edge
      * \returns The next datum available from the edge.
      */
     edge_datum_t get_datum();
+
     /**
      * \brief Look at the next datum in the edge.
      *
@@ -214,6 +218,7 @@ class SPROKIT_PIPELINE_EXPORT edge
      * \returns The next datum available from the edge.
      */
     edge_datum_t peek_datum(size_t idx = 0) const;
+
     /**
      * \brief Remove a datum from the edge.
      *
@@ -268,6 +273,7 @@ class SPROKIT_PIPELINE_EXPORT edge
      * \param process The process which can push data into the edge.
      */
     void set_upstream_process(process_t process);
+
     /**
      * \brief Set the process which is connected to the output side of the edge.
      *
