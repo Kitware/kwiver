@@ -110,7 +110,7 @@ input_adapter_process
   std::set< sprokit::process::port_t > unused_ports = m_active_ports; // copy set of active ports
 
   // Handle end of input as last data supplied.
-  if (set->type() == kwiver::adapter::adapter_data_set::end_of_input)
+  if (set->is_end_of_data() )
   {
     LOG_DEBUG( logger(), "End of input reached, process terminating" );
 

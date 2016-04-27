@@ -99,6 +99,16 @@ public:
   data_set_type type() const { return m_set_type; }
 
   /**
+   * @brief Test if this object has end of data marker.
+   *
+   * This method is a convenient way to check if the type is the end
+   * marker.
+   *
+   * @return \b true if this is end of data element.
+   */
+  bool is_end_of_data() const { return (m_set_type == end_of_input); }
+
+  /**
    * @brief Add datum to this data set.
    *
    * @param port Name of the port where data is sent.

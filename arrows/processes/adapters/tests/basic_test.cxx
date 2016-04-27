@@ -147,15 +147,12 @@ int main(int argc, char *argv[])
   auto ds = kwiver::adapter::adapter_data_set::create( kwiver::adapter::adapter_data_set::end_of_input );
   input_ad.send( ds );
 
-  // get output from pipeline
-  //+ while ( ! output_ad.empty() )
-  //+ for ( int i = 0; i < 10; ++i)
   while( true )
   {
     auto ods = output_ad.receive(); // blocks
 
     // check for end of data marker
-    if (ods->type() == kwiver::adapter::adapter_data_set::end_of_input)
+    if ( ods->is_end_of_data() )
     {
       std::cout << "End of data detected\n";
       break;
