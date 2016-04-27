@@ -96,6 +96,14 @@ public:
    */
   kwiver::adapter::adapter_data_set_t receive();
 
+  /**
+   * @brief Is interface queue empty?
+   *
+   *
+   * @return \b true if interface queue is full and thread would wait for receive().
+   */
+  bool empty() const;
+
 private:
   kwiver::output_adapter_process* m_process;
   kwiver::adapter::interface_ref_t m_interface_queue;

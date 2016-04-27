@@ -73,46 +73,31 @@ input_adapter_process
 // ------------------------------------------------------------------
 sprokit::process::port_info_t
 input_adapter_process
-::_input_port_info( sprokit::process::port_t const& port )
+::_output_port_info( sprokit::process::port_t const& port )
 {
   // If we have not created the port, then make a new one.
   if ( m_active_ports.count( port ) == 0 )
   {
-    port_flags_t required;
-    required.insert(flag_required);
+    port_flags_t p_flags;
+    p_flags.insert(flag_required);
 
-    // create a new port
-    declare_input_port( port, // port name
-                        type_any, // port type
-                        required,
-                        port_description_t("Input for " + port)
-      );
+    if ( port[0] != '_' ) // skip special ports (e.g. _heartbeat)
+    {
+      LOG_TRACE( logger(), "Creating output port: \"" << port << "\" on process \"" << name() << "\"" );
 
-    // Add to our list of existing ports
-    m_active_ports.insert( port );
+      // create a new port
+      declare_output_port( port, // port name
+                           type_any, // port type
+                           p_flags,
+                           port_description_t("Output for " + port)
+        );
+
+      // Add to our list of existing ports
+      m_active_ports.insert( port );
+    }
   }
 
-  return process::_input_port_info(port);
-}
-
-
-// ------------------------------------------------------------------
-void
-input_adapter_process
-::_configure()
-{
-  // handle config items here
-
-}
-
-
-// ------------------------------------------------------------------
-void
-input_adapter_process
-::_init()
-{
-  // post connection initialization
-
+  return process::_output_port_info(port);
 }
 
 
@@ -121,6 +106,7 @@ void
 input_adapter_process
 ::_step()
 {
+  LOG_TRACE( logger(), "Processing data set" );
   auto set = this->get_interface_queue()->Receive(); // blocks
   std::set< sprokit::process::port_t > unused_ports = m_active_ports; // copy set of active ports
 
@@ -131,14 +117,12 @@ input_adapter_process
 
     // indicate done
     mark_process_as_complete();
-    const sprokit::datum_t dat = sprokit::datum::complete_datum();
+    const sprokit::datum_t dat( sprokit::datum::complete_datum() );
 
-    auto ie = set->end();
-    auto ix = set->begin();
-    for ( ; ix != ie; ++ix )
+    VITAL_FOREACH( auto p, m_active_ports )
     {
       // Push each datum to their port
-      push_datum_to_port( ix->first, dat );
+      push_datum_to_port( p, dat );
     }
     return;
   }
@@ -148,8 +132,7 @@ input_adapter_process
   // there are no unconnected ports specified.
 
   auto ie = set->end();
-  auto ix = set->begin();
-  for ( ; ix != ie; ++ix )
+  for ( auto ix = set->begin(); ix != ie; ++ix )
   {
     // validate the port name against our list of created ports
     if ( m_active_ports.count( ix->first ) == 1 )
@@ -172,10 +155,15 @@ input_adapter_process
   // check to see if all ports have been supplied with a datum
   if ( unused_ports.size() != 0 )
   {
-    std::stringstream str;
-    str << "Process: " << name() << ": Port \"" << ix->first << "\" has not been supplied with a datum";
-    LOG_ERROR( logger(), str.str() );
-    throw std::runtime_error( str.str() );
+    auto ie = set->end();
+    for ( auto ix = set->begin(); ix != ie; ++ix )
+    {
+      std::stringstream str;
+      str << "Process: " << name() << ": Port \"" << ix->first << "\" has not been supplied with a datum";
+      LOG_ERROR( logger(), str.str() );
+    } // end for
+
+    throw std::runtime_error( "Process " + name() + " has not been supplied data for all ports." );
   }
 
   return;

@@ -34,6 +34,8 @@
 
 #include "adapter_types.h"
 
+#include <kwiver_adapter_export.h>
+
 #include <sprokit/pipeline/process.h>
 #include <sprokit/pipeline/datum.h>
 
@@ -52,7 +54,7 @@ namespace adapter{
  * named port.
  *
  */
-class adapter_data_set
+class KWIVER_ADAPTER_EXPORT adapter_data_set
 {
 public:
   typedef std::map< sprokit::process::port_t, sprokit::datum_t > datum_map_t;
@@ -72,23 +74,70 @@ public:
     end_of_input                // indicates end of input
   };
 
+  /**
+   * @brief Create a new data set object.
+   *
+   * This factory method returns a newly allocated object managed by
+   * smart pointer.
+   *
+   * @param type Data set type (data or input end marker)
+   *
+   * @return New data set object managed by smart pointer.
+   */
   static adapter_data_set_t create( data_set_type type = data_set_type::data );
 
   ~adapter_data_set();
 
-  // -- ACCESSORS --
+  /**
+   * @brief Get data set type.
+   *
+   * This method returns the data set type. Valid types are defined in
+   * the data_set_type enum.
+   *
+   * @return data set type enum.
+   */
   data_set_type type() const { return m_set_type; }
 
+  /**
+   * @brief Add datum to this data set.
+   *
+   * @param port Name of the port where data is sent.
+   * @param datum Sprokit datum object to be pushed to port.
+   */
+  void add_datum( sprokit::process::port_t const& port, sprokit::datum_t const& datum );
 
-  // -- MANIPULATORS --
-  void add( sprokit::process::port_t const& port, sprokit::datum_t const& datum );
+  /**
+   * @brief Add typed value to data set.
+   *
+   * @param port Name of the port where data is sent.
+   * @param val Value to be wrapped in datum for port.
+   */
+  template <typename T>
+  void add_value( sprokit::process::port_t const& port, T const& val )
+  {
+    m_port_datum_set.insert(
+      std::pair<std::string, sprokit::datum_t> (port, sprokit::datum::new_datum<T>( val ) ) );
+  }
 
+  /**
+   * @brief Get begin iterator for items in this data set.
+   *
+   *
+   * @return Begin iterator.
+   */
   datum_map_t::iterator  begin();
+
+  /**
+   * @brief Get ending iterator for items in this data set.
+   *
+   *
+   * @return End iterator.
+   */
   datum_map_t::iterator  end();
 
 
 protected:
-  adapter_data_set( data_set_type type ); // private CTOR - use factory method
+  KWIVER_ADAPTER_NO_EXPORT adapter_data_set( data_set_type type ); // private CTOR - use factory method
 
 private:
   const data_set_type m_set_type;

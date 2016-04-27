@@ -68,3 +68,8 @@ target_link_libraries( kwiver_adapter
 kwiver_install_headers( ${public_headers}
   SUBDIR processes/adapters
   )
+
+
+if (KWIVER_ENABLE_TESTS)
+  add_subdirectory( tests )
+endif()

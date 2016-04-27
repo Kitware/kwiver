@@ -37,6 +37,16 @@
 namespace kwiver {
 
 
+output_adapter
+::output_adapter()
+{ }
+
+
+output_adapter
+::~output_adapter()
+{ }
+
+
 // ------------------------------------------------------------------
 void
 output_adapter
@@ -80,6 +90,15 @@ output_adapter
 ::receive()
 {
   return m_interface_queue->Receive();
+}
+
+
+// ------------------------------------------------------------------
+bool
+output_adapter
+::empty() const
+{
+  return m_interface_queue->Empty();
 }
 
 

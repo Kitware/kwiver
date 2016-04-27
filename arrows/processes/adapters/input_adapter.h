@@ -96,6 +96,15 @@ public:
    */
   void send( kwiver::adapter::adapter_data_set_t dat );
 
+  /**
+   * @brief Is interface queue full?
+   *
+   *
+   * @return /b true if interface queue is full and thread would wait
+   * for send().
+   */
+  bool full() const;
+
 private:
   kwiver::input_adapter_process* m_process;
   kwiver::adapter::interface_ref_t m_interface_queue;

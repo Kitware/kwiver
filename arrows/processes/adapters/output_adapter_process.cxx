@@ -73,46 +73,28 @@ output_adapter_process
 // ------------------------------------------------------------------
 sprokit::process::port_info_t
 output_adapter_process
-::_output_port_info(port_t const& port)
+::_input_port_info(port_t const& port)
 {
   // If we have not created the port, then make a new one.
   if ( m_active_ports.count( port ) == 0 )
   {
-    port_flags_t required;
-    required.insert(flag_required);
+    port_flags_t p_flags;
+    p_flags.insert(flag_required);
+
+    LOG_TRACE( logger(), "Creating input port: \"" << port << "\" on process \"" << name() << "\"" );
 
     // create a new port
-    declare_output_port( port, // port name
+    declare_input_port( port, // port name
                         type_any, // port type
-                        required,
-                        port_description_t("Output for " + port)
+                        p_flags,
+                        port_description_t("Input for " + port)
       );
 
     // Add to our list of existing ports
     m_active_ports.insert( port );
   }
 
-  return process::_output_port_info(port);
-}
-
-
-// ------------------------------------------------------------------
-void
-output_adapter_process
-::_configure()
-{
-  // handle config items here
-
-}
-
-
-// ------------------------------------------------------------------
-void
-output_adapter_process
-::_init()
-{
-  // post connection initialization
-
+  return process::_input_port_info(port);
 }
 
 
@@ -121,13 +103,18 @@ void
 output_adapter_process
 ::_step()
 {
+  LOG_TRACE( logger(), "Processing data set" );
+
   auto data_set = kwiver::adapter::adapter_data_set::create();
 
   // The grab call is blocking, so it will wait until data is there.
-  VITAL_FOREACH( auto p, m_active_ports )
+  VITAL_FOREACH( auto const p, m_active_ports )
   {
-    data_set->add( p, this->grab_datum_from_port( p ) );
-  }
+    LOG_TRACE( logger(), "Getting data from port " << p );
+
+    sprokit::datum_t dtm = this->grab_datum_from_port( p );
+    data_set->add_datum( p, dtm );
+  } // end foreach
 
   // Possible option to see if queue is full and handle this set differently
 

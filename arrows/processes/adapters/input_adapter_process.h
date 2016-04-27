@@ -55,8 +55,6 @@ public:
   virtual ~input_adapter_process();
 
   // Process interface
-  virtual void _configure();
-  virtual void _init();
   virtual void _step();
 
   /**
@@ -72,7 +70,7 @@ public:
 private:
 
   // This is used to intercept connections and make ports JIT
-  virtual sprokit::process::port_info_t _input_port_info( sprokit::process::port_t const& port);
+  virtual sprokit::process::port_info_t _output_port_info( sprokit::process::port_t const& port);
 
 }; // end class input_adapter_process
 

@@ -37,6 +37,16 @@
 
 namespace kwiver {
 
+input_adapter
+::input_adapter()
+{ }
+
+
+input_adapter
+::~input_adapter()
+{ }
+
+
 // ------------------------------------------------------------------
 void
 input_adapter
@@ -80,6 +90,15 @@ input_adapter
 ::send( kwiver::adapter::adapter_data_set_t dat )
 {
   m_interface_queue->Send( dat );
+}
+
+
+// ------------------------------------------------------------------
+bool
+input_adapter
+::full() const
+{
+  return m_interface_queue->Full();
 }
 
 
