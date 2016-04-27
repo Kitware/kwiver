@@ -80,7 +80,7 @@ public:
 protected:
 
   std::set< sprokit::process::port_t > m_active_ports;
-  kwiver::vital::bounded_buffer< kwiver::adapter::adapter_data_set_t > m_interface_queue;
+  interface_ref_t  m_interface_queue;
 
 }; // end class frame_list_process
 

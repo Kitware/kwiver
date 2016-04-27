@@ -60,7 +60,7 @@ input_adapter_process
   kwiver::adapter::ports_info_t port_info;
 
   // formulate list of current input ports
-  sprokit::process::ports_t ports = this->output_ports();
+  auto ports = this->output_ports();
   VITAL_FOREACH( auto port, ports )
   {
     port_info[port] = this->input_port_info( port );
@@ -79,7 +79,6 @@ input_adapter_process
   if ( m_active_ports.count( port ) == 0 )
   {
     port_flags_t p_flags;
-    p_flags.insert(flag_required);
 
     if ( port[0] != '_' ) // skip special ports (e.g. _heartbeat)
     {
@@ -117,7 +116,7 @@ input_adapter_process
 
     // indicate done
     mark_process_as_complete();
-    const sprokit::datum_t dat( sprokit::datum::complete_datum() );
+    const auto dat( sprokit::datum::complete_datum() );
 
     VITAL_FOREACH( auto p, m_active_ports )
     {

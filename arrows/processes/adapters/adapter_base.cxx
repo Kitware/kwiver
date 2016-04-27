@@ -40,7 +40,7 @@ namespace adapter {
 //----------------------------------------------------------------
 adapter_base
 ::adapter_base()
-  : m_interface_queue(2)
+  : m_interface_queue( new kwiver::vital::bounded_buffer< kwiver::adapter::adapter_data_set_t > (2) )
 {
 }
 
@@ -55,7 +55,7 @@ kwiver::adapter::interface_ref_t
 adapter_base
 ::get_interface_queue()
 {
-  return &m_interface_queue;
+  return m_interface_queue;
 }
 
 
