@@ -254,7 +254,11 @@ set(KWIVER_ARGS_VIVIA_DEPS
 # ================================================================
 # Adding external components
 #
+<<<<<<< HEAD
 #include(External_VXL)
+=======
+# include(External_VXL)
+>>>>>>> origin/kwiver_2_0/master
 
 if (KWIVER_ENABLE_MAPTK)
     include(External_maptk)
