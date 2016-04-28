@@ -96,6 +96,16 @@ public:
   void send( kwiver::adapter::adapter_data_set_t ads );
 
   /**
+   * @brief Send end of input into pipeline.
+   *
+   * This method indicates that there will be no more input into the
+   * pipeline. The pipeline starts to shutdown after this method is
+   * called. Calling send() after this method is called is not a good
+   * idea.
+   */
+  void send_end_of_input();
+
+  /**
    * @brief Get pipeline output data.
    *
    * This method returns a data set produced by the pipeline. It will
@@ -140,7 +150,7 @@ public:
    *
    * @return \b true if all data has been processed and pipeline has terminated.
    */
-  bool at_end();                // true if pipeline is finished.
+  bool at_end() const;
 
   /**
    * @brief Start the pipeline

@@ -67,14 +67,26 @@ public:
   // -- CONSTRUCTORS --
   priv()
     : m_logger( kwiver::vital::get_logger( "embedded_pipeline" )),
-      m_at_end( false )
+      m_at_end( false ),
+      m_pipeline_started( false )
   {
-
   }
 
 
   ~priv()
-  {  }
+  {
+    // If the pipeline has been started, wait until it has completed
+    // before freeing storage. May have to do more here to deal with a
+    // still-running pipeline.
+    if ( m_pipeline_started )
+    {
+      try
+      {
+        m_scheduler->stop();
+      }
+      catch ( ... ) { }
+    }
+  }
 
 
 // ------------------------------------------------------------------
@@ -113,6 +125,7 @@ bool connect_adapters()
 //---------------------------
   vital::logger_handle_t m_logger;
   bool m_at_end;
+  bool m_pipeline_started;
 
   kwiver::input_adapter m_input_adapter;
   kwiver::output_adapter m_output_adapter;
@@ -199,6 +212,16 @@ embedded_pipeline
 
 
 // ------------------------------------------------------------------
+void
+embedded_pipeline
+::send_end_of_input()
+{
+  auto ds = kwiver::adapter::adapter_data_set::create( kwiver::adapter::adapter_data_set::end_of_input );
+  this->send( ds );
+}
+
+
+// ------------------------------------------------------------------
   kwiver::adapter::adapter_data_set_t
 embedded_pipeline
 ::receive()
@@ -230,7 +253,7 @@ embedded_pipeline
 // ------------------------------------------------------------------
 bool
 embedded_pipeline
-::at_end()
+::at_end() const
 {
   return m_priv->m_at_end;
 }
