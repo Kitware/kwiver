@@ -119,6 +119,9 @@ public:
   /**
    * @brief Add typed value to data set.
    *
+   * This method adds the specified value to the adapter data set. The
+   * value is copied into the data set.
+   *
    * @param port Name of the port where data is sent.
    * @param val Value to be wrapped in datum for port.
    */
@@ -129,22 +132,42 @@ public:
       std::pair<std::string, sprokit::datum_t> (port, sprokit::datum::new_datum<T>( val ) ) );
   }
 
+  //@{
   /**
    * @brief Get begin iterator for items in this data set.
    *
    *
    * @return Begin iterator.
    */
-  datum_map_t::iterator  begin();
+  datum_map_t::iterator begin();
+  datum_map_t::const_iterator begin() const;
+  //@}
 
+
+  //@{
   /**
    * @brief Get ending iterator for items in this data set.
    *
    *
    * @return End iterator.
    */
-  datum_map_t::iterator  end();
+  datum_map_t::iterator end();
+  datum_map_t::const_iterator end() const;
+  //@}
 
+  /**
+   * @brief Find entry for specific port name.
+   *
+   * This method returns an iterator pointing at the entry for the
+   * specified port. The datum can be accessed through it->second.  If
+   * the specified port name is not in the set, the returned iterator
+   * is set to end();
+   *
+   * @param port_t Name of port to locate.
+   *
+   * @return Iterator pointing at desired entry or end() iterator if element not found.
+   */
+  datum_map_t::iterator find( sprokit::process::port_t const& port );
 
 protected:
   KWIVER_ADAPTER_NO_EXPORT adapter_data_set( data_set_type type ); // private CTOR - use factory method

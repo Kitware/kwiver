@@ -36,7 +36,7 @@ namespace adapter {
 
 namespace {
 
-  // Hack to allow std::make_shared<> work when CTOR is private.
+// Hack to allow std::make_shared<> work when CTOR is private.
 struct local_ads : public adapter_data_set {
   local_ads( data_set_type type ) : adapter_data_set(type) {}
 };
@@ -44,6 +44,7 @@ struct local_ads : public adapter_data_set {
 } // end namespace
 
 
+// ------------------------------------------------------------------
 adapter_data_set
 ::adapter_data_set( data_set_type type )
   :m_set_type( type )
@@ -55,6 +56,7 @@ adapter_data_set
 { }
 
 
+// ------------------------------------------------------------------
 adapter_data_set_t
 adapter_data_set
 ::create( data_set_type type )
@@ -63,6 +65,8 @@ adapter_data_set
   return set;
 }
 
+
+// ------------------------------------------------------------------
 void
 adapter_data_set
 ::add_datum( sprokit::process::port_t const& port, sprokit::datum_t const& datum )
@@ -71,6 +75,7 @@ adapter_data_set
 }
 
 
+// ------------------------------------------------------------------
 kwiver::adapter::adapter_data_set::datum_map_t::iterator
 adapter_data_set
 ::begin()
@@ -79,11 +84,39 @@ adapter_data_set
 }
 
 
+// ------------------------------------------------------------------
+kwiver::adapter::adapter_data_set::datum_map_t::const_iterator
+adapter_data_set
+::begin() const
+{
+  return m_port_datum_set.begin();
+}
+
+
+// ------------------------------------------------------------------
 kwiver::adapter::adapter_data_set::datum_map_t::iterator
 adapter_data_set
 ::end()
 {
   return m_port_datum_set.end();
+}
+
+
+// ------------------------------------------------------------------
+kwiver::adapter::adapter_data_set::datum_map_t::const_iterator
+adapter_data_set
+::end() const
+{
+  return m_port_datum_set.end();
+}
+
+
+// ------------------------------------------------------------------
+kwiver::adapter::adapter_data_set::datum_map_t::iterator
+adapter_data_set
+::find( sprokit::process::port_t const& port )
+{
+  return m_port_datum_set.find( port );
 }
 
 } } // end namespace
