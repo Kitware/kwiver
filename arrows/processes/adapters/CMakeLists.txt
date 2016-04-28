@@ -50,6 +50,7 @@ set( lib_sources
   )
 
 set( public_headers
+  adapter_types.h
   adapter_data_set.h
   input_adapter.h
   output_adapter.h
