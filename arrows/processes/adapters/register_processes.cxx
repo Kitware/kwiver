@@ -64,7 +64,7 @@ void register_processes()
 
   registry->register_process(
   "output_adapter",
-    "Sink process for pipeline. Accptes data items from pipeline ports.",
+    "Sink process for pipeline. Accepts data items from pipeline ports.",
     sprokit::create_process< kwiver::output_adapter_process > );
 
   // - - - - - - - - - - - - - - - - - - - - - - -
