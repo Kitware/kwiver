@@ -69,9 +69,14 @@ target_link_libraries( kwiver_adapter
   )
 
 kwiver_install_headers( ${public_headers}
-  SUBDIR processes/adapters
+  SUBDIR arrows/processes/adapters
   )
 
+kwiver_install_headers(
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_adapter_export.h
+  SUBDIR     arrows/processes/adapters
+  NOPATH
+)
 
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory( tests )
