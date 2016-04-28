@@ -119,6 +119,7 @@ IMPLEMENT_TEST( basic_pipeline )
 
   // Query adapters for ports
   auto input_list = input_ad.port_list();
+  TEST_EQUAL( "Number of input ports", input_list.size(), 3 );
   std::cout << "Input adapter ports:\n";
   VITAL_FOREACH( auto port, input_list )
   {
@@ -126,6 +127,7 @@ IMPLEMENT_TEST( basic_pipeline )
   }
 
   auto output_list = output_ad.port_list();
+  TEST_EQUAL( "Number of output ports", output_list.size(), 3 );
   std::cout << "\nOutput adapter ports:\n";
   VITAL_FOREACH( auto port, output_list )
   {
@@ -185,9 +187,86 @@ IMPLEMENT_TEST( basic_pipeline )
     {
       std::cout << "   port: " << ix->first << "  value: " << ix->second->get_datum<int>() << "\n";
     }
-  }
+  } // end while
 
   scheduler->wait();
+}
 
-  return;
+// ------------------------------------------------------------------
+IMPLEMENT_TEST( embedded_pipeline )
+{
+  // Use SPROKIT macros to create pipeline description
+  std::stringstream pipeline_desc;
+  pipeline_desc << SPROKIT_PROCESS( "input_adapter",  "ia" )
+                << SPROKIT_PROCESS( "output_adapter", "oa" )
+
+                << SPROKIT_CONNECT( "ia", "port1",    "oa", "port1" )
+                << SPROKIT_CONNECT( "ia", "port2",    "oa", "port3" ) // yeah, i know
+                << SPROKIT_CONNECT( "ia", "port3",    "oa", "port2" )
+    ;
+
+  // create embedded pipeline
+  kwiver::embedded_pipeline ep( pipeline_desc );
+
+  // Query adapters for ports
+  auto input_list = ep.input_port_names();
+  TEST_EQUAL( "Number of input ports", input_list.size(), 3 );
+
+  std::cout << "Input adapter ports:\n";
+  VITAL_FOREACH( auto port, input_list )
+  {
+    std::cout << "    " << port << "\n";
+  }
+
+  auto output_list = ep.output_port_names();
+  TEST_EQUAL( "Number of output ports", output_list.size(), 3 );
+
+  std::cout << "\nOutput adapter ports:\n";
+  VITAL_FOREACH( auto port, output_list )
+  {
+    std::cout << "    " << port << "\n";
+  }
+
+  // Start pipeline
+  ep.start();
+
+    // Feed data to input adapter
+  for ( int i = 0; i < 10; ++i)
+  {
+    auto ds = kwiver::adapter::adapter_data_set::create();
+    int val = i;
+
+    VITAL_FOREACH( auto port, input_list )
+    {
+      ds->add_value( port, (val++) );
+    }
+    std::cout << "sending set: " << i << "\n";
+    ep.send( ds );
+  }
+
+  std::cout << "Sending end of input element\n";
+  ep.send_end_of_input();
+
+  while( true )
+  {
+    auto ods = ep.receive(); // blocks
+
+    // check for end of data marker
+    if ( ods->is_end_of_data() )
+    {
+      TEST_EQUAL( "at_end() set correctly", ep.at_end(), true );
+      break;
+    }
+
+    auto ix = ods->begin();
+    auto eix = ods->end();
+
+    std::cout << "\nData from pipeline\n";
+
+    for ( ; ix != eix; ++ix )
+    {
+      std::cout << "   port: " << ix->first << "  value: " << ix->second->get_datum<int>() << "\n";
+    }
+  } // end while
+
 }
