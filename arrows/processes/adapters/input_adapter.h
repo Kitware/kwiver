@@ -99,8 +99,10 @@ public:
   /**
    * @brief Is interface queue full?
    *
+   * This method checks to see if the input adapter process can accept
+   * more data.
    *
-   * @return /b true if interface queue is full and thread would wait
+   * @return \b true if interface queue is full and thread would wait
    * for send().
    */
   bool full() const;

@@ -99,6 +99,7 @@ public:
   /**
    * @brief Is interface queue empty?
    *
+   * This method checks to see if there is a pipeline output data set ready.
    *
    * @return \b true if interface queue is full and thread would wait for receive().
    */
