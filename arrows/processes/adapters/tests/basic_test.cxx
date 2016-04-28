@@ -28,6 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <test_common.h>
+
 #include <vital/config/config_block.h>
 #include <vital/vital_foreach.h>
 
@@ -45,13 +47,28 @@
 #include <arrows/processes/adapters/output_adapter.h>
 #include <arrows/processes/adapters/output_adapter_process.h>
 
+#include <arrows/processes/adapters/embedded_pipeline.h>
+
 #include <sstream>
 
 
 static kwiver::vital::config_block_key_t const scheduler_block = kwiver::vital::config_block_key_t("_scheduler");
 
+#define TEST_ARGS ()
 
-int main(int argc, char *argv[])
+DECLARE_TEST_MAP();
+
+int
+main(int argc, char* argv[])
+{
+  CHECK_ARGS(1);
+
+  testname_t const testname = argv[1];
+
+  RUN_TEST(testname);
+}
+
+IMPLEMENT_TEST( basic_pipeline )
 {
   kwiver::input_adapter input_ad;
   kwiver::output_adapter output_ad;
@@ -79,8 +96,8 @@ int main(int argc, char *argv[])
 
   if (!pipe)
   {
-    std::cerr << "Error: Unable to bake pipeline" << std::endl;
-    return EXIT_FAILURE;
+    TEST_EQUAL( "Baking pipeline", true, false);
+    return;
   }
 
   // perform setup operation on pipeline and get it ready to run
@@ -92,7 +109,8 @@ int main(int argc, char *argv[])
   catch( sprokit::pipeline_exception const& e)
   {
     std::cerr << "Error setting up pipeline: " << e.what() << std::endl;
-    return EXIT_FAILURE;
+    TEST_EQUAL( "Setting up pipeline", true, false );
+    return;
   }
 
   // Connect adapters to their processes.
@@ -123,8 +141,8 @@ int main(int argc, char *argv[])
 
   if (!scheduler)
   {
-    std::cerr << "Error: Unable to create scheduler" << std::endl;
-    return EXIT_FAILURE;
+    TEST_EQUAL( "Unable to create scheduler", true, false );
+    return;
   }
 
   scheduler->start();
@@ -171,5 +189,5 @@ int main(int argc, char *argv[])
 
   scheduler->wait();
 
-  return 0;
+  return;
 }

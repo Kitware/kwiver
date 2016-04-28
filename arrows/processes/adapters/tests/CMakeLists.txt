@@ -1,11 +1,11 @@
-#
+project(arrows_adapters_tests)
+
+include(vital-test-setup)
+
+set( test_libraries vital sprokit_pipeline sprokit_tools kwiver_adapter )
+
+#############################
 # adapter process tests
-#
+#############################
 
-add_executable( basic_test   basic_test.cxx )
-
-target_link_libraries( basic_test
-  PRIVATE        sprokit_pipeline sprokit_tools
-                 kwiver_adapter
-                 ${Boost_SYSTEM_LIBRARY}
-  )
+kwiver_discover_tests(adapter_basic             test_libraries basic_test.cxx)
