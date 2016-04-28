@@ -61,7 +61,39 @@ namespace kwiver {
  *
  * Example:
 \code
+  // Use SPROKIT macros to create pipeline description
+  std::stringstream pipeline_desc;
+  pipeline_desc << SPROKIT_PROCESS( "input_adapter",  "ia" )
+                << SPROKIT_PROCESS( "output_adapter", "oa" )
 
+                << SPROKIT_CONNECT( "ia", "port1",    "oa", "port1" )
+                << SPROKIT_CONNECT( "ia", "port2",    "oa", "port3" )
+                << SPROKIT_CONNECT( "ia", "port3",    "oa", "port2" )
+    ;
+
+  // create embedded pipeline
+  kwiver::embedded_pipeline ep( pipeline_desc );
+
+  // Query adapters for ports
+  auto input_list = ep.input_port_names();
+  auto output_list = ep.output_port_names();
+
+  // Verify ports are as expected
+  // ...
+
+  // Start pipeline
+  ep.start();
+
+  for ( int i = 0; i < 10; ++i)
+  {
+    // Create dataset for input
+    auto ds = kwiver::adapter::adapter_data_set::create();
+
+    ds.add_value( "counter", i );
+    ep.send( ds ); // push into pipeline
+  }
+
+  ep.send_end_of_input(); // indicate end of input
 
 \endcode
  */
