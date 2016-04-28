@@ -31,7 +31,7 @@
 #ifndef KWIVER_INPUT_ADAPTER_H
 #define KWIVER_INPUT_ADAPTER_H
 
-#include <kwiver_adapter_export.h>
+#include <arrows/processes/adapters/kwiver_adapter_export.h>
 
 #include "adapter_base.h"
 #include "adapter_data_set.h"

@@ -32,7 +32,7 @@
 #ifndef PROCESS_INPUT_ADAPTER_PROCESS_H
 #define PROCESS_INPUT_ADAPTER_PROCESS_H
 
-#include <kwiver_adapter_processes_export.h>
+#include <arrows/processes/adapters/kwiver_adapter_processes_export.h>
 
 #include <sprokit/pipeline/process.h>
 

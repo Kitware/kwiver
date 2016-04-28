@@ -34,7 +34,7 @@
 
 #include "adapter_types.h"
 
-#include <kwiver_adapter_export.h>
+#include <arrows/processes/adapters/kwiver_adapter_export.h>
 
 #include <sprokit/pipeline/process.h>
 #include <sprokit/pipeline/datum.h>
