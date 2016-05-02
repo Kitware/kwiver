@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,44 +28,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sprokit/pipeline/process_registry.h>
+#ifndef _OBJECT_DETECTOR_PROCESS_H
+#define _OBJECT_DETECTOR_PROCESS_H
 
-// -- list processes to register --
-#include "draw_detected_object_boxes_process.h"
-#include "view_image_process.h"
+#include <sprokit/pipeline/process.h>
 
-extern "C"
-KWIVER_OCV_PROCESSES_EXPORT void register_processes();
+#include "kwiver_core_processes_export.h"
 
+#include <vital/config/config_block.h>
+
+namespace kwiver
+{
 
 // ----------------------------------------------------------------
-/*! \brief Regsiter processes
+/**
+ * \class object_detector_process
  *
+ * \brief detect objects in an image.
  *
  */
-void register_processes()
+class KWIVER_CORE_PROCESSES_NO_EXPORT object_detector_process
+  : public sprokit::process
 {
-  static sprokit::process_registry::module_t const module_name =
-    sprokit::process_registry::module_t( "kwiver_processes_ocv" );
-
-  sprokit::process_registry_t const registry( sprokit::process_registry::self() );
-
-  if ( registry->is_module_loaded( module_name ) )
-  {
-    return;
-  }
-
-  // ----------------------------------------------------------------
-
-  registry->register_process(
-    "draw_detections", "draws the boxes to an image",
-    sprokit::create_process< kwiver::draw_detected_object_boxes_process> );
+public:
+  object_detector_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~object_detector_process();
 
 
-  registry->register_process(
-    "view_image", "Display input image and delay",
-    sprokit::create_process< kwiver::view_image_process > );
+protected:
+  virtual void _configure();
+  virtual void _step();
 
-  // - - - - - - - - - - - - - - - - - - - - - - -
-  registry->mark_module_as_loaded( module_name );
-}
+private:
+  void make_ports();
+  void make_config();
+
+  class priv;
+  const std::unique_ptr<priv> d;
+}; // end class object_detector_process
+
+} //end namespace
+
+#endif /* _OBJECT_DETECTOR_PROCESS_H */

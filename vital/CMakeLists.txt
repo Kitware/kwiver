@@ -100,6 +100,7 @@ set( vital_public_headers
   algo/close_loops.h
   algo/compute_ref_homography.h
   algo/convert_image.h
+  algo/detected_object_filter.h
   algo/detect_features.h
   algo/draw_tracks.h
   algo/estimate_essential_matrix.h
@@ -110,6 +111,7 @@ set( vital_public_headers
   algo/filter_features.h
   algo/geo_map.h
   algo/image_io.h
+  algo/image_object_detector.h
   algo/initialize_cameras_landmarks.h
   algo/match_features.h
   algo/optimize_cameras.h
@@ -137,6 +139,8 @@ set( vital_public_headers
   types/descriptor.h
   types/descriptor_set.h
   types/essential_matrix.h
+  types/detected_object.h
+  types/detected_object_set.h
   types/feature.h
   types/feature_set.h
   types/fundamental_matrix.h
@@ -150,6 +154,8 @@ set( vital_public_headers
   types/landmark_map.h
   types/match_set.h
   types/matrix.h
+  types/object_labels.h
+  types/object_type.h
   types/rotation.h
   types/similarity.h
   types/timestamp.h
@@ -175,6 +181,7 @@ set( vital_sources
   algo/compute_ref_homography.cxx
   algo/convert_image.cxx
   algo/detect_features.cxx
+  algo/detected_object_filter.cxx
   algo/draw_tracks.cxx
   algo/estimate_essential_matrix.cxx
   algo/estimate_fundamental_matrix.cxx
@@ -184,6 +191,7 @@ set( vital_sources
   algo/filter_features.cxx
   algo/geo_map.cxx
   algo/image_io.cxx
+  algo/image_object_detector.cxx
   algo/initialize_cameras_landmarks.cxx
   algo/match_features.cxx
   algo/optimize_cameras.cxx
@@ -203,6 +211,8 @@ set( vital_sources
 
   types/camera.cxx
   types/camera_intrinsics.cxx
+  types/detected_object.cxx
+  types/detected_object_set.cxx
   types/essential_matrix.cxx
   types/feature.cxx
   types/fundamental_matrix.cxx
@@ -212,6 +222,8 @@ set( vital_sources
   types/homography_f2w.cxx
   types/image.cxx
   types/landmark.cxx
+  types/object_labels.cxx
+  types/object_type.cxx
   types/rotation.cxx
   types/similarity.cxx
   types/timestamp.cxx

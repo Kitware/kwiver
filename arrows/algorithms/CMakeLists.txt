@@ -18,6 +18,11 @@ if( ARROWS_ENABLE_OPENCV )
   add_subdirectory( ocv )
 endif()
 
+# Add OpenCV plugin if enabled
+if( ARROWS_ENABLE_OPENCV AND ARROWS_ENABLE_CAFFE)
+  add_subdirectory( caffe )
+endif()
+
 # Add PROJ plugin if enabled
 if( ARROWS_ENABLE_PROJ )
   add_subdirectory( proj )

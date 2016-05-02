@@ -9,6 +9,7 @@ set( plugin_core_headers
   hierarchical_bundle_adjust.h
   initialize_cameras_landmarks.h
   match_features_homography.h
+  non_maximual_supression.h
   register_algorithms.h
   track_features_core.h
   transform.h
@@ -39,6 +40,7 @@ set( plugin_core_sources
   hierarchical_bundle_adjust.cxx
   initialize_cameras_landmarks.cxx
   match_features_homography.cxx
+  non_maximual_supression.cxx
   register_algorithms.cxx
   track_features_core.cxx
   transform.cxx
