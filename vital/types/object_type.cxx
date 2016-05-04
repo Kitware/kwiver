@@ -178,6 +178,7 @@ object_type::iterator object_type::get_iterator(bool sort, double threshold) con
       std::vector<double> const* scores;
       bool operator()(object_labels::key const& l, object_labels::key const& r) const
       {
+        if(l >= scores->size() || r >= scores->size()) return false;
         return (*scores)[l] > (*scores)[r];
       }
     } sort_fun;
