@@ -5,7 +5,11 @@ if(WIN32)
   set(Boost_WIN_MODULES chrono)
 endif()
 
-find_package(Boost 1.55 REQUIRED
+if (NOT DEFINED KWIVER_BOOST_VERSION)
+	set(KWIVER_BOOST_VERSION 1.55)
+endif()
+
+find_package(Boost ${KWIVER_BOOST_VERSION} REQUIRED
   COMPONENTS
     chrono
     date_time
