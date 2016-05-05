@@ -42,6 +42,7 @@
 #include <memory>
 
 #include <vital/types/object_type.h>
+#include <vital/types/vector.h>
 
 #include <vital/io/eigen_io.h> //This suppresses a warning in Eigen/Geometry.h
 #include <Eigen/Geometry>
@@ -59,7 +60,51 @@ typedef std::shared_ptr< detected_object > detected_object_sptr;
 class VITAL_EXPORT detected_object
 {
 public:
-  typedef Eigen::AlignedBox2d bounding_box;
+  class bounding_box
+  {
+  public:
+    bounding_box()
+    {}
+    bounding_box(vital::vector_2d upper_left, vital::vector_2d lower_right)
+    : m_bbox(upper_left,lower_right)
+    {}
+    vital::vector_2d center() const
+    {
+      return m_bbox.center();
+    }
+    vital::vector_2d upper_left() const
+    {
+      return m_bbox.min();
+    }
+    vital::vector_2d lower_right() const
+    {
+      return m_bbox.max();
+    }
+    double width() const
+    {
+      return m_bbox.sizes()[0];
+    }
+    double height() const
+    {
+      return m_bbox.sizes()[1];
+    }
+    double area() const
+    {
+      return m_bbox.volume();
+    }
+
+    bounding_box intersection(bounding_box const& other)
+    {
+      return bounding_box(m_bbox.intersection(other.m_bbox));
+    }
+
+  protected:
+    Eigen::AlignedBox2d m_bbox;
+    bounding_box(Eigen::AlignedBox2d b)
+    :m_bbox(b)
+    {}
+  };
+  //typedef Eigen::AlignedBox2d bounding_box;
   detected_object();
   detected_object(bounding_box bbox, double confidence = 1.0,
                object_type_sptr classifications = NULL);
