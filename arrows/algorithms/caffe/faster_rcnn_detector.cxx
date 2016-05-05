@@ -192,7 +192,6 @@ vital::detected_object_set_sptr faster_rcnn_detector::detect( vital::image_conta
   const unsigned int roi_dim = rois->count() / rois->num();
   assert(roi_dim == 5);
   const unsigned int prob_dim = probs->count() / probs->num();
-  const unsigned int delta_dim = (rois_deltas != NULL) ? rois_deltas->count() / rois_deltas->num() : 0;
   assert(rois->num() == probs->num());
 
   std::vector<vital::detected_object_sptr> detected_objects;
@@ -232,8 +231,8 @@ vital::detected_object_set_sptr faster_rcnn_detector::detect( vital::image_conta
         float dh = start[ds+3];
         tmpv2[j] = tmpv[j];
         vital::vector_2d center = bbox.center();
-        float w = bbox.sizes()[0];
-        float h = bbox.sizes()[1];
+        float w = bbox.width();
+        float h = bbox.height();
         center[0] = dx*w + center[0];
         center[1] = dy*h + center[1];
         float pw = exp(dw)*w;
