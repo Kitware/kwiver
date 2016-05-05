@@ -63,6 +63,8 @@ namespace vital {
 // These are types that are passed through the pipeline.
 // ( type-trait-name, "canonical_type_name", concrete-type )
 //
+create_type_trait( bounding_box, "kwiver:bounding_box",
+                   kwiver::vital::detected_object::bounding_box);
 create_type_trait( timestamp, "kwiver:timestamp", kwiver::vital::timestamp );
 create_type_trait( gsd, "kwiver:gsd", kwiver::vital::gsd_t );
 create_type_trait( corner_points, "corner_points", kwiver::vital::geo_corner_points );
@@ -85,6 +87,7 @@ create_type_trait( video_file_name, "kwiver:video_file_name", kwiver::vital::pat
 // Create port traits for common port types.
 // ( port-name, type-trait-name, "port-description" )
 //
+create_port_trait( bounding_box, bounding_box, "bouding box");
 create_port_trait( timestamp, timestamp, "Timestamp for input image." );
 create_port_trait( corner_points, corner_points, "Four corner points for image in lat/lon units, ordering ul ur lr ll." );
 create_port_trait( gsd, gsd, "GSD for image in meters per pixel." );
