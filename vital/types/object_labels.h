@@ -30,7 +30,7 @@
 
 /**
  * \file
- * \brief Header for \link kwiver::vital::object_labels object_labels \endlink 
+ * \brief Header for \link kwiver::vital::object_labels object_labels \endlink
  * class
  */
 
@@ -51,16 +51,20 @@ namespace vital {
 
 /// forward declaration of object_labels class
 class object_labels;
+
 /// typedef for a object_labels shared pointer
 typedef std::shared_ptr< object_labels > object_labels_sptr;
 
 // ----------------------------------------------------------------
-/** Stores object labels
+/**
+ * @brief Set of object labels.
  *
- * Stores the string representation for the object types stored in 
- * \link kwiver::vital::object_type \endlink
+ * This class stores the string representation for the object types
+ * used by \link kwiver::vital::object_type \endlink
+ *
+ * The intent of this class it to provide an efficient shared pool of
+ * object labels that are used by multiple object_type objects.
  */
-
 class VITAL_EXPORT object_labels
 {
 public:
@@ -70,43 +74,122 @@ public:
 
   class iterator
   {
-    friend object_labels;
   public:
+    /**
+     * @brief Increment to next element.
+     *
+     * This operator increments the iterator to the next valid
+     * element. Elements with invalid labels are skipped.
+     *
+     * @return Iterator points to next element or end.
+     */
     iterator& operator++();
+
+    /**
+     * @brief Create new iterator pointing to next element.
+     *
+     * This operator returns a totally new iterator that is pointing
+     * to the next element or end.
+     *
+     * @param int Not really used
+     *
+     * @return A new iterator pointing to next element of end.
+     */
     iterator operator++(int);
+
+    /**
+     * @brief Return label of item referred to by iterator.
+     *
+     *
+     * @return String label of item.
+     */
     std::string const& get_label() const;
+
+    /**
+     * @brief Get key/index of object label.
+     *
+     * @return Label index/key.
+     */
     key get_key() const;
+
+    /**
+     * @brief Is iterator at end of label list.
+     *
+     * @return \b true if iterator is at end.
+     */
     bool is_end() const;
+
   private:
+    friend class object_labels;
+
     size_t at_;
     iterator(std::vector<std::string> const& labels);
     std::vector<std::string> const& labels_;
   };
 
-  /** Constructs a label set based on vector.  Each label must be
-   *  unique and not equal to invalid.
+
+  /**
+   * @brief Constructs a label set based on vector.
+   *
+   * Each label must be unique and not equal to invalid.
    */
   object_labels(std::vector<std::string> labels);
 
-  /** Constructs a label set based on map. Keys must be unique.*/
+  /**
+   * @brief Construct label set from map.
+   *
+   * Each label must be unique and not equal to invalid.
+   *
+   * @param labels Map of labels
+   */
   object_labels(std::map<std::string, key> labels);
 
+  /**
+   * @brief Return label corresponding to key value
+   *
+   * @param k Label key value.
+   *
+   * @return Label string
+   */
   std::string const& get_label(key k) const;
 
+  /**
+   * @brief Get key that corresponds to label.
+   *
+   * @param label Label to search for.
+   *
+   * @return Label index or INVALID_KEY value.
+   */
   key get_key(std::string const& label) const;
 
+  /**
+   * @brief Return number of object labels.
+   *
+   * This method returns the nubmer of object labels in this set.
+   *
+   * @return Number of object labels.
+   */
   size_t get_number_of_labels() const;
 
-  ///To iterate over labels
+  /**
+   * @brief Get iterator for this set of labels.
+   *
+   * This method returns an iterator positioned at the first label.
+   *
+   * @return Iterator object.
+   */
   iterator get_iterator() const;
 
 private:
-  std::map<std::string, key> string_id_to_key_;
-  std::vector<std::string> key_to_string_;
+  /*
+   *
+   */
+  std::map< std::string, key > string_id_to_key_;
+  std::vector< std::string > key_to_string_;
 
   kwiver::vital::logger_handle_t logger_;
 };
 
-}
-}
+} }
+
 #endif

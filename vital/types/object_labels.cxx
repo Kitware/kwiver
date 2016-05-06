@@ -35,48 +35,59 @@
 namespace kwiver {
 namespace vital {
 
-const std::string object_labels::INVALID_LABEL("");
-const object_labels::key object_labels::INVALID_KEY = std::numeric_limits<size_t>::max();
+const std::string object_labels::INVALID_LABEL( "" );
+const object_labels::key object_labels::INVALID_KEY = std::numeric_limits< size_t >::max();
 
+// ------------------------------------------------------------------
 object_labels::iterator&
 object_labels::iterator::operator++()
 {
   do
   {
-    at_++;
-  }while(!is_end() && labels_[at_] == object_labels::INVALID_LABEL);
+    ++at_;
+  }
+  while ( ! is_end() && labels_[at_] == object_labels::INVALID_LABEL );
   return *this;
 }
 
+
+// ------------------------------------------------------------------
 object_labels::iterator
-object_labels::iterator::operator++(int)
+object_labels::iterator::operator++( int )
 {
-  object_labels::iterator tmp(*this); // copy
+  object_labels::iterator tmp( *this ); // copy
+
   operator++(); // pre-increment
   return tmp;
 }
 
+
+// ------------------------------------------------------------------
 std::string const&
 object_labels::iterator::get_label() const
 {
-  if(is_end())
+  if ( is_end() )
   {
     return INVALID_LABEL;
   }
   return labels_[at_];
 }
 
+
+// ------------------------------------------------------------------
 object_labels::key
 object_labels::iterator::
 get_key() const
 {
-  if(is_end())
+  if ( is_end() )
   {
     return INVALID_KEY;
   }
   return at_;
 }
 
+
+// ------------------------------------------------------------------
 bool
 object_labels::iterator::
 is_end() const
@@ -84,25 +95,30 @@ is_end() const
   return at_ >= labels_.size();
 }
 
-object_labels::iterator::iterator(std::vector<std::string> const& labels)
-: at_(0), labels_(labels)
+
+// ------------------------------------------------------------------
+object_labels::
+iterator::iterator( std::vector< std::string > const& labels )
+  : at_( 0 ), labels_( labels )
 {
 }
 
+
+// ------------------------------------------------------------------
 object_labels::
-object_labels(std::vector<std::string> labels)
-: key_to_string_(labels),
+object_labels( std::vector< std::string > labels )
+  : key_to_string_( labels ),
   logger_( kwiver::vital::get_logger( "vital.object_labels" ) )
 {
-  for(size_t i = 0; i < labels.size(); ++i)
+  for ( size_t i = 0; i < labels.size(); ++i )
   {
-    if(labels[i] == INVALID_LABEL)
+    if ( labels[i] == INVALID_LABEL )
     {
       LOG_WARN( logger_, "::object_labels: user used an INVALID label in input" );
     }
-    else if(string_id_to_key_.find(labels[i]) != string_id_to_key_.end())
+    else if ( string_id_to_key_.find( labels[i] ) != string_id_to_key_.end() )
     {
-      throw std::invalid_argument("object_labels::object_labels: provided duplicate label");
+      throw std::invalid_argument( "object_labels::object_labels: provided duplicate label" );
     }
     else
     {
@@ -111,54 +127,69 @@ object_labels(std::vector<std::string> labels)
   }
 }
 
+
+// ------------------------------------------------------------------
 object_labels::
-object_labels(std::map<std::string, object_labels::key> labels)
+object_labels( std::map< std::string, object_labels::key > labels )
 {
-  for(std::map<std::string, object_labels::key>::const_iterator iter = labels.begin();
-      iter != labels.end(); ++iter)
+  for ( std::map< std::string, object_labels::key >::const_iterator iter = labels.begin();
+        iter != labels.end(); ++iter )
   {
-    if(iter->second == INVALID_KEY)
+    if ( iter->second == INVALID_KEY )
     {
       LOG_WARN( logger_, "::object_labels: user used an INVALID key in input, ingoring" );
       continue;
     }
 
-    if(iter->first == INVALID_LABEL)
+    if ( iter->first == INVALID_LABEL )
     {
       LOG_WARN( logger_, "::object_labels: user used an INVALID label in input, ignoring" );
       continue;
     }
 
-    if(iter->second >= key_to_string_.size())
+    if ( iter->second >= key_to_string_.size() )
     {
-      key_to_string_.resize(iter->second+1, INVALID_LABEL);
+      key_to_string_.resize( iter->second + 1, INVALID_LABEL );
     }
 
-    if(key_to_string_[iter->second] != INVALID_LABEL)
+    if ( key_to_string_[iter->second] != INVALID_LABEL )
     {
-      throw std::invalid_argument("object_labels::object_labels: provided duplicate label");
+      throw std::invalid_argument( "object_labels::object_labels: provided duplicate label" );
     }
     key_to_string_[iter->second] = iter->first;
   }
 }
 
+
+// ------------------------------------------------------------------
 std::string const&
 object_labels::
-get_label(object_labels::key k) const
+get_label( object_labels::key k ) const
 {
-  if(k >= key_to_string_.size()) return INVALID_LABEL;
+  if ( k >= key_to_string_.size() )
+  {
+    return INVALID_LABEL;
+  }
   return key_to_string_[k];
 }
 
+
+// ------------------------------------------------------------------
 object_labels::key
 object_labels::
-get_key(std::string const& label) const
+get_key( std::string const& label ) const
 {
-  std::map<std::string, object_labels::key>::const_iterator iter = string_id_to_key_.find(label);
-  if(iter == string_id_to_key_.end()) return INVALID_KEY;
+  auto iter = string_id_to_key_.find( label );
+
+  if ( iter == string_id_to_key_.end() )
+  {
+    return INVALID_KEY;
+  }
   return iter->second;
 }
 
+
+// ------------------------------------------------------------------
 size_t
 object_labels::
 get_number_of_labels() const
@@ -166,12 +197,14 @@ get_number_of_labels() const
   return key_to_string_.size();
 }
 
+
+// ------------------------------------------------------------------
 object_labels::iterator
 object_labels::
 get_iterator() const
 {
-  return iterator(key_to_string_);
+  return iterator( key_to_string_ );
 }
 
-}
-}
+
+} }
