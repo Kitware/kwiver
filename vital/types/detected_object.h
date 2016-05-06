@@ -52,11 +52,21 @@ namespace vital {
 
 /// forward declaration of detected_object class
 class detected_object;
+
 /// typedef for a detected_object shared pointer
 typedef std::shared_ptr< detected_object > detected_object_sptr;
 
 // ----------------------------------------------------------------
-
+/**
+ * @brief Detected object class.
+ *
+ * This class represents a detected object in image space.
+ *
+ * There is one object of this type for each detected object. These
+ * objects are defined by a bounding box in the image space. Each
+ * object has an optional classification object attached.
+ *
+ */
 class VITAL_EXPORT detected_object
 {
 public:
@@ -104,25 +114,37 @@ public:
     :m_bbox(b)
     {}
   };
-  //typedef Eigen::AlignedBox2d bounding_box;
+
   detected_object();
   detected_object(bounding_box bbox, double confidence = 1.0,
                object_type_sptr classifications = NULL);
   virtual ~detected_object() VITAL_DEFAULT_DTOR
+
   bounding_box get_bounding_box() const;
   void set_bounding_box(bounding_box bbox);
+
   double get_confidence() const;
   void set_confidence(double d);
+
+  /**
+   * @brief Get pointer to optional classification object.
+   *
+   * This method returns the pointer to the classification object if
+   * there is one. If there is no classification object the pointer is
+   * NULL.
+   *
+   * @return Pointer to classification object or NULL.
+   */
   object_type_sptr get_classifications();
+
   void set_classifications( object_type_sptr c );
+
 private:
   bounding_box bounding_box_;
   double confidence_;
   object_type_sptr classifications_;
 };
 
-
-}
-}
+} }
 
 #endif
