@@ -31,12 +31,16 @@
 #ifndef KWIVER_ADAPTER_ADAPTER_TYPES_H
 #define KWIVER_ADAPTER_ADAPTER_TYPES_H
 
+#include <sprokit/pipeline/process.h>
+
 #include <memory>
+#include <map>
 
 namespace kwiver {
-
 namespace vital {
-  template <class T> class bounded_buffer;
+
+template <class T> class bounded_buffer;
+
 }
 
 namespace adapter{
@@ -44,6 +48,7 @@ namespace adapter{
 class adapter_data_set;
 typedef std::shared_ptr< adapter_data_set > adapter_data_set_t;
 typedef std::shared_ptr< kwiver::vital::bounded_buffer< kwiver::adapter::adapter_data_set_t > > interface_ref_t;
+typedef std::map< sprokit::process::port_t, sprokit::process::port_info_t > ports_info_t;
 
 } } // end namespace
 

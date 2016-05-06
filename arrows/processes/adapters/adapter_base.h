@@ -43,9 +43,6 @@
 namespace kwiver {
 namespace adapter {
 
-// -- TYPES --
-typedef std::map< sprokit::process::port_t, sprokit::process::port_info_t > ports_info_t;
-
 
 // ----------------------------------------------------------------
 /**

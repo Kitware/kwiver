@@ -33,7 +33,7 @@
 
 #include <arrows/processes/adapters/kwiver_adapter_export.h>
 
-#include "adapter_base.h"
+#include "adapter_types.h"
 #include "adapter_data_set.h"
 
 
