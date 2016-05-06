@@ -89,14 +89,15 @@ public:
         }
       }
       if(!keep_going) continue;
-      vital::detected_object_set::iterator class_iterator = input_set->get_iterator(label_iter.get_key(), true, this->m_threshold);
+      vital::detected_object_set::iterator class_iterator =
+                            input_set->get_iterator(label_iter.get_key(), true, this->m_threshold);
       double tmpT = (this->m_threshold -(this->m_threshold>=0.05)?0.05:0);
       for(size_t i = class_iterator.size()-1; i < class_iterator.size() && i >= 0; --i)
       {
         image.copyTo(overlay);
         vital::detected_object_sptr dos = class_iterator[i]; //Low score first
         vital::detected_object::bounding_box bbox = dos->get_bounding_box();
-        cv::Rect r(bbox.min()[0], bbox.min()[1], bbox.sizes()[0], bbox.sizes()[1]);
+        cv::Rect r(bbox.upper_left()[0], bbox.upper_left()[1], bbox.width(), bbox.height());
         double prob = dos->get_classifications()->get_score(label_iter.get_key());
         std::string p = std::to_string(prob);
         std::string txt =label_iter.get_label() + " " + p;
@@ -112,7 +113,8 @@ public:
           cv::Point pt(r.tl()+cv::Point(0,15));
 
           cv::Size text = cv::getTextSize(txt, fontface, scale, thickness, &baseline);
-          cv::rectangle(overlay, pt + cv::Point(0, baseline), pt + cv::Point(text.width, -text.height), cv::Scalar(0,0,0), CV_FILLED);
+          cv::rectangle(overlay, pt + cv::Point(0, baseline), pt +
+                        cv::Point(text.width, -text.height), cv::Scalar(0,0,0), CV_FILLED);
           cv::putText(overlay, txt, pt, fontface, scale, cv::Scalar(255,255,255), thickness, 8);
         }
         cv::addWeighted(overlay, prob, image, 1 - prob, 0, image);

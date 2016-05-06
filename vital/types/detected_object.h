@@ -42,6 +42,7 @@
 #include <memory>
 
 #include <vital/types/object_type.h>
+#include <vital/types/vector.h>
 
 #include <vital/io/eigen_io.h> //This suppresses a warning in Eigen/Geometry.h
 #include <Eigen/Geometry>
@@ -51,33 +52,99 @@ namespace vital {
 
 /// forward declaration of detected_object class
 class detected_object;
+
 /// typedef for a detected_object shared pointer
 typedef std::shared_ptr< detected_object > detected_object_sptr;
 
 // ----------------------------------------------------------------
-
+/**
+ * @brief Detected object class.
+ *
+ * This class represents a detected object in image space.
+ *
+ * There is one object of this type for each detected object. These
+ * objects are defined by a bounding box in the image space. Each
+ * object has an optional classification object attached.
+ *
+ */
 class VITAL_EXPORT detected_object
 {
 public:
-  typedef Eigen::AlignedBox2d bounding_box;
+  class bounding_box
+  {
+  public:
+    bounding_box()
+    {}
+    bounding_box(vital::vector_2d upper_left, vital::vector_2d lower_right)
+    : m_bbox(upper_left,lower_right)
+    {}
+    vital::vector_2d center() const
+    {
+      return m_bbox.center();
+    }
+    vital::vector_2d upper_left() const
+    {
+      return m_bbox.min();
+    }
+    vital::vector_2d lower_right() const
+    {
+      return m_bbox.max();
+    }
+    double width() const
+    {
+      return m_bbox.sizes()[0];
+    }
+    double height() const
+    {
+      return m_bbox.sizes()[1];
+    }
+    double area() const
+    {
+      return m_bbox.volume();
+    }
+
+    bounding_box intersection(bounding_box const& other)
+    {
+      return bounding_box(m_bbox.intersection(other.m_bbox));
+    }
+
+  protected:
+    Eigen::AlignedBox2d m_bbox;
+    bounding_box(Eigen::AlignedBox2d b)
+    :m_bbox(b)
+    {}
+  };
+
   detected_object();
   detected_object(bounding_box bbox, double confidence = 1.0,
                object_type_sptr classifications = NULL);
   virtual ~detected_object() VITAL_DEFAULT_DTOR
+
   bounding_box get_bounding_box() const;
   void set_bounding_box(bounding_box bbox);
+
   double get_confidence() const;
   void set_confidence(double d);
+
+  /**
+   * @brief Get pointer to optional classification object.
+   *
+   * This method returns the pointer to the classification object if
+   * there is one. If there is no classification object the pointer is
+   * NULL.
+   *
+   * @return Pointer to classification object or NULL.
+   */
   object_type_sptr get_classifications();
+
   void set_classifications( object_type_sptr c );
+
 private:
   bounding_box bounding_box_;
   double confidence_;
   object_type_sptr classifications_;
 };
 
-
-}
-}
+} }
 
 #endif

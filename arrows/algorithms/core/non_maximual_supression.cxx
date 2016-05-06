@@ -47,8 +47,7 @@ vital::detected_object_set_sptr non_maximual_supression::filter( vital::detected
       vital::detected_object::bounding_box bbox_i = class_iterator[i]->get_bounding_box();
       if(type_i == NULL) continue;
       if(type_i->get_score(label_iter.get_key()) == vital::object_type::INVALID_SCORE) continue;
-      //std::cout << bbox_i.min()[0] << " " << bbox_i.min()[1] << " " << bbox_i.max()[0] << " " << bbox_i.max()[1] << " " << label_iter.get_label() << " " << type_i->get_score(label_iter.get_key()) << std::endl;
-      double area = bbox_i.volume();
+      double area = bbox_i.area();
       for ( size_t j = i+1; j < class_iterator.size(); ++j )
       {
         vital::object_type_sptr type_j = class_iterator[j]->get_classifications();
@@ -56,10 +55,9 @@ vital::detected_object_set_sptr non_maximual_supression::filter( vital::detected
         if(type_j == NULL) continue;
         if(type_j->get_score(label_iter.get_key()) == vital::object_type::INVALID_SCORE) continue;
         vital::detected_object::bounding_box inter = bbox_i.intersection(bbox_j);
-        double aj = bbox_j.volume();
-        double interS = inter.volume();
+        double aj = bbox_j.area();
+        double interS = inter.area();
         double t = interS / (area + aj - interS);
-        //std::cout << "\t" << bbox_j.min()[0] << " " << bbox_j.min()[1] << " " << bbox_j.max()[0] << " " << bbox_j.max()[1] << " " << t << " " << (type_j->get_score(label_iter.get_key())) << std::endl;
         if (t >= this->overlap_threshold_)
         {
           type_j->set_score(label_iter.get_key(), vital::object_type::INVALID_SCORE);
