@@ -75,12 +75,15 @@ public:
     detected_object_set const& set_;
     std::vector<size_t> desired_value_;
   };
-  detected_object_set(std::vector<detected_object_sptr> const& objs, object_labels_sptr labels = NULL);
+  detected_object_set(std::vector<detected_object_sptr> const& objs,
+                      object_labels_sptr labels = NULL);
   detected_object_sptr operator[](size_t i) const;
   size_t size() const;
   iterator get_iterator(bool sorted = false) const;
-  iterator get_iterator(object_labels::key label, bool sorted = false, double threshold = object_type::INVALID_SCORE) const;
-  iterator get_iterator(std::string label, bool sorted = false, double threshold = object_type::INVALID_SCORE) const;
+  iterator get_iterator(object_labels::key label, bool sorted = false,
+                        double threshold = object_type::INVALID_SCORE) const;
+  iterator get_iterator(std::string label, bool sorted = false,
+                        double threshold = object_type::INVALID_SCORE) const;
   object_labels::iterator get_labels() const;
 private:
   object_labels_sptr labels_;

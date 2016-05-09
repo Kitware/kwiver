@@ -41,6 +41,7 @@
 #include "read_descriptor_process.h"
 #include "stabilize_image_process.h"
 #include "object_detector_process.h"
+#include "simulate_target_selection_process.h"
 
 extern "C"
 KWIVER_CORE_PROCESSES_EXPORT void register_processes();
@@ -105,6 +106,9 @@ void register_processes()
   
   registry->register_process("detected_object_filter", "filters detected objects",
                               sprokit::create_process< kwiver::detected_object_filter_process > );
+
+  registry->register_process("simulate_target_selection_process", "TODO",
+                             sprokit::create_process< kwiver::simulate_target_selection_process > );
 
 
   // - - - - - - - - - - - - - - - - - - - - - - -

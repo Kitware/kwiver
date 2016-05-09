@@ -9,7 +9,7 @@ cmake_dependent_option(SPROKIT_ENABLE_CXX11 "Enable compilation with C++11 suppo
   has_cxx11_flags OFF)
 
 # Check for clang
-if (CMAKE_CXX_COMPILER MATCHES "clang\\+\\+")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(sprokit_using_clang TRUE)
 else ()
   # XXX(gcc): 4.7.2
@@ -75,7 +75,11 @@ sprokit_want_compiler_flag(-Wdocumentation)
 sprokit_want_compiler_flag(-Wundef)
 sprokit_want_compiler_flag(-Wunused-macros)
 # Linker warnings
-sprokit_want_compiler_flag( -Wl,--no-undefined )
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  sprokit_want_compiler_flag( -Wl )
+else()
+  sprokit_want_compiler_flag( -Wl,--no-undefined )
+endif()
 # sprokit_want_compiler_flag( -Wl,--copy-dt-needed-entries )
 
 option(SPROKIT_ENABLE_NITPICK "Generate warnings about nitpicky things" OFF)
