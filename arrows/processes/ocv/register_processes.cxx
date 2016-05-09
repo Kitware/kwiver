@@ -31,6 +31,7 @@
 #include <sprokit/pipeline/process_registry.h>
 
 // -- list processes to register --
+#include "crop_image_process.h"
 #include "draw_detected_object_boxes_process.h"
 #include "view_image_process.h"
 
@@ -56,6 +57,9 @@ void register_processes()
   }
 
   // ----------------------------------------------------------------
+
+  registry->register_process("crop_image_process", "TODO",
+                             sprokit::create_process< kwiver::crop_image_process > );
 
   registry->register_process(
     "draw_detections", "draws the boxes to an image",
