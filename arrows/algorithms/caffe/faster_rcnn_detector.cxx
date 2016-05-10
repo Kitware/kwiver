@@ -5,19 +5,18 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include <vital/types/vector.h>
-
 #include <vital/io/eigen_io.h>
-
 #include <vital/util/cpu_timer.h>
-
-#include <iostream>
-
-#include <algorithm>
-#include <cmath>
-
-#include <math.h> 
+#include <vital/logger/logger.h>
+#include <kwiversys/SystemTools.hxx>
 
 #include <arrows/algorithms/ocv/image_container.h>
+
+#include <iostream>
+#include <algorithm>
+#include <cmath>
+#include <math.h> 
+
 
 using caffe::Caffe;
 using caffe::TEST;
@@ -43,22 +42,40 @@ public:
   int m_gpu_id;
   bool m_use_box_deltas;
 
+  kwiver::vital::logger_handle_t m_logger;
+
   std::pair<cv::Mat, double> prepair_image(cv::Mat const& in_image) const;
   std::vector< Blob<float>* > set_up_inputs(std::pair<cv::Mat, double> const& pair) const;
 
+// =====================================================================
   priv()
-  : m_labels(NULL), m_target_size(600), m_pixel_means(102.9801, 115.9465, 122.7717), m_max_size(1000), m_net(NULL),m_use_gpu(false), m_gpu_id(0), m_use_box_deltas(true)
+  : m_labels(NULL), 
+    m_target_size(600), 
+    m_pixel_means(102.9801, 115.9465, 122.7717), 
+    m_max_size(1000), 
+    m_net(NULL),
+    m_use_gpu(false), 
+    m_gpu_id(0), 
+    m_use_box_deltas(true),
+    m_logger( kwiver::vital::get_logger( "vital.algorithm" ) )
   {
   }
+
+
   priv(priv const& other)
   :m_prototxt_file(other.m_prototxt_file), m_classes_file(other.m_classes_file), m_caffe_model(other.m_caffe_model),
    m_labels(other.m_labels), m_target_size(other.m_target_size), m_pixel_means(other.m_pixel_means), 
-   m_max_size(other.m_max_size), m_net(other.m_net), m_use_gpu(other.m_use_gpu), m_gpu_id(other.m_gpu_id), m_use_box_deltas(other.m_use_box_deltas)
+   m_max_size(other.m_max_size), m_net(other.m_net), m_use_gpu(other.m_use_gpu), m_gpu_id(other.m_gpu_id), 
+   m_use_box_deltas(other.m_use_box_deltas),
+   m_logger( other.m_logger )
   {
   }
+
+
   ~priv()
   {
   }
+
 };
 
 faster_rcnn_detector::faster_rcnn_detector()
@@ -75,7 +92,10 @@ faster_rcnn_detector::~faster_rcnn_detector()
 {
 }
 
-vital::config_block_sptr faster_rcnn_detector::get_configuration() const
+// --------------------------------------------------------------------
+vital::config_block_sptr 
+faster_rcnn_detector::
+get_configuration() const
 {
   // Get base config from base class
   vital::config_block_sptr config = vital::algorithm::get_configuration();
@@ -96,7 +116,10 @@ vital::config_block_sptr faster_rcnn_detector::get_configuration() const
   return config;
 }
 
-void faster_rcnn_detector::set_configuration(vital::config_block_sptr config_in)
+
+// --------------------------------------------------------------------
+void faster_rcnn_detector::
+set_configuration(vital::config_block_sptr config_in)
 {
   vital::config_block_sptr config = this->get_configuration();
   config->merge_config(config_in);
@@ -107,6 +130,9 @@ void faster_rcnn_detector::set_configuration(vital::config_block_sptr config_in)
   this->d->m_use_gpu = config->get_value<bool>("use_gpu");
   this->d->m_gpu_id = config->get_value<bool>("gpu_id");
   this->d->m_use_box_deltas = config->get_value<bool>("use_box_deltas");
+
+  // Need to check for existance of files.
+
   if(d->m_use_gpu)
   {
     Caffe::SetDevice(this->d->m_gpu_id);
@@ -136,12 +162,14 @@ void faster_rcnn_detector::set_configuration(vital::config_block_sptr config_in)
   this->d->m_pixel_means = cv::Scalar(tmp.x(), tmp.y(), tmp.z());
 
   this->d->m_max_size = config->get_value<double>("max_size");
-
 }
 
-bool faster_rcnn_detector::check_configuration(vital::config_block_sptr config) const
+
+// --------------------------------------------------------------------
+bool faster_rcnn_detector::
+check_configuration(vital::config_block_sptr config) const
 {
-  if(Caffe::mode() != ((d->m_use_gpu)?Caffe::GPU:Caffe::CPU))
+  if ( Caffe::mode() != ((d->m_use_gpu)?Caffe::GPU:Caffe::CPU))
   {
     if(d->m_use_gpu)
     {
@@ -156,13 +184,42 @@ bool faster_rcnn_detector::check_configuration(vital::config_block_sptr config) 
   std::string classes = config->get_value<std::string>("classes");
   std::string prototxt = config->get_value<std::string>("prototxt");
   std::string caffemodel = config->get_value<std::string>("caffe_model");
-  //TODO More checking, make sure the files exist.
-  //std::cout << classes.empty() << ' ' << prototxt.empty() << " " << caffemodel.empty() << std::endl;
+
+  // check for any missing file name
+  if ( classes.empty() || prototxt.empty() || caffemodel.empty() )
+  {
+     return false;
+  }
+
+  bool success( true );
+
+  if ( ! kwiversys::SystemTools::FileExists( classes ) )
+  {
+     LOG_ERROR( d->m_logger, "classes file \"" << classes << "\" not found." );
+     success = false;
+  }
+
+  if ( ! kwiversys::SystemTools::FileExists( prototxt ) )
+  {
+     LOG_ERROR( d->m_logger, "prototxt file \"" << prototxt << "\" not found." );
+     success = false;
+  }
+
+  if ( ! kwiversys::SystemTools::FileExists( caffemodel ) )
+  {
+     LOG_ERROR( d->m_logger, "caffe_model file \"" << caffemodel << "\" not found." );
+     success = false;
+  }
+
   //config->print(std::cout);
-  return !classes.empty() && !prototxt.empty() && !caffemodel.empty();
+  return success;
 }
 
-vital::detected_object_set_sptr faster_rcnn_detector::detect( vital::image_container_sptr image_data) const
+
+// --------------------------------------------------------------------
+vital::detected_object_set_sptr 
+faster_rcnn_detector::
+detect( vital::image_container_sptr image_data) const
 {
   if(Caffe::mode() != ((d->m_use_gpu)?Caffe::GPU:Caffe::CPU))
   {
@@ -294,7 +351,10 @@ std::vector< Blob<float>* > faster_rcnn_detector::priv::set_up_inputs(std::pair<
   return results;
 }
 
-std::pair<cv::Mat, double> faster_rcnn_detector::priv::prepair_image(cv::Mat const& in_image) const
+// --------------------------------------------------------------------
+std::pair<cv::Mat, double> 
+faster_rcnn_detector::priv::
+prepair_image(cv::Mat const& in_image) const
 {
   cv::Mat im_float;
   in_image.convertTo(im_float, CV_32F);
@@ -315,4 +375,4 @@ std::pair<cv::Mat, double> faster_rcnn_detector::priv::prepair_image(cv::Mat con
   return std::pair<cv::Mat, double>(scaleImage, scale);
 }
 
-}}} //end namespace
+} } } //end namespace
