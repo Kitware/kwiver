@@ -56,6 +56,7 @@ simulate_target_selection_process
 : process( config ),
   d( new simulate_target_selection_process::priv )
 {
+  make_ports();
 }
 
 simulate_target_selection_process::~simulate_target_selection_process()
@@ -70,7 +71,7 @@ void simulate_target_selection_process::_step()
 {
   vital::detected_object_set_sptr input = grab_from_port_using_trait(detected_object_set);
   vital::detected_object::bounding_box result;
-  vital::detected_object_set::iterator top_person = input->get_iterator("person", true, 0.8);
+  vital::detected_object_set::iterator top_person = input->get_iterator(1, true, 0.8);  //person for low swap
   vital::detected_object_sptr top_object = top_person.get_object();
   if(top_object != NULL)
   {

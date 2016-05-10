@@ -64,6 +64,7 @@ public:
   {
   public:
     bounding_box()
+    :m_bbox(vital::vector_2d(0,0),vital::vector_2d(0,0))
     {}
     bounding_box(vital::vector_2d upper_left, vital::vector_2d lower_right)
     : m_bbox(upper_left,lower_right)

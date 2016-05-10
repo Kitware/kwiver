@@ -55,6 +55,7 @@ bool detected_object_set::iterator::is_end() const
 
 detected_object_sptr detected_object_set::iterator::get_object() const
 {
+  if(is_end()) return NULL;
   return set_[desired_value_[at_]];
 }
 
@@ -161,6 +162,7 @@ detected_object_set::iterator detected_object_set::get_iterator(object_labels::k
        scores.push_back(object_type::INVALID_SCORE);
     }
   }
+
   if(sorted)
   {
     struct sort_function
