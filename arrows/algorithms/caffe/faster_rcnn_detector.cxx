@@ -92,7 +92,10 @@ faster_rcnn_detector::~faster_rcnn_detector()
 {
 }
 
-vital::config_block_sptr faster_rcnn_detector::get_configuration() const
+// --------------------------------------------------------------------
+vital::config_block_sptr 
+faster_rcnn_detector::
+get_configuration() const
 {
   // Get base config from base class
   vital::config_block_sptr config = vital::algorithm::get_configuration();
@@ -114,7 +117,9 @@ vital::config_block_sptr faster_rcnn_detector::get_configuration() const
 }
 
 
-void faster_rcnn_detector::set_configuration(vital::config_block_sptr config_in)
+// --------------------------------------------------------------------
+void faster_rcnn_detector::
+set_configuration(vital::config_block_sptr config_in)
 {
   vital::config_block_sptr config = this->get_configuration();
   config->merge_config(config_in);
@@ -125,6 +130,9 @@ void faster_rcnn_detector::set_configuration(vital::config_block_sptr config_in)
   this->d->m_use_gpu = config->get_value<bool>("use_gpu");
   this->d->m_gpu_id = config->get_value<bool>("gpu_id");
   this->d->m_use_box_deltas = config->get_value<bool>("use_box_deltas");
+
+  // Need to check for existance of files.
+
   if(d->m_use_gpu)
   {
     Caffe::SetDevice(this->d->m_gpu_id);
@@ -154,10 +162,10 @@ void faster_rcnn_detector::set_configuration(vital::config_block_sptr config_in)
   this->d->m_pixel_means = cv::Scalar(tmp.x(), tmp.y(), tmp.z());
 
   this->d->m_max_size = config->get_value<double>("max_size");
-
 }
 
 
+// --------------------------------------------------------------------
 bool faster_rcnn_detector::
 check_configuration(vital::config_block_sptr config) const
 {
@@ -208,6 +216,7 @@ check_configuration(vital::config_block_sptr config) const
 }
 
 
+// --------------------------------------------------------------------
 vital::detected_object_set_sptr 
 faster_rcnn_detector::
 detect( vital::image_container_sptr image_data) const
@@ -342,7 +351,10 @@ std::vector< Blob<float>* > faster_rcnn_detector::priv::set_up_inputs(std::pair<
   return results;
 }
 
-std::pair<cv::Mat, double> faster_rcnn_detector::priv::prepair_image(cv::Mat const& in_image) const
+// --------------------------------------------------------------------
+std::pair<cv::Mat, double> 
+faster_rcnn_detector::priv::
+prepair_image(cv::Mat const& in_image) const
 {
   cv::Mat im_float;
   in_image.convertTo(im_float, CV_32F);
@@ -363,4 +375,4 @@ std::pair<cv::Mat, double> faster_rcnn_detector::priv::prepair_image(cv::Mat con
   return std::pair<cv::Mat, double>(scaleImage, scale);
 }
 
-}}} //end namespace
+} } } //end namespace
