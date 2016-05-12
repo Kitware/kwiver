@@ -192,6 +192,19 @@ public:
    */
   void start();
 
+
+  /**
+   * @brief Wait for pipeline to complete.
+   *
+   * This method waits until the pipeline scheduler terminates. This
+   * is useful when terminating an embedded pipeline to make sure that
+   * all threads have terminated.
+   *
+   * Calling this before sending an end-of-input has been sent to the
+   * pipeline will block the caller until the pipeline terminates.
+   */
+  void wait();
+
   /**
    * @brief Get list of input ports.
    *
@@ -221,10 +234,6 @@ public:
    * @return List of output port names
    */
   sprokit::process::ports_t output_port_names() const;
-
-
-protected:
-
 
 private:
   class priv;

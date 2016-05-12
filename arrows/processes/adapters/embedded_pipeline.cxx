@@ -269,6 +269,15 @@ embedded_pipeline
 
 
 // ------------------------------------------------------------------
+void
+embedded_pipeline
+::wait()
+{
+  m_priv->m_scheduler->wait();
+}
+
+
+// ------------------------------------------------------------------
 sprokit::process::ports_t
 embedded_pipeline
 ::input_port_names() const
