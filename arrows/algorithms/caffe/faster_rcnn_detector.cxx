@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include <math.h> 
+#include <math.h>
 
 #include <arrows/algorithms/ocv/image_container.h>
 
@@ -52,7 +52,7 @@ public:
   }
   priv(priv const& other)
   :m_prototxt_file(other.m_prototxt_file), m_classes_file(other.m_classes_file), m_caffe_model(other.m_caffe_model),
-   m_labels(other.m_labels), m_target_size(other.m_target_size), m_pixel_means(other.m_pixel_means), 
+   m_labels(other.m_labels), m_target_size(other.m_target_size), m_pixel_means(other.m_pixel_means),
    m_max_size(other.m_max_size), m_net(other.m_net), m_use_gpu(other.m_use_gpu), m_gpu_id(other.m_gpu_id), m_use_box_deltas(other.m_use_box_deltas)
   {
   }
@@ -87,13 +87,35 @@ vital::config_block_sptr faster_rcnn_detector::get_configuration() const
    config->set_value("caffe_model", d->m_caffe_model, "The file that contains the model");
    config->set_value("target_size", this->d->m_target_size, "TODO");
    config->set_value("max_size", this->d->m_max_size, "TODO");
-   config->set_value("pixel_mean", vital::vector_3d(this->d->m_pixel_means[0], this->d->m_pixel_means[1], this->d->m_pixel_means[2]), 
+   config->set_value("pixel_mean", vital::vector_3d(this->d->m_pixel_means[0], this->d->m_pixel_means[1], this->d->m_pixel_means[2]),
                      "The mean pixel value for the provided model");
    config->set_value("use_gpu", this->d->m_use_gpu, "use the gpu instead of the cpu");
    config->set_value("gpu_id", this->d->m_gpu_id, "what gpu to use");
    config->set_value("use_box_deltas", this->d->m_use_box_deltas, "use the learned jitter deltas");
 
   return config;
+}
+
+namespace
+{
+
+inline std::string& rtrim(std::string& s)
+{
+    s.erase(s.find_last_not_of(" \t\n\r\f\v") + 1);
+    return s;
+}
+
+inline std::string& ltrim(std::string& s)
+{
+    s.erase(0, s.find_first_not_of(" \t\n\r\f\v"));
+    return s;
+}
+
+inline std::string& trim(std::string& s)
+{
+    return ltrim(rtrim(s));
+}
+
 }
 
 void faster_rcnn_detector::set_configuration(vital::config_block_sptr config_in)
@@ -125,7 +147,7 @@ void faster_rcnn_detector::set_configuration(vital::config_block_sptr config_in)
   while (std::getline(in, line))
   {
     if(line.empty()) continue;
-    labels.push_back(line);
+    labels.push_back(trim(line));
   }
 
   this->d->m_labels = vital::object_labels_sptr(new vital::object_labels(labels));
