@@ -38,7 +38,6 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-
 #include <arrows/algorithms/ocv/image_container.h>
 #include <arrows/algorithms/ocv/image_container.h>
 
@@ -46,113 +45,150 @@
 
 #include <sstream>
 #include <iostream>
-// 
-namespace kwiver
-{
+
+namespace kwiver {
 
 typedef  Eigen::Matrix< unsigned int, 3, 1 > ColorVector;
 
 create_config_trait( threshold, float, "0.6", "min probablity for output (float)" );
-create_config_trait( alpha_blend_prob, bool, "true", "If true, those who are less likely will be more transparent.");
-create_config_trait( default_line_thickness, float, "1", "The default line thickness for a class");
-create_config_trait( default_color, std::string, "255 0 0", "The default color for a class (BGR)");
-create_config_trait( custom_class_color, std::string, "", "List of class/thickness/color seperated by semi-colon. For example: person/3/255 0 0;car/2/0 255 0" );
+create_config_trait( alpha_blend_prob, bool, "true", "If true, those who are less likely will be more transparent." );
+create_config_trait( default_line_thickness, float, "1", "The default line thickness for a class" );
+create_config_trait( default_color, std::string, "255 0 0", "The default color for a class (BGR)" );
+create_config_trait( custom_class_color,
+                     std::string,
+                     "",
+                     "List of class/thickness/color seperated by semi-colon. For example: person/3/255 0 0;car/2/0 255 0" );
 create_config_trait( ignore_file, std::string, "__background__", "List of classes to ingore, seperated by semi-colon." );
-create_config_trait( text_scale, float, "0.4", "the scale for the text label");
-create_config_trait( text_thickness, float, "1.0", "the thickness for text");
+create_config_trait( text_scale, float, "0.4", "the scale for the text label" );
+create_config_trait( text_thickness, float, "1.0", "the thickness for text" );
 create_config_trait( file_string, std::string, "", "If not empty, use this as a formated string to write output (i.e. out_%5d.png)" );
 
 class draw_detected_object_boxes_process::priv
 {
 public:
   priv()
-  :m_count(0)
-  {}
+    : m_count( 0 )
+  { }
 
   ~priv()
-  {}
+  { }
+
 
   mutable size_t m_count;
   std::string m_formated_string;
+
   // Configuration values
   float m_threshold;
-  std::vector<std::string> m_ignore_classes;
+  std::vector< std::string > m_ignore_classes;
   bool m_do_alpha;
+
   struct Bound_Box_Params
   {
     float thickness;
     ColorVector color;
   } m_default_params;
-  std::map<std::string, Bound_Box_Params> m_custum_colors;
+
+  // box attributes per object type
+  std::map< std::string, Bound_Box_Params > m_custum_colors;
   float m_text_scale;
   float m_text_thickness;
 
-  vital::image_container_sptr draw_on_image( vital::image_container_sptr image_data,
-                                             vital::detected_object_set_sptr input_set) const
+
+  /**
+   * @brief Draw detected object on image.
+   *
+   * @param image_data The image to draw on.
+   * @param input_set List of detections to draw.
+   *
+   * @return Updated image.
+   */
+  vital::image_container_sptr
+  draw_on_image( vital::image_container_sptr      image_data,
+                 vital::detected_object_set_sptr  input_set ) const
   {
-    char buffer[1024];
-    if(image_data == NULL || input_set == NULL) return NULL;
-    cv::Mat image = arrows::ocv::image_container::vital_to_ocv(image_data->get_image());
+    if ( input_set == NULL ) { return image_data; }
+    if ( image_data == NULL ) { return NULL; } // Maybe throw?
+
+    cv::Mat image = arrows::ocv::image_container::vital_to_ocv( image_data->get_image() );
     cv::Mat overlay;
     vital::object_labels::iterator label_iter = input_set->get_labels();
-    for(;!label_iter.is_end(); ++label_iter)
+
+    for ( ; ! label_iter.is_end(); ++label_iter )
     {
       bool keep_going = true;
-      for(size_t i = 0; i < this->m_ignore_classes.size(); ++i)
+      for ( size_t i = 0; i < this->m_ignore_classes.size(); ++i )
       {
-        if(this->m_ignore_classes[i] == label_iter.get_label())
+        if ( this->m_ignore_classes[i] == label_iter.get_label() )
         {
           keep_going = false;
           break;
         }
       }
-      if(!keep_going) continue;
+
+      if ( ! keep_going ) { continue; }
+
       vital::detected_object_set::iterator class_iterator =
-                            input_set->get_iterator(label_iter.get_key(), true, this->m_threshold);
-      double tmpT = (this->m_threshold -(this->m_threshold>=0.05)?0.05:0);
-      for(size_t i = class_iterator.size()-1; i < class_iterator.size() && i >= 0; --i)
+        input_set->get_iterator( label_iter.get_key(), true, this->m_threshold );
+
+      if ( class_iterator.size() == 0 ) { continue; }
+
+      double tmpT = ( this->m_threshold - ( ( this->m_threshold >= 0.05 ) ? 0.05 : 0 ) );
+
+      for ( size_t i = class_iterator.size() - 1; i < class_iterator.size() && i >= 0; --i )
       {
-        image.copyTo(overlay);
+        image.copyTo( overlay );
         vital::detected_object_sptr dos = class_iterator[i]; //Low score first
         vital::detected_object::bounding_box bbox = dos->get_bounding_box();
-        cv::Rect r(bbox.upper_left()[0], bbox.upper_left()[1], bbox.width(), bbox.height());
-        double prob = dos->get_classifications()->get_score(label_iter.get_key());
-        std::string p = std::to_string(prob);
-        std::string txt =label_iter.get_label() + " " + p;
-        prob =  (m_do_alpha)?(prob-tmpT)/(1-tmpT):1.0;
+        cv::Rect r( bbox.upper_left()[0], bbox.upper_left()[1], bbox.width(), bbox.height() );
+        double prob = dos->get_classifications()->get_score( label_iter.get_key() );
+        std::string p = std::to_string( prob );
+        std::string txt = label_iter.get_label() + " " + p;
+        prob =  ( m_do_alpha ) ? ( ( prob - tmpT ) / ( 1 - tmpT ) ) : 1.0;
         Bound_Box_Params const* bbp = &m_default_params;
-        std::map<std::string, Bound_Box_Params>::const_iterator iter = m_custum_colors.find(label_iter.get_label());
-        if(iter != m_custum_colors.end()) bbp = &(iter->second);
-        cv::Scalar color(bbp->color[0], bbp->color[1], bbp->color[2]);
-        cv::rectangle(overlay, r, color, bbp->thickness);
+        std::map< std::string, Bound_Box_Params >::const_iterator iter = m_custum_colors.find( label_iter.get_label() );
+
+        if ( iter != m_custum_colors.end() )
+        {
+          bbp = &( iter->second );
+        }
+
+        cv::Scalar color( bbp->color[0], bbp->color[1], bbp->color[2] );
+        cv::rectangle( overlay, r, color, bbp->thickness );
+
         {
           int fontface = cv::FONT_HERSHEY_SIMPLEX;
           double scale = m_text_scale;
           int thickness = m_text_thickness;
           int baseline = 0;
-          cv::Point pt(r.tl()+cv::Point(0,15));
+          cv::Point pt( r.tl() + cv::Point( 0, 15 ) );
 
-          cv::Size text = cv::getTextSize(txt, fontface, scale, thickness, &baseline);
-          cv::rectangle(overlay, pt + cv::Point(0, baseline), pt +
-                        cv::Point(text.width, -text.height), cv::Scalar(0,0,0), CV_FILLED);
-          cv::putText(overlay, txt, pt, fontface, scale, cv::Scalar(255,255,255), thickness, 8);
+          cv::Size text = cv::getTextSize( txt, fontface, scale, thickness, &baseline );
+          cv::rectangle( overlay, pt + cv::Point( 0, baseline ), pt +
+                         cv::Point( text.width, -text.height ), cv::Scalar( 0, 0, 0 ), CV_FILLED );
+          cv::putText( overlay, txt, pt, fontface, scale, cv::Scalar( 255, 255, 255 ), thickness, 8 );
         }
-        cv::addWeighted(overlay, prob, image, 1 - prob, 0, image);
+
+        cv::addWeighted( overlay, prob, image, 1 - prob, 0, image );
       }
     }
-    if(!m_formated_string.empty())
+
+    if ( ! m_formated_string.empty() )
     {
-      sprintf(buffer, m_formated_string.c_str(), m_count);
-      m_count++;
-      cv::imwrite(buffer, image);
+      char buffer[1024];
+
+      sprintf( buffer, m_formated_string.c_str(), m_count );
+      ++m_count;
+      cv::imwrite( buffer, image );
     }
     return image_data;
-  }
-};
+  } // draw_on_image
+
+}; // end priv class
+
 
 draw_detected_object_boxes_process
-::draw_detected_object_boxes_process( vital::config_block_sptr const& config )
-: process( config ),
+  ::draw_detected_object_boxes_process( vital::config_block_sptr const& config )
+  : process( config ),
   d( new draw_detected_object_boxes_process::priv )
 {
   attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
@@ -160,64 +196,77 @@ draw_detected_object_boxes_process
   make_config();
 }
 
+
 draw_detected_object_boxes_process
-::~draw_detected_object_boxes_process()
+  ::~draw_detected_object_boxes_process()
 {
 }
 
-void draw_detected_object_boxes_process::_configure()
+
+void
+draw_detected_object_boxes_process::_configure()
 {
   d->m_threshold = config_value_using_trait( threshold );
   d->m_formated_string = config_value_using_trait( file_string );
-  std::string parsed, list = config_value_using_trait(ignore_file);
-  std::stringstream ss(list);
+  std::string parsed, list = config_value_using_trait( ignore_file );
+  std::stringstream ss( list );
 
-  while(std::getline(ss,parsed,';'))
+  while ( std::getline( ss, parsed, ';' ) )
   {
-    if(!parsed.empty())
+    if ( ! parsed.empty() )
     {
-      d->m_ignore_classes.push_back(parsed);
+      d->m_ignore_classes.push_back( parsed );
     }
   }
-  d->m_do_alpha = config_value_using_trait(alpha_blend_prob);
-  d->m_default_params.thickness = config_value_using_trait(default_line_thickness);
-  {
-    std::stringstream ss(config_value_using_trait(default_color));
-    ss >> d->m_default_params.color[0] >> d->m_default_params.color[1] >> d->m_default_params.color[2];
+
+  d->m_do_alpha = config_value_using_trait( alpha_blend_prob );
+  d->m_default_params.thickness = config_value_using_trait( default_line_thickness );
+
+  { // parse defaults
+    std::stringstream lss( config_value_using_trait( default_color ) );
+    lss >> d->m_default_params.color[0] >> d->m_default_params.color[1] >> d->m_default_params.color[2];
   }
-  std::string custom = config_value_using_trait(custom_class_color);
 
-  d->m_text_scale= config_value_using_trait(text_scale);
-  d->m_text_thickness= config_value_using_trait(text_thickness);
+  std::string custom = config_value_using_trait( custom_class_color );
 
-  ss = std::stringstream(custom);
-  while(std::getline(ss, parsed, ';'))
+  d->m_text_scale = config_value_using_trait( text_scale );
+  d->m_text_thickness = config_value_using_trait( text_thickness );
+
+  ss.str( custom );
+
+  while ( std::getline( ss, parsed, ';' ) )
   {
-    if(!parsed.empty())
+    if ( ! parsed.empty() )
     {
-      std::stringstream sub(parsed);
+      std::stringstream sub( parsed );
       std::string cl, t, co;
-      std::getline(sub,cl,'/');
-      std::getline(sub,t,'/');
-      std::getline(sub,co,'/');
-      std::stringstream css(co);
+      std::getline( sub, cl, '/' );
+      std::getline( sub, t, '/' );
+      std::getline( sub, co, '/' );
+      std::stringstream css( co );
+
       draw_detected_object_boxes_process::priv::Bound_Box_Params bp;
-      bp.thickness = std::stof(t);
+      bp.thickness = std::stof( t );
       css >> bp.color[0] >> bp.color[1] >> bp.color[2];
       d->m_custum_colors[cl] = bp;
     }
   }
-}
+} // draw_detected_object_boxes_process::_configure
 
-void draw_detected_object_boxes_process::_step()
+
+void
+draw_detected_object_boxes_process::_step()
 {
   vital::image_container_sptr img = grab_from_port_using_trait( image );
-  vital::detected_object_set_sptr detections = grab_from_port_using_trait(detected_object_set);
-  vital::image_container_sptr result = d->draw_on_image(img, detections);
+  vital::detected_object_set_sptr detections = grab_from_port_using_trait( detected_object_set );
+  vital::image_container_sptr result = d->draw_on_image( img, detections );
+
   push_to_port_using_trait( image, result );
 }
 
-void draw_detected_object_boxes_process::make_ports()
+
+void
+draw_detected_object_boxes_process::make_ports()
 {
   // Set up for required ports
   sprokit::process::port_flags_t required;
@@ -230,13 +279,15 @@ void draw_detected_object_boxes_process::make_ports()
   declare_input_port_using_trait( image, required );
 
   //output
-  declare_output_port_using_trait(image, optional);
+  declare_output_port_using_trait( image, optional );
 }
 
-void draw_detected_object_boxes_process::make_config()
+
+void
+draw_detected_object_boxes_process::make_config()
 {
   declare_config_using_trait( threshold );
-  declare_config_using_trait( ignore_file ); 
+  declare_config_using_trait( ignore_file );
   declare_config_using_trait( file_string );
   declare_config_using_trait( alpha_blend_prob );
   declare_config_using_trait( default_line_thickness );
@@ -246,4 +297,5 @@ void draw_detected_object_boxes_process::make_config()
   declare_config_using_trait( text_thickness );
 }
 
-}//end namespace
+
+} //end namespace
