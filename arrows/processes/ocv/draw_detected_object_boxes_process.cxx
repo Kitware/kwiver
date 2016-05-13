@@ -61,6 +61,7 @@ create_config_trait( ignore_file, std::string, "__background__", "List of classe
 create_config_trait( text_scale, float, "0.4", "the scale for the text label");
 create_config_trait( text_thickness, float, "1.0", "the thickness for text");
 create_config_trait( file_string, std::string, "", "If not empty, use this as a formated string to write output (i.e. out_%5d.png)" );
+create_config_trait( clip_box_to_image, bool, "false", "make sure the bounding box is only in the image");
 
 class draw_detected_object_boxes_process::priv
 {
@@ -86,6 +87,7 @@ public:
   std::map<std::string, Bound_Box_Params> m_custum_colors;
   float m_text_scale;
   float m_text_thickness;
+  bool m_clip_box_to_image;
 
   vital::image_container_sptr draw_on_image( vital::image_container_sptr image_data,
                                              vital::detected_object_set_sptr input_set) const
@@ -115,6 +117,11 @@ public:
         image.copyTo(overlay);
         vital::detected_object_sptr dos = class_iterator[i]; //Low score first
         vital::detected_object::bounding_box bbox = dos->get_bounding_box();
+        if(m_clip_box_to_image)
+        {
+          vital::detected_object::bounding_box img(vital::vector_2d(0,0), vital::vector_2d(image_data->width(), image_data->height()));
+          bbox = img.intersection(bbox);
+        }
         cv::Rect r(bbox.upper_left()[0], bbox.upper_left()[1], bbox.width(), bbox.height());
         double prob = dos->get_classifications()->get_score(label_iter.get_key());
         std::string p = std::to_string(prob);
@@ -169,6 +176,7 @@ void draw_detected_object_boxes_process::_configure()
 {
   d->m_threshold = config_value_using_trait( threshold );
   d->m_formated_string = config_value_using_trait( file_string );
+  d->m_clip_box_to_image = config_value_using_trait( clip_box_to_image );
   std::string parsed, list = config_value_using_trait(ignore_file);
   std::stringstream ss(list);
 
@@ -244,6 +252,7 @@ void draw_detected_object_boxes_process::make_config()
   declare_config_using_trait( custom_class_color );
   declare_config_using_trait( text_scale );
   declare_config_using_trait( text_thickness );
+  declare_config_using_trait( clip_box_to_image );
 }
 
 }//end namespace
