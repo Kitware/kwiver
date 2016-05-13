@@ -64,6 +64,7 @@ class SPROKIT_PIPELINE_EXPORT edge_datum_t
      * \brief Constructor.
      */
     edge_datum_t();
+
     /**
      * \brief Constructor.
      *
@@ -71,6 +72,7 @@ class SPROKIT_PIPELINE_EXPORT edge_datum_t
      * \param stamp_ The stamp for the datum.
      */
     edge_datum_t(datum_t const& datum_, stamp_t const& stamp_);
+
     /**
      * \brief Destructor.
      */
@@ -87,14 +89,19 @@ class SPROKIT_PIPELINE_EXPORT edge_datum_t
 
     /// The datum on the edge.
     datum_t datum;
+
     /// The stamp for the datum.
     stamp_t stamp;
 };
+
 /// A typedef for a multiple packets which go through an \ref edge.
 typedef std::vector<edge_datum_t> edge_data_t;
+
 /// A group of \link edge edges\endlink.
 typedef std::vector<edge_t> edges_t;
 
+
+// ------------------------------------------------------------------
 /**
  * \class edge edge.h <sprokit/pipeline/edge.h>
  *
@@ -250,6 +257,7 @@ class SPROKIT_PIPELINE_EXPORT edge
      * \endpostconds
      */
     void mark_downstream_as_complete();
+
     /**
      * \brief Trigger the edge to flush all data and not accept any more data.
      *
@@ -293,9 +301,11 @@ class SPROKIT_PIPELINE_EXPORT edge
 
     /// Configuration that indicates the edge implies an execution dependency between upstream and downstream.
     static kwiver::vital::config_block_key_t const config_dependency;
+
     /// Configuration for the maximum capacity of an edge.
     static kwiver::vital::config_block_key_t const config_capacity;
   private:
+
     class SPROKIT_PIPELINE_NO_EXPORT priv;
     boost::scoped_ptr<priv> d;
 };
