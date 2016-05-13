@@ -62,6 +62,7 @@ create_config_trait( ignore_file, std::string, "__background__", "List of classe
 create_config_trait( text_scale, float, "0.4", "the scale for the text label" );
 create_config_trait( text_thickness, float, "1.0", "the thickness for text" );
 create_config_trait( file_string, std::string, "", "If not empty, use this as a formated string to write output (i.e. out_%5d.png)" );
+create_config_trait( clip_box_to_image, bool, "false", "make sure the bounding box is only in the image");
 
 class draw_detected_object_boxes_process::priv
 {
@@ -92,6 +93,7 @@ public:
   std::map< std::string, Bound_Box_Params > m_custum_colors;
   float m_text_scale;
   float m_text_thickness;
+  bool m_clip_box_to_image;
 
 
   /**
@@ -130,6 +132,7 @@ public:
       vital::detected_object_set::iterator class_iterator =
         input_set->get_iterator( label_iter.get_key(), true, this->m_threshold );
 
+      // Check to see if there are any items to process
       if ( class_iterator.size() == 0 ) { continue; }
 
       double tmpT = ( this->m_threshold - ( ( this->m_threshold >= 0.05 ) ? 0.05 : 0 ) );
@@ -137,13 +140,21 @@ public:
       for ( size_t i = class_iterator.size() - 1; i < class_iterator.size() && i >= 0; --i )
       {
         image.copyTo( overlay );
-        vital::detected_object_sptr dos = class_iterator[i]; //Low score first
+        vital::detected_object_sptr dos = class_iterator[i];         //Low score first
         vital::detected_object::bounding_box bbox = dos->get_bounding_box();
+        if ( m_clip_box_to_image )
+        {
+          vital::detected_object::bounding_box img( vital::vector_2d( 0, 0 ),
+                                                    vital::vector_2d( image_data->width(),
+                                                                      image_data->height() ) );
+          bbox = img.intersection( bbox );
+        }
+
         cv::Rect r( bbox.upper_left()[0], bbox.upper_left()[1], bbox.width(), bbox.height() );
         double prob = dos->get_classifications()->get_score( label_iter.get_key() );
         std::string p = std::to_string( prob );
         std::string txt = label_iter.get_label() + " " + p;
-        prob =  ( m_do_alpha ) ? ( ( prob - tmpT ) / ( 1 - tmpT ) ) : 1.0;
+        prob =  ( m_do_alpha ) ? (( prob - tmpT ) / ( 1 - tmpT )) : 1.0;
         Bound_Box_Params const* bbp = &m_default_params;
         std::map< std::string, Bound_Box_Params >::const_iterator iter = m_custum_colors.find( label_iter.get_label() );
 
@@ -208,8 +219,9 @@ draw_detected_object_boxes_process::_configure()
 {
   d->m_threshold = config_value_using_trait( threshold );
   d->m_formated_string = config_value_using_trait( file_string );
-  std::string parsed, list = config_value_using_trait( ignore_file );
-  std::stringstream ss( list );
+  d->m_clip_box_to_image = config_value_using_trait( clip_box_to_image );
+  std::string parsed, list = config_value_using_trait(ignore_file);
+  std::stringstream ss(list);
 
   while ( std::getline( ss, parsed, ';' ) )
   {
@@ -295,6 +307,7 @@ draw_detected_object_boxes_process::make_config()
   declare_config_using_trait( custom_class_color );
   declare_config_using_trait( text_scale );
   declare_config_using_trait( text_thickness );
+  declare_config_using_trait( clip_box_to_image );
 }
 
 
