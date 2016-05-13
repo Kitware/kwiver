@@ -1622,6 +1622,13 @@ pipeline::priv
     // Then the connection based congit will be merged to override.
     kwiver::vital::config_block_sptr edge_config = config->subblock(priv::config_edge);
 
+    if ( IS_TRACE_ENABLED( m_logger ) )
+    {
+        std::stringstream msg;
+        edge_config->print( msg );
+        LOG_TRACE( m_logger, "-- Default edge config:\n" << msg.str() );
+    }
+
     // Configure the edge based on its type.
     {
       process::port_type_t const& down_type = down_info->type;
@@ -1629,11 +1636,15 @@ pipeline::priv
       kwiver::vital::config_block_sptr const edge_type_config = type_config->subblock(down_type);
 
       edge_config->merge_config(edge_type_config);
-    }
+   
+      if ( IS_TRACE_ENABLED( m_logger ) )
+      {
+         std::stringstream msg;
+         msg << "-- Edge type config for type \"" << down_type << "\" :\n";
+         edge_type_config->print( msg );
+         LOG_TRACE( m_logger, msg.str() );
+      }
 
-    // Configure the edge based on what it is mapped to.
-    {
-      /// \todo Remember mappings.
     }
 
     // Configure the edge based on the connected ports.
@@ -1649,6 +1660,21 @@ pipeline::priv
 
       edge_config->merge_config(up_config);
       edge_config->merge_config(down_config);
+
+    if ( IS_TRACE_ENABLED( m_logger ) )
+    {
+        std::stringstream msg;
+        msg << "-- Up_config for \"" 
+            << upstream_name + kwiver::vital::config_block::block_sep + upstream_subblock + kwiver::vital::config_block::block_sep + upstream_port 
+            << "\" :\n";
+        up_config->print(msg);
+        msg << "\n-- Down_config for \""
+            << downstream_name + kwiver::vital::config_block::block_sep + downstream_subblock + kwiver::vital::config_block::block_sep + downstream_port
+            << "\" :\n";
+        down_config->print(msg);
+        LOG_TRACE( m_logger, msg.str() );
+    }
+
     }
 
     // Configure the edge.
@@ -1665,7 +1691,7 @@ pipeline::priv
       edge_config->print(msg);
 
       LOG_DEBUG( m_logger,
-                 "Edge config for "  << upstream_name << "." <<
+                 "-- Fully resolved edge config for "  << upstream_name << "." <<
                  upstream_port  << " -> " << downstream_name << "." <<
                  downstream_port << "\n" << msg.str() );
     }
