@@ -42,6 +42,7 @@
 #include <arrows/algorithms/ocv/image_container.h>
 #include <arrows/algorithms/ocv/image_container.h>
 
+#include <Eigen/Core>
 
 #include <sstream>
 #include <iostream>
@@ -49,8 +50,16 @@
 namespace kwiver
 {
 
+typedef  Eigen::Matrix< unsigned int, 3, 1 > ColorVector;
+
 create_config_trait( threshold, float, "0.6", "min probablity for output (float)" );
+create_config_trait( alpha_blend_prob, bool, "true", "If true, those who are less likely will be more transparent.");
+create_config_trait( default_line_thickness, float, "1", "The default line thickness for a class");
+create_config_trait( default_color, std::string, "255 0 0", "The default color for a class (BGR)");
+create_config_trait( custom_class_color, std::string, "", "List of class/thickness/color seperated by semi-colon. For example: person/3/255 0 0;car/2/0 255 0" );
 create_config_trait( ignore_file, std::string, "__background__", "List of classes to ingore, seperated by semi-colon." );
+create_config_trait( text_scale, float, "0.4", "the scale for the text label");
+create_config_trait( text_thickness, float, "1.0", "the thickness for text");
 create_config_trait( file_string, std::string, "", "If not empty, use this as a formated string to write output (i.e. out_%5d.png)" );
 
 class draw_detected_object_boxes_process::priv
@@ -68,6 +77,15 @@ public:
   // Configuration values
   float m_threshold;
   std::vector<std::string> m_ignore_classes;
+  bool m_do_alpha;
+  struct Bound_Box_Params
+  {
+    float thickness;
+    ColorVector color;
+  } m_default_params;
+  std::map<std::string, Bound_Box_Params> m_custum_colors;
+  float m_text_scale;
+  float m_text_thickness;
 
   vital::image_container_sptr draw_on_image( vital::image_container_sptr image_data,
                                              vital::detected_object_set_sptr input_set) const
@@ -101,14 +119,16 @@ public:
         double prob = dos->get_classifications()->get_score(label_iter.get_key());
         std::string p = std::to_string(prob);
         std::string txt =label_iter.get_label() + " " + p;
-        prob =  (prob-tmpT)/(1-tmpT);
-        cv::Scalar red(255, 0, 0);
-        cv::Scalar blue(0,0,255);
-        cv::rectangle(overlay, r, red);
+        prob =  (m_do_alpha)?(prob-tmpT)/(1-tmpT):1.0;
+        Bound_Box_Params const* bbp = &m_default_params;
+        std::map<std::string, Bound_Box_Params>::const_iterator iter = m_custum_colors.find(label_iter.get_label());
+        if(iter != m_custum_colors.end()) bbp = &(iter->second);
+        cv::Scalar color(bbp->color[0], bbp->color[1], bbp->color[2]);
+        cv::rectangle(overlay, r, color, bbp->thickness);
         {
           int fontface = cv::FONT_HERSHEY_SIMPLEX;
-          double scale = 0.4;
-          int thickness = 1;
+          double scale = m_text_scale;
+          int thickness = m_text_thickness;
           int baseline = 0;
           cv::Point pt(r.tl()+cv::Point(0,15));
 
@@ -152,11 +172,39 @@ void draw_detected_object_boxes_process::_configure()
   std::string parsed, list = config_value_using_trait(ignore_file);
   std::stringstream ss(list);
 
-  if(std::getline(ss,parsed,';'))
+  while(std::getline(ss,parsed,';'))
   {
     if(!parsed.empty())
     {
       d->m_ignore_classes.push_back(parsed);
+    }
+  }
+  d->m_do_alpha = config_value_using_trait(alpha_blend_prob);
+  d->m_default_params.thickness = config_value_using_trait(default_line_thickness);
+  {
+    std::stringstream ss(config_value_using_trait(default_color));
+    ss >> d->m_default_params.color[0] >> d->m_default_params.color[1] >> d->m_default_params.color[2];
+  }
+  std::string custom = config_value_using_trait(custom_class_color);
+
+  d->m_text_scale= config_value_using_trait(text_scale);
+  d->m_text_thickness= config_value_using_trait(text_thickness);
+
+  ss = std::stringstream(custom);
+  while(std::getline(ss, parsed, ';'))
+  {
+    if(!parsed.empty())
+    {
+      std::stringstream sub(parsed);
+      std::string cl, t, co;
+      std::getline(sub,cl,'/');
+      std::getline(sub,t,'/');
+      std::getline(sub,co,'/');
+      std::stringstream css(co);
+      draw_detected_object_boxes_process::priv::Bound_Box_Params bp;
+      bp.thickness = std::stof(t);
+      css >> bp.color[0] >> bp.color[1] >> bp.color[2];
+      d->m_custum_colors[cl] = bp;
     }
   }
 }
@@ -190,6 +238,12 @@ void draw_detected_object_boxes_process::make_config()
   declare_config_using_trait( threshold );
   declare_config_using_trait( ignore_file ); 
   declare_config_using_trait( file_string );
+  declare_config_using_trait( alpha_blend_prob );
+  declare_config_using_trait( default_line_thickness );
+  declare_config_using_trait( default_color );
+  declare_config_using_trait( custom_class_color );
+  declare_config_using_trait( text_scale );
+  declare_config_using_trait( text_thickness );
 }
 
 }//end namespace
