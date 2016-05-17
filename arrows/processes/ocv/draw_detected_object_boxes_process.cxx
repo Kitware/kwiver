@@ -268,7 +268,6 @@ draw_detected_object_boxes_process::_configure()
       }
     }
   }
-  std::cout << d->m_custum_colors.size() << std::endl;
 } // draw_detected_object_boxes_process::_configure
 
 
