@@ -221,13 +221,16 @@ draw_detected_object_boxes_process::_configure()
   d->m_formated_string = config_value_using_trait( file_string );
   d->m_clip_box_to_image = config_value_using_trait( clip_box_to_image );
   std::string parsed, list = config_value_using_trait(ignore_file);
-  std::stringstream ss(list);
 
-  while ( std::getline( ss, parsed, ';' ) )
   {
-    if ( ! parsed.empty() )
+    std::stringstream ss(list);
+
+    while ( std::getline( ss, parsed, ';' ) )
     {
-      d->m_ignore_classes.push_back( parsed );
+      if ( ! parsed.empty() )
+      {
+        d->m_ignore_classes.push_back( parsed );
+      }
     }
   }
 
@@ -244,25 +247,28 @@ draw_detected_object_boxes_process::_configure()
   d->m_text_scale = config_value_using_trait( text_scale );
   d->m_text_thickness = config_value_using_trait( text_thickness );
 
-  ss.str( custom );
-
-  while ( std::getline( ss, parsed, ';' ) )
   {
-    if ( ! parsed.empty() )
-    {
-      std::stringstream sub( parsed );
-      std::string cl, t, co;
-      std::getline( sub, cl, '/' );
-      std::getline( sub, t, '/' );
-      std::getline( sub, co, '/' );
-      std::stringstream css( co );
+    std::stringstream ss( custom );
 
-      draw_detected_object_boxes_process::priv::Bound_Box_Params bp;
-      bp.thickness = std::stof( t );
-      css >> bp.color[0] >> bp.color[1] >> bp.color[2];
-      d->m_custum_colors[cl] = bp;
+    while ( std::getline( ss, parsed, ';' ) )
+    {
+      if ( ! parsed.empty() )
+      {
+        std::stringstream sub( parsed );
+        std::string cl, t, co;
+        std::getline( sub, cl, '/' );
+        std::getline( sub, t, '/' );
+        std::getline( sub, co, '/' );
+        std::stringstream css( co );
+
+        draw_detected_object_boxes_process::priv::Bound_Box_Params bp;
+        bp.thickness = std::stof( t );
+        css >> bp.color[0] >> bp.color[1] >> bp.color[2];
+        d->m_custum_colors[cl] = bp;
+      }
     }
   }
+  std::cout << d->m_custum_colors.size() << std::endl;
 } // draw_detected_object_boxes_process::_configure
 
 
