@@ -41,6 +41,10 @@ public:
   bool m_use_gpu;
   int m_gpu_id;
   bool m_use_box_deltas;
+  bool m_chip_image;
+  unsigned int m_chip_width;
+  unsigned int m_chip_height;
+  unsigned int m_stride;
 
   kwiver::vital::logger_handle_t m_logger;
 
@@ -57,6 +61,8 @@ public:
     m_use_gpu(false), 
     m_gpu_id(0), 
     m_use_box_deltas(true),
+    //TODO: redo these when parameterized
+    m_chip_image(false),m_chip_width(450), m_chip_height(400), m_stride(375),
     m_logger( kwiver::vital::get_logger( "vital.algorithm" ) )
   {
   }
@@ -66,7 +72,8 @@ public:
   :m_prototxt_file(other.m_prototxt_file), m_classes_file(other.m_classes_file), m_caffe_model(other.m_caffe_model),
    m_labels(other.m_labels), m_target_size(other.m_target_size), m_pixel_means(other.m_pixel_means), 
    m_max_size(other.m_max_size), m_net(other.m_net), m_use_gpu(other.m_use_gpu), m_gpu_id(other.m_gpu_id), 
-   m_use_box_deltas(other.m_use_box_deltas),
+   m_use_box_deltas(other.m_use_box_deltas), 
+   m_chip_image(other.m_chip_image), m_chip_width(other.m_chip_width), m_chip_height(other.m_chip_height), m_stride(other.m_stride),
    m_logger( other.m_logger )
   {
   }
@@ -112,6 +119,10 @@ get_configuration() const
    config->set_value("use_gpu", this->d->m_use_gpu, "use the gpu instead of the cpu");
    config->set_value("gpu_id", this->d->m_gpu_id, "what gpu to use");
    config->set_value("use_box_deltas", this->d->m_use_box_deltas, "use the learned jitter deltas");
+   config->set_value( "chip_image",  this->d->m_chip_image, "TODO");
+   config->set_value( "chip_width", this->d->m_chip_width, "TODO");
+   config->set_value( "chip_height", this->d->m_chip_height, "TODO");
+   config->set_value( "stride", this->d->m_stride, "TODO");
 
   return config;
 }
@@ -151,6 +162,10 @@ set_configuration(vital::config_block_sptr config_in)
   this->d->m_use_gpu = config->get_value<bool>("use_gpu");
   this->d->m_gpu_id = config->get_value<bool>("gpu_id");
   this->d->m_use_box_deltas = config->get_value<bool>("use_box_deltas");
+  this->d->m_chip_image = config->get_value<bool>( "chip_image" );
+  this->d->m_chip_width = config->get_value<unsigned int>( "chip_width" );
+  this->d->m_chip_height = config->get_value<unsigned int>( "chip_height" );
+  this->d->m_stride = config->get_value<unsigned int>( "stride" );
 
   // Need to check for existance of files.
 
@@ -258,74 +273,109 @@ detect( vital::image_container_sptr image_data) const
   if(image_data == NULL) return NULL;
   kwiver::vital::scoped_cpu_timer t( "Time to Detect Objects" );
   cv::Mat image = kwiver::arrows::ocv::image_container::vital_to_ocv(image_data->get_image());
-  std::pair<cv::Mat, double> image_scale = this->d->prepair_image(image);
-  std::vector< Blob<float>* > input_layers = this->d->set_up_inputs(image_scale);
-  this->d->m_net->Forward(input_layers);
-
-  //get output
-  boost::shared_ptr< Blob< float > > rois = this->d->m_net->blob_by_name("rois");
-  boost::shared_ptr< Blob< float > > probs = this->d->m_net->blob_by_name("cls_prob");
-  boost::shared_ptr< Blob< float > > rois_deltas = this->d->m_net->blob_by_name("bbox_pred");
-
-  const unsigned int roi_dim = rois->count() / rois->num();
-  assert(roi_dim == 5);
-  const unsigned int prob_dim = probs->count() / probs->num();
-  assert(rois->num() == probs->num());
-
-  std::vector<vital::detected_object_sptr> detected_objects;
-  detected_objects.reserve(rois->num());
-  for(int i = 0; i < rois->num(); ++i)
+  std::vector<cv::Mat> image_chips;
+  std::vector<unsigned int> chip_x;
+  std::vector<unsigned int> chip_y;
+  if(this->d->m_chip_image)
   {
-    const float* start = rois->cpu_data() + rois->offset( i );
-    double pts[4];
-    //std::cout << start[0];
-    for(unsigned int j = 1; j < roi_dim; ++j)
+    for(unsigned int ux = 0; ux < image_data->width(); ux += this->d->m_stride)
     {
-      //std::cout << " " << start[j];///image_scale.second;
-      pts[j-1] = start[j]/image_scale.second;
-    }
-    vital::detected_object::bounding_box bbox(vital::vector_2d(pts[0], pts[1]),
-                                              vital::vector_2d(pts[2], pts[3]));
-
-    //std::cout << "\t" << image_scale.second;
-
-    start = probs->cpu_data() + probs->offset( i );
-    //std::cout << " " << start[1] << std::endl;
-    std::vector<double> tmpv;
-    for(unsigned int j = 0; j < prob_dim; ++j)
-    {
-      tmpv.push_back(start[j]);
-    }
-    if(this->d->m_use_box_deltas && rois_deltas != NULL)
-    {
-      start = rois_deltas->cpu_data() + rois_deltas->offset( i );
-      std::vector<double> tmpv2(tmpv.size(), vital::object_type::INVALID_SCORE);
-      for( unsigned int j = 0; j < prob_dim; ++j )
+      unsigned int tux = ux;
+      if(tux + this->d->m_chip_width > image_data->width())
       {
-        unsigned int ds = j*4; // TODO calc for more rebustness
-        float dx = start[ds];
-        float dy = start[ds+1];
-        float dw = start[ds+2];
-        float dh = start[ds+3];
-        tmpv2[j] = tmpv[j];
-        vital::vector_2d center = bbox.center();
-        float w = bbox.width();
-        float h = bbox.height();
-        center[0] = dx*w + center[0];
-        center[1] = dy*h + center[1];
-        float pw = exp(dw)*w;
-        float ph = exp(dh)*h;
-        vital::vector_2d halfS(pw*0.5, ph*0.5);
-        vital::detected_object::bounding_box pbox(center-halfS, center+halfS);
-        vital::object_type_sptr classification( new  vital::object_type(this->d->m_labels, tmpv2));
-        detected_objects.push_back(vital::detected_object_sptr(new vital::detected_object(pbox, 1.0, classification)));
-        tmpv2[j] = vital::object_type::INVALID_SCORE;
+        tux = image_data->width()- this->d->m_chip_width -1;
+      }
+      for(unsigned int uy = 0; uy < image_data->height(); uy += this->d->m_stride)
+      {
+        unsigned int tuy = uy;
+        if(tuy + this->d->m_chip_height > image_data->height())
+        {
+          tuy = image_data->height()-this->d->m_chip_height-1;
+        }
+        cv::Mat cropedImage = image(cv::Rect(tux, tuy, this->d->m_chip_width, this->d->m_chip_height));
+        image_chips.push_back(cropedImage);
+        chip_x.push_back(tux);
+        chip_y.push_back(tuy);
       }
     }
-    else
+  }
+  else
+  {
+    image_chips.push_back(image);
+    chip_x.push_back(0);
+    chip_y.push_back(0);
+  }
+
+  std::vector<vital::detected_object_sptr> detected_objects;
+  for(size_t img_at = 0; img_at < image_chips.size(); ++img_at)
+  {
+    std::pair<cv::Mat, double> image_scale = this->d->prepair_image(image_chips[img_at]);
+    std::vector< Blob<float>* > input_layers = this->d->set_up_inputs(image_scale);
+    this->d->m_net->Forward(input_layers);
+
+    //get output
+    boost::shared_ptr< Blob< float > > rois = this->d->m_net->blob_by_name("rois");
+    boost::shared_ptr< Blob< float > > probs = this->d->m_net->blob_by_name("cls_prob");
+    boost::shared_ptr< Blob< float > > rois_deltas = this->d->m_net->blob_by_name("bbox_pred");
+
+    const unsigned int roi_dim = rois->count() / rois->num();
+    assert(roi_dim == 5);
+    const unsigned int prob_dim = probs->count() / probs->num();
+    assert(rois->num() == probs->num());
+
+    for(int i = 0; i < rois->num(); ++i)
     {
-      vital::object_type_sptr classification( new  vital::object_type(this->d->m_labels, tmpv));
-      detected_objects.push_back(vital::detected_object_sptr(new vital::detected_object(bbox, 1.0, classification)));
+      const float* start = rois->cpu_data() + rois->offset( i );
+      double pts[4];
+      //std::cout << start[0];
+      for(unsigned int j = 1; j < roi_dim; ++j)
+      {
+        //std::cout << " " << start[j];///image_scale.second;
+        pts[j-1] = start[j]/image_scale.second;
+      }
+      vital::detected_object::bounding_box bbox(vital::vector_2d(pts[0]+chip_x[img_at], pts[1]+chip_y[img_at]),
+                                                vital::vector_2d(pts[2]+chip_x[img_at], pts[3]+chip_y[img_at]));
+
+      //std::cout << "\t" << image_scale.second;
+
+      start = probs->cpu_data() + probs->offset( i );
+      //std::cout << " " << start[1] << std::endl;
+      std::vector<double> tmpv;
+      for(unsigned int j = 0; j < prob_dim; ++j)
+      {
+        tmpv.push_back(start[j]);
+      }
+      if(this->d->m_use_box_deltas && rois_deltas != NULL)
+      {
+        start = rois_deltas->cpu_data() + rois_deltas->offset( i );
+        std::vector<double> tmpv2(tmpv.size(), vital::object_type::INVALID_SCORE);
+        for( unsigned int j = 0; j < prob_dim; ++j )
+        {
+          unsigned int ds = j*4; // TODO calc for more rebustness
+          float dx = start[ds];
+          float dy = start[ds+1];
+          float dw = start[ds+2];
+          float dh = start[ds+3];
+          tmpv2[j] = tmpv[j];
+          vital::vector_2d center = bbox.center();
+          float w = bbox.width();
+          float h = bbox.height();
+          center[0] = dx*w + center[0];
+          center[1] = dy*h + center[1];
+          float pw = exp(dw)*w;
+          float ph = exp(dh)*h;
+          vital::vector_2d halfS(pw*0.5, ph*0.5);
+          vital::detected_object::bounding_box pbox(center-halfS, center+halfS);
+          vital::object_type_sptr classification( new  vital::object_type(this->d->m_labels, tmpv2));
+          detected_objects.push_back(vital::detected_object_sptr(new vital::detected_object(pbox, 1.0, classification)));
+          tmpv2[j] = vital::object_type::INVALID_SCORE;
+        }
+      }
+      else
+      {
+        vital::object_type_sptr classification( new  vital::object_type(this->d->m_labels, tmpv));
+        detected_objects.push_back(vital::detected_object_sptr(new vital::detected_object(bbox, 1.0, classification)));
+      }
     }
   }
 
