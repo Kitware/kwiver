@@ -11,6 +11,9 @@ CMAKE_DEPENDENT_OPTION(ARROWS_ENABLE_CERES "Enable building arrows that depend o
 CMAKE_DEPENDENT_OPTION(ARROWS_ENABLE_VXL "Enable building arrows that depend on VXL" ON
   KWIVER_ENABLE_VXL OFF)
 
+CMAKE_DEPENDENT_OPTION(ARROWS_ENABLE_VIDTK "Enable building arrows that depend on VIDTK" ON
+  KWIVER_ENABLE_VIDTK OFF)
+
 CMAKE_DEPENDENT_OPTION(ARROWS_ENABLE_OPENCV "Enable building arrows that depend on OPENCV" ON
   KWIVER_ENABLE_OPENCV OFF)
 
@@ -21,6 +24,8 @@ CMAKE_DEPENDENT_OPTION(ARROWS_ENABLE_VISCL "Enable building arrows that depend o
   KWIVER_ENABLE_VISCL OFF)
 
 option(ARROWS_ENABLE_CAFFE "Enable building arrows that depend on Caffe" ON)
+
+option(ARROWS_ENABLE_VIDTK "Enable building arrows that depend on VIDTK" OFF)
 
 add_subdirectory( algorithms )
 

@@ -37,3 +37,7 @@ endif()
 if( ARROWS_ENABLE_VXL )
   add_subdirectory( vxl )
 endif()
+
+if( ARROWS_ENABLE_VXL AND ARROWS_ENABLE_VIDTK)
+   add_subdirectory(vidtk)
+endif()

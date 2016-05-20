@@ -30,6 +30,6 @@ kwiver_add_plugin( kwiver_vxl_processes
                   vsl vul vnl_algo vnl_io vnl vil_io vil
 )
 
-if (KWIVER_ENABLE_PYTHON)
-  add_subdirectory( python )
-endif()
+#if (KWIVER_ENABLE_PYTHON)
+#  add_subdirectory( python )
+#endif()
