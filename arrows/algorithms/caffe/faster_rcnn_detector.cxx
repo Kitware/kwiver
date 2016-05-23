@@ -284,6 +284,7 @@ detect( vital::image_container_sptr image_data) const
       if(tux + this->d->m_chip_width > image_data->width())
       {
         tux = image_data->width()- this->d->m_chip_width -1;
+        if(tux >= image_data->width()) continue;
       }
       for(unsigned int uy = 0; uy < image_data->height(); uy += this->d->m_stride)
       {
@@ -291,6 +292,7 @@ detect( vital::image_container_sptr image_data) const
         if(tuy + this->d->m_chip_height > image_data->height())
         {
           tuy = image_data->height()-this->d->m_chip_height-1;
+          if(tuy >= image_data->height()) continue;
         }
         cv::Mat cropedImage = image(cv::Rect(tux, tuy, this->d->m_chip_width, this->d->m_chip_height));
         image_chips.push_back(cropedImage);

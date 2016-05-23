@@ -95,7 +95,7 @@ bounding_box_generator_process::make_ports()
   required.insert( flag_required );
 
   //output
-  declare_output_port_using_trait( bounding_box, optional );
+  declare_output_port_using_trait( bounding_box, required );
 }
 
 
