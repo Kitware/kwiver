@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,48 +28,36 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sprokit/pipeline/process_registry.h>
+#ifndef _BOUNDING_BOX_GENERATOR_H
+#define _BOUNDING_BOX_GENERATOR_H
 
-// -- list processes to register --
-#include "crop_image_process.h"
-#include "draw_detected_object_boxes_process.h"
-#include "view_image_process.h"
+#include <sprokit/pipeline/process.h>
+#include "kwiver_core_processes_export.h"
+#include <vital/config/config_block.h>
 
-extern "C"
-KWIVER_OCV_PROCESSES_EXPORT void register_processes();
-
-
-// ----------------------------------------------------------------
-/*! \brief Regsiter processes
- *
- *
- */
-void register_processes()
+namespace kwiver
 {
-  static sprokit::process_registry::module_t const module_name =
-    sprokit::process_registry::module_t( "kwiver_processes_ocv" );
 
-  sprokit::process_registry_t const registry( sprokit::process_registry::self() );
-
-  if ( registry->is_module_loaded( module_name ) )
-  {
-    return;
-  }
-
-  // ----------------------------------------------------------------
-
-  registry->register_process("crop_image", "TODO",
-                             sprokit::create_process< kwiver::crop_image_process > );
-
-  registry->register_process(
-    "draw_detections", "draws the boxes to an image",
-    sprokit::create_process< kwiver::draw_detected_object_boxes_process> );
+class KWIVER_CORE_PROCESSES_NO_EXPORT bounding_box_generator_process
+  : public sprokit::process
+{
+public:
+  bounding_box_generator_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~bounding_box_generator_process();
 
 
-  registry->register_process(
-    "view_image", "Display input image and delay",
-    sprokit::create_process< kwiver::view_image_process > );
+protected:
+  virtual void _configure();
+  virtual void _step();
 
-  // - - - - - - - - - - - - - - - - - - - - - - -
-  registry->mark_module_as_loaded( module_name );
-}
+private:
+  void make_ports();
+  void make_config();
+
+  class priv;
+  const std::unique_ptr<priv> d;
+}; // end class bounding_box_generator_process
+
+} //namespace kwiver
+
+#endif //_BOUNDING_BOX_GENERATOR_H

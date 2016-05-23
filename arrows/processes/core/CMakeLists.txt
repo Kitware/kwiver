@@ -6,8 +6,10 @@ project( kwiver_core_processes )
 set( sources
   register_processes.cxx
 
+  bounding_box_generator_process.cxx
   compute_homography_process.cxx
   detect_features_process.cxx
+  detected_object_coordinate_updater_process.cxx
   detected_object_filter_process.cxx
   draw_tracks_process.cxx
   extract_descriptors_process.cxx
@@ -20,8 +22,10 @@ set( sources
 )
 
 set( private_headers
+  bounding_box_generator_process.h
   compute_homography_process.h
   detect_features_process.h
+  detected_object_coordinate_updater_process.h
   detected_object_filter_process.h
   draw_tracks_process.h
   extract_descriptors_process.h
