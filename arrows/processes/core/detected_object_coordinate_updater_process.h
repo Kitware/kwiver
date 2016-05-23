@@ -53,8 +53,6 @@ protected:
 private:
   void make_ports();
   void make_config();
-
-  int m_buffer;
 }; // end class detected_object_coordinate_updater_process
 
 } //namespace kwiver

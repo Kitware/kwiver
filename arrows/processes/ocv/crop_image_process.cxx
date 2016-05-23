@@ -65,7 +65,7 @@ namespace kwiver
     int m_buffer;
 
     vital::image_container_sptr crop( vital::image_container_sptr image_data,
-                                      vital::detected_object::bounding_box bbox) const
+                                      vital::detected_object::bounding_box & bbox) const
     {
       if(image_data == NULL) return NULL;
       if(bbox.area() == 0) return NULL;
@@ -78,6 +78,7 @@ namespace kwiver
                                                                       image_data->height()));
       vital::detected_object::bounding_box cb = img_bound.intersection(expanded);
       if(cb.area() == 0) return NULL;
+      bbox = cb;
       cv::Mat cropedImage = image(cv::Rect(cb.upper_left()[0], cb.upper_left()[1],
                                            cb.width(), cb.height())).clone();
       vital::image_container_sptr result(new arrows::ocv::image_container(cropedImage));
@@ -111,6 +112,7 @@ namespace kwiver
     vital::detected_object::bounding_box bbox = grab_from_port_using_trait(bounding_box);
     vital::image_container_sptr result = d->crop(img, bbox);
     push_to_port_using_trait( image, result );
+    push_to_port_using_trait(bounding_box, bbox);
   }
 
   void crop_image_process::make_ports()
@@ -127,6 +129,7 @@ namespace kwiver
 
     //output
     declare_output_port_using_trait(image, optional);
+    declare_output_port_using_trait( bounding_box, optional );
   }
 
   void crop_image_process::make_config()

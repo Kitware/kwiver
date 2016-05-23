@@ -37,8 +37,6 @@
 
 namespace kwiver {
 
-create_config_trait( buffer, int, "5", "buffer in pixels around bounding box" );
-
 detected_object_coordinate_updater_process
 ::detected_object_coordinate_updater_process( vital::config_block_sptr const& config )
  : process( config )
@@ -58,7 +56,6 @@ detected_object_coordinate_updater_process
 void
 detected_object_coordinate_updater_process::_configure()
 {
-  m_buffer = config_value_using_trait( buffer );
 }
 
 
@@ -67,7 +64,7 @@ detected_object_coordinate_updater_process::_step()
 {
   vital::detected_object_set_sptr input = grab_from_port_using_trait(detected_object_set);
   vital::detected_object::bounding_box bbox = grab_from_port_using_trait(bounding_box);
-  vital::vector_2d upper_left = bbox.upper_left() - vital::vector_2d(m_buffer, m_buffer);
+  vital::vector_2d upper_left = bbox.upper_left();
   for(vital::detected_object_set::iterator iter = input->get_iterator(); !iter.is_end(); ++iter)
   {
     vital::detected_object_sptr dos = iter.get_object();
@@ -98,7 +95,6 @@ detected_object_coordinate_updater_process::make_ports()
 void
 detected_object_coordinate_updater_process::make_config()
 {
-  declare_config_using_trait( buffer );
 }
 
 }//namespace kwiver
