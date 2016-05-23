@@ -31,8 +31,10 @@
 #include <sprokit/pipeline/process_registry.h>
 
 // -- list processes to register --
+#include "bounding_box_generator_process.h"
 #include "compute_homography_process.h"
 #include "detect_features_process.h"
+#include "detected_object_coordinate_updater_process.h"
 #include "detected_object_filter_process.h"
 #include "draw_tracks_process.h"
 #include "extract_descriptors_process.h"
@@ -66,6 +68,10 @@ void register_processes()
 
   // ----------------------------------------------------------------
   registry->register_process(
+    "bounding_box_generator", "generates bounding boxes that can be used in cropping",
+    sprokit::create_process< kwiver::bounding_box_generator_process > );
+
+  registry->register_process(
     "frame_list_input",
     "Reads a list of image file names and generates stream "
     "of images and associated time stamps",
@@ -74,6 +80,10 @@ void register_processes()
   registry->register_process(
     "stabilize_image", "Generate current-to-reference image homographies",
     sprokit::create_process< kwiver::stabilize_image_process > );
+
+  registry->register_process(
+    "detected_object_coordinate_updater", "Translate coordinates back to original image",
+    sprokit::create_process< kwiver::detected_object_coordinate_updater_process > );
 
   registry->register_process(
     "detect_features", "Detect features in an image that will be used for stabilization",

@@ -104,6 +104,12 @@ public:
       return m_bbox.volume();
     }
 
+    bounding_box & translate(vital::vector_2d pt)
+    {
+      m_bbox.translate(pt);
+      return *this;
+    }
+
     bounding_box intersection(bounding_box const& other)
     {
       return bounding_box(m_bbox.intersection(other.m_bbox));
