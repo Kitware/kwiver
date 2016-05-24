@@ -32,6 +32,7 @@
 
 #include <vital/vital_types.h>
 
+#include <arrows/algorithms/ocv/image_container.h>
 #include <arrows/processes/kwiver_type_traits.h>
 
 #include <opencv2/core/core.hpp>
@@ -111,7 +112,7 @@ public:
     if ( input_set == NULL ) { return image_data; }
     if ( image_data == NULL ) { return NULL; } // Maybe throw?
 
-    cv::Mat image = arrows::ocv::image_container::vital_to_ocv( image_data->get_image() );
+    cv::Mat image = arrows::ocv::image_container::vital_to_ocv( image_data->get_image() ).clone();
     cv::Mat overlay;
     vital::object_labels::iterator label_iter = input_set->get_labels();
 
@@ -191,7 +192,7 @@ public:
       ++m_count;
       cv::imwrite( buffer, image );
     }
-    return image_data;
+    return vital::image_container_sptr(new arrows::ocv::image_container(image));
   } // draw_on_image
 
 }; // end priv class
