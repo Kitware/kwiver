@@ -50,7 +50,7 @@ namespace kwiver {
 
 typedef  Eigen::Matrix< unsigned int, 3, 1 > ColorVector;
 
-create_config_trait( threshold, float, "0.6", "min probablity for output (float)" );
+create_config_trait( threshold, float, "-1", "min probablity for output (float)" );
 create_config_trait( alpha_blend_prob, bool, "true", "If true, those who are less likely will be more transparent." );
 create_config_trait( default_line_thickness, float, "1", "The default line thickness for a class" );
 create_config_trait( default_color, std::string, "255 0 0", "The default color for a class (BGR)" );

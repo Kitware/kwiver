@@ -85,6 +85,8 @@ public:
   iterator get_iterator(std::string label, bool sorted = false,
                         double threshold = object_type::INVALID_SCORE) const;
   object_labels::iterator get_labels() const;
+  object_labels_sptr get_object_labels() const
+  { return labels_; }
 private:
   object_labels_sptr labels_;
   std::vector<detected_object_sptr> objects_;
