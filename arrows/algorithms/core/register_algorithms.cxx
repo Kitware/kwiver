@@ -36,6 +36,7 @@
 #include "register_algorithms.h"
 
 #include <arrows/algorithms/algorithm_plugin_interface_macros.h>
+#include <arrows/algorithms/core/class_probablity_filter.h>
 #include <arrows/algorithms/core/close_loops_bad_frames_only.h>
 #include <arrows/algorithms/core/close_loops_multi_method.h>
 #include <arrows/algorithms/core/compute_ref_homography_core.h>
@@ -60,6 +61,7 @@ int register_algorithms(vital::registrar &reg)
 {
     REGISTRATION_INIT( reg );
 
+    REGISTER_TYPE( core::class_probablity_filter );
     REGISTER_TYPE( core::close_loops_bad_frames_only );
     REGISTER_TYPE( core::close_loops_multi_method );
     REGISTER_TYPE( core::compute_ref_homography_core );

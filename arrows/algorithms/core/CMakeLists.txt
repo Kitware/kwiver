@@ -1,6 +1,7 @@
 # Build / Install Plugin containing core algorithm implementations
 
 set( plugin_core_headers
+  class_probablity_filter.h
   close_loops_bad_frames_only.h
   close_loops_multi_method.h
   compute_ref_homography_core.h
@@ -32,6 +33,7 @@ kwiver_install_headers(
   )
 
 set( plugin_core_sources
+  class_probablity_filter.cxx
   close_loops_bad_frames_only.cxx
   close_loops_multi_method.cxx
   compute_ref_homography_core.cxx
