@@ -64,10 +64,12 @@ create_config_trait( text_scale, float, "0.4", "the scale for the text label" );
 create_config_trait( text_thickness, float, "1.0", "the thickness for text" );
 create_config_trait( file_string, std::string, "", "If not empty, use this as a formated string to write output (i.e. out_%5d.png)" );
 create_config_trait( clip_box_to_image, bool, "false", "make sure the bounding box is only in the image");
+create_config_trait( draw_text, bool, "true", "Draw the text");
+create_config_trait( merge_overlapping_classes, bool, "true", "Combine overlapping classes");
+create_config_trait( draw_other_classes, bool, "false", "Print all combined overlap");
 
 vital::detected_object_set_sptr NMS_COMBINER( vital::detected_object_set_sptr input_set, std::vector<std::string> const& ignore_classes)
 {
-  std::cout << "Filter" << std::endl;
   vital::detected_object_set::iterator iter = input_set->get_iterator();
   for ( ; !iter.is_end(); ++iter )
   {
@@ -81,22 +83,18 @@ vital::detected_object_set_sptr NMS_COMBINER( vital::detected_object_set_sptr in
            max_score = vital::object_type::INVALID_SCORE;
         }
       }
-    if(max_score !=  vital::object_type::INVALID_SCORE && max_score > 0.09)
-       std::cout << "     " << max_label << "   " <<  max_score << std::endl;
     dos->set_confidence(max_score);
   }
-  std::cout << "Filter sort" << std::endl;
   vital::detected_object_set::iterator class_iterator = input_set->get_iterator(true);
   std::vector<vital::detected_object_sptr> tmp;
-   std::cout << "Got iterator sort" << std::endl;
+
   for ( size_t i = 0; i < class_iterator.size(); ++i )
   {
-      bool printV = false;
       vital::detected_object_sptr obj_i = class_iterator[i];
       vital::object_type_sptr class_i = obj_i->get_classifications();
       vital::detected_object::bounding_box bbox_i = class_iterator[i]->get_bounding_box();
       if(obj_i->get_confidence() == vital::object_type::INVALID_SCORE) continue;
-      if( obj_i->get_confidence() > 0.09 )std::cout << "  " << obj_i->get_confidence()  << std::endl;
+
       double area = bbox_i.area();
       tmp.push_back(obj_i);
       for ( size_t j = i+1; j < class_iterator.size(); ++j )
@@ -119,15 +117,7 @@ vital::detected_object_set_sptr NMS_COMBINER( vital::detected_object_set_sptr in
         double t = interS / (area + aj - interS);
         if (t >= 0.3)
         {
-          if( obj_i->get_confidence() > 0.09 ) std::cout << "       " << obj_j->get_confidence()  << std::endl;
           obj_j->set_confidence(vital::object_type::INVALID_SCORE);
-        }
-      }
-      for(vital::object_labels::iterator label_iter = input_set->get_labels();!label_iter.is_end(); ++label_iter)
-      {
-        if( obj_i->get_confidence() > 0.09  && class_i->get_score(label_iter.get_key()) !=  vital::object_type::INVALID_SCORE )
-        {
-          std::cout << "  " << label_iter.get_label() << " " << class_i->get_score(label_iter.get_key()) << std::endl;
         }
       }
   }
@@ -165,36 +155,39 @@ public:
   float m_text_thickness;
   bool m_clip_box_to_image;
   bool m_draw_overlap_max;
+  bool m_draw_text;
+  bool m_draw_other_classes;
 
   void draw_box(vital::image_container_sptr image_data, cv::Mat & image, vital::detected_object_sptr dos, double tmpT, std::string label, double prob) const
   {
     cv::Mat overlay;
     image.copyTo( overlay );
     vital::detected_object::bounding_box bbox = dos->get_bounding_box();
-        if ( m_clip_box_to_image )
-        {
-          vital::detected_object::bounding_box img( vital::vector_2d( 0, 0 ),
+    if ( m_clip_box_to_image )
+    {
+       vital::detected_object::bounding_box img( vital::vector_2d( 0, 0 ),
                                                     vital::vector_2d( image_data->width(),
                                                                       image_data->height() ) );
-          bbox = img.intersection( bbox );
-        }
+       bbox = img.intersection( bbox );
+    }
 
-        cv::Rect r( bbox.upper_left()[0], bbox.upper_left()[1], bbox.width(), bbox.height() );
-        std::string p = std::to_string( prob );
-        std::string txt = label + " " + p;
-        prob =  ( m_do_alpha ) ? (( prob - tmpT ) / ( 1 - tmpT )) : 1.0;
-        Bound_Box_Params const* bbp = &m_default_params;
-        std::map< std::string, Bound_Box_Params >::const_iterator iter = m_custum_colors.find( label );
+    cv::Rect r( bbox.upper_left()[0], bbox.upper_left()[1], bbox.width(), bbox.height() );
+    std::string p = std::to_string( prob );
+    std::string txt = label + " " + p;
+    prob =  ( m_do_alpha ) ? (( prob - tmpT ) / ( 1 - tmpT )) : 1.0;
+    Bound_Box_Params const* bbp = &m_default_params;
+    std::map< std::string, Bound_Box_Params >::const_iterator iter = m_custum_colors.find( label );
 
-        if ( iter != m_custum_colors.end() )
-        {
-          bbp = &( iter->second );
-        }
+    if ( iter != m_custum_colors.end() )
+    {
+      bbp = &( iter->second );
+    }
 
-        cv::Scalar color( bbp->color[0], bbp->color[1], bbp->color[2] );
-        cv::rectangle( overlay, r, color, bbp->thickness );
+    cv::Scalar color( bbp->color[0], bbp->color[1], bbp->color[2] );
+    cv::rectangle( overlay, r, color, bbp->thickness );
 
-        {
+    if(m_draw_text)
+    {
           int fontface = cv::FONT_HERSHEY_SIMPLEX;
           double scale = m_text_scale;
           int thickness = m_text_thickness;
@@ -206,9 +199,9 @@ public:
                          cv::Point( text.width, -text.height ), cv::Scalar( 0, 0, 0 ), CV_FILLED );
 
           cv::putText( overlay, txt, pt, fontface, scale, cv::Scalar( 255, 255, 255 ), thickness, 8 );
-        }
+     }
 
-        cv::addWeighted( overlay, prob, image, 1 - prob, 0, image );
+     cv::addWeighted( overlay, prob, image, 1 - prob, 0, image );
   }
   /**
    * @brief Draw detected object on image.
@@ -234,36 +227,73 @@ public:
     if(m_draw_overlap_max)
     {
       input_set = NMS_COMBINER(in_set, this->m_ignore_classes);
-    }
-
-    for ( ; ! label_iter.is_end(); ++label_iter )
-    {
-      bool keep_going = true;
-      for ( size_t i = 0; i < this->m_ignore_classes.size(); ++i )
+      vital::detected_object_set::iterator class_iterator = input_set->get_iterator();
+      for ( size_t i = 0; i < class_iterator.size(); ++i )
       {
-        if ( this->m_ignore_classes[i] == label_iter.get_label() )
+        vital::object_type_sptr ots = class_iterator[i]->get_classifications();
+        /*if(m_draw_other_classes)
         {
-          keep_going = false;
-          break;
+          vital::object_type::iterator iter = ots->get_iterator(true, this->m_threshold);
+          if(iter.is_end()) continue;
+          draw_box(image_data, image, class_iterator[i], tmpT, iter.get_label(), iter.get_score());
+          ++iter;
+          int tmp_off = 30
+          for(;!iter.is_end() && m_draw_text;++iter)
+          {
+             int fontface = cv::FONT_HERSHEY_SIMPLEX;
+             double scale = m_text_scale;
+             int thickness = m_text_thickness;
+             int baseline = 0;
+             cv::Point pt( r.tl() + cv::Point( 0, tmp_off ) );
+
+             cv::Size text = cv::getTextSize( txt, fontface, scale, thickness, &baseline );
+             cv::rectangle( overlay, pt + cv::Point( 0, baseline ), pt +
+                           cv::Point( text.width, -text.height ), cv::Scalar( 0, 0, 0 ), CV_FILLED );
+
+             cv::putText( overlay, txt, pt, fontface, scale, cv::Scalar( 255, 255, 255 ), thickness, 8 );
+          }
+
+        }
+        else*/
+        {
+          std::string max_label;
+          double d = ots->get_max_score(max_label);
+          if(d <= this->m_threshold) continue;
+          double tmpT = ( this->m_threshold - ( ( this->m_threshold >= 0.05 ) ? 0.05 : 0 ) );
+          draw_box(image_data, image, class_iterator[i], tmpT, max_label, d);
         }
       }
-
-      if ( ! keep_going ) { continue; }
-
-      vital::detected_object_set::iterator class_iterator =
-        input_set->get_iterator( label_iter.get_key(), true, this->m_threshold );
-
-      // Check to see if there are any items to process
-      if ( class_iterator.size() == 0 ) { continue; }
-
-      double tmpT = ( this->m_threshold - ( ( this->m_threshold >= 0.05 ) ? 0.05 : 0 ) );
-      int xTextPt = 0;
-
-      for ( size_t i = class_iterator.size() - 1; i < class_iterator.size() && i >= 0; --i )
+    }
+    else
+    {
+      for ( ; ! label_iter.is_end(); ++label_iter )
       {
-        vital::detected_object_sptr dos = class_iterator[i];         //Low score first
-        draw_box(image_data, image, dos, tmpT, label_iter.get_label(), dos->get_classifications()->get_score( label_iter.get_key() ));
-      }   
+        bool keep_going = true;
+        for ( size_t i = 0; i < this->m_ignore_classes.size(); ++i )
+        {
+          if ( this->m_ignore_classes[i] == label_iter.get_label() )
+          {
+            keep_going = false;
+            break;
+          }
+        }
+
+        if ( ! keep_going ) { continue; }
+
+        vital::detected_object_set::iterator class_iterator =
+          input_set->get_iterator( label_iter.get_key(), true, this->m_threshold );
+
+        // Check to see if there are any items to process
+        if ( class_iterator.size() == 0 ) { continue; }
+
+        double tmpT = ( this->m_threshold - ( ( this->m_threshold >= 0.05 ) ? 0.05 : 0 ) );
+
+        for ( size_t i = class_iterator.size() - 1; i < class_iterator.size() && i >= 0; --i )
+        {
+          vital::detected_object_sptr dos = class_iterator[i];         //Low score first
+          draw_box(image_data, image, dos, tmpT, label_iter.get_label(), dos->get_classifications()->get_score( label_iter.get_key() ));
+        }   
+      }
     }
 
     if ( ! m_formated_string.empty() )
@@ -303,6 +333,10 @@ draw_detected_object_boxes_process::_configure()
   d->m_threshold = config_value_using_trait( threshold );
   d->m_formated_string = config_value_using_trait( file_string );
   d->m_clip_box_to_image = config_value_using_trait( clip_box_to_image );
+  d->m_draw_text = config_value_using_trait(draw_text);
+  d->m_draw_overlap_max = config_value_using_trait(merge_overlapping_classes);
+  d->m_draw_other_classes = config_value_using_trait(draw_other_classes);
+
   std::string parsed, list = config_value_using_trait(ignore_file);
 
   {
@@ -396,6 +430,9 @@ draw_detected_object_boxes_process::make_config()
   declare_config_using_trait( text_scale );
   declare_config_using_trait( text_thickness );
   declare_config_using_trait( clip_box_to_image );
+  declare_config_using_trait( draw_text );
+  declare_config_using_trait( merge_overlapping_classes );
+  declare_config_using_trait( draw_other_classes );
 }
 
 
