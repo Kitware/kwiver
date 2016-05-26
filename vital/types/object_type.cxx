@@ -148,6 +148,21 @@ object_type::get_score( std::string const& label ) const
   return get_score( labels_->get_key( label ) );
 }
 
+double object_type::get_max_score(std::string & max_label) const
+{
+  double max = INVALID_SCORE;
+  max_label = "";
+  for( unsigned int i = 0; i < likelyhoods_.size(); ++i)
+  {
+    if ( max < likelyhoods_[i] )
+    {
+      max = likelyhoods_[i];
+      max_label = labels_->get_label(i);
+    }
+  }
+  return max;
+}
+
 
 bool
 object_type::set_score( object_labels::key k, double d )
