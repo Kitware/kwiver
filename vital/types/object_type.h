@@ -81,6 +81,7 @@ public:
               std::vector<double> likelyhoods = std::vector<double>());
   double get_score(object_labels::key k) const;
   double get_score(std::string const& label) const;
+  double get_max_score(std::string & max_label) const;
   bool set_score(object_labels::key k, double d);
   bool set_score(std::string const& label, double d);
   bool set_scores(std::vector<double> const& d);

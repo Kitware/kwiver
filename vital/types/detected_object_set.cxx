@@ -117,10 +117,14 @@ size_t detected_object_set::size() const
 
 detected_object_set::iterator detected_object_set::get_iterator(bool sorted) const
 {
-  std::vector<size_t> desired(this->size());
+  std::vector<size_t> desired;
+  desired.reserve(this->size());
   for(size_t i = 0; i < this->size(); ++i)
   {
-    desired[i] = i;
+    if( objects_[i]->get_confidence() !=  object_type::INVALID_SCORE )
+    {
+      desired.push_back(i);
+    }
   }
 
   if(sorted)
@@ -130,6 +134,7 @@ detected_object_set::iterator detected_object_set::get_iterator(bool sorted) con
       detected_object_set const* set;
       bool operator()(size_t const& l, size_t const& r) const
       {
+        if(l >= set->size() || r >= set->size()) return false;
         return (*set)[l]->get_confidence() >= (*set)[r]->get_confidence();
       }
     } sort_fun;
