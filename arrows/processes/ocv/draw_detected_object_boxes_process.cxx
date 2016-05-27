@@ -158,7 +158,7 @@ public:
   bool m_draw_text;
   bool m_draw_other_classes;
 
-  void draw_box(vital::image_container_sptr image_data, cv::Mat & image, vital::detected_object_sptr dos, double tmpT, std::string label, double prob) const
+  void draw_box(vital::image_container_sptr image_data, cv::Mat & image, vital::detected_object_sptr dos, double tmpT, std::string label, double prob, bool just_text = false, int offset = 15) const
   {
     cv::Mat overlay;
     image.copyTo( overlay );
@@ -183,8 +183,11 @@ public:
       bbp = &( iter->second );
     }
 
-    cv::Scalar color( bbp->color[0], bbp->color[1], bbp->color[2] );
-    cv::rectangle( overlay, r, color, bbp->thickness );
+    if(!just_text)
+    {
+      cv::Scalar color( bbp->color[0], bbp->color[1], bbp->color[2] );
+      cv::rectangle( overlay, r, color, bbp->thickness );
+    }
 
     if(m_draw_text)
     {
@@ -192,7 +195,7 @@ public:
           double scale = m_text_scale;
           int thickness = m_text_thickness;
           int baseline = 0;
-          cv::Point pt( r.tl() + cv::Point( 0, 15 ) );
+          cv::Point pt( r.tl() + cv::Point( 0, offset ) );
 
           cv::Size text = cv::getTextSize( txt, fontface, scale, thickness, &baseline );
           cv::rectangle( overlay, pt + cv::Point( 0, baseline ), pt +
@@ -223,6 +226,7 @@ public:
     vital::object_labels::iterator label_iter = in_set->get_labels();
 
     vital::detected_object_set_sptr  input_set = in_set;
+    double tmpT = ( this->m_threshold - ( ( this->m_threshold >= 0.05 ) ? 0.05 : 0 ) );
 
     if(m_draw_overlap_max)
     {
@@ -231,35 +235,25 @@ public:
       for ( size_t i = 0; i < class_iterator.size(); ++i )
       {
         vital::object_type_sptr ots = class_iterator[i]->get_classifications();
-        /*if(m_draw_other_classes)
+        if(m_draw_other_classes)
         {
           vital::object_type::iterator iter = ots->get_iterator(true, this->m_threshold);
           if(iter.is_end()) continue;
+          vital::detected_object::bounding_box bbox = class_iterator[i]->get_bounding_box();
           draw_box(image_data, image, class_iterator[i], tmpT, iter.get_label(), iter.get_score());
           ++iter;
-          int tmp_off = 30
+          int tmp_off = 30;
           for(;!iter.is_end() && m_draw_text;++iter)
           {
-             int fontface = cv::FONT_HERSHEY_SIMPLEX;
-             double scale = m_text_scale;
-             int thickness = m_text_thickness;
-             int baseline = 0;
-             cv::Point pt( r.tl() + cv::Point( 0, tmp_off ) );
-
-             cv::Size text = cv::getTextSize( txt, fontface, scale, thickness, &baseline );
-             cv::rectangle( overlay, pt + cv::Point( 0, baseline ), pt +
-                           cv::Point( text.width, -text.height ), cv::Scalar( 0, 0, 0 ), CV_FILLED );
-
-             cv::putText( overlay, txt, pt, fontface, scale, cv::Scalar( 255, 255, 255 ), thickness, 8 );
+             draw_box(image_data, image, class_iterator[i], tmpT, iter.get_label(), iter.get_score(), true, tmp_off);
+             tmp_off += 15;
           }
-
         }
-        else*/
+        else
         {
           std::string max_label;
           double d = ots->get_max_score(max_label);
           if(d <= this->m_threshold) continue;
-          double tmpT = ( this->m_threshold - ( ( this->m_threshold >= 0.05 ) ? 0.05 : 0 ) );
           draw_box(image_data, image, class_iterator[i], tmpT, max_label, d);
         }
       }
