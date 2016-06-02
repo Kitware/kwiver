@@ -49,6 +49,9 @@
 
 namespace kwiver {
 
+// Constant for offsetting drawn labels
+static const int multi_label_offset(15);
+
 typedef  Eigen::Matrix< unsigned int, 3, 1 > ColorVector;
 
 create_config_trait( threshold, float, "-1", "min probablity for output (float)" );
@@ -203,8 +206,10 @@ public:
    * @param tmpT
    * @param label Text label to use for box
    * @param prob Probability value to add to label text
-   * @param just_text Set to true if only draw text, not the bounding box
-   * @param offset How much to offset text fill box from text baseline
+   * @param just_text Set to true if only draw text, not the bounding box. This is used
+   *        when there are multiple labels for the same detection.
+   * @param offset How much to offset text fill box from text baseline. This is used to
+   *        offset labels when there are more than one label for a detection.
    */
   void draw_box( cv::Mat&                     image,
                  const vital::detected_object_sptr  dos,
@@ -212,7 +217,7 @@ public:
                  std::string                  label,
                  double                       prob,
                  bool                         just_text = false,
-                 int                          offset = 15 ) const
+                 int                          offset = multi_label_offset ) const
   {
     cv::Mat overlay;
 
@@ -299,12 +304,12 @@ public:
           vital::detected_object::bounding_box bbox = class_iterator[i]->get_bounding_box();
           draw_box( image, class_iterator[i], tmpT, iter.get_label(), iter.get_score() );
           ++iter;
-          int tmp_off = 30;
+          int tmp_off = 2 * multi_label_offset;
 
           for ( ; ! iter.is_end() && m_draw_text; ++iter )
           {
             draw_box( image, class_iterator[i], tmpT, iter.get_label(), iter.get_score(), true, tmp_off );
-            tmp_off += 15;
+            tmp_off += multi_label_offset;
           }
         }
         else
