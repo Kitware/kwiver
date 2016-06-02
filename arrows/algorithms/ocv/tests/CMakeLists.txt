@@ -1,6 +1,6 @@
 project(arrows_test_ocv)
 
-include(arrows-test-setup)
+include(test-setup)
 
 set(test_libraries  algorithms_ocv )
 

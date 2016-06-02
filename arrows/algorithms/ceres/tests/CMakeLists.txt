@@ -1,6 +1,6 @@
 project(algorithms_test_ceres)
 
-include(arrows-test-setup)
+include(test-setup)
 
 set(test_libraries algorithms_ceres)
 
