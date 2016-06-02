@@ -198,7 +198,6 @@ public:
    * This method draws a box on an image for the bounding box from a
    * detected object.
    *
-   * @param[in] image_data
    * @param[in,out] image Input image updated with drawn box
    * @param[in] dos detected object with bounding box
    * @param tmpT
@@ -207,9 +206,8 @@ public:
    * @param just_text Set to true if only draw text, not the bounding box
    * @param offset How much to offset text fill box from text baseline
    */
-  void draw_box( vital::image_container_sptr  image_data,
-                 cv::Mat&                     image,
-                 vital::detected_object_sptr  dos,
+  void draw_box( cv::Mat&                     image,
+                 const vital::detected_object_sptr  dos,
                  double                       tmpT,
                  std::string                  label,
                  double                       prob,
@@ -222,9 +220,9 @@ public:
     vital::detected_object::bounding_box bbox = dos->get_bounding_box();
     if ( m_clip_box_to_image )
     {
+      cv::Size s = image.size();
       vital::detected_object::bounding_box img( vital::vector_2d( 0, 0 ),
-                                                vital::vector_2d( image_data->width(),
-                                                                  image_data->height() ) );
+                                                vital::vector_2d( s.width, s.height ) );
       bbox = img.intersection( bbox );
     }
 
@@ -299,13 +297,13 @@ public:
           vital::object_type::iterator iter = ots->get_iterator( true, this->m_threshold );
           if ( iter.is_end() ) { continue; }
           vital::detected_object::bounding_box bbox = class_iterator[i]->get_bounding_box();
-          draw_box( image_data, image, class_iterator[i], tmpT, iter.get_label(), iter.get_score() );
+          draw_box( image, class_iterator[i], tmpT, iter.get_label(), iter.get_score() );
           ++iter;
           int tmp_off = 30;
 
           for ( ; ! iter.is_end() && m_draw_text; ++iter )
           {
-            draw_box( image_data, image, class_iterator[i], tmpT, iter.get_label(), iter.get_score(), true, tmp_off );
+            draw_box( image, class_iterator[i], tmpT, iter.get_label(), iter.get_score(), true, tmp_off );
             tmp_off += 15;
           }
         }
@@ -315,7 +313,7 @@ public:
           double d = ots->get_max_score( max_label );
 
           if ( d <= this->m_threshold ) { continue; }
-          draw_box( image_data, image, class_iterator[i], tmpT, max_label, d );
+          draw_box( image, class_iterator[i], tmpT, max_label, d );
         }
       }
     }
@@ -346,7 +344,7 @@ public:
         for ( size_t i = class_iterator.size() - 1; i < class_iterator.size() && i >= 0; --i )
         {
           vital::detected_object_sptr dos = class_iterator[i];         //Low score first
-          draw_box( image_data, image, dos, tmpT, label_iter.get_label(), dos->get_classifications()->get_score( label_iter.get_key() ) );
+          draw_box( image, dos, tmpT, label_iter.get_label(), dos->get_classifications()->get_score( label_iter.get_key() ) );
         }
       }
     }
