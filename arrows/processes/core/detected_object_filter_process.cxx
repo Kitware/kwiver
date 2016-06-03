@@ -36,16 +36,12 @@
 #include "detected_object_filter_process.h"
 
 #include <vital/algorithm_plugin_manager.h>
-
 #include <vital/algo/detected_object_filter.h>
+#include <arrows/processes/kwiver_type_traits.h>
+#include <sprokit/pipeline/process_exception.h>
 
 #include <sstream>
 #include <iostream>
-
-#include <arrows/processes/kwiver_type_traits.h>
-
-#include <sprokit/pipeline/process_exception.h>
-
 
 namespace kwiver
 {
