@@ -48,8 +48,8 @@ kwiver_add_library( algorithms_ocv
   )
 target_link_libraries( algorithms_ocv
   PUBLIC               algorithms_core
-                       kwiversys
                        ${OpenCV_LIBS}
+  PRIVATE              kwiversys
   )
 
 algorithms_create_plugin( algorithms_ocv
