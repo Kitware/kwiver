@@ -28,18 +28,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file
+ * \brief Implementation of target simulating process.
+ */
+
 #include "simulate_target_selection_process.h"
 
 #include <vital/algorithm_plugin_manager.h>
-
 #include <vital/algo/detected_object_filter.h>
+#include <arrows/processes/kwiver_type_traits.h>
+#include <sprokit/pipeline/process_exception.h>
 
 #include <sstream>
 #include <iostream>
-
-#include <arrows/processes/kwiver_type_traits.h>
-
-#include <sprokit/pipeline/process_exception.h>
 
 namespace kwiver
 {
@@ -48,39 +50,59 @@ class simulate_target_selection_process::priv
 {
 public:
   priv()
-  {}
+  { }
+
+  // nothing yet
 };
 
+// ------------------------------------------------------------------
 simulate_target_selection_process
 ::simulate_target_selection_process( kwiver::vital::config_block_sptr const& config )
-: process( config ),
-  d( new simulate_target_selection_process::priv )
+  : process( config ),
+    d( new simulate_target_selection_process::priv )
 {
   make_ports();
 }
 
-simulate_target_selection_process::~simulate_target_selection_process()
+
+simulate_target_selection_process
+::~simulate_target_selection_process()
 {
 }
 
-void simulate_target_selection_process::_configure()
+
+// ------------------------------------------------------------------
+void
+simulate_target_selection_process
+::_configure()
 {
+  // Nothing yet
 }
 
-void simulate_target_selection_process::_step()
+
+// ------------------------------------------------------------------
+void
+simulate_target_selection_process
+::_step()
 {
-  vital::detected_object_set_sptr input = grab_from_port_using_trait(detected_object_set);
+  vital::detected_object_set_sptr input = grab_from_port_using_trait( detected_object_set );
   vital::detected_object::bounding_box result;
-  vital::detected_object_set::iterator top_person = input->get_iterator("person", true, 0.8);
+  vital::detected_object_set::iterator top_person = input->get_iterator( "person", true, 0.8 );
   vital::detected_object_sptr top_object = top_person.get_object();
-  if(top_object != NULL)
+
+  if ( top_object != NULL )
   {
     result = top_object->get_bounding_box();
   }
+
   push_to_port_using_trait( bounding_box, result );
 }
 
-void simulate_target_selection_process::make_ports()
+
+// ------------------------------------------------------------------
+void
+simulate_target_selection_process
+::make_ports()
 {
   // Set up for required ports
   sprokit::process::port_flags_t required;
@@ -89,14 +111,18 @@ void simulate_target_selection_process::make_ports()
   required.insert( flag_required );
 
   // -- input --
-  declare_input_port_using_trait(detected_object_set, required);
+  declare_input_port_using_trait( detected_object_set, required );
 
   //output
-  declare_output_port_using_trait(bounding_box, optional);
+  declare_output_port_using_trait( bounding_box, optional );
 }
 
-void simulate_target_selection_process::make_config()
+
+// ------------------------------------------------------------------
+void
+simulate_target_selection_process
+::make_config()
 {
 }
 
-}
+} // end namespace
