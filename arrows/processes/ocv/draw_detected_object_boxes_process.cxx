@@ -280,8 +280,15 @@ public:
   vital::image_container_sptr draw_on_image( vital::image_container_sptr      image_data,
                                              vital::detected_object_set_sptr  in_set ) const
   {
-    if ( in_set == NULL ) { return image_data; }
-    if ( image_data == NULL ) { return NULL; } // Maybe throw?
+    if ( in_set == NULL )
+    {
+      throw kwiver::vital::invalid_value("Detected object set pointer is NULL");
+    }
+
+    if ( image_data == NULL )
+    {
+      throw kwiver::vital::invalid_value("Input image pointer is NULL");
+    }
 
     cv::Mat image = arrows::ocv::image_container::vital_to_ocv( image_data->get_image() ).clone();
     cv::Mat overlay;
@@ -375,7 +382,6 @@ draw_detected_object_boxes_process
   : process( config ),
   d( new draw_detected_object_boxes_process::priv )
 {
-  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
   make_ports();
   make_config();
 }
