@@ -1,16 +1,35 @@
 #
-# Top level for arrows
+# Arrows Algorithms CMake file
 #
-project( arrows )
 
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+set(ARROWS_SOURCE_DIR           "${CMAKE_CURRENT_SOURCE_DIR}")
+set(ARROWS_BINARY_DIR           "${CMAKE_CURRENT_BINARY_DIR}")
 
-add_subdirectory( algorithms )
+# Base plug-in with default implementations
+add_subdirectory( core )
 
-if (KWIVER_ENABLE_SPROKIT)
-  # TODO add include_directories( sprokit )
-  add_subdirectory( pipelines )
-  add_subdirectory( processes )
+# Add Ceres plugin if enabled
+if( KWIVER_ENABLE_CERES )
+  add_subdirectory( ceres )
 endif()
 
-set(arrows_DIR  ${CMAKE_CURRENT_BINARY_DIR}  CACHE PATH "Path to Arrows package")
+# Add OpenCV plugin if enabled
+if( KWIVER_ENABLE_OPENCV )
+  add_subdirectory( ocv )
+endif()
+
+# Add PROJ plugin if enabled
+if( KWIVER_ENABLE_PROJ )
+  add_subdirectory( proj )
+endif()
+
+# Add VXL plugin if enabled
+if( KWIVER_ENABLE_VXL )
+  add_subdirectory( vxl )
+endif()
+
+# Add VisCL plugin if enabled
+#  needs VXL
+if( KWIVER_ENABLE_VISCL )
+  add_subdirectory( viscl )
+endif()
