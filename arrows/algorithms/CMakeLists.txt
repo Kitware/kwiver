@@ -9,35 +9,35 @@ set(ALGORITHMS_BINARY_DIR           "${CMAKE_CURRENT_BINARY_DIR}")
 add_subdirectory( core )
 
 # Add Ceres plugin if enabled
-if( ARROWS_ENABLE_CERES )
+if( KWIVER_ENABLE_CERES )
   add_subdirectory( ceres )
 endif()
 
 # Add OpenCV plugin if enabled
-if( ARROWS_ENABLE_OPENCV )
+if( KWIVER_ENABLE_OPENCV )
   add_subdirectory( ocv )
 endif()
 
 # Add OpenCV plugin if enabled
-if( ARROWS_ENABLE_OPENCV AND ARROWS_ENABLE_CAFFE)
+if( KWIVER_ENABLE_OPENCV AND KWIVER_ENABLE_CAFFE)
   add_subdirectory( caffe )
 endif()
 
 # Add PROJ plugin if enabled
-if( ARROWS_ENABLE_PROJ )
+if( KWIVER_ENABLE_PROJ )
   add_subdirectory( proj )
 endif()
 
 #Add VisCL plugin if enabled
-if( ARROWS_ENABLE_VISCL )
+if( KWIVER_ENABLE_VISCL )
   add_subdirectory( viscl )
 endif()
 
 # Add VXL plugin if enabled
-if( ARROWS_ENABLE_VXL )
+if( KWIVER_ENABLE_VXL )
   add_subdirectory( vxl )
 endif()
 
-if( ARROWS_ENABLE_VXL AND ARROWS_ENABLE_VIDTK)
+if( KWIVER_ENABLE_VXL AND KWIVER_ENABLE_VIDTK)
    add_subdirectory(vidtk)
 endif()

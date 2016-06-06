@@ -48,14 +48,14 @@ kwiver_add_library( algorithms_ocv
   )
 target_link_libraries( algorithms_ocv
   PUBLIC               algorithms_core
-                       kwiversys
                        ${OpenCV_LIBS}
+  PRIVATE              kwiversys
   )
 
 algorithms_create_plugin( algorithms_ocv
   algorithm_plugin_interface.cxx
   )
 
-if (ARROWS_ENABLE_TESTS)
+if (KWIVER_ENABLE_TESTS)
   add_subdirectory(tests)
 endif()

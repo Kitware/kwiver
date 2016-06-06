@@ -68,57 +68,71 @@ void register_processes()
 
   // ----------------------------------------------------------------
   registry->register_process(
-    "bounding_box_generator", "generates bounding boxes that can be used in cropping",
+    "bounding_box_generator",
+    "Generates a constant bounding box from configuration values. "
+    "The resulting box can be used for image cropping.",
     sprokit::create_process< kwiver::bounding_box_generator_process > );
 
   registry->register_process(
     "frame_list_input",
     "Reads a list of image file names and generates stream "
-    "of images and associated time stamps",
+    "of images and associated time stamps.",
     sprokit::create_process< kwiver::frame_list_process > );
 
   registry->register_process(
-    "stabilize_image", "Generate current-to-reference image homographies",
+    "stabilize_image",
+    "Generate current-to-reference image homographies",
     sprokit::create_process< kwiver::stabilize_image_process > );
 
   registry->register_process(
-    "detected_object_coordinate_updater", "Translate coordinates back to original image",
+    "detected_object_coordinate_updater",
+    "Translate coordinates back to original image.",
     sprokit::create_process< kwiver::detected_object_coordinate_updater_process > );
 
   registry->register_process(
-    "detect_features", "Detect features in an image that will be used for stabilization",
+    "detect_features",
+    "Detect features in an image that will be used for stabilization",
     sprokit::create_process< kwiver::detect_features_process > );
 
   registry->register_process(
-    "extract_descriptors", "Extract descriptors from detected features",
+    "extract_descriptors",
+    "Extract descriptors from detected features",
     sprokit::create_process< kwiver::extract_descriptors_process > );
 
   registry->register_process(
-    "feature_matcher", "Match extracted descriptors and detected features",
+    "feature_matcher",
+    "Match extracted descriptors and detected features",
     sprokit::create_process< kwiver::matcher_process > );
 
   registry->register_process(
-    "compute_homography", "Compute a frame to frame homography based on tracks",
+    "compute_homography",
+    "Compute a frame to frame homography based on tracks",
     sprokit::create_process< kwiver::compute_homography_process > );
 
   registry->register_process(
-    "draw_tracks", "Draw feature tracks on image",
+    "draw_tracks",
+    "Draw feature tracks on image.",
     sprokit::create_process< kwiver::draw_tracks_process > );
 
-
   registry->register_process(
-    "read_d_vector", "Read vector of doubles",
+    "read_d_vector",
+    "Read vector of doubles.",
     sprokit::create_process< kwiver::read_descriptor_process > );
 
   registry->register_process(
-    "object_detector", "TODO",
+    "object_detector",
+    "This process wraps an object detector. The actual detector is specified in the configuration.",
     sprokit::create_process< kwiver::object_detector_process > );
-  
-  registry->register_process("detected_object_filter", "filters detected objects",
-                              sprokit::create_process< kwiver::detected_object_filter_process > );
 
-  registry->register_process("simulate_target_selection_process", "TODO",
-                             sprokit::create_process< kwiver::simulate_target_selection_process > );
+  registry->register_process(
+    "detected_object_filter",
+    "filters detected objects",
+    sprokit::create_process< kwiver::detected_object_filter_process > );
+
+  registry->register_process(
+    "simulate_target_selection_process",
+    "Simulates selecting a single target from a list of detections based on the configuration.",
+    sprokit::create_process< kwiver::simulate_target_selection_process > );
 
 
   // - - - - - - - - - - - - - - - - - - - - - - -

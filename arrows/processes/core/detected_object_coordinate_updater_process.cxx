@@ -28,6 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file
+ * \brief Implementation of detected object updater process.
+ */
+
 #include "detected_object_coordinate_updater_process.h"
 
 #include <vital/vital_types.h>
@@ -39,11 +44,10 @@ namespace kwiver {
 
 detected_object_coordinate_updater_process
 ::detected_object_coordinate_updater_process( vital::config_block_sptr const& config )
- : process( config )
+  : process( config )
 {
   attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
   make_ports();
-  make_config();
 }
 
 
@@ -53,29 +57,30 @@ detected_object_coordinate_updater_process
 }
 
 
+// ------------------------------------------------------------------
 void
-detected_object_coordinate_updater_process::_configure()
+detected_object_coordinate_updater_process
+::_step()
 {
-}
+  vital::detected_object_set_sptr input = grab_from_port_using_trait( detected_object_set );
+  vital::detected_object::bounding_box bbox = grab_from_port_using_trait( bounding_box );
 
-
-void
-detected_object_coordinate_updater_process::_step()
-{
-  vital::detected_object_set_sptr input = grab_from_port_using_trait(detected_object_set);
-  vital::detected_object::bounding_box bbox = grab_from_port_using_trait(bounding_box);
   vital::vector_2d upper_left = bbox.upper_left();
-  for(vital::detected_object_set::iterator iter = input->get_iterator(); !iter.is_end(); ++iter)
+
+  for ( vital::detected_object_set::iterator iter = input->get_iterator(); ! iter.is_end(); ++iter )
   {
     vital::detected_object_sptr dos = iter.get_object();
-    dos->set_bounding_box(dos->get_bounding_box().translate(upper_left));
+    dos->set_bounding_box( dos->get_bounding_box().translate( upper_left ) );
   }
+
   push_to_port_using_trait( detected_object_set, input );
 }
 
 
+// ------------------------------------------------------------------
 void
-detected_object_coordinate_updater_process::make_ports()
+detected_object_coordinate_updater_process
+::make_ports()
 {
   // Set up for required ports
   sprokit::process::port_flags_t required;
@@ -83,18 +88,12 @@ detected_object_coordinate_updater_process::make_ports()
 
   required.insert( flag_required );
 
-  //input
+  // input
   declare_input_port_using_trait( bounding_box, required );
-  declare_input_port_using_trait(detected_object_set, required);
+  declare_input_port_using_trait( detected_object_set, required );
 
-  //output
-  declare_output_port_using_trait(detected_object_set, optional);
+  // output
+  declare_output_port_using_trait( detected_object_set, optional );
 }
 
-
-void
-detected_object_coordinate_updater_process::make_config()
-{
-}
-
-}//namespace kwiver
+} // namespace kwiver

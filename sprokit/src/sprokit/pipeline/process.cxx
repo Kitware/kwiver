@@ -557,6 +557,9 @@ process
     port_flags_t(),
     port_description_t("Outputs the heartbeat stamp with an empty datum."),
     port_frequency_t(1));
+
+  // Set default logger name
+  attach_logger( kwiver::vital::get_logger( std::string( "process." ) + name() ) );
 }
 
 process

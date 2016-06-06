@@ -56,6 +56,8 @@ public:
 
 }; // end priv class
 
+
+// ==================================================================
 object_detector_process
 ::object_detector_process( kwiver::vital::config_block_sptr const& config )
 : process( config ),
@@ -115,14 +117,14 @@ void object_detector_process::make_ports()
 
 void object_detector_process::make_config()
 {
-  
+
 }
 
 // ================================================================
 object_detector_process::priv
 ::priv()
 {
-  
+
 }
 
 

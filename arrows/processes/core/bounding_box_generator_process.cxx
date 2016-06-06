@@ -28,6 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file
+ * \brief Implementation of bounding box generator process.
+ */
+
 #include "bounding_box_generator_process.h"
 
 #include <vital/vital_types.h>
@@ -48,14 +53,17 @@ public:
 
   ~priv()
   { }
+
   vital::vector_2d m_upper_left;
   vital::vector_2d m_lower_right;
 }; //end priv
 
+
+// ==================================================================
 bounding_box_generator_process
 ::bounding_box_generator_process( vital::config_block_sptr const& config )
- : process( config ),
-   d( new bounding_box_generator_process::priv )
+  : process( config ),
+    d( new bounding_box_generator_process::priv )
 {
   attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
   make_ports();
@@ -70,7 +78,8 @@ bounding_box_generator_process
 
 
 void
-bounding_box_generator_process::_configure()
+bounding_box_generator_process
+::_configure()
 {
   d->m_upper_left = config_value_using_trait( upper_left );
   d->m_lower_right = config_value_using_trait( lower_right );
@@ -78,15 +87,18 @@ bounding_box_generator_process::_configure()
 
 
 void
-bounding_box_generator_process::_step()
+bounding_box_generator_process
+::_step()
 {
-  vital::detected_object::bounding_box result(d->m_upper_left, d->m_lower_right);
+  vital::detected_object::bounding_box result( d->m_upper_left, d->m_lower_right );
+
   push_to_port_using_trait( bounding_box, result );
 }
 
 
 void
-bounding_box_generator_process::make_ports()
+bounding_box_generator_process
+::make_ports()
 {
   // Set up for required ports
   sprokit::process::port_flags_t required;
@@ -100,10 +112,12 @@ bounding_box_generator_process::make_ports()
 
 
 void
-bounding_box_generator_process::make_config()
+bounding_box_generator_process
+::make_config()
 {
   declare_config_using_trait( upper_left );
   declare_config_using_trait( lower_right );
 }
 
-}//namespace kwiver
+
+} //namespace kwiver

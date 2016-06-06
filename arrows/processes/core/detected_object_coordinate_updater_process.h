@@ -45,14 +45,11 @@ public:
   detected_object_coordinate_updater_process( kwiver::vital::config_block_sptr const& config );
   virtual ~detected_object_coordinate_updater_process();
 
-
 protected:
-  virtual void _configure();
   virtual void _step();
 
 private:
   void make_ports();
-  void make_config();
 }; // end class detected_object_coordinate_updater_process
 
 } //namespace kwiver
