@@ -46,7 +46,9 @@
 #     __init__.py file and added to the SPROKIT_PYTHON_MODULES environment
 #     variable).
 
-add_custom_target(python)
+if ( NOT TARGET python)
+  add_custom_target(python)
+endif()
 
 source_group("Python Files"
   REGULAR_EXPRESSION ".*\\.py\\.in$")
@@ -122,7 +124,7 @@ function (sprokit_add_python_library    name    modpath)
     "python-${safe_modpath}-${name}")
 endfunction ()
 
-function (_sprokit_add_python_module    path     modpath    module)
+function (_sprokit_add_python_module_int    path     modpath    module)
   _sprokit_create_safe_modpath("${modpath}" safe_modpath)
 
   _sprokit_python_site_package_dir( python_site_packages )
@@ -167,18 +169,13 @@ function (_sprokit_add_python_module    path     modpath    module)
     set(python_noarch TRUE)
 
     if (NOT WIN32)
-      _sprokit_add_python_module(
-        "${path}"
-        "${modpath}"
-        "${module}")
+      _sprokit_add_python_module_int( "${path}"   "${modpath}"   "${module}")
     endif ()
   endif ()
 endfunction ()
 
 function (sprokit_add_python_module   path   modpath   module)
-  _sprokit_add_python_module("${path}"
-    "${modpath}"
-    "${module}")
+  _sprokit_add_python_module_int("${path}"   "${modpath}"   "${module}")
 endfunction ()
 
 function (sprokit_create_python_init    modpath)
@@ -198,7 +195,7 @@ function (sprokit_create_python_init    modpath)
       "from ${module} import *\n")
   endforeach ()
 
-  _sprokit_add_python_module("${init_template}"
+  _sprokit_add_python_module_int("${init_template}"
     "${modpath}"
     __init__)
 endfunction ()
@@ -219,7 +216,5 @@ function (sprokit_create_python_plugin_init modpath)
   file(APPEND "${init_template}"
     "__path__ = extend_path(__path__, __name__)\n")
 
-  _sprokit_add_python_module("${init_template}"
-    "${modpath}"
-    __init__)
+  _sprokit_add_python_module_int( "${init_template}"   "${modpath}"   __init__)
 endfunction ()

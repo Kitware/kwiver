@@ -26,9 +26,11 @@
 #     a dependency on the configure-${name} to ensure that it is complete
 #     before another target.
 
-add_custom_target(configure ALL)
+if ( NOT TARGET configure)
+  add_custom_target(configure ALL)
+endif()
 
-function (_sprokit_configure_file name source dest)
+function (_sprokit_configure_file_int name source dest)
   file(WRITE "${configure_script}"
     "# Configure script for \"${source}\" -> \"${dest}\"\n")
 
@@ -71,12 +73,10 @@ configure_file(
 endfunction ()
 
 function (sprokit_configure_file name source dest)
-  set(configure_script
-    "${CMAKE_CURRENT_BINARY_DIR}/configure.${name}.cmake")
-  set(configured_path
-    "${configure_script}.output")
+  set(configure_script   "${CMAKE_CURRENT_BINARY_DIR}/configure.${name}.cmake")
+  set(configured_path    "${configure_script}.output")
 
-  _sprokit_configure_file(${name} "${source}" "${dest}" ${ARGN})
+  _sprokit_configure_file_int(${name} "${source}" "${dest}" ${ARGN})
 
   add_custom_command(
     OUTPUT  "${dest}"
