@@ -37,6 +37,23 @@
 
 namespace kwiver {
 
+// ----------------------------------------------------------------
+/**
+ * \class input_adapter_process
+ *
+ * \brief Generic input adapter process.
+ *
+ * This process is a generic source process in a pipeline. It takes
+ * input values from an external source and feeds them into the
+ * specified ports of the pipeline.
+ *
+ * \oports
+ *
+ * \oport{various} Output ports are created dynamically based on
+ * pipeline connections.
+ */
+
+
 // ------------------------------------------------------------------
 input_adapter_process
 ::input_adapter_process( kwiver::vital::config_block_sptr const& config )

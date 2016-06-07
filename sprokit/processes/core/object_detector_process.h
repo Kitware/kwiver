@@ -28,22 +28,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _BOUNDING_BOX_GENERATOR_H
-#define _BOUNDING_BOX_GENERATOR_H
+#ifndef _OBJECT_DETECTOR_PROCESS_H
+#define _OBJECT_DETECTOR_PROCESS_H
 
 #include <sprokit/pipeline/process.h>
-#include "kwiver_core_processes_export.h"
+
+#include "kwiver_processes_export.h"
+
 #include <vital/config/config_block.h>
 
 namespace kwiver
 {
 
-class KWIVER_CORE_PROCESSES_NO_EXPORT bounding_box_generator_process
+// ----------------------------------------------------------------
+/**
+ * \class object_detector_process
+ *
+ * \brief detect objects in an image.
+ *
+ */
+class KWIVER_PROCESSES_NO_EXPORT object_detector_process
   : public sprokit::process
 {
 public:
-  bounding_box_generator_process( kwiver::vital::config_block_sptr const& config );
-  virtual ~bounding_box_generator_process();
+  object_detector_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~object_detector_process();
 
 
 protected:
@@ -56,8 +65,8 @@ private:
 
   class priv;
   const std::unique_ptr<priv> d;
-}; // end class bounding_box_generator_process
+}; // end class object_detector_process
 
-} //namespace kwiver
+} //end namespace
 
-#endif //_BOUNDING_BOX_GENERATOR_H
+#endif /* _OBJECT_DETECTOR_PROCESS_H */

@@ -1,6 +1,6 @@
 project(arrows_adapters_tests)
 
-include(vital-test-setup)
+include(kwiver-test-setup)
 
 set( test_libraries vital sprokit_pipeline sprokit_tools kwiver_adapter )
 

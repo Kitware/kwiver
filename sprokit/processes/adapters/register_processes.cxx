@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arrows/processes/adapters/kwiver_adapter_processes_export.h>
+#include <sprokit/processes/adapters/kwiver_adapter_processes_export.h>
 #include <sprokit/pipeline/process_registry.h>
 
 #include "input_adapter_process.h"

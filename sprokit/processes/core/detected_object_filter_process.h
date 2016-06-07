@@ -28,12 +28,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file
+ * \brief Interface to the filter process.
+ */
+
 #ifndef _DECTECTED_OBJECT_FILTER_PROCESS_H
 #define _DECTECTED_OBJECT_FILTER_PROCESS_H
 
 #include <sprokit/pipeline/process.h>
 
-#include "kwiver_core_processes_export.h"
+#include "kwiver_processes_export.h"
 
 #include <vital/config/config_block.h>
 
@@ -44,10 +49,18 @@ namespace kwiver
 /**
  * \class detected_object_filter_process
  *
- * \brief takes a set of detections and applys detected_object_filter.
+ * \brief Filters a set of detections
  *
+ * \iports
+ * \iport{detected_object_set}
+ * Input set of detected objects.
+ *
+ * \oports
+ * \oport{detected_object_set}
+ * List of detected objects that pass the filter criteria.
  */
-class KWIVER_CORE_PROCESSES_NO_EXPORT detected_object_filter_process
+
+class KWIVER_PROCESSES_NO_EXPORT detected_object_filter_process
   : public sprokit::process
 {
 public:

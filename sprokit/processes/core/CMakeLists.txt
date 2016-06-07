@@ -17,8 +17,8 @@ set( sources
   matcher_process.cxx
   object_detector_process.cxx
   read_descriptor_process.cxx
-  stabilize_image_process.cxx
   simulate_target_selection_process.cxx
+  stabilize_image_process.cxx
 )
 
 set( private_headers
@@ -33,8 +33,8 @@ set( private_headers
   matcher_process.h
   object_detector_process.h
   read_descriptor_process.h
-  stabilize_image_process.h
   simulate_target_selection_process.h
+  stabilize_image_process.h
 )
 
 kwiver_private_header_group( ${private_headers} )

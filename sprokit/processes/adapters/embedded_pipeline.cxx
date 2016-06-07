@@ -41,11 +41,11 @@
 #include <sprokit/pipeline/scheduler.h>
 #include <sprokit/pipeline/scheduler_registry.h>
 
-#include <arrows/processes/adapters/input_adapter.h>
-#include <arrows/processes/adapters/input_adapter_process.h>
+#include <sprokit/processes/adapters/input_adapter.h>
+#include <sprokit/processes/adapters/input_adapter_process.h>
 
-#include <arrows/processes/adapters/output_adapter.h>
-#include <arrows/processes/adapters/output_adapter_process.h>
+#include <sprokit/processes/adapters/output_adapter.h>
+#include <sprokit/processes/adapters/output_adapter_process.h>
 
 #include <sstream>
 #include <stdexcept>

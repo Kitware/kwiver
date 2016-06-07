@@ -28,19 +28,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file
+ * \brief Implementation of draw_detected_object_boxes_process
+ */
+
 #include "draw_detected_object_boxes_process.h"
 
 #include <vital/vital_types.h>
 
-#include <arrows/algorithms/ocv/image_container.h>
-#include <arrows/processes/kwiver_type_traits.h>
+#include <arrows/ocv/image_container.h>
+#include <arrows/ocv/image_container.h>
+#include <arrows/ocv/image_container.h>
+
+#include <sprokit/processes/kwiver_type_traits.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
-
-#include <arrows/algorithms/ocv/image_container.h>
-#include <arrows/algorithms/ocv/image_container.h>
 
 #include <Eigen/Core>
 
@@ -48,6 +53,36 @@
 #include <iostream>
 
 namespace kwiver {
+
+// ----------------------------------------------------------------
+/**
+ * \class draw_detected_object_boxes_process
+ *
+ * \brief Draws boxes around detected objects.
+ *
+ * \iports
+ *
+ * \iport{detected_object_set} List of detections to draw.
+ *
+ * \iport{image} Input image where boxes are drawn.
+ *
+ * \oports
+ *
+ * \oport{image} Updated image with boxes and other annotations.
+ *
+ * \configs
+ *
+ * \config{threshold} Min probability threshold for drawing
+ * detections. Detections at and above this threshold are drawn. This
+ * value is a float.
+ *
+ * \config{alpha_blend_prob} If this item is set to \b true, then
+ * detections with a lower probability are drawn with more
+ * transparency.
+ *
+ * \config{default_color}
+ *
+ */
 
 // Constant for offsetting drawn labels
 static const int multi_label_offset(15);
@@ -376,7 +411,7 @@ public:
 }; // end priv class
 
 
-// ------------------------------------------------------------------
+// ==================================================================
 draw_detected_object_boxes_process
 ::draw_detected_object_boxes_process( vital::config_block_sptr const& config )
   : process( config ),
@@ -397,11 +432,11 @@ draw_detected_object_boxes_process
 void
 draw_detected_object_boxes_process::_configure()
 {
-  d->m_threshold = config_value_using_trait( threshold );
-  d->m_formated_string = config_value_using_trait( file_string );
-  d->m_clip_box_to_image = config_value_using_trait( clip_box_to_image );
-  d->m_draw_text = config_value_using_trait( draw_text );
-  d->m_draw_overlap_max = config_value_using_trait( merge_overlapping_classes );
+  d->m_threshold          = config_value_using_trait( threshold );
+  d->m_formated_string    = config_value_using_trait( file_string );
+  d->m_clip_box_to_image  = config_value_using_trait( clip_box_to_image );
+  d->m_draw_text          = config_value_using_trait( draw_text );
+  d->m_draw_overlap_max   = config_value_using_trait( merge_overlapping_classes );
   d->m_draw_other_classes = config_value_using_trait( draw_other_classes );
 
   std::string parsed, list = config_value_using_trait( ignore_file );

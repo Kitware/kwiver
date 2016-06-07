@@ -28,40 +28,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "object_detector_process.h"
+/**
+ * \file
+ * \brief Implementation of the filter process.
+ */
+
+#include "detected_object_filter_process.h"
 
 #include <vital/algorithm_plugin_manager.h>
-
-#include <vital/algo/image_object_detector.h>
+#include <vital/algo/detected_object_filter.h>
+#include <sprokit/processes/kwiver_type_traits.h>
+#include <sprokit/pipeline/process_exception.h>
 
 #include <sstream>
 #include <iostream>
-
-#include <arrows/processes/kwiver_type_traits.h>
-
-#include <sprokit/pipeline/process_exception.h>
 
 namespace kwiver
 {
 
 //----------------------------------------------------------------
 // Private implementation class
-class object_detector_process::priv
+class detected_object_filter_process::priv
 {
 public:
   priv();
   ~priv();
 
-   vital::algo::image_object_detector_sptr m_detector;
+   vital::algo::detected_object_filter_sptr m_filter;
 
 }; // end priv class
 
 
-// ==================================================================
-object_detector_process
-::object_detector_process( kwiver::vital::config_block_sptr const& config )
-: process( config ),
-  d( new object_detector_process::priv )
+// ================================================================
+
+detected_object_filter_process
+::detected_object_filter_process( kwiver::vital::config_block_sptr const& config )
+  : process( config ),
+    d( new detected_object_filter_process::priv )
 {
   // Attach our logger name to process logger
   attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
@@ -70,37 +73,51 @@ object_detector_process
   make_config();
 }
 
-object_detector_process::~object_detector_process()
+
+detected_object_filter_process
+::~detected_object_filter_process()
 {
 }
 
-void object_detector_process::_configure()
+
+// ----------------------------------------------------------------
+void
+detected_object_filter_process
+::_configure()
 {
   vital::config_block_sptr algo_config = get_config();
 
-  vital::algo::image_object_detector::set_nested_algo_configuration( "object_detector", algo_config, d->m_detector );
-  if ( ! d->m_detector )
+  vital::algo::detected_object_filter::set_nested_algo_configuration( "detected_object_filter", algo_config, d->m_filter );
+  if ( ! d->m_filter )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Unable to create detector" );
+    throw sprokit::invalid_configuration_exception( name(), "Unable to create filter" );
   }
 
-  vital::algo::image_object_detector::get_nested_algo_configuration( "object_detector", algo_config, d->m_detector );
+  vital::algo::detected_object_filter::get_nested_algo_configuration( "detected_object_filter", algo_config, d->m_filter );
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! vital::algo::image_object_detector::check_nested_algo_configuration("object_detector", algo_config ) )
+  if ( ! vital::algo::detected_object_filter::check_nested_algo_configuration("detected_object_filter", algo_config ) )
   {
     throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
   }
 }
 
-void object_detector_process::_step()
+
+// ----------------------------------------------------------------
+void
+detected_object_filter_process
+::_step()
 {
-  vital::image_container_sptr input = grab_from_port_using_trait(image);
-  vital::detected_object_set_sptr result = d->m_detector->detect(input);
+  vital::detected_object_set_sptr input = grab_from_port_using_trait(detected_object_set);
+  vital::detected_object_set_sptr result = d->m_filter->filter(input);
   push_to_port_using_trait( detected_object_set, result );
 }
 
-void object_detector_process::make_ports()
+
+// ----------------------------------------------------------------
+void
+detected_object_filter_process
+::make_ports()
 {
   // Set up for required ports
   sprokit::process::port_flags_t required;
@@ -109,28 +126,31 @@ void object_detector_process::make_ports()
   required.insert( flag_required );
 
   // -- input --
-  declare_input_port_using_trait(image, required);
+  declare_input_port_using_trait(detected_object_set, required);
 
   // -- output --
   declare_output_port_using_trait(detected_object_set, optional);
 }
 
-void object_detector_process::make_config()
-{
 
+// ----------------------------------------------------------------
+void
+detected_object_filter_process
+::make_config()
+{
 }
+
 
 // ================================================================
-object_detector_process::priv
+detected_object_filter_process::priv
 ::priv()
 {
-
 }
 
 
-object_detector_process::priv
+detected_object_filter_process::priv
 ::~priv()
 {
 }
 
-}
+}//end namespace

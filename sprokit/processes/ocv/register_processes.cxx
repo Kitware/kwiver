@@ -36,7 +36,7 @@
 #include "view_image_process.h"
 
 extern "C"
-KWIVER_OCV_PROCESSES_EXPORT void register_processes();
+KWIVER_PROCESSES_OCV_EXPORT void register_processes();
 
 
 // ----------------------------------------------------------------
@@ -58,16 +58,20 @@ void register_processes()
 
   // ----------------------------------------------------------------
 
-  registry->register_process("crop_image", "TODO",
-                             sprokit::create_process< kwiver::crop_image_process > );
+  registry->register_process(
+    "crop_image",
+    "Produces cropped input image on output.",
+    sprokit::create_process< kwiver::crop_image_process > );
 
   registry->register_process(
-    "draw_detections", "draws the boxes to an image",
+    "draw_detections",
+    "Draws the boxes to an image.",
     sprokit::create_process< kwiver::draw_detected_object_boxes_process> );
 
 
   registry->register_process(
-    "view_image", "Display input image and delay",
+    "view_image",
+    "Display input image and delay.",
     sprokit::create_process< kwiver::view_image_process > );
 
   // - - - - - - - - - - - - - - - - - - - - - - -

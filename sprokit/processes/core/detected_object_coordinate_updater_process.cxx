@@ -30,74 +30,56 @@
 
 /**
  * \file
- * \brief Implementation of bounding box generator process.
+ * \brief Implementation of detected object updater process.
  */
 
-#include "bounding_box_generator_process.h"
+#include "detected_object_coordinate_updater_process.h"
 
 #include <vital/vital_types.h>
-#include <arrows/processes/kwiver_type_traits.h>
+#include <sprokit/processes/kwiver_type_traits.h>
 #include <vital/types/vector.h>
 #include <vital/types/detected_object.h>
 
 namespace kwiver {
 
-create_config_trait( upper_left, vital::vector_2d, "0 0", "The upper left point (x y)" );
-create_config_trait( lower_right, vital::vector_2d, "2500000 250000", "The lower right point (x y)" );
-
-class bounding_box_generator_process::priv
-{
-public:
-  priv()
-  { }
-
-  ~priv()
-  { }
-
-  vital::vector_2d m_upper_left;
-  vital::vector_2d m_lower_right;
-}; //end priv
-
-
-// ==================================================================
-bounding_box_generator_process
-::bounding_box_generator_process( vital::config_block_sptr const& config )
-  : process( config ),
-    d( new bounding_box_generator_process::priv )
+detected_object_coordinate_updater_process
+::detected_object_coordinate_updater_process( vital::config_block_sptr const& config )
+  : process( config )
 {
   attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
   make_ports();
-  make_config();
 }
 
 
-bounding_box_generator_process
-::~bounding_box_generator_process()
+detected_object_coordinate_updater_process
+::~detected_object_coordinate_updater_process()
 {
 }
 
 
+// ------------------------------------------------------------------
 void
-bounding_box_generator_process
-::_configure()
-{
-  d->m_upper_left = config_value_using_trait( upper_left );
-  d->m_lower_right = config_value_using_trait( lower_right );
-}
-
-
-void
-bounding_box_generator_process
+detected_object_coordinate_updater_process
 ::_step()
 {
-  vital::detected_object::bounding_box result( d->m_upper_left, d->m_lower_right );
+  vital::detected_object_set_sptr input = grab_from_port_using_trait( detected_object_set );
+  vital::detected_object::bounding_box bbox = grab_from_port_using_trait( bounding_box );
 
-  push_to_port_using_trait( bounding_box, result );
+  vital::vector_2d upper_left = bbox.upper_left();
+
+  for ( vital::detected_object_set::iterator iter = input->get_iterator(); ! iter.is_end(); ++iter )
+  {
+    vital::detected_object_sptr dos = iter.get_object();
+    dos->set_bounding_box( dos->get_bounding_box().translate( upper_left ) );
+  }
+
+  push_to_port_using_trait( detected_object_set, input );
 }
 
 
+// ------------------------------------------------------------------
 void
-bounding_box_generator_process
+detected_object_coordinate_updater_process
 ::make_ports()
 {
   // Set up for required ports
@@ -106,18 +88,12 @@ bounding_box_generator_process
 
   required.insert( flag_required );
 
-  //output
-  declare_output_port_using_trait( bounding_box, required );
+  // input
+  declare_input_port_using_trait( bounding_box, required );
+  declare_input_port_using_trait( detected_object_set, required );
+
+  // output
+  declare_output_port_using_trait( detected_object_set, optional );
 }
 
-
-void
-bounding_box_generator_process
-::make_config()
-{
-  declare_config_using_trait( upper_left );
-  declare_config_using_trait( lower_right );
-}
-
-
-} //namespace kwiver
+} // namespace kwiver

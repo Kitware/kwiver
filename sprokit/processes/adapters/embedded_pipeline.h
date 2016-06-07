@@ -33,7 +33,7 @@
 #ifndef ARROWS_PROCESSES_EMBEDDED_PIPELINE_H
 #define ARROWS_PROCESSES_EMBEDDED_PIPELINE_H
 
-#include <arrows/processes/adapters/kwiver_adapter_export.h>
+#include <sprokit/processes/adapters/kwiver_adapter_export.h>
 
 #include "adapter_data_set.h"
 

@@ -28,53 +28,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KWIVER_NPUT_ADAPTER_H
-#define KWIVER_NPUT_ADAPTER_H
+/**
+ * \file
+ * \brief Interface to input adapter process.
+ */
 
-#include <arrows/processes/adapters/kwiver_adapter_export.h>
+#ifndef PROCESS_INPUT_ADAPTER_PROCESS_H
+#define PROCESS_INPUT_ADAPTER_PROCESS_H
 
-#include "adapter_types.h"
-#include "adapter_data_set.h"
+#include <sprokit/processes/adapters/kwiver_adapter_processes_export.h>
 
+#include <sprokit/pipeline/process.h>
+
+#include "adapter_base.h"
 
 namespace kwiver {
 
-class output_adapter_process;
-
-// -----------------------------------------------------------------
-/**
- *
- *
- */
-class KWIVER_ADAPTER_EXPORT output_adapter
+class KWIVER_ADAPTER_PROCESSES_NO_EXPORT input_adapter_process
+  : public sprokit::process,
+    public adapter::adapter_base
 {
 public:
-  output_adapter();
-  virtual ~output_adapter();
+  // -- CONSTRUCTORS --
+  input_adapter_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~input_adapter_process();
 
-  /**
-   * @brief Connect to named process.
-   *
-   * The named process is located in the specified pipeline.
-   *
-   * @param proc Process name.
-   * @param pipe Pipeline to search.
-   *
-   * @return Pointer to adapter base object
-   *
-   * @throws sprokit::no_such_port_exception if the process is not found
-   */
-  void connect( sprokit::process::name_t proc, sprokit::pipeline_t pipe );
-
-  /**
-   * @brief Return list of ports connected to adapter process.
-   *
-   * This method returns the list of output ports that are connected
-   * to the adapter process.
-   *
-   * @return List of port names
-   */
-  sprokit::process::ports_t port_list() const;
+  // Process interface
+  virtual void _step();
 
   /**
    * @brief Return list of active ports.
@@ -84,32 +64,15 @@ public:
    *
    * @return List of port names and info.
    */
-  adapter::ports_info_t get_ports() const;
-
-  /**
-   * @brief Send data set to output adapter process.
-   *
-   * The specified data set is sent to the output adapter process that
-   * is currently connected to this object.
-   *
-   * @returns Data set
-   */
-  kwiver::adapter::adapter_data_set_t receive();
-
-  /**
-   * @brief Is interface queue empty?
-   *
-   * This method checks to see if there is a pipeline output data set ready.
-   *
-   * @return \b true if interface queue is full and thread would wait for receive().
-   */
-  bool empty() const;
+  adapter::ports_info_t get_ports();
 
 private:
-  kwiver::output_adapter_process* m_process;
-  kwiver::adapter::interface_ref_t m_interface_queue;
-}; // end class output_adapter
+
+  // This is used to intercept connections and make ports JIT
+  virtual sprokit::process::port_info_t _output_port_info( sprokit::process::port_t const& port);
+
+}; // end class input_adapter_process
 
 } // end namespace
 
-#endif // KWIVER_NPUT_ADAPTER_H
+#endif /* PROCESS_INPUT_ADAPTER_PROCESS_H */

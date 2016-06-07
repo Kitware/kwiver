@@ -28,39 +28,62 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _KWIVER_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H
-#define _KWIVER_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H
+/**
+ * \file
+ * \brief Interface to output adapter process.
+ */
+
+#ifndef KWIVER_OUTPUT_ADAPTER_PROCESS_H
+#define KWIVER_OUTPUT_ADAPTER_PROCESS_H
+
+#include <sprokit/processes/adapters/kwiver_adapter_processes_export.h>
 
 #include <sprokit/pipeline/process.h>
-#include "kwiver_ocv_processes_export.h"
 
-#include <memory>
+#include "adapter_base.h"
 
-namespace kwiver
-{
+namespace kwiver {
 
-class KWIVER_OCV_PROCESSES_NO_EXPORT draw_detected_object_boxes_process
-  : public sprokit::process
+// ----------------------------------------------------------------
+/**
+ * \class output_adapter_process
+ *
+ * \brief Generic output adapter class
+ *
+ * \iports
+ * \iport{various}
+ * Input ports are dynamically created based on pipeline connections.
+ */
+
+class KWIVER_ADAPTER_PROCESSES_NO_EXPORT output_adapter_process
+  : public sprokit::process,
+    public adapter::adapter_base
 {
 public:
   // -- CONSTRUCTORS --
-  draw_detected_object_boxes_process( kwiver::vital::config_block_sptr const& config );
-  virtual ~draw_detected_object_boxes_process();
+  output_adapter_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~output_adapter_process();
 
-protected:
-  virtual void _configure();
+  // Process interface
   virtual void _step();
 
+  /**
+   * @brief Return list of active ports.
+   *
+   * This method returns the list of currently active ports and
+   * associated port info items.
+   *
+   * @return List of port names and info.
+   */
+  adapter::ports_info_t get_ports();
+
 private:
-  void make_ports();
-  void make_config();
 
+  // This is used to intercept connections and make ports JIT
+  virtual sprokit::process::port_info_t _input_port_info(port_t const& port);
 
-  class priv;
-  const std::unique_ptr<priv> d;
+}; // end class output_adapter_process
 
-}; // end class draw_detected_object_boxes_process
+} // end namespace
 
-}
-
-#endif //_KWIVER_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H
+#endif // KWIVER_OUTPUT_ADAPTER_PROCESS_H

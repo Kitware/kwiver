@@ -37,19 +37,14 @@
 #define _KWIVER_VIEW_IMAGE_PROCESS_H
 
 #include <sprokit/pipeline/process.h>
-#include "kwiver_ocv_processes_export.h"
+#include "kwiver_processes_ocv_export.h"
 
 #include <memory>
 
 namespace kwiver
 {
 
-// ----------------------------------------------------------------
-/**
- * @brief Display images
- *
- */
-class KWIVER_OCV_PROCESSES_NO_EXPORT view_image_process
+class KWIVER_PROCESSES_OCV_NO_EXPORT view_image_process
   : public sprokit::process
 {
 public:

@@ -28,45 +28,48 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _OBJECT_DETECTOR_PROCESS_H
-#define _OBJECT_DETECTOR_PROCESS_H
+/**
+ * \file
+ * \brief Interface to detected object updater process.
+ */
+
+#ifndef _DETECTED_OBJECT_COORDINATE_UPDATER_PROCESS_H
+#define _DETECTED_OBJECT_COORDINATE_UPDATER_PROCESS_H
 
 #include <sprokit/pipeline/process.h>
-
-#include "kwiver_core_processes_export.h"
-
+#include "kwiver_processes_export.h"
 #include <vital/config/config_block.h>
 
-namespace kwiver
-{
+namespace kwiver {
 
 // ----------------------------------------------------------------
 /**
- * \class object_detector_process
+ * \class detected_object_coordinate_updater_process
  *
- * \brief detect objects in an image.
+ * \brief Updates detected object coordinates
  *
+ * \iports
+ * \iport{bounding_box}
+ * \iport{detected_object_set}
+ *
+ * \oports
+ * \oport{detected_object_set}
  */
-class KWIVER_CORE_PROCESSES_NO_EXPORT object_detector_process
+
+class KWIVER_PROCESSES_NO_EXPORT detected_object_coordinate_updater_process
   : public sprokit::process
 {
 public:
-  object_detector_process( kwiver::vital::config_block_sptr const& config );
-  virtual ~object_detector_process();
-
+  detected_object_coordinate_updater_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~detected_object_coordinate_updater_process();
 
 protected:
-  virtual void _configure();
   virtual void _step();
 
 private:
   void make_ports();
-  void make_config();
+}; // end class detected_object_coordinate_updater_process
 
-  class priv;
-  const std::unique_ptr<priv> d;
-}; // end class object_detector_process
+} //namespace kwiver
 
-} //end namespace
-
-#endif /* _OBJECT_DETECTOR_PROCESS_H */
+#endif //_DETECTED_OBJECT_COORDINATE_UPDATER_PROCESS_H

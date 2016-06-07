@@ -28,30 +28,59 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _DETECTED_OBJECT_COORDINATE_UPDATER_PROCESS_H
-#define _DETECTED_OBJECT_COORDINATE_UPDATER_PROCESS_H
+/**
+ * \file
+ * \brief Interface to target simulating process.
+ */
+
+#ifndef _KWIVER_SIMULATE_TARGET_SELECTION_PROCESS_H_
+#define _KWIVER_SIMULATE_TARGET_SELECTION_PROCESS_H_
 
 #include <sprokit/pipeline/process.h>
-#include "kwiver_core_processes_export.h"
+
+#include "kwiver_processes_export.h"
+
 #include <vital/config/config_block.h>
 
 namespace kwiver
 {
 
-class KWIVER_CORE_PROCESSES_NO_EXPORT detected_object_coordinate_updater_process
-  : public sprokit::process
+// ----------------------------------------------------------------
+/**
+ * \class simulate_target_selection_process
+ *
+ * \brief Simulates a target selection process.
+ *
+ * \iports
+ * \iport{detected_object_set}
+ * A set of detected objects.
+ *
+ * \oports
+ * \oport{bounding_box}
+ * Bounding box of the selected target.
+ */
+
+class KWIVER_PROCESSES_NO_EXPORT simulate_target_selection_process
+: public sprokit::process
 {
 public:
-  detected_object_coordinate_updater_process( kwiver::vital::config_block_sptr const& config );
-  virtual ~detected_object_coordinate_updater_process();
+  simulate_target_selection_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~simulate_target_selection_process();
+
 
 protected:
+  virtual void _configure();
   virtual void _step();
 
 private:
   void make_ports();
-}; // end class detected_object_coordinate_updater_process
+  void make_config();
 
-} //namespace kwiver
+  class priv;
+  const std::unique_ptr<priv> d;
+}; // end class
 
-#endif //_DETECTED_OBJECT_COORDINATE_UPDATER_PROCESS_H
+} //end namespace
+
+
+#endif

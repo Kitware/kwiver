@@ -28,46 +28,44 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _KWIVER_SIMULATE_TARGET_SELECTION_PROCESS_H_
-#define _KWIVER_SIMULATE_TARGET_SELECTION_PROCESS_H_
+/**
+ * \file
+ * \brief Interface to crop image process
+ */
+
+#ifndef _KWIVER_CROP_IMAGE_PROCESS_H
+#define _KWIVER_CROP_IMAGE_PROCESS_H
 
 #include <sprokit/pipeline/process.h>
+#include "kwiver_processes_ocv_export.h"
 
-#include "kwiver_core_processes_export.h"
-
-#include <vital/config/config_block.h>
+#include <memory>
 
 namespace kwiver
 {
 
-// ----------------------------------------------------------------
-/**
- * \class detected_object_filter_process
- *
- * \brief takes a set of detections and applys detected_object_filter.
- *
- */
-class KWIVER_CORE_PROCESSES_NO_EXPORT simulate_target_selection_process
-: public sprokit::process
-{
-public:
-  simulate_target_selection_process( kwiver::vital::config_block_sptr const& config );
-  virtual ~simulate_target_selection_process();
+class KWIVER_PROCESSES_OCV_NO_EXPORT crop_image_process
+  : public sprokit::process
+  {
+  public:
+    // -- CONSTRUCTORS --
+    crop_image_process( kwiver::vital::config_block_sptr const& config );
+    virtual ~crop_image_process();
+
+  protected:
+    virtual void _configure();
+    virtual void _step();
+
+  private:
+    void make_ports();
+    void make_config();
 
 
-protected:
-  virtual void _configure();
-  virtual void _step();
+    class priv;
+    const std::unique_ptr<priv> d;
 
-private:
-  void make_ports();
-  void make_config();
+  }; // end class crop_image_process
 
-  class priv;
-  const std::unique_ptr<priv> d;
-}; // end class
+}
 
-} //end namespace
-
-
-#endif
+#endif //_KWIVER_CROP_IMAGE_PROCESS_H

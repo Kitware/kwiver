@@ -30,56 +30,78 @@
 
 /**
  * \file
- * \brief Implementation of detected object updater process.
+ * \brief Implementation of target simulating process.
  */
 
-#include "detected_object_coordinate_updater_process.h"
+#include "simulate_target_selection_process.h"
 
-#include <vital/vital_types.h>
-#include <arrows/processes/kwiver_type_traits.h>
-#include <vital/types/vector.h>
-#include <vital/types/detected_object.h>
+#include <vital/algorithm_plugin_manager.h>
+#include <vital/algo/detected_object_filter.h>
+#include <sprokit/processes/kwiver_type_traits.h>
+#include <sprokit/pipeline/process_exception.h>
 
-namespace kwiver {
+#include <sstream>
+#include <iostream>
 
-detected_object_coordinate_updater_process
-::detected_object_coordinate_updater_process( vital::config_block_sptr const& config )
-  : process( config )
+namespace kwiver
 {
-  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
+
+class simulate_target_selection_process::priv
+{
+public:
+  priv()
+  { }
+
+  // nothing yet
+};
+
+// ------------------------------------------------------------------
+simulate_target_selection_process
+::simulate_target_selection_process( kwiver::vital::config_block_sptr const& config )
+  : process( config ),
+    d( new simulate_target_selection_process::priv )
+{
   make_ports();
 }
 
 
-detected_object_coordinate_updater_process
-::~detected_object_coordinate_updater_process()
+simulate_target_selection_process
+::~simulate_target_selection_process()
 {
 }
 
 
 // ------------------------------------------------------------------
 void
-detected_object_coordinate_updater_process
+simulate_target_selection_process
+::_configure()
+{
+  // Nothing yet
+}
+
+
+// ------------------------------------------------------------------
+void
+simulate_target_selection_process
 ::_step()
 {
   vital::detected_object_set_sptr input = grab_from_port_using_trait( detected_object_set );
-  vital::detected_object::bounding_box bbox = grab_from_port_using_trait( bounding_box );
+  vital::detected_object::bounding_box result;
+  vital::detected_object_set::iterator top_person = input->get_iterator( "person", true, 0.8 );
+  vital::detected_object_sptr top_object = top_person.get_object();
 
-  vital::vector_2d upper_left = bbox.upper_left();
-
-  for ( vital::detected_object_set::iterator iter = input->get_iterator(); ! iter.is_end(); ++iter )
+  if ( top_object != NULL )
   {
-    vital::detected_object_sptr dos = iter.get_object();
-    dos->set_bounding_box( dos->get_bounding_box().translate( upper_left ) );
+    result = top_object->get_bounding_box();
   }
 
-  push_to_port_using_trait( detected_object_set, input );
+  push_to_port_using_trait( bounding_box, result );
 }
 
 
 // ------------------------------------------------------------------
 void
-detected_object_coordinate_updater_process
+simulate_target_selection_process
 ::make_ports()
 {
   // Set up for required ports
@@ -88,12 +110,19 @@ detected_object_coordinate_updater_process
 
   required.insert( flag_required );
 
-  // input
-  declare_input_port_using_trait( bounding_box, required );
+  // -- input --
   declare_input_port_using_trait( detected_object_set, required );
 
-  // output
-  declare_output_port_using_trait( detected_object_set, optional );
+  //output
+  declare_output_port_using_trait( bounding_box, optional );
 }
 
-} // namespace kwiver
+
+// ------------------------------------------------------------------
+void
+simulate_target_selection_process
+::make_config()
+{
+}
+
+} // end namespace

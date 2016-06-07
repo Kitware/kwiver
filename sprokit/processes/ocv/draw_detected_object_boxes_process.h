@@ -28,39 +28,44 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _KWIVER_CROP_IMAGE_PROCESS_H
-#define _KWIVER_CROP_IMAGE_PROCESS_H
+/**
+ * \file
+ * \brief Interface to draw_detected_object_boxes_process
+ */
+
+#ifndef _KWIVER_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H
+#define _KWIVER_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H
 
 #include <sprokit/pipeline/process.h>
-#include "kwiver_ocv_processes_export.h"
+#include "kwiver_processes_ocv_export.h"
 
 #include <memory>
 
 namespace kwiver
 {
 
-  class KWIVER_OCV_PROCESSES_NO_EXPORT crop_image_process
+class KWIVER_PROCESSES_OCV_NO_EXPORT draw_detected_object_boxes_process
   : public sprokit::process
-  {
-  public:
-    // -- CONSTRUCTORS --
-    crop_image_process( kwiver::vital::config_block_sptr const& config );
-    virtual ~crop_image_process();
+{
+public:
+  // -- CONSTRUCTORS --
+  draw_detected_object_boxes_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~draw_detected_object_boxes_process();
 
-  protected:
-    virtual void _configure();
-    virtual void _step();
+protected:
+  virtual void _configure();
+  virtual void _step();
 
-  private:
-    void make_ports();
-    void make_config();
+private:
+  void make_ports();
+  void make_config();
 
 
-    class priv;
-    const std::unique_ptr<priv> d;
+  class priv;
+  const std::unique_ptr<priv> d;
 
-  }; // end class crop_image_process
+}; // end class draw_detected_object_boxes_process
 
 }
 
-#endif //_KWIVER_CROP_IMAGE_PROCESS_H
+#endif //_KWIVER_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H

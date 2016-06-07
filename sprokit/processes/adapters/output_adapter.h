@@ -28,10 +28,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KWIVER_INPUT_ADAPTER_H
-#define KWIVER_INPUT_ADAPTER_H
+/**
+ * \file
+ * \brief Interface to output adapter.
+ */
 
-#include <arrows/processes/adapters/kwiver_adapter_export.h>
+#ifndef KWIVER_NPUT_ADAPTER_H
+#define KWIVER_NPUT_ADAPTER_H
+
+#include <sprokit/processes/adapters/kwiver_adapter_export.h>
 
 #include "adapter_types.h"
 #include "adapter_data_set.h"
@@ -39,18 +44,18 @@
 
 namespace kwiver {
 
-class input_adapter_process;
+class output_adapter_process;
 
 // -----------------------------------------------------------------
 /**
- * @brief Input adapter class that provides input to pipeline.
+ *
  *
  */
-class KWIVER_ADAPTER_EXPORT input_adapter
+class KWIVER_ADAPTER_EXPORT output_adapter
 {
 public:
-  input_adapter();
-  virtual ~input_adapter();
+  output_adapter();
+  virtual ~output_adapter();
 
   /**
    * @brief Connect to named process.
@@ -69,7 +74,7 @@ public:
   /**
    * @brief Return list of ports connected to adapter process.
    *
-   * This method returns the list of input ports that are connected
+   * This method returns the list of output ports that are connected
    * to the adapter process.
    *
    * @return List of port names
@@ -87,31 +92,29 @@ public:
   adapter::ports_info_t get_ports() const;
 
   /**
-   * @brief Send data set to input adapter process.
+   * @brief Send data set to output adapter process.
    *
-   * The specified data set is sent to the input adapter process that
+   * The specified data set is sent to the output adapter process that
    * is currently connected to this object.
    *
-   * @param dat Data set to send.
+   * @returns Data set
    */
-  void send( kwiver::adapter::adapter_data_set_t dat );
+  kwiver::adapter::adapter_data_set_t receive();
 
   /**
-   * @brief Is interface queue full?
+   * @brief Is interface queue empty?
    *
-   * This method checks to see if the input adapter process can accept
-   * more data.
+   * This method checks to see if there is a pipeline output data set ready.
    *
-   * @return \b true if interface queue is full and thread would wait
-   * for send().
+   * @return \b true if interface queue is full and thread would wait for receive().
    */
-  bool full() const;
+  bool empty() const;
 
 private:
-  kwiver::input_adapter_process* m_process;
+  kwiver::output_adapter_process* m_process;
   kwiver::adapter::interface_ref_t m_interface_queue;
-}; // end class input_adapter
+}; // end class output_adapter
 
 } // end namespace
 
-#endif // KWIVER_INPUT_ADAPTER_H
+#endif // KWIVER_NPUT_ADAPTER_H

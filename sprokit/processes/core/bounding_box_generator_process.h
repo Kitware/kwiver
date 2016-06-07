@@ -28,51 +28,47 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KWIVER_OUTPUT_ADAPTER_PROCESS_H
-#define KWIVER_OUTPUT_ADAPTER_PROCESS_H
-
-#include <arrows/processes/adapters/kwiver_adapter_processes_export.h>
+#ifndef _BOUNDING_BOX_GENERATOR_H
+#define _BOUNDING_BOX_GENERATOR_H
 
 #include <sprokit/pipeline/process.h>
+#include "kwiver_processes_export.h"
+#include <vital/config/config_block.h>
 
-#include "adapter_base.h"
-
-namespace kwiver {
+namespace kwiver
+{
 
 // ----------------------------------------------------------------
 /**
- * @brief
+ * \class bounding_box_generator_process
  *
+ * \brief Generates bounding boxes
+ *
+ * \oports
+ * \oport{bounding_box}
+ * Bounding box created fro config parameters.
  */
-class KWIVER_ADAPTER_PROCESSES_NO_EXPORT output_adapter_process
-  : public sprokit::process,
-    public adapter::adapter_base
+
+class KWIVER_PROCESSES_NO_EXPORT bounding_box_generator_process
+  : public sprokit::process
 {
 public:
-  // -- CONSTRUCTORS --
-  output_adapter_process( kwiver::vital::config_block_sptr const& config );
-  virtual ~output_adapter_process();
+  bounding_box_generator_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~bounding_box_generator_process();
 
-  // Process interface
+
+protected:
+  virtual void _configure();
   virtual void _step();
 
-  /**
-   * @brief Return list of active ports.
-   *
-   * This method returns the list of currently active ports and
-   * associated port info items.
-   *
-   * @return List of port names and info.
-   */
-  adapter::ports_info_t get_ports();
-
 private:
+  void make_ports();
+  void make_config();
 
-  // This is used to intercept connections and make ports JIT
-  virtual sprokit::process::port_info_t _input_port_info(port_t const& port);
+  class priv;
+  const std::unique_ptr<priv> d;
+}; // end class bounding_box_generator_process
 
-}; // end class output_adapter_process
+} //namespace kwiver
 
-} // end namespace
-
-#endif // KWIVER_OUTPUT_ADAPTER_PROCESS_H
+#endif //_BOUNDING_BOX_GENERATOR_H

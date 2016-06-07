@@ -40,10 +40,10 @@
 #include "extract_descriptors_process.h"
 #include "frame_list_process.h"
 #include "matcher_process.h"
-#include "read_descriptor_process.h"
-#include "stabilize_image_process.h"
 #include "object_detector_process.h"
+#include "read_descriptor_process.h"
 #include "simulate_target_selection_process.h"
+#include "stabilize_image_process.h"
 
 extern "C"
 KWIVER_PROCESSES_EXPORT void register_processes();
@@ -130,7 +130,7 @@ void register_processes()
     sprokit::create_process< kwiver::detected_object_filter_process > );
 
   registry->register_process(
-    "simulate_target_selection_process",
+    "simulate_target_selection",
     "Simulates selecting a single target from a list of detections based on the configuration.",
     sprokit::create_process< kwiver::simulate_target_selection_process > );
 

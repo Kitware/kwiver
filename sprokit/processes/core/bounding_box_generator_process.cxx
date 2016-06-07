@@ -30,78 +30,74 @@
 
 /**
  * \file
- * \brief Implementation of target simulating process.
+ * \brief Implementation of bounding box generator process.
  */
 
-#include "simulate_target_selection_process.h"
+#include "bounding_box_generator_process.h"
 
-#include <vital/algorithm_plugin_manager.h>
-#include <vital/algo/detected_object_filter.h>
-#include <arrows/processes/kwiver_type_traits.h>
-#include <sprokit/pipeline/process_exception.h>
+#include <vital/vital_types.h>
+#include <sprokit/processes/kwiver_type_traits.h>
+#include <vital/types/vector.h>
+#include <vital/types/detected_object.h>
 
-#include <sstream>
-#include <iostream>
+namespace kwiver {
 
-namespace kwiver
-{
+create_config_trait( upper_left, vital::vector_2d, "0 0", "The upper left point (x y)" );
+create_config_trait( lower_right, vital::vector_2d, "2500000 250000", "The lower right point (x y)" );
 
-class simulate_target_selection_process::priv
+class bounding_box_generator_process::priv
 {
 public:
   priv()
   { }
 
-  // nothing yet
-};
+  ~priv()
+  { }
 
-// ------------------------------------------------------------------
-simulate_target_selection_process
-::simulate_target_selection_process( kwiver::vital::config_block_sptr const& config )
+  vital::vector_2d m_upper_left;
+  vital::vector_2d m_lower_right;
+}; //end priv
+
+
+// ==================================================================
+bounding_box_generator_process
+::bounding_box_generator_process( vital::config_block_sptr const& config )
   : process( config ),
-    d( new simulate_target_selection_process::priv )
+    d( new bounding_box_generator_process::priv )
 {
+  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
   make_ports();
+  make_config();
 }
 
 
-simulate_target_selection_process
-::~simulate_target_selection_process()
+bounding_box_generator_process
+::~bounding_box_generator_process()
 {
 }
 
 
-// ------------------------------------------------------------------
 void
-simulate_target_selection_process
+bounding_box_generator_process
 ::_configure()
 {
-  // Nothing yet
+  d->m_upper_left = config_value_using_trait( upper_left );
+  d->m_lower_right = config_value_using_trait( lower_right );
 }
 
 
-// ------------------------------------------------------------------
 void
-simulate_target_selection_process
+bounding_box_generator_process
 ::_step()
 {
-  vital::detected_object_set_sptr input = grab_from_port_using_trait( detected_object_set );
-  vital::detected_object::bounding_box result;
-  vital::detected_object_set::iterator top_person = input->get_iterator( "person", true, 0.8 );
-  vital::detected_object_sptr top_object = top_person.get_object();
-
-  if ( top_object != NULL )
-  {
-    result = top_object->get_bounding_box();
-  }
+  vital::detected_object::bounding_box result( d->m_upper_left, d->m_lower_right );
 
   push_to_port_using_trait( bounding_box, result );
 }
 
 
-// ------------------------------------------------------------------
 void
-simulate_target_selection_process
+bounding_box_generator_process
 ::make_ports()
 {
   // Set up for required ports
@@ -110,19 +106,18 @@ simulate_target_selection_process
 
   required.insert( flag_required );
 
-  // -- input --
-  declare_input_port_using_trait( detected_object_set, required );
-
   //output
-  declare_output_port_using_trait( bounding_box, optional );
+  declare_output_port_using_trait( bounding_box, required );
 }
 
 
-// ------------------------------------------------------------------
 void
-simulate_target_selection_process
+bounding_box_generator_process
 ::make_config()
 {
+  declare_config_using_trait( upper_left );
+  declare_config_using_trait( lower_right );
 }
 
-} // end namespace
+
+} //namespace kwiver
