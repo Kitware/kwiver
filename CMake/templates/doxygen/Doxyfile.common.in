@@ -34,6 +34,7 @@ MULTILINE_CPP_IS_BRIEF = NO
 INHERIT_DOCS           = YES
 SEPARATE_MEMBER_PAGES  = NO
 TAB_SIZE               = 8
+
 ALIASES                = tt{1}="<tt>\1</tt>"
 ALIASES               += port{1}="\tt{\1}"
 ALIASES               += key{1}="\tt{\1}"
@@ -43,6 +44,7 @@ ALIASES               += type{1}="\tt{\1}"
 ALIASES               += term{1}="<dt>\1</dt>"
 ALIASES               += termdef{1}="<dd>\1</dd>"
 ALIASES               += doxdir{1}="\tt{\1}"
+ALIASES               += portvar{1}="\em{\1}"
 ALIASES               += cond{1}="\em{\1}"
 ALIASES               += preconds="<dl><dt><b>Preconditions:</b></dt><dd>"
 ALIASES               += endpreconds="</dd></dl>"
@@ -50,6 +52,10 @@ ALIASES               += precond{1}="<p>\1</p>"
 ALIASES               += postconds="<dl><dt><b>Postconditions:</b></dt><dd>"
 ALIASES               += endpostconds="</dd></dl>"
 ALIASES               += postcond{1}="<p>\1</p>"
+ALIASES               += oports="\section output_ports Output ports"
+ALIASES               += oport{1}="\li \port{\1} —"
+ALIASES               += iports="\section input_ports Input ports"
+ALIASES               += iport{1}="\li \port{\1} —"
 ALIASES               += configs="\section configuration Configuration"
 ALIASES               += config{1}="\li \key{\1} —"
 ALIASES               += reqs="\section requirements Requirements"
@@ -59,6 +65,10 @@ ALIASES               += cprov{1}="\li \provider{\1} —"
 ALIASES               += mflag{1}="\li \flag{\1} —"
 ALIASES               += pflag{1}="\li \flag{\1} —"
 ALIASES               += ptype{1}="\li \type{\1} —"
+ALIASES               += process="\xrefitem processes \"Process description\" \"Process listing\""
+ALIASES               += scheduler="\xrefitem schedulers \"Scheduler description\" \"Scheduler listing\""
+
+
 OPTIMIZE_OUTPUT_FOR_C  = NO
 OPTIMIZE_OUTPUT_JAVA   = NO
 OPTIMIZE_FOR_FORTRAN   = NO
@@ -142,7 +152,8 @@ EXPAND_ONLY_PREDEF     = YES
 SEARCH_INCLUDES        = YES
 INCLUDE_PATH           = @doxy_include_path@
 INCLUDE_FILE_PATTERNS  =
-PREDEFINED             = DOXYGEN_IGNORE
+PREDEFINED             = DOXYGEN_IGNORE \
+                        "create_config_trait(KEY, TYPE, DEF, DESCR)=\\configs \\config{KEY} type:TYPE<BR>DESCR"
 EXPAND_AS_DEFINED      =
 SKIP_FUNCTION_MACROS   = NO
 #---------------------------------------------------------------------------
