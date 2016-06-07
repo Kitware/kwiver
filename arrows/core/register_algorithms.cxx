@@ -36,6 +36,8 @@
 #include "register_algorithms.h"
 
 #include <arrows/algorithm_plugin_interface_macros.h>
+
+#include <arrows/core/class_probablity_filter.h>
 #include <arrows/core/close_loops_bad_frames_only.h>
 #include <arrows/core/close_loops_multi_method.h>
 #include <arrows/core/compute_ref_homography_core.h>
@@ -44,15 +46,14 @@
 #include <arrows/core/hierarchical_bundle_adjust.h>
 #include <arrows/core/initialize_cameras_landmarks.h>
 #include <arrows/core/match_features_homography.h>
+#include <arrows/core/non_maximual_supression.h>
 #include <arrows/core/track_features_core.h>
 #include <arrows/core/triangulate_landmarks.h>
 
 
 namespace kwiver {
 namespace arrows {
-
-namespace core
-{
+namespace core {
 
 // Register core algorithms with the given or global registrar
 int register_algorithms(vital::registrar &reg)
@@ -76,7 +77,4 @@ int register_algorithms(vital::registrar &reg)
     return REGISTRATION_FAILURES();
 }
 
-} // end namespace core
-
-} // end namespace arrows
-} // end namespace kwiver
+} } } // end namespace

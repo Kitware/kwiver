@@ -37,7 +37,7 @@
 
 #include "faster_rcnn_detector.h"
 
-#include <arrows/algorithms/algorithm_plugin_interface_macros.h>
+#include <arrows/algorithm_plugin_interface_macros.h>
 
 namespace kwiver {
 namespace arrows {

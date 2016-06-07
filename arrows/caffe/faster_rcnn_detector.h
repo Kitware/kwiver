@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,34 +28,62 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file
- * \brief vidtk algorithm registration implementation
- */
 
-#include "register_algorithms.h"
-#include "vidtk_change_detector.h"
+#ifndef KWIVER_ARROWS_FASTER_RCNN_DETECTOR_H_
+#define KWIVER_ARROWS_FASTER_RCNN_DETECTOR_H_
 
+#include <arrows/caffe/algorithms_caffe_export.h>
 
-#include <arrows/algorithms/algorithm_plugin_interface_macros.h>
+#include <vital/vital_config.h>
+
+#include <vital/algo/algorithm.h>
+#include <vital/types/image_container.h>
+#include <vital/types/object_labels.h>
+#include <vital/algo/image_object_detector.h>
+#include <vital/config/config_block.h>
+
+#include <opencv2/core/core.hpp>
+
+#include <caffe/blob.hpp>
+#include <caffe/net.hpp>
+
+#include <utility>
 
 namespace kwiver {
 namespace arrows {
-namespace vidtk {
+namespace caffe {
 
-/// Register vidtk algorithm implementations with the given or global registrar
-int register_algorithms( vital::registrar &reg )
+// ----------------------------------------------------------------
+/**
+ * @brief
+ *
+ */
+class ALGORITHMS_CAFFE_EXPORT faster_rcnn_detector
+  : public vital::algorithm_impl<faster_rcnn_detector, vital::algo::image_object_detector>
 {
+public:
 
-  REGISTRATION_INIT( reg );
+  faster_rcnn_detector();
+  faster_rcnn_detector(faster_rcnn_detector const& frd);
 
-  REGISTER_TYPE( vidtk_change_detector );
+  virtual ~faster_rcnn_detector();
 
+  virtual std::string impl_name() const { return "faster_rcnn_detector"; }
 
-  REGISTRATION_SUMMARY();
-  return REGISTRATION_FAILURES();
-}
+  virtual vital::config_block_sptr get_configuration() const;
 
-} // end namespace vidtk
-} // end namespace arrows
-} // end namespace kwiver
+  virtual void set_configuration(vital::config_block_sptr config);
+  virtual bool check_configuration(vital::config_block_sptr config) const;
+
+  virtual vital::detected_object_set_sptr detect( vital::image_container_sptr image_data) const;
+
+private:
+
+  class priv;
+  const std::unique_ptr<priv> d;
+
+};
+
+}}}
+
+#endif // KWIVER_ARROWS_FASTER_RCNN_DETECTOR_H_

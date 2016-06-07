@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2015 by Kitware, Inc.
+ * Copyright 2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,17 +28,53 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file
- * \brief Defaults plugin algorithm registration interface impl
- */
+#ifndef KWIVER_ARROWS_CLASS_PROBABLITY_FILTER_H_
+#define KWIVER_ARROWS_CLASS_PROBABLITY_FILTER_H_
 
-#include <arrows/algorithms/caffe/register_algorithms.h>
-#include <arrows/algorithms/algorithm_plugin_interface.h>
-#include <vital/registrar.h>
+#include <vital/vital_config.h>
+#include <arrows/core/kwiver_algo_export.h>
 
+#include <vital/algo/algorithm.h>
+#include <vital/types/image_container.h>
+#include <vital/types/object_labels.h>
+#include <vital/algo/detected_object_filter.h>
+#include <vital/config/config_block.h>
 
-int register_algo_impls(kwiver::vital::registrar &reg)
+#include <opencv2/core/core.hpp>
+
+#include <utility>
+#include <set>
+
+namespace kwiver {
+namespace arrows {
+namespace core {
+
+class KWIVER_ALGO_EXPORT class_probablity_filter
+  : public vital::algorithm_impl<class_probablity_filter, vital::algo::detected_object_filter>
 {
-  return kwiver::arrows::caffe::register_algorithms( reg );
-}
+public:
+
+  class_probablity_filter();
+
+  virtual ~class_probablity_filter(){}
+
+  virtual std::string impl_name() const { return "class_probablity_filter"; }
+
+  virtual vital::config_block_sptr get_configuration() const;
+
+  virtual void set_configuration(vital::config_block_sptr config);
+  virtual bool check_configuration(vital::config_block_sptr config) const;
+
+  virtual vital::detected_object_set_sptr filter( vital::detected_object_set_sptr input_set) const;
+
+private:
+
+  bool m_keep_all_classes;
+  std::set<std::string> m_keep_classes;
+  double m_threshold;
+};
+
+}}} //End namespace
+
+
+#endif // KWIVER_ARROWS_CLASS_PROBABLITY_FILTER_H_

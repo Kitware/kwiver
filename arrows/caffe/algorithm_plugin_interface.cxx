@@ -33,12 +33,12 @@
  * \brief Defaults plugin algorithm registration interface impl
  */
 
-#include <arrows/algorithms/vidtk/register_algorithms.h>
-#include <arrows/algorithms/algorithm_plugin_interface.h>
+#include <arrows/caffe/register_algorithms.h>
+#include <arrows/algorithm_plugin_interface.h>
 #include <vital/registrar.h>
 
 
 int register_algo_impls(kwiver::vital::registrar &reg)
 {
-  return kwiver::arrows::vidtk::register_algorithms( reg );
+  return kwiver::arrows::caffe::register_algorithms( reg );
 }

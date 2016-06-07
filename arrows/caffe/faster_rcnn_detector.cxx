@@ -10,7 +10,7 @@
 #include <vital/logger/logger.h>
 #include <kwiversys/SystemTools.hxx>
 
-#include <arrows/algorithms/ocv/image_container.h>
+#include <arrows/ocv/image_container.h>
 
 #include <iostream>
 #include <algorithm>
@@ -53,13 +53,13 @@ public:
 
 // =====================================================================
   priv()
-  : m_labels(NULL), 
-    m_target_size(600), 
-    m_pixel_means(102.9801, 115.9465, 122.7717), 
-    m_max_size(1000), 
+  : m_labels(NULL),
+    m_target_size(600),
+    m_pixel_means(102.9801, 115.9465, 122.7717),
+    m_max_size(1000),
     m_net(NULL),
-    m_use_gpu(false), 
-    m_gpu_id(0), 
+    m_use_gpu(false),
+    m_gpu_id(0),
     m_use_box_deltas(true),
     //TODO: redo these when parameterized
     m_chip_image(false),m_chip_width(450), m_chip_height(400), m_stride(375),
@@ -70,9 +70,9 @@ public:
 
   priv(priv const& other)
   :m_prototxt_file(other.m_prototxt_file), m_classes_file(other.m_classes_file), m_caffe_model(other.m_caffe_model),
-   m_labels(other.m_labels), m_target_size(other.m_target_size), m_pixel_means(other.m_pixel_means), 
-   m_max_size(other.m_max_size), m_net(other.m_net), m_use_gpu(other.m_use_gpu), m_gpu_id(other.m_gpu_id), 
-   m_use_box_deltas(other.m_use_box_deltas), 
+   m_labels(other.m_labels), m_target_size(other.m_target_size), m_pixel_means(other.m_pixel_means),
+   m_max_size(other.m_max_size), m_net(other.m_net), m_use_gpu(other.m_use_gpu), m_gpu_id(other.m_gpu_id),
+   m_use_box_deltas(other.m_use_box_deltas),
    m_chip_image(other.m_chip_image), m_chip_width(other.m_chip_width), m_chip_height(other.m_chip_height), m_stride(other.m_stride),
    m_logger( other.m_logger )
   {
@@ -100,7 +100,7 @@ faster_rcnn_detector::~faster_rcnn_detector()
 }
 
 // --------------------------------------------------------------------
-vital::config_block_sptr 
+vital::config_block_sptr
 faster_rcnn_detector::
 get_configuration() const
 {
@@ -253,7 +253,7 @@ check_configuration(vital::config_block_sptr config) const
 
 
 // --------------------------------------------------------------------
-vital::detected_object_set_sptr 
+vital::detected_object_set_sptr
 faster_rcnn_detector::
 detect( vital::image_container_sptr image_data) const
 {
@@ -425,7 +425,7 @@ std::vector< Blob<float>* > faster_rcnn_detector::priv::set_up_inputs(std::pair<
 }
 
 // --------------------------------------------------------------------
-std::pair<cv::Mat, double> 
+std::pair<cv::Mat, double>
 faster_rcnn_detector::priv::
 prepair_image(cv::Mat const& in_image) const
 {

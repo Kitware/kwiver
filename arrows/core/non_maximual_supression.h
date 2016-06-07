@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,31 +28,55 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file
- * \brief Caffe algorithm registration function
- */
-
-#ifndef ARROWS_ALGORITHMS_CAFFE_REGISTER_ALGORITHMS_H_
-#define ARROWS_ALGORITHMS_CAFFE_REGISTER_ALGORITHMS_H_
-
+#ifndef KWIVER_ARROWS_NON_MAXIMUAL_SUPRESSION_H_
+#define KWIVER_ARROWS_NON_MAXIMUAL_SUPRESSION_H_
 
 #include <vital/vital_config.h>
-#include <arrows/algorithms/caffe/algorithms_caffe_export.h>
+#include <arrows/core/kwiver_algo_export.h>
 
-#include <vital/registrar.h>
+#include <vital/algo/algorithm.h>
+#include <vital/types/image_container.h>
+#include <vital/types/object_labels.h>
+#include <vital/algo/detected_object_filter.h>
+#include <vital/config/config_block.h>
 
+//+ #include <opencv2/core/core.hpp>
+
+#include <utility>
 
 namespace kwiver {
 namespace arrows {
-namespace caffe {
+namespace core {
 
-/// Register OCV algorithm implementations with the given or global registrar
-ALGORITHMS_CAFFE_EXPORT
-int register_algorithms( vital::registrar &reg = vital::registrar::instance() );
+// ----------------------------------------------------------------
+/**
+ * @brief
 
-} // end namespace caffe
-} // end namespace arrows
-} // end namespace kwiver
+ */
+class KWIVER_ALGO_EXPORT non_maximual_supression
+  : public vital::algorithm_impl<non_maximual_supression, vital::algo::detected_object_filter>
+{
+public:
 
-#endif // ARROWS_ALGORITHMS_CAFFE_REGISTER_ALGORITHMS_H_
+  non_maximual_supression();
+
+  virtual ~non_maximual_supression() {}
+
+  virtual std::string impl_name() const { return "non_maximual_supression"; }
+
+  virtual vital::config_block_sptr get_configuration() const;
+
+  virtual void set_configuration(vital::config_block_sptr config);
+  virtual bool check_configuration(vital::config_block_sptr config) const;
+
+  virtual vital::detected_object_set_sptr filter( vital::detected_object_set_sptr input_set) const;
+
+private:
+
+  double overlap_threshold_;
+};
+
+}}}//End namespace
+
+
+#endif // KWIVER_ARROWS_NON_MAXIMUAL_SUPRESSION_H_

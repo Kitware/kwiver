@@ -28,8 +28,18 @@ if( KWIVER_ENABLE_VXL )
   add_subdirectory( vxl )
 endif()
 
+# Add VIDTK plugin if enabled
+if(  KWIVER_ENABLE_VXL  AND  KWIVER_ENABLE_VIDTK )
+  add_subdirectory( vidtk )
+endif()
+
 # Add VisCL plugin if enabled
 #  needs VXL
 if( KWIVER_ENABLE_VISCL )
   add_subdirectory( viscl )
+endif()
+
+# Add CAFFE plugin if enabled
+if( KWIVER_ENABLE_OPENCV  AND  KWIVER_ENABLE_CAFFE )
+  add_subdirectory( caffe )
 endif()

@@ -49,7 +49,6 @@ kwiver_add_library( kwiver_algo_ocv
   )
 target_link_libraries( kwiver_algo_ocv
   PUBLIC               kwiver_algo
-                       kwiversys
                        ${OpenCV_LIBS}
   PRIVATE              kwiversys
   )

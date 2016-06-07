@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2014-2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,48 +28,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ARROWS_ALGORITHMS_VIDTK_CHANGE_DETECTOR_H_
-#define ARROWS_ALGORITHMS_VIDTK_CHANGE_DETECTOR_H_
+/**
+ * \file
+ * \brief Caffe algorithm registration function
+ */
 
-#include <arrows/algorithms/vidtk/algorithms_vidtk_export.h>
+#ifndef ARROWS_ALGORITHMS_CAFFE_REGISTER_ALGORITHMS_H_
+#define ARROWS_ALGORITHMS_CAFFE_REGISTER_ALGORITHMS_H_
+
 
 #include <vital/vital_config.h>
-#include <vital/algo/algorithm.h>
-#include <vital/types/image_container.h>
-#include <vital/types/object_labels.h>
-#include <vital/algo/image_object_detector.h>
-#include <vital/config/config_block.h>
+#include <arrows/caffe/algorithms_caffe_export.h>
 
-#include <opencv2/core/core.hpp>
+#include <vital/registrar.h>
 
-#include <utility>
 
 namespace kwiver {
 namespace arrows {
-namespace vidtk {
+namespace caffe {
 
-class ALGORITHMS_VIDTK_EXPORT vidtk_change_detector :
-  public vital::algorithm_impl< vidtk_change_detector, vital::algo::image_object_detector >
-{
-public:
-  vidtk_change_detector();
-  vidtk_change_detector( vidtk_change_detector const& frd );
+/// Register OCV algorithm implementations with the given or global registrar
+ALGORITHMS_CAFFE_EXPORT
+int register_algorithms( vital::registrar &reg = vital::registrar::instance() );
 
-  virtual ~vidtk_change_detector();
+} // end namespace caffe
+} // end namespace arrows
+} // end namespace kwiver
 
-  virtual std::string impl_name() const { return "vidtk_change_detector"; }
-
-  virtual vital::config_block_sptr get_configuration() const;
-  virtual void set_configuration( vital::config_block_sptr config );
-  virtual bool check_configuration( vital::config_block_sptr config ) const;
-  virtual vital::detected_object_set_sptr detect( vital::image_container_sptr image_data ) const;
-
-
-private:
-  class priv;
-  const std::unique_ptr< priv > d;
-};
-
-} } }     // end namespace
-
-#endif // ARROWS_ALGORITHMS_VIDTK_CHANGE_DETECTOR_H_
+#endif // ARROWS_ALGORITHMS_CAFFE_REGISTER_ALGORITHMS_H_
