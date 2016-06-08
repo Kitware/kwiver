@@ -45,11 +45,15 @@
  * \section configuration Configuration
  *
  * Configurations are statements which add an entry to the configuration block
- * for the pipeline. Subblocks can be defined by using the <tt>:</tt> string to
+ * for the pipeline. Subblocks can be defined by using the <tt>:</tt> (colon) character to
  * separate key components. The key name is the index to be set within the
  * configuration. Key path components may be composed of alphanumeric characters
  * as well as the <tt>-</tt> and <tt>_</tt> characters. Values may also have
  * flags set as well as be filled in by providers.
+ *
+ * Configuration items can have their values replaced or modified by subsequent
+ * configuration statements, unless the read-only flag is specified (see below).
+ *
  *
  * \subsection configuration_flags Configuration flags
  *
@@ -76,7 +80,7 @@
  *
  * \par Examples
  *
- * \todo Add some examples.
+ * \todo Add some more examples.
  *
  * foo[ro] bar
  * foo[append] 1234
@@ -94,7 +98,7 @@
  *
  * Configuration keys may also be fetched from providers. When using a provider,
  * the value is passed as an argument to the provider which then replaces the
- * value. The currently understood providers include:
+ * value. The currently supported providers include:
  *
  * \cprov{CONF} Replaces the value with another value. The argument for this
  *              provider is the full path of the key to look up.
@@ -270,12 +274,11 @@
  * \todo Add some examples.
  *
  * <pre>
- *  connect from input.timestamp
- *        to   stabilize.timestamp
+ * connect from input.timestamp
+ *         to   stabilize.timestamp
  *
  * connect from input.timestamp
  *         to   writer.timestamp
- *
  * </pre>
  *
  * \subsection cluster_block Cluster block
@@ -315,7 +318,7 @@
  * <pre>
  * </pre>
  *
- * \subsection edge_config Edge Config
+ * \subsection edge_config Edge Configuration
  *
  * Pipeline edges are configured in a hierarchical manner. First there is
  * the _pipeline:_edge config block which establishes the basic
@@ -376,5 +379,41 @@
  * These different methods of configuring pipeline edges are applied in a
  * hierarchial manner to allow general defaults to be set, and overridden
  * using more specific edge attributes.
+ *
+ *
+ * \subsection scheduler_config Scheduler Configuration
+ *
+ * The scheduler to be used with the pipeline can be selected using a
+ * special configuration section.
+ *
+ * <pre>
+ * config _scheduler
+ *    :type <scheduler-type>
+ * </pre>
+ *
+ * Available scheduler types are:
+ * - sync - Runs the pipeline synchronously in one thread.
+ * - thread_per_process - Runs the pipeline using one thread per process.
+ * - pythread_per_process - Runs the pipeline using one thread per process and supports processes written in python.
+ * - thread_pool - Runs pipeline with a limited number of threads.
+ *
+ * The pythread_per_process is the only scheduler that supports processes written python.
+ *
+ * Scheduler specific configuration entries are in a sub-block named as the scheduler.
+ * Currently these schedulers do not have any configuration parameters, but when they do,
+ * they would be configured as shown in the following example.
+ *
+ * \par Example
+ *
+ * <pre>
+ * config _scheduler
+ *    :type thread_per_process
+ *
+ * # Configuration for thread_per_process scheduler
+ *    :thread_per_process:foo   bar
+ *
+ * # Configuration for sync scheduler
+ *    :sync:foos   bars
+ * </pre>
  *
  */
