@@ -167,7 +167,8 @@ public:
    *
    * @return Iterator pointing at desired entry or end() iterator if element not found.
    */
-  datum_map_t::iterator find( sprokit::process::port_t const& port );
+  datum_map_t::const_iterator find( sprokit::process::port_t const& port ) const;
+
 
 protected:
   KWIVER_ADAPTER_NO_EXPORT adapter_data_set( data_set_type type ); // private CTOR - use factory method
