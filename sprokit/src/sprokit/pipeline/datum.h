@@ -89,6 +89,7 @@ class SPROKIT_PIPELINE_EXPORT datum
      * \returns A new datum containing a result.
      */
     static datum_t new_datum(boost::any const& dat);
+
     /**
      * \brief Create a datum with the #data type.
      *
@@ -98,24 +99,28 @@ class SPROKIT_PIPELINE_EXPORT datum
      */
     template <typename T>
     static datum_t new_datum(T const& dat);
+
     /**
      * \brief Create a datum with the #empty type.
      *
      * \returns A new datum which indicates that a result could not be computed.
      */
     static datum_t empty_datum();
+
     /**
      * \brief Create a datum with the #flush type.
      *
      * \returns A new datum which indicates that the current data stream is complete.
      */
     static datum_t flush_datum();
+
     /**
      * \brief Create a datum with the #complete type.
      *
      * \returns A new datum which indicates that the calculation of results is complete.
      */
     static datum_t complete_datum();
+
     /**
      * \brief Create a datum with the #error type.
      *

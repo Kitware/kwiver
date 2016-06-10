@@ -180,7 +180,13 @@ embedded_pipeline
   //
   // Setup scheduler
   //
-  sprokit::scheduler_registry::type_t scheduler_type = sprokit::scheduler_registry::default_type;
+  // Determine if new scheduler type has been specified in the config
+  sprokit::scheduler_registry::type_t scheduler_type =
+    m_priv->m_pipe_config->get_value(
+      scheduler_block + kwiver::vital::config_block::block_sep + "type",  // key string
+      sprokit::scheduler_registry::default_type ); // default value
+
+  // Get config sub block based on selected scheduler type from the main config
   m_priv->m_scheduler_config = m_priv->m_pipe_config->subblock(scheduler_block +
                                               kwiver::vital::config_block::block_sep + scheduler_type);
 

@@ -61,6 +61,8 @@ namespace kwiver {
  *
  * Example:
 \code
+  #include <sprokit/tools/literal_pipeline.h>
+
   // Use SPROKIT macros to create pipeline description
   std::stringstream pipeline_desc;
   pipeline_desc << SPROKIT_PROCESS( "input_adapter",  "ia" )

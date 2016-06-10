@@ -112,9 +112,9 @@ adapter_data_set
 
 
 // ------------------------------------------------------------------
-kwiver::adapter::adapter_data_set::datum_map_t::iterator
+kwiver::adapter::adapter_data_set::datum_map_t::const_iterator
 adapter_data_set
-::find( sprokit::process::port_t const& port )
+::find( sprokit::process::port_t const& port ) const
 {
   return m_port_datum_set.find( port );
 }

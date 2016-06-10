@@ -1498,7 +1498,7 @@ process
     kwiver::vital::config_block_value_t const value = conf->get_value<kwiver::vital::config_block_value_t>(key);
     LOG_DEBUG(d->m_logger, "Reconfiguring process \"" << name() << "\": "  << key << " = " << value );
     d->conf->set_value(key, value);
-  }
+  } // end foreach
 
   // Prevent stepping while reconfiguring a process.
   priv::unique_lock_t const lock(d->reconfigure_mut);

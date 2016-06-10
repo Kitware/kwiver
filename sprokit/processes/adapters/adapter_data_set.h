@@ -167,7 +167,29 @@ public:
    *
    * @return Iterator pointing at desired entry or end() iterator if element not found.
    */
-  datum_map_t::iterator find( sprokit::process::port_t const& port );
+  datum_map_t::const_iterator find( sprokit::process::port_t const& port ) const;
+
+  /**
+   * @brief Get data value for specific port.
+   *
+   * This method returns the data value for the specified port.
+   *
+   * @param port Name of port
+   *
+   * @return Data value corresponding to the port.
+   *
+   * @throws sprokit::bad_datum_cast_exception
+   */
+  template<typename T>
+  T get_port_data( sprokit::process::port_t const& port )
+  {
+    auto it = this->find( port );
+    if ( it == this->end() )
+    {
+      throw throw std::runtime_error( "Data for port \"" + port + "\" is not in the adapter_data_set." );
+    }
+    return it->second->get_datum<T>();
+  }
 
 protected:
   KWIVER_ADAPTER_NO_EXPORT adapter_data_set( data_set_type type ); // private CTOR - use factory method
