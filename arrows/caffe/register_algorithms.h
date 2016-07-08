@@ -38,7 +38,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/caffe/algorithms_caffe_export.h>
+#include <arrows/caffe/kwiver_algo_caffe_export.h>
 
 #include <vital/registrar.h>
 
@@ -48,7 +48,7 @@ namespace arrows {
 namespace caffe {
 
 /// Register OCV algorithm implementations with the given or global registrar
-ALGORITHMS_CAFFE_EXPORT
+KWIVER_ALGO_CAFFE_EXPORT
 int register_algorithms( vital::registrar &reg = vital::registrar::instance() );
 
 } // end namespace caffe

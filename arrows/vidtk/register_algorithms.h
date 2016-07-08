@@ -38,7 +38,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/vidtk/algorithms_vidtk_export.h>
+#include <arrows/vidtk/kwiver_algo_vidtk_export.h>
 
 #include <vital/registrar.h>
 
@@ -48,7 +48,7 @@ namespace arrows {
 namespace vidtk {
 
 /// Register vidtk algorithm implementations with the given or global registrar
-ALGORITHMS_VIDTK_EXPORT
+KWIVER_ALGO_VIDTK_EXPORT
 int register_algorithms( vital::registrar &reg = vital::registrar::instance() );
 
 } // end namespace vidtk

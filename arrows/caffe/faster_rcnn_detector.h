@@ -32,7 +32,7 @@
 #ifndef KWIVER_ARROWS_FASTER_RCNN_DETECTOR_H_
 #define KWIVER_ARROWS_FASTER_RCNN_DETECTOR_H_
 
-#include <arrows/caffe/algorithms_caffe_export.h>
+#include <arrows/caffe/kwiver_algo_caffe_export.h>
 
 #include <vital/vital_config.h>
 
@@ -58,7 +58,7 @@ namespace caffe {
  * @brief
  *
  */
-class ALGORITHMS_CAFFE_EXPORT faster_rcnn_detector
+class KWIVER_ALGO_CAFFE_EXPORT faster_rcnn_detector
   : public vital::algorithm_impl<faster_rcnn_detector, vital::algo::image_object_detector>
 {
 public:

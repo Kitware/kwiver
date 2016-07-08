@@ -31,7 +31,7 @@
 #ifndef ARROWS_ALGORITHMS_VIDTK_CHANGE_DETECTOR_H_
 #define ARROWS_ALGORITHMS_VIDTK_CHANGE_DETECTOR_H_
 
-#include <arrows/vidtk/algorithms_vidtk_export.h>
+#include <arrows/vidtk/kwiver_algo_vidtk_export.h>
 
 #include <vital/vital_config.h>
 #include <vital/algo/algorithm.h>
@@ -48,7 +48,7 @@ namespace kwiver {
 namespace arrows {
 namespace vidtk {
 
-class ALGORITHMS_VIDTK_EXPORT vidtk_change_detector :
+class KWIVER_ALGO_VIDTK_EXPORT vidtk_change_detector :
   public vital::algorithm_impl< vidtk_change_detector, vital::algo::image_object_detector >
 {
 public:
