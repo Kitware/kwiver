@@ -47,10 +47,11 @@ LIST( INSERT CMAKE_MODULE_PATH  0         ${KWIVER_CMAKE_DIR} ) # prepend out cm
 # ================================================================
 ###
 # User options
-OPTION(KWIVER_BUILD_SHARED     "Build KWIVER components shared or not" TRUE )
-OPTION(KWIVER_ENABLE_TESTS     "Enable testing" OFF )
-OPTION(KWIVER_ENABLE_ARROWS    "Enable building arrows" OFF )
-OPTION(KWIVER_ENABLE_TOOLS     "Enable tools" OFF )
+OPTION(KWIVER_BUILD_SHARED         "Build KWIVER components shared or not" TRUE )
+OPTION(KWIVER_ENABLE_TESTS         "Enable testing" OFF )
+OPTION(KWIVER_ENABLE_ARROWS        "Enable building arrows" OFF )
+OPTION(KWIVER_ENABLE_TOOLS         "Enable tools" OFF )
+OPTION(KWIVER_ENABLE_TRACK_ORACLE  "Enable track_oracle" OFF )
 
 # if sprokit enabled
 OPTION(KWIVER_ENABLE_SPROKIT "Enable building sprokit" OFF )
@@ -181,6 +182,10 @@ install( PROGRAMS   ${KWIVER_SETUP_SCRIPT_FILE}
   DESTINATION ${CMAKE_INSTALL_PREFIX} )
 
 add_subdirectory( vital )
+
+if (KWIVER_ENABLE_TRACK_ORACLE)
+  add_subdirectory( track_oracle )
+endif()
 
 if (KWIVER_ENABLE_ARROWS)
   add_subdirectory( arrows )
