@@ -1719,14 +1719,7 @@ pipeline::priv
     // Then the connection based config will be merged to override.
     kwiver::vital::config_block_sptr edge_config = config->subblock(priv::config_edge);
 
-    if ( IS_TRACE_ENABLED( m_logger ) )
-    {
-      std::stringstream msg;
-      edge_config->print( msg );
-      LOG_TRACE( m_logger, "-- Default edge config:\n" << msg.str() );
-    }
-
-    // Configure the edge based on its type.
+    // Configure the edge based on its type. (_edge_by_type)
     {
       process::port_type_t const& down_type = down_info->type;  // data type on edge
       kwiver::vital::config_block_sptr const type_config = config->subblock(priv::config_edge_type);
@@ -1743,7 +1736,7 @@ pipeline::priv
       }
     }
 
-    // Configure the edge based on the connected ports.
+    // Configure the edge based on the connected ports. (_edge_by_conn)
     {
       kwiver::vital::config_block_sptr const conn_config = config->subblock(priv::config_edge_conn);
       kwiver::vital::config_block_sptr const up_config =
@@ -1777,6 +1770,8 @@ pipeline::priv
 
     // Configure the edge.
     {
+      // Check to see if this port has _nodep flag set (for backward edge.)
+      // Pass that value to the edge through the config.
       bool const has_nodep = (0 != down_flags.count(process::flag_input_nodep));
 
       edge_config->set_value(edge::config_dependency, (has_nodep ? "false" : "true"));
