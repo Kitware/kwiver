@@ -1,5 +1,7 @@
 # KWIVER
 
+[![Join the chat at https://gitter.im/Kitware/kwiver](https://badges.gitter.im/Kitware/kwiver.svg)](https://gitter.im/Kitware/kwiver?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Kitware Image and Video Exploitation and Retrieval
 
 ---
