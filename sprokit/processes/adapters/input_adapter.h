@@ -28,6 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file
+ * \brief Interface for input_adapter class
+ */
+
 #ifndef KWIVER_INPUT_ADAPTER_H
 #define KWIVER_INPUT_ADAPTER_H
 
@@ -45,6 +50,10 @@ class input_adapter_process;
 /**
  * @brief Input adapter class that provides input to pipeline.
  *
+ * This class represents a user interface to the input end of a
+ * sprokit pipeline. An object of this class attaches to the
+ * input_adapter_process in a pipeline and provides an API to
+ * communicate with that process which is running in another thread.
  */
 class KWIVER_ADAPTER_EXPORT input_adapter
 {

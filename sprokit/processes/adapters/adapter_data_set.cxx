@@ -28,6 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file
+ * \brief Implementation for adapter_data_set class.
+ */
+
 #include "adapter_data_set.h"
 
 
@@ -117,6 +122,22 @@ adapter_data_set
 ::find( sprokit::process::port_t const& port ) const
 {
   return m_port_datum_set.find( port );
+}
+
+
+// ------------------------------------------------------------------
+bool
+kwiver::adapter::adapter_data_set::is_end_of_data() const
+{
+  return (m_set_type == end_of_input);
+}
+
+
+// ------------------------------------------------------------------
+adapter_data_set::data_set_type
+kwiver::adapter::adapter_data_set::type() const
+{
+  return m_set_type;
 }
 
 } } // end namespace

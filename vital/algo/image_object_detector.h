@@ -30,8 +30,7 @@
 
 /**
  * \file
- * \brief Header defining abstract \link kwiver::vital::algo::track_features feature
- *        tracking \endlink algorithm
+ * \brief Header defining abstract image object detector
  */
 
 #ifndef VITAL_ALGO_IMAGE_OBJECT_DETECTOR_H_
@@ -47,7 +46,11 @@ namespace kwiver {
 namespace vital {
 namespace algo {
 
-/// An abstract base class for detecting objects in images
+// ----------------------------------------------------------------
+/**
+ * @brief Image object detector base class/
+ *
+ */
 class VITAL_EXPORT image_object_detector
 : public algorithm_def<image_object_detector>
 {
@@ -57,7 +60,10 @@ public:
 
   /// Find all objects on the provided image
   /**
-   * \param [in] image_data the image pixels
+   * This method analyzes the supplied image and along with any saved
+   * context, returns a vector of detected image objects.
+   *
+   * \param image_data the image pixels
    * \returns vector of image objects found
    */
   virtual detected_object_set_sptr

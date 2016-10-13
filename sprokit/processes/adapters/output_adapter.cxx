@@ -28,6 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file
+ * \brief Implementation for output_adapter class
+ */
+
 #include "output_adapter.h"
 #include "output_adapter_process.h"
 

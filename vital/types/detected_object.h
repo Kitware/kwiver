@@ -30,7 +30,7 @@
 
 /**
  * \file
- * \brief Header for \link kwiver::vital::detected_object detected_object \endlink class
+ * \brief Interface for detected_object class
  */
 
 #ifndef VITAL_DETECTED_OBJECT_H_
@@ -40,21 +40,25 @@
 #include <vital/vital_config.h>
 
 #include <memory>
+#include <vector>
 
-#include <vital/types/object_type.h>
+#include <vital/types/detected_object_type.h>
 #include <vital/types/vector.h>
+#include <vital/types/bounding_box.h>
+#include <vital/types/image_container.h>
 
-#include <vital/io/eigen_io.h> //This suppresses a warning in Eigen/Geometry.h
+#include <vital/io/eigen_io.h>
 #include <Eigen/Geometry>
 
 namespace kwiver {
 namespace vital {
 
-/// forward declaration of detected_object class
+// forward declaration of detected_object class
 class detected_object;
 
-/// typedef for a detected_object shared pointer
+// typedef for a detected_object shared pointer
 typedef std::shared_ptr< detected_object > detected_object_sptr;
+
 
 // ----------------------------------------------------------------
 /**
@@ -70,71 +74,112 @@ typedef std::shared_ptr< detected_object > detected_object_sptr;
 class VITAL_EXPORT detected_object
 {
 public:
-  class bounding_box
-  {
-  public:
-    bounding_box()
-    :m_bbox(vital::vector_2d(0,0),vital::vector_2d(0,0))
-    {}
-    bounding_box(vital::vector_2d upper_left, vital::vector_2d lower_right)
-    : m_bbox(upper_left,lower_right)
-    {}
-    vital::vector_2d center() const
-    {
-      return m_bbox.center();
-    }
-    vital::vector_2d upper_left() const
-    {
-      return m_bbox.min();
-    }
-    vital::vector_2d lower_right() const
-    {
-      return m_bbox.max();
-    }
-    double width() const
-    {
-      return m_bbox.sizes()[0];
-    }
-    double height() const
-    {
-      return m_bbox.sizes()[1];
-    }
-    double area() const
-    {
-      return m_bbox.volume();
-    }
+  typedef std::vector< detected_object_sptr > vector_t;
 
-    bounding_box & translate(vital::vector_2d pt)
-    {
-      m_bbox.translate(pt);
-      return *this;
-    }
-
-    bounding_box intersection(bounding_box const& other)
-    {
-      return bounding_box(m_bbox.intersection(other.m_bbox));
-    }
-
-  protected:
-    Eigen::AlignedBox2d m_bbox;
-    bounding_box(Eigen::AlignedBox2d b)
-    :m_bbox(b)
-    {}
-  };
-
-  detected_object();
-  detected_object(bounding_box bbox, double confidence = 1.0,
-               object_type_sptr classifications = NULL);
-  virtual ~detected_object() VITAL_DEFAULT_DTOR
-
-  bounding_box get_bounding_box() const;
-  void set_bounding_box(bounding_box bbox);
-
-  double get_confidence() const;
-  void set_confidence(double d);
 
   /**
-   * @brief Get pointer to optional classification object.
+   * @brief Create detected object with bounding box and other attributes.
+   *
+   * @param bbox Bounding box surrounding detected object, in image coordinates.
+   * @param confidence Detectors confidence in this detection.
+   * @param classifications Optional object classification.
+   */
+  detected_object( const bounding_box_d& bbox,
+                   double confidence = 1.0,
+                   detected_object_type_sptr classifications = detected_object_type_sptr() );
+
+  virtual ~detected_object() VITAL_DEFAULT_DTOR
+
+  /**
+   * @brief Get bounding box from this detection.
+   *
+   * The bounding box for this detection is returned. This box is in
+   * image coordinates. A default constructed (invalid) bounding box
+   * is returned if no box has been supplied for this detection.
+   *
+   * @return A copy of the bounding box.
+   */
+  bounding_box_d bounding_box() const;
+
+  /**
+   * @brief Set new bounding box for this detection.
+   *
+   * The supplied bounding box replaces the box for this detection.
+   *
+   * @param bbox Bounding box for this detection.
+   */
+  void set_bounding_box( const bounding_box_d& bbox );
+
+  /**
+   * @brief Get confidence for this detection.
+   *
+   * This method returns the current confidence value for this detection.
+   * Confidence values are in the range of 0.0 - 1.0.
+   *
+   * @return Confidence value for this detection.
+   */
+  double confidence() const;
+
+  /**
+   * @brief Set new confidence value for detection.
+   *
+   * This method sets a new confidence value for this detection.
+   * Confidence values are in the range of [0.0 - 1.0].
+   *
+   * @param d New confidence value for this detection.
+   */
+  void set_confidence( double d );
+
+  /**
+   * @brief Get detection index.
+   *
+   * This method returns the index for this detection.
+   *
+   * The detection index is a general purpose field that the
+   * application can use to individually identify a detection. In some
+   * cases, this field can be used to correlate the detection of an
+   * object over multiple frames.
+   *
+   * @return Detection index fof this detections.
+   */
+  uint64_t index() const;
+
+  /**
+   * @brief Set detection index.
+   *
+   * This method sets tne index value for this detection.
+   *
+   * The detection index is a general purpose field that the
+   * application can use to individually identify a detection. In some
+   * cases, this field can be used to correlate the detection of an
+   * object over multiple frames.
+   *
+   * @param idx Detection index.
+   */
+  void set_index( uint64_t idx );
+
+  /**
+   * @brief Get detector name.
+   *
+   * This method returns the name of the detector that created this
+   * element. An empty string is returned if the detector name is not
+   * set.
+   *
+   * @return Name of the detector.
+   */
+  const std::string& detector_name() const;
+
+  /**
+   * @brief Set detector name.
+   *
+   * This method sets the name of the detector for this detection.
+   *
+   * @param name Detector name.
+   */
+  void set_detector_name( const std::string& name );
+
+  /**
+   * @brief Get pointer to optional classifications object.
    *
    * This method returns the pointer to the classification object if
    * there is one. If there is no classification object the pointer is
@@ -142,14 +187,49 @@ public:
    *
    * @return Pointer to classification object or NULL.
    */
-  object_type_sptr get_classifications();
+  detected_object_type_sptr type();
 
-  void set_classifications( object_type_sptr c );
+  /**
+   * @brief Set new classifications for this detection.
+   *
+   * This method supplies a new set of class_names and scores for this
+   * detection.
+   *
+   * @param c New classification for this detection
+   */
+  void set_type( detected_object_type_sptr c );
+
+  /**
+   * @brief Get pointer to optional classifications object.
+   *
+   * This method returns the pointer to the classification object if
+   * there is one. If there is no classification object the pointer is
+   * NULL.
+   *
+   * @return Pointer to classification object or NULL.
+   */
+  image_container_sptr mask();
+
+  /**
+   * @brief Set new classifications for this detection.
+   *
+   * This method supplies a new set of class_names and scores for this
+   * detection.
+   *
+   * @param c New classification for this detection
+   */
+  void set_mask( image_container_sptr m );
 
 private:
-  bounding_box bounding_box_;
-  double confidence_;
-  object_type_sptr classifications_;
+  std::shared_ptr< bounding_box_d > m_bounding_box;
+  double m_confidence;
+  image_container_sptr m_image;
+
+  // The detection type is an optional list of possible object types.
+  detected_object_type_sptr m_type;
+
+  uint64_t m_index; ///< index for this object
+  std::string m_detector_name;
 };
 
 } }

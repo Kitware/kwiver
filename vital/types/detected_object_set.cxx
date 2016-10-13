@@ -1,4 +1,5 @@
-/* Copyright 2016 by Kitware, Inc.
+/*ckwg +29
+ * Copyright 2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -15,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,180 +29,157 @@
  */
 
 #include "detected_object_set.h"
+
+#include <vital/vital_foreach.h>
+
+#include <algorithm>
 #include <stdexcept>
-#include <limits>
 
 namespace kwiver {
 namespace vital {
 
+// ==================================================================
+namespace {
 
-detected_object_set::iterator& detected_object_set::iterator::operator++()
+struct descending_confidence
 {
-  at_++;
-  return *this;
-}
-
-detected_object_set::iterator detected_object_set::iterator::operator++(int)
-{
-  detected_object_set::iterator tmp(*this); //copy
-  operator++();
-  return tmp;
-}
-
-bool detected_object_set::iterator::is_end() const
-{
-  return at_ >= desired_value_.size();
-}
-
-detected_object_sptr detected_object_set::iterator::get_object() const
-{
-  if(is_end()) return NULL;
-  return set_[desired_value_[at_]];
-}
-
-size_t detected_object_set::iterator::at() const
-{
-  return at_;
-}
-
-size_t detected_object_set::iterator::size() const
-{
-  return desired_value_.size();
-}
-
-detected_object_sptr detected_object_set::iterator::operator[](size_t i) const
-{
-  return set_[desired_value_[i]];
-}
-
-detected_object_set::iterator::iterator(detected_object_set const& set,
-                                        std::vector<size_t> desired)
-: at_(0), set_(set), desired_value_(desired)
-{
-}
-
-
-detected_object_set::detected_object_set(std::vector<detected_object_sptr> const& objs, object_labels_sptr labels)
-:labels_(labels), objects_(objs)
-{
-  if(labels != NULL)
+  bool operator()( detected_object_sptr const& a, detected_object_sptr const& b ) const
   {
-    for(unsigned int i = 0; i < objs.size(); ++i)
-    {
-      object_type_sptr obj = objs[i]->get_classifications();
-      if(obj == NULL)
-      {
-        throw std::invalid_argument("detected_object_set::detected_object_set: Because we have labels, object type cannot be null");
-      }
-      if(obj->labels() != labels)
-      {
-        throw std::invalid_argument("detected_object_set::detected_object_set: labels needs to match the labels of all the objects");
-      }
-    }
+    return a->confidence() > b->confidence();
   }
-}
+};
 
-detected_object_sptr detected_object_set::operator[](size_t i) const
+template < typename T1, typename T2 >
+struct more_first
 {
-  if(i > this->objects_.size())
+  typedef std::pair< T1, T2 > type;
+  bool operator()( type const& a, type const& b ) const
   {
-    throw std::out_of_range("detected_object_set::operator[]");
+    return a.first > b.first;
   }
-  return this->objects_[i];
+};
+
+} // end namespace
+
+
+// ------------------------------------------------------------------
+detected_object_set::
+detected_object_set()
+{ }
+
+
+// ------------------------------------------------------------------
+detected_object_set::
+detected_object_set( detected_object::vector_t const& objs )
+  : m_detected_objects( objs )
+{
+  // sort objects based on confidence
+  std::sort( m_detected_objects.begin(), m_detected_objects.end(),
+             descending_confidence() );
 }
 
-size_t detected_object_set::size() const
+
+// ------------------------------------------------------------------
+void
+detected_object_set::
+add( detected_object_sptr object )
 {
-  return this->objects_.size();
+  // keep list ordered
+  m_detected_objects.insert (
+      std::upper_bound( m_detected_objects.begin(), m_detected_objects.end(),
+                        object, descending_confidence() ),
+      object
+    );
 }
 
-detected_object_set::iterator detected_object_set::get_iterator(bool sorted) const
+
+// ------------------------------------------------------------------
+size_t
+detected_object_set::
+size() const
 {
-  std::vector<size_t> desired;
-  desired.reserve(this->size());
-  for(size_t i = 0; i < this->size(); ++i)
+  return m_detected_objects.size();
+}
+
+
+// ------------------------------------------------------------------
+detected_object::vector_t
+detected_object_set::
+select( double threshold )
+{
+  // The main list can get out of order if somebody updates the
+  // confidence value of a detection directly
+
+  ///@todo Find a way of determining if the list needs sorting or is
+  ///already sorted.
+  std::sort( m_detected_objects.begin(), m_detected_objects.end(),
+             descending_confidence() );
+
+  detected_object::vector_t vect;
+
+  VITAL_FOREACH( auto i, m_detected_objects )
   {
-    if( objects_[i]->get_confidence() !=  object_type::INVALID_SCORE )
+    if ( i->confidence() >= threshold )
     {
-      desired.push_back(i);
+      vect.push_back( i );
     }
   }
 
-  if(sorted)
-  {
-    struct sort_function
-    {
-      detected_object_set const* set;
-      bool operator()(size_t const& l, size_t const& r) const
-      {
-        if(l >= set->size() || r >= set->size()) return false;
-        return (*set)[l]->get_confidence() >= (*set)[r]->get_confidence();
-      }
-    } sort_fun;
-    sort_fun.set = this;
-    std::sort(desired.begin(), desired.end(), sort_fun);
-  }
-  return iterator(*this, desired);
+  return vect;
 }
 
-detected_object_set::iterator detected_object_set::get_iterator(object_labels::key key, bool sorted, double threshold) const
+
+// ------------------------------------------------------------------
+const detected_object::vector_t
+detected_object_set::
+select( const std::string& class_name, double threshold ) const
 {
-  if(labels_ == NULL)
+  // Intermediate sortable data structure
+  std::vector< std::pair< double, detected_object_sptr > > data;
+
+  // Create a sortable list by selecting
+  VITAL_FOREACH( auto i, m_detected_objects )
   {
-    throw std::runtime_error("detected_object_set::get_iterator: cannot create iterator when labels are NULL");
-  }
-  std::vector<size_t> desired;
-  desired.reserve(this->size());
-  std::vector<double> scores;
-  scores.reserve(this->size());
-  for(unsigned int i = 0; i < this->size(); ++i)
-  {
-    object_type_sptr ots = this->objects_[i]->get_classifications();
-    if(ots->get_score(key) !=  object_type::INVALID_SCORE && ots->get_score(key) > threshold)
+    auto obj_type = i->type();
+    if ( ! obj_type )
     {
-      desired.push_back(i);
-      scores.push_back(ots->get_score(key));
+      continue;  // Must have a type assigned
     }
-    else
+
+    double score(0);
+    try
     {
-       scores.push_back(object_type::INVALID_SCORE);
+      score = obj_type->score( class_name );
     }
-  }
-
-  if(sorted)
-  {
-    struct sort_function
+    catch (const std::runtime_error& )
     {
-      std::vector<double> const* scores;
-      bool operator()(size_t const& l, size_t const& r) const
-      {
-        if(l >= scores->size() || r >= scores->size()) return false;
-        return (*scores)[l] > (*scores)[r] || ((*scores)[l] == (*scores)[r] && l < r); //if the scores are equal, we preserve the original order
-      }
-    } sort_fun;
-    sort_fun.scores = &scores;
-    std::sort(desired.begin(), desired.end(), sort_fun);
-  }
-  return iterator(*this, desired);
-}
+      // Object did not have the desired class_name. This not fatal,
+      // but since we are looking for that name, there is some
+      // expectation that it is present.
 
-detected_object_set::iterator detected_object_set::get_iterator(std::string label, bool sorted, double threshold) const
-{
-  if(labels_ == NULL)
+      //+ maybe log something?
+      continue;
+    }
+
+    // Select those not below threshold
+    if ( score >= threshold )
+    {
+      data.push_back( std::pair< double, detected_object_sptr >( score, i ) );
+    }
+  } // end foreach
+
+  // Sort on score
+  std::sort( data.begin(), data.end(), more_first< double,  detected_object_sptr >() );
+
+  // Create new vector for return
+  detected_object::vector_t vect;
+
+  VITAL_FOREACH( auto i, data )
   {
-    throw std::runtime_error("detected_object_set::get_iterator: cannot create iterator when labels are NULL");
+    vect.push_back( i.second );
   }
-  return get_iterator(labels_->get_key(label), sorted, threshold);
+
+  return vect;
 }
 
-object_labels::iterator detected_object_set::get_labels() const
-{
-  if(labels_ == NULL)
-  {
-    throw std::runtime_error("detected_object_set::get_labels: get label iterator when labels are NULL");
-  }
-  return labels_->get_iterator();
-}
-
-}
-}
+} } // end namespace

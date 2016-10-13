@@ -35,6 +35,7 @@
 
 #include "descriptor_set.h"
 
+#include <vital/exceptions.h>
 
 /// This macro applies another macro to all of the types listed below.
 #define APPLY_TO_TYPES(MACRO) \
@@ -45,9 +46,7 @@
 
 namespace kwiver {
 namespace arrows {
-
-namespace ocv
-{
+namespace ocv {
 
 namespace
 {
@@ -91,15 +90,56 @@ vital_descriptors_to_ocv(const std::vector<vital::descriptor_sptr>& desc)
         dynamic_cast<const vital::descriptor_array_of<T>*>(desc[i].get());
     if( !d || d->size() != dim )
     {
-      std::cerr << "Error: mismatch type or size "
-                << "when converting descriptors to OpenCV"
-                << std::endl;
-      return cv::Mat();
+      throw vital::invalid_value("mismatch type or size when converting descriptors to OpenCV");
     }
     cv::Mat_<T> row = mat.row(i);
     std::copy(d->raw_data(), d->raw_data() + dim, row.begin());
   }
   return mat;
+}
+
+
+/// Convert OpenCV type number into a string
+std::string cv_type_to_string(int number)
+{
+    // find type
+    int type_int = number % 8;
+    std::string type_str;
+
+    switch (type_int)
+    {
+        case 0:
+            type_str = "8U";
+            break;
+        case 1:
+            type_str = "8S";
+            break;
+        case 2:
+            type_str = "16U";
+            break;
+        case 3:
+            type_str = "16S";
+            break;
+        case 4:
+            type_str = "32S";
+            break;
+        case 5:
+            type_str = "32F";
+            break;
+        case 6:
+            type_str = "64F";
+            break;
+        default:
+            break;
+    }
+
+    // find channel
+    int channel = (number / 8) + 1;
+
+    std::stringstream type;
+    type << "CV_" << type_str << "C" << channel;
+
+    return type.str();
 }
 
 } // end anonymous namespace
@@ -125,8 +165,8 @@ descriptor_set
   {
   APPLY_TO_TYPES(CONVERT_CASE);
   default:
-    std::cerr << "Error: No case to handle OpenCV descriptors of type "
-              << data_.type() <<std::endl;
+    throw vital::invalid_value("No case to handle OpenCV descriptors of type "
+                               + cv_type_to_string(data_.type()));
   }
 #undef CONVERT_CASE
   /// \endcond
@@ -162,8 +202,6 @@ descriptors_to_ocv_matrix(const vital::descriptor_set& desc_set)
   return cv::Mat();
 }
 
-
 } // end namespace ocv
-
 } // end namespace arrows
 } // end namespace kwiver

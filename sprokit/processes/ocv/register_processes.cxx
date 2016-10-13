@@ -64,16 +64,26 @@ void register_processes()
     sprokit::create_process< kwiver::crop_image_process > );
 
   registry->register_process(
-    "draw_detections",
-    "Draws the boxes to an image.",
-    sprokit::create_process< kwiver::draw_detected_object_boxes_process> );
-
+    "image_viewer", "Display input image and delay",
+    sprokit::create_process< kwiver::image_viewer_process > );
 
   registry->register_process(
-    "view_image",
-    "Display input image and delay.",
-    sprokit::create_process< kwiver::view_image_process > );
+    "draw_detected_object_boxes",
+    "Draw detected object boxes on images.",
+    sprokit::create_process< kwiver::draw_detected_object_boxes_process > );
 
-  // - - - - - - - - - - - - - - - - - - - - - - -
+  registry->register_process(
+    "draw_detections",
+    "Draws the boxes to an image. Legacy process and will be removed in a future release. "
+    "Convert to use \"draw_detected_object_boxes\" before it is too late.",
+    sprokit::create_process< kwiver::draw_detected_object_boxes_process> );
+
+  registry->register_process( //+ support for legacy process name.
+    "view_image", "Display input image and delay. Legacy process and will be removed in a future release. "
+    "Convert to use \"image_viewer\" before it is too late.",
+    sprokit::create_process< kwiver::image_viewer_process > );
+
+
+// - - - - - - - - - - - - - - - - - - - - - - -
   registry->mark_module_as_loaded( module_name );
 }

@@ -45,7 +45,13 @@ namespace kwiver {
  *
  * This process is a generic source process in a pipeline. It takes
  * input values from an external source and feeds them into the
- * specified ports of the pipeline.
+ * specified ports of the pipeline. The name of the pipeline ports are
+ * discovered dynamically as they are configured.
+ *
+ * The main processing loop (_step()) takes sets of data from the
+ * input queue connected to the application side input_adapter
+ * object. The elements in a data set are sent to the named output
+ * port.
  *
  * \oports
  *
@@ -123,11 +129,11 @@ input_adapter_process
 ::_step()
 {
   LOG_TRACE( logger(), "Processing data set" );
-  auto set = this->get_interface_queue()->Receive(); // blocks
+  auto data_set = this->get_interface_queue()->Receive(); // blocks
   std::set< sprokit::process::port_t > unused_ports = m_active_ports; // copy set of active ports
 
   // Handle end of input as last data supplied.
-  if (set->is_end_of_data() )
+  if (data_set->is_end_of_data() )
   {
     LOG_DEBUG( logger(), "End of input reached, process terminating" );
 
@@ -147,8 +153,8 @@ input_adapter_process
   // Need to assure that all defined ports have a datum, and
   // there are no unconnected ports specified.
 
-  auto ie = set->end();
-  for ( auto ix = set->begin(); ix != ie; ++ix )
+  auto ie = data_set->end();
+  for ( auto ix = data_set->begin(); ix != ie; ++ix )
   {
     // validate the port name against our list of created ports
     if ( m_active_ports.count( ix->first ) == 1 )
@@ -156,7 +162,8 @@ input_adapter_process
       // Push each datum to their port
       this->push_datum_to_port( ix->first, ix->second );
 
-      // remove this port from set so it can not be used again
+      // Remove this port from set so we know data has been sent.
+      // Any remaining names are considered unused.
       unused_ports.erase( ix->first );
     }
     else
@@ -171,8 +178,8 @@ input_adapter_process
   // check to see if all ports have been supplied with a datum
   if ( unused_ports.size() != 0 )
   {
-    auto ie = set->end();
-    for ( auto ix = set->begin(); ix != ie; ++ix )
+    auto ie = data_set->end();
+    for ( auto ix = data_set->begin(); ix != ie; ++ix )
     {
       std::stringstream str;
       str << "Process: " << name() << ": Port \"" << ix->first << "\" has not been supplied with a datum";

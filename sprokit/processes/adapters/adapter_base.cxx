@@ -28,6 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file
+ * \brief Implementation for adapter base class.
+ */
+
 #include "adapter_base.h"
 
 #include <vital/util/bounded_buffer.h>
@@ -66,10 +71,10 @@ adapter_base
 {
   sprokit::process::ports_t ports;
 
+  // return a copy of our port names
   std::copy( m_active_ports.begin(), m_active_ports.end(), std::back_inserter( ports ) );
 
   return ports;
 }
-
 
 } } // end namespace kwiver

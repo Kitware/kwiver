@@ -45,16 +45,6 @@
 namespace kwiver {
 
 // ----------------------------------------------------------------
-/**
- * \class output_adapter_process
- *
- * \brief Generic output adapter class
- *
- * \iports
- * \iport{various}
- * Input ports are dynamically created based on pipeline connections.
- */
-
 class KWIVER_ADAPTER_PROCESSES_NO_EXPORT output_adapter_process
   : public sprokit::process,
     public adapter::adapter_base
@@ -78,9 +68,13 @@ public:
   adapter::ports_info_t get_ports();
 
 private:
+  void _configure();
 
   // This is used to intercept connections and make ports JIT
   virtual sprokit::process::port_info_t _input_port_info(port_t const& port);
+
+  class priv;
+  const std::unique_ptr<priv> d;
 
 }; // end class output_adapter_process
 

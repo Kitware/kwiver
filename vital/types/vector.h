@@ -36,13 +36,13 @@
 #ifndef VITAL_VECTOR_H_
 #define VITAL_VECTOR_H_
 
-
 #include <Eigen/Core>
 
 namespace kwiver {
 namespace vital {
 
 /// \cond DoxygenSuppress
+typedef Eigen::Vector2i vector_2i;
 typedef Eigen::Vector2d vector_2d;
 typedef Eigen::Vector2f vector_2f;
 typedef Eigen::Vector3d vector_3d;

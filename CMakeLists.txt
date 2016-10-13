@@ -1,7 +1,7 @@
 ###
 # Top level build script for kwiver-build
 #
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.3)
 
 project(KWIVER)
 
@@ -20,6 +20,13 @@ set(KWIVER_VERSION "${KWIVER_VERSION_MAJOR}.${KWIVER_VERSION_MINOR}.${KWIVER_VER
 set( fletch_DIR "" CACHE PATH "Path to FLETCH packages" )
 if ( IS_DIRECTORY ${fletch_DIR} )
   find_package( fletch NO_MODULE )
+  # Search for libraries in the fletch install root
+  list(APPEND CMAKE_PREFIX_PATH "${fletch_ROOT}")
+endif()
+
+# Fletch provides the PROJ4 symbols. We need the PROJ symbols.
+if (PROJ4_ROOT)
+  set(PROJ_ROOT "${PROJ4_ROOT}")
 endif()
 
 ###
@@ -43,9 +50,12 @@ LIST( INSERT CMAKE_MODULE_PATH  0         ${KWIVER_CMAKE_DIR} ) # prepend out cm
 ###
 # User options
 OPTION(KWIVER_BUILD_SHARED     "Build KWIVER components shared or not" TRUE )
+MARK_AS_ADVANCED( KWIVER_BUILD_SHARED )
+
 OPTION(KWIVER_ENABLE_TESTS     "Enable testing" OFF )
 OPTION(KWIVER_ENABLE_ARROWS    "Enable building arrows" OFF )
 OPTION(KWIVER_ENABLE_TOOLS     "Enable tools" OFF )
+OPTION(KWIVER_ENABLE_TRACK_ORACLE  "Enable track_oracle" OFF )
 
 # if sprokit enabled
 OPTION(KWIVER_ENABLE_SPROKIT "Enable building sprokit" OFF )
@@ -113,7 +123,7 @@ include_directories("${KWIVER_BINARY_DIR}/vital/kwiversys")
 include_directories( SYSTEM ${CMAKE_CURRENT_SOURCE_DIR} )
 
 # ================================================================
-link_directories( ${KWIVER_BUILD_INSTALL_PREFIX}/lib )
+link_directories( ${KWIVER_BINARY_DIR}/lib )
 
 # ================================================================
 ###
@@ -172,10 +182,19 @@ configure_file(
   )
 
 # install set up script
-install( PROGRAMS   ${KWIVER_SETUP_SCRIPT_FILE}
-  DESTINATION ${CMAKE_INSTALL_PREFIX} )
+option( KWIVER_INSTALL_SET_UP_SCRIPT "Whether or not to install setup_KWIVER.sh" ON )
+mark_as_advanced( KWIVER_INSTALL_SET_UP_SCRIPT )
+
+if( KWIVER_INSTALL_SET_UP_SCRIPT )
+  install( PROGRAMS   ${KWIVER_SETUP_SCRIPT_FILE}
+    DESTINATION ${CMAKE_INSTALL_PREFIX} )
+endif()
 
 add_subdirectory( vital )
+
+if (KWIVER_ENABLE_TRACK_ORACLE)
+  add_subdirectory( track_oracle )
+endif()
 
 if (KWIVER_ENABLE_ARROWS)
   add_subdirectory( arrows )
@@ -184,6 +203,13 @@ endif()
 if (KWIVER_ENABLE_SPROKIT)
   add_subdirectory(sprokit)
 endif()
+
+
+##############################################################
+# Marking source root for documentation generation
+#
+kwiver_create_doxygen( kwiver "${CMAKE_CURRENT_LIST_DIR}" )
+
 
 ##################################################################
 # Top level installation
@@ -206,6 +232,8 @@ kwiver_configure_file(kwiver-config
   BUILD_SHARED_LIBS
   KWIVER_CMAKE_DIR
   kwiver_libs
+  fletch_DIR
+  EIGEN3_INCLUDE_DIR
   )
 
 kwiver_export_targets("${KWIVER_BINARY_DIR}/kwiver-config-targets.cmake")
@@ -219,7 +247,10 @@ kwiver_configure_file(kwiver-install-config
   KWIVER_BINARY_DIR
   KWIVER_ENABLE_PYTHON
   BUILD_SHARED_LIBS
+  CMAKE_INSTALL_PREFIX
   kwiver_libs
+  fletch_DIR
+  EIGEN3_INCLUDE_DIR
   )
 
 kwiver_install(

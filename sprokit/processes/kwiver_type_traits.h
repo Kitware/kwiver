@@ -28,17 +28,25 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file
+ * \brief definition of kwiver type traits
+ */
+
 #ifndef KWIVER_VITAL_TYPE_TRAITS_H
 #define KWIVER_VITAL_TYPE_TRAITS_H
 
 #include <vital/vital_types.h>
-#include <vital/types/geo_lat_lon.h>
-#include <vital/types/geo_corner_points.h>
-#include <vital/types/image_container.h>
-#include <vital/types/feature_set.h>
+
 #include <vital/types/descriptor_set.h>
+#include <vital/types/detected_object_set.h>
+#include <vital/types/feature_set.h>
+#include <vital/types/geo_corner_points.h>
+#include <vital/types/geo_lat_lon.h>
+#include <vital/types/image_container.h>
 #include <vital/types/track_set.h>
 #include <vital/types/detected_object_set.h>
+#include <vital/types/uuid.h>
 
 #include "trait_utils.h"
 
@@ -75,11 +83,13 @@ create_type_trait( descriptor_set, "kwiver:descriptor_set", kwiver::vital::descr
 create_type_trait( detected_object_set, "kwiver:detected_object_set", kwiver::vital::detected_object_set_sptr );
 create_type_trait( track_set, "kwiver:track_set", kwiver::vital::track_set_sptr );
 create_type_trait( double_vector,  "kwiver:d_vector", kwiver::vital::double_vector_sptr );
+create_type_trait( detected_object_set, "kwiver:detected_object_set", kwiver::vital::detected_object_set_sptr );
 
 create_type_trait( homography_src_to_ref, "kwiver:s2r_homography", kwiver::vital::f2f_homography );
 create_type_trait( homography_ref_to_src, "kwiver:r2s_homography", kwiver::vital::f2f_homography );
 create_type_trait( image_file_name, "kwiver:image_file_name", kwiver::vital::path_t );
 create_type_trait( video_file_name, "kwiver:video_file_name", kwiver::vital::path_t );
+create_type_trait( uuid, "kwiver:video_uuid", kwiver::vital::uuid );
 
 
 // ================================================================
@@ -92,13 +102,15 @@ create_port_trait( timestamp, timestamp, "Timestamp for input image." );
 create_port_trait( corner_points, corner_points, "Four corner points for image in lat/lon units, ordering ul ur lr ll." );
 create_port_trait( gsd, gsd, "GSD for image in meters per pixel." );
 create_port_trait( image, image, "Single frame image." );
-create_port_trait( feature_set, feature_set, "Set of detected image features" );
-create_port_trait( descriptor_set, descriptor_set, "Set of feature descriptors" );
-create_port_trait( track_set, track_set, "Set of feature tracks for stabilization" );
-create_port_trait( detected_object_set, detected_object_set, "Set of dected objects" );
+create_port_trait( feature_set, feature_set, "Set of detected image features." );
+create_port_trait( descriptor_set, descriptor_set, "Set of feature descriptors." );
+create_port_trait( track_set, track_set, "Set of feature tracks for stabilization." );
+create_port_trait( detected_object_set, detected_object_set, "Set of detected objects." );
 
 create_port_trait( homography_src_to_ref, homography_src_to_ref, "Source image to ref image homography." );
-create_port_trait( image_file_name, image_file_name, "Name of an image file. Usually a single frame of a video." );
+create_port_trait( image_file_name, image_file_name, "Name of an image file. "
+                   "The file name may contain leading path components." );
 create_port_trait( video_file_name, video_file_name, "Name of video file." );
+create_port_trait( uuid, uuid, "UUID    value." );
 
 #endif /* KWIVER_VITAL_TYPE_TRAITS_H */

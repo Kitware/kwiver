@@ -37,11 +37,11 @@
 #include "utils.h"
 
 #include <vital/logger/logger.h>
+#include <vital/vital_foreach.h>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/filesystem/operations.hpp>
-#include <boost/foreach.hpp>
 
 #include <string>
 
@@ -89,10 +89,6 @@ static module_path_t const default_module_dirs = module_path_t(DEFAULT_MODULE_PA
 static envvar_name_t const sprokit_module_envvar = envvar_name_t("SPROKIT_MODULE_PATH");
 static lib_suffix_t const library_suffix = lib_suffix_t(LIBRARY_SUFFIX);
 
-// There may be a better way to get this logger than static CTOR
-static kwiver::vital::logger_handle_t m_logger( kwiver::vital::get_logger( "sprokit.modules" ) );
-
-
 // ------------------------------------------------------------------
 module_paths_t
 get_module_load_path()
@@ -112,21 +108,9 @@ get_module_load_path()
 
   module_paths_t path_list;
 
-  BOOST_FOREACH (module_path_t const& module_dir, module_dirs)
+  VITAL_FOREACH (module_path_t const& module_dir, module_dirs)
   {
     path_list.push_back( module_dir );
-
-#ifdef USE_CONFIGURATION_SUBDIRECTORY
-    module_path_t const subdir = module_dir +
-#if defined(_WIN32) || defined(_WIN64)
-      L"/" SPROKIT_CONFIGURATION_L;
-#else
-      "/" SPROKIT_CONFIGURATION;
-#endif
-    ;
-
-    path_list.push_back( subdir );
-#endif
   }
 
   return path_list;
@@ -139,7 +123,7 @@ load_known_modules()
 {
   module_paths_t module_dirs = get_module_load_path();
 
-  BOOST_FOREACH (module_path_t const& module_dir, module_dirs)
+  VITAL_FOREACH (module_path_t const& module_dir, module_dirs)
   {
     look_in_directory(module_dir);
   }
@@ -150,6 +134,8 @@ load_known_modules()
 void
 look_in_directory(module_path_t const& directory)
 {
+  kwiver::vital::logger_handle_t m_logger(kwiver::vital::get_logger("sprokit.modules"));
+
   if (directory.empty())
   {
     return;
@@ -157,13 +143,13 @@ look_in_directory(module_path_t const& directory)
 
   if (!boost::filesystem::exists(directory))
   {
-    LOG_WARN( m_logger, "Directory \"" << directory << "\" does not exist." );
+    LOG_WARN( m_logger, "Directory \"" << directory.c_str() << "\" does not exist." );
     return;
   }
 
   if (!boost::filesystem::is_directory(directory))
   {
-    LOG_WARN( m_logger, "Path \"" << directory << "\" is not a directory." );
+    LOG_WARN( m_logger, "Path \"" << directory.c_str() << "\" is not a directory." );
     return;
   }
 
@@ -202,6 +188,8 @@ look_in_directory(module_path_t const& directory)
 void
 load_from_module(module_path_t const& path)
 {
+  kwiver::vital::logger_handle_t m_logger(kwiver::vital::get_logger("sprokit.modules"));
+
   library_t library = NULL;
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -213,11 +201,11 @@ load_from_module(module_path_t const& path)
 
   if (!library)
   {
-    LOG_ERROR( m_logger, "Unable to load module: " << path << "  (" << dlerror() << ")" );
+    LOG_ERROR( m_logger, "Unable to load module: " << path.c_str() );
     return;
   }
 
-  LOG_TRACE( m_logger, "Attempting to load module: " << path );
+  LOG_TRACE( m_logger, "Attempting to load module: " << path.c_str() );
 
   function_t process_function = NULL;
   function_t scheduler_function = NULL;
@@ -245,14 +233,14 @@ load_from_module(module_path_t const& path)
 
   if (process_registrar)
   {
-    LOG_INFO( m_logger, "Loading processes from module " << path << " loaded" );
+    LOG_INFO( m_logger, "Loading processes from module " << path.c_str() << " loaded" );
 
     (*process_registrar)();
     functions_found = true;
   }
   if (scheduler_registrar)
   {
-    LOG_INFO( m_logger, "Loading schedulers from module " << path << " loaded" );
+    LOG_INFO( m_logger, "Loading schedulers from module " << path.c_str() << " loaded" );
 
     (*scheduler_registrar)();
     functions_found = true;

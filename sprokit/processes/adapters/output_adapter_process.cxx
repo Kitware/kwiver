@@ -28,22 +28,60 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file
+ * \brief Implementation for output_adapter_process class.
+ */
+
 #include "output_adapter_process.h"
 
 #include <vital/vital_foreach.h>
+#include <kwiver_type_traits.h>
 
 #include <stdexcept>
 #include <sstream>
 
 namespace kwiver {
 
+/**
+ * \class output_adapter_process
+ *
+ * \brief Generic output adapter class
+ *
+ * \iports
+ * \iport{various}
+ * Input ports are dynamically created based on pipeline connections.
+ */
+
+create_config_trait( wait_on_queue_full, bool, "TRUE",
+                     "When the output queue back to the application is full and there is more data to add, "
+                     "should new data be dropped or should the pipeline block until the data can be delivered. "
+                     "The default action is to wait until the data can be delivered." );
+
+//----------------------------------------------------------------
+// Private implementation class
+class output_adapter_process::priv
+{
+public:
+  priv();
+
+  ~priv();
+
+  bool m_wait_on_queue_full;
+
+}; // end priv class
+
+
 // ------------------------------------------------------------------
 output_adapter_process
 ::output_adapter_process( kwiver::vital::config_block_sptr const& config )
   : process( config )
+  , d( new output_adapter_process::priv )
 {
   // Attach our logger name to process logger
   attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
+
+  declare_config_using_trait( wait_on_queue_full );
 }
 
 
@@ -53,7 +91,17 @@ output_adapter_process
 
 
 // ------------------------------------------------------------------
-  kwiver::adapter::ports_info_t
+void
+output_adapter_process::
+_configure()
+{
+  d->m_wait_on_queue_full = config_value_using_trait( wait_on_queue_full );
+
+}
+
+
+// ------------------------------------------------------------------
+kwiver::adapter::ports_info_t
 output_adapter_process
 ::get_ports()
 {
@@ -84,7 +132,7 @@ output_adapter_process
 
     // create a new port
     declare_input_port( port, // port name
-                        type_any, // port type
+                        type_any, // port data type expected
                         p_flags,
                         port_description_t("Input for " + port)
       );
@@ -104,9 +152,10 @@ output_adapter_process
 {
   LOG_TRACE( logger(), "Processing data set" );
 
-  // Take a peed at the first port to see if it is the end of data marker.
-  // If so, push end marker into our output interface queue.
-  // The assumption is that if the first port is at end, then they all are.
+  // Take a peek at the first port to see if it is the end of data
+  // marker.  If so, push end marker into our output interface queue.
+  // The assumption is that if the first port is at end, then they all
+  // are.
   auto edat = this->peek_at_port( *m_active_ports.begin() );
   if ( edat.datum->type() == sprokit::datum::complete )
   {
@@ -131,12 +180,29 @@ output_adapter_process
     data_set->add_datum( p, dtm );
   } // end foreach
 
-  // Possible option to see if queue is full and handle this set differently
-
-  // Send received data to consumer thread
-  this->get_interface_queue()->Send( data_set );
+  // If we are willing to wait for room in queue
+  // or the queue is not full, then send data to application.
+  if ( d->m_wait_on_queue_full || ! this->get_interface_queue()->Full() )
+  {
+    // Send received data to consumer thread
+    this->get_interface_queue()->Send( data_set );
+  }
 
   return;
+}
+
+
+// ================================================================
+output_adapter_process::priv
+::priv()
+  : m_wait_on_queue_full( true )
+{
+}
+
+
+output_adapter_process::priv
+::~priv()
+{
 }
 
 } // end namespace

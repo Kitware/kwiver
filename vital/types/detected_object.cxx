@@ -28,51 +28,133 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file
+ * \brief Implementation for detected_object class
+ */
+
 #include "detected_object.h"
 
 namespace kwiver {
 namespace vital {
 
-detected_object::detected_object()
-: confidence_(1.0), classifications_(NULL)
+
+detected_object::detected_object( const bounding_box_d& bbox,
+                                  double              confidence,
+                                  detected_object_type_sptr classifications )
+  : m_bounding_box( std::make_shared< bounding_box_d >( bbox ) )
+  , m_confidence( confidence )
+  , m_type( classifications )
+  , m_index( 0 )
 {
 }
 
-detected_object::detected_object(bounding_box bbox, double confidence,
-                           object_type_sptr classifications)
-: bounding_box_(bbox), confidence_(confidence), classifications_(classifications)
+
+// ------------------------------------------------------------------
+bounding_box_d
+detected_object::
+bounding_box() const
 {
+  return *m_bounding_box;
 }
 
-detected_object::bounding_box detected_object::get_bounding_box() const
+
+// ------------------------------------------------------------------
+void
+detected_object::
+set_bounding_box( const bounding_box_d& bbox )
 {
-  return bounding_box_;
+  m_bounding_box = std::make_shared< bounding_box_d >( bbox );
 }
 
-void detected_object::set_bounding_box(detected_object::bounding_box bbox)
+
+// ------------------------------------------------------------------
+double
+detected_object::
+confidence() const
 {
-  bounding_box_ = bbox;
+  return m_confidence;
 }
 
-double detected_object::get_confidence() const
+
+// ------------------------------------------------------------------
+void
+detected_object::
+set_confidence( double d )
 {
-  return confidence_;
+  m_confidence = d;
 }
 
-void detected_object::set_confidence(double d)
+
+// ------------------------------------------------------------------
+image_container_sptr
+detected_object::
+mask()
 {
-  confidence_ = d;
+  return m_image;
 }
 
-object_type_sptr detected_object::get_classifications()
+
+// ------------------------------------------------------------------
+void
+detected_object::
+set_mask( image_container_sptr m )
 {
-  return classifications_;
+  m_image = m;
 }
 
-void detected_object::set_classifications( object_type_sptr c )
+
+// ------------------------------------------------------------------
+detected_object_type_sptr
+detected_object::
+type()
 {
-  classifications_ = c;
+  return m_type;
 }
 
+
+// ------------------------------------------------------------------
+void
+detected_object::
+set_type( detected_object_type_sptr c )
+{
+  m_type = c;
 }
+
+// ------------------------------------------------------------------
+uint64_t
+detected_object::
+index() const
+{
+  return m_index;
 }
+
+
+// ------------------------------------------------------------------
+void
+detected_object::
+set_index( uint64_t idx )
+{
+  m_index = idx;
+}
+
+
+// ------------------------------------------------------------------
+const std::string&
+detected_object::
+detector_name() const
+{
+  return m_detector_name;
+}
+
+
+// ------------------------------------------------------------------
+void
+detected_object::
+set_detector_name( const std::string& name )
+{
+  m_detector_name = name;
+}
+
+
+} } // end namespace

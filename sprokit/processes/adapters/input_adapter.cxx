@@ -28,6 +28,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file
+ * \brief Implementation for input_adapter class
+ */
 
 #include "input_adapter.h"
 #include "input_adapter_process.h"

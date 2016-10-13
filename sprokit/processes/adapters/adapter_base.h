@@ -28,6 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file
+ * \brief Interface file for the adapter case class
+ */
+
 #ifndef PROCESS_ADAPTER_BASE_H
 #define PROCESS_ADAPTER_BASE_H
 
@@ -51,8 +56,7 @@ namespace adapter {
  * \brief Base class for sprokit external adapters
  *
  * This class contains all common code to support the input and output
- * adapter classes. It is not designed to be polymorphic.
- *
+ * adapter classes. It is not designed to be polymorphic base class.
  */
 class adapter_base
 {
@@ -60,7 +64,7 @@ public:
   adapter_base();
   virtual ~adapter_base();
 
-    /**
+  /**
    * @brief Get pointer to our interface queue.
    *
    * This interface queue is how the input process is supplied with
@@ -71,12 +75,22 @@ public:
    */
   interface_ref_t get_interface_queue();
 
-
+  /**
+   * @brief Get list of connected ports.
+   *
+   * This method returns a copy of the list of connected ports.
+   *
+   * @return List of connected ports
+   */
   sprokit::process::ports_t port_list() const;
 
 protected:
 
   std::set< sprokit::process::port_t > m_active_ports;
+
+  // The interface queue is managed by shared pointer because it is
+  // shared amongst the client API, and the process threads, so it
+  // must remain active until the last user gets deleted.
   interface_ref_t  m_interface_queue;
 
 }; // end class frame_list_process

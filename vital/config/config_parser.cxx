@@ -376,7 +376,7 @@ public:
       // encode them in square brackets, such as [TR]
       //
       // So an entry with multiple attributes would look like:
-      // key[RO][TR] = value
+      // key[RO,TR] = value
       //
       // Add additional tests in the while block to handle additional
       // attributes.
@@ -537,8 +537,8 @@ public:
   {
     // Words are LHS tokens, which start with a letter, and can not end with a ':'
     // A *word* can contain these symbols "- _ : . /"
-    static kwiversys::RegularExpression re_word( "^[a-zA-Z][-a-zA-Z0-9.:/_]+[-a-zA-Z0-9./_]" );
-    static kwiversys::RegularExpression re_flag( "^\\[[a-zA-Z,]+\\]" );
+    kwiversys::RegularExpression re_word( "^[a-zA-Z][-a-zA-Z0-9.:/_]+[-a-zA-Z0-9./_]" );
+    kwiversys::RegularExpression re_flag( "^\\[[a-zA-Z,]+\\]" );
 
     // Test for end of line while processing
     if ( m_token_line.size() == 0)

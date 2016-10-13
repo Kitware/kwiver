@@ -5,13 +5,27 @@ set( plugin_core_headers
 
   class_probablity_filter.h
   close_loops_bad_frames_only.h
+  close_loops_exhaustive.h
+  close_loops_keyframe.h
   close_loops_multi_method.h
   compute_ref_homography_core.h
   convert_image_bypass.h
-  epipolar_geometry.h
+  detected_object_set_input_kw18.h
+  detected_object_set_output_kw18.h
+  detected_object_set_input_csv.h
+  detected_object_set_output_csv.h
+  estimate_canonical_transform.h
   filter_features_magnitude.h
   hierarchical_bundle_adjust.h
   initialize_cameras_landmarks.h
+  match_features_fundamental_matrix.h
+  match_features_homography.h
+  register_algorithms.h
+  track_features_core.h
+  transform.h
+  triangulate_landmarks.h
+
+  epipolar_geometry.h
   interpolate_camera.h
   match_features_homography.h
   match_matrix.h
@@ -37,13 +51,27 @@ set( plugin_core_sources
 
   class_probablity_filter.cxx
   close_loops_bad_frames_only.cxx
+  close_loops_exhaustive.cxx
+  close_loops_keyframe.cxx
   close_loops_multi_method.cxx
   compute_ref_homography_core.cxx
   convert_image_bypass.cxx
-  epipolar_geometry.cxx
+  detected_object_set_input_kw18.cxx
+  detected_object_set_output_kw18.cxx
+  detected_object_set_input_csv.cxx
+  detected_object_set_output_csv.cxx
+  estimate_canonical_transform.cxx
   filter_features_magnitude.cxx
   hierarchical_bundle_adjust.cxx
   initialize_cameras_landmarks.cxx
+  match_features_fundamental_matrix.cxx
+  match_features_homography.cxx
+  register_algorithms.cxx
+  track_features_core.cxx
+  transform.cxx
+  triangulate_landmarks.cxx
+
+  epipolar_geometry.cxx
   interpolate_camera.cxx
   match_features_homography.cxx
   match_matrix.cxx
@@ -55,6 +83,15 @@ set( plugin_core_sources
   triangulate.cxx
   triangulate_landmarks.cxx
   )
+
+# Address MSVC fatal error C1128:
+# number of sections exceeded object file format limit
+if(MSVC)
+  set_source_files_properties(
+    triangulate.cxx
+    PROPERTIES COMPILE_FLAGS "/bigobj"
+    )
+endif()
 
 kwiver_add_library( kwiver_algo
   ${plugin_core_headers}

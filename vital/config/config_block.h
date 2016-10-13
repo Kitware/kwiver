@@ -190,11 +190,13 @@ public:
 
   /// Set a value within the configuration.
   /**
+   * The specified value is set for the specified key.
+   *
    * If this key already exists, has a description and no new description
    * was passed with this \c set_value call, the previous description is
    * retained. We assume that the previous description is still valid and
    * this a value overwrite. If it is intended for the description to also
-   * be overwritted, an \c unset_value call should be performed on the key
+   * be overwritten, an \c unset_value call should be performed on the key
    * first, and then this \c set_value call.
    *
    * \throws set_on_read_only_value_exception Thrown if \p key is marked as read-only.
@@ -216,6 +218,26 @@ public:
                   T const&                          value,
                   config_block_description_t const& descr );
 
+  /// Set a value within the configuration.
+  /**
+   * The specified value is set for the specified key.
+   *
+   * If this key already exists, has a description and no new description
+   * was passed with this \c set_value call, the previous description is
+   * retained. We assume that the previous description is still valid and
+   * this a value overwrite. If it is intended for the description to also
+   * be overwritten, an \c unset_value call should be performed on the key
+   * first, and then this \c set_value call.
+   *
+   * \throws set_on_read_only_value_exception Thrown if \p key is marked as read-only.
+   *
+   * \postconds
+   * \postcond{<code>this->get_value<value_t>(key) == value</code>}
+   * \endpostconds
+   *
+   * \param key The index of the configuration value to set.
+   * \param value The value to set for the \p key.
+   */
   template < typename T >
   void set_value( config_block_key_t const& key,
                   T const& value);
@@ -299,7 +321,9 @@ public:
 
   /// Check if a value exists for \p key.
   /**
-   * \param key The index of the configuration value to check.
+   * The existence of a key is checked in the config block.
+   *
+   * \param key The key to check for existence.
    * \returns Whether the key exists.
    */
   bool has_value( config_block_key_t const& key ) const;
@@ -428,6 +452,11 @@ private:
 // ==================================================================
 // ---- get value group ----
 // ------------------------------------------------------------------
+/** \defgroup get_value_group Get Config Value Group
+ * Functions to get typed values from a config entry.
+ * @{
+ */
+
 /// Default cast handling for getting configuration values.
 /**
  * The specified value is converted into a form suitable for this
@@ -450,9 +479,6 @@ inline
 R
 config_block_get_value_cast_default( config_block_value_t const& value )
 {
-  // replace boost::lexical_cast
-  // Currently a problem dealing with values with embedded white space
-  // e.g. "one two" will only have the first work converted.
   try
   {
     std::stringstream interpreter;
@@ -477,13 +503,12 @@ config_block_get_value_cast_default( config_block_value_t const& value )
 // ------------------------------------------------------------------
 /// Cast a configuration value to the requested type.
 /**
- *
  * This method converts the config block value from its native string
  * representation to the desired type.
  *
  * If the default implementation (using input operator) does not work
  * for your data type, then write a specialized version of this
- * function to do the conversion.
+ * function to do the conversion as show in the following example.
  *
  * Example:
 \code
@@ -521,13 +546,12 @@ config_block_get_value_cast( config_block_value_t const& value )
 
 
 // ------------------------------------------------------------------
-/// Type-specific casting handling, config_block_value_t->bool specialization
+/// Type-specific casting handling for config_block_value_t->bool specialization
 /**
  * This is the \c bool to \c config_block_value_t specialization to handle
  * \c true, \c false, \c yes and \c no literal conversion versus just
  * \c 1 and \c 0 (1 and 0 still handled if provided).
  *
- * \note Do not use this in user code. Use config_block_get_value_cast() instead.
  * \param value The value to convert.
  * \returns The value of \p value in the requested type.
  */
@@ -592,10 +616,16 @@ config_block
     return def;
   }
 }
+//@}
 
 // ==================================================================
 //  ---- set value group ----
 // ------------------------------------------------------------------
+  /** \defgroup set_value_group Set Config Value Group
+ * Functions to set typed values in a config entry.
+ * @{
+ */
+
 /// Default cast handling for setting config values
 /**
  * The supplied value is converted from its native type to a string
@@ -606,7 +636,8 @@ config_block
  * around this problem define a specialized version of
  * config_block_set_value_cast<>() for your specific type.
  *
- * \note Do not use this in user code. Use config_block_set_value_cast() instead.
+ * \note Do not use this in user code. Use
+ * config_block_set_value_cast() instead.
  *
  * \param value   Value to be converted to string representation.
  * \tparam T Type to be converted.
@@ -640,7 +671,6 @@ config_block_set_value_cast_default( T const& value )
 // ------------------------------------------------------------------
 /// Cast a configuration value to the requested type.
 /**
- *
  * This method converts the user supplied value from its native form
  * to a string representation to the desired type.
  *
@@ -710,7 +740,7 @@ config_block
 
 
 // ------------------------------------------------------------------
-/// Type-specific handling, bool->cb_value_t specialization
+/// Type-specific handling, bool->config_block_value_t specialization
 /**
  * This is the \c config_block_value_t to \c bool specialization that outputs
  * \c true and \c false literals instead of 1 or 0.
@@ -718,8 +748,6 @@ config_block
  * \param key The configuration key string
  * \param value The value to convert.
  * \param descr Configuration item descrription
- *
- * \returns The value of \p value as either "true" or "false".
  */
 template < >
 inline
@@ -734,7 +762,7 @@ config_block
 
 
 // ------------------------------------------------------------------
-/// Type-specific handling, string->cb_value_t specialization
+/// Type-specific handling, string->config_block_value_t specialization
 /**
  * This is the \c config_block_value_t to \c string specialization that outputs
  * the value string directly.
@@ -742,8 +770,6 @@ config_block
  * \param key The configuration key string
  * \param value The value to convert.
  * \param descr Configuration item descrription
- *
- * \returns The value of \p value as either "true" or "false".
  */
 template < >
 inline
@@ -755,6 +781,7 @@ config_block
 {
   this->i_set_value( key, value, descr );
 }
+//@}
 
 } }
 

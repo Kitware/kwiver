@@ -17,7 +17,7 @@ set(KWSYS_USE_Directory            1)
 set(KWSYS_USE_CommandLineArguments 1)
 
 set(KWSYS_INSTALL_EXPORT_NAME  ${kwiver_export_name})
-set(KWSYS_INSTALL_INCLUDE_DIR  "include/vital")
+set(KWSYS_INSTALL_INCLUDE_DIR  "include")
 set(KWSYS_INSTALL_LIB_DIR      lib)
 set(KWSYS_INCLUDE_DIR          ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "")
 
@@ -92,6 +92,9 @@ set( vital_public_headers
   vital_types.h
   vital_foreach.h
   noncopyable.h
+  any.h
+  algorithm_capabilities.h
+  attribute_set.h
 
   algo/algorithm.txx
   algo/algorithm.h
@@ -102,14 +105,21 @@ set( vital_public_headers
   algo/convert_image.h
   algo/detected_object_filter.h
   algo/detect_features.h
+  algo/detected_object_set_input.h
+  algo/detected_object_set_output.h
+  algo/detection_refiner.h
   algo/draw_tracks.h
+  algo/estimate_canonical_transform.h
   algo/estimate_essential_matrix.h
   algo/estimate_fundamental_matrix.h
   algo/estimate_homography.h
+  algo/estimate_canonical_transform.h
   algo/estimate_similarity_transform.h
   algo/extract_descriptors.h
   algo/filter_features.h
   algo/geo_map.h
+  algo/image_filter.h
+  algo/image_object_detector.h
   algo/image_io.h
   algo/image_object_detector.h
   algo/initialize_cameras_landmarks.h
@@ -124,13 +134,17 @@ set( vital_public_headers
   exceptions/image.h
   exceptions/io.h
   exceptions/math.h
+  exceptions/video.h
+  exceptions/klv.h
 
   io/camera_io.h
   io/camera_map_io.h
   io/eigen_io.h
   io/landmark_map_io.h
+  io/mesh_io.h
   io/track_set_io.h
 
+  types/bounding_box.h
   types/camera.h
   types/camera_intrinsics.h
   types/camera_map.h
@@ -138,12 +152,18 @@ set( vital_public_headers
   types/covariance.h
   types/descriptor.h
   types/descriptor_set.h
+  types/detected_object.h
+  types/detected_object_set.h
+  types/detected_object_type.h
   types/essential_matrix.h
   types/detected_object.h
   types/detected_object_set.h
   types/feature.h
   types/feature_set.h
   types/fundamental_matrix.h
+  types/geo_MGRS.h
+  types/geo_UTM.h
+  types/geo_corner_points.h
   types/geo_lat_lon.h
   types/homography.h
   types/homography_f2f.h
@@ -154,8 +174,7 @@ set( vital_public_headers
   types/landmark_map.h
   types/match_set.h
   types/matrix.h
-  types/object_labels.h
-  types/object_type.h
+  types/mesh.h
   types/rotation.h
   types/similarity.h
   types/timestamp.h
@@ -163,16 +182,35 @@ set( vital_public_headers
   types/track.h
   types/track_set.h
   types/vector.h
+  types/uuid.h
 
+  util/any_converter.h
+  util/bounded_buffer.h
+  util/data_stream_reader.cxx
+  util/demangle.h
+  util/enumerate_matrix.h
+  util/enumerate_matrix.h
   util/get_paths.h
+  util/string_editor.h
+  util/string_format.h
   util/timer.h
   util/enumerate_matrix.h
   util/bounded_buffer.h
+
+  plugin_loader/plugin_factory.h
+  plugin_loader/plugin_manager.h
+
+  #+++ replaced with detected_object_type
+  types/object_labels.h
+  types/object_type.h
+
 )
 
 # ----------------------
 set( vital_sources
   registrar.cxx
+  algorithm_capabilities.cxx
+  attribute_set.cxx
 
   algo/algorithm.cxx
   algo/analyze_tracks.cxx
@@ -182,14 +220,21 @@ set( vital_sources
   algo/convert_image.cxx
   algo/detect_features.cxx
   algo/detected_object_filter.cxx
+  algo/detected_object_set_input.cxx
+  algo/detected_object_set_output.cxx
+  algo/detection_refiner.cxx
   algo/draw_tracks.cxx
+  algo/estimate_canonical_transform.cxx
   algo/estimate_essential_matrix.cxx
   algo/estimate_fundamental_matrix.cxx
   algo/estimate_homography.cxx
   algo/estimate_similarity_transform.cxx
+  algo/estimate_canonical_transform.cxx
   algo/extract_descriptors.cxx
   algo/filter_features.cxx
   algo/geo_map.cxx
+  algo/image_filter.cxx
+  algo/image_object_detector.cxx
   algo/image_io.cxx
   algo/image_object_detector.cxx
   algo/initialize_cameras_landmarks.cxx
@@ -197,40 +242,59 @@ set( vital_sources
   algo/optimize_cameras.cxx
   algo/track_features.cxx
   algo/triangulate_landmarks.cxx
+  algo/video_input.cxx
 
   exceptions/algorithm.cxx
   exceptions/base.cxx
   exceptions/image.cxx
   exceptions/io.cxx
   exceptions/math.cxx
+  exceptions/video.cxx
+  exceptions/klv.cxx
 
   io/camera_io.cxx
   io/camera_map_io.cxx
   io/landmark_map_io.cxx
+  io/mesh_io.cxx
   io/track_set_io.cxx
 
+  types/bounding_box.cxx
   types/camera.cxx
   types/camera_intrinsics.cxx
   types/detected_object.cxx
   types/detected_object_set.cxx
+  types/detected_object_type.cxx
   types/essential_matrix.cxx
   types/feature.cxx
   types/fundamental_matrix.cxx
+  types/geo_MGRS.cxx
+  types/geo_UTM.cxx
+  types/geo_corner_points.cxx
   types/geo_lat_lon.cxx
   types/homography.cxx
   types/homography_f2f.cxx
   types/homography_f2w.cxx
   types/image.cxx
   types/landmark.cxx
-  types/object_labels.cxx
-  types/object_type.cxx
+  types/mesh.cxx
   types/rotation.cxx
   types/similarity.cxx
   types/timestamp.cxx
   types/track.cxx
   types/track_set.cxx
+  types/uuid.cxx
 
+  util/data_stream_reader.cxx
+  util/demangle.cxx
   util/get_paths.cxx
+  util/string_editor.cxx
+
+  plugin_loader/plugin_manager.cxx
+  plugin_loader/plugin_factory.cxx
+
+  #+++ replaced with detected_object_type
+  types/object_labels.cxx
+  types/object_type.cxx
 )
 
 kwiver_install_headers(
@@ -269,6 +333,12 @@ target_link_libraries( vital
                   vital_logger
   )
 
+###
+# Build plugin management library
+#
+# This has to happen after plugin creation so as to be able to statically link
+# in plugin libraries when building static.
+#
 set(vital_apm_headers
   algorithm_plugin_manager.h
   )
@@ -302,9 +372,9 @@ target_link_libraries(vital_apm
                    vital_logger
   )
 
-set(VITAL_MODULE_PATH "${VITAL_DEFAULT_MODULE_PATH}"
+set(VITAL_MODULE_PATHS "${vital_default_module_paths}"
   CACHE STRING "The extra default paths for module scanning. Separate paths with ';' character.")
-mark_as_advanced( VITAL_MODULE_PATH )
+mark_as_advanced( VITAL_MODULE_PATHS )
 
 # Configuring/Adding compile definitions to target
 # (so we can use generator expressions)
@@ -347,6 +417,7 @@ if (KWIVER_USE_BUILD_TREE)
   set( vital_default_module_path ${vital_default_module_path}${path_sep}${build_module_paths})
 endif()
 
+# used by APM
 set( VITAL_DEFAULT_MODULE_PATH ${vital_default_module_path} CACHE STRING "Search path for loading algorithms" FORCE )
 
 configure_file(
@@ -364,6 +435,8 @@ configure_file(
 add_subdirectory( bindings )
 add_subdirectory( logger )
 add_subdirectory( config )
+add_subdirectory( klv )
+add_subdirectory( video_metadata )
 
 if (KWIVER_ENABLE_TOOLS)
   add_subdirectory( tools )
@@ -374,9 +447,5 @@ endif()
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory( tests )
   add_subdirectory( util/tests )
+  add_subdirectory( klv/tests )
 endif()
-
-###
-# Marking source root for documentation generation
-#
-kwiver_create_doxygen( vital "${CMAKE_CURRENT_LIST_DIR}" )

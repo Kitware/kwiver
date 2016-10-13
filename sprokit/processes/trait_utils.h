@@ -84,7 +84,7 @@ kwiver::vital::config_block_key_t const NAME ## _config_trait::key = kwiver::vit
 kwiver::vital::config_block_value_t const NAME ## _config_trait::def = kwiver::vital::config_block_value_t( DEF ); \
 kwiver::vital::config_block_description_t const  NAME ## _config_trait::description = kwiver::vital::config_block_description_t( DESCR ); }
 
-
+//@{
 /**
  * \brief Create a configuration item trait.
  *
@@ -111,8 +111,8 @@ kwiver::vital::config_block_description_t const  NAME ## _config_trait::descript
  *
  * \param KEY Configuration item key name. Also the trait name.
  * \param TYPE Data type for this configuration item.
- * \param DEF Default value for this configuration item.
- * \param DESCR Description of configuration item.
+ * \param DEF Default value for this configuration item. This must be a suitable initializer for a string.
+ * \param DESCR Description of configuration item. This must be a suitable initializer for a string.
  */
 #define create_config_trait(KEY, TYPE, DEF, DESCR) create_named_config_trait( KEY, # KEY, TYPE, DEF, DESCR )
 
@@ -122,9 +122,17 @@ declare_configuration_key( KEY ## _config_trait::key,           \
                            KEY ## _config_trait::def,           \
                            KEY ## _config_trait::description)
 
+#define declare_tunable_config_using_trait(KEY)                         \
+declare_configuration_key( KEY ## _config_trait::key,                   \
+                           KEY ## _config_trait::def,                   \
+                           KEY ## _config_trait::description, true)     \
+//@}
 
-// Get value from config using trait
+// Get value from process config using trait
 #define config_value_using_trait(KEY) config_value< KEY ## _config_trait::type >( KEY ## _config_trait::key )
+
+// Get value from config blockusing trait
+#define reconfig_value_using_trait(CONF,KEY) CONF->get_value< KEY ## _config_trait::type >( KEY ## _config_trait::key )
 
 
 /**
@@ -135,11 +143,12 @@ declare_configuration_key( KEY ## _config_trait::key,           \
  * to establish names for types that are used throughout a sprokit
  * pipeline.
  *
- * Type traits should name a logical type not a physical type. This
- * essential for verifying the semantics of a pipeline. For example,
- * GSD is usually a double but the trait name should be \b gsd with a
- * type double. It is a really bad idea to name type traits based on
- * the concrete builtin fundamental type such as double or int.
+ * Type traits should name a logical or semantic type not a physical
+ * or logical type. This essential for verifying the semantics of a
+ * pipeline. For example, GSD is usually a double but the trait name
+ * should be \b gsd with a type double. It is a really bad idea to
+ * name type traits based on the concrete builtin fundamental type
+ * such as double or int.
  *
  \code
  create_type_trait( gsd, "kwiver:gsd", double );  // do this
@@ -217,12 +226,39 @@ sprokit::process::type_t const PN ## _port_trait::type_name = sprokit::process::
 sprokit::process::port_t const PN ## _port_trait::port_name = sprokit::process::port_t( # PN ); \
 sprokit::process::port_description_t const PN ## _port_trait::description = sprokit::process::port_description_t( DESCRIP ); }
 
+#if VITAL_VARIADAC_MACRO
 
-#define declare_port_using_trait( D, PN, FLAG )         \
+//
+// Substantial macro magic
+//
+#define DPFT4( D, PN, FLAG, FREQ )                      \
+declare_ ## D ## _port( PN ## _port_trait::port_name,   \
+                        PN ## _port_trait::type_name,   \
+                        FLAG,                           \
+                        PN ## _port_trait::description, \
+                        FREQ )
+
+#define DPFT5( D, PN, FLAG, FREQ, DESCRIP )             \
+declare_ ## D ## _port( PN ## _port_trait::port_name,   \
+                        PN ## _port_trait::type_name,   \
+                        FLAG,                           \
+                        DESCRIP,                        \
+                        FREQ )
+
+#define DPUT3( D, PN, FLAG )         \
 declare_ ## D ## _port( PN ## _port_trait::port_name,   \
                         PN ## _port_trait::type_name,   \
                         FLAG,                           \
                         PN ## _port_trait::description)
+
+#define DPUT4( D, PN, FLAG, DESCRIP  )                  \
+declare_ ## D ## _port( PN ## _port_trait::port_name,   \
+                        PN ## _port_trait::type_name,   \
+                        FLAG,                           \
+                        DESCRIP)
+
+#define GET_MACRO(_1,_2,_3,_4,NAME, ...) NAME
+
 
 /**
  * \brief Declare sprokit input port using a port trait.
@@ -235,12 +271,15 @@ declare_ ## D ## _port( PN ## _port_trait::port_name,   \
   required.insert( flag_required );
 
   declare_input_port_using_trait( timestamp, required );
+  declare_input_port_using_trait( timestamp, required, "description" );
  \endcode
  *
  * \param PN Port trait name as defined by create_port_trait()
  * \param FLAG Port flags as defined by sprokit::process::port_flags_t
+ * \param DESCRIP Optional port description
  */
-#define declare_input_port_using_trait( PN, FLAG ) declare_port_using_trait( input, PN, FLAG )
+#define declare_input_port_using_trait(...) \
+  GET_MACRO(__VA_ARGS__, xxx, DPUT4, DPUT3)(input, __VA_ARGS__)
 
 
 /**
@@ -253,13 +292,88 @@ declare_ ## D ## _port( PN ## _port_trait::port_name,   \
   sprokit::process::port_flags_t optional;
 
   declare_output_port_using_trait( src_to_ref_homography, optional );
+  declare_output_port_using_trait( src_to_ref_homography, optional, "description" );
  \endcode
  *
  * \param PN Port trait name as defined by create_port_trait()
  * \param FLAG Port flags as defined by sprokit::process::port_flags_t
+ * \param DESCRIP Optional port description
  */
-#define declare_output_port_using_trait( PN, FLAG ) declare_port_using_trait( output, PN, FLAG )
+#define declare_output_port_using_trait(...) \
+  GET_MACRO(__VA_ARGS__, xxx, DPUT4, DPUT3)(output, __VA_ARGS__)
 
+
+/**
+ * \brief Declare sprokit input port using a port trait.
+ *
+ * This macro is used to declare a sprokit input port with a frequency
+ * to the pipeline framework based on the specified port trait.
+ *
+ \code
+  sprokit::process::port_flags_t required;
+  required.insert( flag_required );
+
+  declare_input_port_with_freq_using_trait( timestamp, required );
+  declare_input_port_with_freq_using_trait( timestamp, required, "description" );
+ \endcode
+ *
+ * \param PN Port trait name as defined by create_port_trait()
+ * \param FLAG Port flags as defined by sprokit::process::port_flags_t
+ * \param FREQ Port frequency
+ * \param DESCRIP Optional port description
+ */
+#define declare_input_port_with_freq_using_trait(...) \
+  GET_MACRO(__VA_ARGS__, DPFT5, DPFT4, xxx)(input, __VA_ARGS__)
+
+
+/**
+ * \brief Declare sprokit output port using port trait.
+ *
+ * This macro is used to declare a sprokit output with a frequency
+ * specification port to the pipeline framework based on the specified
+ * port trait.
+ *
+ \code
+  sprokit::process::port_flags_t optional;
+
+  declare_output_port_with_freq_using_trait( src_to_ref_homography, optional );
+  declare_output_port_with_freq_using_trait( src_to_ref_homography, optional, "description" );
+ \endcode
+ *
+ * \param PN Port trait name as defined by create_port_trait()
+ * \param FLAG Port flags as defined by sprokit::process::port_flags_t
+ * \param FREQ Port frequency
+ * \param DESCRIP Optional port description
+ */
+#define declare_output_port_with_freq_using_trait(...) \
+  GET_MACRO(__VA_ARGS__, DPFT5, DPFT4, xxx)(output, __VA_ARGS__)
+
+#else
+
+//
+// Some compilers have trouble with the preceding approach.
+//
+
+#define declare_port_using_trait( D, PN, FLAG, ... )    \
+declare_ ## D ## _port( PN ## _port_trait::port_name,   \
+                        PN ## _port_trait::type_name,   \
+                        FLAG,                           \
+                        PN ## _port_trait::description)
+
+#define declare_port_with_freq_using_trait( D, PN, FLAG, ... )  \
+declare_ ## D ## _port( PN ## _port_trait::port_name,           \
+                        PN ## _port_trait::type_name,           \
+                        FLAG,                                   \
+                        PN ## _port_trait::description)
+
+#define declare_input_port_using_trait( PN, FLAG, ... ) declare_port_using_trait( input, PN, FLAG, __VA_ARGS__ )
+#define declare_output_port_using_trait( PN, FLAG, ... ) declare_port_using_trait( output, PN, FLAG, __VA_ARGS__ )
+
+#define declare_input_port_with_freq_using_trait( PN, FLAG, FREQ, ... ) declare_port_with_freq_using_trait( input, PN, FLAG, __VA_ARGS__ )
+
+#define declare_output_port_with_freq_using_trait( PN, FLAG, FREQ, ... ) declare_port_with_freq_using_trait( output, PN, FLAG, __VA_ARGS__ )
+
+#endif
 
 /**
  * \brief Get input from port using port trait name.
@@ -267,6 +381,9 @@ declare_ ## D ## _port( PN ## _port_trait::port_name,   \
  * This macro returns a data value form a port specified by the port
  * trait or the configured static value. If there is a value on the
  * port, then this method behaves the same as grab_from_port_using_trait().
+ *
+ * This should be used with ports that have the \c flag_input_static
+ * option set when created.
  *
  \code
  create_type_trait( timestamp, "kwiver:timestamp", kwiver::vital::timestamp );
@@ -287,13 +404,23 @@ grab_input_as< PN ## _port_trait::type > ( PN ## _port_trait::port_name )
  * \brief Get input from port using port trait name.
  *
  * This method grabs an input value directly from the port specified
- * by the port trait with no handling for static ports. This call will
+ * by the port trait with \b no handling for static ports. This call will
  * block until a datum is available.
  *
  \code
  create_type_trait( timestamp, "kwiver:timestamp", kwiver::vital::timestamp );
  kwiver::vital::timestamp frame_time = grab_from_port_using_trait( timestamp );
  \endcode
+ *
+ * Optional ports can be handled as follows:
+ *
+\code
+  // See if optional input port has been connected.
+  if ( has_input_port_edge_using_trait( timestamp ) )
+  {
+    frame_time = grab_input_using_trait( timestamp );
+  }
+\endcode
  *
  * \sa sprokit::process::grab_from_port_as()
  *
@@ -361,6 +488,25 @@ grab_from_port_as< PN ## _port_trait::type > ( PN ## _port_trait::port_name )
  */
 #define has_input_port_edge_using_trait(PN)             \
   has_input_port_edge(PN ##_port_trait::port_name )
+
+
+/**
+ * \brief Count number of edged connected to output port.
+ *
+ * This method returns the number of down stream processes are
+ * connected to the port. This is useful in determining if there
+ * are any consumers of an output port.
+ *
+ * For example, this can be used to optimize a process. An
+ * expensive output can be skipped if there are no consumers.
+ *
+ * \param PN Port trait name.
+ *
+ * \returns The number of edges connected to the \p port.
+ */
+
+#define count_output_port_edges_using_trait(PN) \
+  count_output_port_edges(PN ##_port_trait::port_name )
 
 
 

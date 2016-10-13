@@ -30,68 +30,137 @@
 
 /**
  * \file
- * \brief Header for \link kwiver::vital::detected_object_set detected_object_set \endlink class
+ * \brief Interface for detected_object_set
  */
 
 #ifndef VITAL_DETECTED_OBJECT_SET_H_
 #define VITAL_DETECTED_OBJECT_SET_H_
 
-#include <vector>
-
 #include <vital/vital_export.h>
 #include <vital/vital_config.h>
+#include <vital/attribute_set.h>
 
 #include <vital/types/detected_object.h>
-#include <vital/types/object_labels.h>
 
 namespace kwiver {
 namespace vital {
 
-/// forward declaration of detected_object class
+// forward declaration of detected_object class
 class detected_object_set;
-/// typedef for a detected_object shared pointer
+
+// typedef for a detected_object shared pointer
 typedef std::shared_ptr< detected_object_set > detected_object_set_sptr;
 
 // ----------------------------------------------------------------
-
-class VITAL_EXPORT detected_object_set
+/**
+ * @brief Set of detected objects.
+ *
+ * This class represents a ordered set of detected objects. The
+ * detections are ordered on their basic confidence value.
+ */
+class VITAL_EXPORT detected_object_set VITAL_FINAL
 {
 public:
-  class iterator
-  {
-    friend class detected_object_set;
-  public:
-    iterator& operator++();
-    iterator operator++(int);
-    bool is_end() const;
-    detected_object_sptr get_object() const;
-    size_t at() const;
-    size_t size() const;
-    detected_object_sptr operator[](size_t i) const;
-  private:
-    size_t at_;
-    iterator(detected_object_set const& set,
-             std::vector<size_t> desired);
-    detected_object_set const& set_;
-    std::vector<size_t> desired_value_;
-  };
-  detected_object_set(std::vector<detected_object_sptr> const& objs,
-                      object_labels_sptr labels = NULL);
-  detected_object_sptr operator[](size_t i) const;
+
+  /**
+   * @brief Create an empty detection set.
+   *
+   * This CTOR creates an empty detection set. Detections can be added
+   * with the add() method.
+   */
+  detected_object_set();
+
+  ~detected_object_set() VITAL_DEFAULT_DTOR
+
+  /**
+   * @brief Create new set of detected objects.
+   *
+   * This CTOR creates a detection set using the supplied vector of
+   * detection objects. This can be used to create a new detection set
+   * from the output of a select() method.
+   *
+   * @param objs Vector of detected objects.
+   */
+  detected_object_set( detected_object::vector_t const& objs );
+
+  /**
+   * @brief Add detection to set.
+   *
+   * This method adds a new detection to this set.
+   *
+   * @param object Detection to be added to set.
+   */
+  void add( detected_object_sptr object );
+
+  /**
+   * @brief Get number of detections in this set.
+   *
+   * This method returns the number of detections in the set.
+   *
+   * @return Number of detections.
+   */
   size_t size() const;
-  iterator get_iterator(bool sorted = false) const;
-  iterator get_iterator(object_labels::key label, bool sorted = false,
-                        double threshold = object_type::INVALID_SCORE) const;
-  iterator get_iterator(std::string label, bool sorted = false,
-                        double threshold = object_type::INVALID_SCORE) const;
-  object_labels::iterator get_labels() const;
-  object_labels_sptr get_object_labels() const
-  { return labels_; }
+
+  /**
+   * @brief Select detections based on confidence value.
+   *
+   * This method returns a vector of detections ordered by confidence
+   * value, high to low. If the optional threshold is specified, then
+   * all detections from the set that are less than the threshold are
+   * not in the selected set.
+   *
+   * @param threshold Select all detections with confidence not less
+   *                  than this value. If this parameter is omitted,
+   *                  then all detections are selected.
+   *
+   * @return List of detections.
+   */
+  detected_object::vector_t select( double threshold = detected_object_type::INVALID_SCORE );
+
+  /**
+   * @brief Select detections based on class_name
+   *
+   * This method returns a vector of detections that have the
+   * specified class_name. These detections are ordered by
+   * descending score for the name.
+   *
+   * @param class_name class name
+   * @param threshold Select all detections with confidence not less
+   *                  than this value. If this parameter is omitted,
+   *                  then all detections with the label are selected.
+   *
+   * @return List of detections.
+   */
+  const detected_object::vector_t select( const std::string& class_name,
+                                          double             threshold = detected_object_type::INVALID_SCORE ) const;
+
+  /**
+   * @brief Get attributes set.
+   *
+   * This method returns a pointer to the attribute set that is
+   * attached to this object. It is possible that the pointer is NULL,
+   * so check before using it.
+   *
+   * @return Pointer to attribute set or NULL
+   */
+  attribute_set_sptr attributes();
+
+  /**
+   * @brief Attach attributes set to this object.
+   *
+   * This method attaches the specified attribute set to this object.
+   *
+   * @param attrs Pointer to attribute set to attach.
+   */
+  void set_attributes( attribute_set_sptr attrs );
+
 private:
-  object_labels_sptr labels_;
-  std::vector<detected_object_sptr> objects_;
+  // List of detections ordered by confidence value.
+  detected_object::vector_t m_detected_objects;
+
+  attribute_set_sptr m_attrs;
 };
 
-}
-}
+} } // end namespace
+
 #endif

@@ -2,6 +2,8 @@
 # Compiler flags specific to use with GCC
 #
 
+include( CMakeDependentOption )
+
 kwiver_check_compiler_flag( -std=c++11 -std=c++0x )
 kwiver_check_compiler_flag( -fvisibility=hidden )
 kwiver_check_compiler_flag( -Wall )
@@ -17,11 +19,6 @@ kwiver_check_compiler_flag( -Werror=cast-qual )
 kwiver_check_compiler_flag( -Wl,--no-undefined )
 kwiver_check_compiler_flag( -Wl,--copy-dt-needed-entries )
 
-# --------------------------------------
-# flags from sprokit
-#
-# keep those that work for all of kwiver
-#
 
 OPTION(KWIVER_CPP_EXTRA "Generate more warnings about bad practices" OFF)
 if (KWIVER_CPP_EXTRA)
