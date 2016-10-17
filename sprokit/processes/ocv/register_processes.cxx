@@ -33,7 +33,7 @@
 // -- list processes to register --
 #include "crop_image_process.h"
 #include "draw_detected_object_boxes_process.h"
-#include "view_image_process.h"
+#include "image_viewer_process.h"
 
 extern "C"
 KWIVER_PROCESSES_OCV_EXPORT void register_processes();
@@ -72,6 +72,7 @@ void register_processes()
     "Draw detected object boxes on images.",
     sprokit::create_process< kwiver::draw_detected_object_boxes_process > );
 
+  // --- deprecated names ----
   registry->register_process(
     "draw_detections",
     "Draws the boxes to an image. Legacy process and will be removed in a future release. "

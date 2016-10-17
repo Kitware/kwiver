@@ -45,7 +45,6 @@
 #include <vital/types/geo_lat_lon.h>
 #include <vital/types/image_container.h>
 #include <vital/types/track_set.h>
-#include <vital/types/detected_object_set.h>
 #include <vital/types/uuid.h>
 
 #include "trait_utils.h"
@@ -72,7 +71,7 @@ namespace vital {
 // ( type-trait-name, "canonical_type_name", concrete-type )
 //
 create_type_trait( bounding_box, "kwiver:bounding_box",
-                   kwiver::vital::detected_object::bounding_box);
+                   kwiver::vital::bounding_box_d);
 create_type_trait( timestamp, "kwiver:timestamp", kwiver::vital::timestamp );
 create_type_trait( gsd, "kwiver:gsd", kwiver::vital::gsd_t );
 create_type_trait( corner_points, "corner_points", kwiver::vital::geo_corner_points );
@@ -80,7 +79,6 @@ create_type_trait( image, "kwiver:image", kwiver::vital::image_container_sptr );
 create_type_trait( mask, "kwiver:mask", kwiver::vital::image_container_sptr );
 create_type_trait( feature_set, "kwiver:feature_set", kwiver::vital::feature_set_sptr );
 create_type_trait( descriptor_set, "kwiver:descriptor_set", kwiver::vital::descriptor_set_sptr );
-create_type_trait( detected_object_set, "kwiver:detected_object_set", kwiver::vital::detected_object_set_sptr );
 create_type_trait( track_set, "kwiver:track_set", kwiver::vital::track_set_sptr );
 create_type_trait( double_vector,  "kwiver:d_vector", kwiver::vital::double_vector_sptr );
 create_type_trait( detected_object_set, "kwiver:detected_object_set", kwiver::vital::detected_object_set_sptr );
@@ -111,6 +109,6 @@ create_port_trait( homography_src_to_ref, homography_src_to_ref, "Source image t
 create_port_trait( image_file_name, image_file_name, "Name of an image file. "
                    "The file name may contain leading path components." );
 create_port_trait( video_file_name, video_file_name, "Name of video file." );
-create_port_trait( uuid, uuid, "UUID    value." );
+create_port_trait( uuid, uuid, "UUID value." );
 
-#endif /* KWIVER_VITAL_TYPE_TRAITS_H */
+#endif // KWIVER_VITAL_TYPE_TRAITS_H
