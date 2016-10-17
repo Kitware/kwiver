@@ -91,6 +91,13 @@ public:
   virtual ~detected_object() VITAL_DEFAULT_DTOR
 
   /**
+   * @brief Create a deep copy of this object.
+   *
+   * @return Managed copy of this object.
+   */
+  detected_object_sptr clone() const;
+
+  /**
    * @brief Get bounding box from this detection.
    *
    * The bounding box for this detection is returned. This box is in
