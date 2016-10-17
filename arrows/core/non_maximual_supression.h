@@ -35,12 +35,7 @@
 #include <arrows/core/kwiver_algo_export.h>
 
 #include <vital/algo/algorithm.h>
-#include <vital/types/image_container.h>
-#include <vital/types/object_labels.h>
 #include <vital/algo/detected_object_filter.h>
-#include <vital/config/config_block.h>
-
-//+ #include <opencv2/core/core.hpp>
 
 #include <utility>
 
@@ -69,14 +64,13 @@ public:
   virtual void set_configuration(vital::config_block_sptr config);
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
-  virtual vital::detected_object_set_sptr filter( vital::detected_object_set_sptr input_set) const;
+  virtual vital::detected_object_set_sptr filter( const vital::detected_object_set_sptr input_set) const;
 
 private:
 
-  double overlap_threshold_;
+  double m_overlap_threshold;
 };
 
-}}}//End namespace
-
+} } } //End namespace
 
 #endif // KWIVER_ARROWS_NON_MAXIMUAL_SUPRESSION_H_

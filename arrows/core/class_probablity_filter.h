@@ -35,10 +35,8 @@
 #include <arrows/core/kwiver_algo_export.h>
 
 #include <vital/algo/algorithm.h>
-#include <vital/types/image_container.h>
-#include <vital/types/object_labels.h>
 #include <vital/algo/detected_object_filter.h>
-#include <vital/config/config_block.h>
+#include <vital/types/image_container.h>
 
 #include <opencv2/core/core.hpp>
 
@@ -49,6 +47,13 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
+// ----------------------------------------------------------------
+/**
+ * @brief Filters detections based on class probability.
+ *
+ * This algorithm filters out items that are less than the threshold.
+ */
+
 class KWIVER_ALGO_EXPORT class_probablity_filter
   : public vital::algorithm_impl<class_probablity_filter, vital::algo::detected_object_filter>
 {
@@ -56,7 +61,7 @@ public:
 
   class_probablity_filter();
 
-  virtual ~class_probablity_filter(){}
+  virtual ~class_probablity_filter() { }
 
   virtual std::string impl_name() const { return "class_probablity_filter"; }
 
@@ -65,10 +70,9 @@ public:
   virtual void set_configuration(vital::config_block_sptr config);
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
-  virtual vital::detected_object_set_sptr filter( vital::detected_object_set_sptr input_set) const;
+  virtual vital::detected_object_set_sptr filter( const vital::detected_object_set_sptr input_set) const;
 
 private:
-
   bool m_keep_all_classes;
   std::set<std::string> m_keep_classes;
   double m_threshold;

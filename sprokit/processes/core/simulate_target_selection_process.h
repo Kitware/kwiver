@@ -67,7 +67,6 @@ public:
   simulate_target_selection_process( kwiver::vital::config_block_sptr const& config );
   virtual ~simulate_target_selection_process();
 
-
 protected:
   virtual void _configure();
   virtual void _step();

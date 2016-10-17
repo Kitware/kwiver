@@ -90,7 +90,7 @@ void
 bounding_box_generator_process
 ::_step()
 {
-  vital::detected_object::bounding_box result( d->m_upper_left, d->m_lower_right );
+  vital::bounding_box_d result( d->m_upper_left, d->m_lower_right );
 
   push_to_port_using_trait( bounding_box, result );
 }

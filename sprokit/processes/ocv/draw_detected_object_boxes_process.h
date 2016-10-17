@@ -41,8 +41,7 @@
 
 #include <memory>
 
-namespace kwiver
-{
+namespace kwiver {
 
 class KWIVER_PROCESSES_OCV_NO_EXPORT draw_detected_object_boxes_process
   : public sprokit::process
@@ -60,12 +59,11 @@ private:
   void make_ports();
   void make_config();
 
-
   class priv;
   const std::unique_ptr<priv> d;
 
 }; // end class draw_detected_object_boxes_process
 
-}
+} // end namespace
 
 #endif //_KWIVER_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H

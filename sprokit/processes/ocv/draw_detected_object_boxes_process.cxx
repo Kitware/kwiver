@@ -36,6 +36,7 @@
 #include "draw_detected_object_boxes_process.h"
 
 #include <vital/vital_types.h>
+#include <vital/vital_foreach.h>
 
 #include <arrows/ocv/image_container.h>
 #include <arrows/ocv/image_container.h>
@@ -93,9 +94,7 @@ create_config_trait( threshold, float, "-1", "min probablity for output (float)"
 create_config_trait( alpha_blend_prob, bool, "true", "If true, those who are less likely will be more transparent." );
 create_config_trait( default_line_thickness, float, "1", "The default line thickness for a class" );
 create_config_trait( default_color, std::string, "255 0 0", "The default color for a class (BGR)" );
-create_config_trait( custom_class_color,
-                     std::string,
-                     "",
+create_config_trait( custom_class_color, std::string, "",
                      "List of class/thickness/color seperated by semi-colon. For example: person/3/255 0 0;car/2/0 255 0" );
 create_config_trait( ignore_file, std::string, "__background__", "List of classes to ingore, seperated by semi-colon." );
 create_config_trait( text_scale, float, "0.4", "the scale for the text label" );
@@ -110,85 +109,92 @@ create_config_trait( draw_other_classes, bool, "false", "Print all combined over
 /**
  * @brief
  *
+ * Note that the detections in the input set are modified.
+ *
  * @param input_set
  * @param ignore_classes
  *
- * @return
+ * @return A combined set of detections
  */
 vital::detected_object_set_sptr
-NMS_COMBINER( vital::detected_object_set_sptr input_set, std::vector< std::string > const& ignore_classes )
+NMS_COMBINER( vital::detected_object_set_sptr input_set,
+              const std::vector< std::string >&     ignore_classes )
 {
-  vital::detected_object_set::iterator iter = input_set->get_iterator();
+  // Get a copy of the detections
+  auto det_list = input_set->select();
+  kwiver::vital::detected_object::vector_t output_list;
 
-  for ( ; ! iter.is_end(); ++iter )
+  // Loop over all detections and remove all detections that have most
+  // likely class-names that have been specified in the ignore_classes
+  // list.
+  VITAL_FOREACH( auto det, det_list)
   {
-    vital::detected_object_sptr dos = iter.get_object();
-    std::string max_label;
-    double max_score =
-      ( dos->get_classifications() != NULL ) ? dos->get_classifications()->get_max_score( max_label ) : vital::object_type::INVALID_SCORE;
-
-    for ( size_t i = 0; i < ignore_classes.size(); ++i )
+    auto dot = det->type();
+    if ( ! dot )
     {
-      if (  ignore_classes[i] == max_label )
-      {
-        max_score = vital::object_type::INVALID_SCORE;
-      }
-    } // end for
-
-    dos->set_confidence( max_score );
-  } // end for
-
-  vital::detected_object_set::iterator class_iterator = input_set->get_iterator( true );
-  std::vector< vital::detected_object_sptr > tmp;
-
-  for ( size_t i = 0; i < class_iterator.size(); ++i )
-  {
-    vital::detected_object_sptr obj_i = class_iterator[i];
-    vital::object_type_sptr class_i = obj_i->get_classifications();
-    vital::detected_object::bounding_box bbox_i = class_iterator[i]->get_bounding_box();
-
-    if ( obj_i->get_confidence() == vital::object_type::INVALID_SCORE )
-    {
+      // this detection is not classified
       continue;
     }
 
-    double area = bbox_i.area();
-    tmp.push_back( obj_i );
-    for ( size_t j = i + 1; j < class_iterator.size(); ++j )
+    std::string max_class_name;
+    double max_score;
+    dot->get_most_likely( max_class_name, max_score );
+
+    if( std::find(ignore_classes.begin(), ignore_classes.end(), max_class_name) == ignore_classes.end() )
     {
-      vital::detected_object_sptr obj_j = class_iterator[j];
-      vital::object_type_sptr class_j = obj_j->get_classifications();
-      vital::detected_object::bounding_box bbox_j = class_iterator[j]->get_bounding_box();
+      // This class names is not in the ignore list
+      det->set_confidence( max_score );
+      output_list.push_back( det );
+    }
+  } // end foreach detection
 
-      if ( obj_i->get_confidence() == vital::object_type::INVALID_SCORE )
-      {
-        continue;
-      }
+  // do a second pass over the selected outputs
+  for ( size_t i = 0; i < output_list.size(); ++i)
+  {
+    auto det = output_list[i];
+    auto dot_i = det->type();
+    auto bbox_i = det->bounding_box();
 
-      vital::object_labels::iterator label_iter = input_set->get_labels();
-      for ( ; ! label_iter.is_end(); ++label_iter )
+    double ai = bbox_i.area();
+
+    // Scan remaining detections to collect max scores
+    for ( size_t j = i + 1; j < output_list.size(); ++j )
+    {
+      auto obj_j = output_list[j];
+      auto dot_j = obj_j->type();
+      auto bbox_j = obj_j->bounding_box();
+
+      // Set class scores for this detection to the maximum of scores
+      // in [i] and [j] on a name by name basis.
+      auto all_name_list = kwiver::vital::detected_object_type::all_class_names();
+      VITAL_FOREACH( auto name, all_name_list)
       {
-        if ( ( class_j->get_score( label_iter.get_key() ) != vital::object_type::INVALID_SCORE ) &&
-             ( class_i->get_score( label_iter.get_key() ) < class_j->get_score( label_iter.get_key() ) ) )
+        // If [j] has the class then copy score to [i] if [i] does not have class or score is lower.
+        if ( dot_j->has_class_name( name )
+             && ( ! dot_i->has_class_name( name ) || ( dot_i->score( name ) < dot_j->score( name ) ) ) )
         {
-          class_i->set_score( label_iter.get_key(), class_j->get_score( label_iter.get_key() ) );
+          dot_i->set_score( name, dot_j->score( name ) );
         }
-      } // end for
+      } // end foreach over class names
 
-      vital::detected_object::bounding_box inter = bbox_i.intersection( bbox_j );
+      // Check overlap between [i] and [j].
+      // Delete [j] if needed
+      auto inter = intersection( bbox_i, bbox_j );
       double aj = bbox_j.area();
       double interS = inter.area();
-      double t = interS / ( area + aj - interS );
+      double t = interS / ( ai + aj - interS );
 
+      // If sufficient overlap, then delete this detection [j]
       if ( t >= 0.3 )
       {
-        obj_j->set_confidence( vital::object_type::INVALID_SCORE );
+        auto it = output_list.begin() + j;
+        output_list.erase( it );
       }
     }
-  }
+  } // end for i over selected detections
 
-  return vital::detected_object_set_sptr( new vital::detected_object_set( tmp, input_set->get_object_labels() ) );
-} // NMS_COMBINER
+  return std::make_shared< vital::detected_object_set > (output_list );
+}
 
 
 // ==================================================================
@@ -206,7 +212,6 @@ public:
 
 
   mutable size_t m_count;
-  std::string m_formated_string;
 
   // Configuration values
   float m_threshold;
@@ -257,13 +262,14 @@ public:
     cv::Mat overlay;
 
     image.copyTo( overlay );
-    vital::detected_object::bounding_box bbox = dos->get_bounding_box();
+    auto bbox = dos->bounding_box();
+
     if ( m_clip_box_to_image )
     {
       cv::Size s = image.size();
-      vital::detected_object::bounding_box img( vital::vector_2d( 0, 0 ),
-                                                vital::vector_2d( s.width, s.height ) );
-      bbox = img.intersection( bbox );
+      vital::bounding_box_d img( vital::vector_2d( 0, 0 ),
+                                 vital::vector_2d( s.width, s.height ) );
+      bbox = intersection( img, bbox );
     }
 
     cv::Rect r( bbox.upper_left()[0], bbox.upper_left()[1], bbox.width(), bbox.height() );
@@ -312,22 +318,22 @@ public:
    *
    * @return Updated image.
    */
-  vital::image_container_sptr draw_on_image( vital::image_container_sptr      image_data,
-                                             vital::detected_object_set_sptr  in_set ) const
+  vital::image_container_sptr
+  draw_on_image( vital::image_container_sptr      image_data,
+                 vital::detected_object_set_sptr  in_set ) const
   {
     if ( in_set == NULL )
     {
-      throw kwiver::vital::invalid_value("Detected object set pointer is NULL");
+      throw kwiver::vital::invalid_value( "Detected object set pointer is NULL" );
     }
 
     if ( image_data == NULL )
     {
-      throw kwiver::vital::invalid_value("Input image pointer is NULL");
+      throw kwiver::vital::invalid_value( "Input image pointer is NULL" );
     }
 
     cv::Mat image = arrows::ocv::image_container::vital_to_ocv( image_data->get_image() ).clone();
     cv::Mat overlay;
-    vital::object_labels::iterator label_iter = in_set->get_labels();
 
     vital::detected_object_set_sptr  input_set = in_set;
     double tmpT = ( this->m_threshold - ( ( this->m_threshold >= 0.05 ) ? 0.05 : 0 ) );
@@ -335,78 +341,76 @@ public:
     if ( m_draw_overlap_max )
     {
       input_set = NMS_COMBINER( in_set, this->m_ignore_classes );
-      vital::detected_object_set::iterator class_iterator = input_set->get_iterator();
-      for ( size_t i = 0; i < class_iterator.size(); ++i )
+
+      auto det_list = input_set->select();
+      VITAL_FOREACH( auto det, det_list )
       {
-        vital::object_type_sptr ots = class_iterator[i]->get_classifications();
+        auto dot_i = det->type();
         if ( m_draw_other_classes )
         {
-          vital::object_type::iterator iter = ots->get_iterator( true, this->m_threshold );
-          if ( iter.is_end() ) { continue; }
-          vital::detected_object::bounding_box bbox = class_iterator[i]->get_bounding_box();
-          draw_box( image, class_iterator[i], tmpT, iter.get_label(), iter.get_score() );
-          ++iter;
+          auto name_list = dot_i->class_names( this->m_threshold );
+          if ( name_list.size() > 0 ) // if list is empty
+          {
+            continue;
+          }
+
+          auto bbox = det->bounding_box();
+          draw_box( image, det, tmpT, name_list[0], dot_i->score( name_list[0] ) );
           int tmp_off = 2 * multi_label_offset;
 
-          for ( ; ! iter.is_end() && m_draw_text; ++iter )
+          for (size_t i = 1; i < name_list.size(); ++i)
           {
-            draw_box( image, class_iterator[i], tmpT, iter.get_label(), iter.get_score(), true, tmp_off );
+            draw_box( image, det, tmpT, name_list[i], dot_i->score( name_list[i] ) );
             tmp_off += multi_label_offset;
           }
         }
         else
         {
           std::string max_label;
-          double d = ots->get_max_score( max_label );
+          double max_score;
+          dot_i->get_most_likely( max_label, max_score );
+          if ( max_score <= this->m_threshold )
+          {
+            continue;
+          }
 
-          if ( d <= this->m_threshold ) { continue; }
-          draw_box( image, class_iterator[i], tmpT, max_label, d );
+          draw_box( image, det, tmpT, max_label, max_score );
         }
       }
-    }
+    } // end draw overlap max
     else
     {
-      for ( ; ! label_iter.is_end(); ++label_iter )
+      auto name_list = kwiver::vital::detected_object_type::all_class_names();
+      VITAL_FOREACH( auto name, name_list )
       {
-        bool keep_going = true;
-        for ( size_t i = 0; i < this->m_ignore_classes.size(); ++i )
+        // This class names is in the ignore list, go to next name
+        if( std::find(m_ignore_classes.begin(), m_ignore_classes.end(), name) != m_ignore_classes.end() )
         {
-          if ( this->m_ignore_classes[i] == label_iter.get_label() )
-          {
-            keep_going = false;
-            break;
-          }
+          continue;
         }
 
-        if ( ! keep_going ) { continue; }
-
-        vital::detected_object_set::iterator class_iterator =
-          input_set->get_iterator( label_iter.get_key(), true, this->m_threshold );
+        // Select all class-names not less than threshold
+        auto det_set = input_set->select( name, this->m_threshold );
 
         // Check to see if there are any items to process
-        if ( class_iterator.size() == 0 ) { continue; }
+        if (det_set.size() == 0 )
+        {
+          continue;
+        }
 
         double tmpT = ( this->m_threshold - ( ( this->m_threshold >= 0.05 ) ? 0.05 : 0 ) );
 
-        for ( size_t i = class_iterator.size() - 1; i < class_iterator.size() && i >= 0; --i )
+        // Draw in reverse to highest score is on top
+        for ( size_t i = det_set.size() - 1; i >= 0; --i )
         {
-          vital::detected_object_sptr dos = class_iterator[i];         //Low score first
-          draw_box( image, dos, tmpT, label_iter.get_label(), dos->get_classifications()->get_score( label_iter.get_key() ) );
+          auto det = det_set[i]; // low score first
+          draw_box( image, det, tmpT, name, det->type()->score( name ) );
         }
       }
     }
 
-    if ( ! m_formated_string.empty() )
-    {
-      char buffer[1024];
-
-      sprintf( buffer, m_formated_string.c_str(), m_count );
-      ++m_count;
-      cv::imwrite( buffer, image );
-    }
-
     return vital::image_container_sptr( new arrows::ocv::image_container( image ) );
-  } // draw_on_image
+  }   // draw_on_image
 
 }; // end priv class
 
@@ -433,13 +437,13 @@ void
 draw_detected_object_boxes_process::_configure()
 {
   d->m_threshold          = config_value_using_trait( threshold );
-  d->m_formated_string    = config_value_using_trait( file_string );
   d->m_clip_box_to_image  = config_value_using_trait( clip_box_to_image );
   d->m_draw_text          = config_value_using_trait( draw_text );
   d->m_draw_overlap_max   = config_value_using_trait( merge_overlapping_classes );
   d->m_draw_other_classes = config_value_using_trait( draw_other_classes );
 
-  std::string parsed, list = config_value_using_trait( ignore_file );
+  std::string parsed;
+  std::string list = config_value_using_trait( ignore_file );
 
   {
     std::stringstream ss( list );
@@ -494,9 +498,10 @@ draw_detected_object_boxes_process::_configure()
 void
 draw_detected_object_boxes_process::_step()
 {
-  vital::image_container_sptr img = grab_from_port_using_trait( image );
-  vital::detected_object_set_sptr detections = grab_from_port_using_trait( detected_object_set );
-  vital::image_container_sptr result = d->draw_on_image( img, detections );
+  auto img = grab_from_port_using_trait( image );
+  auto detections = grab_from_port_using_trait( detected_object_set );
+
+  auto result = d->draw_on_image( img, detections );
 
   push_to_port_using_trait( image, result );
 }
@@ -516,7 +521,7 @@ draw_detected_object_boxes_process::make_ports()
   declare_input_port_using_trait( detected_object_set, required );
   declare_input_port_using_trait( image, required );
 
-  //output
+  // -- output --
   declare_output_port_using_trait( image, optional );
 }
 
@@ -539,6 +544,5 @@ draw_detected_object_boxes_process::make_config()
   declare_config_using_trait( merge_overlapping_classes );
   declare_config_using_trait( draw_other_classes );
 }
-
 
 } //end namespace

@@ -104,9 +104,8 @@ void register_processes()
     sprokit::create_process< kwiver::detect_features_process > );
 
   registry->register_process(
-    "extract_descriptors",
-    "Extract descriptors from detected features",
-    "detection_refiner", "Refines detections for a given frame",
+    "detection_refiner",
+    "Refines detections for a given frame",
     sprokit::create_process< kwiver::detection_refiner_process > );
 
   registry->register_process(
@@ -147,7 +146,9 @@ void register_processes()
     "simulate_target_selection",
     "Simulates selecting a single target from a list of detections based on the configuration.",
     sprokit::create_process< kwiver::simulate_target_selection_process > );
-    "image_object_detector", "Apply selected image object detector algorithm to incoming images.",
+
+  registry->register_process(
+  "image_object_detector", "Apply selected image object detector algorithm to incoming images.",
     sprokit::create_process< kwiver::image_object_detector_process > );
 
   registry->register_process(
