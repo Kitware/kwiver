@@ -91,7 +91,7 @@ image_container_sptr
 detected_object::
 mask()
 {
-  return m_image;
+  return m_mask_image;
 }
 
 
@@ -100,7 +100,7 @@ void
 detected_object::
 set_mask( image_container_sptr m )
 {
-  m_image = m;
+  m_mask_image = m;
 }
 
 

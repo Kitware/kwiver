@@ -223,7 +223,7 @@ public:
 private:
   std::shared_ptr< bounding_box_d > m_bounding_box;
   double m_confidence;
-  image_container_sptr m_image;
+  image_container_sptr m_mask_image;
 
   // The detection type is an optional list of possible object types.
   detected_object_type_sptr m_type;
