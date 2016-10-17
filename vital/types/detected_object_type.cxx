@@ -199,12 +199,17 @@ class_names( double threshold ) const
   // sort map by value descending order
   std::sort( items.begin(), items.end(), more_second< const std::string*, double > () );
 
-  std::vector< std::string > list( items.size() );
+  std::vector< std::string > list;
 
   const size_t limit( items.size() );
   for ( size_t i = 0; i < limit; i++ )
   {
-    list[i] = *(items[i].first);
+    if ( items[i].second < threshold )
+    {
+      break;
+    }
+
+    list.push_back( *(items[i].first) );
   }
 
   return list;
