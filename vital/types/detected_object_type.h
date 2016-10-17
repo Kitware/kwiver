@@ -98,6 +98,18 @@ public:
                         const std::vector< double >& scores );
 
   /**
+   * @brief Determine if class-name is present.
+   *
+   * This method determines if the specified class name is present in
+   * this object.
+   *
+   * @param class_name Class name to test.
+   *
+   * @return \b true if class name is present.
+   */
+  bool has_class_name( const std::string& class_name ) const;
+
+  /**
    * @brief Get score for specific class_name.
    *
    * This method returns the score for the specified class_name.  If

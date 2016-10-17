@@ -102,6 +102,16 @@ detected_object_type( const std::vector< std::string >& class_names,
 
 
 // ------------------------------------------------------------------
+bool
+detected_object_type::
+has_class_name( const std::string& class_name ) const
+{
+  const std::string* str_ptr = find_string( class_name );
+  return ( 0 != m_classes.count( str_ptr ) );
+}
+
+
+// ------------------------------------------------------------------
 double
 detected_object_type::
 score( const std::string& class_name ) const
