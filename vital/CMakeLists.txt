@@ -199,11 +199,6 @@ set( vital_public_headers
 
   plugin_loader/plugin_factory.h
   plugin_loader/plugin_manager.h
-
-  #+++ replaced with detected_object_type
-  types/object_labels.h
-  types/object_type.h
-
 )
 
 # ----------------------
@@ -291,10 +286,6 @@ set( vital_sources
 
   plugin_loader/plugin_manager.cxx
   plugin_loader/plugin_factory.cxx
-
-  #+++ replaced with detected_object_type
-  types/object_labels.cxx
-  types/object_type.cxx
 )
 
 kwiver_install_headers(
