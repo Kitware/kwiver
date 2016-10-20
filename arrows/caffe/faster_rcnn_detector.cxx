@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include <caffe/common.hpp>
 
 #include "faster_rcnn_detector.h"
@@ -38,6 +37,7 @@
 #include <vital/types/vector.h>
 #include <vital/io/eigen_io.h>
 #include <vital/util/cpu_timer.h>
+#include <vital/util/data_stream_reader.h>
 #include <vital/logger/logger.h>
 #include <kwiversys/SystemTools.hxx>
 
@@ -47,7 +47,8 @@
 #include <algorithm>
 #include <cmath>
 #include <math.h>
-
+#include <utility>
+#include <vector>
 
 using caffe::Blob;
 using caffe::Caffe;
@@ -58,13 +59,15 @@ namespace kwiver {
 namespace arrows {
 namespace caffe {
 
+
+// ==================================================================
 class faster_rcnn_detector::priv
 {
 public:
   std::string m_prototxt_file;
   std::string m_classes_file;
   std::string m_caffe_model;
-  vital::object_labels_sptr m_labels;
+  std::vector< std::string > m_labels;
   double m_target_size;
   cv::Scalar m_pixel_means;
   double m_max_size;
@@ -82,7 +85,7 @@ public:
   std::pair< cv::Mat, double > prepair_image( cv::Mat const& in_image ) const;
   std::vector< Blob< float >* > set_up_inputs( std::pair< cv::Mat, double > const& pair ) const;
 
-// =====================================================================
+// ------------------------------------------------------------------
   priv()
     : m_labels( NULL ),
       m_target_size( 600 ),
@@ -124,20 +127,24 @@ public:
   ~priv()
   { }
 
-
 };
 
-faster_rcnn_detector::faster_rcnn_detector()
+
+// ==================================================================
+faster_rcnn_detector::
+faster_rcnn_detector()
   : d( new priv() )
 { }
 
 
-faster_rcnn_detector::faster_rcnn_detector( faster_rcnn_detector const& frd )
+faster_rcnn_detector::
+faster_rcnn_detector( faster_rcnn_detector const& frd )
   : d( new priv( *frd.d ) )
 { }
 
 
-faster_rcnn_detector::~faster_rcnn_detector()
+faster_rcnn_detector::
+~faster_rcnn_detector()
 { }
 
 
@@ -150,17 +157,17 @@ faster_rcnn_detector::
   vital::config_block_sptr config = vital::algorithm::get_configuration();
 
   config->set_value( "classes", d->m_classes_file,
-                     "Text files containing the names of the classes supported by this faster rcnn" );
+                     "Text file containing the names of the classes supported by this faster rcnn." );
   config->set_value( "prototxt", d->m_prototxt_file,
                      "Points the the Prototxt file" );
-  config->set_value( "caffe_model", d->m_caffe_model, "The file that contains the model" );
+  config->set_value( "caffe_model", d->m_caffe_model, "The file that contains the model." );
   config->set_value( "target_size", this->d->m_target_size, "TODO" );
   config->set_value( "max_size", this->d->m_max_size, "TODO" );
   config->set_value( "pixel_mean", vital::vector_3d( this->d->m_pixel_means[0], this->d->m_pixel_means[1], this->d->m_pixel_means[2] ),
-                     "The mean pixel value for the provided model" );
-  config->set_value( "use_gpu", this->d->m_use_gpu, "use the gpu instead of the cpu" );
-  config->set_value( "gpu_id", this->d->m_gpu_id, "what gpu to use" );
-  config->set_value( "use_box_deltas", this->d->m_use_box_deltas, "use the learned jitter deltas" );
+                     "The mean pixel value for the provided model." );
+  config->set_value( "use_gpu", this->d->m_use_gpu, "Use the gpu instead of the cpu." );
+  config->set_value( "gpu_id", this->d->m_gpu_id, "What gpu to use." );
+  config->set_value( "use_box_deltas", this->d->m_use_box_deltas, "Use the learned jitter deltas." );
   config->set_value( "chip_image",  this->d->m_chip_image, "TODO" );
   config->set_value( "chip_width", this->d->m_chip_width, "TODO" );
   config->set_value( "chip_height", this->d->m_chip_height, "TODO" );
@@ -170,41 +177,13 @@ faster_rcnn_detector::
 }
 
 
-namespace
-{
-
-inline std::string&
-rtrim( std::string& s )
-{
-  s.erase( s.find_last_not_of( " \t\n\r\f\v" ) + 1 );
-  return s;
-}
-
-
-inline std::string&
-ltrim( std::string& s )
-{
-  s.erase( 0, s.find_first_not_of( " \t\n\r\f\v" ) );
-  return s;
-}
-
-
-inline std::string&
-trim( std::string& s )
-{
-  return ltrim( rtrim( s ) );
-}
-
-
-} //end of anonymous namespace
-
 // --------------------------------------------------------------------
 void
 faster_rcnn_detector::
-  set_configuration( vital::config_block_sptr config_in )
+set_configuration( vital::config_block_sptr config_in )
 {
+  //+ is this merge really needed?
   vital::config_block_sptr config = this->get_configuration();
-
   config->merge_config( config_in );
 
   this->d->m_classes_file  = config->get_value< std::string > ( "classes" );
@@ -229,22 +208,21 @@ faster_rcnn_detector::
   {
     Caffe::set_mode( Caffe::CPU );
   }
+
   this->d->m_net.reset( new Net< float > ( this->d->m_prototxt_file, TEST ) );
   this->d->m_net->CopyTrainedLayersFrom( this->d->m_caffe_model );
 
+  // Should use data stream reader
   std::vector< std::string > labels;
   std::ifstream in( this->d->m_classes_file.c_str() );
-  std::string line;
-  while ( std::getline( in, line ) )
-  {
-    if ( line.empty() )
-    {
-      continue;
-    }
-    labels.push_back( trim( line ) );
-  }
+  kwiver::vital::data_stream_reader dsr( in );
+  dsr.add_editor( new kwiver::vital::edit_operation::left_trim() );
 
-  this->d->m_labels = vital::object_labels_sptr( new vital::object_labels( labels ) );
+  std::string line;
+  while ( dsr.getline( line ) )
+  {
+    this->d->m_labels.push_back( line );
+  }
 
   this->d->m_target_size = config->get_value< double > ( "target_size" );
 
@@ -258,7 +236,7 @@ faster_rcnn_detector::
 // --------------------------------------------------------------------
 bool
 faster_rcnn_detector::
-  check_configuration( vital::config_block_sptr config ) const
+check_configuration( vital::config_block_sptr config ) const
 {
   if ( Caffe::mode() != ( ( d->m_use_gpu ) ? Caffe::GPU : Caffe::CPU ) )
   {
@@ -272,31 +250,41 @@ faster_rcnn_detector::
       Caffe::set_mode( Caffe::CPU );
     }
   }
+
   std::string classes = config->get_value< std::string > ( "classes" );
   std::string prototxt = config->get_value< std::string > ( "prototxt" );
   std::string caffemodel = config->get_value< std::string > ( "caffe_model" );
 
-  // check for any missing file name
-  if ( classes.empty() || prototxt.empty() || caffemodel.empty() )
-  {
-    return false;
-  }
-
   bool success( true );
 
-  if ( ! kwiversys::SystemTools::FileExists( classes ) )
+  if ( classes.empty() )
+  {
+    LOG_ERROR( d->m_logger, "Required classes file not specified" );
+    success = false;
+  }
+  else if ( ! kwiversys::SystemTools::FileExists( classes ) )
   {
     LOG_ERROR( d->m_logger, "classes file \"" << classes << "\" not found." );
     success = false;
   }
 
-  if ( ! kwiversys::SystemTools::FileExists( prototxt ) )
+  if ( prototxt.empty() )
+  {
+    LOG_ERROR( d->m_logger, "Required prototxt file not specified" );
+    success = false;
+  }
+  else if ( ! kwiversys::SystemTools::FileExists( prototxt ) )
   {
     LOG_ERROR( d->m_logger, "prototxt file \"" << prototxt << "\" not found." );
     success = false;
   }
 
-  if ( ! kwiversys::SystemTools::FileExists( caffemodel ) )
+  if ( caffemodel.empty() )
+  {
+    LOG_ERROR( d->m_logger, "Required caffemodel file not specified" );
+    success = false;
+  }
+  else if ( ! kwiversys::SystemTools::FileExists( caffemodel ) )
   {
     LOG_ERROR( d->m_logger, "caffe_model file \"" << caffemodel << "\" not found." );
     success = false;
@@ -309,8 +297,14 @@ faster_rcnn_detector::
 // --------------------------------------------------------------------
 vital::detected_object_set_sptr
 faster_rcnn_detector::
-  detect( vital::image_container_sptr image_data ) const
+detect( vital::image_container_sptr image_data ) const
 {
+  //Convert to opencv image
+  if ( image_data == NULL ) //+ this should never happen
+  {
+    return vital::detected_object_set_sptr();
+  }
+
   if ( Caffe::mode() != ( ( d->m_use_gpu ) ? Caffe::GPU : Caffe::CPU ) )
   {
     if ( d->m_use_gpu )
@@ -324,16 +318,12 @@ faster_rcnn_detector::
     }
   }
 
-  // Convert to opencv image
-  if ( image_data == NULL )
-  {
-    return NULL;
-  }
   kwiver::vital::scoped_cpu_timer t( "Time to Detect Objects" );
   cv::Mat image = kwiver::arrows::ocv::image_container::vital_to_ocv( image_data->get_image() );
   std::vector< cv::Mat > image_chips;
   std::vector< unsigned int > chip_x;
   std::vector< unsigned int > chip_y;
+
   if ( this->d->m_chip_image )
   {
     for ( unsigned int ux = 0; ux < image_data->width(); ux += this->d->m_stride )
@@ -347,6 +337,7 @@ faster_rcnn_detector::
           continue;
         }
       }
+
       for ( unsigned int uy = 0; uy < image_data->height(); uy += this->d->m_stride )
       {
         unsigned int tuy = uy;
@@ -372,14 +363,15 @@ faster_rcnn_detector::
     chip_y.push_back( 0 );
   }
 
-  std::vector< vital::detected_object_sptr > detected_objects;
+  auto detected_objects = std::make_shared<vital::detected_object_set>()
+
   for ( size_t img_at = 0; img_at < image_chips.size(); ++img_at )
   {
     std::pair< cv::Mat, double > image_scale = this->d->prepair_image( image_chips[img_at] );
     std::vector< Blob< float >* > input_layers = this->d->set_up_inputs( image_scale );
     this->d->m_net->Forward( input_layers );
 
-    //get output
+    //get output - boost required
     boost::shared_ptr< Blob< float > > rois = this->d->m_net->blob_by_name( "rois" );
     boost::shared_ptr< Blob< float > > probs = this->d->m_net->blob_by_name( "cls_prob" );
     boost::shared_ptr< Blob< float > > rois_deltas = this->d->m_net->blob_by_name( "bbox_pred" );
@@ -389,6 +381,7 @@ faster_rcnn_detector::
     const unsigned int prob_dim = probs->count() / probs->num();
     assert( rois->num() == probs->num() );
 
+    // Loop over "detections"
     for ( int i = 0; i < rois->num(); ++i )
     {
       const float* start = rois->cpu_data() + rois->offset( i );
@@ -403,26 +396,23 @@ faster_rcnn_detector::
                                                  vital::vector_2d( pts[2] + chip_x[img_at], pts[3] + chip_y[img_at] ) );
 
       start = probs->cpu_data() + probs->offset( i );
-      std::vector< double > tmpv;
 
-      for ( unsigned int j = 0; j < prob_dim; ++j )
-      {
-        tmpv.push_back( start[j] );
-      }
+      // Convert array to vector for safe keeping
+      std::vector< double > tmpv(start, start + prob_dim);
 
       if ( this->d->m_use_box_deltas && ( rois_deltas != NULL ) )
       {
         start = rois_deltas->cpu_data() + rois_deltas->offset( i );
-        std::vector< double > tmpv2( tmpv.size(), vital::object_type::INVALID_SCORE );
+
+        // Make a single detection for each classification since the bbox will be a little different
         for ( unsigned int j = 0; j < prob_dim; ++j )
         {
-          unsigned int ds = j * 4; // TODO calc for more rebustness
+          unsigned int ds = j * 4; // TODO calc for more robustness
           float dx = start[ds];
           float dy = start[ds + 1];
           float dw = start[ds + 2];
           float dh = start[ds + 3];
-          tmpv2[j] = tmpv[j];
-          vital::vector_2d center = bbox.center();
+          auto center = bbox.center();
           float w = bbox.width();
           float h = bbox.height();
           center[0] = dx * w + center[0];
@@ -430,25 +420,32 @@ faster_rcnn_detector::
           float pw = exp( dw ) * w;
           float ph = exp( dh ) * h;
           vital::vector_2d halfS( pw * 0.5, ph * 0.5 );
+
           vital::detected_object::bounding_box pbox( center - halfS, center + halfS );
-          vital::object_type_sptr classification( new  vital::object_type( this->d->m_labels, tmpv2 ) );
-          detected_objects.push_back( vital::detected_object_sptr( new vital::detected_object( pbox, 1.0, classification ) ) );
-          tmpv2[j] = vital::object_type::INVALID_SCORE;
-        }
+
+          auto classification = std::make_shared<vital::detected_object_type>();
+          classification.set_score( this->d->m_labels[j], tmpv[j] );
+
+          detected_objects->add( std::make_shared<vital::detected_object>( pbox, 1.0, classification ) );
+        } // end for j
       }
       else
       {
-        vital::object_type_sptr classification( new  vital::object_type( this->d->m_labels, tmpv ) );
-        detected_objects.push_back( vital::detected_object_sptr( new vital::detected_object( bbox, 1.0, classification ) ) );
+        // just make one detection object with all class-names using one bbox
+        auto classification = std::make_shared<vital::object_type>( this->d->m_labels, tmpv );
+        detected_objects->add( std::make_shared<vital::detected_object>( bbox, 1.0, classification ) );
       }
-    }
-  }
+    } // end for over rois
+  } // end for over chips
 
-  return vital::detected_object_set_sptr( new vital::detected_object_set( detected_objects, this->d->m_labels ) );
+  return detected_objects;
 } // faster_rcnn_detector::detect
 
 
-std::vector< Blob< float >* > faster_rcnn_detector::priv::set_up_inputs( std::pair< cv::Mat, double > const& pair ) const
+// ==================================================================
+std::vector< Blob< float >* >
+faster_rcnn_detector::priv::
+set_up_inputs( std::pair< cv::Mat, double > const& pair ) const
 {
   cv::Size s = pair.first.size();
   int width = s.width;
@@ -456,12 +453,13 @@ std::vector< Blob< float >* > faster_rcnn_detector::priv::set_up_inputs( std::pa
 
   std::vector< Blob< float >* > results;
 
-  { //image layers
+  { // image layers
     std::vector< cv::Mat > input_channels;
     Blob< float >* image_layer = this->m_net->input_blobs()[0];
     image_layer->Reshape( 1, //Number of images
                           pair.first.channels(), height, width );
     float* input_data = image_layer->mutable_cpu_data();
+
     for ( int i = 0; i < image_layer->channels(); ++i )
     {
       cv::Mat channel( height, width, CV_32FC1, input_data );
@@ -473,7 +471,7 @@ std::vector< Blob< float >* > faster_rcnn_detector::priv::set_up_inputs( std::pa
     results.push_back( image_layer );
   }
 
-  { //image data
+  { // image data
     std::vector< int > input( 2 );
     input[0] = 1; //number of images
     input[1] = 3;
@@ -493,17 +491,17 @@ std::vector< Blob< float >* > faster_rcnn_detector::priv::set_up_inputs( std::pa
 // --------------------------------------------------------------------
 std::pair< cv::Mat, double >
 faster_rcnn_detector::priv::
-  prepair_image( cv::Mat const& in_image ) const
+prepair_image( cv::Mat const& in_image ) const
 {
   cv::Mat im_float;
 
   in_image.convertTo( im_float, CV_32F );
   im_float = im_float - this->m_pixel_means;
 
-  double min_size = std::min( im_float.size[0], im_float.size[1] );
-  double max_size = std::max( im_float.size[0], im_float.size[1] );
+  const double min_size = std::min( im_float.size[0], im_float.size[1] );
+  const double max_size = std::max( im_float.size[0], im_float.size[1] );
 
-  double scale = this->m_target_size / min_size;
+  const double scale = this->m_target_size / min_size;
 
   if ( round( scale * max_size ) > this->m_max_size )
   {
@@ -512,7 +510,8 @@ faster_rcnn_detector::priv::
 
   cv::Mat scaleImage;
   cv::resize( im_float, scaleImage, cv::Size(), scale, scale );
+
   return std::pair< cv::Mat, double > ( scaleImage, scale );
 }
 
-} } }     //end namespace
+} } }     // end namespace
