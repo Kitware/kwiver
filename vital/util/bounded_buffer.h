@@ -28,8 +28,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _KW_BOUNDED_BUFFER_H_
-#define _KW_BOUNDED_BUFFER_H_
+/**
+ * \file
+ * \brief Interface and implementation for bounded buffer
+ */
+
+#ifndef KWIVER_VITAL_UTIL_BOUNDED_BUFFER_H_
+#define KWIVER_VITAL_UTIL_BOUNDED_BUFFER_H_
 
 #include <condition_variable> //+ c++11 required
 #include <mutex>
@@ -147,7 +152,6 @@ public:
     return (buffered == 0);
   }
 
-
   /**
    * @brief Test if buffer is full.
    *
@@ -171,4 +175,4 @@ private:
 
 } } // end namespace
 
-#endif /* _KW_BOUNDED_BUFFER_H_ */
+#endif // KWIVER_VITAL_UTIL_BOUNDED_BUFFER_H_

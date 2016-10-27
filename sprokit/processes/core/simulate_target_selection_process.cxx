@@ -35,16 +35,18 @@
 
 #include "simulate_target_selection_process.h"
 
-#include <vital/algorithm_plugin_manager.h>
-#include <vital/algo/detected_object_filter.h>
 #include <sprokit/processes/kwiver_type_traits.h>
-#include <sprokit/pipeline/process_exception.h>
 
-#include <sstream>
-#include <iostream>
+namespace kwiver {
 
-namespace kwiver
-{
+// ----------------------------------------------------------------
+/**
+ * @class simulate_target_selection_process
+ * @brief Simulate a target selection process
+ *
+ * This process is a small test component used to simulate a target
+ * selector where there is no real target selector.
+ */
 
 class simulate_target_selection_process::priv
 {
@@ -85,17 +87,17 @@ void
 simulate_target_selection_process
 ::_step()
 {
-  vital::detected_object_set_sptr input = grab_from_port_using_trait( detected_object_set );
-  vital::detected_object::bounding_box result;
-  vital::detected_object_set::iterator top_person = input->get_iterator( "person", true, 0.8 );
-  vital::detected_object_sptr top_object = top_person.get_object();
+  auto input = grab_from_port_using_trait( detected_object_set );
 
-  if ( top_object != NULL )
+  vital::bounding_box_d bbox( 0, 0, 0, 0 );
+  auto top_person = input->select( "person", 0.8 );
+
+  if (top_person.size() > 0)
   {
-    result = top_object->get_bounding_box();
+    bbox = top_person[0]->bounding_box();
   }
 
-  push_to_port_using_trait( bounding_box, result );
+  push_to_port_using_trait( bounding_box, bbox );
 }
 
 
@@ -113,7 +115,7 @@ simulate_target_selection_process
   // -- input --
   declare_input_port_using_trait( detected_object_set, required );
 
-  //output
+  // -- output --
   declare_output_port_using_trait( bounding_box, optional );
 }
 

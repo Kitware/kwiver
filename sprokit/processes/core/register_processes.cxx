@@ -36,14 +36,23 @@
 #include "detect_features_process.h"
 #include "detected_object_coordinate_updater_process.h"
 #include "detected_object_filter_process.h"
+#include "detected_object_input_process.h"
+#include "detected_object_output_process.h"
 #include "draw_tracks_process.h"
+#include "detection_refiner_process.h"
 #include "extract_descriptors_process.h"
 #include "frame_list_process.h"
+#include "image_file_reader_process.h"
+#include "image_filter_process.h"
+#include "image_object_detector_process.h"
+#include "image_writer_process.h"
 #include "matcher_process.h"
 #include "object_detector_process.h"
 #include "read_descriptor_process.h"
 #include "simulate_target_selection_process.h"
 #include "stabilize_image_process.h"
+
+
 
 extern "C"
 KWIVER_PROCESSES_EXPORT void register_processes();
@@ -95,8 +104,12 @@ void register_processes()
     sprokit::create_process< kwiver::detect_features_process > );
 
   registry->register_process(
-    "extract_descriptors",
-    "Extract descriptors from detected features",
+    "detection_refiner",
+    "Refines detections for a given frame",
+    sprokit::create_process< kwiver::detection_refiner_process > );
+
+  registry->register_process(
+    "extract_descriptors", "Extract descriptors from detected features",
     sprokit::create_process< kwiver::extract_descriptors_process > );
 
   registry->register_process(
@@ -133,6 +146,32 @@ void register_processes()
     "simulate_target_selection",
     "Simulates selecting a single target from a list of detections based on the configuration.",
     sprokit::create_process< kwiver::simulate_target_selection_process > );
+
+  registry->register_process(
+  "image_object_detector", "Apply selected image object detector algorithm to incoming images.",
+    sprokit::create_process< kwiver::image_object_detector_process > );
+
+  registry->register_process(
+    "image_filter", "Apply selected image filter algorithm to incoming images.",
+    sprokit::create_process< kwiver::image_filter_process > );
+
+  registry->register_process(
+    "image_writer", "Write image to disk.",
+    sprokit::create_process< kwiver::image_writer_process > );
+
+  registry->register_process(
+    "image_file_reader", "Reads an image file given the file name.",
+    sprokit::create_process< kwiver::image_file_reader_process > );
+
+  registry->register_process(
+    "detected_object_input", "Reads detected object sets from an input file. "
+    "Detections read from the input file are grouped into sets for each image and individually returned.",
+    sprokit::create_process< kwiver::detected_object_input_process > );
+
+  registry->register_process(
+    "detected_object_output", "Writes detected object sets to an output file. "
+    "All detections are written to the same file.",
+    sprokit::create_process< kwiver::detected_object_output_process > );
 
 
   // - - - - - - - - - - - - - - - - - - - - - - -

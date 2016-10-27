@@ -38,7 +38,8 @@
 #include <vital/vital_types.h>
 #include <sprokit/processes/kwiver_type_traits.h>
 #include <vital/types/vector.h>
-#include <vital/types/detected_object.h>
+#include <vital/types/detected_object_set.h>
+#include <vital/vital_foreach.h>
 
 namespace kwiver {
 
@@ -62,15 +63,17 @@ void
 detected_object_coordinate_updater_process
 ::_step()
 {
-  vital::detected_object_set_sptr input = grab_from_port_using_trait( detected_object_set );
-  vital::detected_object::bounding_box bbox = grab_from_port_using_trait( bounding_box );
+  auto input = grab_from_port_using_trait( detected_object_set );
+  auto bbox = grab_from_port_using_trait( bounding_box );
 
-  vital::vector_2d upper_left = bbox.upper_left();
+  const auto upper_left = bbox.upper_left();
+  auto detections = input->select();
 
-  for ( vital::detected_object_set::iterator iter = input->get_iterator(); ! iter.is_end(); ++iter )
+  VITAL_FOREACH( auto det, detections )
   {
-    vital::detected_object_sptr dos = iter.get_object();
-    dos->set_bounding_box( dos->get_bounding_box().translate( upper_left ) );
+    auto bbox = det->bounding_box();
+    kwiver::vital::translate( bbox, upper_left );
+    det->set_bounding_box( bbox );
   }
 
   push_to_port_using_trait( detected_object_set, input );

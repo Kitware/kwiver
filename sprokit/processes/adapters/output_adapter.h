@@ -48,8 +48,12 @@ class output_adapter_process;
 
 // -----------------------------------------------------------------
 /**
+ * @brief Output adapter interface to output adapter process.
  *
- *
+ * This class represents a user interface to the output end of a
+ * sprokit pipeline. An object fo this class attaches to the
+ * output_adapter_process in a pipeline and provides an API to
+ * communicate with that process which is running in another thread.
  */
 class KWIVER_ADAPTER_EXPORT output_adapter
 {

@@ -45,7 +45,6 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include <arrows/ocv/image_container.h>
-#include <arrows/ocv/image_container.h>
 
 namespace kwiver {
 
@@ -96,27 +95,28 @@ public:
    *
    * @return The cropped portion of the image.
    */
-  vital::image_container_sptr crop( const vital::image_container_sptr     image_data,
-                                    vital::detected_object::bounding_box& bbox ) const
+  vital::image_container_sptr
+  crop( const vital::image_container_sptr image_data,
+        vital::bounding_box_d&            bbox ) const
   {
     if ( image_data == NULL )
     {
-      throw kwiver::vital::invalid_value("Input image pointer is NULL.");
+      throw kwiver::vital::invalid_value( "Input image pointer is NULL." );
     }
 
     if ( bbox.area() == 0 )
     {
-      throw kwiver::vital::invalid_value("Bounding box contains no pixels.");
+      throw kwiver::vital::invalid_value( "Bounding box contains no pixels." );
     }
 
     cv::Mat image = arrows::ocv::image_container::vital_to_ocv( image_data->get_image() );
     vital::vector_2d buf( this->m_buffer, this->m_buffer );
-    vital::detected_object::bounding_box expanded( bbox.upper_left() - buf,
-                                                   bbox.lower_right() + buf );
-    vital::detected_object::bounding_box img_bound( vital::vector_2d( 0, 0 ),
-                                                    vital::vector_2d( image_data->width(),
-                                                                      image_data->height() ) );
-    vital::detected_object::bounding_box cb = img_bound.intersection( expanded );
+    vital::bounding_box_d expanded( bbox.upper_left() - buf,
+                                    bbox.lower_right() + buf );
+    vital::bounding_box_d img_bound( vital::vector_2d( 0, 0 ),
+                                     vital::vector_2d( image_data->width(),
+                                                       image_data->height() ) );
+    vital::bounding_box_d cb = intersection( img_bound, expanded );
     if ( cb.area() == 0 )
     {
       // Is this not an error? Throw something.
@@ -165,10 +165,10 @@ void
 crop_image_process
 ::_step()
 {
-  vital::image_container_sptr img = grab_from_port_using_trait( image );
-  vital::detected_object::bounding_box bbox = grab_from_port_using_trait( bounding_box );
+  auto img = grab_from_port_using_trait( image );
+  auto bbox = grab_from_port_using_trait( bounding_box );
 
-  vital::image_container_sptr result = d->crop( img, bbox );
+  auto result = d->crop( img, bbox );
 
   push_to_port_using_trait( image, result );
   push_to_port_using_trait( bounding_box, bbox );
@@ -203,6 +203,5 @@ crop_image_process
 {
   declare_config_using_trait( buffer );
 }
-
 
 } //end namespace

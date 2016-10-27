@@ -45,7 +45,14 @@ namespace kwiver {
 namespace vital {
 namespace algo {
 
-/// An abstract base class for detecting objects in images
+/// An abstract base class for filtering sets of detected objects
+// ----------------------------------------------------------------
+/**
+ * A detected object filter accepts a set of detections and produces
+ * another set of detections. The output set may be different from the
+ * input set. It all depends on the actual implementation. In any
+ * case, the input detection set shall be unmodified.
+ */
 class VITAL_EXPORT detected_object_filter
 : public algorithm_def<detected_object_filter>
 {
@@ -53,13 +60,16 @@ public:
   /// Return the name of this algorithm
   static std::string static_type_name() { return "detected_object_filter"; }
 
-  /// Find all objects on the provided image
+  /// Filter set of detected objects.
   /**
-   * \param [in] image_data the image pixels
-   * \returns vector of image objects found
+   * This method applies a filter to the input set to create an output
+   * set. The input set of detections is unmodified.
+   *
+   * \param input_set Set of detections to be filtered.
+   * \returns Filtered set of detections.
    */
   virtual detected_object_set_sptr
-      filter( detected_object_set_sptr input_set) const = 0;
+      filter( const detected_object_set_sptr input_set) const = 0;
 
 protected:
   detected_object_filter();
@@ -70,4 +80,4 @@ typedef std::shared_ptr<detected_object_filter> detected_object_filter_sptr;
 
 } } } // end namespace
 
-#endif 
+#endif

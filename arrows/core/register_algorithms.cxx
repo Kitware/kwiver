@@ -39,17 +39,24 @@
 
 #include <arrows/core/class_probablity_filter.h>
 #include <arrows/core/close_loops_bad_frames_only.h>
+#include <arrows/core/close_loops_exhaustive.h>
+#include <arrows/core/close_loops_keyframe.h>
 #include <arrows/core/close_loops_multi_method.h>
 #include <arrows/core/compute_ref_homography_core.h>
 #include <arrows/core/convert_image_bypass.h>
+#include <arrows/core/estimate_canonical_transform.h>
 #include <arrows/core/filter_features_magnitude.h>
 #include <arrows/core/hierarchical_bundle_adjust.h>
 #include <arrows/core/initialize_cameras_landmarks.h>
+#include <arrows/core/match_features_fundamental_matrix.h>
 #include <arrows/core/match_features_homography.h>
 #include <arrows/core/non_maximual_supression.h>
 #include <arrows/core/track_features_core.h>
 #include <arrows/core/triangulate_landmarks.h>
-
+#include <arrows/core/detected_object_set_input_kw18.h>
+#include <arrows/core/detected_object_set_output_kw18.h>
+#include <arrows/core/detected_object_set_input_csv.h>
+#include <arrows/core/detected_object_set_output_csv.h>
 
 namespace kwiver {
 namespace arrows {
@@ -62,19 +69,30 @@ int register_algorithms(vital::registrar &reg)
 
     REGISTER_TYPE( core::class_probablity_filter );
     REGISTER_TYPE( core::close_loops_bad_frames_only );
+    REGISTER_TYPE( core::close_loops_exhaustive );
+    REGISTER_TYPE( core::close_loops_keyframe );
     REGISTER_TYPE( core::close_loops_multi_method );
     REGISTER_TYPE( core::compute_ref_homography_core );
     REGISTER_TYPE( core::convert_image_bypass );
+    REGISTER_TYPE( core::estimate_canonical_transform );
     REGISTER_TYPE( core::filter_features_magnitude );
     REGISTER_TYPE( core::hierarchical_bundle_adjust );
     REGISTER_TYPE( core::initialize_cameras_landmarks );
+    REGISTER_TYPE( core::match_features_fundamental_matrix );
     REGISTER_TYPE( core::match_features_homography );
     REGISTER_TYPE( core::non_maximual_supression );
     REGISTER_TYPE( core::track_features_core );
     REGISTER_TYPE( core::triangulate_landmarks );
 
+    REGISTER_TYPE( core::detected_object_set_input_kw18 );
+    REGISTER_TYPE( core::detected_object_set_output_kw18 );
+    REGISTER_TYPE( core::detected_object_set_input_csv );
+    REGISTER_TYPE( core::detected_object_set_output_csv );
+
     REGISTRATION_SUMMARY();
     return REGISTRATION_FAILURES();
 }
 
-} } } // end namespace
+} // end namespace core
+} // end namespace arrows
+} // end namespace kwiver

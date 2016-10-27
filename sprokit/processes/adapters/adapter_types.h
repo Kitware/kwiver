@@ -28,6 +28,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file adapter_types.h
+ * \brief Interface file for adapter types.
+ *
+ * This file contains a set of types that can be used to declare
+ * useful objects. They are in a separate file to reduce coupling in
+ * the interface (header) files that use these types.
+ */
+
 #ifndef KWIVER_ADAPTER_ADAPTER_TYPES_H
 #define KWIVER_ADAPTER_ADAPTER_TYPES_H
 

@@ -43,3 +43,8 @@ endif()
 if( KWIVER_ENABLE_OPENCV  AND  KWIVER_ENABLE_CAFFE )
   add_subdirectory( caffe )
 endif()
+
+# if matlab is enabled
+if (KWIVER_ENABLE_MATLAB)
+  add_subdirectory( matlab )
+endif()

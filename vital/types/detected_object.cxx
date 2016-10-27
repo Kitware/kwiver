@@ -28,51 +28,151 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file
+ * \brief Implementation for detected_object class
+ */
+
 #include "detected_object.h"
 
 namespace kwiver {
 namespace vital {
 
-detected_object::detected_object()
-: confidence_(1.0), classifications_(NULL)
+
+detected_object::detected_object( const bounding_box_d& bbox,
+                                  double              confidence,
+                                  detected_object_type_sptr classifications )
+  : m_bounding_box( std::make_shared< bounding_box_d >( bbox ) )
+  , m_confidence( confidence )
+  , m_type( classifications )
+  , m_index( 0 )
 {
 }
 
-detected_object::detected_object(bounding_box bbox, double confidence,
-                           object_type_sptr classifications)
-: bounding_box_(bbox), confidence_(confidence), classifications_(classifications)
+
+// ------------------------------------------------------------------
+detected_object_sptr
+detected_object::
+clone() const
 {
+  auto new_obj = std::make_shared<kwiver::vital::detected_object>(
+    *this->m_bounding_box,
+    this->m_confidence,
+    std::make_shared<detected_object_type>( *this->m_type ) );
+
+  new_obj->m_mask_image = this->m_mask_image; // being cheap - not copying image mask
+  new_obj->m_index = this->m_index;
+  new_obj->m_detector_name = this->m_detector_name;
+
+  return new_obj;
 }
 
-detected_object::bounding_box detected_object::get_bounding_box() const
+
+// ------------------------------------------------------------------
+bounding_box_d
+detected_object::
+bounding_box() const
 {
-  return bounding_box_;
+  return *m_bounding_box;
 }
 
-void detected_object::set_bounding_box(detected_object::bounding_box bbox)
+
+// ------------------------------------------------------------------
+void
+detected_object::
+set_bounding_box( const bounding_box_d& bbox )
 {
-  bounding_box_ = bbox;
+  m_bounding_box = std::make_shared< bounding_box_d >( bbox );
 }
 
-double detected_object::get_confidence() const
+
+// ------------------------------------------------------------------
+double
+detected_object::
+confidence() const
 {
-  return confidence_;
+  return m_confidence;
 }
 
-void detected_object::set_confidence(double d)
+
+// ------------------------------------------------------------------
+void
+detected_object::
+set_confidence( double d )
 {
-  confidence_ = d;
+  m_confidence = d;
 }
 
-object_type_sptr detected_object::get_classifications()
+
+// ------------------------------------------------------------------
+image_container_sptr
+detected_object::
+mask()
 {
-  return classifications_;
+  return m_mask_image;
 }
 
-void detected_object::set_classifications( object_type_sptr c )
+
+// ------------------------------------------------------------------
+void
+detected_object::
+set_mask( image_container_sptr m )
 {
-  classifications_ = c;
+  m_mask_image = m;
 }
 
+
+// ------------------------------------------------------------------
+detected_object_type_sptr
+detected_object::
+type()
+{
+  return m_type;
 }
+
+
+// ------------------------------------------------------------------
+void
+detected_object::
+set_type( detected_object_type_sptr c )
+{
+  m_type = c;
 }
+
+// ------------------------------------------------------------------
+uint64_t
+detected_object::
+index() const
+{
+  return m_index;
+}
+
+
+// ------------------------------------------------------------------
+void
+detected_object::
+set_index( uint64_t idx )
+{
+  m_index = idx;
+}
+
+
+// ------------------------------------------------------------------
+const std::string&
+detected_object::
+detector_name() const
+{
+  return m_detector_name;
+}
+
+
+// ------------------------------------------------------------------
+void
+detected_object::
+set_detector_name( const std::string& name )
+{
+  m_detector_name = name;
+}
+
+
+} } // end namespace

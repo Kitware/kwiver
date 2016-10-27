@@ -8,13 +8,13 @@ set( sources
 
   crop_image_process.cxx
   draw_detected_object_boxes_process.cxx
-  view_image_process.cxx
+  image_viewer_process.cxx
 )
 
 set( private_headers
   crop_image_process.h
   draw_detected_object_boxes_process.h
-  view_image_process.h
+  image_viewer_process.h
 )
 
 kwiver_private_header_group( ${private_headers} )
@@ -33,5 +33,6 @@ kwiver_add_plugin( kwiver_processes_ocv
   PRIVATE          sprokit_pipeline
                    kwiver_algo kwiver_algo_ocv
                    vital vital_apm vital_logger vital_config
+                   kwiversys
                  ${OpenCV_LIBS}
  )

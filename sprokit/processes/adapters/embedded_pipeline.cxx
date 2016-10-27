@@ -28,6 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * \file
+ * \brief Implementation for embedded_pipeline implementation.
+ */
+
 #include "embedded_pipeline.h"
 
 #include <vital/config/config_block.h>
@@ -141,7 +146,8 @@ bool connect_adapters()
 // ==================================================================
 embedded_pipeline
 ::embedded_pipeline( std::istream& istr )
-  : m_priv( new priv() )
+  : m_logger( kwiver::vital::get_logger( "sprokit.embedded_pipeline" ) )
+  , m_priv( new priv() )
 {
   // load processes
   sprokit::load_known_modules();
@@ -232,6 +238,12 @@ embedded_pipeline
 embedded_pipeline
 ::receive()
 {
+  if ( m_priv->m_at_end )
+  {
+    LOG_ERROR( m_logger, "receive() called after end_of_data processed. "
+               << "Probable deadlock." );
+  }
+
   auto ads =  m_priv->m_output_adapter.receive();
   m_priv->m_at_end = ads->is_end_of_data();
   return ads;

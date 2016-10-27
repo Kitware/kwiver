@@ -80,13 +80,10 @@
  *
  * \par Examples
  *
- * \todo Add some more examples.
- *
- * foo[ro] bar
- * foo[append] 1234
- * - results in foo = "bar1234"
- *
  * <pre>
+ *   :foo[ro] bar
+ *   :foo[append] 1234
+ *   - results in foo = "bar1234"
  * </pre>
  *
  * \subsection configuration_provider Configuration provider

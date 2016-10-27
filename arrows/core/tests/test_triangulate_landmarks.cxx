@@ -33,6 +33,7 @@
 #include <test_triangulate_landmarks.h>
 
 #include <arrows/core/triangulate_landmarks.h>
+#include <arrows/core/register_algorithms.h>
 
 
 #define TEST_ARGS ()
@@ -45,6 +46,8 @@ main(int argc, char* argv[])
   CHECK_ARGS(1);
 
   testname_t const testname = argv[1];
+
+  kwiver::arrows::core::register_algorithms();
 
   RUN_TEST(testname);
 }

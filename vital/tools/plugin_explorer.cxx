@@ -143,7 +143,7 @@ main( int argc, char* argv[] )
   typedef kwiversys::CommandLineArguments argT;
 
   arg.AddArgument( "--help",        argT::NO_ARGUMENT, &opt_help, "Display usage information" );
-  arg.AddArgument( "--plugin-name", argT::SPACE_ARGUMENT, &plugin_name, "Display usage information" );
+  arg.AddArgument( "--plugin-name", argT::SPACE_ARGUMENT, &plugin_name, "Optional name of single plugin to display." );
   arg.AddArgument( "--detail",      argT::NO_ARGUMENT, &opt_detail, "Display detailed information about plugins" );
   arg.AddArgument( "-d",            argT::NO_ARGUMENT, &opt_detail, "Display detailed information about plugins" );
   arg.AddArgument( "--config",      argT::NO_ARGUMENT, &opt_config, "Display configuration information needed by plugins" );
@@ -179,9 +179,17 @@ main( int argc, char* argv[] )
     path_string += module_dir + ":";
   }
 
-  std::cout << "---- Algorithm search path\n"
-            << path_string << std::endl
-            << std::endl;
+  {
+    std::vector< std::string > path;
+    kwiver::vital::tokenize( path_string, path, ":" );
+
+    std::cout << "---- Algorithm search path\n";
+    VITAL_FOREACH( std::string p, path)
+    {
+      std::cout << "    " << p << std::endl;
+    }
+    std::cout << std::endl;
+  }
 
   std::cout << "---- Registered module names:\n";
   std::vector< std::string > module_list = apm.registered_module_names();

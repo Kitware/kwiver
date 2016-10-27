@@ -31,6 +31,8 @@
 #include "thread_per_process_scheduler.h"
 
 #include <vital/config/config_block.h>
+#include <vital/vital_foreach.h>
+
 #include <sprokit/pipeline/datum.h>
 #include <sprokit/pipeline/edge.h>
 #include <sprokit/pipeline/pipeline.h>
@@ -40,7 +42,6 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/thread.hpp>
-#include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
 
 /**
@@ -68,6 +69,8 @@ class thread_per_process_scheduler::priv
     mutable mutex_t mut;
 };
 
+
+// ------------------------------------------------------------------
 thread_per_process_scheduler
 ::thread_per_process_scheduler(pipeline_t const& pipe, kwiver::vital::config_block_sptr const& config)
   : scheduler(pipe, config)
@@ -76,7 +79,7 @@ thread_per_process_scheduler
   pipeline_t const p = pipeline();
   process::names_t const names = p->process_names();
 
-  BOOST_FOREACH (process::name_t const& name, names)
+  VITAL_FOREACH (process::name_t const& name, names)
   {
     process_t const proc = p->process_by_name(name);
     process::properties_t const consts = proc->properties();
@@ -97,6 +100,8 @@ thread_per_process_scheduler
   shutdown();
 }
 
+
+// ------------------------------------------------------------------
 void
 thread_per_process_scheduler
 ::_start()
@@ -106,7 +111,7 @@ thread_per_process_scheduler
 
   d->process_threads.reset(new boost::thread_group);
 
-  BOOST_FOREACH (process::name_t const& name, names)
+  VITAL_FOREACH (process::name_t const& name, names)
   {
     process_t const process = pipeline()->process_by_name(name);
 
@@ -114,6 +119,8 @@ thread_per_process_scheduler
   }
 }
 
+
+// ------------------------------------------------------------------
 void
 thread_per_process_scheduler
 ::_wait()
@@ -156,6 +163,8 @@ thread_per_process_scheduler::priv
 
 static kwiver::vital::config_block_sptr monitor_edge_config();
 
+
+// ------------------------------------------------------------------
 void
 thread_per_process_scheduler::priv
 ::run_process(process_t const& process)
@@ -171,10 +180,14 @@ thread_per_process_scheduler::priv
 
   while (!complete)
   {
+    // This locking will cause this thread to pause if the scheduler
+    // pause() method is called.
     shared_lock_t const lock(mut);
 
     (void)lock;
 
+    // This call allows an exception to be thrown (boost::thread_interrupted)
+    // Since this exception is not caught, it causes the thread to terminate.
     boost::this_thread::interruption_point();
 
     process->step();
@@ -192,6 +205,8 @@ thread_per_process_scheduler::priv
   }
 }
 
+
+// ------------------------------------------------------------------
 kwiver::vital::config_block_sptr
 monitor_edge_config()
 {

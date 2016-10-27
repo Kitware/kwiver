@@ -7,9 +7,9 @@ include_directories( ${sprokit_source_dir}/src
                      ${CMAKE_CURRENT_SOURCE_DIR} # for trait support files
                      )
 
+add_subdirectory( adapters )
 add_subdirectory( bindings )
 add_subdirectory( core )
-add_subdirectory( adapters )
 add_subdirectory( examples )
 
 if (KWIVER_ENABLE_VXL)
@@ -28,7 +28,12 @@ if (KWIVER_ENABLE_CAFFE)
 #  add_subdirectory(caffe)
 endif()
 
+if (KWIVER_ENABLE_MATLAB)
+  add_subdirectory( matlab )
+endif()
+
 kwiver_install_headers(
   kwiver_type_traits.h
   trait_utils.h
+  SUBDIR sprokit/processes
   )

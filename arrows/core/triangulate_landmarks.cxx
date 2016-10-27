@@ -42,13 +42,9 @@
 
 #include <arrows/core/triangulate.h>
 
-
 namespace kwiver {
 namespace arrows {
-
-namespace core
-{
-
+namespace core {
 
 /// Private implementation class
 class triangulate_landmarks::priv
@@ -57,13 +53,13 @@ public:
   /// Constructor
   priv()
     : homogeneous(false),
-      m_logger( vital::get_logger( "triangulate_landmarks" ))
+      m_logger( vital::get_logger( "arrows.core.triangulate_landmarks" ))
   {
   }
 
   priv(const priv& other)
     : homogeneous(other.homogeneous),
-      m_logger( vital::get_logger( "triangulate_landmarks" ))
+      m_logger( vital::get_logger( "arrows.core.triangulate_landmarks" ))
   {
   }
 
@@ -180,6 +176,7 @@ triangulate_landmarks
     if (t_itr == track_map.end())
     {
       // there is no track for the provided landmark
+      failed_landmarks.insert(p.first);
       continue;
     }
     const vital::track& t = *t_itr->second;
@@ -243,6 +240,10 @@ triangulate_landmarks
         triangulated_lms[p.first] = lm;
       }
     }
+    else
+    {
+      failed_landmarks.insert(p.first);
+    }
   }
   if( !failed_landmarks.empty() )
   {
@@ -253,8 +254,6 @@ triangulate_landmarks
   landmarks = vital::landmark_map_sptr(new vital::simple_landmark_map(triangulated_lms));
 }
 
-
 } // end namespace core
-
 } // end namespace arrows
 } // end namespace kwiver

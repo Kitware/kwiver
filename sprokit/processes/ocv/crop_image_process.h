@@ -41,12 +41,11 @@
 
 #include <memory>
 
-namespace kwiver
-{
+namespace kwiver {
 
 class KWIVER_PROCESSES_OCV_NO_EXPORT crop_image_process
   : public sprokit::process
-  {
+{
   public:
     // -- CONSTRUCTORS --
     crop_image_process( kwiver::vital::config_block_sptr const& config );
@@ -60,12 +59,11 @@ class KWIVER_PROCESSES_OCV_NO_EXPORT crop_image_process
     void make_ports();
     void make_config();
 
-
     class priv;
     const std::unique_ptr<priv> d;
 
-  }; // end class crop_image_process
+}; // end class crop_image_process
 
-}
+} // end namespace
 
 #endif //_KWIVER_CROP_IMAGE_PROCESS_H
