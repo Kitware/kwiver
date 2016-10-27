@@ -87,8 +87,7 @@ public:
 
 // ------------------------------------------------------------------
   priv()
-    : m_labels( NULL ),
-      m_target_size( 600 ),
+    : m_target_size( 600 ),
       m_pixel_means( 102.9801, 115.9465, 122.7717 ),
       m_max_size( 1000 ),
       m_net( NULL ),
@@ -100,9 +99,8 @@ public:
       m_chip_width( 450 ),
       m_chip_height( 400 ),
       m_stride( 375 ),
-      m_logger( kwiver::vital::get_logger( "vital.algorithm" ) )
+      m_logger( kwiver::vital::get_logger( "vital.faster_rcnn" ) )
   { }
-
 
   priv( priv const& other )
     : m_prototxt_file( other.m_prototxt_file ),
@@ -363,7 +361,7 @@ detect( vital::image_container_sptr image_data ) const
     chip_y.push_back( 0 );
   }
 
-  auto detected_objects = std::make_shared<vital::detected_object_set>()
+  auto detected_objects = std::make_shared<vital::detected_object_set>();
 
   for ( size_t img_at = 0; img_at < image_chips.size(); ++img_at )
   {
@@ -392,8 +390,8 @@ detect( vital::image_container_sptr image_data ) const
         pts[j - 1] = start[j] / image_scale.second;
       }
 
-      vital::detected_object::bounding_box bbox( vital::vector_2d( pts[0] + chip_x[img_at], pts[1] + chip_y[img_at] ),
-                                                 vital::vector_2d( pts[2] + chip_x[img_at], pts[3] + chip_y[img_at] ) );
+      vital::bounding_box_d bbox( vital::vector_2d( pts[0] + chip_x[img_at], pts[1] + chip_y[img_at] ),
+                                  vital::vector_2d( pts[2] + chip_x[img_at], pts[3] + chip_y[img_at] ) );
 
       start = probs->cpu_data() + probs->offset( i );
 
@@ -421,10 +419,10 @@ detect( vital::image_container_sptr image_data ) const
           float ph = exp( dh ) * h;
           vital::vector_2d halfS( pw * 0.5, ph * 0.5 );
 
-          vital::detected_object::bounding_box pbox( center - halfS, center + halfS );
+          vital::bounding_box_d pbox( center - halfS, center + halfS );
 
           auto classification = std::make_shared<vital::detected_object_type>();
-          classification.set_score( this->d->m_labels[j], tmpv[j] );
+          classification->set_score( this->d->m_labels[j], tmpv[j] );
 
           detected_objects->add( std::make_shared<vital::detected_object>( pbox, 1.0, classification ) );
         } // end for j
@@ -432,7 +430,7 @@ detect( vital::image_container_sptr image_data ) const
       else
       {
         // just make one detection object with all class-names using one bbox
-        auto classification = std::make_shared<vital::object_type>( this->d->m_labels, tmpv );
+        auto classification = std::make_shared<vital::detected_object_type>( this->d->m_labels, tmpv );
         detected_objects->add( std::make_shared<vital::detected_object>( bbox, 1.0, classification ) );
       }
     } // end for over rois
@@ -501,7 +499,7 @@ prepair_image( cv::Mat const& in_image ) const
   const double min_size = std::min( im_float.size[0], im_float.size[1] );
   const double max_size = std::max( im_float.size[0], im_float.size[1] );
 
-  const double scale = this->m_target_size / min_size;
+  double scale = this->m_target_size / min_size;
 
   if ( round( scale * max_size ) > this->m_max_size )
   {
