@@ -225,9 +225,11 @@ edge
     // just drop the datum.
     if ( ! d->blocking && d->full_of_data())
     {
+      // Could do something here to notify that we are dropping input
       return;
     }
 
+    // This is the blocking part
     while (d->full_of_data())
     {
       d->cond_have_space.wait(lock);
