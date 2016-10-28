@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -30,39 +30,27 @@
 
 /**
  * \file
- * \brief Wrapper over C functions to get executable path and module path.
+ * \brief C++ Helper utilities for C interface of vital::detected_object
+ *
+ * Private header for use in cxx implementation files.
  */
 
-#ifndef KWIVER_GET_PATHS_H
-#define KWIVER_GET_PATHS_H
+#ifndef VITAL_C_HELPERS_DETECTED_OBJECT_H_
+#define VITAL_C_HELPERS_DETECTED_OBJECT_H_
 
-#include <vital/vital_config.h>
-#include <vital/util/vital_util_export.h>
+#include <vital/types/detected_object.h>
 
-#include <string>
+#include <vital/bindings/c/types/detected_object.h>
+#include <vital/bindings/c/helpers/c_utils.h>
 
 namespace kwiver {
-namespace vital{
+namespace vital_c {
 
-/**
- * @brief Get path to current executable.
- *
- * Get the name of the directory that contains the current executable
- * file. The returned string does not include the file name.
- *
- * @return Directory name.
- */
-std::string VITAL_UTIL_EXPORT get_executable_path();
-
-/**
- * @brief Get path to the current module.
- *
- *
- *
- * @return Directory name.
- */
-std::string VITAL_UTIL_EXPORT get_module_path();
+/// Declaration of C interface shared_ptr cache of vital::detected_object
+extern SharedPointerCache< kwiver::vital::detected_object,
+                           vital_detected_object_t > DOBJ_SPTR_CACHE;
 
 } }
 
-#endif /* KWIVER_GET_PATHS_H */
+
+#endif //VITAL_C_HELPERS_DETECTED_OBJECT_H_

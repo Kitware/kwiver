@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2015 by Kitware, Inc.
+ * Copyright 2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,34 +28,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _TOKEN_TYPE_ENV_H_
-#define _TOKEN_TYPE_ENV_H_
+/**
+ * \file
+ * \brief C++ Helper utilities for C interface of vital::detected_object_type
+ *
+ * Private header for use in cxx implementation files.
+ */
 
-#include "token_type.h"
+#ifndef VITAL_C_HELPERS_DETECTED_OBJECT_TYPE_H_
+#define VITAL_C_HELPERS_DETECTED_OBJECT_TYPE_H_
 
+#include <vital/types/detected_object_type.h>
+
+#include <vital/bindings/c/types/detected_object_type.h>
+#include <vital/bindings/c/helpers/c_utils.h>
 
 namespace kwiver {
-namespace vital {
+namespace vital_c {
 
-// ----------------------------------------------------------------
-/** Virtual base class for token types.
- *
- *
- */
-class token_type_env
-  : public token_type
-{
-public:
-  token_type_env();
-  virtual ~token_type_env();
+/// Declaration of C interface shared_ptr cache of vital::detected_object_type
+extern SharedPointerCache< kwiver::vital::detected_object_type,
+                           vital_detected_object_type_t > DOT_SPTR_CACHE;
+
+} }
 
 
-  /** Lookup name in token type resolver.
-   */
-  virtual bool lookup_entry (std::string const& name, std::string& result);
-
-}; // end class token_type_env
-
-} } // end namespace
-
-#endif /* _TOKEN_TYPE_ENV_H_ */
+#endif //VITAL_C_HELPERS_DETECTED_OBJECT_TYPE_H_

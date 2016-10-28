@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2015 by Kitware, Inc.
+ * Copyright 2014-2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,48 +28,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef _TOKEN_TYPE_SYSENV_H_
+#define _TOKEN_TYPE_SYSENV_H_
 
-#ifndef _TOKEN_TYPE_H_
-#define _TOKEN_TYPE_H_
+#include "token_type.h"
 
-#include <string>
+#include <vital/util/vital_util_export.h>
+
+#include <kwiversys/SystemInformation.hxx>
+
 
 namespace kwiver {
 namespace vital {
 
 // ----------------------------------------------------------------
-/** Abstract base class for token types.
+/** System attributes resolver.
  *
  *
  */
-class token_type
+class VITAL_UTIL_EXPORT token_type_sysenv
+  : public token_type
 {
 public:
-  virtual ~token_type();
-
-  /** Return our token type name. This is used to retrieve the name of
-   * this token type when it is added to the token expander.
-   */
-  std::string const& token_type_name() const;
-
+  token_type_sysenv();
+  virtual ~token_type_sysenv();
 
   /** Lookup name in token type resolver.
-   * @param[in] name Name to look up
-   * @param[out] result Translated string
-   * @return TRUE if name found in table; false otherwise
    */
-  virtual bool lookup_entry (std::string const& name, std::string& result) = 0;
+  virtual bool lookup_entry (std::string const& name, std::string& result);
 
+  kwiversys::SystemInformation m_sysinfo;
 
-protected:
-  token_type(std::string const& name);
+}; // end class token_type_sysenv
 
+} // end namespace
+} // end namespace
 
-private:
-  std::string m_typeName;
-
-}; // end class token_type
-
-} } // end namespace
-
-#endif /* _TOKEN_TYPE_H_ */
+#endif /* _TOKEN_TYPE_SYSENV_H_ */

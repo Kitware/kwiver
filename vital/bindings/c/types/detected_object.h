@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -30,39 +30,53 @@
 
 /**
  * \file
- * \brief Wrapper over C functions to get executable path and module path.
+ * \brief C interface to vital::image classes
  */
 
-#ifndef KWIVER_GET_PATHS_H
-#define KWIVER_GET_PATHS_H
+#ifndef VITAL_C_DETECTED_OBJECT_H_
+#define VITAL_C_DETECTED_OBJECT_H_
 
-#include <vital/vital_config.h>
-#include <vital/util/vital_util_export.h>
+#include <vital/bindings/c/vital_c_export.h>
+#include <vital/bindings/c/types/bounding_box.h>
+#include <vital/bindings/c/types/detected_object_type.h>
 
-#include <string>
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-namespace kwiver {
-namespace vital{
+/// VITAL Image opaque structure
+typedef struct vital_detected_object_s vital_detected_object_t;
 
-/**
- * @brief Get path to current executable.
- *
- * Get the name of the directory that contains the current executable
- * file. The returned string does not include the file name.
- *
- * @return Directory name.
- */
-std::string VITAL_UTIL_EXPORT get_executable_path();
+VITAL_C_EXPORT
+void vital_detected_object_destroy();
 
-/**
- * @brief Get path to the current module.
- *
- *
- *
- * @return Directory name.
- */
-std::string VITAL_UTIL_EXPORT get_module_path();
+VITAL_C_EXPORT
+vital_detected_object_t* vital_detected_object_new_with_bbox(
+vital_bounding_box_t* bbox,
+  double confidence,
+  vital_detected_object_type_t* dot);
 
-} }
+VITAL_C_EXPORT
+vital_bounding_box_t* vital_detected_object_bounding_box();
 
-#endif /* KWIVER_GET_PATHS_H */
+VITAL_C_EXPORT
+void vital_detected_object_set_bounding_box( vital_bounding_box_t* bbox );
+
+VITAL_C_EXPORT
+double vital_detected_object_confidence();
+
+VITAL_C_EXPORT
+void vital_detected_object_set_confidence( double conf );
+
+VITAL_C_EXPORT
+vital_detected_object_type_t* vital_detected_object_type();
+
+VITAL_C_EXPORT
+void vital_detected_object_set_type( vital_detected_object_type_t*);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* VITAL_C_DETECTED_OBJECT_H_ */

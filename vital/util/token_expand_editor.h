@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,22 +28,49 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "io_mgr.h"
+#ifndef VITAL_UTIL_TOKEN_EXPAND_EDITOR_H
+#define VITAL_UTIL_TOKEN_EXPAND_EDITOR_H
+
+
+#include <vital/util/string_editor.h>
+
+#include <vital/util/token_expander.h>
 
 namespace kwiver {
+namespace vital {
 
-  kwiver::io_mgr* kwiver::io_mgr::s_instance(0); // static instance pointer
+namespace edit_operation {
 
-
-io_mgr* io_mgr::Instance()
+// ----------------------------------------------------------------
+/**
+ * @brief String editor that does token/macro expansion.
+ *
+ */
+class VITAL_UTIL_EXPORT token_expand_editor
 {
-  if ( s_instance == 0 )
-  {
-    s_instance = new io_mgr;
-  }
+public:
+  // -- CONSTRUCTORS --
+  token_expand_editor();
+  virtual ~token_expand_editor();
+  virtual bool process( std::string& line );
 
-  return s_instance;
-}
+  /**
+   * @brief Add additional token type expander.
+   *
+   * Add an additional token expander to the collection. This editor
+   * takes ownership of the specified object and will delete it when
+   * being destroyed.
+   *
+   * @param tt New expander object.
+   */
+  void add_expander( kwiver::vital::token_type * tt );
 
 
-} // end namespace
+private:
+    token_expander m_token_expander;
+
+}; // end class token_expand_editor
+
+} } } // end namespace
+
+#endif // VITAL_UTIL_TOKEN_EXPAND_EDITOR_H

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,46 +30,47 @@
 
 /**
  * \file
- * \brief Image display process interface.
+ * \brief Interface of source_location class.
  */
 
-#ifndef _KWIVER_ACCEPT_DESCRIPTOR_H
-#define _KWIVER_ACCEPT_DESCRIPTOR_H
+#ifndef KWIVER_VITAL_UTIL_SOURCE_LOCATION_H
+#define KWIVER_VITAL_UTIL_SOURCE_LOCATION_H
 
-#include <sprokit/pipeline/process.h>
-#include "smqtk_extract_export.h"
+#include <vital/util/vital_util_export.h>
 
+#include <ostream>
+#include <string>
 #include <memory>
 
 namespace kwiver {
+namespace vital {
 
 // ----------------------------------------------------------------
 /**
- * @brief Display images
+ * @brief Location in a source file.
  *
+ * This class represents a location in a source file.
  */
-class SMQTK_EXTRACT_NO_EXPORT accept_descriptor
-  : public sprokit::process
+class VITAL_UTIL_EXPORT source_location
 {
 public:
-  // -- CONSTRUCTORS --
-  accept_descriptor( kwiver::vital::config_block_sptr const& config );
-  virtual ~accept_descriptor();
+  source_location();
+  source_location( std::shared_ptr< std::string > f, int l );
+  virtual ~source_location();
 
-protected:
-  virtual void _configure();
-  virtual void _step();
+  virtual std::ostream& format( std::ostream& str ) const;
+  std::string const& file() const { return *m_file_name; }
+  int line() const { return m_line_num; }
 
 private:
-  void make_ports();
-  void make_config();
+  std::shared_ptr< std::string > m_file_name;
+  int m_line_num;
+};
 
+inline std::ostream&
+operator<<( std::ostream& str, source_location const& obj )
+{ return obj.format( str ); }
 
-  class priv;
-  const std::unique_ptr<priv> d;
+} } // end namespace
 
-}; // end class accept_descriptor
-
-} // end namespace
-
-#endif /* _KWIVER_ACCEPT_DESCRIPTOR_H */
+#endif // KWIVER_VITAL_UTIL_SOURCE_LOCATION_H

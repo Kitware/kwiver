@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2014-2015 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,45 +28,56 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _KWIVER_EXAMPLE_SUPPLY_IMAGE_H
-#define _KWIVER_EXAMPLE_SUPPLY_IMAGE_H
+#ifndef _TOKEN_TYPE_SYMTAB_H_
+#define _TOKEN_TYPE_SYMTAB_H_
 
-#include <sprokit/pipeline/process.h>
-#include "smqtk_extract_export.h"
+#include "token_type.h"
 
-#include <opencv2/opencv.hpp>
+#include <vital/util/vital_util_export.h>
 
-#include <memory>
+#include <map>
+
 
 namespace kwiver {
+namespace vital {
 
 // ----------------------------------------------------------------
-/**
- * @brief Supply Image
+/** Symbol table token expander.
  *
+ * This token expander replaces one string with another.
+ *
+ * The defult name for this token type should be sufficient for most
+ * users, but clever naming can have one of these symbol tables
+ * masquerade as another fixed name token type, such as "ENV".
+ *
+ * For example, if you want to force a specific value into a file that
+ * was initially expanded over the environment, a symtab can be
+ * created that will do that.
  */
-class SMQTK_EXTRACT_NO_EXPORT supply_image
-  : public sprokit::process
+class VITAL_UTIL_EXPORT token_type_symtab
+  : public token_type
 {
 public:
-  // -- CONSTRUCTORS --
-  supply_image( kwiver::vital::config_block_sptr const& config );
-  virtual ~supply_image();
+  token_type_symtab(std::string const& name = "SYMTAB");
+  virtual ~token_type_symtab();
 
-protected:
-  virtual void _configure();
-  virtual void _step();
+
+  /** Lookup name in token type resolver.
+   */
+  virtual bool lookup_entry (std::string const& name, std::string& result);
+
+  /** Add entry to table.
+   */
+  virtual void add_entry (std::string const& name, std::string const& value);
+
+  virtual void remove_entry (std::string const& name);
+
 
 private:
-  void make_ports();
-  void make_config();
+  std::map < std::string, std::string > m_table;
 
+}; // end class token_type_symtab
 
-  class priv;
-  const std::unique_ptr<priv> d;
+} } // end namespace
 
-}; // end class supply_image
-
-} // end namespace
-
-#endif /* _KWIVER_EXAMPLE_SUPPLY_IMAGE_H */
+#endif /* _TOKEN_TYPE_SYMTAB_H_ */
