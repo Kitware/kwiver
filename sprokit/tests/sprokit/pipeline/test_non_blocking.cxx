@@ -128,8 +128,8 @@ IMPLEMENT_TEST(non_blocking)
     << SPROKIT_PROCESS( "test_non_blocking", "non_b" )
     << SPROKIT_CONFIG( "_non_blocking", "1" )
 
-    << SPROKIT_CONNECT( "ia", "number",     "non_b", "input" ) // dummy connection
-    << SPROKIT_CONNECT( "non_b",       "output",        "oa", "number" )
+    << SPROKIT_CONNECT( "ia",       "number",        "non_b", "input" )
+    << SPROKIT_CONNECT( "non_b",    "output",        "oa",    "number" )
 
     << SPROKIT_CONFIG_BLOCK( "_pipeline:_edge")
     << SPROKIT_CONFIG( "capacity",  "300" )
@@ -156,7 +156,7 @@ IMPLEMENT_TEST(non_blocking)
     ep.send( ds );
   }
 
-  std::cout << "Sending end of input element\n";
+  //+ std::cout << "Sending end of input element\n";
   ep.send_end_of_input();
 
   std::set<int> received;
@@ -172,8 +172,7 @@ IMPLEMENT_TEST(non_blocking)
     // Get value from output adapter
     int num = rds->get_port_data<int>("number");
     received.insert( num );
-
-    std::cout << " <><   <><   <><   received: " << num << std::endl;
+    std::cout << "received: " << num << std::endl;
   }
 
   ep.wait();
