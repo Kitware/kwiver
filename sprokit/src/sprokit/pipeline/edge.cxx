@@ -34,6 +34,8 @@
 #include "stamp.h"
 #include "types.h"
 
+#include <vital/logger/logger.h>
+
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>
@@ -78,12 +80,14 @@ edge_datum_t
 }
 
 kwiver::vital::config_block_key_t const edge::config_dependency = kwiver::vital::config_block_key_t("_dependency");
-kwiver::vital::config_block_key_t const edge::config_capacity = kwiver::vital::config_block_key_t("capacity");
+kwiver::vital::config_block_key_t const edge::config_capacity   = kwiver::vital::config_block_key_t("capacity");
+kwiver::vital::config_block_key_t const edge::config_blocking   = kwiver::vital::config_block_key_t("blocking");
 
+// ==================================================================
 class edge::priv
 {
   public:
-    priv(bool depends_, size_t capacity_);
+    priv(bool depends_, size_t capacity_, bool blocking_);
     ~priv();
 
     typedef boost::weak_ptr<process> process_ref_t;
@@ -94,6 +98,7 @@ class edge::priv
 
     bool const depends;
     size_t const capacity;
+    bool const blocking;
     bool downstream_complete;
 
     process_ref_t upstream;
@@ -114,8 +119,12 @@ class edge::priv
 
     mutable mutex_t mutex;
     mutable mutex_t complete_mutex;
+
+  kwiver::vital::logger_handle_t m_logger;
 };
 
+
+// ==================================================================
 edge
 ::edge(kwiver::vital::config_block_sptr const& config)
   : d()
@@ -125,10 +134,17 @@ edge
     throw null_edge_config_exception();
   }
 
-  bool const depends = config->get_value<bool>(config_dependency, true);
+  bool const depends    = config->get_value<bool>(config_dependency, true);
   size_t const capacity = config->get_value<size_t>(config_capacity, 0);
+  bool const blocking   = config->get_value<bool>(config_blocking, true);
 
-  d.reset(new priv(depends, capacity));
+  d.reset(new priv(depends, capacity, blocking));
+
+  if ( 0 != capacity || ! blocking )
+  {
+    LOG_DEBUG( d->m_logger, "Edge capacity set to: " << capacity
+               << "   " << (blocking ? "" : "non-" ) << "blocking: ");
+  }
 }
 
 edge
@@ -136,6 +152,8 @@ edge
 {
 }
 
+
+// ------------------------------------------------------------------
 bool
 edge
 ::makes_dependency() const
@@ -143,6 +161,8 @@ edge
   return d->depends;
 }
 
+
+// ------------------------------------------------------------------
 bool
 edge
 ::has_data() const
@@ -154,6 +174,8 @@ edge
   return d->has_data();
 }
 
+
+// ------------------------------------------------------------------
 bool
 edge
 ::full_of_data() const
@@ -165,6 +187,8 @@ edge
   return d->full_of_data();
 }
 
+
+// ------------------------------------------------------------------
 size_t
 edge
 ::datum_count() const
@@ -176,6 +200,8 @@ edge
   return d->q.size();
 }
 
+
+// ------------------------------------------------------------------
 void
 edge
 ::push_datum(edge_datum_t const& datum)
@@ -195,6 +221,16 @@ edge
   {
     priv::upgrade_lock_t lock(d->mutex);
 
+    // If this is a non-blocking edge and the edge is already full,
+    // just drop the datum.
+    if ( ! d->blocking && d->full_of_data() && (datum.datum->type() == sprokit::datum::data ) )
+    {
+      // Could do something here to notify that we are dropping input
+      LOG_TRACE( d->m_logger, "Dropping data datum on edge" );
+      return;
+    }
+
+    // This is the blocking part
     while (d->full_of_data())
     {
       d->cond_have_space.wait(lock);
@@ -212,6 +248,8 @@ edge
   d->cond_have_data.notify_one();
 }
 
+
+// ------------------------------------------------------------------
 edge_datum_t
 edge
 ::get_datum()
@@ -244,6 +282,8 @@ edge
   return dat;
 }
 
+
+// ------------------------------------------------------------------
 edge_datum_t
 edge
 ::peek_datum(size_t idx) const
@@ -261,6 +301,8 @@ edge
   return d->q.at(idx);
 }
 
+
+// ------------------------------------------------------------------
 void
 edge
 ::pop_datum()
@@ -287,6 +329,8 @@ edge
   d->cond_have_space.notify_one();
 }
 
+
+// ------------------------------------------------------------------
 void
 edge
 ::mark_downstream_as_complete()
@@ -307,6 +351,8 @@ edge
   d->cond_have_space.notify_one();
 }
 
+
+// ------------------------------------------------------------------
 bool
 edge
 ::is_downstream_complete() const
@@ -318,6 +364,8 @@ edge
   return d->downstream_complete;
 }
 
+
+// ------------------------------------------------------------------
 void
 edge
 ::set_upstream_process(process_t process)
@@ -337,6 +385,8 @@ edge
   d->upstream = process;
 }
 
+
+// ------------------------------------------------------------------
 void
 edge
 ::set_downstream_process(process_t process)
@@ -356,10 +406,13 @@ edge
   d->downstream = process;
 }
 
+
+// ==================================================================
 edge::priv
-::priv(bool depends_, size_t capacity_)
+::priv(bool depends_, size_t capacity_, bool blocking_)
   : depends(depends_)
   , capacity(capacity_)
+  , blocking(blocking_)
   , downstream_complete(false)
   , upstream()
   , downstream()
@@ -368,14 +421,18 @@ edge::priv
   , cond_have_space()
   , mutex()
   , complete_mutex()
+  , m_logger( kwiver::vital::get_logger( "sprokit.edge" ))
 {
 }
+
 
 edge::priv
 ::~priv()
 {
 }
 
+
+// ------------------------------------------------------------------
 bool
 edge::priv
 ::has_data() const
@@ -383,6 +440,8 @@ edge::priv
   return !q.empty();
 }
 
+
+// ------------------------------------------------------------------
 bool
 edge::priv
 ::full_of_data() const
@@ -395,6 +454,8 @@ edge::priv
   return (capacity <= q.size());
 }
 
+
+// ------------------------------------------------------------------
 void
 edge::priv
 ::complete_check() const

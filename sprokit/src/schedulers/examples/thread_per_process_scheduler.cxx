@@ -66,7 +66,7 @@ class thread_per_process_scheduler::priv
     typedef boost::shared_mutex mutex_t;
     typedef boost::shared_lock<mutex_t> shared_lock_t;
 
-    mutable mutex_t mut;
+    mutable mutex_t m_pause_mutex;
 };
 
 
@@ -132,14 +132,14 @@ void
 thread_per_process_scheduler
 ::_pause()
 {
-  d->mut.lock();
+  d->m_pause_mutex.lock();
 }
 
 void
 thread_per_process_scheduler
 ::_resume()
 {
-  d->mut.unlock();
+  d->m_pause_mutex.unlock();
 }
 
 void
@@ -152,7 +152,7 @@ thread_per_process_scheduler
 thread_per_process_scheduler::priv
 ::priv()
   : process_threads()
-  , mut()
+  , m_pause_mutex()
 {
 }
 
@@ -182,7 +182,7 @@ thread_per_process_scheduler::priv
   {
     // This locking will cause this thread to pause if the scheduler
     // pause() method is called.
-    shared_lock_t const lock(mut);
+    shared_lock_t const lock(m_pause_mutex);
 
     (void)lock;
 

@@ -304,8 +304,11 @@ class SPROKIT_PIPELINE_EXPORT edge
 
     /// Configuration for the maximum capacity of an edge.
     static kwiver::vital::config_block_key_t const config_capacity;
-  private:
 
+    /// Configuration for edge blocking behaviour
+    static kwiver::vital::config_block_key_t const config_blocking;
+
+private:
     class SPROKIT_PIPELINE_NO_EXPORT priv;
     boost::scoped_ptr<priv> d;
 };
