@@ -1802,7 +1802,7 @@ pipeline::priv
       const auto proc_config = down_proc->get_config();
       if ( proc_config->has_value( config_non_blocking ) )
       {
-        const size_t capacity = config->get_value<size_t>( config_non_blocking );
+        const size_t capacity = proc_config->get_value<size_t>( config_non_blocking );
         edge_config->set_value( edge::config_capacity, capacity );
         edge_config->set_value( edge::config_blocking, false );
       }

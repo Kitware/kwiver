@@ -143,7 +143,7 @@ edge
   if ( 0 != capacity || ! blocking )
   {
     LOG_DEBUG( d->m_logger, "Edge capacity set to: " << capacity
-               << "   blocking: " << blocking );
+               << "   " << (blocking ? "" : "non-" ) << "blocking: ");
   }
 }
 
@@ -223,9 +223,10 @@ edge
 
     // If this is a non-blocking edge and the edge is already full,
     // just drop the datum.
-    if ( ! d->blocking && d->full_of_data())
+    if ( ! d->blocking && d->full_of_data() && (datum.datum->type() == sprokit::datum::data ) )
     {
       // Could do something here to notify that we are dropping input
+      LOG_TRACE( d->m_logger, "Dropping data datum on edge" );
       return;
     }
 
