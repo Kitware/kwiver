@@ -1,9 +1,10 @@
 # Required Boost external dependency
 
-if(WIN32)
-  set(Boost_USE_STATIC_LIBS TRUE)
-  set(Boost_WIN_MODULES chrono)
-endif()
+if (KWIVER_ENABLE_SPROKIT OR KWIVER_ENABLE_TRACK_ORACLE)
+
+  if(WIN32)
+    set(Boost_WIN_MODULES chrono)
+  endif()
 
 if (NOT DEFINED KWIVER_BOOST_VERSION)
 	set(KWIVER_BOOST_VERSION 1.54)
@@ -20,8 +21,10 @@ find_package(Boost ${KWIVER_BOOST_VERSION} REQUIRED
     system
     thread)
 
-add_definitions(-DBOOST_ALL_NO_LIB)
+  add_definitions(-DBOOST_ALL_NO_LIB)
 
-include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
-link_directories(${Boost_LIBRARY_DIRS})
+  include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+  link_directories(${Boost_LIBRARY_DIRS})
+
+endif()
 ####
