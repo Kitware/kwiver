@@ -26,6 +26,7 @@ set( plugin_core_headers
   interpolate_camera.h
   match_matrix.h
   metrics.h
+  polygon.h
   projected_track_set.h
   triangulate.h
   )
@@ -64,6 +65,7 @@ set( plugin_core_sources
   interpolate_camera.cxx
   match_matrix.cxx
   metrics.cxx
+  polygon.cxx
   projected_track_set.cxx
   triangulate.cxx
   )
