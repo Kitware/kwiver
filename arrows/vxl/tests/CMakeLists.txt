@@ -21,6 +21,6 @@ kwiver_discover_tests(vxl_polygon                      test_libraries test_polyg
 
 # This test is really for an algorithm in core, but it's here
 # because the test depends on availablity of VXL sub-algorithms
-set(test_libraries     kwiver_algo_vxl kwiver_algo)
+set(test_libraries     kwiver_algo_vxl kwiver_algo_core)
 
 kwiver_discover_tests(vxl_initialize_cameras_landmarks test_libraries test_initialize_cameras_landmarks.cxx)
