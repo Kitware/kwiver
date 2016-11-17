@@ -588,6 +588,10 @@ class SPROKIT_PIPELINE_EXPORT process
      * A shared port may be connected to exactly one mutable port, any
      * number of non-mutable ports, or nothing. Any other usage is a
      * data sharing violation and not allowed.
+     *
+     * The downstream processes all share the same instance of the
+     * port data. A change made from the mutable port is seen by all
+     * others.
      */
     static port_flag_t const flag_output_shared;
 
@@ -623,7 +627,8 @@ class SPROKIT_PIPELINE_EXPORT process
      * \brief A flag which indicates that the input will be modified.
      *
      * Marks that an input is modified within the process and that
-     * other receivers of the data may see the changes.
+     * other receivers of the data may see the changes if the data is
+     * not handled carefully.
      */
     static port_flag_t const flag_input_mutable;
 

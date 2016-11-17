@@ -64,7 +64,6 @@ class SPROKIT_PIPELINE_EXPORT edge_datum_t
      * \brief Constructor.
      */
     edge_datum_t();
-
     /**
      * \brief Constructor.
      *
@@ -72,7 +71,6 @@ class SPROKIT_PIPELINE_EXPORT edge_datum_t
      * \param stamp_ The stamp for the datum.
      */
     edge_datum_t(datum_t const& datum_, stamp_t const& stamp_);
-
     /**
      * \brief Destructor.
      */
@@ -89,17 +87,13 @@ class SPROKIT_PIPELINE_EXPORT edge_datum_t
 
     /// The datum on the edge.
     datum_t datum;
-
     /// The stamp for the datum.
     stamp_t stamp;
 };
-
 /// A typedef for a multiple packets which go through an \ref edge.
 typedef std::vector<edge_datum_t> edge_data_t;
-
 /// A group of \link edge edges\endlink.
 typedef std::vector<edge_t> edges_t;
-
 
 // ------------------------------------------------------------------
 /**
@@ -143,14 +137,12 @@ class SPROKIT_PIPELINE_EXPORT edge
      * \returns True if there is data available within the edge, false otherwise.
      */
     bool has_data() const;
-
     /**
      * \brief Query whether the edge can accept more data or not.
      *
      * \returns True if the edge can hold no more data, false otherwise.
      */
     bool full_of_data() const;
-
     /**
      * \brief Query how many results are in the edge.
      *
@@ -174,7 +166,6 @@ class SPROKIT_PIPELINE_EXPORT edge
      * \param datum The datum to put into the edge.
      */
     void push_datum(edge_datum_t const& datum);
-
     /**
      * \brief Extract a datum from the edge.
      *
@@ -199,7 +190,6 @@ class SPROKIT_PIPELINE_EXPORT edge
      * \returns The next datum available from the edge.
      */
     edge_datum_t get_datum();
-
     /**
      * \brief Look at the next datum in the edge.
      *
@@ -225,7 +215,6 @@ class SPROKIT_PIPELINE_EXPORT edge
      * \returns The next datum available from the edge.
      */
     edge_datum_t peek_datum(size_t idx = 0) const;
-
     /**
      * \brief Remove a datum from the edge.
      *
@@ -257,7 +246,6 @@ class SPROKIT_PIPELINE_EXPORT edge
      * \endpostconds
      */
     void mark_downstream_as_complete();
-
     /**
      * \brief Trigger the edge to flush all data and not accept any more data.
      *
@@ -281,7 +269,6 @@ class SPROKIT_PIPELINE_EXPORT edge
      * \param process The process which can push data into the edge.
      */
     void set_upstream_process(process_t process);
-
     /**
      * \brief Set the process which is connected to the output side of the edge.
      *
@@ -308,7 +295,7 @@ class SPROKIT_PIPELINE_EXPORT edge
     /// Configuration for edge blocking behaviour
     static kwiver::vital::config_block_key_t const config_blocking;
 
-private:
+  private:
     class SPROKIT_PIPELINE_NO_EXPORT priv;
     boost::scoped_ptr<priv> d;
 };

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2013 by Kitware, Inc.
+ * Copyright 2011-2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,6 +94,7 @@ thread_per_process_scheduler
   }
 }
 
+// ------------------------------------------------------------------
 thread_per_process_scheduler
 ::~thread_per_process_scheduler()
 {
@@ -128,6 +129,7 @@ thread_per_process_scheduler
   d->process_threads->join_all();
 }
 
+// ------------------------------------------------------------------
 void
 thread_per_process_scheduler
 ::_pause()
@@ -135,6 +137,7 @@ thread_per_process_scheduler
   d->m_pause_mutex.lock();
 }
 
+// ------------------------------------------------------------------
 void
 thread_per_process_scheduler
 ::_resume()
@@ -142,6 +145,7 @@ thread_per_process_scheduler
   d->m_pause_mutex.unlock();
 }
 
+// ------------------------------------------------------------------
 void
 thread_per_process_scheduler
 ::_stop()
@@ -156,6 +160,7 @@ thread_per_process_scheduler::priv
 {
 }
 
+// ------------------------------------------------------------------
 thread_per_process_scheduler::priv
 ::~priv()
 {

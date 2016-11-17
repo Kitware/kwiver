@@ -57,8 +57,8 @@ namespace sprokit
  */
 class SPROKIT_PIPELINE_EXPORT stamp
   : private boost::equality_comparable<sprokit::stamp
-          , boost::less_than_comparable1<sprokit::stamp
-          , boost::noncopyable
+  , boost::less_than_comparable1<sprokit::stamp
+  , boost::noncopyable
     > >
 {
   public:
@@ -88,7 +88,6 @@ class SPROKIT_PIPELINE_EXPORT stamp
      * \returns True if \p st and \c *this have the same value, false otherwise.
      */
     bool operator == (stamp const& st) const;
-
     /**
      * \brief Compare two stamps for an order.
      *
@@ -97,8 +96,7 @@ class SPROKIT_PIPELINE_EXPORT stamp
      * \returns True if \p st has a higher value than \c *this, false otherwise.
      */
     bool operator <  (stamp const& st) const;
-
-private:
+  private:
     typedef uint64_t index_t;
 
     SPROKIT_PIPELINE_NO_EXPORT stamp(increment_t increment, index_t index);

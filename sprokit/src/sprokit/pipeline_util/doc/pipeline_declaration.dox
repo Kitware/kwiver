@@ -45,7 +45,7 @@
  * \section configuration Configuration
  *
  * Configurations are statements which add an entry to the configuration block
- * for the pipeline. Subblocks can be defined by using the <tt>:</tt> (colon) character to
+ * for the pipeline. Subblocks can be defined by using the <tt>:</tt> string to
  * separate key components. The key name is the index to be set within the
  * configuration. Key path components may be composed of alphanumeric characters
  * as well as the <tt>-</tt> and <tt>_</tt> characters. Values may also have
@@ -268,6 +268,22 @@
  *        :static/port     value
  * </pre>
  *
+ * A process may request to have its instrumentation calls handled by an external provider. This
+ * is done by adding the _instrumentation block to the process config.
+ *
+ * <pre>
+ *   process my_process
+ *     :: my_process_type
+ *        :_instrumentation:type  foo
+ *        :_instrumentation:foo:file   output.dat
+ *        :_instrumentation:foo:buffering   optimal
+ * </pre>
+ *
+ * The type parameter specifies the instrumentation provider, "foo" in this case. If the
+ * special name "none" is specified, then no instrumentation provider is loaded. This is the same
+ * as not having the config block present. The remaining configuration items that start with
+ * "_instrumentation:<type>" are considered configuration data for the provider and are passed to the
+ * provider after it is loaded.
  *
  * \subsection connect_block Connect block
  *
@@ -290,11 +306,12 @@
  * \todo Add some examples.
  *
  * <pre>
- * connect from input.timestamp
- *         to   stabilize.timestamp
+ *  connect from input.timestamp
+ *        to   stabilize.timestamp
  *
  * connect from input.timestamp
  *         to   writer.timestamp
+ *
  * </pre>
  *
  * \subsection cluster_block Cluster block
@@ -342,7 +359,7 @@
  *
  * <pre>
  * config _pipeline:_edge
- *        :capacity 30
+ *        :capacity 30     # set default edge capacity
  * </pre>
  *
  * Currently the only attribute that can be configured is "capacity".
@@ -392,9 +409,10 @@
  * Both of these entries refer to the same edge, so in real life, you
  * would only need one.
  *
- * These different methods of configuring pipeline edges are applied in a
- * hierarchial manner to allow general defaults to be set, and overridden
- * using more specific edge attributes.
+ * These different methods of configuring pipeline edges are applied
+ * in a hierarchial manner to allow general defaults to be set, and
+ * overridden using more specific edge attributes. This order is
+ * default capacity, edge by type, then edge by connection.
  *
  *
  * \subsection scheduler_config Scheduler Configuration

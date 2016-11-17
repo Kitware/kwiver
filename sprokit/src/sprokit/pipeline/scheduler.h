@@ -74,35 +74,30 @@ class SPROKIT_PIPELINE_EXPORT scheduler
      * \throws restart_scheduler_exception Thrown when the scheduler was already started.
      */
     void start();
-
     /**
      * \brief Wait until execution is finished.
      *
      * \throws restart_scheduler_exception Thrown when the scheduler has not been started.
      */
     void wait();
-
     /**
      * \brief Pause execution.
      *
      * \throws pause_before_start_exception Thrown when the scheduler has not been started.
      */
     void pause();
-
     /**
      * \brief Resume execution.
      *
      * \throws resume_unpaused_scheduler_exception Thrown when the scheduler is not paused.
      */
     void resume();
-
     /**
      * \brief Stop execution of the pipeline.
      *
      * \throws stop_before_start_exception Thrown when the scheduler has not been started.
      */
     void stop();
-
   protected:
     /**
      * \brief Constructor.
@@ -119,22 +114,18 @@ class SPROKIT_PIPELINE_EXPORT scheduler
      * pipeline. Exceptions should be thrown instead.
      */
     virtual void _start() = 0;
-
     /**
      * \brief Wait until execution is finished.
      */
     virtual void _wait() = 0;
-
     /**
      * \brief Pause execution.
      */
     virtual void _pause() = 0;
-
     /**
      * \brief Resume execution.
      */
     virtual void _resume() = 0;
-
     /**
      * \brief Stop execution of the pipeline.
      *
@@ -157,7 +148,6 @@ class SPROKIT_PIPELINE_EXPORT scheduler
      * \returns The pipeline.
      */
     pipeline_t pipeline() const;
-
   private:
     class SPROKIT_PIPELINE_NO_EXPORT priv;
     boost::scoped_ptr<priv> d;
