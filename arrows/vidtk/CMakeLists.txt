@@ -29,7 +29,7 @@ kwiver_add_library( kwiver_algo_vidtk
   )
 
 target_link_libraries( kwiver_algo_vidtk
-  PUBLIC               kwiver_algo
+  PUBLIC               kwiver_algo_core
   PRIVATE              kwiver_algo_vxl
                        vidtk_object_detectors
                        kwiversys

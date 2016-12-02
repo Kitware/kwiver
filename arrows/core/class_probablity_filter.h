@@ -32,7 +32,7 @@
 #define KWIVER_ARROWS_CLASS_PROBABLITY_FILTER_H_
 
 #include <vital/vital_config.h>
-#include <arrows/core/kwiver_algo_export.h>
+#include <arrows/core/kwiver_algo_core_export.h>
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/detected_object_filter.h>
@@ -54,7 +54,7 @@ namespace core {
  * This algorithm filters out items that are less than the threshold.
  */
 
-class KWIVER_ALGO_EXPORT class_probablity_filter
+class KWIVER_ALGO_CORE_EXPORT class_probablity_filter
   : public vital::algorithm_impl<class_probablity_filter, vital::algo::detected_object_filter>
 {
 public:

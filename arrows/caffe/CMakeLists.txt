@@ -1,6 +1,5 @@
 # Build / Install plugin containing OpenCV algorithm implementations + support
 # structures
-
 set( caffe_headers_public
   faster_rcnn_detector.h
   register_algorithms.h
@@ -27,7 +26,7 @@ kwiver_add_library( kwiver_algo_caffe
   )
 
 target_link_libraries( kwiver_algo_caffe
-  PUBLIC               kwiver_algo
+  PUBLIC               kwiver_algo_core
                        caffe
   PRIVATE              kwiver_algo_ocv
                        kwiversys
