@@ -32,7 +32,7 @@
 #define KWIVER_ARROWS_NON_MAXIMUAL_SUPRESSION_H_
 
 #include <vital/vital_config.h>
-#include <arrows/core/kwiver_algo_export.h>
+#include <arrows/core/kwiver_algo_core_export.h>
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/detected_object_filter.h>
@@ -48,7 +48,7 @@ namespace core {
  * @brief
 
  */
-class KWIVER_ALGO_EXPORT non_maximual_supression
+class KWIVER_ALGO_CORE_EXPORT non_maximual_supression
   : public vital::algorithm_impl<non_maximual_supression, vital::algo::detected_object_filter>
 {
 public:
