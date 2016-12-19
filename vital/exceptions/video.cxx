@@ -69,7 +69,7 @@ video_input_timeout_exception
 video_stream_exception
 ::video_stream_exception( std::string const& msg) VITAL_NOTHROW
 {
-  m_what = "Video stream exception:" + msg;
+  m_what = "Video stream exception: " + msg;
 }
 
 
@@ -83,7 +83,7 @@ video_stream_exception
 video_config_exception
 ::video_config_exception( std::string const& msg) VITAL_NOTHROW
 {
-  m_what = "Video config exception:" + msg;
+  m_what = "Video config exception: " + msg;
 }
 
 
@@ -92,6 +92,19 @@ video_config_exception
 {
 }
 
+
+// ------------------------------------------------------------------
+video_runtime_exception
+::video_runtime_exception( std::string const& msg) VITAL_NOTHROW
+{
+  m_what = "Video runtime exception: " + msg;
+}
+
+
+video_runtime_exception
+::~video_runtime_exception() VITAL_NOTHROW
+{
+}
 
 
 } } // end namespace
