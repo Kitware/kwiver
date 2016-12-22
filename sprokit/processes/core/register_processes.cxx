@@ -51,11 +51,7 @@
 #include "read_descriptor_process.h"
 #include "simulate_target_selection_process.h"
 #include "stabilize_image_process.h"
-
-
-
-extern "C"
-KWIVER_PROCESSES_EXPORT void register_processes();
+#include "video_input_process.h"
 
 
 // ----------------------------------------------------------------
@@ -63,6 +59,8 @@ KWIVER_PROCESSES_EXPORT void register_processes();
  *
  *
  */
+extern "C"
+KWIVER_PROCESSES_EXPORT
 void register_processes()
 {
   static sprokit::process_registry::module_t const module_name =
@@ -172,6 +170,10 @@ void register_processes()
     "detected_object_output", "Writes detected object sets to an output file. "
     "All detections are written to the same file.",
     sprokit::create_process< kwiver::detected_object_output_process > );
+
+  registry->register_process(
+    "video_input", "Reads video files and produces sequential images with metadata per frame.",
+    sprokit::create_process< kwiver::video_input_process > );
 
 
   // - - - - - - - - - - - - - - - - - - - - - - -
