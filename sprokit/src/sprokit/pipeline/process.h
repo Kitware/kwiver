@@ -1132,6 +1132,9 @@ class SPROKIT_PIPELINE_EXPORT process
     /**
      * \brief Output an edge datum packet on a port.
      *
+     * The edge datum object is pushed directory to the output port
+     * without being modified. The datum stamp is not modified.
+     *
      * \param port The port to push to.
      * \param dat The edge datum to push.
      */
@@ -1139,6 +1142,9 @@ class SPROKIT_PIPELINE_EXPORT process
 
     /**
      * \brief Output a datum packet on a port.
+     *
+     * The specified datum object is pushed to the output port. The
+     * output item is assigned a new stamp value.
      *
      * \param port The port to push to.
      * \param dat The datum to push.
