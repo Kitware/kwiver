@@ -101,15 +101,15 @@ namespace sprokit {
  process demux :: demux_process
 
  # -- Connect demux set "input1"
- connect foo_1.out       to  demux.coll/input1/A
- connect foo_2.out       to  demux.coll/input1/B
+ connect foo_1.out       to  demux.in/input1/A
+ connect foo_2.out       to  demux.in/input1/B
 
  connect demux.res/input1  to bar.input # connect output
 
  # -- Connect demux set "input2"
- connect foo_1.out       to  demux.coll/input2/A
- connect foo_2.out       to  demux.coll/input2/B
- connect foo_3.out       to  demux.coll/input2/C
+ connect foo_1.out       to  demux.in/input2/A
+ connect foo_2.out       to  demux.in/input2/B
+ connect foo_3.out       to  demux.in/input2/C
 
  connect demux.res/input2  to bar.other # connect output
 
@@ -169,13 +169,13 @@ process::port_t const demux_process::priv::port_in_prefix = port_t( "in" ) + res
  * <dl>
  * \term{\portvar{type}}
  *   \termdef{The type of the port. This must be one of \type{res},
- *   or \type{coll}.}
+ *   or \type{in}.}
  * \term{\portvar{group}}
  *   \termdef{The name of the stream the port is associated with.}
  * \term{\portvar{item}}
- *   \termdef{Only required for \type{coll}-type ports. Data from the same
+ *   \termdef{Only required for \type{in}-type ports. Data from the same
  *   \portvar{group} stream from its \type{res} port is collected in sorted order
- *   over all of the \type{coll} ports.}
+ *   over all of the \type{in} ports.}
  * </dl>
  *
  * The available port types are:
@@ -184,7 +184,7 @@ process::port_t const demux_process::priv::port_in_prefix = port_t( "in" ) + res
  * \term{\type{res}}
  *   \termdef{This port for the given group is where the data for a stream leaves
  *   the process.
- * \term{\type{coll}}
+ * \term{\type{in}}
  *   \termdef{These ports for a given \portvar{group} receive data from a set of
  *   sources, likely made by the \ref distribute_process. Data is collected in
  *   sorted ordef of the \type{item} name and sent out the \type{res} port for
