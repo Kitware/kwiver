@@ -78,6 +78,8 @@ sprokit_discover_tests(process      test_libraries test_process.cxx)
 set( non_b_libs ${test_libraries} kwiver_adapter)
 sprokit_discover_tests(non_blocking non_b_libs test_non_blocking.cxx)
 
+set( non_b_libs ${test_libraries} kwiver_adapter)
+sprokit_discover_tests(non_blocking non_b_libs test_non_blocking.cxx)
 ##############################
 # Process cluster tests
 ##############################
