@@ -52,6 +52,34 @@
 
 
 namespace kwiver {
+// ----------------------------------------------------------------
+/**
+ * \class view_image_process
+ *
+ * \brief Display image on screen.
+ *
+ * This process displays the input image with optional
+ * annotations. The best use for this process is for monitoring images
+ * in the pipeline.
+ *
+ * \iports
+ *
+ * \iport{timestamp} Timestamp of image. This data is used to annotate image.
+ *
+ * \iport{image} Image to display.
+ *
+ * \configs
+ *
+ * \config{pause_time} Seconds to pause between displaying images. A
+ * value of 0 waits for keyboard input.
+ *
+ * \config{annotate_image} Boolean indicating if image is to be annotated. If \b true
+ * then the frame number, header and footer are added to the displayed image.
+ *
+ * \config{header} Text to be written in the top boarder of the display.
+ *
+ * \config{footer} Text to be written in the bottom boarder of the display.
+ */
 
 // ----------------------------------------------------------------
 /**
