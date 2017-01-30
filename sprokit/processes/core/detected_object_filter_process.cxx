@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,8 @@
 namespace kwiver
 {
 
+create_config_trait( detected_object_filter, std::string, "", "Algorithm configuration subblock." )
+
 //----------------------------------------------------------------
 // Private implementation class
 class detected_object_filter_process::priv
@@ -87,18 +89,16 @@ detected_object_filter_process
 {
   vital::config_block_sptr algo_config = get_config();
 
-  vital::algo::detected_object_filter::set_nested_algo_configuration( "detected_object_filter", algo_config, d->m_filter );
-  if ( ! d->m_filter )
-  {
-    throw sprokit::invalid_configuration_exception( name(), "Unable to create filter" );
-  }
-
-  vital::algo::detected_object_filter::get_nested_algo_configuration( "detected_object_filter", algo_config, d->m_filter );
-
   // Check config so it will give run-time diagnostic of config problems
   if ( ! vital::algo::detected_object_filter::check_nested_algo_configuration("detected_object_filter", algo_config ) )
   {
     throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
+  }
+
+  vital::algo::detected_object_filter::set_nested_algo_configuration( "detected_object_filter", algo_config, d->m_filter );
+  if ( ! d->m_filter )
+  {
+    throw sprokit::invalid_configuration_exception( name(), "Unable to create filter" );
   }
 }
 
@@ -138,6 +138,7 @@ void
 detected_object_filter_process
 ::make_config()
 {
+  declare_config_using_trait( detected_object_filter );
 }
 
 
