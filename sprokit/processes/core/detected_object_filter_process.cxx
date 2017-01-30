@@ -46,7 +46,7 @@
 namespace kwiver
 {
 
-create_config_trait( detected_object_filter, std::string, "", "Algorithm configuration subblock." )
+create_config_trait( filter, std::string, "", "Algorithm configuration subblock." )
 
 //----------------------------------------------------------------
 // Private implementation class
@@ -90,12 +90,12 @@ detected_object_filter_process
   vital::config_block_sptr algo_config = get_config();
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! vital::algo::detected_object_filter::check_nested_algo_configuration("detected_object_filter", algo_config ) )
+  if ( ! vital::algo::detected_object_filter::check_nested_algo_configuration("filter", algo_config ) )
   {
     throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
   }
 
-  vital::algo::detected_object_filter::set_nested_algo_configuration( "detected_object_filter", algo_config, d->m_filter );
+  vital::algo::detected_object_filter::set_nested_algo_configuration( "filter", algo_config, d->m_filter );
   if ( ! d->m_filter )
   {
     throw sprokit::invalid_configuration_exception( name(), "Unable to create filter" );
@@ -138,7 +138,7 @@ void
 detected_object_filter_process
 ::make_config()
 {
-  declare_config_using_trait( detected_object_filter );
+  declare_config_using_trait( filter );
 }
 
 

@@ -137,7 +137,7 @@ void register_processes()
 
   registry->register_process(
     "detected_object_filter",
-    "filters detected objects",
+    "Filters detected objects using the specified filter algorithm.",
     sprokit::create_process< kwiver::detected_object_filter_process > );
 
   registry->register_process(
