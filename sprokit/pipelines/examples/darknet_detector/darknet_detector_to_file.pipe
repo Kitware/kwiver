@@ -50,6 +50,26 @@ process detector
 connect from input.image
         to   detector.image
 
+
+# ================================================================
+process filter
+  :: detected_object_filter
+
+  :filter:type class_probablity_filter
+  :filter:class_probablity_filter:threshold   0.5
+
+  # note that keep_all_classes must be disabled for the
+  # list of classes to have any effect
+  :filter:class_probablity_filter:keep_all_classes    false
+
+  # Class names are separated by ';' character. No quotes please.
+  :filter:class_probablity_filter:keep_classes person;car
+
+
+connect from detector.detected_object_set
+        to filter.detected_object_set
+
+
 # ================================================================
 process detection_writer
   :: detected_object_output
@@ -60,7 +80,7 @@ process detection_writer
   # Name of the output algorithm. Options are csv, kw18.
   :writer:type   csv
 
-connect from detector.detected_object_set
+connect from filter.detected_object_set
         to detection_writer.detected_object_set
 
 connect from input.image_file_name
