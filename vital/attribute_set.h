@@ -256,6 +256,8 @@ private:
   attribute_map_t m_attr_map;
 }; // end class attribute_set
 
+typedef std::shared_ptr< attribute_set > attribute_set_sptr;
+
 } } // end namespace
 
 #endif /* KWIVER_VITAL_TTRIBUTE_SET_H */

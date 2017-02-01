@@ -164,7 +164,13 @@ int main( int argc, char** argv )
   {
     video_reader->open( video_file );
   }
-  catch ( kwiver::vital::video_exception const& e ) // catch generic exception
+  catch ( kwiver::vital::video_exception const& e )
+  {
+    std::cerr << "Couldn't open " << video_file << std::endl
+              << e.what() << std::endl;
+    return EXIT_FAILURE;
+  }
+  catch ( kwiver::vital::file_not_found_exception const& e )
   {
     std::cerr << "Couldn't open " << video_file << std::endl
               << e.what() << std::endl;
