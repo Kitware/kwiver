@@ -103,7 +103,7 @@ class SPROKIT_PIPELINE_EXPORT scheduler
      * \brief Constructor.
      *
      * \param pipe The pipeline to run.
-     * \param config Contains configuration for the edge.
+     * \param config Contains configuration for the scheduler.
      */
     scheduler(pipeline_t const& pipe, kwiver::vital::config_block_sptr const& config);
 

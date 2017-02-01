@@ -17,12 +17,12 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR} ) # for generated files
 
 kwiver_install_headers(
   ${public_headers}
-  SUBDIR     sprokit/processes/bindings/c
+  SUBDIR     processes/bindings/c
   )
 
 kwiver_install_headers(
   ${CMAKE_CURRENT_BINARY_DIR}/vital_type_converters_export.h
-  SUBDIR      sprokit/processes/bindings/c
+  SUBDIR      processes/bindings/c
   NOPATH
   )
 
