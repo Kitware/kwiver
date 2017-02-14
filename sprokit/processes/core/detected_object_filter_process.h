@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
  * \brief Interface to the filter process.
  */
 
-#ifndef _DECTECTED_OBJECT_FILTER_PROCESS_H
-#define _DECTECTED_OBJECT_FILTER_PROCESS_H
+#ifndef SPROKIT_PROCESSES_CODE_DETECTED_OBJECT_FILTER_PROCESS_H
+#define SPROKIT_PROCESSES_CODE_DETECTED_OBJECT_FILTER_PROCESS_H
 
 #include <sprokit/pipeline/process.h>
 
@@ -82,4 +82,4 @@ private:
 
 } //end namespace
 
-#endif /* _DECTECTED_OBJECT_FILTER_PROCESS_H */
+#endif // SPROKIT_PROCESSES_CODE_DETECTED_OBJECT_FILTER_PROCESS_H

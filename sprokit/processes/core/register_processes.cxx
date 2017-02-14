@@ -175,6 +175,11 @@ void register_processes()
     "video_input", "Reads video files and produces sequential images with metadata per frame.",
     sprokit::create_process< kwiver::video_input_process > );
 
+  registry->register_process(
+    "detected_object_filter",
+    "Filters detected object sets based on selected filter algorithm.",
+    sprokit::create_process< kwiver::detected_object_filter_process > );
+
 
   // - - - - - - - - - - - - - - - - - - - - - - -
   registry->mark_module_as_loaded( module_name );
