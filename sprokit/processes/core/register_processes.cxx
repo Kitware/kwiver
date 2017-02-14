@@ -137,7 +137,7 @@ void register_processes()
 
   registry->register_process(
     "detected_object_filter",
-    "filters detected objects",
+    "Filters detected objects using the specified filter algorithm.",
     sprokit::create_process< kwiver::detected_object_filter_process > );
 
   registry->register_process(
@@ -174,6 +174,11 @@ void register_processes()
   registry->register_process(
     "video_input", "Reads video files and produces sequential images with metadata per frame.",
     sprokit::create_process< kwiver::video_input_process > );
+
+  registry->register_process(
+    "detected_object_filter",
+    "Filters detected object sets based on selected filter algorithm.",
+    sprokit::create_process< kwiver::detected_object_filter_process > );
 
 
   // - - - - - - - - - - - - - - - - - - - - - - -

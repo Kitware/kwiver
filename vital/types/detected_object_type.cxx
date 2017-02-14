@@ -217,6 +217,15 @@ class_names( double threshold ) const
 
 
 // ------------------------------------------------------------------
+size_t
+detected_object_type::
+size() const
+{
+  return m_classes.size();
+}
+
+
+// ------------------------------------------------------------------
 /**
  * @brief Resolve string to pointer.
  *

@@ -34,6 +34,14 @@
 
 #include <sstream>
 
+/**
+ * \todo The interactions between the list of classes and keep_all_classes
+ * is confusing and awkward.  Maybe keep_all_classes should be
+ * disabled if there are any items in the list of classes.  Possibly
+ * add '-all-' as a meta-class name that specifies all classes and
+ * remove the keep_all_classes option.
+ */
+
 namespace kwiver {
 namespace arrows {
 namespace core {
@@ -53,7 +61,9 @@ class_probablity_filter::get_configuration() const
   // Get base config from base class
   vital::config_block_sptr config = vital::algorithm::get_configuration();
 
-  config->set_value( "threshold", m_threshold, "The threshold to keep a detection." );
+  config->set_value( "threshold", m_threshold,
+                     "Detections are passed through this filter if they have a selected classification that is "
+                     "above this threshold." );
   std::string list_of_classes;
   for ( std::set< std::string >::const_iterator i = m_keep_classes.begin(); i != m_keep_classes.end(); ++i )
   {
@@ -62,8 +72,15 @@ class_probablity_filter::get_configuration() const
 
   // Note that specifying a list of classes to keep and a keep-all can be ambiguous.
   // What to do if keep_classes is specified in addition to keep_all_classes?
-  config->set_value( "keep_classes", list_of_classes, "What detection classes to keep." );
-  config->set_value( "keep_all_classes", m_keep_all_classes, "Keeps all the classes" );
+  config->set_value( "keep_classes", list_of_classes,
+                     "A list of class names to pass through this filter. "
+                     "Multiple names are separated by a ';' character. "
+                     "The keep_all_classes parameter overrides this list of classes. "
+                     "So be sure to set that to false if you only want the listed classes.");
+
+  config->set_value( "keep_all_classes", m_keep_all_classes,
+                     "If this options is set to true, all classes are passed through this filter "
+                     "if they are above the selected threshold." );
 
   return config;
 }
@@ -77,6 +94,8 @@ class_probablity_filter::set_configuration( vital::config_block_sptr config_in )
 
   config->merge_config( config_in );
   this->m_threshold = config->get_value< double > ( "threshold" );
+  m_keep_all_classes = config->get_value< bool > ( "keep_all_classes" );
+
   std::string list = config->get_value< std::string > ( "keep_classes" );
   std::string parsed;
   {
@@ -90,8 +109,6 @@ class_probablity_filter::set_configuration( vital::config_block_sptr config_in )
       }
     }
   }
-
-  m_keep_all_classes = config->get_value< bool > ( "keep_all_classes" );
 }
 
 

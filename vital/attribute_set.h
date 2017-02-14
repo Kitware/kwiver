@@ -63,7 +63,6 @@ public:
 class attribute_set;
 typedef std::shared_ptr< attribute_set > attribute_set_sptr;
 
-
 // -----------------------------------------------------------------
 /// General purpose attribute set.
 /**
@@ -92,7 +91,7 @@ public:
   attribute_set();
   ~attribute_set();
 
-    /**
+  /**
    * @brief Create deep copy.
    *
    * This method creates a deep copy of this object.
@@ -256,6 +255,8 @@ public:
 private:
   attribute_map_t m_attr_map;
 }; // end class attribute_set
+
+typedef std::shared_ptr< attribute_set > attribute_set_sptr;
 
 } } // end namespace
 

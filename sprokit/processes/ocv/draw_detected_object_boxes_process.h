@@ -43,11 +43,15 @@
 
 namespace kwiver {
 
+// ----------------------------------------------------------------
+/**
+ * @brief Process to draw detected object boxes on an image.
+ *
+ */
 class KWIVER_PROCESSES_OCV_NO_EXPORT draw_detected_object_boxes_process
   : public sprokit::process
 {
 public:
-  // -- CONSTRUCTORS --
   draw_detected_object_boxes_process( kwiver::vital::config_block_sptr const& config );
   virtual ~draw_detected_object_boxes_process();
 
@@ -66,4 +70,4 @@ private:
 
 } // end namespace
 
-#endif //_KWIVER_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H
+#endif // _KWIVER_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H

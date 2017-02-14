@@ -414,11 +414,12 @@
  * overridden using more specific edge attributes. This order is
  * default capacity, edge by type, then edge by connection.
  *
+ * \subsection scheduler_config Scheduler Config
  *
- * \subsection scheduler_config Scheduler Configuration
- *
- * The scheduler to be used with the pipeline can be selected using a
- * special configuration section.
+ * Normally the pipeline is run with a default scheduler that assigns
+ * one thread to each process. A different scheduler can be specified
+ * in the config file. Configuration parameters for the scheduler can
+ * be specified in this section also.
  *
  * <pre>
  * config _scheduler

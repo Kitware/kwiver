@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
 
 /**
  * \file
- * \brief Implementation of the filter process.
+ * \brief Implementation of the detected object set filter process.
  */
 
 #include "detected_object_filter_process.h"
@@ -43,8 +43,9 @@
 #include <sstream>
 #include <iostream>
 
-namespace kwiver
-{
+namespace kwiver {
+
+create_config_trait( filter, std::string, "", "Algorithm configuration subblock." )
 
 //----------------------------------------------------------------
 // Private implementation class
@@ -54,7 +55,7 @@ public:
   priv();
   ~priv();
 
-   vital::algo::detected_object_filter_sptr m_filter;
+  vital::algo::detected_object_filter_sptr m_filter;
 
 }; // end priv class
 
@@ -63,12 +64,14 @@ public:
 
 detected_object_filter_process
 ::detected_object_filter_process( kwiver::vital::config_block_sptr const& config )
-  : process( config ),
-    d( new detected_object_filter_process::priv )
+  : process( config )
+  , d( new detected_object_filter_process::priv )
 {
   // Attach our logger name to process logger
   attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
+
   kwiver::vital::algorithm_plugin_manager::load_plugins_once();
+
   make_ports();
   make_config();
 }
@@ -87,18 +90,16 @@ detected_object_filter_process
 {
   vital::config_block_sptr algo_config = get_config();
 
-  vital::algo::detected_object_filter::set_nested_algo_configuration( "detected_object_filter", algo_config, d->m_filter );
+  // Check config so it will give run-time diagnostic of config problems
+  if ( ! vital::algo::detected_object_filter::check_nested_algo_configuration( "filter", algo_config ) )
+  {
+    throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
+  }
+
+  vital::algo::detected_object_filter::set_nested_algo_configuration( "filter", algo_config, d->m_filter );
   if ( ! d->m_filter )
   {
     throw sprokit::invalid_configuration_exception( name(), "Unable to create filter" );
-  }
-
-  vital::algo::detected_object_filter::get_nested_algo_configuration( "detected_object_filter", algo_config, d->m_filter );
-
-  // Check config so it will give run-time diagnostic of config problems
-  if ( ! vital::algo::detected_object_filter::check_nested_algo_configuration("detected_object_filter", algo_config ) )
-  {
-    throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
   }
 }
 
@@ -108,8 +109,9 @@ void
 detected_object_filter_process
 ::_step()
 {
-  vital::detected_object_set_sptr input = grab_from_port_using_trait(detected_object_set);
-  vital::detected_object_set_sptr result = d->m_filter->filter(input);
+  vital::detected_object_set_sptr input = grab_from_port_using_trait( detected_object_set );
+  vital::detected_object_set_sptr result = d->m_filter->filter( input );
+
   push_to_port_using_trait( detected_object_set, result );
 }
 
@@ -126,10 +128,10 @@ detected_object_filter_process
   required.insert( flag_required );
 
   // -- input --
-  declare_input_port_using_trait(detected_object_set, required);
+  declare_input_port_using_trait( detected_object_set, required );
 
   // -- output --
-  declare_output_port_using_trait(detected_object_set, optional);
+  declare_output_port_using_trait( detected_object_set, optional );
 }
 
 
@@ -138,6 +140,7 @@ void
 detected_object_filter_process
 ::make_config()
 {
+  declare_config_using_trait( filter );
 }
 
 
@@ -153,4 +156,4 @@ detected_object_filter_process::priv
 {
 }
 
-}//end namespace
+} //end namespace

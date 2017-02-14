@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,78 +28,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-<<<<<<< HEAD
 /**
  * \file
- * \brief Interface to draw_detected_object_boxes_process
+ * \brief OpenCV algorithm registration function
  */
 
-#ifndef _KWIVER_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H
-#define _KWIVER_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H
-=======
-#ifndef ARROWS_PROCESSES_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H
-#define ARROWS_PROCESSES_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H
->>>>>>> master
+#ifndef KWIVER_ARROWS_DARKNET_REGISTER_ALGORITHMS_H_
+#define KWIVER_ARROWS_DARKNET_REGISTER_ALGORITHMS_H_
 
-#include <sprokit/pipeline/process.h>
-#include "kwiver_processes_ocv_export.h"
 
-#include <memory>
+#include <vital/vital_config.h>
+#include <arrows/darknet/kwiver_algo_darknet_export.h>
 
-<<<<<<< HEAD
-namespace kwiver
-{
-=======
+#include <vital/registrar.h>
+
+
 namespace kwiver {
+namespace arrows {
+namespace darknet {
 
-// ----------------------------------------------------------------
-/**
- * @brief Process to draw detected object boxes on an image.
- *
- */
->>>>>>> master
+/// Register DARKNET algorithm implementations with the given or global registrar
+KWIVER_ALGO_DARKNET_EXPORT
+int register_algorithms( vital::registrar &reg = vital::registrar::instance() );
 
-class KWIVER_PROCESSES_OCV_NO_EXPORT draw_detected_object_boxes_process
-  : public sprokit::process
-{
-public:
-<<<<<<< HEAD
-  // -- CONSTRUCTORS --
-=======
->>>>>>> master
-  draw_detected_object_boxes_process( kwiver::vital::config_block_sptr const& config );
-  virtual ~draw_detected_object_boxes_process();
+} } } // end namespace kwiver
 
-protected:
-  virtual void _configure();
-  virtual void _step();
-<<<<<<< HEAD
-
-private:
-  void make_ports();
-  void make_config();
-
-
-=======
-  virtual void _reconfigure( kwiver::vital::config_block_sptr const& conf );
-
-private:
-  void process_config();
-  void make_ports();
-  void make_config();
-
->>>>>>> master
-  class priv;
-  const std::unique_ptr<priv> d;
-
-}; // end class draw_detected_object_boxes_process
-
-<<<<<<< HEAD
-}
-
-#endif //_KWIVER_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H
-=======
-} // end namespace
-
-#endif // ARROWS_PROCESSES_DRAW_DETECTED_OBJECT_BOXES_PROCESS_H
->>>>>>> master
+#endif // KWIVER_ARROWS_DARKNET_REGISTER_ALGORITHMS_H_
