@@ -29,13 +29,13 @@
  */
 
 /**
- * \file demux_process.h
+ * \file mux_process.h
  *
- * \brief Declaration of the demux process.
+ * \brief Declaration of the mux process.
  */
 
-#ifndef SPROKIT_PROCESSES_FLOW_DEMUX_PROCESS_H
-#define SPROKIT_PROCESSES_FLOW_DEMUX_PROCESS_H
+#ifndef SPROKIT_PROCESSES_FLOW_MUX_PROCESS_H
+#define SPROKIT_PROCESSES_FLOW_MUX_PROCESS_H
 
 #include "flow-config.h"
 
@@ -46,7 +46,7 @@
 
 namespace sprokit {
 
-class SPROKIT_PROCESSES_FLOW_NO_EXPORT demux_process
+class SPROKIT_PROCESSES_FLOW_NO_EXPORT mux_process
   : public process
 {
 public:
@@ -55,12 +55,12 @@ public:
    *
    * \param config The configuration for the process.
    */
-  demux_process( kwiver::vital::config_block_sptr const& config );
+  mux_process( kwiver::vital::config_block_sptr const& config );
 
   /**
    * \brief Destructor.
    */
-  ~demux_process();
+  ~mux_process();
 
 
 protected:
@@ -80,4 +80,4 @@ private:
 
 } // end namespace
 
-#endif // SPROKIT_PROCESSES_FLOW_DEMUX_PROCESS_H
+#endif // SPROKIT_PROCESSES_FLOW_MUX_PROCESS_H

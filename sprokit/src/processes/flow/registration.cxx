@@ -34,6 +34,7 @@
 #include "distribute_process.h"
 #include "pass_process.h"
 #include "sink_process.h"
+#include "mux_process.h"
 
 #include <sprokit/pipeline/process_registry.h>
 
@@ -58,7 +59,9 @@ register_processes()
   }
 
   registry->register_process("collate", "Collates data from multiple worker processes", create_process<collate_process>);
-  registry->register_process("demux", "Merge mutiple inputs into one output stream", create_process<collate_process>);
+  registry->register_process("multiplexer",
+                             "Merge mutiple inputs into one output stream.",
+                             create_process<mux_process>);
   registry->register_process("distribute", "Distributes data to multiple worker processes", create_process<distribute_process>);
   registry->register_process("pass", "Pass a data stream through", create_process<pass_process>);
   registry->register_process("sink", "Ignores incoming data", create_process<sink_process>);

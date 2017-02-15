@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,15 +29,16 @@
  */
 
 /**
- * \file demux_process.cxx
+ * \file mux_process.cxx
  *
- * \brief Implementation of the demux process.
+ * \brief Implementation of the mux process.
  */
 
-#include "demux_process.h"
+#include "mux_process.h"
 
 #include <vital/vital_foreach.h>
 #include <vital/util/tokenize.h>
+#include <vital/logger/logger.h>
 
 #include <sprokit/pipeline/datum.h>
 #include <sprokit/pipeline/edge.h>
@@ -50,7 +51,6 @@
 
 namespace sprokit {
 
-// \todo Change terminology from tag to group or bundle. Tag is not explicit enough.
 //
 // Design issues:
 //
@@ -67,13 +67,13 @@ namespace sprokit {
 //
 
 /**
- * \class demux_process
+ * \class mux_process
  *
  * \brief A process for collating input data from multiple input edges.
  *
- * \process Demux incoming data into a single stream.  A collation
- * operation reads input from a set of input ports and serializes that
- * data to a single output port. This collation process can handle
+ * \process Multiplex incoming data into a single stream.  A mux
+ * operation reads input from a group of input ports and serializes
+ * that data to a single output port. This mux process can handle
  * multiple collation operations. Each set of collation ports is
  * identified by a unique \b group name.
  *
@@ -82,36 +82,43 @@ namespace sprokit {
  *
  * \oports
  *
- * \oport{res/\portvar{tag}} The demuxd result \portvar{tag}.
+ * \oport{res/\portvar{group}} The multiplexed result \portvar{group}.
  *
  * \reqs
  *
- * \req Each \portvar{tag} must have at least two inputs to demux.
- * \req Each output port \port{res/\portvar{tag}} must be connected.
+ * \req Each \portvar{group} must have at least two inputs to mux.
+ * \req Each output port \port{res/\portvar{group}} must be connected.
  *
  * This process automatically makes the input and output types for
- * each \b tag the same based on the type of the port that is first
+ * each \b group the same based on the type of the port that is first
  * connected.
  *
  * \note
  * It is not immediately apparent how the input ports become sorted in
- * ASCII-betical order on "item" order.
+ * ASCII-betical order on "item".
  *
  * \code
- process demux :: demux_process
+ process mux :: mux_process
 
- # -- Connect demux set "input1"
- connect foo_1.out       to  demux.in/input1/A
- connect foo_2.out       to  demux.in/input1/B
+ # -- Connect mux set "group1"
+ # All inputs for a group must have the same type
+ connect foo_1.out       to  mux.in/group1/A
+ connect foo_2.out       to  mux.in/group1/B
 
- connect demux.res/input1  to bar.input # connect output
+ # Create another group for the timestamp outputs.
+ # For convenience the group name is "timestamp"
+ connect foo_1.timestamp to  mux.in/timestamp/A
+ connect foo_2.timestamp to  mux.in/timestamp/B
 
- # -- Connect demux set "input2"
- connect foo_1.out       to  demux.in/input2/A
- connect foo_2.out       to  demux.in/input2/B
- connect foo_3.out       to  demux.in/input2/C
+ connect mux.res/group1    to bar.input # connect output
+ connect mux.res/timestamp to bar.timestamp # connect output
 
- connect demux.res/input2  to bar.other # connect output
+ # -- Connect mux set "input2"
+ connect foo_1.out       to  mux.in/input2/A
+ connect foo_2.out       to  mux.in/input2/B
+ connect foo_3.out       to  mux.in/input2/C
+
+ connect mux.res/input2  to bar.other # connect output
 
  * \endcode
  *
@@ -121,7 +128,7 @@ namespace sprokit {
  * \ingroup process_flow
  */
 
-class demux_process::priv
+class mux_process::priv
 {
 public:
   priv();
@@ -144,8 +151,6 @@ public:
 
   group_data_t group_data; // group table
 
-  group_t group_for_port( port_t const& port ) const;
-
   static port_t const res_sep;
   static port_t const port_res_prefix;
   static port_t const port_in_prefix;
@@ -153,9 +158,9 @@ public:
   term_policy_t m_config_term_policy;
 };
 
-process::port_t const demux_process::priv::res_sep = port_t( "/" );
-process::port_t const demux_process::priv::port_res_prefix = port_t( "res" ) + res_sep;
-process::port_t const demux_process::priv::port_in_prefix = port_t( "in" ) + res_sep;
+process::port_t const mux_process::priv::res_sep = port_t( "/" );
+process::port_t const mux_process::priv::port_res_prefix = port_t( "res" ) + res_sep;
+process::port_t const mux_process::priv::port_in_prefix = port_t( "in" ) + res_sep;
 
 /**
  * \internal
@@ -192,8 +197,8 @@ process::port_t const demux_process::priv::port_in_prefix = port_t( "in" ) + res
  * </dl>
  */
 
-demux_process
-::demux_process( kwiver::vital::config_block_sptr const& config )
+mux_process
+::mux_process( kwiver::vital::config_block_sptr const& config )
   : process( config ),
   d( new priv )
 {
@@ -207,32 +212,32 @@ demux_process
                              "the inputs completes and the remaining active inputs will no longer be polled for data. "
                              "When \"all\" is specified, the output port for the group will complete when all of "
                              "the inputs are complete. "
-    );
+                           );
 
 }
 
 
-demux_process
-::~demux_process()
+mux_process
+::~mux_process()
 {
 }
 
 
 // ----------------------------------------------------------------
 void
-demux_process
+mux_process
 ::_configure()
 {
   // Examine the configuration
-  const std::string value = config_value< std::string >( "termination_policy" );
+  const std::string value = config_value< std::string > ( "termination_policy" );
 
   if ( value == "any" )
   {
-    d->m_config_term_policy = demux_process::priv::term_policy_t::policy_any;
+    d->m_config_term_policy = mux_process::priv::term_policy_t::policy_any;
   }
   else if ( value == "all" )
   {
-    d->m_config_term_policy = demux_process::priv::term_policy_t::policy_all;
+    d->m_config_term_policy = mux_process::priv::term_policy_t::policy_all;
   }
   else
   {
@@ -245,7 +250,7 @@ demux_process
 // ------------------------------------------------------------------
 // Post connection processing
 void
-demux_process
+mux_process
 ::_init()
 {
   VITAL_FOREACH( priv::group_data_t::value_type & group_data, d->group_data )
@@ -256,7 +261,7 @@ demux_process
 
     if ( ports.size() < 2 )
     {
-      std::string const reason = "There must be at least two ports to demux "
+      std::string const reason = "There must be at least two ports to mux "
                                  "to for the \"" + group + "\" result data";
 
       throw invalid_configuration_exception( name(), reason );
@@ -275,13 +280,12 @@ demux_process
     // Set iterator to start of list.
     info.cur_port = info.ports.begin();
   }
-
 }
 
 
 // ------------------------------------------------------------------
 void
-demux_process
+mux_process
 ::_reset()
 {
   VITAL_FOREACH( priv::group_data_t::value_type const & group_data, d->group_data )
@@ -305,7 +309,7 @@ demux_process
 
 // ------------------------------------------------------------------
 void
-demux_process
+mux_process
 ::_step()
 {
   ports_t complete_ports;
@@ -321,6 +325,8 @@ demux_process
     // current input port and push to the output.
     edge_datum_t const input_edat = grab_from_port( *info.cur_port );
 
+    LOG_TRACE( logger(), "Fetching from port \"" <<  *info.cur_port << "\"" );
+
     // check for complete on input port
     datum_t const& input_dat = input_edat.datum;
     datum::type_t const input_type = input_dat->type();
@@ -329,23 +335,25 @@ demux_process
     // If the upstream process is done, then mark this group as done.
     if ( input_type == datum::complete )
     {
+      LOG_TRACE( logger(), "Data complete on port \"" << *info.cur_port << "\"" );
+
       // check with termination policy.
       switch ( d->m_config_term_policy )
       {
-      case demux_process::priv::term_policy_t::policy_any:
+      case mux_process::priv::term_policy_t::policy_any:
         // Flush this set of inputs
-        VITAL_FOREACH (port_t const& port, info.ports)
+        VITAL_FOREACH( port_t const & port, info.ports )
         {
-          (void)grab_from_port(port);
+          (void) grab_from_port( port );
         }
 
         // echo the input control message to the output port
-        push_to_port(output_port, input_edat);
+        push_to_port( output_port, input_edat );
 
         complete_ports.push_back( group );
         break;
 
-      case demux_process::priv::term_policy_t::policy_all:
+      case mux_process::priv::term_policy_t::policy_all:
       {
         // remove this port only from the "group_data"
         info.cur_port = info.ports.erase( info.cur_port ); // updates iterator
@@ -361,10 +369,10 @@ demux_process
           complete_ports.push_back( group );
 
           // echo the input control message to the output port
-          push_to_port(output_port, input_edat);
+          push_to_port( output_port, input_edat );
         }
+        break;
       }
-      break;
 
       default:
         throw invalid_configuration_exception( name(), "Invalid option specified for termination_policy." );
@@ -373,6 +381,8 @@ demux_process
 
       continue;
     } // end datum::complete
+
+    LOG_TRACE( logger(), "Pushing data to port \"" << output_port << "\"" );
 
     // Send the input to the output port.
     push_datum_to_port( output_port, input_dat );
@@ -395,20 +405,22 @@ demux_process
 
   if ( d->group_data.empty() )
   {
+    LOG_TRACE( logger(), "Process complete" );
     mark_process_as_complete();
   }
 
-} // demux_process::_step
+} // mux_process::_step
 
 
 // ------------------------------------------------------------------
 process::properties_t
-demux_process
+mux_process
 ::_properties() const
 {
   properties_t consts = process::_properties();
 
   consts.insert( property_unsync_input );
+//+   consts.insert( property_instrumented );
 
   return consts;
 }
@@ -417,11 +429,13 @@ demux_process
 // ------------------------------------------------------------------
 // Intercept input port connection so we can create the requested port
 process::port_info_t
-demux_process
+mux_process
 ::_input_port_info( port_t const& port )
 {
-  //+ need to accept connections from "in/<group>/<item>" and create
+  // Accepts connections from "in/<group>/<item>" and create
   // output "res/<group>" output port the first time.
+
+  LOG_TRACE( logger(), "Processing input port: \"" << port << "\"" );
 
   // Extract GROUP sub-string from port name
   ports_t components;
@@ -429,11 +443,11 @@ demux_process
 
   // Results are:
   // components[0] = "in"
-  // components[0] = "group"
-  // components[0] = "item"
+  // components[1] = group
+  // components[2] = item
 
   // Port name must start with "in/"
-  if ( port.compare( 0, priv::port_in_prefix.size(), priv::port_in_prefix ) && ( components.size() == 3 ))
+  if ( ( components.size() == 3 ) && ( components[0] == "in" ) )
   {
     const priv::group_t group = components[1];
 
@@ -447,6 +461,8 @@ demux_process
       port_flags_t required;
       required.insert( flag_required );
 
+      LOG_TRACE( logger(), "Creating output port: \"" << priv::port_res_prefix + group << "\"" );
+
       // Create output port "res/group"
       declare_output_port(
         priv::port_res_prefix + group,
@@ -458,91 +474,63 @@ demux_process
     // Get entry based on the group string
     priv::group_info& info = d->group_data[group];
 
-    // Add this port to the info list for this group
-    info.ports.push_back( port );
+    // If this "item" is not already in the port list, then add it.
+    if ( std::find( info.ports.begin(), info.ports.end(), port ) == info.ports.end() )
+    {
+      // Add this port to the info list for this group
+      info.ports.push_back( port );
 
-    port_flags_t required;
-    required.insert( flag_required );
+      port_flags_t required;
+      required.insert( flag_required );
 
-    // Open an input port for the name
-    declare_input_port(
-      port,
-      type_flow_dependent + group, // note the group magic on port type
-      required,
-      port_description_t( "An input for the " + group + " data." ) );
+      LOG_TRACE( logger(), "Creating input port: \"" << port << "\"" );
+
+      // Open an input port for the name
+      declare_input_port(
+        port,
+        type_flow_dependent + group, // note the group magic on port type
+        required,
+        port_description_t( "An input for the " + group + " data." ) );
+    }
   }
+  else
+  {
+    LOG_WARN( logger(), "Input port \"" << port << "\" does not have the correct format. "
+                                                   "Must be in the form \"in/<group>/<item>\"." );
+  }
+
   return process::_input_port_info( port );
-} // demux_process::_input_port_info
+} // mux_process::_input_port_info
 
 
 // ------------------------------------------------------------------
-demux_process::priv
+mux_process::priv
 ::priv()
-  : group_data()
-  , m_config_term_policy( skip )
+  : group_data(),
+  m_config_term_policy( skip )
 {
 }
 
 
-demux_process::priv
+mux_process::priv
 ::~priv()
 {
 }
 
 
 // ------------------------------------------------------------------
-/*
- * @brief Find group name that corresponds to the port name.
- *
- * This method looks through the list of current groups to see if the
- * supplied port is in that table.
- *
- * @param port Name of the port
- *
- * @return Group name
- */
-demux_process::priv::group_t
-demux_process::priv
-::group_for_port( port_t const& port ) const
-{
-  // Does this port start with "in/"
-  if ( port.compare( 0, priv::port_in_prefix.size(), priv::port_in_prefix ) )
-  {
-    // Get the part of the port name after the prefix
-    // This could be "group/item"
-    port_t const no_prefix = port.substr( priv::port_in_prefix.size() );
-
-    // loop over all groups seen so far
-    VITAL_FOREACH( priv::group_data_t::value_type const & data, group_data )
-    {
-      group_t const& group = data.first; // group string
-      port_t const group_prefix = group + priv::res_sep;
-
-      // If the port name without the prefix is "group/*" then return
-      // base group string
-      if ( no_prefix.compare( 0, group_prefix.size(), group_prefix ) )
-      {
-        return group;
-      }
-    }
-  }
-
-  return group_t();
-}
-
-
-// ------------------------------------------------------------------
-demux_process::priv::group_info
+mux_process::priv::group_info
 ::group_info()
   : ports(),
-  cur_port()
+    cur_port()
 {
 }
 
 
-demux_process::priv::group_info
+mux_process::priv::group_info
 ::~group_info()
 {
 }
+
 
 } // end namespace
