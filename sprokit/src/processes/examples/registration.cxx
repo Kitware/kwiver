@@ -92,8 +92,10 @@ register_processes()
   registry->register_process("shared", "A process with the shared flag", create_process<shared_process>);
   registry->register_process("skip", "A process which skips input data", create_process<skip_process>);
   registry->register_process("tagged_flow_dependent", "A process with a tagged flow dependent types", create_process<tagged_flow_dependent_process>);
-  registry->register_process("take_number", "Print numbers to a file", create_process<take_number_process>);
-  registry->register_process("take_string", "Print strings to a file", create_process<take_string_process>);
+  registry->register_process("take_number", "Take a number as input and produce no output.",
+                             create_process<take_number_process>);
+  registry->register_process("take_string", "Take a string as input and produce no output.",
+                             create_process<take_string_process>);
   registry->register_process("tunable", "A process with a tunable parameter", create_process<tunable_process>);
 
   registry->mark_module_as_loaded(module_name);
