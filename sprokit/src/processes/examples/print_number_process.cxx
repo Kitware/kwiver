@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2013 by Kitware, Inc.
+ * Copyright 2011-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,14 +30,10 @@
 
 #include "print_number_process.h"
 
-#include <sprokit/pipeline_util/path.h>
-
 #include <vital/config/config_block.h>
 #include <sprokit/pipeline/process_exception.h>
 
-#include <boost/filesystem/fstream.hpp>
-#include <boost/cstdint.hpp>
-
+#include <fstream>
 #include <string>
 
 /**
@@ -46,116 +42,123 @@
  * \brief Implementation of the number printer process.
  */
 
-namespace sprokit
-{
+namespace sprokit {
 
 class print_number_process::priv
 {
-  public:
-    typedef int32_t number_t;
+public:
+  typedef int32_t number_t;
 
-    priv(path_t const& output_path);
-    ~priv();
+  priv(  const std::string & output_path );
+  ~priv();
 
-    path_t const path;
+  std::string const path;
 
-    boost::filesystem::ofstream fout;
+  std::ofstream fout;
 
-    static kwiver::vital::config_block_key_t const config_path;
-    static port_t const port_input;
+  static kwiver::vital::config_block_key_t const config_path;
+  static port_t const port_input;
 };
 
-kwiver::vital::config_block_key_t const print_number_process::priv::config_path = kwiver::vital::config_block_key_t("output");
-process::port_t const print_number_process::priv::port_input = port_t("number");
+kwiver::vital::config_block_key_t const print_number_process::priv::config_path = kwiver::vital::config_block_key_t( "output" );
+process::port_t const print_number_process::priv::port_input = port_t( "number" );
 
+
+// ------------------------------------------------------------------
 print_number_process
-::print_number_process(kwiver::vital::config_block_sptr const& config)
-  : process(config)
-  , d()
+::print_number_process( kwiver::vital::config_block_sptr const& config )
+  : process( config ),
+  d()
 {
   declare_configuration_key(
     priv::config_path,
     kwiver::vital::config_block_value_t(),
-    kwiver::vital::config_block_description_t("The path of the file to output to."));
+    kwiver::vital::config_block_description_t( "The path of the file to output to." ) );
 
   port_flags_t required;
 
-  required.insert(flag_required);
+  required.insert( flag_required );
 
   declare_input_port(
     priv::port_input,
     "integer",
     required,
-    port_description_t("Where numbers are read from."));
+    port_description_t( "Where numbers are read from." ) );
 }
+
 
 print_number_process
 ::~print_number_process()
 {
 }
 
+
+// ------------------------------------------------------------------
 void
 print_number_process
 ::_configure()
 {
   // Configure the process.
   {
-    path_t const path = config_value<path_t>(priv::config_path);
+    const std::string path = config_value< std::string > ( priv::config_path );
 
-    d.reset(new priv(path));
+    d.reset( new priv( path ) );
   }
 
-  if (d->path.empty())
+  if ( d->path.empty() )
   {
     static std::string const reason = "The path given was empty";
-    kwiver::vital::config_block_value_t const value = d->path.string<kwiver::vital::config_block_value_t>();
+    kwiver::vital::config_block_value_t const value = kwiver::vital::config_block_value_t();
 
-    throw invalid_configuration_value_exception(name(), priv::config_path, value, reason);
+    throw invalid_configuration_value_exception( name(), priv::config_path, "", reason );
   }
 
-  d->fout.open(d->path);
+  d->fout.open( d->path );
 
-  if (!d->fout.good())
+  if ( ! d->fout.good() )
   {
-    std::string const file_path = d->path.string<std::string>();
-    std::string const reason = "Failed to open the path: " + file_path;
+    std::string const reason = "Failed to open the path: " + d->path;
 
-    throw invalid_configuration_exception(name(), reason);
+    throw invalid_configuration_exception( name(), reason );
   }
 
   process::_configure();
 }
 
+
+// ------------------------------------------------------------------
 void
 print_number_process
 ::_reset()
 {
   d->fout.close();
-
-  process::_reset();
 }
 
+
+// ------------------------------------------------------------------
 void
 print_number_process
 ::_step()
 {
-  priv::number_t const input = grab_from_port_as<priv::number_t>(priv::port_input);
+  priv::number_t const input = grab_from_port_as< priv::number_t > ( priv::port_input );
 
   d->fout << input << std::endl;
-
-  process::_step();
 }
 
+
+// ------------------------------------------------------------------
 print_number_process::priv
-::priv(path_t const& output_path)
-  : path(output_path)
+::priv( const std::string & output_path )
+  : path( output_path )
   , fout()
 {
 }
+
 
 print_number_process::priv
 ::~priv()
 {
 }
 
-}
+
+} // end namespace
