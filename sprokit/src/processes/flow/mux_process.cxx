@@ -51,21 +51,6 @@
 
 namespace sprokit {
 
-//
-// Design issues:
-//
-// Use in/group/item approach where the items in a group are ordered in
-// an ASCII-betical order.
-//
-// Need multiple termination semantics. Terminate group when one
-// port is complete.  Terminate when all inputs are complete.
-// Termination policies are "any" and "all"
-//
-// "any" will cause the group to complete if any of the inputs completes.
-//
-// "all" will cause the group to complete when all inputs complete.
-//
-
 /**
  * \class mux_process
  *
@@ -73,12 +58,15 @@ namespace sprokit {
  *
  * \process Multiplex incoming data into a single stream.  A mux
  * operation reads input from a group of input ports and serializes
- * that data to a single output port. This mux process can handle
- * multiple collation operations. Each set of collation ports is
- * identified by a unique \b group name.
+ * that data to a single output port. The ports in a group are read in
+ * ASCII-betical order over the third port name component (item).
+ * This mux process can handle multiple collation operations. Each set
+ * of collation ports is identified by a unique \b group name.
  *
  * \iports
  *
+ * Input ports are dynamically created as needed. Port names have the
+ * format \iport{in/\portvar{group/item}}
  *
  * \oports
  *
@@ -92,10 +80,6 @@ namespace sprokit {
  * This process automatically makes the input and output types for
  * each \b group the same based on the type of the port that is first
  * connected.
- *
- * \note
- * It is not immediately apparent how the input ports become sorted in
- * ASCII-betical order on "item".
  *
  * \code
  process mux :: mux_process
@@ -160,7 +144,7 @@ public:
 
 process::port_t const mux_process::priv::res_sep = port_t( "/" );
 process::port_t const mux_process::priv::port_res_prefix = port_t( "res" ) + res_sep;
-process::port_t const mux_process::priv::port_in_prefix = port_t( "in" ) + res_sep;
+process::port_t const mux_process::priv::port_in_prefix = port_t( "in" );
 
 /**
  * \internal
@@ -233,11 +217,11 @@ mux_process
 
   if ( value == "any" )
   {
-    d->m_config_term_policy = mux_process::priv::term_policy_t::policy_any;
+    d->m_config_term_policy = priv::term_policy_t::policy_any;
   }
   else if ( value == "all" )
   {
-    d->m_config_term_policy = mux_process::priv::term_policy_t::policy_all;
+    d->m_config_term_policy = priv::term_policy_t::policy_all;
   }
   else
   {
@@ -267,6 +251,11 @@ mux_process
       throw invalid_configuration_exception( name(), reason );
     }
 
+    // The ports need to be sorted to provide a deterministic order
+    // for ports to be processed. Since these are all from the same
+    // group, we are really sorting on the third field (item).
+    std::sort( info.ports.begin(), info.ports.end() );
+
     // Now here's some port frequency magic
     frequency_component_t const ratio = ports.size();
     port_frequency_t const freq = port_frequency_t( 1, ratio );
@@ -288,14 +277,15 @@ void
 mux_process
 ::_reset()
 {
-  VITAL_FOREACH( priv::group_data_t::value_type const & group_data, d->group_data )
+  VITAL_FOREACH( const auto & group_data, d->group_data )
   {
     priv::group_t const& group = group_data.first;
     port_t const output_port = priv::port_res_prefix + group;
+
     priv::group_info const& info = group_data.second;
     ports_t const& ports = info.ports;
 
-    VITAL_FOREACH( port_t const & port, ports )
+    VITAL_FOREACH( const auto & port, ports )
     {
       remove_input_port( port );
     }
@@ -340,7 +330,7 @@ mux_process
       // check with termination policy.
       switch ( d->m_config_term_policy )
       {
-      case mux_process::priv::term_policy_t::policy_any:
+      case priv::term_policy_t::policy_any:
         // Flush this set of inputs
         VITAL_FOREACH( port_t const & port, info.ports )
         {
@@ -353,7 +343,7 @@ mux_process
         complete_ports.push_back( group );
         break;
 
-      case mux_process::priv::term_policy_t::policy_all:
+      case priv::term_policy_t::policy_all:
       {
         // remove this port only from the "group_data"
         info.cur_port = info.ports.erase( info.cur_port ); // updates iterator
@@ -408,7 +398,6 @@ mux_process
     LOG_TRACE( logger(), "Process complete" );
     mark_process_as_complete();
   }
-
 } // mux_process::_step
 
 
@@ -420,7 +409,6 @@ mux_process
   properties_t consts = process::_properties();
 
   consts.insert( property_unsync_input );
-//+   consts.insert( property_instrumented );
 
   return consts;
 }
@@ -446,15 +434,15 @@ mux_process
   // components[1] = group
   // components[2] = item
 
-  // Port name must start with "in/"
-  if ( ( components.size() == 3 ) && ( components[0] == "in" ) )
+  // Port name must start with "in"
+  if ( ( components.size() == 3 ) && ( components[0] == priv::port_in_prefix ) )
   {
     const priv::group_t group = components[1];
 
     // If GROUP does not exist, then this is the first port in the group
     if ( 0 == d->group_data.count( group ) )
     {
-      // This is the first port of this group
+      // This is the first port of this group. Need to make output port.
       priv::group_info info;
       d->group_data[group] = info;
 
@@ -495,7 +483,10 @@ mux_process
   }
   else
   {
-    LOG_WARN( logger(), "Input port \"" << port << "\" does not have the correct format. "
+    // This may not be the best way to handle this type of
+    // error. Maybe an exception would be better. In any event, the
+    // connection will fail because the port will not be defined.
+    LOG_ERROR( logger(), "Input port \"" << port << "\" does not have the correct format. "
                                                    "Must be in the form \"in/<group>/<item>\"." );
   }
 
