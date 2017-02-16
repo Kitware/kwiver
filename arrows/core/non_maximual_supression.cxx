@@ -31,11 +31,14 @@
 #include "non_maximual_supression.h"
 
 #include <vital/types/detected_object_type.h>
+#include <vital/vital_foreach.h>
 
 namespace kwiver {
 namespace arrows {
 namespace core {
 
+
+// ------------------------------------------------------------------
 non_maximual_supression::
 non_maximual_supression()
   : m_overlap_threshold(0.3)
@@ -79,12 +82,6 @@ vital::detected_object_set_sptr
 non_maximual_supression::
 filter( const vital::detected_object_set_sptr input_set ) const
 {
-  // If there are no detections in the input set, then return an empty set.
-  if ( input_set->size() == 0 )
-  {
-    return vital::detected_object_set_sptr();
-  }
-
   // Need to clone input because we are modifying the set in this filter.
   auto output_set = input_set->clone();
   auto det_list = output_set->select();
