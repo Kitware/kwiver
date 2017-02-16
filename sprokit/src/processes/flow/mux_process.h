@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2012 by Kitware, Inc.
+ * Copyright 2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,43 +28,56 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "registration.h"
-
-#include "collate_process.h"
-#include "distribute_process.h"
-#include "pass_process.h"
-#include "sink_process.h"
-#include "mux_process.h"
-
-#include <sprokit/pipeline/process_registry.h>
-
 /**
- * \file flow/registration.cxx
+ * \file mux_process.h
  *
- * \brief Register processes for use.
+ * \brief Declaration of the mux process.
  */
 
-using namespace sprokit;
+#ifndef SPROKIT_PROCESSES_FLOW_MUX_PROCESS_H
+#define SPROKIT_PROCESSES_FLOW_MUX_PROCESS_H
 
-void
-register_processes()
+#include "flow-config.h"
+
+#include <sprokit/pipeline/process.h>
+
+#include <memory>
+
+
+namespace sprokit {
+
+class SPROKIT_PROCESSES_FLOW_NO_EXPORT mux_process
+  : public process
 {
-  static process_registry::module_t const module_name = process_registry::module_t("flow_processes");
+public:
+  /**
+   * \brief Constructor.
+   *
+   * \param config The configuration for the process.
+   */
+  mux_process( kwiver::vital::config_block_sptr const& config );
 
-  process_registry_t const registry = process_registry::self();
+  /**
+   * \brief Destructor.
+   */
+  ~mux_process();
 
-  if (registry->is_module_loaded(module_name))
-  {
-    return;
-  }
 
-  registry->register_process("collate", "Collates data from multiple worker processes", create_process<collate_process>);
-  registry->register_process("multiplexer",
-                             "Merge mutiple inputs into one output stream.",
-                             create_process<mux_process>);
-  registry->register_process("distribute", "Distributes data to multiple worker processes", create_process<distribute_process>);
-  registry->register_process("pass", "Pass a data stream through", create_process<pass_process>);
-  registry->register_process("sink", "Ignores incoming data", create_process<sink_process>);
+protected:
+  void _configure();
+  void _init();
+  void _reset();
+  void _step();
+  properties_t _properties() const;
 
-  registry->mark_module_as_loaded(module_name);
-}
+  port_info_t _input_port_info( port_t const& port );
+
+
+private:
+  class priv;
+  std::unique_ptr< priv > d;
+};
+
+} // end namespace
+
+#endif // SPROKIT_PROCESSES_FLOW_MUX_PROCESS_H
