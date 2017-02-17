@@ -50,7 +50,6 @@
 #include "image_object_detector_process.h"
 #include "image_writer_process.h"
 #include "matcher_process.h"
-#include "object_detector_process.h"
 #include "read_descriptor_process.h"
 #include "simulate_target_selection_process.h"
 #include "stabilize_image_process.h"

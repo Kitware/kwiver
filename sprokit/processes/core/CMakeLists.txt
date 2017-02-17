@@ -23,7 +23,6 @@ set( sources
   image_object_detector_process.cxx
   image_writer_process.cxx
   matcher_process.cxx
-  object_detector_process.cxx
   read_descriptor_process.cxx
   simulate_target_selection_process.cxx
   stabilize_image_process.cxx
@@ -48,7 +47,6 @@ set( private_headers
   image_object_detector_process.h
   image_writer_process.h
   matcher_process.h
-  object_detector_process.h
   read_descriptor_process.h
   simulate_target_selection_process.h
   stabilize_image_process.h
