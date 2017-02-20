@@ -102,26 +102,6 @@ public:
       m_logger( kwiver::vital::get_logger( "vital.faster_rcnn" ) )
   { }
 
-  priv( priv const& other )
-    : m_prototxt_file( other.m_prototxt_file ),
-      m_classes_file( other.m_classes_file ),
-      m_caffe_model( other.m_caffe_model ),
-      m_labels( other.m_labels ),
-      m_target_size( other.m_target_size ),
-      m_pixel_means( other.m_pixel_means ),
-      m_max_size( other.m_max_size ),
-      m_net( other.m_net ),
-      m_use_gpu( other.m_use_gpu ),
-      m_gpu_id( other.m_gpu_id ),
-      m_use_box_deltas( other.m_use_box_deltas ),
-      m_chip_image( other.m_chip_image ),
-      m_chip_width( other.m_chip_width ),
-      m_chip_height( other.m_chip_height ),
-      m_stride( other.m_stride ),
-      m_logger( other.m_logger )
-  { }
-
-
   ~priv()
   { }
 
@@ -132,12 +112,6 @@ public:
 faster_rcnn_detector::
 faster_rcnn_detector()
   : d( new priv() )
-{ }
-
-
-faster_rcnn_detector::
-faster_rcnn_detector( faster_rcnn_detector const& frd )
-  : d( new priv( *frd.d ) )
 { }
 
 

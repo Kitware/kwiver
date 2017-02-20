@@ -2,7 +2,6 @@
 # structures
 set( caffe_headers_public
   faster_rcnn_detector.h
-  register_algorithms.h
   )
 
 kwiver_install_headers(
@@ -17,7 +16,6 @@ kwiver_install_headers(
 
 set( caffe_sources
   faster_rcnn_detector.cxx
-  register_algorithms.cxx
   )
 
 kwiver_add_library( kwiver_algo_caffe
@@ -34,7 +32,7 @@ target_link_libraries( kwiver_algo_caffe
   )
 
 algorithms_create_plugin( kwiver_algo_caffe
-  algorithm_plugin_interface.cxx
+  register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)

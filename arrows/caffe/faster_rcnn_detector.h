@@ -59,11 +59,7 @@ class KWIVER_ALGO_CAFFE_EXPORT faster_rcnn_detector
 public:
 
   faster_rcnn_detector();
-  faster_rcnn_detector(faster_rcnn_detector const& frd);
-
   virtual ~faster_rcnn_detector();
-
-  virtual std::string impl_name() const { return "faster_rcnn_detector"; }
 
   virtual vital::config_block_sptr get_configuration() const;
 

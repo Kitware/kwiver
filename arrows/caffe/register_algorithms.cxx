@@ -33,27 +33,37 @@
  * \brief Caffe algorithm registration implementation
  */
 
-#include "register_algorithms.h"
+#include <arrows/caffe/kwiver_algo_caffe_export.h>
+#include <vital/algo/algorithm_factory.h>
 
 #include "faster_rcnn_detector.h"
-
-#include <arrows/algorithm_plugin_interface_macros.h>
 
 namespace kwiver {
 namespace arrows {
 namespace caffe {
 
-/// Register caffe algorithm implementations with the given or global registrar
-int register_algorithms( vital::registrar &reg )
+extern "C"
+KWIVER_ALGO_CAFFE_EXPORT
+void
+register_factories( kwiver::vital::plugin_loader& vpm )
 {
+  static auto const module_name = std::string( "arrows.caffe" );
+  if (vpm.is_module_loaded( module_name ) )
+  {
+    return;
+  }
 
-  REGISTRATION_INIT( reg );
+  // add factory                  implementation-name       type-to-create
+  auto fact = vpm.ADD_ALGORITHM( "faster_rcnn_detector", kwiver::arrows::caffe::faster_rcnn_detector );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Faster version of the RCNN detector." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
 
-  REGISTER_TYPE( faster_rcnn_detector );
 
-
-  REGISTRATION_SUMMARY();
-  return REGISTRATION_FAILURES();
+  vpm.mark_module_as_loaded( module_name );
 }
 
 } // end namespace caffe
