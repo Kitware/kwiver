@@ -133,17 +133,17 @@ faster_rcnn_detector::
   config->set_value( "prototxt", d->m_prototxt_file,
                      "Points the the Prototxt file" );
   config->set_value( "caffe_model", d->m_caffe_model, "The file that contains the model." );
-  config->set_value( "target_size", this->d->m_target_size, "TODO" );
-  config->set_value( "max_size", this->d->m_max_size, "TODO" );
+  config->set_value( "target_size", this->d->m_target_size, "Controls the scaling of the image. Larger values will cause the image to scale larger, which puts more pixels on small objects" );
+  config->set_value( "max_size", this->d->m_max_size, "Largest size the image can be (on one of its sides)" );
   config->set_value( "pixel_mean", vital::vector_3d( this->d->m_pixel_means[0], this->d->m_pixel_means[1], this->d->m_pixel_means[2] ),
                      "The mean pixel value for the provided model." );
   config->set_value( "use_gpu", this->d->m_use_gpu, "Use the gpu instead of the cpu." );
   config->set_value( "gpu_id", this->d->m_gpu_id, "What gpu to use." );
   config->set_value( "use_box_deltas", this->d->m_use_box_deltas, "Use the learned jitter deltas." );
-  config->set_value( "chip_image",  this->d->m_chip_image, "TODO" );
-  config->set_value( "chip_width", this->d->m_chip_width, "TODO" );
-  config->set_value( "chip_height", this->d->m_chip_height, "TODO" );
-  config->set_value( "stride", this->d->m_stride, "TODO" );
+  config->set_value( "chip_image",  this->d->m_chip_image, "Break the images into chunks and classify on each chunk" );
+  config->set_value( "chip_width", this->d->m_chip_width, "Width for the chunk" );
+  config->set_value( "chip_height", this->d->m_chip_height, "Height of the chunk" );
+  config->set_value( "stride", this->d->m_stride, "Step size for the chunking (controls if the chunks have overlap)" );
 
   return config;
 }
