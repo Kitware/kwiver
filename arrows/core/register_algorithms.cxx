@@ -36,6 +36,8 @@
 #include "register_algorithms.h"
 
 #include <arrows/algorithm_plugin_interface_macros.h>
+
+#include <arrows/core/class_probablity_filter.h>
 #include <arrows/core/close_loops_bad_frames_only.h>
 #include <arrows/core/close_loops_exhaustive.h>
 #include <arrows/core/close_loops_keyframe.h>
@@ -64,6 +66,7 @@ int register_algorithms(vital::registrar &reg)
 {
     REGISTRATION_INIT( reg );
 
+    REGISTER_TYPE( core::class_probablity_filter );
     REGISTER_TYPE( core::close_loops_bad_frames_only );
     REGISTER_TYPE( core::close_loops_exhaustive );
     REGISTER_TYPE( core::close_loops_keyframe );
