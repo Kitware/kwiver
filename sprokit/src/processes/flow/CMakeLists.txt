@@ -28,3 +28,7 @@ target_link_libraries(processes_flow
   PRIVATE         sprokit_pipeline
                   vital_vpm
   )
+
+if (KWIVER_ENABLE_TESTS)
+  add_subdirectory( tests )
+endif()

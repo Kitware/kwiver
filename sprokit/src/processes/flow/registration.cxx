@@ -28,6 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "flow-config.h"
+
 #include <sprokit/pipeline/process_factory.h>
 
 #include "collate_process.h"
@@ -74,7 +76,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 
   fact = vpm.ADD_PROCESS( sprokit::sink_process );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "sink" )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Ignores incoming data" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Ignores all incoming data" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 

@@ -49,20 +49,20 @@
 << SPROKIT_CONFIG( "end2", "30" )                  //  :end2   30
 << SPROKIT_CONFIG( "output", "products.txt" )      //  :output products.txt
 
-<< SPROKIT_PROCESS( "gen_numbers1", "numbers" ) // process gen_numbers1
+<< SPROKIT_PROCESS( "Numbers", "gen_numbers1" ) // process gen_numbers1
                                                 //  :: numbers
 << SPROKIT_CONFIG_FULL( "start", "ro", "CONF", "multiplier:start1" ) //  :start[ro]{CONF} multiplier:start1
 << SPROKIT_CONFIG_FULL( "end", "ro", "CONF", "multiplier:end1" )      //  :end[ro]{CONF} multiplier:end1
 
-<< SPROKIT_PROCESS( "gen_numbers2", "numbers" )  // process gen_numbers2
+<< SPROKIT_PROCESS( "numbers", "gen_numbers2" )  // process gen_numbers2
                                                  //  :: numbers
 << SPROKIT_CONFIG_FULL( "start", "ro", "CONF", "multiplier:start2" ) //  :start[ro]{CONF} multiplier:start2
 << SPROKIT_CONFIG_FULL( "end", "ro", "CONF", "end2" )                //  :end[ro]{CONF} multiplier:end2
 
-<< SPROKIT_PROCESS( "multiply", "multiplication")   //  process multiply
+<< SPROKIT_PROCESS( "multiplication", "multiply")   //  process multiply
                                                     //  :: multiplication
 
-<< SPROKIT_PROCESS( "print", "print_number" )       //process print
+<< SPROKIT_PROCESS( "print_number", "print" )       //process print
                                                     //  :: print_number
 << SPROKIT_CONFIG_FULL( "output", "ro", "CONF", "multiplier:output" ) //  :output[ro]{CONF} multiplier:output
 
