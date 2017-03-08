@@ -105,6 +105,8 @@ public:
   bool m_clip_box_to_image;
   bool m_draw_text;
 
+  bool m_draw_only_max_label;
+
   // -- temp config storage --
   std::string m_tmp_custom;
   std::string m_tmp_def_color;
@@ -239,7 +241,7 @@ public:
 
       // -----------------------------
       // Since there is a type assigned, select on specified class_names
-      auto names = det_type->class_names(); // get all class_names
+      auto names = det_type->class_names(m_threshold); // get all class_names that are pass the threshold
 
       bool text_only( false );
       int count( 0 );
@@ -248,14 +250,19 @@ public:
       VITAL_FOREACH( auto n, names )
       {
         double score = det_type->score( n );
-        if ( score < m_threshold || ! name_selected( n ) )
+        if ( ! name_selected( n ) )
         {
           continue;
         }
 
         LOG_TRACE( m_parent->logger(), "Drawing box for class: " << n << "   score: " << score );
         draw_box( image, det, n, score, text_only, count );
+        ++count;
         text_only = true; // skip box on all subsequent calls
+        if(m_draw_only_max_label)
+        {
+          break;
+        }
       }
     } // end foreach
 
@@ -400,6 +407,7 @@ get_configuration() const
                      "If this option is set to true, the bounding box is clipped to the image bounds." );
   config->set_value( "draw_text", d->m_draw_text,
                      "If this option is set to true, the class name is drawn next to the detection." );
+  config->set_value( "draw_only_max_label", d->m_draw_only_max_label, "Draws only largest class");
   return config;
 }
 
@@ -425,6 +433,8 @@ set_configuration(vital::config_block_sptr config_in)
   d->m_text_scale               = config->get_value< float >( "text_scale" );
   d->m_text_thickness           = config->get_value< float >( "text_thickness" );
   d->m_threshold                = config->get_value< float >( "threshold" );
+
+  d->m_draw_only_max_label      = config->get_value<bool>("draw_only_max_label");
 
   d->process_config();
 }
