@@ -191,6 +191,13 @@ register_factories( kwiver::vital::plugin_loader& vpm )
                        "Draws border around detected objects in the set using the selected algorithm." );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
+  fact = vpm.ADD_PROCESS( kwiver::bounding_box_generator_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "bounding_box_generator" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Generates a bounding box." );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
   // - - - - - - - - - - - - - - - - - - - - - - -
   sprokit::mark_process_module_as_loaded( vpm, module_name );
 } // register_processes
