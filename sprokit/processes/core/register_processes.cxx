@@ -198,6 +198,13 @@ register_factories( kwiver::vital::plugin_loader& vpm )
                        "Generates a bounding box." );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
+  fact = vpm.ADD_PROCESS( kwiver::detected_object_coordinate_updater_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "detected_object_coordinate_updater" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Adjusts coordinates of detected objects." );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
   // - - - - - - - - - - - - - - - - - - - - - - -
   sprokit::mark_process_module_as_loaded( vpm, module_name );
 } // register_processes

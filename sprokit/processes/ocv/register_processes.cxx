@@ -64,7 +64,15 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact = vpm.ADD_PROCESS( kwiver::draw_detected_object_boxes_process );
   fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_NAME,  "draw_detected_object_boxes" );
   fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
-  fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Draw detected object boxes on images." );
+  fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                        "Draw detected object boxes on images." );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
+  fact = vpm.ADD_PROCESS( kwiver::crop_image_process );
+  fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_NAME,  "crop_image" );
+  fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                        "Crops image to bbox." );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
 
