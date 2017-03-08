@@ -183,6 +183,15 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     ;
 
 
+  fact = vpm.ADD_ALGORITHM( "non_maximual_supression", kwiver::arrows::core::non_maximual_supression );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Perform non maximal supression on detections?" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
+
+
   fact = vpm.ADD_ALGORITHM( "core", kwiver::arrows::core::track_features_core );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                        "Track features from frame to frame using feature detection, matching, and loop closure." )
