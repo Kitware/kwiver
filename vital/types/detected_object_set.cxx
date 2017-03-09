@@ -94,7 +94,10 @@ clone() const
   }
 
   // duplicate attributes
-  new_obj->m_attrs = this->m_attrs->clone();
+  if ( this->m_attrs )
+  {
+    new_obj->m_attrs = this->m_attrs->clone();
+  }
 
   return new_obj;
 }
