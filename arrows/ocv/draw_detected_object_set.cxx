@@ -73,11 +73,12 @@ public:
     , m_text_thickness( 1.0 )
     , m_clip_box_to_image( false )
     , m_draw_text( true )
+    , m_draw_only_max_label(false)
   {
     m_default_params.thickness = 1.0;
-    m_default_params.color[0] = 0;
+    m_default_params.color[0] = 255;
     m_default_params.color[1] = 0;
-    m_default_params.color[2] = 255;
+    m_default_params.color[2] = 0;
   }
 
   ~priv()
@@ -221,7 +222,8 @@ public:
   vital::image_container_sptr draw_detections( vital::image_container_sptr      image_data,
                                                vital::detected_object_set_sptr  in_set ) const
   {
-    cv::Mat image = image_container_to_ocv_matrix( *image_data ).clone();
+    cv::Mat image = image_container_to_ocv_matrix( *image_data, arrows::ocv::image_container::BGR ).clone();
+
     auto det_list = in_set->select( );
 
     VITAL_FOREACH( auto det, det_list )
@@ -266,7 +268,7 @@ public:
       }
     } // end foreach
 
-    return vital::image_container_sptr( new arrows::ocv::image_container( image ) );
+    return vital::image_container_sptr( new arrows::ocv::image_container( image, arrows::ocv::image_container::BGR ) );
   } // end draw_detections
 
 
