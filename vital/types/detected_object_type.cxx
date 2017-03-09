@@ -111,9 +111,8 @@ has_class_name( const std::string& class_name ) const
     const std::string* str_ptr = find_string( class_name );
     return ( 0 != m_classes.count( str_ptr ) );
   }
-  catch ( std::runtime_error& e )
-  {
-  }
+  catch ( ... ) { }
+
   return false;
 }
 
@@ -141,7 +140,7 @@ score( const std::string& class_name ) const
 // ------------------------------------------------------------------
 void
 detected_object_type::
-  get_most_likely( std::string& max_name, double& max_score ) const
+get_most_likely( std::string& max_name, double& max_score ) const
 {
   if ( m_classes.empty() )
   {
