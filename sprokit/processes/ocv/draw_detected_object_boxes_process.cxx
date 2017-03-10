@@ -373,13 +373,18 @@ public:
         {
           std::string max_label;
           double max_score;
-          dot_i->get_most_likely( max_label, max_score );
-          if ( max_score <= this->m_threshold )
-          {
-            continue;
-          }
 
-          draw_box( image, det, tmpT, max_label, max_score );
+          try
+          {
+            dot_i->get_most_likely( max_label, max_score );
+            if ( max_score <= this->m_threshold )
+            {
+              continue;
+            }
+
+            draw_box( image, det, tmpT, max_label, max_score );
+          }
+          catch (... ) { }
         }
       }
     } // end draw overlap max
