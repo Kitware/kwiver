@@ -138,14 +138,19 @@ NMS_COMBINER( vital::detected_object_set_sptr input_set,
 
     std::string max_class_name;
     double max_score;
-    dot->get_most_likely( max_class_name, max_score );
 
-    if( std::find(ignore_classes.begin(), ignore_classes.end(), max_class_name) == ignore_classes.end() )
+    try
     {
-      // This class names is not in the ignore list
-      det->set_confidence( max_score );
-      output_list.push_back( det );
+      dot->get_most_likely( max_class_name, max_score );
+
+      if( std::find(ignore_classes.begin(), ignore_classes.end(), max_class_name) == ignore_classes.end() )
+      {
+        // This class names is not in the ignore list
+        det->set_confidence( max_score );
+        output_list.push_back( det );
+      }
     }
+    catch ( ... ) { }
   } // end foreach detection
 
   // do a second pass over the selected outputs
