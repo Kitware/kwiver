@@ -291,7 +291,7 @@ detect( vital::image_container_sptr image_data ) const
   }
 
   kwiver::vital::scoped_cpu_timer t( "Time to Detect Objects" );
-  cv::Mat image = kwiver::arrows::ocv::image_container::vital_to_ocv( image_data->get_image() );
+  cv::Mat image = kwiver::arrows::ocv::image_container::vital_to_ocv( image_data->get_image(), kwiver::arrows::ocv::image_container::BGR);
   std::vector< cv::Mat > image_chips;
   std::vector< unsigned int > chip_x;
   std::vector< unsigned int > chip_y;
