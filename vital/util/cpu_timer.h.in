@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,13 +64,10 @@ public:
       m_end(0)
   { }
 
-
-  ~cpu_timer()
-  {
-    m_active = false;
-  }
+  virtual ~cpu_timer() = default;
 
   virtual  bool timer_available() { return true; }
+
 
   /**
    * @brief Start the timer.
