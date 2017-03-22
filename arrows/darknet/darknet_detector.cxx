@@ -231,8 +231,8 @@ vital::detected_object_set_sptr
 darknet_detector::
 detect( vital::image_container_sptr image_data ) const
 {
-  kwiver::vital::scoped_cpu_timer t( "Time to Detect Objects" );
-  cv::Mat cv_image = kwiver::arrows::ocv::image_container::vital_to_ocv( image_data->get_image(), kwiver::arrows::ocv::image_container::BGR );
+  cv::Mat cv_image = kwiver::arrows::ocv::image_container::vital_to_ocv( image_data->get_image(),
+                                                                         kwiver::arrows::ocv::image_container::BGR );
 
   // copies and converts to floating pixel value.
   image im = d->cvmat_to_image( cv_image );

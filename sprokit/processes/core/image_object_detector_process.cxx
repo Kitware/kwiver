@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,13 +31,16 @@
 #include "image_object_detector_process.h"
 
 #include <vital/algo/image_object_detector.h>
+#include <vital/util/wall_timer.h>
 
 #include <sprokit/processes/kwiver_type_traits.h>
 #include <sprokit/pipeline/process_exception.h>
 
 namespace kwiver {
 
-create_config_trait( detector, std::string, "", "Algorithm configuration subblock" );
+create_config_trait( detector, std::string, "", "Algorithm configuration subblock.\n\n"
+  "Use 'detector:type' to select desired detector implementation.");
+
 
 //----------------------------------------------------------------
 // Private implementation class
@@ -47,7 +50,9 @@ public:
   priv();
   ~priv();
 
-   vital::algo::image_object_detector_sptr m_detector;
+  kwiver::vital::wall_timer m_detect_timer;
+
+  vital::algo::image_object_detector_sptr m_detector;
 
 }; // end priv class
 
@@ -100,9 +105,17 @@ _step()
 {
   vital::image_container_sptr input = grab_from_port_using_trait( image );
 
+  d->m_detect_timer.start();
+
   // Get detections from detector on image
   vital::detected_object_set_sptr result = d->m_detector->detect( input );
 
+  d->m_detect_timer.stop();
+
+  double elapsed_time = d->m_detect_timer.elapsed();
+  LOG_DEBUG( logger(), "Elapsed time detecting objects: " << elapsed_time );
+
+  push_to_port_using_trait( detection_time, elapsed_time);
   push_to_port_using_trait( detected_object_set, result );
 }
 
@@ -123,6 +136,7 @@ make_ports()
 
   // -- output --
   declare_output_port_using_trait( detected_object_set, optional );
+  declare_output_port_using_trait( detection_time, optional );
 }
 
 
