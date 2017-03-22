@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2015-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ namespace vital {
 
 // ================================================================
 //
-// Create type traits for common pipeline types.
+// Create type traits for common pipeline semantic types.
 // These are types that are passed through the pipeline.
 // ( type-trait-name, "canonical_type_name", concrete-type )
 //
@@ -90,6 +90,7 @@ create_type_trait( image_file_name, "kwiver:image_file_name", kwiver::vital::pat
 create_type_trait( video_file_name, "kwiver:video_file_name", kwiver::vital::path_t );
 create_type_trait( video_metadata, "kwiver:video_metadata", kwiver::vital::video_metadata_vector );
 create_type_trait( uuid, "kwiver:video_uuid", kwiver::vital::uuid );
+create_type_trait( time_interval_sec, "kwiver:time_interval_sec", double );
 
 
 // ================================================================
@@ -99,7 +100,8 @@ create_type_trait( uuid, "kwiver:video_uuid", kwiver::vital::uuid );
 //
 create_port_trait( bounding_box, bounding_box, "bouding box");
 create_port_trait( timestamp, timestamp, "Timestamp for input image." );
-create_port_trait( corner_points, corner_points, "Four corner points for image in lat/lon units, ordering ul ur lr ll." );
+create_port_trait( corner_points, corner_points, "Four corner points for image.\n\n"
+                   "These points are in lat/lon units, ordering ul ur lr ll." );
 create_port_trait( gsd, gsd, "GSD for image in meters per pixel." );
 create_port_trait( image, image, "Single frame image." );
 create_port_trait( feature_set, feature_set, "Set of detected image features." );
@@ -113,5 +115,8 @@ create_port_trait( image_file_name, image_file_name, "Name of an image file. "
 create_port_trait( video_file_name, video_file_name, "Name of video file." );
 create_port_trait( video_metadata, video_metadata, "Video metadata vector for a frame." );
 create_port_trait( uuid, uuid, "UUID value." );
+
+create_port_trait( detection_time, time_interval_sec, "Elapsed time for this detection.\n\n"
+"This port produces the number of seconds that it took to perform the detection operation on the current frame." );
 
 #endif // KWIVER_VITAL_TYPE_TRAITS_H
