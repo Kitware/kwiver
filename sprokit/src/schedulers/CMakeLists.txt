@@ -5,11 +5,13 @@ set( source
   registration.cxx
   sync_scheduler.cxx
   thread_per_process_scheduler.cxx
+  tpp_scheduler_trace.cxx
   )
 
 set( private_headers
   sync_scheduler.h
   thread_per_process_scheduler.h
+  tpp_scheduler_trace.h
   ${CMAKE_CURRENT_BINARY_DIR}/schedulers_export.h
   )
 

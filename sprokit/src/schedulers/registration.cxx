@@ -29,11 +29,12 @@
  */
 
 #include <sprokit/pipeline/scheduler_factory.h>
+#include <schedulers/schedulers_export.h>
 
 #include "sync_scheduler.h"
 #include "thread_per_process_scheduler.h"
+#include "tpp_scheduler_trace.h"
 
-#include <schedulers/schedulers_export.h>
 
 /**
  * \file registration.cxx
@@ -56,14 +57,22 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   auto fact = vpm.ADD_SCHEDULER( sprokit::sync_scheduler );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "sync" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Run the pipeline synchronously" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Run the pipeline synchronously." )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
   fact = vpm.ADD_SCHEDULER( sprokit::thread_per_process_scheduler );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "thread_per_process" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Run each process in its own thread" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Run each process in its own thread." )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
+  fact = vpm.ADD_SCHEDULER( sprokit::tpp_scheduler_trace );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "thread_per_process_trace" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                    "Run each process in its own thread with trace log messages." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
 
   sprokit::mark_scheduler_module_as_loaded( vpm, module_name );
 }
