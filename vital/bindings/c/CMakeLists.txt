@@ -6,6 +6,7 @@ set(vital_c_public_headers
   common.h
   config_block.h
   error_handle.h
+  # plugin_manager.h
 
   algo_def/bundle_adjust.h
   algo_def/convert_image.h
@@ -67,6 +68,7 @@ set(vital_c_sources
   common.cxx
   config_block.cxx
   error_handle.cxx
+  # plugin_manager.cxx
 
   algo_def/bundle_adjust.cxx
   algo_def/convert_image.cxx

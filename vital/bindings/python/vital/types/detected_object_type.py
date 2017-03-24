@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==============================================================================
 
-Interface to VITAL image_container class.
+Interface to VITAL detected_object_type class.
 
 """
 import ctypes
@@ -63,7 +63,7 @@ class DetectedObjectType (VitalObject):
             dot_nfl = self.VITAL_LIB.vital_detected_object_type_new_from_list
             dot_nfl.argtypes = [ctypes.c_size_t,
                                 ctypes.POINTER(ctypes.c_char_p),
-                                ctypes.POINTER(ctypes.c_double)]
+                                ctypes.c_double]
             dot_nfl.restype = self.C_TYPE_PTR
             return dot_nfl(self, count, names, scores)
 
@@ -82,20 +82,20 @@ class DetectedObjectType (VitalObject):
     def score(self, name):
         dot_score = self.VITAL_LIB.vital_detected_object_type_score
         dot_score.argtypes = [self.C_TYPE_PTR, ctypes.c_char_p]
-        dot_score.restype = c_double
+        dot_score.restype = ctypes.c_double
         return dot_score(self, name )
 
     def get_most_likely_class(self):
         dot_gmlc = self.VITAL_LIB.vital_detected_object_type_get_most_likely_class
         dot_gmlc.argtypes = [self.C_TYPE_PTR]
-        dot_gmlc.restype = c_char_p
-        reurn dot_gmlc(self)
+        dot_gmlc.restype = ctypes.c_char_p
+        return dot_gmlc(self)
 
     def get_most_likely_score(self):
         dot_gmls = self.VITAL_LIB.vital_detected_object_type_get_most_likely_score
         dot_gmls.argtypes = [self.C_TYPE_PTR]
-        dot_gmls.restype = c_double
-        reurn dot_gmls(self)
+        dot_gmls.restype = ctypes.c_double
+        return dot_gmls(self)
 
     def set_score(self, name, score):
         dot_ss = self.VITAL_LIB.vital_detected_object_type_set_score
@@ -104,10 +104,14 @@ class DetectedObjectType (VitalObject):
 
     def delete_score(self, name):
         dot_ds = self.VITAL_LIB.vital_detected_object_type_delete_score
-        dot_ds.argtypes[self.C_TYPE_PTR, ctypes.c_char_p]
+        dot_ds.argtypes = [self.C_TYPE_PTR, ctypes.c_char_p]
         dot_ds(self, name)
 
     def class_names(self):
+        """
+        Returns list of all class names in this object
+        :return:
+        """
         dot_cn = self.VITAL_LIB.vital_detected_object_type_class_names
         dot_cn.argtypes = [self.C_TYPE_PTR]
         dot_cn.restype = ctypes.POINTER(ctypes.c_char_p)

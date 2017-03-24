@@ -49,9 +49,9 @@ class DetectedObjectSet (VitalObject):
         Create a simple detected object type
 
          """
-        super(DetectedObjectSet, self).__init__()
+        super(DetectedObjectSet, self).__init__(dobjs=None, count=None)
 
-    def _new(self, dobjs = None, count = None):
+    def _new(self, dobjs, count):
         if dobjs is None or count is None:
             dos_new = self.VITAL_LIB.vital_detected_object_set_new
             dos_new.argtypes = []
@@ -59,7 +59,7 @@ class DetectedObjectSet (VitalObject):
             return dos_new()
         else:
             dos_nfl = self.VITAL_LIB.vital_detected_object_set_new_from_list
-            dos_nfl.argtypes = [ctypes.POINTER( DetectedObject.C_TYPE_PTR), ctypes.c_size_t]
+            dos_nfl.argtypes = [ctypes.POINTER(DetectedObject.C_TYPE_PTR), ctypes.c_size_t]
             dos_nfl.restype = self.C_TYPE_PTR
             return dos_nfl(dobjs, count)
 
@@ -80,7 +80,7 @@ class DetectedObjectSet (VitalObject):
         dos_size.restype = ctypes.c_size_t
         return dos_size(self)
 
-    def select(self, one, two = None):
+    def select(self, one, two=None):
         if two is None:
             dos_st = self.VITAL_LIB.vital_detected_object_set_select_threshold
             dos_st.argtypes = [self.C_TYPE_PTR, ctypes.c_double]

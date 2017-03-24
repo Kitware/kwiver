@@ -40,6 +40,7 @@
 #include <vital/bindings/c/helpers/c_utils.h>
 #include <vital/bindings/c/helpers/detected_object.h>
 #include <vital/bindings/c/helpers/detected_object_type.h>
+#include <vital/bindings/c/helpers/image_container.h>
 
 #include <memory>
 
@@ -167,8 +168,10 @@ void vital_detected_object_set_index(vital_detected_object_t * obj,
 char* vital_detected_object_detector_name(vital_detected_object_t * obj)
 {
   std::string sname =  kwiver::vital_c::DOBJ_SPTR_CACHE.get( obj )->detector_name();
-  //+ TBD need to return pointer to persistent string
-  return 0;
+
+  char *output = (char*)malloc( sizeof(char) * (sname.length()+1) );
+  strcpy( output, sname.c_str() );
+  return output;
 }
 
 
@@ -180,15 +183,22 @@ void vital_detected_object_detector_set_name(vital_detected_object_t * obj,
 }
 
 
-vital_image_t* vital_detected_object_mask(vital_detected_object_t * obj)
+vital_image_container_t* vital_detected_object_mask(vital_detected_object_t * obj)
 {
-  //+ TBD need to look up image_sptr in cache
+  STANDARD_CATCH(
+    "C::detected_object::get_mask", NULL,
+    kwiver::vital::image_container_sptr img_sptr =  kwiver::vital_c::DOBJ_SPTR_CACHE.get( obj )->mask();
+    kwiver::vital_c::IMGC_SPTR_CACHE.store( img_sptr );
+    return reinterpret_cast<vital_image_container_t*>( img_sptr.get() );
+    );
+
   return 0;
 }
 
 
 void vital_detected_object_set_mask(vital_detected_object_t * obj,
-                                    vital_image_t* mask)
+                                    vital_image_container_t* mask)
 {
-  //+ TBD need to look up image in cache
+  auto img_sptr = kwiver::vital_c::IMGC_SPTR_CACHE.get( mask );
+  kwiver::vital_c::DOBJ_SPTR_CACHE.get( obj )->set_mask( img_sptr );
 }

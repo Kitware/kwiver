@@ -1,6 +1,6 @@
 """
 ckwg +31
-Copyright 2015-2016 by Kitware, Inc.
+Copyright 2017 by Kitware, Inc.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,43 +30,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==============================================================================
 
-vital.types module
+Test Python interface to vital::detected_object_set
 
 """
-
-# Common VITAL Components for easy access
-from .camera_intrinsics import CameraIntrinsics
-from .color import RGBColor
-from .covariance import Covariance
-from .descriptor import Descriptor
-from .eigen import EigenArray
-from .image import Image
-from .image_container import ImageContainer
-from .rotation import Rotation
-
-# Required EigenArray
-from .homography import Homography
-
-# Requires EigenArray and RGBColor
-from .feature import Feature
-
-# Requires EigenArray and Rotation
-from .similarity import Similarity
-
-# Requires Covariance
-from .landmark import Landmark
-from .landmark_map import LandmarkMap
-
-# Requires Descriptor, Feature
-from .track import TrackState, Track
-from .track_set import TrackSet
-
-# Requires CameraIntrinsics, Covariance, EigenArray, Rotation
-from .camera import Camera
-from .camera_map import CameraMap
-
-# Detected object types
-from .detected_object import DetectedObject
-from .detected_object_type import DetectedObjectType
-from .detected_object_set import DetectedObjectSet
-from .bounding_box import BoundingBox

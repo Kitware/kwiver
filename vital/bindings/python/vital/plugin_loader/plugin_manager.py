@@ -1,6 +1,6 @@
 """
 ckwg +31
-Copyright 2015-2016 by Kitware, Inc.
+Copyright 2017 by Kitware, Inc.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,43 +30,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==============================================================================
 
-vital.types module
-
+    interface to kwiver::vital::plugin_manager
 """
 
-# Common VITAL Components for easy access
-from .camera_intrinsics import CameraIntrinsics
-from .color import RGBColor
-from .covariance import Covariance
-from .descriptor import Descriptor
-from .eigen import EigenArray
-from .image import Image
-from .image_container import ImageContainer
-from .rotation import Rotation
+import ctypes
 
-# Required EigenArray
-from .homography import Homography
+from vital.util import VitalObject
+from vital.util import VitalErrorHandle
 
-# Requires EigenArray and RGBColor
-from .feature import Feature
+class PluginManager(VitalObject):
 
-# Requires EigenArray and Rotation
-from .similarity import Similarity
+    def __init__(self):
+        None
 
-# Requires Covariance
-from .landmark import Landmark
-from .landmark_map import LandmarkMap
+    def LoadAllPlugins(self):
+        pm_interf = self.VITAL_LIB.plugin_manager_load_all_plugins
+        pm_interf.argtypes = []
+        pm_interf()
 
-# Requires Descriptor, Feature
-from .track import TrackState, Track
-from .track_set import TrackSet
+    def LoadPlugins(self, path):
+        None
 
-# Requires CameraIntrinsics, Covariance, EigenArray, Rotation
-from .camera import Camera
-from .camera_map import CameraMap
-
-# Detected object types
-from .detected_object import DetectedObject
-from .detected_object_type import DetectedObjectType
-from .detected_object_set import DetectedObjectSet
-from .bounding_box import BoundingBox
+    def RegisterProcess(self, process_name, process_descrip, process_class):

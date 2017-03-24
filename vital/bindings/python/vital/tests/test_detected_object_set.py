@@ -1,6 +1,6 @@
 """
 ckwg +31
-Copyright 2015-2016 by Kitware, Inc.
+Copyright 2017 by Kitware, Inc.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,43 +30,50 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==============================================================================
 
-vital.types module
+Test Python interface to vital::detected_object_set
 
 """
 
-# Common VITAL Components for easy access
-from .camera_intrinsics import CameraIntrinsics
-from .color import RGBColor
-from .covariance import Covariance
-from .descriptor import Descriptor
-from .eigen import EigenArray
-from .image import Image
-from .image_container import ImageContainer
-from .rotation import Rotation
+import nose.tools
 
-# Required EigenArray
-from .homography import Homography
+from vital.types import DetectedObjectSet
+from vital.types import DetectedObject
+from vital.types import BoundingBox
 
-# Requires EigenArray and RGBColor
-from .feature import Feature
 
-# Requires EigenArray and Rotation
-from .similarity import Similarity
+class TestVitalDetectedObjectSet(object):
 
-# Requires Covariance
-from .landmark import Landmark
-from .landmark_map import LandmarkMap
+    def test_new(self):
+        dset = DetectedObjectSet()
+        sz = dset.size()
+        nose.tools.assert_equal(sz, 0)
 
-# Requires Descriptor, Feature
-from .track import TrackState, Track
-from .track_set import TrackSet
+        # TBD test DetectedObjectSet(dobjs, count)
 
-# Requires CameraIntrinsics, Covariance, EigenArray, Rotation
-from .camera import Camera
-from .camera_map import CameraMap
+    def test_add(self):
+        bbox = BoundingBox(10, 20, 30, 40)
+        dobj = DetectedObject(bbox, 4.56)
 
-# Detected object types
-from .detected_object import DetectedObject
-from .detected_object_type import DetectedObjectType
-from .detected_object_set import DetectedObjectSet
-from .bounding_box import BoundingBox
+        dset = DetectedObjectSet()
+        dset.add(dobj)
+        sz = dset.size()
+        nose.tools.assert_equal(sz, 1)
+
+    def test_select(self):
+        dset = DetectedObjectSet()
+        bbox = BoundingBox(10, 20, 30, 40)
+
+        dobj = DetectedObject(bbox, 0.156)
+        dset.add(dobj)
+
+        dobj = DetectedObject(bbox, 0.256)
+        dset.add(dobj)
+
+        dobj = DetectedObject(bbox, 0.356)
+        dset.add(dobj)
+
+        dobj = DetectedObject(bbox, 0.456)
+        dset.add(dobj)
+
+        sel_set = dset.select(0.3)
+        # TBD should select two items

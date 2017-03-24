@@ -101,7 +101,7 @@ BOOST_PYTHON_MODULE(scheduler_factory)
 
 
   class_<sprokit::scheduler::type_t>("SchedulerType"
-    , "The type for a type of scheduler.");
+    , "The type of the name of the scheduler.");
 
   class_<kwiver::vital::plugin_manager::module_t>("SchedulerModule"
     , "The type for a scheduler module name.");

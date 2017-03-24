@@ -164,7 +164,7 @@ BOOST_PYTHON_MODULE(process_factory)
 
   // ------------------------------------------------------------------
   class_<sprokit::process_factory, sprokit::process_factory, boost::noncopyable>("ProcessFactory"
-    , "The process factory.."
+    , "The process factory."
     , no_init);
 
   def("is_process_module_loaded", &is_process_loaded

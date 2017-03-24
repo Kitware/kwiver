@@ -36,6 +36,8 @@ Interface to VITAL detected_object class.
 import ctypes
 from vital.types import BoundingBox
 from vital.types import DetectedObjectType
+from vital.types import ImageContainer
+
 from vital.util import VitalObject
 from vital.util import VitalErrorHandle
 
@@ -45,18 +47,18 @@ class DetectedObject (VitalObject):
     vital::detected_object interface class
     """
 
-    def __init__(self):
+    def __init__(self, bbox, confid, dtype=None):
         """
         Create a simple detected object type
 
          """
-        super(DetectedObject, self).__init__()
+        super(DetectedObject, self).__init__(bbox, confid, dtype)
 
-    def _new(self, bbox, confid, type=None):
+    def _new(self, bbox, confid, dtype):
         do_new = self.VITAL_LIB.vital_detected_object_new_with_bbox()
         do_new.argtypes = [BoundingBox.C_TYPE_PTR, ctypes.c_double, DetectedObjectType.C_TYPE_PTR]
         do_new.restype = self.C_TYPE_PTR
-        return do_new()
+        return do_new(bbox, confid, dtype)
 
     def _destroy(self):
         do_del = self.VITAL_LIB.vital_detected_object_destroy
@@ -65,34 +67,71 @@ class DetectedObject (VitalObject):
             do_del(self, eh)
 
     def bounding_box(self):
+        """
+        Return bounding box from detected object
+        :return: bounding box
+        """
         do_bb = self.VITAL_LIB.vital_detected_object_bounding_box
-        do_bb.argtypes[self.C_TYPE_PTR]
+        do_bb.argtypes = [self.C_TYPE_PTR]
         do_bb.restype = BoundingBox.C_TYPE_PTR
         return do_bb(self)
 
     def set_bounding_box(self, bbox):
         do_sbb = self.VITAL_LIB.vital_detected_object_set_bounding_box
-        do_sbb.argtypes[self.C_TYPE_PTR, BoundingBox.C_TYPE_PTR]
+        do_sbb.argtypes = [self.C_TYPE_PTR, BoundingBox.C_TYPE_PTR]
         return do_sbb(self, bbox)
 
     def confidence(self):
         do_conf = self.VITAL_LIB.vital_detected_object_confidence
-        do_conf.argtypes[self.C_TYPE_PTR]
+        do_conf.argtypes = [self.C_TYPE_PTR]
         do_conf.restype = ctypes.c_double
-        return do_sbb(self)
+        return do_conf(self)
 
     def set_confidence(self, confid):
         do_sc = self.VITAL_LIB.vital_detected_object_set_confidence
-        do_sc.argtypes[self.C_TYPE_PTR, ctypes.c_double]
-        do_sbb(self, confid)
+        do_sc.argtypes = [self.C_TYPE_PTR, ctypes.c_double]
+        do_sc(self, confid)
 
     def type(self):
         do_ty = self.VITAL_LIB.vital_detected_object_get_type
-        do_ty.argtypes[self.C_TYPE_PTR]
+        do_ty.argtypes = [self.C_TYPE_PTR]
         do_ty.restype = DetectedObjectType.C_TYPE_PTR
         return do_ty(self)
 
     def set_type(self, ob_type):
         do_ty = self.VITAL_LIB.vital_detected_object_set_type
-        do_ty.argtypes[self.C_TYPE_PTR, DetectedObjectType.C_TYPE_PTR]
+        do_ty.argtypes = [self.C_TYPE_PTR, DetectedObjectType.C_TYPE_PTR]
         do_ty(self, ob_type)
+
+    def index(self):
+        do_gi = self.VITAL_LIB.vital_detected_object_index
+        do_gi.argtypes = []
+        do_gi.restype = ctypes.c_longlong
+        return do_gi(self)
+
+    def set_index(self, idx):
+        do_si = self.VITAL_LIB.vital_detected_object_set_index
+        do_si.argtypes = [ctypes.c_longlong]
+        do_si(self, idx)
+
+    def name(self):
+        do_gdn = self.VITAL_LIB.vital_detected_object_name
+        do_gdn.argtypes = []
+        do_gdn.restype = ctypes.c_char_p
+        return do_gdn(self)
+
+    def set_name(self, name):
+        do_sdn = self.VITAL_LIB.vital_detected_object_set_name
+        do_sdn.argtypes = [ctypes.c_char_p]
+        do_sdn(self, name)
+
+    def mask(self):
+        do_gm = self.VITAL_LIB.vital_detected_object_mask
+        do_gm.argtypes = []
+        do_gm.restype = ImageContainer.C_TYPE_PTR
+        return do_gm(self)
+
+    def set_mask(self, name):
+        do_sm = self.VITAL_LIB.vital_detected_object_set_mask
+        do_sm.argtypes = [ImageContainer.C_TYPE_PTR]
+        do_sm(self, name)

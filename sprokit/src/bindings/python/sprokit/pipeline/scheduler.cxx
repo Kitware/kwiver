@@ -53,13 +53,13 @@ class wrap_scheduler
 {
   public:
     wrap_scheduler(sprokit::pipeline_t const& pipe, kwiver::vital::config_block_sptr const& config);
-    ~wrap_scheduler();
+    virtual ~wrap_scheduler();
 
-    void _start();
-    void _wait();
-    void _pause();
-    void _resume();
-    void _stop();
+    virtual void _start();
+    virtual void _wait();
+    virtual void _pause();
+    virtual void _resume();
+    virtual void _stop();
 
     sprokit::pipeline_t _pipeline() const;
 
