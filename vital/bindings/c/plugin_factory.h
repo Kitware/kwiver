@@ -28,58 +28,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \file
-  * \brief C Interface to \p vital::config_manager class
- */
-#ifndef VITAL_C_PLUGIN_MANAGER_H
-#define VITAL_C_PLUGIN_MANAGER_H
+#ifndef VITAL_C_PLUGIN_FACTORY_H
+#define VITAL_C_PLUGIN_FACTORY_H
 
 #include <vital/bindings/c/common.h>
 #include <vital/bindings/c/vital_c_export.h>
-#include <vital/bindings/c/plugin_factory.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_loader/plugin_factory.h>
+
+#include <vector>
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-VITAL_C_EXPORT
-plugin_manager plugin_manager_instance();
+/// VITAL plugin_factory opaque structure
+typedef struct vital_plugin_factory_s vital_plugin_factory_t;
 
 VITAL_C_EXPORT
-void plugin_manager_load_all_plugins();
+vital_plugin_factory_t* vital_plugin_factory_new();
 
-VITAL_C_EXPORT
-void plugin_manager_load_plugins( size_t count, char** path_list );
 
-VITAL_C_EXPORT
-void plugin_manager_add_search_path_list( size_t count, char** path_list );
 
-VITAL_C_EXPORT
-void plugin_manager_add_search_path( char const* path );
-
-VITAL_C_EXPORT
-vital_plugin_factory_t* plugin_manager_add_factory( plugin_factory* fact );
-
-VITAL_C_EXPORT
-vital_plugin_factory_t** const& plugin_manager_get_factories( char const* type_name );
-
-VITAL_C_EXPORT
-void plugin_manager_reload_plugins();
-
-VITAL_C_EXPORT
-bool plugin_manager_is_module_loaded( char const* name);
-
-VITAL_C_EXPORT
-void plugin_manager_mark_module_as_loaded( char const* name);
-
-VITAL_C_EXPORT
-void plugin_manager_add_path_from_environment( char const* env_name );
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* VITAL_C_PLUGIN_MANAGER_H */
+#endif // VITAL_C_PLUGIN_FACTORY_H
