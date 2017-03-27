@@ -33,6 +33,7 @@
 // kwiver includes
 #include <vital/logger/logger.h>
 #include <vital/util/cpu_timer.h>
+#include <vital/algo/dynamic_configuration.h>
 #include <arrows/ocv/image_container.h>
 #include <kwiversys/SystemTools.hxx>
 
@@ -102,6 +103,8 @@ public:
 
   box *m_boxes;                   /* detection boxes */
   float **m_probs;                /*  */
+
+  kwiver::vital::algo::dynamic_configuration_sptr m_dynamic_scaling;
 };
 
 
@@ -128,6 +131,9 @@ get_configuration() const
   // Get base config from base class
   vital::config_block_sptr config = vital::algorithm::get_configuration();
 
+  kwiver::vital::algo::dynamic_configuration::
+    get_nested_algo_configuration( "scaling", config, d->m_dynamic_scaling );
+
   config->set_value( "net_config", d->m_net_config, "Name of network config file." );
   config->set_value( "weight_file", d->m_weight_file, "Name of optional weight file." );
   config->set_value( "class_names", d->m_class_names, "Name of file that contains the class names." );
@@ -150,6 +156,9 @@ set_configuration( vital::config_block_sptr config_in )
   vital::config_block_sptr config = this->get_configuration();
 
   config->merge_config( config_in );
+
+  kwiver::vital::algo::dynamic_configuration::
+    set_nested_algo_configuration( "scaling", config, d->m_dynamic_scaling );
 
   this->d->m_net_config  = config->get_value< std::string > ( "net_config" );
   this->d->m_weight_file = config->get_value< std::string > ( "weight_file" );
@@ -190,6 +199,11 @@ bool
 darknet_detector::
 check_configuration( vital::config_block_sptr config ) const
 {
+  if ( config->has_value( "scaling" ))
+  {
+  kwiver::vital::algo::dynamic_configuration::
+    check_nested_algo_configuration( "scaling", config );
+  }
 
   std::string net_config = config->get_value<std::string>( "net_config" );
   std::string class_file = config->get_value<std::string>( "class_names" );
@@ -231,12 +245,24 @@ vital::detected_object_set_sptr
 darknet_detector::
 detect( vital::image_container_sptr image_data ) const
 {
+  double scale_factor(1.0);
+
+  // Is dynamic scaling configured
+  if (d->m_dynamic_scaling)
+  {
+    auto dyn_cfg = d->m_dynamic_scaling->get_dynamic_configuration();
+    scale_factor = dyn_cfg->get_value<double>( "scale_factor", 1.0 );
+  }
+
   kwiver::vital::scoped_cpu_timer t( "Time to Detect Objects" );
-  cv::Mat cv_image = kwiver::arrows::ocv::image_container::vital_to_ocv( image_data->get_image(), kwiver::arrows::ocv::image_container::BGR );
+  cv::Mat cv_image = kwiver::arrows::ocv::image_container::vital_to_ocv( image_data->get_image(),
+                                                     kwiver::arrows::ocv::image_container::BGR );
 
   // copies and converts to floating pixel value.
   image im = d->cvmat_to_image( cv_image );
   // show_image( im, "first version" );
+
+  // TBD - what to do with the scale_factor?
 
   image sized = resize_image( im, d->m_net.w, d->m_net.h );
   // show_image( sized, "sized version" );
@@ -326,8 +352,8 @@ detect( vital::image_container_sptr image_data ) const
       {
         const std::string class_name( d->m_names[class_idx] );
         dot->set_score( class_name, prob );
-        conf = std::max( conf, prob );
-        has_name = true;
+	conf = std::max( conf, prob );
+	has_name = true;
       }
     } // end for loop over classes
 
@@ -367,7 +393,7 @@ cvmat_to_image( const cv::Mat& src )
   for(k = c-1; k >= 0 ; --k){
     for(i = 0; i < h; ++i){
       for(j = 0; j < w; ++j){
-        out.data[count++] = data[i*step + j*c + k]/255.;
+	out.data[count++] = data[i*step + j*c + k]/255.;
       }
     }
   }
