@@ -7,7 +7,7 @@
 #
 # The following variables may be used to control the behavior of the functions:
 #
-#   SPROKIT_TEST_ADD_TARGETS
+#   KWIVER_TEST_ADD_TARGETS
 #     A boolean flag which, if true, adds targets to the build to run the tests
 #     in groupings. This is added to the cache as an advanced variable.
 #
@@ -38,14 +38,12 @@
 #     arguments ${instance} ${ARGN}. If enabled, it adds a target named
 #     test-${name}-${instance} to be run by the build if wanted.
 
-option(SPROKIT_TEST_ADD_TARGETS "Add targets for tests to the build system" OFF)
-mark_as_advanced(SPROKIT_TEST_ADD_TARGETS)
-if (SPROKIT_TEST_ADD_TARGETS)
+if (KWIVER_TEST_ADD_TARGETS)
   add_custom_target(tests)
 endif ()
 
 function (sprokit_declare_test name)
-  if (NOT SPROKIT_TEST_ADD_TARGETS)
+  if (NOT KWIVER_TEST_ADD_TARGETS)
     return()
   endif ()
 
@@ -100,7 +98,7 @@ function (sprokit_add_test name instance)
       PROPERTIES
         ENVIRONMENT "${sprokit_test_environment}")
   endif ()
-  if (SPROKIT_TEST_ADD_TARGETS)
+  if (KWIVER_TEST_ADD_TARGETS)
     add_custom_target(test-${name}-${instance})
     add_custom_command(
       TARGET  test-${name}-${instance}
