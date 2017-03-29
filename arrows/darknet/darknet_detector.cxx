@@ -199,17 +199,18 @@ bool
 darknet_detector::
 check_configuration( vital::config_block_sptr config ) const
 {
-  if ( config->has_value( "scaling" ))
-  {
-    kwiver::vital::algo::dynamic_configuration::
-      check_nested_algo_configuration( "scaling", config );
-  }
-
   std::string net_config = config->get_value<std::string>( "net_config" );
   std::string class_file = config->get_value<std::string>( "class_names" );
 
   bool success( true );
 
+  if ( config->has_value( "scaling" ))
+  {
+    success &= kwiver::vital::algo::dynamic_configuration::
+      check_nested_algo_configuration( "scaling", config );
+  }
+
+  
   if ( net_config.empty() )
   {
     std::stringstream str;

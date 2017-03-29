@@ -218,9 +218,15 @@ bool
 faster_rcnn_detector::
 check_configuration( vital::config_block_sptr config ) const
 {
+  std::string classes = config->get_value< std::string > ( "classes" );
+  std::string prototxt = config->get_value< std::string > ( "prototxt" );
+  std::string caffemodel = config->get_value< std::string > ( "caffe_model" );
+
+  bool success( true );
+
   if ( config->has_value( "scaling" ))
   {
-    kwiver::vital::algo::dynamic_configuration::
+    success &= kwiver::vital::algo::dynamic_configuration::
       check_nested_algo_configuration( "scaling", config );
   }
 
@@ -236,12 +242,6 @@ check_configuration( vital::config_block_sptr config ) const
       Caffe::set_mode( Caffe::CPU );
     }
   }
-
-  std::string classes = config->get_value< std::string > ( "classes" );
-  std::string prototxt = config->get_value< std::string > ( "prototxt" );
-  std::string caffemodel = config->get_value< std::string > ( "caffe_model" );
-
-  bool success( true );
 
   if ( classes.empty() )
   {
