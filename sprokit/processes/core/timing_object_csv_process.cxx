@@ -103,6 +103,11 @@ void timing_object_csv_process
   // Get process config entries
   d->m_file_name = config_value_using_trait( output_csv_file );
   d->m_csv_file.open(d->m_file_name);
+  if(!d->m_csv_file)
+  {
+    throw sprokit::invalid_configuration_exception( name(), "Could not open file: " + d->m_file_name );
+  }
+  d->m_csv_file << "frame number,frame time,image file name,number of dections,process time\n";
 
   // Get algo config entries
   kwiver::vital::config_block_sptr algo_config = get_config(); // config for process
@@ -119,11 +124,16 @@ void timing_object_csv_process
                 grab_from_port_using_trait( detected_object_set );
   double m_detect_timer =
                      grab_from_port_using_trait( detection_time );
-  d->m_csv_file;
+  std::string fname;
+  if (has_input_port_edge_using_trait( image_file_name ) )
+  {
+    fname = grab_input_using_trait( image_file_name );
+  }
   d->m_csv_file << frame_time.get_frame() << ","
                 << frame_time.get_time_seconds() << ","
-                 << detects->size() << ","
-                 << m_detect_timer << std::endl;
+                << fname << ","
+                << detects->size() << ","
+                << m_detect_timer << std::endl;
 }
 
 
@@ -139,6 +149,7 @@ void timing_object_csv_process
   declare_input_port_using_trait( timestamp, required);
   declare_input_port_using_trait( detected_object_set, required );
   declare_input_port_using_trait( detection_time, required );
+  declare_input_port_using_trait( image_file_name, optional );
 
 }
 
