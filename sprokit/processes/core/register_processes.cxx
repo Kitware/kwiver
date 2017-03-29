@@ -55,6 +55,7 @@
 #include "simulate_target_selection_process.h"
 #include "stabilize_image_process.h"
 #include "video_input_process.h"
+#include "timing_object_csv_process.h"
 
 // ----------------------------------------------------------------
 /*! \brief Regsiter processes
@@ -203,6 +204,13 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                        "Adjusts coordinates of detected objects." );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
+  fact = vpm.ADD_PROCESS( kwiver::timing_object_csv_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "timing_object_csv" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Output the timing with the number of detections found." );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
   // - - - - - - - - - - - - - - - - - - - - - - -
