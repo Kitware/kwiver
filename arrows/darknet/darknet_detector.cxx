@@ -201,8 +201,8 @@ check_configuration( vital::config_block_sptr config ) const
 {
   if ( config->has_value( "scaling" ))
   {
-  kwiver::vital::algo::dynamic_configuration::
-    check_nested_algo_configuration( "scaling", config );
+    kwiver::vital::algo::dynamic_configuration::
+      check_nested_algo_configuration( "scaling", config );
   }
 
   std::string net_config = config->get_value<std::string>( "net_config" );
