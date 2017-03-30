@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016-2017 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,43 +28,44 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file
- * \brief Interface and implementation of CPU timer classes
- */
+#ifndef _KWIVER_TIMING_OBJECT_CSV_PROCESS_H_
+#define _KWIVER_TIMING_OBJECT_CSV_PROCESS_H_
 
-#ifndef KWIVER_VITAL_CPU_TIMER_H
-#define KWIVER_VITAL_CPU_TIMER_H
+#include <sprokit/pipeline/process.h>
+#include "kwiver_processes_export.h"
 
-#include <vital/util/timer.h>
+#include <memory>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver
+{
 
 // ----------------------------------------------------------------
 /**
- * @brief Interval timer class.
+ * \class timing_object_csv_process
  *
- * This class represents an interval timer that measures CPU time in
- * cases where there is no timer.
-
+ * \brief output the timing information
+ *
  */
-class cpu_timer
-  : public timer
+class KWIVER_PROCESSES_NO_EXPORT timing_object_csv_process
+  : public sprokit::process
 {
 public:
-  cpu_timer() = default;
-  virtual ~cpu_timer() = default;
-  virtual  bool timer_available() { return false; }
-  virtual void start() { }
-  virtual void stop() { }
-  virtual double elapsed() const { return 0.0; }
-}; // end class cpu_timer
+  timing_object_csv_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~timing_object_csv_process();
 
-// instantiate scoped timer
-template class scoped_timer< cpu_timer >;
-typedef scoped_timer< cpu_timer > scoped_cpu_timer;
 
-} }   // end namespace
+protected:
+  virtual void _configure();
+  virtual void _step();
 
-#endif /* KWIVER_VITAL_CPU_TIMER_H */
+private:
+  void make_ports();
+  void make_config();
+
+  class priv;
+  const std::unique_ptr<priv> d;
+}; // end class timing_object_csv_process
+
+}  // end namespace
+
+#endif // _KWIVER_TIMING_OBJECT_CSV_PROCESS_H_
