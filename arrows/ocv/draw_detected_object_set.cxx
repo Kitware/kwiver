@@ -38,6 +38,7 @@
 #include <vital/vital_types.h>
 #include <vital/vital_foreach.h>
 #include <vital/util/tokenize.h>
+#include <vital/algo/dynamic_configuration.h>
 
 #include <kwiversys/RegularExpression.hxx>
 #include <arrows/ocv/image_container.h>
@@ -115,6 +116,7 @@ public:
 
   draw_detected_object_set* m_parent;
 
+  kwiver::vital::algo::dynamic_configuration_sptr m_dynamic_config;
 
 
   // ------------------------------------------------------------------
@@ -304,7 +306,7 @@ process_config()
 
     VITAL_FOREACH( auto cs, cspec )
     {
-      kwiversys::RegularExpression exp( "\\$([^/]+)/([0-9.]+)/([0-9]+) ([0-9]+) ([0-9]+)" );
+      kwiversys::RegularExpression exp( "([^/]+)/([0-9.]+)/([0-9]+) ([0-9]+) ([0-9]+)" );
 
       if ( ! exp.find( cs ) )
       {
@@ -325,9 +327,9 @@ process_config()
       draw_detected_object_set::priv::Bound_Box_Params bp;
 
       bp.thickness = std::stof( exp.match(2) );
-      bp.color[0] = std::stoi( exp.match(5) );
+      bp.color[0] = std::stoi( exp.match(3) );
       bp.color[1] = std::stoi( exp.match(4) );
-      bp.color[2] = std::stoi( exp.match(3) );
+      bp.color[2] = std::stoi( exp.match(5) );
 
       m_custum_colors[exp.match(1)] = bp; // add to map
     } // end foreach
@@ -351,9 +353,9 @@ process_config()
       // exp.match(2) - color green
       // exp.match(3) - color blue
 
-      m_default_params.color[0] = std::stoi( exp.match(3) );
+      m_default_params.color[0] = std::stoi( exp.match(1) );
       m_default_params.color[1] = std::stoi( exp.match(2) );
-      m_default_params.color[2] = std::stoi( exp.match(1) );
+      m_default_params.color[2] = std::stoi( exp.match(3) );
   } // end local scope
 
   // Parse selected class_names
@@ -384,6 +386,9 @@ get_configuration() const
 {
   // Get base config from base class
   vital::config_block_sptr config = vital::algorithm::get_configuration();
+
+  kwiver::vital::algo::dynamic_configuration::
+    get_nested_algo_configuration( "runtime_config", config, d->m_dynamic_config );
 
   config->set_value( "threshold", d->m_threshold, "min threshold for output (float). "
                      "Detections with confidence values below this value are not drawn." );
@@ -425,6 +430,9 @@ set_configuration(vital::config_block_sptr config_in)
 
   config->merge_config( config_in );
 
+  kwiver::vital::algo::dynamic_configuration::
+    set_nested_algo_configuration( "runtime_config", config, d->m_dynamic_config );
+
   d->m_do_alpha                 = config->get_value< bool >( "alpha_blend_prob" );
   d->m_clip_box_to_image        = config->get_value< bool >( "clip_box_to_image" );
   d->m_tmp_custom               = config->get_value< std::string >( "custom_class_color" );
@@ -449,6 +457,13 @@ check_configuration(vital::config_block_sptr config) const
 {
   // This can be called before the config is "set". A more robust way
   // of determining validity should be used.
+
+  if ( config->has_value( "runtime_config" ))
+  {
+    d->m_config_error |= kwiver::vital::algo::dynamic_configuration::
+      check_nested_algo_configuration( "runtime_config", config );
+  }
+
   return ! d->m_config_error;
 }
 
@@ -459,6 +474,16 @@ draw_detected_object_set::
 draw( kwiver::vital::detected_object_set_sptr detected_set,
       kwiver::vital::image_container_sptr image )
 {
+  // Is dynamic config configured
+  if (d->m_dynamic_config)
+  {
+    auto dyn_cfg = d->m_dynamic_config->get_dynamic_configuration();
+
+    // Extract parameters if they are there
+    d->m_threshold = dyn_cfg->get_value< float >( "threshold", d->m_threshold );
+    d->m_draw_text = dyn_cfg->get_value< bool >( "draw_text", d->m_draw_text );
+  }
+
   auto result = d->draw_detections( image, detected_set );
   return result;
 }

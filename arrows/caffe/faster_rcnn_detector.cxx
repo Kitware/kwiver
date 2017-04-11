@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@
 #include <vital/io/eigen_io.h>
 #include <vital/util/cpu_timer.h>
 #include <vital/util/data_stream_reader.h>
+#include <vital/algo/dynamic_configuration.h>
 #include <vital/logger/logger.h>
 #include <kwiversys/SystemTools.hxx>
 
@@ -81,6 +82,8 @@ public:
   unsigned int m_stride;
 
   kwiver::vital::logger_handle_t m_logger;
+
+  kwiver::vital::algo::dynamic_configuration_sptr m_dynamic_scaling;
 
   std::pair< cv::Mat, double > prepair_image( cv::Mat const& in_image ) const;
   std::vector< Blob< float >* > set_up_inputs( std::pair< cv::Mat, double > const& pair ) const;
@@ -128,6 +131,9 @@ faster_rcnn_detector::
   // Get base config from base class
   vital::config_block_sptr config = vital::algorithm::get_configuration();
 
+  kwiver::vital::algo::dynamic_configuration::
+    get_nested_algo_configuration( "scaling", config, d->m_dynamic_scaling );
+
   config->set_value( "classes", d->m_classes_file,
                      "Text file containing the names of the classes supported by this faster rcnn." );
   config->set_value( "prototxt", d->m_prototxt_file,
@@ -154,9 +160,11 @@ void
 faster_rcnn_detector::
 set_configuration( vital::config_block_sptr config_in )
 {
-  //+ is this merge really needed?
   vital::config_block_sptr config = this->get_configuration();
   config->merge_config( config_in );
+
+  kwiver::vital::algo::dynamic_configuration::
+    set_nested_algo_configuration( "scaling", config, d->m_dynamic_scaling );
 
   this->d->m_classes_file  = config->get_value< std::string > ( "classes" );
   this->d->m_prototxt_file = config->get_value< std::string > ( "prototxt" );
@@ -210,6 +218,18 @@ bool
 faster_rcnn_detector::
 check_configuration( vital::config_block_sptr config ) const
 {
+  std::string classes = config->get_value< std::string > ( "classes" );
+  std::string prototxt = config->get_value< std::string > ( "prototxt" );
+  std::string caffemodel = config->get_value< std::string > ( "caffe_model" );
+
+  bool success( true );
+
+  if ( config->has_value( "scaling" ))
+  {
+    success &= kwiver::vital::algo::dynamic_configuration::
+      check_nested_algo_configuration( "scaling", config );
+  }
+
   if ( Caffe::mode() != ( ( d->m_use_gpu ) ? Caffe::GPU : Caffe::CPU ) )
   {
     if ( d->m_use_gpu )
@@ -222,12 +242,6 @@ check_configuration( vital::config_block_sptr config ) const
       Caffe::set_mode( Caffe::CPU );
     }
   }
-
-  std::string classes = config->get_value< std::string > ( "classes" );
-  std::string prototxt = config->get_value< std::string > ( "prototxt" );
-  std::string caffemodel = config->get_value< std::string > ( "caffe_model" );
-
-  bool success( true );
 
   if ( classes.empty() )
   {
@@ -271,12 +285,16 @@ vital::detected_object_set_sptr
 faster_rcnn_detector::
 detect( vital::image_container_sptr image_data ) const
 {
-  //Convert to opencv image
-  if ( image_data == NULL ) //+ this should never happen
+  double scale_factor(1.0);
+
+  // Is dynamic scaling configured
+  if (d->m_dynamic_scaling)
   {
-    return vital::detected_object_set_sptr();
+    auto dyn_cfg = d->m_dynamic_scaling->get_dynamic_configuration();
+    scale_factor = dyn_cfg->get_value<double>( "scale_factor", 1.0 );
   }
 
+  //Convert to opencv image
   if ( Caffe::mode() != ( ( d->m_use_gpu ) ? Caffe::GPU : Caffe::CPU ) )
   {
     if ( d->m_use_gpu )
