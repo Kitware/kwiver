@@ -35,7 +35,7 @@
 #include <vital/types/image.h>
 #include <vital/types/timestamp.h>
 #include <vital/exceptions.h>
-#include <vital/util/string_format.h>
+#include <vital/util/string.h>
 #include <vital/util/wall_timer.h>
 
 #include <kwiver_type_traits.h>
@@ -107,7 +107,7 @@ void timing_object_csv_process
   {
     throw sprokit::invalid_configuration_exception( name(), "Could not open file: " + d->m_file_name );
   }
-  d->m_csv_file << "frame number,frame time,image file name,number of dections,process time\n";
+  d->m_csv_file << "# frame-number,frame-time,image-file-name,number-of-detections,process-time\n";
 
   // Get algo config entries
   kwiver::vital::config_block_sptr algo_config = get_config(); // config for process
@@ -150,7 +150,6 @@ void timing_object_csv_process
   declare_input_port_using_trait( detected_object_set, required );
   declare_input_port_using_trait( detection_time, required );
   declare_input_port_using_trait( image_file_name, optional );
-
 }
 
 

@@ -36,6 +36,7 @@
 // -- list processes to register --
 #include "bounding_box_generator_process.h"
 #include "compute_homography_process.h"
+#include "compute_stereo_depth_map_process.h"
 #include "detect_features_process.h"
 #include "detected_object_coordinate_updater_process.h"
 #include "detected_object_filter_process.h"
@@ -43,7 +44,6 @@
 #include "detected_object_output_process.h"
 #include "draw_detected_object_set_process.h"
 #include "draw_tracks_process.h"
-#include "detection_refiner_process.h"
 #include "extract_descriptors_process.h"
 #include "frame_list_process.h"
 #include "image_file_reader_process.h"
@@ -53,6 +53,7 @@
 #include "matcher_process.h"
 #include "read_descriptor_process.h"
 #include "simulate_target_selection_process.h"
+#include "refine_detections_process.h"
 #include "stabilize_image_process.h"
 #include "video_input_process.h"
 #include "timing_object_csv_process.h"
@@ -95,12 +96,6 @@ register_factories( kwiver::vital::plugin_loader& vpm )
                        "Detect features in an image that will be used for stabilization" );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
-  fact = vpm.ADD_PROCESS( kwiver::detection_refiner_process );
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "detection_refiner" );
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Refines detections for a given frame" );
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
-
   fact = vpm.ADD_PROCESS( kwiver::extract_descriptors_process );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "extract_descriptors" );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
@@ -119,6 +114,12 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Compute a frame to frame homography based on tracks" );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
+  fact = vpm.ADD_PROCESS( kwiver::compute_stereo_depth_map_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "compute_stereo_depth_map" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Compute a stereo depth map given two frames" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
   fact = vpm.ADD_PROCESS( kwiver::draw_tracks_process );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "draw_tracks" );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
@@ -129,6 +130,12 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "read_d_vector" );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Read vector of doubles" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
+  fact = vpm.ADD_PROCESS( kwiver::refine_detections_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "refine_detections" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Refines detections for a given frame" );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
   fact = vpm.ADD_PROCESS( kwiver::image_object_detector_process );

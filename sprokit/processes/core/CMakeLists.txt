@@ -8,13 +8,13 @@ set( sources
 
   bounding_box_generator_process.cxx
   compute_homography_process.cxx
+  compute_stereo_depth_map_process.cxx
   detect_features_process.cxx
   detected_object_coordinate_updater_process.cxx
   detected_object_filter_process.cxx
   detected_object_output_process.cxx
   detected_object_input_process.cxx
   detected_object_filter_process.cxx
-  detection_refiner_process.cxx
   draw_detected_object_set_process.cxx
   draw_tracks_process.cxx
   extract_descriptors_process.cxx
@@ -26,6 +26,7 @@ set( sources
   matcher_process.cxx
   read_descriptor_process.cxx
   simulate_target_selection_process.cxx
+  refine_detections_process.cxx
   stabilize_image_process.cxx
   video_input_process.cxx
   timing_object_csv_process.cxx
@@ -34,13 +35,13 @@ set( sources
 set( private_headers
   bounding_box_generator_process.h
   compute_homography_process.h
+  compute_stereo_depth_map_process.h
   detect_features_process.h
   detected_object_coordinate_updater_process.h
   detected_object_filter_process.h
   detected_object_output_process.h
   detected_object_input_process.h
   detected_object_filter_process.h
-  detection_refiner_process.h
   draw_detected_object_set_process.h
   draw_tracks_process.h
   extract_descriptors_process.h
@@ -52,6 +53,7 @@ set( private_headers
   matcher_process.h
   read_descriptor_process.h
   simulate_target_selection_process.h
+  refine_detections_process.h
   stabilize_image_process.h
   video_input_process.h
   timing_object_csv_process.h

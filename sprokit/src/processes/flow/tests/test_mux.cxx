@@ -32,7 +32,7 @@
 #include <test_common.h>
 
 #include <sprokit/processes/adapters/embedded_pipeline.h>
-#include <sprokit/tools/literal_pipeline.h>
+#include <sprokit/pipeline_util/literal_pipeline.h>
 
 #include <sstream>
 
