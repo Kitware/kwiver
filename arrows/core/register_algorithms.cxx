@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,7 @@
 #include <arrows/core/convert_image_bypass.h>
 #include <arrows/core/estimate_canonical_transform.h>
 #include <arrows/core/filter_features_magnitude.h>
+#include <arrows/core/formulate_query_core.h>
 #include <arrows/core/hierarchical_bundle_adjust.h>
 #include <arrows/core/initialize_cameras_landmarks.h>
 #include <arrows/core/match_features_fundamental_matrix.h>
@@ -55,7 +56,9 @@
 #include <arrows/core/detected_object_set_output_kw18.h>
 #include <arrows/core/detected_object_set_input_csv.h>
 #include <arrows/core/detected_object_set_output_csv.h>
+#include <arrows/core/track_descriptor_set_output_csv.h>
 #include <arrows/core/dynamic_config_none.h>
+
 
 namespace kwiver {
 namespace arrows {
@@ -199,6 +202,13 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     ;
 
+  fact = vpm.ADD_ALGORITHM( "core", kwiver::arrows::core::formulate_query_core );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Formulate descriptors for later queries." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
 
   fact = vpm.ADD_ALGORITHM( "none", kwiver::arrows::core::dynamic_config_none );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
@@ -284,6 +294,14 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     ;
 
+  fact = vpm.ADD_ALGORITHM( "csv", kwiver::arrows::core::track_descriptor_set_output_csv );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Track descriptor csv writer\n")
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
+
 
   fact = vpm.ADD_ALGORITHM( "class_probablity_filter", kwiver::arrows::core::class_probablity_filter );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
@@ -300,7 +318,6 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     ;
-
 
 
   vpm.mark_module_as_loaded( module_name );
