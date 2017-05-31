@@ -150,9 +150,10 @@ set( vital_public_headers
   types/timestamp.h
   types/timestamp_config.h
   types/track.h
+  types/track_descriptor.h
   types/track_set.h
   types/vector.h
-  types/uuid.h
+  types/uid.h
 
 )
 
@@ -200,8 +201,9 @@ set( vital_sources
   types/similarity.cxx
   types/timestamp.cxx
   types/track.cxx
+  types/track_descriptor.cxx
   types/track_set.cxx
-  types/uuid.cxx
+  types/uid.cxx
 )
 
 kwiver_install_headers(

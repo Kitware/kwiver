@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -30,38 +30,24 @@
 
 /**
  * \file
- * \brief test uuid functionality
+ * \brief Implementation for uid factory
  */
 
-#include <test_common.h>
+#include <vital/algo/uuid_factory.h>
+#include <vital/algo/algorithm.txx>
 
-#include <vital/types/uid.h>
-#include <iostream>
+namespace kwiver {
+namespace vital {
+namespace algo {
 
-#define TEST_ARGS      ()
-
-DECLARE_TEST_MAP();
-
-int
-main(int argc, char* argv[])
+uuid_factory
+::uuid_factory()
 {
-  CHECK_ARGS(1);
-
-  testname_t const testname = argv[1];
-
-  RUN_TEST(testname);
+  attach_logger( "uuid_factory" );
 }
 
+} } }
 
-IMPLEMENT_TEST( test_API )
-{
-  kwiver::vital::uid foo( "init" );
-
-  auto foo_2 = foo;
-  auto foo_3( foo );
-
-  if (foo != foo_3)
-  {
-    TEST_ERROR("Equal UUID test failed" );
-  }
-}
+/// \cond DoxygenSuppress
+INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::uuid_factory);
+/// \endcond

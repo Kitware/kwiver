@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2014-2015 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,40 +28,47 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file
- * \brief test uuid functionality
- */
+#ifndef VITAL_ALGO_FORMULATE_QUERY_H_
+#define VITAL_ALGO_FORMULATE_QUERY_H_
 
-#include <test_common.h>
+#include <vital/vital_config.h>
 
-#include <vital/types/uid.h>
-#include <iostream>
+#include <string>
+#include <memory>
 
-#define TEST_ARGS      ()
+#include <vital/algo/algorithm.h>
+#include <vital/types/image_container.h>
+#include <vital/types/descriptor_set.h>
 
-DECLARE_TEST_MAP();
+namespace kwiver {
+namespace vital {
+namespace algo {
 
-int
-main(int argc, char* argv[])
+/// An abstract base class for converting base image type
+class VITAL_ALGO_EXPORT formulate_query
+  : public kwiver::vital::algorithm_def<formulate_query>
 {
-  CHECK_ARGS(1);
+public:
+  /// Return the name of this algorithm
+  static std::string static_type_name() { return "formulate_query"; }
 
-  testname_t const testname = argv[1];
+  /// Set this algorithm's properties via a config block
+  virtual void set_configuration( kwiver::vital::config_block_sptr config );
+  /// Check that the algorithm's currently configuration is valid
+  virtual bool check_configuration( kwiver::vital::config_block_sptr config ) const;
 
-  RUN_TEST(testname);
-}
+  /// Formulate query
+  virtual kwiver::vital::descriptor_set_sptr formulate(
+    int request,
+    std::vector< kwiver::vital::image_container_sptr > images ) const = 0;
 
+protected:
+  formulate_query();
 
-IMPLEMENT_TEST( test_API )
-{
-  kwiver::vital::uid foo( "init" );
+};
 
-  auto foo_2 = foo;
-  auto foo_3( foo );
+typedef std::shared_ptr<formulate_query> formulate_query_sptr;
 
-  if (foo != foo_3)
-  {
-    TEST_ERROR("Equal UUID test failed" );
-  }
-}
+} } } // end namespace
+
+#endif // VITAL_ALGO_CONVERT_IMAGE_H_

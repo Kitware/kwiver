@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,38 +30,24 @@
 
 /**
  * \file
- * \brief test uuid functionality
+ * \brief compute_track_descriptors algorithm instantiation
  */
 
-#include <test_common.h>
+#include <vital/algo/compute_track_descriptors.h>
+#include <vital/algo/algorithm.txx>
 
-#include <vital/types/uid.h>
-#include <iostream>
+namespace kwiver {
+namespace vital {
+namespace algo {
 
-#define TEST_ARGS      ()
-
-DECLARE_TEST_MAP();
-
-int
-main(int argc, char* argv[])
+compute_track_descriptors
+::compute_track_descriptors()
 {
-  CHECK_ARGS(1);
-
-  testname_t const testname = argv[1];
-
-  RUN_TEST(testname);
+  attach_logger( "compute_track_descriptors" );
 }
 
+} } }
 
-IMPLEMENT_TEST( test_API )
-{
-  kwiver::vital::uid foo( "init" );
-
-  auto foo_2 = foo;
-  auto foo_3( foo );
-
-  if (foo != foo_3)
-  {
-    TEST_ERROR("Equal UUID test failed" );
-  }
-}
+/// \cond DoxygenSuppress
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::compute_track_descriptors );
+/// \endcond
