@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,38 +30,52 @@
 
 /**
  * \file
- * \brief test uuid functionality
+ * \brief compute_track_descriptors algorithm definition
  */
 
-#include <test_common.h>
+#ifndef VITAL_ALGO_COMPUTE_TRACK_DESCRIPTORS_H_
+#define VITAL_ALGO_COMPUTE_TRACK_DESCRIPTORS_H_
 
-#include <vital/types/uid.h>
-#include <iostream>
+#include <vital/vital_config.h>
 
-#define TEST_ARGS      ()
+#include <vital/algo/algorithm.h>
+#include <vital/types/image_container.h>
+#include <vital/types/track_descriptor.h>
+#include <vital/types/track_set.h>
 
-DECLARE_TEST_MAP();
+namespace kwiver {
+namespace vital {
+namespace algo {
 
-int
-main(int argc, char* argv[])
+/// An abstract base class for computing track descriptors
+class VITAL_ALGO_EXPORT compute_track_descriptors
+  : public kwiver::vital::algorithm_def<compute_track_descriptors>
 {
-  CHECK_ARGS(1);
+public:
+  /// Return the name of this algorithm
+  static std::string static_type_name() { return "compute_track_descriptors"; }
 
-  testname_t const testname = argv[1];
+  /// Compute track descriptors given an image and tracks
+  /**
+   * \param image_data contains the image data to process
+   * \param tracks the tracks to extract descriptors around
+   *
+   * \returns a set of track descriptors
+   */
+  virtual kwiver::vital::track_descriptor_set_sptr
+  compute( kwiver::vital::image_container_sptr image_data,
+           kwiver::vital::track_set_sptr tracks ) = 0;
 
-  RUN_TEST(testname);
-}
+protected:
+  compute_track_descriptors();
+
+};
 
 
-IMPLEMENT_TEST( test_API )
-{
-  kwiver::vital::uid foo( "init" );
+/// Shared pointer for base compute_track_descriptors algorithm definition class
+typedef std::shared_ptr<compute_track_descriptors> compute_track_descriptors_sptr;
 
-  auto foo_2 = foo;
-  auto foo_3( foo );
 
-  if (foo != foo_3)
-  {
-    TEST_ERROR("Equal UUID test failed" );
-  }
-}
+} } } // end namespace
+
+#endif // VITAL_ALGO_COMPUTE_TRACK_DESCRIPTORS_H_
