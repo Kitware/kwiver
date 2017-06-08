@@ -6,60 +6,131 @@ Kitware Image and Video Exploitation and Retrieval
 
 The KWIVER  toolkit is a collection of software tools designed to tackle challenging image and video analysis problems and other related challenges. Recently started by Kitware’s Computer Vision and Scientific Visualization teams, KWIVER is an ongoing effort to transition technology developed over multiple years to the open source domain to further research, collaboration, and product development.
 
-The project is structured with the parent `kwiver` repository working as CMake "super-build" that pulls in a number of KWIVER and other open source projects.
+The project is structured with the parent `kwiver` repository working as a CMake "super-build" that pulls in a number of KWIVER and other open source projects. Following the archery analogy, KWIVER works with arrows (i.e., plugins) to provide flexible integration with other libraries and algorithms.
 
 ## Building KWIVER
+These instructions will build Kwiver and all of its dependencies starting from a fresh Ubuntu 14.04 LTS 64-bit installation.  Start a terminal (ctrl+alt+t) and update the existing packages on Ubuntu:
+
+	sudo apt-get update && sudo apt-get upgrade
+
+Get all the required [build components](http://packages.ubuntu.com/trusty/build-essential):
+	
+	sudo apt-get install build-essential
+	
+Get the free implementation of [OpenGL API -- GLX dev](http://packages.ubuntu.com/trusty/libgl1-mesa-dev)
+
+	sudo apt-get install libgl1-mesa-dev
+
+Install [GIT](https://git-scm.com/) for version control and convenient cloning of packages ([package: git](http://packages.ubuntu.com/trusty/git)):
+
+	sudo apt-get install git
+
+Install LAPACK ([package: liblapack-dev](http://packages.ubuntu.com/trusty/liblapack-dev)), which is needed by [SuiteSparse](http://faculty.cse.tamu.edu/davis/suitesparse.html), which is used by the Ceres solver:
+	
+	sudo apt-get install liblapack-dev
+
+Install X11 toolkit intrinsics library with development headers ([libxt-dev](http://packages.ubuntu.com/precise/libxt-dev)), which is a dependency for at least VTK:
+
+	sudo apt-get install libxt-dev
+
+Install [libexpat1-dev](http://packages.ubuntu.com/trusty/libexpat1-dev), an XML parsing C library, which is needed to build libkml:
+
+	sudo apt-get install libexpat1-dev
+
+Install [libhdf5-dev](http://packages.ubuntu.com/trusty/libhdf5-dev), which is needed for OpenCV's extra modules:
+
+	apt-get install libhdf5-dev
+
+Install [libjpeg-dev](http://packages.ubuntu.com/precise/libjpeg-dev):
+
+	apt-get install libjpeg-devel
+
+Decide on a top-level directory location for KWIVER and its dependencies.  The rest of the documentation will assume a top level directory of ~/libraries:
+
+	mkdir ~/libraries && cd ~/libraries
+
+Install cmake-3.8.0-rc1 from pre-compiled binaries.
+
+	curl -O https://cmake.org/files/v3.8/cmake-3.8.0-rc1-Linux-x86_64.sh
+	chmod +x cmake-3.8.0-rc1-Linux-x86_64.sh
+	sudo sh ./cmake-3.8.0-rc1-Linux-x86_64.sh --prefix=/opt/cmake
+	rm cmake-3.8.0-rc1-Linux-x86_64.sh
+
+Add the CMake bin directory to your system PATH
+	
+	echo >> ~/.bashrc
+	echo 'export PATH=$PATH:/opt/cmake/cmake-3.8.0-rc1-Linux-x86_64/bin' >> ~/.bashrc
+	source ~/.bashrc
+
+ Get [Anaconda Python](https://store.continuum.io/cshop/anaconda/).  This is optional but convenient as it has lots of packages.  Make sure to accept when asked if you want to prepend the Anaconda2 install location to PATH.
+
+	curl -O https://repo.continuum.io/archive/Anaconda2-4.3.0-Linux-x86_64.sh
+	chmod +x Anaconda2-4.3.0-Linux-x86_64.sh
+	./Anaconda2-4.3.0-Linux-x86_64.sh
+	rm Anaconda2-4.3.0-Linux-x86_64.sh
+	source ~/.bashrc
 
 ### Fletch
 
 KWIVER has (and will have more) a number of dependencies on 3rd party Open Source libraries.  To make it easier to build KWIVER, especially on systems like Microsoft Windows that don't have package manager, [Fletch](https://github.com/Kitware/fletch) was developed to gather, configure and build those packages for use with KWIVER.  Fletch is a [CMake](www.cmake.org) based "super-build" that takes care of most of the build details for you.
-
+	
 To build Fletch, clone the Fletch repository:
-
-	git clone https://github.com/Kitware/fletch.git
-
+	
+	cd ~/libraries
+	git clone https://github.com/Kitware/fletch.git fletch
+	cd fletch
 	git submodule update --init
 
-Then, create a build directory and run the following `cmake` command:
+We recommend that all builds are done outside of the source directory in a parallel build tree to prevent mixing source files with compiled products
 
-	cmake -DFLETCH_BUILD_WITH_PYTHON:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Release -Dfletch_ENABLE_Boost:BOOL=TRUE -Dfletch_ENABLE_OpenCV:BOOL=TRUE  /path/to/fletch/source/directory
+	mkdir ~/libraries/fletch-build && cd ~/libraries/fletch-build
 
-If you have more than one version of Python installed on your system and you want to be sure to use a particular one (for example we here at KWIVER development central use [Anaconda](https://store.continuum.io/cshop/anaconda/) fairly frequently) you'll want to add the following arguments to the `cmake` command:
+Note: if Anaconda Python was installed and added to PATH, cmake should find it and automatically populate PYTHON_EXECUTABLE, PYTHON_INCLUDE, and PYTHON_LIBRARY.  However, if it does not and you want to use it over the native Python installations, you can pass the following arguements to the cmake command:
 
-* `-DPYTHON_INCLUDE_DIR=/path/to/python/include/directory`  For example, for a default Python 2.7 Anaconda install on Linux this would be `${HOME}/anaconda/include/python2.7`
-* `-DPYTHON_EXECUTABLE=/path/to/executable/python` For example, for a default Python 2.7 Anaconda install on Linux this would `${HOME}/anaconda/bin/python`
+* `-DPYTHON_INCLUDE_DIR=/path/to/python/include/directory`  For example, for a default Python 2.7 Anaconda install on Linux, this would be `${HOME}/anaconda/include/python2.7`
+* `-DPYTHON_EXECUTABLE=/path/to/executable/python` For example, for a default Python 2.7 Anaconda install on Linux, this would `${HOME}/anaconda/bin/python`
 * `-DPYTHON_LIBRARY=/path/to/python/library` For example, for a default Python 2.7 Anaconda install on Linux, this would be `${HOME}/anaconda/lib/libpython2.7.so`
 
-Once your `cmake` command has completed, you can build with the following command
+Run the following 'cmake' command to perform a default build cofiguration with all packages selected:
 
-	make
+	cmake -Dfletch_BUILD_WITH_PYTHON:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Release -Dfletch_ENABLE_Boost:BOOL=TRUE -Dfletch_ENABLE_OpenCV:BOOL=TRUE -Dfletch_ENABLE_ALL_PACKAGES=TRUE ../fletch
 
-### kwiver
+If you would prefer a graphical interface to toggle individual components, swap cmake for ccmake in the above call.  An iterative process of changing desired parameters and pressing 'c' is required until the generate command 'g' is available.  Each time you press 'c', more options open up, which cmake will try to satisfy.
+
+Once your `cmake` command has completed and a Makefile generated, you can build with the following command (using all cores)
+
+	make -j$(nproc)
+
+Fletch does an install by default, so running  `make install` is not necessary.  You will pass the Fletch build directory as an argument to cmake during the KWIVER build configuration.
+
+### KWIVER
 
 Once Fletch has been built, it's possible to build the `kwiver` repository as well.  This repo is also a CMake super-build
 and can be fetched with this command:
 
+	cd ~/libraries
 	git clone https://github.com/Kitware/kwiver.git
 
-The build can be configured with this command:
+The build can be configured with the following command:
 
-	cmake -DKWIVER_ENABLE_PYTHON:BOOL=ON -Dfletch_DIR:PATH=/path/to/fletch/build/directory /path/to/kwiver/source/directory
+	mkdir ~/libraries/kwiver-build && cd ~/libraries/kwiver-build
+	cmake -DKWIVER_ENABLE_PYTHON:BOOL=ON -Dfletch_DIR:PATH=~/libraries/fletch-build ~/libraries/kwiver
 
-As with Fletch, if you want to specify a particular Python installation (such as Anaconda) use the the `-DPYTHON...` command arguments as outlined in the Fletch section.
+As with Fletch, if you want to specify a particular Python installation (such as Anaconda) use the `-DPYTHON...` command arguments as outlined in the Fletch section.  However, CMake should find Anaconda if it has been added to PATH.
 
 Once your `cmake` command has completed, use `make` (on Linux) to build it.
 
 ## Running KWIVER
 
-Once you've built KWIVER, you'll want to test that it's working on your system.  From a command prompt execute the following command:
-
-	source </path/to/kwiver/build>/install/setup_KWIVER.sh
-
-Where `</path/to/kwiver/build>` is the actual path of your KWIVER CMake build directory.
+Once you've built KWIVER, you'll want to test that it's working on your system.  From a command prompt, execute the following commands to set up the KWIVER environment:
+	
+	cd ~/libraries/kwiver-build
+	chmod +x setup_KWIVER.sh
+	source ./setup_KWIVER.sh
 
 This will set up your PATH, PYTHONPATH and other environment variables to allow KWIVER to work conveniently.
 
-The central component of KWIVER is [Sprokit](www.sprokit.org).  We use Sprokit's pipelining facilities to manage, integrate and run many of KWIVER's modules and capabilities.  To see what modules (called processes in Sprocket) are available, issue the `processopedia` command.  Here's a typical list of modules (note that as KWIVER expands, this list is likely to grow):
+The central component of KWIVER is ([Sprokit](https://github.com/Kitware/sprokit)).  We use Sprokit's pipelining facilities to manage, integrate and run many of KWIVER's modules and capabilities.  To see what modules (called processes in Sprocket) are available, issue the `processopedia` command.  Here's a typical list of modules (note that as KWIVER expands, this list is likely to grow):
 
 	any_source: A process which creates arbitrary data
 	collate: Collates data from multiple worker processes
@@ -135,7 +206,7 @@ And for `print_number`, we'll use `processopedia -t print_number -d`:
 
 The output of these commands tells us enough about each process to construct a Sprocket ".pipe" file that defines a processing pipeline.  In particular we'll need to know how to configure each process (the "Configuration") and how they can be hooked together (the input and output "Ports").
 
-KWIVER comes with a sample [kwiver/pipeline_configs/number_flow.pipe](kwiver/pipeline_configs/number_flow.pipe) file that configures and connects the pipeline so that the `numbers` process will generate a set of integers from 1 to 99 and the `print_number` process will write those to a file called `numbers.txt`.  Of particular interest is the section at the end of the file that actually "hooks up" the pipeline.
+KWIVER comes with a sample [kwiver/sprokit/pipelines/number_flow.pipe](kwiver/sprokit/pipelines/number_flow.pipe) file that configures and connects the pipeline so that the `numbers` process will generate a set of integers from 1 to 99 and the `print_number` process will write those to a file called `numbers.txt`.  Of particular interest is the section at the end of the file that actually "hooks up" the pipeline.
 
 To run the pipeline, we'll use the Sprokit `pipeline_runner` command:
 
@@ -145,7 +216,7 @@ After the pipeline completes, you should find a file, `numbers.txt`, in your wor
 
 ### Python Processes
 
-One KWIVER's great strengths (as provided by Sprokit) is the ability to create hybrid pipelines which combine C++ and Python processes in the same pipeline.  This greatly facilitates prototyping complex processing pipelines.  To test this out we'll still use the `numbers` process, but we'll use a Python version of the `print_number` process called `kw_print_number_process` the code for which can be seen in [kwiver/processes/kw_print_number_process.py](kwiver/processes/kw_print_number_process.py).    As usual, we can lean about this process with a `processopedia` command: `processopedia -t kw_print_number_process -d`:
+One KWIVER's great strengths (as provided by Sprokit) is the ability to create hybrid pipelines which combine C++ and Python processes in the same pipeline.  This greatly facilitates prototyping complex processing pipelines.  To test this out we'll still use the `numbers` process, but we'll use a Python version of the `print_number` process called `kw_print_number_process` the code for which can be seen in [kwiver/sprokit/processes/python/kw_print_number_process.py](kwiver/sprokit/processes/python/kw_print_number_process.py).    As usual, we can lean about this process with a `processopedia` command: `processopedia -t kw_print_number_process -d`:
 
 	Process type: kw_print_number_process
 	  Description: A Simple Kwiver Test Process
@@ -198,7 +269,7 @@ Vital is an open source C++ collection of libraries and tools that supply basic 
 
 # Running CMake #
 
-We recommend building kwiver out of the source directory to prevent
+We recommend building KWIVER outside of the source directory to prevent
 mixing source files with compiled products.  Create a build directory
 in parallel with the kwiver source directory.  From the command line,
 enter the empty build directory and run
