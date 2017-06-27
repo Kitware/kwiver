@@ -60,6 +60,28 @@ namespace python {
     sprokit::python::python_print_exception();     \
   }
 
+#define SPROKIT_PYTHON_HANDLE_EXCEPTION_CONVERT_FROM_BOOST(call)     \
+  try                                             \
+  {                                               \
+    call;                                         \
+  }                                               \
+  catch (pybind11::error_already_set const&) \
+  {                                               \
+    sprokit::python::python_print_exception();    \
+                                                  \
+    throw;                                        \
+  }
+
+#define SPROKIT_PYTHON_IGNORE_EXCEPTION_CONVERT_FROM_BOOST(call)      \
+  try                                              \
+  {                                                \
+    call;                                          \
+  }                                                \
+  catch (pybind11::error_already_set const&)  \
+  {                                                \
+    sprokit::python::python_print_exception();     \
+  }
+
 #define SPROKIT_PYTHON_TRANSLATE_EXCEPTION(call)   \
   try                                              \
   {                                                \

@@ -34,9 +34,7 @@
 
 #include <sprokit/python/util/python_gil.h>
 
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
-#include <boost/python/class.hpp>
-#include <boost/python/module.hpp>
+#include <pybind11/pybind11.h>
 
 /**
  * \file edge.cxx
@@ -44,29 +42,28 @@
  * \brief Python bindings for \link sprokit::edge\endlink.
  */
 
-using namespace boost::python;
+using namespace pybind11;
 
-BOOST_PYTHON_MODULE(edge)
+PYBIND11_PLUGIN(edge)
 {
-  class_<sprokit::edge_datum_t>("EdgeDatum"
-    , no_init)
+
+  module m("edge", "Pybind11 edge plugin");
+
+  class_<sprokit::edge_datum_t>(m, "EdgeDatum")
     .def(init<>())
     .def(init<sprokit::datum_t, sprokit::stamp_t>())
     .def_readwrite("datum", &sprokit::edge_datum_t::datum)
     .def_readwrite("stamp", &sprokit::edge_datum_t::stamp)
   ;
-  class_<sprokit::edge_data_t>("EdgeData"
+  class_<sprokit::edge_data_t>(m, "EdgeData"
     , "A collection of data packets that may be passed through an edge.")
-    .def(vector_indexing_suite<sprokit::edge_data_t>())
   ;
-  class_<sprokit::edges_t>("Edges"
+  class_<sprokit::edges_t>(m, "Edges"
     , "A collection of edges.")
-    .def(vector_indexing_suite<sprokit::edges_t>())
   ;
 
-  class_<sprokit::edge, sprokit::edge_t, boost::noncopyable>("Edge"
-    , "A communication channel between processes."
-    , no_init)
+  class_<sprokit::edge, sprokit::edge_t>(m, "Edge"
+    , "A communication channel between processes.")
     .def(init<>())
     .def(init<kwiver::vital::config_block_sptr>())
     .def("makes_dependency", &sprokit::edge::makes_dependency
@@ -97,7 +94,9 @@ BOOST_PYTHON_MODULE(edge)
       , "Indicate that the downstream process is complete.")
     .def("is_downstream_complete", &sprokit::edge::is_downstream_complete
       , "Returns True if the downstream process is complete, False otherwise.")
-    .def_readonly("config_dependency", &sprokit::edge::config_dependency)
-    .def_readonly("config_capacity", &sprokit::edge::config_capacity)
+    .def_readonly_static("config_dependency", &sprokit::edge::config_dependency)
+    .def_readonly_static("config_capacity", &sprokit::edge::config_capacity)
   ;
+
+  return m.ptr();
 }

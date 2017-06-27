@@ -29,13 +29,8 @@
  */
 
 
-#include <boost/python/class.hpp>
-#include <boost/python/def.hpp>
-#include <boost/python/enum.hpp>
-#include <boost/python/extract.hpp>
-#include <boost/python/implicit.hpp>
-#include <boost/python/module.hpp>
-#include <boost/python/object.hpp>
+#include <pybind11/pybind11.h>
+
 #include <boost/any.hpp>
 #include <boost/cstdint.hpp>
 
@@ -55,7 +50,7 @@
  * \brief Python bindings for \link sprokit::datum\endlink.
  */
 
-using namespace boost::python;
+using namespace pybind11;
 
 static sprokit::datum_t new_datum(object const& obj);
 static sprokit::datum::type_t datum_type(sprokit::datum_t const& self);
@@ -69,10 +64,14 @@ static sprokit::datum_t datum_from_capsule( PyObject* cap );
 char const* sprokit_datum_PyCapsule_name() { return  "sprokit::datum"; }
 
 
-BOOST_PYTHON_MODULE(datum)
+PYBIND11_PLUGIN(datum)
 {
 
-  enum_<sprokit::datum::type_t>("DatumType"
+  module m("datum", "Pybind11 datum plugin");
+
+  class_<sprokit::datum> datum(m, "Datum_inst");
+
+  enum_<sprokit::datum::type_t>(datum, "DatumType"
     , "A type for a datum packet.")
     .value("invalid", sprokit::datum::invalid)
     .value("data", sprokit::datum::data)
@@ -82,30 +81,29 @@ BOOST_PYTHON_MODULE(datum)
     .value("error", sprokit::datum::error)
   ;
 
-  class_<sprokit::datum::error_t>("DatumError"
+  class_<sprokit::datum::error_t>(m, "DatumError"
     , "The type of an error message.");
 
   // constructors
-  def("new", &new_datum
+  m.def("new", &new_datum
     , (arg("dat"))
     , "Creates a new datum packet.");
-  def("datum_from_capsule", &datum_from_capsule
+  m.def("datum_from_capsule", &datum_from_capsule
       , (arg("dptr"))
       , "Converts datum* in capsule to datum_t");
-  def("empty", &sprokit::datum::empty_datum
+  m.def("empty", &sprokit::datum::empty_datum
     , "Creates an empty datum packet.");
-  def("flush", &sprokit::datum::flush_datum
+  m.def("flush", &sprokit::datum::flush_datum
     , "Creates a flush marker datum packet.");
-  def("complete", &sprokit::datum::complete_datum
+  m.def("complete", &sprokit::datum::complete_datum
     , "Creates a complete marker datum packet.");
-  def("error", &sprokit::datum::error_datum
+  m.def("error", &sprokit::datum::error_datum
     , (arg("err"))
     , "Creates an error datum packet.");
 
   // Methods on datum
-  class_<sprokit::datum_t>("Datum"
-    , "A packet of data within the pipeline."
-    , no_init)
+  class_<sprokit::datum_t>(m, "Datum"
+    , "A packet of data within the pipeline.")
     .def("type", &datum_type
       , "The type of the datum packet.")
     .def("datum_type", &datum_datum_type
@@ -129,6 +127,8 @@ BOOST_PYTHON_MODULE(datum)
 
   implicitly_convertible<boost::any, object>();
   implicitly_convertible<object, boost::any>();
+
+  return m.ptr();
 } // end module
 
 
@@ -140,7 +140,7 @@ new_datum(object const& obj)
 
   (void)gil;
 
-  boost::any const any = boost::python::extract<boost::any>(obj)();
+  boost::any const any = obj.cast<boost::any>();
 
   return sprokit::datum::new_datum(any);
 }
@@ -166,7 +166,7 @@ datum_get_datum(sprokit::datum_t const& self)
 
   boost::any const any = self->get_datum<boost::any>();
 
-  return object(any);
+  return cast(any);
 }
 
 std::string

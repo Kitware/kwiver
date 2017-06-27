@@ -37,13 +37,7 @@
 #include <sprokit/python/util/python_wrap_const_shared_ptr.h>
 #include <sprokit/python/util/set_indexing_suite.h>
 
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
-#include <boost/python/args.hpp>
-#include <boost/python/class.hpp>
-#include <boost/python/enum.hpp>
-#include <boost/python/implicit.hpp>
-#include <boost/python/module.hpp>
-#include <boost/python/operators.hpp>
+#include <pybind11/pybind11.h>
 
 /**
  * \file process.cxx
@@ -51,7 +45,7 @@
  * \brief Python bindings for \link sprokit::process\endlink.
  */
 
-using namespace boost::python;
+using namespace pybind11;
 
 /// \todo How to do grab_input_as<>?
 
@@ -167,45 +161,42 @@ class wrap_process
     data_info_t _edge_data_info(sprokit::edge_data_t const& data);
 };
 
-BOOST_PYTHON_MODULE(process)
+PYBIND11_PLUGIN(process)
 {
-  class_<sprokit::process::name_t>("ProcessName"
+
+  module m("process", "Pybind11 process plugin");
+
+  class_<sprokit::process::name_t>(m, "ProcessName"
     , "A type for the name of a process.");
-  class_<sprokit::process::names_t>("ProcessNames"
+  class_<sprokit::process::names_t>(m, "ProcessNames"
     , "A collection of process names.")
-    .def(vector_indexing_suite<sprokit::process::names_t>())
   ;
-  class_<sprokit::process::type_t>("ProcessType"
+  class_<sprokit::process::type_t>(m, "ProcessType"
     , "The type for a type of process.");
-  class_<sprokit::process::types_t>("ProcessTypes"
+  class_<sprokit::process::types_t>(m, "ProcessTypes"
     , "A collection of process types.")
-    .def(vector_indexing_suite<sprokit::process::types_t>())
   ;
-  class_<sprokit::process::property_t>("ProcessProperty"
+  class_<sprokit::process::property_t>(m, "ProcessProperty"
     , "A property on a process.");
-  class_<sprokit::process::properties_t>("ProcessProperties"
+  class_<sprokit::process::properties_t>(m, "ProcessProperties"
     , "A collection of properties on a process.")
-    .def(set_indexing_suite<sprokit::process::properties_t>())
   ;
-  class_<sprokit::process::port_description_t>("PortDescription"
+  class_<sprokit::process::port_description_t>(m, "PortDescription"
     , "A description for a port.");
-  class_<sprokit::process::port_t>("Port"
+  class_<sprokit::process::port_t>(m, "Port"
     , "The name of a port.");
-  class_<sprokit::process::ports_t>("Ports"
+  class_<sprokit::process::ports_t>(m, "Ports"
     , "A collection of ports.")
-    .def(vector_indexing_suite<sprokit::process::ports_t>())
   ;
-  class_<sprokit::process::port_type_t>("PortType"
+  class_<sprokit::process::port_type_t>(m, "PortType"
     , "The type of data on a port.");
-  class_<sprokit::process::port_flag_t>("PortFlag"
+  class_<sprokit::process::port_flag_t>(m, "PortFlag"
     , "A flag on a port.");
-  class_<sprokit::process::port_flags_t>("PortFlags"
+  class_<sprokit::process::port_flags_t>(m, "PortFlags"
     , "A collection of port flags.")
-    .def(set_indexing_suite<sprokit::process::port_flags_t>())
   ;
-  class_<sprokit::process::port_frequency_t>("PortFrequency"
-    , "A frequency for a port."
-    , no_init)
+  class_<sprokit::process::port_frequency_t>(m, "PortFrequency"
+    , "A frequency for a port.")
     .def(init<sprokit::process::frequency_component_t>())
     .def(init<sprokit::process::frequency_component_t, sprokit::process::frequency_component_t>())
     .def("numerator", &sprokit::process::port_frequency_t::numerator
@@ -223,28 +214,25 @@ BOOST_PYTHON_MODULE(process)
     .def(self / self)
     .def(!self)
   ;
-  class_<sprokit::process::port_addr_t>("PortAddr"
+  class_<sprokit::process::port_addr_t>(m, "PortAddr"
     , "An address for a port within a pipeline.")
     .def_readwrite("process", &sprokit::process::port_addr_t::first)
     .def_readwrite("port", &sprokit::process::port_addr_t::second)
   ;
-  class_<sprokit::process::port_addrs_t>("PortAddrs"
+  class_<sprokit::process::port_addrs_t>(m, "PortAddrs"
     , "A collection of port addresses.")
-    .def(vector_indexing_suite<sprokit::process::port_addrs_t>())
   ;
-  class_<sprokit::process::connection_t>("Connection"
+  class_<sprokit::process::connection_t>(m, "Connection"
     , "A connection between two ports.")
     .def_readwrite("upstream", &sprokit::process::connection_t::first)
     .def_readwrite("downstream", &sprokit::process::connection_t::second)
   ;
-  class_<sprokit::process::connections_t>("Connections"
+  class_<sprokit::process::connections_t>(m, "Connections"
     , "A collection of connections.")
-    .def(vector_indexing_suite<sprokit::process::connections_t>())
   ;
 
-  class_<sprokit::process::port_info, sprokit::process::port_info_t>("PortInfo"
-    , "Information about a port on a process."
-    , no_init)
+  class_<sprokit::process::port_info, sprokit::process::port_info_t>(m, "PortInfo"
+    , "Information about a port on a process.")
     .def(init<sprokit::process::port_type_t, sprokit::process::port_flags_t, sprokit::process::port_description_t, sprokit::process::port_frequency_t>())
     .def_readonly("type", &sprokit::process::port_info::type)
     .def_readonly("flags", &sprokit::process::port_info::flags)
@@ -254,9 +242,8 @@ BOOST_PYTHON_MODULE(process)
 
   implicitly_convertible<std::shared_ptr<sprokit::process::port_info>, sprokit::process::port_info_t>();
 
-  class_<sprokit::process::conf_info, sprokit::process::conf_info_t>("ConfInfo"
-    , "Information about a configuration on a process."
-    , no_init)
+  class_<sprokit::process::conf_info, sprokit::process::conf_info_t>(m, "ConfInfo"
+    , "Information about a configuration on a process.")
     .def(init<kwiver::vital::config_block_value_t, kwiver::vital::config_block_description_t, bool>())
     .def_readonly("default", &sprokit::process::conf_info::def)
     .def_readonly("description", &sprokit::process::conf_info::description)
@@ -265,15 +252,16 @@ BOOST_PYTHON_MODULE(process)
 
   implicitly_convertible<std::shared_ptr<sprokit::process::conf_info>, sprokit::process::conf_info_t>();
 
-  class_<sprokit::process::data_info, sprokit::process::data_info_t>("DataInfo"
-    , "Information about a set of data packets from edges."
-    , no_init)
+  class_<sprokit::process::data_info, sprokit::process::data_info_t>(m, "DataInfo"
+    , "Information about a set of data packets from edges.")
     .def(init<bool, sprokit::datum::type_t>())
     .def_readonly("in_sync", &sprokit::process::data_info::in_sync)
     .def_readonly("max_status", &sprokit::process::data_info::max_status)
   ;
 
-  enum_<sprokit::process::data_check_t>("DataCheck"
+  class_<sprokit::process> process(m, "Process inst");
+
+  enum_<sprokit::process::data_check_t>(process, "DataCheck"
     , "Levels of input validation")
     .value("none", sprokit::process::check_none)
     .value("sync", sprokit::process::check_sync)
@@ -282,9 +270,8 @@ BOOST_PYTHON_MODULE(process)
 
   implicitly_convertible<std::shared_ptr<sprokit::process::data_info>, sprokit::process::data_info_t>();
 
-  class_<wrap_process, boost::noncopyable>("PythonProcess"
-    , "The base class for Python processes."
-    , no_init)
+  class_<wrap_process, boost::noncopyable>(m, "PythonProcess"
+    , "The base class for Python processes.")
     .def(init<kwiver::vital::config_block_sptr>())
     .def("configure", &sprokit::process::configure
       , "Configure the process.")
@@ -501,6 +488,8 @@ BOOST_PYTHON_MODULE(process)
       , (arg("data"))
       , "Returns information about the given data.")
   ;
+
+  return m.ptr();
 }
 
 wrap_process

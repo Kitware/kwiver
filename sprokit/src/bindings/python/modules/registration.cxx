@@ -30,7 +30,7 @@
 
 #include <sprokit/src/bindings/python/modules/modules_python_export.h>
 
-#include <boost/python/import.hpp>
+#include <pybind11/pybind11.h>
 
 #include <sprokit/pipeline/utils.h>
 #include <sprokit/python/util/python_exceptions.h>
@@ -44,7 +44,7 @@
   #include <dlfcn.h>
 #endif
 
-using namespace boost::python;
+using namespace pybind11;
 
 static void load();
 static bool is_suppressed();
@@ -88,7 +88,7 @@ register_factories(kwiver::vital::plugin_loader& vpm)
 
   (void)gil;
 
-  SPROKIT_PYTHON_IGNORE_EXCEPTION(load())
+  SPROKIT_PYTHON_IGNORE_EXCEPTION_CONVERT_FROM_BOOST(load())
 }
 
 
@@ -96,7 +96,7 @@ register_factories(kwiver::vital::plugin_loader& vpm)
 void
 load()
 {
-  object const modules = import("sprokit.modules.modules");
+  object const modules = module::import("sprokit.modules.modules");
   object const loader = modules.attr("load_python_modules");
 
   loader();
