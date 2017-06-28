@@ -31,8 +31,7 @@
 #include <sprokit/pipeline/pipeline.h>
 #include <sprokit/pipeline/process_cluster.h>
 
-#include <boost/python/class.hpp>
-#include <boost/python/module.hpp>
+#include <pybind11/pybind11.h>
 
 /**
  * \file pipeline.cxx
@@ -40,13 +39,14 @@
  * \brief Python bindings for \link sprokit::pipeline\endlink.
  */
 
-using namespace boost::python;
+using namespace pybind11;
 
-BOOST_PYTHON_MODULE(pipeline)
+PYBIND11_PLUGIN(pipeline)
 {
-  class_<sprokit::pipeline, sprokit::pipeline_t, boost::noncopyable>("Pipeline"
-    , "A data structure for a collection of connected processes."
-    , no_init)
+  module m("pipeline","Pybind11 pipeline module");
+
+  class_<sprokit::pipeline, sprokit::pipeline_t>(m, "Pipeline"
+    , "A data structure for a collection of connected processes.")
     .def(init<>())
     .def(init<kwiver::vital::config_block_sptr>())
     .def("add_process", &sprokit::pipeline::add_process
@@ -56,10 +56,10 @@ BOOST_PYTHON_MODULE(pipeline)
       , (arg("name"))
       , "Remove a process from the pipeline.")
     .def("connect", &sprokit::pipeline::connect
-      , (arg("upstream"), arg("upstream_port"), arg("downstream"), arg("downstream_port"))
+      , arg("upstream"), arg("upstream_port"), arg("downstream"), arg("downstream_port")
       , "Connect two ports within the pipeline together.")
     .def("disconnect", &sprokit::pipeline::disconnect
-      , (arg("upstream"), arg("upstream_port"), arg("downstream"), arg("downstream_port"))
+      , arg("upstream"), arg("upstream_port"), arg("downstream"), arg("downstream_port")
       , "Disconnect two ports from each other in the pipeline.")
     .def("setup_pipeline", &sprokit::pipeline::setup_pipeline
       , "Prepares the pipeline for execution.")
@@ -86,43 +86,45 @@ BOOST_PYTHON_MODULE(pipeline)
       , (arg("name"))
       , "Get a cluster by name.")
     .def("connections_from_addr", &sprokit::pipeline::connections_from_addr
-      , (arg("name"), arg("port"))
+      , arg("name"), arg("port")
       , "Return the addresses of ports that are connected downstream of a port.")
     .def("connection_to_addr", &sprokit::pipeline::connection_to_addr
-      , (arg("name"), arg("port"))
+      , arg("name"), arg("port")
       , "Return the address for the port that is connected upstream of a port.")
     .def("upstream_for_process", &sprokit::pipeline::upstream_for_process
       , (arg("name"))
       , "Return all processes upstream of the given process.")
     .def("upstream_for_port", &sprokit::pipeline::upstream_for_port
-      , (arg("name"), arg("port"))
+      , arg("name"), arg("port")
       , "Return the process upstream of the given port.")
     .def("downstream_for_process", &sprokit::pipeline::downstream_for_process
       , (arg("name"))
       , "Return all processes downstream of the given process.")
     .def("downstream_for_port", &sprokit::pipeline::downstream_for_port
-      , (arg("name"), arg("port"))
+      , arg("name"), arg("port")
       , "Return the processes downstream of the given port.")
     .def("sender_for_port", &sprokit::pipeline::sender_for_port
-      , (arg("name"), arg("port"))
+      , arg("name"), arg("port")
       , "Return the port that is sending to the given port.")
     .def("receivers_for_port", &sprokit::pipeline::receivers_for_port
-      , (arg("name"), arg("port"))
+      , arg("name"), arg("port")
       , "Return the ports that are receiving from the given port.")
     .def("edge_for_connection", &sprokit::pipeline::edge_for_connection
-      , (arg("upstream_name"), arg("upstream_port"), arg("downstream_name"), arg("downstream_port"))
+      , arg("upstream_name"), arg("upstream_port"), arg("downstream_name"), arg("downstream_port")
       , "Returns the edge for the connection.")
     .def("input_edges_for_process", &sprokit::pipeline::input_edges_for_process
       , (arg("name"))
       , "Return the edges that are sending to the given process.")
     .def("input_edge_for_port", &sprokit::pipeline::input_edge_for_port
-      , (arg("name"), arg("port"))
+      , arg("name"), arg("port")
       , "Return the edge that is sending to the given port.")
     .def("output_edges_for_process", &sprokit::pipeline::output_edges_for_process
       , (arg("name"))
       , "Return the edges that are receiving data from the given process.")
     .def("output_edges_for_port", &sprokit::pipeline::output_edges_for_port
-      , (arg("name"), arg("port"))
+      , arg("name"), arg("port")
       , "Return the edges that are receiving data from the given port.")
   ;
+
+  return m.ptr();
 }

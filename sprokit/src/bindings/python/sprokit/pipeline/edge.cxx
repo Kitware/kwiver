@@ -30,6 +30,7 @@
 
 #include <sprokit/pipeline/datum.h>
 #include <sprokit/pipeline/edge.h>
+#include <sprokit/pipeline/process.h>
 #include <sprokit/pipeline/stamp.h>
 
 #include <sprokit/python/util/python_gil.h>

@@ -44,7 +44,7 @@
 
 #ifdef WIN32
 // Windows get_pointer const volatile workaround
-namespace pybind11
+namespace boost
 {
   template <> inline kwiver::vital::config_block const volatile*
   get_pointer( class kwiver::vital::config_block const volatile* cb )
@@ -221,7 +221,7 @@ config_getitem( kwiver::vital::config_block_sptr          self,
 void
 config_setitem( kwiver::vital::config_block_sptr          self,
                 kwiver::vital::config_block_key_t const&  key,
-                object const&                   value )
+                object const&                             value )
 {
   sprokit::python::python_gil const gil;
 
