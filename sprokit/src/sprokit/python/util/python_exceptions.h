@@ -43,28 +43,6 @@ namespace python {
   {                                               \
     call;                                         \
   }                                               \
-  catch (boost::python::error_already_set const&) \
-  {                                               \
-    sprokit::python::python_print_exception();    \
-                                                  \
-    throw;                                        \
-  }
-
-#define SPROKIT_PYTHON_IGNORE_EXCEPTION(call)      \
-  try                                              \
-  {                                                \
-    call;                                          \
-  }                                                \
-  catch (boost::python::error_already_set const&)  \
-  {                                                \
-    sprokit::python::python_print_exception();     \
-  }
-
-#define SPROKIT_PYTHON_HANDLE_EXCEPTION_CONVERT_FROM_BOOST(call)     \
-  try                                             \
-  {                                               \
-    call;                                         \
-  }                                               \
   catch (pybind11::error_already_set const&) \
   {                                               \
     sprokit::python::python_print_exception();    \
@@ -72,7 +50,7 @@ namespace python {
     throw;                                        \
   }
 
-#define SPROKIT_PYTHON_IGNORE_EXCEPTION_CONVERT_FROM_BOOST(call)      \
+#define SPROKIT_PYTHON_IGNORE_EXCEPTION(call)      \
   try                                              \
   {                                                \
     call;                                          \

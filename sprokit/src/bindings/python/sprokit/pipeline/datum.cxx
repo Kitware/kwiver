@@ -36,8 +36,6 @@
 
 #include <sprokit/pipeline/datum.h>
 
-#include <sprokit/python/any_conversion/prototypes.h>
-#include <sprokit/python/any_conversion/registration.h>
 #include <sprokit/python/util/python_gil.h>
 
 #include <limits>
@@ -63,15 +61,12 @@ static sprokit::datum_t datum_from_capsule( PyObject* cap );
 
 char const* sprokit_datum_PyCapsule_name() { return  "sprokit::datum"; }
 
-
 PYBIND11_PLUGIN(datum)
 {
 
   module m("datum", "Pybind11 datum plugin");
 
-  class_<sprokit::datum> datum(m, "Datum_inst");
-
-  enum_<sprokit::datum::type_t>(datum, "DatumType"
+  enum_<sprokit::datum::type_t>(m, "DatumType"
     , "A type for a datum packet.")
     .value("invalid", sprokit::datum::invalid)
     .value("data", sprokit::datum::data)
@@ -82,7 +77,8 @@ PYBIND11_PLUGIN(datum)
   ;
 
   class_<sprokit::datum::error_t>(m, "DatumError"
-    , "The type of an error message.");
+    , "The type of an error message.")
+    .def(pybind11::init<>());
 
   // constructors
   m.def("new", &new_datum
@@ -104,6 +100,7 @@ PYBIND11_PLUGIN(datum)
   // Methods on datum
   class_<sprokit::datum_t>(m, "Datum"
     , "A packet of data within the pipeline.")
+    .def(pybind11::init<>())
     .def("type", &datum_type
       , "The type of the datum packet.")
     .def("datum_type", &datum_datum_type
@@ -115,18 +112,6 @@ PYBIND11_PLUGIN(datum)
     .def("get_datum_ptr", &datum_get_datum_ptr
       , "Get pointer to datum object as a PyCapsule.")
   ;
-
-  sprokit::python::register_type<std::string>(0);
-  sprokit::python::register_type<int32_t>(1);
-  sprokit::python::register_type<char>(2);
-  sprokit::python::register_type<bool>(3);
-  sprokit::python::register_type<double>(4);
-
-  // At worst, pass the object itself through.
-  sprokit::python::register_type<object>(std::numeric_limits<sprokit::python::priority_t>::max());
-
-  implicitly_convertible<boost::any, object>();
-  implicitly_convertible<object, boost::any>();
 
   return m.ptr();
 } // end module

@@ -97,17 +97,19 @@ PYBIND11_PLUGIN(config)
     , arg("name") = kwiver::vital::config_block_key_t()
     , "Returns an empty configuration.");
 
-  class_<kwiver::vital::config_block_key_t>(m, "ConfigKey"
-    , "A key for a configuration.");
+  class_<kwiver::vital::config_block_key_t>(m, "ConfigKey")
+    .def(pybind11::init<>());
 
   class_<kwiver::vital::config_block_keys_t>(m, "ConfigKeys"
-    , "A collection of keys for a configuration.");
+    , "A collection of keys for a configuration.")
+    .def(pybind11::init<>());
 
-  class_<kwiver::vital::config_block_description_t>(m, "ConfigDescription"
-    , "A description of a configuration key.");
+  // We can't reuse the same C++ type in class_, so deal with std::string typedefs 
+  m.attr("ConfigDescription") = m.attr("ConfigKey");
+  m.attr("ConfigDescription").attr("__doc__") = "A description of a configuration key.";
 
-  class_<kwiver::vital::config_block_value_t>(m, "ConfigValue"
-    , "A value in the configuration.");
+  m.attr("ConfigValue") = m.attr("ConfigKey");
+  m.attr("ConfigValue").attr("__doc__") = "A value in the configuration";
 
   class_<kwiver::vital::config_block, kwiver::vital::config_block_sptr>(m, "Config"
     , "A key-value store of configuration values")

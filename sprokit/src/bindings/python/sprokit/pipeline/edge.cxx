@@ -58,10 +58,10 @@ PYBIND11_PLUGIN(edge)
   ;
   class_<sprokit::edge_data_t>(m, "EdgeData"
     , "A collection of data packets that may be passed through an edge.")
-  ;
+    .def(pybind11::init<>());
   class_<sprokit::edges_t>(m, "Edges"
     , "A collection of edges.")
-  ;
+    .def(pybind11::init<>());
 
   class_<sprokit::edge, sprokit::edge_t>(m, "Edge"
     , "A communication channel between processes.")

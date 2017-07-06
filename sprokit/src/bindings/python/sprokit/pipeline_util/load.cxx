@@ -36,7 +36,6 @@
 #include <sprokit/pipeline/process.h>
 
 #include <sprokit/python/util/pystream.h>
-#include <sprokit/python/util/python_convert_optional.h>
 #include <sprokit/python/util/python_gil.h>
 
 #include <pybind11/pybind11.h>
@@ -80,8 +79,6 @@ PYBIND11_PLUGIN(load)
 {
 
   module m("load","Pybind11 load module");
-
-  sprokit::python::register_optional_converter<sprokit::process::port_flags_t>("PortFlagsOpt", "An optional port flags.");
 
   class_<sprokit::token_t>(m, "Token"
     , "A token in the pipeline description.");

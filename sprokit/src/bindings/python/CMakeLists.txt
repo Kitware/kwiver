@@ -4,20 +4,13 @@
 
 project(sprokit_python)
 
-set(boost_python_library     python)
-
-if (KWIVER_ENABLE_PYTHON3)
-  set(boost_python_library    python3)
-endif ()
-
-string(TOUPPER ${boost_python_library} boost_python_library_upper)
-set(boost_python_library_var
-  Boost_${boost_python_library_upper}_LIBRARY)
+set(pybind11_library     python)
 
 find_package(Boost ${sprokit_boost_version} REQUIRED
   COMPONENTS
-    iostreams
-    ${boost_python_library})
+    iostreams)
+
+find_package(pybind11)
 
 find_package(PythonLibs ${PYTHON_VERSION} REQUIRED)
 include_directories(SYSTEM ${PYTHON_INCLUDE_DIR})

@@ -301,7 +301,7 @@ python_process_wrapper
 
   object proc;
 
-  SPROKIT_PYTHON_HANDLE_EXCEPTION_CONVERT_FROM_BOOST( proc = m_obj( config ) )
+  SPROKIT_PYTHON_HANDLE_EXCEPTION( proc = m_obj( config ) )
 
   return proc.cast< sprokit::process_t >();
 }

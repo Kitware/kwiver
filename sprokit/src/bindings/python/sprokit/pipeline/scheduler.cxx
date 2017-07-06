@@ -110,7 +110,7 @@ PYBIND11_PLUGIN(scheduler)
 
   module m("scheduler","Pybind11 scheduler module");
 
-  class_<wrap_scheduler, sprokit::scheduler>(m, "PythonScheduler"
+  class_<wrap_scheduler>(m, "PythonScheduler"
     , "The base class for Python schedulers.")
     .def(init<sprokit::pipeline_t, kwiver::vital::config_block_sptr>())
     .def("start", &sprokit::scheduler::start

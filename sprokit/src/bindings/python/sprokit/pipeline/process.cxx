@@ -34,8 +34,6 @@
 
 #include <sprokit/python/util/python_exceptions.h>
 #include <sprokit/python/util/python_gil.h>
-#include <sprokit/python/util/python_wrap_const_shared_ptr.h>
-#include <sprokit/python/util/set_indexing_suite.h>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
@@ -341,8 +339,6 @@ PYBIND11_PLUGIN(process)
     .def_readonly("frequency", &sprokit::process::port_info::frequency)
   ;
 
-  implicitly_convertible<std::shared_ptr<sprokit::process::port_info>, sprokit::process::port_info_t>();
-
   class_<sprokit::process::conf_info>(m, "ConfInfo"
     , "Information about a configuration on a process.")
     .def(init<kwiver::vital::config_block_value_t, kwiver::vital::config_block_description_t, bool>())
@@ -351,8 +347,6 @@ PYBIND11_PLUGIN(process)
     .def_readonly("tunable", &sprokit::process::conf_info::tunable)
   ;
 
-  implicitly_convertible<std::shared_ptr<sprokit::process::conf_info>, sprokit::process::conf_info_t>();
-
   class_<sprokit::process::data_info>(m, "DataInfo"
     , "Information about a set of data packets from edges.")
     .def(init<bool, sprokit::datum::type_t>())
@@ -360,16 +354,12 @@ PYBIND11_PLUGIN(process)
     .def_readonly("max_status", &sprokit::process::data_info::max_status)
   ;
 
-  class_<wrap_process> process(m, "Process inst");
-
-  enum_<sprokit::process::data_check_t>(process, "DataCheck"
+  enum_<sprokit::process::data_check_t>(m, "DataCheck"
     , "Levels of input validation")
     .value("none", sprokit::process::check_none)
     .value("sync", sprokit::process::check_sync)
     .value("valid", sprokit::process::check_valid)
   ;
-
-  implicitly_convertible<std::shared_ptr<sprokit::process::data_info>, sprokit::process::data_info_t>();
 
   class_<wrap_process, sprokit::process>(m, "PythonProcess"
     , "The base class for Python processes.")
