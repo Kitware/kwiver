@@ -45,11 +45,21 @@ if( KWIVER_ENABLE_OPENCV  AND  KWIVER_ENABLE_CAFFE )
 endif()
 
 # if matlab is enabled
-if (KWIVER_ENABLE_MATLAB)
+if( KWIVER_ENABLE_MATLAB )
   add_subdirectory( matlab )
 endif()
 
 # if darknet is enabled
-if (KWIVER_ENABLE_DARKNET)
+if( KWIVER_ENABLE_DARKNET )
   add_subdirectory( darknet )
+endif()
+
+# if burnout is enabled
+if( KWIVER_ENABLE_BURNOUT )
+  add_subdirectory( burnout )
+endif()
+
+# if uuid is enabled
+if( KWIVER_ENABLE_UUID )
+  add_subdirectory( uuid )
 endif()
