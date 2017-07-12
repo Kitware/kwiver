@@ -49,6 +49,7 @@ set( public_headers
   triangulate_landmarks.h
   uuid_factory.h
   video_input.h
+  warp_image.h
   )
 
 set( sources
@@ -94,6 +95,7 @@ set( sources
   triangulate_landmarks.cxx
   uuid_factory.cxx
   video_input.cxx
+  warp_image.cxx
 )
 
 kwiver_install_headers(
