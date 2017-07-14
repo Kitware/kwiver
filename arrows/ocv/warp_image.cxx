@@ -35,6 +35,13 @@
 
 #include "warp_image.h"
 
+#include <vital/exceptions.h>
+
+#include <arrows/ocv/image_container.h>
+
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core/eigen.hpp>
+
 namespace kwiver {
 namespace arrows {
 namespace ocv {
@@ -119,6 +126,31 @@ warp_image
         image_container_sptr& image_dest,
         homography_sptr homog) const
 {
+  if ( !image_src || !homog )
+  {
+    throw vital::invalid_data("Inputs to ocv::warp_image are null");
+  }
+
+  cv::Mat cv_src = ocv::image_container::vital_to_ocv(image_src->get_image());
+
+  cv::Mat cv_H;
+  eigen2cv(homog->matrix(), cv_H);
+
+  cv::Mat cv_dest;
+  if ( image_dest )
+  {
+    cv_dest = ocv::image_container::vital_to_ocv(image_dest->get_image());
+  }
+
+  cv::Size cv_dsize = cv_dest.size();
+  if ( cv_dsize.width < 1 || cv_dsize.height < 1 )
+  {
+    cv_dsize = cv_src.size();
+  }
+
+  cv::warpPerspective(cv_src, cv_dest, cv_H, cv_dsize);
+
+  image_dest = std::make_shared<ocv::image_container>(cv_dest);
 }
 
 
