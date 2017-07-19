@@ -72,7 +72,7 @@ namespace kwiver {
 namespace arrows {
 namespace darknet {
 
-// ==================================================================
+// =============================================================================
 class darknet_detector::priv
 {
 public:
@@ -127,7 +127,7 @@ public:
 };
 
 
-// ==================================================================
+// =============================================================================
 darknet_detector::
 darknet_detector()
   : d( new priv() )
@@ -142,7 +142,7 @@ darknet_detector::
 {}
 
 
-// --------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 vital::config_block_sptr
 darknet_detector::
 get_configuration() const
@@ -181,13 +181,14 @@ get_configuration() const
 }
 
 
-// --------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 void
 darknet_detector::
 set_configuration( vital::config_block_sptr config_in )
 {
-  // Starting with our generated config_block to ensure that assumed values are present
-  // An alternative is to check for key presence before performing a get_value() call.
+  // Starting with our generated config_block to ensure that assumed values
+  // are present. An alternative is to check for key presence before performing
+  // a get_value() call.
   vital::config_block_sptr config = this->get_configuration();
 
   config->merge_config( config_in );
@@ -211,7 +212,7 @@ set_configuration( vital::config_block_sptr config_in )
    * constant in net description */
 
 #ifdef DARKNET_USE_GPU
-  if ( d->m_gpu_index >= 0 )
+  if( d->m_gpu_index >= 0 )
   {
     cuda_set_device( d->m_gpu_index );
   }
@@ -221,7 +222,7 @@ set_configuration( vital::config_block_sptr config_in )
   d->m_names = get_labels( const_cast< char* >( d->m_class_names.c_str() ) );
 
   d->m_net = parse_network_cfg( const_cast< char* >( d->m_net_config.c_str() ) );
-  if ( ! d->m_weight_file.empty() )
+  if( ! d->m_weight_file.empty() )
   {
     load_weights( &d->m_net, const_cast< char* >( d->m_weight_file.c_str() ) );
   }
@@ -234,7 +235,7 @@ set_configuration( vital::config_block_sptr config_in )
 } // darknet_detector::set_configuration
 
 
-// --------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 bool
 darknet_detector::
 check_configuration( vital::config_block_sptr config ) const
@@ -259,13 +260,13 @@ check_configuration( vital::config_block_sptr config ) const
       "Configuration is as follows:\n" << str.str() );
     success = false;
   }
-  else if ( ! kwiversys::SystemTools::FileExists( net_config ) )
+  else if( ! kwiversys::SystemTools::FileExists( net_config ) )
   {
     LOG_ERROR( logger(), "net config file \"" << net_config << "\" not found." );
     success = false;
   }
 
-  if ( class_file.empty() )
+  if( class_file.empty() )
   {
     std::stringstream str;
     config->print( str );
@@ -273,7 +274,7 @@ check_configuration( vital::config_block_sptr config ) const
       "Configuration is as follows:\n" << str.str() );
     success = false;
   }
-  else if ( ! kwiversys::SystemTools::FileExists( class_file ) )
+  else if( ! kwiversys::SystemTools::FileExists( class_file ) )
   {
     LOG_ERROR( logger(), "class names file \"" << class_file << "\" not found." );
     success = false;
@@ -290,7 +291,7 @@ check_configuration( vital::config_block_sptr config ) const
 } // darknet_detector::check_configuration
 
 
-// --------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 vital::detected_object_set_sptr
 darknet_detector::
 detect( vital::image_container_sptr image_data ) const
@@ -328,38 +329,33 @@ detect( vital::image_container_sptr image_data ) const
     detections = d->process_image( cv_resized_image );
 
     // rescales output detections if required
-    detections->scale( scale_factor );
+    detections->scale( 1.0 / scale_factor );
   }
   else
   {
     detections = std::make_shared< vital::detected_object_set >();
 
     // Chip up and process scaled image
-    for( int i = 0; i < cv_resized_image.cols; i += d->m_chip_step )
+    for( int li = 0; li < cv_resized_image.cols; li += d->m_chip_step )
     {
-      int ti = i + d->m_resize_i;
+      int ti = std::min( li + d->m_resize_i, cv_resized_image.cols );
 
-      if( ti > cv_resized_image.cols )
+      for( int lj = 0; lj < cv_resized_image.rows; lj += d->m_chip_step )
       {
-        ti = cv_resized_image.cols - ti;
-      }
-      for( int j = 0; j < cv_resized_image.rows; j += d->m_chip_step )
-      {
-        int tj = j + d->m_resize_j;
+        int tj = std::min( lj + d->m_resize_j, cv_resized_image.rows );
 
-        if( tj > cv_resized_image.rows )
-        {
-          tj = cv_resized_image.rows - tj;
-        }
-
-        cv::Mat cropped_image = cv_resized_image( cv::Rect( i, j, ti, tj ) );
+        cv::Mat cropped_image = cv_resized_image( cv::Rect( li, lj, ti-li, tj-lj ) );
         cv::Mat scaled_crop;
-        double scaled_crop_scale = scale_image_maintaining_ar( cropped_image,
-          scaled_crop, d->m_resize_i, d->m_resize_j );
+
+        double scaled_crop_scale = scale_image_maintaining_ar(
+          cropped_image, scaled_crop, d->m_resize_i, d->m_resize_j );
+
         vital::detected_object_set_sptr new_dets = d->process_image( scaled_crop );
-        new_dets->scale( scaled_crop_scale );
-        new_dets->shift( i, j );
-        new_dets->scale( scale_factor );
+
+        new_dets->scale( 1.0 / scaled_crop_scale );
+        new_dets->shift( li, lj );
+        new_dets->scale( 1.0 / scale_factor );
+
         detections->add( new_dets );
       }
     }
@@ -368,10 +364,14 @@ detect( vital::image_container_sptr image_data ) const
     if( d->m_resize_option == "chip_and_original" )
     {
       cv::Mat scaled_original;
+
       double scaled_original_scale = scale_image_maintaining_ar( cv_image,
         scaled_original, d->m_resize_i, d->m_resize_j );
+
       vital::detected_object_set_sptr new_dets = d->process_image( scaled_original );
-      new_dets->scale( scaled_original_scale );
+
+      new_dets->scale( 1.0 / scaled_original_scale );
+
       detections->add( new_dets );
     }
   }
@@ -380,7 +380,7 @@ detect( vital::image_container_sptr image_data ) const
 } // darknet_detector::detect
 
 
-// ==================================================================
+// =============================================================================
 vital::detected_object_set_sptr
 darknet_detector::priv::
 process_image( const cv::Mat& cv_image )
@@ -397,11 +397,11 @@ process_image( const cv::Mat& cv_image )
   layer l = m_net.layers[m_net.n - 1];     /* last network layer (output?) */
   const size_t l_size = l.w * l.h * l.n;
 
-  m_boxes = (box*) calloc( l_size, sizeof( box ) );
-  m_probs = (float**) calloc( l_size, sizeof( float* ) ); // allocate vector of pointers
-  for ( size_t j = 0; j < l_size; ++j )
+  m_boxes = static_cast< box* >( calloc( l_size, sizeof( box ) ) );
+  m_probs = static_cast< float** >( calloc( l_size, sizeof( float* ) ) ); // allocate vector of pointers
+  for( size_t j = 0; j < l_size; ++j )
   {
-    m_probs[j] = (float*) calloc( l.classes + 1, sizeof( float*) );
+    m_probs[j] = static_cast< float* >( calloc( l.classes + 1, sizeof( float*) ) );
   }
 
   /* pointer the image data */
@@ -422,11 +422,11 @@ process_image( const cv::Mat& cv_image )
 
   const float nms( 0.4 );       // don't know what this is
 
-  if ( l.softmax_tree && nms )
+  if( l.softmax_tree && nms )
   {
     do_nms_obj( m_boxes, m_probs, l_size, l.classes, nms );
   }
-  else if ( nms )
+  else if( nms )
   {
     do_nms_sort( m_boxes, m_probs, l_size, l.classes, nms );
   }
@@ -438,7 +438,7 @@ process_image( const cv::Mat& cv_image )
   // -- extract detections and convert to our format --
   auto detected_objects = std::make_shared< vital::detected_object_set >();
 
-  for ( size_t i = 0; i < l_size; ++i )
+  for( size_t i = 0; i < l_size; ++i )
   {
     const box b = m_boxes[i];
 
@@ -448,19 +448,19 @@ process_image( const cv::Mat& cv_image )
     int bot   = ( b.y + b.h / 2. ) * im.h;
 
     /* clip box to image bounds */
-    if ( left < 0 )
+    if( left < 0 )
     {
       left = 0;
     }
-    if ( right > im.w - 1 )
+    if( right > im.w - 1 )
     {
       right = im.w - 1;
     }
-    if ( top < 0 )
+    if( top < 0 )
     {
       top = 0;
     }
-    if ( bot > im.h - 1 )
+    if( bot > im.h - 1 )
     {
       bot = im.h - 1;
     }
@@ -473,24 +473,25 @@ process_image( const cv::Mat& cv_image )
     // Iterate over all classes and collect all names over the threshold, and max score
     double conf = 0.0;
 
-    for ( int class_idx = 0; class_idx < l.classes; ++class_idx )
+    for( int class_idx = 0; class_idx < l.classes; ++class_idx )
     {
       const double prob = static_cast< double >( m_probs[i][class_idx] );
-      if ( prob >= m_thresh )
+
+      if( prob >= m_thresh )
       {
         const std::string class_name( m_names[class_idx] );
         dot->set_score( class_name, prob );
 	conf = std::max( conf, prob );
 	has_name = true;
       }
-    } // end for loop over classes
+    }
 
-    if ( has_name )
+    if( has_name )
     {
       detected_objects->add(
         std::make_shared< kwiver::vital::detected_object >( bbox, conf, dot ) );
     }
-  } // end loop over detections
+  }
 
   // Free allocated memory
   free_image(im);
@@ -507,7 +508,7 @@ darknet_detector::priv::
 cvmat_to_image( const cv::Mat& src )
 {
   // accept only char type matrices
-  CV_Assert(src.depth() == CV_8U);
+  CV_Assert( src.depth() == CV_8U );
 
   unsigned char *data = (unsigned char *)src.data;
   int h = src.rows; // src.height;
@@ -517,10 +518,13 @@ cvmat_to_image( const cv::Mat& src )
   image out = make_image(w, h, c);
   int i, j, k, count=0;;
 
-  for(k = c-1; k >= 0 ; --k){
-    for(i = 0; i < h; ++i){
-      for(j = 0; j < w; ++j){
-	out.data[count++] = data[i*step + j*c + k]/255.;
+  for( k = c-1; k >= 0 ; --k )
+  {
+    for( i = 0; i < h; ++i )
+    {
+      for( j = 0; j < w; ++j )
+      {
+        out.data[count++] = data[i*step + j*c + k]/255.;
       }
     }
   }
