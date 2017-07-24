@@ -55,6 +55,8 @@
 #include "simulate_target_selection_process.h"
 #include "refine_detections_process.h"
 #include "stabilize_image_process.h"
+#include "track_descriptor_input_process.h"
+#include "track_descriptor_output_process.h"
 #include "video_input_process.h"
 #include "timing_object_csv_process.h"
 
@@ -218,6 +220,19 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                        "Output the timing with the number of detections found." );
+
+  fact = vpm.ADD_PROCESS( kwiver::track_descriptor_input_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "track_descriptor_input" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Reads track descriptor sets from an input file." );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
+  fact = vpm.ADD_PROCESS( kwiver::track_descriptor_output_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "track_descriptor_output" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Writes track descriptor sets to an output file. All descriptors are written to the same file." );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
   // - - - - - - - - - - - - - - - - - - - - - - -
