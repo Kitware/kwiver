@@ -191,7 +191,7 @@ tpp_scheduler_trace::priv
   kwiver::vital::config_block_sptr const edge_conf = monitor_edge_config();
 
   name_thread( process->name() );
-  edge_t monitor_edge = std::make_shared< edge > ( edge_conf );
+  edge_t monitor_edge = boost::make_shared< edge > ( edge_conf );
 
   process->connect_output_port( process::port_heartbeat, monitor_edge );
 
