@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,12 +65,12 @@ public:
   // Constructor
   checkpoint_entry_t()
   : fid( 0 ),
-    src_to_ref( new f2f_homography( fid ) )
+    src_to_ref( new homography_f2f( fid ) )
   {
   }
 
   // Constructor
-  checkpoint_entry_t( frame_id_t id, f2f_homography_sptr h )
+  checkpoint_entry_t( frame_id_t id, homography_f2f_sptr h )
   : fid( id ),
     src_to_ref( h )
   {
@@ -80,7 +80,7 @@ public:
   frame_id_t fid;
 
   // Source to ref homography
-  f2f_homography_sptr src_to_ref;
+  homography_f2f_sptr src_to_ref;
 };
 
 
@@ -101,8 +101,8 @@ track_id_in_set( track_sptr trk_ptr, std::set<track_id_t>* set_ptr )
 
 // If possible convert a src1 to ref and src2 to ref homography to a src2 to src1 homography
 bool
-convert( const f2f_homography_sptr &src1_to_ref,
-         const f2f_homography_sptr &src2_to_ref,
+convert( const homography_f2f_sptr &src1_to_ref,
+         const homography_f2f_sptr &src2_to_ref,
          Eigen::Matrix<double,3,3> &src2_to_src1 )
 {
   try
@@ -274,7 +274,7 @@ close_loops_homography_guided
   const unsigned int height = static_cast<unsigned int>(image->height());
 
   // Compute new homographies for this frame (current_to_ref)
-  f2f_homography_sptr homog = d_->ref_computer_->estimate( frame_number, input );
+  homography_f2f_sptr homog = d_->ref_computer_->estimate( frame_number, input );
 
   // Write out homographies if enabled
   if( !d_->homography_filename_.empty() )

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2015-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ namespace kwiver {
 namespace vital {
 
   class timestamp;
-  class f2f_homography;
+  class homography_f2f;
 
   typedef std::vector< double >  double_vector;
   typedef boost::shared_ptr< double_vector > double_vector_sptr;
@@ -90,8 +90,8 @@ create_type_trait( double_vector,  "kwiver:d_vector", kwiver::vital::double_vect
 create_type_trait( detected_object_set, "kwiver:detected_object_set", kwiver::vital::detected_object_set_sptr );
 create_type_trait( track_descriptor_set, "kwiver:track_descriptor_set", kwiver::vital::track_descriptor_set_sptr );
 
-create_type_trait( homography_src_to_ref, "kwiver:s2r_homography", kwiver::vital::f2f_homography );
-create_type_trait( homography_ref_to_src, "kwiver:r2s_homography", kwiver::vital::f2f_homography );
+create_type_trait( homography_src_to_ref, "kwiver:s2r_homography", kwiver::vital::homography_f2f );
+create_type_trait( homography_ref_to_src, "kwiver:r2s_homography", kwiver::vital::homography_f2f );
 create_type_trait( image_file_name, "kwiver:image_file_name", kwiver::vital::path_t );
 create_type_trait( video_file_name, "kwiver:video_file_name", kwiver::vital::path_t );
 create_type_trait( video_metadata, "kwiver:video_metadata", kwiver::vital::video_metadata_vector );

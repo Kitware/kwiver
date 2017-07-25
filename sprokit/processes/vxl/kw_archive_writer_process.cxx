@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2015-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -95,7 +95,7 @@ public:
                         kwiver::vital::timestamp const& time,
                         kwiver::vital::geo_corner_points const& corners,
                         kwiver::vital::image const& img,
-                        kwiver::vital::f2f_homography const& homog,
+                        kwiver::vital::homography_f2f const& homog,
                         kwiver::vital::gsd_t gsd);
 
   static sprokit::process::port_t const port_timestamp;
@@ -269,8 +269,8 @@ kw_archive_writer_process
   kwiver::vital::image image = img->get_image();
 
   // homography
-  //+ kwiver::f2f_homography homog = grab_input_as< kwiver::vital::f2f_homography > ( priv::port_src_to_ref_homography );
-  kwiver::vital::f2f_homography homog = grab_from_port_using_trait( homography_src_to_ref );
+  //+ kwiver::homography_f2f homog = grab_input_as< kwiver::vital::homography_f2f > ( priv::port_src_to_ref_homography );
+  kwiver::vital::homography_f2f homog = grab_from_port_using_trait( homography_src_to_ref );
 
   // corners
   kwiver::vital::geo_corner_points corners = grab_input_using_trait( corner_points );
@@ -351,7 +351,7 @@ priv_t
                    kwiver::vital::timestamp const& time,
                    kwiver::vital::geo_corner_points const& corner_pts,
                    kwiver::vital::image const& img,
-                   kwiver::vital::f2f_homography const& s2r_homog,
+                   kwiver::vital::homography_f2f const& s2r_homog,
                    double gsd)
 {
   vxl_int_64 u_seconds = static_cast< vxl_int_64 > ( time.get_time_usec() );
