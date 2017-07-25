@@ -51,7 +51,6 @@ public:
   image_filter_process( kwiver::vital::config_block_sptr const& config );
   virtual ~image_filter_process();
 
-
 protected:
   virtual void _configure();
   virtual void _step();
@@ -62,9 +61,7 @@ private:
 
   class priv;
   const std::unique_ptr<priv> d;
-}; // end class object_detector_process
-
-
+};
 
 } // end namespace
 

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2015-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,14 +42,14 @@ namespace kwiver {
 namespace vital {
 
 
-class VITAL_EXPORT f2f_homography
+class VITAL_EXPORT homography_f2f
 {
 public:
   /// Construct an identity homography for the given frame
   /**
    * \param frame_id
    */
-  explicit f2f_homography( frame_id_t const frame_id );
+  explicit homography_f2f( frame_id_t const frame_id );
 
   /// Construct a frame to frame homography using a matrix
   /**
@@ -59,7 +59,7 @@ public:
    * \tparam T Data type for the underlying homography transformation
    */
   template < typename T >
-  explicit f2f_homography( Eigen::Matrix< T, 3, 3 > const& h,
+  explicit homography_f2f( Eigen::Matrix< T, 3, 3 > const& h,
                            frame_id_t const from_id,
                            frame_id_t const to_id )
     : h_( homography_sptr( new homography_< T > ( h ) ) ),
@@ -77,15 +77,15 @@ public:
    * \param from_id
    * \param to_id
    */
-  explicit f2f_homography( homography_sptr const& h,
+  explicit homography_f2f( homography_sptr const& h,
                            frame_id_t const       from_id,
                            frame_id_t const       to_id );
 
   /// Copy constructor
-  f2f_homography( f2f_homography const& h );
+  homography_f2f( homography_f2f const& h );
 
   /// Destructor
-  virtual ~f2f_homography() VITAL_DEFAULT_DTOR
+  virtual ~homography_f2f() VITAL_DEFAULT_DTOR
 
   /// Get the sptr of the contained homography transformation
   virtual homography_sptr homography() const;
@@ -96,14 +96,14 @@ public:
   /// Frame identifier that the homography maps to.
   virtual frame_id_t to_id() const;
 
-  /// Return a new inverse \p f2f_homography instance
+  /// Return a new inverse \p homography_f2f instance
   /**
-   * \return New \p f2f_homography instance whose transformation is inverted as
+   * \return New \p homography_f2f instance whose transformation is inverted as
    *         well as has flipped from and to ID references.
    */
-  virtual f2f_homography inverse() const;
+  virtual homography_f2f inverse() const;
 
-  /// Custom f2f_homography multiplication operator for \p f2f_homography
+  /// Custom homography_f2f multiplication operator for \p homography_f2f
   /**
    * \throws invalid_matrix_operation
    *    When \p this.from_id() != \p rhs.to_id() as transformed from and to IDs
@@ -113,7 +113,7 @@ public:
    * \return New homography object whose transform is the result of
    *         \p this * \p rhs.
    */
-  virtual f2f_homography operator*( f2f_homography const& rhs );
+  virtual homography_f2f operator*( homography_f2f const& rhs );
 
 
 protected:
@@ -128,12 +128,12 @@ protected:
 };
 
 
-/// Shared pointer for \p f2f_homography
-typedef std::shared_ptr< f2f_homography > f2f_homography_sptr;
+/// Shared pointer for \p homography_f2f
+typedef std::shared_ptr< homography_f2f > homography_f2f_sptr;
 
 
-/// \p f2f_homography output stream operator
-VITAL_EXPORT std::ostream& operator<<( std::ostream& s, f2f_homography const& h );
+/// \p homography_f2f output stream operator
+VITAL_EXPORT std::ostream& operator<<( std::ostream& s, homography_f2f const& h );
 
 
 } } // end vital namespace

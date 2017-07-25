@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -384,7 +384,7 @@ compute_ref_homography_core
 
 
 // Perform actual current to reference frame estimation
-f2f_homography_sptr
+homography_f2f_sptr
 compute_ref_homography_core
 ::estimate( frame_id_t frame_number,
             track_set_sptr tracks ) const
@@ -509,13 +509,13 @@ compute_ref_homography_core
   bool bad_homog = d_->compute_homography(pts_cur, pts_ref, h);
 
   // If the homography is bad, output an identity
-  f2f_homography_sptr output;
+  homography_f2f_sptr output;
 
   if( bad_homog )
   {
     LOG_DEBUG( d_->m_logger, "estimation FAILED" );
     // Start of new shot. Both frames the same and identity transform.
-    output = f2f_homography_sptr( new f2f_homography( frame_number ) );
+    output = homography_f2f_sptr( new homography_f2f( frame_number ) );
     d_->frames_since_reset = 0;
     d_->min_ref_frame = frame_number;
   }
@@ -524,7 +524,7 @@ compute_ref_homography_core
     LOG_DEBUG( d_->m_logger, "estimation SUCCEEDED" );
     // extend current shot
     h = h->normalize();
-    output = f2f_homography_sptr( new f2f_homography( h, frame_number, earliest_ref ) );
+    output = homography_f2f_sptr( new homography_f2f( h, frame_number, earliest_ref ) );
   }
 
   // Update track infos based on homography estimation result

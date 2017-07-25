@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2015-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,24 +40,24 @@ namespace vital {
 
 
 /// Construct an identity homography for the given frame
-f2w_homography
-::f2w_homography( frame_id_t const frame_id )
+homography_f2w
+::homography_f2w( frame_id_t const frame_id )
   : h_( homography_sptr( new homography_<double>() ) ),
     frame_id_( frame_id )
 {
 }
 
 /// Construct given an existing homography
-f2w_homography
-::f2w_homography( homography_sptr const &h, frame_id_t const frame_id )
+homography_f2w
+::homography_f2w( homography_sptr const &h, frame_id_t const frame_id )
   : h_( h->clone() ),
     frame_id_( frame_id )
 {
 }
 
 /// Copy Constructor
-f2w_homography
-::f2w_homography( f2w_homography const &h )
+homography_f2w
+::homography_f2w( homography_f2w const &h )
   : h_( h.h_->clone() ),
     frame_id_( h.frame_id_ )
 {
@@ -65,7 +65,7 @@ f2w_homography
 
 /// Get the homography transformation
 homography_sptr
-f2w_homography
+homography_f2w
 ::homography() const
 {
   return this->h_;
@@ -73,7 +73,7 @@ f2w_homography
 
 /// Get the frame identifier
 frame_id_t
-f2w_homography
+homography_f2w
 ::frame_id() const
 {
   return this->frame_id_;
