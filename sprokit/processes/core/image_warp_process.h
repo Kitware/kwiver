@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,28 +28,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ARROWS_PROCESSES_IMAGE_FILTER_PROCESS_H
-#define ARROWS_PROCESSES_IMAGE_FILTER_PROCESS_H
-
-#include <sprokit/pipeline/process.h>
+#ifndef ARROWS_PROCESSES_IMAGE_WARP_PROCESS_H
+#define ARROWS_PROCESSES_IMAGE_WARP_PROCESS_H
 
 #include "kwiver_processes_export.h"
-
+#include <sprokit/pipeline/process.h>
 #include <vital/config/config_block.h>
 
 namespace kwiver {
 
 // ----------------------------------------------------------------
 /**
- * @brief Image object detector process.
+ * @brief Image warping process.
  *
  */
-class KWIVER_PROCESSES_NO_EXPORT image_filter_process
+class KWIVER_PROCESSES_NO_EXPORT image_warp_process
   : public sprokit::process
 {
 public:
-  image_filter_process( kwiver::vital::config_block_sptr const& config );
-  virtual ~image_filter_process();
+  image_warp_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~image_warp_process();
 
 protected:
   virtual void _configure();
@@ -61,8 +59,8 @@ private:
 
   class priv;
   const std::unique_ptr<priv> d;
-};
+}; // end class object_detector_process
 
 } // end namespace
 
-#endif // ARROWS_PROCESSES_IMAGE_FILTER_PROCESS_H
+#endif // ARROWS_PROCESSES_IMAGE_WARP_PROCESS_H
