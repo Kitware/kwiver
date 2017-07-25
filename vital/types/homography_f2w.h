@@ -42,23 +42,23 @@ namespace kwiver {
 namespace vital {
 
 
-class VITAL_EXPORT f2w_homography
+class VITAL_EXPORT homography_f2w
 {
 public:
   /// Construct an identity homography for the given frame
-  explicit f2w_homography( frame_id_t const frame_id );
+  explicit homography_f2w( frame_id_t const frame_id );
 
   /// Construct given an existing homography
   /**
    * The given homography sptr is cloned into this object so we retain a unique
    * copy.
    */
-  f2w_homography( homography_sptr const &h, frame_id_t const frame_id );
+  homography_f2w( homography_sptr const &h, frame_id_t const frame_id );
 
   /// Copy Constructor
-  f2w_homography( f2w_homography const &h );
+  homography_f2w( homography_f2w const &h );
 
-  virtual ~f2w_homography() VITAL_DEFAULT_DTOR
+  virtual ~homography_f2w() VITAL_DEFAULT_DTOR
 
   /// Get the homography transformation
   virtual homography_sptr homography() const;
