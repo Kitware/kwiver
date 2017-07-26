@@ -55,16 +55,12 @@ class warp_image::priv
 public:
   /// Constructor
   priv()
-    : auto_size_output(false),
-      m_logger( vital::get_logger( "arrows.ocv.warp_image" ))
+    : auto_size_output(false)
   {
   }
 
   /// number of feature matches required for acceptance
   bool auto_size_output;
-
-  /// Logger handle
-  vital::logger_handle_t m_logger;
 };
 
 
@@ -73,6 +69,7 @@ warp_image
 ::warp_image()
 : d_(new priv)
 {
+  attach_logger( "arrows.ocv.warp_image" );
 }
 
 
