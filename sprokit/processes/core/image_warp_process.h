@@ -28,8 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ARROWS_PROCESSES_IMAGE_WARP_PROCESS_H
-#define ARROWS_PROCESSES_IMAGE_WARP_PROCESS_H
+#ifndef SPROKIT_PROCESSES_IMAGE_WARP_PROCESS_H
+#define SPROKIT_PROCESSES_IMAGE_WARP_PROCESS_H
 
 #include "kwiver_processes_export.h"
 #include <sprokit/pipeline/process.h>
@@ -59,8 +59,8 @@ private:
 
   class priv;
   const std::unique_ptr<priv> d;
-}; // end class object_detector_process
+};
 
 } // end namespace
 
-#endif // ARROWS_PROCESSES_IMAGE_WARP_PROCESS_H
+#endif // SPROKIT_PROCESSES_IMAGE_WARP_PROCESS_H

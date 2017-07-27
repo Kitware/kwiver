@@ -37,7 +37,7 @@
 
 namespace kwiver {
 
-create_config_trait( warp, std::string, "", "Algorithm configuration subblock" );
+create_config_trait( algo, std::string, "", "Algorithm configuration subblock" );
 
 //----------------------------------------------------------------
 // Private implementation class
@@ -80,19 +80,19 @@ _configure()
   vital::config_block_sptr algo_config = get_config();
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! vital::algo::warp_image::check_nested_algo_configuration_using_trait( warp, algo_config ) )
+  if ( ! vital::algo::warp_image::check_nested_algo_configuration_using_trait( algo, algo_config ) )
   {
     throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
   }
 
-  vital::algo::warp_image::set_nested_algo_configuration_using_trait( warp, algo_config, d->m_algo );
+  vital::algo::warp_image::set_nested_algo_configuration_using_trait( algo, algo_config, d->m_algo );
 
   if ( ! d->m_algo )
   {
     throw sprokit::invalid_configuration_exception( name(), "Unable to create warping algorithm" );
   }
 
-  vital::algo::warp_image::get_nested_algo_configuration_using_trait( warp, algo_config, d->m_algo );
+  vital::algo::warp_image::get_nested_algo_configuration_using_trait( algo, algo_config, d->m_algo );
 
 }
 
@@ -137,7 +137,7 @@ void
 image_warp_process::
 make_config()
 {
-  declare_config_using_trait( warp );
+  declare_config_using_trait( algo );
 }
 
 

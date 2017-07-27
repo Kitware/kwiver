@@ -227,7 +227,6 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     ;
 
-
   fact = vpm.ADD_ALGORITHM( "core", kwiver::arrows::core::triangulate_landmarks );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                        "Triangulate landmarks from tracks and cameras using a simple least squares solver." )
