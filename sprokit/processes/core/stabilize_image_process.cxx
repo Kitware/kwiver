@@ -147,7 +147,7 @@ stabilize_image_process
   src_to_ref_homography = d->m_compute_homog->estimate( frame_time.get_frame(), d->m_tracks );
 
   // return by value
-  push_to_port_using_trait( homography_src_to_ref, *src_to_ref_homography );
+  push_to_port_using_trait( homography_src_to_ref, src_to_ref_homography );
 }
 
 
