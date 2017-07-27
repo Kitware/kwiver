@@ -40,8 +40,10 @@ set( public_headers
   image_object_detector.h
   initialize_cameras_landmarks.h
   match_features.h
+  motion_detector.h
   optimize_cameras.h
   refine_detections.h
+  stabilize_video.h
   track_features.h
   train_detector.h
   track_descriptor_set_input.h
@@ -86,8 +88,10 @@ set( sources
   image_object_detector.cxx
   initialize_cameras_landmarks.cxx
   match_features.cxx
+  motion_detector.cxx
   optimize_cameras.cxx
   refine_detections.cxx
+  stabilize_video.cxx
   track_features.cxx
   train_detector.cxx
   track_descriptor_set_input.cxx

@@ -95,7 +95,7 @@ public:
                         kwiver::vital::timestamp const& time,
                         kwiver::vital::geo_corner_points const& corners,
                         kwiver::vital::image const& img,
-                        kwiver::vital::homography_f2f const& homog,
+                        const kwiver::vital::homography_f2f_sptr homog,
                         kwiver::vital::gsd_t gsd);
 
   static sprokit::process::port_t const port_timestamp;
@@ -264,13 +264,11 @@ kw_archive_writer_process
   kwiver::vital::timestamp frame_time = grab_input_using_trait( timestamp );
 
   // image
-  //+ kwiver::vital::image_container_sptr img = grab_input_as< kwiver::vital::image_container_sptr > ( priv::port_image );
   kwiver::vital::image_container_sptr img = grab_from_port_using_trait( image );
   kwiver::vital::image image = img->get_image();
 
   // homography
-  //+ kwiver::homography_f2f homog = grab_input_as< kwiver::vital::homography_f2f > ( priv::port_src_to_ref_homography );
-  kwiver::vital::homography_f2f homog = grab_from_port_using_trait( homography_src_to_ref );
+  kwiver::vital::homography_f2f_sptr homog = grab_from_port_using_trait( homography_src_to_ref );
 
   // corners
   kwiver::vital::geo_corner_points corners = grab_input_using_trait( corner_points );
@@ -351,12 +349,12 @@ priv_t
                    kwiver::vital::timestamp const& time,
                    kwiver::vital::geo_corner_points const& corner_pts,
                    kwiver::vital::image const& img,
-                   kwiver::vital::homography_f2f const& s2r_homog,
+                   const kwiver::vital::homography_f2f_sptr s2r_homog,
                    double gsd)
 {
   vxl_int_64 u_seconds = static_cast< vxl_int_64 > ( time.get_time_usec() );
   vxl_int_64 frame_num = static_cast< vxl_int_64 > ( time.get_frame() );
-  vxl_int_64 ref_frame_num = static_cast< vxl_int_64 > ( s2r_homog.to_id() );
+  vxl_int_64 ref_frame_num = static_cast< vxl_int_64 > ( s2r_homog->to_id().get_frame() );
 
   // Validate expected image type
   auto trait = img.pixel_traits();
@@ -377,7 +375,7 @@ priv_t
     );
 
   // convert homography
-  Eigen::Matrix< double, 3, 3 > matrix= s2r_homog.homography()->matrix();
+  Eigen::Matrix< double, 3, 3 > matrix= s2r_homog->homography()->matrix();
   vnl_matrix_fixed< double, 3, 3 > homog;
 
   // Copy matrix into vnl format

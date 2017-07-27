@@ -28,9 +28,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "image_warp_process.h"
+#include "motion_detector_process.h"
 
-#include <vital/algo/warp_image.h>
+#include <vital/algo/motion_detector.h>
 
 #include <sprokit/processes/kwiver_type_traits.h>
 #include <sprokit/pipeline/process_exception.h>
@@ -41,80 +41,79 @@ create_config_trait( algo, std::string, "", "Algorithm configuration subblock" )
 
 //----------------------------------------------------------------
 // Private implementation class
-class image_warp_process::priv
+class motion_detector_process::priv
 {
 public:
   priv();
   ~priv();
 
-   vital::algo::warp_image_sptr m_algo;
+   vital::algo::motion_detector_sptr m_algo;
 
 }; // end priv class
 
 
 // ==================================================================
-image_warp_process::
-image_warp_process( kwiver::vital::config_block_sptr const& config )
+motion_detector_process::
+motion_detector_process( kwiver::vital::config_block_sptr const& config )
   : process( config ),
-    d( new image_warp_process::priv )
+    d( new motion_detector_process::priv )
 {
   // Attach our logger name to process logger
-  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
+  attach_logger( kwiver::vital::get_logger( name() ) );
 
   make_ports();
   make_config();
 }
 
 
-image_warp_process::
-~image_warp_process()
+motion_detector_process::
+~motion_detector_process()
 {
 }
 
 
 // ------------------------------------------------------------------
 void
-image_warp_process::
+motion_detector_process::
 _configure()
 {
   vital::config_block_sptr algo_config = get_config();
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! vital::algo::warp_image::check_nested_algo_configuration_using_trait( algo, algo_config ) )
+  if ( ! vital::algo::motion_detector::check_nested_algo_configuration_using_trait( algo, algo_config ) )
   {
     throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
   }
 
-  vital::algo::warp_image::set_nested_algo_configuration_using_trait( algo, algo_config, d->m_algo );
+  vital::algo::motion_detector::set_nested_algo_configuration_using_trait( algo, algo_config, d->m_algo );
 
   if ( ! d->m_algo )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Unable to create warping algorithm" );
+    throw sprokit::invalid_configuration_exception( name(), "Unable to create motion detector algorithm" );
   }
 
-  vital::algo::warp_image::get_nested_algo_configuration_using_trait( algo, algo_config, d->m_algo );
-
+  vital::algo::motion_detector::get_nested_algo_configuration_using_trait( algo, algo_config, d->m_algo );
 }
 
 
 // ------------------------------------------------------------------
 void
-image_warp_process::
+motion_detector_process::
 _step()
 {
+  auto ts = grab_from_port_using_trait( timestamp );
   auto input = grab_from_port_using_trait( image );
-  auto homog = grab_from_port_using_trait( homography );
+  auto reset = grab_from_port_using_trait( coordinate_system_updated );
 
-  vital::image_container_sptr result;
-  d->m_algo->warp( input, result, homog );
+  auto result = d->m_algo->process_image( ts, input, reset );
 
-  push_to_port_using_trait( image, result );
+  push_to_port_using_trait(motion_heat_map , result );
 }
 
 
 // ------------------------------------------------------------------
 void
-image_warp_process::
+motion_detector_process::
 make_ports()
 {
   // Set up for required ports
@@ -124,17 +123,18 @@ make_ports()
   required.insert( flag_required );
 
   // -- input --
+  declare_input_port_using_trait( timestamp, required );
   declare_input_port_using_trait( image, required );
-  declare_input_port_using_trait( homography, required );
+  declare_input_port_using_trait( coordinate_system_updated, required );
 
   // -- output --
-  declare_output_port_using_trait( image, optional );
+  declare_output_port_using_trait( motion_heat_map, optional );
 }
 
 
 // ------------------------------------------------------------------
 void
-image_warp_process::
+motion_detector_process::
 make_config()
 {
   declare_config_using_trait( algo );
@@ -142,13 +142,13 @@ make_config()
 
 
 // ================================================================
-image_warp_process::priv
+motion_detector_process::priv
 ::priv()
 {
 }
 
 
-image_warp_process::priv
+motion_detector_process::priv
 ::~priv()
 {
 }

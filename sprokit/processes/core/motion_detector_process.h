@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2017 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,55 +28,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file
- * \brief Frame to World Homography definition
- */
+#ifndef SPROKIT_PROCESSES_MOTION_DETECTOR_PROCESS_H
+#define SPROKIT_PROCESSES_MOTION_DETECTOR_PROCESS_H
 
-#ifndef VITAL_HOMOGRAPHY_F2W_H
-#define VITAL_HOMOGRAPHY_F2W_H
+#include "kwiver_processes_export.h"
+#include <sprokit/pipeline/process.h>
+#include <vital/config/config_block.h>
 
-#include <vital/types/homography.h>
-#include <vital/types/timestamp.h>
 
 namespace kwiver {
-namespace vital {
 
-
-class VITAL_EXPORT homography_f2w
+// ----------------------------------------------------------------
+/**
+ * @brief Image warping process.
+ *
+ */
+class KWIVER_PROCESSES_NO_EXPORT motion_detector_process
+  : public sprokit::process
 {
 public:
-  /// Construct an identity homography for the given frame
-  homography_f2w( const timestamp& frame_id );
-
-  /// Construct given an existing homography
-  /**
-   * The given homography sptr is cloned into this object so we retain a unique
-   * copy.
-   */
-  homography_f2w( homography_sptr const &h, const timestamp& frame_id );
-
-  /// Copy Constructor
-  homography_f2w( homography_f2w const &h );
-
-  virtual ~homography_f2w() VITAL_DEFAULT_DTOR
-
-  /// Get the homography transformation
-  virtual homography_sptr homography() const;
-
-  /// Get the frame identifier
-  virtual const timestamp& frame_id() const;
+  motion_detector_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~motion_detector_process();
 
 protected:
-  /// Homography transformation
-  homography_sptr h_;
+  virtual void _configure();
+  virtual void _step();
 
-  /// Frame identifier
-  timestamp frame_id_;
+private:
+  void make_ports();
+  void make_config();
+
+  class priv;
+  const std::unique_ptr<priv> d;
 };
 
+} // end namespace
 
-} } // end vital namespace
-
-
-#endif // VITAL_HOMOGRAPHY_F2W_H
+#endif /* SPROKIT_PROCESSES_MOTION_DETECTOR_PROCESS_H */

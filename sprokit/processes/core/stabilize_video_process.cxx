@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2017 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,17 +28,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "compute_homography_process.h"
+#include "stabilize_video_process.h"
 
 #include <vital/vital_types.h>
 #include <vital/types/timestamp.h>
 #include <vital/types/timestamp_config.h>
 #include <vital/types/image_container.h>
-#include <vital/types/track_set.h>
-#include <vital/types/homography.h>
-
-#include <vital/algo/track_features.h>
-#include <vital/algo/compute_ref_homography.h>
+#include <vital/algo/stabilize_video.h>
+#include <vital/algo/warp_image.h>
 
 #include <kwiver_type_traits.h>
 
@@ -48,33 +45,33 @@ namespace algo = kwiver::vital::algo;
 
 namespace kwiver {
 
-create_config_trait( homography_generator, std::string, "", "Algorithm configuration subblock" );
+create_config_trait( stabilize, std::string, "", "Stabilization algorithm configuration subblock" );
+create_config_trait( warp, std::string, "", "Warping algorithm configuration subblock" );
+
+create_port_trait( stabilized_image, image, "Image stabilized to reference frame" );
 
 //----------------------------------------------------------------
 // Private implementation class
-class compute_homography_process::priv
+class stabilize_video_process::priv
 {
 public:
   priv();
   ~priv();
 
+
   // Configuration values
+  algo::stabilize_video_sptr m_stabilize;
+  algo::warp_image_sptr m_warp;
 
-  // There are many config items for the tracking and stabilization that go directly to
-  // the algo.
-
-  algo::compute_ref_homography_sptr m_compute_homog;
 }; // end priv class
-
 
 // ================================================================
 
-compute_homography_process
-::compute_homography_process( kwiver::vital::config_block_sptr const& config )
+stabilize_video_process
+::stabilize_video_process( kwiver::vital::config_block_sptr const& config )
   : process( config ),
-    d( new compute_homography_process::priv )
+    d( new stabilize_video_process::priv )
 {
-  // Attach our logger name to process logger
   attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
 
   make_ports();
@@ -82,56 +79,79 @@ compute_homography_process
 }
 
 
-compute_homography_process
-::~compute_homography_process()
+stabilize_video_process
+::~stabilize_video_process()
 {
 }
 
 
 // ----------------------------------------------------------------
-void compute_homography_process
+void stabilize_video_process
 ::_configure()
 {
   kwiver::vital::config_block_sptr algo_config = get_config();
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! algo::compute_ref_homography::check_nested_algo_configuration("homography_generator", algo_config ) )
+  if ( ! algo::stabilize_video::check_nested_algo_configuration( "stabilize", algo_config ) )
   {
     throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
   }
 
-  algo::compute_ref_homography::set_nested_algo_configuration( "homography_generator", algo_config, d->m_compute_homog );
-  if ( ! d->m_compute_homog )
+  algo::stabilize_video::set_nested_algo_configuration( "stabilize", algo_config, d->m_stabilize );
+  if ( ! d->m_stabilize )
   {
-    throw sprokit::invalid_configuration_exception( name(),
-             "Unable to create compute_ref_homography" );
+    throw sprokit::invalid_configuration_exception( name(), "Unable to create stabilization algorithm" );
+  }
+
+  // Check config so it will give run-time diagnostic of config problems
+  if ( ! algo::warp_image::check_nested_algo_configuration( "warp", algo_config ) )
+  {
+    throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
+  }
+
+  algo::warp_image::set_nested_algo_configuration( "warp", algo_config, d->m_warp );
+  if ( ! d->m_stabilize )
+  {
+    throw sprokit::invalid_configuration_exception( name(), "Unable to create image warping algorithm" );
   }
 }
 
 
 // ----------------------------------------------------------------
 void
-compute_homography_process
+stabilize_video_process
 ::_step()
 {
   kwiver::vital::homography_f2f_sptr src_to_ref_homography;
 
+  // timestamp
   kwiver::vital::timestamp frame_time = grab_from_port_using_trait( timestamp );
-  vital::track_set_sptr tracks = grab_from_port_using_trait( track_set );
+
+  // image
+  kwiver::vital::image_container_sptr in_image = grab_from_port_using_trait( image );
 
   // LOG_DEBUG - this is a good thing to have in all processes that handle frames.
   LOG_DEBUG( logger(), "Processing frame " << frame_time );
 
-  // Get stabilization homography
-  src_to_ref_homography = d->m_compute_homog->estimate( frame_time.get_frame(), tracks );
+  // -- outputs --
+  kwiver::vital::homography_f2f_sptr s2r_homog;
+  bool new_ref;
+  kwiver::vital::image_container_sptr stab_image;
+
+  d->m_stabilize->process_image( frame_time, in_image,
+                                 s2r_homog, new_ref);
+
+  d->m_warp->warp( in_image, stab_image, s2r_homog->homography() );
 
   // return by value
-  push_to_port_using_trait( homography_src_to_ref, src_to_ref_homography );
+  push_to_port_using_trait( homography_src_to_ref, s2r_homog );
+  push_to_port_using_trait( stabilized_image, stab_image );
+  push_to_port_using_trait( coordinate_system_updated, new_ref );
 }
 
 
 // ----------------------------------------------------------------
-void compute_homography_process
+void stabilize_video_process
 ::make_ports()
 {
   // Set up for required ports
@@ -141,29 +161,32 @@ void compute_homography_process
 
   // -- input --
   declare_input_port_using_trait( timestamp, required );
-  declare_input_port_using_trait( track_set, required );
+  declare_input_port_using_trait( image, required );
 
   // -- output --
   declare_output_port_using_trait( homography_src_to_ref, optional );
+  declare_output_port_using_trait( stabilized_image, optional );
+  declare_output_port_using_trait( coordinate_system_updated, optional );
 }
 
 
 // ----------------------------------------------------------------
-void compute_homography_process
+void stabilize_video_process
 ::make_config()
 {
-  declare_config_using_trait( homography_generator );
+  declare_config_using_trait( stabilize );
+  declare_config_using_trait( warp );
 }
 
 
 // ================================================================
-compute_homography_process::priv
+stabilize_video_process::priv
 ::priv()
 {
 }
 
 
-compute_homography_process::priv
+stabilize_video_process::priv
 ::~priv()
 {
 }
