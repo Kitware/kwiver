@@ -37,6 +37,7 @@
 #define VITAL_HOMOGRAPHY_F2F_H
 
 #include <vital/types/homography.h>
+#include <vital/types/timestamp.h>
 
 namespace kwiver {
 namespace vital {
@@ -47,9 +48,10 @@ class VITAL_EXPORT homography_f2f
 public:
   /// Construct an identity homography for the given frame
   /**
-   * \param frame_id
+   * \param ts
    */
-  explicit homography_f2f( frame_id_t const frame_id );
+  homography_f2f( const timestamp& ts );
+  explicit homography_f2f( frame_id_t frame_id );
 
   /// Construct a frame to frame homography using a matrix
   /**
@@ -59,9 +61,9 @@ public:
    * \tparam T Data type for the underlying homography transformation
    */
   template < typename T >
-  explicit homography_f2f( Eigen::Matrix< T, 3, 3 > const& h,
-                           frame_id_t const from_id,
-                           frame_id_t const to_id )
+  homography_f2f( Eigen::Matrix< T, 3, 3 > const& h,
+                  const timestamp& from_id,
+                  const timestamp& to_id )
     : h_( homography_sptr( new homography_< T > ( h ) ) ),
     from_id_( from_id ),
     to_id_( to_id )
@@ -77,9 +79,9 @@ public:
    * \param from_id
    * \param to_id
    */
-  explicit homography_f2f( homography_sptr const& h,
-                           frame_id_t const       from_id,
-                           frame_id_t const       to_id );
+  homography_f2f( homography_sptr const& h,
+                  const timestamp&       from_id,
+                  const timestamp&       to_id );
 
   /// Copy constructor
   homography_f2f( homography_f2f const& h );
@@ -91,10 +93,10 @@ public:
   virtual homography_sptr homography() const;
 
   /// Frame identifier that the homography maps from.
-  virtual frame_id_t from_id() const;
+  virtual const timestamp& from_id() const;
 
   /// Frame identifier that the homography maps to.
-  virtual frame_id_t to_id() const;
+  virtual const timestamp& to_id() const;
 
   /// Return a new inverse \p homography_f2f instance
   /**
@@ -121,10 +123,10 @@ protected:
   homography_sptr h_;
 
   /// From frame identifier.
-  frame_id_t from_id_;
+  timestamp from_id_;
 
   /// To frame identifier.
-  frame_id_t to_id_;
+  timestamp to_id_;
 };
 
 

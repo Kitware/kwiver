@@ -37,6 +37,7 @@
 #define VITAL_HOMOGRAPHY_F2W_H
 
 #include <vital/types/homography.h>
+#include <vital/types/timestamp.h>
 
 namespace kwiver {
 namespace vital {
@@ -46,14 +47,14 @@ class VITAL_EXPORT homography_f2w
 {
 public:
   /// Construct an identity homography for the given frame
-  explicit homography_f2w( frame_id_t const frame_id );
+  homography_f2w( const timestamp& frame_id );
 
   /// Construct given an existing homography
   /**
    * The given homography sptr is cloned into this object so we retain a unique
    * copy.
    */
-  homography_f2w( homography_sptr const &h, frame_id_t const frame_id );
+  homography_f2w( homography_sptr const &h, const timestamp& frame_id );
 
   /// Copy Constructor
   homography_f2w( homography_f2w const &h );
@@ -64,14 +65,14 @@ public:
   virtual homography_sptr homography() const;
 
   /// Get the frame identifier
-  virtual frame_id_t frame_id() const;
+  virtual const timestamp& frame_id() const;
 
 protected:
   /// Homography transformation
   homography_sptr h_;
 
   /// Frame identifier
-  frame_id_t frame_id_;
+  timestamp frame_id_;
 };
 
 

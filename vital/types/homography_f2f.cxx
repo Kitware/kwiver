@@ -42,27 +42,41 @@ namespace kwiver {
 namespace vital {
 
 
-/// Construct an identity homography for the given frame
+// ------------------------------------------------------------------
+// Construct an identity homography for the given frame
 homography_f2f
-::homography_f2f( frame_id_t const frame_id )
+::homography_f2f( const timestamp& frame_id )
   : h_( homography_sptr( new homography_<double>() ) ),
     from_id_( frame_id ),
     to_id_( frame_id )
 {
 }
 
-/// Construct a frame to frame homography given an existing transform
+
+homography_f2f
+::homography_f2f( frame_id_t frame_id )
+  : h_( homography_sptr( new homography_<double>() ) ),
+    from_id_( kwiver::vital::timestamp( 0, frame_id) ),
+    to_id_( kwiver::vital::timestamp( 0, frame_id) )
+{
+}
+
+
+// ------------------------------------------------------------------
+// Construct a frame to frame homography given an existing transform
 homography_f2f
 ::homography_f2f( homography_sptr const &h,
-                  frame_id_t const from_id,
-                  frame_id_t const to_id )
+                  const timestamp& from_id,
+                  const timestamp& to_id )
   : h_( h->clone() ),
     from_id_( from_id ),
     to_id_( to_id )
 {
 }
 
-/// Copy constructor
+
+// ------------------------------------------------------------------
+// Copy constructor
 homography_f2f
 ::homography_f2f( homography_f2f const &h )
   : h_( h.h_->clone() ),
@@ -71,7 +85,9 @@ homography_f2f
 {
 }
 
-/// Get the homography transformation
+
+// ------------------------------------------------------------------
+// Get the homography transformation
 homography_sptr
 homography_f2f
 ::homography() const
@@ -79,23 +95,29 @@ homography_f2f
   return this->h_;
 }
 
-/// Frame identifier that the homography maps from.
-frame_id_t
+
+// ------------------------------------------------------------------
+// Frame identifier that the homography maps from.
+const timestamp&
 homography_f2f
 ::from_id() const
 {
   return this->from_id_;
 }
 
-/// Frame identifier that the homography maps to.
-frame_id_t
+
+// ------------------------------------------------------------------
+// Frame identifier that the homography maps to.
+const timestamp&
 homography_f2f
 ::to_id() const
 {
   return this->to_id_;
 }
 
-/// Return a new inverse \p homography_f2f instance
+
+// ------------------------------------------------------------------
+// Return a new inverse \p homography_f2f instance
 homography_f2f
 homography_f2f
 ::inverse() const
@@ -103,7 +125,9 @@ homography_f2f
   return homography_f2f( this->h_->inverse(), this->to_id_, this->from_id_ );
 }
 
-/// Custom homography_f2f multiplication operator for \p homography_f2f
+
+// ------------------------------------------------------------------
+// Custom homography_f2f multiplication operator for \p homography_f2f
 homography_f2f
 homography_f2f
 ::operator*( homography_f2f const &rhs )
@@ -118,7 +142,8 @@ homography_f2f
 }
 
 
-/// \p homography_f2f output stream operator
+// ------------------------------------------------------------------
+// \p homography_f2f output stream operator
 std::ostream&
 operator<<( std::ostream &s, homography_f2f const &h )
 {

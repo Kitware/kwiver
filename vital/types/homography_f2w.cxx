@@ -41,7 +41,7 @@ namespace vital {
 
 /// Construct an identity homography for the given frame
 homography_f2w
-::homography_f2w( frame_id_t const frame_id )
+::homography_f2w( const timestamp& frame_id )
   : h_( homography_sptr( new homography_<double>() ) ),
     frame_id_( frame_id )
 {
@@ -49,7 +49,7 @@ homography_f2w
 
 /// Construct given an existing homography
 homography_f2w
-::homography_f2w( homography_sptr const &h, frame_id_t const frame_id )
+::homography_f2w( homography_sptr const &h, const timestamp& frame_id )
   : h_( h->clone() ),
     frame_id_( frame_id )
 {
@@ -72,7 +72,7 @@ homography_f2w
 }
 
 /// Get the frame identifier
-frame_id_t
+const timestamp&
 homography_f2w
 ::frame_id() const
 {
