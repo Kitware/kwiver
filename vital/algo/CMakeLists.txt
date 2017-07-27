@@ -42,7 +42,7 @@ set( public_headers
   match_features.h
   optimize_cameras.h
   refine_detections.h
-  stabilize_image.h
+  stabilize_video.h
   track_features.h
   train_detector.h
   track_descriptor_set_input.h
@@ -89,7 +89,7 @@ set( sources
   match_features.cxx
   optimize_cameras.cxx
   refine_detections.cxx
-  stabilize_image.cxx
+  stabilize_video.cxx
   track_features.cxx
   train_detector.cxx
   track_descriptor_set_input.cxx

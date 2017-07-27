@@ -30,53 +30,24 @@
 
 /**
  * \file
- * \brief Interface to algorithms for warping images
+ * \brief stabilize_video algorithm instantiation
  */
 
-#ifndef VITAL_ALGO_STABILIZE_IMAGE_H
-#define VITAL_ALGO_STABILIZE_IMAGE_H
-
-#include <vital/vital_config.h>
-#include <vital/algo/algorithm.h>
-#include <vital/types/image_container.h>
-#include <vital/types/homography_f2f.h>
+#include <vital/algo/algorithm.txx>
+#include <vital/algo/stabilize_video.h>
 
 namespace kwiver {
 namespace vital {
 namespace algo {
 
-/// \brief Abstract base class for image stabilization algorithms.
-class VITAL_ALGO_EXPORT stabilize_image
-  : public kwiver::vital::algorithm_def<stabilize_image>
+stabilize_video
+::stabilize_video()
 {
-public:
+  attach_logger( "stabilize_video" ); // specify a logger
+}
 
-  /// Return the name of this algorithm.
-  static std::string static_type_name() { return "stabilize_image"; }
+} } }
 
-  /// Stabilize an input image by producing a homography
-  /**
-   * This method implements image stabilization by producing a
-   * homography to relate the input image to a reference image.
-   *
-   * \param ts Time stamp for the input image.
-   * \param image_src the source image data to stabilize
-   *
-   * \return
-   */
-  virtual homography_f2f_sptr
-    stabilize( const timestamp& ts,
-               const image_container_sptr image_src ) = 0;
-
-protected:
-  stabilize_image();
-
-};
-
-/// type definition for shared pointer to a stabilize_image algorithm
-typedef std::shared_ptr<stabilize_image> stabilize_image_sptr;
-
-
-} } } // end namespace
-
-#endif // VITAL_ALGO_STABILIZE_IMAGE_H
+/// \cond DoxygenSuppress
+INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::stabilize_video);
+/// \endcond

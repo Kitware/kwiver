@@ -53,6 +53,7 @@
 #include "read_descriptor_process.h"
 #include "refine_detections_process.h"
 #include "stabilize_image_process.h"
+#include "stabilize_video_process.h"
 #include "track_descriptor_input_process.h"
 #include "track_descriptor_output_process.h"
 #include "video_input_process.h"
@@ -84,6 +85,12 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 
   fact = vpm.ADD_PROCESS( kwiver::stabilize_image_process );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "stabilize_image" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Generate current-to-reference image homographies" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
+  fact = vpm.ADD_PROCESS( kwiver::stabilize_video_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "stabilize_video" );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Generate current-to-reference image homographies" );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );

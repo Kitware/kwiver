@@ -28,26 +28,52 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file
- * \brief stabilize_image algorithm instantiation
- */
+#ifndef _KWIVER_STABILIZE_VIDEO_PROCESS_H_
+#define _KWIVER_STABILIZE_VIDEO_PROCESS_H_
 
-#include <vital/algo/algorithm.txx>
-#include <vital/algo/stabilize_image.h>
+#include <sprokit/pipeline/process.h>
+#include "kwiver_processes_export.h"
 
-namespace kwiver {
-namespace vital {
-namespace algo {
+#include <memory>
 
-stabilize_image
-::stabilize_image()
+namespace kwiver
 {
-  attach_logger( "stabilize_image" ); // specify a logger
-}
 
-} } }
+// ----------------------------------------------------------------
+/**
+ * \class stabilize_video_process
+ *
+ * \brief Stabilizes a series of image.
+ *
+ * \iports
+ * \iport{timestamp}
+ * \iport{image}
+ *
+ * \oports
+ * \oport{src_to_ref_homography}
+ *
+ */
+class KWIVER_PROCESSES_NO_EXPORT stabilize_video_process
+  : public sprokit::process
+{
+  public:
+  stabilize_video_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~stabilize_video_process();
 
-/// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::stabilize_image);
-/// \endcond
+  protected:
+    virtual void _configure();
+    virtual void _step();
+
+  private:
+    void make_ports();
+    void make_config();
+
+
+    class priv;
+    const std::unique_ptr<priv> d;
+ }; // end class stabilize_video_process
+
+
+} // end namespace
+
+#endif /* _KWIVER_STABILIZE_VIDEO_PROCESS_H_ */
