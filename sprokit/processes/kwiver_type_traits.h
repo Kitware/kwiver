@@ -77,8 +77,7 @@ namespace vital {
 // These are types that are passed through the pipeline.
 // ( type-trait-name, "canonical_type_name", concrete-type )
 //
-create_type_trait( bounding_box, "kwiver:bounding_box",
-                   kwiver::vital::bounding_box_d);
+create_type_trait( bounding_box, "kwiver:bounding_box", kwiver::vital::bounding_box_d);
 create_type_trait( timestamp, "kwiver:timestamp", kwiver::vital::timestamp );
 create_type_trait( gsd, "kwiver:gsd", kwiver::vital::gsd_t );
 create_type_trait( corner_points, "corner_points", kwiver::vital::geo_corner_points );
@@ -93,12 +92,13 @@ create_type_trait( detected_object_set, "kwiver:detected_object_set", kwiver::vi
 create_type_trait( track_descriptor_set, "kwiver:track_descriptor_set", kwiver::vital::track_descriptor_set_sptr );
 
 create_type_trait( homography, "kwiver:homography", kwiver::vital::homography_sptr );
-create_type_trait( homography_src_to_ref, "kwiver:s2r_homography", kwiver::vital::homography_f2f );
-create_type_trait( homography_ref_to_src, "kwiver:r2s_homography", kwiver::vital::homography_f2f );
+create_type_trait( homography_src_to_ref, "kwiver:s2r_homography", kwiver::vital::homography_f2f_sptr );
+create_type_trait( homography_ref_to_src, "kwiver:r2s_homography", kwiver::vital::homography_f2f_sptr );
 create_type_trait( image_file_name, "kwiver:image_file_name", kwiver::vital::path_t );
 create_type_trait( video_file_name, "kwiver:video_file_name", kwiver::vital::path_t );
 create_type_trait( video_metadata, "kwiver:video_metadata", kwiver::vital::video_metadata_vector );
 create_type_trait( video_uid, "kwiver:video_uuid", kwiver::vital::uid );
+create_type_trait( kwiver_logical, "kwiver:logical", bool );
 
 
 // ================================================================
@@ -128,5 +128,8 @@ create_port_trait( image_file_name, image_file_name, "Name of an image file. "
 create_port_trait( video_file_name, video_file_name, "Name of video file." );
 create_port_trait( video_metadata, video_metadata, "Video metadata vector for a frame." );
 create_port_trait( video_uid, video_uid, "Video UID value." );
+
+create_port_trait( coordinate_system_updated, kwiver_logical, "Set to true if new reference frame is established." );
+create_port_trait( motion_heat_map, image, "Motion heat map." );
 
 #endif // KWIVER_VITAL_TYPE_TRAITS_H

@@ -95,7 +95,7 @@ public:
                         kwiver::vital::timestamp const& time,
                         kwiver::vital::geo_corner_points const& corners,
                         kwiver::vital::image const& img,
-                        kwiver::vital::homography_f2f const& homog,
+                        const kwiver::vital::homography_f2f_sptr homog,
                         kwiver::vital::gsd_t gsd);
 
   static sprokit::process::port_t const port_timestamp;
@@ -349,7 +349,7 @@ priv_t
                    kwiver::vital::timestamp const& time,
                    kwiver::vital::geo_corner_points const& corner_pts,
                    kwiver::vital::image const& img,
-                   kwiver::vital::homography_f2f const& s2r_homog,
+                   const kwiver::vital::homography_f2f_sptr s2r_homog,
                    double gsd)
 {
   vxl_int_64 u_seconds = static_cast< vxl_int_64 > ( time.get_time_usec() );
@@ -375,7 +375,7 @@ priv_t
     );
 
   // convert homography
-  Eigen::Matrix< double, 3, 3 > matrix= s2r_homog.homography()->matrix();
+  Eigen::Matrix< double, 3, 3 > matrix= s2r_homog->homography()->matrix();
   vnl_matrix_fixed< double, 3, 3 > homog;
 
   // Copy matrix into vnl format
