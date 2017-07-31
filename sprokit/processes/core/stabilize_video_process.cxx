@@ -45,10 +45,12 @@ namespace algo = kwiver::vital::algo;
 
 namespace kwiver {
 
+// ==================================================
+// TBD A better approach would be to remove the warp algorithm reference
+// in this process and do the warping in the pipeline.
+
 create_config_trait( stabilize, std::string, "", "Stabilization algorithm configuration subblock" );
 create_config_trait( warp, std::string, "", "Warping algorithm configuration subblock" );
-
-create_port_trait( stabilized_image, image, "Image stabilized to reference frame" );
 
 //----------------------------------------------------------------
 // Private implementation class
@@ -145,7 +147,7 @@ stabilize_video_process
 
   // return by value
   push_to_port_using_trait( homography_src_to_ref, s2r_homog );
-  push_to_port_using_trait( stabilized_image, stab_image );
+  push_to_port_using_trait( image, stab_image );
   push_to_port_using_trait( coordinate_system_updated, new_ref );
 }
 
@@ -165,7 +167,7 @@ void stabilize_video_process
 
   // -- output --
   declare_output_port_using_trait( homography_src_to_ref, optional );
-  declare_output_port_using_trait( stabilized_image, optional );
+  declare_output_port_using_trait( image, optional );
   declare_output_port_using_trait( coordinate_system_updated, optional );
 }
 
