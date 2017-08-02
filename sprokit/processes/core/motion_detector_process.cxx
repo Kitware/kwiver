@@ -86,13 +86,10 @@ _configure()
   }
 
   vital::algo::motion_detector::set_nested_algo_configuration_using_trait( algo, algo_config, d->m_algo );
-
   if ( ! d->m_algo )
   {
     throw sprokit::invalid_configuration_exception( name(), "Unable to create motion detector algorithm" );
   }
-
-  vital::algo::motion_detector::get_nested_algo_configuration_using_trait( algo, algo_config, d->m_algo );
 }
 
 
@@ -103,7 +100,7 @@ _step()
 {
   auto ts = grab_from_port_using_trait( timestamp );
   auto input = grab_from_port_using_trait( image );
-  auto reset = grab_from_port_using_trait( coordinate_system_updated );
+  bool reset = grab_from_port_using_trait( coordinate_system_updated );
 
   auto result = d->m_algo->process_image( ts, input, reset );
 
@@ -119,13 +116,16 @@ make_ports()
   // Set up for required ports
   sprokit::process::port_flags_t required;
   sprokit::process::port_flags_t optional;
+  sprokit::process::port_flags_t req_static;
 
   required.insert( flag_required );
+  req_static.insert( flag_required );
+  req_static.insert( flag_input_static );
 
   // -- input --
   declare_input_port_using_trait( timestamp, required );
   declare_input_port_using_trait( image, required );
-  declare_input_port_using_trait( coordinate_system_updated, required );
+  declare_input_port_using_trait( coordinate_system_updated, req_static );
 
   // -- output --
   declare_output_port_using_trait( motion_heat_map, optional );
