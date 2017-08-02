@@ -65,10 +65,10 @@ public:
    * \param[out] coordinate_system_updated Set to true if this frame establishes a new reference coordinate system.
    */
   virtual void
-    process_image( const timestamp& ts,
-                   const image_container_sptr image_src,
-                   homography_f2f_sptr src_to_ref,
-                   bool&  coordinate_system_updated) = 0;
+  process_image( const timestamp& ts,
+                 const image_container_sptr image_src,
+                 homography_f2f_sptr src_to_ref,
+                 bool&  coordinate_system_updated) = 0;
 
 protected:
   stabilize_video();
