@@ -67,7 +67,7 @@ public:
   virtual void
   process_image( const timestamp& ts,
                  const image_container_sptr image_src,
-                 homography_f2f_sptr src_to_ref,
+                 homography_f2f_sptr& src_to_ref,
                  bool&  coordinate_system_updated) = 0;
 
 protected:

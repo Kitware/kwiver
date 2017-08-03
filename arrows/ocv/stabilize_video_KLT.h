@@ -83,7 +83,7 @@ public:
   virtual void
   process_image( const kwiver::vital::timestamp& ts,
                  const kwiver::vital::image_container_sptr image_src,
-                 kwiver::vital::homography_f2f_sptr src_to_ref,
+                 kwiver::vital::homography_f2f_sptr& src_to_ref,
                  bool&  coordinate_system_updated);
 
 private:

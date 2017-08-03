@@ -117,7 +117,7 @@ void
 stabilize_video_KLT
 ::process_image( const timestamp& ts,
                  const image_container_sptr image_src,
-                 homography_f2f_sptr src_to_ref,
+                 homography_f2f_sptr& src_to_ref,
                  bool&  coordinate_system_updated)
 {
   std::cout << "HERE1!!" << std::endl;
