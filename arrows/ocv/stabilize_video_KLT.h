@@ -38,6 +38,8 @@
 
 #include <memory>
 
+#include <opencv2/opencv.hpp>
+
 #include <vital/types/timestamp.h>
 #include <vital/vital_config.h>
 #include <vital/algo/stabilize_video.h>
@@ -84,12 +86,66 @@ public:
   process_image( const kwiver::vital::timestamp& ts,
                  const kwiver::vital::image_container_sptr image_src,
                  kwiver::vital::homography_f2f_sptr& src_to_ref,
-                 bool&  coordinate_system_updated);
+                 bool& coordinate_system_updated);
 
 private:
   // private implementation class
   class priv;
   std::unique_ptr<priv> d_;
+};
+
+
+// ----------------------------------------------------------------
+/**
+ * \class klt_stabilizer
+ *
+ * \brief Stabilizes a series of images using phase correlation
+ */
+class klt_stabilizer
+{
+  cv::Mat key_frame_mono, moving_frame_mono, mask;
+  double quality_level, min_distance, reproj_thresh, min_fract_pts;
+  int max_disp, max_corners;
+  int key_frame_type, rows, cols, precision;
+  cv::Size raw_size, rendered_size;
+  cv::TermCriteria termcrit;
+public:
+  std::vector<cv::Point2f> key_corners, moving_corners, final_moving_corners;
+  
+  klt_stabilizer();
+    
+  /// Constructor
+      /**
+   * \param _moving_frame key frame image
+   * \param _max_disp number of pixels around the edge of the key frame to 
+   *    use as a buffer in the rendered stabilized image
+   * \param min_fract_pts When the fraction of matched key points fall below 
+   *    this value, a key frame update is triggered.
+   */
+  klt_stabilizer(int _max_disp, int _max_corners, double _quality_level, 
+                 double _min_distance, double _min_fract_pts);
+
+  /// Destructor
+  ~klt_stabilizer() {};
+
+  /// Update the image used as a key frame
+  /**
+   * \param _moving_frame key frame image
+   * \param _edge_buffer number of pixels around the edge of the key frame to 
+   *    use as a buffer in the rendered stabilized image
+   */
+  void update_key_frame(cv::InputArray _moving_frame, 
+                        cv::InputArray _mask=cv::Mat());
+  
+  /// Measure the shift of the moving frame relative to the key frame
+  /**
+   * \param _moving_frame key frame image   */
+  cv::Mat measure_transform(cv::InputArray _moving_frame);
+  
+  /// Specify whether there is a valid key frame
+  /**
+   * \param _moving_frame key frame image   */
+  bool has_key_frame();
 };
 
 } // end namespace ocv
