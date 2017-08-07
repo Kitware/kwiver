@@ -36,6 +36,7 @@ set( ocv_headers_public
   match_features_flannbased.h
   match_set.h
   stabilize_video_KLT.h
+  motion_detector_MOG2.h
   warp_image.h
   )
 kwiver_install_headers(
@@ -81,6 +82,7 @@ set( ocv_sources
   match_features_bruteforce.cxx
   match_features_flannbased.cxx
   match_set.cxx
+  motion_detector_MOG2.cxx
   stabilize_video_KLT.cxx
   warp_image.cxx
   )
