@@ -79,6 +79,7 @@ kwiver_add_plugin( kwiver_processes
                  ${private_headers}
   PRIVATE          sprokit_pipeline
                    kwiver_algo_core
+		   kwiver_algo_ocv
                    kwiversys
                    vital vital_vpm vital_logger vital_config
                  ${Boost_SYSTEM_LIBRARY}

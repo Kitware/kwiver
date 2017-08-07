@@ -36,6 +36,7 @@
 #include <vital/types/image_container.h>
 #include <vital/algo/stabilize_video.h>
 #include <vital/algo/warp_image.h>
+#include <arrows/ocv/image_container.h>
 
 #include <kwiver_type_traits.h>
 
@@ -139,6 +140,12 @@ stabilize_video_process
   kwiver::vital::homography_f2f_sptr s2r_homog;
   bool new_ref;
   kwiver::vital::image_container_sptr stab_image;
+  
+  // create empty image of desired size
+  vital::image im( in_image->width() - 50, in_image->height() - 50);
+  
+  // get pointer to new image container.
+  stab_image = std::make_shared<kwiver::arrows::ocv::image_container>( im );
 
   d->m_stabilize->process_image( frame_time, in_image,
                                  s2r_homog, new_ref);

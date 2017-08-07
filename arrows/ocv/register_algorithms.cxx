@@ -62,6 +62,7 @@
 #include <arrows/ocv/feature_detect_extract_ORB.h>
 #include <arrows/ocv/feature_detect_extract_SIFT.h>
 #include <arrows/ocv/feature_detect_extract_SURF.h>
+#include "arrows/ocv/heat_map_bounding_boxes.h"
 #include <arrows/ocv/image_io.h>
 #include <arrows/ocv/match_features_bruteforce.h>
 #include <arrows/ocv/match_features_flannbased.h>
@@ -125,6 +126,13 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     ;
 
+  fact = vpm.ADD_ALGORITHM( "ocv_heat_map", kwiver::arrows::ocv::heat_map_bounding_boxes );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                    "Extract bounding boxes from heat map." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
 
   fact = vpm.ADD_ALGORITHM( "ocv", kwiver::arrows::ocv::image_io );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
