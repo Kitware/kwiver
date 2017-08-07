@@ -326,7 +326,7 @@ public:
   int max_disp = 50;
   int max_features = 5000;
   double quality_level = 0.001;
-  double min_distance = 60;
+  double min_distance = 10;
   double min_fract_pts = 0.1;
   klt_stabilizer stab;
   

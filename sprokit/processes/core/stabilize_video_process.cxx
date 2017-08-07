@@ -127,9 +127,10 @@ stabilize_video_process
 {
   kwiver::vital::homography_f2f_sptr src_to_ref_homography;
 
-  // timestamp
-  kwiver::vital::timestamp frame_time = grab_from_port_using_trait( timestamp );
-
+  // timestamp (TODO: figure out how to handle this when not supplied/optional)
+  //kwiver::vital::timestamp frame_time = grab_from_port_using_trait( timestamp );
+  kwiver::vital::timestamp frame_time;
+  
   // image
   kwiver::vital::image_container_sptr in_image = grab_from_port_using_trait( image );
 
@@ -169,7 +170,7 @@ void stabilize_video_process
   required.insert( flag_required );
 
   // -- input --
-  declare_input_port_using_trait( timestamp, required );
+  declare_input_port_using_trait( timestamp, optional );
   declare_input_port_using_trait( image, required );
 
   // -- output --

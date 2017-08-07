@@ -98,7 +98,10 @@ void
 motion_detector_process::
 _step()
 {
-  auto ts = grab_from_port_using_trait( timestamp );
+  //TODO, handle case where this is optionally provided
+  //auto ts = grab_from_port_using_trait( timestamp );
+  kwiver::vital::timestamp ts;
+  
   auto input = grab_from_port_using_trait( image );
   bool reset = grab_from_port_using_trait( coordinate_system_updated );
 
@@ -122,7 +125,7 @@ make_ports()
   opt_static.insert( flag_input_static );
 
   // -- input --
-  declare_input_port_using_trait( timestamp, required );
+  declare_input_port_using_trait( timestamp, optional );
   declare_input_port_using_trait( image, required );
   declare_input_port_using_trait( coordinate_system_updated, opt_static );
 
