@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -384,7 +384,7 @@ compute_ref_homography_core
 
 
 // Perform actual current to reference frame estimation
-f2f_homography_sptr
+homography_f2f_sptr
 compute_ref_homography_core
 ::estimate( frame_id_t frame_number,
             track_set_sptr tracks ) const
@@ -509,13 +509,15 @@ compute_ref_homography_core
   bool bad_homog = d_->compute_homography(pts_cur, pts_ref, h);
 
   // If the homography is bad, output an identity
-  f2f_homography_sptr output;
+  homography_f2f_sptr output;
 
   if( bad_homog )
   {
     LOG_DEBUG( d_->m_logger, "estimation FAILED" );
     // Start of new shot. Both frames the same and identity transform.
-    output = f2f_homography_sptr( new f2f_homography( frame_number ) );
+    //+     kwiver::vital::timestamp ts ( 0, frame_number );
+    //+ output = homography_f2f_sptr( new homography_f2f( ts ) );
+    output = std::make_shared< homography_f2f> ( kwiver::vital::timestamp( 0, frame_number ) );
     d_->frames_since_reset = 0;
     d_->min_ref_frame = frame_number;
   }
@@ -524,7 +526,10 @@ compute_ref_homography_core
     LOG_DEBUG( d_->m_logger, "estimation SUCCEEDED" );
     // extend current shot
     h = h->normalize();
-    output = f2f_homography_sptr( new f2f_homography( h, frame_number, earliest_ref ) );
+    //+ output = homography_f2f_sptr( new homography_f2f( h, frame_number, earliest_ref ) );
+    output = std::make_shared< homography_f2f>( h,
+                                                kwiver::vital::timestamp( 0, frame_number),
+                                                kwiver::vital::timestamp( 0, earliest_ref) );
   }
 
   // Update track infos based on homography estimation result
@@ -550,7 +555,7 @@ compute_ref_homography_core
       if( (ti.active && ti.ref_id != earliest_ref) || ti.ref_id == frame_number )
       {
         ti.ref_loc = output->homography()->map( ti.ref_loc );
-        ti.ref_id = output->to_id();
+        ti.ref_id = output->to_id().get_frame();
       }
       // Test back-projection on active tracks that we did not just set ref_loc
       // of.

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -123,7 +123,7 @@ public:
    * \param tracks the set of all tracked features from the image
    * \return estimated homography
    */
-  virtual vital::f2f_homography_sptr
+  virtual vital::homography_f2f_sptr
   estimate( vital::frame_id_t frame_number,
             vital::track_set_sptr tracks ) const;
 

@@ -27,6 +27,7 @@ set( ocv_headers_public
   feature_detect_extract_ORB.h
   feature_detect_extract_SIFT.h
   feature_detect_extract_SURF.h
+  heat_map_bounding_boxes.h
   hough_circle_detector.h
   image_container.h
   image_io.h
@@ -35,6 +36,9 @@ set( ocv_headers_public
   match_features_bruteforce.h
   match_features_flannbased.h
   match_set.h
+  stabilize_video_KLT.h
+  motion_detector_MOG2.h
+  warp_image.h
   )
 kwiver_install_headers(
   SUBDIR     arrows/ocv
@@ -66,6 +70,7 @@ set( ocv_sources
   extract_descriptors_FREAK.cxx
   extract_descriptors_LATCH.cxx
   extract_descriptors_LUCID.cxx
+  heat_map_bounding_boxes.cxx
   hough_circle_detector.cxx
   feature_set.cxx
   feature_detect_extract_BRISK.cxx
@@ -79,6 +84,9 @@ set( ocv_sources
   match_features_bruteforce.cxx
   match_features_flannbased.cxx
   match_set.cxx
+  motion_detector_MOG2.cxx
+  stabilize_video_KLT.cxx
+  warp_image.cxx
   )
 
 if( KWIVER_HAS_OPENCV_VER_3 )

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2015-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -127,7 +127,7 @@ void
 stabilize_image_process
 ::_step()
 {
-  kwiver::vital::f2f_homography_sptr src_to_ref_homography;
+  kwiver::vital::homography_f2f_sptr src_to_ref_homography;
 
   // timestamp
   kwiver::vital::timestamp frame_time = grab_from_port_using_trait( timestamp );
@@ -147,7 +147,7 @@ stabilize_image_process
   src_to_ref_homography = d->m_compute_homog->estimate( frame_time.get_frame(), d->m_tracks );
 
   // return by value
-  push_to_port_using_trait( homography_src_to_ref, *src_to_ref_homography );
+  push_to_port_using_trait( homography_src_to_ref, src_to_ref_homography );
 }
 
 

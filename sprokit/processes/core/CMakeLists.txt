@@ -22,12 +22,15 @@ set( sources
   image_file_reader_process.cxx
   image_filter_process.cxx
   image_object_detector_process.cxx
+  image_warp_process.cxx
   image_writer_process.cxx
   matcher_process.cxx
+  motion_detector_process.cxx
   read_descriptor_process.cxx
   simulate_target_selection_process.cxx
   refine_detections_process.cxx
   stabilize_image_process.cxx
+  stabilize_video_process.cxx
   track_descriptor_input_process.cxx
   track_descriptor_output_process.cxx
   video_input_process.cxx
@@ -51,12 +54,15 @@ set( private_headers
   image_file_reader_process.h
   image_filter_process.h
   image_object_detector_process.h
+  image_warp_process.h
   image_writer_process.h
   matcher_process.h
+  motion_detector_process.h
   read_descriptor_process.h
   simulate_target_selection_process.h
   refine_detections_process.h
   stabilize_image_process.h
+  stabilize_video_process.h
   track_descriptor_input_process.h
   track_descriptor_output_process.h
   video_input_process.h
@@ -73,6 +79,7 @@ kwiver_add_plugin( kwiver_processes
                  ${private_headers}
   PRIVATE          sprokit_pipeline
                    kwiver_algo_core
+		   kwiver_algo_ocv
                    kwiversys
                    vital vital_vpm vital_logger vital_config
                  ${Boost_SYSTEM_LIBRARY}

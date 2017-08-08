@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2015-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,71 +42,95 @@ namespace kwiver {
 namespace vital {
 
 
-/// Construct an identity homography for the given frame
-f2f_homography
-::f2f_homography( frame_id_t const frame_id )
+// ------------------------------------------------------------------
+// Construct an identity homography for the given frame
+homography_f2f
+::homography_f2f( const timestamp& frame_id )
   : h_( homography_sptr( new homography_<double>() ) ),
     from_id_( frame_id ),
     to_id_( frame_id )
 {
 }
 
-/// Construct a frame to frame homography given an existing transform
-f2f_homography
-::f2f_homography( homography_sptr const &h,
-                  frame_id_t const from_id,
-                  frame_id_t const to_id )
+
+homography_f2f
+::homography_f2f( frame_id_t frame_id )
+  : h_( homography_sptr( new homography_<double>() ) ),
+    from_id_( kwiver::vital::timestamp( 0, frame_id) ),
+    to_id_( kwiver::vital::timestamp( 0, frame_id) )
+{
+}
+
+
+// ------------------------------------------------------------------
+// Construct a frame to frame homography given an existing transform
+homography_f2f
+::homography_f2f( homography_sptr const &h,
+                  const timestamp& from_id,
+                  const timestamp& to_id )
   : h_( h->clone() ),
     from_id_( from_id ),
     to_id_( to_id )
 {
 }
 
-/// Copy constructor
-f2f_homography
-::f2f_homography( f2f_homography const &h )
+
+// ------------------------------------------------------------------
+// Copy constructor
+homography_f2f
+::homography_f2f( homography_f2f const &h )
   : h_( h.h_->clone() ),
     from_id_( h.from_id_ ),
     to_id_( h.to_id_ )
 {
 }
 
-/// Get the homography transformation
+
+// ------------------------------------------------------------------
+// Get the homography transformation
 homography_sptr
-f2f_homography
+homography_f2f
 ::homography() const
 {
   return this->h_;
 }
 
-/// Frame identifier that the homography maps from.
-frame_id_t
-f2f_homography
+
+// ------------------------------------------------------------------
+// Frame identifier that the homography maps from.
+const timestamp&
+homography_f2f
 ::from_id() const
 {
   return this->from_id_;
 }
 
-/// Frame identifier that the homography maps to.
-frame_id_t
-f2f_homography
+
+// ------------------------------------------------------------------
+// Frame identifier that the homography maps to.
+const timestamp&
+homography_f2f
 ::to_id() const
 {
   return this->to_id_;
 }
 
-/// Return a new inverse \p f2f_homography instance
-f2f_homography
-f2f_homography
+
+// ------------------------------------------------------------------
+// Return a new inverse \p homography_f2f instance
+homography_f2f
+homography_f2f
 ::inverse() const
 {
-  return f2f_homography( this->h_->inverse(), this->to_id_, this->from_id_ );
+  return homography_f2f( this->h_->inverse(), this->to_id_, this->from_id_ );
 }
 
-/// Custom f2f_homography multiplication operator for \p f2f_homography
-f2f_homography
-f2f_homography
-::operator*( f2f_homography const &rhs )
+
+// ------------------------------------------------------------------
+// Custom homography_f2f multiplication operator for \p homography_f2f
+homography_f2f
+homography_f2f
+::operator*( homography_f2f const &rhs )
 {
   if( this->from_id() != rhs.to_id() )
   {
@@ -114,13 +138,14 @@ f2f_homography
   }
 
   Eigen::Matrix<double,3,3> new_h = this->h_->matrix() * rhs.h_->matrix();
-  return f2f_homography( new_h, rhs.from_id(), this->to_id() );
+  return homography_f2f( new_h, rhs.from_id(), this->to_id() );
 }
 
 
-/// \p f2f_homography output stream operator
+// ------------------------------------------------------------------
+// \p homography_f2f output stream operator
 std::ostream&
-operator<<( std::ostream &s, f2f_homography const &h )
+operator<<( std::ostream &s, homography_f2f const &h )
 {
   s << h.from_id() << " -> " << h.to_id() << "\n"
     << *h.homography();

@@ -43,6 +43,9 @@
 #include <vital/types/feature_set.h>
 #include <vital/types/geo_corner_points.h>
 #include <vital/types/geo_lat_lon.h>
+#include <vital/types/homography.h>
+#include <vital/types/homography_f2f.h>
+#include <vital/types/homography_f2w.h>
 #include <vital/types/image_container.h>
 #include <vital/types/track_set.h>
 #include <vital/types/track_descriptor_set.h>
@@ -59,7 +62,6 @@ namespace kwiver {
 namespace vital {
 
   class timestamp;
-  class f2f_homography;
 
   typedef std::vector< double >  double_vector;
   typedef boost::shared_ptr< double_vector > double_vector_sptr;
@@ -75,8 +77,7 @@ namespace vital {
 // These are types that are passed through the pipeline.
 // ( type-trait-name, "canonical_type_name", concrete-type )
 //
-create_type_trait( bounding_box, "kwiver:bounding_box",
-                   kwiver::vital::bounding_box_d);
+create_type_trait( bounding_box, "kwiver:bounding_box", kwiver::vital::bounding_box_d);
 create_type_trait( timestamp, "kwiver:timestamp", kwiver::vital::timestamp );
 create_type_trait( gsd, "kwiver:gsd", kwiver::vital::gsd_t );
 create_type_trait( corner_points, "corner_points", kwiver::vital::geo_corner_points );
@@ -90,13 +91,15 @@ create_type_trait( double_vector,  "kwiver:d_vector", kwiver::vital::double_vect
 create_type_trait( detected_object_set, "kwiver:detected_object_set", kwiver::vital::detected_object_set_sptr );
 create_type_trait( track_descriptor_set, "kwiver:track_descriptor_set", kwiver::vital::track_descriptor_set_sptr );
 
-create_type_trait( homography_src_to_ref, "kwiver:s2r_homography", kwiver::vital::f2f_homography );
-create_type_trait( homography_ref_to_src, "kwiver:r2s_homography", kwiver::vital::f2f_homography );
+create_type_trait( homography, "kwiver:homography", kwiver::vital::homography_sptr );
+create_type_trait( homography_src_to_ref, "kwiver:s2r_homography", kwiver::vital::homography_f2f_sptr );
+create_type_trait( homography_ref_to_src, "kwiver:r2s_homography", kwiver::vital::homography_f2f_sptr );
 create_type_trait( image_file_name, "kwiver:image_file_name", kwiver::vital::path_t );
 create_type_trait( video_file_name, "kwiver:video_file_name", kwiver::vital::path_t );
 create_type_trait( video_metadata, "kwiver:video_metadata", kwiver::vital::video_metadata_vector );
 create_type_trait( time_interval_sec, "kwiver:time_interval_sec", double );
 create_type_trait( video_uid, "kwiver:video_uuid", kwiver::vital::uid );
+create_type_trait( kwiver_logical, "kwiver:logical", bool );
 
 
 // ================================================================
@@ -121,6 +124,7 @@ create_port_trait( detected_object_set, detected_object_set, "Set of detected ob
 create_port_trait( track_descriptor_set, track_descriptor_set, "Set of track descriptors." );
 
 create_port_trait( homography_src_to_ref, homography_src_to_ref, "Source image to ref image homography." );
+create_port_trait( homography, homography, "Image warping homography." );
 create_port_trait( image_file_name, image_file_name, "Name of an image file. "
                    "The file name may contain leading path components." );
 create_port_trait( video_file_name, video_file_name, "Name of video file." );
@@ -129,5 +133,8 @@ create_port_trait( video_uid, video_uid, "Video UID value." );
 
 create_port_trait( detection_time, time_interval_sec, "Elapsed time for this detection.\n\n"
 "This port produces the number of seconds that it took to perform the detection operation on the current frame." );
+
+create_port_trait( coordinate_system_updated, kwiver_logical, "Set to true if new reference frame is established." );
+create_port_trait( motion_heat_map, image, "Motion heat map." );
 
 #endif // KWIVER_VITAL_TYPE_TRAITS_H

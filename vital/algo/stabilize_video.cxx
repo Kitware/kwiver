@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2017 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -30,53 +30,24 @@
 
 /**
  * \file
- * \brief Frame to World Homography definition
+ * \brief stabilize_video algorithm instantiation
  */
 
-#ifndef VITAL_HOMOGRAPHY_F2W_H
-#define VITAL_HOMOGRAPHY_F2W_H
-
-#include <vital/types/homography.h>
-#include <vital/types/timestamp.h>
+#include <vital/algo/algorithm.txx>
+#include <vital/algo/stabilize_video.h>
 
 namespace kwiver {
 namespace vital {
+namespace algo {
 
-
-class VITAL_EXPORT homography_f2w
+stabilize_video
+::stabilize_video()
 {
-public:
-  /// Construct an identity homography for the given frame
-  homography_f2w( const timestamp& frame_id );
+  attach_logger( "stabilize_video" ); // specify a logger
+}
 
-  /// Construct given an existing homography
-  /**
-   * The given homography sptr is cloned into this object so we retain a unique
-   * copy.
-   */
-  homography_f2w( homography_sptr const &h, const timestamp& frame_id );
+} } }
 
-  /// Copy Constructor
-  homography_f2w( homography_f2w const &h );
-
-  virtual ~homography_f2w() VITAL_DEFAULT_DTOR
-
-  /// Get the homography transformation
-  virtual homography_sptr homography() const;
-
-  /// Get the frame identifier
-  virtual const timestamp& frame_id() const;
-
-protected:
-  /// Homography transformation
-  homography_sptr h_;
-
-  /// Frame identifier
-  timestamp frame_id_;
-};
-
-
-} } // end vital namespace
-
-
-#endif // VITAL_HOMOGRAPHY_F2W_H
+/// \cond DoxygenSuppress
+INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::stabilize_video);
+/// \endcond

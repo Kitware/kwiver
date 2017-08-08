@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2015-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -161,20 +161,22 @@ IMPLEMENT_TEST(homography_inversion)
 }
 
 
-IMPLEMENT_TEST(f2f_homography_inversion)
+IMPLEMENT_TEST(homography_f2f_inversion)
 {
   TEST_LOG( "Testing Frame-to-frame homography functions" );
 
   // testing from and to frame swapping during inversion
   kwiver::vital::matrix_3x3d i( kwiver::vital::matrix_3x3d::Identity() );
-  kwiver::vital::f2f_homography h( i, 0, 10 ),
-                        h_inv(0);
+  kwiver::vital::homography_f2f h( i,
+                                   kwiver::vital::timestamp( 0, 0 ),
+                                   kwiver::vital::timestamp( 10, 10 ) );
+  kwiver::vital::homography_f2f h_inv( kwiver::vital::timestamp( 0, 0 ) );
   h_inv = h.inverse();
 
   TEST_EQUAL( "f2f-homog ref frame inversion - From slot",
-              h_inv.from_id(), 10 );
+              h_inv.from_id().get_frame(), 10 );
   TEST_EQUAL( "f2f-homog ref frame inversion - To slot",
-              h_inv.to_id(), 0 );
+              h_inv.to_id().get_frame(), 0 );
 }
 
 

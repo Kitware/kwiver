@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,41 +28,57 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ARROWS_PROCESSES_IMAGE_FILTER_PROCESS_H
-#define ARROWS_PROCESSES_IMAGE_FILTER_PROCESS_H
+/**
+ * \file
+ * \brief Interface to algorithms for warping images
+ */
 
-#include <sprokit/pipeline/process.h>
+#ifndef VITAL_ALGO_STABILIZE_VIDEO_H
+#define VITAL_ALGO_STABILIZE_VIDEO_H
 
-#include "kwiver_processes_export.h"
-
-#include <vital/config/config_block.h>
+#include <vital/vital_config.h>
+#include <vital/algo/algorithm.h>
+#include <vital/types/image_container.h>
+#include <vital/types/homography_f2f.h>
 
 namespace kwiver {
+namespace vital {
+namespace algo {
 
-// ----------------------------------------------------------------
-/**
- * @brief Image object detector process.
- *
- */
-class KWIVER_PROCESSES_NO_EXPORT image_filter_process
-  : public sprokit::process
+/// \brief Abstract base class for image stabilization algorithms.
+class VITAL_ALGO_EXPORT stabilize_video
+  : public kwiver::vital::algorithm_def<stabilize_video>
 {
 public:
-  image_filter_process( kwiver::vital::config_block_sptr const& config );
-  virtual ~image_filter_process();
+
+  /// Return the name of this algorithm.
+  static std::string static_type_name() { return "stabilize_video"; }
+
+  /// Stabilize an input image by producing a homography
+  /**
+   * This method implements image stabilization by producing a
+   * homography to relate the input image to a reference image.
+   *
+   * \param[in] ts Time stamp for the input image.
+   * \param[in] image_src the source image data to stabilize
+   * \param[out] src_to_ref Source to reference homography
+   * \param[out] coordinate_system_updated Set to true if this frame establishes a new reference coordinate system.
+   */
+  virtual void
+  process_image( const timestamp& ts,
+                 const image_container_sptr image_src,
+                 homography_f2f_sptr& src_to_ref,
+                 bool&  coordinate_system_updated) = 0;
 
 protected:
-  virtual void _configure();
-  virtual void _step();
+  stabilize_video();
 
-private:
-  void make_ports();
-  void make_config();
-
-  class priv;
-  const std::unique_ptr<priv> d;
 };
 
-} // end namespace
+/// type definition for shared pointer to a stabilize_video algorithm
+typedef std::shared_ptr<stabilize_video> stabilize_video_sptr;
 
-#endif // ARROWS_PROCESSES_IMAGE_FILTER_PROCESS_H
+
+} } } // end namespace
+
+#endif // VITAL_ALGO_STABILIZE_VIDEO_H

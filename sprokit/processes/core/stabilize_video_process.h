@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2017 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,55 +28,52 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file
- * \brief Frame to World Homography definition
- */
+#ifndef _KWIVER_STABILIZE_VIDEO_PROCESS_H_
+#define _KWIVER_STABILIZE_VIDEO_PROCESS_H_
 
-#ifndef VITAL_HOMOGRAPHY_F2W_H
-#define VITAL_HOMOGRAPHY_F2W_H
+#include <sprokit/pipeline/process.h>
+#include "kwiver_processes_export.h"
 
-#include <vital/types/homography.h>
-#include <vital/types/timestamp.h>
+#include <memory>
 
-namespace kwiver {
-namespace vital {
-
-
-class VITAL_EXPORT homography_f2w
+namespace kwiver
 {
-public:
-  /// Construct an identity homography for the given frame
-  homography_f2w( const timestamp& frame_id );
 
-  /// Construct given an existing homography
-  /**
-   * The given homography sptr is cloned into this object so we retain a unique
-   * copy.
-   */
-  homography_f2w( homography_sptr const &h, const timestamp& frame_id );
+// ----------------------------------------------------------------
+/**
+ * \class stabilize_video_process
+ *
+ * \brief Stabilizes a series of image.
+ *
+ * \iports
+ * \iport{timestamp}
+ * \iport{image}
+ *
+ * \oports
+ * \oport{src_to_ref_homography}
+ *
+ */
+class KWIVER_PROCESSES_NO_EXPORT stabilize_video_process
+  : public sprokit::process
+{
+  public:
+  stabilize_video_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~stabilize_video_process();
 
-  /// Copy Constructor
-  homography_f2w( homography_f2w const &h );
+  protected:
+    virtual void _configure();
+    virtual void _step();
 
-  virtual ~homography_f2w() VITAL_DEFAULT_DTOR
-
-  /// Get the homography transformation
-  virtual homography_sptr homography() const;
-
-  /// Get the frame identifier
-  virtual const timestamp& frame_id() const;
-
-protected:
-  /// Homography transformation
-  homography_sptr h_;
-
-  /// Frame identifier
-  timestamp frame_id_;
-};
-
-
-} } // end vital namespace
+  private:
+    void make_ports();
+    void make_config();
 
 
-#endif // VITAL_HOMOGRAPHY_F2W_H
+    class priv;
+    const std::unique_ptr<priv> d;
+ }; // end class stabilize_video_process
+
+
+} // end namespace
+
+#endif /* _KWIVER_STABILIZE_VIDEO_PROCESS_H_ */

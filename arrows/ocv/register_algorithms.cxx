@@ -62,10 +62,14 @@
 #include <arrows/ocv/feature_detect_extract_ORB.h>
 #include <arrows/ocv/feature_detect_extract_SIFT.h>
 #include <arrows/ocv/feature_detect_extract_SURF.h>
+#include "arrows/ocv/heat_map_bounding_boxes.h"
 #include <arrows/ocv/image_io.h>
 #include <arrows/ocv/match_features_bruteforce.h>
 #include <arrows/ocv/match_features_flannbased.h>
 #include <arrows/ocv/hough_circle_detector.h>
+#include <arrows/ocv/motion_detector_MOG2.h>
+#include <arrows/ocv/stabilize_video_KLT.h>
+#include <arrows/ocv/warp_image.h>
 
 namespace kwiver {
 namespace arrows {
@@ -122,6 +126,13 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     ;
 
+  fact = vpm.ADD_ALGORITHM( "ocv_heat_map", kwiver::arrows::ocv::heat_map_bounding_boxes );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                    "Extract bounding boxes from heat map." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
 
   fact = vpm.ADD_ALGORITHM( "ocv", kwiver::arrows::ocv::image_io );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
@@ -135,6 +146,14 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact = vpm.ADD_ALGORITHM( "ocv", kwiver::arrows::ocv::draw_detected_object_set );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                     "Draw bounding box around detected objects on supplied image." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
+
+  fact = vpm.ADD_ALGORITHM( "ocv", kwiver::arrows::ocv::warp_image );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                    "Use OpenCV to warp images with a perspective homography" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
@@ -240,6 +259,21 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     ;
 
+  fact = vpm.ADD_ALGORITHM( "ocv_KLT", kwiver::arrows::ocv::stabilize_video_KLT );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                    "Stabilize video using OpenCV KLT tracker." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
+  
+  fact = vpm.ADD_ALGORITHM( "ocv_MOG2", kwiver::arrows::ocv::motion_detector_MOG2 );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                    "OpenCV Gaussian mixture-based background segmentation." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
 
   // Conditional algorithms
   // Source ``KWIVER_OCV_HAS_*`` symbol definitions can be found in the header
