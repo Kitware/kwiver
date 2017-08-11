@@ -104,26 +104,35 @@ private:
 class klt_stabilizer
 {
   cv::Mat key_frame_mono, moving_frame_mono, mask;
-  double quality_level, min_distance, reproj_thresh, min_fract_pts;
-  int max_disp, max_corners;
   int key_frame_type, rows, cols, precision;
   cv::Size raw_size, rendered_size;
-  cv::TermCriteria termcrit;
+  
 public:
+  int max_pts;
+  double pt_quality_thresh;
+  double min_pt_dist;
+  cv::TermCriteria termcrit;
+  double reproj_thresh;
+  double min_fract_pts;
+  int max_disp;
+  
   std::vector<cv::Point2f> key_corners, moving_corners, final_moving_corners;
   
   klt_stabilizer();
     
   /// Constructor
       /**
-   * \param _moving_frame key frame image
-   * \param _max_disp number of pixels around the edge of the key frame to 
-   *    use as a buffer in the rendered stabilized image
+   * \param max_pts maximum number of key points to generate
+   * \param pt_quality_thresh mimimum allowable feature point quality
+   * \param min_pt_dist minimum distance between key points
+   * \param reproj_thresh threshold error for robust homography fitting
    * \param min_fract_pts When the fraction of matched key points fall below 
-   *    this value, a key frame update is triggered.
+   *    this value, a key frame update is triggered
+   * \param max_disp number of pixels around the edge of the key frame to 
+   *    use as a buffer in the rendered stabilized image
    */
-  klt_stabilizer(int _max_disp, int _max_corners, double _quality_level, 
-                 double _min_distance, double _min_fract_pts);
+  klt_stabilizer(int max_pts, double pt_quality_thresh, double min_pt_dist, 
+                 double reproj_thresh, double min_fract_pts, int max_disp);
 
   /// Destructor
   ~klt_stabilizer() {};

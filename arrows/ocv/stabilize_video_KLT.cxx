@@ -52,18 +52,16 @@ using namespace kwiver::vital;
 
 //-----------------------------------------------------------------------------
 klt_stabilizer
-::klt_stabilizer(int _max_disp, int _max_corners, double _quality_level, 
-                 double _min_distance, double _min_fract_pts)
+::klt_stabilizer(int max_pts, double pt_quality_thresh, double min_pt_dist, 
+                 double reproj_thresh, double min_fract_pts, int max_disp)
+  : max_pts(max_pts),
+    pt_quality_thresh(pt_quality_thresh),
+    min_pt_dist(min_pt_dist),
+    termcrit(cv::TermCriteria(cv::TermCriteria::COUNT|cv::TermCriteria::EPS,200,0.05)),
+    reproj_thresh(reproj_thresh),
+    min_fract_pts(min_fract_pts),
+    max_disp(max_disp)
 {
-  max_disp = _max_disp;
-  max_corners = _max_corners;
-  quality_level = _quality_level;
-  min_distance = _min_distance;
-  termcrit = cv::TermCriteria(cv::TermCriteria::COUNT|cv::TermCriteria::EPS,200,0.05);
-  reproj_thresh = 2;
-  min_fract_pts = _min_fract_pts;
-    
-  //this->update_key_frame(_frame);
 }
 
 
@@ -73,6 +71,13 @@ klt_stabilizer
 ::update_key_frame(cv::InputArray _frame, cv::InputArray _mask)
 {
   std::cout << "Updating key frame" << std::endl;
+  std::cout << "max_pts : " << max_pts << std::endl;
+  std::cout << "pt_quality_thresh : " << pt_quality_thresh << std::endl;
+  std::cout << "min_pt_dist : " << min_pt_dist << std::endl;
+  std::cout << "reproj_thresh : " << reproj_thresh << std::endl;
+  std::cout << "min_fract_pts : " << min_fract_pts << std::endl;
+  std::cout << "max_disp : " << max_disp << std::endl;  
+  
   cv::Mat frame = _frame.getMat();
   
   rows = frame.rows, cols = frame.cols;
@@ -96,8 +101,8 @@ klt_stabilizer
     frame.copyTo(key_frame_mono);
   }
   
-  cv::goodFeaturesToTrack(key_frame_mono, key_corners, max_corners, 
-                          quality_level, min_distance, mask, 5, false, 0.04);
+  cv::goodFeaturesToTrack(key_frame_mono, key_corners, max_pts, 
+                          pt_quality_thresh, min_pt_dist, mask, 5, false, 0.04);
   moving_corners = key_corners;
   final_moving_corners = key_corners;
 }
@@ -314,30 +319,27 @@ klt_stabilizer
   return true;
 }
 
-// ---------------------------------------------------------------------------
-// ------------------------------ Sprokit ------------------------------------
+// ============================================================================
+// ------------------------------- Sprokit ------------------------------------
 
 
 /// Private implementation class
 class stabilize_video_KLT::priv
 {
 public:
-  // Create the stabilizer from the key frame.
-  int max_disp = 50;
-  int max_features = 5000;
-  double quality_level = 0.001;
-  double min_distance = 10;
-  double min_fract_pts = 0.1;
+  // Initialize the stabilizer.
   klt_stabilizer stab;
   
   /// Constructor
   priv()
-     : stab(max_disp, max_features, quality_level, min_distance, min_fract_pts)
+    : stab(5000, 0.001, 10, 2, 0.1, 50)
   {
   }
+  
 };
 
 
+// ------------------------------------------------------------------
 /// Constructor
 stabilize_video_KLT
 ::stabilize_video_KLT()
@@ -347,6 +349,7 @@ stabilize_video_KLT
 }
 
 
+// ------------------------------------------------------------------
 /// Destructor
 stabilize_video_KLT
 ::~stabilize_video_KLT() VITAL_NOTHROW
@@ -354,6 +357,7 @@ stabilize_video_KLT
 }
 
 
+// ------------------------------------------------------------------
 /// Get this alg's \link vital::config_block configuration block \endlink
 vital::config_block_sptr
 stabilize_video_KLT
@@ -361,11 +365,31 @@ stabilize_video_KLT
 {
   // get base config from base class
   vital::config_block_sptr config = algorithm::get_configuration();
-
+  
+  config->set_value( "max_disp", d_->stab.max_disp,
+                     "Number of pixels of camera motion that will trigger a "
+                     "key frame update." );
+  config->set_value( "max_pts", d_->stab.max_pts,
+                     "Maximum number of features to detect in the key frame.  "
+                     "See maxCorners in OpenCV goodFeaturesToTrack." );
+  config->set_value( "pt_quality_thresh", d_->stab.pt_quality_thresh,
+                     "The minimal accepted quality of key frame features.  "
+                     "See qualityLevel in OpenCV goodFeaturesToTrack." );
+  config->set_value( "min_pt_dist", d_->stab.min_pt_dist,
+                     "Minimum distance between features in the key frame.  "
+                     "See minDistance in OpenCV goodFeaturesToTrack." );
+  config->set_value( "reproj_thresh", d_->stab.reproj_thresh,
+                     "Robust homography fitting reprojection error threshold." );
+  config->set_value( "min_fract_pts", d_->stab.min_fract_pts,
+                     "When the fraction of tracked points that pass the robust "
+                     "homography fitting threshold falls below this threshold, "
+                     "a key frame update will be triggered.");
+  
   return config;
 }
 
 
+// ------------------------------------------------------------------
 /// Set this algo's properties via a config block
 void
 stabilize_video_KLT
@@ -375,9 +399,18 @@ stabilize_video_KLT
   // An alternative is to check for key presence before performing a get_value() call.
   vital::config_block_sptr config = this->get_configuration();
   config->merge_config(in_config);
+  
+  std::cout << "max_disp " << config->get_value<int>( "max_disp" ) << std::endl;
+  d_->stab.max_disp          = config->get_value<int>( "max_disp" );
+  d_->stab.max_pts           = config->get_value<int>( "max_pts" );
+  d_->stab.pt_quality_thresh = config->get_value<double>( "pt_quality_thresh" );
+  d_->stab.min_pt_dist       = config->get_value<double>( "min_pt_dist" );
+  d_->stab.min_fract_pts     = config->get_value<double>( "min_fract_pts" );
+  d_->stab.reproj_thresh     = config->get_value<double>( "reproj_thresh" );
 }
 
 
+// ------------------------------------------------------------------
 bool
 stabilize_video_KLT
 ::check_configuration(vital::config_block_sptr config) const
@@ -386,6 +419,7 @@ stabilize_video_KLT
 }
 
 
+// ------------------------------------------------------------------
 /// Return homography to stabilize the image_src relative to the key frame 
 void
 stabilize_video_KLT

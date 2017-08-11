@@ -90,13 +90,13 @@ static const int multi_label_offset(15);
 
 typedef  Eigen::Matrix< unsigned int, 3, 1 > ColorVector;
 
-create_config_trait( threshold, float, "-1", "min probablity for output (float)" );
+create_config_trait( threshold, float, "-1", "min probability for output (float)" );
 create_config_trait( alpha_blend_prob, bool, "true", "If true, those who are less likely will be more transparent." );
 create_config_trait( default_line_thickness, float, "1", "The default line thickness for a class" );
 create_config_trait( default_color, std::string, "255 0 0", "The default color for a class (BGR)" );
 create_config_trait( custom_class_color, std::string, "",
-                     "List of class/thickness/color seperated by semi-colon. For example: person/3/255 0 0;car/2/0 255 0" );
-create_config_trait( ignore_file, std::string, "__background__", "List of classes to ingore, seperated by semi-colon." );
+                     "List of class/thickness/color separated by semi-colon. For example: person/3/255 0 0;car/2/0 255 0" );
+create_config_trait( ignore_file, std::string, "__background__", "List of classes to ignore, separated by semi-colon." );
 create_config_trait( text_scale, float, "0.4", "the scale for the text label" );
 create_config_trait( text_thickness, float, "1.0", "the thickness for text" );
 create_config_trait( file_string, std::string, "", "If not empty, use this as a formated string to write output (i.e. out_%5d.png)" );

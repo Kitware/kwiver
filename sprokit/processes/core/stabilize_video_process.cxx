@@ -52,6 +52,10 @@ namespace kwiver {
 
 create_config_trait( stabilize, std::string, "", "Stabilization algorithm configuration subblock" );
 create_config_trait( warp, std::string, "", "Warping algorithm configuration subblock" );
+create_config_trait( edge_buffer, int, "0", "Number of rows to crop from the "
+                    "top and bottom as well as the number of columns to crop "
+                    "from the left and right of the stabilized image to allow "
+                    "for motion without black, unpopulated pixels." );
 
 //----------------------------------------------------------------
 // Private implementation class
@@ -61,10 +65,10 @@ public:
   priv();
   ~priv();
 
-
   // Configuration values
   algo::stabilize_video_sptr m_stabilize;
   algo::warp_image_sptr m_warp;
+  int m_edge_buffer = 0;
 
 }; // end priv class
 
@@ -93,6 +97,8 @@ void stabilize_video_process
 ::_configure()
 {
   kwiver::vital::config_block_sptr algo_config = get_config();
+  
+  //d->m_edge_buffer          = config_value_using_trait( edge_buffer );
 
   // Check config so it will give run-time diagnostic of config problems
   if ( ! algo::stabilize_video::check_nested_algo_configuration( "stabilize", algo_config ) )
@@ -113,7 +119,7 @@ void stabilize_video_process
   }
 
   algo::warp_image::set_nested_algo_configuration( "warp", algo_config, d->m_warp );
-  if ( ! d->m_stabilize )
+  if ( ! d->m_warp )
   {
     throw sprokit::invalid_configuration_exception( name(), "Unable to create image warping algorithm" );
   }
@@ -149,7 +155,7 @@ stabilize_video_process
   stab_image = std::make_shared<kwiver::arrows::ocv::image_container>( im );
 
   d->m_stabilize->process_image( frame_time, in_image,
-                                 s2r_homog, new_ref);
+                                 s2r_homog, new_ref );
 
   d->m_warp->warp( in_image, stab_image, s2r_homog->homography() );
 
