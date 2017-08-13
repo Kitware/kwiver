@@ -9,12 +9,14 @@ set( sources
   crop_image_process.cxx
   draw_detected_object_boxes_process.cxx
   image_viewer_process.cxx
+  stabilization_inspection_image_process.cxx
 )
 
 set( private_headers
   crop_image_process.h
   draw_detected_object_boxes_process.h
   image_viewer_process.h
+  stabilization_inspection_image_process.h
 )
 
 kwiver_private_header_group( ${private_headers} )
