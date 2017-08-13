@@ -94,69 +94,6 @@ private:
   std::unique_ptr<priv> d_;
 };
 
-
-// ----------------------------------------------------------------
-/**
- * \class klt_stabilizer
- *
- * \brief Stabilizes a series of images using phase correlation
- */
-class klt_stabilizer
-{
-  cv::Mat key_frame_mono, moving_frame_mono, mask;
-  int key_frame_type, rows, cols, precision;
-  cv::Size raw_size, rendered_size;
-  
-public:
-  int max_pts;
-  double pt_quality_thresh;
-  double min_pt_dist;
-  cv::TermCriteria termcrit;
-  double reproj_thresh;
-  double min_fract_pts;
-  int max_disp;
-  
-  std::vector<cv::Point2f> key_corners, moving_corners, final_moving_corners;
-  
-  klt_stabilizer();
-    
-  /// Constructor
-      /**
-   * \param max_pts maximum number of key points to generate
-   * \param pt_quality_thresh mimimum allowable feature point quality
-   * \param min_pt_dist minimum distance between key points
-   * \param reproj_thresh threshold error for robust homography fitting
-   * \param min_fract_pts When the fraction of matched key points fall below 
-   *    this value, a key frame update is triggered
-   * \param max_disp number of pixels around the edge of the key frame to 
-   *    use as a buffer in the rendered stabilized image
-   */
-  klt_stabilizer(int max_pts, double pt_quality_thresh, double min_pt_dist, 
-                 double reproj_thresh, double min_fract_pts, int max_disp);
-
-  /// Destructor
-  ~klt_stabilizer() {};
-
-  /// Update the image used as a key frame
-  /**
-   * \param _moving_frame key frame image
-   * \param _edge_buffer number of pixels around the edge of the key frame to 
-   *    use as a buffer in the rendered stabilized image
-   */
-  void update_key_frame(cv::InputArray _moving_frame, 
-                        cv::InputArray _mask=cv::Mat());
-  
-  /// Measure the shift of the moving frame relative to the key frame
-  /**
-   * \param _moving_frame key frame image   */
-  cv::Mat measure_transform(cv::InputArray _moving_frame);
-  
-  /// Specify whether there is a valid key frame
-  /**
-   * \param _moving_frame key frame image   */
-  bool has_key_frame();
-};
-
 } // end namespace ocv
 } // end namespace arrows
 } // end namespace kwiver

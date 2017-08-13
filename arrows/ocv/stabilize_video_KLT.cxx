@@ -33,8 +33,13 @@
  * \brief Implementation of ocv::stabilize_video_KLT
  */
 
+
+#include <string>
+//#include <boost/filesystem.hpp>
+
 #include "stabilize_video_KLT.h"
 
+#include <kwiversys/SystemTools.hxx>
 #include <vital/exceptions.h>
 
 #include <arrows/ocv/image_container.h>
@@ -50,306 +55,373 @@ namespace ocv {
 using namespace kwiver::vital;
 
 
-//-----------------------------------------------------------------------------
-klt_stabilizer
-::klt_stabilizer(int max_pts, double pt_quality_thresh, double min_pt_dist, 
-                 double reproj_thresh, double min_fract_pts, int max_disp)
-  : max_pts(max_pts),
-    pt_quality_thresh(pt_quality_thresh),
-    min_pt_dist(min_pt_dist),
-    termcrit(cv::TermCriteria(cv::TermCriteria::COUNT|cv::TermCriteria::EPS,200,0.05)),
-    reproj_thresh(reproj_thresh),
-    min_fract_pts(min_fract_pts),
-    max_disp(max_disp)
+// ============================================================================
+/// Private implementation class
+class stabilize_video_KLT::priv
 {
-}
-
-
-//-----------------------------------------------------------------------------
-void
-klt_stabilizer
-::update_key_frame(cv::InputArray _frame, cv::InputArray _mask)
-{
-  std::cout << "Updating key frame" << std::endl;
-  std::cout << "max_pts : " << max_pts << std::endl;
-  std::cout << "pt_quality_thresh : " << pt_quality_thresh << std::endl;
-  std::cout << "min_pt_dist : " << min_pt_dist << std::endl;
-  std::cout << "reproj_thresh : " << reproj_thresh << std::endl;
-  std::cout << "min_fract_pts : " << min_fract_pts << std::endl;
-  std::cout << "max_disp : " << max_disp << std::endl;  
+  cv::Mat m_key_frame_mono, m_moving_frame_mono, m_mask;
+  int m_key_frame_type, m_rows, m_cols, m_precision;
+  cv::Size m_raw_size, m_rendered_size;
   
-  cv::Mat frame = _frame.getMat();
+public:
+  std::string m_debug_dir;
+  bool m_output_to_debug_dir = false;
+  kwiver::vital::logger_handle_t m_logger;
+  int m_max_pts;
+  double m_pt_quality_thresh;
+  double m_min_pt_dist;
+  cv::TermCriteria m_termcrit;
+  double m_reproj_thresh;
+  double m_min_fract_pts;
+  int m_max_disp;
   
-  rows = frame.rows, cols = frame.cols;
-  raw_size = cv::Size(cols, rows);
+  // Used to provide an index of the frame for debug out purposes
+  int frame_index{-1};
+  int key_frame_index{-1};
   
-  // The size of the rendered stabilized image
-  rendered_size = cv::Size(cols-2*max_disp,rows-2*max_disp);
+  std::vector<cv::Point2f> key_corners, moving_corners, final_moving_corners;
   
-  if(_mask.kind() != cv::_InputArray::NONE)
+  /// Constructor
+  /**
+   * \param max_pts maximum number of key points to generate
+   * \param pt_quality_thresh mimimum allowable feature point quality
+   * \param min_pt_dist minimum distance between key points
+   * \param reproj_thresh threshold error for robust homography fitting
+   * \param min_fract_pts When the fraction of matched key points fall below 
+   *    this value, a key frame update is triggered
+   * \param max_disp number of pixels around the edge of the key frame to 
+   *    use as a buffer in the rendered stabilized image
+   */
+  priv()
+    : m_max_pts(5000),
+      m_pt_quality_thresh(0.001), 
+      m_min_pt_dist(10), 
+      m_termcrit(cv::TermCriteria(cv::TermCriteria::COUNT|cv::TermCriteria::EPS,100,0.05)),
+      m_reproj_thresh(2), 
+      m_min_fract_pts(0.1), 
+      m_max_disp(50)
   {
-    mask = _mask.getMat();
   }
+  
+  /// Update the key frame and recalculate features to match to
+  /**
+   * \param _frame key frame to stabilize successive frames to
+   * \param _mask mask to avoid key points
+   */
+  void
+  update_key_frame(cv::InputArray frame_, cv::InputArray mask_=cv::Mat())
+  {
+    ++key_frame_index;
     
-  if( frame.channels() == 3 )
-  {
-    std::cout << "Converting RGB key_frame to mono" << std::endl;
-    cv::cvtColor(frame, key_frame_mono, CV_BGR2GRAY);
-  }
-  else
-  {
-    frame.copyTo(key_frame_mono);
-  }
-  
-  cv::goodFeaturesToTrack(key_frame_mono, key_corners, max_pts, 
-                          pt_quality_thresh, min_pt_dist, mask, 5, false, 0.04);
-  moving_corners = key_corners;
-  final_moving_corners = key_corners;
-}
-
-
-//-----------------------------------------------------------------------------
-cv::Mat
-klt_stabilizer
-::measure_transform(cv::InputArray _moving_frame)
-{
-  cv::Mat moving_frame = _moving_frame.getMat();
-  cv::Mat M;
-  
-  CV_Assert( moving_frame.rows == rows);
-  CV_Assert( moving_frame.cols == cols);
-  
-  if( moving_frame.channels() == 3 )
-  {
-    cv::cvtColor(moving_frame, moving_frame_mono, CV_BGR2GRAY);
-  }
-  else
-  {
-    moving_frame_mono = moving_frame;
-  }
-  
-  std::vector<uchar> status;
-  std::vector<float> err;
-  cv::Size win_size(101,101);
-  cv::calcOpticalFlowPyrLK(key_frame_mono, moving_frame_mono, key_corners, 
-                           moving_corners, status, err, win_size, 3, termcrit, 
-                           cv::OPTFLOW_USE_INITIAL_FLOW,
-                           0.001);
-  
-  int n = cv::sum(status)[0];
-  std::cout << "calcOpticalFlowPyrLK found " << n << " matches out of " << 
-          key_corners.size() << std::endl;
-  
-  if( n < key_corners.size()*min_fract_pts)
-  {
-    // Stabilization failed
-    M.release();
-    return M;
-  }
-
-  std::vector<cv::Point2f> src_pts(n);
-  std::vector<cv::Point2f> dst_pts(n);
-
-  int k = 0;
-  for( unsigned i = 0; i < status.size(); ++i )
-  {
-    // Select only the inliers (mask entry set to 1)
-    if (status[i] == 1)
+    LOG_DEBUG( m_logger, "Updating key frame");
+    if( false )
     {
-      //std::cout << "KLT Error: " << err[i] << std::endl;
-      //std::cout << i << ", ";
-      //std::cout << moving_corners[i] << std::endl;
-      src_pts[k] = moving_corners[i];
-      dst_pts[k] = key_corners[i];
-      ++ k;
-    }
-  }
-  
-  final_moving_corners = src_pts;
-  
-  cv::Mat pt_mask;
-  M = cv::findHomography(src_pts, dst_pts, cv::RANSAC, reproj_thresh, pt_mask);
-  n = cv::sum(pt_mask)[0];
-  
-  // Transform points with the homography that was just fit
-  std::vector<cv::Point2f> tformed_pts;
-  cv::perspectiveTransform(src_pts, tformed_pts, M);
-
-  k = 0;
-  double erri;
-  for( unsigned i = 0; i < src_pts.size(); i++ )
-  {
-    // Check that the errors are correctly below reproj_thresh
-    erri = cv::norm(cv::Mat(tformed_pts[i]), cv::Mat(dst_pts[i]));
-    if( erri <= reproj_thresh )
-    {
-      src_pts[k] = moving_corners[i];
-      dst_pts[k] = key_corners[i];
-      ++ k;
-      //std::cout << "ERROR is: " << erri << std::endl;
-    }
-  }
-  src_pts.resize(k);
-  dst_pts.resize(k);
-  
-  
-  if( src_pts.size() < key_corners.size()*min_fract_pts)
-  {
-    // Stabilization failed
-    M.release();
-    return M;
-  }
-  
-  
-  if( true )
-  {
-    // Fit a rigid transformation.
-    std::cout << "Fitting rigid transformation" << std::endl;
-
-    // Fit to a rigid transformation (i.e., translation plus rotation)
-    std::array<double,3> threshes{4*reproj_thresh,2*reproj_thresh,1.5*reproj_thresh};
-    for( int j = 0; j < 3; ++j)
-    {
-      M = cv::estimateRigidTransform(src_pts, dst_pts, false);
-
-      if( M.empty() )
-      {
-        // Stabilization failed
-        M.release();
-        return M;
-      }
-
-      // Make a 3x3 homography
-      cv::Mat new_row = (cv::Mat_<double>(1,3) << 0, 0, 1);
-      M.push_back(new_row);
-
-      // Check errors
-      cv::perspectiveTransform(src_pts, tformed_pts, M);
-      k = 0;
-      double erri;
-      for( unsigned i = 0; i < src_pts.size(); i++ )
-      {
-        // Check that the errors are correctly below reproj_thresh
-        erri = cv::norm(cv::Mat(tformed_pts[i]), cv::Mat(dst_pts[i]));
-        if( erri <= threshes[j] )
-        {
-          src_pts[k] = src_pts[i];
-          dst_pts[k] = dst_pts[i];
-          ++ k;
-          //std::cout << "ERROR is: " << erri << std::endl;
-        }
-      }
-      if( k == 0 )
-      {
-        // Stabilization failed
-        M.release();
-        return M;
-      }
-      src_pts.resize(k);
-      dst_pts.resize(k);
+      std::cout << "Updating key frame" << std::endl;
+      std::cout << "max_pts : " << m_max_pts << std::endl;
+      std::cout << "pt_quality_thresh : " << m_pt_quality_thresh << std::endl;
+      std::cout << "min_pt_dist : " << m_min_pt_dist << std::endl;
+      std::cout << "reproj_thresh : " << m_reproj_thresh << std::endl;
+      std::cout << "min_fract_pts : " << m_min_fract_pts << std::endl;
+      std::cout << "max_disp : " << m_max_disp << std::endl;
     }
 
-    std::cout << "RANSAC Homography fitting matches: " << src_pts.size() << 
-            " of " << key_corners.size() << std::endl;
+    cv::Mat frame = frame_.getMat();
+
+    m_rows = frame.rows, m_cols = frame.cols;
+    m_raw_size = cv::Size(m_cols, m_rows);
+
+    // The size of the rendered stabilized image
+    m_rendered_size = cv::Size(m_cols-2*m_max_disp,m_rows-2*m_max_disp);
+
+    if(mask_.kind() != cv::_InputArray::NONE)
+    {
+      m_mask = mask_.getMat();
+    }
+
+    if( frame.channels() == 3 )
+    {
+      std::cout << "Converting RGB key_frame to mono" << std::endl;
+      cv::cvtColor(frame, m_key_frame_mono, CV_BGR2GRAY);
+    }
+    else
+    {
+      frame.copyTo(m_key_frame_mono);
+    }
+
+    cv::goodFeaturesToTrack(m_key_frame_mono, key_corners, m_max_pts, 
+                            m_pt_quality_thresh, m_min_pt_dist, m_mask, 5, 
+                            false, 0.04);
+    moving_corners = key_corners;
+    final_moving_corners = key_corners;
+  }
+
+  /// Measure against key frame and return homography to work back to key frame
+  /**
+   * \param _frame frame to stabilize
+   */
+  cv::Mat
+  measure_transform(cv::InputArray _moving_frame)
+  {
+    ++frame_index;
     
-    if( src_pts.size() < key_corners.size()*min_fract_pts)
+    cv::Mat moving_frame = _moving_frame.getMat();
+    cv::Mat M;
+
+    CV_Assert( moving_frame.rows == m_rows);
+    CV_Assert( moving_frame.cols == m_cols);
+
+    if( moving_frame.channels() == 3 )
+    {
+      cv::cvtColor(moving_frame, m_moving_frame_mono, CV_BGR2GRAY);
+    }
+    else
+    {
+      m_moving_frame_mono = moving_frame;
+    }
+
+    std::vector<uchar> status;
+    std::vector<float> err;
+    cv::Size win_size(101,101);
+    cv::calcOpticalFlowPyrLK(m_key_frame_mono, m_moving_frame_mono, key_corners, 
+                             moving_corners, status, err, win_size, 3, m_termcrit, 
+                             cv::OPTFLOW_USE_INITIAL_FLOW,
+                             0.001);
+
+    int n = cv::sum(status)[0];
+    std::cout << "calcOpticalFlowPyrLK found " << n << " matches out of " << 
+            key_corners.size() << std::endl;
+
+    if( n < key_corners.size()*m_min_fract_pts)
     {
       // Stabilization failed
       M.release();
       return M;
     }
-  }
-  
-  // Accommodate the cropping so that we have a buffer for motion
-  M.at<double>(0,2) -= max_disp;
-  M.at<double>(1,2) -= max_disp;
-  
-  std::vector<cv::Point2f> rendered_corners(4), back_proj_corners(4);
-  rendered_corners[0] = cvPoint(0,0);
-  rendered_corners[1] = cvPoint(rendered_size.width, 0);
-  rendered_corners[2] = cvPoint(rendered_size.width, rendered_size.height);
-  rendered_corners[3] = cvPoint(0, rendered_size.height);
-  
-  cv::perspectiveTransform(rendered_corners, back_proj_corners, M.inv());
-  
-  // Make sure that the rendered image will not have any black in it.
-  bool failed=false;
-  cv::Point2f pt;
-  double b = 4;
-  double w=raw_size.width, h=raw_size.height;
-  for( int i = 0; i < 4; i++ )
-  {
-    pt = back_proj_corners[i];
-    //std::cout << "back_proj_corners: " << pt << std::endl;
-    if( pt.x < b || pt.x > w-b || pt.y < b || pt.y > h-b)
+
+    std::vector<cv::Point2f> src_pts(n);
+    std::vector<cv::Point2f> dst_pts(n);
+
+    int k = 0;
+    for( unsigned i = 0; i < status.size(); ++i )
     {
-      failed = true;
-      //std::cout << "Point: " << pt << std::endl;
+      // Select only the inliers (mask entry set to 1)
+      if (status[i] == 1)
+      {
+        //std::cout << "KLT Error: " << err[i] << std::endl;
+        //std::cout << i << ", ";
+        //std::cout << moving_corners[i] << std::endl;
+        src_pts[k] = moving_corners[i];
+        dst_pts[k] = key_corners[i];
+        ++ k;
+      }
     }
-  }
-  
-  if( failed )
-  {
-    std::cout << "Frame moved too much" << std::endl;
-    // Stabilization failed
-    M.release();
+
+    final_moving_corners = src_pts;
+
+    cv::Mat pt_mask;
+    M = cv::findHomography(src_pts, dst_pts, cv::RANSAC, m_reproj_thresh, pt_mask);
+    n = cv::sum(pt_mask)[0];
+
+    // Transform points with the homography that was just fit
+    std::vector<cv::Point2f> tformed_pts;
+    cv::perspectiveTransform(src_pts, tformed_pts, M);
+
+    k = 0;
+    double erri;
+    for( unsigned i = 0; i < src_pts.size(); i++ )
+    {
+      // Check that the errors are correctly below reproj_thresh
+      erri = cv::norm(cv::Mat(tformed_pts[i]), cv::Mat(dst_pts[i]));
+      if( erri <= m_reproj_thresh )
+      {
+        src_pts[k] = moving_corners[i];
+        dst_pts[k] = key_corners[i];
+        ++ k;
+        //std::cout << "ERROR is: " << erri << std::endl;
+      }
+    }
+    src_pts.resize(k);
+    dst_pts.resize(k);
+
+
+    if( src_pts.size() < key_corners.size()*m_min_fract_pts)
+    {
+      // Stabilization failed
+      M.release();
+      return M;
+    }
+
+
+    if( true )
+    {
+      // Fit a rigid transformation.
+      std::cout << "Fitting rigid transformation" << std::endl;
+
+      // Fit to a rigid transformation (i.e., translation plus rotation)
+      std::array<double,3> threshes{4*m_reproj_thresh,2*m_reproj_thresh,1.5*m_reproj_thresh};
+      for( int j = 0; j < 3; ++j)
+      {
+        M = cv::estimateRigidTransform(src_pts, dst_pts, false);
+
+        if( M.empty() )
+        {
+          // Stabilization failed
+          M.release();
+          return M;
+        }
+
+        // Make a 3x3 homography
+        cv::Mat new_row = (cv::Mat_<double>(1,3) << 0, 0, 1);
+        M.push_back(new_row);
+
+        // Check errors
+        cv::perspectiveTransform(src_pts, tformed_pts, M);
+        k = 0;
+        double erri;
+        for( unsigned i = 0; i < src_pts.size(); i++ )
+        {
+          // Check that the errors are correctly below reproj_thresh
+          erri = cv::norm(cv::Mat(tformed_pts[i]), cv::Mat(dst_pts[i]));
+          if( erri <= threshes[j] )
+          {
+            src_pts[k] = src_pts[i];
+            dst_pts[k] = dst_pts[i];
+            ++ k;
+            //std::cout << "ERROR is: " << erri << std::endl;
+          }
+        }
+        if( k == 0 )
+        {
+          // Stabilization failed
+          M.release();
+          return M;
+        }
+        src_pts.resize(k);
+        dst_pts.resize(k);
+      }
+
+      std::cout << "RANSAC Homography fitting matches: " << src_pts.size() << 
+              " of " << key_corners.size() << std::endl;
+
+      if( src_pts.size() < key_corners.size()*m_min_fract_pts)
+      {
+        // Stabilization failed
+        M.release();
+        return M;
+      }
+    }
+
+    // Accommodate the cropping so that we have a buffer for motion
+    M.at<double>(0,2) -= m_max_disp;
+    M.at<double>(1,2) -= m_max_disp;
+
+    std::vector<cv::Point2f> rendered_corners(4), back_proj_corners(4);
+    rendered_corners[0] = cvPoint(0,0);
+    rendered_corners[1] = cvPoint(m_rendered_size.width, 0);
+    rendered_corners[2] = cvPoint(m_rendered_size.width, m_rendered_size.height);
+    rendered_corners[3] = cvPoint(0, m_rendered_size.height);
+
+    cv::perspectiveTransform(rendered_corners, back_proj_corners, M.inv());
+
+    // Make sure that the rendered image will not have any black in it.
+    bool failed=false;
+    cv::Point2f pt;
+    double b = 4;
+    double w=m_raw_size.width, h=m_raw_size.height;
+    for( int i = 0; i < 4; i++ )
+    {
+      pt = back_proj_corners[i];
+      //std::cout << "back_proj_corners: " << pt << std::endl;
+      if( pt.x < b || pt.x > w-b || pt.y < b || pt.y > h-b)
+      {
+        failed = true;
+        //std::cout << "Point: " << pt << std::endl;
+      }
+    }
+
+    if( failed )
+    {
+      std::cout << "Frame moved too much" << std::endl;
+      // Stabilization failed
+      M.release();
+      return M;
+    }
+
+    //std::cout << "Homography: " << M << std::endl;
+    if( true )
+    {
+      final_moving_corners = src_pts;
+    }
+
     return M;
   }
-  
-  //std::cout << "Homography: " << M << std::endl;
-  if( true )
+
+  /// Has a key frame already been estabilished
+  bool
+  has_key_frame()
   {
-    final_moving_corners = src_pts;
+    if(m_key_frame_mono.empty() == cv::_InputArray::NONE)
+    {
+      // No key frame exists
+      return false;
+    }
+    return true;
   }
   
-  return M;
-}
-
-
-//-----------------------------------------------------------------------------
-bool
-klt_stabilizer
-::has_key_frame()
-{
-  if(key_frame_mono.empty() == cv::_InputArray::NONE)
+  /// Set up debug directory
+  void
+  setup_debug_dir()
   {
-    // No key frame exists
-    return false;
-  }
-  return true;
-}
-
-// ============================================================================
-// ------------------------------- Sprokit ------------------------------------
-
-
-/// Private implementation class
-class stabilize_video_KLT::priv
-{
-public:
-  // Initialize the stabilizer.
-  klt_stabilizer stab;
-  
-  /// Constructor
-  priv()
-    : stab(5000, 0.001, 10, 2, 0.1, 50)
-  {
+    LOG_DEBUG( m_logger, "Creating debug directory: " + m_debug_dir);
+    kwiversys::SystemTools::MakeDirectory(m_debug_dir);
+    m_output_to_debug_dir = true;
   }
   
+  /// Save frame with annotated key points to debug directory
+  void
+  save_frame_debug_dir(const cv::Mat& frame0, const cv::Mat& H, 
+                       const timestamp& ts)
+  {
+    // Warp current frame's key points into the stabilized version of that frame
+    std::vector< cv::Point2f > corners;
+    cv::perspectiveTransform(final_moving_corners, corners, H);
+    
+    // Warp frame into stabilized coordinate system
+    cv::Mat image;
+    int flag = cv::INTER_LINEAR;
+    cv::warpPerspective(frame0, image, H, m_rendered_size, 
+                        flag);
+    cv::cvtColor(image, image, CV_BGR2RGB);
+    
+    // Superimpose key points
+    for( size_t j = 0; j < corners.size(); j++ )
+    {
+      cv::circle(image, corners[j], 3, cv::Scalar(0, 255, 255), 1);
+    }
+    
+    cv::putText(image, "Key Frame " + std::to_string(key_frame_index), 
+            cvPoint(30,30), cv::FONT_HERSHEY_PLAIN, 2, cvScalar(0,255,0), 
+            1, CV_AA);
+    
+    std::string frame_time = std::to_string(ts.get_time_usec());
+    imwrite(m_debug_dir + "/" + std::to_string(frame_index) + ".tif", image);
+  }
 };
+// ============================================================================
 
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Constructor
 stabilize_video_KLT
 ::stabilize_video_KLT()
-: d_(new priv)
+: d_(new priv())
 {
   attach_logger( "arrows.ocv.stabilize_video_KLT" );
+  d_->m_logger = logger();
 }
 
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Destructor
 stabilize_video_KLT
 ::~stabilize_video_KLT() VITAL_NOTHROW
@@ -357,7 +429,7 @@ stabilize_video_KLT
 }
 
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Get this alg's \link vital::config_block configuration block \endlink
 vital::config_block_sptr
 stabilize_video_KLT
@@ -366,30 +438,31 @@ stabilize_video_KLT
   // get base config from base class
   vital::config_block_sptr config = algorithm::get_configuration();
   
-  config->set_value( "max_disp", d_->stab.max_disp,
+  config->set_value( "max_disp", d_->m_max_disp,
                      "Number of pixels of camera motion that will trigger a "
                      "key frame update." );
-  config->set_value( "max_pts", d_->stab.max_pts,
+  config->set_value( "max_pts", d_->m_max_pts,
                      "Maximum number of features to detect in the key frame.  "
                      "See maxCorners in OpenCV goodFeaturesToTrack." );
-  config->set_value( "pt_quality_thresh", d_->stab.pt_quality_thresh,
+  config->set_value( "pt_quality_thresh", d_->m_pt_quality_thresh,
                      "The minimal accepted quality of key frame features.  "
                      "See qualityLevel in OpenCV goodFeaturesToTrack." );
-  config->set_value( "min_pt_dist", d_->stab.min_pt_dist,
+  config->set_value( "min_pt_dist", d_->m_min_pt_dist,
                      "Minimum distance between features in the key frame.  "
                      "See minDistance in OpenCV goodFeaturesToTrack." );
-  config->set_value( "reproj_thresh", d_->stab.reproj_thresh,
+  config->set_value( "reproj_thresh", d_->m_reproj_thresh,
                      "Robust homography fitting reprojection error threshold." );
-  config->set_value( "min_fract_pts", d_->stab.min_fract_pts,
+  config->set_value( "min_fract_pts", d_->m_min_fract_pts,
                      "When the fraction of tracked points that pass the robust "
                      "homography fitting threshold falls below this threshold, "
                      "a key frame update will be triggered.");
-  
+  config->set_value( "debug_dir", d_->m_debug_dir,
+                     "Output debug images to this directory.");
   return config;
 }
 
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Set this algo's properties via a config block
 void
 stabilize_video_KLT
@@ -400,17 +473,22 @@ stabilize_video_KLT
   vital::config_block_sptr config = this->get_configuration();
   config->merge_config(in_config);
   
-  std::cout << "max_disp " << config->get_value<int>( "max_disp" ) << std::endl;
-  d_->stab.max_disp          = config->get_value<int>( "max_disp" );
-  d_->stab.max_pts           = config->get_value<int>( "max_pts" );
-  d_->stab.pt_quality_thresh = config->get_value<double>( "pt_quality_thresh" );
-  d_->stab.min_pt_dist       = config->get_value<double>( "min_pt_dist" );
-  d_->stab.min_fract_pts     = config->get_value<double>( "min_fract_pts" );
-  d_->stab.reproj_thresh     = config->get_value<double>( "reproj_thresh" );
+  d_->m_max_disp          = config->get_value<int>( "max_disp" );
+  d_->m_max_pts           = config->get_value<int>( "max_pts" );
+  d_->m_pt_quality_thresh = config->get_value<double>( "pt_quality_thresh" );
+  d_->m_min_pt_dist       = config->get_value<double>( "min_pt_dist" );
+  d_->m_min_fract_pts     = config->get_value<double>( "min_fract_pts" );
+  d_->m_reproj_thresh     = config->get_value<double>( "reproj_thresh" );
+  d_->m_debug_dir         = config->get_value<std::string>( "debug_dir" );
+  
+  if ( ~(d_->m_debug_dir.empty()) )
+  {
+    d_->setup_debug_dir();
+  }
 }
 
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 stabilize_video_KLT
 ::check_configuration(vital::config_block_sptr config) const
@@ -419,7 +497,7 @@ stabilize_video_KLT
 }
 
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Return homography to stabilize the image_src relative to the key frame 
 void
 stabilize_video_KLT
@@ -435,15 +513,20 @@ stabilize_video_KLT
 
   cv::Mat cv_src = ocv::image_container::vital_to_ocv(image_src->get_image());
   
-  if(d_->stab.has_key_frame())
+  if(d_->has_key_frame())
   {
     // No key frame exists
-    d_->stab.update_key_frame(cv_src);
+    d_->update_key_frame(cv_src);
   }
     
   //cv::Mat H_cv = (cv::Mat_<double>(3,3) << 2, 0, 0, 0, 1, 0, 0, 0, 1);
   
-  cv::Mat H_cv = d_->stab.measure_transform(cv_src);
+  cv::Mat H_cv = d_->measure_transform(cv_src);
+  
+  if( d_->m_output_to_debug_dir )
+  {
+    d_->save_frame_debug_dir(cv_src, H_cv, ts);
+  }
   
   vital::matrix_3x3d H_mat;
   cv2eigen(H_cv, H_mat);
