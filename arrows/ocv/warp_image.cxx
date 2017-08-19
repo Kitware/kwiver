@@ -55,12 +55,12 @@ class warp_image::priv
 public:
   /// Constructor
   priv()
-    : auto_size_output(false)
+    : m_auto_size_output(false), m_interpolation(cv::INTER_LINEAR)
   {
   }
 
-  /// number of feature matches required for acceptance
-  bool auto_size_output;
+  bool m_auto_size_output;
+  int m_interpolation;
 };
 
 
@@ -71,7 +71,6 @@ warp_image
 {
   attach_logger( "arrows.ocv.warp_image" );
 }
-
 
 /// Destructor
 warp_image
@@ -88,8 +87,10 @@ warp_image
   // get base config from base class
   vital::config_block_sptr config = algorithm::get_configuration();
 
-  config->set_value("auto_size_output", d_->auto_size_output,
+  config->set_value("auto_size_output", d_->m_auto_size_output,
                     "If an output image is allocated, resize to contain all input pixels");
+  config->set_value("interpolation", "linear", 
+                    "Interpolation method (nearest, linear, cubic, lanczos4)");
   return config;
 }
 
@@ -104,7 +105,33 @@ warp_image
   vital::config_block_sptr config = this->get_configuration();
   config->merge_config(in_config);
 
-  d_->auto_size_output = config->get_value<bool>("auto_size_output");
+  d_->m_auto_size_output = config->get_value<bool>("auto_size_output");
+  if( d_->m_auto_size_output )
+  {
+    throw std::logic_error( "Not implemented!" );
+  }
+  
+  std::string interp_str = config->get_value<std::string>("interpolation");
+  if( interp_str == "nearest" )
+  {
+    d_->m_interpolation = cv::INTER_NEAREST;
+  }
+  else if( interp_str == "linear" )
+  {
+    d_->m_interpolation = cv::INTER_LINEAR;
+  }
+  else if( interp_str == "cubic" )
+  {
+    d_->m_interpolation = cv::INTER_CUBIC;
+  }
+  else if( interp_str == "lanczos4" )
+  {
+    d_->m_interpolation = cv::INTER_LANCZOS4;
+  }
+  else
+  {
+    throw vital::invalid_value( "Invalid interpolation method: " + interp_str );
+  }
 }
 
 
@@ -145,7 +172,7 @@ warp_image
     cv_dsize = cv_src.size();
   }
 
-  cv::warpPerspective(cv_src, cv_dest, cv_H, cv_dsize);
+  cv::warpPerspective(cv_src, cv_dest, cv_H, cv_dsize, d_->m_interpolation);
 
   image_dest = std::make_shared<ocv::image_container>(cv_dest);
 }

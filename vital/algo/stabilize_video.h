@@ -54,10 +54,11 @@ public:
   /// Return the name of this algorithm.
   static std::string static_type_name() { return "stabilize_video"; }
 
-  /// Stabilize an input image by producing a homography
+  /// Stabilize an input video frame by producing a homography
   /**
-   * This method implements image stabilization by producing a
-   * homography to relate the input image to a reference image.
+   * This method implements video stabilization by producing a homography that 
+   * warps points from the current frame back to a key frame's coordinate 
+   * system.
    *
    * \param[in] ts Time stamp for the input image.
    * \param[in] image_src the source image data to stabilize

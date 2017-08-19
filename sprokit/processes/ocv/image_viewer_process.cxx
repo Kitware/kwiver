@@ -39,6 +39,7 @@
 #include <vital/types/timestamp.h>
 #include <vital/types/timestamp_config.h>
 #include <vital/types/image_container.h>
+#include <vital/exceptions.h>
 
 #include <sprokit/processes/kwiver_type_traits.h>
 
@@ -89,6 +90,7 @@ create_config_trait( annotate_image, bool, "false", "Add frame number and other 
 create_config_trait( title, std::string, "Display window", "Display window title text.." );
 create_config_trait( header, std::string, "", "Header text for image display." );
 create_config_trait( footer, std::string, "", "Footer text for image display. Displayed centered at bottom of image." );
+create_config_trait( color_mode, std::string, "BGR", "Color mode of the input image (RGB or BGR)." );
 
 //----------------------------------------------------------------
 // Private implementation class
@@ -105,6 +107,7 @@ public:
   std::string m_title;
   std::string m_header;
   std::string m_footer;
+  std::string m_color_mode;
 
 
   // ------------------------------------------------------------------
@@ -225,6 +228,7 @@ image_viewer_process
   d->m_title          = config_value_using_trait( title );
   d->m_header         = config_value_using_trait( header );
   d->m_footer         = config_value_using_trait( footer );
+  d->m_color_mode     = config_value_using_trait( color_mode );
 }
 
 
@@ -245,7 +249,21 @@ image_viewer_process
 
   LOG_DEBUG( logger(), "Processing frame " << frame_time );
 
-  cv::Mat image = arrows::ocv::image_container::vital_to_ocv( img->get_image(), arrows::ocv::image_container::BGR );
+  cv::Mat image;
+  
+  if( d->m_color_mode == "BGR" )
+  {
+    image = arrows::ocv::image_container::vital_to_ocv( img->get_image(), arrows::ocv::image_container::BGR );
+  }
+  else if( d->m_color_mode == "RGB" )
+  {
+    image = arrows::ocv::image_container::vital_to_ocv( img->get_image(), arrows::ocv::image_container::RGB );
+  }
+  else
+  {
+    throw vital::invalid_value("Invalid color mode: " + d->m_color_mode + "! Must be RGB or BGR.");
+  }
+  
 
   if ( d->m_annotate_image )
   {
@@ -286,6 +304,7 @@ image_viewer_process
   declare_config_using_trait( title );
   declare_config_using_trait( header );
   declare_config_using_trait( footer );
+  declare_config_using_trait( color_mode );
 }
 
 
@@ -301,6 +320,7 @@ image_viewer_process::priv
 image_viewer_process::priv
 ::~priv()
 {
+  cv::destroyWindow( m_title );
 }
 
 } // end namespace

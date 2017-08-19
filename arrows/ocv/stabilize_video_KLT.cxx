@@ -70,6 +70,7 @@ public:
   int m_max_pts;
   double m_pt_quality_thresh;
   double m_min_pt_dist;
+  int m_patch_size;
   cv::TermCriteria m_termcrit;
   double m_reproj_thresh;
   double m_min_fract_pts;
@@ -96,7 +97,8 @@ public:
     : m_max_pts(5000),
       m_pt_quality_thresh(0.001), 
       m_min_pt_dist(10), 
-      m_termcrit(cv::TermCriteria(cv::TermCriteria::COUNT|cv::TermCriteria::EPS,100,0.05)),
+      m_patch_size(101),
+      m_termcrit(cv::TermCriteria(cv::TermCriteria::COUNT|cv::TermCriteria::EPS,200,0.05)),
       m_reproj_thresh(2), 
       m_min_fract_pts(0.1), 
       m_max_disp(50)
@@ -113,7 +115,7 @@ public:
   {
     ++key_frame_index;
     
-    LOG_DEBUG( m_logger, "Updating key frame");
+    LOG_TRACE( m_logger, "Updating key frame");
     if( false )
     {
       std::cout << "Updating key frame" << std::endl;
@@ -157,7 +159,9 @@ public:
 
   /// Measure against key frame and return homography to work back to key frame
   /**
-   * \param _frame frame to stabilize
+   * \param [in] _moving_frame frame to stabilize
+   * \returns homography matrix that warps points from the source to moving 
+   *          back to the key frame. If the stabilization fails, 
    */
   cv::Mat
   measure_transform(cv::InputArray _moving_frame)
@@ -181,7 +185,7 @@ public:
 
     std::vector<uchar> status;
     std::vector<float> err;
-    cv::Size win_size(101,101);
+    cv::Size win_size(m_patch_size,m_patch_size);
     cv::calcOpticalFlowPyrLK(m_key_frame_mono, m_moving_frame_mono, key_corners, 
                              moving_corners, status, err, win_size, 3, m_termcrit, 
                              cv::OPTFLOW_USE_INITIAL_FLOW,
@@ -194,6 +198,8 @@ public:
     if( n < key_corners.size()*m_min_fract_pts)
     {
       // Stabilization failed
+      LOG_TRACE( m_logger, "Not enough corners were successfully tracked by "
+                           "calcOpticalFlowPyrLK.");
       M.release();
       return M;
     }
@@ -247,6 +253,7 @@ public:
     if( src_pts.size() < key_corners.size()*m_min_fract_pts)
     {
       // Stabilization failed
+      LOG_TRACE( m_logger, "Not enough corners passed robust homography fitting");
       M.release();
       return M;
     }
@@ -266,6 +273,7 @@ public:
         if( M.empty() )
         {
           // Stabilization failed
+          LOG_TRACE( m_logger, "Not enough corners passed rigid homography fitting");
           M.release();
           return M;
         }
@@ -294,6 +302,7 @@ public:
         {
           // Stabilization failed
           M.release();
+          LOG_TRACE( m_logger, "Not enough corners passed rigid homography fitting");
           return M;
         }
         src_pts.resize(k);
@@ -307,26 +316,28 @@ public:
       {
         // Stabilization failed
         M.release();
+        LOG_TRACE( m_logger, "Not enough corners passed rigid homography fitting");
         return M;
       }
     }
-
-    // Accommodate the cropping so that we have a buffer for motion
-    M.at<double>(0,2) -= m_max_disp;
-    M.at<double>(1,2) -= m_max_disp;
-
+    
     std::vector<cv::Point2f> rendered_corners(4), back_proj_corners(4);
-    rendered_corners[0] = cvPoint(0,0);
-    rendered_corners[1] = cvPoint(m_rendered_size.width, 0);
-    rendered_corners[2] = cvPoint(m_rendered_size.width, m_rendered_size.height);
-    rendered_corners[3] = cvPoint(0, m_rendered_size.height);
+    rendered_corners[0] = cvPoint(m_max_disp, 
+                                  m_max_disp);
+    rendered_corners[1] = cvPoint(m_raw_size.width - m_max_disp, 
+                                  m_max_disp);
+    rendered_corners[2] = cvPoint(m_raw_size.width - m_max_disp, 
+                                  m_raw_size.height - m_max_disp);
+    rendered_corners[3] = cvPoint(m_max_disp, 
+                                  m_raw_size.height - m_max_disp);
 
     cv::perspectiveTransform(rendered_corners, back_proj_corners, M.inv());
 
-    // Make sure that the rendered image will not have any black in it.
+    // Make sure that the rendered image will not deviate by more than max_disp
+    // from the corners of the key frame.
     bool failed=false;
     cv::Point2f pt;
-    double b = 4;
+    double b = 4;   // interpolation buffer
     double w=m_raw_size.width, h=m_raw_size.height;
     for( int i = 0; i < 4; i++ )
     {
@@ -341,7 +352,7 @@ public:
 
     if( failed )
     {
-      std::cout << "Frame moved too much" << std::endl;
+      LOG_TRACE( m_logger, "Frame moved too much.");
       // Stabilization failed
       M.release();
       return M;
@@ -450,6 +461,9 @@ stabilize_video_KLT
   config->set_value( "min_pt_dist", d_->m_min_pt_dist,
                      "Minimum distance between features in the key frame.  "
                      "See minDistance in OpenCV goodFeaturesToTrack." );
+  config->set_value( "patch_size", d_->m_patch_size,
+                     "Minimum distance between features in the key frame.  "
+                     "See minDistance in OpenCV goodFeaturesToTrack." );
   config->set_value( "reproj_thresh", d_->m_reproj_thresh,
                      "Robust homography fitting reprojection error threshold." );
   config->set_value( "min_fract_pts", d_->m_min_fract_pts,
@@ -477,6 +491,7 @@ stabilize_video_KLT
   d_->m_max_pts           = config->get_value<int>( "max_pts" );
   d_->m_pt_quality_thresh = config->get_value<double>( "pt_quality_thresh" );
   d_->m_min_pt_dist       = config->get_value<double>( "min_pt_dist" );
+  d_->m_patch_size        = config->get_value<double>( "patch_size" );
   d_->m_min_fract_pts     = config->get_value<double>( "min_fract_pts" );
   d_->m_reproj_thresh     = config->get_value<double>( "reproj_thresh" );
   d_->m_debug_dir         = config->get_value<std::string>( "debug_dir" );
@@ -523,6 +538,18 @@ stabilize_video_KLT
   
   cv::Mat H_cv = d_->measure_transform(cv_src);
   
+  if( H_cv.empty() )
+    {
+      // Stabilization failed
+      d_->update_key_frame(cv_src);
+      H_cv = cv::Mat::eye(3, 3, CV_64F);
+      coordinate_system_updated = true;
+    }
+  else
+  {
+    coordinate_system_updated = false;
+  }
+  
   if( d_->m_output_to_debug_dir )
   {
     d_->save_frame_debug_dir(cv_src, H_cv, ts);
@@ -531,8 +558,6 @@ stabilize_video_KLT
   vital::matrix_3x3d H_mat;
   cv2eigen(H_cv, H_mat);
   src_to_ref = homography_f2f_sptr(new homography_f2f(H_mat, ts, ts));
-  
-  coordinate_system_updated = false;
 }
 
 

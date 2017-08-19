@@ -32,6 +32,7 @@
 
 #include <vital/vital_types.h>
 #include <vital/types/timestamp.h>
+#include <vital/types//homography_f2f.h>
 #include <vital/types/timestamp_config.h>
 #include <vital/types/image_container.h>
 #include <vital/algo/stabilize_video.h>
@@ -98,7 +99,7 @@ void stabilize_video_process
 {
   kwiver::vital::config_block_sptr algo_config = get_config();
   
-  //d->m_edge_buffer          = config_value_using_trait( edge_buffer );
+  d->m_edge_buffer          = config_value_using_trait( edge_buffer );
 
   // Check config so it will give run-time diagnostic of config problems
   if ( ! algo::stabilize_video::check_nested_algo_configuration( "stabilize", algo_config ) )
@@ -149,13 +150,22 @@ stabilize_video_process
   kwiver::vital::image_container_sptr stab_image;
   
   // create empty image of desired size
-  vital::image im( in_image->width() - 50, in_image->height() - 50);
+  vital::image im( in_image->width() - 2*(d->m_edge_buffer), 
+                   in_image->height() - 2*(d->m_edge_buffer));
   
   // get pointer to new image container.
   stab_image = std::make_shared<kwiver::arrows::ocv::image_container>( im );
 
   d->m_stabilize->process_image( frame_time, in_image,
                                  s2r_homog, new_ref );
+  
+  // Modify s2r_homog so that (edge_buffer,edge_buffer) maps to (0,0) in the 
+  // stabilized image.
+  Eigen::Matrix< double, 3, 3 > H = (*(s2r_homog->homography())).matrix();
+  H(0,2) -= d->m_edge_buffer;
+  H(1,2) -= d->m_edge_buffer;
+  *s2r_homog = kwiver::vital::homography_f2f( H, s2r_homog->from_id(), 
+                                              s2r_homog->to_id() );
 
   d->m_warp->warp( in_image, stab_image, s2r_homog->homography() );
 
@@ -192,6 +202,7 @@ void stabilize_video_process
 {
   declare_config_using_trait( stabilize );
   declare_config_using_trait( warp );
+  declare_config_using_trait( edge_buffer );
 }
 
 

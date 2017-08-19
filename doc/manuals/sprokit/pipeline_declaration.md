@@ -71,7 +71,7 @@ modified in the pipeline file or programatically by the program.
 configuration entry that is marked as tunable can have a new value
 presented to the process during a reconfigure operation.
 
-\par Examples
+#### Examples
 
 ```
   foo[ro] = bar
@@ -264,7 +264,7 @@ config <key-path> <line-end>
       <config entries>
 ```
 
-\par Examples
+#### Examples
 
 \todo Explain examples.
 
@@ -300,14 +300,14 @@ process type with the specified name. Optional configuration entries
 can follow the process declaration. These configuration entries are
 made available to that process when it is started.
 
-\par Specification
+#### Specification
 
 ```
 process <process-name> :: <process-type>
   <config entries>
 ```
 
-\par Examples
+#### Examples
 
 ```
   process my_process
@@ -330,8 +330,8 @@ A process can be declared as non-blocking which indicates that input
 data is to be dropped if the input port queues are full. This is
 useful for real-time processing where a process is the bottleneck.
 
-The non-blocking behaviour is a process attribute that is specified as
-a configuration entryin the pipeline file. The syntax for this
+The non-blocking behavior is a process attribute that is specified as
+a configuration entry in the pipeline file. The syntax for this
 configuration option is as follows:
 
 <pre>
@@ -399,13 +399,13 @@ A connection definition specifies how the output ports from a process
 are connected to the input ports of another process. These connections
 define the data flow of the pipeline graph.
 
-\par Specification
+#### Specification
 
 ```
   connect from <process-name> . <input-port-name> to <process-name> . <output-port-name>
 ```
 
-\par Examples
+#### Examples
 
 This example connects a timestamp port to two different processes.
 ```
@@ -441,7 +441,7 @@ config _pipeline:_edge_by_type
        timestamp:capacity = 4
 ```
 
-Where \b image_container and \b timestamp are the type names used when
+Where **image_container** and **timestamp** are the type names used when
 defining process ports.
 
 After this set of configurations have been applied, edges can be
@@ -454,9 +454,9 @@ config _pipeline:_edge_by_conn
 ```
 
 Where:
-\li <process> is the name of the process that is being connected.
-\li <up_down> is the direction of the connection. This is either "up" or "down".
-\li <port> is the name of the port.
+  * `<process>` is the name of the process that is being connected.
+  * `<up_down>` is the direction of the connection. This is either "up" or "down".
+  * `<port>` is the name of the port.
 
 For the example, the following connection
 
@@ -506,7 +506,7 @@ the scheduler.  Currently these schedulers do not have any
 configuration parameters, but when they do, they would be configured
 as shown in the following example.
 
-\par Example
+#### Example
 
 ```
 config _scheduler
@@ -588,7 +588,7 @@ usual manner.
     -- all other interesting details.
 ```
 
-\par Specification
+#### Specification
 
 ```
   cluster <name>
@@ -608,7 +608,7 @@ usual manner.
     -- describe output port
 ```
 
-\par Examples
+#### Examples
 
 ```
 cluster configuration_provide
