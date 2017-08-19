@@ -71,6 +71,13 @@ public:
     return std::make_shared<feature_track_state>( *this );
   }
 
+  /// Return frame id
+  frame_id_t frame() const
+  {
+    return frame_id;
+  }
+
+  frame_id_t frame_id;
   feature_sptr feature;
   descriptor_sptr descriptor;
 };
