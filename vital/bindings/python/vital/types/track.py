@@ -43,21 +43,6 @@ class TrackState (VitalObject):
     vital::track_state interface class
     """
 
-    def _new(self, frame):
-        """
-        :param frame: Frame the track state intersects
-        :type frame: int
-
-        :param data: Optional Data instance associated with this state.
-        :type TrackState: vital.types.TrackState
-        """
-        return self._call_cfunc(
-            "vital_track_state_new",
-            [ctypes.c_int64],
-            [frame],
-            self.C_TYPE_PTR
-        )
-
     def _destroy(self):
         self._call_cfunc(
             "vital_track_state_destroy",

@@ -100,7 +100,7 @@ read_track_file( path_t const& file_path )
     {
       t = it->second;
     }
-    t->append( std::make_shared<track_state>( fid ) );
+    //t->append( std::make_shared< track_state >( fid ) );
   }
 
   return track_set_sptr( new track_set( tracks ) );

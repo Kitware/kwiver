@@ -38,6 +38,7 @@
 #ifndef VITAL_OBJECT_TRACK_SET_H_
 #define VITAL_OBJECT_TRACK_SET_H_
 
+#include "timestamp.h"
 #include "track_set.h"
 #include "detected_object.h"
 
@@ -58,9 +59,10 @@ class VITAL_EXPORT object_track_state : public track_state
 public:
 
   /// Default constructor
-  object_track_state( frame_id_t frame,
+  object_track_state( timestamp ts,
                       detected_object_sptr d = nullptr )
-    : track_state( frame )
+    : track_state()
+    , ts( ts )
     , detection( d )
   {}
 
@@ -76,6 +78,13 @@ public:
     return std::make_shared< object_track_state >( *this );
   }
 
+  /// Return frame id
+  frame_id_t frame() const
+  {
+    return ts.get_frame();
+  }
+
+  timestamp ts;
   detected_object_sptr detection;
 };
 

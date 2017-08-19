@@ -57,20 +57,6 @@ using namespace kwiver;
 // Track State
 
 
-/// Create a new track state
-vital_track_state_t*
-vital_track_state_new( int64_t frame, vital_error_handle_t *eh )
-{
-  STANDARD_CATCH(
-    "vital_track_state_new", eh,
-    vital::track_state_sptr ts_sptr( new vital::track_state( frame ) );
-    kwiver::vital_c::TRACK_STATE_SPTR_CACHE.store( ts_sptr );
-    return reinterpret_cast< vital_track_state_t* >( ts_sptr.get() );
-  );
-  return 0;
-}
-
-
 /// Destroy a track state instance
 void
 vital_track_state_destroy( vital_track_state_t *ts, vital_error_handle_t *eh )

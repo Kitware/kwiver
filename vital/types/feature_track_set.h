@@ -60,10 +60,11 @@ public:
   explicit feature_track_state( frame_id_t frame,
                                 feature_sptr f = nullptr,
                                 descriptor_sptr d = nullptr )
-    : track_state( frame )
+    : track_state()
+    , frame_id(frame)
     , feature(f)
     , descriptor(d)
-  { }
+  {}
 
   /// Clone the track state (polymorphic copy constructor)
   virtual track_state_sptr clone() const

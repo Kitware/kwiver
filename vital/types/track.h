@@ -67,26 +67,16 @@ public:
   friend class track;
 
   /// Constructor
-  track_state( frame_id_t frame )
-    : frame_id_( frame )
-  { }
-
-  /// Copy Constructor
-  track_state( track_state const& other )
-    : frame_id_( other.frame_id_ )
-  { }
+  track_state() {}
 
   /// Assignment Operator
   track_state& operator= ( track_state const& rhs ) = delete;
 
   /// Clone the track state (polymorphic copy constructor)
-  virtual track_state_sptr clone() const
-  {
-    return std::make_shared<track_state>( *this );
-  }
+  virtual track_state_sptr clone() const = 0;
 
   /// Access the frame identifier
-  frame_id_t frame() const { return frame_id_; }
+  virtual frame_id_t frame() const = 0;
 
   /// Access the track containing this state
   track_sptr track() const { return track_.lock(); }
@@ -94,8 +84,6 @@ public:
   virtual ~track_state() VITAL_DEFAULT_DTOR
 
 private:
-  /// The frame identifier for this state
-  frame_id_t frame_id_;
 
   /// A weak reference back to the parent track
   track_wptr track_;

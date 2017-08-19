@@ -188,7 +188,7 @@ associate_detections_to_tracks_threshold
     if( best_index < all_detections.size() )
     {
       vital::track_state_sptr new_track_state(
-        new vital::object_track_state( ts.get_frame(), all_detections[best_index] ) );
+        new vital::object_track_state( ts, all_detections[best_index] ) );
 
       vital::track_sptr adj_track( all_tracks[t]->clone() );
       adj_track->append( new_track_state );
