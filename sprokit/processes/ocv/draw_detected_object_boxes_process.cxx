@@ -39,8 +39,6 @@
 #include <vital/vital_foreach.h>
 
 #include <arrows/ocv/image_container.h>
-#include <arrows/ocv/image_container.h>
-#include <arrows/ocv/image_container.h>
 
 #include <sprokit/processes/kwiver_type_traits.h>
 

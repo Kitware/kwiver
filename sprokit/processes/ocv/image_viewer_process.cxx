@@ -261,7 +261,7 @@ image_viewer_process
   }
   else
   {
-    throw vital::invalid_value("Invalid color mode: " + d->m_color_mode + "! Must be RGB or BGR.");
+    throw vital::invalid_value( "Invalid color mode: " + d->m_color_mode + "! Must be RGB or BGR." );
   }
   
 
