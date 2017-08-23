@@ -115,7 +115,7 @@ public:
   {
     ++key_frame_index;
     
-    LOG_TRACE( m_logger, "Updating key frame");
+    LOG_DEBUG( m_logger, "Updating key frame");
     if( false )
     {
       std::cout << "Updating key frame" << std::endl;
@@ -198,7 +198,7 @@ public:
     if( n < key_corners.size()*m_min_fract_pts)
     {
       // Stabilization failed
-      LOG_TRACE( m_logger, "Not enough corners were successfully tracked by "
+      LOG_DEBUG( m_logger, "Not enough corners were successfully tracked by "
                            "calcOpticalFlowPyrLK.");
       M.release();
       return M;
@@ -253,7 +253,7 @@ public:
     if( src_pts.size() < key_corners.size()*m_min_fract_pts)
     {
       // Stabilization failed
-      LOG_TRACE( m_logger, "Not enough corners passed robust homography fitting");
+      LOG_DEBUG( m_logger, "Not enough corners passed robust homography fitting");
       M.release();
       return M;
     }
@@ -273,7 +273,7 @@ public:
         if( M.empty() )
         {
           // Stabilization failed
-          LOG_TRACE( m_logger, "Not enough corners passed rigid homography fitting");
+          LOG_DEBUG( m_logger, "Not enough corners passed rigid homography fitting");
           M.release();
           return M;
         }
@@ -302,7 +302,7 @@ public:
         {
           // Stabilization failed
           M.release();
-          LOG_TRACE( m_logger, "Not enough corners passed rigid homography fitting");
+          LOG_DEBUG( m_logger, "Not enough corners passed rigid homography fitting");
           return M;
         }
         src_pts.resize(k);
@@ -316,43 +316,40 @@ public:
       {
         // Stabilization failed
         M.release();
-        LOG_TRACE( m_logger, "Not enough corners passed rigid homography fitting");
+        LOG_DEBUG( m_logger, "Not enough corners passed rigid homography fitting");
         return M;
       }
     }
     
     std::vector<cv::Point2f> rendered_corners(4), back_proj_corners(4);
-    rendered_corners[0] = cvPoint(m_max_disp, 
-                                  m_max_disp);
-    rendered_corners[1] = cvPoint(m_raw_size.width - m_max_disp, 
-                                  m_max_disp);
-    rendered_corners[2] = cvPoint(m_raw_size.width - m_max_disp, 
-                                  m_raw_size.height - m_max_disp);
-    rendered_corners[3] = cvPoint(m_max_disp, 
-                                  m_raw_size.height - m_max_disp);
+    rendered_corners[0] = cvPoint(0, 0);
+    rendered_corners[1] = cvPoint(m_raw_size.width, 0);
+    rendered_corners[2] = cvPoint(m_raw_size.width, m_raw_size.height);
+    rendered_corners[3] = cvPoint(0, m_raw_size.height);
 
     cv::perspectiveTransform(rendered_corners, back_proj_corners, M.inv());
 
     // Make sure that the rendered image will not deviate by more than max_disp
     // from the corners of the key frame.
+    double disp = 0;
+    
     bool failed=false;
-    cv::Point2f pt;
-    double b = 4;   // interpolation buffer
+    cv::Point2f pt0, pt1;
+    
     double w=m_raw_size.width, h=m_raw_size.height;
     for( int i = 0; i < 4; i++ )
     {
-      pt = back_proj_corners[i];
-      //std::cout << "back_proj_corners: " << pt << std::endl;
-      if( pt.x < b || pt.x > w-b || pt.y < b || pt.y > h-b)
-      {
-        failed = true;
-        //std::cout << "Point: " << pt << std::endl;
-      }
-    }
-
-    if( failed )
+      pt0 = rendered_corners[i];
+      pt1 = back_proj_corners[i];
+      
+      disp = cv::max(disp, cv::norm(pt1-pt0));
+    }    
+    
+    LOG_DEBUG( m_logger, "Frame moved " << disp << " pixels");
+    double b = 4;   // interpolation buffer
+    if( disp > m_max_disp + b  )
     {
-      LOG_TRACE( m_logger, "Frame moved too much.");
+      LOG_DEBUG( m_logger, "Frame moved too much.");
       // Stabilization failed
       M.release();
       return M;
