@@ -37,6 +37,7 @@
 #include <vital/types/image_container.h>
 #include <vital/algo/stabilize_video.h>
 #include <vital/algo/warp_image.h>
+#include <vital/util/wall_timer.h>
 #include <arrows/ocv/image_container.h>
 
 #include <kwiver_type_traits.h>
@@ -70,6 +71,7 @@ public:
   algo::stabilize_video_sptr m_stabilize;
   algo::warp_image_sptr m_warp;
   int m_edge_buffer = 0;
+  kwiver::vital::wall_timer m_timer;
 
 }; // end priv class
 
@@ -132,6 +134,7 @@ void
 stabilize_video_process
 ::_step()
 {
+  d->m_timer.start();
   kwiver::vital::homography_f2f_sptr src_to_ref_homography;
 
   // timestamp (TODO: figure out how to handle this when not supplied/optional)
@@ -168,11 +171,14 @@ stabilize_video_process
                                               s2r_homog->to_id() );
 
   d->m_warp->warp( in_image, stab_image, s2r_homog->homography() );
-
-  // return by value
+  
   push_to_port_using_trait( homography_src_to_ref, s2r_homog );
   push_to_port_using_trait( image, stab_image );
   push_to_port_using_trait( coordinate_system_updated, new_ref );
+  
+  d->m_timer.stop();
+  double elapsed_time = d->m_timer.elapsed();
+  LOG_DEBUG( logger(), "Total processing time: " << elapsed_time << " seconds");
 }
 
 

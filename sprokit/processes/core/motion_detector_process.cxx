@@ -30,6 +30,7 @@
 
 #include "motion_detector_process.h"
 
+#include <vital/util/wall_timer.h>
 #include <vital/algo/motion_detector.h>
 
 #include <sprokit/processes/kwiver_type_traits.h>
@@ -47,7 +48,8 @@ public:
   priv();
   ~priv();
 
-   vital::algo::motion_detector_sptr m_algo;
+  vital::algo::motion_detector_sptr m_algo;
+  kwiver::vital::wall_timer m_timer;
 
 }; // end priv class
 
@@ -98,6 +100,8 @@ void
 motion_detector_process::
 _step()
 {
+  d->m_timer.start();
+  
   //TODO, handle case where this is optionally provided
   //auto ts = grab_from_port_using_trait( timestamp );
   kwiver::vital::timestamp ts;
@@ -108,6 +112,10 @@ _step()
   auto result = d->m_algo->process_image( ts, input, reset );
 
   push_to_port_using_trait(motion_heat_map , result );
+  
+  d->m_timer.stop();
+  double elapsed_time = d->m_timer.elapsed();
+  LOG_DEBUG( logger(), "Total processing time: " << elapsed_time << " seconds");
 }
 
 
