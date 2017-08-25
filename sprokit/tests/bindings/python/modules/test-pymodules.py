@@ -116,17 +116,15 @@ def codeblock(block_str):
     return textwrap.dedent(block_str).strip('\n')
 
 
-def _setup_temp_pythonpath():
-    # Create temporary sprokit processes/schedulers that dont exist yet
-
-    test_process_codeblock = codeblock(
+def _make_pyprocess_code(modname, classname):
+    return codeblock(
         r'''
         from __future__ import print_function
         from sprokit.pipeline import config
         from sprokit.pipeline import process
 
 
-        class TestPythonProcess(process.PythonProcess):
+        class {classname}(process.PythonProcess):
             def __init__(self, conf):
                 process.PythonProcess.__init__(self, conf)
 
@@ -139,13 +137,15 @@ def _setup_temp_pythonpath():
             if process_factory.is_process_module_loaded(module_name):
                 return
 
-            process_factory.add_process('pythonpath_test_process', 'A test process.', TestPythonProcess)
+            process_factory.add_process('{modname}', 'A test process.', {classname})
 
             process_factory.mark_process_module_as_loaded(module_name)
         '''
-    )
+    ).format(modname=modname, classname=classname)
 
-    test_scheduler_codeblock = codeblock(
+
+def _make_pyscheduler_code(modname, classname):
+    return codeblock(
         r'''
         from __future__ import print_function
         from sprokit.pipeline import config
@@ -153,7 +153,7 @@ def _setup_temp_pythonpath():
         from sprokit.pipeline import scheduler
 
 
-        class TestPythonScheduler(scheduler.PythonScheduler):
+        class {classname}(scheduler.PythonScheduler):
             def __init__(self, conf, pipe):
                 scheduler.PythonScheduler.__init__(self, conf, pipe)
 
@@ -166,36 +166,64 @@ def _setup_temp_pythonpath():
             if scheduler_factory.is_scheduler_module_loaded(module_name):
                 return
 
-            scheduler_factory.add_scheduler('pythonpath_test_scheduler', 'A test scheduler.', TestPythonScheduler)
+            scheduler_factory.add_scheduler('{modname}', 'A test scheduler.', {classname})
 
             scheduler_factory.mark_scheduler_module_as_loaded(module_name)
-        ''')
+        '''
+    ).format(modname=modname, classname=classname)
+
+
+def _setup_temp_pythonpath():
+    """
+    Creates temporary python plugin modules to test loading
+    """
 
     # Create a temporary place to put the temp modules
     temp_pythonpath = ensure_app_resource_dir('sprokit', 'test_tempfiles',
                                               'test_pythonpath')
+    # Clean up and regenerate to ensure a fresh start
+    import shutil
+    shutil.rmtree(temp_pythonpath)
+    ensuredir(temp_pythonpath)
 
-    # Clean up and regenerate
-    # import shutil
-    # shutil.rmtree(temp_pythonpath)
-    # ensuredir(temp_pythonpath)
-
+    ###
+    # Create directory based package plugins
     processes_pkg_dpath = ensuredir(temp_pythonpath, 'temp_processes')
     schedulers_pkg_dpath = ensuredir(temp_pythonpath, 'temp_schedulers')
 
-    process_fpath = join(processes_pkg_dpath, 'pythonpath_test_process.py')
-    scheduler_fpath = join(schedulers_pkg_dpath, 'pythonpath_test_scheduler.py')
-
+    # Create the package init files
     with open(join(processes_pkg_dpath, '__init__.py'), 'w') as file:
         file.write('')
     with open(join(schedulers_pkg_dpath, '__init__.py'), 'w') as file:
         file.write('')
 
-    with open(process_fpath, 'w') as file:
-        file.write(test_process_codeblock)
+    # Write each plugin to its package directory
+    packaged_process_fpath = join(processes_pkg_dpath,
+                                  'packaged_test_process.py')
+    with open(packaged_process_fpath, 'w') as file:
+        file.write(_make_pyprocess_code('packaged_test_process',
+                                        'PackagedTestPythonProcess'))
 
-    with open(scheduler_fpath, 'w') as file:
-        file.write(test_scheduler_codeblock)
+    packaged_scheduler_fpath = join(schedulers_pkg_dpath,
+                                    'packaged_test_scheduler.py')
+    with open(packaged_scheduler_fpath, 'w') as file:
+        file.write(_make_pyscheduler_code('packaged_test_scheduler',
+                                          'PackagedTestPythonScheduler'))
+
+    ###
+    # Create single file based plugins
+    standalone_process_fpath = join(temp_pythonpath,
+                                    'standalone_test_process.py')
+    with open(standalone_process_fpath, 'w') as file:
+        file.write(_make_pyprocess_code('standalone_test_process',
+                                        'StandaloneTestPythonProcess'))
+
+    standalone_scheduler_fpath = join(temp_pythonpath,
+                                      'standalone_test_scheduler.py')
+    with open(standalone_scheduler_fpath, 'w') as file:
+        file.write(_make_pyscheduler_code('standalone_test_scheduler',
+                                          'StandaloneTestPythonScheduler'))
+
     return temp_pythonpath
 
 
@@ -275,21 +303,24 @@ def test_extra_modules():
 def test_pythonpath():
     """
     CommandLine:
-        python -m sprokit.tests.test-pymodules test_pythonpath
+        python -m sprokit.tests.test-pymodules test_pythonpath --disable-warnings
     """
     if _unable_to_run_loader_test():
         return
     temp_pythonpath = _setup_temp_pythonpath()
+    print('temp_pythonpath = {!r}'.format(temp_pythonpath))
 
     # Add the temporary dir to the pythonpath
     sys.path.append(temp_pythonpath)
     os.environ['SPROKIT_PYTHON_MODULES'] = os.pathsep.join([
-        'temp_processes.pythonpath_test_process',
-        'temp_schedulers.pythonpath_test_scheduler',
+        'temp_processes.packaged_test_process',
+        'temp_schedulers.packaged_test_scheduler',
+        'standalone_test_process',
+        'standalone_test_scheduler',
     ] + os.environ.get('SPROKIT_PYTHON_MODULES', '').split(os.pathsep))
 
     # os.environ['SPROKIT_PYTHON_SCHEDULERS'] = os.pathsep.join([
-    #     'temp_schedulers.pythonpath_test_scheduler',
+    #     'temp_schedulers.packaged_test_process',
     # ] + os.environ.get('SPROKIT_PYTHON_SCHEDULERS', '').split(os.pathsep))
 
     from sprokit.pipeline import config  # NOQA
@@ -300,13 +331,20 @@ def test_pythonpath():
     modules.load_known_modules()
 
     process_types = process_factory.types()
+    print('process_types = {!r}'.format(list(process_types)))
 
-    assert 'pythonpath_test_process' in process_types, (
+    assert 'packaged_test_process' in process_types, (
+        'Failed to load extra Python processes accessible from PYTHONPATH')
+
+    assert 'standalone_test_process' in process_types, (
         'Failed to load extra Python processes accessible from PYTHONPATH')
 
     scheduler_types = scheduler_factory.types()
 
-    assert 'pythonpath_test_scheduler' in scheduler_types, (
+    assert 'packaged_test_scheduler' in scheduler_types, (
+        'Failed to load extra Python schedulers accessible from PYTHONPATH')
+
+    assert 'standalone_test_scheduler' in scheduler_types, (
         'Failed to load extra Python schedulers accessible from PYTHONPATH')
 
 
@@ -316,10 +354,13 @@ if __name__ == '__main__':
         # Note: running all tests together in this module will fail
         python -m sprokit.tests.test-pymodules
 
+        # This can be avoided by running py.test with `--forked`
+
         pip install pytest-xdist
+        python -m sprokit.tests.test-pymodules --forked
         python -m sprokit.tests.test-pymodules --boxed
 
-        # TODO: look into --boxed running
+        # TODO: look into --forked running
         # https://stackoverflow.com/questions/11802316/nose2-vs-py-test-with-isolated-processes/11806997#11806997
         # https://stackoverflow.com/questions/34644252/testing-incompatible-configurations-with-py-test
         # https://github.com/pytest-dev/pytest-xdist#installation
