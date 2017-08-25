@@ -36,7 +36,6 @@ set( sources
   track_descriptor_output_process.cxx
   video_input_process.cxx
   timing_object_csv_process.cxx
-  warp_image_process.cxx
 )
 
 set( private_headers
@@ -70,7 +69,6 @@ set( private_headers
   track_descriptor_output_process.h
   video_input_process.h
   timing_object_csv_process.h
-  warp_image_process.h
 )
 
 kwiver_private_header_group( ${private_headers} )
