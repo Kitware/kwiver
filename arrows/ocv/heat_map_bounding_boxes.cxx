@@ -62,6 +62,8 @@ class heat_map_bounding_boxes::priv
 public:  
   int m_min_area, m_max_area;
   double m_min_fill_fraction;
+  kwiver::vital::logger_handle_t m_logger;
+  
   /// Constructor
   priv()
     : m_min_area(1),
@@ -72,12 +74,12 @@ public:
   
   // --------------------------------------------------------------------------
   detected_object_set_sptr
-  get_bounding_boxes_find_contours(cv::Mat img)
+  get_bounding_boxes_find_contours(cv::Mat const &img)
   {
     auto detected_objects = std::make_shared< detected_object_set >();
-  
+    
     std::vector< std::vector<cv::Point> > contours;
-    cv::findContours(img, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, 
+    cv::findContours(img.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, 
                      cv::Point(0, 0));
 
     double conf = 1.0;
@@ -104,6 +106,7 @@ public:
         }
       }
     }
+    LOG_TRACE( m_logger, "Finished creating bounding boxes");
     return detected_objects;
   }
   // --------------------------------------------------------------------------
@@ -117,6 +120,7 @@ heat_map_bounding_boxes
 : d_(new priv)
 {
   attach_logger( "arrows.ocv.heat_map_bounding_boxes" );
+  d_->m_logger = logger();
 }
 
 
@@ -188,9 +192,10 @@ heat_map_bounding_boxes
   {
     throw vital::invalid_data("Inputs to ocv::heat_map_bounding_boxes are null");
   }
+  LOG_TRACE( logger(), "Received image");
 
-  cv::Mat cv_src = ocv::image_container::vital_to_ocv(image_data->get_image());
-  
+  const cv::Mat cv_src = ocv::image_container::vital_to_ocv(image_data->get_image());
+    
   return d_->get_bounding_boxes_find_contours(cv_src);
 }
 
