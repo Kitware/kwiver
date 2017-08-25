@@ -62,6 +62,7 @@
 #include "track_descriptor_output_process.h"
 #include "video_input_process.h"
 #include "timing_object_csv_process.h"
+#include "warp_image_process.h"
 
 // ----------------------------------------------------------------
 /*! \brief Regsiter processes
@@ -255,6 +256,13 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                        "Writes track descriptor sets to an output file. All descriptors are written to the same file." );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+  
+  fact = vpm.ADD_PROCESS( kwiver::warp_image_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "warp_image" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Warp an image according to a homography." );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
   // - - - - - - - - - - - - - - - - - - - - - - -

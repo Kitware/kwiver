@@ -135,10 +135,10 @@ make_ports()
   // -- input --
   declare_input_port_using_trait( timestamp, optional );
   declare_input_port_using_trait( image, required );
-  declare_input_port_using_trait( coordinate_system_updated, opt_static );
+  declare_input_port_using_trait( coordinate_system_updated, optional );
 
   // -- output --
-  declare_output_port_using_trait( motion_heat_map, optional );
+  declare_output_port_using_trait( motion_heat_map, required );
 }
 
 

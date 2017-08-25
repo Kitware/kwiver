@@ -38,6 +38,7 @@
 #include <vital/vital_types.h>
 #include <vital/vital_foreach.h>
 #include <vital/util/wall_timer.h>
+#include <vital/exceptions/image.h>
 
 #include <arrows/ocv/image_container.h>
 
@@ -54,7 +55,7 @@ namespace kwiver {
   
 typedef  Eigen::Matrix< unsigned int, 3, 1 > ColorVector;
 
-create_port_trait(mask, image, "Mask image" );
+create_port_trait( mask, image, "Mask image" );
 
 create_config_trait( color_mode, std::string, "RGB", "Describes the "
                      "channel color ordering of the input image: RGB or BGR." );
@@ -122,7 +123,7 @@ public:
    * \return           the superimposed image
    */
   cv::Mat
-  superimpose_mask(const cv::Mat image, const cv::Mat mask)
+  superimpose_mask(cv::Mat const image, cv::Mat const mask)
   {
     LOG_TRACE( m_logger, "Superimposing mask ([" + std::to_string(mask.cols) + 
                ", " + std::to_string(mask.rows) + ", " +
@@ -134,8 +135,14 @@ public:
     
     assert( image.channels() == 3 );
     assert( mask.channels() == 1 );
-    assert( mask.rows == image.rows );
-    assert( mask.cols == image.cols );
+    
+    if( (mask.rows != image.rows) || mask.cols != image.cols )
+    {
+      throw vital::image_size_mismatch_exception("Mask dimensions do not match "
+                                                 "the image dimensions", 
+                                                 image.cols, image.rows, 
+                                                 mask.cols, mask.rows);
+    }
     
     cv::Mat image_out;
     if( m_scaling != 1 )
@@ -241,6 +248,14 @@ show_mask_on_image_process::_step()
              std::to_string(img->depth()) + "] with mask ([" + 
              std::to_string(mask->width()) + ", " + std::to_string(mask->height()) + 
              ", " + std::to_string(mask->depth()) + "]");
+  
+  if( (img->width() != mask->width()) || img->height() != mask->height() )
+    {
+      throw vital::image_size_mismatch_exception("Mask dimensions do not match"
+                                                 "the image dimensions", 
+                                                 mask->width(), mask->height(), 
+                                                 img->width(), img->height());
+    }
   
   // --------------------- Convert Input Images to OCV Format ----------------- 
   cv::Mat img_ocv, mask_ocv;

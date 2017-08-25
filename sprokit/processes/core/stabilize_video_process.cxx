@@ -137,9 +137,13 @@ stabilize_video_process
   d->m_timer.start();
   kwiver::vital::homography_f2f_sptr src_to_ref_homography;
 
-  // timestamp (TODO: figure out how to handle this when not supplied/optional)
-  //kwiver::vital::timestamp frame_time = grab_from_port_using_trait( timestamp );
   kwiver::vital::timestamp frame_time;
+  
+  // Test to see if optional port is connected.
+  if (has_input_port_edge_using_trait( timestamp ) )
+  {
+    frame_time = grab_input_using_trait( timestamp );
+  }
   
   // image
   kwiver::vital::image_container_sptr in_image = grab_from_port_using_trait( image );
@@ -157,7 +161,7 @@ stabilize_video_process
                    in_image->height() - 2*(d->m_edge_buffer));
   
   // get pointer to new image container.
-  stab_image = std::make_shared<kwiver::arrows::ocv::image_container>( im );
+  stab_image = std::make_shared<kwiver::vital::simple_image_container>( im );
 
   d->m_stabilize->process_image( frame_time, in_image,
                                  s2r_homog, new_ref );

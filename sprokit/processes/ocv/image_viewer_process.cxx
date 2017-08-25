@@ -251,25 +251,31 @@ image_viewer_process
 
   cv::Mat image;
   
-  if( d->m_color_mode == "BGR" )
+  if( img->depth() == 1 )
   {
-    image = arrows::ocv::image_container::vital_to_ocv( img->get_image(), arrows::ocv::image_container::BGR );
-  }
-  else if( d->m_color_mode == "RGB" )
-  {
-    image = arrows::ocv::image_container::vital_to_ocv( img->get_image(), arrows::ocv::image_container::RGB );
+    image = arrows::ocv::image_container::vital_to_ocv( img->get_image() );
   }
   else
   {
-    throw vital::invalid_value( "Invalid color mode: " + d->m_color_mode + "! Must be RGB or BGR." );
-  }
-  
+    if( d->m_color_mode == "BGR" )
+    {
+      image = arrows::ocv::image_container::vital_to_ocv( img->get_image(), arrows::ocv::image_container::BGR );
+    }
+    else if( d->m_color_mode == "RGB" )
+    {
+      image = arrows::ocv::image_container::vital_to_ocv( img->get_image(), arrows::ocv::image_container::RGB );
+    }
+    else
+    {
+      throw vital::invalid_value( "Invalid color mode: " + d->m_color_mode + "! Must be RGB or BGR." );
+    }
+  }  
 
   if ( d->m_annotate_image )
   {
     image = d->annotate_image( image, frame_time.get_frame() );
   }
-
+  
   cv::namedWindow( d->m_title, cv::WINDOW_NORMAL ); // Create a window for display.
   cv::imshow( d->m_title, image ); // Show our image inside it.
 
