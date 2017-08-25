@@ -46,6 +46,7 @@
 #include "draw_tracks_process.h"
 #include "extract_descriptors_process.h"
 #include "frame_list_process.h"
+#include "homography_ref_to_src_to_homography_process.h"
 #include "image_file_reader_process.h"
 #include "image_filter_process.h"
 #include "image_object_detector_process.h"
@@ -263,6 +264,13 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                        "Warp an image according to a homography." );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+  
+  fact = vpm.ADD_PROCESS( kwiver::homography_ref_to_src_to_homography_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "homography_ref_to_src_to_homography" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Convert a homography_src_to_ref to a homography." );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
   // - - - - - - - - - - - - - - - - - - - - - - -
