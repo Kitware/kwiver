@@ -36,11 +36,13 @@
 #include "warp_image.h"
 
 #include <vital/exceptions.h>
+#include <vital/util/wall_timer.h>
 
 #include <arrows/ocv/image_container.h>
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/eigen.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 namespace kwiver {
 namespace arrows {
@@ -54,13 +56,83 @@ class warp_image::priv
 {
 public:
   /// Constructor
+  bool m_auto_size_output;
+  int m_flags;
+  int m_interpolation;
+  bool m_inverse;
+  kwiver::vital::logger_handle_t m_logger;
+  kwiver::vital::wall_timer m_timer;
+  
   priv()
-    : m_auto_size_output(false), m_interpolation(cv::INTER_LINEAR)
+    : m_auto_size_output(false), 
+      m_interpolation(cv::INTER_LINEAR),
+      m_inverse(false)
   {
   }
-
-  bool m_auto_size_output;
-  int m_interpolation;
+  
+  void
+  set_inverse(bool inverse)
+  {
+    m_inverse = inverse;
+    update_flags();
+  }
+  
+  // Set OpenCV interpolation integer value from the string representation
+  void
+  set_interp_from_str(std::string interp_str)
+  {
+    if( interp_str == "nearest" )
+    {
+      m_interpolation = cv::INTER_NEAREST;
+    }
+    else if( interp_str == "linear" )
+    {
+      m_interpolation = cv::INTER_LINEAR;
+    }
+    else if( interp_str == "cubic" )
+    {
+      m_interpolation = cv::INTER_CUBIC;
+    }
+    else if( interp_str == "lanczos4" )
+    {
+      m_interpolation = cv::INTER_LANCZOS4;
+    }
+    else
+    {
+      throw vital::invalid_value( "Invalid interpolation method: " + interp_str );
+    }
+    
+    update_flags();
+  }
+  
+  // Combined m_inverse and m_interpolation into a flag integer
+  void
+  update_flags()
+  {
+    m_flags = m_interpolation;
+    if( m_inverse )
+    {
+      m_flags = m_flags + cv::WARP_INVERSE_MAP;
+    }
+  }
+  
+  // Warp image using homography
+  void
+  warp(cv::Mat const &cv_src, cv::Mat &cv_dest, cv::Mat const &cv_H)
+  {
+    cv::Size cv_dsize = cv_dest.size();
+    if ( cv_dsize.width < 1 || cv_dsize.height < 1 )
+    {
+      cv_dsize = cv_src.size();
+    }
+    
+    LOG_TRACE( m_logger, "Warping source image [" << cv_src.cols << ", " << 
+               cv_src.rows << "] channels = " << cv_src.channels() << 
+               ", type = " << cv_src.type() << " to destination resolution " << 
+               cv_dsize);
+    cv::warpPerspective(cv_src, cv_dest, cv_H, cv_dsize, m_flags);
+    //LOG_TRACE( m_logger, "Finished warping");
+  }
 };
 
 
@@ -70,6 +142,7 @@ warp_image
 : d_(new priv)
 {
   attach_logger( "arrows.ocv.warp_image" );
+  d_->m_logger = logger();
 }
 
 /// Destructor
@@ -91,6 +164,9 @@ warp_image
                     "If an output image is allocated, resize to contain all input pixels");
   config->set_value("interpolation", "linear", 
                     "Interpolation method (nearest, linear, cubic, lanczos4)");
+  config->set_value("inverse", d_->m_inverse, 
+                    "Homography is interpreted as mapping points from the "
+                    "output image back to the input image");
   return config;
 }
 
@@ -111,27 +187,12 @@ warp_image
     throw std::logic_error( "Not implemented!" );
   }
   
+  d_->set_inverse(config->get_value<bool>("inverse"));
   std::string interp_str = config->get_value<std::string>("interpolation");
-  if( interp_str == "nearest" )
-  {
-    d_->m_interpolation = cv::INTER_NEAREST;
-  }
-  else if( interp_str == "linear" )
-  {
-    d_->m_interpolation = cv::INTER_LINEAR;
-  }
-  else if( interp_str == "cubic" )
-  {
-    d_->m_interpolation = cv::INTER_CUBIC;
-  }
-  else if( interp_str == "lanczos4" )
-  {
-    d_->m_interpolation = cv::INTER_LANCZOS4;
-  }
-  else
-  {
-    throw vital::invalid_value( "Invalid interpolation method: " + interp_str );
-  }
+  d_->set_interp_from_str(interp_str);
+  
+  LOG_DEBUG( logger(), "Inverting homography: " << d_->m_inverse);
+  LOG_DEBUG( logger(), "Interpolation method: " << interp_str);
 }
 
 
@@ -146,10 +207,13 @@ warp_image
 /// Warp an input image with a homography
 void
 warp_image
-::warp( image_container_sptr image_src,
+::warp( image_container_sptr const image_src,
         image_container_sptr& image_dest,
         homography_sptr homog) const
 {
+  LOG_TRACE( logger(), "Starting algorithm");
+  d_->m_timer.start();
+  
   if ( !image_src || !homog )
   {
     throw vital::invalid_data("Inputs to ocv::warp_image are null");
@@ -164,17 +228,35 @@ warp_image
   if ( image_dest )
   {
     cv_dest = ocv::image_container::vital_to_ocv(image_dest->get_image());
+    
+    if( cv_dest.channels() == 1 )
+    {
+      // TODO: Figure out why this is necessary. Something is wrong with 
+      // vital_to_ocv for grayscale images.
+      cv_dest = cv_dest.clone();
+    }
   }
-
-  cv::Size cv_dsize = cv_dest.size();
-  if ( cv_dsize.width < 1 || cv_dsize.height < 1 )
+  else
   {
-    cv_dsize = cv_src.size();
+    throw vital::invalid_data("Inputs to ocv::warp_image are null");
   }
-
-  cv::warpPerspective(cv_src, cv_dest, cv_H, cv_dsize, d_->m_interpolation);
+  
+  d_->m_timer.stop();
+  LOG_TRACE( logger(), "Getting and converting imagery operation time: " << 
+             d_->m_timer.elapsed() << " seconds");
+  
+  d_->m_timer.start();
+  d_->warp(cv_src, cv_dest, cv_H);
+  d_->m_timer.stop();
+  LOG_TRACE( logger(), "Warping operation time: " << d_->m_timer.elapsed() << " seconds");
+  
+  
+  LOG_TRACE( logger(), "Rendered image [" << cv_dest.cols << ", " << 
+             cv_dest.rows << "] channels = " << cv_dest.channels() << 
+             ", type = " << cv_dest.type() );
 
   image_dest = std::make_shared<ocv::image_container>(cv_dest);
+  LOG_TRACE( logger(), "Finished algorithm");
 }
 
 
