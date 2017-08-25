@@ -104,10 +104,20 @@ _step()
   
   //TODO, handle case where this is optionally provided
   //auto ts = grab_from_port_using_trait( timestamp );
-  kwiver::vital::timestamp ts;
   
   auto input = grab_from_port_using_trait( image );
-  bool reset = grab_from_port_using_trait( coordinate_system_updated );
+  
+  kwiver::vital::timestamp ts;
+  if (has_input_port_edge_using_trait( timestamp ) )
+  {
+    ts = grab_from_port_using_trait( timestamp );
+  }
+  
+  bool reset;
+  if (has_input_port_edge_using_trait( coordinate_system_updated ) )
+  {
+    reset = grab_from_port_using_trait( coordinate_system_updated );
+  }
 
   auto result = d->m_algo->process_image( ts, input, reset );
 
