@@ -41,6 +41,7 @@
 
 #include <kwiversys/SystemTools.hxx>
 #include <vital/exceptions.h>
+#include <vital/exceptions/image.h>
 
 #include <arrows/ocv/image_container.h>
 
@@ -170,9 +171,16 @@ public:
     
     cv::Mat moving_frame = _moving_frame.getMat();
     cv::Mat M;
-
-    CV_Assert( moving_frame.rows == m_rows);
-    CV_Assert( moving_frame.cols == m_cols);
+    
+    if( (moving_frame.rows != m_rows) || moving_frame.cols != m_cols )
+    {
+      throw vital::image_size_mismatch_exception("Moving frame dimensions do "
+                                                 "not match the key frame "
+                                                 "dimensions", 
+                                                 m_cols, m_rows, 
+                                                 moving_frame.cols, 
+                                                 moving_frame.rows);
+    }
 
     if( moving_frame.channels() == 3 )
     {
@@ -333,10 +341,7 @@ public:
     // from the corners of the key frame.
     double disp = 0;
     
-    bool failed=false;
     cv::Point2f pt0, pt1;
-    
-    double w=m_raw_size.width, h=m_raw_size.height;
     for( int i = 0; i < 4; i++ )
     {
       pt0 = rendered_corners[i];
@@ -364,11 +369,11 @@ public:
     return M;
   }
 
-  /// Has a key frame already been estabilished
+  /// Has a key frame already been established
   bool
   has_key_frame()
   {
-    if(m_key_frame_mono.empty() == cv::_InputArray::NONE)
+    if( key_frame_index == -1 )
     {
       // No key frame exists
       return false;
@@ -412,7 +417,9 @@ public:
             1, CV_AA);
     
     std::string frame_time = std::to_string(ts.get_time_usec());
-    imwrite(m_debug_dir + "/" + std::to_string(frame_index) + ".tif", image);
+    std::string fname = m_debug_dir + "/" + std::to_string(frame_index) + ".tif";
+    imwrite(fname, image);
+    LOG_DEBUG( m_logger, "Writing debug image: " << fname);
   }
 };
 // ============================================================================
@@ -493,7 +500,7 @@ stabilize_video_KLT
   d_->m_reproj_thresh     = config->get_value<double>( "reproj_thresh" );
   d_->m_debug_dir         = config->get_value<std::string>( "debug_dir" );
   
-  if ( ~(d_->m_debug_dir.empty()) )
+  if ( !(d_->m_debug_dir.empty() || d_->m_debug_dir == "" ) )
   {
     d_->setup_debug_dir();
   }
@@ -525,27 +532,34 @@ stabilize_video_KLT
 
   cv::Mat cv_src = ocv::image_container::vital_to_ocv(image_src->get_image());
   
-  if(d_->has_key_frame())
+  cv::Mat H_cv;
+  
+  if(not d_->has_key_frame())
   {
+    // First iteration, not key frame has been defined yet
     // No key frame exists
     d_->update_key_frame(cv_src);
+    H_cv = cv::Mat::eye(3, 3, CV_64F);
+    coordinate_system_updated = true;
   }
+  else
+  {
+    // Measure against key frame
+    H_cv = d_->measure_transform(cv_src);
     
-  //cv::Mat H_cv = (cv::Mat_<double>(3,3) << 2, 0, 0, 0, 1, 0, 0, 0, 1);
-  
-  cv::Mat H_cv = d_->measure_transform(cv_src);
-  
-  if( H_cv.empty() )
+    if( H_cv.empty() )
     {
-      // Stabilization failed
+      // Stabilization failed, take current frame as the new key frame
       d_->update_key_frame(cv_src);
       H_cv = cv::Mat::eye(3, 3, CV_64F);
       coordinate_system_updated = true;
     }
-  else
-  {
-    coordinate_system_updated = false;
-  }
+    else
+    {
+      // Stabilization succeeded
+      coordinate_system_updated = false;
+    }
+  }  
   
   if( d_->m_output_to_debug_dir )
   {
