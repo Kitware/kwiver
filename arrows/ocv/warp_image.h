@@ -70,7 +70,7 @@ public:
   /**
    * This method implements warping an image by a homography.
    * The \p image_src is warped by \p homog and the output pixels are stored in
-   * \image_dest.  If an image passed in as \p image_dest the output will be
+   * \image_dest.  If an image is passed in as \p image_dest, the output will be
    * written to that memory, if \p image_dest is nullptr then the algorithm will
    * allocate new image memory for the output.
    *

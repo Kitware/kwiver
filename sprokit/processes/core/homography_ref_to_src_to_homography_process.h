@@ -28,58 +28,51 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file
- * \brief Interface to algorithms for warping images
- */
+#ifndef _KWIVER_HOMOGRAPHY_SRC_TO_REF_TO_HOMOGRAPHY_PROCESS_H_
+#define _KWIVER_HOMOGRAPHY_SRC_TO_REF_TO_HOMOGRAPHY_PROCESS_H_
 
-#ifndef VITAL_ALGO_WARP_IMAGE_H_
-#define VITAL_ALGO_WARP_IMAGE_H_
+#include <sprokit/pipeline/process.h>
+#include "kwiver_processes_export.h"
 
-#include <vital/vital_config.h>
-#include <vital/algo/algorithm.h>
-#include <vital/types/image_container.h>
-#include <vital/types/homography.h>
+#include <memory>
 
-namespace kwiver {
-namespace vital {
-namespace algo {
-
-/// \brief Abstract base class for image warping algorithms.
-class VITAL_ALGO_EXPORT warp_image
-  : public kwiver::vital::algorithm_def<warp_image>
+namespace kwiver
 {
-public:
 
-  /// Return the name of this algorithm.
-  static std::string static_type_name() { return "warp_image"; }
+// ----------------------------------------------------------------
+/**
+ * \class homography_ref_to_src_to_homography_process
+ *
+ * \brief Convert homography_src_to_ref to homography.
+ *
+ * \iports
+ * \iport{homography_src_to_ref}
+ *
+ * \oports
+ * \oport{homography}
+ *
+ */
+class KWIVER_PROCESSES_NO_EXPORT homography_ref_to_src_to_homography_process
+  : public sprokit::process
+{
+  public:
+  homography_ref_to_src_to_homography_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~homography_ref_to_src_to_homography_process();
 
-  /// Warp an input image with a homography
-  /**
-   * This method implements warping an image by a homography.
-   * The \p image_src is warped by \p homog and the output pixels are stored in
-   * \image_dest.  If an image is passed in as \p image_dest, the output will be
-   * written to that memory, if \p image_dest is nullptr then the algorithm will
-   * allocate new image memory for the output.
-   *
-   * \param[in]     image_src the source image data to warp
-   * \param[in,out] image_data the destination image to store the warped output
-   * \param[in]     homog homography matrix to apply
-   */
-  virtual void
-  warp( image_container_sptr image_src,
-        image_container_sptr& image_dest,
-        homography_sptr homog) const = 0;
+  protected:
+    virtual void _configure();
+    virtual void _step();
 
-protected:
-  warp_image();
-
-};
-
-/// type definition for shared pointer to a warp_image algorithm
-typedef std::shared_ptr<warp_image> warp_image_sptr;
+  private:
+    void make_ports();
+    void make_config();
 
 
-} } } // end namespace
+    class priv;
+    const std::unique_ptr<priv> d;
+ }; // end class homography_ref_to_src_to_homography_process
 
-#endif /* VITAL_ALGO_WARP_IMAGE_H_ */
+
+} // end namespace
+
+#endif /* _KWIVER_HOMOGRAPHY_SRC_TO_REF_TO_HOMOGRAPHY_PROCESS_H_ */

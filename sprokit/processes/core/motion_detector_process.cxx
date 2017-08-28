@@ -30,6 +30,7 @@
 
 #include "motion_detector_process.h"
 
+#include <vital/util/wall_timer.h>
 #include <vital/algo/motion_detector.h>
 
 #include <sprokit/processes/kwiver_type_traits.h>
@@ -47,7 +48,8 @@ public:
   priv();
   ~priv();
 
-   vital::algo::motion_detector_sptr m_algo;
+  vital::algo::motion_detector_sptr m_algo;
+  kwiver::vital::wall_timer m_timer;
 
 }; // end priv class
 
@@ -98,16 +100,32 @@ void
 motion_detector_process::
 _step()
 {
+  d->m_timer.start();
+  
   //TODO, handle case where this is optionally provided
   //auto ts = grab_from_port_using_trait( timestamp );
-  kwiver::vital::timestamp ts;
   
   auto input = grab_from_port_using_trait( image );
-  bool reset = grab_from_port_using_trait( coordinate_system_updated );
+  
+  kwiver::vital::timestamp ts;
+  if (has_input_port_edge_using_trait( timestamp ) )
+  {
+    ts = grab_from_port_using_trait( timestamp );
+  }
+  
+  bool reset;
+  if (has_input_port_edge_using_trait( coordinate_system_updated ) )
+  {
+    reset = grab_from_port_using_trait( coordinate_system_updated );
+  }
 
   auto result = d->m_algo->process_image( ts, input, reset );
 
   push_to_port_using_trait(motion_heat_map , result );
+  
+  d->m_timer.stop();
+  double elapsed_time = d->m_timer.elapsed();
+  LOG_DEBUG( logger(), "Total processing time: " << elapsed_time << " seconds");
 }
 
 
@@ -127,10 +145,10 @@ make_ports()
   // -- input --
   declare_input_port_using_trait( timestamp, optional );
   declare_input_port_using_trait( image, required );
-  declare_input_port_using_trait( coordinate_system_updated, opt_static );
+  declare_input_port_using_trait( coordinate_system_updated, optional );
 
   // -- output --
-  declare_output_port_using_trait( motion_heat_map, optional );
+  declare_output_port_using_trait( motion_heat_map, required );
 }
 
 

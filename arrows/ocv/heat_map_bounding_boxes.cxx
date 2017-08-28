@@ -60,10 +60,57 @@ using namespace kwiver::vital;
 class heat_map_bounding_boxes::priv
 {
 public:  
+  int m_min_area, m_max_area;
+  double m_min_fill_fraction;
+  kwiver::vital::logger_handle_t m_logger;
+  
   /// Constructor
   priv()
+    : m_min_area(1),
+      m_max_area(10000000),
+      m_min_fill_fraction(0.25)
   {
   }
+  
+  // --------------------------------------------------------------------------
+  detected_object_set_sptr
+  get_bounding_boxes_find_contours(cv::Mat const &img)
+  {
+    auto detected_objects = std::make_shared< detected_object_set >();
+    
+    std::vector< std::vector<cv::Point> > contours;
+    cv::findContours(img.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, 
+                     cv::Point(0, 0));
+
+    double conf = 1.0;
+    double prob = 1.0;
+    auto dot = std::make_shared< detected_object_type >();
+    const std::string class_name("mover");
+    dot->set_score( class_name, prob );
+
+    for(unsigned j=0; j < contours.size(); ++j)
+    {
+      //LOG_DEBUG( logger(), "Contour " << j << ": " << std::to_string(contourArea(contours[j], false)));
+      double area = contourArea(contours[j]);
+      if( area >= m_min_area && area <= m_max_area)
+      {
+        cv::Rect cv_bbox = cv::boundingRect(contours[j]);
+        if( area >= cv_bbox.width*cv_bbox.height*m_min_fill_fraction )
+        {
+          kwiver::vital::bounding_box_d bbox( cv_bbox.x, cv_bbox.y, 
+                                              cv_bbox.x + cv_bbox.width, 
+                                              cv_bbox.y + cv_bbox.height );
+
+          detected_objects->add(
+            std::make_shared< kwiver::vital::detected_object >( bbox, conf, dot ) );
+        }
+      }
+    }
+    LOG_TRACE( m_logger, "Finished creating bounding boxes");
+    return detected_objects;
+  }
+  // --------------------------------------------------------------------------
+  
 };
 
 
@@ -73,6 +120,7 @@ heat_map_bounding_boxes
 : d_(new priv)
 {
   attach_logger( "arrows.ocv.heat_map_bounding_boxes" );
+  d_->m_logger = logger();
 }
 
 
@@ -90,6 +138,18 @@ heat_map_bounding_boxes
 {
   // get base config from base class
   vital::config_block_sptr config = algorithm::get_configuration();
+  
+  config->set_value( "min_area", d_->m_min_area,
+                     "Minimum area of above-threshold pixels in a connected "
+                     "cluster allowed. Area is approximately equal to the "
+                     "number of pixels in the cluster." );
+  config->set_value( "max_area", d_->m_max_area,
+                     "Maximum area of above-threshold pixels in a connected "
+                     "cluster allowed. Area is approximately equal to the "
+                     "number of pixels in the cluster." );
+  config->set_value( "min_fill_fraction", d_->m_min_fill_fraction,
+                     "Fraction of the bounding box filled with above threshold "
+                     "pixels." );
 
   return config;
 }
@@ -104,6 +164,14 @@ heat_map_bounding_boxes
   // An alternative is to check for key presence before performing a get_value() call.
   vital::config_block_sptr config = this->get_configuration();
   config->merge_config(in_config);
+  
+  d_->m_min_area           = config->get_value<int>( "min_area" );
+  d_->m_max_area           = config->get_value<int>( "max_area" );
+  d_->m_min_fill_fraction  = config->get_value<double>( "min_fill_fraction" );
+  
+  LOG_DEBUG( logger(), "min_area: " << std::to_string(d_->m_min_area));
+  LOG_DEBUG( logger(), "max_area: " << std::to_string(d_->m_max_area));
+  LOG_DEBUG( logger(), "min_fill_fraction: " << std::to_string(d_->m_min_fill_fraction));
 }
 
 
@@ -124,36 +192,11 @@ heat_map_bounding_boxes
   {
     throw vital::invalid_data("Inputs to ocv::heat_map_bounding_boxes are null");
   }
+  LOG_TRACE( logger(), "Received image");
 
-  cv::Mat cv_src = ocv::image_container::vital_to_ocv(image_data->get_image());
-  auto detected_objects = std::make_shared< detected_object_set >();
-  
-  std::vector< std::vector<cv::Point> > contours, filtered_contours;
-  cv::findContours(cv_src, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, 
-                   cv::Point(0, 0));
-  
-  double conf = 1.0;
-  double prob = 1.0;
-  auto dot = std::make_shared< detected_object_type >();
-  const std::string class_name("mover");
-  dot->set_score( class_name, prob );
-  
-  for(unsigned j=0; j < contours.size(); ++j)
-  {
-    //std::cout << "Contour " << j << ": " << contourArea(contours[j], false) << std::endl;
-    if( contourArea(contours[j], false) >= 30 )
-    {
-      cv::Rect cv_bbox = cv::boundingRect(contours[j]);
-      kwiver::vital::bounding_box_d bbox( cv_bbox.x, cv_bbox.y, 
-                                          cv_bbox.x + cv_bbox.width, 
-                                          cv_bbox.y + cv_bbox.height );
-      
-      detected_objects->add(
-        std::make_shared< kwiver::vital::detected_object >( bbox, conf, dot ) );
-    }
-  }
-  
-  return detected_objects;
+  const cv::Mat cv_src = ocv::image_container::vital_to_ocv(image_data->get_image());
+    
+  return d_->get_bounding_boxes_find_contours(cv_src);
 }
 
 

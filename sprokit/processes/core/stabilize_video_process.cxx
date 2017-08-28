@@ -32,10 +32,12 @@
 
 #include <vital/vital_types.h>
 #include <vital/types/timestamp.h>
+#include <vital/types//homography_f2f.h>
 #include <vital/types/timestamp_config.h>
 #include <vital/types/image_container.h>
 #include <vital/algo/stabilize_video.h>
 #include <vital/algo/warp_image.h>
+#include <vital/util/wall_timer.h>
 #include <arrows/ocv/image_container.h>
 
 #include <kwiver_type_traits.h>
@@ -52,6 +54,10 @@ namespace kwiver {
 
 create_config_trait( stabilize, std::string, "", "Stabilization algorithm configuration subblock" );
 create_config_trait( warp, std::string, "", "Warping algorithm configuration subblock" );
+create_config_trait( edge_buffer, int, "0", "Number of rows to crop from the "
+                    "top and bottom as well as the number of columns to crop "
+                    "from the left and right of the stabilized image to allow "
+                    "for motion without black, unpopulated pixels." );
 
 //----------------------------------------------------------------
 // Private implementation class
@@ -61,10 +67,11 @@ public:
   priv();
   ~priv();
 
-
   // Configuration values
   algo::stabilize_video_sptr m_stabilize;
   algo::warp_image_sptr m_warp;
+  int m_edge_buffer = 0;
+  kwiver::vital::wall_timer m_timer;
 
 }; // end priv class
 
@@ -93,6 +100,8 @@ void stabilize_video_process
 ::_configure()
 {
   kwiver::vital::config_block_sptr algo_config = get_config();
+  
+  d->m_edge_buffer          = config_value_using_trait( edge_buffer );
 
   // Check config so it will give run-time diagnostic of config problems
   if ( ! algo::stabilize_video::check_nested_algo_configuration( "stabilize", algo_config ) )
@@ -113,7 +122,7 @@ void stabilize_video_process
   }
 
   algo::warp_image::set_nested_algo_configuration( "warp", algo_config, d->m_warp );
-  if ( ! d->m_stabilize )
+  if ( ! d->m_warp )
   {
     throw sprokit::invalid_configuration_exception( name(), "Unable to create image warping algorithm" );
   }
@@ -125,11 +134,16 @@ void
 stabilize_video_process
 ::_step()
 {
+  d->m_timer.start();
   kwiver::vital::homography_f2f_sptr src_to_ref_homography;
 
-  // timestamp (TODO: figure out how to handle this when not supplied/optional)
-  //kwiver::vital::timestamp frame_time = grab_from_port_using_trait( timestamp );
   kwiver::vital::timestamp frame_time;
+  
+  // Test to see if optional port is connected.
+  if (has_input_port_edge_using_trait( timestamp ) )
+  {
+    frame_time = grab_input_using_trait( timestamp );
+  }
   
   // image
   kwiver::vital::image_container_sptr in_image = grab_from_port_using_trait( image );
@@ -143,20 +157,32 @@ stabilize_video_process
   kwiver::vital::image_container_sptr stab_image;
   
   // create empty image of desired size
-  vital::image im( in_image->width() - 50, in_image->height() - 50);
+  vital::image im( in_image->width() - 2*(d->m_edge_buffer), 
+                   in_image->height() - 2*(d->m_edge_buffer));
   
   // get pointer to new image container.
-  stab_image = std::make_shared<kwiver::arrows::ocv::image_container>( im );
+  stab_image = std::make_shared<kwiver::vital::simple_image_container>( im );
 
   d->m_stabilize->process_image( frame_time, in_image,
-                                 s2r_homog, new_ref);
+                                 s2r_homog, new_ref );
+  
+  // Modify s2r_homog so that (edge_buffer,edge_buffer) maps to (0,0) in the 
+  // stabilized image.
+  Eigen::Matrix< double, 3, 3 > H = (*(s2r_homog->homography())).matrix();
+  H(0,2) -= d->m_edge_buffer;
+  H(1,2) -= d->m_edge_buffer;
+  *s2r_homog = kwiver::vital::homography_f2f( H, s2r_homog->from_id(), 
+                                              s2r_homog->to_id() );
 
   d->m_warp->warp( in_image, stab_image, s2r_homog->homography() );
-
-  // return by value
+  
   push_to_port_using_trait( homography_src_to_ref, s2r_homog );
   push_to_port_using_trait( image, stab_image );
   push_to_port_using_trait( coordinate_system_updated, new_ref );
+  
+  d->m_timer.stop();
+  double elapsed_time = d->m_timer.elapsed();
+  LOG_DEBUG( logger(), "Total processing time: " << elapsed_time << " seconds");
 }
 
 
@@ -186,6 +212,7 @@ void stabilize_video_process
 {
   declare_config_using_trait( stabilize );
   declare_config_using_trait( warp );
+  declare_config_using_trait( edge_buffer );
 }
 
 

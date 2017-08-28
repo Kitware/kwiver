@@ -77,7 +77,7 @@ public:
   /// The depth (or number of channels) of the image
   virtual size_t depth() const = 0;
 
-  /// Get and in-memory image class to access the data
+  /// Get an in-memory image class to access the data
   virtual image get_image() const = 0;
 
   /// Get metadata associated with this image

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,56 +30,44 @@
 
 /**
  * \file
- * \brief Interface to algorithms for warping images
+ * \brief Interface to blend_images_process
  */
 
-#ifndef VITAL_ALGO_STABILIZE_VIDEO_H
-#define VITAL_ALGO_STABILIZE_VIDEO_H
+#ifndef _KWIVER_BLEND_IMAGES_PROCESS_H
+#define _KWIVER_BLEND_IMAGES_PROCESS_H
 
-#include <vital/vital_config.h>
-#include <vital/algo/algorithm.h>
-#include <vital/types/image_container.h>
-#include <vital/types/homography_f2f.h>
+#include <sprokit/pipeline/process.h>
+#include "kwiver_processes_ocv_export.h"
+
+#include <memory>
 
 namespace kwiver {
-namespace vital {
-namespace algo {
 
-/// \brief Abstract base class for image stabilization algorithms.
-class VITAL_ALGO_EXPORT stabilize_video
-  : public kwiver::vital::algorithm_def<stabilize_video>
+// ----------------------------------------------------------------
+/**
+ * @brief Process to draw detected object boxes on an image.
+ *
+ */
+class KWIVER_PROCESSES_OCV_NO_EXPORT blend_images_process
+  : public sprokit::process
 {
 public:
-
-  /// Return the name of this algorithm.
-  static std::string static_type_name() { return "stabilize_video"; }
-
-  /// Stabilize an input video frame by producing a homography
-  /**
-   * This method implements video stabilization by producing a homography that 
-   * warps points from the current frame back to a key frame's coordinate 
-   * system.
-   *
-   * \param[in] ts Time stamp for the input image.
-   * \param[in] image_src the source image data to stabilize
-   * \param[out] src_to_ref Source to reference homography
-   * \param[out] coordinate_system_updated Set to true if this frame establishes a new reference coordinate system.
-   */
-  virtual void
-  process_image( const timestamp& ts,
-                 const image_container_sptr image_src,
-                 homography_f2f_sptr& src_to_ref,
-                 bool&  coordinate_system_updated) = 0;
+  blend_images_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~blend_images_process();
 
 protected:
-  stabilize_video();
+  virtual void _configure();
+  virtual void _step();
 
-};
+private:
+  void make_ports();
+  void make_config();
 
-/// type definition for shared pointer to a stabilize_video algorithm
-typedef std::shared_ptr<stabilize_video> stabilize_video_sptr;
+  class priv;
+  const std::unique_ptr<priv> d;
 
+}; // end class blend_images_process
 
-} } } // end namespace
+} // end namespace
 
-#endif // VITAL_ALGO_STABILIZE_VIDEO_H
+#endif // _KWIVER_BLEND_IMAGES_PROCESS_H

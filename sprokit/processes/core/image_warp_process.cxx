@@ -31,12 +31,17 @@
 #include "image_warp_process.h"
 
 #include <vital/algo/warp_image.h>
+#include <vital/util/wall_timer.h>
 
 #include <sprokit/processes/kwiver_type_traits.h>
 #include <sprokit/pipeline/process_exception.h>
 
 namespace kwiver {
 
+create_config_trait( height, int, "-1", "Width of the warped image (defaults to "
+                     "input image height)" );
+create_config_trait( width, int, "-1", "Height of the warped image (defaults to "
+                     "input image width)" );
 create_config_trait( algo, std::string, "", "Algorithm configuration subblock" );
 
 //----------------------------------------------------------------
@@ -44,10 +49,22 @@ create_config_trait( algo, std::string, "", "Algorithm configuration subblock" )
 class image_warp_process::priv
 {
 public:
-  priv();
-  ~priv();
+  priv()
+    : m_height(-1),
+      m_width(-1)
+  {
+  };
+  
+  ~priv()
+  {
+  };
 
-   vital::algo::warp_image_sptr m_algo;
+  // Configuration values
+  int m_height;
+  int m_width;
+
+  vital::algo::warp_image_sptr m_algo;
+  kwiver::vital::wall_timer m_timer;
 
 }; // end priv class
 
@@ -78,6 +95,9 @@ image_warp_process::
 _configure()
 {
   vital::config_block_sptr algo_config = get_config();
+  
+  d->m_height          = config_value_using_trait( height );
+  d->m_width           = config_value_using_trait( width );
 
   // Check config so it will give run-time diagnostic of config problems
   if ( ! vital::algo::warp_image::check_nested_algo_configuration_using_trait( algo, algo_config ) )
@@ -102,13 +122,43 @@ void
 image_warp_process::
 _step()
 {
+  LOG_TRACE( logger(), "Starting process");
+  d->m_timer.start();
+  
+  // -- inputs --
   auto input = grab_from_port_using_trait( image );
   auto homog = grab_from_port_using_trait( homography );
-
-  vital::image_container_sptr result;
+  
+  // -- outputs --
+  kwiver::vital::image_container_sptr result;
+  
+  // create empty image of desired size
+  int height = d->m_height;
+  int width = d->m_width;
+  
+  //  if height or width not provided, use that of the source image
+  if( height == -1 )
+  {
+    height = input->height();
+  }
+  if( width == -1 )
+  {
+    width = input->width();
+  }
+  vital::image im( width, height );
+  
+  // get pointer to new image container.
+  result = std::make_shared<kwiver::vital::simple_image_container>( im );
+  
   d->m_algo->warp( input, result, homog );
 
+  LOG_TRACE( logger(), "About to push to port");
   push_to_port_using_trait( image, result );
+  LOG_TRACE( logger(), "Pushed to port");
+  
+  d->m_timer.stop();
+  double elapsed_time = d->m_timer.elapsed();
+  LOG_DEBUG( logger(), "Total processing time: " << elapsed_time << " seconds");
 }
 
 
@@ -137,20 +187,10 @@ void
 image_warp_process::
 make_config()
 {
+  declare_config_using_trait( height );
+  declare_config_using_trait( width );
   declare_config_using_trait( algo );
 }
-
-
 // ================================================================
-image_warp_process::priv
-::priv()
-{
-}
-
-
-image_warp_process::priv
-::~priv()
-{
-}
 
 } // end namespace kwiver

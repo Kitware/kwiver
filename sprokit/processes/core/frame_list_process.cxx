@@ -78,6 +78,10 @@ create_config_trait( frame_time, double, "0.03333333", "Inter frame time in seco
                      "timestamps for sequential frames. This can be used to simulate a frame rate in a "
                      "video stream application.");
 
+create_config_trait( loop, bool, "false", "Continuously loop. "
+                     "When the frame reader finishes the last file in the list, it will return to the "
+                     "first file and indefinitely repeat.");
+
 create_config_trait( image_reader, std::string, "", "Algorithm configuration subblock" );
 
 //----------------------------------------------------------------
@@ -92,6 +96,7 @@ public:
   std::string m_config_image_list_filename;
   kwiver::vital::timestamp::time_t m_config_frame_time;
   std::vector< std::string > m_config_path;
+  bool m_loop;
 
   // process local data
   std::vector < kwiver::vital::path_t > m_files;
@@ -134,6 +139,7 @@ void frame_list_process
   // Examine the configuration
   d->m_config_image_list_filename = config_value_using_trait( image_list_file );
   d->m_config_frame_time          = config_value_using_trait( frame_time ) * 1e6; // in usec
+  d->m_loop                       = config_value_using_trait( loop );
 
   std::string path = config_value_using_trait( path );
   kwiver::vital::tokenize( path, d->m_config_path, ":", true );
@@ -234,6 +240,12 @@ void frame_list_process
     push_to_port_using_trait( image_file_name, a_file );
 
     ++d->m_current_file;
+    
+    if( d->m_loop && d->m_current_file == d->m_files.end() )
+    {
+      // Restart from first frame and loop
+      d->m_current_file = d->m_files.begin();
+    }
   }
   else
   {
@@ -269,6 +281,7 @@ void frame_list_process
 {
   declare_config_using_trait( image_list_file );
   declare_config_using_trait( frame_time );
+  declare_config_using_trait( loop );
   declare_config_using_trait( image_reader );
   declare_config_using_trait( path );
 }

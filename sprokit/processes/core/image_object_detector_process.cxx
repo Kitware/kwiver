@@ -103,6 +103,7 @@ void
 image_object_detector_process::
 _step()
 {
+  LOG_TRACE( logger(), "Starting process" );
   vital::image_container_sptr input = grab_from_port_using_trait( image );
 
   d->m_detect_timer.start();
