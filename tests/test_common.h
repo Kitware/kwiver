@@ -220,7 +220,7 @@ typedef std::string testname_t;
 // ------------------------------------------------------------------
 /// Run the a test case by a given name
 /**
- * Find an run the test function associated with the given testname.
+ * Find and run the test function associated with the given testname.
  * Parameters after the test name are the arguments to pass to the function.
  *
  * @param testname  The name of the test to run. This name should match one

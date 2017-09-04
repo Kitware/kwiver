@@ -94,7 +94,7 @@ public:
    */
   virtual void set_configuration(vital::config_block_sptr config);
 
-  /// Check that the algorithm's currently configuration is valid
+  /// Check that the algorithm's current configuration is valid
   /**
    * This checks solely within the provided \c config_block and not against
    * the current state of the instance. This isn't static for inheritence

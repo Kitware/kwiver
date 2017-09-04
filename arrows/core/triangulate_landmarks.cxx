@@ -127,7 +127,7 @@ triangulate_landmarks
 }
 
 
-/// Check that the algorithm's currently configuration is valid
+/// Check that the algorithm's current configuration is valid
 bool
 triangulate_landmarks
 ::check_configuration(vital::config_block_sptr config) const

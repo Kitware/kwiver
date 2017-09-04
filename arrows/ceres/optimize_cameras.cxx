@@ -163,7 +163,7 @@ optimize_cameras
 }
 
 
-/// Check that the algorithm's currently configuration is valid
+/// Check that the algorithm's current configuration is valid
 bool
 optimize_cameras
 ::check_configuration(config_block_sptr config) const
