@@ -75,6 +75,9 @@ add_subdirectory(schedulers)
 add_subdirectory(test)
 
 set(python_noarch FALSE)
-sprokit_create_python_init(sprokit)
+sprokit_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
+                          sprokit __init__)
 set(python_noarch TRUE)
-sprokit_create_python_init(sprokit)
+sprokit_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
+                          sprokit __init__)
+set(python_noarch FALSE)

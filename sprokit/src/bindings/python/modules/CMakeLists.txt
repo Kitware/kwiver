@@ -8,9 +8,11 @@ set(modules_python_private_headers
   )
 
 set(python_noarch FALSE)
-sprokit_create_python_init(sprokit/modules)
+sprokit_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
+                          sprokit/modules __init__)
 set(python_noarch TRUE)
-sprokit_create_python_init(sprokit/modules)
+sprokit_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
+                          sprokit/modules __init__)
 set(python_noarch FALSE)
 
 sprokit_private_header_group(${modules_python_private_headers})

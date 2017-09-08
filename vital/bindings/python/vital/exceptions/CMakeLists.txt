@@ -34,11 +34,3 @@ kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/math.py
 kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
   vital/exceptions
   __init__ )
-
-#kwiver_create_python_init( vital/exceptions
-#  base
-#  config_block_io
-#  config_block
-#  eigen
-#  image
-#  )
