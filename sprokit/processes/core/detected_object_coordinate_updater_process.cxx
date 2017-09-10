@@ -65,18 +65,19 @@ detected_object_coordinate_updater_process
 {
   auto input = grab_from_port_using_trait( detected_object_set );
   auto bbox = grab_from_port_using_trait( bounding_box );
+  auto output = input->clone();
 
   const auto upper_left = bbox.upper_left();
-  auto detections = input->select();
+  auto detections = output->select();
 
   VITAL_FOREACH( auto det, detections )
   {
-    auto bbox = det->bounding_box();
-    kwiver::vital::translate( bbox, upper_left );
-    det->set_bounding_box( bbox );
+    auto det_bbox = det->bounding_box();
+    kwiver::vital::translate( det_bbox, upper_left );
+    det->set_bounding_box( det_bbox );
   }
 
-  push_to_port_using_trait( detected_object_set, input );
+  push_to_port_using_trait( detected_object_set, output );
 }
 
 
