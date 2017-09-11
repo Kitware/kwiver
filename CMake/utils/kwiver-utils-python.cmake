@@ -66,40 +66,53 @@ macro (_kwiver_create_safe_modpath    modpath    result)
   string(REPLACE "/" "." "${result}" "${modpath}")
 endmacro ()
 
+
 ###
 #
 # Get canonical directory for python site packages.
 # It varys from system to system.
 #
+# Args:
+#    var_name : out-var that will be populated with the site-packages path
+#
 function ( _kwiver_python_site_package_dir    var_name)
-  #
-  # This is run many times and should produce the same result, which could be cached.
-  # Think about it.
-  execute_process(
-  COMMAND "${PYTHON_EXECUTABLE}" -c "import distutils.sysconfig; print distutils.sysconfig.get_python_lib(prefix='')"
-  RESULT_VARIABLE proc_success
-  OUTPUT_VARIABLE python_site_packages
-  )
-  # Returns something like "lib/python2.7/dist-packages"
-
-  if(NOT ${proc_success} EQUAL 0)
-    message(FATAL_ERROR "Request for python site-packages location failed with error code: ${proc_success}")
+  # This is run many times and should produce the same result, so we cache it
+  if (_prev_python_exe STREQUAL PYTHON_EXECUTABLE)
+    set(python_site_packages ${_prev_python_exe})
   else()
-    string(STRIP "${python_site_packages}" python_site_packages)
+    # Only run this if the python exe has changed
+    execute_process(
+      COMMAND "${PYTHON_EXECUTABLE}" -c "import distutils.sysconfig; print distutils.sysconfig.get_python_lib(prefix='')"
+      RESULT_VARIABLE proc_success
+      OUTPUT_VARIABLE python_site_packages
+    )
+    # Returns something like "lib/python2.7/dist-packages"
+
+    if(NOT ${proc_success} EQUAL 0)
+      message(FATAL_ERROR "Request for python site-packages location failed with error code: ${proc_success}")
+    else()
+      string(STRIP "${python_site_packages}" python_site_packages)
+    endif()
+
+    # Current usage determines most of the path in alternate ways.
+    # All we need to supply is the '*-packages' directory name.
+    # Customers could be converted to accept a larger part of the path from this function.
+    string( REGEX MATCH "dist-packages" result ${python_site_packages} )
+    if (result)
+      set( python_site_packages dist-packages)
+    else()
+      set( python_site_packages site-packages)
+    endif()
+
+    # Cache computed value
+    set(_prev_site_packages "${python_site_packages}" INTERNAL)
+    set(_prev_python_exe "${PYTHON_EXECUTABLE}" INTERNAL)
   endif()
 
-  # Current usage determines most of the path in alternate ways.
-  # All we need to supply is the '*-packages' directory name.
-  # Customers could be converted to accept a larger part of the path from this function.
-  string( REGEX MATCH "dist-packages" result ${python_site_packages} )
-  if (result)
-    set( python_site_packages dist-packages)
-  else()
-    set( python_site_packages site-packages)
-  endif()
-
-  set( ${var_name} ${python_site_packages} PARENT_SCOPE )
+  set(${var_name} ${python_site_packages} PARENT_SCOPE )
 endfunction()
+
+
 
 ###
 #

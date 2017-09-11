@@ -61,48 +61,13 @@ macro (_sprokit_create_safe_modpath    modpath    result)
   string(REPLACE "/" "." "${result}" "${modpath}")
 endmacro ()
 
-###
-#
-# Get canonical directory for python site packages.
-# It varys from system to system.
-#
-function ( _sprokit_python_site_package_dir    var_name)
-
-  #
-  # This is run many times and should produce the same result, which could be cached.
-  # Think about it.
-  execute_process(
-  COMMAND "${PYTHON_EXECUTABLE}" -c "import distutils.sysconfig; print distutils.sysconfig.get_python_lib(prefix='')"
-  RESULT_VARIABLE proc_success
-  OUTPUT_VARIABLE python_site_packages
-  )
-  # Returns something like "lib/python2.7/dist-packages"
-
-  if(NOT ${proc_success} EQUAL 0)
-    message(FATAL_ERROR "Request for python site-packages location failed with error code: ${proc_success}")
-  else()
-    string(STRIP "${python_site_packages}" python_site_packages)
-  endif()
-
-  # Current usage determines most of the path in alternate ways.
-  # All we need to supply is the '*-packages' directory name.
-  # Customers could be converted to accept a larger part of the path from this function.
-  string( REGEX MATCH "dist-packages" result ${python_site_packages} )
-  if (result)
-    set( python_site_packages dist-packages)
-  else()
-    set( python_site_packages site-packages)
-  endif()
-
-  set( ${var_name} ${python_site_packages} PARENT_SCOPE )
-endfunction()
 
 ###
 #
 function (sprokit_add_python_library    name    modpath)
   _sprokit_create_safe_modpath("${modpath}" safe_modpath)
 
-  _sprokit_python_site_package_dir( python_site_packages )
+  _kwiver_python_site_package_dir( python_site_packages )
 
   set(library_subdir "/${sprokit_python_subdir}")
   set(library_subdir_suffix "/${python_site_packages}/${modpath}")
@@ -143,7 +108,7 @@ endfunction ()
 function (sprokit_add_python_module_int    path     modpath    module)
   _sprokit_create_safe_modpath("${modpath}" safe_modpath)
 
-  _sprokit_python_site_package_dir( python_site_packages )
+  _kwiver_python_site_package_dir( python_site_packages )
   set(python_sitepath /${python_site_packages})
 
   set(python_arch)
