@@ -181,16 +181,30 @@ function (sprokit_add_python_module_int    path     modpath    module)
     set(python_module_id "python${python_arch}-${safe_modpath}-${module}")
   endif()
 
-  sprokit_configure_file_w_uid("${python_configure_id}"
-    "${python_module_id}"
-    "${path}"
-    "${sprokit_python_output_path}/${sprokit_python_subdir}${python_noarchdir}${python_sitepath}/${modpath}/${module}.py"
-    PYTHON_EXECUTABLE)
+  set(pyfile_src "${path}")
+  set(pyfile_dst "${sprokit_python_output_path}/${sprokit_python_subdir}${python_noarchdir}${python_sitepath}/${modpath}/${module}.py")
+  set(pypkg_install_path "${python_install_path}/${sprokit_python_subdir}${python_sitepath}/${modpath}")
 
-  sprokit_install(
-    FILES       "${sprokit_python_output_path}/${sprokit_python_subdir}${python_noarchdir}${python_sitepath}/${modpath}/${module}.py"
-    DESTINATION "${python_install_path}/${sprokit_python_subdir}${python_sitepath}/${modpath}"
-    COMPONENT   runtime)
+  if (KWIVER_SYMLINK_PYTHON)
+      sprokit_symlink_file_w_uid("${python_configure_id}"
+        "${python_module_id}"
+        "${pyfile_src}"
+        "${pyfile_dst}"
+        PYTHON_EXECUTABLE)
+  else()
+      sprokit_configure_file_w_uid("${python_configure_id}"
+        "${python_module_id}"
+        "${pyfile_src}"
+        "${pyfile_dst}"
+        PYTHON_EXECUTABLE)
+  endif()
+
+  # Force installation of the test into the tests module
+  install(
+      FILES       "${pyfile_dst}"
+      DESTINATION "${pypkg_install_path}"
+      COMPONENT   runtime
+      )
 
   add_dependencies(python
     "configure-${python_configure_id}")
