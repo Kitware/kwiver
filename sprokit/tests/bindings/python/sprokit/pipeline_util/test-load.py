@@ -29,14 +29,14 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-def test_import(path_unused):
+def test_import():
     try:
-        import sprokit.pipeline_util.load
+        import sprokit.pipeline_util.load  # NOQA
     except:
-        test_error("Failed to import the load module")
+        raise AssertionError("Failed to import the load module")
 
 
-def test_create(path_unused):
+def test_create():
     from sprokit.pipeline_util import load
 
     load.Token()
@@ -59,7 +59,7 @@ def test_create(path_unused):
     load.ClusterDefineBlocks()
 
 
-def test_api_calls(path_unused):
+def test_api_calls():
     from sprokit.pipeline import config
     from sprokit.pipeline import process
     from sprokit.pipeline import process_factory
@@ -122,25 +122,25 @@ def test_api_calls(path_unused):
     o = load.ClusterSubblock()
     o.config = load.ClusterConfig()
     if o.config is None:
-        test_error("The 'config' is None when the cluster subblock is a config")
+        raise AssertionError("The 'config' is None when the cluster subblock is a config")
     if o.input is not None:
-        test_error("The 'input' is not None when the cluster subblock is a config")
+        raise AssertionError("The 'input' is not None when the cluster subblock is a config")
     if o.output is not None:
-        test_error("The 'output' is not None when the cluster subblock is a config")
+        raise AssertionError("The 'output' is not None when the cluster subblock is a config")
     o.input = load.ClusterInput()
     if o.config is not None:
-        test_error("The 'config' is not None when the cluster subblock is an input")
+        raise AssertionError("The 'config' is not None when the cluster subblock is an input")
     if o.input is None:
-        test_error("The 'input' is None when the cluster subblock is an input")
+        raise AssertionError("The 'input' is None when the cluster subblock is an input")
     if o.output is not None:
-        test_error("The 'output' is not None when the cluster subblock is an input")
+        raise AssertionError("The 'output' is not None when the cluster subblock is an input")
     o.output = load.ClusterOutput()
     if o.config is not None:
-        test_error("The 'config' is not None when the cluster subblock is an output")
+        raise AssertionError("The 'config' is not None when the cluster subblock is an output")
     if o.input is not None:
-        test_error("The 'input' is not None when the cluster subblock is an output")
+        raise AssertionError("The 'input' is not None when the cluster subblock is an output")
     if o.output is None:
-        test_error("The 'output' is None when the cluster subblock is an output")
+        raise AssertionError("The 'output' is None when the cluster subblock is an output")
 
     o = load.ClusterBlock()
     o.type
@@ -153,43 +153,46 @@ def test_api_calls(path_unused):
     o = load.ClusterDefineBlock()
     o.config = load.ConfigBlock()
     if o.config is None:
-        test_error("The 'config' is None when the pipe subblock is a config")
+        raise AssertionError("The 'config' is None when the pipe subblock is a config")
     if o.process is not None:
-        test_error("The 'process' is not None when the pipe subblock is a config")
+        raise AssertionError("The 'process' is not None when the pipe subblock is a config")
     if o.connect is not None:
-        test_error("The 'connect' is not None when the pipe subblock is a config")
+        raise AssertionError("The 'connect' is not None when the pipe subblock is a config")
     if o.cluster is not None:
-        test_error("The 'cluster' is not None when the pipe subblock is a config")
+        raise AssertionError("The 'cluster' is not None when the pipe subblock is a config")
     o.process = load.ProcessBlock()
     if o.config is not None:
-        test_error("The 'config' is not None when the pipe subblock is a process")
+        raise AssertionError("The 'config' is not None when the pipe subblock is a process")
     if o.process is None:
-        test_error("The 'process' is None when the pipe subblock is a process")
+        raise AssertionError("The 'process' is None when the pipe subblock is a process")
     if o.connect is not None:
-        test_error("The 'connect' is not None when the pipe subblock is a process")
+        raise AssertionError("The 'connect' is not None when the pipe subblock is a process")
     if o.cluster is not None:
-        test_error("The 'cluster' is not None when the pipe subblock is a process")
+        raise AssertionError("The 'cluster' is not None when the pipe subblock is a process")
     o.connect = load.ConnectBlock()
     if o.config is not None:
-        test_error("The 'config' is not None when the pipe subblock is a connection")
+        raise AssertionError("The 'config' is not None when the pipe subblock is a connection")
     if o.process is not None:
-        test_error("The 'process' is not None when the pipe subblock is a connection")
+        raise AssertionError("The 'process' is not None when the pipe subblock is a connection")
     if o.connect is None:
-        test_error("The 'connect' is None when the pipe subblock is a connection")
+        raise AssertionError("The 'connect' is None when the pipe subblock is a connection")
     if o.cluster is not None:
-        test_error("The 'cluster' is not None when the pipe subblock is a connection")
+        raise AssertionError("The 'cluster' is not None when the pipe subblock is a connection")
     o.cluster = load.ClusterBlock()
     if o.config is not None:
-        test_error("The 'config' is not None when the pipe subblock is a cluster")
+        raise AssertionError("The 'config' is not None when the pipe subblock is a cluster")
     if o.process is not None:
-        test_error("The 'process' is not None when the pipe subblock is a cluster")
+        raise AssertionError("The 'process' is not None when the pipe subblock is a cluster")
     if o.connect is not None:
-        test_error("The 'connect' is not None when the pipe subblock is a cluster")
+        raise AssertionError("The 'connect' is not None when the pipe subblock is a cluster")
     if o.cluster is None:
-        test_error("The 'cluster' is None when the pipe subblock is a cluster")
+        raise AssertionError("The 'cluster' is None when the pipe subblock is a cluster")
 
 
-def test_simple_pipeline(path):
+def test_simple_pipeline():
+    from sprokit.test import test
+    path = test.grab_test_pipeline_file('simple_pipeline.pipe')
+
     from sprokit.pipeline_util import load
 
     blocks = load.load_pipe_file(path)
@@ -197,7 +200,10 @@ def test_simple_pipeline(path):
         load.load_pipe(fin)
 
 
-def test_cluster_multiplier(path):
+def test_cluster_multiplier():
+    from sprokit.test import test
+    path = test.grab_test_pipeline_file('cluster_multiplier.pipe')
+
     from sprokit.pipeline_util import load
 
     blocks = load.load_cluster_file(path)
@@ -206,23 +212,18 @@ def test_cluster_multiplier(path):
 
 
 if __name__ == '__main__':
-    import os
+    r"""
+    CommandLine:
+        python -m sprokit.tests.test-load
+    """
+    import pytest
     import sys
-
-    if not len(sys.argv) == 5:
-        test_error("Expected four arguments")
-        sys.exit(1)
-
-    testname = sys.argv[1]
-
-    os.chdir(sys.argv[2])
-
-    sys.path.append(sys.argv[3])
-
-    pipeline_dir = sys.argv[4]
-
-    path = os.path.join(pipeline_dir, '%s.pipe' % testname)
-
-    from sprokit.test.test import *
-
-    run_test(testname, find_tests(locals()), path)
+    argv = list(sys.argv[1:])
+    if len(argv) > 0 and argv[0] in vars():
+        # If arg[0] is a function in this file put it in pytest format
+        argv[0] = __file__ + '::' + argv[0]
+        argv.append('-s')  # dont capture stdout for single tests
+    else:
+        # ensure args refer to this file
+        argv.insert(0, __file__)
+    pytest.main(argv)

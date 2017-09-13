@@ -61,48 +61,13 @@ macro (_sprokit_create_safe_modpath    modpath    result)
   string(REPLACE "/" "." "${result}" "${modpath}")
 endmacro ()
 
-###
-#
-# Get canonical directory for python site packages.
-# It varys from system to system.
-#
-function ( _sprokit_python_site_package_dir    var_name)
-
-  #
-  # This is run many times and should produce the same result, which could be cached.
-  # Think about it.
-  execute_process(
-  COMMAND "${PYTHON_EXECUTABLE}" -c "import distutils.sysconfig; print distutils.sysconfig.get_python_lib(prefix='')"
-  RESULT_VARIABLE proc_success
-  OUTPUT_VARIABLE python_site_packages
-  )
-  # Returns something like "lib/python2.7/dist-packages"
-
-  if(NOT ${proc_success} EQUAL 0)
-    message(FATAL_ERROR "Request for python site-packages location failed with error code: ${proc_success}")
-  else()
-    string(STRIP "${python_site_packages}" python_site_packages)
-  endif()
-
-  # Current usage determines most of the path in alternate ways.
-  # All we need to supply is the '*-packages' directory name.
-  # Customers could be converted to accept a larger part of the path from this function.
-  string( REGEX MATCH "dist-packages" result ${python_site_packages} )
-  if (result)
-    set( python_site_packages dist-packages)
-  else()
-    set( python_site_packages site-packages)
-  endif()
-
-  set( ${var_name} ${python_site_packages} PARENT_SCOPE )
-endfunction()
 
 ###
 #
 function (sprokit_add_python_library    name    modpath)
   _sprokit_create_safe_modpath("${modpath}" safe_modpath)
 
-  _sprokit_python_site_package_dir( python_site_packages )
+  _kwiver_python_site_package_dir( python_site_packages )
 
   set(library_subdir "/${sprokit_python_subdir}")
   set(library_subdir_suffix "/${python_site_packages}/${modpath}")
@@ -138,12 +103,18 @@ function (sprokit_add_python_library    name    modpath)
 
 endfunction ()
 
+
 ###
 #
-function (sprokit_add_python_module_int    path     modpath    module)
+# SeeAlso:
+#     kwiver/CMake/utils/kwiver-utils-python.cmake
+#     sprokit/conf/sprokit-macro-python-tests.cmake
+#
+function (sprokit_add_python_module    path     modpath    module)
+
   _sprokit_create_safe_modpath("${modpath}" safe_modpath)
 
-  _sprokit_python_site_package_dir( python_site_packages )
+  _kwiver_python_site_package_dir( python_site_packages )
   set(python_sitepath /${python_site_packages})
 
   set(python_arch)
@@ -207,16 +178,73 @@ function (sprokit_add_python_module_int    path     modpath    module)
       )
 
   add_dependencies(python
-    "configure-${python_configure_id}")
+      "configure-${python_configure_id}")
 endfunction ()
+
 
 ###
 #
-function (sprokit_add_python_module   path   modpath   module)
-  sprokit_add_python_module_int("${path}"
-    "${modpath}"
-    "${module}")
+# similar to sprokit_add_python_module, but for non-python resource files
+#
+# Configures the resouce to the python build and install dir
+#
+function (sprokit_add_python_resource    fname     modpath)
+
+  _sprokit_create_safe_modpath("${modpath}" safe_modpath)
+
+  _kwiver_python_site_package_dir( python_site_packages )
+  set(python_sitepath /${python_site_packages})
+
+
+  set(python_arch)
+  set(python_noarchdir)
+
+  if (WIN32)
+    if (python_noarch)
+      return ()
+    else ()
+      set(python_install_path lib)
+    endif ()
+  else ()
+    if (python_noarch)
+      set(python_noarchdir /noarch)
+      set(python_install_path lib)
+      set(python_arch u)
+    else ()
+      set(python_install_path "lib${LIB_SUFFIX}")
+    endif ()
+  endif ()
+
+  if (CMAKE_CONFIGURATION_TYPES)
+    set(sprokit_configure_cmake_args
+      "\"-Dconfig=${CMAKE_CFG_INTDIR}/\"")
+    set(sprokit_configure_extra_dests
+      "${sprokit_python_output_path}/\${config}/${sprokit_python_subdir}${python_noarchdir}${python_sitepath}/${modpath}/${fname}")
+  endif ()
+
+  set(configure_id "${safe_modpath}-${fname}")
+  set(resource_id "${fname}")
+
+  set(in_fpath "${CMAKE_CURRENT_SOURCE_DIR}/${fname}")
+  set(out_fpath "${sprokit_python_output_path}/${sprokit_python_subdir}${python_noarchdir}${python_sitepath}/${modpath}/${fname}")
+  set(pypkg_install_dpath "${python_install_path}/${sprokit_python_subdir}${python_sitepath}/${modpath}")
+
+  sprokit_configure_file_w_uid("${configure_id}"
+    "${resource_id}"
+    "${in_fpath}"
+    "${out_fpath}"
+    ${ARGN})
+
+  # Force installation of the test into the tests module
+  install(
+      FILES       "${out_fpath}"
+      DESTINATION "${pypkg_install_dpath}"
+      COMPONENT   runtime
+      )
+
+  add_dependencies(python "configure-${configure_id}")
 endfunction ()
+
 
 ###
 #
@@ -242,10 +270,11 @@ function (sprokit_create_python_init    modpath)
       "from ${module} import *\n")
   endforeach ()
 
-  sprokit_add_python_module_int("${init_template}"
+  sprokit_add_python_module("${init_template}"
     "${modpath}"
     __init__)
 endfunction ()
+
 
 ###
 #
@@ -270,7 +299,7 @@ function (sprokit_create_python_plugin_init modpath)
   file(APPEND "${init_template}"
     "__path__ = extend_path(__path__, __name__)\n")
 
-  sprokit_add_python_module_int("${init_template}"
+  sprokit_add_python_module("${init_template}"
     "${modpath}"
     __init__)
 endfunction ()

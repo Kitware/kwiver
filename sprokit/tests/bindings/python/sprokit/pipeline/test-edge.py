@@ -119,19 +119,18 @@ def test_datum_api_calls():
 
 
 if __name__ == '__main__':
-    import os
+    r"""
+    CommandLine:
+        python -m sprokit.tests.test-edge
+    """
+    import pytest
     import sys
-
-    if not len(sys.argv) == 4:
-        test_error("Expected three arguments")
-        sys.exit(1)
-
-    testname = sys.argv[1]
-
-    os.chdir(sys.argv[2])
-
-    sys.path.append(sys.argv[3])
-
-    from sprokit.test.test import *
-
-    run_test(testname, find_tests(locals()))
+    argv = list(sys.argv[1:])
+    if len(argv) > 0 and argv[0] in vars():
+        # If arg[0] is a function in this file put it in pytest format
+        argv[0] = __file__ + '::' + argv[0]
+        argv.append('-s')  # dont capture stdout for single tests
+    else:
+        # ensure args refer to this file
+        argv.insert(0, __file__)
+    pytest.main(argv)

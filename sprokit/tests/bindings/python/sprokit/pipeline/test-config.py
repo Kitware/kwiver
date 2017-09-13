@@ -31,9 +31,9 @@
 
 def test_import():
     try:
-        import sprokit.pipeline.config
+        import sprokit.pipeline.config  # NOQA
     except:
-        test_error("Failed to import the config module")
+        raise AssertionError("Failed to import the config module")
 
 
 def test_create():
@@ -42,7 +42,7 @@ def test_create():
     try:
         config.empty_config()
     except:
-        test_error("Failed to create an empty configuration")
+        raise AssertionError("Failed to create an empty configuration")
 
     config.ConfigKey()
     config.ConfigKeys()
@@ -70,10 +70,10 @@ def test_has_value():
     c.set_value(keya, valuea)
 
     if not c.has_value(keya):
-        test_error("Block does not have value which was set")
+        raise AssertionError("Block does not have value which was set")
 
     if c.has_value(keyb):
-        test_error("Block has value which was not set")
+        raise AssertionError("Block has value which was not set")
 
 
 def test_get_value():
@@ -90,7 +90,7 @@ def test_get_value():
     get_valuea = c.get_value(keya)
 
     if not valuea == get_valuea:
-        test_error("Did not retrieve value that was set")
+        raise AssertionError("Did not retrieve value that was set")
 
 
 def test_get_value_nested():
@@ -110,11 +110,12 @@ def test_get_value_nested():
     get_valuea = nc.get_value(keyb)
 
     if not valuea == get_valuea:
-        test_error("Did not retrieve value that was set")
+        raise AssertionError("Did not retrieve value that was set")
 
 
 def test_get_value_no_exist():
     from sprokit.pipeline import config
+    from sprokit.test.test import expect_exception
 
     c = config.empty_config()
 
@@ -129,11 +130,12 @@ def test_get_value_no_exist():
     get_valueb = c.get_value(keyb, valueb)
 
     if not valueb == get_valueb:
-        test_error("Did not retrieve default when requesting unset value")
+        raise AssertionError("Did not retrieve default when requesting unset value")
 
 
 def test_unset_value():
     from sprokit.pipeline import config
+    from sprokit.test.test import expect_exception
 
     c = config.empty_config()
 
@@ -154,7 +156,7 @@ def test_unset_value():
     get_valueb = c.get_value(keyb)
 
     if not valueb == get_valueb:
-        test_error("Did not retrieve value when requesting after an unrelated unset")
+        raise AssertionError("Did not retrieve value when requesting after an unrelated unset")
 
 
 def test_available_values():
@@ -174,17 +176,18 @@ def test_available_values():
     avail = c.available_values()
 
     if not len(avail) == 2:
-        test_error("Did not retrieve correct number of keys")
+        raise AssertionError("Did not retrieve correct number of keys")
 
     try:
         for val in avail:
             pass
     except:
-        test_error("Available values is not iterable")
+        raise AssertionError("Available values is not iterable")
 
 
 def test_read_only():
     from sprokit.pipeline import config
+    from sprokit.test.test import expect_exception
 
     c = config.empty_config()
 
@@ -203,11 +206,12 @@ def test_read_only():
     get_valuea = c.get_value(keya)
 
     if not valuea == get_valuea:
-        test_error("Read only value changed")
+        raise AssertionError("Read only value changed")
 
 
 def test_read_only_unset():
     from sprokit.pipeline import config
+    from sprokit.test.test import expect_exception
 
     c = config.empty_config()
 
@@ -225,7 +229,7 @@ def test_read_only_unset():
     get_valuea = c.get_value(keya)
 
     if not valuea == get_valuea:
-        test_error("Read only value was unset")
+        raise AssertionError("Read only value was unset")
 
 
 def test_subblock():
@@ -253,15 +257,15 @@ def test_subblock():
     get_valuea = d.get_value(keya)
 
     if not valuea == get_valuea:
-        test_error("Subblock does not inherit expected keys")
+        raise AssertionError("Subblock does not inherit expected keys")
 
     get_valueb = d.get_value(keyb)
 
     if not valueb == get_valueb:
-        test_error("Subblock does not inherit expected keys")
+        raise AssertionError("Subblock does not inherit expected keys")
 
     if d.has_value(keyc):
-        test_error("Subblock inherited unrelated key")
+        raise AssertionError("Subblock inherited unrelated key")
 
 
 def test_subblock_view():
@@ -286,24 +290,24 @@ def test_subblock_view():
     d = c.subblock_view(block1)
 
     if not d.has_value(keya):
-        test_error("Subblock does not inherit expected keys")
+        raise AssertionError("Subblock does not inherit expected keys")
 
     if d.has_value(keyb):
-        test_error("Subblock inherited unrelated key")
+        raise AssertionError("Subblock inherited unrelated key")
 
     c.set_value(block1 + config.Config.block_sep + keya, valueb)
 
     get_valuea1 = d.get_value(keya)
 
     if not valueb == get_valuea1:
-        test_error("Subblock view persisted a changed value")
+        raise AssertionError("Subblock view persisted a changed value")
 
     d.set_value(keya, valuea)
 
     get_valuea2 = d.get_value(keya)
 
     if not valuea == get_valuea2:
-        test_error("Subblock view set value was not changed in parent")
+        raise AssertionError("Subblock view set value was not changed in parent")
 
 
 def test_merge_config():
@@ -331,21 +335,22 @@ def test_merge_config():
     get_valuea = c.get_value(keya)
 
     if not valuea == get_valuea:
-        test_error("Unmerged key changed")
+        raise AssertionError("Unmerged key changed")
 
     get_valueb = c.get_value(keyb)
 
     if not valueb == get_valueb:
-        test_error("Conflicting key was not overwritten")
+        raise AssertionError("Conflicting key was not overwritten")
 
     get_valuec = c.get_value(keyc)
 
     if not valuec == get_valuec:
-        test_error("New key did not appear")
+        raise AssertionError("New key did not appear")
 
 
 def test_dict():
     from sprokit.pipeline import config
+    from sprokit.test.test import expect_exception
 
     c = config.empty_config()
 
@@ -353,24 +358,24 @@ def test_dict():
     value = 'oldvalue'
 
     if key in c:
-        test_error("'%s' is in an empty config" % key)
+        raise AssertionError("'%s' is in an empty config" % key)
 
     if c:
-        test_error("An empty config is not falsy")
+        raise AssertionError("An empty config is not falsy")
 
     c[key] = value
 
     if not c[key] == value:
-        test_error("Value was not set")
+        raise AssertionError("Value was not set")
 
     if key not in c:
-        test_error("'%s' is not in config after insertion" % key)
+        raise AssertionError("'%s' is not in config after insertion" % key)
 
     if not len(c) == 1:
-        test_error("The len() operator is incorrect")
+        raise AssertionError("The len() operator is incorrect")
 
     if not c:
-        test_error("A non-empty config is not truthy")
+        raise AssertionError("A non-empty config is not truthy")
 
     value = 'newvalue'
     origvalue = 'newvalue'
@@ -380,7 +385,7 @@ def test_dict():
     value = 'replacedvalue'
 
     if not c[key] == origvalue:
-        test_error("Value was overwritten")
+        raise AssertionError("Value was overwritten")
 
     del c[key]
 
@@ -395,23 +400,22 @@ def test_dict():
     c[key] = value
 
     if not c[key] == str(value):
-        test_error("Value was not converted to a string")
+        raise AssertionError("Value was not converted to a string")
 
 
 if __name__ == '__main__':
-    import os
+    r"""
+    CommandLine:
+        python -m sprokit.tests.test-config
+    """
+    import pytest
     import sys
-
-    if not len(sys.argv) == 4:
-        test_error("Expected three arguments")
-        sys.exit(1)
-
-    testname = sys.argv[1]
-
-    os.chdir(sys.argv[2])
-
-    sys.path.append(sys.argv[3])
-
-    from sprokit.test.test import *
-
-    run_test(testname, find_tests(locals()))
+    argv = list(sys.argv[1:])
+    if len(argv) > 0 and argv[0] in vars():
+        # If arg[0] is a function in this file put it in pytest format
+        argv[0] = __file__ + '::' + argv[0]
+        argv.append('-s')  # dont capture stdout for single tests
+    else:
+        # ensure args refer to this file
+        argv.insert(0, __file__)
+    pytest.main(argv)

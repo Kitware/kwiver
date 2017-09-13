@@ -34,7 +34,7 @@ def test_import():
         from sprokit.pipeline import config
         import sprokit.pipeline.scheduler_factory
     except:
-        test_error("Failed to import the scheduler_factory module")
+        raise AssertionError("Failed to import the scheduler_factory module")
 
 
 def test_create():
@@ -96,15 +96,15 @@ def example_scheduler(check_init):
 
         def __del__(self):
             if not self.ran_start:
-                test_error("start override was not called")
+                raise AssertionError("start override was not called")
             if not self.ran_wait:
-                test_error("wait override was not called")
+                raise AssertionError("wait override was not called")
             if not self.ran_stop:
-                test_error("stop override was not called")
+                raise AssertionError("stop override was not called")
             if not self.ran_pause:
-                test_error("pause override was not called")
+                raise AssertionError("pause override was not called")
             if not self.ran_resume:
-                test_error("resume override was not called")
+                raise AssertionError("resume override was not called")
 
     return PythonExample
 
@@ -123,7 +123,7 @@ def test_register():
     scheduler_factory.add_scheduler(sched_type, sched_desc, example_scheduler(True))
 
     if not sched_desc == scheduler_factory.description(sched_type):
-        test_error("Description was not preserved when registering")
+        raise AssertionError("Description was not preserved when registering")
 
     p = pipeline.Pipeline()
 
@@ -132,7 +132,7 @@ def test_register():
         if s is None:
             raise Exception()
     except:
-        test_error("Could not create newly registered scheduler type")
+        raise AssertionError("Could not create newly registered scheduler type")
 
 
 def test_wrapper_api():
@@ -160,7 +160,7 @@ def test_wrapper_api():
 
     def check_scheduler(s):
         if s is None:
-            test_error("Got a 'None' scheduler")
+            raise AssertionError("Got a 'None' scheduler")
             return
 
         s.start()
@@ -180,19 +180,18 @@ def test_wrapper_api():
 
 
 if __name__ == '__main__':
-    import os
+    r"""
+    CommandLine:
+        python -m sprokit.tests.test-scheduler_registry
+    """
+    import pytest
     import sys
-
-    if not len(sys.argv) == 4:
-        test_error("Expected three arguments")
-        sys.exit(1)
-
-    testname = sys.argv[1]
-
-    os.chdir(sys.argv[2])
-
-    sys.path.append(sys.argv[3])
-
-    from sprokit.test.test import *
-
-    run_test(testname, find_tests(locals()))
+    argv = list(sys.argv[1:])
+    if len(argv) > 0 and argv[0] in vars():
+        # If arg[0] is a function in this file put it in pytest format
+        argv[0] = __file__ + '::' + argv[0]
+        argv.append('-s')  # dont capture stdout for single tests
+    else:
+        # ensure args refer to this file
+        argv.insert(0, __file__)
+    pytest.main(argv)

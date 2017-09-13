@@ -30,6 +30,7 @@ if ( NOT TARGET configure)
 add_custom_target(configure ALL)
 endif()
 
+
 function (int_sprokit_configure_file name source dest)
   file(WRITE "${configure_script}"
     "# Configure script for \"${source}\" -> \"${dest}\"\n")
@@ -72,6 +73,9 @@ configure_file(
       ADDITIONAL_MAKE_CLEAN_FILES "${clean_files}")
 endfunction ()
 
+
+###
+# Core configuration logic
 function (sprokit_configure_file_w_uid uid name source dest)
   set(configure_script
     "${CMAKE_CURRENT_BINARY_DIR}/configure.${name}.cmake")
@@ -160,12 +164,14 @@ function (sprokit_configure_file name source dest)
   sprokit_configure_file_w_uid(${name} ${name} "${source}" "${dest}" ${ARGN})
 endfunction ()
 
+
 function (sprokit_configure_file_always name source dest)
   set(extra_output
     "${dest}.noexist")
 
   sprokit_configure_file(${name} "${source}" "${dest}" ${ARGN})
 endfunction ()
+
 
 function (sprokit_configure_directory name sourcedir destdir)
   set(no_configure_target TRUE)

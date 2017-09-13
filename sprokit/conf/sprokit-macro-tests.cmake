@@ -44,6 +44,13 @@ if (SPROKIT_TEST_ADD_TARGETS)
   add_custom_target(tests)
 endif ()
 
+
+###
+# Declares a test grouping. Use this when a test is not built using
+# `sprokit_build_test`.
+#
+# This is almost the exact same function as kwiver_declare_test, can we use
+# that instead? the only difference is <PKG>_TEST_ADD_TARGETS.
 function (sprokit_declare_test name)
   if (NOT SPROKIT_TEST_ADD_TARGETS)
     return()
@@ -54,6 +61,20 @@ function (sprokit_declare_test name)
     "tests-${name}")
 endfunction ()
 
+
+###
+#
+# Builds a test and declares the test as well. The library passed as
+# libraryvar should contain the list of libraries to link.
+#
+# Args:
+#    name :
+#    libraryvar :
+#    *ARGN : source files that will be built as a test
+#
+# This is almost the exact same function as kwiver_build_test, can we use
+# that instead? the only difference is <pkg>_test_output_path and
+# <pkg>_declare_test
 function (sprokit_build_test name libraries)
   add_executable(test-${name} ${ARGN})
   set_target_properties(test-${name}
@@ -65,7 +86,22 @@ function (sprokit_build_test name libraries)
   sprokit_declare_test(${name})
 endfunction ()
 
+
+###
+# Adds a test to run. This runs the executable test-${name} with the
+# arguments ${instance} ${ARGN}. If enabled, it adds a target named
+# test-${name}-${instance} to be run by the build if wanted.
+#
+# Args:
+#     name :
+#     instance :
+#     *ARGN : additional command line args to be passed to the test
+#
+# SeeAlso:
+#     kwiver/CMake/utils/kwiver-utils-tests.cmake
+#
 function (sprokit_add_test name instance)
+  # TODO: Should this function be replaed by kwiver_add_test?
   if (TARGET test-${name})
     set(test_path "$<TARGET_FILE:test-${name}>")
   elseif (CMAKE_CONFIGURATION_TYPES)
@@ -74,8 +110,10 @@ function (sprokit_add_test name instance)
     set(test_path "${sprokit_test_output_path}/test-${name}")
   endif ()
 
+  set(test_name test-${name}-${instance})
+
   add_test(
-    NAME    test-${name}-${instance}
+    NAME    ${test_name}
     COMMAND ${sprokit_test_runner}
             "${test_path}"
             ${instance}

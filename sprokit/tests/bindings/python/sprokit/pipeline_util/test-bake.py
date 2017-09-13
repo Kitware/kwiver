@@ -29,16 +29,19 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-def test_import(path_unused):
+def test_import():
     try:
-        import sprokit.pipeline_util.bake
+        import sprokit.pipeline_util.bake  # NOQA
     except:
-        test_error("Failed to import the bake module")
+        raise AssertionError("Failed to import the bake module")
 
 
-def test_simple_pipeline(path):
-    from sprokit.pipeline import config
-    from sprokit.pipeline import pipeline
+def test_simple_pipeline():
+    from sprokit.test import test
+    path = test.grab_test_pipeline_file('simple_pipeline.pipe')
+
+    from sprokit.pipeline import config  # NOQA
+    from sprokit.pipeline import pipeline  # NOQA
     from sprokit.pipeline import modules
     from sprokit.pipeline_util import bake
     from sprokit.pipeline_util import load
@@ -54,9 +57,12 @@ def test_simple_pipeline(path):
     bake.extract_configuration(blocks)
 
 
-def test_cluster_multiplier(path):
+def test_cluster_multiplier():
+    from sprokit.test import test
+    path = test.grab_test_pipeline_file('cluster_multiplier.pipe')
+
     from sprokit.pipeline import config
-    from sprokit.pipeline import pipeline
+    from sprokit.pipeline import pipeline  # NOQA
     from sprokit.pipeline import modules
     from sprokit.pipeline_util import bake
     from sprokit.pipeline_util import load
@@ -81,23 +87,18 @@ def test_cluster_multiplier(path):
 
 
 if __name__ == '__main__':
-    import os
+    r"""
+    CommandLine:
+        python -m sprokit.tests.test-bake
+    """
+    import pytest
     import sys
-
-    if not len(sys.argv) == 5:
-        test_error("Expected four arguments")
-        sys.exit(1)
-
-    testname = sys.argv[1]
-
-    os.chdir(sys.argv[2])
-
-    sys.path.append(sys.argv[3])
-
-    pipeline_dir = sys.argv[4]
-
-    path = os.path.join(pipeline_dir, '%s.pipe' % testname)
-
-    from sprokit.test.test import *
-
-    run_test(testname, find_tests(locals()), path)
+    argv = list(sys.argv[1:])
+    if len(argv) > 0 and argv[0] in vars():
+        # If arg[0] is a function in this file put it in pytest format
+        argv[0] = __file__ + '::' + argv[0]
+        argv.append('-s')  # dont capture stdout for single tests
+    else:
+        # ensure args refer to this file
+        argv.insert(0, __file__)
+    pytest.main(argv)

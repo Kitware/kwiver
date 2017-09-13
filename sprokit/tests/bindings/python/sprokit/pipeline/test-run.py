@@ -27,6 +27,16 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+import pytest
+
+VALID_SCHEDULERS = ['pythread_per_process', 'sync', 'thread_per_process']
+
+
+def paramatarize_scheduler(func):
+    # replaces ctest timeout
+    func = pytest.mark.timeout(5)(func)
+    func = pytest.mark.parametrize('sched_type', VALID_SCHEDULERS)(func)
+    return func
 
 
 def make_source(conf):
@@ -142,7 +152,7 @@ def check_file(fname, expect):
         num_expect = len(expect)
 
         if not num_ints == num_expect:
-            test_error("Got %d results when %d were expected." % (num_ints, num_expect))
+            raise AssertionError("Got %d results when %d were expected." % (num_ints, num_expect))
 
         res = list(zip(ints, expect))
 
@@ -150,10 +160,11 @@ def check_file(fname, expect):
 
         for i, e in res:
             if not i == e:
-                test_error("Result %d is %d, where %d was expected" % (line, i, e))
+                raise AssertionError("Result %d is %d, where %d was expected" % (line, i, e))
             line += 1
 
 
+@paramatarize_scheduler
 def test_python_to_python(sched_type):
     from sprokit.pipeline import config
     from sprokit.pipeline import pipeline
@@ -199,6 +210,7 @@ def test_python_to_python(sched_type):
     check_file(output_file, list(range(min, max)))
 
 
+@paramatarize_scheduler
 def test_cpp_to_python(sched_type):
     from sprokit.pipeline import config
     from sprokit.pipeline import pipeline
@@ -243,6 +255,7 @@ def test_cpp_to_python(sched_type):
     check_file(output_file, list(range(min, max)))
 
 
+@paramatarize_scheduler
 def test_python_to_cpp(sched_type):
     from sprokit.pipeline import config
     from sprokit.pipeline import pipeline
@@ -287,6 +300,7 @@ def test_python_to_cpp(sched_type):
     check_file(output_file, list(range(min, max)))
 
 
+@paramatarize_scheduler
 def test_python_via_cpp(sched_type):
     from sprokit.pipeline import config
     from sprokit.pipeline import pipeline
@@ -362,19 +376,25 @@ def test_python_via_cpp(sched_type):
 
 
 if __name__ == '__main__':
-    import os
+    r"""
+    CommandLine:
+        pytest --pyargs sprokit.tests
+        pytest --pyargs sprokit.tests.test-run
+
+        python -m sprokit.tests.test-run
+        python -m sprokit.tests.test-run test_python_to_python --collect-only
+        python -m sprokit.tests.test-run test_python_to_python[sync] --collect-only
+
+    """
     import sys
-
-    if not len(sys.argv) == 4:
-        test_error("Expected three arguments. \"name-of-test\" \"new cwd\" \"python path to add\"")
-        sys.exit(1)
-
-    (testname, sched_type) = tuple(sys.argv[1].split('-', 1))
-
-    os.chdir(sys.argv[2])
-
-    sys.path.append(sys.argv[3])
-
-    from sprokit.test.test import *
-
-    run_test(testname, find_tests(locals()), sched_type)
+    argv = list(sys.argv[1:])
+    # split argv[0] in case it is paramatarized
+    if len(argv) > 0 and argv[0].split('[')[0] in vars():
+        # If arg[0] is a function in this file put it in pytest format
+        argv[0] = __file__ + '::' + argv[0]
+        argv.append('-s')  # dont capture stdout for single tests
+    else:
+        # ensure args refer to this file
+        argv.insert(0, __file__)
+    print('argv = {!r}'.format(argv))
+    pytest.main(argv)

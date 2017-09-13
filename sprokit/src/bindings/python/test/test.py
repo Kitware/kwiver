@@ -26,6 +26,11 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""
+Helpers for sprokit tests
+"""
+from os.path import dirname, exists, join
+import pytest
 
 
 def find_tests(scope):
@@ -39,13 +44,46 @@ def find_tests(scope):
     return tests
 
 
+def find_sprokit_test_pipelines_directory():
+    """
+    Uses a configured file to locate kwiver/sprokit/tests/data/pipelines
+    """
+    # Path to the file which will contain the directory name
+    dir_location_fpath = join(dirname(__file__), 'pipeline_dir.txt')
+    if not exists(dir_location_fpath):
+        raise Exception('unable to find pipeline_dir.txt location')
+    with open(dir_location_fpath, 'r') as file:
+        pipeline_dir = file.read().strip()
+    return pipeline_dir
+
+
+def grab_test_pipeline_file(pipeline_fname):
+    """ Gets a particular pipeline in the """
+    pipeline_dir = find_sprokit_test_pipelines_directory()
+    if not exists(pipeline_dir):
+        import sys
+        msg = (
+            'Did the source dir move? '
+            'pipeline_dir={} does not exist.'.format(pipeline_dir))
+        if getattr(sys, '_called_from_test', False):
+            pytest.skip(msg)
+        else:
+            raise AssertionError(msg)
+    path = join(pipeline_dir, pipeline_fname)
+    return path
+
+
 def test_error(msg):
+    """ Depricate in favor of python exceptions """
     import sys
 
-    sys.stderr.write("Error: %s\n" % msg)
+    err_msg = "Error: %s\n" % msg
+    sys.stderr.write(err_msg)
+    raise AssertionError(err_msg)
 
 
 def expect_exception(action, kind, func, *args, **kwargs):
+    """ Depricate in favor of `pytest.raises` """
     got_exception = False
 
     try:
@@ -68,34 +106,13 @@ def expect_exception(action, kind, func, *args, **kwargs):
         bt = sys.exc_info()[2]
         bt_str = ''.join(traceback.format_tb(bt))
 
-        test_error("Got unexpected exception: %s: %s:\n%s" % (str(t.__name__), str(e), bt_str))
+        raise AssertionError("Got unexpected exception: %s: %s:\n%s" % (str(t.__name__), str(e), bt_str))
 
         got_exception = True
     except:
-        test_error("Got non-standard exception")
+        raise AssertionError("Got non-standard exception")
 
         got_exception = True
 
     if not got_exception:
-        test_error("Did not get exception when %s" % action)
-
-
-def run_test(testname, tests, *args, **kwargs):
-    if testname not in tests:
-        import sys
-
-        test_error("No such test '%s'" % testname)
-
-        sys.exit(1)
-
-    try:
-        tests[testname](*args, **kwargs)
-    except BaseException:
-        import sys
-        import traceback
-
-        e = sys.exc_info()[1]
-        bt = sys.exc_info()[2]
-        bt_str = ''.join(traceback.format_tb(bt))
-
-        test_error("Unexpected exception: %s:\n%s" % (str(e), bt_str))
+        raise AssertionError("Did not get exception when %s" % action)

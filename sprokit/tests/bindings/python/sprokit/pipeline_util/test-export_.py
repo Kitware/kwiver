@@ -27,19 +27,22 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+import os
 
 
-def test_import(path_unused):
+def test_import():
     try:
-        import sprokit.pipeline_util.export_
+        import sprokit.pipeline_util.export_  # NOQA
     except:
-        test_error("Failed to import the export_ module")
+        raise AssertionError("Failed to import the export_ module")
 
 
-def test_simple_pipeline(path):
-    import os
+def test_simple_pipeline():
+    # Try and find the pipeline directory
+    from sprokit.test import test
+    path = test.grab_test_pipeline_file('simple_pipeline.pipe')
 
-    from sprokit.pipeline import pipeline
+    from sprokit.pipeline import pipeline  # NOQA
     from sprokit.pipeline import modules
     from sprokit.pipeline_util import bake
     from sprokit.pipeline_util import export_
@@ -62,23 +65,18 @@ def test_simple_pipeline(path):
 
 
 if __name__ == '__main__':
-    import os
+    r"""
+    CommandLine:
+        python -m sprokit.tests.test-export_
+    """
+    import pytest
     import sys
-
-    if not len(sys.argv) == 5:
-        test_error("Expected four arguments")
-        sys.exit(1)
-
-    testname = sys.argv[1]
-
-    os.chdir(sys.argv[2])
-
-    sys.path.append(sys.argv[3])
-
-    pipeline_dir = sys.argv[4]
-
-    path = os.path.join(pipeline_dir, '%s.pipe' % testname)
-
-    from sprokit.test.test import *
-
-    run_test(testname, find_tests(locals()), path)
+    argv = list(sys.argv[1:])
+    if len(argv) > 0 and argv[0] in vars():
+        # If arg[0] is a function in this file put it in pytest format
+        argv[0] = __file__ + '::' + argv[0]
+        argv.append('-s')  # dont capture stdout for single tests
+    else:
+        # ensure args refer to this file
+        argv.insert(0, __file__)
+    pytest.main(argv)

@@ -12,11 +12,13 @@ cmake_dependent_option(SPROKIT_VALGRIND_VERBOSE "Make valgrind verbose" OFF
 cmake_dependent_option(SPROKIT_VALGRIND_USE_SUPPRESSIONS "Suppress known leaks in valgrind" ON
   VALGRIND_EXECUTABLE OFF)
 
+
 function (_sprokit_declare_tool_group tool)
   add_custom_target(${tool})
   add_dependencies(tooling
     ${tool})
 endfunction ()
+
 
 if (VALGRIND_EXECUTABLE)
   set(sprokit_valgrind_arguments)
@@ -61,11 +63,13 @@ if (GPROF_EXECUTABLE)
   _sprokit_declare_tool_group(gprof)
 endif ()
 
+
 function (_sprokit_declare_tool_test tool test)
   add_custom_target(${tool}-${test})
   add_dependencies(${tool}
     ${tool}-${test})
 endfunction ()
+
 
 function (_sprokit_declare_tooled_test test)
   if (VALGRIND_EXECUTABLE)
@@ -84,16 +88,34 @@ function (_sprokit_declare_tooled_test test)
   endif ()
 endfunction ()
 
+
+###
+#
+# SeeAlso:
+#     ../conf/sprokit-macro-tests.cmake
+#
 function (sprokit_declare_tooled_test test)
   sprokit_declare_test(${test})
   _sprokit_declare_tooled_test(${test})
 endfunction ()
+
 
 function (sprokit_build_tooled_test test libraries)
   sprokit_build_test(${test} ${libraries} ${ARGN})
   _sprokit_declare_tooled_test(${test})
 endfunction ()
 
+
+###
+#
+# Creates a custom target that runs a tooled test.
+#
+# Args:
+#    tool: name of the tool (e.g. cachegrind, gprof, valgrind)
+#    test: group name
+#    instance: specific test name
+#    *ARGN: other args passed to `tool`
+#
 function (_sprokit_add_tooled_test tool test instance)
   add_custom_target(${tool}-${test}-${instance})
   add_custom_command(
@@ -111,6 +133,20 @@ function (_sprokit_add_tooled_test tool test instance)
     ${tool}-${test}-${instance})
 endfunction ()
 
+
+###
+#
+# Registers a test with ctest as well as other debugging and quality
+# assurance tools (hence tooled) such as valgrind, cachegrind, gprof, etc...
+#
+# Args:
+#    test: name of thes test group (rename to group?)
+#    instance: name of the specific test in the group
+#    *ARGN: other args passed to `_sprokit_add_tooled_test`
+#
+# SeeAlso:
+#     ../conf/sprokit-macro-tests.cmake::sprokit_add_test
+#
 function (sprokit_add_tooled_test test instance)
   sprokit_add_test(${test} ${instance} ${ARGN})
 

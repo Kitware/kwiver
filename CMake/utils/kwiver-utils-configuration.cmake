@@ -11,7 +11,9 @@ include(CMakeParseArguments)
 # Top level configuration target
 add_custom_target(kwiver_configure ALL)
 
-#+
+
+###
+#
 # Configure the given sourcefile to the given destfile
 #
 #   kwiver_configure_file( name sourcefile destfile [var1 [var2 ...]]
@@ -34,7 +36,10 @@ add_custom_target(kwiver_configure ALL)
 # ``__SOURCE_PATH__`` are reserved by this method for additional configuration
 # purposes, so don't use them as configuration variables in the file you are
 # trying to configure.
-#-
+#
+# SeeAlso:
+#     kwiver/sprokit/conf/sprokit-macro-configure.cmake
+#
 function(kwiver_configure_file name source dest)
   set(multiValueArgs DEPENDS)
   cmake_parse_arguments(mcf "" "" "${multiValueArgs}" ${ARGN})

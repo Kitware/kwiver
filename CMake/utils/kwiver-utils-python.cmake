@@ -66,40 +66,53 @@ macro (_kwiver_create_safe_modpath    modpath    result)
   string(REPLACE "/" "." "${result}" "${modpath}")
 endmacro ()
 
+
 ###
 #
 # Get canonical directory for python site packages.
 # It varys from system to system.
 #
+# Args:
+#    var_name : out-var that will be populated with the site-packages path
+#
 function ( _kwiver_python_site_package_dir    var_name)
-  #
-  # This is run many times and should produce the same result, which could be cached.
-  # Think about it.
-  execute_process(
-  COMMAND "${PYTHON_EXECUTABLE}" -c "import distutils.sysconfig; print distutils.sysconfig.get_python_lib(prefix='')"
-  RESULT_VARIABLE proc_success
-  OUTPUT_VARIABLE python_site_packages
-  )
-  # Returns something like "lib/python2.7/dist-packages"
-
-  if(NOT ${proc_success} EQUAL 0)
-    message(FATAL_ERROR "Request for python site-packages location failed with error code: ${proc_success}")
+  # This is run many times and should produce the same result, so we cache it
+  if (_prev_python_exe STREQUAL PYTHON_EXECUTABLE)
+    set(python_site_packages ${_prev_python_exe})
   else()
-    string(STRIP "${python_site_packages}" python_site_packages)
+    # Only run this if the python exe has changed
+    execute_process(
+      COMMAND "${PYTHON_EXECUTABLE}" -c "import distutils.sysconfig; print distutils.sysconfig.get_python_lib(prefix='')"
+      RESULT_VARIABLE proc_success
+      OUTPUT_VARIABLE python_site_packages
+    )
+    # Returns something like "lib/python2.7/dist-packages"
+
+    if(NOT ${proc_success} EQUAL 0)
+      message(FATAL_ERROR "Request for python site-packages location failed with error code: ${proc_success}")
+    else()
+      string(STRIP "${python_site_packages}" python_site_packages)
+    endif()
+
+    # Current usage determines most of the path in alternate ways.
+    # All we need to supply is the '*-packages' directory name.
+    # Customers could be converted to accept a larger part of the path from this function.
+    string( REGEX MATCH "dist-packages" result ${python_site_packages} )
+    if (result)
+      set( python_site_packages dist-packages)
+    else()
+      set( python_site_packages site-packages)
+    endif()
+
+    # Cache computed value
+    set(_prev_site_packages "${python_site_packages}" INTERNAL)
+    set(_prev_python_exe "${PYTHON_EXECUTABLE}" INTERNAL)
   endif()
 
-  # Current usage determines most of the path in alternate ways.
-  # All we need to supply is the '*-packages' directory name.
-  # Customers could be converted to accept a larger part of the path from this function.
-  string( REGEX MATCH "dist-packages" result ${python_site_packages} )
-  if (result)
-    set( python_site_packages dist-packages)
-  else()
-    set( python_site_packages site-packages)
-  endif()
-
-  set( ${var_name} ${python_site_packages} PARENT_SCOPE )
+  set(${var_name} ${python_site_packages} PARENT_SCOPE )
 endfunction()
+
+
 
 ###
 #
@@ -135,10 +148,28 @@ function (kwiver_add_python_library    name    modpath)
 
 endfunction ()
 
+
 ###
-# - internal implementation -
 #
-function (kwiver_add_python_module_int    path     modpath    module)
+# kwiver_add_python_module(path modpath module)
+#
+# Installs a pure-Python module into the 'modpath' and puts it into the
+# correct place in the build tree so that it may be used with any built
+# libraries in any build configuration.
+#
+# Args:
+#     path: Path to the python source (e.g. kwiver_process.py)
+#     modpath: Python module path (e.g. kwiver/processes)
+#     module: Python module name. This is the name used to import the code.
+#         (e.g. kwiver_process)
+#
+# SeeAlso:
+#     kwiver/CMake/utils/kwiver-utils-configuration.cmake
+#     ../../sprokit/conf/sprokit-macro-python.cmake
+#     ../../vital/bindings/python/vital/CMakeLists.txt
+#     ../../sprokit/processes/bindings/python/kwiver/CMakeLists.txt
+#     ../../sprokit/processes/bindings/python/kwiver/util/CMakeLists.txt
+function (kwiver_add_python_module path     modpath    module)
   _kwiver_create_safe_modpath("${modpath}" safe_modpath)
 
   _kwiver_python_site_package_dir( python_site_packages )
@@ -192,7 +223,7 @@ function (kwiver_add_python_module_int    path     modpath    module)
 
     if (NOT WIN32)
       # this looks recursive
-      kwiver_add_python_module_int(
+      kwiver_add_python_module(
         "${path}"
         "${modpath}"
         "${module}")
@@ -200,30 +231,13 @@ function (kwiver_add_python_module_int    path     modpath    module)
   endif ()
 endfunction ()
 
-###
-# kwiver_add_python_module
-#
-#     Installs a pure-Python module into the 'modpath' and puts it into the
-#     correct place in the build tree so that it may be used with any built
-#     libraries in any build configuration.
-#
-# \param path Path to the python source
-#
-# \param modpath Python module path (e.g. kwiver/processes)
-#
-# \param module Python module name. This is the name used to import the code.
-#
-function (kwiver_add_python_module   path   modpath   module)
-  kwiver_add_python_module_int("${path}"
-    "${modpath}"
-    "${module}")
-endfunction ()
 
 ###
-#   kwiver_create_python_init(modpath [module ...])
 #
-#     Creates an __init__.py package file which imports the modules in the
-#     arguments for the package.
+# kwiver_create_python_init(modpath [module ...])
+#
+# Creates an __init__.py package file which imports the modules in the
+# arguments for the package.
 #
 function (kwiver_create_python_init    modpath)
   _kwiver_create_safe_modpath("${modpath}" safe_modpath)
@@ -240,12 +254,16 @@ function (kwiver_create_python_init    modpath)
     file(APPEND "${init_template}"      "from ${module} import *\n")
   endforeach ()
 
-  kwiver_add_python_module_int("${init_template}"
+  kwiver_add_python_module("${init_template}"
     "${modpath}"
     __init__)
 endfunction ()
 
+
 ###
+#
+# SeeAlso:
+#     ../../sprokit/processes/python/CMakeLists.txt
 #
 function (kwiver_create_python_plugin_init modpath)
   _kwiver_create_safe_modpath("${modpath}" safe_modpath)
@@ -257,10 +275,11 @@ function (kwiver_create_python_plugin_init modpath)
   endif ()
 
   file(WRITE "${init_template}"     "${copyright_header}\n\n")
+  # TODO: Is pkgutil part needed anymore?
   file(APPEND "${init_template}"    "from pkgutil import extend_path\n")
   file(APPEND "${init_template}"    "__path__ = extend_path(__path__, __name__)\n")
 
-  kwiver_add_python_module_int("${init_template}"
+  kwiver_add_python_module("${init_template}"
     "${modpath}"
     __init__)
 endfunction ()

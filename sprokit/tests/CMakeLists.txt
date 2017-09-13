@@ -20,8 +20,9 @@ include("${sprokit_source_dir}/cmake/support/test.cmake")
 set(sprokit_test_data_directory
   "${CMAKE_CURRENT_SOURCE_DIR}/data")
 
+# IF PYTHON TESTS
 add_subdirectory(bindings)
 
+# IF CPP TESTS
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
-
 add_subdirectory(sprokit)

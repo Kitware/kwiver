@@ -150,6 +150,7 @@ class ModuleLoader(Loader):
             import_path = '.'.join(path_segments)
 
             try:
+                print('import_path = {!r}'.format(import_path))
                 module = import_module(import_path)
             except ImportError as e:
                 print('[DEBUG] Could not import: {} Reason: {}'.format(

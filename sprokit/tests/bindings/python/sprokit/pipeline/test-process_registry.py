@@ -32,9 +32,9 @@
 def test_import():
     try:
         from sprokit.pipeline import config
-        import sprokit.pipeline.process_factory
+        import sprokit.pipeline.process_factory  # NOQA
     except:
-        test_error("Failed to import the process_factory module")
+        raise AssertionError("Failed to import the process_factory module")
 
 
 def test_create():
@@ -80,7 +80,7 @@ def test_api_calls():
 
     cluster_bases = process_factory.ProcessCluster.__bases__
     if not cluster_bases[0] == process_factory.Process:
-        test_error("The cluster class does not inherit from the process class")
+        raise AssertionError("The cluster class does not inherit from the process class")
 
 
 def example_process(check_init):
@@ -177,34 +177,34 @@ def example_process(check_init):
 
         def __del__(self):
             if not self.ran_configure:
-                test_error("_configure override was not called")
+                raise AssertionError("_configure override was not called")
             if not self.ran_init:
-                test_error("_init override was not called")
+                raise AssertionError("_init override was not called")
             if not self.ran_reset:
-                test_error("_reset override was not called")
+                raise AssertionError("_reset override was not called")
             # TODO: See TODO below.
             #if not self.ran_step:
-            #    test_error("_step override was not called")
+            #    raise AssertionError("_step override was not called")
             #if not self.ran_reconfigure:
-            #    test_error("_reconfigure override was not called")
+            #    raise AssertionError("_reconfigure override was not called")
             if not self.ran_properties:
-                test_error("_properties override was not called")
+                raise AssertionError("_properties override was not called")
             if not self.ran_input_ports:
-                test_error("_input_ports override was not called")
+                raise AssertionError("_input_ports override was not called")
             if not self.ran_output_ports:
-                test_error("_output_ports override was not called")
+                raise AssertionError("_output_ports override was not called")
             if not self.ran_input_port_info:
-                test_error("_input_port_info override was not called")
+                raise AssertionError("_input_port_info override was not called")
             if not self.ran_output_port_info:
-                test_error("_output_port_info override was not called")
+                raise AssertionError("_output_port_info override was not called")
             if not self.ran_set_input_port_type:
-                test_error("_set_input_port_type override was not called")
+                raise AssertionError("_set_input_port_type override was not called")
             if not self.ran_set_output_port_type:
-                test_error("_set_output_port_type override was not called")
+                raise AssertionError("_set_output_port_type override was not called")
             if not self.ran_available_config:
-                test_error("_available_config override was not called")
+                raise AssertionError("_available_config override was not called")
             if not self.ran_conf_info:
-                test_error("_conf_info override was not called")
+                raise AssertionError("_conf_info override was not called")
 
     return PythonExample
 
@@ -247,14 +247,14 @@ def test_register():
     process_factory.add_process(proc_type, proc_desc, example_process(True))
 
     if not proc_desc == process_factory.description(proc_type):
-        test_error("Description was not preserved when registering")
+        raise AssertionError("Description was not preserved when registering")
 
     try:
         p = process_factory.create_process(proc_type, process.ProcessName())
         if p is None:
             raise Exception()
     except:
-        test_error("Could not create newly registered process type")
+        raise AssertionError("Could not create newly registered process type")
 
 
 def test_register_cluster():
@@ -269,7 +269,7 @@ def test_register_cluster():
     process_factory.add_process(proc_type, proc_desc, base_example_process_cluster())
 
     if not proc_desc == process_factory.description(proc_type):
-        test_error("Description was not preserved when registering")
+        raise AssertionError("Description was not preserved when registering")
 
     p = None
 
@@ -282,13 +282,14 @@ def test_register_cluster():
 
         e = sys.exc_info()[1]
 
-        test_error("Could not create newly registered process cluster type: %s" % str(e))
+        raise AssertionError("Could not create newly registered process cluster type: %s" % str(e))
 
     if process_cluster.cluster_from_process(p) is None:
-        test_error("A cluster process from the registry was not detected as a cluster process")
+        raise AssertionError("A cluster process from the registry was not detected as a cluster process")
 
 
 def test_wrapper_api():
+    from sprokit.test.test import expect_exception
     from sprokit.pipeline import config
     from sprokit.pipeline import edge
     from sprokit.pipeline import process
@@ -310,7 +311,7 @@ def test_wrapper_api():
 
     def check_process(p):
         if p is None:
-            test_error("Got a 'None' process")
+            raise AssertionError("Got a 'None' process")
             return
 
         p.properties()
@@ -364,19 +365,18 @@ def test_wrapper_api():
 
 
 if __name__ == '__main__':
-    import os
+    r"""
+    CommandLine:
+        python -m sprokit.tests.test-process_registry
+    """
+    import pytest
     import sys
-
-    if not len(sys.argv) == 4:
-        test_error("Expected three arguments")
-        sys.exit(1)
-
-    testname = sys.argv[1]
-
-    os.chdir(sys.argv[2])
-
-    sys.path.append(sys.argv[3])
-
-    from sprokit.test.test import *
-
-    run_test(testname, find_tests(locals()))
+    argv = list(sys.argv[1:])
+    if len(argv) > 0 and argv[0] in vars():
+        # If arg[0] is a function in this file put it in pytest format
+        argv[0] = __file__ + '::' + argv[0]
+        argv.append('-s')  # dont capture stdout for single tests
+    else:
+        # ensure args refer to this file
+        argv.insert(0, __file__)
+    pytest.main(argv)

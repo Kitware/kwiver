@@ -94,7 +94,14 @@ function (kwiver_build_test name libraries)
 endfunction ()
 
 # ------------------------------------------------------------------
+###
+#
+# SeeAlso:
+#     kwiver/sprokit/conf/sprokit-macro-tests.cmake
+#
 function (kwiver_add_test name instance)
+  # TODO: Should this function replace sprokit_add_test
+  # TODO: Should test_runner be passed in explicitly?
   if (TARGET test-${name})
     set(test_path "$<TARGET_FILE:test-${name}>")
   elseif (CMAKE_CONFIGURATION_TYPES)
@@ -103,17 +110,19 @@ function (kwiver_add_test name instance)
     set(test_path "${kwiver_test_output_path}/test-${name}")
   endif ()
 
+  set(test_name test-${name}-${instance})
+
   add_test(
-    NAME    test-${name}-${instance}
+    NAME    ${test_name}
     COMMAND ${kwiver_test_runner}
             "${test_path}"
             ${instance}
             ${ARGN})
-  set_tests_properties(test-${name}-${instance}
+  set_tests_properties(${test_name}
     PROPERTIES
       FAIL_REGULAR_EXPRESSION "^Error: ;\nError: ")
   if (kwiver_test_working_path)
-    set_tests_properties(test-${name}-${instance}
+    set_tests_properties(${test_name}
       PROPERTIES
         WORKING_DIRECTORY       "${kwiver_test_working_path}")
   endif ()
@@ -134,7 +143,7 @@ function (kwiver_add_test name instance)
   if (KWIVER_TEST_ADD_TARGETS)
     add_custom_target(test-${name}-${instance})
     add_custom_command(
-      TARGET  test-${name}-${instance}
+      TARGET  ${test_name}
       COMMAND ${kwiver_test_environment}
               ${kwiver_test_runner}
               "${kwiver_test_output_path}/${CMAKE_CFG_INTDIR}/test-${name}"
@@ -143,8 +152,7 @@ function (kwiver_add_test name instance)
       WORKING_DIRECTORY
               "${kwiver_test_working_path}"
       COMMENT "Running test \"${name}\" instance \"${instance}\"")
-    add_dependencies(tests-${name}
-      test-${name}-${instance})
+    add_dependencies(tests-${name} ${test_name})
   endif ()
 endfunction ()
 

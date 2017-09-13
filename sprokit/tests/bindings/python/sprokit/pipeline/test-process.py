@@ -31,9 +31,9 @@
 
 def test_import():
     try:
-        import sprokit.pipeline.process
+        import sprokit.pipeline.process  # NOQA
     except:
-        test_error("Failed to import the process module")
+        raise AssertionError("Failed to import the process module")
 
 
 def test_create():
@@ -113,6 +113,7 @@ def test_api_calls():
 
 
 def test_flags_as_set():
+    from sprokit.test.test import expect_exception
     from sprokit.pipeline import process
 
     # TODO: Make tests more rigorous (check more than just len()).
@@ -127,13 +128,13 @@ def test_flags_as_set():
 
     # length
     if not len(a) == 4:
-        test_error("len() does not work: expected 4, got %d" % len(a))
+        raise AssertionError("len() does not work: expected 4, got %d" % len(a))
 
     # adding duplicate values
     a.add(process.PythonProcess.flag_required)
 
     if not len(a) == 4:
-        test_error(".add() added a duplicate item: expected 4, got %d" % len(a))
+        raise AssertionError(".add() added a duplicate item: expected 4, got %d" % len(a))
 
     # adding invalid objects
     expect_exception('adding a value of an invalid type', TypeError,
@@ -149,9 +150,9 @@ def test_flags_as_set():
 
     # 'in' keyword
     if process.PythonProcess.flag_required not in a:
-        test_error("a value in the set is 'not in' the set")
+        raise AssertionError("a value in the set is 'not in' the set")
     if process.PythonProcess.flag_output_const in a:
-        test_error("a value not in the set is 'in' the set")
+        raise AssertionError("a value not in the set is 'in' the set")
 
     # iteration
     for value in a:
@@ -159,12 +160,12 @@ def test_flags_as_set():
 
     # boolean casting
     if not a:
-        test_error("a non-empty set is False-like")
+        raise AssertionError("a non-empty set is False-like")
 
     b = process.PortFlags()
 
     if b:
-        test_error("an empty set is True-like")
+        raise AssertionError("an empty set is True-like")
 
     # removal
     expect_exception('.pop() on an empty set', KeyError,
@@ -174,27 +175,27 @@ def test_flags_as_set():
     a.discard(process.PythonProcess.flag_output_const)
 
     if not len(a) == 4:
-        test_error(".discard() removed an item not in the set")
+        raise AssertionError(".discard() removed an item not in the set")
 
     a.discard(process.PythonProcess.flag_input_static)
 
     if not len(a) == 3:
-        test_error(".discard() did not remove an item from the set")
+        raise AssertionError(".discard() did not remove an item from the set")
 
     a.remove(process.PythonProcess.flag_input_nodep)
 
     if not len(a) == 2:
-        test_error(".remove() did not remove an item from the set")
+        raise AssertionError(".remove() did not remove an item from the set")
 
     a.pop()
 
     if not len(a) == 1:
-        test_error(".pop() did not remove an item from the set")
+        raise AssertionError(".pop() did not remove an item from the set")
 
     a.clear()
 
     if a:
-        test_error(".clear() did not make a False-like set")
+        raise AssertionError(".clear() did not make a False-like set")
 
     # copy
     b.add(process.PythonProcess.flag_required)
@@ -204,77 +205,76 @@ def test_flags_as_set():
     b.clear()
 
     if not c:
-        test_error(".clear() on a set modified a set created using .copy()")
+        raise AssertionError(".clear() on a set modified a set created using .copy()")
 
     c = b.copy()
 
     b.add(process.PythonProcess.flag_required)
 
     if c:
-        test_error(".add() on a set modified a set created using .copy()")
+        raise AssertionError(".add() on a set modified a set created using .copy()")
 
     # set vs. set queries
     a.add(process.PythonProcess.flag_input_nodep)
     a.add(process.PythonProcess.flag_input_static)
 
     if not b.isdisjoint(a):
-        test_error(".isdisjoint() does not work")
+        raise AssertionError(".isdisjoint() does not work")
     if b.issubset(a):
-        test_error(".issubset() does not work")
+        raise AssertionError(".issubset() does not work")
     if a.issuperset(b):
-        test_error(".issuperset() does not work")
+        raise AssertionError(".issuperset() does not work")
 
     a.add(process.PythonProcess.flag_required)
 
     if b.isdisjoint(a):
-        test_error(".isdisjoint() does not work")
+        raise AssertionError(".isdisjoint() does not work")
     if not b.issubset(a):
-        test_error(".issubset() does not work")
+        raise AssertionError(".issubset() does not work")
     if not a.issuperset(b):
-        test_error(".issuperset() does not work")
+        raise AssertionError(".issuperset() does not work")
 
     u = a.union(b)
 
     if not len(u) == 3:
-        test_error(".union() does not work: expected 3, got %d" % len(u))
+        raise AssertionError(".union() does not work: expected 3, got %d" % len(u))
 
     d = a.difference(b)
 
     if not len(d) == 2:
-        test_error(".difference() does not work: expected 2, got %d" % len(d))
+        raise AssertionError(".difference() does not work: expected 2, got %d" % len(d))
 
     i = a.intersection(b)
 
     if not len(i) == 1:
-        test_error(".intersection() does not work: expected 1, got %d" % len(i))
+        raise AssertionError(".intersection() does not work: expected 1, got %d" % len(i))
 
     b.add(process.PythonProcess.flag_output_const)
 
     s = a.symmetric_difference(b)
 
     if not len(s) == 3:
-        test_error(".symmetric_difference() does not work: expected 3, got %d" % len(s))
+        raise AssertionError(".symmetric_difference() does not work: expected 3, got %d" % len(s))
 
     a.update(b)
 
     if not len(a) == 4:
-        test_error(".update() does not work: expected 4, got %d" % len(a))
+        raise AssertionError(".update() does not work: expected 4, got %d" % len(a))
 
 
 if __name__ == '__main__':
-    import os
+    r"""
+    CommandLine:
+        python -m sprokit.tests.test-process
+    """
+    import pytest
     import sys
-
-    if not len(sys.argv) == 4:
-        test_error("Expected three arguments( test-name, data-dir, path")
-        sys.exit(1)
-
-    testname = sys.argv[1]
-
-    os.chdir(sys.argv[2])
-
-    sys.path.append(sys.argv[3])
-
-    from sprokit.test.test import *
-
-    run_test(testname, find_tests(locals()))
+    argv = list(sys.argv[1:])
+    if len(argv) > 0 and argv[0] in vars():
+        # If arg[0] is a function in this file put it in pytest format
+        argv[0] = __file__ + '::' + argv[0]
+        argv.append('-s')  # dont capture stdout for single tests
+    else:
+        # ensure args refer to this file
+        argv.insert(0, __file__)
+    pytest.main(argv)
