@@ -70,17 +70,21 @@ public:
   /// Check that the algorithm's configuration vital::config_block is valid
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
-  /// Warp an input image with a homography
+  /// Generate homography to stabilize source image
   /**
-   * This method implements warping an image by a homography.
-   * The \p image_src is warped by \p homog and the output pixels are stored in
-   * \image_dest.  If an image passed in as \p image_dest the output will be
-   * written to that memory, if \p image_dest is nullptr then the algorithm will
-   * allocate new image memory for the output.
+   * This method generates a homography \p homog that warps \p image_src to the 
+   * the key frame coordinate system. In other words, \p homog takes image
+   * coordinates from \p image_src and maps them to the key frame coordinate 
+   * system. The first image provided will define the key frame coordinate 
+   * system. If \p image_src deviates too greatly from the current key frame, 
+   * \p image_src will become the new key frame and coordinate_system_updated 
+   * will be set to true.
    *
-   * \param[in]     image_src the source image data to warp
-   * \param[in,out] image_data the destination image to store the warped output
-   * \param[in]     homog homography matrix to apply
+   * \param[in]     ts source image timestamp
+   * \param[in]     image_src source image
+   * \param[in,out] homog homography matrix to apply
+   * \param[in,out] coordinate_system_updated specify whether key frame was 
+   *                updated
    */
   virtual void
   process_image( const kwiver::vital::timestamp& ts,

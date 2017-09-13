@@ -105,7 +105,7 @@ public:
     update_flags();
   }
   
-  // Combined m_inverse and m_interpolation into a flag integer
+  // Combine m_inverse and m_interpolation into a flag integer
   void
   update_flags()
   {
