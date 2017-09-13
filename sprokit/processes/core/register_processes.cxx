@@ -66,6 +66,7 @@
 #include "split_image_process.h"
 #include "stabilize_image_process.h"
 #include "track_features_process.h"
+#include "throttle_image_stream_process.h"
 #include "video_input_process.h"
 #include "write_object_track_process.h"
 #include "write_track_descriptor_process.h"
@@ -414,6 +415,14 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
     ;
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  fact = vpm.ADD_PROCESS( kwiver::throttle_image_stream_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "throttle_image_stream" )
+  .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+  .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Reduces the rate of an image stream." )
+  .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+  ;
+
   sprokit::mark_process_module_as_loaded( vpm, module_name );
 } // register_processes

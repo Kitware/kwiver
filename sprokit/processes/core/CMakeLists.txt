@@ -40,6 +40,7 @@ set( sources
   split_image_process.cxx
   stabilize_image_process.cxx
   track_features_process.cxx
+  throttle_image_stream_process.cxx
   video_input_process.cxx
   write_object_track_process.cxx
   write_track_descriptor_process.cxx
@@ -80,6 +81,7 @@ set( private_headers
   split_image_process.h
   stabilize_image_process.h
   track_features_process.h
+  throttle_image_stream_process.h
   video_input_process.h
   write_object_track_process.h
   write_track_descriptor_process.h
