@@ -41,7 +41,7 @@ namespace kwiver {
 
 // ----------------------------------------------------------------
 /**
- * @brief Image object detector process.
+ * @brief Reduce the frame rate of an image stream.
  *
  */
 class KWIVER_PROCESSES_NO_EXPORT throttle_image_stream_process
