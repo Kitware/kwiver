@@ -104,10 +104,17 @@ function (kwiver_symlink_file name source dest)
     file(REMOVE ${dest})
   endif()
 
+  # Need to ensure the directory exists before we create a symlink there
+  get_filename_component(dest_dir ${dest} DIRECTORY)
+  add_custom_command(
+    OUTPUT  "${dest_dir}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory ${dest_dir}
+    )
+
   add_custom_command(
     OUTPUT  "${dest}"
     COMMAND "${CMAKE_COMMAND}" -E create_symlink ${source} ${dest}
-    DEPENDS "${source}"
+    DEPENDS "${source}" "${dest_dir}"
     COMMENT "Symlink-configuring ${name} file \"${source}\" -> \"${dest}\""
     )
 
