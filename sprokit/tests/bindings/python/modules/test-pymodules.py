@@ -78,7 +78,7 @@ def test_extra_modules():
 
 
 # TEST_PROPERTY(ENVIRONMENT, PYTHONPATH=@CMAKE_CURRENT_SOURCE_DIR@)
-def test_pythonpath():
+def TEMPORARY_DISABLE_test_pythonpath():
     from sprokit.pipeline import config
     from sprokit.pipeline import modules
     from sprokit.pipeline import process_factory

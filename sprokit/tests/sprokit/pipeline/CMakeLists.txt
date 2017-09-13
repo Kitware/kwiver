@@ -164,10 +164,13 @@ endfunction ()
 
 sprokit_add_tooled_run_test(run simple_pipeline)
 
-if (KWIVER_ENABLE_PYTHON)
-  sprokit_add_tooled_run_test(run pysimple_pipeline)
-endif ()
-
 sprokit_add_tooled_run_test(run multiplier_pipeline)
 sprokit_add_tooled_run_test(run multiplier_cluster_pipeline)
 sprokit_add_tooled_run_test(run frequency_pipeline)
+
+if (KWIVER_ENABLE_PYTHON)
+  # currently python nodes must use the pythread_per_process scheduler
+  set(schedulers
+    pythread_per_process)
+  sprokit_add_tooled_run_test(run pysimple_pipeline)
+endif ()
