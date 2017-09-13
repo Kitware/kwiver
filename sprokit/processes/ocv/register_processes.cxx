@@ -36,6 +36,7 @@
 #include "blend_images_process.h"
 #include "crop_image_process.h"
 #include "draw_detected_object_boxes_process.h"
+#include "equalize_histogram_process.h"
 #include "image_viewer_process.h"
 #include "stabilization_inspection_image_process.h"
 #include "show_mask_on_image_process.h"
@@ -76,6 +77,13 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
   fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                         "Crops image to bbox." );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+  
+  fact = vpm.ADD_PROCESS( kwiver::equalize_histogram_process );
+  fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_NAME,  "equalize_histogram" );
+  fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                        "Equalize an image's histogram." );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
   
   fact = vpm.ADD_PROCESS( kwiver::stabilization_inspection_image_process );
