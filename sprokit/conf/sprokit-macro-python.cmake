@@ -8,12 +8,6 @@
 #
 # The following variables may be used to control the behavior of the functions:
 #
-#   sprokit_python_subdir
-#     The subdirectory to use for Python modules (e.g., python2.7).
-#
-#   sprokit_python_output_path
-#     The base output path for Python modules and libraries.
-#
 #   copyright_header
 #     The copyright header to place at the top of generated __init__.py files.
 #
@@ -57,20 +51,11 @@ define_property(GLOBAL PROPERTY kwiver_python_modules
 
 ###
 #
-macro (_sprokit_create_safe_modpath    modpath    result)
-  string(REPLACE "/" "." "${result}" "${modpath}")
-endmacro ()
-
-
-###
-#
 function (sprokit_add_python_library    name    modpath)
-  _sprokit_create_safe_modpath("${modpath}" safe_modpath)
+  _kwiver_create_safe_modpath("${modpath}" safe_modpath)
 
-  _kwiver_python_site_package_dir( python_site_packages )
-
-  set(library_subdir "/${sprokit_python_subdir}")
-  set(library_subdir_suffix "/${python_site_packages}/${modpath}")
+  set(library_subdir "/${kwiver_python_subdir}")
+  set(library_subdir_suffix "/${python_sitename}/${modpath}")
   set(component runtime)
 
   set(no_export ON)
@@ -112,10 +97,7 @@ endfunction ()
 #
 function (sprokit_add_python_module    path     modpath    module)
 
-  _sprokit_create_safe_modpath("${modpath}" safe_modpath)
-
-  _kwiver_python_site_package_dir( python_site_packages )
-  set(python_sitepath /${python_site_packages})
+  _kwiver_create_safe_modpath("${modpath}" safe_modpath)
 
   set(python_arch)
   set(python_noarchdir)
@@ -140,7 +122,7 @@ function (sprokit_add_python_module    path     modpath    module)
     set(sprokit_configure_cmake_args
       "\"-Dconfig=${CMAKE_CFG_INTDIR}/\"")
     set(sprokit_configure_extra_dests
-      "${sprokit_python_output_path}/\${config}/${sprokit_python_subdir}${python_noarchdir}${python_sitepath}/${modpath}/${module}.py")
+      "${sprokit_python_output_path}/\${config}/${kwiver_python_subdir}${python_noarchdir}/${python_sitename}/${modpath}/${module}.py")
   endif ()
 
   if( WIN32 )
@@ -153,8 +135,8 @@ function (sprokit_add_python_module    path     modpath    module)
   endif()
 
   set(pyfile_src "${path}")
-  set(pyfile_dst "${sprokit_python_output_path}/${sprokit_python_subdir}${python_noarchdir}${python_sitepath}/${modpath}/${module}.py")
-  set(pypkg_install_path "${python_install_path}/${sprokit_python_subdir}${python_sitepath}/${modpath}")
+  set(pyfile_dst "${sprokit_python_output_path}/${sprokit_python_subdir}${python_noarchdir}/${python_sitename}/${modpath}/${module}.py")
+  set(pypkg_install_path "${python_install_path}/${sprokit_python_subdir}/${python_sitename}/${modpath}")
 
   if (KWIVER_SYMLINK_PYTHON)
       sprokit_symlink_file_w_uid("${python_configure_id}"
@@ -192,10 +174,6 @@ function (sprokit_add_python_resource    fname     modpath)
 
   _sprokit_create_safe_modpath("${modpath}" safe_modpath)
 
-  _kwiver_python_site_package_dir( python_site_packages )
-  set(python_sitepath /${python_site_packages})
-
-
   set(python_arch)
   set(python_noarchdir)
 
@@ -219,15 +197,15 @@ function (sprokit_add_python_resource    fname     modpath)
     set(sprokit_configure_cmake_args
       "\"-Dconfig=${CMAKE_CFG_INTDIR}/\"")
     set(sprokit_configure_extra_dests
-      "${sprokit_python_output_path}/\${config}/${sprokit_python_subdir}${python_noarchdir}${python_sitepath}/${modpath}/${fname}")
+      "${sprokit_python_output_path}/\${config}/${sprokit_python_subdir}${python_noarchdir}/${python_sitename}/${modpath}/${fname}")
   endif ()
 
   set(configure_id "${safe_modpath}-${fname}")
   set(resource_id "${fname}")
 
   set(in_fpath "${CMAKE_CURRENT_SOURCE_DIR}/${fname}")
-  set(out_fpath "${sprokit_python_output_path}/${sprokit_python_subdir}${python_noarchdir}${python_sitepath}/${modpath}/${fname}")
-  set(pypkg_install_dpath "${python_install_path}/${sprokit_python_subdir}${python_sitepath}/${modpath}")
+  set(out_fpath "${sprokit_python_output_path}/${sprokit_python_subdir}${python_noarchdir}/${python_sitename}/${modpath}/${fname}")
+  set(pypkg_install_dpath "${python_install_path}/${sprokit_python_subdir}/${python_sitename}/${modpath}")
 
   sprokit_configure_file_w_uid("${configure_id}"
     "${resource_id}"
@@ -249,7 +227,7 @@ endfunction ()
 ###
 #
 function (sprokit_create_python_init    modpath)
-  _sprokit_create_safe_modpath("${modpath}" safe_modpath)
+  _kwiver_create_safe_modpath("${modpath}" safe_modpath)
 
   set(noarch_suffix)
   if (python_noarch)
@@ -279,7 +257,7 @@ endfunction ()
 ###
 #
 function (sprokit_create_python_plugin_init modpath)
-  _sprokit_create_safe_modpath("${modpath}" safe_modpath)
+  _kwiver_create_safe_modpath("${modpath}" safe_modpath)
 
   set(noarch_suffix)
   if (python_noarch)
