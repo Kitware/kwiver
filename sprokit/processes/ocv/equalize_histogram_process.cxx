@@ -52,6 +52,13 @@
 
 namespace kwiver {
 
+  create_config_trait( color_mode, std::string, "all_separately", "In the "
+                       "case of color images, this sets how the channels are "
+                       "equalized. If set to 'all_separately', each channel is "
+                       "equalized independently. If set to 'luminance', the "
+                       "image is converted into YCbCr, the luminance is "
+                       "equalized, and then the image is converted back to RGB" );
+  
 // ==================================================================
 class equalize_histogram_process::priv
 {
@@ -65,7 +72,76 @@ public:
   {
   }
   
+  enum color_handling_modes { all_separately, luminance } ;
+  color_handling_modes m_color_mode;
   kwiver::vital::wall_timer m_timer;
+  
+  void
+  set_color_handling(const std::string color_mode)
+  {
+    if( color_mode == "all_separately" )
+    {
+      m_color_mode = all_separately;
+    }
+    else if( color_mode == "luminance" )
+    {
+      m_color_mode = luminance;
+    }
+    else
+    {
+      throw vital::invalid_data( "color_mode '" + color_mode + "' not recognized." );
+    }
+  }
+  
+  
+  void
+  equalize_histogram(const cv::Mat &src, cv::Mat &dst)
+  {
+    if( src.channels() == 1 )
+    {
+      cv::equalizeHist( src, dst );
+    }
+    else if( src.channels() == 3 )
+    {
+      switch( m_color_mode )
+      {
+        case all_separately:
+        {
+          // Each channel is equalized independently
+          cv::Mat RGB_3[3];
+          cv::split( src, RGB_3 );
+          for( size_t i=0; i < 3; ++i)
+          {
+            cv::equalizeHist( RGB_3[i], RGB_3[i] );
+          }
+          cv::merge( RGB_3, 3, dst );
+          break;
+        }
+        case luminance:
+        {
+          cv::Mat ycbcr, YCBCR[3];
+          cv::cvtColor(src, ycbcr, CV_RGB2YCrCb, 3);
+          cv::split( ycbcr, YCBCR );
+          cv::equalizeHist( YCBCR[0], YCBCR[0] );
+          //YCBCR[1] = cv::Scalar(123);   // for testing
+          //YCBCR[2] = cv::Scalar(123);   // for testing
+          cv::merge( YCBCR, 3, ycbcr );
+          cv::cvtColor(ycbcr, dst, CV_YCrCb2RGB, 3);
+          break;
+        }
+        default:
+        {
+          throw "Unrecognized color mode.";
+        }
+      }
+    }
+    else
+    {
+      throw vital::invalid_data( "Image must have 1 or 3 channels but instead "
+                                 "had "  + std::to_string( src.channels() ));
+    }
+    return;
+  }
   
 }; // end priv class
 
@@ -92,6 +168,9 @@ equalize_histogram_process
 void
 equalize_histogram_process::_configure()
 {
+  std::string color_mode = config_value_using_trait( color_mode );
+  d->set_color_handling(color_mode);
+  LOG_DEBUG( logger(), "Color mode: " + color_mode);
 } // equalize_histogram_process::_configure
 
 
@@ -114,26 +193,10 @@ equalize_histogram_process::_step()
              std::to_string(img->depth()) + "]");
   
   // --------------------- Convert Input Images to OCV Format ----------------- 
-  cv::Mat img_ocv;
   const cv::Mat img_ocv0 {arrows::ocv::image_container::vital_to_ocv( img->get_image() )};
-  if( img->depth() == 1 )
-  {
-    cv::equalizeHist( img_ocv0, img_ocv );
-  }
-  else if( img->depth() == 3 )
-  {
-    cv::Mat RGB_3[3];
-    cv::split( img_ocv0, RGB_3 );
-    for( size_t i=0; i < 3; ++i)
-    {
-      cv::equalizeHist( RGB_3[i], RGB_3[i] );
-    }
-    cv::merge( RGB_3, 3, img_ocv );
-  }
-  else
-  {
-    throw vital::invalid_data( "Image must have 1 or 3 channels" );
-  }
+  cv::Mat img_ocv;
+  d->equalize_histogram(img_ocv0, img_ocv);
+  
   // --------------------------------------------------------------------------
   
   // Convert back to an image_container_sptr
@@ -170,6 +233,6 @@ equalize_histogram_process::make_ports()
 void
 equalize_histogram_process::make_config()
 {
+  declare_config_using_trait( color_mode );
 }
-
 } //end namespace
