@@ -38,8 +38,6 @@ endfunction ()
 # py.test can be used
 function (kwiver_add_python_test group instance)
 
-  _kwiver_python_site_package_dir( site_dir )
-
   set(oneValueArgs TEST_OUTPUT_PATH PYTHON_MODULE_PATH)
   cmake_parse_arguments(my "" "${oneValueArgs}" "" ${ARGN} )
   # keyword argument defaults
@@ -58,14 +56,14 @@ function (kwiver_add_python_test group instance)
   # only if those extra options are actually necessary for python.
 
   #kwiver_add_test(python-${group} ${instance}
-  #  "${python_chdir}" "${my_PYTHON_MODULE_PATH}/${site_dir}" ${ARGN})
+  #  "${python_chdir}" "${my_PYTHON_MODULE_PATH}/${python_sitename}" ${ARGN})
 
   set(name python-${group})
   set(test_name test-${name}-${instance})
   set(test_path "${my_TEST_OUTPUT_PATH}/test-${name}")
 
   # do we need to worry about "noarch" stuff here?
-  set(python_test_env "PYTHONPATH=${my_PYTHON_MODULE_PATH}/${site_dir}")
+  set(python_test_env "PYTHONPATH=${my_PYTHON_MODULE_PATH}/${python_sitename}")
 
   set(pytest_node "${test_path}::${instance}")
 

@@ -172,7 +172,7 @@ endfunction ()
 #
 function (sprokit_add_python_resource    fname     modpath)
 
-  _sprokit_create_safe_modpath("${modpath}" safe_modpath)
+  _kwiver_create_safe_modpath("${modpath}" safe_modpath)
 
   set(python_arch)
   set(python_noarchdir)

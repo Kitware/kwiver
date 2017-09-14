@@ -27,7 +27,7 @@ sprokit_use_python_fixes()
 ###
 #
 function (_sprokit_add_python_library name modpath)
-  _sprokit_create_safe_modpath(${modpath} safe_modpath)
+  _kwiver_create_safe_modpath(${modpath} safe_modpath)
 
   sprokit_add_python_library(${name} ${modpath}
     ${ARGN})
