@@ -105,8 +105,8 @@ function ( _kwiver_python_site_package_dir    var_name)
     endif()
 
     # Cache computed value
-    set(_prev_site_packages "${python_site_packages}" INTERNAL)
-    set(_prev_python_exe "${PYTHON_EXECUTABLE}" INTERNAL)
+    set(_prev_site_packages "${python_site_packages}" CACHE INTERNAL "previous state")
+    set(_prev_python_exe "${PYTHON_EXECUTABLE}" CACHE INTERNAL "previous state")
   endif()
 
   set(${var_name} ${python_site_packages} PARENT_SCOPE )
