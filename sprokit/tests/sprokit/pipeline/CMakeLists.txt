@@ -148,7 +148,7 @@ function (sprokit_add_tooled_run_test group instance)
     if (KWIVER_ENABLE_PYTHON)
       if (scheduler STREQUAL "pythread_per_process" OR
           instance STREQUAL "pysimple_pipeline")
-          _sprokit_python_site_package_dir( python_site_packages )
+          _kwiver_python_site_package_dir( python_site_packages )
 
         set(sprokit_test_environment "PYTHONPATH=${test_python_path}/${python_site_packages}")
       endif ()

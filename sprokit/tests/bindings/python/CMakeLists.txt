@@ -51,7 +51,7 @@ function (sprokit_add_python_test group instance)
     set(python_chdir           "$<CONFIGURATION>")
   endif ()
 
-  _sprokit_python_site_package_dir( site_dir )
+  _kwiver_python_site_package_dir( site_dir )
   sprokit_add_tooled_test(python-${group} ${instance}
     "${python_chdir}" "${python_module_path}/${site_dir}" ${ARGN})
 endfunction ()
