@@ -78,7 +78,7 @@ public:
   int m_max_disp;
   
   // Used to provide an index of the frame for debug out purposes
-  int frame_index{-1};
+  int frame_index{0};
   int key_frame_index{-1};
   
   std::vector<cv::Point2f> key_corners, moving_corners, final_moving_corners;
