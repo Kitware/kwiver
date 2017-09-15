@@ -117,16 +117,6 @@ public:
     ++key_frame_index;
     
     LOG_DEBUG( m_logger, "Updating key frame");
-    if( false )
-    {
-      std::cout << "Updating key frame" << std::endl;
-      std::cout << "max_pts : " << m_max_pts << std::endl;
-      std::cout << "pt_quality_thresh : " << m_pt_quality_thresh << std::endl;
-      std::cout << "min_pt_dist : " << m_min_pt_dist << std::endl;
-      std::cout << "reproj_thresh : " << m_reproj_thresh << std::endl;
-      std::cout << "min_fract_pts : " << m_min_fract_pts << std::endl;
-      std::cout << "max_disp : " << m_max_disp << std::endl;
-    }
 
     cv::Mat frame = frame_.getMat();
 
@@ -143,7 +133,7 @@ public:
 
     if( frame.channels() == 3 )
     {
-      std::cout << "Converting RGB key_frame to mono" << std::endl;
+      LOG_TRACE( m_logger, "Converting RGB key_frame to mono");
       cv::cvtColor(frame, m_key_frame_mono, CV_BGR2GRAY);
     }
     else
@@ -174,12 +164,12 @@ public:
     
     if( (moving_frame.rows != m_rows) || moving_frame.cols != m_cols )
     {
-      throw vital::image_size_mismatch_exception("Moving frame dimensions do "
-                                                 "not match the key frame "
-                                                 "dimensions", 
-                                                 m_cols, m_rows, 
-                                                 moving_frame.cols, 
-                                                 moving_frame.rows);
+      throw vital::image_size_mismatch_exception( "Moving frame dimensions do "
+                                                  "not match the key frame "
+                                                  "dimensions", 
+                                                  m_cols, m_rows, 
+                                                  moving_frame.cols, 
+                                                  moving_frame.rows);
     }
 
     if( moving_frame.channels() == 3 )
@@ -194,14 +184,14 @@ public:
     std::vector<uchar> status;
     std::vector<float> err;
     cv::Size win_size(m_patch_size,m_patch_size);
-    cv::calcOpticalFlowPyrLK(m_key_frame_mono, m_moving_frame_mono, key_corners, 
-                             moving_corners, status, err, win_size, 3, m_termcrit, 
-                             cv::OPTFLOW_USE_INITIAL_FLOW,
-                             0.001);
+    cv::calcOpticalFlowPyrLK( m_key_frame_mono, m_moving_frame_mono, 
+                              key_corners, moving_corners, status, err, 
+                              win_size, 3, m_termcrit, 
+                              cv::OPTFLOW_USE_INITIAL_FLOW, 0.001 );
 
     int n = cv::sum(status)[0];
-    std::cout << "calcOpticalFlowPyrLK found " << n << " matches out of " << 
-            key_corners.size() << std::endl;
+    LOG_TRACE( m_logger, "calcOpticalFlowPyrLK found " << n << 
+            " matches out of " << key_corners.size());
 
     if( n < key_corners.size()*m_min_fract_pts)
     {
@@ -221,9 +211,6 @@ public:
       // Select only the inliers (mask entry set to 1)
       if (status[i] == 1)
       {
-        //std::cout << "KLT Error: " << err[i] << std::endl;
-        //std::cout << i << ", ";
-        //std::cout << moving_corners[i] << std::endl;
         src_pts[k] = moving_corners[i];
         dst_pts[k] = key_corners[i];
         ++ k;
@@ -251,7 +238,6 @@ public:
         src_pts[k] = moving_corners[i];
         dst_pts[k] = key_corners[i];
         ++ k;
-        //std::cout << "ERROR is: " << erri << std::endl;
       }
     }
     src_pts.resize(k);
@@ -270,7 +256,7 @@ public:
     if( true )
     {
       // Fit a rigid transformation.
-      std::cout << "Fitting rigid transformation" << std::endl;
+      LOG_TRACE( m_logger, "Fitting rigid transformation" );
 
       // Fit to a rigid transformation (i.e., translation plus rotation)
       std::array<double,3> threshes{4*m_reproj_thresh,2*m_reproj_thresh,1.5*m_reproj_thresh};
@@ -317,8 +303,8 @@ public:
         dst_pts.resize(k);
       }
 
-      std::cout << "RANSAC Homography fitting matches: " << src_pts.size() << 
-              " of " << key_corners.size() << std::endl;
+      LOG_TRACE( m_logger, "RANSAC Homography fitting matches: " << 
+                 src_pts.size() << " of " << key_corners.size() );
 
       if( src_pts.size() < key_corners.size()*m_min_fract_pts)
       {
@@ -360,7 +346,6 @@ public:
       return M;
     }
 
-    //std::cout << "Homography: " << M << std::endl;
     if( true )
     {
       final_moving_corners = src_pts;
