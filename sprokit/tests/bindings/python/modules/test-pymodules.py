@@ -58,21 +58,16 @@ def _unable_to_run_loader_test():
 # Helper utilities (from ubelt)
 
 
-WIN32  = sys.platform.startswith('win32')
-LINUX  = sys.platform.startswith('linux')
-DARWIN = sys.platform.startswith('darwin')
-
-
 def platform_cache_dir():
     """
     Returns a directory which should be writable for any application
     This should be used for temporary deletable data.
     """
-    if WIN32:  # nocover
+    if sys.platform.startswith('win32'):  # nocover
         dpath_ = '~/AppData/Local'
-    elif LINUX:  # nocover
+    elif sys.platform.startswith('linux'):  # nocover
         dpath_ = '~/.cache'
-    elif DARWIN:  # nocover
+    elif sys.platform.startswith('darwin'):  # nocover
         dpath_  = '~/Library/Caches'
     else:  # nocover
         raise NotImplementedError('Unknown Platform  %r' % (sys.platform,))
@@ -179,8 +174,14 @@ def _setup_temp_pythonpath():
     """
 
     # Create a temporary place to put the temp modules
-    temp_pythonpath = ensure_app_resource_dir('sprokit', 'test_tempfiles',
-                                              'test_pythonpath')
+    # Use the a temporary dir in the build dir instead of the home folder
+    from sprokit.test import configure_info
+    CMAKE_BINARY_DIR = configure_info.get('CMAKE_BINARY_DIR')
+    temp_pythonpath = join(CMAKE_BINARY_DIR, 'test_tempfiles', 'test_pythonpath')
+    temp_pythonpath = ensuredir(temp_pythonpath)
+
+    # temp_pythonpath = ensure_app_resource_dir('sprokit', 'test_tempfiles',
+    #                                           'test_pythonpath')
     # Clean up and regenerate to ensure a fresh start
     import shutil
     shutil.rmtree(temp_pythonpath)
