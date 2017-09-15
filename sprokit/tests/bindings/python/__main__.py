@@ -1,6 +1,5 @@
-#!/usr/bin/env python
 #ckwg +28
-# Copyright 2011-2013 by Kitware, Inc.
+# Copyright 2017 by Kitware, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,43 +28,23 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-def test_import():
-    try:
-        import sprokit.pipeline.stamp  # NOQA
-    except:
-        raise AssertionError("Failed to import the stamp module")
+def main():
+    """
+    Runs all sprokit tests via py.test
 
-
-def test_create():
-    from sprokit.pipeline import stamp
-
-    stamp.new_stamp(1)
-
-
-def test_api_calls():
-    from sprokit.pipeline import stamp
-
-    s = stamp.new_stamp(1)
-    si = stamp.incremented_stamp(s)
-    t = stamp.new_stamp(2)
-
-    if s > si:
-        raise AssertionError("A stamp is greater than its increment")
-
-    if si < s:
-        raise AssertionError("A stamp is greater than its increment")
-
-    si2 = stamp.incremented_stamp(si)
-    ti = stamp.incremented_stamp(t)
-
-    if not si2 == ti:
-        raise AssertionError("Stamps with different rates do not compare as equal")
-
+    CommandLine:
+        python -m sprokit.tests
+    """
+    from os.path import dirname, join
+    import pytest
+    import glob
+    import sys
+    tests_fpath = dirname(__file__)
+    test_fpaths = list(glob.glob(join(tests_fpath, 'test*.py')))
+    argv = test_fpaths + ['--forked'] + sys.argv[1:]
+    pytest.main(argv)
 
 if __name__ == '__main__':
-    r"""
-    CommandLine:
-        python -m sprokit.tests.test-stamp
-    """
-    import sprokit.test
-    sprokit.test.test_module()
+    # not using sprokit.test.test_module here so we dont have to
+    # pre-import all the tests into __init__.py
+    main()

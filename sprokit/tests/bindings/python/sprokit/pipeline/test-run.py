@@ -386,15 +386,5 @@ if __name__ == '__main__':
         python -m sprokit.tests.test-run test_python_to_python[sync] --collect-only
 
     """
-    import sys
-    argv = list(sys.argv[1:])
-    # split argv[0] in case it is paramatarized
-    if len(argv) > 0 and argv[0].split('[')[0] in vars():
-        # If arg[0] is a function in this file put it in pytest format
-        argv[0] = __file__ + '::' + argv[0]
-        argv.append('-s')  # dont capture stdout for single tests
-    else:
-        # ensure args refer to this file
-        argv.insert(0, __file__)
-    print('argv = {!r}'.format(argv))
-    pytest.main(argv)
+    import sprokit.test
+    sprokit.test.test_module()

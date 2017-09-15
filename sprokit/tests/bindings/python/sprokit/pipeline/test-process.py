@@ -267,14 +267,5 @@ if __name__ == '__main__':
     CommandLine:
         python -m sprokit.tests.test-process
     """
-    import pytest
-    import sys
-    argv = list(sys.argv[1:])
-    if len(argv) > 0 and argv[0] in vars():
-        # If arg[0] is a function in this file put it in pytest format
-        argv[0] = __file__ + '::' + argv[0]
-        argv.append('-s')  # dont capture stdout for single tests
-    else:
-        # ensure args refer to this file
-        argv.insert(0, __file__)
-    pytest.main(argv)
+    import sprokit.test
+    sprokit.test.test_module()

@@ -351,26 +351,7 @@ def test_pythonpath():
 if __name__ == '__main__':
     r"""
     CommandLine:
-        # Note: running all tests together in this module will fail
         python -m sprokit.tests.test-pymodules
-
-        # This can be avoided by running py.test with `--forked`
-
-        pip install pytest-xdist
-        python -m sprokit.tests.test-pymodules --forked
-        python -m sprokit.tests.test-pymodules --boxed
-
-        # TODO: look into --forked running
-        # https://stackoverflow.com/questions/11802316/nose2-vs-py-test-with-isolated-processes/11806997#11806997
-        # https://stackoverflow.com/questions/34644252/testing-incompatible-configurations-with-py-test
-        # https://github.com/pytest-dev/pytest-xdist#installation
     """
-    argv = list(sys.argv[1:])
-    if len(argv) > 0 and argv[0] in vars():
-        # If arg[0] is a function in this file put it in pytest format
-        argv[0] = __file__ + '::' + argv[0]
-        argv.append('-s')  # dont capture stdout for single tests
-    else:
-        # ensure args refer to this file
-        argv.insert(0, __file__)
-    pytest.main(argv)
+    import sprokit.test
+    sprokit.test.test_module()

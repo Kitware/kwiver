@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #ckwg +28
-# Copyright 2011-2013 by Kitware, Inc.
+# Copyright 2012-2013 by Kitware, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,45 +27,32 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""
+This file is a configured resource, that is never symlinked even in developer
+builds. Any changes should be made in the configure_info.py file in the source
+repository, and then CMake should configure it into the build.
+"""
 
 
-def test_import():
-    try:
-        import sprokit.pipeline.stamp  # NOQA
-    except:
-        raise AssertionError("Failed to import the stamp module")
+__CMAKE_CONFIGURE_VARS__ = {
+    'sprokit_test_pipelines_directory': '@sprokit_test_pipelines_directory@',
+    'CMAKE_SOURCE_DIR': '@CMAKE_SOURCE_DIR@',
+    'CMAKE_BINARY_DIR': '@CMAKE_BINARY_DIR@',
+}
 
 
-def test_create():
-    from sprokit.pipeline import stamp
-
-    stamp.new_stamp(1)
+def keys():
+    return __CMAKE_CONFIGURE_VARS__.keys()
 
 
-def test_api_calls():
-    from sprokit.pipeline import stamp
-
-    s = stamp.new_stamp(1)
-    si = stamp.incremented_stamp(s)
-    t = stamp.new_stamp(2)
-
-    if s > si:
-        raise AssertionError("A stamp is greater than its increment")
-
-    if si < s:
-        raise AssertionError("A stamp is greater than its increment")
-
-    si2 = stamp.incremented_stamp(si)
-    ti = stamp.incremented_stamp(t)
-
-    if not si2 == ti:
-        raise AssertionError("Stamps with different rates do not compare as equal")
-
-
-if __name__ == '__main__':
-    r"""
-    CommandLine:
-        python -m sprokit.tests.test-stamp
+def get(key):
     """
-    import sprokit.test
-    sprokit.test.test_module()
+    Wraps __CMAKE_CONFIGURE_VARS__.__getitem__(key) with a check to ensure the
+    file is configured
+    """
+    value = __CMAKE_CONFIGURE_VARS__[key]
+    if value.startswith('@') and value.endswith('@'):
+        raise Exception(
+            'Attempting to get a configuration value from an unconfigured file'
+        )
+    return value
