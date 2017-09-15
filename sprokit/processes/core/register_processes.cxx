@@ -59,6 +59,7 @@
 #include "refine_detections_process.h"
 #include "stabilize_image_process.h"
 #include "stabilize_video_process.h"
+#include "throttle_image_stream_process.h"
 #include "track_descriptor_input_process.h"
 #include "track_descriptor_output_process.h"
 #include "video_input_process.h"
@@ -244,6 +245,13 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                        "Output the timing with the number of detections found." );
 
+  fact = vpm.ADD_PROCESS( kwiver::throttle_image_stream_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "throttle_image_stream" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Reduces the rate of an image stream." );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+  
   fact = vpm.ADD_PROCESS( kwiver::track_descriptor_input_process );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "track_descriptor_input" );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
