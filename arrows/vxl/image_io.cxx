@@ -278,7 +278,7 @@ image_io
 }
 
 
-/// Check that the algorithm's currently configuration is valid
+/// Check that the algorithm's current configuration is valid
 bool
 image_io
 ::check_configuration(vital::config_block_sptr config) const

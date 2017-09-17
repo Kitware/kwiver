@@ -62,7 +62,7 @@ public:
   /// Set this algorithm's properties via a config block
   virtual void set_configuration(vital::config_block_sptr config);
 
-  /// Check that the algorithm's currently configuration is valid
+  /// Check that the algorithm's current configuration is valid
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
   /**

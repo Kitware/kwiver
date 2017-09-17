@@ -117,7 +117,7 @@ estimate_essential_matrix
 }
 
 
-/// Check that the algorithm's currently configuration is valid
+/// Check that the algorithm's current configuration is valid
 bool
 estimate_essential_matrix
 ::check_configuration(vital::config_block_sptr config) const

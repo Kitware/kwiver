@@ -183,7 +183,7 @@ bundle_adjust
 }
 
 
-/// Check that the algorithm's currently configuration is valid
+/// Check that the algorithm's current configuration is valid
 bool
 bundle_adjust
 ::check_configuration(vital::config_block_sptr config) const

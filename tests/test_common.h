@@ -167,7 +167,7 @@ typedef std::string testname_t;
  * This is a hook for the CMake parsing code to set CTest test properties via
  * the ``set_tests_properties(...)`` CMake method. Properties declared are set
  * on the next test declared. The special property \a ENVIRONMENT can only be
- * set once. Subsiquent TEST_PROPERTY calls setting \a ENVIRONMENT overwrite
+ * set once. Subsequent TEST_PROPERTY calls setting \a ENVIRONMENT overwrite
  * previous set attempts.
  *
  * @param property  The CMake test property to set.
@@ -220,7 +220,7 @@ typedef std::string testname_t;
 // ------------------------------------------------------------------
 /// Run the a test case by a given name
 /**
- * Find an run the test function associated with the given testname.
+ * Find and run the test function associated with the given testname.
  * Parameters after the test name are the arguments to pass to the function.
  *
  * @param testname  The name of the test to run. This name should match one
@@ -275,7 +275,7 @@ namespace testing {
 /**
  * @param value   The value subject for comparison.
  * @param target  The value to compare to.
- * @param epsilon The allowed varience.
+ * @param epsilon The allowed difference.
  */
 inline bool is_almost(double const &value,
                       double const &target,
@@ -357,7 +357,7 @@ test_bound( char const* name, ValueType const& value,
  * @param name    An identifying name for the test.
  * @param value   The value subject for comparison.
  * @param target  The value to compare to.
- * @param epsilon The allowed varience.
+ * @param epsilon The allowed difference.
  */
 #define TEST_NEAR(name, value, target, epsilon)                  \
   do                                                             \
