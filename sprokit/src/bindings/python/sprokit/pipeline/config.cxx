@@ -88,10 +88,8 @@ static void config_delitem( kwiver::vital::config_block_sptr          self,
                             kwiver::vital::config_block_key_t const&  key );
 
 
-PYBIND11_PLUGIN(config)
+PYBIND11_MODULE(config, m)
 {
-
-  module m("config", "Pybind11 config plugin");
 
   m.def("empty_config", &kwiver::vital::config_block::empty_config
     , arg("name") = kwiver::vital::config_block_key_t()
@@ -155,7 +153,6 @@ PYBIND11_PLUGIN(config)
     .def("__setitem__", &config_setitem)
     .def("__delitem__", &config_delitem);
 
-  return m.ptr();
 }
 
 

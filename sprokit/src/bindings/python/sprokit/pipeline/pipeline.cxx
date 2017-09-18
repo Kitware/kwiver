@@ -41,10 +41,8 @@
 
 using namespace pybind11;
 
-PYBIND11_PLUGIN(pipeline)
+PYBIND11_MODULE(pipeline,m)
 {
-  module m("pipeline","Pybind11 pipeline module");
-
   class_<sprokit::pipeline, sprokit::pipeline_t>(m, "Pipeline"
     , "A data structure for a collection of connected processes.")
     .def(init<>())
@@ -126,5 +124,4 @@ PYBIND11_PLUGIN(pipeline)
       , "Return the edges that are receiving data from the given port.")
   ;
 
-  return m.ptr();
 }

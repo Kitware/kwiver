@@ -264,10 +264,8 @@ class wrap_process
     data_info_t _edge_data_info(sprokit::edge_data_t const& data);
 };
 
-PYBIND11_PLUGIN(process)
+PYBIND11_MODULE(process, m)
 {
-
-  module m("process", "Pybind11 process plugin");
 
   class_<sprokit::process::name_t>(m, "ProcessName"
     , "A type for the name of a process.");
@@ -538,7 +536,6 @@ PYBIND11_PLUGIN(process)
       , "Returns information about the given data.")
   ;
 
-  return m.ptr();
 }
 
 wrap_process

@@ -43,10 +43,8 @@ using namespace pybind11;
 static bool stamp_eq(sprokit::stamp_t const& self, sprokit::stamp_t const& other);
 static bool stamp_lt(sprokit::stamp_t const& self, sprokit::stamp_t const& other);
 
-PYBIND11_PLUGIN(stamp)
+PYBIND11_MODULE(stamp, m)
 {
-
-  module m("stamp", "Pybind11 stamp module");
 
   m.def("new_stamp", &sprokit::stamp::new_stamp
     , "Creates a new stamp.");
@@ -74,7 +72,6 @@ PYBIND11_PLUGIN(stamp)
   #endif
 #endif
 
-  return m.ptr();
 }
 
 bool

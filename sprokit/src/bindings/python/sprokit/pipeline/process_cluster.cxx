@@ -104,10 +104,8 @@ class wrap_process_cluster
 
 static object cluster_from_process(sprokit::process_t const& process);
 
-PYBIND11_PLUGIN(process_cluster)
+PYBIND11_MODULE(process_cluster, m)
 {
-
-  module m("process_cluster," "Pybind11 process_cluster plugin");
 
   class_<wrap_process_cluster>(m, "PythonProcessCluster"
     , "The base class for Python process clusters.")
@@ -184,7 +182,6 @@ PYBIND11_PLUGIN(process_cluster)
 
   implicitly_convertible<sprokit::process_cluster_t, sprokit::process_t>();
 
-  return m.ptr();
 }
 
 wrap_process_cluster

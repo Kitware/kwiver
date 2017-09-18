@@ -61,10 +61,8 @@ static sprokit::datum_t datum_from_capsule( PyObject* cap );
 
 char const* sprokit_datum_PyCapsule_name() { return  "sprokit::datum"; }
 
-PYBIND11_PLUGIN(datum)
+PYBIND11_MODULE(datum, m)
 {
-
-  module m("datum", "Pybind11 datum plugin");
 
   enum_<sprokit::datum::type_t>(m, "DatumType"
     , "A type for a datum packet.")
@@ -113,7 +111,6 @@ PYBIND11_PLUGIN(datum)
       , "Get pointer to datum object as a PyCapsule.")
   ;
 
-  return m.ptr();
 } // end module
 
 

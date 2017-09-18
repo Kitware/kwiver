@@ -105,10 +105,8 @@ class wrap_scheduler
 
 };
 
-PYBIND11_PLUGIN(scheduler)
+PYBIND11_MODULE(scheduler, m)
 {
-
-  module m("scheduler","Pybind11 scheduler module");
 
   class_<wrap_scheduler>(m, "PythonScheduler"
     , "The base class for Python schedulers.")
@@ -137,7 +135,6 @@ PYBIND11_PLUGIN(scheduler)
       , "Implementation of stopping the pipeline.")
   ;
 
-  return m.ptr();
 }
 
 wrap_scheduler

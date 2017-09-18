@@ -78,10 +78,8 @@ class runtime
 {
 };
 
-PYBIND11_PLUGIN(version)
+PYBIND11_MODULE(version, m)
 {
-
-  module m("version","Pybind11 version plugin");
 
   class_<compile>(m,"compile"
     , "Compile-time version information.")
@@ -113,7 +111,6 @@ PYBIND11_PLUGIN(version)
       , "Check for a sprokit of at least the given version.")
   ;
 
-  return m.ptr();
 }
 
 // If any of the version components are 0, we get compare warnings. Turn

@@ -75,10 +75,8 @@ static sprokit::pipe_blocks load_pipe(object const& stream);
 static sprokit::cluster_blocks load_cluster_file(std::string const& path);
 static sprokit::cluster_blocks load_cluster(object const& stream);
 
-PYBIND11_PLUGIN(load)
+PYBIND11_MODULE(load, m)_
 {
-
-  module m("load","Pybind11 load module");
 
   class_<sprokit::token_t>(m, "Token"
     , "A token in the pipeline description.");
@@ -181,7 +179,6 @@ PYBIND11_PLUGIN(load)
     , (arg("stream"))
     , "Load cluster blocks from a stream.");
 
-  return m.ptr();
 }
 
 class pipe_block_visitor

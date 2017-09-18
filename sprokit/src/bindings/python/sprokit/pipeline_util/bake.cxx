@@ -61,10 +61,8 @@ static sprokit::pipeline_t bake_pipe(object stream);
 static sprokit::cluster_info_t bake_cluster_file(std::string const& path);
 static sprokit::cluster_info_t bake_cluster(object stream);
 
-PYBIND11_PLUGIN(bake)
+PYBIND11_MODULE(bake, m)
 {
-
-  module m("bake","Pybind11 bake module");
 
   class_<sprokit::cluster_info_t>(m, "ClusterInfo"
     , "Information loaded from a cluster file.")
@@ -103,7 +101,6 @@ PYBIND11_PLUGIN(bake)
     , (arg("blocks"))
     , "Extract the configuration from pipe blocks.");
 
-  return m.ptr();
 }
 
 

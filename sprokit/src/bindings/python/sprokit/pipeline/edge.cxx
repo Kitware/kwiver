@@ -45,10 +45,8 @@
 
 using namespace pybind11;
 
-PYBIND11_PLUGIN(edge)
+PYBIND11_MODULE(edge, m)
 {
-
-  module m("edge", "Pybind11 edge plugin");
 
   class_<sprokit::edge_datum_t>(m, "EdgeDatum")
     .def(init<>())
@@ -99,5 +97,4 @@ PYBIND11_PLUGIN(edge)
     .def_readonly_static("config_capacity", &sprokit::edge::config_capacity)
   ;
 
-  return m.ptr();
 }

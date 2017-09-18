@@ -76,10 +76,8 @@ static std::string get_description( const std::string& name );
 static std::vector< std::string > process_names();
 
 // ==================================================================
-PYBIND11_PLUGIN(process_factory)
+PYBIND11_MODULE(process_factory, m)
 {
-
-  module m("process_factory", "Pybind11 process_factory module");
 
   class_<sprokit::process::description_t>(m, "ProcessDescription"
     , "The type for a description of a process type.");
@@ -179,7 +177,6 @@ PYBIND11_PLUGIN(process_factory)
   m.def("types", &process_names
       , "Returns list of process names" );
 
-  return m.ptr();
 }
 
 

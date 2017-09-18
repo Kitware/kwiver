@@ -50,16 +50,13 @@ using namespace pybind11;
 
 void export_dot(object const& stream, sprokit::pipeline_t const pipe, std::string const& graph_name);
 
-PYBIND11_PLUGIN(export_)
+PYBIND11_MODULE(export_, m)
 {
-
-  module m("export_", "Pybind11 export_ module");
 
   m.def("export_dot", &export_dot
     , arg("stream"), arg("pipeline"), arg("name")
     , "Writes the pipeline to the stream in dot format.");
 
-  return m.ptr();
 }
 
 void

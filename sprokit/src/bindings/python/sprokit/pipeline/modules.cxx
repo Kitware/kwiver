@@ -49,15 +49,12 @@ void load_known_modules()
   kwiver::vital::plugin_manager::instance().load_all_plugins();
 }
 
-PYBIND11_PLUGIN(modules)
+PYBIND11_MODULE(modules, m)
 {
-
-  module m("modules", "Pybind11 modules module");
 
   m.def("load_known_modules", &sprokit::load_known_modules
     , "Loads sprokit modules to populate the process and scheduler registries.");
 
-  return m.ptr();
 }
 
 } // end namespace sprokit

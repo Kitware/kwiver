@@ -76,10 +76,8 @@ static std::vector< std::string > scheduler_names();
 static std::string get_default_type();
 
 //==================================================================
-PYBIND11_PLUGIN(scheduler_factory)
+PYBIND11_MODULE(scheduler_factory, m)
 {
-
-  module m("scheduler_factory", "Pybind11 scheduler_factory module");
 
   // Define types
   class_<sprokit::scheduler::description_t>(m, "SchedulerDescription"
@@ -132,7 +130,6 @@ PYBIND11_PLUGIN(scheduler_factory)
       , "Stop the execution of the pipeline.")
   ;
 
-  return m.ptr();
 }
 
 
