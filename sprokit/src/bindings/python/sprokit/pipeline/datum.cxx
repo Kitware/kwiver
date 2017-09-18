@@ -122,7 +122,7 @@ new_datum(object const& obj)
 
   (void)gil;
 
-  boost::any const any = obj.cast<boost::any>();
+  boost::any const any = obj;
 
   return sprokit::datum::new_datum(any);
 }

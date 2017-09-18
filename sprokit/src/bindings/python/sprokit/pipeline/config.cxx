@@ -33,6 +33,7 @@
 #include <sprokit/python/util/python_gil.h>
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl_bind.h>
 
 #include <sstream>
 
@@ -98,9 +99,8 @@ PYBIND11_MODULE(config, m)
   class_<kwiver::vital::config_block_key_t>(m, "ConfigKey")
     .def(pybind11::init<>());
 
-  class_<kwiver::vital::config_block_keys_t>(m, "ConfigKeys"
-    , "A collection of keys for a configuration.")
-    .def(pybind11::init<>());
+  bind_vector<std::vector<std::string> >(m, "ConfigKeys"
+    , "A collection of keys for a configuration.");
 
   // We can't reuse the same C++ type in class_, so deal with std::string typedefs 
   m.attr("ConfigDescription") = m.attr("ConfigKey");
@@ -226,7 +226,9 @@ config_setitem( kwiver::vital::config_block_sptr          self,
 
   (void)gil;
 
-  self->set_value( key, value.cast< kwiver::vital::config_block_value_t > () );
+  kwiver::vital::config_block_key_t const& str_value = str(value);
+
+  self->set_value( key, str_value );
 }
 
 
