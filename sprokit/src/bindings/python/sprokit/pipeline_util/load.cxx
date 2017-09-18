@@ -75,7 +75,7 @@ static sprokit::pipe_blocks load_pipe(object const& stream);
 static sprokit::cluster_blocks load_cluster_file(std::string const& path);
 static sprokit::cluster_blocks load_cluster(object const& stream);
 
-PYBIND11_MODULE(load, m)_
+PYBIND11_MODULE(load, m)
 {
 
   class_<sprokit::token_t>(m, "Token"
