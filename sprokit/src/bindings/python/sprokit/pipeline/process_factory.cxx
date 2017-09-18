@@ -84,69 +84,6 @@ PYBIND11_MODULE(process_factory, m)
   class_<kwiver::vital::plugin_manager::module_t>(m, "ProcessModule"
     , "The type for a process module name.");
 
-  class_<sprokit::process_t>(m, "Process"
-    , "The base class of processes.")
-    .def("configure", &sprokit::process::configure
-      , "Configures the process.")
-    .def("init", &sprokit::process::init
-      , "Initializes the process.")
-    .def("reset", &sprokit::process::reset
-      , "Resets the process.")
-    .def("step", &sprokit::process::step
-      , "Steps the process for one iteration.")
-    .def("properties", &sprokit::process::properties
-      , "Returns the properties on the process.")
-    .def("connect_input_port", &sprokit::process::connect_input_port
-      , arg("port"), arg("edge")
-      , "Connects the given edge to the input port.")
-    .def("connect_output_port", &sprokit::process::connect_output_port
-      , arg("port"), arg("edge")
-      , "Connects the given edge to the output port.")
-    .def("input_ports", &sprokit::process::input_ports
-      , "Returns a list of input ports on the process.")
-    .def("output_ports", &sprokit::process::output_ports
-      , "Returns a list of output ports on the process.")
-    .def("input_port_info", &sprokit::process::input_port_info
-      , arg("port")
-      , "Returns information about the given input port.")
-    .def("output_port_info", &sprokit::process::output_port_info
-      , arg("port")
-      , "Returns information about the given output port.")
-    .def("set_input_port_type", &sprokit::process::set_input_port_type
-      , arg("port"), arg("new_type")
-      , "Sets the type for an input port.")
-    .def("set_output_port_type", &sprokit::process::set_output_port_type
-      , arg("port"), arg("new_type")
-      , "Sets the type for an output port.")
-    .def("available_config", &sprokit::process::available_config
-      , "Returns a list of available configuration keys for the process.")
-    .def("available_tunable_config", &sprokit::process::available_tunable_config
-      , "Returns a list of available tunable configuration keys for the process.")
-    .def("config_info", &sprokit::process::config_info
-      , (arg("config"))
-      , "Returns information about the given configuration key.")
-    .def("name", &sprokit::process::name
-      , "Returns the name of the process.")
-    .def("type", &sprokit::process::type
-      , "Returns the type of the process.")
-    .def_readonly_static("property_no_threads", &sprokit::process::property_no_threads)
-    .def_readonly_static("property_no_reentrancy", &sprokit::process::property_no_reentrancy)
-    .def_readonly_static("property_unsync_input", &sprokit::process::property_unsync_input)
-    .def_readonly_static("property_unsync_output", &sprokit::process::property_unsync_output)
-    .def_readonly_static("port_heartbeat", &sprokit::process::port_heartbeat)
-    .def_readonly_static("config_name", &sprokit::process::config_name)
-    .def_readonly_static("config_type", &sprokit::process::config_type)
-    .def_readonly_static("type_any", &sprokit::process::type_any)
-    .def_readonly_static("type_none", &sprokit::process::type_none)
-    .def_readonly_static("type_data_dependent", &sprokit::process::type_data_dependent)
-    .def_readonly_static("type_flow_dependent", &sprokit::process::type_flow_dependent)
-    .def_readonly_static("flag_output_const", &sprokit::process::flag_output_const)
-    .def_readonly_static("flag_input_static", &sprokit::process::flag_input_static)
-    .def_readonly_static("flag_input_mutable", &sprokit::process::flag_input_mutable)
-    .def_readonly_static("flag_input_nodep", &sprokit::process::flag_input_nodep)
-    .def_readonly_static("flag_required", &sprokit::process::flag_required)
-  ;
-
   class_<sprokit::processes_t>(m, "Processes"
     , "A collection of processes.")
   ;
