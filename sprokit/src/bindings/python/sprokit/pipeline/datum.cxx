@@ -50,13 +50,17 @@
 
 using namespace pybind11;
 
-static sprokit::datum_t new_datum(object const& obj);
-static sprokit::datum::type_t datum_type(sprokit::datum_t const& self);
-static sprokit::datum::error_t datum_get_error(sprokit::datum_t const& self);
-static object datum_get_datum(sprokit::datum_t const& self);
-static std::string datum_datum_type(sprokit::datum_t const& self);
+static sprokit::datum new_datum(object const& obj);
+static sprokit::datum empty_datum();
+static sprokit::datum flush_datum();
+static sprokit::datum complete_datum();
+static sprokit::datum error_datum(std::string const& err);
+static sprokit::datum::type_t datum_type(sprokit::datum const& self);
+static sprokit::datum::error_t datum_get_error(sprokit::datum const& self);
+static object datum_get_datum(sprokit::datum const& self);
+static std::string datum_datum_type(sprokit::datum const& self);
 
-static PyObject* datum_get_datum_ptr(sprokit::datum_t& self);
+static PyObject* datum_get_datum_ptr(sprokit::datum& self);
 static sprokit::datum_t datum_from_capsule( PyObject* cap );
 
 char const* sprokit_datum_PyCapsule_name() { return  "sprokit::datum"; }
@@ -85,20 +89,19 @@ PYBIND11_MODULE(datum, m)
   m.def("datum_from_capsule", &datum_from_capsule
       , (arg("dptr"))
       , "Converts datum* in capsule to datum_t");
-  m.def("empty", &sprokit::datum::empty_datum
+  m.def("empty", &empty_datum
     , "Creates an empty datum packet.");
-  m.def("flush", &sprokit::datum::flush_datum
+  m.def("flush", &flush_datum
     , "Creates a flush marker datum packet.");
-  m.def("complete", &sprokit::datum::complete_datum
+  m.def("complete", &complete_datum
     , "Creates a complete marker datum packet.");
-  m.def("error", &sprokit::datum::error_datum
+  m.def("error", &error_datum
     , (arg("err"))
     , "Creates an error datum packet.");
 
   // Methods on datum
-  class_<sprokit::datum_t>(m, "Datum"
+  class_<sprokit::datum>(m, "Datum"
     , "A packet of data within the pipeline.")
-    .def(pybind11::init<>())
     .def("type", &datum_type
       , "The type of the datum packet.")
     .def("datum_type", &datum_datum_type
@@ -115,7 +118,7 @@ PYBIND11_MODULE(datum, m)
 
 
 // ------------------------------------------------------------------
-sprokit::datum_t
+sprokit::datum
 new_datum(object const& obj)
 {
   sprokit::python::python_gil const gil;
@@ -124,37 +127,67 @@ new_datum(object const& obj)
 
   boost::any const any = obj;
 
-  return sprokit::datum::new_datum(any);
+  return *(sprokit::datum::new_datum(any));
+}
+
+sprokit::datum
+empty_datum()
+{
+  return *(sprokit::datum::empty_datum());
+}
+
+sprokit::datum
+flush_datum()
+{
+  return *(sprokit::datum::flush_datum());
+}
+
+sprokit::datum
+complete_datum()
+{
+  return *(sprokit::datum::complete_datum());
+}
+
+sprokit::datum
+error_datum(std::string const& err)
+{
+  return *(sprokit::datum::error_datum(err));
 }
 
 sprokit::datum::type_t
-datum_type(sprokit::datum_t const& self)
+datum_type(sprokit::datum const& self)
 {
-  return self->type();
+  return self.type();
 }
 
 sprokit::datum::error_t
-datum_get_error(sprokit::datum_t const& self)
+datum_get_error(sprokit::datum const& self)
 {
-  return self->get_error();
+  return self.get_error();
 }
 
 object
-datum_get_datum(sprokit::datum_t const& self)
+datum_get_datum(sprokit::datum const& self)
 {
   sprokit::python::python_gil const gil;
 
   (void)gil;
 
-  boost::any const any = self->get_datum<boost::any>();
 
-  return cast(any);
+  object dat = none();
+  if ( self.type() == sprokit::datum::data )
+  {
+    boost::any const any = self.get_datum<boost::any>();
+    dat = boost::any_cast<object>(any);
+  }
+
+  return dat;
 }
 
 std::string
-datum_datum_type(sprokit::datum_t const& self)
+datum_datum_type(sprokit::datum const& self)
 {
-  boost::any const any = self->get_datum<boost::any>();
+  boost::any const any = self.get_datum<boost::any>();
 
   return any.type().name();
 }
@@ -177,9 +210,9 @@ datum_datum_type(sprokit::datum_t const& self)
  * \return Address of real datum object.
  */
 PyObject*
-datum_get_datum_ptr(sprokit::datum_t& self)
+datum_get_datum_ptr(sprokit::datum& self)
 {
-  return PyCapsule_New( const_cast< sprokit::datum* >(self.get()), "sprokit::datum", NULL );
+  return PyCapsule_New( const_cast< sprokit::datum* >(std::make_shared<sprokit::datum> (self).get()), "sprokit::datum", NULL );
 }
 
 
@@ -191,7 +224,7 @@ datum_get_datum_ptr(sprokit::datum_t& self)
  *
  * \param cap Pointer to PyCapsule that contains address of datum object.
  *
- * \return datun_t sptr that manages supplied datum object.
+ * \return datum_t sptr that manages supplied datum object.
  */
 sprokit::datum_t
 datum_from_capsule( PyObject* cap )
