@@ -33,9 +33,11 @@
 #include <sprokit/pipeline/process.h>
 #include <sprokit/pipeline/stamp.h>
 
+#include "PyStamp.cxx"
+
 #include <sprokit/python/util/python_gil.h>
 
-#include <pybind11/pybind11.h>
+#include <pybind11/stl_bind.h>
 
 /**
  * \file edge.cxx
@@ -45,23 +47,36 @@
 
 using namespace pybind11;
 
+class PyEdgeDatum : public sprokit::edge_datum_t
+{
+  public:
+    PyEdgeDatum() : sprokit::edge_datum_t() {}
+    PyEdgeDatum(sprokit::datum datum, PyStamp stamp)
+               : sprokit::edge_datum_t(
+                 std::make_shared<sprokit::datum>(datum), stamp.get_stamp()) 
+               {}
+};
+
+static void push_datum(sprokit::edge& self, PyEdgeDatum const& datum); 
+static PyEdgeDatum get_datum(sprokit::edge& self);
+static PyEdgeDatum peek_datum(sprokit::edge& self, size_t const& idx);
+
 PYBIND11_MODULE(edge, m)
 {
 
-  class_<sprokit::edge_datum_t>(m, "EdgeDatum")
+  class_<PyEdgeDatum>(m, "EdgeDatum")
     .def(init<>())
-    .def(init<sprokit::datum_t, sprokit::stamp_t>())
+    .def(init<sprokit::datum, PyStamp>())
     .def_readwrite("datum", &sprokit::edge_datum_t::datum)
     .def_readwrite("stamp", &sprokit::edge_datum_t::stamp)
   ;
-  class_<sprokit::edge_data_t>(m, "EdgeData"
+  bind_vector<std::vector<PyEdgeDatum> >(m, "EdgeData"
     , "A collection of data packets that may be passed through an edge.")
     .def(pybind11::init<>());
-  class_<sprokit::edges_t>(m, "Edges"
-    , "A collection of edges.")
-    .def(pybind11::init<>());
+  bind_vector<std::vector<sprokit::edge_t> >(m, "Edges"
+    , "A collection of edges.");
 
-  class_<sprokit::edge, sprokit::edge_t>(m, "Edge"
+  class_<sprokit::edge>(m, "Edge"
     , "A communication channel between processes.")
     .def(init<>())
     .def(init<kwiver::vital::config_block_sptr>())
@@ -73,12 +88,12 @@ PYBIND11_MODULE(edge, m)
       , "Returns True if the edge cannot hold anymore data, False otherwise.")
     .def("datum_count", &sprokit::edge::datum_count
       , "Returns the number of data packets within the edge.")
-    .def("push_datum", &sprokit::edge::push_datum
+    .def("push_datum", &push_datum
       , (arg("datum"))
       , "Pushes a datum packet into the edge.")
-    .def("get_datum", &sprokit::edge::get_datum
+    .def("get_datum", &get_datum
       , "Returns the next datum packet from the edge, removing it in the process.")
-    .def("peek_datum", &sprokit::edge::peek_datum
+    .def("peek_datum", &peek_datum
       , (arg("index") = 0)
       , "Returns the next datum packet from the edge.")
     .def("pop_datum", &sprokit::edge::pop_datum
@@ -97,4 +112,26 @@ PYBIND11_MODULE(edge, m)
     .def_readonly_static("config_capacity", &sprokit::edge::config_capacity)
   ;
 
+}
+
+void
+push_datum(sprokit::edge& self, PyEdgeDatum const& datum)
+{
+  self.push_datum((sprokit::edge_datum_t) datum);
+}
+
+PyEdgeDatum
+get_datum(sprokit::edge& self)
+{
+  sprokit::edge_datum_t datum = self.get_datum();
+  PyEdgeDatum datum_p(*(datum.datum), PyStamp(datum.stamp));
+  return datum_p;
+}
+
+PyEdgeDatum
+peek_datum(sprokit::edge& self, size_t const& idx)
+{
+  sprokit::edge_datum_t datum = self.peek_datum(idx);
+  PyEdgeDatum datum_p(*(datum.datum), PyStamp(datum.stamp));
+  return datum_p;
 }

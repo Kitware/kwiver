@@ -1,155 +1,114 @@
 project(sprokit_python_sprokit_pipeline)
 
-# Because of the way pybind11 handles reused types
-# Each submodule has to have its own directory
-sprokit_create_python_init(sprokit/pipeline
-)
 _sprokit_add_python_library(config
-  sprokit/pipeline/config
+  sprokit/pipeline
   config.cxx)
-target_link_libraries(python-sprokit.pipeline.config-config
+target_link_libraries(python-sprokit.pipeline-config
   PRIVATE             sprokit_pipeline
                       sprokit_python_util)
-
-sprokit_create_python_init(sprokit/pipeline/config
-  config
-)
 
 _sprokit_add_python_library(datum
-  sprokit/pipeline/datum
+  sprokit/pipeline
   datum.cxx)
-target_link_libraries(python-sprokit.pipeline.datum-datum
+target_link_libraries(python-sprokit.pipeline-datum
   PRIVATE             sprokit_pipeline
                       sprokit_python_util)
-
-sprokit_create_python_init(sprokit/pipeline/datum
-  datum
-)
 
 _sprokit_add_python_library(edge
-  sprokit/pipeline/edge
+  sprokit/pipeline
   edge.cxx)
-target_link_libraries(python-sprokit.pipeline.edge-edge
+target_link_libraries(python-sprokit.pipeline-edge
   PRIVATE             sprokit_pipeline
                       sprokit_python_util)
 
-sprokit_create_python_init(sprokit/pipeline/edge
-  edge
-)
-
 _sprokit_add_python_library(modules
-  sprokit/pipeline/modules
+  sprokit/pipeline
   modules.cxx)
-target_link_libraries(python-sprokit.pipeline.modules-modules
+target_link_libraries(python-sprokit.pipeline-modules
   PRIVATE             sprokit_pipeline
                       sprokit_python_util
                       ${Boost_SYSTEM_LIBRARY}
                       vital_vpm
   )
 
-sprokit_create_python_init(sprokit/pipeline/modules
-  modules
-)
-
 _sprokit_add_python_library(pipeline
-  sprokit/pipeline/pipeline
+  sprokit/pipeline
   pipeline.cxx)
-target_link_libraries(python-sprokit.pipeline.pipeline-pipeline
+target_link_libraries(python-sprokit.pipeline-pipeline
   PRIVATE             sprokit_pipeline
                       sprokit_python_util)
-
-sprokit_create_python_init(sprokit/pipeline/pipeline
-  pipeline
-)
 
 _sprokit_add_python_library(process
-  sprokit/pipeline/process
+  sprokit/pipeline
   process.cxx)
-target_link_libraries(python-sprokit.pipeline.process-process
+target_link_libraries(python-sprokit.pipeline-process
   PRIVATE             sprokit_pipeline
                       sprokit_python_util)
-
-sprokit_create_python_init(sprokit/pipeline/process
-  process
-)
 
 _sprokit_add_python_library(process_cluster
-  sprokit/pipeline/process_cluster
+  sprokit/pipeline
   process_cluster.cxx)
-target_link_libraries(python-sprokit.pipeline.process_cluster-process_cluster
+target_link_libraries(python-sprokit.pipeline-process_cluster
   PRIVATE             sprokit_pipeline
                       sprokit_python_util)
 
-sprokit_create_python_init(sprokit/pipeline/process_cluster
-  process_cluster
-)
-
 _sprokit_add_python_library(process_factory
-  sprokit/pipeline/process_factory
+  sprokit/pipeline
   process_factory.cxx)
-target_link_libraries(python-sprokit.pipeline.process_factory-process_factory
+target_link_libraries(python-sprokit.pipeline-process_factory
   PRIVATE             sprokit_pipeline
                       sprokit_python_util
                       vital_vpm
     )
 
-sprokit_create_python_init(sprokit/pipeline/process_factory
-  process_factory
-)
-
 _sprokit_add_python_library(scheduler
-  sprokit/pipeline/scheduler
+  sprokit/pipeline
   scheduler.cxx)
-target_link_libraries(python-sprokit.pipeline.scheduler-scheduler
+target_link_libraries(python-sprokit.pipeline-scheduler
   PRIVATE             sprokit_pipeline
                       sprokit_python_util)
 
-sprokit_create_python_init(sprokit/pipeline/scheduler
-  scheduler
-)
-
 _sprokit_add_python_library(scheduler_factory
-  sprokit/pipeline/scheduler_factory
+  sprokit/pipeline
   scheduler_factory.cxx)
-target_link_libraries(python-sprokit.pipeline.scheduler_factory-scheduler_factory
+target_link_libraries(python-sprokit.pipeline-scheduler_factory
   PRIVATE             sprokit_pipeline
                       sprokit_python_util
                       vital_vpm
   )
 
-sprokit_create_python_init(sprokit/pipeline/scheduler_factory
-  scheduler_factory
-)
-
 _sprokit_add_python_library(stamp
-  sprokit/pipeline/stamp
+  sprokit/pipeline
   stamp.cxx)
-target_link_libraries(python-sprokit.pipeline.stamp-stamp
+target_link_libraries(python-sprokit.pipeline-stamp
   PRIVATE             sprokit_pipeline
                       sprokit_python_util)
-
-sprokit_create_python_init(sprokit/pipeline/stamp
-  stamp
-)
 
 _sprokit_add_python_library(utils
-  sprokit/pipeline/utils
+  sprokit/pipeline
   utils.cxx)
-target_link_libraries(python-sprokit.pipeline.utils-utils
+target_link_libraries(python-sprokit.pipeline-utils
   PRIVATE             sprokit_pipeline
                       sprokit_python_util)
-
-sprokit_create_python_init(sprokit/pipeline/utils
-  utils
-)
 
 _sprokit_add_python_library(version
-  sprokit/pipeline/version
+  sprokit/pipeline
   version.cxx)
-target_link_libraries(python-sprokit.pipeline.version-version
+target_link_libraries(python-sprokit.pipeline-version
   PRIVATE             sprokit_pipeline
                       sprokit_python_util)
 
-sprokit_create_python_init(sprokit/pipeline/version
+sprokit_create_python_init(sprokit/pipeline
+  config
+  datum
+  edge
+  modules
+  pipeline
+  process
+  process_factory
+  scheduler
+  scheduler_factory
+  stamp
+  utils
   version
 )

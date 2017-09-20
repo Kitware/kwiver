@@ -79,12 +79,6 @@ static std::string get_default_type();
 PYBIND11_MODULE(scheduler_factory, m)
 {
 
-  // Define types
-  class_<sprokit::scheduler::description_t>(m, "SchedulerDescription"
-    , "The type for a description of a process type.");
-  class_<kwiver::vital::plugin_manager::module_t>(m, "SchedulerModule"
-    , "The type for a process module name.");
-
   // Define unbound functions.
   m.def("add_scheduler", &register_scheduler
       , arg("type"), arg("description"), arg("ctor")
@@ -113,12 +107,6 @@ PYBIND11_MODULE(scheduler_factory, m)
   m.def("default_type", &get_default_type
       , "The default scheduler type.");
 
-
-  class_<sprokit::scheduler::type_t>(m, "SchedulerType"
-    , "The type for a type of scheduler.");
-
-  class_<kwiver::vital::plugin_manager::module_t>(m, "SchedulerModule"
-    , "The type for a scheduler module name.");
 
   class_<sprokit::scheduler, sprokit::scheduler_t>(m, "Scheduler"
     , "An abstract class which offers an interface for pipeline execution strategies.")

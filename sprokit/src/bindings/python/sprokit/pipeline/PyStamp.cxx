@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,23 +28,52 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <pybind11/pybind11.h>
-
-#include <sprokit/pipeline/utils.h>
+#include <sprokit/pipeline/stamp.h>
 
 /**
- * \file utils.cxx
+ * \file PyStamp.cxx
  *
- * \brief Python bindings for utils.
+ * \brief Python helper class for \link sprokit::stamp\endlink.
  */
 
-using namespace pybind11;
-
-PYBIND11_MODULE(utils, m)
+// We need to use this because PyBind11 has weird interactions with pointers
+class PyStamp
 {
+  public:
 
-  m.def("name_thread", &sprokit::name_thread
-    , (arg("name"))
-    , "Names the currently running thread.");
+    PyStamp(sprokit::stamp_t st) {stamp_ptr = st;};
 
+    sprokit::stamp_t stamp_ptr;
+    sprokit::stamp_t get_stamp() const {return stamp_ptr;};
+};
+
+static PyStamp new_stamp(sprokit::stamp::increment_t const& increment);
+static PyStamp incremented_stamp(PyStamp const& st);
+static bool stamp_eq(PyStamp const& self, PyStamp const& other);
+static bool stamp_lt(PyStamp const& self, PyStamp const& other);
+
+PyStamp
+new_stamp(sprokit::stamp::increment_t const& increment)
+{
+  sprokit::stamp_t st = sprokit::stamp::new_stamp(increment);
+  return PyStamp(st);
+}
+
+PyStamp
+incremented_stamp(PyStamp const& st)
+{
+  sprokit::stamp_t st_inc = sprokit::stamp::incremented_stamp(st.get_stamp());
+  return PyStamp(st_inc);
+}
+
+bool
+stamp_eq(PyStamp const& self, PyStamp const& other)
+{
+  return (*(self.get_stamp()) == *(other.get_stamp()));
+}
+
+bool
+stamp_lt(PyStamp const& self, PyStamp const& other)
+{
+  return (*(self.get_stamp()) < *(other.get_stamp()));
 }

@@ -30,7 +30,7 @@
 
 #include <pybind11/pybind11.h>
 
-#include <sprokit/pipeline/stamp.h>
+#include "PyStamp.cxx"
 
 /**
  * \file stamp.cxx
@@ -40,19 +40,17 @@
 
 using namespace pybind11;
 
-static bool stamp_eq(sprokit::stamp_t const& self, sprokit::stamp_t const& other);
-static bool stamp_lt(sprokit::stamp_t const& self, sprokit::stamp_t const& other);
-
 PYBIND11_MODULE(stamp, m)
 {
 
-  m.def("new_stamp", &sprokit::stamp::new_stamp
+  m.def("new_stamp", &new_stamp
+    , (arg("increment"))
     , "Creates a new stamp.");
-  m.def("incremented_stamp", &sprokit::stamp::incremented_stamp
+  m.def("incremented_stamp", &incremented_stamp
     , (arg("stamp"))
     , "Creates a stamp that is greater than the given stamp.");
 
-  class_<sprokit::stamp_t>(m, "Stamp"
+  class_<PyStamp>(m, "Stamp"
     , "An identifier to help synchronize data within the pipeline.")
     .def("__eq__", stamp_eq)
     .def("__lt__", stamp_lt)
@@ -72,16 +70,4 @@ PYBIND11_MODULE(stamp, m)
   #endif
 #endif
 
-}
-
-bool
-stamp_eq(sprokit::stamp_t const& self, sprokit::stamp_t const& other)
-{
-  return (*self == *other);
-}
-
-bool
-stamp_lt(sprokit::stamp_t const& self, sprokit::stamp_t const& other)
-{
-  return (*self < *other);
 }

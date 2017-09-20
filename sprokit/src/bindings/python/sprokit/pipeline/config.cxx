@@ -91,23 +91,12 @@ static void config_delitem( kwiver::vital::config_block_sptr          self,
 
 PYBIND11_MODULE(config, m)
 {
-
   m.def("empty_config", &kwiver::vital::config_block::empty_config
     , arg("name") = kwiver::vital::config_block_key_t()
     , "Returns an empty configuration.");
 
-  class_<kwiver::vital::config_block_key_t>(m, "ConfigKey")
-    .def(pybind11::init<>());
-
   bind_vector<std::vector<std::string> >(m, "ConfigKeys"
     , "A collection of keys for a configuration.");
-
-  // We can't reuse the same C++ type in class_, so deal with std::string typedefs 
-  m.attr("ConfigDescription") = m.attr("ConfigKey");
-  m.attr("ConfigDescription").attr("__doc__") = "A description of a configuration key.";
-
-  m.attr("ConfigValue") = m.attr("ConfigKey");
-  m.attr("ConfigValue").attr("__doc__") = "A value in the configuration";
 
   class_<kwiver::vital::config_block, kwiver::vital::config_block_sptr>(m, "Config"
     , "A key-value store of configuration values")

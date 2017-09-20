@@ -78,10 +78,6 @@ PYBIND11_MODULE(datum, m)
     .value("error", sprokit::datum::error)
   ;
 
-  class_<sprokit::datum::error_t>(m, "DatumError"
-    , "The type of an error message.")
-    .def(pybind11::init<>());
-
   // constructors
   m.def("new", &new_datum
     , (arg("dat"))

@@ -46,6 +46,7 @@
 #include <vital/vital_foreach.h>
 
 #include <pybind11/pybind11.h>
+#include "PyProcess.cxx"
 
 #ifdef WIN32
  // Windows get_pointer const volatile workaround
@@ -74,19 +75,14 @@ static bool is_process_loaded( const std::string& name );
 static void mark_process_loaded( const std::string& name );
 static std::string get_description( const std::string& name );
 static std::vector< std::string > process_names();
-
+static PyProcess* create_process( sprokit::process::type_t& type,
+                                 sprokit::process::name_t& name,
+                                 kwiver::vital::config_block_sptr config = kwiver::vital::config_block::empty_config() ); 
 // ==================================================================
 PYBIND11_MODULE(process_factory, m)
 {
-
-  class_<sprokit::process::description_t>(m, "ProcessDescription"
-    , "The type for a description of a process type.");
-  class_<kwiver::vital::plugin_manager::module_t>(m, "ProcessModule"
-    , "The type for a process module name.");
-
   class_<sprokit::processes_t>(m, "Processes"
-    , "A collection of processes.")
-  ;
+    , "A collection of processes.");
 
   class_<sprokit::process_cluster_t>
     (m, "ProcessCluster", "The base class of process clusters.");
@@ -103,7 +99,7 @@ PYBIND11_MODULE(process_factory, m)
       , arg("type"), arg("description"), arg("ctor")
       , "Registers a function which creates a process of the given type.");
 
-  m.def("create_process", &sprokit::create_process
+  m.def("create_process", &create_process
       , arg("type"), arg("name"), arg("config") = kwiver::vital::config_block::empty_config()
       , "Creates a new process of the given type.");
 
@@ -115,7 +111,6 @@ PYBIND11_MODULE(process_factory, m)
       , "Returns list of process names" );
 
 }
-
 
 // ==================================================================
 class python_process_wrapper
@@ -211,7 +206,18 @@ std::vector< std::string > process_names()
   return name_list;
 }
 
-// ------------------------------------------------------------------
+//-------------------------------------------------------------------
+PyProcess*
+create_process(sprokit::process::type_t& type,
+               sprokit::process::name_t& name,
+               kwiver::vital::config_block_sptr config)
+{
+  sprokit::process_t process = sprokit::create_process(type, name, config);
+  PyProcess* process_py = dynamic_cast<PyProcess*> (process.get());
+  return process_py; 
+}
+
+// -------------------------------------------------------------------
 python_process_wrapper
   ::python_process_wrapper( object obj )
   : m_obj( obj )
