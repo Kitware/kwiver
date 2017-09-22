@@ -38,6 +38,7 @@ set( ocv_headers_public
   match_set.h
   stabilize_video_KLT.h
   motion_detector_MOG2.h
+  three_frame_differencing.h
   warp_image.h
   )
 kwiver_install_headers(
@@ -86,6 +87,7 @@ set( ocv_sources
   match_set.cxx
   motion_detector_MOG2.cxx
   stabilize_video_KLT.cxx
+  three_frame_differencing.cxx
   warp_image.cxx
   )
 
