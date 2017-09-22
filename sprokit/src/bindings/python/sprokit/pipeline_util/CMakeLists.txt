@@ -42,9 +42,7 @@ target_link_libraries(python-sprokit.pipeline_util-load
     ${${boost_python_library_var}}
     ${PYTHON_LIBRARIES})
 
-sprokit_create_python_init(sprokit/pipeline_util)
-#  bake
-#  export_
-#  load)
+sprokit_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
+                          sprokit/pipeline_util __init__)
 
 endif()
