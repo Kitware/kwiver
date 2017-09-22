@@ -55,8 +55,8 @@ create_port_trait(image1, image, "First input image" );
 create_port_trait(image2, image, "Second input image" );
 create_port_trait(blended_image, image, "Blended image" );
 
-create_config_trait( blending_mode, std::string, "0.5", "Blending mode: linear "
-                     "or max)." );
+create_config_trait( blending_mode, std::string, "linear", 
+                     "Blending mode: linear or max." );
 create_config_trait( image1_alpha, double, "0.5", "When blending mode is linear,"
                      " this sets the fractional contribution of the blended "
                      "image from image one (range 0-1)." );
