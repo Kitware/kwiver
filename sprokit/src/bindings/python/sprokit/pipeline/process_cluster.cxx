@@ -180,8 +180,6 @@ PYBIND11_MODULE(process_cluster, m)
     , (arg("process"))
     , "Returns the process as a cluster or None if the process is not a cluster.");
 
-  implicitly_convertible<sprokit::process_cluster_t, sprokit::process_t>();
-
 }
 
 wrap_process_cluster

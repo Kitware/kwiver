@@ -34,6 +34,7 @@
 #include <sprokit/pipeline/stamp.h>
 
 #include "PyStamp.cxx"
+#include "PyProcess.cxx"
 
 #include <sprokit/python/util/python_gil.h>
 
@@ -51,15 +52,22 @@ class PyEdgeDatum : public sprokit::edge_datum_t
 {
   public:
     PyEdgeDatum() : sprokit::edge_datum_t() {}
-    PyEdgeDatum(sprokit::datum datum, PyStamp stamp)
+    PyEdgeDatum(sprokit::datum dat, PyStamp st)
                : sprokit::edge_datum_t(
-                 std::make_shared<sprokit::datum>(datum), stamp.get_stamp()) 
+                 std::make_shared<sprokit::datum>(dat), st.get_stamp()) 
                {}
+
+    sprokit::datum get_datum() {return *datum;}
+    void set_datum(sprokit::datum const& dat) {datum = std::make_shared<sprokit::datum>(dat);}
+    PyStamp get_stamp() {return PyStamp(stamp);}
+    void set_stamp(PyStamp const& st) {stamp = st.get_stamp();}
 };
 
 static void push_datum(sprokit::edge& self, PyEdgeDatum const& datum); 
 static PyEdgeDatum get_datum(sprokit::edge& self);
 static PyEdgeDatum peek_datum(sprokit::edge& self, size_t const& idx);
+static void set_upstream_process(sprokit::edge& self, PyProcess const& process);
+static void set_downstream_process(sprokit::edge& self, PyProcess const& process);
 
 PYBIND11_MODULE(edge, m)
 {
@@ -67,8 +75,8 @@ PYBIND11_MODULE(edge, m)
   class_<PyEdgeDatum>(m, "EdgeDatum")
     .def(init<>())
     .def(init<sprokit::datum, PyStamp>())
-    .def_readwrite("datum", &sprokit::edge_datum_t::datum)
-    .def_readwrite("stamp", &sprokit::edge_datum_t::stamp)
+    .def_property("datum", &PyEdgeDatum::get_datum, &PyEdgeDatum::set_datum)
+    .def_property("stamp", &PyEdgeDatum::get_stamp, &PyEdgeDatum::set_stamp)
   ;
   bind_vector<std::vector<PyEdgeDatum> >(m, "EdgeData"
     , "A collection of data packets that may be passed through an edge.")
@@ -98,10 +106,10 @@ PYBIND11_MODULE(edge, m)
       , "Returns the next datum packet from the edge.")
     .def("pop_datum", &sprokit::edge::pop_datum
       , "Remove the next datum packet from the edge.")
-    .def("set_upstream_process", &sprokit::edge::set_upstream_process
+    .def("set_upstream_process", &set_upstream_process
       , (arg("process"))
       , "Set the process which is feeding data into the edge.")
-    .def("set_downstream_process", &sprokit::edge::set_downstream_process
+    .def("set_downstream_process", &set_downstream_process
       , (arg("process"))
       , "Set the process which is reading data from the edge.")
     .def("mark_downstream_as_complete", &sprokit::edge::mark_downstream_as_complete
@@ -134,4 +142,16 @@ peek_datum(sprokit::edge& self, size_t const& idx)
   sprokit::edge_datum_t datum = self.peek_datum(idx);
   PyEdgeDatum datum_p(*(datum.datum), PyStamp(datum.stamp));
   return datum_p;
+}
+
+void
+set_downstream_process(sprokit::edge& self, PyProcess const& process)
+{
+  self.set_downstream_process(process.process_ptr);
+}
+
+void
+set_upstream_process(sprokit::edge& self, PyProcess const& process)
+{
+  self.set_upstream_process(process.process_ptr);
 }

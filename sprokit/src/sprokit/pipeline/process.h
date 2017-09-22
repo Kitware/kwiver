@@ -1299,6 +1299,9 @@ class SPROKIT_PIPELINE_EXPORT process
     void stop_reconfigure_processing( );
 //@}
 
+    class SPROKIT_PIPELINE_NO_EXPORT priv;
+    std::shared_ptr<priv> d;
+
   private:
     kwiver::vital::config_block_value_t config_value_raw(kwiver::vital::config_block_key_t const& key) const;
 
@@ -1311,9 +1314,6 @@ class SPROKIT_PIPELINE_EXPORT process
 
     friend class process_cluster;
     SPROKIT_PIPELINE_NO_EXPORT void reconfigure_with_provides(kwiver::vital::config_block_sptr const& conf);
-
-    class SPROKIT_PIPELINE_NO_EXPORT priv;
-    std::shared_ptr<priv> d;
 };
 
 template <typename T>

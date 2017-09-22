@@ -31,7 +31,9 @@
 #include <sprokit/pipeline/pipeline.h>
 #include <sprokit/pipeline/process_cluster.h>
 
-#include <pybind11/pybind11.h>
+#include "PyProcess.cxx"
+
+#include <pybind11/stl_bind.h>
 
 /**
  * \file pipeline.cxx
@@ -41,13 +43,19 @@
 
 using namespace pybind11;
 
+static void add_process(sprokit::pipeline& self, PyProcess const& process); 
+static PyProcess process_by_name(sprokit::pipeline& self, std::string const& name);
+
 PYBIND11_MODULE(pipeline,m)
 {
+
+  bind_vector<std::vector<std::string> > (m, "names_t", module_local());
+
   class_<sprokit::pipeline, sprokit::pipeline_t>(m, "Pipeline"
     , "A data structure for a collection of connected processes.")
     .def(init<>())
     .def(init<kwiver::vital::config_block_sptr>())
-    .def("add_process", &sprokit::pipeline::add_process
+    .def("add_process", &add_process
       , (arg("process"))
       , "Add a process to the pipeline.")
     .def("remove_process", &sprokit::pipeline::remove_process
@@ -72,7 +80,7 @@ PYBIND11_MODULE(pipeline,m)
       , "Reconfigures processes within the pipeline.")
     .def("process_names", &sprokit::pipeline::process_names
       , "Returns a list of all process names in the pipeline.")
-    .def("process_by_name", &sprokit::pipeline::process_by_name
+    .def("process_by_name", &process_by_name
       , (arg("name"))
       , "Get a process by name.")
     .def("parent_cluster", &sprokit::pipeline::parent_cluster
@@ -125,3 +133,15 @@ PYBIND11_MODULE(pipeline,m)
   ;
 
 }
+
+void
+add_process(sprokit::pipeline& self, PyProcess const& process)
+{
+  self.add_process(process.process_ptr);
+}
+
+PyProcess
+process_by_name(sprokit::pipeline& self, std::string const& name)
+{
+  return PyProcess_from_process(self.process_by_name(name));
+} 

@@ -33,7 +33,7 @@
  *
  * \brief Python bindings for \link sprokit::process_factory\endlink.
  */
-
+#include <iostream>
 #include <sprokit/pipeline/process.h>
 #include <sprokit/pipeline/process_cluster.h>
 #include <sprokit/pipeline/process_factory.h>
@@ -75,7 +75,7 @@ static bool is_process_loaded( const std::string& name );
 static void mark_process_loaded( const std::string& name );
 static std::string get_description( const std::string& name );
 static std::vector< std::string > process_names();
-static PyProcess* create_process( sprokit::process::type_t& type,
+static PyProcess create_process( sprokit::process::type_t& type,
                                  sprokit::process::name_t& name,
                                  kwiver::vital::config_block_sptr config = kwiver::vital::config_block::empty_config() ); 
 // ==================================================================
@@ -207,14 +207,13 @@ std::vector< std::string > process_names()
 }
 
 //-------------------------------------------------------------------
-PyProcess*
+PyProcess
 create_process(sprokit::process::type_t& type,
                sprokit::process::name_t& name,
                kwiver::vital::config_block_sptr config)
 {
   sprokit::process_t process = sprokit::create_process(type, name, config);
-  PyProcess* process_py = dynamic_cast<PyProcess*> (process.get());
-  return process_py; 
+  return PyProcess_from_process(process); 
 }
 
 // -------------------------------------------------------------------

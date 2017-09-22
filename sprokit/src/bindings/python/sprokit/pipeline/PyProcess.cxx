@@ -31,6 +31,7 @@
 #include <sprokit/pipeline/edge.h>
 #include <sprokit/pipeline/process.h>
 #include <sprokit/pipeline/stamp.h>
+#include <sprokit/pipeline/process_cluster.h>
 
 #include <sprokit/python/util/python_exceptions.h>
 #include <sprokit/python/util/python_gil.h>
@@ -45,375 +46,227 @@
 
 using namespace pybind11;
 
-class PyProcess
-  : public sprokit::process
+// Instead of just using a sprokit::process, we need a wrapper
+// This is because of how pybind11 deals with shared_ptrs 
+
+class PubProcess : public sprokit::process
 {
   public:
-    PyProcess(kwiver::vital::config_block_sptr const& config);
-    ~PyProcess();
+
+  // Because sprokit::process is noncopyable
+  // We need to manually create a copy constructor to use shared_ptrs properly 
+  PubProcess(kwiver::vital::config_block_sptr const& config) : sprokit::process(config) {};
+  PubProcess(PubProcess const& other) : sprokit::process(other.get_config()) {d = other.d;}; 
+};
+
+class PyProcess
+{
+  public:
+  PyProcess(std::shared_ptr<PubProcess> ptr) : process_ptr(ptr) {}
+  PyProcess(kwiver::vital::config_block_sptr const& config);
+
+  std::shared_ptr<PubProcess> process_ptr;
+/*
+  void declare_input_port(sprokit::process::port_t const&, sprokit::process::port_info_t const&);
+  void declare_input_port(sprokit::process::port_t const&, sprokit::process::port_type_t const&,
+                          sprokit::process::port_flags_t const&, sprokit::process::port_description_t const&,
+                          sprokit::process::port_frequency_t const&);
+
+  void declare_output_port(sprokit::process::port_t const&, sprokit::process::port_info_t const&);
+  void declare_output_port(sprokit::process::port_t const&, sprokit::process::port_info_t const&,
+                           sprokit::process::port_flags_t const&, sprokit::process::port_description_t const&,
+                           sprokit::process::port_frequency_t const&);
+
+  void set_input_port_frequency(sprokit::process::port_t const&, sprokit::process::port_frequency_t const&);
+  void set_output_port_frequency(sprokit::process::port_t const&, sprokit::process::port_frequency_t const&);
+
+  void remove_input_port(sprokit::process::port_t const&);
+  void remove_output_port(sprokit::process::port_t const&);
 
 
-    void
-    _configure() override
-    {
-      PYBIND11_OVERLOAD(
-        void,
-        sprokit::process,
-        _configure
-      );
-    }
+  void declare_configuration_key(kwiver::vital::config_block_key_t const&,
+                                 sprokit::process::conf_info_t const&);
+  void declare_configuration_key(kwiver::vital::config_block_key_t const&,
+                                 kwiver::vital::config_block_value_t const&,
+                                 kwiver::vital::config_block_description_t const&);
+  void declare_configuration_key(kwiver::vital::config_block_key_t const&,
+                                 kwiver::vital::config_block_value_t const&,
+                                 kwiver::vital::config_block_description_t const&,
+                                 bool);
 
-    void
-    _init() override
-    {
-      PYBIND11_OVERLOAD(
-        void,
-        sprokit::process,
-        _init
-      );
-    }
+  void mark_process_as_complete();
 
-    void
-    _reset() override
-    {
-      PYBIND11_OVERLOAD(
-        void,
-        sprokit::process,
-        _reset
-      );
-    }
+  bool has_input_port_edge(sprokit::process::port_t const&);
+  size_t count_output_port_edges(sprokit::process::port_t const&);
 
-    void
-    _flush() override
-    {
-      PYBIND11_OVERLOAD(
-        void,
-        sprokit::process,
-        _flush
-      );
-    }
+  sprokit::edge_datum_t peek_at_port(sprokit::process::port_t const&, size_t);
+  sprokit::datum_t peek_at_datum_on_port (sprokit::process::port_t const&, size_t);
+  sprokit::edge_datum_t grab_from_port(sprokit::process::port_t const&);
+  sprokit::datum_t grab_datum_from_port(sprokit::process::port_t const&);
+  object grab_value_from_port(sprokit::process::port_t const&);
+  void push_to_port(sprokit::process::port_t const&, sprokit::edge_datum_t const&);
+  void push_datum_to_port(sprokit::process::port_t const&, sprokit::datum_t const&);
+  void push_value_to_port(sprokit::process::port_t const&, object const&);
 
-    void
-    _step() override
-    {
-      PYBIND11_OVERLOAD(
-        void,
-        sprokit::process,
-        _step
-      );
-    }
+  kwiver::vital::config_block_sptr get_config() const;
+  kwiver::vital::config_block_value_t config_value(kwiver::vital::config_block_key_t const&) const;
 
-    void
-    _reconfigure(kwiver::vital::config_block_sptr const& conf) override
-    {
-      PYBIND11_OVERLOAD(
-        void,
-        sprokit::process,
-        _reconfigure,
-        conf
-      );
-    }
+  void set_data_checking_level(sprokit::process::data_check_t);
 
-    sprokit::process::properties_t
-    _properties() const override
-    {
-      PYBIND11_OVERLOAD(
-        sprokit::process::properties_t,
-        sprokit::process,
-        _properties
-      );
-    }
-
-    sprokit::process::ports_t
-    _input_ports() const override
-    {
-      PYBIND11_OVERLOAD(
-        sprokit::process::ports_t,
-        sprokit::process,
-        _input_ports
-      );
-    }
-
-    sprokit::process::ports_t
-    _output_ports() const override
-    {
-      PYBIND11_OVERLOAD(
-        sprokit::process::ports_t,
-        sprokit::process,
-        _output_ports
-      );
-    }
-
-    sprokit::process::port_info_t
-    _input_port_info(port_t const& port) override
-    {
-      PYBIND11_OVERLOAD(
-        sprokit::process::port_info_t,
-        sprokit::process,
-        _input_port_info,
-        port
-      );
-    }
-
-    sprokit::process::port_info_t
-    _output_port_info(port_t const& port) override
-    {
-      PYBIND11_OVERLOAD(
-        sprokit::process::port_info_t,
-        sprokit::process,
-        _output_port_info,
-        port
-      );
-    }
-
-    bool
-    _set_input_port_type(port_t const& port, port_type_t const& new_type) override
-    {
-      PYBIND11_OVERLOAD(
-        bool,
-        sprokit::process,
-        _set_input_port_type,
-        port,
-        new_type
-      );
-    }
-
-    bool
-    _set_output_port_type(port_t const& port, port_type_t const& new_type) override
-    {
-      PYBIND11_OVERLOAD(
-        bool,
-        sprokit::process,
-        _set_output_port_type,
-        port,
-        new_type
-      );
-    }
-
-    kwiver::vital::config_block_keys_t
-    _available_config() const override
-    {
-      PYBIND11_OVERLOAD(
-        kwiver::vital::config_block_keys_t,
-        sprokit::process,
-        _available_config
-      );
-    }
-
-    sprokit::process::conf_info_t
-    _config_info(kwiver::vital::config_block_key_t const& key) override
-    {
-      PYBIND11_OVERLOAD(
-        sprokit::process::conf_info_t,
-        sprokit::process,
-        _config_info,
-        key
-      );
-    }
-
-    void _declare_input_port(port_t const& port, port_info_t const& info);
-    void _declare_input_port_1(port_t const& port,
-                               port_type_t const& type_,
-                               port_flags_t const& flags_,
-                               port_description_t const& description_,
-                               port_frequency_t const& frequency_);
-    void _declare_output_port(port_t const& port, port_info_t const& info);
-    void _declare_output_port_1(port_t const& port,
-                                port_type_t const& type_,
-                                port_flags_t const& flags_,
-                                port_description_t const& description_,
-                                port_frequency_t const& frequency_);
-
-    void _set_input_port_frequency(port_t const& port, port_frequency_t const& new_frequency);
-    void _set_output_port_frequency(port_t const& port, port_frequency_t const& new_frequency);
-
-    void _remove_input_port(port_t const& port);
-    void _remove_output_port(port_t const& port);
-
-    void _declare_configuration_key(kwiver::vital::config_block_key_t const& key, conf_info_t const& info);
-    void _declare_configuration_key_1(kwiver::vital::config_block_key_t const& key,
-                                      kwiver::vital::config_block_value_t const& def_,
-                                      kwiver::vital::config_block_description_t const& description_);
-    void _declare_configuration_key_2(kwiver::vital::config_block_key_t const& key,
-                                      kwiver::vital::config_block_value_t const& def_,
-                                      kwiver::vital::config_block_description_t const& description_,
-                                      bool tunable_);
-
-    void _mark_process_as_complete();
-
-    bool _has_input_port_edge(port_t const& port) const;
-    size_t _count_output_port_edges(port_t const& port) const;
-
-    sprokit::edge_datum_t _peek_at_port(port_t const& port, size_t idx) const;
-    sprokit::datum_t _peek_at_datum_on_port(port_t const& port, size_t idx) const;
-    sprokit::edge_datum_t _grab_from_port(port_t const& port) const;
-    sprokit::datum_t _grab_datum_from_port(port_t const& port) const;
-    object _grab_value_from_port(port_t const& port) const;
-    void _push_to_port(port_t const& port, sprokit::edge_datum_t const& dat) const;
-    void _push_datum_to_port(port_t const& port, sprokit::datum_t const& dat) const;
-    void _push_value_to_port(port_t const& port, object const& obj) const;
-
-    kwiver::vital::config_block_sptr _get_config() const;
-    kwiver::vital::config_block_value_t _config_value(kwiver::vital::config_block_key_t const& key) const;
-
-    void _set_data_checking_level(data_check_t check);
-
-    data_info_t _edge_data_info(sprokit::edge_data_t const& data);
+  sprokit::process::data_info_t edge_data_info(sprokit::edge_data_t const&); 
+*/
 };
 
 PyProcess
 ::PyProcess(kwiver::vital::config_block_sptr const& config)
-  : sprokit::process(config)
 {
+  process_ptr = std::make_shared<PubProcess>(PubProcess(config));
 }
 
+/*
+void
 PyProcess
-::~PyProcess()
+::declare_input_port(sprokit::process::port_t const& port, sprokit::process::port_info_t const& info)
 {
+  process_ptr->declare_input_port(port, info);
 }
 
 void
 PyProcess
-::_declare_input_port(port_t const& port, port_info_t const& info)
+::declare_input_port(sprokit::process::port_t const& port,
+                        sprokit::process::port_type_t const& type_,
+                        sprokit::process::port_flags_t const& flags_,
+                        sprokit::process::port_description_t const& description_,
+                        sprokit::process::port_frequency_t const& frequency_)
 {
-  declare_input_port(port, info);
+  process_ptr->declare_input_port(port, type_, flags_, description_, frequency_);
 }
 
 void
 PyProcess
-::_declare_input_port_1(port_t const& port,
-                        port_type_t const& type_,
-                        port_flags_t const& flags_,
-                        port_description_t const& description_,
-                        port_frequency_t const& frequency_)
+::declare_output_port(sprokit::process::port_t const& port, sprokit::process::port_info_t const& info)
 {
-  declare_input_port(port, type_, flags_, description_, frequency_);
+  process_ptr->declare_output_port(port, info);
 }
 
 void
 PyProcess
-::_declare_output_port(port_t const& port, port_info_t const& info)
+::declare_output_port(sprokit::process::port_t const& port,
+                         sprokit::process::port_type_t const& type_,
+                         sprokit::process::port_flags_t const& flags_,
+                         sprokit::process::port_description_t const& description_,
+                         sprokit::process::port_frequency_t const& frequency_)
 {
-  declare_output_port(port, info);
+  process_ptr->declare_output_port(port, type_, flags_, description_, frequency_);
 }
 
 void
 PyProcess
-::_declare_output_port_1(port_t const& port,
-                         port_type_t const& type_,
-                         port_flags_t const& flags_,
-                         port_description_t const& description_,
-                         port_frequency_t const& frequency_)
+::set_input_port_frequency(sprokit::process::port_t const& port, sprokit::process::port_frequency_t const& new_frequency)
 {
-  declare_output_port(port, type_, flags_, description_, frequency_);
+  process_ptr->set_input_port_frequency(port, new_frequency);
 }
 
 void
 PyProcess
-::_set_input_port_frequency(port_t const& port, port_frequency_t const& new_frequency)
+::set_output_port_frequency(sprokit::process::port_t const& port, sprokit::process::port_frequency_t const& new_frequency)
 {
-  set_input_port_frequency(port, new_frequency);
+  process_ptr->set_output_port_frequency(port, new_frequency);
 }
 
 void
 PyProcess
-::_set_output_port_frequency(port_t const& port, port_frequency_t const& new_frequency)
+::remove_input_port(sprokit::process::port_t const& port)
 {
-  set_output_port_frequency(port, new_frequency);
+  process_ptr->remove_input_port(port);
 }
 
 void
 PyProcess
-::_remove_input_port(port_t const& port)
+::remove_output_port(sprokit::process::port_t const& port)
 {
-  remove_input_port(port);
+  process_ptr->remove_output_port(port);
 }
 
 void
 PyProcess
-::_remove_output_port(port_t const& port)
+::declare_configuration_key(kwiver::vital::config_block_key_t const& key,
+                            sprokit::process::conf_info_t const& info)
 {
-  remove_output_port(port);
+  process_ptr->declare_configuration_key(key, info);
 }
 
 void
 PyProcess
-::_declare_configuration_key(kwiver::vital::config_block_key_t const& key, conf_info_t const& info)
-{
-  declare_configuration_key(key, info);
-}
-
-void
-PyProcess
-::_declare_configuration_key_1(kwiver::vital::config_block_key_t const& key,
+::declare_configuration_key(kwiver::vital::config_block_key_t const& key,
                                kwiver::vital::config_block_value_t const& def_,
                                kwiver::vital::config_block_description_t const& description_)
 {
-  declare_configuration_key(key, def_, description_);
+  process_ptr->declare_configuration_key(key, def_, description_);
 }
 
 void
 PyProcess
-::_declare_configuration_key_2(kwiver::vital::config_block_key_t const& key,
+::declare_configuration_key(kwiver::vital::config_block_key_t const& key,
                                kwiver::vital::config_block_value_t const& def_,
                                kwiver::vital::config_block_description_t const& description_,
                                bool tunable_)
 {
-  declare_configuration_key(key, def_, description_, tunable_);
+  process_ptr->declare_configuration_key(key, def_, description_, tunable_);
 }
 
 void
 PyProcess
-::_mark_process_as_complete()
+::mark_process_as_complete()
 {
-  mark_process_as_complete();
+  process_ptr->mark_process_as_complete();
 }
 
 bool
 PyProcess
-::_has_input_port_edge(port_t const& port) const
+::has_input_port_edge(sprokit::process::port_t const& port) const
 {
-  return has_input_port_edge(port);
+  return process_ptr->has_input_port_edge(port);
 }
 
 size_t
 PyProcess
-::_count_output_port_edges(port_t const& port) const
+::count_output_port_edges(sprokit::process::port_t const& port) const
 {
-  return count_output_port_edges(port);
+  return process_ptr->count_output_port_edges(port);
 }
 
 sprokit::edge_datum_t
 PyProcess
-::_peek_at_port(port_t const& port, size_t idx) const
+::peek_at_port(sprokit::process::port_t const& port, size_t idx) const
 {
-  return peek_at_port(port, idx);
+  return process_ptr->peek_at_port(port, idx);
 }
 
 sprokit::datum_t
 PyProcess
-::_peek_at_datum_on_port(port_t const& port, size_t idx) const
+::peek_at_datum_on_port(sprokit::process::port_t const& port, size_t idx) const
 {
-  return peek_at_datum_on_port(port, idx);
+  return process_ptr->peek_at_datum_on_port(port, idx);
 }
 
 sprokit::edge_datum_t
 PyProcess
-::_grab_from_port(port_t const& port) const
+::grab_from_port(sprokit::process::port_t const& port) const
 {
-  return grab_from_port(port);
+  return process_ptr->grab_from_port(port);
 }
 
 sprokit::datum_t
 PyProcess
-::_grab_datum_from_port(port_t const& port) const
+::grab_datum_from_port(sprokit::process::port_t const& port) const
 {
-  return grab_datum_from_port(port);
+  return process_ptr->grab_datum_from_port(port);
 }
 
 object
 PyProcess
-::_grab_value_from_port(port_t const& port) const
+::grab_value_from_port(sprokit::process::port_t const& port) const
 {
   sprokit::python::python_gil const gil;
 
@@ -427,21 +280,21 @@ PyProcess
 
 void
 PyProcess
-::_push_to_port(port_t const& port, sprokit::edge_datum_t const& dat) const
+::push_to_port(sprokit::process::port_t const& port, sprokit::edge_datum_t const& dat) const
 {
-  return push_to_port(port, dat);
+  return process_ptr->push_to_port(port, dat);
 }
 
 void
 PyProcess
-::_push_datum_to_port(port_t const& port, sprokit::datum_t const& dat) const
+::push_datum_to_port(sprokit::process::port_t const& port, sprokit::datum_t const& dat) const
 {
-  return push_datum_to_port(port, dat);
+  return process_ptr->push_datum_to_port(port, dat);
 }
 
 void
 PyProcess
-::_push_value_to_port(port_t const& port, object const& obj) const
+::push_value_to_port(sprokit::process::port_t const& port, object const& obj) const
 {
   sprokit::python::python_gil const gil;
 
@@ -455,28 +308,36 @@ PyProcess
 
 kwiver::vital::config_block_sptr
 PyProcess
-::_get_config() const
+::get_config() const
 {
-  return get_config();
+  return process_ptr->get_config();
 }
 
 kwiver::vital::config_block_value_t
 PyProcess
-::_config_value(kwiver::vital::config_block_key_t const& key) const
+::config_value(kwiver::vital::config_block_key_t const& key) const
 {
-  return config_value<kwiver::vital::config_block_value_t>(key);
+  return process_ptr->config_value<kwiver::vital::config_block_value_t>(key);
 }
 
 void
 PyProcess
-::_set_data_checking_level(data_check_t check)
+::set_data_checking_level(sprokit::process::data_check_t check)
 {
-  set_data_checking_level(check);
+  process_ptr->set_data_checking_level(check);
 }
 
 sprokit::process::data_info_t
 PyProcess
-::_edge_data_info(sprokit::edge_data_t const& data)
+::edge_data_info(sprokit::edge_data_t const& data)
 {
-  return edge_data_info(data);
+  return process_ptr->edge_data_info(data);
+}
+*/
+
+PyProcess
+PyProcess_from_process(sprokit::process_t const& process)
+{
+  PubProcess* process_pub = (PubProcess*) (process.get());
+  return PyProcess(std::make_shared<PubProcess> (*process_pub));
 }

@@ -40,19 +40,12 @@ def test_create():
     from sprokit.pipeline import datum
     from sprokit.pipeline import process
 
-    process.ProcessType()
     process.ProcessTypes()
-    process.ProcessName()
     process.ProcessNames()
-    process.ProcessProperty()
     process.ProcessProperties()
-    process.PortDescription()
     process.PortFrequency(1)
     process.PortFrequency(1, 1)
-    process.Port()
     process.Ports()
-    process.PortType()
-    process.PortFlag()
     process.PortFlags()
     process.PortAddr()
     process.PortAddrs()
