@@ -60,13 +60,16 @@ using namespace kwiver::vital;
 class heat_map_bounding_boxes::priv
 {
 public:  
+  double m_threshold;
   int m_min_area, m_max_area;
   double m_min_fill_fraction;
   kwiver::vital::logger_handle_t m_logger;
   
   /// Constructor
   priv()
-    : m_min_area(1),
+    : 
+      m_threshold(1),
+      m_min_area(1),
       m_max_area(10000000),
       m_min_fill_fraction(0.25)
   {
@@ -74,12 +77,15 @@ public:
   
   // --------------------------------------------------------------------------
   detected_object_set_sptr
-  get_bounding_boxes_find_contours(cv::Mat const &img)
+  get_bounding_boxes_find_contours(cv::Mat const &heat_map)
   {
     auto detected_objects = std::make_shared< detected_object_set >();
     
+    cv::Mat mask;
+    cv::threshold( heat_map, mask, m_threshold, 1, cv::THRESH_BINARY );
+    
     std::vector< std::vector<cv::Point> > contours;
-    cv::findContours(img.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, 
+    cv::findContours(mask, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, 
                      cv::Point(0, 0));
 
     double conf = 1.0;
@@ -139,6 +145,8 @@ heat_map_bounding_boxes
   // get base config from base class
   vital::config_block_sptr config = algorithm::get_configuration();
   
+  config->set_value( "threshold", d_->m_threshold,
+                     "Threshold value applied to each pixel of the heat map." );
   config->set_value( "min_area", d_->m_min_area,
                      "Minimum area of above-threshold pixels in a connected "
                      "cluster allowed. Area is approximately equal to the "
@@ -165,10 +173,12 @@ heat_map_bounding_boxes
   vital::config_block_sptr config = this->get_configuration();
   config->merge_config(in_config);
   
+  d_->m_threshold          = config->get_value<int>( "threshold" );
   d_->m_min_area           = config->get_value<int>( "min_area" );
   d_->m_max_area           = config->get_value<int>( "max_area" );
   d_->m_min_fill_fraction  = config->get_value<double>( "min_fill_fraction" );
   
+  LOG_DEBUG( logger(), "threshold: " << std::to_string(d_->m_threshold));
   LOG_DEBUG( logger(), "min_area: " << std::to_string(d_->m_min_area));
   LOG_DEBUG( logger(), "max_area: " << std::to_string(d_->m_max_area));
   LOG_DEBUG( logger(), "min_fill_fraction: " << std::to_string(d_->m_min_fill_fraction));
