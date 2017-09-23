@@ -66,9 +66,9 @@ create_config_trait( image1_color_mode, std::string, "RGB", "Describes the "
                      "mapping from source image channel(s) to the RGB blended "
                      "image channels. If the input image has three channels, "
                      "parameter values RGB or BGR describe the channel order. "
-                     "If R, G, or B is set, the input is converted to "
+                     "If R, G, B, or GRAY is set, the input is converted to "
                      "grayscale (if not already a single channel image) and"
-                     "only contributes to that channel of the blended image." );
+                     "contributes that color to the blended image." );
 create_config_trait( image2_alpha, double, "0.5", "When blending mode is linear,"
                      " this sets the fractional contribution of the blended "
                      "image from image two (range 0-1)." );
@@ -78,9 +78,9 @@ create_config_trait( image2_color_mode, std::string, "RGB", "Describes the "
                      "mapping from source image channel(s) to the RGB blended "
                      "image channels. If the input image has three channels, "
                      "parameter values RGB or BGR describe the channel order. "
-                     "If R, G, or B is set, the input is converted to "
+                     "If R, G, B, or GRAY is set, the input is converted to "
                      "grayscale (if not already a single channel image) and"
-                     "only contributes to that channel of the blended image." );
+                     "contributes that color to the blended image." );
 
 
 static std::string type2str(int type) 
@@ -141,10 +141,9 @@ public:
    * \param[in] cm    the channel or order of channels to populate to
    * \param[out]      OpenCV image
    */
-  cv::Mat
-  vital_to_ocv_rgb(kwiver::vital::image_container_sptr img, std::string cm)
+  void
+  vital_to_ocv_rgb(kwiver::vital::image_container_sptr img, std::string cm, cv::Mat &img_ocv)
   {
-    cv::Mat img_ocv;
     if( cm == "BGR" )
     {
       img_ocv = arrows::ocv::image_container::vital_to_ocv( img->get_image(), 
@@ -155,66 +154,165 @@ public:
       img_ocv = arrows::ocv::image_container::vital_to_ocv( img->get_image(), 
                                                             arrows::ocv::image_container::RGB );
     }
-    else if( cm == "R" || cm == "G" || cm == "B" )
+    else if( cm == "R" || cm == "G" || cm == "B" || cm == "GRAY" )
     {
       img_ocv = arrows::ocv::image_container::vital_to_ocv( img->get_image() );
+      img_ocv = img_ocv.clone();
+      if( img_ocv.channels() == 3 )
+      {
+        cv::cvtColor( img_ocv, img_ocv, CV_RGB2GRAY );
+      }
     }
     else
     {
       throw vital::invalid_value( "Invalid image one color mode: " + cm + "!" );
     }
     
-    if( (cm == "RGB" || cm == "BGR") && ( img_ocv.channels() == 1 ) )
+    return;
+  }
+  
+  std::array<bool, 3>
+  get_channel_map( std::string channel_str )
+  {
+    if( channel_str == "R" )
     {
-      cv::Mat rgb;
-      cvtColor(img_ocv, rgb, CV_GRAY2RGB);
-      return rgb;
+      std::array<bool, 3> channel_map{true,false,false};
+      return channel_map;
+    }
+    else if( channel_str == "G" )
+    {
+      std::array<bool,3 > channel_map{false,true,false};
+      return channel_map;
+    }
+    else if( channel_str == "B" )
+    {
+      std::array<bool, 3> channel_map{false,false,true};
+      return channel_map;
+    }
+    else
+    {
+      std::array<bool, 3> channel_map{true,true,true};
+      return channel_map;
+    }
+  }
+      
+  
+    /// Blend a monochrome image with another monochrome image
+  /**
+   *
+   * \param[in] mono1        mono image one
+   * \param[in] alpha1       blending factor for mono image two
+   * \param[in] chann_str1  "R", "G", "B", or "GRAY" indicating channel blending
+   * \param[in] mono1        mono image two
+   * \param[in] alpha2       blending factor for mono image two
+   * \param[in] chann_str1  "R", "G", "B", or "GRAY" indicating channel blending
+   * \return                 blended image
+   */
+  void
+  blend_mono_with_mono( const cv::Mat mono1, const double alpha1, 
+                        const std::string chann_str1, 
+                        const cv::Mat mono2, const double alpha2, 
+                        const std::string chann_str2, cv::Mat &dst )
+  {    
+    cv::Mat RGB_3[3];
+    
+    std::array<bool, 3> chann_map1, chann_map2;
+    chann_map1 = get_channel_map( chann_str1 );
+    chann_map2 = get_channel_map( chann_str2 );
+    
+    for( std::size_t i=0; i<3; ++i )
+    {
+      cv::Mat img1, img2;
+      if( chann_map1[i] && chann_map2[i] )
+      {
+        // Both mono images contribute to this ith channel
+        if( m_blending_mode == "linear" )
+        {
+          cv::addWeighted( mono1, alpha1, mono2, alpha2, 0.0, 
+                           RGB_3[i], -1 );
+        }
+        else
+        {
+          cv::max( mono1, mono2, RGB_3[i] );
+        }
+      }
+      else if( chann_map1[i] )
+      {
+        // Only mono1 contributes
+        if( m_blending_mode == "linear" )
+        {
+          RGB_3[i] = mono1*alpha1;
+        }
+        else
+        {
+          RGB_3[i] = mono1;
+        }
+      }
+      else
+      {
+        // Only mono2 contributes
+        if( m_blending_mode == "linear" )
+        {
+          RGB_3[i] = mono2*alpha2;
+        }
+        else
+        {
+          RGB_3[i] = mono2;
+        }
+      }
     }
     
-    return img_ocv;
+    cv::merge(RGB_3, 3, dst);
   }
   
   /// Blend a monochrome image with one channel of an RGB image
   /**
    *
-   * \param[in] mono         the source vital image container
+   * \param[in] mono         mono image
    * \param[in] rgb          RGB image
-   * \param[in] channel_str  "R", "G", or "B" indicating channel to blend
+   * \param[in] channel_str  "R", "G", "B", or "GRAY" indicating channel blending
    * \return                 blended image
    */
-  cv::Mat 
+  void
   blend_mono_with_rgb(const cv::Mat mono, double alpha, const cv::Mat rgb, 
-                      const double beta, const std::string channel_str)
+                      const double beta, const std::string channel_str, 
+                      cv::Mat &dst)
   {
-    int channel;
+    std::vector<int> channels;
     if( channel_str == "R" )
     {
-      channel = 0;
+      channels.assign({0});
     }
     else if( channel_str == "G" )
     {
-      channel = 1;
+      channels.assign({1});
+    }
+    else if( channel_str == "B" )
+    {
+      channels.assign({2});
     }
     else
     {
-      channel = 2;
-    }
-
-    cv::Mat RGB_3[3];
-    cv::split(rgb, RGB_3);
-
-    if( m_blending_mode == "linear" )
-    {
-      cv::addWeighted(mono, alpha, RGB_3[channel], beta, 0.0, RGB_3[channel], -1);
-    }
-    else
-    {
-      cv::max(mono, RGB_3[channel], RGB_3[channel]);
+      channels.assign({0,1,2});
     }
     
-    cv::Mat dst;
-    merge(RGB_3, 3, dst);
-    return dst;
+    cv::Mat RGB_3[3];
+    cv::split(rgb, RGB_3);
+    
+    for( std::size_t i=0; i<channels.size(); ++i )
+    {
+      if( m_blending_mode == "linear" )
+      {
+        cv::addWeighted( mono, alpha, RGB_3[channels[i]], beta, 0.0, 
+                         RGB_3[channels[i]], -1 );
+      }
+      else
+      {
+        cv::max( mono, RGB_3[channels[i]], RGB_3[channels[i]] );
+      }
+    }
+    
+    cv::merge(RGB_3, 3, dst);
   }
   
   /// Blend images
@@ -224,10 +322,10 @@ public:
    * \param[in] img2   the second image
    * \return           the blended image
    */
-  cv::Mat
-  blend_images(cv::Mat img1, cv::Mat img2)
+  void
+  blend_images(cv::Mat img1, cv::Mat img2, cv::Mat &blended_image)
   {
-    LOG_DEBUG( m_logger, "Blending image one ([" + std::to_string(img1.cols) + 
+    LOG_TRACE( m_logger, "Blending image one ([" + std::to_string(img1.cols) + 
                ", " + std::to_string(img1.rows) + ", " +
                std::to_string(img1.channels()) + "], " + 
                type2str(img1.type()) + ") with image two ([" + 
@@ -247,31 +345,37 @@ public:
     
     if( img1.channels() == 3 && img2.channels() == 3 )
     {
-      LOG_DEBUG( m_logger, "Both images have 3 channels");
+      LOG_TRACE( m_logger, "Both images have 3 channels");
       // If both images have three channels, blend each channel individually.
-      cv::Mat output_img;
       if( m_blending_mode == "linear" )
       {
         cv::addWeighted(img1, m_image1_alpha, img2, m_image2_alpha, 0.0, 
-                        output_img, -1);
+                        blended_image, -1);
       }
       else
       {
-        cv::max(img1, img2, output_img);
+        cv::max(img1, img2, blended_image);
       }
-      return output_img;
+      return;
     }
     
     if( img1.channels() == 3)  // so img2.channels() != 3
     {
-      return blend_mono_with_rgb(img2, m_image2_alpha, img1, m_image1_alpha, 
-                                 m_image2_color_mode);
+      blend_mono_with_rgb( img2, m_image2_alpha, img1, m_image1_alpha, 
+                           m_image2_color_mode, blended_image );
     }
-    else // img2.channels() == 3 img1.channels() != 3
+    else if( img2.channels() == 3)  // so img2.channels() != 3
     {
-      return blend_mono_with_rgb(img1, m_image1_alpha, img2, m_image2_alpha,
-                                 m_image1_color_mode);
+      blend_mono_with_rgb( img1, m_image1_alpha, img2, m_image2_alpha,
+                           m_image1_color_mode, blended_image );
     }
+    else
+    {
+      blend_mono_with_mono( img1, m_image1_alpha, m_image1_color_mode, 
+                            img2, m_image2_alpha, m_image2_color_mode, 
+                            blended_image );
+    }
+    return;
   }
 
 }; // end priv class
@@ -333,12 +437,15 @@ blend_images_process::_step()
              ", " + std::to_string(img2->depth()) + "]");
   
   // --------------------- Convert Input Images to OCV Format ----------------- 
-  cv::Mat img1_ocv = d->vital_to_ocv_rgb(img1, d->m_image1_color_mode);
-  cv::Mat img2_ocv = d->vital_to_ocv_rgb(img2, d->m_image2_color_mode);
+  cv::Mat img1_ocv;
+  d->vital_to_ocv_rgb( img1, d->m_image1_color_mode, img1_ocv );
+  cv::Mat img2_ocv;
+  d->vital_to_ocv_rgb( img2, d->m_image2_color_mode, img2_ocv );
   // --------------------------------------------------------------------------
   
   // Get the blended OCV image
-  cv::Mat img3_ocv = d->blend_images(img1_ocv, img2_ocv);
+  cv::Mat img3_ocv;
+  d->blend_images( img1_ocv, img2_ocv, img3_ocv );
   vital::image_container_sptr img3( new arrows::ocv::image_container( img3_ocv ) );
 
   push_to_port_using_trait( blended_image, img3 );
