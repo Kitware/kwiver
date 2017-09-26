@@ -38,7 +38,7 @@
 #define KWIVER_TEST_TEST_TMPFN_H_
 
 #include <string>
-
+#include <cstdlib>
 #include <stdio.h>
 
 #ifdef _WIN32
