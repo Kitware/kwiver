@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "non_maximual_supression.h"
+#include "non_maximal_supression.h"
 
 #include <vital/types/detected_object_type.h>
 #include <vital/vital_foreach.h>
@@ -39,14 +39,14 @@ namespace core {
 
 
 // ------------------------------------------------------------------
-non_maximual_supression::
-non_maximual_supression()
+non_maximal_supression::
+non_maximal_supression()
   : m_overlap_threshold(0.3)
 { }
 
 
 // ------------------------------------------------------------------
-vital::config_block_sptr non_maximual_supression::
+vital::config_block_sptr non_maximal_supression::
 get_configuration() const
 {
    // Get base config from base class
@@ -60,7 +60,7 @@ get_configuration() const
 
 
 // ------------------------------------------------------------------
-void non_maximual_supression::
+void non_maximal_supression::
 set_configuration(vital::config_block_sptr config_in)
 {
   vital::config_block_sptr config = this->get_configuration();
@@ -70,7 +70,7 @@ set_configuration(vital::config_block_sptr config_in)
 
 
 // ------------------------------------------------------------------
-bool non_maximual_supression::
+bool non_maximal_supression::
 check_configuration(vital::config_block_sptr config) const
 {
   return true;
@@ -79,7 +79,7 @@ check_configuration(vital::config_block_sptr config) const
 
 // ------------------------------------------------------------------
 vital::detected_object_set_sptr
-non_maximual_supression::
+non_maximal_supression::
 filter( const vital::detected_object_set_sptr input_set ) const
 {
   // Need to clone input because we are modifying the set in this filter.
@@ -129,6 +129,6 @@ filter( const vital::detected_object_set_sptr input_set ) const
   } // end for class-names
 
   return output_set;
-} // non_maximual_supression::filter
+} // non_maximal_supression::filter
 
 } } }  // end namespace

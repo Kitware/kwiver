@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "class_probablity_filter.h"
+#include "class_probability_filter.h"
 
 #include <vital/vital_foreach.h>
 #include <vital/config/config_difference.h>
@@ -47,7 +47,7 @@ namespace arrows {
 namespace core {
 
 // ------------------------------------------------------------------
-class_probablity_filter::class_probablity_filter()
+class_probability_filter::class_probability_filter()
   : m_keep_all_classes( true )
   , m_threshold( 0.0 )
 {
@@ -56,7 +56,7 @@ class_probablity_filter::class_probablity_filter()
 
 // ------------------------------------------------------------------
 vital::config_block_sptr
-class_probablity_filter::get_configuration() const
+class_probability_filter::get_configuration() const
 {
   // Get base config from base class
   vital::config_block_sptr config = vital::algorithm::get_configuration();
@@ -88,7 +88,7 @@ class_probablity_filter::get_configuration() const
 
 // ------------------------------------------------------------------
 void
-class_probablity_filter::
+class_probability_filter::
 set_configuration( vital::config_block_sptr config_in )
 {
   vital::config_block_sptr config = this->get_configuration();
@@ -113,7 +113,7 @@ set_configuration( vital::config_block_sptr config_in )
 
 // ------------------------------------------------------------------
 bool
-class_probablity_filter::
+class_probability_filter::
 check_configuration( vital::config_block_sptr config ) const
 {
   kwiver::vital::config_difference cd( this->get_configuration(), config );
@@ -131,7 +131,7 @@ check_configuration( vital::config_block_sptr config ) const
 
 // ------------------------------------------------------------------
 vital::detected_object_set_sptr
-class_probablity_filter::
+class_probability_filter::
 filter( const vital::detected_object_set_sptr input_set ) const
 {
   auto ret_set = std::make_shared<vital::detected_object_set>();
@@ -180,6 +180,6 @@ filter( const vital::detected_object_set_sptr input_set ) const
   } // end foreach detection
 
   return ret_set;
-} // class_probablity_filter::filter
+} // class_probability_filter::filter
 
 } } }     // end namespace

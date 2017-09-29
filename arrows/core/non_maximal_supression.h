@@ -28,8 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KWIVER_ARROWS_NON_MAXIMUAL_SUPRESSION_H_
-#define KWIVER_ARROWS_NON_MAXIMUAL_SUPRESSION_H_
+#ifndef KWIVER_ARROWS_NON_MAXIMAL_SUPRESSION_H_
+#define KWIVER_ARROWS_NON_MAXIMAL_SUPRESSION_H_
 
 #include <vital/vital_config.h>
 #include <arrows/core/kwiver_algo_core_export.h>
@@ -48,16 +48,16 @@ namespace core {
  * @brief
 
  */
-class KWIVER_ALGO_CORE_EXPORT non_maximual_supression
-  : public vital::algorithm_impl<non_maximual_supression, vital::algo::detected_object_filter>
+class KWIVER_ALGO_CORE_EXPORT non_maximal_supression
+  : public vital::algorithm_impl<non_maximal_supression, vital::algo::detected_object_filter>
 {
 public:
 
-  non_maximual_supression();
+  non_maximal_supression();
 
-  virtual ~non_maximual_supression() {}
+  virtual ~non_maximal_supression() {}
 
-  virtual std::string impl_name() const { return "non_maximual_supression"; }
+  virtual std::string impl_name() const { return "non_maximal_supression"; }
 
   virtual vital::config_block_sptr get_configuration() const;
 
@@ -73,4 +73,4 @@ private:
 
 } } } //End namespace
 
-#endif // KWIVER_ARROWS_NON_MAXIMUAL_SUPRESSION_H_
+#endif // KWIVER_ARROWS_NON_MAXIMAL_SUPRESSION_H_

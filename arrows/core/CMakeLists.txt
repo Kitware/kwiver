@@ -1,7 +1,7 @@
 # Build / Install Plugin containing core algorithm implementations
 
 set( plugin_core_headers
-  class_probablity_filter.h
+  class_probability_filter.h
   close_loops_bad_frames_only.h
   close_loops_exhaustive.h
   close_loops_keyframe.h
@@ -38,7 +38,7 @@ set( plugin_core_headers
   match_features_homography.h
   match_matrix.h
   metrics.h
-  non_maximual_supression.h
+  non_maximal_supression.h
   projected_track_set.h
   track_features_core.h
   transform.h
@@ -57,7 +57,7 @@ kwiver_install_headers(
   )
 
 set( plugin_core_sources
-  class_probablity_filter.cxx
+  class_probability_filter.cxx
   close_loops_bad_frames_only.cxx
   close_loops_exhaustive.cxx
   close_loops_keyframe.cxx
@@ -94,7 +94,7 @@ set( plugin_core_sources
   match_features_homography.cxx
   match_matrix.cxx
   metrics.cxx
-  non_maximual_supression.cxx
+  non_maximal_supression.cxx
   projected_track_set.cxx
   track_features_core.cxx
   transform.cxx
