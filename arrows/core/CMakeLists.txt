@@ -38,7 +38,7 @@ set( plugin_core_headers
   match_features_homography.h
   match_matrix.h
   metrics.h
-  non_maximual_supression.h
+  non_maximal_supression.h
   projected_track_set.h
   track_features_core.h
   transform.h
@@ -94,7 +94,7 @@ set( plugin_core_sources
   match_features_homography.cxx
   match_matrix.cxx
   metrics.cxx
-  non_maximual_supression.cxx
+  non_maximal_supression.cxx
   projected_track_set.cxx
   track_features_core.cxx
   transform.cxx

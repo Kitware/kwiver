@@ -53,7 +53,7 @@
 #include <arrows/core/initialize_cameras_landmarks.h>
 #include <arrows/core/match_features_fundamental_matrix.h>
 #include <arrows/core/match_features_homography.h>
-#include <arrows/core/non_maximual_supression.h>
+#include <arrows/core/non_maximal_supression.h>
 #include <arrows/core/track_features_core.h>
 #include <arrows/core/triangulate_landmarks.h>
 #include <arrows/core/video_input_filter.h>
@@ -220,7 +220,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     ;
 
 
-  fact = vpm.ADD_ALGORITHM( "non_maximual_supression", kwiver::arrows::core::non_maximual_supression );
+  fact = vpm.ADD_ALGORITHM( "non_maximal_supression", kwiver::arrows::core::non_maximal_supression );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                        "Perform non maximal supression on detections?" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
