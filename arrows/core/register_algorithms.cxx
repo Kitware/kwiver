@@ -36,7 +36,7 @@
 #include <arrows/core/kwiver_algo_core_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
-#include <arrows/core/class_probablity_filter.h>
+#include <arrows/core/class_probability_filter.h>
 #include <arrows/core/close_loops_bad_frames_only.h>
 #include <arrows/core/close_loops_exhaustive.h>
 #include <arrows/core/close_loops_keyframe.h>
@@ -392,7 +392,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     ;
 
 
-  fact = vpm.ADD_ALGORITHM( "class_probablity_filter", kwiver::arrows::core::class_probablity_filter );
+  fact = vpm.ADD_ALGORITHM( "class_probability_filter", kwiver::arrows::core::class_probability_filter );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                        "Filters detections based on class probability.\n\n"
                        "This algorithm filters out items that are less than the threshold. "

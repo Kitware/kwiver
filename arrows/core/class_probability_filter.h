@@ -28,8 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KWIVER_ARROWS_CLASS_PROBABLITY_FILTER_H_
-#define KWIVER_ARROWS_CLASS_PROBABLITY_FILTER_H_
+#ifndef KWIVER_ARROWS_CLASS_PROBABILITY_FILTER_H_
+#define KWIVER_ARROWS_CLASS_PROBABILITY_FILTER_H_
 
 #include <vital/vital_config.h>
 #include <arrows/core/kwiver_algo_core_export.h>
@@ -63,13 +63,13 @@ namespace core {
  *    from step 2 is attached.
  */
 
-class KWIVER_ALGO_CORE_EXPORT class_probablity_filter
-  : public vital::algorithm_impl<class_probablity_filter, vital::algo::detected_object_filter>
+class KWIVER_ALGO_CORE_EXPORT class_probability_filter
+  : public vital::algorithm_impl<class_probability_filter, vital::algo::detected_object_filter>
 {
 public:
 
-  class_probablity_filter();
-  virtual ~class_probablity_filter() VITAL_DEFAULT_DTOR
+  class_probability_filter();
+  virtual ~class_probability_filter() VITAL_DEFAULT_DTOR
 
   virtual vital::config_block_sptr get_configuration() const;
 
@@ -87,4 +87,4 @@ private:
 }}} //End namespace
 
 
-#endif // KWIVER_ARROWS_CLASS_PROBABLITY_FILTER_H_
+#endif // KWIVER_ARROWS_CLASS_PROBABILITY_FILTER_H_
