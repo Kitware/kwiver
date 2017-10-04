@@ -69,6 +69,7 @@
 #include <arrows/ocv/hough_circle_detector.h>
 #include <arrows/ocv/motion_detector_MOG2.h>
 #include <arrows/ocv/stabilize_video_KLT.h>
+#include <arrows/ocv/three_frame_differencing.h>
 #include <arrows/ocv/warp_image.h>
 
 namespace kwiver {
@@ -270,6 +271,14 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact = vpm.ADD_ALGORITHM( "ocv_MOG2", kwiver::arrows::ocv::motion_detector_MOG2 );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                     "OpenCV Gaussian mixture-based background segmentation." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
+  
+  fact = vpm.ADD_ALGORITHM( "ocv_3frame_diff", kwiver::arrows::ocv::three_frame_differencing );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                    "OpenCV three-frame differencing background segmentation." )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
