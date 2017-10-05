@@ -63,6 +63,7 @@ public:
   double m_threshold;
   int m_min_area, m_max_area;
   double m_min_fill_fraction;
+  std::string m_class_name;
   kwiver::vital::logger_handle_t m_logger;
   
   /// Constructor
@@ -71,7 +72,8 @@ public:
       m_threshold(1),
       m_min_area(1),
       m_max_area(10000000),
-      m_min_fill_fraction(0.25)
+      m_min_fill_fraction(0.25),
+      m_class_name("unspecified")
   {
   }
   
@@ -91,8 +93,7 @@ public:
     double conf = 1.0;
     double prob = 1.0;
     auto dot = std::make_shared< detected_object_type >();
-    const std::string class_name("mover");
-    dot->set_score( class_name, prob );
+    dot->set_score( m_class_name, prob );
 
     for(unsigned j=0; j < contours.size(); ++j)
     {
@@ -158,6 +159,7 @@ heat_map_bounding_boxes
   config->set_value( "min_fill_fraction", d_->m_min_fill_fraction,
                      "Fraction of the bounding box filled with above threshold "
                      "pixels." );
+  config->set_value( "class_name", d_->m_class_name, "Detection class name." );
 
   return config;
 }
@@ -177,11 +179,13 @@ heat_map_bounding_boxes
   d_->m_min_area           = config->get_value<int>( "min_area" );
   d_->m_max_area           = config->get_value<int>( "max_area" );
   d_->m_min_fill_fraction  = config->get_value<double>( "min_fill_fraction" );
+  d_->m_class_name         = config->get_value<std::string>( "class_name" );
   
-  LOG_DEBUG( logger(), "threshold: " << std::to_string(d_->m_threshold));
-  LOG_DEBUG( logger(), "min_area: " << std::to_string(d_->m_min_area));
-  LOG_DEBUG( logger(), "max_area: " << std::to_string(d_->m_max_area));
-  LOG_DEBUG( logger(), "min_fill_fraction: " << std::to_string(d_->m_min_fill_fraction));
+  LOG_DEBUG( logger(), "threshold: " << std::to_string(d_->m_threshold) );
+  LOG_DEBUG( logger(), "min_area: " << std::to_string(d_->m_min_area) );
+  LOG_DEBUG( logger(), "max_area: " << std::to_string(d_->m_max_area) );
+  LOG_DEBUG( logger(), "min_fill_fraction: " << std::to_string(d_->m_min_fill_fraction) );
+  LOG_DEBUG( logger(), "class_name: " << d_->m_class_name );
 }
 
 
