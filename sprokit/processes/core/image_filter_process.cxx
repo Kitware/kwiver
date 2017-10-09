@@ -31,6 +31,7 @@
 #include "image_filter_process.h"
 
 #include <vital/algo/image_filter.h>
+#include <vital/util/wall_timer.h>
 
 #include <sprokit/processes/kwiver_type_traits.h>
 #include <sprokit/pipeline/process_exception.h>
@@ -48,6 +49,7 @@ public:
   ~priv();
 
    vital::algo::image_filter_sptr m_filter;
+   kwiver::vital::wall_timer m_timer;
 
 }; // end priv class
 
@@ -101,12 +103,17 @@ void
 image_filter_process::
 _step()
 {
+  d->m_timer.start();
   vital::image_container_sptr input = grab_from_port_using_trait( image );
 
   // Get detections from filter on image
   vital::image_container_sptr result = d->m_filter->filter( input );
 
   push_to_port_using_trait( image, result );
+  
+  d->m_timer.stop();
+  double elapsed_time = d->m_timer.elapsed();
+  LOG_DEBUG( logger(), "Total processing time: " << elapsed_time << " seconds");
 }
 
 
