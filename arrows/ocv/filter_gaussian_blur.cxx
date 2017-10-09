@@ -51,15 +51,15 @@ using namespace kwiver::vital;
 
 static
 bool
-is_negative_or_odd(int n)
+is_negative_or_even(int n)
 {
-  if( n > 0 && n % 2 == 0)
+  if( n < 0 || n % 2 == 0)
   {
-    return false;
+    return true;
   }      
   else
   {
-    return true;
+    return false;
   }
 }
 
@@ -154,19 +154,6 @@ filter_gaussian_blur
   d_->m_k_width = config->get_value<int>("k_width");
   d_->m_k_height = config->get_value<int>("k_height");
   
-  if( is_negative_or_odd(d_->m_k_width) )
-  {
-    throw algorithm_configuration_exception( type_name(), impl_name(), 
-                                             "k_width must be a positive odd "
-                                             "integer." );
-  }
-  if( is_negative_or_odd(d_->m_k_height) )
-  {
-    throw algorithm_configuration_exception( type_name(), impl_name(), 
-                                             "k_height must be a positive odd "
-                                             "integer." );
-  }
-  
   d_->m_sigma_x = config->get_value<int>("sigma_x");
   d_->m_sigma_y = config->get_value<int>("sigma_y");
   
@@ -176,6 +163,19 @@ filter_gaussian_blur
   LOG_DEBUG( logger(), "m_k_height: " << d_->m_k_height);
   LOG_DEBUG( logger(), "sigma_x: " << d_->m_sigma_x);
   LOG_DEBUG( logger(), "sigma_y: " << d_->m_sigma_y);
+  
+  if( is_negative_or_even(d_->m_k_width) )
+  {
+    throw algorithm_configuration_exception( type_name(), impl_name(), 
+                                             "k_width must be a positive odd "
+                                             "integer." );
+  }
+  if( is_negative_or_even(d_->m_k_height) )
+  {
+    throw algorithm_configuration_exception( type_name(), impl_name(), 
+                                             "k_height must be a positive odd "
+                                             "integer." );
+  }
 }
 
 
