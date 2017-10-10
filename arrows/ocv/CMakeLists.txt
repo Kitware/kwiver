@@ -28,6 +28,7 @@ set( ocv_headers_public
   feature_detect_extract_SIFT.h
   feature_detect_extract_SURF.h
   filter_gaussian_blur.h
+  filter_blur.h
   heat_map_bounding_boxes.h
   hough_circle_detector.h
   image_container.h
@@ -80,6 +81,7 @@ set( ocv_sources
   feature_detect_extract_SIFT.cxx
   feature_detect_extract_SURF.cxx
   filter_gaussian_blur.cxx
+  filter_blur.cxx
   image_container.cxx
   image_io.cxx
   mat_image_memory.cxx
