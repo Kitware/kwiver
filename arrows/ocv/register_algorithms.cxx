@@ -63,6 +63,7 @@
 #include <arrows/ocv/feature_detect_extract_SIFT.h>
 #include <arrows/ocv/feature_detect_extract_SURF.h>
 #include <arrows/ocv/filter_gaussian_blur.h>
+#include <arrows/ocv/filter_blur.h>
 #include "arrows/ocv/heat_map_bounding_boxes.h"
 #include <arrows/ocv/image_io.h>
 #include <arrows/ocv/match_features_bruteforce.h>
@@ -237,6 +238,14 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact = vpm.ADD_ALGORITHM( "ocv_gaussian_blur", kwiver::arrows::ocv::filter_gaussian_blur );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                        "OpenCV Gaussian blur algorithm" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
+  
+  fact = vpm.ADD_ALGORITHM( "ocv_blur", kwiver::arrows::ocv::filter_blur );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "OpenCV blur using the normalized box filter" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
