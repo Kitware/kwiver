@@ -34,9 +34,17 @@
 #include <sprokit/python/util/python_exceptions.h>
 #include <sprokit/python/util/python_gil.h>
 
-#include "python_wrappers.cxx"
-
-#include <pybind11/pybind11.h>
+#if WIN32
+#pragma warning (push)
+#pragma warning (disable : 4244)
+#endif
+#include <boost/python/class.hpp>
+#include <boost/python/module.hpp>
+#include <boost/python/override.hpp>
+#include <boost/python/pure_virtual.hpp>
+#if WIN32
+#pragma warning (pop)
+#endif
 
 /**
  * \file scheduler.cxx
@@ -44,39 +52,32 @@
  * \brief Python bindings for \link sprokit::scheduler\endlink.
  */
 
-using namespace pybind11;
+using namespace boost::python;
 
-// Publisher class to access virtual methods
 class wrap_scheduler
   : public sprokit::scheduler
+  , public wrapper<sprokit::scheduler>
 {
   public:
-    using scheduler::scheduler;
-    using scheduler::_start;
-    using scheduler::_wait;
-    using scheduler::_pause;
-    using scheduler::_resume;
-    using scheduler::_stop;
-    using scheduler::pipeline;
+    wrap_scheduler(sprokit::pipeline_t const& pipe, kwiver::vital::config_block_sptr const& config);
+    ~wrap_scheduler();
+
+    void _start();
+    void _wait();
+    void _pause();
+    void _resume();
+    void _stop();
+
+    sprokit::pipeline_t _pipeline() const;
+
+    override get_pure_override(char const* name) const;
 };
 
-// Trampoline class to allow us to to use virtual methods
-class scheduler_trampoline
-  : public sprokit::scheduler
+BOOST_PYTHON_MODULE(scheduler)
 {
-  public:
-    scheduler_trampoline(sprokit::pipeline_t const& pipe, kwiver::vital::config_block_sptr const& config) : scheduler( pipe, config ) {};
-    void _start() override;
-    void _wait() override;
-    void _pause() override;
-    void _resume() override;
-    void _stop() override;
-};
-
-PYBIND11_MODULE(scheduler, m)
-{
-  class_<sprokit::scheduler, scheduler_trampoline, sprokit::scheduler_t>(m, "PythonScheduler"
-    , "The base class for Python schedulers.")
+  class_<wrap_scheduler, boost::noncopyable>("PythonScheduler"
+    , "The base class for Python schedulers."
+    , no_init)
     .def(init<sprokit::pipeline_t, kwiver::vital::config_block_sptr>())
     .def("start", &sprokit::scheduler::start
       , "Start the execution of the pipeline.")
@@ -88,72 +89,109 @@ PYBIND11_MODULE(scheduler, m)
       , "Resume execution.")
     .def("stop", &sprokit::scheduler::stop
       , "Stop the execution of the pipeline.")
-    .def("_start", &wrap_scheduler::_start
+    .def("pipeline", &wrap_scheduler::_pipeline
+      , "The pipeline the scheduler is to run.")
+    .def("_start", pure_virtual(&wrap_scheduler::_start)
       , "Implementation of starting the pipeline.")
-    .def("_wait", &wrap_scheduler::_wait
+    .def("_wait", pure_virtual(&wrap_scheduler::_wait)
       , "Implementation of waiting until execution is complete.")
-    .def("_pause", &wrap_scheduler::_pause
+    .def("_pause", pure_virtual(&wrap_scheduler::_pause)
       , "Implementation of pausing execution.")
-    .def("_resume", &wrap_scheduler::_resume
+    .def("_resume", pure_virtual(&wrap_scheduler::_resume)
       , "Implementation of resuming execution.")
-    .def("_stop", &wrap_scheduler::_stop
+    .def("_stop", pure_virtual(&wrap_scheduler::_stop)
       , "Implementation of stopping the pipeline.")
-    .def("pipeline", &wrap_scheduler::pipeline
-      , "Scheduler pipeline.")
   ;
 }
 
+wrap_scheduler
+::wrap_scheduler(sprokit::pipeline_t const& pipe, kwiver::vital::config_block_sptr const& config)
+  : sprokit::scheduler(pipe, config)
+{
+}
+
+wrap_scheduler
+::~wrap_scheduler()
+{
+  shutdown();
+}
+
 void
-scheduler_trampoline
+wrap_scheduler
 ::_start()
 {
-  PYBIND11_OVERLOAD_PURE(
-    void,
-    scheduler,
-    _start,
-  );
+  sprokit::python::python_gil const gil;
+
+  (void)gil;
+
+  SPROKIT_PYTHON_HANDLE_EXCEPTION(get_pure_override("_start")())
 }
 
 void
-scheduler_trampoline
+wrap_scheduler
 ::_wait()
 {
-  PYBIND11_OVERLOAD_PURE(
-    void,
-    scheduler,
-    _wait,
-  );
+  sprokit::python::python_gil const gil;
+
+  (void)gil;
+
+  SPROKIT_PYTHON_HANDLE_EXCEPTION(get_pure_override("_wait")())
 }
 
 void
-scheduler_trampoline
+wrap_scheduler
 ::_pause()
 {
-  PYBIND11_OVERLOAD_PURE(
-    void,
-    scheduler,
-    _pause,
-  );
+  sprokit::python::python_gil const gil;
+
+  (void)gil;
+
+  SPROKIT_PYTHON_HANDLE_EXCEPTION(get_pure_override("_pause")())
 }
 
 void
-scheduler_trampoline
+wrap_scheduler
 ::_resume()
 {
-  PYBIND11_OVERLOAD_PURE(
-    void,
-    scheduler,
-    _resume,
-  );
+  sprokit::python::python_gil const gil;
+
+  (void)gil;
+
+  SPROKIT_PYTHON_HANDLE_EXCEPTION(get_pure_override("_resume")())
 }
 
 void
-scheduler_trampoline
+wrap_scheduler
 ::_stop()
 {
-  PYBIND11_OVERLOAD_PURE(
-    void,
-    scheduler,
-    _stop,
-  );
+  sprokit::python::python_gil const gil;
+
+  (void)gil;
+
+  SPROKIT_PYTHON_HANDLE_EXCEPTION(get_pure_override("_stop")())
+}
+
+sprokit::pipeline_t
+wrap_scheduler
+::_pipeline() const
+{
+  return pipeline();
+}
+
+override
+wrap_scheduler
+::get_pure_override(char const* method) const
+{
+  override const o = get_override(method);
+
+  if (!o)
+  {
+    std::ostringstream sstr;
+
+    sstr << method << " is not implemented";
+
+    throw std::runtime_error(sstr.str().c_str());
+  }
+
+  return o;
 }

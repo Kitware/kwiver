@@ -26,7 +26,7 @@ kwiver_add_plugin(modules_python
   PRIVATE         sprokit_pipeline
                   sprokit_python_util
                   kwiversys
-                  ${${pybind11_library}}
+                  ${${boost_python_library_var}}
                   ${PYTHON_LIBRARIES}
                   )
 

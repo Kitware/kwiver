@@ -62,7 +62,7 @@ def make_source(conf):
                 self.mark_process_as_complete()
                 dat = datum.complete()
             else:
-                dat = datum.new_int(self.counter)
+                dat = datum.new(self.counter)
                 self.counter += 1
 
             self.push_datum_to_port(self.port_output, dat)

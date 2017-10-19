@@ -39,6 +39,8 @@ def test_import(path_unused):
 def test_create(path_unused):
     from sprokit.pipeline_util import load
 
+    load.Token()
+    load.ConfigFlag()
     load.ConfigFlags()
     load.ConfigValue()
     load.ConfigValues()
@@ -66,7 +68,7 @@ def test_api_calls(path_unused):
     o = load.ConfigValue()
     o.key
     o.value
-    o.value = ''
+    o.value = config.ConfigValue()
 
     o = load.ConfigBlock()
     o.key
@@ -77,15 +79,15 @@ def test_api_calls(path_unused):
     o.name
     o.type
     o.config_values
-    o.name = ''
-    o.type = ''
+    o.name = process.ProcessName()
+    o.type = process.ProcessType()
     o.config_values = load.ConfigValues()
 
     o = load.ConnectBlock()
     o.from_
     o.to
-    o.from_ = process.PortAddr().getAddr()
-    o.to = process.PortAddr().getAddr()
+    o.from_ = process.PortAddr()
+    o.to = process.PortAddr()
 
     o = load.PipeBlock()
     o.config = load.ConfigBlock()
@@ -98,24 +100,24 @@ def test_api_calls(path_unused):
     o = load.ClusterConfig()
     o.description
     o.config_value
-    o.description = ''
+    o.description = config.ConfigDescription()
     o.config_value = load.ConfigValue()
 
     o = load.ClusterInput()
     o.description
     o.from_
     o.targets
-    o.description = ''
-    o.from_ = ''
+    o.description = process.PortDescription()
+    o.from_ = process.Port()
     o.targets = process.PortAddrs()
 
     o = load.ClusterOutput()
     o.description
     o.from_
     o.to
-    o.description = ''
-    o.from_ = process.PortAddr().getAddr()
-    o.to = ''
+    o.description = process.PortDescription()
+    o.from_ = process.PortAddr()
+    o.to = process.Port()
 
     o = load.ClusterSubblock()
     o.config = load.ClusterConfig()
@@ -144,8 +146,8 @@ def test_api_calls(path_unused):
     o.type
     o.description
     o.subblocks
-    o.type = ''
-    o.description = ''
+    o.type = process.ProcessType()
+    o.description = process_factory.ProcessDescription()
     o.subblocks = load.ClusterSubblocks()
 
     o = load.ClusterDefineBlock()

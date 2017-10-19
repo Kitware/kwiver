@@ -38,7 +38,10 @@
 #include <sprokit/python/util/pystream.h>
 #include <sprokit/python/util/python_gil.h>
 
-#include <pybind11/pybind11.h>
+#include <boost/python/class.hpp>
+#include <boost/python/def.hpp>
+#include <boost/python/module.hpp>
+#include <boost/python/exception_translator.hpp>
 
 #include <stdexcept>
 #include <string>
@@ -49,7 +52,7 @@
  * \brief Python bindings for baking pipelines.
  */
 
-using namespace pybind11;
+using namespace boost::python;
 
 static sprokit::process::type_t cluster_info_type(sprokit::cluster_info_t const& self);
 static sprokit::process::description_t cluster_info_description(sprokit::cluster_info_t const& self);
@@ -61,10 +64,11 @@ static sprokit::pipeline_t bake_pipe(object stream);
 static sprokit::cluster_info_t bake_cluster_file(std::string const& path);
 static sprokit::cluster_info_t bake_cluster(object stream);
 
-PYBIND11_MODULE(bake, m)
+BOOST_PYTHON_MODULE(bake)
 {
-  class_<sprokit::cluster_info, sprokit::cluster_info_t>(m, "ClusterInfo"
-    , "Information loaded from a cluster file.")
+  class_<sprokit::cluster_info_t>("ClusterInfo"
+    , "Information loaded from a cluster file."
+    , no_init)
     .def("type", &cluster_info_type)
     .def("description", &cluster_info_description)
     .def("create", &cluster_info_create
@@ -74,29 +78,29 @@ PYBIND11_MODULE(bake, m)
       , "Create an instance of the cluster.")
   ;
 
-  m.def("register_cluster", &register_cluster
+  def("register_cluster", &register_cluster
     , (arg("cluster_info"))
     , "Register a cluster with the registry.");
 
-  m.def("bake_pipe_file", &bake_pipe_file
+  def("bake_pipe_file", &bake_pipe_file
     , (arg("path"))
     , "Build a pipeline from a file.");
-  m.def("bake_pipe", &bake_pipe
+  def("bake_pipe", &bake_pipe
     , (arg("stream"))
     , "Build a pipeline from a stream.");
-  m.def("bake_pipe_blocks", &sprokit::bake_pipe_blocks
+  def("bake_pipe_blocks", &sprokit::bake_pipe_blocks
     , (arg("blocks"))
     , "Build a pipeline from pipe blocks.");
-  m.def("bake_cluster_file", &bake_cluster_file
+  def("bake_cluster_file", &bake_cluster_file
     , (arg("path"))
     , "Build a cluster from a file.");
-  m.def("bake_cluster", &bake_cluster
+  def("bake_cluster", &bake_cluster
     , (arg("stream"))
     , "Build a cluster from a stream.");
-  m.def("bake_cluster_blocks", &sprokit::bake_cluster_blocks
+  def("bake_cluster_blocks", &sprokit::bake_cluster_blocks
     , (arg("blocks"))
     , "Build a cluster from cluster blocks.");
-  m.def("extract_configuration", &sprokit::extract_configuration
+  def("extract_configuration", &sprokit::extract_configuration
     , (arg("blocks"))
     , "Extract the configuration from pipe blocks.");
 }

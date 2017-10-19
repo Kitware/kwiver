@@ -29,7 +29,16 @@
  */
 
 
-#include <pybind11/pybind11.h>
+#if WIN32
+#pragma warning (push)
+#pragma warning (disable : 4244)
+#endif
+#include <boost/python/class.hpp>
+#include <boost/python/def.hpp>
+#include <boost/python/module.hpp>
+#if WIN32
+#pragma warning (pop)
+#endif
 
 #include <sprokit/pipeline/utils.h>
 
@@ -39,11 +48,14 @@
  * \brief Python bindings for utils.
  */
 
-using namespace pybind11;
+using namespace boost::python;
 
-PYBIND11_MODULE(utils, m)
+BOOST_PYTHON_MODULE(utils)
 {
-  m.def("name_thread", &sprokit::name_thread
+  class_<sprokit::thread_name_t>("ThreadName"
+    , "A type for the name of a thread.");
+
+  def("name_thread", &sprokit::name_thread
     , (arg("name"))
     , "Names the currently running thread.");
 }

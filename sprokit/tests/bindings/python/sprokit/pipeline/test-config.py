@@ -44,7 +44,10 @@ def test_create():
     except:
         test_error("Failed to create an empty configuration")
 
+    config.ConfigKey()
     config.ConfigKeys()
+    config.ConfigDescription()
+    config.ConfigValue()
 
 
 def test_api_calls():

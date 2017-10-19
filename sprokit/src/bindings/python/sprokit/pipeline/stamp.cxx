@@ -28,9 +28,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <pybind11/pybind11.h>
+#if WIN32
+#pragma warning (push)
+#pragma warning (disable : 4244)
+#endif
+#include <boost/python/class.hpp>
+#include <boost/python/def.hpp>
+// XXX(python): 2.7
+#if PY_VERSION_HEX >= 0x02070000
+#include <boost/python/import.hpp>
+#endif
+#include <boost/python/module.hpp>
+// XXX(python): 2.7
+#if PY_VERSION_HEX >= 0x02070000
+#include <boost/python/scope.hpp>
+#endif
+#if WIN32
+#pragma warning (pop)
+#endif
 
-#include "python_wrappers.cxx"
+#include <sprokit/pipeline/stamp.h>
 
 /**
  * \file stamp.cxx
@@ -38,21 +55,24 @@
  * \brief Python bindings for \link sprokit::stamp\endlink.
  */
 
-using namespace pybind11;
+using namespace boost::python;
 
-PYBIND11_MODULE(stamp, m)
+static bool stamp_eq(sprokit::stamp_t const& self, sprokit::stamp_t const& other);
+static bool stamp_lt(sprokit::stamp_t const& self, sprokit::stamp_t const& other);
+
+BOOST_PYTHON_MODULE(stamp)
 {
-  m.def("new_stamp", &new_stamp
-    , (arg("increment"))
+  def("new_stamp", &sprokit::stamp::new_stamp
     , "Creates a new stamp.");
-  m.def("incremented_stamp", &incremented_stamp
+  def("incremented_stamp", &sprokit::stamp::incremented_stamp
     , (arg("stamp"))
     , "Creates a stamp that is greater than the given stamp.");
 
-  class_<wrap_stamp>(m, "Stamp"
-    , "An identifier to help synchronize data within the pipeline.")
-    .def("__eq__", &wrap_stamp::stamp_eq)
-    .def("__lt__", &wrap_stamp::stamp_lt)
+  class_<sprokit::stamp_t>("Stamp"
+    , "An identifier to help synchronize data within the pipeline."
+    , no_init)
+    .def("__eq__", stamp_eq)
+    .def("__lt__", stamp_lt)
   ;
 
   // Equivalent to:
@@ -61,12 +81,23 @@ PYBIND11_MODULE(stamp, m)
   //       ...
 // XXX(python): 2.7
 #if PY_VERSION_HEX >= 0x02070000
-  object const functools = module::import("functools");
+  object const functools = import("functools");
   object const total_ordering = functools.attr("total_ordering");
   #ifndef WIN32
-    object const stamp = m.attr("Stamp");
-    m.attr("Stamp") = total_ordering(stamp);
+    object const stamp = scope().attr("Stamp");
+    scope().attr("Stamp") = total_ordering(stamp);
   #endif
 #endif
 }
 
+bool
+stamp_eq(sprokit::stamp_t const& self, sprokit::stamp_t const& other)
+{
+  return (*self == *other);
+}
+
+bool
+stamp_lt(sprokit::stamp_t const& self, sprokit::stamp_t const& other)
+{
+  return (*self < *other);
+}

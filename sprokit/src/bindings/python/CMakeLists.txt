@@ -4,6 +4,8 @@
 
 project(sprokit_python)
 
+sprokit_use_python_fixes()
+
 ###
 #
 function (_sprokit_add_python_library name modpath)
@@ -12,6 +14,7 @@ function (_sprokit_add_python_library name modpath)
   sprokit_add_python_library(${name} ${modpath}
     ${ARGN})
 
+  sprokit_require_python_fixes(python-${safe_modpath}-${name})
 endfunction ()
 
 ###

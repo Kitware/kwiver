@@ -12,6 +12,8 @@ target_link_libraries(python-sprokit.pipeline_util-bake
     sprokit_python_util
     ${Boost_IOSTREAMS_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
+    ${${boost_python_library_var}}
+    ${PYTHON_LIBRARIES}
     vital_vpm
   )
 
@@ -22,7 +24,9 @@ target_link_libraries(python-sprokit.pipeline_util-export_
   LINK_PRIVATE
     sprokit_pipeline
     sprokit_pipeline_util
-    sprokit_python_util)
+    sprokit_python_util
+    ${${boost_python_library_var}}
+    ${PYTHON_LIBRARIES})
 
 _sprokit_add_python_library(load
   sprokit/pipeline_util
@@ -33,7 +37,10 @@ target_link_libraries(python-sprokit.pipeline_util-load
     sprokit_pipeline_util
     sprokit_python_util
     vital_util
-    ${Boost_IOSTREAMS_LIBRARY})
+    ${Boost_IOSTREAMS_LIBRARY}
+    ${Boost_SYSTEM_LIBRARY}
+    ${${boost_python_library_var}}
+    ${PYTHON_LIBRARIES})
 
 sprokit_create_python_init(sprokit/pipeline_util)
 #  bake

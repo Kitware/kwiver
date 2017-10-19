@@ -36,6 +36,12 @@ def test_import():
         test_error("Failed to import the utils module")
 
 
+def test_create():
+    from sprokit.pipeline import utils
+
+    utils.ThreadName()
+
+
 def test_name_thread():
     from sprokit.pipeline import utils
 

@@ -30,7 +30,8 @@
 
 #include <vital/plugin_loader/plugin_manager.h>
 
-#include <pybind11/pybind11.h>
+#include <boost/python/def.hpp>
+#include <boost/python/module.hpp>
 
 /**
  * \file modules.cxx
@@ -38,7 +39,7 @@
  * \brief Python bindings for module loading.
  */
 
-using namespace pybind11;
+using namespace boost::python;
 
 namespace sprokit {
 
@@ -49,9 +50,9 @@ void load_known_modules()
   kwiver::vital::plugin_manager::instance().load_all_plugins();
 }
 
-PYBIND11_MODULE(modules, m)
+BOOST_PYTHON_MODULE(modules)
 {
-  m.def("load_known_modules", &sprokit::load_known_modules
+  def("load_known_modules", &sprokit::load_known_modules
     , "Loads sprokit modules to populate the process and scheduler registries.");
 }
 

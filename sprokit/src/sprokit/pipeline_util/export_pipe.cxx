@@ -49,6 +49,8 @@
 #include <string>
 #include <cstdlib>
 
+#include <boost/make_shared.hpp>
+
 namespace sprokit {
 
 //+ not sure what these are for
@@ -196,7 +198,7 @@ config_printer
     }
 
     sprokit::process_cluster_t const cluster = m_pipe->cluster_by_name( name );
-    sprokit::process_t const proc = std::static_pointer_cast< sprokit::process > ( cluster );
+    sprokit::process_t const proc = boost::static_pointer_cast< sprokit::process > ( cluster );
 
     static std::string const kind = "cluster";
 
@@ -240,7 +242,7 @@ config_printer
       {
         sprokit::process_cluster_t const cluster = m_pipe->cluster_by_name( name );
 
-        proc = std::static_pointer_cast< sprokit::process > ( cluster );
+        proc = boost::static_pointer_cast< sprokit::process > ( cluster );
       }
       catch ( sprokit::no_such_process_exception const& /*e*/ )
       {
