@@ -186,7 +186,7 @@ configuration button, new options will be highlighted in the red sections.
 
    a. Note, if compiling with MSVC, you will not have a CMAKE_BUILD_TYPE option
   
-.. image:: doc/manuals/images/cmake/cmake_step_2.png
+.. image:: doc/manuals/_images/cmake/cmake_step_2.png
    :alt: KWIVER CMake Configuration Step 2
   
 3. Select these new options, and click 'Generate'
@@ -194,7 +194,7 @@ configuration button, new options will be highlighted in the red sections.
    a. This assumes your fletch was build with python support,
       if not, do not check that option
 
-.. image:: doc/manuals/images/cmake/cmake_step_3.png
+.. image:: doc/manuals/_images/cmake/cmake_step_3.png
    :alt: KWIVER CMake Configuration Step 3
 
 Compiling
