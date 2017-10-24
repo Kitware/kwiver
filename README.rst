@@ -139,6 +139,7 @@ for third-party projects prefixed with ``KWIVER_ENABLE_`` that enable
 building the Arrows plugins that depend on those projects.  When building
 with the support of Fletch_ (set ``fletch_DIR``) the enable options for
 packages built by Fletch should be turned on by default.
+The fletch_DIR is the fletch build directory root, which contains the fletchConfig.cmake file.
 
 The following sections will walk you through the basic options for a minimal kwiver build.
 
@@ -150,7 +151,7 @@ Note, This assumes your fletch was built with python support (Turn OFF if not)
 You will also need to replace the fletch path with your own::
 
     $ cmake </path/to/kwiver/source> -DCMAKE_BUILD_TYPE=Release \
-            -Dfletch_DIR:PATH=<path/to/fletch/builds/install> 
+            -Dfletch_DIR:PATH=<path/to/fletch/build/dir>
             -DKWIVER_ENABLE_ARROWS:BOOL=ON -DKWIVER_ENABLE_C_BINDINGS:BOOL=ON \
             -DKWIVER_ENABLE_EXTRAS:BOOL=ON -DKWIVER_ENABLE_LOG4CPLUS:BOOL=ON \
             -DKWIVER_ENABLE_PROCESSES:BOOL=ON -DKWIVER_ENABLE_PYTHON:BOOL=ON \
@@ -161,9 +162,9 @@ Basic CMake generation using ccmake
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When first configuring a kwiver build with ccmake it is preferable to set the build
-configuration and ``fletch_DIR`` on the command line like this::
+configuration and ``fletch_DIR``. The command line will look like this::
 
-  $ ccmake /path/to/kwiver/source -DCMAKE_BUILD_TYPE=Release -Dfletch_DIR=/path/to/fletch/install
+  $ ccmake /path/to/kwiver/source -DCMAKE_BUILD_TYPE=Release -Dfletch_DIR=/path/to/fletch/release
 
 Other CMake options can also be passed on the command line in this way if desired.
 Follow the recommended option setup using the cmake GUI. 
@@ -232,12 +233,12 @@ to allow KWIVER to work conveniently within in the shell/cmd window.
 You can run this simple pipeline to ensure your system is configured properly::
 
   # via a bash shell
-  </path/to/kwiver/build>/bin/pipeline_runner -p </path/to/kwiver/source>/sprokit/pipelines/number_flow.pipe
+  </path/to/kwiver/build>/bin/pipeline_runner -p ../examples/pipelines/number_flow.pipe
   #
   # on windows, you will need to also be in the configuration folder
-  </path/to/kwiver/build>/bin/release/pipeline_runner -p </path/to/kwiver/source>/sprokit/pipelines/number_flow.pipe
+  </path/to/kwiver/build>/bin/release/pipeline_runner -p ..\..\examples\pipelines\number_flow.pipe
 
-This will generate a 'numbers.txt' file in the current directory (/bin or /bin/release).
+This will generate a 'numbers.txt' file in the </path/to/kwiver/build>/examples/pipelines/output directory.
 
 KWIVER Users
 ============
