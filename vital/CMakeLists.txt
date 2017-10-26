@@ -109,6 +109,8 @@ set( vital_public_headers
   types/homography_f2w.h
   types/image.h
   types/image_container.h
+  types/image_container_set.h
+  types/image_container_set_simple.h
   types/landmark.h
   types/landmark_map.h
   types/match_set.h
