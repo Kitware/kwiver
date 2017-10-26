@@ -56,12 +56,13 @@ main(int argc, char* argv[])
 
 IMPLEMENT_TEST(simple_empty_container)
 {
-  kwiver::vital::image_container_set empty_set ;
+  kwiver::vital::image_container_set_sptr empty_set;
+  empty_set = std::make_shared<kwiver::vital::simple_image_container_set>();
 
   // Check size is reported as zero
-  TEST_EQUAL("Set empty", test_set->size(), 0);
+  TEST_EQUAL("Set empty", empty_set->size(), 0);
 
   // Check underlying vector implementation exists and also reports zero size
-  std::vector< image_container_sptr > data_ = empty_set->data()
-  TEST_EQUAL("Vector empty", data_->size(), 0);
+  std::vector< kwiver::vital::image_container_sptr > data_ = empty_set->images();
+  TEST_EQUAL("Vector empty", data_.size(), 0);
 }
