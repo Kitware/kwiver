@@ -97,6 +97,8 @@ typedef std::shared_ptr<image_container> image_container_sptr;
 
 
 /// List of image_container shared pointers
+// NOTE(paul.tunison): This should be deprecated in favor of
+//                     vital::image_container_set_sptr.
 typedef std::vector<image_container_sptr> image_container_sptr_list;
 
 

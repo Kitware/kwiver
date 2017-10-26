@@ -16,6 +16,9 @@ Vital
  * Added iterator, const_iterator and iterable classes to support container-
    independent iteration.
 
+ * Added image_container_set type to contain multiple image_container shared
+   pointer instances.
+
 Vital Bindings
 
 Arrows: Core

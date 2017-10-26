@@ -33,6 +33,7 @@ kwiver_discover_gtests(vital geo_polygon                    LIBRARIES ${test_lib
 kwiver_discover_gtests(vital geodesy                        LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital homography                     LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital image                          LIBRARIES ${test_libraries})
+kwiver_discover_gtests(vital image_container_set            LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital iqr_feedback                   LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital iterable                       LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital iterator                       LIBRARIES ${test_libraries})
