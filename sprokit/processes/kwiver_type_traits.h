@@ -115,6 +115,7 @@ create_port_trait( image, image, "Single frame image." );
 create_port_trait( left_image, image, "Single frame left image." );
 create_port_trait( right_image, image, "Single frame right image." );
 create_port_trait( depth_map, image, "Depth map stored in image form." );
+create_port_trait( image_set, image_set, "A collection of images, typically sub images." );
 create_port_trait( feature_set, feature_set, "Set of detected image features." );
 create_port_trait( descriptor_set, descriptor_set, "Set of descriptors." );
 create_port_trait( string_vector, string_vector, "Vector of strings." );
