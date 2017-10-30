@@ -37,7 +37,7 @@
 #include <vital/types/image_container.h>
 #include <vital/types/image_container_set.h>
 
-#include <vital/algo/crop_detections.h>
+#include <vital/algo/crop_chips.h>
 
 #include <kwiver_type_traits.h>
 
@@ -86,25 +86,24 @@ void crop_detections_process
 {
   kwiver::vital::config_block_sptr algo_config = get_config();
 
-  algo::crop_detections::set_nested_algo_configuration(
-    "crop_detections", algo_config, d->m_algo );
+  algo::crop_chips::set_nested_algo_configuration(
+    "crop_chips", algo_config, d->m_algo );
 
   if( !d->m_algo )
   {
     throw sprokit::invalid_configuration_exception(
-      name(), "Unable to create \"crop_detections\"" );
+      name(), "Unable to create \"crop_chips\"" );
   }
-  algo::crop_detections::get_nested_algo_configuration(
-    "crop_detections", algo_config, d->m_algo );
+  algo::crop_chips::get_nested_algo_configuration(
+    "crop_chips", algo_config, d->m_algo );
 
   // Check config so it will give run-time diagnostic of config problems
-  if( !algo::crop_detections::check_nested_algo_configuration(
-        "crop_detections", algo_config ) )
+  if( !algo::crop_chips::check_nested_algo_configuration(
+        "crop_chips", algo_config ) )
   {
     throw sprokit::invalid_configuration_exception( name(),
       "Configuration check failed." );
   }
-
 }
 
 
@@ -114,25 +113,24 @@ crop_detections_process
 ::_step()
 {
   // Get inputs
-  kwiver::vital::image_container_sptr _image;
-  kwiver::vital::detected_object_set _detections;
-  _image = grab_from_port_using_trait( image );
-  _detections = grab_from_port_using_trait( detections );
-
+  kwiver::vital::image_container_sptr in_img;
+  kwiver::vital::detected_object_set_sptr in_detections;
+  in_img = grab_from_port_using_trait( image );
+  in_detections = grab_from_port_using_trait( detected_object_set );
 
   // Transform detections into a vector of bounding boxes
-  std::vector<kwiver::vital::bounding_box> _bboxes;
-  for (auto obj : _detections)
-  {
-    _bboxes.push_back(obj.bounding_box())
-  }
+  std::vector<kwiver::vital::bounding_box_d> in_bboxes;
+  //for (auto dobj : in_detections.get())
+  //{
+  //  in_bboxes.push_back(dobj.bounding_box())
+  //}
 
   // Extract the chips
-  kwiver::vital::image_container_set_sptr _chips;
-  _chips = d->m_algo->crop( _image, _bboxes );
+  kwiver::vital::image_container_set_sptr chips;
+  chips = d->m_algo->crop( in_img, in_bboxes );
 
   // Push to the output port
-  push_to_port_using_trait( chips, _chips );
+  push_to_port_using_trait( image_set, chips );
 }
 
 
@@ -147,10 +145,10 @@ void crop_detections_process
 
   // -- input --
   declare_input_port_using_trait( image, required );
-  declare_input_port_using_trait( detections, required );
+  declare_input_port_using_trait( detected_object_set, required );
 
   // -- output --
-  declare_output_port_using_trait( chips, optional );
+  declare_output_port_using_trait( image_set, optional );
 }
 
 
@@ -158,7 +156,6 @@ void crop_detections_process
 void crop_detections_process
 ::make_config()
 {
-
 }
 
 
