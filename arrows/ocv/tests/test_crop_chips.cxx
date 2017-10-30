@@ -59,24 +59,23 @@ main(int argc, char* argv[])
 
 using namespace kwiver::vital;
 
-//IMPLEMENT_TEST(factory)
-//{
-//  using namespace kwiver::arrows;
+IMPLEMENT_TEST(factory)
+{
+  using namespace kwiver::arrows;
 
-//  kwiver::vital::plugin_manager::instance().load_all_plugins();
+  kwiver::vital::plugin_manager::instance().load_all_plugins();
 
-//  //algo::crop_chips_sptr algo = kwiver::vital::algo::crop_chips_sptr::create("ocv");
-//  auto algo = kwiver::vital::algo::crop_chips_sptr::create("ocv");
-//  if (!algo)
-//  {
-//    TEST_ERROR("Unable to create crop_chips algorithm of type ocv");
-//  }
-//  algo::crop_chips* algo_ptr = algo.get();
-//  if (typeid(*algo_ptr) != typeid(ocv::crop_chips))
-//  {
-//    TEST_ERROR("Factory method did not construct the correct type");
-//  }
-//}
+  algo::crop_chips_sptr algo = kwiver::vital::algo::crop_chips::create("ocv");
+  if (!algo)
+  {
+    TEST_ERROR("Unable to create crop_chips algorithm of type ocv");
+  }
+  algo::crop_chips* algo_ptr = algo.get();
+  if (typeid(*algo_ptr) != typeid(ocv::crop_chips))
+  {
+    TEST_ERROR("Factory method did not construct the correct type");
+  }
+}
 
 
 namespace {
