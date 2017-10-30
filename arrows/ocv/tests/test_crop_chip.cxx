@@ -36,9 +36,12 @@
 #include <test_common.h>
 #include <vital/plugin_loader/plugin_manager.h>
 
-#include <arrows/ocv/image_container.h>
-#include <arrows/ocv/image_container_set.h>
+#include <vital/types/image_container.h>
+#include <vital/types/image_container_set.h>
+
 #include <arrows/ocv/crop_chips.h>
+#include <arrows/ocv/image_container.h>
+#include <arrows/ocv/image_io.h>
 
 #define TEST_ARGS ()
 
@@ -56,29 +59,32 @@ main(int argc, char* argv[])
 
 using namespace kwiver::vital;
 
-IMPLEMENT_TEST(factory)
-{
-  using namespace kwiver::arrows;
+//IMPLEMENT_TEST(factory)
+//{
+//  using namespace kwiver::arrows;
 
-  kwiver::vital::plugin_manager::instance().load_all_plugins();
+//  kwiver::vital::plugin_manager::instance().load_all_plugins();
 
-  //algo::crop_chips_sptr algo = kwiver::vital::algo::crop_chips_sptr::create("ocv");
-  auto algo = kwiver::vital::algo::crop_chips_sptr::create("ocv");
-  if (!algo)
-  {
-    TEST_ERROR("Unable to create crop_chips algorithm of type ocv");
-  }
-  algo::crop_chips* algo_ptr = algo.get();
-  if (typeid(*algo_ptr) != typeid(ocv::crop_chips))
-  {
-    TEST_ERROR("Factory method did not construct the correct type");
-  }
-}
+//  //algo::crop_chips_sptr algo = kwiver::vital::algo::crop_chips_sptr::create("ocv");
+//  auto algo = kwiver::vital::algo::crop_chips_sptr::create("ocv");
+//  if (!algo)
+//  {
+//    TEST_ERROR("Unable to create crop_chips algorithm of type ocv");
+//  }
+//  algo::crop_chips* algo_ptr = algo.get();
+//  if (typeid(*algo_ptr) != typeid(ocv::crop_chips))
+//  {
+//    TEST_ERROR("Factory method did not construct the correct type");
+//  }
+//}
 
 
 namespace {
 
-// TODO: add these as general test helpers
+// TODO: The following functions create dummy image data for implementing
+// tests. They have been copied from `kwiver/arrows/ocv/tests/test_image.cxx`.
+// It would be useful to separate them out into a helpers file to avoid code
+// duplication.
 
 // helper function to populate the image with a pattern
 // the dynamic range is stretched between minv and maxv
@@ -157,16 +163,32 @@ IMPLEMENT_TEST(test_crop_simple)
   using namespace kwiver;
   using namespace kwiver::arrows;
 
-  auto type_str = "uint8";
-  std::cout << "Testing single channel cv::Mat of type " << type_str << std::endl;
-  cv::Mat_<T> img(100,200);
-  populate_ocv_image<T>(img);
+  kwiver::vital::image_of<uint8_t> img(200,300,3);
+  populate_vital_image<uint8_t>(img);
 
   image_container_sptr img_sptr(new simple_image_container(img));
 
-  std::vector< kwiver::vital::bounding_box_d > bboxes;
+  std::vector< kwiver::vital::bounding_box_d > bboxes0;
 
   // TODO: expand this
-  ocv::image_io crop_chips;
-  auto output = crop_chips.crop(img_sptr, bboxes);
+  ocv::crop_chips algo;
+  auto output0 = algo.crop(img_sptr, bboxes0);
+  TEST_EQUAL("bbox set size ", bboxes0.size(), 0);
+  TEST_EQUAL("image set size ", output0->size(), 0);
+
+  std::vector< kwiver::vital::bounding_box_d > bboxes3;
+  bboxes3.push_back( kwiver::vital::bounding_box<double>( 1, 3, 10, 34 ) );
+  bboxes3.push_back( kwiver::vital::bounding_box<double>( 10, 11, 40, 42 ) );
+  bboxes3.push_back( kwiver::vital::bounding_box<double>( 5, 5, 5, 5 ) );
+  auto output3 = algo.crop(img_sptr, bboxes3);
+
+  TEST_EQUAL("bbox set size ", bboxes3.size(), 3);
+  TEST_EQUAL("image set size ", output3->size(), 3);
+
+  // TODO: test to ensure cropped sizes agree with bounding box width / heights.
+
+  // TODO: add a test that checks that the pixel data hasn't changed.
+
+  // TODO: add a cropping test when the bounding boxes coordinates contain
+  // floating point non-integer numbers.
 }
