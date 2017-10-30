@@ -44,6 +44,7 @@
 #include <vital/types/feature_track_set.h>
 #include <vital/types/geo_polygon.h>
 #include <vital/types/image_container.h>
+#include <vital/types/image_container_set.h>
 #include <vital/types/object_track_set.h>
 #include <vital/types/track_descriptor_set.h>
 #include <vital/types/uid.h>
@@ -81,6 +82,7 @@ create_type_trait( timestamp, "kwiver:timestamp", kwiver::vital::timestamp );
 create_type_trait( gsd, "kwiver:gsd", kwiver::vital::gsd_t );
 create_type_trait( corner_points, "corner_points", kwiver::vital::geo_polygon );
 create_type_trait( image, "kwiver:image", kwiver::vital::image_container_sptr );
+create_type_trait( image_set, "kwiver:image_set", kwiver::vital::image_container_set_sptr );
 create_type_trait( mask, "kwiver:mask", kwiver::vital::image_container_sptr );
 create_type_trait( feature_set, "kwiver:feature_set", kwiver::vital::feature_set_sptr );
 create_type_trait( descriptor_set, "kwiver:descriptor_set", kwiver::vital::descriptor_set_sptr );
