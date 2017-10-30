@@ -30,17 +30,17 @@
 
 /**
  * \file
- * \brief Header for OCV split_image algorithm
+ * \brief Header for OCV crop_chips algorithm
  */
 
-#ifndef KWIVER_ARROWS_OCV_SPLIT_IMAGE_H_
-#define KWIVER_ARROWS_OCV_SPLIT_IMAGE_H_
+#ifndef KWIVER_ARROWS_OCV_CROP_CHIPS_H_
+#define KWIVER_ARROWS_OCV_CROP_CHIPS_H_
 
 
 #include <vital/vital_config.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
 
-#include <vital/algo/split_image.h>
+#include <vital/algo/crop_chips.h>
 
 #include <memory>
 
@@ -50,26 +50,25 @@ namespace ocv {
 
 /// A class for writing out image chips around detections, useful as a debugging process
 /// for ensuring that the refine detections process is running on desired ROIs.
-/// Note: this algorithm only splits an image in half. Use crop_chips
-/// for an implementation that takes external bounding boxes into consideration .
-class KWIVER_ALGO_OCV_EXPORT split_image
-: public vital::algorithm_impl<split_image, vital::algo::split_image>
+class KWIVER_ALGO_OCV_EXPORT crop_chips
+: public vital::algorithm_impl<crop_chips, vital::algo::crop_chips>
 {
 public:
 
   /// Constructor
-  split_image();
+  crop_chips();
 
   /// Destructor
-  virtual ~split_image();
+  virtual ~crop_chips();
 
   /// Split image
-  virtual std::vector< kwiver::vital::image_container_sptr >
-  split(kwiver::vital::image_container_sptr img) const;
+  virtual kwiver::vital::image_container_set_sptr
+      crop(kwiver::vital::image_container_sptr const img,
+           std::vector<kwiver::vital::bounding_box_d> const& bboxes) const;
 };
 
 } // end namespace ocv
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_OCV_SPLIT_IMAGE_H_
+#endif // KWIVER_ARROWS_OCV_CROP_CHIPS_H_
