@@ -17,6 +17,7 @@ set( public_headers
   compute_stereo_depth_map.h
   compute_track_descriptors.h
   convert_image.h
+  crop_chips.h
   detect_features.h
   detected_object_filter.h
   detected_object_set_input.h
@@ -62,6 +63,7 @@ set( sources
   compute_stereo_depth_map.cxx
   compute_track_descriptors.cxx
   convert_image.cxx
+  crop_chips.cxx
   detect_features.cxx
   detected_object_filter.cxx
   detected_object_set_input.cxx
