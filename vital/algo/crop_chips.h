@@ -61,13 +61,14 @@ public:
   /**
    * Extract multiple image chips from a source image.
    *
-   *  @param img: source image
-   *  @param bboxes: vector of bounding boxes to crop from the source image
+   *  \param img: source image
+   *  \param bboxes: vector of bounding boxes to crop from the source image
    *
-   *  @returns chips: a collection of cropped images, one for each bounding box
+   *  \returns chips: a collection of cropped images, one for each bounding box
    */
   virtual kwiver::vital::image_container_set_sptr
     crop(kwiver::vital::image_container_sptr const img,
+         // FIXME: should bounding boxes have a _set_sptr class too?
          std::vector<kwiver::vital::bounding_box_d> const& bboxes) const = 0;
 
 protected:
