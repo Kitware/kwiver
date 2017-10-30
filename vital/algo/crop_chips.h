@@ -67,8 +67,8 @@ public:
    *  @returns chips: a collection of cropped images, one for each bounding box
    */
   virtual kwiver::vital::image_container_set_sptr
-    crop(kwiver::vital::image_container_sptr img
-        std::vector<kwiver::vital::bounding_box> bboxes) const = 0;
+    crop(kwiver::vital::image_container_sptr const img,
+         std::vector<kwiver::vital::bounding_box_d> const& bboxes) const = 0;
 
 protected:
   crop_chips();
