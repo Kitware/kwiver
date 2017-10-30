@@ -30,46 +30,56 @@
 
 /**
  * \file
- * \brief Header for OCV split_image algorithm
+ * \brief Implementation of OCV split image algorithm
  */
 
-#ifndef KWIVER_ARROWS_OCV_SPLIT_IMAGE_H_
-#define KWIVER_ARROWS_OCV_SPLIT_IMAGE_H_
+#include "crop_chips.h"
 
+#include <arrows/ocv/image_container.h>
 
-#include <vital/vital_config.h>
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
-#include <vital/algo/split_image.h>
-
-#include <memory>
+using namespace kwiver::vital;
 
 namespace kwiver {
 namespace arrows {
 namespace ocv {
 
-/// A class for writing out image chips around detections, useful as a debugging process
-/// for ensuring that the refine detections process is running on desired ROIs.
-/// Note: this algorithm only splits an image in half. Use crop_chips
-/// for an implementation that takes external bounding boxes into consideration .
-class KWIVER_ALGO_OCV_EXPORT split_image
-: public vital::algorithm_impl<split_image, vital::algo::split_image>
+/// Constructor
+crop_chips
+::crop_chips()
 {
-public:
+}
 
-  /// Constructor
-  split_image();
+/// Destructor
+crop_chips
+::~crop_chips()
+{
+}
 
-  /// Destructor
-  virtual ~split_image();
+/// Extract sub-chips from a parent image
+kwiver::vital::image_container_set_sptr
+crop_chips
+::crop(kwiver::vital::image_container_sptr const img,
+       std::vector<kwiver::vital::bounding_box_d> const& bboxes) const
+{
+  kwiver::vital::image_container_set_sptr output;
 
-  /// Split image
-  virtual std::vector< kwiver::vital::image_container_sptr >
-  split(kwiver::vital::image_container_sptr img) const;
-};
+  std::vector< kwiver::vital::image_container_sptr > _chips;
+
+  cv::Mat cv_image = ocv::image_container::vital_to_ocv( img->get_image() );
+  for (auto bbox : bboxes)
+  {
+    cv::Mat chip = cv_image( cv::Rect( bbox.min_x(), bbox.min_y(), bbox.max_x(), bbox.max_y() ) );
+    auto chip_sptr = image_container_sptr( new ocv::image_container( chip.clone() ) );
+    _chips.push_back( chip_sptr );
+  }
+
+  output = std::make_shared<kwiver::vital::simple_image_container_set>(_chips);
+  return output;
+}
 
 } // end namespace ocv
 } // end namespace arrows
 } // end namespace kwiver
-
-#endif // KWIVER_ARROWS_OCV_SPLIT_IMAGE_H_
