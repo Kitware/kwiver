@@ -120,10 +120,10 @@ crop_detections_process
 
   // Transform detections into a vector of bounding boxes
   std::vector<kwiver::vital::bounding_box_d> in_bboxes;
-  //for (auto dobj : in_detections.get())
-  //{
-  //  in_bboxes.push_back(dobj.bounding_box())
-  //}
+  for (auto dobj : *in_detections.get())
+  {
+    in_bboxes.push_back(dobj->bounding_box());
+  }
 
   // Extract the chips
   kwiver::vital::image_container_set_sptr chips;
