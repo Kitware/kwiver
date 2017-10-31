@@ -28,41 +28,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <test_common.h>
-
 
 #include <vital/types/image_container_set.h>
 #include <vital/types/image_container.h>
 
-namespace // anonymous
-{
-  // Helper methods for tests in this file
-}
+#include <gtest/gtest.h>
 
-#define TEST_ARGS ()
 
-DECLARE_TEST_MAP();
-
+// ----------------------------------------------------------------------------
 int
 main(int argc, char* argv[])
 {
-  CHECK_ARGS(1);
-
-  testname_t const testname = argv[1];
-
-  RUN_TEST(testname);
+  ::testing::InitGoogleTest( &argc, argv );
+  TEST_LOAD_PLUGINS();
+  return RUN_ALL_TESTS();
 }
 
 
-IMPLEMENT_TEST(simple_empty_container)
+// ----------------------------------------------------------------------------
+TEST(image_container_set, empty)
 {
   kwiver::vital::image_container_set_sptr empty_set;
   empty_set = std::make_shared<kwiver::vital::simple_image_container_set>();
 
   // Check size is reported as zero
-  TEST_EQUAL("Set empty", empty_set->size(), 0);
+  EXPECT_EQ(0, empty_set->size()) << "Set empty";
 
   // Check underlying vector implementation exists and also reports zero size
-  std::vector< kwiver::vital::image_container_sptr > data_ = empty_set->images();
-  TEST_EQUAL("Vector empty", data_.size(), 0);
+  EXPECT_EQ(0, empty_set->images().size()) << "Vector empty";
 }
