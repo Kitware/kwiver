@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,10 +53,12 @@ void register_factories( kwiver::vital::plugin_loader& vpm )
 
   // ----------------------------------------------------------------
   auto fact = vpm.ADD_PROCESS( kwiver::matlab::matlab_process );
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "matlab_bridge" );
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Bridge to process written in matlab." );
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "matlab_bridge" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Bridge to process written in matlab." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    ;
 
   // - - - - - - - - - - - - - - - - - - - - - - -
   sprokit::mark_process_module_as_loaded( vpm, module_name );
