@@ -6,6 +6,7 @@ project( kwiver_processes )
 set( sources
   register_processes.cxx
 
+  associate_detections_to_tracks_process.cxx
   compute_homography_process.cxx
   compute_stereo_depth_map_process.cxx
   detect_features_process.cxx
@@ -34,6 +35,7 @@ set( sources
 )
 
 set( private_headers
+  associate_detections_to_tracks_process.h
   compute_homography_process.h
   compute_stereo_depth_map_process.h
   detect_features_process.h

@@ -10,6 +10,7 @@ set( public_headers
 
   algorithm.h
   algorithm_factory.h
+  associate_detections_to_tracks.h
   analyze_tracks.h
   bundle_adjust.h
   close_loops.h
@@ -58,6 +59,7 @@ set( sources
 
   algorithm.cxx
   algorithm_factory.cxx
+  associate_detections_to_tracks.cxx
   analyze_tracks.cxx
   bundle_adjust.cxx
   close_loops.cxx
