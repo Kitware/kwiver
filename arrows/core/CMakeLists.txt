@@ -21,6 +21,7 @@ set( plugin_core_headers
   filter_tracks.h
   hierarchical_bundle_adjust.h
   initialize_cameras_landmarks.h
+  initialize_object_tracks_threshold.h
   match_features_fundamental_matrix.h
   match_features_homography.h
   track_descriptor_set_output_csv.h
@@ -77,6 +78,7 @@ set( plugin_core_sources
   filter_tracks.cxx
   hierarchical_bundle_adjust.cxx
   initialize_cameras_landmarks.cxx
+  initialize_object_tracks_threshold.h
   match_features_fundamental_matrix.cxx
   match_features_homography.cxx
   track_descriptor_set_output_csv.cxx

@@ -48,6 +48,7 @@
 #include "image_filter_process.h"
 #include "image_object_detector_process.h"
 #include "image_writer_process.h"
+#include "initialize_object_tracks_process.h"
 #include "matcher_process.h"
 #include "read_descriptor_process.h"
 #include "refine_detections_process.h"
@@ -244,6 +245,15 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
+  fact = vpm.ADD_PROCESS( kwiver::initialize_object_tracks_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "initialize_object_tracks" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                    "Initialize new object tracks given detections for the current frame.\n\n"
+                    "If optional input tracks port is connected, the new tracks will be unioned with the "
+                    "newly initialized tracks.")
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
   // - - - - - - - - - - - - - - - - - - - - - - -
   sprokit::mark_process_module_as_loaded( vpm, module_name );
