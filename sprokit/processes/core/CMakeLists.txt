@@ -23,12 +23,14 @@ set( sources
   initialize_object_tracks_process.cxx
   matcher_process.cxx
   read_descriptor_process.cxx
+  read_object_track_process.cxx
   refine_detections_process.cxx
   split_image_process.cxx
   stabilize_image_process.cxx
   track_descriptor_input_process.cxx
   track_descriptor_output_process.cxx
   video_input_process.cxx
+  write_object_track_process.cxx
 )
 
 set( private_headers
@@ -49,12 +51,14 @@ set( private_headers
   initialize_object_tracks_process.h
   matcher_process.h
   read_descriptor_process.h
+  read_object_track_process.h
   refine_detections_process.h
   split_image_process.h
   stabilize_image_process.h
   track_descriptor_input_process.h
   track_descriptor_output_process.h
   video_input_process.h
+  write_object_track_process.cxx
 )
 
 kwiver_private_header_group( ${private_headers} )

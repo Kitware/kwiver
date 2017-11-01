@@ -43,28 +43,30 @@
 #include <arrows/core/close_loops_multi_method.h>
 #include <arrows/core/compute_ref_homography_core.h>
 #include <arrows/core/convert_image_bypass.h>
+#include <arrows/core/detected_object_set_input_csv.h>
+#include <arrows/core/detected_object_set_input_kw18.h>
+#include <arrows/core/detected_object_set_output_csv.h>
+#include <arrows/core/detected_object_set_output_kw18.h>
+#include <arrows/core/dynamic_config_none.h>
 #include <arrows/core/estimate_canonical_transform.h>
 #include <arrows/core/feature_descriptor_io.h>
 #include <arrows/core/filter_features_magnitude.h>
-#include <arrows/core/formulate_query_core.h>
 #include <arrows/core/filter_features_scale.h>
 #include <arrows/core/filter_tracks.h>
+#include <arrows/core/formulate_query_core.h>
 #include <arrows/core/hierarchical_bundle_adjust.h>
 #include <arrows/core/initialize_cameras_landmarks.h>
 #include <arrows/core/match_features_fundamental_matrix.h>
 #include <arrows/core/match_features_homography.h>
+#include <arrows/core/read_object_track_set_kw18.h>
+#include <arrows/core/track_descriptor_set_output_csv.h>
 #include <arrows/core/track_features_core.h>
 #include <arrows/core/triangulate_landmarks.h>
 #include <arrows/core/video_input_filter.h>
 #include <arrows/core/video_input_image_list.h>
 #include <arrows/core/video_input_pos.h>
 #include <arrows/core/video_input_split.h>
-#include <arrows/core/detected_object_set_input_kw18.h>
-#include <arrows/core/detected_object_set_output_kw18.h>
-#include <arrows/core/detected_object_set_input_csv.h>
-#include <arrows/core/detected_object_set_output_csv.h>
-#include <arrows/core/track_descriptor_set_output_csv.h>
-#include <arrows/core/dynamic_config_none.h>
+#include <arrows/core/write_object_track_set_kw18.h>
 
 
 namespace kwiver {
@@ -334,6 +336,26 @@ register_factories( kwiver::vital::plugin_loader& vpm )
                        "  - Column(s) 15-17: World-loc(x,y,z) (longitude, latitude, 0 - when available)\n"
                        "  - Column(s) 18: Timesetamp(-1 if not available)\n"
                        "  - Column(s) 19: Track-confidence(-1_when_not_available)\n")
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
+
+
+  fact = vpm.ADD_ALGORITHM( "kw18", kwiver::arrows::core::read_object_track_set_kw18 );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Object track set kw18 reader\n")
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
+
+
+  fact = vpm.ADD_ALGORITHM( "kw18", kwiver::arrows::core::write_object_track_set_kw18 );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Object track set kw18 writer\n\n"
+                       "Note that the objects are written to the output file when this algorithm object "
+                       "is destroyed.")
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
