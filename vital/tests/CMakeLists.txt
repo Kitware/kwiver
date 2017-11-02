@@ -34,10 +34,10 @@ kwiver_discover_tests(vital_algorithm_capabilities  test_libraries test_algorith
 kwiver_discover_tests(vital_detected_object_type     test_libraries    test_detected_object_type.cxx)
 kwiver_discover_tests(vital_detected_object          test_libraries    test_detected_object.cxx)
 kwiver_discover_tests(vital_detected_object_set      test_libraries    test_detected_object_set.cxx)
-kwiver_discover_tests(vital_image_container_set      test_libraries    test_image_container_set.cxx)
 
 kwiver_discover_gtests(vital  camera_io   LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}" )
 kwiver_discover_gtests(vital  geodesy     LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital  geo_point   LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital  geo_polygon LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital  track_set   LIBRARIES ${test_libraries})
+kwiver_discover_gtests(vital  image_container_set LIBRARIES ${test_libraries})
