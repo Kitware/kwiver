@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016-2017 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,39 +28,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sprokit/processes/vxl/kwiver_processes_vxl_export.h>
+#ifndef _KWIVER_ASSOCIATE_DETECTIONS_TO_TRACKS_PROCESS_H_
+#define _KWIVER_ASSOCIATE_DETECTIONS_TO_TRACKS_PROCESS_H_
 
-#include <sprokit/pipeline/process_factory.h>
-#include <vital/plugin_loader/plugin_loader.h>
+#include "kwiver_processes_export.h"
 
-// -- list processes to register --
-#include "kw_archive_writer_process.h"
+#include <sprokit/pipeline/process.h>
 
-// ----------------------------------------------------------------
-/*! \brief Regsiter processes
- *
- */
-extern "C"
-KWIVER_PROCESSES_VXL_EXPORT
-void register_factories( kwiver::vital::plugin_loader& vpm )
+#include <memory>
+
+namespace kwiver {
+
+// -----------------------------------------------------------------------------
+class KWIVER_PROCESSES_NO_EXPORT associate_detections_to_tracks_process
+  : public sprokit::process
 {
-  static const auto module_name = kwiver::vital::plugin_manager::module_t( "kwiver_processes_vxl" );
+  public:
+  associate_detections_to_tracks_process( vital::config_block_sptr const& config );
+  virtual ~associate_detections_to_tracks_process();
 
-  if ( sprokit::is_process_module_loaded( vpm, module_name ) )
-  {
-    return;
-  }
+  protected:
+    virtual void _configure();
+    virtual void _step();
 
-  // ----------------------------------------------------------------
-  auto fact = vpm.ADD_PROCESS( kwiver::kw_archive_writer_process );
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "kw_archive_writer" )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Writes kw archives" )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
-    ;
+  private:
+    void make_ports();
+    void make_config();
 
-  // - - - - - - - - - - - - - - - - - - - - - - -
-  sprokit::mark_process_module_as_loaded( vpm, module_name );
+    class priv;
+    const std::unique_ptr<priv> d;
+ }; // end class associate_detections_to_tracks_process
 
-}
+
+} // end namespace
+#endif /* _KWIVER_ASSOCIATE_DETECTIONS_TO_TRACKS_PROCESS_H_ */

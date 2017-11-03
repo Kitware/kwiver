@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016-2017 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,39 +28,44 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sprokit/processes/vxl/kwiver_processes_vxl_export.h>
-
-#include <sprokit/pipeline/process_factory.h>
-#include <vital/plugin_loader/plugin_loader.h>
-
-// -- list processes to register --
-#include "kw_archive_writer_process.h"
-
-// ----------------------------------------------------------------
-/*! \brief Regsiter processes
- *
+/**
+ * \file
+ * \brief Interface for read_object_track_set_kw18
  */
-extern "C"
-KWIVER_PROCESSES_VXL_EXPORT
-void register_factories( kwiver::vital::plugin_loader& vpm )
+
+#ifndef KWIVER_ARROWS_READ_OBJECT_TRACK_SET_KW18_H
+#define KWIVER_ARROWS_READ_OBJECT_TRACK_SET_KW18_H
+
+#include <vital/vital_config.h>
+#include <arrows/core/kwiver_algo_core_export.h>
+
+#include <vital/algo/read_object_track_set.h>
+
+#include <memory>
+
+namespace kwiver {
+namespace arrows {
+namespace core {
+
+class KWIVER_ALGO_CORE_EXPORT read_object_track_set_kw18
+  : public vital::algorithm_impl< read_object_track_set_kw18,
+      vital::algo::read_object_track_set >
 {
-  static const auto module_name = kwiver::vital::plugin_manager::module_t( "kwiver_processes_vxl" );
+public:
+  read_object_track_set_kw18();
+  virtual ~read_object_track_set_kw18();
 
-  if ( sprokit::is_process_module_loaded( vpm, module_name ) )
-  {
-    return;
-  }
+  virtual vital::config_block_sptr get_configuration() const;
+  virtual void set_configuration( vital::config_block_sptr config );
+  virtual bool check_configuration( vital::config_block_sptr config ) const;
 
-  // ----------------------------------------------------------------
-  auto fact = vpm.ADD_PROCESS( kwiver::kw_archive_writer_process );
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "kw_archive_writer" )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Writes kw archives" )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
-    ;
+  virtual bool read_set( kwiver::vital::object_track_set_sptr& set );
 
-  // - - - - - - - - - - - - - - - - - - - - - - -
-  sprokit::mark_process_module_as_loaded( vpm, module_name );
+private:
+  class priv;
+  std::unique_ptr< priv > d;
+};
 
-}
+} } } // end namespace
+
+#endif // KWIVER_ARROWS_READ_OBJECT_TRACK_SET_KW18_H

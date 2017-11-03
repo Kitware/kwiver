@@ -113,7 +113,7 @@ close_loops_keyframe
 
 // ----------------------------------------------------------------------------
 /// Get this alg's \link vital::config_block configuration block \endlink
-  vital::config_block_sptr
+vital::config_block_sptr
 close_loops_keyframe
 ::get_configuration() const
 {

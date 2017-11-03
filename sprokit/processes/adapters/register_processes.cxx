@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,6 +62,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute(  kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                         "Source process for pipeline. Pushes data items into pipeline ports. "
                         "Ports are dynamically created as needed based on connections specified in the pipeline file." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     .add_attribute( "no-test", "introspect" ); // do not include in introspection test
 
   fact = vpm.ADD_PROCESS( kwiver::output_adapter_process );
@@ -70,6 +71,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute(  kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                         "Sink process for pipeline. Accepts data items from pipeline ports. "
                         "Ports are dynamically created as needed based on connections specified in the pipeline file." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     .add_attribute( "no-test", "introspect" ); // do not include in introspection test
 
   // - - - - - - - - - - - - - - - - - - - - - - -
