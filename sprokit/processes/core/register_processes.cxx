@@ -36,6 +36,7 @@
 // -- list processes to register --
 #include "compute_homography_process.h"
 #include "compute_stereo_depth_map_process.h"
+#include "crop_detections_process.h"
 #include "detect_features_process.h"
 #include "detected_object_filter_process.h"
 #include "detected_object_input_process.h"
@@ -47,6 +48,7 @@
 #include "image_file_reader_process.h"
 #include "image_filter_process.h"
 #include "image_object_detector_process.h"
+#include "image_set_splitter.h"
 #include "image_writer_process.h"
 #include "matcher_process.h"
 #include "read_descriptor_process.h"
@@ -137,6 +139,12 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Refines detections for a given frame" );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
+  fact = vpm.ADD_PROCESS( kwiver::crop_detections_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "crop_detections" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Crops the image corresponding to the detection" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
   fact = vpm.ADD_PROCESS( kwiver::image_object_detector_process );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "image_object_detector" );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
@@ -154,6 +162,12 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "image_writer" );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Write image to disk." );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
+  fact = vpm.ADD_PROCESS( kwiver::image_set_splitter );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "image_set_splitter" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Split image set to component images." );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
   fact = vpm.ADD_PROCESS( kwiver::image_file_reader_process );

@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,39 +28,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <vital/algo/algorithm.txx>
+#ifndef KWIVER_IMAGE_SET_SPLITTER_H
+#define KWIVER_IMAGE_SET_SPLITTER_H
 
-#include "crop_chips.h"
+#include <sprokit/pipeline/process.h>
+#include "kwiver_processes_export.h"
 
 namespace kwiver {
-namespace vital {
-namespace algo {
 
-crop_chips
-::crop_chips()
+class KWIVER_PROCESSES_NO_EXPORT image_set_splitter
+  : public sprokit::process
 {
-  attach_logger( "crop_chips" );
-}
+public:
+  image_set_splitter( kwiver::vital::config_block_sptr const& config );
+  ~image_set_splitter() override;
 
+protected:
+  void _configure() override;
+  void _step() override;
 
-/// Set this algorithm's properties via a config block
-void
-crop_chips
-::set_configuration(kwiver::vital::config_block_sptr config)
-{
-  (void) config;
-}
+private:
+  void make_ports();
+  void make_config();
 
-/// Check that the algorithm's current configuration is valid
-bool
-crop_chips
-::check_configuration(kwiver::vital::config_block_sptr config) const
-{
-  (void) config;
-  return true;
-}
+  class priv;
+  const std::unique_ptr<priv> d;
+};
 
+} // end namespace
 
-} } } // end namespace
-
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::crop_chips);
+#endif //KWIVER_IMAGE_SET_SPLITTER_H

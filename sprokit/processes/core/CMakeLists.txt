@@ -21,6 +21,7 @@ set( sources
   image_filter_process.cxx
   image_object_detector_process.cxx
   image_writer_process.cxx
+  image_set_splitter.cxx
   matcher_process.cxx
   read_descriptor_process.cxx
   refine_detections_process.cxx
@@ -47,6 +48,7 @@ set( private_headers
   image_filter_process.h
   image_object_detector_process.h
   image_writer_process.h
+  image_set_splitter.h
   matcher_process.h
   read_descriptor_process.h
   refine_detections_process.h

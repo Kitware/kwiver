@@ -67,7 +67,6 @@
 #include <arrows/core/track_descriptor_set_output_csv.h>
 #include <arrows/core/dynamic_config_none.h>
 
-
 namespace kwiver {
 namespace arrows {
 namespace core {

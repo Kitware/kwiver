@@ -64,8 +64,8 @@ public:
 
 crop_detections_process
 ::crop_detections_process( kwiver::vital::config_block_sptr const& config )
-  : process( config ),
-    d( new crop_detections_process::priv )
+  : process( config )
+  , d( new crop_detections_process::priv )
 {
   attach_logger( kwiver::vital::get_logger( name() ) );
 
