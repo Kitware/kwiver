@@ -34,6 +34,13 @@ process disp
 #  header         = header-header
 
 # ================================================================
+ process writer
+   :: image_writer
+   file_name_template 			= output/image%04d.jpg
+   image_writer:type  			= ocv
+
+       
+# ================================================================
 # global pipeline config
 #
 config _pipeline:_edge
@@ -55,5 +62,7 @@ connect from input.timestamp
         to   disp.timestamp
 connect from split.image
         to   disp.image
+connect from split.image
+        to   writer.image
 
 # -- end of file --
