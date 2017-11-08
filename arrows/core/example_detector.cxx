@@ -52,6 +52,7 @@ public:
   , m_dx(0.0)
   , m_dy(0.0)
   , m_frame_ct(0)
+  , m_detections_per_image(1)
   {}
 
   ~priv()
@@ -64,6 +65,7 @@ public:
   double m_dx;
   double m_dy;
   int m_frame_ct;
+  int m_detections_per_image;
 }; // end class example_detector::priv
 
 
@@ -93,6 +95,8 @@ get_configuration() const
   config->set_value( "width", d->m_width, "Bounding box width." );
   config->set_value( "dx", d->m_dx, "Bounding box x translation per frame." );
   config->set_value( "dy", d->m_dy, "Bounding box y translation per frame." );
+  config->set_value( "detections_per_image", d->m_detections_per_image,
+                     "How many detections per image.  Uses dx, dy." );
 
   return config;
 }
@@ -110,8 +114,12 @@ set_configuration(vital::config_block_sptr config_in)
   d->m_center_y     = config->get_value<double>( "center_y" );
   d->m_height       = config->get_value<double>( "height" );
   d->m_width        = config->get_value<double>( "width" );
-  d->m_dx           = config->get_value<double>( "dx" );
-  d->m_dy           = config->get_value<double>( "dy" );
+  if (config->has_value("dx"))
+    d->m_dx           = config->get_value<double>( "dx" );
+  if (config->has_value("dy"))
+    d->m_dy           = config->get_value<double>( "dy" );
+  if (config->has_value("detections_per_image"))
+    d->m_detections_per_image = config->get_value<int>( "detections_per_image");
 }
 
 
@@ -129,23 +137,26 @@ kwiver::vital::detected_object_set_sptr
 example_detector::
 detect( vital::image_container_sptr image_data) const
 {
-  auto detected_set = std::make_shared< kwiver::vital::detected_object_set>();
+  auto detected_set = std::make_shared<kwiver::vital::detected_object_set>();
 
-  const double ct = (double)d->m_frame_ct;
+  for (int i = 0, N = d->m_detections_per_image; i < N; ++i)
+  {
+    const auto ct = (double) d->m_frame_ct;
 
-  kwiver::vital::bounding_box_d bbox(
-          d->m_center_x + ct*d->m_dx - d->m_width/2.0,
-          d->m_center_y + ct*d->m_dy - d->m_height/2.0,
-          d->m_center_x + ct*d->m_dx + d->m_width/2.0,
-          d->m_center_y + ct*d->m_dy + d->m_height/2.0);
+    kwiver::vital::bounding_box_d bbox(
+            d->m_center_x + ct * d->m_dx - d->m_width / 2.0,
+            d->m_center_y + ct * d->m_dy - d->m_height / 2.0,
+            d->m_center_x + ct * d->m_dx + d->m_width / 2.0,
+            d->m_center_y + ct * d->m_dy + d->m_height / 2.0);
 
-  ++d->m_frame_ct;
+    ++d->m_frame_ct;
 
-  auto dot = std::make_shared< kwiver::vital::detected_object_type >();
-  dot->set_score( "detection", 1.0 );
+    auto dot = std::make_shared<kwiver::vital::detected_object_type>();
+    dot->set_score("detection", 1.0);
 
-  detected_set->add( std::make_shared< kwiver::vital::detected_object >( bbox, 1.0, dot ) );
-
+    detected_set->add(
+            std::make_shared<kwiver::vital::detected_object>(bbox, 1.0, dot));
+  }
   return detected_set;
 }
 

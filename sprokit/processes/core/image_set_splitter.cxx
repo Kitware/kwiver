@@ -44,16 +44,21 @@ namespace kwiver {
 class image_set_splitter::priv
 {
 public:
-  priv() {}
+  priv()
+  : m_frame_number(0)
+  {}
+
   ~priv() {}
+
+  kwiver::vital::timestamp::frame_t m_frame_number;
 }; // end priv class
 
 // =============================================================================
 
 image_set_splitter
 ::image_set_splitter( kwiver::vital::config_block_sptr const& config )
-        : process( config ),
-          d( new image_set_splitter::priv )
+        : process( config )
+        , d( new image_set_splitter::priv )
 {
   // Attach our logger name to process logger
   attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
@@ -81,10 +86,24 @@ void
 image_set_splitter
 ::_step()
 {
-  vital::image_container_set_sptr input = grab_from_port_using_trait( image_set );
+  kwiver::vital::timestamp frame_time;
+  bool is_ts_valid = false;
+  if ( has_input_port_edge_using_trait( timestamp ) )
+  {
+    frame_time = grab_from_port_using_trait( timestamp );
+    if (frame_time.has_valid_frame() )
+    {
+      is_ts_valid = true;
+    }
+  }
 
+  vital::image_container_set_sptr input = grab_from_port_using_trait( image_set );
   for (auto img : input->images())
+  {
     push_to_port_using_trait( image, img );
+    if (is_ts_valid)
+      push_to_port_using_trait( timestamp, frame_time );
+  }
 }
 
 
@@ -98,12 +117,13 @@ void image_set_splitter
   required.insert( flag_required );
 
   declare_input_port_using_trait( image_set, required );
-//  declare_input_port_using_trait( timestamp, optional,
-//    "Image timestamp, optional. The frame number from this timestamp is used "
-//    "to number the output files. If the timestamp is not connected or not "
-//    "valid, the output files are sequentially numbered from 1." );
+  declare_input_port_using_trait( timestamp, optional,
+    "Image timestamp, optional. If supplied, the frame number from this"
+    " timestamp is broadcast to the output files."
+    " Otherwise no timestamp is outputted." );
 
   declare_output_port_using_trait( image, required );
+  declare_output_port_using_trait( timestamp, optional );
 }
 
 

@@ -9,10 +9,13 @@ process input
 process detector
   :: image_object_detector
   detector:type                    	= example_detector
-  detector:example_detector:center_x	= 100
-  detector:example_detector:center_y   	= 100
-  detector:example_detector:width	= 100
+  detector:example_detector:center_x	= 125
+  detector:example_detector:center_y   	= 125
+  detector:example_detector:width	= 150
   detector:example_detector:height	= 100
+  detector:example_detector:dx		= 20
+  detector:example_detector:dy		= 20
+  detector:example_detector:detections_per_image	= 2
 
 # ================================================================
 process crop
@@ -59,10 +62,15 @@ connect from crop.image_set
 	to split.image_set
 
 connect from input.timestamp
+	to split.timestamp
+connect from split.timestamp
         to   disp.timestamp
 connect from split.image
         to   disp.image
+
 connect from split.image
         to   writer.image
+connect from split.timestamp
+        to   writer.timestamp
 
 # -- end of file --

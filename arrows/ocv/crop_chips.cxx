@@ -71,8 +71,10 @@ crop_chips
   cv::Mat cv_image = ocv::image_container::vital_to_ocv( img->get_image() );
   for (auto bbox : bboxes)
   {
-    cv::Mat chip = cv_image( cv::Rect( bbox.min_x(), bbox.min_y(), bbox.max_x(), bbox.max_y() ) );
-    auto chip_sptr = image_container_sptr( new ocv::image_container( chip.clone() ) );
+    cv::Mat chip = cv_image( cv::Rect( bbox.min_x(), bbox.min_y(),
+                                       bbox.width(), bbox.height() ) );
+    auto chip_sptr = image_container_sptr(
+            new ocv::image_container( chip.clone() ) );
     _chips.push_back( chip_sptr );
   }
 
