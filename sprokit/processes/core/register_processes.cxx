@@ -54,6 +54,7 @@
 #include "image_writer_process.h"
 #include "matcher_process.h"
 #include "motion_detector_process.h"
+#include "merge_detected_object_sets_process.h"
 #include "read_descriptor_process.h"
 #include "simulate_target_selection_process.h"
 #include "refine_detections_process.h"
@@ -125,6 +126,12 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "motion_detector" );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Detect motion in a series of images" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
+  fact = vpm.ADD_PROCESS( kwiver::merge_detected_object_sets_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "merge_detected_object_sets" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Merge two detected_object_set into one." );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
   fact = vpm.ADD_PROCESS( kwiver::compute_homography_process );

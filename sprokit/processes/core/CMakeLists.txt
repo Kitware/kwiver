@@ -26,6 +26,7 @@ set( sources
   image_warp_process.cxx
   image_writer_process.cxx
   matcher_process.cxx
+  merge_detected_object_sets_process.cxx
   motion_detector_process.cxx
   read_descriptor_process.cxx
   simulate_target_selection_process.cxx
@@ -60,6 +61,7 @@ set( private_headers
   image_warp_process.h
   image_writer_process.h
   matcher_process.h
+  merge_detected_object_sets_process.h
   motion_detector_process.h
   read_descriptor_process.h
   simulate_target_selection_process.h
