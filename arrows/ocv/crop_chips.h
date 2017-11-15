@@ -48,8 +48,7 @@ namespace kwiver {
 namespace arrows {
 namespace ocv {
 
-/// A class for writing out image chips around detections, useful as a debugging process
-/// for ensuring that the refine detections process is running on desired ROIs.
+/// A class for extracting subimages using bounding boxes.
 class KWIVER_ALGO_OCV_EXPORT crop_chips
 : public vital::algorithm_impl<crop_chips, vital::algo::crop_chips>
 {
