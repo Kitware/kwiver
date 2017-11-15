@@ -9,7 +9,7 @@ set(test_libraries      vital vital_vpm kwiver_algo_ocv )
 ##############################
 kwiver_discover_tests(ocv_algo_config         test_libraries test_algo_config.cxx)
 kwiver_discover_tests(ocv_bounding_box        test_libraries test_bounding_box.cxx)
-kwiver_discover_gtests(ocv crop_chips         test_libraries test_crop_chips.cxx)
+kwiver_discover_gtests(ocv crop_chips                  LIBRARIES ${test_libraries} SOURCES test_crop_chips.cxx)
 kwiver_discover_tests(ocv_descriptor_set      test_libraries test_descriptor_set.cxx)
 kwiver_discover_tests(ocv_distortion          test_libraries test_distortion.cxx)
 kwiver_discover_gtests(ocv estimate_fundamental_matrix LIBRARIES ${test_libraries})

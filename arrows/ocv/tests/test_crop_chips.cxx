@@ -33,7 +33,6 @@
  * \brief test OCV image class
  */
 
-#include <test_common.h>
 #include <vital/plugin_loader/plugin_manager.h>
 
 #include <vital/types/image_container.h>
@@ -43,38 +42,28 @@
 #include <arrows/ocv/image_container.h>
 #include <arrows/ocv/image_io.h>
 
-#define TEST_ARGS ()
+#include <gtest/gtest.h>
 
-DECLARE_TEST_MAP();
 
 int
 main(int argc, char* argv[])
 {
-  CHECK_ARGS(1);
-
-  testname_t const testname = argv[1];
-
-  RUN_TEST(testname);
+  ::testing::InitGoogleTest( &argc, argv );
+  return RUN_ALL_TESTS();
 }
 
 using namespace kwiver::vital;
 
-IMPLEMENT_TEST(factory)
+TEST(crop_chips, factory)
 {
   using namespace kwiver::arrows;
 
   kwiver::vital::plugin_manager::instance().load_all_plugins();
 
   algo::crop_chips_sptr algo = kwiver::vital::algo::crop_chips::create("ocv");
-  if (!algo)
-  {
-    TEST_ERROR("Unable to create crop_chips algorithm of type ocv");
-  }
+  EXPECT_NE(nullptr, algo) << "Unable to create crop_chips algorithm of type ocv";
   algo::crop_chips* algo_ptr = algo.get();
-  if (typeid(*algo_ptr) != typeid(ocv::crop_chips))
-  {
-    TEST_ERROR("Factory method did not construct the correct type");
-  }
+  ASSERT_TRUE(typeid(*algo_ptr) == typeid(ocv::crop_chips)) << "Factory method did not construct the correct type";
 }
 
 
@@ -157,7 +146,7 @@ populate_vital_image(kwiver::vital::image& img)
 } // end anonymous namespace
 
 
-IMPLEMENT_TEST(test_crop_simple)
+TEST(crop_chips, simple)
 {
   using namespace kwiver;
   using namespace kwiver::arrows;
@@ -172,8 +161,8 @@ IMPLEMENT_TEST(test_crop_simple)
   // TODO: expand this
   ocv::crop_chips algo;
   auto output0 = algo.crop(img_sptr, bboxes0);
-  TEST_EQUAL("bbox set size ", bboxes0.size(), 0);
-  TEST_EQUAL("image set size ", output0->size(), 0);
+  EXPECT_EQ(0, bboxes0.size());
+  EXPECT_EQ(0, output0->size());
 
   std::vector< kwiver::vital::bounding_box_d > bboxes3;
   bboxes3.push_back( kwiver::vital::bounding_box<double>( 1, 3, 10, 34 ) );
@@ -181,8 +170,8 @@ IMPLEMENT_TEST(test_crop_simple)
   bboxes3.push_back( kwiver::vital::bounding_box<double>( 5, 5, 5, 5 ) );
   auto output3 = algo.crop(img_sptr, bboxes3);
 
-  TEST_EQUAL("bbox set size ", bboxes3.size(), 3);
-  TEST_EQUAL("image set size ", output3->size(), 3);
+  EXPECT_EQ(3, bboxes3.size());
+  EXPECT_EQ(3, output3->size());
 
   // TODO: test to ensure cropped sizes agree with bounding box width / heights.
 

@@ -193,9 +193,6 @@ endfunction ()
 
 # -----------------------------------------------------------------------------
 function (kwiver_discover_gtests MODULE NAME)
-  if (NOT KWIVER_ENABLE_GTESTS)
-    return()
-  endif()
   cmake_parse_arguments("" "" "" "SOURCES;LIBRARIES;ARGUMENTS" ${ARGN})
   if (NOT _SOURCES)
     set(_SOURCES test_${NAME}.cxx)
