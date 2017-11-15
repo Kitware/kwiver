@@ -40,7 +40,6 @@ int
 main(int argc, char* argv[])
 {
   ::testing::InitGoogleTest( &argc, argv );
-  TEST_LOAD_PLUGINS();
   return RUN_ALL_TESTS();
 }
 
