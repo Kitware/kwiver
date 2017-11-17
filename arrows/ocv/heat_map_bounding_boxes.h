@@ -51,7 +51,21 @@ namespace kwiver {
 namespace arrows {
 namespace ocv {
 
-/// Generate bounding boxes from heat map
+// ----------------------------------------------------------------
+/**
+ * @brief Generate bounding boxes from a heat map.
+ *
+ * This object detector algorithm implementation extracts a detected object set
+ * from a heat map image. There are a number of different modes of operation. If
+ * "threshold" is set to a positive value, the heat map is first thresholded to
+ * a binary image, and the detected objects correspond to bounding boxes around
+ * clusters of connected pixels. These detected objects can further be filtered
+ * based on the cluster region properties (e.g., area, fill fraction, etc.).
+ * 
+ * If threshold is set to -1, the heat map will be processed using the full
+ * pixel-value range.
+ *
+ */
 class KWIVER_ALGO_OCV_EXPORT heat_map_bounding_boxes
   : public vital::algorithm_impl<heat_map_bounding_boxes, 
                                  vital::algo::image_object_detector>
