@@ -50,8 +50,6 @@ public:
   priv();
   ~priv();
 
-  kwiver::vital::wall_timer m_detect_timer;
-
   vital::algo::image_object_detector_sptr m_detector;
 
 }; // end priv class
@@ -104,17 +102,18 @@ image_object_detector_process::
 _step()
 {
   LOG_TRACE( logger(), "Starting process" );
+  kwiver::vital::wall_timer timer;
+  timer.start();
   vital::image_container_sptr input = grab_from_port_using_trait( image );
 
-  d->m_detect_timer.start();
+  
 
   // Get detections from detector on image
   vital::detected_object_set_sptr result = d->m_detector->detect( input );
 
-  d->m_detect_timer.stop();
-
-  double elapsed_time = d->m_detect_timer.elapsed();
-  LOG_DEBUG( logger(), "Elapsed time detecting objects: " << elapsed_time );
+  timer.stop();
+  double elapsed_time = timer.elapsed();
+  LOG_DEBUG( logger(), "Total processing time: " << elapsed_time );
 
   push_to_port_using_trait( detection_time, elapsed_time);
   push_to_port_using_trait( detected_object_set, result );

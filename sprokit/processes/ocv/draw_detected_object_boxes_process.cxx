@@ -37,6 +37,7 @@
 
 #include <vital/vital_types.h>
 #include <vital/vital_foreach.h>
+#include <vital/util/wall_timer.h>
 
 #include <arrows/ocv/image_container.h>
 
@@ -235,6 +236,8 @@ public:
   bool m_draw_overlap_max;
   bool m_draw_text;
   bool m_draw_other_classes;
+  
+  kwiver::vital::wall_timer m_timer;
 
 
   // ------------------------------------------------------------------
@@ -429,6 +432,9 @@ draw_detected_object_boxes_process
   : process( config ),
   d( new draw_detected_object_boxes_process::priv )
 {
+  // Attach our logger name to process logger
+  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
+
   make_ports();
   make_config();
 }
@@ -506,12 +512,16 @@ draw_detected_object_boxes_process::_configure()
 void
 draw_detected_object_boxes_process::_step()
 {
+  d->m_timer.start();
   auto img = grab_from_port_using_trait( image );
   auto detections = grab_from_port_using_trait( detected_object_set );
 
   auto result = d->draw_on_image( img, detections );
 
   push_to_port_using_trait( image, result );
+  double elapsed_time = d->m_timer.elapsed();
+  LOG_DEBUG( logger(), "Total processing time: " << elapsed_time );
+  std::cout << "HERE!!!" << std::endl;
 }
 
 

@@ -32,6 +32,7 @@
 #include "draw_detected_object_set_process.h"
 
 #include <vital/algo/draw_detected_object_set.h>
+#include <vital/util/wall_timer.h>
 
 #include <sprokit/processes/kwiver_type_traits.h>
 #include <sprokit/pipeline/process_exception.h>
@@ -51,6 +52,7 @@ public:
   ~priv();
 
   vital::algo::draw_detected_object_set_sptr m_algo;
+  kwiver::vital::wall_timer m_timer;
 
 }; // end priv class
 
@@ -100,12 +102,16 @@ void draw_detected_object_set_process
 void draw_detected_object_set_process
 ::_step()
 {
+  d->m_timer.start();
   auto input_image = grab_from_port_using_trait( image );
   auto obj_set = grab_from_port_using_trait( detected_object_set );
 
   auto out_image = d->m_algo->draw( obj_set, input_image );
 
   push_to_port_using_trait( image, out_image );
+
+  double elapsed_time = d->m_timer.elapsed();
+  LOG_DEBUG( logger(), "Total processing time: " << elapsed_time );
 }
 
 
