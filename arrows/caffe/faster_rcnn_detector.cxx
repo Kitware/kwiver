@@ -37,6 +37,7 @@
 #include <vital/types/vector.h>
 #include <vital/io/eigen_io.h>
 #include <vital/util/cpu_timer.h>
+#include <vital/util/wall_timer.h>
 #include <vital/util/data_stream_reader.h>
 #include <vital/algo/dynamic_configuration.h>
 #include <vital/logger/logger.h>
@@ -82,7 +83,6 @@ public:
   unsigned int m_stride;
 
   kwiver::vital::logger_handle_t m_logger;
-
   kwiver::vital::algo::dynamic_configuration_sptr m_dynamic_scaling;
 
   std::pair< cv::Mat, double > prepair_image( cv::Mat const& in_image ) const;
@@ -285,6 +285,14 @@ vital::detected_object_set_sptr
 faster_rcnn_detector::
 detect( vital::image_container_sptr image_data ) const
 {
+  kwiver::vital::cpu_timer cpu_timer;
+  kwiver::vital::wall_timer wall_timer;
+  cpu_timer.start();
+  wall_timer.start();
+  LOG_TRACE( d->m_logger, "Received " + std::to_string(image_data->width()) + 
+             " x " + std::to_string(image_data->height()) + " x " +
+             std::to_string(image_data->depth()) + " image" );
+
   double scale_factor(1.0);
 
   // Is dynamic scaling configured
@@ -308,7 +316,6 @@ detect( vital::image_container_sptr image_data ) const
     }
   }
 
-  kwiver::vital::scoped_cpu_timer t( "Time to Detect Objects" );
   cv::Mat image = kwiver::arrows::ocv::image_container::vital_to_ocv( image_data->get_image(), kwiver::arrows::ocv::image_container::BGR);
   std::vector< cv::Mat > image_chips;
   std::vector< unsigned int > chip_x;
@@ -427,6 +434,11 @@ detect( vital::image_container_sptr image_data ) const
       }
     } // end for over rois
   } // end for over chips
+  
+  cpu_timer.stop();
+  wall_timer.stop();
+  LOG_TRACE( logger(), "Elapsed wall/CPU time detecting objects: " <<
+             wall_timer.elapsed() << " / " << cpu_timer.elapsed()  );
 
   return detected_objects;
 } // faster_rcnn_detector::detect
@@ -499,7 +511,18 @@ prepair_image( cv::Mat const& in_image ) const
   }
 
   cv::Mat scaleImage;
-  cv::resize( im_float, scaleImage, cv::Size(), scale, scale );
+  if( scale != 1 )
+  {
+    cv::resize( im_float, scaleImage, cv::Size(), scale, scale );
+    LOG_TRACE( m_logger, "Rescaling image to " + 
+               std::to_string(scaleImage.cols) + "x" + 
+               std::to_string(scaleImage.rows) + "x" +
+               std::to_string(scaleImage.channels()) );
+  }
+  else
+  {
+    scaleImage = im_float;
+  }
 
   return std::pair< cv::Mat, double > ( scaleImage, scale );
 }

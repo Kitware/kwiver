@@ -38,6 +38,7 @@
 #include <vital/algo/detected_object_filter.h>
 #include <sprokit/processes/kwiver_type_traits.h>
 #include <sprokit/pipeline/process_exception.h>
+#include <vital/util/wall_timer.h>
 
 #include <sstream>
 #include <iostream>
@@ -106,10 +107,17 @@ void
 detected_object_filter_process
 ::_step()
 {
+  kwiver::vital::wall_timer timer;
+  timer.start();
+
   vital::detected_object_set_sptr input = grab_from_port_using_trait( detected_object_set );
   vital::detected_object_set_sptr result = d->m_filter->filter( input );
 
   push_to_port_using_trait( detected_object_set, result );
+  
+  timer.stop();
+  double elapsed_time = timer.elapsed();
+  LOG_DEBUG( logger(), "Total processing time: " << elapsed_time );
 }
 
 

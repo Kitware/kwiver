@@ -37,6 +37,7 @@
 #include "crop_image_process.h"
 #include "draw_detected_object_boxes_process.h"
 #include "equalize_histogram_process.h"
+#include "image_object_classifier_process.h"
 #include "image_viewer_process.h"
 #include "stabilization_inspection_image_process.h"
 #include "show_mask_on_image_process.h"
@@ -84,6 +85,15 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
   fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                         "Equalize an image's histogram." );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+  
+  fact = vpm.ADD_PROCESS( kwiver::image_object_classifier_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "image_object_classifier" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Apply selected image object detector algorithm to sub-images "
+                       "from incoming images according to the bounding boxes contained "
+                       "within the provided input detected_object_set." );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
   
   fact = vpm.ADD_PROCESS( kwiver::stabilization_inspection_image_process );
