@@ -10,6 +10,7 @@ set( sources
   crop_image_process.cxx
   draw_detected_object_boxes_process.cxx
   equalize_histogram_process.cxx
+  image_object_classifier_process.cxx
   image_viewer_process.cxx
   show_mask_on_image_process.cxx
   stabilization_inspection_image_process.cxx
@@ -20,6 +21,7 @@ set( private_headers
   crop_image_process.h
   draw_detected_object_boxes_process.h
   equalize_histogram_process.h
+  image_object_classifier_process.h
   image_viewer_process.h
   show_mask_on_image_process.h
   stabilization_inspection_image_process.h

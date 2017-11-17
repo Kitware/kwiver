@@ -38,10 +38,15 @@
 #include <sprokit/processes/kwiver_type_traits.h>
 #include <sprokit/pipeline/process_exception.h>
 
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
 namespace kwiver {
 
 create_config_trait( detector, std::string, "", "Algorithm configuration subblock.\n\n"
   "Use 'detector:type' to select desired detector implementation.");
+create_config_trait( include_input_dets, bool, "false", "Include the input "
+                     "detected object set in the output detected object set." );
 
 
 //----------------------------------------------------------------
@@ -49,10 +54,16 @@ create_config_trait( detector, std::string, "", "Algorithm configuration subbloc
 class image_object_classifier_process::priv
 {
 public:
-  priv();
-  ~priv();
+  priv()
+    : m_include_input_dets(false)
+  {
+  }
 
-  kwiver::vital::wall_timer m_detect_timer;
+  ~priv()
+  {
+  }
+
+  bool m_include_input_dets;
   kwiver::vital::logger_handle_t m_logger;
   vital::algo::image_object_detector_sptr m_detector;
 
@@ -60,8 +71,15 @@ public:
   /**
    * @brief Classify regions defined within the provided detected object set.
    *
-   * This method
-   */
+  * Replace multi-channel image with a single channel image equal to the root 
+  * mean square over the channels.
+  *
+  * @param src_image Full-resolution image
+  * @param dets_in_sptr dets_in_sptr Detections with bounding boxes defined in
+   *  the full-image coordinate system. These will define ROI that will be
+   *  chipped and sent individually to the detector.
+  * @param dets_out_sptr Output classifications.
+  */
   void
   classify( const vital::image_container_sptr &src_image,
             const vital::detected_object_set_sptr &dets_in_sptr,
@@ -73,20 +91,24 @@ public:
     vital::detected_object::vector_t dets_in = dets_in_sptr->select();
     vital::detected_object::vector_t dets_out;
 
-    // Add in the detections that defined the ROI
-    //dets_out.insert( dets_out.end(), dets_in.begin(), dets_in.end() );
-    
+    if( m_include_input_dets )
+    {
+      // Add in the detections that defined the ROI
+      dets_out.insert( dets_out.end(), dets_in.begin(), dets_in.end() );
+    }
+
     // Define the bound box representing the entire image.
     cv::Size s = cv_src.size();
     vital::bounding_box_d img( vital::bounding_box_d::vector_type( 0, 0 ),
                                vital::bounding_box_d::vector_type( s.width, s.height ) );
 
     kwiver::vital::image_container_sptr windowed_image;
+    LOG_DEBUG( m_logger, "Considering " << dets_in.size() << " ROI" );
     VITAL_FOREACH( vital::detected_object_sptr det, dets_in )
     {
       timer.start();
       vital::bounding_box_d bbox = det->bounding_box();
-      
+
       // Clip bounding box to the image
       bbox = intersection( img, bbox );
 
@@ -94,28 +116,39 @@ public:
       {
         continue;
       }
-      
+
       int x = bbox.upper_left()[0];
       int y = bbox.upper_left()[1];
       int w = bbox.width();
       int h = bbox.height();
-      
+
       LOG_TRACE( m_logger, "Processing ROI window with upper left coordinates (" +
                  std::to_string(x) + "," + std::to_string(y) + ") of size (" +
                  std::to_string(w) + "x" + std::to_string(h) + ")" );
 
+      // TODO: ocv is only used to crop the image. This can be replaced by a
+      // vital image cropping utility once that becomes available, and then this
+      // can be moved to a core process.
+
       // Make CV rect for bbox
       cv::Rect roi( x, y, w, h );
-      
+
       // Detect within the region of interest.
       windowed_image = vital::image_container_sptr( new arrows::ocv::image_container( cv_src(roi) ) );
-      timer.stop();
-      LOG_TRACE( m_logger, "Time to create windowed vital image: " << timer.elapsed() );
-      
+
       vital::detected_object::vector_t dets = m_detector->detect( windowed_image )->select();
-      
+
+      VITAL_FOREACH( auto det, dets )
+      {
+        auto det_bbox = det->bounding_box();
+        kwiver::vital::translate( det_bbox, bbox.upper_left() );
+        det->set_bounding_box( det_bbox );
+      }
+
       // Add detections set to the output detection set
       dets_out.insert( dets_out.end(), dets.begin(), dets.end() );
+      timer.stop();
+      LOG_TRACE( m_logger, "Time to classify window: " << timer.elapsed() );
     } // end foreach
 
     dets_out_sptr = std::make_shared<vital::detected_object_set>(dets_out);
@@ -163,6 +196,8 @@ _configure()
   {
     throw sprokit::invalid_configuration_exception( name(), "Unable to create detector" );
   }
+
+  d->m_include_input_dets       = config_value_using_trait( include_input_dets );
 }
 
 
@@ -172,18 +207,19 @@ image_object_classifier_process::
 _step()
 {
   LOG_TRACE( logger(), "Starting process" );
+  kwiver::vital::wall_timer timer;
+  timer.start();
+
   vital::image_container_sptr src_image = grab_from_port_using_trait( image );
   vital::detected_object_set_sptr dets_in = grab_from_port_using_trait( detected_object_set );
-  d->m_detect_timer.start();
 
   // Get detections from detector on image
   vital::detected_object_set_sptr dets_out;
   d->classify( src_image, dets_in, dets_out );
 
-  d->m_detect_timer.stop();
-
-  double elapsed_time = d->m_detect_timer.elapsed();
-  LOG_DEBUG( logger(), "Elapsed time detecting objects: " << elapsed_time );
+  timer.stop();
+  double elapsed_time = timer.elapsed();
+  LOG_DEBUG( logger(), "Total processing time: " << elapsed_time );
 
   push_to_port_using_trait( detection_time, elapsed_time);
   push_to_port_using_trait( detected_object_set, dets_out );
@@ -217,19 +253,9 @@ image_object_classifier_process::
 make_config()
 {
   declare_config_using_trait( detector );
+  declare_config_using_trait( include_input_dets );
 }
-
 
 // ================================================================
-image_object_classifier_process::priv
-::priv()
-{
-}
-
-
-image_object_classifier_process::priv
-::~priv()
-{
-}
 
 } // end namespace kwiver

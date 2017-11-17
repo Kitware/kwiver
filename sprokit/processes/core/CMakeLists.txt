@@ -22,7 +22,6 @@ set( sources
   homography_ref_to_src_to_homography_process.cxx
   image_file_reader_process.cxx
   image_filter_process.cxx
-  image_object_classifier_process.cxx
   image_object_detector_process.cxx
   image_warp_process.cxx
   image_writer_process.cxx
@@ -58,7 +57,6 @@ set( private_headers
   homography_ref_to_src_to_homography_process.h
   image_file_reader_process.h
   image_filter_process.h
-  image_object_classifier_process.h
   image_object_detector_process.h
   image_warp_process.h
   image_writer_process.h

@@ -28,13 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ARROWS_PROCESSES_IMAGE_OBJECT_CLASSIFIER_PROCESS_H
-#define ARROWS_PROCESSES_IMAGE_OBJECT_CLASSIFIER_PROCESS_H
+#ifndef _KWIVER_IMAGE_OBJECT_CLASSIFIER_PROCESS_H
+#define _KWIVER_IMAGE_OBJECT_CLASSIFIER_PROCESS_H
 
 #include <sprokit/pipeline/process.h>
-
-#include "kwiver_processes_export.h"
-
+#include "kwiver_processes_ocv_export.h"
 #include <vital/config/config_block.h>
 
 namespace kwiver {
@@ -54,7 +52,7 @@ namespace kwiver {
  * bounding boxes.
  *
  */
-class KWIVER_PROCESSES_NO_EXPORT image_object_classifier_process
+class KWIVER_PROCESSES_OCV_NO_EXPORT image_object_classifier_process
   : public sprokit::process
 {
 public:
@@ -72,10 +70,10 @@ private:
 
   class priv;
   const std::unique_ptr<priv> d;
-}; // end class object_detector_process
+}; // end class image_object_classifier_process
 
 
 
 } // end namespace
 
-#endif /* ARROWS_PROCESSES_IMAGE_OBJECT_CLASSIFIER_PROCESS_H */
+#endif /* _KWIVER_IMAGE_OBJECT_CLASSIFIER_PROCESS_H */
