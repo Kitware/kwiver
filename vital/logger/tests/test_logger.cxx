@@ -77,9 +77,6 @@ TEST(logger, levels)
   EXPECT_TRUE( IS_FATAL_ENABLED( log2 ) );
 
   EXPECT_EQ( kwiver_logger::LEVEL_DEBUG, log2->get_level() );
-
-  // test to see if we get the same logger back
-  EXPECT_EQ( log2, get_logger( "main.logger2" ) );
 }
 
 // ----------------------------------------------------------------------------
