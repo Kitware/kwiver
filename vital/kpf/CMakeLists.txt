@@ -48,7 +48,7 @@ kwiver_add_library( vital_kpf
   ${private_sources}
 )
 
-target_include_directories(vital_kpf PRIVATE ${YAML_CPP_INCLUDE_DIR})
+target_include_directories(vital_kpf PUBLIC ${YAML_CPP_INCLUDE_DIR})
 
 if(WIN32)
   target_compile_definitions(vital_kpf PRIVATE YAML_CPP_DLL)
