@@ -67,7 +67,7 @@ public:
    * \returns Generated descriptor.
    */
   virtual descriptor_sptr
-    compute_desciptor( image_container_sptr image ) const = 0;
+    compute_descriptor( image_container_sptr image ) const = 0;
 
   /**
    * Describe multiple input images.
