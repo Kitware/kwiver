@@ -106,3 +106,14 @@ definitions:
 .. _How to implement an stl style iterator: https://stackoverflow.com/questions/8054273/how-to-implement-an-stl-style-iterator-and-avoid-common-pitfalls
 .. _cplusplus.com\: Iterator Traits: http://www.cplusplus.com/reference/iterator/iterator_traits/
 .. _cplusplus.com\: Input Iterator: http://www.cplusplus.com/reference/iterator/InputIterator/
+
+.. _vital_iterable:
+
+Iterable Mixin
+--------------
+This mixin is intended to allow containers implemented in Vital to expose an
+iteration interface via the C++ standard ``begin`` and ``end`` methods.
+
+.. doxygenclass:: kwiver::vital::iterable
+   :project: kwiver
+   :members:
