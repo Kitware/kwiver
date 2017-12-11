@@ -11,6 +11,9 @@ Updates since v1.2.0
 Vital
 
 
+ * Added iterator, const_iterator and iterable classes to support container-
+   independent iteration.
+
 Vital Bindings
 
 
