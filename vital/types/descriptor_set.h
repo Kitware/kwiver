@@ -38,8 +38,9 @@
 
 
 #include "descriptor.h"
-#include <vital/vital_config.h>
+#include <vital/set.h>
 #include <vital/logger/logger.h>
+#include <vital/vital_export.h>
 
 namespace kwiver {
 namespace vital {
@@ -52,16 +53,11 @@ namespace vital {
  * derived classes can store the data in other formats and convert on demand.
  */
 class descriptor_set
+  : public set< descriptor_sptr >
 {
 public:
   /// Destructor
   virtual ~descriptor_set() = default;
-
-  /// Return the number of descriptors in the set
-  virtual size_t size() const = 0;
-
-  /// Return a vector of descriptor shared pointers
-  virtual std::vector< descriptor_sptr > descriptors() const = 0;
 
 protected:
   descriptor_set()
@@ -76,27 +72,57 @@ typedef std::shared_ptr< descriptor_set > descriptor_set_sptr;
 
 
 /// A concrete descriptor set that simply wraps a vector of descriptors.
-class simple_descriptor_set :
+class VITAL_EXPORT simple_descriptor_set :
   public descriptor_set
 {
 public:
   /// Default Constructor
-  simple_descriptor_set() { }
+  simple_descriptor_set() = default;
 
   /// Constructor from a vector of descriptors
-  explicit simple_descriptor_set( const std::vector< descriptor_sptr >& descriptors )
-    : data_( descriptors ) { }
+  explicit simple_descriptor_set( const std::vector< descriptor_sptr >& descriptors );
 
-  /// Return the number of descriptor in the set
-  virtual size_t size() const { return data_.size(); }
+  /**
+   * Get the number of elements in this set.
+   *
+   * @returns Number of elements in this set.
+   */
+  virtual size_t size() const;
 
-  /// Return a vector of descriptor shared pointers
-  virtual std::vector< descriptor_sptr > descriptors() const { return data_; }
+  /**
+   * Whether or not this set is empty.
+   *
+   * @return True if this set is empty or false otherwise.
+   */
+  virtual bool empty() const;
 
+  //@{
+  /**
+   * Return the descriptor at the specified index.
+   * @param index 0-based index to access.
+   * @return The descriptor shared pointer at the specified index.
+   * @throws std::out_of_range If position is now within the range of objects
+   *                           in container.
+   */
+  virtual descriptor_sptr at( size_t index );
+  virtual descriptor_sptr const at( size_t index ) const;
+  //@}
 
 protected:
+  using vec_t = std::vector< descriptor_sptr >;
+
   /// The vector of descriptors
-  std::vector< descriptor_sptr > data_;
+  vec_t data_;
+
+  /**
+   * Next value function for non-const iteration.
+   */
+  iterator::next_value_func_t get_iter_next_func();
+
+  /**
+   * Next value function for const iteration.
+   */
+  const_iterator::next_value_func_t get_const_iter_next_func() const;
 };
 
 } } // end namespace vital

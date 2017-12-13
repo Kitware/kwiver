@@ -161,6 +161,7 @@ set( vital_sources
   types/category_hierarchy.cxx
   types/database_query.cxx
   types/descriptor_request.cxx
+  types/descriptor_set.cxx
   types/detected_object.cxx
   types/detected_object_set.cxx
   types/detected_object_type.cxx
