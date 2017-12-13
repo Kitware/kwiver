@@ -19,6 +19,9 @@ Vital
  * Added image_container_set type to contain multiple image_container shared
    pointer instances.
 
+ * Added ``kwiver::vital::set`` mixin class to define standard set methods as
+   well as iterability.
+
 Vital Bindings
 
 Arrows: Core
