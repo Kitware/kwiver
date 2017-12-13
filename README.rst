@@ -212,10 +212,10 @@ to allow KWIVER to work conveniently within in the shell/cmd window.
 You can run this simple pipeline to ensure your system is configured properly::
 
   # via a bash shell
-  </path/to/kwiver/build>/bin/pipeline_runner -p ../examples/pipelines/number_flow.pipe
+  </path/to/kwiver/build>/bin/pipeline_runner -p ../examples/pipelines/number_flow.pipe.in
   #
   # on windows, you will need to also be in the configuration folder
-  </path/to/kwiver/build>/bin/release/pipeline_runner -p ..\..\examples\pipelines\number_flow.pipe
+  </path/to/kwiver/build>/bin/release/pipeline_runner -p ..\..\examples\pipelines\number_flow.pipe.in
 
 This will generate a 'numbers.txt' file in the </path/to/kwiver/build>/examples/pipelines/output directory.
 
