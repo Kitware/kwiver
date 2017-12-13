@@ -40,8 +40,10 @@ endif()
 
 set(schedulers
   pythread_per_process
-  sync
-  thread_per_process)
+  # currently python nodes must use the pythread_per_process scheduler
+  #sync
+  #thread_per_process
+  )
 
 sprokit_build_python_test(run test-run.py)
 function (sprokit_add_python_run_test group instance)
