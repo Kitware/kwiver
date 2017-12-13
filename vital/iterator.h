@@ -36,6 +36,7 @@
 #ifndef KWIVER_VITAL_ITERATOR_H_
 #define KWIVER_VITAL_ITERATOR_H_
 
+#include <cstddef>
 #include <functional>
 
 #include <vital/exceptions/iteration.h>
@@ -520,7 +521,7 @@ public:
    * Get the const iterator to the beginning of the collection.
    * @return An iterator over the objects in this collection.
    */
-  virtual const_iterator cbegin()
+  virtual const_iterator begin() const
   {
     return vital::const_iterator< T >( get_const_iter_next_func() );
   }
@@ -529,16 +530,28 @@ public:
    * Get the const iterator past the end of the collection
    * @return An iterator base the end of this collection.
    */
-  virtual const_iterator cend()
+  virtual const_iterator end() const
   {
     return vital::const_iterator< T >();
   }
   ///@}
 
 protected:
+  /**
+   * Get a new function that returns the sequence of values via subsequent
+   * calls culminating with a stop_iteration_exception.
+   *
+   * @returns Function to generate value reference sequence.
+   */
   virtual typename iterator::next_value_func_t
     get_iter_next_func() = 0;
 
+  /**
+   * Get a new function that returns the const sequence of values via
+   * subsequent calls culminating with a stop_iteration_exception.
+   *
+   * @returns Function to generate value const-reference sequence.
+   */
   virtual typename const_iterator::next_value_func_t
     get_const_iter_next_func() const = 0;
 };
