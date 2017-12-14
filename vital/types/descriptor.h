@@ -206,7 +206,7 @@ public:
   : data_( new T[len] ),
   length_( len ) { }
 
-  descriptor_dynamic< T > (size_t len, T* dat)
+  descriptor_dynamic< T > (size_t len, const T* dat)
   : length_( len )
   {
     data_ = new T[len];
