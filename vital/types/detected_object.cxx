@@ -65,6 +65,7 @@ clone() const
     *this->m_bounding_box, this->m_confidence, new_type );
 
   new_obj->m_mask_image = this->m_mask_image; // being cheap - not copying image mask
+  new_obj->m_descriptor = this->m_descriptor; // being cheap - not copying descriptor
   new_obj->m_index = this->m_index;
   new_obj->m_detector_name = this->m_detector_name;
 
@@ -176,6 +177,22 @@ detected_object::
 set_detector_name( const std::string& name )
 {
   m_detector_name = name;
+}
+
+// ------------------------------------------------------------------
+descriptor_sptr
+detected_object::
+descriptor() const
+{
+  return m_descriptor;
+}
+
+// ------------------------------------------------------------------
+void
+detected_object::
+set_descriptor( descriptor_sptr d )
+{
+  m_descriptor = d;
 }
 
 
