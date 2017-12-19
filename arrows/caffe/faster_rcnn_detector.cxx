@@ -70,6 +70,7 @@ public:
   std::string m_classes_file;
   std::string m_caffe_model;
   std::vector< std::string > m_labels;
+  bool m_enable_image_resizing;
   double m_target_size;
   cv::Scalar m_pixel_means;
   double m_max_size;
@@ -90,7 +91,8 @@ public:
 
 // ------------------------------------------------------------------
   priv()
-    : m_target_size( 600 ),
+    : m_enable_image_resizing( true ),
+      m_target_size( 600 ),
       m_pixel_means( 102.9801, 115.9465, 122.7717 ),
       m_max_size( 1000 ),
       m_net( NULL ),
@@ -139,8 +141,19 @@ faster_rcnn_detector::
   config->set_value( "prototxt", d->m_prototxt_file,
                      "Points the the Prototxt file" );
   config->set_value( "caffe_model", d->m_caffe_model, "The file that contains the model." );
-  config->set_value( "target_size", this->d->m_target_size, "Controls the scaling of the image. Larger values will cause the image to scale larger, which puts more pixels on small objects" );
-  config->set_value( "max_size", this->d->m_max_size, "Largest size the image can be (on one of its sides)" );
+  config->set_value( "enable_image_resizing", this->d->m_enable_image_resizing,
+                     "Specifies whether the image will be resized in order to "
+                     "satisfy the specified target_size. Resizing may still "
+                     "occur if 'max_size' would otherwise be violated." );
+  config->set_value( "target_size", this->d->m_target_size, "If the size of "
+                     "the shorter axis of the image is different from"
+                     "'target_size', the image will be resized such that its "
+                     "shorter axis equals 'target_size' before passing to the"
+                     "detector." );
+  config->set_value( "max_size", this->d->m_max_size, "Largest size the image "
+                     "can be (on one of its sides). If this is exceeded, the "
+                     "image will be resampled to a reduced size before passing "
+                     "to the detector." );
   config->set_value( "pixel_mean", vital::vector_3d( this->d->m_pixel_means[0], this->d->m_pixel_means[1], this->d->m_pixel_means[2] ),
                      "The mean pixel value for the provided model." );
   config->set_value( "use_gpu", this->d->m_use_gpu, "Use the gpu instead of the cpu." );
@@ -176,6 +189,7 @@ set_configuration( vital::config_block_sptr config_in )
   this->d->m_chip_width = config->get_value< unsigned int > ( "chip_width" );
   this->d->m_chip_height = config->get_value< unsigned int > ( "chip_height" );
   this->d->m_stride = config->get_value< unsigned int > ( "stride" );
+  this->d->m_enable_image_resizing = config->get_value< bool > ( "enable_image_resizing" );
 
   // Need to check for existance of files.
 
@@ -210,6 +224,9 @@ set_configuration( vital::config_block_sptr config_in )
   this->d->m_pixel_means = cv::Scalar( tmp.x(), tmp.y(), tmp.z() );
 
   this->d->m_max_size = config->get_value< double > ( "max_size" );
+
+  LOG_DEBUG( d->m_logger, "max_size: " << d->m_max_size );
+
 } // faster_rcnn_detector::set_configuration
 
 
@@ -289,7 +306,7 @@ detect( vital::image_container_sptr image_data ) const
   kwiver::vital::wall_timer wall_timer;
   cpu_timer.start();
   wall_timer.start();
-  LOG_TRACE( d->m_logger, "Received " + std::to_string(image_data->width()) + 
+  LOG_TRACE( d->m_logger, "Received " + std::to_string(image_data->width()) +
              " x " + std::to_string(image_data->height()) + " x " +
              std::to_string(image_data->depth()) + " image" );
 
@@ -434,7 +451,7 @@ detect( vital::image_container_sptr image_data ) const
       }
     } // end for over rois
   } // end for over chips
-  
+
   cpu_timer.stop();
   wall_timer.stop();
   LOG_TRACE( logger(), "Elapsed wall/CPU time detecting objects: " <<
@@ -503,7 +520,15 @@ prepair_image( cv::Mat const& in_image ) const
   const double min_size = std::min( im_float.size[0], im_float.size[1] );
   const double max_size = std::max( im_float.size[0], im_float.size[1] );
 
-  double scale = this->m_target_size / min_size;
+  double scale;
+  if( m_enable_image_resizing )
+  {
+    scale = this->m_target_size / min_size;
+  }
+  else
+  {
+    scale = 1;
+  }
 
   if ( round( scale * max_size ) > this->m_max_size )
   {
@@ -514,8 +539,8 @@ prepair_image( cv::Mat const& in_image ) const
   if( scale != 1 )
   {
     cv::resize( im_float, scaleImage, cv::Size(), scale, scale );
-    LOG_TRACE( m_logger, "Rescaling image to " + 
-               std::to_string(scaleImage.cols) + "x" + 
+    LOG_TRACE( m_logger, "Rescaling image to " +
+               std::to_string(scaleImage.cols) + "x" +
                std::to_string(scaleImage.rows) + "x" +
                std::to_string(scaleImage.channels()) );
   }
