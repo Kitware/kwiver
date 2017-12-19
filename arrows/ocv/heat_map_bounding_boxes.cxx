@@ -488,8 +488,8 @@ public:
     int bbox_h_red = bbox_height-bbox_buffer_h*2;
     int hr1 = bbox_w_red/2;
     int vr1 = bbox_h_red/2;
-    int hr2 = bbox_w_red-1-hr1;
-    int vr2 = bbox_h_red-1-vr1;
+    //int hr2 = bbox_w_red-1-hr1;
+    //int vr2 = bbox_h_red-1-vr1;
     LOG_TRACE( m_logger, "kernel size: " << bbox_w_red << " x " << bbox_h_red );
     cv::Size ksize( bbox_w_red, bbox_h_red );
 
