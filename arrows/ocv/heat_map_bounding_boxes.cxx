@@ -100,7 +100,7 @@ linspace(T a, T b, int n)
 //-----------------------------------------------------------------------------
   /// 
   /**
-  * @brief Applies threshold and finds bounding box of all above-zero pixels.
+  * @brief Applies threshold and finds bounding boxes for above-zero pixels.
   *
   * @param image Image
   * @param threshold Threshold used to turn image into a binary max.
@@ -422,6 +422,8 @@ public:
     cv::Mat heat_map;
     int bbox_height = m_force_bbox_height;
     int bbox_width = m_force_bbox_width;
+    int bbox_buffer_w = m_bbox_buffer;
+    int bbox_buffer_h = m_bbox_buffer;
 
     LOG_TRACE( m_logger, "Creating bounding boxes of fixed size (" <<
              std::to_string(bbox_width) << " x " <<
@@ -454,6 +456,8 @@ public:
       bbox_out_height_rescale = scale_height;
       bbox_height /= scale_height;
       bbox_width /= scale_width;
+      bbox_buffer_w /= scale_width;
+      bbox_buffer_h /= scale_height;
     }
     else
     {
@@ -480,12 +484,13 @@ public:
     // pixel indices (x,y), the upper left corner coordinates will be
     // (x-hr1, y-vr1), and the lower right corner will have coordinates
     // (x+hr2, y+vr2)
-    int bbox_w_red = bbox_width-m_bbox_buffer;
-    int bbox_h_red = bbox_height-m_bbox_buffer;
+    int bbox_w_red = bbox_width-bbox_buffer_w*2;
+    int bbox_h_red = bbox_height-bbox_buffer_h*2;
     int hr1 = bbox_w_red/2;
     int vr1 = bbox_h_red/2;
     int hr2 = bbox_w_red-1-hr1;
     int vr2 = bbox_h_red-1-vr1;
+    LOG_TRACE( m_logger, "kernel size: " << bbox_w_red << " x " << bbox_h_red );
     cv::Size ksize( bbox_w_red, bbox_h_red );
 
     // When the kernel size is even, the center is ambiguous. Let's explicitly
@@ -512,25 +517,29 @@ public:
       
       if( false )
       {
-        cv::Mat output;
-        cv::normalize( conv_map, output, 0, 255, cv::NORM_MINMAX, CV_8UC1);
-        cv::imwrite( "/home/mattb/debug_output/output.tif", output );
-        cv::normalize( heat_map, output, 0, 255, cv::NORM_MINMAX, CV_8UC1);
-        cv::imwrite( "/home/mattb/debug_output/latest_heat_map.tif", output );
+        if( cntr == 0 )
+        {
+          cv::Mat output;
+          cv::normalize( conv_map, output, 0, 255, cv::NORM_MINMAX, CV_8UC1);
+          cv::imwrite( "/home/mattb/debug_output/output.tif", output );
+          cv::normalize( heat_map, output, 0, 255, cv::NORM_MINMAX, CV_8UC1);
+          cv::imwrite( "/home/mattb/debug_output/latest_heat_map.tif", output );
+        }
       }
 
       cv::minMaxLoc(conv_map, &min_val, &max_val, NULL, &max_loc);
       if( max_val == 0 )
       {
+        // No above-threshold regions left.
         break;
       }
       
       // Define the bounding box
       // vital::bounding_box lower-right point is not inclusive, so must add 1.
-      x1 = max_loc.x-hr1;
-      y1 = max_loc.y-vr1;
-      x2 = max_loc.x+hr2+1;
-      y2 = max_loc.y+vr2+1;
+      x1 = max_loc.x-hr1f;
+      y1 = max_loc.y-vr1f;
+      x2 = max_loc.x+hr2f+1;
+      y2 = max_loc.y+vr2f+1;
       dx = -std::min( 0, x1 ) - std::max( 0, x2 - hmap_w );
       dy = -std::min( 0, y1 ) - std::max( 0, y2 - hmap_h );
       x1 += dx;  x2 += dx;  y1 += dy;  y2 += dy;
@@ -552,11 +561,6 @@ public:
         max_loc.y = (y1t+y2t)/2;
       }
 
-      kwiver::vital::bounding_box_d bbox( x1*bbox_out_width_rescale,
-                                          y1*bbox_out_height_rescale,
-                                          x2*bbox_out_width_rescale,
-                                          y2*bbox_out_height_rescale );
-
       // vital::bounding_box lower-right point is not inclusive, so must add 1.
       y1 = max_loc.y-vr1f;
       y2 = max_loc.y+vr2f+1;
@@ -568,6 +572,11 @@ public:
       dx = -std::min( 0, x1 ) - std::max( 0, x2 - hmap_w );
       dy = -std::min( 0, y1 ) - std::max( 0, y2 - hmap_h );
       x1 += dx;  x2 += dx;  y1 += dy;  y2 += dy;
+      
+      kwiver::vital::bounding_box_d bbox( x1*bbox_out_width_rescale,
+                                          y1*bbox_out_height_rescale,
+                                          x2*bbox_out_width_rescale,
+                                          y2*bbox_out_height_rescale );
         
       LOG_TRACE( m_logger, "Creating bounding box (" <<
                  std::to_string(bbox.min_x()) << ", " <<
