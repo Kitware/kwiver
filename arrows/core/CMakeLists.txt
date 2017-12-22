@@ -23,8 +23,9 @@ set( plugin_core_headers
   initialize_cameras_landmarks.h
   match_features_fundamental_matrix.h
   match_features_homography.h
+  example_detector.h
   track_descriptor_set_output_csv.h
-  merge_tracks.h
+  match_tracks.h
   track_features_core.h
   transform.h
   triangulate_landmarks.h
@@ -40,6 +41,7 @@ set( plugin_core_headers
   metrics.h
   projected_track_set.h
   track_features_core.h
+  track_set_impl.h
   transform.h
   triangulate.h
   triangulate_landmarks.h
@@ -78,8 +80,9 @@ set( plugin_core_sources
   initialize_cameras_landmarks.cxx
   match_features_fundamental_matrix.cxx
   match_features_homography.cxx
+  example_detector.cxx
   track_descriptor_set_output_csv.cxx
-  merge_tracks.cxx
+  match_tracks.cxx
   track_features_core.cxx
   transform.cxx
   triangulate_landmarks.cxx
@@ -95,6 +98,7 @@ set( plugin_core_sources
   metrics.cxx
   projected_track_set.cxx
   track_features_core.cxx
+  track_set_impl.cxx
   transform.cxx
   triangulate.cxx
   triangulate_landmarks.cxx

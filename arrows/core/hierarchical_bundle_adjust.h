@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ public:
   /// Constructor
   hierarchical_bundle_adjust();
   /// Destructor
-  virtual ~hierarchical_bundle_adjust() VITAL_NOTHROW;
+  virtual ~hierarchical_bundle_adjust() noexcept;
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -71,7 +71,7 @@ public:
   /// Optimize the camera and landmark parameters given a set of tracks
   virtual void optimize(vital::camera_map_sptr & cameras,
                         vital::landmark_map_sptr & landmarks,
-                        vital::track_set_sptr tracks,
+                        vital::feature_track_set_sptr tracks,
                         vital::video_metadata_map_sptr metadata = nullptr) const;
 
 private:

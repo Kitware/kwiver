@@ -31,7 +31,7 @@
 #ifndef SPROKIT_TOOLS_PIPELINE_BUILDER_H
 #define SPROKIT_TOOLS_PIPELINE_BUILDER_H
 
-#include "pipeline_util-config.h"
+#include<sprokit/pipeline_util/sprokit_pipeline_util_export.h>
 
 #include <sprokit/pipeline_util/pipe_bakery.h>
 #include <sprokit/pipeline/types.h>
@@ -76,8 +76,11 @@ public:
    * to the internal pipeline representation.
    *
    * \param istr Stream containing the textual pipeline definition.
+   * \param def_file The default file name used when reporting errors
+   * from the stream. The directory portion is used when resolving
+   * included files and relpath specifiers.
    */
-  void load_pipeline(std::istream& istr);
+  void load_pipeline(std::istream& istr, std::string const& def_file = "" );
 
   /**
    * \brief Load supplemental data into pipeline description.

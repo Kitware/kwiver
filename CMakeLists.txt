@@ -5,12 +5,10 @@ cmake_minimum_required(VERSION 3.3)
 
 project(KWIVER)
 
-include(CMakeDependentOption)
-
 ###
 # KWIVER version
 set(KWIVER_VERSION_MAJOR 1)
-set(KWIVER_VERSION_MINOR 0)
+set(KWIVER_VERSION_MINOR 2)
 set(KWIVER_VERSION_PATCH 0)
 set(KWIVER_VERSION "${KWIVER_VERSION_MAJOR}.${KWIVER_VERSION_MINOR}.${KWIVER_VERSION_PATCH}")
 
@@ -20,8 +18,10 @@ set(KWIVER_VERSION "${KWIVER_VERSION_MAJOR}.${KWIVER_VERSION_MINOR}.${KWIVER_VER
 set( fletch_DIR "" CACHE PATH "Path to FLETCH packages" )
 if ( IS_DIRECTORY ${fletch_DIR} )
   find_package( fletch NO_MODULE )
-  # Search for libraries in the fletch install root
-  list(APPEND CMAKE_PREFIX_PATH "${fletch_ROOT}")
+  if ( fletch_FOUND )
+    # Search for libraries in the fletch install root
+    list(APPEND CMAKE_PREFIX_PATH "${fletch_ROOT}")
+  endif()
 endif()
 
 ###
@@ -36,10 +36,25 @@ set(KWIVER_BINARY_DIR           "${CMAKE_BINARY_DIR}")
 #
 # kwiver module config file.
 set(KWIVER_CONFIG_FILE          "${KWIVER_BINARY_DIR}/kwiver-config.cmake")
-# Create initial setup script
+# Create initial setup shell script
 set(KWIVER_SETUP_SCRIPT_FILE    "${KWIVER_BINARY_DIR}/setup_KWIVER.sh" )
+# Create initial setup batch script
+set(KWIVER_SETUP_BATCH_FILE    "${KWIVER_BINARY_DIR}/setup_KWIVER.bat" )
+if(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
+ if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.10)
+    set(_vcVersion vc15)
+  elseif(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19)
+    set(_vcVersion vc14)
+  else()
+    message(FATAL_ERROR "KWIVER requires Visual Studio 2015 or greater")
+  endif()
+endif()
 
-LIST( INSERT CMAKE_MODULE_PATH  0         ${KWIVER_CMAKE_DIR} ) # prepend out cmake resources
+# prepend our CMake resources
+list(INSERT CMAKE_MODULE_PATH 0 ${KWIVER_CMAKE_DIR})
+
+# import CMake future modules
+include(kwiver-cmake-future)
 
 # ================================================================
 # project global includes
@@ -61,6 +76,8 @@ include_directories( SYSTEM ${CMAKE_CURRENT_SOURCE_DIR} )
 # ================================================================
 ###
 # User options
+include(CMakeDependentOption)
+
 OPTION(KWIVER_BUILD_SHARED     "Build KWIVER components shared or not" TRUE )
 MARK_AS_ADVANCED( KWIVER_BUILD_SHARED )
 
@@ -68,12 +85,13 @@ OPTION(KWIVER_ENABLE_TESTS     "Enable testing" OFF )
 OPTION(KWIVER_ENABLE_ARROWS    "Enable building arrows" OFF )
 OPTION(KWIVER_ENABLE_TOOLS     "Enable tools" OFF )
 OPTION(KWIVER_ENABLE_TRACK_ORACLE  "Enable track_oracle" OFF )
+OPTION(KWIVER_ENABLE_EXAMPLES  "Enable examples" OFF )
 
 # if sprokit enabled
 OPTION(KWIVER_ENABLE_SPROKIT "Enable building sprokit" OFF )
 
 CMAKE_DEPENDENT_OPTION(KWIVER_ENABLE_PROCESSES "Should the KWIVER Sprokit Processes Be Built?" OFF
-  "KWIVER_ENABLE_ARROWS AND  KWIVER_ENABLE_SPROKIT" OFF )
+  "KWIVER_ENABLE_ARROWS AND KWIVER_ENABLE_SPROKIT" OFF )
 
 OPTION(KWIVER_USE_BUILD_TREE "Whether to include the build-tree plugin directory to the default plugin path list" OFF )
 MARK_AS_ADVANCED(KWIVER_USE_BUILD_TREE)
@@ -86,10 +104,14 @@ CMAKE_DEPENDENT_OPTION( KWIVER_ENABLE_PYTHON    "Enable python code" OFF
   KWIVER_ENABLE_C_BINDINGS OFF )
 
 if (KWIVER_ENABLE_PYTHON)
+
+  if (NOT WIN32)
+    OPTION(KWIVER_SYMLINK_PYTHON "Symlink python files instead of copying. Allows for more dynamic python development." Off)
+  endif()
+
   if ( NOT KWIVER_ENABLE_C_BINDINGS )
     message( SEND_ERROR  "Python can not be enabled unless KWIVER_ENABLE_C_BINDINGS is also enabled." )
   endif()
-  set(kwiver_boost_python_package     python)
 endif()
 
 set(BUILD_SHARED_LIBS ${KWIVER_BUILD_SHARED})
@@ -138,33 +160,6 @@ if (KWIVER_ENABLE_TESTS)
   include_directories( tests )
 endif()
 
-if (KWIVER_ENABLE_PYTHON)
-    find_package(PythonInterp REQUIRED)
-    find_package(PythonLibs)
-
-    execute_process(
-      COMMAND "${PYTHON_EXECUTABLE}" -c "import distutils.sysconfig; print distutils.sysconfig.get_python_lib(prefix='')"
-      RESULT_VARIABLE proc_success
-      OUTPUT_VARIABLE python_site_packages
-      )
-
-    if(NOT ${proc_success} EQUAL 0)
-      message(FATAL_ERROR "Request for python site-packages location failed with error code: ${proc_success}")
-    else()
-      string(STRIP "${python_site_packages}" python_site_packages)
-      message(STATUS "Python site-packages to install into: ${python_site_packages}")
-    endif()
-
-    # TODO Get version from above
-    set(PYTHON_VERSION "2.7"
-      CACHE STRING "The version of python to use for bindings")
-    set(PYTHON_ABIFLAGS ""
-      CACHE STRING "The ABI flags for the version of Python being used")
-
-  include_directories(SYSTEM ${PYTHON_INCLUDE_DIR})
-
-endif(KWIVER_ENABLE_PYTHON)
-
 if (NOT IS_ABSOLUTE "${CMAKE_INSTALL_PREFIX}")
   message(FATAL_ERROR "KWIVER does not support a relative install prefix (${CMAKE_INSTALL_PREFIX}).")
 endif ()
@@ -177,19 +172,48 @@ mark_as_advanced( LIB_SUFFIX )
 
 ###
 # Configure setup script.
+set(LIBRARY_PATH_VAR "LD_LIBRARY_PATH")
+if( APPLE )
+  set(LIBRARY_PATH_VAR "DYLD_FALLBACK_LIBRARY_PATH")
+endif()
+
 configure_file(
   ${KWIVER_CMAKE_DIR}/setup_KWIVER.sh.in
   ${KWIVER_SETUP_SCRIPT_FILE}
   @ONLY
   )
 
+if(fletch_BUILT_WITH_CUDA)
+  list(APPEND EXTRA_WIN32_PATH "${CUDA_TOOLKIT_ROOT_DIR}/bin")
+endif()
+if(fletch_BUILT_WITH_CUDNN)
+  list(APPEND EXTRA_WIN32_PATH "${CUDNN_TOOLKIT_ROOT_DIR}/bin")
+endif()
+configure_file(
+  ${KWIVER_CMAKE_DIR}/setup_KWIVER.bat.in
+  ${KWIVER_SETUP_BATCH_FILE}
+  @ONLY
+  )
+
+
 # install set up script
-option( KWIVER_INSTALL_SET_UP_SCRIPT "Whether or not to install setup_KWIVER.sh" ON )
+option( KWIVER_INSTALL_SET_UP_SCRIPT "Creates a setup_KWIVER script (.sh and .bat) that will add properly add kwiver to a shell/cmd prompt" ON )
 mark_as_advanced( KWIVER_INSTALL_SET_UP_SCRIPT )
 
 if( KWIVER_INSTALL_SET_UP_SCRIPT )
   install( PROGRAMS   ${KWIVER_SETUP_SCRIPT_FILE}
     DESTINATION ${CMAKE_INSTALL_PREFIX} )
+  if(WIN32)
+    install( PROGRAMS   ${KWIVER_SETUP_BATCH_FILE}
+      DESTINATION ${CMAKE_INSTALL_PREFIX} )
+  endif()
+endif()
+
+if ( fletch_FOUND )
+  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PATH=%PATH%;${fletch_ROOT}/bin\n" )
+  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PATH=%PATH%;${fletch_ROOT}/x64/${_vcVersion}/bin\n" )
+
+  file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export ${LIBRARY_PATH_VAR}=${fletch_ROOT}/lib:$${LIBRARY_PATH_VAR}\n" )
 endif()
 
 ###
@@ -200,6 +224,10 @@ install( FILES log4cxx.properties   DESTINATION ${CMAKE_INSTALL_PREFIX} )
 if ( KWIVER_ENABLE_LOG4CXX )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export VITAL_LOGGER_FACTORY=$this_dir/lib/modules/vital_log4cxx_logger\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export LOG4CXX_CONFIGURATION=$this_dir/log4cxx.properties\n" )
+  if(WIN32)
+    message(STATUS "Log4CXX is not supported on windows, if no other logger is provided, the default will be used")
+  endif()
+
 endif()
 
 ###
@@ -209,24 +237,36 @@ install( FILES log4cplus.properties   DESTINATION ${CMAKE_INSTALL_PREFIX} )
 if ( KWIVER_ENABLE_LOG4CPLUS )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export VITAL_LOGGER_FACTORY=$this_dir/lib/modules/vital_log4cplus_logger\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export LOG4CPLUS_CONFIGURATION=$this_dir/log4cplus.properties\n" )
+
+  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set VITAL_LOGGER_FACTORY=vital_log4cplus_logger\n" )
+  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set LOG4CPLUS_CONFIGURATION=%~dp0/log4cplus.properties\n" )
 endif()
 
-###
+
 if (KWIVER_ENABLE_PYTHON)
+  file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "# Python environment\n")
+  file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export PYTHON_LIBRARY=\"${PYTHON_LIBRARY}\"\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export PYTHONPATH=$this_dir/${python_site_packages}:$PYTHONPATH\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "\n# additional python mudules to load, separated by ':'\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export SPROKIT_PYTHON_MODULES=kwiver.processes\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "\n# set to suppress loading python modules/processes\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "# export SPROKIT_NO_PYTHON_MODULES\n\n" )
+
+  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "# Python environment\n")
+  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PYTHON_LIBRARY=${PYTHON_LIBRARY}\n" )
+  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PYTHONPATH=%~dp0/lib/%config%/python2.7/site-packages\n" )
+  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "\n:: additional python mudules to load, separated by ':'\n" )
+  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set SPROKIT_PYTHON_MODULES=kwiver.processes\n" )
+  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "\n:: set to suppress loading python modules/processes\n" )
+  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "::set SPROKIT_NO_PYTHON_MODULES=false\n\n" )
 endif()
 
 if ( KWIVER_ENABLE_MATLAB )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export LD_LIBRARY_PATH=${Matlab_LIBRARY_DIR}:$LD_LIBRARY_PATH\n" )
+
+  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PATH=%PATH%;${Matlab_LIBRARY_DIR}\n" )
 endif()
 
-if ( fletch_ROOT )
-  file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export LD_LIBRARY_PATH=${fletch_ROOT}/lib:$LD_LIBRARY_PATH\n" )
-endif()
 
 if (KWIVER_ENABLE_TRACK_ORACLE)
   add_subdirectory( track_oracle )
@@ -242,6 +282,10 @@ endif()
 
 if (KWIVER_ENABLE_EXTRAS)
   add_subdirectory(extras)
+endif()
+
+if (KWIVER_ENABLE_EXAMPLES)
+  add_subdirectory(examples)
 endif()
 
 ###
@@ -275,7 +319,7 @@ if ( NOT fletch_ENABLED_Boost)
   list( APPEND KWIVER_LIBRARY_DIRS "${BOOST_ROOT_ARG}/lib")
 endif()
 
-if (fletch_ROOT)
+if (fletch_FOUND)
   # since we have fletch, add include and lib dirs to export
   list( APPEND KWIVER_INCLUDE_DIRS "${fletch_ROOT}/include")
   list( APPEND KWIVER_LIBRARY_DIRS "${fletch_ROOT}/lib")

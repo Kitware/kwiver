@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,16 +76,8 @@ close_loops_multi_method
 }
 
 
-/// Returns implementation description string
-std::string
-close_loops_multi_method
-::description() const
-{
-  return "Iteratively run multiple loop closure algorithms";
-}
-
-
-  vital::config_block_sptr
+// ----------------------------------------------------------------------------
+vital::config_block_sptr
 close_loops_multi_method
 ::get_configuration() const
 {
@@ -107,6 +99,7 @@ close_loops_multi_method
 }
 
 
+// ----------------------------------------------------------------------------
 void
 close_loops_multi_method
 ::set_configuration( vital::config_block_sptr in_config )
@@ -130,6 +123,7 @@ close_loops_multi_method
 }
 
 
+// ----------------------------------------------------------------------------
 bool
 close_loops_multi_method
 ::check_configuration( vital::config_block_sptr config ) const
@@ -148,12 +142,13 @@ close_loops_multi_method
 }
 
 
-track_set_sptr
+// ----------------------------------------------------------------------------
+feature_track_set_sptr
 close_loops_multi_method
-::stitch( frame_id_t frame_number, track_set_sptr input,
+::stitch( frame_id_t frame_number, feature_track_set_sptr input,
           image_container_sptr image, image_container_sptr mask ) const
 {
-  track_set_sptr updated_set = input;
+  feature_track_set_sptr updated_set = input;
 
   for( unsigned i = 0; i < methods_.size(); i++ )
   {

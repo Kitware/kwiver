@@ -49,7 +49,17 @@ if( KWIVER_ENABLE_BURNOUT )
   add_subdirectory( burnout )
 endif()
 
+# if kpf is enabled
+if( KWIVER_ENABLE_KPF )
+  add_subdirectory( kpf )
+endif()
+
 # if uuid is enabled
 if( KWIVER_ENABLE_UUID )
   add_subdirectory( uuid )
+endif()
+
+# if python is enabled
+if( KWIVER_ENABLE_PYTHON )
+  kwiver_create_python_plugin_init( kwiver/arrows )
 endif()

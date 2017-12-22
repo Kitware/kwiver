@@ -13,17 +13,15 @@ set( lib_sources
   embedded_pipeline.cxx
 
   adapter_base.h             adapter_base.cxx
-  input_adapter_process.cxx
-  output_adapter_process.cxx
+  input_adapter_process.h input_adapter_process.cxx
+  output_adapter_process.h output_adapter_process.cxx
   )
 
 set( public_headers
   adapter_types.h
   adapter_data_set.h
   input_adapter.h
-  input_adapter_process.h
   output_adapter.h
-  output_adapter_process.h
   embedded_pipeline.h
   )
 
@@ -38,8 +36,13 @@ kwiver_add_library( kwiver_adapter
   )
 
 target_link_libraries( kwiver_adapter
-  PUBLIC           vital vital_vpm vital_logger
-  PRIVATE          sprokit_pipeline sprokit_tools
+  PUBLIC           vital
+                   vital_vpm
+                   vital_logger
+  PRIVATE          sprokit_pipeline
+                   sprokit_tools
+                   kwiversys
+
   )
 
 kwiver_install_headers( ${public_headers}

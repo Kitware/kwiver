@@ -73,7 +73,7 @@ public:
   geo_point();
   geo_point( geo_raw_point_t const&, int crs );
 
-  virtual ~geo_point() VITAL_DEFAULT_DTOR
+  virtual ~geo_point() = default;
 
   /**
    * \brief Accessor for location in original CRS.
@@ -119,17 +119,13 @@ public:
    */
   bool is_empty() const;
 
-
-  bool operator==( const geo_point& rhs ) const;
-  bool operator!=( const geo_point& rhs ) const;
-
 protected:
 
   int m_original_crs;
   mutable std::unordered_map< int, geo_raw_point_t > m_loc;
 };
 
-VITAL_EXPORT std::ostream& operator<< (std::ostream& str, vital::geo_point const& obj);
+VITAL_EXPORT ::std::ostream& operator<< ( ::std::ostream& str, geo_point const& obj );
 
 } } // end namespace
 

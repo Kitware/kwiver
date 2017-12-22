@@ -51,7 +51,7 @@ class output_adapter_process;
  * @brief Output adapter interface to output adapter process.
  *
  * This class represents a user interface to the output end of a
- * sprokit pipeline. An object fo this class attaches to the
+ * sprokit pipeline. An object of this class attaches to the
  * output_adapter_process in a pipeline and provides an API to
  * communicate with that process which is running in another thread.
  */
@@ -93,7 +93,7 @@ public:
    *
    * @return List of port names and info.
    */
-  adapter::ports_info_t get_ports() const;
+  virtual adapter::ports_info_t get_ports() const;
 
   /**
    * @brief Send data set to output adapter process.

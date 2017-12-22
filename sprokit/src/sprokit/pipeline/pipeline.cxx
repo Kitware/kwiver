@@ -37,15 +37,11 @@
 
 #include <vital/logger/logger.h>
 #include <vital/config/config_block.h>
-#include <vital/vital_foreach.h>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/graph/directed_graph.hpp>
 #include <boost/graph/topological_sort.hpp>
 #include <boost/math/common_factor_rt.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/functional.hpp>
 
 #include <functional>
 #include <map>
@@ -178,8 +174,8 @@ class pipeline::priv
                               process::name_t const& downstream_name,
                               process::port_t const& downstream_port,
                               process::port_type_t const& type,
-                              bool push_upstream) VITAL_NOTHROW;
-        ~propagation_exception() VITAL_NOTHROW;
+                              bool push_upstream) noexcept;
+        ~propagation_exception() noexcept;
 
         process::name_t const m_upstream_name;
         process::port_t const m_upstream_port;
@@ -268,14 +264,14 @@ pipeline
 
     processes_t const cluster_procs = cluster->processes();
 
-    VITAL_FOREACH (process_t const& cluster_proc, cluster_procs)
+    for (process_t const& cluster_proc : cluster_procs)
     {
       add_process(cluster_proc);
     }
 
     process::connections_t const& connections = cluster->internal_connections();
 
-    VITAL_FOREACH (process::connection_t const& connection, connections)
+    for (process::connection_t const& connection : connections)
     {
       process::port_addr_t const& upstream_addr = connection.first;
       process::port_addr_t const& downstream_addr = connection.second;
@@ -316,7 +312,7 @@ pipeline
 
     processes_t const cluster_procs = cluster->processes();
 
-    VITAL_FOREACH (process_t const& cluster_proc, cluster_procs)
+    for (process_t const& cluster_proc : cluster_procs)
     {
       process::name_t const& cluster_proc_name = cluster_proc->name();
 
@@ -434,8 +430,10 @@ pipeline
   process::port_addr_t const downstream_addr = process::port_addr_t(downstream_name, downstream_port);
   process::connection_t const conn = process::connection_t(upstream_addr, downstream_addr);
 
-  boost::function<bool (process::connection_t const&)> const eq = boost::bind(std::equal_to<process::connection_t>(), conn, _1);
-  boost::function<bool (priv::cluster_connection_t const&)> const cluster_eq = boost::bind(&priv::is_cluster_connection_for, conn, _1);
+  std::function<bool (process::connection_t const&)> const eq = std::bind(std::equal_to<process::connection_t>(),
+                                                                          conn, std::placeholders::_1);
+  std::function<bool (priv::cluster_connection_t const&)> const cluster_eq = std::bind(&priv::is_cluster_connection_for,
+                                                                                       conn, std::placeholders::_1);
 
 #define FORGET_CONNECTION(T, f, conns)                                   \
   do                                                                     \
@@ -530,7 +528,7 @@ pipeline
   priv::process_map_t const names = d->process_map;
 
   // Reset all the processes.
-  VITAL_FOREACH (priv::process_map_t::value_type& process_entry, d->process_map)
+  for (priv::process_map_t::value_type& process_entry : d->process_map)
   {
     process_t const& process = process_entry.second;
 
@@ -549,7 +547,7 @@ pipeline
   d->setup_in_progress = true;
 
   // Replay connections.
-  VITAL_FOREACH (process::connection_t const& connection, d->planned_connections)
+  for (process::connection_t const& connection : d->planned_connections)
   {
     process::port_addr_t const& upstream_addr = connection.first;
     process::port_addr_t const& downstream_addr = connection.second;
@@ -577,7 +575,8 @@ pipeline
     throw reconfigure_before_setup_exception();
   }
 
-  VITAL_FOREACH (priv::process_map_t::value_type const& proc_entry, d->process_map)
+  // reconfigure all top level processes
+  for (priv::process_map_t::value_type const& proc_entry : d->process_map)
   {
     process::name_t const& name = proc_entry.first;
     process::name_t const parent = parent_cluster(name);
@@ -595,7 +594,8 @@ pipeline
     proc->reconfigure(proc_conf);
   }
 
-  VITAL_FOREACH (priv::cluster_map_t::value_type const& cluster_entry, d->cluster_map)
+  // reconfigure clusters
+  for (priv::cluster_map_t::value_type const& cluster_entry : d->cluster_map)
   {
     process::name_t const& name = cluster_entry.first;
     process::name_t const parent = parent_cluster(name);
@@ -622,7 +622,7 @@ pipeline
 {
   process::names_t names;
 
-  VITAL_FOREACH (priv::process_map_t::value_type const& process_index, d->process_map)
+  for (priv::process_map_t::value_type const& process_index : d->process_map)
   {
     process::name_t const& name = process_index.first;
 
@@ -672,7 +672,7 @@ pipeline
 {
   process::names_t names;
 
-  VITAL_FOREACH (priv::cluster_map_t::value_type const& cluster, d->cluster_map)
+  for (priv::cluster_map_t::value_type const& cluster : d->cluster_map)
   {
     process::name_t const& name = cluster.first;
 
@@ -706,7 +706,7 @@ pipeline
 {
   process::port_addrs_t addrs;
 
-  VITAL_FOREACH (process::connection_t const& connection, d->planned_connections)
+  for (process::connection_t const& connection : d->planned_connections)
   {
     process::port_addr_t const& upstream_addr = connection.first;
     process::port_addr_t const& downstream_addr = connection.second;
@@ -729,7 +729,7 @@ process::port_addr_t
 pipeline
 ::connection_to_addr(process::name_t const& name, process::port_t const& port) const
 {
-  VITAL_FOREACH (process::connection_t const& connection, d->planned_connections)
+  for (process::connection_t const& connection : d->planned_connections)
   {
     process::port_addr_t const& upstream_addr = connection.first;
     process::port_addr_t const& downstream_addr = connection.second;
@@ -756,7 +756,7 @@ pipeline
 
   std::set<process::name_t> names;
 
-  VITAL_FOREACH (process::connection_t const& connection, d->connections)
+  for (process::connection_t const& connection : d->connections)
   {
     process::port_addr_t const& upstream_addr = connection.first;
     process::port_addr_t const& downstream_addr = connection.second;
@@ -772,7 +772,7 @@ pipeline
 
   processes_t processes;
 
-  VITAL_FOREACH (process::name_t const& process_name, names)
+  for (process::name_t const& process_name : names)
   {
     priv::process_map_t::const_iterator const i = d->process_map.find(process_name);
     process_t const& process = i->second;
@@ -791,7 +791,7 @@ pipeline
 {
   d->ensure_setup();
 
-  VITAL_FOREACH (process::connection_t const& connection, d->connections)
+  for (process::connection_t const& connection : d->connections)
   {
     process::port_addr_t const& upstream_addr = connection.first;
     process::port_addr_t const& downstream_addr = connection.second;
@@ -822,7 +822,7 @@ pipeline
 
   std::set<process::name_t> names;
 
-  VITAL_FOREACH (process::connection_t const& connection, d->connections)
+  for (process::connection_t const& connection : d->connections)
   {
     process::port_addr_t const& upstream_addr = connection.first;
     process::port_addr_t const& downstream_addr = connection.second;
@@ -838,7 +838,7 @@ pipeline
 
   processes_t processes;
 
-  VITAL_FOREACH (process::name_t const& process_name, names)
+  for (process::name_t const& process_name : names)
   {
     priv::process_map_t::const_iterator const i = d->process_map.find(process_name);
     process_t const& process = i->second;
@@ -859,7 +859,7 @@ pipeline
 
   std::set<process::name_t> names;
 
-  VITAL_FOREACH (process::connection_t const& connection, d->connections)
+  for (process::connection_t const& connection : d->connections)
   {
     process::port_addr_t const& upstream_addr = connection.first;
     process::port_addr_t const& downstream_addr = connection.second;
@@ -877,7 +877,7 @@ pipeline
 
   processes_t processes;
 
-  VITAL_FOREACH (process::name_t const& process_name, names)
+  for (process::name_t const& process_name : names)
   {
     priv::process_map_t::const_iterator const i = d->process_map.find(process_name);
     process_t const& process = i->second;
@@ -896,7 +896,7 @@ pipeline
 {
   d->ensure_setup();
 
-  VITAL_FOREACH (process::connection_t const& connection, d->connections)
+  for (process::connection_t const& connection : d->connections)
   {
     process::port_addr_t const& upstream_addr = connection.first;
     process::port_addr_t const& downstream_addr = connection.second;
@@ -924,7 +924,7 @@ pipeline
 
   process::port_addrs_t port_addrs;
 
-  VITAL_FOREACH (process::connection_t const& connection, d->connections)
+  for (process::connection_t const& connection : d->connections)
   {
     process::port_addr_t const& upstream_addr = connection.first;
     process::port_addr_t const& downstream_addr = connection.second;
@@ -987,7 +987,7 @@ pipeline
 
   edges_t edges;
 
-  VITAL_FOREACH (priv::edge_map_t::value_type const& edge_index, d->edge_map)
+  for (priv::edge_map_t::value_type const& edge_index : d->edge_map)
   {
     size_t const& i = edge_index.first;
     edge_t const& edge = edge_index.second;
@@ -1015,7 +1015,7 @@ pipeline
 {
   d->ensure_setup();
 
-  VITAL_FOREACH (priv::edge_map_t::value_type const& edge_index, d->edge_map)
+  for (priv::edge_map_t::value_type const& edge_index : d->edge_map)
   {
     size_t const& i = edge_index.first;
     edge_t const& edge = edge_index.second;
@@ -1047,7 +1047,7 @@ pipeline
 
   edges_t edges;
 
-  VITAL_FOREACH (priv::edge_map_t::value_type const& edge_index, d->edge_map)
+  for (priv::edge_map_t::value_type const& edge_index : d->edge_map)
   {
     size_t const& i = edge_index.first;
     edge_t const& edge = edge_index.second;
@@ -1077,7 +1077,7 @@ pipeline
 
   edges_t edges;
 
-  VITAL_FOREACH (priv::edge_map_t::value_type const& edge_index, d->edge_map)
+  for (priv::edge_map_t::value_type const& edge_index : d->edge_map)
   {
     size_t const& i = edge_index.first;
     edge_t const& edge = edge_index.second;
@@ -1126,6 +1126,27 @@ pipeline
   d->running = false;
 }
 
+
+// ------------------------------------------------------------------
+process_t
+pipeline
+::get_python_process() const
+{
+  // Run through each process, checking to see if any are python
+  process_t python_process; // Start with a null pointer, return it if no python procs are found
+  for (priv::process_map_t::value_type const& process_index : d->process_map)
+  {
+    process_t proc = process_index.second;
+    auto properties = proc->properties();
+    if ( properties.find("_python") != properties.end() )
+    {
+      python_process = proc;
+      break;
+    }
+  }
+
+  return python_process;
+}
 
 // ------------------------------------------------------------------
 pipeline::priv
@@ -1177,8 +1198,10 @@ void
 pipeline::priv
 ::remove_from_pipeline(process::name_t const& name)
 {
-  boost::function<bool (process::connection_t const&)> const is = boost::bind(&is_connection_with, name, _1);
-  boost::function<bool (cluster_connection_t const&)> const cluster_is = boost::bind(&is_cluster_connection_with, name, _1);
+  std::function<bool (process::connection_t const&)> const is = std::bind(&is_connection_with, name,
+                                                                          std::placeholders::_1);
+  std::function<bool (cluster_connection_t const&)> const cluster_is = std::bind(&is_cluster_connection_with,
+                                                                                 name, std::placeholders::_1);
 
 #define FORGET_CONNECTIONS(T, f, conns)                                  \
   do                                                                     \
@@ -1306,7 +1329,7 @@ pipeline::priv
     process::connections_t const conns = untyped_connections;
     untyped_connections.clear();
 
-    VITAL_FOREACH (process::connection_t const& connection, conns)
+    for (process::connection_t const& connection : conns)
     {
       process::port_addr_t const& upstream_addr = connection.first;
       process::port_addr_t const& downstream_addr = connection.second;
@@ -1404,7 +1427,7 @@ pipeline::priv
   // Forget the connections we'll be mapping.
   cluster_connections.clear();
 
-  VITAL_FOREACH (cluster_connection_t const& cconnection, cconnections)
+  for (cluster_connection_t const& cconnection : cconnections)
   {
     process::connection_t const& connection = cconnection.first;
     cluster_connection_type_t const& type = cconnection.second;
@@ -1434,11 +1457,12 @@ pipeline::priv
           process_cluster_t const& cluster = cluster_it->second;
           process::connections_t mapped_connections = cluster->output_mappings();
 
-          boost::function<bool (process::connection_t const&)> const is_port = boost::bind(&is_downstream_for, upstream_addr, _1);
+          std::function<bool (process::connection_t const&)> const is_port = std::bind(&is_downstream_for,
+                                                                      upstream_addr, std::placeholders::_1);
 
           process::connections_t::iterator const i = std::remove_if(mapped_connections.begin(),
                                                                     mapped_connections.end(),
-                                                                    boost::not1(is_port));
+                                                                    std::not1(is_port));
           mapped_connections.erase(i, mapped_connections.end());
 
           if (mapped_connections.empty())
@@ -1464,6 +1488,7 @@ pipeline::priv
         }
 
         break;
+
       case cluster_downstream:
         {
           process::name_t const& cluster_name = downstream_name;
@@ -1479,11 +1504,12 @@ pipeline::priv
           process_cluster_t const& cluster = cluster_it->second;
           process::connections_t mapped_connections = cluster->input_mappings();
 
-          boost::function<bool (process::connection_t const&)> const is_port = boost::bind(&is_upstream_for, downstream_addr, _1);
+          std::function<bool (process::connection_t const&)> const is_port = std::bind(&is_upstream_for, downstream_addr,
+                                                                                       std::placeholders::_1);
 
           process::connections_t::iterator const i = std::remove_if(mapped_connections.begin(),
                                                                     mapped_connections.end(),
-                                                                    boost::not1(is_port));
+                                                                    std::not1(is_port));
           mapped_connections.erase(i, mapped_connections.end());
 
           if (mapped_connections.empty())
@@ -1491,7 +1517,7 @@ pipeline::priv
             throw no_such_port_exception(cluster_name, cluster_port);
           }
 
-          VITAL_FOREACH (process::connection_t const& mapped_port_conn, mapped_connections)
+          for (process::connection_t const& mapped_port_conn : mapped_connections)
           {
             process::port_addr_t const& mapped_port_addr = mapped_port_conn.second;
 
@@ -1502,8 +1528,8 @@ pipeline::priv
                        mapped_name, mapped_port);
           }
         }
-
         break;
+
       default:
         break;
     }
@@ -1524,7 +1550,7 @@ pipeline::priv
 ::configure_processes()
 {
   // Configure processes.
-  VITAL_FOREACH (process_map_t::value_type const& proc_data, process_map)
+  for (process_map_t::value_type const& proc_data : process_map)
   {
     process::name_t const& name = proc_data.first;
     process_t const& proc = proc_data.second;
@@ -1534,7 +1560,7 @@ pipeline::priv
 
     bool resolved_types = false;
 
-    VITAL_FOREACH (process::connection_t const& data_dep_connection, data_dep_connections)
+    for (process::connection_t const& data_dep_connection : data_dep_connections)
     {
       process::port_addr_t const& data_addr = data_dep_connection.first;
       process::port_addr_t const& downstream_addr = data_dep_connection.second;
@@ -1571,7 +1597,7 @@ pipeline::priv
   }
 
   // Configure clusters.
-  VITAL_FOREACH (cluster_map_t::value_type const& cluster_data, cluster_map)
+  for (cluster_map_t::value_type const& cluster_data : cluster_map)
   {
     process_cluster_t const& cluster = cluster_data.second;
 
@@ -1602,7 +1628,7 @@ pipeline::priv
   type_pinnings_t const pinnings = type_pinnings;
   type_pinnings.clear();
 
-  VITAL_FOREACH (type_pinning_t const& pinning, pinnings)
+  for (type_pinning_t const& pinning : pinnings)
   {
     process::connection_t const& connection = pinning.first;
     direction_t const& direction = pinning.second;
@@ -1869,7 +1895,7 @@ pipeline::priv
 
         // Check for required input ports.
         process::ports_t const input_ports = process->input_ports();
-        VITAL_FOREACH (process::port_t const& port, input_ports)
+        for (process::port_t const& port : input_ports)
         {
           // Check for required flags.
           process::port_flags_t const port_flags = process->input_port_info(port)->flags;
@@ -1887,7 +1913,7 @@ pipeline::priv
 
         // Check for required output ports.
         process::ports_t const output_ports = process->output_ports();
-        VITAL_FOREACH (process::port_t const& port, output_ports)
+        for (process::port_t const& port : output_ports)
         {
           // Check for required flags.
           process::port_flags_t const port_flags = process->output_port_info(port)->flags;
@@ -1915,7 +1941,7 @@ pipeline::priv
       connected_procs.insert(connected_procs.end(), downstream_procs.begin(), downstream_procs.end());
 
       // Mark all connected processes for visitation.
-      VITAL_FOREACH (process_t const& proc, connected_procs)
+      for (process_t const& proc : connected_procs)
       {
         to_visit.push(proc->name());
       }
@@ -1947,21 +1973,21 @@ pipeline::priv
 
     process::names_t const names = q->process_names();
 
-    VITAL_FOREACH (process::name_t const& name, names)
+    for (process::name_t const& name : names)
     {
       vertex_t const s = boost::add_vertex(graph);
       graph[s] = name;
       vertex_map[name] = s;
     }
 
-    VITAL_FOREACH (process::name_t const& name, names)
+    for (process::name_t const& name : names)
     {
       process_t const proc = q->process_by_name(name);
       process::ports_t const iports = proc->input_ports();
 
       vertex_t const t = vertex_map[name];
 
-      VITAL_FOREACH (process::port_t const& port, iports)
+      for (process::port_t const& port : iports)
       {
         process::port_addr_t const sender = q->sender_for_port(name, port);
 
@@ -2008,7 +2034,7 @@ pipeline::priv
   process::names_t const names = q->process_names();
 
   // Initialize processes.
-  VITAL_FOREACH (process::name_t const& name, names)
+  for (process::name_t const& name : names)
   {
     process_t const proc = q->process_by_name(name);
 
@@ -2042,7 +2068,7 @@ pipeline::priv
 
   std::queue<process::connection_t> unchecked_connections;
 
-  VITAL_FOREACH (process::connection_t const& connection, connections)
+  for (process::connection_t const& connection : connections)
   {
     unchecked_connections.push(connection);
   }
@@ -2144,7 +2170,7 @@ pipeline::priv
 
   process::frequency_component_t freq_gcd = process::frequency_component_t(1);
 
-  VITAL_FOREACH (process_frequency_map_t::value_type const& proc_freq, freq_map)
+  for (process_frequency_map_t::value_type const& proc_freq : freq_map)
   {
     process::port_frequency_t const& freq = proc_freq.second;
     process::frequency_component_t const denom = freq.denominator();
@@ -2152,7 +2178,7 @@ pipeline::priv
     freq_gcd = boost::math::lcm(freq_gcd, denom);
   }
 
-  VITAL_FOREACH (process_frequency_map_t::value_type const& proc_freq, freq_map)
+  for (process_frequency_map_t::value_type const& proc_freq : freq_map)
   {
     process::name_t const& name = proc_freq.first;
     process::port_frequency_t const& freq = proc_freq.second;
@@ -2279,7 +2305,7 @@ pipeline::priv::propagation_exception
                         process::name_t const& downstream_name,
                         process::port_t const& downstream_port,
                         process::port_type_t const& type,
-                        bool push_upstream) VITAL_NOTHROW
+                        bool push_upstream) noexcept
   : m_upstream_name(upstream_name)
   , m_upstream_port(upstream_port)
   , m_downstream_name(downstream_name)
@@ -2293,7 +2319,7 @@ pipeline::priv::propagation_exception
 
 // ------------------------------------------------------------------
 pipeline::priv::propagation_exception
-::~propagation_exception() VITAL_NOTHROW
+::~propagation_exception() noexcept
 {
 }
 

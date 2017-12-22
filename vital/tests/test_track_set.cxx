@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014 by Kitware, Inc.
+ * Copyright 2014-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,65 +28,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <test_common.h>
+#include <vital/tests/test_track_set.h>
 
-#include <iostream>
-#include <vector>
-
-#include <vital/types/track.h>
-#include <vital/types/track_set.h>
-
-#define TEST_ARGS ()
-
-DECLARE_TEST_MAP();
-
-int
-main(int argc, char* argv[])
+// ----------------------------------------------------------------------------
+int main( int argc, char** argv )
 {
-  CHECK_ARGS(1);
-
-  testname_t const testname = argv[1];
-
-  RUN_TEST(testname);
+  ::testing::InitGoogleTest( &argc, argv );
+  return RUN_ALL_TESTS();
 }
 
-
-IMPLEMENT_TEST(accessor_functions)
+// ----------------------------------------------------------------------------
+TEST(track_set, accessor_functions)
 {
-  using namespace kwiver::vital;
+  using namespace kwiver::vital::testing;
 
-  unsigned track_id = 0;
+  auto test_set = make_simple_track_set();
+  test_track_set_accessors( test_set );
+}
 
-  std::vector< track_sptr > test_tracks;
+// ----------------------------------------------------------------------------
+TEST(track_set, modifier_functions)
+{
+  using namespace kwiver::vital::testing;
 
-  track::track_state test_state1( 1, feature_sptr(), descriptor_sptr() );
-  track::track_state test_state2( 2, feature_sptr(), descriptor_sptr() );
-  track::track_state test_state3( 3, feature_sptr(), descriptor_sptr() );
-
-  test_tracks.push_back( track_sptr( new track( test_state1 ) ) );
-  test_tracks.back()->set_id( track_id++ );
-  test_tracks.push_back( track_sptr( new track( test_state1 ) ) );
-  test_tracks.back()->set_id( track_id++ );
-  test_tracks.push_back( track_sptr( new track( test_state2 ) ) );
-  test_tracks.back()->set_id( track_id++ );
-  test_tracks.push_back( track_sptr( new track( test_state3 ) ) );
-  test_tracks.back()->set_id( track_id++ );
-
-  test_tracks[0]->append( test_state2 );
-  test_tracks[0]->append( test_state3 );
-  test_tracks[1]->append( test_state2 );
-  test_tracks[2]->append( test_state3 );
-
-  track_set_sptr test_set( new simple_track_set( test_tracks ) );
-
-  TEST_EQUAL("Total set size", test_set->size(), 4);
-
-  TEST_EQUAL("Active set size 1", test_set->active_tracks(-1)->size(), 3);
-  TEST_EQUAL("Active set size 2", test_set->active_tracks(-2)->size(), 3);
-  TEST_EQUAL("Active set size 3", test_set->active_tracks(-3)->size(), 2);
-
-  TEST_EQUAL("Terminated set size", test_set->terminated_tracks(-1)->size(), 3);
-  TEST_EQUAL("New set size", test_set->new_tracks(-2)->size(), 1);
-
-  TEST_EQUAL("Percentage tracked", test_set->percentage_tracked(-1,-2), 0.5);
+  auto test_set = make_simple_track_set();
+  test_track_set_modifiers( test_set );
 }

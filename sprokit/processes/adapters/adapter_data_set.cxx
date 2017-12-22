@@ -35,7 +35,6 @@
 
 #include "adapter_data_set.h"
 
-
 namespace kwiver {
 namespace adapter {
 

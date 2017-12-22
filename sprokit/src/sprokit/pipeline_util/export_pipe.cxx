@@ -31,7 +31,6 @@
 #include "export_pipe.h"
 
 #include <vital/config/config_block.h>
-#include <vital/vital_foreach.h>
 #include <vital/util/string.h>
 #include <vital/util/wrap_text_block.h>
 
@@ -49,7 +48,6 @@
 #include <stdexcept>
 #include <string>
 #include <cstdlib>
-
 
 namespace sprokit {
 
@@ -73,7 +71,6 @@ public:
 
 
 private:
-  void print_config_value( sprokit::config_value_t const& config_value ) const;
   void output_process_by_name( sprokit::process::name_t const& name, bool fatal_if_no_process );
   void output_process_block( sprokit::process_t const& name, std::string const& kind );
   void output_process( sprokit::process_t const& proc );
@@ -190,7 +187,7 @@ config_printer
 {
   sprokit::process::names_t const cluster_names = m_pipe->cluster_names();
 
-  VITAL_FOREACH( sprokit::process::name_t const & name, cluster_names )
+  for( sprokit::process::name_t const & name : cluster_names )
   {
     if ( m_visited.count( name ) )
     {
@@ -207,7 +204,7 @@ config_printer
 
   sprokit::process::names_t const process_names = m_pipe->process_names();
 
-  VITAL_FOREACH( sprokit::process::name_t const & name, process_names )
+  for( sprokit::process::name_t const & name : process_names )
   {
     if ( m_visited.count( name ) )
     {
@@ -297,7 +294,7 @@ config_printer
   kwiver::vital::wrap_text_block wtb;
   wtb.set_indent_string( "  #    " );
 
-  VITAL_FOREACH( kwiver::vital::config_block_key_t const & key, keys )
+  for( kwiver::vital::config_block_key_t const & key : keys )
   {
     if ( kwiver::vital::starts_with( key, "_" ) )
     {

@@ -35,6 +35,8 @@ set( ocv_headers_public
   match_features_bruteforce.h
   match_features_flannbased.h
   match_set.h
+  refine_detections_write_to_disk.h
+  split_image.h
   warp_image.h
   )
 kwiver_install_headers(
@@ -80,6 +82,8 @@ set( ocv_sources
   match_features_bruteforce.cxx
   match_features_flannbased.cxx
   match_set.cxx
+  refine_detections_write_to_disk.cxx
+  split_image.cxx
   warp_image.cxx
   )
 

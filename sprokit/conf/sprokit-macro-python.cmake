@@ -8,19 +8,8 @@
 #
 # The following variables may be used to control the behavior of the functions:
 #
-#   sprokit_python_subdir
-#     The subdirectory to use for Python modules (e.g., python2.7).
-#
-#   sprokit_python_output_path
-#     The base output path for Python modules and libraries.
-#
 #   copyright_header
 #     The copyright header to place at the top of generated __init__.py files.
-#
-#   python_both_arch
-#     If set, __init__.py file is created for both the archful and pure-Python
-#     module paths (if in doubt, you probably don't need this; it's necessary
-#     to support CPython and pure Python sprokit plugins).
 #
 # Their syntax is:
 #
@@ -62,72 +51,28 @@ define_property(GLOBAL PROPERTY kwiver_python_modules
 
 ###
 #
-macro (_sprokit_create_safe_modpath    modpath    result)
-  string(REPLACE "/" "." "${result}" "${modpath}")
-endmacro ()
-
-###
-#
-# Get canonical directory for python site packages.
-# It varys from system to system.
-#
-function ( _sprokit_python_site_package_dir    var_name)
-
-  #
-  # This is run many times and should produce the same result, which could be cached.
-  # Think about it.
-  execute_process(
-  COMMAND "${PYTHON_EXECUTABLE}" -c "import distutils.sysconfig; print distutils.sysconfig.get_python_lib(prefix='')"
-  RESULT_VARIABLE proc_success
-  OUTPUT_VARIABLE python_site_packages
-  )
-  # Returns something like "lib/python2.7/dist-packages"
-
-  if(NOT ${proc_success} EQUAL 0)
-    message(FATAL_ERROR "Request for python site-packages location failed with error code: ${proc_success}")
-  else()
-    string(STRIP "${python_site_packages}" python_site_packages)
-  endif()
-
-  # Current usage determines most of the path in alternate ways.
-  # All we need to supply is the '*-packages' directory name.
-  # Customers could be converted to accept a larger part of the path from this function.
-  string( REGEX MATCH "dist-packages" result ${python_site_packages} )
-  if (result)
-    set( python_site_packages dist-packages)
-  else()
-    set( python_site_packages site-packages)
-  endif()
-
-  set( ${var_name} ${python_site_packages} PARENT_SCOPE )
-endfunction()
-
-###
-#
 function (sprokit_add_python_library    name    modpath)
-  _sprokit_create_safe_modpath("${modpath}" safe_modpath)
+  _kwiver_create_safe_modpath("${modpath}" safe_modpath)
 
-  _sprokit_python_site_package_dir( python_site_packages )
-
-  set(library_subdir "/${sprokit_python_subdir}")
-  set(library_subdir_suffix "/${python_site_packages}/${modpath}")
+  set(library_subdir "/${kwiver_python_subdir}")
+  set(library_subdir_suffix "/${python_sitename}/${modpath}")
   set(component runtime)
 
   set(no_export ON)
+  set(no_export_header ON)
 
-  sprokit_add_library("python-${safe_modpath}-${name}" MODULE
-    ${ARGN})
+  kwiver_add_library("python-${safe_modpath}-${name}" MODULE  ${ARGN})
 
-    
+
   if(MSVC)
-    # Issues arise with the msvc compiler with some projects where it cannot 
+    # Issues arise with the msvc compiler with some projects where it cannot
     # compile bindings without the optimizer expanding some inline functions (i.e. debug builds)
     # So always have the optimizer expand the inline functions in the python bindings projects
     target_compile_options("python-${safe_modpath}-${name}" PUBLIC "/Ob2")
   endif()
- 
+
   set(pysuffix "${CMAKE_SHARED_MODULE_SUFFIX}")
-  if (WIN32 AND NOT CYTWIN)
+  if (WIN32 AND NOT CYGWIN)
     set(pysuffix .pyd)
   endif()
 
@@ -143,19 +88,25 @@ function (sprokit_add_python_library    name    modpath)
 
 endfunction ()
 
+
 ###
 #
-function (sprokit_add_python_module_int    path     modpath    module)
-  _sprokit_create_safe_modpath("${modpath}" safe_modpath)
+# SeeAlso:
+#     kwiver/CMake/utils/kwiver-utils-python.cmake
+#
+function (sprokit_add_python_module    path     modpath    module)
 
-  _sprokit_python_site_package_dir( python_site_packages )
-  set(python_sitepath /${python_site_packages})
+  _kwiver_create_safe_modpath("${modpath}" safe_modpath)
 
   set(python_arch)
   set(python_noarchdir)
 
   if (WIN32)
-    set(python_install_path lib)
+    if (python_noarch)
+      return ()
+    else ()
+      set(python_install_path lib)
+    endif ()
   else ()
     if (python_noarch)
       set(python_noarchdir /noarch)
@@ -170,7 +121,7 @@ function (sprokit_add_python_module_int    path     modpath    module)
     set(sprokit_configure_cmake_args
       "\"-Dconfig=${CMAKE_CFG_INTDIR}/\"")
     set(sprokit_configure_extra_dests
-      "${sprokit_python_output_path}/${python_noarchdir}\${config}${python_sitepath}/${modpath}/${module}.py")
+      "${sprokit_python_output_path}/\${config}/${kwiver_python_subdir}${python_noarchdir}/${python_sitename}/${modpath}/${module}.py")
   endif ()
 
   if( WIN32 )
@@ -182,47 +133,50 @@ function (sprokit_add_python_module_int    path     modpath    module)
     set(python_module_id "python${python_arch}-${safe_modpath}-${module}")
   endif()
 
-  sprokit_configure_file_w_uid("${python_configure_id}"
-    "${python_module_id}"
-    "${path}"
-    "${sprokit_python_output_path}${python_noarchdir}${python_sitepath}/${modpath}/${module}.py"
-    PYTHON_EXECUTABLE)
+  set(pyfile_src "${path}")
+  set(pyfile_dst "${sprokit_python_output_path}/${kwiver_python_subdir}${python_noarchdir}/${python_sitename}/${modpath}/${module}.py")
+  set(pypkg_install_path "${python_install_path}/${kwiver_python_subdir}/${python_sitename}/${modpath}")
 
+  if (KWIVER_SYMLINK_PYTHON)
+      sprokit_symlink_file_w_uid("${python_configure_id}"
+        "${python_module_id}"
+        "${pyfile_src}"
+        "${pyfile_dst}"
+        PYTHON_EXECUTABLE)
+  else()
+      sprokit_configure_file_w_uid("${python_configure_id}"
+        "${python_module_id}"
+        "${pyfile_src}"
+        "${pyfile_dst}"
+        PYTHON_EXECUTABLE)
+  endif()
+
+  # Force installation of the test into the tests module
+  # FIXME: (there was a merge conflict between sprokit_install/install, which
+  # should this be?)
   sprokit_install(
-    FILES       "${sprokit_python_output_path}${python_noarchdir}${python_sitepath}/${modpath}/${module}.py"
-    DESTINATION "${python_install_path}/${sprokit_python_subdir}${python_sitepath}/${modpath}"
-    COMPONENT   runtime)
+      FILES       "${pyfile_dst}"
+      DESTINATION "${pypkg_install_path}"
+      COMPONENT   runtime
+      )
 
   add_dependencies(python
     "configure-${python_configure_id}")
-
-  if (python_both_arch)
-    set(python_both_arch)
-    set(python_noarch TRUE)
-
-    if (NOT WIN32)
-      sprokit_add_python_module_int(
-        "${path}"
-        "${modpath}"
-        "${module}")
-    endif ()
-  endif ()
 endfunction ()
 
-###
-#
-function (sprokit_add_python_module   path   modpath   module)
-  sprokit_add_python_module_int("${path}"
-    "${modpath}"
-    "${module}")
-endfunction ()
 
 ###
+# Creates a default __init__.py file for a core package in the build directory.
 #
 function (sprokit_create_python_init    modpath)
-  _sprokit_create_safe_modpath("${modpath}" safe_modpath)
+  _kwiver_create_safe_modpath("${modpath}" safe_modpath)
 
-  set(init_template "${CMAKE_CURRENT_BINARY_DIR}/${safe_modpath}.__init__.py")
+  set(noarch_suffix)
+  if (python_noarch)
+    set(noarch_suffix "u")
+  endif ()
+
+  set(init_template "${CMAKE_CURRENT_BINARY_DIR}/${noarch_suffix}${safe_modpath}.__init__.py")
 
   if (NOT copyright_header)
     set(copyright_header "# Generated by sprokit")
@@ -236,17 +190,25 @@ function (sprokit_create_python_init    modpath)
       "from ${module} import *\n")
   endforeach ()
 
-  sprokit_add_python_module_int("${init_template}"
+  sprokit_add_python_module("${init_template}"
     "${modpath}"
     __init__)
 endfunction ()
 
+
 ###
+# Creates a default __init__.py file for a plugin package in the build
+# directory.
 #
 function (sprokit_create_python_plugin_init modpath)
-  _sprokit_create_safe_modpath("${modpath}" safe_modpath)
+  _kwiver_create_safe_modpath("${modpath}" safe_modpath)
 
-  set(init_template "${CMAKE_CURRENT_BINARY_DIR}/${safe_modpath}.__init__.py")
+  set(noarch_suffix)
+  if (python_noarch)
+    set(noarch_suffix "u")
+  endif ()
+
+  set(init_template "${CMAKE_CURRENT_BINARY_DIR}/${noarch_suffix}${safe_modpath}.__init__.py")
 
   if (NOT copyright_header)
     set(copyright_header "# Generated by sprokit")
@@ -259,7 +221,7 @@ function (sprokit_create_python_plugin_init modpath)
   file(APPEND "${init_template}"
     "__path__ = extend_path(__path__, __name__)\n")
 
-  sprokit_add_python_module_int("${init_template}"
+  sprokit_add_python_module("${init_template}"
     "${modpath}"
     __init__)
 endfunction ()

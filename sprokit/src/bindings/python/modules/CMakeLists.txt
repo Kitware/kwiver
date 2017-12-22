@@ -7,8 +7,12 @@ set(modules_python_private_headers
   modules-config.h
   )
 
-set(python_both_arch TRUE)
+set(python_noarch FALSE)
 sprokit_create_python_init(sprokit/modules)
+set(python_noarch TRUE)
+sprokit_create_python_init(sprokit/modules)
+set(python_noarch FALSE)
+
 sprokit_private_header_group(${modules_python_private_headers})
 
 if(UNIX)
@@ -22,9 +26,16 @@ kwiver_add_plugin(modules_python
   PRIVATE         sprokit_pipeline
                   sprokit_python_util
                   kwiversys
-                  ${${boost_python_library_var}}
+                  ${${pybind11_library}}
                   ${PYTHON_LIBRARIES}
                   )
+
+
+# Add definition to tell registration.cxx the name of the python_library it was
+# compiled with. It will attempt to load symbols from this library dynamically.
+get_filename_component(PYTHON_LIBRARY_NAME "${PYTHON_LIBRARY}" NAME)
+target_compile_definitions(modules_python PRIVATE "-DPYTHON_LIBRARY=${PYTHON_LIBRARY_NAME}")
+
 
 sprokit_add_python_module("${CMAKE_CURRENT_SOURCE_DIR}/modules.py"
   sprokit/modules

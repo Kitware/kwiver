@@ -56,7 +56,7 @@ class descriptor
 {
 public:
   /// Destructor
-  virtual ~descriptor() VITAL_DEFAULT_DTOR
+  virtual ~descriptor() = default;
 
   /// Access the type info of the underlying data (double or float)
   virtual std::type_info const& data_type() const = 0;
@@ -146,6 +146,11 @@ public:
 
   /// Return an pointer to the raw data array
   virtual const T* raw_data() const = 0;
+
+
+  // Iterator interface
+  T const* begin() const { return this->raw_data(); }
+  T const* end() const { return this->raw_data() + this->size(); }
 
 
   /// Equality operator

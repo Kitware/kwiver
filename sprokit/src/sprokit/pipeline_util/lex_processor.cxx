@@ -34,6 +34,9 @@
 #include <vital/config/config_block_exception.h>
 #include <vital/util/data_stream_reader.h>
 #include <vital/util/string.h>
+#include <vital/util/token_expander.h>
+#include <vital/util/token_type_sysenv.h>
+#include <vital/util/token_type_env.h>
 #include <kwiversys/SystemTools.hxx>
 
 #include <sprokit/pipeline_util/load_pipe_exception.h>
@@ -45,6 +48,10 @@
 #include <cctype>
 #include <sstream>
 #include <set>
+
+// Make value evaluate to true to enable low level lexer debugging of
+// token traffic
+#define LEX_DEBUG 0
 
 namespace sprokit {
 
@@ -212,6 +219,8 @@ public:
 
   // file search path list
   kwiver::vital::config_path_list_t m_search_path;
+
+  kwiver::vital::token_expander m_token_expander;
 };
 
 
@@ -309,7 +318,10 @@ lex_processor::
 unget_token( token_sptr token )
 {
   m_priv->m_token_stack.push_back( token );
+
+#if LEX_DEBUG
   LOG_TRACE( m_logger, "Ungetting " << *token );
+#endif
 }
 
 
@@ -319,7 +331,10 @@ lex_processor::
 get_token()
 {
   auto t = get_next_token();
+
+#if LEX_DEBUG
   LOG_TRACE( m_logger, *t );
+#endif
 
   return t;
 }
@@ -376,6 +391,9 @@ get_next_token()
 
       std::string file_name( m_priv->m_cur_char, m_priv->m_input_line.end() );
       m_priv->trim_string( file_name );
+
+      // Perform macro substitutions first
+      file_name = m_priv->m_token_expander.expand_token( file_name );
 
       kwiver::vital::config_path_t resolv_filename = m_priv->resolve_file_name( file_name );
       if ( "" == resolv_filename ) // could not resolve
@@ -571,6 +589,9 @@ priv()
 
   m_keyword_table["::"]           = TK_DOUBLE_COLON;
   m_keyword_table[":="]           = TK_LOCAL_ASSIGN;
+
+  m_token_expander.add_token_type( new kwiver::vital::token_type_env() );
+  m_token_expander.add_token_type( new kwiver::vital::token_type_sysenv() );
 }
 
 
@@ -637,7 +658,7 @@ lex_processor::priv::
 current_loc() const
 {
   // Get current location from the include file stack top element
-  return kwiver::vital::source_location( m_include_stack.back()->m_filename,
+  return kwiver::vital::source_location( std::make_shared< std::string >( *(m_include_stack.back()->m_filename) ),
            static_cast<int>(m_include_stack.back()->m_reader.line_number()) );
 }
 

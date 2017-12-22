@@ -74,9 +74,6 @@ track_descriptor_output_process
   : process( config ),
     d( new track_descriptor_output_process::priv )
 {
-  // Attach our logger name to process logger
-  attach_logger( kwiver::vital::get_logger( name() ) );
-
   make_ports();
   make_config();
 }
@@ -92,6 +89,8 @@ track_descriptor_output_process
 void track_descriptor_output_process
 ::_configure()
 {
+  scoped_configure_instrumentation();
+
   // Get process config entries
   d->m_file_name = config_value_using_trait( file_name );
   if ( d->m_file_name.empty() )
@@ -123,6 +122,8 @@ void track_descriptor_output_process
 void track_descriptor_output_process
 ::_init()
 {
+  scoped_init_instrumentation();
+
   d->m_writer->open( d->m_file_name ); // throws
 }
 
@@ -142,7 +143,11 @@ void track_descriptor_output_process
   kwiver::vital::track_descriptor_set_sptr input
     = grab_from_port_using_trait( track_descriptor_set );
 
-  d->m_writer->write_set( input, file_name );
+  {
+    scoped_step_instrumentation();
+
+    d->m_writer->write_set( input, file_name );
+  }
 }
 
 
