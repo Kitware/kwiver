@@ -42,6 +42,7 @@
 #include <memory>
 #include <vector>
 
+#include <vital/types/descriptor.h>
 #include <vital/types/detected_object_type.h>
 #include <vital/types/vector.h>
 #include <vital/types/bounding_box.h>
@@ -224,10 +225,24 @@ public:
    */
   void set_mask( image_container_sptr m );
 
+  /**
+   * @brief Get the descriptor for this detected object.
+   * @return Shared pointer to the descriptor.
+   */
+  descriptor_sptr descriptor() const;
+
+  /**
+   * @brief Set the descriptor for this detected object.
+   * @param d Descriptor to set.
+   */
+  void set_descriptor( descriptor_sptr d );
+
 private:
   std::shared_ptr< bounding_box_d > m_bounding_box;
   double m_confidence;
   image_container_sptr m_mask_image;
+  // Optional descriptor describing this detected object.
+  descriptor_sptr m_descriptor;
 
   // The detection type is an optional list of possible object types.
   detected_object_type_sptr m_type;

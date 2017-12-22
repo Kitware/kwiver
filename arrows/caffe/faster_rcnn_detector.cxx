@@ -34,14 +34,16 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include <vital/types/vector.h>
+#include <kwiversys/SystemTools.hxx>
+
+#include <vital/algo/dynamic_configuration.h>
 #include <vital/io/eigen_io.h>
+#include <vital/logger/logger.h>
+#include <vital/types/descriptor.h>
+#include <vital/types/vector.h>
 #include <vital/util/cpu_timer.h>
 #include <vital/util/wall_timer.h>
 #include <vital/util/data_stream_reader.h>
-#include <vital/algo/dynamic_configuration.h>
-#include <vital/logger/logger.h>
-#include <kwiversys/SystemTools.hxx>
 
 #include <arrows/ocv/image_container.h>
 
@@ -82,6 +84,7 @@ public:
   unsigned int m_chip_width;
   unsigned int m_chip_height;
   unsigned int m_stride;
+  std::string m_descriptor_layer;
 
   kwiver::vital::logger_handle_t m_logger;
   kwiver::vital::algo::dynamic_configuration_sptr m_dynamic_scaling;
@@ -104,6 +107,7 @@ public:
       m_chip_width( 450 ),
       m_chip_height( 400 ),
       m_stride( 375 ),
+      m_descriptor_layer( "" ),
       m_logger( kwiver::vital::get_logger( "vital.faster_rcnn" ) )
   { }
 
@@ -163,6 +167,10 @@ faster_rcnn_detector::
   config->set_value( "chip_width", this->d->m_chip_width, "Width for the chunk" );
   config->set_value( "chip_height", this->d->m_chip_height, "Height of the chunk" );
   config->set_value( "stride", this->d->m_stride, "Step size for the chunking (controls if the chunks have overlap)" );
+  config->set_value( "descriptor_layer", this->d->m_descriptor_layer,
+                     "Layer from the CNN to extract and use as the descriptor "
+                     "for detected objects. This layer must be one that has "
+                     "the same initial shape dimension as the RoI layer " );
 
   return config;
 }
@@ -190,8 +198,9 @@ set_configuration( vital::config_block_sptr config_in )
   this->d->m_chip_height = config->get_value< unsigned int > ( "chip_height" );
   this->d->m_stride = config->get_value< unsigned int > ( "stride" );
   this->d->m_enable_image_resizing = config->get_value< bool > ( "enable_image_resizing" );
+  this->d->m_descriptor_layer = config->get_value< std::string >( "descriptor_layer" );
 
-  // Need to check for existance of files.
+  // Need to check for existence of files.
 
   if ( d->m_use_gpu )
   {
@@ -205,6 +214,7 @@ set_configuration( vital::config_block_sptr config_in )
 
   this->d->m_net.reset( new Net< float > ( this->d->m_prototxt_file, TEST ) );
   this->d->m_net->CopyTrainedLayersFrom( this->d->m_caffe_model );
+  // TODO(paul.tunison): check that configured descriptor extraction layer exists in network.
 
   // Should use data stream reader
   std::vector< std::string > labels;
@@ -238,6 +248,7 @@ check_configuration( vital::config_block_sptr config ) const
   std::string classes = config->get_value< std::string > ( "classes" );
   std::string prototxt = config->get_value< std::string > ( "prototxt" );
   std::string caffemodel = config->get_value< std::string > ( "caffe_model" );
+  std::string descriptor_layer = config->get_value< std::string >( "descriptor_layer" );
 
   bool success( true );
 
@@ -291,6 +302,29 @@ check_configuration( vital::config_block_sptr config ) const
   {
     LOG_ERROR( d->m_logger, "caffe_model file \"" << caffemodel << "\" not found." );
     success = false;
+  }
+
+  // Make a temporary net (without loading the model) to check if the optional
+  // descriptor layer exists in the network topology.
+  //
+  if( success && (descriptor_layer.size() > 0) )
+  {
+    Net< float > tmp_net( prototxt, TEST );
+    using vec_t = std::vector< std::string >;
+    const vec_t& blob_names = tmp_net.blob_names();
+    vec_t::const_iterator it = std::find( blob_names.begin(), blob_names.end(), descriptor_layer );
+    if( it == blob_names.end() )
+    {
+      LOG_ERROR( d->m_logger, "Invalid layer name \"" + descriptor_layer +
+                              "\" specified for descriptor extraction." );
+      LOG_ERROR( d->m_logger, "The following are blob layers available in the "
+                              "configured network:" );
+      for( std::string const & s : blob_names )
+      {
+        LOG_ERROR( d->m_logger, "Caffe blog name: " + s );
+      }
+      success = false;
+    }
   }
 
   return success;
@@ -389,11 +423,36 @@ detect( vital::image_container_sptr image_data ) const
     boost::shared_ptr< Blob< float > > rois = this->d->m_net->blob_by_name( "rois" );
     boost::shared_ptr< Blob< float > > probs = this->d->m_net->blob_by_name( "cls_prob" );
     boost::shared_ptr< Blob< float > > rois_deltas = this->d->m_net->blob_by_name( "bbox_pred" );
+    // Extract appropriate layer blob here for a detection's "descriptor"
+    boost::shared_ptr< Blob< float > > descriptors = NULL;
+    if( ! this->d->m_descriptor_layer.empty() )
+    {
+      descriptors = this->d->m_net->blob_by_name( this->d->m_descriptor_layer );
+    }
 
+    LOG_TRACE( d->m_logger, "Detected " << rois->count() << " RoIs in img_at "
+                            << img_at << "." );
+
+    // Array dimensions of blob contents for the different extracted layers.
+    // Definitions: Blob->count() :: Total size of the blob vector
+    //                                 (num * channels * heigh * width).
+    //              Blob->num()   :: Equivalent to shape[0]; Number of discrete
+    //                                 elements in the blob.
+    // We should have a prob for each RoI.
+    assert( rois->num() == probs->num() );
     const unsigned int roi_dim = rois->count() / rois->num();
     assert( roi_dim == 5 );
     const unsigned int prob_dim = probs->count() / probs->num();
-    assert( rois->num() == probs->num() );
+    // We should have a "descriptor" for each RoI.
+    unsigned int descr_dim = 0;
+    if( descriptors != NULL )
+    {
+      assert( rois->num() == descriptors->num() );
+      descr_dim = descriptors->count() / descriptors->num();
+      LOG_TRACE( d->m_logger, "Extracting descriptors from layer \""
+                              << d->m_descriptor_layer << "\""
+                              << " with dimensionality: " << descr_dim );
+    }
 
     // Loop over "detections"
     for ( int i = 0; i < rois->num(); ++i )
@@ -401,6 +460,8 @@ detect( vital::image_container_sptr image_data ) const
       const float* start = rois->cpu_data() + rois->offset( i );
       double pts[4];
 
+      // Extract detection bounding points, rescaled back to input image
+      // coordinates.
       for ( unsigned int j = 1; j < roi_dim; ++j )
       {
         pts[j - 1] = start[j] / image_scale.second;
@@ -409,10 +470,17 @@ detect( vital::image_container_sptr image_data ) const
       vital::bounding_box_d bbox( vital::vector_2d( pts[0] + chip_x[img_at], pts[1] + chip_y[img_at] ),
                                   vital::vector_2d( pts[2] + chip_x[img_at], pts[3] + chip_y[img_at] ) );
 
-      start = probs->cpu_data() + probs->offset( i );
+      // Extracting "descriptor"
+      vital::descriptor_sptr d_sptr;
+      if( descriptors != NULL )
+      {
+        start = descriptors->cpu_data() + descriptors->offset( i );
+        d_sptr = std::make_shared< vital::descriptor_dynamic<float> >( descr_dim, start );
+      }
 
-      // Convert array to vector for safe keeping
-      std::vector< double > tmpv(start, start + prob_dim);
+      // Vector of probability values.
+      start = probs->cpu_data() + probs->offset( i );
+      std::vector< double > prob_v(start, start + prob_dim);
 
       if ( this->d->m_use_box_deltas && ( rois_deltas != NULL ) )
       {
@@ -438,16 +506,22 @@ detect( vital::image_container_sptr image_data ) const
           vital::bounding_box_d pbox( center - halfS, center + halfS );
 
           auto classification = std::make_shared<vital::detected_object_type>();
-          classification->set_score( this->d->m_labels[j], tmpv[j] );
+          classification->set_score( this->d->m_labels[j], prob_v[j] );
 
-          detected_objects->add( std::make_shared<vital::detected_object>( pbox, 1.0, classification ) );
+          vital::detected_object_sptr do_sptr = std::make_shared<vital::detected_object>(
+              pbox, 1.0, classification );
+          do_sptr->set_descriptor( d_sptr );
+          detected_objects->add( do_sptr );
         } // end for j
       }
       else
       {
         // just make one detection object with all class-names using one bbox
-        auto classification = std::make_shared<vital::detected_object_type>( this->d->m_labels, tmpv );
-        detected_objects->add( std::make_shared<vital::detected_object>( bbox, 1.0, classification ) );
+        auto classification = std::make_shared<vital::detected_object_type>( this->d->m_labels, prob_v );
+        vital::detected_object_sptr do_sptr = std::make_shared< vital::detected_object >(
+            bbox, 1.0, classification );
+        do_sptr->set_descriptor( d_sptr );
+        detected_objects->add( do_sptr );
       }
     } // end for over rois
   } // end for over chips
