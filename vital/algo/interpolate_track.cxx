@@ -37,17 +37,32 @@ namespace algo {
 // ----------------------------------------------------------------------------
 interpolate_track::
 interpolate_track()
+  : m_progress_callback( nullptr )
 {
   attach_logger( "interpolate_track " );
 }
 
 
 // ----------------------------------------------------------------------------
-float
+void
 interpolate_track::
-progress const()
+set_progress_callback( progress_callback_t cb )
 {
-  return 0;
+  m_progress_callback = cb;
 }
+
+
+// ----------------------------------------------------------------------------
+void
+interpolate_track::
+do_callback( float prog )
+{
+  if ( m_progress_callback != nullptr )
+  {
+    m_progress_callback( prog );
+  }
+}
+
+// ----------------------------------------------------------------------------
 
 } } } // end namespace
