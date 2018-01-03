@@ -39,9 +39,6 @@ class interpolate_track_from_video::priv
 {
 public:
 
-  // Video input algorithm
-  kwiver::vital::algo::video_input_sptr m_video_input;
-
 };
 
 
