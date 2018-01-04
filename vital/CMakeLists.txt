@@ -88,6 +88,7 @@ set( vital_public_headers
   types/camera.h
   types/camera_intrinsics.h
   types/camera_map.h
+  types/category_hierarchy.h
   types/color.h
   types/covariance.h
   types/database_query.h
@@ -158,6 +159,7 @@ set( vital_sources
   types/bounding_box.cxx
   types/camera.cxx
   types/camera_intrinsics.cxx
+  types/category_hierarchy.cxx
   types/database_query.cxx
   types/descriptor_request.cxx
   types/detected_object.cxx
