@@ -346,7 +346,6 @@ detect( vital::image_container_sptr image_data ) const
         new_dets->shift( li, lj );
         new_dets->scale( 1.0 / scale_factor );
 
-
         detections->add( new_dets );
       }
     }
