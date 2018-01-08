@@ -9,7 +9,7 @@ set( sources
   blend_images_process.cxx
   crop_image_process.cxx
   draw_detected_object_boxes_process.cxx
-  equalize_histogram_process.cxx
+  cvt_color_process.cxx
   image_object_classifier_process.cxx
   image_viewer_process.cxx
   show_mask_on_image_process.cxx
@@ -20,7 +20,7 @@ set( private_headers
   blend_images_process.h
   crop_image_process.h
   draw_detected_object_boxes_process.h
-  equalize_histogram_process.h
+  cvt_color_process.h
   image_object_classifier_process.h
   image_viewer_process.h
   show_mask_on_image_process.h
