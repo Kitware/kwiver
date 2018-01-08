@@ -40,7 +40,6 @@
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
 
 #include <string>
 #include <sstream>
@@ -132,6 +131,7 @@ darknet_detector()
 {
   // set darknet global GPU index
   gpu_index = d->m_gpu_index;
+  d->m_logger = logger();
 }
 
 
