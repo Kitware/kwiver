@@ -51,6 +51,7 @@
 #include <arrows/ocv/detect_features_STAR.h>
 #include <arrows/ocv/draw_detected_object_set.h>
 #include <arrows/ocv/draw_tracks.h>
+#include <arrows/ocv/equalize_histogram.h>
 #include <arrows/ocv/estimate_fundamental_matrix.h>
 #include <arrows/ocv/estimate_homography.h>
 #include <arrows/ocv/extract_descriptors_BRIEF.h>
@@ -71,6 +72,7 @@
 #include <arrows/ocv/hough_circle_detector.h>
 #include <arrows/ocv/motion_detector_MOG2.h>
 #include <arrows/ocv/stabilize_video_KLT.h>
+#include <arrows/ocv/stretch_contrast.h>
 #include <arrows/ocv/three_frame_differencing.h>
 #include <arrows/ocv/warp_image.h>
 
@@ -153,6 +155,14 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     ;
+  
+    fact = vpm.ADD_ALGORITHM( "ocv_stretch_contrast", kwiver::arrows::ocv::stretch_contrast );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                    "Apply a piecewise-linear transformation to an image's intensities." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
 
   fact = vpm.ADD_ALGORITHM( "ocv", kwiver::arrows::ocv::warp_image );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
@@ -217,6 +227,14 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     ;
 
+
+  fact = vpm.ADD_ALGORITHM( "ocv_equalize_histogram", kwiver::arrows::ocv::equalize_histogram );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "OpenCV histogram equalization algorithm" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
 
   fact = vpm.ADD_ALGORITHM( "ocv_BRISK", kwiver::arrows::ocv::extract_descriptors_BRISK );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
