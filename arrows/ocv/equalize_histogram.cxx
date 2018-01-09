@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,51 +30,43 @@
 
 /**
  * \file
- * \brief Implementation of equalize_histogram_process
+ * \brief Implementation of ocv::equalize_histogram
  */
 
-#include "equalize_histogram_process.h"
+#include "equalize_histogram.h"
 
-#include <vital/vital_types.h>
-#include <vital/vital_foreach.h>
+#include <vital/exceptions.h>
 #include <vital/util/wall_timer.h>
 
 #include <arrows/ocv/image_container.h>
 
-#include <sprokit/processes/kwiver_type_traits.h>
-
-#include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
-
-#include <sstream>
-#include <iostream>
 
 namespace kwiver {
+namespace arrows {
+namespace ocv {
 
-  create_config_trait( color_mode, std::string, "all_separately", "In the "
-                       "case of color images, this sets how the channels are "
-                       "equalized. If set to 'all_separately', each channel is "
-                       "equalized independently. If set to 'luminance', the "
-                       "image is converted into YCbCr, the luminance is "
-                       "equalized, and then the image is converted back to RGB" );
-  
-// ==================================================================
-class equalize_histogram_process::priv
+using namespace kwiver::vital;
+
+
+/// Private implementation class
+class equalize_histogram::priv
 {
 public:
-    
+  enum color_handling_modes { all_separately, luminance } ;
+  color_handling_modes m_color_mode=all_separately;
+  kwiver::vital::logger_handle_t m_logger;
+  kwiver::vital::wall_timer m_timer;
+
+  /// Constructor
   priv()
   {
   }
 
+  /// Destructor
   ~priv()
   {
   }
-  
-  enum color_handling_modes { all_separately, luminance } ;
-  color_handling_modes m_color_mode;
-  kwiver::vital::wall_timer m_timer;
   
   void
   set_color_handling(const std::string color_mode)
@@ -142,97 +134,100 @@ public:
     }
     return;
   }
-  
-}; // end priv class
+};
 
 
-// ==================================================================
-equalize_histogram_process
-::equalize_histogram_process( vital::config_block_sptr const& config )
-  : process( config ),
-  d( new equalize_histogram_process::priv )
+/// Constructor
+equalize_histogram
+::equalize_histogram()
+: d_(new priv)
 {
-  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
-  make_ports();
-  make_config();
+  attach_logger( "arrows.ocv.equalize_histogram" );
+  d_->m_logger = logger();
 }
 
-
-equalize_histogram_process
-  ::~equalize_histogram_process()
+/// Destructor
+equalize_histogram
+::~equalize_histogram() VITAL_NOTHROW
 {
 }
 
 
-// ------------------------------------------------------------------
+/// Get this alg's \link vital::config_block configuration block \endlink
+vital::config_block_sptr
+equalize_histogram
+::get_configuration() const
+{
+  // get base config from base class
+  vital::config_block_sptr config = algorithm::get_configuration();
+
+  config->set_value("color_mode", "all_separately",
+                    "In the case of color images, this sets how the channels "
+                    "are equalized. If set to 'all_separately', each channel "
+                    "is equalized independently. If set to 'luminance', the "
+                    "image is converted into YCbCr, the luminance is "
+                    "equalized, and then the image is converted back to RGB." );
+  return config;
+}
+
+
+/// Set this algo's properties via a config block
 void
-equalize_histogram_process::_configure()
+equalize_histogram
+::set_configuration(vital::config_block_sptr in_config)
 {
-  std::string color_mode = config_value_using_trait( color_mode );
-  d->set_color_handling(color_mode);
+  // Starting with our generated config_block to ensure that assumed values are present
+  // An alternative is to check for key presence before performing a get_value() call.
+  vital::config_block_sptr config = this->get_configuration();
+  config->merge_config(in_config);
+
+  std::string color_mode = config->get_value<std::string>("color_mode");
+  d_->set_color_handling(color_mode);
   LOG_DEBUG( logger(), "Color mode: " + color_mode);
-} // equalize_histogram_process::_configure
+}
 
 
-// ------------------------------------------------------------------
-void
-equalize_histogram_process::_step()
+bool
+equalize_histogram
+::check_configuration(vital::config_block_sptr config) const
 {
-  d->m_timer.start();
-  
-  // image
-  kwiver::vital::image_container_sptr img = grab_from_port_using_trait( image );
-  
-  if ( img == NULL )
+  return true;
+}
+
+
+/// Equalize an image's histogram
+kwiver::vital::image_container_sptr
+equalize_histogram::
+filter( kwiver::vital::image_container_sptr img )
+{
+  if ( !img )
   {
-    throw kwiver::vital::invalid_value( "Input image pointer is NULL." );
+    throw vital::invalid_data("Inputs to ocv::equalize_histogram are null");
   }
   
-  LOG_DEBUG( logger(), "Received image ([" + std::to_string(img->width()) + 
+  LOG_TRACE( logger(), "Received image ([" + std::to_string(img->width()) + 
              ", " + std::to_string(img->height()) + ", " +
              std::to_string(img->depth()) + "]");
+
+  cv::Mat cv_src {arrows::ocv::image_container::vital_to_ocv( img->get_image() )};
+  cv::Mat cv_dest;
   
-  // --------------------- Convert Input Images to OCV Format ----------------- 
-  const cv::Mat img_ocv0 {arrows::ocv::image_container::vital_to_ocv( img->get_image() )};
-  cv::Mat img_ocv;
-  d->equalize_histogram(img_ocv0, img_ocv);
+  if( cv_src.channels() == 1 )
+  {
+    // TODO: Figure out why this is necessary. Something is wrong with 
+    // vital_to_ocv for grayscale images.
+    cv_src = cv_src.clone();
+  }
   
-  // --------------------------------------------------------------------------
+  d_->equalize_histogram(cv_src, cv_dest);
   
-  // Convert back to an image_container_sptr
-  vital::image_container_sptr img_out;
-  img_out = std::make_shared<arrows::ocv::image_container>(img_ocv);
-  
-  push_to_port_using_trait( image, img_out );
-  
-  d->m_timer.stop();
-  double elapsed_time = d->m_timer.elapsed();
-  LOG_DEBUG( logger(), "Total processing time: " << elapsed_time << " seconds");
+  kwiver::vital::image_container_sptr image_dest;
+  image_dest = std::make_shared<ocv::image_container>(cv_dest);
+
+  return image_dest;
 }
 
 
-// ------------------------------------------------------------------
-void
-equalize_histogram_process::make_ports()
-{
-  // Set up for required ports
-  sprokit::process::port_flags_t required;
-  sprokit::process::port_flags_t optional;
-
-  required.insert( flag_required );
-
-  // -- input --
-  declare_input_port_using_trait( image, required );
-  
-  // -- output --
-  declare_output_port_using_trait( image, optional );
-}
-
-
-// ------------------------------------------------------------------
-void
-equalize_histogram_process::make_config()
-{
-  declare_config_using_trait( color_mode );
-}
-} //end namespace
+} // end namespace ocv
+} // end namespace arrows
+} // end namespace kwiver

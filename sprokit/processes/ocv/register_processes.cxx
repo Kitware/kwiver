@@ -36,7 +36,7 @@
 #include "blend_images_process.h"
 #include "crop_image_process.h"
 #include "draw_detected_object_boxes_process.h"
-#include "equalize_histogram_process.h"
+#include "cvt_color_process.h"
 #include "image_object_classifier_process.h"
 #include "image_viewer_process.h"
 #include "stabilization_inspection_image_process.h"
@@ -80,11 +80,11 @@ register_factories( kwiver::vital::plugin_loader& vpm )
                         "Crops image to bbox." );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
   
-  fact = vpm.ADD_PROCESS( kwiver::equalize_histogram_process );
-  fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_NAME,  "equalize_histogram" );
+  fact = vpm.ADD_PROCESS( kwiver::cvt_color_process );
+  fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_NAME,  "cvt_color" );
   fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
   fact->add_attribute(  kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
-                        "Equalize an image's histogram." );
+                        "Converts an image from one color space to another." );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
   
   fact = vpm.ADD_PROCESS( kwiver::image_object_classifier_process );

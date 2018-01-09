@@ -14,6 +14,7 @@ set( ocv_headers_public
   detect_features_STAR.h
   draw_detected_object_set.h
   draw_tracks.h
+  equalize_histogram.h
   estimate_fundamental_matrix.h
   estimate_homography.h
   extract_descriptors.h
@@ -39,6 +40,7 @@ set( ocv_headers_public
   match_features_flannbased.h
   match_set.h
   stabilize_video_KLT.h
+  stretch_contrast.h
   motion_detector_MOG2.h
   three_frame_differencing.h
   warp_image.h
@@ -65,6 +67,7 @@ set( ocv_sources
   detect_features_STAR.cxx
   draw_detected_object_set.cxx
   draw_tracks.cxx
+  equalize_histogram.cxx
   estimate_fundamental_matrix.cxx
   estimate_homography.cxx
   extract_descriptors.cxx
@@ -91,6 +94,7 @@ set( ocv_sources
   match_set.cxx
   motion_detector_MOG2.cxx
   stabilize_video_KLT.cxx
+  stretch_contrast.cxx
   three_frame_differencing.cxx
   warp_image.cxx
   )

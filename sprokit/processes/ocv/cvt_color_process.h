@@ -30,11 +30,11 @@
 
 /**
  * \file
- * \brief Interface to equalize_histogram_process
+ * \brief Interface to cvt_color_process
  */
 
-#ifndef _KWIVER_EQUALIZE_HISTOGRAM_PROCESS_H
-#define _KWIVER_EQUALIZE_HISTOGRAM_PROCESS_H
+#ifndef _KWIVER_CVT_COLOR_PROCESS_H
+#define _KWIVER_CVT_COLOR_PROCESS_H
 
 #include <sprokit/pipeline/process.h>
 #include "kwiver_processes_ocv_export.h"
@@ -45,15 +45,15 @@ namespace kwiver {
 
 // ----------------------------------------------------------------
 /**
- * @brief Equalize the histogram of an image.
+ * @brief Converts an image from one color space to another
  *
  */
-class KWIVER_PROCESSES_OCV_NO_EXPORT equalize_histogram_process
+class KWIVER_PROCESSES_OCV_NO_EXPORT cvt_color_process
   : public sprokit::process
 {
 public:
-  equalize_histogram_process( kwiver::vital::config_block_sptr const& config );
-  virtual ~equalize_histogram_process();
+  cvt_color_process( kwiver::vital::config_block_sptr const& config );
+  virtual ~cvt_color_process();
 
 protected:
   virtual void _configure();
@@ -66,8 +66,8 @@ private:
   class priv;
   const std::unique_ptr<priv> d;
 
-}; // end class equalize_histogram_process
+}; // end class cvt_color_process
 
 } // end namespace
 
-#endif // _KWIVER_EQUALIZE_HISTOGRAM_PROCESS_H
+#endif // _KWIVER_CVT_COLOR_PROCESS_H
