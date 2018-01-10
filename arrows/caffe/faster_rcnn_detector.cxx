@@ -248,7 +248,8 @@ check_configuration( vital::config_block_sptr config ) const
   std::string classes = config->get_value< std::string > ( "classes" );
   std::string prototxt = config->get_value< std::string > ( "prototxt" );
   std::string caffemodel = config->get_value< std::string > ( "caffe_model" );
-  std::string descriptor_layer = config->get_value< std::string >( "descriptor_layer" );
+  // optionally defined parameters
+  std::string descriptor_layer = config->get_value< std::string >( "descriptor_layer", "" );
 
   bool success( true );
 
