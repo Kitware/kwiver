@@ -198,7 +198,7 @@ set_configuration( vital::config_block_sptr config_in )
   this->d->m_chip_height = config->get_value< unsigned int > ( "chip_height" );
   this->d->m_stride = config->get_value< unsigned int > ( "stride" );
   this->d->m_enable_image_resizing = config->get_value< bool > ( "enable_image_resizing" );
-  this->d->m_descriptor_layer = config->get_value< std::string >( "descriptor_layer" );
+  this->d->m_descriptor_layer = config->get_value< std::string >( "descriptor_layer", "" );
 
   // Need to check for existence of files.
 
