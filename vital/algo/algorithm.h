@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2017 by Kitware, Inc.
+ * Copyright 2013-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -117,6 +117,7 @@ public:
    */
   virtual bool check_configuration(config_block_sptr config) const = 0;
 
+
   /// Helper function for properly getting a nested algorithm's configuration
   /**
    * Adds a configurable algorithm implementation switch for this algorithm.
@@ -131,6 +132,7 @@ public:
    *                              nested algorithm's configuration.
    * \param[in]       nested_algo The nested algorithm's sptr variable.
    */
+  VITAL_ALGO_DEPRECATED
   static void get_nested_algo_configuration(std::string const& type_name,
                                             std::string const& name,
                                             config_block_sptr config,
@@ -155,6 +157,7 @@ public:
    *                                algorithm instance.
    * \param[out] nested_algo The nested algorithm's sptr variable.
    */
+  VITAL_ALGO_DEPRECATED
   static void set_nested_algo_configuration(std::string const& type_name,
                                             std::string const& name,
                                             config_block_sptr config,
@@ -174,6 +177,7 @@ public:
    * \param     name        An identifying name for the nested algorithm.
    * \param     config  The \c config_block to check.
    */
+  VITAL_ALGO_DEPRECATED
   static bool check_nested_algo_configuration(std::string const& type_name,
                                               std::string const& name,
                                               config_block_sptr config);
@@ -241,6 +245,13 @@ public:
   static base_sptr create(std::string const& impl_name);
 
   /// Return a vector of the impl_name of each registered implementation
+  /**
+   * This method returns a vector of strings with each string
+   * containing the name of the available implementation followed by
+   * the description.
+   *
+   * @return Vector of strings.
+   */
   static std::vector<std::string> registered_names();
 
   /// Return the name of this algorithm.
@@ -350,6 +361,24 @@ public:
 
   virtual ~algorithm_impl() = default;
 };
+
+
+// ----------------------------------------------------------------------------
+/// Create an algorithm from config block specification
+/**
+ * This method creates an algorithm whose base type is T with the
+ * concrete implementation specified by the 'type' entry in the
+ * config block. The algorithm is only created and not configured.
+ *
+ * \param config Configuration that contains the 'type' entry.
+ *
+ * \return New algorithm implementation object.
+ * \throws no_such_configuration_value_exception - if the 'type' entry is not in the config block.
+ * \throws invalid_name_exception - if there is no implementation with the desired name.
+ */
+template <class T>
+std::shared_ptr<T>
+create_algorithm( config_block_sptr config );
 
 
 } // end namespace vital

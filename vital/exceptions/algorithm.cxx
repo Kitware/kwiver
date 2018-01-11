@@ -39,6 +39,7 @@
 namespace kwiver {
 namespace vital {
 
+// ----------------------------------------------------------------------------
 algorithm_exception
 ::algorithm_exception(std::string type,
                       std::string impl,
@@ -59,6 +60,8 @@ algorithm_exception
 {
 }
 
+
+// ----------------------------------------------------------------------------
 algorithm_configuration_exception
 ::algorithm_configuration_exception(std::string type,
                                     std::string impl,
@@ -77,6 +80,8 @@ algorithm_configuration_exception
 {
 }
 
+
+// ----------------------------------------------------------------------------
 invalid_name_exception
 ::invalid_name_exception(std::string type,
                          std::string impl) noexcept

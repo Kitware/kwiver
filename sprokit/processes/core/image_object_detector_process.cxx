@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016-2017 by Kitware, Inc.
+ * Copyright 2016-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,8 @@
 
 namespace kwiver {
 
-create_config_trait( detector, std::string, "", "Algorithm configuration subblock" );
+create_config_trait( detector, std::string, "", "Algorithm configuration subblock.\n"
+  "Must have 'type = ' entry to specify the detector implementation.");
 
 //----------------------------------------------------------------
 // Private implementation class
@@ -76,19 +77,23 @@ _configure()
 {
   scoped_configure_instrumentation();
 
-  vital::config_block_sptr algo_config = get_config();
+  vital::config_block_sptr algo_config = get_config()->subblock( "detector" );
+
+  d->m_detector = kwiver::vital::create_algorithm<vital::algo::image_object_detector>( algo_config );
+
+  // Start with the algo default config and merge in the pipeline
+  // config overwriting values but leaving those that are not
+  // specified as the defaults.
+  vital::config_block_sptr inst_config = d->m_detector->get_configuration();
+  inst_config->merge_config( algo_config );
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! vital::algo::image_object_detector::check_nested_algo_configuration( "detector", algo_config ) )
+  if ( ! d->m_detector->check_configuration( inst_config ) )
   {
     throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
   }
 
-  vital::algo::image_object_detector::set_nested_algo_configuration( "detector", algo_config, d->m_detector );
-  if ( ! d->m_detector )
-  {
-    throw sprokit::invalid_configuration_exception( name(), "Unable to create detector" );
-  }
+  d->m_detector->set_configuration( inst_config );
 }
 
 
