@@ -550,7 +550,34 @@ save_chip( std::string filename, cv::Mat image )
     double sf = start + 2 * m_random_int_shift * rand_uniform;
 
     cv::Mat scaled_image = image * sf;
-    cv::imwrite( filename, scaled_image );
+
+    // Shift Hue
+    cv::Mat hsv_image, shifted_image;
+
+    cv::cvtColor( scaled_image, hsv_image, CV_BGR2HSV );
+
+    double rand_shift = 180.0 * ( rand() / ( RAND_MAX + 1.0 ) );
+
+    for( unsigned i = 0; i < scaled_image.cols; ++i )
+    {
+      for( unsigned j = 0; j < scaled_image.rows; ++j )
+      {
+        const unsigned cc = 0;
+
+        if( rand_shift + hsv_image.at<cv::Vec3b>(j,i)[cc] > 180 )
+        {
+          hsv_image.at<cv::Vec3b>(j,i)[cc] = rand_shift + hsv_image.at<cv::Vec3b>(j,i)[cc] - 180;
+        }
+        else
+        {
+          hsv_image.at<cv::Vec3b>(j,i)[cc] = rand_shift + hsv_image.at<cv::Vec3b>(j,i)[cc];
+        }
+      }
+    }
+
+    cv::cvtColor( hsv_image, shifted_image, CV_HSV2BGR );
+
+    cv::imwrite( filename, shifted_image );
   }
   else
   {
