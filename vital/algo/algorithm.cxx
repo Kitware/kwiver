@@ -166,7 +166,7 @@ algorithm
     const std::string iname = config->get_value< std::string > ( type_key );
     if ( has_algorithm_impl_name( type_name, iname ) )
     {
-      nested_algo = create_algorithm( type_name, iname );;
+      nested_algo = create_algorithm( type_name, iname );
       nested_algo->set_configuration(
         config->subblock_view( name + config_block::block_sep + iname )
                                     );

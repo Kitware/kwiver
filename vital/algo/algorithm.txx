@@ -45,6 +45,10 @@
 
 #include <vital/algo/algorithm_factory.h>
 #include <vital/exceptions/algorithm.h>
+#include <vital/config/config_block_exception.h>
+#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/logger/logger.h>
+
 
 namespace kwiver {
 namespace vital {
@@ -73,12 +77,22 @@ algorithm_def< Self >
 
   for( auto fact : fact_list )
   {
-    std::string attr_val;
-    if (fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, attr_val ) )
+    std::string entry = "\n\t- ";
+    std::string reg_name;
+    if ( ! a_fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, reg_name ) )
     {
-      names.push_back( attr_val );
+      continue;
     }
-  }
+
+    entry.append( reg_name );
+    std::string tmp_d;
+    if ( a_fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, tmp_d ) )
+    {
+      entry.append( " :: " + tmp_d );
+    }
+
+    names.push_back( entry );
+  } // end for
 
   return names;
 }
@@ -129,8 +143,53 @@ algorithm_def< Self >
 }
 
 
+// ----------------------------------------------------------------------------
+template <class T>
+std::shared_ptr<T>
+create_algorithm( config_block_sptr config )
+{
+  kwiver::vital::logger_handle_t logger( kwiver::vital::get_logger( "vital.algorithm" ) );
+
+  // Look through the copnfig block for the "type" entry
+  std::string impl_name = config->get_value< std::string >( "type" );
+
+  try
+  {
+    returnkwiver::vital::create<T>( impl_name );
+  }
+  catch ( xxx )
+  {
+
+  }
+
+  // The desired algorithm (factory) could not be found
+  std::stringstream msg;
+  msg << "Could not find implementation \"" << impl_name
+      << "\" for \"" <<  T::static_type_name() << "\"";
+
+  // Add line number if known
+  std::string file;
+  int line(0);
+  if ( config->get_location( "type", file, line ) )
+  {
+    msg << " as requested from "
+        << file << ":" << line;
+  }
+
+  msg << "\nAvailable implementations are: \n";
+
+  auto impl_name_list = registered_names();
+
+  for( const auto n : impl_name_list )
+  {
+    msg << "\n\t- " << n;
+  } // end for
+
+  LOG_WARN( logger, msg.str() );
+  throw kwiver::vital::invalid_name_exception(T::static_type_name(), impl_name  );
 }
-}     // end namespace
+
+} }     // end namespace
 
 
 /// \cond DoxygenSuppress
