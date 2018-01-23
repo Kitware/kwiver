@@ -49,6 +49,7 @@
 #include "homography_ref_to_src_to_homography_process.h"
 #include "image_file_reader_process.h"
 #include "image_filter_process.h"
+#include "image_test_process.h"
 #include "image_object_detector_process.h"
 #include "image_warp_process.h"
 #include "image_writer_process.h"
@@ -173,6 +174,12 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 
   fact = vpm.ADD_PROCESS( kwiver::image_filter_process );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "image_filter" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Apply selected image filter algorithm to incoming images." );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
+  fact = vpm.ADD_PROCESS( kwiver::image_test_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "image_test" );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Apply selected image filter algorithm to incoming images." );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
