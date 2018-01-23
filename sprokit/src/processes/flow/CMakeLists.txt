@@ -4,6 +4,7 @@ set(flow_srcs
   collate_process.cxx
   distribute_process.cxx
   mux_process.cxx
+  gate_process.cxx
   pass_process.cxx
   registration.cxx
   sink_process.cxx)
@@ -13,6 +14,7 @@ set(flow_private_headers
   distribute_process.h
   mux_process.h
   flow-config.h
+  gate_process.h
   pass_process.h
   sink_process.h)
 

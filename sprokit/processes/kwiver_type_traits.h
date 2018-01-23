@@ -136,6 +136,7 @@ create_port_trait( detection_time, time_interval_sec, "Elapsed time for this det
 
 create_port_trait( coordinate_system_updated, kwiver_logical, "Set to true if new reference frame is established." );
 create_port_trait( image_test_passed, kwiver_logical, "True or False" );
+create_port_trait( kwiver_logical, kwiver_logical, "True or False" );
 create_port_trait( motion_heat_map, image, "Motion heat map." );
 
 #endif // KWIVER_VITAL_TYPE_TRAITS_H
