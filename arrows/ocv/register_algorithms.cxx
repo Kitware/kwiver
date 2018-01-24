@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,6 +65,8 @@
 #include <arrows/ocv/feature_detect_extract_SURF.h>
 #include <arrows/ocv/filter_gaussian_blur.h>
 #include <arrows/ocv/filter_blur.h>
+#include <arrows/ocv/image_test_count_nonzero.h>
+#include <arrows/ocv/filter_inrange.h>
 #include "arrows/ocv/heat_map_bounding_boxes.h"
 #include <arrows/ocv/image_io.h>
 #include <arrows/ocv/match_features_bruteforce.h>
@@ -155,7 +157,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     ;
-  
+
     fact = vpm.ADD_ALGORITHM( "ocv_stretch_contrast", kwiver::arrows::ocv::stretch_contrast );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                     "Apply a piecewise-linear transformation to an image's intensities." )
@@ -252,7 +254,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     ;
-  
+
   fact = vpm.ADD_ALGORITHM( "ocv_gaussian_blur", kwiver::arrows::ocv::filter_gaussian_blur );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                        "OpenCV Gaussian blur algorithm" )
@@ -260,10 +262,26 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     ;
-  
+
   fact = vpm.ADD_ALGORITHM( "ocv_blur", kwiver::arrows::ocv::filter_blur );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                        "OpenCV blur using the normalized box filter" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
+
+  fact = vpm.ADD_ALGORITHM( "ocv_inrange", kwiver::arrows::ocv::filter_inrange );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "OpenCV inRange to create a mask of pixels in the specified range" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
+
+  fact = vpm.ADD_ALGORITHM( "ocv_count_nonzero", kwiver::arrows::ocv::image_test_count_nonzero );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "OpenCV countNonZero" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
@@ -303,7 +321,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     ;
-  
+
   fact = vpm.ADD_ALGORITHM( "ocv_MOG2", kwiver::arrows::ocv::motion_detector_MOG2 );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                     "OpenCV Gaussian mixture-based background segmentation." )
@@ -311,7 +329,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     ;
-  
+
   fact = vpm.ADD_ALGORITHM( "ocv_3frame_diff", kwiver::arrows::ocv::three_frame_differencing );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                     "OpenCV three-frame differencing background segmentation." )

@@ -28,12 +28,14 @@ set( ocv_headers_public
   feature_detect_extract_ORB.h
   feature_detect_extract_SIFT.h
   feature_detect_extract_SURF.h
-  filter_gaussian_blur.h
   filter_blur.h
+  filter_gaussian_blur.h
+  filter_inrange.h
   heat_map_bounding_boxes.h
   hough_circle_detector.h
   image_container.h
   image_io.h
+  image_test_count_nonzero.h
   mat_image_memory.h
   match_features.h
   match_features_bruteforce.h
@@ -83,10 +85,12 @@ set( ocv_sources
   feature_detect_extract_ORB.cxx
   feature_detect_extract_SIFT.cxx
   feature_detect_extract_SURF.cxx
-  filter_gaussian_blur.cxx
   filter_blur.cxx
+  filter_gaussian_blur.cxx
+  filter_inrange.cxx
   image_container.cxx
   image_io.cxx
+  image_test_count_nonzero.cxx
   mat_image_memory.cxx
   match_features.cxx
   match_features_bruteforce.cxx

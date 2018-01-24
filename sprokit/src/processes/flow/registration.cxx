@@ -35,6 +35,7 @@
 #include "collate_process.h"
 #include "distribute_process.h"
 #include "pass_process.h"
+#include "gate_process.h"
 #include "sink_process.h"
 #include "mux_process.h"
 
@@ -71,6 +72,12 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact = vpm.ADD_PROCESS( sprokit::pass_process );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "pass" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Pass a data stream through" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
+  fact = vpm.ADD_PROCESS( sprokit::gate_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "gate" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Route a data stream based on a test" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 

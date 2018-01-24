@@ -37,6 +37,7 @@ set( public_headers
   geo_map.h
   image_descriptor_generator.h
   image_filter.h
+  image_test.h
   image_io.h
   image_object_detector.h
   initialize_cameras_landmarks.h
@@ -86,6 +87,7 @@ set( sources
   geo_map.cxx
   image_descriptor_generator.cxx
   image_filter.cxx
+  image_test.cxx
   image_io.cxx
   image_object_detector.cxx
   initialize_cameras_landmarks.cxx
