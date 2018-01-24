@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,7 +22,7 @@
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER544
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -186,34 +186,18 @@ filter( kwiver::vital::image_container_sptr image_data )
   LOG_TRACE( logger(), "Starting algorithm" );
   d_->m_timer.start();
 
-  if ( !image_data )
-  {
-    throw vital::invalid_data("Inputs to ocv::filter_inrange are null");
-  }
-
   cv::Mat cv_src = ocv::image_container::vital_to_ocv( image_data->get_image() );
 
   if( cv_src.channels() == 1 )
   {
     // TODO: Figure out why this is necessary. Something is wrong with
     // vital_to_ocv for grayscale images.
+    // See issue: https://github.com/Kitware/kwiver/issues/269
     cv_src = cv_src.clone();
   }
-  LOG_DEBUG(logger(), "Image Size: " << cv_src.size());
-  LOG_DEBUG(logger(), "Image Depth: " << cv_src.depth());
-  LOG_DEBUG(logger(), "Image Channels: " << cv_src.channels());
-  LOG_DEBUG(logger(), "Pixel at (150,61): " << cv_src.at<cv::Vec3b>(61,150));
-  LOG_DEBUG(logger(), "Pixel at (666,44): " << cv_src.at<cv::Vec3b>(44,666));
 
   cv::Mat cv_dest;
   d_->filter( cv_src, cv_dest );
-  LOG_DEBUG(logger(), "Destination number of channels " << cv_dest.channels());
-
-#if 0
-  cv::namedWindow( "Display window", cv::WINDOW_AUTOSIZE );// Create a window for display.
-  cv::imshow( "Display window", cv_src );                   // Show our image inside it.
-  cv::waitKey(0);
-#endif
 
   cv_dest = cv_dest.clone();
   LOG_DEBUG(logger(), "Nonzero pixels in dest: " << cv::countNonZero(cv_dest));

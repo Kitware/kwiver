@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
 
 /**
  * \file
- * \brief OCV implementation of Gaussian blur
+ * \brief OCV implementation test the number of nonZero pixels in an image
  */
 
 #ifndef KWIVER_ARROWS_OCV_IMAGE_TEST_NONZERO_COUNT_H_
@@ -48,7 +48,7 @@ namespace kwiver {
 namespace arrows {
 namespace ocv {
 
-/// OCV implementation of a normalized box filter using cv::blur
+/// OCV implementation of test to test the number of non-zero pixels in an image
 class KWIVER_ALGO_OCV_EXPORT image_test_count_nonzero
   : public vital::algorithm_impl<image_test_count_nonzero, vital::algo::image_test>
 {
@@ -66,14 +66,15 @@ public:
   /// Check that the algorithm's configuration vital::config_block is valid
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
-  /// Test an image an image mask for a proportion of mask bits
+  /// Test an image an image mask for number of nonZero pixels
   /**
    * This method implements the test.  Using ocv::countNonZero
-   * determine if the proportion of non-zero pixels is >= a specified
-   * threshold.  Set true if so.
+   * determine if the number of non-zero pixels is > a minimum
+   * and/or less than a maximum
+   * Set true if so.
    *
    * \param[in] image_data Image to filter.
-   * \returns true if non zero pixels is > proportion
+   * \returns true if non zero pixels is > min and/or less than max
    */
    bool test_image( kwiver::vital::image_container_sptr image_data );
 
