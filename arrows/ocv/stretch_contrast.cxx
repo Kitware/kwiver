@@ -214,12 +214,6 @@ public:
           // value, f = u*(1-1/256)/255 + 1/512 and u = 256*f - 1/2
           src_intensities[i] = src_intensities[i]*256 - 0.5;
           dst_intensities[i] = dst_intensities[i]*256 - 0.5;
-          std::cout << "Source intensity for percentile " << 
-                  m_to_percentiles[i] << " is " << src_intensities[i] <<
-                  std::endl;
-          std::cout << "Destination intensity for percentile " <<
-                  m_to_percentiles[i] << " is " << dst_intensities[i] <<
-                  std::endl;
         }
         
         // Build a lookup table that represents a piece-wise linear extension of
@@ -238,8 +232,6 @@ public:
           s2 = src_intensities[i+1];
           d1 = dst_intensities[i];
           d2 = dst_intensities[i+1];
-          std::cout << "s1,s2,d1,d2: " << s1 << "," << s2 << ","  << d1 << ","
-                  << d2 << std::endl;
           
           // Define line d = m*s + b mapping source intensity to destination
           // intensity.
@@ -264,21 +256,12 @@ public:
             s2 = std::floor( s2 );
           }
           
-          std::cout << "Updated s1,s2: " << s1 << "," << s2 << std::endl;
-          
           for( int s = s1; s <= s2 ; ++s)
           {
             // In this case, s is the source intensity under consideration.
             p[s] = cv::saturate_cast<uchar>( std::round( s*m + b ) );
           }
         }
-        
-        std::cout << "LUT: ";
-        for( int i = 0; i < 256 ; ++i)
-        {
-          std::cout << static_cast<unsigned>(p[i]) << ",";
-        }
-        std::cout << std::endl;
 
         cv::LUT( src, lookup_table, dst );
       }
@@ -448,7 +431,7 @@ filter( kwiver::vital::image_container_sptr img )
     throw vital::invalid_data("Inputs to ocv::stretch_contrast are null");
   }
 
-  LOG_TRACE( logger(), "Received image ([" + std::to_string(img->width()) +
+  LOG_TRACE( logger(), "Received image [" + std::to_string(img->width()) +
              ", " + std::to_string(img->height()) + ", " +
              std::to_string(img->depth()) + "]");
 

@@ -217,6 +217,7 @@ motion_detector_MOG2
   
   if( reset_model )
   {
+    LOG_TRACE( logger(), "Received command to reset background model");
     d_->reset();
   }
 
