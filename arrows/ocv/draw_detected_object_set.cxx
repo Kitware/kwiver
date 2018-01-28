@@ -69,7 +69,7 @@ public:
   priv()
     : m_config_error( false )
     , m_threshold( -1 )
-    , m_do_alpha( true )
+    , m_do_alpha( false )
     , m_text_scale( 0.4 )
     , m_text_thickness( 1.0 )
     , m_clip_box_to_image( false )
@@ -149,9 +149,6 @@ public:
                  bool                         just_text = false,
                  int                          offset_index = 0 ) const
   {
-    cv::Mat overlay;
-
-    image.copyTo( overlay );
     vital::bounding_box_d bbox = dos->bounding_box();
     if ( m_clip_box_to_image )
     {
@@ -160,17 +157,11 @@ public:
                                  vital::bounding_box_d::vector_type( s.width, s.height ) );
       bbox = intersection( img, bbox );
     }
-
+    
     // Make CV rect for out bbox coordinates
     cv::Rect r( bbox.upper_left()[0], bbox.upper_left()[1], bbox.width(), bbox.height() );
     std::string p = std::to_string( static_cast<long double>( prob ) ); // convert value to string
     std::string txt = label + " " + p;
-
-    // Clip threshold to limit value. If less than 0.05, leave threshold as it is.
-    // Else lower by 5%. This is a heuristic for making the alpha shading look good.
-    double tmp_thresh = ( this->m_threshold - ( ( this->m_threshold >= 0.05 ) ? 0.05 : 0 ) );
-
-    double alpha_wight =  ( m_do_alpha ) ? ( ( prob - tmp_thresh ) / ( 1 - tmp_thresh ) ) : 1.0;
 
     Bound_Box_Params const* bbp = &m_default_params;
     auto iter = m_custum_colors.find( label );
@@ -179,6 +170,20 @@ public:
     if ( iter != m_custum_colors.end() )
     {
       bbp = &( iter->second );
+    }
+    
+    cv::Mat overlay;
+    if( m_do_alpha )
+    {
+      // TODO: copying the entire image just to do the alpha blending is very
+      // innefficient and can cause major slowdown for large images and lots of
+      // bounding boxes
+      image.copyTo( overlay );
+    }
+    else
+    {
+      // Write annotations directly to the image
+      overlay = image;
     }
 
     // Add text to an existing box
@@ -203,7 +208,15 @@ public:
       cv::putText( overlay, txt, pt, fontface, scale, cv::Scalar( 255, 255, 255 ), thickness, 8 );
     }
 
-    cv::addWeighted( overlay, alpha_wight, image, 1 - alpha_wight, 0, image );
+    if( m_do_alpha )
+    {
+      // Clip threshold to limit value. If less than 0.05, leave threshold as it
+      // is. Else lower by 5%. This is a heuristic for making the alpha shading
+      // look good.
+      double tmp_thresh = ( this->m_threshold - ( ( this->m_threshold >= 0.05 ) ? 0.05 : 0 ) );
+      double alpha =  ( prob - tmp_thresh ) / ( 1 - tmp_thresh );
+      cv::addWeighted( overlay, alpha, image, 1 - alpha, 0, image );
+    }
   } // draw_box
 
 

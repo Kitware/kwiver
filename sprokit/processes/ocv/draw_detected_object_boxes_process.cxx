@@ -90,7 +90,7 @@ static const int multi_label_offset(15);
 typedef  Eigen::Matrix< unsigned int, 3, 1 > ColorVector;
 
 create_config_trait( threshold, float, "-1", "min probability for output (float)" );
-create_config_trait( alpha_blend_prob, bool, "true", "If true, those who are less likely will be more transparent." );
+create_config_trait( alpha_blend_prob, bool, "false", "If true, those who are less likely will be more transparent." );
 create_config_trait( default_line_thickness, float, "1", "The default line thickness for a class" );
 create_config_trait( default_color, std::string, "255 0 0", "The default color for a class (BGR)" );
 create_config_trait( custom_class_color, std::string, "",
@@ -249,7 +249,7 @@ public:
    *
    * @param[in,out] image Input image updated with drawn box
    * @param[in] dos detected object with bounding box
-   * @param tmpT
+   * @param tmpT Controls the alpha blending
    * @param label Text label to use for box
    * @param prob Probability value to add to label text
    * @param just_text Set to true if only draw text, not the bounding box. This is used
@@ -265,23 +265,34 @@ public:
                  bool                         just_text = false,
                  int                          offset = multi_label_offset ) const
   {
-    cv::Mat overlay;
-
-    image.copyTo( overlay );
     auto bbox = dos->bounding_box();
 
     if ( m_clip_box_to_image )
     {
       cv::Size s = image.size();
-      vital::bounding_box_d img( vital::vector_2d( 0, 0 ),
+      vital::bounding_box_d img_border( vital::vector_2d( 0, 0 ),
                                  vital::vector_2d( s.width, s.height ) );
-      bbox = intersection( img, bbox );
+      bbox = intersection( img_border, bbox );
+    }
+    
+    cv::Mat overlay;
+    if( m_do_alpha )
+    {
+      // TODO: copying the entire image just to do the alpha blending is very
+      // innefficient and can cause major slowdown for large images and lots of
+      // bounding boxes
+      image.copyTo( overlay );
+    }
+    else
+    {
+      // Write annotations directly to the image
+      overlay = image;
     }
 
     cv::Rect r( bbox.upper_left()[0], bbox.upper_left()[1], bbox.width(), bbox.height() );
     std::string p = std::to_string( prob );
     std::string txt = label + " " + p;
-    prob =  ( m_do_alpha ) ? ( ( prob - tmpT ) / ( 1 - tmpT ) ) : 1.0;
+    
     Bound_Box_Params const* bbp = &m_default_params;
     std::map< std::string, Bound_Box_Params >::const_iterator iter = m_custum_colors.find( label );
 
@@ -311,7 +322,12 @@ public:
       cv::putText( overlay, txt, pt, fontface, scale, cv::Scalar( 255, 255, 255 ), thickness, 8 );
     }
 
-    cv::addWeighted( overlay, prob, image, 1 - prob, 0, image );
+    if( m_do_alpha )
+    {
+      double alpha = ( ( prob - tmpT ) / ( 1 - tmpT ) );
+      double beta = 1 - alpha;
+      cv::addWeighted( overlay, alpha, image, beta, 0, image );
+    }
   } // draw_box
 
 
@@ -520,8 +536,12 @@ draw_detected_object_boxes_process::_step()
 
   push_to_port_using_trait( image, result );
   double elapsed_time = d->m_timer.elapsed();
+  if( d->m_do_alpha )
+  {
+    LOG_DEBUG( logger(), "Alpha probability blending is turned on, which can "
+               "cause slowed operation");
+  }
   LOG_DEBUG( logger(), "Total processing time: " << elapsed_time );
-  std::cout << "HERE!!!" << std::endl;
 }
 
 
