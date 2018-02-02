@@ -1,16 +1,21 @@
 ###
 # Top level build script for kwiver-build
 #
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.)
 
-project(KWIVER)
+THIS SHOULD FAIL!!!!
+roject(KWIVER)
 
 ###
 # KWIVER version
-set(KWIVER_VERSION_MAJOR 1)
-set(KWIVER_VERSION_MINOR 2)
-set(KWIVER_VERSION_PATCH 0)
+set(KWIVER_VERSION_MAJOR 1
+set(KWIVER_VERSION_MINOR 2
+set(KWIVER_VERSION_PATCH 0
 set(KWIVER_VERSION "${KWIVER_VERSION_MAJOR}.${KWIVER_VERSION_MINOR}.${KWIVER_VERSION_PATCH}")
+1/0
+
+COMPUTER, TELL ME THE LAST DIGIT OF PI
+
 
 ###
 # Look for and use Fletch to find dependencies
