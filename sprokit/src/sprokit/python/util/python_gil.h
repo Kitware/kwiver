@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2012 by Kitware, Inc.
+ * Copyright 2011-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,10 +37,13 @@
 
 #include <sprokit/python/util/python.h>
 
+#include <pybind11/pybind11.h>
+#include <pybind11/cast.h>
+
 /**
  * \file python_gil.h
  *
- * \brief RAII class for grabbing the Python GIL.
+ * \brief Helper utilities for grabbing the Python GIL.
  */
 
 namespace sprokit {
@@ -49,7 +52,7 @@ namespace python {
 /**
  * \class python_gil python_gil.h <sprokit/python/util/python_gil.h>
  *
- * \brief Grabs the Python GIL and uses RAII to ensure it is released.
+ * \brief Deprecated - Grabs the Python GIL and uses RAII to ensure it is released.
  */
 class SPROKIT_PYTHON_UTIL_EXPORT python_gil
   : private kwiver::vital::noncopyable
@@ -66,6 +69,33 @@ class SPROKIT_PYTHON_UTIL_EXPORT python_gil
   private:
     PyGILState_STATE const state;
 };
+
+/**
+ * \brief Grabs the Python GIL using pybind11 after releasing it, but only if we're
+ * in a pythread. If we're not in a pythread, the lock is acquired without release.
+ */
+#define SCOPED_GIL_RELEASE_AND_ACQUIRE( ACTION_TO_PERFORM )                       \
+  if( pybind11::detail::get_thread_state_unchecked() != NULL )                    \
+  {                                                                               \
+    pybind11::gil_scoped_release release;                                         \
+    {                                                                             \
+      pybind11::gil_scoped_acquire acquire;                                       \
+                                                                                  \
+      (void) release;                                                             \
+      (void) acquire;                                                             \
+                                                                                  \
+      ACTION_TO_PERFORM                                                           \
+    }                                                                             \
+  }                                                                               \
+  else                                                                            \
+  {                                                                               \
+    pybind11::gil_scoped_acquire acquire;                                         \
+                                                                                  \
+    (void) acquire;                                                               \
+                                                                                  \
+    ACTION_TO_PERFORM                                                             \
+  }
+
 
 }
 }
