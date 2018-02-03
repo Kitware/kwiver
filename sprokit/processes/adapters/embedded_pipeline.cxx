@@ -151,6 +151,7 @@ embedded_pipeline
     cur_file = ST::GetCurrentWorkingDirectory();
   }
 
+  sprokit::process::set_gil_lock_cycle( true );
   builder.load_pipeline( istr, cur_file + "/in-stream" );
 
   // build pipeline

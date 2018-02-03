@@ -74,8 +74,8 @@ class SPROKIT_PYTHON_UTIL_EXPORT python_gil
  * \brief Grabs the Python GIL using pybind11 after releasing it, but only if we're
  * in a pythread. If we're not in a pythread, the lock is acquired without release.
  */
-#define SCOPED_GIL_RELEASE_AND_ACQUIRE( ACTION_TO_PERFORM )                       \
-  if( pybind11::detail::get_thread_state_unchecked() != NULL )                    \
+#define PYBIND_COND_GIL_RELEASE_AND_ACQUIRE( ACTION_TO_PERFORM, EXTRA_CHECK )     \
+  if( EXTRA_CHECK && pybind11::detail::get_thread_state_unchecked() != NULL )     \
   {                                                                               \
     pybind11::gil_scoped_release release;                                         \
     {                                                                             \
@@ -96,6 +96,8 @@ class SPROKIT_PYTHON_UTIL_EXPORT python_gil
     ACTION_TO_PERFORM                                                             \
   }
 
+#define PYBIND_ALWAYS_GIL_RELEASE_AND_ACQUIRE( ACTION_TO_PERFORM )                \
+  PYBIND_ALWAYS_GIL_RELEASE_AND_ACQUIRE( ACTION_TO_PERFORM, TRUE )
 
 }
 }

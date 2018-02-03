@@ -529,12 +529,13 @@ void
 process_trampoline
 ::_configure()
 {
-  SCOPED_GIL_RELEASE_AND_ACQUIRE(
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       void,
       process,
       _configure,
-    );
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -575,14 +576,13 @@ void
 process_trampoline
 ::_step()
 {
-  pybind11::gil_scoped_acquire acquire;
-
-  (void) acquire;
-
-  PYBIND11_OVERLOAD(
-    void,
-    process,
-    _step,
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      void,
+      process,
+      _step,
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -644,13 +644,14 @@ sprokit::process::port_info_t
 process_trampoline
 ::_input_port_info(port_t const& port)
 {
-  SCOPED_GIL_RELEASE_AND_ACQUIRE(
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       sprokit::process::port_info_t,
       process,
       _input_port_info,
       port
-    );
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -658,13 +659,14 @@ sprokit::process::port_info_t
 process_trampoline
 ::_output_port_info(port_t const& port)
 {
-  SCOPED_GIL_RELEASE_AND_ACQUIRE(
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       sprokit::process::port_info_t,
       process,
       _output_port_info,
       port
-    );
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
