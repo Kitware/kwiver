@@ -178,13 +178,17 @@ bake_pipe_file(std::string const& path)
 sprokit::pipeline_t
 bake_pipe(object stream)
 {
-  sprokit::python::python_gil const gil;
+  pybind11::gil_scoped_release release;
+  {
+    pybind11::gil_scoped_acquire acquire;
 
-  (void)gil;
+    (void) release;
+    (void) acquire;
 
-  sprokit::python::pyistream istr(stream);
+    sprokit::python::pyistream istr(stream);
 
-  return sprokit::bake_pipe(istr);
+    return sprokit::bake_pipe(istr);
+  }
 }
 
 
@@ -200,11 +204,15 @@ bake_cluster_file(std::string const& path)
 sprokit::cluster_info_t
 bake_cluster(object stream)
 {
-  sprokit::python::python_gil const gil;
+  pybind11::gil_scoped_release release;
+  {
+    pybind11::gil_scoped_acquire acquire;
 
-  (void)gil;
+    (void) release;
+    (void) acquire;
 
-  sprokit::python::pyistream istr(stream);
+    sprokit::python::pyistream istr(stream);
 
-  return sprokit::bake_cluster(istr);
+    return sprokit::bake_cluster(istr);
+  }
 }

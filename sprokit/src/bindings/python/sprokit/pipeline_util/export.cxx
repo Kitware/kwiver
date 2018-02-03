@@ -60,11 +60,15 @@ PYBIND11_MODULE(export_, m)
 void
 export_dot(object const& stream, sprokit::pipeline_t const pipe, std::string const& graph_name)
 {
-  sprokit::python::python_gil const gil;
+  pybind11::gil_scoped_release release;
+  {
+    pybind11::gil_scoped_acquire acquire;
 
-  (void)gil;
+    (void) release;
+    (void) acquire;
 
-  sprokit::python::pyostream ostr(stream);
+    sprokit::python::pyostream ostr(stream);
 
-  return sprokit::export_dot(ostr, pipe, graph_name);
+    return sprokit::export_dot(ostr, pipe, graph_name);
+  }
 }

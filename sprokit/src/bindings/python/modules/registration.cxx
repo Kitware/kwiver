@@ -107,11 +107,15 @@ register_factories(kwiver::vital::plugin_loader& vpm)
 
   _load_python_library_symbols();
 
-  sprokit::python::python_gil const gil;
+  py::gil_scoped_release release;
+  {
+    py::gil_scoped_acquire acquire;
 
-  (void)gil;
+    (void) release;
+    (void) acquire;
 
-  SPROKIT_PYTHON_IGNORE_EXCEPTION(load())
+    SPROKIT_PYTHON_IGNORE_EXCEPTION(load())
+  }
 }
 
 

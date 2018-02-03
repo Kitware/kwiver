@@ -61,25 +61,29 @@ std::streamsize
 pyistream_device
 ::read(char_type* s, std::streamsize n)
 {
-  python::python_gil const gil;
-
-  (void)gil;
-
-  pybind11::str const bytes = pybind11::str(m_obj.attr("read")(n));
-
-  pybind11::ssize_t const sz = len(bytes);
-
-  if (sz)
+  pybind11::gil_scoped_release release;
   {
-    std::string const cppstr = bytes.cast<std::string>();
+    pybind11::gil_scoped_acquire acquire;
 
-    std::copy(cppstr.begin(), cppstr.end(), s);
+    (void) release;
+    (void) acquire;
 
-    return sz;
-  }
-  else
-  {
-    return -1;
+    pybind11::str const bytes = pybind11::str(m_obj.attr("read")(n));
+
+    pybind11::ssize_t const sz = len(bytes);
+
+    if (sz)
+    {
+      std::string const cppstr = bytes.cast<std::string>();
+
+      std::copy(cppstr.begin(), cppstr.end(), s);
+
+      return sz;
+    }
+    else
+    {
+      return -1;
+    }
   }
 }
 
@@ -99,15 +103,19 @@ std::streamsize
 pyostream_device
 ::write(char_type const* s, std::streamsize n)
 {
-  python::python_gil const gil;
+  pybind11::gil_scoped_release release;
+  {
+    pybind11::gil_scoped_acquire acquire;
 
-  (void)gil;
+    (void) release;
+    (void) acquire;
 
-  pybind11::str const bytes(s, static_cast<size_t>(n));
+    pybind11::str const bytes(s, static_cast<size_t>(n));
 
-  m_obj.attr("write")(bytes);
+    m_obj.attr("write")(bytes);
 
-  return n;
+    return n;
+  }
 }
 
 }

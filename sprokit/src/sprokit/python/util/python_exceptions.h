@@ -71,13 +71,17 @@ namespace python {
   }                                                               \
   catch (std::exception const& e)                                 \
   {                                                               \
-    sprokit::python::python_gil const gil;                        \
+    pybind11::gil_scoped_release release;                         \
+    {                                                             \
+      pybind11::gil_scoped_acquire acquire;                       \
                                                                   \
-    (void)gil;                                                    \
+      (void) release;                                             \
+      (void) acquire;                                             \
                                                                   \
-    PyErr_SetString(PyExc_RuntimeError, e.what());                \
+      PyErr_SetString(PyExc_RuntimeError, e.what());              \
                                                                   \
-    throw;                                                        \
+      throw;                                                      \
+    }                                                             \
   }
 
 SPROKIT_PYTHON_UTIL_EXPORT void python_print_exception();
