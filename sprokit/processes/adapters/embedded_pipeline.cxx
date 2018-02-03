@@ -64,7 +64,7 @@ static kwiver::vital::config_block_key_t const scheduler_block = kwiver::vital::
 } // end
 
 
-namespace kwiver {
+namespace sprokit {
 
 typedef kwiversys::SystemTools ST;
 
@@ -102,7 +102,7 @@ public:
   bool connect_output_adapter();
 
 //---------------------------
-  vital::logger_handle_t m_logger;
+  kwiver::vital::logger_handle_t m_logger;
   bool m_at_end;
   bool m_pipeline_started;
   bool m_input_adapter_connected;
@@ -414,4 +414,4 @@ connect_output_adapter()
 }
 
 
-} // end namespace kwiver
+} // end namespace sprokit

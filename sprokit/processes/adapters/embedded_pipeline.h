@@ -45,7 +45,7 @@
 #include <istream>
 #include <string>
 
-namespace kwiver {
+namespace sprokit {
 
 // -----------------------------------------------------------------
 /**
