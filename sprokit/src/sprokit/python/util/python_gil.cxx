@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2012 by Kitware, Inc.
+ * Copyright 2011-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,16 +36,22 @@ namespace sprokit
 namespace python
 {
 
-python_gil
-::python_gil()
-  : state(PyGILState_Ensure())
+python_gil_cond_release
+::python_gil_cond_release()
 {
+  if( _PyThreadState_Current &&
+      _PyThreadState_Current == PyGILState_GetThisThreadState() )
+  {
+    std::unique_ptr< pybind11::gil_scoped_release > new_ptr(
+      new pybind11::gil_scoped_release() );
+
+    rel = std::move( new_ptr );
+  }
 }
 
-python_gil
-::~python_gil()
+python_gil_cond_release
+::~python_gil_cond_release()
 {
-  PyGILState_Release(state);
 }
 
 }

@@ -41,6 +41,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/cast.h>
 
+#include <memory>
+
 /**
  * \file python_gil.h
  *
@@ -51,24 +53,27 @@ namespace sprokit {
 namespace python {
 
 /**
- * \class python_gil python_gil.h <sprokit/python/util/python_gil.h>
+ * \class python_gil_cond_release python_gil.h <sprokit/python/util/python_gil.h>
  *
- * \brief Deprecated - Grabs the Python GIL and uses RAII to ensure it is released.
+ * \brief Releases the python gil if held by this thread for the duration this
+ * class is in scope, but only if this is a valid python thread otherwise this
+ * is a no-op.
  */
-class SPROKIT_PYTHON_UTIL_EXPORT python_gil
+class SPROKIT_PYTHON_UTIL_EXPORT python_gil_cond_release
   : private kwiver::vital::noncopyable
 {
   public:
     /**
      * \brief Constructor.
      */
-    python_gil();
+    python_gil_cond_release();
     /**
      * \brief Destructor.
      */
-    ~python_gil();
+    ~python_gil_cond_release();
+
   private:
-    PyGILState_STATE const state;
+    std::unique_ptr< pybind11::gil_scoped_release > rel;
 };
 
 /**
