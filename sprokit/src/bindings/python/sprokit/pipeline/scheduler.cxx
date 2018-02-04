@@ -107,7 +107,7 @@ void
 scheduler_trampoline
 ::_start()
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD_PURE(
       void,
       scheduler,
@@ -121,7 +121,7 @@ void
 scheduler_trampoline
 ::_wait()
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD_PURE(
       void,
       scheduler,
@@ -135,7 +135,7 @@ void
 scheduler_trampoline
 ::_pause()
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD_PURE(
       void,
       scheduler,
@@ -149,7 +149,7 @@ void
 scheduler_trampoline
 ::_resume()
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD_PURE(
       void,
       scheduler,
@@ -163,7 +163,7 @@ void
 scheduler_trampoline
 ::_stop()
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD_PURE(
       void,
       scheduler,

@@ -39,8 +39,7 @@ namespace python
 python_gil_cond_release
 ::python_gil_cond_release()
 {
-  if( _PyThreadState_Current &&
-      _PyThreadState_Current == PyGILState_GetThisThreadState() )
+  if( SPROKIT_IS_CURRENT_PYTHREAD )
   {
     std::unique_ptr< pybind11::gil_scoped_release > new_ptr(
       new pybind11::gil_scoped_release() );

@@ -529,7 +529,7 @@ void
 process_trampoline
 ::_configure()
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       void,
       process,
@@ -543,7 +543,7 @@ void
 process_trampoline
 ::_init()
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       void,
       process,
@@ -557,7 +557,7 @@ void
 process_trampoline
 ::_reset()
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       void,
       process,
@@ -571,7 +571,7 @@ void
 process_trampoline
 ::_flush()
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       void,
       process,
@@ -585,7 +585,7 @@ void
 process_trampoline
 ::_step()
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       void,
       process,
@@ -599,7 +599,7 @@ void
 process_trampoline
 ::_reconfigure(kwiver::vital::config_block_sptr const& config)
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       void,
       process,
@@ -614,7 +614,7 @@ sprokit::process::properties_t
 process_trampoline
 ::_properties_over() const
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       sprokit::process::properties_t,
       process,
@@ -637,7 +637,7 @@ sprokit::process::ports_t
 process_trampoline
 ::_input_ports() const
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       sprokit::process::ports_t,
       process,
@@ -651,7 +651,7 @@ sprokit::process::ports_t
 process_trampoline
 ::_output_ports() const
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       sprokit::process::ports_t,
       process,
@@ -665,7 +665,7 @@ sprokit::process::port_info_t
 process_trampoline
 ::_input_port_info(port_t const& port)
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       sprokit::process::port_info_t,
       process,
@@ -680,7 +680,7 @@ sprokit::process::port_info_t
 process_trampoline
 ::_output_port_info(port_t const& port)
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       sprokit::process::port_info_t,
       process,
@@ -695,7 +695,7 @@ bool
 process_trampoline
 ::_set_input_port_type(port_t const& port, port_type_t const& new_type)
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       bool,
       process,
@@ -710,7 +710,7 @@ bool
 process_trampoline
 ::_set_output_port_type(port_t const& port, port_type_t const& new_type)
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       bool,
       process,
@@ -725,7 +725,7 @@ kwiver::vital::config_block_keys_t
 process_trampoline
 ::_available_config() const
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       kwiver::vital::config_block_keys_t,
       process,
@@ -739,7 +739,7 @@ sprokit::process::conf_info_t
 process_trampoline
 ::_config_info(kwiver::vital::config_block_key_t const& key)
 {
-  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
     PYBIND11_OVERLOAD(
       sprokit::process::conf_info_t,
       process,

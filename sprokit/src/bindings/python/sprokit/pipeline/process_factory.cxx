@@ -184,7 +184,7 @@ register_process( sprokit::process::type_t const&        type,
                   sprokit::process::description_t const& desc,
                   object                                 obj )
 {
-  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
 
   python_process_wrapper const& wrap(obj);
 
@@ -198,7 +198,7 @@ register_process( sprokit::process::type_t const&        type,
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, desc )
     ;
 
-  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 
@@ -287,9 +287,8 @@ object
 python_process_wrapper
   ::operator()( kwiver::vital::config_block_sptr const& config )
 {
-  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
-
-  return m_obj( config );
-
-  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    return this->m_obj( config );,
+    true
+  );
 }

@@ -79,17 +79,17 @@ class SPROKIT_PYTHON_UTIL_EXPORT python_gil_cond_release
 /**
  * \brief Helper macros for warningless pybind11 GIL scoped acquisitions
  */
-#define PYBIND_SCOPED_GIL_ACQUIRE_START                                           \
+#define SPROKIT_SCOPED_GIL_ACQUIRE_START                                          \
   {                                                                               \
     pybind11::gil_scoped_acquire acquire;                                         \
                                                                                   \
     (void) acquire;
 
-#define PYBIND_SCOPED_GIL_ACQUIRE_END                                             \
+#define SPROKIT_SCOPED_GIL_ACQUIRE_END                                            \
   }
 
 
-#define PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START                               \
+#define SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START                              \
   {                                                                               \
     pybind11::gil_scoped_release release;                                         \
     {                                                                             \
@@ -98,9 +98,21 @@ class SPROKIT_PYTHON_UTIL_EXPORT python_gil_cond_release
       (void) release;                                                             \
       (void) acquire;
 
-#define PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END                                 \
+#define SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_END                                \
     }                                                                             \
   }
+
+/**
+ * \brief Helper function, determines if the current thread is likely a pythread
+ * 
+ * Note: when false the thread is definitly not a pythread, when true the thread
+ * is always a pythread or a c-thread which has had pythread information assigned
+ * to it with a very high probability, but not 100% guaranteed. 
+ */
+#define SPROKIT_IS_CURRENT_PYTHREAD                                               \
+  ( pybind11::detail::get_thread_state_unchecked() != NULL  &&                    \
+    pybind11::detail::get_thread_state_unchecked() ==                             \
+      PyGILState_GetThisThreadState() )
 
 /**
  * \brief Grabs the Python GIL using pybind11 after releasing it, but only if we're
@@ -108,22 +120,19 @@ class SPROKIT_PYTHON_UTIL_EXPORT python_gil_cond_release
  * 
  * Implicit conversions from python to C++ exceptions is also performed.
  */
-#define PYBIND_COND_GIL_RELEASE_AND_ACQUIRE( call, use_rel_and_acq )              \
-  if( use_rel_and_acq && pybind11::detail::get_thread_state_unchecked() != NULL ) \
+#define SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE( call, use_rel_and_acq )             \
+  if( use_rel_and_acq && SPROKIT_IS_CURRENT_PYTHREAD )                            \
   {                                                                               \
-    PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START                                   \
+    SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START                                  \
     SPROKIT_PYTHON_TRANSLATE_EXCEPTION_NO_LOCK( call )                            \
-    PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END                                     \
+    SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_END                                    \
   }                                                                               \
   else                                                                            \
   {                                                                               \
-    PYBIND_SCOPED_GIL_ACQUIRE_START                                               \
+    SPROKIT_SCOPED_GIL_ACQUIRE_START                                              \
     SPROKIT_PYTHON_TRANSLATE_EXCEPTION_NO_LOCK( call )                            \
-    PYBIND_SCOPED_GIL_ACQUIRE_END                                                 \
+    SPROKIT_SCOPED_GIL_ACQUIRE_END                                                \
   }
-  
-#define PYBIND_ALWAYS_GIL_RELEASE_AND_ACQUIRE( call )                             \
-  PYBIND_ALWAYS_GIL_RELEASE_AND_ACQUIRE( call, TRUE )
 
 }
 }

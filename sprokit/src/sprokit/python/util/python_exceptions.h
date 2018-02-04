@@ -73,10 +73,10 @@ namespace python {
   }                                                               \
   catch (std::exception const& e)                                 \
   {                                                               \
-    PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START                   \
+    SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START                   \
     PyErr_SetString(PyExc_RuntimeError, e.what());                \
     throw;                                                        \
-    PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END                     \
+    SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_END                     \
   }
 
 #define SPROKIT_PYTHON_TRANSLATE_EXCEPTION_NO_LOCK(call)          \
