@@ -414,88 +414,72 @@ object
 pipe_block_visitor
 ::operator () (sprokit::config_pipe_block const& config_block) const
 {
-  pybind11::gil_scoped_release release;
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
+
+  object obj = none();
+
+  if (block_type == BLOCK_CONFIG)
   {
-    pybind11::gil_scoped_acquire acquire;
-
-    (void) release;
-    (void) acquire;
-
-    object obj = none();
-
-    if (block_type == BLOCK_CONFIG)
-    {
-      obj = cast(config_block);
-    }
-
-    return obj;
+    obj = cast(config_block);
   }
+
+  return obj;
+
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 object
 pipe_block_visitor
 ::operator () (sprokit::process_pipe_block const& process_block) const
 {
-  pybind11::gil_scoped_release release;
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
+
+  object obj = none();
+
+  if (block_type == BLOCK_PROCESS)
   {
-    pybind11::gil_scoped_acquire acquire;
-
-    (void) release;
-    (void) acquire;
-
-    object obj = none();
-
-    if (block_type == BLOCK_PROCESS)
-    {
-      obj = cast(process_block);
-    }
-
-    return obj;
+    obj = cast(process_block);
   }
+
+  return obj;
+
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 object
 pipe_block_visitor
 ::operator () (sprokit::connect_pipe_block const& connect_block) const
 {
-  pybind11::gil_scoped_release release;
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
+
+  object obj = none();
+
+  if (block_type == BLOCK_CONNECT)
   {
-    pybind11::gil_scoped_acquire acquire;
-
-    (void) release;
-    (void) acquire;
-
-    object obj = none();
-
-    if (block_type == BLOCK_CONNECT)
-    {
-      obj = cast(connect_block);
-    }
-
-    return obj;
+    obj = cast(connect_block);
   }
+
+  return obj;
+
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 object
 pipe_block_visitor
 ::operator () (sprokit::cluster_pipe_block const& cluster_block) const
 {
-  pybind11::gil_scoped_release release;
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
+
+  object obj = none();
+
+  if (block_type == BLOCK_CLUSTER)
   {
-    pybind11::gil_scoped_acquire acquire;
-
-    (void) release;
-    (void) acquire;
-
-    object obj = none();
-
-    if (block_type == BLOCK_CLUSTER)
-    {
-      obj = cast(cluster_block);
-    }
-
-    return obj;
+    obj = cast(cluster_block);
   }
+
+  return obj;
+
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 cluster_subblock_visitor
@@ -513,60 +497,48 @@ object
 cluster_subblock_visitor
 ::operator () (sprokit::cluster_config_t const& config) const
 {
-  pybind11::gil_scoped_release release;
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
+
+  if (block_type == BLOCK_CONFIG)
   {
-    pybind11::gil_scoped_acquire acquire;
-
-    (void) release;
-    (void) acquire;
-
-    if (block_type == BLOCK_CONFIG)
-    {
-      return cast(config);
-    }
-
-    return none();
+    return cast(config);
   }
+
+  return none();
+
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 object
 cluster_subblock_visitor
 ::operator () (sprokit::cluster_input_t const& input) const
 {
-  pybind11::gil_scoped_release release;
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
+
+  if (block_type == BLOCK_INPUT)
   {
-    pybind11::gil_scoped_acquire acquire;
-
-    (void) release;
-    (void) acquire;
-
-    if (block_type == BLOCK_INPUT)
-    {
-      return cast(input);
-    }
-
-    return none();
+    return cast(input);
   }
+
+  return none();
+
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 object
 cluster_subblock_visitor
 ::operator () (sprokit::cluster_output_t const& output) const
 {
-  pybind11::gil_scoped_release release;
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
+
+  if (block_type == BLOCK_OUTPUT)
   {
-    pybind11::gil_scoped_acquire acquire;
-
-    (void) release;
-    (void) acquire;
-
-    if (block_type == BLOCK_OUTPUT)
-    {
-      return cast(output);
-    }
-
-    return none();
+    return cast(output);
   }
+
+  return none();
+
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 std::vector<wrap_port_addr>

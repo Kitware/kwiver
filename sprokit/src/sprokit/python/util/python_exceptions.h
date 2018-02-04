@@ -33,6 +33,8 @@
 
 #include <sprokit/python/util/sprokit_python_util_export.h>
 
+#include <sprokit/python/util/python_gil.h>
+
 namespace sprokit {
 namespace python {
 
@@ -71,17 +73,21 @@ namespace python {
   }                                                               \
   catch (std::exception const& e)                                 \
   {                                                               \
-    pybind11::gil_scoped_release release;                         \
-    {                                                             \
-      pybind11::gil_scoped_acquire acquire;                       \
-                                                                  \
-      (void) release;                                             \
-      (void) acquire;                                             \
-                                                                  \
-      PyErr_SetString(PyExc_RuntimeError, e.what());              \
-                                                                  \
-      throw;                                                      \
-    }                                                             \
+    PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START                   \
+    PyErr_SetString(PyExc_RuntimeError, e.what());                \
+    throw;                                                        \
+    PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END                     \
+  }
+
+#define SPROKIT_PYTHON_TRANSLATE_EXCEPTION_NO_LOCK(call)          \
+  try                                                             \
+  {                                                               \
+    call;                                                         \
+  }                                                               \
+  catch (std::exception const& e)                                 \
+  {                                                               \
+    PyErr_SetString(PyExc_RuntimeError, e.what());                \
+    throw;                                                        \
   }
 
 SPROKIT_PYTHON_UTIL_EXPORT void python_print_exception();

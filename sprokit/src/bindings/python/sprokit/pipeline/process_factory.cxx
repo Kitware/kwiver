@@ -184,25 +184,21 @@ register_process( sprokit::process::type_t const&        type,
                   sprokit::process::description_t const& desc,
                   object                                 obj )
 {
-  pybind11::gil_scoped_release release;
-  {
-    pybind11::gil_scoped_acquire acquire;
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
 
-    (void) release;
-    (void) acquire;
+  python_process_wrapper const& wrap(obj);
 
-    python_process_wrapper const& wrap(obj);
+  kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
+  auto fact = vpm.add_factory( new python_process_factory( type, // derived type name string
+                                                           typeid( sprokit::process ).name(),
+                                                           wrap ) );
 
-    kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
-    auto fact = vpm.add_factory( new python_process_factory( type, // derived type name string
-                                                             typeid( sprokit::process ).name(),
-                                                             wrap ) );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, type )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, "python-runtime" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, desc )
+    ;
 
-    fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, type )
-      .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, "python-runtime" )
-      .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, desc )
-      ;
-  }
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 
@@ -291,13 +287,9 @@ object
 python_process_wrapper
   ::operator()( kwiver::vital::config_block_sptr const& config )
 {
-  pybind11::gil_scoped_release release;
-  {
-    pybind11::gil_scoped_acquire acquire;
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
 
-    (void) release;
-    (void) acquire;
+  return m_obj( config );
 
-    return m_obj( config );
-  }
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }

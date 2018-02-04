@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2013 by Kitware, Inc.
+ * Copyright 2011-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
 
 #include "pystream.h"
 
-#include "python_gil.h"
+#include <sprokit/python/util/python_gil.h>
 
 #include <pybind11/pybind11.h>
 
@@ -61,30 +61,26 @@ std::streamsize
 pyistream_device
 ::read(char_type* s, std::streamsize n)
 {
-  pybind11::gil_scoped_release release;
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
+
+  pybind11::str const bytes = pybind11::str(m_obj.attr("read")(n));
+
+  pybind11::ssize_t const sz = len(bytes);
+
+  if (sz)
   {
-    pybind11::gil_scoped_acquire acquire;
+    std::string const cppstr = bytes.cast<std::string>();
 
-    (void) release;
-    (void) acquire;
+    std::copy(cppstr.begin(), cppstr.end(), s);
 
-    pybind11::str const bytes = pybind11::str(m_obj.attr("read")(n));
-
-    pybind11::ssize_t const sz = len(bytes);
-
-    if (sz)
-    {
-      std::string const cppstr = bytes.cast<std::string>();
-
-      std::copy(cppstr.begin(), cppstr.end(), s);
-
-      return sz;
-    }
-    else
-    {
-      return -1;
-    }
+    return sz;
   }
+  else
+  {
+    return -1;
+  }
+
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 pyostream_device
@@ -103,19 +99,15 @@ std::streamsize
 pyostream_device
 ::write(char_type const* s, std::streamsize n)
 {
-  pybind11::gil_scoped_release release;
-  {
-    pybind11::gil_scoped_acquire acquire;
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
 
-    (void) release;
-    (void) acquire;
+  pybind11::str const bytes(s, static_cast<size_t>(n));
 
-    pybind11::str const bytes(s, static_cast<size_t>(n));
+  m_obj.attr("write")(bytes);
 
-    m_obj.attr("write")(bytes);
+  return n;
 
-    return n;
-  }
+  PYBIND_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 }
