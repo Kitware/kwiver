@@ -45,6 +45,14 @@ target_link_libraries( kwiver_adapter
 
   )
 
+if( KWIVER_ENABLE_PYTHON )
+  add_definitions( -DADAPTER_USE_PYTHON )
+
+  target_link_libraries( kwiver_adapter
+    PRIVATE              sprokit_python_util
+    )
+endif()
+
 kwiver_install_headers( ${public_headers}
   SUBDIR sprokit/processes/adapters
   )

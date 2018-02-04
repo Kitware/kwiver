@@ -51,6 +51,10 @@
 #include <sprokit/processes/adapters/output_adapter.h>
 #include <sprokit/processes/adapters/output_adapter_process.h>
 
+#ifdef ADAPTER_USE_PYTHON
+#include <sprokit/python/util/python_gil.h>
+#endif
+
 #include <kwiversys/SystemTools.hxx>
 
 #include <sstream>
@@ -116,6 +120,10 @@ public:
   kwiver::vital::config_block_sptr m_scheduler_config;
   sprokit::scheduler_t m_scheduler;
 
+#ifdef ADAPTER_USE_PYTHON
+  sprokit::python::python_gil_cond_release m_release;
+#endif
+
 }; // end class embedded_pipeline::priv
 
 
@@ -151,7 +159,10 @@ embedded_pipeline
     cur_file = ST::GetCurrentWorkingDirectory();
   }
 
+#ifdef ADAPTER_USE_PYTHON
   sprokit::process::set_gil_lock_cycle( true );
+#endif
+
   builder.load_pipeline( istr, cur_file + "/in-stream" );
 
   // build pipeline
