@@ -543,10 +543,13 @@ void
 process_trampoline
 ::_init()
 {
-  PYBIND11_OVERLOAD(
-    void,
-    process,
-    _init,
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      void,
+      process,
+      _init,
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -554,10 +557,13 @@ void
 process_trampoline
 ::_reset()
 {
-  PYBIND11_OVERLOAD(
-    void,
-    process,
-    _reset,
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      void,
+      process,
+      _reset,
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -565,10 +571,13 @@ void
 process_trampoline
 ::_flush()
 {
-  PYBIND11_OVERLOAD(
-    void,
-    process,
-    _flush,
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      void,
+      process,
+      _flush,
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -590,11 +599,14 @@ void
 process_trampoline
 ::_reconfigure(kwiver::vital::config_block_sptr const& config)
 {
-  PYBIND11_OVERLOAD(
-    void,
-    process,
-    _reconfigure,
-    config
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      void,
+      process,
+      _reconfigure,
+      config
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -602,10 +614,13 @@ sprokit::process::properties_t
 process_trampoline
 ::_properties_over() const
 {
-  PYBIND11_OVERLOAD(
-    sprokit::process::properties_t,
-    process,
-    _properties,
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      sprokit::process::properties_t,
+      process,
+      _properties,
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -622,10 +637,13 @@ sprokit::process::ports_t
 process_trampoline
 ::_input_ports() const
 {
-  PYBIND11_OVERLOAD(
-    sprokit::process::ports_t,
-    process,
-    _input_ports,
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      sprokit::process::ports_t,
+      process,
+      _input_ports,
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -633,10 +651,13 @@ sprokit::process::ports_t
 process_trampoline
 ::_output_ports() const
 {
-  PYBIND11_OVERLOAD(
-    sprokit::process::ports_t,
-    process,
-    _output_ports,
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      sprokit::process::ports_t,
+      process,
+      _output_ports,
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -674,11 +695,14 @@ bool
 process_trampoline
 ::_set_input_port_type(port_t const& port, port_type_t const& new_type)
 {
-  PYBIND11_OVERLOAD(
-    bool,
-    process,
-    _set_input_port_type,
-    port, new_type
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      bool,
+      process,
+      _set_input_port_type,
+      port, new_type
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -686,11 +710,14 @@ bool
 process_trampoline
 ::_set_output_port_type(port_t const& port, port_type_t const& new_type)
 {
-  PYBIND11_OVERLOAD(
-    bool,
-    process,
-    _set_output_port_type,
-    port, new_type
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      bool,
+      process,
+      _set_output_port_type,
+      port, new_type
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -698,10 +725,13 @@ kwiver::vital::config_block_keys_t
 process_trampoline
 ::_available_config() const
 {
-  PYBIND11_OVERLOAD(
-    kwiver::vital::config_block_keys_t,
-    process,
-    _available_config,
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      kwiver::vital::config_block_keys_t,
+      process,
+      _available_config,
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -709,11 +739,14 @@ sprokit::process::conf_info_t
 process_trampoline
 ::_config_info(kwiver::vital::config_block_key_t const& key)
 {
-  PYBIND11_OVERLOAD(
-    sprokit::process::conf_info_t,
-    process,
-    _config_info,
-    key
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      sprokit::process::conf_info_t,
+      process,
+      _config_info,
+      key
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 

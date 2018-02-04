@@ -1381,8 +1381,8 @@ SCOPED_INSTRUMENTATION(reconfigure);
     static void set_gil_lock_cycle(bool opt);
     static bool gil_lock_cycle_flag;
 
-  protected:
-    bool gil_lock_cycle() const;
+  public:
+    static bool gil_lock_cycle();
 
   private:
     friend class process_cluster;

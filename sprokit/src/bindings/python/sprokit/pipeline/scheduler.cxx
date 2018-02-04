@@ -107,10 +107,13 @@ void
 scheduler_trampoline
 ::_start()
 {
-  PYBIND11_OVERLOAD_PURE(
-    void,
-    scheduler,
-    _start,
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD_PURE(
+      void,
+      scheduler,
+      _start,
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -118,10 +121,13 @@ void
 scheduler_trampoline
 ::_wait()
 {
-  PYBIND11_OVERLOAD_PURE(
-    void,
-    scheduler,
-    _wait,
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD_PURE(
+      void,
+      scheduler,
+      _wait,
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -129,10 +135,13 @@ void
 scheduler_trampoline
 ::_pause()
 {
-  PYBIND11_OVERLOAD_PURE(
-    void,
-    scheduler,
-    _pause,
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD_PURE(
+      void,
+      scheduler,
+      _pause,
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -140,10 +149,13 @@ void
 scheduler_trampoline
 ::_resume()
 {
-  PYBIND11_OVERLOAD_PURE(
-    void,
-    scheduler,
-    _resume,
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD_PURE(
+      void,
+      scheduler,
+      _resume,
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }
 
@@ -151,9 +163,12 @@ void
 scheduler_trampoline
 ::_stop()
 {
-  PYBIND11_OVERLOAD_PURE(
-    void,
-    scheduler,
-    _stop,
+  PYBIND_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD_PURE(
+      void,
+      scheduler,
+      _stop,
+    );,
+    sprokit::process::gil_lock_cycle()
   );
 }

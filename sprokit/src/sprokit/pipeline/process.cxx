@@ -624,7 +624,7 @@ process
 // ------------------------------------------------------------------
 bool
 process
-::gil_lock_cycle() const
+::gil_lock_cycle()
 {
   return gil_lock_cycle_flag;
 }
