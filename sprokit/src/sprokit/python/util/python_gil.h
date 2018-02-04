@@ -106,7 +106,7 @@ class SPROKIT_PYTHON_UTIL_EXPORT python_gil_cond_release
  * \brief Helper function, determines if the current thread is likely a pythread
  * 
  * Note: when false the thread is definitly not a pythread, when true the thread
- * is always a pythread or a c-thread which has had pythread information assigned
+ * is likely a pythread or a c-thread which has had pythread information assigned
  * to it with a very high probability, but not 100% guaranteed. 
  */
 #define SPROKIT_IS_CURRENT_PYTHREAD                                               \
