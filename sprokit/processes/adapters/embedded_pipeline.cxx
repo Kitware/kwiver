@@ -64,7 +64,7 @@ static kwiver::vital::config_block_key_t const scheduler_block = kwiver::vital::
 } // end
 
 
-namespace sprokit {
+namespace kwiver {
 
 typedef kwiversys::SystemTools ST;
 
@@ -415,4 +415,4 @@ connect_output_adapter()
 }
 
 
-} // end namespace sprokit
+} // end namespace kwiver
