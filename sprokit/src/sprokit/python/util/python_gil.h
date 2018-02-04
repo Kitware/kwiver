@@ -77,6 +77,27 @@ class SPROKIT_PYTHON_UTIL_EXPORT python_gil_cond_release
 };
 
 /**
+ * \class Record settings relating to the GIL
+ */
+class SPROKIT_PYTHON_UTIL_EXPORT python_gil_settings
+{
+  public:
+    static bool cycle_gil_lock();
+    static void set_cycle_option( bool opt = true );
+
+  private:
+    python_gil_settings() : cycle_gil_flag( false ) {}
+    ~python_gil_settings() {}
+
+    static python_gil_settings instance;
+    bool cycle_gil_flag;
+
+  public:
+    python_gil_settings( python_gil_settings const& ) = delete;
+    void operator=( python_gil_settings const& )      = delete;
+};
+
+/**
  * \brief Helper macros for warningless pybind11 GIL scoped acquisitions
  */
 #define SPROKIT_SCOPED_GIL_ACQUIRE_START                                          \
@@ -120,8 +141,9 @@ class SPROKIT_PYTHON_UTIL_EXPORT python_gil_cond_release
  * 
  * Implicit conversions from python to C++ exceptions is also performed.
  */
-#define SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE( call, use_rel_and_acq )             \
-  if( use_rel_and_acq && SPROKIT_IS_CURRENT_PYTHREAD )                            \
+#define SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE( call )                              \
+  if( sprokit::python::python_gil_settings::cycle_gil_lock() &&                   \
+      SPROKIT_IS_CURRENT_PYTHREAD )                                               \
   {                                                                               \
     SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START                                  \
     SPROKIT_PYTHON_TRANSLATE_EXCEPTION_NO_LOCK( call )                            \

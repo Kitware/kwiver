@@ -58,9 +58,6 @@
 #include <vector>
 #include <memory>
 
-namespace kwiver {
-  class embedded_pipeline;
-}
 
 /**
  * \file process.h
@@ -1381,15 +1378,6 @@ SCOPED_INSTRUMENTATION(reconfigure);
     SPROKIT_PIPELINE_NO_EXPORT void set_core_frequency(port_frequency_t const& frequency);
     SPROKIT_PIPELINE_NO_EXPORT void reconfigure(kwiver::vital::config_block_sptr const& conf);
 
-    friend class kwiver::embedded_pipeline;
-    static void set_gil_lock_cycle(bool opt);
-    static bool gil_lock_cycle_flag;
-
-  public:
-    /// @private
-    static bool gil_lock_cycle();
-
-  private:
     friend class process_cluster;
     SPROKIT_PIPELINE_NO_EXPORT void reconfigure_with_provides(kwiver::vital::config_block_sptr const& conf);
 

@@ -534,8 +534,7 @@ process_trampoline
       void,
       process,
       _configure,
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -548,8 +547,7 @@ process_trampoline
       void,
       process,
       _init,
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -562,8 +560,7 @@ process_trampoline
       void,
       process,
       _reset,
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -576,8 +573,7 @@ process_trampoline
       void,
       process,
       _flush,
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -590,8 +586,7 @@ process_trampoline
       void,
       process,
       _step,
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -605,8 +600,7 @@ process_trampoline
       process,
       _reconfigure,
       config
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -619,8 +613,7 @@ process_trampoline
       sprokit::process::properties_t,
       process,
       _properties,
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -642,8 +635,7 @@ process_trampoline
       sprokit::process::ports_t,
       process,
       _input_ports,
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -656,8 +648,7 @@ process_trampoline
       sprokit::process::ports_t,
       process,
       _output_ports,
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -671,8 +662,7 @@ process_trampoline
       process,
       _input_port_info,
       port
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -686,8 +676,7 @@ process_trampoline
       process,
       _output_port_info,
       port
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -701,8 +690,7 @@ process_trampoline
       process,
       _set_input_port_type,
       port, new_type
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -716,8 +704,7 @@ process_trampoline
       process,
       _set_output_port_type,
       port, new_type
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -730,8 +717,7 @@ process_trampoline
       kwiver::vital::config_block_keys_t,
       process,
       _available_config,
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -745,8 +731,7 @@ process_trampoline
       process,
       _config_info,
       key
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 

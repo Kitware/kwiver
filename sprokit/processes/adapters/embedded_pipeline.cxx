@@ -160,7 +160,7 @@ embedded_pipeline
   }
 
 #ifdef ADAPTER_USE_PYTHON
-  sprokit::process::set_gil_lock_cycle( true );
+  sprokit::python::python_gil_settings::set_cycle_option( true );
 #endif
 
   builder.load_pipeline( istr, cur_file + "/in-stream" );

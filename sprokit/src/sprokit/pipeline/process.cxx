@@ -92,8 +92,6 @@ process::port_flag_t const process::flag_required = port_flag_t("_required");
 
 kwiver::vital::config_block_key_t const process::static_input_prefix = kwiver::vital::config_block_key_t("static/");
 
-bool process::gil_lock_cycle_flag = false;
-
 process::port_info
 ::port_info(port_type_t const& type_,
             port_flags_t const& flags_,
@@ -245,8 +243,6 @@ class process::priv
     stamp_t stamp_for_inputs;
 
     mutex_t reconfigure_mut;
-
-    bool gil_lock_cycle;
 
     kwiver::vital::logger_handle_t m_logger;
     std::unique_ptr< sprokit::process_instrumentation > m_proc_instrumentation; // instrumentation provider
@@ -609,24 +605,6 @@ process
 ::type() const
 {
   return d->type;
-}
-
-
-// ------------------------------------------------------------------
-void
-process
-::set_gil_lock_cycle(bool opt)
-{
-  gil_lock_cycle_flag = opt;
-}
-
-
-// ------------------------------------------------------------------
-bool
-process
-::gil_lock_cycle()
-{
-  return gil_lock_cycle_flag;
 }
 
 
@@ -1890,7 +1868,6 @@ process::priv
   , is_complete(false)
   , check_input_level(check_valid)
   , stamp_for_inputs()
-  , gil_lock_cycle(false)
   , m_logger( kwiver::vital::get_logger( "sprokit.process" ))
 {
 }

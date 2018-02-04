@@ -36,6 +36,21 @@ namespace sprokit
 namespace python
 {
 
+
+python_gil_settings python_gil_settings::instance;
+
+
+bool python_gil_settings::cycle_gil_lock()
+{
+  return python_gil_settings::instance.cycle_gil_flag;
+}
+
+void python_gil_settings::set_cycle_option( bool opt )
+{
+  python_gil_settings::instance.cycle_gil_flag = opt;
+}
+
+
 python_gil_cond_release
 ::python_gil_cond_release()
 {
@@ -52,6 +67,7 @@ python_gil_cond_release
 ::~python_gil_cond_release()
 {
 }
+
 
 }
 

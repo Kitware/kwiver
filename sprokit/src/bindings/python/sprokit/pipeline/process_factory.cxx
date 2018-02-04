@@ -288,7 +288,6 @@ python_process_wrapper
   ::operator()( kwiver::vital::config_block_sptr const& config )
 {
   SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
-    return this->m_obj( config );,
-    true
+    return this->m_obj( config );
   );
 }

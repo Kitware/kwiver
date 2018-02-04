@@ -273,5 +273,7 @@ object
 python_scheduler_wrapper
 ::operator () (sprokit::pipeline_t const& pipeline, kwiver::vital::config_block_sptr const& config)
 {
-  return m_obj(pipeline, config);
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    return m_obj(pipeline, config);
+  )
 }

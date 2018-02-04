@@ -112,8 +112,7 @@ scheduler_trampoline
       void,
       scheduler,
       _start,
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -126,8 +125,7 @@ scheduler_trampoline
       void,
       scheduler,
       _wait,
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -140,8 +138,7 @@ scheduler_trampoline
       void,
       scheduler,
       _pause,
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -154,8 +151,7 @@ scheduler_trampoline
       void,
       scheduler,
       _resume,
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
 
@@ -168,7 +164,6 @@ scheduler_trampoline
       void,
       scheduler,
       _stop,
-    );,
-    sprokit::process::gil_lock_cycle()
+    );
   );
 }
