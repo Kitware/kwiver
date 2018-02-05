@@ -39,7 +39,6 @@
 #include <vital/types/detected_object.h>
 #include <vital/types/detected_object_type.h>
 #include <vital/util/wall_timer.h>
-#include <vital/vital_foreach.h>
 
 #include <arrows/ocv/image_container.h>
 
@@ -98,7 +97,7 @@ linspace(T a, T b, int n)
 }
 
 //-----------------------------------------------------------------------------
-  /// 
+  ///
   /**
   * @brief Applies threshold and finds bounding boxes for above-zero pixels.
   *
@@ -112,13 +111,13 @@ linspace(T a, T b, int n)
   *   the bounding box.
   * @param last_row One greater than the index for the last column from which to
   *   start checking for a viable bounding box (default -1 uses image width).
-  * 
+  *
   * @return Tuple of integers (first row, last row, first col, last col)
   *   indicating the bounding rows/columns where at least one above-threshold
   *   element exists. last_row is one greater than the index for the last above-
   *   threshold row, and last_col is one greater than the index for the last
   *   above-threshold column. If image is entirely below threshold, then
-  *   first_row = last_row = image.rows and first_colum = last_column = 
+  *   first_row = last_row = image.rows and first_colum = last_column =
   *   image.cols.
   */
 template <class T>
@@ -131,7 +130,7 @@ mask_bounding_box( const cv::Mat image, double threshold = 0, int first_row = 0,
   {
     throw vital::invalid_data("image must be single channel.");
   }
-  
+
   // Find the first/last non-zero rows and columns where we should consider
   // centering a bounding box.
   if( last_row == -1 )
@@ -142,10 +141,10 @@ mask_bounding_box( const cv::Mat image, double threshold = 0, int first_row = 0,
   {
     last_col = image.cols;
   }
-  
+
   --last_col;
   --last_row;
-  
+
   bool done = false;
   while( first_row < image.rows )
   {
@@ -164,7 +163,7 @@ mask_bounding_box( const cv::Mat image, double threshold = 0, int first_row = 0,
     ++first_row;
   }
 
-  done = false;  
+  done = false;
   while( last_row > first_row )
   {
     for( int j=0; j < image.cols; j++ )
@@ -181,7 +180,7 @@ mask_bounding_box( const cv::Mat image, double threshold = 0, int first_row = 0,
     }
     --last_row;
   }
-  
+
   done = false;
   while( first_col < image.cols )
   {
@@ -199,7 +198,7 @@ mask_bounding_box( const cv::Mat image, double threshold = 0, int first_row = 0,
     }
     ++first_col;
   }
-  
+
   done = false;
   while( last_col > first_col )
   {
@@ -352,7 +351,7 @@ public:
     // All 'on' locations within the heat map live inside a bound box with:
     int num_on_rows = (last_row - first_row);
     int num_on_cols = (last_col - first_col);
-    
+
     // last_row and last_col are actually one greater than the index for the
     // last row/col.
     --last_row;
@@ -387,9 +386,9 @@ public:
     std::vector<int> row_inds = linspace( first_row, last_row, num_bboxes_high );
 
     auto detected_objects = std::make_shared< detected_object_set >();
-    VITAL_FOREACH( int row, row_inds )
+    for( int row : row_inds )
     {
-      VITAL_FOREACH( int col, col_inds )
+      for( int col : col_inds )
       {
         // vital::bounding_box lower-right point is not inclusive, so must add 1.
         kwiver::vital::bounding_box_d bbox( col-hr1f, row-vr1f,
@@ -514,7 +513,7 @@ public:
       // heat map value within a bounding box centered at that pixel.
       cv::boxFilter( heat_map, conv_map, CV_32F, ksize, anchor, true,
                      cv::BORDER_CONSTANT );
-      
+
       if( false )
       {
         if( cntr == 0 )
@@ -533,7 +532,7 @@ public:
         // No above-threshold regions left.
         break;
       }
-      
+
       // Define the bounding box
       // vital::bounding_box lower-right point is not inclusive, so must add 1.
       x1 = max_loc.x-hr1f;
@@ -547,11 +546,11 @@ public:
       // In cases where there are many different positions where the bounding
       // box to still covers all elements, the above approach picks the first
       // one found, which is often not ideal. Ideally, the enclosed elements
-      // would be centered in the bounding box.      
+      // would be centered in the bounding box.
       std::tie( y1t, y2t, x1t, x2t ) = mask_bounding_box<uchar>( heat_map,
                                                                  1, y1, y2,
                                                                  x1, x2 );
-      
+
       if( x2t > x1t )
       {
         max_loc.x = (x1t+x2t)/2;
@@ -566,18 +565,18 @@ public:
       y2 = max_loc.y+vr2f+1;
       x1 = max_loc.x-hr1f;
       x2 = max_loc.x+hr2f+1;
-        
+
       // Reposition, if necessary, so that the bounding box is completely
       // within the image.
       dx = -std::min( 0, x1 ) - std::max( 0, x2 - hmap_w );
       dy = -std::min( 0, y1 ) - std::max( 0, y2 - hmap_h );
       x1 += dx;  x2 += dx;  y1 += dy;  y2 += dy;
-      
+
       kwiver::vital::bounding_box_d bbox( x1*bbox_out_width_rescale,
                                           y1*bbox_out_height_rescale,
                                           x2*bbox_out_width_rescale,
                                           y2*bbox_out_height_rescale );
-        
+
       LOG_TRACE( m_logger, "Creating bounding box (" <<
                  std::to_string(bbox.min_x()) << ", " <<
                  std::to_string(bbox.max_x()) << ", " <<
