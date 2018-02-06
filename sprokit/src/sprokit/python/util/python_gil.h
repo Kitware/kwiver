@@ -143,7 +143,7 @@ class SPROKIT_PYTHON_UTIL_EXPORT python_gil_settings
  */
 #define SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE( call )                              \
   if( sprokit::python::python_gil_settings::cycle_gil_lock() &&                   \
-      SPROKIT_IS_CURRENT_PYTHREAD )                                               \
+      pybind11::detail::get_thread_state_unchecked() != NULL )                    \
   {                                                                               \
     SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START                                  \
     SPROKIT_PYTHON_TRANSLATE_EXCEPTION_NO_LOCK( call )                            \
