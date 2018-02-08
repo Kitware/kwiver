@@ -29,6 +29,7 @@
  */
 
 #include "interpolate_track.h"
+#include <vital/algo/algorithm.txx>
 
 namespace kwiver {
 namespace vital {
@@ -66,3 +67,7 @@ do_callback( float prog )
 // ----------------------------------------------------------------------------
 
 } } } // end namespace
+
+/// \cond DoxygenSuppress
+INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::interpolate_track);
+/// \endcond
