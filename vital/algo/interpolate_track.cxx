@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,12 @@
  */
 
 #include "interpolate_track.h"
+
 #include <vital/algo/algorithm.txx>
+
+/// \cond DoxygenSuppress
+INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::interpolate_track);
+/// \endcond
 
 namespace kwiver {
 namespace vital {
@@ -40,9 +45,16 @@ interpolate_track::
 interpolate_track()
   : m_progress_callback( nullptr )
 {
-  attach_logger( "interpolate_track " );
+  attach_logger( "interpolate_track" );
 }
 
+// ----------------------------------------------------------------------------
+void
+interpolate_track::
+set_video_input( video_input_sptr input )
+{
+  m_video_input = input;
+}
 
 // ----------------------------------------------------------------------------
 void
@@ -52,22 +64,25 @@ set_progress_callback( progress_callback_t cb )
   m_progress_callback = cb;
 }
 
+// ----------------------------------------------------------------------------
+void
+interpolate_track::
+do_callback( float progress )
+{
+  static constexpr auto total = 1 << 25;
+
+  do_callback( static_cast<int>( std::ldexp( progress, 25 ) ), total );
+}
 
 // ----------------------------------------------------------------------------
 void
 interpolate_track::
-do_callback( float prog )
+do_callback( int progress, int total )
 {
   if ( m_progress_callback != nullptr )
   {
-    m_progress_callback( prog );
+    m_progress_callback( progress, total );
   }
 }
 
-// ----------------------------------------------------------------------------
-
 } } } // end namespace
-
-/// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::interpolate_track);
-/// \endcond

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ public:
   virtual track_sptr interpolate( const track_sptr init_states ) = 0;
 
   /// Typedef for the callback function signature
-  typedef std::function<void(float)> progress_callback_t;
+  typedef std::function<void(int, int)> progress_callback_t;
 
   /// Set a callback function to report intermediate progress
   /**
@@ -95,9 +95,18 @@ protected:
    * Call the supplied progress callback function if there is one
    * currently active.
    *
-   * @param prog Fraction of process that is complete 0 - 1.0
+   * @param progress Fraction of process that is complete 0 - 1.0
    */
-  void do_callback( float prog );
+  void do_callback( float progress );
+
+  /**
+   * Call the supplied progress callback function if there is one
+   * currently active.
+   *
+   * @param progress Number of "steps" completed
+   * @param total Total number of "steps" for the process
+   */
+  void do_callback( int progress, int total );
 
   // Instance data
   video_input_sptr m_video_input;
