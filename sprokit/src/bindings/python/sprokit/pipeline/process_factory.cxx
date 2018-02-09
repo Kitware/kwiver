@@ -184,10 +184,7 @@ register_process( sprokit::process::type_t const&        type,
                   sprokit::process::description_t const& desc,
                   object                                 obj )
 {
-
-  sprokit::python::python_gil const gil;
-
-  (void)gil;
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
 
   python_process_wrapper const& wrap(obj);
 
@@ -200,6 +197,8 @@ register_process( sprokit::process::type_t const&        type,
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, "python-runtime" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, desc )
     ;
+
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 
@@ -288,9 +287,7 @@ object
 python_process_wrapper
   ::operator()( kwiver::vital::config_block_sptr const& config )
 {
-  sprokit::python::python_gil const gil;
-
-  (void)gil;
-
-  return m_obj( config );
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    return this->m_obj( config );
+  );
 }

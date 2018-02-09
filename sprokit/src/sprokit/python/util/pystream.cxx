@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2013 by Kitware, Inc.
+ * Copyright 2011-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
 
 #include "pystream.h"
 
-#include "python_gil.h"
+#include <sprokit/python/util/python_gil.h>
 
 #include <pybind11/pybind11.h>
 
@@ -61,9 +61,7 @@ std::streamsize
 pyistream_device
 ::read(char_type* s, std::streamsize n)
 {
-  python::python_gil const gil;
-
-  (void)gil;
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
 
   pybind11::str const bytes = pybind11::str(m_obj.attr("read")(n));
 
@@ -81,6 +79,8 @@ pyistream_device
   {
     return -1;
   }
+
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 pyostream_device
@@ -99,15 +99,15 @@ std::streamsize
 pyostream_device
 ::write(char_type const* s, std::streamsize n)
 {
-  python::python_gil const gil;
-
-  (void)gil;
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
 
   pybind11::str const bytes(s, static_cast<size_t>(n));
 
   m_obj.attr("write")(bytes);
 
   return n;
+
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 }

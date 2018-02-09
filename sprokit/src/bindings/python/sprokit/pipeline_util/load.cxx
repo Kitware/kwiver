@@ -414,9 +414,7 @@ object
 pipe_block_visitor
 ::operator () (sprokit::config_pipe_block const& config_block) const
 {
-  sprokit::python::python_gil const gil;
-
-  (void)gil;
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
 
   object obj = none();
 
@@ -426,15 +424,15 @@ pipe_block_visitor
   }
 
   return obj;
+
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 object
 pipe_block_visitor
 ::operator () (sprokit::process_pipe_block const& process_block) const
 {
-  sprokit::python::python_gil const gil;
-
-  (void)gil;
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
 
   object obj = none();
 
@@ -444,15 +442,15 @@ pipe_block_visitor
   }
 
   return obj;
+
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 object
 pipe_block_visitor
 ::operator () (sprokit::connect_pipe_block const& connect_block) const
 {
-  sprokit::python::python_gil const gil;
-
-  (void)gil;
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
 
   object obj = none();
 
@@ -462,15 +460,15 @@ pipe_block_visitor
   }
 
   return obj;
+
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 object
 pipe_block_visitor
 ::operator () (sprokit::cluster_pipe_block const& cluster_block) const
 {
-  sprokit::python::python_gil const gil;
-
-  (void)gil;
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
 
   object obj = none();
 
@@ -480,6 +478,8 @@ pipe_block_visitor
   }
 
   return obj;
+
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 cluster_subblock_visitor
@@ -497,9 +497,7 @@ object
 cluster_subblock_visitor
 ::operator () (sprokit::cluster_config_t const& config) const
 {
-  sprokit::python::python_gil const gil;
-
-  (void)gil;
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
 
   if (block_type == BLOCK_CONFIG)
   {
@@ -507,15 +505,15 @@ cluster_subblock_visitor
   }
 
   return none();
+
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 object
 cluster_subblock_visitor
 ::operator () (sprokit::cluster_input_t const& input) const
 {
-  sprokit::python::python_gil const gil;
-
-  (void)gil;
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
 
   if (block_type == BLOCK_INPUT)
   {
@@ -523,15 +521,15 @@ cluster_subblock_visitor
   }
 
   return none();
+
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 object
 cluster_subblock_visitor
 ::operator () (sprokit::cluster_output_t const& output) const
 {
-  sprokit::python::python_gil const gil;
-
-  (void)gil;
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START
 
   if (block_type == BLOCK_OUTPUT)
   {
@@ -539,6 +537,8 @@ cluster_subblock_visitor
   }
 
   return none();
+
+  SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_END
 }
 
 std::vector<wrap_port_addr>

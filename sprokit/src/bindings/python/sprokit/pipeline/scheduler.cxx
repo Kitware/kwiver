@@ -107,10 +107,12 @@ void
 scheduler_trampoline
 ::_start()
 {
-  PYBIND11_OVERLOAD_PURE(
-    void,
-    scheduler,
-    _start,
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD_PURE(
+      void,
+      scheduler,
+      _start,
+    );
   );
 }
 
@@ -118,10 +120,12 @@ void
 scheduler_trampoline
 ::_wait()
 {
-  PYBIND11_OVERLOAD_PURE(
-    void,
-    scheduler,
-    _wait,
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD_PURE(
+      void,
+      scheduler,
+      _wait,
+    );
   );
 }
 
@@ -129,10 +133,12 @@ void
 scheduler_trampoline
 ::_pause()
 {
-  PYBIND11_OVERLOAD_PURE(
-    void,
-    scheduler,
-    _pause,
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD_PURE(
+      void,
+      scheduler,
+      _pause,
+    );
   );
 }
 
@@ -140,10 +146,12 @@ void
 scheduler_trampoline
 ::_resume()
 {
-  PYBIND11_OVERLOAD_PURE(
-    void,
-    scheduler,
-    _resume,
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD_PURE(
+      void,
+      scheduler,
+      _resume,
+    );
   );
 }
 
@@ -151,9 +159,11 @@ void
 scheduler_trampoline
 ::_stop()
 {
-  PYBIND11_OVERLOAD_PURE(
-    void,
-    scheduler,
-    _stop,
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD_PURE(
+      void,
+      scheduler,
+      _stop,
+    );
   );
 }

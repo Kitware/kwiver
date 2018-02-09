@@ -529,10 +529,12 @@ void
 process_trampoline
 ::_configure()
 {
-  PYBIND11_OVERLOAD(
-    void,
-    process,
-    _configure,
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      void,
+      process,
+      _configure,
+    );
   );
 }
 
@@ -540,10 +542,12 @@ void
 process_trampoline
 ::_init()
 {
-  PYBIND11_OVERLOAD(
-    void,
-    process,
-    _init,
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      void,
+      process,
+      _init,
+    );
   );
 }
 
@@ -551,10 +555,12 @@ void
 process_trampoline
 ::_reset()
 {
-  PYBIND11_OVERLOAD(
-    void,
-    process,
-    _reset,
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      void,
+      process,
+      _reset,
+    );
   );
 }
 
@@ -562,10 +568,12 @@ void
 process_trampoline
 ::_flush()
 {
-  PYBIND11_OVERLOAD(
-    void,
-    process,
-    _flush,
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      void,
+      process,
+      _flush,
+    );
   );
 }
 
@@ -573,12 +581,12 @@ void
 process_trampoline
 ::_step()
 {
-  gil_scoped_acquire acquire;
-
-  PYBIND11_OVERLOAD(
-    void,
-    process,
-    _step,
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      void,
+      process,
+      _step,
+    );
   );
 }
 
@@ -586,11 +594,13 @@ void
 process_trampoline
 ::_reconfigure(kwiver::vital::config_block_sptr const& config)
 {
-  PYBIND11_OVERLOAD(
-    void,
-    process,
-    _reconfigure,
-    config
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      void,
+      process,
+      _reconfigure,
+      config
+    );
   );
 }
 
@@ -598,10 +608,12 @@ sprokit::process::properties_t
 process_trampoline
 ::_properties_over() const
 {
-  PYBIND11_OVERLOAD(
-    sprokit::process::properties_t,
-    process,
-    _properties,
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      sprokit::process::properties_t,
+      process,
+      _properties,
+    );
   );
 }
 
@@ -618,10 +630,12 @@ sprokit::process::ports_t
 process_trampoline
 ::_input_ports() const
 {
-  PYBIND11_OVERLOAD(
-    sprokit::process::ports_t,
-    process,
-    _input_ports,
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      sprokit::process::ports_t,
+      process,
+      _input_ports,
+    );
   );
 }
 
@@ -629,10 +643,12 @@ sprokit::process::ports_t
 process_trampoline
 ::_output_ports() const
 {
-  PYBIND11_OVERLOAD(
-    sprokit::process::ports_t,
-    process,
-    _output_ports,
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      sprokit::process::ports_t,
+      process,
+      _output_ports,
+    );
   );
 }
 
@@ -640,13 +656,13 @@ sprokit::process::port_info_t
 process_trampoline
 ::_input_port_info(port_t const& port)
 {
-  gil_scoped_acquire acquire;
-
-  PYBIND11_OVERLOAD(
-    sprokit::process::port_info_t,
-    process,
-    _input_port_info,
-    port
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      sprokit::process::port_info_t,
+      process,
+      _input_port_info,
+      port
+    );
   );
 }
 
@@ -654,13 +670,13 @@ sprokit::process::port_info_t
 process_trampoline
 ::_output_port_info(port_t const& port)
 {
-  gil_scoped_acquire acquire;
-
-  PYBIND11_OVERLOAD(
-    sprokit::process::port_info_t,
-    process,
-    _output_port_info,
-    port
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      sprokit::process::port_info_t,
+      process,
+      _output_port_info,
+      port
+    );
   );
 }
 
@@ -668,11 +684,13 @@ bool
 process_trampoline
 ::_set_input_port_type(port_t const& port, port_type_t const& new_type)
 {
-  PYBIND11_OVERLOAD(
-    bool,
-    process,
-    _set_input_port_type,
-    port, new_type
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      bool,
+      process,
+      _set_input_port_type,
+      port, new_type
+    );
   );
 }
 
@@ -680,11 +698,13 @@ bool
 process_trampoline
 ::_set_output_port_type(port_t const& port, port_type_t const& new_type)
 {
-  PYBIND11_OVERLOAD(
-    bool,
-    process,
-    _set_output_port_type,
-    port, new_type
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      bool,
+      process,
+      _set_output_port_type,
+      port, new_type
+    );
   );
 }
 
@@ -692,10 +712,12 @@ kwiver::vital::config_block_keys_t
 process_trampoline
 ::_available_config() const
 {
-  PYBIND11_OVERLOAD(
-    kwiver::vital::config_block_keys_t,
-    process,
-    _available_config,
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      kwiver::vital::config_block_keys_t,
+      process,
+      _available_config,
+    );
   );
 }
 
@@ -703,11 +725,13 @@ sprokit::process::conf_info_t
 process_trampoline
 ::_config_info(kwiver::vital::config_block_key_t const& key)
 {
-  PYBIND11_OVERLOAD(
-    sprokit::process::conf_info_t,
-    process,
-    _config_info,
-    key
+  SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE(
+    PYBIND11_OVERLOAD(
+      sprokit::process::conf_info_t,
+      process,
+      _config_info,
+      key
+    );
   );
 }
 

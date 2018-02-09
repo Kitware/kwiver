@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2012 by Kitware, Inc.
+ * Copyright 2011-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,36 +36,125 @@
 #include <vital/noncopyable.h>
 
 #include <sprokit/python/util/python.h>
+#include <sprokit/python/util/python_exceptions.h>
+
+#include <pybind11/pybind11.h>
+#include <pybind11/cast.h>
+
+#include <memory>
 
 /**
  * \file python_gil.h
  *
- * \brief RAII class for grabbing the Python GIL.
+ * \brief Helper utilities for grabbing the Python GIL.
  */
 
 namespace sprokit {
 namespace python {
 
 /**
- * \class python_gil python_gil.h <sprokit/python/util/python_gil.h>
+ * \class python_gil_cond_release python_gil.h <sprokit/python/util/python_gil.h>
  *
- * \brief Grabs the Python GIL and uses RAII to ensure it is released.
+ * \brief Releases the python gil if held by this thread for the duration this
+ * class is in scope, but only if this is a valid python thread otherwise this
+ * is a no-op.
  */
-class SPROKIT_PYTHON_UTIL_EXPORT python_gil
+class SPROKIT_PYTHON_UTIL_EXPORT python_gil_cond_release
   : private kwiver::vital::noncopyable
 {
   public:
     /**
      * \brief Constructor.
      */
-    python_gil();
+    python_gil_cond_release();
     /**
      * \brief Destructor.
      */
-    ~python_gil();
+    ~python_gil_cond_release();
+
   private:
-    PyGILState_STATE const state;
+    std::unique_ptr< pybind11::gil_scoped_release > rel;
 };
+
+/**
+ * \class Record settings relating to the GIL
+ */
+class SPROKIT_PYTHON_UTIL_EXPORT python_gil_settings
+{
+  public:
+    static bool cycle_gil_lock();
+    static void set_cycle_option( bool opt = true );
+
+  private:
+    python_gil_settings() : cycle_gil_flag( false ) {}
+    ~python_gil_settings() {}
+
+    static python_gil_settings instance;
+    bool cycle_gil_flag;
+
+  public:
+    python_gil_settings( python_gil_settings const& ) = delete;
+    void operator=( python_gil_settings const& )      = delete;
+};
+
+/**
+ * \brief Helper macros for warningless pybind11 GIL scoped acquisitions
+ */
+#define SPROKIT_SCOPED_GIL_ACQUIRE_START                                          \
+  {                                                                               \
+    pybind11::gil_scoped_acquire acquire;                                         \
+                                                                                  \
+    (void) acquire;
+
+#define SPROKIT_SCOPED_GIL_ACQUIRE_END                                            \
+  }
+
+
+#define SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START                              \
+  {                                                                               \
+    pybind11::gil_scoped_release release;                                         \
+    {                                                                             \
+      pybind11::gil_scoped_acquire acquire;                                       \
+                                                                                  \
+      (void) release;                                                             \
+      (void) acquire;
+
+#define SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_END                                \
+    }                                                                             \
+  }
+
+/**
+ * \brief Helper function, determines if the current thread is likely a pythread
+ * 
+ * Note: when false the thread is definitly not a pythread, when true the thread
+ * is likely a pythread or a c-thread which has had pythread information assigned
+ * to it with a very high probability, but not 100% guaranteed. 
+ */
+#define SPROKIT_IS_CURRENT_PYTHREAD                                               \
+  ( pybind11::detail::get_thread_state_unchecked() != NULL  &&                    \
+    pybind11::detail::get_thread_state_unchecked() ==                             \
+      PyGILState_GetThisThreadState() )
+
+/**
+ * \brief Grabs the Python GIL using pybind11 after releasing it, but only if we're
+ * in a pythread. If we're not in a pythread, the lock is acquired without release.
+ * 
+ * Implicit conversions from python to C++ exceptions is also performed.
+ */
+#define SPROKIT_COND_GIL_RELEASE_AND_ACQUIRE( call )                              \
+  if( sprokit::python::python_gil_settings::cycle_gil_lock() &&                   \
+      pybind11::detail::get_thread_state_unchecked() != NULL )                    \
+  {                                                                               \
+    SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_START                                  \
+    SPROKIT_PYTHON_TRANSLATE_EXCEPTION_NO_LOCK( call )                            \
+    SPROKIT_SCOPED_GIL_RELEASE_AND_ACQUIRE_END                                    \
+  }                                                                               \
+  else                                                                            \
+  {                                                                               \
+    SPROKIT_SCOPED_GIL_ACQUIRE_START                                              \
+    SPROKIT_PYTHON_TRANSLATE_EXCEPTION_NO_LOCK( call )                            \
+    SPROKIT_SCOPED_GIL_ACQUIRE_END                                                \
+  }
 
 }
 }
