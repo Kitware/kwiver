@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2012-2013 by Kitware, Inc.
+ * Copyright 2012-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,8 @@
  */
 
 // No include guard since this file is meant to be included only once.
+
+#include <iostream>
 
 static int sprokit_main(int argc, char const* argv[]);
 
