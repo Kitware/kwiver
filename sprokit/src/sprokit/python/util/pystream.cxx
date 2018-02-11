@@ -61,10 +61,7 @@ std::streamsize
 pyistream_device
 ::read(char_type* s, std::streamsize n)
 {
-  python::python_gil const gil;
-
-  (void)gil;
-
+  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_BEGIN
   pybind11::str const bytes = pybind11::str(m_obj.attr("read")(n));
 
   pybind11::ssize_t const sz = len(bytes);
@@ -81,6 +78,7 @@ pyistream_device
   {
     return -1;
   }
+  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_END
 }
 
 pyostream_device
@@ -99,15 +97,13 @@ std::streamsize
 pyostream_device
 ::write(char_type const* s, std::streamsize n)
 {
-  python::python_gil const gil;
-
-  (void)gil;
-
+  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_BEGIN
   pybind11::str const bytes(s, static_cast<size_t>(n));
 
   m_obj.attr("write")(bytes);
 
   return n;
+  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_END
 }
 
 }

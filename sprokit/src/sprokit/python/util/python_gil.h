@@ -31,43 +31,20 @@
 #ifndef SPROKIT_PYTHON_UTIL_PYTHON_GIL_H
 #define SPROKIT_PYTHON_UTIL_PYTHON_GIL_H
 
-#include <sprokit/python/util/sprokit_python_util_export.h>
-
-#include <vital/noncopyable.h>
-
 #include <sprokit/python/util/python.h>
 
 /**
  * \file python_gil.h
  *
- * \brief RAII class for grabbing the Python GIL.
+ * \brief Macros for grabbing the GIL.
  */
 
-namespace sprokit {
-namespace python {
+#define SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_BEGIN \
+{                                               \
+  pybind11::gil_scoped_acquire acquire;         \
+  (void)acquire;
 
-/**
- * \class python_gil python_gil.h <sprokit/python/util/python_gil.h>
- *
- * \brief Grabs the Python GIL and uses RAII to ensure it is released.
- */
-class SPROKIT_PYTHON_UTIL_EXPORT python_gil
-  : private kwiver::vital::noncopyable
-{
-  public:
-    /**
-     * \brief Constructor.
-     */
-    python_gil();
-    /**
-     * \brief Destructor.
-     */
-    ~python_gil();
-  private:
-    PyGILState_STATE const state;
-};
-
-}
+#define SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_END \
 }
 
 #endif // SPROKIT_PYTHON_UTIL_PYTHON_GIL_H
