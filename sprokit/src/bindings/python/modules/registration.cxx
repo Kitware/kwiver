@@ -40,6 +40,7 @@
 #endif
 
 #include <sprokit/pipeline/utils.h>
+#include <sprokit/python/util/pyoptions.h>
 #include <sprokit/python/util/python_exceptions.h>
 #include <sprokit/python/util/python_gil.h>
 #include <sprokit/python/util/python.h>
@@ -78,6 +79,9 @@ class scoped_save_thread
       PyEval_SaveThread();
     }
 };
+
+
+static sprokit::python::pyoptions options;
 
 
 // ==================================================================

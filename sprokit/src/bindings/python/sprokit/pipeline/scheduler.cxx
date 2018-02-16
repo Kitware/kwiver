@@ -31,6 +31,7 @@
 #include <sprokit/pipeline/pipeline.h>
 #include <sprokit/pipeline/scheduler.h>
 
+#include <sprokit/python/util/pyoptions.h>
 #include <sprokit/python/util/python_exceptions.h>
 #include <sprokit/python/util/python_gil.h>
 
@@ -72,6 +73,8 @@ class scheduler_trampoline
     void _resume() override;
     void _stop() override;
 };
+
+static sprokit::python::pyoptions options;
 
 PYBIND11_MODULE(scheduler, m)
 {

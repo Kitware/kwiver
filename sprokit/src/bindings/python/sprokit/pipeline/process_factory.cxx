@@ -39,6 +39,7 @@
 #include <sprokit/pipeline/process_factory.h>
 #include <sprokit/pipeline/process_registry_exception.h>
 
+#include <sprokit/python/util/pyoptions.h>
 #include <sprokit/python/util/python_exceptions.h>
 #include <sprokit/python/util/python_gil.h>
 
@@ -127,6 +128,9 @@ create_object(kwiver::vital::config_block_sptr const& config)
 
   SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_END
 }
+
+
+static sprokit::python::pyoptions options;
 
 
 // ==================================================================

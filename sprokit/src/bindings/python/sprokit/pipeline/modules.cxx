@@ -32,6 +32,8 @@
 
 #include <pybind11/pybind11.h>
 
+#include <sprokit/python/util/pyoptions.h>
+
 /**
  * \file modules.cxx
  *
@@ -48,6 +50,8 @@ void load_known_modules()
 {
   kwiver::vital::plugin_manager::instance().load_all_plugins();
 }
+
+static sprokit::python::pyoptions options;
 
 PYBIND11_MODULE(modules, m)
 {

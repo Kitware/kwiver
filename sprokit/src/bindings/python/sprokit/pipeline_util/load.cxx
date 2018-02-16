@@ -35,6 +35,7 @@
 
 #include <sprokit/pipeline/process.h>
 
+#include <sprokit/python/util/pyoptions.h>
 #include <sprokit/python/util/pystream.h>
 #include <sprokit/python/util/python_gil.h>
 
@@ -78,6 +79,8 @@ static sprokit::cluster_blocks load_cluster_file(std::string const& path);
 static sprokit::cluster_blocks load_cluster(object const& stream);
 static std::vector<wrap_port_addr> get_targets(sprokit::cluster_input_t const& self);
 static void set_targets(sprokit::cluster_input_t &self, std::vector<wrap_port_addr> const& wrap_targets);
+
+static sprokit::python::pyoptions options;
 
 PYBIND11_MODULE(load, m)
 {
