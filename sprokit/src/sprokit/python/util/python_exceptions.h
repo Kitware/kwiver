@@ -71,11 +71,13 @@ namespace python {
   }                                                               \
   catch (std::exception const& e)                                 \
   {                                                               \
-    SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_BEGIN                       \
+    sprokit::python::python_gil const gil;                        \
+                                                                  \
+    (void)gil;                                                    \
+                                                                  \
     PyErr_SetString(PyExc_RuntimeError, e.what());                \
                                                                   \
     throw;                                                        \
-    SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_END                         \
   }
 
 SPROKIT_PYTHON_UTIL_EXPORT void python_print_exception();

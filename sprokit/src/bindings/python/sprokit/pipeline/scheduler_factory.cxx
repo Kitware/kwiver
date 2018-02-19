@@ -39,6 +39,7 @@
 #include <sprokit/pipeline/scheduler_factory.h>
 #include <sprokit/pipeline/scheduler_registry_exception.h>
 
+#include <sprokit/python/util/python_threading.h>
 #include <sprokit/python/util/python_gil.h>
 #include <sprokit/python/util/python_exceptions.h>
 
@@ -99,15 +100,11 @@ sprokit::scheduler_t
 python_scheduler_factory::
 create_object(sprokit::pipeline_t const& pipe, kwiver::vital::config_block_sptr const& config)
 {
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_BEGIN
-
   // Call sprokit factory function.
   pybind11::object obj = m_factory(pipe, config);
   obj.inc_ref();
   sprokit::scheduler_t schd_ptr = obj.cast<sprokit::scheduler_t>();
   return schd_ptr;
-
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_END
 }
 
 
@@ -118,31 +115,31 @@ PYBIND11_MODULE(scheduler_factory, m)
   bind_vector<std::vector< std::string > >(m, "string_vector");
 
   // Define unbound functions.
-  m.def("add_scheduler", &register_scheduler, call_guard<gil_scoped_release>()
+  m.def("add_scheduler", &register_scheduler
       , arg("type"), arg("description"), arg("ctor")
       , "Registers a function which creates a scheduler of the given type."
       , return_value_policy::reference_internal);
 
-  m.def("create_scheduler", &sprokit::create_scheduler, call_guard<gil_scoped_release>()
+  m.def("create_scheduler", &sprokit::create_scheduler
       , arg("type"), arg("pipeline"), arg("config") = kwiver::vital::config_block::empty_config()
       , "Creates a new scheduler of the given type.");
 
-  m.def("is_scheduler_module_loaded", &is_scheduler_loaded, call_guard<gil_scoped_release>()
+  m.def("is_scheduler_module_loaded", &is_scheduler_loaded
       , (arg("module"))
       , "Returns True if the module has already been loaded, False otherwise.");
 
-  m.def("mark_scheduler_module_as_loaded", &mark_scheduler_loaded, call_guard<gil_scoped_release>()
+  m.def("mark_scheduler_module_as_loaded", &mark_scheduler_loaded
       , (arg("module"))
       , "Marks a module as loaded.");
 
-  m.def("types", &scheduler_names, call_guard<gil_scoped_release>()
+  m.def("types", &scheduler_names
       , "A list of known scheduler types.");
 
-  m.def("description", &get_description, call_guard<gil_scoped_release>()
+  m.def("description", &get_description
       , (arg("type"))
       , "The description for the given scheduler type.");
 
-  m.def("default_type", &get_default_type, call_guard<gil_scoped_release>()
+  m.def("default_type", &get_default_type
       , "The default scheduler type.");
 
   m.attr("Scheduler") = m.import("sprokit.pipeline.scheduler").attr("PythonScheduler");
@@ -151,6 +148,7 @@ PYBIND11_MODULE(scheduler_factory, m)
 
 
 class python_scheduler_wrapper
+  : sprokit::python::python_threading
 {
   public:
     python_scheduler_wrapper(object obj);
@@ -275,7 +273,5 @@ object
 python_scheduler_wrapper
 ::operator () (sprokit::pipeline_t const& pipeline, kwiver::vital::config_block_sptr const& config)
 {
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_BEGIN
   return m_obj(pipeline, config);
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_END
 }

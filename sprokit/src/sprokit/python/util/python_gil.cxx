@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2013 by Kitware, Inc.
+ * Copyright 2011-2012 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,16 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "pystream.h"
-
 #include "python_gil.h"
-
-#include <pybind11/pybind11.h>
-
-#include <algorithm>
-#include <string>
-
-#include <cstddef>
 
 namespace sprokit
 {
@@ -45,69 +36,16 @@ namespace sprokit
 namespace python
 {
 
-pyistream_device
-::pyistream_device(pybind11::object const& obj)
-  : m_obj(obj)
-{
-  // \todo Check that the object has a "read" attribute and that it is callable.
-}
-
-pyistream_device
-::~pyistream_device()
+python_gil
+::python_gil()
+  : state(PyGILState_Ensure())
 {
 }
 
-std::streamsize
-pyistream_device
-::read(char_type* s, std::streamsize n)
+python_gil
+::~python_gil()
 {
-  python::python_gil const gil;
-
-  (void)gil;
-
-  pybind11::str const bytes = pybind11::str(m_obj.attr("read")(n));
-
-  pybind11::ssize_t const sz = len(bytes);
-
-  if (sz)
-  {
-    std::string const cppstr = bytes.cast<std::string>();
-
-    std::copy(cppstr.begin(), cppstr.end(), s);
-
-    return sz;
-  }
-  else
-  {
-    return -1;
-  }
-}
-
-pyostream_device
-::pyostream_device(pybind11::object const& obj)
-  : m_obj(obj)
-{
-  // \todo Check that the object has a "write" attribute and that it is callable.
-}
-
-pyostream_device
-::~pyostream_device()
-{
-}
-
-std::streamsize
-pyostream_device
-::write(char_type const* s, std::streamsize n)
-{
-  python::python_gil const gil;
-
-  (void)gil;
-
-  pybind11::str const bytes(s, static_cast<size_t>(n));
-
-  m_obj.attr("write")(bytes);
-
-  return n;
+  PyGILState_Release(state);
 }
 
 }

@@ -70,16 +70,6 @@ static bool is_suppressed();
 static void _load_python_library_symbols();
 
 
-class scoped_save_thread
-{
-  public:
-    ~scoped_save_thread()
-    {
-      PyEval_SaveThread();
-    }
-};
-
-
 // ==================================================================
 /**
  * @brief Python module loader.
@@ -115,24 +105,13 @@ register_factories(kwiver::vital::plugin_loader& vpm)
     PySys_SetArgvEx(0, NULL, 0);
   }
 
-  if (!PyEval_ThreadsInitialized())
-  {
-    // When this is destructed, PyEval_SaveThread() will be called to release
-    // the GIL
-    scoped_save_thread save_thread;
-    (void)save_thread;
-    {
-      // Let pybind11 initialize threads and set up its internal data structures
-      pybind11::gil_scoped_acquire acquire;
-      (void)acquire;
-    }
-  }
-
   _load_python_library_symbols();
 
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_BEGIN
+  sprokit::python::python_gil const gil;
+
+  (void)gil;
+
   SPROKIT_PYTHON_IGNORE_EXCEPTION(load())
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_END
 }
 
 

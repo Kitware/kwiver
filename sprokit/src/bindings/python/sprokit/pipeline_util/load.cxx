@@ -192,16 +192,16 @@ PYBIND11_MODULE(load, m)
     , "A collection of port addresses.")
   ;
 
-  m.def("load_pipe_file", &load_pipe_file, call_guard<gil_scoped_release>()
+  m.def("load_pipe_file", &load_pipe_file
     , (arg("path"))
     , "Load pipe blocks from a file.");
-  m.def("load_pipe", &load_pipe, call_guard<gil_scoped_release>()
+  m.def("load_pipe", &load_pipe
     , (arg("stream"))
     , "Load pipe blocks from a stream.");
-  m.def("load_cluster_file", &load_cluster_file, call_guard<gil_scoped_release>()
+  m.def("load_cluster_file", &load_cluster_file
     , (arg("path"))
     , "Load cluster blocks from a file.");
-  m.def("load_cluster", &load_cluster, call_guard<gil_scoped_release>()
+  m.def("load_cluster", &load_cluster
     , (arg("stream"))
     , "Load cluster blocks from a stream.");
 
@@ -414,7 +414,10 @@ object
 pipe_block_visitor
 ::operator () (sprokit::config_pipe_block const& config_block) const
 {
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_BEGIN
+  sprokit::python::python_gil const gil;
+
+  (void)gil;
+
   object obj = none();
 
   if (block_type == BLOCK_CONFIG)
@@ -423,14 +426,16 @@ pipe_block_visitor
   }
 
   return obj;
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_END
 }
 
 object
 pipe_block_visitor
 ::operator () (sprokit::process_pipe_block const& process_block) const
 {
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_BEGIN
+  sprokit::python::python_gil const gil;
+
+  (void)gil;
+
   object obj = none();
 
   if (block_type == BLOCK_PROCESS)
@@ -439,14 +444,16 @@ pipe_block_visitor
   }
 
   return obj;
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_END
 }
 
 object
 pipe_block_visitor
 ::operator () (sprokit::connect_pipe_block const& connect_block) const
 {
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_BEGIN
+  sprokit::python::python_gil const gil;
+
+  (void)gil;
+
   object obj = none();
 
   if (block_type == BLOCK_CONNECT)
@@ -455,14 +462,16 @@ pipe_block_visitor
   }
 
   return obj;
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_END
 }
 
 object
 pipe_block_visitor
 ::operator () (sprokit::cluster_pipe_block const& cluster_block) const
 {
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_BEGIN
+  sprokit::python::python_gil const gil;
+
+  (void)gil;
+
   object obj = none();
 
   if (block_type == BLOCK_CLUSTER)
@@ -471,7 +480,6 @@ pipe_block_visitor
   }
 
   return obj;
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_END
 }
 
 cluster_subblock_visitor
@@ -489,42 +497,48 @@ object
 cluster_subblock_visitor
 ::operator () (sprokit::cluster_config_t const& config) const
 {
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_BEGIN
+  sprokit::python::python_gil const gil;
+
+  (void)gil;
+
   if (block_type == BLOCK_CONFIG)
   {
     return cast(config);
   }
 
   return none();
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_END
 }
 
 object
 cluster_subblock_visitor
 ::operator () (sprokit::cluster_input_t const& input) const
 {
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_BEGIN
+  sprokit::python::python_gil const gil;
+
+  (void)gil;
+
   if (block_type == BLOCK_INPUT)
   {
     return cast(input);
   }
 
   return none();
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_END
 }
 
 object
 cluster_subblock_visitor
 ::operator () (sprokit::cluster_output_t const& output) const
 {
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_BEGIN
+  sprokit::python::python_gil const gil;
+
+  (void)gil;
+
   if (block_type == BLOCK_OUTPUT)
   {
     return cast(output);
   }
 
   return none();
-  SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_END
 }
 
 std::vector<wrap_port_addr>

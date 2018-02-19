@@ -52,7 +52,7 @@ void export_dot(object const& stream, sprokit::pipeline_t const pipe, std::strin
 
 PYBIND11_MODULE(export_, m)
 {
-  m.def("export_dot", &export_dot, call_guard<gil_scoped_release>()
+  m.def("export_dot", &export_dot
     , arg("stream"), arg("pipeline"), arg("name")
     , "Writes the pipeline to the stream in dot format.");
 }
@@ -60,6 +60,10 @@ PYBIND11_MODULE(export_, m)
 void
 export_dot(object const& stream, sprokit::pipeline_t const pipe, std::string const& graph_name)
 {
+  sprokit::python::python_gil const gil;
+
+  (void)gil;
+
   sprokit::python::pyostream ostr(stream);
 
   return sprokit::export_dot(ostr, pipe, graph_name);
