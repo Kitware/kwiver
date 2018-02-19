@@ -34,6 +34,8 @@
 
 #include <sprokit/version.h>
 
+#include <sprokit/python/util/pyoptions.h>
+
 
 /**
  * \file version.cxx
@@ -77,6 +79,8 @@ std::string const compile::git_dirty = SPROKIT_GIT_DIRTY;
 class runtime
 {
 };
+
+static sprokit::python::pyoptions options;
 
 PYBIND11_MODULE(version, m)
 {

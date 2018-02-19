@@ -35,6 +35,7 @@
 #include <sprokit/pipeline/pipeline.h>
 #include <sprokit/pipeline/process_factory.h>
 
+#include <sprokit/python/util/pyoptions.h>
 #include <sprokit/python/util/pystream.h>
 #include <sprokit/python/util/python_gil.h>
 
@@ -60,6 +61,8 @@ static sprokit::pipeline_t bake_pipe_file(std::string const& path);
 static sprokit::pipeline_t bake_pipe(object stream);
 static sprokit::cluster_info_t bake_cluster_file(std::string const& path);
 static sprokit::cluster_info_t bake_cluster(object stream);
+
+static sprokit::python::pyoptions options;
 
 PYBIND11_MODULE(bake, m)
 {

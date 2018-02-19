@@ -41,6 +41,7 @@
 
 #include <sprokit/pipeline/datum.h>
 
+#include <sprokit/python/util/pyoptions.h>
 #include <sprokit/python/util/python_gil.h>
 
 // Type conversions
@@ -84,6 +85,9 @@ static sprokit::datum_t datum_from_capsule( PyObject* cap );
 template<class T> T datum_get_object(sprokit::datum &);
 
 char const* sprokit_datum_PyCapsule_name() { return  "sprokit::datum"; }
+
+
+static sprokit::python::pyoptions options;
 
 
 PYBIND11_MODULE(datum, m)

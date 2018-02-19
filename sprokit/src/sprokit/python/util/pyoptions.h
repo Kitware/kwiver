@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2012 by Kitware, Inc.
+ * Copyright 2011-2013 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,42 +28,28 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sprokit/pipeline/pipeline.h>
-
-#include <sprokit/pipeline_util/export_dot.h>
-#include <sprokit/pipeline_util/export_dot_exception.h>
-
-#include <sprokit/python/util/pyoptions.h>
-#include <sprokit/python/util/pystream.h>
-#include <sprokit/python/util/python_gil.h>
+#ifndef SPROKIT_PYTHON_UTIL_PYOPTIONS_H
+#define SPROKIT_PYTHON_UTIL_PYOPTIONS_H
 
 #include <pybind11/pybind11.h>
 
-#include <string>
+namespace sprokit {
+namespace python {
 
-/**
- * \file export.cxx
- *
- * \brief Python bindings for exporting functions.
- */
-
-using namespace pybind11;
-
-void export_dot(object const& stream, sprokit::pipeline_t const pipe, std::string const& graph_name);
-
-static sprokit::python::pyoptions options;
-
-PYBIND11_MODULE(export_, m)
+// NOTE: This has to be in the header because pybind11 is header-only, so each
+// shared library gets its own copy of the pybind11::options singleton. DO NOT
+// EXPORT THIS CLASS!
+class pyoptions
+  : public pybind11::options
 {
-  m.def("export_dot", &export_dot, call_guard<gil_scoped_release>()
-    , arg("stream"), arg("pipeline"), arg("name")
-    , "Writes the pipeline to the stream in dot format.");
+  public:
+    pyoptions()
+    {
+      enable_use_gilstate();
+    }
+};
+
+}
 }
 
-void
-export_dot(object const& stream, sprokit::pipeline_t const pipe, std::string const& graph_name)
-{
-  sprokit::python::pyostream ostr(stream);
-
-  return sprokit::export_dot(ostr, pipe, graph_name);
-}
+#endif // SPROKIT_PYTHON_UTIL_PYOPTIONS_H

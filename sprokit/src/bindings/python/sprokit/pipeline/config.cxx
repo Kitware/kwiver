@@ -33,6 +33,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl_bind.h>
 
+#include <sprokit/python/util/pyoptions.h>
+
 #include <sstream>
 
 /**
@@ -74,6 +76,9 @@ static void config_setitem( kwiver::vital::config_block_sptr          self,
                             object const&                             value );
 static void config_delitem( kwiver::vital::config_block_sptr          self,
                             kwiver::vital::config_block_key_t const&  key );
+
+
+static sprokit::python::pyoptions options;
 
 
 PYBIND11_MODULE(config, m)

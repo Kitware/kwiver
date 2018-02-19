@@ -39,6 +39,7 @@
 #include <sprokit/pipeline/scheduler_factory.h>
 #include <sprokit/pipeline/scheduler_registry_exception.h>
 
+#include <sprokit/python/util/pyoptions.h>
 #include <sprokit/python/util/python_gil.h>
 #include <sprokit/python/util/python_exceptions.h>
 
@@ -109,6 +110,9 @@ create_object(sprokit::pipeline_t const& pipe, kwiver::vital::config_block_sptr 
 
   SPROKIT_PYTHON_GIL_SCOPED_ACQUIRE_END
 }
+
+
+static sprokit::python::pyoptions options;
 
 
 //==================================================================

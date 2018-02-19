@@ -32,6 +32,8 @@
 
 #include "python_wrappers.cxx"
 
+#include <sprokit/python/util/pyoptions.h>
+
 /**
  * \file stamp.cxx
  *
@@ -39,6 +41,8 @@
  */
 
 using namespace pybind11;
+
+static sprokit::python::pyoptions options;
 
 PYBIND11_MODULE(stamp, m)
 {

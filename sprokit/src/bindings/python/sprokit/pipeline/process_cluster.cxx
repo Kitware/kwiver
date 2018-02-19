@@ -32,6 +32,7 @@
 #include <sprokit/pipeline/process.h>
 #include <sprokit/pipeline/process_cluster.h>
 
+#include <sprokit/python/util/pyoptions.h>
 #include <sprokit/python/util/python_exceptions.h>
 #include <sprokit/python/util/python_gil.h>
 
@@ -48,6 +49,8 @@
 using namespace pybind11;
 
 static object cluster_from_process(sprokit::process_t const& process);
+
+static sprokit::python::pyoptions options;
 
 PYBIND11_MODULE(process_cluster, m)
 {

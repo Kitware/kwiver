@@ -32,6 +32,7 @@
 typedef std::set<std::string> string_set; // This has to be done first thing, or the macro breaks
 PYBIND11_MAKE_OPAQUE(string_set)
 
+#include <sprokit/python/util/pyoptions.h>
 #include <sprokit/python/util/python_exceptions.h>
 
 #include <pybind11/stl_bind.h>
@@ -154,6 +155,8 @@ void push_value_to_port(sprokit::process &self, sprokit::process::port_t const& 
 void push_datum_to_port(sprokit::process &self, sprokit::process::port_t const& port, sprokit::datum const& dat);
 
 std::string config_value(sprokit::process &self, kwiver::vital::config_block_key_t const& key);
+
+static sprokit::python::pyoptions options;
 
 PYBIND11_MODULE(process, m)
 {

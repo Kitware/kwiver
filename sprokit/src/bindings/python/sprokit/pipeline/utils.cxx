@@ -33,6 +33,8 @@
 
 #include <sprokit/pipeline/utils.h>
 
+#include <sprokit/python/util/pyoptions.h>
+
 /**
  * \file utils.cxx
  *
@@ -40,6 +42,8 @@
  */
 
 using namespace pybind11;
+
+static sprokit::python::pyoptions options;
 
 PYBIND11_MODULE(utils, m)
 {
