@@ -14,7 +14,11 @@ kwiver_check_compiler_flag( -Werror=narrowing )
 kwiver_check_compiler_flag( -Werror=init-self )
 kwiver_check_compiler_flag( -Werror=reorder )
 kwiver_check_compiler_flag( -Werror=overloaded-virtual )
-kwiver_check_compiler_flag( -Werror=cast-qual )
+
+# TODO:  Understand why this is neccesary on TX2 etc.
+if(NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+   kwiver_check_compiler_flag( -Werror=cast-qual )
+endif()
 
 # linker shared object control flags
 kwiver_check_compiler_flag( -Wl,--no-undefined )
