@@ -10,6 +10,7 @@ set( sources
   compute_homography_process.cxx
   compute_stereo_depth_map_process.cxx
   detect_features_process.cxx
+  detected_object_bounding_box_warp_process.cxx
   detected_object_coordinate_updater_process.cxx
   detected_object_filter_process.cxx
   detected_object_output_process.cxx
@@ -46,6 +47,7 @@ set( private_headers
   compute_homography_process.h
   compute_stereo_depth_map_process.h
   detect_features_process.h
+  detected_object_bounding_box_warp_process.h
   detected_object_coordinate_updater_process.h
   detected_object_filter_process.h
   detected_object_output_process.h

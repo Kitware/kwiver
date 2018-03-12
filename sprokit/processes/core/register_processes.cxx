@@ -38,6 +38,7 @@
 #include "compute_homography_process.h"
 #include "compute_stereo_depth_map_process.h"
 #include "detect_features_process.h"
+#include "detected_object_bounding_box_warp_process.h"
 #include "detected_object_coordinate_updater_process.h"
 #include "detected_object_filter_process.h"
 #include "detected_object_input_process.h"
@@ -209,6 +210,13 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                        "Reads detected object sets from an input file. "
                        "Detections read from the input file are grouped into sets for each image and individually returned." );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
+    fact = vpm.ADD_PROCESS( kwiver::detected_object_bounding_box_warp_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "detected_object_bounding_box_warp" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Warps bounding boxes of a detected object set according to the provided homography." );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
   fact = vpm.ADD_PROCESS( kwiver::detected_object_output_process );
