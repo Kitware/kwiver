@@ -32,7 +32,7 @@
 
 #include <vital/vital_types.h>
 #include <vital/types/timestamp.h>
-#include <vital/types//homography_f2f.h>
+#include <vital/types/homography_f2f.h>
 #include <vital/types/timestamp_config.h>
 #include <vital/types/image_container.h>
 #include <vital/algo/stabilize_video.h>
