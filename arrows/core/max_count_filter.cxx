@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ bidiiter random_unique( bidiiter begin, bidiiter end, size_t num_random ) {
 
 // ------------------------------------------------------------------
 max_count_filter::max_count_filter()
-  : m_randomize( true )
+  : m_randomize( false )
   , m_max_count( 1 )
 {
 }
@@ -109,6 +109,7 @@ check_configuration( vital::config_block_sptr config ) const
   {
     LOG_WARN( logger(), "Additional parameters found in config block that are not required or desired: "
               << kwiver::vital::join( key_list, ", " ) );
+    return false;
   }
 
   return true;
