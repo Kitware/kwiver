@@ -11,6 +11,7 @@ set( sources
   draw_detected_object_boxes_process.cxx
   cvt_color_process.cxx
   image_object_classifier_process.cxx
+  image_pyramid_process.cxx
   image_viewer_process.cxx
   show_mask_on_image_process.cxx
   stabilization_inspection_image_process.cxx
@@ -22,6 +23,7 @@ set( private_headers
   draw_detected_object_boxes_process.h
   cvt_color_process.h
   image_object_classifier_process.h
+  image_pyramid_process.h
   image_viewer_process.h
   show_mask_on_image_process.h
   stabilization_inspection_image_process.h

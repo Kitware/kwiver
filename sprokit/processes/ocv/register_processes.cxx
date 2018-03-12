@@ -38,6 +38,7 @@
 #include "draw_detected_object_boxes_process.h"
 #include "cvt_color_process.h"
 #include "image_object_classifier_process.h"
+#include "image_pyramid_process.h"
 #include "image_viewer_process.h"
 #include "stabilization_inspection_image_process.h"
 #include "show_mask_on_image_process.h"
@@ -94,6 +95,16 @@ register_factories( kwiver::vital::plugin_loader& vpm )
                        "Apply selected image object detector algorithm to sub-images "
                        "from incoming images according to the bounding boxes contained "
                        "within the provided input detected_object_set." );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+  
+  fact = vpm.ADD_PROCESS( kwiver::image_pyramid_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "image_pyramid" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Apply Gaussian pyramid upsampling or downsampling to "
+                       "an image. A homography may also be returned encoding "
+                       "the transformation of output image coordinates back to "
+                       "to source image coordinates." );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
   
   fact = vpm.ADD_PROCESS( kwiver::stabilization_inspection_image_process );
