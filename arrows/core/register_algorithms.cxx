@@ -72,6 +72,7 @@
 #include <arrows/core/read_object_track_set_kw18.h>
 #include <arrows/core/read_track_descriptor_set_csv.h>
 #include <arrows/core/track_features_augment_keyframes.h>
+#include <arrows/core/max_count_filter.h>
 #include <arrows/core/track_features_core.h>
 #include <arrows/core/transform_detected_object_set.h>
 #include <arrows/core/triangulate_landmarks.h>
@@ -105,6 +106,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 
   reg.register_algorithm< associate_detections_to_tracks_threshold >();
   reg.register_algorithm< class_probablity_filter >();
+  reg.register_algorithm< max_count_filter >();
   reg.register_algorithm< close_loops_appearance_indexed >();
   reg.register_algorithm< close_loops_bad_frames_only >();
   reg.register_algorithm< close_loops_exhaustive >();
