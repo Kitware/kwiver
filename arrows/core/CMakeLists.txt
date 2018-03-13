@@ -2,6 +2,7 @@
 
 set( plugin_core_headers
   associate_detections_to_tracks_threshold.h
+  aspect_ratio_filter.h
   class_probablity_filter.h
   close_loops_appearance_indexed.h
   close_loops_bad_frames_only.h
@@ -70,6 +71,7 @@ kwiver_install_headers(
   )
 
 set( plugin_core_sources
+  aspect_ratio_filter.cxx
   associate_detections_to_tracks_threshold.cxx
   class_probablity_filter.cxx
   close_loops_appearance_indexed.cxx
