@@ -4,6 +4,7 @@ set( plugin_core_headers
   associate_detections_to_tracks_threshold.h
   class_probablity_filter.h
   close_loops_appearance_indexed.h
+  bbox_size_filter.h
   close_loops_bad_frames_only.h
   close_loops_exhaustive.h
   close_loops_keyframe.h
@@ -73,6 +74,7 @@ set( plugin_core_sources
   associate_detections_to_tracks_threshold.cxx
   class_probablity_filter.cxx
   close_loops_appearance_indexed.cxx
+  bbox_size_filter.cxx
   close_loops_bad_frames_only.cxx
   close_loops_exhaustive.cxx
   close_loops_keyframe.cxx
