@@ -53,6 +53,7 @@
 #include <arrows/core/initialize_cameras_landmarks.h>
 #include <arrows/core/match_features_fundamental_matrix.h>
 #include <arrows/core/match_features_homography.h>
+#include <arrows/core/max_count_filter.h>
 #include <arrows/core/non_maximal_supression.h>
 #include <arrows/core/track_features_core.h>
 #include <arrows/core/triangulate_landmarks.h>
@@ -403,6 +404,17 @@ register_factories( kwiver::vital::plugin_loader& vpm )
                        "or with the keep_all_classes option.\n\n"
                        "3) The input detection_set is cloned and the detected_object_type "
                        "from step 2 is attached." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
+
+  fact = vpm.ADD_ALGORITHM( "max_count_filter", kwiver::arrows::core::max_count_filter );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Filters detections based on absolute count.\n\n"
+                       "Maximum of max_count highest probability detections returned by default.\n\n"
+                       "If randomize is set, returns max_count random detections."
+                       "(useful when no meaningful probability is available." )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
