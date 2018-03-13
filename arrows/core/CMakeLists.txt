@@ -1,6 +1,7 @@
 # Build / Install Plugin containing core algorithm implementations
 
 set( plugin_core_headers
+  aspect_ratio_filter.h
   class_probability_filter.h
   max_count_filter.h
   close_loops_bad_frames_only.h
@@ -58,6 +59,7 @@ kwiver_install_headers(
   )
 
 set( plugin_core_sources
+  aspect_ratio_filter.cxx
   class_probability_filter.cxx
   max_count_filter.cxx
   close_loops_bad_frames_only.cxx
