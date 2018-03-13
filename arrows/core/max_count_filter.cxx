@@ -122,6 +122,10 @@ max_count_filter::
 filter( const vital::detected_object_set_sptr input_set ) const
 {
 
+  // If we have fewer than or exactly max_count detections, no-op
+  if ( this->m_max_count >= input_set->size() )
+    return input_set;
+
   // Get list of all detections from the set.
   // Select returns items sorted by descending_confidence
   auto working_set = input_set->clone();
