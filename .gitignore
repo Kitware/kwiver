@@ -2,3 +2,6 @@ _build
 *.pyc
 *~
 .ipynb_checkpoints
+*.swap
+*.swp
+WORK
