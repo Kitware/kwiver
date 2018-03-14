@@ -47,13 +47,15 @@ namespace core {
 
 // ----------------------------------------------------------------
 /**
- * @brief Filters detections based on the bounding box Aspect Ratio
+ * @brief Filters detections based on the bounding box size
  *
- * Returns the set of detections the fit between {min,max}_aspect_ratio.
+ * Returns the set of detections the fit between {min,max}_width and
+ *   {min,max}_height.
  *
- * Setting {min,max}_aspect_ratio to negative values turns off checking.
+ * Setting {min,max}_width and/or {min,max}_height to negative values turns off
+ *   checking.
  *
- * Invalid bounding boxes do not pass.
+ * Invalid bounding boxes (zero height and/or width) do not pass.
  *
  */
 
@@ -82,4 +84,4 @@ private:
 }}} //End namespace
 
 
-#endif 
+#endif
