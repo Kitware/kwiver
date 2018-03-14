@@ -135,13 +135,13 @@ filter( const vital::detected_object_set_sptr input_set ) const
       // Check if there's a setting and if this box passes it
       // for min and max
       if ( ( m_min_width < 0 ||
-             width > m_min_width ) &&
+             width >= m_min_width ) &&
            ( m_max_width < 0 ||
-             width < m_max_width ) &&
+             width <= m_max_width ) &&
            ( m_min_height < 0 ||
-             height > m_min_height ) &&
+             height >= m_min_height ) &&
            ( m_max_height < 0 ||
-             height < m_max_height )
+             height <= m_max_height )
          )
         det_selected = true;
     }

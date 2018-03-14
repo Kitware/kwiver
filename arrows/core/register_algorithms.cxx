@@ -433,7 +433,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 
   fact = vpm.ADD_ALGORITHM( "aspect_ratio_filter", kwiver::arrows::core::aspect_ratio_filter );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
-                       "Filters detections based on aspect ratio of the associated bounding box.\n\n"
+                       "Filters detections based on aspect ratio (w/h) of the associated bounding box.\n\n"
                        "{min,max}_aspect_ratio are supported.  -1 to disable check.\n\n" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )

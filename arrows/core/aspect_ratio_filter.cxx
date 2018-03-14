@@ -59,11 +59,11 @@ aspect_ratio_filter::get_configuration() const
   vital::config_block_sptr config = vital::algorithm::get_configuration();
 
   config->set_value( "min_aspect_ratio", m_min_aspect_ratio,
-                     "Only detections with a bounding box aspect ratio greater than or equal to this will pass. (-1 to disable test)" );
+                     "Only detections with a bounding box aspect ratio (w/h) greater than or equal to this will pass. (-1 to disable test)" );
 
 
   config->set_value( "max_aspect_ratio", m_max_aspect_ratio,
-                     "Only detections with a bounding box aspect ratio less than or equal to this will pass. (-1 to disable test)" );
+                     "Only detections with a bounding box aspect ratio (w/h) less than or equal to this will pass. (-1 to disable test)" );
 
   return config;
 }
