@@ -59,11 +59,11 @@ aspect_ratio_filter::get_configuration() const
   vital::config_block_sptr config = vital::algorithm::get_configuration();
 
   config->set_value( "min_aspect_ratio", m_min_aspect_ratio,
-                     "Only detections with a bounding box aspect ratio greater than this will pass." );
+                     "Only detections with a bounding box aspect ratio greater than or equal to this will pass. (-1 to disable test)" );
 
 
   config->set_value( "max_aspect_ratio", m_max_aspect_ratio,
-                     "Only detections with a bounding box aspect ratio less than this will pass." );
+                     "Only detections with a bounding box aspect ratio less than or equal to this will pass. (-1 to disable test)" );
 
   return config;
 }
@@ -120,18 +120,18 @@ filter( const vital::detected_object_set_sptr input_set ) const
     double aspect_ratio = 0.0;
     if ( bbox.height() != 0 )
     {
-      aspect_ratio = bbox.height() / bbox.width();
+      aspect_ratio = bbox.width() / bbox.height();
     }
 
     // Invalid bboxes don't pass
     if ( aspect_ratio != 0.0 )
     {
-      // Check if there's a setting and if this box passes it 
+      // Check if there's a setting and if this box passes it
       // for min and max
       if ( ( m_min_aspect_ratio < 0 ||
-            aspect_ratio > m_min_aspect_ratio ) &&
+            aspect_ratio >= m_min_aspect_ratio ) &&
            ( m_max_aspect_ratio < 0 ||
-             aspect_ratio < m_max_aspect_ratio )
+             aspect_ratio <= m_max_aspect_ratio )
          )
         det_selected = true;
     }

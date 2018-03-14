@@ -61,16 +61,16 @@ bbox_size_filter::get_configuration() const
   vital::config_block_sptr config = vital::algorithm::get_configuration();
 
   config->set_value( "min_width", m_min_width,
-                     "Only detections with a bounding box width greater than this will pass." );
+                     "Only detections with a bounding box width greater than or equal to this will pass. (-1 to disable test)" );
 
   config->set_value( "max_width", m_max_width,
-                     "Only detections with a bounding box width less than this will pass." );
+                     "Only detections with a bounding box width less than or equal to this will pass. (-1 to disable test)" );
 
   config->set_value( "min_height", m_min_height,
-                     "Only detections with a bounding box height greater than this will pass." );
+                     "Only detections with a bounding box height greater than or equal to this will pass. (-1 to disable test)" );
 
   config->set_value( "max_height", m_max_height,
-                     "Only detections with a bounding box height less than this will pass." );
+                     "Only detections with a bounding box height less than or equal to this will pass. (-1 to disable test)" );
 
   return config;
 }
