@@ -51,8 +51,8 @@ class algo_trampoline
 };
 
 std::string
-algo_trampoline::
-type_name() const
+algo_trampoline
+::type_name() const
 {
   PYBIND11_OVERLOAD_PURE(
     std::string,
@@ -62,8 +62,8 @@ type_name() const
 }
 
 kwiver::vital::config_block_sptr
-algo_trampoline::
-get_configuration() const
+algo_trampoline
+::get_configuration() const
 {
   PYBIND11_OVERLOAD(
     kwiver::vital::config_block_sptr,
@@ -73,8 +73,8 @@ get_configuration() const
 }
 
 void
-algo_trampoline::
-set_configuration(kwiver::vital::config_block_sptr config)
+algo_trampoline
+::set_configuration(kwiver::vital::config_block_sptr config)
 {
   PYBIND11_OVERLOAD_PURE(
     void,
@@ -85,8 +85,8 @@ set_configuration(kwiver::vital::config_block_sptr config)
 }
 
 bool
-algo_trampoline::
-check_configuration(kwiver::vital::config_block_sptr config) const
+algo_trampoline
+::check_configuration(kwiver::vital::config_block_sptr config) const
 {
   PYBIND11_OVERLOAD_PURE(
     bool,
