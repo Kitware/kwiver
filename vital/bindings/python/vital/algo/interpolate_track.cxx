@@ -39,7 +39,7 @@ typedef kwiver::vital::algorithm kv_algorithm;
 typedef kwiver::vital::algo::interpolate_track kv_interpolate_track;
 typedef std::shared_ptr<kv_interpolate_track> kv_interpolate_track_t;
 
-/*
+
 // This doesn't work quite right, because there are two do_callback functions with different argument signatures
 // will clear up soon.
 class wrap_interpolate
@@ -50,7 +50,7 @@ class wrap_interpolate
     using kv_interpolate_track::interpolate_track;
     using kv_interpolate_track::do_callback;
 };
-*/
+
 
 class interpolate_trampoline
   : public kv_interpolate_track
@@ -119,11 +119,11 @@ PYBIND11_MODULE(interpolate_track, m)
   .def("set_progress_callback", &kv_interpolate_track::set_progress_callback, py::call_guard<py::gil_scoped_release>(),
     py::arg("init_states"),
     "Establish a callback to periodically report on progress.")
-  /*.def("do_callback", &wrap_interpolate::do_callback, py::call_guard<py::gil_scoped_release>(),
+  .def("do_callback", static_cast<void (kv_interpolate_track::*)(float)> (&wrap_interpolate::do_callback), py::call_guard<py::gil_scoped_release>(),
     py::arg("progress"),
     "Call the supplied callback function if one is active.")
-  .def("do_callback", &wrap_interpolate::do_callback, py::call_guard<py::gil_scoped_release>(),
+  .def("do_callback", static_cast<void (kv_interpolate_track::*)(int, int)> (&wrap_interpolate::do_callback), py::call_guard<py::gil_scoped_release>(),
     py::arg("steps"), py::arg("total"),
-    "Call the supplied callback function if one is active.")*/
+    "Call the supplied callback function if one is active.")
   ;
 }
