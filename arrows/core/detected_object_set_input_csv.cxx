@@ -75,8 +75,13 @@ public:
 
   bool get_input();
   void add_detection();
+<<<<<<< HEAD
   void add_detection( const std::vector< std::string >& parsed_line);
   void read_all();
+=======
+  void read_all();
+  void parse_detection( const std::vector< std::string >& parsed_line);
+>>>>>>> 826f107... Improved the process of extracting detections per frame
 
   // -------------------------------------
   detected_object_set_input_csv* m_parent;
@@ -145,7 +150,11 @@ read_all()
   //Run through all the lines in the groundtruth file
   while( stream_reader.getline( line ) )
   {
+<<<<<<< HEAD
     if( line.substr(0,6) == "Image,") //ignore header
+=======
+    if( line.substr(0,6) == "Image," || line.empty() ) //ignore header
+>>>>>>> 826f107... Improved the process of extracting detections per frame
     {
       continue;
     }
@@ -167,7 +176,11 @@ read_all()
     }
 
     //parsed_line.insert( parsed_line.begin() + 3, parsed_loc.begin(), parsed_loc.end() );
+<<<<<<< HEAD
     parse_add( parsed_line );
+=======
+    parse_detection( parsed_line );
+>>>>>>> 826f107... Improved the process of extracting detections per frame
   }
 
   std::sort( m_filenames.begin(), m_filenames.end() );
@@ -186,6 +199,7 @@ read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name
     {
       return false; // indicate end of file.
     }
+<<<<<<< HEAD
 	
     //This is what creates the map from file name to object set
     //In the future maybe it should be computed if ever any 
@@ -193,6 +207,9 @@ read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name
       d->read_all();
     }
 
+=======
+    d->read_all();
+>>>>>>> 826f107... Improved the process of extracting detections per frame
     // allocate first detection set
     d->m_current_set = std::make_shared<kwiver::vital::detected_object_set>();
 
@@ -214,9 +231,12 @@ read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name
       // Return detections for this frame.
       set = d->m_gt_sets[ image_name ];
     }
+<<<<<<< HEAD
 
     //
     image_name = d->m_image_name;
+=======
+>>>>>>> 826f107... Improved the process of extracting detections per frame
     return true;
   }
 
@@ -264,7 +284,11 @@ new_stream()
 {
   d->m_first = true;
   d->m_stream_reader = std::make_shared< kwiver::vital::data_stream_reader>( stream() );
+<<<<<<< HEAD
   d->m_filenames.clear();
+=======
+  //d->m_filenames.clear();
+>>>>>>> 826f107... Improved the process of extracting detections per frame
   d->m_gt_sets.clear();
 }
 
@@ -307,7 +331,56 @@ get_input()
 // ------------------------------------------------------------------
 void
 detected_object_set_input_csv::priv::
+<<<<<<< HEAD
 add_detection( const std::vector< std::string >& parsed_line)
+=======
+parse_detection( const std::vector< std::string >& parsed_line)
+{
+  kwiver::vital::detected_object_type_sptr dot;
+
+  // Create DOT object if classifiers are present
+  if ( parsed_line.size() > 7 )
+  {
+    dot = std::make_shared<kwiver::vital::detected_object_type>();
+    const size_t limit( parsed_line.size() );
+
+    for (size_t i = 7; i < limit; i += 2 )
+    {
+      double score = atof( parsed_line[i+1].c_str() );
+      dot->set_score( parsed_line[i], score );
+    }
+  } // end classes
+
+  const kwiver::vital::bounding_box_d bbox(
+    atof( parsed_line[2].c_str() ),
+    atof( parsed_line[3].c_str() ),
+    atof( parsed_line[4].c_str() ),
+    atof( parsed_line[5].c_str() ) );
+
+  const double confid( atof( parsed_line[6].c_str() ) );
+
+   //initializing the map
+   if( m_gt_sets.find( parsed_line[0] ) == m_gt_sets.end() )
+   {
+     // create a new detection set entry
+     m_gt_sets[ parsed_line[0] ] =
+       std::make_shared<kwiver::vital::detected_object_set>();
+
+     m_filenames.push_back( parsed_line[0] );
+   }
+
+   //adding a detection
+   m_gt_sets[ parsed_line[0] ]->add( std::make_shared<kwiver::vital::detected_object>( bbox, confid, dot ) );
+  //m_current_set->add( std::make_shared<kwiver::vital::detected_object>( bbox, confid, dot ) );
+
+  m_image_name = parsed_line[1];
+}
+
+
+void
+detected_object_set_input_csv::priv::
+add_detection()
+>>>>>>> 826f107... Improved the process of extracting detections per frame
 {
   kwiver::vital::detected_object_type_sptr dot;
   //The first seven fields are required in any detection
