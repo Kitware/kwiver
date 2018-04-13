@@ -75,8 +75,8 @@ public:
 
   bool get_input();
   void add_detection();
+  void add_detection( const std::vector< std::string >& parsed_line);
   void read_all();
-  void parse_detection( const std::vector< std::string >& parsed_line);
 
   // -------------------------------------
   detected_object_set_input_csv* m_parent;
@@ -145,7 +145,7 @@ read_all()
   //Run through all the lines in the groundtruth file
   while( stream_reader.getline( line ) )
   {
-    if( line.substr(0,6) == "Image," || line.empty() ) //ignore header
+    if( line.substr(0,6) == "Image,") //ignore header
     {
       continue;
     }
@@ -167,7 +167,7 @@ read_all()
     }
 
     //parsed_line.insert( parsed_line.begin() + 3, parsed_loc.begin(), parsed_loc.end() );
-    parse_detection( parsed_line );
+    parse_add( parsed_line );
   }
 
   std::sort( m_filenames.begin(), m_filenames.end() );
@@ -209,6 +209,9 @@ read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name
       // Return detections for this frame.
       set = d->m_gt_sets[ image_name ];
     }
+
+    //
+    image_name = d->m_image_name;
     return true;
   }
 
@@ -256,7 +259,7 @@ new_stream()
 {
   d->m_first = true;
   d->m_stream_reader = std::make_shared< kwiver::vital::data_stream_reader>( stream() );
-  //d->m_filenames.clear();
+  d->m_filenames.clear();
   d->m_gt_sets.clear();
 }
 
@@ -299,17 +302,20 @@ get_input()
 // ------------------------------------------------------------------
 void
 detected_object_set_input_csv::priv::
-parse_detection( const std::vector< std::string >& parsed_line)
+add_detection( const std::vector< std::string >& parsed_line)
 {
   kwiver::vital::detected_object_type_sptr dot;
+  //The first seven fields are required in any detection
+  const size_t num_required_fields( 7 );
 
   // Create DOT object if classifiers are present
-  if ( parsed_line.size() > 7 )
+  if ( parsed_line.size() > num_required_fields )
   {
     dot = std::make_shared<kwiver::vital::detected_object_type>();
     const size_t limit( parsed_line.size() );
 
-    for (size_t i = 7; i < limit; i += 2 )
+    //The required fields may be followed by an arbitrary number of (class-name, score) pairs 
+    for (size_t i = num_required_fields; i < limit; i += 2 )
     {
       double score = atof( parsed_line[i+1].c_str() );
       dot->set_score( parsed_line[i], score );
@@ -324,19 +330,18 @@ parse_detection( const std::vector< std::string >& parsed_line)
 
   const double confid( atof( parsed_line[6].c_str() ) );
 
-   //initializing the map
-   if( m_gt_sets.find( parsed_line[0] ) == m_gt_sets.end() )
-   {
-     // create a new detection set entry
-     m_gt_sets[ parsed_line[0] ] =
-       std::make_shared<kwiver::vital::detected_object_set>();
+  //initializing the map
+  if( m_gt_sets.find( parsed_line[0] ) == m_gt_sets.end() )
+  {
+    // create a new detection set entry
+    m_gt_sets[ parsed_line[0] ] =
+      std::make_shared<kwiver::vital::detected_object_set>();
 
-     m_filenames.push_back( parsed_line[0] );
-   }
+    m_filenames.push_back( parsed_line[0] );
+  }
 
-   //adding a detection
-   m_gt_sets[ parsed_line[0] ]->add( std::make_shared<kwiver::vital::detected_object>( bbox, confid, dot ) );
-  //m_current_set->add( std::make_shared<kwiver::vital::detected_object>( bbox, confid, dot ) );
+  //adding a detection
+  m_gt_sets[ parsed_line[0] ]->add( std::make_shared<kwiver::vital::detected_object>( bbox, confid, dot ) );
 
   m_image_name = parsed_line[1];
 }
@@ -344,17 +349,19 @@ parse_detection( const std::vector< std::string >& parsed_line)
 
 void
 detected_object_set_input_csv::priv::
-add_detection()
+add_detection(const std::vector< std::string >& parsed_line)
 {
   kwiver::vital::detected_object_type_sptr dot;
-
+  //The first seven fields are required in any detection
+  const size_t num_required_fields( 7 );
+                             
   // Create DOT object if classifiers are present
-  if ( m_input_buffer.size() > 7 )
+  if ( m_input_buffer.size() > num_required_fields )
   {
     dot = std::make_shared<kwiver::vital::detected_object_type>();
     const size_t limit( m_input_buffer.size() );
-
-    for (size_t i = 7; i < limit; i += 2 )
+    //The required fields may be followed by an arbitrary number of (class-name, score) pairs 
+    for (size_t i = num_required_fields; i < limit; i += 2 )
     {
       double score = atof( m_input_buffer[i+1].c_str() );
       dot->set_score( m_input_buffer[i], score );
