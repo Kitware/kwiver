@@ -186,8 +186,13 @@ read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name
     {
       return false; // indicate end of file.
     }
-    //Setting up the map from file name to detection set
-    d->read_all();
+	
+    //This is what creates the map from file name to object set
+    //In the future maybe it should be computed if ever any 
+    if ( !image_name.empty() ){
+      d->read_all();
+    }
+
     // allocate first detection set
     d->m_current_set = std::make_shared<kwiver::vital::detected_object_set>();
 
