@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,17 +37,19 @@
 #ifndef KWIVER_TEST_TEST_TMPFN_H_
 #define KWIVER_TEST_TEST_TMPFN_H_
 
+#include <kwiversys/SystemTools.hxx>
+#include <kwiversys/SystemInformation.hxx>
+
 #include <string>
-
-#include <cstdio>
+#include <sstream>
 #include <cstdlib>
-
-#ifdef _WIN32
-#define tempnam(d, p) _tempnam(d, p)
-#endif
+#include <chrono>
 
 namespace kwiver {
 namespace testing {
+
+using ST = kwiversys::SystemTools;
+using namespace std::chrono;
 
 // ----------------------------------------------------------------------------
 /** @brief Generate a unique file name in the current working directory.
@@ -58,11 +60,29 @@ namespace testing {
 std::string
 temp_file_name( char const* prefix, char const* suffix )
 {
-  auto const n = tempnam(".", prefix);
-  auto const s = std::string(n);
-  free(n);
+  std::string tfn;
+  kwiversys::SystemInformation sysinfo;
 
-  return s + suffix;
+  // This is a fair amount of work to get a unique seed for the RNG.
+  // Practically speaking, this may not be necessary since the RNG is
+  // used repeatedly if the proposed file already exists. So it will
+  // also work if the default random sequence is used and the
+  // progression of file name is always the same (as long as there is
+  // not a race condition).
+  auto ms = std::chrono::high_resolution_clock::now();
+  auto value = ms.time_since_epoch();
+  unsigned int seed = value.count() * (10000 + sysinfo.GetProcessId() );
+
+  srand( seed );
+
+  do
+  {
+    std::stringstream sstr;
+    sstr << prefix << rand() << suffix;
+    tfn = sstr.str();
+  } while ( ST::FileExists( tfn, false ) );
+
+  return tfn;
 }
 
 } // end namespace testing
