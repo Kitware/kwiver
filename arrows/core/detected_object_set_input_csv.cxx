@@ -162,7 +162,7 @@ read_all()
     // Test the minimum number of fields.
     if ( parsed_line.size() < 7 )
     {
-      LOG_WARN( m_logger, "Invalid line, too few fields: " << line );// logger() as the first arguement results in build errors
+      LOG_WARN( logger(), "Invalid line, too few fields: " << line );// logger() as the first arguement results in build errors
       continue;
     }
 
