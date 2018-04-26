@@ -2,7 +2,7 @@
 # See http://travis-ci.org/Kitware/kwiver/
 
 sudo: false
-
+os: trusty
 language: cpp
 
 matrix:
