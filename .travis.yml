@@ -2,7 +2,7 @@
 # See http://travis-ci.org/Kitware/kwiver/
 
 sudo: false
-os: trusty
+
 language: cpp
 
 matrix:
@@ -35,6 +35,7 @@ addons:
     - libxt-dev
     - libatlas-base-dev
     - python2.7-dev
+    - libdc1394-22
 
 script:
   - export PATH=$HOME/deps/bin:$PATH
