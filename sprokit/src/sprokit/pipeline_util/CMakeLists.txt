@@ -100,7 +100,6 @@ kwiver_add_library(sprokit_pipeline_util
 target_link_libraries(sprokit_pipeline_util
   PUBLIC      sprokit_pipeline
             ${Boost_FILESYSTEM_LIBRARY}
-            ${Boost_SYSTEM_LIBRARY}
   PRIVATE     vital_config
               vital_util
               vital_exceptions

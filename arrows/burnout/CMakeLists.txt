@@ -12,7 +12,6 @@ set( sources
 set( burnout_linked_libs
   ${VIDTK_LIBRARIES}
   kwiversys
-  ${Boost_SYSTEM_LIBRARY}
   ${Boost_FILESYSTEM_LIBRARY}
   kwiver_algo_ocv
   kwiver_algo_vxl )

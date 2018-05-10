@@ -28,7 +28,6 @@ kwiver_add_plugin( kwiver_processes_matlab
                    kwiver_algo_matlab
                    kwiversys
                    vital vital_vpm vital_logger vital_config
-                 ${Boost_SYSTEM_LIBRARY}
                  ${Boost_FILESYSTEM_LIBRARY}
                  ${Matlab_LIBRARIES}
 )
