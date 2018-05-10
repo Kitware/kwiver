@@ -29,7 +29,6 @@ _sprokit_add_python_library(modules
 target_link_libraries(python-sprokit.pipeline-modules
   PRIVATE             sprokit_pipeline
                       sprokit_python_util
-                      ${Boost_SYSTEM_LIBRARY}
                       vital_vpm
   )
 

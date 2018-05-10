@@ -59,6 +59,5 @@ kwiver_add_plugin(processes_examples
                  ${examples_private_headers}
   PRIVATE        sprokit_pipeline
                  ${Boost_FILESYSTEM_LIBRARY}
-                 ${Boost_SYSTEM_LIBRARY}
                  vital_vpm
   )

@@ -11,7 +11,6 @@ target_link_libraries(python-sprokit.pipeline_util-bake
     sprokit_pipeline_util
     sprokit_python_util
     ${Boost_IOSTREAMS_LIBRARY}
-    ${Boost_SYSTEM_LIBRARY}
     vital_vpm
   )
 
