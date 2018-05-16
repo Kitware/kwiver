@@ -82,6 +82,8 @@ OPTION(KWIVER_ENABLE_ARROWS    "Enable building arrows" OFF )
 OPTION(KWIVER_ENABLE_TOOLS     "Enable tools" OFF )
 OPTION(KWIVER_ENABLE_TRACK_ORACLE  "Enable track_oracle" OFF )
 
+OPTION(KWIVER_ENABLE_GPU "Enable the use of GPUs, especially for Darknet and Caffe" ON)
+
 # if sprokit enabled
 OPTION(KWIVER_ENABLE_SPROKIT "Enable building sprokit" OFF )
 
