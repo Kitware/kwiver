@@ -39,6 +39,10 @@
 
 #include <opencv2/core/core.hpp>
 
+#ifndef KWIVER_ENABLE_GPU
+#define CPU_ONLY
+#endif
+
 #include <caffe/blob.hpp>
 #include <caffe/net.hpp>
 

@@ -4,6 +4,10 @@ set( caffe_headers_public
   faster_rcnn_detector.h
   )
 
+if (KWIVER_ENABLE_GPU)
+  add_definitions( -DKWIVER_ENABLE_GPU )  # needed by darknet includes
+endif()
+
 kwiver_install_headers(
   SUBDIR     arrows/caffe
   ${caffe_headers_public}

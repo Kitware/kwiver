@@ -28,6 +28,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef KWIVER_ENABLE_GPU
+#define CPU_ONLY
+#endif
 #include <caffe/common.hpp>
 
 #include "faster_rcnn_detector.h"
