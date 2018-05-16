@@ -113,7 +113,7 @@ _step()
     ts = grab_from_port_using_trait( timestamp );
   }
   
-  bool reset;
+  bool reset = false;
   if (has_input_port_edge_using_trait( coordinate_system_updated ) )
   {
     reset = grab_from_port_using_trait( coordinate_system_updated );
