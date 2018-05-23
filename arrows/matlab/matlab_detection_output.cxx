@@ -206,8 +206,9 @@ check_configuration( vital::config_block_sptr config ) const
 // ------------------------------------------------------------------
 void
 matlab_detection_output::
-write_set( const kwiver::vital::detected_object_set_sptr set,
-           std::string const&                            image_name )
+write_set( const kwiver::vital::detected_object_set_sptr&   set,
+           const boost::optional<kwiver::vital::timestamp>& timestamp,
+           std::string const&                               image_name )
 {
   d->initialize_once();
 
