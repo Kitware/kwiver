@@ -55,7 +55,7 @@ public:
   virtual void set_configuration( vital::config_block_sptr config );
   virtual bool check_configuration( vital::config_block_sptr config ) const;
 
-  virtual void write_set( const kwiver::vital::detected_object_set_sptr set, std::string const& image_name );
+  virtual void write_set( const kwiver::vital::detected_object_set_sptr& set, const boost::optional<kwiver::vital::timestamp>& timestamp, std::string const& image_name );
 
 private:
   class priv;

@@ -122,7 +122,7 @@ check_configuration( vital::config_block_sptr config ) const
 // ------------------------------------------------------------------
 void
 detected_object_set_output_kpf::
-write_set( const kwiver::vital::detected_object_set_sptr set, std::string const& image_name )
+write_set( const kwiver::vital::detected_object_set_sptr& set, const boost::optional<kwiver::vital::timestamp>& timestamp, std::string const& image_name )
 {
   KPF::record_yaml_writer w(stream());
   size_t line_count = 0;
