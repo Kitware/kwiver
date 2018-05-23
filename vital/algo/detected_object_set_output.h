@@ -40,6 +40,9 @@
 #include <vital/algo/algorithm.h>
 
 #include <vital/types/detected_object_set.h>
+#include <vital/types/timestamp.h>
+
+#include <boost/optional.hpp>
 
 #include <string>
 #include <fstream>
@@ -107,7 +110,8 @@ public:
    * \param set Detected object set
    * \param image_path File path to image associated with the detections.
    */
-  virtual void write_set( const kwiver::vital::detected_object_set_sptr set,
+  virtual void write_set( const kwiver::vital::detected_object_set_sptr& set,
+                          const boost::optional<kwiver::vital::timestamp>& timestamp,
                           std::string const& image_path ) = 0;
 
 

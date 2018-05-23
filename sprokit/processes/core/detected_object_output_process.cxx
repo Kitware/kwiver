@@ -38,6 +38,7 @@
 #include <vital/vital_types.h>
 #include <vital/exceptions.h>
 #include <vital/algo/detected_object_set_output.h>
+#include <vital/types/timestamp.h>
 
 #include <kwiver_type_traits.h>
 
@@ -165,12 +166,20 @@ void detected_object_output_process
     file_name = grab_from_port_using_trait( image_file_name );
   }
 
+  boost::optional<vital::timestamp> timestamp;
+
+  // timestamp is optional
+  if ( has_input_port_edge_using_trait( timestamp ) )
+  {
+    timestamp = grab_from_port_using_trait( timestamp );
+  }
+
   kwiver::vital::detected_object_set_sptr input = grab_from_port_using_trait( detected_object_set );
 
   {
     scoped_step_instrumentation();
 
-    d->m_writer->write_set( input, file_name );
+    d->m_writer->write_set( input, timestamp, file_name );
   }
 }
 
@@ -185,6 +194,7 @@ void detected_object_output_process
   required.insert( flag_required );
 
   declare_input_port_using_trait( image_file_name, optional );
+  declare_input_port_using_trait( timestamp, optional );
   declare_input_port_using_trait( detected_object_set, required );
 }
 
