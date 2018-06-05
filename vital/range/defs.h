@@ -48,6 +48,25 @@ namespace range {
 #define KWIVER_UNPACK_TOKENS( ... ) __VA_ARGS__
 
 // ----------------------------------------------------------------------------
+#define KWIVER_MUTABLE_RANGE_ADAPTER( name ) \
+  struct name##_view_adapter_t \
+  { \
+    template < typename Range > \
+    static name##_view< Range > \
+    adapt( Range& range ) \
+    { return { range }; } \
+    \
+    template < typename Range > \
+    static name##_view< Range const > \
+    adapt( Range const& range ) \
+    { return { range }; } \
+  }; \
+  \
+  inline constexpr \
+  range_adapter_t< name##_view_adapter_t > \
+  name() { return {}; }
+
+// ----------------------------------------------------------------------------
 #define KWIVER_RANGE_ADAPTER_TEMPLATE( name, args, arg_names ) \
   template < KWIVER_UNPACK_TOKENS args > \
   struct name##_view_adapter_t \
@@ -116,7 +135,7 @@ template < typename Range, typename Adapter >
 auto
 operator|(
   Range const& range,
-  range_adapter_t< Adapter > (*)() )
+  range_adapter_t< Adapter >(*)() )
 -> decltype( Adapter::adapt( range ) )
 {
   return Adapter::adapt( range );
@@ -126,7 +145,7 @@ operator|(
 template < typename Range, typename Adapter >
 auto
 operator|(
-  Range const& range,
+  Range& range,
   range_adapter_t< Adapter > )
 -> decltype( Adapter::adapt( range ) )
 {
