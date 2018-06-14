@@ -87,6 +87,8 @@ public:
 
     const_iterator& operator++();
 
+    operator bool() const { return m_iter != m_end; }
+
   protected:
     friend class filter_view;
     const_iterator( range_iterator_t const& iter,
@@ -118,7 +120,7 @@ filter_view< FilterFunction, Range >
 ::begin() const
 {
   auto iter = const_iterator{ m_range.begin(), m_range.end(), m_func };
-  return ( m_func( *iter ) ? iter : ++iter );
+  return ( iter && m_func( *iter ) ? iter : ++iter );
 }
 
 // ----------------------------------------------------------------------------
