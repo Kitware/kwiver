@@ -65,7 +65,7 @@ class KWIVER_ALGO_CORE_EXPORT bbox_size_filter
 public:
 
   bbox_size_filter();
-  virtual ~bbox_size_filter() VITAL_DEFAULT_DTOR
+  virtual ~bbox_size_filter() = default;
 
   virtual vital::config_block_sptr get_configuration() const;
 

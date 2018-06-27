@@ -30,18 +30,17 @@
 
 #include "bbox_size_filter.h"
 
-#include <vital/vital_foreach.h>
 #include <vital/config/config_difference.h>
 #include <vital/util/string.h>
 
-namespace kwiver {
-namespace arrows {
-namespace core {
 #include <vector>
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
 
+namespace kwiver {
+namespace arrows {
+namespace core {
 
 // ------------------------------------------------------------------
 bbox_size_filter::bbox_size_filter()
@@ -121,11 +120,8 @@ filter( const vital::detected_object_set_sptr input_set ) const
 {
   auto ret_set = std::make_shared<vital::detected_object_set>();
 
-  // Get list of all detections from the set.
-  auto detections = input_set->select();
-
   // loop over all detections
-  VITAL_FOREACH( auto det, detections )
+  for( auto det : *input_set )
   {
     bool det_selected( false );
     auto bbox = det->bounding_box();
@@ -152,13 +148,13 @@ filter( const vital::detected_object_set_sptr input_set ) const
 
     if ( det_selected )
     {
+      //+ Is is necessary to clone the detection here?
       auto out_det = det->clone();
       ret_set->add( out_det );
     }
   }
 
   return ret_set;
-
 }
 
 } } }     // end namespace
