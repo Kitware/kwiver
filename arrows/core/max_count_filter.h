@@ -63,7 +63,7 @@ class KWIVER_ALGO_CORE_EXPORT max_count_filter
 public:
 
   max_count_filter();
-  virtual ~max_count_filter() VITAL_DEFAULT_DTOR
+  virtual ~max_count_filter() = default;
 
   virtual vital::config_block_sptr get_configuration() const;
 
@@ -74,7 +74,7 @@ public:
 
 private:
   bool m_randomize;
-  int m_max_count;
+  size_t m_max_count;
 };
 
 }}} //End namespace

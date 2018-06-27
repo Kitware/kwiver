@@ -30,31 +30,34 @@
 
 #include "max_count_filter.h"
 
-#include <vital/vital_foreach.h>
 #include <vital/config/config_difference.h>
 #include <vital/util/string.h>
 
-namespace kwiver {
-namespace arrows {
-namespace core {
 #include <vector>
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
 
+namespace kwiver {
+namespace arrows {
+namespace core {
+
 // Implementation of https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 // from https://stackoverflow.com/questions/9345087/choose-m-elements-randomly-from-a-vector-containing-n-elements
+
 template<class bidiiter>
-bidiiter random_unique( bidiiter begin, bidiiter end, size_t num_random ) {
-    size_t left = std::distance(begin, end);
-    while ( num_random-- ) {
-        bidiiter r = begin;
-        std::advance( r, rand()%left );
-        std::swap( *begin, *r );
-        ++begin;
-        --left;
-    }
-    return begin;
+bidiiter random_unique( bidiiter begin, bidiiter end, size_t num_random )
+{
+  size_t left = std::distance(begin, end);
+  while ( num_random-- )
+  {
+    bidiiter r = begin;
+    std::advance( r, rand()%left );
+    std::swap( *begin, *r );
+    ++begin;
+    --left;
+  }
+  return begin;
 }
 
 
@@ -121,21 +124,28 @@ vital::detected_object_set_sptr
 max_count_filter::
 filter( const vital::detected_object_set_sptr input_set ) const
 {
-
   // If we have fewer than or exactly max_count detections, no-op
   if ( this->m_max_count >= input_set->size() )
+  {
     return input_set;
+  }
 
   // Get list of all detections from the set.
   // Select returns items sorted by descending_confidence
-  auto working_set = input_set->clone();
-  auto detections = working_set->select();
+  std::vector< vital::detected_object_sptr > detections;
 
-  if ( this->m_randomize ) {
-		// Shuffle max_count random elements to the top
-    random_unique( detections.begin(),detections.end(),this->m_max_count );
+  for ( auto det : *input_set )
+  {
+    detections.push_back( det );
   }
 
+  if ( this->m_randomize )
+  {
+    // Shuffle max_count random elements to the top
+    random_unique( detections.begin(), detections.end(), this->m_max_count );
+  }
+
+  // Trim off extra detections to limit size
   detections.resize( this->m_max_count );
 
   auto ret_set = std::make_shared<vital::detected_object_set>( detections );
