@@ -63,7 +63,7 @@ class KWIVER_ALGO_CORE_EXPORT aspect_ratio_filter
 public:
 
   aspect_ratio_filter();
-  virtual ~aspect_ratio_filter() VITAL_DEFAULT_DTOR
+  virtual ~aspect_ratio_filter() = default;
 
   virtual vital::config_block_sptr get_configuration() const;
 

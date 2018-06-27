@@ -30,18 +30,17 @@
 
 #include "aspect_ratio_filter.h"
 
-#include <vital/vital_foreach.h>
 #include <vital/config/config_difference.h>
 #include <vital/util/string.h>
 
-namespace kwiver {
-namespace arrows {
-namespace core {
 #include <vector>
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
 
+namespace kwiver {
+namespace arrows {
+namespace core {
 
 // ------------------------------------------------------------------
 aspect_ratio_filter::aspect_ratio_filter()
@@ -111,11 +110,8 @@ filter( const vital::detected_object_set_sptr input_set ) const
 {
   auto ret_set = std::make_shared<vital::detected_object_set>();
 
-  // Get list of all detections from the set.
-  auto detections = input_set->select();
-
   // loop over all detections
-  VITAL_FOREACH( auto det, detections )
+  for( auto det : *input_set )
   {
     bool det_selected( false );
     auto bbox = det->bounding_box();
