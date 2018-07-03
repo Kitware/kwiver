@@ -44,7 +44,7 @@ RUN mkdir /fletch /fletch/build /fletch/build/rel /fletch/build/deb \
 && cd /fletch \
 && git clone https://github.com/Kitware/fletch.git src \
 && cd src \
-&& git checkout release \ #this should be changed to the latest release (1.1.0)
+&& git checkout release \ 
 && cd /fletch/build/rel \ 
 && cmake -DCMAKE_BUILD_TYPE=Release -Dfletch_ENABLE_ALL_PACKAGES=ON -Dfletch_ENABLE_PYTHON=ON ../../src \
 && make -j8 -k
@@ -57,7 +57,7 @@ RUN mkdir /kwiver /kwiver/src /kwiver/build /kwiver/build/release /kwiver/build/
 && cd /kwiver \
 && git clone https://github.com/Kitware/kwiver.git src \
 && cd src \
-&& git checkout release \ #this should be changed to the latest release (1.2.0)
+&& git checkout release \ 
 && cd /kwiver/build/release \ 
 && cmake /kwiver/src -DCMAKE_BUILD_TYPE=Release -Dfletch_DIR:PATH=/fletch/build/rel -DKWIVER_ENABLE_ARROWS=ON -DKWIVER_ENABLE_C_BINDINGS=ON -DKWIVER_ENABLE_CERES=ON -DKWIVER_ENABLE_EXTRAS=ON -DKWIVER_ENABLE_LOG4CPLUS=ON -DKWIVER_ENABLE_OPENCV=ON -DKWIVER_ENABLE_PROCESSES=ON -DKWIVER_ENABLE_PROJ=ON -DKWIVER_ENABLE_PYTHON=ON -DKWIVER_ENABLE_SPROKIT=ON -DKWIVER_ENABLE_TESTS=ON -DKWIVER_ENABLE_TOOLS=ON -DKWIVER_ENABLE_VXL=ON -DKWIVER_ENABLE_DOCS=ON -DKWIVER_INSTALL_DOCS=ON -DKWIVER_USE_BUILD_TREE=ON \
 && make -j8 -k

@@ -1,11 +1,23 @@
+# Kitware 2018:
 #
-# Setup script for KWIVER docker 
+# Setup and run script for KWIVER docker 1.2.0  
 # Script must run in /src/docker/ directory for pathing purposes
-# Script sets up a mounted shared volume in the folder /src/docker/shared 
-#
+# 
+# Script optionally sets up a mounted shared volume between host/docker 
+# 	*Permission may have to be granted to docker to create a folder in /Shared
 
+
+# Initial setup
 docker build -t kwiver:1.2.0 .
-docker run -td kwiver:1.2.0 -v /shared:/KWIVER/shared /bin/bash
+
+# Start without shared volume (default)
+docker run -it kwiver:1.2.0 /bin/bash
+
+#	OR
+
+# Start with shared volume 
+# **This will create a shared folder on both host/docker in /Shared/KWIVER1.2.0
+#docker run -it -v /Shared/KWIVER1.2.0:/Shared/KWIVER1.2.0 kwiver:1.2.0 /bin/bash
 
 
 
