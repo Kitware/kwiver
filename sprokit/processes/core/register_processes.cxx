@@ -55,6 +55,7 @@
 #include "initialize_object_tracks_process.h"
 #include "keyframe_selection_process.h"
 #include "matcher_process.h"
+#include "non_maximum_suppression_process.h"
 #include "print_config_process.h"
 #include "read_descriptor_process.h"
 #include "read_object_track_process.h"
@@ -381,6 +382,14 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     ;
 
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  fact = vpm.ADD_PROCESS( kwiver::non_maximum_suppression_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "non_maximum_suppression" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                    "Prunes overlapping detections." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    ;
+
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   sprokit::mark_process_module_as_loaded( vpm, module_name );
 } // register_processes
