@@ -6,7 +6,7 @@ How to build KWIVER with docker:
 The provided dockerfile builds from Ubuntu:Trusty 14.04, 
  with CMake 3.11.3, and builds the latest stable release version of FLETCH, and KWIVER. 
 
-Script optionally sets up a mounted shared volume in the folder /Shared/KWIVER1.2.0
+Script optionally sets up a mounted shared volume in the folder /SharedKWIVER/KWIVER1.2.0
 	*enable this in dockersetup.sh
 
 **Script must run in /src/docker/ directory for pathing purposes
