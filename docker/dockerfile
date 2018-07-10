@@ -27,33 +27,33 @@ RUN apt-get update -y && apt-get install -y && sudo apt-get install curl -y \
 # CMake
 #
 
-ENV PATH $PATH:/cmake/cmake-3.11.3/bin
+ENV PATH $PATH:/cmake/cmake-3.11.3/bin  
 RUN mkdir /cmake \
 && cd /cmake \
 && curl -O "https://cmake.org/files/v3.11/cmake-3.11.3.tar.gz" \
 && tar -xvf cmake-3.11.3.tar.gz \
 && cd cmake-3.11.3 \
 && ./configure \
-&& make -j8 -k
+&& make -j8 -k \
 
 #
 # Building Fletch
 #
 
-RUN mkdir /fletch /fletch/build /fletch/build/rel /fletch/build/deb \
+&& mkdir /fletch /fletch/build /fletch/build/rel /fletch/build/deb \
 && cd /fletch \
 && git clone https://github.com/Kitware/fletch.git src \
 && cd src \
 && git checkout release \ 
 && cd /fletch/build/rel \ 
 && cmake -DCMAKE_BUILD_TYPE=Release -Dfletch_ENABLE_ALL_PACKAGES=ON -Dfletch_ENABLE_PYTHON=ON ../../src \
-&& make -j8 -k
+&& make -j8 -k \
 
 #
 # Building Kwiver
 #
 
-RUN mkdir /kwiver /kwiver/src /kwiver/build /kwiver/build/release /kwiver/build/debug \
+&& mkdir /kwiver /kwiver/src /kwiver/build /kwiver/build/release /kwiver/build/debug \
 && cd /kwiver \
 && git clone https://github.com/Kitware/kwiver.git src \
 && cd src \
