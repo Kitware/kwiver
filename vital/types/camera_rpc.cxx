@@ -188,7 +188,7 @@ void
 simple_camera_rpc
 ::jacobian( const vector_3d& pt, matrix_2x2d& J, vector_2d& norm_pt ) const
 {
-  auto pv = this->power_vector( pt );
+  Eigen::Matrix<double, 20, 1> pv = this->power_vector( pt );
   vector_4d ply = this->rpc_coeffs() * pv;
   vector_4d dx_ply = this->dx_coeffs_ * pv.head(10);
   vector_4d dy_ply = this->dy_coeffs_ * pv.head(10);

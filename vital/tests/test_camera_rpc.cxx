@@ -129,7 +129,7 @@ TEST_F(camera_rpc, identity)
 
   kwiver::vital::vector_3d pt(1.0, 2.0, 10.0);
 
-  auto img_pt = icam.project( pt );
+  kwiver::vital::vector_2d img_pt = icam.project( pt );
 
   EXPECT_MATRIX_EQ( img_pt, kwiver::vital::vector_2d(1.0, 2.0) );
 }
@@ -157,7 +157,7 @@ TEST_F(camera_rpc, projection)
 
   for (size_t i = 0; i < test_points.size(); ++i)
   {
-    auto img_pt = cam.project( test_points[i] );
+    kwiver::vital::vector_2d img_pt = cam.project( test_points[i] );
 
     EXPECT_MATRIX_NEAR( img_pt, test_image_points[i], epsilon );
   }
@@ -171,8 +171,9 @@ TEST_F(camera_rpc, back_projection)
 
   for (size_t i = 0; i < test_points.size(); ++i)
   {
-    auto img_pt = cam.project( test_points[i] );
-    auto new_pt = cam.back_project( img_pt, test_points[i][2] );
+    kwiver::vital::vector_2d img_pt = cam.project( test_points[i] );
+    kwiver::vital::vector_3d new_pt =
+      cam.back_project( img_pt, test_points[i][2] );
 
     EXPECT_MATRIX_NEAR( new_pt, test_points[i], epsilon );
   }
