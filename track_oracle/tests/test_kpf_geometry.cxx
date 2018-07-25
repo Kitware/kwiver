@@ -35,6 +35,8 @@
 
 #include <gtest/gtest.h>
 #include <test_gtest.h>
+#include <regex>
+#include <iostream>
 
 #include <track_oracle/core/track_oracle_core.h>
 #include <track_oracle/core/track_field.h>
@@ -82,9 +84,14 @@ map_frame_num_to_handles( const to::frame_handle_list_type& frames )
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
+  try {
   ::testing::InitGoogleTest( &argc, argv );
   GET_ARG(1, g_data_dir);
   return RUN_ALL_TESTS();
+  } catch (const std::regex_error& e )
+  {
+    std::cerr << "Main caught: " << e.what() << "\n";
+  }
 }
 
 // ------------------------------------------------------------------
