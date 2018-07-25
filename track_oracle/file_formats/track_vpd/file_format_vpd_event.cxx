@@ -116,7 +116,6 @@ mapping_fn_from_event_fn( const string& s )
   size_t p = mapping_fn.rfind( key );
   if ( p == string::npos )
   {
-    LOG_ERROR( main_logger, "VPD_EVENT: Could not find a '" << key << "' string in event filename '" << s << "'" );
     return "";
   }
   mapping_fn.replace( p, key.length(), ".mapping.txt" );
