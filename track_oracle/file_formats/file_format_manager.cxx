@@ -10,6 +10,7 @@
 #include "file_format_manager.h"
 #include <fstream>
 #include <stdexcept>
+#include <regex>
 #include <sstream>
 #include <mutex>
 #include <vul/vul_string.h>
@@ -142,11 +143,19 @@ file_format_manager_impl
   // file_format_base APIs
   vul_string_downcase( fn );
   vector< file_format_enum > ret;
+  std::cerr << "FFM 1" << std::endl;
   for (format_map_cit probe = formats.begin(); probe != formats.end(); ++probe )
   {
-    if ( probe->second->filename_matches_globs( fn ))
+    std::cerr << "Probing " << file_format_type::to_string( probe->first ) << std::endl;
+    try {
+      if ( probe->second->filename_matches_globs( fn ))
+      {
+        ret.push_back( probe->first );
+      }
+      std::cerr << "Probe okay" << std::endl;
+    } catch (const std::regex_error& e )
     {
-      ret.push_back( probe->first );
+      std::cerr << "FFM caught regex error: " << e.what() << std::endl;
     }
   }
   return ret;
