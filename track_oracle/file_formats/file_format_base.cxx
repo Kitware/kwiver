@@ -127,14 +127,15 @@ file_format_base
 {
   vul_string_downcase( fn );
   std::smatch matches;
+  size_t ec=0;
   for (size_t i=0; i<this->globs.size(); ++i)
   {
     try {
       std::regex r( glob_to_regexp_string( this->globs[i] ));
     if (std::regex_search( fn, matches, r )) return true;
-    } catch (const std::regex_error& e) { std::cerr << "glob error " << e.what() << " for '" << this->globs[i] << "' / ' " << glob_to_regexp_string(this->globs[i]) << "'\n"; }
+    } catch (const std::regex_error& e) { std::cerr << "glob error " << e.what() << " for '" << this->globs[i] << "' / ' " << glob_to_regexp_string(this->globs[i]) << "'" << std::endl; ++ec;}
   }
-  std::cerr << "Okay" << std::endl;
+  std::cerr << "Okay; " << ec << " errors" << std::endl;
   return false;
 }
 
