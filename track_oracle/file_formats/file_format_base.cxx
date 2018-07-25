@@ -129,11 +129,10 @@ file_format_base
   std::smatch matches;
   for (size_t i=0; i<this->globs.size(); ++i)
   {
-    std::cerr << "Format i '" << this->globs[i] << "' -> '" << glob_to_regexp_string( this->globs[i] ) << "'" << std::endl;
     std::regex r( glob_to_regexp_string( this->globs[i] ));
-    std::cerr << "okay" << std::endl;
     if (std::regex_search( fn, matches, r )) return true;
   }
+  std::cerr << "Okay" << std::endl;
   return false;
 }
 
