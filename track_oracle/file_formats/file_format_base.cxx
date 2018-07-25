@@ -29,7 +29,7 @@ string
 glob_to_regexp_string( const string& glob )
 {
   //
-  // This code is lifted straight from vul_file_iterator.cxx.
+  // This code is tweaked from vul_file_iterator.cxx.
   //
 
   string baseglob = vul_file::basename(glob);
@@ -61,6 +61,8 @@ glob_to_regexp_string( const string& glob )
       re.append(1,'.');
     else if (*i=='*' && !in_sqr_brackets)
       re.append( ".*" );
+    else if (*i=='.') {
+      re.append( "\\." );
     else
       re.append(1, *i);  // was re.append(vul_reg_exp::protect(*i));
 
