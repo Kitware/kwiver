@@ -188,7 +188,9 @@ file_format_manager_impl
 
   map< file_format_enum, bool > format_has_been_probed;
   vector< file_format_enum > formats_passing_inspection;
+  std::cerr << "FFM::DF 1" << std::endl;
   vector< file_format_enum > glob_matches = this->unlocked_globs_match( fn );
+  std::cerr << "FFM::DF 2" << std::endl;
 
   // if we have glob matches, try those first
   for (size_t i=0; i<glob_matches.size(); ++i)
@@ -219,14 +221,17 @@ file_format_manager_impl
     }
   }
 
+  std::cerr << "FFM::DF 3" << std::endl;
   // How many passed inspection?
   size_t n_passing = formats_passing_inspection.size();
 
   // If one, good-- return it.
   if ( n_passing == 1 ) return formats_passing_inspection[ 0 ];
+  std::cerr << "FFM::DF 4" << std::endl;
 
   // If none, oh well-- return signalling no match.
   if ( n_passing == 0 ) return TF_INVALID_TYPE;
+  std::cerr << "FFM::DF 5" << std::endl;
 
   // Otherwise, we have a problem.
   ostringstream oss;
@@ -245,6 +250,7 @@ file_format_manager_impl
   }
   oss << "Need to implement the file_format_disambiguation scheme (or something similar).\n";
 
+  std::cerr << "FFM::DF 6 '" << oss.str() << "'" << std::endl;
   throw runtime_error( oss.str().c_str() );
 }
 
