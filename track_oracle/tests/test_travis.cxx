@@ -34,10 +34,7 @@
  */
 
 #include <string>
-#include <vector>
-#include <thread>
 #include <iostream>
-#include <sstream>
 
 #include <gtest/gtest.h>
 #include <test_gtest.h>
@@ -50,9 +47,6 @@
 namespace to = ::kwiver::track_oracle;
 
 using std::string;
-using std::vector;
-using std::thread;
-using std::ostringstream;
 
 namespace { //anon
 
@@ -68,22 +62,21 @@ main( int argc, char* argv[] )
 {
   ::testing::InitGoogleTest( &argc, argv );
 
-#if GTEST_IS_THREADSAFE
   GET_ARG(1, g_data_dir);
-  // ... do stuff
-#endif
   return RUN_ALL_TESTS();
 }
 
 TEST( track_oracle, gtest_threadsafe_2 )
 {
+  std::cerr << "TS start" << std::endl;
 #if GTEST_IS_THREADSAFE
+  std::cerr << "GTest is threadsafe" << std::endl;
   EXPECT_TRUE( true ) << "GTest is threadsafe";
-  std::cerr << "GTest is threadsafe\n";
 #else
+  std::cerr << "GTest is NOT threadsafe" << std::endl;
   EXPECT_TRUE( false ) << "GTest is not threadsafe";
-  std::cerr << "GTest is NOT threadsafe\n";
 #endif
+  std::cerr << std::endl;
 }
 
 TEST( track_oracle, travis )
