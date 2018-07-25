@@ -124,7 +124,10 @@ file_format_manager_impl
   formats[ TF_CSV ] = new file_format_csv();
   formats[ TF_KWIVER ] = new file_format_kwiver();
 #ifdef KWIVER_ENABLE_KPF
+  std::cerr << "FFM: KPF enabled" << std::endl;
   formats[ TF_KPF_GEOM ] = new file_format_kpf_geom();
+#else
+  std::cerr << "FFM: KPF NOT enabled" << std::endl;
 #endif
 
   // get instances of all the schemas, for introspection
@@ -158,6 +161,7 @@ file_format_manager_impl
       std::cerr << "FFM caught regex error: " << e.what() << std::endl;
     }
   }
+  std::cerr << "FFM 2" << std::endl;
   return ret;
 }
 
@@ -375,7 +379,10 @@ file_format_manager
     return true;
   }
 
+  std::cerr << "FFM::read 1" << std::endl;
+  try {
   file_format_enum f = get_instance().detect_format( fn );
+  std::cerr << "FFM::read 2" << std::endl;
   if (f == TF_INVALID_TYPE) return false;
 
   file_format_base* b = get_instance().get_format( f );
@@ -385,12 +392,18 @@ file_format_manager
     return false;
   }
 
+  std::cerr << "FFM::read 3" << std::endl;
   bool rc = b->read( fn, tracks );
   if (rc)
   {
     file_format_schema_type::record_track_source( tracks, fn, f );
   }
   return rc;
+  } catch (const std::regex_error& e)
+  {
+    std::cerr << "FFM::read caught regex error: " << e.what() << std::endl;
+    return false;
+  }
 }
 
 bool
