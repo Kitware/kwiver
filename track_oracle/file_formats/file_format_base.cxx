@@ -61,7 +61,7 @@ glob_to_regexp_string( const string& glob )
       re.append(1,'.');
     else if (*i=='*' && !in_sqr_brackets)
       re.append( ".*" );
-    else if (*i=='.') {
+    else if (*i=='.')
       re.append( "\\." );
     else
       re.append(1, *i);  // was re.append(vul_reg_exp::protect(*i));
