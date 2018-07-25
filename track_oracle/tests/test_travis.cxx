@@ -43,6 +43,7 @@
 #include <track_oracle/core/track_oracle_core.h>
 #include <track_oracle/core/track_base.h>
 #include <track_oracle/file_formats/file_format_manager.h>
+#include <regex>
 
 namespace to = ::kwiver::track_oracle;
 
@@ -66,24 +67,21 @@ main( int argc, char* argv[] )
   return RUN_ALL_TESTS();
 }
 
-TEST( track_oracle, gtest_threadsafe_2 )
-{
-  std::cerr << "TS start" << std::endl;
-#if GTEST_IS_THREADSAFE
-  std::cerr << "GTest is threadsafe" << std::endl;
-  EXPECT_TRUE( true ) << "GTest is threadsafe";
-#else
-  std::cerr << "GTest is NOT threadsafe" << std::endl;
-  EXPECT_TRUE( false ) << "GTest is not threadsafe";
-#endif
-  std::cerr << std::endl;
-}
-
 TEST( track_oracle, travis )
 {
 
   string track_file = g_data_dir+"/generic_tracks.kw18";
   to::track_handle_list_type tracks;
-  bool rc = to::file_format_manager::read( track_file, tracks );
-  EXPECT_TRUE( rc ) << " reading from '" << track_file << "'";
+  std::cerr << "travis 1: " << track_file << std::endl;
+  try {
+    bool rc = to::file_format_manager::read( track_file, tracks );
+    std::cerr << "travis 2" << std::endl;
+    EXPECT_TRUE( rc ) << " reading from '" << track_file << "'";
+    std::cerr << "travis 3" << std::endl;
+  } catch (const std::regex_error& e ) {
+    std::cerr << "Caught regex error: " << e.what() << std::endl;
+  } catch (...) {
+    std::cerr << "Caught something else" << std::endl;
+  }
+  std::cerr << "travis 4" << std::endl;
 }
