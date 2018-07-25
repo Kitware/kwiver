@@ -94,12 +94,10 @@ get_optional_fields()
 
   string kpf_key_str( KPF::style2str( KPF::packet_style::KV ));
   string kpf_cset_str( KPF::style2str( KPF::packet_style::CSET ));
+  try {
   // Note that these regexs are tied to the synthesized field names in the reader.
-  std::cerr << "kpf-1" << std::endl;
   std::regex field_dbl("^([a-zA-Z0-9]+)_([0-9]+)$");
-  std::cerr << "kpf-2" << std::endl;
   std::regex field_kv("^"+kpf_key_str+"_([a-zA-Z0-9]+)$");
-  std::cerr << "kpf-3" << std::endl;
   std::regex field_cset("^"+kpf_cset_str+"_([0-9]+)$");
   std::cerr << "kpf-4" << std::endl;
   std::smatch matches;
@@ -151,6 +149,7 @@ get_optional_fields()
     } // ...didn't match the cset type
 
   } // ...for all fields in track_oracle
+  } catch (const std::regex_error& e) { std::cerr << "kpf re error " << e.what() << "\n"; }
 
   return optional_fields;
 }
