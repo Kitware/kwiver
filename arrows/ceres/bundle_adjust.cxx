@@ -295,16 +295,24 @@ bundle_adjust
       {
         continue;
       }
-      unsigned intr_idx = d_->frame_to_intr_map[fts->frame()];
-      double * intr_params_ptr = &d_->camera_intr_params[intr_idx][0];
-      used_intrinsics.insert(intr_idx);
       vector_2d pt = fts->feature->loc();
-      problem.AddResidualBlock(create_cost_func(d_->lens_distortion_type,
-                                                pt.x(), pt.y()),
-                               loss_func,
-                               intr_params_ptr,
-                               &cam_itr->second[0],
-                               &lm_itr->second[0]);
+      if ( !d_->frame_to_intr_map.empty() )
+      {
+        unsigned intr_idx = d_->frame_to_intr_map[fts->frame()];
+        double * intr_params_ptr = &d_->camera_intr_params[intr_idx][0];
+        used_intrinsics.insert(intr_idx);
+        problem.AddResidualBlock(create_cost_func(d_->lens_distortion_type,
+                                                  pt.x(), pt.y()),
+                                 loss_func,
+                                 intr_params_ptr,
+                                 &cam_itr->second[0],
+                                 &lm_itr->second[0]);
+      }
+      else
+      {
+        // RPC call AddResidualBlock with new RPC cost_func
+      }
+
       loss_func_used = true;
     }
   }

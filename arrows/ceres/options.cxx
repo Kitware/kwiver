@@ -400,47 +400,58 @@ camera_options
                             std::vector<std::vector<double> >& int_params,
                             cam_intrinsic_id_map_t& int_map) const
 {
-  // We need another map from intrinsics intstances to parameter index to
-  // detect when the same intrinsics are shared between cameras
-  std::map<camera_intrinsics_sptr, unsigned int> camera_intr_map;
+  // Check if cameras are perspective
+  auto test_ptr =
+    std::dynamic_pointer_cast<camera_perspective>(cameras.begin()->second);
 
-  // number of lens distortion parameters in the selected model
-  const unsigned int ndp = num_distortion_params(this->lens_distortion_type);
-  std::vector<double> intrinsic_params(5 + ndp, 0.0);
-  for(const camera_map::map_camera_t::value_type& c : cameras)
+  if ( test_ptr )
   {
-    std::vector<double> params(6);
-    auto cam_ptr = std::dynamic_pointer_cast<camera_perspective>(c.second);
-    this->extract_camera_extrinsics(cam_ptr, &params[0]);
-    camera_intrinsics_sptr K = cam_ptr->intrinsics();
-    ext_params[c.first] = params;
+    // We need another map from intrinsics intstances to parameter index to
+    // detect when the same intrinsics are shared between cameras
+    std::map<camera_intrinsics_sptr, unsigned int> camera_intr_map;
 
-    // add a new set of intrisic parameter if one of the following:
-    // - we are forcing unique intrinsics for each camera
-    // - we are forcing common intrinsics and this is the first frame
-    // - we are auto detecting shared intrinisics and this is a new sptr
-    if( this->camera_intrinsic_share_type == FORCE_UNIQUE_INTRINSICS
-        || ( this->camera_intrinsic_share_type == FORCE_COMMON_INTRINSICS
-             && int_params.empty() )
-        || camera_intr_map.count(K) == 0 )
+    // number of lens distortion parameters in the selected model
+    const unsigned int ndp = num_distortion_params(this->lens_distortion_type);
+    std::vector<double> intrinsic_params(5 + ndp, 0.0);
+    for(const camera_map::map_camera_t::value_type& c : cameras)
     {
-      this->extract_camera_intrinsics(K, &intrinsic_params[0]);
-      // update the maps with the index of this new parameter vector
-      camera_intr_map[K] = static_cast<unsigned int>(int_params.size());
-      int_map[c.first] = static_cast<unsigned int>(int_params.size());
-      // add the parameter vector
-      int_params.push_back(intrinsic_params);
+      std::vector<double> params(6);
+      auto cam_ptr = std::dynamic_pointer_cast<camera_perspective>(c.second);
+      this->extract_camera_extrinsics(cam_ptr, &params[0]);
+      camera_intrinsics_sptr K = cam_ptr->intrinsics();
+      ext_params[c.first] = params;
+
+      // add a new set of intrisic parameter if one of the following:
+      // - we are forcing unique intrinsics for each camera
+      // - we are forcing common intrinsics and this is the first frame
+      // - we are auto detecting shared intrinisics and this is a new sptr
+      if( this->camera_intrinsic_share_type == FORCE_UNIQUE_INTRINSICS
+          || ( this->camera_intrinsic_share_type == FORCE_COMMON_INTRINSICS
+               && int_params.empty() )
+          || camera_intr_map.count(K) == 0 )
+      {
+        this->extract_camera_intrinsics(K, &intrinsic_params[0]);
+        // update the maps with the index of this new parameter vector
+        camera_intr_map[K] = static_cast<unsigned int>(int_params.size());
+        int_map[c.first] = static_cast<unsigned int>(int_params.size());
+        // add the parameter vector
+        int_params.push_back(intrinsic_params);
+      }
+      else if( this->camera_intrinsic_share_type == FORCE_COMMON_INTRINSICS )
+      {
+        // map to the first parameter vector
+        int_map[c.first] = 0;
+      }
+      else
+      {
+        // map to a previously seen parameter vector
+        int_map[c.first] = camera_intr_map[K];
+      }
     }
-    else if( this->camera_intrinsic_share_type == FORCE_COMMON_INTRINSICS )
-    {
-      // map to the first parameter vector
-      int_map[c.first] = 0;
-    }
-    else
-    {
-      // map to a previously seen parameter vector
-      int_map[c.first] = camera_intr_map[K];
-    }
+  }
+  else
+  {
+    // RPC deal with rpc case
   }
 }
 
@@ -453,39 +464,50 @@ camera_options
                            std::vector<std::vector<double> > const& int_params,
                            cam_intrinsic_id_map_t const& int_map) const
 {
-  std::vector<camera_intrinsics_sptr> updated_intr;
-  if( this->optimize_intrinsics() )
-  {
-    // Update the camera intrinics with optimized values
-    for(const std::vector<double>& cip : int_params)
-    {
-      auto K = std::make_shared<simple_camera_intrinsics>();
-      this->update_camera_intrinsics(K, &cip[0]);
-      updated_intr.push_back(camera_intrinsics_sptr(K));
-    }
-  }
+  // Check if cameras are perspective
+  auto test_ptr =
+    std::dynamic_pointer_cast<camera_perspective>(cameras.begin()->second);
 
-  // Update the cameras with the optimized values
-  typedef std::map<frame_id_t, std::vector<double> > cam_param_map_t;
-  for(const cam_param_map_t::value_type& cp : ext_params)
+  if ( test_ptr )
   {
-    auto orig_cam = std::dynamic_pointer_cast<camera_perspective>(cameras[cp.first]);
-    auto simp_cam = std::dynamic_pointer_cast<simple_camera_perspective>(orig_cam);
-    if( !simp_cam )
-    {
-      simp_cam = std::make_shared<simple_camera_perspective>();
-      cameras[cp.first] = simp_cam;
-    }
-    camera_intrinsics_sptr K = orig_cam->intrinsics();
+    std::vector<camera_intrinsics_sptr> updated_intr;
     if( this->optimize_intrinsics() )
     {
-      // look-up updated intrinsics
-      auto map_itr = int_map.find(cp.first);
-      unsigned int intr_idx = map_itr->second;
-      K = updated_intr[intr_idx];
+      // Update the camera intrinics with optimized values
+      for(const std::vector<double>& cip : int_params)
+      {
+        auto K = std::make_shared<simple_camera_intrinsics>();
+        this->update_camera_intrinsics(K, &cip[0]);
+        updated_intr.push_back(camera_intrinsics_sptr(K));
+      }
     }
-    this->update_camera_extrinsics(simp_cam, &cp.second[0]);
-    simp_cam->set_intrinsics(K);
+
+    // Update the cameras with the optimized values
+    typedef std::map<frame_id_t, std::vector<double> > cam_param_map_t;
+    for(const cam_param_map_t::value_type& cp : ext_params)
+    {
+      auto orig_cam = std::dynamic_pointer_cast<camera_perspective>(cameras[cp.first]);
+      auto simp_cam = std::dynamic_pointer_cast<simple_camera_perspective>(orig_cam);
+      if( !simp_cam )
+      {
+        simp_cam = std::make_shared<simple_camera_perspective>();
+        cameras[cp.first] = simp_cam;
+      }
+      camera_intrinsics_sptr K = orig_cam->intrinsics();
+      if( this->optimize_intrinsics() )
+      {
+        // look-up updated intrinsics
+        auto map_itr = int_map.find(cp.first);
+        unsigned int intr_idx = map_itr->second;
+        K = updated_intr[intr_idx];
+      }
+      this->update_camera_extrinsics(simp_cam, &cp.second[0]);
+      simp_cam->set_intrinsics(K);
+    }
+  }
+  else
+  {
+    // RPC deal with rpc case
   }
 }
 
