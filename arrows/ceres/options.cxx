@@ -451,6 +451,7 @@ camera_options
   }
   else
   {
+    std::cout << "RPC extract parameters" << std::endl;
     // RPC deal with rpc case
   }
 }
@@ -507,6 +508,7 @@ camera_options
   }
   else
   {
+    std::cout << "RPC update parameters" << std::endl;
     // RPC deal with rpc case
   }
 }

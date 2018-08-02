@@ -41,16 +41,22 @@
 #include <arrows/core/projected_track_set.h>
 
 #include <vital/plugin_loader/plugin_manager.h>
+#include <vital/tests/rpc_reader.h>
+
+#include <tests/test_gtest.h>
 
 using namespace kwiver::vital;
 using namespace kwiver::arrows;
 
 using kwiver::arrows::ceres::bundle_adjust;
 
+kwiver::vital::path_t g_data_dir;
+
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
   ::testing::InitGoogleTest( &argc, argv );
+  GET_ARG(1, g_data_dir);
   return RUN_ALL_TESTS();
 }
 
@@ -472,4 +478,54 @@ TEST(bundle_adjust, auto_share_intrinsics)
   auto cameras = std::make_shared<simple_camera_map>( cams );
   EXPECT_EQ( 2, test_ba_intrinsic_sharing( cameras, cfg ) )
     << "Resulting camera intrinsics should be unique";
+}
+
+// ----------------------------------------------------------------------------
+class bundle_adjust_rpc : public ::testing::Test
+{
+  TEST_ARG(data_dir);
+};
+
+// ----------------------------------------------------------------------------
+// Test bundle adjustment with RPC cameras
+TEST_F(bundle_adjust_rpc, from_data)
+{
+  using namespace kwiver::vital;
+
+  bundle_adjust ba;
+  config_block_sptr cfg = ba.get_configuration();
+  cfg->set_value("verbose", "true");
+  cfg->set_value("max_num_iterations", 100);
+  ba.set_configuration(cfg);
+
+  // Landmarks pulled from Google Maps
+  landmark_map::map_landmark_t landmark_map;
+  std::vector< vector_3d > lm_pos;
+  lm_pos.push_back( vector_3d( -117.237465, 32.881208, 110.0 ) );
+  lm_pos.push_back( vector_3d( -117.235309, 32.879108, 110.0 ) );
+  lm_pos.push_back( vector_3d( -117.239404, 32.877824, 110.0 ) );
+  lm_pos.push_back( vector_3d( -117.236088, 32.877091, 110.0 ) );
+  lm_pos.push_back( vector_3d( -117.240455, 32.876183, 110.0 ) );
+
+  for ( size_t i = 0; i < lm_pos.size(); ++i )
+  {
+    auto landmark_ptr = std::make_shared< landmark_< double > >( lm_pos[i] );
+    landmark_map.insert(
+      std::pair< landmark_id_t, landmark_sptr >(i, landmark_ptr ) );
+  }
+  landmark_map_sptr landmarks =
+    std::make_shared< simple_landmark_map >( landmark_map );
+
+  camera_map::map_camera_t camera_map;
+  for ( size_t i = 0; i < 8; ++i )
+  {
+    path_t filepath = data_dir + "/rpc_data" + std::to_string(i) + ".dat";
+    auto cam_ptr = std::make_shared< simple_camera_rpc >( read_rpc( filepath ) );
+    camera_map.insert( std::pair< frame_id_t, camera_sptr >( i, cam_ptr ) );
+  }
+  camera_map_sptr cameras = std::make_shared< simple_camera_map >( camera_map );
+
+  auto tracks = kwiver::arrows::projected_tracks(landmarks, cameras);
+
+  ba.optimize(cameras, landmarks, tracks);
 }
