@@ -39,6 +39,7 @@
 #include <vital/vital_config.h>
 #include <vital/config/config_block.h>
 #include <vital/types/camera_perspective.h>
+#include <vital/types/camera_rpc.h>
 #include <vital/types/camera_map.h>
 #include <arrows/ceres/types.h>
 
@@ -142,6 +143,27 @@ public:
    */
   void update_camera_intrinsics(std::shared_ptr<vital::simple_camera_intrinsics> K,
                                 const double* params) const;
+
+  /// extract the rpc paramters from a rpc camera into the parameter array
+  /**
+   *  \param [in]  camera The camera object to extract data from
+   *  \param [out] params and array of 90 doubles to populate with parameters
+   *
+   *  This function is the inverse of update_rpc_parameters
+   */
+  void extract_rpc_parameters(const vital::camera_rpc_sptr camera,
+                              double* params) const;
+
+  /// Update a rpc camera object to use rpc parameters from an array
+  /**
+   *  \param [out] camera The simple_camera instance to update
+   *  \param [in] params The array of 90 doubles to extract the data from
+   *
+   *  This function is the inverse of extract_rpc_parameters
+   */
+  void update_rpc_parameters(
+    std::shared_ptr<vital::simple_camera_rpc> camera,
+    double const* params) const;
 
   /// extract the set of all unique intrinsic and extrinsic parameters from a camera map
   /**

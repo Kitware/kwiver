@@ -392,6 +392,40 @@ camera_options
 }
 
 
+/// extract the rpc camera parameters from a parameter array
+void
+camera_options
+::extract_rpc_parameters(const vital::camera_rpc_sptr camera,
+                         double* params) const
+{
+  vector_3d world_scale = camera->world_scale();
+  vector_3d world_offset = camera->world_offset();
+  vector_2d image_scale = camera->image_scale();
+  vector_2d image_offset = camera->image_offset();
+  rpc_matrix rpc_coeffs = camera->rpc_coeffs();
+
+  std::copy( world_scale.data(), world_scale.data() + 3, params );
+  std::copy( world_offset.data(), world_scale.data() + 3, params + 3 );
+  std::copy( image_scale.data(), image_scale.data() + 2, params + 6 );
+  std::copy( image_offset.data(), image_offset.data() + 2, params + 8 );
+  std::copy( rpc_coeffs.data(), rpc_coeffs.data() + 80, params + 10 );
+}
+
+
+/// update the rpc camera parameters from a parameter array
+void
+camera_options
+::update_rpc_parameters(std::shared_ptr<vital::simple_camera_rpc> camera,
+                        double const* params) const
+{
+  camera->set_world_scale( Eigen::Map<const vector_3d>( params ) );
+  camera->set_world_offset( Eigen::Map<const vector_3d>( &params[3] ) );
+  camera->set_image_scale( Eigen::Map<const vector_2d>( &params[6] ) );
+  camera->set_image_offset( Eigen::Map<const vector_2d>( &params[8] ) );
+  camera->set_rpc_coeffs( Eigen::Map<const rpc_matrix>( &params[10] ) );
+}
+
+
 /// extract the set of all unique intrinsic and extrinsic parameters from a camera map
 void
 camera_options
@@ -400,6 +434,11 @@ camera_options
                             std::vector<std::vector<double> >& int_params,
                             cam_intrinsic_id_map_t& int_map) const
 {
+  if ( cameras.empty() )
+  {
+    return;
+  }
+
   // Check if cameras are perspective
   auto test_ptr =
     std::dynamic_pointer_cast<camera_perspective>(cameras.begin()->second);
@@ -451,8 +490,13 @@ camera_options
   }
   else
   {
-    std::cout << "RPC extract parameters" << std::endl;
-    // RPC deal with rpc case
+    for(const camera_map::map_camera_t::value_type& c : cameras)
+    {
+      std::vector<double> params(90);
+      auto cam_ptr = std::dynamic_pointer_cast<camera_rpc>(c.second);
+      this->extract_rpc_parameters( cam_ptr, &params[0] );
+      ext_params[c.first] = params;
+    }
   }
 }
 
@@ -465,6 +509,11 @@ camera_options
                            std::vector<std::vector<double> > const& int_params,
                            cam_intrinsic_id_map_t const& int_map) const
 {
+  if ( cameras.empty() )
+  {
+    return;
+  }
+
   // Check if cameras are perspective
   auto test_ptr =
     std::dynamic_pointer_cast<camera_perspective>(cameras.begin()->second);
@@ -508,8 +557,17 @@ camera_options
   }
   else
   {
-    std::cout << "RPC update parameters" << std::endl;
-    // RPC deal with rpc case
+    for(const cam_param_map_t::value_type& cp : ext_params)
+    {
+      auto orig_cam = std::dynamic_pointer_cast<camera_rpc>(cameras[cp.first]);
+      auto simp_cam = std::dynamic_pointer_cast<simple_camera_rpc>(orig_cam);
+      if( !simp_cam )
+      {
+        simp_cam = std::make_shared<simple_camera_rpc>();
+        cameras[cp.first] = simp_cam;
+      }
+      this->update_rpc_parameters( simp_cam, &cp.second[0] );
+    }
   }
 }
 
