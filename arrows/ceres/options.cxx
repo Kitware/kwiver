@@ -405,7 +405,7 @@ camera_options
   rpc_matrix rpc_coeffs = camera->rpc_coeffs();
 
   std::copy( world_scale.data(), world_scale.data() + 3, params );
-  std::copy( world_offset.data(), world_scale.data() + 3, params + 3 );
+  std::copy( world_offset.data(), world_offset.data() + 3, params + 3 );
   std::copy( image_scale.data(), image_scale.data() + 2, params + 6 );
   std::copy( image_offset.data(), image_offset.data() + 2, params + 8 );
   std::copy( rpc_coeffs.data(), rpc_coeffs.data() + 80, params + 10 );

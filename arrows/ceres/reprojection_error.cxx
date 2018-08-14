@@ -231,6 +231,107 @@ public:
   double y_;
 };
 
+template <typename T>
+void power_vector( const T* point, T* vector )
+{
+  // Form the monomials in homogeneous form
+  T w  = T(1.0);
+  T x = point[0];
+  T y = point[1];
+  T z = point[2];
+
+  // Fill in coefficients
+  vector[0] = w;
+  vector[1] = x;
+  vector[2] = y;
+  vector[3] = z;
+  vector[4] = x * y;
+  vector[5] = x * z;
+  vector[6] = y * z;
+  vector[7] = x * x;
+  vector[8] = y * y;
+  vector[9] = z * z;
+  vector[10] = x * y * z;
+  vector[11] = x * x * x;
+  vector[12] = x * y * y;
+  vector[13] = x * z * z;
+  vector[14] = x * x * y;
+  vector[15] = y * y * y;
+  vector[16] = y * z * z;
+  vector[17] = x * x * z;
+  vector[18] = y * y * z;
+  vector[19] = z * z * z;
+}
+
+class rpe_rpc
+{
+public:
+  /// Constructor
+  rpe_rpc(const double x, const double y)
+      : x_(x), y_(y) {}
+
+  /// Reprojection error functor for use in Ceres
+  /**
+   * \param [in] rpc_parames: RPC parameter including scale, offsets
+   *                          and coefficients. In order of storage: world scale
+   *                          world offset, image scale, image offset and rpc
+   *                          polynomial coefficients.
+   * \param [in] point: 3D point.
+   * \param [out] residuals
+   */
+  template <typename T> bool operator()(const T* const cam_params,
+                                        const T* const point,
+                                        T* residuals) const
+  {
+    // Normalize points
+    T norm_pt[3];
+    for ( int i = 0; i < 3; ++i )
+    {
+      norm_pt[i] = ( cam_params[i+3] - point[i] ) / cam_params[i];
+    }
+
+    // Calculate polynomials and get image points
+    T polys[4];
+    T pow_vec[20];
+    power_vector( norm_pt, pow_vec );
+    for ( int i = 0; i < 4; ++i )
+    {
+      polys[i] = T(0.);
+      for ( int j = 0; j < 20; ++j )
+      {
+        polys[i] += pow_vec[j] * cam_params[10 + j + i * 20];
+      }
+    }
+
+    // Get normalized image points
+    T norm_img_xy[2];
+    norm_img_xy[0] = polys[0] / polys[1];
+    norm_img_xy[1] = polys[2] / polys[3];
+
+    // Un-normalized image points
+    T image_xy[2];
+    for ( int i = 0; i < 2; ++i )
+    {
+      image_xy[i] = ( cam_params[i+8] - norm_img_xy[i] ) / cam_params[i+6];
+    }
+
+    // Compute the reprojection error
+    // difference between the predicted and observed position
+    residuals[0] = image_xy[0] - T(x_);
+    residuals[1] = image_xy[1] - T(y_);
+    return true;
+  }
+
+  /// Cost function factory
+  static ::ceres::CostFunction* create(const double x, const double y)
+  {
+    typedef rpe_rpc Self;
+    return new ::ceres::AutoDiffCostFunction<Self, 2, 90, 3>(new Self(x, y));
+  }
+
+  double x_;
+  double y_;
+};
 
 /// Factory to create Ceres cost functions for each lens distortion type
 ::ceres::CostFunction*
@@ -247,6 +348,13 @@ create_cost_func(LensDistortionType ldt, double x, double y)
   default:
     return rpe_no_distortion::create(x,y);
   }
+}
+
+/// Factory to create Ceres cost functions for rpc cameras
+::ceres::CostFunction*
+create_rpc_cost_func(double x, double y)
+{
+  return rpe_rpc::create(x, y);
 }
 
 } // end namespace ceres

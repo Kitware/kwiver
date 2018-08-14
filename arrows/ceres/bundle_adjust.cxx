@@ -310,7 +310,10 @@ bundle_adjust
       }
       else
       {
-        // RPC call AddResidualBlock with new RPC cost_func
+        problem.AddResidualBlock(create_rpc_cost_func(pt.x(), pt.y()),
+                                 loss_func,
+                                 &cam_itr->second[0],
+                                 &lm_itr->second[0]);
       }
 
       loss_func_used = true;
