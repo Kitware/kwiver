@@ -39,6 +39,7 @@
 #include <arrows/core/metrics.h>
 #include <arrows/ceres/bundle_adjust.h>
 #include <arrows/core/projected_track_set.h>
+#include <arrows/tests/test_rpc.h>
 
 #include <vital/plugin_loader/plugin_manager.h>
 #include <vital/tests/rpc_reader.h>
@@ -498,23 +499,7 @@ TEST_F(bundle_adjust_rpc, from_data)
   cfg->set_value("max_num_iterations", 100);
   ba.set_configuration(cfg);
 
-  // Landmarks pulled from Google Maps
-  landmark_map::map_landmark_t landmark_map;
-  std::vector< vector_3d > lm_pos;
-  lm_pos.push_back( vector_3d( -117.237465, 32.881208, 110.0 ) );
-  lm_pos.push_back( vector_3d( -117.235309, 32.879108, 110.0 ) );
-  lm_pos.push_back( vector_3d( -117.239404, 32.877824, 110.0 ) );
-  lm_pos.push_back( vector_3d( -117.236088, 32.877091, 110.0 ) );
-  lm_pos.push_back( vector_3d( -117.240455, 32.876183, 110.0 ) );
-
-  for ( size_t i = 0; i < lm_pos.size(); ++i )
-  {
-    auto landmark_ptr = std::make_shared< landmark_< double > >( lm_pos[i] );
-    landmark_map.insert(
-      std::pair< landmark_id_t, landmark_sptr >(i, landmark_ptr ) );
-  }
-  landmark_map_sptr landmarks =
-    std::make_shared< simple_landmark_map >( landmark_map );
+  landmark_map_sptr landmarks = kwiver::testing::rpc_landmarks();
 
   camera_map::map_camera_t camera_map;
   for ( size_t i = 0; i < 8; ++i )
