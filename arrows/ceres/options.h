@@ -78,7 +78,7 @@ public:
  * The intended use of this class is for a PIMPL for an algorithm to
  * inherit from this class to share these options with that algorithm
  */
-class camera_options
+class KWIVER_ALGO_CERES_EXPORT camera_options
 {
 public:
   /// typedef for camera parameter map

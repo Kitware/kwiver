@@ -35,23 +35,30 @@
 
 #include <test_scene.h>
 
+#include <arrows/ceres/options.h>
 #include <arrows/ceres/reprojection_error.h>
 #include <arrows/ceres/types.h>
 
 #include <arrows/core/metrics.h>
 #include <arrows/core/projected_track_set.h>
+#include <arrows/tests/test_rpc.h>
 
-#include <gtest/gtest.h>
+#include <vital/tests/rpc_reader.h>
+
+#include <tests/test_gtest.h>
 
 using namespace kwiver::vital;
 
 using kwiver::arrows::reprojection_rmse;
 using kwiver::arrows::projected_tracks;
 
+kwiver::vital::path_t g_data_dir;
+
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
   ::testing::InitGoogleTest( &argc, argv );
+  GET_ARG(1, g_data_dir);
   return RUN_ALL_TESTS();
 }
 
@@ -218,3 +225,97 @@ INSTANTIATE_TEST_CASE_P(
     DISTORTION( RATIONAL_RADIAL_TANGENTIAL_DISTORTION, 5 ),
     DISTORTION( RATIONAL_RADIAL_TANGENTIAL_DISTORTION, 8 )
   ) );
+
+// ----------------------------------------------------------------------------
+/// Test the reprojection error of a single residual for rpc cameras
+static void
+test_rpc_reprojection_error(
+  camera_rpc const& cam, landmark const& lm, feature const& f )
+{
+  ::ceres::CostFunction* cost_func =
+    kwiver::arrows::ceres::create_rpc_cost_func( f.loc().x(), f.loc().y() );
+
+  double cam_params[90];
+
+  kwiver::arrows::ceres::camera_options cam_opt;
+  camera_rpc_sptr cam_ptr = std::make_shared< simple_camera_rpc >( cam );
+  cam_opt.extract_rpc_parameters( cam_ptr, cam_params);
+
+  double point[3] = {lm.loc().x(), lm.loc().y(), lm.loc().z()};
+
+  double* parameters[3] = {cam_params, point};
+
+  vector_2d residuals;
+  cost_func->Evaluate(parameters, residuals.data(), NULL);
+  delete cost_func;
+
+  EXPECT_NEAR( 0.0, residuals.norm(), 1e-12 );
+}
+
+// ----------------------------------------------------------------------------
+class reprojection_error_rpc : public ::testing::Test
+{
+  TEST_ARG(data_dir);
+};
+
+TEST_F(reprojection_error_rpc, compare_projections)
+{
+  landmark_map_sptr landmarks = kwiver::testing::rpc_landmarks();
+
+  camera_map::map_camera_t camera_map;
+  for ( size_t i = 0; i < 8; ++i )
+  {
+    path_t filepath = data_dir + "/rpc_data" + std::to_string(i) + ".dat";
+    auto cam_ptr = std::make_shared< simple_camera_rpc >( read_rpc( filepath ) );
+    camera_map.insert( std::pair< frame_id_t, camera_sptr >( i, cam_ptr ) );
+  }
+  camera_map_sptr cameras = std::make_shared< simple_camera_map >( camera_map );
+
+  auto tracks = kwiver::arrows::projected_tracks(landmarks, cameras);
+
+  // Test the reprojection error of all residuals
+  auto cam_map = cameras->cameras();
+  auto lm_map = landmarks->landmarks();
+  auto trks = tracks->tracks();
+
+  double rmse = reprojection_rmse( cam_map, lm_map, trks );
+  std::cout << "MAP-Tk reprojection RMSE: " << rmse << std::endl;
+  EXPECT_NEAR( 0.0, rmse, 1e-12 )
+    << "MAP-Tk reprojection RMSE should be small";
+
+  for ( track_sptr const& t : trks )
+  {
+    auto lmi = lm_map.find( t->id() );
+    if ( lmi == lm_map.end() || !lmi->second )
+    {
+      // no landmark corresponding to this track
+      continue;
+    }
+
+    SCOPED_TRACE( "At track " + std::to_string( t->id() ) );
+
+    const landmark& lm = *lmi->second;
+    for( auto const& ts : *t )
+    {
+      auto fts = std::dynamic_pointer_cast<feature_track_state>( ts );
+      if ( !fts || !fts->feature )
+      {
+        // no feature for this track state.
+        continue;
+      }
+
+      auto const& feat = *fts->feature;
+      auto ci = cam_map.find( ts->frame() );
+      if ( ci == cam_map.end() || !ci->second )
+      {
+        // no camera corresponding to this track state
+        continue;
+      }
+
+      SCOPED_TRACE( "At track frame " + std::to_string( ts->frame() ) );
+
+      auto cam_ptr = std::dynamic_pointer_cast<camera_rpc>(ci->second);
+      test_rpc_reprojection_error( *cam_ptr, lm, feat );
+    }
+  }
+}
