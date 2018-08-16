@@ -73,9 +73,6 @@ IMPLEMENT_TEST( basic_pipeline )
   kwiver::input_adapter input_ad;
   kwiver::output_adapter output_ad;
 
-  // load processes
-  kwiver::vital::plugin_manager::instance().load_all_plugins();
-
   // Use SPROKIT macros to create pipeline description
   std::stringstream pipeline_desc;
   pipeline_desc << SPROKIT_PROCESS( "input_adapter",  "ia" )
@@ -365,9 +362,6 @@ IMPLEMENT_TEST( update_config )
   kwiver::input_adapter input_ad;
   kwiver::output_adapter output_ad;
 
-  // load processes
-  kwiver::vital::plugin_manager::instance().load_all_plugins();
-
   // Use SPROKIT macros to create pipeline description
   std::stringstream pipeline_desc;
   pipeline_desc << SPROKIT_PROCESS( "input_adapter",  "ia" )
@@ -387,4 +381,57 @@ IMPLEMENT_TEST( update_config )
   config_ep ep;
   ep.build_pipeline( pipeline_desc );
 
+}
+
+
+// ----------------------------------------------------------------------------
+IMPLEMENT_TEST( epx_test )
+{
+  // Use SPROKIT macros to create pipeline description
+  std::stringstream pipeline_desc;
+  pipeline_desc << SPROKIT_PROCESS( "numbers",  "num" )
+                << SPROKIT_PROCESS( "output_adapter", "oa" )
+
+                << SPROKIT_CONNECT( "num", "number", "oa", "int" )
+
+                << SPROKIT_CONFIG_BLOCK( "_pipeline" )
+                << SPROKIT_CONFIG( "embedded_pipeline_extension:type", "test" )
+                << SPROKIT_CONFIG( "embedded_pipeline_extension:one", "one-test" )
+                << SPROKIT_CONFIG( "embedded_pipeline_extension:two", "two-test" )
+
+    ;
+
+  // create embedded pipeline
+  src_ep ep;
+  ep.build_pipeline( pipeline_desc );
+
+  // Start pipeline
+  ep.start();
+
+  int expected(0);
+
+  while( true )
+  {
+    auto ods = ep.receive(); // blocks
+
+    // check for end of data marker
+    if ( ods->is_end_of_data() )
+    {
+      TEST_EQUAL( "at_end() set correctly", ep.at_end(), true );
+      break;
+    }
+
+    int val = ods->get_port_data<int>( "int" );
+
+    if ( val != expected++ )
+    {
+      std::stringstream str;
+      str << "Unexpected value from pipeline. Expected " << expected
+          << " got " << val;
+      TEST_ERROR( str.str() );
+    }
+
+  } // end while
+
+  ep.wait();
 }

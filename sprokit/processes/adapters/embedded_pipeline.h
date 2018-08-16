@@ -276,6 +276,13 @@ public:
   void wait();
 
   /**
+   * @brief Stop an executing pipeline.
+   *
+   * This method asynchronously stops the pipeline.
+   */
+  void stop();
+
+  /**
    * @brief Get list of input ports.
    *
    * This method returns the list of all active data ports on the
@@ -323,6 +330,8 @@ public:
    */
   bool output_adapter_connected() const;
 
+  class priv;
+
 protected:
   /**
    * @brief Connect to input adapter.
@@ -358,14 +367,8 @@ protected:
    */
   virtual void update_config( kwiver::vital::config_block_sptr config );
 
-  /**
-   * Reference to logger.
-   */
-  kwiver::vital::logger_handle_t m_logger;
-
 private:
-  class priv;
-  std::unique_ptr< priv > m_priv;
+  std::shared_ptr< priv > m_priv;
 
 }; // end class embedded_pipeline
 

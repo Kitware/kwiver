@@ -34,6 +34,7 @@
  */
 
 #include "embedded_pipeline.h"
+#include "embedded_pipeline_extension.h"
 
 #include <vital/config/config_block.h>
 #include <vital/logger/logger.h>
@@ -56,10 +57,15 @@
 #include <sstream>
 #include <stdexcept>
 
-
 namespace {
 
+using plugin_factory =  kwiver::vital::implementation_factory_by_name< kwiver::embedded_pipeline_extension >;
+
+static kwiver::vital::config_block_key_t const extension_type_key =
+  kwiver::vital::config_block_key_t("_embedded_pipeline_extension");
+
 static kwiver::vital::config_block_key_t const scheduler_block = kwiver::vital::config_block_key_t("_scheduler");
+static kwiver::vital::config_block_key_t const epx_block_key = kwiver::vital::config_block_key_t("_pipeline:embedded_pipeline_extension");
 
 } // end
 
@@ -74,13 +80,13 @@ class embedded_pipeline::priv
 public:
   // -- CONSTRUCTORS --
   priv()
-    : m_logger( kwiver::vital::get_logger( "embedded_pipeline" ))
+    : m_logger( kwiver::vital::get_logger( "sprokit.embedded_pipeline" ))
     , m_at_end( false )
-    , m_pipeline_started( false )
+    , m_stop_flag( false )
+    , m_pipeline_state( EPS_pre_build )
     , m_input_adapter_connected( false )
     , m_output_adapter_connected (false )
-  {
-  }
+  { }
 
 
   ~priv()
@@ -88,7 +94,7 @@ public:
     // If the pipeline has been started, wait until it has completed
     // before freeing storage. May have to do more here to deal with a
     // still-running pipeline.
-    if ( m_pipeline_started )
+    if ( m_pipeline_state == EPS_running )
     {
       try
       {
@@ -104,7 +110,15 @@ public:
 //---------------------------
   vital::logger_handle_t m_logger;
   bool m_at_end;
-  bool m_pipeline_started;
+  bool m_stop_flag;
+  enum {
+    EPS_pre_build,
+    EPS_building,
+    EPS_built,
+    EPS_running,
+    EPS_stopped
+  } m_pipeline_state;
+
   bool m_input_adapter_connected;
   bool m_output_adapter_connected;
 
@@ -116,18 +130,59 @@ public:
   kwiver::vital::config_block_sptr m_scheduler_config;
   sprokit::scheduler_t m_scheduler;
 
+  embedded_pipeline_extension_sptr m_hooks;
+  std::shared_ptr< embedded_pipeline_extension::context> m_context;
+
 }; // end class embedded_pipeline::priv
+
+
+// ============================================================================
+/*
+ * This implementation of the plugin context provides real access to
+ * our internal data area.
+ *
+ * Other accessors can be added as needed.
+ */
+class real_context
+  : public embedded_pipeline_extension::context
+{
+public:
+  real_context( std::shared_ptr< embedded_pipeline::priv> p );
+  virtual ~real_context();
+
+  virtual sprokit::pipeline_t pipeline() { return m_priv->m_pipeline; }
+  virtual vital::logger_handle_t logger() { return m_priv->m_logger; }
+  virtual kwiver::vital::config_block_sptr pipe_config() { return m_priv->m_pipe_config; }
+  virtual bool cancelled() const { return m_priv->m_stop_flag; }
+
+  // add other context items as needed.
+
+private:
+  std::shared_ptr< embedded_pipeline::priv > m_priv;
+};
+
+
+real_context::
+real_context( std::shared_ptr< embedded_pipeline::priv> p )
+  : m_priv(p)
+{ }
+
+real_context::
+~real_context() { }
+
+
 
 
 // ==================================================================
 embedded_pipeline
 ::embedded_pipeline()
-  : m_logger( kwiver::vital::get_logger( "sprokit.embedded_pipeline" ) )
-  , m_priv( new priv() )
+  : m_priv( new priv() )
 {
   // load processes
   kwiver::vital::plugin_manager::instance().load_all_plugins();
 
+  // make our context object
+  m_priv->m_context = std::make_shared< real_context >( m_priv );
 }
 
 
@@ -142,6 +197,8 @@ void
 embedded_pipeline
 ::build_pipeline( std::istream& istr, std::string const& def_dir )
 {
+  m_priv->m_pipeline_state = priv::EPS_building;
+
   // create a pipeline
   sprokit::pipeline_builder builder;
 
@@ -165,10 +222,40 @@ embedded_pipeline
     throw std::runtime_error( "Unable to bake pipeline" );
   }
 
+  // Load extension plugin if specified
+  // Look for the following config
+  // embedded_pipeline_extension:type = <foo>
+  // embedded_pipeline_extension:param = value
+
+  kwiver::vital::config_block_sptr epx_config = m_priv->m_pipe_config->subblock( epx_block_key );
+
+  if ( epx_config->has_value( "type" ))
+  {
+    std::string ext_name = epx_config->get_value< std::string >( "type" );
+    LOG_TRACE( m_priv->m_logger, "Loading extension named \"" << ext_name << "\"" );
+
+    if (ext_name != "none" )
+    {
+      plugin_factory ifact;
+      m_priv->m_hooks.reset( ifact.create( ext_name ) );
+
+      m_priv->m_hooks->configure( epx_config );
+    }
+  }
+
+  // check config for _pipeline:embedded_pipeline:pre_setup:type = <foo>
+  // If present, instantiate and configure it.
+  // Plugin interface type embedded_pipeline_hooks
+  if ( m_priv->m_hooks )
+  {
+    m_priv->m_hooks->pre_setup( *m_priv->m_context );
+  }
+
   // perform setup operation on pipeline and get it ready to run
   // This throws many exceptions
   try
   {
+    // This may pause due to resource allocation issues.
     m_priv->m_pipeline->setup_pipeline();
   }
   catch( sprokit::pipeline_exception const& e)
@@ -176,6 +263,12 @@ embedded_pipeline
     std::stringstream str;
     str << "Error setting up pipeline: " << e.what();
     throw std::runtime_error( str.str() );
+  }
+
+  // check if pipeline is ready
+  if ( ! m_priv->m_pipeline->is_setup() )
+  {
+    throw std::runtime_error( "pipeline setup did not complete successfully" );
   }
 
   if ( ! connect_input_adapter() || ! connect_output_adapter() )
@@ -196,6 +289,7 @@ embedded_pipeline
   m_priv->m_scheduler_config = m_priv->m_pipe_config->subblock(scheduler_block +
                           kwiver::vital::config_block::block_sep + scheduler_type);
 
+  // Create the scheduler and attach the already built pipeline
   m_priv->m_scheduler = sprokit::create_scheduler(scheduler_type,
                                                   m_priv->m_pipeline,
                                                   m_priv->m_scheduler_config);
@@ -204,6 +298,9 @@ embedded_pipeline
   {
     throw std::runtime_error( "Unable to create scheduler" );
   }
+
+  // Indicate that the pipeline has been built.
+  m_priv->m_pipeline_state = priv::EPS_built;
 }
 
 
@@ -237,7 +334,7 @@ embedded_pipeline
 
 
 // ------------------------------------------------------------------
-  kwiver::adapter::adapter_data_set_t
+kwiver::adapter::adapter_data_set_t
 embedded_pipeline
 ::receive()
 {
@@ -248,12 +345,24 @@ embedded_pipeline
 
   if ( m_priv->m_at_end )
   {
-    LOG_ERROR( m_logger, "receive() called after end_of_data processed. "
+    LOG_ERROR( m_priv->m_logger, "receive() called after end_of_data processed. "
                << "Probable deadlock." );
   }
 
   auto ads =  m_priv->m_output_adapter.receive();
   m_priv->m_at_end = ads->is_end_of_data();
+
+  // This will not catch the case where the pipeline has a sink and
+  // produces no output
+  if ( m_priv->m_at_end )
+  {
+    // call end_of_data() hook
+    if ( m_priv->m_hooks)
+    {
+      m_priv->m_hooks->end_of_output( *m_priv->m_context );
+    }
+  }
+
   return ads;
 }
 
@@ -300,6 +409,7 @@ void
 embedded_pipeline
 ::start()
 {
+  m_priv->m_pipeline_state = priv::EPS_running;
   m_priv->m_scheduler->start();
 }
 
@@ -310,6 +420,27 @@ embedded_pipeline
 ::wait()
 {
   m_priv->m_scheduler->wait();
+  m_priv->m_pipeline_state = priv::EPS_stopped;
+}
+
+
+// ------------------------------------------------------------------
+void
+embedded_pipeline
+::stop()
+{
+  m_priv->m_stop_flag = true;
+
+  // Note: Can throws stop_before_start_exception Thrown when the
+  // scheduler has not been started
+  // May need to flush the bounded buffers too. Likely pipeline may
+  // want to be restarted.
+  m_priv->m_scheduler->stop();
+
+  // Wait for scheduler to terminate.
+  m_priv->m_scheduler->wait();
+
+  m_priv->m_pipeline_state = priv::EPS_stopped;
 }
 
 
