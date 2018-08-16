@@ -287,19 +287,21 @@ public:
     T norm_pt[3];
     for ( int i = 0; i < 3; ++i )
     {
-      norm_pt[i] = ( cam_params[i+3] - point[i] ) / cam_params[i];
+      norm_pt[i] = (  point[i] - cam_params[i+3] ) / cam_params[i];
     }
 
     // Calculate polynomials and get image points
     T polys[4];
     T pow_vec[20];
     power_vector( norm_pt, pow_vec );
+
     for ( int i = 0; i < 4; ++i )
     {
       polys[i] = T(0.);
       for ( int j = 0; j < 20; ++j )
       {
-        polys[i] += pow_vec[j] * cam_params[10 + j + i * 20];
+        // RPC coefficients are column major order
+        polys[i] += pow_vec[j] * cam_params[10 + i + 4*j];
       }
     }
 
@@ -312,7 +314,7 @@ public:
     T image_xy[2];
     for ( int i = 0; i < 2; ++i )
     {
-      image_xy[i] = ( cam_params[i+8] - norm_img_xy[i] ) / cam_params[i+6];
+      image_xy[i] = norm_img_xy[i] * cam_params[i+6] + cam_params[i+8];
     }
 
     // Compute the reprojection error
