@@ -36,6 +36,7 @@
 #ifndef KWIVER_ARROWS_TESTS_TEST_RPC_H_
 #define KWIVER_ARROWS_TESTS_TEST_RPC_H_
 
+#include <vital/types/camera_rpc.h>
 #include <vital/types/landmark_map.h>
 #include <vital/types/vector.h>
 
@@ -63,6 +64,27 @@ rpc_landmarks()
   }
 
   return std::make_shared< vital::simple_landmark_map >( landmark_map );
+}
+
+// add Gaussian noise to RPC camera coefficients
+kwiver::vital::camera_map_sptr
+noisy_rpc_cameras( kwiver::vital::camera_map_sptr cameras, double stdev = 1.0 )
+{
+  using namespace kwiver::vital;
+
+  camera_map::map_camera_t cam_map;
+  for( camera_map::map_camera_t::value_type const& p : cameras->cameras() )
+  {
+    auto cam_ptr = std::dynamic_pointer_cast<vital::camera_rpc>(p.second);
+    auto c = std::dynamic_pointer_cast<vital::camera_rpc>(cam_ptr->clone());
+
+    simple_camera_rpc& cam = dynamic_cast<simple_camera_rpc&>(*c);
+
+    cam.set_rpc_coeffs( cam.rpc_coeffs() + random_matrix<double, 4, 20>(stdev) );
+
+    cam_map[p.first] = c;
+  }
+  return camera_map_sptr( new simple_camera_map( cam_map ) );
 }
 
 }

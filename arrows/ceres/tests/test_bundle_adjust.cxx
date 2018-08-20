@@ -488,8 +488,8 @@ class bundle_adjust_rpc : public ::testing::Test
 };
 
 // ----------------------------------------------------------------------------
-// Test bundle adjustment with RPC cameras
-TEST_F(bundle_adjust_rpc, from_data)
+// Test bundle adjustment with RPC cameras with noisy landmarks
+TEST_F(bundle_adjust_rpc, noisy_landmarks)
 {
   using namespace kwiver::vital;
 
@@ -502,7 +502,7 @@ TEST_F(bundle_adjust_rpc, from_data)
   landmark_map_sptr landmarks = kwiver::testing::rpc_landmarks();
 
   camera_map::map_camera_t camera_map;
-  for ( size_t i = 0; i < 8; ++i )
+  for ( size_t i = 0; i < 9; ++i )
   {
     path_t filepath = data_dir + "/rpc_data" + std::to_string(i) + ".dat";
     auto cam_ptr = std::make_shared< simple_camera_rpc >( read_rpc( filepath ) );
@@ -512,13 +512,78 @@ TEST_F(bundle_adjust_rpc, from_data)
 
   auto tracks = kwiver::arrows::projected_tracks(landmarks, cameras);
 
-  ba.optimize(cameras, landmarks, tracks);
+  // add Gaussian noise to the landmark positions
+  landmark_map_sptr landmarks0 = kwiver::testing::noisy_landmarks(landmarks, 0.1);
 
-  double end_rmse = reprojection_rmse(cameras->cameras(),
-                                      landmarks->landmarks(),
+  // add Gaussian noise to the camera coefficients
+  camera_map_sptr cameras0 = kwiver::testing::noisy_rpc_cameras(cameras, 0.01);
+
+  double init_rmse = reprojection_rmse(cameras0->cameras(),
+                                       landmarks0->landmarks(),
+                                       tracks->tracks());
+  std::cout << "initial reprojection RMSE: " << init_rmse << std::endl;
+  EXPECT_GE(init_rmse, 10.0)
+    << "Initial reprojection RMSE should be large before SBA";
+
+  ba.optimize(cameras0, landmarks0, tracks);
+
+  double end_rmse = reprojection_rmse(cameras0->cameras(),
+                                      landmarks0->landmarks(),
                                       tracks->tracks());
 
   std::cout << "RPC end_rmse = " << end_rmse << std::endl;
 
-  EXPECT_NEAR( 0.0, end_rmse, 1e-12 );
+  EXPECT_NEAR( 0.0, end_rmse, 3e-5 );
+}
+
+// ----------------------------------------------------------------------------
+// Test bundle adjustment with RPC cameras with noisy landmarks
+TEST_F(bundle_adjust_rpc, noisy_tracks)
+{
+  using namespace kwiver::vital;
+
+  bundle_adjust ba;
+  config_block_sptr cfg = ba.get_configuration();
+  cfg->set_value("verbose", "true");
+  cfg->set_value("max_num_iterations", 100);
+  ba.set_configuration(cfg);
+
+  landmark_map_sptr landmarks = kwiver::testing::rpc_landmarks();
+
+  camera_map::map_camera_t camera_map;
+  for ( size_t i = 0; i < 9; ++i )
+  {
+    path_t filepath = data_dir + "/rpc_data" + std::to_string(i) + ".dat";
+    auto cam_ptr = std::make_shared< simple_camera_rpc >( read_rpc( filepath ) );
+    camera_map.insert( std::pair< frame_id_t, camera_sptr >( i, cam_ptr ) );
+  }
+  camera_map_sptr cameras = std::make_shared< simple_camera_map >( camera_map );
+
+  auto tracks = kwiver::arrows::projected_tracks(landmarks, cameras);
+
+  // add Gaussian noise to the landmark positions
+  landmark_map_sptr landmarks0 = kwiver::testing::noisy_landmarks(landmarks, 0.1);
+
+  // add Gaussian noise to the camera coefficients
+  camera_map_sptr cameras0 = kwiver::testing::noisy_rpc_cameras(cameras, 0.01);
+
+  // add Gaussian noise to the tracks
+  feature_track_set_sptr tracks0 = kwiver::testing::noisy_tracks(tracks, 0.001);
+
+  double init_rmse = reprojection_rmse(cameras0->cameras(),
+                                       landmarks0->landmarks(),
+                                       tracks0->tracks());
+  std::cout << "initial reprojection RMSE: " << init_rmse << std::endl;
+  EXPECT_GE(init_rmse, 10.0)
+    << "Initial reprojection RMSE should be large before SBA";
+
+  ba.optimize(cameras0, landmarks0, tracks);
+
+  double end_rmse = reprojection_rmse(cameras0->cameras(),
+                                      landmarks0->landmarks(),
+                                      tracks0->tracks());
+
+  std::cout << "RPC end_rmse = " << end_rmse << std::endl;
+
+  EXPECT_NEAR( 0.0, end_rmse, 0.005 );
 }

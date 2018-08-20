@@ -75,6 +75,22 @@ kwiver::vital::vector_2d random_point2d(double stdev)
   return v;
 }
 
+// ------------------------------------------------------------------
+template < typename T, int M, int N >
+Eigen::Matrix< T, M, N > random_matrix(double stdev)
+{
+  norm_dist_t norm( 0.0, stdev );
+  Eigen::Matrix< T, M, N > mat;
+  for ( int i = 0; i < M; ++i )
+  {
+    for ( int j = 0; j < N; ++j )
+    {
+      mat( i, j ) = norm(rng);
+    }
+  }
+  return mat;
+}
+
 } // end namespace testing
 } // end namespace kwiver
 
