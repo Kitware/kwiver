@@ -513,4 +513,12 @@ TEST_F(bundle_adjust_rpc, from_data)
   auto tracks = kwiver::arrows::projected_tracks(landmarks, cameras);
 
   ba.optimize(cameras, landmarks, tracks);
+
+  double end_rmse = reprojection_rmse(cameras->cameras(),
+                                      landmarks->landmarks(),
+                                      tracks->tracks());
+
+  std::cout << "RPC end_rmse = " << end_rmse << std::endl;
+
+  EXPECT_NEAR( 0.0, end_rmse, 1e-12 );
 }
