@@ -152,6 +152,7 @@ public:
    * supplied stream.
    *
    * @param istr Input stream containing the pipeline description.
+   *
    * @param def_dir The directory name used to report errors in the
    * input stream and is used as the current directory to locate
    * includes and to resolve relpath. Since the input stream being
@@ -159,6 +160,10 @@ public:
    * the directory supplied so that errors in the stream can be
    * differentiated from errors from other files. If this parameter is
    * not supplied, the current directory is used.
+   *
+   * @throws std::runtime_error when there is a problem
+   * constructing the pipeline or if there is a problem connecting
+   * inputs or outputs.
    */
   void build_pipeline( std::istream& istr, std::string const& def_dir = "" );
 
