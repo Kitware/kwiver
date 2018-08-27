@@ -37,6 +37,8 @@
 
 #include <arrows/ceres/camera_smoothness.h>
 
+#include <vital/exceptions.h>
+
 using namespace kwiver::vital;
 
 
@@ -134,7 +136,10 @@ camera_options
     optimize_dist_k4_k5_k6(false),
     camera_intrinsic_share_type(AUTO_SHARE_INTRINSICS),
     camera_path_smoothness(0.0),
-    camera_forward_motion_damping(0.0)
+    camera_forward_motion_damping(0.0),
+    optimize_world_normalization(false),
+    optimize_image_normalization(false),
+    optimization_poly_order(1)
 {
 }
 
@@ -153,7 +158,10 @@ camera_options
     optimize_dist_k4_k5_k6(other.optimize_dist_k4_k5_k6),
     camera_intrinsic_share_type(other.camera_intrinsic_share_type),
     camera_path_smoothness(other.camera_path_smoothness),
-    camera_forward_motion_damping(other.camera_forward_motion_damping)
+    camera_forward_motion_damping(other.camera_forward_motion_damping),
+    optimize_world_normalization(other.optimize_world_normalization),
+    optimize_image_normalization(other.optimize_image_normalization),
+    optimization_poly_order(other.optimization_poly_order)
 {
 }
 
@@ -204,6 +212,13 @@ camera_options
                     "distances.  It causes the algorithm to prefer focal length change "
                     "over fast motion along the principal ray. "
                     "If set to zero the regularization is disabled.");
+  config->set_value("optimize_world_normalization", this->optimize_world_normalization,
+                    "Include the rpc world normalization parameters in bundle adjustment.");
+  config->set_value("optimize_image_normalization", this->optimize_image_normalization,
+                    "Include the rpc image normalization parameters in bundle adjustment.");
+  config->set_value("optimization_poly_order", this->optimization_poly_order,
+                    "Indicate the polynomial order of the coefficients to be "
+                    "included in bundle adjustment.");
 }
 
 
@@ -228,6 +243,9 @@ camera_options
   GET_VALUE(ceres::CameraIntrinsicShareType, camera_intrinsic_share_type);
   GET_VALUE(double, camera_path_smoothness);
   GET_VALUE(double, camera_forward_motion_damping);
+  GET_VALUE(bool, optimize_world_normalization);
+  GET_VALUE(bool, optimize_image_normalization);
+  GET_VALUE(int, optimization_poly_order);
 #undef GET_VALUE
 }
 
@@ -321,6 +339,67 @@ camera_options
   return constant_intrinsics;
 }
 
+/// enumerate the intrinsics held constant
+std::vector<int>
+camera_options
+::enumerate_constant_rpc_parameters() const
+{
+  std::vector<int> constant_rpc_params;
+
+  if ( ! optimize_world_normalization )
+  {
+    for ( unsigned int i = 0; i < 6; ++i )
+    {
+      constant_rpc_params.push_back( i );
+    }
+  }
+  if ( ! optimize_image_normalization )
+  {
+    for ( unsigned int i = 6; i < 10; ++i )
+    {
+      constant_rpc_params.push_back( i );
+    }
+  }
+
+  switch ( optimization_poly_order )
+  {
+    case 0:
+      for ( unsigned int i = 0; i < 4; ++i )
+      {
+        for ( unsigned int j = 1; j < 20; ++j )
+        {
+          constant_rpc_params.push_back( 10 + i + 4*j );
+        }
+      }
+      break;
+    case 1:
+      for ( unsigned int i = 0; i < 4; ++i )
+      {
+        for ( unsigned int j = 4; j < 20; ++j )
+        {
+          constant_rpc_params.push_back( 10 + i + 4*j );
+        }
+      }
+      break;
+    case 2:
+      for ( unsigned int i = 0; i < 4; ++i )
+      {
+        for ( unsigned int j = 10; j < 20; ++j )
+        {
+          constant_rpc_params.push_back( 10 + i + 4*j );
+        }
+      }
+      break;
+    case 3:
+      // All parameters are optimized
+      break;
+    default:
+      VITAL_THROW( invalid_value,"Polynomial optimize order must 3 or less.");
+      break;
+  }
+
+  return constant_rpc_params;
+}
 
 /// extract the extrinsic paramters from a camera into the parameter array
 void

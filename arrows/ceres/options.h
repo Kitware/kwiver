@@ -229,6 +229,25 @@ public:
    */
   std::vector<int> enumerate_constant_intrinsics() const;
 
+  /// enumerate the rpc parameters held constant
+  /**
+   * Based on the setting of the rpc optimization options
+   * populate a vector of indices marking which rpc parameters
+   * are held constant. Indicies are:
+   *   - \b 0 : world scale x
+   *   - \b 1 : world scale y
+   *   - \b 2 : world scale z
+   *   - \b 3 : world offset x
+   *   - \b 4 : world offset y
+   *   - \b 5 : world offset z
+   *   - \b 6 : image scale x
+   *   - \b 7 : image scale y
+   *   - \b 8 : image offset x
+   *   - \b 9 : image offset y
+   *   - \b 10-89 : rpc coefficients (in column major order)
+   */
+  std::vector<int> enumerate_constant_rpc_parameters() const;
+
   /// option to optimize the focal length
   bool optimize_focal_length;
   /// option to optimize aspect ratio
@@ -255,6 +274,12 @@ public:
   double camera_path_smoothness;
   /// the scale of camera forward motion damping regularization
   double camera_forward_motion_damping;
+  /// option to optimize world normalization parameters
+  bool optimize_world_normalization;
+  /// option to optimize image normalization parameters
+  bool optimize_image_normalization;
+  /// what order to optimize polynomial cofficients. Must be 3rd or less.
+  unsigned int optimization_poly_order;
 };
 
 
