@@ -34,7 +34,7 @@ Sprokit
 Sprokit: Processes
 
  * Added an extension plugin capability to embedded_pipeline that
-   provides a hook just before the pipeline is setup and a hook after
+   provides a hook just before the pipeline is set up and a hook after
    pipeline has reached end of data.
 
 Tools
