@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2014 by Kitware, Inc.
+ * Copyright 2013-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,18 +52,19 @@ namespace vital {
  * that stores the data as a vector of descriptors and returns it.  Other
  * derived classes can store the data in other formats and convert on demand.
  */
-class descriptor_set
+class VITAL_EXPORT descriptor_set
   : public set< descriptor_sptr >
 {
 public:
   /// Destructor
-  virtual ~descriptor_set() = default;
+  virtual ~descriptor_set();
 
 protected:
-  descriptor_set()
-   : m_logger( kwiver::vital::get_logger( "vital.descriptor_set" ) )
-  {}
+  descriptor_set();
 
+  kwiver::vital::logger_handle_t logger();
+
+private:
   kwiver::vital::logger_handle_t m_logger;
 };
 
@@ -71,6 +72,7 @@ protected:
 typedef std::shared_ptr< descriptor_set > descriptor_set_sptr;
 
 
+// ============================================================================
 /// A concrete descriptor set that simply wraps a vector of descriptors.
 class VITAL_EXPORT simple_descriptor_set :
   public descriptor_set
@@ -78,6 +80,7 @@ class VITAL_EXPORT simple_descriptor_set :
 public:
   /// Default Constructor
   simple_descriptor_set() = default;
+  ~simple_descriptor_set();
 
   /// Constructor from a vector of descriptors
   explicit simple_descriptor_set( const std::vector< descriptor_sptr >& descriptors );

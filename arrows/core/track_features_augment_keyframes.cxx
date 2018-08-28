@@ -95,7 +95,6 @@ track_features_augment_keyframes
     d_->extractor->extract(image_data, new_feat, mask);
 
   std::vector<feature_sptr> vf = new_feat->features();
-  std::vector<descriptor_sptr> df = new_desc->descriptors();
   // get the last track id in the existing set of tracks and increment it
   track_id_t next_track_id = (*tracks->all_track_ids().crbegin()) + 1;
 
@@ -103,7 +102,7 @@ track_features_augment_keyframes
   {
     auto fts = std::make_shared<feature_track_state>(frame_number);
     fts->feature = vf[i];
-    fts->descriptor = df[i];
+    fts->descriptor = new_desc->at(i);
     auto t = vital::track::create();
     t->append(fts);
     t->set_id(next_track_id++);

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016-2017 by Kitware, Inc.
+ * Copyright 2016-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,10 +40,9 @@
 #include <vital/vital_config.h>
 #include <vital/attribute_set.h>
 #include <vital/noncopyable.h>
+#include <vital/set.h>
 
 #include <vital/types/detected_object.h>
-
-#include <iterator>
 
 namespace kwiver {
 namespace vital {
@@ -52,7 +51,7 @@ namespace vital {
 class detected_object_set;
 
 // typedef for a detected_object shared pointer
-typedef std::shared_ptr< detected_object_set > detected_object_set_sptr;
+using  detected_object_set_sptr = std::shared_ptr< detected_object_set >;
 
 // ----------------------------------------------------------------
 /**
@@ -67,11 +66,10 @@ typedef std::shared_ptr< detected_object_set > detected_object_set_sptr;
  * concurrently.
  */
 class VITAL_EXPORT detected_object_set
-  : private noncopyable
+  : public set< detected_object_sptr >
+  , private noncopyable
 {
 public:
-  typedef std::vector< detected_object_sptr >::iterator iterator;
-  typedef std::vector< detected_object_sptr >::const_iterator const_iterator;
 
   /**
    * @brief Create an empty detection set.
@@ -128,7 +126,7 @@ public:
    *
    * @return Number of detections.
    */
-  size_t size() const;
+  virtual size_t size() const;
 
   /**
    * @brief Returns whether or not this set is empty.
@@ -137,24 +135,7 @@ public:
    *
    * @return Whether or not the set is empty.
    */
-  bool empty() const;
-
-  //@{
-  /**
-   * @brief Detected object set iterators;
-   *
-   * This method returns an iterator for the set of detected
-   * objects. The iterator points to a shared pointer to a detected
-   * object.
-   *
-   * @return An iterator over the objects in this set;
-   */
-  iterator begin();
-  iterator end();
-
-  const_iterator cbegin() const;
-  const_iterator cend() const;
-  //@}
+  virtual bool empty() const;
 
   //@{
   /**
@@ -173,8 +154,8 @@ public:
    * @throws std::range if position is now within the range of objects
    * in container.
    */
-  detected_object_sptr at( size_t pos );
-  const detected_object_sptr at( size_t pos ) const;
+  virtual detected_object_sptr at( size_t pos );
+  virtual const detected_object_sptr at( size_t pos ) const;
   //@}
 
   /**
@@ -265,6 +246,11 @@ public:
    * @param attrs Pointer to attribute set to attach.
    */
   void set_attributes( attribute_set_sptr attrs );
+
+protected:
+  iterator::next_value_func_t get_iter_next_func();
+  const_iterator::next_value_func_t get_const_iter_next_func() const;
+
 
 private:
   // List of detections ordered by confidence value.

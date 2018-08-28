@@ -351,6 +351,7 @@ match_descriptor_sets::priv
     {
       continue;
     }
+
     ln_num = 0;
     image_container_sptr im = m_image_io->load(line);
     LOG_INFO(m_logger, "Extracting features for image " + line);
@@ -377,10 +378,9 @@ match_descriptor_sets::priv
   descriptor_set_sptr im_descriptors,
   std::vector<cv::Mat> &features) const
 {
-  std::vector< descriptor_sptr > desc = im_descriptors->descriptors();
-  features.resize(desc.size());
+  features.resize(im_descriptors->size());
   unsigned int dn = 0;
-  for (auto d : desc)
+  for (auto d : *im_descriptors)
   {
     if (!d)
     {

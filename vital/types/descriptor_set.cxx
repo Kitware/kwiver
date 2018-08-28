@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2014 by Kitware, Inc.
+ * Copyright 2013-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,13 +40,39 @@
 namespace kwiver {
 namespace vital {
 
-  /// Constructor from a vector of descriptors
+  // ----------------------------------------------------------------------------
+descriptor_set
+::descriptor_set()
+  : m_logger( kwiver::vital::get_logger( "vital.descriptor_set" ) )
+{
+}
+
+descriptor_set
+::~descriptor_set()
+{ }
+
+// ----------------------------------------------------------------------------
+kwiver::vital::logger_handle_t
+descriptor_set::
+logger()
+{
+  return m_logger;
+}
+
+// ============================================================================
+// Constructor from a vector of descriptors
 simple_descriptor_set
 ::simple_descriptor_set( const std::vector< descriptor_sptr > & descriptors )
   : data_( descriptors )
 {}
 
-/// Get the numver of elements in this set.
+
+simple_descriptor_set
+::~simple_descriptor_set()
+{ }
+
+// ----------------------------------------------------------------------------
+// Get the number of elements in this set.
 size_t
 simple_descriptor_set
 ::size() const
@@ -54,7 +80,8 @@ simple_descriptor_set
   return data_.size();
 }
 
-/// Wehther or not this set is empty.
+// ----------------------------------------------------------------------------
+// Whether or not this set is empty.
 bool
 simple_descriptor_set
 ::empty() const
@@ -62,7 +89,8 @@ simple_descriptor_set
   return data_.empty();
 }
 
-/// Return the descriptor at the specified index.
+// ----------------------------------------------------------------------------
+// Return the descriptor at the specified index.
 descriptor_sptr
 simple_descriptor_set
 ::at( size_t index )
@@ -76,7 +104,8 @@ simple_descriptor_set
   return data_[index];
 }
 
-/// Return the descriptor at the specified index.
+// ----------------------------------------------------------------------------
+// Return the descriptor at the specified index.
 descriptor_sptr const
 simple_descriptor_set
 ::at( size_t index ) const
@@ -90,7 +119,8 @@ simple_descriptor_set
   return data_[index];
 }
 
-/// Next value function for non-const iteration.
+// ----------------------------------------------------------------------------
+// Next value function for non-const iteration.
 simple_descriptor_set::iterator::next_value_func_t
 simple_descriptor_set
 ::get_iter_next_func()
@@ -105,7 +135,8 @@ simple_descriptor_set
   };
 }
 
-/// Next value function for const iteration.
+// ----------------------------------------------------------------------------
+// Next value function for const iteration.
 simple_descriptor_set::const_iterator::next_value_func_t
 simple_descriptor_set
 ::get_const_iter_next_func() const
