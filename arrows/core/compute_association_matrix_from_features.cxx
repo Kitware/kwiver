@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -166,7 +166,7 @@ compute_association_matrix_from_features
       for( unsigned d = 0; d < filtered_dets->size(); ++d )
       {
         track_sptr trk = filtered_tracks[t];
-        detected_object_sptr det = filtered_dets->begin()[d];
+        detected_object_sptr det = filtered_dets->at(d);
 
         detected_object::descriptor_sptr det_features = det->descriptor();
         detected_object::descriptor_sptr trk_features;

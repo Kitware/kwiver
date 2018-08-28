@@ -94,26 +94,18 @@ track_features_augment_keyframes
     d_->extractor->extract(image_data, new_feat, mask);
 
   std::vector<feature_sptr> vf = new_feat->features();
-  std::vector<descriptor_sptr> df = new_desc->descriptors();
+  // get the last track id in the existing set of tracks and increment it
+  track_id_t next_track_id = (*tracks->all_track_ids().crbegin()) + 1;
+
   for (size_t i = 0; i < vf.size(); ++i)
   {
-    auto feat = vf[i];
-    auto desc = df[i];
-
-    // Go through existing features and find the one that equals feat.
-    // The feature pointers may have changed in detect so we can't use them
-    // directly with a map.
-    for (auto ts : track_states)
-    {
-      auto fts = std::static_pointer_cast<feature_track_state>(ts);
-      if (fts && fts->feature && fts->feature->equal_except_for_angle(*feat))
-      {
-        //feature must be set because extract will have calculated a new feature angle
-        fts->feature = feat;
-        fts->descriptor = desc;
-        break;
-      }
-    }
+    auto fts = std::make_shared<feature_track_state>(frame_number);
+    fts->feature = vf[i];
+    fts->descriptor = new_desc->at(i);
+    auto t = vital::track::create();
+    t->append(fts);
+    t->set_id(next_track_id++);
+    tracks->insert(t);
   }
 
   return tracks;

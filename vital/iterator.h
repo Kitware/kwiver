@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -527,10 +527,28 @@ public:
   }
 
   /**
+   * Get the const iterator to the beginning of the collection.
+   * @return An iterator over the objects in this collection.
+   */
+  virtual const_iterator cbegin() const
+  {
+    return vital::const_iterator< T >( get_const_iter_next_func() );
+  }
+
+  /**
    * Get the const iterator past the end of the collection
    * @return An iterator base the end of this collection.
    */
   virtual const_iterator end() const
+  {
+    return vital::const_iterator< T >();
+  }
+
+  /**
+   * Get the const iterator past the end of the collection
+   * @return An iterator base the end of this collection.
+   */
+  virtual const_iterator cend() const
   {
     return vital::const_iterator< T >();
   }
