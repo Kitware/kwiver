@@ -68,7 +68,11 @@ rpc_landmarks()
 
 // add Gaussian noise to RPC camera coefficients
 kwiver::vital::camera_map_sptr
-noisy_rpc_cameras( kwiver::vital::camera_map_sptr cameras, double stdev = 1.0 )
+noisy_rpc_cameras( kwiver::vital::camera_map_sptr cameras,
+                   double stdev = 1.0,
+                   int order = 1,
+                   bool image_norm = false,
+                   bool world_norm = false )
 {
   using namespace kwiver::vital;
 
@@ -78,9 +82,48 @@ noisy_rpc_cameras( kwiver::vital::camera_map_sptr cameras, double stdev = 1.0 )
     auto cam_ptr = std::dynamic_pointer_cast<vital::camera_rpc>(p.second);
     auto c = std::dynamic_pointer_cast<vital::camera_rpc>(cam_ptr->clone());
 
+    unsigned int n;
+    switch ( order )
+    {
+      case -1:
+        n = 0;
+        break;
+      case 0:
+        n = 1;
+        break;
+      case 1:
+        n = 4;
+        break;
+      case 2:
+        n = 10;
+        break;
+      default:
+        n = 20;
+        break;
+    }
+
     simple_camera_rpc& cam = dynamic_cast<simple_camera_rpc&>(*c);
 
-    cam.set_rpc_coeffs( cam.rpc_coeffs() + random_matrix<double, 4, 20>(stdev) );
+    auto new_coeffs = cam.rpc_coeffs();
+
+    for ( size_t i = 0; i < n; ++i )
+    {
+      new_coeffs.block< 4, 1 >( 0, i ) += random_matrix<double, 4, 1>(stdev);
+    }
+
+    cam.set_rpc_coeffs( new_coeffs );
+
+    if ( image_norm )
+    {
+      cam.set_image_scale( cam.image_scale() + random_point2d(stdev) );
+      cam.set_image_offset( cam.image_offset() + random_point2d(stdev) );
+    }
+
+    if ( world_norm )
+    {
+      cam.set_world_scale( cam.world_scale() + random_point3d(stdev) );
+      cam.set_world_offset( cam.world_offset() + random_point3d(stdev) );
+    }
 
     cam_map[p.first] = c;
   }

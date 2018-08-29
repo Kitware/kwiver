@@ -513,10 +513,12 @@ TEST_F(bundle_adjust_rpc, noisy_landmarks)
   auto tracks = kwiver::arrows::projected_tracks(landmarks, cameras);
 
   // add Gaussian noise to the landmark positions
-  landmark_map_sptr landmarks0 = kwiver::testing::noisy_landmarks(landmarks, 0.1);
+  landmark_map_sptr landmarks0 =
+    kwiver::testing::noisy_landmarks(landmarks, 0.01);
 
   // add Gaussian noise to the camera coefficients
-  camera_map_sptr cameras0 = kwiver::testing::noisy_rpc_cameras(cameras, 0.01);
+  camera_map_sptr cameras0 =
+    kwiver::testing::noisy_rpc_cameras(cameras, 0.000005, 1);
 
   double init_rmse = reprojection_rmse(cameras0->cameras(),
                                        landmarks0->landmarks(),
@@ -562,13 +564,16 @@ TEST_F(bundle_adjust_rpc, noisy_tracks)
   auto tracks = kwiver::arrows::projected_tracks(landmarks, cameras);
 
   // add Gaussian noise to the landmark positions
-  landmark_map_sptr landmarks0 = kwiver::testing::noisy_landmarks(landmarks, 0.1);
+  landmark_map_sptr landmarks0 =
+    kwiver::testing::noisy_landmarks(landmarks, 0.001);
 
   // add Gaussian noise to the camera coefficients
-  camera_map_sptr cameras0 = kwiver::testing::noisy_rpc_cameras(cameras, 0.01);
+  camera_map_sptr cameras0 =
+    kwiver::testing::noisy_rpc_cameras(cameras, 0.000005, 1);
 
   // add Gaussian noise to the tracks
-  feature_track_set_sptr tracks0 = kwiver::testing::noisy_tracks(tracks, 0.001);
+  feature_track_set_sptr tracks0 =
+    kwiver::testing::noisy_tracks(tracks, 0.001);
 
   double init_rmse = reprojection_rmse(cameras0->cameras(),
                                        landmarks0->landmarks(),
