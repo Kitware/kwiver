@@ -103,11 +103,13 @@ erase_duplicates(std::vector<std::string>& items);
  * @brief Removes whitespace from left side of string.
  *
  * @param[in,out] s String to be trimmed in place.
+ * @return Modified string
  */
-inline void
+inline std::string&
 left_trim( std::string& s )
 {
   s.erase(  0, s.find_first_not_of( " \t\n\r\f\v" ) );
+  return s;
 }
 
 
@@ -115,11 +117,13 @@ left_trim( std::string& s )
  * @brief Removes whitespace from right size of string.
  *
  * @param[in,out] s String to be trimmed in place
+ * @return Modified string
  */
-inline void
+inline std::string&
 right_trim( std::string& s )
 {
   s.erase( s.find_last_not_of( " \t\n\r\f\v" ) + 1 );
+  return s;
 }
 
 
@@ -127,12 +131,14 @@ right_trim( std::string& s )
  * @brief Removes whitespace from both ends of a string.
  *
  * @param[in,out] s String to be trimmed in place
+ * @return Modified string
  */
-inline void
+inline std::string&
 string_trim( std::string& s )
 {
   right_trim(s);
   left_trim(s);
+  return s;
 }
 
 } } // end namespace

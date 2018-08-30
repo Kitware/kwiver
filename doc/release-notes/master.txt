@@ -18,6 +18,10 @@ Updates since v1.2.0
 
 Vital
 
+ * Added new class to format config block to a stream and deprecated
+   print method in config_block class. Config block formatter provides
+   methods to produce different format outputs. Config block
+   formatting can be extended with plugins.
 
 Vital Bindings
 
