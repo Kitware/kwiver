@@ -363,6 +363,15 @@ camera_options
 
   switch ( optimization_poly_order )
   {
+    case -1:
+      for ( unsigned int i = 0; i < 4; ++i )
+      {
+        for ( unsigned int j = 0; j < 20; ++j )
+        {
+          constant_rpc_params.push_back( 10 + i + 4*j );
+        }
+      }
+      break;
     case 0:
       for ( unsigned int i = 0; i < 4; ++i )
       {

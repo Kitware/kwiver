@@ -279,7 +279,7 @@ public:
   /// option to optimize image normalization parameters
   bool optimize_image_normalization;
   /// what order to optimize polynomial cofficients. Must be 3rd or less.
-  unsigned int optimization_poly_order;
+  int optimization_poly_order;
 };
 
 
