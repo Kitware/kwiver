@@ -499,7 +499,7 @@ TEST_F(bundle_adjust_rpc, noisy_landmarks)
   cfg->set_value("max_num_iterations", 100);
   ba.set_configuration(cfg);
 
-  landmark_map_sptr landmarks = kwiver::testing::rpc_landmarks();
+  landmark_map_sptr landmarks = kwiver::testing::rpc_landmarks( 5 );
 
   camera_map::map_camera_t camera_map;
   for ( size_t i = 0; i < 9; ++i )
@@ -550,7 +550,7 @@ TEST_F(bundle_adjust_rpc, noisy_tracks)
   cfg->set_value("max_num_iterations", 100);
   ba.set_configuration(cfg);
 
-  landmark_map_sptr landmarks = kwiver::testing::rpc_landmarks();
+  landmark_map_sptr landmarks = kwiver::testing::rpc_landmarks( 5 );
 
   camera_map::map_camera_t camera_map;
   for ( size_t i = 0; i < 9; ++i )

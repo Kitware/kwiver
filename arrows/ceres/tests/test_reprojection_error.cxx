@@ -260,7 +260,7 @@ class reprojection_error_rpc : public ::testing::Test
 
 TEST_F(reprojection_error_rpc, compare_projections)
 {
-  landmark_map_sptr landmarks = kwiver::testing::rpc_landmarks();
+  landmark_map_sptr landmarks = kwiver::testing::rpc_landmarks( 5 );
 
   camera_map::map_camera_t camera_map;
   for ( size_t i = 0; i < 8; ++i )

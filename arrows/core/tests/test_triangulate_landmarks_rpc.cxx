@@ -74,7 +74,7 @@ TEST_F(triangulate_landmarks_rpc, from_data)
   kwiver::arrows::core::triangulate_landmarks tri_lm;
   config_block_sptr cfg = tri_lm.get_configuration();
 
-  landmark_map_sptr landmarks = kwiver::testing::rpc_landmarks();
+  landmark_map_sptr landmarks = kwiver::testing::rpc_landmarks( 5 );
 
   camera_map_sptr cameras = std::make_shared< simple_camera_map >( camera_map );
 
@@ -101,7 +101,7 @@ TEST_F(triangulate_landmarks_rpc, noisy_tracks)
   kwiver::arrows::core::triangulate_landmarks tri_lm;
   config_block_sptr cfg = tri_lm.get_configuration();
 
-  landmark_map_sptr landmarks = kwiver::testing::rpc_landmarks();
+  landmark_map_sptr landmarks = kwiver::testing::rpc_landmarks( 5 );
 
   camera_map_sptr cameras = std::make_shared< simple_camera_map >( camera_map );
 

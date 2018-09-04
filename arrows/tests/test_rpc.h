@@ -40,21 +40,35 @@
 #include <vital/types/landmark_map.h>
 #include <vital/types/vector.h>
 
+#include <random>
+
 namespace kwiver {
 namespace testing {
 
-// construct a map of landmarks at the corners of a cube centered at c
-// with a side length of s
+static double max_long = -117.2323512;
+static double min_long = -117.2430115;
+static double max_lat = 32.8828323;
+static double min_lat = 32.8740003;
+static double max_elev = 89.525817;
+static double min_elev = 67.364948;
+
+// construct a map of random landmarks for RPC testing
 vital::landmark_map_sptr
-rpc_landmarks()
+rpc_landmarks(size_t num)
 {
   vital::landmark_map::map_landmark_t landmark_map;
   std::vector< vital::vector_3d > lm_pos;
-  lm_pos.push_back( vital::vector_3d( -117.237465, 32.881208, 110.0 ) );
-  lm_pos.push_back( vital::vector_3d( -117.235309, 32.879108, 110.0 ) );
-  lm_pos.push_back( vital::vector_3d( -117.239404, 32.877824, 110.0 ) );
-  lm_pos.push_back( vital::vector_3d( -117.236088, 32.877091, 110.0 ) );
-  lm_pos.push_back( vital::vector_3d( -117.240455, 32.876183, 110.0 ) );
+
+  std::mt19937 rng( 5434 );
+  std::uniform_real_distribution<double> long_dist(min_long, max_long);
+  std::uniform_real_distribution<double> lat_dist(min_lat, max_lat);
+  std::uniform_real_distribution<double> elev_dist(min_elev, max_elev);
+
+  for (size_t i = 0; i < num; ++i )
+  {
+    lm_pos.push_back(
+      vital::vector_3d( long_dist( rng ), lat_dist( rng ), elev_dist( rng ) ) );
+  }
 
   for ( size_t i = 0; i < lm_pos.size(); ++i )
   {
