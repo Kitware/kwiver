@@ -1,3 +1,7 @@
+.. image:: /_images/Sprokit.png
+   :align: center
+   :height: 150px
+
 Sprokit
 ============
 
