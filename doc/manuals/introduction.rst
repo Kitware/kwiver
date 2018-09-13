@@ -1,6 +1,6 @@
-.. _kwiverblock:
-.. figure:: /_images/KWIVER_logo.png
+.. image:: /_images/KWIVER_logo.png
    :align: center
+   :height: 150px
 
 Introduction
 ============
