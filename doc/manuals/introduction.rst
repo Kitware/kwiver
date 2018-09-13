@@ -1,3 +1,7 @@
+.. _kwiverblock:
+.. figure:: /_images/KWIVER_logo.png
+   :align: center
+
 Introduction
 ============
 
