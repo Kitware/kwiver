@@ -1,5 +1,5 @@
-Vital Architecture
-==================
+Vital
+=====
 
 Vital is the core of KWIVER and is designed to provide data and algorithm
 abstractions with minimal library dependencies. Vital only depends on
