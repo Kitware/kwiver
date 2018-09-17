@@ -265,6 +265,10 @@ bundle_adjust
   // enumerate the intrinsics held constant
   std::vector<int> constant_intrinsics = d_->enumerate_constant_intrinsics();
 
+  // enumerate the rpc parameters held constant
+  std::vector<int> constant_rpc_parameters =
+    d_->enumerate_constant_rpc_parameters();
+
   // Create the loss function to use
   ::ceres::LossFunction* loss_func
       = LossFunctionFactory(d_->loss_function_type,
@@ -273,6 +277,7 @@ bundle_adjust
 
   // Add the residuals for each relevant observation
   std::set<unsigned int> used_intrinsics;
+  std::set<unsigned int> parameterized_rpc;
   for(const track_sptr& t : trks)
   {
     const track_id_t id = t->id();
@@ -295,16 +300,36 @@ bundle_adjust
       {
         continue;
       }
-      unsigned intr_idx = d_->frame_to_intr_map[fts->frame()];
-      double * intr_params_ptr = &d_->camera_intr_params[intr_idx][0];
-      used_intrinsics.insert(intr_idx);
       vector_2d pt = fts->feature->loc();
-      problem.AddResidualBlock(create_cost_func(d_->lens_distortion_type,
-                                                pt.x(), pt.y()),
-                               loss_func,
-                               intr_params_ptr,
-                               &cam_itr->second[0],
-                               &lm_itr->second[0]);
+      if ( !d_->frame_to_intr_map.empty() )
+      {
+        unsigned intr_idx = d_->frame_to_intr_map[fts->frame()];
+        double * intr_params_ptr = &d_->camera_intr_params[intr_idx][0];
+        used_intrinsics.insert(intr_idx);
+        problem.AddResidualBlock(create_cost_func(d_->lens_distortion_type,
+                                                  pt.x(), pt.y()),
+                                 loss_func,
+                                 intr_params_ptr,
+                                 &cam_itr->second[0],
+                                 &lm_itr->second[0]);
+      }
+      else
+      {
+        problem.AddResidualBlock(create_rpc_cost_func(pt.x(), pt.y()),
+                                 loss_func,
+                                 &cam_itr->second[0],
+                                 &lm_itr->second[0]);
+
+        if ( ! constant_rpc_parameters.empty() &&
+             parameterized_rpc.find( (*ts)->frame() ) == parameterized_rpc.end() )
+        {
+          // set a subset of parameters in the block constant
+          problem.SetParameterization(&cam_itr->second[0],
+              new ::ceres::SubsetParameterization(90, constant_rpc_parameters));
+          parameterized_rpc.insert( (*ts)->frame() );
+        }
+      }
+
       loss_func_used = true;
     }
   }

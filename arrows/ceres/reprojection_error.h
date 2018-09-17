@@ -54,6 +54,11 @@ KWIVER_ALGO_CERES_EXPORT
 create_cost_func(LensDistortionType ldt, double x, double y);
 
 
+/// Factory to create Ceres cost functions for rpc cameras
+KWIVER_ALGO_CERES_EXPORT
+::ceres::CostFunction*
+create_rpc_cost_func(double x, double y);
+
 } // end namespace ceres
 } // end namespace arrows
 } // end namespace kwiver

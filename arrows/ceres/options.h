@@ -39,6 +39,7 @@
 #include <vital/vital_config.h>
 #include <vital/config/config_block.h>
 #include <vital/types/camera_perspective.h>
+#include <vital/types/camera_rpc.h>
 #include <vital/types/camera_map.h>
 #include <arrows/ceres/types.h>
 
@@ -77,7 +78,7 @@ public:
  * The intended use of this class is for a PIMPL for an algorithm to
  * inherit from this class to share these options with that algorithm
  */
-class camera_options
+class KWIVER_ALGO_CERES_EXPORT camera_options
 {
 public:
   /// typedef for camera parameter map
@@ -143,6 +144,27 @@ public:
   void update_camera_intrinsics(std::shared_ptr<vital::simple_camera_intrinsics> K,
                                 const double* params) const;
 
+  /// extract the rpc paramters from a rpc camera into the parameter array
+  /**
+   *  \param [in]  camera The camera object to extract data from
+   *  \param [out] params and array of 90 doubles to populate with parameters
+   *
+   *  This function is the inverse of update_rpc_parameters
+   */
+  void extract_rpc_parameters(const vital::camera_rpc_sptr camera,
+                              double* params) const;
+
+  /// Update a rpc camera object to use rpc parameters from an array
+  /**
+   *  \param [out] camera The simple_camera instance to update
+   *  \param [in] params The array of 90 doubles to extract the data from
+   *
+   *  This function is the inverse of extract_rpc_parameters
+   */
+  void update_rpc_parameters(
+    std::shared_ptr<vital::simple_camera_rpc> camera,
+    double const* params) const;
+
   /// extract the set of all unique intrinsic and extrinsic parameters from a camera map
   /**
    *  \param [in]  cameras    The map of frame numbers to cameras to extract parameters from
@@ -207,6 +229,25 @@ public:
    */
   std::vector<int> enumerate_constant_intrinsics() const;
 
+  /// enumerate the rpc parameters held constant
+  /**
+   * Based on the setting of the rpc optimization options
+   * populate a vector of indices marking which rpc parameters
+   * are held constant. Indicies are:
+   *   - \b 0 : world scale x
+   *   - \b 1 : world scale y
+   *   - \b 2 : world scale z
+   *   - \b 3 : world offset x
+   *   - \b 4 : world offset y
+   *   - \b 5 : world offset z
+   *   - \b 6 : image scale x
+   *   - \b 7 : image scale y
+   *   - \b 8 : image offset x
+   *   - \b 9 : image offset y
+   *   - \b 10-89 : rpc coefficients (in column major order)
+   */
+  std::vector<int> enumerate_constant_rpc_parameters() const;
+
   /// option to optimize the focal length
   bool optimize_focal_length;
   /// option to optimize aspect ratio
@@ -233,6 +274,12 @@ public:
   double camera_path_smoothness;
   /// the scale of camera forward motion damping regularization
   double camera_forward_motion_damping;
+  /// option to optimize world normalization parameters
+  bool optimize_world_normalization;
+  /// option to optimize image normalization parameters
+  bool optimize_image_normalization;
+  /// what order to optimize polynomial cofficients. Must be 3rd or less.
+  int optimization_poly_order;
 };
 
 
