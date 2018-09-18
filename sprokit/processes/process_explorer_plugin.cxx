@@ -82,6 +82,14 @@ std::string underline( const std::string& txt, const char c = '=' )
   return ss.str();
 }
 
+std::string quoted( const std::string& txt, const char c = '\"' )
+{
+  std::stringstream ss;
+  ss << c << txt << c ;
+  return ss.str();
+}
+
+
 
 static std::string const hidden_prefix = "_";
 
@@ -298,6 +306,439 @@ explore( const kwiver::vital::plugin_factory_handle_t fact )
   out_stream()  << std::endl;
 
 } // process_explorer::explore
+
+// ==================================================================
+/**
+ * @brief plugin_explorer support for formatting processes in JSON
+ *
+ * This class provides the special formatting for processes. It
+ * outputs a file that creates a JSON object representing the
+ * available processes, their configuration parameters and
+ * input and output ports.
+ */
+
+
+/* We possibly want to output JSON format in "VITAL only" mode
+ * hence we won't use and JSON libraries for this
+ */
+#define INDENT_AMOUNT (4)
+
+class json_element
+{
+public:
+  json_element( std::ostream &out_stream, int active_indent )
+    : m_out_stream( out_stream ), m_indent( active_indent + INDENT_AMOUNT )
+    {}
+  int indent()
+  {
+    return m_indent;
+  }
+  std::ostream &out_stream()
+  {
+    return m_out_stream;
+  }
+  ~json_element()
+  {
+  }
+private:
+  std::ostream &m_out_stream;
+  int m_indent = 0;
+};
+
+class json_dict
+  : public json_element
+{
+public:
+  json_dict( std::ostream &o_stream, int active_indent )
+    : json_element( o_stream, active_indent )
+  {
+    out_stream() << std::string( indent(), ' ' ) << "{" << std::endl;
+  }
+  ~json_dict()
+  {
+    out_stream() << std::string( indent(), ' ') << "}" << std::endl;
+  }
+};
+
+class json_array
+  : public json_element
+{
+public:
+  json_array( std::ostream &o_stream, int active_indent )
+    : json_element( o_stream, active_indent )
+  {
+    out_stream() << std::string( indent(), ' ' ) << "[" << std::endl;
+  }
+  ~json_array()
+  {
+    out_stream() << std::string( indent(), ' ') << "]" << std::endl;
+  }
+};
+
+template< class ArrayContainerT >
+class json_array_items
+  : public json_element
+{
+public:
+  json_array_items( std::ostream &o_stream, int active_indent, const ArrayContainerT &arr_items )
+    : json_element( o_stream, active_indent )
+  {
+    for ( auto item : arr_items )
+    {
+      out_stream() << std::string( indent(), ' ') << item << std::endl;
+    }
+  }
+};
+
+class json_dict_key
+  : public json_element
+{
+public:
+  json_dict_key( std::ostream &o_stream, int active_indent, std::string key )
+    : json_element( o_stream, active_indent )
+    {
+      out_stream() << std::string( indent(), ' ') <<  quoted(key) << " : " << std::endl;
+    }
+};
+
+class json_dict_item
+  : public json_element
+{
+public:
+  json_dict_item( std::ostream &o_stream, int active_indent, std::string key, std::string value )
+    : json_element( o_stream, active_indent )
+    {
+      out_stream() << std::string( indent(), ' ') <<  quoted(key) << " : " << quoted(value) << std::endl;
+    }
+};
+
+
+class process_explorer_json
+  : public category_explorer
+{
+public:
+  process_explorer_json();
+  virtual ~process_explorer_json();
+
+  virtual bool initialize( explorer_context* context );
+  virtual void explore( const kwiver::vital::plugin_factory_handle_t fact );
+
+  std::ostream& out_stream();
+
+  // instance data
+  explorer_context* m_context;
+  std::string opt_output_dir;
+  std::ofstream m_out_stream;
+  std::shared_ptr< json_dict > m_root_dict;;
+
+}; // end class process_explorer_json
+
+
+// ==================================================================
+process_explorer_json::
+process_explorer_json()
+{
+}
+
+
+process_explorer_json::
+~process_explorer_json()
+{ }
+
+
+// ------------------------------------------------------------------
+std::ostream&
+process_explorer_json::
+out_stream()
+{
+  if ( ! opt_output_dir.empty() )
+  {
+    return m_out_stream;
+  }
+
+  return m_context->output_stream();
+}
+
+
+// ------------------------------------------------------------------
+bool
+process_explorer_json::
+initialize( explorer_context* context )
+{
+  m_context = context;
+  m_root_dict = std::make_shared< json_dict >( out_stream(), 0 );
+
+  return true;
+}
+
+
+// ------------------------------------------------------------------
+void
+process_explorer_json::
+explore( const kwiver::vital::plugin_factory_handle_t fact )
+{
+  json_dict plugin_dict( out_stream(), m_root_dict->indent() );
+  std::string proc_type = "-- Not Set --";
+  fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, proc_type );
+  json_dict_item name_item( out_stream(), plugin_dict.indent(), "proc_type", proc_type );
+
+  std::string descrip = "-- Not_Set --";
+  fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, descrip );
+  json_dict_item description_item( out_stream(), plugin_dict.indent(), "description", descrip );
+
+  std::string proc_class = "-- Not Set --";
+  if ( fact->get_attribute( kwiver::vital::plugin_factory::CONCRETE_TYPE, proc_class ) )
+  {
+    proc_class = kwiver::vital::demangle( proc_class );
+  }
+  json_dict_item class_item( out_stream(), plugin_dict.indent(), "class_type", proc_class );
+
+  // Start the doc page for the process.
+  sprokit::process_factory* pf = dynamic_cast< sprokit::process_factory* > ( fact.get() );
+  sprokit::process_t const proc = pf->create_object( kwiver::vital::config_block::empty_config() );
+  sprokit::process::properties_t const properties = proc->properties();
+  std::string const properties_str = join( properties, ", " );
+
+  json_dict_key property_key_element( out_stream(), plugin_dict.indent(), "properties" );
+  json_array property_array_element ( out_stream(), property_key_element.indent() );
+  json_array_items<sprokit::process::properties_t> properties_items( out_stream(), property_array_element.indent(), properties );
+
+  /*
+  // -- config --
+  kwiver::vital::config_block_keys_t const keys = proc->available_config();
+  out_stream() << underline( "Configuration", '-' ) << std::endl;
+
+  if ( keys.empty() )
+  {
+    out_stream() << "*There are no configuration items for this process.*" << std::endl
+                 << std::endl;
+  }
+  else
+  {
+    // generate header text
+    out_stream() << ".. csv-table::" << std::endl
+                 << "   :header: \"Variable\", \"Default\", \"Tunable\", \"Description\"" << std::endl
+                 << "   :align: left" << std::endl
+                 << "   :widths: auto" << std::endl
+                 << std::endl;
+
+    for( kwiver::vital::config_block_key_t const & key : keys )
+    {
+      if ( key.substr( 0, hidden_prefix.size() ) == hidden_prefix )
+      {
+        // skip hidden items
+        continue;
+      }
+
+      sprokit::process::conf_info_t const info = proc->config_info( key );
+
+      kwiver::vital::config_block_value_t def = info->def;
+      kwiver::vital::config_block_description_t const  conf_desc =  wrap_rst_text( info->description );
+      bool const& tunable = info->tunable;
+      char const* const tunable_str = tunable ? "YES" : "NO";
+
+      if ( def.empty() )
+      {
+        def = "(no default value)";
+      }
+
+      out_stream() << "   \"" << key << "\", \"" << def << "\", \"" << tunable_str << "\", \""
+                   << conf_desc << "\"" << std::endl;
+    }
+  }
+
+  // -- input ports --
+  sprokit::process::ports_t const iports = proc->input_ports();
+  out_stream() << std::endl << underline( "Input Ports", '-' ) << std::endl;
+
+  if ( iports.empty() )
+  {
+    out_stream() << "There are no input ports for this process." << std::endl
+                 << std::endl;
+  }
+  else
+  {
+    out_stream() << ".. csv-table::" << std::endl
+                 << "   :header: \"Port name\", \"Data Type\", \"Flags\", \"Description\"" << std::endl
+                 << "   :align: left" << std::endl
+                 << "   :widths: auto" << std::endl
+                 << std::endl;
+
+    for( sprokit::process::port_t const & port : iports )
+    {
+      if ( port.substr( 0, hidden_prefix.size() ) == hidden_prefix )
+      {
+        // skip hidden item
+        continue;
+      }
+
+      sprokit::process::port_info_t const info = proc->input_port_info( port );
+
+      sprokit::process::port_type_t const& type = info->type;
+      sprokit::process::port_flags_t const& flags = info->flags;
+      sprokit::process::port_description_t const port_desc = wrap_rst_text( info->description );
+
+      std::string flags_str = join( flags, ", " );
+      if ( flags_str.empty() )
+      {
+        flags_str = "(none)";
+      }
+
+      out_stream() << "   \"" << port << "\", \"" << type << "\", \"" <<  flags_str
+                   << "\", \"" << port_desc << "\"" << std::endl;
+    }   // end foreach
+  }
+
+  // -- output ports --
+  sprokit::process::ports_t const oports = proc->output_ports();
+  out_stream() << std::endl << underline( "Output Ports", '-' ) << std::endl;
+
+  if ( oports.empty() )
+  {
+    out_stream() << "There are no output ports for this process." << std::endl
+                 << std::endl;
+  }
+  else
+  {
+    out_stream() << ".. csv-table::" << std::endl
+                 << "   :header: \"Port name\", \"Data Type\", \"Flags\", \"Description\"" << std::endl
+                 << "   :align: left" << std::endl
+                 << "   :widths: auto" << std::endl
+                 << std::endl;
+
+    for( sprokit::process::port_t const & port : oports )
+    {
+      if ( port.substr( 0, hidden_prefix.size() ) == hidden_prefix )
+      {
+        continue;
+      }
+
+      sprokit::process::port_info_t const info = proc->output_port_info( port );
+
+      sprokit::process::port_type_t const& type = info->type;
+      sprokit::process::port_flags_t const& flags = info->flags;
+      sprokit::process::port_description_t const port_desc = wrap_rst_text( info->description );
+
+      std::string flags_str = join( flags, ", " );
+      if ( flags_str.empty() )
+      {
+        flags_str = "(none)";
+      }
+
+      out_stream() << "   \"" << port << "\", \"" << type << "\", \"" <<  flags_str
+                   << "\", \"" << port_desc << "\"" << std::endl;
+    }   // end foreach
+  }
+  out_stream() << std::endl;
+
+  // ==================================================================
+  // -- pipefile usage --
+
+  out_stream() << underline( "Pipefile Usage", '-' ) << std::endl
+               << "The following sections describe the blocks needed to use this process in a pipe file." << std::endl
+               << std::endl
+               << underline( "Pipefile block", '-' ) << std::endl
+               << ".. code::" << std::endl
+               << std::endl
+
+               << " # ================================================================" << std::endl
+               << " process <this-proc>" << std::endl
+               << "   :: " << proc_type << std::endl;
+
+  // loop over config
+  for( kwiver::vital::config_block_key_t const & key : keys )
+  {
+    if ( key.substr( 0, hidden_prefix.size() ) == hidden_prefix )
+    {
+      // skip hidden items
+      continue;
+    }
+
+    sprokit::process::conf_info_t const info = proc->config_info( key );
+
+    kwiver::vital::config_block_value_t def = info->def;
+    kwiver::vital::config_block_description_t const  conf_desc =  m_comment_wtb.wrap_text( info->description );
+
+    if ( def.empty() )
+    {
+      def = "<value>";
+    }
+
+    out_stream() << conf_desc
+                 << "   " << key << " = " << def << std::endl;
+  } // end for
+
+  out_stream() << " # ================================================================" << std::endl
+               << std::endl;
+
+  out_stream() << underline( "Process connections", '~' )
+               << std::endl
+               << underline( "The following Input ports will need to be set" , '^')
+               << ".. code::" << std::endl
+               << std::endl;
+
+  // loop over input ports
+  if ( iports.empty() )
+  {
+    out_stream() << " # There are no input port's for this process" << std::endl
+                 << std::endl;
+  }
+  else
+  {
+    out_stream() << " # This process will consume the following input ports" << std::endl;
+
+    for( sprokit::process::port_t const & port : iports )
+    {
+      if ( port.substr( 0, hidden_prefix.size() ) == hidden_prefix )
+      {
+        // skip hidden item
+        continue;
+      }
+
+      out_stream() << " connect from <this-proc>." << port << std::endl
+                   <<"          to   <upstream-proc>." << port << std::endl;
+    }   // end for
+  }
+  out_stream() << std::endl;
+
+
+  // loop over output ports
+  out_stream() << underline( "The following Output ports will need to be set" , '^')
+               << ".. code::" << std::endl
+               << std::endl;
+
+  if ( oports.empty() )
+  {
+    out_stream() << " # There are no output port's for this process" << std::endl
+                 << std::endl;
+  }
+  else
+  {
+    out_stream() << " # This process will produce the following output ports" << std::endl;
+
+    for( sprokit::process::port_t const & port : oports )
+    {
+      if ( port.substr( 0, hidden_prefix.size() ) == hidden_prefix )
+      {
+        continue;
+      }
+
+      out_stream() << " connect from <this-proc>." << port << std::endl
+                   <<"          to   <downstream-proc>." << port << std::endl;
+    }   // end foreach
+  }
+
+  out_stream() << std::endl
+               << underline( "Class Description", '-' ) << std::endl
+               << ".. doxygenclass:: " << proc_class << std::endl
+               << "   :project: kwiver" << std::endl
+               << "   :members:" << std::endl
+               << std::endl;
+
+  // close file just in case it was open
+  m_out_stream.close();
+*/
+} // process_explorer_rst::explore
 
 
 // ==================================================================
@@ -860,6 +1301,12 @@ void register_explorer_plugin( kwiver::vital::plugin_loader& vpm )
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "process-pipe" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                     "Plugin explorer for process category pipeline format output" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
+
+  fact = vpm.ADD_FACTORY( kwiver::vital::category_explorer, kwiver::vital::process_explorer_json );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "process-json" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                    "Plugin explorer for process category JSON format output" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" );
 
 vpm.mark_module_as_loaded( module );
