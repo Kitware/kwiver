@@ -258,6 +258,14 @@ video_input_image_list
 }
 
 // ------------------------------------------------------------------
+kwiver::vital::path_t
+video_input_image_list
+::filename() const
+{
+  return *(d->m_current_file);
+}
+
+// ------------------------------------------------------------------
 bool
 video_input_image_list
 ::next_frame( kwiver::vital::timestamp& ts,
