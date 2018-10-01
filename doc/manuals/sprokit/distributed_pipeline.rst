@@ -52,7 +52,7 @@ arrows, providing new implementations supporting other protocols is
 straightforward.
 
 Constructing a Serialization Algorithm
-''''''''''''''''''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 All serializer algorithms must be derived from the `data_serializer`
 algorithm.  All derived classes must implement the `deserialize()` and
@@ -211,7 +211,7 @@ KWIVER’s transport strategy is structured as Sprokit end-caps (the needs and
 requirements for the transport implementations are somewhat dependent on
 Sprokit’s stream processing implementation and so don’t lend themselves to
 implementation as KWIVER arrows). The current implementation focuses on a
-one-to-many and many-to-one topologies for one VITAL data type.
+one-to-many and many-to-one topologies for VITAL data types.
 
 Transport processes take a serialized message (byte buffer) and
 interface to a specific data transport. There are two types of

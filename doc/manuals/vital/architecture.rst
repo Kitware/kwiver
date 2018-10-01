@@ -8,8 +8,8 @@ the core data types and abstract interfaces for core vision algorithms
 using these types.  Vital also provides various system utility functions
 like logging, plugin management, and configuration file handling.  Vital
 does **not** provide implementations of the abstract algorithms.
-Implementations are found in the KWIVER Arrows and are loaded dynamically,
-by vital, at run-time via plugins.
+Implementations are found in the KWIVER Arrows and are loaded dynamically
+by vital at run-time via plugins.
 
 The design of KWIVER allows end-user applications to link only against
 the Vital libraries and have minimal hard dependencies.

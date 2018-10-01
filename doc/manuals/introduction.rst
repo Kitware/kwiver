@@ -31,7 +31,7 @@ state-of-the-art image segmentation neural network that runs in yet another deep
 learning framework. Couple this with the understanding that computer vision
 algorithms traditionally are extremely compute intensive, doubly so when one
 considers the GPU requirements of modern deep learning frameworks and it is
-clear that building Computer Vision *Systems* is a daunting task.
+clear that building computer vision *systems* is a daunting task.
 
 KWIVER is designed and engineered from the ground up to support the development
 of systems of this nature.  It has first class features that are designed to
