@@ -477,7 +477,7 @@ can be seen in
 
 As usual, we can lean about this process with the following command::
 
-	plugin_explorer --process --type kw_print_number_process -d --config
+  plugin_explorer --proc kw_print_number_process -d
 
 Which produces the following output::
 
