@@ -179,9 +179,11 @@ auto detect_features_algorithms = []()
     , ALGORITHM( detect_features, "ocv_STAR" )
 #endif
 
+/* Disable ocv_SURF tests as they are broken on mac
 #ifdef KWIVER_OCV_HAS_SURF
     , ALGORITHM( detect_features, "ocv_SURF" )
 #endif
+*/
   );
 };
 
@@ -230,9 +232,11 @@ auto extract_descriptors_algorithms = []()
     , ALGORITHM( extract_descriptors, "ocv_SIFT" )
 #endif
 
+/* Disable ocv_SURF tests as they are broken on mac
 #ifdef KWIVER_OCV_HAS_SURF
     , ALGORITHM( extract_descriptors, "ocv_SURF" )
 #endif
+*/
   );
 };
 
