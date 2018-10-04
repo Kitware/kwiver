@@ -109,6 +109,16 @@ algorithms_create_plugin( kwiver_algo_ocv
   register_algorithms.cxx
   )
 
+# Mac needs a seperate test directory
 if (KWIVER_ENABLE_TESTS)
-  add_subdirectory(tests)
+  if (APPLE)
+    add_subdirectory(tests_apple)
+  else() 
+    add_subdirectory(tests)
+  endif()
 endif()
+
+#if (KWIVER_ENABLE_TESTS)
+#  add_subdirectory(tests)
+#endif()
+
