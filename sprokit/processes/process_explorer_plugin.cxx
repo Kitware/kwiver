@@ -385,7 +385,7 @@ public:
   {
     for ( auto item : arr_items )
     {
-      out_stream() << std::string( indent(), ' ') << item << std::endl;
+      out_stream() << std::string( indent(), ' ') << "\"" << item << "\"" << std::endl;
     }
   }
 };
@@ -496,31 +496,23 @@ explore( const kwiver::vital::plugin_factory_handle_t fact )
   // Start the doc page for the process.
   sprokit::process_factory* pf = dynamic_cast< sprokit::process_factory* > ( fact.get() );
   sprokit::process_t const proc = pf->create_object( kwiver::vital::config_block::empty_config() );
+
   sprokit::process::properties_t const properties = proc->properties();
-  std::string const properties_str = join( properties, ", " );
-
-  json_dict_key property_key_element( out_stream(), plugin_dict.indent(), "properties" );
-  json_array property_array_element ( out_stream(), property_key_element.indent() );
-  json_array_items<sprokit::process::properties_t> properties_items( out_stream(), property_array_element.indent(), properties );
-
-  /*
-  // -- config --
-  kwiver::vital::config_block_keys_t const keys = proc->available_config();
-  out_stream() << underline( "Configuration", '-' ) << std::endl;
-
-  if ( keys.empty() )
+  if ( properties.size() > 0 )
   {
-    out_stream() << "*There are no configuration items for this process.*" << std::endl
-                 << std::endl;
+    std::string const properties_str = join( properties, ", " );
+
+    json_dict_key property_key_element( out_stream(), plugin_dict.indent(), "properties" );
+    json_array property_array_element ( out_stream(), property_key_element.indent() );
+    json_array_items<sprokit::process::properties_t> properties_items( out_stream(), property_array_element.indent(), properties );
   }
-  else
+
+  // Configuration Elements
+  kwiver::vital::config_block_keys_t const keys = proc->available_config();
+  if ( ! keys.empty() )
   {
-    // generate header text
-    out_stream() << ".. csv-table::" << std::endl
-                 << "   :header: \"Variable\", \"Default\", \"Tunable\", \"Description\"" << std::endl
-                 << "   :align: left" << std::endl
-                 << "   :widths: auto" << std::endl
-                 << std::endl;
+    json_dict_key configuration_key_element( out_stream(), plugin_dict.indent(), "configuration" );
+    json_array configuration_array_element ( out_stream(), configuration_key_element.indent() );
 
     for( kwiver::vital::config_block_key_t const & key : keys )
     {
@@ -529,40 +521,29 @@ explore( const kwiver::vital::plugin_factory_handle_t fact )
         // skip hidden items
         continue;
       }
-
       sprokit::process::conf_info_t const info = proc->config_info( key );
 
       kwiver::vital::config_block_value_t def = info->def;
-      kwiver::vital::config_block_description_t const  conf_desc =  wrap_rst_text( info->description );
+      kwiver::vital::config_block_description_t const  conf_desc = info->description;
       bool const& tunable = info->tunable;
-      char const* const tunable_str = tunable ? "YES" : "NO";
 
-      if ( def.empty() )
+      json_dict config_dict( out_stream(), configuration_array_element.indent() );
+      json_dict_item config_key_item( out_stream(), config_dict.indent(), "key", key );
+      if (! def.empty() )
       {
-        def = "(no default value)";
+        json_dict_item config_def_item( out_stream(), config_dict.indent(), "default", def );
       }
-
-      out_stream() << "   \"" << key << "\", \"" << def << "\", \"" << tunable_str << "\", \""
-                   << conf_desc << "\"" << std::endl;
+      json_dict_item config_tunable_item( out_stream(), config_dict.indent(), "tunable", tunable ? "true" : "false" );
+      json_dict_item config_desc_item( out_stream(), config_dict.indent(), "description", conf_desc );
     }
   }
 
   // -- input ports --
   sprokit::process::ports_t const iports = proc->input_ports();
-  out_stream() << std::endl << underline( "Input Ports", '-' ) << std::endl;
-
-  if ( iports.empty() )
+  if ( ! iports.empty() )
   {
-    out_stream() << "There are no input ports for this process." << std::endl
-                 << std::endl;
-  }
-  else
-  {
-    out_stream() << ".. csv-table::" << std::endl
-                 << "   :header: \"Port name\", \"Data Type\", \"Flags\", \"Description\"" << std::endl
-                 << "   :align: left" << std::endl
-                 << "   :widths: auto" << std::endl
-                 << std::endl;
+    json_dict_key iport_key_element( out_stream(), plugin_dict.indent(), "input_ports" );
+    json_array iport_array_element ( out_stream(), iport_key_element.indent() );
 
     for( sprokit::process::port_t const & port : iports )
     {
@@ -576,118 +557,25 @@ explore( const kwiver::vital::plugin_factory_handle_t fact )
 
       sprokit::process::port_type_t const& type = info->type;
       sprokit::process::port_flags_t const& flags = info->flags;
-      sprokit::process::port_description_t const port_desc = wrap_rst_text( info->description );
+      sprokit::process::port_description_t const port_desc =  info->description;
 
-      std::string flags_str = join( flags, ", " );
-      if ( flags_str.empty() )
-      {
-        flags_str = "(none)";
-      }
-
-      out_stream() << "   \"" << port << "\", \"" << type << "\", \"" <<  flags_str
-                   << "\", \"" << port_desc << "\"" << std::endl;
+      json_dict iport_dict( out_stream(), iport_array_element.indent() );
+      json_dict_item iport_name_item( out_stream(), iport_dict.indent(), "name", port );
+      json_dict_item iport_type_item( out_stream(), iport_dict.indent(), "type", type );
+      json_dict_key iport_flags_key( out_stream(), iport_dict.indent(), "flags" );
+      json_array iport_flags_array( out_stream(), iport_flags_key.indent() );
+      json_array_items<sprokit::process::port_flags_t> iport_flags_array_items( out_stream(), iport_flags_array.indent(), flags );
     }   // end foreach
   }
 
   // -- output ports --
   sprokit::process::ports_t const oports = proc->output_ports();
-  out_stream() << std::endl << underline( "Output Ports", '-' ) << std::endl;
-
-  if ( oports.empty() )
+  if ( ! oports.empty() )
   {
-    out_stream() << "There are no output ports for this process." << std::endl
-                 << std::endl;
-  }
-  else
-  {
-    out_stream() << ".. csv-table::" << std::endl
-                 << "   :header: \"Port name\", \"Data Type\", \"Flags\", \"Description\"" << std::endl
-                 << "   :align: left" << std::endl
-                 << "   :widths: auto" << std::endl
-                 << std::endl;
+    json_dict_key oport_key_element( out_stream(), plugin_dict.indent(), "output_ports" );
+    json_array oport_array_element ( out_stream(), oport_key_element.indent() );
 
     for( sprokit::process::port_t const & port : oports )
-    {
-      if ( port.substr( 0, hidden_prefix.size() ) == hidden_prefix )
-      {
-        continue;
-      }
-
-      sprokit::process::port_info_t const info = proc->output_port_info( port );
-
-      sprokit::process::port_type_t const& type = info->type;
-      sprokit::process::port_flags_t const& flags = info->flags;
-      sprokit::process::port_description_t const port_desc = wrap_rst_text( info->description );
-
-      std::string flags_str = join( flags, ", " );
-      if ( flags_str.empty() )
-      {
-        flags_str = "(none)";
-      }
-
-      out_stream() << "   \"" << port << "\", \"" << type << "\", \"" <<  flags_str
-                   << "\", \"" << port_desc << "\"" << std::endl;
-    }   // end foreach
-  }
-  out_stream() << std::endl;
-
-  // ==================================================================
-  // -- pipefile usage --
-
-  out_stream() << underline( "Pipefile Usage", '-' ) << std::endl
-               << "The following sections describe the blocks needed to use this process in a pipe file." << std::endl
-               << std::endl
-               << underline( "Pipefile block", '-' ) << std::endl
-               << ".. code::" << std::endl
-               << std::endl
-
-               << " # ================================================================" << std::endl
-               << " process <this-proc>" << std::endl
-               << "   :: " << proc_type << std::endl;
-
-  // loop over config
-  for( kwiver::vital::config_block_key_t const & key : keys )
-  {
-    if ( key.substr( 0, hidden_prefix.size() ) == hidden_prefix )
-    {
-      // skip hidden items
-      continue;
-    }
-
-    sprokit::process::conf_info_t const info = proc->config_info( key );
-
-    kwiver::vital::config_block_value_t def = info->def;
-    kwiver::vital::config_block_description_t const  conf_desc =  m_comment_wtb.wrap_text( info->description );
-
-    if ( def.empty() )
-    {
-      def = "<value>";
-    }
-
-    out_stream() << conf_desc
-                 << "   " << key << " = " << def << std::endl;
-  } // end for
-
-  out_stream() << " # ================================================================" << std::endl
-               << std::endl;
-
-  out_stream() << underline( "Process connections", '~' )
-               << std::endl
-               << underline( "The following Input ports will need to be set" , '^')
-               << ".. code::" << std::endl
-               << std::endl;
-
-  // loop over input ports
-  if ( iports.empty() )
-  {
-    out_stream() << " # There are no input port's for this process" << std::endl
-                 << std::endl;
-  }
-  else
-  {
-    out_stream() << " # This process will consume the following input ports" << std::endl;
-
-    for( sprokit::process::port_t const & port : iports )
     {
       if ( port.substr( 0, hidden_prefix.size() ) == hidden_prefix )
       {
@@ -695,49 +583,20 @@ explore( const kwiver::vital::plugin_factory_handle_t fact )
         continue;
       }
 
-      out_stream() << " connect from <this-proc>." << port << std::endl
-                   <<"          to   <upstream-proc>." << port << std::endl;
-    }   // end for
-  }
-  out_stream() << std::endl;
+      sprokit::process::port_info_t const info = proc->output_port_info( port );
 
+      sprokit::process::port_type_t const& type = info->type;
+      sprokit::process::port_flags_t const& flags = info->flags;
+      sprokit::process::port_description_t const port_desc =  info->description;
 
-  // loop over output ports
-  out_stream() << underline( "The following Output ports will need to be set" , '^')
-               << ".. code::" << std::endl
-               << std::endl;
-
-  if ( oports.empty() )
-  {
-    out_stream() << " # There are no output port's for this process" << std::endl
-                 << std::endl;
-  }
-  else
-  {
-    out_stream() << " # This process will produce the following output ports" << std::endl;
-
-    for( sprokit::process::port_t const & port : oports )
-    {
-      if ( port.substr( 0, hidden_prefix.size() ) == hidden_prefix )
-      {
-        continue;
-      }
-
-      out_stream() << " connect from <this-proc>." << port << std::endl
-                   <<"          to   <downstream-proc>." << port << std::endl;
+      json_dict oport_dict( out_stream(), oport_array_element.indent() );
+      json_dict_item oport_name_item( out_stream(), oport_dict.indent(), "name", port );
+      json_dict_item oport_type_item( out_stream(), oport_dict.indent(), "type", type );
+      json_dict_key oport_flags_key( out_stream(), oport_dict.indent(), "flags" );
+      json_array oport_flags_array( out_stream(), oport_flags_key.indent() );
+      json_array_items<sprokit::process::port_flags_t> oport_flags_array_items( out_stream(), oport_flags_array.indent(), flags );
     }   // end foreach
   }
-
-  out_stream() << std::endl
-               << underline( "Class Description", '-' ) << std::endl
-               << ".. doxygenclass:: " << proc_class << std::endl
-               << "   :project: kwiver" << std::endl
-               << "   :members:" << std::endl
-               << std::endl;
-
-  // close file just in case it was open
-  m_out_stream.close();
-*/
 } // process_explorer_rst::explore
 
 
