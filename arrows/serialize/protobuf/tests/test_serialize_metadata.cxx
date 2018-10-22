@@ -28,28 +28,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package kwiver.protobuf;
+/**
+ * \file
+ * \brief test protobuf serializers
+ */
 
-import "metadata.proto";
+#include <gtest/gtest.h>
 
-message image {
-  // Image size
-  required int64 width = 1;
-  required int64 height = 2;
-  required int64 depth = 3;
+#include <arrows/serialize/protobuf/metadata.h>
 
-  // Image indexing
-  required int64 w_step = 4;
-  required int64 h_step = 5;
-  required int64 d_step = 6;
+#include <arrows/serialize/protobuf/convert_protobuf.h>
+#include <vital/types/metadata.h>
 
-  // Pixel traits
-  required int32 trait_type = 7;
-  required int32 trait_num_bytes = 8;
+namespace kasp = kwiver::arrows::serialize::protobuf;
 
-  // Actual image data
-  required int64 size = 9; // uncompressed image memory size
-  required bytes data = 10; // compressed actual image pixels
+// ----------------------------------------------------------------------------
+int main(int argc, char** argv)
+{
+  ::testing::InitGoogleTest( &argc, argv );
+  return RUN_ALL_TESTS();
+}
 
-  optional metadata image_metadata = 11;
+// 1) Test single metadata collection in vector
+// 2) Test two different metadata collections in vector
+// 3) Build metadata collection with one element of each supported type.
+
+// ----------------------------------------------------------------------------
+TEST( serialize_metadata, metadata )
+{
+  // Create a metadata collection
+  // duplicate that collection and make some modifications
+  // put both collections in a vector
+
+
 }
