@@ -132,6 +132,7 @@ set( vital_public_headers
   types/track_descriptor_set.h
   types/vector.h
   types/uid.h
+  types/file_name.h
 
 )
 
@@ -183,6 +184,7 @@ set( vital_sources
   types/track_descriptor.cxx
   types/track_set.cxx
   types/uid.cxx
+  types/file_name.cxx
 )
 
 kwiver_install_headers(
