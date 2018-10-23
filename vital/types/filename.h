@@ -29,66 +29,43 @@
  */
 
 
-#include "file_name.h"
-#include <kwiversys/SystemTools.hxx>
-typedef kwiversys::SystemTools ST;
+#ifndef KWIVER_VITAL_TYPES_FILENAME_H
+#define KWIVER_VITAL_TYPES_FILENAME_H
+
+#include <vital/vital_config.h>
+#include <vital/vital_export.h>
+#include <vital/vital_types.h>
+
+#include <string>
+#include <cstdint>
+
 
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
-file_name::
-file_name( const std::string& data)
-  : m_name( data )
+class VITAL_EXPORT filename
 {
-}
+public:
+  filename( const std::string& name );
+  filename( const char* data);
 
+  filename();
 
-file_name::
-file_name( const char* data )
-  : m_name( data )
-{
-}
+  ~filename() = default;
 
+  bool exists(const kwiver::vital::path_t& search_directory ) const;
 
-file_name::
-file_name()
-{ }
+  std::string const& name() const;
 
+  /// equality operator
+  bool operator==( const filename& other ) const;
+  bool operator!=( const filename& other ) const;
 
-// ------------------------------------------------------------------
-bool
-file_name::
-exists( const kwiver::vital::path_t& search_directory ) const
-{
-  std::string file_path = search_directory + "/" + m_name;
-  return ST::FileExists(file_path);
-}
+private:
+  std::string  m_name;
 
-
-// ------------------------------------------------------------------
-std::string const&
-file_name::
-name() const
-{
-  return m_name;
-}
-
-// ------------------------------------------------------------------
-bool
-file_name::
-operator==( const file_name& other ) const
-{
-  return this->m_name == other.m_name;
-}
-
-
-// ------------------------------------------------------------------
-bool
-file_name::
-operator!=( const file_name& other ) const
-{
-  return this->m_name != other.m_name;
-}
+}; // end class filename
 
 } } // end namespace
+
+#endif // KWIVER_VITAL_TYPES_FILENAME_H

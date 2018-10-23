@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -29,43 +29,31 @@
  */
 
 
-#ifndef KWIVER_VITAL_TYPES_FILE_NAME_H
-#define KWIVER_VITAL_TYPES_FILE_NAME_H
+#include <tests/test_gtest.h>
 
-#include <vital/vital_config.h>
-#include <vital/vital_export.h>
-#include <vital/vital_types.h>
+#include <vital/types/filename.h>
 
-#include <string>
-#include <cstdint>
+kwiver::vital::path_t g_data_dir;
 
-
-namespace kwiver {
-namespace vital {
-
-class VITAL_EXPORT file_name
+// ----------------------------------------------------------------------------
+int main(int argc, char** argv)
 {
-public:
-  file_name( const std::string& name );
-  file_name( const char* data);
+  ::testing::InitGoogleTest( &argc, argv );
+  GET_ARG(1, g_data_dir);
+  return RUN_ALL_TESTS();
+}
 
-  file_name();
 
-  ~file_name() = default;
+// ----------------------------------------------------------------------------
+TEST(filename, existence)
+{
+  kwiver::vital::filename fname("invalid_pos.pos");
+  EXPECT_EQ(fname.exists(g_data_dir), true);
+}
 
-  bool exists(const kwiver::vital::path_t& search_directory ) const;
-
-  std::string const& name() const;
-
-  /// equality operator
-  bool operator==( const file_name& other ) const;
-  bool operator!=( const file_name& other ) const;
-
-private:
-  std::string  m_name;
-
-}; // end class file_name
-
-} } // end namespace
-
-#endif // KWIVER_VITAL_TYPES_FILE_NAME_H
+// ---------------------------------------------------------------------------
+TEST(filename, creation)
+{
+  kwiver::vital::filename fname("invalid_pos.pos");
+  EXPECT_EQ(fname.name(), "invalid_pos.pos");
+}

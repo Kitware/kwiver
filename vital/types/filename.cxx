@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -29,24 +29,66 @@
  */
 
 
-#include <tests/test_gtest.h>
+#include "filename.h"
+#include <kwiversys/SystemTools.hxx>
+typedef kwiversys::SystemTools ST;
 
-#include <vital/types/file_name.h>
+namespace kwiver {
+namespace vital {
 
-kwiver::vital::path_t g_data_dir;
-
-// ----------------------------------------------------------------------------
-int main(int argc, char** argv)
+// ------------------------------------------------------------------
+filename::
+filename( const std::string& data)
+  : m_name( data )
 {
-  ::testing::InitGoogleTest( &argc, argv );
-  GET_ARG(1, g_data_dir);
-  return RUN_ALL_TESTS();
 }
 
 
-// ----------------------------------------------------------------------------
-TEST(video_name, existence)
+filename::
+filename( const char* data )
+  : m_name( data )
 {
-  kwiver::vital::file_name fname("invalid_pos.pos");
-  EXPECT_EQ(fname.exists(g_data_dir), true);
 }
+
+
+filename::
+filename()
+{ }
+
+
+// ------------------------------------------------------------------
+bool
+filename::
+exists( const kwiver::vital::path_t& search_directory ) const
+{
+  std::string file_path = search_directory + "/" + m_name;
+  return ST::FileExists(file_path);
+}
+
+
+// ------------------------------------------------------------------
+std::string const&
+filename::
+name() const
+{
+  return m_name;
+}
+
+// ------------------------------------------------------------------
+bool
+filename::
+operator==( const filename& other ) const
+{
+  return this->m_name == other.m_name;
+}
+
+
+// ------------------------------------------------------------------
+bool
+filename::
+operator!=( const filename& other ) const
+{
+  return this->m_name != other.m_name;
+}
+
+} } // end namespace

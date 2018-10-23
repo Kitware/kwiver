@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <vital/types/file_name.h>
+#include <vital/types/filename.h>
 
 
 #include <pybind11/pybind11.h>
@@ -36,12 +36,12 @@
 namespace py = pybind11;
 
 
-typedef kwiver::vital::file_name file_name;
+typedef kwiver::vital::filename filename;
 
 PYBIND11_MODULE(filename, m)
 {
 
-  py::class_<file_name, std::shared_ptr<file_name>>(m, "Filename", R"(
+  py::class_<filename, std::shared_ptr<filename>>(m, "Filename", R"(
     Representation of File name.
 
     Example:
@@ -55,6 +55,6 @@ PYBIND11_MODULE(filename, m)
     )")
   .def(py::init<>())
   .def(py::init<std::string>())
-  .def("name", &file_name::name)
-  .def("exists", &file_name::exists, py::arg("search_directory"));
+  .def("name", &filename::name)
+  .def("exists", &filename::exists, py::arg("search_directory"));
 }
