@@ -18,6 +18,8 @@ set( headers_public
   timestamp.h
   image.h
   string.h
+  track_state.h
+  object_track_state.h
   )
 
 set( sources
@@ -30,6 +32,8 @@ set( sources
   timestamp.cxx
   image.cxx
   string.cxx
+  track_state.cxx
+  object_track_state.cxx
   )
 
 link_directories(${PROTOBUF_LIBRARY})

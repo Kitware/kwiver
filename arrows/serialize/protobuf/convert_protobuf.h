@@ -47,6 +47,8 @@ namespace vital {
   class geo_polygon;
   class polygon;
   class timestamp;
+  class track_state;
+  class object_track_state;
 
 } } // end namespace
 
@@ -65,6 +67,8 @@ namespace protobuf {
   class polygon;
   class string;
   class timestamp;
+  class track_state;
+  class object_track_state;
 
 } } // end namespace
 
@@ -183,7 +187,21 @@ KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const std::string& str,
                        kwiver::protobuf::string&  proto_string );
 
+KWIVER_SERIALIZE_PROTOBUF_EXPORT
+void convert_protobuf( const kwiver::protobuf::track_state& proto_trk_state,
+                       kwiver::vital::track_state& trk_state);
 
+KWIVER_SERIALIZE_PROTOBUF_EXPORT
+void convert_protobuf( const kwiver::vital::track_state& trk_state,
+                        kwiver::protobuf::track_state& proto_trk_state);
+
+KWIVER_SERIALIZE_PROTOBUF_EXPORT
+void convert_protobuf( const kwiver::protobuf::object_track_state& proto_obj_trk_state,
+                       kwiver::vital::object_track_state& obj_trk_state);
+
+KWIVER_SERIALIZE_PROTOBUF_EXPORT
+void convert_protobuf( const kwiver::vital::object_track_state& obj_trk_state,
+                        kwiver::protobuf::object_track_state& proto_obj_trk_state);
 } } } }  // end namespace
 
 #endif // ARROWS_SERIALILIZATION_PROTOBUF_CONVERT_PROTOBUF_H
