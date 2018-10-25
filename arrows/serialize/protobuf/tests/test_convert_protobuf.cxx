@@ -45,6 +45,8 @@
 #include <vital/types/metadata_traits.h>
 #include <vital/types/polygon.h>
 #include <vital/types/timestamp.h>
+#include <vital/types/track.h>
+#include <vital/types/object_track_set.h>
 
 #include <vital/types/protobuf/bounding_box.pb.h>
 #include <vital/types/protobuf/detected_object.pb.h>
@@ -58,6 +60,8 @@
 #include <vital/types/protobuf/metadata.pb.h>
 #include <vital/types/protobuf/string.pb.h>
 #include <vital/types/protobuf/image.pb.h>
+#include <vital/types/protobuf/track_state.pb.h>
+#include <vital/types/protobuf/object_track_state.pb.h>
 
 #include <sstream>
 #include <iostream>
@@ -378,5 +382,72 @@ TEST( convert_protobuf, metadata )
   kasp::convert_protobuf( obj_proto, meta_dser );
 
   //+ test for equality - TBD
+
+}
+
+//----------------------------------------------------------------------------
+TEST( convert_protobuf, track_state )
+{
+  kwiver::vital::track_state trk_state{1};
+
+  kwiver::protobuf::track_state proto_trk_state;
+  kwiver::vital::track_state dser_trk_state;
+
+  kasp::convert_protobuf( trk_state, proto_trk_state );
+  kasp::convert_protobuf( proto_trk_state, dser_trk_state );
+
+  EXPECT_EQ ( trk_state, dser_trk_state );
+  
+}
+
+//----------------------------------------------------------------------------
+TEST( convert_protobuf, object_track_state )
+{
+  auto dot = std::make_shared<kwiver::vital::detected_object_type>();
+
+  dot->set_score( "first", 1 );
+  dot->set_score( "second", 10 );
+  dot->set_score( "third", 101 );
+  dot->set_score( "last", 121 );
+
+  auto dobj_sptr = std::make_shared< kwiver::vital::detected_object>( 
+                          kwiver::vital::bounding_box_d{ 1, 2, 3, 4 }, 
+                              3.14159265, dot );
+  dobj_sptr->set_detector_name( "test_detector" );
+  dobj_sptr->set_index( 1234 );
+  kwiver::vital::object_track_state obj_trk_state( 1, 1, dobj_sptr );
+  
+  kwiver::protobuf::object_track_state proto_obj_trk_state;
+  kwiver::vital::object_track_state dser_obj_trk_state;
+
+  kasp::convert_protobuf( obj_trk_state, proto_obj_trk_state );
+  kasp::convert_protobuf( proto_obj_trk_state, dser_obj_trk_state );
+
+  auto ser_do_sptr = obj_trk_state.detection;
+  auto deser_do_sptr = dser_obj_trk_state.detection;
+
+  EXPECT_EQ( ser_do_sptr->bounding_box(), deser_do_sptr->bounding_box() );
+  EXPECT_EQ( ser_do_sptr->index(), deser_do_sptr->index() );
+  EXPECT_EQ( ser_do_sptr->confidence(), deser_do_sptr->confidence() );
+  EXPECT_EQ( ser_do_sptr->detector_name(), deser_do_sptr->detector_name() );
+
+  auto ser_dot_sptr = ser_do_sptr->type();
+  auto deser_dot_sptr = deser_do_sptr->type();
+
+  if ( ser_dot_sptr )
+  {
+    EXPECT_EQ( ser_dot_sptr->size(),deser_dot_sptr->size() );
+
+    auto ser_it = ser_dot_sptr->begin();
+    auto deser_it = deser_dot_sptr->begin();
+
+    for ( size_t i = 0; i < ser_dot_sptr->size(); ++i )
+    {
+      EXPECT_EQ( *(ser_it->first), *(ser_it->first) );
+      EXPECT_EQ( deser_it->second, deser_it->second );
+    }
+  }
+  EXPECT_EQ(obj_trk_state.time(), dser_obj_trk_state.time());
+  EXPECT_EQ(obj_trk_state.frame(), dser_obj_trk_state.frame());
 
 }
