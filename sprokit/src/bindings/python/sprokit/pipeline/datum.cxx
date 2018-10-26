@@ -178,6 +178,10 @@ PYBIND11_MODULE(datum, m)
          , "Convert the data to a timestamp")
     .def("get_corner_points", &datum_get_object<kwiver::vital::geo_polygon>
          , "Convert the data to a set of corner points")
+    .def("get_image_file_name", &datum_get_object<std::string>,
+            "Convert the data to a string representing file name for an image")
+    .def("get_video_file_name", &datum_get_object<std::string>,
+            "Convert the data to a string representing file name for an video")
 
   ;
 
