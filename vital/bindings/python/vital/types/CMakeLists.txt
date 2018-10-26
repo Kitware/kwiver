@@ -177,7 +177,6 @@ kwiver_create_python_init(vital/types
   detected_object_set
   eigen
   feature
-  filename
   homography
   image
   image_container

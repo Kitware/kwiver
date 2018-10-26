@@ -27,7 +27,6 @@ kwiver_discover_gtests(vital enumerate_matrix               LIBRARIES ${test_lib
 kwiver_discover_gtests(vital essential_matrix               LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital estimate_similarity_transform  LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital fundamental_matrix             LIBRARIES ${test_libraries})
-kwiver_discover_gtests(vital filename                       LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
 kwiver_discover_gtests(vital geo_point                      LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital geo_polygon                    LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital geodesy                        LIBRARIES ${test_libraries})
