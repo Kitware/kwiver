@@ -93,13 +93,6 @@ target_link_libraries(python-vital.types-feature
   PUBLIC ${PYTHON_LIBRARIES}
          vital)
 
-kwiver_add_python_library(filename
-  vital/types
-  filename.cxx)
-target_link_libraries(python-vital.types-filename
-  PUBLIC ${PYTHON_LIBRARIES}
-         vital)
-
 kwiver_add_python_library(homography
   vital/types
   homography.cxx)
