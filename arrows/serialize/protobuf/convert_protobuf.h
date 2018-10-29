@@ -45,11 +45,11 @@ namespace vital {
   class detected_object_type;
   class geo_point;
   class geo_polygon;
+  class object_track_state;
   class polygon;
   class timestamp;
+  class track;
   class track_state;
-  class object_track_state;
-
 } } // end namespace
 
 namespace kwiver {
@@ -64,11 +64,12 @@ namespace protobuf {
   class image;
   class metadata;
   class metadata_vector;
+  class object_track_state;
   class polygon;
   class string;
   class timestamp;
+  class track;
   class track_state;
-  class object_track_state;
 
 } } // end namespace
 
@@ -186,7 +187,7 @@ void convert_protobuf( const kwiver::protobuf::string&  proto_string,
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const std::string& str,
                        kwiver::protobuf::string&  proto_string );
-
+  //  track state
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const kwiver::protobuf::track_state& proto_trk_state,
                        kwiver::vital::track_state& trk_state);
@@ -194,7 +195,8 @@ void convert_protobuf( const kwiver::protobuf::track_state& proto_trk_state,
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const kwiver::vital::track_state& trk_state,
                         kwiver::protobuf::track_state& proto_trk_state);
-
+  
+  // object track state
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const kwiver::protobuf::object_track_state& proto_obj_trk_state,
                        kwiver::vital::object_track_state& obj_trk_state);
@@ -202,6 +204,15 @@ void convert_protobuf( const kwiver::protobuf::object_track_state& proto_obj_trk
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const kwiver::vital::object_track_state& obj_trk_state,
                         kwiver::protobuf::object_track_state& proto_obj_trk_state);
+
+  // track 
+KWIVER_SERIALIZE_PROTOBUF_EXPORT
+void convert_protobuf( const kwiver::protobuf::track& proto_trk,
+                       kwiver::vital::track& trk);
+
+KWIVER_SERIALIZE_PROTOBUF_EXPORT
+void convert_protobuf( const kwiver::vital::track& trk,
+                        kwiver::protobuf::track& proto_trk);
 } } } }  // end namespace
 
 #endif // ARROWS_SERIALILIZATION_PROTOBUF_CONVERT_PROTOBUF_H

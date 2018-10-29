@@ -17,6 +17,7 @@ set( proto_files
   string.proto
   timestamp.proto
   track_state.proto
+  track.proto
   object_track_state.proto
   )
 

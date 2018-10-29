@@ -55,6 +55,7 @@
 #include <vital/types/protobuf/metadata.pb.h>
 #include <vital/types/protobuf/string.pb.h>
 #include <vital/types/protobuf/image.pb.h>
+#include <vital/types/protobuf/track.pb.h>
 #include <vital/types/protobuf/track_state.pb.h>
 #include <vital/types/protobuf/object_track_state.pb.h>
 
@@ -588,9 +589,9 @@ void convert_protobuf( const std::string& str,
 
 // ----------------------------------------------------------------------------
 void convert_protobuf( const kwiver::protobuf::track_state& proto_trk_state,
-                       kwiver::vital::track_state& trk_state)
+                       kwiver::vital::track_state& trk_state )
 {
-  trk_state.set_frame(proto_trk_state.frame_id());
+  trk_state.set_frame( proto_trk_state.frame_id() );
 }
 
 // ----------------------------------------------------------------------------
@@ -598,6 +599,67 @@ void convert_protobuf( const kwiver::vital::track_state& trk_state,
                         kwiver::protobuf::track_state& proto_trk_state)
 {
   proto_trk_state.set_frame_id( static_cast< int64_t >( trk_state.frame() ) );
+}
+
+// ----------------------------------------------------------------------------
+void convert_protobuf( const kwiver::vital::track& trk,
+                        kwiver::protobuf::track& proto_trk )
+{
+  proto_trk.set_track_id(trk.id());
+  for (auto trk_state_itr=trk.begin(); trk_state_itr!=trk.end(); ++trk_state_itr){
+    auto trk_state = *trk_state_itr;  
+    auto obj_trk_state_sptr = std::dynamic_pointer_cast< 
+                              kwiver::vital::object_track_state>(trk_state);
+    // Check if the track state is Object Track State
+    if (obj_trk_state_sptr){
+      
+      kwiver::protobuf::object_track_state *proto_obj_trk_state = proto_trk.add_object_track_states();
+      convert_protobuf(*obj_trk_state_sptr, *proto_obj_trk_state);
+    } 
+    else
+    {
+      kwiver::protobuf::track_state *proto_trk_state = proto_trk.add_track_states();
+      convert_protobuf(*trk_state, *proto_trk_state);
+    }
+  }  
+}
+
+// ----------------------------------------------------------------------------
+void convert_protobuf( const kwiver::protobuf::track& proto_trk,
+                        kwiver::vital::track& trk )
+{
+  trk.set_id( proto_trk.track_id() );
+
+  // Supports single type of track states
+  if ( proto_trk.track_states_size() > 0 )
+  {
+    const size_t count( proto_trk.track_states_size() );
+    for (size_t index = 0; index < count; ++index )
+    {
+      auto trk_state = std::make_shared<kwiver::vital::track_state>();
+      convert_protobuf(proto_trk.track_states(index), *trk_state);
+      bool trk_inserted = trk.insert(trk_state);
+      if (!trk_inserted)
+      {
+        LOG_ERROR( kwiver::vital::get_logger( "track" ),
+                 "Failed to insert track state in track." );
+      } 
+    }
+  } else if ( proto_trk.object_track_states_size() > 0 )
+  {
+    const size_t count( proto_trk.object_track_states_size() );  
+    for (size_t index = 0; index < count; ++index )
+    {
+      auto object_trk_state = std::make_shared<kwiver::vital::object_track_state>();
+      convert_protobuf(proto_trk.object_track_states(index), *object_trk_state);
+      bool trk_inserted = trk.insert(object_trk_state);
+      if (!trk_inserted)
+      {
+        LOG_ERROR( kwiver::vital::get_logger( "track" ),
+                 "Failed to insert object track state in track." );
+      } 
+    }
+  } 
 }
 
 // ----------------------------------------------------------------------------
