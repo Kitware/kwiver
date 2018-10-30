@@ -1,15 +1,14 @@
 #include "compute_mesh_depth_map.h"
 
+#include <vital/types/camera_affine.h>
 #include <vital/types/camera_perspective.h>
-#include <vital/types/camera_rpc.h>
-#include <vital/types/geodesy.h>
 #include <vital/types/image.h>
 #include <vital/types/vector.h>
 
 
 namespace {
 
-/// Helper function to check if a pont is inside a triangle
+/// Helper function to check if a point is inside a triangle
 bool is_point_inside_triangle(const kwiver::vital::vector_2d& p,
                               const kwiver::vital::vector_2d& a,
                               const kwiver::vital::vector_2d& b,
@@ -45,54 +44,54 @@ kwiver::vital::vector_3d barycentric_coordinates(const kwiver::vital::vector_2d&
 namespace kwiver {
 namespace arrows {
 
-std::pair<vital::image_container_sptr, vital::image_container_sptr>
-compute_mesh_depth_map(vital::mesh_sptr mesh, vital::camera_sptr camera)
+vital::image_container_sptr compute_mesh_depth_map(vital::mesh_sptr mesh, vital::camera_sptr camera)
 {
   unsigned int nb_vertices = mesh->num_verts();
-  unsigned int width = camera->image_width();
-  unsigned int height = camera->image_height();
+  int width = static_cast<int>(camera->image_width());
+  int height = static_cast<int>(camera->image_height());
   vital::mesh_vertex_array<3>& vertices = dynamic_cast< vital::mesh_vertex_array<3>& >(mesh->vertices());
 
   // project all points on image
   std::vector<vital::vector_2d> points_2d(nb_vertices);
-  vital::camera_rpc *rpc_camera = dynamic_cast<vital::camera_rpc*>(camera.get());
-  if (rpc_camera != nullptr)
+  std::vector<double> points_depth(nb_vertices);
+
+  for (unsigned int i = 0; i < vertices.size(); ++i)
   {
-    // For rpc cameras, the mesh coordinates are first transformed to lat/long coordinates
-    for (int i = 0; i < vertices.size(); ++i)
+    points_2d[i] = camera->project(vertices[i]);
+  }
+
+  // Compute the points depth
+  if (dynamic_cast<vital::camera_perspective*>(camera.get()))
+  {
+    for (unsigned int i=0; i < vertices.size(); ++i)
     {
-      vital::vector_2d pt2d_latlong = vital::geo_conv(vertices[i].head<2>(),
-                                                      vital::SRID::UTM_WGS84_north + rpc_camera->utm_zone(),
-                                                      vital::SRID::lat_lon_WGS84);
-      points_2d[i] = camera->project({pt2d_latlong[0], pt2d_latlong[1], vertices[i](2)});
+      points_depth[i] = dynamic_cast<vital::camera_perspective*>(camera.get())->depth(vertices[i]);
+    }
+  }
+  else if (dynamic_cast<vital::camera_affine*>(camera.get()))
+  {
+    for (unsigned int i=0; i < vertices.size(); ++i)
+    {
+      points_depth[i] = dynamic_cast<vital::camera_affine*>(camera.get())->depth(vertices[i]);
     }
   }
   else
   {
-    for (int i = 0; i < vertices.size(); ++i)
-    {
-      points_2d[i] = camera->project(vertices[i]);
-    }
-  }
-  // Compute the points depth
-  std::vector<double> points_depth(nb_vertices);
-  for (unsigned int i=0; i < vertices.size(); ++i)
-  {
-    points_depth[i] = camera->depth(vertices[i]);
+    LOG_ERROR(vital::get_logger("arrows.core.compute_mesh_depth_map" ), "The camera camera has no depth method.");
+    return nullptr;
   }
 
-  // Initialize z_buffer with max double and id_buffer with -1
+  // Initialize z_buffer with max double
   vital::image_of<double> z_buffer(width, height, 1);
-  vital::image_of<int> id_map(width, height, 1);
-  for (int i=0; i < height; ++i)
+  for (int j = 0; j < height; ++j)
   {
-    for (int j=0; j < width; ++j)
+    for (int i = 0; i < width; ++i)
     {
-      z_buffer(j, i) = std::numeric_limits<double>::max();
-      id_map(j, i) = -1;
+      z_buffer(i, j) = std::numeric_limits<double>::max();
     }
   }
-  // Write faces on z_buffer and id_map with depth test
+
+  // Write faces on z_buffer with depth test
   vital::mesh_face_array& faces = dynamic_cast< vital::mesh_face_array& >(mesh->faces());
   for (unsigned int f_id = 0; f_id < faces.size(); ++f_id)
   {
@@ -108,10 +107,10 @@ compute_mesh_depth_map(vital::mesh_sptr mesh, vital::camera_sptr camera)
     double b_depth = points_depth[faces(f_id, 1)];
     double c_depth = points_depth[faces(f_id, 2)];
     // the rasterization is done over the face axis-aligned bounding box
-    int u_min = static_cast<int>(std::round(std::min(a_uv[0], std::min(b_uv[0], c_uv[0]))));
-    int u_max = static_cast<int>(std::round(std::max(a_uv[0], std::max(b_uv[0], c_uv[0]))));
-    int v_min = static_cast<int>(std::round(std::min(a_uv[1], std::min(b_uv[1], c_uv[1]))));
-    int v_max = static_cast<int>(std::round(std::max(a_uv[1], std::max(b_uv[1], c_uv[1]))));
+    int u_min = std::max(0, static_cast<int>(std::round(std::min(a_uv[0], std::min(b_uv[0], c_uv[0])))));
+    int u_max = std::min(width - 1, static_cast<int>(std::round(std::max(a_uv[0], std::max(b_uv[0], c_uv[0])))));
+    int v_min = std::max(0, static_cast<int>(std::round(std::min(a_uv[1], std::min(b_uv[1], c_uv[1])))));
+    int v_max = std::min(height - 1, static_cast<int>(std::round(std::max(a_uv[1], std::max(b_uv[1], c_uv[1])))));
     for (int v = v_min; v <= v_max; ++v)
     {
       for (int u = u_min; u <= u_max; ++u)
@@ -126,14 +125,12 @@ compute_mesh_depth_map(vital::mesh_sptr mesh, vital::camera_sptr camera)
           if (depth >= 0 && depth < z_buffer(u, v))
           {
             z_buffer(u, v) = depth;
-            id_map(u, v) = f_id;
           }
         }
       }
     }
   }
-  return std::make_pair(std::make_shared<vital::simple_image_container>(z_buffer),
-                        std::make_shared<vital::simple_image_container>(id_map));
+  return std::make_shared<vital::simple_image_container>(z_buffer);
 }
 
 }

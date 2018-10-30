@@ -19,8 +19,7 @@ namespace arrows {
  * @return a depth map
  */
 KWIVER_ALGO_CORE_EXPORT
-std::pair<kwiver::vital::image_container_sptr, kwiver::vital::image_container_sptr>
-compute_mesh_depth_map(kwiver::vital::mesh_sptr mesh, kwiver::vital::camera_sptr camera);
+vital::image_container_sptr compute_mesh_depth_map(kwiver::vital::mesh_sptr mesh, kwiver::vital::camera_sptr camera);
 
 }
 }
