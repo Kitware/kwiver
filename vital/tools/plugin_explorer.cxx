@@ -306,8 +306,6 @@ void display_by_category( const kwiver::vital::plugin_map_t& plugin_map,
       continue;
     }
 
-    pe_out() << "\nPlugins that implement type \"" << ds << "\"" << std::endl;
-
     // Get vector of factories
     for( kwiver::vital::plugin_factory_handle_t const fact : facts )
     {
