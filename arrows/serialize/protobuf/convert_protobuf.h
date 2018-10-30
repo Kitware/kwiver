@@ -36,6 +36,7 @@
 #include <vital/types/metadata.h>
 #include <vital/types/bounding_box.h>
 #include <vital/types/image_container.h>
+#include <vital/types/track.h>
 
 namespace kwiver {
 namespace vital {
@@ -48,7 +49,6 @@ namespace vital {
   class object_track_state;
   class polygon;
   class timestamp;
-  class track;
   class track_state;
 } } // end namespace
 
@@ -190,29 +190,29 @@ void convert_protobuf( const std::string& str,
   //  track state
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const kwiver::protobuf::track_state& proto_trk_state,
-                       kwiver::vital::track_state& trk_state);
+                       kwiver::vital::track_state& trk_state );
 
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const kwiver::vital::track_state& trk_state,
-                        kwiver::protobuf::track_state& proto_trk_state);
+                        kwiver::protobuf::track_state& proto_trk_state );
   
   // object track state
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const kwiver::protobuf::object_track_state& proto_obj_trk_state,
-                       kwiver::vital::object_track_state& obj_trk_state);
+                       kwiver::vital::object_track_state& obj_trk_state );
 
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const kwiver::vital::object_track_state& obj_trk_state,
-                        kwiver::protobuf::object_track_state& proto_obj_trk_state);
+                        kwiver::protobuf::object_track_state& proto_obj_trk_state );
 
   // track 
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const kwiver::protobuf::track& proto_trk,
-                       kwiver::vital::track& trk);
+                       kwiver::vital::track_sptr& trk_sptr );
 
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
-void convert_protobuf( const kwiver::vital::track& trk,
-                        kwiver::protobuf::track& proto_trk);
+void convert_protobuf( const kwiver::vital::track_sptr& trk_sptr,
+                        kwiver::protobuf::track& proto_trk );
 } } } }  // end namespace
 
 #endif // ARROWS_SERIALILIZATION_PROTOBUF_CONVERT_PROTOBUF_H

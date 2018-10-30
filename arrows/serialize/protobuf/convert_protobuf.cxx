@@ -602,33 +602,34 @@ void convert_protobuf( const kwiver::vital::track_state& trk_state,
 }
 
 // ----------------------------------------------------------------------------
-void convert_protobuf( const kwiver::vital::track& trk,
+void convert_protobuf( const kwiver::vital::track_sptr& trk_sptr,
                         kwiver::protobuf::track& proto_trk )
 {
-  proto_trk.set_track_id(trk.id());
-  for (auto trk_state_itr=trk.begin(); trk_state_itr!=trk.end(); ++trk_state_itr){
+  proto_trk.set_track_id( trk_sptr->id() );
+  for ( auto trk_state_itr=trk_sptr->begin(); trk_state_itr!=trk_sptr->end(); 
+        ++trk_state_itr ){
     auto trk_state = *trk_state_itr;  
     auto obj_trk_state_sptr = std::dynamic_pointer_cast< 
-                              kwiver::vital::object_track_state>(trk_state);
+                              kwiver::vital::object_track_state>( trk_state );
     // Check if the track state is Object Track State
     if (obj_trk_state_sptr){
-      
-      kwiver::protobuf::object_track_state *proto_obj_trk_state = proto_trk.add_object_track_states();
-      convert_protobuf(*obj_trk_state_sptr, *proto_obj_trk_state);
+      kwiver::protobuf::object_track_state *proto_obj_trk_state = 
+                                          proto_trk.add_object_track_states();
+      convert_protobuf( *obj_trk_state_sptr, *proto_obj_trk_state );
     } 
     else
     {
       kwiver::protobuf::track_state *proto_trk_state = proto_trk.add_track_states();
-      convert_protobuf(*trk_state, *proto_trk_state);
+      convert_protobuf( *trk_state, *proto_trk_state );
     }
   }  
 }
 
 // ----------------------------------------------------------------------------
 void convert_protobuf( const kwiver::protobuf::track& proto_trk,
-                        kwiver::vital::track& trk )
+                        kwiver::vital::track_sptr& trk_sptr )
 {
-  trk.set_id( proto_trk.track_id() );
+  trk_sptr->set_id( proto_trk.track_id() );
 
   // Supports single type of track states
   if ( proto_trk.track_states_size() > 0 )
@@ -636,10 +637,10 @@ void convert_protobuf( const kwiver::protobuf::track& proto_trk,
     const size_t count( proto_trk.track_states_size() );
     for (size_t index = 0; index < count; ++index )
     {
-      auto trk_state = std::make_shared<kwiver::vital::track_state>();
-      convert_protobuf(proto_trk.track_states(index), *trk_state);
-      bool trk_inserted = trk.insert(trk_state);
-      if (!trk_inserted)
+      auto trk_state = std::make_shared< kwiver::vital::track_state >();
+      convert_protobuf( proto_trk.track_states( index ), *trk_state );
+      bool trk_inserted = trk_sptr->insert( trk_state );
+      if ( !trk_inserted )
       {
         LOG_ERROR( kwiver::vital::get_logger( "track" ),
                  "Failed to insert track state in track." );
@@ -650,10 +651,10 @@ void convert_protobuf( const kwiver::protobuf::track& proto_trk,
     const size_t count( proto_trk.object_track_states_size() );  
     for (size_t index = 0; index < count; ++index )
     {
-      auto object_trk_state = std::make_shared<kwiver::vital::object_track_state>();
-      convert_protobuf(proto_trk.object_track_states(index), *object_trk_state);
-      bool trk_inserted = trk.insert(object_trk_state);
-      if (!trk_inserted)
+      auto object_trk_state = std::make_shared< kwiver::vital::object_track_state >();
+      convert_protobuf( proto_trk.object_track_states( index ), *object_trk_state );
+      bool trk_inserted = trk_sptr->insert( object_trk_state );
+      if ( !trk_inserted )
       {
         LOG_ERROR( kwiver::vital::get_logger( "track" ),
                  "Failed to insert object track state in track." );
@@ -664,7 +665,7 @@ void convert_protobuf( const kwiver::protobuf::track& proto_trk,
 
 // ----------------------------------------------------------------------------
 void convert_protobuf( const kwiver::protobuf::object_track_state& proto_obj_trk_state,
-                       kwiver::vital::object_track_state& obj_trk_state)
+                       kwiver::vital::object_track_state& obj_trk_state )
 {
   kwiver::vital::frame_id_t frame_id =  static_cast< kwiver::vital::frame_id_t >(
                         proto_obj_trk_state.track_state().frame_id() );
@@ -676,7 +677,7 @@ void convert_protobuf( const kwiver::protobuf::object_track_state& proto_obj_trk
     obj_trk_state.detection = std::make_shared<kwiver::vital::detected_object>(
                       kwiver::vital::bounding_box_d{0, 0, 0, 0} );
   }  
-  convert_protobuf(proto_obj_trk_state.detection(), *obj_trk_state.detection);
+  convert_protobuf( proto_obj_trk_state.detection(), *obj_trk_state.detection );
   
   obj_trk_state.set_frame( frame_id );
   obj_trk_state.set_time( time );
@@ -685,20 +686,20 @@ void convert_protobuf( const kwiver::protobuf::object_track_state& proto_obj_trk
 // ----------------------------------------------------------------------------
 
 void convert_protobuf( const kwiver::vital::object_track_state& obj_trk_state,
-                        kwiver::protobuf::object_track_state& proto_obj_trk_state)
+                        kwiver::protobuf::object_track_state& proto_obj_trk_state )
 {
-  proto_obj_trk_state.set_time(obj_trk_state.time());
+  proto_obj_trk_state.set_time( obj_trk_state.time() );
 
   const kwiver::vital::track_state trk_state = 
                               kwiver::vital::track_state( obj_trk_state.frame() );
   kwiver::protobuf::track_state *proto_trk_state = new kwiver::protobuf::track_state();
-  convert_protobuf(trk_state, *proto_trk_state);
+  convert_protobuf( trk_state, *proto_trk_state );
 
   kwiver::protobuf::detected_object *proto_det_obj= new kwiver::protobuf::detected_object();
-  convert_protobuf(*obj_trk_state.detection, *proto_det_obj);
+  convert_protobuf( *obj_trk_state.detection, *proto_det_obj );
 
-  proto_obj_trk_state.set_allocated_track_state(proto_trk_state);
-  proto_obj_trk_state.set_allocated_detection(proto_det_obj);
+  proto_obj_trk_state.set_allocated_track_state( proto_trk_state );
+  proto_obj_trk_state.set_allocated_detection( proto_det_obj );
 }
 
 } } } } // end namespace

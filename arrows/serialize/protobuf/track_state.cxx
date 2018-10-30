@@ -80,7 +80,7 @@ namespace protobuf {
   deserialize( const std::string& message )
   {
     std::istringstream msg( message );
-    kwiver::vital::track_state trk_state(0); 
+    kwiver::vital::track_state trk_state( 0 ); 
     std::string tag;
     msg >> tag;
     msg.get();  // Eat delimiter
@@ -100,7 +100,7 @@ namespace protobuf {
                      "Error deserializing Track State from protobuf" );
       }
 
-      convert_protobuf( proto_trk_state,  trk_state);
+      convert_protobuf( proto_trk_state,  trk_state );
     }
 
     return kwiver::vital::any( trk_state );

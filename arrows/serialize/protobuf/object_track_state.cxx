@@ -58,7 +58,7 @@ namespace protobuf {
   serialize( const vital::any& element )
   {
     kwiver::vital::object_track_state obj_trk_state =
-      kwiver::vital::any_cast< kwiver::vital::object_track_state > ( element );
+      kwiver::vital::any_cast< kwiver::vital::object_track_state >( element );
 
     std::ostringstream msg;
     msg << "object_track_state "; // add type tag
@@ -72,7 +72,7 @@ namespace protobuf {
                    "Error serializing track state from protobuf" );
     }
 
-    return std::make_shared< std::string > ( msg.str() );
+    return std::make_shared< std::string >( msg.str() );
   }
 
   // ----------------------------------------------------------------------------

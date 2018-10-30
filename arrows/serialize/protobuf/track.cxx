@@ -57,14 +57,14 @@ std::shared_ptr< std::string >
 track::
 serialize( const vital::any& element )
 {
-  kwiver::vital::track trk = 
-    kwiver::vital::any_cast< kwiver::vital::track > ( element );
+  kwiver::vital::track_sptr trk_sptr = 
+    kwiver::vital::any_cast< kwiver::vital::track_sptr > ( element );
 
   std::ostringstream msg;
   msg << "track "; // add type tag
 
   kwiver::protobuf::track proto_trk;
-  convert_protobuf( trk, proto_trk );
+  convert_protobuf( trk_sptr, proto_trk );
 
   if ( ! proto_trk.SerializeToOstream( &msg ) )
   {
@@ -79,7 +79,7 @@ serialize( const vital::any& element )
 vital::any track::
 deserialize( const std::string& message )
 {
-  kwiver::vital::track trk = kwiver::vital::track();
+  auto trk_sptr = kwiver::vital::track::create();
   std::istringstream msg( message );
 
   std::string tag;
@@ -95,16 +95,16 @@ deserialize( const std::string& message )
   {
     // define our protobuf
     kwiver::protobuf::track proto_trk;
-    if ( ! proto_track.ParseFromIstream( &msg ) )
+    if ( ! proto_trk.ParseFromIstream( &msg ) )
     {
       VITAL_THROW( kwiver::vital::serialization_exception,
                    "Error deserializing track from protobuf" );
     }
 
-    convert_protobuf( proto_trk, trk );
+    convert_protobuf( proto_trk, trk_sptr );
   }
 
-  return kwiver::vital::any(trk);
+  return kwiver::vital::any( trk_sptr );
 }
 
 } } } } // end namespace

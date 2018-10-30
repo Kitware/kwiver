@@ -19,6 +19,7 @@ set( headers_public
   image.h
   string.h
   track_state.h
+  track.h
   object_track_state.h
   )
 
@@ -33,6 +34,7 @@ set( sources
   image.cxx
   string.cxx
   track_state.cxx
+  track.cxx
   object_track_state.cxx
   )
 
