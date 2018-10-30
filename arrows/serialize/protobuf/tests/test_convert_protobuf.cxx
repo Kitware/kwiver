@@ -46,7 +46,9 @@
 #include <vital/types/polygon.h>
 #include <vital/types/timestamp.h>
 #include <vital/types/track.h>
+#include <vital/types/track_set.h>
 #include <vital/types/object_track_set.h>
+#include <vital/vital_types.h>
 
 #include <vital/types/protobuf/bounding_box.pb.h>
 #include <vital/types/protobuf/detected_object.pb.h>
@@ -61,6 +63,7 @@
 #include <vital/types/protobuf/string.pb.h>
 #include <vital/types/protobuf/image.pb.h>
 #include <vital/types/protobuf/track.pb.h>
+#include <vital/types/protobuf/track_set.pb.h>
 #include <vital/types/protobuf/track_state.pb.h>
 #include <vital/types/protobuf/object_track_state.pb.h>
 
@@ -556,4 +559,43 @@ TEST( convert_protobuf, track )
   }
   
 }
+// ---------------------------------------------------------------------------
+TEST( convert_protobuf, track_set )
+{
+  kwiver::protobuf::track_set proto_trk_set;
+  auto trk_set_sptr = std::make_shared< kwiver::vital::track_set >();
+  auto trk_set_sptr_dser = std::make_shared< kwiver::vital::track_set >();
+  for ( kwiver::vital::track_id_t trk_id=1; trk_id<5; ++trk_id )
+  {
+    auto trk = kwiver::vital::track::create();
+    trk->set_id( trk_id );
+   
+    for ( int i=trk_id*10; i < ( trk_id+1 )*10; i++ )
+    {
+      auto trk_state_sptr = std::make_shared< kwiver::vital::track_state>( i );
+      bool insert_success = trk->insert( trk_state_sptr );  
+      if ( !insert_success )
+      {
+        std::cerr << "Failed to insert track state" << std::endl;
+      }
+    }
+    trk_set_sptr->insert(trk);
+  }
 
+  kasp::convert_protobuf( trk_set_sptr, proto_trk_set );
+  kasp::convert_protobuf( proto_trk_set, trk_set_sptr_dser );
+
+  for ( kwiver::vital::track_id_t trk_id=1; trk_id<5; ++trk_id )
+  {
+    auto trk = trk_set_sptr->get_track( trk_id );
+    auto trk_dser = trk_set_sptr_dser->get_track( trk_id );  
+    EXPECT_EQ( trk->id(), trk_dser->id() );
+    for ( int i=trk_id*10; i < ( trk_id+1 )*10; i++ )
+    {
+      auto obj_trk_state_sptr = *trk->find( i );
+      auto dser_trk_state_sptr = *trk_dser->find( i );
+
+      EXPECT_EQ( obj_trk_state_sptr->frame(), dser_trk_state_sptr->frame() );    
+    }
+  }  
+}

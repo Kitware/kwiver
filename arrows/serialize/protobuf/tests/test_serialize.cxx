@@ -44,6 +44,7 @@
 #include <arrows/serialize/protobuf/string.h>
 #include <arrows/serialize/protobuf/track_state.h>
 #include <arrows/serialize/protobuf/track.h>
+#include <arrows/serialize/protobuf/track_set.h>
 #include <arrows/serialize/protobuf/object_track_state.h>
 #include <arrows/serialize/protobuf/convert_protobuf.h>
 
@@ -53,6 +54,7 @@
 #include <vital/types/detected_object.h>
 #include <vital/types/timestamp.h>
 #include <vital/types/track.h>
+#include <vital/types/track_set.h>
 #include <vital/types/object_track_set.h>
 #include <vital/util/hex_dump.h>
 #include <vital/util/string.h>
@@ -472,4 +474,48 @@ TEST( serialize, track )
     EXPECT_EQ( obj_trk_state_sptr->frame(), trk_state_dser_sptr->frame() );    
   }
   
+}
+
+// ---------------------------------------------------------------------------
+TEST( convert_protobuf, track_set )
+{
+  auto trk_set_sptr = std::make_shared< kwiver::vital::track_set >();
+  for ( kwiver::vital::track_id_t trk_id=1; trk_id<5; ++trk_id )
+  {
+    auto trk = kwiver::vital::track::create();
+    trk->set_id( trk_id );
+   
+    for ( int i=trk_id*10; i < ( trk_id+1 )*10; i++ )
+    {
+      auto trk_state_sptr = std::make_shared< kwiver::vital::track_state>( i );
+      bool insert_success = trk->insert( trk_state_sptr );  
+      if ( !insert_success )
+      {
+        std::cerr << "Failed to insert track state" << std::endl;
+      }
+    }
+    trk_set_sptr->insert(trk);
+  }
+  
+  kasp::track_set trk_set_ser;
+  kwiver::vital::any trk_set_any( trk_set_sptr );
+  auto trk_set_mes = trk_set_ser.serialize( trk_set_any );
+  auto trk_set_dser = trk_set_ser.deserialize( *trk_set_mes );
+
+  auto trk_set_sptr_dser =
+    kwiver::vital::any_cast< kwiver::vital::track_set_sptr > ( trk_set_dser );
+
+  for ( kwiver::vital::track_id_t trk_id=1; trk_id<5; ++trk_id )
+  {
+    auto trk = trk_set_sptr->get_track( trk_id );
+    auto trk_dser = trk_set_sptr_dser->get_track( trk_id );  
+    EXPECT_EQ( trk->id(), trk_dser->id() );
+    for ( int i=trk_id*10; i < ( trk_id+1 )*10; i++ )
+    {
+      auto obj_trk_state_sptr = *trk->find( i );
+      auto dser_trk_state_sptr = *trk_dser->find( i );
+
+      EXPECT_EQ( obj_trk_state_sptr->frame(), dser_trk_state_sptr->frame() );    
+    }
+  }  
 }
