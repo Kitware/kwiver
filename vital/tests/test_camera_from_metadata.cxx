@@ -137,14 +137,14 @@ TEST(camera_from_metadata, valid_metadata)
 
   vector_3d world_scale( LONG_SCALE, LAT_SCALE, HEIGHT_SCALE );
   vector_3d world_offset( LONG_OFFSET, LAT_OFFSET, HEIGHT_OFFSET );
-  vector_2d image_scale( ROW_SCALE, COL_SCALE );
-  vector_2d image_offset( ROW_OFFSET, COL_OFFSET );
+  vector_2d image_scale( COL_SCALE, ROW_SCALE );
+  vector_2d image_offset( COL_OFFSET, ROW_OFFSET );
 
   rpc_matrix rpc_coeff;
-  rpc_coeff.row(0) = string_to_vector( row_num_coeff );
-  rpc_coeff.row(1) = string_to_vector( row_den_coeff );
-  rpc_coeff.row(2) = string_to_vector( col_num_coeff );
-  rpc_coeff.row(3) = string_to_vector( col_den_coeff );
+  rpc_coeff.row(0) = string_to_vector( col_num_coeff );
+  rpc_coeff.row(1) = string_to_vector( col_den_coeff );
+  rpc_coeff.row(2) = string_to_vector( row_num_coeff );
+  rpc_coeff.row(3) = string_to_vector( row_den_coeff );
 
   camera_rpc_sptr cam = std::dynamic_pointer_cast<camera_rpc>(
     camera_from_metadata( rpc_metadata ) );
@@ -175,11 +175,11 @@ TEST(camera_from_metadata, projection)
   wld_pts.push_back(
     vector_3d( -58.58839238727699, -34.49280925602671, 26.606641142319901 ) );
 
-  img_pts.push_back( vector_2d( 15443.08533878, 16581.12626986 ) );
-  img_pts.push_back( vector_2d( 15451.02512727, 16519.24664854 ) );
-  img_pts.push_back( vector_2d( 15458.40044985, 16449.76676766 ) );
-  img_pts.push_back( vector_2d( 15461.20973047, 16377.35597454 ) );
-  img_pts.push_back( vector_2d( 15462.29884238, 16347.72126206 ) );
+  img_pts.push_back( vector_2d( 16581.12626986, 15443.08533878 ) );
+  img_pts.push_back( vector_2d( 16519.24664854, 15451.02512727 ) );
+  img_pts.push_back( vector_2d( 16449.76676766, 15458.40044985 ) );
+  img_pts.push_back( vector_2d( 16377.35597454, 15461.20973047 ) );
+  img_pts.push_back( vector_2d( 16347.72126206, 15462.29884238 ) );
 
   for (unsigned int i=0; i<wld_pts.size(); ++i)
   {
