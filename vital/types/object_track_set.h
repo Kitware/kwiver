@@ -102,7 +102,7 @@ public:
     return time_;
   }
   
-  void set_time( time_us_t time )
+  void set_time( time_usec_t time )
   {
     time_ = time;
   }

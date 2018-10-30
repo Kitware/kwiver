@@ -698,7 +698,7 @@ void convert_protobuf( const kwiver::protobuf::object_track_state& proto_obj_trk
 {
   kwiver::vital::frame_id_t frame_id =  static_cast< kwiver::vital::frame_id_t >(
                         proto_obj_trk_state.track_state().frame_id() );
-  kwiver::vital::time_us_t time =  static_cast< kwiver::vital::time_us_t >( 
+  kwiver::vital::time_usec_t time =  static_cast< kwiver::vital::time_usec_t >( 
                         proto_obj_trk_state.time() );
   // object track state detection might be nullptr
   if ( !obj_trk_state.detection )
