@@ -60,6 +60,7 @@
 #include <vital/types/protobuf/metadata.pb.h>
 #include <vital/types/protobuf/string.pb.h>
 #include <vital/types/protobuf/image.pb.h>
+#include <vital/types/protobuf/track.pb.h>
 #include <vital/types/protobuf/track_state.pb.h>
 #include <vital/types/protobuf/object_track_state.pb.h>
 
@@ -388,7 +389,7 @@ TEST( convert_protobuf, metadata )
 //----------------------------------------------------------------------------
 TEST( convert_protobuf, track_state )
 {
-  kwiver::vital::track_state trk_state{1};
+  kwiver::vital::track_state trk_state{ 1 };
 
   kwiver::protobuf::track_state proto_trk_state;
   kwiver::vital::track_state dser_trk_state;
@@ -403,51 +404,156 @@ TEST( convert_protobuf, track_state )
 //----------------------------------------------------------------------------
 TEST( convert_protobuf, object_track_state )
 {
-  auto dot = std::make_shared<kwiver::vital::detected_object_type>();
+  auto dot_sptr = std::make_shared< kwiver::vital::detected_object_type >();
 
-  dot->set_score( "first", 1 );
-  dot->set_score( "second", 10 );
-  dot->set_score( "third", 101 );
-  dot->set_score( "last", 121 );
+  dot_sptr->set_score( "first", 1 );
+  dot_sptr->set_score( "second", 10 );
+  dot_sptr->set_score( "third", 101 );
+  dot_sptr->set_score( "last", 121 );
 
   auto dobj_sptr = std::make_shared< kwiver::vital::detected_object>( 
                           kwiver::vital::bounding_box_d{ 1, 2, 3, 4 }, 
-                              3.14159265, dot );
+                              3.14159265, dot_sptr );
   dobj_sptr->set_detector_name( "test_detector" );
   dobj_sptr->set_index( 1234 );
   kwiver::vital::object_track_state obj_trk_state( 1, 1, dobj_sptr );
   
   kwiver::protobuf::object_track_state proto_obj_trk_state;
-  kwiver::vital::object_track_state dser_obj_trk_state;
+  kwiver::vital::object_track_state obj_trk_state_dser;
 
   kasp::convert_protobuf( obj_trk_state, proto_obj_trk_state );
-  kasp::convert_protobuf( proto_obj_trk_state, dser_obj_trk_state );
+  kasp::convert_protobuf( proto_obj_trk_state, obj_trk_state_dser );
 
-  auto ser_do_sptr = obj_trk_state.detection;
-  auto deser_do_sptr = dser_obj_trk_state.detection;
+  auto do_sptr = obj_trk_state.detection;
+  auto do_sptr_dser = obj_trk_state_dser.detection;
 
-  EXPECT_EQ( ser_do_sptr->bounding_box(), deser_do_sptr->bounding_box() );
-  EXPECT_EQ( ser_do_sptr->index(), deser_do_sptr->index() );
-  EXPECT_EQ( ser_do_sptr->confidence(), deser_do_sptr->confidence() );
-  EXPECT_EQ( ser_do_sptr->detector_name(), deser_do_sptr->detector_name() );
+  EXPECT_EQ( do_sptr->bounding_box(), do_sptr_dser->bounding_box() );
+  EXPECT_EQ( do_sptr->index(), do_sptr_dser->index() );
+  EXPECT_EQ( do_sptr->confidence(), do_sptr_dser->confidence() );
+  EXPECT_EQ( do_sptr->detector_name(), do_sptr_dser->detector_name() );
 
-  auto ser_dot_sptr = ser_do_sptr->type();
-  auto deser_dot_sptr = deser_do_sptr->type();
+  auto dot_sptr_dser = do_sptr_dser->type();
 
-  if ( ser_dot_sptr )
+  if ( dot_sptr )
   {
-    EXPECT_EQ( ser_dot_sptr->size(),deser_dot_sptr->size() );
+    EXPECT_EQ( dot_sptr->size(), dot_sptr_dser->size() );
 
-    auto ser_it = ser_dot_sptr->begin();
-    auto deser_it = deser_dot_sptr->begin();
+    auto it = dot_sptr->begin();
+    auto it_dser = dot_sptr_dser->begin();
 
-    for ( size_t i = 0; i < ser_dot_sptr->size(); ++i )
+    for ( size_t i = 0; i < dot_sptr->size(); ++i )
     {
-      EXPECT_EQ( *(ser_it->first), *(ser_it->first) );
-      EXPECT_EQ( deser_it->second, deser_it->second );
+      EXPECT_EQ( *(it->first), *(it_dser->first) );
+      EXPECT_EQ( it->second, it_dser->second );
     }
   }
-  EXPECT_EQ(obj_trk_state.time(), dser_obj_trk_state.time());
-  EXPECT_EQ(obj_trk_state.frame(), dser_obj_trk_state.frame());
-
+  EXPECT_EQ(obj_trk_state.time(), obj_trk_state_dser.time());
+  EXPECT_EQ(obj_trk_state.frame(), obj_trk_state_dser.frame());
 }
+
+// ---------------------------------------------------------------------------
+TEST( convert_protobuf, track )
+{
+  // test track with object track state
+  
+  kwiver::protobuf::track proto_obj_trk;
+  auto trk_dser=kwiver::vital::track::create();
+  auto trk = kwiver::vital::track::create();
+
+  trk->set_id(1);
+  for (int i=0; i<10; i++)
+  {
+    auto dot = std::make_shared<kwiver::vital::detected_object_type>();
+
+    dot->set_score( "first", 1 );
+    dot->set_score( "second", 10 );
+    dot->set_score( "third", 101 );
+    dot->set_score( "last", 121 );
+
+    auto dobj_sptr = std::make_shared< kwiver::vital::detected_object>( 
+                            kwiver::vital::bounding_box_d{ 1, 2, 3, 4 }, 
+                                3.14159265, dot );
+    dobj_sptr->set_detector_name( "test_detector" );
+    dobj_sptr->set_index( 1234 );
+    auto obj_trk_state_sptr = std::make_shared< kwiver::vital::object_track_state > 
+                                ( i, i, dobj_sptr );
+
+    bool insert_success = trk->insert( obj_trk_state_sptr );  
+    if ( !insert_success )
+    {
+      std::cerr << "Failed to insert object track state" << std::endl;
+    }
+  }
+  // Convert track to protobuf and back
+  kasp::convert_protobuf( trk, proto_obj_trk );
+  kasp::convert_protobuf( proto_obj_trk, trk_dser );
+  
+  // Check track id
+  EXPECT_EQ( trk->id(), trk_dser->id() ); 
+  for ( int i=0; i<10; i++ )
+  {
+    auto trk_state_sptr = *trk->find( i );
+    auto dser_trk_state_sptr = *trk_dser->find( i );
+    
+    EXPECT_EQ( trk_state_sptr->frame(), dser_trk_state_sptr->frame() );
+    auto obj_trk_state_sptr = kwiver::vital::object_track_state::downcast( trk_state_sptr );   
+    auto dser_obj_trk_state_sptr = kwiver::vital::object_track_state::
+                                                    downcast( dser_trk_state_sptr );
+
+
+    auto ser_do_sptr = obj_trk_state_sptr->detection;
+    auto dser_do_sptr = dser_obj_trk_state_sptr->detection;
+
+    EXPECT_EQ( ser_do_sptr->bounding_box(), dser_do_sptr->bounding_box() );
+    EXPECT_EQ( ser_do_sptr->index(), dser_do_sptr->index() );
+    EXPECT_EQ( ser_do_sptr->confidence(), dser_do_sptr->confidence() );
+    EXPECT_EQ( ser_do_sptr->detector_name(), dser_do_sptr->detector_name() );
+
+    auto ser_dot_sptr = ser_do_sptr->type();
+    auto dser_dot_sptr = dser_do_sptr->type();
+
+    if ( ser_dot_sptr )
+    {
+      EXPECT_EQ( ser_dot_sptr->size(),dser_dot_sptr->size() );
+
+      auto ser_it = ser_dot_sptr->begin();
+      auto dser_it = dser_dot_sptr->begin();
+
+      for ( size_t i = 0; i < ser_dot_sptr->size(); ++i )
+      {
+        EXPECT_EQ( *(ser_it->first), *(ser_it->first) );
+        EXPECT_EQ( dser_it->second, dser_it->second );
+      }
+    }
+  } 
+ 
+  // test track with track state
+  kwiver::protobuf::track proto_trk;
+  trk = kwiver::vital::track::create();
+  trk_dser = kwiver::vital::track::create();  
+  trk->set_id( 2 );
+  for ( int i=0; i<10; i++ )
+  {
+    auto trk_state_sptr = std::make_shared< kwiver::vital::track_state>( i );
+    bool insert_success = trk->insert( trk_state_sptr );  
+    if ( !insert_success )
+    {
+      std::cerr << "Failed to insert track state" << std::endl;
+    }
+  }
+
+  kasp::convert_protobuf( trk, proto_trk );
+  kasp::convert_protobuf( proto_trk, trk_dser );
+  
+  EXPECT_EQ( trk->id(), trk_dser->id() );
+
+  for ( int i=0; i<10; i++ )
+  {
+    auto obj_trk_state_sptr = *trk->find( i );
+    auto dser_trk_state_sptr = *trk_dser->find( i );
+
+    EXPECT_EQ( obj_trk_state_sptr->frame(), dser_trk_state_sptr->frame() );    
+  }
+  
+}
+

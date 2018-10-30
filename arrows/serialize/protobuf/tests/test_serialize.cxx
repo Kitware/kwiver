@@ -43,6 +43,7 @@
 #include <arrows/serialize/protobuf/image.h>
 #include <arrows/serialize/protobuf/string.h>
 #include <arrows/serialize/protobuf/track_state.h>
+#include <arrows/serialize/protobuf/track.h>
 #include <arrows/serialize/protobuf/object_track_state.h>
 #include <arrows/serialize/protobuf/convert_protobuf.h>
 
@@ -246,7 +247,7 @@ TEST (serialize, timestamp)
 }
 
 // ----------------------------------------------------------------------------
-TEST( serialize, image)
+TEST( serialize, image )
 {
   kasp::image image_ser;
   kwiver::vital::image img{200, 300, 3};
@@ -271,7 +272,7 @@ TEST( serialize, image)
 }
 
 // ----------------------------------------------------------------------------
-TEST (serialize, string)
+TEST ( serialize, string )
 {
   kasp::string str_ser;
   std::string str("Test string");
@@ -291,17 +292,17 @@ TEST (serialize, string)
 TEST (serialize, track_state)
 {
   kasp::track_state trk_state_ser;
-  kwiver::vital::track_state trk_state(1);
+  kwiver::vital::track_state trk_state( 1 );
 
-  kwiver::vital::any trk_state_any(trk_state);
+  kwiver::vital::any trk_state_any( trk_state );
 
   auto mes = trk_state_ser.serialize( trk_state_any );
   auto dser = trk_state_ser.deserialize( *mes );
 
   kwiver::vital::track_state trk_state_dser =
-    kwiver::vital::any_cast< kwiver::vital::track_state > ( dser );
+    kwiver::vital::any_cast< kwiver::vital::track_state >( dser );
 
-  EXPECT_EQ (trk_state, trk_state_dser);
+  EXPECT_EQ( trk_state, trk_state_dser );
 }
 
 // ----------------------------------------------------------------------------
@@ -355,6 +356,120 @@ TEST (serialize, object_track_state)
       EXPECT_EQ( deser_it->second, deser_it->second );
     }
   }
-  EXPECT_EQ(obj_trk_state.time(), obj_trk_state_dser.time());
-  EXPECT_EQ(obj_trk_state.frame(), obj_trk_state_dser.frame());
+  EXPECT_EQ( obj_trk_state.time(), obj_trk_state_dser.time() );
+  EXPECT_EQ( obj_trk_state.frame(), obj_trk_state_dser.frame() );
+}
+// ---------------------------------------------------------------------------
+TEST( serialize, track )
+{
+  // test track with object track state
+  auto obj_trk = kwiver::vital::track::create();
+  obj_trk->set_id( 1 );
+  for ( int i=0; i<10; i++ )
+  {
+    auto dot = std::make_shared< kwiver::vital::detected_object_type >();
+
+    dot->set_score( "first", 1 );
+    dot->set_score( "second", 10 );
+    dot->set_score( "third", 101 );
+    dot->set_score( "last", 121 );
+
+    auto dobj_sptr = std::make_shared< kwiver::vital::detected_object>( 
+                            kwiver::vital::bounding_box_d{ 1, 2, 3, 4 }, 
+                                3.14159265, dot );
+    dobj_sptr->set_detector_name( "test_detector" );
+    dobj_sptr->set_index( 1234 );
+    auto obj_trk_state_sptr = std::make_shared< kwiver::vital::object_track_state > 
+                                ( i, i, dobj_sptr );
+
+    bool insert_success = obj_trk->insert( obj_trk_state_sptr );  
+    if ( !insert_success )
+    {
+      std::cerr << "Failed to insert object track state" << std::endl;
+    }
+  }
+  
+  kasp::track obj_trk_ser;
+  kwiver::vital::any obj_trk_any( obj_trk );
+
+  auto mes = obj_trk_ser.serialize( obj_trk_any );
+  auto dser = obj_trk_ser.deserialize( *mes );
+
+  auto obj_trk_dser_sptr = kwiver::vital::any_cast< kwiver::vital::track_sptr >( dser );
+  
+  // Check track id
+  EXPECT_EQ( obj_trk->id(), obj_trk_dser_sptr->id() ); 
+  
+  for( int i=0; i<10; i++ )
+  {
+    auto trk_state_sptr = *obj_trk->find( i );
+    auto dser_trk_state_sptr = *obj_trk_dser_sptr->find( i );
+    
+    EXPECT_EQ( trk_state_sptr->frame(), dser_trk_state_sptr->frame() );
+    auto obj_trk_state_sptr = kwiver::vital::object_track_state::downcast( 
+                                                                trk_state_sptr );   
+    auto dser_obj_trk_state_sptr = kwiver::vital::object_track_state::
+                                                      downcast( dser_trk_state_sptr );
+
+
+    auto ser_do_sptr = obj_trk_state_sptr->detection;
+    auto dser_do_sptr = dser_obj_trk_state_sptr->detection;
+
+    EXPECT_EQ( ser_do_sptr->bounding_box(), dser_do_sptr->bounding_box() );
+    EXPECT_EQ( ser_do_sptr->index(), dser_do_sptr->index() );
+    EXPECT_EQ( ser_do_sptr->confidence(), dser_do_sptr->confidence() );
+    EXPECT_EQ( ser_do_sptr->detector_name(), dser_do_sptr->detector_name() );
+
+    auto ser_dot_sptr = ser_do_sptr->type();
+    auto dser_dot_sptr = dser_do_sptr->type();
+
+    if ( ser_dot_sptr )
+    {
+      EXPECT_EQ( ser_dot_sptr->size(), dser_dot_sptr->size() );
+
+      auto ser_it = ser_dot_sptr->begin();
+      auto dser_it = dser_dot_sptr->begin();
+
+      for ( size_t i = 0; i < ser_dot_sptr->size(); ++i )
+      {
+        EXPECT_EQ( *( ser_it->first ), *( ser_it->first ) );
+        EXPECT_EQ( dser_it->second, dser_it->second );
+      }
+    }
+    
+  } 
+   
+  
+  // test track with track state
+  auto trk = kwiver::vital::track::create();
+  trk->set_id( 2 );
+  for ( int i=0; i<10; i++ )
+  {
+    auto trk_state_sptr = std::make_shared< kwiver::vital::track_state>( i );
+    bool insert_success = trk->insert( trk_state_sptr );  
+    if ( !insert_success )
+    {
+      std::cerr << "Failed to insert track state" << std::endl;
+    }
+  }
+
+  kasp::track trk_ser;
+  kwiver::vital::any trk_any( trk );
+
+  auto trk_mes = trk_ser.serialize( trk_any );
+  auto trk_dser = trk_ser.deserialize( *trk_mes );
+
+  auto trk_dser_sptr =
+    kwiver::vital::any_cast< kwiver::vital::track_sptr > ( trk_dser );
+  
+  EXPECT_EQ( trk->id(), trk_dser_sptr->id() );
+
+  for ( int i=0; i<10; i++ )
+  {
+    auto obj_trk_state_sptr = *trk->find( i );
+    auto trk_state_dser_sptr = *trk_dser_sptr->find( i );
+
+    EXPECT_EQ( obj_trk_state_sptr->frame(), trk_state_dser_sptr->frame() );    
+  }
+  
 }
