@@ -20,6 +20,7 @@ set( proto_files
   track_state.proto
   track_set.proto
   object_track_state.proto
+  object_track_set.proto
   )
 
 include_directories(${PROTOBUF_INCLUDE_DIRS})

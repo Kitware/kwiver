@@ -38,6 +38,7 @@
 #include <vital/types/image_container.h>
 #include <vital/types/track.h>
 #include <vital/types/track_set.h>
+#include <vital/types/object_track_set.h>
 
 namespace kwiver {
 namespace vital {
@@ -66,6 +67,7 @@ namespace protobuf {
   class metadata;
   class metadata_vector;
   class object_track_state;
+  class object_track_set;
   class polygon;
   class string;
   class timestamp;
@@ -225,6 +227,14 @@ KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const kwiver::vital::track_set_sptr& trk_set_sptr,
                         kwiver::protobuf::track_set& proto_trk_set );
 
+  // object track set 
+KWIVER_SERIALIZE_PROTOBUF_EXPORT
+void convert_protobuf( const kwiver::protobuf::object_track_set& proto_obj_trk_set,
+                       kwiver::vital::object_track_set_sptr& obj_trk_set_sptr );
+
+KWIVER_SERIALIZE_PROTOBUF_EXPORT
+void convert_protobuf( const kwiver::vital::object_track_set_sptr& obj_trk_set_sptr,
+                        kwiver::protobuf::object_track_set& proto_obj_trk_set );
 } } } }  // end namespace
 
 #endif // ARROWS_SERIALILIZATION_PROTOBUF_CONVERT_PROTOBUF_H

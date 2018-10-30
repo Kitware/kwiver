@@ -22,6 +22,7 @@ set( headers_public
   track_state.h
   track.h
   object_track_state.h
+  object_track_set.h
   )
 
 set( sources
@@ -38,6 +39,7 @@ set( sources
   track_state.cxx
   track.cxx
   object_track_state.cxx
+  object_track_set.cxx
   )
 
 link_directories(${PROTOBUF_LIBRARY})

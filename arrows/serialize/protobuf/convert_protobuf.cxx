@@ -61,6 +61,7 @@
 #include <vital/types/protobuf/track_set.pb.h>
 #include <vital/types/protobuf/track_state.pb.h>
 #include <vital/types/protobuf/object_track_state.pb.h>
+#include <vital/types/protobuf/object_track_set.pb.h>
 
 #include <zlib.h>
 #include <cstddef>
@@ -728,6 +729,30 @@ void convert_protobuf( const kwiver::vital::object_track_state& obj_trk_state,
 
   proto_obj_trk_state.set_allocated_track_state( proto_trk_state );
   proto_obj_trk_state.set_allocated_detection( proto_det_obj );
+}
+
+// ----------------------------------------------------------------------------
+void convert_protobuf( const kwiver::vital::object_track_set_sptr& obj_trk_set_sptr,
+                        kwiver::protobuf::object_track_set& proto_obj_trk_set )
+{
+  for (kwiver::vital::track_id_t trk_id : obj_trk_set_sptr->all_track_ids())
+  {
+    kwiver::protobuf::track *trk = proto_obj_trk_set.add_tracks();
+    convert_protobuf( obj_trk_set_sptr->get_track(trk_id ), *trk);
+  }
+}
+
+// ----------------------------------------------------------------------------
+void convert_protobuf( const kwiver::protobuf::object_track_set& proto_obj_trk_set,
+                        kwiver::vital::object_track_set_sptr& obj_trk_set_sptr )
+{
+  const size_t count( proto_obj_trk_set.tracks_size() );
+  for ( size_t index = 0; index < count; ++index )
+  {
+      auto trk = kwiver::vital::track::create();
+      convert_protobuf( proto_obj_trk_set.tracks( index ), trk );
+      obj_trk_set_sptr->insert( trk );
+  }
 }
 
 } } } } // end namespace
