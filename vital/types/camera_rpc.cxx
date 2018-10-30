@@ -146,7 +146,9 @@ camera_affine_sptr camera_rpc::approximate_affine_camera(const vector_3d &pt) co
 
   camera_affine_sptr affine_cam = std::make_shared<simple_camera_affine>(A, this->image_width(),
                                                                          this->image_height());
-  dynamic_cast<simple_camera_affine*>(affine_cam.get())->set_viewing_distance(500);
+  simple_camera_affine* simple_affine_cam = dynamic_cast<simple_camera_affine*>(affine_cam.get());
+  simple_affine_cam->orient_ray_direction({0, 0, -1});
+  simple_affine_cam->set_viewing_distance(500);
   return affine_cam;
 }
 

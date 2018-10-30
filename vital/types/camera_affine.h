@@ -150,7 +150,7 @@ public:
   double get_viewing_distance() const { return view_distance_; }
   void set_viewing_distance(double dist) { view_distance_ = dist; }
 
-  /// Oient the camera ray direction so that the dot product with look_dir is positive
+  /// Orient the camera ray direction so that the dot product with look_dir is positive
   void orient_ray_direction(const vector_3d &look_dir);
 
   /// Get the camera principal plane

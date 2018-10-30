@@ -122,13 +122,13 @@ void simple_camera_affine::set_matrix(const kwiver::vital::matrix_3x4d &new_came
 vector_4d simple_camera_affine::center() const
 {
   vector_4d center;
-  center.head(3) = ray_dir_;
+  center.head(3) = -ray_dir_;
   center(3) = 0.0;
   return center;
 }
 
 
-/// Oient the camera ray direction so that the dot product with look_dir is positive
+/// Orient the camera ray direction so that the dot product with look_dir is positive
 void simple_camera_affine::orient_ray_direction(const vector_3d &look_dir)
 {
   if (ray_dir_.dot(look_dir) < 0)
