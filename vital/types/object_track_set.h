@@ -69,7 +69,7 @@ public:
   /// Default constructor
   //
   object_track_state( frame_id_t frame,
-                      time_us_t time,
+                      time_usec_t time,
                       detected_object_sptr d = nullptr )
     : track_state( frame )
     , detection( d )
@@ -97,7 +97,7 @@ public:
     return std::make_shared< object_track_state >( *this );
   }
 
-  time_us_t time() const
+  time_usec_t time() const
   {
     return time_;
   }
@@ -120,7 +120,7 @@ public:
   static constexpr auto downcast_transform = range::transform( downcast );
 
 private:
-  time_us_t time_;
+  time_usec_t time_;
 };
 
 

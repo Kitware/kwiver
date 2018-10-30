@@ -348,7 +348,7 @@ void convert_protobuf( const kwiver::protobuf::timestamp& proto_tstamp,
                        kwiver::vital::timestamp&          tstamp )
 {
   tstamp = kwiver::vital::timestamp(
-    static_cast< kwiver::vital::time_us_t > ( proto_tstamp.time() ),
+    static_cast< kwiver::vital::time_usec_t > ( proto_tstamp.time() ),
     static_cast< kwiver::vital::frame_id_t > ( proto_tstamp.frame() ) );
 }
 
@@ -406,7 +406,7 @@ void convert_protobuf( const kwiver::protobuf::metadata&  proto,
     }
     else if ( trait.is_integral() )
     {
-      data = kwiver::vital::any( mi.int_value() );
+      data = kwiver::vital::any( static_cast<uint64_t>(mi.int_value()) );
     }
     else if ( trait.tag_type() == typeid(std::string) )
     {
