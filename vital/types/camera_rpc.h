@@ -44,6 +44,7 @@
 
 #include <vital/vital_config.h>
 #include <vital/types/camera.h>
+#include <vital/types/camera_affine.h>
 #include <vital/types/matrix.h>
 #include <vital/types/vector.h>
 #include <vital/logger/logger.h>
@@ -101,6 +102,10 @@ public:
 
   /// Project a 2D image back to a 3D point in space
   virtual vector_3d back_project( const vector_2d& image_pt, double elev ) const;
+
+  /// Get an affine camera from the first order Taylor approximation
+  /// of the RPC projection function around pt
+  camera_affine_sptr approximate_affine_camera(const vector_3d &pt) const;
 
 protected:
   camera_rpc();

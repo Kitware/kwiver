@@ -117,6 +117,39 @@ camera_rpc
   return rslt.cwiseProduct( this->world_scale() ) + this->world_offset();
 }
 
+/**
+ * @brief camera_rpc::approximate_affine_camera
+ * @param pt The point around which the approximation computed
+ * @return
+ */
+camera_affine_sptr camera_rpc::approximate_affine_camera(const vector_3d &pt) const
+{
+  vector_3d pt_norm = ( pt - world_offset() ).cwiseQuotient( world_scale() );
+  vector_2d q,  q_norm;
+  matrix_2x3d J;
+  this->jacobian(pt_norm, J, q_norm);
+  q = q_norm.cwiseProduct( image_scale() ) + image_offset();
+
+  // include the normalization and de-normalization steps into the jacobian
+  J.row(0) *= image_scale()[0];
+  J.row(1) *= image_scale()[1];
+
+  J.col(0) /= world_scale()[0];
+  J.col(1) /= world_scale()[1];
+  J.col(2) /= world_scale()[2];
+
+  // affine camera matrix
+  matrix_3x4d A = matrix_3x4d::Zero();
+  A.block<2, 3>(0, 0) = J;
+  A.block<2, 1>(0, 3) = q - J * pt;
+  A(2, 3) = 1.0;
+
+  camera_affine_sptr affine_cam = std::make_shared<simple_camera_affine>(A, this->image_width(),
+                                                                         this->image_height());
+  dynamic_cast<simple_camera_affine*>(affine_cam.get())->set_viewing_distance(500);
+  return affine_cam;
+}
+
 Eigen::Matrix<double, 20, 1>
 camera_rpc
 ::power_vector( const vector_3d& pt )
