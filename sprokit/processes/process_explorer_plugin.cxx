@@ -326,12 +326,21 @@ explore( const kwiver::vital::plugin_factory_handle_t fact )
 class json_element
 {
 public:
-  json_element( std::ostream &out_stream, int active_indent )
-    : m_out_stream( out_stream ), m_indent( active_indent + INDENT_AMOUNT )
+  json_element( std::ostream &out_stream, int active_indent, bool first_element=true )
+    : m_out_stream( out_stream )
+    , m_indent( active_indent + INDENT_AMOUNT )
+    , m_first_element(first_element)
     {}
   int indent()
   {
     return m_indent;
+  }
+  const std::string &comma()
+  {
+    if ( ! m_first_element )
+      return  m_intro_comma;
+    else
+      return m_no_comma;
   }
   std::ostream &out_stream()
   {
@@ -343,16 +352,42 @@ public:
 private:
   std::ostream &m_out_stream;
   int m_indent = 0;
+  bool m_first_element = true;
+  const std::string m_intro_comma = ", ";
+  const std::string m_no_comma = "";
 };
+
+std::string escape_json(const std::string &s) {
+    std::ostringstream o;
+    for (auto c = s.cbegin(); c != s.cend(); c++) {
+        switch (*c) {
+        case '"': o << "\\\""; break;
+        case '\\': o << "\\\\"; break;
+        case '\b': o << "\\b"; break;
+        case '\f': o << "\\f"; break;
+        case '\n': o << "\\n"; break;
+        case '\r': o << "\\r"; break;
+        case '\t': o << "\\t"; break;
+        default:
+            if ('\x00' <= *c && *c <= '\x1f') {
+                o << "\\u"
+                  << std::hex << std::setw(4) << std::setfill('0') << (int)*c;
+            } else {
+                o << *c;
+            }
+        }
+    }
+    return o.str();
+}
 
 class json_dict
   : public json_element
 {
 public:
-  json_dict( std::ostream &o_stream, int active_indent )
-    : json_element( o_stream, active_indent )
+  json_dict( std::ostream &o_stream, int active_indent, bool first_element=true )
+    : json_element( o_stream, active_indent, first_element )
   {
-    out_stream() << std::string( indent(), ' ' ) << "{" << std::endl;
+    out_stream() << std::string( indent(), ' ' ) << comma() << "{" << std::endl;
   }
   ~json_dict()
   {
@@ -364,10 +399,10 @@ class json_array
   : public json_element
 {
 public:
-  json_array( std::ostream &o_stream, int active_indent )
-    : json_element( o_stream, active_indent )
+  json_array( std::ostream &o_stream, int active_indent, bool first_element = true )
+    : json_element( o_stream, active_indent, first_element )
   {
-    out_stream() << std::string( indent(), ' ' ) << "[" << std::endl;
+    out_stream() << std::string( indent(), ' ' ) << comma() << "[" << std::endl;
   }
   ~json_array()
   {
@@ -381,11 +416,13 @@ class json_array_items
 {
 public:
   json_array_items( std::ostream &o_stream, int active_indent, const ArrayContainerT &arr_items )
-    : json_element( o_stream, active_indent )
+    : json_element( o_stream, active_indent, false )
   {
+    std::string prefix_comma = "";
     for ( auto item : arr_items )
     {
-      out_stream() << std::string( indent(), ' ') << "\"" << item << "\"" << std::endl;
+      out_stream() << std::string( indent(), ' ') << prefix_comma << "\"" << item << "\"" << std::endl;
+      prefix_comma = ", ";
     }
   }
 };
@@ -394,10 +431,10 @@ class json_dict_key
   : public json_element
 {
 public:
-  json_dict_key( std::ostream &o_stream, int active_indent, std::string key )
-    : json_element( o_stream, active_indent )
+  json_dict_key( std::ostream &o_stream, int active_indent, std::string key, bool first_element = true )
+    : json_element( o_stream, active_indent, first_element )
     {
-      out_stream() << std::string( indent(), ' ') <<  quoted(key) << " : " << std::endl;
+      out_stream() << std::string( indent(), ' ') <<  comma() << quoted(key) << " : " << std::endl;
     }
 };
 
@@ -405,10 +442,10 @@ class json_dict_item
   : public json_element
 {
 public:
-  json_dict_item( std::ostream &o_stream, int active_indent, std::string key, std::string value )
-    : json_element( o_stream, active_indent )
+  json_dict_item( std::ostream &o_stream, int active_indent, std::string key, std::string value, bool first_element = true )
+    : json_element( o_stream, active_indent, first_element )
     {
-      out_stream() << std::string( indent(), ' ') <<  quoted(key) << " : " << quoted(value) << std::endl;
+      out_stream() << std::string( indent(), ' ') <<  comma() << quoted(key) << " : " << quoted(value) << std::endl;
     }
 };
 
@@ -429,7 +466,8 @@ public:
   explorer_context* m_context;
   std::string opt_output_dir;
   std::ofstream m_out_stream;
-  std::shared_ptr< json_dict > m_root_dict;;
+  std::shared_ptr< json_array > m_root_array;
+  bool m_first_process = true;
 
 }; // end class process_explorer_json
 
@@ -466,7 +504,7 @@ process_explorer_json::
 initialize( explorer_context* context )
 {
   m_context = context;
-  m_root_dict = std::make_shared< json_dict >( out_stream(), 0 );
+  m_root_array = std::make_shared< json_array >( out_stream(), 0 );
 
   return true;
 }
@@ -477,21 +515,22 @@ void
 process_explorer_json::
 explore( const kwiver::vital::plugin_factory_handle_t fact )
 {
-  json_dict plugin_dict( out_stream(), m_root_dict->indent() );
+  json_dict plugin_dict( out_stream(), m_root_array->indent(), m_first_process );
+  m_first_process = false;
   std::string proc_type = "-- Not Set --";
   fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, proc_type );
   json_dict_item name_item( out_stream(), plugin_dict.indent(), "proc_type", proc_type );
 
   std::string descrip = "-- Not_Set --";
   fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, descrip );
-  json_dict_item description_item( out_stream(), plugin_dict.indent(), "description", descrip );
+  json_dict_item description_item( out_stream(), plugin_dict.indent(), "description", escape_json(descrip), false );
 
   std::string proc_class = "-- Not Set --";
   if ( fact->get_attribute( kwiver::vital::plugin_factory::CONCRETE_TYPE, proc_class ) )
   {
     proc_class = kwiver::vital::demangle( proc_class );
   }
-  json_dict_item class_item( out_stream(), plugin_dict.indent(), "class_type", proc_class );
+  json_dict_item class_item( out_stream(), plugin_dict.indent(), "class_type", proc_class, false );
 
   // Start the doc page for the process.
   sprokit::process_factory* pf = dynamic_cast< sprokit::process_factory* > ( fact.get() );
@@ -502,7 +541,7 @@ explore( const kwiver::vital::plugin_factory_handle_t fact )
   {
     std::string const properties_str = join( properties, ", " );
 
-    json_dict_key property_key_element( out_stream(), plugin_dict.indent(), "properties" );
+    json_dict_key property_key_element( out_stream(), plugin_dict.indent(), "properties", false );
     json_array property_array_element ( out_stream(), property_key_element.indent() );
     json_array_items<sprokit::process::properties_t> properties_items( out_stream(), property_array_element.indent(), properties );
   }
@@ -511,9 +550,10 @@ explore( const kwiver::vital::plugin_factory_handle_t fact )
   kwiver::vital::config_block_keys_t const keys = proc->available_config();
   if ( ! keys.empty() )
   {
-    json_dict_key configuration_key_element( out_stream(), plugin_dict.indent(), "configuration" );
+    json_dict_key configuration_key_element( out_stream(), plugin_dict.indent(), "configuration", false );
     json_array configuration_array_element ( out_stream(), configuration_key_element.indent() );
 
+    bool first_element = true;
     for( kwiver::vital::config_block_key_t const & key : keys )
     {
       if ( key.substr( 0, hidden_prefix.size() ) == hidden_prefix )
@@ -527,14 +567,15 @@ explore( const kwiver::vital::plugin_factory_handle_t fact )
       kwiver::vital::config_block_description_t const  conf_desc = info->description;
       bool const& tunable = info->tunable;
 
-      json_dict config_dict( out_stream(), configuration_array_element.indent() );
+      json_dict config_dict( out_stream(), configuration_array_element.indent(), first_element );
       json_dict_item config_key_item( out_stream(), config_dict.indent(), "key", key );
       if (! def.empty() )
       {
-        json_dict_item config_def_item( out_stream(), config_dict.indent(), "default", def );
+        json_dict_item config_def_item( out_stream(), config_dict.indent(), "default", def, false );
       }
-      json_dict_item config_tunable_item( out_stream(), config_dict.indent(), "tunable", tunable ? "true" : "false" );
-      json_dict_item config_desc_item( out_stream(), config_dict.indent(), "description", conf_desc );
+      json_dict_item config_tunable_item( out_stream(), config_dict.indent(), "tunable", tunable ? "true" : "false", false );
+      json_dict_item config_desc_item( out_stream(), config_dict.indent(), "description", escape_json(conf_desc), false );
+      first_element = false;
     }
   }
 
@@ -542,9 +583,10 @@ explore( const kwiver::vital::plugin_factory_handle_t fact )
   sprokit::process::ports_t const iports = proc->input_ports();
   if ( ! iports.empty() )
   {
-    json_dict_key iport_key_element( out_stream(), plugin_dict.indent(), "input_ports" );
+    json_dict_key iport_key_element( out_stream(), plugin_dict.indent(), "input_ports", false );
     json_array iport_array_element ( out_stream(), iport_key_element.indent() );
 
+    bool first_element = true;
     for( sprokit::process::port_t const & port : iports )
     {
       if ( port.substr( 0, hidden_prefix.size() ) == hidden_prefix )
@@ -559,12 +601,13 @@ explore( const kwiver::vital::plugin_factory_handle_t fact )
       sprokit::process::port_flags_t const& flags = info->flags;
       sprokit::process::port_description_t const port_desc =  info->description;
 
-      json_dict iport_dict( out_stream(), iport_array_element.indent() );
+      json_dict iport_dict( out_stream(), iport_array_element.indent(), first_element );
       json_dict_item iport_name_item( out_stream(), iport_dict.indent(), "name", port );
-      json_dict_item iport_type_item( out_stream(), iport_dict.indent(), "type", type );
-      json_dict_key iport_flags_key( out_stream(), iport_dict.indent(), "flags" );
+      json_dict_item iport_type_item( out_stream(), iport_dict.indent(), "type", type, false );
+      json_dict_key iport_flags_key( out_stream(), iport_dict.indent(), "flags", false );
       json_array iport_flags_array( out_stream(), iport_flags_key.indent() );
       json_array_items<sprokit::process::port_flags_t> iport_flags_array_items( out_stream(), iport_flags_array.indent(), flags );
+      first_element = false;
     }   // end foreach
   }
 
@@ -572,9 +615,10 @@ explore( const kwiver::vital::plugin_factory_handle_t fact )
   sprokit::process::ports_t const oports = proc->output_ports();
   if ( ! oports.empty() )
   {
-    json_dict_key oport_key_element( out_stream(), plugin_dict.indent(), "output_ports" );
+    json_dict_key oport_key_element( out_stream(), plugin_dict.indent(), "output_ports", false );
     json_array oport_array_element ( out_stream(), oport_key_element.indent() );
 
+    bool first_element = true;
     for( sprokit::process::port_t const & port : oports )
     {
       if ( port.substr( 0, hidden_prefix.size() ) == hidden_prefix )
@@ -589,12 +633,13 @@ explore( const kwiver::vital::plugin_factory_handle_t fact )
       sprokit::process::port_flags_t const& flags = info->flags;
       sprokit::process::port_description_t const port_desc =  info->description;
 
-      json_dict oport_dict( out_stream(), oport_array_element.indent() );
+      json_dict oport_dict( out_stream(), oport_array_element.indent(), first_element );
       json_dict_item oport_name_item( out_stream(), oport_dict.indent(), "name", port );
-      json_dict_item oport_type_item( out_stream(), oport_dict.indent(), "type", type );
-      json_dict_key oport_flags_key( out_stream(), oport_dict.indent(), "flags" );
+      json_dict_item oport_type_item( out_stream(), oport_dict.indent(), "type", type, false );
+      json_dict_key oport_flags_key( out_stream(), oport_dict.indent(), "flags", false );
       json_array oport_flags_array( out_stream(), oport_flags_key.indent() );
       json_array_items<sprokit::process::port_flags_t> oport_flags_array_items( out_stream(), oport_flags_array.indent(), flags );
+      first_element = false;
     }   // end foreach
   }
 } // process_explorer_rst::explore
