@@ -101,13 +101,13 @@ camera_rpc
   // in a few interations.
   for ( int i = 0; i < 10; ++i )
   {
-    matrix_2x2d J;
+    matrix_2x3d J;
     vector_2d pt;
 
     this->jacobian( rslt, J, pt );
 
-    vector_2d step = J.colPivHouseholderQr().solve( norm_pt - pt );
-    rslt.head( 2 ) += step;
+    vector_3d step = J.colPivHouseholderQr().solve( norm_pt - pt );
+    rslt += step;
     if ( step.cwiseAbs().maxCoeff() < 1.e-16 )
     {
       break;
@@ -157,6 +157,7 @@ simple_camera_rpc
 {
   std::vector<int> dx_ind = { 1, 7, 4, 5, 14 ,17 ,10, 11, 12, 13 };
   std::vector<int> dy_ind = { 2, 4, 8, 6, 12, 10, 18, 14, 15, 16 };
+  std::vector<int> dz_ind = { 3, 5, 6, 9, 13, 16 ,10, 17, 18, 19 };
   for ( int i = 0; i < 10; ++i )
   {
     double pwr = 1.0;
@@ -181,22 +182,36 @@ simple_camera_rpc
     }
     dy_coeffs_.block<4, 1>( 0, i ) =
       pwr * rpc_coeffs().block<4, 1>( 0, dy_ind[i] );
+    pwr = 1.0;
+    if ( i == 3 || i == 4 || i == 5 )
+    {
+      pwr = 2.;
+    }
+    else if ( i == 9 )
+    {
+      pwr = 3.;
+    }
+    dz_coeffs_.block<4, 1>( 0, i ) =
+      pwr * rpc_coeffs().block<4, 1>( 0, dz_ind[i] );
   }
 }
 
 void
 simple_camera_rpc
-::jacobian( const vector_3d& pt, matrix_2x2d& J, vector_2d& norm_pt ) const
+::jacobian( const vector_3d& pt, matrix_2x3d& J, vector_2d& norm_pt ) const
 {
   Eigen::Matrix<double, 20, 1> pv = this->power_vector( pt );
   vector_4d ply = this->rpc_coeffs() * pv;
   vector_4d dx_ply = this->dx_coeffs_ * pv.head(10);
   vector_4d dy_ply = this->dy_coeffs_ * pv.head(10);
+  vector_4d dz_ply = this->dz_coeffs_ * pv.head(10);
 
   J( 0, 0 ) = ( ply[1] * dx_ply[0] - ply[0] * dx_ply[1] ) / ( ply[1] * ply[1] );
   J( 0, 1 ) = ( ply[1] * dy_ply[0] - ply[0] * dy_ply[1] ) / ( ply[1] * ply[1] );
+  J( 0, 2 ) = ( ply[1] * dz_ply[0] - ply[0] * dz_ply[1] ) / ( ply[1] * ply[1] );
   J( 1, 0 ) = ( ply[3] * dx_ply[2] - ply[2] * dx_ply[3] ) / ( ply[3] * ply[3] );
   J( 1, 1 ) = ( ply[3] * dy_ply[2] - ply[2] * dy_ply[3] ) / ( ply[3] * ply[3] );
+  J( 1, 2 ) = ( ply[3] * dz_ply[2] - ply[2] * dz_ply[3] ) / ( ply[3] * ply[3] );
 
   norm_pt << ply[0] / ply[1], ply[2] / ply[3];
 }
