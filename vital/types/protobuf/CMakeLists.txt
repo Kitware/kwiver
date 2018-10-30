@@ -16,8 +16,9 @@ set( proto_files
   polygon.proto
   string.proto
   timestamp.proto
-  track_state.proto
   track.proto
+  track_state.proto
+  track_set.proto
   object_track_state.proto
   )
 
