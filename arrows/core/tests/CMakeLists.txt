@@ -7,6 +7,7 @@ set( test_libraries    kwiver_algo_core vital vital_vpm )
 ##############################
 # Algorithms core plugin tests
 ##############################
+kwiver_discover_gtests(core compute_mesh_depth_map    LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core detected_object_io        LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core dynamic_configuration     LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core epipolar_geometry         LIBRARIES ${test_libraries})

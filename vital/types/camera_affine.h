@@ -76,8 +76,9 @@ public:
   /// Get the projection matrix
   virtual matrix_3x4d get_matrix() const = 0;
 
-  // Get the distance from the origin along the ray
+  // Get/Set the distance from the origin along the ray
   virtual double get_viewing_distance() const = 0;
+  virtual void set_viewing_distance(double dist) = 0;
 
   /// Project a 3D point into a 2D image point
   virtual vector_2d project( const vector_3d& pt ) const;
