@@ -29,17 +29,17 @@
  */
 
 #include "track.h"
+
 #include <arrows/serialize/json/load_save.h>
-#include <vital/types/track.h>
-#include <vital/types/object_track_set.h>
+#include <arrows/serialize/json/load_save_track.h>
+
 #include <vital/internal/cereal/cereal.hpp>
 #include <vital/internal/cereal/types/vector.hpp>
 #include <vital/internal/cereal/archives/json.hpp>
 #include <vital/internal/cereal/types/utility.hpp>
-#include <vital/internal/cereal/types/polymorphic.hpp>
+
 #include <sstream>
 #include <iostream>
-
 
 namespace kwiver {
 namespace arrows {
@@ -79,10 +79,10 @@ struct track_item
     }
     archive(cereal::make_nvp( "trk", trk) );
   }
-  
+
 
   template<class Archive>
-  void load ( Archive& archive ) 
+  void load ( Archive& archive )
   {
     size_t track_size;
     kwiver::vital::track_id_t track_id;
@@ -94,7 +94,7 @@ struct track_item
     for (auto trk_state : trk)
     {
       bool trk_inserted = trk_sptr->insert(trk_state);
-      if ( !trk_inserted ) 
+      if ( !trk_inserted )
       {
         LOG_ERROR( kwiver::vital::get_logger( "data_serializer" ),
                  "Failed to insert track state in track" );
@@ -119,7 +119,7 @@ track::
 serialize( const vital::any& element )
 {
   kwiver::vital::track_sptr trk_sptr =
-    kwiver::vital::any_cast< kwiver::vital::track_sptr > ( element ); 
+    kwiver::vital::any_cast< kwiver::vital::track_sptr > ( element );
   kwiver::arrows::serialize::json::track_item trk_item(trk_sptr);
   std::stringstream msg;
   msg << "track "; // add type tag

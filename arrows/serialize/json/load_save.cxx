@@ -29,6 +29,7 @@
  */
 
 #include <arrows/serialize/json/load_save.h>
+#include <arrows/serialize/json/load_save_track.h>
 
 #include <vital/exceptions.h>
 #include <vital/types/detected_object.h>
@@ -49,8 +50,10 @@
 #include <vital/internal/cereal/types/vector.hpp>
 #include <vital/internal/cereal/types/map.hpp>
 #include <vital/internal/cereal/types/utility.hpp>
+
 #include <zlib.h>
 #include <iostream>
+
 
 namespace cereal {
 
@@ -223,7 +226,7 @@ void load( ::cereal::JSONInputArchive& archive, kwiver::vital::detected_object_t
 
 void save( ::cereal::JSONOutputArchive& archive, const kwiver::vital::image_container_sptr ctr )
 {
-  
+
   kwiver::vital::image vital_image = ctr->get_image();
 
   // Compress raw pixel data
@@ -264,7 +267,7 @@ void save( ::cereal::JSONOutputArchive& archive, const kwiver::vital::image_cont
 
   // Get pixel trait
   auto pixel_trait = vital_image.pixel_traits();
-    
+
   archive( ::cereal::make_nvp( "img_width",  vital_image.width() ),
            ::cereal::make_nvp( "img_height", vital_image.height() ),
            ::cereal::make_nvp( "img_depth",  vital_image.depth() ),
@@ -279,13 +282,13 @@ void save( ::cereal::JSONOutputArchive& archive, const kwiver::vital::image_cont
            ::cereal::make_nvp( "img_size", vital_image.size() ), // uncompressed size
            ::cereal::make_nvp( "img_data", image_data ) // compressed image
     );
-    
+
 }
 
 // ----------------------------------------------------------------------------
 void load( ::cereal::JSONInputArchive& archive, kwiver::vital::image_container_sptr& ctr )
 {
-  
+
   // deserialize image
   std::size_t img_width, img_height, img_depth, img_size;
   std::ptrdiff_t img_w_step, img_h_step, img_d_step;
@@ -358,7 +361,7 @@ void load( ::cereal::JSONInputArchive& archive, kwiver::vital::image_container_s
 
   // return newly constructed image container
   ctr = std::make_shared< kwiver::vital::simple_image_container >( vital_image );
-  
+
 }
 
 // ============================================================================
@@ -463,7 +466,7 @@ void load( ::cereal::JSONInputArchive& archive, kwiver::vital::polygon& poly )
 void save( ::cereal::JSONOutputArchive& archive, const kwiver::vital::track_state& trk_state )
 {
   kwiver::vital::frame_id_t frame = trk_state.frame();
-  archive(  ::cereal::make_nvp( "track_frame", frame ) );  
+  archive(  ::cereal::make_nvp( "track_frame", frame ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -476,20 +479,20 @@ void load( ::cereal::JSONInputArchive& archive, kwiver::vital::track_state& trk_
 
 // ============================================================================
 
-void save( ::cereal::JSONOutputArchive& archive, 
+void save( ::cereal::JSONOutputArchive& archive,
           const kwiver::vital::object_track_state& obj_trk_state )
 {
   archive( ::cereal::base_class< kwiver::vital::track_state >( std::addressof(obj_trk_state) ) );
   archive( ::cereal::make_nvp( "track_time", obj_trk_state.time() ) );
-  save( archive, *obj_trk_state.detection );  
+  save( archive, *obj_trk_state.detection );
 }
 
 // ----------------------------------------------------------------------------
-void load( ::cereal::JSONInputArchive& archive, 
+void load( ::cereal::JSONInputArchive& archive,
             kwiver::vital::object_track_state& obj_trk_state )
 {
   int64_t track_time;
-  auto detection = std::make_shared< kwiver::vital::detected_object >( 
+  auto detection = std::make_shared< kwiver::vital::detected_object >(
                       kwiver::vital::bounding_box_d{0, 0, 0, 0});
   archive( ::cereal::base_class< kwiver::vital::track_state >( std::addressof(obj_trk_state) ) );
   archive( CEREAL_NVP( track_time ) );

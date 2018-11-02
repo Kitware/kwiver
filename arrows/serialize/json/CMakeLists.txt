@@ -9,13 +9,17 @@ set( headers_public
   detected_object_set.h
   detected_object_type.h
   image.h
-  load_save.h
-  #metadata.h
+  metadata.h
   string.h
   timestamp.h
   track_state.h
   object_track_state.h
   track.h
+  )
+
+set( private_headers
+  load_save.h
+  load_save_track.h
   )
 
 set( sources
@@ -25,8 +29,8 @@ set( sources
   detected_object_type.cxx
   image.cxx
   load_save.cxx
-  #load_save_metadata.cxx
-  #metadata.cxx
+  load_save_metadata.cxx
+  metadata.cxx
   string.cxx
   timestamp.cxx
   track_state.cxx

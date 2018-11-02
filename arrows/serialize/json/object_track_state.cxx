@@ -29,7 +29,9 @@
  */
 
 #include "object_track_state.h"
-#include "load_save.h"
+
+#include <arrows/serialize/json/load_save.h>
+#include <arrows/serialize/json/load_save_track.h>
 
 #include <vital/types/object_track_set.h>
 #include <vital/internal/cereal/cereal.hpp>

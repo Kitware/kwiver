@@ -29,6 +29,7 @@
  */
 
 #include <arrows/serialize/json/load_save.h>
+#include <arrows/serialize/json/load_save_track.h>
 
 #include <gtest/gtest.h>
 
@@ -183,7 +184,6 @@ TEST( load_save, geo_polygon )
 }
 
 // ----------------------------------------------------------------------------
-/*
 kwiver::vital::metadata create_meta_collection()
 {
   static kwiver::vital::metadata_traits traits;
@@ -320,7 +320,7 @@ TEST( load_save, metadata_vector )
     compare_meta_collection( *meta_vect[i], *obj_dser[i] );
   }
 }
-*/
+
 // ----------------------------------------------------------------------------
 TEST( load_save, track_state)
 {
@@ -376,7 +376,7 @@ TEST( load_save, object_track_state)
   catch(std::exception const& e) {
     std::cout << "exception caught: " << e.what() << std::endl;
   }
-  
+
 #if DEBUG
   std::cout << "object track state as json - " << msg.str() << std::endl;
 #endif
@@ -415,4 +415,3 @@ TEST( load_save, object_track_state)
   EXPECT_EQ(obj_trk_state.frame(), obj_dser.frame());
 
 }
-

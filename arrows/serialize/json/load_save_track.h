@@ -28,72 +28,47 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "track_state.h"
+/**
+ * \file: Contains the private internal implementation interface for
+ * serializing tracks
+ */
 
-#include <arrows/serialize/json/load_save.h>
-#include <arrows/serialize/json/load_save_track.h>
+#ifndef SERIAL_JSON_LOAD_SAVE_TRACK_H
+#define SERIAL_JSON_LOAD_SAVE_TRACK_H
 
-#include <vital/internal/cereal/cereal.hpp>
-#include <vital/internal/cereal/archives/json.hpp>
+#include <vital/types/track.h>
+#include <vital/types/object_track_set.h>
 
-#include <sstream>
+#include <vital/internal/cereal/types/polymorphic.hpp>
+
+CEREAL_REGISTER_TYPE(kwiver::vital::track_state);
+CEREAL_REGISTER_TYPE(kwiver::vital::object_track_state);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(kwiver::vital::track_state,
+                                     kwiver::vital::object_track_state);
 
 namespace kwiver {
-namespace arrows {
-namespace serialize {
-namespace json {
-
-// ----------------------------------------------------------------------------
-track_state::
-track_state()
-{ }
+namespace vital {
+  class track_state;
+  class object_track_state;
+} } // end namespace
 
 
-track_state::
-~track_state()
-{ }
+namespace cereal {
+  class JSONOutputArchive;
+  class JSONInputArchive;
 
-// ----------------------------------------------------------------------------
-std::shared_ptr< std::string >
-track_state::
-serialize( const vital::any& element )
-{
-  kwiver::vital::track_state trk_state =
-    kwiver::vital::any_cast< kwiver::vital::track_state > ( element );
+KWIVER_SERIALIZE_JSON_EXPORT
+void save( cereal::JSONOutputArchive& archive, const kwiver::vital::track_state& trk_state );
+KWIVER_SERIALIZE_JSON_EXPORT
+void load( cereal::JSONInputArchive& archive, kwiver::vital::track_state& trk_state );
 
-  std::stringstream msg;
-  msg << "track_state "; // add type tag
-  {
-    cereal::JSONOutputArchive ar( msg );
-    save( ar, trk_state );
-  }
+KWIVER_SERIALIZE_JSON_EXPORT
+void save( cereal::JSONOutputArchive& archive,
+            const kwiver::vital::object_track_state& obj_trk_state );
+KWIVER_SERIALIZE_JSON_EXPORT
+void load( cereal::JSONInputArchive& archive,
+            kwiver::vital::object_track_state& obj_trk_state );
 
-  return std::make_shared< std::string > ( msg.str() );
 }
 
-
-// ----------------------------------------------------------------------------
-vital::any track_state::
-deserialize( const std::string& message )
-{
-  std::stringstream msg(message);
-  kwiver::vital::track_state trk_state{ 0 };
-  std::string tag;
-  msg >> tag;
-
-  if (tag != "track_state" )
-  {
-    LOG_ERROR( logger(), "Invalid data type tag received. Expected \"track_state\", received \""
-               << tag << "\". Message dropped, returning default object." );
-  }
-  else
-  {
-    cereal::JSONInputArchive ar( msg );
-    load( ar, trk_state );
-  }
-
-  return kwiver::vital::any( trk_state );
-}
-
-
-} } } }       // end namespace kwiver
+#endif // SERIAL_JSON_LOAD_SAVE_TRACK_H
