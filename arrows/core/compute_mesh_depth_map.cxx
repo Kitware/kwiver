@@ -89,7 +89,7 @@ vital::image_container_sptr compute_mesh_depth_map(vital::mesh_sptr mesh, vital:
   {
     for (int i = 0; i < width; ++i)
     {
-      z_buffer(i, j) = std::numeric_limits<double>::max();
+      z_buffer(i, j) = std::numeric_limits<double>::infinity();
     }
   }
 
@@ -126,7 +126,7 @@ vital::image_container_sptr compute_mesh_depth_map(vital::mesh_sptr mesh, vital:
         //  - if the pixel center is inside the triangle
         //  - if the pixel is not alread assigned and if the pixel intersects the triangle
         bool pixel_belongs_to_triangle = is_point_inside_triangle(p, a_uv, b_uv, c_uv);
-        if (! pixel_belongs_to_triangle && std::abs(z_buffer(u, v) - std::numeric_limits<double>::max()) < 1e-5)
+        if (! pixel_belongs_to_triangle && std::isinf(z_buffer(u, v)))
         {
           // check for pixel - triangle intersection, by sub-sampling points in the pixel
           for (float dy = -0.5; dy <= 0.5; dy += 0.5)

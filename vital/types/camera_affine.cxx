@@ -1,3 +1,33 @@
+/*ckwg +29
+ * Copyright 2018 by Kitware, SAS.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ *  * Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
+ *    to endorse or promote products derived from this software without specific
+ *    prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 #include "camera_affine.h"
 
 #include <Eigen/Dense>
@@ -38,21 +68,34 @@ simple_camera_affine::simple_camera_affine(const vector_3d &ray, const vector_3d
   vector_3d uvec = up.normalized();
   vector_3d rvec = ray.normalized();
   matrix_3x3d R;
+  bool use_default_orientation = false;
 
-  // if up and ray vectors are collinear, we use default camera orientation
-  if (std::abs(uvec.dot(rvec)-1) < 1e-5)
+  // if up and ray vectors are collinear
+  if (std::abs(uvec.dot(rvec)-1) < 1e-5 || std::abs(uvec.dot(rvec)+1) < 1e-5)
   {
-    R << 1, 0, 0,
-         0, 1, 0,
-         0, 0, 1;
+    // if ray, up and z are collinear and
+    if (std::abs(rvec(2) - 1) < 1e-5)
+    { // ray is pointing in +z
+      R << 1, 0, 0,
+           0, 1, 0,
+           0, 0, 1;
+      use_default_orientation = true;
+    }
+    else if (std::abs(rvec(2) + 1) < 1e-5)
+    { // ray is pointing in -z
+      R << 1,  0,  0,
+           0, -1,  0,
+           0,  0, -1;
+      use_default_orientation = true;
+    }
+    // otherwise keep ray and set up vector to z
+    else
+    {
+      uvec = {0.0, 0.0, 1.0};
+    }
   }
-  else if (std::abs(uvec.dot(rvec)+1) < 1e-5)
-  {
-    R << 1, 0, 0,
-         0, 1, 0,
-         0, 0, -1;
-  }
-  else
+
+  if (! use_default_orientation)
   {
     vector_3d x = -uvec.cross(rvec);
     vector_3d y = rvec.cross(x);
