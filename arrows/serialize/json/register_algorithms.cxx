@@ -43,6 +43,9 @@
 #include "timestamp.h"
 #include "image.h"
 #include "string.h"
+#include "track_state.h"
+#include "object_track_state.h"
+#include "track.h"
 
 namespace kwiver {
 namespace arrows {
@@ -110,6 +113,9 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   register_algorithm< kwiver::arrows::serialize::json::image >( vpm );
   register_algorithm< kwiver::arrows::serialize::json::image >( vpm, "kwiver:mask" );
   register_algorithm< kwiver::arrows::serialize::json::string >( vpm );
+  register_algorithm< kwiver::arrows::serialize::json::track_state >( vpm );
+  register_algorithm< kwiver::arrows::serialize::json::object_track_state >( vpm );
+  register_algorithm< kwiver::arrows::serialize::json::track >( vpm );
   vpm.mark_module_as_loaded( module_name );
 }
 

@@ -4,30 +4,44 @@ find_package(ZLIB MODULE REQUIRED)
 include_directories( ${ZLIB_INCLUDE_DIRS} )
 
 set( headers_public
-
   bounding_box.h
   detected_object.h
   detected_object_set.h
   detected_object_type.h
   image.h
   load_save.h
-  metadata.h
+  #metadata.h
   string.h
   timestamp.h
+  track_state.h
+  object_track_state.h
+  track.h
   )
 
 set( sources
-
   bounding_box.cxx
   detected_object.cxx
   detected_object_set.cxx
   detected_object_type.cxx
   image.cxx
   load_save.cxx
-  load_save_metadata.cxx
-  metadata.cxx
+  #load_save_metadata.cxx
+  #metadata.cxx
   string.cxx
   timestamp.cxx
+  track_state.cxx
+  object_track_state.cxx
+  track.cxx
+  )
+
+kwiver_install_headers(
+  SUBDIR     arrows/serialize/json
+  ${headers_public}
+  )
+
+kwiver_install_headers(
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_serialize_json_export.h
+  NOPATH   SUBDIR     arrows/serialize/json
   )
 
 kwiver_add_library( kwiver_serialize_json
@@ -42,15 +56,6 @@ target_link_libraries( kwiver_serialize_json
                        ${ZLIB_LIBRARIES}
   )
 
-kwiver_install_headers(
-  SUBDIR     arrows/serialize/json
-  ${headers_public}
-  )
-
-kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_serialize_json_export.h
-  NOPATH   SUBDIR     arrows/serialize/json
-  )
 
 algorithms_create_plugin( kwiver_serialize_json
   register_algorithms.cxx

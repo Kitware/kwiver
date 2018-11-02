@@ -38,6 +38,8 @@
 #include <vital/types/geo_polygon.h>
 #include <vital/types/polygon.h>
 #include <vital/types/timestamp.h>
+#include <vital/types/object_track_set.h>
+#include <vital/vital_types.h>
 #include <vital/util/hex_dump.h>
 
 #include <vital/logger/logger.h>
@@ -47,8 +49,8 @@
 #include <vital/internal/cereal/types/vector.hpp>
 #include <vital/internal/cereal/types/map.hpp>
 #include <vital/internal/cereal/types/utility.hpp>
-
 #include <zlib.h>
+#include <iostream>
 
 namespace cereal {
 
@@ -218,8 +220,10 @@ void load( ::cereal::JSONInputArchive& archive, kwiver::vital::detected_object_t
  */
 
 // ============================================================================
+
 void save( ::cereal::JSONOutputArchive& archive, const kwiver::vital::image_container_sptr ctr )
 {
+  
   kwiver::vital::image vital_image = ctr->get_image();
 
   // Compress raw pixel data
@@ -260,42 +264,44 @@ void save( ::cereal::JSONOutputArchive& archive, const kwiver::vital::image_cont
 
   // Get pixel trait
   auto pixel_trait = vital_image.pixel_traits();
+    
+  archive( ::cereal::make_nvp( "img_width",  vital_image.width() ),
+           ::cereal::make_nvp( "img_height", vital_image.height() ),
+           ::cereal::make_nvp( "img_depth",  vital_image.depth() ),
 
-  archive( ::cereal::make_nvp( "width",  vital_image.width() ),
-           ::cereal::make_nvp( "height", vital_image.height() ),
-           ::cereal::make_nvp( "depth",  vital_image.depth() ),
+           ::cereal::make_nvp( "img_w_step", vital_image.w_step() ),
+           ::cereal::make_nvp( "img_h_step", vital_image.h_step() ),
+           ::cereal::make_nvp( "img_d_step", vital_image.d_step() ),
 
-           ::cereal::make_nvp( "w_step", vital_image.w_step() ),
-           ::cereal::make_nvp( "h_step", vital_image.h_step() ),
-           ::cereal::make_nvp( "d_step", vital_image.d_step() ),
-
-           ::cereal::make_nvp( "trait_type", pixel_trait.type ),
-           ::cereal::make_nvp( "trait_num_bytes", pixel_trait.num_bytes ),
+           ::cereal::make_nvp( "img_trait_type", static_cast<int> (pixel_trait.type) ),
+           ::cereal::make_nvp( "img_trait_num_bytes", pixel_trait.num_bytes ),
 
            ::cereal::make_nvp( "img_size", vital_image.size() ), // uncompressed size
            ::cereal::make_nvp( "img_data", image_data ) // compressed image
     );
+    
 }
 
 // ----------------------------------------------------------------------------
 void load( ::cereal::JSONInputArchive& archive, kwiver::vital::image_container_sptr& ctr )
 {
+  
   // deserialize image
-  std::size_t width, height, depth, img_size;
-  std::ptrdiff_t w_step, h_step, d_step;
+  std::size_t img_width, img_height, img_depth, img_size;
+  std::ptrdiff_t img_w_step, img_h_step, img_d_step;
   std::vector<uint8_t> img_data;
-  int trait_type, trait_num_bytes;
+  int img_trait_type, img_trait_num_bytes;
 
-  archive( CEREAL_NVP( width ),
-           CEREAL_NVP( height ),
-           CEREAL_NVP( depth ),
+  archive( CEREAL_NVP( img_width ),
+           CEREAL_NVP( img_height ),
+           CEREAL_NVP( img_depth ),
 
-           CEREAL_NVP( w_step ),
-           CEREAL_NVP( h_step ),
-           CEREAL_NVP( d_step ),
+           CEREAL_NVP( img_w_step ),
+           CEREAL_NVP( img_h_step ),
+           CEREAL_NVP( img_d_step ),
 
-           CEREAL_NVP( trait_type ),
-           CEREAL_NVP( trait_num_bytes ),
+           CEREAL_NVP( img_trait_type ),
+           CEREAL_NVP( img_trait_num_bytes ),
 
            CEREAL_NVP( img_size ), // uncompressed size
            CEREAL_NVP( img_data )  // compressed image
@@ -305,8 +311,8 @@ void load( ::cereal::JSONInputArchive& archive, kwiver::vital::image_container_s
   auto img_mem = std::make_shared< kwiver::vital::image_memory >( img_size );
 
   const kwiver::vital::image_pixel_traits pix_trait(
-    static_cast<kwiver::vital::image_pixel_traits::pixel_type>(trait_type ),
-    trait_num_bytes );
+    static_cast<kwiver::vital::image_pixel_traits::pixel_type>(img_trait_type ),
+    img_trait_num_bytes );
 
   // decompress the data
   Bytef* out_buf = reinterpret_cast< Bytef* >(img_mem->data());
@@ -346,15 +352,17 @@ void load( ::cereal::JSONInputArchive& archive, kwiver::vital::image_container_s
   }
 
   auto vital_image = kwiver::vital::image( img_mem, img_mem->data(),
-                                           width, height, depth,
-                                           w_step, h_step, d_step,
+                                           img_width, img_height, img_depth,
+                                           img_w_step, img_h_step, img_d_step,
                                            pix_trait );
 
   // return newly constructed image container
   ctr = std::make_shared< kwiver::vital::simple_image_container >( vital_image );
+  
 }
 
 // ============================================================================
+
 void save( ::cereal::JSONOutputArchive&       archive,
            const kwiver::vital::timestamp&  tstamp )
 {
@@ -449,6 +457,45 @@ void load( ::cereal::JSONInputArchive& archive, kwiver::vital::polygon& poly )
   {
     poly.push_back( pt );
   }
+}
+
+// ============================================================================
+void save( ::cereal::JSONOutputArchive& archive, const kwiver::vital::track_state& trk_state )
+{
+  kwiver::vital::frame_id_t frame = trk_state.frame();
+  archive(  ::cereal::make_nvp( "track_frame", frame ) );  
+}
+
+// ----------------------------------------------------------------------------
+void load( ::cereal::JSONInputArchive& archive, kwiver::vital::track_state& trk_state )
+{
+  int64_t track_frame;
+  archive( CEREAL_NVP( track_frame ) );
+  trk_state.set_frame( track_frame );
+}
+
+// ============================================================================
+
+void save( ::cereal::JSONOutputArchive& archive, 
+          const kwiver::vital::object_track_state& obj_trk_state )
+{
+  archive( ::cereal::base_class< kwiver::vital::track_state >( std::addressof(obj_trk_state) ) );
+  archive( ::cereal::make_nvp( "track_time", obj_trk_state.time() ) );
+  save( archive, *obj_trk_state.detection );  
+}
+
+// ----------------------------------------------------------------------------
+void load( ::cereal::JSONInputArchive& archive, 
+            kwiver::vital::object_track_state& obj_trk_state )
+{
+  int64_t track_time;
+  auto detection = std::make_shared< kwiver::vital::detected_object >( 
+                      kwiver::vital::bounding_box_d{0, 0, 0, 0});
+  archive( ::cereal::base_class< kwiver::vital::track_state >( std::addressof(obj_trk_state) ) );
+  archive( CEREAL_NVP( track_time ) );
+  obj_trk_state.set_time(track_time);
+  load(archive, *detection);
+  obj_trk_state.detection = detection;
 }
 
 } // end namespace
