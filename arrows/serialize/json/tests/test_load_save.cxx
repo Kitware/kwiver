@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../load_save.h"
+#include <arrows/serialize/json/load_save.h>
 
 #include <gtest/gtest.h>
 
@@ -45,7 +45,11 @@
 #include <vital/types/polygon.h>
 #include <vital/types/timestamp.h>
 #include <vital/types/geodesy.h>
+#include <vital/types/track.h>
+#include <vital/types/object_track_set.h>
+#include <vital/vital_types.h>
 
+#include <arrows/serialize/json/track.h>
 #include <vital/internal/cereal/cereal.hpp>
 #include <vital/internal/cereal/archives/json.hpp>
 
@@ -179,6 +183,7 @@ TEST( load_save, geo_polygon )
 }
 
 // ----------------------------------------------------------------------------
+/*
 kwiver::vital::metadata create_meta_collection()
 {
   static kwiver::vital::metadata_traits traits;
@@ -294,7 +299,7 @@ TEST( load_save, metadata_vector )
     cereal::save( ar, meta_vect);
   }
   catch(std::exception const& e) {
-    std::cout << "Exception caught: " << e.what() << std::endl;
+    std::cout << "exception caught: " << e.what() << std::endl;
   }
 
 #if DEBUG
@@ -315,3 +320,99 @@ TEST( load_save, metadata_vector )
     compare_meta_collection( *meta_vect[i], *obj_dser[i] );
   }
 }
+*/
+// ----------------------------------------------------------------------------
+TEST( load_save, track_state)
+{
+  kwiver::vital::track_state trk_state{1};
+  std::stringstream msg;
+
+  try
+  {
+    cereal::JSONOutputArchive ar( msg );
+    cereal::save( ar, trk_state);
+  }
+  catch(std::exception const& e) {
+    std::cout << "exception caught: " << e.what() << std::endl;
+  }
+
+#if DEBUG
+  std::cout << "track state as json - " << msg.str() << std::endl;
+#endif
+
+  kwiver::vital::track_state obj_dser;
+  {
+    cereal::JSONInputArchive ar( msg );
+    cereal::load( ar, obj_dser );
+  }
+
+
+  EXPECT_EQ( trk_state.frame(), obj_dser.frame() );
+}
+// ----------------------------------------------------------------------------
+TEST( load_save, object_track_state)
+{
+  auto dot = std::make_shared<kwiver::vital::detected_object_type>();
+
+  dot->set_score( "first", 1 );
+  dot->set_score( "second", 10 );
+  dot->set_score( "third", 101 );
+  dot->set_score( "last", 121 );
+
+  auto obj = std::make_shared< kwiver::vital::detected_object>(
+    kwiver::vital::bounding_box_d{ 1, 2, 3, 4 }, 3.14159, dot );
+  obj->set_detector_name( "test_detector" );
+  obj->set_index( 1234 );
+
+
+  kwiver::vital::object_track_state obj_trk_state(1, 1, obj);
+  std::stringstream msg;
+
+  try
+  {
+    cereal::JSONOutputArchive ar( msg );
+    cereal::save( ar, obj_trk_state);
+  }
+  catch(std::exception const& e) {
+    std::cout << "exception caught: " << e.what() << std::endl;
+  }
+  
+#if DEBUG
+  std::cout << "object track state as json - " << msg.str() << std::endl;
+#endif
+
+  kwiver::vital::object_track_state obj_dser;
+  {
+    cereal::JSONInputArchive ar( msg );
+    cereal::load( ar, obj_dser );
+  }
+
+
+  auto do_sptr = obj_trk_state.detection;
+  auto do_sptr_dser = obj_dser.detection;
+
+  EXPECT_EQ( do_sptr->bounding_box(), do_sptr_dser->bounding_box() );
+  EXPECT_EQ( do_sptr->index(), do_sptr_dser->index() );
+  EXPECT_EQ( do_sptr->confidence(), do_sptr_dser->confidence() );
+  EXPECT_EQ( do_sptr->detector_name(), do_sptr_dser->detector_name() );
+
+  auto dot_sptr_dser = do_sptr_dser->type();
+
+  if ( dot )
+  {
+    EXPECT_EQ( dot->size(), dot_sptr_dser->size() );
+
+    auto it = dot->begin();
+    auto it_dser = dot_sptr_dser->begin();
+
+    for ( size_t i = 0; i < dot->size(); ++i )
+    {
+      EXPECT_EQ( *(it->first), *(it_dser->first) );
+      EXPECT_EQ( it->second, it_dser->second );
+    }
+  }
+  EXPECT_EQ(obj_trk_state.time(), obj_dser.time());
+  EXPECT_EQ(obj_trk_state.frame(), obj_dser.frame());
+
+}
+
