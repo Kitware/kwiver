@@ -9,7 +9,6 @@ set( plugin_core_headers
   close_loops_keyframe.h
   close_loops_multi_method.h
   compute_association_matrix_from_features.h
-  compute_mesh_depth_map.h
   compute_ref_homography_core.h
   convert_image_bypass.h
   create_detection_grid.h
@@ -35,6 +34,7 @@ set( plugin_core_headers
   match_tracks.h
   read_object_track_set_kw18.h
   read_track_descriptor_set_csv.h
+  render_mesh_depth_map.h
   track_features_augment_keyframes.h
   track_features_core.h
   transform.h
@@ -79,7 +79,6 @@ set( plugin_core_sources
   close_loops_keyframe.cxx
   close_loops_multi_method.cxx
   compute_association_matrix_from_features.cxx
-  compute_mesh_depth_map.cxx
   compute_ref_homography_core.cxx
   convert_image_bypass.cxx
   create_detection_grid.cxx
@@ -105,6 +104,7 @@ set( plugin_core_sources
   match_tracks.cxx
   read_object_track_set_kw18.cxx
   read_track_descriptor_set_csv.cxx
+  render_mesh_depth_map.cxx
   track_features_augment_keyframes.cxx
   track_features_core.cxx
   transform.cxx

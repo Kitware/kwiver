@@ -31,7 +31,7 @@
 
 #include <vital/plugin_loader/plugin_manager.h>
 
-#include <arrows/core/compute_mesh_depth_map.h>
+#include <arrows/core/render_mesh_depth_map.h>
 
 #include <vital/types/camera_affine.h>
 #include <vital/types/camera_perspective.h>
@@ -71,7 +71,7 @@ kwiver::vital::mesh_sptr generate_mesh()
 
 
 // ----------------------------------------------------------------------------
-TEST(compute_mesh_depth_map, perspective_camera)
+TEST(render_mesh_depth_map, perspective_camera)
 {
   // Mesh
   mesh_sptr mesh = generate_mesh();
@@ -90,7 +90,7 @@ TEST(compute_mesh_depth_map, perspective_camera)
                                                                cam_orientation.inverse(),
                                                                camera_intrinsic));
 
-  image_container_sptr depth_map = kwiver::arrows::compute_mesh_depth_map(mesh, camera);
+  image_container_sptr depth_map = kwiver::arrows::render_mesh_depth_map(mesh, camera);
 
   // Check barycenter;
   vector_3d barycenter = (A + B + C) / 3;
@@ -128,7 +128,7 @@ TEST(compute_mesh_depth_map, perspective_camera)
 
 
 // ----------------------------------------------------------------------------
-TEST(compute_mesh_depth_map, affine_camera)
+TEST(render_mesh_depth_map, affine_camera)
 {
   // Mesh
   mesh_sptr mesh = generate_mesh();
@@ -141,7 +141,7 @@ TEST(compute_mesh_depth_map, affine_camera)
                                                      {80, 80},      // scale
                                                      1000, 1000));  // image dimension
   camera->set_viewing_distance(10);
-  image_container_sptr depth_map = kwiver::arrows::compute_mesh_depth_map(mesh, camera);
+  image_container_sptr depth_map = kwiver::arrows::render_mesh_depth_map(mesh, camera);
 
   // Check barycenter;
   vector_3d barycenter = (A + B + C) / 3;

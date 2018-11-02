@@ -1,4 +1,4 @@
-#include "compute_mesh_depth_map.h"
+#include "render_mesh_depth_map.h"
 
 #include <vital/types/camera_affine.h>
 #include <vital/types/camera_perspective.h>
@@ -44,7 +44,7 @@ kwiver::vital::vector_3d barycentric_coordinates(const kwiver::vital::vector_2d&
 namespace kwiver {
 namespace arrows {
 
-vital::image_container_sptr compute_mesh_depth_map(vital::mesh_sptr mesh, vital::camera_sptr camera)
+vital::image_container_sptr render_mesh_depth_map(vital::mesh_sptr mesh, vital::camera_sptr camera)
 {
   unsigned int nb_vertices = mesh->num_verts();
   int width = static_cast<int>(camera->image_width());
