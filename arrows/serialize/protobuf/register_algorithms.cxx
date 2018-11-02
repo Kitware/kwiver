@@ -33,7 +33,7 @@
  * \brief Defaults plugin algorithm registration interface impl
  */
 
-#include <arrows/serialize/protobuf/kwiver_serialize_protobuf_export.h>
+#include <arrows/serialize/protobuf/kwiver_serialize_protobuf_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include "bounding_box.h"
@@ -94,7 +94,7 @@ register_algorithm( kwiver::vital::plugin_loader& vpm, const std::string& name =
 
 // ----------------------------------------------------------------------------
 extern "C"
-KWIVER_SERIALIZE_PROTOBUF_EXPORT
+KWIVER_SERIALIZE_PROTOBUF_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {
@@ -113,6 +113,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   register_algorithm< kwiver::arrows::serialize::protobuf::image > ( vpm, "kwiver:mask" );
   register_algorithm< kwiver::arrows::serialize::protobuf::string > ( vpm);
   register_algorithm< kwiver::arrows::serialize::protobuf::track_state > ( vpm );
+
   vpm.mark_module_as_loaded( module_name );
 }
 

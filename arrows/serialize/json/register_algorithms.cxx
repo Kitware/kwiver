@@ -33,7 +33,7 @@
  * \brief Defaults plugin algorithm registration interface impl
  */
 
-#include <arrows/core/kwiver_algo_core_plugin_export.h>
+#include <arrows/serialize/json/kwiver_serialize_json_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include "bounding_box.h"
@@ -96,7 +96,7 @@ register_algorithm( kwiver::vital::plugin_loader& vpm, const std::string& name =
 
 // ----------------------------------------------------------------------------
 extern "C"
-KWIVER_SERIALIZE_JSON_EXPORT
+KWIVER_SERIALIZE_JSON_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {
@@ -116,6 +116,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   register_algorithm< kwiver::arrows::serialize::json::track_state >( vpm );
   register_algorithm< kwiver::arrows::serialize::json::object_track_state >( vpm );
   register_algorithm< kwiver::arrows::serialize::json::track >( vpm );
+
   vpm.mark_module_as_loaded( module_name );
 }
 
