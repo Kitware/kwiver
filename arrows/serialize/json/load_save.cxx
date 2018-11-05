@@ -226,10 +226,8 @@ void load( ::cereal::JSONInputArchive& archive, kwiver::vital::detected_object_t
  */
 
 // ============================================================================
-
 void save( ::cereal::JSONOutputArchive& archive, const kwiver::vital::image_container_sptr ctr )
 {
-
   kwiver::vital::image vital_image = ctr->get_image();
 
   // Compress raw pixel data
@@ -271,16 +269,16 @@ void save( ::cereal::JSONOutputArchive& archive, const kwiver::vital::image_cont
   // Get pixel trait
   auto pixel_trait = vital_image.pixel_traits();
 
-  archive( ::cereal::make_nvp( "img_width",  vital_image.width() ),
-           ::cereal::make_nvp( "img_height", vital_image.height() ),
-           ::cereal::make_nvp( "img_depth",  vital_image.depth() ),
+  archive( ::cereal::make_nvp( "width",  vital_image.width() ),
+           ::cereal::make_nvp( "height", vital_image.height() ),
+           ::cereal::make_nvp( "depth",  vital_image.depth() ),
 
-           ::cereal::make_nvp( "img_w_step", vital_image.w_step() ),
-           ::cereal::make_nvp( "img_h_step", vital_image.h_step() ),
-           ::cereal::make_nvp( "img_d_step", vital_image.d_step() ),
+           ::cereal::make_nvp( "w_step", vital_image.w_step() ),
+           ::cereal::make_nvp( "h_step", vital_image.h_step() ),
+           ::cereal::make_nvp( "d_step", vital_image.d_step() ),
 
-           ::cereal::make_nvp( "img_trait_type", static_cast<int> (pixel_trait.type) ),
-           ::cereal::make_nvp( "img_trait_num_bytes", pixel_trait.num_bytes ),
+           ::cereal::make_nvp( "trait_type", static_cast<int> (pixel_trait.type) ),
+           ::cereal::make_nvp( "trait_num_bytes", pixel_trait.num_bytes ),
 
            ::cereal::make_nvp( "img_size", vital_image.size() ), // uncompressed size
            ::cereal::make_nvp( "img_data", image_data ) // compressed image
@@ -291,23 +289,22 @@ void save( ::cereal::JSONOutputArchive& archive, const kwiver::vital::image_cont
 // ----------------------------------------------------------------------------
 void load( ::cereal::JSONInputArchive& archive, kwiver::vital::image_container_sptr& ctr )
 {
-
   // deserialize image
-  std::size_t img_width, img_height, img_depth, img_size;
-  std::ptrdiff_t img_w_step, img_h_step, img_d_step;
+  std::size_t width, height, depth, img_size;
+  std::ptrdiff_t w_step, h_step, d_step;
   std::vector<uint8_t> img_data;
-  int img_trait_type, img_trait_num_bytes;
+  int trait_type, trait_num_bytes;
 
-  archive( CEREAL_NVP( img_width ),
-           CEREAL_NVP( img_height ),
-           CEREAL_NVP( img_depth ),
+  archive( CEREAL_NVP( width ),
+           CEREAL_NVP( height ),
+           CEREAL_NVP( depth ),
 
-           CEREAL_NVP( img_w_step ),
-           CEREAL_NVP( img_h_step ),
-           CEREAL_NVP( img_d_step ),
+           CEREAL_NVP( w_step ),
+           CEREAL_NVP( h_step ),
+           CEREAL_NVP( d_step ),
 
-           CEREAL_NVP( img_trait_type ),
-           CEREAL_NVP( img_trait_num_bytes ),
+           CEREAL_NVP( trait_type ),
+           CEREAL_NVP( trait_num_bytes ),
 
            CEREAL_NVP( img_size ), // uncompressed size
            CEREAL_NVP( img_data )  // compressed image
@@ -317,8 +314,8 @@ void load( ::cereal::JSONInputArchive& archive, kwiver::vital::image_container_s
   auto img_mem = std::make_shared< kwiver::vital::image_memory >( img_size );
 
   const kwiver::vital::image_pixel_traits pix_trait(
-    static_cast<kwiver::vital::image_pixel_traits::pixel_type>(img_trait_type ),
-    img_trait_num_bytes );
+    static_cast<kwiver::vital::image_pixel_traits::pixel_type>(trait_type ),
+    trait_num_bytes );
 
   // decompress the data
   Bytef* out_buf = reinterpret_cast< Bytef* >(img_mem->data());
@@ -358,17 +355,15 @@ void load( ::cereal::JSONInputArchive& archive, kwiver::vital::image_container_s
   }
 
   auto vital_image = kwiver::vital::image( img_mem, img_mem->data(),
-                                           img_width, img_height, img_depth,
-                                           img_w_step, img_h_step, img_d_step,
+                                           width, height, depth,
+                                           w_step, h_step, d_step,
                                            pix_trait );
 
   // return newly constructed image container
   ctr = std::make_shared< kwiver::vital::simple_image_container >( vital_image );
-
 }
 
 // ============================================================================
-
 void save( ::cereal::JSONOutputArchive&       archive,
            const kwiver::vital::timestamp&  tstamp )
 {
@@ -481,7 +476,6 @@ void load( ::cereal::JSONInputArchive& archive, kwiver::vital::track_state& trk_
 }
 
 // ============================================================================
-
 void save( ::cereal::JSONOutputArchive& archive,
           const kwiver::vital::object_track_state& obj_trk_state )
 {
@@ -530,7 +524,6 @@ void load( ::cereal::JSONInputArchive& archive, kwiver::vital::track_set& trk_se
 }
 
 // ============================================================================
-
 void save( ::cereal::JSONOutputArchive& archive,
           const kwiver::vital::object_track_set& obj_trk_set )
 {
