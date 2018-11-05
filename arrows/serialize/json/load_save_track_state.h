@@ -33,8 +33,8 @@
  * serializing tracks
  */
 
-#ifndef SERIAL_JSON_LOAD_SAVE_TRACK_H
-#define SERIAL_JSON_LOAD_SAVE_TRACK_H
+#ifndef SERIAL_JSON_LOAD_SAVE_TRACK_STATE_H
+#define SERIAL_JSON_LOAD_SAVE_TRACK_STATE_H
 
 #include <vital/types/track.h>
 #include <vital/types/object_track_set.h>
@@ -71,4 +71,4 @@ void load( cereal::JSONInputArchive& archive,
 
 }
 
-#endif // SERIAL_JSON_LOAD_SAVE_TRACK_H
+#endif // SERIAL_JSON_LOAD_SAVE_TRACK_STATE_H
