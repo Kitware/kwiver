@@ -46,6 +46,8 @@
 #include "track_state.h"
 #include "object_track_state.h"
 #include "track.h"
+#include "track_set.h"
+#include "object_track_set.h"
 
 namespace kwiver {
 namespace arrows {
@@ -116,6 +118,8 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   register_algorithm< kwiver::arrows::serialize::json::track_state >( vpm );
   register_algorithm< kwiver::arrows::serialize::json::object_track_state >( vpm );
   register_algorithm< kwiver::arrows::serialize::json::track >( vpm );
+  register_algorithm< kwiver::arrows::serialize::json::track_set >( vpm );
+  register_algorithm< kwiver::arrows::serialize::json::object_track_set >( vpm );
 
   vpm.mark_module_as_loaded( module_name );
 }

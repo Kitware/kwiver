@@ -10,16 +10,20 @@ set( headers_public
   detected_object_type.h
   image.h
   metadata.h
+  object_track_set.h
+  object_track_state.h
   string.h
   timestamp.h
-  track_state.h
-  object_track_state.h
   track.h
+  track_set.h
+  track_state.h
   )
 
 set( private_headers
   load_save.h
-  load_save_track.h
+  load_save_track_state.h
+  load_save_track_set.h
+  track_item.h
   )
 
 set( sources
@@ -31,11 +35,13 @@ set( sources
   load_save.cxx
   load_save_metadata.cxx
   metadata.cxx
+  object_track_set.cxx
+  object_track_state.cxx
   string.cxx
   timestamp.cxx
-  track_state.cxx
-  object_track_state.cxx
   track.cxx
+  track_set.cxx
+  track_state.cxx
   )
 
 kwiver_install_headers(
