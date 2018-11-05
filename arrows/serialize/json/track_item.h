@@ -28,72 +28,81 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "track.h"
+#ifndef ARROWS_SERIALIZATION_JSON_TRACK_ITEM_H
+#define ARROWS_SERIALIZATION_JSON_TRACK_ITEM_H
 
-#include "load_save.h"
-#include "load_save_track_state.h"
-#include "track_item.h"
+#include <arrows/serialize/json/load_save.h>
+#include <arrows/serialize/json/load_save_track_state.h>
 
 #include <vital/internal/cereal/cereal.hpp>
+#include <vital/internal/cereal/types/vector.hpp>
 #include <vital/internal/cereal/archives/json.hpp>
 #include <vital/internal/cereal/types/utility.hpp>
 
-#include <sstream>
-#include <iostream>
+#include <vital/logger/logger.h>
 
 namespace kwiver {
 namespace arrows {
 namespace serialize {
 namespace json {
-// ----------------------------------------------------------------------------
-track::
-track()
-{ }
 
-
-track::
-~track()
-{ }
-
-// ----------------------------------------------------------------------------
-std::shared_ptr< std::string >
-track::
-serialize( const vital::any& element )
+struct track_item
 {
-  kwiver::vital::track_sptr trk_sptr =
-    kwiver::vital::any_cast< kwiver::vital::track_sptr > ( element );
-  kwiver::arrows::serialize::json::track_item trk_item(trk_sptr);
-  std::stringstream msg;
-  msg << "track "; // add type tag
+  kwiver::vital::track_sptr trk_sptr;
+  
+  track_item()
   {
-    cereal::JSONOutputArchive ar( msg );
-    ar( trk_item );
+    trk_sptr = kwiver::vital::track::create();
   }
-  return std::make_shared< std::string > ( msg.str() );
-}
 
-
-// ----------------------------------------------------------------------------
-vital::any track::
-deserialize( const std::string& message )
-{
-  std::stringstream msg(message);
-  kwiver::arrows::serialize::json::track_item trk_item = track_item();
-  std::string tag;
-  msg >> tag;
-
-  if (tag != "track" )
+  track_item(kwiver::vital::track_sptr& _trk_sptr )
   {
-    LOG_ERROR( logger(), "Invalid data type tag received. Expected \"track\", received \""
-               << tag << "\". Message dropped, returning default object." );
+    trk_sptr = _trk_sptr;
   }
-  else
+
+  kwiver::vital::track_sptr& get_track()
   {
-    cereal::JSONInputArchive ar( msg );
-    ar( trk_item );
+    return trk_sptr;
   }
-  return kwiver::vital::any( trk_item.get_track() );
-}
+
+  template<class Archive>
+  void save ( Archive& archive ) const
+  {
+    archive( cereal::make_nvp( "track_id", trk_sptr->id() ) );
+    archive( cereal::make_nvp( "track_size", trk_sptr->size() ) );
+    std::vector<kwiver::vital::track_state_sptr> trk;
+    for ( auto trk_state_itr=trk_sptr->begin(); trk_state_itr!=trk_sptr->end();
+              ++trk_state_itr)
+    {
+      auto trk_state = *trk_state_itr;
+      trk.push_back(trk_state);
+    }
+    archive(cereal::make_nvp( "trk", trk) );
+  }
 
 
+  template<class Archive>
+  void load ( Archive& archive )
+  {
+    size_t track_size;
+    kwiver::vital::track_id_t track_id;
+    archive( CEREAL_NVP( track_size ) );
+    archive( CEREAL_NVP( track_id) );
+    std::vector<kwiver::vital::track_state_sptr> trk;
+    archive( CEREAL_NVP( trk ));
+    trk_sptr->set_id(track_id);
+    for (auto trk_state : trk)
+    {
+      bool trk_inserted = trk_sptr->insert(trk_state);
+      if ( !trk_inserted )
+      {
+        LOG_ERROR( kwiver::vital::get_logger( "data_serializer" ),
+                 "Failed to insert track state in track" );
+      }
+    }
+  }
+};
+  
 } } } }       // end namespace kwiver
+
+#endif // ARROWS_SERIALIZATION_JSON_TRACK_ITEM_H
