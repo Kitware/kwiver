@@ -89,8 +89,8 @@ OPTION(KWIVER_ENABLE_TOOLS                "Enable tools" OFF )
 OPTION(KWIVER_ENABLE_TRACK_ORACLE         "Enable track_oracle" OFF )
 OPTION(KWIVER_ENABLE_EXAMPLES             "Enable examples" OFF )
 
-OPTION(KWIVER_ENABLE_SERIALIZE_PROTOBUF   "Enable protobuf serialization" ON )
-OPTION(KWIVER_ENABLE_SERIALIZE_JSON       "Enable json serialization" ON )
+OPTION(KWIVER_ENABLE_SERIALIZE_PROTOBUF   "Enable protobuf serialization" OFF )
+OPTION(KWIVER_ENABLE_SERIALIZE_JSON       "Enable json serialization" OFF )
 
 # if sprokit enabled
 OPTION(KWIVER_ENABLE_SPROKIT              "Enable building sprokit" OFF )
