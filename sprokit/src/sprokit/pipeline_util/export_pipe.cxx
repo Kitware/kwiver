@@ -428,7 +428,7 @@ generate( std::ostream& str )
 {
   sprokit::pipeline_t const pipe = m_builder.pipeline();
   kwiver::vital::config_block_sptr const config = m_builder.config();
-  sprokit::pipe_blocks const blocks = m_builder.blocks();
+  sprokit::pipe_blocks const blocks = m_builder.pipeline_blocks();
 
   config_printer printer( str, pipe, config );
 

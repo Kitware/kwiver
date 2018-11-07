@@ -42,6 +42,21 @@ namespace sprokit {
 
 // ----------------------------------------------------------------
 /**
+ * @brief Options for the build_pipeline_from_options class.
+ *
+ * This struct contains the list of options that are needed by the
+ * build_pipeline_from_options class to do its stuff.
+ *
+ */
+struct build_pipeline_options
+{
+  std::vector< std::string > config_settings;
+  std::vector< std::string > config_file_names;
+}; // end class build_pipeline_options
+
+
+// ----------------------------------------------------------------
+/**
  * @brief Build pipeline from command line options
  *
  */

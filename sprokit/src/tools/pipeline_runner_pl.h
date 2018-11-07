@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2018 by Kitware, Inc.
+ * Copyright 2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,58 +28,39 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SPROKIT_PIPELINE_UTIL_PIPE_BAKERY_H
-#define SPROKIT_PIPELINE_UTIL_PIPE_BAKERY_H
+#ifndef KWIVER_TOOL_PIPELINE_RUNNER_H
+#define KWIVER_TOOL_PIPELINE_RUNNER_H
 
-#include<sprokit/pipeline_util/sprokit_pipeline_util_export.h>
+#include "kwiver_applet.h"
 
-#include "path.h"
-#include "pipe_declaration_types.h"
+#include <string>
+#include <vector>
 
-#include "cluster_info.h"
+namespace kwiver {
+namespace tools {
 
-#include <vital/vital_types.h>
-#include <sprokit/pipeline/types.h>
-
-#include <iosfwd>
-
-/**
- * \file pipe_bakery.h
- *
- * \brief Functions to bake a pipeline.
- */
-
-namespace sprokit
+class pipeline_runner
+  : public kwiver_applet
 {
+public:
+  pipeline_runner();
 
-/**
- * \brief Extract a configuration from a collection of blocks.
- *
- * \param blocks The blocks to use for baking the pipeline.
- *
- * \returns A pipeline baked from \p blocks.
- */
-SPROKIT_PIPELINE_UTIL_EXPORT pipeline_t bake_pipe_blocks(pipe_blocks const& blocks);
+  virtual int run( const std::vector<std::string>& argv );
+  virtual void usage( std::ostream& outstream ) const;
 
-/**
- * \brief Extract a configuration from a collection of blocks.
- *
- * \param blocks The blocks to use for baking the cluster.
- *
- * \returns Information about the cluster based on \p blocks.
- */
-SPROKIT_PIPELINE_UTIL_EXPORT cluster_info_t bake_cluster_blocks(cluster_blocks const& blocks);
+  static constexpr char const* name = "runner";
+  static constexpr char const* description =
+    "This tool runs a pupeline" );
 
-/**
- * \brief Extract a configuration from a collection of blocks.
- *
- * \param blocks The blocks to use for baking the pipeline.
- *
- * \returns A configuration extracted from \p blocks.
- */
-SPROKIT_PIPELINE_UTIL_EXPORT kwiver::vital::config_block_sptr
-  extract_configuration(pipe_blocks const& blocks);
 
-}
+protected:
 
-#endif // SPROKIT_PIPELINE_UTIL_PIPE_BAKERY_H
+private:
+
+}; // end of class
+
+} } // end namespace
+
+
+
+#endif /* KWIVER_TOOL_PIPELINE_RUNNER_H */

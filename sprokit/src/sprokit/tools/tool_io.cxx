@@ -87,7 +87,7 @@ open_ostream(kwiver::vital::path_t const& path)
 
     if (!ostr->good())
     {
-      std::string const reason = "Unable to open input file: " + path;
+      std::string const reason = "Unable to open output file: " + path;
 
       throw std::runtime_error(reason);
     }

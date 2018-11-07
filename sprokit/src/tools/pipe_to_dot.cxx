@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2017 by Kitware, Inc.
+ * Copyright 2011-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -129,7 +129,9 @@ sprokit_tool_main(int argc, char const* argv[])
 
       sprokit::istream_t const istr = sprokit::open_istream(ipath);
 
-      sprokit::cluster_info_t const info = sprokit::bake_cluster(*istr);
+      sprokit::pipeline_builder builder;
+      builder.load_cluster( *istr );
+      sprokit::cluster_info_t const info = builder.cluster_info();
 
       conf->set_value(sprokit::process::config_name, graph_name);
 

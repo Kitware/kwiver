@@ -60,6 +60,32 @@ void register_tool( kwiver::vital::plugin_loader& vpm, const std::string& versio
 
 } // end namespace
 
+#include "dump_klv.h"
+
+namespace {
+
+static auto const module_name         = std::string{ "kwiver_tool_group" };
+static auto const module_version      = std::string{ "1.0" };
+static auto const module_organization = std::string{ "Kitware Inc." };
+
+// ----------------------------------------------------------------------------
+template <typename tool_t>
+void register_tool( kwiver::vital::plugin_loader& vpm, const std::string& version = module_version )
+{
+  using kvpf = kwiver::vital::plugin_factory;
+
+  auto fact = vpm.ADD_APPLET( tool_t);
+  fact->add_attribute( kvpf::PLUGIN_NAME,  tool_t::name )
+    .add_attribute( kvpf::PLUGIN_DESCRIPTION,  tool_t::description )
+    .add_attribute( kvpf::PLUGIN_MODULE_NAME,  module_name )
+    .add_attribute( kvpf::PLUGIN_VERSION,      module_version )
+    .add_attribute( kvpf::PLUGIN_ORGANIZATION, module_organization )
+       ;
+}
+
+} // end namespace
+
+
 // ============================================================================
 extern "C"
 KWIVER_TOOLS_EXPORT

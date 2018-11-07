@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2012-2017 by Kitware, Inc.
+ * Copyright 2012-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -86,7 +86,7 @@ sprokit_tool_main(int argc, char const* argv[])
 
   sprokit::pipeline_t const pipe = builder.pipeline();
   kwiver::vital::config_block_sptr const config = builder.config();
-  sprokit::pipe_blocks const blocks = builder.blocks();
+  sprokit::pipe_blocks const blocks = builder.pipeline_blocks();
 
   if (!pipe)
   {
