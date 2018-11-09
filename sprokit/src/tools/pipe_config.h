@@ -28,39 +28,55 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KWIVER_TOOL_PIPELINE_RUNNER_H
-#define KWIVER_TOOL_PIPELINE_RUNNER_H
+#ifndef KWIVER_TOOL_PIPE_CONFIG_H
+#define KWIVER_TOOL_PIPE_CONFIG_H
 
-#include "kwiver_applet.h"
+#include <tools/kwiver_applet.h>
 
 #include <string>
 #include <vector>
 
-namespace kwiver {
+namespace sprokit {
 namespace tools {
 
-class pipeline_runner
-  : public kwiver_applet
+class pipe_config
+  : public kwiver::tools::kwiver_applet
 {
 public:
-  pipeline_runner();
+  pipe_config();
 
   virtual int run( const std::vector<std::string>& argv );
   virtual void usage( std::ostream& outstream ) const;
 
-  static constexpr char const* name = "runner";
+  static constexpr char const* name = "pipe_config";
   static constexpr char const* description =
-    "This tool runs a pupeline" );
-
-
-protected:
-
-private:
+    "Configures a pipeline\n\n"
+    "This tool reads a pipeline configuration file, applies the program options "
+    "and generates a \"compiled\" config file. "
+    "At its most basic, this tool will validate a pipeline "
+    "configuration, but it does so much more.  Specific pipeline "
+    "configurations can be generated from generic descriptions. "
+    "\n\n"
+    "Global config sections can ge inserted in the resulting configuration "
+    "file with the --setting option, with multiple options allowed on the "
+    "command line. For example, --setting master:value=FOO will generate a "
+    "config section: "
+    "\n\n"
+    "config master\n"
+    "  :value FOO\n"
+    "\n\b"
+    "The --config option specifies a file that contains additional "
+    "configuration parameters to be merged into the generated "
+    "configuration. "
+    "\n\n"
+    "Use the --include option to add additional directories to search for "
+    "included configuration files. "
+    "\n\n"
+    "The --pipeline option specifies the file that contains the main pipeline specification"
+    ;
 
 }; // end of class
 
 } } // end namespace
 
-
-
-#endif /* KWIVER_TOOL_PIPELINE_RUNNER_H */
+#endif /* KWIVER_TOOL_PIPE_CONFIG_H */

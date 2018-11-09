@@ -28,18 +28,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "kwiver_applets_export.h"
+#include "sprokit_applets_export.h"
 
 #include <vital/plugin_loader/plugin_loader.h>
 #include <vital/plugin_loader/plugin_manager.h>
 #include <vital/plugin_loader/plugin_factory.h>
 
-#include "config_explorer.h"
-#include "dump_klv.h"
+#include "pipeline_runner.h"
+#include "pipe_to_dot.h"
+#include "pipe_config.h"
 
 namespace {
 
-static auto const module_name         = std::string{ "kwiver_tool_group" };
+static auto const module_name         = std::string{ "sprokit_tool_group" };
 static auto const module_version      = std::string{ "1.0" };
 static auto const module_organization = std::string{ "Kitware Inc." };
 
@@ -62,7 +63,7 @@ void register_tool( kwiver::vital::plugin_loader& vpm, const std::string& versio
 
 // ============================================================================
 extern "C"
-KWIVER_APPLETS_EXPORT
+SPROKIT_APPLETS_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {
@@ -71,8 +72,9 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     return;
   }
 
-  register_tool< kwiver::tools::config_explorer >( vpm );
-  register_tool< kwiver::tools::dump_klv >( vpm );
+  register_tool< sprokit::tools::pipeline_runner >( vpm );
+  register_tool< sprokit::tools::pipe_to_dot >( vpm );
+  register_tool< sprokit::tools::pipe_config >( vpm );
 
   vpm.mark_module_as_loaded( module_name );
 }

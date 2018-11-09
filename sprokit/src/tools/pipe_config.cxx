@@ -28,65 +28,92 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sprokit/tools/tool_io.h>
-#include <sprokit/tools/tool_main.h>
-#include <sprokit/tools/tool_usage.h>
-#include <sprokit/tools/build_pipeline_from_options.h>
+#include "pipe_config.h"
+
+#include "tool_support.h"
+#include "tool_io.h"
 
 #include <vital/config/config_block.h>
 
 #include <sprokit/pipeline_util/export_pipe.h>
 
-// Description of this program and why I would want to use it
-static const std::string program_description(
-"This tool reads a pipeline configuration file, applies the program options\n"
-"and generates a \"compiled\" config file.\n"
-"At its most basic, this tool will validate a pipeline\n"
-"configuration, but it does so much more.  Specific pipeline\n"
-"configurations can be generated from generic descriptions.\n"
-"\n"
-"Global config sections can ge inserted in the resulting configuration\n"
-"file with the --setting option, with multiple options allowed on the\n"
-"command line. For example, --setting master:value=FOO will generate a\n"
-"config section:\n"
-"\n"
-"config master\n"
-"  :value FOO\n"
-"\n"
-"The --config option specifies a file that contains additional\n"
-"configuration parameters to be merged into the generated\n"
-"configuration.\n"
-"\n"
-"Use the --include option to add additional directories to search for\n"
-"included configuration files.\n"
-"\n"
-"The --pipeline option specifies the file that contains the main pipeline specification"
-  );
+namespace sprokit {
+namespace tools {
 
-
-// ------------------------------------------------------------------
-int
-sprokit_tool_main(int argc, char const* argv[])
+// ----------------------------------------------------------------------------
+pipe_config::
+pipe_config()
 {
+}
+
+// ----------------------------------------------------------------------------
+void
+pipe_config::
+usage( std::ostream& outstream ) const
+{
+  outstream << "This program configures the specified pipeline file.\n"
+            << "Usage: " + applet_name() + " pipe-file [options]\n"
+            << "\nOptions are:\n"
+            << "     --help  |-h                 Output help message and quit.\n"
+            << "     --config | -c   FILE        File containing supplemental configuration entries.\n"
+            << "                                 Can occurr multiple times.\n"
+            << "     --setting | -s   VAR=VALUE  Additional configuration entries.\n"
+            << "                                 Can occurr multiple times.\n"
+            << "     --include | -I   DIR        A directory to be added to configuration include path.\n"
+            << "                                 Can occurr multiple times.\n"
+            << "     --output | -o   PATH        Directory name for output files."
+   ;
+}
+
+
+// ----------------------------------------------------------------------------
+int
+pipe_config::
+run( const std::vector<std::string>& argv )
+{
+  tool_support options;
+
+  options.init_args( argv );    // Add common options
+  options.add_pipeline_output_args();
+
+  if ( ! options.process_args() )
+  {
+    exit( 0 );
+  }
+
+  if ( options.opt_help )
+  {
+    usage( std::cout );
+    return EXIT_SUCCESS;
+  }
+
+  // Check for required pipeline file
+  if( options.remaining_argc <= 1 )
+  {
+    usage( std::cout );
+    return EXIT_FAILURE;
+  }
+
   // Load all known modules
   kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
   vpm.load_all_plugins();
 
-  boost::program_options::options_description desc;
-  desc
-    .add(sprokit::tool_common_options())
-    .add(sprokit::pipeline_common_options())
-    .add(sprokit::pipeline_input_options())
-    .add(sprokit::pipeline_output_options());
+  // Add search path to builder.
+  options.builder.add_search_path( options.opt_search_path );
 
-  boost::program_options::variables_map const vm = sprokit::tool_parse(argc, argv, desc,
-    program_description );
+  // Load the pipeline file.
+  kwiver::vital::path_t const pipe_file( options.remaining_argv[1] );
+  options.builder.load_pipeline( pipe_file );
 
-  const sprokit::build_pipeline_from_options builder(vm, desc);
+  // Must be applied after pipe file is loaded.
+  // To overwrite any existing settings
+  options.add_options_to_builder();
 
-  sprokit::pipeline_t const pipe = builder.pipeline();
-  kwiver::vital::config_block_sptr const config = builder.config();
-  sprokit::pipe_blocks const blocks = builder.pipeline_blocks();
+  // Get handle to pipeline
+  sprokit::pipeline_t const pipe = options.builder.pipeline();
+
+  // get handle to config block
+  kwiver::vital::config_block_sptr const conf = options.builder.config();
 
   if (!pipe)
   {
@@ -95,12 +122,13 @@ sprokit_tool_main(int argc, char const* argv[])
     return EXIT_FAILURE;
   }
 
-  kwiver::vital::path_t const opath = vm["output"].as<kwiver::vital::path_t>();
+  sprokit::ostream_t const ostr = sprokit::open_ostream(options.opt_output);
 
-  sprokit::ostream_t const ostr = sprokit::open_ostream(opath);
+  sprokit::export_pipe exp( options.builder );
 
-  sprokit::export_pipe exp( builder );
   exp.generate( *ostr.get() );
 
   return EXIT_SUCCESS;
 }
+
+} } // end namespace

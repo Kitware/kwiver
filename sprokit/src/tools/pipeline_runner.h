@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2017 by Kitware, Inc.
+ * Copyright 2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,80 +28,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "tool_io.h"
+#ifndef KWIVER_TOOL_PIPELINE_RUNNER_H
+#define KWIVER_TOOL_PIPELINE_RUNNER_H
 
-#include <iostream>
-#include <fstream>
-#include <stdexcept>
+#include <tools/kwiver_applet.h>
+
+#include "tool_support.h"
+
+#include <string>
+#include <vector>
 
 namespace sprokit {
+namespace tools {
 
-namespace {
-
-static kwiver::vital::path_t const iostream_path = kwiver::vital::path_t("-");
-
-}
-
-static void std_stream_dtor(void* ptr);
-
-
-// ------------------------------------------------------------------
-istream_t
-open_istream(kwiver::vital::path_t const& path)
+class pipeline_runner
+  : public kwiver::tools::kwiver_applet
 {
-  istream_t istr;
+public:
+  pipeline_runner();
 
-  if (path == iostream_path)
-  {
-    istr.reset(&std::cin, &std_stream_dtor);
-  }
-  else
-  {
-    istr.reset(new std::ifstream(path));
+  virtual int run( const std::vector<std::string>& argv );
+  virtual void usage( std::ostream& outstream ) const;
 
-    if (!istr->good())
-    {
-      std::string const reason = "Unable to open input file: " + path;
+  static constexpr char const* name = "runner";
+  static constexpr char const* description =
+    "This tool runs a pipeline";
 
-      throw std::runtime_error(reason);
-    }
-  }
+}; // end of class
 
-  return istr;
-}
+} } // end namespace
 
-
-// ------------------------------------------------------------------
-ostream_t
-open_ostream(kwiver::vital::path_t const& path)
-{
-  ostream_t ostr;
-
-  if (path == iostream_path)
-  {
-    ostr.reset(&std::cout, &std_stream_dtor);
-  }
-  else
-  {
-    ostr.reset(new std::ofstream(path));
-
-    if (!ostr->good())
-    {
-      std::string const reason = "Unable to open output file: " + path;
-
-      throw std::runtime_error(reason);
-    }
-  }
-
-  return ostr;
-}
-
-
-// ------------------------------------------------------------------
-void
-std_stream_dtor(void* /*ptr*/)
-{
-  // We don't want to delete std::cin or std::cout.
-}
-
-} // end namespace
+#endif /* KWIVER_TOOL_PIPELINE_RUNNER_H */

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2012-2017 by Kitware, Inc.
+ * Copyright 2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,36 +28,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SPROKIT_TOOLS_TOOL_USAGE_H
-#define SPROKIT_TOOLS_TOOL_USAGE_H
+#ifndef KWIVER_TOOL_PIPE_CONFIG_H
+#define KWIVER_TOOL_PIPE_TO_DOT_H
 
-#include <sprokit/tools/sprokit_tools_export.h>
-#include <vital/vital_config.h>
+#include <tools/kwiver_applet.h>
 
-#include <sprokit/pipeline_util/pipeline_builder.h>
-#include <sprokit/pipeline/scheduler_factory.h>
+#include <string>
+#include <vector>
 
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/variables_map.hpp>
+namespace sprokit {
+namespace tools {
 
-namespace sprokit
+class pipe_to_dot
+  : public kwiver::tools::kwiver_applet
 {
+public:
+  pipe_to_dot();
 
-[[noreturn]] SPROKIT_TOOLS_EXPORT void tool_usage(int ret, boost::program_options::options_description const& options);
-SPROKIT_TOOLS_EXPORT void tool_version_message();
+  virtual int run( const std::vector<std::string>& argv );
+  virtual void usage( std::ostream& outstream ) const;
 
-SPROKIT_TOOLS_EXPORT boost::program_options::options_description tool_common_options();
+  static constexpr char const* name = "pipe_to_dot";
+  static constexpr char const* description =
+    "Create DOT output of pipe topology"
+    ;
 
-SPROKIT_TOOLS_EXPORT boost::program_options::variables_map tool_parse(
-  int argc, char const* argv[],
-  boost::program_options::options_description const& desc,
-  std::string const& program_description);
+}; // end of class
 
-SPROKIT_TOOLS_EXPORT boost::program_options::options_description pipeline_common_options();
-SPROKIT_TOOLS_EXPORT boost::program_options::options_description pipeline_input_options();
-SPROKIT_TOOLS_EXPORT boost::program_options::options_description pipeline_output_options();
-SPROKIT_TOOLS_EXPORT boost::program_options::options_description pipeline_run_options();
+} } // end namespace
 
-}
-
-#endif // SPROKIT_TOOLS_TOOL_USAGE_H
+#endif /* KWIVER_TOOL_PIPE_TO_DOT_H */

@@ -130,7 +130,7 @@ void tool_runner_usage( applet_context_t ctxt,
     if ( pos != 0 )
     {
       // Take all but the ending newline
-      buf = buf.substr( 0, pos-1 );
+      buf = buf.substr( 0, pos );
     }
 
     std::cout << ctxt->m_wtb.wrap_text( buf );
@@ -159,6 +159,10 @@ void help_applet( const command_line_parser& options,
 
   // Create applet based on the name provided
   applet_factory app_fact;
+  std::string buf = "-- Not Set --";
+  auto fact = app_fact.find_factory( options.m_applet_args[1] );
+  fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, buf );
+
   kwiver::tools::kwiver_applet_sptr applet( app_fact.create( options.m_applet_args[1] ) );
   tool_context->m_applet_name = options.m_applet_args[1];
   applet->initialize( tool_context.get() );

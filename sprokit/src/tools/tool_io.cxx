@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2013-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,63 +28,80 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "build_pipeline_from_options.h"
-
 #include "tool_io.h"
-#include "tool_usage.h"
+
 #include <iostream>
+#include <fstream>
+#include <stdexcept>
 
 namespace sprokit {
 
-// ------------------------------------------------------------------
-build_pipeline_from_options::
-build_pipeline_from_options()
-{ }
+namespace {
+
+static kwiver::vital::path_t const iostream_path = kwiver::vital::path_t("-");
+
+}
+
+static void std_stream_dtor(void* ptr);
 
 
 // ------------------------------------------------------------------
-build_pipeline_from_options::
-build_pipeline_from_options( boost::program_options::variables_map const& vm,
-                             boost::program_options::options_description const& desc )
+istream_t
+open_istream(kwiver::vital::path_t const& path)
 {
-  if (!vm.count("pipeline"))
+  istream_t istr;
+
+  if (path == iostream_path)
   {
-    std::cerr << "Error: pipeline option not set" << std::endl;
-    tool_usage(EXIT_FAILURE, desc);
+    istr.reset(&std::cin, &std_stream_dtor);
+  }
+  else
+  {
+    istr.reset(new std::ifstream(path));
+
+    if (!istr->good())
+    {
+      std::string const reason = "Unable to open input file: " + path;
+
+      throw std::runtime_error(reason);
+    }
   }
 
-  kwiver::vital::path_t const ipath = vm["pipeline"].as<kwiver::vital::path_t>();
-  istream_t const istr = open_istream(ipath);
+  return istr;
+}
 
-  this->load_pipeline(*istr, ipath);
-  this->load_from_options(vm);
+
+// ------------------------------------------------------------------
+ostream_t
+open_ostream(kwiver::vital::path_t const& path)
+{
+  ostream_t ostr;
+
+  if (path == iostream_path)
+  {
+    ostr.reset(&std::cout, &std_stream_dtor);
+  }
+  else
+  {
+    ostr.reset(new std::ofstream(path));
+
+    if (!ostr->good())
+    {
+      std::string const reason = "Unable to open output file: " + path;
+
+      throw std::runtime_error(reason);
+    }
+  }
+
+  return ostr;
 }
 
 
 // ------------------------------------------------------------------
 void
-build_pipeline_from_options::
-load_from_options( boost::program_options::variables_map const& vm )
+std_stream_dtor(void* /*ptr*/)
 {
-  using namespace std::placeholders;  // for _1, _2, _3...
-
-  // Load supplemental configuration files.
-  if (vm.count("config"))
-  {
-    kwiver::vital::path_list_t const configs = vm["config"].as<kwiver::vital::path_list_t>();
-
-    std::for_each(configs.begin(), configs.end(),
-                  std::bind( &pipeline_builder::load_supplement, this, _1 ) );
-  }
-
-  // Insert lone setting variables from the command line.
-  if (vm.count("setting"))
-  {
-    std::vector<std::string> const settings = vm["setting"].as<std::vector<std::string> >();
-
-    std::for_each(settings.begin(), settings.end(),
-                  std::bind( &pipeline_builder::add_setting, this, _1 ) );
-  }
+  // We don't want to delete std::cin or std::cout.
 }
 
 } // end namespace

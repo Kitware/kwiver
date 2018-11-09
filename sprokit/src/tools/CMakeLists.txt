@@ -1,53 +1,40 @@
 project(sprokit_tools)
 
-sprokit_use_tools_fixes()
+###
+# support for applets
 
-function (add_tool       name)
-  set(component tool)
+set( sources
+  register_tools.cxx
 
-  kwiver_add_executable(${name}
-    ${name}.cxx)
-  target_link_libraries(${name}
-    LINK_PRIVATE
-      ${ARGN})
-  sprokit_require_tools_fixes(${name})
-endfunction ()
+  pipe_config.cxx
+  pipeline_runner.cxx
+  pipe_to_dot.cxx
+  tool_support.cxx
+  tool_io.cxx
+  )
 
-function (add_python_tool     name)
-  if (KWIVER_ENABLE_PYTHON)
-    sprokit_configure_file(tool-python-${name}
-      "${CMAKE_CURRENT_SOURCE_DIR}/${name}.py"
-      "${sprokit_output_dir}/bin/${name}"
-      PYTHON_EXECUTABLE)
+set( headers
+  pipe_config.h
+  pipeline_runner.h
+  pipe_to_dot.h
+  tool_support.h
+  tool_io.h
+  )
 
-    sprokit_install(
-      PROGRAMS    "${sprokit_output_dir}/bin/${name}"
-      DESTINATION bin
-      COMPONENT   tool)
-  endif ()
-endfunction ()
+###
+# Add our plugin path to the default list
+include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
-add_tool(pipe_config
-  sprokit_tools
-  sprokit_pipeline
-  sprokit_pipeline_util
-  vital_config vital_vpm
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY})
-
-add_tool(pipe_to_dot
-  sprokit_tools
-  sprokit_pipeline
-  vital_config vital_vpm
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY})
-
-add_tool(pipeline_runner
-  sprokit_tools
-  sprokit_pipeline
-  vital_config vital_vpm
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY})
+###
+# Add applet for tools plugin
+kwiver_add_plugin( sprokit_applets
+  SUBDIR       ${kwiver_plugin_applets}
+  SOURCES      ${sources} ${headers}
+  PRIVATE      vital
+               vital_vpm
+               vital_logger
+               kwiversys
+               kwiver_tools_applet
+               sprokit_pipeline
+               sprokit_pipeline_util
+)
