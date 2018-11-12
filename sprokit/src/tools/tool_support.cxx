@@ -37,7 +37,9 @@
 namespace sprokit {
 
 tool_support::
-tool_support() { }
+tool_support()
+  :opt_output( "-" )
+{ }
 
 
 // ------------------------------------------------------------------
@@ -112,8 +114,8 @@ void
 tool_support::
 add_pipeline_output_args()
 {
-  command_args.AddArgument( "-o",          argT::NO_ARGUMENT, &this->opt_output, "Output path" );
-  command_args.AddArgument( "--output",    argT::NO_ARGUMENT, &this->opt_output, "Output path" );
+  command_args.AddArgument( "-o",          argT::SPACE_ARGUMENT, &this->opt_output, "Output path" );
+  command_args.AddArgument( "--output",    argT::SPACE_ARGUMENT, &this->opt_output, "Output path" );
 }
 
 

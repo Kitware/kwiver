@@ -69,17 +69,14 @@ usage( std::ostream& outstream ) const
   outstream << "This program runs the specified pipeline file.\n"
             << "Usage: " + applet_name() + " pipe-file [options]\n"
             << "\nOptions are:\n"
-            << "     --help  |-h                 Output help message and quit.\n"
-
+            << "     --help  | -h                Output help message and quit.\n"
             << "     --config | -c   FILE        File containing supplemental configuration entries.\n"
             << "                                 Can occurr multiple times.\n"
             << "     --setting | -s   VAR=VALUE  Additional configuration entries.\n"
             << "                                 Can occurr multiple times.\n"
-
             << "     --include | -I   DIR        A directory to be added to configuration include path.\n"
             << "                                 Can occurr multiple times.\n"
-            << "     --output | -o   PATH        Directory name for output files.\n"
-
+            << "     --output | -o   PATH        Name for output files. '-' for stdout\n"
             << "     --cluster | -C  PATH        Cluster file to export.\n"
             << "     --cluster-type | T   OPT    Cluster type to export.\n"
             << "     --name | -n     NAME        Name of the graph.\n"
@@ -228,10 +225,7 @@ run( const std::vector< std::string >& argv )
     options.add_options_to_builder();
 
     // Get handle to pipeline
-    sprokit::pipeline_t const pipe = options.builder.pipeline();
-
-    // get handle to config block
-    kwiver::vital::config_block_sptr const conf = options.builder.config();
+    pipe = options.builder.pipeline();
 
     if ( ! pipe )
     {

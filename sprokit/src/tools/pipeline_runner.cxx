@@ -69,7 +69,7 @@ usage( std::ostream& outstream ) const
   outstream << "This program runs the specified pipeline file.\n"
             << "Usage: " + applet_name() + " pipe-file [options]\n"
             << "\nOptions are:\n"
-            << "     --help  |-h                 Output help message and quit.\n"
+            << "     --help  | -h                Output help message and quit.\n"
             << "     --config | -c   FILE        File containing supplemental configuration entries.\n"
             << "                                 Can occurr multiple times.\n"
             << "     --setting | -s   VAR=VALUE  Additional configuration entries.\n"

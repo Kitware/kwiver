@@ -54,14 +54,14 @@ usage( std::ostream& outstream ) const
   outstream << "This program configures the specified pipeline file.\n"
             << "Usage: " + applet_name() + " pipe-file [options]\n"
             << "\nOptions are:\n"
-            << "     --help  |-h                 Output help message and quit.\n"
+            << "     --help  | -h                Output help message and quit.\n"
             << "     --config | -c   FILE        File containing supplemental configuration entries.\n"
             << "                                 Can occurr multiple times.\n"
             << "     --setting | -s   VAR=VALUE  Additional configuration entries.\n"
             << "                                 Can occurr multiple times.\n"
             << "     --include | -I   DIR        A directory to be added to configuration include path.\n"
             << "                                 Can occurr multiple times.\n"
-            << "     --output | -o   PATH        Directory name for output files."
+            << "     --output | -o   PATH        Name of output file or '-' for stdout.\n"
    ;
 }
 
@@ -122,7 +122,7 @@ run( const std::vector<std::string>& argv )
     return EXIT_FAILURE;
   }
 
-  sprokit::ostream_t const ostr = sprokit::open_ostream(options.opt_output);
+  sprokit::ostream_t const ostr = sprokit::open_ostream( options.opt_output );
 
   sprokit::export_pipe exp( options.builder );
 
