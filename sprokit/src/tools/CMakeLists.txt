@@ -9,7 +9,6 @@ set( sources
   pipe_config.cxx
   pipeline_runner.cxx
   pipe_to_dot.cxx
-  tool_support.cxx
   tool_io.cxx
   )
 
@@ -17,7 +16,6 @@ set( headers
   pipe_config.h
   pipeline_runner.h
   pipe_to_dot.h
-  tool_support.h
   tool_io.h
   )
 

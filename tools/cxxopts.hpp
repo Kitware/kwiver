@@ -1240,7 +1240,7 @@ namespace cxxopts
     parse_positional(std::initializer_list<std::string> options);
 
     std::string
-    help(const std::vector<std::string>& groups = {""}) const;
+    help(const std::vector<std::string>& groups = {}) const;
 
     const std::vector<std::string>
     groups() const;

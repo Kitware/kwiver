@@ -33,8 +33,6 @@
 
 #include <tools/kwiver_applet.h>
 
-#include "tool_support.h"
-
 #include <string>
 #include <vector>
 
@@ -47,12 +45,12 @@ class pipeline_runner
 public:
   pipeline_runner();
 
-  virtual int run( const std::vector<std::string>& argv );
-  virtual void usage( std::ostream& outstream ) const;
-
   static constexpr char const* name = "runner";
   static constexpr char const* description =
     "This tool runs a pipeline";
+
+  virtual int run() override;
+  virtual void add_command_options() override;
 
 }; // end of class
 

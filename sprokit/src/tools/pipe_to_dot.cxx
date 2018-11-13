@@ -30,7 +30,6 @@
 
 #include "pipe_to_dot.h"
 
-#include "tool_support.h"
 #include "tool_io.h"
 
 #include <sprokit/pipeline_util/export_dot.h>
@@ -43,6 +42,7 @@
 #include <sprokit/pipeline/process_cluster.h>
 #include <sprokit/pipeline/process_factory.h>
 #include <sprokit/pipeline/types.h>
+#include <sprokit/pipeline_util/pipeline_builder.h>
 
 #include <iostream>
 #include <string>
@@ -61,67 +61,84 @@ pipe_to_dot()
 {
 }
 
+
 // ----------------------------------------------------------------------------
 void
 pipe_to_dot::
-usage( std::ostream& outstream ) const
+add_command_options()
 {
-  outstream << "This program runs the specified pipeline file.\n"
-            << "Usage: " + applet_name() + " pipe-file [options]\n"
-            << "\nOptions are:\n"
-            << "     --help  | -h                Output help message and quit.\n"
-            << "     --config | -c   FILE        File containing supplemental configuration entries.\n"
-            << "                                 Can occurr multiple times.\n"
-            << "     --setting | -s   VAR=VALUE  Additional configuration entries.\n"
-            << "                                 Can occurr multiple times.\n"
-            << "     --include | -I   DIR        A directory to be added to configuration include path.\n"
-            << "                                 Can occurr multiple times.\n"
-            << "     --output | -o   PATH        Name for output files. '-' for stdout\n"
-            << "     --cluster | -C  PATH        Cluster file to export.\n"
-            << "     --cluster-type | T   OPT    Cluster type to export.\n"
-            << "     --name | -n     NAME        Name of the graph.\n"
-            << "     --setup                     Setup the pipeline before rendering.\n"
-            << "     --link-prefix | -P   OPT    Prefix for links when formatting for sphinx\n"
-  ;
+  m_cmd_options->custom_help( wrap_text( "[options] pipe-file\n"
+           "This program generates a DOT file from the pipeline topology."
+                                ));
+
+  m_cmd_options->positional_help( "\n  pipe-file  - name of pipeline file." );
+
+  m_cmd_options->add_options()
+    ( "h,help", "Display applet usage" );
+
+
+  m_cmd_options->add_options("pipe")
+    ( "c,config", "File containing supplemental configuration entries. Can occur multiple times.",
+      cxxopts::value<std::vector<std::string>>() )
+    ( "s,setting", "Additional configuration entries in the form of VAR=VALUE",
+      cxxopts::value<std::vector<std::string>>() )
+    ( "I,include", "A directory to be added to configuration include path. Can occurr multiple times.",
+      cxxopts::value<std::vector<std::string>>()  )
+    ( "setup", "Setup pipeline before rendering" );
+
+  m_cmd_options->add_options("cluster")
+    ( "C,cluster", "Cluster file to export", cxxopts::value<std::string>())
+    ( "T,cluster-type", "Cluster type to export", cxxopts::value<std::string>());
+
+  m_cmd_options->add_options("output")
+    ( "n,name", "Name of the graph", cxxopts::value<std::string>())
+    ( "o,output", "Name of output file or '-' for stdout.",
+      cxxopts::value<std::string>()->default_value("-"))
+    ( "P,link-prefix", "Prefix for links when formatting for sphinx",
+      cxxopts::value<std::string>());
+
+  // positional parameters
+  m_cmd_options->add_options()
+    ( "p,pipe-file", "Input pipeline file file", cxxopts::value<std::string>())
+    ( "extra", "Extra command line args",  cxxopts::value<std::vector<std::string>>())
+    ;
+
+    m_cmd_options->parse_positional({"pipe-file", "extra"});
 }
 
 
 // ----------------------------------------------------------------------------
 int
 pipe_to_dot::
-run( const std::vector< std::string >& argv )
+run()
 {
-  tool_support options;
+  const std::string opt_app_name = applet_name();
 
-  options.init_args( argv );    // Add common options
-  options.add_pipeline_output_args();
+  auto& cmd_args = command_args();
 
-  if ( ! options.process_args() )
+  if ( cmd_args["help"].as<bool>() )
   {
-    exit( 0 );
-  }
-
-  if ( options.opt_help )
-  {
-    usage( std::cout );
+    std::cout << m_cmd_options->help();
     return EXIT_SUCCESS;
   }
 
-  // Check for required pipeline file
-  if ( options.remaining_argc <= 1 )
+  if ( cmd_args.count("pipe-file") == 0 )
   {
-    usage( std::cout );
-    return EXIT_FAILURE;
+    // error & exit
+    std::cout << "Required pipeline file missing\n "
+              << m_cmd_options->help();
+    return EXIT_SUCCESS;
+
   }
 
   sprokit::process_cluster_t cluster;
   sprokit::pipeline_t pipe;
 
-  bool const have_cluster = ! options.opt_cluster.empty();
-  bool const have_cluster_type = ! options.opt_cluster_type.empty();
-  bool const have_pipeline = ( nullptr != options.remaining_argv[1] );
-  bool const have_setup = options.opt_setup_pipe;
-  bool const have_link = ! options.opt_link_prefix.empty();
+  bool const have_cluster = cmd_args["cluster"].as<bool>();
+  bool const have_cluster_type = cmd_args["cluster-type"].as<bool>();
+  bool const have_pipeline = ( cmd_args.count("pipe-file") > 0 );
+  bool const have_setup = cmd_args["setup"].as<bool>();
+  bool const have_link = ( cmd_args.count("link-prefix") > 0 );
 
   bool const export_cluster = ( have_cluster || have_cluster_type );
 
@@ -141,7 +158,9 @@ run( const std::vector< std::string >& argv )
     return EXIT_FAILURE;
   }
 
-  std::string const graph_name = options.opt_dot_name;
+  std::string const graph_name = cmd_args["name"].as<std::string>();
+
+  sprokit::pipeline_builder builder;
 
   if ( export_cluster )
   {
@@ -157,30 +176,45 @@ run( const std::vector< std::string >& argv )
     kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
     vpm.load_all_plugins();
 
-
-    //// new
     // Add search path to builder.
-    options.builder.add_search_path( options.opt_search_path );
+    if ( cmd_args.count("include") > 0 )
+    {
+      builder.add_search_path( cmd_args["include"].as<std::vector<std::string>>() );
+    }
+
 
     // Load the pipeline file.
-    kwiver::vital::path_t const pipe_file( options.remaining_argv[1] );
-    options.builder.load_pipeline( pipe_file );
+    kwiver::vital::path_t const pipe_file( cmd_args["pipe-file"].as<std::string>() );
+    builder.load_pipeline( pipe_file );
 
     // Must be applied after pipe file is loaded.
     // To overwrite any existing settings
-    options.add_options_to_builder();
+    if ( cmd_args.count("config") > 0 )
+    {
+      std::vector< std::string > config_file_names = cmd_args["config"].as<std::vector<std::string>>();
+      for ( auto config : config_file_names )
+      {
+        builder.load_supplement( config );
+      }
+    }
+
+    // Add accumulated settings to the pipeline
+    if ( cmd_args.count("setting") > 0 )
+    {
+      std::vector< std::string > config_settings = cmd_args["setting"].as<std::vector<std::string>>();
+      for ( auto setting : config_settings )
+      {
+        builder.add_setting( setting );
+      }
+    }
 
     // get handle to config block
-    kwiver::vital::config_block_sptr const conf = options.builder.config();
-
-    /// end new
-
+    kwiver::vital::config_block_sptr const conf = builder.config();
 
     if ( have_cluster )
     {
-      sprokit::istream_t const istr = sprokit::open_istream( options.opt_cluster );
+      sprokit::istream_t const istr = sprokit::open_istream( cmd_args["cluster"].as<std::string>() );
 
-      sprokit::pipeline_builder builder;
       builder.load_cluster( *istr );
       sprokit::cluster_info_t const info = builder.cluster_info();
 
@@ -191,7 +225,7 @@ run( const std::vector< std::string >& argv )
     }
     else if ( have_cluster_type )
     {
-      sprokit::process::type_t const type = options.opt_cluster_type;
+      sprokit::process::type_t const type = cmd_args["cluster-type"].as<std::string>();
 
       sprokit::process_t const proc = sprokit::create_process( type, graph_name, conf );
       cluster = std::dynamic_pointer_cast< sprokit::process_cluster > ( proc );
@@ -214,18 +248,39 @@ run( const std::vector< std::string >& argv )
   else if ( have_pipeline )
   {
     // Add search path to builder.
-    options.builder.add_search_path( options.opt_search_path );
+    if ( cmd_args.count("include") > 0 )
+    {
+      builder.add_search_path( cmd_args["include"].as<std::vector<std::string>>() );
+    }
 
     // Load the pipeline file.
-    kwiver::vital::path_t const pipe_file( options.remaining_argv[1] );
-    options.builder.load_pipeline( pipe_file );
+    kwiver::vital::path_t const pipe_file( cmd_args["pipe-file"].as<std::string>() );
 
-    // Must be applied after pipe file is loaded.
+    builder.load_pipeline( pipe_file );
+
+        // Must be applied after pipe file is loaded.
     // To overwrite any existing settings
-    options.add_options_to_builder();
+    if ( cmd_args.count("config") > 0 )
+    {
+      std::vector< std::string > config_file_names = cmd_args["config"].as<std::vector<std::string>>();
+      for ( auto config : config_file_names )
+      {
+        builder.load_supplement( config );
+      }
+    }
+
+    // Add accumulated settings to the pipeline
+    if ( cmd_args.count("setting") > 0 )
+    {
+      std::vector< std::string > config_settings = cmd_args["setting"].as<std::vector<std::string>>();
+      for ( auto setting : config_settings )
+      {
+        builder.add_setting( setting );
+      }
+    }
 
     // Get handle to pipeline
-    pipe = options.builder.pipeline();
+    pipe = builder.pipeline();
 
     if ( ! pipe )
     {
@@ -237,9 +292,8 @@ run( const std::vector< std::string >& argv )
   else
   {
     std::cerr << "Error: One of \'cluster\', \'cluster-type\', or "
-                 "\'pipeline\' must be specified" << std::endl;
-
-    this->usage( std::cerr );
+                 "\'pipeline\' must be specified" << std::endl
+              << m_cmd_options->help();
   }
 
   // Make sure we have one, but not both.
@@ -250,7 +304,7 @@ run( const std::vector< std::string >& argv )
     return EXIT_FAILURE;
   }
 
-  sprokit::ostream_t const ostr = sprokit::open_ostream( options.opt_output );
+  sprokit::ostream_t const ostr = sprokit::open_ostream( cmd_args["output"].as<std::string>() );
 
   if ( cluster )
   {
@@ -265,7 +319,7 @@ run( const std::vector< std::string >& argv )
 
     if ( have_link )
     {
-      sprokit::export_dot( *ostr, pipe, graph_name, options.opt_link_prefix );
+      sprokit::export_dot( *ostr, pipe, graph_name, cmd_args["link-prefix"].as<std::string>() );
     }
     else
     {

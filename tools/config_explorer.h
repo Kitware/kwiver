@@ -53,7 +53,6 @@ public:
 
 
   virtual int run() override;
-
   virtual void add_command_options() override;
 
 }; // end of class

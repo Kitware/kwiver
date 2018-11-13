@@ -80,7 +80,6 @@ endif ()
 
 add_subdirectory(pipeline)
 add_subdirectory(pipeline_util)
-add_subdirectory(tools)
 
 install(
   FILES "${CMAKE_CURRENT_BINARY_DIR}/version.h"

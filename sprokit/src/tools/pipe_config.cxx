@@ -30,11 +30,12 @@
 
 #include "pipe_config.h"
 
-#include "tool_support.h"
 #include "tool_io.h"
 
 #include <vital/config/config_block.h>
+#include <vital/plugin_loader/plugin_manager.h>
 
+#include <sprokit/pipeline_util/pipeline_builder.h>
 #include <sprokit/pipeline_util/export_pipe.h>
 
 namespace sprokit {
@@ -46,74 +47,108 @@ pipe_config()
 {
 }
 
+
 // ----------------------------------------------------------------------------
 void
 pipe_config::
-usage( std::ostream& outstream ) const
+add_command_options()
 {
-  outstream << "This program configures the specified pipeline file.\n"
-            << "Usage: " + applet_name() + " pipe-file [options]\n"
-            << "\nOptions are:\n"
-            << "     --help  | -h                Output help message and quit.\n"
-            << "     --config | -c   FILE        File containing supplemental configuration entries.\n"
-            << "                                 Can occurr multiple times.\n"
-            << "     --setting | -s   VAR=VALUE  Additional configuration entries.\n"
-            << "                                 Can occurr multiple times.\n"
-            << "     --include | -I   DIR        A directory to be added to configuration include path.\n"
-            << "                                 Can occurr multiple times.\n"
-            << "     --output | -o   PATH        Name of output file or '-' for stdout.\n"
-   ;
-}
+  m_cmd_options->custom_help( wrap_text( "[options] pipe-file\n"
+           "This program configures the specified pipeline file."
+                                ));
 
+  m_cmd_options->positional_help( "\n  pipe-file  - name of pipeline file." );
+
+  m_cmd_options->add_options()
+    ( "h,help", "Display applet usage" );
+
+  m_cmd_options->add_options("pipe")
+    ( "c,config", "File containing supplemental configuration entries. Can occur multiple times.",
+      cxxopts::value<std::vector<std::string>>() )
+    ( "s,setting", "Additional configuration entries in the form of VAR=VALUE",
+      cxxopts::value<std::vector<std::string>>() )
+    ( "I,include", "A directory to be added to configuration include path. Can occurr multiple times.",
+      cxxopts::value<std::vector<std::string>>()  );
+
+  m_cmd_options->add_options("output")
+    ( "o,output", "Name of output file or '-' for stdout.",
+      cxxopts::value<std::string>()->default_value("-"));
+
+  // positional parameters
+  m_cmd_options->add_options()
+    ( "p,pipe-file", "Input pipeline file file", cxxopts::value<std::string>())
+    ( "extra", "Extra command line args", cxxopts::value<std::vector<std::string>>())
+    ;
+
+    m_cmd_options->parse_positional({"pipe-file", "extra"});
+}
 
 // ----------------------------------------------------------------------------
 int
 pipe_config::
-run( const std::vector<std::string>& argv )
+run()
 {
-  tool_support options;
+  const std::string opt_app_name = applet_name();
 
-  options.init_args( argv );    // Add common options
-  options.add_pipeline_output_args();
+  auto& cmd_args = command_args();
 
-  if ( ! options.process_args() )
+  if ( cmd_args["help"].as<bool>() )
   {
-    exit( 0 );
-  }
-
-  if ( options.opt_help )
-  {
-    usage( std::cout );
+    std::cout << m_cmd_options->help();
     return EXIT_SUCCESS;
-  }
-
-  // Check for required pipeline file
-  if( options.remaining_argc <= 1 )
-  {
-    usage( std::cout );
-    return EXIT_FAILURE;
   }
 
   // Load all known modules
   kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
   vpm.load_all_plugins();
 
+  sprokit::pipeline_builder builder;
+
   // Add search path to builder.
-  options.builder.add_search_path( options.opt_search_path );
+  if ( cmd_args.count("include") > 0 )
+  {
+    builder.add_search_path( cmd_args["include"].as<std::vector<std::string>>() );
+  }
+
+  if ( cmd_args.count("pipe-file") == 0 )
+  {
+    // error & exit
+    std::cout << "Required pipeline file missing\n "
+              << m_cmd_options->help();
+    return EXIT_SUCCESS;
+
+  }
 
   // Load the pipeline file.
-  kwiver::vital::path_t const pipe_file( options.remaining_argv[1] );
-  options.builder.load_pipeline( pipe_file );
+  kwiver::vital::path_t const pipe_file( cmd_args["pipe-file"].as<std::string>() );
+  builder.load_pipeline( pipe_file );
 
   // Must be applied after pipe file is loaded.
   // To overwrite any existing settings
-  options.add_options_to_builder();
+  if ( cmd_args.count("config") > 0 )
+  {
+    std::vector< std::string > config_file_names = cmd_args["config"].as<std::vector<std::string>>();
+    for ( auto config : config_file_names )
+    {
+      builder.load_supplement( config );
+    }
+  }
+
+  // Add accumulated settings to the pipeline
+  if ( cmd_args.count("setting") > 0 )
+  {
+    std::vector< std::string > config_settings = cmd_args["setting"].as<std::vector<std::string>>();
+    for ( auto setting : config_settings )
+    {
+      builder.add_setting( setting );
+    }
+  }
 
   // Get handle to pipeline
-  sprokit::pipeline_t const pipe = options.builder.pipeline();
+  sprokit::pipeline_t const pipe = builder.pipeline();
 
   // get handle to config block
-  kwiver::vital::config_block_sptr const conf = options.builder.config();
+  kwiver::vital::config_block_sptr const conf = builder.config();
 
   if (!pipe)
   {
@@ -122,9 +157,9 @@ run( const std::vector<std::string>& argv )
     return EXIT_FAILURE;
   }
 
-  sprokit::ostream_t const ostr = sprokit::open_ostream( options.opt_output );
+  sprokit::ostream_t const ostr = sprokit::open_ostream( cmd_args["output"].as<std::string>() );
 
-  sprokit::export_pipe exp( options.builder );
+  sprokit::export_pipe exp( builder );
 
   exp.generate( *ostr.get() );
 

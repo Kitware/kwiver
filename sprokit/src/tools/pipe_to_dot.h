@@ -45,8 +45,8 @@ class pipe_to_dot
 public:
   pipe_to_dot();
 
-  virtual int run( const std::vector<std::string>& argv );
-  virtual void usage( std::ostream& outstream ) const;
+  virtual int run() override;
+  virtual void add_command_options() override;
 
   static constexpr char const* name = "pipe_to_dot";
   static constexpr char const* description =

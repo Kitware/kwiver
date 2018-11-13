@@ -45,8 +45,8 @@ class pipe_config
 public:
   pipe_config();
 
-  virtual int run( const std::vector<std::string>& argv );
-  virtual void usage( std::ostream& outstream ) const;
+  virtual int run() override;
+  virtual void add_command_options() override;
 
   static constexpr char const* name = "pipe_config";
   static constexpr char const* description =

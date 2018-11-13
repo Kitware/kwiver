@@ -111,7 +111,7 @@ int
 dump_klv::
 run()
 {
-  std::string opt_app_name = applet_name();
+  const std::string opt_app_name = applet_name();
   std::string video_file;
 
   auto& cmd_args = command_args();
