@@ -144,7 +144,7 @@ set( kwiver_plugin_process_instrumentation_subdir ${kwiver_plugin_subdir}/module
 set( kwiver_plugin_scheduler_subdir               ${kwiver_plugin_subdir}/processes )
 set( kwiver_plugin_module_subdir                  ${kwiver_plugin_subdir}/modules )
 set( kwiver_plugin_plugin_explorer_subdir         ${kwiver_plugin_subdir}/modules/plugin_explorer )
-set( kwiver_plugin_logger_subdir                  ${kwiver_plugin_subdir}/modules )
+set( kwiver_plugin_logger_subdir                  ${kwiver_plugin_subdir}/modules/logger )
 set( kwiver_plugin_applets                        ${kwiver_plugin_subdir}/modules/applets )
 
 ##

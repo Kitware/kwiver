@@ -30,6 +30,11 @@ Vital Bindings
 
  * Added python bindings for timestamp class.
 
+Vital Logger
+
+ * Changed install location for logger plugins to kwiver/modules/logger
+   so it will not be seen by the main plugin loader.
+
 Arrows: Core
 
  * Added support for RPC cameras to the triangulate_landmark implementation.
