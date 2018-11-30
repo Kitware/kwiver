@@ -24,6 +24,7 @@ set( plugin_core_headers
   filter_features_magnitude.h
   filter_features_scale.h
   filter_tracks.h
+  generate_texture.h
   handle_descriptor_request_core.h
   hierarchical_bundle_adjust.h
   initialize_cameras_landmarks.h

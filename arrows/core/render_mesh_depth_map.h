@@ -216,6 +216,35 @@ void render_triangle(const vital::vector_2d& v1, const vital::vector_2d& v2, con
 }
 
 
+/// This function renders a triangle filled with label
+/**
+ * \param v1 [in] 2D triangle point
+ * \param v2 [in] 2D triangle point
+ * \param v3 [in] 2D triangle point
+ * \param label [in] value to fill the triangle with
+ * \param img [out] image in which the triangle is rendered
+ */
+template<class T>
+void render_triangle(vital::vector_2d const& v1, vital::vector_2d const& v2,
+                     vital::vector_2d const& v3, T const& label, vital::image& img)
+{
+  triangle_scan_iterator tsi(v1, v2, v3);
+  for (tsi.reset(); tsi.next(); )
+  {
+    int y = tsi.scan_y();
+    if (y < 0 || y >= static_cast<int>(img.height()))
+      continue;
+    int min_x = std::max(0, tsi.start_x());
+    int max_x = std::min(static_cast<int>(img.width()) - 1, tsi.end_x());
+
+    for (int x = min_x; x <= max_x; ++x)
+    {
+      img.at<T>(x, y) = label;
+    }
+  }
+}
+
+
 }
 }
 }
