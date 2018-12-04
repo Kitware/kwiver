@@ -241,9 +241,11 @@ compute_track_descriptors_process
       if( d->inject_to_detections )
       {
         // Reset all descriptors stored in detections
-        for( vital::detected_object_sptr det : *detections )
+        auto dsib = detections->cbegin();
+        auto dsie = detections->cend();
+        for( auto det = dsib; det != dsie; ++det )
         {
-          det->set_descriptor( vital::detected_object::descriptor_sptr() );
+          (*det)->set_descriptor( vital::detected_object::descriptor_sptr() );
         }
 
         // Inject computed descriptors
