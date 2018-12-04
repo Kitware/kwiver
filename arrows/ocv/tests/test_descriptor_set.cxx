@@ -149,7 +149,7 @@ void test_conversions(const cv::Mat& data)
   }();
 
   simple_descriptor_set simp_ds(
-      std::vector<descriptor_sptr>( ds.begin(), ds.end() ) );
+      std::vector<descriptor_sptr>( ds.cbegin(), ds.cend() ) );
   cv::Mat recon_mat = ocv::descriptors_to_ocv_matrix(simp_ds);
   EXPECT_NE( data.data, recon_mat.data )
     << "Reconstructed matrix should point to new memory, not original";

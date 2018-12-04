@@ -122,7 +122,7 @@ TEST( simple_image_container_set, expected_iteration )
 
   LOG_INFO( test_logger, "Testing iter pos 0" );
   EXPECT_NE( vec_it, img_vec.end() );
-  EXPECT_NE( sic_it, sics.end() );
+  EXPECT_NE( sic_it, sics.cend() );
   EXPECT_EQ( *sic_it, img_vec[0] );
   EXPECT_EQ( *sic_it, *vec_it );
   EXPECT_EQ( (*sic_it)->width(), 1 );
@@ -133,7 +133,7 @@ TEST( simple_image_container_set, expected_iteration )
   ++sic_it;
   LOG_INFO( test_logger, "Testing iter pos 1" );
   EXPECT_NE( vec_it, img_vec.end() );
-  EXPECT_NE( sic_it, sics.end() );
+  EXPECT_NE( sic_it, sics.cend() );
   EXPECT_EQ( *sic_it, img_vec[1] );
   EXPECT_EQ( *sic_it, *vec_it );
   EXPECT_EQ( (*sic_it)->width(), 2 );
@@ -144,7 +144,7 @@ TEST( simple_image_container_set, expected_iteration )
   ++sic_it;
   LOG_INFO( test_logger, "Testing iter pos 2" );
   EXPECT_NE( vec_it, img_vec.end() );
-  EXPECT_NE( sic_it, sics.end() );
+  EXPECT_NE( sic_it, sics.cend() );
   EXPECT_EQ( *sic_it, img_vec[2] );
   EXPECT_EQ( *sic_it, *vec_it );
   EXPECT_EQ( (*sic_it)->width(), 3 );
@@ -154,7 +154,7 @@ TEST( simple_image_container_set, expected_iteration )
   ++sic_it;
   LOG_INFO( test_logger, "Testing end pos" );
   EXPECT_EQ( vec_it, img_vec.end() );
-  EXPECT_EQ( sic_it, sics.end() );
+  EXPECT_EQ( sic_it, sics.cend() );
 }
 
 // ----------------------------------------------------------------------------
@@ -174,7 +174,7 @@ TEST( simple_image_container_set, expected_iteration_const )
 
   LOG_INFO( test_logger, "Testing iter pos 0" );
   EXPECT_NE( vec_it, img_vec.end() );
-  EXPECT_NE( sic_it, sics.end() );
+  EXPECT_NE( sic_it, sics.cend() );
   EXPECT_EQ( *sic_it, img_vec[0] );
   EXPECT_EQ( *sic_it, *vec_it );
   EXPECT_EQ( (*sic_it)->width(), 1 );
@@ -185,7 +185,7 @@ TEST( simple_image_container_set, expected_iteration_const )
   ++sic_it;
   LOG_INFO( test_logger, "Testing iter pos 1" );
   EXPECT_NE( vec_it, img_vec.end() );
-  EXPECT_NE( sic_it, sics.end() );
+  EXPECT_NE( sic_it, sics.cend() );
   EXPECT_EQ( *sic_it, img_vec[1] );
   EXPECT_EQ( *sic_it, *vec_it );
   EXPECT_EQ( (*sic_it)->width(), 2 );
@@ -196,7 +196,7 @@ TEST( simple_image_container_set, expected_iteration_const )
   ++sic_it;
   LOG_INFO( test_logger, "Testing iter pos 2" );
   EXPECT_NE( vec_it, img_vec.end() );
-  EXPECT_NE( sic_it, sics.end() );
+  EXPECT_NE( sic_it, sics.cend() );
   EXPECT_EQ( *sic_it, img_vec[2] );
   EXPECT_EQ( *sic_it, *vec_it );
   EXPECT_EQ( (*sic_it)->width(), 3 );
@@ -207,7 +207,7 @@ TEST( simple_image_container_set, expected_iteration_const )
   ++sic_it;
   LOG_INFO( test_logger, "Testing end pos" );
   EXPECT_EQ( vec_it, img_vec.end() );
-  EXPECT_EQ( sic_it, sics.end() );
+  EXPECT_EQ( sic_it, sics.cend() );
 }
 
 // ----------------------------------------------------------------------------
@@ -225,88 +225,88 @@ TEST( simple_image_container_set, multiple_iterators )
 
   EXPECT_EQ( *it1, img_vec[0] );
   EXPECT_EQ( (*it1)->width(), 1 );
-  EXPECT_NE( it1, sics.end() );
+  EXPECT_NE( it1, sics.cend() );
 
   EXPECT_EQ( *it2, img_vec[0] );
   EXPECT_EQ( (*it2)->width(), 1 );
-  EXPECT_NE( it2, sics.end() );
+  EXPECT_NE( it2, sics.cend() );
 
   // Move one iterator forward two and the other just one.
   ++it1; ++it1;
   ++it2;
   EXPECT_EQ( *it1, img_vec[2] );
   EXPECT_EQ( (*it1)->width(), 3 );
-  EXPECT_NE( it1, sics.end() );
+  EXPECT_NE( it1, sics.cend() );
 
   EXPECT_EQ( *it2, img_vec[1] );
   EXPECT_EQ( (*it2)->width(), 2 );
-  EXPECT_NE( it2, sics.end() );
+  EXPECT_NE( it2, sics.cend() );
 
   // Make new iterator, which should point to the beginning.
   simple_image_container_set::iterator it3 = sics.begin();
   EXPECT_EQ( *it1, img_vec[2] );
   EXPECT_EQ( (*it1)->width(), 3 );
-  EXPECT_NE( it1, sics.end() );
+  EXPECT_NE( it1, sics.cend() );
 
   EXPECT_EQ( *it2, img_vec[1] );
   EXPECT_EQ( (*it2)->width(), 2 );
-  EXPECT_NE( it2, sics.end() );
+  EXPECT_NE( it2, sics.cend() );
 
   EXPECT_EQ( *it3, img_vec[0] );
   EXPECT_EQ( (*it3)->width(), 1 );
-  EXPECT_NE( it3, sics.end() );
+  EXPECT_NE( it3, sics.cend() );
 
   // Only move the newest iterator forward one.
   ++it3;
   EXPECT_EQ( *it1, img_vec[2] );
   EXPECT_EQ( (*it1)->width(), 3 );
-  EXPECT_NE( it1, sics.end() );
+  EXPECT_NE( it1, sics.cend() );
 
   EXPECT_EQ( *it2, img_vec[1] );
   EXPECT_EQ( (*it2)->width(), 2 );
-  EXPECT_NE( it2, sics.end() );
+  EXPECT_NE( it2, sics.cend() );
 
   EXPECT_EQ( *it3, img_vec[1] );
   EXPECT_EQ( (*it3)->width(), 2 );
-  EXPECT_NE( it3, sics.end() );
+  EXPECT_NE( it3, sics.cend() );
 
   // Move it1 forward to end.
   ++it1;
-  EXPECT_EQ( it1, sics.end() );
+  EXPECT_EQ( it1, sics.cend() );
 
   EXPECT_EQ( *it2, img_vec[1] );
   EXPECT_EQ( (*it2)->width(), 2 );
-  EXPECT_NE( it2, sics.end() );
+  EXPECT_NE( it2, sics.cend() );
 
   EXPECT_EQ( *it3, img_vec[1] );
   EXPECT_EQ( (*it3)->width(), 2 );
-  EXPECT_NE( it3, sics.end() );
+  EXPECT_NE( it3, sics.cend() );
 
   // Move it3 to end.
   ++it3; ++it3;
-  EXPECT_EQ( it1, sics.end() );
+  EXPECT_EQ( it1, sics.cend() );
 
   EXPECT_EQ( *it2, img_vec[1] );
   EXPECT_EQ( (*it2)->width(), 2 );
-  EXPECT_NE( it2, sics.end() );
+  EXPECT_NE( it2, sics.cend() );
 
-  EXPECT_EQ( it3, sics.end() );
+  EXPECT_EQ( it3, sics.cend() );
 
   // Move it2 forward one.
   ++it2;
-  EXPECT_EQ( it1, sics.end() );
+  EXPECT_EQ( it1, sics.cend() );
 
   EXPECT_EQ( *it2, img_vec[2] );
   EXPECT_EQ( (*it2)->width(), 3 );
-  EXPECT_NE( it2, sics.end() );
+  EXPECT_NE( it2, sics.cend() );
 
-  EXPECT_EQ( it3, sics.end() );
+  EXPECT_EQ( it3, sics.cend() );
 
   // Move it2 to end
   ++it2;
-  EXPECT_EQ( it1, sics.end() );
-  EXPECT_EQ( it2, sics.end() );
-  EXPECT_EQ( it3, sics.end() );
+  EXPECT_EQ( it1, sics.cend() );
+  EXPECT_EQ( it2, sics.cend() );
+  EXPECT_EQ( it3, sics.cend() );
 }
 
 // ----------------------------------------------------------------------------
@@ -324,86 +324,86 @@ TEST( simple_image_container_set, multiple_iterators_const )
 
   EXPECT_EQ( *it1, img_vec[0] );
   EXPECT_EQ( (*it1)->width(), 1 );
-  EXPECT_NE( it1, sics.end() );
+  EXPECT_NE( it1, sics.cend() );
 
   EXPECT_EQ( *it2, img_vec[0] );
   EXPECT_EQ( (*it2)->width(), 1 );
-  EXPECT_NE( it2, sics.end() );
+  EXPECT_NE( it2, sics.cend() );
 
   // Move one iterator forward two and the other just one.
   ++it1; ++it1;
   ++it2;
   EXPECT_EQ( *it1, img_vec[2] );
   EXPECT_EQ( (*it1)->width(), 3 );
-  EXPECT_NE( it1, sics.end() );
+  EXPECT_NE( it1, sics.cend() );
 
   EXPECT_EQ( *it2, img_vec[1] );
   EXPECT_EQ( (*it2)->width(), 2 );
-  EXPECT_NE( it2, sics.end() );
+  EXPECT_NE( it2, sics.cend() );
 
   // Make new iterator, which should point to the beginning.
   simple_image_container_set::iterator it3 = sics.begin();
   EXPECT_EQ( *it1, img_vec[2] );
   EXPECT_EQ( (*it1)->width(), 3 );
-  EXPECT_NE( it1, sics.end() );
+  EXPECT_NE( it1, sics.cend() );
 
   EXPECT_EQ( *it2, img_vec[1] );
   EXPECT_EQ( (*it2)->width(), 2 );
-  EXPECT_NE( it2, sics.end() );
+  EXPECT_NE( it2, sics.cend() );
 
   EXPECT_EQ( *it3, img_vec[0] );
   EXPECT_EQ( (*it3)->width(), 1 );
-  EXPECT_NE( it3, sics.end() );
+  EXPECT_NE( it3, sics.cend() );
 
   // Only move the newest iterator forward one.
   ++it3;
   EXPECT_EQ( *it1, img_vec[2] );
   EXPECT_EQ( (*it1)->width(), 3 );
-  EXPECT_NE( it1, sics.end() );
+  EXPECT_NE( it1, sics.cend() );
 
   EXPECT_EQ( *it2, img_vec[1] );
   EXPECT_EQ( (*it2)->width(), 2 );
-  EXPECT_NE( it2, sics.end() );
+  EXPECT_NE( it2, sics.cend() );
 
   EXPECT_EQ( *it3, img_vec[1] );
   EXPECT_EQ( (*it3)->width(), 2 );
-  EXPECT_NE( it3, sics.end() );
+  EXPECT_NE( it3, sics.cend() );
 
   // Move it1 forward to end.
   ++it1;
-  EXPECT_EQ( it1, sics.end() );
+  EXPECT_EQ( it1, sics.cend() );
 
   EXPECT_EQ( *it2, img_vec[1] );
   EXPECT_EQ( (*it2)->width(), 2 );
-  EXPECT_NE( it2, sics.end() );
+  EXPECT_NE( it2, sics.cend() );
 
   EXPECT_EQ( *it3, img_vec[1] );
   EXPECT_EQ( (*it3)->width(), 2 );
-  EXPECT_NE( it3, sics.end() );
+  EXPECT_NE( it3, sics.cend() );
 
   // Move it3 to end.
   ++it3; ++it3;
-  EXPECT_EQ( it1, sics.end() );
+  EXPECT_EQ( it1, sics.cend() );
 
   EXPECT_EQ( *it2, img_vec[1] );
   EXPECT_EQ( (*it2)->width(), 2 );
-  EXPECT_NE( it2, sics.end() );
+  EXPECT_NE( it2, sics.cend() );
 
-  EXPECT_EQ( it3, sics.end() );
+  EXPECT_EQ( it3, sics.cend() );
 
   // Move it2 forward one.
   ++it2;
-  EXPECT_EQ( it1, sics.end() );
+  EXPECT_EQ( it1, sics.cend() );
 
   EXPECT_EQ( *it2, img_vec[2] );
   EXPECT_EQ( (*it2)->width(), 3 );
-  EXPECT_NE( it2, sics.end() );
+  EXPECT_NE( it2, sics.cend() );
 
-  EXPECT_EQ( it3, sics.end() );
+  EXPECT_EQ( it3, sics.cend() );
 
   // Move it2 to end
   ++it2;
-  EXPECT_EQ( it1, sics.end() );
-  EXPECT_EQ( it2, sics.end() );
-  EXPECT_EQ( it3, sics.end() );
+  EXPECT_EQ( it1, sics.cend() );
+  EXPECT_EQ( it2, sics.cend() );
+  EXPECT_EQ( it3, sics.cend() );
 }
