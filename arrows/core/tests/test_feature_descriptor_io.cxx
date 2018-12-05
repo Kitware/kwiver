@@ -326,7 +326,7 @@ TEST(feature_descriptor_io, write_mixed_descriptor_dim)
 
   std::vector<descriptor_sptr> desc_vec( descriptors1->cbegin(), descriptors1->cend() );
   EXPECT_EQ( desc_vec.size(), descriptors1->size() );
-  desc_vec.insert( desc_vec.cend(), descriptors2->cbegin(), descriptors2->cend() );
+  desc_vec.insert( desc_vec.end(), descriptors2->cbegin(), descriptors2->cend() );
   EXPECT_EQ( desc_vec.size(), descriptors1->size() + descriptors2->size() );
 
   descriptor_set_sptr descriptors = std::make_shared<simple_descriptor_set>(desc_vec);
@@ -350,7 +350,7 @@ TEST(feature_descriptor_io, write_mixed_descriptor_type)
 
   std::vector<descriptor_sptr> desc_vec( descriptors1->cbegin(), descriptors1->cend() );
   EXPECT_EQ( desc_vec.size(), descriptors1->size() );
-  desc_vec.insert( desc_vec.cend(), descriptors2->cbegin(), descriptors2->cend() );
+  desc_vec.insert( desc_vec.end(), descriptors2->cbegin(), descriptors2->cend() );
   EXPECT_EQ( desc_vec.size(), descriptors1->size() + descriptors2->size() );
 
   descriptor_set_sptr descriptors = std::make_shared<simple_descriptor_set>(desc_vec);
