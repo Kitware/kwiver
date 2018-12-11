@@ -346,7 +346,7 @@ generate_texture(vital::mesh_sptr mesh, std::vector<vital::camera_perspective_sp
     vital::vector_3d b3 = v3 - v1;
     double area_3d = a3.cross(b3).norm();
 
-    if (!std::isinf(area_2d) && !std::isinf(area_3d))
+    if (area_2d > 0 && area_3d > 0 && !std::isinf(area_2d) && !std::isinf(area_3d))
     {
       scale = static_cast<size_t>(std::ceil(sqrt(area_3d / area_2d) / resolution));
       break;

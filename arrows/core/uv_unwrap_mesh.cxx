@@ -163,6 +163,12 @@ void uv_unwrap_mesh::unwrap(kwiver::vital::mesh_sptr mesh) const
     vector_3d pt1pt2 = pt2 - pt1;
     vector_3d pt1pt3 = pt3 - pt1;
     vector_3d pt2pt3 = pt3 - pt2;
+    // handle zero-area faces
+    if (!(pt1pt2.squaredNorm() > 0 && pt2pt3.squaredNorm() > 0 && pt1pt3.squaredNorm() > 0))
+    {
+      triangles[f] = {{0, 0}, {0, 0}, {0, 0}, f, 0, 0};
+      continue;
+    }
 
     // find the longest edge and assign it to AB, C is the other point
     vector_3d AB, AC;
@@ -229,7 +235,7 @@ void uv_unwrap_mesh::unwrap(kwiver::vital::mesh_sptr mesh) const
   // Update max_width with margins
   double correction = 0.0;
   for (auto& t : triangles)
-    correction += margin * (t.width + t.height);
+    correction += margin * (t.width + t.height + margin);
   max_width = std::ceil(sqrt(total_area + correction));
 
   // Pack triangles
