@@ -173,14 +173,14 @@ void uv_unwrap_mesh::unwrap(kwiver::vital::mesh_sptr mesh) const
     // find the longest edge and assign it to AB, C is the other point
     vector_3d AB, AC;
     int longest_edge;
-    if (pt1pt2.norm() >= pt1pt3.norm() && pt1pt2.norm() >= pt2pt3.norm())
+    if (pt1pt2.squaredNorm() >= pt1pt3.squaredNorm() && pt1pt2.squaredNorm() >= pt2pt3.squaredNorm())
     {
       // pt1 is A, pt2 is B, pt3 is C
       AB = pt1pt2;
       AC = pt1pt3;
       longest_edge = 0;
     }
-    else if (pt2pt3.norm() >= pt1pt3.norm())
+    else if (pt2pt3.squaredNorm() >= pt1pt3.squaredNorm())
     {
       // pt1 is C, pt2 is A, pt3 is B
       AB = pt2pt3;
