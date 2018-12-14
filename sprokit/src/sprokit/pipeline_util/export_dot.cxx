@@ -45,7 +45,7 @@
 #include <vector>
 #include <memory>
 #include <functional>
-
+#include <iostream>
 /// \todo Implement a depth option to suppress recursion into too many clusters.
 /// \todo Improve the color scheme.
 
@@ -66,26 +66,34 @@ static std::string const node_prefix_input = "_input_";
 static std::string const node_prefix_output = "_output_";
 
 static std::string const style_global = "clusterrank=local;";
-static std::string const style_process_subgraph = "color=lightgray;style=filled;fillcolor=lightgray;";
+static std::string const style_process_subgraph = "color=white;style=filled;fillcolor=white;";
 static std::string const style_process = "shape=ellipse,rank=same";
-static std::string const style_process_subgraph_rst = "color=lightgray;";
-static std::string const style_process_rst = "shape=ellipse,rank=same,fontcolor=blue,fontsize=16,href=\"";
+static std::string const style_process_subgraph_rst = "color=black;style=filled;;fill_color=white;";
+static std::string const style_process_rst = "shape=ellipse,rank=same,fontcolor=blue,fontsize=13,href=\"";
 static std::string const style_cluster = "labelloc=t;labeljust=l;color=black;style=filled;fillcolor=gray;";
-static std::string const style_port = "shape=none,height=0,width=0,fontsize=7";
-static std::string const style_port_rst = "shape=none,height=0,width=0,fontsize=12";
-static std::string const style_port_edge = "arrowhead=none,color=black";
+static std::string const input_style_port = "shape=house,rank=same,fontsize=10";
+static std::string const input_style_port_rst = "shape=house,rank=same,fontsize=12";
+static std::string const input_style_port_edge = "arrowhead=none,color=black";
+static std::string const output_style_port = "shape=invhouse,rank=same,fontsize=10";
+static std::string const output_style_port_rst = "shape=invhouse,rank=same,fontsize=12";
+static std::string const output_style_port_edge = "arrowhead=none,color=black";
 static std::string const style_map_edge = "color=\"#808080\"";
 static std::string const style_input_subgraph = "clusterrank=local;rankdir=BT;";
-static std::string const style_input_port = style_port;
-static std::string const style_input_port_rst = style_port_rst;
-static std::string const style_input_port_edge = style_port_edge;
+static std::string const style_input_port = input_style_port;
+static std::string const style_input_port_rst = input_style_port_rst;
+static std::string const style_input_port_edge = input_style_port_edge;
 static std::string const style_input_map_edge = style_map_edge;
 static std::string const style_output_subgraph = "clusterrank=local;rankdir=BT;";
-static std::string const style_output_port = style_port;
-static std::string const style_output_port_rst = style_port_rst;
-static std::string const style_output_port_edge = style_port_edge;
+static std::string const style_output_port = output_style_port;
+static std::string const style_output_port_rst = output_style_port_rst;
+static std::string const style_output_port_edge = output_style_port_edge;
 static std::string const style_output_map_edge = style_map_edge;
 static std::string const style_connection_edge = "minlen=1,color=black,weight=1";
+
+// Ports to exclude from the being exported to dot file
+static std::vector< process::port_t > const excluded_ports {
+                                        process::port_t("_heartbeat")                             
+                                    };
 
 typedef enum
 {
@@ -162,6 +170,12 @@ export_dot(std::ostream& ostr, pipeline_t const& pipe, std::string const& graph_
     for (process::port_t const& port : oports)
     {
       std::string const node_from_port_name = name + node_prefix_output + port;
+      
+      if ( std::find( excluded_ports.begin(), 
+                       excluded_ports.end(), port ) != excluded_ports.end() ) 
+      {
+        continue;
+      }
 
       process::port_addrs_t const addrs = pipe->connections_from_addr(name, port);
 
@@ -349,7 +363,13 @@ output_process(std::ostream& ostr, process_t const& process, std::string const& 
     process::port_type_t const ptype = process->output_port_info(port)->type;
 
     std::string const node_port_name = name + node_prefix_output + port;
-
+    
+    if( std::find( excluded_ports.begin(), 
+                   excluded_ports.end(), port ) != excluded_ports.end() ) 
+    {
+      continue;
+    }
+    
     ostr << "\"" << node_port_name << "\" ["
          << "label=\"" << port << "\\n:: " << ptype << "\","
          << (has_link ? style_output_port_rst : style_output_port)
@@ -447,6 +467,12 @@ output_process_cluster(std::ostream& ostr, process_cluster_t const& cluster, cal
     process::port_t const& port = downstream_addr.second;
 
     std::string const node_port_name = name + node_prefix_output + port;
+
+    if (std::find(excluded_ports.begin(), 
+                   excluded_ports.end(), port) != excluded_ports.end() ) 
+    {
+        continue;
+    }
 
     if (output_ports.count(port))
     {
