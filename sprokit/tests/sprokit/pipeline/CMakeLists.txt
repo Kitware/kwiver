@@ -1,5 +1,7 @@
 project(sprokit_test_pipeline)
 
+include(kwiver-test-setup)
+
 set(test_libraries
   vital_config vital_vpm
   ${Boost_SYSTEM_LIBRARY}
@@ -9,12 +11,12 @@ set(test_libraries
 ##############################
 # Datum tests
 ##############################
-sprokit_discover_tests(datum test_libraries test_datum.cxx)
+kwiver_discover_gtests(datum test_libraries)
 
 ##############################
 # Stamp tests
 ##############################
-sprokit_discover_tests(stamp test_libraries test_stamp.cxx)
+kwiver_discover_gtests(stamp test_libraries)
 
 ##############################
 # Edge tests
@@ -25,7 +27,7 @@ set(edge_libraries
   ${Boost_SYSTEM_LIBRARY}
   ${Boost_CHRONO_LIBRARY})
 
-sprokit_discover_tests(edge edge_libraries test_edge.cxx)
+kwiver_discover_gtests(edge edge_libraries)
 
 ##############################
 # Modules tests
@@ -68,27 +70,27 @@ sprokit_add_test_plugin(schedulers_test multiple_load
 sprokit_add_test_plugin(not_a_plugin not_a_plugin
   not_a_plugin.cxx)
 
-sprokit_discover_tests(modules test_libraries test_modules.cxx)
+kwiver_discover_gtests(modules test_libraries test_modules.cxx)
 
 ##############################
 # Process tests
 ##############################
-sprokit_discover_tests(process test_libraries test_process.cxx)
+kwiver_discover_gtests(process test_libraries test_process.cxx)
 
 ##############################
 # Process cluster tests
 ##############################
-sprokit_discover_tests(process_cluster test_libraries test_process_cluster.cxx)
+kwiver_discover_gtests(process_cluster test_libraries test_process_cluster.cxx)
 
 ##############################
 # Scheduler tests
 ##############################
-sprokit_discover_tests(scheduler test_libraries test_scheduler.cxx)
+kwiver_discover_gtests(scheduler test_libraries test_scheduler.cxx)
 
 ##############################
 # Pipeline tests
 ##############################
-sprokit_discover_tests(pipeline test_libraries test_pipeline.cxx)
+kwiver_discover_gtests(pipeline test_libraries test_pipeline.cxx)
 
 ##############################
 # Introspection tests
@@ -121,17 +123,17 @@ unset(sprokit_test_environment)
 ##############################
 # Process registry tests
 ##############################
-sprokit_discover_tests(process_registry test_libraries test_process_registry.cxx)
+kwiver_discover_gtests(process_registry test_libraries)
 
 ##############################
 # Scheduler registry tests
 ##############################
-sprokit_discover_tests(scheduler_registry test_libraries test_scheduler_registry.cxx)
+kwiver_discover_gtests(scheduler_registry test_libraries)
 
 ##############################
 # Running tests
 ##############################
-sprokit_build_tooled_test(run test_libraries test_run.cxx)
+sprokit_build_tooled_test(run test_libraries)
 
 set(schedulers
   sync

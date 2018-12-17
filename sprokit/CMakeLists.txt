@@ -58,7 +58,6 @@ if (SPROKIT_ENABLE_EXTRAS)
 endif ()
 
 if (KWIVER_ENABLE_TESTS)
-  include(CTest)
   add_subdirectory(tests)
 endif ()
 

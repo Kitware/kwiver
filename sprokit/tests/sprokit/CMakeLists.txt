@@ -1,6 +1,7 @@
 include_directories("${sprokit_source_dir}/src")
 include_directories("${sprokit_binary_dir}/src")
 
+/*
 function (sprokit_discover_tests group libraries file)
   file(STRINGS "${file}" test_lines)
   set(properties)
@@ -42,6 +43,7 @@ function (sprokit_discover_tests group libraries file)
     endif ()
   endforeach ()
 endfunction ()
+*/
 
 add_subdirectory(test)
 
