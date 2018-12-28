@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2017 by Kitware, Inc.
+ * Copyright 2011-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,49 +46,57 @@ namespace sprokit {
 class PROCESSES_FLOW_NO_EXPORT collate_process
   : public process
 {
-  public:
-    /**
-     * \brief Constructor.
-     *
-     * \param config The configuration for the process.
-     */
-    collate_process(kwiver::vital::config_block_sptr const& config);
-    /**
-     * \brief Destructor.
-     */
-    ~collate_process();
-  protected:
-    /**
-     * \brief Initialize the process.
-     */
-    void _init();
+public:
+  PLUGIN_INFO( "collate",
+               "1.0",
+               "Collates data from multiple worker processes," )
 
-    /**
-     * \brief Reset the process.
-     */
-    void _reset();
+  /**
+   * \brief Constructor.
+   *
+   * \param config The configuration for the process.
+   */
+  collate_process( kwiver::vital::config_block_sptr const& config );
+  /**
+   * \brief Destructor.
+   */
+  ~collate_process();
 
-    /**
-     * \brief Step the process.
-     */
-    void _step();
 
-    /**
-     * \brief The properties on the process.
-     */
-    properties_t _properties() const;
+protected:
+  /**
+   * \brief Initialize the process.
+   */
+  void _init();
 
-    /**
-     * \brief Input port information.
-     *
-     * \param port The port to get information about.
-     *
-     * \returns Information about an input port.
-     */
-    port_info_t _input_port_info(port_t const& port);
-  private:
-    class priv;
-    std::unique_ptr<priv> d;
+  /**
+   * \brief Reset the process.
+   */
+  void _reset();
+
+  /**
+   * \brief Step the process.
+   */
+  void _step();
+
+  /**
+   * \brief The properties on the process.
+   */
+  properties_t _properties() const;
+
+  /**
+   * \brief Input port information.
+   *
+   * \param port The port to get information about.
+   *
+   * \returns Information about an input port.
+   */
+  port_info_t _input_port_info( port_t const& port );
+
+
+private:
+  class priv;
+  std::unique_ptr< priv > d;
 };
 
 } // end namespace

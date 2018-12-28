@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@
 #include <vital/vital_config.h>
 
 #include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_loader/plugin_registrar.h>
 
 namespace kwiver {
 namespace vital{
@@ -144,6 +145,39 @@ bool has_algorithm_impl_name(std::string const& type_name,
  */
 #define ADD_ALGORITHM( impl_name, conc_T)                    \
   add_factory( new kwiver::vital::algorithm_factory_0<conc_T>( conc_T::static_type_name(), impl_name ))
+
+// ============================================================================
+class algorithm_registrar
+  : public kwiver::plugin_registrar
+{
+public:
+  algorithm_registrar( kwiver::vital::plugin_loader& vpl,
+                       const std::string& mod_name )
+    : plugin_registrar( vpl, mod_name )
+  {
+  }
+
+
+  // ----------------------------------------------------------------------------
+  template <typename algorithm_t>
+  kwiver::vital::plugin_factory_handle_t register_algorithm()
+  {
+    using kvpf = kwiver::vital::plugin_factory;
+
+    auto fact = plugin_loader().
+      add_factory( new kwiver::vital::algorithm_factory_0<algorithm_t>(
+                     algorithm_t::static_type_name(),
+                     algorithm_t::_plugin_name ));
+
+    fact->add_attribute( kvpf::PLUGIN_DESCRIPTION,  algorithm_t::_plugin_description)
+      .add_attribute( kvpf::PLUGIN_VERSION,      algorithm_t::_plugin_version )
+      .add_attribute( kvpf::PLUGIN_MODULE_NAME,  this->module_name() )
+      .add_attribute( kvpf::PLUGIN_ORGANIZATION, this->organization() )
+      ;
+
+    return fact;
+  }
+};
 
 } } // end namespace
 

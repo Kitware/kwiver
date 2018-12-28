@@ -52,10 +52,9 @@ class KWIVER_ALGO_CORE_EXPORT write_track_descriptor_set_csv
       vital::algo::write_track_descriptor_set >
 {
 public:
-  static constexpr char const* name = "csv";
-
-  static constexpr char const* description =
-    "Track descriptor set csv writer.";
+  PLUGIN_INFO( "csv",
+               "1.0",
+               "Track descriptor set csv writer." )
 
   write_track_descriptor_set_csv();
   virtual ~write_track_descriptor_set_csv();

@@ -26,6 +26,10 @@ Vital
  * Added the data_serializer base algorithm to support serilization
    of Vital types for distributed processing and other uses.
 
+ * Applied a new approach to adding metadata to plugins. The plugin
+   name, version and description are now specified in the plugin
+   header.
+
 Vital Tools
 
  * Converted tools to use applet plugin approach.

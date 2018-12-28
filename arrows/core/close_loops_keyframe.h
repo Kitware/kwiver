@@ -52,12 +52,9 @@ class KWIVER_ALGO_CORE_EXPORT close_loops_keyframe
   : public vital::algorithm_impl<close_loops_keyframe, vital::algo::close_loops>
 {
 public:
-  /// Name of the algorithm
-  static constexpr char const* name = "keyframe";
-
-  /// Description of the algorithm
-  static constexpr char const* description =
-    "Establishes keyframes matches to all keyframes.";
+  PLUGIN_INFO( "keyframe",
+               "1.0",
+               "Establishes keyframes matches to all keyframes." )
 
   /// Default Constructor
   close_loops_keyframe();

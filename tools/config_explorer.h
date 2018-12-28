@@ -45,11 +45,11 @@ class config_explorer
 public:
   config_explorer();
 
-  static constexpr char const* name = "config_explorer";
-  static constexpr char const* description =
-    "Explore configuration loading process.\n\n"
-    "This program assists in debugging config loading problems. It loads a "
-    "configuration and displays the contents or displays the search path.";
+  PLUGIN_INFO( "config_explorer", // plugin name
+               "1.0",             // plugin version
+               "Explore configuration loading process.\n\n"
+               "This program assists in debugging config loading problems. It loads a "
+               "configuration and displays the contents or displays the search path." )
 
 
   virtual int run() override;

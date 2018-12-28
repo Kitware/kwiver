@@ -60,13 +60,10 @@ class KWIVER_ALGO_CORE_EXPORT close_loops_bad_frames_only
   : public vital::algorithm_impl<close_loops_bad_frames_only, vital::algo::close_loops>
 {
 public:
-  /// Name of the algorithm
-  static constexpr char const* name = "bad_frames_only";
-
-  /// Description of the algorithm
-  static constexpr char const* description =
-    "Attempts short-term loop closure based on percentage"
-    " of feature points tracked.";
+  PLUGIN_INFO( "bad_frames_only",
+               "1.0",
+               "Attempts short-term loop closure based on percentage "
+               "of feature points tracked." )
 
   /// Default Constructor
   close_loops_bad_frames_only();

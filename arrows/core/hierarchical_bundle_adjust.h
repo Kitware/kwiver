@@ -52,13 +52,10 @@ class KWIVER_ALGO_CORE_EXPORT hierarchical_bundle_adjust
   : public vital::algorithm_impl<hierarchical_bundle_adjust, vital::algo::bundle_adjust>
 {
 public:
-  /// Name of the algorithm
-  static constexpr char const* name = "hierarchical";
-
-  /// Description of the algorithm
-  static constexpr char const* description =
-    "Run a bundle adjustment algorithm in a temporally hierarchical fashion"
-    " (useful for video)";
+  PLUGIN_INFO( "hierarchical",
+               "1.0",
+               "Run a bundle adjustment algorithm in a temporally hierarchical fashion"
+               " (useful for video)" )
 
   /// Constructor
   hierarchical_bundle_adjust();

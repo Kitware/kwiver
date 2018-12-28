@@ -65,12 +65,9 @@ class KWIVER_ALGO_CORE_EXPORT compute_ref_homography_core
   : public vital::algorithm_impl<compute_ref_homography_core, vital::algo::compute_ref_homography>
 {
 public:
-  /// Name of the algorithm
-  static constexpr char const* name = "core";
-
-  /// Description of the algorithm
-  static constexpr char const* description =
-    "Default online sequential-frame reference homography estimator.";
+  PLUGIN_INFO( "core",
+               "1.0",
+               "Default online sequential-frame reference homography estimator." )
 
   /// Default Constructor
   compute_ref_homography_core();

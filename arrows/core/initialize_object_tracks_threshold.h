@@ -47,11 +47,9 @@ class KWIVER_ALGO_CORE_EXPORT initialize_object_tracks_threshold
       vital::algo::initialize_object_tracks>
 {
 public:
-
-  static constexpr char const* name = "threshold";
-
-  static constexpr char const* description =
-    "Perform thresholding on detection confidence values to create tracks.";
+  PLUGIN_INFO( "threshold",
+               "1.0",
+               "Perform thresholding on detection confidence values to create tracks." )
 
   /// Default Constructor
   initialize_object_tracks_threshold();

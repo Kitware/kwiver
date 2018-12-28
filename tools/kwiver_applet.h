@@ -35,6 +35,8 @@
 
 #include <tools/cxxopts.hpp>
 
+#include <vital/plugin_loader/plugin_info.h>
+
 #include <ostream>
 #include <memory>
 #include <vector>

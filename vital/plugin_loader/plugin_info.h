@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,53 +28,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file
- * \brief Image display process interface.
- */
+#ifndef VITAL_PLUGIN_LOADER_PLUGIN_INFO_H
+#define VITAL_PLUGIN_LOADER_PLUGIN_INFO_H
 
-#ifndef _KWIVER_IMAGE_VIEWER_PROCESS_H
-#define _KWIVER_IMAGE_VIEWER_PROCESS_H
+#define PLUGIN_INFO(NAME, VERSION, DESCRIP)             \
+  static constexpr char const* _plugin_name{ NAME };            \
+  static constexpr char const* _plugin_version{ VERSION };      \
+  static constexpr char const* _plugin_description{ DESCRIP };
 
-#include <sprokit/pipeline/process.h>
-#include "kwiver_processes_ocv_export.h"
-
-#include <memory>
-
-namespace kwiver
-{
-
-// ----------------------------------------------------------------
-/**
- * @brief Display images
- *
- */
-class KWIVER_PROCESSES_OCV_NO_EXPORT image_viewer_process
-  : public sprokit::process
-{
-public:
-  PLUGIN_INFO( "image_viewer",
-               "1.0",
-               "Display input image and delay" )
-
-  // -- CONSTRUCTORS --
-  image_viewer_process( kwiver::vital::config_block_sptr const& config );
-  virtual ~image_viewer_process();
-
-protected:
-  virtual void _configure();
-  virtual void _step();
-
-private:
-  void make_ports();
-  void make_config();
-
-
-  class priv;
-  const std::unique_ptr<priv> d;
-
-}; // end class image_viewer_process
-
-} // end namespace
-
-#endif // _KWIVER_IMAGE_VIEWER_PROCESS_H
+#endif // VITAL_PLUGIN_LOADER_PLUGIN_INFO_H

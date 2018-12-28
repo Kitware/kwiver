@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,53 +28,59 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file
- * \brief Image display process interface.
- */
+#ifndef PLUGIN_LOADER_PLUGIN_REGISTRAR_H
+#define PLUGIN_LOADER_PLUGIN_REGISTRAR_H
 
-#ifndef _KWIVER_IMAGE_VIEWER_PROCESS_H
-#define _KWIVER_IMAGE_VIEWER_PROCESS_H
+#include <vital/plugin_loader/plugin_factory.h>
 
-#include <sprokit/pipeline/process.h>
-#include "kwiver_processes_ocv_export.h"
+// ==================================================================
+// Support for adding factories for the plugin loader
 
-#include <memory>
+namespace kwiver {
+namespace vital {
+  class plugin_loader;
+} // end namespace vitak
 
-namespace kwiver
-{
 
-// ----------------------------------------------------------------
-/**
- * @brief Display images
- *
- */
-class KWIVER_PROCESSES_OCV_NO_EXPORT image_viewer_process
-  : public sprokit::process
+/// Class to assist in registering tools.
+class plugin_registrar
 {
 public:
-  PLUGIN_INFO( "image_viewer",
-               "1.0",
-               "Display input image and delay" )
+  /**
+   * @brief Create registrar
+   *
+   * This class contains the common data used for registering tools.
+   *
+   * @param vpl Reference to the plugin loader
+   * @param name Name of this loadable module.
+   */
+  plugin_registrar( vital::plugin_loader& vpl,
+                    const std::string& name )
+    : mod_name( name )
 
-  // -- CONSTRUCTORS --
-  image_viewer_process( kwiver::vital::config_block_sptr const& config );
-  virtual ~image_viewer_process();
+#if defined PLUGIN_ORG
+    , mod_organization( PLUGIN_ORG )
+#else
+    , mod_organization( "Unspecified" )
+#endif
+    , m_plugin_loader( vpl )
+  {
+  }
 
-protected:
-  virtual void _configure();
-  virtual void _step();
+  bool is_module_loaded() { return m_plugin_loader.is_module_loaded( mod_name ); }
+  void mark_module_as_loaded() { m_plugin_loader.mark_module_as_loaded( mod_name ); }
+
+  const std::string& module_name() const { return this->mod_name; }
+  const std::string& organization() const { return this->mod_organization; }
+  kwiver::vital::plugin_loader& plugin_loader() { return this->m_plugin_loader; }
 
 private:
-  void make_ports();
-  void make_config();
+  const std::string mod_name;
+  const std::string mod_organization;
 
-
-  class priv;
-  const std::unique_ptr<priv> d;
-
-}; // end class image_viewer_process
+  kwiver::vital::plugin_loader& m_plugin_loader;
+};
 
 } // end namespace
 
-#endif // _KWIVER_IMAGE_VIEWER_PROCESS_H
+#endif // PLUGIN_LOADER_PLUGIN_REGISTRAR_H

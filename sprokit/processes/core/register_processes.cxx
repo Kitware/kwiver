@@ -30,6 +30,7 @@
 
 #include <sprokit/processes/core/kwiver_processes_export.h>
 
+#include <vital/plugin_loader/plugin_organization.h>
 #include <sprokit/pipeline/process_factory.h>
 #include <vital/plugin_loader/plugin_loader.h>
 

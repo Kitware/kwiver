@@ -45,12 +45,11 @@ class dump_klv
 public:
   dump_klv();
 
-  static constexpr char const* name = "dump_klv";
-  static constexpr char const* description =
-    "Dump KLV stream from video.\n\n"
-    "This program displays the KLV metadata packets that are embedded in "
-    "a video stream.";
-
+  PLUGIN_INFO( "dump_klv",      // plugin name
+               "1.0",           // plugin version
+               "Dump KLV stream from video.\n\n"
+               "This program displays the KLV metadata packets that are embedded in "
+               "a video stream.")
 
   virtual int run() override;
   virtual void add_command_options() override;

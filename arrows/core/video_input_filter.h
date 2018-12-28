@@ -50,13 +50,10 @@ class KWIVER_ALGO_CORE_EXPORT video_input_filter
   : public vital::algorithm_impl < video_input_filter, vital::algo::video_input >
 {
 public:
-  /// Name of the algorithm
-  static constexpr char const* name = "filter";
-
-  /// Description of the algorithm
-  static constexpr char const* description =
-    "A video input that calls another video input"
-    " and filters the output on frame range and other parameters.";
+  PLUGIN_INFO( "filter",
+               "1.0",
+               "A video input that calls another video input"
+               " and filters the output on frame range and other parameters." )
 
   /// Constructor
   video_input_filter();

@@ -52,11 +52,9 @@ class KWIVER_ALGO_CORE_EXPORT read_object_track_set_kw18
       vital::algo::read_object_track_set >
 {
 public:
-
-  static constexpr char const* name = "kw18";
-
-  static constexpr char const* description =
-    "Object track set kw18 reader.";
+  PLUGIN_INFO( "kw18",
+               "1.0",
+               "Object track set kw18 reader." )
 
   read_object_track_set_kw18();
   virtual ~read_object_track_set_kw18();

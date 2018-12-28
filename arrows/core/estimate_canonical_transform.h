@@ -65,13 +65,10 @@ class KWIVER_ALGO_CORE_EXPORT estimate_canonical_transform
                                  vital::algo::estimate_canonical_transform>
 {
 public:
-  /// Name of the algorithm
-  static constexpr char const* name = "core_pca";
-
-  /// Description of the algorithm
-  static constexpr char const* description =
-    "Uses PCA to estimate a canonical similarity transform"
-    " that aligns the best fit plane to Z=0";
+  PLUGIN_INFO( "core_pca",
+               "1.0",
+               "Uses PCA to estimate a canonical similarity transform"
+               " that aligns the best fit plane to Z=0" )
 
   /// Constructor
   estimate_canonical_transform();

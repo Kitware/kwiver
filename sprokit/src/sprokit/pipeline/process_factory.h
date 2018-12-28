@@ -41,6 +41,7 @@
 #include <vital/vital_config.h>
 #include <vital/config/config_block.h>
 #include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_loader/plugin_registrar.h>
 
 #include <sprokit/pipeline/process.h>
 
@@ -192,6 +193,50 @@ kwiver::vital::plugin_factory_vector_t const& get_process_list();
   add_factory( new sprokit::cpp_process_factory( typeid( proc_type ).name(), \
                                                  typeid( sprokit::process ).name(), \
                                                  sprokit::create_new_process< proc_type > ) )
+
+// ============================================================================
+class process_registrar
+  : public kwiver::plugin_registrar
+{
+public:
+  enum option {
+    none = 0,
+    no_test = 1
+  };
+
+  process_registrar( kwiver::vital::plugin_loader& vpl,
+                       const std::string& mod_name )
+    : plugin_registrar( vpl, mod_name )
+  {
+  }
+
+  // ----------------------------------------------------------------------------
+  template <typename process_t>
+  kwiver::vital::plugin_factory_handle_t  register_process( option opt = none )
+  {
+    using kvpf = kwiver::vital::plugin_factory;
+
+    auto fact = plugin_loader().
+      add_factory( new sprokit::cpp_process_factory( typeid( process_t ).name(),
+                     typeid( sprokit::process ).name(),
+                     sprokit::create_new_process< process_t > ) );
+
+    fact->add_attribute( kvpf::PLUGIN_NAME,      process_t::_plugin_name )
+      .add_attribute( kvpf::PLUGIN_DESCRIPTION,  process_t::_plugin_description )
+      .add_attribute( kvpf::PLUGIN_VERSION,      process_t::_plugin_version )
+      .add_attribute( kvpf::PLUGIN_MODULE_NAME,  this->module_name() )
+      .add_attribute( kvpf::PLUGIN_ORGANIZATION, this->organization() )
+      ;
+
+    if (opt == no_test)
+    {
+      fact->add_attribute( "no-test", "introspect" ); // do not include in introspection test
+    }
+
+    return fact;
+  }
+
+};
 
 } // end namespace
 
