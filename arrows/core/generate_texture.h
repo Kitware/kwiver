@@ -70,9 +70,9 @@ void dilate_atlas(vital::image& atlas, vital::image_of<char>& mask, int nb_iter)
 * \param d [in] depth
 */
 template <class T>
-inline double bilinear_interp_safe(vital::image const& img, double x, double y, int d=0)
+inline double bilinear_interp_safe(vital::image_of<T> const& img, double x, double y, int d=0)
 {
-  if (x < 0 || y < 0 || x > img.width() - 1|| y > img.height() - 1)
+  if (x < 0 || y < 0 || x >= img.width() - 1|| y >= img.height() - 1)
     return 0.0;
 
   int p1x = static_cast<int>(x);
@@ -91,6 +91,26 @@ inline double bilinear_interp_safe(vital::image const& img, double x, double y, 
   double i2 = pix1[w_step] + (pix1[w_step + h_step] - pix1[w_step]) * normy;
 
   return i1 + (i2 - i1) * normx;
+}
+
+
+/// This functions dispatches calls to templated versions of bilinear interpolation based on pixels type
+/**
+* \param img [in] image
+* \param x [in] location
+* \param y [in] location
+* \param d [in] depth
+*/
+double bilinear_interp_safe(vital::image const& img, double x, double y, int d=0)
+{
+  if (img.pixel_traits() == vital::image_pixel_traits_of<unsigned char>())
+    return bilinear_interp_safe(vital::image_of<unsigned char>(img), x, y, d);
+  else if (img.pixel_traits() == vital::image_pixel_traits_of<int>())
+    return bilinear_interp_safe(vital::image_of<int>(img), x, y, d);
+  else if (img.pixel_traits() == vital::image_pixel_traits_of<float>())
+    return bilinear_interp_safe(vital::image_of<float>(img), x, y, d);
+  else if (img.pixel_traits() == vital::image_pixel_traits_of<double>())
+    return bilinear_interp_safe(vital::image_of<double>(img), x, y, d);
 }
 
 
@@ -153,7 +173,7 @@ void render_triangle_from_images(vital::vector_2d const& v1, vital::vector_2d co
                                  std::vector<double> const& depths_pt2,
                                  std::vector<double> const& depths_pt3,
                                  std::vector<vital::image> const& depth_maps,
-                                 vital::image& texture, double depth_threshold,
+                                 vital::image_of<T>& texture, double depth_threshold,
                                  image_fusion_method const& adjust_images_contributions)
 {
   // Compute a score for each image
@@ -168,7 +188,7 @@ void render_triangle_from_images(vital::vector_2d const& v1, vital::vector_2d co
   triangle_scan_iterator tsi(v1, v2, v3);
   vital::vector_2d vt1(v2 - v1), vt2(v3 - v1);
   vital::vector_2d vn1(-vt1[1], vt1[0]), vn2(vt2[1], -vt2[0]);
-  double s = 1.0 / (vt1[0] * vt2[1] - vt1[1] * vt2[0]);
+  double inv_area = 1.0 / (vt1[0] * vt2[1] - vt1[1] * vt2[0]);
   std::vector<vital::vector_2d> points_2d(images.size());
   std::vector<T> values(texture.depth(), 0.0);
   for (tsi.reset(); tsi.next(); )
@@ -182,11 +202,11 @@ void render_triangle_from_images(vital::vector_2d const& v1, vital::vector_2d co
     for (int x = min_x; x <= max_x; ++x)
     {
       vital::vector_2d vp(vital::vector_2d(x, y) - v1);
-      double bc = s * vn1.dot(vp);
-      double bb = s * vn2.dot(vp);
-      double ba = 1.0 - bc - bb;
+      double bary_coord_3 = inv_area * vn1.dot(vp);
+      double bary_coord_2 = inv_area * vn2.dot(vp);
+      double bary_coord_1 = 1.0 - bary_coord_2 - bary_coord_3;
       // Corresponding 3d point
-      vital::vector_3d pt3d = ba * pt1 + bb * pt2 + bc * pt3;
+      vital::vector_3d pt3d = bary_coord_1 * pt1 + bary_coord_2 * pt2 + bary_coord_3 * pt3;
 
       std::vector<double> point_scores = scores;
       for (size_t i = 0; i < images.size(); ++i)
@@ -201,8 +221,10 @@ void render_triangle_from_images(vital::vector_2d const& v1, vital::vector_2d co
           continue;
         }
         // visibility test from the camera i
-        double interpolated_depth = ba * depths_pt1[i] + bb * depths_pt2[i] + bc * depths_pt3[i];
-        if (std::abs(interpolated_depth -  bilinear_interp_safe<double>(depth_maps[i], pt_img(0), pt_img(1))) > depth_threshold)
+        double interpolated_depth = bary_coord_1 * depths_pt1[i] +
+                                    bary_coord_2 * depths_pt2[i] +
+                                    bary_coord_3 * depths_pt3[i];
+        if (std::abs(interpolated_depth -  bilinear_interp_safe(depth_maps[i], pt_img(0), pt_img(1))) > depth_threshold)
         {
           point_scores[i] = 0;
         }
@@ -216,12 +238,12 @@ void render_triangle_from_images(vital::vector_2d const& v1, vital::vector_2d co
         if (point_scores[i] > 0)
         {
           for (size_t d = 0; d < texture.depth(); ++d)
-            values[d] += point_scores[i] * bilinear_interp_safe<T>(images[i], points_2d[i](0), points_2d[i](1), d);
+            values[d] += point_scores[i] * bilinear_interp_safe(images[i], points_2d[i](0), points_2d[i](1), d);
         }
       }
       // fill the texture pixel
       for (size_t d = 0; d < texture.depth(); ++d)
-        texture.at<T>(x, y, d) = values[d];
+        texture(x, y, d) = values[d];
     }
   }
 }
