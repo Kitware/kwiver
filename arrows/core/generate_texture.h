@@ -95,7 +95,6 @@ inline double bilinear_interp_safe(vital::image const& img, double x, double y, 
 
 
 /// Base functor used to fuse multiple images. It adjusts the contribution of each image.
-template <class T>
 struct image_fusion_method
 {
   virtual void operator ()(std::vector<double>& scores) const = 0;
@@ -103,8 +102,7 @@ struct image_fusion_method
 
 
 /// This functor sets the highest score to 1 and the other to 0
-template <class T>
-struct select_max_score : image_fusion_method<T>
+struct select_max_score : image_fusion_method
 {
   virtual void operator ()(std::vector<double>& scores) const
   {
@@ -119,8 +117,7 @@ struct select_max_score : image_fusion_method<T>
 
 
 /// This functor normalizes the scores
-template <class T>
-struct normalize_scores : image_fusion_method<T>
+struct normalize_scores : image_fusion_method
 {
   virtual void operator ()(std::vector<double>& scores) const
   {
@@ -157,7 +154,7 @@ void render_triangle_from_images(vital::vector_2d const& v1, vital::vector_2d co
                                  std::vector<double> const& depths_pt3,
                                  std::vector<vital::image> const& depth_maps,
                                  vital::image& texture, double depth_threshold,
-                                 image_fusion_method<T> const& adjust_images_contributions)
+                                 image_fusion_method const& adjust_images_contributions)
 {
   // Compute a score for each image
   std::vector<double> scores(images.size(), 0.0);
@@ -169,12 +166,9 @@ void render_triangle_from_images(vital::vector_2d const& v1, vital::vector_2d co
   }
 
   triangle_scan_iterator tsi(v1, v2, v3);
-  vital::matrix_3x3d triangle;
-  vital::matrix_3x3d area_c, area_a;
-  triangle << v1, v2, v3, 1, 1, 1;
-  area_c << v1, v2, v2, 1, 1, 1;  // triangle abp
-  area_a << v2, v3, v3, 1, 1, 1;  // triangle bcp
-  double inv_area = 1.0 / triangle.determinant();
+  vital::vector_2d vt1(v2 - v1), vt2(v3 - v1);
+  vital::vector_2d vn1(-vt1[1], vt1[0]), vn2(vt2[1], -vt2[0]);
+  double s = 1.0 / (vt1[0] * vt2[1] - vt1[1] * vt2[0]);
   std::vector<vital::vector_2d> points_2d(images.size());
   std::vector<T> values(texture.depth(), 0.0);
   for (tsi.reset(); tsi.next(); )
@@ -185,16 +179,14 @@ void render_triangle_from_images(vital::vector_2d const& v1, vital::vector_2d co
     int min_x = std::max(0, tsi.start_x());
     int max_x = std::min(static_cast<int>(texture.width()) - 1, tsi.end_x());
 
-    area_c(1, 2) = y;
-    area_a(1, 2) = y;
     for (int x = min_x; x <= max_x; ++x)
     {
-      area_c(0, 2) = x;
-      area_a(0, 2) = x;
-      vital::vector_3d bary_coords(area_a.determinant() * inv_area, 0, area_c.determinant() * inv_area);
-      bary_coords(1) = 1 - bary_coords(0) - bary_coords(2);
+      vital::vector_2d vp(vital::vector_2d(x, y) - v1);
+      double bc = s * vn1.dot(vp);
+      double bb = s * vn2.dot(vp);
+      double ba = 1.0 - bc - bb;
       // Corresponding 3d point
-      vital::vector_3d pt3d = bary_coords(0) * pt1 + bary_coords(1) * pt2 + bary_coords(2) * pt3;
+      vital::vector_3d pt3d = ba * pt1 + bb * pt2 + bc * pt3;
 
       std::vector<double> point_scores = scores;
       for (size_t i = 0; i < images.size(); ++i)
@@ -209,7 +201,7 @@ void render_triangle_from_images(vital::vector_2d const& v1, vital::vector_2d co
           continue;
         }
         // visibility test from the camera i
-        double interpolated_depth = bary_coords(0) * depths_pt1[i] + bary_coords(1) * depths_pt2[i] + bary_coords(2) * depths_pt3[i];
+        double interpolated_depth = ba * depths_pt1[i] + bb * depths_pt2[i] + bc * depths_pt3[i];
         if (std::abs(interpolated_depth -  bilinear_interp_safe<double>(depth_maps[i], pt_img(0), pt_img(1))) > depth_threshold)
         {
           point_scores[i] = 0;
@@ -308,7 +300,7 @@ void dilate_atlas(vital::image& texture, vital::image_of<char>& mask, int nb_ite
  * \param images [in] a list of images
  * \param resolution [in] resolution of the texture (mesh unit/pixel)
  */
-template <class T, int N>
+template <class T>
 vital::image_container_sptr
 generate_texture(vital::mesh_sptr mesh, std::vector<vital::camera_perspective_sptr> const& cameras,
                  std::vector<vital::image> const& images, double resolution)
@@ -381,7 +373,7 @@ generate_texture(vital::mesh_sptr mesh, std::vector<vital::camera_perspective_sp
     cameras_base[k] = cameras[k];
   }
 
-  vital::image_of<T> texture(scale, scale, N);
+  vital::image_of<T> texture(scale, scale, images[0].depth());
   vital::transform_image(texture, [](T){ return 0; });
   kwiver::vital::image_of<char> texture_mask(scale, scale, 1);
   vital::transform_image(texture_mask, [](char){ return 0; });
@@ -399,7 +391,7 @@ generate_texture(vital::mesh_sptr mesh, std::vector<vital::camera_perspective_sp
                                   per_camera_point_depth[p1],
                                   per_camera_point_depth[p2],
                                   per_camera_point_depth[p3],
-                                  depth_maps, texture, 0.1, select_max_score<T>());
+                                  depth_maps, texture, 0.1, select_max_score());
     kwiver::arrows::core::render_triangle<char>(tcoords[f * 3], tcoords[f * 3 + 1],
                                                 tcoords[f * 3 + 2], 1, texture_mask);
   }

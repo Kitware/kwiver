@@ -226,7 +226,7 @@ void render_triangle(const vital::vector_2d& v1, const vital::vector_2d& v2, con
  */
 template<class T>
 void render_triangle(vital::vector_2d const& v1, vital::vector_2d const& v2,
-                     vital::vector_2d const& v3, T const& label, vital::image& img)
+                     vital::vector_2d const& v3, T const& label, vital::image_of<T>& img)
 {
   triangle_scan_iterator tsi(v1, v2, v3);
   for (tsi.reset(); tsi.next(); )
@@ -239,7 +239,7 @@ void render_triangle(vital::vector_2d const& v1, vital::vector_2d const& v2,
 
     for (int x = min_x; x <= max_x; ++x)
     {
-      img.at<T>(x, y) = label;
+      img(x, y) = label;
     }
   }
 }
