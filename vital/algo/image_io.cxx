@@ -50,6 +50,8 @@ namespace kwiver {
 namespace vital {
 namespace algo {
 
+const algorithm_capabilities::capability_name_t image_io::HAS_TIME( "has-time" );
+
 image_io
 ::image_io()
 {
@@ -94,6 +96,49 @@ image_io
   }
 
   this->save_(filename, data);
+}
+
+
+bool
+image_io
+::timestamp(std::string const& filename, kwiver::vital::timestamp::time_t& time) const
+{
+  // Make sure that the given file path exists and is a file.
+  if ( ! kwiversys::SystemTools::FileExists( filename ) )
+  {
+    VITAL_THROW( path_not_exists, filename);
+  }
+  else if ( kwiversys::SystemTools::FileIsDirectory( filename ) )
+  {
+    VITAL_THROW( path_not_a_file, filename);
+  }
+
+  return this->timestamp_(filename, time);
+}
+
+
+bool
+image_io
+::timestamp_(std::string const& filename, kwiver::vital::timestamp::time_t& time) const
+{
+  // No timestamp functionality by default.
+  return false;
+}
+
+
+algorithm_capabilities const&
+image_io
+::get_implementation_capabilities() const
+{
+  return m_capabilities;
+}
+
+
+void
+image_io
+::set_capability( algorithm_capabilities::capability_name_t const& name, bool val )
+{
+  m_capabilities.set_capability( name, val );
 }
 
 

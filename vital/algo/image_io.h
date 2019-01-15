@@ -42,7 +42,9 @@
 #include <string>
 
 #include <vital/algo/algorithm.h>
+#include <vital/algorithm_capabilities.h>
 #include <vital/types/image_container.h>
+#include <vital/types/timestamp.h>
 
 namespace kwiver {
 namespace vital {
@@ -52,11 +54,22 @@ namespace algo {
 /**
  * This class represents an abstract interface for reading and writing
  * images.
+ *
+ * A note about the basic capabilities:
+ *
+ * HAS_TIME - This capability is set to true if the image supplies a
+ *     time. If a time is supplied, it is made available via the timestamp()
+ *     method. If the time is not supplied, then the timestamp() method will
+ *     return false.
  */
 class VITAL_ALGO_EXPORT image_io
   : public kwiver::vital::algorithm_def<image_io>
 {
 public:
+  // Common capabilities
+  // -- basic capabilities --
+  static const algorithm_capabilities::capability_name_t HAS_TIME;
+
   virtual ~image_io() = default;
 
   /// Return the name of this algorithm
@@ -69,7 +82,7 @@ public:
    * \throws kwiver::vital::path_not_a_file Thrown when the given path does
    *    not point to a file (i.e. it points to a directory).
    *
-   * \param filename the path to the file the load
+   * \param filename the path to the file to load
    * \returns an image container refering to the loaded image
    */
   kwiver::vital::image_container_sptr load(std::string const& filename) const;
@@ -90,8 +103,32 @@ public:
    */
   void save(std::string const& filename, kwiver::vital::image_container_sptr data) const;
 
+  /// Get the image timestamp
+  /**
+   * \throws kwiver::vital::path_not_exists Thrown when the given path does not exist.
+   *
+   * \throws kwiver::vital::path_not_a_file Thrown when the given path does
+   *    not point to a file (i.e. it points to a directory).
+   *
+   * \param filename the path to the file to read
+   * \param time reference to the timestamp to store into
+   * \returns true if the timestamp was set, false if not
+   */
+  bool timestamp(std::string const& filename, kwiver::vital::timestamp::time_t& time) const;
+
+  /**
+   * \brief Return capabilities of concrete implementation.
+   *
+   * This method returns the capabilities for the image I/O.
+   *
+   * \return Reference to supported image capabilities.
+   */
+  algorithm_capabilities const& get_implementation_capabilities() const;
+
 protected:
   image_io();
+
+  void set_capability( algorithm_capabilities::capability_name_t const& name, bool val );
 
 private:
   /// Implementation specific load functionality.
@@ -114,6 +151,16 @@ private:
    */
   virtual void save_(std::string const& filename,
                      kwiver::vital::image_container_sptr data) const = 0;
+
+  /// Implementation specific timestamp functionality.
+  /**
+   * \param filename the path to the file to read
+   * \param time reference to the timestamp to store into
+   * \returns true if the timestamp was set, false if not
+   */
+  virtual bool timestamp_(std::string const& filename, kwiver::vital::timestamp::time_t& time) const;
+
+  algorithm_capabilities m_capabilities;
 };
 
 

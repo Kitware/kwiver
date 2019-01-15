@@ -143,6 +143,10 @@ video_input_image_list
   // Setup actual reader algorithm
   vital::algo::image_io::
     set_nested_algo_configuration( "image_reader", config, d->m_image_reader );
+
+  // Get capabilities of image reader
+  set_capability( vital::algo::video_input::HAS_FRAME_TIME,
+    d->m_image_reader->get_implementation_capabilities().capability( vital::algo::image_io::HAS_TIME ) );
 }
 
 
@@ -342,9 +346,7 @@ video_input_image_list
   d->m_image = nullptr;
 
   // Return timestamp
-  ts = kwiver::vital::timestamp();
-
-  ts.set_frame( d->m_frame_number );
+  ts = this->frame_timestamp();
 
   return ! this->end_of_video();
 }
@@ -362,6 +364,12 @@ video_input_image_list
   kwiver::vital::timestamp ts;
 
   ts.set_frame( d->m_frame_number );
+
+  kwiver::vital::timestamp::time_t time;
+  if ( d->m_image_reader->get_implementation_capabilities().capability( vital::algo::image_io::HAS_TIME ) && d->m_image_reader->timestamp( *d->m_current_file, time ) )
+  {
+    ts.set_time_usec( time );
+  }
 
   return ts;
 }
