@@ -72,13 +72,24 @@ void epx_test::configure( kwiver::vital::config_block_sptr const conf )
   // print config
   std::stringstream str;
   conf->print( str );
-   std::cout <<  "exp_test: configure called with  config:\n" << str.str() <<std::endl;
+   std::cout <<  "exp_test: configure called with config:\n" << str.str() <<std::endl;
 }
+
+
+kwiver::vital::config_block_sptr epx_test::get_configuration() const
+{
+  auto conf = kwiver::vital::config_block::empty_config();
+  conf->set_value( "def-key1", "def_val" );
+  conf->set_value( "one", "def_one" );
+
+  return conf;
+}
+
 
 } // end namespace
 
 // ----------------------------------------------------------------
-/*! \brief Regsiter processes
+/*! \brief Regsiter Extension
  *
  *
  */

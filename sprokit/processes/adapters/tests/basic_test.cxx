@@ -63,6 +63,8 @@ main(int argc, char* argv[])
 
   testname_t const testname = argv[1];
 
+  kwiver::vital::plugin_manager::instance().load_all_plugins();
+
   RUN_TEST(testname);
 }
 
@@ -284,7 +286,7 @@ public:
   virtual ~src_ep() { }
 
 protected:
-  virtual bool connect_input_adapter() { return true; }
+  virtual bool connect_input_adapter() override { return true; }
 };
 
 
@@ -344,7 +346,7 @@ public:
   virtual ~config_ep() { }
 
 protected:
-  virtual void update_config( kwiver::vital::config_block_sptr config )
+  virtual void update_config( kwiver::vital::config_block_sptr config ) override
   {
     // Test to see if the config has test = value
     TEST_EQUAL( "Has expected entry", config->has_value( "ia:test" ), true );
@@ -396,8 +398,8 @@ IMPLEMENT_TEST( epx_test )
 
                 << SPROKIT_CONFIG_BLOCK( "_pipeline" )
                 << SPROKIT_CONFIG( "embedded_pipeline_extension:type", "test" )
-                << SPROKIT_CONFIG( "embedded_pipeline_extension:one", "one-test" )
-                << SPROKIT_CONFIG( "embedded_pipeline_extension:two", "two-test" )
+                << SPROKIT_CONFIG( "embedded_pipeline_extension:test:one", "one-test" )
+                << SPROKIT_CONFIG( "embedded_pipeline_extension:test:two", "two-test" )
 
     ;
 

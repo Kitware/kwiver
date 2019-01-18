@@ -120,7 +120,7 @@ namespace kwiver {
     auto rds = ep.receive();
 
     // get value from the output adapter
-    int val = get_port_data<int>( "out_num" );
+    int val = rds->get_port_data<int>( "out_num" );
 
     // val should be the same as i
 
@@ -283,7 +283,8 @@ public:
   /**
    * @brief Stop an executing pipeline.
    *
-   * This method asynchronously stops the pipeline.
+   * This method signals the pipeline to stop and waits until it has
+   * terminated.
    */
   void stop();
 

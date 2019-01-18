@@ -53,14 +53,4 @@ get_configuration() const
   return conf;
 }
 
-
-// ============================================================================
-// Base class methods should never be called
-embedded_pipeline_extension::context::
-context()
-{
-
-}
-
-
 } // end namespace kwiver
