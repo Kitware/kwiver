@@ -11,7 +11,26 @@ Vital
 
  * Added constructors taking initalizer lists to mesh types for easier
    initialization.
- * Added a new abstract algorithm, uv_unwrap_mesh, which unwraps a mesh and generates normalized texture coordinates.
+
+ * Added a new abstract algorithm, uv_unwrap_mesh, which unwraps a
+   mesh and generates normalized texture coordinates.
+
+ * Added a foreach_pixel helper function to apply an operation at every
+   pixel of a const image.
+
+ * Added the data_serializer base algorithm to support serilization
+   of Vital types for distributed processing and other uses.
+
+ * Applied a new approach to adding metadata to plugins. The plugin
+   name and description are now specified in the plugin
+   header. Added new plugin registrar class framework to simplify the
+   registration process.
+
+ * Promoted version.h from sprokit to vital for use across all of KWIVER.
+
+ * Added additional range helpers indirect and valid.  The former provides
+   access to iterators while still allowing a range-based for to be used.  The
+   latter filters iteration so that only "valid" items are visited.
 
  * Added iterator, const_iterator and iterable classes to support container-
    independent iteration.

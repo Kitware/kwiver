@@ -44,19 +44,21 @@ namespace vital {
 
 
 /// A concrete image container set that simply wraps a vector of images.
-class simple_image_container_set
+class VITAL_EXPORT simple_image_container_set
   : public image_container_set
 {
 public:
   /// Default Constructor
-  simple_image_container_set() { }
+  simple_image_container_set();
 
   /// Constructor from a vector of images
-  explicit simple_image_container_set( std::vector< image_container_sptr > const& images )
-    : data_( images ) { }
+  explicit simple_image_container_set( std::vector< image_container_sptr > const& images );
 
   /// Return the number of items
-  virtual size_t size() const { return data_.size(); }
+  virtual size_t size() const;
+  virtual bool empty() const;
+  virtual image_container_sptr at( size_t index );
+  virtual image_container_sptr const at( size_t index ) const;
 
 protected:
   using vec_t = std::vector< image_container_sptr >;
@@ -65,42 +67,14 @@ protected:
   vec_t data_;
 
   /// Implement next function for non-const iterator.
-  iterator::next_value_func_t
-  get_iter_next_func()
-  {
-    vec_t::iterator v_it = data_.begin();
-    // Lambda notes:
-    // - [=] capture by copy
-    // - mutable: modify the parameters captured by copy
-    return [=] () mutable ->iterator::reference {
-      if( v_it == data_.end() )
-      {
-        throw stop_iteration_exception();
-      }
-      return *(v_it++);
-    };
-  }
+  iterator::next_value_func_t get_iter_next_func();
 
   /// Implement next function for const iterator.
-  const_iterator::next_value_func_t
-  get_const_iter_next_func() const
-  {
-    vec_t::const_iterator v_cit = data_.begin();
-    // Lambda notes:
-    // - [=] capture by copy
-    // - mutable: modify the parameters captured by copy
-    return [=] () mutable ->const_iterator::reference {
-      if( v_cit == data_.end()  )
-      {
-        throw stop_iteration_exception();
-      }
-      return *(v_cit++);
-    };
-  }
+  const_iterator::next_value_func_t get_const_iter_next_func() const;
 };
 
 
 } } // end namespaces
 
 
-#endif //VITAL_IMAGE_CONTAINER_SET_SIMPLE_H_
+#endif // VITAL_IMAGE_CONTAINER_SET_SIMPLE_H_

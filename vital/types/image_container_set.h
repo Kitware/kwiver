@@ -36,10 +36,10 @@
 #ifndef VITAL_IMAGE_CONTAINER_SET_H_
 #define VITAL_IMAGE_CONTAINER_SET_H_
 
-
 #include "image_container.h"
-#include <vital/vital_config.h>
-#include <vital/iterator.h>
+
+#include <vital/vital_export.h>
+#include <vital/set.h>
 #include <vital/logger/logger.h>
 #include <vital/noncopyable.h>
 
@@ -54,15 +54,12 @@ namespace vital {
  * derived classes can store the data in other formats and convert on demand.
  */
 class image_container_set
-  : public iterable< image_container_sptr >
+  : public set< image_container_sptr >
   , private noncopyable
 {
 public:
   /// Destructor
   virtual ~image_container_set() = default;
-
-  /// Return the number of images in the set
-  virtual size_t size() const = 0;
 
 protected:
   image_container_set()

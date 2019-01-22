@@ -177,6 +177,7 @@ set( vital_sources
   types/homography_f2f.cxx
   types/homography_f2w.cxx
   types/image.cxx
+  types/image_container_set_simple.cxx
   types/iqr_feedback.cxx
   types/landmark.cxx
   types/mesh.cxx
