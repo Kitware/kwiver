@@ -59,6 +59,14 @@ public:
   /// Destructor
   virtual ~descriptor_set();
 
+  /// Return a vector of descriptor shared pointers
+  /**
+   * This is not the best way to get a list of descriptors as it
+   * breaks the data abstraction and would be difficult to implement
+   * if the backing store was a data base.
+   */
+  virtual std::vector< descriptor_sptr > descriptors() const = 0;
+
 protected:
   descriptor_set();
 
@@ -110,6 +118,9 @@ public:
   virtual descriptor_sptr at( size_t index );
   virtual descriptor_sptr const at( size_t index ) const;
   //@}
+
+  /// Return a vector of descriptor shared pointers
+  virtual std::vector< descriptor_sptr > descriptors() const { return data_; }
 
 protected:
   using vec_t = std::vector< descriptor_sptr >;

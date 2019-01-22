@@ -187,6 +187,36 @@ vital_descriptors_to_ocv(const vital::descriptor_set& desc)
 
 } // end anonymous namespace
 
+
+/// Return a vector of descriptor shared pointers
+std::vector<vital::descriptor_sptr>
+descriptor_set
+::descriptors() const
+{
+  std::vector<vital::descriptor_sptr> desc;
+  const unsigned num_desc = data_.rows;
+  /// \cond DoxygenSuppress
+#define CONVERT_CASE(T) \
+  case cv::DataType<T>::type: \
+  for( unsigned i=0; i<num_desc; ++i ) \
+  { \
+    desc.push_back(ocv_to_vital_descriptor<T>(data_.row(i))); \
+  } \
+  break
+
+  switch(data_.type())
+  {
+  APPLY_TO_TYPES(CONVERT_CASE);
+  default:
+    throw vital::invalid_value("No case to handle OpenCV descriptors of type "
+                               + cv_type_to_string(data_.type()));
+  }
+#undef CONVERT_CASE
+  /// \endcond
+  return desc;
+}
+
+
 /// Constructor from an OpenCV descriptor matrix
 descriptor_set
 ::descriptor_set( cv::Mat const & descriptor_matrix )

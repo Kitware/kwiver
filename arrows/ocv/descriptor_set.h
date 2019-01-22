@@ -59,12 +59,14 @@ public:
   /// Constructor from an OpenCV descriptor matrix
   explicit descriptor_set(const cv::Mat& descriptor_matrix);
 
-  /**
-   * Get the number of elements in this set.
-   *
-   * @returns Number of elements in this set.
-   */
+  /// Return the number of descriptor in the set
   virtual size_t size() const;
+
+  /// Return a vector of descriptor shared pointers
+  virtual std::vector<vital::descriptor_sptr> descriptors() const;
+
+  /// Return the native OpenCV descriptors as a matrix
+  const cv::Mat& ocv_desc_matrix() const { return data_; }
 
   /**
    * Whether or not this set is empty.
@@ -84,9 +86,6 @@ public:
   virtual vital::descriptor_sptr at( size_t index );
   virtual vital::descriptor_sptr const at( size_t index ) const;
   //@}
-
-  /// Return the native OpenCV descriptors as a matrix
-  const cv::Mat& ocv_desc_matrix() const { return data_; }
 
 protected:
 
