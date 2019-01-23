@@ -57,7 +57,6 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-
 template <class T>
 void dilate_atlas(vital::image& atlas, vital::image_of<char>& mask, int nb_iter);
 
@@ -111,40 +110,30 @@ double bilinear_interp_safe(vital::image const& img, double x, double y, int d=0
     return bilinear_interp_safe(vital::image_of<float>(img), x, y, d);
   else if (img.pixel_traits() == vital::image_pixel_traits_of<double>())
     return bilinear_interp_safe(vital::image_of<double>(img), x, y, d);
+  else
+    return 0.0;
 }
 
 
 /// Base functor used to fuse multiple images. It adjusts the contribution of each image.
-struct image_fusion_method
+struct KWIVER_ALGO_CORE_EXPORT image_fusion_method
 {
+  virtual ~image_fusion_method() {}
   virtual void operator ()(std::vector<double>& scores) const = 0;
 };
 
 
 /// This functor sets the highest score to 1 and the other to 0
-struct select_max_score : image_fusion_method
+struct KWIVER_ALGO_CORE_EXPORT select_max_score : image_fusion_method
 {
-  virtual void operator ()(std::vector<double>& scores) const
-  {
-    auto max_it = std::max_element(scores.begin(), scores.end());
-    if (*max_it > 0)
-    {
-      std::fill(scores.begin(), scores.end(), 0.0);
-      *max_it = 1.0;
-    }
-  }
+  void operator ()(std::vector<double>& scores) const;
 };
 
 
 /// This functor normalizes the scores
-struct normalize_scores : image_fusion_method
+struct KWIVER_ALGO_CORE_EXPORT normalize_scores : image_fusion_method
 {
-  virtual void operator ()(std::vector<double>& scores) const
-  {
-    double sum = std::accumulate(scores.begin(), scores.end(), 0.0);
-    if (sum > 0)
-      std::for_each(scores.begin(), scores.end(), [&sum](double& v) { v /= sum; });
-  }
+  void operator ()(std::vector<double>& scores) const;
 };
 
 

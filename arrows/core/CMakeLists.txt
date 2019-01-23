@@ -98,6 +98,7 @@ set( plugin_core_sources
   filter_features_magnitude.cxx
   filter_features_scale.cxx
   filter_tracks.cxx
+  generate_texture.cxx
   handle_descriptor_request_core.cxx
   hierarchical_bundle_adjust.cxx
   initialize_cameras_landmarks.cxx
