@@ -41,6 +41,9 @@
 #include <vital/vital_config.h>
 #include <vital/vital_types.h>
 
+#include <vital/types/vector.h>
+//#include <Eigen/Geometry>
+
 #include <vector>
 #include <set>
 #include <memory>
@@ -61,6 +64,7 @@ typedef std::shared_ptr< track > track_sptr;
 typedef std::weak_ptr< track > track_wptr;
 typedef std::shared_ptr< track_state > track_state_sptr;
 
+//typedef Eigen::Matrix< double, 2, 1 > vector_type;
 
 // ----------------------------------------------------------------------------
 /// Empty base class for data associated with a track state
@@ -99,6 +103,16 @@ public:
   
   /// Set the frame identifier 
   void set_frame( frame_id_t frame_id ) { frame_id_ = frame_id; }
+  
+  ///Added vector getters/setters for missing kw18 fields
+  vector_2d tracking_plane_loc() { return tracking_plane_loc_; }
+  vector_2d velocity() { return velocity_; }
+  vector_3d world_loc_xyz() { return world_loc_xyz_; }
+
+  void set_tracking_plane_loc( vector_2d tracking_plane_loc ) { tracking_plane_loc_ = tracking_plane_loc;}
+  void set_velocity( vector_2d velocity ) { velocity_ = velocity;}
+  void set_world_loc_xyz( vector_3d world_loc_xyz ) { world_loc_xyz_ = world_loc_xyz;}
+  ///////////////////////////////////////////////////////
 
   virtual ~track_state() = default;
 
@@ -107,6 +121,12 @@ public:
 private:
   /// The frame identifier for this state
   frame_id_t frame_id_;
+
+  ///New data types for kw18 fields
+  vector_2d tracking_plane_loc_{0,0};
+  vector_2d velocity_{0,0};
+  vector_3d world_loc_xyz_{0,0,0};
+  /////////////////////////////////
 
   /// A weak reference back to the parent track
   track_wptr track_;
