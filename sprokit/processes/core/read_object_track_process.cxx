@@ -103,7 +103,7 @@ void read_object_track_process
   kwiver::vital::config_block_sptr algo_config = get_config(); // config for process
 
   // validate configuration
-  if(  algo::read_object_track_set::check_nested_algo_configuration(
+  if( ! algo::read_object_track_set::check_nested_algo_configuration(
          "reader",
          algo_config ) )
   {
@@ -129,6 +129,7 @@ void read_object_track_process
 void read_object_track_process
 ::_init()
 {
+  scoped_init_instrumentation();
   d->m_reader->open( d->m_file_name ); // throws
 }
 
@@ -137,15 +138,20 @@ void read_object_track_process
 void read_object_track_process
 ::_step()
 {
-  std::string image_name;
+  //std::string image_name;
   kwiver::vital::object_track_set_sptr set;
+  bool result(false);
+  {
+    scoped_step_instrumentation();
 
-  if( d->m_reader->read_set( set ) )
+    result = d->m_reader->read_set( set );
+  }
+
+
+  if( result )
   {
     push_to_port_using_trait( object_track_set, set );
-  }
-  else
-  {
+
     LOG_DEBUG( logger(), "End of input reached, process terminating" );
 
     // indicate done
