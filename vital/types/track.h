@@ -27,7 +27,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+//
 /**
  * \file
  * \brief Header for \link kwiver::vital::track track \endlink objects
@@ -42,7 +42,6 @@
 #include <vital/vital_types.h>
 
 #include <vital/types/vector.h>
-//#include <Eigen/Geometry>
 
 #include <vector>
 #include <set>
@@ -64,7 +63,6 @@ typedef std::shared_ptr< track > track_sptr;
 typedef std::weak_ptr< track > track_wptr;
 typedef std::shared_ptr< track_state > track_state_sptr;
 
-//typedef Eigen::Matrix< double, 2, 1 > vector_type;
 
 // ----------------------------------------------------------------------------
 /// Empty base class for data associated with a track state
