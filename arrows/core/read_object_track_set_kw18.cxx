@@ -35,6 +35,8 @@
 
 #include "read_object_track_set_kw18.h"
 
+#include <vital/types/vector.h>
+
 #include <vital/util/tokenize.h>
 #include <vital/util/data_stream_reader.h>
 
@@ -175,7 +177,6 @@ read_object_track_set_kw18
 
     set = new_set;
   }
-
   ++d->m_current_idx;
 
   // Return if we are done parsing
@@ -193,6 +194,7 @@ read_object_track_set_kw18::priv
 
   m_tracks_by_frame_id.clear();
   m_all_tracks.clear();
+
 
   while( stream_reader.getline( line ) )
   {
@@ -227,6 +229,17 @@ read_object_track_set_kw18::priv
     vital::time_usec_t frame_time = atof( col[COL_TIME].c_str() );
     int track_index = atoi( col[COL_ID].c_str() );
 
+
+    vital::vector_2d tracking_plane_loc = {atof(col[COL_LOC_X].c_str()),
+    				           										 atof(col[COL_LOC_Y].c_str())};
+
+    vital::vector_2d velocity = {atof(col[COL_VEL_X].c_str()),
+    			         							 atof(col[COL_VEL_Y].c_str())};
+
+    vital::vector_3d world_loc_xyz = {atof(col[COL_WORLD_X].c_str()),
+    			              							atof(col[COL_WORLD_Y].c_str()),
+    			             	 							atof(col[COL_WORLD_Z].c_str())};
+
     vital::bounding_box_d bbox(
       atof( col[COL_MIN_X].c_str() ),
       atof( col[COL_MIN_Y].c_str() ),
@@ -245,9 +258,12 @@ read_object_track_set_kw18::priv
       std::make_shared< vital::detected_object >( bbox, conf );
 
     // Create new object track state
-    vital::track_state_sptr ots =
+    vital::object_track_state_sptr ots =
       std::make_shared< vital::object_track_state >( frame_index, frame_time, det );
 
+    ots->set_tracking_plane_loc( tracking_plane_loc );
+    ots->set_velocity( velocity );
+    ots->set_world_loc_xyz( world_loc_xyz );
     // Assign object track state to track
     vital::track_sptr trk;
 
@@ -261,7 +277,7 @@ read_object_track_set_kw18::priv
     {
       trk = m_all_tracks[ track_index ];
     }
-
+      
     trk->append( ots );
 
     // Add track to indexes
