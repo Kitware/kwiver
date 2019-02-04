@@ -37,6 +37,12 @@
 
 #include <time.h>
 
+#include <stdio.h>
+#include <execinfo.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <unistd.h>
+
 namespace kwiver {
 namespace arrows {
 namespace core {
@@ -107,14 +113,14 @@ write_object_track_set_kw18
       vital::detected_object_sptr det = ts->detection;
       const vital::bounding_box_d empty_box = vital::bounding_box_d( -1, -1, -1, -1 );
       vital::bounding_box_d bbox = ( det ? det->bounding_box() : empty_box );
-
+      
       stream() << trk_ptr->id() << " "     // 1: track id
                << trk_ptr->size() << " "   // 2: track length
                << ts->frame() << " "       // 3: frame number
-               << "0 "                     // 4: tracking plane x
-               << "0 "                     // 5: tracking plane y
-               << "0 "                     // 6: velocity x
-               << "0 "                     // 7: velocity y
+               << ts->tracking_plane_loc()[0] << " " // 4: tracking plane x
+               << ts->tracking_plane_loc()[1] << " " // 5: tracking plane y
+               << ts->velocity()[0] << " "           // 6: velocity x
+               << ts->velocity()[1] << " "           // 7: velocity y
                << bbox.center()[0] << " "  // 8: image location x
                << bbox.center()[1] << " "  // 9: image location y
                << bbox.min_x() << " "      // 10: TL-x
@@ -122,9 +128,9 @@ write_object_track_set_kw18
                << bbox.max_x() << " "      // 12: BR-x
                << bbox.max_y() << " "      // 13: BR-y
                << bbox.area() << " "       // 14: area
-               << "0 "                     // 15: world-loc x
-               << "0 "                     // 16: world-loc y
-               << "0 "                     // 17: world-loc z
+               << ts->world_loc_xyz()[0] << " "       // 15: world-loc x
+               << ts->world_loc_xyz()[1] << " "       // 16: world-loc y
+               << ts->world_loc_xyz()[2] << " "       // 17: world-loc z
                << ts->frame() << " "       // 18: timestamp
                << det->confidence()        // 19: confidence
                << std::endl;
@@ -189,6 +195,7 @@ write_object_track_set_kw18
   {
     d->m_tracks[ trk->id() ] = trk;
   }
+
 }
 
 } } } // end namespace
