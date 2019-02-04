@@ -27,7 +27,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-//
+
 /**
  * \file
  * \brief Header for \link kwiver::vital::track track \endlink objects
@@ -102,7 +102,7 @@ public:
   /// Set the frame identifier 
   void set_frame( frame_id_t frame_id ) { frame_id_ = frame_id; }
   
-  ///Added vector getters/setters for missing kw18 fields
+  ///Vector getters/setters for missing kw18 fields
   vector_2d tracking_plane_loc() { return tracking_plane_loc_; }
   vector_2d velocity() { return velocity_; }
   vector_3d world_loc_xyz() { return world_loc_xyz_; }
