@@ -30,8 +30,9 @@ set( sources
   keyframe_selection_process.cxx
   matcher_process.cxx
   merge_detection_sets_process.cxx
-  perform_query_process.cxx
   merge_images_process.cxx
+  merge_track_sets_process.cxx
+  perform_query_process.cxx
   print_config_process.cxx
   read_descriptor_process.cxx
   read_object_track_process.cxx
@@ -73,8 +74,9 @@ set( private_headers
   keyframe_selection_process.h
   matcher_process.h
   merge_detection_sets_process.h
-  perform_query_process.h
   merge_images_process.h
+  merge_track_sets_process.h
+  perform_query_process.h
   print_config_process.h
   read_descriptor_process.h
   read_object_track_process.h
