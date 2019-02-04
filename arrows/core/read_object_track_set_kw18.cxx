@@ -229,16 +229,15 @@ read_object_track_set_kw18::priv
     vital::time_usec_t frame_time = atof( col[COL_TIME].c_str() );
     int track_index = atoi( col[COL_ID].c_str() );
 
-
     vital::vector_2d tracking_plane_loc = {atof(col[COL_LOC_X].c_str()),
-    				           										 atof(col[COL_LOC_Y].c_str())};
+    	atof(col[COL_LOC_Y].c_str())};
 
     vital::vector_2d velocity = {atof(col[COL_VEL_X].c_str()),
-    			         							 atof(col[COL_VEL_Y].c_str())};
+    	atof(col[COL_VEL_Y].c_str())};
 
     vital::vector_3d world_loc_xyz = {atof(col[COL_WORLD_X].c_str()),
-    			              							atof(col[COL_WORLD_Y].c_str()),
-    			             	 							atof(col[COL_WORLD_Z].c_str())};
+    	atof(col[COL_WORLD_Y].c_str()),
+    	atof(col[COL_WORLD_Z].c_str())};
 
     vital::bounding_box_d bbox(
       atof( col[COL_MIN_X].c_str() ),
