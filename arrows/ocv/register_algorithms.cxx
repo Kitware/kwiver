@@ -42,6 +42,7 @@
 #endif
 
 #include <arrows/ocv/analyze_tracks.h>
+#include <arrows/ocv/compute_optical_flow_brox.h>
 #include <arrows/ocv/detect_features_AGAST.h>
 #include <arrows/ocv/detect_features_FAST.h>
 #include <arrows/ocv/detect_features_GFTT.h>
@@ -145,8 +146,15 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
     ;
 
-
   // OCV Algorithm based class wrappers
+  fact = vpm.ADD_ALGORITHM( "ocv", kwiver::arrows::ocv::compute_optical_flow_brox );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                    "Compute an image representation of optical flow features using Brox Optical flow." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
+
   fact = vpm.ADD_ALGORITHM( "ocv_BRISK", kwiver::arrows::ocv::detect_features_BRISK );
   fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                        "OpenCV feature detection via the BRISK algorithm" )
