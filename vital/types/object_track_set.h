@@ -126,6 +126,11 @@ public:
     return time_;
   }
 
+  vital::timestamp timestamp() const
+  {
+    return vital::timestamp( time_, this->frame() );
+  }
+
   void set_detection( detected_object_sptr const& d )
   {
     detection_ = d;
