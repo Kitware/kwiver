@@ -228,7 +228,7 @@ template<class T>
 void render_triangle(vital::vector_2d const& v1, vital::vector_2d const& v2,
                      vital::vector_2d const& v3, T const& label, vital::image_of<T>& img)
 {
-  triangle_scan_iterator tsi(v1, v2, v3);
+  triangle_bb_iterator tsi(v1, v2, v3);
   for (tsi.reset(); tsi.next(); )
   {
     int y = tsi.scan_y();

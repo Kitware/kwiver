@@ -54,6 +54,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
+
 template <class T>
 void dilate_atlas(vital::image& atlas, vital::image_of<char>& mask, int nb_iter);
 
@@ -239,7 +240,7 @@ void render_texture_from_images(vital::vector_2d const& v1, vital::vector_2d con
                                 vital::image_of<double> const& points_image,
                                 vital::image_of<T>& texture)
 {
-  triangle_scan_iterator tsi(v1, v2,v3);
+  triangle_bb_iterator tsi(v1, v2,v3);
   for (tsi.reset(); tsi.next(); )
   {
     int y = tsi.scan_y();
@@ -300,7 +301,7 @@ generate_texture(vital::mesh_sptr mesh, std::vector<vital::camera_perspective_sp
     unwrap.unwrap(mesh);
   }
 
-  auto tcoords = mesh->tex_coords();
+  std::vector<vital::vector_2d> tcoords = mesh->tex_coords();
   // Rescale tcoords to real pixel values
   size_t scale = 1;
   for (unsigned int f = 0; f < mesh->num_faces(); ++f)
@@ -321,11 +322,16 @@ generate_texture(vital::mesh_sptr mesh, std::vector<vital::camera_perspective_sp
       break;
     }
   }
+
+  // Adjust the coordinates that are used to fill the texture image
   for (auto& tc : tcoords)
   {
     // flip Y because vital::image has origin at the top-left corner
-    tc.y() = 1.0 - tc.y();
+    tc[1] = 1.0 - tc[1];
     tc *= scale;
+    // subtract 0.5 because integer coordinates are at the center of the pixels
+    tc[0] -= 0.5;
+    tc[1] -= 0.5;
   }
 
   // Render the depth maps of the mesh seen by the different cameras
@@ -394,20 +400,6 @@ generate_texture(vital::mesh_sptr mesh, std::vector<vital::camera_perspective_sp
   }
 
   kwiver::arrows::core::dilate_atlas<T>(texture, texture_mask, 4);
-
-  // Update texture coordinates
-  for (auto& tc : tcoords)
-  {
-    // a half-pixel shift is added because of the way opengl interpolated the texture. For opengl,
-    // (0, 0) is the bottom-left corner of the bottom-left pixel and (1, 1) is the top-right corner
-    // of the top-right pixel.
-    tc[0] += 0.5;
-    tc[1] += 0.5;
-    tc /= scale;
-    // flip Y back so that texture coordinate (0, 0) is the bottom-left corner
-    tc[1] = 1.0 - tc[1];
-  }
-  mesh->set_tex_coords(tcoords);
 
   return std::make_shared<vital::simple_image_container>(texture);
 }

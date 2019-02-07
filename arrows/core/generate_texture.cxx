@@ -73,7 +73,7 @@ void adjust_cameras_contributions(std::vector<vital::vector_2d> const& tex_coord
 {
   for (unsigned int i = 2; i < tex_coords.size(); i+=3)
   {
-    triangle_scan_iterator tsi(tex_coords[i-2], tex_coords[i-1], tex_coords[i]);
+    triangle_bb_iterator tsi(tex_coords[i-2], tex_coords[i-1], tex_coords[i]);
     for (tsi.reset(); tsi.next(); )
     {
       int y = tsi.scan_y();
@@ -113,10 +113,7 @@ void render_triangle_scores(vital::vector_2d const& v1, vital::vector_2d const& 
     scores[i] = std::max(-points.determinant(), 0.0);
   }
 
-  triangle_scan_iterator tsi(v1, v2, v3);
-  vital::vector_2d vt1(v2 - v1), vt2(v3 - v1);
-  vital::vector_2d vn1(-vt1[1], vt1[0]), vn2(vt2[1], -vt2[0]);
-  double inv_area = 1.0 / (vt1[0] * vt2[1] - vt1[1] * vt2[0]);
+  triangle_bb_iterator tsi(v1, v2, v3);
   for (tsi.reset(); tsi.next(); )
   {
     int y = tsi.scan_y();
@@ -127,12 +124,8 @@ void render_triangle_scores(vital::vector_2d const& v1, vital::vector_2d const& 
 
     for (int x = min_x; x <= max_x; ++x)
     {
-      vital::vector_2d vp(vital::vector_2d(x, y) - v1);
-      double bary_coord_3 = inv_area * vn1.dot(vp);
-      double bary_coord_2 = inv_area * vn2.dot(vp);
-      double bary_coord_1 = 1.0 - bary_coord_2 - bary_coord_3;
-      // Corresponding 3d point
-      vital::vector_3d pt3d = bary_coord_1 * pt1 + bary_coord_2 * pt2 + bary_coord_3 * pt3;
+      vital::vector_3d bary = tsi.barycentric_coordinates({x, y});
+      vital::vector_3d pt3d = bary.x() * pt1 + bary.y() * pt2 + bary.z() * pt3;
 
       for (size_t i = 0; i < cameras.size(); ++i)
       {
@@ -146,9 +139,9 @@ void render_triangle_scores(vital::vector_2d const& v1, vital::vector_2d const& 
           continue;
         }
         // visibility test from the camera i
-        double interpolated_depth = bary_coord_1 * depths_pt1[i] +
-                                    bary_coord_2 * depths_pt2[i] +
-                                    bary_coord_3 * depths_pt3[i];
+        double interpolated_depth = bary.x() * depths_pt1[i] +
+                                    bary.y() * depths_pt2[i] +
+                                    bary.z() * depths_pt3[i];
         if (std::abs(interpolated_depth - bilinear_interp_safe<double>(depth_maps[i], pt_img(0), pt_img(1))) > depth_threshold)
         {
           continue;
