@@ -113,7 +113,7 @@ public:
     return time_;
   }
   
-  ///Vector getters/setters for missing kw18 fields
+  ///Vector getters/setters for kw18 fields
   vector_2d tracking_plane_loc() { return tracking_plane_loc_; }
   vector_2d velocity() { return velocity_; }
   vector_3d world_loc_xyz() { return world_loc_xyz_; }
@@ -121,7 +121,6 @@ public:
   void set_tracking_plane_loc( vector_2d tracking_plane_loc ) { tracking_plane_loc_ = tracking_plane_loc;}
   void set_velocity( vector_2d velocity ) { velocity_ = velocity;}
   void set_world_loc_xyz( vector_3d world_loc_xyz ) { world_loc_xyz_ = world_loc_xyz;}
-  ///////////////////////////////////////////////////////
 
   detected_object_sptr detection;
 
@@ -136,11 +135,10 @@ public:
 
 private:
   time_usec_t time_;
-  ///New data types for kw18 fields
+  
   vector_2d tracking_plane_loc_{0,0};
   vector_2d velocity_{0,0};
   vector_3d world_loc_xyz_{0,0,0};
-  /////////////////////////////////
 };
 
 
