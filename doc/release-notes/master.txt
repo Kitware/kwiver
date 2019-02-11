@@ -42,6 +42,9 @@ Vital
 
  * Changes to track_set_impl to facilitate passing track changes between
    Sprokit processes rather than full track sets for efficiency.
+ 
+ * Added the compute_optical_flow base algorithm to support dense optical flow
+   computation
 
 Vital Tools
 
@@ -162,6 +165,9 @@ Arrows: KPF
   * Updated the KPF YAML parser to allow for embedded YAML in metadata.
 
 Arrows: OpenCV
+ 
+  * Added an implementation of compute_optical_flow that uses GPU based Brox Optical 
+    Flow to compute optical flow image
 
 Arrows: Serialization
 
