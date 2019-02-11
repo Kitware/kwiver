@@ -67,26 +67,24 @@ void normalize_scores::operator ()(double *scores, int nb_scores) const
 
 
 /// Adjust cameras contributions
-void adjust_cameras_contributions(std::vector<vital::vector_2d> const& tex_coords,
+void adjust_cameras_contributions(vital::vector_2d const& v1,
+                                  vital::vector_2d const& v2,
+                                  vital::vector_2d const& v3,
                                   image_fusion_method const& method,
                                   vital::image_of<double>& scores_image)
 {
-  for (unsigned int i = 2; i < tex_coords.size(); i+=3)
+  triangle_bb_iterator tsi(v1, v2, v3);
+  for (tsi.reset(); tsi.next(); )
   {
-    triangle_bb_iterator tsi(tex_coords[i-2], tex_coords[i-1], tex_coords[i]);
-    for (tsi.reset(); tsi.next(); )
+    int y = tsi.scan_y();
+    if (y < 0 || y >= static_cast<int>(scores_image.height()))
+       continue;
+    int min_x = std::max(0, tsi.start_x());
+    int max_x = std::min(static_cast<int>(scores_image.width()) - 1, tsi.end_x());
+    for (int x = min_x; x <= max_x; ++x)
     {
-      int y = tsi.scan_y();
-      if (y < 0 || y >= static_cast<int>(scores_image.height()))
-        continue;
-      int min_x = std::max(0, tsi.start_x());
-      int max_x = std::min(static_cast<int>(scores_image.width()) - 1, tsi.end_x());
-
-      for (int x = min_x; x <= max_x; ++x)
-      {
-        double* pt = scores_image.first_pixel() + scores_image.h_step() * y + scores_image.w_step() * x;
-        method(pt, scores_image.depth());
-      }
+      double* pt = scores_image.first_pixel() + scores_image.h_step() * y + scores_image.w_step() * x;
+      method(pt, scores_image.depth());
     }
   }
 }
@@ -136,6 +134,7 @@ void render_triangle_scores(vital::vector_2d const& v1, vital::vector_2d const& 
         // border check from the camera i
         if (pt_img(0) < 0 || pt_img(0) >= cameras[i]->image_width() || pt_img(1) < 0 || pt_img(1) >= cameras[i]->image_height())
         {
+          scores_image(x, y, i) = 0.0;
           continue;
         }
         // visibility test from the camera i
@@ -144,6 +143,7 @@ void render_triangle_scores(vital::vector_2d const& v1, vital::vector_2d const& 
                                     bary.z() * depths_pt3[i];
         if (std::abs(interpolated_depth - bilinear_interp_safe<double>(depth_maps[i], pt_img(0), pt_img(1))) > depth_threshold)
         {
+          scores_image(x, y, i) = 0.0;
           continue;
         }
         scores_image(x, y, i) = scores[i];
@@ -152,6 +152,27 @@ void render_triangle_scores(vital::vector_2d const& v1, vital::vector_2d const& 
   }
 }
 
+vital::vector_2d find_largest_face_dimensions(std::vector<vital::vector_2d> const& coords, unsigned int nb_faces)
+{
+  // Find the bounding box dimension of the largest face
+  double max_w = std::numeric_limits<double>::min();
+  double max_h = std::numeric_limits<double>::min();
+  for (unsigned int f = 0; f < nb_faces; ++f)
+  {
+    vital::vector_2d tc0 = coords[f * 3];
+    vital::vector_2d tc1 = coords[f * 3 + 1];
+    vital::vector_2d tc2 = coords[f * 3 + 2];
+
+    double w = std::max(tc0.x(), std::max(tc1.x(), tc2.x()))
+               - std::min(tc0.x(), std::min(tc1.x(), tc2.x()));
+    double h = std::max(tc0.y(), std::max(tc1.y(), tc2.y()))
+               - std::min(tc0.y(), std::min(tc1.y(), tc2.y()));
+
+    if (w > max_w)  max_w = w;
+    if (h > max_h)  max_h = h;
+  }
+  return vital::vector_2d(max_w, max_h);
+}
 
 
 }
