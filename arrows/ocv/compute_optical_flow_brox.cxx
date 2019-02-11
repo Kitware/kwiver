@@ -56,7 +56,14 @@ public:
     , inner_iterations( 10 )
     , outer_iterations( 77 )
     , solver_iterations( 10 )
-  {}
+  {
+    brox_flow = cv::cuda::BroxOpticalFlow::create(alpha, 
+                                                  gamma, 
+                                                  scale_factor,
+                                                  inner_iterations,
+                                                  outer_iterations,
+                                                  solver_iterations);
+  }
 
   ~priv()
   {}
@@ -133,7 +140,7 @@ color_code(const cv::Mat &u_mat, const cv::Mat &v_mat, cv::Mat &image)
     cv::normalize(magnitude, magnitude, 0, 255, cv::NORM_MINMAX);
     saturation =  cv::Mat::ones(magnitude.size(), CV_32F);
     cv::multiply(saturation, 255, saturation);
-    cv::Mat hsvPlanes[] = { angle, saturation, magnitude };
+    cv::Mat hsvPlanes[] = { angle, saturation,  magnitude };
     cv::merge(hsvPlanes, 3, image);
     cv::cvtColor(image, image, cv::COLOR_HSV2BGR);
 }
@@ -174,6 +181,7 @@ compute( vital::image_container_sptr image,
   o->flow_planes[1].download(o->v_out); 
    
   o->color_code(o->u_out, o->v_out, o->img_out);
+  o->img_out.convertTo(o->img_out, CV_8UC3);
   return std::make_shared< kwiver::arrows::ocv::image_container >(o->img_out,
                           kwiver::arrows::ocv::image_container::ColorMode::RGB_COLOR);
 }
