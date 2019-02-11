@@ -152,6 +152,7 @@ void render_triangle_scores(vital::vector_2d const& v1, vital::vector_2d const& 
   }
 }
 
+
 vital::vector_2d find_largest_face_dimensions(std::vector<vital::vector_2d> const& coords, unsigned int nb_faces)
 {
   // Find the bounding box dimension of the largest face
@@ -172,6 +173,34 @@ vital::vector_2d find_largest_face_dimensions(std::vector<vital::vector_2d> cons
     if (h > max_h)  max_h = h;
   }
   return vital::vector_2d(max_w, max_h);
+}
+
+
+size_t find_texture_scaling(const vital::mesh_vertex_array<3> &vertices,
+                            const std::vector<vector_2d> &tcoords,
+                            const vital::mesh_regular_face_array<3> &faces,
+                            double resolution)
+{
+  size_t scale = 1;
+  for (unsigned int f = 0; f < faces.size(); ++f)
+  {
+    vital::matrix_3x3d points_2d_h;
+    points_2d_h << tcoords[f * 3 + 0], tcoords[f * 3 + 1], tcoords[f * 3 + 2], 1, 1, 1;
+    double area_2d = points_2d_h.determinant();
+    auto const& v1 = vertices[faces(f, 0)];
+    auto const& v2 = vertices[faces(f, 1)];
+    auto const& v3 = vertices[faces(f, 2)];
+    vital::vector_3d a3 = v2 - v1;
+    vital::vector_3d b3 = v3 - v1;
+    double area_3d = a3.cross(b3).norm();
+
+    if (area_2d > 0 && area_3d > 0 && !std::isinf(area_2d) && !std::isinf(area_3d))
+    {
+      scale = static_cast<size_t>(std::ceil(sqrt(area_3d / area_2d) / resolution));
+      break;
+    }
+  }
+  return scale;
 }
 
 

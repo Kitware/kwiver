@@ -55,10 +55,6 @@ namespace arrows {
 namespace core {
 
 
-template <class T>
-void dilate_atlas(vital::image& atlas, vital::image_of<char>& mask, int nb_iter);
-
-
 /// This function samples an image at a non-integer location with bilinear interpolation
 /**
 * \param img [in] image
@@ -157,6 +153,31 @@ void adjust_cameras_contributions(vital::vector_2d const& v1,
                                   vital::vector_2d const& v3,
                                   image_fusion_method const& method,
                                   vital::image_of<double>& scores_image);
+
+
+/// This function finds the dimenson of the largest face
+/**
+ * @param coords [in] the coordinates of the vertices. Each group of three vertices represents a face
+ * @param nb_faces [in] the number of faces
+ * @return the largest face dimension
+ */
+KWIVER_ALGO_CORE_EXPORT
+vital::vector_2d find_largest_face_dimensions(std::vector<vital::vector_2d> const& coords, unsigned int nb_faces);
+
+
+/// This function finds the scale to apply to the texture in order to reach the required resolution
+/**
+ * @param vertices [in] mesh vertices
+ * @param tcoords [in] texture coordinates of the mesh
+ * @param faces [in] list of faces
+ * @param resolution [in] required resolution (mesh unit/pixexl)
+ * @return texture scaling
+ */
+KWIVER_ALGO_CORE_EXPORT
+size_t find_texture_scaling(vital::mesh_vertex_array<3> const& vertices,
+                            std::vector<vital::vector_2d> const& tcoords,
+                            vital::mesh_regular_face_array<3> const& faces,
+                            double resolution);
 
 
 /// This function dilates the texture atlas using a binary mask
@@ -280,15 +301,6 @@ void render_texture_from_images(vital::vector_2d const& v1, vital::vector_2d con
 }
 
 
-/// This function finds the dimenson of the largest face
-/**
- * @param coords [in] the coordinates of the vertices. Each group of three vertices represents a face
- * @param nb_faces [in] the number of faces
- * @return
- */
-KWIVER_ALGO_CORE_EXPORT
-vital::vector_2d find_largest_face_dimensions(std::vector<vital::vector_2d> const& coords, unsigned int nb_faces);
-
 
 /// This function generates a texture from a set of images and maps it on the mesh
 /**
@@ -309,8 +321,8 @@ generate_texture(vital::mesh_sptr mesh, std::vector<vital::camera_perspective_sp
     return nullptr;
   }
 
-  kwiver::vital::mesh_vertex_array<3>& vertices = dynamic_cast< kwiver::vital::mesh_vertex_array<3>& >(mesh->vertices());
-  auto const& triangles = static_cast< kwiver::vital::mesh_regular_face_array<3> const& >(mesh->faces());
+  vital::mesh_vertex_array<3>& vertices = dynamic_cast< vital::mesh_vertex_array<3>& >(mesh->vertices());
+  auto const& triangles = static_cast< vital::mesh_regular_face_array<3> const& >(mesh->faces());
 
   // Unwrap the mesh
   if (mesh->has_tex_coords() == 0)
@@ -319,27 +331,9 @@ generate_texture(vital::mesh_sptr mesh, std::vector<vital::camera_perspective_sp
     unwrap.unwrap(mesh);
   }
 
+  // Find the texture scaling
   std::vector<vital::vector_2d> tcoords = mesh->tex_coords();
-  // Rescale tcoords to real pixel values
-  size_t scale = 1;
-  for (unsigned int f = 0; f < mesh->num_faces(); ++f)
-  {
-    vital::matrix_3x3d points_2d_h;
-    points_2d_h << tcoords[f * 3 + 0], tcoords[f * 3 + 1], tcoords[f * 3 + 2], 1, 1, 1;
-    double area_2d = points_2d_h.determinant();
-    auto const& v1 = vertices[triangles(f, 0)];
-    auto const& v2 = vertices[triangles(f, 1)];
-    auto const& v3 = vertices[triangles(f, 2)];
-    vital::vector_3d a3 = v2 - v1;
-    vital::vector_3d b3 = v3 - v1;
-    double area_3d = a3.cross(b3).norm();
-
-    if (area_2d > 0 && area_3d > 0 && !std::isinf(area_2d) && !std::isinf(area_3d))
-    {
-      scale = static_cast<size_t>(std::ceil(sqrt(area_3d / area_2d) / resolution));
-      break;
-    }
-  }
+  size_t scale = find_texture_scaling(vertices, tcoords, triangles, resolution);
 
   // Adjust the coordinates that are used to fill the texture image
   for (auto& tc : tcoords)
@@ -436,7 +430,6 @@ generate_texture(vital::mesh_sptr mesh, std::vector<vital::camera_perspective_sp
 
   return std::make_shared<vital::simple_image_container>(texture);
 }
-
 
 
 }
