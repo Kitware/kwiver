@@ -137,10 +137,11 @@ color_code(const cv::Mat &u_mat, const cv::Mat &v_mat, cv::Mat &image)
     // https://gist.github.com/denkiwakame/56667938239ab8ee5d8a
     cv::Mat magnitude, angle, saturation;
     cv::cartToPolar(u_mat, v_mat, magnitude, angle, true);
-    cv::normalize(magnitude, magnitude, 0, 255, cv::NORM_MINMAX);
-    saturation =  cv::Mat::ones(magnitude.size(), CV_32F);
+    cv::normalize(magnitude, magnitude, 0, 255, cv::NORM_MINMAX, CV_8UC1);
+    cv::normalize(angle, angle, 0, 255, cv::NORM_MINMAX, CV_8UC1);
+    saturation =  cv::Mat::ones(magnitude.size(), CV_8UC1);
     cv::multiply(saturation, 255, saturation);
-    cv::Mat hsvPlanes[] = { angle, saturation,  magnitude };
+    cv::Mat hsvPlanes[] = { angle, magnitude, saturation};
     cv::merge(hsvPlanes, 3, image);
     cv::cvtColor(image, image, cv::COLOR_HSV2BGR);
 }
@@ -181,7 +182,6 @@ compute( vital::image_container_sptr image,
   o->flow_planes[1].download(o->v_out); 
    
   o->color_code(o->u_out, o->v_out, o->img_out);
-  o->img_out.convertTo(o->img_out, CV_8UC3);
   return std::make_shared< kwiver::arrows::ocv::image_container >(o->img_out,
                           kwiver::arrows::ocv::image_container::ColorMode::RGB_COLOR);
 }
