@@ -40,7 +40,6 @@
 
 #include <vital/algo/compute_optical_flow.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
-#include <opencv2/cudaoptflow.hpp>
 
 namespace kwiver {
 namespace arrows {
