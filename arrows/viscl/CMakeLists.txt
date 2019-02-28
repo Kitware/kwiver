@@ -20,7 +20,7 @@ kwiver_install_headers(
   )
 
 kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_viscl_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_arrows_viscl_export.h
   NOPATH   SUBDIR     arrows/viscl
   )
 
@@ -36,17 +36,17 @@ set( viscl_sources
   utils.cxx
   )
 
-kwiver_add_library( kwiver_algo_viscl
+kwiver_add_library( kwiver_arrows_viscl
   ${viscl_headers_public}
   ${viscl_sources}
   )
 
-target_link_libraries( kwiver_algo_viscl
-  PUBLIC           kwiver_algo_core
+target_link_libraries( kwiver_arrows_viscl
+  PUBLIC           kwiver_arrows_core
                    viscl_core viscl_tasks viscl_vxl
   )
 
-algorithms_create_plugin( kwiver_algo_viscl
+algorithms_create_plugin( kwiver_arrows_viscl
   register_algorithms.cxx
   )
 

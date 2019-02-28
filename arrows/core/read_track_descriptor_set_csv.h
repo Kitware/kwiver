@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_TRACK_DESCRIPTOR_SET_OUTPUT_CSV_H
 #define KWIVER_ARROWS_TRACK_DESCRIPTOR_SET_OUTPUT_CSV_H
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/read_track_descriptor_set.h>
 

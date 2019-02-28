@@ -32,7 +32,7 @@
 #define KWIVER_ARROWS_DARKENT_DETECTOR
 
 
-#include <arrows/darknet/kwiver_algo_darknet_export.h>
+#include <arrows/darknet/kwiver_arrows_darknet_export.h>
 
 #include <vital/algo/image_object_detector.h>
 

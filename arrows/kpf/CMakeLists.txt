@@ -30,22 +30,22 @@ kwiver_install_headers(
   ${headers}
   )
 kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_kpf_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_arrows_kpf_export.h
   NOPATH   SUBDIR     arrows/kpf
   )
 
 
-kwiver_add_library( kwiver_algo_kpf
+kwiver_add_library( kwiver_arrows_kpf
   ${headers}
   ${sources}
   )
 
-target_link_libraries( kwiver_algo_kpf
+target_link_libraries( kwiver_arrows_kpf
   PUBLIC               vital_algo kpf_yaml
   PRIVATE              ${YAML_CPP_LIBRARIES}
   )
 
-algorithms_create_plugin( kwiver_algo_kpf
+algorithms_create_plugin( kwiver_arrows_kpf
   register_algorithms.cxx
   )
 

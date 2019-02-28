@@ -31,7 +31,7 @@
 #ifndef KWIVER_ARROWS_CLASS_PROBABLITY_FILTER_H_
 #define KWIVER_ARROWS_CLASS_PROBABLITY_FILTER_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/detected_object_filter.h>
 

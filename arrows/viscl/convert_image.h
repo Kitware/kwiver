@@ -31,7 +31,7 @@
 #ifndef KWIVER_ARROWS_VISCL_CONVERT_IMAGE_H_
 #define KWIVER_ARROWS_VISCL_CONVERT_IMAGE_H_
 
-#include <arrows/viscl/kwiver_algo_viscl_export.h>
+#include <arrows/viscl/kwiver_arrows_viscl_export.h>
 
 #include <vital/algo/convert_image.h>
 

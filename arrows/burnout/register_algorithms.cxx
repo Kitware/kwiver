@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arrows/burnout/kwiver_algo_burnout_plugin_export.h>
+#include <arrows/burnout/kwiver_arrows_burnout_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/burnout/burnout_track_descriptors.h>

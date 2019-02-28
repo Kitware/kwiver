@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_DETECTED_OBJECT_SET_INPUT_KW18_H
 #define KWIVER_ARROWS_CORE_DETECTED_OBJECT_SET_INPUT_KW18_H
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/detected_object_set_input.h>
 

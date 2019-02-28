@@ -31,7 +31,7 @@
 #ifndef ARROWS_OCV_HOUGH_CIRCLE_DETECTOR_H
 #define ARROWS_OCV_HOUGH_CIRCLE_DETECTOR_H
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/algo/image_object_detector.h>
 

@@ -33,7 +33,7 @@
  * \brief Ceres algorithm registration implementation
  */
 
-#include <arrows/ceres/kwiver_algo_ceres_plugin_export.h>
+#include <arrows/ceres/kwiver_arrows_ceres_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/ceres/bundle_adjust.h>

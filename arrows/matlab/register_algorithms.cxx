@@ -33,7 +33,7 @@
  * \brief Matlab algorithm registration implementation
  */
 
-#include <arrows/matlab/kwiver_algo_matlab_plugin_export.h>
+#include <arrows/matlab/kwiver_arrows_matlab_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/matlab/matlab_image_object_detector.h>

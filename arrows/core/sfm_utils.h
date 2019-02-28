@@ -42,7 +42,7 @@
 
 #include <vital/vital_config.h>
 #include <vital/vital_types.h>
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/types/track_set.h>
 #include <vital/types/landmark_map.h>

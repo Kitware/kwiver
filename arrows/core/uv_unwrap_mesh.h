@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_UV_UNWRAP_MESH_H
 #define KWIVER_ARROWS_CORE_UV_UNWRAP_MESH_H
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/uv_unwrap_mesh.h>
 #include <vital/types/mesh.h>

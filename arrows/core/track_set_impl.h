@@ -37,7 +37,7 @@
 #define KWIVER_ARROWS_CORE_TRACK_SET_IMPL_H_
 
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/types/track_set.h>
 

@@ -24,10 +24,10 @@ kwiver_add_module_path( ${kwiver_module_path_result} )
 
 ###
 # Add applet plugin
-kwiver_add_plugin( kwiver_algo_core_applets
+kwiver_add_plugin( kwiver_arrows_core_applets
   SUBDIR       ${kwiver_plugin_applets}
   SOURCES      ${sources} ${headers}
-  PRIVATE      kwiver_algo_core
+  PRIVATE      kwiver_arrows_core
                kwiver_tools_applet
                kwiversys
 )

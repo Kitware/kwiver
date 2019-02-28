@@ -38,7 +38,7 @@
 
 #include <vital/algo/extract_descriptors.h>
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <opencv2/features2d/features2d.hpp>
 

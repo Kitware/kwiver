@@ -33,7 +33,7 @@
  * \brief Register VXL algorithms implementation
  */
 
-#include <arrows/vxl/kwiver_algo_vxl_plugin_export.h>
+#include <arrows/vxl/kwiver_arrows_vxl_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/vxl/bundle_adjust.h>

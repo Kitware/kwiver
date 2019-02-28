@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_VXL_IMAGE_IO_H_
 #define KWIVER_ARROWS_VXL_IMAGE_IO_H_
 
-#include <arrows/vxl/kwiver_algo_vxl_export.h>
+#include <arrows/vxl/kwiver_arrows_vxl_export.h>
 
 #include <vital/algo/image_io.h>
 

@@ -37,7 +37,7 @@
 #define VITAL_BINDINGS_MATLAB_IMAGE_OBJECT_DETECTOR_H
 
 #include <vital/algo/image_object_detector.h>
-#include <arrows/matlab/kwiver_algo_matlab_export.h>
+#include <arrows/matlab/kwiver_arrows_matlab_export.h>
 
 namespace kwiver {
 namespace arrows {

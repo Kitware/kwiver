@@ -40,7 +40,7 @@
 #ifdef KWIVER_HAS_OPENCV_VER_3
 
 #include <arrows/ocv/detect_features.h>
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <string>
 

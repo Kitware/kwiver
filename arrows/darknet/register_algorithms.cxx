@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arrows/darknet/kwiver_algo_darknet_plugin_export.h>
+#include <arrows/darknet/kwiver_arrows_darknet_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/darknet/darknet_detector.h>

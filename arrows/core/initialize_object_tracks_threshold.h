@@ -32,7 +32,7 @@
 #define KWIVER_ARROWS_INITIALIZE_OBJECT_TRACKS_THRESHOLD_H_
 
 #include <vital/vital_config.h>
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/initialize_object_tracks.h>

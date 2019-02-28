@@ -37,7 +37,7 @@
 #define KWIVER_ARROWS_OCV_DESCRIPTOR_SET_H_
 
 #include <vital/vital_config.h>
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/types/descriptor_set.h>
 

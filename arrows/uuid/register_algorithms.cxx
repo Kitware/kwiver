@@ -33,7 +33,7 @@
  * \brief Defaults plugin algorithm registration interface impl
  */
 
-#include <arrows/uuid/kwiver_algo_uuid_plugin_export.h>
+#include <arrows/uuid/kwiver_arrows_uuid_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/uuid/uuid_factory_uuid.h>

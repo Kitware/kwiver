@@ -2,7 +2,7 @@ project(arrows_test_vxl)
 
 include(kwiver-test-setup)
 
-set(test_libraries     kwiver_algo_vxl)
+set(test_libraries     kwiver_arrows_vxl)
 
 ##############################
 # Algorithms VXL tests
@@ -22,6 +22,6 @@ kwiver_discover_gtests(vxl vidl_ffmpeg_video_input     LIBRARIES ${test_librarie
 
 # This test is really for an algorithm in core, but it's here
 # because the test depends on availability of VXL sub-algorithms
-set(test_libraries     kwiver_algo_vxl kwiver_algo_core)
+set(test_libraries     kwiver_arrows_vxl kwiver_arrows_core)
 
 kwiver_discover_gtests(vxl initialize_cameras_landmarks LIBRARIES ${test_libraries})

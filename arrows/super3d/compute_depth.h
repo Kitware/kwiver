@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_SUPER3D_COMPUTE_DEPTH_H_
 #define KWIVER_ARROWS_SUPER3D_COMPUTE_DEPTH_H_
 
-#include <arrows/super3d/kwiver_algo_super3d_export.h>
+#include <arrows/super3d/kwiver_arrows_super3d_export.h>
 
 #include <vital/algo/compute_depth.h>
 #include <vital/vital_config.h>

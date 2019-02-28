@@ -38,7 +38,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/gdal/kwiver_algo_gdal_export.h>
+#include <arrows/gdal/kwiver_arrows_gdal_export.h>
 
 #include <vital/types/image_container.h>
 

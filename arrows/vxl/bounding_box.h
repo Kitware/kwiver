@@ -36,7 +36,7 @@
 #ifndef ARROWS_VXL_BOUNDING_BOX_H
 #define ARROWS_VXL_BOUNDING_BOX_H
 
-#include <arrows/vxl/kwiver_algo_vxl_export.h>
+#include <arrows/vxl/kwiver_arrows_vxl_export.h>
 
 #include <vgl/vgl_box_2d.h>
 #include <vital/types/bounding_box.h>

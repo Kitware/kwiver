@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_UUID_FACTORY_H
 #define KWIVER_ARROWS_UUID_FACTORY_H
 
-#include <arrows/uuid/kwiver_algo_uuid_export.h>
+#include <arrows/uuid/kwiver_arrows_uuid_export.h>
 #include <vital/algo/uuid_factory.h>
 
 namespace kwiver {

@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arrows/kpf/kwiver_algo_kpf_plugin_export.h>
+#include <arrows/kpf/kwiver_arrows_kpf_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/kpf/detected_object_set_input_kpf.h>

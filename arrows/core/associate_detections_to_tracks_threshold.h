@@ -32,7 +32,7 @@
 #define KWIVER_ARROWS_ASSOCIATE_DETECTIONS_TO_TRACKS_THRESHOLD_H_
 
 #include <vital/vital_config.h>
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/associate_detections_to_tracks.h>

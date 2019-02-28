@@ -37,7 +37,7 @@
 #define KWIVER_ARROWS_DETECT_FEATURES_SIMPLE_BLOB_H_
 
 #include <arrows/ocv/detect_features.h>
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <string>
 

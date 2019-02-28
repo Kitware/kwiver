@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_COMPUTE_REF_HOMOGRAPHY_CORE_H_
 #define KWIVER_ARROWS_CORE_COMPUTE_REF_HOMOGRAPHY_CORE_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/compute_ref_homography.h>

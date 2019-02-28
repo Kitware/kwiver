@@ -43,7 +43,7 @@
 #include <string>
 
 #include <arrows/ocv/extract_descriptors.h>
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 namespace kwiver {
 namespace arrows {

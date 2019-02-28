@@ -10,7 +10,7 @@ kwiver_install_headers(
   )
 
 kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_proj_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_arrows_proj_export.h
   NOPATH   SUBDIR     arrows/proj
   )
 
@@ -18,16 +18,16 @@ set(proj_sources
   geo_conv.cxx
   )
 
-kwiver_add_library( kwiver_algo_proj
+kwiver_add_library( kwiver_arrows_proj
   ${proj_headers_public}
   ${proj_sources}
   )
 
-target_link_libraries( kwiver_algo_proj
-  PUBLIC               kwiver_algo_core
+target_link_libraries( kwiver_arrows_proj
+  PUBLIC               kwiver_arrows_core
                        ${PROJ_LIBRARY}
   )
 
-algorithms_create_plugin( kwiver_algo_proj
+algorithms_create_plugin( kwiver_arrows_proj
   register_algorithms.cxx
   )

@@ -37,7 +37,7 @@
 #define KWIVER_ARROWS_READ_OBJECT_TRACK_SET_KW18_H
 
 #include <vital/vital_config.h>
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/read_object_track_set.h>
 

@@ -33,7 +33,7 @@
  * \brief Register depth algorithms implementation
  */
 
-#include <arrows/super3d/kwiver_algo_super3d_plugin_export.h>
+#include <arrows/super3d/kwiver_arrows_super3d_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/super3d/compute_depth.h>

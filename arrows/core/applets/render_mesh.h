@@ -33,7 +33,7 @@
 
 #include <tools/kwiver_applet.h>
 
-#include <arrows/core/applets/kwiver_algo_core_applets_export.h>
+#include <arrows/core/applets/kwiver_arrows_core_applets_export.h>
 
 #include <string>
 #include <vector>

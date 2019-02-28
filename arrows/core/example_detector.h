@@ -31,7 +31,7 @@
 #ifndef KWIVER_EXAMPLE_DETECTOR_H
 #define KWIVER_EXAMPLE_DETECTOR_H
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/image_object_detector.h>
 

@@ -36,7 +36,7 @@
 #ifndef ARROWS_CORE_DYNAMIC_CONFIG_NONE_H
 #define ARROWS_CORE_DYNAMIC_CONFIG_NONE_H
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/dynamic_configuration.h>
 

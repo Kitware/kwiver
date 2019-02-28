@@ -35,7 +35,7 @@
 
 #include <arrows/proj/geo_conv.h>
 
-#include <arrows/proj/kwiver_algo_proj_plugin_export.h>
+#include <arrows/proj/kwiver_arrows_proj_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 #include <vital/types/geodesy.h>
 

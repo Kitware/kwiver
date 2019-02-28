@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_OCV_REFINE_DETECTIONS_WRITE_TO_DISK_H_
 #define KWIVER_ARROWS_OCV_REFINE_DETECTIONS_WRITE_TO_DISK_H_
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/algo/refine_detections.h>
 

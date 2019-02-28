@@ -38,7 +38,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/types/image.h>
 

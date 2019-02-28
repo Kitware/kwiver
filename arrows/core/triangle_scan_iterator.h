@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_TRIANGLE_SCAN_ITERATOR_H
 #define KWIVER_ARROWS_CORE_TRIANGLE_SCAN_ITERATOR_H
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 #include <vital/types/vector.h>
 
 namespace kwiver {

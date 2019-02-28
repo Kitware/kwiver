@@ -39,7 +39,7 @@
 
 #include <vital/vital_config.h>
 #include <vital/config/config_block.h>
-#include <arrows/ceres/kwiver_algo_ceres_export.h>
+#include <arrows/ceres/kwiver_arrows_ceres_export.h>
 
 #include <string>
 #include <ceres/ceres.h>

@@ -31,7 +31,7 @@
 #ifndef KWIVER_ARROWS_VISCL_MATCH_FEATURES_H_
 #define KWIVER_ARROWS_VISCL_MATCH_FEATURES_H_
 
-#include <arrows/viscl/kwiver_algo_viscl_export.h>
+#include <arrows/viscl/kwiver_arrows_viscl_export.h>
 
 #include <vital/algo/match_features.h>
 

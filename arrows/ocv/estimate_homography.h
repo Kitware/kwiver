@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_OCV_ESTIMATE_HOMOGRAPHY_H_
 #define KWIVER_ARROWS_OCV_ESTIMATE_HOMOGRAPHY_H_
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/algo/estimate_homography.h>
 

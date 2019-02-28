@@ -33,7 +33,7 @@
  * \brief Register VXL algorithms implementation
  */
 
-#include <arrows/ffmpeg/kwiver_algo_ffmpeg_plugin_export.h>
+#include <arrows/ffmpeg/kwiver_arrows_ffmpeg_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/ffmpeg/ffmpeg_video_input.h>

@@ -37,7 +37,7 @@
 #ifndef DEPTH_UTILS_H_
 #define DEPTH_UTILS_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 #include <vector>
 #include <vital/types/landmark.h>
 #include <vital/types/camera_perspective.h>

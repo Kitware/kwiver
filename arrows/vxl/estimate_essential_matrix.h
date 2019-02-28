@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_VXL_ESTIMATE_ESSENTIAL_MATRIX_H_
 #define KWIVER_ARROWS_VXL_ESTIMATE_ESSENTIAL_MATRIX_H_
 
-#include <arrows/vxl/kwiver_algo_vxl_export.h>
+#include <arrows/vxl/kwiver_arrows_vxl_export.h>
 
 #include <vital/types/camera_intrinsics.h>
 

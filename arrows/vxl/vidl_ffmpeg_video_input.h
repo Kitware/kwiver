@@ -38,7 +38,7 @@
 
 #include <vital/algo/video_input.h>
 
-#include <arrows/vxl/kwiver_algo_vxl_export.h>
+#include <arrows/vxl/kwiver_arrows_vxl_export.h>
 
 
 namespace kwiver {

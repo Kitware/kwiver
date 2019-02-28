@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWSRITHM_VXL_POLYGON_H
 #define KWIVER_ARROWSRITHM_VXL_POLYGON_H
 
-#include <arrows/vxl/kwiver_algo_vxl_export.h>
+#include <arrows/vxl/kwiver_arrows_vxl_export.h>
 #include <vital/types/polygon.h>
 #include <vgl/vgl_polygon.h>
 

@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_GDAL_IMAGE_IO_H_
 #define KWIVER_ARROWS_GDAL_IMAGE_IO_H_
 
-#include <arrows/gdal/kwiver_algo_gdal_export.h>
+#include <arrows/gdal/kwiver_arrows_gdal_export.h>
 
 #include <vital/algo/image_io.h>
 

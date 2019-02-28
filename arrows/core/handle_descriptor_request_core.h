@@ -36,7 +36,7 @@
 #ifndef ARROWS_PLUGINS_CORE_FORMULATE_QUERY_CORE_H_
 #define ARROWS_PLUGINS_CORE_FORMULATE_QUERY_CORE_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/handle_descriptor_request.h>

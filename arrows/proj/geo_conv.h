@@ -38,7 +38,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/proj/kwiver_algo_proj_export.h>
+#include <arrows/proj/kwiver_arrows_proj_export.h>
 
 #include <vital/types/geodesy.h>
 

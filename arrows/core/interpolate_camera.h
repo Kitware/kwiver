@@ -38,7 +38,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vector>
 #include <vital/types/camera_perspective.h>

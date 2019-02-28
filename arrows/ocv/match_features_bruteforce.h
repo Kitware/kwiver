@@ -39,7 +39,7 @@
 #include <memory>
 #include <vector>
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 #include <arrows/ocv/match_features.h>
 
 namespace kwiver {

@@ -33,7 +33,7 @@
  * \brief GDAL algorithm registration implementation
  */
 
-#include <arrows/gdal/kwiver_algo_gdal_plugin_export.h>
+#include <arrows/gdal/kwiver_arrows_gdal_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/gdal/image_io.h>

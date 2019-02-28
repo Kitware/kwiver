@@ -31,7 +31,7 @@
 #ifndef KWIVER_ARROWS__ESTIMATE_CANONICAL_TRANSFORM_H_
 #define KWIVER_ARROWS__ESTIMATE_CANONICAL_TRANSFORM_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/estimate_canonical_transform.h>
 

@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_RENDER_MESH_DEPTH_MAP_H
 #define KWIVER_ARROWS_CORE_RENDER_MESH_DEPTH_MAP_H
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 #include <arrows/core/triangle_scan_iterator.h>
 
 #include <vital/types/camera_perspective.h>

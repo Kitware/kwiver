@@ -32,7 +32,7 @@
 #define KWIVER_ARROWS_DARKNET_TRAINER
 
 
-#include <arrows/darknet/kwiver_algo_darknet_export.h>
+#include <arrows/darknet/kwiver_arrows_darknet_export.h>
 
 #include <vital/algo/train_detector.h>
 

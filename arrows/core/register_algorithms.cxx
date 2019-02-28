@@ -33,7 +33,7 @@
  * \brief Defaults plugin algorithm registration interface impl
  */
 
-#include <arrows/core/kwiver_algo_core_plugin_export.h>
+#include <arrows/core/kwiver_arrows_core_plugin_export.h>
 
 #include <vital/algo/algorithm_factory.h>
 

@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_INTERPOLATE_TRACK_SPLINE_H_
 #define KWIVER_ARROWS_CORE_INTERPOLATE_TRACK_SPLINE_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/interpolate_track.h>
 

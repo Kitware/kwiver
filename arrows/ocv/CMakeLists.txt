@@ -47,7 +47,7 @@ kwiver_install_headers(
   ${ocv_headers_public}
   )
 kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_ocv_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_arrows_ocv_export.h
   NOPATH   SUBDIR     arrows/ocv
   )
 
@@ -97,17 +97,17 @@ if( KWIVER_HAS_OPENCV_VER_3 )
   add_definitions(-DKWIVER_HAS_OPENCV_VER_3)
 endif()
 
-kwiver_add_library( kwiver_algo_ocv
+kwiver_add_library( kwiver_arrows_ocv
   ${ocv_headers_public}
   ${ocv_sources}
   )
-target_link_libraries( kwiver_algo_ocv
-  PUBLIC               kwiver_algo_core
+target_link_libraries( kwiver_arrows_ocv
+  PUBLIC               kwiver_arrows_core
                        ${OpenCV_LIBS}
   PRIVATE              kwiversys
   )
 
-algorithms_create_plugin( kwiver_algo_ocv
+algorithms_create_plugin( kwiver_arrows_ocv
   register_algorithms.cxx
   )
 

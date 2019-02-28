@@ -24,7 +24,7 @@ kwiver_install_headers(
   )
 
 kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_dbow2_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_arrows_dbow2_export.h
   NOPATH   SUBDIR     arrows/dbow2
   )
 
@@ -43,19 +43,19 @@ if( KWIVER_HAS_OPENCV_VER_3 )
   add_definitions(-DKWIVER_HAS_OPENCV_VER_3)
 endif()
 
-kwiver_add_library( kwiver_algo_dbow2
+kwiver_add_library( kwiver_arrows_dbow2
   ${dbow2_headers_public}
   ${dbow2_headers_private}
   ${dbow2_sources}
   )
-target_link_libraries( kwiver_algo_dbow2
-  PUBLIC               kwiver_algo_core
+target_link_libraries( kwiver_arrows_dbow2
+  PUBLIC               kwiver_arrows_core
                        ${OpenCV_LIBS}
   PRIVATE              kwiversys
   )
 
 
-algorithms_create_plugin( kwiver_algo_dbow2
+algorithms_create_plugin( kwiver_arrows_dbow2
   register_algorithms.cxx
   )
 

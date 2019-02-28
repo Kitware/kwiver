@@ -33,7 +33,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/viscl/kwiver_algo_viscl_export.h>
+#include <arrows/viscl/kwiver_arrows_viscl_export.h>
 
 #include <vital/types/image_container.h>
 

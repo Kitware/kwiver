@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_OCV_SPLIT_IMAGE_H_
 #define KWIVER_ARROWS_OCV_SPLIT_IMAGE_H_
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/algo/split_image.h>
 

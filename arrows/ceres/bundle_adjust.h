@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CERES_BUNDLE_ADJUST_H_
 #define KWIVER_ARROWS_CERES_BUNDLE_ADJUST_H_
 
-#include <arrows/ceres/kwiver_algo_ceres_export.h>
+#include <arrows/ceres/kwiver_arrows_ceres_export.h>
 
 #include <vital/algo/bundle_adjust.h>
 

@@ -38,7 +38,7 @@
 
 #include <vital/vital_config.h>
 
-#include <arrows/dbow2/kwiver_algo_dbow2_export.h>
+#include <arrows/dbow2/kwiver_arrows_dbow2_export.h>
 
 #include <vital/algo/match_descriptor_sets.h>
 

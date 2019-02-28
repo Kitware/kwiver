@@ -19,7 +19,7 @@ set( Darknet_linked_libs
   ${OpenCV_LIBS}
   ${Boost_SYSTEM_LIBRARY}
   ${Boost_FILESYSTEM_LIBRARY}
-  kwiver_algo_ocv )
+  kwiver_arrows_ocv )
 
 # if darknet was built with the GPU support
 if (Darknet_USING_GPU)
@@ -73,22 +73,22 @@ kwiver_install_headers(
   ${headers}
   )
 kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_darknet_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_arrows_darknet_export.h
   NOPATH   SUBDIR     arrows/darknet
   )
 
 
-kwiver_add_library( kwiver_algo_darknet
+kwiver_add_library( kwiver_arrows_darknet
   ${headers}
   ${sources}
   )
 
-target_link_libraries( kwiver_algo_darknet
+target_link_libraries( kwiver_arrows_darknet
   PUBLIC               vital_algo
   PRIVATE              ${Darknet_linked_libs}
   )
 
-algorithms_create_plugin( kwiver_algo_darknet
+algorithms_create_plugin( kwiver_arrows_darknet
   register_algorithms.cxx
   )
 

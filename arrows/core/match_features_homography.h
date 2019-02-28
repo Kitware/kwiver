@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_MATCH_FEATURES_HOMOGRAPHY_H_
 #define KWIVER_ARROWS_CORE_MATCH_FEATURES_HOMOGRAPHY_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/filter_features.h>
 

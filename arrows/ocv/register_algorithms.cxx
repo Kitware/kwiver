@@ -33,7 +33,7 @@
  * \brief OpenCV algorithm registration implementation
  */
 
-#include <arrows/ocv/kwiver_algo_ocv_plugin_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <opencv2/opencv_modules.hpp>

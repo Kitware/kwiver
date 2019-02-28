@@ -33,7 +33,7 @@
 
 #include <vital/algo/video_input.h>
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 namespace kwiver {
 namespace arrows {
