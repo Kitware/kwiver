@@ -45,7 +45,7 @@ namespace arrows {
 namespace ocv {
 
 /// A class for drawing various information about feature tracks
-class KWIVER_ALGO_OCV_EXPORT draw_tracks
+class KWIVER_ARROWS_OCV_EXPORT draw_tracks
 : public vital::algorithm_impl<draw_tracks, vital::algo::draw_tracks>
 {
 public:

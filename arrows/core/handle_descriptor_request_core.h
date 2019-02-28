@@ -49,7 +49,7 @@ namespace arrows {
 namespace core {
 
 /// A basic query formulator
-class KWIVER_ALGO_CORE_EXPORT handle_descriptor_request_core
+class KWIVER_ARROWS_CORE_EXPORT handle_descriptor_request_core
   : public vital::algorithm_impl< handle_descriptor_request_core,
       vital::algo::handle_descriptor_request >
 {

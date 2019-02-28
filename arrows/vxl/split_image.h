@@ -45,7 +45,7 @@ namespace arrows {
 namespace vxl {
 
 /// A class for drawing various information about feature tracks
-class KWIVER_ALGO_VXL_EXPORT split_image
+class KWIVER_ARROWS_VXL_EXPORT split_image
 : public vital::algorithm_impl<split_image, vital::algo::split_image>
 {
 public:

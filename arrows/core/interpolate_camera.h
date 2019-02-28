@@ -57,7 +57,7 @@ namespace arrows {
  * \param B Camera to interpolate to.
  * \param f Decimal fraction in between A and B for the returned camera to represent.
  */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 vital::simple_camera_perspective
 interpolate_camera(vital::simple_camera_perspective const& A,
                    vital::simple_camera_perspective const& B, double f);
@@ -68,7 +68,7 @@ interpolate_camera(vital::simple_camera_perspective const& A,
  * \relatesalso interpolate_camera
  *
  */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 vital::camera_perspective_sptr
 interpolate_camera(vital::camera_perspective_sptr A,
                    vital::camera_perspective_sptr B, double f);
@@ -78,7 +78,7 @@ interpolate_camera(vital::camera_perspective_sptr A,
 /**
  * \c n must be >= 1.
  */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 void interpolated_cameras(vital::simple_camera_perspective const& A,
                           vital::simple_camera_perspective const& B,
                           size_t n,

@@ -43,7 +43,7 @@ namespace arrows {
 namespace cuda {
 
 extern "C"
-KWIVER_ALGO_CUDA_PLUGIN_EXPORT
+KWIVER_ARROWS_CUDA_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {

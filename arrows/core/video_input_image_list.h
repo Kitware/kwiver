@@ -50,7 +50,7 @@ namespace core {
  *   # select reader type
  *   image_reader:type = vxl
  */
-class KWIVER_ALGO_CORE_EXPORT video_input_image_list
+class KWIVER_ARROWS_CORE_EXPORT video_input_image_list
   : public vital::algorithm_impl < video_input_image_list, vital::algo::video_input >
 {
 public:

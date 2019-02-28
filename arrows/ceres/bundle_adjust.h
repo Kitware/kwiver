@@ -47,7 +47,7 @@ namespace arrows {
 namespace ceres {
 
 /// A class for bundle adjustment of feature tracks using Ceres
-class KWIVER_ALGO_CERES_EXPORT bundle_adjust
+class KWIVER_ARROWS_CERES_EXPORT bundle_adjust
 : public vital::algorithm_impl<bundle_adjust, vital::algo::bundle_adjust>
 {
 public:

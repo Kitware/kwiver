@@ -45,7 +45,7 @@ namespace arrows {
 namespace ocv {
 
 /// A class for using OpenCV to read and write images
-class KWIVER_ALGO_OCV_EXPORT image_io
+class KWIVER_ARROWS_OCV_EXPORT image_io
   : public vital::algorithm_impl<image_io, vital::algo::image_io>
 {
 public:

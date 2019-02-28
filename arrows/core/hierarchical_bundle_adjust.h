@@ -48,7 +48,7 @@ namespace arrows {
 namespace core {
 
 
-class KWIVER_ALGO_CORE_EXPORT hierarchical_bundle_adjust
+class KWIVER_ARROWS_CORE_EXPORT hierarchical_bundle_adjust
   : public vital::algorithm_impl<hierarchical_bundle_adjust, vital::algo::bundle_adjust>
 {
 public:

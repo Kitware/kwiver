@@ -59,7 +59,7 @@ namespace core {
  *    from step 2 is attached.
  */
 
-class KWIVER_ALGO_CORE_EXPORT class_probablity_filter
+class KWIVER_ARROWS_CORE_EXPORT class_probablity_filter
   : public vital::algorithm_impl<class_probablity_filter, vital::algo::detected_object_filter>
 {
 public:

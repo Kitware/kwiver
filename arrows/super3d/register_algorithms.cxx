@@ -43,7 +43,7 @@ namespace arrows {
 namespace super3d {
 
 extern "C"
-KWIVER_ALGO_SUPER3D_PLUGIN_EXPORT
+KWIVER_ARROWS_SUPER3D_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {

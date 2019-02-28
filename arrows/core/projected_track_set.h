@@ -56,7 +56,7 @@ namespace arrows {
  * \return feature track set generated via the projection
  */
 vital::feature_track_set_sptr
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 projected_tracks(vital::landmark_map_sptr landmarks,
                  vital::camera_map_sptr cameras);
 

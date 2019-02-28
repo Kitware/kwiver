@@ -48,7 +48,7 @@ namespace arrows {
 namespace core {
 
 /// A basic feature tracker
-class KWIVER_ALGO_CORE_EXPORT track_features_core
+class KWIVER_ARROWS_CORE_EXPORT track_features_core
   : public vital::algorithm_impl<track_features_core, vital::algo::track_features>
 {
 public:

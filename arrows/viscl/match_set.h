@@ -46,7 +46,7 @@ namespace vcl {
 
 
 /// A concrete match set that wraps VisCL matches
-class KWIVER_ALGO_VISCL_EXPORT match_set
+class KWIVER_ARROWS_VISCL_EXPORT match_set
 : public vital::match_set
 {
 public:
@@ -81,7 +81,7 @@ private:
 /**
   * Will remove duplicate matches to a kpt from 2nd set
   */
-KWIVER_ALGO_VISCL_EXPORT viscl::buffer
+KWIVER_ARROWS_VISCL_EXPORT viscl::buffer
 matches_to_viscl(const vital::match_set& match_set);
 
 

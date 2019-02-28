@@ -45,7 +45,7 @@ namespace arrows {
 namespace ocv {
 
 /// A class for drawing various information about feature tracks
-class KWIVER_ALGO_OCV_EXPORT refine_detections_write_to_disk
+class KWIVER_ARROWS_OCV_EXPORT refine_detections_write_to_disk
 : public vital::algorithm_impl<refine_detections_write_to_disk,
     vital::algo::refine_detections>
 {

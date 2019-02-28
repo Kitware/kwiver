@@ -47,7 +47,7 @@ namespace arrows {
 namespace ocv {
 
 
-class KWIVER_ALGO_OCV_EXPORT detect_features_ORB
+class KWIVER_ARROWS_OCV_EXPORT detect_features_ORB
   : public vital::algorithm_impl< detect_features_ORB,
                                   ocv::detect_features,
                                   vital::algo::detect_features >
@@ -75,7 +75,7 @@ private:
 };
 
 
-class KWIVER_ALGO_OCV_EXPORT extract_descriptors_ORB
+class KWIVER_ARROWS_OCV_EXPORT extract_descriptors_ORB
   : public vital::algorithm_impl< extract_descriptors_ORB,
                                   ocv::extract_descriptors,
                                   vital::algo::extract_descriptors >

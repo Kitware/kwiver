@@ -45,7 +45,7 @@ namespace arrows {
 namespace core {
 
 /// A class for initialization of cameras and landmarks
-class KWIVER_ALGO_CORE_EXPORT initialize_cameras_landmarks_keyframe
+class KWIVER_ARROWS_CORE_EXPORT initialize_cameras_landmarks_keyframe
 : public vital::algorithm_impl<initialize_cameras_landmarks_keyframe,
                               vital::algo::initialize_cameras_landmarks>
 {

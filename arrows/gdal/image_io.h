@@ -45,7 +45,7 @@ namespace arrows {
 namespace gdal {
 
 /// A class for using GDAL to read and write images
-class KWIVER_ALGO_GDAL_EXPORT image_io
+class KWIVER_ARROWS_GDAL_EXPORT image_io
   : public vital::algorithm_impl<image_io, vital::algo::image_io>
 {
 public:

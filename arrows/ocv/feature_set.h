@@ -49,7 +49,7 @@ namespace arrows {
 namespace ocv {
 
 /// A concrete feature set that wraps OpenCV KeyPoints
-class KWIVER_ALGO_OCV_EXPORT feature_set
+class KWIVER_ARROWS_OCV_EXPORT feature_set
   : public vital::feature_set
 {
 public:
@@ -77,7 +77,7 @@ protected:
 
 
 /// Convert any feature set to a vector of OpenCV cv::KeyPoints
-KWIVER_ALGO_OCV_EXPORT std::vector<cv::KeyPoint>
+KWIVER_ARROWS_OCV_EXPORT std::vector<cv::KeyPoint>
 features_to_ocv_keypoints(const vital::feature_set& features);
 
 } // end namespace ocv

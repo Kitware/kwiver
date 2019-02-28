@@ -50,7 +50,7 @@ namespace arrows {
 namespace ocv {
 
 
-class KWIVER_ALGO_OCV_EXPORT detect_features_MSD
+class KWIVER_ARROWS_OCV_EXPORT detect_features_MSD
   : public vital::algorithm_impl< detect_features_MSD,
                                   ocv::detect_features,
                                   vital::algo::detect_features >

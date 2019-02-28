@@ -48,7 +48,7 @@ namespace core {
 /**
  * This class attempts close loops with all previous (or as specified) frames
  */
-class KWIVER_ALGO_CORE_EXPORT close_loops_keyframe
+class KWIVER_ARROWS_CORE_EXPORT close_loops_keyframe
   : public vital::algorithm_impl<close_loops_keyframe, vital::algo::close_loops>
 {
 public:

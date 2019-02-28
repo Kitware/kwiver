@@ -47,7 +47,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-class KWIVER_ALGO_CORE_EXPORT read_object_track_set_kw18
+class KWIVER_ARROWS_CORE_EXPORT read_object_track_set_kw18
   : public vital::algorithm_impl< read_object_track_set_kw18,
       vital::algo::read_object_track_set >
 {

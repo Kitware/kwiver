@@ -57,7 +57,7 @@ namespace vxl {
  *  scale) to find only geometrically nearby features.  It then looks at
  *  the descriptors for the neighbors and finds the best match by appearance.
  */
-class KWIVER_ALGO_VXL_EXPORT match_features_constrained
+class KWIVER_ARROWS_VXL_EXPORT match_features_constrained
   : public vital::algorithm_impl<match_features_constrained, vital::algo::match_features>
 {
 public:

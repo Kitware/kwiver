@@ -39,7 +39,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-class KWIVER_ALGO_CORE_EXPORT example_detector
+class KWIVER_ARROWS_CORE_EXPORT example_detector
         : public vital::algorithm_impl<example_detector, vital::algo::image_object_detector>
 {
 public:

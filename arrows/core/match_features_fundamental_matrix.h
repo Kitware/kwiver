@@ -59,7 +59,7 @@ namespace core {
  *  If a filter_features algorithm is provided, this will be run on the
  *  input features \b before running the matcher.
  */
-class KWIVER_ALGO_CORE_EXPORT match_features_fundamental_matrix
+class KWIVER_ARROWS_CORE_EXPORT match_features_fundamental_matrix
   : public vital::algorithm_impl<match_features_fundamental_matrix, vital::algo::match_features>
 {
 public:

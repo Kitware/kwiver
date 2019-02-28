@@ -44,7 +44,7 @@ namespace arrows {
 namespace ffmpeg {
 
 extern "C"
-KWIVER_ALGO_FFMPEG_PLUGIN_EXPORT
+KWIVER_ARROWS_FFMPEG_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {

@@ -45,7 +45,7 @@ namespace arrows {
 namespace core {
 
 /// \brief Algorithm that filters features based on feature magnitude
-class KWIVER_ALGO_CORE_EXPORT filter_features_magnitude
+class KWIVER_ARROWS_CORE_EXPORT filter_features_magnitude
   : public vital::algorithm_impl<filter_features_magnitude, vital::algo::filter_features>
 {
 public:

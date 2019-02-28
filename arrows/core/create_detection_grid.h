@@ -44,7 +44,7 @@ namespace arrows {
 namespace core {
 
 /// Initialize object tracks via simple single frame thresholding
-class KWIVER_ALGO_CORE_EXPORT create_detection_grid
+class KWIVER_ARROWS_CORE_EXPORT create_detection_grid
   : public vital::algorithm_impl<create_detection_grid,
       vital::algo::image_object_detector>
 {

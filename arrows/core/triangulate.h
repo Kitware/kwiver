@@ -59,7 +59,7 @@ namespace arrows {
  *  \return a 3D triangulated point location
  */
 template <typename T>
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 Eigen::Matrix<T,3,1>
 triangulate_inhomog(const std::vector<vital::simple_camera_perspective >& cameras,
                     const std::vector<Eigen::Matrix<T,2,1> >& points);
@@ -79,7 +79,7 @@ triangulate_inhomog(const std::vector<vital::simple_camera_perspective >& camera
 *  \return a 3D triangulated point location
 */
 template <typename T>
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 Eigen::Matrix<T, 3, 1>
 triangulate_fast_two_view(const vital::simple_camera_perspective &camera0,
                           const vital::simple_camera_perspective &camera1,
@@ -98,7 +98,7 @@ triangulate_fast_two_view(const vital::simple_camera_perspective &camera0,
  *  \return a homogeneous 3D triangulated point location
  */
 template <typename T>
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 Eigen::Matrix<T,4,1>
 triangulate_homog(const std::vector<vital::simple_camera_perspective >& cameras,
                   const std::vector<Eigen::Matrix<T,2,1> >& points);
@@ -114,7 +114,7 @@ triangulate_homog(const std::vector<vital::simple_camera_perspective >& cameras,
  *  \return a 3D triangulated point location
  */
 template <typename T>
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 Eigen::Matrix<T,3,1>
 triangulate_rpc(const std::vector<vital::simple_camera_rpc >& cameras,
                 const std::vector<Eigen::Matrix<T,2,1> >& points);

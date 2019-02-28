@@ -48,7 +48,7 @@ namespace ocv {
 
 
 /// Feature matcher implementation using OpenCV's brute-force feature matcher
-class KWIVER_ALGO_OCV_EXPORT match_features_bruteforce
+class KWIVER_ARROWS_OCV_EXPORT match_features_bruteforce
     : public vital::algorithm_impl< match_features_bruteforce,
                                     match_features,
                                     vital::algo::match_features >

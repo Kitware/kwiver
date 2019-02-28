@@ -45,7 +45,7 @@ namespace arrows {
 namespace core {
 
 /// A class for reading and writing feature and desriptor sets
-class KWIVER_ALGO_CORE_EXPORT feature_descriptor_io
+class KWIVER_ARROWS_CORE_EXPORT feature_descriptor_io
   : public vital::algorithm_impl<feature_descriptor_io,
                                  vital::algo::feature_descriptor_io>
 {

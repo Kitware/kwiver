@@ -65,44 +65,44 @@ namespace arrows {
  *  \return a 3D covariance transformed by the similarity transformation
  */
 template <typename T>
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 vital::covariance_<3,T> transform(const vital::covariance_<3,T>& covar,
                                   const vital::similarity_<T>& xform);
 
 
 /// Transform the camera by applying a similarity transformation in place
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 void transform_inplace(const vital::similarity_d& xform,
                        vital::simple_camera_perspective& cam);
 
 
 /// Transform the landmark by applying a similarity transformation in place
 template <typename T>
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 void transform_inplace(const vital::similarity_<T>& xform,
                        vital::landmark_<T>& lm);
 
 
 /// construct a transformed camera by applying a similarity transformation
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 vital::camera_perspective_sptr transform(vital::camera_perspective_sptr cam,
                                          const vital::similarity_d& xform);
 
 
 /// construct a transformed map of cameras by applying a similarity transformation
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 vital::camera_map_sptr transform(vital::camera_map_sptr cameras,
                                  const vital::similarity_d& xform);
 
 
 /// construct a transformed landmark by applying a similarity transformation
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 vital::landmark_sptr transform(vital::landmark_sptr lm,
                                const vital::similarity_d& xform);
 
 
 /// construct a transformed map of landmarks by applying a similarity transformation
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 vital::landmark_map_sptr transform(vital::landmark_map_sptr landmarks,
                                    const vital::similarity_d& xform);
 
@@ -123,7 +123,7 @@ vital::landmark_map_sptr transform(vital::landmark_map_sptr landmarks,
  * in this case.
  *
  */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 void
 necker_reverse(vital::camera_map_sptr& cameras,
                vital::landmark_map_sptr& landmarks,

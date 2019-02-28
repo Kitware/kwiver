@@ -48,7 +48,7 @@ namespace core {
  * and an associated directory name for the metadata files. These
  * metadata files have the same base name as the image files.
  */
-class KWIVER_ALGO_CORE_EXPORT video_input_pos
+class KWIVER_ARROWS_CORE_EXPORT video_input_pos
   : public vital::algorithm_impl < video_input_pos, vital::algo::video_input >
 {
 public:

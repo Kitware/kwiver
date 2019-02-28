@@ -52,7 +52,7 @@ namespace core {
   typedef std::shared_ptr<keyframe_selector_basic> keyframe_selector_basic_sptr;
 
   /// A basic query formulator
-  class KWIVER_ALGO_CORE_EXPORT keyframe_selector_basic
+  class KWIVER_ARROWS_CORE_EXPORT keyframe_selector_basic
     : public vital::algorithm_impl<keyframe_selector_basic,
     vital::algo::keyframe_selection>
   {

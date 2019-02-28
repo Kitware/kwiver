@@ -39,7 +39,7 @@ namespace kwiver {
 namespace arrows {
 namespace ocv {
 
-class KWIVER_ALGO_OCV_EXPORT hough_circle_detector
+class KWIVER_ARROWS_OCV_EXPORT hough_circle_detector
   : public vital::algorithm_impl< hough_circle_detector, vital::algo::image_object_detector>
 {
 public:

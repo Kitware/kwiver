@@ -47,7 +47,7 @@ namespace arrows {
 namespace ceres {
 
 /// A class for optimization of camera paramters using Ceres
-class KWIVER_ALGO_CERES_EXPORT optimize_cameras
+class KWIVER_ARROWS_CERES_EXPORT optimize_cameras
 : public vital::algorithm_impl<optimize_cameras, vital::algo::optimize_cameras>
 {
 public:

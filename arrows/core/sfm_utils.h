@@ -68,7 +68,7 @@ typedef std::vector<coverage_pair> frame_coverage_vec;
 * \param [in] cams the set of frames to have coverage calculated on
 * \return     the image coverages
 */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 frame_coverage_vec
 image_coverages(
   std::vector<vital::track_sptr> const& trks,
@@ -87,7 +87,7 @@ typedef std::vector<std::unordered_set<vital::frame_id_t>> camera_components;
 * \return camera_components vector.  Each set in the vector represents a
 * different connected component.
 */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 camera_components
 connected_camera_components(
   vital::camera_map_of_<vital::simple_camera_perspective>::frame_to_T_sptr_map const& cams,
@@ -112,7 +112,7 @@ connected_camera_components(
               to disable
 * \return set of landmark ids (track_ids) that were bad and should be removed
 */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 std::set<vital::landmark_id_t>
 detect_bad_landmarks(
   vital::camera_map_of_<vital::simple_camera_perspective>::frame_to_T_sptr_map const& cams,
@@ -129,7 +129,7 @@ detect_bad_landmarks(
 * \param [in] to_remove track ids for landmarks to set null
 * \param [in,out] lms landmark map to remove landmarks from
 */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 void
 remove_landmarks(const std::set<vital::track_id_t>& to_remove,
   vital::landmark_map::map_landmark_t& lms);
@@ -144,7 +144,7 @@ remove_landmarks(const std::set<vital::track_id_t>& to_remove,
 *             of coverage are included in the return set
 * \return set of frames that do not meet the coverage requirement
 */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 std::set<vital::frame_id_t>
 detect_bad_cameras(
   vital::camera_map_of_<vital::simple_camera_perspective>::frame_to_T_sptr_map const& cams,
@@ -172,7 +172,7 @@ detect_bad_cameras(
 * \param [in] min_landmark_inliers minimum number of inlier measurements to keep a landmark.
               Set to -1 to ignore.
 */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 void
 clean_cameras_and_landmarks(
   vital::camera_map_of_<vital::simple_camera_perspective>& cams,

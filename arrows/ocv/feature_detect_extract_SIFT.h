@@ -49,7 +49,7 @@ namespace kwiver {
 namespace arrows {
 namespace ocv {
 
-class KWIVER_ALGO_OCV_EXPORT detect_features_SIFT
+class KWIVER_ARROWS_OCV_EXPORT detect_features_SIFT
   : public vital::algorithm_impl< detect_features_SIFT,
                                   ocv::detect_features,
                                   vital::algo::detect_features >
@@ -77,7 +77,7 @@ private:
 };
 
 
-class KWIVER_ALGO_OCV_EXPORT extract_descriptors_SIFT
+class KWIVER_ARROWS_OCV_EXPORT extract_descriptors_SIFT
   : public vital::algorithm_impl< extract_descriptors_SIFT,
                                   ocv::extract_descriptors,
                                   vital::algo::extract_descriptors >

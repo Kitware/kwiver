@@ -51,7 +51,7 @@ namespace ocv {
  * This extended algorithm_def provides a common implementation for the match
  * method.
  */
-class KWIVER_ALGO_OCV_EXPORT match_features
+class KWIVER_ARROWS_OCV_EXPORT match_features
   : public vital::algo::match_features
 {
 public:

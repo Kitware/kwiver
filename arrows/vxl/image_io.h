@@ -45,7 +45,7 @@ namespace arrows {
 namespace vxl {
 
 /// A class for using VXL to read and write images
-class KWIVER_ALGO_VXL_EXPORT image_io
+class KWIVER_ARROWS_VXL_EXPORT image_io
   : public vital::algorithm_impl<image_io, vital::algo::image_io>
 {
 public:

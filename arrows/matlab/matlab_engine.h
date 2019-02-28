@@ -57,7 +57,7 @@ namespace matlab {
  *
  * This class represents a single user Matlab engine instance.
  */
-class KWIVER_ALGO_MATLAB_EXPORT matlab_engine
+class KWIVER_ARROWS_MATLAB_EXPORT matlab_engine
   : private kwiver::vital::noncopyable
 {
 public:

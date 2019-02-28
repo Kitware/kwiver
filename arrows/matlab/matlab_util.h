@@ -56,10 +56,10 @@ namespace matlab {
  *
  * @return Managed array containing the image.
  */
-KWIVER_ALGO_MATLAB_EXPORT
+KWIVER_ARROWS_MATLAB_EXPORT
 MxArraySptr convert_mx_image( const kwiver::vital::image_container_sptr image );
 
-KWIVER_ALGO_MATLAB_EXPORT
+KWIVER_ARROWS_MATLAB_EXPORT
 kwiver::vital::image_container_sptr convert_mx_image( const MxArraySptr image );
 
 
@@ -78,7 +78,7 @@ kwiver::vital::image_container_sptr convert_mx_image( const MxArraySptr image );
  *
  * @return Managed pointer to the newly allocated array.
  */
-KWIVER_ALGO_MATLAB_EXPORT
+KWIVER_ARROWS_MATLAB_EXPORT
 MxArraySptr create_mxByteArray( size_t r, size_t c );
 
 /**
@@ -91,7 +91,7 @@ MxArraySptr create_mxByteArray( size_t r, size_t c );
  *
  * @return Managed pointer to the newly allocated array.
  */
-KWIVER_ALGO_MATLAB_EXPORT
+KWIVER_ARROWS_MATLAB_EXPORT
 MxArraySptr create_mxIntArray( size_t r, size_t c );
 
 /**
@@ -104,7 +104,7 @@ MxArraySptr create_mxIntArray( size_t r, size_t c );
  *
  * @return Managed pointer to the newly allocated array.
  */
-KWIVER_ALGO_MATLAB_EXPORT
+KWIVER_ARROWS_MATLAB_EXPORT
 MxArraySptr create_mxDoubleArray( size_t r, size_t c );
 //@}
 

@@ -45,7 +45,7 @@ namespace arrows {
 namespace vxl {
 
 /// A class for triangulating landmarks from feature tracks and cameras using VXL
-class KWIVER_ALGO_VXL_EXPORT triangulate_landmarks
+class KWIVER_ARROWS_VXL_EXPORT triangulate_landmarks
 : public vital::algorithm_impl<triangulate_landmarks,
                                        vital::algo::triangulate_landmarks>
 {

@@ -46,7 +46,7 @@ namespace core {
  * ready by another video reader.  It may down sample the framerate,
  * remove frames before or after indicated frames, etc.
  */
-class KWIVER_ALGO_CORE_EXPORT video_input_filter
+class KWIVER_ARROWS_CORE_EXPORT video_input_filter
   : public vital::algorithm_impl < video_input_filter, vital::algo::video_input >
 {
 public:

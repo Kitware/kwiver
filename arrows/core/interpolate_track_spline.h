@@ -51,7 +51,7 @@ namespace core {
  * a configurable variety of spline-based interpolation techniques that do not
  * depend on imagery.
  */
-class KWIVER_ALGO_CORE_EXPORT interpolate_track_spline
+class KWIVER_ARROWS_CORE_EXPORT interpolate_track_spline
   : public vital::algorithm_impl<interpolate_track_spline,
                                  vital::algo::interpolate_track>
 {

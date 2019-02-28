@@ -50,7 +50,7 @@ namespace vxl {
  * transformation between these 2 images (in some reference coordinate
  * system). The overlap is returned as a percentage.
  */
-KWIVER_ALGO_VXL_EXPORT
+KWIVER_ARROWS_VXL_EXPORT
 double
 overlap( const vnl_double_3x3& h, const unsigned ni, const unsigned nj );
 

@@ -49,7 +49,7 @@ namespace matlab {
  *
  *
  */
-class KWIVER_ALGO_MATLAB_EXPORT matlab_exception
+class KWIVER_ARROWS_MATLAB_EXPORT matlab_exception
   : public vital::vital_exception
 {
 public:

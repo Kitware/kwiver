@@ -44,7 +44,7 @@ namespace burnout {
  * @brief burnout_track_descriptors
  *
  */
-class KWIVER_ALGO_BURNOUT_EXPORT burnout_track_descriptors
+class KWIVER_ARROWS_BURNOUT_EXPORT burnout_track_descriptors
   : public vital::algorithm_impl< burnout_track_descriptors,
       vital::algo::compute_track_descriptors >
 {

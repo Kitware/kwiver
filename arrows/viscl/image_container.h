@@ -45,7 +45,7 @@ namespace arrows {
 namespace vcl {
 
 /// This image container wraps a VisCL image
-class KWIVER_ALGO_VISCL_EXPORT image_container
+class KWIVER_ARROWS_VISCL_EXPORT image_container
 : public vital::image_container
 {
 public:
@@ -108,7 +108,7 @@ protected:
  * return the underlying VisCL image.  Otherwise, convert the image data
  * and upload to the GPU.
  */
-KWIVER_ALGO_VISCL_EXPORT viscl::image image_container_to_viscl(const vital::image_container& img);
+KWIVER_ARROWS_VISCL_EXPORT viscl::image image_container_to_viscl(const vital::image_container& img);
 
 
 } // end namespace vcl

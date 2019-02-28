@@ -45,7 +45,7 @@ namespace core {
 
 
 /// Provides access to the pixels of a triangle using scanlines
-class KWIVER_ALGO_CORE_EXPORT triangle_scan_iterator
+class KWIVER_ARROWS_CORE_EXPORT triangle_scan_iterator
 {
 public:
   triangle_scan_iterator(vital::vector_2d const & pt1,

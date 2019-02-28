@@ -45,7 +45,7 @@ namespace arrows {
 namespace ocv {
 
 /// A class that using OpenCV to estimate a fundamental matrix from matching 2D points
-class KWIVER_ALGO_OCV_EXPORT estimate_fundamental_matrix
+class KWIVER_ARROWS_OCV_EXPORT estimate_fundamental_matrix
   : public vital::algorithm_impl<estimate_fundamental_matrix, vital::algo::estimate_fundamental_matrix>
 {
 public:

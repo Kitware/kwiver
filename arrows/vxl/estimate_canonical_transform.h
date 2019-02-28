@@ -58,7 +58,7 @@ namespace vxl {
  *  the implementation in the core plugin.  The scale is set to normalize the
  *  landmarks to unit standard deviation.
  */
-class KWIVER_ALGO_VXL_EXPORT estimate_canonical_transform
+class KWIVER_ARROWS_VXL_EXPORT estimate_canonical_transform
   : public vital::algorithm_impl<estimate_canonical_transform,
                                  vital::algo::estimate_canonical_transform>
 {

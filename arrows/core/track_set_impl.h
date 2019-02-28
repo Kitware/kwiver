@@ -56,7 +56,7 @@ namespace core {
  * implementation caches the mapping from frames to track states for faster
  * retrieval.
  */
-class KWIVER_ALGO_CORE_EXPORT frame_index_track_set_impl
+class KWIVER_ARROWS_CORE_EXPORT frame_index_track_set_impl
   : public vital::track_set_implementation
 {
 public:

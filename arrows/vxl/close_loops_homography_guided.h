@@ -55,7 +55,7 @@ namespace vxl {
  * estimate potential match locations in the past, followed up by additional
  * filtering.
  */
-class KWIVER_ALGO_VXL_EXPORT close_loops_homography_guided
+class KWIVER_ARROWS_VXL_EXPORT close_loops_homography_guided
   : public vital::algorithm_impl<vxl::close_loops_homography_guided, vital::algo::close_loops>
 {
 public:

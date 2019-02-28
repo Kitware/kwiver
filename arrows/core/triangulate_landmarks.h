@@ -45,7 +45,7 @@ namespace arrows {
 namespace core {
 
 /// A class for triangulating landmarks from feature tracks and cameras using Eigen
-class KWIVER_ALGO_CORE_EXPORT triangulate_landmarks
+class KWIVER_ARROWS_CORE_EXPORT triangulate_landmarks
 : public vital::algorithm_impl<triangulate_landmarks,
                               vital::algo::triangulate_landmarks>
 {

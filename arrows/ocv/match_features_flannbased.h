@@ -48,7 +48,7 @@ namespace ocv {
 
 
 /// Feature matcher implementation using OpenCV's FLANN-based feature matcher
-class KWIVER_ALGO_OCV_EXPORT match_features_flannbased
+class KWIVER_ARROWS_OCV_EXPORT match_features_flannbased
   : public vital::algorithm_impl< ocv::match_features_flannbased,
                                   ocv::match_features,
                                   vital::algo::match_features >

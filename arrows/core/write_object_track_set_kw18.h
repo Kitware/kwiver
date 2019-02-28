@@ -47,7 +47,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-class KWIVER_ALGO_CORE_EXPORT write_object_track_set_kw18
+class KWIVER_ARROWS_CORE_EXPORT write_object_track_set_kw18
   : public vital::algorithm_impl< write_object_track_set_kw18,
       vital::algo::write_object_track_set >
 {

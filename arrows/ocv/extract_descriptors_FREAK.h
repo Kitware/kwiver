@@ -50,7 +50,7 @@ namespace arrows {
 namespace ocv {
 
 
-class KWIVER_ALGO_OCV_EXPORT extract_descriptors_FREAK
+class KWIVER_ARROWS_OCV_EXPORT extract_descriptors_FREAK
     : public kwiver::vital::algorithm_impl< extract_descriptors_FREAK,
                                             extract_descriptors,
                                             vital::algo::extract_descriptors >

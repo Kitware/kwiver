@@ -42,7 +42,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-class KWIVER_ALGO_CORE_APPLETS_EXPORT render_mesh
+class KWIVER_ARROWS_CORE_APPLETS_EXPORT render_mesh
   : public kwiver::tools::kwiver_applet
 {
 public:

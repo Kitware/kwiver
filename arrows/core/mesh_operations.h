@@ -54,7 +54,7 @@ namespace core {
  * \note This implementation assumes that each face is convex and does not
  *       consider mesh geometry when deciding how to best split faces.
  */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 std::unique_ptr<kwiver::vital::mesh_regular_face_array<3> >
 mesh_triangulate(kwiver::vital::mesh_face_array_base const& faces);
 
@@ -67,7 +67,7 @@ mesh_triangulate(kwiver::vital::mesh_face_array_base const& faces);
  * \note This implementation assumes that each face is convex and does not
  *       consider mesh geometry when deciding how to best split faces.
  */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 std::unique_ptr<kwiver::vital::mesh_regular_face_array<3> >
 mesh_triangulate(kwiver::vital::mesh_regular_face_array<4> const& faces);
 
@@ -79,7 +79,7 @@ mesh_triangulate(kwiver::vital::mesh_regular_face_array<4> const& faces);
  * \note This implementation assumes that each face is convex and does not
  *       consider mesh geometry when deciding how to best split faces.
  */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 void
 mesh_triangulate(kwiver::vital::mesh& mesh);
 

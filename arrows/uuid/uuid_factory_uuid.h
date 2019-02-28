@@ -44,7 +44,7 @@ namespace arrows {
 namespace uuid {
 
 
-class KWIVER_ALGO_UUID_EXPORT uuid_factory_uuid
+class KWIVER_ARROWS_UUID_EXPORT uuid_factory_uuid
   : public vital::algorithm_impl<uuid_factory_uuid, vital::algo::uuid_factory>
 {
 public:

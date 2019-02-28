@@ -45,7 +45,7 @@ namespace arrows {
 namespace ocv {
 
 /// A class for outputting various debug info about feature tracks
-class KWIVER_ALGO_OCV_EXPORT analyze_tracks
+class KWIVER_ARROWS_OCV_EXPORT analyze_tracks
 : public vital::algorithm_impl<analyze_tracks, vital::algo::analyze_tracks>
 {
 public:

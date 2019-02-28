@@ -47,7 +47,7 @@ namespace arrows {
 namespace vxl {
 
 /// A class that uses 5 pt algorithm to estimate an initial xform between 2 pt sets
-class KWIVER_ALGO_VXL_EXPORT estimate_fundamental_matrix
+class KWIVER_ARROWS_VXL_EXPORT estimate_fundamental_matrix
   : public vital::algorithm_impl<estimate_fundamental_matrix, vital::algo::estimate_fundamental_matrix>
 {
 public:

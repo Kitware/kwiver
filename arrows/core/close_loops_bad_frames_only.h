@@ -56,7 +56,7 @@ namespace core {
  * principle that when a bad frame occurs, there is generally a lower
  * percentage of feature tracks.
  */
-class KWIVER_ALGO_CORE_EXPORT close_loops_bad_frames_only
+class KWIVER_ARROWS_CORE_EXPORT close_loops_bad_frames_only
   : public vital::algorithm_impl<close_loops_bad_frames_only, vital::algo::close_loops>
 {
 public:

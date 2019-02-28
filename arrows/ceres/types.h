@@ -78,37 +78,37 @@ enum CameraIntrinsicShareType
 
 
 /// Provide a string representation for a LossFunctionType value
-KWIVER_ALGO_CERES_EXPORT const char*
+KWIVER_ARROWS_CERES_EXPORT const char*
 LossFunctionTypeToString(LossFunctionType type);
 
 /// Parse a LossFunctionType value from a string or return false
-KWIVER_ALGO_CERES_EXPORT bool
+KWIVER_ARROWS_CERES_EXPORT bool
 StringToLossFunctionType(std::string value, LossFunctionType* type);
 
 /// Construct a LossFunction object from the specified enum type
-KWIVER_ALGO_CERES_EXPORT ::ceres::LossFunction*
+KWIVER_ARROWS_CERES_EXPORT ::ceres::LossFunction*
 LossFunctionFactory(LossFunctionType type, double scale=1.0);
 
 
 /// Provide a string representation for a LensDisortionType value
-KWIVER_ALGO_CERES_EXPORT const char*
+KWIVER_ARROWS_CERES_EXPORT const char*
 LensDistortionTypeToString(LensDistortionType type);
 
 /// Parse a LensDistortionType value from a string or return false
-KWIVER_ALGO_CERES_EXPORT bool
+KWIVER_ARROWS_CERES_EXPORT bool
 StringToLensDistortionType(std::string value, LensDistortionType* type);
 
 /// Return the number of distortion parameters required for each type
-KWIVER_ALGO_CERES_EXPORT unsigned int
+KWIVER_ARROWS_CERES_EXPORT unsigned int
 num_distortion_params(LensDistortionType type);
 
 
 /// Provide a string representation for a CameraIntrinsicShareType value
-KWIVER_ALGO_CERES_EXPORT const char*
+KWIVER_ARROWS_CERES_EXPORT const char*
 CameraIntrinsicShareTypeToString(CameraIntrinsicShareType type);
 
 /// Parse a CameraIntrinsicShareType value from a string or return false
-KWIVER_ALGO_CERES_EXPORT bool
+KWIVER_ARROWS_CERES_EXPORT bool
 StringToCameraIntrinsicShareType(std::string value, CameraIntrinsicShareType* type);
 
 

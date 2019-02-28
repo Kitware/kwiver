@@ -46,7 +46,7 @@ namespace kwiver {
 namespace arrows {
 namespace ocv {
 
-class KWIVER_ALGO_OCV_EXPORT detect_features_BRISK
+class KWIVER_ARROWS_OCV_EXPORT detect_features_BRISK
   : public vital::algorithm_impl< detect_features_BRISK,
                                   ocv::detect_features,
                                   vital::algo::detect_features >
@@ -74,7 +74,7 @@ private:
 };
 
 
-class KWIVER_ALGO_OCV_EXPORT extract_descriptors_BRISK
+class KWIVER_ARROWS_OCV_EXPORT extract_descriptors_BRISK
   : public vital::algorithm_impl< extract_descriptors_BRISK,
                                   ocv::extract_descriptors,
                                   vital::algo::extract_descriptors >

@@ -40,7 +40,7 @@ namespace arrows {
 namespace vcl {
 
 /// An class for extracting feature descriptors using VisCL
-class KWIVER_ALGO_VISCL_EXPORT extract_descriptors
+class KWIVER_ARROWS_VISCL_EXPORT extract_descriptors
 : public vital::algorithm_impl<extract_descriptors, vital::algo::extract_descriptors>
 {
 public:

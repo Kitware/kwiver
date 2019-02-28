@@ -183,7 +183,7 @@ StringToLensDistortionType(std::string value, LensDistortionType* type)
 
 
 /// Provide a string representation for a CameraIntrinsicShareType value
-KWIVER_ALGO_CERES_EXPORT const char*
+KWIVER_ARROWS_CERES_EXPORT const char*
 CameraIntrinsicShareTypeToString(CameraIntrinsicShareType type)
 {
   switch (type)
@@ -198,7 +198,7 @@ CameraIntrinsicShareTypeToString(CameraIntrinsicShareType type)
 
 
 /// Parse a CameraIntrinsicShareType value from a string or return false
-KWIVER_ALGO_CERES_EXPORT bool
+KWIVER_ARROWS_CERES_EXPORT bool
 StringToCameraIntrinsicShareType(std::string value, CameraIntrinsicShareType* type)
 {
   UpperCase(&value);

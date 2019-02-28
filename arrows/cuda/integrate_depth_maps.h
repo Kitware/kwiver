@@ -46,7 +46,7 @@ namespace kwiver {
 namespace arrows {
 namespace cuda {
 
-class KWIVER_ALGO_CUDA_EXPORT integrate_depth_maps
+class KWIVER_ARROWS_CUDA_EXPORT integrate_depth_maps
   : public vital::algorithm_impl<integrate_depth_maps, vital::algo::integrate_depth_maps>
 {
 public:

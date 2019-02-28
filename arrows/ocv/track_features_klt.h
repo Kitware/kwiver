@@ -49,7 +49,7 @@ namespace arrows {
 namespace ocv {
 
 /// A basic feature tracker
-class KWIVER_ALGO_OCV_EXPORT track_features_klt
+class KWIVER_ARROWS_OCV_EXPORT track_features_klt
   : public vital::algorithm_impl<track_features_klt, vital::algo::track_features>
 {
 public:

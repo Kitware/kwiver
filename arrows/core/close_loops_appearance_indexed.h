@@ -48,7 +48,7 @@ namespace arrows {
 namespace core {
 
 /// Loop closure algorithm that using appearance indexing for fast matching
-class KWIVER_ALGO_CORE_EXPORT close_loops_appearance_indexed
+class KWIVER_ARROWS_CORE_EXPORT close_loops_appearance_indexed
   : public kwiver::vital::algo::close_loops
 {
 public:

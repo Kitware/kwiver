@@ -42,7 +42,7 @@ namespace arrows {
 namespace core {
 
 /// Initialize object tracks via simple single frame thresholding
-class KWIVER_ALGO_CORE_EXPORT associate_detections_to_tracks_threshold
+class KWIVER_ARROWS_CORE_EXPORT associate_detections_to_tracks_threshold
   : public vital::algorithm_impl<associate_detections_to_tracks_threshold,
       vital::algo::associate_detections_to_tracks>
 {

@@ -44,7 +44,7 @@ namespace kwiver {
 namespace arrows {
 namespace kpf {
 
-class KWIVER_ALGO_KPF_EXPORT detected_object_set_output_kpf
+class KWIVER_ARROWS_KPF_EXPORT detected_object_set_output_kpf
   : public vital::algorithm_impl<detected_object_set_output_kpf, vital::algo::detected_object_set_output>
 {
 public:

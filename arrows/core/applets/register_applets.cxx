@@ -69,7 +69,7 @@ void register_applet( kwiver::vital::plugin_loader& vpm )
 
 // ----------------------------------------------------------------------------
 extern "C"
-KWIVER_ALGO_CORE_APPLETS_EXPORT
+KWIVER_ARROWS_CORE_APPLETS_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {

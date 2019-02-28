@@ -45,7 +45,7 @@ namespace arrows {
 namespace vxl {
 
 /// A class that uses RREL in VXL to estimate a homography from matching 2D points
-class KWIVER_ALGO_VXL_EXPORT estimate_homography
+class KWIVER_ARROWS_VXL_EXPORT estimate_homography
   : public vital::algorithm_impl<estimate_homography, vital::algo::estimate_homography>
 {
 public:

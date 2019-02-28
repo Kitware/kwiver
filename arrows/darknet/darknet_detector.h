@@ -45,7 +45,7 @@ namespace darknet {
  * @brief
  *
  */
-class KWIVER_ALGO_DARKNET_EXPORT darknet_detector
+class KWIVER_ARROWS_DARKNET_EXPORT darknet_detector
   : public vital::algorithm_impl< darknet_detector,
       vital::algo::image_object_detector >
 {

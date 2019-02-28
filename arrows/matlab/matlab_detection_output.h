@@ -43,7 +43,7 @@ namespace kwiver {
 namespace arrows {
 namespace matlab {
 
-class KWIVER_ALGO_MATLAB_EXPORT matlab_detection_output
+class KWIVER_ARROWS_MATLAB_EXPORT matlab_detection_output
   : public vital::algorithm_impl<matlab_detection_output, vital::algo::detected_object_set_output>
 {
 public:

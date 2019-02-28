@@ -51,7 +51,7 @@ namespace ocv {
  * This extended algorithm_def provides a common implementation for the extract
  * method.
  */
-class KWIVER_ALGO_OCV_EXPORT extract_descriptors
+class KWIVER_ARROWS_OCV_EXPORT extract_descriptors
   : public vital::algo::extract_descriptors
 {
 public:

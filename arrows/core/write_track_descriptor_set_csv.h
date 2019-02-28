@@ -47,7 +47,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-class KWIVER_ALGO_CORE_EXPORT write_track_descriptor_set_csv
+class KWIVER_ARROWS_CORE_EXPORT write_track_descriptor_set_csv
   : public vital::algorithm_impl< write_track_descriptor_set_csv,
       vital::algo::write_track_descriptor_set >
 {

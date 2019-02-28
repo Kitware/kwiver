@@ -55,7 +55,7 @@ namespace core {
  * It does nothing if the current frame is not a keyframe.  These new track
  * states are not currently linked to previous states in this algorithm.
  */
-class KWIVER_ALGO_CORE_EXPORT track_features_augment_keyframes
+class KWIVER_ARROWS_CORE_EXPORT track_features_augment_keyframes
   : public vital::algo::track_features
 {
 public:

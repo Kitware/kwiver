@@ -45,7 +45,7 @@ namespace arrows {
 namespace core {
 
 /// A class for bypassing image conversion
-class KWIVER_ALGO_CORE_EXPORT convert_image_bypass
+class KWIVER_ARROWS_CORE_EXPORT convert_image_bypass
   : public vital::algorithm_impl<convert_image_bypass, vital::algo::convert_image>
 {
 public:

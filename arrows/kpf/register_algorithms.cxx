@@ -39,7 +39,7 @@ namespace arrows {
 namespace kpf {
 
 extern "C"
-KWIVER_ALGO_KPF_PLUGIN_EXPORT
+KWIVER_ARROWS_KPF_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {

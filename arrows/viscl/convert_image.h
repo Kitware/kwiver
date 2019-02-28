@@ -40,7 +40,7 @@ namespace arrows {
 namespace vcl {
 
 /// Class to convert an image to a viscl base image
-class KWIVER_ALGO_VISCL_EXPORT convert_image
+class KWIVER_ARROWS_VISCL_EXPORT convert_image
   : public vital::algorithm_impl<convert_image, vital::algo::convert_image>
 {
 public:

@@ -59,7 +59,7 @@ namespace core {
 * \param minimum depth from camera
 * \param maximum depth from camera
 */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 void
 compute_depth_range_from_landmarks(std::vector<landmark_sptr> const& landmarks,
                                    camera_perspective const& cam,
@@ -76,7 +76,7 @@ compute_depth_range_from_landmarks(std::vector<landmark_sptr> const& landmarks,
 * \param maximum height along normal
 * \param the direction the depth is sliced in world coordinates
 */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 void
 compute_height_range_from_landmarks(std::vector<landmark_sptr> const& landmarks,
                                     camera const& cam,  bounding_box<int> const& roi,
@@ -93,7 +93,7 @@ compute_height_range_from_landmarks(std::vector<landmark_sptr> const& landmarks,
 * \param world_normal the direction the depth is sliced in world coordinates
 * \returns bounding box in 2d
 */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 vital::bounding_box<int>
 project_3d_bounds(kwiver::vital::vector_3d const& minpt,
                   kwiver::vital::vector_3d const& maxpt,
@@ -108,7 +108,7 @@ project_3d_bounds(kwiver::vital::vector_3d const& minpt,
 * \param depth_max max of depth range
 * \param world_normal the direction the depth is sliced in world coordinates
 */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 void
 height_range_from_3d_bounds(kwiver::vital::vector_3d const& minpt,
                             kwiver::vital::vector_3d const& maxpt,
@@ -123,7 +123,7 @@ height_range_from_3d_bounds(kwiver::vital::vector_3d const& minpt,
 * \param depth_min min of depth range
 * \param depth_max max of depth range
 */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 void
 depth_range_from_3d_bounds(kwiver::vital::vector_3d const& minpt,
                            kwiver::vital::vector_3d const& maxpt,

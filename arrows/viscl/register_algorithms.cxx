@@ -47,7 +47,7 @@ namespace arrows {
 namespace vcl {
 
   extern "C"
-KWIVER_ALGO_VISCL_PLUGIN_EXPORT
+KWIVER_ARROWS_VISCL_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {

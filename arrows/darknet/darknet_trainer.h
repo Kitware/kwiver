@@ -44,7 +44,7 @@ namespace darknet {
 /**
  * @brief Darknet Training Utility Class
  */
-class KWIVER_ALGO_DARKNET_EXPORT darknet_trainer
+class KWIVER_ARROWS_DARKNET_EXPORT darknet_trainer
   : public vital::algorithm_impl<darknet_trainer, vital::algo::train_detector>
 {
 public:

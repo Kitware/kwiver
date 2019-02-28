@@ -43,7 +43,7 @@ namespace arrows {
 namespace gdal {
 
 extern "C"
-KWIVER_ALGO_GDAL_PLUGIN_EXPORT
+KWIVER_ARROWS_GDAL_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {

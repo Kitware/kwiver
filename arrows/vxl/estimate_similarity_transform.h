@@ -46,7 +46,7 @@ namespace arrows {
 namespace vxl {
 
 /// VXL implementation of similarity transform estimation
-class KWIVER_ALGO_VXL_EXPORT estimate_similarity_transform
+class KWIVER_ARROWS_VXL_EXPORT estimate_similarity_transform
   : public vital::algorithm_impl<estimate_similarity_transform,
                                          vital::algo::estimate_similarity_transform>
 {

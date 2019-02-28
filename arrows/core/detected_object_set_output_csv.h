@@ -45,7 +45,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-class KWIVER_ALGO_CORE_EXPORT detected_object_set_output_csv
+class KWIVER_ARROWS_CORE_EXPORT detected_object_set_output_csv
   : public vital::algorithm_impl<detected_object_set_output_csv, vital::algo::detected_object_set_output>
 {
 public:

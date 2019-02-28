@@ -48,7 +48,7 @@ namespace arrows {
 namespace core {
 
 /// A class for unwrapping a mesh and generating texture coordinates
-class KWIVER_ALGO_CORE_EXPORT uv_unwrap_mesh
+class KWIVER_ARROWS_CORE_EXPORT uv_unwrap_mesh
     : public vital::algorithm_impl<uv_unwrap_mesh, vital::algo::uv_unwrap_mesh>
 {
 public:

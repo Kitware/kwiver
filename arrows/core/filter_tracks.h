@@ -45,7 +45,7 @@ namespace arrows {
 namespace core {
 
 /// \brief Algorithm that filters tracks on various attributes
-class KWIVER_ALGO_CORE_EXPORT filter_tracks
+class KWIVER_ARROWS_CORE_EXPORT filter_tracks
   : public vital::algorithm_impl<filter_tracks, vital::algo::filter_tracks>
 {
 public:

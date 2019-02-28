@@ -44,7 +44,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-class KWIVER_ALGO_CORE_EXPORT detected_object_set_input_simulator
+class KWIVER_ARROWS_CORE_EXPORT detected_object_set_input_simulator
   : public vital::algorithm_impl<detected_object_set_input_simulator, vital::algo::detected_object_set_input>
 {
 public:

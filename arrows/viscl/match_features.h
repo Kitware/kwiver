@@ -40,7 +40,7 @@ namespace arrows {
 namespace vcl {
 
 /// An abstract base class for matching feature points
-class KWIVER_ALGO_VISCL_EXPORT match_features
+class KWIVER_ARROWS_VISCL_EXPORT match_features
 : public vital::algorithm_impl<match_features, vital::algo::match_features>
 {
 public:

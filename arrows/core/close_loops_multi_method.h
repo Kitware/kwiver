@@ -56,7 +56,7 @@ namespace core {
  * This class can run multiple other close_loops algorithm implementations
  * in attempt to accomplish this.
  */
-class KWIVER_ALGO_CORE_EXPORT close_loops_multi_method
+class KWIVER_ARROWS_CORE_EXPORT close_loops_multi_method
   : public vital::algorithm_impl<close_loops_multi_method, vital::algo::close_loops>
 {
 public:

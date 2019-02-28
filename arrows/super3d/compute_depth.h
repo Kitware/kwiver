@@ -47,7 +47,7 @@ namespace arrows {
 namespace super3d {
 
 /// A class for bundle adjustment of feature tracks using VXL
-class KWIVER_ALGO_SUPER3D_EXPORT compute_depth
+class KWIVER_ARROWS_SUPER3D_EXPORT compute_depth
   : public vital::algorithm_impl<compute_depth, vital::algo::compute_depth>
 {
 public:

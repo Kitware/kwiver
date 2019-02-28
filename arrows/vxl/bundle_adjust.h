@@ -45,7 +45,7 @@ namespace arrows {
 namespace vxl {
 
 /// A class for bundle adjustment of feature tracks using VXL
-class KWIVER_ALGO_VXL_EXPORT bundle_adjust
+class KWIVER_ARROWS_VXL_EXPORT bundle_adjust
 : public vital::algorithm_impl<bundle_adjust, vital::algo::bundle_adjust>
 {
 public:

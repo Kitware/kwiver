@@ -60,7 +60,7 @@ namespace core {
  *  toward the mean of the camera centers.  The scale is set to normalized the
  *  landmarks to unit standard deviation.
  */
-class KWIVER_ALGO_CORE_EXPORT estimate_canonical_transform
+class KWIVER_ARROWS_CORE_EXPORT estimate_canonical_transform
   : public vital::algorithm_impl<estimate_canonical_transform,
                                  vital::algo::estimate_canonical_transform>
 {

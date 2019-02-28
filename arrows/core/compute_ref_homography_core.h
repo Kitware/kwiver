@@ -61,7 +61,7 @@ namespace core {
  * successive non-regressing frames. This is ideal for when it is desired to
  * compute reference frames on all frames in a sequence.
  */
-class KWIVER_ALGO_CORE_EXPORT compute_ref_homography_core
+class KWIVER_ARROWS_CORE_EXPORT compute_ref_homography_core
   : public vital::algorithm_impl<compute_ref_homography_core, vital::algo::compute_ref_homography>
 {
 public:
