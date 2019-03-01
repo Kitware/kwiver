@@ -44,7 +44,7 @@ kwiver_add_plugin( template_processes
                    ${private_headers}
   PRIVATE          sprokit_pipeline
                    vital vital_vpm vital_logger vital_config
-                   kwiver_algo_ocv
+                   kwiver_arrows_ocv
                    kwiversys
  )
 

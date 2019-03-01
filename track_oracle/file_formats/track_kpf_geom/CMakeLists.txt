@@ -36,7 +36,7 @@ kwiver_add_library( track_kpf_geom
 target_link_libraries( track_kpf_geom
   PUBLIC               track_oracle
                        data_terms
-                       kwiver_algo_kpf
+                       kwiver_arrows_kpf
                        ${YAML_CPP_LIBRARIES}
   PRIVATE              vital_logger
                        vul

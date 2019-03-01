@@ -35,7 +35,7 @@ kwiver_add_library( track_filter_kpf_activity
 target_link_libraries( track_filter_kpf_activity
   PUBLIC               track_oracle
                        data_terms
-                       kwiver_algo_kpf
+                       kwiver_arrows_kpf
   PRIVATE              vital_logger
                        vul
                        vgl

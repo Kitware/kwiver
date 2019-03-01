@@ -1,7 +1,7 @@
 Hough Detection
 ===============
 
-This pipelines features the hough_circle_detection algorithm in kwiver_algo_ocv.
+This pipelines features the hough_circle_detection algorithm in kwiver_arrows_ocv.
 This algorithm simply takes in a set of images and detectes any circles.
 Then the detections boxes are drawn on the frame and displayed in a window.
 

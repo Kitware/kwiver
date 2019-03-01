@@ -33,7 +33,7 @@ kwiver_add_library( scorable_mgrs
 )
 
 target_link_libraries( scorable_mgrs
-  PUBLIC          kwiver_algo_proj
+  PUBLIC          kwiver_arrows_proj
   PRIVATE         vital_logger
 )
 

@@ -39,7 +39,7 @@ kwiver_add_library( kpf_utils
 target_link_libraries( kpf_utils
   PUBLIC               track_oracle
                        data_terms
-                       kwiver_algo_kpf
+                       kwiver_arrows_kpf
   PRIVATE              vital_logger
                        logging_map
                        kwiversys
