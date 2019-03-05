@@ -33,8 +33,8 @@
  * \brief vxl polygon conversion interface
  */
 
-#ifndef KWIVER_ARROWSRITHM_VXL_POLYGON_H
-#define KWIVER_ARROWSRITHM_VXL_POLYGON_H
+#ifndef KWIVER_ARROWS_VXL_POLYGON_H
+#define KWIVER_ARROWS_VXL_POLYGON_H
 
 #include <arrows/vxl/kwiver_arrows_vxl_export.h>
 #include <vital/types/polygon.h>
@@ -76,4 +76,4 @@ kwiver::vital::polygon_sptr vxl_to_vital( const vgl_polygon< double >& poly );
 
 } } } // end namespace
 
-#endif // KWIVER_ARROWSRITHM_VXL_POLYGON_H
+#endif // KWIVER_ARROWS_VXL_POLYGON_H
