@@ -50,6 +50,21 @@ target_link_libraries( kwiver
 )
 
 ###
+find_package( yaml-cpp REQUIRED )
+
+kwiver_add_executable( kpf_apply_homography
+  kpf_apply_homography.cxx
+)
+
+target_link_libraries( kpf_apply_homography
+  PRIVATE     vital
+  kwiver_algo_kpf
+  kpf_yaml
+  ${YAML_CPP_LIBRARIES}
+)
+
+
+###
 # Add applet for tools plugin
 kwiver_add_plugin( kwiver_tools
   SUBDIR       ${kwiver_plugin_applets}
