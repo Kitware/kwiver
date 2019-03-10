@@ -81,7 +81,8 @@ class KWIVER_ALGO_OCV_EXPORT heat_map_bounding_boxes
                                  vital::algo::image_object_detector>
 {
 public:
-
+  PLUGIN_INFO( "heat_map_bounding_boxes",
+               "OCV implementation to create detections from heatmaps" )
   /// Constructor
   heat_map_bounding_boxes();
   /// Destructor

@@ -854,7 +854,7 @@ heat_map_bounding_boxes
   }
   LOG_TRACE( logger(), "Received image");
 
-  const cv::Mat cv_src = ocv::image_container::vital_to_ocv(image_data->get_image());
+  const cv::Mat cv_src = ocv::image_container::vital_to_ocv(image_data->get_image(), ocv::image_container::BGR_COLOR );
 
   if ( cv_src.channels() > 1 )
   {
