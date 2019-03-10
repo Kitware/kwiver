@@ -666,7 +666,7 @@ heat_map_bounding_boxes
 
 /// Destructor
 heat_map_bounding_boxes
-::~heat_map_bounding_boxes() VITAL_NOTHROW
+::~heat_map_bounding_boxes() noexcept
 {
 }
 

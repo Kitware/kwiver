@@ -60,14 +60,14 @@ namespace ocv {
  * "threshold" is set to a positive value, the heat map is first thresholded to
  * a binary image, and the detected objects correspond to bounding boxes around
  * clusters of connected pixels. These detected objects can further be filtered
- * based on the cluster region properties (e.g., area, fill fraction, etc.). 
+ * based on the cluster region properties (e.g., area, fill fraction, etc.).
  * If threshold is set to -1, the heat map will be processed using the full
  * pixel-value range.
- * 
+ *
  * If a threshold is provided and force_bbox_width and force_bbox_height are not
  * set, then the thresholded binary image will be clustered into connected-
  * component regions, each becoming a detection with a bounding box.
- * 
+ *
  * If force_bbox_width and force_bbox_height are set, a greedy algorithm will
  * attempt to put down bounding boxes of fixed size. The first bounding box is
  * chosen to cover the greatest sum-intensity in the heat map. This region is
@@ -77,7 +77,7 @@ namespace ocv {
  *
  */
 class KWIVER_ALGO_OCV_EXPORT heat_map_bounding_boxes
-  : public vital::algorithm_impl<heat_map_bounding_boxes, 
+  : public vital::algorithm_impl<heat_map_bounding_boxes,
                                  vital::algo::image_object_detector>
 {
 public:
@@ -85,7 +85,7 @@ public:
   /// Constructor
   heat_map_bounding_boxes();
   /// Destructor
-  virtual ~heat_map_bounding_boxes() VITAL_NOTHROW;
+  virtual ~heat_map_bounding_boxes() noexcept;
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
