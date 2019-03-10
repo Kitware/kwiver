@@ -47,9 +47,9 @@ connect from input.image to motion.image
 process make_detections_from_motion
   :: image_object_detector
   block detector
-    type = heat_map_bounding_boxes
+    type = detect_heat_map
 
-    block heat_map_bounding_boxes
+    block detect_heat_map
       threshold = 0.5
       min_area = 1
       max_area = 50000

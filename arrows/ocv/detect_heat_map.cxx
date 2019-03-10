@@ -30,10 +30,10 @@
 
 /**
  * \file
- * \brief Implementation of ocv::heat_map_bounding_boxes
+ * \brief Implementation of ocv::detect_heat_map
  */
 
-#include "heat_map_bounding_boxes.h"
+#include "detect_heat_map.h"
 
 #include <vital/exceptions.h>
 #include <vital/types/detected_object.h>
@@ -225,7 +225,7 @@ mask_bounding_box( const cv::Mat image, double threshold = 0, int first_row = 0,
 // ------------------------------ Sprokit ------------------------------------
 
 /// Private implementation class
-class heat_map_bounding_boxes::priv
+class detect_heat_map::priv
 {
 public:
   double m_threshold;
@@ -655,25 +655,25 @@ public:
 
 
 /// Constructor
-heat_map_bounding_boxes
-::heat_map_bounding_boxes()
+detect_heat_map
+::detect_heat_map()
 : d_(new priv)
 {
-  attach_logger( "arrows.ocv.heat_map_bounding_boxes" );
+  attach_logger( "arrows.ocv.detect_heat_map" );
   d_->m_logger = logger();
 }
 
 
 /// Destructor
-heat_map_bounding_boxes
-::~heat_map_bounding_boxes() noexcept
+detect_heat_map
+::~detect_heat_map() noexcept
 {
 }
 
 
 /// Get this alg's \link vital::config_block configuration block \endlink
 vital::config_block_sptr
-heat_map_bounding_boxes
+detect_heat_map
 ::get_configuration() const
 {
   // get base config from base class
@@ -736,7 +736,7 @@ heat_map_bounding_boxes
 
 /// Set this algo's properties via a config block
 void
-heat_map_bounding_boxes
+detect_heat_map
 ::set_configuration(vital::config_block_sptr in_config)
 {
   // Starting with our generated config_block to ensure that assumed values are present
@@ -836,7 +836,7 @@ heat_map_bounding_boxes
 
 
 bool
-heat_map_bounding_boxes
+detect_heat_map
 ::check_configuration(vital::config_block_sptr config) const
 {
   return true;
@@ -845,12 +845,12 @@ heat_map_bounding_boxes
 
 /// Return homography to stabilize the image_src relative to the key frame
 detected_object_set_sptr
-heat_map_bounding_boxes
+detect_heat_map
 ::detect(image_container_sptr image_data) const
 {
   if ( !image_data)
   {
-    throw vital::invalid_data("Inputs to ocv::heat_map_bounding_boxes are null");
+    throw vital::invalid_data("Inputs to ocv::detect_heat_map are null");
   }
   LOG_TRACE( logger(), "Received image");
 

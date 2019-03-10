@@ -76,17 +76,17 @@ namespace ocv {
  * global optimum, as map cover problems are np hard.
  *
  */
-class KWIVER_ALGO_OCV_EXPORT heat_map_bounding_boxes
-  : public vital::algorithm_impl<heat_map_bounding_boxes,
+class KWIVER_ALGO_OCV_EXPORT detect_heat_map
+  : public vital::algorithm_impl<detect_heat_map,
                                  vital::algo::image_object_detector>
 {
 public:
-  PLUGIN_INFO( "heat_map_bounding_boxes",
+  PLUGIN_INFO( "detect_heat_map",
                "OCV implementation to create detections from heatmaps" )
   /// Constructor
-  heat_map_bounding_boxes();
+  detect_heat_map();
   /// Destructor
-  virtual ~heat_map_bounding_boxes() noexcept;
+  virtual ~detect_heat_map() noexcept;
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
