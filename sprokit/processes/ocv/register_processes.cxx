@@ -34,6 +34,7 @@
 
 // -- list processes to register --
 #include "image_viewer_process.h"
+#include "detect_in_subregions_process.h"
 
 // ----------------------------------------------------------------
 /*! \brief Regsiter processes
@@ -54,6 +55,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   }
 
   reg.register_process< kwiver::image_viewer_process >();
+  reg.register_process< kwiver::detect_in_subregions_process >();
 
 // - - - - - - - - - - - - - - - - - - - - - - -
   reg.mark_module_as_loaded();

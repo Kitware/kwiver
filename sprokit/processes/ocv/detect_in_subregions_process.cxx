@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "image_object_classifier_process.h"
+#include "detect_in_subregions_process.h"
 #include <arrows/ocv/image_container.h>
 
 #include <vital/algo/image_object_detector.h>
@@ -50,7 +50,7 @@ create_config_trait( include_input_dets, bool, "false", "Include the input "
 
 //----------------------------------------------------------------
 // Private implementation class
-class image_object_classifier_process::priv
+class detect_in_subregions_process::priv
 {
 public:
   priv()
@@ -86,7 +86,7 @@ public:
             vital::detected_object_set_sptr &dets_out_sptr )
   {
     kwiver::vital::wall_timer timer;
-    cv::Mat cv_src = arrows::ocv::image_container::vital_to_ocv( src_image->get_image() );
+    cv::Mat cv_src = arrows::ocv::image_container::vital_to_ocv( src_image->get_image(), arrows::ocv::image_container::BGR_COLOR );
 
     vital::detected_object::vector_t dets_out;
 
@@ -133,7 +133,7 @@ public:
       cv::Rect roi( x, y, w, h );
 
       // Detect within the region of interest.
-      windowed_image = vital::image_container_sptr( new arrows::ocv::image_container( cv_src(roi) ) );
+      windowed_image = vital::image_container_sptr( new arrows::ocv::image_container( cv_src(roi), arrows::ocv::image_container::BGR_COLOR ) );
 
       auto dets = m_detector->detect( windowed_image );
 
@@ -158,10 +158,10 @@ public:
 
 
 // ==================================================================
-image_object_classifier_process::
-image_object_classifier_process( kwiver::vital::config_block_sptr const& config )
+detect_in_subregions_process::
+detect_in_subregions_process( kwiver::vital::config_block_sptr const& config )
   : process( config ),
-    d( new image_object_classifier_process::priv )
+    d( new detect_in_subregions_process::priv )
 {
   // Attach our logger name to process logger
   attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
@@ -172,15 +172,15 @@ image_object_classifier_process( kwiver::vital::config_block_sptr const& config 
 }
 
 
-image_object_classifier_process::
-~image_object_classifier_process()
+detect_in_subregions_process::
+~detect_in_subregions_process()
 {
 }
 
 
 // ------------------------------------------------------------------
 void
-image_object_classifier_process::
+detect_in_subregions_process::
 _configure()
 {
   scoped_configure_instrumentation();
@@ -205,7 +205,7 @@ _configure()
 
 // ------------------------------------------------------------------
 void
-image_object_classifier_process::
+detect_in_subregions_process::
 _step()
 {
   vital::detected_object_set_sptr dets_out;
@@ -236,7 +236,7 @@ _step()
 
 // ------------------------------------------------------------------
 void
-image_object_classifier_process::
+detect_in_subregions_process::
 make_ports()
 {
   // Set up for required ports
@@ -257,7 +257,7 @@ make_ports()
 
 // ------------------------------------------------------------------
 void
-image_object_classifier_process::
+detect_in_subregions_process::
 make_config()
 {
   declare_config_using_trait( detector );
