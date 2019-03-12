@@ -67,6 +67,10 @@ typedef ::kwiver::vital::homography_< double > homography_t;
 homography_t load_homography( const string& fn );
 KPF::packet_t warp_g0( const KPF::packet_t& p, const homography_t& h );
 KPF::packet_t warp_ts0( const KPF::packet_t& p, int ts_offset );
+KPF::packet_t warp_act2( const KPF::packet_t& p, int ts_offset );
+void apply_offset_to_tsr( vector< KPFC::scoped< KPFC::timestamp_range_t> >& tsr_list,
+                          int domain,
+                          int ts_offset );
 
 int main( int argc, char *argv[] )
 {
@@ -118,7 +122,9 @@ int main( int argc, char *argv[] )
             << KPF::record_yaml_writer::endl;
   }
 
-  const KPF::packet_header_t g0_header( KPF::packet_style::GEOM, 0 ), ts0_header( KPF::packet_style::TS, 0 );
+  const KPF::packet_header_t g0_header( KPF::packet_style::GEOM, 0 );
+  const KPF::packet_header_t ts0_header( KPF::packet_style::TS, 0 );
+  const KPF::packet_header_t act2_header( KPF::packet_style::ACT, 2 );
 
   KPF::kpf_yaml_parser_t parser( is );
   KPF::kpf_reader_t reader( parser );
@@ -146,6 +152,12 @@ int main( int argc, char *argv[] )
       else if (p.first == ts0_header)
       {
         kpf_out << warp_ts0( p.second, frame_offset );
+      }
+
+      // is this a DIVA activity? If so, apply the offset and write it out
+      else if (p.first == act2_header )
+      {
+        kpf_out << warp_act2( p.second, frame_offset );
       }
 
       // otherwise, just write it out
@@ -209,5 +221,32 @@ KPF::packet_t warp_ts0( const KPF::packet_t& p, int frame_offset )
 {
   KPF::packet_t new_packet( p );
   new_packet.timestamp.d += frame_offset;
+  return new_packet;
+}
+
+void apply_offset_to_tsr( vector< KPFC::scoped< KPFC::timestamp_range_t> >& tsr_list,
+                          int domain,
+                          int ts_offset )
+{
+  for (auto& p: tsr_list )
+  {
+    if (p.domain == domain)
+    {
+      p.t.start += ts_offset;
+      p.t.stop += ts_offset;
+    }
+  }
+}
+
+
+KPF::packet_t warp_act2( const KPF::packet_t& p, int frame_offset )
+{
+  KPF::packet_t new_packet( p );
+  const int domain=0;
+  apply_offset_to_tsr( new_packet.activity.timespan, domain, frame_offset );
+  for (auto& a: new_packet.activity.actors )
+  {
+    apply_offset_to_tsr( a.actor_timespan, domain, frame_offset );
+  }
   return new_packet;
 }
