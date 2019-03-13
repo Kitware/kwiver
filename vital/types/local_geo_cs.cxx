@@ -39,7 +39,7 @@
 #include <iomanip>
 
 #include <vital/math_constants.h>
-
+#include <GeographicLib/LambertConformalConic.hpp>
 #include <vital/types/geodesy.h>
 #include <vital/types/metadata_traits.h>
 
