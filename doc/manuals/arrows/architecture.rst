@@ -27,6 +27,5 @@ The provided Arrows are:
    opencv
    proj
    uuid
-   viscl
    vxl
-   
+
