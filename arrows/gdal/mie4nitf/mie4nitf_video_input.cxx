@@ -66,14 +66,6 @@ namespace kwiver {
 namespace arrows {
 namespace mie4nitf {
 
-struct xml_metadata_per_frame
-{
-  std::string start_timestamp;
-  std::string end_timestamp;
-  std::string filename;
-  std::string description;
-  int image_seg_index;
-};
 
 #define INT_DEFAULT -1
 #define CURRENT_FRAME_NUMBER_INIT 1
@@ -413,6 +405,9 @@ public:
 
     if (this->f_current_frame == nullptr)
     {
+      throw kwiver::vital::file_not_found_exception(
+        this->f_current_frame_metadata->filename,
+        "File not found");
       return false;
     }
 
@@ -698,7 +693,6 @@ mie4nitf_video_input
 
 
 // ------------------------------------------------------------------
-// TODO(m-chaturvedi): Add metadata to KWIVER, the start, end timestamp.
 kwiver::vital::metadata_vector
 mie4nitf_video_input
 ::frame_metadata()
@@ -727,7 +721,6 @@ mie4nitf_video_input
 
 
 // ------------------------------------------------------------------
-// TODO(m-chaturvedi): Add metadata to KWIVER, the start, end timestamp.
 bool
 mie4nitf_video_input
 ::good() const

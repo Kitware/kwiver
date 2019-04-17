@@ -190,6 +190,8 @@ TEST_F(mie4nitf_video_input, seek)
   EXPECT_EQ(input.frame_image(), nullptr) << 
     "Video should not have an image yet";
 
+  EXPECT_TRUE(input.seekable()) << "Video should be seekable.";
+
   kwiver::vital::timestamp ts;
   kwiver::arrows::gdal::image_io img_io = kwiver::arrows::gdal::image_io();
 
@@ -215,10 +217,16 @@ TEST_F(mie4nitf_video_input, seek)
   // Test various invalid seeks past end of video
   std::vector<kwiver::vital::timestamp::frame_t> invalid_seeks =
   { -3, -1, 0, 6 };
+
+
+  kwiver::vital::image_container_sptr f_current_frame = input.frame_image();
+  int current_frame_number = ts.get_frame();
+
   for (auto requested_frame : invalid_seeks)
   {
     EXPECT_FALSE(input.seek_frame(ts, requested_frame));
     EXPECT_NE(requested_frame, ts.get_frame());
+    EXPECT_EQ(current_frame_number, ts.get_frame());
   }
 }
 
@@ -268,6 +276,7 @@ TEST_F(mie4nitf_video_input, read_video)
   kwiver::vital::path_t correct_file = j2k_file;
 
   input.open(correct_file);
+  EXPECT_FALSE(input.good());
 
   kwiver::vital::timestamp ts;
 
@@ -278,6 +287,7 @@ TEST_F(mie4nitf_video_input, read_video)
   int num_frames = 0;
   while (input.next_frame(ts))
   {
+    EXPECT_TRUE(input.good());
     auto img = input.frame_image();
 
     ++num_frames;

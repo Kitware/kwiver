@@ -45,6 +45,15 @@ namespace kwiver {
 namespace arrows {
 namespace mie4nitf {
 
+struct xml_metadata_per_frame
+{
+  std::string start_timestamp;
+  std::string end_timestamp;
+  std::string filename;
+  std::string description;
+  int image_seg_index;
+};
+
 /// Video input using mie4nitf services.
 // ---------------------------------------------------------------------------
 /**
