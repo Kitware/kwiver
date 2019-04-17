@@ -37,3 +37,9 @@ algorithms_create_plugin( kwiver_algo_gdal
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory(tests)
 endif()
+
+# if MIE4NITF is enabled
+if( KWIVER_ENABLE_MIE4NITF AND KWIVER_ENABLE_GDAL )
+  add_subdirectory( mie4nitf )
+endif()
+

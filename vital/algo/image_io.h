@@ -85,7 +85,8 @@ public:
    * \param filename the path to the file to load
    * \returns an image container refering to the loaded image
    */
-  kwiver::vital::image_container_sptr load(std::string const& filename) const;
+  kwiver::vital::image_container_sptr load(std::string const& filename,
+    bool is_NITF_subdataset=false) const;
 
   /// Save image to a file
   /**

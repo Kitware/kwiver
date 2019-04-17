@@ -61,10 +61,15 @@ image_io
 
 image_container_sptr
 image_io
-::load(std::string const& filename) const
+::load(std::string const& filename, bool is_NITF_subdataset) const
 {
+  if(is_NITF_subdataset)
+  {
+    return this->load_(filename);
+  }
+
   // Make sure that the given file path exists and is a file.
-  if ( ! kwiversys::SystemTools::FileExists( filename ) )
+  if ( ! kwiversys::SystemTools::FileExists( filename ))
   {
     VITAL_THROW( path_not_exists, filename);
   }
