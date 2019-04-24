@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2018 by Kitware, Inc.
+ * Copyright 2013-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,13 +61,8 @@ image_io
 
 image_container_sptr
 image_io
-::load(std::string const& filename, bool is_NITF_subdataset) const
+::load(std::string const& filename) const
 {
-  if(is_NITF_subdataset)
-  {
-    return this->load_(filename);
-  }
-
   // Make sure that the given file path exists and is a file.
   if ( ! kwiversys::SystemTools::FileExists( filename ))
   {

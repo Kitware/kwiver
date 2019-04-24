@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2018 by Kitware, Inc.
+ * Copyright 2018-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,10 +38,35 @@
 #include <arrows/gdal/image_container.h>
 
 #include <vital/exceptions/algorithm.h>
+#include <vital/exceptions/io.h>
+#include <vital/algo/image_io.h>
+#include <kwiversys/SystemTools.hxx>
+
 
 namespace kwiver {
 namespace arrows {
 namespace gdal {
+
+kwiver::vital::image_container_sptr
+image_io::load(std::string const& filename, bool is_NITF_subdataset)
+{
+  if(is_NITF_subdataset)
+  {
+    return this->load_(filename);
+  }
+
+  // Make sure that the given file path exists and is a file.
+  if ( ! kwiversys::SystemTools::FileExists( filename ))
+  {
+    VITAL_THROW( kwiver::vital::path_not_exists, filename);
+  }
+  else if ( kwiversys::SystemTools::FileIsDirectory( filename ) )
+  {
+    VITAL_THROW( kwiver::vital::path_not_a_file, filename);
+  }
+
+  return this->load_(filename);
+}
 
 /// Load image image from the file
 /**

@@ -39,7 +39,7 @@ if (KWIVER_ENABLE_TESTS)
 endif()
 
 # if MIE4NITF is enabled
-if( KWIVER_ENABLE_MIE4NITF AND KWIVER_ENABLE_GDAL )
+if( KWIVER_ENABLE_MIE4NITF )
   add_subdirectory( mie4nitf )
 endif()
 

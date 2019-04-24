@@ -33,7 +33,6 @@
  * \brief Implementation file for video input using GDAL.
  */
 
-#include "arrows/gdal/mie4nitf/mie4nitf_init.h"
 #include "arrows/gdal/mie4nitf/mie4nitf_video_input.h"
 
 #include <vital/types/timestamp.h>
@@ -50,7 +49,6 @@
 
 #include <kwiversys/SystemTools.hxx>
 
-#include <mutex>
 #include <memory>
 #include <vector>
 #include <sstream>
@@ -83,7 +81,6 @@ public:
     f_current_frame_index(INT_DEFAULT),
     start_time(INT_DEFAULT),
     video_path(""),
-    frame_advanced(0),
     number_of_frames(INT_DEFAULT),
     gdal_mie4nitf_dataset_(nullptr),
     num_subdatasets(INT_DEFAULT)
@@ -103,7 +100,7 @@ public:
   // The initial value is `CURRENT_FRAME_INDEX_INIT`.
   int f_current_frame_index;
 
-  // Start time of the stream,
+  // Start time of the video,
   // to offset the pts when computing the frame number.
   // (in stream time base)
   int64_t start_time;
@@ -113,10 +110,6 @@ public:
 
   // For logging in priv methods
   vital::logger_handle_t logger;
-  static std::mutex open_mutex;
-
-  // Check whether the frame advanced or not.
-  bool frame_advanced;
 
   // The number of frames the video has.
   int number_of_frames;
@@ -329,10 +322,8 @@ public:
 
   void populate_subset_metadata()
   {
-    //GDALDataset *poDataset = this->gdal_mie4nitf_dataset_.get();
     char **metadata = GDALGetMetadata(this->gdal_mie4nitf_dataset_,
       "SUBDATASETS");
-    //char **metadata = GDALGetMetadata(poDataset, "SUBDATASETS");
 
     int ind = 1;
 
@@ -422,48 +413,6 @@ public:
     }
     return false;
   }
-  // ==================================================================
-  /*
-  * @brief Advance to the next frame.
-  *
-  * @return \b true if video was valid and we found a frame.
-  * So, it will return true if it's the last frame of the video.
-  */
-  bool advance()
-  {
-    // Quick return if the file isn't open.
-    if (!this->is_opened())
-    {
-      return false;
-    }
-
-    // If the end of video is reached, the frame is not advanced
-    // but `true` is returned.
-    // TODO(m-chaturvedi): Check with David and others if the functionality
-    // is fine.
-    if(this->priv_end_of_video())
-    {
-      return true;
-    }
-
-    int next_frame_number = this->f_current_frame_number;
-
-    if(next_frame_number == INT_DEFAULT)
-    {
-      next_frame_number = CURRENT_FRAME_NUMBER_INIT;
-    }
-    else
-    {
-      ++ next_frame_number;
-    }
-
-    if(!goto_frame_number(next_frame_number))
-    {
-      return false;
-    }
-
-    return true;
-  }
 
   // ==================================================================
   /*
@@ -490,8 +439,6 @@ public:
 
 }; // end of internal class.
 
-// static open interlocking mutex
-std::mutex mie4nitf_video_input::priv::open_mutex;
 
 
 // ==================================================================
@@ -505,14 +452,12 @@ mie4nitf_video_input
   this->set_capability(vital::algo::video_input::HAS_FRAME_NUMBERS, true);
   this->set_capability(vital::algo::video_input::HAS_FRAME_TIME, true);
   this->set_capability(vital::algo::video_input::HAS_FRAME_DATA, true);
-  this->set_capability(vital::algo::video_input::HAS_ABSOLUTE_FRAME_TIME,
-    true);
+  this->set_capability(vital::algo::video_input::HAS_ABSOLUTE_FRAME_TIME, true);
   this->set_capability(vital::algo::video_input::HAS_METADATA, false);
 
   this->set_capability(vital::algo::video_input::IS_SEEKABLE, true);
   this->set_capability(vital::algo::video_input::HAS_TIMEOUT, false);
 
-  mie4nitf_init();
 }
 
 
@@ -571,7 +516,6 @@ mie4nitf_video_input
   d->video_path = video_name;
 
   {
-    std::lock_guard< std::mutex > lock(d->open_mutex);
 
     if (!kwiversys::SystemTools::FileExists(d->video_path))
     {
@@ -582,10 +526,10 @@ mie4nitf_video_input
 
     if (!d->open(video_name))
     {
-      throw kwiver::vital::video_runtime_exception("Video stream open failed "
+      throw kwiver::vital::video_runtime_exception("Video file open failed "
         "for unknown reasons");
     }
-	return;
+    return;
   }
 }
 
@@ -603,17 +547,25 @@ mie4nitf_video_input
     d->f_current_frame.reset();
 }
 
+size_t
+mie4nitf_video_input
+::num_frames() const
+{
+    return d->number_of_frames;
+}
+
 // ------------------------------------------------------------------
 bool
 mie4nitf_video_input
 ::next_frame( kwiver::vital::timestamp& ts,
               uint32_t timeout )
 {
-  // If the stream if not opened
+  // If the file is not opened
   if (!d->is_opened())
   {
     throw vital::file_not_read_exception(d->video_path,
         "Video not open");
+    return false;
   }
 
   // If it's the last frame then return `false`
@@ -622,15 +574,24 @@ mie4nitf_video_input
     return false;
   }
 
-  bool ret = d->advance();
+  int next_frame_number = d->f_current_frame_number;
 
-  if(!ret || d->f_current_frame == nullptr)
+  if(next_frame_number == INT_DEFAULT)
+  {
+    next_frame_number = CURRENT_FRAME_NUMBER_INIT;
+  }
+  else
+  {
+    ++ next_frame_number;
+  }
+
+  if(!d->goto_frame_number(next_frame_number))
   {
     return false;
   }
 
   ts = this->frame_timestamp();
-  return ret;
+  return true;
 }
 
 // ------------------------------------------------------------------
@@ -638,7 +599,7 @@ bool mie4nitf_video_input::seek_frame(kwiver::vital::timestamp& ts,
   kwiver::vital::timestamp::frame_t frame_number,
   uint32_t timeout)
 {
-  // Quick return if the stream isn't open.
+  // Quick return if the file isn't open.
   if (!d->is_opened())
   {
     throw vital::file_not_read_exception(d->video_path, "Video not open");
@@ -649,7 +610,7 @@ bool mie4nitf_video_input::seek_frame(kwiver::vital::timestamp& ts,
     return false;
   }
 
-  // Quick return if the stream isn't open.
+  // Quick return if the file isn't open.
   if (timeout != 0)
   {
     LOG_WARN(this->logger(), "Timeout argument is not supported.");
@@ -697,6 +658,8 @@ kwiver::vital::metadata_vector
 mie4nitf_video_input
 ::frame_metadata()
 {
+// TODO(m-chaturvedi): Implement this.
+  LOG_INFO(this->logger(), "Metadata access isn't supported yet");
   return kwiver::vital::metadata_vector();
 }
 
@@ -706,6 +669,8 @@ kwiver::vital::metadata_map_sptr
 mie4nitf_video_input
 ::metadata_map()
 {
+// TODO(m-chaturvedi): Implement this.
+  LOG_INFO(this->logger(), "Metadata access isn't supported yet");
   std::shared_ptr<kwiver::vital::simple_metadata_map> ptr;
   return ptr;
 }

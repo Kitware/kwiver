@@ -168,7 +168,6 @@ TEST_F(mie4nitf_video_input, frame_image)
   EXPECT_EQ(frame->get_image().w_step(), 1);
   EXPECT_EQ(frame->get_image().is_contiguous(), true);
 
-  //EXPECT_EQ(decode_barcode(*frame), 1);
 }
 
 

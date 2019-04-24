@@ -252,10 +252,6 @@ if (KWIVER_ENABLE_TOOLS)
   add_subdirectory(tools)
 endif()
 
-if (KWIVER_ENABLE_MIE4NITF AND NOT KWIVER_ENABLE_GDAL)
-  message(FATAL_ERROR "MIE4NITF needs GDAL enabled.")
-endif()
-
 ###
 # include as the last subdir
 add_subdirectory( vital )

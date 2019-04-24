@@ -1,12 +1,7 @@
 # Build / Install plugin containing mie4nitf algorithm implementations + support
 # structures
 
-find_package(LibXml2 REQUIRED)
-list(APPEND MIE4NITF_INCLUDE_DIR ${LIBXML2_INCLUDE_DIR})
-include_directories(${MIE4NITF_INCLUDE_DIR})
-
 set(mie4nitf_headers_public
-  mie4nitf_init.h
   mie4nitf_video_input.h
   )
 
@@ -21,7 +16,6 @@ kwiver_install_headers(
   )
 
 set(mie4nitf_sources
-  mie4nitf_init.cxx
   mie4nitf_video_input.cxx
   )
 

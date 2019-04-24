@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2018 by Kitware, Inc.
+ * Copyright 2018-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,12 @@ public:
   virtual void set_configuration(vital::config_block_sptr /*config*/) { }
   virtual bool check_configuration(vital::config_block_sptr /*config*/) const { return true; }
   /// \endcond
+
+  // Overloading from algo::image_io because we want to skip file's existence's
+  // checking
+   using kwiver::vital::algo::image_io::load;
+   vital::image_container_sptr load(std::string const& filename,
+       bool is_NITF_subdataset);
 
 private:
   /// Implementation specific load functionality.
