@@ -64,7 +64,7 @@ image_io
 ::load(std::string const& filename) const
 {
   // Make sure that the given file path exists and is a file.
-  if ( ! kwiversys::SystemTools::FileExists( filename ))
+  if ( ! kwiversys::SystemTools::FileExists( filename ) )
   {
     VITAL_THROW( path_not_exists, filename);
   }

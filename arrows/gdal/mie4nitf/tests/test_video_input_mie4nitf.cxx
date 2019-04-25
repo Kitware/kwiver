@@ -255,7 +255,7 @@ TEST_F(mie4nitf_video_input, end_of_video)
   };
 
 
-  for (int i =0; !input.end_of_video(); ++i)
+  for (int i=0; !input.end_of_video(); ++i)
   {
     EXPECT_TRUE(input.next_frame(ts)) << "End of video while reading";
     EXPECT_EQ(ts.get_frame(), check.at(i).second);

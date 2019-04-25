@@ -102,7 +102,6 @@ private:
   class priv;
   const std::unique_ptr<priv> d;
 
-  size_t private_num_frames();
 };
 
 } } } // end namespace

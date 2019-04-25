@@ -702,12 +702,4 @@ mie4nitf_video_input
   return true;
 }
 
-// ------------------------------------------------------------------
-size_t
-mie4nitf_video_input
-::private_num_frames()
-{
-  return d->number_of_frames;
-}
-
 } } } // end namespaces
