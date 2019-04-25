@@ -207,7 +207,7 @@ TEST_F(mie4nitf_video_input, seek)
       ":" + j2k_file;
     
     kwiver::vital::image_container_sptr img_container =
-      img_io.load(frame_file, true);
+      img_io.load_subdataset(frame_file);
     kwiver::vital::image NITF_image_vital = img_container->get_image();
     kwiver::vital::image img = input.frame_image()->get_image();
 

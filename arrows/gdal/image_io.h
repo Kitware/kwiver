@@ -53,13 +53,14 @@ public:
   /// \cond DoxygenSuppress
   virtual void set_configuration(vital::config_block_sptr /*config*/) { }
   virtual bool check_configuration(vital::config_block_sptr /*config*/) const { return true; }
+  
+  kwiver::vital::image_container_sptr load_subdataset(std::string const&
+    filename)
+  {
+    return this->load_(filename);
+  }
   /// \endcond
 
-  // Overloading from algo::image_io because we want to skip file's existence's
-  // checking
-   using kwiver::vital::algo::image_io::load;
-   vital::image_container_sptr load(std::string const& filename,
-       bool is_NITF_subdataset);
 
 private:
   /// Implementation specific load functionality.

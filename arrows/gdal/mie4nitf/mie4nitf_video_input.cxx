@@ -357,8 +357,8 @@ public:
   {
     kwiver::arrows::gdal::image_io img_io = kwiver::arrows::gdal::image_io();
 
-    kwiver::vital::image_container_sptr frame = img_io.load(subdataset_name,
-      true);
+    kwiver::vital::image_container_sptr frame = \
+      img_io.load_subdataset(subdataset_name);
 
     if(frame == nullptr)
     {
