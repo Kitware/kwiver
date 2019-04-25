@@ -420,22 +420,22 @@ public:
   *
   * @return \b true if video was opened.
   */
-   bool open(std::string video_name)
-   {
-     GDALAllRegister();
+  bool open(std::string video_name)
+  {
+    GDALAllRegister();
 
-     gdal_mie4nitf_dataset_ = static_cast<GDALDataset*>
-       (GDALOpen(video_name.c_str(), GA_ReadOnly));
+    gdal_mie4nitf_dataset_ = static_cast<GDALDataset*>
+      (GDALOpen(video_name.c_str(), GA_ReadOnly));
 
-      if ( !gdal_mie4nitf_dataset_ )
-      {
-        VITAL_THROW( vital::invalid_file, video_name,
-          "GDAL could not load file.");
-        return false;
-      }
-      populate_xml_metadata();
-      return true;
-   }
+     if ( !gdal_mie4nitf_dataset_ )
+     {
+       VITAL_THROW( vital::invalid_file, video_name,
+         "GDAL could not load file.");
+       return false;
+     }
+     populate_xml_metadata();
+     return true;
+  }
 
 }; // end of internal class.
 
