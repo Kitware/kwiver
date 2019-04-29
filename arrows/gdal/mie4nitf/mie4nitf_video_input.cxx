@@ -40,7 +40,7 @@
 #include <vital/exceptions/video.h>
 #include <vital/util/tokenize.h>
 #include <arrows/gdal/image_io.h>
-#include <arrows/gdal/image_container.h>
+#include <gdal_priv.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
@@ -117,7 +117,7 @@ public:
   // The number of frames the video has.
   int number_of_frames;
 
-  // The pointer *J2K* MIE4NITF GDAL dataset.
+  // The pointer to *J2K* MIE4NITF GDAL dataset.
   GDALDataset *gdal_mie4nitf_dataset_;
 
   // Metadata per frame parsed from the XML returned by GDAL :
@@ -456,7 +456,10 @@ mie4nitf_video_input
 }
 
 
-mie4nitf_video_input::~mie4nitf_video_input() = default;
+mie4nitf_video_input::~mie4nitf_video_input()
+{
+  this->close();
+}
 
 
 // ------------------------------------------------------------------
