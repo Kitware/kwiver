@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2018-2019 by Kitware, Inc.
+ * Copyright 2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,14 +53,19 @@ public:
   /// \cond DoxygenSuppress
   virtual void set_configuration(vital::config_block_sptr /*config*/) { }
   virtual bool check_configuration(vital::config_block_sptr /*config*/) const { return true; }
-  
+
+  /// Load subdatasets for NITF.  Need a different method because the subdatsets
+  /// are of format: `NITF_IM:0:<filename>` and not a separate file.
+  /**
+   * \param filename the path to the subdataset to load
+   * \returns an image container refering to the loaded image
+   */
   kwiver::vital::image_container_sptr load_subdataset(std::string const&
     filename)
   {
     return this->load_(filename);
   }
   /// \endcond
-
 
 private:
   /// Implementation specific load functionality.

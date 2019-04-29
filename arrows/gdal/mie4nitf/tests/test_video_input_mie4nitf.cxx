@@ -36,9 +36,7 @@
 #include <test_gtest.h>
 
 #include <arrows/gdal/mie4nitf/mie4nitf_video_input.h>
-#include <arrows/core/tests/barcode_decode.h>
 #include <arrows/gdal/image_io.h>
-#include <arrows/gdal/image_container.h>
 
 #include <vital/exceptions/io.h>
 #include <vital/plugin_loader/plugin_manager.h>
@@ -142,7 +140,6 @@ TEST_F(mie4nitf_video_input, frame_image)
 {
   kwiver::arrows::mie4nitf::mie4nitf_video_input input;
   kwiver::vital::path_t correct_file = j2k_file;
-  std::cout << "OPENING: "<< correct_file << std::endl;
 
   EXPECT_FALSE(input.good())
     << "Video state before open";

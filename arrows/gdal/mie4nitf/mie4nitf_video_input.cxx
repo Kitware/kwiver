@@ -64,6 +64,15 @@ namespace kwiver {
 namespace arrows {
 namespace mie4nitf {
 
+struct xml_metadata_per_frame
+{
+  std::string start_timestamp;
+  std::string end_timestamp;
+  std::string filename;
+  std::string description;
+  int image_seg_index;
+};
+
 
 #define INT_DEFAULT -1
 #define CURRENT_FRAME_NUMBER_INIT 1
@@ -78,12 +87,10 @@ public:
     f_current_frame(nullptr),
     f_current_frame_metadata(nullptr),
     f_current_frame_number(INT_DEFAULT),
-    f_current_frame_index(INT_DEFAULT),
     start_time(INT_DEFAULT),
     video_path(""),
     number_of_frames(INT_DEFAULT),
-    gdal_mie4nitf_dataset_(nullptr),
-    num_subdatasets(INT_DEFAULT)
+    gdal_mie4nitf_dataset_(nullptr)
   {}
 
   // Pointer to the current frame.
@@ -95,10 +102,6 @@ public:
   // The current frame number.  The undefined value is `INT_DEFAULT`.
   // The initial value is `CURRENT_FRAME_NUMBER_INIT`.
   int f_current_frame_number;
-
-  // The current frame index.  The undefined value is `INT_DEFAULT`.
-  // The initial value is `CURRENT_FRAME_INDEX_INIT`.
-  int f_current_frame_index;
 
   // Start time of the video,
   // to offset the pts when computing the frame number.
@@ -121,8 +124,6 @@ public:
   // char **str = GDALGetMetadata(<dataset_name>, "xml:TRE");
   std::vector<xml_metadata_per_frame> xml_metadata;
 
-  // The number of subdatasets the main dataset (`gdal_mie4nitf_data`) has.
-  int num_subdatasets;
 
   // ==================================================================
   /*
@@ -349,7 +350,6 @@ public:
       md.description = p2.second;
       ++ind;
     }
-    num_subdatasets = xml_metadata.size();
     number_of_frames = xml_metadata.size();
   }
 
@@ -369,14 +369,9 @@ public:
     return frame;
   }
 
-  int convert_frame_number_to_index (int frame_number)
-  {
-    return frame_number - 1;
-  }
-
   bool goto_frame_number(int frame_number)
   {
-    int frame_ind = convert_frame_number_to_index(frame_number);
+    int frame_ind = frame_number - 1;
     if ( frame_number < 1 || frame_number > this->number_of_frames )
     {
       LOG_ERROR(this->logger, "Frame number out of expected range.");
@@ -461,11 +456,7 @@ mie4nitf_video_input
 }
 
 
-mie4nitf_video_input
-::~mie4nitf_video_input()
-{
-  return;
-}
+mie4nitf_video_input::~mie4nitf_video_input() = default;
 
 
 // ------------------------------------------------------------------
@@ -501,9 +492,7 @@ bool
 mie4nitf_video_input
 ::check_configuration(vital::config_block_sptr config) const
 {
-  bool retcode(true); // assume success
-
-  return retcode;
+  return true;
 }
 
 // ------------------------------------------------------------------
@@ -515,9 +504,7 @@ mie4nitf_video_input
 
   d->video_path = video_name;
 
-  {
-
-    if (!kwiversys::SystemTools::FileExists(d->video_path))
+  if (!kwiversys::SystemTools::FileExists(d->video_path))
     {
       // Throw exception
       throw kwiver::vital::file_not_found_exception(video_name,
@@ -529,8 +516,6 @@ mie4nitf_video_input
       throw kwiver::vital::video_runtime_exception("Video file open failed "
         "for unknown reasons");
     }
-    return;
-  }
 }
 
 
@@ -582,7 +567,7 @@ mie4nitf_video_input
   }
   else
   {
-    ++ next_frame_number;
+    ++next_frame_number;
   }
 
   if(!d->goto_frame_number(next_frame_number))
@@ -610,7 +595,6 @@ bool mie4nitf_video_input::seek_frame(kwiver::vital::timestamp& ts,
     return false;
   }
 
-  // Quick return if the file isn't open.
   if (timeout != 0)
   {
     LOG_WARN(this->logger(), "Timeout argument is not supported.");
@@ -626,8 +610,7 @@ kwiver::vital::image_container_sptr
 mie4nitf_video_input
 ::frame_image( )
 {
-  std::shared_ptr<kwiver::vital::image_container> ptr = d->f_current_frame;
-  return ptr;
+  return d->f_current_frame;
 }
 
 // ------------------------------------------------------------------

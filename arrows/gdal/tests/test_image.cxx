@@ -114,7 +114,6 @@ void test_nitf_metadata(kwiver::vital::metadata_sptr md)
 {
 
   kwiver::vital::metadata_traits md_traits;
-
   for ( auto const& tag : nitf_tags )
   {
     EXPECT_TRUE( md->has( tag ) )
