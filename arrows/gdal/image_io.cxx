@@ -55,6 +55,18 @@ image_io
   return vital::image_container_sptr( new gdal::image_container( filename ) );
 }
 
+/// Load subdatasets for NITF.  Need a different method because the subdatsets
+/// are of format: `NITF_IM:0:<filename>` and not a separate file.
+/**
+ * \param filename the path to the subdataset to load
+ * \returns an image container refering to the loaded image
+ */
+kwiver::vital::image_container_sptr
+image_io::load_NITF_subdataset(std::string const&
+  subdataset_name)
+{
+  return this->load_(subdataset_name);
+}
 
 /// Save image image to a file
 /**

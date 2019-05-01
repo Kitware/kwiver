@@ -54,12 +54,6 @@
 #include <sstream>
 #include <string>
 
-extern "C" {
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
-}
-
 namespace kwiver {
 namespace arrows {
 namespace mie4nitf {
@@ -189,8 +183,8 @@ public:
     if(prop == NULL)
     {
       xmlFree(prop);
-      LOG_ERROR(this->logger, "Error "<< prop << " in xmlGetProp");
-      return NULL;
+      VITAL_THROW(vital::metadata_exception,"Error " + xml_char_to_string(prop)
+          + " in xmlGetProp");
     }
     xmlXPathFreeObject(xpath);
     return prop;
@@ -247,8 +241,7 @@ public:
     xmlXPathContextPtr xpath_context = get_new_context(doc);
     xmlXPathObjectPtr xpath_obj =
         get_node_set_from_context(temporal_block_xpath, xpath_context);
-  
-    // assert(xpath_obj -> nodesetval -> nodeNr == NUM_FRAMES_EXPECTED);
+
     for (int i = 0; i < xpath_obj -> nodesetval -> nodeNr; ++i)
     {
       xmlNode *node = xpath_obj->nodesetval->nodeTab[i];
@@ -263,20 +256,6 @@ public:
     xmlXPathFreeContext(xpath_context);
   }
 
-  void print_metadata_per_frame(int num)
-  {
-    for (int i = 0; i < num; ++i)
-    {
-      xml_metadata_per_frame md = xml_metadata.at(i);
-      printf("%-30s : %d\n", "IMAGE_SEG_INDEX", md.image_seg_index);
-      printf("%-30s : %s\n", "START_TIMESTAMP", md.start_timestamp.c_str());
-      printf("%-30s : %s\n", "END_TIMESTAMP", md.end_timestamp.c_str());
-      printf("%-30s : %s\n", "FILENAME", md.filename.c_str());
-      printf("%-30s : %s\n", "DESC", md.description.c_str());
-      printf("----------------------\n");
-    }
-  }
-
   void populate_xml_metadata()
   {
     std::string concat_strings;
@@ -284,7 +263,7 @@ public:
     while(*str != NULL)
     {
       concat_strings = concat_strings + (*str);
-      str++;
+      ++str;
     }
 
     xmlDoc *doc = nullptr;
@@ -292,8 +271,7 @@ public:
     if ((doc = xmlReadDoc(reinterpret_cast<xmlChar*>(str_char),
       NULL, NULL, XML_PARSE_NOBLANKS)) == NULL)
     {
-      LOG_ERROR(this->logger, "Error could not read input string");
-      return;
+      VITAL_THROW(vital::metadata_exception,"Error could not read input string");
     }
     populate_frame_times(doc);
     populate_subset_metadata();
@@ -312,9 +290,8 @@ public:
 
     if (i != 2)
     {
-      LOG_ERROR(this->logger, 
+      VITAL_THROW(vital::metadata_exception,
         "Error could parse key-value pair in the metadata");
-      return string_pair();
     }
     string_pair p = string_pair(std::string(s[0]), std::string(s[1]));
     CSLDestroy(s);
@@ -332,13 +309,11 @@ public:
     {
       std::string key1 = "SUBDATASET_" + std::to_string(ind) + "_NAME";
       std::pair<std::string, std::string> p1 = parse_key_value(*metadata);
-      // std::cout << "METADATA: " << *metadata << std::endl;
       assert(p1.first == key1);
       ++metadata;
       if (metadata == NULL)
       {
-        LOG_ERROR(this->logger, "Error could parse metadata");
-	return;
+        VITAL_THROW(vital::metadata_exception, "Error could parse metadata");
       }
 
       std::string key2 = "SUBDATASET_" + std::to_string(ind) + "_DESC";
@@ -358,13 +333,12 @@ public:
     kwiver::arrows::gdal::image_io img_io = kwiver::arrows::gdal::image_io();
 
     kwiver::vital::image_container_sptr frame = \
-      img_io.load_subdataset(subdataset_name);
+      img_io.load_NITF_subdataset(subdataset_name);
 
     if(frame == nullptr)
     {
       VITAL_THROW( vital::invalid_file, subdataset_name,
         "GDAL could not load file.");
-      return nullptr;
     }
     return frame;
   }
@@ -391,10 +365,8 @@ public:
 
     if (this->f_current_frame == nullptr)
     {
-      throw kwiver::vital::file_not_found_exception(
-        this->f_current_frame_metadata->filename,
-        "File not found");
-      return false;
+      VITAL_THROW(kwiver::vital::file_not_found_exception,
+          this->f_current_frame_metadata->filename, "File not found");
     }
 
     return true;
@@ -426,7 +398,6 @@ public:
      {
        VITAL_THROW( vital::invalid_file, video_name,
          "GDAL could not load file.");
-       return false;
      }
      populate_xml_metadata();
      return true;
@@ -510,14 +481,14 @@ mie4nitf_video_input
   if (!kwiversys::SystemTools::FileExists(d->video_path))
     {
       // Throw exception
-      throw kwiver::vital::file_not_found_exception(video_name,
-        "File not found");
+      VITAL_THROW(vital::file_not_found_exception,
+          video_name, "File not found");
     }
 
     if (!d->open(video_name))
     {
-      throw kwiver::vital::video_runtime_exception("Video file open failed "
-        "for unknown reasons");
+      VITAL_THROW(vital::video_runtime_exception,
+          video_name + " Video file open failed for unknown reasons.");
     }
 }
 
@@ -551,9 +522,8 @@ mie4nitf_video_input
   // If the file is not opened
   if (!d->is_opened())
   {
-    throw vital::file_not_read_exception(d->video_path,
-        "Video not open");
-    return false;
+    VITAL_THROW(vital::file_not_read_exception, d->video_path, 
+      "Video not open");
   }
 
   // If it's the last frame then return `false`
@@ -590,8 +560,8 @@ bool mie4nitf_video_input::seek_frame(kwiver::vital::timestamp& ts,
   // Quick return if the file isn't open.
   if (!d->is_opened())
   {
-    throw vital::file_not_read_exception(d->video_path, "Video not open");
-    return false;
+    VITAL_THROW(vital::file_not_read_exception, d->video_path,
+      "Video not open");
   }
   if (!d->goto_frame_number(frame_number))
   {

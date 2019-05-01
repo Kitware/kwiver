@@ -53,18 +53,8 @@ public:
   /// \cond DoxygenSuppress
   virtual void set_configuration(vital::config_block_sptr /*config*/) { }
   virtual bool check_configuration(vital::config_block_sptr /*config*/) const { return true; }
-
-  /// Load subdatasets for NITF.  Need a different method because the subdatsets
-  /// are of format: `NITF_IM:0:<filename>` and not a separate file.
-  /**
-   * \param filename the path to the subdataset to load
-   * \returns an image container refering to the loaded image
-   */
-  kwiver::vital::image_container_sptr load_subdataset(std::string const&
-    filename)
-  {
-    return this->load_(filename);
-  }
+  kwiver::vital::image_container_sptr load_NITF_subdataset(std::string const&
+    subdataset_name);
   /// \endcond
 
 private:
