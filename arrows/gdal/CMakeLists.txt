@@ -38,8 +38,4 @@ if (KWIVER_ENABLE_TESTS)
   add_subdirectory(tests)
 endif()
 
-# if MIE4NITF is enabled
-if( KWIVER_ENABLE_MIE4NITF )
-  add_subdirectory( mie4nitf )
-endif()
-
+add_subdirectory( mie4nitf )
