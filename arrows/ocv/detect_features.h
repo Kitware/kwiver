@@ -38,7 +38,7 @@
 
 #include <vital/algo/detect_features.h>
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <opencv2/features2d/features2d.hpp>
 
@@ -51,7 +51,7 @@ namespace ocv {
  * This extended algorithm_def provides a common implementation for the detect
  * method.
  */
-class KWIVER_ALGO_OCV_EXPORT detect_features
+class KWIVER_ARROWS_OCV_EXPORT detect_features
   : public kwiver::vital::algo::detect_features
 {
 public:

@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CERES_BUNDLE_ADJUST_H_
 #define KWIVER_ARROWS_CERES_BUNDLE_ADJUST_H_
 
-#include <arrows/ceres/kwiver_algo_ceres_export.h>
+#include <arrows/ceres/kwiver_arrows_ceres_export.h>
 
 #include <vital/algo/bundle_adjust.h>
 
@@ -47,7 +47,7 @@ namespace arrows {
 namespace ceres {
 
 /// A class for bundle adjustment of feature tracks using Ceres
-class KWIVER_ALGO_CERES_EXPORT bundle_adjust
+class KWIVER_ARROWS_CERES_EXPORT bundle_adjust
 : public vital::algorithm_impl<bundle_adjust, vital::algo::bundle_adjust>
 {
 public:

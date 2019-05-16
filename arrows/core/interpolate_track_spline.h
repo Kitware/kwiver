@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_INTERPOLATE_TRACK_SPLINE_H_
 #define KWIVER_ARROWS_CORE_INTERPOLATE_TRACK_SPLINE_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/interpolate_track.h>
 
@@ -51,7 +51,7 @@ namespace core {
  * a configurable variety of spline-based interpolation techniques that do not
  * depend on imagery.
  */
-class KWIVER_ALGO_CORE_EXPORT interpolate_track_spline
+class KWIVER_ARROWS_CORE_EXPORT interpolate_track_spline
   : public vital::algorithm_impl<interpolate_track_spline,
                                  vital::algo::interpolate_track>
 {

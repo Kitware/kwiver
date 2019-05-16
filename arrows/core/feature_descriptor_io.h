@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_FEATURE_DESCRIPTOR_IO_H_
 #define KWIVER_ARROWS_CORE_FEATURE_DESCRIPTOR_IO_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/feature_descriptor_io.h>
 
@@ -45,7 +45,7 @@ namespace arrows {
 namespace core {
 
 /// A class for reading and writing feature and desriptor sets
-class KWIVER_ALGO_CORE_EXPORT feature_descriptor_io
+class KWIVER_ARROWS_CORE_EXPORT feature_descriptor_io
   : public vital::algorithm_impl<feature_descriptor_io,
                                  vital::algo::feature_descriptor_io>
 {

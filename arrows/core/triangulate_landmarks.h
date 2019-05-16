@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_TRIANGULATE_LANDMARKS_H_
 #define KWIVER_ARROWS_CORE_TRIANGULATE_LANDMARKS_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/triangulate_landmarks.h>
 
@@ -45,7 +45,7 @@ namespace arrows {
 namespace core {
 
 /// A class for triangulating landmarks from feature tracks and cameras using Eigen
-class KWIVER_ALGO_CORE_EXPORT triangulate_landmarks
+class KWIVER_ARROWS_CORE_EXPORT triangulate_landmarks
 : public vital::algorithm_impl<triangulate_landmarks,
                               vital::algo::triangulate_landmarks>
 {

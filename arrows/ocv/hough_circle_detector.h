@@ -31,7 +31,7 @@
 #ifndef ARROWS_OCV_HOUGH_CIRCLE_DETECTOR_H
 #define ARROWS_OCV_HOUGH_CIRCLE_DETECTOR_H
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/algo/image_object_detector.h>
 
@@ -39,7 +39,7 @@ namespace kwiver {
 namespace arrows {
 namespace ocv {
 
-class KWIVER_ALGO_OCV_EXPORT hough_circle_detector
+class KWIVER_ARROWS_OCV_EXPORT hough_circle_detector
   : public vital::algorithm_impl< hough_circle_detector, vital::algo::image_object_detector>
 {
 public:

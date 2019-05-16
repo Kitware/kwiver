@@ -5,14 +5,14 @@ set(SOURCE "main.cpp"
 )
 
 set(kwiver_examples_libraries vital_algo
-                              kwiver_algo_ocv
-                              kwiver_algo_vxl
+                              kwiver_arrows_ocv
+                              kwiver_arrows_vxl
                               kwiversys )
 
 if(fletch_ENABLED_YAMLCPP)
   add_subdirectory( kpf )
 
-  list(APPEND kwiver_examples_libraries kwiver_algo_kpf kpf_yaml ${YAML_CPP_LIBRARIES})
+  list(APPEND kwiver_examples_libraries kwiver_arrows_kpf kpf_yaml ${YAML_CPP_LIBRARIES})
   if(WIN32)
     set(kwiver_examples_flags YAML_CPP_DLL)
   endif()

@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_VXL_SPLIT_IMAGE_H_
 #define KWIVER_ARROWS_VXL_SPLIT_IMAGE_H_
 
-#include <arrows/vxl/kwiver_algo_vxl_export.h>
+#include <arrows/vxl/kwiver_arrows_vxl_export.h>
 
 #include <vital/algo/split_image.h>
 
@@ -45,7 +45,7 @@ namespace arrows {
 namespace vxl {
 
 /// A class for drawing various information about feature tracks
-class KWIVER_ALGO_VXL_EXPORT split_image
+class KWIVER_ARROWS_VXL_EXPORT split_image
 : public vital::algorithm_impl<split_image, vital::algo::split_image>
 {
 public:

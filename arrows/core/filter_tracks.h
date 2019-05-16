@@ -31,7 +31,7 @@
 #ifndef KWIVER_ARROWS_CORE_FILTER_TRACKS_H_
 #define KWIVER_ARROWS_CORE_FILTER_TRACKS_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/filter_tracks.h>
 
@@ -45,7 +45,7 @@ namespace arrows {
 namespace core {
 
 /// \brief Algorithm that filters tracks on various attributes
-class KWIVER_ALGO_CORE_EXPORT filter_tracks
+class KWIVER_ARROWS_CORE_EXPORT filter_tracks
   : public vital::algorithm_impl<filter_tracks, vital::algo::filter_tracks>
 {
 public:

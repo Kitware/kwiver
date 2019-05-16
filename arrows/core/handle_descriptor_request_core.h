@@ -36,7 +36,7 @@
 #ifndef ARROWS_PLUGINS_CORE_FORMULATE_QUERY_CORE_H_
 #define ARROWS_PLUGINS_CORE_FORMULATE_QUERY_CORE_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/handle_descriptor_request.h>
@@ -49,7 +49,7 @@ namespace arrows {
 namespace core {
 
 /// A basic query formulator
-class KWIVER_ALGO_CORE_EXPORT handle_descriptor_request_core
+class KWIVER_ARROWS_CORE_EXPORT handle_descriptor_request_core
   : public vital::algorithm_impl< handle_descriptor_request_core,
       vital::algo::handle_descriptor_request >
 {

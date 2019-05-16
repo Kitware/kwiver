@@ -26,15 +26,15 @@ kwiver_install_headers(
   )
 
 kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_super3d_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_arrows_super3d_export.h
   NOPATH   SUBDIR     arrows/super3d
   )
 
-kwiver_add_library(kwiver_algo_super3d ${header_files} ${cxx_files})
-target_link_libraries(kwiver_algo_super3d kwiver_algo_core kwiver_algo_vxl
+kwiver_add_library(kwiver_arrows_super3d ${header_files} ${cxx_files})
+target_link_libraries(kwiver_arrows_super3d kwiver_arrows_core kwiver_arrows_vxl
   vil vpgl vnl vul vil_algo vgl_algo vbl
   )
 
-algorithms_create_plugin( kwiver_algo_super3d
+algorithms_create_plugin( kwiver_arrows_super3d
   register_algorithms.cxx
   )

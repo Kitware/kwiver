@@ -40,7 +40,7 @@
 #include <vital/noncopyable.h>
 #include <vital/logger/logger.h>
 #include <arrows/matlab/mxarray.h>
-#include <arrows/matlab/kwiver_algo_matlab_export.h>
+#include <arrows/matlab/kwiver_arrows_matlab_export.h>
 
 // Matlab includes
 #include <engine.h>
@@ -57,7 +57,7 @@ namespace matlab {
  *
  * This class represents a single user Matlab engine instance.
  */
-class KWIVER_ALGO_MATLAB_EXPORT matlab_engine
+class KWIVER_ARROWS_MATLAB_EXPORT matlab_engine
   : private kwiver::vital::noncopyable
 {
 public:

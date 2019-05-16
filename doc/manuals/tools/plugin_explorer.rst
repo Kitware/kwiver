@@ -365,12 +365,12 @@ that have been found and successfully loaded.::
 
  ---- Files Successfully Opened
   /disk2/projects/KWIVER/build/lib/modules/instrumentation_plugin.so
-  /disk2/projects/KWIVER/build/lib/modules/kwiver_algo_ceres_plugin.so
-  /disk2/projects/KWIVER/build/lib/modules/kwiver_algo_core_plugin.so
-  /disk2/projects/KWIVER/build/lib/modules/kwiver_algo_darknet_plugin.so
-  /disk2/projects/KWIVER/build/lib/modules/kwiver_algo_ocv_plugin.so
-  /disk2/projects/KWIVER/build/lib/modules/kwiver_algo_proj_plugin.so
-  /disk2/projects/KWIVER/build/lib/modules/kwiver_algo_vxl_plugin.so
+  /disk2/projects/KWIVER/build/lib/modules/kwiver_arrows_ceres_plugin.so
+  /disk2/projects/KWIVER/build/lib/modules/kwiver_arrows_core_plugin.so
+  /disk2/projects/KWIVER/build/lib/modules/kwiver_arrows_darknet_plugin.so
+  /disk2/projects/KWIVER/build/lib/modules/kwiver_arrows_ocv_plugin.so
+  /disk2/projects/KWIVER/build/lib/modules/kwiver_arrows_proj_plugin.so
+  /disk2/projects/KWIVER/build/lib/modules/kwiver_arrows_vxl_plugin.so
   /disk2/projects/KWIVER/build/lib/sprokit/kwiver_processes.so
   /disk2/projects/KWIVER/build/lib/sprokit/kwiver_processes_adapter.so
   /disk2/projects/KWIVER/build/lib/sprokit/kwiver_processes_ocv.so

@@ -38,7 +38,7 @@
 
 #include <vital/algo/video_input.h>
 
-#include <arrows/vxl/kwiver_algo_vxl_export.h>
+#include <arrows/vxl/kwiver_arrows_vxl_export.h>
 
 
 namespace kwiver {
@@ -52,7 +52,7 @@ namespace vxl {
  * ffmpeg video services.
  *
  */
-class KWIVER_ALGO_VXL_EXPORT vidl_ffmpeg_video_input
+class KWIVER_ARROWS_VXL_EXPORT vidl_ffmpeg_video_input
   : public vital::algorithm_impl < vidl_ffmpeg_video_input, vital::algo::video_input >
 {
 public:

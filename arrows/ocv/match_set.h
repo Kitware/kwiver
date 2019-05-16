@@ -38,7 +38,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <opencv2/features2d/features2d.hpp>
 
@@ -49,7 +49,7 @@ namespace arrows {
 namespace ocv {
 
 /// A concrete match set that wraps OpenCV cv::DMatch objects
-class KWIVER_ALGO_OCV_EXPORT match_set
+class KWIVER_ARROWS_OCV_EXPORT match_set
   : public vital::match_set
 {
 public:
@@ -76,7 +76,7 @@ private:
 
 
 /// Convert any match set to a vector of OpenCV cv::DMatch
-KWIVER_ALGO_OCV_EXPORT std::vector<cv::DMatch>
+KWIVER_ARROWS_OCV_EXPORT std::vector<cv::DMatch>
 matches_to_ocv_dmatch(const vital::match_set& match_set);
 
 

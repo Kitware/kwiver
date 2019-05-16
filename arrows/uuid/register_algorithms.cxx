@@ -33,7 +33,7 @@
  * \brief Defaults plugin algorithm registration interface impl
  */
 
-#include <arrows/uuid/kwiver_algo_uuid_plugin_export.h>
+#include <arrows/uuid/kwiver_arrows_uuid_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/uuid/uuid_factory_uuid.h>
@@ -44,7 +44,7 @@ namespace arrows {
 namespace uuid {
 
 extern "C"
-KWIVER_ALGO_UUID_PLUGIN_EXPORT
+KWIVER_ARROWS_UUID_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {

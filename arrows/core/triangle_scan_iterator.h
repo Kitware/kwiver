@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_TRIANGLE_SCAN_ITERATOR_H
 #define KWIVER_ARROWS_CORE_TRIANGLE_SCAN_ITERATOR_H
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 #include <vital/types/vector.h>
 
 namespace kwiver {
@@ -45,7 +45,7 @@ namespace core {
 
 
 /// Provides access to the pixels of a triangle using scanlines
-class KWIVER_ALGO_CORE_EXPORT triangle_scan_iterator
+class KWIVER_ARROWS_CORE_EXPORT triangle_scan_iterator
 {
 public:
   triangle_scan_iterator(vital::vector_2d const & pt1,

@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arrows/darknet/kwiver_algo_darknet_plugin_export.h>
+#include <arrows/darknet/kwiver_arrows_darknet_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/darknet/darknet_detector.h>
@@ -39,7 +39,7 @@ namespace arrows {
 namespace darknet {
 
 extern "C"
-KWIVER_ALGO_DARKNET_PLUGIN_EXPORT
+KWIVER_ARROWS_DARKNET_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {

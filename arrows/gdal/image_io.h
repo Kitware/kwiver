@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_GDAL_IMAGE_IO_H_
 #define KWIVER_ARROWS_GDAL_IMAGE_IO_H_
 
-#include <arrows/gdal/kwiver_algo_gdal_export.h>
+#include <arrows/gdal/kwiver_arrows_gdal_export.h>
 
 #include <vital/algo/image_io.h>
 
@@ -45,7 +45,7 @@ namespace arrows {
 namespace gdal {
 
 /// A class for using GDAL to read and write images
-class KWIVER_ALGO_GDAL_EXPORT image_io
+class KWIVER_ARROWS_GDAL_EXPORT image_io
   : public vital::algorithm_impl<image_io, vital::algo::image_io>
 {
 public:

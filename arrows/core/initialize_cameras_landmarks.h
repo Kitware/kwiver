@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_INITIALIZE_CAMERAS_LANDMARKS_H_
 #define KWIVER_ARROWS_CORE_INITIALIZE_CAMERAS_LANDMARKS_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/initialize_cameras_landmarks.h>
 
@@ -45,7 +45,7 @@ namespace arrows {
 namespace core {
 
 /// A class for initialization of cameras and landmarks
-class KWIVER_ALGO_CORE_EXPORT initialize_cameras_landmarks
+class KWIVER_ARROWS_CORE_EXPORT initialize_cameras_landmarks
 : public vital::algorithm_impl<initialize_cameras_landmarks,
                               vital::algo::initialize_cameras_landmarks>
 {

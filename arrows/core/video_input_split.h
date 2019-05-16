@@ -33,7 +33,7 @@
 
 #include <vital/algo/video_input.h>
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 namespace kwiver {
 namespace arrows {
@@ -45,7 +45,7 @@ namespace core {
  * This class implements a video input algorithm that holds two other video
  * input algorithms and pulls imagery from one and metadata from the other.
  */
-class KWIVER_ALGO_CORE_EXPORT video_input_split
+class KWIVER_ARROWS_CORE_EXPORT video_input_split
   : public vital::algorithm_impl < video_input_split, vital::algo::video_input >
 {
 public:

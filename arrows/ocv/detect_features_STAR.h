@@ -43,14 +43,14 @@
 #include <string>
 
 #include <arrows/ocv/detect_features.h>
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 namespace kwiver {
 namespace arrows {
 namespace ocv {
 
 
-class KWIVER_ALGO_OCV_EXPORT detect_features_STAR
+class KWIVER_ARROWS_OCV_EXPORT detect_features_STAR
   : public vital::algorithm_impl< detect_features_STAR,
                                   ocv::detect_features,
                                   vital::algo::detect_features >

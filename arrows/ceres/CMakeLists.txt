@@ -19,7 +19,7 @@ kwiver_install_headers(
   )
 
 kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_ceres_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_arrows_ceres_export.h
   NOPATH   SUBDIR     arrows/ceres
   )
 
@@ -31,22 +31,22 @@ set( ceres_sources
   types.cxx
   )
 
-kwiver_add_library( kwiver_algo_ceres
+kwiver_add_library( kwiver_arrows_ceres
   ${ceres_headers_public}
   ${ceres_headers_private}
   ${ceres_sources}
   )
-target_link_libraries( kwiver_algo_ceres
-  PUBLIC               kwiver_algo_core
+target_link_libraries( kwiver_arrows_ceres
+  PUBLIC               kwiver_arrows_core
   PRIVATE              ceres
   )
 if(NOT CERES_USES_MINIGLOG)
-  target_link_libraries( kwiver_algo_ceres
+  target_link_libraries( kwiver_arrows_ceres
     PRIVATE              glog
     )
 endif()
 
-algorithms_create_plugin( kwiver_algo_ceres
+algorithms_create_plugin( kwiver_arrows_ceres
   register_algorithms.cxx
   )
 

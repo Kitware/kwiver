@@ -33,7 +33,7 @@
  * \brief OpenCV algorithm registration implementation
  */
 
-#include <arrows/dbow2/kwiver_algo_dbow2_plugin_export.h>
+#include <arrows/dbow2/kwiver_arrows_dbow2_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <opencv2/opencv_modules.hpp>
@@ -48,7 +48,7 @@ namespace arrows {
 namespace dbow2 {
 
 extern "C"
-KWIVER_ALGO_DBOW2_PLUGIN_EXPORT
+KWIVER_ARROWS_DBOW2_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {

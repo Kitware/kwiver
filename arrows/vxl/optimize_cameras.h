@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_VXL_OPTIMIZE_CAMERAS_H_
 #define KWIVER_ARROWS_VXL_OPTIMIZE_CAMERAS_H_
 
-#include <arrows/vxl/kwiver_algo_vxl_export.h>
+#include <arrows/vxl/kwiver_arrows_vxl_export.h>
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/optimize_cameras.h>
@@ -48,7 +48,7 @@ namespace kwiver {
 namespace arrows {
 namespace vxl {
 
-class KWIVER_ALGO_VXL_EXPORT optimize_cameras
+class KWIVER_ARROWS_VXL_EXPORT optimize_cameras
   : public vital::algorithm_impl<optimize_cameras, vital::algo::optimize_cameras>
 {
 public:

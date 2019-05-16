@@ -37,7 +37,7 @@
 #define KWIVER_ARROWS_DETECT_FEATURES_SIMPLE_BLOB_H_
 
 #include <arrows/ocv/detect_features.h>
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <string>
 
@@ -45,7 +45,7 @@ namespace kwiver {
 namespace arrows {
 namespace ocv {
 
-class KWIVER_ALGO_OCV_EXPORT detect_features_simple_blob
+class KWIVER_ARROWS_OCV_EXPORT detect_features_simple_blob
   : public vital::algorithm_impl< detect_features_simple_blob,
                                   ocv::detect_features,
                                   vital::algo::detect_features >

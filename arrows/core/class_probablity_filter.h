@@ -31,7 +31,7 @@
 #ifndef KWIVER_ARROWS_CLASS_PROBABLITY_FILTER_H_
 #define KWIVER_ARROWS_CLASS_PROBABLITY_FILTER_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/detected_object_filter.h>
 
@@ -59,7 +59,7 @@ namespace core {
  *    from step 2 is attached.
  */
 
-class KWIVER_ALGO_CORE_EXPORT class_probablity_filter
+class KWIVER_ARROWS_CORE_EXPORT class_probablity_filter
   : public vital::algorithm_impl<class_probablity_filter, vital::algo::detected_object_filter>
 {
 public:

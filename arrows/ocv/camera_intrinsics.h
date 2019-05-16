@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_OCV_CAMERA_INTRINSICS_H_
 #define KWIVER_ARROWS_OCV_CAMERA_INTRINSICS_H_
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vector>
 #include <vital/vital_config.h>
@@ -48,12 +48,12 @@ namespace arrows {
 namespace ocv {
 
 /// return OpenCV distortion coefficients given the camera intrinsics
-KWIVER_ALGO_OCV_EXPORT
+KWIVER_ARROWS_OCV_EXPORT
 std::vector<double>
 get_ocv_dist_coeffs(vital::camera_intrinsics_sptr intrinsics);
 
 /// return OpenCV formatted distortion coefficients based on vital distortion coefficients
-KWIVER_ALGO_OCV_EXPORT
+KWIVER_ARROWS_OCV_EXPORT
 std::vector<double>
 dist_coeffs_to_ocv(std::vector<double> const& vital_dist_coeffs);
 

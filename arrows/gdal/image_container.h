@@ -38,7 +38,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/gdal/kwiver_algo_gdal_export.h>
+#include <arrows/gdal/kwiver_arrows_gdal_export.h>
 
 #include <vital/types/image_container.h>
 
@@ -49,7 +49,7 @@ namespace arrows {
 namespace gdal {
 
 /// This image container wraps a cv::Mat
-class KWIVER_ALGO_GDAL_EXPORT image_container
+class KWIVER_ARROWS_GDAL_EXPORT image_container
   : public vital::image_container
 {
 public:

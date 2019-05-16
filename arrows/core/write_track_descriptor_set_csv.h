@@ -37,7 +37,7 @@
 #define KWIVER_ARROWS_WRITE_TRACK_DESCRIPTOR_SET_CSV_H
 
 #include <vital/vital_config.h>
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/write_track_descriptor_set.h>
 
@@ -47,7 +47,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-class KWIVER_ALGO_CORE_EXPORT write_track_descriptor_set_csv
+class KWIVER_ARROWS_CORE_EXPORT write_track_descriptor_set_csv
   : public vital::algorithm_impl< write_track_descriptor_set_csv,
       vital::algo::write_track_descriptor_set >
 {

@@ -38,7 +38,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <opencv2/core/core.hpp>
 
@@ -49,7 +49,7 @@ namespace arrows {
 namespace ocv {
 
 /// This image container wraps a cv::Mat
-class KWIVER_ALGO_OCV_EXPORT image_container
+class KWIVER_ARROWS_OCV_EXPORT image_container
   : public vital::image_container
 {
 public:
@@ -142,7 +142,7 @@ protected:
  *
  * \param img Image container to convert to cv::mat
  */
-KWIVER_ALGO_OCV_EXPORT cv::Mat image_container_to_ocv_matrix(const vital::image_container& img,
+KWIVER_ARROWS_OCV_EXPORT cv::Mat image_container_to_ocv_matrix(const vital::image_container& img,
                            image_container::ColorMode cm = image_container::BGR_COLOR);
 
 

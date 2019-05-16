@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_OCV_ESTIMATE_HOMOGRAPHY_H_
 #define KWIVER_ARROWS_OCV_ESTIMATE_HOMOGRAPHY_H_
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/algo/estimate_homography.h>
 
@@ -45,7 +45,7 @@ namespace arrows {
 namespace ocv {
 
 /// A class that using OpenCV to estimate a homography from matching 2D points
-class KWIVER_ALGO_OCV_EXPORT estimate_homography
+class KWIVER_ARROWS_OCV_EXPORT estimate_homography
   : public vital::algorithm_impl<estimate_homography, vital::algo::estimate_homography>
 {
 public:

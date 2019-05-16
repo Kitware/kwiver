@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_MATCH_FEATURES_HOMOGRAPHY_H_
 #define KWIVER_ARROWS_CORE_MATCH_FEATURES_HOMOGRAPHY_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/filter_features.h>
 
@@ -73,7 +73,7 @@ namespace core {
  *  the additional weak matches using the constraint that the location
  *  in the image is now known approximately.
  */
-class KWIVER_ALGO_CORE_EXPORT match_features_homography
+class KWIVER_ARROWS_CORE_EXPORT match_features_homography
   : public vital::algorithm_impl<match_features_homography, vital::algo::match_features>
 {
 public:

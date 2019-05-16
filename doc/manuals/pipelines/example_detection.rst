@@ -1,7 +1,7 @@
 Example Detection
 =================
 
-These pipelines features the example_detection algorithm in kwiver_algo_core.
+These pipelines features the example_detection algorithm in kwiver_arrows_core.
 This algorithm simply takes in a set of images or a video and generates dummy detections for each image/frame.
 Then the detections boxes are drawn on the frame and displayed in a window.
 It is a good example for how to use detection data types in kwiver.

@@ -38,7 +38,7 @@
 
 #include <vital/vital_config.h>
 
-#include <arrows/dbow2/kwiver_algo_dbow2_export.h>
+#include <arrows/dbow2/kwiver_arrows_dbow2_export.h>
 
 #include <vital/algo/match_descriptor_sets.h>
 
@@ -51,7 +51,7 @@ namespace dbow2 {
 /**
  * This class implements bag of words image matching with DBoW2
  */
-class KWIVER_ALGO_DBOW2_EXPORT match_descriptor_sets
+class KWIVER_ARROWS_DBOW2_EXPORT match_descriptor_sets
   : public vital::algorithm_impl<match_descriptor_sets,
                                  vital::algo::match_descriptor_sets>
 {

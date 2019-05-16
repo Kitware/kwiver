@@ -38,7 +38,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/types/image.h>
 
@@ -49,7 +49,7 @@ namespace arrows {
 namespace ocv {
 
 /// An image memory class that shares memory with OpenCV using reference counting
-class KWIVER_ALGO_OCV_EXPORT mat_image_memory
+class KWIVER_ARROWS_OCV_EXPORT mat_image_memory
   : public vital::image_memory
 {
 public:

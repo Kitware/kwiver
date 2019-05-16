@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_FILTER_FEATURES_SCALE_H_
 #define KWIVER_ARROWS_CORE_FILTER_FEATURES_SCALE_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/filter_features.h>
 
@@ -45,7 +45,7 @@ namespace arrows {
 namespace core {
 
 /// \brief Algorithm that filters features based on feature scale
-class KWIVER_ALGO_CORE_EXPORT filter_features_scale
+class KWIVER_ARROWS_CORE_EXPORT filter_features_scale
   : public vital::algorithm_impl<filter_features_scale, vital::algo::filter_features>
 {
 public:

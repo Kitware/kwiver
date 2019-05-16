@@ -12,7 +12,7 @@ target_link_libraries( SMQTK_Descriptor
   PRIVATE         sprokit_pipeline sprokit_tools
                   vital vital_vpm vital_logger vital_config
                   kwiver_adapter
-                  kwiver_algo_ocv
+                  kwiver_arrows_ocv
   )
 
 
@@ -26,7 +26,7 @@ target_link_libraries( SMQTK_Descriptor_test
   PRIVATE         sprokit_pipeline sprokit_tools
                   vital vital_vpm vital_logger vital_config
                   kwiver_adapter
-                  kwiver_algo_ocv
+                  kwiver_arrows_ocv
   )
 
 install( TARGETS SMQTK_Descriptor_test

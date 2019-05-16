@@ -33,7 +33,7 @@
 
 #include <vital/algo/video_input.h>
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 namespace kwiver {
 namespace arrows {
@@ -45,7 +45,7 @@ namespace core {
  * This class implements a video input algorithm that splices multiple video
  * input sources together into a single source.
  */
-class KWIVER_ALGO_CORE_EXPORT video_input_splice
+class KWIVER_ARROWS_CORE_EXPORT video_input_splice
   : public vital::algorithm_impl < video_input_splice, vital::algo::video_input >
 {
 public:

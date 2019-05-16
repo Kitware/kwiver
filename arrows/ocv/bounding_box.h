@@ -36,7 +36,7 @@
 #ifndef ARROWS_OCV_BOUNDING_BOX_H
 #define ARROWS_OCV_BOUNDING_BOX_H
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/types/bounding_box.h>
 #ifndef KWIVER_HAS_OPENCV_VER_3

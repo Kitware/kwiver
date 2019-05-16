@@ -37,7 +37,7 @@
 #define KWIVER_VITAL_MATLAB_EXCEPTION_H
 
 #include <vital/vital_config.h>
-#include <arrows/matlab/kwiver_algo_matlab_export.h>
+#include <arrows/matlab/kwiver_arrows_matlab_export.h>
 #include <vital/exceptions/base.h>
 
 namespace kwiver {
@@ -49,7 +49,7 @@ namespace matlab {
  *
  *
  */
-class KWIVER_ALGO_MATLAB_EXPORT matlab_exception
+class KWIVER_ARROWS_MATLAB_EXPORT matlab_exception
   : public vital::vital_exception
 {
 public:

@@ -43,14 +43,14 @@
 #include <string>
 
 #include <arrows/ocv/extract_descriptors.h>
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 namespace kwiver {
 namespace arrows {
 namespace ocv {
 
 
-class KWIVER_ALGO_OCV_EXPORT extract_descriptors_LATCH
+class KWIVER_ARROWS_OCV_EXPORT extract_descriptors_LATCH
   : public vital::algorithm_impl< extract_descriptors_LATCH,
                                   ocv::extract_descriptors,
                                   vital::algo::extract_descriptors >

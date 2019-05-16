@@ -37,7 +37,7 @@
 #define KWIVER_ARROWS_OCV_DESCRIPTOR_SET_H_
 
 #include <vital/vital_config.h>
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/types/descriptor_set.h>
 
@@ -49,7 +49,7 @@ namespace arrows {
 namespace ocv {
 
 /// A concrete descriptor set that wraps OpenCV descriptors.
-class KWIVER_ALGO_OCV_EXPORT descriptor_set
+class KWIVER_ARROWS_OCV_EXPORT descriptor_set
   : public vital::descriptor_set
 {
 public:
@@ -80,7 +80,7 @@ protected:
 /**
  * \param desc_set descriptors to convert to cv::mat
  */
-KWIVER_ALGO_OCV_EXPORT cv::Mat
+KWIVER_ARROWS_OCV_EXPORT cv::Mat
 descriptors_to_ocv_matrix(const vital::descriptor_set& desc_set);
 
 } // end namespace ocv

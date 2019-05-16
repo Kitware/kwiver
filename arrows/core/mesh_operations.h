@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_MESH_OPERATIONS_H
 #define KWIVER_ARROWS_CORE_MESH_OPERATIONS_H
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/types/mesh.h>
 
@@ -54,7 +54,7 @@ namespace core {
  * \note This implementation assumes that each face is convex and does not
  *       consider mesh geometry when deciding how to best split faces.
  */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 std::unique_ptr<kwiver::vital::mesh_regular_face_array<3> >
 mesh_triangulate(kwiver::vital::mesh_face_array_base const& faces);
 
@@ -67,7 +67,7 @@ mesh_triangulate(kwiver::vital::mesh_face_array_base const& faces);
  * \note This implementation assumes that each face is convex and does not
  *       consider mesh geometry when deciding how to best split faces.
  */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 std::unique_ptr<kwiver::vital::mesh_regular_face_array<3> >
 mesh_triangulate(kwiver::vital::mesh_regular_face_array<4> const& faces);
 
@@ -79,7 +79,7 @@ mesh_triangulate(kwiver::vital::mesh_regular_face_array<4> const& faces);
  * \note This implementation assumes that each face is convex and does not
  *       consider mesh geometry when deciding how to best split faces.
  */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 void
 mesh_triangulate(kwiver::vital::mesh& mesh);
 

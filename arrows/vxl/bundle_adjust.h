@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_VXL_BUNDLE_ADJUST_H_
 #define KWIVER_ARROWS_VXL_BUNDLE_ADJUST_H_
 
-#include <arrows/vxl/kwiver_algo_vxl_export.h>
+#include <arrows/vxl/kwiver_arrows_vxl_export.h>
 
 #include <vital/algo/bundle_adjust.h>
 
@@ -45,7 +45,7 @@ namespace arrows {
 namespace vxl {
 
 /// A class for bundle adjustment of feature tracks using VXL
-class KWIVER_ALGO_VXL_EXPORT bundle_adjust
+class KWIVER_ARROWS_VXL_EXPORT bundle_adjust
 : public vital::algorithm_impl<bundle_adjust, vital::algo::bundle_adjust>
 {
 public:

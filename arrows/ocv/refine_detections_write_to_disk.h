@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_OCV_REFINE_DETECTIONS_WRITE_TO_DISK_H_
 #define KWIVER_ARROWS_OCV_REFINE_DETECTIONS_WRITE_TO_DISK_H_
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/algo/refine_detections.h>
 
@@ -45,7 +45,7 @@ namespace arrows {
 namespace ocv {
 
 /// A class for drawing various information about feature tracks
-class KWIVER_ALGO_OCV_EXPORT refine_detections_write_to_disk
+class KWIVER_ARROWS_OCV_EXPORT refine_detections_write_to_disk
 : public vital::algorithm_impl<refine_detections_write_to_disk,
     vital::algo::refine_detections>
 {

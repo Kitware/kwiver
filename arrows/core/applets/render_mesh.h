@@ -33,7 +33,7 @@
 
 #include <tools/kwiver_applet.h>
 
-#include <arrows/core/applets/kwiver_algo_core_applets_export.h>
+#include <arrows/core/applets/kwiver_arrows_core_applets_export.h>
 
 #include <string>
 #include <vector>
@@ -42,7 +42,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-class KWIVER_ALGO_CORE_APPLETS_EXPORT render_mesh
+class KWIVER_ARROWS_CORE_APPLETS_EXPORT render_mesh
   : public kwiver::tools::kwiver_applet
 {
 public:

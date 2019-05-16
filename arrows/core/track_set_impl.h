@@ -37,7 +37,7 @@
 #define KWIVER_ARROWS_CORE_TRACK_SET_IMPL_H_
 
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/types/track_set.h>
 
@@ -56,7 +56,7 @@ namespace core {
  * implementation caches the mapping from frames to track states for faster
  * retrieval.
  */
-class KWIVER_ALGO_CORE_EXPORT frame_index_track_set_impl
+class KWIVER_ARROWS_CORE_EXPORT frame_index_track_set_impl
   : public vital::track_set_implementation
 {
 public:

@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_OCV_ANALYZE_TRACKS_H_
 #define KWIVER_ARROWS_OCV_ANALYZE_TRACKS_H_
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/algo/analyze_tracks.h>
 
@@ -45,7 +45,7 @@ namespace arrows {
 namespace ocv {
 
 /// A class for outputting various debug info about feature tracks
-class KWIVER_ALGO_OCV_EXPORT analyze_tracks
+class KWIVER_ARROWS_OCV_EXPORT analyze_tracks
 : public vital::algorithm_impl<analyze_tracks, vital::algo::analyze_tracks>
 {
 public:

@@ -37,7 +37,7 @@
 #define ARROWS_PLUGINS_CORE_TRACK_FEATURES_CORE_H_
 
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/track_features.h>
 #include <vital/types/image_container.h>
@@ -48,7 +48,7 @@ namespace arrows {
 namespace core {
 
 /// A basic feature tracker
-class KWIVER_ALGO_CORE_EXPORT track_features_core
+class KWIVER_ARROWS_CORE_EXPORT track_features_core
   : public vital::algorithm_impl<track_features_core, vital::algo::track_features>
 {
 public:

@@ -33,7 +33,7 @@
 #define _KWIVER_ARROWS_CREATE_DETECTION_GRID_H_
 
 #include <vital/vital_config.h>
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/image_object_detector.h>
@@ -44,7 +44,7 @@ namespace arrows {
 namespace core {
 
 /// Initialize object tracks via simple single frame thresholding
-class KWIVER_ALGO_CORE_EXPORT create_detection_grid
+class KWIVER_ARROWS_CORE_EXPORT create_detection_grid
   : public vital::algorithm_impl<create_detection_grid,
       vital::algo::image_object_detector>
 {

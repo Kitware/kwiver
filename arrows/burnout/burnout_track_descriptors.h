@@ -31,7 +31,7 @@
 #ifndef KWIVER_ARROWS_BURNOUT_TRACK_DESCRIPTORS
 #define KWIVER_ARROWS_BURNOUT_TRACK_DESCRIPTORS
 
-#include <arrows/burnout/kwiver_algo_burnout_export.h>
+#include <arrows/burnout/kwiver_arrows_burnout_export.h>
 
 #include <vital/algo/compute_track_descriptors.h>
 
@@ -44,7 +44,7 @@ namespace burnout {
  * @brief burnout_track_descriptors
  *
  */
-class KWIVER_ALGO_BURNOUT_EXPORT burnout_track_descriptors
+class KWIVER_ARROWS_BURNOUT_EXPORT burnout_track_descriptors
   : public vital::algorithm_impl< burnout_track_descriptors,
       vital::algo::compute_track_descriptors >
 {

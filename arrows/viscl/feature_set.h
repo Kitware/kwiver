@@ -33,7 +33,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/viscl/kwiver_algo_viscl_export.h>
+#include <arrows/viscl/kwiver_arrows_viscl_export.h>
 
 #include <vital/types/feature_set.h>
 
@@ -51,7 +51,7 @@ namespace vcl {
   * It is possible to get the smoothing scale but that value is not
   * saved on the GPU so would have to be provided externally
   */
-class KWIVER_ALGO_VISCL_EXPORT feature_set
+class KWIVER_ARROWS_VISCL_EXPORT feature_set
 : public vital::feature_set
 {
 public:
@@ -93,7 +93,7 @@ protected:
   * viscl only cares about integer feature location, therefore will lose
   * info converting from vital feature set to viscl and back
   */
-KWIVER_ALGO_VISCL_EXPORT feature_set::type
+KWIVER_ARROWS_VISCL_EXPORT feature_set::type
 features_to_viscl(const vital::feature_set& features);
 
 

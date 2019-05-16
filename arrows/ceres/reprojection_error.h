@@ -38,7 +38,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/ceres/kwiver_algo_ceres_export.h>
+#include <arrows/ceres/kwiver_arrows_ceres_export.h>
 
 #include <arrows/ceres/types.h>
 
@@ -49,7 +49,7 @@ namespace ceres {
 
 
 /// Factory to create Ceres cost functions for each lens distortion type
-KWIVER_ALGO_CERES_EXPORT
+KWIVER_ARROWS_CERES_EXPORT
 ::ceres::CostFunction*
 create_cost_func(LensDistortionType ldt, double x, double y);
 

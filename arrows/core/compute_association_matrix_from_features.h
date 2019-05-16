@@ -32,7 +32,7 @@
 #define KWIVER_ARROWS_COMPUTE_ASSOCIATION_MATRIX_FROM_FEATURES_H_
 
 #include <vital/vital_config.h>
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/compute_association_matrix.h>
@@ -42,7 +42,7 @@ namespace arrows {
 namespace core {
 
 /// Compute an association matrix given detections and tracks
-class KWIVER_ALGO_CORE_EXPORT compute_association_matrix_from_features
+class KWIVER_ARROWS_CORE_EXPORT compute_association_matrix_from_features
   : public vital::algorithm_impl<compute_association_matrix_from_features,
       vital::algo::compute_association_matrix>
 {

@@ -37,7 +37,7 @@
 #define KWIVER_ARROWS_VXL_CAMERA_MAP_H_
 
 #include <vital/vital_config.h>
-#include <arrows/vxl/kwiver_algo_vxl_export.h>
+#include <arrows/vxl/kwiver_arrows_vxl_export.h>
 
 #include <vital/types/camera_map.h>
 
@@ -50,7 +50,7 @@ namespace arrows {
 namespace vxl {
 
 /// A concrete camera_map that wraps a map of vpgl_perspective_camera
-class KWIVER_ALGO_VXL_EXPORT camera_map
+class KWIVER_ARROWS_VXL_EXPORT camera_map
 : public vital::camera_map
 {
 public:
@@ -81,7 +81,7 @@ protected:
 
 
 /// Convert any camera map to a vpgl camera map
-KWIVER_ALGO_VXL_EXPORT
+KWIVER_ARROWS_VXL_EXPORT
 camera_map::map_vcam_t
 camera_map_to_vpgl(const vital::camera_map& cam_map);
 

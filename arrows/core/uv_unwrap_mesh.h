@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_UV_UNWRAP_MESH_H
 #define KWIVER_ARROWS_CORE_UV_UNWRAP_MESH_H
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/uv_unwrap_mesh.h>
 #include <vital/types/mesh.h>
@@ -48,7 +48,7 @@ namespace arrows {
 namespace core {
 
 /// A class for unwrapping a mesh and generating texture coordinates
-class KWIVER_ALGO_CORE_EXPORT uv_unwrap_mesh
+class KWIVER_ARROWS_CORE_EXPORT uv_unwrap_mesh
     : public vital::algorithm_impl<uv_unwrap_mesh, vital::algo::uv_unwrap_mesh>
 {
 public:

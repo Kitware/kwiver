@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_DETECTED_OBJECT_SET_INPUT_KW18_H
 #define KWIVER_ARROWS_CORE_DETECTED_OBJECT_SET_INPUT_KW18_H
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/detected_object_set_input.h>
 
@@ -46,7 +46,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-class KWIVER_ALGO_CORE_EXPORT detected_object_set_input_kw18
+class KWIVER_ARROWS_CORE_EXPORT detected_object_set_input_kw18
   : public vital::algorithm_impl<detected_object_set_input_kw18, vital::algo::detected_object_set_input>
 {
 public:

@@ -30,7 +30,7 @@ kwiver_install_headers(
   )
 
 kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_vxl_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_arrows_vxl_export.h
   NOPATH   SUBDIR     arrows/vxl
   )
 
@@ -56,12 +56,12 @@ set(vxl_sources
   vidl_ffmpeg_video_input.cxx
   )
 
-kwiver_add_library( kwiver_algo_vxl
+kwiver_add_library( kwiver_arrows_vxl
   ${vxl_headers_public}
   ${vxl_sources}
   )
-target_link_libraries( kwiver_algo_vxl
-  PUBLIC               kwiver_algo_core
+target_link_libraries( kwiver_arrows_vxl
+  PUBLIC               kwiver_arrows_core
                        vil vpgl vgl
   PRIVATE              vital_klv
                        rrel rsdl
@@ -72,7 +72,7 @@ target_link_libraries( kwiver_algo_vxl
                        kwiversys
   )
 
-algorithms_create_plugin( kwiver_algo_vxl
+algorithms_create_plugin( kwiver_arrows_vxl
   register_algorithms.cxx
   )
 

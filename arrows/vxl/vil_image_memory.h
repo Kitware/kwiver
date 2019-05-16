@@ -38,7 +38,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/vxl/kwiver_algo_vxl_export.h>
+#include <arrows/vxl/kwiver_arrows_vxl_export.h>
 
 #include <vital/types/image.h>
 
@@ -50,7 +50,7 @@ namespace arrows {
 namespace vxl {
 
 /// An image memory class that shares memory with VXL using vil_memory_chunk
-class KWIVER_ALGO_VXL_EXPORT vil_image_memory
+class KWIVER_ARROWS_VXL_EXPORT vil_image_memory
   : public vital::image_memory
 {
 public:
@@ -75,7 +75,7 @@ protected:
 
 
 /// An image memory class that shares memory with vital using image_memory
-class KWIVER_ALGO_VXL_EXPORT image_memory_chunk
+class KWIVER_ARROWS_VXL_EXPORT image_memory_chunk
  : public vil_memory_chunk
 {
 public:

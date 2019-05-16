@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_RENDER_MESH_DEPTH_MAP_H
 #define KWIVER_ARROWS_CORE_RENDER_MESH_DEPTH_MAP_H
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 #include <arrows/core/triangle_scan_iterator.h>
 
 #include <vital/types/camera_perspective.h>
@@ -54,7 +54,7 @@ namespace core {
  * \param camera [in]
  * \return a depth map
  */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 vital::image_container_sptr render_mesh_depth_map(kwiver::vital::mesh_sptr mesh,
                                                   kwiver::vital::camera_perspective_sptr camera);
 
@@ -65,7 +65,7 @@ vital::image_container_sptr render_mesh_depth_map(kwiver::vital::mesh_sptr mesh,
  * \param camera [in]
  * \return height map
  */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 vital::image_container_sptr render_mesh_height_map(kwiver::vital::mesh_sptr mesh,
                                                    kwiver::vital::camera_sptr camera);
 
@@ -76,7 +76,7 @@ vital::image_container_sptr render_mesh_height_map(kwiver::vital::mesh_sptr mesh
  * \param depth_map [in]
  * \param height_map [out]
  */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 void depth_map_to_height_map(vital::camera_perspective_sptr const& camera,
                              vital::image_of<double>& depth_map,
                              vital::image_of<double>& height_map);
@@ -92,7 +92,7 @@ void depth_map_to_height_map(vital::camera_perspective_sptr const& camera,
  * \param depth_v3 [in] corresponding depth
  * \param depth_img [in/out] depth map used and updated
  */
-KWIVER_ALGO_CORE_EXPORT
+KWIVER_ARROWS_CORE_EXPORT
 void render_triangle(const vital::vector_2d& v1, const vital::vector_2d& v2, const vital::vector_2d& v3,
                      double depth_v1, double depth_v2, double depth_v3,
                      vital::image_of<double>& depth_img);

@@ -33,7 +33,7 @@
 
 #include <vital/algo/video_input.h>
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 namespace kwiver {
 namespace arrows {
@@ -50,7 +50,7 @@ namespace core {
  *   # select reader type
  *   image_reader:type = vxl
  */
-class KWIVER_ALGO_CORE_EXPORT video_input_image_list
+class KWIVER_ARROWS_CORE_EXPORT video_input_image_list
   : public vital::algorithm_impl < video_input_image_list, vital::algo::video_input >
 {
 public:

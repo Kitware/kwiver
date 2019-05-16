@@ -33,7 +33,7 @@
  * \brief Register depth algorithms implementation
  */
 
-#include <arrows/super3d/kwiver_algo_super3d_plugin_export.h>
+#include <arrows/super3d/kwiver_arrows_super3d_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/super3d/compute_depth.h>
@@ -43,7 +43,7 @@ namespace arrows {
 namespace super3d {
 
 extern "C"
-KWIVER_ALGO_SUPER3D_PLUGIN_EXPORT
+KWIVER_ARROWS_SUPER3D_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {

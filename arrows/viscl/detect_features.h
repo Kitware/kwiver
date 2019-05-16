@@ -31,7 +31,7 @@
 #ifndef KWIVER_ARROWS_VISCL_DETECT_FEATURES_H_
 #define KWIVER_ARROWS_VISCL_DETECT_FEATURES_H_
 
-#include <arrows/viscl/kwiver_algo_viscl_export.h>
+#include <arrows/viscl/kwiver_arrows_viscl_export.h>
 
 #include <vital/algo/detect_features.h>
 
@@ -40,7 +40,7 @@ namespace arrows {
 namespace vcl {
 
 /// An algorithm class for detecting feature points using VisCL
-class KWIVER_ALGO_VISCL_EXPORT detect_features
+class KWIVER_ARROWS_VISCL_EXPORT detect_features
 : public vital::algorithm_impl<detect_features, vital::algo::detect_features>
 {
 public:

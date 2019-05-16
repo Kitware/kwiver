@@ -38,7 +38,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/vxl/kwiver_algo_vxl_export.h>
+#include <arrows/vxl/kwiver_arrows_vxl_export.h>
 
 #include <vital/types/image_container.h>
 
@@ -54,7 +54,7 @@ namespace vxl {
  * This class represents an image using vil_image_view format to store
  * the image data by extending the basic image_container.
  */
-class KWIVER_ALGO_VXL_EXPORT image_container
+class KWIVER_ARROWS_VXL_EXPORT image_container
   : public vital::image_container
 {
 public:

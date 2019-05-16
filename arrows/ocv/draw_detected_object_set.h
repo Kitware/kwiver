@@ -36,7 +36,7 @@
 #ifndef ARROWS_OCV_DRAW_DETECTED_OBJECT_SET_H
 #define ARROWS_OCV_DRAW_DETECTED_OBJECT_SET_H
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/algo/draw_detected_object_set.h>
 
@@ -46,7 +46,7 @@ namespace ocv {
 
 /// An abstract base class for algorithms which draw tracks on top of
 /// images in various ways, for analyzing results.
-class KWIVER_ALGO_OCV_EXPORT draw_detected_object_set
+class KWIVER_ARROWS_OCV_EXPORT draw_detected_object_set
   : public vital::algorithm_impl< draw_detected_object_set, vital::algo::draw_detected_object_set>
 {
 public:

@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_VXL_ESTIMATE_SIMILARITY_TRANSFORM_H_
 #define KWIVER_ARROWS_VXL_ESTIMATE_SIMILARITY_TRANSFORM_H_
 
-#include <arrows/vxl/kwiver_algo_vxl_export.h>
+#include <arrows/vxl/kwiver_arrows_vxl_export.h>
 
 #include <vital/algo/estimate_similarity_transform.h>
 #include <vital/types/vector.h>
@@ -46,7 +46,7 @@ namespace arrows {
 namespace vxl {
 
 /// VXL implementation of similarity transform estimation
-class KWIVER_ALGO_VXL_EXPORT estimate_similarity_transform
+class KWIVER_ARROWS_VXL_EXPORT estimate_similarity_transform
   : public vital::algorithm_impl<estimate_similarity_transform,
                                          vital::algo::estimate_similarity_transform>
 {

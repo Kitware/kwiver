@@ -32,7 +32,7 @@
 #define KWIVER_ARROWS_INITIALIZE_OBJECT_TRACKS_THRESHOLD_H_
 
 #include <vital/vital_config.h>
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/initialize_object_tracks.h>
@@ -42,7 +42,7 @@ namespace arrows {
 namespace core {
 
 /// Initialize object tracks via simple single frame thresholding
-class KWIVER_ALGO_CORE_EXPORT initialize_object_tracks_threshold
+class KWIVER_ARROWS_CORE_EXPORT initialize_object_tracks_threshold
   : public vital::algorithm_impl<initialize_object_tracks_threshold,
       vital::algo::initialize_object_tracks>
 {

@@ -33,7 +33,7 @@
  * \brief VisCL algorithm registration function implementation
  */
 
-#include <arrows/viscl/kwiver_algo_viscl_plugin_export.h>
+#include <arrows/viscl/kwiver_arrows_viscl_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/viscl/convert_image.h>
@@ -47,7 +47,7 @@ namespace arrows {
 namespace vcl {
 
   extern "C"
-KWIVER_ALGO_VISCL_PLUGIN_EXPORT
+KWIVER_ARROWS_VISCL_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {

@@ -310,21 +310,21 @@ triangulate_rpc(const std::vector<vital::simple_camera_rpc >& cameras,
 
 /// \cond DoxygenSuppress
 #define INSTANTIATE_TRIANGULATE(T) \
-template KWIVER_ALGO_CORE_EXPORT Eigen::Matrix<T,3,1> \
+template KWIVER_ARROWS_CORE_EXPORT Eigen::Matrix<T,3,1> \
          triangulate_fast_two_view( \
             const vital::simple_camera_perspective &camera0, \
             const vital::simple_camera_perspective &camera1, \
             const Eigen::Matrix<T, 2, 1> &point0, \
             const Eigen::Matrix<T, 2, 1> &point1); \
-template KWIVER_ALGO_CORE_EXPORT Eigen::Matrix<T,4,1> \
+template KWIVER_ARROWS_CORE_EXPORT Eigen::Matrix<T,4,1> \
          triangulate_homog( \
             const std::vector<vital::simple_camera_perspective >& cameras, \
             const std::vector<Eigen::Matrix<T,2,1> >& points); \
-template KWIVER_ALGO_CORE_EXPORT Eigen::Matrix<T,3,1> \
+template KWIVER_ARROWS_CORE_EXPORT Eigen::Matrix<T,3,1> \
          triangulate_inhomog( \
             const std::vector<vital::simple_camera_perspective >& cameras, \
             const std::vector<Eigen::Matrix<T,2,1> >& points); \
-template KWIVER_ALGO_CORE_EXPORT Eigen::Matrix<T,3,1> \
+template KWIVER_ARROWS_CORE_EXPORT Eigen::Matrix<T,3,1> \
          triangulate_rpc( \
             const std::vector<vital::simple_camera_rpc >& cameras, \
             const std::vector<Eigen::Matrix<T,2,1> >& points);

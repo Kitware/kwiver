@@ -38,7 +38,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/algo/estimate_pnp.h>
 
@@ -49,7 +49,7 @@ namespace ocv {
 
 /// A class that uses OpenCV to estimate a camera's pose from 3D feature
 /// and point projection pairs.
-class KWIVER_ALGO_OCV_EXPORT estimate_pnp
+class KWIVER_ARROWS_OCV_EXPORT estimate_pnp
   : public vital::algorithm_impl<estimate_pnp, vital::algo::estimate_pnp>
 {
 public:

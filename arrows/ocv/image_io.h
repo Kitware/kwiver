@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_OCV_IMAGE_IO_H_
 #define KWIVER_ARROWS_OCV_IMAGE_IO_H_
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/algo/image_io.h>
 
@@ -45,7 +45,7 @@ namespace arrows {
 namespace ocv {
 
 /// A class for using OpenCV to read and write images
-class KWIVER_ALGO_OCV_EXPORT image_io
+class KWIVER_ARROWS_OCV_EXPORT image_io
   : public vital::algorithm_impl<image_io, vital::algo::image_io>
 {
 public:

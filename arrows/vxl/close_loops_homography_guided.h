@@ -37,7 +37,7 @@
 #ifndef KWIVER_ARROWS_VXL_CLOSE_LOOPS_HOMOGRAPHY_GUIDED_H_
 #define KWIVER_ARROWS_VXL_CLOSE_LOOPS_HOMOGRAPHY_GUIDED_H_
 
-#include <arrows/vxl/kwiver_algo_vxl_export.h>
+#include <arrows/vxl/kwiver_arrows_vxl_export.h>
 
 #include <vital/types/image_container.h>
 #include <vital/types/feature_track_set.h>
@@ -55,7 +55,7 @@ namespace vxl {
  * estimate potential match locations in the past, followed up by additional
  * filtering.
  */
-class KWIVER_ALGO_VXL_EXPORT close_loops_homography_guided
+class KWIVER_ARROWS_VXL_EXPORT close_loops_homography_guided
   : public vital::algorithm_impl<vxl::close_loops_homography_guided, vital::algo::close_loops>
 {
 public:

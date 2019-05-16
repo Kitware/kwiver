@@ -33,7 +33,7 @@
 
 
 #include <vital/vital_config.h>
-#include <arrows/viscl/kwiver_algo_viscl_export.h>
+#include <arrows/viscl/kwiver_arrows_viscl_export.h>
 
 #include <vital/types/image_container.h>
 
@@ -45,7 +45,7 @@ namespace arrows {
 namespace vcl {
 
 /// This image container wraps a VisCL image
-class KWIVER_ALGO_VISCL_EXPORT image_container
+class KWIVER_ARROWS_VISCL_EXPORT image_container
 : public vital::image_container
 {
 public:
@@ -109,7 +109,7 @@ protected:
  * return the underlying VisCL image.  Otherwise, convert the image data
  * and upload to the GPU.
  */
-KWIVER_ALGO_VISCL_EXPORT viscl::image image_container_to_viscl(const vital::image_container& img);
+KWIVER_ARROWS_VISCL_EXPORT viscl::image image_container_to_viscl(const vital::image_container& img);
 
 
 } // end namespace vcl

@@ -21,7 +21,7 @@ kwiver_install_headers(
   )
 
 kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_ffmpeg_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_arrows_ffmpeg_export.h
   NOPATH   SUBDIR     arrows/ffmpeg
   )
 
@@ -30,17 +30,17 @@ set(ffmpeg_sources
   ffmpeg_video_input.cxx
   )
 
-kwiver_add_library( kwiver_algo_ffmpeg
+kwiver_add_library( kwiver_arrows_ffmpeg
   ${ffmpeg_headers_public}
   ${ffmpeg_sources}
   )
-target_link_libraries( kwiver_algo_ffmpeg
-  PUBLIC               kwiver_algo_core
+target_link_libraries( kwiver_arrows_ffmpeg
+  PUBLIC               kwiver_arrows_core
   PRIVATE              kwiversys
                        ${FFMPEG_LIBRARIES}
   )
 
-algorithms_create_plugin( kwiver_algo_ffmpeg
+algorithms_create_plugin( kwiver_arrows_ffmpeg
   register_algorithms.cxx
   )
 

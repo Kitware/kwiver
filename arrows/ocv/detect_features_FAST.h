@@ -44,7 +44,7 @@ namespace kwiver {
 namespace arrows {
 namespace ocv{
 
-class KWIVER_ALGO_OCV_EXPORT detect_features_FAST
+class KWIVER_ARROWS_OCV_EXPORT detect_features_FAST
   : public vital::algorithm_impl<detect_features_FAST,
                                  ocv::detect_features,
                                  vital::algo::detect_features>

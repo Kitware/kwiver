@@ -12,7 +12,7 @@ kwiver_install_headers(
   )
 
 kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_gdal_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_arrows_gdal_export.h
   NOPATH   SUBDIR     arrows/gdal
   )
 
@@ -21,16 +21,16 @@ set( gdal_sources
   image_io.cxx
   )
 
-kwiver_add_library( kwiver_algo_gdal
+kwiver_add_library( kwiver_arrows_gdal
   ${gdal_headers_public}
   ${gdal_sources}
   )
-target_link_libraries( kwiver_algo_gdal
-  PUBLIC               kwiver_algo_core
+target_link_libraries( kwiver_arrows_gdal
+  PUBLIC               kwiver_arrows_core
   PRIVATE              ${GDAL_LIBRARY}
   )
 
-algorithms_create_plugin( kwiver_algo_gdal
+algorithms_create_plugin( kwiver_arrows_gdal
   register_algorithms.cxx
   )
 

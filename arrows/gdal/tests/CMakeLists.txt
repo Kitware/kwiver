@@ -2,7 +2,7 @@ project(arrows_test_gdal)
 
 include(kwiver-test-setup)
 
-set(test_libraries      vital vital_vpm kwiver_algo_gdal )
+set(test_libraries      vital vital_vpm kwiver_arrows_gdal )
 
 ##############################
 # Algorithms GDAL tests

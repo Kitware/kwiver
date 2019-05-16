@@ -2,7 +2,7 @@ project(arrows_test_uuid)
 
 include(kwiver-test-setup)
 
-set( test_libraries    kwiver_algo_uuid vital vital_vpm )
+set( test_libraries    kwiver_arrows_uuid vital vital_vpm )
 
 ##############################
 # Algorithms uuid plugin tests

@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_COMPUTE_REF_HOMOGRAPHY_CORE_H_
 #define KWIVER_ARROWS_CORE_COMPUTE_REF_HOMOGRAPHY_CORE_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/compute_ref_homography.h>
@@ -61,7 +61,7 @@ namespace core {
  * successive non-regressing frames. This is ideal for when it is desired to
  * compute reference frames on all frames in a sequence.
  */
-class KWIVER_ALGO_CORE_EXPORT compute_ref_homography_core
+class KWIVER_ARROWS_CORE_EXPORT compute_ref_homography_core
   : public vital::algorithm_impl<compute_ref_homography_core, vital::algo::compute_ref_homography>
 {
 public:

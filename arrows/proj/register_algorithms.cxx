@@ -35,7 +35,7 @@
 
 #include <arrows/proj/geo_conv.h>
 
-#include <arrows/proj/kwiver_algo_proj_plugin_export.h>
+#include <arrows/proj/kwiver_arrows_proj_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 #include <vital/types/geodesy.h>
 
@@ -44,7 +44,7 @@ namespace arrows {
 namespace proj {
 
 extern "C"
-KWIVER_ALGO_PROJ_PLUGIN_EXPORT
+KWIVER_ARROWS_PROJ_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {

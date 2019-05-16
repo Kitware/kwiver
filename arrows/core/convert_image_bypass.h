@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_CORE_CONVERT_IMAGE_BYPASS_H_
 #define KWIVER_ARROWS_CORE_CONVERT_IMAGE_BYPASS_H_
 
-#include <arrows/core/kwiver_algo_core_export.h>
+#include <arrows/core/kwiver_arrows_core_export.h>
 
 #include <vital/algo/convert_image.h>
 
@@ -45,7 +45,7 @@ namespace arrows {
 namespace core {
 
 /// A class for bypassing image conversion
-class KWIVER_ALGO_CORE_EXPORT convert_image_bypass
+class KWIVER_ARROWS_CORE_EXPORT convert_image_bypass
   : public vital::algorithm_impl<convert_image_bypass, vital::algo::convert_image>
 {
 public:

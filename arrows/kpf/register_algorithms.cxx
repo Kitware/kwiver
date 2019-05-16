@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <arrows/kpf/kwiver_algo_kpf_plugin_export.h>
+#include <arrows/kpf/kwiver_arrows_kpf_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/kpf/detected_object_set_input_kpf.h>
@@ -39,7 +39,7 @@ namespace arrows {
 namespace kpf {
 
 extern "C"
-KWIVER_ALGO_KPF_PLUGIN_EXPORT
+KWIVER_ARROWS_KPF_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {

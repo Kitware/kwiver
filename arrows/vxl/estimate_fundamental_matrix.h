@@ -36,7 +36,7 @@
 #ifndef KWIVER_ARROWS_VXL_ESTIMATE_FUNDAMENTAL_MATRIX_H_
 #define KWIVER_ARROWS_VXL_ESTIMATE_FUNDAMENTAL_MATRIX_H_
 
-#include <arrows/vxl/kwiver_algo_vxl_export.h>
+#include <arrows/vxl/kwiver_arrows_vxl_export.h>
 
 #include <vital/types/camera_intrinsics.h>
 
@@ -47,7 +47,7 @@ namespace arrows {
 namespace vxl {
 
 /// A class that uses 5 pt algorithm to estimate an initial xform between 2 pt sets
-class KWIVER_ALGO_VXL_EXPORT estimate_fundamental_matrix
+class KWIVER_ARROWS_VXL_EXPORT estimate_fundamental_matrix
   : public vital::algorithm_impl<estimate_fundamental_matrix, vital::algo::estimate_fundamental_matrix>
 {
 public:

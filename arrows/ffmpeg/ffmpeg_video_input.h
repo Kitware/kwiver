@@ -38,7 +38,7 @@
 
 #include <vital/algo/video_input.h>
 
-#include <arrows/ffmpeg/kwiver_algo_ffmpeg_export.h>
+#include <arrows/ffmpeg/kwiver_arrows_ffmpeg_export.h>
 
 
 namespace kwiver {
@@ -51,7 +51,7 @@ namespace ffmpeg {
  * This class implements a video input algorithm using ffmpeg video services.
  *
  */
-class KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_input
+class KWIVER_ARROWS_FFMPEG_EXPORT ffmpeg_video_input
   : public vital::algorithm_impl < ffmpeg_video_input, vital::algo::video_input >
 {
 public:

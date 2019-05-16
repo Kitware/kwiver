@@ -33,7 +33,7 @@
  * \brief register core applets into a plugin
  */
 
-#include <arrows/core/applets/kwiver_algo_core_applets_export.h>
+#include <arrows/core/applets/kwiver_arrows_core_applets_export.h>
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/core/applets/render_mesh.h>
@@ -69,7 +69,7 @@ void register_applet( kwiver::vital::plugin_loader& vpm )
 
 // ----------------------------------------------------------------------------
 extern "C"
-KWIVER_ALGO_CORE_APPLETS_EXPORT
+KWIVER_ARROWS_CORE_APPLETS_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {

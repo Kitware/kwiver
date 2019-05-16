@@ -39,7 +39,7 @@
 #include <memory>
 #include <vector>
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 #include <arrows/ocv/match_features.h>
 
 namespace kwiver {
@@ -48,7 +48,7 @@ namespace ocv {
 
 
 /// Feature matcher implementation using OpenCV's FLANN-based feature matcher
-class KWIVER_ALGO_OCV_EXPORT match_features_flannbased
+class KWIVER_ARROWS_OCV_EXPORT match_features_flannbased
   : public vital::algorithm_impl< ocv::match_features_flannbased,
                                   ocv::match_features,
                                   vital::algo::match_features >

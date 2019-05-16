@@ -32,25 +32,25 @@ kwiver_install_headers(
   )
 
 kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_matlab_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_arrows_matlab_export.h
   SUBDIR     arrows/matlab
   NOPATH
   )
 
-kwiver_add_library( kwiver_algo_matlab
+kwiver_add_library( kwiver_arrows_matlab
   ${public_headers}
   ${private_headers}
   ${sources}
   )
 
-target_link_libraries( kwiver_algo_matlab
+target_link_libraries( kwiver_arrows_matlab
   PUBLIC               vital_algo
                        ${Matlab_LIBRARIES}
-                       kwiver_algo_ocv
+                       kwiver_arrows_ocv
                        kwiversys
   )
 
-algorithms_create_plugin( kwiver_algo_matlab
+algorithms_create_plugin( kwiver_arrows_matlab
   register_algorithms.cxx
   )
 

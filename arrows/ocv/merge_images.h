@@ -35,7 +35,7 @@
 
 #pragma once
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/kwiver_arrows_ocv_export.h>
 
 #include <vital/algo/merge_images.h>
 
@@ -45,7 +45,7 @@ namespace ocv {
 
 /// A class for writing out image chips around detections, useful as a debugging process
 /// for ensuring that the refine detections process is running on desired ROIs.
-class KWIVER_ALGO_OCV_EXPORT merge_images
+class KWIVER_ARROWS_OCV_EXPORT merge_images
   : public vital::algorithm_impl<merge_images, vital::algo::merge_images>
 {
 public:
