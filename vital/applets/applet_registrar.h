@@ -32,7 +32,7 @@
 #define KWIVER_TOOLS_KWIVER_APPLET_REGISTER_H
 
 #include <vital/plugin_loader/plugin_registrar.h>
-#include <tools/kwiver_applet.h>
+#include <vital/applets/kwiver_applet.h>
 
 namespace kwiver {
 

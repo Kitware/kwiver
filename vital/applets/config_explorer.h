@@ -28,8 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KWIVER_TOOL_DUMP_KLV_H
-#define KWIVER_TOOL_DUMP_KLV_H
+#ifndef KWIVER_TOOL_CONFIG_EXPLORER_H
+#define KWIVER_TOOL_CONFIG_EXPLORER_H
 
 #include "kwiver_applet.h"
 
@@ -39,18 +39,16 @@
 namespace kwiver {
 namespace tools {
 
-class dump_klv
+class config_explorer
   : public kwiver_applet
 {
 public:
-  dump_klv();
+  config_explorer();
 
-  static constexpr char const* name = "dump-klv";
-  static constexpr char const* description =
-    "Dump KLV stream from video.\n\n"
-    "This program displays the KLV metadata packets that are embedded in "
-    "a video stream.";
-
+  PLUGIN_INFO( "explore-config",
+               "Explore configuration loading process.\n\n"
+               "This program assists in debugging config loading problems. It loads a "
+               "configuration and displays the contents or displays the search path.");
 
   virtual int run() override;
   virtual void add_command_options() override;
@@ -59,4 +57,4 @@ public:
 
 } } // end namespace
 
-#endif /* KWIVER_TOOL_DUMP_KLV_H */
+#endif /* KWIVER_TOOL_CONFIG_EXPLORER_H */

@@ -85,7 +85,6 @@ add_command_options()
     ;
 
   m_cmd_options->parse_positional("config-file");
-
 }
 
 // ============================================================================
@@ -100,7 +99,6 @@ config_explorer::
 run()
 {
   std::string opt_app_name = applet_name();
-
   auto& cmd_args = command_args();
 
   if ( cmd_args["help"].as<bool>() )
@@ -122,8 +120,6 @@ run()
   {
     opt_path = cmd_args["path"].as<std::vector<std::string>>();
   }
-
-  std::string opt_config_file;
 
   if ( cmd_args.count("application") )
   {
@@ -162,6 +158,8 @@ run()
 
     return EXIT_SUCCESS;
   }
+
+  std::string opt_config_file;
 
   if ( cmd_args.count("config-file") )
   {

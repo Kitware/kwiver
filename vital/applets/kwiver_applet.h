@@ -31,9 +31,10 @@
 #ifndef KWIVER_TOOLS_KWIVER_APPLET_H
 #define KWIVER_TOOLS_KWIVER_APPLET_H
 
-#include <tools/kwiver_tools_applet_export.h>
+#include <vital/applets/kwiver_tools_applet_export.h>
+#include <vital/plugin_loader/plugin_info.h>
 
-#include <tools/cxxopts.hpp>
+#include <vital/applets/cxxopts.hpp>
 
 #include <ostream>
 #include <memory>
@@ -66,7 +67,8 @@ public:
    * @brief Add command line options to parser.
    *
    * This method adds the program description and command line options
-   * to the command line parser.
+   * to the command line parser. Command line processing will be skipped
+   * if this method is not overridden.
    *
    * Command line specification is added directly to this->m_cmd_options.
    *
@@ -93,7 +95,7 @@ m_cmd_options.add_option("group")
 
 \endcode
   */
-  virtual void add_command_options() = 0;
+  virtual void add_command_options();
 
   /**
    * @brief Return ref to parse results

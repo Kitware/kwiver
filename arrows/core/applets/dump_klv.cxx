@@ -49,7 +49,8 @@
 #include <vital/plugin_loader/plugin_manager.h>
 
 namespace kwiver {
-namespace tools {
+namespace arrows {
+namespace core {
 
 namespace {
 
@@ -110,7 +111,7 @@ int
 dump_klv::
 run()
 {
-  std::string opt_app_name = applet_name();
+  const std::string opt_app_name = applet_name();
   std::string video_file;
 
   auto& cmd_args = command_args();
@@ -220,4 +221,4 @@ run()
   return EXIT_SUCCESS;
 }
 
-} } // end namespace
+} } } // end namespace

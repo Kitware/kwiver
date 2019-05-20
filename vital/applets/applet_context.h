@@ -33,7 +33,7 @@
 
 #include <vital/util/wrap_text_block.h>
 
-#include <tools/cxxopts.hpp>
+#include <vital/applets/cxxopts.hpp>
 
 #include <memory>
 #include <ostream>
@@ -51,7 +51,6 @@ namespace tools {
 class applet_context
 {
 public:
-
   // Used to wrap large text blocks
   kwiver::vital::wrap_text_block m_wtb;
 
