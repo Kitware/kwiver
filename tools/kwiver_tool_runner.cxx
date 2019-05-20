@@ -29,8 +29,8 @@
  */
 
 
-#include "kwiver_applet.h"
-#include "applet_context.h"
+#include <vital/applets/kwiver_applet.h>
+#include <vital/applets/applet_context.h>
 
 #include <vital/plugin_loader/plugin_manager.h>
 #include <vital/plugin_loader/plugin_factory.h>
@@ -182,7 +182,6 @@ int main(int argc, char *argv[])
   // Allocated on the stack so it will automatically clean up
   //
   applet_context_t tool_context = std::make_shared< kwiver::tools::applet_context >();
-  tool_context->m_result = nullptr;
 
   kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
   const std::string exec_path = kwiver::vital::get_executable_path();
