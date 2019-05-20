@@ -31,38 +31,10 @@
 
 #include "kwiver_pipeline_viewer_export.h"
 
-#include "pipeline_viewer.h"
-
-#include <vital/plugin_loader/plugin_factory.h>
 #include <vital/plugin_loader/plugin_loader.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/applets/applet_registrar.h>
 
-using std::string;
-
-namespace {
-
-static auto const module_name         = string{ "kwiver_pipeline_viewer" };
-static auto const module_version      = string{ "1.0" };
-static auto const module_organization = string{ "Kitware Inc." };
-
-// ----------------------------------------------------------------------------
-template < typename tool_t >
-void
-register_tool( kwiver::vital::plugin_loader& vpm,
-               string const& version = module_version )
-{
-  using kvpf = kwiver::vital::plugin_factory;
-
-  auto fact = vpm.ADD_APPLET( tool_t );
-  fact->add_attribute( kvpf::PLUGIN_NAME,  tool_t::name )
-    .add_attribute( kvpf::PLUGIN_DESCRIPTION,  tool_t::description )
-    .add_attribute( kvpf::PLUGIN_MODULE_NAME,  module_name )
-    .add_attribute( kvpf::PLUGIN_VERSION,      module_version )
-    .add_attribute( kvpf::PLUGIN_ORGANIZATION, module_organization )
-  ;
-}
-
-} // namespace (anonymous)
+#include "pipeline_viewer.h"
 
 // ----------------------------------------------------------------------------
 extern "C"
@@ -70,12 +42,16 @@ KWIVER_PIPELINE_VIEWER_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {
-  if ( vpm.is_module_loaded( module_name ) )
+  using namespace kwiver::tools;
+
+  kwiver::applet_registrar reg( vpm, "QT_tool_group" );
+
+  if (reg.is_module_loaded())
   {
     return;
   }
 
-  register_tool< kwiver::tools::pipeline_viewer >( vpm );
+  reg.register_tool< pipeline_viewer >();
 
-  vpm.mark_module_as_loaded( module_name );
+  reg.mark_module_as_loaded();
 }

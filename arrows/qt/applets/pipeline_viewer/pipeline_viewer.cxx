@@ -29,33 +29,44 @@
  * DAMAGE.
  */
 
-#ifndef KWIVER_TOOL_PIPELINE_VIEWER_H
-#define KWIVER_TOOL_PIPELINE_VIEWER_H
+#include "pipeline_viewer.h"
 
-#include <tools/kwiver_applet.h>
+#include "MainWindow.h"
 
-#include <string>
-#include <vector>
+#include <vital/range/iota.h>
 
-namespace kwiver {
+#include <QApplication>
 
-namespace tools {
-
-class pipeline_viewer : public kwiver_applet
+// ----------------------------------------------------------------------------
+int
+kwiver::tools::pipeline_viewer
+::run()
 {
-public:
-  static constexpr char const* name = "pipe-gui";
-  static constexpr char const* description =
-    "Run pipelines in a simple GUI.\n\n"
-    "This program provides a simple Qt-based front-end "
-    "for executing pipelines and viewing images produced by the same.";
+  std::vector< std::string > const& args = applet_args();
+  // Create mutable arguments (needed by QApplication)
+  auto argc = static_cast< int >( args.size() );
+  auto argv = std::unique_ptr< char*[] >{ new char*[ argc ] };
 
-  virtual int run() override;
-  virtual void add_command_options() override;
-};
+  auto margs = std::vector< std::unique_ptr< char[] > >{};
+  for ( auto const i : vital::range::iota( args.size() ) )
+  {
+    auto const& arg = args[ i ];
+    auto const l = arg.size() + 1;
 
-} // namespace tools
+    auto marg = std::unique_ptr< char[] >{ new char[ l ] };
+    memcpy( marg.get(), arg.c_str(), l );
 
-} // namespace kwiver
+    argv[ i ] = marg.get();
+    margs.push_back( std::move( marg ) );
+  }
 
-#endif
+  // Create QApplication
+  QApplication app{ argc, argv.get() };
+
+  // Create and show main window
+  kwiver::tools::MainWindow window;
+  window.show();
+
+  // Execute event loop
+  return app.exec();
+}
