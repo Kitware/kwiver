@@ -1,19 +1,31 @@
-===============
-Pipeline Runner
-===============
+===========
+pipe-config
+===========
 
-The pipeline runner applet is used to execute a preconfigured pipeline application and is invoked as follows:
+The pipe-config applet generates a new pipeline file from a set of
+inputs. All the information from the config files and settings
+is merged into the specified pipe file and written as output.
+This can be used to flatten a complicated pipe file which may include
+other pipe and config files into a single dasily distributed file.
 
-kwiver runner [options] pipe-file
----------------------------------
+
+pipe-config       [options] pipe-file
+-------------------------------------
 
 Options are:
 
--h, --help
+  ``-h, --help``
 
-  Display applet usage.
+  Display applet usage information.
+
+**output options:**
+
+  ``-o, --output arg``
+  
+    Name of output file or '-' for stdout. (default: -)
 
 **pipe options:**
+ 
   ``-c, --config <file>``
 
     Specifies a file containing supplemental configuration entries.
@@ -49,11 +61,4 @@ Options are:
     Specifies a directory to be added to the configuration include path.
     This option can occur multiple times on the command line
 
-  ``-S, --scheduler <type>``
-
-    Specifies the scheduler type to use.
-
-The ``pipe-file`` is the name of the pipeline defintion file.
-See <xxx> for a description of the pipeline syntax.
-
-
+  pipe-file  - name of pipeline file.

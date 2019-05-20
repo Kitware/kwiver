@@ -1,19 +1,53 @@
-===============
-Pipeline Runner
-===============
+===========
+pipe-to-dot
+===========
 
-The pipeline runner applet is used to execute a preconfigured pipeline application and is invoked as follows:
+The pipe-to-dot applet generates a DOT file from the pipeline topology.
+This graphical output is useful for visualizing and documenting a specific pipeline.
 
-kwiver runner [options] pipe-file
----------------------------------
+kwiver pipe-to-dot  [options]
+-----------------------------
 
 Options are:
 
--h, --help
+  ``-h, --help``
+  
+   Display applet usage
 
-  Display applet usage.
+**input options:**
+  ``-p, --pipe-file arg``
+  
+    Selects a pipeline file to render as a DOT file.
+
+  ``-C, --cluster <arg>``
+  
+    Selects a cluster file to render as a DOT file.
+  
+  ``-T, --cluster-type <arg>``
+  
+    Selects a cluster type to render as a DOT file. This is the name of the cluster
+    in the cluster definition file.
+
+  Note: Only one input option is allowed.
+
+**output options:**
+ 
+  ``-n, --name <arg>``
+  
+    Specifies the name of the output graph.
+  
+  ``-o, --output <file>``
+  
+    Name of output file or '-' for stdout. (default: -)
+  
+  
+  ``-P, --link-prefix <arg>``
+  
+    Prefix for links when formatting for sphinx.
+ 
 
 **pipe options:**
+ 
   ``-c, --config <file>``
 
     Specifies a file containing supplemental configuration entries.
@@ -49,11 +83,12 @@ Options are:
     Specifies a directory to be added to the configuration include path.
     This option can occur multiple times on the command line
 
-  ``-S, --scheduler <type>``
+  ``--setup``
 
-    Specifies the scheduler type to use.
-
-The ``pipe-file`` is the name of the pipeline defintion file.
-See <xxx> for a description of the pipeline syntax.
+  Setup pipeline before rendering
 
 
+Example
+-------
+
+Usage example showing DOT rendering tools
