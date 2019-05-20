@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2017 by Kitware, Inc.
+ * Copyright 2013-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ open_ostream(kwiver::vital::path_t const& path)
 
     if (!ostr->good())
     {
-      std::string const reason = "Unable to open input file: " + path;
+      std::string const reason = "Unable to open output file: " + path;
 
       throw std::runtime_error(reason);
     }

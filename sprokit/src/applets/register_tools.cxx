@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2012-2017 by Kitware, Inc.
+ * Copyright 2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,36 +28,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SPROKIT_TOOLS_TOOL_USAGE_H
-#define SPROKIT_TOOLS_TOOL_USAGE_H
+#include "sprokit_applets_export.h"
 
-#include <sprokit/tools/sprokit_tools_export.h>
-#include <vital/vital_config.h>
+#include <vital/plugin_loader/plugin_loader.h>
+#include <vital/applets/applet_registrar.h>
 
-#include <sprokit/pipeline_util/pipeline_builder.h>
-#include <sprokit/pipeline/scheduler_factory.h>
+#include "pipeline_runner.h"
+#include "pipe_to_dot.h"
+#include "pipe_config.h"
 
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/variables_map.hpp>
-
-namespace sprokit
+// ============================================================================
+extern "C"
+SPROKIT_APPLETS_EXPORT
+void
+register_factories( kwiver::vital::plugin_loader& vpm )
 {
+  using namespace sprokit::tools;
 
-[[noreturn]] SPROKIT_TOOLS_EXPORT void tool_usage(int ret, boost::program_options::options_description const& options);
-SPROKIT_TOOLS_EXPORT void tool_version_message();
+  kwiver::applet_registrar reg( vpm, "sprokit_tool_group" );
 
-SPROKIT_TOOLS_EXPORT boost::program_options::options_description tool_common_options();
+  if (reg.is_module_loaded())
+  {
+    return;
+  }
 
-SPROKIT_TOOLS_EXPORT boost::program_options::variables_map tool_parse(
-  int argc, char const* argv[],
-  boost::program_options::options_description const& desc,
-  std::string const& program_description);
+  // -- register applets --
+  reg.register_tool< pipeline_runner >();
+  reg.register_tool< pipe_to_dot >();
+  reg.register_tool< pipe_config >();
 
-SPROKIT_TOOLS_EXPORT boost::program_options::options_description pipeline_common_options();
-SPROKIT_TOOLS_EXPORT boost::program_options::options_description pipeline_input_options();
-SPROKIT_TOOLS_EXPORT boost::program_options::options_description pipeline_output_options();
-SPROKIT_TOOLS_EXPORT boost::program_options::options_description pipeline_run_options();
-
+  reg.mark_module_as_loaded();
 }
-
-#endif // SPROKIT_TOOLS_TOOL_USAGE_H

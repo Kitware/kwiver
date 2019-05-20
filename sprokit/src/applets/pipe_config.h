@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,47 +28,54 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SPROKIT_PIPELINE_UTIL_EXPORT_PIPE_H
-#define SPROKIT_PIPELINE_UTIL_EXPORT_PIPE_H
+#ifndef KWIVER_TOOL_PIPE_CONFIG_H
+#define KWIVER_TOOL_PIPE_CONFIG_H
 
-#include<sprokit/pipeline_util/sprokit_pipeline_util_export.h>
+#include <vital/applets/kwiver_applet.h>
 
-#include <sprokit/pipeline/types.h>
-
-#include <iostream>
+#include <string>
+#include <vector>
 
 namespace sprokit {
+namespace tools {
 
-class pipeline_builder;
-
-// ==================================================================
-/**
- * @brief Export built pipeline
- *
- * This class converts a built pipeline in a readable manner as a
- * pipeline file.
- *
- * Derived classes can implement other output formats.
- */
-class SPROKIT_PIPELINE_UTIL_EXPORT export_pipe
+class pipe_config
+  : public kwiver::tools::kwiver_applet
 {
 public:
-  // -- CONSTRUCTORS --
-  /**
-   * @brief Create new object
-   *
-   * @param pipe constructed pipeline from pipeline builder.
-   */
-  export_pipe( const sprokit::pipeline_builder& builder );
-  virtual ~export_pipe();
+  pipe_config();
 
-  // Generate output for pipeline
-  virtual void generate( std::ostream& str );
+  virtual int run() override;
+  virtual void add_command_options() override;
 
-private:
-  const sprokit::pipeline_builder&  m_builder;
-}; // end class export_pipe
+  PLUGIN_INFO( "pipe-config",
+    "Configures a pipeline\n\n"
+    "This tool reads a pipeline configuration file, applies the program options "
+    "and generates a \"compiled\" config file. "
+    "At its most basic, this tool will validate a pipeline "
+    "configuration, but it does so much more.  Specific pipeline "
+    "configurations can be generated from generic descriptions. "
+    "\n\n"
+    "Global config sections can ge inserted in the resulting configuration "
+    "file with the --setting option, with multiple options allowed on the "
+    "command line. For example, --setting master:value=FOO will generate a "
+    "config section: "
+    "\n\n"
+    "config master\n"
+    "  :value FOO\n"
+    "\n\b"
+    "The --config option specifies a file that contains additional "
+    "configuration parameters to be merged into the generated "
+    "configuration. "
+    "\n\n"
+    "Use the --include option to add additional directories to search for "
+    "included configuration files. "
+    "\n\n"
+    "The --pipeline option specifies the file that contains the main pipeline specification"
+    );
 
-} // end namespace
+}; // end of class
 
-#endif // SPROKIT_PIPELINE_UTIL_EXPORT_PIPE_H
+} } // end namespace
+
+#endif /* KWIVER_TOOL_PIPE_CONFIG_H */
