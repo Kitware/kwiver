@@ -15,9 +15,3 @@ target_link_libraries( kwiver
                  kwiversys
                  kwiver_tools_applet
 )
-
-kwiver_install_headers(
-  kwiver_applet.h
-  cxxopts.hpp
-  SUBDIR      tools
-  )

@@ -26,8 +26,8 @@ kwiver_add_library( kwiver_tools_applet
 )
 
 target_link_libraries( kwiver_tools_applet
-              vital_util
-              ${BOOST_REGEX}
+  PUBLIC      vital_util
+              ${VITAL_BOOST_REGEX}
   )
 
 
@@ -50,11 +50,11 @@ kwiver_add_plugin( vital_applets
 kwiver_install_headers(
   kwiver_applet.h
   cxxopts.hpp
-  SUBDIR      tools
+  SUBDIR      vital/applets
   )
 
 kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_tools_applets_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_tools_applet_export.h
   NOPATH
-  SUBDIR      tools
+  SUBDIR      vital/applets
   )

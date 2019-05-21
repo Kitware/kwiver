@@ -31,7 +31,7 @@
 #ifndef KWIVER_TOOL_CONFIG_EXPLORER_H
 #define KWIVER_TOOL_CONFIG_EXPLORER_H
 
-#include "kwiver_applet.h"
+#include <vital/applets/kwiver_applet.h>
 
 #include <string>
 #include <vector>
