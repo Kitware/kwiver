@@ -142,7 +142,7 @@ void test_conversions(const cv::Mat& data)
       auto const& vals = ds.at(i)->as_double();
 
       cv::Mat row = double_data.row(i);
-      Assert_TRUE( std::equal(vals.begin(), vals.end(), row.begin<double>() ) );
+      ASSERT_TRUE( std::equal(vals.begin(), vals.end(), row.begin<double>() ) );
     }
   }();
 
