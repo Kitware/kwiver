@@ -54,13 +54,15 @@ class KWIVER_ALGO_OCV_EXPORT descriptor_set
 {
 public:
   /// Default Constructor
-  descriptor_set() = default;
+  descriptor_set() {}
 
   /// Constructor from an OpenCV descriptor matrix
-  explicit descriptor_set(const cv::Mat& descriptor_matrix);
+  explicit descriptor_set(const cv::Mat& descriptor_matrix)
+  : data_(descriptor_matrix) {}
 
   /// Return the number of descriptor in the set
-  virtual size_t size() const;
+  virtual size_t size() const override { return data_.rows; }
+  virtual bool empty() const override { return size() == 0; }
 
   /// Return a vector of descriptor shared pointers
   virtual std::vector<vital::descriptor_sptr> descriptors() const;
@@ -68,32 +70,15 @@ public:
   /// Return the native OpenCV descriptors as a matrix
   const cv::Mat& ocv_desc_matrix() const { return data_; }
 
-  /**
-   * Whether or not this set is empty.
-   *
-   * @return True if this set is empty or false otherwise.
-   */
-  virtual bool empty() const;
-
-  //@{
-  /**
-   * Return the descriptor at the specified index.
-   * @param index 0-based index to access.
-   * @return The descriptor shared pointer at the specified index.
-   * @throws std::out_of_range If position is now within the range of objects
-   *                           in container.
-   */
-  virtual vital::descriptor_sptr at( size_t index );
-  virtual vital::descriptor_sptr const at( size_t index ) const;
-  //@}
+  virtual vital::descriptor_sptr at( size_t index ) override;
+  virtual vital::descriptor_sptr const at( size_t index ) const override;
 
 protected:
+  iterator::next_value_func_t get_iter_next_func() override;
+  const_iterator::next_value_func_t get_const_iter_next_func() const override;
 
   /// The OpenCV matrix of featrues
   cv::Mat data_;
-
-  iterator::next_value_func_t get_iter_next_func();
-  const_iterator::next_value_func_t get_const_iter_next_func() const;
 };
 
 

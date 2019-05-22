@@ -83,7 +83,6 @@ TEST(descriptor_set, populated_set)
 
   // Iteration yield count should match expected size.
   size_t count = 0;
-  ocv::descriptor_set::iterator it = ds.begin();
   for( const descriptor_sptr & d_sptr : ds )
   {
     (void)d_sptr; // avoid unused variable warning.
@@ -94,7 +93,7 @@ TEST(descriptor_set, populated_set)
   for ( unsigned i = 0; i < num_desc; ++i )
   {
     SCOPED_TRACE( "At descriptor " + std::to_string(i) );
-    EXPECT_EQ( dim, ds.at(i)->size() );
+    ASSERT_EQ( dim, ds.at(i)->size() );
 
     std::vector<double> vals = ds.at(i)->as_double();
     cv::Mat row = data.row(i);

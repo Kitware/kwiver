@@ -323,13 +323,9 @@ TEST(feature_descriptor_io, write_mixed_descriptor_dim)
   feature_set_sptr empty_features;
   descriptor_set_sptr descriptors1 = make_n_descriptors<int16_t>(50, 128);
   descriptor_set_sptr descriptors2 = make_n_descriptors<int16_t>(50, 64);
-
-  std::vector<descriptor_sptr> desc_vec( descriptors1->cbegin(), descriptors1->cend() );
-  EXPECT_EQ( desc_vec.size(), descriptors1->size() );
-  desc_vec.insert( desc_vec.end(), descriptors2->cbegin(), descriptors2->cend() );
-  EXPECT_EQ( desc_vec.size(), descriptors1->size() + descriptors2->size() );
-
-  descriptor_set_sptr descriptors = std::make_shared<simple_descriptor_set>(desc_vec);
+  std::vector<descriptor_sptr> desc1 = descriptors1->descriptors();
+  desc1.insert(desc1.end(), descriptors2->cbegin(), descriptors2->cend());
+  descriptor_set_sptr descriptors = std::make_shared<simple_descriptor_set>(desc1);
   core::feature_descriptor_io fd_io;
   EXPECT_THROW(fd_io.save(filename, empty_features, descriptors),
                kwiver::vital::invalid_data)
@@ -347,13 +343,9 @@ TEST(feature_descriptor_io, write_mixed_descriptor_type)
   feature_set_sptr empty_features;
   descriptor_set_sptr descriptors1 = make_n_descriptors<uint16_t>(50, 96);
   descriptor_set_sptr descriptors2 = make_n_descriptors<uint32_t>(50, 96);
-
-  std::vector<descriptor_sptr> desc_vec( descriptors1->cbegin(), descriptors1->cend() );
-  EXPECT_EQ( desc_vec.size(), descriptors1->size() );
-  desc_vec.insert( desc_vec.end(), descriptors2->cbegin(), descriptors2->cend() );
-  EXPECT_EQ( desc_vec.size(), descriptors1->size() + descriptors2->size() );
-
-  descriptor_set_sptr descriptors = std::make_shared<simple_descriptor_set>(desc_vec);
+  std::vector<descriptor_sptr> desc1 = descriptors1->descriptors();
+  desc1.insert(desc1.end(), descriptors2->cbegin(), descriptors2->cend());
+  descriptor_set_sptr descriptors = std::make_shared<simple_descriptor_set>(desc1);
   core::feature_descriptor_io fd_io;
   EXPECT_THROW(fd_io.save(filename, empty_features, descriptors),
                kwiver::vital::invalid_data)
