@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2018 by Kitware, Inc.
+ * Copyright 2018-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,12 +102,30 @@ namespace range {
   template < typename Range, typename... Args > \
   auto \
   operator|( \
-    Range const& range, \
+    Range& range, \
     name##_view_adapter_t< Args... > const& adapter ) \
   -> decltype( adapter.adapt( range ) ) \
   { \
     return adapter.adapt( range ); \
-  }
+  } \
+  KWIVER_RANGE_ADAPTER_FUNCTION_PREVENT_MISTAKES( name )
+
+#if __GNUC__ == 4 && __GNUC_MINOR__ <= 8
+
+// GCC 4.8.x chokes on r-value reference overloads
+#define KWIVER_RANGE_ADAPTER_FUNCTION_PREVENT_MISTAKES( name )
+
+#else
+
+#define KWIVER_RANGE_ADAPTER_FUNCTION_PREVENT_MISTAKES( name ) \
+  \
+  template < typename Range, typename... Args > \
+  void \
+  operator|( \
+    Range&& range, \
+    name##_view_adapter_t< Args... > const& adapter ) = delete;
+
+#endif
 
 // ----------------------------------------------------------------------------
 struct generic_view {};
@@ -260,6 +278,24 @@ operator|(
 {
   return Adapter::adapt( range );
 }
+
+#if !( __GNUC__ == 4 && __GNUC_MINOR__ <= 8 )
+
+// ----------------------------------------------------------------------------
+template < typename Range, typename Adapter >
+void
+operator|(
+  Range&& range,
+  kwiver::vital::range::range_adapter_t< Adapter > (*)() ) = delete;
+
+// ----------------------------------------------------------------------------
+template < typename Range, typename Adapter >
+void
+operator|(
+  Range&& range,
+  kwiver::vital::range::range_adapter_t< Adapter > ) = delete;
+
+#endif
 
 #endif
 
