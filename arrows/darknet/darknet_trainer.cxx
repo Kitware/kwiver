@@ -406,115 +406,6 @@ void
 darknet_trainer
 ::update_model()
 {
-  if( !d->m_skip_format )
-  {
-    int nclasses, nfilters;
-
-    if( d->m_object_labels )
-    {
-      nclasses = d->m_object_labels->child_class_names().size();
-    }
-    else
-    {
-      nclasses = d->m_category_map.size();
-    }
-
-    if( nclasses == 0 )
-    {
-      LOG_ERROR( logger(), "You have specified no object categories. What are you doing?" );
-      return;
-    }
-
-    nfilters = d->filter_count( nclasses );
-
-    // Generate train/test image list and header information
-    //
-    // (This code should be re-written at some point, converted to C++)
-#ifdef WIN32
-    const std::string eq = "\\\"";  // Escaped Quotation mark
-    std::string python_cmd = "python.exe -c \"";
-#else
-    const std::string eq = "\"";  // Escaped Quotation mark
-    std::string python_cmd = "python -c '";
-#endif
-    std::string import_cmd = "import kwiver.arrows.darknet.generate_headers as dth;";
-    std::string header_cmd = "dth.generate_yolo_headers(";
-
-    std::string header_args = eq + d->m_train_directory + eq + ",[";
-
-    if( d->m_object_labels )
-    {
-      for( auto label : d->m_object_labels->child_class_names() )
-      {
-        header_args = header_args + eq + label + eq + ",";
-      }
-    }
-    else
-    {
-      for( auto itr : d->m_category_map )
-      {
-        header_args = header_args + eq + itr.first + eq + ",";
-      }
-    }
-
-    header_args = header_args +"]," + std::to_string( d->m_resize_i );
-    header_args = header_args + "," + std::to_string( d->m_resize_j );
-    header_args = header_args + "," + std::to_string( d->m_channel_count );
-    header_args = header_args + "," + std::to_string( nfilters );
-    header_args = header_args + "," + std::to_string( d->m_batch_size );
-    header_args = header_args + "," + std::to_string( d->m_batch_subdivisions );
-    header_args = header_args + "," + eq + d->m_net_config + eq;
-    header_args = header_args + "," + eq + d->m_output_model_name + eq;
-
-#ifdef WIN32
-    std::string header_end  = ")\"";
-#else
-    std::string header_end  = ")'";
-#endif
-
-    std::string full_cmd = python_cmd + import_cmd + header_cmd + header_args + header_end;
-
-    if( system( full_cmd.c_str() ) != 0 )
-    {
-      LOG_WARN( logger(), "System call \"" << full_cmd << "\" failed" );
-    }
-  }
-
-  // Run training routine
-#ifdef WIN32
-  std::string darknet_cmd = "darknet.exe";
-#else
-  std::string darknet_cmd = "darknet";
-#endif
-  std::string darknet_args = "-i " + std::to_string( d->m_gpu_index ) +
-    " detector train " + d->m_train_directory + div + d->m_output_model_name + ".data "
-                       + d->m_train_directory + div + d->m_output_model_name + ".cfg ";
-
-  if( !d->m_seed_weights.empty() )
-  {
-#ifdef WIN32
-    darknet_args = darknet_args + " \"" + d->m_seed_weights + "\"";
-#else
-    darknet_args = darknet_args + " " + d->m_seed_weights;
-#endif
-  }
-
-  std::string full_cmd = darknet_cmd + " " + darknet_args;
-
-  LOG_INFO( d->m_logger,  "Running " << full_cmd );
-
-  d->save_model_files( false );
-
-  if( system( full_cmd.c_str() ) != 0 )
-  {
-    LOG_WARN( logger(), "System call \"" << full_cmd << "\" failed" );
-  }
-
-  if( d->m_output_directory == d->m_train_directory )
-  {
-    return;
-  }
-
   d->save_model_files( true );
 }
 
@@ -527,89 +418,27 @@ darknet_trainer::priv
     kwiversys::SystemTools::MakeDirectory( m_output_directory );
   }
 
-  std::string input_model;
-
-  std::string input_labels =
-    m_train_directory + div + m_output_model_name + ".lbl";
-  std::string input_cfg =
-    m_train_directory + div + m_output_model_name + "_test.cfg";
-
-  std::string possible_model1 =
-    m_train_directory + div + "models" + div +
-    m_output_model_name + "_final.weights";
-
-  std::string possible_model2 =
-    m_train_directory + div + "models" + div +
-    m_output_model_name + ".backup";
-
-  std::string output_cfg = m_output_model_name + ".cfg";
-  std::string output_model = m_output_model_name + ".weights";
   std::string output_labels = m_output_model_name + ".lbl";
-
-  std::string output_cfg_fp = m_output_directory + div + output_cfg;
-  std::string output_model_fp = m_output_directory + div + output_model;
   std::string output_labels_fp = m_output_directory + div + output_labels;
 
-  if( kwiversys::SystemTools::FileExists( possible_model1 ) )
+  std::ofstream fout( output_labels_fp );
+
+  if( m_object_labels )
   {
-    input_model = possible_model1;
+    for( auto str : m_object_labels->child_class_names() )
+    {
+      fout << str << std::endl;
+    }
   }
   else
   {
-    input_model = possible_model2;
-  }
-
-  kwiversys::SystemTools::CopyFileAlways( input_cfg, output_cfg_fp );
-  kwiversys::SystemTools::CopyFileAlways( input_labels, output_labels_fp );
-
-  if( is_final )
-  {
-    kwiversys::SystemTools::CopyFileAlways( input_model, output_model_fp );
-  }
-
-  if( !m_pipeline_template.empty() )
-  {
-#ifdef WIN32
-    const std::string eq = "\\\"";  // Escaped Quotation mark
-    std::string python_cmd = "python.exe -c \"";
-#else
-    const std::string eq = "\"";  // Escaped Quotation mark
-    std::string python_cmd = "python -c '";
-#endif
-    std::string import_cmd = "import kwiver.arrows.darknet.generate_headers as dth;";
-    std::string header_cmd = "dth.generate_kwiver_pipeline(";
-
-    std::string output_pipeline = m_output_directory + div + "detector.pipe";
-
-    std::string header_args = eq + m_pipeline_template + eq;
-    header_args = header_args + "," + eq + output_pipeline + eq;
-    header_args = header_args + "," + eq + output_cfg + eq;
-
-    if( is_final )
+    for( auto itr : m_category_map )
     {
-      header_args = header_args + "," + eq + output_model + eq;
+      fout << itr.first << std::endl;
     }
-    else
-    {
-      header_args = header_args + "," + eq + ".." + div + input_model + eq;
-    }
-
-    header_args = header_args + "," + eq + output_labels + eq;
-
-#ifdef WIN32
-    std::string header_end  = ")\"";
-#else
-    std::string header_end  = ")'";
-#endif
-
-    std::string full_cmd = python_cmd +
-                           import_cmd +
-                           header_cmd +
-                           header_args +
-                           header_end;
-
-    system( full_cmd.c_str() );
   }
+
+  fout.close();
 }
 
 // -----------------------------------------------------------------------------
