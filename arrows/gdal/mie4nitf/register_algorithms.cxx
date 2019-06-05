@@ -30,52 +30,43 @@
 
 /**
  * \file
- * \brief GDAL image_io interface
+ * \brief Register VXL algorithms implementation
  */
 
-#ifndef KWIVER_ARROWS_GDAL_IMAGE_IO_H_
-#define KWIVER_ARROWS_GDAL_IMAGE_IO_H_
+#include <arrows/gdal/mie4nitf/kwiver_algo_mie4nitf_plugin_export.h>
+#include <vital/algo/algorithm_factory.h>
 
-#include <arrows/gdal/kwiver_algo_gdal_export.h>
+#include <arrows/gdal/mie4nitf/mie4nitf_video_input.h>
 
-#include <vital/algo/image_io.h>
 
 namespace kwiver {
 namespace arrows {
-namespace gdal {
+namespace mie4nitf {
 
-/// A class for using GDAL to read and write images
-class KWIVER_ALGO_GDAL_EXPORT image_io
-  : public vital::algorithm_impl<image_io, vital::algo::image_io>
+extern "C"
+KWIVER_ALGO_MIE4NITF_PLUGIN_EXPORT
+void
+register_factories( kwiver::vital::plugin_loader& vpm )
 {
-public:
-  // No configuration for this class yet
-  /// \cond DoxygenSuppress
-  virtual void set_configuration(vital::config_block_sptr /*config*/) { }
-  virtual bool check_configuration(vital::config_block_sptr /*config*/) const { return true; }
-  kwiver::vital::image_container_sptr load_NITF_subdataset(std::string const&
-    subdataset_name);
-  /// \endcond
+  static auto const module_name = std::string( "arrows.mie4nitf" );
+  if (vpm.is_module_loaded( module_name ) )
+  {
+    return;
+  }
 
-private:
-  /// Implementation specific load functionality.
-  /**
-   * \param filename the path to the file the load
-   * \returns an image container refering to the loaded image
-   */
-  virtual vital::image_container_sptr load_(const std::string& filename) const;
+  // add factory               implementation-name       type-to-create
+  auto fact = vpm.ADD_ALGORITHM("mie4nitf",
+		  kwiver::arrows::mie4nitf::mie4nitf_video_input);
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                       "Use GDAL to read motion imagery for NITF files" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
+    ;
 
-  /// Implementation specific save functionality.
-  /**
-   * \param filename the path to the file to save
-   * \param data the image container refering to the image to write
-   */
-  virtual void save_(const std::string& filename,
-                     vital::image_container_sptr data) const;
-};
+  vpm.mark_module_as_loaded( module_name );
+}
 
-} // end namespace gdal
+} // end namespace mie4nitf
 } // end namespace arrows
 } // end namespace kwiver
-
-#endif // KWIVER_ARROWS_GDAL_IMAGE_IO_H_
