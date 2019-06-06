@@ -61,6 +61,11 @@ class KWIVER_ALGO_CORE_EXPORT aspect_ratio_filter
   : public vital::algorithm_impl<aspect_ratio_filter, vital::algo::detected_object_filter>
 {
 public:
+  PLUGIN_INFO("aspect_ratio_filter",
+              "Filters detections based on the bounding box Aspect Ratio\n\n"
+              "Returns the set of detections the fit between {min,max}_aspect_ratio."
+              "Setting {min,max}_aspect_ratio to negative values turns off checking.\n\n"
+              "Invalid bounding boxes do not pass.")
 
   aspect_ratio_filter();
   virtual ~aspect_ratio_filter() = default;
