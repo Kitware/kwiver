@@ -139,8 +139,16 @@ read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name
     d->m_first = false;
 
     // set up iterators for returning sets.
-    d->m_current_idx = d->m_detected_sets.begin()->first;
-    d->m_last_idx = d->m_detected_sets.rbegin()->first;
+    d->m_current_idx = 0;
+
+    if ( ! d->m_detected_sets.empty() )
+    {
+      d->m_last_idx = d->m_detected_sets.rbegin()->first;
+    }
+    else
+    {
+      d->m_last_idx = 0;
+    }
   } // end first
 
   // test for end of all loaded detections
