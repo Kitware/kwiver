@@ -44,6 +44,9 @@ set( ocv_headers_public
   refine_detections_write_to_disk.h
   split_image.h
   track_features_klt.h
+  windowed_detector.h
+  windowed_detector_resize.h
+  windowed_trainer.h
   )
 kwiver_install_headers(
   SUBDIR     arrows/ocv
@@ -97,6 +100,9 @@ set( ocv_sources
   refine_detections_write_to_disk.cxx
   split_image.cxx
   track_features_klt.cxx
+  windowed_detector.cxx
+  windowed_detector_resize.cxx
+  windowed_trainer.cxx
   )
 
 if( KWIVER_HAS_OPENCV_VER_3 )
