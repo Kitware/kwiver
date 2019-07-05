@@ -38,7 +38,7 @@
 
 #include <vital/algo/video_input.h>
 
-#include <arrows/mie4nitf/kwiver_algo_mie4nitf_export.h>
+#include <arrows/gdal/mie4nitf/kwiver_algo_mie4nitf_export.h>
 
 
 namespace kwiver {
