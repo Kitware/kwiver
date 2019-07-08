@@ -35,6 +35,8 @@
 
 #include "arrows/gdal/mie4nitf/mie4nitf_video_input.h"
 
+#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <vital/types/timestamp.h>
 #include <vital/exceptions/io.h>
 #include <vital/exceptions/video.h>
@@ -296,6 +298,19 @@ public:
     string_pair p = string_pair(std::string(s[0]), std::string(s[1]));
     CSLDestroy(s);
     return p;
+  }
+
+  vital::time_usec_t utc_to_microseconds(std::string s) {
+      boost::posix_time::ptime pt;
+      boost::posix_time::ptime time_epoch(boost::gregorian::date(1970, 1, 1));
+        
+      std::string fmt = "%Y%m%d%H%M%s";
+      std::istringstream is(s);
+      is.imbue(std::locale(std::locale::classic(),
+            new boost::posix_time::time_input_facet(fmt)));
+      is >> pt;
+      vital::time_usec_t diff = (pt - time_epoch).total_microseconds();
+      return diff;
   }
 
   void populate_subset_metadata()
@@ -598,8 +613,8 @@ mie4nitf_video_input
 
   // `frame_id_t` and `time_usec_t` is `int_64_t` while writing this.
   // (`vital_types.h`)
-  vital::time_usec_t t =
-    std::stod(d->f_current_frame_metadata->start_timestamp);
+  vital::time_usec_t t = d->utc_to_microseconds
+    (d->f_current_frame_metadata->start_timestamp);
 
   vital::frame_id_t f =
     static_cast<kwiver::vital::frame_id_t>(d->f_current_frame_number);

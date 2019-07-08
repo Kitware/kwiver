@@ -244,11 +244,12 @@ TEST_F(mie4nitf_video_input, end_of_video)
   kwiver::vital::timestamp ts;
   // TODO(m-chaturvedi): Ask David about the behavior in ffmpeg
   typedef std::pair<kwiver::vital::time_usec_t, kwiver::vital::frame_id_t> P;
-  std::vector<P> check = { P(20151007064400.281000000, 1),
-	  P(20151007064400.615000000, 2),
-	  P(20151007064400.949000000, 3),
-	  P(20151007064401.283000000, 4),
-	  P(20151007064401.617000000, 5)
+  std::vector<P> check = {
+    P(1444200240281000, 1),
+    P(1444200240615000, 2),
+    P(1444200240949000, 3),
+    P(1444200241283000, 4),
+    P(1444200241617000, 5),
   };
 
 
