@@ -41,6 +41,8 @@
 #include <vital/vital_config.h>
 #include <vital/vital_types.h>
 
+#include <vital/types/vector.h>
+
 #include <vector>
 #include <set>
 #include <memory>
