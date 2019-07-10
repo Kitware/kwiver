@@ -211,6 +211,11 @@ typedef covariance_< 2, double > covariance_2d;
 typedef covariance_< 2, float > covariance_2f;
 typedef covariance_< 3, double > covariance_3d;
 typedef covariance_< 3, float > covariance_3f;
+
+typedef std::shared_ptr<covariance_2d> covariance_2d_sptr;
+typedef std::shared_ptr<covariance_2f> covariance_2f_sptr;
+typedef std::shared_ptr<covariance_3d> covariance_3d_sptr;
+typedef std::shared_ptr<covariance_3f> covariance_3f_sptr;
 /// \endcond
 
 /// output stream operator for a covariance

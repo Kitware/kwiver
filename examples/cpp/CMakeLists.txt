@@ -2,12 +2,19 @@
 set(SOURCE "main.cpp"
            "how_to_part_01_images.cpp"
            "how_to_part_02_detections.cpp"
+           "how_to_part_03_tracking.cpp"
 )
 
 set(kwiver_examples_libraries vital_algo
-                              kwiver_algo_ocv
-                              kwiver_algo_vxl
                               kwiversys )
+
+if (fletch_ENABLED_OpenCV)
+  list(APPEND kwiver_examples_libraries kwiver_algo_ocv)
+endif()
+
+if (fletch_ENABLED_VXL)
+  list(APPEND kwiver_examples_libraries kwiver_algo_vxl)
+endif()
 
 if(fletch_ENABLED_YAMLCPP)
   add_subdirectory( kpf )

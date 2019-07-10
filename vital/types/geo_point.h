@@ -127,6 +127,9 @@ protected:
 
 VITAL_EXPORT ::std::ostream& operator<< ( ::std::ostream& str, geo_point const& obj );
 
+typedef std::shared_ptr< geo_point > geo_point_sptr;
+typedef std::shared_ptr< const geo_point > geo_point_cptr;
+
 } } // end namespace
 
 #endif /* KWIVER_VITAL_GEO_POINT_H_ */
