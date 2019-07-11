@@ -44,14 +44,12 @@ namespace vital {
 
 typedef std::unique_ptr< track_set_implementation > tsi_uptr;
 
-
 /// Default Constructor
 object_track_set
 ::object_track_set()
   : track_set( tsi_uptr( new simple_track_set_implementation ) )
 {
 }
-
 
 /// Constructor specifying the implementation
 object_track_set
@@ -60,12 +58,47 @@ object_track_set
 {
 }
 
-
 /// Constructor from a vector of tracks
 object_track_set
 ::object_track_set( std::vector< track_sptr > const& tracks )
   : track_set( tsi_uptr( new simple_track_set_implementation( tracks ) ) )
 {
+}
+
+point_2d_sptr& object_track_state::get_image_point()
+{
+  return image_point_;
+}
+const point_2d_cptr object_track_state::get_image_point() const
+{ 
+  return std::const_pointer_cast<const point_2d>(image_point_);
+}
+
+point_2d_sptr& object_track_state::get_track2d_point()
+{
+  return track2D_point_;
+}
+const point_2d_cptr object_track_state::get_track2d_point() const
+{
+  return std::const_pointer_cast<const point_2d>(track2D_point_);
+}
+
+point_3d_sptr& object_track_state::get_track3d_point()
+{
+  return track3D_point_;
+}
+const point_3d_cptr object_track_state::get_track3d_point() const
+{
+  return std::const_pointer_cast<const point_3d>(track3D_point_);
+}
+
+geo_point_sptr& object_track_state::get_geo_point()
+{
+  return geo_point_;
+}
+const geo_point_cptr object_track_state::get_geo_point() const
+{
+  return std::const_pointer_cast<const geo_point>(geo_point_);
 }
 
 

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,10 +47,10 @@ namespace vital {
 template < unsigned N, typename T >
 class VITAL_EXPORT point
 {
+public:
   typedef std::shared_ptr<covariance_<N, T>> covariance_type;
   typedef std::shared_ptr<const covariance_<N, T>> covariance_ctype;
   typedef Eigen::Matrix< T, N, 1 > vector_type;
-public:
 
   point()
   {
@@ -111,4 +111,4 @@ VITAL_EXPORT ::std::ostream& operator<< ( ::std::ostream& str, point_4f const& o
 
 } } // end namespace
 
-#endif /* KWIVER_VITAL_GEO_POINT_H_ */
+#endif /* KWIVER_VITAL_POINT_H_ */

@@ -43,6 +43,7 @@
 #include "detected_object.h"
 #include "point.h"
 #include "geo_point.h"
+#include "geodesy.h"
 
 #include <vital/vital_export.h>
 #include <vital/vital_config.h>
@@ -110,17 +111,17 @@ public:
 
   detected_object_sptr detection;
 
-  point_2d_sptr& get_image_point() { return image_point_; }
-  const point_2d_cptr get_image_point() const { return std::const_pointer_cast<const point_2d>(image_point_); }
+  point_2d_sptr& get_image_point();
+  const point_2d_cptr get_image_point() const;
 
-  point_2d_sptr& get_track2d_point() { return track2D_point_; }
-  const point_2d_cptr get_track2d_point() const { return std::const_pointer_cast<const point_2d>(track2D_point_); }
+  point_2d_sptr& get_track2d_point();
+  const point_2d_cptr get_track2d_point() const;
 
-  point_3d_sptr& get_track3d_point() { return track3D_point_; }
-  const point_3d_cptr get_track3d_point() const { return std::const_pointer_cast<const point_3d>(track3D_point_); }
+  point_3d_sptr& get_track3d_point();
+  const point_3d_cptr get_track3d_point() const;
 
-  geo_point_sptr& get_geo_point() { return geo_point_; }
-  const geo_point_cptr get_geo_point() const { return std::const_pointer_cast<const geo_point>(geo_point_); }
+  geo_point_sptr& get_geo_point();
+  const geo_point_cptr get_geo_point() const;
 
   static std::shared_ptr< object_track_state > downcast(
     track_state_sptr const& sp )

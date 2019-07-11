@@ -71,12 +71,12 @@ void how_to_part_03_tracking()
 
   // You can test to see if this object track has one
   if(state->get_image_point() == nullptr) // Nothing there, let's make one
-    state->get_image_point() = kwiver::vital::point_2d_sptr(new kwiver::vital::point_2d);
+    state->get_image_point() = std::make_shared <kwiver::vital::point_2d>();
   // What does it look like by default
   std::cout << *c_state->get_image_point() << std::endl;
   // Modify the image point
   state->get_image_point()->value() << 1., 1.;
-  // Create and set a covariance matrix
+  // Create and set a covariance matrix (These need to be symentrical)
   Eigen::Matrix2d cov2;
   cov2 << 1, 2, 2, 1;
   state->get_image_point()->covariance() = kwiver::vital::covariance_2d_sptr(new kwiver::vital::covariance_2d(cov2));
@@ -94,20 +94,25 @@ void how_to_part_03_tracking()
 
   // You can test to see if this object track has one
   if (state->get_track2d_point() == nullptr && state->get_track3d_point() == nullptr) // Nothing there, let's make a 3D one
-    state->get_track3d_point() = kwiver::vital::point_3d_sptr(new kwiver::vital::point_3d);
+    state->get_track3d_point() = std::make_shared<kwiver::vital::point_3d>();
   // What does it look like by default
   std::cout << *c_state->get_track3d_point() << std::endl;
   // Modify the image point
   state->get_track3d_point()->value() << 1., 2., 3.;
-  // Create and set a covariance matrix
+  // Create and set a covariance matrix (These need to be symentrical)
   Eigen::Matrix3d cov3;
   cov3 << 1, 2, 3, 2, 1, 2, 3, 2, 1;
-  state->get_track3d_point()->covariance() = kwiver::vital::covariance_3d_sptr(new kwiver::vital::covariance_3d(cov3));
+  state->get_track3d_point()->covariance() = std::make_shared<kwiver::vital::covariance_3d>(cov3);
   // View what it looks like now
   std::cout << *c_state->get_track3d_point() << std::endl;
 
   // A world coordinate can be associated with the track as well
-  //state->get_geo_point().set_location(kwiver::vital::vector_2d(33, 44), 0, kwiver::vital::SRID::lat_lon_WGS84);
+  if (state->get_geo_point() == nullptr) // Again, by default, there is no geo_point
+    state->get_geo_point() = std::make_shared <kwiver::vital::geo_point>();
+  // Set the location
+  state->get_geo_point()->set_location(kwiver::vital::vector_2d(33, 44), kwiver::vital::SRID::lat_lon_WGS84);
+  // You can convert to other coordinate systems
+  auto nad83 = state->get_geo_point()->location(kwiver::vital::SRID::lat_lon_NAD83);
   //state->get_geo_point().covariance().matrix << 1, 2, 3,
   //                                              4, 5, 6,
   //                                              7, 8, 9;
