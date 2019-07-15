@@ -59,6 +59,7 @@ class detected_object;
 
 // typedef for a detected_object shared pointer
 typedef std::shared_ptr< detected_object > detected_object_sptr;
+typedef std::shared_ptr< const detected_object > detected_object_cptr;
 
 
 // ----------------------------------------------------------------

@@ -38,12 +38,11 @@
 #ifndef VITAL_OBJECT_TRACK_SET_H_
 #define VITAL_OBJECT_TRACK_SET_H_
 
-#include "timestamp.h"
-#include "track_set.h"
-#include "detected_object.h"
-#include "point.h"
-#include "geo_point.h"
-#include "geodesy.h"
+#include <vital/types/timestamp.h>
+#include <vital/types/track_set.h>
+#include <vital/types/detected_object.h>
+#include <vital/types/point.h>
+#include <vital/types/geo_offset.h>
 
 #include <vital/vital_export.h>
 #include <vital/vital_config.h>
@@ -65,7 +64,7 @@ public:
 
   object_track_state()
     : track_state( 0 )
-      , detection( nullptr )
+      , detection_( nullptr )
       , time_( 0 )
   {}
   
@@ -74,7 +73,7 @@ public:
                       time_usec_t time,
                       detected_object_sptr d = nullptr )
     : track_state( frame )
-    , detection( d )
+    , detection_( d )
     , time_( time )
   {}
 
@@ -82,14 +81,14 @@ public:
   object_track_state( const timestamp& ts,
                       detected_object_sptr d = nullptr )
     : track_state( ts.get_frame() )
-    , detection( d )
+    , detection_( d )
     , time_( ts.get_time_usec() )
   {}
 
   /// Copy constructor
   object_track_state( object_track_state const& ot )
     : track_state( ot.frame() )
-    , detection( ot.detection )
+    , detection_( ot.detection_ )
     , time_( ot.time() )
   {}
 
@@ -109,19 +108,18 @@ public:
     return time_;
   }
 
-  detected_object_sptr detection;
 
-  point_2d_sptr& get_image_point();
-  const point_2d_cptr get_image_point() const;
+  detected_object_sptr& detection();
+  const detected_object_cptr detection() const;
 
-  point_2d_sptr& get_track2d_point();
-  const point_2d_cptr get_track2d_point() const;
+  point_2d_sptr& image_point();
+  const point_2d_cptr image_point() const;
 
-  point_3d_sptr& get_track3d_point();
-  const point_3d_cptr get_track3d_point() const;
+  point_2d_sptr& track2d_point();
+  const point_2d_cptr track2d_point() const;
 
-  geo_point_sptr& get_geo_point();
-  const geo_point_cptr get_geo_point() const;
+  geo_offset_sptr& track_offset();
+  const geo_offset_cptr track_offset() const;
 
   static std::shared_ptr< object_track_state > downcast(
     track_state_sptr const& sp )
@@ -133,11 +131,10 @@ public:
 
 private:
   time_usec_t time_;
-
+  detected_object_sptr detection_;
   point_2d_sptr  image_point_;
   point_2d_sptr  track2D_point_;
-  point_3d_sptr  track3D_point_;
-  geo_point_sptr geo_point_;
+  geo_offset_sptr  track_offset_;
 };
 
 

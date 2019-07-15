@@ -65,41 +65,40 @@ object_track_set
 {
 }
 
-point_2d_sptr& object_track_state::get_image_point()
+detected_object_sptr& object_track_state::detection()
+{
+  return detection_;
+}
+const detected_object_cptr object_track_state::detection() const
+{
+  return std::const_pointer_cast<const detected_object>(detection_);
+}
+
+point_2d_sptr& object_track_state::image_point()
 {
   return image_point_;
 }
-const point_2d_cptr object_track_state::get_image_point() const
+const point_2d_cptr object_track_state::image_point() const
 { 
   return std::const_pointer_cast<const point_2d>(image_point_);
 }
 
-point_2d_sptr& object_track_state::get_track2d_point()
+point_2d_sptr& object_track_state::track2d_point()
 {
   return track2D_point_;
 }
-const point_2d_cptr object_track_state::get_track2d_point() const
+const point_2d_cptr object_track_state::track2d_point() const
 {
   return std::const_pointer_cast<const point_2d>(track2D_point_);
 }
 
-point_3d_sptr& object_track_state::get_track3d_point()
+geo_offset_sptr& object_track_state::track_offset()
 {
-  return track3D_point_;
+  return track_offset_;
 }
-const point_3d_cptr object_track_state::get_track3d_point() const
+const geo_offset_cptr object_track_state::track_offset() const
 {
-  return std::const_pointer_cast<const point_3d>(track3D_point_);
+  return std::const_pointer_cast<const geo_offset>(track_offset_);
 }
-
-geo_point_sptr& object_track_state::get_geo_point()
-{
-  return geo_point_;
-}
-const geo_point_cptr object_track_state::get_geo_point() const
-{
-  return std::const_pointer_cast<const geo_point>(geo_point_);
-}
-
 
 } } // end namespace vital
