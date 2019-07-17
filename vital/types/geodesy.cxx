@@ -84,7 +84,20 @@ geo_crs_description( int crs )
 
 // ----------------------------------------------------------------------------
 vector_2d
-geo_conv( vector_2d const& point, int from, int to )
+geo_conv(vector_2d const& point, int from, int to)
+{
+  auto const c = s_geo_conv.load();
+  if (!c)
+  {
+    throw std::runtime_error("No geo-conversion functor is registered");
+  }
+
+  return (*c)(point, from, to);
+}
+
+// ----------------------------------------------------------------------------
+vector_3d
+geo_conv( vector_3d const& point, int from, int to )
 {
   auto const c = s_geo_conv.load();
   if ( !c )
@@ -97,10 +110,9 @@ geo_conv( vector_2d const& point, int from, int to )
 
 // ----------------------------------------------------------------------------
 utm_ups_zone_t
-utm_ups_zone( vector_2d const& lat_lon )
+utm_ups_zone( double lon, double lat)
 {
-  // Get latitude and check for range error
-  auto const lat = lat_lon[1];
+  // Get latitude and check for range 
   if ( lat > 90.0 || lat < -90.0 )
   {
     throw std::range_error( "Input latitude is out of range" );
@@ -117,9 +129,13 @@ utm_ups_zone( vector_2d const& lat_lon )
   }
 
   // Get normalized longitude and return UTM zone
-  auto const lon = fmod( lat_lon[0], 360.0 );
+  lon = fmod( lon, 360.0 );
   auto const zone = 1 + ( ( 30 + static_cast<int>( lon / 6.0 ) ) % 60 );
   return { zone, lat >= 0.0 };
 }
+utm_ups_zone_t
+utm_ups_zone(vector_2d const& lon_lat) { return utm_ups_zone(lon_lat[0], lon_lat[1]); }
+utm_ups_zone_t
+utm_ups_zone(vector_3d const& lon_lat) { return utm_ups_zone(lon_lat[0], lon_lat[1]); }
 
 } } // end namespace

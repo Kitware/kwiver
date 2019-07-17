@@ -31,6 +31,7 @@
 #include "vital/types/object_track_set.h"
 #include <vital/types/geo_point.h>
 #include <vital/types/geodesy.h>
+#include <vital/types/local_cartesian.h>
 
 #include "vital/plugin_loader/plugin_manager.h"
 
@@ -64,6 +65,18 @@ void how_to_part_03_tracking()
   type->set_score("object", 0.23);
   state->detection() = kwiver::vital::detected_object_sptr(new kwiver::vital::detected_object(bbox, confidence, type));
 
+  Eigen::Matrix3d m3;
+  m3 << 1, 2, 3, 2, 1, 2, 3, 2, 1;
+  kwiver::vital::covariance_3d cov3(m3);
+
+  kwiver::vital::geo_point foo;
+  foo.set_location(kwiver::vital::vector_3d(0, 0, 0), kwiver::vital::SRID::lat_lon_WGS84);
+  foo.covariance() = std::make_shared<kwiver::vital::covariance_3d>();
+  const kwiver::vital::geo_point* cfoo = &foo;
+  std::cout << *cfoo;
+  *foo.covariance() = cov3;
+  std::cout << *cfoo;
+
   // Image Point
   // This point is the coordinates for the object in the raw image coordinate system.
   // This point may be drawn from the center of the bounding box, bottom center, or wherever for that matter. 
@@ -78,10 +91,6 @@ void how_to_part_03_tracking()
   std::cout << *c_state->image_point() << std::endl;
   // Modify the image point
   state->image_point()->value() << 1., 1.;
-  // Create and set a covariance matrix (These need to be symentrical)
-  Eigen::Matrix2d cov2;
-  cov2 << 1, 2, 2, 1;
-  state->image_point()->covariance() = kwiver::vital::covariance_2d_sptr(new kwiver::vital::covariance_2d(cov2));
   // View what it looks like now
   std::cout << *c_state->image_point() << std::endl;
 
@@ -94,51 +103,48 @@ void how_to_part_03_tracking()
   // NOTE the meta data describing the coordinate system used is not part of this class, that should be kept and enforced by the user
 
 
-  if (state->track2d_point() == nullptr) // Nothing there, let's make a one
-    state->track2d_point() = std::make_shared<kwiver::vital::point_2d>();
+  if (state->track2D_point() == nullptr) // Nothing there, let's make a one
+    state->track2D_point() = std::make_shared<kwiver::vital::point_2d>();
   // What does it look like by default
-  std::cout << *c_state->track2d_point() << std::endl;
+  std::cout << *c_state->track2D_point() << std::endl;
   // Modify the track2d point
-  state->track2d_point()->value() << 1., 2.;
-  // Create and set a covariance matrix (These need to be symentrical)
-  state->track2d_point()->covariance() = std::make_shared<kwiver::vital::covariance_2d>(cov2);
+  state->track2D_point()->value() << 1., 2.;
   // View what it looks like now
-  std::cout << *c_state->track2d_point() << std::endl;
+  std::cout << *c_state->track2D_point() << std::endl;
 
   // The Track Offset is a 3D cartesian coordinate of the tracked object.
   // By providing an origin world coordinate as the center of the cartesian system,
   // The offset can be converted into a world coordinate.
 
   // You can test to see if this object track has one
-  if (state->track_offset() == nullptr) // Nothing there, let's make a one
-    state->track_offset() = std::make_shared<kwiver::vital::geo_offset>();
+  if (state->track3D_point() == nullptr) // Nothing there, let's make a one
+    state->track3D_point() = std::make_shared<kwiver::vital::point_3d>();
   // What does it look like by default
-  std::cout << *c_state->track_offset() << std::endl;
+  std::cout << *c_state->track3D_point() << std::endl;
   // Modify the offset point
-  state->track_offset()->value() << 1234, 5678, 90;
-  // Create and set a covariance matrix (These need to be symentrical)
-  Eigen::Matrix3d cov3;
-  cov3 << 1, 2, 3, 2, 1, 2, 3, 2, 1;
-  state->track_offset()->covariance() = std::make_shared<kwiver::vital::covariance_3d>(cov3);
+  state->track3D_point()->value() << 1234, 5678, 90;
   // View what it looks like now
-  std::cout << *c_state->track_offset() << std::endl;
+  std::cout << *c_state->track3D_point() << std::endl;
 
-  // An origin defined as a geo_point can be used to calcuate a world coordinate from the track_offset
-  kwiver::vital::geo_point_sptr origin = std::make_shared < kwiver::vital::geo_point>();
+  // If the track 3D point is associated with a cartesian coordinate system
+  // An origin defined as a geo_point can be used to calcuate a world coordinate from the cartesian point
+  kwiver::vital::geo_point origin;
   // Set the origin location
-  origin->set_location(kwiver::vital::vector_2d(-73.759291, 42.849631), kwiver::vital::SRID::lat_lon_WGS84);
-  // Set the origin of our offset
-  state->track_offset()->origin() = origin;
+  origin.set_location(kwiver::vital::vector_3d(-73.759291, 42.849631,0), kwiver::vital::SRID::lat_lon_WGS84);
+  // Create a local cartesian coordinate system  
+  kwiver::vital::local_cartesian loccart;
+  loccart.set_origin(origin);
   // What is the geo location of our offset?
-  auto loc = state->track_offset()->get_lon_lat_alt();
+  kwiver::vital::geo_point loc;
+  loccart.convert_from_cartesian(state->track3D_point()->value(), loc);
   std::cout << loc << std::endl;
 
-  // You can also set the offset by providing two geo points
-  kwiver::vital::geo_point_sptr location = std::make_shared < kwiver::vital::geo_point>();
-  location->set_location(kwiver::vital::vector_2d(-73.74418, 42.90074), kwiver::vital::SRID::lat_lon_WGS84);
-  state->track_offset()->set_from_geo_points(origin, location);
+  // You can also set the track3D point from a geo point
+  kwiver::vital::geo_point location;
+  location.set_location(kwiver::vital::vector_3d(-73.74418, 42.90074, 0), kwiver::vital::SRID::lat_lon_WGS84);
+  loccart.convert_to_cartesian(location, state->track3D_point()->value());
   // View what it looks like now
-  std::cout << *c_state->track_offset() << std::endl;
+  std::cout << *c_state->track3D_point() << std::endl;
 
   // Add the state to the track
   track->insert(kwiver::vital::track_state_sptr(state));

@@ -115,7 +115,7 @@ interpolate( track_sptr input_track )
     auto const osp = std::dynamic_pointer_cast< object_track_state >( sp );
     if ( !osp ) continue;
 
-    auto const detection = osp->detection;
+    auto const detection = osp->detection();
     if ( !detection ) continue;
 
     states.emplace( osp->frame(), std::make_pair( osp->time(), detection ) );

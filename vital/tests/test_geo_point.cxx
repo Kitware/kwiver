@@ -40,9 +40,9 @@
 #include <vital/types/geodesy.h>
 #include <vital/plugin_loader/plugin_manager.h>
 
-static auto const loc1 = kwiver::vital::vector_2d{ -73.759291, 42.849631 };
-static auto const loc2 = kwiver::vital::vector_2d{ -73.757161, 42.849764 };
-static auto const loc3 = kwiver::vital::vector_2d{ 601375.01, 4744863.31 };
+static auto const loc1 = kwiver::vital::vector_3d{ -73.759291, 42.849631, 0 };
+static auto const loc2 = kwiver::vital::vector_3d{ -73.757161, 42.849764, 0 };
+static auto const loc3 = kwiver::vital::vector_3d{ 601375.01, 4744863.31, 0 };
 
 static auto constexpr crs_ll = kwiver::vital::SRID::lat_lon_WGS84;
 static auto constexpr crs_utm_18n = kwiver::vital::SRID::UTM_WGS84_north + 18;

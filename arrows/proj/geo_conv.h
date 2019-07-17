@@ -64,6 +64,10 @@ public:
   virtual vital::vector_2d operator()( vital::vector_2d const& point,
                                        int from, int to ) override;
 
+  /// Conversion operator
+  virtual vital::vector_3d operator()(vital::vector_3d const& point,
+                                       int from, int to) override;
+
 private:
   void* projection( int crs );
 

@@ -86,7 +86,8 @@ class geo_conversion
 public:
   virtual char const* id() const = 0;
   virtual geo_crs_description_t describe( int crs ) = 0;
-  virtual vector_2d operator()( vector_2d const& point, int from, int to ) = 0;
+  virtual vector_2d operator()(vector_2d const& point, int from, int to) = 0;
+  virtual vector_3d operator()(vector_3d const& point, int from, int to) = 0;
 
 protected:
   virtual ~geo_conversion() = default;
@@ -117,7 +118,8 @@ VITAL_EXPORT geo_crs_description_t geo_crs_description( int crs );
  *   Thrown if the conversion fails or if no conversion function has been
  *   registered.
  */
-VITAL_EXPORT vector_2d geo_conv( vector_2d const& point, int from, int to );
+VITAL_EXPORT vector_2d geo_conv(vector_2d const& point, int from, int to);
+VITAL_EXPORT vector_3d geo_conv(vector_3d const& point, int from, int to);
 
 /// UTM/UPS zone specification.
 struct utm_ups_zone_t
@@ -148,7 +150,9 @@ struct utm_ups_zone_t
  *   Thrown if the latitude (northing) value is outside of the range
  *   <code>[-90, 90]</code>.
  */
-VITAL_EXPORT utm_ups_zone_t utm_ups_zone( vector_2d const& lat_lon );
+VITAL_EXPORT utm_ups_zone_t utm_ups_zone(double lon, double lat);
+VITAL_EXPORT utm_ups_zone_t utm_ups_zone(vector_2d const& lon_lat);
+VITAL_EXPORT utm_ups_zone_t utm_ups_zone(vector_3d const& lon_lat);
 
 } } // end namespace
 

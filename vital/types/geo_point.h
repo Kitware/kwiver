@@ -28,10 +28,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file
- * \brief This file contains the interface to a geo point.
- */
+ /**
+  * \file
+  * \brief This file contains the interface to a geo point.
+  */
 
 #ifndef KWIVER_VITAL_GEO_POINT_H_
 #define KWIVER_VITAL_GEO_POINT_H_
@@ -39,97 +39,103 @@
 #include <vital/vital_config.h>
 #include <vital/vital_export.h>
 #include <vital/types/vector.h>
+#include <vital/types/covariance.h>
 
 #include <unordered_map>
 
 namespace kwiver {
-namespace vital {
+  namespace vital {
 
-// ----------------------------------------------------------------------------
-/** Geo-coordinate.
- *
- * This class represents a geolocated point. The point is created by specifying
- * a raw location and a CRS. The original location and original CRS may be
- * directly accessed, or the location in a specific CRS may be requested.
- * Requests for a specific CRS are cached, so that CRS conversion does not need
- * to be performed every time.
- *
- * The CRS values shall correspond to geodetic CRS's as specified by the
- * European Petroleum Survey Group (EPSG) Spatial Reference System Identifiers
- * (SRID's). Some well known values are defined by kwiver::vital::SRID.
- *
- * Note that the underlying values are ordered easting, northing, for
- * consistency with Euclidean convention (X, Y), and \em not northing, easting
- * as is sometimes used for geo-coordinates.
- *
- * \see https://en.wikipedia.org/wiki/Spatial_reference_system,
- *      http://www.epsg.org/, https://epsg-registry.org/
- */
-class VITAL_EXPORT geo_point
-{
-public:
-  using geo_raw_point_t = kwiver::vital::vector_2d;
+    // ----------------------------------------------------------------------------
+    /** Geo-coordinate.
+     *
+     * This class represents a geolocated point. The point is created by specifying
+     * a raw location and a CRS. The original location and original CRS may be
+     * directly accessed, or the location in a specific CRS may be requested.
+     * Requests for a specific CRS are cached, so that CRS conversion does not need
+     * to be performed every time.
+     *
+     * The CRS values shall correspond to geodetic CRS's as specified by the
+     * European Petroleum Survey Group (EPSG) Spatial Reference System Identifiers
+     * (SRID's). Some well known values are defined by kwiver::vital::SRID.
+     *
+     * Note that the underlying values are ordered easting, northing, for
+     * consistency with Euclidean convention (X, Y), and \em not northing, easting
+     * as is sometimes used for geo-coordinates.
+     *
+     * \see https://en.wikipedia.org/wiki/Spatial_reference_system,
+     *      http://www.epsg.org/, https://epsg-registry.org/
+     */
+    class VITAL_EXPORT geo_point
+    {
+    public:
+      using geo_raw_point_t = kwiver::vital::vector_3d;
 
-  geo_point();
-  geo_point( geo_raw_point_t const&, int crs );
+      geo_point();
+      geo_point(geo_raw_point_t const&, int crs);
 
-  virtual ~geo_point() = default;
+      virtual ~geo_point() = default;
 
-  /**
-   * \brief Accessor for location in original CRS.
-   *
-   * \returns The location in the CRS that was used to set the location.
-   * \throws std::out_of_range Thrown if no location has been set.
-   *
-   * \see crs()
-   */
-  geo_raw_point_t location() const;
+      /**
+       * \brief Accessor for location in original CRS.
+       *
+       * \returns The location in the CRS that was used to set the location.
+       * \throws std::out_of_range Thrown if no location has been set.
+       *
+       * \see crs()
+       */
+      geo_raw_point_t location() const;
 
-  /**
-   * \brief Accessor for original CRS.
-   *
-   * \returns The CRS used to set the location.
-   *
-   * \see location()
-   */
-  int crs() const;
+      /**
+       * \brief Accessor for original CRS.
+       *
+       * \returns The CRS used to set the location.
+       *
+       * \see location()
+       */
+      int crs() const;
 
-  /**
-   * \brief Accessor for the location.
-   *
-   * \returns The location in the requested CRS.
-   * \throws std::runtime_error if the conversion fails.
-   */
-  geo_raw_point_t location( int crs ) const;
+      /**
+       * \brief Accessor for the location.
+       *
+       * \returns The location in the requested CRS.
+       * \throws std::runtime_error if the conversion fails.
+       */
+      geo_raw_point_t location(int crs) const;
 
-  /**
-   * \brief Set location.
-   *
-   * This sets the geo-coordinate to the specified location, which is defined
-   * by the raw location and specified CRS.
-   */
-  void set_location( geo_raw_point_t const&, int crs );
+      /**
+       * \brief Set location.
+       *
+       * This sets the geo-coordinate to the specified location, which is defined
+       * by the raw location and specified CRS.
+       */
+      void set_location(geo_raw_point_t const&, int crs);
 
-  /**
-   * \brief Test if point has a specified location.
-   *
-   * This method checks the object to see if any location data has been set.
-   *
-   * \returns \c true if object is default constructed.
-   */
-  bool is_empty() const;
+      /**
+       * \brief Test if point has a specified location.
+       *
+       * This method checks the object to see if any location data has been set.
+       *
+       * \returns \c true if object is default constructed.
+       */
+      bool is_empty() const;
 
-protected:
+      covariance_3d_sptr& covariance() { return m_covariance; }
+      covariance_3d_cptr const covariance() const { return m_covariance; }
 
-  int m_original_crs;
-  mutable std::unordered_map< int, geo_raw_point_t > m_loc;
-};
+    protected:
 
-VITAL_EXPORT ::std::ostream& operator<< ( ::std::ostream& str, geo_point const& obj );
+      int m_original_crs;
+      mutable std::unordered_map< int, geo_raw_point_t > m_loc;
+      covariance_3d_sptr m_covariance;
+    };
 
-typedef std::shared_ptr< geo_point > geo_point_sptr;
-typedef std::shared_ptr< const geo_point > geo_point_cptr;
+    VITAL_EXPORT::std::ostream& operator<< (::std::ostream& str, geo_point const& obj);
 
-} } // end namespace
+    typedef std::shared_ptr< geo_point > geo_point_sptr;
+    typedef std::shared_ptr< geo_point const > geo_point_cptr;
+
+  }
+} // end namespace
 
 #endif /* KWIVER_VITAL_GEO_POINT_H_ */

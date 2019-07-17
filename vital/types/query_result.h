@@ -90,7 +90,7 @@ public:
 
   void set_temporal_bounds( timestamp const&, timestamp const& );
 
-  void set_location( vital::geo_point );
+  void set_location( vital::geo_point);
 
   void set_tracks( object_track_set_sptr );
   void set_descriptors( track_descriptor_set_sptr );

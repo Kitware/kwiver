@@ -86,10 +86,10 @@ TEST(geodesy, utm_ups_zones)
 TEST(geodesy, utm_ups_zone_range_error)
 {
   EXPECT_THROW(
-    kwiver::vital::utm_ups_zone( { 0.0, -100.0 } ),
+    kwiver::vital::utm_ups_zone( kwiver::vital::vector_2d( 0.0, -100.0 ) ),
     std::range_error );
   EXPECT_THROW(
-    kwiver::vital::utm_ups_zone( { 0.0, +100.0 } ),
+    kwiver::vital::utm_ups_zone(kwiver::vital::vector_2d( 0.0, +100.0 ) ),
     std::range_error );
 }
 
