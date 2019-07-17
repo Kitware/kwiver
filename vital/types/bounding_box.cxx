@@ -42,11 +42,13 @@ template bounding_box<T> & translate( bounding_box<T>& bbox,            \
 template bounding_box<T> scale( bounding_box<T> const& bbox,            \
                                 double scale_factor );                  \
 template bounding_box<T> intersection( bounding_box<T> const& one,      \
-                                       bounding_box<T> const& other )
+                                       bounding_box<T> const& other );  \
+template class bounding_box< T >;
 
 instantiate( int );
 instantiate( double );
 
 #undef instantiate
+
 
 } }                             // end namespace

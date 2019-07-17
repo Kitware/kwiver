@@ -47,6 +47,7 @@
 #include <vital/types/bounding_box.h>
 #include <vital/types/descriptor.h>
 #include <vital/types/image_container.h>
+#include <vital/types/geo_point.h>
 
 #include <vital/io/eigen_io.h>
 #include <Eigen/Geometry>
@@ -80,8 +81,16 @@ public:
   typedef std::vector< detected_object_sptr > vector_t;
   typedef descriptor_dynamic< double > descriptor_t;
   typedef std::shared_ptr< descriptor_t > descriptor_sptr;
-  typedef std::shared_ptr< bounding_box_d > bounding_box_sptr;
+  typedef std::shared_ptr< descriptor_t const > descriptor_cptr;
 
+  /**
+   * @brief Create default detected object.
+   *
+   * @param confidence Detectors confidence in this detection.
+   * @param classifications Optional object classification.
+   */
+  detected_object(double confidence = 1.0,
+                  detected_object_type_sptr classifications = detected_object_type_sptr());
 
   /**
    * @brief Create detected object with bounding box and other attributes.
@@ -93,6 +102,17 @@ public:
   detected_object( const bounding_box_d& bbox,
                    double confidence = 1.0,
                    detected_object_type_sptr classifications = detected_object_type_sptr() );
+
+  /**
+   * @brief Create detected object with a geo_point and other attributes.
+   *
+   * @param geo_pt Geographic location of the detection, in world coordinates.
+   * @param confidence Detectors confidence in this detection.
+   * @param classifications Optional object classification.
+   */
+  detected_object(const geo_point& geo_pt,
+                  double confidence = 1.0,
+                  detected_object_type_sptr classifications = detected_object_type_sptr());
 
   virtual ~detected_object() = default;
 
@@ -107,10 +127,10 @@ public:
    * @brief Get bounding box from this detection.
    *
    * The bounding box for this detection is returned. This box is in
-   * image coordinates. A default constructed (invalid) bounding box
+   * image coordinates. A null bounding box
    * is returned if no box has been supplied for this detection.
    *
-   * @return A copy of the bounding box.
+   * @return The bounding box.
    */
   bounding_box_d bounding_box() const;
 
@@ -122,6 +142,28 @@ public:
    * @param bbox Bounding box for this detection.
    */
   void set_bounding_box( const bounding_box_d& bbox );
+
+
+  /**
+   * @brief Get geo_point from this detection.
+   *
+   * The geo_point for this detection is returned. This point is in
+   * world coordinates. A null geo_point
+   * is returned if no location has been supplied for this detection.
+   *
+   * @return The bounding box.
+   */
+  geo_point_sptr& location();
+  geo_point_cptr location() const;
+
+  /**
+   * @brief Set new geo_point for this detection.
+   *
+   * The supplied geo_point value replaces the geo_point for this detection.
+   *
+   * @param pt geo_point for this detection.
+   */
+  void set_location(const geo_point& pt);
 
   /**
    * @brief Get confidence for this detection.
@@ -252,7 +294,8 @@ public:
   void set_descriptor( descriptor_sptr d );
 
 private:
-  bounding_box_sptr m_bounding_box;
+  geo_point_sptr m_location;
+  bounding_box_d m_bounding_box;
   double m_confidence;
   image_container_sptr m_mask_image;
   descriptor_sptr m_descriptor;

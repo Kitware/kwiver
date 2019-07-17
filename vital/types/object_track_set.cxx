@@ -83,22 +83,13 @@ const point_2d_cptr object_track_state::image_point() const
   return image_point_;
 }
 
-point_2d_sptr& object_track_state::track2D_point()
+point_3d_sptr& object_track_state::track_point()
 {
-  return track2D_point_;
+  return track_point_;
 }
-const point_2d_cptr object_track_state::track2D_point() const
+const point_3d_cptr object_track_state::track_point() const
 {
-  return track2D_point_;
-}
-
-point_3d_sptr& object_track_state::track3D_point()
-{
-  return track3D_point_;
-}
-const point_3d_cptr object_track_state::track3D_point() const
-{
-  return track3D_point_;
+  return track_point_;
 }
 
 } } // end namespace vital

@@ -54,6 +54,13 @@ public:
   typedef Eigen::Matrix< T, 2, 1 > vector_type;
 
   /**
+   * @brief Create default (invalid) box.
+   */
+  bounding_box()
+    : bounding_box(vector_type(-1,-1), vector_type(-1, -1 ))
+  { }
+
+  /**
    * @brief Create box from two corner points.
    *
    * @param upper_left Upper left corner of box.
@@ -214,6 +221,11 @@ bool operator== ( bounding_box<T> const& lhs, bounding_box<T> const& rhs )
 // Define for common types.
 typedef bounding_box< int > bounding_box_i;
 typedef bounding_box< double > bounding_box_d;
+
+typedef std::shared_ptr< bounding_box_i > bounding_box_i_sptr;
+typedef std::shared_ptr< bounding_box_i const > bounding_box_i_cptr;
+typedef std::shared_ptr< bounding_box_d > bounding_box_d_sptr;
+typedef std::shared_ptr< bounding_box_d const > bounding_box_d_cptr;
 
 
 /**

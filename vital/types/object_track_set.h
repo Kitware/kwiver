@@ -107,18 +107,14 @@ public:
     return time_;
   }
 
-
   detected_object_sptr& detection();
   const detected_object_cptr detection() const;
 
   point_2d_sptr& image_point();
   const point_2d_cptr image_point() const;
 
-  point_2d_sptr& track2D_point();
-  const point_2d_cptr track2D_point() const;
-
-  point_3d_sptr& track3D_point();
-  const point_3d_cptr track3D_point() const;
+  point_3d_sptr& track_point();
+  const point_3d_cptr track_point() const;
 
   static std::shared_ptr< object_track_state > downcast(
     track_state_sptr const& sp )
@@ -132,8 +128,7 @@ private:
   time_usec_t time_;
   detected_object_sptr detection_;
   point_2d_sptr  image_point_;
-  point_2d_sptr  track2D_point_;
-  point_3d_sptr  track3D_point_;
+  point_3d_sptr  track_point_;
 };
 
 

@@ -38,17 +38,33 @@
 namespace kwiver {
 namespace vital {
 
+detected_object::detected_object( double              confidence,
+                                  detected_object_type_sptr classifications )
+  : m_confidence( confidence )
+  , m_type( classifications )
+  , m_index( 0 )
+{
+}
 
-detected_object::detected_object( const bounding_box_d& bbox,
+detected_object::detected_object( const geo_point& pt,
                                   double              confidence,
                                   detected_object_type_sptr classifications )
-  : m_bounding_box( std::make_shared< bounding_box_d >( bbox ) )
+  : m_location( std::make_shared< geo_point >( pt ) )
   , m_confidence( confidence )
   , m_type( classifications )
   , m_index( 0 )
 {
 }
 
+detected_object::detected_object( const bounding_box_d& bbox,
+                                  double              confidence,
+                                  detected_object_type_sptr classifications )
+  : m_bounding_box( bbox )
+  , m_confidence( confidence )
+  , m_type( classifications )
+  , m_index( 0 )
+{
+}
 
 // ------------------------------------------------------------------
 detected_object_sptr
@@ -62,7 +78,7 @@ detected_object
   }
 
   auto new_obj = std::make_shared<kwiver::vital::detected_object>(
-    *this->m_bounding_box, this->m_confidence, new_type );
+    this->m_bounding_box, this->m_confidence, new_type );
 
   new_obj->m_mask_image = this->m_mask_image; // being cheap - not copying image mask
   new_obj->m_index = this->m_index;
@@ -78,16 +94,39 @@ bounding_box_d
 detected_object
 ::bounding_box() const
 {
-  return *m_bounding_box;
+  return m_bounding_box;
 }
-
 
 // ------------------------------------------------------------------
 void
 detected_object
 ::set_bounding_box( const bounding_box_d& bbox )
 {
-  m_bounding_box = std::make_shared< bounding_box_d >( bbox );
+  m_bounding_box = bbox ;
+}
+
+// ------------------------------------------------------------------
+geo_point_sptr&
+detected_object
+::location()
+{
+  return m_location;
+}
+
+// ------------------------------------------------------------------
+geo_point_cptr
+detected_object
+::location() const
+{
+  return m_location;
+}
+
+// ------------------------------------------------------------------
+void
+detected_object
+::set_location(const geo_point& pt)
+{
+  m_location = std::make_shared< geo_point >(pt);
 }
 
 
@@ -98,7 +137,6 @@ detected_object
 {
   return m_confidence;
 }
-
 
 // ------------------------------------------------------------------
 void

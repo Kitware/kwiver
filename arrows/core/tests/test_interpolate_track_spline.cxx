@@ -87,15 +87,15 @@ void check_track_state( kv::track_sptr track, kv::frame_id_t frame,
   EXPECT_EQ( frame, state->frame() );
   EXPECT_EQ( frame * FRAME_RATE, state->time() );
 
-  ASSERT_NE( nullptr, state->detection );
+  ASSERT_NE( nullptr, state->detection() );
 
-  auto const& actual_bbox = state->detection->bounding_box();
+  auto const& actual_bbox = state->detection()->bounding_box();
   EXPECT_EQ( bbox.min_x(), actual_bbox.min_x() );
   EXPECT_EQ( bbox.max_x(), actual_bbox.max_x() );
   EXPECT_EQ( bbox.min_y(), actual_bbox.min_y() );
   EXPECT_EQ( bbox.max_y(), actual_bbox.max_y() );
 
-  EXPECT_FLOAT_EQ( confidence, state->detection->confidence() );
+  EXPECT_FLOAT_EQ( confidence, state->detection()->confidence() );
 }
 
 } // end anonymous namespace
