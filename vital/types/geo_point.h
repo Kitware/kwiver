@@ -120,14 +120,14 @@ namespace kwiver {
        */
       bool is_empty() const;
 
-      covariance_3d_sptr& covariance() { return m_covariance; }
-      covariance_3d_cptr const covariance() const { return m_covariance; }
+      covariance_3f& covariance() { return m_covariance; }
+      const covariance_3f& covariance() const { return m_covariance; }
 
     protected:
 
       int m_original_crs;
       mutable std::unordered_map< int, geo_raw_point_t > m_loc;
-      covariance_3d_sptr m_covariance;
+      covariance_3f m_covariance;
     };
 
     VITAL_EXPORT::std::ostream& operator<< (::std::ostream& str, geo_point const& obj);

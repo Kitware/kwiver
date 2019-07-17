@@ -125,17 +125,15 @@ namespace kwiver {
           << ", " << loc[2]
           << " ] @ " << obj.crs() << "\n";
 
-        str.precision(old_prec);
-      }
-      if (obj.covariance() != nullptr)
-      {
         str << " - covariance  : ";
-        auto const c = obj.covariance()->matrix();
-        str << "[ " << c(0, 0) << ", " << c(0, 1) << ", " << c(0, 2) << "\n                   "
+        auto const c = obj.covariance().matrix();
+        str << std::setprecision(22)
+            << "[ " << c(0, 0) << ", " << c(0, 1) << ", " << c(0, 2) << "\n                   "
                     << c(1, 0) << ", " << c(1, 1) << ", " << c(1, 2) << "\n                   "
                     << c(2, 0) << ", " << c(2, 1) << ", " << c(2, 2) << " ]\n";
-      }
 
+        str.precision(old_prec);
+      }
       return str;
     }
 

@@ -48,8 +48,6 @@ template < unsigned N, typename T >
 class VITAL_EXPORT point
 {
 public:
-  typedef std::shared_ptr<covariance_<N, T>> covariance_type;
-  typedef std::shared_ptr<const covariance_<N, T>> covariance_ctype;
   typedef Eigen::Matrix< T, N, 1 > vector_type;
 
   point()
@@ -63,16 +61,16 @@ public:
   vector_type& value() { return m_value; }
   const vector_type& value() const { return m_value; }
 
-  covariance_type& covariance() { return m_covariance; }
-  const covariance_ctype covariance() const
+  covariance_<N, float>& covariance() { return m_covariance; }
+  const covariance_<N, float> covariance() const
   {
-    return std::const_pointer_cast<const covariance_<N, T>>(m_covariance);
+    return m_covariance;
   }
 
 protected:
 
   vector_type m_value;
-  std::shared_ptr<covariance_<N,T>> m_covariance;
+  covariance_<N,float> m_covariance;
 };
 
 // Define for common types.
@@ -92,13 +90,13 @@ typedef std::shared_ptr< point_3f > point_3f_sptr;
 typedef std::shared_ptr< point_4d > point_4d_sptr;
 typedef std::shared_ptr< point_4f > point_4f_sptr;
 
-typedef std::shared_ptr< const point_2i > point_2i_cptr;
-typedef std::shared_ptr< const point_2d > point_2d_cptr;
-typedef std::shared_ptr< const point_2f > point_2f_cptr;
-typedef std::shared_ptr< const point_3d > point_3d_cptr;
-typedef std::shared_ptr< const point_3f > point_3f_cptr;
-typedef std::shared_ptr< const point_4d > point_4d_cptr;
-typedef std::shared_ptr< const point_4f > point_4f_cptr;
+typedef std::shared_ptr< point_2i const > point_2i_cptr;
+typedef std::shared_ptr< point_2d const > point_2d_cptr;
+typedef std::shared_ptr< point_2f const > point_2f_cptr;
+typedef std::shared_ptr< point_3d const > point_3d_cptr;
+typedef std::shared_ptr< point_3f const > point_3f_cptr;
+typedef std::shared_ptr< point_4d const > point_4d_cptr;
+typedef std::shared_ptr< point_4f const > point_4f_cptr;
 
 VITAL_EXPORT ::std::ostream& operator<< ( ::std::ostream& str, point_2i const& obj );
 VITAL_EXPORT ::std::ostream& operator<< ( ::std::ostream& str, point_2d const& obj );
