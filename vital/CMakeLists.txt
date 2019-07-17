@@ -106,7 +106,6 @@ set( vital_public_headers
   types/feature_track_set.h
   types/fundamental_matrix.h
   types/geo_MGRS.h
-  types/geo_offset.h
   types/geo_point.h
   types/geo_polygon.h
   types/geodesy.h
@@ -118,6 +117,7 @@ set( vital_public_headers
   types/iqr_feedback.h
   types/landmark.h
   types/landmark_map.h
+  types/local_cartesian.h
   types/local_geo_cs.h
   types/match_set.h
   types/matrix.h
@@ -174,7 +174,6 @@ set( vital_sources
   types/feature_track_set.cxx
   types/fundamental_matrix.cxx
   types/geo_MGRS.cxx
-  types/geo_offset.cxx
   types/geo_point.cxx
   types/geo_polygon.cxx
   types/geodesy.cxx
@@ -184,6 +183,7 @@ set( vital_sources
   types/image.cxx
   types/iqr_feedback.cxx
   types/landmark.cxx
+  types/local_cartesian.cxx
   types/local_geo_cs.cxx
   types/mesh.cxx
   types/metadata.cxx
