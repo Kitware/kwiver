@@ -72,6 +72,16 @@ public:
   { }
 
   /**
+   * @brief Check to see if the two corner points are valid.
+   *
+   * @return true if the box is valid
+   */
+  bool is_valid() const
+  {
+    return (width() >= 0 && height() >= 0);
+  }
+
+  /**
    * @brief Create box from point and dimensions.
    *
    * @param upper_left Upper left corner point
