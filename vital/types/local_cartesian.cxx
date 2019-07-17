@@ -33,7 +33,7 @@
  * \brief This file contains the implementation of a local geographical offset coordinate system.
  */
 
-#include <vital/types/geo_offset.h>
+#include <vital/types/local_cartesian.h>
 #include <vital/types/geodesy.h>
 
 #include <iomanip>
@@ -41,70 +41,6 @@
 
 namespace kwiver {
 namespace vital {
-
-geo_point_sptr& geo_offset::origin()
-{
-  return origin_;
-}
-const geo_point_cptr geo_offset::origin() const
-{
-  return std::const_pointer_cast<const geo_point>(origin_);
-}
-
-geo_offset::vector_type geo_offset::get_lon_lat_alt() const
-{
-  local_cartesian locart;
-  auto o = origin_->location(kwiver::vital::SRID::lat_lon_WGS84);
-  vector_type lla;
-  lla << o[0], o[1], 0;
-  locart.set_origin(lla, 0);
-  vector_type geodetic_coordinate;
-  locart.convertToGeodetic(value(), geodetic_coordinate);
-  return geodetic_coordinate;
-}
-
-void geo_offset::set_from_geo_points(const geo_point_sptr origin, const geo_point_sptr location)
-{
-  local_cartesian locart;
-  origin_ = origin;
-  auto o = origin->location(kwiver::vital::SRID::lat_lon_WGS84);
-  vector_type lla;
-  lla << o[0], o[1], 0;
-  locart.set_origin(lla, 0);
-  auto l = location->location(kwiver::vital::SRID::lat_lon_WGS84);
-  lla << l[0], l[1], 0;
-  locart.convertFromGeodetic(lla, value());
-}
-
-std::ostream& operator<<(std::ostream& str, const geo_offset& p)
-{
-  str << "geo_offset\n";
-
-  auto const v = p.value();
-  str << " - value : ";
-  str << "[ " << v[0] << ", " << v[1] << ", " << v[2] << " ]\n";
-
-  str << std::setprecision(22) << " - covariance : ";
-  if (p.covariance() != nullptr)
-  {
-    auto const c = p.covariance()->matrix();
-    str << "[ " << c(0, 0) << ", " << c(0, 1) << ", " << c(0, 2) << "\n                  "
-                << c(1, 0) << ", " << c(1, 1) << ", " << c(1, 2) << "\n                  "
-                << c(2, 0) << ", " << c(2, 1) << ", " << c(2, 2) << " ]\n";
-  }
-  else
-    str << "None\n";
-
-  str << std::setprecision(22) << " - origin : ";
-  if (p.origin() != nullptr)
-  {
-    str << *p.origin();
-  }
-  else
-    str << "None\n";
-
-  return str;
-}
 
 const double PI = 3.14159265358979323e0;
 const double PI_OVER_2 = (PI / 2.0e0);
@@ -125,26 +61,18 @@ local_cartesian::local_cartesian()
   Geocent_ep2 = (1 / (1 - Geocent_e2)) - 1;
 }
 
-void local_cartesian::set_origin(const vector_type& origin, double orientation)
+void local_cartesian::set_origin(const geo_point& origin, double orientation)
 {
- /*
-  * Set local origin parameters as inputs and sets the corresponding state variables.
-  *
-  *    origin[0]                : Longitude of the local origin, in degrees         (input)
-  *    origin[1]                : Latitude of the local origin, in degrees          (input)
-  *    origin[2]                : Ellipsoid height of the local origin, in meters   (input)
-  *    orientation              : Orientation angle of the local cartesian coordinate system,
-  *                               in radians                                        (input)
-  */
-
   double N0;
   double val;
 
-  LocalCart_Origin_Lat = origin[1]*DEG_TO_RAD;
-  LocalCart_Origin_Long = origin[0]*DEG_TO_RAD;
+  auto loc = origin.location(kwiver::vital::SRID::lat_lon_WGS84);
+
+  LocalCart_Origin_Lat = loc[1]*DEG_TO_RAD;
+  LocalCart_Origin_Long = loc[0]*DEG_TO_RAD;
   if (LocalCart_Origin_Long > PI)
     LocalCart_Origin_Long -= TWO_PI;
-  LocalCart_Origin_Height = origin[2];
+  LocalCart_Origin_Height = loc[2];
   if (orientation > PI)
     orientation -= TWO_PI;
   LocalCart_Orientation = orientation;
@@ -168,7 +96,19 @@ void local_cartesian::set_origin(const vector_type& origin, double orientation)
   w0 = ((N0 * (1 - es2)) + LocalCart_Origin_Height) * Sin_LocalCart_Origin_Lat;
 }
 
-void local_cartesian::convertFromGeodetic(const vector_type& geodetic_coordinate, vector_type& cartesian_coordinate)
+void local_cartesian::convert_from_cartesian(const vector_3d& cartesian_coordinate, geo_point& location) const
+{
+  vector_3d geodetic;
+  convert_from_geodetic(cartesian_coordinate, geodetic);
+  location.set_location(geodetic, kwiver::vital::SRID::lat_lon_WGS84);
+}
+
+void local_cartesian::convert_to_cartesian(const geo_point& location, vector_3d& cartesian_coordinate) const
+{
+  convert_from_geodetic(location.location(kwiver::vital::SRID::lat_lon_WGS84), cartesian_coordinate);
+}
+
+void local_cartesian::convert_from_geodetic(const vector_3d& geodetic_coordinate, vector_3d& cartesian_coordinate) const
 {
   /*
    * The function convertFromGeodetic converts geodetic coordinates
@@ -202,13 +142,13 @@ void local_cartesian::convertFromGeodetic(const vector_type& geodetic_coordinate
   double Y = (Rn + height) * Cos_Lat * sin(longitude);
   double Z = ((Rn * (1 - Geocent_e2)) + height) * Sin_Lat;
 
-  vector_type geocentric_coordinate;
+  vector_3d geocentric_coordinate;
   geocentric_coordinate << X, Y, Z;
 
-  convertFromGeocentric(geocentric_coordinate, cartesian_coordinate);
+  convert_from_geocentric(geocentric_coordinate, cartesian_coordinate);
 }
 
-void local_cartesian::convertToGeodetic(const vector_type& cartesian_coordinate, vector_type& geodetic_coordinate)
+void local_cartesian::convert_to_geodetic(const vector_3d& cartesian_coordinate, vector_3d& geodetic_coordinate) const
 {
   /*
    * The function convertToGeodetic converts local cartesian
@@ -222,9 +162,8 @@ void local_cartesian::convertToGeodetic(const vector_type& cartesian_coordinate,
    *    geodetic_coordinate[1]  : Calculated latitude value, in degrees      (output)
    *    geodetic_coordinate[2]  : Calculated height value, in meters         (output)
    */
-  vector_type geocentric_coordinate;
-
-  convertToGeocentric(cartesian_coordinate, geocentric_coordinate);
+  vector_3d geocentric_coordinate;
+  convert_to_geocentric(cartesian_coordinate, geocentric_coordinate);
 
   double X = geocentric_coordinate.x();
   double Y = geocentric_coordinate.y();
@@ -320,7 +259,7 @@ void local_cartesian::convertToGeodetic(const vector_type& cartesian_coordinate,
   geodetic_coordinate << (longitude*RAD_TO_DEG), (latitude*RAD_TO_DEG), height;
 }
 
-void local_cartesian::convertFromGeocentric(const vector_type& geocentric_coordinate, vector_type& cartesian_coordinate)
+void local_cartesian::convert_from_geocentric(const vector_3d& geocentric_coordinate, vector_3d& cartesian_coordinate) const
 {
   /*
    * The function convertFromGeocentric converts geocentric
@@ -374,7 +313,7 @@ void local_cartesian::convertFromGeocentric(const vector_type& geocentric_coordi
   cartesian_coordinate << X, Y, Z;
 }
 
-void local_cartesian::convertToGeocentric(const geo_offset::vector_type& cartesian_coordinates, geo_offset::vector_type& geocentric_coordinates)
+void local_cartesian::convert_to_geocentric(const vector_3d& cartesian_coordinates, vector_3d& geocentric_coordinates) const
 {
   /*
    * The function Convert_Local_Cartesian_To_Geocentric converts local cartesian

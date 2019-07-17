@@ -42,7 +42,6 @@
 #include <vital/types/track_set.h>
 #include <vital/types/detected_object.h>
 #include <vital/types/point.h>
-#include <vital/types/geo_offset.h>
 
 #include <vital/vital_export.h>
 #include <vital/vital_config.h>
@@ -115,11 +114,11 @@ public:
   point_2d_sptr& image_point();
   const point_2d_cptr image_point() const;
 
-  point_2d_sptr& track2d_point();
-  const point_2d_cptr track2d_point() const;
+  point_2d_sptr& track2D_point();
+  const point_2d_cptr track2D_point() const;
 
-  geo_offset_sptr& track_offset();
-  const geo_offset_cptr track_offset() const;
+  point_3d_sptr& track3D_point();
+  const point_3d_cptr track3D_point() const;
 
   static std::shared_ptr< object_track_state > downcast(
     track_state_sptr const& sp )
@@ -134,7 +133,7 @@ private:
   detected_object_sptr detection_;
   point_2d_sptr  image_point_;
   point_2d_sptr  track2D_point_;
-  geo_offset_sptr  track_offset_;
+  point_3d_sptr  track3D_point_;
 };
 
 

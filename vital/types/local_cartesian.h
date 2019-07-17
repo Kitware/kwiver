@@ -33,54 +33,14 @@
  * \brief This file contains the interface to a local geographic offset coordinate system.
  */
 
-#ifndef KWIVER_VITAL_GEO_OFFSET_H_
-#define KWIVER_VITAL_GEO_OFFSET_H_
+#ifndef KWIVER_VITAL_LOCAL_CARTESIAN_H_
+#define KWIVER_VITAL_LOCAL_CARTESIAN_H_
 
 #include <vital/types/point.h>
 #include <vital/types/geo_point.h>
 
 namespace kwiver {
 namespace vital {
-
-// ----------------------------------------------------------------------------
-/** Geo-coordinate.
- *
- * This class represents a geolocated cartesian coordinate system 
- * centered at any origin specified by the application.
- */
-class VITAL_EXPORT geo_offset : public point_3d
-{
-public:
-  typedef Eigen::Matrix< double, 3, 1 > vector_type;
-
-  geo_offset()
-  {
-    m_value = vector_type::Zero();
-  }
-  geo_offset(vector_type const& v) { m_value=v; }
-
-  virtual ~geo_offset() = default;
-
-  geo_point_sptr& origin();
-  const geo_point_cptr origin() const;
-
-  /**
-   * \brief Get the WGS84 coordinates of the cartesian coordinates.
-   *
-   * \returns The WGS84 lon/lat/alt of the cartesian coordinates.
-   */
-  vector_type get_lon_lat_alt() const;
-  /**
-   * \brief Set the cartesian coordinates based on 2 geo_points
-   */
-  void set_from_geo_points(const geo_point_sptr origin, const geo_point_sptr location);
-
-
-protected:
-
-  geo_point_sptr origin_;
-
-};
 
 // ----------------------------------------------------------------------------
 /** Local Cartesian Conversion Utility.
@@ -94,21 +54,39 @@ protected:
 class VITAL_EXPORT local_cartesian
 {
 public:
-  typedef Eigen::Matrix< double, 3, 1 > vector_type;
 
   local_cartesian();
   virtual ~local_cartesian() = default;
 
   /**
    * Set local origin parameters as inputs and sets the corresponding state variables.
+   * NOTE : If the origin changes, this method needs to be called again to recompute
+   *        variables needed in the conversion math.
    *
-   *    origin[0]                : Longitude of the local origin, in degrees         (input)
-   *    origin[1]                : Latitude of the local origin, in degrees          (input)
-   *    origin[2]                : Ellipsoid height of the local origin, in meters   (input)
+   *    geo_point                : Geograpical origin of the cartesian system        (input)
    *    orientation              : Orientation angle of the local cartesian coordinate system,
    *                               in radians                                        (input)
    */
-  void set_origin(const vector_type& origin, double orientation=0);
+  void set_origin(const geo_point& origin, double orientation=0);
+
+  /**
+   * \brief Get the WGS84 coordinates of the cartesian coordinates.
+   *
+   * \returns The WGS84 lon/lat/alt of the cartesian coordinates.
+   */
+  void convert_from_cartesian(const vector_3d& cartesian_coordinate, geo_point& location) const;
+
+  /**
+   * \brief Set the cartesian coordinates based on 2 geo_points
+   */
+  void convert_to_cartesian(const geo_point& location, vector_3d& cartesian_coordinate) const;
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // METHODS BELOW NOTICE                                                           //
+  // The methods below are used in the convertion math for the above methods        //
+  // They are not intended for general public use, but they are left public         //
+  // if you find a need for using world cartesian coordinates (non local to origin) //
+  ////////////////////////////////////////////////////////////////////////////////////
 
   /**
    * The function convertFromGeodetic converts geodetic coordinates
@@ -122,7 +100,7 @@ public:
    *    cartesian_coordinate[1] : Calculated local cartesian Y coordinate, in meters   (output)
    *    cartesian_coordinate[2] : Calculated local cartesian Z coordinate, in meters   (output)
    */
-  void convertFromGeodetic(const vector_type& geodetic_coordinate, vector_type& cartesian_coordinate);
+  void convert_from_geodetic(const vector_3d& geodetic_coordinate, vector_3d& cartesian_coordinate) const;
 
   /**
    * The function convertToGeodetic converts local cartesian
@@ -136,7 +114,7 @@ public:
    *    geodetic_coordinate[1]  : Calculated latitude value, in degrees      (output)
    *    geodetic_coordinate[2]  : Calculated height value, in meters         (output)
    */
-  void convertToGeodetic(const vector_type& cartesian_coordinate, vector_type& geodetic_coordinate);
+  void convert_to_geodetic(const vector_3d& cartesian_coordinate, vector_3d& geodetic_coordinate) const;
 
   /**
    * The function convertFromGeocentric converts geocentric
@@ -149,7 +127,7 @@ public:
    *    cartesian_coordinate[1]  : Calculated local cartesian Y coordinate, in meters   (output)
    *    cartesian_coordinate[2]  : Calculated local cartesian Z coordinate, in meters   (output)
    */
-  void convertFromGeocentric(const vector_type& geocentric_coordinate, vector_type& cartesian_coordinate);
+  void convert_from_geocentric(const vector_3d& geocentric_coordinate, vector_3d& cartesian_coordinate) const;
 
   /**
    * The function Convert_Local_Cartesian_To_Geocentric converts local cartesian
@@ -163,7 +141,7 @@ public:
    *    geocentric_coordinates[1] : Calculated v value, in meters              (output)
    *    geocentric_coordinates[2] : Calculated w value, in meters              (output)
    */
-  void convertToGeocentric(const vector_type& cartesian_coordinate, vector_type& geocentric_coordinate);
+  void convert_to_geocentric(const vector_3d& cartesian_coordinate, vector_3d& geocentric_coordinate) const;
 
 private:
 
@@ -199,12 +177,6 @@ private:
   double Cos_Lat_Sin_Orient; /* cos(LocalCart_Origin_Lat) * sin(LocalCart_Orientation) */
 };
 
-// Define for common types.
-typedef std::shared_ptr< geo_offset > geo_offset_sptr;
-typedef std::shared_ptr< const geo_offset > geo_offset_cptr;
-
-VITAL_EXPORT ::std::ostream& operator<< ( ::std::ostream& str, geo_offset const& obj );
-
 } } // end namespace
 
-#endif /* KWIVER_VITAL_GEO_OFFSET_H_ */
+#endif /* KWIVER_VITAL_LOCAL_CARTESIAN_H_ */

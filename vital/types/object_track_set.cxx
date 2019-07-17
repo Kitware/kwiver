@@ -80,25 +80,25 @@ point_2d_sptr& object_track_state::image_point()
 }
 const point_2d_cptr object_track_state::image_point() const
 { 
-  return std::const_pointer_cast<const point_2d>(image_point_);
+  return image_point_;
 }
 
-point_2d_sptr& object_track_state::track2d_point()
+point_2d_sptr& object_track_state::track2D_point()
 {
   return track2D_point_;
 }
-const point_2d_cptr object_track_state::track2d_point() const
+const point_2d_cptr object_track_state::track2D_point() const
 {
-  return std::const_pointer_cast<const point_2d>(track2D_point_);
+  return track2D_point_;
 }
 
-geo_offset_sptr& object_track_state::track_offset()
+point_3d_sptr& object_track_state::track3D_point()
 {
-  return track_offset_;
+  return track3D_point_;
 }
-const geo_offset_cptr object_track_state::track_offset() const
+const point_3d_cptr object_track_state::track3D_point() const
 {
-  return std::const_pointer_cast<const geo_offset>(track_offset_);
+  return track3D_point_;
 }
 
 } } // end namespace vital
