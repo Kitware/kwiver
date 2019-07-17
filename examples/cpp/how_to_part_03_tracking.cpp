@@ -1,5 +1,5 @@
 /*ckwg +29
-* Copyright 2017-2018 by Kitware, Inc.
+* Copyright 2017-2019 by Kitware, Inc.
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -81,15 +81,6 @@ void how_to_part_03_tracking()
   state->image_point()->value() << 1., 1.;
   // View what it looks like now
   std::cout << *c_state->image_point() << std::endl;
-
-  std::cout << "Number of refs on state->image_point() : " << state->image_point().use_count() << "\n";
-  auto ref = state->image_point();
-  std::cout << "Number of refs on state->image_point() : " << state->image_point().use_count() << "\n";
-  {
-    auto ref2 = state->image_point();
-    std::cout << "Number of refs on state->image_point() : " << state->image_point().use_count() << "\n";
-  }
-  std::cout << "Number of refs on state->image_point() : " << state->image_point().use_count() << "\n";
 
   // Tracking Points
 

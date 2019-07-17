@@ -31,6 +31,8 @@
 /**
  * \file
  * \brief This file contains the interface to a simple point.
+ *
+ * This point class pairs a eigen vector with a covariance matrix.
  */
 
 #ifndef KWIVER_VITAL_POINT_H_

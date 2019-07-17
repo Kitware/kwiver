@@ -67,19 +67,19 @@ public:
    *    orientation              : Orientation angle of the local cartesian coordinate system,
    *                               in radians                                        (input)
    */
-  void set_origin(const geo_point& origin, double orientation=0);
+  void set_origin(geo_point const& origin, double orientation=0);
 
   /**
    * \brief Get the WGS84 coordinates of the cartesian coordinates.
    *
    * \returns The WGS84 lon/lat/alt of the cartesian coordinates.
    */
-  void convert_from_cartesian(const vector_3d& cartesian_coordinate, geo_point& location) const;
+  void convert_from_cartesian(vector_3d const& cartesian_coordinate, geo_point& location) const;
 
   /**
    * \brief Set the cartesian coordinates based on 2 geo_points
    */
-  void convert_to_cartesian(const geo_point& location, vector_3d& cartesian_coordinate) const;
+  void convert_to_cartesian(geo_point const& location, vector_3d& cartesian_coordinate) const;
 
   ////////////////////////////////////////////////////////////////////////////////////
   // METHODS BELOW NOTICE                                                           //
@@ -100,7 +100,7 @@ public:
    *    cartesian_coordinate[1] : Calculated local cartesian Y coordinate, in meters   (output)
    *    cartesian_coordinate[2] : Calculated local cartesian Z coordinate, in meters   (output)
    */
-  void convert_from_geodetic(const vector_3d& geodetic_coordinate, vector_3d& cartesian_coordinate) const;
+  void convert_from_geodetic(vector_3d const& geodetic_coordinate, vector_3d& cartesian_coordinate) const;
 
   /**
    * The function convertToGeodetic converts local cartesian
@@ -114,7 +114,7 @@ public:
    *    geodetic_coordinate[1]  : Calculated latitude value, in degrees      (output)
    *    geodetic_coordinate[2]  : Calculated height value, in meters         (output)
    */
-  void convert_to_geodetic(const vector_3d& cartesian_coordinate, vector_3d& geodetic_coordinate) const;
+  void convert_to_geodetic(vector_3d const& cartesian_coordinate, vector_3d& geodetic_coordinate) const;
 
   /**
    * The function convertFromGeocentric converts geocentric
@@ -127,7 +127,7 @@ public:
    *    cartesian_coordinate[1]  : Calculated local cartesian Y coordinate, in meters   (output)
    *    cartesian_coordinate[2]  : Calculated local cartesian Z coordinate, in meters   (output)
    */
-  void convert_from_geocentric(const vector_3d& geocentric_coordinate, vector_3d& cartesian_coordinate) const;
+  void convert_from_geocentric(vector_3d const& geocentric_coordinate, vector_3d& cartesian_coordinate) const;
 
   /**
    * The function Convert_Local_Cartesian_To_Geocentric converts local cartesian
@@ -141,7 +141,7 @@ public:
    *    geocentric_coordinates[1] : Calculated v value, in meters              (output)
    *    geocentric_coordinates[2] : Calculated w value, in meters              (output)
    */
-  void convert_to_geocentric(const vector_3d& cartesian_coordinate, vector_3d& geocentric_coordinate) const;
+  void convert_to_geocentric(vector_3d const& cartesian_coordinate, vector_3d& geocentric_coordinate) const;
 
 private:
 

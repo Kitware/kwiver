@@ -61,7 +61,7 @@ local_cartesian::local_cartesian()
   Geocent_ep2 = (1 / (1 - Geocent_e2)) - 1;
 }
 
-void local_cartesian::set_origin(const geo_point& origin, double orientation)
+void local_cartesian::set_origin(geo_point const& origin, double orientation)
 {
   double N0;
   double val;
@@ -74,7 +74,9 @@ void local_cartesian::set_origin(const geo_point& origin, double orientation)
     LocalCart_Origin_Long -= TWO_PI;
   LocalCart_Origin_Height = loc[2];
   if (orientation > PI)
+  {
     orientation -= TWO_PI;
+  }
   LocalCart_Orientation = orientation;
   es2 = 2 * flattening - flattening * flattening;
 
@@ -96,19 +98,19 @@ void local_cartesian::set_origin(const geo_point& origin, double orientation)
   w0 = ((N0 * (1 - es2)) + LocalCart_Origin_Height) * Sin_LocalCart_Origin_Lat;
 }
 
-void local_cartesian::convert_from_cartesian(const vector_3d& cartesian_coordinate, geo_point& location) const
+void local_cartesian::convert_from_cartesian(vector_3d const& cartesian_coordinate, geo_point& location) const
 {
   vector_3d geodetic;
   convert_from_geodetic(cartesian_coordinate, geodetic);
   location.set_location(geodetic, kwiver::vital::SRID::lat_lon_WGS84);
 }
 
-void local_cartesian::convert_to_cartesian(const geo_point& location, vector_3d& cartesian_coordinate) const
+void local_cartesian::convert_to_cartesian(geo_point const& location, vector_3d& cartesian_coordinate) const
 {
   convert_from_geodetic(location.location(kwiver::vital::SRID::lat_lon_WGS84), cartesian_coordinate);
 }
 
-void local_cartesian::convert_from_geodetic(const vector_3d& geodetic_coordinate, vector_3d& cartesian_coordinate) const
+void local_cartesian::convert_from_geodetic(vector_3d const& geodetic_coordinate, vector_3d& cartesian_coordinate) const
 {
   /*
    * The function convertFromGeodetic converts geodetic coordinates
@@ -133,7 +135,9 @@ void local_cartesian::convert_from_geodetic(const vector_3d& geodetic_coordinate
   double Cos_Lat;       /*  cos(Latitude)  */
 
   if (longitude > PI)
+  {
     longitude -= (2 * PI);
+  }
   Sin_Lat = sin(latitude);
   Cos_Lat = cos(latitude);
   Sin2_Lat = Sin_Lat * Sin_Lat;
@@ -148,7 +152,7 @@ void local_cartesian::convert_from_geodetic(const vector_3d& geodetic_coordinate
   convert_from_geocentric(geocentric_coordinate, cartesian_coordinate);
 }
 
-void local_cartesian::convert_to_geodetic(const vector_3d& cartesian_coordinate, vector_3d& geodetic_coordinate) const
+void local_cartesian::convert_to_geodetic(vector_3d const& cartesian_coordinate, vector_3d& geodetic_coordinate) const
 {
   /*
    * The function convertToGeodetic converts local cartesian
@@ -253,13 +257,17 @@ void local_cartesian::convert_to_geodetic(const vector_3d& cartesian_coordinate,
   }
 
   if (longitude > PI)
+  {
     longitude = (longitude -= TWO_PI);
+  }
   if (longitude < -PI)
+  {
     longitude = (longitude += TWO_PI);
+  }
   geodetic_coordinate << (longitude*RAD_TO_DEG), (latitude*RAD_TO_DEG), height;
 }
 
-void local_cartesian::convert_from_geocentric(const vector_3d& geocentric_coordinate, vector_3d& cartesian_coordinate) const
+void local_cartesian::convert_from_geocentric(vector_3d const& geocentric_coordinate, vector_3d& cartesian_coordinate) const
 {
   /*
    * The function convertFromGeocentric converts geocentric
@@ -313,7 +321,7 @@ void local_cartesian::convert_from_geocentric(const vector_3d& geocentric_coordi
   cartesian_coordinate << X, Y, Z;
 }
 
-void local_cartesian::convert_to_geocentric(const vector_3d& cartesian_coordinates, vector_3d& geocentric_coordinates) const
+void local_cartesian::convert_to_geocentric(vector_3d const& cartesian_coordinates, vector_3d& geocentric_coordinates) const
 {
   /*
    * The function Convert_Local_Cartesian_To_Geocentric converts local cartesian
