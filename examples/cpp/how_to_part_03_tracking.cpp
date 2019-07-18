@@ -46,7 +46,7 @@ void how_to_part_03_tracking()
   // In this example we will explore the object tracking data types.
 
   // All tracks for a given scene are stored in a set
-  kwiver::vital::object_track_set_sptr tracks = 
+  kwiver::vital::object_track_set_sptr tracks =
     kwiver::vital::object_track_set_sptr(new kwiver::vital::object_track_set());
 
   // Let's create a track 
@@ -106,9 +106,8 @@ void how_to_part_03_tracking()
   kwiver::vital::geo_point origin;
   // Set the origin location
   origin.set_location(kwiver::vital::vector_3d(-73.759291, 42.849631,0), kwiver::vital::SRID::lat_lon_WGS84);
-  // Create a local cartesian coordinate system  
-  kwiver::vital::local_cartesian loccart;
-  loccart.set_origin(origin);
+  // Create a local cartesian coordinate system using our origin as its center
+  kwiver::vital::local_cartesian loccart(origin);
   // What is the geo location of our offset?
   kwiver::vital::geo_point loc;
   loccart.convert_from_cartesian(state->track_point()->value(), loc);

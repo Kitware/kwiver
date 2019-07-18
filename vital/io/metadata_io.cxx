@@ -147,7 +147,7 @@ read_pos_file( path_t const& file_path )
 
   constexpr double feet2meters = 0.3048;
   // altitude is in feet in a POS file and needs to be converted to meters
-  kwiver::vital::vector_3d raw_geo{ std::stod( tokens[ base + 4 ] ), 
+  kwiver::vital::vector_3d raw_geo{ std::stod( tokens[ base + 4 ] ),
                                     std::stod( tokens[ base + 3 ] ),
                                     std::stod(tokens[base + 5]) * feet2meters };
   kwiver::vital::geo_point geo_pt{ raw_geo, SRID::lat_lon_WGS84 };

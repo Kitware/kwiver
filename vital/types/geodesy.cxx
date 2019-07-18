@@ -112,7 +112,7 @@ geo_conv( vector_3d const& point, int from, int to )
 utm_ups_zone_t
 utm_ups_zone( double lon, double lat)
 {
-  // Get latitude and check for range 
+  // Get latitude and check for range
   if ( lat > 90.0 || lat < -90.0 )
   {
     throw std::range_error( "Input latitude is out of range" );

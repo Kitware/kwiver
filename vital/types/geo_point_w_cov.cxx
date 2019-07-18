@@ -30,11 +30,10 @@
 
  /**
   * \file
-  * \brief This file contains the implementation of a geo point.
+  * \brief This file contains the implementation of a geo covariant point.
   */
 
-#include "geo_point.h"
-#include "geodesy.h"
+#include "geo_point_w_cov.h"
 
 #include <iomanip>
 #include <stdexcept>
@@ -42,70 +41,24 @@
 namespace kwiver {
 namespace vital {
 
-using geo_raw_point_t = geo_point::geo_raw_point_t;
 
 // ----------------------------------------------------------------------------
-geo_point::
-  geo_point()
-  : m_original_crs{ -1 }
+geo_point_w_cov::
+  geo_point_w_cov()
+  : geo_point()
 { }
 
 // ----------------------------------------------------------------------------
-geo_point::
-  geo_point(geo_raw_point_t const& point, int crs)
-  : m_original_crs(crs)
+geo_point_w_cov::
+  geo_point_w_cov(geo_raw_point_t const& point, int crs)
+  : geo_point(point,crs)
 {
-  m_loc.insert(std::make_pair(crs, point));
-}
 
-// ----------------------------------------------------------------------------
-bool geo_point
-  ::is_empty() const
-{
-  return m_loc.empty();
-}
-
-// ----------------------------------------------------------------------------
-geo_raw_point_t geo_point
-  ::location() const
-{
-  return m_loc.at(m_original_crs);
-}
-
-// ----------------------------------------------------------------------------
-int geo_point
-  ::crs() const
-{
-  return m_original_crs;
-}
-
-// ----------------------------------------------------------------------------
-geo_raw_point_t geo_point
-  ::location(int crs) const
-{
-  auto const i = m_loc.find(crs);
-  if (i == m_loc.end())
-  {
-    auto const p = geo_conv(location(), m_original_crs, crs);
-    m_loc.emplace(crs, p);
-    return p;
-  }
-
-  return i->second;
-}
-
-// ----------------------------------------------------------------------------
-void geo_point
-  ::set_location(geo_raw_point_t const& loc, int crs)
-{
-  m_original_crs = crs;
-  m_loc.clear();
-  m_loc.insert(std::make_pair(crs, loc));
 }
 
 // ----------------------------------------------------------------------------
 std::ostream&
-  operator<<(std::ostream& str, vital::geo_point const& obj)
+  operator<<(std::ostream& str, vital::geo_point_w_cov const& obj)
 {
   str << "geo_point\n";
 
@@ -124,6 +77,13 @@ std::ostream&
       << ", " << loc[1]
       << ", " << loc[2]
       << " ] @ " << obj.crs() << "\n";
+
+    str << " - covariance  : ";
+    auto const c = obj.covariance().matrix();
+    str << std::setprecision(22)
+        << "[ " << c(0, 0) << ", " << c(0, 1) << ", " << c(0, 2) << "\n                   "
+                << c(1, 0) << ", " << c(1, 1) << ", " << c(1, 2) << "\n                   "
+                << c(2, 0) << ", " << c(2, 1) << ", " << c(2, 2) << " ]\n";
 
     str.precision(old_prec);
   }

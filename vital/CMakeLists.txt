@@ -107,6 +107,7 @@ set( vital_public_headers
   types/fundamental_matrix.h
   types/geo_MGRS.h
   types/geo_point.h
+  types/geo_point_w_cov.h
   types/geo_polygon.h
   types/geodesy.h
   types/homography.h
@@ -175,6 +176,7 @@ set( vital_sources
   types/fundamental_matrix.cxx
   types/geo_MGRS.cxx
   types/geo_point.cxx
+  types/geo_point_w_cov.cxx
   types/geo_polygon.cxx
   types/geodesy.cxx
   types/homography.cxx

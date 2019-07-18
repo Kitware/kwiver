@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,16 +28,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// Predefine methods that show off various functionality in kwiver
-void how_to_part_01_images();
-void how_to_part_02_detections();
-void how_to_part_03_tracking();
+ /**
+  * \file
+  * \brief This file contains the interface to a geo point.
+  */
 
-int main()
+#ifndef KWIVER_VITAL_GEO_POINT_W_COV_H_
+#define KWIVER_VITAL_GEO_POINT_W_COV_H_
+
+#include <vital/types/geo_point.h>
+
+namespace kwiver {
+namespace vital {
+
+// ----------------------------------------------------------------------------
+/** A geo_point with covariance
+  */
+class VITAL_EXPORT geo_point_w_cov : public geo_point
 {
-  // use comments to execute a particular method
+public:
 
-  how_to_part_01_images();
-  how_to_part_02_detections();
-  how_to_part_03_tracking();
+  geo_point_w_cov();
+  geo_point_w_cov(geo_raw_point_t const& pt, int crs);
+
+  virtual ~geo_point_w_cov() = default;
+
+  covariance_3f& covariance() { return m_covariance; }
+  const covariance_3f& covariance() const { return m_covariance; }
+
+protected:
+
+  covariance_3f m_covariance;
+};
+
+VITAL_EXPORT::std::ostream& operator<< (::std::ostream& str, geo_point_w_cov const& obj);
+
+typedef std::shared_ptr< geo_point_w_cov > geo_covariant_point_sptr;
+typedef std::shared_ptr< geo_point_w_cov const > geo_covariant_point_cptr;
+
 }
+} // end namespace
+
+#endif /* KWIVER_VITAL_GEO_POINT_W_COV_H_ */
