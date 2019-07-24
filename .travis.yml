@@ -7,26 +7,14 @@ language: cpp
 
 matrix:
   include:
-    addons:
-      apt:
-        sources:
-                - ubuntu-toolchain-r-test
-        packages:
-                - g++-4.8
-                - libproj-dev
-                - libgl1-mesa-dev
-                - libxt-dev
-                - libatlas-base-dev
-                - python2.7-dev
-                - clang-3.5
-                - compiler: gcc
+    - compiler: gcc
       env:
         - C_COMPILER=gcc-4.8
         - CXX_COMPILER=g++-4.8
     - compiler: clang
-      env: # default clang is version 3.7 but we want 3.5 to avoid link errors
-        - C_COMPILER=clang-3.5
-        - CXX_COMPILER=clang++-3.5
+      env: # default clang is version 3.4
+        - C_COMPILER=clang
+        - CXX_COMPILER=clang++
 
 cache:
   directories:
@@ -35,6 +23,18 @@ cache:
 
 before_script:
   - bash .travis/install-deps.sh
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.8
+    - libproj-dev
+    - libgl1-mesa-dev
+    - libxt-dev
+    - libatlas-base-dev
+    - python2.7-dev
 
 script:
   - export PATH=$HOME/deps/bin:$PATH
