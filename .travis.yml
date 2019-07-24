@@ -12,9 +12,9 @@ matrix:
         - C_COMPILER=gcc-4.8
         - CXX_COMPILER=g++-4.8
     - compiler: clang
-      env: # default clang is version 3.4
+      env: # default clang is version 3.7 but we need 3.5 to prevent link errors
         - C_COMPILER=clang
-        - CXX_COMPILER=clang++
+        - CXX_COMPILER=clang++-3.5
 
 cache:
   directories:
@@ -35,6 +35,8 @@ addons:
     - libxt-dev
     - libatlas-base-dev
     - python2.7-dev
+    - clang-3.5
+
 
 script:
   - export PATH=$HOME/deps/bin:$PATH
