@@ -21,7 +21,7 @@ cache:
   - /opt/kitware
 
 before_script:
-  - sudo apt-get install -y libproj-dev libgl1-mesa-dev libxt-dev libatlas-base-dev cmake3 python2.7-dev
+  - sudo apt-get install -y libproj-dev libgl1-mesa-dev libxt-dev libatlas-base-dev python2.7-dev
   - bash .travis/install-deps.sh
 
 script:
