@@ -2,7 +2,6 @@
 # See http://travis-ci.org/Kitware/kwiver/
 
 dist: bionic
-sudo: false
 language: cpp
 
 matrix:
@@ -22,18 +21,8 @@ cache:
   - /opt/kitware
 
 before_script:
+  - sudo apt-get install -y ibproj-dev libgl1-mesa-dev libxt-dev libatlas-base-dev cmake3 python2.7-dev
   - bash .travis/install-deps.sh
-
-addons:
-  apt:
-    update: true
-    packages:
-    - libproj-dev
-    - libgl1-mesa-dev
-    - libxt-dev
-    - libatlas-base-dev
-    - cmake3
-    - python2.7-dev
 
 script:
   - export PATH=$HOME/deps/bin:$PATH
