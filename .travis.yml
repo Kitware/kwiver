@@ -37,6 +37,7 @@ addons:
     - libxt-dev
     - libatlas-base-dev
     - python2.7-dev
+    - mesa-common-dev
 
 script:
   - export PATH=$HOME/deps/bin:$PATH
