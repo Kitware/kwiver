@@ -22,19 +22,18 @@ cache:
   - /opt/kitware
 
 before_script:
-  - apt-get install -y libproj-dev libgl1-mesa-dev libxt-dev libatlas-base-dev python2.7-dev cmake3
   - bash .travis/install-deps.sh
 
-#addons:
-#  apt:
-#    update: true
-#    packages:
-#    - libproj-dev
-#    - libgl1-mesa-dev
-#    - libxt-dev
-#    - libatlas-base-dev
-#    - cmake3
-#    - python2.7-dev
+addons:
+  apt:
+    update: true
+    packages:
+    - libproj-dev
+    - libgl1-mesa-dev
+    - libxt-dev
+    - libatlas-base-dev
+    - cmake3
+    - python2.7-dev
 
 script:
   - export PATH=$HOME/deps/bin:$PATH
