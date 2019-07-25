@@ -29,6 +29,7 @@ addons:
     packages:
     - libproj-dev
     - libgl1-mesa-dev
+    - libgl-dev
     - libxt-dev
     - libatlas-base-dev
     - cmake3
