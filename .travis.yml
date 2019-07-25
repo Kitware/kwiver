@@ -24,6 +24,8 @@ cache:
 before_script:
   - bash .travis/install-deps.sh
 
+dist: bionic
+
 addons:
   apt:
     sources:
