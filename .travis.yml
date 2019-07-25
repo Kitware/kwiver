@@ -38,6 +38,7 @@ addons:
     - libatlas-base-dev
     - python2.7-dev
     - libdrm-dev
+    - mesa-common-dev
 
 script:
   - export PATH=$HOME/deps/bin:$PATH
