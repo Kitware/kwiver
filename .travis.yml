@@ -11,7 +11,7 @@ matrix:
         - C_COMPILER=gcc
         - CXX_COMPILER=g++
     - compiler: clang
-      env: # default clang is version 3.4
+      env: # default clang is version 7.0.0
         - C_COMPILER=clang
         - CXX_COMPILER=clang++
 
@@ -25,6 +25,7 @@ before_script:
   - bash .travis/install-deps.sh
 
 script:
+  - ln -s /usr/bin/python3 /usr/local/bin/python
   - export PATH=$HOME/deps/bin:$PATH
   - mkdir build
   - cd build
