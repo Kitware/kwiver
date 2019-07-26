@@ -25,7 +25,7 @@ before_script:
   - bash .travis/install-deps.sh
 
 script:
-  - pyenv global 3.6
+  - pyenv global 3.6.7
   - export PATH=$HOME/deps/bin:$PATH
   - mkdir build
   - cd build
