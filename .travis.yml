@@ -3,8 +3,6 @@
 
 dist: bionic
 language: cpp
-python:
-  - "3.6"
 
 matrix:
   include:
@@ -27,6 +25,7 @@ before_script:
   - bash .travis/install-deps.sh
 
 script:
+  - pyenv global 3.6
   - export PATH=$HOME/deps/bin:$PATH
   - mkdir build
   - cd build
