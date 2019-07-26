@@ -12,8 +12,8 @@ matrix:
         - CXX_COMPILER=g++
     - compiler: clang
       env: # default clang is version 3.4
-        - C_COMPILER=clang-5.0
-        - CXX_COMPILER=clang++-5.0
+        - C_COMPILER=clang
+        - CXX_COMPILER=clang++
 
 cache:
   directories:
@@ -21,7 +21,7 @@ cache:
   - /opt/kitware
 
 before_script:
-  - sudo apt-get install -y libproj-dev libgl1-mesa-dev libxt-dev libatlas-base-dev python3-dev clang-5.0
+  - sudo apt-get install -y libproj-dev libgl1-mesa-dev libxt-dev libatlas-base-dev python3-dev
   - bash .travis/install-deps.sh
 
 script:
