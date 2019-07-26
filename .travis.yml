@@ -3,6 +3,8 @@
 
 dist: bionic
 language: cpp
+python:
+  - "3.6"
 
 matrix:
   include:
@@ -21,11 +23,10 @@ cache:
   - /opt/kitware
 
 before_script:
-  - sudo apt-get install -y libproj-dev libgl1-mesa-dev libxt-dev libatlas-base-dev python3-dev
+  - sudo apt-get install -y libproj-dev libgl1-mesa-dev libxt-dev libatlas-base-dev
   - bash .travis/install-deps.sh
 
 script:
-  - sudo ln -s /usr/bin/python3 /usr/local/bin/python
   - export PATH=$HOME/deps/bin:$PATH
   - mkdir build
   - cd build
