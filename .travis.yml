@@ -26,6 +26,7 @@ before_script:
 
 script:
   - export PATH=$HOME/deps/bin:$PATH
+  - export LD_LIBRARY_PATH=/opt/kitware/fletch/lib:$LD_LIBRARY_PATH
   - mkdir build
   - cd build
   # Travis needs help finding libomp (OpenMP) with Clang builds
