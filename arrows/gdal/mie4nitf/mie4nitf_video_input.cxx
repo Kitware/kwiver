@@ -35,8 +35,6 @@
 
 #include "arrows/gdal/mie4nitf/mie4nitf_video_input.h"
 
-#include <boost/date_time/gregorian/gregorian.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <vital/types/timestamp.h>
 #include <vital/exceptions/io.h>
 #include <vital/exceptions/video.h>
@@ -51,6 +49,7 @@
 
 #include <kwiversys/SystemTools.hxx>
 
+#include <ctime>
 #include <memory>
 #include <vector>
 #include <sstream>
@@ -300,18 +299,37 @@ public:
     return p;
   }
 
-  vital::time_usec_t utc_to_microseconds(std::string s) {
-      boost::posix_time::ptime pt;
-      boost::posix_time::ptime time_epoch(boost::gregorian::date(1970, 1, 1));
-        
-      std::string fmt = "%Y%m%d%H%M%s";
-      std::istringstream is(s);
-      is.imbue(std::locale(std::locale::classic(),
-            new boost::posix_time::time_input_facet(fmt)));
-      is >> pt;
-      vital::time_usec_t diff = (pt - time_epoch).total_microseconds();
-      return diff;
-  }
+// Converts the MIE4NITF timestamp into microseconds from epoch.
+// Assumes int64_t fits in `vital::time_usec_t`.
+vital::time_usec_t utc_to_microseconds(std::string s) {
+      const char *format = "%Y%m%d%H%M%S";
+
+      // Check if the format is as expected.
+      int dot_ind = s.find(".");
+      int format_len = 14, nano_seconds_len = 9;
+      assert(dot_ind == format_len);
+      assert(static_cast<int>(s.size()) == format_len + 1 + nano_seconds_len);
+
+      std::string format_s = s.substr(0, format_len);
+      std::string nano_seconds_s = s.substr(format_len + 1, nano_seconds_len);
+	
+      int64_t nano_seconds = atoll(nano_seconds_s.c_str());
+      int64_t micro_seconds = nano_seconds / 1000;
+      tm t, t0;
+      std::memset(&t, 0, sizeof(std::tm));
+      std::memset(&t0, 0, sizeof(std::tm));
+
+      char* c = strptime((format_s).c_str(), format, &t);
+      assert(c != NULL);
+      c = strptime("1970-01-01 00:00:00", "%Y-%m-%d %H:%M:%S", &t0);
+      assert(c != NULL);
+
+      time_t seconds_from_epoch = difftime(mktime(&t), mktime(&t0));
+      int64_t micro_seconds_from_epoch = seconds_from_epoch * 1e6 +
+        micro_seconds;
+      return micro_seconds_from_epoch;
+}
+
 
   void populate_subset_metadata()
   {
