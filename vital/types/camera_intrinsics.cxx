@@ -39,6 +39,7 @@
 #include <vital/io/eigen_io.h>
 #include <Eigen/Dense>
 
+#include <cmath>
 #include <iomanip>
 
 namespace kwiver {
@@ -240,7 +241,8 @@ simple_camera_intrinsics
   principal_point_( K( 0, 2 ), K( 1, 2 ) ),
   aspect_ratio_( K( 0, 0 ) / K( 1, 1 ) ),
   skew_( K( 0, 1 ) ),
-  dist_coeffs_( d )
+  dist_coeffs_( d ),
+  max_distort_radius_(compute_max_distort_radius())
 {
 }
 
@@ -285,6 +287,44 @@ simple_camera_intrinsics
     norm_pt -= J.ldlt().solve( residual );
   }
   return norm_pt;
+}
+
+
+/// Compute the maximum distortion radius from dist_coeffs_
+double
+simple_camera_intrinsics
+::compute_max_distort_radius() const
+{
+  double radius = std::numeric_limits<double>::infinity();
+  if (dist_coeffs_.rows() > 0)
+  {
+    double d1 = 3 * dist_coeffs_[0];
+    if (dist_coeffs_.rows() > 1)
+    {
+      if (dist_coeffs_.rows() > 4)
+      {
+        // this case (more than 2 radial coeffs) is not yet handled
+      }
+      else
+      {
+        double d2 = 5 * dist_coeffs_[1];
+        double discrim = d1 * d1 - 4 * d2;
+        if (discrim >= 0.0)
+        {
+          discrim = std::sqrt(discrim) - d1;
+          if (discrim > 0.0)
+          {
+            radius = std::sqrt(2.0 / discrim);
+          }
+        }
+      }
+    }
+    else if (d1 < 0.0)
+    {
+      radius = std::sqrt(1.0 / -d1);
+    }
+  }
+  return radius;
 }
 
 

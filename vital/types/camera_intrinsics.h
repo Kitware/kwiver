@@ -143,7 +143,8 @@ public:
     skew_(0.0),
     dist_coeffs_(),
     image_width_(0),
-    image_height_(0)
+    image_height_(0),
+    max_distort_radius_(std::numeric_limits<double>::infinity())
   {}
 
   /// Constructor for camera intrinsics
@@ -160,7 +161,8 @@ public:
     skew_(skew),
     dist_coeffs_(dist_coeffs),
     image_width_(image_width),
-    image_height_(image_height)
+    image_height_(image_height),
+    max_distort_radius_(compute_max_distort_radius())
   {}
 
   /// Constructor from the base class
@@ -170,10 +172,12 @@ public:
     aspect_ratio_(base.aspect_ratio()),
     skew_(base.skew()),
     image_width_(base.image_width()),
-    image_height_(base.image_height())
+    image_height_(base.image_height()),
+    max_distort_radius_(std::numeric_limits<double>::infinity())
   {
     std::vector<double> dc = base.dist_coeffs();
     dist_coeffs_ = vector_t::Map(dc.data(), dc.size());
+    max_distort_radius_ = compute_max_distort_radius();
   }
 
   /// Create a clone of this object
@@ -234,7 +238,11 @@ public:
   /// Set the image height
   void set_image_height(const unsigned int height) { image_height_ = height; }
   /// Set the distortion coefficients
-  void set_dist_coeffs(const vector_t& d) { dist_coeffs_ = d; }
+  void set_dist_coeffs(const vector_t& d)
+  {
+    dist_coeffs_ = d;
+    max_distort_radius_ = compute_max_distort_radius();
+  }
 
   /// Map normalized image coordinates into distorted coordinates
   virtual vector_2d distort(const vector_2d& norm_pt) const;
@@ -246,6 +254,9 @@ public:
   virtual vector_2d undistort(const vector_2d& dist_pt) const;
 
 protected:
+  /// Compute the maximum distortion radius from dist_coeffs_
+  virtual double compute_max_distort_radius() const;
+
   /// focal length of camera
   double focal_length_;
   /// principal point of camera
@@ -260,6 +271,10 @@ protected:
   unsigned int image_width_;
   /// Image height
   unsigned int image_height_;
+  /// maximum distortion radius
+  /** do not trust the radial distortion of points beyond this radius
+   */
+  double max_distort_radius_;
 };
 
 
