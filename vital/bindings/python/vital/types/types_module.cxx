@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2015, 2019 by Kitware, Inc.
+ * Copyright 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,53 +29,19 @@
  */
 
 /**
- * @file
- * @brief Shared type declarations for the VITAL module.
+ * \file algorithm_implementation.cxx
  *
- * This file contains the canonical type names for KWIVER-VITAL types.
+ * \brief python bindings for algorithm
  */
 
-#ifndef KWIVER_CORE_TYPES_H
-#define KWIVER_CORE_TYPES_H
+#include <pybind11/pybind11.h>
+#include <vital/bindings/python/vital/types/image.h>
+#include <vital/bindings/python/vital/types/image_container.h>
 
-#include <string>
-#include <vector>
-#include <cstdint>
+namespace py = pybind11;
 
-namespace kwiver {
-namespace vital {
-
-/// The type to be used for general strings
-typedef std::string string_t;
-
-/// The type to be used for file and directory paths
-typedef std::string path_t;
-typedef std::vector< path_t > path_list_t;
-
-/// The type of a landmark ID number
-typedef int64_t landmark_id_t;
-
-/// The type of a track ID number
-typedef int64_t track_id_t;
-
-/// The type of a frame number
-typedef int64_t frame_id_t;
-
-// Time in micro-seconds
-typedef int64_t time_usec_t;
-
-// -- concrete types --
-typedef double gsd_t;
-
-// a short name for unsigned char
-typedef unsigned char byte;
-
-enum class clone_type
+PYBIND11_MODULE(types, m)
 {
-  SHALLOW,
-  DEEP,
-};
-
-} } // end namespace
-
-#endif // KWIVER_CORE_TYPES_H
+  image(m);
+  image_container(m);
+}
