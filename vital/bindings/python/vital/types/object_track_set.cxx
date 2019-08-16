@@ -56,7 +56,7 @@ PYBIND11_MODULE(object_track_set, m)
   .def(py::init<int64_t, int64_t, std::shared_ptr<kwiver::vital::detected_object>>())
   .def_property_readonly("frame_id", &kwiver::vital::track_state::frame)
   .def_property_readonly("time_usec", &kwiver::vital::object_track_state::time)
-  .def_readwrite("detection", &obj_track_state::detection)
+  .def("detection", (kwiver::vital::detected_object_sptr&(kwiver::vital::object_track_state::*)())&kwiver::vital::object_track_state::detection)
   ;
 
   py::class_<obj_track_set, kwiver::vital::track_set, std::shared_ptr<obj_track_set>>(m, "ObjectTrackSet")
