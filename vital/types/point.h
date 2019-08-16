@@ -42,6 +42,7 @@
 #include <vital/vital_export.h>
 #include <vital/types/vector.h>
 #include <vital/types/covariance.h>
+#include <memory>
 
 namespace kwiver {
 namespace vital {

@@ -33,6 +33,7 @@
 
 #include <vital/types/vector.h>
 #include <Eigen/Geometry>
+#include <memory>
 
 namespace kwiver {
 namespace vital {

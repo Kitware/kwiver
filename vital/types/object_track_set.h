@@ -68,16 +68,16 @@ public:
                       time_usec_t time,
                       detected_object_sptr const& d = nullptr )
     : track_state( frame )
+    , time_(time)
     , detection_( d )
-    , time_( time )
   {}
 
   object_track_state( frame_id_t frame,
                       time_usec_t time,
                       detected_object_sptr&& d )
     : track_state( frame )
+    , time_(time)
     , detection_( std::move( d ) )
-    , time_( time )
   {}
   //@}
 
@@ -86,15 +86,15 @@ public:
   object_track_state( timestamp const& ts,
                       detected_object_sptr const& d = nullptr )
     : track_state( ts.get_frame() )
+    , time_(ts.get_time_usec())
     , detection_( d )
-    , time_( ts.get_time_usec() )
   {}
 
   object_track_state( timestamp const& ts,
                       detected_object_sptr&& d )
     : track_state( ts.get_frame() )
+    , time_(ts.get_time_usec())
     , detection_( std::move( d ) )
-    , time_( ts.get_time_usec() )
   {}
   //@}
 

@@ -37,6 +37,7 @@
 #define KWIVER_VITAL_GEO_POINT_W_COV_H_
 
 #include <vital/types/geo_point.h>
+#include <memory>
 
 namespace kwiver {
 namespace vital {

@@ -42,6 +42,7 @@
 #include <vital/types/covariance.h>
 
 #include <unordered_map>
+#include <memory>
 
 namespace kwiver {
 namespace vital {
