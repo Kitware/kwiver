@@ -60,41 +60,64 @@ namespace vital {
 class VITAL_EXPORT object_track_state : public track_state
 {
 public:
+  object_track_state() = default;
 
-  object_track_state()
-    : track_state( 0 )
-      , detection_( nullptr )
-      , time_( 0 )
-  {}
-  
+  //@{
   /// Default constructor
   object_track_state( frame_id_t frame,
                       time_usec_t time,
-                      detected_object_sptr d = nullptr )
+                      detected_object_sptr const& d = nullptr )
     : track_state( frame )
     , detection_( d )
     , time_( time )
   {}
 
+  object_track_state( frame_id_t frame,
+                      time_usec_t time,
+                      detected_object_sptr&& d )
+    : track_state( frame )
+    , detection_( std::move( d ) )
+    , time_( time )
+  {}
+  //@}
+
+  //@{
   /// Alternative constructor
-  object_track_state( const timestamp& ts,
-                      detected_object_sptr d = nullptr )
+  object_track_state( timestamp const& ts,
+                      detected_object_sptr const& d = nullptr )
     : track_state( ts.get_frame() )
     , detection_( d )
     , time_( ts.get_time_usec() )
   {}
 
-  /// Copy constructor
-  object_track_state( object_track_state const& ot )
-    : track_state( ot.frame() )
-    , detection_( ot.detection_ )
-    , time_( ot.time() )
+  object_track_state( timestamp const& ts,
+                      detected_object_sptr&& d )
+    : track_state( ts.get_frame() )
+    , detection_( std::move( d ) )
+    , time_( ts.get_time_usec() )
   {}
+  //@}
+
+  /// Copy constructor
+  object_track_state( object_track_state const& other ) = default;
+
+  /// Move constructor
+  object_track_state( object_track_state&& other ) = default;
 
   /// Clone the track state (polymorphic copy constructor)
-  virtual track_state_sptr clone() const
+  track_state_sptr clone( clone_type ct = clone_type::DEEP ) const override
   {
-    return std::make_shared< object_track_state >( *this );
+    if ( ct == clone_type::DEEP )
+    {
+      auto new_detection =
+        ( this->detection_ ? this->detection_->clone() : nullptr );
+      return std::make_shared< object_track_state >(
+        this->frame(), this->time(), std::move( new_detection ) );
+    }
+    else
+    {
+      return std::make_shared< object_track_state >( *this );
+    }
   }
 
   void set_time( time_usec_t time )
@@ -125,7 +148,7 @@ public:
   static constexpr auto downcast_transform = range::transform( downcast );
 
 private:
-  time_usec_t time_;
+  time_usec_t time_ = 0;
   detected_object_sptr detection_;
   point_2d_sptr  image_point_;
   point_3d_sptr  track_point_;

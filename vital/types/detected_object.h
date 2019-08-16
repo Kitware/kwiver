@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016-2019 by Kitware, Inc.
+ * Copyright 2016-2017, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,7 +80,7 @@ public:
 
   typedef std::vector< detected_object_sptr > vector_t;
   typedef descriptor_dynamic< double > descriptor_t;
-  typedef std::shared_ptr< descriptor_t > descriptor_sptr;
+  typedef std::shared_ptr< descriptor_t const > descriptor_scptr;
   typedef std::shared_ptr< descriptor_t const > descriptor_cptr;
 
   /**
@@ -261,7 +261,7 @@ public:
    *
    * @return Pointer to the mask image.
    */
-  image_container_sptr mask();
+  image_container_scptr mask();
 
   /**
    * @brief Set mask image for this detection.
@@ -270,7 +270,7 @@ public:
    *
    * @param m Mask image
    */
-  void set_mask( image_container_sptr m );
+  void set_mask( image_container_scptr m );
 
   /**
    * @brief Get descriptor vector.
@@ -281,7 +281,7 @@ public:
    *
    * @return Pointer to the descriptor vector.
    */
-  descriptor_sptr descriptor() const;
+  descriptor_scptr descriptor() const;
 
   /**
    * @brief Set descriptor for this detection.
@@ -291,14 +291,14 @@ public:
    *
    * @param d Descriptor vector
    */
-  void set_descriptor( descriptor_sptr d );
+  void set_descriptor( descriptor_scptr d );
 
 private:
   geo_point_sptr m_location;
   bounding_box_d m_bounding_box;
   double m_confidence;
-  image_container_sptr m_mask_image;
-  descriptor_sptr m_descriptor;
+  image_container_scptr m_mask_image;
+  descriptor_scptr m_descriptor;
 
   // The detection type is an optional list of possible object types.
   detected_object_type_sptr m_type;

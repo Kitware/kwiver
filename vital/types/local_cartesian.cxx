@@ -51,7 +51,7 @@ const double AD_C = 1.0026000;            /* Toms region 1 constant */
 const double COS_67P5 = 0.38268343236508977;  /* cosine of 67.5 degrees */
 
 /**
- * @Brief Local Cartesian Conversion Math Utility 
+ * @Brief Local Cartesian Conversion Math Utility
  *
  * Base on the NGA GeoTrans library
  * https://earth-info.nga.mil/GandG/update/index.php?action=home
@@ -64,7 +64,7 @@ class local_cartesian::geotrans
 public:
   geotrans(geo_point const& origin, double orientation)
   {
-    // Using WGS84 ellipsoid 
+    // Using WGS84 ellipsoid
     semiMajorAxis = 6378137.0;
     inv_f = 298.257223563;
     flattening = 1 / inv_f;

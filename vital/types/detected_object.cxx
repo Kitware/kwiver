@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016-2019 by Kitware, Inc.
+ * Copyright 2016-2017, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -148,7 +148,7 @@ detected_object
 
 
 // ------------------------------------------------------------------
-image_container_sptr
+image_container_scptr
 detected_object
 ::mask()
 {
@@ -159,7 +159,7 @@ detected_object
 // ------------------------------------------------------------------
 void
 detected_object
-::set_mask( image_container_sptr m )
+::set_mask( image_container_scptr m )
 {
   m_mask_image = m;
 }
@@ -220,7 +220,7 @@ detected_object
 
 
 // ------------------------------------------------------------------
-detected_object::descriptor_sptr
+detected_object::descriptor_scptr
 detected_object
 ::descriptor() const
 {
@@ -231,7 +231,7 @@ detected_object
 // ------------------------------------------------------------------
 void
 detected_object
-::set_descriptor( descriptor_sptr d )
+::set_descriptor( descriptor_scptr d )
 {
   m_descriptor = d;
 }

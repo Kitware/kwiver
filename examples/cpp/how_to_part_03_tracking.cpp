@@ -49,7 +49,7 @@ void how_to_part_03_tracking()
   kwiver::vital::object_track_set_sptr tracks =
     kwiver::vital::object_track_set_sptr(new kwiver::vital::object_track_set());
 
-  // Let's create a track 
+  // Let's create a track
   auto track = kwiver::vital::track::create();
   
   // Create the state of the track for frame 0, time 0
@@ -67,7 +67,7 @@ void how_to_part_03_tracking()
 
   // Image Point
   // This point is the coordinates for the object in the raw image coordinate system.
-  // This point may be drawn from the center of the bounding box, bottom center, or wherever for that matter. 
+  // This point may be drawn from the center of the bounding box, bottom center, or wherever for that matter.
   // It is important to keep this around because the camera/world model will need to know the raw-image coordinates
   // in order to unproject the image location into the world coordinate system, and we may at some point lose access to the detection.
   // NOTE the meta data describing the coordinate system used is not part of this class, that should be kept and enforced by the user
