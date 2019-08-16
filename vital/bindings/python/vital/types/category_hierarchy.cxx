@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2019 by Kitware, Inc.
+ * Copyright 2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,48 +28,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file algorithm_implementation.cxx
- *
- * \brief python bindings for algorithm
- */
-
-
-#include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include <vital/algo/algorithm.h>
-#include <vital/bindings/python/vital/algo/algorithm.h>
-
-#include <vital/algo/image_object_detector.h>
-#include <vital/algo/train_detector.h>
-
-#include <vital/bindings/python/vital/algo/trampoline/image_filter_trampoline.txx>
-#include <vital/bindings/python/vital/algo/trampoline/image_object_detector_trampoline.txx>
-#include <vital/bindings/python/vital/algo/trampoline/train_detector_trampoline.txx>
-
-#include <vital/bindings/python/vital/algo/image_filter.h>
-#include <vital/bindings/python/vital/algo/image_object_detector.h>
-#include <vital/bindings/python/vital/algo/train_detector.h>
-
-#include <sstream>
+#include <vital/types/category_hierarchy.h>
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(algorithm, m)
+PYBIND11_MODULE(category_hierarchy, m)
 {
-  algorithm(m);
+  py::class_<kwiver::vital::category_hierarchy,
+    std::shared_ptr<kwiver::vital::category_hierarchy>>(m, "CategoryHierarchy")
+  .def(py::init<>())
+  .def(py::init<std::vector<std::string>>())
+  .def(py::init<std::vector<std::string>,std::vector<std::string>>())
+  .def(py::init<std::vector<std::string>,std::vector<std::string>,std::vector<int>>())
 
-  register_algorithm<kwiver::vital::algo::image_filter,
-    algorithm_def_if_trampoline<>>(m, "image_filter");
-  image_filter(m);
-
-  register_algorithm<kwiver::vital::algo::image_object_detector,
-    algorithm_def_iod_trampoline<>>(m, "image_object_detector");
-  image_object_detector(m);
-
-  register_algorithm<kwiver::vital::algo::train_detector,
-    algorithm_def_td_trampoline<>>(m, "train_detector");
-  train_detector(m);
-
+  .def("add_class", &kwiver::vital::category_hierarchy::add_class,
+    py::arg("class_name"), py::arg("class_parent"), py::arg("class_id"))
+  .def("get_class_id", &kwiver::vital::category_hierarchy::get_class_id,
+    py::arg("class_name"))
+  .def("get_class_parents", &kwiver::vital::category_hierarchy::get_class_parents,
+    py::arg("class_name"))
+  .def("all_class_names", &kwiver::vital::category_hierarchy::all_class_names)
+  ;
 }
