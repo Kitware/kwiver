@@ -224,6 +224,8 @@ public:
   const unsigned int& get_image_height() const { return image_height_; }
   /// Access the distortion coefficients
   const vector_t& get_dist_coeffs() const { return dist_coeffs_; }
+  /// Access the maximum distortion radius
+  const double& get_max_distort_radius() const { return max_distort_radius_; }
 
   /// Set the focal length
   void set_focal_length(const double& focal_length) { focal_length_ = focal_length; }
