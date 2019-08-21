@@ -348,32 +348,33 @@ simple_camera_intrinsics
   // general solution for non-zero cubic term
   if (c != 0.0)
   {
+    // an array for the three possible solutions
+    double solns[3] = { inf, inf, inf };
     // precompute commonly used terms (boc is "b over c")
     double boc = b / c;
     double boc2 = boc * boc;
-    double A = (9 * a * boc - 2 * b * boc2 - 27) / c;
-    double B = 3 * a / c - boc2;
-    double discrim = A * A + 4 * B * B * B;
-    double solns[3] = { inf, inf, inf };
+    double t1 = (9 * a * boc - 2 * b * boc2 - 27) / c;
+    double t2 = 3 * a / c - boc2;
+    double discrim = t1 * t1 + 4 * t2 * t2 * t2;
     if (discrim >= 0.0)
     {
-      discrim = std::cbrt((std::sqrt(discrim) + A) / 2.0);
-      solns[0] = (discrim - (B / discrim) - boc) / 3;
+      discrim = std::cbrt((std::sqrt(discrim) + t1) / 2.0);
+      solns[0] = (discrim - (t2 / discrim) - boc) / 3;
     }
     else
     {
-      double theta = (2 * pi - std::atan2(std::sqrt(-discrim), A)) / 3;
-      // by construction, if discrim < 0 then B < 0, so the sqrt is safe
-      solns[0] = (2 * std::sqrt(-B) * std::cos(theta) - boc) / 3;
+      double theta = (2 * pi - std::atan2(std::sqrt(-discrim), t1)) / 3;
+      // by construction, if discrim < 0 then t2 < 0, so the sqrt is safe
+      solns[0] = (2 * std::sqrt(-t2) * std::cos(theta) - boc) / 3;
     }
     // use the reduced polynomial to solve for the other two solutions
-    double E = b + c * solns[0];
-    discrim = E * E + 4 * c / solns[0];
+    double t = b + c * solns[0];
+    discrim = t * t + 4 * c / solns[0];
     if (discrim >= 0.0)
     {
       discrim = std::sqrt(discrim);
-      solns[1] = (discrim - E) / (2 * c);
-      solns[2] = (-discrim - E) / (2 * c);
+      solns[1] = (discrim - t) / (2 * c);
+      solns[2] = (-discrim - t) / (2 * c);
     }
     // find the minimum positive solution
     double min_soln = inf;
