@@ -109,3 +109,35 @@ TEST(camera_intrinsics, max_radius)
   test_finite_max_radius(0.0, -0.2, 0.0);
   test_finite_max_radius(0.0, 0.0, -0.3);
 }
+
+// ----------------------------------------------------------------------------
+TEST(camera_intrinsics, is_map_valid)
+{
+  vector_2d pp{ 300, 400 };
+  double f = 1000.0;
+  double a = 1.0;
+  double s = 0.0;
+  vector_3d d = { -0.1, -0.01, 0.001 };
+  // max radius for this d is about 1.61618
+  simple_camera_intrinsics K{ f, pp, a, s, d };
+
+  EXPECT_TRUE(K.is_map_valid(vector_2d(0.5, 0.4)));
+  EXPECT_TRUE(K.is_map_valid(vector_2d(1.0, -1.0)));
+  EXPECT_TRUE(K.is_map_valid(vector_3d(-2.0, 1.0, 2.0)));
+  EXPECT_FALSE(K.is_map_valid(vector_2d(2.0, 1.0)));
+  EXPECT_FALSE(K.is_map_valid(vector_2d(-100.0, 200.0)));
+  // this point is at infinity, so it's always invalid
+  EXPECT_FALSE(K.is_map_valid(vector_3d(2.0, 1.0, 0.0)));
+
+  d = { 0.1, 0.01, 0.001 };
+  // max radius for this d is infinity
+  K.set_dist_coeffs(d);
+
+  EXPECT_TRUE(K.is_map_valid(vector_2d(0.5, 0.4)));
+  EXPECT_TRUE(K.is_map_valid(vector_2d(1.0, -1.0)));
+  EXPECT_TRUE(K.is_map_valid(vector_3d(-2.0, 1.0, 2.0)));
+  EXPECT_TRUE(K.is_map_valid(vector_2d(2.0, 1.0)));
+  EXPECT_TRUE(K.is_map_valid(vector_2d(-100.0, 200.0)));
+  // this point is at infinity, so it's always invalid
+  EXPECT_FALSE(K.is_map_valid(vector_3d(2.0, 1.0, 0.0)));
+}
