@@ -67,3 +67,45 @@ TEST(camera_intrinsics, map)
   vector_3d homg_pt{ 2.5 * vector_3d{ test_pt.x(), test_pt.y(), 1 } };
   EXPECT_MATRIX_NEAR( mapped_test_gt, K.map( homg_pt ), 1e-12 );
 }
+
+// ----------------------------------------------------------------------------
+double dist_deriv(double r, double a, double b, double c)
+{
+  double r2 = r*r;
+  return 1 + 3 * a*r2 + 5 * b*r2*r2 + 7 * c*r2*r2*r2;
+}
+
+void test_finite_max_radius(double a, double b, double c)
+{
+  double mr = simple_camera_intrinsics::max_distort_radius(a, b, c);
+  EXPECT_GT(mr, 0.0);
+  EXPECT_TRUE(std::isfinite(mr));
+  EXPECT_NEAR(dist_deriv(mr, a, b, c), 0.0, 1e-12);
+}
+
+void test_infinite_max_radius(double a, double b, double c)
+{
+  double mr = simple_camera_intrinsics::max_distort_radius(a, b, c);
+  EXPECT_TRUE(mr == std::numeric_limits<double>::infinity());
+}
+
+TEST(camera_intrinsics, max_radius)
+{
+  // parameters that should have infinite radius
+  test_infinite_max_radius(0.0, 0.0, 0.0);
+  test_infinite_max_radius(0.1, 0.2, 0.3);
+  test_infinite_max_radius(0.1, 0.2, 0.0);
+  test_infinite_max_radius(0.1, 0.0, 0.0);
+  test_infinite_max_radius(-0.1, 0.005, 0.00001);
+
+  // these parameters have three solutions
+  test_finite_max_radius(-0.1, 0.004, -0.00001);
+  // these parameters have two solutions
+  test_finite_max_radius(-0.1, 0.001, 0.00001);
+  // these parameters have one solution
+  test_finite_max_radius(-0.01, -0.01, -0.0001);
+
+  test_finite_max_radius(-0.1, 0.0, 0.0);
+  test_finite_max_radius(0.0, -0.2, 0.0);
+  test_finite_max_radius(0.0, 0.0, -0.3);
+}
