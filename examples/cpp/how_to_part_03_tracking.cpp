@@ -51,7 +51,7 @@ void how_to_part_03_tracking()
 
   // Let's create a track
   auto track = kwiver::vital::track::create();
-  
+
   // Create the state of the track for frame 0, time 0
   kwiver::vital::object_track_state* state = new kwiver::vital::object_track_state(0, 0);
   const kwiver::vital::object_track_state* c_state = state;
