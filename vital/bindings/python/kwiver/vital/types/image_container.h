@@ -28,20 +28,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file algorithm_implementation.cxx
- *
- * \brief python bindings for algorithm
- */
+#ifndef KWIVER_VITAL_PYTHON_IMAGE_CONTAINER_H_
+#define KWIVER_VITAL_PYTHON_IMAGE_CONTAINER_H_
 
 #include <pybind11/pybind11.h>
-#include <vital/bindings/python/vital/types/image.h>
-#include <vital/bindings/python/vital/types/image_container.h>
+#include <vital/types/image_container.h>
+#include "image.h"
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(types, m)
+typedef kwiver::vital::image_container image_cont_t;
+typedef kwiver::vital::simple_image_container s_image_cont_t;
+
+void image_container(py::module &m);
+
+namespace kwiver {
+namespace vital  {
+namespace python {
+namespace image_container {
+// We need to return a shared pointer--otherwise, pybind11 may lose the subtype
+std::shared_ptr<s_image_cont_t>new_cont(kwiver::vital::image &img);
+
+// We need to do a deep copy instead of just calling get_image, so we can ref track in python
+kwiver::vital::image get_image(std::shared_ptr<image_cont_t> self);
+
+template <typename T>
+s_image_cont_t new_image_container_from_numpy(py::array_t<T> array)
 {
-  image(m);
-  image_container(m);
+  kwiver::vital::image img = kwiver::vital::python::image::new_image_from_numpy(array);
+  return s_image_cont_t(img);
 }
+
+} } } }
+
+#endif
