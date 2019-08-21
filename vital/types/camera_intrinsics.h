@@ -119,6 +119,19 @@ public:
    */
   virtual vector_2d undistort(const vector_2d& dist_pt) const { return dist_pt; };
 
+  /// Check if a normalized image coordinate can map into image coordinates
+  /**
+  *  Some points may lie outside the domain of the mapping function and produce
+  *  invalid results.  This function tests if the point lies in the valid domain
+  */
+  virtual bool is_map_valid(const vector_2d& norm_pt) const { return true; }
+
+  /// Check if a 3D point in camera coordinates can map into image coordinates
+  /**
+  *  Some points may lie outside the domain of the mapping function and produce
+  *  invalid results.  This function tests if the point lies in the valid domain
+  */
+  virtual bool is_map_valid(const vector_3d& norm_hpt) const;
 };
 
 /// output stream operator for a base class camera_intrinsics
@@ -256,6 +269,14 @@ public:
    *  uses an iterative solver.
    */
   virtual vector_2d undistort(const vector_2d& dist_pt) const;
+
+  /// Check if a normalized image coordinate can map into image coordinates
+  /**
+  *  Tests if a point lies beyond the maximum distortion radius
+  */
+  virtual bool is_map_valid(const vector_2d& norm_pt) const;
+
+  using camera_intrinsics::is_map_valid;
 
   /// Compute maximum squared radius for radial distortion given coefficients
   /** A point at radius r is distorted to \f$(1 + a r^2 + b r^4 + c r^6) r\f$.

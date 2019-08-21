@@ -101,6 +101,15 @@ camera_intrinsics
 }
 
 
+/// Check if a 3D point in camera coordinates can map into image coordinates
+bool
+camera_intrinsics
+::is_map_valid(const vector_3d& norm_hpt) const
+{
+  return this->is_map_valid(vector_2d(norm_hpt[0] / norm_hpt[2],
+                                      norm_hpt[1] / norm_hpt[2]));
+}
+
 
 namespace // anonymous namespace
 {
@@ -288,6 +297,14 @@ simple_camera_intrinsics
     norm_pt -= J.ldlt().solve( residual );
   }
   return norm_pt;
+}
+
+/// Check if a normalized image coordinate can map into image coordinates
+bool
+simple_camera_intrinsics
+::is_map_valid(const vector_2d& norm_pt) const
+{
+  return norm_pt.squaredNorm() < this->max_distort_radius_sq_;
 }
 
 
