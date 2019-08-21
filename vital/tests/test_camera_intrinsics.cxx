@@ -77,15 +77,15 @@ double dist_deriv(double r, double a, double b, double c)
 
 void test_finite_max_radius(double a, double b, double c)
 {
-  double mr = simple_camera_intrinsics::max_distort_radius(a, b, c);
+  double mr = simple_camera_intrinsics::max_distort_radius_sq(a, b, c);
   EXPECT_GT(mr, 0.0);
   EXPECT_TRUE(std::isfinite(mr));
-  EXPECT_NEAR(dist_deriv(mr, a, b, c), 0.0, 1e-12);
+  EXPECT_NEAR(dist_deriv(std::sqrt(mr), a, b, c), 0.0, 1e-12);
 }
 
 void test_infinite_max_radius(double a, double b, double c)
 {
-  double mr = simple_camera_intrinsics::max_distort_radius(a, b, c);
+  double mr = simple_camera_intrinsics::max_distort_radius_sq(a, b, c);
   EXPECT_TRUE(mr == std::numeric_limits<double>::infinity());
 }
 

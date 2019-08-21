@@ -243,7 +243,7 @@ simple_camera_intrinsics
   aspect_ratio_( K( 0, 0 ) / K( 1, 1 ) ),
   skew_( K( 0, 1 ) ),
   dist_coeffs_( d ),
-  max_distort_radius_(compute_max_distort_radius())
+  max_distort_radius_sq_(compute_max_distort_radius_sq())
 {
 }
 
@@ -294,7 +294,7 @@ simple_camera_intrinsics
 /// Compute the maximum distortion radius from dist_coeffs_
 double
 simple_camera_intrinsics
-::compute_max_distort_radius() const
+::compute_max_distort_radius_sq() const
 {
   double a = 0.0;
   double b = 0.0;
@@ -316,14 +316,14 @@ simple_camera_intrinsics
       }
     }
   }
-  return max_distort_radius(a, b, c);
+  return max_distort_radius_sq(a, b, c);
 }
 
 
 /// Compute the maximum radius for radial distortion given coefficients
 double
 simple_camera_intrinsics
-::max_distort_radius(double a, double b, double c)
+::max_distort_radius_sq(double a, double b, double c)
 {
   constexpr double inf = std::numeric_limits<double>::infinity();
   using kwiver::vital::pi;
@@ -385,7 +385,7 @@ simple_camera_intrinsics
         min_soln = s;
       }
     }
-    return std::sqrt(min_soln);
+    return min_soln;
   }
   // simplified solution for the quadratic case
   else if (b != 0.0)
@@ -400,14 +400,14 @@ simple_camera_intrinsics
       // if less than zero both solutions are negative
       if (discrim > 0.0)
       {
-        return std::sqrt(2.0 / discrim);
+        return 2.0 / discrim;
       }
     }
   }
   // simple linear case for b = c = 0
   else if (a < 0.0)
   {
-    return std::sqrt(1.0 / -a);
+    return 1.0 / -a;
   }
   return inf;
 }
