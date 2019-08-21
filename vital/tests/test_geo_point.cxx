@@ -44,6 +44,10 @@ static auto const loc1 = kwiver::vital::vector_3d{ -73.759291, 42.849631, 0 };
 static auto const loc2 = kwiver::vital::vector_3d{ -73.757161, 42.849764, 0 };
 static auto const loc3 = kwiver::vital::vector_3d{ 601375.01, 4744863.31, 0 };
 
+static auto const loc1a = kwiver::vital::vector_3d{ -73.759291, 42.849631, 50 };
+static auto const loc2a = kwiver::vital::vector_3d{ -73.757161, 42.849764, 50 };
+static auto const loc3a = kwiver::vital::vector_3d{ 601375.01, 4744863.31, 50 };
+
 static auto constexpr crs_ll = kwiver::vital::SRID::lat_lon_WGS84;
 static auto constexpr crs_utm_18n = kwiver::vital::SRID::UTM_WGS84_north + 18;
 
@@ -152,4 +156,22 @@ TEST(geo_point, conversion)
 
   std::cout << "LL->UTM epsilon: " << epsilon_ll_to_utm << std::endl;
   std::cout << "UTM->LL epsilon: " << epsilon_utm_to_ll << std::endl;
+
+  // Now with altitude!
+  kwiver::vital::geo_point p_lla{ loc1a, crs_ll };
+  kwiver::vital::geo_point p_utma{ loc3a, crs_utm_18n };
+
+  auto const conv_loc_utma = p_lla.location(p_utma.crs());
+  auto const conv_loc_lla = p_utma.location(p_lla.crs());
+
+  auto const epsilon_lla_to_utma = (loc3a - conv_loc_utma).norm();
+  auto const epsilon_utma_to_lla = (loc1a - conv_loc_lla).norm();
+
+  EXPECT_MATRIX_NEAR(p_lla.location(), conv_loc_lla, 1e-7);
+  EXPECT_MATRIX_NEAR(p_utma.location(), conv_loc_utma, 1e-2);
+  EXPECT_LT(epsilon_lla_to_utma, 1e-2);
+  EXPECT_LT(epsilon_utma_to_lla, 1e-7);
+
+  std::cout << "LLA->UTMa epsilon: " << epsilon_lla_to_utma << std::endl;
+  std::cout << "UTMa->LLA epsilon: " << epsilon_utma_to_lla << std::endl;
 }
