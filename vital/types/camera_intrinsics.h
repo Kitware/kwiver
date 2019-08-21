@@ -253,6 +253,17 @@ public:
    */
   virtual vector_2d undistort(const vector_2d& dist_pt) const;
 
+  /// Compute the maximum radius for radial distortion given coefficients
+  /** A point at radius r is distorted to \f$(1 + a r^2 + b r^4 + c r^6) r\f$.
+   *  This function computes the maximum value of r before the function
+   *  curves back on itself (i.e. the slope is negative).  In many cases
+   *  the maximum radius is infinity.  Beyond this maximum radius the
+   *  distortion function is no longer injective.  Points beyond this radius
+   *  can project into the image bounds even if they are far outside the
+   *  field of view.
+   */
+  static double max_distort_radius(double a, double b, double c);
+
 protected:
   /// Compute the maximum distortion radius from dist_coeffs_
   virtual double compute_max_distort_radius() const;

@@ -296,80 +296,119 @@ double
 simple_camera_intrinsics
 ::compute_max_distort_radius() const
 {
-  constexpr double inf = std::numeric_limits<double>::infinity();
-  using kwiver::vital::pi;
-  double radius = inf;
+  double a = 0.0;
+  double b = 0.0;
+  double c = 0.0;
   if (dist_coeffs_.rows() > 0)
   {
-    double d1 = 3 * dist_coeffs_[0];
+    a = dist_coeffs_[0];
     if (dist_coeffs_.rows() > 1)
     {
-      double d2 = 5 * dist_coeffs_[1];
+      b = dist_coeffs_[1];
       if (dist_coeffs_.rows() > 4)
       {
-        double d3 = 7 * dist_coeffs_[4];
+        c = dist_coeffs_[4];
         if (dist_coeffs_.rows() > 5)
         {
           // the rational polynomial case is not yet handled
-        }
-        else
-        {
-          double d2_o_d3 = d2 / d3;
-          double d2_o_d3_2 = d2_o_d3 * d2_o_d3;
-          double A = (9 * d1 * d2_o_d3 - 2 * d2 * d2_o_d3_2 - 27) / d3;
-          double B = 3 * d1 / d3 - d2_o_d3_2;
-          double discrim = A * A + 4 * B * B * B;
-          double solns[3] = { inf, inf, inf };
-          if (discrim >= 0.0)
-          {
-            discrim = std::cbrt((std::sqrt(discrim) + A) / 2.0);
-            solns[0] = (discrim -  (B / discrim) - d2_o_d3) / 3;
-          }
-          else
-          {
-            double theta = (2 * pi - std::atan2(std::sqrt(-discrim), A)) / 3;
-            // by construction, if discrim < 0 then B < 0, so the sqrt is safe
-            solns[0] = (2 * std::sqrt(-B) * std::cos(theta) - d2_o_d3) / 3;
-          }
-          // use the reduced polynomial to solve for the other two solutions
-          double E = d2 + d3 * solns[0];
-          discrim = E * E + 4 * d3 / solns[0];
-          if (discrim >= 0.0)
-          {
-            discrim = std::sqrt(discrim);
-            solns[1] = (discrim - E) / (2 * d3);
-            solns[2] = (-discrim - E) / (2 * d3);
-          }
-          // find the minimum positive solution
-          for (auto const& s : solns)
-          {
-            if (s > 0.0 && s < radius)
-            {
-              radius = s;
-            }
-          }
-          radius = std::sqrt(radius);
+          // TODO: implement something or throw a warning
         }
       }
-      else
-      {
-        double discrim = d1 * d1 - 4 * d2;
-        if (discrim >= 0.0)
-        {
-          discrim = std::sqrt(discrim) - d1;
-          if (discrim > 0.0)
-          {
-            radius = std::sqrt(2.0 / discrim);
-          }
-        }
-      }
-    }
-    else if (d1 < 0.0)
-    {
-      radius = std::sqrt(1.0 / -d1);
     }
   }
-  return radius;
+  return max_distort_radius(a, b, c);
+}
+
+
+/// Compute the maximum radius for radial distortion given coefficients
+double
+simple_camera_intrinsics
+::max_distort_radius(double a, double b, double c)
+{
+  constexpr double inf = std::numeric_limits<double>::infinity();
+  using kwiver::vital::pi;
+  // this function finds the smallest positive root of
+  //   (1 + a r^2 + b r^4 + c r^6) r
+  // the derivative with respect to r is
+  //   1 + 3 a r^2 + 5 b r^4 + 7 c r^6
+  // substituting x = r^2 we can solve this cubic polynomial
+  //   1 + 3 a x + 5 b x^2 + 7 c r^3
+  // taking the square root of the smallest positive x gives r
+
+  // fold the constants from the derivative into a, b, and c
+  a *= 3;
+  b *= 5;
+  c *= 7;
+
+  // if all non-negative there is no root
+  if (a >= 0.0 && b >= 0.0 && c >= 0.0)
+  {
+    return inf;
+  }
+  // general solution for non-zero cubic term
+  if (c != 0.0)
+  {
+    // precompute commonly used terms (boc is "b over c")
+    double boc = b / c;
+    double boc2 = boc * boc;
+    double A = (9 * a * boc - 2 * b * boc2 - 27) / c;
+    double B = 3 * a / c - boc2;
+    double discrim = A * A + 4 * B * B * B;
+    double solns[3] = { inf, inf, inf };
+    if (discrim >= 0.0)
+    {
+      discrim = std::cbrt((std::sqrt(discrim) + A) / 2.0);
+      solns[0] = (discrim - (B / discrim) - boc) / 3;
+    }
+    else
+    {
+      double theta = (2 * pi - std::atan2(std::sqrt(-discrim), A)) / 3;
+      // by construction, if discrim < 0 then B < 0, so the sqrt is safe
+      solns[0] = (2 * std::sqrt(-B) * std::cos(theta) - boc) / 3;
+    }
+    // use the reduced polynomial to solve for the other two solutions
+    double E = b + c * solns[0];
+    discrim = E * E + 4 * c / solns[0];
+    if (discrim >= 0.0)
+    {
+      discrim = std::sqrt(discrim);
+      solns[1] = (discrim - E) / (2 * c);
+      solns[2] = (-discrim - E) / (2 * c);
+    }
+    // find the minimum positive solution
+    double min_soln = inf;
+    for (auto const& s : solns)
+    {
+      if (s > 0.0 && s < min_soln)
+      {
+        min_soln = s;
+      }
+    }
+    return std::sqrt(min_soln);
+  }
+  // simplified solution for the quadratic case
+  else if (b != 0.0)
+  {
+    double discrim = a * a - 4 * b;
+    // if less than zero both solutions are not real
+    if (discrim >= 0.0)
+    {
+      // we only need the smaller of the two possible solutions
+      // solutions must be either both positive or both negative
+      discrim = std::sqrt(discrim) - a;
+      // if less than zero both solutions are negative
+      if (discrim > 0.0)
+      {
+        return std::sqrt(2.0 / discrim);
+      }
+    }
+  }
+  // simple linear case for b = c = 0
+  else if (a < 0.0)
+  {
+    return std::sqrt(1.0 / -a);
+  }
+  return inf;
 }
 
 
