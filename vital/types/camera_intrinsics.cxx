@@ -37,6 +37,7 @@
 
 #include <vital/types/camera_intrinsics.h>
 #include <vital/io/eigen_io.h>
+#include <vital/math_constants.h>
 #include <Eigen/Dense>
 
 #include <cmath>
@@ -295,19 +296,63 @@ double
 simple_camera_intrinsics
 ::compute_max_distort_radius() const
 {
-  double radius = std::numeric_limits<double>::infinity();
+  constexpr double inf = std::numeric_limits<double>::infinity();
+  using kwiver::vital::pi;
+  double radius = inf;
   if (dist_coeffs_.rows() > 0)
   {
     double d1 = 3 * dist_coeffs_[0];
     if (dist_coeffs_.rows() > 1)
     {
+      double d2 = 5 * dist_coeffs_[1];
       if (dist_coeffs_.rows() > 4)
       {
-        // this case (more than 2 radial coeffs) is not yet handled
+        double d3 = 7 * dist_coeffs_[4];
+        if (dist_coeffs_.rows() > 5)
+        {
+          // the rational polynomial case is not yet handled
+        }
+        else
+        {
+          double d2_o_d3 = d2 / d3;
+          double d2_o_d3_2 = d2_o_d3 * d2_o_d3;
+          double A = (9 * d1 * d2_o_d3 - 2 * d2 * d2_o_d3_2 - 27) / d3;
+          double B = 3 * d1 / d3 - d2_o_d3_2;
+          double discrim = A * A + 4 * B * B * B;
+          double solns[3] = { inf, inf, inf };
+          if (discrim >= 0.0)
+          {
+            discrim = std::cbrt((std::sqrt(discrim) + A) / 2.0);
+            solns[0] = (discrim -  (B / discrim) - d2_o_d3) / 3;
+          }
+          else
+          {
+            double theta = (2 * pi - std::atan2(std::sqrt(-discrim), A)) / 3;
+            // by construction, if discrim < 0 then B < 0, so the sqrt is safe
+            solns[0] = (2 * std::sqrt(-B) * std::cos(theta) - d2_o_d3) / 3;
+          }
+          // use the reduced polynomial to solve for the other two solutions
+          double E = d2 + d3 * solns[0];
+          discrim = E * E + 4 * d3 / solns[0];
+          if (discrim >= 0.0)
+          {
+            discrim = std::sqrt(discrim);
+            solns[1] = (discrim - E) / (2 * d3);
+            solns[2] = (-discrim - E) / (2 * d3);
+          }
+          // find the minimum positive solution
+          for (auto const& s : solns)
+          {
+            if (s > 0.0 && s < radius)
+            {
+              radius = s;
+            }
+          }
+          radius = std::sqrt(radius);
+        }
       }
       else
       {
-        double d2 = 5 * dist_coeffs_[1];
         double discrim = d1 * d1 - 4 * d2;
         if (discrim >= 0.0)
         {
