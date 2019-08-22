@@ -66,7 +66,7 @@ public:
   /// Default constructor
   object_track_state( frame_id_t frame,
                       time_usec_t time,
-                      detected_object_sptr const& d = nullptr )
+                      detected_object_scptr const& d = nullptr )
     : track_state( frame )
     , time_(time)
     , detection_( d )
@@ -79,19 +79,27 @@ public:
     , time_(time)
     , detection_( std::move( d ) )
   {}
+
+  object_track_state( frame_id_t frame,
+                      time_usec_t time,
+                      detected_object_scptr&& d )
+    : track_state( frame )
+    , time_(time)
+    , detection_( std::move( d ) )
+  {}
   //@}
 
   //@{
   /// Alternative constructor
   object_track_state( timestamp const& ts,
-                      detected_object_sptr const& d = nullptr )
+                      detected_object_scptr const& d = nullptr )
     : track_state( ts.get_frame() )
     , time_(ts.get_time_usec())
     , detection_( d )
   {}
 
   object_track_state( timestamp const& ts,
-                      detected_object_sptr&& d )
+                      detected_object_scptr&& d )
     : track_state( ts.get_frame() )
     , time_(ts.get_time_usec())
     , detection_( std::move( d ) )
@@ -130,14 +138,14 @@ public:
     return time_;
   }
 
-  detected_object_sptr& detection();
-  const detected_object_cptr detection() const;
+  void set_detection(detected_object_scptr const pt) { detection_ = pt; }
+  const detected_object_scptr detection() const { return detection_; }
 
-  point_2d_sptr& image_point();
-  const point_2d_cptr image_point() const;
+  void set_image_point(point_2d pt) { image_point_ = pt; }
+  const point_2d image_point() const { return image_point_; }
 
-  point_3d_sptr& track_point();
-  const point_3d_cptr track_point() const;
+  void set_track_point(point_3d pt) { track_point_ = pt; }
+  const point_3d track_point() const { return track_point_; }
 
   static std::shared_ptr< object_track_state > downcast(
     track_state_sptr const& sp )
@@ -149,10 +157,13 @@ public:
 
 private:
   time_usec_t time_ = 0;
-  detected_object_sptr detection_;
-  point_2d_sptr  image_point_;
-  point_3d_sptr  track_point_;
+  detected_object_scptr detection_;
+  point_2d image_point_;
+  point_3d track_point_;
 };
+
+/// Shared pointer for object_track_state type
+typedef std::shared_ptr< object_track_state > object_track_state_sptr;
 
 
 // ============================================================================

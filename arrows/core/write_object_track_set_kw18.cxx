@@ -104,7 +104,7 @@ write_object_track_set_kw18
         continue;
       }
 
-      vital::detected_object_sptr det = ts->detection();
+      vital::detected_object_scptr det = ts->detection();
       const vital::bounding_box_d empty_box = vital::bounding_box_d( -1, -1, -1, -1 );
       vital::bounding_box_d bbox = ( det ? det->bounding_box() : empty_box );
 

@@ -60,7 +60,7 @@ class detected_object;
 
 // typedef for a detected_object shared pointer
 typedef std::shared_ptr< detected_object > detected_object_sptr;
-typedef std::shared_ptr< detected_object const > detected_object_cptr;
+typedef std::shared_ptr< detected_object const > detected_object_scptr;
 
 
 // ----------------------------------------------------------------
@@ -127,7 +127,7 @@ public:
    * @brief Get bounding box from this detection.
    *
    * The bounding box for this detection is returned. This box is in
-   * image coordinates. A null bounding box
+   * image coordinates. An invalid bounding box
    * is returned if no box has been supplied for this detection.
    *
    * @return The bounding box.
@@ -148,13 +148,12 @@ public:
    * @brief Get geo_point from this detection.
    *
    * The geo_point for this detection is returned. This point is in
-   * world coordinates. A null geo_point
+   * world coordinates. An empty geo_point
    * is returned if no location has been supplied for this detection.
    *
    * @return The bounding box.
    */
-  geo_point_sptr& location();
-  geo_point_cptr location() const;
+  geo_point location() const;
 
   /**
    * @brief Set new geo_point for this detection.
@@ -163,7 +162,7 @@ public:
    *
    * @param pt geo_point for this detection.
    */
-  void set_location(const geo_point& pt);
+  void set_location(geo_point pt);
 
   /**
    * @brief Get confidence for this detection.
@@ -242,7 +241,7 @@ public:
    *
    * @return Pointer to classification object or NULL.
    */
-  detected_object_type_sptr type();
+  detected_object_type_scptr type();
 
   /**
    * @brief Set new classifications for this detection.
@@ -252,7 +251,7 @@ public:
    *
    * @param c New classification for this detection
    */
-  void set_type( detected_object_type_sptr c );
+  void set_type(detected_object_type_scptr c );
 
   /**
    * @brief Get detection mask image.
@@ -294,14 +293,14 @@ public:
   void set_descriptor( descriptor_scptr d );
 
 private:
-  geo_point_sptr m_location;
+  geo_point m_location;
   bounding_box_d m_bounding_box;
   double m_confidence;
   image_container_scptr m_mask_image;
   descriptor_scptr m_descriptor;
 
   // The detection type is an optional list of possible object types.
-  detected_object_type_sptr m_type;
+  detected_object_type_scptr m_type;
 
   uint64_t m_index; ///< index for this object
   std::string m_detector_name;

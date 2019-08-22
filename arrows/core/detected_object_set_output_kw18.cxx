@@ -259,7 +259,7 @@ write_set( const kwiver::vital::detected_object_set_sptr set, std::string const&
     // optionally write tot to corresponding file
     if( d->m_write_tot )
     {
-      vital::detected_object_type_sptr clf = (*det)->type();
+      vital::detected_object_type_scptr clf = (*det)->type();
 
       double f1 = 0.0, f2 = 0.0, f3 = 0.0;
 

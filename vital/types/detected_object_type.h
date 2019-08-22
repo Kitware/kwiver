@@ -291,6 +291,7 @@ private:
 
 // typedef for a object_type shared pointer
 typedef std::shared_ptr< detected_object_type > detected_object_type_sptr;
+typedef std::shared_ptr< detected_object_type const > detected_object_type_scptr;
 
 } }
 

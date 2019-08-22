@@ -64,7 +64,7 @@ object_track_set
   : track_set( tsi_uptr( new simple_track_set_implementation( tracks ) ) )
 {
 }
-
+/*
 detected_object_sptr& object_track_state::detection()
 {
   return detection_;
@@ -91,5 +91,5 @@ const point_3d_cptr object_track_state::track_point() const
 {
   return track_point_;
 }
-
+*/
 } } // end namespace vital

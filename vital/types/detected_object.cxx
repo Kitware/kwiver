@@ -49,7 +49,7 @@ detected_object::detected_object( double              confidence,
 detected_object::detected_object( const geo_point& pt,
                                   double              confidence,
                                   detected_object_type_sptr classifications )
-  : m_location( std::make_shared< geo_point >( pt ) )
+  : m_location( pt )
   , m_confidence( confidence )
   , m_type( classifications )
   , m_index( 0 )
@@ -84,6 +84,7 @@ detected_object
   new_obj->m_index = this->m_index;
   new_obj->m_detector_name = this->m_detector_name;
   new_obj->m_descriptor = this->m_descriptor;
+  new_obj->set_location(this->m_location);
 
   return new_obj;
 }
@@ -106,15 +107,7 @@ detected_object
 }
 
 // ------------------------------------------------------------------
-geo_point_sptr&
-detected_object
-::location()
-{
-  return m_location;
-}
-
-// ------------------------------------------------------------------
-geo_point_cptr
+geo_point
 detected_object
 ::location() const
 {
@@ -124,9 +117,9 @@ detected_object
 // ------------------------------------------------------------------
 void
 detected_object
-::set_location(const geo_point& pt)
+::set_location(geo_point pt)
 {
-  m_location = std::make_shared< geo_point >(pt);
+  m_location = pt;
 }
 
 
@@ -166,7 +159,7 @@ detected_object
 
 
 // ------------------------------------------------------------------
-detected_object_type_sptr
+detected_object_type_scptr
 detected_object
 ::type()
 {
@@ -177,7 +170,7 @@ detected_object
 // ------------------------------------------------------------------
 void
 detected_object
-::set_type( detected_object_type_sptr c )
+::set_type( detected_object_type_scptr c )
 {
   m_type = c;
 }

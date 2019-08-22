@@ -61,6 +61,8 @@ public:
 
   virtual ~point() = default;
 
+  bool is_valid() const;
+
   vector_type& value() { return m_value; }
   const vector_type& value() const { return m_value; }
 
@@ -84,22 +86,6 @@ typedef point< 3, double > point_3d;
 typedef point< 3, float >  point_3f;
 typedef point< 4, double > point_4d;
 typedef point< 4, float >  point_4f;
-
-typedef std::shared_ptr< point_2i > point_2i_sptr;
-typedef std::shared_ptr< point_2d > point_2d_sptr;
-typedef std::shared_ptr< point_2f > point_2f_sptr;
-typedef std::shared_ptr< point_3d > point_3d_sptr;
-typedef std::shared_ptr< point_3f > point_3f_sptr;
-typedef std::shared_ptr< point_4d > point_4d_sptr;
-typedef std::shared_ptr< point_4f > point_4f_sptr;
-
-typedef std::shared_ptr< point_2i const > point_2i_cptr;
-typedef std::shared_ptr< point_2d const > point_2d_cptr;
-typedef std::shared_ptr< point_2f const > point_2f_cptr;
-typedef std::shared_ptr< point_3d const > point_3d_cptr;
-typedef std::shared_ptr< point_3f const > point_3f_cptr;
-typedef std::shared_ptr< point_4d const > point_4d_cptr;
-typedef std::shared_ptr< point_4f const > point_4f_cptr;
 
 VITAL_EXPORT ::std::ostream& operator<< ( ::std::ostream& str, point_2i const& obj );
 VITAL_EXPORT ::std::ostream& operator<< ( ::std::ostream& str, point_2d const& obj );

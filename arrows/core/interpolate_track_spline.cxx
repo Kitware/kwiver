@@ -109,7 +109,7 @@ interpolate( track_sptr input_track )
   if ( !input_track ) return nullptr;
 
   // Extract states, for easier iteration over intervals to be filled
-  std::map< frame_id_t, std::pair< time_usec_t, detected_object_sptr > > states;
+  std::map< frame_id_t, std::pair< time_usec_t, detected_object_scptr > > states;
   for ( auto const& sp : *input_track )
   {
     auto const osp = std::dynamic_pointer_cast< object_track_state >( sp );
@@ -126,7 +126,7 @@ interpolate( track_sptr input_track )
   new_track->set_id( input_track->id() );
 
   auto append = [&new_track]( frame_id_t frame, time_usec_t time,
-                              detected_object_sptr detection ){
+                              detected_object_scptr detection ){
     new_track->append(
       std::make_shared< object_track_state >( frame, time, detection ) );
   };
@@ -156,7 +156,7 @@ interpolate( track_sptr input_track )
       auto const& bbox = lerp( p0, p1, x );
       auto const c = ( pow( x, 2.0 ) * c0 ) + ( pow( 1.0 - x, 2.0 ) * c1 );
 
-      auto const d = std::make_shared< detected_object >( bbox, c );
+      auto const d = std::make_shared< detected_object const>( bbox, c );
       new_track->append(
         std::make_shared< object_track_state >( fn, tn, d ) );
     }

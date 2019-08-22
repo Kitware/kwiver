@@ -37,6 +37,9 @@
 
 #include <kwiversys/SystemTools.hxx>
 
+#include <chrono> 
+using namespace std::chrono;
+
 void how_to_part_03_tracking()
 {
   // Initialize KWIVER and load up all plugins
@@ -46,25 +49,31 @@ void how_to_part_03_tracking()
   // In this example we will explore the object tracking data types.
 
   // All tracks for a given scene are stored in a set
-  kwiver::vital::object_track_set_sptr tracks =
-    kwiver::vital::object_track_set_sptr(new kwiver::vital::object_track_set());
+  kwiver::vital::object_track_set_sptr tracks = std::make_shared<kwiver::vital::object_track_set>();
 
   // Let's create a track
   auto track = kwiver::vital::track::create();
 
   // Create the state of the track for frame 0, time 0
-  kwiver::vital::object_track_state* state = new kwiver::vital::object_track_state(0, 0);
-  const kwiver::vital::object_track_state* c_state = state;
+  kwiver::vital::object_track_state_sptr state = std::make_shared<kwiver::vital::object_track_state>(0, 0);
+  const kwiver::vital::object_track_state* c_state = state.get();
 
   // Create an optional detection object (See how to part 2 for how to do this)
   kwiver::vital::bounding_box_d bbox(0, 0, 1, 1);
   double confidence = 1.0;
-  kwiver::vital::detected_object_type_sptr type(new kwiver::vital::detected_object_type());
+  kwiver::vital::detected_object_type_sptr type = std::make_shared<kwiver::vital::detected_object_type>();
   type->set_score("vehicle", 0.03);
   type->set_score("person", 0.52);
   type->set_score("object", 0.23);
-  state->detection() = kwiver::vital::detected_object_sptr(new kwiver::vital::detected_object(bbox, confidence, type));
+  auto detection1 = std::make_shared<kwiver::vital::detected_object>(bbox, 1.5, type);
+  auto detection2 = std::make_shared<kwiver::vital::detected_object const>(bbox, 2.0, type);
+  //std::cout << state->detection()->bounding_box().min_x() << std::endl;
+  state->set_detection(detection1);
+  std::cout << state->detection()->confidence() << std::endl;
+  state->set_detection(detection2);
+  std::cout << state->detection()->confidence() << std::endl;
 
+/*
   // Image Point
   // This point is the coordinates for the object in the raw image coordinate system.
   // This point may be drawn from the center of the bounding box, bottom center, or wherever for that matter.
@@ -121,7 +130,8 @@ void how_to_part_03_tracking()
   std::cout << *c_state->track_point() << std::endl;
 
   // Add the state to the track
-  track->insert(kwiver::vital::track_state_sptr(state));
+  track->insert(state);
   // Add our track to our track set
   tracks->insert(track);
+*/
 }

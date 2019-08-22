@@ -37,7 +37,7 @@ int main()
 {
   // use comments to execute a particular method
 
-  how_to_part_01_images();
-  how_to_part_02_detections();
+  //how_to_part_01_images();
+  //how_to_part_02_detections();
   how_to_part_03_tracking();
 }
