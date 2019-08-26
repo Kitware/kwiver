@@ -380,18 +380,13 @@ simple_camera_intrinsics
     }
     else
     {
-      double theta = (2 * pi - std::atan2(std::sqrt(-discrim), t1)) / 3;
+      double theta = (std::atan2(std::sqrt(-discrim), t1)) / 3;
+      constexpr double twothirdpi = 2.0 * pi / 3.0;
       // by construction, if discrim < 0 then t2 < 0, so the sqrt is safe
-      solns[0] = (2 * std::sqrt(-t2) * std::cos(theta) - boc) / 3;
-    }
-    // use the reduced polynomial to solve for the other two solutions
-    double t = b + c * solns[0];
-    discrim = t * t + 4 * c / solns[0];
-    if (discrim >= 0.0)
-    {
-      discrim = std::sqrt(discrim);
-      solns[1] = (discrim - t) / (2 * c);
-      solns[2] = (-discrim - t) / (2 * c);
+      double t3 = 2 * std::sqrt(-t2);
+      solns[0] = (t3 * std::cos(theta) - boc) / 3;
+      solns[1] = (t3 * std::cos(theta + twothirdpi) - boc) / 3;
+      solns[2] = (t3 * std::cos(theta - twothirdpi) - boc) / 3;
     }
     // find the minimum positive solution
     double min_soln = inf;
