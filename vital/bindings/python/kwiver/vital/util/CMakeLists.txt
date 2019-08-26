@@ -1,5 +1,6 @@
 project(vital_python_util)
 
+include_directories(${pybind11_INCLUDE_DIR})
 
 set(python_util_srcs
   python_exceptions.cxx)
@@ -17,16 +18,16 @@ target_link_libraries(vital_python_util
   PUBLIC     ${PYTHON_LIBRARIES}
   )
 
-kwiver_install_headers(
-    SUBDIR     vital/bindings/python/vital/util
-    ${python_util_headers}
-)
+if (NOT ${SKBUILD})
+  kwiver_install_headers(
+      SUBDIR     vital/bindings/python/kwiver/vital/util
+      ${python_util_headers}
+  )
 
-kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/vital_python_util_export.h
-  SUBDIR vital/bindings/vital/python/util
-  NOPATH
-)
+  kwiver_install_headers(
+    ${CMAKE_CURRENT_BINARY_DIR}/vital_python_util_export.h
+    SUBDIR vital/bindings/python/kwiver/vital/util
+    NOPATH
+  )
+endif()
 
-
-add_subdirectory(py)
