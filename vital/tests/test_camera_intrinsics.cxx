@@ -105,6 +105,13 @@ TEST(camera_intrinsics, max_radius)
   // these parameters have one solution
   test_finite_max_radius(-0.01, -0.01, -0.0001);
 
+  // these parameters have three identical solutions (all 2.0)
+  test_finite_max_radius(-0.5, 0.15, -1.0/56);
+  // these parameters have two identical solutions (1, 1, 2)
+  test_finite_max_radius(-5.0/6, 2.0/5, -1.0 / 14);
+  // these parameters have two identical solutions (1, 1)
+  test_finite_max_radius(-2.0/3, 1.0/5, 0.0);
+
   test_finite_max_radius(-0.1, 0.0, 0.0);
   test_finite_max_radius(0.0, -0.2, 0.0);
   test_finite_max_radius(0.0, 0.0, -0.3);

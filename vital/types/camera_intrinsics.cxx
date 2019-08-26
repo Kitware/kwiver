@@ -373,7 +373,7 @@ simple_camera_intrinsics
     double t1 = (9 * a * boc - 2 * b * boc2 - 27) / c;
     double t2 = 3 * a / c - boc2;
     double discrim = t1 * t1 + 4 * t2 * t2 * t2;
-    if (discrim >= 0.0)
+    if (discrim > 0.0)
     {
       discrim = std::cbrt((std::sqrt(discrim) + t1) / 2.0);
       solns[0] = (discrim - (t2 / discrim) - boc) / 3;
