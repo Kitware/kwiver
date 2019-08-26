@@ -14,7 +14,12 @@ setup(
         cmake_install_dir=kwiver_install_dir,
         cmake_source_dir=kwiver_root,
         cmake_minimum_required_version='3.3',
-        packages=[ 'kwiver', 'kwiver.vital', 'kwiver.vital.types' ],
+        packages=[ 'kwiver',
+                   'kwiver.vital',
+                   'kwiver.vital.types',
+                   'kwiver.vital.modules',
+                   'kwiver.vital.algo',
+                   'kwiver.vital.exceptions' ],
         setup_requires=[
                         'cmake',
                         'scikit-build'
