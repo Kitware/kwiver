@@ -33,18 +33,19 @@ if (${SKBUILD})
   set_target_properties( python-vital.algo-algorithm
                          PROPERTIES
                           INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
-  skbuild_add_library(algorithm_factory
+
+  skbuild_add_library( algorithm_factory
     vital/algo
     algorithm_factory.cxx
   )
+
   target_link_libraries( python-vital.algo-algorithm_factory
     PUBLIC ${PYTHON_LIBRARIES}
             vital
-            vital_algo
+            vital_algo )
   set_target_properties( python-vital.algo-algorithm_factory
                          PROPERTIES
                           INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
-  )
 else()
   kwiver_add_python_library(algorithm
                             vital/algo
