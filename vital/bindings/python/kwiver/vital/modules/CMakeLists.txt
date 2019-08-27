@@ -26,6 +26,9 @@ if (${SKBUILD})
   target_link_libraries( python-vital.modules-modules
               PRIVATE   vital_python_util
                         vital_vpm)
+  set_target_properties( python-vital.modules-modules
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
 else()
   set(python_noarch FALSE)

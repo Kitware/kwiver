@@ -25,6 +25,9 @@ if (${SKBUILD})
   target_link_libraries( python-vital.types-types
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-types
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(bounding_box
     vital/types
@@ -32,6 +35,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-bounding_box
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-bounding_box
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(camera
     vital/types
@@ -40,6 +46,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-camera
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-camera
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(camera_intrinsics
     vital/types
@@ -47,6 +56,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-camera_intrinsics
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-camera_intrinsics
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(camera_map
     vital/types
@@ -54,6 +66,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-camera_map
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-camera_map
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(color
     vital/types
@@ -61,6 +76,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-color
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-color
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(covariance
     vital/types
@@ -68,6 +86,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-covariance
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-covariance
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(descriptor
     vital/types
@@ -75,6 +96,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-descriptor
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-descriptor
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(descriptor_set
     vital/types
@@ -82,6 +106,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-descriptor_set
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-descriptor_set
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(detected_object
     vital/types
@@ -89,6 +116,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-detected_object
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-detected_object
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(detected_object_set
     vital/types
@@ -96,6 +126,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-detected_object_set
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-detected_object_set
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(detected_object_type
     vital/types
@@ -103,6 +136,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-detected_object_type
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-detected_object_type
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(eigen
     vital/types
@@ -110,6 +146,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-eigen
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-eigen
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(feature
     vital/types
@@ -117,6 +156,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-feature
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-feature
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(homography
     vital/types
@@ -124,6 +166,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-homography
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-homography
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(landmark
     vital/types
@@ -131,6 +176,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-landmark
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-landmark
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(rotation
     vital/types
@@ -138,6 +186,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-rotation
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-rotation
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(similarity
     vital/types
@@ -145,6 +196,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-similarity
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-similarity
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(timestamp
     vital/types
@@ -152,6 +206,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-timestamp
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-timestamp
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(track
     vital/types
@@ -159,6 +216,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-track
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-track
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(track_set
     vital/types
@@ -166,6 +226,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-track_set
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-track_set
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 
   skbuild_add_library(object_track_set
     vital/types
@@ -173,6 +236,9 @@ if (${SKBUILD})
   target_link_libraries(python-vital.types-object_track_set
     PUBLIC ${PYTHON_LIBRARIES}
            vital)
+  set_target_properties( python-vital.types-object_track_set
+                         PROPERTIES
+                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
 else()
   kwiver_add_python_library(types
     vital/types
