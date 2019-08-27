@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <vital/modules/modules_python_export.h>
+#include <vital/bindings/python/kwiver/vital/modules/modules_python_export.h>
 
 #if WIN32
 #pragma warning (push)
@@ -39,10 +39,9 @@
 #pragma warning (pop)
 #endif
 
-//#include <sprokit/pipeline/utils.h>
-#include <vital/bindings/python/vital/util/pybind11.h>
-#include <vital/bindings/python/vital/util/python_exceptions.h>
-#include <vital/bindings/python/vital/util/python.h>
+#include <vital/bindings/python/kwiver/vital/util/pybind11.h>
+#include <vital/bindings/python/kwiver/vital/util/python_exceptions.h>
+#include <vital/bindings/python/kwiver/vital/util/python.h>
 
 #include <vital/plugin_loader/plugin_loader.h>
 #include <kwiversys/SystemTools.hxx>
@@ -178,7 +177,7 @@ void _load_python_library_symbols()
 void
 load()
 {
-  py::object const modules = py::module::import("vital.modules.module_loader");
+  py::object const modules = py::module::import("kwiver.vital.modules.module_loader");
   py::object const loader = modules.attr("load_python_modules");
   loader();
 }
