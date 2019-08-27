@@ -35,9 +35,6 @@ function (skbuild_add_library    name    modpath)
                         ${ARGN} )
   set_target_properties( "python-${safe_modpath}-${name}"
                          PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
-  set_target_properties( "python-${safe_modpath}-${name}"
-                         PROPERTIES
                           OUTPUT_NAME "${name}"
                           PREFIX      ""
                           SUFFIX      "${PYTHON_EXTENSION_MODULE_SUFFIX}"
