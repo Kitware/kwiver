@@ -43,14 +43,15 @@
 namespace kwiver
 {
 
+create_config_trait( offset, int, "0", "The offset to shift the input by." );
+
 class shift_detected_object_set_frames_process::priv
 {
   public:
-    typedef int32_t number_t;
-    priv(number_t offset);
+    priv(int offset);
     ~priv();
 
-    number_t remaining_offset;
+    int remaining_offset;
 
     static vital::config_block_key_t const config_value;
     static vital::config_block_value_t const default_value;
@@ -58,15 +59,8 @@ class shift_detected_object_set_frames_process::priv
     static vital::detected_object_set_sptr const empty_detected_object_set_sptr;
 };
 
-vital::config_block_key_t const
-shift_detected_object_set_frames_process::priv::config_value =\
-  vital::config_block_key_t("offset");
-vital::config_block_value_t const
-shift_detected_object_set_frames_process::priv::default_value =\
-  vital::config_block_value_t("0");
-
 vital::detected_object_set_sptr const
-shift_detected_object_set_frames_process::priv::empty_detected_object_set_sptr =\
+shift_detected_object_set_frames_process::priv::empty_detected_object_set_sptr =
   std::make_shared<vital::detected_object_set>();
 
 
@@ -88,10 +82,7 @@ void
 shift_detected_object_set_frames_process
 ::make_config()
 {
-  declare_configuration_key(
-    priv::config_value,
-    priv::default_value,
-    vital::config_block_description_t("The offset to shift the input by."));
+  declare_config_using_trait( offset );
 }
 
 void
@@ -115,7 +106,7 @@ shift_detected_object_set_frames_process
 {
   // Configure the process.
   {
-    priv::number_t offset = config_value<priv::number_t>(priv::config_value);
+    int offset = config_value_using_trait( offset );
 
     d.reset(new priv(offset));
   }
@@ -150,7 +141,7 @@ shift_detected_object_set_frames_process
 }
 
 shift_detected_object_set_frames_process::priv
-::priv(number_t offset)
+::priv(int offset)
   : remaining_offset(offset)
 {
 }
