@@ -31,6 +31,7 @@
 from __future__ import print_function, absolute_import
 from kwiver.vital.modules import loaders
 from kwiver.vital import vital_logging
+from pkg_resources import iter_entry_points
 
 logger = vital_logging.getLogger(__name__)
 
@@ -90,3 +91,9 @@ def load_python_modules():
             _load_python_module(module)
         except BaseException as ex:
             logger.warn('Failed to load "{}": {}'.format(module, ex))
+
+    for entry_point in iter_entry_points('kwiver.python_plugin_registration'):
+        try:
+            _load_python_module(entry_point.load())
+        except BaseException as ex:
+            logger.warn('Failed to load "{}": {}'.format(entry_point.name, ex))
