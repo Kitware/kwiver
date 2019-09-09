@@ -45,6 +45,7 @@
 
 #include <vital/plugin_loader/plugin_loader.h>
 #include <kwiversys/SystemTools.hxx>
+#include <string>
 
 #ifdef VITAL_LOAD_PYLIB_SYM
   #include <dlfcn.h>
@@ -66,8 +67,8 @@ namespace py = pybind11;
 
 static void load();
 static bool is_suppressed();
-static void _load_python_library_symbols();
-
+static void _load_python_library_symbols(const std::string python_library_path);
+static std::string _find_python_library();
 
 // ==================================================================
 /**
@@ -114,7 +115,13 @@ register_factories(kwiver::vital::plugin_loader& vpm)
     PyEval_SaveThread();
   }
 
-  _load_python_library_symbols();
+  std::string python_library_path = "";
+  {
+    kwiver::vital::python::gil_scoped_acquire acquire;
+    (void)acquire;
+    python_library_path = _find_python_library();
+  }
+  _load_python_library_symbols(python_library_path);
 
   {
     kwiver::vital::python::gil_scoped_acquire acquire;
@@ -123,55 +130,71 @@ register_factories(kwiver::vital::plugin_loader& vpm)
   }
 }
 
-
 // ------------------------------------------------------------------
 /*
  * Uses environment variables and compiler definitions to determine where the
  * python shared library is and load its symbols.
  */
-void _load_python_library_symbols()
+void _load_python_library_symbols(const std::string python_library_path)
 {
   auto logger = kwiver::vital::get_logger("vital.python_modules");
-
-#ifdef VITAL_LOAD_PYLIB_SYM
-  const char *env_pylib = kwiversys::SystemTools::GetEnv( "PYTHON_LIBRARY" );
-
-  // cmake should provide this definition
-  #ifdef PYTHON_LIBRARY
-  const char *default_pylib = MACRO_STR_VALUE(PYTHON_LIBRARY);
-  #else
-  const char *default_pylib = NULL;
-  #endif
-
-  // First check if the PYTHON_LIBRARY environment variable is specified
-  if( env_pylib )
+  if (python_library_path.empty())
   {
-    LOG_DEBUG(logger, "Loading symbols from PYTHON_LIBRARY=" << env_pylib );
-    void* handle = dlopen( env_pylib, RTLD_LAZY | RTLD_GLOBAL );
-    if (!handle) {
-      LOG_ERROR(logger, "Cannot load library: " << dlerror());
+    #ifdef VITAL_LOAD_PYLIB_SYM
+    const char *env_pylib = kwiversys::SystemTools::GetEnv( "PYTHON_LIBRARY" );
+
+    // cmake should provide this definition
+    #ifdef PYTHON_LIBRARY
+    const char *default_pylib = MACRO_STR_VALUE(PYTHON_LIBRARY);
+    #else
+    const char *default_pylib = NULL;
+    #endif
+
+    // First check if the PYTHON_LIBRARY environment variable is specified
+    if( env_pylib )
+    {
+      LOG_DEBUG(logger, "Loading symbols from PYTHON_LIBRARY=" << env_pylib );
+      void* handle = dlopen( env_pylib, RTLD_LAZY | RTLD_GLOBAL );
+      if (!handle) {
+        LOG_ERROR(logger, "Cannot load library: " << dlerror());
+      }
     }
-  }
-  else if( default_pylib )
-  {
-    // If the PYTHON_LIBRARY environment variable is not specified, use the
-    // CMAKE definition of PYTHON_LIBRARY instead.
-    LOG_DEBUG(logger, "Loading symbols from default PYTHON_LIBRARY=" << default_pylib);
-    void* handle = dlopen( default_pylib, RTLD_LAZY | RTLD_GLOBAL );
-    if (!handle) {
-      LOG_ERROR(logger, "Cannot load library: " << dlerror());
+    else if( default_pylib )
+    {
+      // If the PYTHON_LIBRARY environment variable is not specified, use the
+      // CMAKE definition of PYTHON_LIBRARY instead.
+      LOG_DEBUG(logger, "Loading symbols from default PYTHON_LIBRARY=" << default_pylib);
+      void* handle = dlopen( default_pylib, RTLD_LAZY | RTLD_GLOBAL );
+      if (!handle) {
+        LOG_ERROR(logger, "Cannot load library: " << dlerror());
+      }
     }
+    else
+    {
+      LOG_DEBUG(logger, "Unable to pre-load python symbols because " <<
+                        "PYTHON_LIBRARY is undefined.");
+    }
+    #else
+      LOG_DEBUG(logger, "Not checking for python symbols");
+    #endif
   }
   else
   {
-    LOG_DEBUG(logger, "Unable to pre-load python symbols because " <<
-                      "PYTHON_LIBRARY is undefined.");
+    LOG_DEBUG(logger, "Loading symbols from PYTHON_LIBRARY=" << python_library_path.c_str() );
+    void *handle = dlopen( python_library_path.c_str(), RTLD_LAZY | RTLD_GLOBAL );
+    if (!handle) {
+      LOG_ERROR(logger, "Cannot load library: " << dlerror());
+    }
   }
-#else
-  LOG_DEBUG(logger, "Not checking for python symbols");
-#endif
 }
 
+std::string
+_find_python_library()
+{
+  py::object const module = py::module::import("kwiver.vital.modules.find_python_library");
+  py::object const python_library_path = module.attr("find_python_library")();
+  return python_library_path.cast<std::string>();
+}
 
 // ------------------------------------------------------------------
 void
