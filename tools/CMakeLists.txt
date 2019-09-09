@@ -24,6 +24,7 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 kwiver_make_module_path( ${KWIVER_BINARY_DIR} ${kwiver_plugin_applets} )
 kwiver_add_module_path( ${kwiver_module_path_result} )
 
+include(kwiver-depends-Boost)
 ###
 #
 kwiver_add_library( kwiver_tools_applet
@@ -49,6 +50,7 @@ target_link_libraries( kwiver
                  vital_logger
                  kwiversys
                  kwiver_tools_applet
+                 ${Boost_REGEX_LIBRARY}
 )
 
 ###
@@ -63,6 +65,7 @@ kwiver_add_plugin( kwiver_tools
                vital_logger
                kwiversys
                kwiver_tools_applet
+               ${Boost_REGEX_LIBRARY}
 )
 
 kwiver_install_headers(
