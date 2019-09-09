@@ -36,6 +36,15 @@ setup(
                     '-DKWIVER_PYTHON_MAJOR_VERSION=3',
                     '-DPYBIND11_PYTHON_VERSION=3',
                     '-DCMAKE_BUILD_WITH_INSTALL_RPATH=ON',
+                    '-DKWIVER_ENABLE_TOOLS=ON',
+                    '-DKWIVER_ENABLE_LOG4CPLUS=ON',
                     '-Dfletch_DIR={0}'.format(fletch_root)
                    ],
+        entry_points={
+            # Module containing python plugins
+            'kwiver.python_plugin_registration': [
+                ],
+            'kwiver.cpp_search_paths': [
+                ],
+        },
     )
