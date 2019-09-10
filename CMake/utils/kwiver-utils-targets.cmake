@@ -292,9 +292,9 @@ function(kwiver_add_library     name)
   kwiver_install(
     TARGETS             "${name}"
     ${exports}
-    ARCHIVE DESTINATION "${library_dir}${LIB_SUFFIX}/${library_subdir}"
-    LIBRARY DESTINATION "${library_dir}${LIB_SUFFIX}/${library_subdir}"
-    RUNTIME DESTINATION "bin/${library_subdir}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}${library_dir}${LIB_SUFFIX}${library_subdir}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}${library_dir}${LIB_SUFFIX}${library_subdir}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin${library_subdir}"
     COMPONENT           ${component}
     )
 
