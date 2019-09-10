@@ -5,7 +5,7 @@ import os
 
 kwiver_root = '../../../'
 kwiver_install_dir = 'kwiver'
-fletch_root = osp.join('/mnt','usb1', 'ashringi', 'pypi', 'fletch', 'build', 'release')
+fletch_root = '' #TODO: Make this command line parameter
 setup(
         name='kwiver',
         version='1.4.0',
@@ -31,13 +31,13 @@ setup(
                          ],
         cmake_args=[
                     '-DCMAKE_BUILD_TYPE=Release',
+                    '-DKWIVER_BUILD_SHARED=OFF',
                     '-DKWIVER_ENABLE_C_BINDINGS=ON',
                     '-DKWIVER_ENABLE_PYTHON=ON',
                     '-DKWIVER_PYTHON_MAJOR_VERSION=3',
                     '-DPYBIND11_PYTHON_VERSION=3',
                     '-DCMAKE_BUILD_WITH_INSTALL_RPATH=ON',
                     '-DKWIVER_ENABLE_TOOLS=ON',
-                    '-DKWIVER_ENABLE_LOG4CPLUS=ON',
                     '-Dfletch_DIR={0}'.format(fletch_root)
                    ],
         entry_points={
