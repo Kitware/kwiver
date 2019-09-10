@@ -25,12 +25,21 @@ process stabilize
 # Algorithm to use for 'track_features'.
 # Must be one of the following options:
 #   - core
+#   - ocv_KLT
     track_features:type = core
 
   block track_features:core
 # Algorithm to use for 'descriptor_extractor'.
 # Must be one of the following options:
-#   - ocv
+#   - ocv_BRIEF
+#   - ocv_DAISY
+#   - ocv_FREAK
+#   - ocv_LATCH
+#   - ocv_LUCID
+#   - ocv_BRISK
+#   - ocv_ORB
+#   - ocv_SIFT
+#   - ocv_SURF
 #   - viscl
     descriptor_extractor:type = ocv_SURF
 
@@ -46,7 +55,18 @@ process stabilize
 
 # Algorithm to use for 'feature_detector'.
 # Must be one of the following options:
-#   - ocv_*
+#   - ocv_AGAST
+#   - ocv_FAST
+#   - ocv_GFTT
+#   - ocv_MSD
+#   - ocv_MSER
+#   - ocv_STAR
+#   - ocv_simple_blob
+#   - ocv_BRISK
+#   - ocv_ORB
+#   - ocv_SIFT
+#   - ocv_SURF
+#   - viscl
     feature_detector:type                                                = ocv_SURF
 
 # The OpenCV cv::Algorithm type to use for 'detector'.
@@ -62,15 +82,22 @@ process stabilize
 # Algorithm to use for 'feature_matcher'.
 # Must be one of the following options:
 #   - homography_guided
-#   - ocv
+#   - ocv_brute_force
+#   - ocv_flann_based
+#   - fundamental_matrix_guided
 #   - viscl
+#   - vxl_constrained
     feature_matcher:type                                                 = homography_guided
 
     block feature_matcher:homography_guided
 # Algorithm to use for 'feature_matcher'.
 # Must be one of the following options:
 #   - homography_guided
-#   - ocv_*
+#   - ocv_brute_force
+#   - ocv_flann_based
+#   - fundamental_matrix_guided
+#   - viscl
+#   - vxl_constrained
       feature_matcher1:type               = ocv_flann_based
 
 # Algorithm to use for 'homography_estimator'.
@@ -87,6 +114,8 @@ process stabilize
 # Algorithm to use for 'loop_closer'.
 # Must be one of the following options:
 #   - bad_frames_only
+#   - exhaustive
+#   - keyframe
 #   - multi_method
 #   - vxl_homography_guided
     loop_closer:type                                                     = multi_method
@@ -98,6 +127,8 @@ process stabilize
 # Algorithm to use for 'method1'.
 # Must be one of the following options:
 #   - bad_frames_only
+#   - exhaustive
+#   - keyframe
 #   - multi_method
 #   - vxl_homography_guided
     loop_closer:multi_method:method1:type                                = bad_frames_only
@@ -126,14 +157,22 @@ process stabilize
 # Algorithm to use for 'feature_matcher'.
 # Must be one of the following options:
 #   - homography_guided
-#   - ocv
+#   - ocv_brute_force
+#   - ocv_flann_based
+#   - fundamental_matrix_guided
+#   - viscl
+#   - vxl_constrained
       feature_matcher:type = homography_guided
 
       block feature_matcher:homography_guided
 # Algorithm to use for 'feature_matcher'.
 # Must be one of the following options:
 #   - homography_guided
-#   - ocv_*
+#   - ocv_brute_force
+#   - ocv_flann_based
+#   - fundamental_matrix_guided
+#   - viscl
+#   - vxl_constrained
         feature_matcher1:type = ocv_flann_based
 
 # Algorithm to use for 'homography_estimator'.
@@ -159,6 +198,8 @@ process stabilize
 # Algorithm to use for 'method2'.
 # Must be one of the following options:
 #   - bad_frames_only
+#   - exhaustive
+#   - keyframe
 #   - multi_method
 #   - vxl_homography_guided
     loop_closer:multi_method:method2:type                                = vxl_homography_guided
@@ -195,7 +236,11 @@ process stabilize
 # Algorithm to use for 'feature_matcher'.
 # Must be one of the following options:
 #   - homography_guided
-#   - ocv_*
+#   - ocv_brute_force
+#   - ocv_flann_based
+#   - fundamental_matrix_guided
+#   - viscl
+#   - vxl_constrained
         feature_matcher1:type = ocv_flann_based
 
 # The acceptable error distance (in pixels) between warped and measured points
