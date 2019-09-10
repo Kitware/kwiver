@@ -13,389 +13,164 @@ set( vital_python_sources
      types_module.cxx
    )
 
-if (${SKBUILD})
-  # Image and Image Container
-  find_package(PythonExtensions REQUIRED)
-  skbuild_add_library( types
-                       vital/types
-                       ${vital_python_headers}
-                       ${vital_python_sources}
-                      )
+kwiver_add_python_library(types
+  vital/types
+  ${vital_python_headers}
+  ${vital_python_sources}
+  )
 
-  target_link_libraries( python-vital.types-types
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-types
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+target_link_libraries(python-vital.types-types
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(bounding_box
-    vital/types
-    bounding_box.cxx)
-  target_link_libraries(python-vital.types-bounding_box
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-bounding_box
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(bounding_box
+  vital/types
+  bounding_box.cxx)
+target_link_libraries(python-vital.types-bounding_box
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(camera
-    vital/types
-    camera.cxx)
+kwiver_add_python_library(camera
+  vital/types
+  camera.cxx)
+target_link_libraries(python-vital.types-camera
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  target_link_libraries(python-vital.types-camera
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-camera
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(camera_intrinsics
+  vital/types
+  camera_intrinsics.cxx)
+target_link_libraries(python-vital.types-camera_intrinsics
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(camera_intrinsics
-    vital/types
-    camera_intrinsics.cxx)
-  target_link_libraries(python-vital.types-camera_intrinsics
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-camera_intrinsics
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(camera_map
+  vital/types
+  camera_map.cxx)
+target_link_libraries(python-vital.types-camera_map
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(camera_map
-    vital/types
-    camera_map.cxx)
-  target_link_libraries(python-vital.types-camera_map
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-camera_map
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(color
+  vital/types
+  color.cxx)
+target_link_libraries(python-vital.types-color
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(color
-    vital/types
-    color.cxx)
-  target_link_libraries(python-vital.types-color
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-color
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(covariance
+  vital/types
+  covariance.cxx)
+target_link_libraries(python-vital.types-covariance
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(covariance
-    vital/types
-    covariance.cxx)
-  target_link_libraries(python-vital.types-covariance
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-covariance
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(descriptor
+  vital/types
+  descriptor.cxx)
+target_link_libraries(python-vital.types-descriptor
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(descriptor
-    vital/types
-    descriptor.cxx)
-  target_link_libraries(python-vital.types-descriptor
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-descriptor
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(descriptor_set
+  vital/types
+  descriptor_set.cxx)
+target_link_libraries(python-vital.types-descriptor_set
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(descriptor_set
-    vital/types
-    descriptor_set.cxx)
-  target_link_libraries(python-vital.types-descriptor_set
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-descriptor_set
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(detected_object
+  vital/types
+  detected_object.cxx)
+target_link_libraries(python-vital.types-detected_object
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(detected_object
-    vital/types
-    detected_object.cxx)
-  target_link_libraries(python-vital.types-detected_object
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-detected_object
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(detected_object_set
+  vital/types
+  detected_object_set.cxx)
+target_link_libraries(python-vital.types-detected_object_set
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(detected_object_set
-    vital/types
-    detected_object_set.cxx)
-  target_link_libraries(python-vital.types-detected_object_set
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-detected_object_set
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(detected_object_type
+  vital/types
+  detected_object_type.cxx)
+target_link_libraries(python-vital.types-detected_object_type
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(detected_object_type
-    vital/types
-    detected_object_type.cxx)
-  target_link_libraries(python-vital.types-detected_object_type
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-detected_object_type
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(eigen
+  vital/types
+  eigen.cxx)
+target_link_libraries(python-vital.types-eigen
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(eigen
-    vital/types
-    eigen.cxx)
-  target_link_libraries(python-vital.types-eigen
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-eigen
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(feature
+  vital/types
+  feature.cxx)
+target_link_libraries(python-vital.types-feature
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(feature
-    vital/types
-    feature.cxx)
-  target_link_libraries(python-vital.types-feature
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-feature
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(homography
+  vital/types
+  homography.cxx)
+target_link_libraries(python-vital.types-homography
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(homography
-    vital/types
-    homography.cxx)
-  target_link_libraries(python-vital.types-homography
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-homography
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(landmark
+  vital/types
+  landmark.cxx)
+target_link_libraries(python-vital.types-landmark
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(landmark
-    vital/types
-    landmark.cxx)
-  target_link_libraries(python-vital.types-landmark
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-landmark
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(rotation
+  vital/types
+  rotation.cxx)
+target_link_libraries(python-vital.types-rotation
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(rotation
-    vital/types
-    rotation.cxx)
-  target_link_libraries(python-vital.types-rotation
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-rotation
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(similarity
+  vital/types
+  similarity.cxx)
+target_link_libraries(python-vital.types-similarity
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(similarity
-    vital/types
-    similarity.cxx)
-  target_link_libraries(python-vital.types-similarity
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-similarity
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(timestamp
+  vital/types
+  timestamp.cxx)
+target_link_libraries(python-vital.types-timestamp
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(timestamp
-    vital/types
-    timestamp.cxx)
-  target_link_libraries(python-vital.types-timestamp
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-timestamp
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(track
+  vital/types
+  track.cxx)
+target_link_libraries(python-vital.types-track
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(track
-    vital/types
-    track.cxx)
-  target_link_libraries(python-vital.types-track
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-track
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(track_set
+  vital/types
+  track_set.cxx)
+target_link_libraries(python-vital.types-track_set
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(track_set
-    vital/types
-    track_set.cxx)
-  target_link_libraries(python-vital.types-track_set
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-track_set
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
+kwiver_add_python_library(object_track_set
+  vital/types
+  object_track_set.cxx)
+target_link_libraries(python-vital.types-object_track_set
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
 
-  skbuild_add_library(object_track_set
-    vital/types
-    object_track_set.cxx)
-  target_link_libraries(python-vital.types-object_track_set
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  set_target_properties( python-vital.types-object_track_set
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
-else()
-  kwiver_add_python_library(types
-    vital/types
-    ${vital_python_headers}
-    ${vital_python_sources}
-    )
-
-  target_link_libraries(python-vital.types-types
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-  kwiver_add_python_library(bounding_box
-    vital/types
-    bounding_box.cxx)
-  target_link_libraries(python-vital.types-bounding_box
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(camera
-    vital/types
-    camera.cxx)
-  target_link_libraries(python-vital.types-camera
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(camera_intrinsics
-    vital/types
-    camera_intrinsics.cxx)
-  target_link_libraries(python-vital.types-camera_intrinsics
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(camera_map
-    vital/types
-    camera_map.cxx)
-  target_link_libraries(python-vital.types-camera_map
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(color
-    vital/types
-    color.cxx)
-  target_link_libraries(python-vital.types-color
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(covariance
-    vital/types
-    covariance.cxx)
-  target_link_libraries(python-vital.types-covariance
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(descriptor
-    vital/types
-    descriptor.cxx)
-  target_link_libraries(python-vital.types-descriptor
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(descriptor_set
-    vital/types
-    descriptor_set.cxx)
-  target_link_libraries(python-vital.types-descriptor_set
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(detected_object
-    vital/types
-    detected_object.cxx)
-  target_link_libraries(python-vital.types-detected_object
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(detected_object_set
-    vital/types
-    detected_object_set.cxx)
-  target_link_libraries(python-vital.types-detected_object_set
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(detected_object_type
-    vital/types
-    detected_object_type.cxx)
-  target_link_libraries(python-vital.types-detected_object_type
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(eigen
-    vital/types
-    eigen.cxx)
-  target_link_libraries(python-vital.types-eigen
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(feature
-    vital/types
-    feature.cxx)
-  target_link_libraries(python-vital.types-feature
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(homography
-    vital/types
-    homography.cxx)
-  target_link_libraries(python-vital.types-homography
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(landmark
-    vital/types
-    landmark.cxx)
-  target_link_libraries(python-vital.types-landmark
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(rotation
-    vital/types
-    rotation.cxx)
-  target_link_libraries(python-vital.types-rotation
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(similarity
-    vital/types
-    similarity.cxx)
-  target_link_libraries(python-vital.types-similarity
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(timestamp
-    vital/types
-    timestamp.cxx)
-  target_link_libraries(python-vital.types-timestamp
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(track
-    vital/types
-    track.cxx)
-  target_link_libraries(python-vital.types-track
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(track_set
-    vital/types
-    track_set.cxx)
-  target_link_libraries(python-vital.types-track_set
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
-  kwiver_add_python_library(object_track_set
-    vital/types
-    object_track_set.cxx)
-  target_link_libraries(python-vital.types-object_track_set
-    PUBLIC ${PYTHON_LIBRARIES}
-           vital)
-
+if(NOT SKBUILD)
   kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
                             vital/types
                             __init__ )

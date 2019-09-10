@@ -18,7 +18,7 @@ target_link_libraries(vital_python_util
   PUBLIC     ${PYTHON_LIBRARIES}
   )
 
-if (NOT ${SKBUILD})
+if (NOT SKBUILD)
   kwiver_install_headers(
       SUBDIR     vital/bindings/python/kwiver/vital/util
       ${python_util_headers}

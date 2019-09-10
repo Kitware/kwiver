@@ -18,19 +18,7 @@ if (KWIVER_ENABLE_TOOLS)
                     ${PYTHON_LIBRARIES}
                     )
 endif()
-if (${SKBUILD})
-  find_package(PythonExtensions REQUIRED)
-  skbuild_add_library( modules
-                       vital/modules
-                       modules.cxx )
-  target_link_libraries( python-vital.modules-modules
-              PRIVATE   vital_python_util
-                        vital_vpm)
-  set_target_properties( python-vital.modules-modules
-                         PROPERTIES
-                          INSTALL_RPATH "${PYTHON_SITE_PACKAGES_DIR}/kwiver/lib" )
-
-else()
+if ( NOT SKBUILD)
   set(python_noarch FALSE)
   kwiver_create_python_init(vital/modules)
   set(python_noarch TRUE)
@@ -43,13 +31,14 @@ else()
   kwiver_add_python_module("${CMAKE_CURRENT_SOURCE_DIR}/loaders.py"
     vital/modules
     loaders)
-
-  kwiver_add_python_library(modules
-                            vital/modules
-                            modules.cxx)
-
-  target_link_libraries(python-vital.modules-modules
-      PRIVATE   vital_python_util
-                vital_vpm)
 endif()
+
+
+kwiver_add_python_library(modules
+                          vital/modules
+                          modules.cxx)
+
+target_link_libraries(python-vital.modules-modules
+    PRIVATE   vital_python_util
+              vital_vpm)
 
