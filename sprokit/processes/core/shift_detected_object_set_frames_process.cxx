@@ -49,12 +49,9 @@ class shift_detected_object_set_frames_process::priv
 {
   public:
     priv(int offset);
-    ~priv();
+    ~priv() = default;
 
     int remaining_offset;
-
-    static vital::config_block_key_t const config_value;
-    static vital::config_block_value_t const default_value;
 
     static vital::detected_object_set_sptr const empty_detected_object_set_sptr;
 };
@@ -110,8 +107,6 @@ shift_detected_object_set_frames_process
 
     d.reset(new priv(offset));
   }
-
-  process::_configure();
 }
 
 void
@@ -136,18 +131,11 @@ shift_detected_object_set_frames_process
 
   push_to_port_using_trait( detected_object_set,
 			    grab_from_port_using_trait( detected_object_set ) );
-
-  process::_step();
 }
 
 shift_detected_object_set_frames_process::priv
 ::priv(int offset)
   : remaining_offset(offset)
-{
-}
-
-shift_detected_object_set_frames_process::priv
-::~priv()
 {
 }
 
