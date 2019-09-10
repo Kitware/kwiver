@@ -60,7 +60,13 @@ endmacro ()
 function (kwiver_add_python_library    name    modpath)
   _kwiver_create_safe_modpath("${modpath}" safe_modpath)
 
-  set(library_subdir "/${kwiver_python_subdir}/${python_sitename}/${modpath}")
+  if (SKBUILD)
+    set(library_dir "")
+    set(library_subdir "/${modpath}")
+  else()
+    set(library_subdir "/${kwiver_python_subdir}/${python_sitename}/${modpath}")
+  endif()
+
   set(component runtime)
 
   set(no_export ON)
