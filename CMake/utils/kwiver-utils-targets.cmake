@@ -16,6 +16,12 @@
 #     If set, the target will not be installed under this component (the
 #     default is 'runtime').
 #
+#   library_dir
+#     If set, it would replace lib folder within build and install directories.
+#     This is necessary to build the bindings using setup.py where the library
+#     targets for the python bindings would not go into lib directory
+#     ( the default is 'lib' )
+#
 #   library_subdir
 #     If set, library targets will be placed into the directory within the install
 #     directory. This is necessary due to the way some systems use
@@ -167,6 +173,10 @@ function(kwiver_add_library     name)
 
   add_library("${name}" ${ARGN})
 
+  if ( NOT DEFINED library_dir )
+    set( library_dir "/lib" )
+  endif()
+
   if ( APPLE )
     set( props
       MACOSX_RPATH         TRUE
@@ -185,8 +195,8 @@ function(kwiver_add_library     name)
 
   set_target_properties("${name}"
     PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib${LIB_SUFFIX}${library_subdir}${library_subdir_suffix}"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib${LIB_SUFFIX}${library_subdir}${library_subdir_suffix}"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${library_dir}${LIB_SUFFIX}${library_subdir}${library_subdir_suffix}"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${library_dir}${LIB_SUFFIX}${library_subdir}${library_subdir_suffix}"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin${library_subdir}${library_subdir_suffix}"
     INSTALL_RPATH            "\$ORIGIN/../lib:\$ORIGIN/"
     INTERFACE_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR};${CMAKE_BINARY_DIR}>$<INSTALL_INTERFACE:include>"
@@ -203,8 +213,8 @@ function(kwiver_add_library     name)
     string(TOUPPER "${config}" upper_config)
     set_target_properties("${name}"
       PROPERTIES
-      "ARCHIVE_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/lib${LIB_SUFFIX}/${config}${library_subdir}"
-      "LIBRARY_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/lib${LIB_SUFFIX}/${config}${library_subdir}"
+      "ARCHIVE_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/${library_dir}${LIB_SUFFIX}/${config}${library_subdir}"
+      "LIBRARY_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/${library_dir}${LIB_SUFFIX}/${config}${library_subdir}"
       "RUNTIME_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/bin/${config}${library_subdir}"
       )
   endforeach()
@@ -224,9 +234,9 @@ function(kwiver_add_library     name)
   kwiver_install(
     TARGETS             "${name}"
     ${exports}
-    ARCHIVE DESTINATION lib${LIB_SUFFIX}${library_subdir}
-    LIBRARY DESTINATION lib${LIB_SUFFIX}${library_subdir}
-    RUNTIME DESTINATION bin${library_subdir}
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}${library_dir}${LIB_SUFFIX}${library_subdir}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}${library_dir}${LIB_SUFFIX}${library_subdir}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin${library_subdir}"
     COMPONENT           ${component}
     )
 
