@@ -113,24 +113,25 @@ void
 shift_detected_object_set_frames_process
 ::_step()
 {
-  while (d->remaining_offset != 0)
+  while (d->remaining_offset > 0)
   {
-    // Source or sink data until the remaining offset is 0.
-    if (d->remaining_offset > 0)
-    {
-      push_to_port_using_trait( detected_object_set,
-				d->empty_detected_object_set_sptr);
-      --d->remaining_offset;
-    }
-    else if (d->remaining_offset < 0)
-    {
-      (void)grab_from_port_using_trait( detected_object_set );
-      ++d->remaining_offset;
-    }
+    // Source data until the remaining offset is 0.
+    push_to_port_using_trait( detected_object_set,
+			      d->empty_detected_object_set_sptr);
+    --d->remaining_offset;
   }
 
-  push_to_port_using_trait( detected_object_set,
-			    grab_from_port_using_trait( detected_object_set ) );
+  if (d->remaining_offset < 0)
+  {
+    // Sink data util the remaining offset is 0.
+    (void)grab_from_port_using_trait( detected_object_set );
+    ++d->remaining_offset;
+  }
+  else
+  {
+    push_to_port_using_trait( detected_object_set,
+			      grab_from_port_using_trait( detected_object_set ) );
+  }
 }
 
 shift_detected_object_set_frames_process::priv
