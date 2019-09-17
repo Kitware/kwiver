@@ -7,6 +7,7 @@ include_directories(${pybind11_INCLUDE_DIR})
 if(UNIX)
   add_definitions( -DVITAL_LOAD_PYLIB_SYM )
 endif()
+
 if (KWIVER_ENABLE_TOOLS)
   kwiver_add_plugin( modules_python
     SUBDIR          ${kwiver_plugin_module_subdir}
@@ -14,10 +15,12 @@ if (KWIVER_ENABLE_TOOLS)
     PRIVATE         vital_python_util
                     kwiversys
                     vital_logger
+                    vital_vpm
                     ${${pybind11_library}}
                     ${PYTHON_LIBRARIES}
                     )
 endif()
+
 if ( NOT SKBUILD)
   set(python_noarch FALSE)
   kwiver_create_python_init(vital/modules)
