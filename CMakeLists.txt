@@ -313,6 +313,8 @@ configure_file(
 
 # Configure install-tree CMake config file and export associated targets file
 set(KWIVER_CONFIG_INSTALL_FILE "${KWIVER_BINARY_DIR}/kwiver-config-install.cmake")
+
+if( NOT SKBUILD )
 configure_file(
   "${KWIVER_SOURCE_DIR}/CMake/kwiver-config-install.cmake.in"
   "${KWIVER_CONFIG_INSTALL_FILE}"
@@ -333,6 +335,7 @@ kwiver_install(
   DESTINATION "${kwiver_cmake_install_dir}"
   FILE        kwiver-config-targets.cmake
   )
+endif()
 
 ###
 # link compile commands to root of source tree
