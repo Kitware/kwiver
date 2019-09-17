@@ -15,6 +15,7 @@ set( headers
   cxxopts.hpp
   )
 
+include(kwiver-depends-Boost)
 ###
 # Add our plugin path to the default list
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
@@ -34,6 +35,7 @@ kwiver_add_library( kwiver_tools_applet
 target_link_libraries( kwiver_tools_applet
     PUBLIC    vital_util
               ${VITAL_BOOST_REGEX}
+              ${Boost_REGEX_LIBRARY}
   )
 
 
