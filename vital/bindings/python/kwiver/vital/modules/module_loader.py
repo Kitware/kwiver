@@ -32,25 +32,22 @@ from __future__ import print_function, absolute_import
 from kwiver.vital.modules import loaders
 from kwiver.vital import vital_logging
 from pkg_resources import iter_entry_points
+import os
+import collections
 
 logger = vital_logging.getLogger(__name__)
 
 MAGIC_REGISTRARS = ["__sprokit_register__", "__vital_algorithm_register__"]
 
 @vital_logging.exc_report
-def _load_python_module(mod):
+def _load_python_module(mod, func):
     logger.debug('Loading python module: "{}"'.format(mod))
-    for registrar in MAGIC_REGISTRARS:
-        if hasattr(mod, registrar):
-            import collections
-            if isinstance(getattr(mod, registrar), collections.Callable):
-                getattr(mod, registrar)()
-                return
-            else:
-                logger.warn(('Python module "{}" defined {} but '
-                             'it is not callable').format(mod, registrar))
-
-    logger.warn(('Python module "{}" does not have registrar method').format(mod))
+    if hasattr(mod, func):
+        if isinstance(getattr(mod, func), collections.Callable):
+                return getattr(mod, func)()
+        else:
+            logger.warn(('Python module "{}" defined {} but '
+                        'it is not callable').format(mod, fun))
 
 
 @vital_logging.exc_report
@@ -86,9 +83,13 @@ def load_python_modules():
         modules = loader.load(package)
         all_modules += modules
 
+    for entry_point in iter_entry_points('kwiver.python_plugin_registration'):
+        all_modules.append(entry_point.load())
+
     for module in all_modules:
         try:
-            _load_python_module(module)
+            for registrar in MAGIC_REGISTRARS:
+                _load_python_module(module, registrar)
         except BaseException as ex:
             logger.warn('Failed to load "{}": {}'.format(module, ex))
 

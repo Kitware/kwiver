@@ -65,7 +65,7 @@
 
 namespace py = pybind11;
 
-static void load();
+static void load_python_modules();
 static bool is_suppressed();
 static void _load_python_library_symbols(const std::string python_library_path);
 static std::string _find_python_library();
@@ -77,8 +77,9 @@ static std::string _find_python_library();
  * This function is called by the plugin loader when it is scanning
  * all plugins. It looks like a standard registration entry point for
  * a set or processes, but it activates the python interpreter and
- * causes it to call vital.modules.module_loader.load_python_modules()
- *
+ * causes it to call vital.modules.module_loader.load_python_modules().
+ * Addtionally for the python package of kwiver it is used to register external
+ * c++ plugins by specifying a search paths for the plugins
  * Also note that setting the environment variable
  * VITAL_NO_PYTHON_MODULES will suppress loading all python modules.
  */
@@ -122,6 +123,13 @@ register_factories(kwiver::vital::plugin_loader& vpm)
     python_library_path = _find_python_library();
   }
   _load_python_library_symbols(python_library_path);
+
+  // Load python modules
+  {
+    kwiver::vital::python::gil_scoped_acquire acquire;
+    (void)acquire;
+    VITAL_PYTHON_IGNORE_EXCEPTION(load_python_modules())
+  }
 
   {
     kwiver::vital::python::gil_scoped_acquire acquire;
