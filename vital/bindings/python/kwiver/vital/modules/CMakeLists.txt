@@ -40,6 +40,11 @@ endif()
 kwiver_add_python_library(modules
                           vital/modules
                           modules.cxx)
+if(SKBUILD)
+  set_target_properties(python-vital.modules-modules
+    PROPERTIES
+    INSTALL_RPATH "\$ORIGIN/../../lib:\$ORIGIN/")
+endif()
 
 target_link_libraries(python-vital.modules-modules
     PRIVATE   vital_python_util

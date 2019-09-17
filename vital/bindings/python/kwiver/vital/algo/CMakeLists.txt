@@ -22,7 +22,6 @@ kwiver_add_python_library(algorithm
                           ${vital_python_algorithm_sources}
 )
 
-
 target_link_libraries(python-vital.algo-algorithm
   PUBLIC ${PYTHON_LIBRARIES}
           vital
@@ -41,6 +40,18 @@ target_link_libraries(python-vital.algo-algorithm_factory
           vital
           vital_algo
 )
+
+if(SKBUILD)
+  set_target_properties(python-vital.algo-algorithm
+    PROPERTIES
+    INSTALL_RPATH "\$ORIGIN/../../lib:\$ORIGIN/"
+  )
+  set_target_properties(python-vital.algo-algorithm_factory
+    PROPERTIES
+    INSTALL_RPATH "\$ORIGIN/../../lib:\$ORIGIN/"
+  )
+endif()
+
 if( NOT SKBUILD )
   kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
                             vital/algo
