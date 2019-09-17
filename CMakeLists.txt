@@ -131,7 +131,9 @@ endif()
 include( kwiver-utils )
 
 if (KWIVER_ENABLE_PYTHON)
-  kwiver_create_python_init(kwiver)
+  if (NOT SKBUILD)
+    kwiver_create_python_init(kwiver)
+  endif()
 
   if (NOT WIN32)
     OPTION(KWIVER_SYMLINK_PYTHON "Symlink python files instead of copying." OFF)
