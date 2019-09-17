@@ -5,7 +5,6 @@ import os
 
 kwiver_root = '../../../'
 kwiver_install_dir = 'kwiver'
-fletch_root = '' #TODO: Make this command line parameter
 setup(
         name='kwiver',
         version='1.4.0',
@@ -19,7 +18,8 @@ setup(
                    'kwiver.vital.types',
                    'kwiver.vital.modules',
                    'kwiver.vital.algo',
-                   'kwiver.vital.exceptions' ],
+                   'kwiver.vital.exceptions',
+                   'kwiver.vital.util' ],
         setup_requires=[
                         'cmake',
                         'scikit-build'
@@ -38,7 +38,7 @@ setup(
                     '-DPYBIND11_PYTHON_VERSION=3',
                     '-DCMAKE_BUILD_WITH_INSTALL_RPATH=ON',
                     '-DKWIVER_ENABLE_TOOLS=ON',
-                    '-Dfletch_DIR={0}'.format(fletch_root)
+                    '-DKWIVER_ENABLE_LOG4CPLUS=ON',
                    ],
         entry_points={
             # Module containing python plugins
