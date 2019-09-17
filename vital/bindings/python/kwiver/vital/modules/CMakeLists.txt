@@ -18,6 +18,7 @@ if (KWIVER_ENABLE_TOOLS)
                     vital_vpm
                     ${${pybind11_library}}
                     ${PYTHON_LIBRARIES}
+    RPATH           ${kwiver_plugin_module_subdir}
                     )
 endif()
 

@@ -64,6 +64,7 @@ kwiver_add_plugin( format_config
                    vital_util
                    vital_exceptions
   SUBDIR           ${kwiver_plugin_module_subdir}
+  RPATH            ${kwiver_plugin_module_rpath}
   )
 
 ###

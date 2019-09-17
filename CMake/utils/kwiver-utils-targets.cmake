@@ -358,7 +358,7 @@ endfunction()
 function( kwiver_add_plugin        name )
   set(options)
   set(oneValueArgs SUBDIR)
-  set(multiValueArgs SOURCES PUBLIC PRIVATE)
+  set(multiValueArgs SOURCES PUBLIC PRIVATE RPATH)
   cmake_parse_arguments(PLUGIN "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
   if ( PLUGIN_SUBDIR )
@@ -374,12 +374,11 @@ function( kwiver_add_plugin        name )
     PUBLIC        ${PLUGIN_PUBLIC}
     PRIVATE       ${PLUGIN_PRIVATE}
     )
-
   set_target_properties( ${name}
     PROPERTIES
       PREFIX           ""
       SUFFIX           ${CMAKE_SHARED_MODULE_SUFFIX}
-      INSTALL_RPATH    "\$ORIGIN/../../lib:\$ORIGIN/"
+      INSTALL_RPATH    "\$ORIGIN/../lib:\$ORIGIN/:\$ORIGIN/${PLUGIN_RPATH}"
       )
 
   # Add to global collection variable

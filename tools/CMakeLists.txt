@@ -57,6 +57,7 @@ target_link_libraries( kwiver
 )
 
 ###
+message(STATUS "RPATH in tools: ${kwiver_plugin_applets_rpath}")
 # Add applet for tools plugin
 kwiver_add_plugin( kwiver_tools
   SUBDIR       ${kwiver_plugin_applets}
@@ -69,7 +70,9 @@ kwiver_add_plugin( kwiver_tools
                kwiversys
                kwiver_tools_applet
                ${Boost_REGEX_LIBRARY}
+  RPATH        ${kwiver_plugin_applets_rpath}
 )
+
 
 kwiver_install_headers(
   kwiver_applet.h

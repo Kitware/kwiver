@@ -159,6 +159,16 @@ set( kwiver_plugin_plugin_explorer_subdir         ${kwiver_plugin_subdir}/module
 set( kwiver_plugin_logger_subdir                  ${kwiver_plugin_subdir}/modules )
 set( kwiver_plugin_applets                        ${kwiver_plugin_subdir}/modules/applets )
 
+# Since the above subdirs are under lib the following rpaths apply to different plugin directories
+set( kwiver_plugin_rpath                          "../../lib" )
+set( kwiver_plugin_process_rpath                  "../${kwiver_plugin_rpath}" )
+set( kwiver_plugin_process_instrumentation_rpath  "../${kwiver_plugin_rpath}" )
+set( kwiver_plugin_scheduler_rpath                "../${kwiver_plugin_rpath}" )
+set( kwiver_plugin_module_rpath                   "../${kwiver_plugin_rpath}" )
+set( kwiver_plugin_plugin_explorer_rpath          "../../${kwiver_plugin_rpath}" )
+set( kwiver_plugin_logger_rpath                   "../${kwiver_plugin_rpath}" )
+set( kwiver_plugin_applets_rpath                  "../../${kwiver_plugin_rpath}" )
+
 ##
 # System specific compiler flags
 include( kwiver-flags )

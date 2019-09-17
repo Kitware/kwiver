@@ -165,5 +165,6 @@ kwiver_add_plugin( algo_explorer_plugin
            vital_vpm
            vital_config
            vital_algo
-           explorer_plugin )
+           explorer_plugin
+  RPATH     ${kwiver_plugin_plugin_explorer_rpath})
 endif()
