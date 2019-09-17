@@ -252,23 +252,24 @@ endif()
 
 # Build a default set of plugin path dirs
 # Provide that list as the default value for the path option.
+if( NOT SKBUILD )
+  kwiver_make_module_path( ${CMAKE_INSTALL_PREFIX} ${kwiver_plugin_module_subdir} )
+  set( vital_default_module_path ${kwiver_module_path_result} )
 
-kwiver_make_module_path( ${CMAKE_INSTALL_PREFIX} ${kwiver_plugin_module_subdir} )
-set( vital_default_module_path ${kwiver_module_path_result} )
+  if (KWIVER_USE_BUILD_TREE)
+    kwiver_make_module_path( ${KWIVER_BINARY_DIR} ${kwiver_plugin_module_subdir} )
+    set( vital_default_module_path ${kwiver_module_path_result} ${vital_default_module_path} )
+  endif()
 
-if (KWIVER_USE_BUILD_TREE)
-  kwiver_make_module_path( ${KWIVER_BINARY_DIR} ${kwiver_plugin_module_subdir} )
-  set( vital_default_module_path ${kwiver_module_path_result} ${vital_default_module_path} )
+  set(KWIVER_DEFAULT_MODULE_PATHS "${vital_default_module_path}"
+      CACHE STRING "The default paths for module scanning. Separate paths with ';' character." FORCE)
+  mark_as_advanced( KWIVER_DEFAULT_MODULE_PATHS )
+
+  # add all paths to the property
+  foreach( p IN LISTS KWIVER_DEFAULT_MODULE_PATHS )
+    kwiver_add_module_path( ${p} )
+  endforeach(p)
 endif()
-
-set(KWIVER_DEFAULT_MODULE_PATHS "${vital_default_module_path}"
-  CACHE STRING "The default paths for module scanning. Separate paths with ';' character." FORCE)
-mark_as_advanced( KWIVER_DEFAULT_MODULE_PATHS )
-
-# add all paths to the property
-foreach( p IN LISTS KWIVER_DEFAULT_MODULE_PATHS )
-  kwiver_add_module_path( ${p} )
-endforeach(p)
 
 # need to retrieve the GLOBAL PROPERTY kwiver_plugin_path and
 # formulate the default module path
