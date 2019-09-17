@@ -93,8 +93,18 @@ def load_python_modules():
         except BaseException as ex:
             logger.warn('Failed to load "{}": {}'.format(module, ex))
 
-    for entry_point in iter_entry_points('kwiver.python_plugin_registration'):
+
+def get_cpp_paths_from_entrypoints():
+    additional_search_paths = []
+    for entry_point in iter_entry_points('kwiver.cpp_search_paths'):
         try:
-            _load_python_module(entry_point.load())
+            search_path = entry_point.load()()
+            if os.path.exists(search_path):
+                additional_search_paths.append(search_path)
+            else:
+                logger.warn('Invalid search path {0} specified by {1}'.format(search_path,
+                            entry_point.key()))
         except BaseException as ex:
             logger.warn('Failed to load "{}": {}'.format(entry_point.name, ex))
+    return additional_search_paths
+

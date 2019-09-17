@@ -39,6 +39,7 @@
 #pragma warning (pop)
 #endif
 
+#include <pybind11/stl.h>
 #include <vital/bindings/python/kwiver/vital/util/pybind11.h>
 #include <vital/bindings/python/kwiver/vital/util/python_exceptions.h>
 #include <vital/bindings/python/kwiver/vital/util/python.h>
@@ -69,7 +70,7 @@ static void load_python_modules();
 static bool is_suppressed();
 static void _load_python_library_symbols(const std::string python_library_path);
 static std::string _find_python_library();
-
+static void load_additional_cpp_modules(kwiver::vital::plugin_loader& vpm);
 // ==================================================================
 /**
  * @brief Python module loader.
@@ -134,7 +135,7 @@ register_factories(kwiver::vital::plugin_loader& vpm)
   {
     kwiver::vital::python::gil_scoped_acquire acquire;
     (void)acquire;
-    VITAL_PYTHON_IGNORE_EXCEPTION(load())
+    VITAL_PYTHON_IGNORE_EXCEPTION(load_additional_cpp_modules(vpm))
   }
 }
 
@@ -206,13 +207,28 @@ _find_python_library()
 
 // ------------------------------------------------------------------
 void
-load()
+load_python_modules()
 {
   py::object const modules = py::module::import("kwiver.vital.modules.module_loader");
   py::object const loader = modules.attr("load_python_modules");
   loader();
 }
 
+// -------------------------------------------------------------------
+void
+load_additional_cpp_modules(kwiver::vital::plugin_loader& vpm)
+{
+  auto logger = kwiver::vital::get_logger("vital.load_addtional_cpp_modules");
+  py::object const modules =  py::module::import("kwiver.vital.modules.module_loader");
+  py::object const get_cpp_paths_from_entrypoints = modules.attr("get_cpp_paths_from_entrypoints");
+  py::object py_additional_cpp_paths = get_cpp_paths_from_entrypoints();
+  auto additional_cpp_paths = py_additional_cpp_paths.cast<std::vector<std::string>>();
+  for(auto additional_cpp_path : additional_cpp_paths)
+  {
+    LOG_INFO(logger,"Addtional_cpp_path: " << additional_cpp_path.c_str());
+  }
+  vpm.load_plugins(additional_cpp_paths);
+}
 
 // ------------------------------------------------------------------
 bool
