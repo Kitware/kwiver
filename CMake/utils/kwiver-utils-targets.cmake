@@ -292,28 +292,29 @@ endfunction()
 # install path to allow installing of headers in subdirectories.
 #-
 function(kwiver_install_headers)
-  set(options NOPATH)
-  set(oneValueArgs SUBDIR)
-  cmake_parse_arguments(mih "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  if(NOT SKBUILD)
+    set(options NOPATH)
+    set(oneValueArgs SUBDIR)
+    cmake_parse_arguments(mih "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  foreach(header IN LISTS mih_UNPARSED_ARGUMENTS)
-    if(mih_NOPATH)
-      set( H_SUBDIR ) # use empty subdir/path to file
-    else()
-      get_filename_component(H_SUBDIR "${header}" DIRECTORY)
-      set( H_SUBDIR "/${H_SUBDIR}" )
-    endif()
-    kwiver_install(
-      FILES       "${header}"
-      DESTINATION "include/${mih_SUBDIR}${H_SUBDIR}"
+    foreach(header IN LISTS mih_UNPARSED_ARGUMENTS)
+      if(mih_NOPATH)
+        set( H_SUBDIR ) # use empty subdir/path to file
+      else()
+        get_filename_component(H_SUBDIR "${header}" DIRECTORY)
+        set( H_SUBDIR "/${H_SUBDIR}" )
+      endif()
+      kwiver_install(
+        FILES       "${header}"
+        DESTINATION "include/${mih_SUBDIR}${H_SUBDIR}"
+        )
+    endforeach()
+
+    # for IDE support
+    source_group("Header Files\\Public"
+      FILES ${mih_UNPARSED_ARGUMENTS}
       )
-  endforeach()
-
-  # for IDE support
-  source_group("Header Files\\Public"
-    FILES ${mih_UNPARSED_ARGUMENTS}
-    )
-
+  endif()
 endfunction()
 
 
