@@ -39,6 +39,7 @@ setup(
                     '-DCMAKE_BUILD_WITH_INSTALL_RPATH=ON',
                     '-DKWIVER_ENABLE_TOOLS=ON',
                     '-DKWIVER_ENABLE_LOG4CPLUS=ON',
+                    '-DKWIVER_INSTALL_SET_UP_SCRIPT=OFF'
                    ],
         entry_points={
             # Module containing python plugins
