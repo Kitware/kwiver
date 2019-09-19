@@ -174,7 +174,7 @@ config( py::module& m)
                 from the configuration using the name of the subblock. The object
                 is a copy of the block in the configuration.
                 :param name: The name of the subblock in a :class:`kwiver.vital.config.Config` object
-                :return: a subblock of type :class:`kwiver.vital.config.Config` 
+                :return: a subblock of type :class:`kwiver.vital.config.Config`
                )pbdoc")
     .def("subblock_view", &kwiver::vital::config_block::subblock_view
       , py::arg("name")
@@ -182,7 +182,7 @@ config( py::module& m)
                 from the configuration using the name of the subblock. The object
                 is a view rather than the copy of the block in the configuration.
                 :param name: The name of the subblock in a :class:`kwiver.vital.config.Config` object
-                :return: a subblock of type :class:`kwiver.vital.config.Config` 
+                :return: a subblock of type :class:`kwiver.vital.config.Config`
                )pbdoc")
     .def("get_value", &kwiver::vital::python::config_get_value
       , py::arg("key")
