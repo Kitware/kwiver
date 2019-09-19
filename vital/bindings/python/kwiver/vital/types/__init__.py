@@ -6,6 +6,7 @@ from .camera_map import *
 from .color import *
 from .covariance import *
 from .descriptor import *
+from .descriptor_set import *
 from .detected_object_type import *
 from .detected_object import *
 from .detected_object_set import *
