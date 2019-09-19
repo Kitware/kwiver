@@ -47,6 +47,9 @@ if ( NOT SKBUILD)
   kwiver_add_python_module("${CMAKE_CURRENT_SOURCE_DIR}/loaders.py"
     vital/modules
     loaders)
+  kwiver_add_python_module("${CMAKE_CURRENT_SOURCE_DIR}/initial_plugin_path.py"
+    vital/modules
+    initial_plugin_path)
 endif()
 
 
