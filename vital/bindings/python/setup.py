@@ -3,24 +3,43 @@ from setuptools import find_packages
 import os.path as osp
 import os
 
+with open('VERSION', 'r') as f:
+    version = f.read().strip()
+
 kwiver_root = '../../../'
 kwiver_install_dir = 'kwiver'
+
 setup(
         name='kwiver',
-        version='1.4.0',
-        author='Kitware',
+        version=version,
+        description='Python and C++ toolkit that pulls together computer vision algorithms '
+                     ' into highly modular run time configurable systems',
+        author='Kitware, Inc.',
         author_email='http://public.kitware.com/mailman/listinfo/kwiver-users',
+        url='https://github.com/Kitware/kwiver',
         cmake_install_dir=kwiver_install_dir,
         cmake_source_dir=kwiver_root,
+        license='BSD 3-Clause',
+        classifiers=[
+            'Intended Audience :: Developers',
+            'Intended Audience :: Science/Research',
+            'License :: OSI Approved :: BSD License',
+            'Programming Language :: Python :: 3.5',
+            'Programming Language :: Python :: 3.6',
+            'Programming Language :: Python :: 3.7',
+            'Programming Language :: Python :: 3.8',
+            'Operating System :: Unix',
+            'Topic :: Scientific/Engineering :: Artificial Intelligence',
+            ],
+        platforms=[
+                   'linux',
+                   'Unix'
+                   ],
         cmake_minimum_required_version='3.3',
-        packages=[ 'kwiver',
-                   'kwiver.vital',
-                   'kwiver.vital.types',
-                   'kwiver.vital.modules',
-                   'kwiver.vital.algo',
-                   'kwiver.vital.exceptions',
-                   'kwiver.vital.util' ],
+        packages = find_packages(),
+        python_requires='>=3.5',
         setup_requires=[
+                        'setuptools',
                         'cmake',
                         'scikit-build'
                        ],
@@ -29,6 +48,12 @@ setup(
                           'pillow',
                           'six',
                          ],
+        tests_require=[
+                        'nose',
+                        'mock',
+                        'coverage',
+                        'external_arrow',
+                      ],
         cmake_args=[
                     '-DCMAKE_BUILD_TYPE=Release',
                     '-DKWIVER_BUILD_SHARED=OFF',
@@ -42,7 +67,6 @@ setup(
                     '-DKWIVER_INSTALL_SET_UP_SCRIPT=OFF'
                    ],
         entry_points={
-            # Module containing python plugins
             'kwiver.python_plugin_registration': [
                 ],
             'kwiver.cpp_search_paths': [
