@@ -42,6 +42,7 @@ def find_python_library():
         if libdir is None:
             libdir = os.path.abspath(os.path.join(
                 sysconfig.get_config_var('LIBDEST'), "..", "libs"))
+        no_valid_candidate_found = True
         for (pre, impl, ext, ver, abi) in itertools.product(candidate_lib_prefixes,
                                                             candidate_implementations,
                                                             candidate_extensions,
@@ -50,5 +51,9 @@ def find_python_library():
             candidate = os.path.join(libdir, ''.join((pre, impl, ver, abi, ext)))
             if os.path.exists(candidate):
                 python_library = candidate
+                no_valid_candidate = False
                 break
+        # If there is not valid candidate then set the python_library is empty
+        if no_valid_candidate:
+            python_library = ""
     return python_library
