@@ -31,12 +31,8 @@
 import nose.tools
 
 class TestVitalModules(object):
-    @nose.tools.raises(ImportError)
-    def test_import():
-        import vital.modules.modules
-
-
-    def test_load():
-        from vital.modules import modules
+    def test_load(self):
+        from kwiver.vital.modules import modules
         modules.load_known_modules()
+
 

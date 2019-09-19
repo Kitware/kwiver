@@ -41,7 +41,7 @@ import nose.tools
 import numpy
 import os
 
-from vital.types import (
+from kwiver.vital.types import (
     Camera,
     CameraIntrinsics,
     EigenArray,

@@ -34,23 +34,14 @@ from __future__ import print_function, absolute_import
 
 import nose.tools
 
-from vital.algo import ImageObjectDetector
-from vital.types import Image
-from vital.types import ImageContainer
-from vital.types import DetectedObjectSet
+from kwiver.vital.algo import ImageObjectDetector
+from kwiver.vital.types import Image
+from kwiver.vital.types import ImageContainer
+from kwiver.vital.types import DetectedObjectSet
 
-from vital.modules import modules
-from sprokit.pipeline import config
+from kwiver.vital.modules import modules
 
-def _dummy_detector_cfg():
-    test_cfg = config.empty_config()
-    test_cfg.set_value("center_x", "3")
-    test_cfg.set_value("center_y", "5")
-    test_cfg.set_value("dx", "0.3")
-    test_cfg.set_value("dy", "0.2")
-    test_cfg.set_value("height", "10")
-    test_cfg.set_value("width", "15")
-    return test_cfg
+ALGORITHM_IMPLEMENTATION_NAME = "TestObjectDetector"
 
 class TestVitalImageObjectDetector(object):
     # Display all the registered image detectors
@@ -80,60 +71,36 @@ class TestVitalImageObjectDetector(object):
     @nose.tools.raises(TypeError)
     def test_empty_detect(self):
         modules.load_known_modules()
-        detector = ImageObjectDetector.create("example_detector")
+        detector = ImageObjectDetector.create(ALGORITHM_IMPLEMENTATION_NAME)
         detector.detect()
-
-    # When a data type that is not an image container is passed it raises TypeError
-    @nose.tools.raises(TypeError)
-    def test_bad_detect(self):
-        modules.load_known_modules()
-        detector = ImageObjectDetector.create("example_detector")
-        detector.detect("Image")
 
     # For an image container it returns a detected object set of size 1
     def test_detect(self):
         modules.load_known_modules()
-        detector = ImageObjectDetector.create("example_detector")
+        detector = ImageObjectDetector.create(ALGORITHM_IMPLEMENTATION_NAME)
         image = Image()
         image_container = ImageContainer(image)
         detections = detector.detect(image_container)
         nose.tools.ok_(detections is not None,
                        "Unexpected empty detections" )
-        nose.tools.assert_equal(len(detections), 1)
+        nose.tools.assert_equal(len(detections), 0)
 
     # Test configuration
     def test_config(self):
         modules.load_known_modules()
-        detector = ImageObjectDetector.create("example_detector")
+        detector = ImageObjectDetector.create(ALGORITHM_IMPLEMENTATION_NAME)
         # Verify that 6 config values are present in example_detector
-        nose.tools.assert_equal(len(detector.get_configuration()), 6)
-        test_cfg = _dummy_detector_cfg()
-        # Verify that the detector has different configuration before setting to test
-        nose.tools.assert_not_equal(detector.check_configuration(test_cfg), False)
-        detector.set_configuration(test_cfg)
-        # Verify that the config value is being set properly
-        nose.tools.assert_equal(detector.check_configuration(test_cfg), True)
+        nose.tools.assert_equal(len(detector.get_configuration()), 0)
 
 
     # Test nested configuration
     def test_nested_config(self):
         modules.load_known_modules()
-        detector = ImageObjectDetector.create("SimpleImageObjectDetector")
+        detector = ImageObjectDetector.create(ALGORITHM_IMPLEMENTATION_NAME)
         nested_cfg = config.empty_config()
         ImageObjectDetector.get_nested_algo_configuration( "detector",
                                                             nested_cfg,
                                                             detector )
-        # Verify that test cfg is set to configuration inside detector
-        # nested configuration uses the name of a detector as an additional configuration
-        # key thus it is checked against 7 rather than 6
-        #nose.tools.assert_equal(len(nested_cfg), 7)
-
-        #test_cfg = _dummy_detector_cfg()
-        #test_cfg.set_value("example_detector:type", "example_detector")
-        #ImageObjectDetector.set_nested_algo_configuration( "example_detector",
-        #                                    test_cfg,
-        #                                    detector )
         nose.tools.assert_equal(ImageObjectDetector.check_nested_algo_configuration(
                                                             "detector",
                                                             nested_cfg), True)
-

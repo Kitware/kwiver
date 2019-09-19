@@ -38,7 +38,7 @@ import unittest
 import nose.tools
 import numpy
 
-from vital.types import ObjectTrackState, BoundingBox, DetectedObjectType, \
+from kwiver.vital.types import ObjectTrackState, BoundingBox, DetectedObjectType, \
         DetectedObject
 
 

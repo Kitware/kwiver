@@ -40,7 +40,7 @@ import numpy
 
 from six.moves import range
 
-from vital.types import ObjectTrackSet, ObjectTrackState, BoundingBox, \
+from kwiver.vital.types import ObjectTrackSet, ObjectTrackState, BoundingBox, \
         DetectedObjectType, DetectedObject, Track
 
 
