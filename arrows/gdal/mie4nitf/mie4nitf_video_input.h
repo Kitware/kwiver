@@ -46,7 +46,7 @@ namespace arrows {
 namespace mie4nitf {
 
 /// Video input using mie4nitf services.
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /**
  * This class implements a video input algorithm using mie4nitf video services.
  *
