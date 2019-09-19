@@ -12,9 +12,9 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
+ *  * Neither name of Kitware, Inc. nor the names of any contributors may be
+ * used to endorse or promote products derived from this software without
+ * specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -35,28 +35,32 @@
 
 #include "arrows/gdal/mie4nitf/mie4nitf_video_input.h"
 
-#include <vital/types/timestamp.h>
-#include <vital/exceptions/io.h>
-#include <vital/exceptions/video.h>
-#include <vital/util/tokenize.h>
 #include <arrows/gdal/image_io.h>
 #include <gdal_priv.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
-#include <libxml/xpath.h>
 #include <libxml/xmlstring.h>
+#include <libxml/xpath.h>
+#include <vital/exceptions/io.h>
+#include <vital/exceptions/video.h>
+#include <vital/types/timestamp.h>
+#include <vital/util/tokenize.h>
 #include <vul/vul_reg_exp.h>
 
 #include <kwiversys/SystemTools.hxx>
 
+#include <ctime>
 #include <memory>
-#include <vector>
 #include <sstream>
 #include <string>
+#include <vector>
 
-namespace kwiver {
-namespace arrows {
-namespace mie4nitf {
+namespace kwiver
+{
+namespace arrows
+{
+namespace mie4nitf
+{
 
 struct xml_metadata_per_frame
 {
@@ -67,25 +71,24 @@ struct xml_metadata_per_frame
   int image_seg_index;
 };
 
-
 #define INT_DEFAULT -1
 #define CURRENT_FRAME_NUMBER_INIT 1
 #define CURRENT_FRAME_INDEX_INIT 0
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Private implementation class
 class mie4nitf_video_input::priv
 {
 public:
   /// Constructor
-  priv() :
-    f_current_frame(nullptr),
-    f_current_frame_metadata(nullptr),
-    f_current_frame_number(INT_DEFAULT),
-    start_time(INT_DEFAULT),
-    video_path(""),
-    number_of_frames(INT_DEFAULT),
-    gdal_mie4nitf_dataset_(nullptr)
-  {}
+  priv()
+    : f_current_frame(nullptr),
+      f_current_frame_metadata(nullptr),
+      f_current_frame_number(INT_DEFAULT),
+      start_time(INT_DEFAULT),
+      video_path(""),
+      number_of_frames(INT_DEFAULT),
+      gdal_mie4nitf_dataset_(nullptr)
+  { }
 
   // Pointer to the current frame.
   vital::image_container_sptr f_current_frame;
@@ -118,13 +121,12 @@ public:
   // char **str = GDALGetMetadata(<dataset_name>, "xml:TRE");
   std::vector<xml_metadata_per_frame> xml_metadata;
 
-
-  // ==================================================================
+  // ==========================================================================
   /*
-  * @brief Whether the video was opened.
-  *
-  * @return \b true if video was opened.
-  */
+   * @brief Whether the video was opened.
+   *
+   * @return \b true if video was opened.
+   */
   bool is_opened()
   {
     return this->gdal_mie4nitf_dataset_ != nullptr;
@@ -137,15 +139,15 @@ public:
   }
 
   xmlXPathObjectPtr get_node_set_from_context(xmlChar *xpath,
-    xmlXPathContextPtr context)
+                                              xmlXPathContextPtr context)
   {
     xmlXPathObjectPtr result = xmlXPathEvalExpression(xpath, context);
 
     if (result == NULL)
     {
       xmlXPathFreeObject(result);
-      LOG_ERROR(this->logger, "Error " << result <<
-        " in xmlXPathEvalExpression");
+      LOG_ERROR(this->logger,
+                "Error " << result << " in xmlXPathEvalExpression");
       return NULL;
     }
 
@@ -155,7 +157,7 @@ public:
       LOG_ERROR(this->logger, "Error no nodes found using XPath");
       return NULL;
     }
-      return result;
+    return result;
   }
 
   xmlXPathContextPtr get_new_context(xmlDocPtr doc)
@@ -166,7 +168,7 @@ public:
     if (context == NULL)
     {
       xmlXPathFreeContext(context);
-      LOG_ERROR(this->logger, "Error "<< context << " in xmlXPathNewContext");
+      LOG_ERROR(this->logger, "Error " << context << " in xmlXPathNewContext");
       return NULL;
     }
     return context;
@@ -175,16 +177,16 @@ public:
   xmlChar *get_attribute_value(const char *attr, xmlXPathContextPtr context)
   {
     std::string str = "./field[@name='" + std::string(attr) + "']";
-    xmlChar* xml_str = const_char_to_xml_char(str.c_str());
+    xmlChar *xml_str = const_char_to_xml_char(str.c_str());
     xmlXPathObjectPtr xpath = get_node_set_from_context(xml_str, context);
-    assert(xpath -> nodesetval -> nodeNr == 1);
-    xmlChar* prop = xmlGetProp(xpath->nodesetval->nodeTab[0],
-      const_char_to_xml_char("value"));
-    if(prop == NULL)
+    assert(xpath->nodesetval->nodeNr == 1);
+    xmlChar *prop = xmlGetProp(xpath->nodesetval->nodeTab[0],
+                               const_char_to_xml_char("value"));
+    if (prop == NULL)
     {
       xmlFree(prop);
-      VITAL_THROW(vital::metadata_exception,"Error " + xml_char_to_string(prop)
-          + " in xmlGetProp");
+      VITAL_THROW(vital::metadata_exception,
+                  "Error " + xml_char_to_string(prop) + " in xmlGetProp");
     }
     xmlXPathFreeObject(xpath);
     return prop;
@@ -192,22 +194,22 @@ public:
 
   std::string xml_char_to_string(xmlChar *p)
   {
-    char *c  = reinterpret_cast<char *>(p);
+    char *c = reinterpret_cast<char *>(p);
     std::string s(c);
     return s;
   }
 
-  xmlChar* const_char_to_xml_char(const char *p)
+  xmlChar *const_char_to_xml_char(const char *p)
   {
-    return (reinterpret_cast<xmlChar*>(const_cast<char *>(p)));
+    return (reinterpret_cast<xmlChar *>(const_cast<char *>(p)));
   }
 
   xml_metadata_per_frame get_attributes_per_frame(xmlXPathContextPtr context)
   {
     xml_metadata_per_frame md;
-    xmlChar* st = get_attribute_value("START_TIMESTAMP", context);
-    xmlChar* en = get_attribute_value("END_TIMESTAMP", context);
-    xmlChar* img = get_attribute_value("IMAGE_SEG_INDEX", context);
+    xmlChar *st = get_attribute_value("START_TIMESTAMP", context);
+    xmlChar *en = get_attribute_value("END_TIMESTAMP", context);
+    xmlChar *img = get_attribute_value("IMAGE_SEG_INDEX", context);
 
     md.start_timestamp = xml_char_to_string(st);
     md.end_timestamp = xml_char_to_string(en);
@@ -222,36 +224,42 @@ public:
   int xmlXPathSetContextNode(xmlNodePtr node, xmlXPathContextPtr ctx)
   {
     if ((node == NULL) || (ctx == NULL))
-        return(-1);
-
-     if (node->doc == ctx->doc) {
-        ctx->node = node;
-	return(0);
+    {
+      return (-1);
     }
-    return(-1);
+
+    if (node->doc == ctx->doc)
+    {
+      ctx->node = node;
+      return (0);
+    }
+    return (-1);
   }
 
-  void populate_frame_times(xmlDoc * const doc)
+  void populate_frame_times(xmlDoc *const doc)
   {
-    xmlChar* temporal_block_xpath =
-        reinterpret_cast<xmlChar*>(const_cast<char *>(
-	"//tre[@name='MTIMFA']/repeated[@name='CAMERAS' and @number='1']/"
-        "group[@index='0']/repeated[@name='TEMPORAL_BLOCKS']/group"));
+    xmlChar *temporal_block_xpath =
+      reinterpret_cast<xmlChar *>(
+        const_cast<char *>(
+          "//tre[@name='MTIMFA']/repeated[@name='CAMERAS' and @number='1']/"
+          "group[@index='0']/repeated[@name='TEMPORAL_BLOCKS']/group"));
 
     xmlXPathContextPtr xpath_context = get_new_context(doc);
     xmlXPathObjectPtr xpath_obj =
-        get_node_set_from_context(temporal_block_xpath, xpath_context);
+      get_node_set_from_context(temporal_block_xpath, xpath_context);
 
-    for (int i = 0; i < xpath_obj -> nodesetval -> nodeNr; ++i)
+    for (int i = 0; i < xpath_obj->nodesetval->nodeNr; ++i)
     {
       xmlNode *node = xpath_obj->nodesetval->nodeTab[i];
       xmlXPathContextPtr xpath_context_local = get_new_context(doc);
 
       xmlXPathSetContextNode(node, xpath_context_local);
-      xml_metadata_per_frame md = get_attributes_per_frame(xpath_context_local);
+      xml_metadata_per_frame md =
+        get_attributes_per_frame(xpath_context_local);
       xml_metadata.push_back(md);
       xmlXPathFreeContext(xpath_context_local);
     }
+
     xmlXPathFreeObject(xpath_obj);
     xmlXPathFreeContext(xpath_context);
   }
@@ -260,7 +268,7 @@ public:
   {
     std::string concat_strings;
     char **str = GDALGetMetadata(this->gdal_mie4nitf_dataset_, "xml:TRE");
-    while(*str != NULL)
+    while (*str != NULL)
     {
       concat_strings = concat_strings + (*str);
       ++str;
@@ -268,10 +276,12 @@ public:
 
     xmlDoc *doc = nullptr;
     char *str_char = const_cast<char *>(concat_strings.c_str());
-    if ((doc = xmlReadDoc(reinterpret_cast<xmlChar*>(str_char),
-      NULL, NULL, XML_PARSE_NOBLANKS)) == NULL)
+    if ((doc =
+         xmlReadDoc(reinterpret_cast<xmlChar *>(str_char), NULL, NULL,
+                    XML_PARSE_NOBLANKS)) == NULL)
     {
-      VITAL_THROW(vital::metadata_exception,"Error could not read input string");
+      VITAL_THROW(vital::metadata_exception,
+                  "Error could not read input string");
     }
     populate_frame_times(doc);
     populate_subset_metadata();
@@ -280,32 +290,85 @@ public:
 
   typedef std::pair<std::string, std::string> string_pair;
 
-  string_pair parse_key_value(char* md)
+  string_pair parse_key_value(char *md)
   {
-    char** s = CSLTokenizeString2(md, "=", CSLT_ALLOWEMPTYTOKENS
-    | CSLT_HONOURSTRINGS | CSLT_PRESERVEQUOTES | CSLT_PRESERVEESCAPES);
+    char **s =
+      CSLTokenizeString2(md, "=",
+                         CSLT_ALLOWEMPTYTOKENS | CSLT_HONOURSTRINGS |
+                         CSLT_PRESERVEQUOTES | CSLT_PRESERVEESCAPES);
 
     int i;
-    for(i = 0; s != NULL && s[i] != NULL; ++i) {}
+    for (i = 0; s != NULL && s[i] != NULL; ++i)
+    { }
 
     if (i != 2)
     {
       VITAL_THROW(vital::metadata_exception,
-        "Error could parse key-value pair in the metadata");
+                  "Error could parse key-value pair in the metadata");
     }
+
     string_pair p = string_pair(std::string(s[0]), std::string(s[1]));
     CSLDestroy(s);
     return p;
   }
 
+  /**
+   * @brief Converts MIE4NITF timestamp into microseconds from epoch.
+   * Assumes int64_t fits in `vital::time_usec_t`.
+   *
+   * @param s String specified in the MIE4NITF format, like:
+   * `20151007064400.281000000`.
+   *
+   * @return Time from epoch in micro-seconds.
+   */
+  vital::time_usec_t utc_to_microseconds(std::string s)
+  {
+    const char *format = "%Y%m%d%H%M%S";
+
+    // Check if the format is as expected.
+    int dot_ind = s.find(".");
+    int format_len = 14, nano_seconds_len = 9;
+
+    if ((dot_ind != format_len) ||
+        (static_cast<int>(s.size()) != format_len + 1 + nano_seconds_len))
+    {
+      VITAL_THROW(vital::metadata_exception, "Error could not parse timestamp");
+    }
+
+    std::string format_s = s.substr(0, format_len);
+    std::string nano_seconds_s = s.substr(format_len + 1, nano_seconds_len);
+
+    int64_t nano_seconds = atoll(nano_seconds_s.c_str());
+    int64_t micro_seconds = nano_seconds / 1000;
+    tm t, t0;
+    std::memset(&t, 0, sizeof(std::tm));
+    std::memset(&t0, 0, sizeof(std::tm));
+
+    char *c = strptime((format_s).c_str(), format, &t);
+    if (c == NULL)
+    {
+      VITAL_THROW(vital::metadata_exception, "Error could not parse timestamp");
+    }
+
+    c = strptime("1970-01-01 00:00:00", "%Y-%m-%d %H:%M:%S", &t0);
+    if (c == NULL)
+    {
+      VITAL_THROW(vital::metadata_exception, "Error could not parse timestamp");
+    }
+
+    time_t seconds_from_epoch = difftime(mktime(&t), mktime(&t0));
+    int64_t micro_seconds_from_epoch = seconds_from_epoch * 1e6 + micro_seconds;
+    return micro_seconds_from_epoch;
+  }
+
   void populate_subset_metadata()
   {
-    char **metadata = GDALGetMetadata(this->gdal_mie4nitf_dataset_,
-      "SUBDATASETS");
+    char **metadata =
+      GDALGetMetadata(this->gdal_mie4nitf_dataset_, "SUBDATASETS");
 
     int ind = 1;
 
-    while(metadata != NULL && *metadata != NULL)
+    while (metadata != NULL && *metadata != NULL)
     {
       std::string key1 = "SUBDATASET_" + std::to_string(ind) + "_NAME";
       std::pair<std::string, std::string> p1 = parse_key_value(*metadata);
@@ -332,13 +395,13 @@ public:
   {
     kwiver::arrows::gdal::image_io img_io = kwiver::arrows::gdal::image_io();
 
-    kwiver::vital::image_container_sptr frame = \
+    kwiver::vital::image_container_sptr frame =
       img_io.load_NITF_subdataset(subdataset_name);
 
-    if(frame == nullptr)
+    if (frame == nullptr)
     {
-      VITAL_THROW( vital::invalid_file, subdataset_name,
-        "GDAL could not load file.");
+      VITAL_THROW(vital::invalid_file, subdataset_name,
+                  "GDAL could not load file.");
     }
     return frame;
   }
@@ -346,14 +409,14 @@ public:
   bool goto_frame_number(int frame_number)
   {
     int frame_ind = frame_number - 1;
-    if ( frame_number < 1 || frame_number > this->number_of_frames )
+    if (frame_number < 1 || frame_number > this->number_of_frames)
     {
       LOG_ERROR(this->logger, "Frame number out of expected range.");
       return false;
     }
 
-    this->f_current_frame_metadata = std::make_shared<xml_metadata_per_frame>
-      (this->xml_metadata.at(frame_ind));
+    this->f_current_frame_metadata = std::make_shared<xml_metadata_per_frame>(
+      this->xml_metadata.at(frame_ind));
     this->f_current_frame_number = frame_number;
 
     // TODO(m-chaturvedi): Check for caching with David.
@@ -366,7 +429,7 @@ public:
     if (this->f_current_frame == nullptr)
     {
       VITAL_THROW(kwiver::vital::file_not_found_exception,
-          this->f_current_frame_metadata->filename, "File not found");
+                  this->f_current_frame_metadata->filename, "File not found");
     }
 
     return true;
@@ -374,45 +437,40 @@ public:
 
   bool priv_end_of_video()
   {
-    if(this->f_current_frame_number == this->number_of_frames)
+    if (this->f_current_frame_number == this->number_of_frames)
     {
       return true;
     }
     return false;
   }
 
-  // ==================================================================
+  // ==========================================================================
   /*
-  * @brief Open the given video MIE4NITF video.
-  *
-  * @return \b true if video was opened.
-  */
+   * @brief Open the given video MIE4NITF video.
+   *
+   * @return \b true if video was opened.
+   */
   bool open(std::string video_name)
   {
     GDALAllRegister();
 
-    gdal_mie4nitf_dataset_ = static_cast<GDALDataset*>
-      (GDALOpen(video_name.c_str(), GA_ReadOnly));
+    gdal_mie4nitf_dataset_ =
+      static_cast<GDALDataset *>(GDALOpen(video_name.c_str(), GA_ReadOnly));
 
-     if ( !gdal_mie4nitf_dataset_ )
-     {
-       VITAL_THROW( vital::invalid_file, video_name,
-         "GDAL could not load file.");
-     }
-     populate_xml_metadata();
-     return true;
+    if (!gdal_mie4nitf_dataset_)
+    {
+      VITAL_THROW(vital::invalid_file, video_name, "GDAL could not load file.");
+    }
+    populate_xml_metadata();
+    return true;
   }
 
 }; // end of internal class.
 
-
-
-// ==================================================================
-mie4nitf_video_input
-::mie4nitf_video_input()
-  : d( new priv() )
+// ============================================================================
+mie4nitf_video_input ::mie4nitf_video_input() : d(new priv())
 {
-  attach_logger( "mie4nitf_video_input" ); // get appropriate logger
+  attach_logger("mie4nitf_video_input"); // get appropriate logger
   d->logger = this->logger();
   this->set_capability(vital::algo::video_input::HAS_EOV, true);
   this->set_capability(vital::algo::video_input::HAS_FRAME_NUMBERS, true);
@@ -423,21 +481,13 @@ mie4nitf_video_input
 
   this->set_capability(vital::algo::video_input::IS_SEEKABLE, true);
   this->set_capability(vital::algo::video_input::HAS_TIMEOUT, false);
-
 }
 
+mie4nitf_video_input::~mie4nitf_video_input() { this->close(); }
 
-mie4nitf_video_input::~mie4nitf_video_input()
-{
-  this->close();
-}
-
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Get this algorithm's \link vital::config_block configuration block \endlink
-vital::config_block_sptr
-mie4nitf_video_input
-::get_configuration() const
+vital::config_block_sptr mie4nitf_video_input ::get_configuration() const
 {
   // get base config from base class
   vital::config_block_sptr config =
@@ -446,13 +496,14 @@ mie4nitf_video_input
   return config;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Set this algorithm's properties via a config block
 void
 mie4nitf_video_input
-::set_configuration(vital::config_block_sptr in_config)
+::set_configuration(
+  vital::config_block_sptr in_config)
 {
-  // Starting with our generated vital::config_block to ensure that assumed 
+  // Starting with our generated vital::config_block to ensure that assumed
   // values are present.  An alternative is to check for key presence before
   // performing a get_value() call.
 
@@ -461,80 +512,77 @@ mie4nitf_video_input
   return;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 mie4nitf_video_input
-::check_configuration(vital::config_block_sptr config) const
+::check_configuration(
+  vital::config_block_sptr config) const
 {
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 mie4nitf_video_input
-::open( std::string video_name )
+::open(std::string video_name)
 {
   this->close();
 
   d->video_path = video_name;
 
   if (!kwiversys::SystemTools::FileExists(d->video_path))
-    {
-      // Throw exception
-      VITAL_THROW(vital::file_not_found_exception,
-          video_name, "File not found");
-    }
+  {
+    // Throw exception
+    VITAL_THROW(vital::file_not_found_exception, video_name, "File not found");
+  }
 
-    if (!d->open(video_name))
-    {
-      VITAL_THROW(vital::video_runtime_exception,
-          video_name + " Video file open failed for unknown reasons.");
-    }
+  if (!d->open(video_name))
+  {
+    VITAL_THROW(vital::video_runtime_exception,
+                video_name + " Video file open failed for unknown reasons.");
+  }
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 mie4nitf_video_input
 ::close()
 {
-    GDALClose(d->gdal_mie4nitf_dataset_);
-    d->start_time = -1;
-    d->video_path = "";
-    d->number_of_frames = 0;
-    d->gdal_mie4nitf_dataset_ = nullptr;
-    d->f_current_frame.reset();
+  GDALClose(d->gdal_mie4nitf_dataset_);
+  d->start_time = -1;
+  d->video_path = "";
+  d->number_of_frames = 0;
+  d->gdal_mie4nitf_dataset_ = nullptr;
+  d->f_current_frame.reset();
 }
 
-size_t
-mie4nitf_video_input
-::num_frames() const
+// ----------------------------------------------------------------------------
+size_t mie4nitf_video_input ::num_frames() const
 {
-    return d->number_of_frames;
+  return d->number_of_frames;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 mie4nitf_video_input
-::next_frame( kwiver::vital::timestamp& ts,
-              uint32_t timeout )
+::next_frame(kwiver::vital::timestamp &ts, uint32_t timeout)
 {
   // If the file is not opened
   if (!d->is_opened())
   {
-    VITAL_THROW(vital::file_not_read_exception, d->video_path, 
-      "Video not open");
+    VITAL_THROW(vital::file_not_read_exception, d->video_path,
+                "Video not open");
   }
 
   // If it's the last frame then return `false`
-  if(d->priv_end_of_video())
+  if (d->priv_end_of_video())
   {
     return false;
   }
 
   int next_frame_number = d->f_current_frame_number;
 
-  if(next_frame_number == INT_DEFAULT)
+  if (next_frame_number == INT_DEFAULT)
   {
     next_frame_number = CURRENT_FRAME_NUMBER_INIT;
   }
@@ -543,7 +591,7 @@ mie4nitf_video_input
     ++next_frame_number;
   }
 
-  if(!d->goto_frame_number(next_frame_number))
+  if (!d->goto_frame_number(next_frame_number))
   {
     return false;
   }
@@ -552,8 +600,11 @@ mie4nitf_video_input
   return true;
 }
 
-// ------------------------------------------------------------------
-bool mie4nitf_video_input::seek_frame(kwiver::vital::timestamp& ts,
+// ----------------------------------------------------------------------------
+bool
+mie4nitf_video_input
+::seek_frame(
+  kwiver::vital::timestamp &ts,
   kwiver::vital::timestamp::frame_t frame_number,
   uint32_t timeout)
 {
@@ -561,7 +612,7 @@ bool mie4nitf_video_input::seek_frame(kwiver::vital::timestamp& ts,
   if (!d->is_opened())
   {
     VITAL_THROW(vital::file_not_read_exception, d->video_path,
-      "Video not open");
+                "Video not open");
   }
   if (!d->goto_frame_number(frame_number))
   {
@@ -577,16 +628,15 @@ bool mie4nitf_video_input::seek_frame(kwiver::vital::timestamp& ts,
   return true;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::image_container_sptr
 mie4nitf_video_input
-::frame_image( )
+::frame_image()
 {
   return d->f_current_frame;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::timestamp
 mie4nitf_video_input
 ::frame_timestamp() const
@@ -599,7 +649,7 @@ mie4nitf_video_input
   // `frame_id_t` and `time_usec_t` is `int_64_t` while writing this.
   // (`vital_types.h`)
   vital::time_usec_t t =
-    std::stod(d->f_current_frame_metadata->start_timestamp);
+    d->utc_to_microseconds(d->f_current_frame_metadata->start_timestamp);
 
   vital::frame_id_t f =
     static_cast<kwiver::vital::frame_id_t>(d->f_current_frame_number);
@@ -608,31 +658,28 @@ mie4nitf_video_input
   return ts;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::metadata_vector
 mie4nitf_video_input
 ::frame_metadata()
 {
-// TODO(m-chaturvedi): Implement this.
+  // TODO(m-chaturvedi): Implement this.
   LOG_INFO(this->logger(), "Metadata access isn't supported yet");
   return kwiver::vital::metadata_vector();
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::metadata_map_sptr
 mie4nitf_video_input
 ::metadata_map()
 {
-// TODO(m-chaturvedi): Implement this.
+  // TODO(m-chaturvedi): Implement this.
   LOG_INFO(this->logger(), "Metadata access isn't supported yet");
   std::shared_ptr<kwiver::vital::simple_metadata_map> ptr;
   return ptr;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 mie4nitf_video_input
 ::end_of_video() const
@@ -640,8 +687,7 @@ mie4nitf_video_input
   return d->priv_end_of_video();
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 mie4nitf_video_input
 ::good() const
@@ -649,8 +695,7 @@ mie4nitf_video_input
   return d->is_valid();
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 mie4nitf_video_input
 ::seekable() const
@@ -658,4 +703,6 @@ mie4nitf_video_input
   return true;
 }
 
-} } } // end namespaces
+} // namespace mie4nitf
+} // namespace arrows
+} // namespace kwiver

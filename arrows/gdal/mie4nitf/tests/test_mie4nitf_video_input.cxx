@@ -105,7 +105,7 @@ TEST_F(mie4nitf_video_input, is_good_correct_file_path)
     << "Video state after close";
 }
 
-/// ----------------------------------------------------------------------------
+/// ---------------------------------------------------------------------------
 TEST_F(mie4nitf_video_input, is_good_invalid_file_path)
 {
   kwiver::arrows::mie4nitf::mie4nitf_video_input input;
@@ -135,7 +135,7 @@ TEST_F(mie4nitf_video_input, is_good_invalid_file_path)
     << "Video state after close";
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F(mie4nitf_video_input, frame_image)
 {
   kwiver::arrows::mie4nitf::mie4nitf_video_input input;
@@ -164,9 +164,7 @@ TEST_F(mie4nitf_video_input, frame_image)
   EXPECT_EQ(frame->get_image().h_step(), 200 );
   EXPECT_EQ(frame->get_image().w_step(), 1);
   EXPECT_EQ(frame->get_image().is_contiguous(), true);
-
 }
-
 
 // ----------------------------------------------------------------------------
 TEST_F(mie4nitf_video_input, seek)
@@ -183,7 +181,7 @@ TEST_F(mie4nitf_video_input, seek)
   input.open(correct_file);
   EXPECT_FALSE(input.good())
     << "Video state after open but before first frame";
-  EXPECT_EQ(input.frame_image(), nullptr) << 
+  EXPECT_EQ(input.frame_image(), nullptr) <<
     "Video should not have an image yet";
 
   EXPECT_TRUE(input.seekable()) << "Video should be seekable.";
@@ -202,7 +200,7 @@ TEST_F(mie4nitf_video_input, seek)
 
     std::string frame_file = "NITF_IM:" + std::to_string(requested_frame - 1) +
       ":" + j2k_file;
-    
+
     kwiver::vital::image_container_sptr img_container =
       img_io.load_NITF_subdataset(frame_file);
     kwiver::vital::image NITF_image_vital = img_container->get_image();
@@ -213,7 +211,6 @@ TEST_F(mie4nitf_video_input, seek)
   // Test various invalid seeks past end of video
   std::vector<kwiver::vital::timestamp::frame_t> invalid_seeks =
   { -3, -1, 0, 6 };
-
 
   kwiver::vital::image_container_sptr f_current_frame = input.frame_image();
   int current_frame_number = ts.get_frame();
@@ -242,15 +239,15 @@ TEST_F(mie4nitf_video_input, end_of_video)
     << "End of video after open";
 
   kwiver::vital::timestamp ts;
-  // TODO(m-chaturvedi): Ask David about the behavior in ffmpeg
+  // TODO(m-chaturvedi): Ask about the behavior in ffmpeg
   typedef std::pair<kwiver::vital::time_usec_t, kwiver::vital::frame_id_t> P;
-  std::vector<P> check = { P(20151007064400.281000000, 1),
-	  P(20151007064400.615000000, 2),
-	  P(20151007064400.949000000, 3),
-	  P(20151007064401.283000000, 4),
-	  P(20151007064401.617000000, 5)
+  std::vector<P> check = {
+    P(1444200240281000, 1),
+    P(1444200240615000, 2),
+    P(1444200240949000, 3),
+    P(1444200241283000, 4),
+    P(1444200241617000, 5),
   };
-
 
   for (int i=0; !input.end_of_video(); ++i)
   {

@@ -38,7 +38,7 @@
 
 #include <vital/algo/video_input.h>
 
-#include <arrows/mie4nitf/kwiver_algo_mie4nitf_export.h>
+#include <arrows/gdal/mie4nitf/kwiver_algo_mie4nitf_export.h>
 
 
 namespace kwiver {
@@ -46,7 +46,7 @@ namespace arrows {
 namespace mie4nitf {
 
 /// Video input using mie4nitf services.
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /**
  * This class implements a video input algorithm using mie4nitf video services.
  *
