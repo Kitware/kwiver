@@ -38,10 +38,10 @@ from kwiver.vital.algo import ImageObjectDetector
 from kwiver.vital.types import Image
 from kwiver.vital.types import ImageContainer
 from kwiver.vital.types import DetectedObjectSet
-
+from kwiver.vital.config import config
 from kwiver.vital.modules import modules
 
-ALGORITHM_IMPLEMENTATION_NAME = "TestObjectDetector"
+ALGORITHM_IMPLEMENTATION_NAME="TestObjectDetector"
 
 class TestVitalImageObjectDetector(object):
     # Display all the registered image detectors
