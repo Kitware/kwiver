@@ -81,10 +81,10 @@ class mie4nitf_video_input::priv
 public:
   /// Constructor
   priv()
-      : f_current_frame(nullptr), f_current_frame_metadata(nullptr),
-        f_current_frame_number(INT_DEFAULT), start_time(INT_DEFAULT),
-        video_path(""), number_of_frames(INT_DEFAULT),
-        gdal_mie4nitf_dataset_(nullptr)
+    : f_current_frame(nullptr), f_current_frame_metadata(nullptr),
+      f_current_frame_number(INT_DEFAULT), start_time(INT_DEFAULT),
+      video_path(""), number_of_frames(INT_DEFAULT),
+      gdal_mie4nitf_dataset_(nullptr)
   {
   }
 
@@ -229,13 +229,13 @@ public:
   void populate_frame_times(xmlDoc *const doc)
   {
     xmlChar *temporal_block_xpath =
-        reinterpret_cast<xmlChar *>(const_cast<char *>(
-            "//tre[@name='MTIMFA']/repeated[@name='CAMERAS' and @number='1']/"
-            "group[@index='0']/repeated[@name='TEMPORAL_BLOCKS']/group"));
+      reinterpret_cast<xmlChar *>(const_cast<char *>(
+				    "//tre[@name='MTIMFA']/repeated[@name='CAMERAS' and @number='1']/"
+				    "group[@index='0']/repeated[@name='TEMPORAL_BLOCKS']/group"));
 
     xmlXPathContextPtr xpath_context = get_new_context(doc);
     xmlXPathObjectPtr xpath_obj =
-        get_node_set_from_context(temporal_block_xpath, xpath_context);
+      get_node_set_from_context(temporal_block_xpath, xpath_context);
 
     for (int i = 0; i < xpath_obj->nodesetval->nodeNr; ++i)
     {
@@ -279,9 +279,9 @@ public:
   string_pair parse_key_value(char *md)
   {
     char **s =
-        CSLTokenizeString2(md, "=",
-                           CSLT_ALLOWEMPTYTOKENS | CSLT_HONOURSTRINGS |
-                               CSLT_PRESERVEQUOTES | CSLT_PRESERVEESCAPES);
+      CSLTokenizeString2(md, "=",
+			 CSLT_ALLOWEMPTYTOKENS | CSLT_HONOURSTRINGS |
+			 CSLT_PRESERVEQUOTES | CSLT_PRESERVEESCAPES);
 
     int i;
     for (i = 0; s != NULL && s[i] != NULL; ++i)
@@ -350,7 +350,7 @@ public:
   void populate_subset_metadata()
   {
     char **metadata =
-        GDALGetMetadata(this->gdal_mie4nitf_dataset_, "SUBDATASETS");
+      GDALGetMetadata(this->gdal_mie4nitf_dataset_, "SUBDATASETS");
 
     int ind = 1;
 
@@ -382,7 +382,7 @@ public:
     kwiver::arrows::gdal::image_io img_io = kwiver::arrows::gdal::image_io();
 
     kwiver::vital::image_container_sptr frame =
-        img_io.load_NITF_subdataset(subdataset_name);
+      img_io.load_NITF_subdataset(subdataset_name);
 
     if (frame == nullptr)
     {
@@ -402,7 +402,7 @@ public:
     }
 
     this->f_current_frame_metadata = std::make_shared<xml_metadata_per_frame>(
-        this->xml_metadata.at(frame_ind));
+      this->xml_metadata.at(frame_ind));
     this->f_current_frame_number = frame_number;
 
     // TODO(m-chaturvedi): Check for caching with David.
@@ -410,7 +410,7 @@ public:
     // Close the previous frame.
 
     this->f_current_frame =
-        open_frame(this->f_current_frame_metadata->filename);
+      open_frame(this->f_current_frame_metadata->filename);
 
     if (this->f_current_frame == nullptr)
     {
@@ -441,7 +441,7 @@ public:
     GDALAllRegister();
 
     gdal_mie4nitf_dataset_ =
-        static_cast<GDALDataset *>(GDALOpen(video_name.c_str(), GA_ReadOnly));
+      static_cast<GDALDataset *>(GDALOpen(video_name.c_str(), GA_ReadOnly));
 
     if (!gdal_mie4nitf_dataset_)
     {
@@ -477,7 +477,7 @@ vital::config_block_sptr mie4nitf_video_input ::get_configuration() const
 {
   // get base config from base class
   vital::config_block_sptr config =
-      vital::algo::video_input::get_configuration();
+    vital::algo::video_input::get_configuration();
 
   return config;
 }
@@ -485,7 +485,7 @@ vital::config_block_sptr mie4nitf_video_input ::get_configuration() const
 // ------------------------------------------------------------------
 // Set this algorithm's properties via a config block
 void mie4nitf_video_input ::set_configuration(
-    vital::config_block_sptr in_config)
+  vital::config_block_sptr in_config)
 {
   // Starting with our generated vital::config_block to ensure that assumed
   // values are present.  An alternative is to check for key presence before
@@ -498,7 +498,7 @@ void mie4nitf_video_input ::set_configuration(
 
 // ------------------------------------------------------------------
 bool mie4nitf_video_input ::check_configuration(
-    vital::config_block_sptr config) const
+  vital::config_block_sptr config) const
 {
   return true;
 }
@@ -575,8 +575,8 @@ bool mie4nitf_video_input ::next_frame(kwiver::vital::timestamp &ts,
 
 // ------------------------------------------------------------------
 bool mie4nitf_video_input::seek_frame(
-    kwiver::vital::timestamp &ts,
-    kwiver::vital::timestamp::frame_t frame_number, uint32_t timeout)
+  kwiver::vital::timestamp &ts,
+  kwiver::vital::timestamp::frame_t frame_number, uint32_t timeout)
 {
   // Quick return if the file isn't open.
   if (!d->is_opened())
@@ -615,10 +615,10 @@ kwiver::vital::timestamp mie4nitf_video_input ::frame_timestamp() const
   // `frame_id_t` and `time_usec_t` is `int_64_t` while writing this.
   // (`vital_types.h`)
   vital::time_usec_t t =
-      d->utc_to_microseconds(d->f_current_frame_metadata->start_timestamp);
+    d->utc_to_microseconds(d->f_current_frame_metadata->start_timestamp);
 
   vital::frame_id_t f =
-      static_cast<kwiver::vital::frame_id_t>(d->f_current_frame_number);
+    static_cast<kwiver::vital::frame_id_t>(d->f_current_frame_number);
 
   kwiver::vital::timestamp ts(t, f);
   return ts;
