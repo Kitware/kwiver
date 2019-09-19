@@ -14,6 +14,7 @@ target_link_libraries( plugin_explorer
   PRIVATE        vital
                  vital_vpm
                  vital_logger
+                 vital_config
                  kwiversys
                  explorer_plugin
   )

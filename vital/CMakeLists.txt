@@ -225,8 +225,7 @@ kwiver_add_library( vital
 
 target_link_libraries( vital
   PRIVATE         kwiversys
-  PUBLIC          vital_config
-                  vital_exceptions
+  PUBLIC          vital_exceptions
                   vital_logger
                   vital_util
   )
