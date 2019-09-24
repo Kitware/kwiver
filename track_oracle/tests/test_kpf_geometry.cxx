@@ -196,5 +196,5 @@ TEST(track_oracle, kpf_load_long_ids)
   bool rc = to::file_format_manager::read( fn, kpf_tracks );
   EXPECT_TRUE( rc ) << " reading from '" << fn << "'";
   size_t n_read = kpf_tracks.size();
-  EXPECT_EQ( n_read, 120 ) << " number of tracks read";
+  EXPECT_EQ( n_read, 118 ) << " number of tracks read";
 }
