@@ -300,6 +300,8 @@ public:
     }
     this->frame_advanced = 0;
     this->f_frame->data[0] = NULL;
+    avcodec_close(codec_context_origin);
+    codec_context_origin = NULL;
     return true;
   }
 
