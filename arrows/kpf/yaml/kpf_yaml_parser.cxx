@@ -624,7 +624,7 @@ kpf_yaml_parser_t
   this->current_record_schema = check;
 
   // special case for meta
-  if ((check == schema_style::INVALID) && ( str2style( n_sub->first.as<string>()) == packet_style::META ))
+  if ( str2style( n_sub->first.as<string>()) == packet_style::META )
   {
     okay = parse_as_kpf_v3( n, schema_style::UNSPECIFIED, local_packet_buffer );
   }
