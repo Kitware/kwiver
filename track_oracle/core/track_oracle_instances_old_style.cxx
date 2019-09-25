@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014-2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014-2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -14,6 +14,7 @@
 #include <vgl/vgl_point_3d.h>
 
 #include <vital/types/timestamp.h>
+#include <vital/types/track_interval.h>
 #include <vital/types/uid.h>
 
 #include <track_oracle/core/state_flags.h>
@@ -67,6 +68,7 @@ TRACK_ORACLE_INSTANTIATE_OLD_STYLE_DEFAULT_OUTPUT(vgl_point_2d<double>);
 TRACK_ORACLE_INSTANTIATE_OLD_STYLE_DEFAULT_OUTPUT(vgl_point_3d<double>);
 TRACK_ORACLE_INSTANTIATE_OLD_STYLE_DEFAULT_OUTPUT(kwiver::vital::timestamp);
 TRACK_ORACLE_INSTANTIATE_OLD_STYLE_DEFAULT_OUTPUT(std::vector< kwiver::vital::timestamp >);
+TRACK_ORACLE_INSTANTIATE_OLD_STYLE_DEFAULT_OUTPUT(std::vector< kwiver::vital::track_interval >);
 TRACK_ORACLE_INSTANTIATE_OLD_STYLE_DEFAULT_OUTPUT(kwiver::vital::uid);
 
 /// Shouldn't need to distinguish between these, but VS9 has a bug:

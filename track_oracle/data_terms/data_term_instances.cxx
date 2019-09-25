@@ -1,7 +1,7 @@
 /*ckwg +5
- * Copyright 2014-2016 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
+ * Copyright 2014-2016, 2019 by Kitware, Inc. All Rights Reserved.
+ * Please refer to KITWARE_LICENSE.TXT for licensing information, or contact
+ * General Counsel, Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include <track_oracle/data_terms/data_terms.h>
@@ -46,10 +46,14 @@ TRACK_ORACLE_INSTANTIATE_DATA_TERM( ::kwiver::track_oracle::dt::tracking::track_
 TRACK_ORACLE_INSTANTIATE_DATA_TERM( ::kwiver::track_oracle::dt::tracking::track_style );
 
 TRACK_ORACLE_INSTANTIATE_DATA_TERM( ::kwiver::track_oracle::dt::events::event_id );
+TRACK_ORACLE_INSTANTIATE_DATA_TERM( ::kwiver::track_oracle::dt::events::event_start );
+TRACK_ORACLE_INSTANTIATE_DATA_TERM( ::kwiver::track_oracle::dt::events::event_stop );
 TRACK_ORACLE_INSTANTIATE_DATA_TERM( ::kwiver::track_oracle::dt::events::event_type );
 TRACK_ORACLE_INSTANTIATE_DATA_TERM( ::kwiver::track_oracle::dt::events::event_probability );
+TRACK_ORACLE_INSTANTIATE_DATA_TERM( ::kwiver::track_oracle::dt::events::event_labels );
 TRACK_ORACLE_INSTANTIATE_DATA_TERM( ::kwiver::track_oracle::dt::events::source_track_ids );
 TRACK_ORACLE_INSTANTIATE_DATA_TERM( ::kwiver::track_oracle::dt::events::actor_track_rows );
+TRACK_ORACLE_INSTANTIATE_DATA_TERM( ::kwiver::track_oracle::dt::events::actor_intervals );
 TRACK_ORACLE_INSTANTIATE_DATA_TERM( ::kwiver::track_oracle::dt::events::kpf_activity_domain );
 TRACK_ORACLE_INSTANTIATE_DATA_TERM( ::kwiver::track_oracle::dt::events::kpf_activity_start );
 TRACK_ORACLE_INSTANTIATE_DATA_TERM( ::kwiver::track_oracle::dt::events::kpf_activity_stop );
