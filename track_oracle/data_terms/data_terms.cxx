@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014-2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014-2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -27,9 +27,17 @@ using std::streamsize;
 using std::pair;
 using std::string;
 
-namespace // anon
-{
+///////////////////////////////////////////////////////////////////////////////
 
+//BEGIN helpers
+
+// These functions define I/O which is type-specific but not field-specific
+
+namespace /* anonymous */ {
+
+using namespace kwiver::track_oracle;
+
+// ----------------------------------------------------------------------------
 template< typename T >
 bool kwiver_csv_read( const vector<string>& headers,
                       const map<string, string>& header_value_map,
@@ -42,9 +50,10 @@ bool kwiver_csv_read( const vector<string>& headers,
     if (p == header_value_map.end()) return false;
     s += p->second + " ";
   }
-  return kwiver::track_oracle::kwiver_read( s, d );
+  return kwiver_read( s, d );
 }
 
+// ----------------------------------------------------------------------------
 void
 vector_unsigned_to_stream( ostream& os, const vector<unsigned>& d )
 {
@@ -58,6 +67,7 @@ vector_unsigned_to_stream( ostream& os, const vector<unsigned>& d )
   }
 }
 
+// ----------------------------------------------------------------------------
 void
 vector_unsigned_from_str( const string& s, vector<unsigned>& d )
 {
@@ -77,10 +87,86 @@ vector_unsigned_from_str( const string& s, vector<unsigned>& d )
   }
 }
 
+// ----------------------------------------------------------------------------
+TiXmlElement const*
+xml_element( TiXmlNode const* n )
+{
+  return ( n ? n->ToElement() : nullptr );
+}
 
-} // anon
+// ----------------------------------------------------------------------------
+string
+xml_text( TiXmlElement const* e, char const* fallback )
+{
+  return ( e && e->GetText() ? e->GetText() : fallback );
+}
+
+// ----------------------------------------------------------------------------
+bool
+vital_timestamp_read_xml( TiXmlElement const* e, kwiver::vital::timestamp& ts )
+{
+  auto* const frame_e = xml_element( e->FirstChild( "frame" ) );
+  auto* const time_e = xml_element( e->FirstChild( "time" ) );
+  if ( ( !frame_e ) && ( !time_e ) ) { return false; }
+
+  auto const& frame_s = xml_text( frame_e, "none" );
+  auto const& time_s = xml_text( time_e, "none" );
+  return kwiver_ts_string_read( frame_s, time_s, ts );
+}
+
+// ----------------------------------------------------------------------------
+void
+vital_timestamp_write_xml(
+  ostream& os, string const& indent, string const& n,
+  kwiver::vital::timestamp const& ts )
+{
+  auto const& ts_strings = kwiver_ts_to_strings( ts );
+  os << indent << "<" << n << ">\n";
+  os << indent << "  <frame> " << ts_strings.first << " </frame>\n";
+  os << indent << "  <time> " << ts_strings.second << " </time>\n";
+  os << indent << "</" << n << ">\n";
+}
+
+// ----------------------------------------------------------------------------
+vector< string >
+vital_timestamp_csv_header( string const& n )
+{
+  return {
+    n + "_ts_frame",
+    n + "_ts_time",
+  };
+}
+
+// ----------------------------------------------------------------------------
+bool
+vital_timestamp_from_csv( const map< string, string >& header_value_map,
+                          const string& n,
+                          kwiver::vital::timestamp& ts )
+{
+  auto const& headers = vital_timestamp_csv_header( n );
+  auto const& ts_f = header_value_map.find( headers[ 0 ] );
+  auto const& ts_t = header_value_map.find( headers[ 1 ] );
+  if ( ts_f == header_value_map.end() )
+  {
+    LOG_ERROR( main_logger, n << "::csv: no header '" << headers[ 0 ] << "'" );
+    return false;
+  }
+  if ( ts_t == header_value_map.end() )
+  {
+    LOG_ERROR( main_logger, n << "::csv: no header '" << headers[ 1 ] << "'" );
+    return false;
+  }
+  return kwiver_ts_string_read( ts_f->second, ts_t->second, ts );
+}
+
+} // namespace <anonymous>
+
+// END helpers
+
+///////////////////////////////////////////////////////////////////////////////
 
 namespace kwiver {
+
 namespace track_oracle {
 
 namespace dt {
@@ -88,9 +174,21 @@ namespace dt {
 #define DEF_DT(NAME) \
   context NAME::c( NAME::get_context_name(), NAME::get_context_description() );
 
+///////////////////////////////////////////////////////////////////////////////
+
+//BEGIN dt::detection
+
 namespace detection {
+
   DEF_DT( detection_id );
-}
+
+} // namespace detection
+
+//END dt::detection
+
+///////////////////////////////////////////////////////////////////////////////
+
+//BEGIN dt::tracking
 
 namespace tracking {
 
@@ -306,57 +404,22 @@ bool time_stamp::from_str( const string& s, vital::timestamp& ts ) const
 
 bool time_stamp::read_xml( const TiXmlElement* e, vital::timestamp& ts ) const
 {
-  TiXmlHandle h( const_cast<TiXmlElement*>(e) );
-  TiXmlElement* frame_e = h.FirstChild( "frame" ).ToElement();
-  TiXmlElement* time_e = h.FirstChild( "time" ).ToElement();
-  if ( (! frame_e) && (! time_e)) return false;
-  string frame_s =
-    frame_e && frame_e->GetText()
-    ? frame_e->GetText()
-    : "none";
-  string time_s =
-    time_e && time_e->GetText()
-    ? time_e->GetText()
-    : "none";
-  return kwiver_ts_string_read( frame_s, time_s, ts );
+  return vital_timestamp_read_xml( e, ts );
 }
 
 void time_stamp::write_xml( ostream& os, const string& indent, const vital::timestamp& ts ) const
 {
-  pair< string, string > ts_strings = kwiver_ts_to_strings( ts );
-  os << indent << "<" << time_stamp::c.name << ">\n";
-  os << indent << "  <frame> " << ts_strings.first << " </frame>\n";
-  os << indent << "  <time> " << ts_strings.second << " </time>\n";
-  os << indent << "</" << time_stamp::c.name << ">\n";
+  vital_timestamp_write_xml( os, indent, time_stamp::c.name, ts );
 }
 
 vector<string> time_stamp::csv_headers() const
 {
-  vector<string> r;
-  r.push_back( "ts_frame" );
-  r.push_back( "ts_time" );
-  return r;
+  return vital_timestamp_csv_header( time_stamp::c.name );
 }
 
 bool time_stamp::from_csv( const map<string, string>& header_value_map, vital::timestamp& ts ) const
 {
-  map<string, string>::const_iterator ts_f = header_value_map.find( "ts_frame" );
-  map<string, string>::const_iterator ts_t = header_value_map.find( "ts_time" );
-  bool okay = true;
-  if (ts_f == header_value_map.end())
-  {
-    LOG_ERROR( main_logger, "timestamp::csv: no header 'ts_frame'" );
-    okay = false;
-  }
-  if (ts_t == header_value_map.end())
-  {
-    LOG_ERROR( main_logger, "timestamp::csv: no header 'ts_time'" );
-    okay = false;
-  }
-  return
-    okay
-    ? kwiver_ts_string_read( ts_f->second, ts_t->second, ts )
-    : false;
+  return vital_timestamp_from_csv( header_value_map, time_stamp::c.name, ts );
 }
 
 ostream& time_stamp::to_csv( ostream& os, const vital::timestamp& ts ) const
@@ -380,15 +443,25 @@ bool track_uuid::from_str( const string& s, vital::uid& uid ) const
   return kwiver_read( s, uid );
 }
 
-} // ...tracking
+} // namespace tracking
+
+//END dt::tracking
+
+///////////////////////////////////////////////////////////////////////////////
+
+//BEGIN dt::events
 
 namespace events {
 
   DEF_DT( event_id );
+  DEF_DT( event_start );
+  DEF_DT( event_stop );
   DEF_DT( event_type );
   DEF_DT( event_probability );
+  DEF_DT( event_labels );
   DEF_DT( source_track_ids );
   DEF_DT( actor_track_rows );
+  DEF_DT( actor_intervals );
   DEF_DT( kpf_activity_domain );
   DEF_DT( kpf_activity_start );
   DEF_DT( kpf_activity_stop );
@@ -396,6 +469,126 @@ namespace events {
 //
 // event type
 //
+
+// ----------------------------------------------------------------------------
+ostream&
+event_start
+::to_stream( ostream& os, vital::timestamp const& ts ) const
+{
+  return kwiver_write( os, ts );
+}
+
+// ----------------------------------------------------------------------------
+bool
+event_start
+::from_str( string const& s, vital::timestamp& ts ) const
+{
+  return kwiver_read( s, ts );
+}
+
+// ----------------------------------------------------------------------------
+bool
+event_start
+::read_xml( TiXmlElement const* e, vital::timestamp& ts ) const
+{
+  return vital_timestamp_read_xml( e, ts );
+}
+
+// ----------------------------------------------------------------------------
+void
+event_start
+::write_xml( ostream& os, string const& indent,
+             vital::timestamp const& ts ) const
+{
+  vital_timestamp_write_xml( os, indent, event_start::c.name, ts );
+}
+
+// ----------------------------------------------------------------------------
+vector< string >
+event_start
+::csv_headers() const
+{
+  return vital_timestamp_csv_header( event_start::c.name );
+}
+
+// ----------------------------------------------------------------------------
+bool
+event_start
+::from_csv( map< string, string > const& header_value_map,
+            vital::timestamp& ts ) const
+{
+  return vital_timestamp_from_csv( header_value_map, event_start::c.name, ts );
+}
+
+// ----------------------------------------------------------------------------
+ostream&
+event_start
+::to_csv( ostream& os, vital::timestamp const& ts ) const
+{
+  pair< string, string > ts_strings = kwiver_ts_to_strings( ts );
+  os << ts_strings.first << "," << ts_strings.second;
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+ostream&
+event_stop
+::to_stream( ostream& os, vital::timestamp const& ts ) const
+{
+  return kwiver_write( os, ts );
+}
+
+// ----------------------------------------------------------------------------
+bool
+event_stop
+::from_str( string const& s, vital::timestamp& ts ) const
+{
+  return kwiver_read( s, ts );
+}
+
+// ----------------------------------------------------------------------------
+bool
+event_stop
+::read_xml( TiXmlElement const* e, vital::timestamp& ts ) const
+{
+  return vital_timestamp_read_xml( e, ts );
+}
+
+// ----------------------------------------------------------------------------
+void
+event_stop
+::write_xml( ostream& os, string const& indent,
+             vital::timestamp const& ts ) const
+{
+  vital_timestamp_write_xml( os, indent, event_start::c.name, ts );
+}
+
+// ----------------------------------------------------------------------------
+vector< string >
+event_stop
+::csv_headers() const
+{
+  return vital_timestamp_csv_header( event_start::c.name );
+}
+
+// ----------------------------------------------------------------------------
+bool
+event_stop
+::from_csv( map< string, string > const& header_value_map,
+            vital::timestamp& ts ) const
+{
+  return vital_timestamp_from_csv( header_value_map, event_stop::c.name, ts );
+}
+
+// ----------------------------------------------------------------------------
+ostream&
+event_stop
+::to_csv( ostream& os, vital::timestamp const& ts ) const
+{
+  auto const& ts_strings = kwiver_ts_to_strings( ts );
+  os << ts_strings.first << "," << ts_strings.second;
+  return os;
+}
 
 ostream& event_type::to_stream( ostream& os, const int& d ) const
 {
@@ -567,7 +760,13 @@ bool actor_track_rows::from_str( const string& s, track_handle_list_type& d ) co
 }
 
 
-} // ...events
+} // namespace events
+
+//END dt::events
+
+///////////////////////////////////////////////////////////////////////////////
+
+//BEGIN dt::virat
 
 namespace virat {
 
@@ -672,11 +871,16 @@ bool descriptor_classifier::read_xml( const TiXmlElement* const_e, vector<double
 }
 
 
-} // ...virat
+} // namespace virat
+
+//END dt::virat
+
+///////////////////////////////////////////////////////////////////////////////
 
 #undef DEF_DT
 
-} // ...dt
+} // namespace dt
 
-} // ...track_oracle
-} // ...kwiver
+} // namespace track_oracle
+
+} // namespace kwiver

@@ -53,6 +53,28 @@ struct track_interval
   timestamp stop;
 };
 
+// ----------------------------------------------------------------------------
+/// output stream operator for a track_interval
+inline
+std::ostream&
+operator<<( std::ostream& s, track_interval const& ti )
+{
+  s << ti.track << '[' << ti.start << ", " << ti.stop << ']';
+  return s;
+}
+
+// ----------------------------------------------------------------------------
+/// equality operator for a track_interval
+inline
+bool
+operator==( track_interval const& lhs, track_interval const& rhs )
+{
+  return
+    ( lhs.track == rhs.track ) &&
+    ( lhs.start == rhs.start ) &&
+    ( lhs.stop == rhs.stop );
+}
+
 } // namespace vital
 
 } // namespace kwiver

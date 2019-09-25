@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014-2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014-2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -46,6 +46,7 @@
 #include <vgl/vgl_point_3d.h>
 
 #include <vital/types/timestamp.h>
+#include <vital/types/track_interval.h>
 #include <vital/types/uid.h>
 
 class TiXmlElement;
@@ -102,15 +103,18 @@ namespace tracking {
 
 namespace events {
   DECL_DT( event_id, unsigned, "event ID; unique within a session but not a UUID" );
+  DECL_DT_RW_STRXMLCSV( event_start, vital::timestamp, "event start timestamp (carries both time and framenumber); epoch is data-dependent" );
+  DECL_DT_RW_STRXMLCSV( event_stop, vital::timestamp, "event stop timestamp (carries both time and framenumber); epoch is data-dependent" );
   DECL_DT_RW_STRXMLCSV( event_type, int, "event type: currently always in the VIRAT domain" );
   DECL_DT( event_probability, double, "event probability" );
+  DECL_DT( event_labels, decltype( std::map< std::string, double >{} ), "event classification labels and associated confidence scores" );
   DECL_DT_RW_STR( source_track_ids, std::vector<unsigned>, "Track IDs contributing to the event" );
   DECL_DT_RW_STR( actor_track_rows, track_handle_list_type, "Track handles participating in the event" );
+  DECL_DT( actor_intervals, std::vector< vital::track_interval >, "list of track intervals participating in the event" );
 
   DECL_DT( kpf_activity_domain, int, "KPF activity domain" );
   DECL_DT( kpf_activity_start, unsigned, "KPF activity start (frame number)" );
   DECL_DT( kpf_activity_stop, unsigned, "KPF activity stop (frame number)" );
-
 } // ...events
 
 namespace virat {
