@@ -265,6 +265,7 @@ public:
 
     auto seek_timestamp = av_rescale_q( 0, av_get_time_base_q(),
                                         this->f_video_stream->time_base );
+
     // Now seek back to the start of the video
     auto seek_rslt = av_seek_frame( this->f_format_context,
                                     this->f_video_index,
@@ -320,6 +321,7 @@ public:
     if (this->f_video_encoding)
     {
       avcodec_close(this->f_video_encoding);
+      avcodec_free_context(&this->f_video_encoding);
       this->f_video_encoding = nullptr;
     }
   }
