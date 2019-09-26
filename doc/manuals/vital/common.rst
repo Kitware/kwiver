@@ -52,7 +52,7 @@ the ``next_value_func`` parameter for a vital::iterator of type int::
   using iterator_t = vital::iterator< int >;
   iterator_t it( []() ->iterator_t::reference {
     static size_t i = 0;
-    if( i == 4 ) throw vital::stop_iteration_exception();
+    if( i == 4 ) { VITAL_THROW( vital::stop_iteration_exception, "container-name" ); }
     return a[i++];
   } );
 
@@ -74,7 +74,7 @@ more state needs to be tracked::
 
     iterator_t::reference operator()()
     {
-      if( idx == len ) throw vital::stop_iteration_exception();
+      if( idx == len ) { VITAL_THROW( vital::stop_iteration_exception, "container-name" ); }
       return a[idx++];
     }
   };
