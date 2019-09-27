@@ -9,8 +9,8 @@ This can be used to flatten a complicated pipe file which may include
 other pipe and config files into a single dasily distributed file.
 
 
-pipe-config       [options] pipe-file
--------------------------------------
+kwiver pipe-config       [options] pipe-file
+--------------------------------------------
 
 Options are:
 
@@ -21,11 +21,11 @@ Options are:
 **output options:**
 
   ``-o, --output arg``
-  
+
     Name of output file or '-' for stdout. (default: -)
 
 **pipe options:**
- 
+
   ``-c, --config <file>``
 
     Specifies a file containing supplemental configuration entries.

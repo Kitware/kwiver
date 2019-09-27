@@ -65,9 +65,10 @@ add_command_options()
   m_cmd_options->add_options("pipe")
     ( "c,config", "File containing supplemental configuration entries. Can occur multiple times.",
       cxxopts::value<std::vector<std::string>>() )
-    ( "s,setting", "Additional configuration entries in the form of VAR=VALUE",
+    ( "s,setting", "Additional configuration entries in the form of VAR=VALUE. "
+      "Can occur multiple times",
       cxxopts::value<std::vector<std::string>>() )
-    ( "I,include", "A directory to be added to configuration include path. Can occurr multiple times.",
+    ( "I,include", "A directory to be added to configuration include path. Can occur multiple times.",
       cxxopts::value<std::vector<std::string>>()  );
 
   m_cmd_options->add_options("output")
