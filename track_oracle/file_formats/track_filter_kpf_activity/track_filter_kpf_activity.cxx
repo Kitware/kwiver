@@ -110,10 +110,137 @@ namespace track_oracle {
 
 bool
 track_filter_kpf_activity
+::apply( const track_handle_list_type& act_tracks,
+         const track_handle_list_type& source_geometry_tracks )
+{
+  track_filter_kpf_activity act_schema;
+  track_field< dt::tracking::frame_number > fn_field;
+  kpf_actor_track_type actor_track_instance;
+
+  logging_map_type wmsgs( main_logger, KWIVER_LOGGER_SITE );
+
+  bool all_okay = true;
+
+  // build lookup table from ID to track handle
+
+  map< dt::tracking::external_id::Type, track_handle_type > lookup_table;
+  if ( ! build_lookup_map( source_geometry_tracks, lookup_table ))
+  {
+    throw kpf_act_exception("id->track handle lookup failure");
+  }
+
+  try
+  {
+    for (const auto& activity: act_tracks)
+    {
+      //
+      // for each actor, clone over the track and geometry within its time window
+      //
+
+      vector< dt::tracking::external_id::Type > missing;
+      track_handle_list_type actor_tracks;
+
+      auto act_int = act_schema( activity ).actor_intervals.get( activity.row );
+      for (auto const& a: act_int.second)
+      {
+        auto id = static_cast<dt::tracking::external_id::Type>( a.track );
+        auto id_probe = lookup_table.find( id );
+
+        //
+        // remember and log any missing actors in the ref set
+        //
+        if (id_probe == lookup_table.end())
+        {
+          missing.push_back( id );
+          continue;
+        }
+
+        // create a new track; clone non-system fields
+        track_handle_type new_track( track_oracle_core::get_next_handle() );
+        if ( ! track_oracle_core::clone_nonsystem_fields( id_probe->second, new_track ))
+        {
+          ostringstream oss;
+          oss << "Couldn't clone non-system track fields for " << id << "?";
+          throw kpf_act_exception( oss.str() );
+        }
+
+        // copy over frames in the actor's time window
+        wmsgs.add_msg( "Selecting relevant actor frames based on frame_number only" );
+        for (const auto& src_frame: track_oracle_core::get_frames( id_probe->second ))
+        {
+          auto fn_probe = fn_field.get( src_frame.row );
+          if (! fn_probe.first)
+          {
+            ostringstream oss;
+            oss << "No frame number for frame in track " << id << "?";
+            throw kpf_act_exception( oss.str() );
+          }
+          auto frame_num = fn_probe.second;
+
+          // is the frame within the time window?
+          if ((a.start.get_frame() <= frame_num) && (frame_num <= a.stop.get_frame()))
+          {
+            //
+            // create a frame on the new track and clone the fields
+            //
+            frame_handle_type new_frame = actor_track_instance( new_track ).create_frame();
+            if ( ! track_oracle_core::clone_nonsystem_fields( src_frame, new_frame ))
+            {
+              ostringstream oss;
+              oss << "Couldn't clone non-system fields for track / frame " << id << " / " << frame_num << "?";
+              throw kpf_act_exception( oss.str() );
+            }
+          } // ... within time window
+        } // ...for all source frames
+
+        actor_tracks.push_back( new_track );
+      } // ...for all actor tracks
+
+      //
+      // Did we miss anybody?
+      //
+
+      if ( ! missing.empty() )
+      {
+        ostringstream oss;
+        oss << "Activity " << act_schema( activity ).activity_id() << " missing the following tracks:";
+        for (auto m: missing) oss << " " << m;
+        throw kpf_act_exception( oss.str() );
+      }
+
+      //
+      // okay then-- add the actor tracks to the activity
+      //
+
+      act_schema( activity ).actor_tracks() = actor_tracks;
+
+    } // ... for each activity row
+  } // ... try
+
+  catch (const kpf_act_exception& e )
+  {
+    LOG_ERROR( main_logger, "Error loading applying activities to geometry: " << e.what );
+    all_okay = false;
+  }
+  //
+  // anything to report?
+  //
+
+  if (! wmsgs.empty() )
+  {
+    LOG_INFO( main_logger, "KPF act reader: warnings begin" );
+    wmsgs.dump_msgs();
+    LOG_INFO( main_logger, "KPF act reader: warnings end" );
+  }
+  return all_okay;
+}
+
+
+bool
+track_filter_kpf_activity
 ::read( const std::string& fn,
-        const track_handle_list_type& ref_tracks,
         int kpf_activity_domain,
-        track_handle_list_type& new_tracks )
+        track_handle_list_type& tracks )
 {
   logging_map_type wmsgs( main_logger, KWIVER_LOGGER_SITE );
   bool all_okay = true;
@@ -131,11 +258,6 @@ track_filter_kpf_activity
     KPF::kpf_reader_t reader( parser );
     LOG_INFO( main_logger, "KPF activity YAML load end");
 
-    map< unsigned, track_handle_type > lookup_table;
-    if ( ! build_lookup_map( ref_tracks, lookup_table ))
-    {
-      throw kpf_act_exception("id->track handle lookup failure");
-    }
     track_field< dt::tracking::frame_number > fn_field;
     kpf_actor_track_type actor_track_instance;
     track_filter_kpf_activity act_schema;
@@ -163,108 +285,12 @@ track_filter_kpf_activity
         reader.flush();
         continue;
       }
-
-      //
-      // for each actor, clone over the track and geometry within its time window
-      //
-
-
-      vector< unsigned > missing;
-      track_handle_list_type actor_tracks;
       const KPFC::activity_t& kpf_act = activity_probe.second.activity;
-
-      for (auto const& a: kpf_act.actors)
-      {
-        unsigned id = a.actor_id.t.d;
-        auto id_probe = lookup_table.find( id );
-
-        //
-        // remember and log any missing actors in the ref set
-        //
-        if (id_probe == lookup_table.end())
-        {
-          missing.push_back( id );
-          continue;
-        }
-
-        //
-        // get the actor's timespan in frame numbers
-        //
-        auto tsr_probe =
-          find_if( a.actor_timespan.begin(), a.actor_timespan.end(),
-                   [](const KPFC::scoped< KPFC::timestamp_range_t >& tsr )
-                   { return tsr.domain == KPFC::timestamp_t::FRAME_NUMBER; } );
-        if (tsr_probe == a.actor_timespan.end())
-        {
-          ostringstream oss;
-          oss << "Actor has no timespan in frames? " << activity_probe.second;
-          throw kpf_act_exception( oss.str() );
-        }
-
-        // clone non-system fields
-        track_handle_type new_track( track_oracle_core::get_next_handle() );
-        if ( ! track_oracle_core::clone_nonsystem_fields( id_probe->second, new_track ))
-        {
-          ostringstream oss;
-          oss << "Couldn't clone non-system track fields for " << id << "?";
-          throw kpf_act_exception( oss.str() );
-        }
-
-        // copy over frames in the actor's time window
-        wmsgs.add_msg( "Selecting relevant actor frames based on frame_number only" );
-        for (const auto& src_frame: track_oracle_core::get_frames( id_probe->second ))
-        {
-          auto fn_probe = fn_field.get( src_frame.row );
-          if (! fn_probe.first)
-          {
-            ostringstream oss;
-            oss << "No frame number for frame in track " << id << "?";
-            throw kpf_act_exception( oss.str() );
-          }
-          auto frame_num = fn_probe.second;
-
-          // is the frame within the time window?
-          if ((tsr_probe->t.start <= frame_num) && (frame_num <= tsr_probe->t.stop))
-          {
-            //
-            // create a frame on the new track and clone the fields
-            //
-            frame_handle_type new_frame = actor_track_instance( new_track ).create_frame();
-            if ( ! track_oracle_core::clone_nonsystem_fields( src_frame, new_frame ))
-            {
-              ostringstream oss;
-              oss << "Couldn't clone non-system fields for track / frame " << id << " / " << frame_num << "?";
-              throw kpf_act_exception( oss.str() );
-            }
-          } // ... within time window
-        } // ...for all source frames
-
-        actor_tracks.push_back( new_track );
-
-      } // ...for all actor tracks
-
-      //
-      // Did we miss anybody?
-      //
-
-      if ( ! missing.empty() )
-      {
-        ostringstream oss;
-        oss << "Activity " << activity_probe.second << " missing the following tracks:";
-        for (auto m: missing) oss << " " << m;
-        throw kpf_act_exception( oss.str() );
-      }
-
-      //
-      // okay then-- we can finally create the activity result
-      //
-
       track_handle_type k = act_schema.create();
 
       act_schema.activity_labels() = kpf_act.activity_labels.d;
       act_schema.activity_id() = kpf_act.activity_id.t.d;
       act_schema.activity_domain() = kpf_activity_domain;
-      act_schema.actors() = actor_tracks;
 
       // only set the ts0 start/stop time
 
@@ -286,6 +312,35 @@ track_filter_kpf_activity
       }
       act_schema.activity_start() = activity_tsr.t.start;
       act_schema.activity_stop() = activity_tsr.t.stop;
+
+      // set the actor intervals
+
+      vector< vital::track_interval > actor_intervals;
+      for (auto const& a: kpf_act.actors)
+      {
+        // get the actor's timespan in frame numbers
+
+        auto tsr_probe =
+          find_if( a.actor_timespan.begin(), a.actor_timespan.end(),
+                   [](const KPFC::scoped< KPFC::timestamp_range_t >& tsr )
+                   { return tsr.domain == KPFC::timestamp_t::FRAME_NUMBER; } );
+        if (tsr_probe == a.actor_timespan.end())
+        {
+          ostringstream oss;
+          oss << "Actor has no timespan in frames? " << activity_probe.second;
+          throw kpf_act_exception( oss.str() );
+        }
+
+        vital::timestamp ts_start, ts_stop;  // note that these are "invalid" since we only have frames
+        ts_start.set_frame( tsr_probe->t.start );
+        ts_stop.set_frame( tsr_probe->t.stop );
+        vital::track_interval tmp = { static_cast< vital::track_id_t>( a.actor_id.t.d ),
+                                      ts_start,
+                                      ts_stop };
+
+        actor_intervals.push_back( tmp );
+      }
+      act_schema.actor_intervals() = actor_intervals;
 
       //
       // set any attributes
@@ -316,7 +371,7 @@ track_filter_kpf_activity
         kpf_utils::add_to_row( wmsgs, k.row, p.second );
       }
 
-      new_tracks.push_back( k );
+      tracks.push_back( k );
 
       reader.flush();
 
@@ -375,7 +430,7 @@ track_filter_kpf_activity
 
       auto id_p = k.activity_id.get( t.row );
       auto label_p = k.activity_labels.get( t.row );
-      auto actor_p = k.actors.get( t.row );
+      auto actor_p = k.actor_tracks.get( t.row );
       auto domain_p = k.activity_domain.get( t.row );
       auto ts_start_p = k.activity_start.get( t.row );
       auto ts_stop_p = k.activity_stop.get( t.row );
