@@ -286,10 +286,12 @@ public:
         return false;
     }
 
+    auto seek_timestamp = av_rescale_q( INT64_MIN, AV_TIME_BASE_Q,
+                                        this->f_video_stream->time_base );
     // Now seek back to the start of the video
     auto seek_rslt = av_seek_frame( this->f_format_context,
                                     this->f_video_index,
-                                    INT64_MIN,
+                                    seek_timestamp,
                                     AVSEEK_FLAG_BACKWARD );
     avcodec_flush_buffers( this->f_video_encoding );
     if (seek_rslt < 0 )
