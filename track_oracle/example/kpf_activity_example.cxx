@@ -77,13 +77,20 @@ int main( int argc, char *argv[] )
 
   track_handle_list_type activity_tracks;
   if ( ! track_filter_kpf_activity::read( act_in_fn_arg(),
-                                          input_geom_tracks,
                                           activity_domain_arg(),
                                           activity_tracks ))
   {
     LOG_ERROR( main_logger, "Couldn't read activity tracks from '" << act_in_fn_arg() << "'" );
     return EXIT_FAILURE;
   }
+
+  if (! track_filter_kpf_activity::apply( activity_tracks,
+                                          input_geom_tracks ))
+  {
+    LOG_ERROR( main_logger, "Couldn't apply activity to geometry" );
+    return EXIT_FAILURE;
+  }
+
 
   LOG_INFO( main_logger, "Generated " << activity_tracks.size() << " activity tracks" );
 
