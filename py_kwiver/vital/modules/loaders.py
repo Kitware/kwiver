@@ -33,7 +33,7 @@ from __future__ import print_function
 import sys
 import os
 from importlib import import_module
-from vital import vital_logging
+from kwiver.vital import vital_logging
 logger = vital_logging.getLogger(__name__)
 
 
