@@ -60,7 +60,7 @@ endmacro ()
 function (kwiver_add_python_library    name    modpath)
   _kwiver_create_safe_modpath("${modpath}" safe_modpath)
 
-  set(library_subdir "/${kwiver_python_subdir}/${python_sitename}/${modpath}")
+  set(library_subdir "/${kwiver_python_subdir}/${python_sitename}/kwiver/${modpath}")
   set(component runtime)
 
   set(no_export ON)
@@ -140,13 +140,13 @@ function (kwiver_add_python_module path     modpath    module)
     set(kwiver_configure_cmake_args
       "\"-Dconfig=${CMAKE_CFG_INTDIR}/\"")
     set(kwiver_configure_extra_dests
-      "${kwiver_python_output_path}/${python_noarchdir}\${config}/${python_sitename}/${modpath}/${module}.py")
+      "${kwiver_python_output_path}/${python_noarchdir}\${config}/${python_sitename}/kwiver/${modpath}/${module}.py")
   endif ()
 
   set(pyfile_src "${path}")
-  set(pyfile_dst "${kwiver_python_output_path}${python_noarchdir}/${python_sitename}/${modpath}/${module}.py")
+  set(pyfile_dst "${kwiver_python_output_path}${python_noarchdir}/${python_sitename}/kwiver/${modpath}/${module}.py")
   # installation path for this module
-  set(pypkg_install_path "${python_install_path}/${kwiver_python_subdir}/${python_sitename}/${modpath}")
+  set(pypkg_install_path "${python_install_path}/${kwiver_python_subdir}/${python_sitename}/kwiver/${modpath}")
 
   # copy and configure the source file into the binary directory
   if (KWIVER_SYMLINK_PYTHON)
@@ -202,7 +202,7 @@ function (kwiver_create_python_init    modpath)
     endif ()
   endif ()
 
-  set (init_path "${kwiver_python_output_path}${python_noarchdir}/${python_sitename}/${modpath}/__init__.py")
+  set (init_path "${kwiver_python_output_path}${python_noarchdir}/${python_sitename}/kwiver/${modpath}/__init__.py")
 
   if (NOT EXISTS "${init_path}")
     if (NOT copyright_header)
@@ -231,7 +231,7 @@ function (kwiver_create_python_init    modpath)
   endif()
 
   # Installation __init__
-  set ( install_path "${CMAKE_INSTALL_PREFIX}/${python_site_packages}/${modpath}")
+  set ( install_path "${CMAKE_INSTALL_PREFIX}/${python_site_packages}/kwiver/${modpath}")
   kwiver_install(
     FILES       "${init_path}"
     DESTINATION "${install_path}"
