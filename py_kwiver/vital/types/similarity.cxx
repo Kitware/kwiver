@@ -241,4 +241,3 @@ PYBIND11_MODULE(similarity, m)
   .def_property_readonly("translation", &PySimilarityBase::get_translation)
   ;
 }
-
