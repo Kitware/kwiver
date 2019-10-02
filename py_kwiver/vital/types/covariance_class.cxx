@@ -287,4 +287,3 @@ covar_from_matrix(int N, char c_type, py::object init)
   }
   return retVal;
 }
-
