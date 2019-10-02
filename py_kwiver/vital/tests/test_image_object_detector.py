@@ -135,4 +135,3 @@ class TestVitalImageObjectDetector(object):
         nose.tools.assert_equal(ImageObjectDetector.check_nested_algo_configuration(
                                                             "detector",
                                                             nested_cfg), True)
-
