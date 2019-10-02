@@ -50,4 +50,3 @@ foreach (modname IN LISTS __all_modnames)
     vital/tests
     ${modname})
 endforeach()
-
