@@ -34,12 +34,12 @@ from __future__ import print_function, absolute_import
 
 import nose.tools
 
-from vital.algo import ImageObjectDetector
-from vital.types import Image
-from vital.types import ImageContainer
-from vital.types import DetectedObjectSet
-from vital.modules import modules
-from vital.config import config
+from kwiver.vital.algo import ImageObjectDetector
+from kwiver.vital.types import Image
+from kwiver.vital.types import ImageContainer
+from kwiver.vital.types import DetectedObjectSet
+from kwiver.vital.modules import modules
+from kwiver.vital.config import config
 
 def _dummy_detector_cfg():
     test_cfg = config.empty_config()

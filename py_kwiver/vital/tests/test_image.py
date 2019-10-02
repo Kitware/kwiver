@@ -36,9 +36,9 @@ Test Python interface to vital::image
 # -*- coding: utf-8 -*-
 import nose.tools
 
-from vital.types import Image
+from kwiver.vital.types import Image
 import numpy as np
-from vital.tests.helpers import create_numpy_image, map_dtype_name_to_pixel_type
+from kwiver.vital.tests.helpers import create_numpy_image, map_dtype_name_to_pixel_type
 
 class TestVitalImage (object):
 
