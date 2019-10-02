@@ -27,19 +27,62 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include <pybind11/pybind11.h>
+
+/**
+ * \file algorithm_trampoline.txx
+ *
+ * \brief trampoline for overriding virtual functions of vital::algorithm
+ */
+
+#ifndef ALGORITHM_TRAMPOLINE_TXX
+#define ALGORITHM_TRAMPOLINE_TXX
+
 #include <vital/algo/algorithm.h>
-#include <vital/bindings/python/vital/algo/trampoline/algorithm_trampoline.txx>
-#include <vital/bindings/python/vital/algo/algorithm.h>
+#include <vital/config/config_block.h>
+#include <vital/bindings/python/vital/util/pybind11.h>
 
-namespace py = pybind11;
-
-void algorithm(py::module &m)
+template <class algorithm_base=kwiver::vital::algorithm>
+class algorithm_trampoline : public algorithm_base
 {
-  py::class_<kwiver::vital::algorithm, std::shared_ptr<kwiver::vital::algorithm>,
-             algorithm_trampoline<>>(m, "_algorithm")
-    .def("get_configuration", &kwiver::vital::algorithm::get_configuration)
-    .def("set_configuration", &kwiver::vital::algorithm::set_configuration)
-    .def("check_configuration", &kwiver::vital::algorithm::check_configuration);
-}
+  public:
+    using algorithm_base::algorithm_base;
 
+    std::string type_name() const override
+    {
+      VITAL_PYBIND11_OVERLOAD_PURE(
+        std::string,
+        algorithm_base,
+        type_name,
+      );
+    }
+
+    kwiver::vital::config_block_sptr get_configuration() const override
+    {
+      VITAL_PYBIND11_OVERLOAD(
+        kwiver::vital::config_block_sptr,
+        algorithm_base,
+        get_configuration,
+      );
+    }
+
+    void set_configuration(kwiver::vital::config_block_sptr config) override
+    {
+      VITAL_PYBIND11_OVERLOAD_PURE(
+        void,
+        algorithm_base,
+        set_configuration,
+        config
+      );
+    }
+
+    bool check_configuration(kwiver::vital::config_block_sptr config) const override
+    {
+      VITAL_PYBIND11_OVERLOAD_PURE(
+        bool,
+        algorithm_base,
+        check_configuration,
+        config
+      );
+    }
+};
+#endif
