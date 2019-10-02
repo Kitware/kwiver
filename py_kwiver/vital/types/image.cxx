@@ -29,7 +29,7 @@
  */
 
 #include <vital/types/image.h>
-#include <vital/bindings/python/vital/types/image.h>
+#include <py_kwiver/vital/types/image.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
