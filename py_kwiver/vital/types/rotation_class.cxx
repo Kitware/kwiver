@@ -244,13 +244,13 @@ from_rodrigues(py::object rod_obj, char ctype='d')
   {
     Eigen::Matrix< double, 3, 1 > rodrigues = rod_obj.cast<Eigen::Matrix< double, 3, 1 > >();
     kwiver::vital::rotation_<double> rot(rodrigues);
-    retRot.setRotD(rot);    
+    retRot.setRotD(rot);
   }
   else if(ctype == 'f')
   {
     Eigen::Matrix< float, 3, 1 > rodrigues = rod_obj.cast<Eigen::Matrix< float, 3, 1 > >();
     kwiver::vital::rotation_<float> rot(rodrigues);
-    retRot.setRotF(rot);    
+    retRot.setRotF(rot);
   }
   else
   {
@@ -274,7 +274,7 @@ from_ypr(py::object yaw, py::object pitch, py::object roll, char ctype='d')
     double p = pitch.cast<double>();
     double r = roll.cast<double>();
     kwiver::vital::rotation_<double> rot(y,p,r);
-    retRot.setRotD(rot);    
+    retRot.setRotD(rot);
   }
   else if(ctype == 'f')
   {
@@ -282,7 +282,7 @@ from_ypr(py::object yaw, py::object pitch, py::object roll, char ctype='d')
     float p = pitch.cast<float>();
     float r = roll.cast<float>();
     kwiver::vital::rotation_<float> rot(y,p,r);
-    retRot.setRotF(rot);    
+    retRot.setRotF(rot);
   }
   else
   {
@@ -585,4 +585,3 @@ get_yaw_pitch_roll()
 
   return ypr;
 }
-
