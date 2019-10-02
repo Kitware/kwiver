@@ -39,7 +39,7 @@ from six.moves import range
 
 import numpy
 
-from vital.types import (
+from kwiver.vital.types import (
     Camera,
     CameraIntrinsics,
     CameraMap,

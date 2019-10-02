@@ -37,7 +37,7 @@ import unittest
 
 import numpy
 
-from vital.types import new_descriptor, DescriptorSet
+from kwiver.vital.types import new_descriptor, DescriptorSet
 
 
 class TestDescriptorSet (unittest.TestCase):

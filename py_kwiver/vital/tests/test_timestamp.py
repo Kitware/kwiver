@@ -37,7 +37,7 @@ import unittest
 
 import nose.tools
 
-from vital.types import Timestamp
+from kwiver.vital.types import Timestamp
 
 
 class TestRGBColor (unittest.TestCase):

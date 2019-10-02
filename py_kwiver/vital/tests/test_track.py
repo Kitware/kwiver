@@ -37,7 +37,7 @@ Tests for Track interface class
 import nose.tools
 import numpy
 
-from vital.types import Track, TrackState, Feature, Descriptor
+from kwiver.vital.types import Track, TrackState, Feature, Descriptor
 
 
 class TestVitalTrack (object):
