@@ -224,4 +224,3 @@ class TestVitalCamera (unittest.TestCase):
         finally:
             if os.path.isfile(fname):
                 os.remove(fname)
-

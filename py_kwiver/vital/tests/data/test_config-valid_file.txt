@@ -28,7 +28,7 @@ endblock
 global_var[Ro] = 3.14159
 global_var2 = 1.12
 
- 	tabbed:value = should be valid
+  tabbed:value = should be valid
 
 block new_block
   block next_level
