@@ -29,7 +29,7 @@
  */
 
 
-#include <vital/bindings/python/vital/config/config.h>
+#include <py_kwiver/vital/config/config.h>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl_bind.h>
