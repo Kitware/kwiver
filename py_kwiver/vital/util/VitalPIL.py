@@ -34,7 +34,7 @@ Helper functions for dealing with PIL
 
 """
 
-from vital.types import Image
+from kwiver.vital.types import Image
 import six
 
 def _pil_image_to_bytes(p_img):

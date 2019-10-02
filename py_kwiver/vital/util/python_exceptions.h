@@ -31,8 +31,8 @@
 #ifndef VITAL_PYTHON_UTIL_PYTHON_EXCEPTIONS_H
 #define VITAL_PYTHON_UTIL_PYTHON_EXCEPTIONS_H
 
-#include <vital/bindings/python/vital/util/pybind11.h>
-#include <vital/bindings/python/vital/util/vital_python_util_export.h>
+#include <py_kwiver/vital/util/pybind11.h>
+#include <py_kwiver/vital/util/vital_python_util_export.h>
 
 namespace kwiver {
 namespace vital  {
