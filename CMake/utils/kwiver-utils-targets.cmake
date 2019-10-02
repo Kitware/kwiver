@@ -18,9 +18,8 @@
 #
 #   library_dir
 #     If set, it would replace lib folder within build and install directories.
-#     ( the default is ${KWIVER_DEFAULT_LIBRARY_DIR ). library_dir should not
-#     have leading or trailing slashes. These slashes would be removed if they
-#     are passed in the library_dir
+#     ( the default is 'lib' ). library_dir should not have leading or trailing
+#     slashes. These slashes would be removed if they are passed in the library_dir
 #
 #   library_subdir
 #     If set, library targets will be placed into the directory within the install
