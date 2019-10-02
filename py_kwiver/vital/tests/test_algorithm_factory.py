@@ -35,10 +35,10 @@ from __future__ import print_function, absolute_import
 
 import nose.tools
 
-from vital.algo import algorithm_factory
+from kwiver.vital.algo import algorithm_factory
 
 def test_algorithm_factory():
-    from vital.algo import ImageObjectDetector
+    from kwiver.vital.algo import ImageObjectDetector
     class TestImageObjectDetector(ImageObjectDetector):
         def __init__(self):
             ImageObjectDetector.__init__(self)

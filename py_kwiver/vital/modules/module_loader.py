@@ -29,8 +29,8 @@
 
 
 from __future__ import print_function, absolute_import
-from vital.modules import loaders
-from vital import vital_logging
+from kwiver.vital.modules import loaders
+from kwiver.vital import vital_logging
 
 logger = vital_logging.getLogger(__name__)
 

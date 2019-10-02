@@ -39,7 +39,7 @@ import unittest
 import nose.tools as ntools
 import numpy
 
-from vital.types import CameraIntrinsics
+from kwiver.vital.types import CameraIntrinsics
 
 
 class TestVitalCameraIntrinsics (unittest.TestCase):
