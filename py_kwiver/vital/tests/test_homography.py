@@ -41,8 +41,8 @@ import unittest
 import nose.tools
 import numpy
 
-from vital.exceptions.math import PointMapsToInfinityException
-from vital.types import (
+from kwiver.vital.exceptions.math import PointMapsToInfinityException
+from kwiver.vital.types import (
     EigenArray,
     Homography,
 )
