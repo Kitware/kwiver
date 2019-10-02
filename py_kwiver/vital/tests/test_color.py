@@ -38,7 +38,7 @@ import unittest
 import nose.tools
 import numpy
 
-from vital.types import RGBColor
+from kwiver.vital.types import RGBColor
 
 
 class TestRGBColor (unittest.TestCase):
