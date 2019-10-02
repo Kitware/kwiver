@@ -39,7 +39,7 @@
 
 #include <vital/algo/algorithm.h>
 #include <vital/config/config_block.h>
-#include <vital/bindings/python/vital/util/pybind11.h>
+#include <py_kwiver/vital/util/pybind11.h>
 
 template <class algorithm_base=kwiver::vital::algorithm>
 class algorithm_trampoline : public algorithm_base

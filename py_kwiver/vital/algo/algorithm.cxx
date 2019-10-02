@@ -29,8 +29,8 @@
  */
 #include <pybind11/pybind11.h>
 #include <vital/algo/algorithm.h>
-#include <vital/bindings/python/vital/algo/trampoline/algorithm_trampoline.txx>
-#include <vital/bindings/python/vital/algo/algorithm.h>
+#include <py_kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
+#include <py_kwiver/vital/algo/algorithm.h>
 
 namespace py = pybind11;
 

@@ -37,7 +37,7 @@ import unittest
 
 import nose.tools
 
-from vital.types import Camera, CameraMap
+from kwiver.vital.types import Camera, CameraMap
 
 
 class TestCameraMap (unittest.TestCase):

@@ -35,14 +35,14 @@ Test Python interface to vital::image_container
 """
 # -*- coding: utf-8 -*-
 
-from vital.types import (
+from kwiver.vital.types import (
     Image,
     ImageContainer
 )
 
 import nose.tools
 import numpy as np
-from vital.tests.helpers import create_numpy_image, map_dtype_name_to_pixel_type
+from kwiver.vital.tests.helpers import create_numpy_image, map_dtype_name_to_pixel_type
 
 
 class TestVitalImageContainer (object):
