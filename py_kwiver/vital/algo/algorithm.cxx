@@ -27,59 +27,18 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-/**
- * \file image_object_detector_trampoline.txx
- *
- * \brief trampoline for overriding virtual functions of algorithm_def<image_object_detector> and image_object_detector
- */
-
-#ifndef IMAGE_OBJECT_DETECTOR_TRAMPOLINE_TXX
-#define IMAGE_OBJECT_DETECTOR_TRAMPOLINE_TXX
-
-
-#include <vital/bindings/python/vital/util/pybind11.h>
-#include <vital/algo/image_object_detector.h>
-#include <vital/types/detected_object_set.h>
-#include <vital/types/image_container.h>
+#include <pybind11/pybind11.h>
+#include <vital/algo/algorithm.h>
 #include <vital/bindings/python/vital/algo/trampoline/algorithm_trampoline.txx>
+#include <vital/bindings/python/vital/algo/algorithm.h>
 
+namespace py = pybind11;
 
-
-template <class algorithm_def_iod_base=kwiver::vital::algorithm_def<kwiver::vital::algo::image_object_detector>>
-class algorithm_def_iod_trampoline :
-      public algorithm_trampoline<algorithm_def_iod_base>
+void algorithm(py::module &m)
 {
-  public:
-    using algorithm_trampoline<algorithm_def_iod_base>::algorithm_trampoline;
-
-    std::string type_name() const override 
-    {
-      VITAL_PYBIND11_OVERLOAD(
-        std::string,
-        kwiver::vital::algorithm_def<kwiver::vital::algo::image_object_detector>,
-        type_name,
-      );
-    }
-};
-
-
-template <class image_object_detector_base=kwiver::vital::algo::image_object_detector>
-class image_object_detector_trampoline :
-      public algorithm_def_iod_trampoline<image_object_detector_base>
-{
-  public:
-    using algorithm_def_iod_trampoline<image_object_detector_base>::
-              algorithm_def_iod_trampoline;
-    kwiver::vital::detected_object_set_sptr detect(kwiver::vital::image_container_sptr image_data) const override
-    {
-      VITAL_PYBIND11_OVERLOAD_PURE(
-        kwiver::vital::detected_object_set_sptr,
-        kwiver::vital::algo::image_object_detector,
-        detect,
-        image_data
-      );
-    }
-};
-
-#endif
+  py::class_<kwiver::vital::algorithm, std::shared_ptr<kwiver::vital::algorithm>,
+             algorithm_trampoline<>>(m, "_algorithm")
+    .def("get_configuration", &kwiver::vital::algorithm::get_configuration)
+    .def("set_configuration", &kwiver::vital::algorithm::set_configuration)
+    .def("check_configuration", &kwiver::vital::algorithm::check_configuration);
+}
