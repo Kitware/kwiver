@@ -82,6 +82,23 @@ function(_kwiver_export name)
   set_property(GLOBAL APPEND PROPERTY kwiver_export_targets ${name})
 endfunction()
 
+#+
+# Check if library_dir is undefined and set it to default ( lib )
+#-
+function(_kwiver_check_and_set_library_dir)
+  if(NOT DEFINED library_dir)
+    set(library_dir "lib" PARENT_SCOPE)
+  endif()
+endfunction()
+
+#+
+# Check and replace forward and trailing slashes in library_dir
+#-
+function(_kwiver_validate_library_dir_value)
+  string(REGEX REPLACE "^/" "" library_dir "${library_dir}")
+  string(REGEX REPLACE "/$" "" library_dir "${library_dir}")
+  set(library_dir "${library_dir}" PARENT_SCOPE)
+endfunction()
 
 # ------------------------------
 function(_kwiver_compile_pic name)
