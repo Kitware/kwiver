@@ -27,9 +27,9 @@ function(vital_check_feature_run    NAME TEST)
       -DCMAKE_CXX_STANDARD:STRING=${CMAKE_CXX_STANDARD})
 
   if ( comp_output AND run_res )
-    set(VITAL_USE_${NAME} TRUE )
+    set(VITAL_USE_${NAME} TRUE PARENT_SCOPE)
   else()
-    set(VITAL_USE_${NAME} FALSE )
+    set(VITAL_USE_${NAME} FALSE PARENT_SCOPE)
   endif()
 endfunction()
 
