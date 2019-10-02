@@ -39,8 +39,8 @@ import unittest
 import nose.tools
 import numpy
 
-from vital.types import Covariance
-from vital.types import EigenArray
+from kwiver.vital.types import Covariance
+from kwiver.vital.types import EigenArray
 
 class TestVitalCovariance (unittest.TestCase):
 
