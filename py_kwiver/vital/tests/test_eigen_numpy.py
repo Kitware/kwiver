@@ -40,9 +40,9 @@ import nose.tools as ntools
 import numpy
 from six.moves import range
 
-from vital.exceptions.eigen import VitalInvalidStaticEigenShape
+from kwiver.vital.exceptions.eigen import VitalInvalidStaticEigenShape
 
-from vital.types import EigenArray
+from kwiver.vital.types import EigenArray
 
 
 class TestVitalEigenMatrix (unittest.TestCase):
