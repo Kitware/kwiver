@@ -40,9 +40,9 @@
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/image_object_detector.h>
-#include <vital/bindings/python/vital/algo/trampoline/image_object_detector_trampoline.txx>
-#include <vital/bindings/python/vital/algo/algorithm.h>
-#include <vital/bindings/python/vital/algo/image_object_detector.h>
+#include <py_kwiver/vital/algo/trampoline/image_object_detector_trampoline.txx>
+#include <py_kwiver/vital/algo/algorithm.h>
+#include <py_kwiver/vital/algo/image_object_detector.h>
 #include <sstream>
 
 namespace py = pybind11;
