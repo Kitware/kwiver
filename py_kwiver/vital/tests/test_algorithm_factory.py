@@ -66,6 +66,3 @@ def test_algorithm_factory():
     nose.tools.assert_equal(len(algorithm_factory.implementations("")), 0)
     # Check with dummy algorithm returns empty list
     nose.tools.assert_equal(len(algorithm_factory.implementations("NotAnAlgorithm")), 0)
-
-
-

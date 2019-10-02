@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2019 by Kitware, Inc.
+ * Copyright 2011-2012 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,61 +28,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <vital/plugin_loader/plugin_manager.h>
+
+#include <pybind11/pybind11.h>
+
 /**
- * \file algorithm_trampoline.txx
+ * \file module_loader.cxx
  *
- * \brief trampoline for overriding virtual functions of vital::algorithm
+ * \brief Python bindings for module loading.
  */
 
-#ifndef ALGORITHM_TRAMPOLINE_TXX
-#define ALGORITHM_TRAMPOLINE_TXX
+using namespace pybind11;
 
-#include <vital/algo/algorithm.h>
-#include <vital/config/config_block.h>
-#include <vital/bindings/python/vital/util/pybind11.h>
+namespace kwiver {
+namespace vital {
+namespace python {
 
-template <class algorithm_base=kwiver::vital::algorithm>
-class algorithm_trampoline : public algorithm_base
+//@todo Alternative is to provide C bindings for the plugin manager.
+
+void load_known_modules()
 {
-  public:
-    using algorithm_base::algorithm_base;
+  kwiver::vital::plugin_manager::instance().load_all_plugins();
+}
 
-    std::string type_name() const override
-    {
-      VITAL_PYBIND11_OVERLOAD_PURE(
-        std::string,
-        algorithm_base,
-        type_name,
-      );
-    }
+bool is_module_loaded(std::string module_name)
+{
+  return kwiver::vital::plugin_manager::instance().is_module_loaded(module_name);
+}
 
-    kwiver::vital::config_block_sptr get_configuration() const override
-    {
-      VITAL_PYBIND11_OVERLOAD(
-        kwiver::vital::config_block_sptr,
-        algorithm_base,
-        get_configuration,
-      );
-    }
+PYBIND11_MODULE(modules, m)
+{
+  m.def("load_known_modules", &kwiver::vital::python::load_known_modules
+    , "Loads modules to populate the process and scheduler registries.");
+  m.def("is_module_loaded", &kwiver::vital::python::is_module_loaded,
+      "Check if a module has been loaded");
+}
 
-    void set_configuration(kwiver::vital::config_block_sptr config) override
-    {
-      VITAL_PYBIND11_OVERLOAD_PURE(
-        void,
-        algorithm_base,
-        set_configuration,
-        config
-      );
-    }
-
-    bool check_configuration(kwiver::vital::config_block_sptr config) const override 
-    {
-      VITAL_PYBIND11_OVERLOAD_PURE(
-        bool,
-        algorithm_base,
-        check_configuration,
-        config
-      );
-    }
-};
-#endif
+} } }  // end namespace
