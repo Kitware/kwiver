@@ -39,4 +39,3 @@ class TestVitalModules(object):
     def test_load():
         from vital.modules import modules
         modules.load_known_modules()
-
