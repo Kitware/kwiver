@@ -173,4 +173,3 @@ class TestLandmark (unittest.TestCase):
 
             l.observations = 42
             nose.tools.assert_equal(l.observations, 42)
-
