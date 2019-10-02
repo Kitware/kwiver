@@ -60,8 +60,8 @@ PYBIND11_MODULE(modules, m)
 {
   m.def("load_known_modules", &kwiver::vital::python::load_known_modules
     , "Loads modules to populate the process and scheduler registries.");
-  m.def("is_module_loaded", &kwiver::vital::python::is_module_loaded, 
+  m.def("is_module_loaded", &kwiver::vital::python::is_module_loaded,
       "Check if a module has been loaded");
 }
 
-} } }  // end namespace 
+} } }  // end namespace
