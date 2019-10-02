@@ -72,7 +72,8 @@ dump_all_formats()
     file_format_base* ff = file_format_manager::get_format( tf );
     if ( ! ff )
     {
-      LOG_INFO( main_logger, "No format manager for enumeration " << tfi << "?");
+      LOG_INFO( main_logger, "No format manager for enumeration " << tfi
+                << " (" << file_format_type::to_string( tf ) << ") ?");
       continue;
     }
 
