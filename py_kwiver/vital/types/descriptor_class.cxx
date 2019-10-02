@@ -63,8 +63,8 @@ class PyDescriptorD
 
   public:
 
-    PyDescriptorD(size_t len) 
-      : desc (kwiver::vital::descriptor_dynamic<double>(len)) 
+    PyDescriptorD(size_t len)
+      : desc (kwiver::vital::descriptor_dynamic<double>(len))
       {};
 
     size_t get_size() { return desc.size(); };
