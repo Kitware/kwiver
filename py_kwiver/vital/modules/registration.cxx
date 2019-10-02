@@ -39,10 +39,9 @@
 #pragma warning (pop)
 #endif
 
-//#include <sprokit/pipeline/utils.h>
-#include <vital/bindings/python/vital/util/pybind11.h>
-#include <vital/bindings/python/vital/util/python_exceptions.h>
-#include <vital/bindings/python/vital/util/python.h>
+#include <py_kwiver/vital/util/pybind11.h>
+#include <py_kwiver/vital/util/python_exceptions.h>
+#include <py_kwiver/vital/util/python.h>
 
 #include <vital/plugin_loader/plugin_loader.h>
 #include <kwiversys/SystemTools.hxx>
