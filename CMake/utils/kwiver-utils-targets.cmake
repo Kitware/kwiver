@@ -18,9 +18,8 @@
 #
 #   library_dir
 #     If set, it would replace lib folder within build and install directories.
-#     This is necessary to build the bindings using setup.py where the library
-#     targets for the python bindings would not go into lib directory
-#     ( the default is 'lib' )
+#     ( the default is 'lib' ). library_dir should not have leading or trailing
+#     slashes. These slashes would be removed if they are passed in the library_dir
 #
 #   library_subdir
 #     If set, library targets will be placed into the directory within the install
