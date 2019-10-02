@@ -29,7 +29,7 @@
  */
 
 #include <vital/types/image_container.h>
-#include <vital/bindings/python/vital/types/image_container.h>
+#include <py_kwiver/vital/types/image_container.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/embed.h>
 #include <pybind11/numpy.h>
