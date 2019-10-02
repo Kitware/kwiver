@@ -45,7 +45,7 @@
 
 namespace py = pybind11;
 
-static void add_algorithm( const std::string& impl_name, std::string const& description, 
+static void add_algorithm( const std::string& impl_name, std::string const& description,
                             py::object conc_t );
 
 void mark_algorithm_as_loaded( const std::string& module_name );
@@ -154,4 +154,3 @@ static std::vector< std::string > implementation_names(const std::string& algori
 
   return all_implementations;
 }
-
