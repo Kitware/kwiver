@@ -154,4 +154,3 @@ fromArray(py::object data, char ctype = 'd')
 
   return retMat;
 }
-

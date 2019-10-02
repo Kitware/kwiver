@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==============================================================================
 
-Tests for ObjectTrackSet 
+Tests for ObjectTrackState
 
 """
 import unittest
@@ -38,68 +38,54 @@ import unittest
 import nose.tools
 import numpy
 
-from six.moves import range
-
-from vital.types import ObjectTrackSet, ObjectTrackState, BoundingBox, \
-        DetectedObjectType, DetectedObject, Track
+from vital.types import ObjectTrackState, BoundingBox, DetectedObjectType, \
+        DetectedObject
 
 
-class TestObjectTrackSet (unittest.TestCase):
-    def _create_track(self):
+class TestObjectTrackState (unittest.TestCase):
+    def _create_detected_object(self):
         """
-        Helper function to create a track 
-        :return: Track with 10 object track state. Every track state has same
-                    detected object however the fram number and time varies from
-                    [0, 10)
+        Helper function to generate a detected object for the track state
+        :return: Detected object with bounding box coordinates of
+                 (10, 10, 20, 20), confidence of 0.4 and "test" label
         """
         bbox = BoundingBox(10, 10, 20, 20)
         dot  = DetectedObjectType("test", 0.4)
         do = DetectedObject(bbox, 0.4, dot)
-        track = Track()
-        for i in range(10):
-            track.append(ObjectTrackState(i, i, do))
-        return track
+        return do
 
     def test_new_ts(self):
         """
-        Test creation of object track set
+        Test object track set creation with and without a detected object
         """
-        track = self._create_track()
-        ObjectTrackSet([track])
+        do = self._create_detected_object()
+        ObjectTrackState(0, 0, None)
+        ObjectTrackState(0, 0, do)
 
-    def test_all_frame_ids(self):
+    def test_frame_id(self):
         """
-        Test all frame ids stored in object track set are between [0, 10)
+        Test frame id stored in a track state with >= 0 values
         """
-        obs = ObjectTrackSet([self._create_track()])
-        nose.tools.assert_equal(obs.all_frame_ids(), set(range(10)))
-    
-    def test_first_frame(self):
+        do = self._create_detected_object()
+        ts = ObjectTrackState(0, 0, do)
+        nose.tools.assert_equal(ts.frame_id, 0)
+        ts = ObjectTrackState(14691234578, 0, do)
+        nose.tools.assert_equal(ts.frame_id, 14691234578)
+
+    def test_time_usec(self):
         """
-        Test first frame id in the track set is 0
+        Test time in microsecond stored in a track state with >= 0 values
         """
-        obs = ObjectTrackSet([self._create_track()])
-        nose.tools.assert_equal(obs.first_frame(), 0)
-    
-    def test_last_frame(self):
+        do = self._create_detected_object()
+        ts = ObjectTrackState(0, 0, do)
+        nose.tools.assert_equal(ts.time_usec, 0)
+        ts = ObjectTrackState(0, 14691234578 , do)
+        nose.tools.assert_equal(ts.time_usec, 14691234578)
+
+    def test_detection(self):
         """
-        Test last frame id in the track set is 9
+        Test detected object set in track state
         """
-        obs = ObjectTrackSet([self._create_track()])
-        nose.tools.assert_equal(obs.last_frame(), 9)
-   
-    def test_tracks(self):
-        """
-        Test indexed retrival of tracks. 
-        """
-        obj_track = self._create_track()
-        obs = ObjectTrackSet([obj_track])
-        nose.tools.assert_equal(obs.tracks()[0], obj_track)
-    
-    def test_get_track(self):
-        """
-        Test track retrival using track id
-        """
-        obj_track = self._create_track()
-        obs = ObjectTrackSet([obj_track])
-        nose.tools.assert_equal(obs.get_track(0), obj_track)
+        do = self._create_detected_object()
+        ts = ObjectTrackState(0, 0, do)
+        nose.tools.assert_equal(ts.detection, do)
