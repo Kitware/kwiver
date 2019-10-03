@@ -1,18 +1,18 @@
 # Defines functions for registering python tests
 # The following functions are defined:
 #
-#     sprokit_build_python_test
-#     sprokit_add_python_test
-#     sprokit_discover_python_tests
+#     kwiver_build_python_test
+#     kwiver_add_python_test
+#     kwiver_discover_python_tests
 #
 # The following variables may be used to control the behavior of the functions:
 #
-#     The same variables described in ./sprokit-macro-tests.cmake
-#         of these `sprokit_test_runner` should be set to some command that
+#     The same variables described in ./kwiver-utils-tests.cmake
+#         of these `kwiver_test_runner` should be set to some command that
 #         runs a python script in
-#         kwiver/sprokit/tests/bindings/python/CMakeLists.txt
+#         py_kwiver/sprokit/tests/bindings/python/CMakeLists.txt
 #
-# For specific usage see documentation bellow
+# For specific usage see documentation below
 
 
 ###
@@ -28,27 +28,25 @@
 #     suffix `.py. In other words: `input="test-%s.py" % group`.
 #
 # SeeAlso:
-#     sprokit-macro-tests.cmake
-#     sprokit-macro-python.cmake
-#     sprokit-macro-configure.cmake
-#     ..cmake/support/test.cmake
+#     kwiver-utils-tests.cmake
+#     kwiver-utils-python.cmake
 #
-function (sprokit_build_python_test group input)
+function (kwiver_build_python_test group input)
   if (CMAKE_CONFIGURATION_TYPES)
-    set(sprokit_configure_cmake_args
+    set(kwiver_configure_cmake_args
       "\"-Dconfig=${CMAKE_CFG_INTDIR}/\"")
   endif ()
 
   set(name test-python-${group})
   set(source "${CMAKE_CURRENT_SOURCE_DIR}/${input}")
-  set(dest "${sprokit_test_output_path}/\${config}test-python-${group}")
+  set(dest "${kwiver_test_output_path}/\${config}test-python-${group}")
 
   if (KWIVER_SYMLINK_PYTHON)
-    sprokit_symlink_file(${name} ${source} ${dest} PYTHON_EXECUTABLE)
+    kwiver_symlink_file(${name} ${source} ${dest} PYTHON_EXECUTABLE)
   else()
-    sprokit_configure_file(${name} ${source} ${dest} PYTHON_EXECUTABLE)
+    kwiver_configure_file(${name} ${source} ${dest} PYTHON_EXECUTABLE)
   endif()
-  sprokit_declare_tooled_test(python-${group})
+  kwiver_declare_test(python-${group})
 endfunction ()
 
 
@@ -56,28 +54,27 @@ endfunction ()
 # Registers a "built" python test with ctest
 #
 # Arg:
-#     group: a group key previously registered with `sprokit_build_python_test`
+#     group: a group key previously registered with `kwiver_build_python_test`
 #     instance: the name of the function to be tested.
 #
-# In most cases you should call sprokit_discover_python_tests instead.  The
+# In most cases you should call kwiver_discover_python_tests instead.  The
 # only exception is if you must paramaterizations via the commandline.
 # Currently only `test-run` does this. In the future this will be removed in
 # favor of pytest paramaterization.
 #
-# SeeAlso:
-#     sprokit/tests/bindings/python/sprokit/pipeline/CMakeLists.txt - uses this func
 #
-function (sprokit_add_python_test group instance)
-  set(python_module_path    "${sprokit_python_output_path}/${kwiver_python_subdir}")
+function (kwiver_add_python_test group instance)
+  string(TOLOWER "${CMAKE_PROJECT_NAME}" project_name)
+  set(python_module_path    "${kwiver_python_output_path}/${kwiver_python_subdir}/${python_sitename}/${project_name}")
   set(python_chdir          ".")
 
   if (CMAKE_CONFIGURATION_TYPES)
-    set(python_module_path      "${sprokit_python_output_path}/$<CONFIGURATION>/${kwiver_python_subdir}")
+    set(python_module_path      "${kwiver_python_output_path}/$<CONFIGURATION>/${kwiver_python_subdir}/${python_sitename}/${project_name}")
     set(python_chdir           "$<CONFIGURATION>")
   endif ()
 
-  sprokit_add_tooled_test(python-${group} ${instance}
-    "${python_chdir}" "${python_module_path}/${python_sitename}" ${ARGN})
+  kwiver_add_test(python-${group} ${instance}
+    "${python_chdir}" "${python_module_path}")
 endfunction ()
 
 
@@ -99,11 +96,11 @@ endfunction ()
 #     kwiver/CMake/utils/kwiver-utils-python-tests.cmake - defines kwiver_discover_python_tests
 #     kwiver/sprokit/tests/bindings/python/sprokit/pipeline/CMakeLists.txt - uses this function
 #
-function (sprokit_discover_python_tests group file)
+function (kwiver_discover_python_tests group file)
   file(STRINGS "${file}" test_lines)
   set(properties)
 
-  sprokit_build_python_test("${group}" "${file}")
+  kwiver_build_python_test("${group}" "${file}")
 
   # NOTE: most of this logic can be replaced by
   # `parse_python_testables` when PR #302 lands
@@ -115,7 +112,7 @@ function (sprokit_discover_python_tests group file)
       match "${test_line}")
     if (match)
       set(test_name "${CMAKE_MATCH_1}")
-      sprokit_add_python_test("${group}" "${test_name}"
+      kwiver_add_python_test("${group}" "${test_name}"
         ${ARGN})
       if (properties)
         set_tests_properties("test-python-${group}-${test_name}"
@@ -131,7 +128,7 @@ function (sprokit_discover_python_tests group file)
       string(CONFIGURE "${CMAKE_MATCH_2}" prop_value
         @ONLY)
       if (prop STREQUAL "ENVIRONMENT")
-        set(sprokit_test_environment
+        set(kwiver_test_environment
           "${prop_value}")
       else ()
         set(property "${prop}" "${prop_value}")
