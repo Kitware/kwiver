@@ -28,13 +28,13 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from vital.config import config
-from sprokit.pipeline import datum
-from sprokit.pipeline import edge
-from sprokit.pipeline import pipeline
-from sprokit.pipeline import process
-from sprokit.pipeline import scheduler
-from sprokit.pipeline import utils
+from kwiver.vital.config import config
+from kwiver.sprokit.pipeline import datum
+from kwiver.sprokit.pipeline import edge
+from kwiver.sprokit.pipeline import pipeline
+from kwiver.sprokit.pipeline import process
+from kwiver.sprokit.pipeline import scheduler
+from kwiver.sprokit.pipeline import utils
 
 import threading
 
