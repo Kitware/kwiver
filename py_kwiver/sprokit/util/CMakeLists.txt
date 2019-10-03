@@ -1,4 +1,4 @@
-project(sprokit_python_util)
+poject(sprokit_python_util)
 
 set(python_util_srcs
     ${python_util_srcs}
@@ -29,4 +29,3 @@ kwiver_install_headers(
   SUBDIR   sprokit/python/util
   NOPATH
   )
-
