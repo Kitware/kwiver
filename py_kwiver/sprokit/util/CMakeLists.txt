@@ -1,4 +1,4 @@
-poject(sprokit_python_util)
+project(sprokit_python_util)
 
 set(python_util_srcs
     ${python_util_srcs}
