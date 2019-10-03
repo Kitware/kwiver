@@ -32,7 +32,7 @@
 
 #include <pybind11/pybind11.h>
 
-#include <vital/bindings/python/vital/util/pybind11.h>
+#include <py_kwiver/vital/util/pybind11.h>
 
 #include <algorithm>
 #include <string>
