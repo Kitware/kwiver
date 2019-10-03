@@ -52,7 +52,7 @@ using namespace pybind11;
 
 static std::shared_ptr<wrap_process_cluster> cluster_by_name(sprokit::pipeline& self, sprokit::process::name_t const& name);
 static std::vector<wrap_port_addr> connections_from_addr(sprokit::pipeline& self, sprokit::process::name_t const& name, sprokit::process::port_t const& port);
-static std::vector<wrap_port_addr> receivers_for_port(sprokit::pipeline& self, sprokit::process::name_t const& name, sprokit::process::port_t const& port); 
+static std::vector<wrap_port_addr> receivers_for_port(sprokit::pipeline& self, sprokit::process::name_t const& name, sprokit::process::port_t const& port);
 
 PYBIND11_MODULE(pipeline,m)
 {
