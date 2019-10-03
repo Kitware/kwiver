@@ -69,4 +69,3 @@ PYBIND11_MODULE(stamp, m)
   #endif
 #endif
 }
-
