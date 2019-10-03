@@ -101,7 +101,7 @@ PYBIND11_MODULE(process_cluster, m)
       , [](wrap_process_cluster& self, sprokit::process::port_t const& port, sprokit::process::port_info_t const& info) { self.declare_output_port(port, info);}
       , "Declare an output port on the process.")
     .def("declare_output_port"
-      , [](wrap_process_cluster& self, sprokit::process::port_t const& port, sprokit::process::port_type_t const& type_, sprokit::process::port_flags_t const& flags_, sprokit::process::port_description_t const& description_, sprokit::process::port_frequency_t const& frequency_ = sprokit::process::port_frequency_t(1)) { self.declare_output_port(port, type_, flags_, description_, frequency_);} 
+      , [](wrap_process_cluster& self, sprokit::process::port_t const& port, sprokit::process::port_type_t const& type_, sprokit::process::port_flags_t const& flags_, sprokit::process::port_description_t const& description_, sprokit::process::port_frequency_t const& frequency_ = sprokit::process::port_frequency_t(1)) { self.declare_output_port(port, type_, flags_, description_, frequency_);}
       , "Declare an output port on the process.")
     .def("declare_configuration_key"
       , [](wrap_process_cluster& self, kwiver::vital::config_block_key_t const& key, sprokit::process::conf_info_t const& info) { self.declare_configuration_key(key, info);}
