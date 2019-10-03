@@ -141,4 +141,3 @@ function (sprokit_discover_python_tests group file)
     endif ()
   endforeach ()
 endfunction ()
-
