@@ -28,7 +28,7 @@ if (KWIVER_ENABLE_TESTS)
     # SeeAlso:
     #     # defines sprokit_discover_python_tests
     #     sprokit/conf/sprokit-macro-python-tests.cmake
-    sprokit_discover_python_tests(${group} test-${group}.py)
+    kwiver_discover_python_tests(${group} test-${group}.py)
   endforeach()
 endif()
 
@@ -41,10 +41,10 @@ set(schedulers
   sync
   thread_per_process)
 
-sprokit_build_python_test(run test-run.py)
-function (sprokit_add_python_run_test group instance)
+kwiver_build_python_test(run test-run.py)
+function (kwiver_add_python_run_test group instance)
   foreach (scheduler IN LISTS schedulers)
-    sprokit_add_python_test(${group} ${instance}-${scheduler})
+    kwiver_add_python_test(${group} ${instance}-${scheduler})
 
     set_tests_properties(test-python-${group}-${instance}-${scheduler}
       PROPERTIES
@@ -52,7 +52,7 @@ function (sprokit_add_python_run_test group instance)
   endforeach ()
 endfunction ()
 
-sprokit_add_python_run_test(run python_to_python)
-sprokit_add_python_run_test(run cpp_to_python)
-sprokit_add_python_run_test(run python_to_cpp)
-sprokit_add_python_run_test(run python_via_cpp)
+kwiver_add_python_run_test(run python_to_python)
+kwiver_add_python_run_test(run cpp_to_python)
+kwiver_add_python_run_test(run python_to_cpp)
+kwiver_add_python_run_test(run python_via_cpp)
