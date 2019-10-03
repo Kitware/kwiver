@@ -44,7 +44,7 @@
 
 using namespace pybind11;
 
-static void push_datum(sprokit::edge& self, wrap_edge_datum const& datum); 
+static void push_datum(sprokit::edge& self, wrap_edge_datum const& datum);
 static wrap_edge_datum get_datum(sprokit::edge& self);
 static wrap_edge_datum peek_datum(sprokit::edge& self, pybind11::size_t const& idx);
 
