@@ -29,4 +29,3 @@ kwiver_install_headers(
   SUBDIR   sprokit/python/util
   NOPATH
   )
-
