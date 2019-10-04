@@ -224,6 +224,9 @@ int main(int argc, char *argv[])
     char** local_argv = 0;
     std::vector<char *> argv_vect;
 
+    // There are some cases where the applet wants to do its own
+    // command line parsing (e.g. QT apps). If this flag is not set,
+    // then we will parse our standard arg set
     if ( ! tool_context->m_skip_command_args_parsing )
     {
       // Convert args list back to argv style. :-(

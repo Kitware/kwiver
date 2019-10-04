@@ -53,7 +53,18 @@ void
 kwiver_applet::
 add_command_options()
 {
-  skip_parse_args();
+  // The default implementation assumes that the applet will do its
+  // own arg parsing if it hasn't registered any specific args for the
+  // tool_runner to parse.
+  if ( m_context )
+  {
+    m_context->m_skip_command_args_parsing = true;
+  }
+  else
+  {
+    throw std::runtime_error( "Invalid context pointer" );
+  }
+
 }
 
 
@@ -116,21 +127,6 @@ applet_name() const
   }
 
   throw std::runtime_error( "Invalid context pointer" );
-}
-
-// ----------------------------------------------------------------------------
-void
-kwiver_applet::
-skip_parse_args()
-{
-  if ( m_context )
-  {
-    m_context->m_skip_command_args_parsing = true;
-  }
-  else
-  {
-    throw std::runtime_error( "Invalid context pointer" );
-  }
 }
 
 } } // end namespace kwiver
