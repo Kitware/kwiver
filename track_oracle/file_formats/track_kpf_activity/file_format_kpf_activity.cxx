@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017-2019 by Kitware, Inc.
+ * Copyright 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,13 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * @file
- * @brief Implementation of KPF activities
- *
- */
-
-#include "track_filter_kpf_activity.h"
+#include "file_format_kpf_activity.h"
 
 #include <vital/logger/logger.h>
 static kwiver::vital::logger_handle_t main_logger( kwiver::vital::get_logger( __FILE__ ) );
@@ -55,43 +49,20 @@ static kwiver::vital::logger_handle_t main_logger( kwiver::vital::get_logger( __
 #include <fstream>
 #include <sstream>
 
-using std::map;
-using std::make_pair;
 using std::string;
+using std::istream;
 using std::ifstream;
+using std::ostream;
 using std::ofstream;
 using std::ostringstream;
+using std::stringstream;
 using std::vector;
 
 namespace KPF=::kwiver::vital::kpf;
 
 namespace // anon
 {
-
 using namespace kwiver::track_oracle;
-
-bool
-build_lookup_map( const track_handle_list_type& ref_tracks,
-                  map< unsigned, track_handle_type >& lookup_map )
-{
-  track_field< dt::tracking::external_id > id_field;
-  for (size_t i=0; i<ref_tracks.size(); ++i)
-  {
-    auto probe = id_field.get( ref_tracks[i].row );
-    if ( ! probe.first )
-    {
-      LOG_ERROR( main_logger, "KPF activity reference track without ID1?" );
-      return false;
-    }
-    auto insert_test = lookup_map.insert( make_pair( probe.second, ref_tracks[i] ));
-    if ( ! insert_test.second )
-    {
-      LOG_ERROR( main_logger, "KPF activity: duplicate track IDs " << probe.second );
-      return false;
-    }
-  }
-  return true;
-}
 
 struct kpf_actor_track_type: public track_base< kpf_actor_track_type >
 {
@@ -104,156 +75,58 @@ struct kpf_act_exception
   string what;
 };
 
-} // anon namespace
+} // ...anon
 
 namespace kwiver {
 namespace track_oracle {
 
 bool
-track_filter_kpf_activity
-::apply( const track_handle_list_type& act_tracks,
-         const track_handle_list_type& source_geometry_tracks )
+file_format_kpf_activity
+::inspect_file( const string& fn ) const
 {
-  track_filter_kpf_activity act_schema;
-  track_field< dt::tracking::frame_number > fn_field;
-  kpf_actor_track_type actor_track_instance;
+  // This just checks that it's YAML, not that it's a geom schema
+  // (would have to trawl through metadata packets line-by-line)
+  ifstream is( fn.c_str() );
+  if ( ! is ) return false;
 
-  logging_map_type wmsgs( main_logger, KWIVER_LOGGER_SITE );
+  string s;
+  if ( ! std::getline( is, s )) return false;
 
-  bool all_okay = true;
+  stringstream ss(s);
 
-  // build lookup table from ID to track handle
-
-  map< dt::tracking::external_id::Type, track_handle_type > lookup_table;
-  if ( ! build_lookup_map( source_geometry_tracks, lookup_table ))
-  {
-    throw kpf_act_exception("id->track handle lookup failure");
-  }
-
+  bool parsed = true;
   try
   {
-    for (const auto& activity: act_tracks)
-    {
-      //
-      // for each actor, clone over the track and geometry within its time window
-      //
-
-      vector< dt::tracking::external_id::Type > missing;
-      track_handle_list_type actor_tracks;
-
-      auto act_int = act_schema( activity ).actor_intervals.get( activity.row );
-      for (auto const& a: act_int.second)
-      {
-        auto id = static_cast<dt::tracking::external_id::Type>( a.track );
-        auto id_probe = lookup_table.find( id );
-
-        //
-        // remember and log any missing actors in the ref set
-        //
-        if (id_probe == lookup_table.end())
-        {
-          missing.push_back( id );
-          continue;
-        }
-
-        // create a new track; clone non-system fields
-        track_handle_type new_track( track_oracle_core::get_next_handle() );
-        if ( ! track_oracle_core::clone_nonsystem_fields( id_probe->second, new_track ))
-        {
-          ostringstream oss;
-          oss << "Couldn't clone non-system track fields for " << id << "?";
-          throw kpf_act_exception( oss.str() );
-        }
-
-        // copy over frames in the actor's time window
-        wmsgs.add_msg( "Selecting relevant actor frames based on frame_number only" );
-        for (const auto& src_frame: track_oracle_core::get_frames( id_probe->second ))
-        {
-          auto fn_probe = fn_field.get( src_frame.row );
-          if (! fn_probe.first)
-          {
-            ostringstream oss;
-            oss << "No frame number for frame in track " << id << "?";
-            throw kpf_act_exception( oss.str() );
-          }
-          auto frame_num = fn_probe.second;
-
-          // is the frame within the time window?
-          if ((a.start.get_frame() <= frame_num) && (frame_num <= a.stop.get_frame()))
-          {
-            //
-            // create a frame on the new track and clone the fields
-            //
-            frame_handle_type new_frame = actor_track_instance( new_track ).create_frame();
-            if ( ! track_oracle_core::clone_nonsystem_fields( src_frame, new_frame ))
-            {
-              ostringstream oss;
-              oss << "Couldn't clone non-system fields for track / frame " << id << " / " << frame_num << "?";
-              throw kpf_act_exception( oss.str() );
-            }
-          } // ... within time window
-        } // ...for all source frames
-
-        actor_tracks.push_back( new_track );
-      } // ...for all actor tracks
-
-      //
-      // Did we miss anybody?
-      //
-
-      if ( ! missing.empty() )
-      {
-        ostringstream oss;
-        oss << "Activity " << act_schema( activity ).activity_id() << " missing the following tracks:";
-        for (auto m: missing) oss << " " << m;
-        throw kpf_act_exception( oss.str() );
-      }
-
-      //
-      // okay then-- add the actor tracks to the activity
-      //
-
-      act_schema( activity ).actor_tracks() = actor_tracks;
-
-    } // ... for each activity row
-  } // ... try
-
-  catch (const kpf_act_exception& e )
-  {
-    LOG_ERROR( main_logger, "Error loading applying activities to geometry: " << e.what );
-    all_okay = false;
+    YAML::Load( ss );
   }
-  //
-  // anything to report?
-  //
-
-  if (! wmsgs.empty() )
+  // Can't catch the exact YAML exception on OSX
+  // see https://stackoverflow.com/questions/21737201/problems-throwing-and-catching-exceptions-on-os-x-with-fno-rtti
+  catch ( ... )
   {
-    LOG_INFO( main_logger, "KPF act reader: warnings begin" );
-    wmsgs.dump_msgs();
-    LOG_INFO( main_logger, "KPF act reader: warnings end" );
+    parsed = false;
   }
-  return all_okay;
+  return parsed;
 }
 
+bool
+file_format_kpf_activity
+::read( const string& fn,
+        track_handle_list_type& tracks ) const
+{
+  ifstream is( fn.c_str() );
+  return is && this->read( is, tracks );
+}
 
 bool
-track_filter_kpf_activity
-::read( const std::string& fn,
-        int kpf_activity_domain,
-        track_handle_list_type& tracks )
+file_format_kpf_activity
+::read( istream& is,
+        track_handle_list_type& tracks ) const
 {
   logging_map_type wmsgs( main_logger, KWIVER_LOGGER_SITE );
   bool all_okay = true;
 
   try
   {
-    ifstream is( fn.c_str() );
-    if ( ! is )
-    {
-      throw kpf_act_exception( "Couldn't open KPF activity file '"+fn+"'");
-    }
-
     LOG_INFO( main_logger, "KPF activity YAML load start");
     KPF::kpf_yaml_parser_t parser( is );
     KPF::kpf_reader_t reader( parser );
@@ -261,7 +134,7 @@ track_filter_kpf_activity
 
     track_field< dt::tracking::frame_number > fn_field;
     kpf_actor_track_type actor_track_instance;
-    track_filter_kpf_activity act_schema;
+    track_kpf_activity_type act_schema;
 
     //
     // process each line
@@ -273,15 +146,16 @@ track_filter_kpf_activity
 
       //
       // Special handling for the actN field
+      // (note that we accept all domains; it's up to apply() to sort them out)
       //
 
       auto activity_probe = reader.transfer_packet_from_buffer(
-        KPF::packet_header_t( KPF::packet_style::ACT, kpf_activity_domain ));
+        KPF::packet_header_t( KPF::packet_style::ACT, KPF::packet_header_t::ANY_DOMAIN));
 
       if ( ! activity_probe.first )
       {
         ostringstream oss;
-        oss << "Skipping non-metadata record with no activity in domain " << kpf_activity_domain;
+        oss << "Skipping non-metadata record with no activity";
         wmsgs.add_msg( oss.str() );
         reader.flush();
         continue;
@@ -291,7 +165,7 @@ track_filter_kpf_activity
 
       act_schema.activity_labels() = kpf_act.activity_labels.d;
       act_schema.activity_id() = kpf_act.activity_id.t.d;
-      act_schema.activity_domain() = kpf_activity_domain;
+      act_schema.activity_domain() = kpf_act.activity_id.domain;
 
       // only set the ts0 start/stop time
 
@@ -307,7 +181,8 @@ track_filter_kpf_activity
       if ( activity_tsr.domain == -1 )
       {
         ostringstream oss;
-        oss << "Activity timestamp range has no TS0 packets; skipping: " << activity_probe.second;
+        oss << "Activity timestamp range has no TS0 packets; skipping: "
+            << activity_probe.second;
         wmsgs.add_msg( oss.str() );
         continue;
       }
@@ -332,7 +207,8 @@ track_filter_kpf_activity
           throw kpf_act_exception( oss.str() );
         }
 
-        vital::timestamp ts_start, ts_stop;  // note that these are "invalid" since we only have frames
+        // note that these are "invalid" since we only have frames
+        vital::timestamp ts_start, ts_stop;
         ts_start.set_frame( tsr_probe->t.start );
         ts_stop.set_frame( tsr_probe->t.stop );
         vital::track_interval tmp = { static_cast< vital::track_id_t>( a.actor_id.t.d ),
@@ -381,7 +257,7 @@ track_filter_kpf_activity
   } // .. try
   catch (const kpf_act_exception& e )
   {
-    LOG_ERROR( main_logger, "Error loading KPF activity file '" << fn << "': " << e.what );
+    LOG_ERROR( main_logger, "Error loading KPF activity file: " << e.what );
     all_okay = false;
   }
 
@@ -401,9 +277,25 @@ track_filter_kpf_activity
 }
 
 bool
-track_filter_kpf_activity
+file_format_kpf_activity
 ::write( const std::string& fn,
-         const track_handle_list_type& tracks )
+         const track_handle_list_type& tracks) const
+{
+  ofstream os( fn.c_str() );
+  if ( ! os )
+  {
+    LOG_ERROR( main_logger, "Couldn't open '" << fn << "' for writing" );
+    return false;
+  }
+  return this->write( os, tracks );
+}
+
+
+
+bool
+file_format_kpf_activity
+::write( ostream& os,
+         const track_handle_list_type& tracks ) const
 {
   logging_map_type wmsgs( main_logger, KWIVER_LOGGER_SITE );
   bool all_okay = true;
@@ -416,14 +308,8 @@ track_filter_kpf_activity
   {
     namespace KPFC = ::kwiver::vital::kpf::canonical;
 
-    ofstream os( fn.c_str() );
-    if ( ! os )
-    {
-      throw kpf_act_exception( "Couldn't write KPF activity file '"+fn+"'");
-    }
-
     KPF::record_yaml_writer w( os );
-    track_filter_kpf_activity k;
+    track_kpf_activity_type k;
 
     for (const auto& t: tracks )
     {
@@ -523,7 +409,7 @@ track_filter_kpf_activity
 
   catch (const kpf_act_exception& e )
   {
-    LOG_ERROR( main_logger, "Error wriite KPF activity file '" << fn << "': " << e.what );
+    LOG_ERROR( main_logger, "Error wriite KPF activity file: " << e.what );
     all_okay = false;
   }
 
@@ -540,7 +426,6 @@ track_filter_kpf_activity
 
   return all_okay;
 }
-
 
 } // ...track_oracle
 } // ...kwiver
