@@ -45,7 +45,7 @@ static kwiver::vital::logger_handle_t main_logger( kwiver::vital::get_logger( __
 #include <track_oracle/core/track_oracle_core.h>
 #include <track_oracle/file_formats/file_format_manager.h>
 #include <track_oracle/file_formats/file_format_base.h>
-#include <track_oracle/file_formats/track_filter_kpf_activity/track_filter_kpf_activity.h>
+#include <track_oracle/file_formats/track_kpf_activity/track_kpf_activity.h>
 
 using std::string;
 
@@ -75,24 +75,31 @@ int main( int argc, char *argv[] )
   }
   LOG_INFO( main_logger, "Read " << input_geom_tracks.size() << " input geometry tracks" );
 
-  track_handle_list_type activity_tracks;
-  if ( ! track_filter_kpf_activity::read( act_in_fn_arg(),
-                                          activity_domain_arg(),
-                                          activity_tracks ))
+  track_handle_list_type all_activity_tracks;
+  if ( ! file_format_manager::read( act_in_fn_arg(),
+                                    all_activity_tracks ))
   {
     LOG_ERROR( main_logger, "Couldn't read activity tracks from '" << act_in_fn_arg() << "'" );
     return EXIT_FAILURE;
   }
 
-  if (! track_filter_kpf_activity::apply( activity_tracks,
-                                          input_geom_tracks ))
+  LOG_INFO( main_logger, "Read " << all_activity_tracks.size() << " activities (all domains)" );
+
+  track_handle_list_type domain_activity_tracks =
+    track_kpf_activity_type::filter_on_activity_domain( all_activity_tracks,
+                                                        activity_domain_arg() );
+  LOG_INFO( main_logger, "Selected " << domain_activity_tracks.size()
+            << " in activity domain " << activity_domain_arg() );
+
+  if (! track_kpf_activity_type::apply( domain_activity_tracks,
+                                        input_geom_tracks ))
   {
     LOG_ERROR( main_logger, "Couldn't apply activity to geometry" );
     return EXIT_FAILURE;
   }
 
 
-  LOG_INFO( main_logger, "Generated " << activity_tracks.size() << " activity tracks" );
+  LOG_INFO( main_logger, "Generated " << domain_activity_tracks.size() << " activity tracks" );
 
   {
     string geom_out_fn = output_prefix_arg()+".geom.yml";
@@ -101,8 +108,8 @@ int main( int argc, char *argv[] )
   }
 
   {
-    string act_out_fn = output_prefix_arg()+".activity.yml";
-    bool okay = track_filter_kpf_activity::write( act_out_fn, activity_tracks );
+    string act_out_fn = output_prefix_arg()+".activities.yml";
+    bool okay = file_format_manager::get_format( TF_KPF_ACT )->write( act_out_fn, domain_activity_tracks );
     LOG_INFO( main_logger, "Wrote KPF activity to " << act_out_fn << " success: " << okay );
   }
 }
