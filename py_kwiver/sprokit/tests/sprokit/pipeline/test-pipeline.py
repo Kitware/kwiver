@@ -31,14 +31,14 @@
 
 def test_import():
     try:
-        import sprokit.pipeline.pipeline
+        import kwiver.sprokit.pipeline.pipeline
     except:
         test_error("Failed to import the pipeline module")
 
 
 def test_create():
-    from vital.config import config
-    from sprokit.pipeline import pipeline
+    from kwiver.vital.config import config
+    from kwiver.sprokit.pipeline import pipeline
 
     c = config.empty_config()
 
@@ -47,13 +47,13 @@ def test_create():
 
 
 def test_api_calls():
-    from vital.config import config
-    from sprokit.pipeline import edge
-    from vital.modules import modules
-    from sprokit.pipeline import pipeline
-    from sprokit.pipeline import process
-    from sprokit.pipeline import process_cluster
-    from sprokit.pipeline import process_factory
+    from kwiver.vital.config import config
+    from kwiver.sprokit.pipeline import edge
+    from kwiver.vital.modules import modules
+    from kwiver.sprokit.pipeline import pipeline
+    from kwiver.sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import process_cluster
+    from kwiver.sprokit.pipeline import process_factory
 
     p = pipeline.Pipeline()
 
@@ -142,6 +142,6 @@ if __name__ == '__main__':
 
     sys.path.append(sys.argv[3])
 
-    from sprokit.test.test import *
+    from kwiver.sprokit.util.test import *
 
     run_test(testname, find_tests(locals()))
