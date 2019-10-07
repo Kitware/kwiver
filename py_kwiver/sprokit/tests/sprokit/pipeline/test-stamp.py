@@ -31,19 +31,19 @@
 
 def test_import():
     try:
-        import sprokit.pipeline.stamp
+        import kwiver.sprokit.pipeline.stamp
     except:
         test_error("Failed to import the stamp module")
 
 
 def test_create():
-    from sprokit.pipeline import stamp
+    from kwiver.sprokit.pipeline import stamp
 
     stamp.new_stamp(1)
 
 
 def test_api_calls():
-    from sprokit.pipeline import stamp
+    from kwiver.sprokit.pipeline import stamp
 
     s = stamp.new_stamp(1)
     si = stamp.incremented_stamp(s)
@@ -76,6 +76,6 @@ if __name__ == '__main__':
 
     sys.path.append(sys.argv[3])
 
-    from sprokit.test.test import *
+    from kwiver.sprokit.util.test import *
 
     run_test(testname, find_tests(locals()))
