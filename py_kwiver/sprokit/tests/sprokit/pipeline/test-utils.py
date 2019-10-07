@@ -31,13 +31,13 @@
 
 def test_import():
     try:
-        import sprokit.pipeline.utils
+        import kwiver.sprokit.pipeline.utils
     except:
         test_error("Failed to import the utils module")
 
 
 def test_name_thread():
-    from sprokit.pipeline import utils
+    from kwiver.sprokit.pipeline import utils
 
     utils.name_thread("a_name")
 
@@ -56,6 +56,6 @@ if __name__ == '__main__':
 
     sys.path.append(sys.argv[3])
 
-    from sprokit.test.test import *
+    from kwiver.sprokit.util.test import *
 
     run_test(testname, find_tests(locals()))

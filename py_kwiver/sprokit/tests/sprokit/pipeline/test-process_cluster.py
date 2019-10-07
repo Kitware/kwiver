@@ -31,17 +31,17 @@
 
 def test_import():
     try:
-        import vital.config.config
-        import sprokit.pipeline.process
-        import sprokit.pipeline.process_cluster
+        import kwiver.vital.config
+        import kwiver.sprokit.pipeline.process
+        import kwiver.sprokit.pipeline.process_cluster
     except:
         test_error("Failed to import the process_cluster module")
 
 
 def test_api_calls():
-    from vital.config import config
-    from sprokit.pipeline import process
-    from sprokit.pipeline import process_cluster
+    from kwiver.vital.config import config
+    from kwiver.sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import process_cluster
 
     process_cluster.PythonProcessCluster.property_no_threads
     process_cluster.PythonProcessCluster.property_no_reentrancy
@@ -84,6 +84,6 @@ if __name__ == '__main__':
 
     sys.path.append(sys.argv[3])
 
-    from sprokit.test.test import *
+    from kwiver.sprokit.util.test import *
 
     run_test(testname, find_tests(locals()))

@@ -31,7 +31,7 @@
 cpp_scheds = ["sync","thread_per_process"] # One shop stop if we add any more c++ schedulers to the tests
 
 def make_source(conf):
-    from sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import process
 
     class Source(process.PythonProcess):
         def __init__(self, conf):
@@ -57,7 +57,7 @@ def make_source(conf):
             self._base_configure()
 
         def _step(self):
-            from sprokit.pipeline import datum
+            from kwiver.sprokit.pipeline import datum
 
             if self.counter >= self.end:
                 self.mark_process_as_complete()
@@ -74,7 +74,7 @@ def make_source(conf):
 
 
 def make_sink(conf):
-    from sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import process
 
     class Sink(process.PythonProcess):
         def __init__(self, conf):
@@ -99,7 +99,7 @@ def make_sink(conf):
             self._base_configure()
 
         def _step(self):
-            from sprokit.pipeline import datum
+            from kwiver.sprokit.pipeline import datum
 
             num = self.grab_value_from_port(self.port_input)
 
@@ -112,8 +112,8 @@ def make_sink(conf):
 
 
 def create_process(type, name, conf):
-    from vital.modules import modules
-    from sprokit.pipeline import process_factory
+    from kwiver.vital.modules import modules
+    from kwiver.sprokit.pipeline import process_factory
 
     modules.load_known_modules()
 
@@ -123,9 +123,9 @@ def create_process(type, name, conf):
 
 
 def run_pipeline(sched_type, pipe, conf):
-    from vital.config import config
-    from vital.modules import modules
-    from sprokit.pipeline import scheduler_factory
+    from kwiver.vital.config import config
+    from kwiver.vital.modules import modules
+    from kwiver.sprokit.pipeline import scheduler_factory
     import sys
 
     modules.load_known_modules()
@@ -166,9 +166,9 @@ def check_file(fname, expect):
 
 
 def test_python_to_python(sched_type):
-    from vital.config import config
-    from sprokit.pipeline import pipeline
-    from sprokit.pipeline import process
+    from kwiver.vital.config import config
+    from kwiver.sprokit.pipeline import pipeline
+    from kwiver.sprokit.pipeline import process
 
     name_source = 'source'
     name_sink = 'sink'
@@ -211,9 +211,9 @@ def test_python_to_python(sched_type):
 
 
 def test_cpp_to_python(sched_type):
-    from vital.config import config
-    from sprokit.pipeline import pipeline
-    from sprokit.pipeline import process
+    from kwiver.vital.config import config
+    from kwiver.sprokit.pipeline import pipeline
+    from kwiver.sprokit.pipeline import process
 
     name_source = 'source'
     name_sink = 'sink'
@@ -255,9 +255,9 @@ def test_cpp_to_python(sched_type):
 
 
 def test_python_to_cpp(sched_type):
-    from vital.config import config
-    from sprokit.pipeline import pipeline
-    from sprokit.pipeline import process
+    from kwiver.vital.config import config
+    from kwiver.sprokit.pipeline import pipeline
+    from kwiver.sprokit.pipeline import process
 
     name_source = 'source'
     name_sink = 'sink'
@@ -299,9 +299,9 @@ def test_python_to_cpp(sched_type):
 
 
 def test_python_via_cpp(sched_type):
-    from vital.config import config
-    from sprokit.pipeline import pipeline
-    from sprokit.pipeline import process
+    from kwiver.vital.config import config
+    from kwiver.sprokit.pipeline import pipeline
+    from kwiver.sprokit.pipeline import process
 
     name_source1 = 'source1'
     name_source2 = 'source2'
@@ -386,6 +386,6 @@ if __name__ == '__main__':
 
     sys.path.append(sys.argv[3])
 
-    from sprokit.test.test import *
+    from kwiver.sprokit.util.test import *
 
     run_test(testname, find_tests(locals()), sched_type)

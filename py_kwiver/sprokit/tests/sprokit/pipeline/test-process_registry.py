@@ -31,17 +31,17 @@
 
 def test_import():
     try:
-        from vital.config import config
-        import sprokit.pipeline.process_factory
+        from kwiver.vital.config import config
+        import kwiver.sprokit.pipeline.process_factory
     except:
         test_error("Failed to import the process_factory module")
 
 
 def test_api_calls():
-    from vital.config import config
-    from vital.modules import modules
-    from sprokit.pipeline import process
-    from sprokit.pipeline import process_factory
+    from kwiver.vital.config import config
+    from kwiver.vital.modules import modules
+    from kwiver.sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import process_factory
 
     modules.load_known_modules()
 
@@ -72,7 +72,7 @@ def test_api_calls():
 
 
 def example_process(check_init):
-    from sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import process
 
     class PythonExample(process.PythonProcess):
         def __init__(self, conf):
@@ -198,7 +198,7 @@ def example_process(check_init):
 
 
 def base_example_process():
-    from sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import process
 
     class PythonBaseExample(process.PythonProcess):
         def __init__(self, conf):
@@ -211,8 +211,8 @@ def base_example_process():
 
 
 def base_example_process_cluster():
-    from sprokit.pipeline import process
-    from sprokit.pipeline import process_cluster
+    from kwiver.sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import process_cluster
 
     class PythonBaseClusterExample(process_cluster.PythonProcessCluster):
         def __init__(self, conf):
@@ -225,9 +225,9 @@ def base_example_process_cluster():
 
 
 def test_register():
-    from vital.config import config
-    from sprokit.pipeline import process
-    from sprokit.pipeline import process_factory
+    from kwiver.vital.config import config
+    from kwiver.sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import process_factory
 
     proc_type = 'python_example'
     proc_desc = 'simple description'
@@ -246,10 +246,10 @@ def test_register():
 
 
 def test_register_cluster():
-    from vital.config import config
-    from sprokit.pipeline import process
-    from sprokit.pipeline import process_cluster
-    from sprokit.pipeline import process_factory
+    from kwiver.vital.config import config
+    from kwiver.sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import process_cluster
+    from kwiver.sprokit.pipeline import process_factory
 
     proc_type = 'python_example'
     proc_desc = 'simple description'
@@ -277,10 +277,10 @@ def test_register_cluster():
 
 
 def test_wrapper_api():
-    from vital.config import config
-    from sprokit.pipeline import edge
-    from sprokit.pipeline import process
-    from sprokit.pipeline import process_factory
+    from kwiver.vital.config import config
+    from kwiver.sprokit.pipeline import edge
+    from kwiver.sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import process_factory
 
     proc_type = 'python_example'
     proc_desc = 'simple description'
@@ -365,6 +365,6 @@ if __name__ == '__main__':
 
     sys.path.append(sys.argv[3])
 
-    from sprokit.test.test import *
+    from kwiver.sprokit.util.test import *
 
     run_test(testname, find_tests(locals()))
