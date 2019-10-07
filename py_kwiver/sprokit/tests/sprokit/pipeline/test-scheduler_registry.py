@@ -31,17 +31,17 @@
 
 def test_import():
     try:
-        from vital.config import config
-        import sprokit.pipeline.scheduler_factory
+        from kwiver.vital.config import config
+        import kwiver.sprokit.pipeline.scheduler_factory
     except:
         test_error("Failed to import the scheduler_factory module")
 
 
 def test_api_calls():
-    from vital.config import config
-    from vital.modules import modules
-    from sprokit.pipeline import pipeline
-    from sprokit.pipeline import scheduler_factory
+    from kwiver.vital.config import config
+    from kwiver.vital.modules import modules
+    from kwiver.sprokit.pipeline import pipeline
+    from kwiver.sprokit.pipeline import scheduler_factory
 
     modules.load_known_modules()
 
@@ -57,7 +57,7 @@ def test_api_calls():
 
 
 def example_scheduler(check_init):
-    from sprokit.pipeline import scheduler
+    from kwiver.sprokit.pipeline import scheduler
 
     class PythonExample(scheduler.PythonScheduler):
         def __init__(self, pipe, conf):
@@ -100,10 +100,10 @@ def example_scheduler(check_init):
 
 
 def test_register():
-    from vital.config import config
-    from vital.modules import modules
-    from sprokit.pipeline import pipeline
-    from sprokit.pipeline import scheduler_factory
+    from kwiver.vital.config import config
+    from kwiver.vital.modules import modules
+    from kwiver.sprokit.pipeline import pipeline
+    from kwiver.sprokit.pipeline import scheduler_factory
 
     modules.load_known_modules()
 
@@ -126,11 +126,11 @@ def test_register():
 
 
 def test_wrapper_api():
-    from vital.config import config
-    from vital.modules import modules
-    from sprokit.pipeline import pipeline
-    from sprokit.pipeline import process_factory
-    from sprokit.pipeline import scheduler_factory
+    from kwiver.vital.config import config
+    from kwiver.vital.modules import modules
+    from kwiver.sprokit.pipeline import pipeline
+    from kwiver.sprokit.pipeline import process_factory
+    from kwiver.sprokit.pipeline import scheduler_factory
 
     sched_type = 'python_example'
     sched_desc = 'simple description'
@@ -183,6 +183,6 @@ if __name__ == '__main__':
 
     sys.path.append(sys.argv[3])
 
-    from sprokit.test.test import *
+    from kwiver.sprokit.util.test import *
 
     run_test(testname, find_tests(locals()))

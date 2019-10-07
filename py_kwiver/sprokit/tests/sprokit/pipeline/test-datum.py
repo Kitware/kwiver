@@ -31,13 +31,13 @@
 
 def test_import():
     try:
-        import sprokit.pipeline.datum
+        import kwiver.sprokit.pipeline.datum
     except:
         test_error("Failed to import the datum module")
 
 
 def test_new():
-    from sprokit.pipeline import datum
+    from  kwiver.sprokit.pipeline import datum
 
     d = datum.new('test_datum')
 
@@ -54,7 +54,7 @@ def test_new():
 
 
 def test_empty():
-    from sprokit.pipeline import datum
+    from  kwiver.sprokit.pipeline import datum
 
     d = datum.empty()
 
@@ -71,7 +71,7 @@ def test_empty():
 
 
 def test_flush():
-    from sprokit.pipeline import datum
+    from  kwiver.sprokit.pipeline import datum
 
     d = datum.flush()
 
@@ -88,7 +88,7 @@ def test_flush():
 
 
 def test_complete():
-    from sprokit.pipeline import datum
+    from  kwiver.sprokit.pipeline import datum
 
     d = datum.complete()
 
@@ -105,7 +105,7 @@ def test_complete():
 
 
 def test_error_():
-    from sprokit.pipeline import datum
+    from  kwiver.sprokit.pipeline import datum
 
     err = 'An error'
 
@@ -137,6 +137,6 @@ if __name__ == '__main__':
 
     sys.path.append(sys.argv[3])
 
-    from sprokit.test.test import *
+    from kwiver.sprokit.util.test import *
 
     run_test(testname, find_tests(locals()))

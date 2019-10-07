@@ -31,7 +31,7 @@
 
 def test_import():
     try:
-        import sprokit.pipeline.scheduler
+        import kwiver.sprokit.pipeline.scheduler
     except:
         test_error("Failed to import the scheduler module")
 
@@ -50,6 +50,6 @@ if __name__ == '__main__':
 
     sys.path.append(sys.argv[3])
 
-    from sprokit.test.test import *
+    from kwiver.sprokit.util.test import *
 
     run_test(testname, find_tests(locals()))
