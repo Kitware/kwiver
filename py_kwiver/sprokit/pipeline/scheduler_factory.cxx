@@ -144,7 +144,7 @@ PYBIND11_MODULE(scheduler_factory, m)
   m.def("default_type", &get_default_type, call_guard<kwiver::vital::python::gil_scoped_release>()
       , "The default scheduler type.");
 
-  m.attr("Scheduler") = m.import("sprokit.pipeline.scheduler").attr("PythonScheduler");
+  m.attr("Scheduler") = m.import("kwiver.sprokit.pipeline.scheduler").attr("PythonScheduler");
 
 }
 
