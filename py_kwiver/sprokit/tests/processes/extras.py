@@ -1,5 +1,5 @@
 #ckwg +28
-# Copyright 2012 by Kitware, Inc.
+# Copyright 2012-2016 by Kitware, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,5 +28,24 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from pkgutil import extend_path
-__path__ = extend_path(__path__, __name__)
+from kwiver.sprokit.pipeline import process
+
+
+class TestPythonProcess(process.PythonProcess):
+    def __init__(self, conf):
+        process.PythonProcess.__init__(self, conf)
+
+
+def __sprokit_register__():
+    from kwiver.sprokit.pipeline import process_factory
+
+    module_name = 'python:test.python.extras'
+
+    if process_factory.is_process_module_loaded(module_name):
+        return
+
+    process_factory.add_process('extra_test_python_process',
+                                'An extra test Python process',
+                                TestPythonProcess)
+
+    process_factory.mark_process_module_as_loaded(module_name)
