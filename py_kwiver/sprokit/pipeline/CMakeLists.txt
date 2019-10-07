@@ -84,17 +84,5 @@ target_link_libraries(python-sprokit.pipeline-version
                       vital_python_util)
 
 kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
-                         sprokit/pipeline
-                         __init__)
-
-#kwiver_create_python_init(sprokit/pipeline
-#  datum
-#  edge
-#  pipeline
-#  process
-#  process_factory
-#  scheduler
-#  scheduler_factory
-#  stamp
-#  utils
-#  version)
+  sprokit/pipeline
+  __init__)
