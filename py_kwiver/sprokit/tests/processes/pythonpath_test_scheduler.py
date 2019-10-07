@@ -1,5 +1,5 @@
 #ckwg +28
-# Copyright 2012-2016 by Kitware, Inc.
+# Copyright 2012 by Kitware, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,18 +28,23 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from sprokit.processes.test import examples
+from kwiver.sprokit.pipeline import pipeline
+from kwiver.sprokit.pipeline import scheduler
+
+
+class TestPythonScheduler(scheduler.PythonScheduler):
+    def __init__(self, conf, pipe):
+        scheduler.PythonScheduler.__init__(self, conf, pipe)
 
 
 def __sprokit_register__():
-    from sprokit.pipeline import process_factory
+    from kwiver.sprokit.pipeline import scheduler_factory
 
-    module_name = 'python:test.examples'
+    module_name = 'python:test.pythonpath.scheduler_test'
 
-    if process_factory.is_process_module_loaded(module_name):
+    if scheduler_factory.is_scheduler_module_loaded(module_name):
         return
 
-    process_factory.add_process('test_python_process', 'A test Python process', examples.TestPythonProcess)
-    process_factory.add_process('pyprint_number', 'A Python process which prints numbers', examples.PythonPrintNumberProcess)
+    scheduler_factory.add_scheduler('pythonpath_test_scheduler', 'A test scheduler.', TestPythonScheduler)
 
-    process_factory.mark_process_module_as_loaded(module_name)
+    scheduler_factory.mark_scheduler_module_as_loaded(module_name)
