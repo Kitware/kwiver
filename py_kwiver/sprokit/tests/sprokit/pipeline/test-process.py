@@ -31,14 +31,14 @@
 
 def test_import():
     try:
-        import sprokit.pipeline.process
+        import kwiver.sprokit.pipeline.process
     except:
         test_error("Failed to import the process module")
 
 
 def test_create():
-    from sprokit.pipeline import datum
-    from sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import datum
+    from kwiver.sprokit.pipeline import process
 
     process.ProcessTypes()
     process.ProcessNames()
@@ -60,8 +60,8 @@ def test_create():
 
 
 def test_api_calls():
-    from sprokit.pipeline import datum
-    from sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import datum
+    from kwiver.sprokit.pipeline import process
 
     a = process.PortAddr()
     a.process
@@ -106,7 +106,7 @@ def test_api_calls():
 
 
 def test_flags_as_set():
-    from sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import process
 
     # TODO: Make tests more rigorous (check more than just len()).
 
@@ -249,11 +249,11 @@ def test_peek_at_datum_on_port():
     """
     Test peek at datum on a test port with complete datum
     """
-    from sprokit.pipeline import process
-    from sprokit.pipeline import datum, DatumType
-    from vital.config import config
-    from sprokit.pipeline import edge
-    from sprokit.pipeline import stamp
+    from kwiver.sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import datum, DatumType
+    from kwiver.vital.config import config
+    from kwiver.sprokit.pipeline import edge
+    from kwiver.sprokit.pipeline import stamp
     cfg = config.empty_config()
     # Create Dummy Receiver process
     receiver_proc = process.PythonProcess(cfg)
@@ -284,6 +284,6 @@ if __name__ == '__main__':
 
     sys.path.append(sys.argv[3])
 
-    from sprokit.test.test import *
+    from kwiver.sprokit.util.test import *
 
     run_test(testname, find_tests(locals()))
