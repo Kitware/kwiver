@@ -74,7 +74,7 @@ function (kwiver_add_python_test group instance)
   endif ()
 
   kwiver_add_test(python-${group} ${instance}
-    "${python_chdir}" "${python_module_path}")
+    "${python_chdir}" "${python_module_path}" ${ARGN})
 endfunction ()
 
 
