@@ -127,7 +127,7 @@ class PyThreadPerProcessScheduler(scheduler.PythonScheduler):
 
 
 def __sprokit_register__():
-    from sprokit.pipeline import scheduler_factory
+    from kwiver.sprokit.pipeline import scheduler_factory
 
     module_name = 'python:schedulers'
 
