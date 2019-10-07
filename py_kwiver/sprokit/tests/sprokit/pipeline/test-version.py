@@ -31,13 +31,13 @@
 
 def test_import():
     try:
-        import sprokit.pipeline.version
+        import kwiver.sprokit.pipeline.version
     except:
         test_error("Failed to import the version module")
 
 
 def test_api_calls():
-    from sprokit.pipeline import version
+    from kwiver.sprokit.pipeline import version
 
     version.compile.major
     version.compile.minor
@@ -74,6 +74,6 @@ if __name__ == '__main__':
 
     sys.path.append(sys.argv[3])
 
-    from sprokit.test.test import *
+    from kwiver.sprokit.util.test import *
 
     run_test(testname, find_tests(locals()))

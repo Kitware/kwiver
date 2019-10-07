@@ -31,14 +31,14 @@
 
 def test_import():
     try:
-        import sprokit.pipeline.edge
+        import kwiver.sprokit.pipeline.edge
     except:
         test_error("Failed to import the edge module")
 
 
 def test_create():
-    from vital.config import config
-    from sprokit.pipeline import edge
+    from kwiver.vital.config import config
+    from kwiver.sprokit.pipeline import edge
 
     c = config.empty_config()
 
@@ -48,9 +48,9 @@ def test_create():
 
 
 def test_datum_create():
-    from sprokit.pipeline import datum
-    from sprokit.pipeline import edge
-    from sprokit.pipeline import stamp
+    from kwiver.sprokit.pipeline import datum
+    from kwiver.sprokit.pipeline import edge
+    from kwiver.sprokit.pipeline import stamp
 
     d = datum.complete()
     s = stamp.new_stamp(1)
@@ -61,13 +61,13 @@ def test_datum_create():
 
 
 def test_api_calls():
-    from vital.config import config
-    from sprokit.pipeline import datum
-    from sprokit.pipeline import edge
-    from vital.modules import modules
-    from sprokit.pipeline import process
-    from sprokit.pipeline import process_factory
-    from sprokit.pipeline import stamp
+    from kwiver.vital.config import config
+    from kwiver.sprokit.pipeline import datum
+    from kwiver.sprokit.pipeline import edge
+    from kwiver.vital.modules import modules
+    from kwiver.sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import process_factory
+    from kwiver.sprokit.pipeline import stamp
 
     e = edge.Edge()
 
@@ -103,9 +103,9 @@ def test_api_calls():
 
 
 def test_datum_api_calls():
-    from sprokit.pipeline import datum
-    from sprokit.pipeline import edge
-    from sprokit.pipeline import stamp
+    from kwiver.sprokit.pipeline import datum
+    from kwiver.sprokit.pipeline import edge
+    from kwiver.sprokit.pipeline import stamp
 
     d = datum.complete()
     s = stamp.new_stamp(1)
@@ -132,6 +132,6 @@ if __name__ == '__main__':
 
     sys.path.append(sys.argv[3])
 
-    from sprokit.test.test import *
+    from kwiver.sprokit.util.test import *
 
     run_test(testname, find_tests(locals()))
