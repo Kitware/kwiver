@@ -21,6 +21,6 @@ else ()
 endif ()
 
 add_subdirectory(test)
-
 add_subdirectory(sprokit)
 add_subdirectory(modules)
+add_subdirectory(processes)
