@@ -159,8 +159,8 @@ PYBIND11_MODULE(process_factory, m)
   m.def("types", &process_names, call_guard<kwiver::vital::python::gil_scoped_release>()
        , "Returns list of process names" );
 
-  m.attr("Process") = m.import("sprokit.pipeline.process").attr("PythonProcess");
-  m.attr("ProcessCluster") = m.import("sprokit.pipeline.process_cluster").attr("PythonProcessCluster");
+  m.attr("Process") = m.import("kwiver.sprokit.pipeline.process").attr("PythonProcess");
+  m.attr("ProcessCluster") = m.import("kwiver.sprokit.pipeline.process_cluster").attr("PythonProcessCluster");
 
 }
 
