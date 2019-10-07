@@ -31,13 +31,13 @@
 
 def test_import(path_unused):
     try:
-        import sprokit.pipeline_util.load
+        import kwiver.sprokit.pipeline_util.load
     except:
         test_error("Failed to import the load module")
 
 
 def test_create(path_unused):
-    from sprokit.pipeline_util import load
+    from kwiver.sprokit.pipeline_util import load
 
     load.ConfigFlags()
     load.ConfigValue()
@@ -58,10 +58,10 @@ def test_create(path_unused):
 
 
 def test_api_calls(path_unused):
-    from sprokit.pipeline import config
-    from sprokit.pipeline import process
-    from sprokit.pipeline import process_factory
-    from sprokit.pipeline_util import load
+    from kwiver.vital import config
+    from kwiver.sprokit.pipeline import process
+    from kwiver.sprokit.pipeline import process_factory
+    from kwiver.sprokit.pipeline_util import load
 
     o = load.ConfigValue()
     o.key
@@ -188,7 +188,7 @@ def test_api_calls(path_unused):
 
 
 def test_simple_pipeline(path):
-    from sprokit.pipeline_util import load
+    from kwiver.sprokit.pipeline_util import load
 
     blocks = load.load_pipe_file(path)
     with open(path, 'r') as fin:
@@ -196,7 +196,7 @@ def test_simple_pipeline(path):
 
 
 def test_cluster_multiplier(path):
-    from sprokit.pipeline_util import load
+    from kwiver.sprokit.pipeline_util import load
 
     blocks = load.load_cluster_file(path)
     with open(path, 'r') as fin:
@@ -219,8 +219,8 @@ if __name__ == '__main__':
 
     pipeline_dir = sys.argv[4]
 
-    path = os.path.join(pipeline_dir, '%s.pipe' % testname)
+    path = os.path.join(pipeline_dir, '{0}.pipe'.foramt(testname))
 
-    from sprokit.test.test import *
+    from kwiver.sprokit.util.test import test_error
 
     run_test(testname, find_tests(locals()), path)

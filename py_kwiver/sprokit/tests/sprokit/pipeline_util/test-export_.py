@@ -31,7 +31,7 @@
 
 def test_import(path_unused):
     try:
-        import sprokit.pipeline_util.export_
+        import kwiver.sprokit.pipeline_util.export_
     except:
         test_error("Failed to import the export_ module")
 
@@ -39,10 +39,10 @@ def test_import(path_unused):
 def test_simple_pipeline(path):
     import os
 
-    from sprokit.pipeline import pipeline
-    from vital.modules import modules
-    from sprokit.pipeline_util import bake
-    from sprokit.pipeline_util import export_
+    from kwiver.sprokit.pipeline import pipeline
+    from kwiver.vital.modules import modules
+    from kwiver.sprokit.pipeline_util import bake
+    from kwiver.sprokit.pipeline_util import export_
 
     modules.load_known_modules()
 
@@ -79,6 +79,6 @@ if __name__ == '__main__':
 
     path = os.path.join(pipeline_dir, '%s.pipe' % testname)
 
-    from sprokit.test.test import *
+    from sprokit.test.util import *
 
     run_test(testname, find_tests(locals()), path)
