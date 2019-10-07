@@ -28,7 +28,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from sprokit.pipeline import process
+from kwiver.sprokit.pipeline import process
 
 
 class TestPythonProcess(process.PythonProcess):
@@ -36,45 +36,14 @@ class TestPythonProcess(process.PythonProcess):
         process.PythonProcess.__init__(self, conf)
 
 
-class PythonPrintNumberProcess(process.PythonProcess):
-    def __init__(self, conf):
-        process.PythonProcess.__init__(self, conf)
+def __sprokit_register__():
+    from kwiver.sprokit.pipeline import process_factory
 
-        self.declare_configuration_key(
-            'output',
-            '',
-            'The path of the file to output to.')
+    module_name = 'python:test.pythonpath.process_test'
 
-        flags = process.PortFlags()
+    if process_factory.is_process_module_loaded(module_name):
+        return
 
-        flags.add(self.flag_required)
+    process_factory.add_process('pythonpath_test_process', 'A test process.', TestPythonProcess)
 
-        self.declare_input_port(
-            'input',
-            'integer',
-            flags,
-            'Where numbers are read from.')
-
-    def _configure(self):
-        path = self.config_value('output')
-
-        if not path:
-            raise RuntimeError('The path given was empty')
-
-        self.fout = open(path, 'w+')
-        self.fout.flush()
-
-        self._base_configure()
-
-    def _reset(self):
-        self.fout.close()
-
-        self._base_reset()
-
-    def _step(self):
-        num = self.grab_value_from_port('input')
-
-        self.fout.write('%d\n' % num)
-        self.fout.flush()
-
-        self._base_step()
+    process_factory.mark_process_module_as_loaded(module_name)
