@@ -31,14 +31,15 @@
 
 def test_import():
     try:
-        import vital.modules.modules
+        import kwiver.vital.modules.modules
     except:
         test_error("Failed to import the modules module")
 
 
+# TEST_PROPERTY(ENVIRONMENT, SPROKIT_PYTHON_MODULES=kwiver.sprokit.tests.processes)
 def test_load():
-    from vital.modules import modules
-    from sprokit.pipeline import process_factory
+    from kwiver.vital.modules import modules
+    from kwiver.sprokit.pipeline import process_factory
 
     modules.load_known_modules()
 
@@ -50,8 +51,8 @@ def test_load():
 
 # TEST_PROPERTY(ENVIRONMENT, SPROKIT_NO_PYTHON_MODULES=)
 def test_masking():
-    from vital.modules import modules
-    from sprokit.pipeline import process_factory
+    from kwiver.vital.modules import modules
+    from kwiver.sprokit.pipeline import process_factory
 
     modules.load_known_modules()
 
@@ -61,10 +62,10 @@ def test_masking():
         test_error("Failed to mask out Python processes")
 
 
-# TEST_PROPERTY(ENVIRONMENT, SPROKIT_PYTHON_MODULES=sprokit.test.python.modules)
+# TEST_PROPERTY(ENVIRONMENT, SPROKIT_PYTHON_MODULES=kwiver.sprokit.tests.processes)
 def test_extra_modules():
-    from vital.modules import modules
-    from sprokit.pipeline import process_factory
+    from kwiver.vital.modules import modules
+    from kwiver.sprokit.pipeline import process_factory
 
     modules.load_known_modules()
 
@@ -73,24 +74,6 @@ def test_extra_modules():
     if 'extra_test_python_process' not in types:
         test_error("Failed to load extra Python processes")
 
-
-# TEST_PROPERTY(ENVIRONMENT, PYTHONPATH=@CMAKE_CURRENT_SOURCE_DIR@)
-def test_pythonpath():
-    from vital.modules import modules
-    from sprokit.pipeline import process_factory
-    from sprokit.pipeline import scheduler_factory
-
-    modules.load_known_modules()
-
-    types = process_factory.types()
-
-    if 'pythonpath_test_process' not in types:
-        test_error("Failed to load extra Python processes accessible from PYTHONPATH")
-
-    types = scheduler_factory.types()
-
-    if 'pythonpath_test_scheduler' not in types:
-        test_error("Failed to load extra Python schedulers accessible from PYTHONPATH")
 
 
 if __name__ == '__main__':
@@ -107,6 +90,6 @@ if __name__ == '__main__':
 
     sys.path.append(sys.argv[3])
 
-    from sprokit.test.test import *
+    from kwiver.sprokit.util.test import *
 
     run_test(testname, find_tests(locals()))
