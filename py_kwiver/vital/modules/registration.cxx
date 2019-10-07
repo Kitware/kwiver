@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <vital/modules/modules_python_export.h>
+#include <py_kwiver/vital/modules/modules_python_export.h>
 
 #if WIN32
 #pragma warning (push)
@@ -177,7 +177,7 @@ void _load_python_library_symbols()
 void
 load()
 {
-  py::object const modules = py::module::import("vital.modules.module_loader");
+  py::object const modules = py::module::import("kwiver.vital.modules.module_loader");
   py::object const loader = modules.attr("load_python_modules");
   loader();
 }
