@@ -136,8 +136,8 @@ endif()
 include( kwiver-utils )
 
 if (KWIVER_ENABLE_PYTHON)
-  kwiver_create_python_init(kwiver)
-
+  # Create an init for kwiver
+  kwiver_create_python_init("")
   if (NOT WIN32)
     OPTION(KWIVER_SYMLINK_PYTHON "Symlink python files instead of copying." OFF)
   endif()
@@ -266,6 +266,9 @@ if (KWIVER_ENABLE_TOOLS)
   add_subdirectory(tools)
 endif()
 
+if (KWIVER_ENABLE_PYTHON)
+  add_subdirectory(py_kwiver)
+endif()
 ###
 # include as the last subdir
 add_subdirectory( vital )
