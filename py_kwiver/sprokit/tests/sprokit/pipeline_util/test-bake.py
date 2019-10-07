@@ -27,21 +27,19 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
 def test_import(path_unused):
     try:
-        import sprokit.pipeline_util.bake
+        import kwiver.sprokit.pipeline_util.bake
     except:
         test_error("Failed to import the bake module")
 
 
 def test_simple_pipeline(path):
-    from vital.config import config
-    from sprokit.pipeline import pipeline
-    from vital.modules import modules
-    from sprokit.pipeline_util import bake
-    from sprokit.pipeline_util import load
+    from kwiver.vital import config
+    from kwiver.sprokit.pipeline import pipeline
+    from kwiver.vital.modules import modules
+    from kwiver.sprokit.pipeline_util import bake
+    from kwiver.sprokit.pipeline_util import load
 
     blocks = load.load_pipe_file(path)
 
@@ -55,11 +53,11 @@ def test_simple_pipeline(path):
 
 
 def test_cluster_multiplier(path):
-    from vital.config import config
-    from sprokit.pipeline import pipeline
-    from vital.modules import modules
-    from sprokit.pipeline_util import bake
-    from sprokit.pipeline_util import load
+    from kwiver.vital import config
+    from kwiver.sprokit.pipeline import pipeline
+    from kwiver.vital.modules import modules
+    from kwiver.sprokit.pipeline_util import bake
+    from kwiver.sprokit.pipeline_util import load
 
     blocks = load.load_cluster_file(path)
 
@@ -98,6 +96,6 @@ if __name__ == '__main__':
 
     path = os.path.join(pipeline_dir, '%s.pipe' % testname)
 
-    from sprokit.test.test import *
+    from kwiver.sprokit.util.test import *
 
     run_test(testname, find_tests(locals()), path)
