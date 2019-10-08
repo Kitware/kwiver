@@ -27,10 +27,10 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import print_function
-from sprokit.pipeline import process
+from kwiver.sprokit.pipeline import process
 from kwiver.kwiver_process import KwiverProcess
-from vital.util.VitalPIL import from_pil, get_pil_image
-from sprokit import sprokit_logging
+from kwiver.vital.util.VitalPIL import from_pil, get_pil_image
+from kwiver.sprokit import sprokit_logging
 
 logger = sprokit_logging.getLogger(__name__)
 
@@ -140,7 +140,7 @@ class ApplyDescriptor(KwiverProcess):
 
 # ==================================================================
 def __sprokit_register__():
-    from sprokit.pipeline import process_factory
+    from kwiver.sprokit.pipeline import process_factory
 
     module_name = 'python:kwiver.ApplyDescriptor'
 
