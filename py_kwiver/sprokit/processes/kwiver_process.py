@@ -36,8 +36,8 @@ Interface to KWIVER kwiver_process class.
 # -*- coding: utf-8 -*-
 
 
-from sprokit.pipeline import process
-from sprokit.pipeline import datum
+from kwiver.sprokit.pipeline import process
+from kwiver.sprokit.pipeline import datum
 
 # import kwiver_process_utils
 
