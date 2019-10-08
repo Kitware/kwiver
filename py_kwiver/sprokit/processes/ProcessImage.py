@@ -28,11 +28,11 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
-from sprokit.pipeline import process
+from kwiver.sprokit.pipeline import process
 from kwiver.kwiver_process import KwiverProcess
-from vital.types import Image
-from vital.types import ImageContainer
-from vital.util.VitalPIL import from_pil, get_pil_image
+from kwiver.vital.types import Image
+from kwiver.vital.types import ImageContainer
+from kwiver.vital.util.VitalPIL import from_pil, get_pil_image
 
 class ProcessImage(KwiverProcess):
     """
@@ -99,7 +99,7 @@ class ProcessImage(KwiverProcess):
 
 # ==================================================================
 def __sprokit_register__():
-    from sprokit.pipeline import process_factory
+    from kwiver.sprokit.pipeline import process_factory
 
     module_name = 'python:kwiver.ProcessImage'
 
