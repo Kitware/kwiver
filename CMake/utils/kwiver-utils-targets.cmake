@@ -108,6 +108,35 @@ function(_kwiver_validate_path_value op_path ip_path)
   set(${op_path} "${ip_path}" PARENT_SCOPE)
 endfunction()
 
+#+
+# Helper function to compute relative path of the root of a path
+#
+# _kwiver_path_to_root_from_lib_dir( path_to_root lib_dir )
+#
+# The first argument is a string that represents the relative path from a path
+# to root of the path. The second argument is a path
+#-
+function(_kwiver_path_to_root_from_lib_dir path_to_root lib_dir)
+  set(_path_to_root "")
+  if(NOT DEFINED lib_dir)
+    message(WARNING "Trying to determine root path for undefined variable ${lib_dir}")
+  else()
+    string(LENGTH "${lib_dir}" len_lib_dir)
+    if(${len_lib_dir} GREATER 0)
+        string(REPLACE "/" ";" library_dir_list ${lib_dir})
+        list(LENGTH library_dir_list len_library_dir_list)
+        if(CMAKE_VERSION VERSION_GREATER "3.15")
+          string(REPEAT "../" ${len_library_dir_list} path_to_root)
+        else()
+          foreach(_ RANGE 1 ${len_library_dir_list})
+            string(CONCAT _path_to_root "${_path_to_root}" "../")
+          endforeach()
+        endif()
+    endif()
+  endif()
+  set(${path_to_root} ${_path_to_root} PARENT_SCOPE)
+endfunction()
+
 # ------------------------------
 function(_kwiver_compile_pic name)
   message(STATUS "Adding PIC flag to target: ${name}")
