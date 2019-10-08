@@ -86,17 +86,26 @@ endfunction()
 #-
 function(_kwiver_check_and_set_library_dir)
   if(NOT DEFINED library_dir)
-    set(library_dir "lib" PARENT_SCOPE)
+    set(library_dir ${KWIVER_LIBRARY_DIR} PARENT_SCOPE)
   endif()
 endfunction()
 
 #+
-# Check and replace forward and trailing slashes in library_dir
+# Helper function to check and replace leading and trailing slashes in a path
+#
+# _kwiver_validate_path_value( op_path ip_path )
+#
+# The first argument is the path returned from the function without leading or
+# trailing slashes, the second argument is the input path which may or may not
+# have leading and trailing slashes
 #-
-function(_kwiver_validate_library_dir_value)
-  string(REGEX REPLACE "^/" "" library_dir "${library_dir}")
-  string(REGEX REPLACE "/$" "" library_dir "${library_dir}")
-  set(library_dir "${library_dir}" PARENT_SCOPE)
+function(_kwiver_validate_path_value op_path ip_path)
+  if(NOT DEFINED ip_path)
+    message(FATAL_ERROR, "Cannot validate undefined path ${ip_path}")
+  endif()
+  string(REGEX REPLACE "^/" "" ip_path "${ip_path}")
+  string(REGEX REPLACE "/$" "" ip_path "${ip_path}")
+  set(${op_path} "${ip_path}" PARENT_SCOPE)
 endfunction()
 
 # ------------------------------
