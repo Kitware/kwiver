@@ -10,6 +10,7 @@ kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/sprokit_logging.py
 add_subdirectory(pipeline)
 add_subdirectory(pipeline_util)
 add_subdirectory(schedulers)
+add_subdirectory(processes)
 
 if(NOT WIN32)
   add_subdirectory(util)
