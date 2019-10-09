@@ -213,6 +213,7 @@ namespace tracking {
   DEF_DT( time_stamp );
   DEF_DT( track_uuid );
   DEF_DT( track_style );
+  DEF_DT( object_labels );
 
 //
 // track_location I/O overrides

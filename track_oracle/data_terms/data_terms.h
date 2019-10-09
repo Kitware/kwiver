@@ -98,6 +98,7 @@ namespace tracking {
   DECL_DT_RW_STRXMLCSV( time_stamp, vital::timestamp, "timestamp (carries both time and framenumber); epoch is data-dependent" );
   DECL_DT_RW_STR( track_uuid, vital::uid, "UUID associated with the track" );
   DECL_DT( track_style, std::string, "track_style, typically indicating the source (tracker, detector, etc.)" );
+  DECL_DT( object_labels, decltype( std::map< std::string, double >{} ), "object classification labels and associated confidence scores" );
 
 } // ...tracking
 
