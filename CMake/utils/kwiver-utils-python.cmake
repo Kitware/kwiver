@@ -60,7 +60,8 @@ endmacro ()
 function (kwiver_add_python_library    name    modpath)
   _kwiver_create_safe_modpath("${modpath}" safe_modpath)
 
-  set(library_subdir "/${kwiver_python_subdir}/${python_sitename}/kwiver/${modpath}")
+  string(TOLOWER "${CMAKE_PROJECT_NAME}" project_name)
+  set(library_subdir "/${kwiver_python_subdir}/${python_sitename}/${project_name}/${modpath}")
   set(component runtime)
 
   set(no_export ON)
@@ -117,6 +118,7 @@ endfunction ()
 function (kwiver_add_python_module path     modpath    module)
   _kwiver_create_safe_modpath("${modpath}" safe_modpath)
 
+  string(TOLOWER "${CMAKE_PROJECT_NAME}" project_name)
   set(python_arch)
   set(python_noarchdir)
 
@@ -135,11 +137,11 @@ function (kwiver_add_python_module path     modpath    module)
     set(kwiver_configure_cmake_args
       "\"-Dconfig=${CMAKE_CFG_INTDIR}/\"")
     set(kwiver_configure_extra_dests
-      "${kwiver_python_output_path}/${python_noarchdir}\${config}/${python_sitename}/kwiver/${modpath}/${module}.py")
+      "${kwiver_python_output_path}/${python_noarchdir}\${config}/${python_sitename}/${project_name}/${modpath}/${module}.py")
   endif ()
 
   set(pyfile_src "${path}")
-  set(pyfile_dst "${kwiver_python_output_path}${python_noarchdir}/${python_sitename}/kwiver/${modpath}/${module}.py")
+  set(pyfile_dst "${kwiver_python_output_path}${python_noarchdir}/${python_sitename}/${project_name}/${modpath}/${module}.py")
 
   # copy and configure the source file into the binary directory
   if (KWIVER_SYMLINK_PYTHON)
@@ -157,7 +159,7 @@ function (kwiver_add_python_module path     modpath    module)
   # install the configured binary to the kwiver python install path
   kwiver_install(
     FILES       "${pyfile_dst}"
-    DESTINATION "${kwiver_python_install_path}/kwiver/${modpath}"
+    DESTINATION "${kwiver_python_install_path}/${project_name}/${modpath}"
     COMPONENT   runtime)
 
   add_dependencies(python
@@ -194,8 +196,8 @@ function (kwiver_create_python_init    modpath)
       set(python_arch u)
     endif ()
   endif ()
-
-  set (init_path "${kwiver_python_output_path}${python_noarchdir}/${python_sitename}/kwiver/${modpath}/__init__.py")
+  string(TOLOWER "${CMAKE_PROJECT_NAME}" project_name)
+  set (init_path "${kwiver_python_output_path}${python_noarchdir}/${python_sitename}/${project_name}/${modpath}/__init__.py")
 
   if (NOT EXISTS "${init_path}")
     if (NOT copyright_header)
@@ -226,6 +228,6 @@ function (kwiver_create_python_init    modpath)
   # Installation __init__
   kwiver_install(
     FILES       "${init_path}"
-    DESTINATION "${kwiver_python_install_path}/kwiver/${modpath}"
+    DESTINATION "${kwiver_python_install_path}/${project_name}/${modpath}"
     COMPONENT   runtime)
 endfunction ()
