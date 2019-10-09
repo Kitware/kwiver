@@ -34,7 +34,7 @@
 #include <sprokit/pipeline/scheduler.h>
 #include <sprokit/pipeline/stamp.h>
 
-#include <py_kwiver/vital/util/python_exceptions.h>
+#include <python/kwiver/vital/util/python_exceptions.h>
 
 #include <pybind11/pybind11.h>
 
