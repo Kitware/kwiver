@@ -67,6 +67,8 @@ Vital Bindings
  * Moved python bindings associated with config from sprokit.pipeline to
    vital.config.
 
+ * Remove ctypes python bindings
+
 Arrows
 
 Arrows: Core
