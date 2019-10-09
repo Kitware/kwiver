@@ -31,7 +31,7 @@
 #ifndef SPROKIT_PYTHON_UTIL_PYSTREAM_H
 #define SPROKIT_PYTHON_UTIL_PYSTREAM_H
 
-#include <py_kwiver/sprokit/util/sprokit_python_util_export.h>
+#include <python/kwiver/sprokit/util/sprokit_python_util_export.h>
 
 #include <boost/iostreams/concepts.hpp>
 #include <boost/iostreams/stream.hpp>

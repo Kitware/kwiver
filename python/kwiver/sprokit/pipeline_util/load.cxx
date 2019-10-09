@@ -34,12 +34,12 @@
 
 #include <sprokit/pipeline/process.h>
 
-#include <py_kwiver/vital/util/pybind11.h>
-#include <py_kwiver/sprokit/util/pystream.h>
+#include <python/kwiver/vital/util/pybind11.h>
+#include <python/kwiver/sprokit/util/pystream.h>
 
 #include <pybind11/stl_bind.h>
 
-#include <py_kwiver/sprokit/pipeline/python_wrappers.cxx>
+#include <python/kwiver/sprokit/pipeline/python_wrappers.cxx>
 
 #include <string>
 
