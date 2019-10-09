@@ -137,7 +137,6 @@ include( kwiver-utils )
 
 if (KWIVER_ENABLE_PYTHON)
   # Create an init for kwiver
-  kwiver_create_python_init("")
   if (NOT WIN32)
     OPTION(KWIVER_SYMLINK_PYTHON "Symlink python files instead of copying." OFF)
   endif()
