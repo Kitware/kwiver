@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <py_kwiver/vital/config/config.h>
+#include <python/kwiver/vital/config/config.h>
 #include <pybind11/pybind11.h>
 
 namespace py = pybind11;

@@ -35,8 +35,8 @@
  */
 
 #include <pybind11/pybind11.h>
-#include <py_kwiver/vital/types/image.h>
-#include <py_kwiver/vital/types/image_container.h>
+#include <python/kwiver/vital/types/image.h>
+#include <python/kwiver/vital/types/image_container.h>
 
 namespace py = pybind11;
 
