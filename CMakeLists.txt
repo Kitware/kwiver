@@ -267,7 +267,7 @@ if (KWIVER_ENABLE_TOOLS)
 endif()
 
 if (KWIVER_ENABLE_PYTHON)
-  add_subdirectory(py_kwiver)
+  add_subdirectory(python)
 endif()
 ###
 # include as the last subdir
