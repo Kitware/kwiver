@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,17 +61,17 @@ struct TRACK_KPF_ACTIVITY_EXPORT track_kpf_activity_type:
 {
 
   track_field< dt::events::event_id > activity_id;
-  track_field< kpf_cset_type >& activity_labels;
+  track_field< dt::events::event_labels > activity_labels;
   track_field< dt::events::kpf_activity_domain > activity_domain;
   track_field< dt::events::kpf_activity_start > activity_start;
   track_field< dt::events::kpf_activity_stop > activity_stop;
   track_field< dt::events::actor_intervals > actor_intervals;
   track_field< dt::events::actor_track_rows> actor_tracks; // filled in by apply()
 
-  track_kpf_activity_type():
-    activity_labels( Track.add_field< kpf_cset_type >( "kpf_activity_labels" ))
+  track_kpf_activity_type()
   {
     Track.add_field( activity_id );
+    Track.add_field( activity_labels );
     Track.add_field( activity_domain );
     Track.add_field( activity_start );
     Track.add_field( activity_stop );
