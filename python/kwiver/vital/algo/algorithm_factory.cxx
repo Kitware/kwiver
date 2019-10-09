@@ -41,7 +41,7 @@
 #include <pybind11/embed.h>
 #include <iostream>
 
-#include <py_kwiver/vital/util/pybind11.h>
+#include <python/kwiver/vital/util/pybind11.h>
 
 namespace py = pybind11;
 

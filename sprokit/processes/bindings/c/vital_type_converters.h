@@ -43,7 +43,7 @@
 #include <vital/bindings/c/types/image_container.h>
 #include <vital/bindings/c/types/track_set.h>
 
-#include <py_kwiver/vital/util/python.h>
+#include <python/kwiver/vital/util/python.h>
 
 #ifdef __cplusplus
 extern "C"

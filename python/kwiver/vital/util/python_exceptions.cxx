@@ -28,8 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <py_kwiver/vital/util/python.h>
-#include <py_kwiver/vital/util/python_exceptions.h>
+#include <python/kwiver/vital/util/python.h>
+#include <python/kwiver/vital/util/python_exceptions.h>
 
 namespace kwiver {
 namespace vital {
