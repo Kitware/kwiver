@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <py_kwiver/vital/modules/modules_python_export.h>
+#include <python/kwiver/vital/modules/modules_python_export.h>
 
 #if WIN32
 #pragma warning (push)
@@ -39,9 +39,9 @@
 #pragma warning (pop)
 #endif
 
-#include <py_kwiver/vital/util/pybind11.h>
-#include <py_kwiver/vital/util/python_exceptions.h>
-#include <py_kwiver/vital/util/python.h>
+#include <python/kwiver/vital/util/pybind11.h>
+#include <python/kwiver/vital/util/python_exceptions.h>
+#include <python/kwiver/vital/util/python.h>
 
 #include <vital/plugin_loader/plugin_loader.h>
 #include <kwiversys/SystemTools.hxx>
