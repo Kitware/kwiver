@@ -16,7 +16,9 @@ add_subdirectory( modules )
 add_subdirectory( algo )
 add_subdirectory( exceptions )
 add_subdirectory( types )
+
 if(KWIVER_ENABLE_TESTS)
   add_subdirectory( tests )
 endif()
+
 add_subdirectory( config )
