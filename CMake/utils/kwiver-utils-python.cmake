@@ -151,7 +151,7 @@ function (kwiver_add_python_module path     modpath    module)
 
   set(pyfile_src "${path}")
   if(SKBUILD)
-    set(pyfile_dst "${CMAKE_BINARY_DIR}/{modpath}/${module}.py")
+    set(pyfile_dst "${CMAKE_BINARY_DIR}/${modpath}/${module}.py")
     # installation path for this module
     set(pypkg_install_path "${CMAKE_INSTALL_PREFIX}/${modpath}")
   else()
