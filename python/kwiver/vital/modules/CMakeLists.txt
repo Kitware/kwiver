@@ -4,11 +4,6 @@ include_directories(${pybind11_INCLUDE_DIR})
 set(modules_python_srcs
   registration.cxx)
 
-set(python_noarch FALSE)
-kwiver_create_python_init(vital/modules)
-set(python_noarch TRUE)
-kwiver_create_python_init(vital/modules)
-set(python_noarch FALSE)
 
 
 if(UNIX)
@@ -34,6 +29,10 @@ kwiver_add_python_module("${CMAKE_CURRENT_SOURCE_DIR}/module_loader.py"
 kwiver_add_python_module("${CMAKE_CURRENT_SOURCE_DIR}/loaders.py"
   vital/modules
   loaders)
+
+kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
+                         vital/modules
+                         __init__)
 
 kwiver_add_python_library(modules
                           vital/modules
