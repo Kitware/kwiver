@@ -44,3 +44,7 @@ kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/find_python_library.py
 kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/entrypoint.py
                          vital/util
                          entrypoint)
+
+kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/initial_plugin_path.py
+                         vital/util
+                         initial_plugin_path)
