@@ -32,27 +32,56 @@
 
 #include <pybind11/pybind11.h>
 
+#include <algorithm>
 /**
  * \file module_loader.cxx
  *
  * \brief Python bindings for module loading.
  */
 
-using namespace pybind11;
+namespace py = pybind11;
 
 namespace kwiver {
 namespace vital {
 namespace python {
 
-//@todo Alternative is to provide C bindings for the plugin manager.
+const std::string get_initial_plugin_path()
+{
+  py::object const initial_plugin_path_module =
+    py::module::import("kwiver.vital.util.initial_plugin_path");
+  std::string const initial_plugin_path =
+    initial_plugin_path_module.attr("get_initial_plugin_path")().cast<std::string>();
+  return initial_plugin_path;
+}
 
+//@todo Alternative is to provide C bindings for the plugin manager.
 void load_known_modules()
 {
+  const std::string initial_plugin_path =
+                kwiver::vital::python::get_initial_plugin_path();
+  auto plugin_search_paths =
+                kwiver::vital::plugin_manager::instance().search_path();
+  if( std::find( plugin_search_paths.begin(),
+                 plugin_search_paths.end(),
+                 initial_plugin_path ) ==  plugin_search_paths.end() )
+  {
+    kwiver::vital::plugin_manager::instance().add_search_path( initial_plugin_path );
+  }
   kwiver::vital::plugin_manager::instance().load_all_plugins();
 }
 
 bool is_module_loaded(std::string module_name)
 {
+  const std::string initial_plugin_path =
+                kwiver::vital::python::get_initial_plugin_path();
+  auto plugin_search_paths =
+                kwiver::vital::plugin_manager::instance().search_path();
+  if( std::find( plugin_search_paths.begin(),
+                 plugin_search_paths.end(),
+                 initial_plugin_path ) ==  plugin_search_paths.end() )
+  {
+    kwiver::vital::plugin_manager::instance().add_search_path( initial_plugin_path );
+  }
   return kwiver::vital::plugin_manager::instance().is_module_loaded(module_name);
 }
 
