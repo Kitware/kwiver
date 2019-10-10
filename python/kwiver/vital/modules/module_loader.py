@@ -30,6 +30,7 @@
 
 from __future__ import print_function, absolute_import
 from kwiver.vital.modules import loaders
+from kwiver.vital.util.entrypoint import get_python_plugins_from_entrypoint
 from kwiver.vital import vital_logging
 
 logger = vital_logging.getLogger(__name__)
@@ -84,6 +85,8 @@ def load_python_modules():
     for package in packages:
         modules = loader.load(package)
         all_modules += modules
+
+    all_modules.extend(get_python_plugins_from_entrypoint())
 
     for module in all_modules:
         try:
