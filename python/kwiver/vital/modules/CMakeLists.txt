@@ -10,6 +10,16 @@ if(UNIX)
 endif()
 
 if (KWIVER_ENABLE_TOOLS)
+  kwiver_add_library(module_helpers_python
+                     module_helpers.h
+                     module_helpers.cxx)
+
+  target_link_libraries( module_helpers_python
+    PRIVATE              vital_python_util
+                         kwiversys
+                         ${${pybind11_library}}
+                         ${PYTHON_LIBRARIES}
+                       )
   kwiver_add_plugin( modules_python
     SUBDIR          ${kwiver_plugin_module_subdir}
     SOURCES         ${modules_python_srcs}
@@ -17,6 +27,7 @@ if (KWIVER_ENABLE_TOOLS)
                     kwiversys
                     vital_logger
                     vital_vpm
+                    module_helpers_python
                     ${${pybind11_library}}
                     ${PYTHON_LIBRARIES}
                     )
