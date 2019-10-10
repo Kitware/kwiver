@@ -20,6 +20,7 @@ target_link_libraries( python-vital.config-config
                        vital_config
                      )
 
-kwiver_create_python_init( vital/config
-  config
+kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
+                          vital/config
+                          __init__.py
 )
