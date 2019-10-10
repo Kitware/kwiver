@@ -59,14 +59,20 @@ setup(
                     '-DPYBIND11_PYTHON_VERSION=3',
                     '-DCMAKE_BUILD_WITH_INSTALL_RPATH=ON',
                     '-DKWIVER_ENABLE_SPROKIT=ON',
+                    '-DKWIVER_ENABLE_ARROWS=ON',
+                    '-DKWIVER_ENABLE_PROCESSES=ON',
                     '-DKWIVER_ENABLE_TOOLS=ON',
                     '-DKWIVER_ENABLE_LOG4CPLUS=ON',
                     '-DKWIVER_INSTALL_SET_UP_SCRIPT=OFF',
+                    '-DKWIVER_ENABLE_OPENCV=OFF'
                    ],
         entry_points={
             'kwiver.python_plugin_registration': [
                 ],
             'kwiver.cpp_search_paths': [
+                'sprokit_process=kwiver.vital.util.entrypoint:sprokit_process_path',
+                'applets=kwiver.vital.util.entrypoint:applets_path',
+                'plugin_explorer=kwiver.vital.util.entrypoint:plugin_explorer_path'
                 ],
             'kwiver.env.ld_library_path': [
                 'kwiver_ld_library_path=kwiver.vital.util.entrypoint:get_library_path',
