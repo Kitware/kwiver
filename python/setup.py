@@ -63,4 +63,10 @@ setup(
                     '-DKWIVER_ENABLE_LOG4CPLUS=ON',
                     '-DKWIVER_INSTALL_SET_UP_SCRIPT=OFF',
                    ],
+        entry_points={
+            'kwiver.python_plugin_registration': [
+                ],
+            'kwiver.cpp_search_paths': [
+                ],
+        },
     )
