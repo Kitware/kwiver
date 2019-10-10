@@ -68,5 +68,18 @@ setup(
                 ],
             'kwiver.cpp_search_paths': [
                 ],
+            'kwiver.env.ld_library_path': [
+                'kwiver_ld_library_path=kwiver.vital.util.entrypoint:get_library_path',
+                ],
+            'kwiver.env.logger_factory': [
+                'vital_log4cplus_logger_factory=kwiver.vital.util.entrypoint:get_vital_logger_factory',
+                ],
+            'console_scripts': [
+                'plugin_explorer=kwiver.kwiver_tools:plugin_explorer',
+                'kwiver=kwiver.kwiver_tools:kwiver',
+                'pipeline_runner=kwiver.kwiver_tools:pipeline_runner',
+                'pipe_config=kwiver.kwiver_tools:pipe_config',
+                'pipe_to_dot=kwiver.kwiver_tools:pipe_to_dot',
+                ]
         },
     )
