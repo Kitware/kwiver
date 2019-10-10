@@ -42,7 +42,7 @@ kwiver_install_headers(
   NOPATH
 )
 
-kwiver_add_library( vital_config
+kwiver_add_library( vital_config SHARED
   ${vital_config_public_headers}
   ${vital_config_private_headers}
   ${vital_config_sources}
