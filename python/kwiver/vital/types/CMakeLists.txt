@@ -176,28 +176,29 @@ target_link_libraries(python-vital.types-object_track_set
   PUBLIC ${PYTHON_LIBRARIES}
          vital)
 
-kwiver_create_python_init(vital/types
-  types
-  bounding_box
-  camera
-  camera_intrinsics
-  camera_map
-  color
-  covariance
-  descriptor
-  descriptor_set
-  detected_object_type
-  detected_object
-  detected_object_set
-  eigen
-  feature
-  homography
-  homography_f2f
-  landmark
-  rotation
-  similarity
-  timestamp
-  track
-  track_set
-  object_track_set
-)
+if(NOT SKBUILD)
+  kwiver_create_python_init(vital/types
+    types
+    bounding_box
+    camera
+    camera_intrinsics
+    camera_map
+    color
+    covariance
+    descriptor
+    descriptor_set
+    detected_object_type
+    detected_object
+    detected_object_set
+    eigen
+    feature
+    homography
+    landmark
+    rotation
+    similarity
+    timestamp
+    track
+    track_set
+    object_track_set
+  )
+endif()
