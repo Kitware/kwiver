@@ -29,48 +29,17 @@
  */
 
 #include <python/kwiver/vital/modules/modules_python_export.h>
+#include <python/kwiver/vital/modules/module_helpers.h>
 
-#if WIN32
-#pragma warning (push)
-#pragma warning (disable : 4244)
-#endif
-#include <pybind11/pybind11.h>
-#if WIN32
-#pragma warning (pop)
-#endif
-
-#include <pybind11/stl.h>
 #include <python/kwiver/vital/util/pybind11.h>
 #include <python/kwiver/vital/util/python_exceptions.h>
 #include <python/kwiver/vital/util/python.h>
-
 #include <vital/plugin_loader/plugin_loader.h>
 #include <kwiversys/SystemTools.hxx>
+
 #include <string>
+#include <pybind11/stl.h>
 
-#ifdef VITAL_LOAD_PYLIB_SYM
-  #include <dlfcn.h>
-#endif
-
-// Undefine macros that will double expand in case an definition has a value
-// something like: /usr/lib/x86_64-linux-gnu/libpython2.7.so
-#ifdef linux
-#define _orig_linux linux
-#undef linux
-#endif
-
-// for getting the value of a macro as a string literal
-#define MACRO_STR_VALUE(x) _TO_STRING0(x)
-#define _TO_STRING0(x) _TO_STRING1(x)
-#define _TO_STRING1(x) #x
-
-namespace py = pybind11;
-
-static void load_python_modules();
-static bool is_suppressed();
-static void _load_python_library_symbols(const std::string python_library_path);
-static std::string _find_python_library();
-static void load_additional_cpp_modules(kwiver::vital::plugin_loader& vpm);
 // ==================================================================
 /**
  * @brief Python module loader.
@@ -85,6 +54,27 @@ static void load_additional_cpp_modules(kwiver::vital::plugin_loader& vpm);
  * VITAL_NO_PYTHON_MODULES will suppress loading all python modules.
  */
 
+namespace py = pybind11;
+
+static void load_python_modules();
+static bool is_suppressed();
+static void load_additional_cpp_modules(kwiver::vital::plugin_loader& vpm);
+
+// ==================================================================
+/**
+ * @brief Python module loader.
+ *
+ * This function is called by the plugin loader when it is scanning
+ * all plugins. It looks like a standard registration entry point for
+ * a set or processes, but it activates the python interpreter and
+ * causes it to call vital.modules.module_loader.load_python_modules().
+ * Addtionally for the python package of kwiver it is used to register external
+ * c++ plugins by specifying a search paths for the plugins
+ * Also note that setting the environment variable
+ * VITAL_NO_PYTHON_MODULES will suppress loading all python modules and any cpp
+ * modules that are advertised through entrypoints.
+ */
+
 extern "C"
 MODULES_PYTHON_EXPORT
 void
@@ -95,35 +85,14 @@ register_factories(kwiver::vital::plugin_loader& vpm)
     return;
   }
 
-  // Check if a python interpreter already exists so we don't clobber sys.argv
-  // (e.g. if sprokit is initialized from python)
-  if (!Py_IsInitialized())
-  {
-    // Embed a python interpretter if one does not exist
-    Py_Initialize();
-
-    // Set Python interpeter attribute: sys.argv = []
-    // parameters are: (argc, argv, updatepath)
-    PySys_SetArgvEx(0, NULL, 0);
-  }
-
-  if (!PyEval_ThreadsInitialized())
-  {
-    {
-      // Let pybind11 initialize threads and set up its internal data structures
-      pybind11::detail::get_internals();
-    }
-    // Release the GIL
-    PyEval_SaveThread();
-  }
-
+  check_and_initialize_python_interpretor();
   std::string python_library_path = "";
   {
     kwiver::vital::python::gil_scoped_acquire acquire;
     (void)acquire;
-    python_library_path = _find_python_library();
+    python_library_path = find_python_library();
   }
-  _load_python_library_symbols(python_library_path);
+  load_python_library_symbols(python_library_path);
 
   // Load python modules
   {
@@ -140,69 +109,18 @@ register_factories(kwiver::vital::plugin_loader& vpm)
 }
 
 // ------------------------------------------------------------------
-/*
- * Uses environment variables and compiler definitions to determine where the
- * python shared library is and load its symbols.
- */
-void _load_python_library_symbols(const std::string python_library_path)
+bool
+is_suppressed()
 {
-  auto logger = kwiver::vital::get_logger("vital.python_modules");
-  if (python_library_path.empty())
+  const char * python_suppress = kwiversys::SystemTools::GetEnv( "SPROKIT_NO_PYTHON_MODULES" );
+  bool suppress_python_modules = false;
+
+  if (python_suppress)
   {
-    #ifdef VITAL_LOAD_PYLIB_SYM
-    const char *env_pylib = kwiversys::SystemTools::GetEnv( "PYTHON_LIBRARY" );
-
-    // cmake should provide this definition
-    #ifdef PYTHON_LIBRARY
-    const char *default_pylib = MACRO_STR_VALUE(PYTHON_LIBRARY);
-    #else
-    const char *default_pylib = NULL;
-    #endif
-
-    // First check if the PYTHON_LIBRARY environment variable is specified
-    if( env_pylib )
-    {
-      LOG_DEBUG(logger, "Loading symbols from PYTHON_LIBRARY=" << env_pylib );
-      void* handle = dlopen( env_pylib, RTLD_LAZY | RTLD_GLOBAL );
-      if (!handle) {
-        LOG_ERROR(logger, "Cannot load library: " << dlerror());
-      }
-    }
-    else if( default_pylib )
-    {
-      // If the PYTHON_LIBRARY environment variable is not specified, use the
-      // CMAKE definition of PYTHON_LIBRARY instead.
-      LOG_DEBUG(logger, "Loading symbols from default PYTHON_LIBRARY=" << default_pylib);
-      void* handle = dlopen( default_pylib, RTLD_LAZY | RTLD_GLOBAL );
-      if (!handle) {
-        LOG_ERROR(logger, "Cannot load library: " << dlerror());
-      }
-    }
-    else
-    {
-      LOG_DEBUG(logger, "Unable to pre-load python symbols because " <<
-                        "PYTHON_LIBRARY is undefined.");
-    }
-    #else
-      LOG_DEBUG(logger, "Not checking for python symbols");
-    #endif
+    suppress_python_modules = true;
   }
-  else
-  {
-    LOG_DEBUG(logger, "Loading symbols from PYTHON_LIBRARY=" << python_library_path.c_str() );
-    void *handle = dlopen( python_library_path.c_str(), RTLD_LAZY | RTLD_GLOBAL );
-    if (!handle) {
-      LOG_ERROR(logger, "Cannot load library: " << dlerror());
-    }
-  }
-}
 
-std::string
-_find_python_library()
-{
-  py::object const module = py::module::import("kwiver.vital.util.find_python_library");
-  py::object const python_library_path = module.attr("find_python_library")();
-  return python_library_path.cast<std::string>();
+  return suppress_python_modules;
 }
 
 // ------------------------------------------------------------------
@@ -229,25 +147,3 @@ load_additional_cpp_modules(kwiver::vital::plugin_loader& vpm)
   }
   vpm.load_plugins(additional_paths);
 }
-
-// ------------------------------------------------------------------
-bool
-is_suppressed()
-{
-  const char * python_suppress = kwiversys::SystemTools::GetEnv( "SPROKIT_NO_PYTHON_MODULES" );
-  bool suppress_python_modules = false;
-
-  if (python_suppress)
-  {
-    suppress_python_modules = true;
-  }
-
-  return suppress_python_modules;
-}
-
-
-// Redefine values that we hacked away
-#ifdef _orig_linux
-#define linux _orig_linux
-#undef _orig_linux
-#endif
