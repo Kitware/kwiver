@@ -30,9 +30,11 @@ kwiver_install_headers(
   NOPATH
   )
 
-kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
-                         sprokit/util
-                         __init__)
-kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/test.py
-                          sprokit/util
-                          test)
+if(NOT SKBUILD)
+  kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
+                           sprokit/util
+                           __init__)
+  kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/test.py
+                            sprokit/util
+                            test)
+endif()
