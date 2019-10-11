@@ -3,11 +3,14 @@ import os.path as osp
 import os
 from setuptools import find_packages
 
+with open('VERSION', 'r') as f:
+    version = f.read().strip()
+
 kwiver_install_dir = 'kwiver'
 kwiver_source_dir = '../'
 setup(
         name='kwiver',
-        version='1.4.0',
+        version=version,
         description='Python and C++ toolkit that pulls together computer vision algorithms '
                      ' into highly modular run time configurable systems',
         author='Kitware, Inc.',
