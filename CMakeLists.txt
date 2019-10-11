@@ -327,19 +327,20 @@ configure_file(
 
 kwiver_export_targets("${KWIVER_BINARY_DIR}/kwiver-config-targets.cmake")
 
-kwiver_install(
-  FILES       "${KWIVER_CONFIG_INSTALL_FILE}"
-  DESTINATION "${kwiver_cmake_install_dir}"
-  RENAME      kwiver-config.cmake
-  )
+if(NOT SKBUILD)
+  kwiver_install(
+    FILES       "${KWIVER_CONFIG_INSTALL_FILE}"
+    DESTINATION "${kwiver_cmake_install_dir}"
+    RENAME      kwiver-config.cmake
+    )
 
-kwiver_install(
-  EXPORT      ${kwiver_export_name}
-  NAMESPACE   kwiver::
-  DESTINATION "${kwiver_cmake_install_dir}"
-  FILE        kwiver-config-targets.cmake
-  )
-
+  kwiver_install(
+    EXPORT      ${kwiver_export_name}
+    NAMESPACE   kwiver::
+    DESTINATION "${kwiver_cmake_install_dir}"
+    FILE        kwiver-config-targets.cmake
+    )
+endif()
 ###
 # link compile commands to root of source tree
 if ( CMAKE_EXPORT_COMPILE_COMMANDS )
