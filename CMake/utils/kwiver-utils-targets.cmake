@@ -392,7 +392,6 @@ function( kwiver_add_module_path    dir )
 endfunction()
 
 
-
 ####
 # This macro creates the module directory for the plugin loader based
 # on current system and other options. The resulting directory string

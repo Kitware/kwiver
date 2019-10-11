@@ -353,6 +353,10 @@ else()  # Other Unix systems
   set(path_sep ":")
 endif()
 
+# add all user supplied paths to the property
+foreach( p IN LISTS KWIVER_DEFAULT_MODULE_PATHS )
+  kwiver_add_module_path( ${p} )
+endforeach(p)
 
 kwiver_make_module_path( ${CMAKE_INSTALL_PREFIX} ${kwiver_plugin_process_subdir} )
 kwiver_add_module_path(  ${kwiver_module_path_result} )
@@ -378,20 +382,12 @@ if (KWIVER_USE_BUILD_TREE)
   kwiver_add_module_path( ${kwiver_module_path_result} )
 endif()
 
-
-# need to retrieve the GLOBAL PROP`ERTY kwiver_plugin_path and
+# need to retrieve the GLOBAL PROPERTY kwiver_plugin_path and
 # formulate the default module path
 get_property(plugin_path GLOBAL PROPERTY kwiver_plugin_path)
 
-# if CACHE variable not there, then set it up
-if ( NOT KWIVER_DEFAULT_MODULE_PATHS )
-  set(KWIVER_DEFAULT_MODULE_PATHS "${plugin_path}"
-    CACHE STRING "The default paths for module scanning. Separate paths with ';' character." FORCE)
-  mark_as_advanced( KWIVER_DEFAULT_MODULE_PATHS )
-endif()
-
 # add all user configured paths to our list
-foreach( p IN LISTS KWIVER_DEFAULT_MODULE_PATHS )
+foreach( p IN LISTS plugin_path )
   if ( VITAL_MODULE_PATH )
     set( VITAL_MODULE_PATH "${VITAL_MODULE_PATH}${path_sep}${p}" )
   else()
