@@ -32,7 +32,7 @@ setup(
                    'Unix'
                    ],
         cmake_minimum_required_version='3.3',
-        packages = find_packages(),
+        packages = find_packages(exclude=['test-*', 'kwiver.sprokit.util']),
         python_requires='>=3.5',
         setup_requires=[
                         'setuptools',
