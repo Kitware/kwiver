@@ -343,6 +343,9 @@ endfunction()
 # install path to allow installing of headers in subdirectories.
 #-
 function(kwiver_install_headers)
+  if(SKBUILD)
+    return()
+  endif()
   set(options NOPATH)
   set(oneValueArgs SUBDIR)
   cmake_parse_arguments(mih "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
