@@ -117,7 +117,7 @@ class TestVitalImageObjectDetector(object):
     # Test nested configuration
     def test_nested_config(self):
         modules.load_known_modules()
-        detector = ImageObjectDetector.create("SimpleImageObjectDetector")
+        detector = ImageObjectDetector.create("example_detector")
         nested_cfg = config.empty_config()
         ImageObjectDetector.get_nested_algo_configuration( "detector",
                                                             nested_cfg,
