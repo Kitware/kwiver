@@ -65,7 +65,9 @@ def _kwiver_tools(tool_name, args):
 
 
 def plugin_explorer():
-    raise SystemExit(_kwiver_tools("plugin_explorer", sys.argv[1:]))
+    cmd_args = ["--skip-relative"]
+    cmd_args.extend(sys.argv[1:])
+    raise SystemExit(_kwiver_tools("plugin_explorer", cmd_args))
 
 
 def kwiver():
