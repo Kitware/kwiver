@@ -1,6 +1,6 @@
 # ================================================================
 process input
-  :: frame_list_input
+  :: frame_list_process
 # Input file containing new-line separated paths to sequential image
 # files.
   image_list_file = @EXAMPLE_DIR@/pipelines/image_list.txt

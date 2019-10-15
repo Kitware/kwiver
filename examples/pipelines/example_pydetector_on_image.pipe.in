@@ -1,6 +1,6 @@
 # ================================================================
 process input
-  :: frame_list_input
+  :: frame_list_process
   image_list_file   = @EXAMPLE_DIR@/pipelines/image_list.txt
   frame_time        = .3333
   image_reader:type = ocv
