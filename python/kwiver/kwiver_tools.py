@@ -2,8 +2,11 @@ import os
 import subprocess
 import kwiver
 import sys
+
 from pkg_resources import iter_entry_points
+
 from kwiver.vital import vital_logging
+from kwiver.vital.util.initial_plugin_path import get_initial_plugin_path
 
 KWIVER_BIN_DIR = os.path.join(os.path.dirname(os.path.abspath(kwiver.__file__)), 'bin')
 KWIVER_SUPPORTED_TOOLS = ["kwiver", "plugin_explorer", "pipeline_runner",
@@ -42,7 +45,7 @@ def _setup_environment():
     tool_environment = {
                             "LD_LIBRARY_PATH": ld_library_path_str,
                             "VITAL_LOGGER_FACTORY": vital_logger_factory,
-
+                            "KWIVER_PLUGIN_PATH": get_initial_plugin_path()
                        }
     # Add the remaining environment variables without fiddling with what we have already set
     for env_var_name, env_var_val in os.environ.items():
