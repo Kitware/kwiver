@@ -85,6 +85,12 @@ register_factories(kwiver::vital::plugin_loader& vpm)
     return;
   }
 
+  static auto const module_name = std::string( "module_python" );
+  if(vpm.is_module_loaded(module_name))
+  {
+    return;
+  }
+
   check_and_initialize_python_interpretor();
   std::string python_library_path = "";
   {
@@ -106,6 +112,7 @@ register_factories(kwiver::vital::plugin_loader& vpm)
     (void)acquire;
     VITAL_PYTHON_IGNORE_EXCEPTION(load_additional_cpp_modules(vpm))
   }
+  vpm.mark_module_as_loaded(module_name);
 }
 
 // ------------------------------------------------------------------
