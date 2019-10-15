@@ -3,34 +3,25 @@ project(vital_python_modules)
 include_directories(${pybind11_INCLUDE_DIR})
 
 set(modules_python_srcs
-  registration.cxx)
+    module_helpers.h
+    module_helpers.cxx
+    registration.cxx)
 
 if(UNIX)
   add_definitions( -DVITAL_LOAD_PYLIB_SYM )
 endif()
 
 if (KWIVER_ENABLE_TOOLS)
-  kwiver_add_library(module_helpers_python
-                     module_helpers.h
-                     module_helpers.cxx)
-
-  target_link_libraries( module_helpers_python
-    PRIVATE              vital_python_util
-                         kwiversys
-                         ${${pybind11_library}}
-                         ${PYTHON_LIBRARIES}
-                       )
   kwiver_add_plugin( modules_python
-    SUBDIR          ${kwiver_plugin_module_subdir}
-    SOURCES         ${modules_python_srcs}
-    PRIVATE         vital_python_util
-                    kwiversys
-                    vital_logger
-                    vital_vpm
-                    module_helpers_python
-                    ${${pybind11_library}}
-                    ${PYTHON_LIBRARIES}
-                    )
+    SUBDIR           ${kwiver_plugin_module_subdir}
+    SOURCES          ${modules_python_srcs}
+    PRIVATE          vital_python_util
+                     kwiversys
+                     vital_logger
+                     vital_vpm
+                     ${${pybind11_library}}
+                     ${PYTHON_LIBRARIES}
+                   )
 endif()
 
 kwiver_add_python_module("${CMAKE_CURRENT_SOURCE_DIR}/module_loader.py"
