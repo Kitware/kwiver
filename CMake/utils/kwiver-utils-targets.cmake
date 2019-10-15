@@ -404,7 +404,7 @@ endfunction()
 #
 # Options are:
 # SOURCES - list of source files needed to create the plugin.
-# PUBLIC - list of libraries the plugin will publically link against.
+# PUBLIC - list of libraries the plugin will publicaly link against.
 # PRIVATE - list of libraries the plugin will privately link against.
 # SUBDIR - subdirectory in "lib" where plugin will be installed.
 #
