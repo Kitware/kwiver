@@ -37,9 +37,9 @@
 #include <vital/plugin_loader/plugin_loader.h>
 #include <kwiversys/SystemTools.hxx>
 
-#include <string>
 #include <pybind11/stl.h>
-
+#include <string>
+#include <algorithm>
 // ==================================================================
 /**
  * @brief Python module loader.
@@ -141,9 +141,28 @@ load_additional_cpp_modules(kwiver::vital::plugin_loader& vpm)
   py::object const get_cpp_paths_from_entrypoint = modules.attr("get_cpp_paths_from_entrypoint");
   py::object py_additional_paths = get_cpp_paths_from_entrypoint();
   auto additional_paths = py_additional_paths.cast<std::vector<std::string>>();
-  for(auto& additional_path : additional_paths)
+  auto current_search_paths = vpm.get_search_path();
+  for(auto& current_search_path : current_search_paths)
   {
-    LOG_INFO( logger, "loading additional cpp plugins from" + additional_path );
+      LOG_INFO(logger, "Current search path" + current_search_path);
+  }
+
+  for(auto additional_path=additional_paths.begin();
+      additional_path!=additional_paths.end();)
+  {
+    if(std::find(current_search_paths.begin(),
+                 current_search_paths.end(),
+                 *additional_path) != current_search_paths.end())
+    {
+      additional_path = additional_paths.erase(additional_path);
+      LOG_DEBUG(logger, "Removing duplicate plugin path" + *additional_path);
+    }
+    else
+    {
+      LOG_DEBUG(logger, "Adding path" + *additional_path);
+      ++additional_path;
+    }
   }
   vpm.load_plugins(additional_paths);
+  vpm.add_search_path(additional_paths);
 }
