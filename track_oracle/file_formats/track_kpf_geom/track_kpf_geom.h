@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,6 +62,7 @@ struct TRACK_KPF_GEOM_EXPORT track_kpf_geom_type: public track_base< track_kpf_g
   track_field< dt::tracking::timestamp_usecs > timestamp_usecs;
   track_field< dt::tracking::frame_number > frame_number;
   track_field< dt::tracking::bounding_box > bounding_box;
+  track_field< dt::tracking::object_labels > object_labels;
 
   track_kpf_geom_type()
   {
@@ -70,6 +71,7 @@ struct TRACK_KPF_GEOM_EXPORT track_kpf_geom_type: public track_base< track_kpf_g
     Frame.add_field( timestamp_usecs );
     Frame.add_field( frame_number );
     Frame.add_field( bounding_box );
+    Frame.add_field( object_labels );
   }
 };
 

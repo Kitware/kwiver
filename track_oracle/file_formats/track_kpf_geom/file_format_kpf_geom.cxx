@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -111,7 +111,7 @@ file_format_kpf_geom
   : file_format_base( TF_KPF_GEOM, "KPF geometry" )
 {
   this->globs.push_back("*.geom.yml");
-
+  this->globs.push_back("*.types.yml");
 }
 
 file_format_kpf_geom
@@ -229,6 +229,17 @@ file_format_kpf_geom
 
       frame_handle_type f = entry(t).create_frame();
 
+      auto labels_probe =
+        reader.transfer_packet_from_buffer(
+          KPF::packet_header_t{ KPF::packet_style::CSET,
+                                KPF::packet_header_t::ANY_DOMAIN } );
+      auto const have_labels = labels_probe.first;
+      if ( have_labels )
+      {
+        track_field< dt::tracking::object_labels > x;
+        x( f.row ) = labels_probe.second.cset->d;
+      }
+
       struct kpf_loader
       {
         KPF::packet_header_t h;
@@ -244,7 +255,7 @@ file_format_kpf_geom
       for (const auto& field: fields)
       {
         auto probe = reader.transfer_packet_from_buffer( field.h );
-        if ( field.required && (! probe.first ))
+        if ( field.required && ( !probe.first ) && !have_labels )
         {
           ostringstream oss;
           oss << "Missing packet " << KPF::style2str( field.h.style ) << ":"
