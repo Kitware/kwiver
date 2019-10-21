@@ -70,6 +70,8 @@ setup(
                     '-DKWIVER_ENABLE_OPENCV=ON',
                     '-DKWIVER_ENABLE_FFMPEG=ON',
                     '-DKWIVER_ENABLE_ZeroMQ=ON',
+                    '-DKWIVER_ENABLE_SERIALIZE_JSON=ON',
+                    '-DKWIVER_ENABLE_SERIALIZE_PROTOBUF=ON'
                    ],
         entry_points={
             'kwiver.python_plugin_registration': [
