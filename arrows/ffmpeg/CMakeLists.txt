@@ -46,6 +46,8 @@ if(fletch_ENABLED_ZLib)
   endif()
 endif()
 
+set_target_properties(kwiver_algo_ffmpeg PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
+
 target_link_libraries( kwiver_algo_ffmpeg
   PUBLIC               kwiver_algo_core
   PRIVATE              vital_klv kwiversys
@@ -53,9 +55,12 @@ target_link_libraries( kwiver_algo_ffmpeg
                        ${ZLIB_LIBRARIES}
   )
 
+
 algorithms_create_plugin( kwiver_algo_ffmpeg
   register_algorithms.cxx
   )
+
+set_target_properties(kwiver_algo_ffmpeg_plugin PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
 
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory(tests)
