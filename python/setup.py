@@ -67,7 +67,7 @@ setup(
                     '-DKWIVER_ENABLE_TOOLS=ON',
                     '-DKWIVER_ENABLE_LOG4CPLUS=ON',
                     '-DKWIVER_INSTALL_SET_UP_SCRIPT=OFF',
-                    '-DKWIVER_ENABLE_OPENCV=OFF'
+                    '-DKWIVER_ENABLE_OPENCV=ON',
                    ],
         entry_points={
             'kwiver.python_plugin_registration': [
