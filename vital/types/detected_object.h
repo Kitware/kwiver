@@ -223,7 +223,7 @@ public:
    *
    * @return Name of the detector.
    */
-  const std::string& detector_name() const;
+  std::string detector_name() const;
 
   /**
    * @brief Set detector name.

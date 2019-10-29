@@ -197,7 +197,7 @@ detected_object
 
 
 // ------------------------------------------------------------------
-const std::string&
+std::string
 detected_object
 ::detector_name() const
 {
