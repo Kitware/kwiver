@@ -83,6 +83,8 @@ detected_object
   new_obj->m_detector_name = this->m_detector_name;
   new_obj->m_descriptor = this->m_descriptor;
   new_obj->m_geo_point = this->m_geo_point;
+  new_obj->m_keypoints = this->m_keypoints;
+  new_obj->m_notes = this->m_notes;
 
   return new_obj;
 }
@@ -227,6 +229,60 @@ detected_object
 ::set_descriptor( descriptor_scptr d )
 {
   m_descriptor = d;
+}
+
+
+// ------------------------------------------------------------------
+std::vector< std::string >
+detected_object
+::notes() const
+{
+  return m_notes;
+}
+
+
+// ----------------------------------------------------------------------------
+void
+detected_object
+::add_note( std::string const& note )
+{
+  m_notes.push_back( note );
+}
+
+
+// ----------------------------------------------------------------------------
+void
+detected_object
+::clear_notes()
+{
+  m_notes.clear();
+}
+
+
+// ----------------------------------------------------------------------------
+std::map< std::string, vital::point_2d >
+detected_object
+::keypoints() const
+{
+  return m_keypoints;
+}
+
+
+// ----------------------------------------------------------------------------
+void
+detected_object
+::add_keypoint( std::string const& id, vital::point_2d const& p )
+{
+  m_keypoints[ id ] = p;
+}
+
+
+// ----------------------------------------------------------------------------
+void
+detected_object
+::clear_keypoints()
+{
+  m_keypoints.clear();
 }
 
 

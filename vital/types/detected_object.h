@@ -39,6 +39,7 @@
 #include <vital/vital_export.h>
 #include <vital/vital_config.h>
 
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -47,6 +48,7 @@
 #include <vital/types/detected_object_type.h>
 #include <vital/types/geo_point.h>
 #include <vital/types/image_container.h>
+#include <vital/types/point.h>
 #include <vital/types/vector.h>
 
 #include <vital/io/eigen_io.h>
@@ -292,6 +294,64 @@ public:
    */
   void set_descriptor( descriptor_scptr d );
 
+  /**
+   * @brief Get vector of notes for this detection
+   *
+   * This method returns a list of notes (arbitrary strings) associated
+   * with this detection. Notes are useful in user interfaces for making
+   * any observations about this detection which don't fit into types.
+   *
+   * @return A vector of notes.
+   */
+  std::vector< std::string > notes() const;
+
+  /**
+   * @brief Add a note for this detection.
+   *
+   * Notes are useful in user interfaces for making any observations about
+   * this detection which don't fit into types.
+   *
+   * @param note String to add as a note
+   */
+  void add_note( std::string const& note );
+
+  /**
+   * @brief Reset notes for this detection
+   *
+   * Remove any notes stored within this detection.
+   */
+  void clear_notes();
+
+  /**
+   * @brief Returns a list of keypoints associated with this detection
+   *
+   * This method returns a map of keypoints associated with this detection,
+   * which can be of arbitrary length.
+   *
+   * @return A map of keypoints and their identifiers.
+   */
+  std::map< std::string, vital::point_2d > keypoints() const;
+
+  /**
+   * @brief Add a note for this detection
+   *
+   * Notes are useful in user interfaces for making any observations about
+   * this detection which don't fit into types. If a keypoint of the given
+   * name already exists, it will be over-written.
+   *
+   * @param id String id of the keypoint
+   * @param p The location of the keypoint
+   */
+  void add_keypoint( std::string const& id, vital::point_2d const& p );
+
+  /**
+   * @brief Reset keypoints for this detection
+   *
+   * Removes any keypoints stored within this detection.
+   */
+  void clear_keypoints();
+
+
 private:
   kwiver::vital::geo_point m_geo_point;
   bounding_box_d m_bounding_box;
@@ -304,6 +364,9 @@ private:
 
   uint64_t m_index = 0; ///< index for this object
   std::string m_detector_name;
+
+  std::vector< std::string > m_notes;
+  std::map< std::string, vital::point_2d > m_keypoints;
 };
 
 } }

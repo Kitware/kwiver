@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016-2017 by Kitware, Inc.
+ * Copyright 2016-2017, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,4 +103,40 @@ TEST(detected_object, modification)
   kwiver::vital::translate( bb, tr );
 
   doby.set_bounding_box( bb );
+}
+
+// ----------------------------------------------------------------------------
+TEST(detected_object, keypoints)
+{
+  kwiver::vital::detected_object dobj;
+
+  dobj.add_keypoint( "head", { 11.2, 13.1 } );
+  dobj.add_keypoint( "head", { 4.2, 9.5 } );
+
+  auto const& keypoints = dobj.keypoints();
+  EXPECT_EQ( 1, keypoints.size() );
+  ASSERT_EQ( 1, keypoints.count( "head" ) );
+
+  EXPECT_EQ( 4.2, keypoints.find( "head" )->second.value()[ 0 ] );
+  EXPECT_EQ( 9.5, keypoints.find( "head" )->second.value()[ 1 ] );
+}
+
+
+// ----------------------------------------------------------------------------
+TEST(detected_object, notes)
+{
+  kwiver::vital::detected_object dobj;
+
+  EXPECT_EQ( dobj.notes().size(), 0 );
+
+  dobj.add_note( "Dogs have owners." );
+  dobj.add_note( "Cats have staff." );
+
+  auto const& notes = dobj.notes();
+  ASSERT_EQ( notes.size(), 2 );
+  EXPECT_EQ( "Dogs have owners.", notes[ 0 ] );
+  EXPECT_EQ( "Cats have staff.", notes[ 1 ] );
+
+  dobj.clear_notes();
+  EXPECT_EQ( dobj.notes().size(), 0 );
 }
