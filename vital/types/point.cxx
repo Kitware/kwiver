@@ -36,14 +36,6 @@
 namespace kwiver {
 namespace vital {
 
-template class point< 2, int >;
-template class point< 2, double >;
-template class point< 2, float >;
-template class point< 3, double >;
-template class point< 3, float >;
-template class point< 4, double >;
-template class point< 4, float >;
-
 // ----------------------------------------------------------------------------
 template < unsigned N, typename T >
 std::ostream&

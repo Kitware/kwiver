@@ -49,7 +49,7 @@ namespace kwiver {
 namespace vital {
 
 template < unsigned N, typename T >
-class VITAL_EXPORT point : protected Eigen::Matrix< T, N, 1 >
+class point : protected Eigen::Matrix< T, N, 1 >
 {
 public:
   using vector_type = Eigen::Matrix< T, N, 1 >;
