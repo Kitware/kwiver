@@ -64,14 +64,16 @@ set( CMAKE_CXX_FLAGS ${save_flags} )
 #
 set( vital_public_headers
   vital_types.h
-  noncopyable.h
-  any.h
+
   algorithm_capabilities.h
+  any.h
   attribute_set.h
   exceptions.h
   iterator.h
   math_constants.h
+  noncopyable.h
   optional.h
+  set.h
 
   io/camera_from_metadata.h
   io/camera_io.h
@@ -86,6 +88,7 @@ set( vital_public_headers
   types/camera.h
   types/camera_intrinsics.h
   types/camera_perspective.h
+  types/camera_perspective_map.h
   types/camera_rpc.h
   types/camera_map.h
   types/category_hierarchy.h
@@ -140,6 +143,7 @@ set( vital_public_headers
   types/timestamp.h
   types/timestamp_config.h
   types/track.h
+  types/track_interval.h
   types/track_set.h
   types/track_descriptor.h
   types/track_descriptor_set.h

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2019 by Kitware, Inc.
+ * Copyright 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,58 +28,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file
- * \brief Instantiation of \link kwiver::vital::algo::algorithm_def algorithm_def<T>
- *        \endlink for \link kwiver::vital::algo::bundle_adjust bundle_adjust \endlink
- */
+#include <stdexcept>
 
-#include <vital/algo/bundle_adjust.h>
-#include <vital/algo/algorithm.txx>
-#include <vital/logger/logger.h>
+#include <vital/vital_types.h>
+#include <vital/types/homography.h>
+#include <vital/types/homography_f2f.h>
 
-namespace kwiver {
-namespace vital {
-namespace algo {
+#include <Eigen/Core>
 
-bundle_adjust
-::bundle_adjust()
+#include <pybind11/pybind11.h>
+
+namespace kv = kwiver::vital;
+namespace py = pybind11;
+
+using f2f_homography = kv::f2f_homography;
+
+PYBIND11_MODULE(homography_f2f, m)
 {
-  attach_logger( "algo.bundle_adjust" );
+  // This should wrap all of f2f_homography except for the (templated)
+  // constructor directly from an Eigen::Matrix and the copy
+  // constructor
+  py::class_<f2f_homography, std::shared_ptr<f2f_homography>>(m, "F2FHomography")
+    .def(py::init<kv::homography_sptr const&, kv::frame_id_t, kv::frame_id_t>())
+    .def(py::init<kv::frame_id_t>())
+    .def_property_readonly("homography", &f2f_homography::homography)
+    .def_property_readonly("from_id", &f2f_homography::from_id)
+    .def_property_readonly("to_id", &f2f_homography::to_id)
+    .def("inverse", &f2f_homography::inverse)
+    .def("__mul__", &f2f_homography::operator*)
+    .def("get",
+	 [] (f2f_homography const& self, int r, int c)
+	 {
+	   auto m = self.homography()->matrix();
+	   if(0 <= r && r < m.rows() && 0 <= c && c < m.cols())
+	   {
+	     return m(r, c);
+	   }
+	   throw std::out_of_range("Tried to perform get() out of bounds");
+	 },
+	 "Convenience method that returns the underlying coefficient"
+	 " at the given row and column")
+    ;
 }
-
-/// Set a callback function to report intermediate progress
-void
-bundle_adjust
-::set_callback(callback_t cb)
-{
-  this->m_callback = cb;
-}
-
-void
-bundle_adjust
-::optimize(
-  kwiver::vital::simple_camera_perspective_map &cameras,
-  kwiver::vital::landmark_map::map_landmark_t &landmarks,
-  vital::feature_track_set_sptr tracks,
-  const std::set<vital::frame_id_t>& fixed_cameras,
-  const std::set<vital::landmark_id_t>& fixed_landmarks,
-  kwiver::vital::sfm_constraints_sptr constraints) const
-{
-  auto cam_map = std::static_pointer_cast<vital::camera_map>(
-                   std::make_shared<vital::simple_camera_map>(cameras.cameras()));
-
-  auto lm_map = std::static_pointer_cast<vital::landmark_map>(
-                  std::make_shared<vital::simple_landmark_map>(landmarks));
-  this->optimize(cam_map, lm_map, tracks, constraints);
-
-  cameras.set_from_base_camera_map(cam_map->cameras());
-  landmarks = lm_map->landmarks();
-}
-
-
-} } }
-
-/// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::bundle_adjust);
-/// \endcond
