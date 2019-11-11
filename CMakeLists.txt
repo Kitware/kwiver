@@ -348,9 +348,9 @@ endif()
 # By this point, all eligible paths should have been added to the kwiver_plugin_path
 # property
 if (WIN32)
-  set(path_sep ";")
+  set(path_sep "\\073")
 else()  # Other Unix systems
-  set(path_sep ":")
+  set(path_sep "\\072")
 endif()
 
 # add all user supplied paths to the property
@@ -359,27 +359,27 @@ foreach( p IN LISTS KWIVER_DEFAULT_MODULE_PATHS )
 endforeach(p)
 
 kwiver_make_module_path( ${CMAKE_INSTALL_PREFIX} ${kwiver_plugin_process_subdir} )
-kwiver_add_module_path(  ${kwiver_module_path_result} )
+kwiver_add_module_path(  "${kwiver_module_path_result}" )
 
 if (KWIVER_USE_BUILD_TREE)
   kwiver_make_module_path( ${KWIVER_BINARY_DIR} ${kwiver_plugin_process_subdir} )
-  kwiver_add_module_path(  ${kwiver_module_path_result} )
+  kwiver_add_module_path(  "${kwiver_module_path_result}" )
 endif()
 
 kwiver_make_module_path( ${CMAKE_INSTALL_PREFIX} ${kwiver_plugin_module_subdir} )
-kwiver_add_module_path(  ${kwiver_module_path_result} )
+kwiver_add_module_path(  "${kwiver_module_path_result}" )
 
 if (KWIVER_USE_BUILD_TREE)
   kwiver_make_module_path( ${KWIVER_BINARY_DIR} ${kwiver_plugin_module_subdir} )
-  kwiver_add_module_path(  ${kwiver_module_path_result} )
+  kwiver_add_module_path(  "${kwiver_module_path_result}" )
 endif()
 
 kwiver_make_module_path( ${CMAKE_INSTALL_PREFIX} ${kwiver_plugin_applets} )
-kwiver_add_module_path( ${kwiver_module_path_result} )
+kwiver_add_module_path( "${kwiver_module_path_result}" )
 
 if (KWIVER_USE_BUILD_TREE)
   kwiver_make_module_path( ${KWIVER_BINARY_DIR} ${kwiver_plugin_applets} )
-  kwiver_add_module_path( ${kwiver_module_path_result} )
+  kwiver_add_module_path( "${kwiver_module_path_result}" )
 endif()
 
 # need to retrieve the GLOBAL PROPERTY kwiver_plugin_path and
