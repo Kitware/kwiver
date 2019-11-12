@@ -33,31 +33,8 @@
  * \brief Implementation file for video input using FFMPEG.
  */
 
-#include "ffmpeg_init.h"
-#include "ffmpeg_video_input.h"
-
-#include <vital/types/timestamp.h>
-#include <vital/exceptions/io.h>
-#include <vital/exceptions/video.h>
-#include <vital/klv/convert_metadata.h>
-#include <vital/klv/misp_time.h>
-#include <vital/klv/klv_data.h>
-#include <vital/util/tokenize.h>
-#include <vital/types/image_container.h>
-
-#include <kwiversys/SystemTools.hxx>
-
-#include <deque>
-#include <mutex>
-#include <memory>
-#include <vector>
-#include <sstream>
-
-extern "C" {
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
-}
+#include <arrows/ffmpeg/ffmpeg_video_input_impl.h>
+#include <arrows/ffmpeg/ffmpeg_video_input.h>
 
 namespace kwiver {
 namespace arrows {
@@ -673,13 +650,13 @@ public:
 }; // end of internal class.
 
 // static open interlocking mutex
-std::mutex ffmpeg_video_input::priv::open_mutex;
+std::mutex ffmpeg_video_input_impl::open_mutex;
 
 
 // ==================================================================
 ffmpeg_video_input
 ::ffmpeg_video_input()
-  : d( new priv() )
+  : d( new ffmpeg_video_input_impl() )
 {
   attach_logger( "ffmpeg_video_input" ); // get appropriate logger
   d->logger = this->logger();
@@ -693,8 +670,6 @@ ffmpeg_video_input
   this->set_capability(vital::algo::video_input::HAS_ABSOLUTE_FRAME_TIME, false);
   this->set_capability(vital::algo::video_input::HAS_TIMEOUT, false);
   this->set_capability(vital::algo::video_input::IS_SEEKABLE, true);
-
-  ffmpeg_init();
 }
 
 
@@ -794,19 +769,7 @@ ffmpeg_video_input
 ::next_frame( kwiver::vital::timestamp& ts,
               uint32_t timeout )
 {
-  if (!d->is_opened())
-  {
-    VITAL_THROW( vital::file_not_read_exception, d->video_path, "Video not open");
-  }
-
-  bool ret = d->advance();
-
-  d->end_of_video = !ret;
-  if (ret)
-  {
-    ts = this->frame_timestamp();
-  };
-  return ret;
+  return d->next_frame( ts, timeout );
 }
 
 // ------------------------------------------------------------------
@@ -845,97 +808,7 @@ kwiver::vital::image_container_sptr
 ffmpeg_video_input
 ::frame_image( )
 {
-  // Quick return if the stream isn't valid
-  if (!d->is_valid())
-  {
-    return nullptr;
-  }
-
-  AVCodecContext* enc = d->f_format_context->streams[d->f_video_index]->codec;
-
-  // If we have not already converted this frame, try to convert it
-  if (!d->current_image_memory && d->f_frame->data[0] != 0)
-  {
-    int width = enc->width;
-    int height = enc->height;
-    int depth = 3;
-    vital::image_pixel_traits pixel_trait = vital::image_pixel_traits_of<unsigned char>();
-    bool direct_copy;
-
-    // If the pixel format is not recognized by then convert the data into RGB_24
-    switch (enc->pix_fmt)
-    {
-      case AV_PIX_FMT_GRAY8:
-      {
-        depth = 1;
-        direct_copy = true;
-        break;
-      }
-      case AV_PIX_FMT_RGBA:
-      {
-        depth = 4;
-        direct_copy = true;
-        break;
-      }
-      case AV_PIX_FMT_MONOWHITE:
-      case AV_PIX_FMT_MONOBLACK:
-      {
-        depth = 1;
-        pixel_trait = vital::image_pixel_traits_of<bool>();
-        direct_copy = true;
-        break;
-      }
-      default:
-      {
-        direct_copy = false;
-      }
-    }
-    if (direct_copy)
-    {
-      int size = avpicture_get_size(enc->pix_fmt, width, height);
-      d->current_image_memory = vital::image_memory_sptr(new vital::image_memory(size));
-
-      AVPicture frame;
-      avpicture_fill(&frame, (uint8_t*)d->current_image_memory->data(), enc->pix_fmt, width, height);
-      av_picture_copy(&frame, (AVPicture*)d->f_frame, enc->pix_fmt, width, height);
-    }
-    else
-    {
-      int size = width * height * depth;
-      d->current_image_memory = std::make_shared<vital::image_memory>(size);
-
-      d->f_software_context = sws_getCachedContext(
-        d->f_software_context,
-        width, height, enc->pix_fmt,
-        width, height, AV_PIX_FMT_RGB24,
-        SWS_BILINEAR,
-        NULL, NULL, NULL);
-
-      if (!d->f_software_context)
-      {
-        LOG_ERROR(this->logger(), "Couldn't create conversion context");
-        return nullptr;
-      }
-
-      AVPicture rgb_frame;
-      avpicture_fill(&rgb_frame, (uint8_t*)d->current_image_memory->data(), AV_PIX_FMT_RGB24, width, height);
-
-      sws_scale(d->f_software_context,
-        d->f_frame->data, d->f_frame->linesize,
-        0, height,
-        rgb_frame.data, rgb_frame.linesize);
-    }
-
-    vital::image image(
-      d->current_image_memory,
-      d->current_image_memory->data(),
-      width, height, depth,
-      depth, depth * width, 1
-    );
-    d->current_image = std::make_shared<vital::simple_image_container>(vital::simple_image_container(image));
-  }
-
-  return d->current_image;
+  return d->frame_image();
 }
 
 
