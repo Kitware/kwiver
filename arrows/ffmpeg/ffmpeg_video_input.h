@@ -36,10 +36,10 @@
 #ifndef KWIVER_ARROWS_FFMPEG_FFMPEG_VIDEO_INPUT_H
 #define KWIVER_ARROWS_FFMPEG_FFMPEG_VIDEO_INPUT_H
 
-#include <vital/algo/video_input.h>
-
 #include <arrows/ffmpeg/kwiver_algo_ffmpeg_export.h>
+#include <arrows/ffmpeg/ffmpeg_video_input_impl.h>
 
+#include <vital/algo/video_input.h>
 
 namespace kwiver {
 namespace arrows {
@@ -90,8 +90,7 @@ public:
 
 private:
   /// private implementation class
-  class priv;
-  const std::unique_ptr<priv> d;
+  const std::unique_ptr<ffmpeg_video_input_impl> d;
 };
 
 } } } // end namespace

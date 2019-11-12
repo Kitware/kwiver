@@ -10,9 +10,46 @@ if (NOT FFMPEG_FOUND_SEVERAL)
 )
 endif()
 
+# ffmpeg library implementation
+set(ffmpeg_impl_headers_public
+    ffmpeg_init.h
+    ffmpeg_video_input_impl.h
+   )
+
+set(ffmpeg_impl_sources
+    ffmpeg_init.cxx
+    ffmpeg_video_input_impl.cxx
+   )
+
+kwiver_install_headers(
+  SUBDIR     arrows/ffmpeg
+  ${ffmpeg_impl_headers_public}
+  )
+
+kwiver_install_headers(
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_ffmpeg_impl_export.h
+  NOPATH   SUBDIR     arrows/ffmpeg
+  )
+
+kwiver_add_library( kwiver_algo_ffmpeg_impl
+  ${ffmpeg_impl_headers_public}
+  ${ffmpeg_impl_sources}
+  )
+
+target_link_libraries( kwiver_algo_ffmpeg_impl
+   PUBLIC              vital
+   PRIVATE             vital_klv kwiversys
+                       vital_logger
+                       ${FFMPEG_LIBRARIES}
+  )
+
+# ffmpeg arrow library
 set(ffmpeg_headers_public
-  ffmpeg_init.h
   ffmpeg_video_input.h
+  )
+
+set(ffmpeg_sources
+  ffmpeg_video_input.cxx
   )
 
 kwiver_install_headers(
@@ -25,19 +62,15 @@ kwiver_install_headers(
   NOPATH   SUBDIR     arrows/ffmpeg
   )
 
-set(ffmpeg_sources
-  ffmpeg_init.cxx
-  ffmpeg_video_input.cxx
-  )
 
 kwiver_add_library( kwiver_algo_ffmpeg
   ${ffmpeg_headers_public}
   ${ffmpeg_sources}
   )
+
 target_link_libraries( kwiver_algo_ffmpeg
   PUBLIC               kwiver_algo_core
-  PRIVATE              vital_klv kwiversys
-                       ${FFMPEG_LIBRARIES}
+                       kwiver_algo_ffmpeg_impl
   )
 
 algorithms_create_plugin( kwiver_algo_ffmpeg
