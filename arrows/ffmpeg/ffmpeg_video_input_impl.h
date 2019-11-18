@@ -230,9 +230,9 @@ public:
   bool next_frame( kwiver::vital::timestamp& ts,
                    uint32_t timeout=0 );
 
-  virtual kwiver::vital::timestamp frame_timestamp() const;
+  kwiver::vital::timestamp frame_timestamp() const;
 
-  virtual bool good() const;
+  bool good() const;
 };
 
 }
