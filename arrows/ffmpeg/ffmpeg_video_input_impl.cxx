@@ -660,5 +660,35 @@ kwiver::arrows::ffmpeg::ffmpeg_video_input_impl::next_frame( kwiver::vital::time
   bool ret = advance();
 
   end_of_video = !ret;
+  if (ret)
+  {
+    ts = frame_timestamp();
+  }
   return ret;
+}
+
+
+// ------------------------------------------------------------------
+kwiver::vital::timestamp
+kwiver::arrows::ffmpeg::ffmpeg_video_input_impl::frame_timestamp() const
+{
+  if (!good())
+  {
+    return {};
+  }
+
+  // We don't always have all components of a timestamp, so start with
+  // an invalid TS and add the data we have.
+  kwiver::vital::timestamp ts;
+  ts.set_frame(frame_number() + f_frame_number_offset + 1);
+
+  return ts;
+}
+
+
+// ------------------------------------------------------------------
+bool
+ kwiver::arrows::ffmpeg::ffmpeg_video_input_impl::good() const
+{
+  return is_valid() && frame_advanced;
 }
