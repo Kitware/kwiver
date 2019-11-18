@@ -797,7 +797,7 @@ bool ffmpeg_video_input::seek_frame(kwiver::vital::timestamp& ts,
   d->end_of_video = !ret;
   if (ret)
   {
-    ts = this->frame_timestamp();
+    ts = d->frame_timestamp();
   };
   return ret;
 }
@@ -809,25 +809,6 @@ ffmpeg_video_input
 ::frame_image( )
 {
   return d->frame_image();
-}
-
-
-// ------------------------------------------------------------------
-kwiver::vital::timestamp
-ffmpeg_video_input
-::frame_timestamp() const
-{
-  if (!this->good())
-  {
-    return {};
-  }
-
-  // We don't always have all components of a timestamp, so start with
-  // an invalid TS and add the data we have.
-  kwiver::vital::timestamp ts;
-  ts.set_frame(d->frame_number() + d->f_frame_number_offset + 1);
-
-  return ts;
 }
 
 
@@ -863,15 +844,6 @@ ffmpeg_video_input
 // ------------------------------------------------------------------
 bool
 ffmpeg_video_input
-::good() const
-{
-  return d->is_valid() && d->frame_advanced;
-}
-
-
-// ------------------------------------------------------------------
-bool
-ffmpeg_video_input
 ::seekable() const
 {
   return true;
@@ -887,4 +859,17 @@ ffmpeg_video_input
   return d->number_of_frames;
 }
 
+bool
+ffmpeg_video_input
+::good() const
+{
+ return d->good();
+}
+
+kwiver::vital::timestamp
+ffmpeg_video_input
+::frame_timestamp() const
+{
+  return d->frame_timestamp();
+}
 } } } // end namespaces
