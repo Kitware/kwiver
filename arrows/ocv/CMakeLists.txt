@@ -33,9 +33,7 @@ set( ocv_headers_public
   feature_detect_extract_SURF.h
   detect_heat_map.h
   hough_circle_detector.h
-  image_container.h
   image_io.h
-  mat_image_memory.h
   match_features.h
   match_features_bruteforce.h
   match_features_flannbased.h
@@ -49,6 +47,13 @@ kwiver_install_headers(
   SUBDIR     arrows/ocv
   ${ocv_headers_public}
   )
+
+kwiver_install_headers(
+  SUBDIR     arrows/ocv
+  mat_image_memory.h
+  image_container.h
+  )
+
 kwiver_install_headers(
   ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_ocv_export.h
   NOPATH   SUBDIR     arrows/ocv
@@ -86,9 +91,7 @@ set( ocv_sources
   feature_detect_extract_ORB.cxx
   feature_detect_extract_SIFT.cxx
   feature_detect_extract_SURF.cxx
-  image_container.cxx
   image_io.cxx
-  mat_image_memory.cxx
   match_features.cxx
   match_features_bruteforce.cxx
   match_features_flannbased.cxx
@@ -103,13 +106,27 @@ if( KWIVER_HAS_OPENCV_VER_3 )
   add_definitions(-DKWIVER_HAS_OPENCV_VER_3)
 endif()
 
+kwiver_add_library( kwiver_ocv_image_container
+  mat_image_memory.h
+  image_container.h
+  mat_image_memory.cxx
+  image_container.cxx
+  )
+
+target_link_libraries( kwiver_ocv_image_container
+  PUBLIC               vital
+                       ${OpenCV_LIBS}
+  )
+
 kwiver_add_library( kwiver_algo_ocv
   ${ocv_headers_public}
   ${ocv_sources}
   )
+
 target_link_libraries( kwiver_algo_ocv
   PUBLIC               kwiver_algo_core
                        ${OpenCV_LIBS}
+                       kwiver_ocv_image_container
   PRIVATE              kwiversys
   )
 
