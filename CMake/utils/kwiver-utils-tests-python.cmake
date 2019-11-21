@@ -65,11 +65,11 @@ endfunction ()
 #
 function (kwiver_add_python_test group instance)
   string(TOLOWER "${CMAKE_PROJECT_NAME}" project_name)
-  set(python_module_path    "${kwiver_python_output_path}/${kwiver_python_subdir}/${python_sitename}/${project_name}")
+  set(python_module_path    "${kwiver_python_output_path}/${python_sitename}")
   set(python_chdir          ".")
 
   if (CMAKE_CONFIGURATION_TYPES)
-    set(python_module_path      "${kwiver_python_output_path}/$<CONFIGURATION>/${kwiver_python_subdir}/${python_sitename}/${project_name}")
+    set(python_module_path      "${kwiver_python_output_path}/$<CONFIGURATION>/${python_sitename}")
     set(python_chdir           "$<CONFIGURATION>")
   endif ()
 
