@@ -7,17 +7,15 @@
 # from sprokit.utilities import homography
 #from sprokit.utilities import timestamp
 from __future__ import print_function
-from kwiver.sprokit.pipeline.process import PythonProcess
+from kwiver.sprokit.processes import KwiverProcess
 
 # from libkwiver_python_convert_homography.homograpy import HomograpyTra
 import os.path
 # import libkwiver_python_convert_homography
 
-
-
-class HomographyWriterProcess(PythonProcess):
+class HomographyWriterProcess(KwiverProcess):
     def __init__(self, conf):
-        PythonProcess.__init__(self, conf)
+        KwiverProcess.__init__(self, conf)
 
         # declare our configuration items
         self.declare_configuration_key(
@@ -26,7 +24,7 @@ class HomographyWriterProcess(PythonProcess):
             'The output file name.')
 
 
-        required = sprokit.pipeline.process.PortFlags()
+        required = kwiver.sprokit.pipeline.process.PortFlags()
         required.add(self.flag_required)
 
         # create input ports

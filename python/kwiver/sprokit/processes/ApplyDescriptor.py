@@ -28,7 +28,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import print_function
 from kwiver.sprokit.pipeline import process
-from kwiver.kwiver_process import KwiverProcess
+from kwiver.sprokit.processes.kwiver_process import KwiverProcess
 from kwiver.vital.util.VitalPIL import from_pil, get_pil_image
 from kwiver.sprokit import sprokit_logging
 
