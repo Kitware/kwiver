@@ -27,14 +27,14 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import print_function
-import sprokit.pipeline.process
-import vital.config.config
+import kwiver.sprokit.pipeline.process
+import kwiver.vital.config.config
 
 import os.path
 
-class kw_print_number_process(sprokit.pipeline.process.PythonProcess):
+class kw_print_number_process(kwiver.sprokit.pipeline.process.PythonProcess):
     def __init__(self, conf ):
-        sprokit.pipeline.process.PythonProcess.__init__(self, conf)
+        kwiver.sprokit.pipeline.process.PythonProcess.__init__(self, conf)
 
         # declare our configuration items
         self.declare_configuration_key(
@@ -43,7 +43,7 @@ class kw_print_number_process(sprokit.pipeline.process.PythonProcess):
             'The path for the output file.')
 
         # create port flags
-        flags = sprokit.pipeline.process.PortFlags()
+        flags = kwiver.sprokit.pipeline.process.PortFlags()
         flags.add(self.flag_required)
 
         # create input ports
@@ -82,7 +82,7 @@ class kw_print_number_process(sprokit.pipeline.process.PythonProcess):
 
 # ==================================================================
 def __sprokit_register__():
-    from sprokit.pipeline import process_factory
+    from kwiver.sprokit.pipeline import process_factory
 
     module_name = 'python:kwiver.print_number'
 
