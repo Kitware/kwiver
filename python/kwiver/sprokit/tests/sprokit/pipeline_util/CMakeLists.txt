@@ -1,5 +1,5 @@
 set(kwiver_test_pipelines_directory
-  "${kwiver_test_data_directory}/pipelines")
+  "${KWIVER_SOURCE_DIR}/sprokit/tests/data/pipelines")
 
 set(__modnames
   bake
@@ -13,6 +13,6 @@ if (KWIVER_ENABLE_TESTS)
   include(kwiver-test-setup)
   foreach (group IN LISTS __modnames)
     kwiver_discover_python_tests(${group} test-${group}.py
-      ${sprokit_test_pipelines_directory})
+      ${kwiver_test_pipelines_directory})
   endforeach()
 endif()

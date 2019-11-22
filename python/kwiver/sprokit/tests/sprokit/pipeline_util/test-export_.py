@@ -65,6 +65,7 @@ if __name__ == '__main__':
     import os
     import sys
 
+    from kwiver.sprokit.util.test import *
     if not len(sys.argv) == 5:
         test_error("Expected four arguments")
         sys.exit(1)
@@ -78,7 +79,5 @@ if __name__ == '__main__':
     pipeline_dir = sys.argv[4]
 
     path = os.path.join(pipeline_dir, '%s.pipe' % testname)
-
-    from sprokit.test.util import *
 
     run_test(testname, find_tests(locals()), path)
