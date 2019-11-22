@@ -40,10 +40,6 @@ namespace kwiver {
 namespace arrows {
 namespace ffmpeg {
 
-// static open interlocking mutex
-std::mutex ffmpeg_video_input_impl::open_mutex;
-
-
 // ==================================================================
 ffmpeg_video_input
 ::ffmpeg_video_input()
