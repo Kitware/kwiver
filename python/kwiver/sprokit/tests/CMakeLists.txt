@@ -24,3 +24,7 @@ add_subdirectory(test)
 add_subdirectory(sprokit)
 add_subdirectory(modules)
 add_subdirectory(processes)
+
+kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
+                         sprokit/tests
+                         __init__)
