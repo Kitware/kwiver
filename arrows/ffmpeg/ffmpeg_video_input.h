@@ -36,10 +36,10 @@
 #ifndef KWIVER_ARROWS_FFMPEG_FFMPEG_VIDEO_INPUT_H
 #define KWIVER_ARROWS_FFMPEG_FFMPEG_VIDEO_INPUT_H
 
-#include <vital/algo/video_input.h>
-
 #include <arrows/ffmpeg/kwiver_algo_ffmpeg_export.h>
+#include <arrows/ffmpeg/ffmpeg_video_input_impl.h>
 
+#include <vital/algo/video_input.h>
 
 namespace kwiver {
 namespace arrows {
@@ -72,7 +72,6 @@ public:
   virtual void close();
 
   virtual bool end_of_video() const;
-  virtual bool good() const;
 
   virtual bool seekable() const;
   virtual size_t num_frames() const;
@@ -83,15 +82,15 @@ public:
                           kwiver::vital::timestamp::frame_t frame_number,
                           uint32_t timeout = 0) ;
 
-  virtual kwiver::vital::timestamp frame_timestamp() const;
   virtual kwiver::vital::image_container_sptr frame_image();
   virtual kwiver::vital::metadata_vector frame_metadata();
   virtual kwiver::vital::metadata_map_sptr metadata_map();
+  virtual kwiver::vital::timestamp frame_timestamp() const;
+  virtual bool good() const;
 
 private:
   /// private implementation class
-  class priv;
-  const std::unique_ptr<priv> d;
+  const std::unique_ptr<ffmpeg_video_input_impl> d;
 };
 
 } } } // end namespace
