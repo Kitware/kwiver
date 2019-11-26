@@ -7,7 +7,7 @@
 # from sprokit.utilities import homography
 #from sprokit.utilities import timestamp
 from __future__ import print_function
-from kwiver.sprokit.processes import KwiverProcess
+from kwiver.sprokit.processes.kwiver_process import KwiverProcess
 
 # from libkwiver_python_convert_homography.homograpy import HomograpyTra
 import os.path
