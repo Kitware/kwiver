@@ -71,6 +71,13 @@ setup(
                    ],
         entry_points={
             'kwiver.python_plugin_registration': [
+                'pythread_process=kwiver.sprokit.schedulers.pythread_per_process',
+                'pythread_process_scheduler=kwiver.sprokit.schedulers.pythread_per_process_scheduler',
+                'apply_descriptor=kwiver.sprokit.processes.ApplyDescriptor',
+                'process_image=kwiver.sprokit.processes.ProcessImage',
+                'print_number_process=kwiver.sprokit.processes.kw_print_number_process',
+                'homography_writer=kwiver.sprokit.processes.homography_writer',
+
                 ],
             'kwiver.cpp_search_paths': [
                 'sprokit_process=kwiver.vital.util.entrypoint:sprokit_process_path',
