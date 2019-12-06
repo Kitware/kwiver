@@ -86,9 +86,6 @@ setup(
             'console_scripts': [
                 'plugin_explorer=kwiver.kwiver_tools:plugin_explorer',
                 'kwiver=kwiver.kwiver_tools:kwiver',
-                'pipeline_runner=kwiver.kwiver_tools:pipeline_runner',
-                'pipe_config=kwiver.kwiver_tools:pipe_config',
-                'pipe_to_dot=kwiver.kwiver_tools:pipe_to_dot',
                 ]
         },
     )
