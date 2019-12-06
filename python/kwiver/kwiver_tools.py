@@ -9,8 +9,7 @@ from kwiver.vital import vital_logging
 from kwiver.vital.util.initial_plugin_path import get_initial_plugin_path
 
 KWIVER_BIN_DIR = os.path.join(os.path.dirname(os.path.abspath(kwiver.__file__)), 'bin')
-KWIVER_SUPPORTED_TOOLS = ["kwiver", "plugin_explorer", "pipeline_runner",
-                          "pipe_config", "pipe_to_dot"]
+KWIVER_SUPPORTED_TOOLS = ['kwiver', 'plugin_explorer']
 logger = vital_logging.getLogger(__name__)
 
 def _create_env_var_string( values ):
@@ -44,6 +43,7 @@ def _setup_environment():
 
     tool_environment = {
                             "LD_LIBRARY_PATH": ld_library_path_str,
+                            #"VITAL_LOGGER_FACTORY": vital_logger_factory,
                             "KWIVER_PLUGIN_PATH": get_initial_plugin_path()
                        }
     # Add the remaining environment variables without fiddling with what we have already set
@@ -71,15 +71,3 @@ def plugin_explorer():
 
 def kwiver():
     raise SystemExit(_kwiver_tools("kwiver", sys.argv[1:]))
-
-
-def pipeline_runner():
-    raise SystemExit(_kwiver_tools("pipeline_runner", sys.argv[1:]))
-
-
-def pipe_to_dot():
-    raise SystemExit(_kwiver_tools("pipe_to_dot", sys.argv[1:]))
-
-
-def pipe_config():
-    raise SystemExit(_kwiver_tools("pipe_config", sys.argv[1:]))
