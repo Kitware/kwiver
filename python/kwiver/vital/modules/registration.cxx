@@ -99,7 +99,6 @@ register_factories(kwiver::vital::plugin_loader& vpm)
     python_library_path = find_python_library();
   }
   load_python_library_symbols(python_library_path);
-
   // Load python modules
   {
     kwiver::vital::python::gil_scoped_acquire acquire;
@@ -149,27 +148,21 @@ load_additional_cpp_modules(kwiver::vital::plugin_loader& vpm)
   py::object py_additional_paths = get_cpp_paths_from_entrypoint();
   auto additional_paths = py_additional_paths.cast<std::vector<std::string>>();
   auto current_search_paths = vpm.get_search_path();
+  auto new_search_paths = std::vector<std::string>();
   for(auto& current_search_path : current_search_paths)
   {
       LOG_INFO(logger, "Current search path" + current_search_path);
   }
 
-  for(auto additional_path=additional_paths.begin();
-      additional_path!=additional_paths.end();)
+  for(auto& additional_path: additional_paths)
   {
     if(std::find(current_search_paths.begin(),
                  current_search_paths.end(),
-                 *additional_path) != current_search_paths.end())
+                 additional_path) == current_search_paths.end())
     {
-      additional_path = additional_paths.erase(additional_path);
-      LOG_DEBUG(logger, "Removing duplicate plugin path" + *additional_path);
-    }
-    else
-    {
-      LOG_DEBUG(logger, "Adding path" + *additional_path);
-      ++additional_path;
+      new_search_paths.push_back(additional_path);
+      LOG_INFO(logger, "new search path" + additional_path);
     }
   }
-  vpm.load_plugins(additional_paths);
-  vpm.add_search_path(additional_paths);
+  vpm.load_plugins(new_search_paths);
 }
