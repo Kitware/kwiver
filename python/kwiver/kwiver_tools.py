@@ -43,7 +43,7 @@ def _setup_environment():
 
     tool_environment = {
                             "LD_LIBRARY_PATH": ld_library_path_str,
-                            #"VITAL_LOGGER_FACTORY": vital_logger_factory,
+                            "VITAL_LOGGER_FACTORY": vital_logger_factory,
                             "KWIVER_PLUGIN_PATH": get_initial_plugin_path()
                        }
     # Add the remaining environment variables without fiddling with what we have already set
