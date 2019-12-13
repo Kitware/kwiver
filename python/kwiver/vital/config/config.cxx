@@ -239,9 +239,9 @@ config( py::module& m)
                 :param key: A key in the configuration
                 :return: Boolean specifying if the key is present in the configuration
                )pbdoc")
-    .def_readonly_static("block_sep", &kwiver::vital::config_block::block_sep
+    .def_static("block_sep", &kwiver::vital::config_block::block_sep
       , "The string which separates block names from key names.")
-    .def_readonly_static("global_value", &kwiver::vital::config_block::global_value
+    .def_static("global_value", &kwiver::vital::config_block::global_value
       , "A special key which is automatically inherited on subblock requests.")
     .def("__len__", &kwiver::vital::python::config_len,
         R"pbdoc(Magic function that return the length of the configuration block)pbdoc")
