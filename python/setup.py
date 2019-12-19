@@ -3,18 +3,23 @@ import os.path as osp
 import os
 from setuptools import find_packages
 
+kwiver_install_dir = 'kwiver'
+kwiver_source_dir = '../'
+
 with open('VERSION', 'r') as f:
     version = f.read().strip()
 
-kwiver_install_dir = 'kwiver'
-kwiver_source_dir = '../'
+with open(os.path.join(kwiver_source_dir, 'README.rst'), 'r') as f:
+    long_description = f.read()
+
 setup(
         name='kwiver',
         version=version,
         description='Python and C++ toolkit that pulls together computer vision algorithms '
                      ' into highly modular run time configurable systems',
+        long_description=long_description,
         author='Kitware, Inc.',
-        author_email='http://public.kitware.com/mailman/listinfo/kwiver-users',
+        author_email='kwiver-developers@kitware.com',
         url='https://github.com/Kitware/kwiver',
         cmake_install_dir=kwiver_install_dir,
         cmake_source_dir=kwiver_source_dir,
@@ -23,10 +28,7 @@ setup(
             'Intended Audience :: Developers',
             'Intended Audience :: Science/Research',
             'License :: OSI Approved :: BSD License',
-            'Programming Language :: Python :: 3.5',
             'Programming Language :: Python :: 3.6',
-            'Programming Language :: Python :: 3.7',
-            'Programming Language :: Python :: 3.8',
             'Operating System :: Unix',
             'Topic :: Scientific/Engineering :: Artificial Intelligence',
             ],
