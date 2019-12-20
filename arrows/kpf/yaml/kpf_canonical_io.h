@@ -216,8 +216,8 @@ struct KPF_YAML_EXPORT reader< canonical::activity_t >
 template <>
 struct KPF_YAML_EXPORT reader< canonical::id_t >
 {
-  reader(size_t& id, int d ): id_ref(id), domain(d) {}
-  size_t& id_ref;
+  reader(unsigned long long id, int d ): id_ref(id), domain(d) {}
+  unsigned long long& id_ref;
   int domain;
 };
 

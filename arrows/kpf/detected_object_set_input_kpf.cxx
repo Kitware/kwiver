@@ -48,6 +48,40 @@
 #include <sstream>
 #include <cstdlib>
 
+namespace
+{
+
+struct track_activity_key_t
+{
+  unsigned long long ID1;  // track ID
+  unsigned start_frame, end_frame;
+  track_activity_key_t()
+    : ID1(0), start_frame(0), end_frame(0) {}
+  track_activity_key_t( unsigned long long id1, unsigned start, unsigned end )
+    : ID1(id1), start_frame( start ), end_frame( end ) {}
+};
+
+bool operator<( const track_activity_key_t& lhs, const track_activity_key_t& rhs )
+{
+  if (lhs.ID1 == rhs.ID1)
+  {
+    if (lhs.start_frame == rhs.start_frame)
+    {
+      return lhs.end_frame < rhs.end_frame;
+    }
+    else
+    {
+      return lhs.start_frame < rhs.start_frame;
+    }
+  }
+  else
+  {
+    return lhs.ID1 < rhs.ID1;
+  }
+}
+
+} // ...anon
+
 namespace kwiver {
 namespace arrows {
 namespace kpf {
@@ -59,10 +93,14 @@ public:
   priv( detected_object_set_input_kpf* parent)
     : m_parent( parent )
     , m_first( true )
+    , m_kpf_types_path( "" )
+    , m_kpf_activities_path( "" )
   { }
 
   ~priv() { }
 
+  void read_types();
+  void read_activities();
   void read_all();
 
   detected_object_set_input_kpf* m_parent;
@@ -71,9 +109,20 @@ public:
   int m_current_idx;
   int m_last_idx;
 
+  // full path to KPF types file
+  std::string m_kpf_types_path;
+  // full path to KPF activities file
+  std::string m_kpf_activities_path;
+
   // Map of detected objects indexed by frame number. Each set
   // contains all detections for a single frame.
   std::map< int, kwiver::vital::detected_object_set_sptr > m_detected_sets;
+
+  // Map of track ID1 to object type name
+  std::map< unsigned long long, std::string > m_object_types;
+
+  // Map of track segments to activity names
+  std::map< track_activity_key_t, std::string > m_track_to_activity;
 };
 
 
@@ -96,7 +145,10 @@ detected_object_set_input_kpf::
 void
 detected_object_set_input_kpf::
 set_configuration(vital::config_block_sptr config)
-{ }
+{
+  d->m_kpf_types_path = config->get_value<std::string>( "kpf_types_filepath", "" );
+  d->m_kpf_activities_path = config->get_value<std::string>( "kpf_activities_filepath", "" );
+}
 
 
 // ------------------------------------------------------------------
@@ -152,6 +204,72 @@ new_stream()
 {
   d->m_first = true;
 }
+
+std::pair< bool, std::string >
+detected_object_set_input_kpf::
+get_typestring_for_id( unsigned long long object_id ) const
+{
+  auto probe = d->m_object_types.find( object_id );
+  if ( probe == d->m_object_types.end())
+  {
+    return std::make_pair( false, "" );
+  }
+  else
+  {
+    return std::make_pair( true, probe->second );
+  }
+}
+
+// ==================================================================
+void
+detected_object_set_input_kpf::priv::
+read_types()
+{
+  m_object_types.clear();
+  if (m_kpf_types_path.empty())
+  {
+    LOG_INFO( m_parent->logger(), "No KPF types file set; no type information available" );
+    return;
+  }
+
+  std::ifstream is( m_kpf_types_path.c_str() );
+  if ( ! is )
+  {
+    LOG_ERROR( m_parent->logger(), "Couldn't open KPF types file '" << m_kpf_types_path
+               << "' for reading; no type information available" );
+    return;
+  }
+
+  KPF::kpf_yaml_parser_t parser( is );
+  KPF::kpf_reader_t reader( parser );
+
+  unsigned long long id1;
+  KPFC::cset_t cset;
+
+  // accept either domain 2 or 3
+  while ( reader
+          >> KPF::reader< KPFC::id_t >( id1, KPFC::id_t::TRACK_ID )
+          >> KPF::reader< KPFC::cset_t >( cset, KPF::packet_header_t::ANY_DOMAIN ))
+  {
+    // find the cset with confidence 1.0
+    auto probe = std::find_if( cset.d.cbegin(),
+                               cset.d.cend(),
+                               []( const std::pair< std::string, double>& p ) { return p.second == 1.0; });
+    if (probe == cset.d.cend())
+    {
+      LOG_ERROR( m_parent->logger(), "KPF types file '" << m_kpf_types_path << "' "
+                 << " ID1 of " << id1 << " cset does not have confidence 1.0?" );
+    }
+    else
+    {
+      m_object_types[ id1 ] = probe->first;
+    }
+
+    reader.flush();
+  }
+  LOG_INFO( m_parent->logger(), "Loaded " << m_object_types.size() << " KPF object types" );
+}
+
 
 
 // ==================================================================
