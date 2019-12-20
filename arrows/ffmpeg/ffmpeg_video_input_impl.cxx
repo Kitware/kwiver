@@ -198,10 +198,12 @@ kwiver::arrows::ffmpeg::ffmpeg_video_input_impl::open(std::string video_name)
       return false;
   }
 
+  auto seek_timestamp = av_rescale_q( INT64_MIN, AV_TIME_BASE_Q,
+                                      f_video_stream->time_base );
   // Now seek back to the start of the video
   auto seek_rslt = av_seek_frame( f_format_context,
                                   f_video_index,
-                                  INT64_MIN,
+                                  seek_timestamp,
                                   AVSEEK_FLAG_BACKWARD );
   avcodec_flush_buffers( f_video_encoding );
   if (seek_rslt < 0 )
@@ -358,8 +360,10 @@ kwiver::arrows::ffmpeg::ffmpeg_video_input_impl::seek( uint64_t frame )
   bool advance_successful = false;
   do
   {
+    auto rescaled_frame_ts = av_rescale_q( frame_ts, AV_TIME_BASE_Q,
+                                        this->f_video_stream->time_base );
     auto seek_rslt = av_seek_frame( f_format_context,
-                                    f_video_index, frame_ts,
+                                    f_video_index, rescaled_frame_ts,
                                     AVSEEK_FLAG_BACKWARD );
     avcodec_flush_buffers( f_video_encoding );
 
