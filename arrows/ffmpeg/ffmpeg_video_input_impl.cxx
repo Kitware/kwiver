@@ -240,7 +240,7 @@ kwiver::arrows::ffmpeg::ffmpeg_video_input_impl::close()
 
   if (f_video_stream)
   {
-    avcodec_close(f_video_stream ->codec);
+    avcodec_close(f_video_stream->codec);
     f_video_stream = nullptr;
   }
   if (f_format_context)
@@ -249,7 +249,12 @@ kwiver::arrows::ffmpeg::ffmpeg_video_input_impl::close()
     f_format_context = nullptr;
   }
 
-  f_video_encoding = nullptr;
+  if (f_video_encoding)
+  {
+    avcodec_close(f_video_encoding);
+    avcodec_free_context(&f_video_encoding);
+    f_video_encoding = nullptr;
+  }
 }
 
 bool
