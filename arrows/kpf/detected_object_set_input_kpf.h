@@ -57,6 +57,7 @@ public:
   virtual bool read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name );
 
   std::pair< bool, std::string > get_typestring_for_id( unsigned long long object_id ) const;
+  std::pair< bool, std::string > get_activityname_for_id_and_frame( unsigned long long object_id, unsigned frame_number ) const;
 
 private:
   virtual void new_stream();

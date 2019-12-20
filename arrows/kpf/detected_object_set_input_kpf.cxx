@@ -86,6 +86,19 @@ namespace kwiver {
 namespace arrows {
 namespace kpf {
 
+struct null_kpf_act_adapter: public KPF::kpf_act_adapter< KPFC::activity_t >
+{
+  null_kpf_act_adapter():
+    kpf_act_adapter< KPFC::activity_t > (
+      []( const KPFC::activity_t& c, KPFC::activity_t& user ) {
+        user = c;
+      },
+      []( const KPFC::activity_t& user) {
+        return user;
+      })
+  {}
+};
+
 // ------------------------------------------------------------------
 class detected_object_set_input_kpf::priv
 {
@@ -220,6 +233,25 @@ get_typestring_for_id( unsigned long long object_id ) const
   }
 }
 
+std::pair< bool, std::string >
+detected_object_set_input_kpf::
+get_activityname_for_id_and_frame( unsigned long long object_id, unsigned frame_number ) const
+{
+  for (const auto& p: d->m_track_to_activity)
+  {
+    const auto& key = p.first;
+    if ( (key.ID1 == object_id) &&
+         (key.start_frame <= frame_number) &&
+         (frame_number <= key.end_frame))
+    {
+      return std::make_pair(true, p.second);
+    }
+  }
+  return std::make_pair( false, "" );
+}
+
+
+
 // ==================================================================
 void
 detected_object_set_input_kpf::priv::
@@ -243,7 +275,7 @@ read_types()
   KPF::kpf_yaml_parser_t parser( is );
   KPF::kpf_reader_t reader( parser );
 
-  unsigned long long id1;
+  unsigned long long id1(0);
   KPFC::cset_t cset;
 
   // accept either domain 2 or 3
@@ -270,6 +302,77 @@ read_types()
   LOG_INFO( m_parent->logger(), "Loaded " << m_object_types.size() << " KPF object types" );
 }
 
+// ==================================================================
+void
+detected_object_set_input_kpf::priv::
+read_activities()
+{
+  m_track_to_activity.clear();
+  if (m_kpf_activities_path.empty())
+  {
+    LOG_INFO( m_parent->logger(), "No KPF activities file set; no activities information available" );
+    return;
+  }
+
+  std::ifstream is( m_kpf_activities_path.c_str() );
+  if ( ! is )
+  {
+    LOG_ERROR( m_parent->logger(), "Couldn't open KPF activities file '" << m_kpf_types_path
+               << "' for reading; no activities information available" );
+    return;
+  }
+
+  KPF::kpf_yaml_parser_t parser( is );
+  KPF::kpf_reader_t reader( parser );
+
+  null_kpf_act_adapter adapter;
+  KPFC::activity_t act;
+
+  // accept any domain for now
+  while ( reader
+          >> KPF::reader< KPFC::activity_t >( adapter, KPF::packet_header_t::ANY_DOMAIN ))
+  {
+    adapter.get( act );
+    // lookup the activity type
+    auto probe = std::find_if( act.activity_labels.d.cbegin(),
+                               act.activity_labels.d.cend(),
+                               []( const std::pair< std::string, double>& p ) { return p.second == 1.0; });
+    if (probe == act.activity_labels.d.cend())
+    {
+      LOG_ERROR( m_parent->logger(), "KPF activities file '" << m_kpf_activities_path << "' "
+                 << " ID2 of " << act.activity_id.t.d << " cset does not have confidence 1.0?" );
+      continue;
+    }
+    std::string activity_name = probe->first;
+
+    for (const auto& actor: act.actors)
+    {
+      // hmm, assumes actor ID is always domain 1, will need updating when world IDs come along
+      unsigned long long id1 = actor.actor_id.t.d;
+      auto probe = std::find_if( actor.actor_timespan.cbegin(),
+                                 actor.actor_timespan.cend(),
+                                 [] ( const KPFC::scoped< KPFC::timestamp_range_t >& p ) { return p.domain == KPFC::timestamp_t::FRAME_NUMBER; });
+      if (probe == actor.actor_timespan.cend())
+      {
+        LOG_ERROR( m_parent->logger(), "KPF activities file '" << m_kpf_activities_path << "' "
+                   << "activity " << act.activity_id.t.d << " actor " << id1 << " timespan has no frame numbers?" );
+      }
+      else
+      {
+        unsigned start_frame = probe->t.start;
+        unsigned stop_frame = probe->t.stop;
+
+        track_activity_key_t key( id1, start_frame, stop_frame );
+        m_track_to_activity[ key ] = activity_name;
+      }
+    } // ... for each actor
+
+    reader.flush();
+  } // ...for each activity
+
+  LOG_INFO( m_parent->logger(), "Loaded " << m_track_to_activity.size() << " actor activity names" );
+
+}
 
 
 // ==================================================================
@@ -284,7 +387,7 @@ read_all()
   KPF::kpf_yaml_parser_t parser(m_parent->stream());
   KPF::kpf_reader_t reader(parser);
 
-  size_t      detection_id;
+  size_t      detection_id(0);
   double      frame_number;
   vital_box_adapter_t box_adapter;
   kwiver::vital::detected_object_type_sptr types(new kwiver::vital::detected_object_type());
