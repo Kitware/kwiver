@@ -223,12 +223,11 @@ public:
   /**
    * @brief Filter detections via an arbitrary function
    *
-   * Filter the detected object set based on some predicate function
+   * Filter the detected object set based on some predicate
+   * function. The set is modified in place.
    *
-   * @param p Predicate function which returns true if an element should
-   *          be removed.
-   *
-   * @return List of detections.
+   * @param p Predicate function/functor which returns true if an
+   *          element should be removed.
    */
   template< class UnaryPredicate >
   void filter( UnaryPredicate p )
