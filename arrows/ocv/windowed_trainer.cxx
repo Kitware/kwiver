@@ -461,6 +461,11 @@ windowed_trainer::priv
       continue;
     }
 
+    if( rand() / RAND_MAX > 0.5 )
+    {
+      continue;
+    }
+
     const std::string image_fn = image_names[fid];
 
     if( m_mode == "disabled" && !m_always_write_image )
@@ -532,6 +537,11 @@ windowed_trainer::priv
   cv::Mat resized_image;
   vital::detected_object_set_sptr scaled_groundtruth = groundtruth->clone();
   vital::detected_object_set_sptr filtered_truth;
+
+  if( image.channels() != 3 )
+  {
+    return;
+  }
 
   double resized_scale = 1.0;
 
@@ -618,6 +628,11 @@ windowed_trainer::priv
 
         if( filter_detections_in_roi( scaled_groundtruth, roi_box, filtered_truth ) )
         {
+          if( !filtered_truth || filtered_truth->size() == 0 )
+          {
+            continue;
+          }
+
           std::string img_file = generate_filename();
           write_chip_to_disk( img_file, resized_crop );
 
