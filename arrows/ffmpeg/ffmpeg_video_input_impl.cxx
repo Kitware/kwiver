@@ -67,6 +67,7 @@ bool
 kwiver::arrows::ffmpeg::ffmpeg_video_input_impl::open(std::string video_name)
 {
   // Open the file
+  video_path = video_name;
   int err = avformat_open_input(&f_format_context,
                                  video_path.c_str(),
                                  NULL,
