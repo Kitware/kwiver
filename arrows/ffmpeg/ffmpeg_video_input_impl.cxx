@@ -198,7 +198,7 @@ kwiver::arrows::ffmpeg::ffmpeg_video_input_impl::open(std::string video_name)
       return false;
   }
 
-  auto seek_timestamp = av_rescale_q( INT64_MIN, AV_TIME_BASE_Q,
+  auto seek_timestamp = av_rescale_q( 0, AV_TIME_BASE_Q,
                                       f_video_stream->time_base );
   // Now seek back to the start of the video
   auto seek_rslt = av_seek_frame( f_format_context,
