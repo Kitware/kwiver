@@ -663,7 +663,6 @@ ffmpeg_video_input
   : d( new ffmpeg_video_input_impl() )
 {
   attach_logger( "ffmpeg_video_input" ); // get appropriate logger
-  d->logger = this->logger();
 
   this->set_capability(vital::algo::video_input::HAS_EOV, true);
   this->set_capability(vital::algo::video_input::HAS_FRAME_NUMBERS, true);

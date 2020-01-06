@@ -53,6 +53,7 @@ kwiver::arrows::ffmpeg::ffmpeg_video_input_impl::ffmpeg_video_input_impl():
     have_loop_vars(false)
 {
   f_packet.data = nullptr;
+  logger = kwiver::vital::get_logger( "ffmpeg_video_input_implementation" );
   ffmpeg_init();
 }
 
