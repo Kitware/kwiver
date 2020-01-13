@@ -468,8 +468,9 @@ class SRNNTracker(KwiverProcess):
             #print('***track_state_list len', len(track_state_list))
 
             # estimate similarity matrix
+            tracks = [track for track in track_set.iter_active() if not track.updated_flag]
             similarity_mat, track_idx_list = timing('SRNN association', lambda: (
-                self._srnn_matching(self._track_set, track_state_list, self._ts_threshold)
+                self._srnn_matching(tracks, track_state_list, self._ts_threshold)
             ))
 
             # reset updated_flag
