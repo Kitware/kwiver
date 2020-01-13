@@ -21,6 +21,8 @@ kwiver_add_python_library(algorithm
   compute_depth.h
   compute_ref_homography.cxx
   compute_ref_homography.h
+  compute_stereo_depth_map.cxx
+  compute_stereo_depth_map.h
   detected_object_set_output.cxx
   detected_object_set_output.h
   image_object_detector.cxx
@@ -32,6 +34,7 @@ kwiver_add_python_library(algorithm
   trampoline/compute_association_matrix_trampoline.txx
   trampoline/compute_depth_trampoline.txx
   trampoline/compute_ref_homography_trampoline.txx
+  trampoline/compute_stereo_depth_map_trampoline.txx
   trampoline/detected_object_set_output_trampoline.txx
   trampoline/image_object_detector_trampoline.txx
 )
