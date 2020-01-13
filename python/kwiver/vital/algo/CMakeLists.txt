@@ -16,6 +16,8 @@ kwiver_add_python_library(algorithm
   bundle_adjust.h
   close_loops.cxx
   close_loops.h
+  compute_association_matrix.cxx
+  compute_association_matrix.h
   detected_object_set_output.cxx
   detected_object_set_output.h
   image_object_detector.cxx
@@ -24,6 +26,7 @@ kwiver_add_python_library(algorithm
   trampoline/analyze_tracks_trampoline.txx
   trampoline/bundle_adjust_trampoline.txx
   trampoline/close_loops_trampoline.txx
+  trampoline/compute_association_matrix_trampoline.txx
   trampoline/detected_object_set_output_trampoline.txx
   trampoline/image_object_detector_trampoline.txx
 )
