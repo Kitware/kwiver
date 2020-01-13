@@ -494,7 +494,7 @@ class SRNNTracker(KwiverProcess):
                         next_track_id += 1
                 else:
                     # add to existing track
-                    self._track_set.update_track(track_idx_list[r], track_state_list[c])
+                    self._track_set[track_idx_list[r]].append(track_state_list[c])
 
         print('total tracks', len(self._track_set))
 

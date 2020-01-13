@@ -71,7 +71,7 @@ class IOUTracker(object):
 
             # Add the matching det
             track.updated_flag = True
-            track_set.update_track(track.track_id, match)
+            track.append(match)
             # remove matching detection from detections
             del track_state_list[track_state_list.index(match)]
 

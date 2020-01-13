@@ -148,9 +148,6 @@ class track_set(object):
         new_track.append(track_state)
         self.add_new_track(new_track)
 
-    def update_track(self, track_id, new_track_state):
-        self[track_id].append(new_track_state)
-
     def reset_updated_flags(self):
         for track in self:
             track.updated_flag = False
