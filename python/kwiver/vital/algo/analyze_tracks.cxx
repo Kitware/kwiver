@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2019 by Kitware, Inc.
+ * Copyright 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,36 +28,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file algorithm_implementation.cxx
- *
- * \brief python bindings for algorithm
- */
-
-
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
-#include <vital/algo/algorithm.h>
-#include <vital/algo/analyze_tracks.h>
-#include <vital/algo/image_object_detector.h>
 #include <python/kwiver/vital/algo/trampoline/analyze_tracks_trampoline.txx>
-#include <python/kwiver/vital/algo/trampoline/image_object_detector_trampoline.txx>
-#include <python/kwiver/vital/algo/algorithm.h>
 #include <python/kwiver/vital/algo/analyze_tracks.h>
-#include <python/kwiver/vital/algo/image_object_detector.h>
-#include <sstream>
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(algorithm, m)
+void analyze_tracks(py::module &m)
 {
-  algorithm(m);
-  register_algorithm<kwiver::vital::algo::analyze_tracks,
-            algorithm_def_at_trampoline<>>(m, "analyze_tracks");
-  register_algorithm<kwiver::vital::algo::image_object_detector,
-            algorithm_def_iod_trampoline<>>(m, "image_object_detector");
-
-  analyze_tracks(m);
-  image_object_detector(m);
+  py::class_< kwiver::vital::algo::analyze_tracks,
+              std::shared_ptr<kwiver::vital::algo::analyze_tracks>,
+              kwiver::vital::algorithm_def<kwiver::vital::algo::analyze_tracks>,
+              analyze_tracks_trampoline<> >(m, "AnalyzeTracks")
+    .def(py::init())
+    .def_static("static_type_name", &kwiver::vital::algo::analyze_tracks::static_type_name)
+    .def("analyze_tracks", &kwiver::vital::algo::analyze_tracks::print_info);
 }
