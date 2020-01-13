@@ -10,6 +10,7 @@ kwiver_add_python_library(algorithm
   bundle_adjust.h
   close_loops.h
   compute_association_matrix.h
+  compute_depth.h
   image_object_detector.h
   algorithm.cxx
   analyze_tracks.cxx
@@ -17,6 +18,7 @@ kwiver_add_python_library(algorithm
   bundle_adjust.cxx
   close_loops.cxx
   compute_association_matrix.cxx
+  compute_depth.cxx
   image_object_detector.cxx
   algorithm_module.cxx
   trampoline/algorithm_trampoline.txx
@@ -24,6 +26,7 @@ kwiver_add_python_library(algorithm
   trampoline/close_loops_trampoline.txx
   trampoline/bundle_adjust_trampoline.txx
   trampoline/compute_association_matrix_trampoline.txx
+  trampoline/compute_depth_trampoline.txx
   trampoline/image_object_detector_trampoline.txx
 )
 
