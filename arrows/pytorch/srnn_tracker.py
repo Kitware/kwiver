@@ -471,8 +471,8 @@ class SRNNTracker(KwiverProcess):
                 self._srnn_matching(self._track_set, track_state_list, self._ts_threshold)
             ))
 
-            # reset update_flag
-            self._track_set.reset_updated_flag()
+            # reset updated_flag
+            self._track_set.reset_updated_flags()
 
             # Hungarian algorithm
             row_idx_list, col_idx_list = timing('Hungarian algorithm', lambda: (
