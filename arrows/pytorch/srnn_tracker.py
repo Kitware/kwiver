@@ -456,7 +456,7 @@ class SRNNTracker(KwiverProcess):
                     or fid - track[-1].sys_frame_id > self._sys_terminate_track_threshold):
                     self._track_set.deactivate_track(track)
 
-            tracks = [track for track in self._track_set.iter_active() if not track.updated_flag]
+            tracks = list(self._track_set.iter_active())
 
             # call IOU tracker
             if self._IOU_flag:
@@ -471,9 +471,6 @@ class SRNNTracker(KwiverProcess):
             similarity_mat, track_idx_list = timing('SRNN association', lambda: (
                 self._srnn_matching(tracks, track_state_list, self._ts_threshold)
             ))
-
-            # reset updated_flag
-            self._track_set.reset_updated_flags()
 
             # Hungarian algorithm
             row_idx_list, col_idx_list = timing('Hungarian algorithm', lambda: (
