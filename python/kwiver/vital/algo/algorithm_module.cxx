@@ -43,11 +43,13 @@
 #include <vital/algo/image_object_detector.h>
 #include <python/kwiver/vital/algo/trampoline/analyze_tracks_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/associate_detections_to_tracks_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/close_loops_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/bundle_adjust_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/image_object_detector_trampoline.txx>
 #include <python/kwiver/vital/algo/algorithm.h>
 #include <python/kwiver/vital/algo/analyze_tracks.h>
 #include <python/kwiver/vital/algo/associate_detections_to_tracks.h>
+#include <python/kwiver/vital/algo/close_loops.h>
 #include <python/kwiver/vital/algo/bundle_adjust.h>
 #include <python/kwiver/vital/algo/image_object_detector.h>
 #include <sstream>
@@ -63,11 +65,14 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_adtt_trampoline<>>(m, "associate_detections_to_tracks");
   register_algorithm<kwiver::vital::algo::bundle_adjust,
             algorithm_def_ba_trampoline<>>(m, "bundle_adjust");
+  register_algorithm<kwiver::vital::algo::close_loops,
+            algorithm_def_cl_trampoline<>>(m, "close_loops");
   register_algorithm<kwiver::vital::algo::image_object_detector,
             algorithm_def_iod_trampoline<>>(m, "image_object_detector");
 
   analyze_tracks(m);
   associate_detections_to_tracks(m);
   bundle_adjust(m);
+  close_loops(m);
   image_object_detector(m);
 }
