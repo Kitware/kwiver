@@ -12,6 +12,7 @@ kwiver_add_python_library(algorithm
   compute_association_matrix.h
   compute_depth.h
   compute_ref_homography.h
+  compute_stereo_depth_map.h
   image_object_detector.h
   algorithm.cxx
   analyze_tracks.cxx
@@ -21,6 +22,7 @@ kwiver_add_python_library(algorithm
   compute_association_matrix.cxx
   compute_depth.cxx
   compute_ref_homography.cxx
+  compute_stereo_depth_map.cxx
   image_object_detector.cxx
   algorithm_module.cxx
   trampoline/algorithm_trampoline.txx
@@ -30,6 +32,7 @@ kwiver_add_python_library(algorithm
   trampoline/compute_association_matrix_trampoline.txx
   trampoline/compute_depth_trampoline.txx
   trampoline/compute_ref_homography_trampoline.txx
+  trampoline/compute_stereo_depth_map_trampoline.txx
   trampoline/image_object_detector_trampoline.txx
 )
 
