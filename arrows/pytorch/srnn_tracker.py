@@ -456,10 +456,10 @@ class SRNNTracker(KwiverProcess):
                     or fid - track[-1].sys_frame_id > self._sys_terminate_track_threshold):
                     self._track_set.deactivate_track(track)
 
+            tracks = [track for track in self._track_set.iter_active() if not track.updated_flag]
 
             # call IOU tracker
             if self._IOU_flag:
-                tracks = (track for track in self._track_set.iter_active() if not track.updated_flag)
                 tracks, track_state_list = timing('IOU tracking', lambda: (
                     self._iou_tracker(tracks, track_state_list)
                 ))
@@ -468,7 +468,6 @@ class SRNNTracker(KwiverProcess):
             #print('***track_state_list len', len(track_state_list))
 
             # estimate similarity matrix
-            tracks = [track for track in track_set.iter_active() if not track.updated_flag]
             similarity_mat, track_idx_list = timing('SRNN association', lambda: (
                 self._srnn_matching(tracks, track_state_list, self._ts_threshold)
             ))
