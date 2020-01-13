@@ -32,13 +32,13 @@ class IOUTracker(object):
         self._iou_accept_threshold = iou_accept_threshold
         self._iou_reject_threshold = iou_reject_threshold
 
-    def __call__(self, track_set, track_state_list):
-        return self._track_iou(track_set, track_state_list)
+    def __call__(self, tracks, track_state_list):
+        return self._track_iou(tracks, track_state_list)
 
-    def _track_iou(self, track_set, track_state_list):
+    def _track_iou(self, tracks, track_state_list):
         """Append track states with a sufficiently high IOU and mark the
         destination tracks as updated.  Return a list of unused track
-        states.
+        states.  Tracks should be an iterable of tracks.
 
         """
         # IOU based tracking
@@ -47,9 +47,7 @@ class IOUTracker(object):
 
         track_state_list = track_state_list[:]
 
-        for track in track_set.iter_active():
-            if track.updated_flag:
-                continue
+        for track in tracks:
             # If there is exactly one detection at or above the
             # reject threshold, and it's additionally at or above
             # the accept threshold, add it to the track.

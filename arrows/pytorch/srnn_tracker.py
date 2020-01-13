@@ -459,8 +459,9 @@ class SRNNTracker(KwiverProcess):
 
             # call IOU tracker
             if self._IOU_flag:
+                tracks = (track for track in self._track_set.iter_active() if not track.updated_flag)
                 track_state_list = timing('IOU tracking', lambda: (
-                    self._iou_tracker(self._track_set, track_state_list)
+                    self._iou_tracker(tracks, track_state_list)
                 ))
 
             #print('***track_set len', len(self._track_set))
