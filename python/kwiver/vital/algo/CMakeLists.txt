@@ -6,9 +6,11 @@ kwiver_add_python_library(algorithm
   vital/algo
   algorithm.h
   analyze_tracks.h
+  associate_detections_to_tracks.h
   image_object_detector.h
   algorithm.cxx
   analyze_tracks.cxx
+  associate_detections_to_tracks.cxx
   image_object_detector.cxx
   algorithm_module.cxx
   trampoline/algorithm_trampoline.txx
