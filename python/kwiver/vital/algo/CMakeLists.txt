@@ -4,13 +4,17 @@ include_directories(${pybind11_INCLUDE_DIR})
 
 kwiver_add_python_library(algorithm
   vital/algo
+  algorithm.cxx
   algorithm.h
-  detected_object_set_output.h
-  detected_object_set_output.cxx
-  analyze_tracks.h
-  analyze_tracks.cxx
-  image_object_detector.cxx
   algorithm_module.cxx
+  analyze_tracks.cxx
+  analyze_tracks.h
+  associate_detections_to_tracks.cxx
+  associate_detections_to_tracks.h
+  detected_object_set_output.cxx
+  detected_object_set_output.h
+  image_object_detector.cxx
+  image_object_detector.h
   trampoline/algorithm_trampoline.txx
   trampoline/detected_object_set_output_trampoline.txx
   trampoline/analyze_tracks_trampoline.txx
