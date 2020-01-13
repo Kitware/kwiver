@@ -7,14 +7,17 @@ kwiver_add_python_library(algorithm
   algorithm.h
   analyze_tracks.h
   associate_detections_to_tracks.h
+  bundle_adjust.h
   image_object_detector.h
   algorithm.cxx
   analyze_tracks.cxx
   associate_detections_to_tracks.cxx
+  bundle_adjust.cxx
   image_object_detector.cxx
   algorithm_module.cxx
   trampoline/algorithm_trampoline.txx
   trampoline/analyze_tracks_trampoline.txx
+  trampoline/bundle_adjust_trampoline.txx
   trampoline/image_object_detector_trampoline.txx
 )
 

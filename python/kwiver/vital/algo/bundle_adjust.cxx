@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2019 by Kitware, Inc.
+ * Copyright 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,46 +28,36 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file algorithm_implementation.cxx
- *
- * \brief python bindings for algorithm
- */
-
-
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/functional.h>
 
-#include <vital/algo/algorithm.h>
-#include <vital/algo/analyze_tracks.h>
-#include <vital/algo/image_object_detector.h>
-#include <python/kwiver/vital/algo/trampoline/analyze_tracks_trampoline.txx>
-#include <python/kwiver/vital/algo/trampoline/associate_detections_to_tracks_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/bundle_adjust_trampoline.txx>
-#include <python/kwiver/vital/algo/trampoline/image_object_detector_trampoline.txx>
-#include <python/kwiver/vital/algo/algorithm.h>
-#include <python/kwiver/vital/algo/analyze_tracks.h>
-#include <python/kwiver/vital/algo/associate_detections_to_tracks.h>
 #include <python/kwiver/vital/algo/bundle_adjust.h>
-#include <python/kwiver/vital/algo/image_object_detector.h>
-#include <sstream>
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(algorithm, m)
+void bundle_adjust(py::module &m)
 {
-  algorithm(m);
-  register_algorithm<kwiver::vital::algo::analyze_tracks,
-            algorithm_def_at_trampoline<>>(m, "analyze_tracks");
-  register_algorithm<kwiver::vital::algo::associate_detections_to_tracks,
-            algorithm_def_adtt_trampoline<>>(m, "associate_detections_to_tracks");
-  register_algorithm<kwiver::vital::algo::bundle_adjust,
-            algorithm_def_ba_trampoline<>>(m, "bundle_adjust");
-  register_algorithm<kwiver::vital::algo::image_object_detector,
-            algorithm_def_iod_trampoline<>>(m, "image_object_detector");
-
-  analyze_tracks(m);
-  associate_detections_to_tracks(m);
-  bundle_adjust(m);
-  image_object_detector(m);
+  py::class_< kwiver::vital::algo::bundle_adjust,
+              std::shared_ptr<kwiver::vital::algo::bundle_adjust>,
+              kwiver::vital::algorithm_def<kwiver::vital::algo::bundle_adjust>,
+              bundle_adjust_trampoline<> >(m, "BundleAdjust")
+    .def(py::init())
+    .def_static("static_type_name", &kwiver::vital::algo::bundle_adjust::static_type_name)
+    .def("optimize", static_cast<void (kwiver::vital::algo::bundle_adjust::*)
+                                  (kwiver::vital::camera_map_sptr&,
+                                   kwiver::vital::landmark_map_sptr&,
+                                   kwiver::vital::feature_track_set_sptr,
+                                   kwiver::vital::sfm_constraints_sptr) const>
+                     (&kwiver::vital::algo::bundle_adjust::optimize))
+    .def("optimize", static_cast<void (kwiver::vital::algo::bundle_adjust::*)
+                                 (kwiver::vital::simple_camera_perspective_map&,
+                                  kwiver::vital::landmark_map::map_landmark_t&,
+                                  kwiver::vital::feature_track_set_sptr,
+                                  const std::set<kwiver::vital::frame_id_t>&,
+                                  const std::set<kwiver::vital::landmark_id_t>&,
+                                  kwiver::vital::sfm_constraints_sptr) const>
+                     (&kwiver::vital::algo::bundle_adjust::optimize))
+    .def("set_callback", &kwiver::vital::algo::bundle_adjust::set_callback);
 }
