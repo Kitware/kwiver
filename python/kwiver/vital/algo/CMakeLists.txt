@@ -4,7 +4,6 @@ include_directories(${pybind11_INCLUDE_DIR})
 
 kwiver_add_python_library(algorithm
   vital/algo
-  algorithm.h
   algorithm.cxx
   algorithm.h
   algorithm_module.cxx
@@ -20,6 +19,8 @@ kwiver_add_python_library(algorithm
   compute_association_matrix.h
   compute_depth.cxx
   compute_depth.h
+  compute_ref_homography.cxx
+  compute_ref_homography.h
   detected_object_set_output.cxx
   detected_object_set_output.h
   image_object_detector.cxx
@@ -30,6 +31,7 @@ kwiver_add_python_library(algorithm
   trampoline/close_loops_trampoline.txx
   trampoline/compute_association_matrix_trampoline.txx
   trampoline/compute_depth_trampoline.txx
+  trampoline/compute_ref_homography_trampoline.txx
   trampoline/detected_object_set_output_trampoline.txx
   trampoline/image_object_detector_trampoline.txx
 )

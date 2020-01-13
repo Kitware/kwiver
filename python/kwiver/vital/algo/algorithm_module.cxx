@@ -39,7 +39,6 @@
 #include <pybind11/stl.h>
 
 #include <vital/algo/algorithm.h>
-#include <vital/algo/image_object_detector.h>
 #include <python/kwiver/vital/algo/algorithm.h>
 #include <python/kwiver/vital/algo/analyze_tracks.h>
 #include <python/kwiver/vital/algo/associate_detections_to_tracks.h>
@@ -47,6 +46,7 @@
 #include <python/kwiver/vital/algo/close_loops.h>
 #include <python/kwiver/vital/algo/compute_association_matrix.h>
 #include <python/kwiver/vital/algo/compute_depth.h>
+#include <python/kwiver/vital/algo/compute_ref_homography.h>
 #include <python/kwiver/vital/algo/detected_object_set_output.h>
 #include <python/kwiver/vital/algo/image_object_detector.h>
 #include <python/kwiver/vital/algo/trampoline/analyze_tracks_trampoline.txx>
@@ -55,8 +55,10 @@
 #include <python/kwiver/vital/algo/trampoline/close_loops_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/compute_association_matrix_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/compute_depth_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/compute_ref_homography_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/detected_object_set_output_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/image_object_detector_trampoline.txx>
+#include <vital/algo/image_object_detector.h>
 #include <sstream>
 
 namespace py = pybind11;
@@ -78,6 +80,8 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_cam_trampoline<>>(m, "compute_association_matrix");
   register_algorithm<kwiver::vital::algo::compute_depth,
             algorithm_def_cd_trampoline<>>(m, "compute_depth");
+  register_algorithm<kwiver::vital::algo::compute_ref_homography,
+            algorithm_def_crh_trampoline<>>(m, "compute_ref_homography");
   register_algorithm<kwiver::vital::algo::image_object_detector,
             algorithm_def_iod_trampoline<>>(m, "image_object_detector");
 
@@ -89,4 +93,5 @@ PYBIND11_MODULE(algorithm, m)
   compute_association_matrix(m);
   image_object_detector(m);
   compute_depth(m);
+  compute_ref_homography(m);
 }
