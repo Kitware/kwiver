@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2020 by Kitware, Inc.
+ * Copyright 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,24 +28,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <pybind11/pybind11.h>
-#include <python/kwiver/vital/algo/trampoline/detected_object_set_output_trampoline.txx>
-#include <python/kwiver/vital/algo/detected_object_set_output.h>
+#include <python/kwiver/vital/algo/trampoline/activity_detector_trampoline.txx>
+#include <python/kwiver/vital/algo/activity_detector.h>
 
 namespace py = pybind11;
 
-using doso = kwiver::vital::algo::detected_object_set_output;
-
-void detected_object_set_output(py::module &m)
+void activity_detector(py::module &m)
 {
-  py::class_< doso,
-              std::shared_ptr<doso>,
-              kwiver::vital::algorithm_def<doso>,
-              detected_object_set_output_trampoline<> >(m, "DetectedObjectSetOutput")
+  py::class_< kwiver::vital::algo::activity_detector,
+              std::shared_ptr<kwiver::vital::algo::activity_detector>,
+              kwiver::vital::algorithm_def<kwiver::vital::algo::activity_detector>,
+              activity_detector_trampoline<> >(m, "ActivityDetector")
     .def(py::init())
-    .def_static("static_type_name", &doso::static_type_name)
-    .def("write_set", &doso::write_set)
-    .def("complete", &doso::complete)
-    .def("open", &doso::open)
-    .def("close", &doso::close)
-    ;
+    .def_static("static_type_name", &kwiver::vital::algo::activity_detector::static_type_name)
+    .def("detect", &kwiver::vital::algo::activity_detector::detect);
 }
