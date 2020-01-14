@@ -29,6 +29,8 @@ kwiver_add_python_library(algorithm
   convert_image.h
   detected_object_filter.cxx
   detected_object_filter.h
+  detected_object_set_input.cxx
+  detected_object_set_input.h
   detected_object_set_output.cxx
   detected_object_set_output.h
   image_object_detector.cxx
@@ -44,6 +46,7 @@ kwiver_add_python_library(algorithm
   trampoline/compute_track_descriptors_trampoline.txx
   trampoline/convert_image_trampoline.txx
   trampoline/detected_object_filter_trampoline.txx
+  trampoline/detected_object_set_input_trampoline.txx
   trampoline/detected_object_set_output_trampoline.txx
   trampoline/image_object_detector_trampoline.txx
 )
