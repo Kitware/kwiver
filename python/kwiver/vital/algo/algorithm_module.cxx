@@ -52,6 +52,7 @@
 #include <python/kwiver/vital/algo/compute_stereo_depth_map.h>
 #include <python/kwiver/vital/algo/convert_image.h>
 #include <python/kwiver/vital/algo/detected_object_filter.h>
+#include <python/kwiver/vital/algo/detected_object_set_input.h>
 #include <python/kwiver/vital/algo/detected_object_set_output.h>
 #include <python/kwiver/vital/algo/image_object_detector.h>
 #include <python/kwiver/vital/algo/trampoline/analyze_tracks_trampoline.txx>
@@ -64,6 +65,7 @@
 #include <python/kwiver/vital/algo/trampoline/compute_stereo_depth_map_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/convert_image_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/detected_object_filter_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/detected_object_set_input_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/detected_object_set_output_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/image_object_detector_trampoline.txx>
 #include <sstream>
@@ -95,6 +97,8 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_ci_trampoline<>>(m, "convert_image");
   register_algorithm<kwiver::vital::algo::detected_object_filter,
             algorithm_def_dof_trampoline<>>(m, "detected_object_filter");
+  register_algorithm<kwiver::vital::algo::detected_object_set_input,
+            algorithm_def_dosi_trampoline<>>(m, "detected_object_set_input");
   register_algorithm<kwiver::vital::algo::image_object_detector,
             algorithm_def_iod_trampoline<>>(m, "image_object_detector");
 
@@ -110,4 +114,5 @@ PYBIND11_MODULE(algorithm, m)
   compute_stereo_depth_map(m);
   convert_image(m);
   detected_object_filter(m);
+  detected_object_set_input(m);
 }
