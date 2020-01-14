@@ -18,6 +18,7 @@ kwiver_add_python_library(algorithm
   detected_object_filter.h
   detected_object_set_input.h
   detected_object_set_output.h
+  detect_features.h
   image_object_detector.h
   algorithm.cxx
   analyze_tracks.cxx
@@ -33,6 +34,7 @@ kwiver_add_python_library(algorithm
   detected_object_filter.cxx
   detected_object_set_input.cxx
   detected_object_set_output.cxx
+  detect_features.cxx
   image_object_detector.cxx
   algorithm_module.cxx
   trampoline/algorithm_trampoline.txx
@@ -48,6 +50,7 @@ kwiver_add_python_library(algorithm
   trampoline/detected_object_filter_trampoline.txx
   trampoline/detected_object_set_input_trampoline.txx
   trampoline/detected_object_set_output_trampoline.txx
+  trampoline/detect_features_trampoline.txx
   trampoline/image_object_detector_trampoline.txx
 )
 

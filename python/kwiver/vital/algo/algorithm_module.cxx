@@ -53,6 +53,7 @@
 #include <python/kwiver/vital/algo/trampoline/detected_object_filter_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/detected_object_set_input_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/detected_object_set_output_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/detect_features_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/image_object_detector_trampoline.txx>
 #include <python/kwiver/vital/algo/algorithm.h>
 #include <python/kwiver/vital/algo/analyze_tracks.h>
@@ -67,6 +68,7 @@
 #include <python/kwiver/vital/algo/detected_object_filter.h>
 #include <python/kwiver/vital/algo/detected_object_set_input.h>
 #include <python/kwiver/vital/algo/detected_object_set_output.h>
+#include <python/kwiver/vital/algo/detect_features.h>
 #include <python/kwiver/vital/algo/image_object_detector.h>
 #include <sstream>
 
@@ -99,6 +101,8 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_dosi_trampoline<>>(m, "detected_object_set_input");
   register_algorithm<kwiver::vital::algo::detected_object_set_output,
             algorithm_def_doso_trampoline<>>(m, "detected_object_set_output");
+  register_algorithm<kwiver::vital::algo::detect_features,
+            algorithm_def_df_trampoline<>>(m, "detect_features");
   register_algorithm<kwiver::vital::algo::image_object_detector,
             algorithm_def_iod_trampoline<>>(m, "image_object_detector");
 
@@ -115,4 +119,5 @@ PYBIND11_MODULE(algorithm, m)
   detected_object_filter(m);
   detected_object_set_input(m);
   detected_object_set_output(m);
+  detect_features(m);
 }
