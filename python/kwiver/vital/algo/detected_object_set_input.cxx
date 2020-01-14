@@ -27,25 +27,26 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #include <pybind11/pybind11.h>
-#include <python/kwiver/vital/algo/trampoline/detected_object_set_output_trampoline.txx>
-#include <python/kwiver/vital/algo/detected_object_set_output.h>
+#include <python/kwiver/vital/algo/trampoline/detected_object_set_input_trampoline.txx>
+#include <python/kwiver/vital/algo/detected_object_set_input.h>
 
 namespace py = pybind11;
 
-using doso = kwiver::vital::algo::detected_object_set_output;
-
-void detected_object_set_output(py::module &m)
+void detected_object_set_input(py::module &m)
 {
-  py::class_< doso,
-              std::shared_ptr<doso>,
-              kwiver::vital::algorithm_def<doso>,
-              detected_object_set_output_trampoline<> >(m, "DetectedObjectSetOutput")
+  py::class_< kwiver::vital::algo::detected_object_set_input,
+              std::shared_ptr<kwiver::vital::algo::detected_object_set_input>,
+              kwiver::vital::algorithm_def<kwiver::vital::algo::detected_object_set_input>,
+              detected_object_set_input_trampoline<> >( m, "DetectedObjectSetInput" )
     .def(py::init())
-    .def_static("static_type_name", &doso::static_type_name)
-    .def("write_set", &doso::write_set)
-    .def("complete", &doso::complete)
-    .def("open", &doso::open)
-    .def("close", &doso::close)
-    ;
+    .def_static("static_type_name",
+                &kwiver::vital::algo::detected_object_set_input::static_type_name)
+    .def("open",
+         &kwiver::vital::algo::detected_object_set_input::open)
+    .def("close",
+         &kwiver::vital::algo::detected_object_set_input::close)
+    .def("read_set",
+         &kwiver::vital::algo::detected_object_set_input::read_set);
 }

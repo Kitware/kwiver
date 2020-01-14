@@ -4,6 +4,8 @@ include_directories(${pybind11_INCLUDE_DIR})
 
 kwiver_add_python_library(algorithm
   vital/algo
+  activity_detector.cxx
+  activity_detector.h
   algorithm.cxx
   algorithm.h
   algorithm_module.cxx
@@ -27,12 +29,21 @@ kwiver_add_python_library(algorithm
   compute_track_descriptors.h
   convert_image.cxx
   convert_image.h
+  detect_features.cxx
+  detect_features.h
+  detect_motion.cxx
+  detect_motion.h
   detected_object_filter.cxx
   detected_object_filter.h
+  detected_object_set_input.cxx
+  detected_object_set_input.h
   detected_object_set_output.cxx
   detected_object_set_output.h
+  draw_detected_object_set.cxx
+  draw_detected_object_set.h
   image_object_detector.cxx
   image_object_detector.h
+  trampoline/activity_detector_trampoline.txx
   trampoline/algorithm_trampoline.txx
   trampoline/analyze_tracks_trampoline.txx
   trampoline/bundle_adjust_trampoline.txx
@@ -43,8 +54,12 @@ kwiver_add_python_library(algorithm
   trampoline/compute_stereo_depth_map_trampoline.txx
   trampoline/compute_track_descriptors_trampoline.txx
   trampoline/convert_image_trampoline.txx
+  trampoline/detect_features_trampoline.txx
+  trampoline/detect_motion_trampoline.txx
   trampoline/detected_object_filter_trampoline.txx
+  trampoline/detected_object_set_input_trampoline.txx
   trampoline/detected_object_set_output_trampoline.txx
+  trampoline/draw_detected_object_set_trampoline.txx
   trampoline/image_object_detector_trampoline.txx
 )
 
