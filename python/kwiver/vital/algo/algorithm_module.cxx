@@ -99,6 +99,8 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_dof_trampoline<>>(m, "detected_object_filter");
   register_algorithm<kwiver::vital::algo::detected_object_set_input,
             algorithm_def_dosi_trampoline<>>(m, "detected_object_set_input");
+  register_algorithm<kwiver::vital::algo::detected_object_set_output,
+            algorithm_def_doso_trampoline<>>(m, "detected_object_set_output");
   register_algorithm<kwiver::vital::algo::image_object_detector,
             algorithm_def_iod_trampoline<>>(m, "image_object_detector");
 
@@ -115,4 +117,5 @@ PYBIND11_MODULE(algorithm, m)
   convert_image(m);
   detected_object_filter(m);
   detected_object_set_input(m);
+  detected_object_set_output(m);
 }
