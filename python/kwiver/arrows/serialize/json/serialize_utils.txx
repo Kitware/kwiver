@@ -44,18 +44,8 @@ namespace json {
   std::string serialize( type t )
   {
     serializer serializer_algo{};
-    // Required for cases where shared pointer is used by the algorithm
-    try
-    {
-      kwiver::vital::any any_t{ t };
-      return *serializer_algo.serialize(any_t);
-    }
-    catch( kwiver::vital::bad_any_cast )
-    {
-      auto shared_t = std::make_shared<type>(t);
-      kwiver::vital::any any_t{ shared_t };
-      return *serializer_algo.serialize(any_t);
-    }
+    kwiver::vital::any any_t{ t };
+    return *serializer_algo.serialize(any_t);
   }
 
   template < typename type, typename serializer >
@@ -63,14 +53,7 @@ namespace json {
   {
     serializer serializer_algo{};
     kwiver::vital::any any_t{ serializer_algo.deserialize( message ) };
-    try
-    {
-      return kwiver::vital::any_cast< type >( any_t);
-    }
-    catch( kwiver::vital::bad_any_cast )
-    {
-      return *kwiver::vital::any_cast< std::shared_ptr< type > >( any_t );
-    }
+    return kwiver::vital::any_cast< type >( any_t);
   }
 
 } } } }
