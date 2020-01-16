@@ -8,6 +8,8 @@
 #include <python/kwiver/arrows/serialize/json/serialize_timestamp.h>
 #include <python/kwiver/arrows/serialize/json/serialize_track_state.h>
 #include <python/kwiver/arrows/serialize/json/serialize_track.h>
+#include <python/kwiver/arrows/serialize/json/serialize_track_set.h>
+#include <python/kwiver/arrows/serialize/json/serialize_object_track_state.h>
 
 namespace py = pybind11;
 
@@ -21,4 +23,6 @@ PYBIND11_MODULE(json,  m)
   serialize_timestamp(m);
   serialize_track_state(m);
   serialize_track(m);
+  serialize_track_set(m);
+  serialize_object_track_state(m);
 }
