@@ -39,10 +39,10 @@ void serialize_detected_object(py::module &m)
 {
   m.def("serialize_detected_object",
         &kwiver::python::arrows::json::serialize<
-                          kwiver::vital::detected_object,
+                          kwiver::vital::detected_object_sptr,
                           kwiver::arrows::serialize::json::detected_object > );
   m.def("deserialize_detected_object",
         &kwiver::python::arrows::json::deserialize<
-                          kwiver::vital::detected_object,
+                          kwiver::vital::detected_object_sptr,
                           kwiver::arrows::serialize::json::detected_object > );
 }
