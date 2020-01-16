@@ -2,6 +2,8 @@ set( json_python_headers
      serialize_bounding_box.h
      serialize_detected_object.h
      serialize_detected_object_type.h
+     serialize_detected_object_set.h
+     serialize_image.h
    )
 
 set( json_python_sources
@@ -9,6 +11,8 @@ set( json_python_sources
      serialize_bounding_box.cxx
      serialize_detected_object.cxx
      serialize_detected_object_type.cxx
+     serialize_detected_object_set.cxx
+     serialize_image.cxx
      serialize_module.cxx
    )
 
