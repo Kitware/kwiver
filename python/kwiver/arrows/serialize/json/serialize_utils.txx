@@ -32,6 +32,8 @@
 #define KWIVER_PYTHON_ARROW_SERIALIZE_JSON_SERIALIZE_UTILS_H_
 
 #include <vital/any.h>
+#include <utility>
+#include <memory>
 
 namespace kwiver {
 namespace python {
@@ -41,9 +43,19 @@ namespace json {
   template < typename type, typename serializer >
   std::string serialize( type t )
   {
-    kwiver::vital::any any_t{ t };
     serializer serializer_algo{};
-    return *serializer_algo.serialize(any_t);
+    // Required for cases where shared pointer is used by the algorithm
+    try
+    {
+      kwiver::vital::any any_t{ t };
+      return *serializer_algo.serialize(any_t);
+    }
+    catch( kwiver::vital::bad_any_cast )
+    {
+      auto shared_t = std::make_shared<type>(t);
+      kwiver::vital::any any_t{ shared_t };
+      return *serializer_algo.serialize(any_t);
+    }
   }
 
   template < typename type, typename serializer >
@@ -51,7 +63,14 @@ namespace json {
   {
     serializer serializer_algo{};
     kwiver::vital::any any_t{ serializer_algo.deserialize( message ) };
-    return kwiver::vital::any_cast< type >( any_t);
+    try
+    {
+      return kwiver::vital::any_cast< type >( any_t);
+    }
+    catch( kwiver::vital::bad_any_cast )
+    {
+      return *kwiver::vital::any_cast< std::shared_ptr< type > >( any_t );
+    }
   }
 
 } } } }
