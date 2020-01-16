@@ -5,6 +5,7 @@ set( json_python_headers
      serialize_detected_object_set.h
      serialize_image.h
      serialize_timestamp.h
+     serialize_track_state.h
    )
 
 set( json_python_sources
@@ -16,6 +17,7 @@ set( json_python_sources
      serialize_image.cxx
      serialize_module.cxx
      serialize_timestamp.cxx
+     serialize_track_state.cxx
    )
 
 kwiver_add_python_library( json
