@@ -1,12 +1,14 @@
 set( json_python_headers
      serialize_bounding_box.h
      serialize_detected_object.h
+     serialize_detected_object_type.h
    )
 
 set( json_python_sources
      serialize_utils.txx
      serialize_bounding_box.cxx
      serialize_detected_object.cxx
+     serialize_detected_object_type.cxx
      serialize_module.cxx
    )
 
