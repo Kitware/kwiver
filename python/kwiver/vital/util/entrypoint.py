@@ -1,4 +1,6 @@
+import pkg_resources
 from pkg_resources import iter_entry_points
+
 from kwiver.vital import vital_logging
 from kwiver import PYTHON_PLUGIN_ENTRYPOINT, CPP_SEARCH_PATHS_ENTRYPOINT
 import kwiver
@@ -15,8 +17,11 @@ def get_python_plugins_from_entrypoint():
              functions
     """
     py_modules = []
-    for entry_point in iter_entry_points(PYTHON_PLUGIN_ENTRYPOINT):
-        py_modules.append(entry_point.load())
+    try:
+        for entry_point in iter_entry_points(PYTHON_PLUGIN_ENTRYPOINT):
+            py_modules.append(entry_point.load())
+    except pkg_resources.DistributionNotFound:
+        pass
     return py_modules
 
 
@@ -26,13 +31,16 @@ def get_cpp_paths_from_entrypoint():
     :return: A list of paths for c++ plugins
     """
     additional_search_paths = []
-    for entry_point in iter_entry_points(CPP_SEARCH_PATHS_ENTRYPOINT):
-        search_path = entry_point.load()()
-        if os.path.exists(search_path):
-            additional_search_paths.append(search_path)
-        else:
-            logger.warn('Invalid search path {0} specified by {1}'.format(search_path,
-                        entry_point.key()))
+    try:
+        for entry_point in iter_entry_points(CPP_SEARCH_PATHS_ENTRYPOINT):
+            search_path = entry_point.load()()
+            if os.path.exists(search_path):
+                additional_search_paths.append(search_path)
+            else:
+                logger.warn('Invalid search path {0} specified by {1}'.format(search_path,
+                            entry_point.key()))
+    except pkg_resources.DistributionNotFound:
+        pass
     return additional_search_paths
 
 def get_library_path():
