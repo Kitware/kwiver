@@ -1,4 +1,6 @@
 set( json_python_headers
+     serialize_activity.h
+     serialize_activity_type.h
      serialize_bounding_box.h
      serialize_detected_object.h
      serialize_detected_object_type.h
@@ -14,6 +16,8 @@ set( json_python_headers
 
 set( json_python_sources
      serialize_utils.txx
+     serialize_activity.cxx
+     serialize_activity_type.cxx
      serialize_bounding_box.cxx
      serialize_detected_object.cxx
      serialize_detected_object_type.cxx
