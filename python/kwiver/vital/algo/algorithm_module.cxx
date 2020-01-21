@@ -41,6 +41,7 @@
 #include <vital/algo/algorithm.h>
 #include <vital/algo/analyze_tracks.h>
 #include <vital/algo/image_object_detector.h>
+#include <python/kwiver/vital/algo/activity_detector.h>
 #include <python/kwiver/vital/algo/algorithm.h>
 #include <python/kwiver/vital/algo/analyze_tracks.h>
 #include <python/kwiver/vital/algo/associate_detections_to_tracks.h>
@@ -58,6 +59,7 @@
 #include <python/kwiver/vital/algo/detected_object_set_output.h>
 #include <python/kwiver/vital/algo/draw_detected_object_set.h>
 #include <python/kwiver/vital/algo/image_object_detector.h>
+#include <python/kwiver/vital/algo/trampoline/activity_detector_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/analyze_tracks_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/associate_detections_to_tracks_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/bundle_adjust_trampoline.txx>
@@ -81,8 +83,8 @@ namespace py = pybind11;
 PYBIND11_MODULE(algorithm, m)
 {
   algorithm(m);
-  register_algorithm<kwiver::vital::algo::detected_object_set_output,
-	    algorithm_def_doso_trampoline<>>(m, "detected_object_set_output");
+  register_algorithm<kwiver::vital::algo::activity_detector,
+            algorithm_def_ad_trampoline<>>(m, "activity_detector");
   register_algorithm<kwiver::vital::algo::analyze_tracks,
             algorithm_def_at_trampoline<>>(m, "analyze_tracks");
   register_algorithm<kwiver::vital::algo::associate_detections_to_tracks,
@@ -116,7 +118,7 @@ PYBIND11_MODULE(algorithm, m)
   register_algorithm<kwiver::vital::algo::image_object_detector,
             algorithm_def_iod_trampoline<>>(m, "image_object_detector");
 
-  detected_object_set_output(m);
+  activity_detector(m);
   analyze_tracks(m);
   associate_detections_to_tracks(m);
   bundle_adjust(m);

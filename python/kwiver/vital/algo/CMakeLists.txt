@@ -4,6 +4,8 @@ include_directories(${pybind11_INCLUDE_DIR})
 
 kwiver_add_python_library(algorithm
   vital/algo
+  activity_detector.cxx
+  activity_detector.h
   algorithm.cxx
   algorithm.h
   algorithm_module.cxx
@@ -41,6 +43,7 @@ kwiver_add_python_library(algorithm
   draw_detected_object_set.h
   image_object_detector.cxx
   image_object_detector.h
+  trampoline/activity_detector_trampoline.txx
   trampoline/algorithm_trampoline.txx
   trampoline/analyze_tracks_trampoline.txx
   trampoline/bundle_adjust_trampoline.txx
