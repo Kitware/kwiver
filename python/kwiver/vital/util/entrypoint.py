@@ -43,6 +43,14 @@ def get_cpp_paths_from_entrypoint():
         pass
     return additional_search_paths
 
+def add_entrypoint_paths_to_env():
+    additional_search_paths = get_cpp_paths_from_entrypoint()
+    current_ld_path = os.environ['LD_LIBRARY_PATH']
+    new_ld_path = current_ld_path
+    for additional_search_path in additional_search_paths:
+        new_ld_path += ":{0}".format(additional_search_path)
+    os.environ['LD_LIBRARY_PATH'] = new_ld_path
+
 def get_library_path():
     return os.path.join(os.path.dirname(os.path.abspath(kwiver.__file__)),
            'lib')
