@@ -54,11 +54,19 @@ const std::string get_initial_plugin_path()
   return initial_plugin_path;
 }
 
+void add_external_plugin_paths()
+{
+  py::object const entrypoint_module =
+    py::module::import("kwiver.vital.util.entrypoint");
+  entrypoint_module.attr("add_entrypoint_paths_to_env")();
+}
+
 //@todo Alternative is to provide C bindings for the plugin manager.
 void load_known_modules()
 {
   const std::string initial_plugin_path =
                 kwiver::vital::python::get_initial_plugin_path();
+  add_external_plugin_paths();
   auto plugin_search_paths =
                 kwiver::vital::plugin_manager::instance().search_path();
   if( std::find( plugin_search_paths.begin(),
@@ -74,6 +82,7 @@ bool is_module_loaded(std::string module_name)
 {
   const std::string initial_plugin_path =
                 kwiver::vital::python::get_initial_plugin_path();
+  add_external_plugin_paths();
   auto plugin_search_paths =
                 kwiver::vital::plugin_manager::instance().search_path();
   if( std::find( plugin_search_paths.begin(),
