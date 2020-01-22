@@ -55,7 +55,7 @@ def get_cpp_paths_from_entrypoint():
 
 def add_entrypoint_paths_to_env():
     additional_search_paths = get_cpp_paths_from_entrypoint()
-    current_ld_path = os.environ['LD_LIBRARY_PATH']
+    current_ld_path = os.getenv("LD_LIBRARY_PATH", "")
     new_ld_path = current_ld_path
     for additional_search_path in additional_search_paths:
         new_ld_path += ":{0}".format(additional_search_path)
