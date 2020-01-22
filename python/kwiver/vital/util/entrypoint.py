@@ -19,7 +19,11 @@ def get_python_plugins_from_entrypoint():
     py_modules = []
     try:
         for entry_point in iter_entry_points(PYTHON_PLUGIN_ENTRYPOINT):
-            py_modules.append(entry_point.load())
+            try:
+                py_modules.append(entry_point.load())
+            except ImportError:
+                logger.warn('unable to import {0}'.format(entry_point.name))
+                continue
     except pkg_resources.DistributionNotFound:
         pass
     return py_modules
@@ -33,12 +37,18 @@ def get_cpp_paths_from_entrypoint():
     additional_search_paths = []
     try:
         for entry_point in iter_entry_points(CPP_SEARCH_PATHS_ENTRYPOINT):
-            search_path = entry_point.load()()
+            try:
+                search_path = entry_point.load()()
+            except ImportError:
+                logger.warn('Search path associated with {0} does not exist'\
+                                .format(entry_point.name))
+                continue
             if os.path.exists(search_path):
                 additional_search_paths.append(search_path)
             else:
-                logger.warn('Invalid search path {0} specified by {1}'.format(search_path,
-                            entry_point.key()))
+                logger.warn('Invalid search path {0} specified by {1}'\
+                            .format(search_path,
+                            entry_point.name))
     except pkg_resources.DistributionNotFound:
         pass
     return additional_search_paths
