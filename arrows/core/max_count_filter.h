@@ -61,6 +61,11 @@ class KWIVER_ALGO_CORE_EXPORT max_count_filter
   : public vital::algorithm_impl<max_count_filter, vital::algo::detected_object_filter>
 {
 public:
+  PLUGIN_INFO("max_count_filter",
+      "Filters detections up to a maximum count\n\n"
+      "Returns a set of at most max-count items\n\n"
+      "By default top max_count (sorted by confidence) items are returned\n\n"
+      "If randomize is true, N random elements are returned")
 
   max_count_filter();
   virtual ~max_count_filter() = default;
