@@ -63,6 +63,10 @@ class KWIVER_ALGO_CORE_EXPORT bbox_size_filter
   : public vital::algorithm_impl<bbox_size_filter, vital::algo::detected_object_filter>
 {
 public:
+  PLUGIN_INFO("bbox_size_filter",
+    "Returns the set of detections the fit between {min,max}_width and {min,max}_height.\n\n"
+    "Setting {min,max}_width and/or {min,max}_height to negative values turns off checking.\n\n"
+    "Invalid bounding boxes (zero height and/or width) do not pass.")
 
   bbox_size_filter();
   virtual ~bbox_size_filter() = default;
