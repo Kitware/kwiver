@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017, 2019 by Kitware, Inc.
+ * Copyright 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,51 +28,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * @file
- * @brief The track_oracle base class for KPF geometry files.
- *
- * We differentiate between geometry and activity files because the
- * alternative, i.e. treating a KPF like a CSV or kwiver-xml file,
- * would require infrastructure to resolve linkages between activities
- * (which refer to, but do not contain, geometry) and the reference geometry.
- *
- * (We've never tried using CSV or kwiver-xml for activities; it would
- * probably not work as-is.)
- *
- */
-
-#ifndef KWIVER_TRACK_ORACLE_TRACK_KPF_GEOM_H_
-#define KWIVER_TRACK_ORACLE_TRACK_KPF_GEOM_H_
+#ifndef INCL_FILE_FORMAT_KPF_ACTIVITY_H
+#define INCL_FILE_FORMAT_KPF_ACTIVITY_H
 
 #include <vital/vital_config.h>
-#include <track_oracle/file_formats/track_kpf_geom/track_kpf_geom_export.h>
+#include <track_oracle/file_formats/track_kw18/track_kw18_export.h>
 
-#include <track_oracle/core/track_base.h>
-#include <track_oracle/core/track_field.h>
-#include <track_oracle/data_terms/data_terms.h>
+#include <track_oracle/file_formats/file_format_base.h>
+#include <track_oracle/file_formats/track_kpf_activity/track_kpf_activity.h>
 
 namespace kwiver {
 namespace track_oracle {
 
-struct TRACK_KPF_GEOM_EXPORT track_kpf_geom_type: public track_base< track_kpf_geom_type >
+class TRACK_KPF_ACTIVITY_EXPORT file_format_kpf_activity: public file_format_base
 {
-  track_field< dt::detection::detection_id > det_id;
-  track_field< dt::tracking::external_id > track_id;
-  track_field< dt::tracking::timestamp_usecs > timestamp_usecs;
-  track_field< dt::tracking::frame_number > frame_number;
-  track_field< dt::tracking::bounding_box > bounding_box;
-  track_field< dt::tracking::object_labels > object_labels;
-
-  track_kpf_geom_type()
+public:
+  file_format_kpf_activity(): file_format_base( TF_KPF_ACT, "KPF activities" )
   {
-    Track.add_field( track_id );
-    Frame.add_field( det_id );
-    Frame.add_field( timestamp_usecs );
-    Frame.add_field( frame_number );
-    Frame.add_field( bounding_box );
-    Frame.add_field( object_labels );
+    this->globs.push_back( "*.activities.yml" );
   }
+  virtual ~file_format_kpf_activity() {}
+
+  virtual int supported_operations() const { return FF_READ | FF_WRITE; }
+
+  virtual track_base_impl* schema_instance() const { return new track_kpf_activity_type(); }
+
+  virtual bool inspect_file( const std::string& fn ) const;
+
+  virtual bool read( const std::string& fn,
+                     track_handle_list_type& tracks ) const;
+
+  virtual bool read( std::istream& is,
+                     track_handle_list_type& tracks ) const;
+
+  virtual bool write( const std::string& fn,
+                      const track_handle_list_type& tracks ) const;
+
+  virtual bool write( std::ostream& is,
+                      const track_handle_list_type& tracks ) const;
+
 };
 
 } // ...track_oracle
