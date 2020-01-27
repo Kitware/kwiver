@@ -60,6 +60,7 @@
 #include <python/kwiver/vital/algo/trampoline/estimate_canonical_transform_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/estimate_essential_matrix_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/estimate_fundamental_matrix_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/estimate_homography_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/extract_descriptors_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/image_object_detector_trampoline.txx>
 #include <python/kwiver/vital/algo/algorithm.h>
@@ -82,6 +83,7 @@
 #include <python/kwiver/vital/algo/estimate_canonical_transform.h>
 #include <python/kwiver/vital/algo/estimate_essential_matrix.h>
 #include <python/kwiver/vital/algo/estimate_fundamental_matrix.h>
+#include <python/kwiver/vital/algo/estimate_homography.h>
 #include <python/kwiver/vital/algo/extract_descriptors.h>
 #include <python/kwiver/vital/algo/image_object_detector.h>
 #include <sstream>
@@ -129,6 +131,8 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_eem_trampoline<>>(m, "estimate_essential_matrix");
   register_algorithm<kwiver::vital::algo::estimate_fundamental_matrix,
             algorithm_def_efm_trampoline<>>(m, "estimate_fundamental_matrix");
+  register_algorithm<kwiver::vital::algo::estimate_homography,
+            algorithm_def_eh_trampoline<>>(m, "estimate_homography");
   register_algorithm<kwiver::vital::algo::extract_descriptors,
             algorithm_def_ed_trampoline<>>(m, "extract_descriptors");
   register_algorithm<kwiver::vital::algo::image_object_detector,
@@ -154,5 +158,6 @@ PYBIND11_MODULE(algorithm, m)
   estimate_canonical_transform(m);
   estimate_essential_matrix(m);
   estimate_fundamental_matrix(m);
+  estimate_homography(m);
   extract_descriptors(m);
 }

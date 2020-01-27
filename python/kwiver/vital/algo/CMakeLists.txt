@@ -24,6 +24,7 @@ kwiver_add_python_library(algorithm
   draw_tracks.h
   estimate_canonical_transform.h
   estimate_essential_matrix.h
+  estimate_homography.h
   estimate_fundamental_matrix.h
   extract_descriptors.h
   image_object_detector.h
@@ -48,6 +49,7 @@ kwiver_add_python_library(algorithm
   estimate_canonical_transform.cxx
   estimate_essential_matrix.cxx
   estimate_fundamental_matrix.cxx
+  estimate_homography.cxx
   extract_descriptors.cxx
   image_object_detector.cxx
   algorithm_module.cxx
@@ -71,6 +73,7 @@ kwiver_add_python_library(algorithm
   trampoline/estimate_canonical_transform_trampoline.txx
   trampoline/estimate_essential_matrix_trampoline.txx
   trampoline/estimate_fundamental_matrix_trampoline.txx
+  trampoline/estimate_homography_trampoline.txx
   trampoline/extract_descriptors_trampoline.txx
   trampoline/image_object_detector_trampoline.txx
 )
