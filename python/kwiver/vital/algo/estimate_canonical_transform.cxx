@@ -1,4 +1,3 @@
-
 /*ckwg +29
  * Copyright 2020 by Kitware, Inc.
  * All rights reserved.
@@ -44,6 +43,6 @@ void estimate_canonical_transform(py::module &m)
     .def(py::init())
     .def_static("static_type_name",
                 &kwiver::vital::algo::estimate_canonical_transform::static_type_name)
-    .def("estimate_canonical_transform",
+    .def("estimate_transform",
          &kwiver::vital::algo::estimate_canonical_transform::estimate_transform);
 }
