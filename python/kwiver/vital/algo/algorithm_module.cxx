@@ -58,6 +58,7 @@
 #include <python/kwiver/vital/algo/trampoline/draw_detected_object_set_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/draw_tracks_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/estimate_canonical_transform_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/estimate_essential_matrix_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/extract_descriptors_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/image_object_detector_trampoline.txx>
 #include <python/kwiver/vital/algo/algorithm.h>
@@ -78,6 +79,7 @@
 #include <python/kwiver/vital/algo/draw_detected_object_set.h>
 #include <python/kwiver/vital/algo/draw_tracks.h>
 #include <python/kwiver/vital/algo/estimate_canonical_transform.h>
+#include <python/kwiver/vital/algo/estimate_essential_matrix.h>
 #include <python/kwiver/vital/algo/extract_descriptors.h>
 #include <python/kwiver/vital/algo/image_object_detector.h>
 #include <sstream>
@@ -121,6 +123,8 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_dt_trampoline<>>(m, "draw_tracks");
   register_algorithm<kwiver::vital::algo::estimate_canonical_transform,
             algorithm_def_ect_trampoline<>>(m, "estimate_canonical_transform");
+  register_algorithm<kwiver::vital::algo::estimate_essential_matrix,
+            algorithm_def_eem_trampoline<>>(m, "estimate_essential_matrix");
   register_algorithm<kwiver::vital::algo::extract_descriptors,
             algorithm_def_ed_trampoline<>>(m, "extract_descriptors");
   register_algorithm<kwiver::vital::algo::image_object_detector,
@@ -144,5 +148,6 @@ PYBIND11_MODULE(algorithm, m)
   draw_detected_object_set(m);
   draw_tracks(m);
   estimate_canonical_transform(m);
+  estimate_essential_matrix(m);
   extract_descriptors(m);
 }
