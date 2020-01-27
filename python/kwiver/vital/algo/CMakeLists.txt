@@ -23,6 +23,7 @@ kwiver_add_python_library(algorithm
   draw_detected_object_set.h
   draw_tracks.h
   estimate_canonical_transform.h
+  extract_descriptors.h
   image_object_detector.h
   algorithm.cxx
   analyze_tracks.cxx
@@ -43,6 +44,7 @@ kwiver_add_python_library(algorithm
   draw_detected_object_set.cxx
   draw_tracks.cxx
   estimate_canonical_transform.cxx
+  extract_descriptors.cxx
   image_object_detector.cxx
   algorithm_module.cxx
   trampoline/algorithm_trampoline.txx
@@ -63,6 +65,7 @@ kwiver_add_python_library(algorithm
   trampoline/draw_detected_object_set_trampoline.txx
   trampoline/draw_tracks_trampoline.txx
   trampoline/estimate_canonical_transform_trampoline.txx
+  trampoline/extract_descriptors_trampoline.txx
   trampoline/image_object_detector_trampoline.txx
 )
 
