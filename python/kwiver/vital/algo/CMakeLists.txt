@@ -38,6 +38,7 @@ kwiver_add_python_library(algorithm
   initialize_object_tracks.h
   integrate_depth_maps.h
   interpolate_track.h
+  keyframe_selection.h
   algorithm.cxx
   analyze_tracks.cxx
   associate_detections_to_tracks.cxx
@@ -72,6 +73,7 @@ kwiver_add_python_library(algorithm
   initialize_object_tracks.cxx
   integrate_depth_maps.cxx
   interpolate_track.cxx
+  keyframe_selection.cxx
   algorithm_module.cxx
   trampoline/algorithm_trampoline.txx
   trampoline/analyze_tracks_trampoline.txx
@@ -106,6 +108,7 @@ kwiver_add_python_library(algorithm
   trampoline/initialize_object_tracks_trampoline.txx
   trampoline/integrate_depth_maps_trampoline.txx
   trampoline/interpolate_track_trampoline.txx
+  trampoline/keyframe_selection_trampoline.txx
 )
 
 
