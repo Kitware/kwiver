@@ -67,6 +67,7 @@
 #include <python/kwiver/vital/algo/trampoline/feature_descriptor_io_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/filter_features_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/filter_tracks_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/image_io_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/image_object_detector_trampoline.txx>
 #include <python/kwiver/vital/algo/algorithm.h>
 #include <python/kwiver/vital/algo/analyze_tracks.h>
@@ -95,6 +96,7 @@
 #include <python/kwiver/vital/algo/feature_descriptor_io.h>
 #include <python/kwiver/vital/algo/filter_features.h>
 #include <python/kwiver/vital/algo/filter_tracks.h>
+#include <python/kwiver/vital/algo/image_io.h>
 #include <python/kwiver/vital/algo/image_object_detector.h>
 #include <sstream>
 
@@ -155,6 +157,8 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_ff_trampoline<>>(m, "filter_features");
   register_algorithm<kwiver::vital::algo::filter_tracks,
             algorithm_def_ft_trampoline<>>(m, "filter_tracks");
+  register_algorithm<kwiver::vital::algo::image_io,
+            algorithm_def_iio_trampoline<>>(m, "image_io");
   register_algorithm<kwiver::vital::algo::image_object_detector,
             algorithm_def_iod_trampoline<>>(m, "image_object_detector");
 
@@ -163,7 +167,6 @@ PYBIND11_MODULE(algorithm, m)
   bundle_adjust(m);
   close_loops(m);
   compute_association_matrix(m);
-  image_object_detector(m);
   compute_depth(m);
   compute_ref_homography(m);
   compute_stereo_depth_map(m);
@@ -185,4 +188,6 @@ PYBIND11_MODULE(algorithm, m)
   feature_descriptor_io(m);
   filter_features(m);
   filter_tracks(m);
+  image_io(m);
+  image_object_detector(m);
 }
