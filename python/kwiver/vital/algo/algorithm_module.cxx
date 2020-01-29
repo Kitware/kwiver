@@ -62,6 +62,7 @@
 #include <python/kwiver/vital/algo/trampoline/estimate_fundamental_matrix_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/estimate_homography_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/estimate_pnp_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/estimate_similarity_transform_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/extract_descriptors_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/image_object_detector_trampoline.txx>
 #include <python/kwiver/vital/algo/algorithm.h>
@@ -86,6 +87,7 @@
 #include <python/kwiver/vital/algo/estimate_fundamental_matrix.h>
 #include <python/kwiver/vital/algo/estimate_homography.h>
 #include <python/kwiver/vital/algo/estimate_pnp.h>
+#include <python/kwiver/vital/algo/estimate_similarity_transform.h>
 #include <python/kwiver/vital/algo/extract_descriptors.h>
 #include <python/kwiver/vital/algo/image_object_detector.h>
 #include <sstream>
@@ -137,6 +139,8 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_eh_trampoline<>>(m, "estimate_homography");
   register_algorithm<kwiver::vital::algo::estimate_pnp,
             algorithm_def_epnp_trampoline<>>(m, "estimate_pnp");
+  register_algorithm<kwiver::vital::algo::estimate_similarity_transform,
+            algorithm_def_est_trampoline<>>(m, "estimate_similarity_transform");
   register_algorithm<kwiver::vital::algo::extract_descriptors,
             algorithm_def_ed_trampoline<>>(m, "extract_descriptors");
   register_algorithm<kwiver::vital::algo::image_object_detector,
@@ -164,5 +168,6 @@ PYBIND11_MODULE(algorithm, m)
   estimate_fundamental_matrix(m);
   estimate_homography(m);
   estimate_pnp(m);
+  estimate_similarity_transform(m);
   extract_descriptors(m);
 }

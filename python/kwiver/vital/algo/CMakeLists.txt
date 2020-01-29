@@ -27,6 +27,7 @@ kwiver_add_python_library(algorithm
   estimate_fundamental_matrix.h
   estimate_homography.h
   estimate_pnp.h
+  estimate_similarity_transform.h
   extract_descriptors.h
   image_object_detector.h
   algorithm.cxx
@@ -52,6 +53,7 @@ kwiver_add_python_library(algorithm
   estimate_fundamental_matrix.cxx
   estimate_homography.cxx
   estimate_pnp.cxx
+  estimate_similarity_transform.cxx
   extract_descriptors.cxx
   image_object_detector.cxx
   algorithm_module.cxx
@@ -77,6 +79,7 @@ kwiver_add_python_library(algorithm
   trampoline/estimate_fundamental_matrix_trampoline.txx
   trampoline/estimate_homography_trampoline.txx
   trampoline/estimate_pnp_trampoline.txx
+  trampoline/estimate_similarity_transform_trampoline.txx
   trampoline/extract_descriptors_trampoline.txx
   trampoline/image_object_detector_trampoline.txx
 )
