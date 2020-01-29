@@ -36,6 +36,7 @@ kwiver_add_python_library(algorithm
   image_object_detector.h
   initialize_cameras_landmarks.h
   initialize_object_tracks.h
+  integrate_depth_maps.h
   algorithm.cxx
   analyze_tracks.cxx
   associate_detections_to_tracks.cxx
@@ -68,6 +69,7 @@ kwiver_add_python_library(algorithm
   image_object_detector.cxx
   initialize_cameras_landmarks.cxx
   initialize_object_tracks.cxx
+  integrate_depth_maps.cxx
   algorithm_module.cxx
   trampoline/algorithm_trampoline.txx
   trampoline/analyze_tracks_trampoline.txx
@@ -100,6 +102,7 @@ kwiver_add_python_library(algorithm
   trampoline/image_object_detector_trampoline.txx
   trampoline/initialize_cameras_landmarks_trampoline.txx
   trampoline/initialize_object_tracks_trampoline.txx
+  trampoline/integrate_depth_maps_trampoline.txx
 )
 
 
