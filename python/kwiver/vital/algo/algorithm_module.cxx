@@ -72,6 +72,7 @@
 #include <python/kwiver/vital/algo/trampoline/initialize_cameras_landmarks_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/initialize_object_tracks_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/integrate_depth_maps_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/interpolate_track_trampoline.txx>
 #include <python/kwiver/vital/algo/algorithm.h>
 #include <python/kwiver/vital/algo/analyze_tracks.h>
 #include <python/kwiver/vital/algo/associate_detections_to_tracks.h>
@@ -104,6 +105,7 @@
 #include <python/kwiver/vital/algo/initialize_cameras_landmarks.h>
 #include <python/kwiver/vital/algo/initialize_object_tracks.h>
 #include <python/kwiver/vital/algo/integrate_depth_maps.h>
+#include <python/kwiver/vital/algo/interpolate_track.h>
 #include <sstream>
 
 namespace py = pybind11;
@@ -173,6 +175,8 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_iot_trampoline<>>(m, "initialize_object_tracks");
   register_algorithm<kwiver::vital::algo::integrate_depth_maps,
             algorithm_def_idm_trampoline<>>(m, "integrate_depth_maps");
+  register_algorithm<kwiver::vital::algo::interpolate_track,
+            algorithm_def_it_trampoline<>>(m, "interpolate_track");
 
   analyze_tracks(m);
   associate_detections_to_tracks(m);
@@ -205,4 +209,5 @@ PYBIND11_MODULE(algorithm, m)
   initialize_cameras_landmarks(m);
   initialize_object_tracks(m);
   integrate_depth_maps(m);
+  interpolate_track(m);
 }
