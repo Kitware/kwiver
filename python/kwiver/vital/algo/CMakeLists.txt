@@ -46,6 +46,7 @@ kwiver_add_python_library(algorithm
   read_object_track_set.h
   read_track_descriptor_set.h
   refine_detections.h
+  split_image.h
   algorithm.cxx
   analyze_tracks.cxx
   associate_detections_to_tracks.cxx
@@ -88,6 +89,7 @@ kwiver_add_python_library(algorithm
   read_object_track_set.cxx
   read_track_descriptor_set.cxx
   refine_detections.cxx
+  split_image.cxx
   algorithm_module.cxx
   trampoline/algorithm_trampoline.txx
   trampoline/analyze_tracks_trampoline.txx
@@ -130,6 +132,7 @@ kwiver_add_python_library(algorithm
   trampoline/read_object_track_set_trampoline.txx
   trampoline/read_track_descriptor_set_trampoline.txx
   trampoline/refine_detections_trampoline.txx
+  trampoline/split_image_trampoline.txx
 )
 
 

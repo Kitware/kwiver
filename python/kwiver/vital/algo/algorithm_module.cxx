@@ -81,6 +81,7 @@
 #include <python/kwiver/vital/algo/trampoline/read_object_track_set_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/read_track_descriptor_set_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/refine_detections_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/split_image_trampoline.txx>
 #include <python/kwiver/vital/algo/algorithm.h>
 #include <python/kwiver/vital/algo/analyze_tracks.h>
 #include <python/kwiver/vital/algo/associate_detections_to_tracks.h>
@@ -122,6 +123,7 @@
 #include <python/kwiver/vital/algo/read_object_track_set.h>
 #include <python/kwiver/vital/algo/read_track_descriptor_set.h>
 #include <python/kwiver/vital/algo/refine_detections.h>
+#include <python/kwiver/vital/algo/split_image.h>
 #include <sstream>
 
 namespace py = pybind11;
@@ -209,6 +211,8 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_rtds_trampoline<>>(m, "read_track_descriptor_set");
   register_algorithm<kwiver::vital::algo::refine_detections,
             algorithm_def_rd_trampoline<>>(m, "refine_detections");
+  register_algorithm<kwiver::vital::algo::split_image,
+            algorithm_def_si_trampoline<>>(m, "split_image");
 
   analyze_tracks(m);
   associate_detections_to_tracks(m);
@@ -250,4 +254,5 @@ PYBIND11_MODULE(algorithm, m)
   read_object_track_set(m);
   read_track_descriptor_set(m);
   refine_detections(m);
+  split_image(m);
 }
