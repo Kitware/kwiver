@@ -30,6 +30,7 @@ kwiver_add_python_library(algorithm
   estimate_similarity_transform.h
   extract_descriptors.h
   feature_descriptor_io.h
+  filter_features.h
   image_object_detector.h
   algorithm.cxx
   analyze_tracks.cxx
@@ -57,6 +58,7 @@ kwiver_add_python_library(algorithm
   estimate_similarity_transform.cxx
   extract_descriptors.cxx
   feature_descriptor_io.cxx
+  filter_features.cxx
   image_object_detector.cxx
   algorithm_module.cxx
   trampoline/algorithm_trampoline.txx
@@ -84,6 +86,7 @@ kwiver_add_python_library(algorithm
   trampoline/estimate_similarity_transform_trampoline.txx
   trampoline/extract_descriptors_trampoline.txx
   trampoline/feature_descriptor_io_trampoline.txx
+  trampoline/filter_features_trampoline.txx
   trampoline/image_object_detector_trampoline.txx
 )
 
