@@ -74,6 +74,7 @@
 #include <python/kwiver/vital/algo/trampoline/integrate_depth_maps_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/interpolate_track_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/keyframe_selection_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/match_descriptor_sets_trampoline.txx>
 #include <python/kwiver/vital/algo/algorithm.h>
 #include <python/kwiver/vital/algo/analyze_tracks.h>
 #include <python/kwiver/vital/algo/associate_detections_to_tracks.h>
@@ -108,6 +109,7 @@
 #include <python/kwiver/vital/algo/integrate_depth_maps.h>
 #include <python/kwiver/vital/algo/interpolate_track.h>
 #include <python/kwiver/vital/algo/keyframe_selection.h>
+#include <python/kwiver/vital/algo/match_descriptor_sets.h>
 #include <sstream>
 
 namespace py = pybind11;
@@ -181,6 +183,8 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_it_trampoline<>>(m, "interpolate_track");
   register_algorithm<kwiver::vital::algo::keyframe_selection,
             algorithm_def_kf_trampoline<>>(m, "keyframe_selection");
+  register_algorithm<kwiver::vital::algo::match_descriptor_sets,
+            algorithm_def_mds_trampoline<>>(m, "match_descriptor_sets");
 
   analyze_tracks(m);
   associate_detections_to_tracks(m);
@@ -215,4 +219,5 @@ PYBIND11_MODULE(algorithm, m)
   integrate_depth_maps(m);
   interpolate_track(m);
   keyframe_selection(m);
+  match_descriptor_sets(m);
 }
