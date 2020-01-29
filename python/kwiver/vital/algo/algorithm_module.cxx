@@ -78,6 +78,7 @@
 #include <python/kwiver/vital/algo/trampoline/match_features_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/merge_images_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/optimize_cameras_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/read_object_track_set_trampoline.txx>
 #include <python/kwiver/vital/algo/algorithm.h>
 #include <python/kwiver/vital/algo/analyze_tracks.h>
 #include <python/kwiver/vital/algo/associate_detections_to_tracks.h>
@@ -116,6 +117,7 @@
 #include <python/kwiver/vital/algo/match_features.h>
 #include <python/kwiver/vital/algo/merge_images.h>
 #include <python/kwiver/vital/algo/optimize_cameras.h>
+#include <python/kwiver/vital/algo/read_object_track_set.h>
 #include <sstream>
 
 namespace py = pybind11;
@@ -197,6 +199,8 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_mi_trampoline<>>(m, "merge_images");
   register_algorithm<kwiver::vital::algo::optimize_cameras,
             algorithm_def_oc_trampoline<>>(m, "optimize_cameras");
+  register_algorithm<kwiver::vital::algo::read_object_track_set,
+            algorithm_def_rots_trampoline<>>(m, "read_object_track_set");
 
   analyze_tracks(m);
   associate_detections_to_tracks(m);
@@ -235,4 +239,5 @@ PYBIND11_MODULE(algorithm, m)
   match_features(m);
   merge_images(m);
   optimize_cameras(m);
+  read_object_track_set(m);
 }
