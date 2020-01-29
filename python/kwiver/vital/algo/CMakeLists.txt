@@ -42,6 +42,7 @@ kwiver_add_python_library(algorithm
   match_descriptor_sets.h
   match_features.h
   merge_images.h
+  optimize_cameras.h
   algorithm.cxx
   analyze_tracks.cxx
   associate_detections_to_tracks.cxx
@@ -80,6 +81,7 @@ kwiver_add_python_library(algorithm
   match_descriptor_sets.cxx
   match_features.cxx
   merge_images.cxx
+  optimize_cameras.cxx
   algorithm_module.cxx
   trampoline/algorithm_trampoline.txx
   trampoline/analyze_tracks_trampoline.txx
@@ -118,6 +120,7 @@ kwiver_add_python_library(algorithm
   trampoline/match_descriptor_sets_trampoline.txx
   trampoline/match_features_trampoline.txx
   trampoline/merge_images_trampoline.txx
+  trampoline/optimize_cameras_trampoline.txx
 )
 
 
