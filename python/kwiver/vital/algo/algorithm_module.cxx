@@ -84,6 +84,7 @@
 #include <python/kwiver/vital/algo/trampoline/split_image_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/track_features_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/train_detector_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/transform_2d_io_trampoline.txx>
 #include <python/kwiver/vital/algo/algorithm.h>
 #include <python/kwiver/vital/algo/analyze_tracks.h>
 #include <python/kwiver/vital/algo/associate_detections_to_tracks.h>
@@ -128,6 +129,7 @@
 #include <python/kwiver/vital/algo/split_image.h>
 #include <python/kwiver/vital/algo/track_features.h>
 #include <python/kwiver/vital/algo/train_detector.h>
+#include <python/kwiver/vital/algo/transform_2d_io.h>
 #include <sstream>
 
 namespace py = pybind11;
@@ -221,6 +223,8 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_tf_trampoline<>>(m, "track_features");
   register_algorithm<kwiver::vital::algo::train_detector,
             algorithm_def_td_trampoline<>>(m, "train_detector");
+  register_algorithm<kwiver::vital::algo::transform_2d_io,
+            algorithm_def_t2dio_trampoline<>>(m, "transform_2d_io");
 
   analyze_tracks(m);
   associate_detections_to_tracks(m);
@@ -265,4 +269,5 @@ PYBIND11_MODULE(algorithm, m)
   split_image(m);
   track_features(m);
   train_detector(m);
+  transform_2d_io(m);
 }
