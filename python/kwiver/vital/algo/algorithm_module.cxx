@@ -86,6 +86,7 @@
 #include <python/kwiver/vital/algo/trampoline/train_detector_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/transform_2d_io_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/triangulate_landmarks_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/uuid_factory_trampoline.txx>
 #include <python/kwiver/vital/algo/algorithm.h>
 #include <python/kwiver/vital/algo/analyze_tracks.h>
 #include <python/kwiver/vital/algo/associate_detections_to_tracks.h>
@@ -132,6 +133,7 @@
 #include <python/kwiver/vital/algo/train_detector.h>
 #include <python/kwiver/vital/algo/transform_2d_io.h>
 #include <python/kwiver/vital/algo/triangulate_landmarks.h>
+#include <python/kwiver/vital/algo/uuid_factory.h>
 #include <sstream>
 
 namespace py = pybind11;
@@ -229,6 +231,8 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_t2dio_trampoline<>>(m, "transform_2d_io");
   register_algorithm<kwiver::vital::algo::triangulate_landmarks,
             algorithm_def_tl_trampoline<>>(m, "triangulate_landmarks");
+  register_algorithm<kwiver::vital::algo::uuid_factory,
+            algorithm_def_uf_trampoline<>>(m, "uuid_factory");
 
   analyze_tracks(m);
   associate_detections_to_tracks(m);
@@ -275,4 +279,5 @@ PYBIND11_MODULE(algorithm, m)
   train_detector(m);
   transform_2d_io(m);
   triangulate_landmarks(m);
+  uuid_factory(m);
 }
