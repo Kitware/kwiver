@@ -59,7 +59,7 @@ class Grid(object):
 
         bbox_id_centerIDX = []
         # build the grid for current image
-        for item in bbox_list:
+        for bb in bbox_list:
             x = int(bb.min_x())
             y = int(bb.min_y())
             w = int(bb.width())
