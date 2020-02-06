@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2017 by Kitware, Inc.
+ * Copyright 2011-2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@
 #include "types.h"
 
 #include <vital/config/config_block.h>
+#include <vital/config/config_difference.h>
 #include <vital/logger/logger.h>
 #include <vital/plugin_loader/plugin_info.h>
 
@@ -514,6 +515,21 @@ class SPROKIT_PIPELINE_EXPORT process
      * \returns Information about the parameter.
      */
     conf_info_t config_info(kwiver::vital::config_block_key_t const& key);
+
+    /**
+     * \brief Determine difference between process config and pipe config
+     *
+     * This method returns the differences between the configuration
+     * declared by the process and the actual configuration provided
+     * by the pipe file. These differences can be queried from the
+     * returned object. Extra config items are those that are supplied
+     * by the pipe file but not declared by the process. Unspecified
+     * config items are those that are declared by the process but not
+     * specified in the pipe file.
+     *
+     * \return Object with the config differences
+     */
+    kwiver::vital::config_difference config_diff() const;
 
     /**
      * \brief The name of the process.
@@ -1183,6 +1199,25 @@ class SPROKIT_PIPELINE_EXPORT process
     T grab_from_port_as(port_t const& port) const;
 
     /**
+     * \brief Grab a datum from a port as a certain type.
+     *
+     * This method grabs an input value directly from the port with no handling
+     * for static ports, iff the port is connected. This call will block until
+     * a datum is available.
+     *
+     * \sa process::has_input_port_edge
+     *
+     * \param port The port to get data from.
+     *
+     * \throws no_such_port_exception if the named port does not exist.
+     *
+     * \returns The datum from the port, or a default-constructed value if the
+     *          port is not connected.
+     */
+    template <typename T>
+    T try_grab_from_port_as(port_t const& port) const;
+
+    /**
      * \brief Grab an input as a specific type.
      *
      * This method returns a data value form a port or the configured
@@ -1439,6 +1474,16 @@ process
   return grab_datum_from_port(port)->get_datum<T>();
 }
 
+// ----------------------------------------------------------------------------
+template <typename T>
+T
+process
+::try_grab_from_port_as(port_t const& port) const
+{
+  return (has_input_port_edge(port)
+          ? grab_datum_from_port(port)->get_datum<T>()
+          : T{} );
+}
 
 // ----------------------------------------------------------------------------
 template <typename T>
