@@ -52,6 +52,7 @@ kwiver_add_python_library(algorithm
   transform_2d_io.h
   triangulate_landmarks.h
   uuid_factory.h
+  uv_unwrap_mesh.h
   algorithm.cxx
   analyze_tracks.cxx
   associate_detections_to_tracks.cxx
@@ -100,6 +101,7 @@ kwiver_add_python_library(algorithm
   transform_2d_io.cxx
   triangulate_landmarks.cxx
   uuid_factory.cxx
+  uv_unwrap_mesh.cxx
   algorithm_module.cxx
   trampoline/algorithm_trampoline.txx
   trampoline/analyze_tracks_trampoline.txx
@@ -148,6 +150,7 @@ kwiver_add_python_library(algorithm
   trampoline/transform_2d_io_trampoline.txx
   trampoline/triangulate_landmarks_trampoline.txx
   trampoline/uuid_factory_trampoline.txx
+  trampoline/uv_unwrap_mesh.txx
 )
 
 
