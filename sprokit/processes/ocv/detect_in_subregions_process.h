@@ -31,14 +31,12 @@
 #ifndef _KWIVER_DETECT_IN_SUBREGIONS_PROCESS_H
 #define _KWIVER_DETECT_IN_SUBREGIONS_PROCESS_H
 
-#include <sprokit/pipeline/process.h>
-
-#include <vital/config/config_block.h>
-
 #include "kwiver_processes_ocv_export.h"
 
-namespace kwiver
-{
+#include <sprokit/pipeline/process.h>
+#include <vital/config/config_block.h>
+
+namespace kwiver {
 
 // -----------------------------------------------------------------------------
 /**
@@ -67,8 +65,8 @@ public:
   virtual ~detect_in_subregions_process();
 
 protected:
-  virtual void _configure();
-  virtual void _step();
+  void _configure() override;
+  void _step() override;
 
 private:
   void make_ports();
@@ -78,8 +76,6 @@ private:
   const std::unique_ptr<priv> d;
 
 }; // end class detect_in_subregions_process
-
-
 
 } // end namespace
 
