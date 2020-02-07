@@ -71,8 +71,6 @@ class VITAL_EXPORT detected_object_set
   , private noncopyable
 {
 public:
-  using iterator = std::vector< detected_object_sptr >::iterator;
-  using  const_iterator = std::vector< detected_object_sptr >::const_iterator;
 
   /**
    * @brief Create an empty detection set.
@@ -255,8 +253,8 @@ public:
   void set_attributes( attribute_set_sptr attrs );
 
 protected:
-  iterator::next_value_func_t get_iter_next_func();
-  const_iterator::next_value_func_t get_const_iter_next_func() const;
+  iterator::next_value_func_t get_iter_next_func() override;
+  const_iterator::next_value_func_t get_const_iter_next_func() const override;
 
 
 private:

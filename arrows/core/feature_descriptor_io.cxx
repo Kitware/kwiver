@@ -463,7 +463,7 @@ feature_descriptor_io
 
       default:
         VITAL_THROW( vital::invalid_data, std::string("descriptor type not supported: ")
-                                  + descriptors[0]->data_type().name());
+                     + desc->at(0)->data_type().name());
     }
   }
   else

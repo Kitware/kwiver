@@ -34,6 +34,7 @@
  */
 
 #include "descriptor_set.h"
+#include <vital/exceptions.h>
 
 #include <sstream>
 
@@ -129,7 +130,7 @@ simple_descriptor_set
   return [=] () mutable ->iterator::reference {
     if( it == data_.end() )
     {
-      throw stop_iteration_exception();
+      VITAL_THROW( stop_iteration_exception, "descriptor_set");
     }
     return *(it++);
   };
@@ -145,7 +146,7 @@ simple_descriptor_set
   return [=] () mutable ->const_iterator::reference {
     if( cit == data_.end() )
     {
-      throw stop_iteration_exception();
+      VITAL_THROW( stop_iteration_exception, "descriptor_set" );
     }
     return *(cit++);
   };

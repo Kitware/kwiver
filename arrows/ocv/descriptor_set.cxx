@@ -256,7 +256,7 @@ descriptor_set
   return [row_counter,d_sptr,this] () mutable ->iterator::reference {
     if( row_counter >= size() )
     {
-      VITAL_THROW( vital::stop_iteration_exception);
+      VITAL_THROW( vital::stop_iteration_exception, "descriptor_set" );
     }
 
   /// \cond DoxygenSuppress
@@ -289,7 +289,7 @@ descriptor_set
   return [row_counter,d_sptr,this] () mutable ->const_iterator::reference {
     if( row_counter >= size() )
     {
-      VITAL_THROW( vital::stop_iteration_exception);
+      VITAL_THROW( vital::stop_iteration_exception, "descriptor_set" );
     }
 
   /// \cond DoxygenSuppress
