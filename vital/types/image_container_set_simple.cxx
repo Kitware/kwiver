@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2018 by Kitware, Inc.
+ * Copyright 2018, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,7 +93,7 @@ get_iter_next_func()
   return [=] () mutable -> iterator::reference {
     if ( v_it == data_.end() )
     {
-      throw stop_iteration_exception();
+      VITAL_THROW( stop_iteration_exception, "simple_image_container_set" );
     }
     return *( v_it++ );
   };
@@ -112,7 +112,7 @@ get_const_iter_next_func() const
   return [=] () mutable -> const_iterator::reference {
     if ( v_cit == data_.end() )
     {
-      throw stop_iteration_exception();
+      VITAL_THROW( stop_iteration_exception, "simple_image_container_set" );
     }
     return *( v_cit++ );
   };

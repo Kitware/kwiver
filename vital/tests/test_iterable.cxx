@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ protected:
   {
     std::vector<int>::iterator it = v_.begin();
     return [=] () mutable ->iterator::reference {
-      if( it == v_.end() ) throw kwiver::vital::stop_iteration_exception();
+      if( it == v_.end() ) { VITAL_THROW( kwiver::vital::stop_iteration_exception, "test" ); }
       return *(it++);
     };
   }
@@ -71,7 +71,7 @@ protected:
   {
     std::vector<int>::const_iterator it = v_.begin();
     return [=] () mutable ->const_iterator::reference {
-      if( it == v_.end() ) throw kwiver::vital::stop_iteration_exception();
+      if( it == v_.end() ) { VITAL_THROW( kwiver::vital::stop_iteration_exception, "test" ); }
       return *(it++);
     };
   }
