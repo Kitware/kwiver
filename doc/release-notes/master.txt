@@ -189,6 +189,8 @@ Arrows: KPF
 
 Arrows: OpenCV
 
+ * Add process to apply detector to subregions of an image.
+
 Arrows: Serialization
 
 Arrows: Super3d
