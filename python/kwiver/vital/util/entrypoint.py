@@ -16,7 +16,10 @@ def get_python_plugins_from_entrypoint():
     """
     py_modules = []
     for entry_point in iter_entry_points(PYTHON_PLUGIN_ENTRYPOINT):
-        py_modules.append(entry_point.load())
+        try:
+            py_modules.append(entry_point.load())
+        except ImportError:
+            logger.warn("Failed to load entry point: {0}".format(entry_point))
     return py_modules
 
 
@@ -27,12 +30,17 @@ def get_cpp_paths_from_entrypoint():
     """
     additional_search_paths = []
     for entry_point in iter_entry_points(CPP_SEARCH_PATHS_ENTRYPOINT):
-        search_path = entry_point.load()()
+        try:
+            search_path = entry_point.load()()
+        except ImportError:
+            logger.warn("Failed to load entry point: {0}".format(entry_point))
+            continue
+
         if os.path.exists(search_path):
             additional_search_paths.append(search_path)
         else:
             logger.warn('Invalid search path {0} specified by {1}'.format(search_path,
-                        entry_point.key()))
+                        entry_point))
     return additional_search_paths
 
 def get_library_path():
