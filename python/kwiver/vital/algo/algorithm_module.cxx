@@ -239,8 +239,8 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_uf_trampoline<>>(m, "uuid_factory");
   register_algorithm<kwiver::vital::algo::uv_unwrap_mesh,
             algorithm_def_uvum_trampoline<>>(m, "uv_unwrap_mesh");
-  /* register_algorithm<kwiver::vital::algo::video_input,
-            algorithm_def_uvum_trampoline<>>(m, "video_input"); */
+  register_algorithm<kwiver::vital::algo::video_input,
+            algorithm_def_vi_trampoline<>>(m, "video_input");
 
 
   analyze_tracks(m);
@@ -290,5 +290,5 @@ PYBIND11_MODULE(algorithm, m)
   triangulate_landmarks(m);
   uuid_factory(m);
   uv_unwrap_mesh(m);
-  /*video_input(m);*/
+  video_input(m);
 }
