@@ -150,7 +150,7 @@ kwiver_add_python_library(algorithm
   trampoline/transform_2d_io_trampoline.txx
   trampoline/triangulate_landmarks_trampoline.txx
   trampoline/uuid_factory_trampoline.txx
-  trampoline/uv_unwrap_mesh.txx
+  trampoline/uv_unwrap_mesh_trampoline.txx
 )
 
 
