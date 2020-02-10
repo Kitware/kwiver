@@ -46,4 +46,4 @@ void read_track_descriptor_set(py::module &m)
     .def("open", &kwiver::vital::algo::read_track_descriptor_set::open)
     .def("close", &kwiver::vital::algo::read_track_descriptor_set::close)
     .def("read_set", &kwiver::vital::algo::read_track_descriptor_set::read_set);
-}
+} 

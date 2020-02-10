@@ -88,6 +88,7 @@
 #include <python/kwiver/vital/algo/trampoline/triangulate_landmarks_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/uuid_factory_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/uv_unwrap_mesh_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/video_input_trampoline.txx>
 #include <python/kwiver/vital/algo/algorithm.h>
 #include <python/kwiver/vital/algo/analyze_tracks.h>
 #include <python/kwiver/vital/algo/associate_detections_to_tracks.h>
@@ -136,6 +137,7 @@
 #include <python/kwiver/vital/algo/triangulate_landmarks.h>
 #include <python/kwiver/vital/algo/uuid_factory.h>
 #include <python/kwiver/vital/algo/uv_unwrap_mesh.h>
+#include <python/kwiver/vital/algo/video_input.h>
 #include <sstream>
 
 namespace py = pybind11;
@@ -237,6 +239,9 @@ PYBIND11_MODULE(algorithm, m)
             algorithm_def_uf_trampoline<>>(m, "uuid_factory");
   register_algorithm<kwiver::vital::algo::uv_unwrap_mesh,
             algorithm_def_uvum_trampoline<>>(m, "uv_unwrap_mesh");
+  /* register_algorithm<kwiver::vital::algo::video_input,
+            algorithm_def_uvum_trampoline<>>(m, "video_input"); */
+
 
   analyze_tracks(m);
   associate_detections_to_tracks(m);
@@ -285,4 +290,5 @@ PYBIND11_MODULE(algorithm, m)
   triangulate_landmarks(m);
   uuid_factory(m);
   uv_unwrap_mesh(m);
+  /*video_input(m);*/
 }
