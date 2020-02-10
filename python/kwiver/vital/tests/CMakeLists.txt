@@ -18,6 +18,7 @@ set(__testable_modnames
   test_homography
   test_image
   test_image_container
+  test_image_object_detector
   test_landmark
   test_object_track_state
   test_object_track_set
@@ -28,14 +29,6 @@ set(__testable_modnames
   test_track_set
   test_track_state
   )
-
-if(KWIVER_ENABLE_SPROKIT AND KWIVER_ENABLE_ARROWS)
-  # ImageObjectDetector test requires config bindings in sprokit
-  list(APPEND
-      __testable_modnames
-      test_image_object_detector
-    )
-endif()
 
 # All python filenames_we in the vital.tests module
 set(__all_modnames
@@ -50,3 +43,5 @@ foreach (modname IN LISTS __all_modnames)
     vital/tests
     ${modname})
 endforeach()
+
+add_subdirectory(algorithms)
