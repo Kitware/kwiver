@@ -34,6 +34,12 @@
 
 namespace py = pybind11;
 
+class py_image_io : public kwiver::vital::algo::image_io
+{
+  public:
+    using kwiver::vital::algo::image_io::set_capability;
+};
+
 void image_io(py::module &m)
 {
   py::class_< kwiver::vital::algo::image_io,
@@ -44,5 +50,10 @@ void image_io(py::module &m)
     .def_static("static_type_name", &kwiver::vital::algo::image_io::static_type_name)
     .def("load", &kwiver::vital::algo::image_io::load)
     .def("load_metadata", &kwiver::vital::algo::image_io::load_metadata)
-    .def("save", &kwiver::vital::algo::image_io::save);
+    .def("save", &kwiver::vital::algo::image_io::save)
+    .def("get_implementation_capabilities",
+             &kwiver::vital::algo::image_io::get_implementation_capabilities)
+    .def_readonly_static("HAS_TIME",
+                          &kwiver::vital::algo::image_io::HAS_TIME)
+    .def("set_implementation_capabilities", &py_image_io::set_capability);
 }
