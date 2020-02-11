@@ -88,13 +88,7 @@ public:
 
   /// Get an in-memory image class to access the data
   virtual vital::image get_image() const { return ocv_to_vital(data_, RGB_COLOR); }
-
-  /// Get an in-memory image class to access the data
-  virtual vital::image get_image(unsigned x_offset, unsigned y_offset,
-                                 unsigned width, unsigned height) const
-  {
-    return ocv_to_vital(data_, RGB_COLOR).crop(x_offset, y_offset, width, height);
-  }
+  using vital::image_container::get_image;
 
   /// Access the underlying cv::Mat data structure
   cv::Mat get_Mat() const { return data_; }
@@ -156,4 +150,4 @@ KWIVER_ALGO_OCV_EXPORT cv::Mat image_container_to_ocv_matrix(const vital::image_
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_OCV_IMAGE_CONTAINER_H_
+#endif

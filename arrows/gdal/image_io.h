@@ -78,4 +78,4 @@ private:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_GDAL_IMAGE_IO_H_
+#endif
