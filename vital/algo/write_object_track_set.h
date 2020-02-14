@@ -56,7 +56,7 @@ namespace algo {
  *
  * Track sets from multiple images are stored in a single file with
  * enough information to recreate a unique image identifier, usually a frame
- * number, and an associated wet of object tracks.
+ * number, and an associated set of object tracks.
  */
 class VITAL_ALGO_EXPORT write_object_track_set
   : public kwiver::vital::algorithm_def<write_object_track_set>
@@ -78,7 +78,7 @@ public:
    * \throws kwiver::vital::path_not_a_file Thrown when the given path does
    *    not point to a file (i.e. it points to a directory).
    */
-  void open( std::string const& filename );
+  virtual void open( std::string const& filename );
 
   /// Write object tracks to an existing stream
   /**
@@ -95,7 +95,7 @@ public:
    * The currently open object track set file is closed. If there is no
    * currently open file, then this method does nothing.
    */
-  void close();
+  virtual void close();
 
   /// Write object track set.
   /**
