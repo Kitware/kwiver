@@ -1,5 +1,6 @@
 set(__test_algorithms
   simple_image_object_detector
+  simple_associate_detections_to_tracks
   )
 
 set(test_algorithms
