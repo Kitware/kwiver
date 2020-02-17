@@ -115,15 +115,9 @@ class TestVitalImageObjectDetector(object):
                                                             nested_cfg,
                                                             detector )
         # Verify that test cfg is set to configuration inside detector
-        # nested configuration uses the name of a detector as an additional configuration
-        # key thus it is checked against 7 rather than 6
-        #nose.tools.assert_equal(len(nested_cfg), 7)
-
-        #test_cfg = _dummy_detector_cfg()
-        #test_cfg.set_value("example_detector:type", "example_detector")
-        #ImageObjectDetector.set_nested_algo_configuration( "example_detector",
-        #                                    test_cfg,
-        #                                    detector )
-        nose.tools.assert_equal(ImageObjectDetector.check_nested_algo_configuration(
-                                                            "detector",
+        # nested configuration uses the name of a detector as an additional
+        # configuration key thus it is checked against 7 rather than 6
+        nose.tools.assert_equal(len(nested_cfg), 7)
+        nose.tools.assert_equal(
+                ImageObjectDetector.check_nested_algo_configuration("detector",
                                                             nested_cfg), True)
