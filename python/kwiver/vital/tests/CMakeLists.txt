@@ -4,9 +4,11 @@
 
 # Define modules with tests in them
 set(__testable_modnames
+  test_algorithms_common
   test_algorithm_factory
   test_camera
   test_camera_intrinsics
+  test_close_loops
   test_config
   test_camera_map
   test_color
@@ -28,6 +30,7 @@ set(__testable_modnames
   test_track
   test_track_set
   test_track_state
+  test_transform_2d_io
   )
 
 # All python filenames_we in the vital.tests module
