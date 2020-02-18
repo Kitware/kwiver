@@ -47,6 +47,7 @@ def get_cpp_paths_from_entrypoint():
                             entry_point))
     except DistributionNotFound:
         pass
+
     return additional_search_paths
 
 def get_library_path():

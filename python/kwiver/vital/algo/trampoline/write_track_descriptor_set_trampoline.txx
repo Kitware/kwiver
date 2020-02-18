@@ -75,7 +75,6 @@ class write_track_descriptor_set_trampoline :
     
 
 
-
     void open( std::string const& filename ) override
     {
       VITAL_PYBIND11_OVERLOAD(

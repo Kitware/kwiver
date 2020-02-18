@@ -30,6 +30,7 @@ set(__testable_modnames
   test_track
   test_track_set
   test_track_state
+  test_write_track_descriptor_set
   )
 
 # All python filenames_we in the vital.tests module
