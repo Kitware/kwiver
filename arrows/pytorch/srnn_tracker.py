@@ -421,11 +421,11 @@ class SRNNTracker(KwiverProcess):
                 # XXX Need to perform some sort of NMS
                 raise NotImplementedError
 
-        if len(dos) == 0:
+        all_dos = list(itertools.chain(dos, inits.values()))
+
+        if not all_dos:
             print('!!! No bbox is provided on this frame.  Skipping this frame !!!')
             return DetectedObjectSet()
-
-        all_dos = list(itertools.chain(dos, inits.values()))
 
         if self._gtbbox_flag:
             fid = ts = self._step_id
