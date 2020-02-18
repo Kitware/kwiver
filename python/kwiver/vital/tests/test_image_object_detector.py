@@ -39,17 +39,16 @@ from kwiver.vital.types import Image
 from kwiver.vital.types import ImageContainer
 from kwiver.vital.types import DetectedObjectSet
 from kwiver.vital.modules import modules
+from kwiver.vital.tests.helpers import generate_dummy_config
 from kwiver.vital.config import config
 
 def _dummy_detector_cfg():
-    test_cfg = config.empty_config()
-    test_cfg.set_value("center_x", "3")
-    test_cfg.set_value("center_y", "5")
-    test_cfg.set_value("dx", "0.3")
-    test_cfg.set_value("dy", "0.2")
-    test_cfg.set_value("height", "10")
-    test_cfg.set_value("width", "15")
-    return test_cfg
+    return generate_dummy_config(center_x=3,
+                                 center_y=5,
+                                 dx=0.3,
+                                 dy=0.2,
+                                 height=10,
+                                 width=15)
 
 class TestVitalImageObjectDetector(object):
     # Display all the registered image detectors
@@ -123,15 +122,9 @@ class TestVitalImageObjectDetector(object):
                                                             nested_cfg,
                                                             detector )
         # Verify that test cfg is set to configuration inside detector
-        # nested configuration uses the name of a detector as an additional configuration
-        # key thus it is checked against 7 rather than 6
-        #nose.tools.assert_equal(len(nested_cfg), 7)
-
-        #test_cfg = _dummy_detector_cfg()
-        #test_cfg.set_value("example_detector:type", "example_detector")
-        #ImageObjectDetector.set_nested_algo_configuration( "example_detector",
-        #                                    test_cfg,
-        #                                    detector )
-        nose.tools.assert_equal(ImageObjectDetector.check_nested_algo_configuration(
-                                                            "detector",
+        # nested configuration uses the name of a detector as an additional
+        # configuration key thus it is checked against 7 rather than 6
+        nose.tools.assert_equal(len(nested_cfg), 7)
+        nose.tools.assert_equal(
+                ImageObjectDetector.check_nested_algo_configuration("detector",
                                                             nested_cfg), True)
