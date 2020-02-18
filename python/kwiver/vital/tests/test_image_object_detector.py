@@ -82,6 +82,13 @@ class TestVitalImageObjectDetector(object):
         detector = ImageObjectDetector.create("SimpleImageObjectDetector")
         detector.detect()
 
+    '''#TODO: why doesn't this work?
+    def test_detect_wrong_type(self):
+        modules.load_known_modules()
+        detector = ImageObjectDetector.create("SimpleImageObjectDetector")
+        detector.detect("param_of_wrong_type")
+    '''
+    
     # For an image container it returns a detected object set of size 1
     def test_detect(self):
         modules.load_known_modules()

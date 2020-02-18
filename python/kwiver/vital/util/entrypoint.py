@@ -15,11 +15,15 @@ def get_python_plugins_from_entrypoint():
              functions
     """
     py_modules = []
-    for entry_point in iter_entry_points(PYTHON_PLUGIN_ENTRYPOINT):
-        try:
-            py_modules.append(entry_point.load())
-        except ImportError:
-            logger.warn("Failed to load entry point: {0}".format(entry_point))
+    try:
+        for entry_point in iter_entry_points(PYTHON_PLUGIN_ENTRYPOINT):
+            try:
+                py_modules.append(entry_point.load())
+            except ImportError:
+                logger.warn("Failed to load entry point: {0}".format(entry_point))
+    except Exception:
+        pass
+    
     return py_modules
 
 
@@ -29,18 +33,23 @@ def get_cpp_paths_from_entrypoint():
     :return: A list of paths for c++ plugins
     """
     additional_search_paths = []
-    for entry_point in iter_entry_points(CPP_SEARCH_PATHS_ENTRYPOINT):
-        try:
-            search_path = entry_point.load()()
-        except ImportError:
-            logger.warn("Failed to load entry point: {0}".format(entry_point))
-            continue
+    try:
+    
+        for entry_point in iter_entry_points(CPP_SEARCH_PATHS_ENTRYPOINT):
+            try:
+                search_path = entry_point.load()()
+            except ImportError:
+                logger.warn("Failed to load entry point: {0}".format(entry_point))
+                continue
 
-        if os.path.exists(search_path):
-            additional_search_paths.append(search_path)
-        else:
-            logger.warn('Invalid search path {0} specified by {1}'.format(search_path,
+            if os.path.exists(search_path):
+                additional_search_paths.append(search_path)
+            else:
+                logger.warn('Invalid search path {0} specified by {1}'.format(search_path,
                         entry_point))
+    except Exception:
+        pass
+
     return additional_search_paths
 
 def get_library_path():
