@@ -1,4 +1,6 @@
 set(__test_algorithms
+  simple_associate_detections_to_tracks
+  simple_bundle_adjust
   simple_image_object_detector
   simple_write_object_track_set
   simple_write_track_descriptor_set

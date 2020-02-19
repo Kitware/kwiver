@@ -5,6 +5,8 @@
 # Define modules with tests in them
 set(__testable_modnames
   test_algorithm_factory
+  test_associate_detections_to_tracks
+  test_bundle_adjust
   test_camera
   test_camera_intrinsics
   test_config
