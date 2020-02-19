@@ -28,6 +28,7 @@ set(__testable_modnames
   test_track
   test_track_set
   test_track_state
+  test_write_object_track_set
   test_write_track_descriptor_set
   )
 

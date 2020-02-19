@@ -1,6 +1,8 @@
 set(__test_algorithms
   simple_image_object_detector
+  simple_write_object_track_set
   simple_write_track_descriptor_set
+  
   )
 
 set(test_algorithms

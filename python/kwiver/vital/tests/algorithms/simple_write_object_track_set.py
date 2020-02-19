@@ -25,36 +25,35 @@
 # SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF 
-from kwiver.vital.algo import WriteTrackDescriptorSet
+from kwiver.vital.algo import WriteObjectTrackSet
 
-
-class SimpleWriteTrackDescriptorSet(WriteTrackDescriptorSet):
+class SimpleWriteObjectTrackSet(WriteObjectTrackSet):
     """                                                                        
-    Implementation of a basic WriteTrackDescriptorSet. Uses
-    buff to simulate writing to a file, and buff_is_open to simulate
-    opening and closing a file.             
+    Implementation of a basic WriteObjectTrackSet. Uses
+    buff_is_open to simulate opening and closing a file, and buff
+    to simulate writing to a file             
     """  
 
     def __init__(self):
-        WriteTrackDescriptorSet.__init__(self)
+        WriteObjectTrackSet.__init__(self)
         self.threshold = 0.0
-        self.buff_is_open = False 
+        self.buff_is_open = False
+        self.buff = ""
 
     def get_configuration(self):
-        # Inherit from the base class
-        cfg = super(WriteTrackDescriptorSet, self).get_configuration()
+        # Inherit from the base class 
+        cfg = super(WriteObjectTrackSet, self).get_configuration()
         cfg.set_value( "threshold", str(self.threshold) )
         return cfg
-       
+
     def set_configuration( self, cfg_in ):
         cfg = self.get_configuration()
         cfg.merge_config(cfg_in)
         self.threshold = float(cfg.get_value("threshold"))
-                                                                                
+                                                                             
     def check_configuration( self, cfg ):
         return (not cfg.has_value("threshold") or float(cfg.get_value("threshold"))==self.threshold)
         
-
     def close(self):
         self.buff_is_open = False
     
@@ -62,9 +61,9 @@ class SimpleWriteTrackDescriptorSet(WriteTrackDescriptorSet):
     def open(self, other_file_name):
         self.buff_is_open = True
 
-    # Just calls the first items method()
+    # Just writes the size to the buffer
     def write_set(self, set):
-        set[0].method()
+        self.buff += str(set.size())
 
 
 
@@ -72,9 +71,9 @@ class SimpleWriteTrackDescriptorSet(WriteTrackDescriptorSet):
 def __vital_algorithm_register__():                                            
     from kwiver.vital.algo import algorithm_factory
      # Register Algorithm 
-    implementation_name  = "SimpleWriteTrackDescriptorSet"
-    if algorithm_factory.has_algorithm_impl_name(SimpleWriteTrackDescriptorSet.static_type_name(), implementation_name):
-        return                                                                  
+    implementation_name  = "SimpleWriteObjectTrackSet"
+    if algorithm_factory.has_algorithm_impl_name(SimpleWriteObjectTrackSet.static_type_name(), implementation_name):
+        return
         
-    algorithm_factory.add_algorithm( implementation_name, "test simple write track descriptor set", SimpleWriteTrackDescriptorSet )
+    algorithm_factory.add_algorithm( implementation_name, "test simple write object track set", SimpleWriteObjectTrackSet )
     algorithm_factory.mark_algorithm_as_loaded( implementation_name )
