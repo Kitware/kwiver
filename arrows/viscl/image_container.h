@@ -86,13 +86,7 @@ public:
 
   /// Get an in-memory image class to access the data
   virtual vital::image get_image() const { return viscl_to_vital(data_); }
-
-  /// Get an in-memory image class to access the data
-  virtual vital::image get_image(unsigned x_offset, unsigned y_offset,
-                                 unsigned width, unsigned height) const
-  {
-     return viscl_to_vital(data_).crop(x_offset, y_offset, width, height);
-  }
+  using vital::image_container::get_image;
 
   /// Access the underlying VisCL data structure
   viscl::image get_viscl_image() const { return data_; }
@@ -122,4 +116,4 @@ KWIVER_ALGO_VISCL_EXPORT viscl::image image_container_to_viscl(const vital::imag
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_VISCL_IMAGE_CONTAINER_H_
+#endif
