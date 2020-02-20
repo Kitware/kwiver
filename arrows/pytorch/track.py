@@ -32,12 +32,15 @@ import torch
 import collections
 
 class track_state(object):
-    def __init__(self, frame_id, bbox_center, interaction_feature, app_feature, bbox, 
-                    detected_object, sys_frame_id, sys_frame_time):
+    def __init__(self, frame_id, bbox_center, ref_point,
+                 interaction_feature, app_feature, bbox, ref_bbox,
+                 detected_object, sys_frame_id, sys_frame_time):
         self.bbox_center = bbox_center
+        self.ref_point = ref_point
 
         '''a list [x, y, w, h]'''
         self.bbox = bbox
+        self.ref_bbox = ref_bbox
 
         # got required AMI features in torch.tensor format
         self.app_feature = app_feature
@@ -64,7 +67,6 @@ class track(object):
         self.track_id = track_id
         self.track_state_list = []
         self.max_conf = 0.0
-        self.updated_flag = False
 
     def __len__(self):
         return len(self.track_state_list)
@@ -79,9 +81,9 @@ class track(object):
         if not self.track_state_list:
             new_track_state.motion_feature = torch.FloatTensor(2).zero_()
         else:
-            pre_bbox_center = np.asarray(self.track_state_list[-1].bbox_center, dtype=np.float32).reshape(2)
-            cur_bbox_center = np.asarray(new_track_state.bbox_center, dtype=np.float32).reshape(2)
-            new_track_state.motion_feature = torch.from_numpy(cur_bbox_center - pre_bbox_center)
+            pre_ref_point = np.asarray(self.track_state_list[-1].ref_point, dtype=np.float32).reshape(2)
+            cur_ref_point = np.asarray(new_track_state.ref_point, dtype=np.float32).reshape(2)
+            new_track_state.motion_feature = torch.from_numpy(cur_ref_point - pre_ref_point)
 
         new_track_state.track_id = self.track_id
         self.track_state_list.append(new_track_state)
@@ -90,7 +92,6 @@ class track(object):
     def duplicate_track_state(self, timestep_len = 6):
         du_track = track(self.track_id)
         du_track.track_state_list = list(self.track_state_list)
-        du_track.updated_flag = self.updated_flag
         du_track.max_conf = self.max_conf
 
         for _ in range(timestep_len - len(du_track)):
@@ -129,6 +130,9 @@ class track_set(object):
     def deactivate_track(self, track):
         del self.active_id_set[track.track_id]
 
+    def deactivate_all_tracks(self):
+        self.active_id_set.clear()
+
     def active_count(self):
         return len(self.active_id_set)
 
@@ -144,21 +148,6 @@ class track_set(object):
         new_track = track(track_id)
         new_track.append(track_state)
         self.add_new_track(new_track)
-
-    def add_new_track_state_list(self, start_track_id, ts_list, thresh=0.0):
-        track_id = start_track_id
-        for ts in ts_list:
-            if ts.detected_object.confidence() >= thresh:
-                self.add_new_track_state(track_id, ts)
-                track_id += 1
-        return track_id
-
-    def update_track(self, track_id, new_track_state):
-        self[track_id].append(new_track_state)
-
-    def reset_updated_flag(self):
-        for track in self:
-            track.updated_flag = False
 
 
 if __name__ == '__main__':
