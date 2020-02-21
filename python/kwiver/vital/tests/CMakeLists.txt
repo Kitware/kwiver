@@ -8,7 +8,6 @@ set(__testable_modnames
   test_algorithm_factory
   test_camera
   test_camera_intrinsics
-  test_close_loops
   test_config
   test_camera_map
   test_color
@@ -17,10 +16,11 @@ set(__testable_modnames
   test_descriptor_set
   test_eigen_numpy
   test_feature
+  test_feature_descriptor_io
   test_homography
   test_image
   test_image_container
-  test_image_object_detector
+  test_image_io
   test_landmark
   test_object_track_state
   test_object_track_set
@@ -46,4 +46,4 @@ foreach (modname IN LISTS __all_modnames)
     ${modname})
 endforeach()
 
-add_subdirectory(algorithms)
+add_subdirectory(alg)
