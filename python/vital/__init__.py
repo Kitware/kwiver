@@ -1,7 +1,7 @@
 import warnings
 warnings.warn(
     '`import vital` is deprecated, use import kwiver.vital instead',
-    DeprecationWarning
+    UserWarning
 )
 
 from kwiver.vital import *  # NOQA
