@@ -28,30 +28,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file algorithm_implementation.cxx
- *
- * \brief python bindings for algorithm
- */
+#ifndef KWIVER_VITAL_PYTHON_MATCH_SET_H
+#define KWIVER_VITAL_PYTHON_MATCH_SET_H
 
 #include <pybind11/pybind11.h>
-#include <python/kwiver/vital/types/bounding_box.h>
-#include <python/kwiver/vital/types/image.h>
-#include <python/kwiver/vital/types/image_container.h>
-#include <python/kwiver/vital/types/landmark.h>
-#include <python/kwiver/vital/types/landmark_map.h>
-#include <python/kwiver/vital/types/match_set.h>
+#include <vital/types/match_set.h>
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(types, m)
-{
-  bounding_box<int>(m, "Int");
-  bounding_box<float>(m, "Float");
-  bounding_box<double>(m, "Double");
-  image(m);
-  image_container(m);
-  landmark(m);
-  landmark_map(m);
-  match_set(m);
-}
+typedef kwiver::vital::match match_t;
+typedef kwiver::vital::match_set match_set_t;
+typedef kwiver::vital::simple_match_set s_match_set_t;
+
+void match_set(py::module &m);
+
+#endif

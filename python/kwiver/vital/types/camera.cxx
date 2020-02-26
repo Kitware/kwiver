@@ -34,7 +34,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
 
-#include "covariance_class.cxx"
+#include <python/kwiver/vital/types/covariance_class.h>
 #include "eigen_class.cxx"
 #include "rotation_class.cxx"
 

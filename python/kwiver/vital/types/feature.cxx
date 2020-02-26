@@ -30,7 +30,7 @@
 
 #include <vital/types/feature.h>
 
-#include "covariance_class.cxx"
+#include <python/kwiver/vital/types/covariance_class.h>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>

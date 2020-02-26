@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2019 by Kitware, Inc.
+ * Copyright 2017-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,30 +28,41 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file algorithm_implementation.cxx
- *
- * \brief python bindings for algorithm
- */
-
-#include <pybind11/pybind11.h>
-#include <python/kwiver/vital/types/bounding_box.h>
-#include <python/kwiver/vital/types/image.h>
-#include <python/kwiver/vital/types/image_container.h>
+#include <vital/types/landmark.h>
 #include <python/kwiver/vital/types/landmark.h>
 #include <python/kwiver/vital/types/landmark_map.h>
-#include <python/kwiver/vital/types/match_set.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/embed.h>
+#include <pybind11/stl.h>
+#include <pybind11/stl_bind.h>
 
-namespace py = pybind11;
+void landmark_map(py::module &m) {
+    py::bind_map<map_landmark_t>(m, "LandmarkDict");
 
-PYBIND11_MODULE(types, m)
-{
-  bounding_box<int>(m, "Int");
-  bounding_box<float>(m, "Float");
-  bounding_box<double>(m, "Double");
-  image(m);
-  image_container(m);
-  landmark(m);
-  landmark_map(m);
-  match_set(m);
+    py::class_<landmark_map_t, std::shared_ptr<landmark_map_t>>(m, "BaseLandmarkMap")
+    .def("size", &landmark_map_t::size)
+    .def("landmarks", &landmark_map_t::landmarks, py::return_value_policy::reference_internal)
+
+    .def("__repr__", [](py::object& self) -> std::string {
+        auto locals = py::dict(py::arg("self")=self);
+        py::exec(R"(
+            classname = self.__class__.__name__
+            retval = '<%s at %s>' % (classname, hex(id(self)))
+            )", py::globals(), locals);
+        return locals["retval"].cast<std::string>();
+    })
+
+    .def("__str__", [](py::object& self) -> std::string {
+        auto locals = py::dict(py::arg("self")=self);
+        py::exec(R"(
+            classname = self.__class__.__name__
+            retval = '<%s>' % (classname)
+            )", py::globals(), locals);
+        return locals["retval"].cast<std::string>();
+    });
+
+
+    py::class_<s_landmark_map_t, landmark_map_t, std::shared_ptr<s_landmark_map_t>>(m, "LandmarkMap")
+    .def(py::init<>())
+    .def(py::init<map_landmark_t>());
 }

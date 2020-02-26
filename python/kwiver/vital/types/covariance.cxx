@@ -33,8 +33,6 @@
 
 #include "covariance_class.cxx"
 
-namespace py = pybind11;
-
 PYBIND11_MODULE(covariance, m)
 {
   py::class_<PyCovarianceBase, std::shared_ptr<PyCovarianceBase> >(m, "Covariance")

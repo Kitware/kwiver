@@ -3,13 +3,20 @@ project(vital_python_types)
 include_directories(${pybind11_INCLUDE_DIR})
 
 set( vital_python_headers
+     bounding_box.h
      image.h
      image_container.h
+     landmark.h
+     landmark_map.h
+     match_set.h
   )
 
 set( vital_python_sources
      image.cxx
      image_container.cxx
+     landmark.cxx
+     landmark_map.cxx
+     match_set.cxx
      types_module.cxx
    )
 
@@ -20,12 +27,6 @@ kwiver_add_python_library(types
   )
 
 target_link_libraries(python-vital.types-types
-  PUBLIC ${PYTHON_LIBRARIES}
-         vital)
-kwiver_add_python_library(bounding_box
-  vital/types
-  bounding_box.cxx)
-target_link_libraries(python-vital.types-bounding_box
   PUBLIC ${PYTHON_LIBRARIES}
          vital)
 
@@ -127,13 +128,6 @@ target_link_libraries(python-vital.types-homography_f2f
   PUBLIC ${PYTHON_LIBRARIES}
          vital)
 
-kwiver_add_python_library(landmark
-  vital/types
-  landmark.cxx)
-target_link_libraries(python-vital.types-landmark
-  PUBLIC ${PYTHON_LIBRARIES}
-         vital)
-
 kwiver_add_python_library(rotation
   vital/types
   rotation.cxx)
@@ -179,7 +173,6 @@ target_link_libraries(python-vital.types-object_track_set
 if(NOT SKBUILD)
   kwiver_create_python_init(vital/types
     types
-    bounding_box
     camera
     camera_intrinsics
     camera_map
@@ -193,7 +186,6 @@ if(NOT SKBUILD)
     eigen
     feature
     homography
-    landmark
     rotation
     similarity
     timestamp

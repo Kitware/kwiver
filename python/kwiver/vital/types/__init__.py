@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 from kwiver.vital.types.types import *
-from kwiver.vital.types.bounding_box import *
 from kwiver.vital.types.camera import *
 from kwiver.vital.types.camera_intrinsics import *
 from kwiver.vital.types.camera_map import *
@@ -15,7 +14,6 @@ from kwiver.vital.types.detected_object_set import *
 from kwiver.vital.types.eigen import *
 from kwiver.vital.types.feature import *
 from kwiver.vital.types.homography import *
-from kwiver.vital.types.landmark import *
 from kwiver.vital.types.rotation import *
 from kwiver.vital.types.similarity import *
 from kwiver.vital.types.timestamp import *
