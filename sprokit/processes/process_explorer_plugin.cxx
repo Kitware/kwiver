@@ -504,8 +504,6 @@ process_explorer_json::
 initialize( explorer_context* context )
 {
   m_context = context;
-  m_root_array = std::make_shared< json_array >( out_stream(), 0 );
-
   return true;
 }
 
@@ -515,6 +513,11 @@ void
 process_explorer_json::
 explore( const kwiver::vital::plugin_factory_handle_t fact )
 {
+  if (m_first_process)
+  {
+    //Opens the first square bracket.
+    m_root_array = std::make_shared< json_array >( out_stream(), 0 );
+  }
   json_dict plugin_dict( out_stream(), m_root_array->indent(), m_first_process );
   m_first_process = false;
   std::string proc_type = "-- Not Set --";
