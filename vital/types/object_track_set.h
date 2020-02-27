@@ -126,7 +126,7 @@ public:
     return time_;
   }
 
-  vital::timestamp timestamp() const
+  vital::timestamp ts() const
   {
     return vital::timestamp( time_, this->frame() );
   }
