@@ -431,7 +431,7 @@ class SRNNTracker(KwiverProcess):
 
         inits = {
             lf: {t.id: t[lf].detection() for t in tracks} for lf, tracks
-            in groupby(init_tracks, lambda t: t.last_frame).items()
+            in groupby(inits, lambda t: t.last_frame).items()
         }
         assert inits.keys() <= {self._prev_frame, timestamp.get_frame()}
 
