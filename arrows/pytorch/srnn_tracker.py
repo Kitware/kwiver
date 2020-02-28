@@ -477,7 +477,7 @@ class SRNNTracker(KwiverProcess):
 
             # This is the only relevant part of _step_track_set
             # Directly add explicit init tracks
-            for tid, ts in prev_track_state_list:
+            for tid, ts in zip(prev_inits, prev_track_state_list):
                 # XXX This throws an error should a new ID overlap with an existing one
                 self._track_set.add_new_track_state(tid, ts)
 
