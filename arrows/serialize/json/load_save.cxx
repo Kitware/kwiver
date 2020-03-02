@@ -138,9 +138,14 @@ void save( ::cereal::JSONOutputArchive&                archive,
 {
   archive( ::cereal::make_nvp( "size", obj.size() ) );
 
-  for ( const auto& element : const_cast< kwiver::vital::detected_object_set& >(obj) )
+  using dos = kwiver::vital::detected_object_set;
+
+  dos::const_iterator ie = obj.cend();
+  dos::const_iterator element;
+
+  for ( element = obj.cbegin(); element != ie; ++element )
   {
-    save( archive, *element );
+    save( archive, **element );
   }
 
   // currently not handling atributes
@@ -499,7 +504,7 @@ void save( ::cereal::JSONOutputArchive& archive,
 {
   archive( ::cereal::base_class< kwiver::vital::track_state >( std::addressof( obj_trk_state ) ) );
   archive( ::cereal::make_nvp( "track_time", obj_trk_state.time() ) );
-  save( archive, *obj_trk_state.detection );
+  save( archive, *obj_trk_state.detection() );
 }
 
 // ----------------------------------------------------------------------------
@@ -513,7 +518,7 @@ void load( ::cereal::JSONInputArchive& archive,
   archive( CEREAL_NVP( track_time ) );
   obj_trk_state.set_time(track_time);
   load(archive, *detection);
-  obj_trk_state.detection = detection;
+  obj_trk_state.set_detection(detection);
 }
 
 
