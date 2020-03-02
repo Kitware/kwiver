@@ -429,7 +429,6 @@ class SRNNTracker(KwiverProcess):
 
         homog_src_to_base = self._step_homog_state(homog_f2f)
 
-        assert all(len(t) == 1 for t in inits)
         inits = {
             lf: {t.id: t[lf].detection() for t in tracks} for lf, tracks
             in groupby(inits, lambda t: t.last_frame).items()
