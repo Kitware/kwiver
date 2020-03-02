@@ -116,10 +116,7 @@ class track_set(object):
         return (self[i] for i in self.active_id_set)
 
     def __getitem__(self, track_id):
-        try:
-            return self.id_ts_dict[track_id]
-        except KeyError:
-            raise IndexError
+        return self.id_ts_dict[track_id]
 
     def get_all_track_id(self):
         return sorted(self.id_ts_dict)
@@ -136,18 +133,24 @@ class track_set(object):
     def active_count(self):
         return len(self.active_id_set)
 
-    def add_new_track(self, track):
-        if track.track_id in self.id_ts_dict:
-            print("track ID exists in the track set!!!")
-            raise RuntimeError
+    def make_track(self, track_id, exist_ok=None):
+        """Create a new track in this track_set with the provided track ID,
+        mark it as active, and return it.
 
-        self.id_ts_dict[track.track_id] = track
-        self.active_id_set[track.track_id] = None
+        If exist_ok is true (default false), then track_id may be the
+        ID of an existing track, in which case it is remarked as
+        active and returned.
 
-    def add_new_track_state(self, track_id, track_state):
-        new_track = track(track_id)
-        new_track.append(track_state)
-        self.add_new_track(new_track)
+        """
+        if track_id in self.id_ts_dict:
+            if not exist_ok:
+                raise ValueError("Track ID exists in the track set!")
+            new_track = self.id_ts_dict[track_id]
+        else:
+            new_track = track(track_id)
+            self.id_ts_dict[track_id] = new_track
+        self.active_id_set[track_id] = None
+        return new_track
 
 
 if __name__ == '__main__':

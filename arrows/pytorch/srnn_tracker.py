@@ -431,9 +431,8 @@ class SRNNTracker(KwiverProcess):
 
         inits = {
             lf: {t.id: t[lf].detection() for t in tracks} for lf, tracks
-            in groupby(init_tracks, lambda t: t.last_frame).items()
+            in groupby(inits, lambda t: t.last_frame).items()
         }
-        assert inits.keys() <= {self._prev_frame, timestamp.get_frame()}
 
         def max_iou_filter(det_dict, max_iou):
             """Return a function that takes a DetectedObject and returns true when
@@ -457,6 +456,16 @@ class SRNNTracker(KwiverProcess):
 
         prev_inits = inits.get(self._prev_frame)
         if prev_inits:
+            assert all(
+                det is self._prev_inits[tid]
+                for tid, det in prev_inits.items()
+                if tid in self._prev_inits
+            )
+            prev_inits = {
+                tid: det for tid, det in prev_inits.items()
+                if tid not in self._prev_inits
+            }
+        if prev_inits:
             if not self._explicit_initialization:
                 is_overlap_free = max_iou_filter(prev_inits, self._init_max_iou)
                 for track in list(self._track_set.iter_active()):
@@ -477,9 +486,9 @@ class SRNNTracker(KwiverProcess):
 
             # This is the only relevant part of _step_track_set
             # Directly add explicit init tracks
-            for tid, ts in prev_track_state_list:
-                # XXX This throws an error should a new ID overlap with an existing one
-                self._track_set.add_new_track_state(tid, ts)
+            for tid, ts in zip(prev_inits, prev_track_state_list):
+                # XXX This doesn't check for unintended overlap with an automatic ID
+                self._track_set.make_track(tid, exist_ok=True).append(ts)
 
         inits = inits.get(timestamp.get_frame(), {})
         if not self._explicit_initialization and inits:
@@ -505,6 +514,7 @@ class SRNNTracker(KwiverProcess):
 
         self._step_track_set(fid, track_state_list, zip(inits, init_track_state_list))
 
+        self._prev_inits = inits
         self._prev_frame = timestamp.get_frame()
         self._prev_fid, self._prev_ts = fid, ts
         self._prev_im = im
@@ -601,8 +611,8 @@ class SRNNTracker(KwiverProcess):
 
         # Directly add explicit init tracks
         for tid, ts in init_track_states:
-            # XXX This throws an error should a new ID overlap with an existing one
-            self._track_set.add_new_track_state(tid, ts)
+            # XXX This doesn't check for unintended overlap with an automatic ID
+            self._track_set.make_track(tid, exist_ok=True).append(ts)
 
         next_track_id = int(self._track_set.get_max_track_id()) + 1
 
@@ -637,8 +647,8 @@ class SRNNTracker(KwiverProcess):
                         track_state_list[c].detected_object.confidence()
                         >= self._track_initialization_threshold
                 ):
-                    self._track_set.add_new_track_state(next_track_id,
-                            track_state_list[c])
+                    track = self._track_set.make_track(next_track_id)
+                    track.append(track_state_list[c])
                     next_track_id += 1
             else:
                 # add to existing track
