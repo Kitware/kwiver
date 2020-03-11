@@ -44,6 +44,7 @@ set( ocv_headers_public
   refine_detections_write_to_disk.h
   split_image.h
   track_features_klt.h
+  transfer_with_depth_map.h
   )
 kwiver_install_headers(
   SUBDIR     arrows/ocv
@@ -97,6 +98,7 @@ set( ocv_sources
   refine_detections_write_to_disk.cxx
   split_image.cxx
   track_features_klt.cxx
+  transfer_with_depth_map.cxx
   )
 
 if( KWIVER_HAS_OPENCV_VER_3 )
