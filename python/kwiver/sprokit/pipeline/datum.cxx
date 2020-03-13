@@ -106,9 +106,9 @@ PYBIND11_MODULE(datum, m)
     .value("error", sprokit::datum::error)
   ;
 
-  bind_vector<std::vector<unsigned char>, std::shared_ptr<std::vector<unsigned char>>>(m, "VectorUChar");
-  bind_vector<std::vector<double>, std::shared_ptr<std::vector<double>>>(m, "VectorDouble");
-  bind_vector<std::vector<std::string>, std::shared_ptr<std::vector<std::string>>>(m, "VectorString");
+  bind_vector<std::vector<unsigned char>, std::shared_ptr<std::vector<unsigned char>>>(m, "VectorUChar", module_local(false));
+  bind_vector<std::vector<double>, std::shared_ptr<std::vector<double>>>(m, "VectorDouble", module_local(false));
+  bind_vector<std::vector<std::string>, std::shared_ptr<std::vector<std::string>>>(m, "VectorString", module_local(false));
 
   // constructors
   m.def("new", &new_datum_no_cast
@@ -179,7 +179,7 @@ PYBIND11_MODULE(datum, m)
     , "Creates an error datum packet.");
 
   // Methods on datum
-  class_<sprokit::datum>(m, "Datum"
+  class_<sprokit::datum, std::shared_ptr<sprokit::datum > >(m, "Datum"
     , "A packet of data within the pipeline.")
     .def("type", &datum_type
       , "The type of the datum packet.")
@@ -191,6 +191,8 @@ PYBIND11_MODULE(datum, m)
       , "Get the data contained within the packet (if coming from a python process).")
     .def("get_datum_ptr", &datum_get_datum_ptr
       , "Get pointer to datum object as a PyCapsule.")
+    .def("get_int", &datum_get_object<int>)
+    .def("get_float", &datum_get_object<float>)
     .def("get_image_container", &datum_get_object<std::shared_ptr<kwiver::vital::image_container>>
       , "Convert the data to an image container")
     .def("get_descriptor_set", &datum_get_object<std::shared_ptr<kwiver::vital::descriptor_set>>
