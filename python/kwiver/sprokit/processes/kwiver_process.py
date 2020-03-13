@@ -124,7 +124,6 @@ class KwiverProcess(process.PythonProcess):
     # noinspection PyProtectedMember
     def __init__(self, conf):
         process.PythonProcess.__init__(self, conf)
-
         # establish the dictionaries for the declared traits.
         # indexed by their respective names
         #: :type: dict[str, KwiverProcess.type_trait]
