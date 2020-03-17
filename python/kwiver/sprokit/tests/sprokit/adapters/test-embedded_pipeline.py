@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# ckwg +28
+#ckwg +28
 # Copyright 2011-2013 by Kitware, Inc.
 # All rights reserved.
 #
@@ -29,30 +29,20 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-def test_import(path_to_pipe_file):
+def test_import(pipeline_dir):
     try:
         import kwiver.sprokit.adapters.embedded_pipeline
     except:
         test_error("Failed to import the embedded pipeline module")
 
 
-def test_create(path_to_pipe_file):
+def test_create(pipeline_dir):
     from kwiver.sprokit.adapters import embedded_pipeline
 
     embedded_pipeline.EmbeddedPipeline()
 
 
-####send
-####send_end_of_input
-####receive
-####full
-####empty
-####at_end
-####start
-####wait
-#   stop
-####input_port_names
-def test_api_calls(path_to_pipe_file):
+def test_api_calls(pipeline_dir):
     from kwiver.vital.config import config
     from kwiver.vital.modules import modules
     from kwiver.sprokit.adapters import embedded_pipeline
@@ -60,10 +50,14 @@ def test_api_calls(path_to_pipe_file):
     from kwiver.sprokit.adapters import adapter_data_set
 
     #######
-    # Run a very basic pipeline
-    # pipe file and tests below are
+    # Run a very basic pipeline.
+    # Pipe file and tests below are
     # based on embedded_pipeline tests
     # in basic_test.cxx in adapters/tests dir
+
+    pipeline_fname = "simple_embedded_pipeline.pipe"
+    path_to_pipe_file = os.path.join(pipeline_dir, pipeline_fname)
+
     ep = embedded_pipeline.EmbeddedPipeline()
     ep.build_pipeline(path_to_pipe_file)
 
@@ -90,12 +84,12 @@ def test_api_calls(path_to_pipe_file):
         print("    " + port)
 
     # Test that we can't call wait() yet
-    try:
-        ep.wait()
-    except Exception:
-        pass
-    else:
-        test_error("Calling wait() before start() should throw an error")
+    # try:
+    #     ep.wait()
+    # except RuntimeError:
+    #     pass
+    # else:
+    #     test_error("Calling wait() before start() should throw an error")
 
     ep.start()
 
@@ -123,22 +117,21 @@ def test_api_calls(path_to_pipe_file):
             if not ep.at_end():
                 test_error("at_end() not set correctly")
             break
-        for ix in ods:
-            print("   port:", ix[0], " value:", ix[1].get_int())
+        for (port, d) in ods:
+            print("   port:", port, " value:", d.get_int())
+
 
     ep.wait()
 
     #######
     # Still need to test stop()
     # ep = embedded_pipeline.EmbeddedPipeline()
-    # pipeline_fname = "simple_embedded_pipeline.pipe"
-    # ep.build_pipeline(os.path.join(pipeline_dir, pipeline_fname))
+    # ep.build_pipeline(path_to_pipe_file)
     # ep.start()
     # ds = adapter_data_set.create()
     # ep.send_end_of_input()
     # ods = ep.receive()
     # ep.stop()
-
 
 if __name__ == "__main__":
     import os
@@ -156,10 +149,6 @@ if __name__ == "__main__":
 
     pipeline_dir = sys.argv[4]
 
-    pipeline_fname = "simple_embedded_pipeline.pipe"
-
-    path_to_pipe_file = os.path.join(pipeline_dir, pipeline_fname)
-
     from kwiver.sprokit.util.test import *
 
-    run_test(testname, find_tests(locals()), path_to_pipe_file)
+    run_test(testname, find_tests(locals()), pipeline_dir)

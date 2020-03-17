@@ -1,4 +1,5 @@
-# ckwg +28
+#!/usr/bin/env python
+#ckwg +28
 # Copyright 2011-2013 by Kitware, Inc.
 # All rights reserved.
 #
@@ -27,7 +28,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# TODO: tests on eol
 
 
 def test_import():
@@ -83,21 +83,48 @@ def test_is_end_of_data():
     if not ads_eoi.is_end_of_data():
         test_error('adapter_data_set of type "end_of_input" is not empty')
 
+# adds and retrieves val to/from the
+# adapter_data_set instance twice
+# once with the add/get fxn specified,
+# once with the add/get function for py_objects
 
 def add_get_helper(
+    instance,
     instance_add_fxn,
     instance_get_fxn,
-    val_to_add,
+    val,
     data_type_str,
 ):
-    from kwiver.sprokit.adapters import adapter_data_set
-    import kwiver.vital.types as kvt
-    from kwiver.sprokit.pipeline import datum
 
+    # First the specified add/get fxns
     portname = data_type_str + "_port"
-    instance_add_fxn(portname, val_to_add)
-    # This throws a runtime error if the port is not found
-    instance_get_fxn(portname)
+    instance_add_fxn(portname, val)
+    instance_get_fxn(portname)  # This throws a runtime error if the port is not found
+
+    # Next the python handled add/get fxns
+    py_portname = "py_" + portname
+    instance.add_value(py_portname, val)
+    instance.get_port_data(py_portname)
+
+def overwrite_helper(
+    instance_add_fxn,
+    instance_get_fxn,
+    val,
+    new_data_type_str,
+    portname
+):
+    from kwiver.sprokit.pipeline import datum
+    instance_add_fxn(portname, val)
+    try:
+        retrieved_val = instance_get_fxn(portname)
+    except RuntimeError:
+        test_error("Failed to get object of type {} after attempting overwrite".format(new_data_type_str))
+    else:
+        if isinstance(val, datum.Datum):
+            val = val.get_datum()
+        if retrieved_val != val:
+            test_error("Retrieved incorrect value after overwriting with {}".format(new_data_type_str))
+
 
 
 def test_api_calls():
@@ -115,37 +142,46 @@ def test_api_calls():
     if not ads.empty():
         test_error("fresh data adapter_data_set instance is not empty")
 
-    # Now we'll check the add_value function bindings, both templated and not
-    # First lets check bindings for adding a python type
-    add_get_helper(ads.add_value, ads.get_port_data, 5, "py_object")
-    # Next a python datum object
-    add_get_helper(ads.add_datum, ads.get_port_data, datum.new("d1"), "datum")
+    # First check a python datum object
+    add_get_helper(ads, ads.add_datum, ads.get_port_data, datum.new("d1"), "datum")
     # Next some basic types
-    add_get_helper(ads.add_int, ads.get_port_data_int, 10, "int")
-    add_get_helper(ads.add_float, ads.get_port_data_float, 0.5, "float")
-    add_get_helper(ads.add_string, ads.get_port_data_string, "str1", "string")
+    add_get_helper(ads, ads.add_int, ads.get_port_data_int, 10, "int")
+    add_get_helper(ads, ads.add_float, ads.get_port_data_float, 0.5, "float")
+    add_get_helper(ads, ads.add_string, ads.get_port_data_string, "str1", "string")
     # Next some kwiver vital types that are handled with pointers
-    add_get_helper(ads.add_image_container, ads.get_port_data_image_container, kvt.ImageContainer(kvt.Image()), "image_container")
-    add_get_helper(ads.add_descriptor_set, ads.get_port_data_descriptor_set, kvt.DescriptorSet(), "descriptor_set")
-    add_get_helper(ads.add_detected_object_set, ads.get_port_data_detected_object_set, kvt.DetectedObjectSet(), "detected_object_set")
-    add_get_helper(ads.add_track_set, ads.get_port_data_track_set, kvt.TrackSet(), "track_set")
-    add_get_helper(ads.add_object_track_set, ads.get_port_data_object_track_set, kvt.ObjectTrackSet(), "object_track_set")
+    add_get_helper(ads, ads.add_image_container, ads.get_port_data_image_container, kvt.ImageContainer(kvt.Image()), "image_container")
+    add_get_helper(ads, ads.add_descriptor_set, ads.get_port_data_descriptor_set, kvt.DescriptorSet(), "descriptor_set")
+    add_get_helper(ads, ads.add_detected_object_set, ads.get_port_data_detected_object_set, kvt.DetectedObjectSet(), "detected_object_set")
+    add_get_helper(ads, ads.add_track_set, ads.get_port_data_track_set, kvt.TrackSet(), "track_set")
+    add_get_helper(ads, ads.add_object_track_set, ads.get_port_data_object_track_set, kvt.ObjectTrackSet(), "object_track_set")
     # Next some bound native C++ types
-    add_get_helper(ads.add_double_vector, ads.get_port_data_double_vector, datum.VectorDouble([3.14, 4.14]), "double_vector")
-    add_get_helper(ads.add_string_vector, ads.get_port_data_string_vector, datum.VectorString(["s00", "s01"]), "string_vector")
-    add_get_helper(ads.add_uchar_vector, ads.get_port_data_uchar_vector, datum.VectorUChar([100, 101]), "uchar_vector")
-    # Now try creatings datums of these bound types
-    add_get_helper(ads.add_datum, ads.get_port_data_double_vector, datum.new_double_vector(datum.VectorDouble([6.3, 8.9])), "datum_double_vector")
-    add_get_helper(ads.add_datum, ads.get_port_data_string_vector, datum.new_string_vector(datum.VectorString(["first", "second"])), "datum_string_vector")
-    add_get_helper(ads.add_datum, ads.get_port_data_uchar_vector, datum.new_uchar_vector(datum.VectorUChar([100, 101])), "datum_uchar_vector")
+    add_get_helper(ads, ads.add_double_vector, ads.get_port_data_double_vector, datum.VectorDouble([3.14, 4.14]), "double_vector")
+    add_get_helper(ads, ads.add_string_vector, ads.get_port_data_string_vector, datum.VectorString(["s00", "s01"]), "string_vector")
+    add_get_helper(ads, ads.add_uchar_vector, ads.get_port_data_uchar_vector, datum.VectorUChar([100, 101]), "uchar_vector")
+    # Now try creating datums of these bound types
+    add_get_helper(ads, ads.add_datum, ads.get_port_data_double_vector, datum.new_double_vector(datum.VectorDouble([6.3, 8.9])), "datum_double_vector")
+    add_get_helper(ads, ads.add_datum, ads.get_port_data_string_vector, datum.new_string_vector(datum.VectorString(["foo", "bar"])), "datum_string_vector")
+    add_get_helper(ads, ads.add_datum, ads.get_port_data_uchar_vector, datum.new_uchar_vector(datum.VectorUChar([102, 103])), "datum_uchar_vector")
     # Next kwiver vital types
-    add_get_helper(ads.add_bounding_box, ads.get_port_data_bounding_box, kvt.BoundingBox(1, 1, 2, 2), "bounding_box")
-    add_get_helper(ads.add_timestamp, ads.get_port_data_timestamp, kvt.Timestamp(), "timestamp")
-    add_get_helper(ads.add_f2f_homography, ads.get_port_data_f2f_homography, kvt.F2FHomography(1), "f2f_homography")
+    add_get_helper(ads, ads.add_bounding_box, ads.get_port_data_bounding_box, kvt.BoundingBox(1, 1, 2, 2), "bounding_box")
+    add_get_helper(ads, ads.add_timestamp, ads.get_port_data_timestamp, kvt.Timestamp(), "timestamp")
+    add_get_helper(ads, ads.add_f2f_homography, ads.get_port_data_f2f_homography, kvt.F2FHomography(1), "f2f_homography")
 
-    if ads.empty():
-        test_error("empty adapter_data_set instance after adding to ports")
 
+    # Now test overwriting
+    # First check overwriting port with the same datum type
+    OVERWRITE_PORT = "test_overwrite_port"
+
+    ads.add_datum(OVERWRITE_PORT, datum.new("d2"))
+    overwrite_helper(ads.add_datum, ads.get_port_data, datum.new("d3"), "datum_string", OVERWRITE_PORT)
+    overwrite_helper(ads.add_datum, ads.get_port_data, datum.new(12), "datum_int", OVERWRITE_PORT)
+    overwrite_helper(ads.add_string_vector, ads.get_port_data_string_vector, datum.VectorString(["baz", "qux"]), "string_vector", OVERWRITE_PORT)
+    overwrite_helper(ads.add_value, ads.get_port_data, 15, "int", OVERWRITE_PORT)
+    overwrite_helper(ads.add_double_vector, ads.get_port_data_double_vector, datum.VectorDouble([4, 8]), "double_vector", OVERWRITE_PORT)
+
+    # Now test iter()
+    for el in ads:
+        pass
 
 
 

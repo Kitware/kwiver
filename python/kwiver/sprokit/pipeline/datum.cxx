@@ -192,6 +192,7 @@ PYBIND11_MODULE(datum, m)
     .def("get_datum_ptr", &datum_get_datum_ptr
       , "Get pointer to datum object as a PyCapsule.")
     .def("get_int", &datum_get_object<int>)
+    .def("get_float", &datum_get_object<float>)
     .def("get_image_container", &datum_get_object<std::shared_ptr<kwiver::vital::image_container>>
       , "Convert the data to an image container")
     .def("get_descriptor_set", &datum_get_object<std::shared_ptr<kwiver::vital::descriptor_set>>

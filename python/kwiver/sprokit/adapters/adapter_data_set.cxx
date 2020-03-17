@@ -73,7 +73,11 @@ PYBIND11_MODULE(adapter_data_set, m)
   ;
 
   class_< kwiver::adapter::adapter_data_set, std::shared_ptr<kwiver::adapter::adapter_data_set > >(m, "AdapterDataSet")
-    .def("__iter__", [](kwiver::adapter::adapter_data_set &self){return make_iterator(self.cbegin(),self.cend());}, keep_alive<0,1>())
+    .def("__iter__", [](kwiver::adapter::adapter_data_set &self)
+                                      {
+                                        return make_iterator(self.cbegin(),self.cend());
+                                      }
+                        , keep_alive<0,1>())
     .def("type", &kwiver::adapter::adapter_data_set::type)
     .def("is_end_of_data", &kwiver::adapter::adapter_data_set::is_end_of_data)
     .def("add_value", &ads_add_value_py)
@@ -139,7 +143,6 @@ ads_add_value_py(kwiver::adapter::adapter_data_set &self, sprokit::process::port
 object
 ads_get_port_data_py(kwiver::adapter::adapter_data_set &self, sprokit::process::port_t const& port)
 {
-  // TODO: might need to check if self is type data
   object dat = none();
   kwiver::vital::any const any = self.get_port_data<kwiver::vital::any>(port);
   dat = kwiver::vital::any_cast<object>(any);
