@@ -32,6 +32,7 @@
 #define KWIVER_ARROWS_TRANSFER_WITH_DEPTH_MAP_H_
 
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
+#include <arrows/ocv/image_container.h>
 
 #include <vital/algo/detected_object_filter.h>
 #include <vital/io/camera_io.h>
@@ -59,7 +60,7 @@ public:
   /// Constructor taking source and destination cameras directly
   transfer_with_depth_map(kwiver::vital::camera_perspective_sptr src_cam,
                           kwiver::vital::camera_perspective_sptr dest_cam,
-                          kwiver::vital::image_container_sptr src_cam_depth_map);
+                          std::shared_ptr<kwiver::arrows::ocv::image_container> src_cam_depth_map);
 
   /// Get this algorithm's configuration block
   virtual vital::config_block_sptr get_configuration() const;
@@ -70,10 +71,25 @@ public:
   /// Check that the algorithm's currently configuration is valid
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
+  /// Backproject image point to a depth map
   virtual vector_3d
     backproject_to_depth_map(kwiver::vital::camera_perspective_sptr const camera,
-                             kwiver::vital::image_container_sptr const depth_map,
+                             std::shared_ptr<kwiver::arrows::ocv::image_container> const depth_map,
                              vector_2d const& img_pt) const;
+
+  /// Backproject an image point (top) assumed to be directly above another (bottom)
+  virtual std::tuple<vector_3d, vector_3d>
+    backproject_wrt_height(kwiver::vital::camera_perspective_sptr const camera,
+                           std::shared_ptr<kwiver::arrows::ocv::image_container> const depth_map,
+                           vector_2d const& img_pt_bottom,
+                           vector_2d const& img_pt_top) const;
+
+  /// Transfer a bounding box wrt source and destination cameras and a depth map
+  virtual vital::bounding_box<double>
+    transfer_bbox_with_depth_map(kwiver::vital::camera_perspective_sptr const src_camera,
+                                 kwiver::vital::camera_perspective_sptr const dest_camera,
+                                 std::shared_ptr<kwiver::arrows::ocv::image_container> const depth_map,
+                                 vital::bounding_box<double> const bbox) const;
 
   /// Apply the transformation
   virtual vital::detected_object_set_sptr
@@ -86,7 +102,9 @@ private:
 
   kwiver::vital::camera_perspective_sptr src_camera;
   kwiver::vital::camera_perspective_sptr dest_camera;
-  kwiver::vital::image_container_sptr depth_map;
+  std::shared_ptr<kwiver::arrows::ocv::image_container> depth_map;
+
+  virtual int nearest_index(int max, double value) const;
 };
 
 }}} //End namespace
