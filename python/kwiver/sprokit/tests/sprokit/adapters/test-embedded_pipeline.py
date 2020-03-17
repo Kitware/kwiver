@@ -84,12 +84,12 @@ def test_api_calls(pipeline_dir):
         print("    " + port)
 
     # Test that we can't call wait() yet
-    # try:
-    #     ep.wait()
-    # except RuntimeError:
-    #     pass
-    # else:
-    #     test_error("Calling wait() before start() should throw an error")
+    try:
+        ep.wait()
+    except RuntimeError:
+        pass
+    else:
+        test_error("Calling wait() before start() should throw an error")
 
     ep.start()
 
@@ -125,13 +125,13 @@ def test_api_calls(pipeline_dir):
 
     #######
     # Still need to test stop()
-    # ep = embedded_pipeline.EmbeddedPipeline()
-    # ep.build_pipeline(path_to_pipe_file)
-    # ep.start()
-    # ds = adapter_data_set.create()
-    # ep.send_end_of_input()
-    # ods = ep.receive()
-    # ep.stop()
+    ep = embedded_pipeline.EmbeddedPipeline()
+    ep.build_pipeline(path_to_pipe_file)
+    ep.start()
+    ds = adapter_data_set.create()
+    ep.send_end_of_input()
+    ods = ep.receive()
+    ep.stop()
 
 if __name__ == "__main__":
     import os
