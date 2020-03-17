@@ -230,9 +230,9 @@ transfer_bbox_with_depth_map(kwiver::vital::camera_perspective_sptr const src_ca
   double bbox_aspect_ratio = (bbox_max_x - bbox_min_x) / (bbox_max_y - bbox_min_y);
 
   auto bbox_bottom_center = vector_2d
-    (bbox_min_x + ((bbox_max_x + bbox_min_x) / 2), bbox_max_y);
+    ((bbox_max_x + bbox_min_x) / 2, bbox_max_y);
   auto bbox_top_center = vector_2d
-    (bbox_min_x + ((bbox_max_x + bbox_min_x) / 2), bbox_min_y);
+    ((bbox_max_x + bbox_min_x) / 2, bbox_min_y);
 
   vector_3d world_pos_bottom;
   vector_3d world_pos_top;
