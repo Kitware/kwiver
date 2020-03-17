@@ -4,14 +4,29 @@ import sys
 import os
 import glob
 import numpy as np
-import cv2
 import argparse
 import math
 import random
 
 # Helper Utilities
+if os.name == 'nt':
+  div = '\\'
+else:
+  div = '/'
+
 def list_files_in_dir( folder, extension ):
-  return glob.glob( folder + '/*' + extension )
+  output = glob.glob( folder + '/*' + extension )
+
+  index = 1
+  while True:
+    ending_pf = "_" + str( index ) + extension
+    initial_size = len( output )
+    output = [v for v in output if not v.endswith( ending_pf )]
+    if initial_size == len( output ):
+      break;
+    index = index + 1
+
+  return output
 
 def create_dir( dirname ):
   if not os.path.exists( dirname ):
@@ -24,7 +39,7 @@ def replace_str_in_file( input_fn, output_fn, repl_array ):
   inputf = open( input_fn )
   outputf = open( output_fn, 'w' )
   all_lines = []
-  for s in inputf.xreadlines():
+  for s in list( inputf ):
     all_lines.append( s )
   for repl in repl_array:
     for i, s in enumerate( all_lines ):
@@ -35,8 +50,10 @@ def replace_str_in_file( input_fn, output_fn, repl_array ):
   inputf.close()
 
 # Main Utility
-def generate_yolo_v2_headers( working_dir, labels, width, height, input_model, \
-  output_str="yolo_v2", image_ext=".png", test_per=0.05 ):
+def generate_yolo_headers(
+    working_dir, labels, width, height, channels, filter_count,
+    batch_size, batch_subdivisions, input_model,
+    output_str="yolo", image_ext=".png", test_per=0.05 ):
 
   # Check arguments
   if len( labels ) < 0:
@@ -45,33 +62,46 @@ def generate_yolo_v2_headers( working_dir, labels, width, height, input_model, \
 
   # Hard coded configs
   label_file = output_str + ".lbl"
-  conf_file = output_str + ".cfg"
+  train_conf_file = output_str + ".cfg"
+  test_conf_file = output_str + "_test.cfg"
   train_file = output_str + ".data"
 
   # Dump out adjusted network file
-  repl_strs = [ ["[-HEIGHT_INSERT-]",str(height)], \
-                ["[-WIDTH_INSERT-]",str(width)], \
-                ["[-FILTER_COUNT_INSERT-]",str((len(labels)+5)*5)], \
-                ["[-CLASS_COUNT_INSERT-]",str(len(labels))] ]
+  train_repl_strs = [ ["[-HEIGHT_INSERT-]",str(height)],
+                      ["[-WIDTH_INSERT-]",str(width)],
+                      ["[-CHANNEL_INSERT-]",str(channels)],
+                      ["[-FILTER_COUNT_INSERT-]",str(filter_count)],
+                      ["[-BATCH_SIZE_INSERT-]",str(batch_size)],
+                      ["[-BATCH_SUBDIVISIONS_INSERT-]",str(batch_subdivisions)],
+                      ["[-CLASS_COUNT_INSERT-]",str(len(labels))] ]
 
-  replace_str_in_file( input_model, working_dir + "/" + conf_file, repl_strs )
+  test_repl_strs = [ ["[-HEIGHT_INSERT-]",str(height)],
+                     ["[-WIDTH_INSERT-]",str(width)],
+                     ["[-CHANNEL_INSERT-]",str(channels)],
+                     ["[-FILTER_COUNT_INSERT-]",str(filter_count)],
+                     ["[-BATCH_SIZE_INSERT-]","1"],
+                     ["[-BATCH_SUBDIVISIONS_INSERT-]","1"],
+                     ["[-CLASS_COUNT_INSERT-]",str(len(labels))] ]
+
+  replace_str_in_file( input_model, working_dir + div + train_conf_file, train_repl_strs )
+  replace_str_in_file( input_model, working_dir + div + test_conf_file, test_repl_strs )
 
   # Dump out labels file
-  with open( working_dir + "/" + label_file, "w" ) as f:
+  with open( working_dir + div + label_file, "w" ) as f:
     for item in labels:
       f.write( item + "\n" )
 
   # Dump out special files for varients
-  with open( working_dir + "/" + train_file, "w" ) as f:
-    f.write( "train = " + working_dir + "/train_files.txt\n" )
-    f.write( "valid = " + working_dir + "/test_files.txt\n" )
+  with open( working_dir + div + train_file, "w" ) as f:
+    f.write( "train = " + working_dir + div + "train_files.txt\n" )
+    f.write( "valid = " + working_dir + div + "test_files.txt\n" )
     f.write( "names = " + label_file + "\n" )
-    f.write( "backup = " + working_dir + "/models\n" )
+    f.write( "backup = " + working_dir + div + "models\n" )
 
   # Dump out list files
-  create_dir( working_dir + "/models" )
+  create_dir( working_dir + div + "models" )
 
-  image_list = list_files_in_dir( working_dir + "/train_images", image_ext )
+  image_list = list_files_in_dir( working_dir + div + "train_images", image_ext )
   shuffled_list = image_list
   random.shuffle( shuffled_list )
 
@@ -80,10 +110,10 @@ def generate_yolo_v2_headers( working_dir, labels, width, height, input_model, \
   train_list = shuffled_list[:pivot]
   test_list = shuffled_list[pivot:]
 
-  with open( working_dir + "/train_files.txt", "w" ) as f:
+  with open( working_dir + div + "train_files.txt", "w" ) as f:
     for item in train_list:
       f.write( item + "\n" )
 
-  with open( working_dir + "/test_files.txt", "w" ) as f:
+  with open( working_dir + div +"test_files.txt", "w" ) as f:
     for item in test_list:
       f.write( item + "\n" )

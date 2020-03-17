@@ -17,8 +17,6 @@ set( Darknet_linked_libs
   ${Darknet_LIBRARIES}
   kwiversys
   ${OpenCV_LIBS}
-  ${Boost_SYSTEM_LIBRARY}
-  ${Boost_FILESYSTEM_LIBRARY}
   kwiver_algo_ocv )
 
 # if darknet was built with the GPU support
@@ -29,7 +27,7 @@ if (Darknet_USING_GPU)
 endif()
 
 if (Darknet_USING_CUDNN)
-  include_directories( ${CUDNN_TOOLKIT_ROOT_DIR}/include )
+  include_directories( ${CUDNN_ROOT_DIR}/include )
   add_definitions( -DDARKNET_USE_CUDNN )  # needed by darknet detector
 endif()
 
@@ -50,16 +48,21 @@ if (WIN32)
          ${CUDA_curand_LIBRARY} )
   endif()
   if (Darknet_USING_CUDNN)
-    message(STATUS "Darkent Arrow using CUDNN, looking for it here : ${CUDNN_TOOLKIT_ROOT_DIR}")
-    find_library( CUDNN_LIBRARIES
-    NAMES cudnn libcudnn
-    HINTS ${CUDNN_TOOLKIT_ROOT_DIR}
-    PATH_SUFFIXES lib lib64 lib/x64 lib/x86 targets/aarch64-linux
-    )
-  if(NOT CUDNN_LIBRARIES)
-    message(FATAL_ERROR "Unable to find cudnn libraries")
-  endif()
-  include_directories( ${CUDNN_TOOLKIT_ROOT_DIR}/include )
+    if (CUDNN_LIBRARY AND EXISTS ${CUDNN_LIBRARY})
+      set (CUDNN_LIBRARIES "${CUDNN_LIBRARY}")
+    else()
+      message(STATUS "Darkent Arrow using CUDNN, looking for it here : ${CUDNN_ROOT_DIR}")
+      find_library( CUDNN_LIBRARIES
+      NAMES cudnn libcudnn
+      HINTS ${CUDNN_ROOT_DIR}
+      PATH_SUFFIXES lib lib64 lib/x64 lib/x86 targets/aarch64-linux
+      )
+    endif()
+
+    if(NOT CUDNN_LIBRARIES)
+      message(FATAL_ERROR "Unable to find cudnn libraries")
+    endif()
+    include_directories( ${CUDNN_ROOT_DIR}/include )
     set( Darknet_linked_libs
          ${Darknet_linked_libs}
          ${CUDNN_LIBRARIES} )
