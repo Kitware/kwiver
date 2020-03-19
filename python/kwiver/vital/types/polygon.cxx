@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,26 +28,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "eigen_class.cxx"
+
+#include <vital/types/polygon.h>
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include <pybind11/eigen.h>
 
-namespace py = pybind11;
-using namespace kwiver::vital::python;
+#include <memory>
 
-PYBIND11_MODULE(eigen, m)
+namespace py=pybind11;
+namespace kv=kwiver::vital;
+
+
+
+
+PYBIND11_MODULE(polygon, m)
 {
-
-  py::class_< EigenArray, std::shared_ptr<EigenArray> >(m, "EigenArray")
-  .def(py::init< int, int, bool, bool, char>(),
-         py::arg("rows")=2, py::arg("cols")=1,
-         py::arg("dynamic_rows")=false, py::arg("dynamic_cols")=false,
-         py::arg("type")='d')
-  .def("get_matrix", &EigenArray::getMatrix, "Access the C++ matrix by reference", py::return_value_policy::reference_internal)
-  .def("copy_matrix", &EigenArray::getMatrix, "Creates a python copy of the matrix")
-  .def_static("from_array", &EigenArray::fromArray,
-         py::arg("data"), py::arg("type")='d')
+  py::class_< kv::polygon, std::shared_ptr< kv::polygon > >(m, "Polygon")
+  .def(py::init<>())
+  .def(py::init< const std::vector< kv::polygon::point_t >&>())
+  .def("push_back", (void (kv::polygon::*) (double, double)) (&kv::polygon::push_back))
+  .def("push_back", (void (kv::polygon::*) (const kv::polygon::point_t&)) (&kv::polygon::push_back))
+  .def("num_vertices", &kv::polygon::num_vertices)
+  .def("get_vertices", &kv::polygon::get_vertices)
+  .def("contains", (bool (kv::polygon::*) (double, double)) (&kv::polygon::contains))
+  .def("contains", (bool (kv::polygon::*) (const kv::polygon::point_t&)) (&kv::polygon::contains))
+  .def("at", &kv::polygon::at)
   ;
-
 }

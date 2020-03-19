@@ -237,6 +237,20 @@ bool operator== ( bounding_box<T> const& lhs, bounding_box<T> const& rhs )
   return false;
 }
 
+/**
+ * @brief Inquality operator for bounding box
+ *
+ * @param lhs The box to check against
+ * @param rhs The other box to check against
+ *
+ * @return \b true if boxes are not identical
+ */
+template <typename T>
+bool operator!= ( bounding_box<T> const& lhs, bounding_box<T> const& rhs )
+{
+  return !(lhs == rhs);
+}
+
 
 /**
  * @brief Inequality operator for bounding box
