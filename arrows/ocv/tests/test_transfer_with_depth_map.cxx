@@ -69,21 +69,21 @@ TEST_F(transfer_with_depth_map, backproject_to_depth_map) {
 
   // Stub out our depth map
   auto img = cv::Mat_<float>(1080, 1920);
-  img.at<float>(278, 645) = 144.04840087890625;
+  img.at<float>(260, 740) = 158.8108367919922;
 
   auto img_ptr = std::make_shared<kwiver::arrows::ocv::image_container>(img, kwiver::arrows::ocv::image_container::OTHER_COLOR);
 
   auto const transfer = kwiver::arrows::ocv::transfer_with_depth_map
     (src_cam_sptr, dest_cam_sptr, img_ptr);
 
-  auto img_point = vector_2d(645.739280245023, 278.8466692189893);
+  auto img_point = vector_2d(740.0, 260.0);
 
   vector_3d world_point =
     transfer.backproject_to_depth_map(src_cam_sptr, img_ptr, img_point);
 
-  EXPECT_NEAR(world_point(0), 22.58335929, 1e-6);
-  EXPECT_NEAR(world_point(1), -60.0864538, 1e-6);
-  EXPECT_NEAR(world_point(2), 1.49882075, 1e-6);
+  EXPECT_NEAR(world_point(0), 8.21985243, 1e-6);
+  EXPECT_NEAR(world_point(1), -75.49992019, 1e-6);
+  EXPECT_NEAR(world_point(2), 1.74507372, 1e-6);
 }
 
 // ----------------------------------------------------------------------------
@@ -96,23 +96,23 @@ TEST_F(transfer_with_depth_map, backproject_wrt_height) {
 
   // Stub out our depth map
   auto img = cv::Mat_<float>(1080, 1920);
-  img.at<float>(318, 1065) = 125.21247100830078;
+  img.at<float>(301, 920) = 124.2246322631836;
 
   auto img_ptr = std::make_shared<kwiver::arrows::ocv::image_container>(img, kwiver::arrows::ocv::image_container::OTHER_COLOR);
 
   auto const transfer = kwiver::arrows::ocv::transfer_with_depth_map
     (src_cam_sptr, dest_cam_sptr, img_ptr);
 
-  auto img_point_bottom = vector_2d(1065.0, 318.0);
-  auto img_point_top = vector_2d(1074.0, 157.0);
+  auto img_point_bottom = vector_2d(920.0, 301.0);
+  auto img_point_top = vector_2d(924.0, 158.0);
 
   vector_3d world_point_top;
   std::tie (std::ignore, world_point_top) =
     transfer.backproject_wrt_height(src_cam_sptr, img_ptr, img_point_bottom, img_point_top);
 
-  EXPECT_NEAR(world_point_top(0), -3.651212895611903, 1e-6);
-  EXPECT_NEAR(world_point_top(1), -40.096500055335781, 1e-6);
-  EXPECT_NEAR(world_point_top(2), 10.571217535299395, 1e-6);
+  EXPECT_NEAR(world_point_top(0), -2.54535866, 1e-6);
+  EXPECT_NEAR(world_point_top(1), -39.21040916, 1e-6);
+  EXPECT_NEAR(world_point_top(2), 9.34753604, 1e-6);
 }
 
 // ----------------------------------------------------------------------------
@@ -125,20 +125,20 @@ TEST_F(transfer_with_depth_map, transfer_bbox_with_depth_map) {
 
   // Stub out our depth map
   auto img = cv::Mat_<float>(1080, 1920);
-  img.at<float>(318, 1070) = 125.18937683105469;
+  img.at<float>(301, 920) = 124.2246322631836;
 
   auto img_ptr = std::make_shared<kwiver::arrows::ocv::image_container>(img, kwiver::arrows::ocv::image_container::OTHER_COLOR);
 
   auto const transfer = kwiver::arrows::ocv::transfer_with_depth_map
     (src_cam_sptr, dest_cam_sptr, img_ptr);
 
-  auto bbox = kwiver::vital::bounding_box<double>(1050.0, 157.0, 1090.0, 318.0);
+  auto bbox = kwiver::vital::bounding_box<double>(900.0, 154.0, 940.0, 301.0);
 
   kwiver::vital::bounding_box<double> out_bbox = transfer.transfer_bbox_with_depth_map
     (src_cam_sptr, dest_cam_sptr, img_ptr, bbox);
 
-  EXPECT_NEAR(out_bbox.min_x(), 536.0625703569101, 1e-6);
-  EXPECT_NEAR(out_bbox.min_y(), 41.964626511402344, 1e-6);
-  EXPECT_NEAR(out_bbox.max_x(), 628.73661670073602, 1e-6);
-  EXPECT_NEAR(out_bbox.max_y(), 414.9776630453016, 1e-6);
+  EXPECT_NEAR(out_bbox.min_x(), 586.1738903996884, 1e-6);
+  EXPECT_NEAR(out_bbox.min_y(), 10.778501924859142, 1e-6);
+  EXPECT_NEAR(out_bbox.max_x(), 700.6970751394713, 1e-6);
+  EXPECT_NEAR(out_bbox.max_y(), 431.65120584356146, 1e-6);
 }
