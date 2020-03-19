@@ -67,10 +67,10 @@ def check_type(ads_def, ads_data, ads_eoi):
 def test_enums():
     from kwiver.sprokit.adapters import adapter_data_set
 
-    if adapter_data_set.DataSetType.data != 1:
+    if int(adapter_data_set.DataSetType.data) != 1:
         test_error("adapter_data_set enum value mismatch: data")
 
-    if adapter_data_set.DataSetType.end_of_input != 2:
+    if int(adapter_data_set.DataSetType.end_of_input) != 2:
         test_error("adapter_data_set enum value mismatch: end_of_input")
 
 
