@@ -17,4 +17,4 @@ kwiver_discover_gtests(ocv estimate_homography         LIBRARIES ${test_librarie
 kwiver_discover_gtests(ocv feature_set                 LIBRARIES ${test_libraries})
 kwiver_discover_gtests(ocv image                       LIBRARIES ${test_libraries})
 kwiver_discover_gtests(ocv match_set                   LIBRARIES ${test_libraries})
-kwiver_discover_gtests(ocv transfer_with_depth_map     LIBRARIES ${test_libraries})
+kwiver_discover_gtests(ocv transfer_with_depth_map     LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
