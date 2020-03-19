@@ -63,6 +63,17 @@ def check_type(ads_def, ads_data, ads_eoi):
         test_error("adapter_data_set type mismatch: constructor with end_of_input arg")
 
 
+
+def test_enums():
+    from kwiver.sprokit.adapters import adapter_data_set
+
+    if adapter_data_set.DataSetType.data != 1:
+        test_error("adapter_data_set enum value mismatch: data")
+
+    if adapter_data_set.DataSetType.end_of_input != 2:
+        test_error("adapter_data_set enum value mismatch: end_of_input")
+
+
 def test_is_end_of_data():
     from kwiver.sprokit.adapters import adapter_data_set
 
