@@ -120,7 +120,8 @@ setup(
                 'print_number_process=kwiver.sprokit.processes.kw_print_number_process',
                 'homography_writer=kwiver.sprokit.processes.homography_writer',
                 'simple_homog_tracker=kwiver.sprokit.processes.simple_homog_tracker',
-                'simple_object_detector=kwiver.vital.tests.alg.simple_image_object_detector'
+                'simple_object_detector=kwiver.vital.tests.alg.simple_image_object_detector',
+                'stabilize_many_images=kwiver.sprokit.process.stabilize_many_images',
                 ],
             'kwiver.cpp_search_paths': [
                 'sprokit_process=kwiver.vital.util.entrypoint:sprokit_process_path',
