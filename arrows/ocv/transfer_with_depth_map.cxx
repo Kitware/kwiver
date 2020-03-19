@@ -224,8 +224,22 @@ backproject_wrt_height
   double ny = Mp(1);
   double nz = Mp(2);
 
+  // If we assume that the top world point for given pair is directly
+  // above the bottom world point at (xf, yf, zf), then the top world
+  // point is at (xf, yf, zh), where we need to solve for zh.  The
+  // camera is located at (xc, yc, zc) and the ray coming out at the
+  // top image point is along the direction (in world coordinates)
+  // <nx, ny, nz>, but we don't know how far along this ray's
+  // direction we need to go to be as close as possible to (xf, yf,
+  // zf). If we travel 't' along the ray, then the squared distance
+  // from (xf, yf) is (xc+nx*t - xf)^2 + (yc+ny*t - yf)^2, and we want
+  // 't' that minimizes this. Take the derivative wrt 't' and set
+  // equal to zero:
+  // 2 * (xc + nx * t - xf) * nx + 2 * (yc + ny * t - yf) * ny = 0
+  // Rearranged as:
   double t = (ny * (yf - yc) + nx * (xf - xc)) /
     (std::pow(nx, 2) + std::pow(ny, 2));
+
   double zh = zc + t*nz;
 
   auto world_pos_top = vector_3d(xf, yf, zh);
@@ -268,6 +282,8 @@ transfer_bbox_with_depth_map
   double dest_bbox_max_y = dest_img_pos_bottom(1);
   double dest_bbox_height = dest_bbox_max_y - dest_bbox_min_y;
 
+  // Using the original bbox aspect ratio to compute the width of our
+  // transferred box.  Could use a more sophisticated method here
   double dest_bbox_width_d = bbox_aspect_ratio * dest_bbox_height;
 
   // Use the average center x coordinate of transfered top and bottom

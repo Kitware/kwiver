@@ -198,6 +198,11 @@ Arrows: KPF
 
 Arrows: OpenCV
 
+ * Added an algorithm implementation (transfer_with_depth_map) for
+   transforming detected object sets from one camera perspective to
+   another with respect to a depth map.  Implements
+   vital::algo::detected_object_filter.
+
 Arrows: Serialization
 
  * Updated serialization algorithms to use PLUGIN_INFO macro and added
