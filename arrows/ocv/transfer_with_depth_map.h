@@ -58,9 +58,10 @@ public:
   transfer_with_depth_map();
 
   /// Constructor taking source and destination cameras directly
-  transfer_with_depth_map(kwiver::vital::camera_perspective_sptr src_cam,
-                          kwiver::vital::camera_perspective_sptr dest_cam,
-                          std::shared_ptr<kwiver::arrows::ocv::image_container> src_cam_depth_map);
+  transfer_with_depth_map
+    (kwiver::vital::camera_perspective_sptr src_cam,
+     kwiver::vital::camera_perspective_sptr dest_cam,
+     std::shared_ptr<kwiver::arrows::ocv::image_container> src_cam_depth_map);
 
   /// Get this algorithm's configuration block
   virtual vital::config_block_sptr get_configuration() const;
@@ -73,23 +74,26 @@ public:
 
   /// Backproject image point to a depth map
   virtual vector_3d
-    backproject_to_depth_map(kwiver::vital::camera_perspective_sptr const camera,
-                             std::shared_ptr<kwiver::arrows::ocv::image_container> const depth_map,
-                             vector_2d const& img_pt) const;
+    backproject_to_depth_map
+    (kwiver::vital::camera_perspective_sptr const camera,
+     std::shared_ptr<kwiver::arrows::ocv::image_container> const depth_map,
+     vector_2d const& img_pt) const;
 
-  /// Backproject an image point (top) assumed to be directly above another (bottom)
+  /// Backproject an image point (top) assumed to be directly above another
   virtual std::tuple<vector_3d, vector_3d>
-    backproject_wrt_height(kwiver::vital::camera_perspective_sptr const camera,
-                           std::shared_ptr<kwiver::arrows::ocv::image_container> const depth_map,
-                           vector_2d const& img_pt_bottom,
-                           vector_2d const& img_pt_top) const;
+    backproject_wrt_height
+    (kwiver::vital::camera_perspective_sptr const camera,
+     std::shared_ptr<kwiver::arrows::ocv::image_container> const depth_map,
+     vector_2d const& img_pt_bottom,
+     vector_2d const& img_pt_top) const;
 
-  /// Transfer a bounding box wrt source and destination cameras and a depth map
+  /// Transfer a bounding box wrt two cameras and a depth map
   virtual vital::bounding_box<double>
-    transfer_bbox_with_depth_map(kwiver::vital::camera_perspective_sptr const src_camera,
-                                 kwiver::vital::camera_perspective_sptr const dest_camera,
-                                 std::shared_ptr<kwiver::arrows::ocv::image_container> const depth_map,
-                                 vital::bounding_box<double> const bbox) const;
+    transfer_bbox_with_depth_map
+    (kwiver::vital::camera_perspective_sptr const src_camera,
+     kwiver::vital::camera_perspective_sptr const dest_camera,
+     std::shared_ptr<kwiver::arrows::ocv::image_container> const depth_map,
+     vital::bounding_box<double> const bbox) const;
 
   /// Apply the transformation
   virtual vital::detected_object_set_sptr

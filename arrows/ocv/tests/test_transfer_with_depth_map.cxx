@@ -46,7 +46,8 @@ static std::string src_cam_file_name = "src_camera.krtd";
 static std::string dest_cam_file_name = "dest_camera.krtd";
 
 // ----------------------------------------------------------------------------
-int main( int argc, char* argv[] ) {
+int main( int argc, char* argv[] )
+{
   ::testing::InitGoogleTest( &argc, argv );
 
   GET_ARG(1, g_data_dir);
@@ -55,12 +56,14 @@ int main( int argc, char* argv[] ) {
 }
 
 // ----------------------------------------------------------------------------
-class transfer_with_depth_map : public ::testing::Test {
+class transfer_with_depth_map : public ::testing::Test
+{
   TEST_ARG(data_dir);
 };
 
 // ----------------------------------------------------------------------------
-TEST_F(transfer_with_depth_map, backproject_to_depth_map) {
+TEST_F(transfer_with_depth_map, backproject_to_depth_map)
+{
   path_t src_cam_file_path = data_dir + "/" + src_cam_file_name;
   path_t dest_cam_file_path = data_dir + "/" + dest_cam_file_name;
 
@@ -71,7 +74,8 @@ TEST_F(transfer_with_depth_map, backproject_to_depth_map) {
   auto img = cv::Mat_<float>(1080, 1920);
   img.at<float>(260, 740) = 158.8108367919922;
 
-  auto img_ptr = std::make_shared<kwiver::arrows::ocv::image_container>(img, kwiver::arrows::ocv::image_container::OTHER_COLOR);
+  auto img_ptr = std::make_shared<kwiver::arrows::ocv::image_container>
+    (img, kwiver::arrows::ocv::image_container::OTHER_COLOR);
 
   auto const transfer = kwiver::arrows::ocv::transfer_with_depth_map
     (src_cam_sptr, dest_cam_sptr, img_ptr);
@@ -87,7 +91,8 @@ TEST_F(transfer_with_depth_map, backproject_to_depth_map) {
 }
 
 // ----------------------------------------------------------------------------
-TEST_F(transfer_with_depth_map, backproject_wrt_height) {
+TEST_F(transfer_with_depth_map, backproject_wrt_height)
+{
   path_t src_cam_file_path = data_dir + "/" + src_cam_file_name;
   path_t dest_cam_file_path = data_dir + "/" + dest_cam_file_name;
 
@@ -98,7 +103,8 @@ TEST_F(transfer_with_depth_map, backproject_wrt_height) {
   auto img = cv::Mat_<float>(1080, 1920);
   img.at<float>(301, 920) = 124.2246322631836;
 
-  auto img_ptr = std::make_shared<kwiver::arrows::ocv::image_container>(img, kwiver::arrows::ocv::image_container::OTHER_COLOR);
+  auto img_ptr = std::make_shared<kwiver::arrows::ocv::image_container>
+    (img, kwiver::arrows::ocv::image_container::OTHER_COLOR);
 
   auto const transfer = kwiver::arrows::ocv::transfer_with_depth_map
     (src_cam_sptr, dest_cam_sptr, img_ptr);
@@ -108,7 +114,8 @@ TEST_F(transfer_with_depth_map, backproject_wrt_height) {
 
   vector_3d world_point_top;
   std::tie (std::ignore, world_point_top) =
-    transfer.backproject_wrt_height(src_cam_sptr, img_ptr, img_point_bottom, img_point_top);
+    transfer.backproject_wrt_height
+    (src_cam_sptr, img_ptr, img_point_bottom, img_point_top);
 
   EXPECT_NEAR(world_point_top(0), -2.54535866, 1e-6);
   EXPECT_NEAR(world_point_top(1), -39.21040916, 1e-6);
@@ -116,7 +123,8 @@ TEST_F(transfer_with_depth_map, backproject_wrt_height) {
 }
 
 // ----------------------------------------------------------------------------
-TEST_F(transfer_with_depth_map, transfer_bbox_with_depth_map) {
+TEST_F(transfer_with_depth_map, transfer_bbox_with_depth_map)
+{
   path_t src_cam_file_path = data_dir + "/" + src_cam_file_name;
   path_t dest_cam_file_path = data_dir + "/" + dest_cam_file_name;
 
@@ -127,14 +135,16 @@ TEST_F(transfer_with_depth_map, transfer_bbox_with_depth_map) {
   auto img = cv::Mat_<float>(1080, 1920);
   img.at<float>(301, 920) = 124.2246322631836;
 
-  auto img_ptr = std::make_shared<kwiver::arrows::ocv::image_container>(img, kwiver::arrows::ocv::image_container::OTHER_COLOR);
+  auto img_ptr = std::make_shared<kwiver::arrows::ocv::image_container>
+    (img, kwiver::arrows::ocv::image_container::OTHER_COLOR);
 
   auto const transfer = kwiver::arrows::ocv::transfer_with_depth_map
     (src_cam_sptr, dest_cam_sptr, img_ptr);
 
   auto bbox = kwiver::vital::bounding_box<double>(900.0, 154.0, 940.0, 301.0);
 
-  kwiver::vital::bounding_box<double> out_bbox = transfer.transfer_bbox_with_depth_map
+  kwiver::vital::bounding_box<double> out_bbox =
+    transfer.transfer_bbox_with_depth_map
     (src_cam_sptr, dest_cam_sptr, img_ptr, bbox);
 
   EXPECT_NEAR(out_bbox.min_x(), 586.1738903996884, 1e-6);
