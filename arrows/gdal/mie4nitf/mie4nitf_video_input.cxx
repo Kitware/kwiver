@@ -46,8 +46,10 @@
 #include <vital/types/timestamp.h>
 #include <vital/util/tokenize.h>
 #include <vul/vul_reg_exp.h>
+#include "arrows/gdal/mie4nitf/xml_helpers.h"
 
 #include <kwiversys/SystemTools.hxx>
+#include <kwiversys/SystemInformation.hxx>
 
 #include <ctime>
 #include <memory>
@@ -114,6 +116,8 @@ public:
   // The number of frames the video has.
   int number_of_frames;
 
+  std::string manifest_file;
+
   // The pointer to *J2K* MIE4NITF GDAL dataset.
   GDALDataset *gdal_mie4nitf_dataset_;
 
@@ -138,71 +142,6 @@ public:
     return (this->f_current_frame != nullptr);
   }
 
-  xmlXPathObjectPtr get_node_set_from_context(xmlChar *xpath,
-                                              xmlXPathContextPtr context)
-  {
-    xmlXPathObjectPtr result = xmlXPathEvalExpression(xpath, context);
-
-    if (result == NULL)
-    {
-      xmlXPathFreeObject(result);
-      LOG_ERROR(this->logger,
-                "Error " << result << " in xmlXPathEvalExpression");
-      return NULL;
-    }
-
-    if (xmlXPathNodeSetIsEmpty(result->nodesetval))
-    {
-      xmlXPathFreeObject(result);
-      LOG_ERROR(this->logger, "Error no nodes found using XPath");
-      return NULL;
-    }
-    return result;
-  }
-
-  xmlXPathContextPtr get_new_context(xmlDocPtr doc)
-  {
-    xmlXPathContextPtr context;
-
-    context = xmlXPathNewContext(doc);
-    if (context == NULL)
-    {
-      xmlXPathFreeContext(context);
-      LOG_ERROR(this->logger, "Error " << context << " in xmlXPathNewContext");
-      return NULL;
-    }
-    return context;
-  }
-
-  xmlChar *get_attribute_value(const char *attr, xmlXPathContextPtr context)
-  {
-    std::string str = "./field[@name='" + std::string(attr) + "']";
-    xmlChar *xml_str = const_char_to_xml_char(str.c_str());
-    xmlXPathObjectPtr xpath = get_node_set_from_context(xml_str, context);
-    assert(xpath->nodesetval->nodeNr == 1);
-    xmlChar *prop = xmlGetProp(xpath->nodesetval->nodeTab[0],
-                               const_char_to_xml_char("value"));
-    if (prop == NULL)
-    {
-      xmlFree(prop);
-      VITAL_THROW(vital::metadata_exception,
-                  "Error " + xml_char_to_string(prop) + " in xmlGetProp");
-    }
-    xmlXPathFreeObject(xpath);
-    return prop;
-  }
-
-  std::string xml_char_to_string(xmlChar *p)
-  {
-    char *c = reinterpret_cast<char *>(p);
-    std::string s(c);
-    return s;
-  }
-
-  xmlChar *const_char_to_xml_char(const char *p)
-  {
-    return (reinterpret_cast<xmlChar *>(const_cast<char *>(p)));
-  }
 
   xml_metadata_per_frame get_attributes_per_frame(xmlXPathContextPtr context)
   {
@@ -264,10 +203,10 @@ public:
     xmlXPathFreeContext(xpath_context);
   }
 
-  void populate_xml_metadata()
+  void populate_xml_metadata(GDALDataset* mie4nitf_file)
   {
     std::string concat_strings;
-    char **str = GDALGetMetadata(this->gdal_mie4nitf_dataset_, "xml:TRE");
+    char **str = GDALGetMetadata(mie4nitf_file, "xml:TRE");
     while (*str != NULL)
     {
       concat_strings = concat_strings + (*str);
@@ -283,8 +222,9 @@ public:
       VITAL_THROW(vital::metadata_exception,
                   "Error could not read input string");
     }
+    int start_index = xml_metadata.size();
     populate_frame_times(doc);
-    populate_subset_metadata();
+    populate_subset_metadata(mie4nitf_file, start_index);
     xmlFreeDoc(doc);
   }
 
@@ -361,10 +301,9 @@ public:
     return micro_seconds_from_epoch;
   }
 
-  void populate_subset_metadata()
+  void populate_subset_metadata(GDALDataset* mie4nitf_file, int start_index)
   {
-    char **metadata =
-      GDALGetMetadata(this->gdal_mie4nitf_dataset_, "SUBDATASETS");
+    char **metadata = GDALGetMetadata(mie4nitf_file, "SUBDATASETS");
 
     int ind = 1;
 
@@ -383,12 +322,11 @@ public:
       std::pair<std::string, std::string> p2 = parse_key_value(*metadata);
       assert(p2.first == key2);
       ++metadata;
-      xml_metadata_per_frame &md = xml_metadata.at(ind - 1);
+      xml_metadata_per_frame &md = xml_metadata.at(start_index + ind - 1);
       md.filename = p1.second;
       md.description = p2.second;
       ++ind;
     }
-    number_of_frames = xml_metadata.size();
   }
 
   kwiver::vital::image_container_sptr open_frame(std::string subdataset_name)
@@ -444,7 +382,52 @@ public:
     return false;
   }
 
-  // ==========================================================================
+  char get_os_delimiter()
+  {
+    kwiversys::SystemInformation sys_info;
+
+    if(sys_info.GetOSIsWindows())
+    {
+      return '\\';
+    }
+    if(sys_info.GetOSIsLinux() || sys_info.GetOSIsApple())
+    {
+      return '/';
+    }
+
+    VITAL_THROW(vital::file_not_read_exception, this->manifest_file,
+        "Unsupported operating system.");
+  }
+
+
+  std::vector<std::string> get_all_files()
+  {
+    const char *str = GDALGetMetadataItem(this->gdal_mie4nitf_dataset_,
+        "DATA_0", "TEXT");
+    char ** tokens = CSLTokenizeString2(str, "\t\n",
+        CSLT_STRIPLEADSPACES | CSLT_STRIPENDSPACES );
+    std::vector<std::string> res;
+    size_t count = this->manifest_file.find_last_of(get_os_delimiter());
+    std::string base_dir = this->manifest_file.substr(0, count+1);
+    int num_elements = 0;
+
+    while(*tokens != NULL)
+    {
+      char *token = *tokens;
+      std::string full_name = base_dir + std::string(token);
+      // We don't want to add the manifest file itself.
+      if(full_name != this->manifest_file)
+      {
+        res.push_back(full_name);
+      }
+      ++num_elements;
+      ++tokens;
+    }
+    assert(res.size() == num_elements - 1);
+    return res;
+  }
+
+  // ==================================================================
   /*
    * @brief Open the given video MIE4NITF video.
    *
@@ -454,6 +437,7 @@ public:
   {
     GDALAllRegister();
 
+    this->manifest_file = video_name;
     gdal_mie4nitf_dataset_ =
       static_cast<GDALDataset *>(GDALOpen(video_name.c_str(), GA_ReadOnly));
 
@@ -461,7 +445,15 @@ public:
     {
       VITAL_THROW(vital::invalid_file, video_name, "GDAL could not load file.");
     }
-    populate_xml_metadata();
+    std::vector<std::string> all_files = get_all_files();
+    for(auto file: all_files)
+    {
+      GDALDataset *mie4nitf_file = static_cast<GDALDataset *>
+        (GDALOpen(file.c_str(), GA_ReadOnly));
+      populate_xml_metadata(mie4nitf_file);
+      GDALClose(mie4nitf_file);
+    }
+    number_of_frames = xml_metadata.size();
     return true;
   }
 

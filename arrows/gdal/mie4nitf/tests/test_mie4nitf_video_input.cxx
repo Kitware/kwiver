@@ -49,7 +49,7 @@ kwiver::vital::path_t g_data_dir;
 
 namespace algo = kwiver::vital::algo;
 
-static int TOTAL_NUMBER_OF_FRAMES = 5;
+static int TOTAL_NUMBER_OF_FRAMES = 10;
 
 // ----------------------------------------------------------------------------
 int
@@ -68,10 +68,14 @@ class mie4nitf_video_input : public ::testing::Test
 {
   TEST_ARG(data_dir);
   protected:
-  std::string j2k_file;
+  std::string j2k_manifest_file;
+  std::string j2k_nitf_file_1;
+  std::string j2k_nitf_file_2;
   void SetUp() override
   {
-    j2k_file = data_dir + "/combined.NITF";
+    j2k_manifest_file = data_dir + "/MIE4NITF_test_file.r0t0q0c0i0.NTF";
+    j2k_nitf_file_1 = data_dir + "/MIE4NITF_test_file.r0t0q0c1i1.NTF";
+    j2k_nitf_file_2 = data_dir + "/MIE4NITF_test_file.r0t0q0c1i2.NTF";
   }
 };
 
@@ -85,7 +89,7 @@ TEST_F(mie4nitf_video_input, create)
 TEST_F(mie4nitf_video_input, is_good_correct_file_path)
 {
   kwiver::arrows::mie4nitf::mie4nitf_video_input input;
-  kwiver::vital::path_t correct_file = j2k_file;
+  kwiver::vital::path_t correct_file = j2k_manifest_file;
 
   EXPECT_FALSE(input.good()) << "Video state before open";
 
@@ -109,7 +113,7 @@ TEST_F(mie4nitf_video_input, is_good_correct_file_path)
 TEST_F(mie4nitf_video_input, is_good_invalid_file_path)
 {
   kwiver::arrows::mie4nitf::mie4nitf_video_input input;
-  kwiver::vital::path_t incorrect_file = data_dir + "/DoesNOTExists.mp4";
+  kwiver::vital::path_t incorrect_file = data_dir + "/DoesNOTExists.NTF";
 
   EXPECT_FALSE(input.good())
     << "Video state before open";
@@ -139,7 +143,7 @@ TEST_F(mie4nitf_video_input, is_good_invalid_file_path)
 TEST_F(mie4nitf_video_input, frame_image)
 {
   kwiver::arrows::mie4nitf::mie4nitf_video_input input;
-  kwiver::vital::path_t correct_file = j2k_file;
+  kwiver::vital::path_t correct_file = j2k_manifest_file;
 
   EXPECT_FALSE(input.good())
     << "Video state before open";
@@ -157,11 +161,11 @@ TEST_F(mie4nitf_video_input, frame_image)
   EXPECT_EQ(ts.get_frame(), 1);
 
   kwiver::vital::image_container_sptr frame = input.frame_image();
-  EXPECT_EQ(frame->depth(), 1);
-  EXPECT_EQ(frame->get_image().width(), 200);
-  EXPECT_EQ(frame->get_image().height(), 150);
-  EXPECT_EQ(frame->get_image().d_step(), 200*150);
-  EXPECT_EQ(frame->get_image().h_step(), 200 );
+  EXPECT_EQ(frame->depth(), 3);
+  EXPECT_EQ(frame->get_image().width(), 160);
+  EXPECT_EQ(frame->get_image().height(), 120);
+  EXPECT_EQ(frame->get_image().d_step(), 160*120);
+  EXPECT_EQ(frame->get_image().h_step(), 160 );
   EXPECT_EQ(frame->get_image().w_step(), 1);
   EXPECT_EQ(frame->get_image().is_contiguous(), true);
 }
@@ -172,7 +176,7 @@ TEST_F(mie4nitf_video_input, seek)
   kwiver::arrows::mie4nitf::mie4nitf_video_input input;
   EXPECT_TRUE(input.seekable()) << "Seekable";
 
-  kwiver::vital::path_t correct_file = j2k_file;
+  kwiver::vital::path_t correct_file = j2k_manifest_file;
 
   EXPECT_FALSE(input.good())
     << "Video state before open";
@@ -191,15 +195,27 @@ TEST_F(mie4nitf_video_input, seek)
 
   // Test various valid seeks
   std::vector<kwiver::vital::timestamp::frame_t> valid_seeks =
-  { 1, 3, 4, 2, 5};
+  { 1, 3, 4, 2, 7, 8, 9, 6, 10, 5 };
   for (auto requested_frame : valid_seeks)
   {
     EXPECT_TRUE(input.seek_frame(ts, requested_frame));
     EXPECT_EQ(requested_frame, ts.get_frame())
       << "Frame number should match seek request";
+    std::string nitf_file;
+    int frame_num;
+    if (requested_frame <= 5)
+    {
+      nitf_file = j2k_nitf_file_1;
+      frame_num = requested_frame;
+    }
+    else
+    {
+      nitf_file = j2k_nitf_file_2;
+      frame_num = requested_frame - 5;
+    }
 
-    std::string frame_file = "NITF_IM:" + std::to_string(requested_frame - 1) +
-      ":" + j2k_file;
+    std::string frame_file = "NITF_IM:" + std::to_string(frame_num - 1) +
+      ":" + nitf_file;
 
     kwiver::vital::image_container_sptr img_container =
       img_io.load_NITF_subdataset(frame_file);
@@ -210,7 +226,7 @@ TEST_F(mie4nitf_video_input, seek)
   }
   // Test various invalid seeks past end of video
   std::vector<kwiver::vital::timestamp::frame_t> invalid_seeks =
-  { -3, -1, 0, 6 };
+  { -3, -1, 0, 11 };
 
   kwiver::vital::image_container_sptr f_current_frame = input.frame_image();
   int current_frame_number = ts.get_frame();
@@ -228,7 +244,7 @@ TEST_F(mie4nitf_video_input, end_of_video)
 {
   kwiver::arrows::mie4nitf::mie4nitf_video_input input;
 
-  kwiver::vital::path_t correct_file = j2k_file;
+  kwiver::vital::path_t correct_file = j2k_manifest_file;
 
   EXPECT_TRUE(input.end_of_video())
     << "End of video before open";
@@ -247,6 +263,11 @@ TEST_F(mie4nitf_video_input, end_of_video)
     P(1444200240949000, 3),
     P(1444200241283000, 4),
     P(1444200241617000, 5),
+    P(1444200241951000, 6),
+    P(1444200242286000, 7),
+    P(1444200242620000, 8),
+    P(1444200242954000, 9),
+    P(1444200243288000, 10),
   };
 
   for (int i=0; !input.end_of_video(); ++i)
@@ -266,7 +287,7 @@ TEST_F(mie4nitf_video_input, read_video)
   // make config block
   kwiver::arrows::mie4nitf::mie4nitf_video_input input;
 
-  kwiver::vital::path_t correct_file = j2k_file;
+  kwiver::vital::path_t correct_file = j2k_manifest_file;
 
   input.open(correct_file);
   EXPECT_FALSE(input.good());

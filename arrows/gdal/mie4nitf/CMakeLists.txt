@@ -3,6 +3,7 @@
 
 set(mie4nitf_headers_public
   mie4nitf_video_input.h
+  xml_helpers.h
   )
 
 kwiver_install_headers(
