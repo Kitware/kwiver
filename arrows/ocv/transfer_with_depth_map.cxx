@@ -34,6 +34,7 @@
 #include <assert.h>
 #include <tuple>
 #include <iostream>
+#include <sstream>
 #include <vital/io/camera_io.h>
 #include <vital/config/config_difference.h>
 #include <vital/util/string.h>
@@ -181,8 +182,8 @@ backproject_to_depth_map
       img_pt_x >= dm_width ||
       img_pt_y >= dm_height)
   {
-    LOG_ERROR( logger(), "Image point outside of image");
-    abort();
+    throw std::invalid_argument("Provided image point is outside of image "
+                                "bounds");
   }
 
   float depth = dm_data.at<float>(img_pt_y, img_pt_x);
@@ -293,10 +294,26 @@ filter( vital::detected_object_set_sptr const input_set ) const
   {
     auto out_det = det->clone();
     auto out_bbox = out_det->bounding_box();
-    vital::bounding_box<double> new_out_bbox = transfer_bbox_with_depth_map
+
+    try
+    {
+      vital::bounding_box<double> new_out_bbox = transfer_bbox_with_depth_map
       (src_camera, dest_camera, depth_map, out_bbox);
-    out_det->set_bounding_box( new_out_bbox );
-    ret_set->add( out_det );
+      out_det->set_bounding_box( new_out_bbox );
+      ret_set->add( out_det );
+    }
+    catch (std::invalid_argument e)
+    {
+      std::ostringstream strs;
+      strs << "Bounding box ("
+           << out_bbox.min_x() << ", "
+           << out_bbox.min_y() << ", "
+           << out_bbox.max_x() << ", "
+           << out_bbox.max_y() << ") "
+           << "couldn't be transferred, skipping!";
+
+      LOG_WARN(logger(), strs.str());
+    }
   }
 
   return ret_set;

@@ -88,6 +88,12 @@ TEST_F(transfer_with_depth_map, backproject_to_depth_map)
   EXPECT_NEAR(world_point(0), 8.21985243, 1e-6);
   EXPECT_NEAR(world_point(1), -75.49992019, 1e-6);
   EXPECT_NEAR(world_point(2), 1.74507372, 1e-6);
+
+  auto bad_img_point = vector_2d(2000, 2000);
+
+  EXPECT_THROW
+    (transfer.backproject_to_depth_map(src_cam_sptr, img_ptr, bad_img_point),
+     std::invalid_argument);
 }
 
 // ----------------------------------------------------------------------------
