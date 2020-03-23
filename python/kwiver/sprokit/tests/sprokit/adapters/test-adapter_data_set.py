@@ -45,9 +45,9 @@ def check_port_val_equals(expected_val, actual_val, portname):
 def test_create():
     from kwiver.sprokit.adapters import adapter_data_set
 
-    adapter_data_set.create()
-    adapter_data_set.create(adapter_data_set.DataSetType.data)
-    adapter_data_set.create(adapter_data_set.DataSetType.end_of_input)
+    adapter_data_set.AdapterDataSet.create()
+    adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.data)
+    adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.end_of_input)
 
 
 def check_type(ads_def, ads_data, ads_eoi):
@@ -77,9 +77,9 @@ def test_enums():
 def test_is_end_of_data():
     from kwiver.sprokit.adapters import adapter_data_set
 
-    ads_def = adapter_data_set.create()  # test default argument
-    ads_data = adapter_data_set.create(adapter_data_set.DataSetType.data)
-    ads_eoi = adapter_data_set.create(adapter_data_set.DataSetType.end_of_input)
+    ads_def = adapter_data_set.AdapterDataSet.create()  # test default argument
+    ads_data = adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.data)
+    ads_eoi = adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.end_of_input)
 
     if ads_def.is_end_of_data():
         test_error(
@@ -143,9 +143,9 @@ def test_api_calls():
     import kwiver.vital.types as kvt
     from kwiver.sprokit.pipeline import datum
 
-    ads = adapter_data_set.create()  # Check constructor with default argument
-    ads_data = adapter_data_set.create(adapter_data_set.DataSetType.data)
-    ads_eoi = adapter_data_set.create(adapter_data_set.DataSetType.end_of_input)
+    ads = adapter_data_set.AdapterDataSet.create()  # Check constructor with default argument
+    ads_data = adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.data)
+    ads_eoi = adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.end_of_input)
 
     check_type(ads, ads_data, ads_eoi)
 
