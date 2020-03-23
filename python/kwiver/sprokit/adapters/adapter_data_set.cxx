@@ -68,11 +68,10 @@ PYBIND11_MODULE(adapter_data_set, m)
     .value("end_of_input", kwiver::adapter::adapter_data_set::end_of_input)
   ;
 
-  m.def("create", &kwiver::adapter::adapter_data_set::create
-    , (arg("type") = kwiver::adapter::adapter_data_set::data_set_type::data))
-  ;
-
   class_< kwiver::adapter::adapter_data_set, std::shared_ptr<kwiver::adapter::adapter_data_set > >(m, "AdapterDataSet")
+    .def_static("create", &kwiver::adapter::adapter_data_set::create
+        , (arg("type") = kwiver::adapter::adapter_data_set::data_set_type::data))
+
     .def("__iter__", [](kwiver::adapter::adapter_data_set &self)
                                       {
                                         return make_iterator(self.cbegin(),self.cend());

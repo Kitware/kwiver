@@ -95,7 +95,7 @@ def test_api_calls(pipeline_dir):
 
     # Now send some data
     for i in range(10):
-        ds = adapter_data_set.create()
+        ds = adapter_data_set.AdapterDataSet.create()
         val = i
 
         for port in input_list:
@@ -128,7 +128,7 @@ def test_api_calls(pipeline_dir):
     ep = embedded_pipeline.EmbeddedPipeline()
     ep.build_pipeline(path_to_pipe_file)
     ep.start()
-    ds = adapter_data_set.create()
+    ds = adapter_data_set.AdapterDataSet.create()
     ep.send_end_of_input()
     ods = ep.receive()
     ep.stop()
