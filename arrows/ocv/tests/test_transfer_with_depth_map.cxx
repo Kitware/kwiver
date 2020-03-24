@@ -33,7 +33,6 @@
 #include <tuple>
 
 #include <arrows/ocv/transfer_with_depth_map.h>
-#include <arrows/ocv/image_container.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -71,11 +70,10 @@ TEST_F(transfer_with_depth_map, backproject_to_depth_map)
   auto const dest_cam_sptr = read_krtd_file(dest_cam_file_path);
 
   // Stub out our depth map
-  auto img = cv::Mat_<float>(1080, 1920);
-  img.at<float>(260, 740) = 158.8108367919922;
+  auto img = image(1920, 1080, 1, false, image_pixel_traits_of<float>());
+  img.at<float>(740, 260) = 158.8108367919922;
 
-  auto img_ptr = std::make_shared<kwiver::arrows::ocv::image_container>
-    (img, kwiver::arrows::ocv::image_container::OTHER_COLOR);
+  auto img_ptr = std::make_shared<simple_image_container>(img);
 
   auto const transfer = kwiver::arrows::ocv::transfer_with_depth_map
     (src_cam_sptr, dest_cam_sptr, img_ptr);
@@ -106,11 +104,10 @@ TEST_F(transfer_with_depth_map, backproject_wrt_height)
   auto const dest_cam_sptr = read_krtd_file(dest_cam_file_path);
 
   // Stub out our depth map
-  auto img = cv::Mat_<float>(1080, 1920);
-  img.at<float>(301, 920) = 124.2246322631836;
+  auto img = image(1920, 1080, 1, false, image_pixel_traits_of<float>());
+  img.at<float>(920, 301) = 124.2246322631836;
 
-  auto img_ptr = std::make_shared<kwiver::arrows::ocv::image_container>
-    (img, kwiver::arrows::ocv::image_container::OTHER_COLOR);
+  auto img_ptr = std::make_shared<simple_image_container>(img);
 
   auto const transfer = kwiver::arrows::ocv::transfer_with_depth_map
     (src_cam_sptr, dest_cam_sptr, img_ptr);
@@ -138,11 +135,10 @@ TEST_F(transfer_with_depth_map, transfer_bbox_with_depth_map)
   auto const dest_cam_sptr = read_krtd_file(dest_cam_file_path);
 
   // Stub out our depth map
-  auto img = cv::Mat_<float>(1080, 1920);
-  img.at<float>(301, 920) = 124.2246322631836;
+  auto img = image(1920, 1080, 1, false, image_pixel_traits_of<float>());
+  img.at<float>(920, 301) = 124.2246322631836;
 
-  auto img_ptr = std::make_shared<kwiver::arrows::ocv::image_container>
-    (img, kwiver::arrows::ocv::image_container::OTHER_COLOR);
+  auto img_ptr = std::make_shared<simple_image_container>(img);
 
   auto const transfer = kwiver::arrows::ocv::transfer_with_depth_map
     (src_cam_sptr, dest_cam_sptr, img_ptr);

@@ -36,6 +36,7 @@
 
 #include <vital/algo/detected_object_filter.h>
 #include <vital/io/camera_io.h>
+#include <vital/algo/image_io.h>
 
 using namespace kwiver::vital;
 
@@ -61,7 +62,7 @@ public:
   transfer_with_depth_map
     (kwiver::vital::camera_perspective_sptr src_cam,
      kwiver::vital::camera_perspective_sptr dest_cam,
-     std::shared_ptr<kwiver::arrows::ocv::image_container> src_cam_depth_map);
+     kwiver::vital::image_container_sptr src_cam_depth_map);
 
   /// Get this algorithm's configuration block
   virtual vital::config_block_sptr get_configuration() const;
@@ -76,14 +77,14 @@ public:
   virtual vector_3d
     backproject_to_depth_map
     (kwiver::vital::camera_perspective_sptr const camera,
-     std::shared_ptr<kwiver::arrows::ocv::image_container> const depth_map,
+     kwiver::vital::image_container_sptr const depth_map,
      vector_2d const& img_pt) const;
 
   /// Backproject an image point (top) assumed to be directly above another
   virtual std::tuple<vector_3d, vector_3d>
     backproject_wrt_height
     (kwiver::vital::camera_perspective_sptr const camera,
-     std::shared_ptr<kwiver::arrows::ocv::image_container> const depth_map,
+     kwiver::vital::image_container_sptr const depth_map,
      vector_2d const& img_pt_bottom,
      vector_2d const& img_pt_top) const;
 
@@ -92,7 +93,7 @@ public:
     transfer_bbox_with_depth_map
     (kwiver::vital::camera_perspective_sptr const src_camera,
      kwiver::vital::camera_perspective_sptr const dest_camera,
-     std::shared_ptr<kwiver::arrows::ocv::image_container> const depth_map,
+     kwiver::vital::image_container_sptr const depth_map,
      vital::bounding_box<double> const bbox) const;
 
   /// Apply the transformation
@@ -104,9 +105,11 @@ private:
   std::string dest_camera_krtd_file_name;
   std::string src_camera_depth_map_file_name;
 
+  std::shared_ptr<vital::algo::image_io> image_reader;
+
   kwiver::vital::camera_perspective_sptr src_camera;
   kwiver::vital::camera_perspective_sptr dest_camera;
-  std::shared_ptr<kwiver::arrows::ocv::image_container> depth_map;
+  kwiver::vital::image_container_sptr depth_map;
 
   virtual int nearest_index(int max, double value) const;
 };

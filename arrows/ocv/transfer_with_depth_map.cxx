@@ -35,15 +35,11 @@
 #include <tuple>
 #include <iostream>
 #include <sstream>
+#include <vital/algo/image_io.h>
 #include <vital/io/camera_io.h>
 #include <vital/config/config_difference.h>
 #include <vital/util/string.h>
 #include <Eigen/Core>
-#include <arrows/ocv/image_container.h>
-
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
 
 using namespace kwiver::vital;
 
@@ -62,7 +58,7 @@ transfer_with_depth_map::
 transfer_with_depth_map
 (kwiver::vital::camera_perspective_sptr src_cam,
  kwiver::vital::camera_perspective_sptr dest_cam,
- std::shared_ptr<kwiver::arrows::ocv::image_container> src_cam_depth_map)
+ kwiver::vital::image_container_sptr src_cam_depth_map)
   : src_camera( src_cam )
   , dest_camera( dest_cam )
   , depth_map( src_cam_depth_map )
@@ -87,6 +83,9 @@ get_configuration() const
                      src_camera_depth_map_file_name,
                      "Source camera depth map file name path" );
 
+  vital::algo::image_io::
+    get_nested_algo_configuration( "image_reader", config, image_reader );
+
   return config;
 }
 
@@ -105,16 +104,16 @@ set_configuration( vital::config_block_sptr config_in )
   this->src_camera_depth_map_file_name =
     config->get_value< std::string > ( "src_camera_depth_map_file_name" );
 
+  // Setup actual reader algorithm
+  vital::algo::image_io::
+    set_nested_algo_configuration( "image_reader", config, image_reader );
 
   this->src_camera =
     kwiver::vital::read_krtd_file( this->src_camera_krtd_file_name );
   this->dest_camera =
     kwiver::vital::read_krtd_file( this->dest_camera_krtd_file_name );
 
-  cv::Mat src_cam_depth_map =
-    cv::imread(src_camera_depth_map_file_name.c_str(), -1);
-  this->depth_map = std::make_shared<kwiver::arrows::ocv::image_container>
-    (src_cam_depth_map, kwiver::arrows::ocv::image_container::OTHER_COLOR);
+  this->depth_map = image_reader->load( this->src_camera_depth_map_file_name );
 }
 
 
@@ -160,7 +159,7 @@ vector_3d
 transfer_with_depth_map::
 backproject_to_depth_map
 (kwiver::vital::camera_perspective_sptr const camera,
- std::shared_ptr<kwiver::arrows::ocv::image_container> const depth_map,
+ kwiver::vital::image_container_sptr const depth_map,
  vector_2d const& img_pt) const
 {
   vector_2d npt_ = camera->intrinsics()->unmap(img_pt);
@@ -171,9 +170,9 @@ backproject_to_depth_map
 
   vector_3d Mp = M * npt;
 
-  cv::Mat dm_data = depth_map->get_Mat();
-  int dm_width = dm_data.cols;
-  int dm_height = dm_data.rows;
+  kwiver::vital::image dm_data = depth_map->get_image();
+  auto dm_width = (int)dm_data.width();
+  auto dm_height = (int)dm_data.height();
 
   int img_pt_x = nearest_index(dm_width, img_pt(0));
   int img_pt_y = nearest_index(dm_height, img_pt(1));
@@ -186,7 +185,7 @@ backproject_to_depth_map
                                 "bounds");
   }
 
-  float depth = dm_data.at<float>(img_pt_y, img_pt_x);
+  float depth = dm_data.at<float>(img_pt_x, img_pt_y);
 
   vector_3d world_pos = cam_pos + (Mp * depth);
 
@@ -198,7 +197,7 @@ std::tuple<vector_3d, vector_3d>
 transfer_with_depth_map::
 backproject_wrt_height
 (kwiver::vital::camera_perspective_sptr const camera,
- std::shared_ptr<kwiver::arrows::ocv::image_container> const depth_map,
+ kwiver::vital::image_container_sptr const depth_map,
  vector_2d const& img_pt_bottom,
  vector_2d const& img_pt_top) const
 {
@@ -253,7 +252,7 @@ transfer_with_depth_map::
 transfer_bbox_with_depth_map
 (kwiver::vital::camera_perspective_sptr const src_camera,
  kwiver::vital::camera_perspective_sptr const dest_camera,
- std::shared_ptr<kwiver::arrows::ocv::image_container> const depth_map,
+ kwiver::vital::image_container_sptr const depth_map,
  vital::bounding_box<double> const bbox) const
 {
   double bbox_min_x = bbox.min_x();
