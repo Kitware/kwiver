@@ -31,8 +31,7 @@
 #ifndef KWIVER_ARROWS_TRANSFER_WITH_DEPTH_MAP_H_
 #define KWIVER_ARROWS_TRANSFER_WITH_DEPTH_MAP_H_
 
-#include <arrows/ocv/kwiver_algo_ocv_export.h>
-#include <arrows/ocv/image_container.h>
+#include <arrows/core/kwiver_algo_core_export.h>
 
 #include <vital/algo/detected_object_filter.h>
 #include <vital/io/camera_io.h>
@@ -42,10 +41,10 @@ using namespace kwiver::vital;
 
 namespace kwiver {
 namespace arrows {
-namespace ocv {
+namespace core {
 
 /// Transforms detections based on source and destination cameras.
-class KWIVER_ALGO_OCV_EXPORT transfer_with_depth_map
+class KWIVER_ALGO_CORE_EXPORT transfer_with_depth_map
   : public vital::algorithm_impl<transfer_with_depth_map,
                                  vital::algo::detected_object_filter>
 {

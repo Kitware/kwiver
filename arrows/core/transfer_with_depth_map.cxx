@@ -45,7 +45,7 @@ using namespace kwiver::vital;
 
 namespace kwiver {
 namespace arrows {
-namespace ocv {
+namespace core {
 
 // ---------------------------------------------------------------------------
 transfer_with_depth_map::

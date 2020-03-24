@@ -71,7 +71,6 @@
 #include <arrows/ocv/refine_detections_write_to_disk.h>
 #include <arrows/ocv/split_image.h>
 #include <arrows/ocv/track_features_klt.h>
-#include <arrows/ocv/transfer_with_depth_map.h>
 #include <arrows/ocv/detect_motion_3frame_differencing.h>
 #include <arrows/ocv/detect_motion_mog2.h>
 #include <arrows/ocv/detect_heat_map.h>
@@ -119,8 +118,6 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_algorithm< hough_circle_detector >();
   reg.register_algorithm< detect_motion_3frame_differencing >();
   reg.register_algorithm< detect_motion_mog2 >();
-
-  reg.register_algorithm< transfer_with_depth_map >();
 
   // Conditional algorithms
   // Source ``KWIVER_OCV_HAS_*`` symbol definitions can be found in the header

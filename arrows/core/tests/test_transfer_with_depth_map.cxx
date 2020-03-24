@@ -32,7 +32,7 @@
 
 #include <tuple>
 
-#include <arrows/ocv/transfer_with_depth_map.h>
+#include <arrows/core/transfer_with_depth_map.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -75,7 +75,7 @@ TEST_F(transfer_with_depth_map, backproject_to_depth_map)
 
   auto img_ptr = std::make_shared<simple_image_container>(img);
 
-  auto const transfer = kwiver::arrows::ocv::transfer_with_depth_map
+  auto const transfer = kwiver::arrows::core::transfer_with_depth_map
     (src_cam_sptr, dest_cam_sptr, img_ptr);
 
   auto img_point = vector_2d(740.0, 260.0);
@@ -109,7 +109,7 @@ TEST_F(transfer_with_depth_map, backproject_wrt_height)
 
   auto img_ptr = std::make_shared<simple_image_container>(img);
 
-  auto const transfer = kwiver::arrows::ocv::transfer_with_depth_map
+  auto const transfer = kwiver::arrows::core::transfer_with_depth_map
     (src_cam_sptr, dest_cam_sptr, img_ptr);
 
   auto img_point_bottom = vector_2d(920.0, 301.0);
@@ -140,7 +140,7 @@ TEST_F(transfer_with_depth_map, transfer_bbox_with_depth_map)
 
   auto img_ptr = std::make_shared<simple_image_container>(img);
 
-  auto const transfer = kwiver::arrows::ocv::transfer_with_depth_map
+  auto const transfer = kwiver::arrows::core::transfer_with_depth_map
     (src_cam_sptr, dest_cam_sptr, img_ptr);
 
   auto bbox = kwiver::vital::bounding_box<double>(900.0, 154.0, 940.0, 301.0);
