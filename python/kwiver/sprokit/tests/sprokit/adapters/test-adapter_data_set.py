@@ -191,9 +191,30 @@ def test_api_calls():
     overwrite_helper(ads.add_double_vector, ads.get_port_data_double_vector, datum.VectorDouble([4, 8]), "double_vector", OVERWRITE_PORT)
 
     # Now test iter()
-    for el in ads:
-        pass
+    ads = ads_data
 
+    # Construct a few elements
+    string_value = "string_value"
+    timestamp_value = kvt.Timestamp(1000000000, 10)
+    vector_string_value = datum.VectorString(["element1", "element2"])
+
+    # Add those elements
+    ads.add_string("string_port", string_value)
+    ads.add_timestamp("timestamp_port", timestamp_value)
+    ads.add_string_vector("vector_string_port", vector_string_value)
+
+    for port, dat in ads:
+        if port == "string_port":
+            if dat.get_string() != string_value:
+                test_error("Didn't retrieve correct string value on first iteration")
+        elif port == "timestamp_port":
+            if dat.get_timestamp() != timestamp_value:
+                test_error("Didn't retrieve correct timestamp value on second iteration")
+        elif port == "vector_string_port":
+            if dat.get_string_vector() != vector_string_value:
+                test_error("Didn't retrieve correct string vector on third iteration")
+        else:
+            test_error("unknown port: {}".format(port))
 
 
 if __name__ == "__main__":
