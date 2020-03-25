@@ -7,13 +7,13 @@ set(mie4nitf_headers_public
   )
 
 kwiver_install_headers(
-  SUBDIR     arrows/mie4nitf
+  SUBDIR     arrows/gdal/mie4nitf
   ${mie4nitf_headers_public}
   )
 
 kwiver_install_headers(
   ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_mie4nitf_export.h
-  NOPATH   SUBDIR     arrows/mie4nitf
+  NOPATH   SUBDIR     arrows/gdal/mie4nitf
   )
 
 set(mie4nitf_sources
