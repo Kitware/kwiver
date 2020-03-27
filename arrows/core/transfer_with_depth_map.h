@@ -73,27 +73,27 @@ public:
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
   /// Backproject image point to a depth map
-  virtual vector_3d
+  static vector_3d
     backproject_to_depth_map
     (kwiver::vital::camera_perspective_sptr const camera,
      kwiver::vital::image_container_sptr const depth_map,
-     vector_2d const& img_pt) const;
+     vector_2d const& img_pt);
 
   /// Backproject an image point (top) assumed to be directly above another
-  virtual std::tuple<vector_3d, vector_3d>
+  static std::tuple<vector_3d, vector_3d>
     backproject_wrt_height
     (kwiver::vital::camera_perspective_sptr const camera,
      kwiver::vital::image_container_sptr const depth_map,
      vector_2d const& img_pt_bottom,
-     vector_2d const& img_pt_top) const;
+     vector_2d const& img_pt_top);
 
   /// Transfer a bounding box wrt two cameras and a depth map
-  virtual vital::bounding_box<double>
+  static vital::bounding_box<double>
     transfer_bbox_with_depth_map
     (kwiver::vital::camera_perspective_sptr const src_camera,
      kwiver::vital::camera_perspective_sptr const dest_camera,
      kwiver::vital::image_container_sptr const depth_map,
-     vital::bounding_box<double> const bbox) const;
+     vital::bounding_box<double> const bbox);
 
   /// Apply the transformation
   virtual vital::detected_object_set_sptr
@@ -110,7 +110,7 @@ private:
   kwiver::vital::camera_perspective_sptr dest_camera;
   kwiver::vital::image_container_sptr depth_map;
 
-  virtual int nearest_index(int max, double value) const;
+  static int nearest_index(int max, double value);
 };
 
 }}} //End namespace

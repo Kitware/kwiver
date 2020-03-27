@@ -138,7 +138,7 @@ check_configuration( vital::config_block_sptr config ) const
 // ---------------------------------------------------------------------------
 int
 transfer_with_depth_map::
-nearest_index(int max, double value) const
+nearest_index(int max, double value)
 {
   if (abs(value - 0.0) < 1e-6)
   {
@@ -160,7 +160,7 @@ transfer_with_depth_map::
 backproject_to_depth_map
 (kwiver::vital::camera_perspective_sptr const camera,
  kwiver::vital::image_container_sptr const depth_map,
- vector_2d const& img_pt) const
+ vector_2d const& img_pt)
 {
   vector_2d npt_ = camera->intrinsics()->unmap(img_pt);
   auto npt = vector_3d(npt_(0), npt_(1), 1.0);
@@ -199,7 +199,7 @@ backproject_wrt_height
 (kwiver::vital::camera_perspective_sptr const camera,
  kwiver::vital::image_container_sptr const depth_map,
  vector_2d const& img_pt_bottom,
- vector_2d const& img_pt_top) const
+ vector_2d const& img_pt_top)
 {
   vector_3d world_pos_bottom = backproject_to_depth_map
     (camera, depth_map, img_pt_bottom);
@@ -253,7 +253,7 @@ transfer_bbox_with_depth_map
 (kwiver::vital::camera_perspective_sptr const src_camera,
  kwiver::vital::camera_perspective_sptr const dest_camera,
  kwiver::vital::image_container_sptr const depth_map,
- vital::bounding_box<double> const bbox) const
+ vital::bounding_box<double> const bbox)
 {
   double bbox_min_x = bbox.min_x();
   double bbox_max_x = bbox.max_x();
