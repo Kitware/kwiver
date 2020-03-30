@@ -103,8 +103,8 @@ setup(
                 'vital_log4cplus_logger_factory=kwiver.vital.util.entrypoint:get_vital_logger_factory',
                 ],
             'console_scripts': [
-                'plugin_explorer=kwiver.kwiver_tools:plugin_explorer',
-                'kwiver=kwiver.kwiver_tools:kwiver',
+                'plugin_explorer=kwiver._kwiver_tools:plugin_explorer',
+                'kwiver=kwiver._kwiver_tools:kwiver',
                 ]
         },
     )
