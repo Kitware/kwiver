@@ -41,6 +41,8 @@ kwiver_add_python_library(algorithm
   detected_object_set_output.h
   draw_detected_object_set.cxx
   draw_detected_object_set.h
+  image_filter.cxx
+  image_filter.h
   image_object_detector.cxx
   image_object_detector.h
   trampoline/activity_detector_trampoline.txx
