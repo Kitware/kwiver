@@ -58,6 +58,7 @@ def _kwiver_tools(tool_name, args):
     assert tool_name in KWIVER_SUPPORTED_TOOLS, "Unsupported tool {0} specified".format(tool_name)
     tool_environment = _setup_environment()
     tool_path = os.path.join(KWIVER_BIN_DIR, tool_name)
+    vital_logging._configure_logging()
     assert os.path.exists(tool_path), "Tool {0} not available in {1}".format(tool_name, tool_path)
     args.insert(0, tool_path)
     subprocess.run(args, shell=False, check=True, env=tool_environment)
