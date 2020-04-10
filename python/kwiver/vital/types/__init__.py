@@ -16,6 +16,7 @@ from kwiver.vital.types.eigen import *
 from kwiver.vital.types.feature import *
 from kwiver.vital.types.homography import *
 from kwiver.vital.types.landmark import *
+from kwiver.vital.types.mesh import *
 from kwiver.vital.types.rotation import *
 from kwiver.vital.types.similarity import *
 from kwiver.vital.types.timestamp import *

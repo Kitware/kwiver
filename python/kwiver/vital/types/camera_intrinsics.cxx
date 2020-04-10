@@ -74,5 +74,7 @@ PYBIND11_MODULE(camera_intrinsics, m)
   .def_property("focal_length", &cam_int::get_focal_length, &cam_int::set_focal_length)
   .def_property("principal_point", &cam_int::get_principal_point, &cam_int::set_principal_point)
   .def_property("skew", &cam_int::get_skew, &cam_int::set_skew)
+  .def_property("image_width", &cam_int::get_image_width, &cam_int::set_image_width)
+  .def_property("image_height", &cam_int::get_image_height, &cam_int::set_image_height)
   ;
 }

@@ -132,6 +132,8 @@ PYBIND11_MODULE(camera, m)
                                 {
                                   self.set_rotation(val.getRotD());
                                 })
+  .def_property("intrinsics", &kwiver::vital::simple_camera_perspective::intrinsics,
+                              &kwiver::vital::simple_camera_perspective::set_intrinsics)
   .def("__eq__", &camera_eq,
     py::arg("other"))
   .def("__ne__", &camera_ne,
