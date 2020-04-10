@@ -64,10 +64,8 @@ class transfer_with_depth_map : public ::testing::Test
 TEST_F(transfer_with_depth_map, backproject_to_depth_map)
 {
   path_t src_cam_file_path = data_dir + "/" + src_cam_file_name;
-  path_t dest_cam_file_path = data_dir + "/" + dest_cam_file_name;
 
   auto const src_cam_sptr = read_krtd_file(src_cam_file_path);
-  auto const dest_cam_sptr = read_krtd_file(dest_cam_file_path);
 
   // Stub out our depth map
   auto img = image(1920, 1080, 1, false, image_pixel_traits_of<float>());
@@ -75,13 +73,11 @@ TEST_F(transfer_with_depth_map, backproject_to_depth_map)
 
   auto img_ptr = std::make_shared<simple_image_container>(img);
 
-  auto const transfer = kwiver::arrows::core::transfer_with_depth_map
-    (src_cam_sptr, dest_cam_sptr, img_ptr);
-
   auto img_point = vector_2d(740.0, 260.0);
 
   vector_3d world_point =
-    transfer.backproject_to_depth_map(src_cam_sptr, img_ptr, img_point);
+    kwiver::arrows::core::backproject_to_depth_map
+    (src_cam_sptr, img_ptr, img_point);
 
   EXPECT_NEAR(world_point(0), 8.21985243, 1e-6);
   EXPECT_NEAR(world_point(1), -75.49992019, 1e-6);
@@ -90,7 +86,8 @@ TEST_F(transfer_with_depth_map, backproject_to_depth_map)
   auto bad_img_point = vector_2d(2000, 2000);
 
   EXPECT_THROW
-    (transfer.backproject_to_depth_map(src_cam_sptr, img_ptr, bad_img_point),
+    (kwiver::arrows::core::backproject_to_depth_map
+     (src_cam_sptr, img_ptr, bad_img_point),
      std::invalid_argument);
 }
 
@@ -98,10 +95,8 @@ TEST_F(transfer_with_depth_map, backproject_to_depth_map)
 TEST_F(transfer_with_depth_map, backproject_wrt_height)
 {
   path_t src_cam_file_path = data_dir + "/" + src_cam_file_name;
-  path_t dest_cam_file_path = data_dir + "/" + dest_cam_file_name;
 
   auto const src_cam_sptr = read_krtd_file(src_cam_file_path);
-  auto const dest_cam_sptr = read_krtd_file(dest_cam_file_path);
 
   // Stub out our depth map
   auto img = image(1920, 1080, 1, false, image_pixel_traits_of<float>());
@@ -109,15 +104,12 @@ TEST_F(transfer_with_depth_map, backproject_wrt_height)
 
   auto img_ptr = std::make_shared<simple_image_container>(img);
 
-  auto const transfer = kwiver::arrows::core::transfer_with_depth_map
-    (src_cam_sptr, dest_cam_sptr, img_ptr);
-
   auto img_point_bottom = vector_2d(920.0, 301.0);
   auto img_point_top = vector_2d(924.0, 158.0);
 
   vector_3d world_point_top;
   std::tie (std::ignore, world_point_top) =
-    transfer.backproject_wrt_height
+    kwiver::arrows::core::backproject_wrt_height
     (src_cam_sptr, img_ptr, img_point_bottom, img_point_top);
 
   EXPECT_NEAR(world_point_top(0), -2.54535866, 1e-6);
@@ -126,7 +118,7 @@ TEST_F(transfer_with_depth_map, backproject_wrt_height)
 }
 
 // ----------------------------------------------------------------------------
-TEST_F(transfer_with_depth_map, transfer_bbox_with_depth_map)
+TEST_F(transfer_with_depth_map, transfer_bbox_with_depth_map_stationary_camera)
 {
   path_t src_cam_file_path = data_dir + "/" + src_cam_file_name;
   path_t dest_cam_file_path = data_dir + "/" + dest_cam_file_name;
@@ -140,13 +132,10 @@ TEST_F(transfer_with_depth_map, transfer_bbox_with_depth_map)
 
   auto img_ptr = std::make_shared<simple_image_container>(img);
 
-  auto const transfer = kwiver::arrows::core::transfer_with_depth_map
-    (src_cam_sptr, dest_cam_sptr, img_ptr);
-
   auto bbox = kwiver::vital::bounding_box<double>(900.0, 154.0, 940.0, 301.0);
 
   kwiver::vital::bounding_box<double> out_bbox =
-    transfer.transfer_bbox_with_depth_map
+    kwiver::arrows::core::transfer_bbox_with_depth_map_stationary_camera
     (src_cam_sptr, dest_cam_sptr, img_ptr, bbox);
 
   EXPECT_NEAR(out_bbox.min_x(), 586.1738903996884, 1e-6);
