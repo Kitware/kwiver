@@ -230,7 +230,7 @@ TEST_P(geo_point_roundtrip, insert_operator)
   auto const expected_crs = p.crs();
 
   // Write point to stream
-  auto out = std::stringstream{};
+  std::stringstream out;
   out << p;
 
   // Replace commas so we can read numbers back in
