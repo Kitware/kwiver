@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "transfer_with_depth_map.h"
+#include "transfer_bbox_with_depth_map.h"
 
 #include <math.h>
 #include <assert.h>
@@ -207,14 +207,14 @@ transfer_bbox_with_depth_map_stationary_camera
 }
 
 // ---------------------------------------------------------------------------
-transfer_with_depth_map::
-transfer_with_depth_map()
+transfer_bbox_with_depth_map::
+transfer_bbox_with_depth_map()
 {
 }
 
 // ---------------------------------------------------------------------------
-transfer_with_depth_map::
-transfer_with_depth_map
+transfer_bbox_with_depth_map::
+transfer_bbox_with_depth_map
 (kwiver::vital::camera_perspective_sptr src_cam,
  kwiver::vital::camera_perspective_sptr dest_cam,
  kwiver::vital::image_container_sptr src_cam_depth_map)
@@ -226,7 +226,7 @@ transfer_with_depth_map
 
 // ---------------------------------------------------------------------------
 vital::config_block_sptr
-transfer_with_depth_map::
+transfer_bbox_with_depth_map::
 get_configuration() const
 {
   // Get base config from base class
@@ -250,7 +250,7 @@ get_configuration() const
 
 // ---------------------------------------------------------------------------
 void
-transfer_with_depth_map::
+transfer_bbox_with_depth_map::
 set_configuration( vital::config_block_sptr config_in )
 {
   vital::config_block_sptr config = this->get_configuration();
@@ -278,7 +278,7 @@ set_configuration( vital::config_block_sptr config_in )
 
 // ---------------------------------------------------------------------------
 bool
-transfer_with_depth_map::
+transfer_bbox_with_depth_map::
 check_configuration( vital::config_block_sptr config ) const
 {
   kwiver::vital::config_difference cd( this->get_configuration(), config );
@@ -297,7 +297,7 @@ check_configuration( vital::config_block_sptr config ) const
 
 // ---------------------------------------------------------------------------
 vital::detected_object_set_sptr
-transfer_with_depth_map::
+transfer_bbox_with_depth_map::
 filter( vital::detected_object_set_sptr const input_set ) const
 {
   auto ret_set = std::make_shared<vital::detected_object_set>();

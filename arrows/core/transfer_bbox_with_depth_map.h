@@ -28,8 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KWIVER_ARROWS_TRANSFER_WITH_DEPTH_MAP_H_
-#define KWIVER_ARROWS_TRANSFER_WITH_DEPTH_MAP_H_
+#ifndef KWIVER_ARROWS_TRANSFER_BBOX_WITH_DEPTH_MAP_H_
+#define KWIVER_ARROWS_TRANSFER_BBOX_WITH_DEPTH_MAP_H_
 
 #include <arrows/core/kwiver_algo_core_export.h>
 
@@ -73,21 +73,21 @@ vital::bounding_box<double>
 
 
 /// Transforms detections based on source and destination cameras.
-class KWIVER_ALGO_CORE_EXPORT transfer_with_depth_map
-  : public vital::algorithm_impl<transfer_with_depth_map,
+class KWIVER_ALGO_CORE_EXPORT transfer_bbox_with_depth_map
+  : public vital::algorithm_impl<transfer_bbox_with_depth_map,
                                  vital::algo::detected_object_filter>
 {
 public:
-  PLUGIN_INFO( "transfer_with_depth_map",
-               "Transforms a detected object set based on source and "
-               "destination cameras with respect the source cameras depth "
+  PLUGIN_INFO( "transfer_bbox_with_depth_map",
+               "Transforms detected object set bounding boxes based on source "
+               "and destination cameras with respect the source cameras depth "
                "map.\n\n" )
 
   /// Default constructor
-  transfer_with_depth_map();
+  transfer_bbox_with_depth_map();
 
   /// Constructor taking source and destination cameras directly
-  transfer_with_depth_map
+  transfer_bbox_with_depth_map
     (kwiver::vital::camera_perspective_sptr src_cam,
      kwiver::vital::camera_perspective_sptr dest_cam,
      kwiver::vital::image_container_sptr src_cam_depth_map);
@@ -119,4 +119,4 @@ private:
 
 }}} //End namespace
 
-#endif // KWIVER_ARROWS_TRANSFER_WITH_DEPTH_MAP_H_
+#endif // KWIVER_ARROWS_TRANSFER_BBOX_WITH_DEPTH_MAP_H_

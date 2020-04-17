@@ -96,9 +96,9 @@ Arrows: Core
    transforming detected object sets from one camera perspective to another.
    Implements vital::algo::detected_object_filter.
 
- * Added an algorithm implementation (transfer_with_depth_map) for
-   transforming detected object sets from one camera perspective to
-   another with respect to a depth map.  Implements
+ * Added an algorithm implementation (transfer_bbox_with_depth_map) for
+   transforming detected object set bounding boxes from one camera perspective
+   to another with respect to a depth map.  Implements
    vital::algo::detected_object_filter.
 
  * Added a detect_features adaptor that applies a filter_features

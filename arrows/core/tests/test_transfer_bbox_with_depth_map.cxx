@@ -32,7 +32,7 @@
 
 #include <tuple>
 
-#include <arrows/core/transfer_with_depth_map.h>
+#include <arrows/core/transfer_bbox_with_depth_map.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -55,13 +55,13 @@ int main( int argc, char* argv[] )
 }
 
 // ----------------------------------------------------------------------------
-class transfer_with_depth_map : public ::testing::Test
+class transfer_bbox_with_depth_map : public ::testing::Test
 {
   TEST_ARG(data_dir);
 };
 
 // ----------------------------------------------------------------------------
-TEST_F(transfer_with_depth_map, backproject_to_depth_map)
+TEST_F(transfer_bbox_with_depth_map, backproject_to_depth_map)
 {
   path_t src_cam_file_path = data_dir + "/" + src_cam_file_name;
 
@@ -92,7 +92,7 @@ TEST_F(transfer_with_depth_map, backproject_to_depth_map)
 }
 
 // ----------------------------------------------------------------------------
-TEST_F(transfer_with_depth_map, backproject_wrt_height)
+TEST_F(transfer_bbox_with_depth_map, backproject_wrt_height)
 {
   path_t src_cam_file_path = data_dir + "/" + src_cam_file_name;
 
@@ -118,7 +118,8 @@ TEST_F(transfer_with_depth_map, backproject_wrt_height)
 }
 
 // ----------------------------------------------------------------------------
-TEST_F(transfer_with_depth_map, transfer_bbox_with_depth_map_stationary_camera)
+TEST_F(transfer_bbox_with_depth_map,
+       transfer_bbox_with_depth_map_stationary_camera)
 {
   path_t src_cam_file_path = data_dir + "/" + src_cam_file_name;
   path_t dest_cam_file_path = data_dir + "/" + dest_cam_file_name;
