@@ -79,21 +79,6 @@ void check_and_initialize_python_interpretor()
 }
 
 /*
- * check if the python shared library symbols have been loaded
- * From: https://stackoverflow.com/questions/50570223/dlopenrtld-noload-still-returns-not-null-after-dlclose
- */
-bool is_python_library_loaded(const std::string& python_library_path)
-{
-  void *handle = dlopen(python_library_path.c_str(), RTLD_NOW | RTLD_NOLOAD);
-  if ( handle != nullptr )
-  {
-    dlclose(handle);
-    return true;
-  }
-  return false;
-}
-
-/*
  * Use environment variables and compiler definitions to determine where the
  * python shared library is and load its symbols.
  */
