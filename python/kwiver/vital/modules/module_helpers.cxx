@@ -33,6 +33,7 @@
 #include <python/kwiver/vital/util/python.h>
 #include <vital/plugin_loader/plugin_loader.h>
 #include <kwiversys/SystemTools.hxx>
+#include <kwiversys/DynamicLoader.hxx>
 
 #include <pybind11/pybind11.h>
 
@@ -100,9 +101,10 @@ bool load_python_library_from_env()
   if( env_pylib )
   {
     LOG_DEBUG(logger, "Loading symbols from PYTHON_LIBRARY=" << env_pylib );
-    void* handle = dlopen( env_pylib, RTLD_LAZY | RTLD_GLOBAL );
+    kwiversys::DynamicLoader::LibraryHandle handle =
+      kwiversys::DynamicLoader::OpenLibrary(env_pylib);
     if ( !handle ) {
-      LOG_ERROR(logger, "Cannot load library: " << dlerror());
+      LOG_ERROR(logger, "Cannot load library: " << kwiversys::DynamicLoader::LastError());
     }
     else
     {
@@ -114,9 +116,10 @@ bool load_python_library_from_env()
     // If the PYTHON_LIBRARY environment variable is not specified, use the
     // CMAKE definition of PYTHON_LIBRARY instead.
     LOG_DEBUG(logger, "Loading symbols from default PYTHON_LIBRARY=" << default_pylib);
-    void* handle = dlopen( default_pylib, RTLD_LAZY | RTLD_GLOBAL );
+    kwiversys::DynamicLoader::LibraryHandle handle =
+              kwiversys::DynamicLoader::OpenLibrary(default_pylib);
     if (!handle) {
-      LOG_ERROR(logger, "Cannot load library: " << dlerror());
+      LOG_ERROR(logger, "Cannot load library: " << kwiversys::DynamicLoader::LastError());
     }
     else
     {
@@ -139,9 +142,10 @@ bool load_python_library_from_interpretor(const std::string python_library_path)
   auto logger = kwiver::vital::get_logger("vital.python_modules");
   LOG_DEBUG(logger, "Loading symbols from PYTHON_LIBRARY=" << python_library_path.c_str() );
   bool python_library_found = false;
-  void *handle = dlopen( python_library_path.c_str(), RTLD_LAZY | RTLD_GLOBAL );
+  kwiversys::DynamicLoader::LibraryHandle handle =
+    kwiversys::DynamicLoader::OpenLibrary(python_library_path.c_str());
   if (!handle) {
-    LOG_ERROR(logger, "Cannot load library: " << dlerror());
+    LOG_ERROR(logger, "Cannot load library: " << kwiversys::DynamicLoader::LastError());
   }
   else
   {
