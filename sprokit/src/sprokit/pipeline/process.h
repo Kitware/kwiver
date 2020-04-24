@@ -226,6 +226,9 @@ class SPROKIT_PIPELINE_EXPORT process
      * \class conf_info process.h <sprokit/pipeline/process.h>
      *
      * \brief Information about a configuration parameter.
+     *
+     * this class holds the information about the config vlaue as
+     * defined by the process.
      */
     class SPROKIT_PIPELINE_EXPORT conf_info
     {
@@ -493,6 +496,10 @@ class SPROKIT_PIPELINE_EXPORT process
 
     /**
      * \brief Request available configuration options for the process.
+     *
+     * This method returns a list of all keys that have been declared
+     * by the process. If additional config keys have been supplied
+     * by the pipe file, they will not be in this list.
      *
      * \returns The names of all available configuration keys.
      */

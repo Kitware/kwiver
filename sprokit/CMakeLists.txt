@@ -9,29 +9,18 @@ set(SPROKIT_CMAKE_DIR  "${sprokit_source_dir}/conf")
 ##?++  temp needed until new macros are used
 check_cxx_compiler_flag(-fvisibility=hidden SPROKIT_HAVE_GCC_VISIBILITY)
 
-
 ## Copy options from KWIVER
 set(SPROKIT_ENABLE_PYTHON ${KWIVER_ENABLE_PYTHON})
 
 include(CMakeDependentOption)
 
-## set(sprokit_output_dir         "${sprokit_binary_dir}")
+##+ set(sprokit_output_dir         "${sprokit_binary_dir}")
 set(sprokit_output_dir         "${KWIVER_BINARY_DIR}")
-
 
 # we need to know if python is enabled
 if (SPROKIT_ENABLE_PYTHON)
   add_definitions("-DSPROKIT_ENABLE_PYTHON")
 endif ()
-
-## TODO replace sprokit macros with kwiver macros if possible
-# Sprokit macros
-include("${sprokit_source_dir}/conf/sprokit-macro-configure.cmake")
-include("${sprokit_source_dir}/conf/sprokit-macro-targets.cmake")
-include("${sprokit_source_dir}/conf/sprokit-macro-python.cmake")
-
-# Support functions.
-include("${sprokit_source_dir}/cmake/support/pkgconfig.cmake")
 
 ### TODO This will not work without going to root directory
 find_package(Git)

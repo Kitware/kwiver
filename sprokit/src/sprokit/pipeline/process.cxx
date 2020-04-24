@@ -216,6 +216,8 @@ class process::priv
     mutable mutex_t output_edges_mut;
 
     process* const q;
+
+    // The final resolved process configuration
     kwiver::vital::config_block_sptr conf;
 
     typedef std::set<port_t> port_set_t;
@@ -566,8 +568,13 @@ kwiver::vital::config_block_keys_t
 process
 ::available_config() const
 {
+  // Get available keys from process subclass
   kwiver::vital::config_block_keys_t keys = _available_config();
 
+  // Add the keys that have been declared by the process.
+
+  // Note that if the sublcass provided a key that is the same as one
+  // in the config, it will be in the list twice.
   for (priv::conf_map_t::value_type const& conf : d->config_keys)
   {
     kwiver::vital::config_block_key_t const& key = conf.first;
@@ -1700,6 +1707,7 @@ kwiver::vital::config_block_value_t
 process
 ::config_value_raw(kwiver::vital::config_block_key_t const& key) const
 {
+  // Verify that the config key has been declared by the process.
   priv::conf_map_t::const_iterator const i = d->config_keys.find(key);
 
   if (i == d->config_keys.end())
@@ -1708,6 +1716,8 @@ process
                  d->name, key);
   }
 
+  // Check to see if the pipeline supplied config block has the key.
+  // If not, then return the default value.
   if (d->conf->has_value(key))
   {
     return d->conf->get_value<kwiver::vital::config_block_value_t>(key);

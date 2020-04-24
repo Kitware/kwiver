@@ -11,6 +11,88 @@ include(CMakeParseArguments)
 # Top level configuration target
 add_custom_target(kwiver_configure ALL)
 
+###
+#
+function (int_kwiver_configure_file name source dest)
+  file(WRITE "${configure_script}"
+    "# Configure script for \"${source}\" -> \"${dest}\"\n")
+
+  foreach (arg IN LISTS ARGN)
+    file(APPEND "${configure_script}"
+      "set(${arg} \"${${arg}}\")\n")
+  endforeach ()
+
+  file(APPEND "${configure_script}" "${configure_code}")
+
+  file(APPEND "${configure_script}" "
+configure_file(
+  \"${source}\"
+  \"${configured_path}\"
+  @ONLY)\n")
+
+  file(APPEND "${configure_script}" "
+configure_file(
+  \"${configured_path}\"
+  \"${dest}\"
+  COPYONLY)\n")
+
+  foreach (extra_dest IN LISTS kwiver_configure_extra_dests)
+    file(APPEND "${configure_script}" "
+configure_file(
+  \"${configured_path}\"
+  \"${extra_dest}\"
+  COPYONLY)\n")
+  endforeach ()
+
+  set(clean_files
+    "${dest}"
+    ${kwiver_configure_extra_dests}
+    "${configured_path}"
+    "${configure_script}")
+
+  set_directory_properties(
+    PROPERTIES
+      ADDITIONAL_MAKE_CLEAN_FILES "${clean_files}")
+endfunction ()
+
+###
+#
+function (kwiver_configure_file_w_uid uid name source dest)
+  set(configure_script
+    "${CMAKE_CURRENT_BINARY_DIR}/configure.${name}.cmake")
+  set(configured_path
+    "${configure_script}.output")
+
+  int_kwiver_configure_file(${name} "${source}" "${dest}" ${ARGN})
+
+  add_custom_command(
+    OUTPUT  "${dest}"
+            ${extra_output}
+    COMMAND "${CMAKE_COMMAND}"
+            ${kwiver_configure_cmake_args}
+            -P "${configure_script}"
+    MAIN_DEPENDENCY
+            "${source}"
+    DEPENDS "${source}"
+            "${configure_script}"
+    WORKING_DIRECTORY
+            "${CMAKE_CURRENT_BINARY_DIR}"
+    COMMENT "Configuring ${name} file \"${source}\" -> \"${dest}\"")
+
+  if (NOT no_configure_target)
+    add_custom_target(configure-${uid} ${all}
+      DEPENDS "${dest}"
+      SOURCES "${source}")
+    source_group("Configured Files"
+      FILES "${source}")
+    add_dependencies(configure
+      configure-${uid})
+  endif ()
+endfunction ()
+
+
+
+
 #+
 # Configure the given sourcefile to the given destfile
 #
@@ -96,6 +178,52 @@ function(kwiver_configure_file name source dest)
   endif()
 endfunction()
 
+###
+#
+# Mimics a kwiver_configure_file_w_uid, but will symlink `source` to `dest`
+# directly without any configureation. This should only be used for interpreted
+# languages like python to prevent the need to re-make the project after making
+# small changes to these interpreted files.
+#
+# TODO: this should be eventually replaced by `kwiver_symlink_file`. Either the
+# kwiver version should take a uid, or the uid is not necessary.
+#
+# SeeAlso:
+#     kwiver/CMake/utils/kwiver-utils-configuration.cmake
+#
+function (kwiver_symlink_file_w_uid uid name source dest)
+
+  if(EXISTS ${dest} AND NOT IS_SYMLINK ${dest})
+    # If our target it not a symlink, then remove it so we can replace it
+    file(REMOVE ${dest})
+  endif()
+
+  # Need to ensure the directory exists before we create a symlink there
+  get_filename_component(dest_dir ${dest} DIRECTORY)
+  add_custom_command(
+    OUTPUT  "${dest_dir}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory ${dest_dir}
+    )
+
+  add_custom_command(
+    OUTPUT  "${dest}"
+    COMMAND "${CMAKE_COMMAND}" -E create_symlink ${source} ${dest}
+    DEPENDS "${source}" "${dest_dir}"
+    COMMENT "Symlink-configuring ${name} file \"${source}\" -> \"${dest}\""
+    )
+
+  if (NOT no_configure_target)
+    add_custom_target(configure-${uid} ${all}
+      DEPENDS "${dest}"
+      SOURCES "${source}")
+    source_group("Configured Files"
+      FILES "${source}")
+    add_dependencies(configure
+      configure-${uid})
+  endif()
+endfunction ()
+
+
 
 ###
 #
@@ -106,7 +234,6 @@ endfunction()
 #
 # SeeAlso:
 #     kwiver/CMake/utils/kwiver-utils-python.cmake
-#     kwiver/sprokit/conf/sprokit-macro-configure.cmake
 #
 function (kwiver_symlink_file name source dest)
 

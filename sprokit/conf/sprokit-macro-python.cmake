@@ -71,7 +71,7 @@ function (sprokit_add_python_module    path     modpath    module)
   if (CMAKE_CONFIGURATION_TYPES)
     set(sprokit_configure_cmake_args
       "\"-Dconfig=${CMAKE_CFG_INTDIR}/\"")
-    set(sprokit_configure_extra_dests
+    set(kwiver_configure_extra_dests
       "${sprokit_python_output_path}/\${config}/${kwiver_python_subdir}${python_noarchdir}/${python_sitename}/${modpath}/${module}.py")
   endif ()
 

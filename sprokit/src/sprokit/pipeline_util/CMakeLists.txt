@@ -71,7 +71,7 @@ set(sprokit_pipe_include_options  "DEFAULT_PIPE_INCLUDE_PATHS=\"${SPROKIT_DEFAUL
 set(load_pipe_build_options)
 
 if (WIN32)
-  sprokit_configure_file(include-paths.h
+  kwiver_configure_file(include-paths.h
     "${CMAKE_CURRENT_SOURCE_DIR}/include-paths.h.in"
     "${CMAKE_CURRENT_BINARY_DIR}/include-paths.h"
     SPROKIT_DEFAULT_PIPE_INCLUDE_PATHS)
@@ -123,5 +123,3 @@ kwiver_install_headers(
   SUBDIR   sprokit/pipeline_util
   NOPATH
   )
-
-sprokit_configure_pkgconfig(sprokit-pipeline_util)

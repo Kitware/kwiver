@@ -27,7 +27,7 @@ endif ()
 set(SPROKIT_DEFAULT_CLUSTER_PATHS "${sprokit_default_cluster_paths}"
   CACHE STRING "The default paths to search for clusters in" FORCE)
 
-sprokit_configure_file(cluster-paths.h
+kwiver_configure_file(cluster-paths.h
   "${CMAKE_CURRENT_SOURCE_DIR}/cluster-paths.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/cluster-paths.h"
   SPROKIT_DEFAULT_CLUSTER_PATHS
