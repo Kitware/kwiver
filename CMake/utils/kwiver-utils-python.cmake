@@ -145,6 +145,8 @@ function (kwiver_add_python_module path     modpath    module)
   endif ()
 
   set(pyfile_src "${path}")
+  # SKBUILD associates the package root with CMAKE_INSTALL_PREFIX
+  # in source build this would be kwiver_python_install_path/project_name
   if(SKBUILD)
     set(pyfile_dst "${CMAKE_BINARY_DIR}/${modpath}/${module}.py")
     # installation path for this module
@@ -152,7 +154,7 @@ function (kwiver_add_python_module path     modpath    module)
   else()
     set(pyfile_dst "${kwiver_python_output_path}${python_noarchdir}/${python_sitename}/${project_name}/${modpath}/${module}.py")
     # installation path for this module
-    set(pypkg_install_path "${python_install_path}/${kwiver_python_subdir}/${python_sitename}/${project_name}/${modpath}")
+    set(pypkg_install_path "${kwiver_python_install_path}/${project_name}/${modpath}")
   endif()
 
   # copy and configure the source file into the binary directory
@@ -168,10 +170,10 @@ function (kwiver_add_python_module path     modpath    module)
       PYTHON_EXECUTABLE)
   endif()
 
-  # install the configured binary to the kwiver python install path
+  # install the configured binary to pypkg_install_path
   kwiver_install(
     FILES       "${pyfile_dst}"
-    DESTINATION "${kwiver_python_install_path}/${modpath}"
+    DESTINATION "${pypkg_install_path}/${modpath}"
     COMPONENT   runtime)
 
   add_dependencies(python
@@ -241,14 +243,15 @@ function (kwiver_create_python_init    modpath)
     endforeach()
   endif()
 
-  # Installation __init__
+  # SKBUILD associates the package root with CMAKE_INSTALL_PREFIX
+  # in source build this would be kwiver_python_install_path/project_name
   if(SKBUILD)
     set ( install_path "${CMAKE_INSTALL_PREFIX}/${modpath}")
   else()
-    set ( install_path "${CMAKE_INSTALL_PREFIX}/${python_site_packages}/${project_name}/${modpath}")
+    set ( install_path "${kwiver_python_install_path}/${project_name}/${modpath}")
   endif()
   kwiver_install(
     FILES       "${init_path}"
-    DESTINATION "${kwiver_python_install_path}/${modpath}"
+    DESTINATION "${install_path}/${modpath}"
     COMPONENT   runtime)
 endfunction ()
