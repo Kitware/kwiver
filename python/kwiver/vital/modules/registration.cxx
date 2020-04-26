@@ -101,7 +101,10 @@ register_factories(kwiver::vital::plugin_loader& vpm)
       (void)acquire;
       python_library_path = find_python_library();
     }
-    python_library_loaded = load_python_library_from_interpretor(python_library_path);
+    if(!python_library_path.empty())
+    {
+      python_library_loaded = load_python_library_from_interpretor(python_library_path);
+    }
   }
   if (!python_library_loaded)
   {
