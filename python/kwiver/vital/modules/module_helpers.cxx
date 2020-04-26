@@ -158,9 +158,19 @@ bool load_python_library_from_interpretor(const std::string python_library_path)
 std::string
 find_python_library()
 {
-  py::object const module = py::module::import("kwiver.vital.util.find_python_library");
-  py::object const python_library_path = module.attr("find_python_library")();
-  return python_library_path.cast<std::string>();
+  auto logger = kwiver::vital::get_logger("vital.python_modules");
+  // Handle the case where the import fail
+  try
+  {
+    py::object const module = py::module::import("kwiver.vital.util.find_python_library");
+    py::object const python_library_path = module.attr("find_python_library")();
+    return python_library_path.cast<std::string>();
+  }
+  catch (pybind11::error_already_set& e)
+  {
+    LOG_WARN(logger, "Failed to use python interpretor to find python library:\n" << e.what());
+    return std::string();
+  }
 }
 
 
