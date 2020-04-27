@@ -94,11 +94,9 @@ class track(object):
         tsl = self.track_state_list
         tsl = [tsl[0]] * (timestep_len - len(tsl)) + tsl
         du_track.track_state_list = tsl
-        du_track.updated_flag = self.updated_flag
         du_track.max_conf = self.max_conf
 
         return du_track
-
 
 class track_set(object):
     def __init__(self):
