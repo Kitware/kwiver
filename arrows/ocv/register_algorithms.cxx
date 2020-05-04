@@ -107,16 +107,6 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_algorithm< image_io >();
   reg.register_algorithm< draw_detected_object_set >();
 
-  reg.register_algorithm< detect_features_BRISK >();
-  reg.register_algorithm< detect_features_FAST >();
-  reg.register_algorithm< detect_features_GFTT >();
-  reg.register_algorithm< detect_features_MSER >();
-  reg.register_algorithm< detect_features_ORB >();
-  reg.register_algorithm< detect_features_simple_blob >();
-
-  reg.register_algorithm< extract_descriptors_BRISK >();
-  reg.register_algorithm< extract_descriptors_ORB >();
-
   reg.register_algorithm< match_features_bruteforce >();
   reg.register_algorithm< match_features_flannbased >();
 
@@ -126,53 +116,6 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 
   reg.register_algorithm< windowed_detector >();
   reg.register_algorithm< windowed_trainer >();
-
-  // Conditional algorithms
-  // Source ``KWIVER_OCV_HAS_*`` symbol definitions can be found in the header
-  //  files of the algorithms referred to.
-#ifdef KWIVER_OCV_HAS_AGAST
-  reg.register_algorithm< detect_features_AGAST >();
-#endif
-
-#ifdef KWIVER_OCV_HAS_BRIEF
-  reg.register_algorithm< extract_descriptors_BRIEF >();
-#endif
-
-#ifdef KWIVER_OCV_HAS_DAISY
-  reg.register_algorithm< extract_descriptors_DAISY >();
-#endif
-
-#ifdef KWIVER_OCV_HAS_FREAK
-    reg.register_algorithm< extract_descriptors_FREAK >();
-#endif
-
-#ifdef KWIVER_OCV_HAS_LATCH
-   reg.register_algorithm< extract_descriptors_LATCH >();
-#endif
-
-#ifdef KWIVER_OCV_HAS_LUCID
-  reg.register_algorithm< extract_descriptors_LUCID >();
-#endif
-
-#ifdef KWIVER_OCV_HAS_MSD
-  reg.register_algorithm< detect_features_MSD >();
-#endif
-
-#ifdef KWIVER_OCV_HAS_SIFT
-  reg.register_algorithm< detect_features_SIFT >();
-  reg.register_algorithm< extract_descriptors_SIFT >();
-#endif
-
-#ifdef KWIVER_OCV_HAS_STAR
-  reg.register_algorithm< detect_features_STAR >();
-#endif
-
-#ifdef KWIVER_OCV_HAS_SURF
-  reg.register_algorithm< detect_features_SURF >();
-  reg.register_algorithm< extract_descriptors_SURF >();
-#endif
-
-  reg.register_algorithm< detect_heat_map >();
 
   reg.register_algorithm< refine_detections_write_to_disk >();
   reg.register_algorithm< split_image_channels >();

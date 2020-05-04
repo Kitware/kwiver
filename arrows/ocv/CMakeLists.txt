@@ -6,14 +6,14 @@ set( ocv_headers_public
   camera_intrinsics.h
   convert_color_space.h
   descriptor_set.h
-  detect_features.h
-  detect_features_AGAST.h
-  detect_features_FAST.h
-  detect_features_GFTT.h
-  detect_features_MSD.h
-  detect_features_MSER.h
-  detect_features_simple_blob.h
-  detect_features_STAR.h
+#  detect_features.h
+#  detect_features_AGAST.h
+#  detect_features_FAST.h
+#  detect_features_GFTT.h
+#  detect_features_MSD.h
+#  detect_features_MSER.h
+#  detect_features_simple_blob.h
+#  detect_features_STAR.h
   detect_motion_3frame_differencing.h
   detect_motion_mog2.h
   draw_detected_object_set.h
@@ -21,18 +21,18 @@ set( ocv_headers_public
   estimate_fundamental_matrix.h
   estimate_homography.h
 #  estimate_pnp.h
-  extract_descriptors.h
-  extract_descriptors_BRIEF.h
-  extract_descriptors_DAISY.h
-  extract_descriptors_FREAK.h
-  extract_descriptors_LATCH.h
-  extract_descriptors_LUCID.h
+#  extract_descriptors.h
+#  extract_descriptors_BRIEF.h
+#  extract_descriptors_DAISY.h
+#  extract_descriptors_FREAK.h
+#  extract_descriptors_LATCH.h
+#  extract_descriptors_LUCID.h
   feature_set.h
-  feature_detect_extract_BRISK.h
-  feature_detect_extract_ORB.h
-  feature_detect_extract_SIFT.h
-  feature_detect_extract_SURF.h
-  detect_heat_map.h
+#  feature_detect_extract_BRISK.h
+#  feature_detect_extract_ORB.h
+#  feature_detect_extract_SIFT.h
+#  feature_detect_extract_SURF.h
+#  detect_heat_map.h
   hough_circle_detector.h
   image_container.h
   image_io.h
@@ -64,14 +64,14 @@ set( ocv_sources
   camera_intrinsics.cxx
   convert_color_space.cxx
   descriptor_set.cxx
-  detect_features.cxx
-  detect_features_AGAST.cxx
-  detect_features_FAST.cxx
-  detect_features_GFTT.cxx
-  detect_features_MSD.cxx
-  detect_features_MSER.cxx
-  detect_features_simple_blob.cxx
-  detect_features_STAR.cxx
+#  detect_features.cxx
+#  detect_features_AGAST.cxx
+#  detect_features_FAST.cxx
+#  detect_features_GFTT.cxx
+#  detect_features_MSD.cxx
+#  detect_features_MSER.cxx
+#  detect_features_simple_blob.cxx
+#  detect_features_STAR.cxx
   detect_motion_3frame_differencing.cxx
   detect_motion_mog2.cxx
   draw_detected_object_set.cxx
@@ -79,19 +79,19 @@ set( ocv_sources
   estimate_fundamental_matrix.cxx
   estimate_homography.cxx
 #  estimate_pnp.cxx
-  extract_descriptors.cxx
-  extract_descriptors_BRIEF.cxx
-  extract_descriptors_DAISY.cxx
-  extract_descriptors_FREAK.cxx
-  extract_descriptors_LATCH.cxx
-  extract_descriptors_LUCID.cxx
-  detect_heat_map.cxx
+#  extract_descriptors.cxx
+#  extract_descriptors_BRIEF.cxx
+#  extract_descriptors_DAISY.cxx
+#  extract_descriptors_FREAK.cxx
+#  extract_descriptors_LATCH.cxx
+#  extract_descriptors_LUCID.cxx
+#  detect_heat_map.cxx
   hough_circle_detector.cxx
   feature_set.cxx
-  feature_detect_extract_BRISK.cxx
-  feature_detect_extract_ORB.cxx
-  feature_detect_extract_SIFT.cxx
-  feature_detect_extract_SURF.cxx
+#  feature_detect_extract_BRISK.cxx
+#  feature_detect_extract_ORB.cxx
+#  feature_detect_extract_SIFT.cxx
+#  feature_detect_extract_SURF.cxx
   image_container.cxx
   image_io.cxx
   mat_image_memory.cxx
