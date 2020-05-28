@@ -160,7 +160,7 @@ run()
   if ( cmd_args["dump-config"].as<bool>() )
   {
     ::kwiver::vital::config_block_formatter fmt( conf );
-    fmt.print( std::cout, "tree" );
+    fmt.print( std::cout );
   }
 
   if (!pipe)
