@@ -51,6 +51,8 @@
 #include <kwiversys/SystemTools.hxx>
 #include <kwiversys/SystemInformation.hxx>
 
+#include <boost/algorithm/string.hpp>
+
 #include <ctime>
 #include <memory>
 #include <sstream>
@@ -203,7 +205,8 @@ public:
     xmlXPathFreeContext(xpath_context);
   }
 
-  void populate_xml_metadata(GDALDataset* mie4nitf_file)
+  void
+  populate_xml_metadata(GDALDataset* mie4nitf_file)
   {
     std::string concat_strings;
     char **str = GDALGetMetadata(mie4nitf_file, "xml:TRE");
@@ -230,7 +233,8 @@ public:
 
   typedef std::pair<std::string, std::string> string_pair;
 
-  string_pair parse_key_value(char *md)
+  string_pair
+  parse_key_value(char *md)
   {
     char **s =
       CSLTokenizeString2(md, "=",
@@ -252,6 +256,50 @@ public:
     return p;
   }
 
+
+  bool
+  parse_datetime(std::string const& metadata, std::time_t &value)
+  {
+    std::string re_str =
+      "([0-9][0-9][0-9][0-9])([0-9][0-9])([0-9][0-9])([0-9][0-9])([0-9][0-9])([0-9][0-9])";
+    vul_reg_exp re(re_str.c_str());
+    if( !re.find( metadata ) )
+    {
+      return false;
+    }
+
+    std::stringstream conv;
+
+    conv << re.match(1) << ' ' // YYYY
+         << re.match(2) << ' ' // MM
+         << re.match(3) << ' ' // DD
+         << re.match(4) << ' ' // hh
+         << re.match(5) << ' ' // mm
+         << re.match(6);       // ss
+
+    unsigned int YYYY, MM, DD, hh, mm, ss;
+    std::tm tm0, tm1;
+    std::memset(&tm0, 0, sizeof(std::tm));
+    std::memset(&tm1, 0, sizeof(std::tm));
+
+    tm0.tm_year = 70;
+    tm0.tm_mday = 1;
+
+    conv >> YYYY >> MM >> DD >> hh >> mm >> ss;
+    tm1.tm_year = YYYY - 1900;
+    tm1.tm_mon = MM - 1;
+    tm1.tm_mday = DD;
+    tm1.tm_hour = hh;
+    tm1.tm_min = mm;
+    tm1.tm_sec = ss;
+
+    std::time_t time0 = std::mktime(&tm0);
+    std::time_t time1 = std::mktime(&tm1);
+    value = static_cast<std::time_t>(std::difftime(time1, time0));
+
+    return true;
+  }
+
   /**
    * @brief Converts MIE4NITF timestamp into microseconds from epoch.
    * Assumes int64_t fits in `vital::time_usec_t`.
@@ -261,44 +309,31 @@ public:
    *
    * @return Time from epoch in micro-seconds.
    */
-  vital::time_usec_t utc_to_microseconds(std::string s)
+  vital::time_usec_t utc_to_microseconds(std::string const& metadata)
   {
-    const char *format = "%Y%m%d%H%M%S";
+    double milli = 0;
+    std::time_t time_value = 0;
+    std::vector<std::string> temp;
+    boost::split(temp, metadata, boost::is_any_of(" ."));
 
-    // Check if the format is as expected.
-    int dot_ind = s.find(".");
-    int format_len = 14, nano_seconds_len = 9;
-
-    if ((dot_ind != format_len) ||
-        (static_cast<int>(s.size()) != format_len + 1 + nano_seconds_len))
+    if ( !parse_datetime(metadata, time_value) )
     {
       VITAL_THROW(vital::metadata_exception, "Error could not parse timestamp");
     }
 
-    std::string format_s = s.substr(0, format_len);
-    std::string nano_seconds_s = s.substr(format_len + 1, nano_seconds_len);
-
-    int64_t nano_seconds = atoll(nano_seconds_s.c_str());
-    int64_t micro_seconds = nano_seconds / 1000;
-    tm t, t0;
-    std::memset(&t, 0, sizeof(std::tm));
-    std::memset(&t0, 0, sizeof(std::tm));
-
-    char *c = strptime((format_s).c_str(), format, &t);
-    if (c == NULL)
+    // Only extract 3 digits for millisecond time
+    std::string re_str = "[0-9][0-9][0-9]";
+    vul_reg_exp re(re_str.c_str());
+    if( !re.find( temp[1] ) )
     {
       VITAL_THROW(vital::metadata_exception, "Error could not parse timestamp");
     }
 
-    c = strptime("1970-01-01 00:00:00", "%Y-%m-%d %H:%M:%S", &t0);
-    if (c == NULL)
-    {
-      VITAL_THROW(vital::metadata_exception, "Error could not parse timestamp");
-    }
+    std::stringstream ss;
+    ss << re.match(0);
+    ss >> milli;
 
-    time_t seconds_from_epoch = difftime(mktime(&t), mktime(&t0));
-    int64_t micro_seconds_from_epoch = seconds_from_epoch * 1e6 + micro_seconds;
-    return micro_seconds_from_epoch;
+    return (time_value * 1e3  + milli) * 1e3;
   }
 
   void populate_subset_metadata(GDALDataset* mie4nitf_file, int start_index)
@@ -349,7 +384,7 @@ public:
     int frame_ind = frame_number - 1;
     if (frame_number < 1 || frame_number > this->number_of_frames)
     {
-      LOG_ERROR(this->logger, "Frame number out of expected range.");
+      LOG_ERROR(this->logger, "Frame number out of expected range: " << frame_number );
       return false;
     }
 
