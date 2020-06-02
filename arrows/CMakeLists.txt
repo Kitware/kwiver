@@ -15,7 +15,7 @@ endif()
 
 # Add OpenCV plugin if enabled
 if( KWIVER_ENABLE_OPENCV )
-  add_subdirectory( dbow2 )
+  #add_subdirectory( dbow2 )
   add_subdirectory( ocv )
 endif()
 
@@ -85,11 +85,6 @@ if( KWIVER_ENABLE_UUID )
   add_subdirectory( uuid )
 endif()
 
-# if python is enabled
-if( KWIVER_ENABLE_PYTHON )
-  kwiver_create_python_init( kwiver/arrows )
-  add_subdirectory( python )
-endif()
 
 # if FFMPEG is enabled
 if( KWIVER_ENABLE_FFMPEG)
