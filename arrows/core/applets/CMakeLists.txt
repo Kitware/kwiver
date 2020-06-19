@@ -23,7 +23,7 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 ###
 # Add path to applets so plugin loader can find them
 if(NOT SKBUILD)
-  kwiver_make_module_path( ${KWIVER_BINARY_DIR} ${kwiver_plugin_applets} )
+  kwiver_make_module_path( ${KWIVER_BINARY_DIR} ${kwiver_plugin_applets_subdir} )
   kwiver_add_module_path( ${kwiver_module_path_result} )
 endif()
 # Add applet plugin

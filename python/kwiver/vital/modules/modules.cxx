@@ -67,14 +67,8 @@ void load_known_modules()
   const std::string initial_plugin_path =
                 kwiver::vital::python::get_initial_plugin_path();
   add_external_plugin_paths();
-  auto plugin_search_paths =
-                kwiver::vital::plugin_manager::instance().search_path();
-  if( std::find( plugin_search_paths.begin(),
-                 plugin_search_paths.end(),
-                 initial_plugin_path ) ==  plugin_search_paths.end() )
-  {
-    kwiver::vital::plugin_manager::instance().add_search_path( initial_plugin_path );
-  }
+
+  kwiver::vital::plugin_manager::instance().add_search_path( initial_plugin_path );
   kwiver::vital::plugin_manager::instance().load_all_plugins();
 }
 
@@ -83,14 +77,8 @@ bool is_module_loaded(std::string module_name)
   const std::string initial_plugin_path =
                 kwiver::vital::python::get_initial_plugin_path();
   add_external_plugin_paths();
-  auto plugin_search_paths =
-                kwiver::vital::plugin_manager::instance().search_path();
-  if( std::find( plugin_search_paths.begin(),
-                 plugin_search_paths.end(),
-                 initial_plugin_path ) ==  plugin_search_paths.end() )
-  {
-    kwiver::vital::plugin_manager::instance().add_search_path( initial_plugin_path );
-  }
+
+  kwiver::vital::plugin_manager::instance().add_search_path( initial_plugin_path );
   return kwiver::vital::plugin_manager::instance().is_module_loaded(module_name);
 }
 
