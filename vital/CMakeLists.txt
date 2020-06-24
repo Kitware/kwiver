@@ -300,10 +300,6 @@ foreach( p IN LISTS plugin_path )
   set( VITAL_MODULE_PATH "${VITAL_MODULE_PATH}${path_sep}${p}" )
 endforeach(p)
 
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/algorithm_plugin_manager_paths.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/algorithm_plugin_manager_paths.h" )
-
 ###
 # configure our compiler options
 configure_file(
