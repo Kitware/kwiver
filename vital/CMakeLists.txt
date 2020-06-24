@@ -293,7 +293,6 @@ endif()
 get_property(plugin_path GLOBAL PROPERTY kwiver_plugin_path)
 
 # convert list to path string using the system specific path separator
-# TODO: The following has a leading ':' that should not be there
 foreach( p IN LISTS plugin_path )
   set( VITAL_MODULE_PATH "${VITAL_MODULE_PATH}${path_sep}${p}" )
 endforeach(p)
