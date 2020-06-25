@@ -5,11 +5,13 @@ include_directories(${pybind11_INCLUDE_DIR})
 set( vital_python_headers
      image.h
      image_container.h
+     match_set.h
   )
 
 set( vital_python_sources
      image.cxx
      image_container.cxx
+     match_set.cxx
      types_module.cxx
    )
 
