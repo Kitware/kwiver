@@ -38,9 +38,9 @@ import logging
 import numpy as np
 import scipy.optimize
 
-from kwiver.kwiver_process import KwiverProcess
-from sprokit.pipeline import process
-from vital.types import ObjectTrackSet, ObjectTrackState, Track
+from kwiver.sprokit.processes.kwiver_process import KwiverProcess
+from kwiver.sprokit.pipeline import process
+from kwiver.vital.types import ObjectTrackSet, ObjectTrackState, Track
 
 logger = logging.getLogger(__name__)
 
