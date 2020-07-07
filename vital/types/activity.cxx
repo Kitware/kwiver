@@ -83,10 +83,9 @@ namespace vital {
     m_activity_label = activity_label;
   }
 
-  // TODO: rep exposure?
   class_map_sptr activity::activity_type() const
   {
-    return m_class_map;
+    return std::make_shared< class_map >( *m_class_map );
   }
 
   void activity::set_activity_type( class_map_sptr class_map )
