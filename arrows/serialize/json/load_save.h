@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2018 by Kitware, Inc.
+ * Copyright 2018, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,9 +41,9 @@ namespace kwiver {
 namespace vital {
   class activity;
   class activity_type;
+  class class_map;
   class detected_object;
   class detected_object_set;
-  class detected_object_type;
   class geo_point;
   class geo_polygon;
   class polygon;
@@ -71,9 +71,9 @@ KWIVER_SERIALIZE_JSON_EXPORT
 void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::detected_object_set& obj );
 
 KWIVER_SERIALIZE_JSON_EXPORT
-void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::detected_object_type& dot );
+void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::class_map& cm );
 KWIVER_SERIALIZE_JSON_EXPORT
-void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::detected_object_type& dot );
+void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::class_map& cm );
 
 KWIVER_SERIALIZE_JSON_EXPORT
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::timestamp& tstamp );

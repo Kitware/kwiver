@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,41 +30,41 @@
 
 #include <pybind11/stl.h>
 
-#include <vital/types/detected_object_type.h>
+#include <vital/types/class_map.h>
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(detected_object_type, m)
+PYBIND11_MODULE(class_map, m)
 {
-  py::class_<kwiver::vital::detected_object_type, std::shared_ptr<kwiver::vital::detected_object_type>>(m, "DetectedObjectType")
+  py::class_<kwiver::vital::class_map, std::shared_ptr<kwiver::vital::class_map>>(m, "ClassMap")
   .def(py::init<>())
   .def(py::init<std::vector<std::string>, std::vector<double>>())
   .def(py::init<std::string, double>())
 
-  .def("has_class_name", &kwiver::vital::detected_object_type::has_class_name,
+  .def("has_class_name", &kwiver::vital::class_map::has_class_name,
     py::arg("class_name"))
-  .def("score", &kwiver::vital::detected_object_type::score,
+  .def("score", &kwiver::vital::class_map::score,
     py::arg("class_name"))
-  .def("get_most_likely_class", [](std::shared_ptr<kwiver::vital::detected_object_type> self)
+  .def("get_most_likely_class", [](std::shared_ptr<kwiver::vital::class_map> self)
     {
       std::string max_name;
       double max_score;
       self->get_most_likely(max_name, max_score);
       return max_name;
     })
-  .def("get_most_likely_score", [](std::shared_ptr<kwiver::vital::detected_object_type> self)
+  .def("get_most_likely_score", [](std::shared_ptr<kwiver::vital::class_map> self)
     {
       std::string max_name;
       double max_score;
       self->get_most_likely(max_name, max_score);
       return max_score;
     })
-  .def("set_score", &kwiver::vital::detected_object_type::set_score,
+  .def("set_score", &kwiver::vital::class_map::set_score,
     py::arg("class_name"), py::arg("score"))
-  .def("delete_score", &kwiver::vital::detected_object_type::delete_score,
+  .def("delete_score", &kwiver::vital::class_map::delete_score,
     py::arg("class_name"))
-  .def("class_names", &kwiver::vital::detected_object_type::class_names,
-    py::arg("threshold")=kwiver::vital::detected_object_type::INVALID_SCORE)
-  .def_static("all_class_names", &kwiver::vital::detected_object_type::all_class_names)
+  .def("class_names", &kwiver::vital::class_map::class_names,
+    py::arg("threshold")=kwiver::vital::class_map::INVALID_SCORE)
+  .def_static("all_class_names", &kwiver::vital::class_map::all_class_names)
   ;
 }

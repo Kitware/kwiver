@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016, 2019 by Kitware, Inc.
+ * Copyright 2016, 2019, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,11 +30,11 @@
 
 /**
  * \file
- * \brief Interface for detected_object_type class
+ * \brief Interface for class_map class
  */
 
-#ifndef VITAL_DETECTED_OBJECT_TYPE_H_
-#define VITAL_DETECTED_OBJECT_TYPE_H_
+#ifndef VITAL_CLASS_MAP_H_
+#define VITAL_CLASS_MAP_H_
 
 #include <vital/vital_export.h>
 
@@ -69,7 +69,7 @@ namespace vital {
  * static string pool. Every effort has been made to make this pool
  * externally unmutable. Your cooperation is appreciated.
  */
-class VITAL_EXPORT detected_object_type
+class VITAL_EXPORT class_map
 {
 public:
   static const double INVALID_SCORE;
@@ -82,7 +82,7 @@ public:
    *
    * An object is created without class_names or scores.
    */
-  detected_object_type();
+  class_map();
 
   /**
    * @brief Create new object type class.
@@ -98,7 +98,7 @@ public:
    * @param scores Vector of scores for this object.*
    * @throws std::invalid_argument if the vector lengths differ
    */
-  detected_object_type( const std::vector< std::string >& class_names,
+  class_map( const std::vector< std::string >& class_names,
                         const std::vector< double >& scores );
 
   /**
@@ -110,7 +110,7 @@ public:
    * @param class_name Class name
    * @param score Probability score for the class
    */
-  detected_object_type( const std::string& class_name,
+  class_map( const std::string& class_name,
                         double score );
 
   /**
@@ -296,8 +296,8 @@ private:
 };
 
 // typedef for a object_type shared pointer
-using detected_object_type_sptr = std::shared_ptr< detected_object_type >;
-using detected_object_type_scptr = std::shared_ptr< detected_object_type const >;
+using class_map_sptr = std::shared_ptr< class_map >;
+using class_map_scptr = std::shared_ptr< class_map const >;
 
 } }
 

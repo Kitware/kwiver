@@ -106,10 +106,10 @@ TEST(detected_object, modification)
     0.005,
   };
 
-  auto const dot =
-    std::make_shared< kwiver::vital::detected_object_type >( names, scores );
-  dobj.set_type( dot );
-  EXPECT_EQ( dot, dobj.type() );
+  auto const cm =
+    std::make_shared< kwiver::vital::class_map >( names, scores );
+  dobj.set_type( cm );
+  EXPECT_EQ( cm, dobj.type() );
 
   kwiver::vital::bounding_box_d::vector_type offset{ 20, 10 };
   kwiver::vital::translate( bb, offset );

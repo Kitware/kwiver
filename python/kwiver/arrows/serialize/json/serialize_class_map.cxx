@@ -28,21 +28,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <python/kwiver/arrows/serialize/json/serialize_detected_object_type.h>
+#include <python/kwiver/arrows/serialize/json/serialize_class_map.h>
 #include <python/kwiver/arrows/serialize/json/serialize_utils.txx>
 
-#include <arrows/serialize/json/detected_object_type.h>
-#include <vital/types/detected_object_type.h>
+#include <arrows/serialize/json/class_map.h>
+#include <vital/types/class_map.h>
 #include <vital/any.h>
 
-void serialize_detected_object_type(py::module &m)
+void serialize_class_map(py::module &m)
 {
-  m.def("serialize_detected_object_type",
+  m.def("serialize_class_map",
         &kwiver::python::arrows::json::serialize<
-                          kwiver::vital::detected_object_type,
-                          kwiver::arrows::serialize::json::detected_object_type > );
-  m.def("deserialize_detected_object_type",
+                          kwiver::vital::class_map,
+                          kwiver::arrows::serialize::json::class_map > );
+  m.def("deserialize_class_map",
         &kwiver::python::arrows::json::deserialize<
-                          kwiver::vital::detected_object_type,
-                          kwiver::arrows::serialize::json::detected_object_type > );
+                          kwiver::vital::class_map,
+                          kwiver::arrows::serialize::json::class_map > );
 }

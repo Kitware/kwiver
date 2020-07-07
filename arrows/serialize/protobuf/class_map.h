@@ -28,11 +28,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-syntax = "proto2";
+#ifndef ARROWS_SERIALIZATION_PROTO_CLASS_MAP_H
+#define ARROWS_SERIALIZATION_PROTO_CLASS_MAP_H
 
-package kwiver.protobuf;
+#include <arrows/serialize/protobuf/kwiver_serialize_protobuf_export.h>
+#include <vital/algo/data_serializer.h>
 
-message detected_object_type {
-  repeated double score = 1;
-  repeated string name = 2;
-}
+namespace kwiver {
+namespace arrows {
+namespace serialize {
+namespace protobuf {
+
+class KWIVER_SERIALIZE_PROTOBUF_EXPORT class_map
+  : public vital::algo::data_serializer
+{
+public:
+  PLUGIN_INFO( "kwiver:class_map",
+               "Serializes a class_map using protobuf notation. "
+               "This implementation only handles a single data item." );
+
+  class_map();
+  virtual ~class_map();
+
+  std::shared_ptr< std::string > serialize( const vital::any& element ) override;
+  vital::any deserialize( const std::string& message ) override;
+};
+
+} } } }       // end namespace kwiver
+
+#endif // ARROWS_SERIALIZATION_PROTO_CLASS_MAP_H

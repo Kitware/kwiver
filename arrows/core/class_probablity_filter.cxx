@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -140,18 +140,18 @@ filter( const vital::detected_object_set_sptr input_set ) const
   for ( auto det = input_set->cbegin(); det != ie; ++det )
   {
     bool det_selected( false );
-    auto out_dot = std::make_shared<vital::detected_object_type>( );
+    auto out_cm = std::make_shared<vital::class_map>( );
 
     // Make sure that there is an associated DOT
-    auto input_dot = (*det)->type();
-    if ( ! input_dot )
+    auto input_cm = (*det)->type();
+    if ( ! input_cm )
     {
       // This is unexpected - maybe log something
       continue;
     }
 
     // Get list of class names that are above threshold
-    auto selected_names = input_dot->class_names( m_threshold );
+    auto selected_names = input_cm->class_names( m_threshold );
 
     // Loop over all selected class names
     for( const std::string& a_name : selected_names )
@@ -159,8 +159,8 @@ filter( const vital::detected_object_set_sptr input_set ) const
       if ( m_keep_all_classes || m_keep_classes.count( a_name ) )
       {
         // insert class-name/score into DOT
-        out_dot->set_score( a_name, input_dot->score( a_name ) );
-        LOG_TRACE( logger(), "Selecting class: " << a_name << "  score: " << input_dot->score( a_name ) );
+        out_cm->set_score( a_name, input_cm->score( a_name ) );
+        LOG_TRACE( logger(), "Selecting class: " << a_name << "  score: " << input_cm->score( a_name ) );
         det_selected = true;
       }
     } // end foreach class-name
@@ -171,7 +171,7 @@ filter( const vital::detected_object_set_sptr input_set ) const
     if (det_selected)
     {
       auto out_det = (*det)->clone();
-      out_det->set_type( out_dot );
+      out_det->set_type( out_cm );
       ret_set->add( out_det );
     }
   } // end foreach detection

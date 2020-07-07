@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2018 by Kitware, Inc.
+ * Copyright 2018, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,70 +28,85 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "detected_object_type.h"
+#include "class_map.h"
+#include "convert_protobuf.h"
 
-#include "load_save.h"
-
-#include <vital/types/detected_object_type.h>
-#include <vital/internal/cereal/cereal.hpp>
-#include <vital/internal/cereal/archives/json.hpp>
-
-#include <sstream>
+#include <vital/types/class_map.h>
+#include <vital/types/protobuf/class_map.pb.h>
+#include <vital/exceptions.h>
 
 namespace kwiver {
 namespace arrows {
 namespace serialize {
-namespace json {
+namespace protobuf {
 
 // ----------------------------------------------------------------------------
-detected_object_type::
-detected_object_type()
-{ }
+class_map::
+class_map()
+{
+  // Verify that the version of the library that we linked against is
+  // compatible with the version of the headers we compiled against.
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+}
 
 
-detected_object_type::
-~detected_object_type()
+class_map::
+~class_map()
 { }
 
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
-detected_object_type::
+class_map::
 serialize( const vital::any& element )
 {
-  kwiver::vital::detected_object_type dot =
-    kwiver::vital::any_cast< kwiver::vital::detected_object_type > ( element );
+  kwiver::vital::class_map cm =
+    kwiver::vital::any_cast< kwiver::vital::class_map > ( element );
 
-  std::stringstream msg;
-  msg << "detected_object_type ";
+  std::ostringstream msg;
+  msg << "class_map "; // add type tag
+
+  kwiver::protobuf::class_map proto_cm;
+  convert_protobuf( cm, proto_cm );
+
+  if ( ! proto_cm.SerializeToOstream( &msg ) )
   {
-    cereal::JSONOutputArchive ar( msg );
-    save( ar, dot );
+    VITAL_THROW( kwiver::vital::serialization_exception,
+                 "Error serializing detected_type from protobuf" );
   }
 
   return std::make_shared< std::string > ( msg.str() );
 }
 
 // ----------------------------------------------------------------------------
-vital::any detected_object_type::
+vital::any class_map::
 deserialize( const std::string& message )
 {
-  std::stringstream msg(message);
-  kwiver::vital::detected_object_type dot;
+  kwiver::vital::class_map cm;
+  std::istringstream msg( message );
+
   std::string tag;
   msg >> tag;
+  msg.get();  // Eat delimiter
 
-  if (tag != "detected_object_type" )
+  if (tag != "class_map" )
   {
-    LOG_ERROR( logger(), "Invalid data type tag received. Expected \"detected_object_type\", received \""
+    LOG_ERROR( logger(), "Invalid data type tag received. Expected \"class_map\", received \""
                << tag << "\". Message dropped." );
   }
   else
   {
-    cereal::JSONInputArchive ar( msg );
-    load( ar, dot );
+    // define our protobuf
+    kwiver::protobuf::class_map proto_cm;
+    if ( ! proto_cm.ParseFromIstream( &msg ) )
+    {
+      VITAL_THROW( kwiver::vital::serialization_exception,
+                   "Error deserializing detected_type from protobuf" );
+    }
+
+    convert_protobuf( proto_cm, cm );
   }
 
-  return kwiver::vital::any(dot);
+  return kwiver::vital::any(cm);
 }
 
-} } } }       // end namespace kwiver
+} } } } // end namespace

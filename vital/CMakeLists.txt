@@ -98,6 +98,7 @@ set( vital_public_headers
   types/camera_perspective_map.h
   types/camera_rpc.h
   types/category_hierarchy.h
+  types/class_map.h
   types/color.h
   types/covariance.h
   types/database_query.h
@@ -107,7 +108,6 @@ set( vital_public_headers
   types/detected_object.h
   types/detected_object_set.h
   types/detected_object_set_util.h
-  types/detected_object_type.h
   types/essential_matrix.h
   types/feature.h
   types/feature_set.h
@@ -177,6 +177,7 @@ set( vital_sources
   types/camera_perspective.cxx
   types/camera_rpc.cxx
   types/category_hierarchy.cxx
+  types/class_map.cxx
   types/database_query.cxx
   types/descriptor.cxx
   types/descriptor_request.cxx
@@ -184,7 +185,6 @@ set( vital_sources
   types/detected_object.cxx
   types/detected_object_set.cxx
   types/detected_object_set_util.cxx
-  types/detected_object_type.cxx
   types/essential_matrix.cxx
   types/feature.cxx
   types/feature_track_set.cxx
