@@ -238,7 +238,7 @@ add_detection()
 {
   kwiver::vital::class_map_sptr cm;
 
-  // Create DOT object if classifiers are present
+  // Create CM object if classifiers are present
   if ( m_input_buffer.size() > 7 )
   {
     cm = std::make_shared<kwiver::vital::class_map>();

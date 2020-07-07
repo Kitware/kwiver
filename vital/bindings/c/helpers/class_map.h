@@ -48,7 +48,7 @@ namespace vital_c {
 
 /// Declaration of C interface shared_ptr cache of vital::class_map
 extern SharedPointerCache< kwiver::vital::class_map,
-                           vital_class_map_t > DOT_SPTR_CACHE;
+                           vital_class_map_t > CM_SPTR_CACHE;
 
 } }
 

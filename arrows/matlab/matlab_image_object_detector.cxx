@@ -320,7 +320,7 @@ detect( kwiver::vital::image_container_sptr image_data) const
                                         detections->at<double>(i, (size_t) 2), // lr-x
                                         detections->at<double>(i, (size_t) 3) ); // lr-y
 
-    // Save classifications in DOT
+    // Save classifications in CM
     kwiver::vital::class_map_sptr cm;
     if ( class_rows ) // there are some classification details
     {
@@ -352,7 +352,7 @@ detect( kwiver::vital::image_container_sptr image_data) const
       } // end for cc
     }
 
-    // Save mask in DOT
+    // Save mask in DO
     auto detection = std::make_shared< kwiver::vital::detected_object >( bbox, detections->at<double>(i, 4), cm );
 
     if( mask_entries )

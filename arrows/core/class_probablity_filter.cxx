@@ -142,7 +142,7 @@ filter( const vital::detected_object_set_sptr input_set ) const
     bool det_selected( false );
     auto out_cm = std::make_shared<vital::class_map>( );
 
-    // Make sure that there is an associated DOT
+    // Make sure that there is an associated CM
     auto input_cm = (*det)->type();
     if ( ! input_cm )
     {
@@ -158,7 +158,7 @@ filter( const vital::detected_object_set_sptr input_set ) const
     {
       if ( m_keep_all_classes || m_keep_classes.count( a_name ) )
       {
-        // insert class-name/score into DOT
+        // insert class-name/score into CM
         out_cm->set_score( a_name, input_cm->score( a_name ) );
         LOG_TRACE( logger(), "Selecting class: " << a_name << "  score: " << input_cm->score( a_name ) );
         det_selected = true;
@@ -166,7 +166,7 @@ filter( const vital::detected_object_set_sptr input_set ) const
     } // end foreach class-name
 
     // It this detection has been selected, add it to output list
-    // Clone input detection and replace DOT.
+    // Clone input detection and replace CM.
     // Add to returned set
     if (det_selected)
     {

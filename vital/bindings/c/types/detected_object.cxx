@@ -63,7 +63,7 @@ vital_detected_object_t* vital_detected_object_new_with_bbox( vital_bounding_box
 
     if( cm != NULL )
     {
-      cm_sptr = kwiver::vital_c::DOT_SPTR_CACHE.get( cm );
+      cm_sptr = kwiver::vital_c::CM_SPTR_CACHE.get( cm );
     }
 
     kwiver::vital::bounding_box_d& bbox_ref =

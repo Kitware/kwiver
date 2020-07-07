@@ -58,14 +58,14 @@ std::shared_ptr< std::string >
 class_map::
 serialize( const vital::any& element )
 {
-  kwiver::vital::class_map dot =
+  kwiver::vital::class_map cm =
     kwiver::vital::any_cast< kwiver::vital::class_map > ( element );
 
   std::stringstream msg;
   msg << "class_map ";
   {
     cereal::JSONOutputArchive ar( msg );
-    save( ar, dot );
+    save( ar, cm );
   }
 
   return std::make_shared< std::string > ( msg.str() );
@@ -76,7 +76,7 @@ vital::any class_map::
 deserialize( const std::string& message )
 {
   std::stringstream msg(message);
-  kwiver::vital::class_map dot;
+  kwiver::vital::class_map cm;
   std::string tag;
   msg >> tag;
 
@@ -88,10 +88,10 @@ deserialize( const std::string& message )
   else
   {
     cereal::JSONInputArchive ar( msg );
-    load( ar, dot );
+    load( ar, cm );
   }
 
-  return kwiver::vital::any(dot);
+  return kwiver::vital::any(cm);
 }
 
 } } } }       // end namespace kwiver

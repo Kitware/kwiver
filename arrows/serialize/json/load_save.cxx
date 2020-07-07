@@ -99,10 +99,10 @@ void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::detected
     );
 
   // This pointer may be null
-  const auto dot_ptr = const_cast< ::kwiver::vital::detected_object& >(obj).type();
-  if ( dot_ptr )
+  const auto cm_ptr = const_cast< ::kwiver::vital::detected_object& >(obj).type();
+  if ( cm_ptr )
   {
-    save( archive, *dot_ptr );
+    save( archive, *cm_ptr );
   }
   else
   {
