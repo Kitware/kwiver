@@ -5,7 +5,6 @@ include_directories( ${ZLIB_INCLUDE_DIRS} )
 
 set( headers_public
   activity.h
-  activity_type.h
   bounding_box.h
   class_map.h
   detected_object.h
@@ -31,7 +30,6 @@ set( private_headers
 
 set( sources
   activity.cxx
-  activity_type.cxx
   bounding_box.cxx
   class_map.cxx
   detected_object.cxx

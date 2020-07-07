@@ -37,7 +37,6 @@
 #include <vital/algo/algorithm_factory.h>
 
 #include "activity.h"
-#include "activity_type.h"
 #include "bounding_box.h"
 #include "class_map.h"
 #include "detected_object.h"
@@ -73,7 +72,6 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   using namespace kwiver::arrows::serialize::json;
 
   reg.register_algorithm< activity >();
-  reg.register_algorithm< activity_type >();
   reg.register_algorithm< bounding_box >();
   reg.register_algorithm< class_map >();
   reg.register_algorithm< detected_object >();

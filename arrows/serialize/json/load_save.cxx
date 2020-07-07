@@ -45,7 +45,6 @@
 #include <vital/types/track_set.h>
 #include <vital/types/object_track_set.h>
 #include <vital/vital_types.h>
-#include <vital/types/activity_type.h>
 #include <vital/types/activity.h>
 
 #include <vital/util/hex_dump.h>
@@ -620,30 +619,6 @@ void load( ::cereal::JSONInputArchive& archive,
 }
 
 void save( cereal::JSONOutputArchive& archive,
-         const kwiver::vital::activity_type& atype )
-{
-  std::map< kwiver::vital::activity_label_t, kwiver::vital::activity_confidence_t > class_map_content;
-  for ( auto entry : atype )
-  {
-    class_map_content[entry.first] = entry.second;
-  }
-
-  archive( CEREAL_NVP( class_map_content ) );
-}
-
-void load( cereal::JSONInputArchive& archive,
-         kwiver::vital::activity_type& atype )
-{
-  std::map< kwiver::vital::activity_label_t, kwiver::vital::activity_confidence_t > class_map_content;
-  archive( CEREAL_NVP( class_map_content ) );
-
-  for ( auto entry : class_map_content )
-  {
-    atype.set_score( entry.first, entry.second );
-  }
-}
-
-void save( cereal::JSONOutputArchive& archive,
          const kwiver::vital::activity& activity )
 {
     archive( ::cereal::make_nvp( "id", activity.id() ),
@@ -661,8 +636,8 @@ void load( cereal::JSONInputArchive& archive,
   kwiver::vital::activity_id_t id;
   kwiver::vital::activity_label_t label;
   kwiver::vital::activity_confidence_t confidence;
-  kwiver::vital::activity_type_sptr activity_type =
-                           std::make_shared< kwiver::vital::activity_type >();
+  kwiver::vital::class_map_sptr class_map =
+                           std::make_shared< kwiver::vital::class_map >();
   kwiver::vital::object_track_set_sptr participants =
                            std::make_shared< kwiver::vital::object_track_set >();
   kwiver::vital::timestamp start_frame, end_frame;
@@ -671,12 +646,12 @@ void load( cereal::JSONInputArchive& archive,
            CEREAL_NVP( confidence ) );
   load( archive, start_frame );
   load( archive, end_frame );
-  load( archive, *activity_type );
+  load( archive, *class_map );
   load( archive, *participants );
   activity.set_id( id );
   activity.set_label( label );
   activity.set_confidence( confidence );
-  activity.set_activity_type( activity_type );
+  activity.set_activity_type( class_map );
   activity.set_start( start_frame );
   activity.set_end( end_frame );
   activity.set_participants( participants );

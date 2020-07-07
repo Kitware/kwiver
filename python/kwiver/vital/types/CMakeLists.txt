@@ -23,16 +23,12 @@ target_link_libraries(python-vital.types-types
   PUBLIC ${PYTHON_LIBRARIES}
          vital)
 
-kwiver_add_python_library(activity_types
+kwiver_add_python_library(activity
   vital/types
-  activity.h
-  activity_type.h
   activity.cxx
-  activity_type.cxx
-  activity_types_module.cxx
   )
 
-target_link_libraries(python-vital.types-activity_types
+target_link_libraries(python-vital.types-activity
   PUBLIC ${PYTHON_LIBRARIES}
          vital)
 
@@ -193,6 +189,7 @@ target_link_libraries(python-vital.types-object_track_set
 if(NOT SKBUILD)
   kwiver_create_python_init(vital/types
     types
+    activity
     bounding_box
     camera
     camera_intrinsics
@@ -214,6 +211,5 @@ if(NOT SKBUILD)
     track
     track_set
     object_track_set
-    activity_types
   )
 endif()

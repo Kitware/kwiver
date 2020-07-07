@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from kwiver.vital.types.types import *
+from kwiver.vital.types.activity import *
 from kwiver.vital.types.bounding_box import *
 from kwiver.vital.types.camera import *
 from kwiver.vital.types.camera_intrinsics import *
@@ -22,4 +23,3 @@ from kwiver.vital.types.timestamp import *
 from kwiver.vital.types.track import *
 from kwiver.vital.types.track_set import *
 from kwiver.vital.types.object_track_set import *
-from kwiver.vital.types.activity_types import *
