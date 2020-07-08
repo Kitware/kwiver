@@ -6,7 +6,7 @@
 
 **camera_map** - Defines the interface base class camera_map and the subclass simple_camera_map, which allow representation of a group of camera instances.
 
-**class_map** - 
+**class_map** - Represents a map of classifications to confidence scores for an object.
 
 **color** - Defines the rgb_color struct, which captures the red, green, and blue values of a single pixel.
 

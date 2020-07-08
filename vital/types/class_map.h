@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016, 2019, 2020 by Kitware, Inc.
+ * Copyright 2016, 2019-2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,10 +49,10 @@ namespace vital {
 
 // ----------------------------------------------------------------
 /**
- * @brief Detected object type classification.
+ * @brief Map of classifications to confidence scores for an object.
  *
- * This class represents a set of possible types for the detected
- * object. A type for an object is represented by a class_name string
+ * This class represents a set of possible types for an object.
+ * A type for an object is represented by a class_name string
  * and a score.
  *
  * When an object is classified, there may be several possibilities
@@ -129,7 +129,7 @@ public:
    * @brief Get score for specific class_name.
    *
    * This method returns the score for the specified class_name.  If
-   * the name is associated with this object, an exception is
+   * the name is not associated with this object, an exception is
    * thrown.
    *
    * @param class_name Return score for this entry.
@@ -146,13 +146,13 @@ public:
    *
    * This method returns the most likely class for this object.
    *
-   * If there are no scores associated with this detection, then an
+   * If there are no scores associated with this object, then an
    * exception is thrown
    *
    * @param[out] max_name Class name with the maximum score.
    *
    * @throws std::runtime_error If no scores are associated with this
-   *                            detection.
+   *                            object.
    */
   void get_most_likely( std::string& max_name ) const;
 
@@ -162,14 +162,14 @@ public:
    * This method returns the maximum score or the most likely class
    * for this object. The score value and class_name are returned.
    *
-   * If there are no scores associated with this detection, then an
+   * If there are no scores associated with this object, then an
    * exception is thrown
    *
    * @param[out] max_name Class name with the maximum score.
    * @param[out] max_score maximum score
    *
    * @throws std::runtime_error If no scores are associated with this
-   *                            detection.
+   *                            object.
    */
   void get_most_likely( std::string& max_name, double& max_score ) const;
 
@@ -192,7 +192,7 @@ public:
    * @brief Remove score and class_name.
    *
    * This method removes the type entry for the specified
-   * class_name. An exception is thrown if this detected object type
+   * class_name. An exception is thrown if this object type
    * does not have that class_name.
    *
    * @param label Class name to remove.
@@ -203,10 +203,10 @@ public:
   void delete_score( const std::string& class_name );
 
   /**
-   * @brief Get list of class_names for this detection.
+   * @brief Get list of class_names for this object.
    *
    * This method returns a vector of class_names that apply to this
-   * detection. The names are ordered by decreasing score. If an
+   * object. The names are ordered by decreasing score. If an
    * optional threshold value is supplied, then names with a score
    * not less than that value are included in the returned list.
    *
@@ -295,7 +295,7 @@ private:
   static std::mutex s_table_mutex;
 };
 
-// typedef for a object_type shared pointer
+// typedef for a class_map shared pointer
 using class_map_sptr = std::shared_ptr< class_map >;
 using class_map_scptr = std::shared_ptr< class_map const >;
 
