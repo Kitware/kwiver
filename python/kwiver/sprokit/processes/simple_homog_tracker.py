@@ -340,7 +340,7 @@ class SimpleHomogTracker(KwiverProcess):
         self._base_step()
 
 def __sprokit_register__():
-    from sprokit.pipeline import process_factory
+    from kwiver.sprokit.pipeline import process_factory
     module_name = 'python:kwiver.python.SimpleHomogTracker'
     if process_factory.is_process_module_loaded(module_name):
         return
