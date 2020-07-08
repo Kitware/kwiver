@@ -189,7 +189,6 @@ target_link_libraries(python-vital.types-object_track_set
 if(NOT SKBUILD)
   kwiver_create_python_init(vital/types
     types
-    activity
     bounding_box
     camera
     camera_intrinsics
@@ -211,5 +210,6 @@ if(NOT SKBUILD)
     track
     track_set
     object_track_set
+    activity
   )
 endif()

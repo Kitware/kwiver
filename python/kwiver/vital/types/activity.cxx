@@ -30,8 +30,8 @@
 
 #include <vital/vital_types.h>
 #include <vital/types/activity.h>
-#include <vital/types/object_track_set.h>
 
+#include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
 namespace py = pybind11;
