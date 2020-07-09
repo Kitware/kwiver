@@ -106,8 +106,6 @@ TEST( serialize, class_map )
   kwiver::vital::any cm_any( cm );
   auto mes = cm_ser.serialize( cm_any );
 
-  // std::cout << "Serialized cm: \"" << *mes << "\"\n";
-
   auto dser = cm_ser.deserialize( *mes );
   kwiver::vital::class_map cm_dser =
     kwiver::vital::any_cast< kwiver::vital::class_map >( dser );
@@ -150,8 +148,6 @@ TEST( serialize, detected_object )
   kwiver::vital::any obj_any( *obj );
   auto mes = obj_ser.serialize( obj_any );
 
-  // std::cout << "Serialized cm: \"" << *mes << "\"\n";
-
   auto dser = obj_ser.deserialize( *mes );
   auto obj_dser = kwiver::vital::any_cast< kwiver::vital::detected_object_sptr >( dser );
 
@@ -179,7 +175,7 @@ TEST( serialize, detected_object )
     EXPECT_EQ( obj_kp, dser_kp );
   }
 
-  // detected object type
+  // class map
   cm = obj->type();
   if (cm)
   {
@@ -223,8 +219,6 @@ TEST( serialize, detected_object_set )
 
   kwiver::vital::any obj_any( ser_dos_sptr );
   auto mes = obj_ser.serialize( obj_any );
-
-  // std::cout << "Serialized cm: \"" << *mes << "\"\n";
 
   auto dser = obj_ser.deserialize( *mes );
   auto deser_dos_sptr = kwiver::vital::any_cast< kwiver::vital::detected_object_set_sptr >( dser );
