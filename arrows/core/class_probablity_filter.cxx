@@ -146,7 +146,8 @@ filter( const vital::detected_object_set_sptr input_set ) const
     auto input_cm = (*det)->type();
     if ( ! input_cm )
     {
-      // This is unexpected - maybe log something
+      // This is unexpected
+      LOG_WARN( logger(), "No class_map associated with a detected object" );
       continue;
     }
 
