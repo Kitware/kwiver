@@ -1,5 +1,5 @@
-/*ckwg +30
- * Copyright 2020 by Kitware, Inc.
+/*ckwg +29
+ * Copyright 2016-2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,121 +12,124 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be
- *    used to endorse or promote products derived from this software without
- *    specific prior written permission.
+ *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
+ *    to endorse or promote products derived from this software without specific
+ *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 /**
  * \file
- * \brief Header for an activity type
+ * \brief Interface for class_map class
  */
 
-#ifndef VITAL_TYPES_ACTIVITY_TYPE_H_
-#define VITAL_TYPES_ACTIVITY_TYPE_H_
+#ifndef VITAL_CLASS_MAP_H_
+#define VITAL_CLASS_MAP_H_
 
 #include <vital/vital_export.h>
-#include <vital/vital_types.h>
 
 #include <vector>
 #include <map>
 #include <set>
 #include <memory>
-#include <utility>
+#include <mutex>
 
 namespace kwiver {
 namespace vital {
 
 // ----------------------------------------------------------------
 /**
- * @brief Activity type classification.
+ * @brief Map of classifications to confidence scores for an object.
  *
- * This class represents a set of possible types for the activity.
- * A type for an activity is represented by a class_name string
+ * This class represents a set of possible types for an object.
+ * A type for an object is represented by a class_name string
  * and a score.
  *
- * When an activity is classified, there may be several possibilities
+ * When an object is classified, there may be several possibilities
  * determined, since the classification process is probabilistic. This
  * class captures the set of possible types along with the relative
- * likelihood or score.
+ * likelyhood or score.
  *
- * Note that score values in are *not* constrained to
+ * Note that score values in this object are *not* constrained to
  * [0.0,1.0] because different detectors use different approaches for
  * scores. These scores can be normalized, but that is up to the user
  * of these values.
+ *
+ * Note that the list of possible names is managed through a class
+ * static string pool. Every effort has been made to make this pool
+ * externally unmutable. Your cooperation is appreciated.
  */
-
-class VITAL_EXPORT activity_type
+class VITAL_EXPORT class_map
 {
 public:
-  using class_map_t = std::map< activity_label_t const, activity_confidence_t >;
+  static const double INVALID_SCORE;
+
+  using class_map_t = std::map< std::string const*, double >;
   using class_const_iterator_t = class_map_t::const_iterator;
 
   /**
-   * @brief Create an empty activity type.
+   * @brief Create an empty object.
    *
    * An object is created without class_names or scores.
    */
-  activity_type();
+  class_map();
 
   /**
-   * @brief Create an activity type with multiple class names and scores.
+   * @brief Create new object type class.
    *
-   * Create a new activity type instance with a set of labels and
-   * likelihoods. The parameters have corresponding ordering, which
-   * means that the first label is for the first likelihood , and so
+   * Create a new object type instance with a set of labels and
+   * likelyhoods. The parameters have corresponding ordering, which
+   * means that the first label is for the first likelyhood , and so
    * on.
    *
    * The number of elements in the parameter vectors must be the same.
    *
    * @param class_names List of names for the possible classes.
-   * @param scores Vector of scores for this activity type.*
+   * @param scores Vector of scores for this object.*
    * @throws std::invalid_argument if the vector lengths differ
    */
-  activity_type( const std::vector< activity_label_t >& class_names,
-                 const std::vector< activity_confidence_t >& scores );
+  class_map( const std::vector< std::string >& class_names,
+             const std::vector< double >& scores );
 
   /**
-   * @brief Create new activity type a class and a score.
+   * @brief Create new object type class.
    *
-   * Create a new activty type instance from a single class name
+   * Create a new object type instance from a single class name
    * and label.
    *
    * @param class_name Class name
    * @param score Probability score for the class
    */
-  activity_type( const activity_label_t& class_name,
-                 activity_confidence_t score );
+  class_map( const std::string& class_name,
+             double score );
 
   /**
    * @brief Determine if class-name is present.
    *
    * This method determines if the specified class name is present in
-   * this activity.
+   * this object.
    *
    * @param class_name Class name to test.
    *
    * @return \b true if class name is present.
    */
-  bool has_class_name( const activity_label_t& class_name ) const;
+  bool has_class_name( const std::string& class_name ) const;
 
   /**
    * @brief Get score for specific class_name.
    *
    * This method returns the score for the specified class_name.  If
-   * the name is not associated with this activity type, an exception is
+   * the name is not associated with this object, an exception is
    * thrown.
    *
    * @param class_name Return score for this entry.
@@ -136,40 +139,39 @@ public:
    *
    * @return Score for selected class_name.
    */
-  double score( const activity_label_t& class_name ) const;
+  double score( const std::string& class_name ) const;
 
   /**
-   * @brief Get class name with the highest score.
+   * @brief Get max class name.
    *
-   * This method returns the class name with the highest score.
+   * This method returns the most likely class for this object.
    *
-   * If there are no scores associated with activity type, then an
+   * If there are no scores associated with this object, then an
    * exception is thrown
    *
-   * @return Class with highest score.
+   * @param[out] max_name Class name with the maximum score.
    *
    * @throws std::runtime_error If no scores are associated with this
-   *                            activity type.
+   *                            object.
    */
-  const activity_label_t get_most_likely_class( ) const;
+  void get_most_likely( std::string& max_name ) const;
 
   /**
-   * @brief Get class name along with the score of the class with highest score
+   * @brief Get max score and name.
    *
-   * This method returns a pair containing the class name and the score of the
-   * class with the highest score.
+   * This method returns the maximum score or the most likely class
+   * for this object. The score value and class_name are returned.
    *
-   * If there are no scores associated with this activity type, then an
+   * If there are no scores associated with this object, then an
    * exception is thrown
    *
-   * @return A pair with the class name as the first element and the score as
-   *         the second element
+   * @param[out] max_name Class name with the maximum score.
+   * @param[out] max_score maximum score
    *
    * @throws std::runtime_error If no scores are associated with this
-   *                            activity type.
+   *                            object.
    */
-  std::pair<activity_label_t, activity_confidence_t>
-    get_most_likely_class_and_score( ) const;
+  void get_most_likely( std::string& max_name, double& max_score ) const;
 
   /**
    * @brief Set score for a class.
@@ -184,13 +186,13 @@ public:
    * @param class_name Class name.
    * @param score Score value for class_name
    */
-  void set_score( const activity_label_t& class_name, activity_confidence_t score );
+  void set_score( const std::string& class_name, double score );
 
   /**
    * @brief Remove score and class_name.
    *
    * This method removes the type entry for the specified
-   * class_name. An exception is thrown if this activity type
+   * class_name. An exception is thrown if this object type
    * does not have that class_name.
    *
    * @param label Class name to remove.
@@ -198,32 +200,34 @@ public:
    * @throws std::runtime_error If supplied class_name is not
    * associated with this object.
    */
-  void delete_score( const activity_label_t& class_name );
+  void delete_score( const std::string& class_name );
 
   /**
-   * @brief Get list of class_names for this detection.
+   * @brief Get list of class_names for this object.
    *
-   * This method returns a vector of class_names that apply to the
-   * activity type with a score that is greater than or equal to the threshold.
-   * The names are ordered by decreasing score.
+   * This method returns a vector of class_names that apply to this
+   * object. The names are ordered by decreasing score. If an
+   * optional threshold value is supplied, then names with a score
+   * not less than that value are included in the returned list.
    *
-   * @param threshold Labels with a score below this value are omitted from
-   *                  the returned list.
+   * @param threshold If a value is supplied, labels with a score
+   *                  below this value are omitted from the returned list.
    *
    * @return Ordered list of class_names. Note that the list may be empty.
    */
-  std::vector< activity_label_t > class_names( activity_confidence_t threshold ) const;
+  std::vector< std::string > class_names( double threshold = INVALID_SCORE ) const;
 
   /**
-   * @brief Get number of class names on this activity type.
+   * @brief Get number of class names on this object.
    *
    * This method returns the number of class names that are in this
-   * activity type.
+   * object type.
    *
    * @return Number of registered class names.
    */
   size_t size() const;
 
+  //@{
   /**
    * @brief Get start iterator to all class/score pairs.
    *
@@ -236,7 +240,10 @@ public:
    * @sa end
    */
   class_const_iterator_t begin() const;
+  class_const_iterator_t cbegin() const;
+  //@}
 
+  //@{
   /**
    * @brief Get end iterator to all class/score pairs.
    *
@@ -248,6 +255,8 @@ public:
    * @sa begin
    */
   class_const_iterator_t end() const;
+  class_const_iterator_t cend() const;
+  //@}
 
   /**
    * @brief Get list of all class_names in use.
@@ -259,9 +268,11 @@ public:
    *
    * @return Vector of class names.
    */
-  std::vector < activity_label_t > all_class_names();
+  static std::vector < std::string > all_class_names();
 
 private:
+  const std::string* find_string( const std::string& str ) const;
+
   /**
    * Set of possible classes for this object.
    *
@@ -270,10 +281,23 @@ private:
    */
   class_map_t m_classes;
 
+  /**
+   * @brief Set of all class_names used.
+   *
+   * This set of strings represents the superset of all class_names
+   * used to classify objects. Strings are added to this set when a
+   * previously unseen class_name is passed to the CTOR or
+   * set_score().
+   */
+  static std::set< std::string > s_master_name_set;
+
+  // Used to control access to shared resources
+  static std::mutex s_table_mutex;
 };
 
-// typedef for a object_type shared pointer
-typedef std::shared_ptr< activity_type > activity_type_sptr;
+// typedef for a class_map shared pointer
+using class_map_sptr = std::shared_ptr< class_map >;
+using class_map_scptr = std::shared_ptr< class_map const >;
 
 } }
 
