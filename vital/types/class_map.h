@@ -99,7 +99,7 @@ public:
    * @throws std::invalid_argument if the vector lengths differ
    */
   class_map( const std::vector< std::string >& class_names,
-                        const std::vector< double >& scores );
+             const std::vector< double >& scores );
 
   /**
    * @brief Create new object type class.
@@ -111,7 +111,7 @@ public:
    * @param score Probability score for the class
    */
   class_map( const std::string& class_name,
-                        double score );
+             double score );
 
   /**
    * @brief Determine if class-name is present.
