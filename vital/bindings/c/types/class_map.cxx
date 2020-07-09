@@ -79,9 +79,9 @@ void vital_class_map_destroy(vital_class_map_t* obj)
 
 // ------------------------------------------------------------------
 vital_class_map_t* vital_class_map_new_from_list( vital_class_map_t* obj,
-                                                                        size_t count,
-                                                                        char** class_names,
-                                                                        double* scores)
+                                                  size_t count,
+                                                  char** class_names,
+                                                  double* scores )
 {
   STANDARD_CATCH(
     "C::class_map:new_from_list", 0,
@@ -156,8 +156,8 @@ double vital_class_map_get_most_likely_score( vital_class_map_t* obj )
 
 // ------------------------------------------------------------------
 void vital_class_map_set_score( vital_class_map_t* obj,
-                                           char* class_name,
-                                           double score)
+                                char* class_name,
+                                double score )
 {
   STANDARD_CATCH(
     "C::class_map:set_score", 0,
@@ -168,7 +168,7 @@ void vital_class_map_set_score( vital_class_map_t* obj,
 
 // ------------------------------------------------------------------
 void vital_class_map_delete_score( vital_class_map_t* obj,
-                                              char* class_name)
+                                   char* class_name)
 {
   STANDARD_CATCH(
     "C::class_map:delete_score", 0,
@@ -179,7 +179,7 @@ void vital_class_map_delete_score( vital_class_map_t* obj,
 
 // ------------------------------------------------------------------
 char** vital_class_map_class_names( vital_class_map_t* obj,
-                                               double thresh )
+                                    double thresh )
 {
   STANDARD_CATCH(
     "C::class_map:class_names", 0,
