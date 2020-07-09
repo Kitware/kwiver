@@ -35,6 +35,7 @@
 
 #include <gtest/gtest.h>
 
+#include <arrows/serialize/protobuf/activity.h>
 #include <arrows/serialize/protobuf/bounding_box.h>
 #include <arrows/serialize/protobuf/class_map.h>
 #include <arrows/serialize/protobuf/detected_object.h>
@@ -49,6 +50,7 @@
 #include <arrows/serialize/protobuf/object_track_set.h>
 #include <arrows/serialize/protobuf/convert_protobuf.h>
 
+#include <vital/types/activity.h>
 #include <vital/types/bounding_box.h>
 #include <vital/types/detected_object_set.h>
 #include <vital/types/class_map.h>

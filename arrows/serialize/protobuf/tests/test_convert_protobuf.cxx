@@ -33,6 +33,7 @@
 #include <arrows/serialize/protobuf/convert_protobuf.h>
 #include <arrows/serialize/protobuf/convert_protobuf_point.h>
 
+#include <vital/types/activity.h>
 #include <vital/types/bounding_box.h>
 #include <vital/types/class_map.h>
 #include <vital/types/detected_object.h>
@@ -50,6 +51,7 @@
 #include <vital/types/track_set.h>
 #include <vital/vital_types.h>
 
+#include <vital/types/protobuf/activity.pb.h>
 #include <vital/types/protobuf/bounding_box.pb.h>
 #include <vital/types/protobuf/class_map.pb.h>
 #include <vital/types/protobuf/detected_object.pb.h>
@@ -78,6 +80,99 @@ int main(int argc, char** argv)
 {
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
+}
+
+// ----------------------------------------------------------------------------
+TEST( convert_protobuf, activity_default )
+{
+  // This tests the behavior when participants
+  // and class_map are set to NULL
+  kwiver::vital::activity act;
+
+  kwiver::protobuf::activity act_proto;
+  kwiver::vital::activity act_dser;
+
+  kasp::convert_protobuf( act, act_proto );
+  // kasp::convert_protobuf( act_proto, act_dser );
+
+  // // Check members
+  // EXPECT_EQ( act.id(), act_dser.id() );
+  // EXPECT_EQ( act.label(), act_dser.label() );
+  // EXPECT_EQ( act.activity_type(), act_dser.activity_type() );
+  // EXPECT_EQ( act.participants(), act_dser.participants() );
+  // EXPECT_DOUBLE_EQ( act.confidence(), act_dser.confidence() );
+
+  // // Timestamps are invalid so can't do a direct comparison
+  // auto start = act.start();
+  // auto end = act.end();
+  // auto start_dser = act_dser.start();
+  // auto end_dser = act_dser.end();
+
+  // EXPECT_EQ( start.get_time_seconds(), start_dser.get_time_seconds() );
+  // EXPECT_EQ( start.get_frame(), start_dser.get_frame() );
+  // EXPECT_EQ( start.get_time_domain_index(), start_dser.get_time_domain_index() );
+
+  // EXPECT_EQ( end.get_time_seconds(), end_dser.get_time_seconds() );
+  // EXPECT_EQ( end.get_frame(), end_dser.get_frame() );
+  // EXPECT_EQ( end.get_time_domain_index(), end_dser.get_time_domain_index() );
+}
+
+// ----------------------------------------------------------------------------
+TEST( convert_protobuf, activity )
+{
+  auto cm_sptr = std::make_shared< kwiver::vital::class_map >();
+  cm_sptr->set_score( "first", 1 );
+  cm_sptr->set_score( "second", 10 );
+  cm_sptr->set_score( "third", 101 );
+
+  // Create object_track_set consisting of
+  // 1 track_sptr with 10 track states
+  auto track_sptr = kwiver::vital::track::create();
+  track_sptr->set_id( 1 );
+  for ( int i = 0; i < 10; i++ )
+  {
+    kwiver::vital::bounding_box_d bbox { 10.0 + i, 10.0 + i, 20.0 + i, 20.0 + i };
+    auto dobj_cm_sptr = std::make_shared< kwiver::vital::class_map >();
+    dobj_cm_sptr->set_score( "key", i / 10.0 );
+    auto dobj_sptr = std::make_shared< kwiver::vital::detected_object >( bbox, i / 10.0, dobj_cm_sptr );
+    auto ots_sptr = std::make_shared< kwiver::vital::object_track_state >( i, i, dobj_sptr );
+    track_sptr->append( ots_sptr );
+  }
+
+  std::vector< kwiver::vital::track_sptr > tracks = { track_sptr };
+  auto obj_trk_set_sptr = std::make_shared< kwiver::vital::object_track_set >( tracks );
+
+  // Now both timestamps
+  kwiver::vital::timestamp start { 1, 1 } ;
+  kwiver::vital::timestamp end { 2, 2 };
+
+  // Now construct activity
+  kwiver::vital::activity act( 5, "test_label", 3.1415, cm_sptr, start, end, obj_trk_set_sptr );
+
+  kwiver::protobuf::activity act_proto;
+  kwiver::vital::activity act_dser;
+
+  kasp::convert_protobuf( act, act_proto );
+  kasp::convert_protobuf( act_proto, act_dser );
+
+  // Now check equality
+  EXPECT_EQ( act.id(), act_dser.id() );
+  EXPECT_EQ( act.label(), act_dser.label() );
+  EXPECT_DOUBLE_EQ( act.confidence(), act_dser.confidence() );
+  EXPECT_EQ( act.start(), act_dser.start() );
+  EXPECT_EQ( act.end(), act_dser.end() );
+
+  // Check values in the retrieved class map
+  cm_sptr = act.activity_type();
+  auto const cm_dser_sptr = act_dser.activity_type();
+  EXPECT_EQ( cm_sptr->size(), cm_dser_sptr->size() );
+  EXPECT_DOUBLE_EQ( cm_sptr->score( "first" ), cm_dser_sptr->score( "first" ) );
+  EXPECT_DOUBLE_EQ( cm_sptr->score( "second" ), cm_dser_sptr->score( "second" ) );
+  EXPECT_DOUBLE_EQ( cm_sptr->score( "third" ), cm_dser_sptr->score( "third" ) );
+
+  // Now the object_track_set
+  auto const parts = act.participants();
+  auto const part_dser = act_dser.participants();
 }
 
 // ----------------------------------------------------------------------------
