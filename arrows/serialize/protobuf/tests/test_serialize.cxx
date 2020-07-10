@@ -687,7 +687,7 @@ TEST( serialize, track )
 }
 
 // ---------------------------------------------------------------------------
-TEST( convert_protobuf, track_set )
+TEST( serialize, track_set )
 {
   auto trk_set_sptr = std::make_shared< kwiver::vital::track_set >();
   for ( kwiver::vital::track_id_t trk_id=1; trk_id<5; ++trk_id )
