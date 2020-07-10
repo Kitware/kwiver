@@ -27,7 +27,7 @@ kwiver_add_library( kwiver_algo_mie4nitf
 
 target_link_libraries( kwiver_algo_mie4nitf
   PUBLIC               kwiver_algo_core
-  PRIVATE              kwiversys kwiver_algo_gdal ${LIBXML2_LIBRARIES}
+  PRIVATE              kwiversys kwiver_algo_gdal vul ${LIBXML2_LIBRARIES}
   )
 
 algorithms_create_plugin( kwiver_algo_mie4nitf
