@@ -132,14 +132,14 @@ void convert_protobuf( const ::kwiver::vital::activity& act,
   *proto_act.mutable_start_frame() = proto_start_frame;
   *proto_act.mutable_end_frame() = proto_end_frame;
 
-  // auto cm_sptr = act.activity_type();
-  // // Now check if optional fields can be set
-  // if ( auto cm_sptr = act.activity_type() )
-  // {
-  //   ::kwiver::protobuf::class_map proto_cm;
-  //   convert_protobuf( *cm_sptr, proto_cm );
-  //   *proto_act.mutable_classifications() = proto_cm;
-  // }
+  auto cm_sptr = act.activity_type();
+  // Now check if optional fields can be set
+  if ( auto cm_sptr = act.activity_type() )
+  {
+    ::kwiver::protobuf::class_map proto_cm;
+    convert_protobuf( *cm_sptr, proto_cm );
+    *proto_act.mutable_classifications() = proto_cm;
+  }
 
   if ( auto obj_trk_set_sptr = act.participants() )
   {
