@@ -77,7 +77,7 @@ TEST( load_save, activity_default )
 {
   // This tests the behavior when participants
   // and class_map are set to NULL
-  kwiver::vital::activity act;
+  auto const act = kwiver::vital::activity{};
   std::stringstream msg;
   {
     cereal::JSONOutputArchive ar( msg );
@@ -94,7 +94,8 @@ TEST( load_save, activity_default )
   auto const end_in = kwiver::vital::timestamp { 2, 2 };
   auto const part_in = std::make_shared< kwiver::vital::object_track_set >();
 
-  auto act_dser = kwiver::vital::activity { 5, "label", 3.14, cm_in, start_in, end_in, part_in };
+  auto act_dser =
+    kwiver::vital::activity { 5, "label", 3.14, cm_in, start_in, end_in, part_in };
   {
     cereal::JSONInputArchive ar( msg );
     cereal::load( ar, act_dser );
@@ -108,10 +109,10 @@ TEST( load_save, activity_default )
   EXPECT_DOUBLE_EQ( act.confidence(), act_dser.confidence() );
 
   // Timestamps are invalid so can't do a direct comparison
-  auto start = act.start();
-  auto end = act.end();
-  auto start_dser = act_dser.start();
-  auto end_dser = act_dser.end();
+  auto const start = act.start();
+  auto const end = act.end();
+  auto const start_dser = act_dser.start();
+  auto const end_dser = act_dser.end();
 
   EXPECT_EQ( start.get_time_seconds(), start_dser.get_time_seconds() );
   EXPECT_EQ( start.get_frame(), start_dser.get_frame() );
@@ -136,23 +137,32 @@ TEST( load_save, activity )
   track_sptr->set_id( 1 );
   for ( int i = 0; i < 10; i++ )
   {
-    kwiver::vital::bounding_box_d bbox { 10.0 + i, 10.0 + i, 20.0 + i, 20.0 + i };
+    auto const bbox =
+      kwiver::vital::bounding_box_d{ 10.0 + i, 10.0 + i, 20.0 + i, 20.0 + i };
+
     auto dobj_cm_sptr = std::make_shared< kwiver::vital::class_map >();
     dobj_cm_sptr->set_score( "key", i / 10.0 );
-    auto dobj_sptr = std::make_shared< kwiver::vital::detected_object >( bbox, i / 10.0, dobj_cm_sptr );
-    auto ots_sptr = std::make_shared< kwiver::vital::object_track_state >( i, i, dobj_sptr );
+
+    auto const dobj_sptr =
+      std::make_shared< kwiver::vital::detected_object >( bbox, i / 10.0, dobj_cm_sptr );
+
+    auto const ots_sptr =
+      std::make_shared< kwiver::vital::object_track_state >( i, i, dobj_sptr );
+
     track_sptr->append( ots_sptr );
   }
 
-  std::vector< kwiver::vital::track_sptr > tracks = { track_sptr };
-  auto obj_trk_set_sptr = std::make_shared< kwiver::vital::object_track_set >( tracks );
+  auto const tracks = std::vector< kwiver::vital::track_sptr >{ track_sptr };
+  auto const obj_trk_set_sptr =
+    std::make_shared< kwiver::vital::object_track_set >( tracks );
 
   // Now both timestamps
-  kwiver::vital::timestamp start { 1, 1 } ;
-  kwiver::vital::timestamp end { 2, 2 };
+  auto const start = kwiver::vital::timestamp{ 1, 1 };
+  auto const end = kwiver::vital::timestamp{ 2, 2 };
 
   // Now construct activity
-  kwiver::vital::activity act( 5, "test_label", 3.1415, cm_sptr, start, end, obj_trk_set_sptr );
+  auto const act =
+    kwiver::vital::activity{ 5, "test_label", 3.1415, cm_sptr, start, end, obj_trk_set_sptr };
 
   std::stringstream msg;
   {
@@ -164,7 +174,7 @@ TEST( load_save, activity )
   std::cout << "activity as json - " << msg.str() << std::endl;
   #endif
 
-  kwiver::vital::activity act_dser;
+  auto act_dser = kwiver::vital::activity{};
   {
     cereal::JSONInputArchive ar( msg );
     cereal::load( ar, act_dser );
@@ -197,25 +207,26 @@ TEST( load_save, activity )
   // Iterate over the track_states
   for ( int i = 0; i < 10; i++ )
   {
-    auto trk_state_sptr = *trk->find( i );
-    auto trk_state_dser_sptr = *trk_dser->find( i );
+    auto const trk_state_sptr = *trk->find( i );
+    auto const trk_state_dser_sptr = *trk_dser->find( i );
 
     EXPECT_EQ( trk_state_sptr->frame(), trk_state_dser_sptr->frame() );
 
-    auto obj_trk_state_sptr = kwiver::vital::object_track_state::downcast( trk_state_sptr );
-    auto obj_trk_state_dser_sptr = kwiver::vital::object_track_state::
-                                                      downcast( trk_state_dser_sptr );
+    auto const obj_trk_state_sptr =
+      kwiver::vital::object_track_state::downcast( trk_state_sptr );
+    auto const obj_trk_state_dser_sptr =
+      kwiver::vital::object_track_state::downcast( trk_state_dser_sptr );
 
     EXPECT_EQ( obj_trk_state_sptr->time(), obj_trk_state_dser_sptr->time() );
 
-    auto do_ser_sptr = obj_trk_state_sptr->detection();
-    auto do_dser_sptr = obj_trk_state_dser_sptr->detection();
+    auto const do_ser_sptr = obj_trk_state_sptr->detection();
+    auto const do_dser_sptr = obj_trk_state_dser_sptr->detection();
 
     EXPECT_EQ( do_ser_sptr->bounding_box(), do_dser_sptr->bounding_box() );
     EXPECT_EQ( do_ser_sptr->confidence(), do_dser_sptr->confidence() );
 
-    auto cm_ser_sptr = do_ser_sptr->type();
-    auto cm_dser_sptr = do_dser_sptr->type();
+    auto const cm_ser_sptr = do_ser_sptr->type();
+    auto const cm_dser_sptr = do_dser_sptr->type();
 
     if ( cm_ser_sptr )
     {
