@@ -259,6 +259,8 @@ TEST( serialize, class_map )
   {
     EXPECT_EQ( *(o_it->first), *(d_it->first) );
     EXPECT_EQ( o_it->second, d_it->second );
+    o_it++;
+    d_it++;
   }
 }
 
@@ -327,6 +329,8 @@ TEST( serialize, detected_object )
     {
       EXPECT_EQ( *(o_it->first), *(d_it->first) );
       EXPECT_EQ( o_it->second, d_it->second );
+      o_it++;
+      d_it++;
     }
   }
 }
@@ -389,6 +393,8 @@ TEST( serialize, detected_object_set )
       {
         EXPECT_EQ( *(o_it->first), *(d_it->first) );
         EXPECT_EQ( o_it->second, d_it->second );
+        o_it++;
+        d_it++;
       }
     }
   }
