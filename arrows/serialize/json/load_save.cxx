@@ -629,10 +629,14 @@ void save( cereal::JSONOutputArchive& archive,
 
     // These may be null
     if ( activity.activity_type() )
+    {
       save( archive, *activity.activity_type());
+    }
 
     if ( activity.participants() )
+    {
       save( archive, *activity.participants() );
+    }
 }
 
 void load( cereal::JSONInputArchive& archive,
@@ -683,14 +687,22 @@ void load( cereal::JSONInputArchive& archive,
   }
 
   if ( has_act_type )
+  {
     activity.set_activity_type( act_type );
+  }
   else
+  {
     activity.set_activity_type( nullptr );
+  }
 
   if ( has_participants )
+  {
     activity.set_participants( participants );
+  }
   else
+  {
     activity.set_participants( nullptr );
+  }
 }
 
 } // end namespace
