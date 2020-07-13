@@ -98,10 +98,10 @@ void convert_protobuf( const ::kwiver::protobuf::activity& proto_act,
   act.set_end( end_frame );
 
   // Now get the optional params, if they exist, and set
-  if ( proto_act.has_classifications() )
+  if ( proto_act.has_activity_type() )
   {
     auto cm_sptr = std::make_shared< ::kwiver::vital::class_map >();
-    convert_protobuf( proto_act.classifications(), *cm_sptr );
+    convert_protobuf( proto_act.activity_type(), *cm_sptr );
     act.set_activity_type( cm_sptr );
   }
 
@@ -138,7 +138,7 @@ void convert_protobuf( const ::kwiver::vital::activity& act,
   {
     ::kwiver::protobuf::class_map proto_cm;
     convert_protobuf( *cm_sptr, proto_cm );
-    *proto_act.mutable_classifications() = proto_cm;
+    *proto_act.mutable_activity_type() = proto_cm;
   }
 
   if ( auto obj_trk_set_sptr = act.participants() )
