@@ -664,17 +664,14 @@ void load( cereal::JSONInputArchive& archive,
   // Optional parameters aren't supported
   // for JSON. activity_type and participants may or may not exist,
   // so we check if an exception is thrown when we look for them.
-  // If an exception is thrown, we don't set those fields.
-  bool has_act_type = true;
-  bool has_participants = true;
-
+  // If an exception is thrown, we set those fields to null.
   try
   {
     load( archive, *act_type );
   }
   catch( cereal::Exception& )
   {
-    has_act_type = false;
+    act_type = nullptr;
   }
 
   try
@@ -683,26 +680,11 @@ void load( cereal::JSONInputArchive& archive,
   }
   catch( cereal::Exception& )
   {
-    has_participants = false;
+    participants = nullptr;
   }
 
-  if ( has_act_type )
-  {
-    activity.set_activity_type( act_type );
-  }
-  else
-  {
-    activity.set_activity_type( nullptr );
-  }
-
-  if ( has_participants )
-  {
-    activity.set_participants( participants );
-  }
-  else
-  {
-    activity.set_participants( nullptr );
-  }
+  activity.set_activity_type( act_type );
+  activity.set_participants( participants );
 }
 
 } // end namespace
