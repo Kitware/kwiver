@@ -81,6 +81,7 @@ class extract_descriptors_trampoline :
              kwiver::vital::image_container_sptr image_mask ) const override
     {
       kwiver::vital::python::gil_scoped_acquire gil;
+      // XXX Should we be casting to "const extract_descriptors_base*" instead?
       pybind11::function overload = pybind11::get_overload( static_cast< const kwiver::vital::algo::extract_descriptors* > ( this ), "extract" );
       if( overload )
       {

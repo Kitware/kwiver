@@ -47,6 +47,7 @@ void estimate_homography(py::module &m)
     .def(py::init())
     .def_static("static_type_name",
                 &kwiver::vital::algo::estimate_homography::static_type_name)
+    // XXX Well these could be better wrapped
     .def("estimate",
          [](kwiver::vital::algo::estimate_homography const& self,
             kwiver::vital::feature_set_sptr feat1,
