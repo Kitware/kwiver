@@ -669,7 +669,7 @@ void load( cereal::JSONInputArchive& archive,
   {
     load( archive, *act_type );
   }
-  catch( cereal::Exception& )
+  catch( cereal::Exception const& )
   {
     act_type = nullptr;
   }
@@ -678,7 +678,7 @@ void load( cereal::JSONInputArchive& archive,
   {
     load( archive, *participants );
   }
-  catch( cereal::Exception& )
+  catch( cereal::Exception const& )
   {
     participants = nullptr;
   }
