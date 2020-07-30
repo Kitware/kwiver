@@ -13,13 +13,17 @@ set( sources
   darknet_trainer.cxx
   )
 
-set( Darknet_linked_libs
+set( darknet_public_libs
+  vital_algo
+  kwiver_algo_core
+  ${OpenCV_LIBS}
+  )
+
+set( darknet_private_libs
   ${Darknet_LIBRARIES}
   kwiversys
-  ${OpenCV_LIBS}
-  ${Boost_SYSTEM_LIBRARY}
-  ${Boost_FILESYSTEM_LIBRARY}
-  kwiver_algo_ocv )
+  kwiver_algo_ocv
+  )
 
 # if darknet was built with the GPU support
 if (Darknet_USING_GPU)
@@ -42,7 +46,7 @@ if (WIN32)
   set( Darknet_linked_libs ${Darknet_linked_libs} pthreadVC2 )
 
   if (Darknet_USING_GPU)
-    set( Darknet_linked_libs
+    set( darknet_private_libs
          ${Darknet_linked_libs}
          ${CUDA_CUDA_LIBRARY}
          ${CUDA_LIBRARIES}
@@ -60,7 +64,7 @@ if (WIN32)
     message(FATAL_ERROR "Unable to find cudnn libraries")
   endif()
   include_directories( ${CUDNN_TOOLKIT_ROOT_DIR}/include )
-    set( Darknet_linked_libs
+    set( darknet_private_libs
          ${Darknet_linked_libs}
          ${CUDNN_LIBRARIES} )
   endif()
@@ -83,8 +87,8 @@ kwiver_add_library( kwiver_algo_darknet
   )
 
 target_link_libraries( kwiver_algo_darknet
-  PUBLIC               vital_algo
-  PRIVATE              ${Darknet_linked_libs}
+  PUBLIC               ${darknet_public_libs}
+  PRIVATE              ${darknet_private_libs}
   )
 
 algorithms_create_plugin( kwiver_algo_darknet
