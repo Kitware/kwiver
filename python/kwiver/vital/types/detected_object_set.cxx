@@ -128,3 +128,4 @@ PYBIND11_MODULE(detected_object_set, m)
     })
   ;
 }
+

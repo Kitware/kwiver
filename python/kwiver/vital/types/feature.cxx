@@ -36,6 +36,9 @@
 #include <pybind11/eigen.h>
 
 namespace py=pybind11;
+namespace kwiver {
+namespace vital  {
+namespace python {
 
 // TODO
 // We don't actually need all this extra crap, I wrote this class
@@ -214,7 +217,8 @@ new_feature(py::object loc_obj,
 
   return retVal;
 }
-
+}}}
+using namespace kwiver::vital::python;
 PYBIND11_MODULE(feature, m)
 {
   py::class_<PyFeatureBase, std::shared_ptr<PyFeatureBase>>(m, "Feature")
@@ -230,3 +234,4 @@ PYBIND11_MODULE(feature, m)
   .def_property("color", &PyFeatureBase::get_color, &PyFeatureBase::set_color)
   ;
 }
+

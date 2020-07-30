@@ -34,6 +34,8 @@
 
 namespace py = pybind11;
 
+
+
 PYBIND11_MODULE(class_map, m)
 {
   py::class_<kwiver::vital::class_map, std::shared_ptr<kwiver::vital::class_map>>(m, "ClassMap")
@@ -68,3 +70,4 @@ PYBIND11_MODULE(class_map, m)
   .def_static("all_class_names", &kwiver::vital::class_map::all_class_names)
   ;
 }
+

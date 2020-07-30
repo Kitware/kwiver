@@ -35,6 +35,8 @@
 
 namespace py = pybind11;
 
+using namespace kwiver::vital::python;
+
 PYBIND11_MODULE(eigen, m)
 {
 
@@ -50,3 +52,4 @@ PYBIND11_MODULE(eigen, m)
   ;
 
 }
+
