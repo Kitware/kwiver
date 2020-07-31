@@ -56,6 +56,7 @@
 
 namespace py = pybind11;
 
+
 static void load_python_modules();
 static bool is_suppressed();
 static void load_additional_cpp_modules(kwiver::vital::plugin_loader& vpm);
@@ -177,3 +178,4 @@ load_additional_cpp_modules(kwiver::vital::plugin_loader& vpm)
   }
   vpm.load_plugins(new_search_paths);
 }
+
