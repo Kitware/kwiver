@@ -119,6 +119,7 @@ setup(
                 'process_image=kwiver.sprokit.processes.process_image',
                 'print_number_process=kwiver.sprokit.processes.kw_print_number_process',
                 'homography_writer=kwiver.sprokit.processes.homography_writer',
+                'multicam_homog_tracker=kwiver.sprokit.processes.multicam_homog_tracker',
                 'simple_homog_tracker=kwiver.sprokit.processes.simple_homog_tracker',
                 'simple_object_detector=kwiver.vital.tests.alg.simple_image_object_detector',
                 'stabilize_many_images=kwiver.sprokit.process.stabilize_many_images',
