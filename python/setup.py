@@ -118,6 +118,7 @@ setup(
                 'apply_descriptor=kwiver.sprokit.processes.apply_descriptor',
                 'process_image=kwiver.sprokit.processes.process_image',
                 'print_number_process=kwiver.sprokit.processes.kw_print_number_process',
+                'homography_reader=kwiver.sprokit.processes.homography_reader',
                 'homography_writer=kwiver.sprokit.processes.homography_writer',
                 'multicam_homog_tracker=kwiver.sprokit.processes.multicam_homog_tracker',
                 'simple_homog_tracker=kwiver.sprokit.processes.simple_homog_tracker',
