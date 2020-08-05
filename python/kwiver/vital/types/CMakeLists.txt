@@ -67,6 +67,13 @@ target_link_libraries(python-vital.types-camera_perspective
   PUBLIC ${PYTHON_LIBRARIES}
          vital)
 
+kwiver_add_python_library(camera_perspective_map
+  vital/types
+  camera_perspective_map.cxx)
+target_link_libraries(python-vital.types-camera_perspective_map
+  PUBLIC ${PYTHON_LIBRARIES}
+          vital)
+
 kwiver_add_python_library(camera_rpc
   vital/types
   camera_rpc.cxx)
@@ -155,6 +162,13 @@ kwiver_add_python_library(feature_set
   vital/types
   feature_set.cxx)
 target_link_libraries(python-vital.types-feature_set
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
+
+kwiver_add_python_library(feature_track_set
+  vital/types
+  feature_track_set.cxx)
+target_link_libraries(python-vital.types-feature_track_set
   PUBLIC ${PYTHON_LIBRARIES}
          vital)
 
@@ -384,6 +398,7 @@ if(NOT SKBUILD)
     camera_intrinsics
     camera_map
     camera_perspective
+    camera_perspective_map
     camera_rpc
     color
     covariance
@@ -395,6 +410,7 @@ if(NOT SKBUILD)
     detected_object_set
     feature
     feature_set
+    feature_track_set
     fundamental_matrix
     geodesy
     geo_covariance
