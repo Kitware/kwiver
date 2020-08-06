@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016-2017, 2019 by Kitware, Inc.
+ * Copyright 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,9 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include <sprokit/processes/adapters/adapter_data_set.h>
-
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl_bind.h>
@@ -49,19 +47,22 @@
 
 using namespace pybind11;
 
+namespace kwiver{
+namespace sprokit{
+namespace python{
 
 void
-ads_add_value_py(kwiver::adapter::adapter_data_set &self, sprokit::process::port_t const& port, object const& obj);
+ads_add_value_py(kwiver::adapter::adapter_data_set &self, ::sprokit::process::port_t const& port, object const& obj);
 
 object
-ads_get_port_data_py(kwiver::adapter::adapter_data_set &self, sprokit::process::port_t const& port);
+ads_get_port_data_py(kwiver::adapter::adapter_data_set &self, ::sprokit::process::port_t const& port);
 
-
+}
+}
+}
 
 PYBIND11_MODULE(adapter_data_set, m)
 {
-
-
   enum_<kwiver::adapter::adapter_data_set::data_set_type>(m, "DataSetType"
     , "Type of data set.")
     .value("data", kwiver::adapter::adapter_data_set::data)
@@ -79,7 +80,7 @@ PYBIND11_MODULE(adapter_data_set, m)
                         , keep_alive<0,1>())
     .def("type", &kwiver::adapter::adapter_data_set::type)
     .def("is_end_of_data", &kwiver::adapter::adapter_data_set::is_end_of_data)
-    .def("add_value", &ads_add_value_py)
+    .def("add_value", &kwiver::sprokit::python::ads_add_value_py)
     .def("add_datum", &kwiver::adapter::adapter_data_set::add_datum)
 
     // The add_value function is templated.
@@ -110,7 +111,7 @@ PYBIND11_MODULE(adapter_data_set, m)
     .def("empty", &kwiver::adapter::adapter_data_set::empty)
 
     // get_port_data is also templated
-    .def("get_port_data", &ads_get_port_data_py)
+    .def("get_port_data", &kwiver::sprokit::python::ads_get_port_data_py)
     .def("get_port_data_int", &kwiver::adapter::adapter_data_set::get_port_data<int>)
     .def("get_port_data_float", &kwiver::adapter::adapter_data_set::get_port_data<float>)
     .def("get_port_data_string", &kwiver::adapter::adapter_data_set::get_port_data<std::string>)
@@ -133,17 +134,24 @@ PYBIND11_MODULE(adapter_data_set, m)
     ;
 }
 
+namespace kwiver{
+namespace sprokit{
+namespace python{
+
 void
-ads_add_value_py(kwiver::adapter::adapter_data_set &self, sprokit::process::port_t const& port, object const& obj)
+ads_add_value_py(kwiver::adapter::adapter_data_set &self, ::sprokit::process::port_t const& port, object const& obj)
 {
   self.add_value<kwiver::vital::any>(port, obj);
 }
 
 object
-ads_get_port_data_py(kwiver::adapter::adapter_data_set &self, sprokit::process::port_t const& port)
+ads_get_port_data_py(kwiver::adapter::adapter_data_set &self, ::sprokit::process::port_t const& port)
 {
   object dat = none();
   kwiver::vital::any const any = self.get_port_data<kwiver::vital::any>(port);
   dat = kwiver::vital::any_cast<object>(any);
   return dat;
+}
+}
+}
 }
