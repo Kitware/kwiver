@@ -15,6 +15,7 @@ kwiver_add_python_library(embedded_pipeline
 
 target_link_libraries(python-sprokit.adapters-embedded_pipeline
   PRIVATE             kwiver_adapter
+                      sprokit_pipeline_util
                       vital_python_util)
 
 kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
