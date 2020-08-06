@@ -6,6 +6,7 @@ kwiver_add_python_library(adapter_data_set
 
 target_link_libraries(python-sprokit.adapters-adapter_data_set
   PRIVATE             kwiver_adapter
+                      sprokit_pipeline
                       vital_python_util)
 
 
