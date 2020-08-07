@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2015 by Kitware, Inc.
+ * Copyright 2014-2015, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -133,16 +133,17 @@ algorithm
 
   if ( nested_algo )
   {
-    config->set_value( name + config_block::block_sep + "type",
+    config->set_value( name + config_block::block_sep() + "type",
                        nested_algo->impl_name(),
                        type_comment );
 
-    config->subblock_view( name + config_block::block_sep + nested_algo->impl_name() )
+    config->subblock_view( name + config_block::block_sep() +
+                           nested_algo->impl_name() )
       ->merge_config( nested_algo->get_configuration() );
   }
-  else if ( ! config->has_value( name + config_block::block_sep + "type" ) )
+  else if ( ! config->has_value( name + config_block::block_sep() + "type" ) )
   {
-    config->set_value( name + config_block::block_sep + "type",
+    config->set_value( name + config_block::block_sep() + "type",
                        "",
                        type_comment );
   }
@@ -159,7 +160,7 @@ algorithm
                                  algorithm_sptr&    nested_algo )
 {
   static  kwiver::vital::logger_handle_t logger = kwiver::vital::get_logger( "vital.algorithm" );
-  const std::string type_key = name + config_block::block_sep + "type";
+  const std::string type_key = name + config_block::block_sep() + "type";
 
   if ( config->has_value( type_key ) )
   {
@@ -168,7 +169,7 @@ algorithm
     {
       nested_algo = create_algorithm( type_name, iname );;
       nested_algo->set_configuration(
-        config->subblock_view( name + config_block::block_sep + iname )
+        config->subblock_view( name + config_block::block_sep() + iname )
                                     );
     }
     else
@@ -205,7 +206,7 @@ algorithm
                                    config_block_sptr  config )
 {
   static  kwiver::vital::logger_handle_t logger = kwiver::vital::get_logger( "vital.algorithm" );
-  const std::string type_key = name + config_block::block_sep + "type";
+  const std::string type_key = name + config_block::block_sep() + "type";
 
   if ( ! config->has_value( type_key ) )
   {
@@ -217,13 +218,13 @@ algorithm
   if ( ! has_algorithm_impl_name( type_name, instance_name ) )
   {
     std::stringstream msg;
-    msg << "Configuration Failure: invalid option\n"
-        << "   " << type_key << " = " << instance_name << "\n"
-        << "   valid options are";
+    msg << "Implementation '" << instance_name << "' for algorithm type "
+        << type_key << " could not be found.\nMake sure KWIVER_PLUGIN_PATH is set correctly.";
 
     // Get list of factories for the algo_name
     kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
     auto fact_list = vpm.get_factories( type_name );
+    bool first {true};
 
     // Find the one that provides the impl_name
     for( kwiver::vital::plugin_factory_handle_t a_fact : fact_list )
@@ -232,8 +233,19 @@ algorithm
       std::string reg_name;
       if ( a_fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, reg_name ) )
       {
+        if (first)
+        {
+          first = false;
+          msg << "   Available implementations are:";
+        }
+
         msg << "\n      " << reg_name;
       }
+    }
+
+    if (first)
+    {
+      msg << "   There are no implementations available.";
     }
 
     LOG_WARN( logger, msg.str() );
@@ -241,7 +253,8 @@ algorithm
   }
 
   // recursively check the configuration of the sub-algorithm
-  const std::string qualified_name = name + config_block::block_sep + instance_name;
+  const std::string qualified_name = name + config_block::block_sep() +
+                                     instance_name;
 
   // Need a real algorithm object to check with
   try

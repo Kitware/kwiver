@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2018 by Kitware, Inc.
+ * Copyright 2018-2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,27 +29,31 @@
  */
 
 #include <arrows/serialize/json/load_save.h>
+#include <arrows/serialize/json/load_save_point.h>
 #include <arrows/serialize/json/load_save_track_state.h>
 #include <arrows/serialize/json/load_save_track_set.h>
 
 #include <gtest/gtest.h>
 
-#include <vital/types/metadata.h>
+#include <vital/types/activity.h>
 #include <vital/types/bounding_box.h>
-#include <vital/types/image_container.h>
+#include <vital/types/class_map.h>
+#include <vital/types/covariance.h>
 #include <vital/types/detected_object.h>
 #include <vital/types/detected_object_set.h>
-#include <vital/types/detected_object_type.h>
 #include <vital/types/geo_polygon.h>
+#include <vital/types/geodesy.h>
+#include <vital/types/image_container.h>
 #include <vital/types/metadata.h>
-#include <vital/types/metadata_traits.h>
+#include <vital/types/metadata.h>
 #include <vital/types/metadata_tags.h>
+#include <vital/types/metadata_traits.h>
+#include <vital/types/object_track_set.h>
+#include <vital/types/point.h>
 #include <vital/types/polygon.h>
 #include <vital/types/timestamp.h>
-#include <vital/types/geodesy.h>
-#include <vital/types/track_set.h>
 #include <vital/types/track.h>
-#include <vital/types/object_track_set.h>
+#include <vital/types/track_set.h>
 #include <vital/vital_types.h>
 
 #include <arrows/serialize/json/track.h>
@@ -66,6 +70,170 @@ int main(int argc, char** argv)
 {
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
+}
+
+// ----------------------------------------------------------------------------
+TEST( load_save, activity_default )
+{
+  // This tests the behavior when participants
+  // and class_map are set to NULL
+  auto const act = kwiver::vital::activity{};
+  std::stringstream msg;
+  {
+    cereal::JSONOutputArchive ar( msg );
+    cereal::save( ar, act );
+  }
+
+  #ifndef NDEBUG
+  std::cout << "default activity as json - " << msg.str() << std::endl;
+  #endif
+
+  // Set some data to check that fields are overwritten
+  auto const cm_in = std::make_shared< kwiver::vital::class_map >();
+  auto const start_in = kwiver::vital::timestamp { 1, 1 };
+  auto const end_in = kwiver::vital::timestamp { 2, 2 };
+  auto const part_in = std::make_shared< kwiver::vital::object_track_set >();
+
+  auto act_dser =
+    kwiver::vital::activity { 5, "label", 3.14, cm_in, start_in, end_in, part_in };
+  {
+    cereal::JSONInputArchive ar( msg );
+    cereal::load( ar, act_dser );
+  }
+
+  // Check members
+  EXPECT_EQ( act.id(), act_dser.id() );
+  EXPECT_EQ( act.label(), act_dser.label() );
+  EXPECT_EQ( act.activity_type(), act_dser.activity_type() );
+  EXPECT_EQ( act.participants(), act_dser.participants() );
+  EXPECT_DOUBLE_EQ( act.confidence(), act_dser.confidence() );
+
+  // Timestamps are invalid so can't do a direct comparison
+  auto const start = act.start();
+  auto const end = act.end();
+  auto const start_dser = act_dser.start();
+  auto const end_dser = act_dser.end();
+
+  EXPECT_EQ( start.get_time_seconds(), start_dser.get_time_seconds() );
+  EXPECT_EQ( start.get_frame(), start_dser.get_frame() );
+  EXPECT_EQ( start.get_time_domain_index(), start_dser.get_time_domain_index() );
+
+  EXPECT_EQ( end.get_time_seconds(), end_dser.get_time_seconds() );
+  EXPECT_EQ( end.get_frame(), end_dser.get_frame() );
+  EXPECT_EQ( end.get_time_domain_index(), end_dser.get_time_domain_index() );
+}
+
+// ----------------------------------------------------------------------------
+TEST( load_save, activity )
+{
+  auto cm_sptr = std::make_shared< kwiver::vital::class_map >();
+  cm_sptr->set_score( "first", 1 );
+  cm_sptr->set_score( "second", 10 );
+  cm_sptr->set_score( "third", 101 );
+
+  // Create object_track_set consisting of
+  // 1 track_sptr with 10 track states
+  auto track_sptr = kwiver::vital::track::create();
+  track_sptr->set_id( 1 );
+  for ( int i = 0; i < 10; i++ )
+  {
+    auto const bbox =
+      kwiver::vital::bounding_box_d{ 10.0 + i, 10.0 + i, 20.0 + i, 20.0 + i };
+
+    auto dobj_cm_sptr = std::make_shared< kwiver::vital::class_map >();
+    dobj_cm_sptr->set_score( "key", i / 10.0 );
+
+    auto const dobj_sptr =
+      std::make_shared< kwiver::vital::detected_object >( bbox, i / 10.0, dobj_cm_sptr );
+
+    auto const ots_sptr =
+      std::make_shared< kwiver::vital::object_track_state >( i, i, dobj_sptr );
+
+    track_sptr->append( ots_sptr );
+  }
+
+  auto const tracks = std::vector< kwiver::vital::track_sptr >{ track_sptr };
+  auto const obj_trk_set_sptr =
+    std::make_shared< kwiver::vital::object_track_set >( tracks );
+
+  // Now both timestamps
+  auto const start = kwiver::vital::timestamp{ 1, 1 };
+  auto const end = kwiver::vital::timestamp{ 2, 2 };
+
+  // Now construct activity
+  auto const act =
+    kwiver::vital::activity{ 5, "test_label", 3.1415, cm_sptr, start, end, obj_trk_set_sptr };
+
+  std::stringstream msg;
+  {
+    cereal::JSONOutputArchive ar( msg );
+    cereal::save( ar, act );
+  }
+
+  #ifndef NDEBUG
+  std::cout << "activity as json - " << msg.str() << std::endl;
+  #endif
+
+  auto act_dser = kwiver::vital::activity{};
+  {
+    cereal::JSONInputArchive ar( msg );
+    cereal::load( ar, act_dser );
+  }
+
+  // Now check equality
+  EXPECT_EQ( act.id(), act_dser.id() );
+  EXPECT_EQ( act.label(), act_dser.label() );
+  EXPECT_DOUBLE_EQ( act.confidence(), act_dser.confidence() );
+  EXPECT_EQ( act.start(), act_dser.start() );
+  EXPECT_EQ( act.end(), act_dser.end() );
+
+  // Check values in the retrieved class map
+  auto const act_type = act.activity_type();
+  auto const act_type_dser = act_dser.activity_type();
+  EXPECT_EQ( act_type->size(), act_type_dser->size() );
+  EXPECT_DOUBLE_EQ( act_type->score( "first" ),  act_type_dser->score( "first" ) );
+  EXPECT_DOUBLE_EQ( act_type->score( "second" ), act_type_dser->score( "second" ) );
+  EXPECT_DOUBLE_EQ( act_type->score( "third" ),  act_type_dser->score( "third" ) );
+
+  // Now the object_track_set
+  auto const parts = act.participants();
+  auto const parts_dser = act_dser.participants();
+
+  EXPECT_EQ( parts->size(), parts_dser->size() );
+
+  auto const trk = parts->get_track( 1 );
+  auto const trk_dser = parts_dser->get_track( 1 );
+
+  // Iterate over the track_states
+  for ( int i = 0; i < 10; i++ )
+  {
+    auto const trk_state_sptr = *trk->find( i );
+    auto const trk_state_dser_sptr = *trk_dser->find( i );
+
+    EXPECT_EQ( trk_state_sptr->frame(), trk_state_dser_sptr->frame() );
+
+    auto const obj_trk_state_sptr =
+      kwiver::vital::object_track_state::downcast( trk_state_sptr );
+    auto const obj_trk_state_dser_sptr =
+      kwiver::vital::object_track_state::downcast( trk_state_dser_sptr );
+
+    EXPECT_EQ( obj_trk_state_sptr->time(), obj_trk_state_dser_sptr->time() );
+
+    auto const do_ser_sptr = obj_trk_state_sptr->detection();
+    auto const do_dser_sptr = obj_trk_state_dser_sptr->detection();
+
+    EXPECT_EQ( do_ser_sptr->bounding_box(), do_dser_sptr->bounding_box() );
+    EXPECT_EQ( do_ser_sptr->confidence(), do_dser_sptr->confidence() );
+
+    auto const cm_ser_sptr = do_ser_sptr->type();
+    auto const cm_dser_sptr = do_dser_sptr->type();
+
+    if ( cm_ser_sptr )
+    {
+      EXPECT_EQ( cm_ser_sptr->size(), cm_dser_sptr->size() );
+      EXPECT_EQ( cm_ser_sptr->score( "key" ), cm_dser_sptr->score( "key" ) );
+    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -219,36 +387,36 @@ kwiver::vital::metadata create_meta_collection()
 
   {
     const auto& info = traits.find( kwiver::vital::VITAL_META_METADATA_ORIGIN );
-    auto* item = info.create_metadata_item( kwiver::vital::any(std::string ("test-source")) );
-    meta.add( item );
+    auto item = info.create_metadata_item( kwiver::vital::any(std::string ("test-source")) );
+    meta.add( std::move( item ) );
   }
 
   {
     const auto& info = traits.find( kwiver::vital::VITAL_META_UNIX_TIMESTAMP );
-    auto* item = info.create_metadata_item( kwiver::vital::any((uint64_t)12345678) );
-    meta.add( item );
+    auto item = info.create_metadata_item( kwiver::vital::any((uint64_t)12345678) );
+    meta.add( std::move( item ) );
   }
 
   {
     const auto& info = traits.find( kwiver::vital::VITAL_META_SENSOR_VERTICAL_FOV );
-    auto* item = info.create_metadata_item( kwiver::vital::any((double)12345.678) );
-    meta.add( item );
+    auto item = info.create_metadata_item( kwiver::vital::any((double)12345.678) );
+    meta.add( std::move( item ) );
   }
 
   {
     const auto& info = traits.find( kwiver::vital::VITAL_META_FRAME_CENTER );
     kwiver::vital::geo_point::geo_2d_point_t geo( 42.50, 73.54 );
     kwiver::vital::geo_point pt ( geo, kwiver::vital::SRID::lat_lon_WGS84 );
-    auto* item = info.create_metadata_item( kwiver::vital::any(pt) );
-    meta.add( item );
+    auto item = info.create_metadata_item( kwiver::vital::any(pt) );
+    meta.add( std::move( item ) );
   }
 
   {
     const auto& info = traits.find( kwiver::vital::VITAL_META_FRAME_CENTER );
     kwiver::vital::geo_point::geo_3d_point_t geo( 42.50, 73.54, 16.33 );
     kwiver::vital::geo_point pt ( geo, kwiver::vital::SRID::lat_lon_WGS84 );
-    auto* item = info.create_metadata_item( kwiver::vital::any(pt) );
-    meta.add( item );
+    auto item = info.create_metadata_item( kwiver::vital::any(pt) );
+    meta.add( std::move( item ) );
   }
 
   {
@@ -260,8 +428,8 @@ kwiver::vital::metadata create_meta_collection()
     raw_obj.push_back( 100, 400 );
 
     kwiver::vital::geo_polygon poly( raw_obj, kwiver::vital::SRID::lat_lon_WGS84 );
-    auto* item = info.create_metadata_item( kwiver::vital::any(poly) );
-    meta.add( item );
+    auto item = info.create_metadata_item( kwiver::vital::any(poly) );
+    meta.add( std::move( item ) );
   }
 
   return meta;
@@ -389,32 +557,45 @@ TEST( load_save, track_state)
 // ----------------------------------------------------------------------------
 TEST( load_save, object_track_state)
 {
-  auto dot = std::make_shared<kwiver::vital::detected_object_type>();
+  auto cm = std::make_shared< kwiver::vital::class_map >();
 
-  dot->set_score( "first", 1 );
-  dot->set_score( "second", 10 );
-  dot->set_score( "third", 101 );
-  dot->set_score( "last", 121 );
+  cm->set_score( "first", 1 );
+  cm->set_score( "second", 10 );
+  cm->set_score( "third", 101 );
+  cm->set_score( "last", 121 );
 
-  auto obj = std::make_shared< kwiver::vital::detected_object>(
-    kwiver::vital::bounding_box_d{ 1, 2, 3, 4 }, 3.14159, dot );
+  // create detected object
+  auto obj = std::make_shared< kwiver::vital::detected_object >(
+    kwiver::vital::bounding_box_d{ 1, 2, 3, 4 }, 3.14159, cm );
   obj->set_detector_name( "test_detector" );
   obj->set_index( 1234 );
+  obj->add_note( "this is a note" );
 
+  ::kwiver::vital::point_2d p2d( 123, 456 );
+  obj->add_keypoint( "keypoint-1", p2d );
 
-  kwiver::vital::object_track_state obj_trk_state(1, 1, obj);
+  ::kwiver::vital::geo_point::geo_3d_point_t g3d( 123, 234, 345 );
+  obj->set_geo_point( ::kwiver::vital::geo_point( g3d, 42 ) );
+
+  // Create object track state
+  kwiver::vital::object_track_state obj_trk_state( 1, 1, obj );
+
+  obj_trk_state.set_image_point( ::kwiver::vital::point_2d( 123, 321 ) );
+  obj_trk_state.set_track_point( ::kwiver::vital::point_3d( 123, 234, 345 ) );
+
   std::stringstream msg;
-
   try
   {
     cereal::JSONOutputArchive ar( msg );
-    cereal::save( ar, obj_trk_state);
+    cereal::save( ar, obj_trk_state );
   }
-  catch(std::exception const& e) {
+  catch ( std::exception const& e )
+  {
     std::cout << "exception caught: " << e.what() << std::endl;
   }
 
 #if DEBUG
+
   std::cout << "object track state as json - " << msg.str() << std::endl;
 #endif
 
@@ -424,7 +605,6 @@ TEST( load_save, object_track_state)
     cereal::load( ar, obj_dser );
   }
 
-
   auto do_sptr = obj_trk_state.detection();
   auto do_sptr_dser = obj_dser.detection();
 
@@ -433,23 +613,34 @@ TEST( load_save, object_track_state)
   EXPECT_EQ( do_sptr->confidence(), do_sptr_dser->confidence() );
   EXPECT_EQ( do_sptr->detector_name(), do_sptr_dser->detector_name() );
 
-  auto dot_sptr_dser = do_sptr_dser->type();
+  EXPECT_EQ( do_sptr->notes().size(), do_sptr_dser->notes().size() );
+  EXPECT_EQ( do_sptr->notes()[ 0 ], do_sptr_dser->notes()[ 0 ] );
 
-  if ( dot )
+  EXPECT_EQ( do_sptr->keypoints().size(), do_sptr_dser->keypoints().size() );
+
+  auto kpts = do_sptr_dser->keypoints();
+  EXPECT_EQ( kpts.count( "keypoint-1" ), 1 );
+
+  auto cm_sptr_dser = do_sptr_dser->type();
+
+  if ( cm )
   {
-    EXPECT_EQ( dot->size(), dot_sptr_dser->size() );
+    EXPECT_EQ( cm->size(), cm_sptr_dser->size() );
 
-    auto it = dot->begin();
-    auto it_dser = dot_sptr_dser->begin();
+    auto it = cm->begin();
+    auto it_dser = cm_sptr_dser->begin();
 
-    for ( size_t i = 0; i < dot->size(); ++i )
+    for ( size_t i = 0; i < cm->size(); ++i )
     {
-      EXPECT_EQ( *(it->first), *(it_dser->first) );
+      EXPECT_EQ( *( it->first ), *( it_dser->first ) );
       EXPECT_EQ( it->second, it_dser->second );
     }
   }
-  EXPECT_EQ(obj_trk_state.time(), obj_dser.time());
-  EXPECT_EQ(obj_trk_state.frame(), obj_dser.frame());
+
+  EXPECT_EQ( obj_trk_state.time(), obj_dser.time() );
+  EXPECT_EQ( obj_trk_state.frame(), obj_dser.frame() );
+  EXPECT_EQ( obj_trk_state.image_point().value(), obj_dser.image_point().value() );
+  EXPECT_EQ( obj_trk_state.track_point().value(), obj_dser.track_point().value() );
 }
 // ============================================================================
 TEST( load_save, track_set )
@@ -504,7 +695,7 @@ TEST( load_save, track_set )
 
       EXPECT_EQ( obj_trk_state_sptr->frame(), dser_trk_state_sptr->frame() );
     }
-  }
+  } // end for
 
 }
 
@@ -513,22 +704,22 @@ TEST( load_save, object_track_set )
 {
   auto obj_trk_set_sptr = std::make_shared< kwiver::vital::object_track_set >();
   auto obj_trk_set_sptr_dser = std::make_shared< kwiver::vital::object_track_set >();
-  for ( kwiver::vital::track_id_t trk_id=1; trk_id<3; ++trk_id )
+  for ( kwiver::vital::track_id_t trk_id = 1; trk_id < 3; ++trk_id )
   {
     auto trk = kwiver::vital::track::create();
     trk->set_id( trk_id );
-    for ( int i=trk_id*2; i < ( trk_id+1 )*2; i++ )
+    for ( int i = trk_id * 2; i < ( trk_id+1 )*2; i++ )
     {
-      auto dot = std::make_shared<kwiver::vital::detected_object_type>();
+      auto cm = std::make_shared<kwiver::vital::class_map>();
 
-      dot->set_score( "first", 1 );
-      dot->set_score( "second", 10 );
-      dot->set_score( "third", 101 );
-      dot->set_score( "last", 121 );
+      cm->set_score( "first", 1 );
+      cm->set_score( "second", 10 );
+      cm->set_score( "third", 101 );
+      cm->set_score( "last", 121 );
 
       auto dobj_sptr = std::make_shared< kwiver::vital::detected_object>(
                               kwiver::vital::bounding_box_d{ 1, 2, 3, 4 },
-                                  3.14159265, dot );
+                                  3.14159265, cm );
       dobj_sptr->set_detector_name( "test_detector" );
       dobj_sptr->set_index( 1234 );
       auto obj_trk_state_sptr = std::make_shared< kwiver::vital::object_track_state >
@@ -586,17 +777,17 @@ TEST( load_save, object_track_set )
       EXPECT_EQ( ser_do_sptr->confidence(), dser_do_sptr->confidence() );
       EXPECT_EQ( ser_do_sptr->detector_name(), dser_do_sptr->detector_name() );
 
-      auto ser_dot_sptr = ser_do_sptr->type();
-      auto dser_dot_sptr = dser_do_sptr->type();
+      auto ser_cm_sptr = ser_do_sptr->type();
+      auto dser_cm_sptr = dser_do_sptr->type();
 
-      if ( ser_dot_sptr )
+      if ( ser_cm_sptr )
       {
-        EXPECT_EQ( ser_dot_sptr->size(),dser_dot_sptr->size() );
+        EXPECT_EQ( ser_cm_sptr->size(),dser_cm_sptr->size() );
 
-        auto ser_it = ser_dot_sptr->begin();
-        auto dser_it = dser_dot_sptr->begin();
+        auto ser_it = ser_cm_sptr->begin();
+        auto dser_it = dser_cm_sptr->begin();
 
-        for ( size_t i = 0; i < ser_dot_sptr->size(); ++i )
+        for ( size_t i = 0; i < ser_cm_sptr->size(); ++i )
         {
           EXPECT_EQ( *(ser_it->first), *(ser_it->first) );
           EXPECT_EQ( dser_it->second, dser_it->second );
@@ -604,4 +795,85 @@ TEST( load_save, object_track_set )
       }
     }
   }
+}
+
+// ---------------------------------------------------------------------------
+TEST( load_save, covariance )
+{
+
+#define TEST_COV(T, ... )                                               \
+do {                                                                    \
+  ::kwiver::vital::T::matrix_type val;                                  \
+  val << __VA_ARGS__;                                                   \
+  ::kwiver::vital::T obj( val );                                        \
+  std::stringstream msg;                                                \
+  {                                                                     \
+    cereal::JSONOutputArchive ar( msg );                                \
+    cereal::save( ar, obj );                                            \
+  }                                                                     \
+                                                                        \
+  if (DEBUG)                                                            \
+  {                                                                     \
+    std::cout << # T << " as json - " << msg.str() << std::endl;        \
+  }                                                                     \
+                                                                        \
+  ::kwiver::vital::T obj_dser;                                          \
+  {                                                                     \
+    cereal::JSONInputArchive ar( msg );                                 \
+    cereal::load( ar, obj_dser );                                       \
+  }                                                                     \
+                                                                        \
+  EXPECT_EQ( obj, obj_dser );                                           \
+} while(0)
+
+
+TEST_COV( covariance_2d, 1, 2, 3, 4 );
+TEST_COV( covariance_2f, 1, 2, 3, 4 );
+TEST_COV( covariance_3d, 1, 2, 3, 4, 5, 6, 7, 8, 9 );
+TEST_COV( covariance_3f, 1, 2, 3, 4, 5, 6, 7, 8, 9 );
+TEST_COV( covariance_4d, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 );
+TEST_COV( covariance_4f, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 );
+
+#undef TEST_COV
+
+}
+
+// ---------------------------------------------------------------------------
+TEST( load_save, points )
+{
+
+#define TEST_POINT(T, ... )                                             \
+do {                                                                    \
+  ::kwiver::vital::T obj{ __VA_ARGS__ };                                \
+    std::stringstream msg;                                              \
+  {                                                                     \
+    cereal::JSONOutputArchive ar( msg );                                \
+    cereal::save( ar, obj );                                            \
+  }                                                                     \
+                                                                        \
+  if (DEBUG)                                                            \
+  {                                                                     \
+    std::cout << # T << " as json - " << msg.str() << std::endl;        \
+  }                                                                     \
+                                                                        \
+  ::kwiver::vital::T obj_dser;                                          \
+  {                                                                     \
+    cereal::JSONInputArchive ar( msg );                                 \
+    cereal::load( ar, obj_dser );                                       \
+  }                                                                     \
+                                                                        \
+  EXPECT_EQ( obj.value(), obj_dser.value() );                           \
+} while(0)
+
+
+  TEST_POINT( point_2i, 1, 2 );
+  TEST_POINT( point_2d, 1, 2 );
+  TEST_POINT( point_2f, 1, 2 );
+  TEST_POINT( point_3d, 1, 2, 3 );
+  TEST_POINT( point_3f, 1, 2, 3 );
+  TEST_POINT( point_4d, 1, 2, 3, 4 );
+  TEST_POINT( point_4f, 1, 2, 3, 4 );
+
+#undef TEST_POINT
+
 }

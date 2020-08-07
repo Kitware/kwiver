@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017-2018 by Kitware, Inc.
+ * Copyright 2017-2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
 // kwiver includes
 #include <vital/util/cpu_timer.h>
 #include <vital/config/config_block_formatter.h>
+#include <vital/types/detected_object_set_util.h>
 
 #include <arrows/ocv/image_container.h>
 #include <kwiversys/SystemTools.hxx>
@@ -311,7 +312,7 @@ detect( vital::image_container_sptr image_data ) const
     detections = d->process_image( cv_resized_image );
 
     // rescales output detections if required
-    detections->scale( 1.0 / scale_factor );
+    scale_detections( detections, 1.0 / scale_factor );
   }
   else
   {
@@ -334,9 +335,9 @@ detect( vital::image_container_sptr image_data ) const
 
         vital::detected_object_set_sptr new_dets = d->process_image( scaled_crop );
 
-        new_dets->scale( 1.0 / scaled_crop_scale );
-        new_dets->shift( li, lj );
-        new_dets->scale( 1.0 / scale_factor );
+        scale_detections( new_dets, 1.0 / scaled_crop_scale );
+        shift_detections( new_dets, li, lj );
+        scale_detections( new_dets, 1.0 / scale_factor );
 
         detections->add( new_dets );
       }
@@ -352,7 +353,7 @@ detect( vital::image_container_sptr image_data ) const
 
       vital::detected_object_set_sptr new_dets = d->process_image( scaled_original );
 
-      new_dets->scale( 1.0 / scaled_original_scale );
+      scale_detections( new_dets, 1.0 / scaled_original_scale );
 
       detections->add( new_dets );
     }
@@ -449,7 +450,7 @@ process_image( const cv::Mat& cv_image )
 
     kwiver::vital::bounding_box_d bbox( left, top, right, bot );
 
-    auto dot = std::make_shared< kwiver::vital::detected_object_type >();
+    auto cm = std::make_shared< kwiver::vital::class_map >();
     bool has_name = false;
 
     // Iterate over all classes and collect all names over the threshold, and max score
@@ -462,7 +463,7 @@ process_image( const cv::Mat& cv_image )
       if( prob >= m_thresh )
       {
         const std::string class_name( m_names[class_idx] );
-        dot->set_score( class_name, prob );
+        cm->set_score( class_name, prob );
         conf = std::max( conf, prob );
         has_name = true;
       }
@@ -471,7 +472,7 @@ process_image( const cv::Mat& cv_image )
     if( has_name )
     {
       detected_objects->add(
-        std::make_shared< kwiver::vital::detected_object >( bbox, conf, dot ) );
+        std::make_shared< kwiver::vital::detected_object >( bbox, conf, cm ) );
     }
   }
 
