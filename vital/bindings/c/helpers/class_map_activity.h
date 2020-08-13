@@ -30,64 +30,27 @@
 
 /**
  * \file
- * \brief Interface for class_map class
+ * \brief C++ Helper utilities for C interface of vital::class_map
+ *
+ * Private header for use in cxx implementation files.
  */
 
-#ifndef VITAL_C_CLASS_MAP_H_
-#define VITAL_C_CLASS_MAP_H_
+#ifndef VITAL_C_HELPERS_CLASS_MAP_H_
+#define VITAL_C_HELPERS_CLASS_MAP_H_
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+#include <vital/types/class_map.h>
+#include <vital/types/class_map_types.h>
+#include <vital/bindings/c/types/class_map.h>
+#include <vital/bindings/c/helpers/c_utils.h>
 
-#include <vital/bindings/c/vital_c_export.h>
+namespace kwiver {
+namespace vital_c {
 
-#include <stddef.h>
+/// Declaration of C interface shared_ptr cache of vital::class_map
+extern SharedPointerCache< kwiver::vital::class_map<activity_type>,
+                           vital_class_map_t > CM_SPTR_CACHE;
 
-/// VITAL Image opaque structure
-typedef struct vital_class_map_s vital_class_map_t;
-
-
-VITAL_C_EXPORT
-vital_class_map_t* vital_class_map_new();
-
-VITAL_C_EXPORT
-void vital_class_map_destroy(vital_class_map_t* obj);
-
-VITAL_C_EXPORT
-vital_class_map_t* vital_class_map_new_from_list( vital_class_map_t* obj,
-                                                  size_t count,
-                                                  char** class_names,
-                                                  double* scores);
-
-VITAL_C_EXPORT
-bool vital_class_map_has_class_name( vital_class_map_t* obj, char* class_name );
-
-VITAL_C_EXPORT
-double vital_class_map_score( vital_class_map_t* obj, char* class_name );
-
-VITAL_C_EXPORT
-char* vital_class_map_get_most_likely_class( vital_class_map_t* obj);
-
-VITAL_C_EXPORT
-double vital_class_map_get_most_likely_score( vital_class_map_t* obj);
-
-VITAL_C_EXPORT
-void vital_class_map_set_score( vital_class_map_t* obj, char* class_name, double score);
-
-VITAL_C_EXPORT
-void vital_class_map_delete_score( vital_class_map_t* obj, char* class_name);
-
-VITAL_C_EXPORT
-char** vital_class_map_class_names( vital_class_map_t* obj, double thresh );
-
-VITAL_C_EXPORT
-char** vital_class_map_all_class_names(vital_class_map_t* obj);
+} }
 
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* VITAL_C_CLASS_MAP_H_ */
+#endif //VITAL_C_HELPERS_CLASS_MAP_H_

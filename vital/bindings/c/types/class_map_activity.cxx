@@ -33,12 +33,12 @@
  * \brief vital::class_map C interface implementation
  */
 
-#include "class_map.h"
+#include "class_map_activity.h"
 
 #include <vital/types/class_map.h>
-
+#include <vital/types/class_map_types.h>
 #include <vital/bindings/c/helpers/c_utils.h>
-#include <vital/bindings/c/helpers/class_map.h>
+#include <vital/bindings/c/helpers/class_map_activity.h>
 
 #include <cstring>
 
@@ -46,28 +46,28 @@ namespace kwiver {
 namespace vital_c {
 
 // Allocate our shared pointer cache object
-SharedPointerCache< kwiver::vital::class_map, vital_class_map_t >
+SharedPointerCache< kwiver::vital::class_map<activity_type>, vital_class_map_activity_t >
   CM_SPTR_CACHE( "class_map" );
 
 } }
 
 
 // ------------------------------------------------------------------
-vital_class_map_t* vital_class_map_new()
+vital_class_map_activity_t* vital_class_map_activity_new()
 {
   STANDARD_CATCH(
     "C::class_map:new", 0,
-    auto cm_sptr = std::make_shared< kwiver::vital::class_map> ();
+    auto cm_sptr = std::make_shared< kwiver::vital::class_map<activity_type>> ();
 
     kwiver::vital_c::CM_SPTR_CACHE.store( cm_sptr );
-    return reinterpret_cast<vital_class_map_t*>( cm_sptr.get() );
+    return reinterpret_cast<vital_class_map_activity_t*>( cm_sptr.get() );
   );
   return 0;
 }
 
 
 // ------------------------------------------------------------------
-void vital_class_map_destroy(vital_class_map_t* obj)
+void vital_class_map_activity_destroy(vital_class_map_activity_t* obj)
 {
   STANDARD_CATCH(
     "C::class_map::destroy", 0,
@@ -78,7 +78,7 @@ void vital_class_map_destroy(vital_class_map_t* obj)
 
 
 // ------------------------------------------------------------------
-vital_class_map_t* vital_class_map_new_from_list( vital_class_map_t* obj,
+vital_class_map_activity_t* vital_class_map_activity_new_from_list( vital_class_map_activity_t* obj,
                                                   size_t count,
                                                   char** class_names,
                                                   double* scores )
@@ -92,16 +92,16 @@ vital_class_map_t* vital_class_map_new_from_list( vital_class_map_t* obj,
       names.push_back(class_names[i]);
       scores.push_back(scores[i]);
     }
-    auto cm_sptr = std::make_shared< kwiver::vital::class_map> ( names, scores );
+    auto cm_sptr = std::make_shared< kwiver::vital::class_map<activity_type>> ( names, scores );
     kwiver::vital_c::CM_SPTR_CACHE.store( cm_sptr );
-    return reinterpret_cast<vital_class_map_t*>( cm_sptr.get() );
+    return reinterpret_cast<vital_class_map_activity_t*>( cm_sptr.get() );
   );
   return 0;
 }
 
 
 // ------------------------------------------------------------------
-bool vital_class_map_has_class_name( vital_class_map_t* obj, char* class_name )
+bool vital_class_map_activity_has_class_name( vital_class_map_activity_t* obj, char* class_name )
 {
   STANDARD_CATCH(
     "C::class_map:has_class_name", 0,
@@ -112,7 +112,7 @@ bool vital_class_map_has_class_name( vital_class_map_t* obj, char* class_name )
 
 
 // ------------------------------------------------------------------
-double vital_class_map_score( vital_class_map_t* obj, char* class_name )
+double vital_class_map_activity_score( vital_class_map_activity_t* obj, char* class_name )
 {
   STANDARD_CATCH(
     "C::class_map:score", 0,
@@ -123,7 +123,7 @@ double vital_class_map_score( vital_class_map_t* obj, char* class_name )
 
 
 // ------------------------------------------------------------------
-char* vital_class_map_get_most_likely_class( vital_class_map_t* obj )
+char* vital_class_map_activity_get_most_likely_class( vital_class_map_activity_t* obj )
 {
   STANDARD_CATCH(
     "C::class_map:get_most_likely_class", 0,
@@ -139,7 +139,7 @@ char* vital_class_map_get_most_likely_class( vital_class_map_t* obj )
 
 
 // ------------------------------------------------------------------
-double vital_class_map_get_most_likely_score( vital_class_map_t* obj )
+double vital_class_map_activity_get_most_likely_score( vital_class_map_activity_t* obj )
 {
   STANDARD_CATCH(
     "C::class_map:get_most_likely_score", 0,
@@ -155,7 +155,7 @@ double vital_class_map_get_most_likely_score( vital_class_map_t* obj )
 
 
 // ------------------------------------------------------------------
-void vital_class_map_set_score( vital_class_map_t* obj,
+void vital_class_map_activity_set_score( vital_class_map_activity_t* obj,
                                 char* class_name,
                                 double score )
 {
@@ -167,7 +167,7 @@ void vital_class_map_set_score( vital_class_map_t* obj,
 
 
 // ------------------------------------------------------------------
-void vital_class_map_delete_score( vital_class_map_t* obj,
+void vital_class_map_activity_delete_score( vital_class_map_activity_t* obj,
                                    char* class_name)
 {
   STANDARD_CATCH(
@@ -178,7 +178,7 @@ void vital_class_map_delete_score( vital_class_map_t* obj,
 
 
 // ------------------------------------------------------------------
-char** vital_class_map_class_names( vital_class_map_t* obj,
+char** vital_class_map_activity_class_names( vital_class_map_activity_t* obj,
                                     double thresh )
 {
   STANDARD_CATCH(
@@ -199,12 +199,12 @@ char** vital_class_map_class_names( vital_class_map_t* obj,
 
 
 // ------------------------------------------------------------------
-char** vital_class_map_all_class_names(vital_class_map_t* obj)
+char** vital_class_map_activity_all_class_names(vital_class_map_activity_t* obj)
 {
   STANDARD_CATCH(
     "C::class_map:all_class_names", 0,
 
-    auto name_vector = kwiver::vital::class_map::all_class_names();
+    auto name_vector = kwiver::vital::class_map<activity_type>::all_class_names();
     char** name_list = (char **) calloc( sizeof( char *), name_vector.size() +1 );
 
     for ( size_t i = 0; i < name_vector.size(); ++i )

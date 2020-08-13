@@ -20,7 +20,8 @@ set(vital_c_public_headers
   types/camera.h
   types/camera_intrinsics.h
   types/camera_map.h
-  types/class_map.h
+  types/class_map_object.h
+  types/class_map_activity.h
   types/color.h
   types/covariance.h
   types/descriptor.h
@@ -54,7 +55,8 @@ set(vital_c_private_headers
   helpers/camera.h
   helpers/camera_intrinsics.h
   helpers/camera_map.h
-  helpers/class_map.h
+  helpers/class_map_object.h
+  helpers/class_map_activity.h
   helpers/config_block.h
   helpers/descriptor.h
   helpers/descriptor_set.h
@@ -89,7 +91,8 @@ set(vital_c_sources
   types/camera.cxx
   types/camera_intrinsics.cxx
   types/camera_map.cxx
-  types/class_map.cxx
+  types/class_map_object.h
+  types/class_map_activity.cxx
   types/color.cxx
   types/covariance.cxx
   types/descriptor.cxx

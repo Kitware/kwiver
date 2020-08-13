@@ -39,7 +39,7 @@
 #define VITAL_C_HELPERS_CLASS_MAP_H_
 
 #include <vital/types/class_map.h>
-
+#include <vital/types/class_map_types.h>
 #include <vital/bindings/c/types/class_map.h>
 #include <vital/bindings/c/helpers/c_utils.h>
 
@@ -47,7 +47,7 @@ namespace kwiver {
 namespace vital_c {
 
 /// Declaration of C interface shared_ptr cache of vital::class_map
-extern SharedPointerCache< kwiver::vital::class_map,
+extern SharedPointerCache< kwiver::vital::class_map<detected_object_type>,
                            vital_class_map_t > CM_SPTR_CACHE;
 
 } }
