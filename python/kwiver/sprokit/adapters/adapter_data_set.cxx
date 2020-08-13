@@ -46,112 +46,86 @@
 #include <vital/types/homography_f2f.h>
 
 using namespace pybind11;
-
-namespace kwiver{
-namespace sprokit{
-namespace python{
-
-void
-ads_add_value_py(kwiver::adapter::adapter_data_set &self, ::sprokit::process::port_t const& port, object const& obj);
-
-object
-ads_get_port_data_py(kwiver::adapter::adapter_data_set &self, ::sprokit::process::port_t const& port);
-
-}
-}
-}
+using namespace kwiver::adapter;
 
 PYBIND11_MODULE(adapter_data_set, m)
 {
-  enum_<kwiver::adapter::adapter_data_set::data_set_type>(m, "DataSetType"
+  enum_<adapter_data_set::data_set_type>(m, "DataSetType"
     , "Type of data set.")
-    .value("data", kwiver::adapter::adapter_data_set::data)
-    .value("end_of_input", kwiver::adapter::adapter_data_set::end_of_input)
+    .value("data", adapter_data_set::data)
+    .value("end_of_input", adapter_data_set::end_of_input)
   ;
 
-  class_< kwiver::adapter::adapter_data_set, std::shared_ptr<kwiver::adapter::adapter_data_set > >(m, "AdapterDataSet")
-    .def_static("create", &kwiver::adapter::adapter_data_set::create
-        , (arg("type") = kwiver::adapter::adapter_data_set::data_set_type::data))
+  class_< adapter_data_set, std::shared_ptr<adapter_data_set > >(m, "AdapterDataSet")
+    .def_static("create", &adapter_data_set::create
+        , (arg("type") = adapter_data_set::data_set_type::data))
 
-    .def("__iter__", [](kwiver::adapter::adapter_data_set &self)
+    .def("__iter__", [](adapter_data_set &self)
                                       {
                                         return make_iterator(self.cbegin(),self.cend());
                                       }
                         , keep_alive<0,1>())
-    .def("type", &kwiver::adapter::adapter_data_set::type)
-    .def("is_end_of_data", &kwiver::adapter::adapter_data_set::is_end_of_data)
-    .def("add_value", &kwiver::sprokit::python::ads_add_value_py)
-    .def("add_datum", &kwiver::adapter::adapter_data_set::add_datum)
+    .def("type", &adapter_data_set::type)
+    .def("is_end_of_data", &adapter_data_set::is_end_of_data)
+    .def("add_value", [] (adapter_data_set &self, ::sprokit::process::port_t const& port, object const& obj)
+    {
+      self.add_value<kwiver::vital::any>(port, obj);
+    })
+    .def("add_datum", &adapter_data_set::add_datum)
 
     // The add_value function is templated.
     // To bind the function, we must bind explicit instances of it,
     // each with a different type.
     // First the native C++ types
-    .def("add_int", &kwiver::adapter::adapter_data_set::add_value<int>)
-    .def("add_float", &kwiver::adapter::adapter_data_set::add_value<float>)
-    .def("add_string", &kwiver::adapter::adapter_data_set::add_value<std::string>)
+    .def("add_int", &adapter_data_set::add_value<int>)
+    .def("add_float", &adapter_data_set::add_value<float>)
+    .def("add_string", &adapter_data_set::add_value<std::string>)
 
     // Next shared ptrs to kwiver vital types
-    .def("add_image_container", &kwiver::adapter::adapter_data_set::add_value<std::shared_ptr<kwiver::vital::image_container > >)
-    .def("add_descriptor_set", &kwiver::adapter::adapter_data_set::add_value<std::shared_ptr<kwiver::vital::descriptor_set > >)
-    .def("add_detected_object_set", &kwiver::adapter::adapter_data_set::add_value<std::shared_ptr<kwiver::vital::detected_object_set > >)
-    .def("add_track_set", &kwiver::adapter::adapter_data_set::add_value<std::shared_ptr<kwiver::vital::track_set > >)
-    .def("add_feature_track_set", &kwiver::adapter::adapter_data_set::add_value<std::shared_ptr<kwiver::vital::feature_track_set > >)
-    .def("add_object_track_set", &kwiver::adapter::adapter_data_set::add_value<std::shared_ptr<kwiver::vital::object_track_set > >)
+    .def("add_image_container", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::image_container > >)
+    .def("add_descriptor_set", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::descriptor_set > >)
+    .def("add_detected_object_set", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::detected_object_set > >)
+    .def("add_track_set", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::track_set > >)
+    .def("add_feature_track_set", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::feature_track_set > >)
+    .def("add_object_track_set", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::object_track_set > >)
     //Next shared ptrs to native C++ types
-    .def("add_double_vector", &kwiver::adapter::adapter_data_set::add_value<std::shared_ptr<std::vector<double > > >)
-    .def("add_string_vector", &kwiver::adapter::adapter_data_set::add_value<std::shared_ptr<std::vector<std::string > > >)
-    .def("add_uchar_vector", &kwiver::adapter::adapter_data_set::add_value<std::shared_ptr<std::vector<unsigned char > > >)
+    .def("add_double_vector", &adapter_data_set::add_value<std::shared_ptr<std::vector<double > > >)
+    .def("add_string_vector", &adapter_data_set::add_value<std::shared_ptr<std::vector<std::string > > >)
+    .def("add_uchar_vector", &adapter_data_set::add_value<std::shared_ptr<std::vector<unsigned char > > >)
     //Next kwiver vital types
-    .def("add_bounding_box", &kwiver::adapter::adapter_data_set::add_value<kwiver::vital::bounding_box_d>)
-    .def("add_timestamp", &kwiver::adapter::adapter_data_set::add_value<kwiver::vital::timestamp>)
-    .def("add_corner_points", &kwiver::adapter::adapter_data_set::add_value<kwiver::vital::geo_polygon>)
-    .def("add_f2f_homography", &kwiver::adapter::adapter_data_set::add_value<kwiver::vital::f2f_homography>)
+    .def("add_bounding_box", &adapter_data_set::add_value<kwiver::vital::bounding_box_d>)
+    .def("add_timestamp", &adapter_data_set::add_value<kwiver::vital::timestamp>)
+    .def("add_corner_points", &adapter_data_set::add_value<kwiver::vital::geo_polygon>)
+    .def("add_f2f_homography", &adapter_data_set::add_value<kwiver::vital::f2f_homography>)
 
-    .def("empty", &kwiver::adapter::adapter_data_set::empty)
+    .def("empty", &adapter_data_set::empty)
 
     // get_port_data is also templated
-    .def("get_port_data", &kwiver::sprokit::python::ads_get_port_data_py)
-    .def("get_port_data_int", &kwiver::adapter::adapter_data_set::get_port_data<int>)
-    .def("get_port_data_float", &kwiver::adapter::adapter_data_set::get_port_data<float>)
-    .def("get_port_data_string", &kwiver::adapter::adapter_data_set::get_port_data<std::string>)
+    .def("get_port_data", [] (adapter_data_set &self, ::sprokit::process::port_t const& port)
+    {
+      object dat = none();
+      kwiver::vital::any const any = self.get_port_data<kwiver::vital::any>(port);
+      dat = kwiver::vital::any_cast<object>(any);
+      return dat;
+    })
+    .def("get_port_data_int", &adapter_data_set::get_port_data<int>)
+    .def("get_port_data_float", &adapter_data_set::get_port_data<float>)
+    .def("get_port_data_string", &adapter_data_set::get_port_data<std::string>)
     // Next shared ptrs to kwiver vital types
-    .def("get_port_data_image_container", &kwiver::adapter::adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::image_container > >)
-    .def("get_port_data_descriptor_set", &kwiver::adapter::adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::descriptor_set > >)
-    .def("get_port_data_detected_object_set", &kwiver::adapter::adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::detected_object_set > >)
-    .def("get_port_data_track_set", &kwiver::adapter::adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::track_set > >)
-    .def("get_port_data_feature_track_set", &kwiver::adapter::adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::feature_track_set > >)
-    .def("get_port_data_object_track_set", &kwiver::adapter::adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::object_track_set > >)
+    .def("get_port_data_image_container", &adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::image_container > >)
+    .def("get_port_data_descriptor_set", &adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::descriptor_set > >)
+    .def("get_port_data_detected_object_set", &adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::detected_object_set > >)
+    .def("get_port_data_track_set", &adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::track_set > >)
+    .def("get_port_data_feature_track_set", &adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::feature_track_set > >)
+    .def("get_port_data_object_track_set", &adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::object_track_set > >)
     //Next shared ptrs to native C++ types
-    .def("get_port_data_double_vector", &kwiver::adapter::adapter_data_set::get_port_data<std::shared_ptr<std::vector<double > > >)
-    .def("get_port_data_string_vector", &kwiver::adapter::adapter_data_set::get_port_data<std::shared_ptr<std::vector<std::string > > >)
-    .def("get_port_data_uchar_vector", &kwiver::adapter::adapter_data_set::get_port_data<std::shared_ptr<std::vector<unsigned char > > >)
+    .def("get_port_data_double_vector", &adapter_data_set::get_port_data<std::shared_ptr<std::vector<double > > >)
+    .def("get_port_data_string_vector", &adapter_data_set::get_port_data<std::shared_ptr<std::vector<std::string > > >)
+    .def("get_port_data_uchar_vector", &adapter_data_set::get_port_data<std::shared_ptr<std::vector<unsigned char > > >)
     //Next kwiver vital types
-    .def("get_port_data_bounding_box", &kwiver::adapter::adapter_data_set::get_port_data<kwiver::vital::bounding_box_d>)
-    .def("get_port_data_timestamp", &kwiver::adapter::adapter_data_set::get_port_data<kwiver::vital::timestamp>)
-    .def("get_port_data_corner_points", &kwiver::adapter::adapter_data_set::get_port_data<kwiver::vital::geo_polygon>)
-    .def("get_port_data_f2f_homography", &kwiver::adapter::adapter_data_set::get_port_data<kwiver::vital::f2f_homography>)
+    .def("get_port_data_bounding_box", &adapter_data_set::get_port_data<kwiver::vital::bounding_box_d>)
+    .def("get_port_data_timestamp", &adapter_data_set::get_port_data<kwiver::vital::timestamp>)
+    .def("get_port_data_corner_points", &adapter_data_set::get_port_data<kwiver::vital::geo_polygon>)
+    .def("get_port_data_f2f_homography", &adapter_data_set::get_port_data<kwiver::vital::f2f_homography>)
     ;
-}
-
-namespace kwiver{
-namespace sprokit{
-namespace python{
-
-void
-ads_add_value_py(kwiver::adapter::adapter_data_set &self, ::sprokit::process::port_t const& port, object const& obj)
-{
-  self.add_value<kwiver::vital::any>(port, obj);
-}
-
-object
-ads_get_port_data_py(kwiver::adapter::adapter_data_set &self, ::sprokit::process::port_t const& port)
-{
-  object dat = none();
-  kwiver::vital::any const any = self.get_port_data<kwiver::vital::any>(port);
-  dat = kwiver::vital::any_cast<object>(any);
-  return dat;
-}
-}
-}
 }
