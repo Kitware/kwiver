@@ -40,7 +40,7 @@
 #include <vital/vital_export.h>
 
 #include <vital/vital_types.h>
-#include <vital/types/class_map.h>
+#include <vital/types/class_map_types.h>
 #include <vital/types/timestamp.h>
 #include <vital/types/object_track_set.h>
 
@@ -78,7 +78,7 @@ public:
   activity( activity_id_t activity_id,
             activity_label_t activity_label=UNDEFINED_ACTIVITY,
             activity_confidence_t activity_confidence=-1.0,
-            class_map_sptr class_map=nullptr,
+            activity_type_sptr class_map=nullptr,
             kwiver::vital::timestamp start=kwiver::vital::timestamp(-1, -1),
             kwiver::vital::timestamp end=kwiver::vital::timestamp(-1, -1),
             kwiver::vital::object_track_set_sptr participants=nullptr );
@@ -116,14 +116,14 @@ public:
    *
    * @return the activity type for the activity
    */
-  class_map_sptr activity_type() const;
+  activity_type_sptr activity_type() const;
 
   /**
    * @brief Set activity type for the activity
    *
    * @param activity_type A map of classifications and scores for the activity
    */
-  void set_activity_type( class_map_sptr class_map );
+  void set_activity_type( activity_type_sptr class_map );
 
   /**
    * @brief Get activity confidence
@@ -191,7 +191,7 @@ public:
 private:
   activity_id_t m_activity_id;
   activity_label_t m_activity_label;
-  class_map_sptr m_class_map;
+  activity_type_sptr m_class_map;
   activity_confidence_t m_activity_confidence;
   kwiver::vital::object_track_set_sptr m_participants;
   kwiver::vital::timestamp m_start_frame, m_end_frame;

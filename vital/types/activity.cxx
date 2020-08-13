@@ -49,7 +49,7 @@ namespace vital {
   activity::activity( activity_id_t activity_id,
                       activity_label_t activity_label,
                       activity_confidence_t activity_confidence,
-                      class_map_sptr class_map,
+                      activity_type_sptr class_map,
                       kwiver::vital::timestamp start,
                       kwiver::vital::timestamp end,
                       kwiver::vital::object_track_set_sptr participants )
@@ -83,12 +83,12 @@ namespace vital {
     m_activity_label = activity_label;
   }
 
-  class_map_sptr activity::activity_type() const
+  activity_type_sptr activity::activity_type() const
   {
     return m_class_map;
   }
 
-  void activity::set_activity_type( class_map_sptr class_map )
+  void activity::set_activity_type( activity_type_sptr class_map )
   {
     m_class_map = class_map;
   }

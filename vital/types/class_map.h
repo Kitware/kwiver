@@ -71,6 +71,7 @@ namespace vital {
  * static string pool. Every effort has been made to make this pool
  * externally unmutable. Your cooperation is appreciated.
  */
+template <class T>
 class VITAL_EXPORT class_map
 {
 public:
@@ -315,8 +316,10 @@ private:
 };
 
 // typedef for a class_map shared pointer
-using class_map_sptr = std::shared_ptr< class_map >;
-using class_map_scptr = std::shared_ptr< class_map const >;
+template <class T>
+using class_map_sptr = std::shared_ptr< class_map<T> >;
+template <class T>
+using class_map_scptr = std::shared_ptr< class_map<T> const >;
 
 } }
 

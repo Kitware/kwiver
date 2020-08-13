@@ -100,6 +100,7 @@ set( vital_public_headers
   types/camera_rpc.h
   types/category_hierarchy.h
   types/class_map.h
+  types/class_map_types.h
   types/color.h
   types/covariance.h
   types/database_query.h

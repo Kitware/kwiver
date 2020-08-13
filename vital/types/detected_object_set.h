@@ -178,7 +178,7 @@ public:
    *
    * @return List of detections.
    */
-  detected_object_set_sptr select( double threshold = class_map::INVALID_SCORE ) const;
+  detected_object_set_sptr select( double threshold = detected_object_type::INVALID_SCORE ) const;
 
   /**
    * @brief Select detections based on class_name
@@ -200,7 +200,7 @@ public:
    * @return List of detections.
    */
   detected_object_set_sptr select( const std::string& class_name,
-                                   double             threshold = class_map::INVALID_SCORE ) const;
+                                   double             threshold = detected_object_type::INVALID_SCORE ) const;
 
   /**
    * @brief Scale all detection locations by some scale factor.
