@@ -34,7 +34,7 @@
  */
 
 #include <vital/types/detected_object_set.h>
-
+#include <vital/types/class_map_types.h>
 #include <gtest/gtest.h>
 
 using namespace kwiver::vital;
@@ -67,7 +67,7 @@ detected_object_set_sptr make_do_set()
 
   bounding_box_d bb{ 10, 20, 30, 40 };
 
-  auto cm = std::make_shared<class_map>( names, scores );
+  auto cm = std::make_shared<detected_object_type>( names, scores );
 
   do_set->add( std::make_shared<detected_object>( bb ) ); // using defaults
 
@@ -75,13 +75,13 @@ detected_object_set_sptr make_do_set()
 
   do_set->add( std::make_shared<detected_object>( bb, 0.65, cm ) );
 
-  auto cm1 = std::make_shared<class_map>( names, scores1 );
+  auto cm1 = std::make_shared<detected_object_type>( names, scores1 );
   do_set->add( std::make_shared<detected_object>( bb, 0.75, cm1 ) );
 
-  auto cm2 = std::make_shared<class_map>( names, scores2 );
+  auto cm2 = std::make_shared<detected_object_type>( names, scores2 );
   do_set->add( std::make_shared<detected_object>( bb, 0.78, cm2 ) );
 
-  auto cm3 = std::make_shared<class_map>( names, scores3 );
+  auto cm3 = std::make_shared<detected_object_type>( names, scores3 );
   do_set->add( std::make_shared<detected_object>( bb, 0.70, cm3 ) );
 
   EXPECT_EQ( 5, do_set->size() );
@@ -163,7 +163,7 @@ TEST(detected_object_set, clone_2)
 
   bounding_box_d bb{ 10, 20, 30, 40 };
 
-  auto cm = std::make_shared<class_map>( names, scores );
+  auto cm = std::make_shared<detected_object_type>( names, scores );
 
   auto detection = std::make_shared<detected_object>( bb ); // using defaults
   do_set.add( detection );

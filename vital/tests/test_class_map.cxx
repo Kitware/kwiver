@@ -34,7 +34,7 @@
  */
 
 #include <vital/types/class_map.h>
-
+#include <vital/types/class_map_types.h>
 #include <gtest/gtest.h>
 
 using namespace kwiver::vital;
@@ -56,9 +56,53 @@ int main(int argc, char** argv)
 }
 
 // ----------------------------------------------------------------------------
-TEST(class_map, api)
+TEST(class_map, api_object)
 {
-  class_map cm( names, scores );
+  class_map< detected_object_type > cm( names, scores );
+
+  EXPECT_EQ( 0.07, cm.score( "other" ) );
+
+  std::string ml_name;
+  double ml_score;
+  cm.get_most_likely( ml_name, ml_score );
+
+  EXPECT_EQ( "person", ml_name );
+  EXPECT_EQ( 0.65, ml_score );
+
+  for ( size_t i = 0; i < names.size(); ++i )
+  {
+    SCOPED_TRACE(
+      "For score " + std::to_string( i ) + " ('" + names[i] + "')" );
+
+    EXPECT_EQ( scores[i], cm.score( names[i] ) );
+  }
+
+  EXPECT_EQ( 0.055, cm.score( "clam" ) );
+
+  cm.set_score( "clam", 1.23 );
+  EXPECT_EQ( 1.23, cm.score( "clam" ) );
+
+  EXPECT_EQ( 5, cm.class_names().size() );
+
+  EXPECT_NO_THROW( cm.score( "other" ) ); // make sure this entry exists
+  cm.delete_score( "other" );
+  EXPECT_THROW( cm.score("other"), std::runtime_error )
+    << "Accessing deleted class name";
+
+  EXPECT_EQ( 4, cm.class_names().size() );
+
+  for ( auto const& name : cm.class_names() )
+  {
+    std::cout << " -- " << name << "    score: "
+              << cm.score( name ) << std::endl;
+  }
+
+}
+
+// ----------------------------------------------------------------------------
+TEST(class_map, api_activity)
+{
+  class_map< activity_type > cm( names, scores );
 
   EXPECT_EQ( 0.07, cm.score( "other" ) );
 
@@ -106,27 +150,55 @@ TEST(class_map, creation_error)
   wrong_size_scores.resize( 4 );
 
   EXPECT_THROW(
-    class_map cm( {}, {} ),
+    class_map< detected_object_type > cm( {}, {} ),
     std::invalid_argument );
 
   EXPECT_THROW(
-    class_map cm( names, wrong_size_scores ),
+    class_map< activity_type > cm( {}, {} ),
+    std::invalid_argument );
+
+  EXPECT_THROW(
+    class_map< detected_object_type > cm( names, wrong_size_scores ),
+    std::invalid_argument );
+
+  EXPECT_THROW(
+    class_map< activity_type > cm( names, wrong_size_scores ),
     std::invalid_argument );
 }
 
 // ----------------------------------------------------------------------------
-TEST(class_map, name_pool)
+TEST(class_map, name_pool_object)
 {
-  class_map cm( names, scores );
+  class_map<detected_object_type> cm( names, scores );
 
   std::vector<std::string> alt_names =
     { "a-person", "a-vehicle", "a-other", "a-clam", "a-barnacle" };
 
-  class_map cm_2( alt_names, scores );
+  class_map<detected_object_type> cm_2( alt_names, scores );
 
-  EXPECT_EQ( 10, class_map::all_class_names().size() );
+  EXPECT_EQ( 10, class_map<detected_object_type>::all_class_names().size() );
 
-  for ( auto const& name : class_map::all_class_names() )
+  for ( auto const& name : class_map<detected_object_type>::all_class_names() )
+  {
+    std::cout << "  --  " << name << std::endl;
+  }
+
+}
+
+
+// ----------------------------------------------------------------------------
+TEST(class_map, name_pool_activity)
+{
+  class_map<activity_type> cm( names, scores );
+
+  std::vector<std::string> alt_names =
+    { "a-person", "a-vehicle", "a-other", "a-clam", "a-barnacle" };
+
+  class_map<activity_type> cm_2( alt_names, scores );
+
+  EXPECT_EQ( 10, class_map<activity_type>::all_class_names().size() );
+
+  for ( auto const& name : class_map<activity_type>::all_class_names() )
   {
     std::cout << "  --  " << name << std::endl;
   }

@@ -40,7 +40,7 @@
 
 #include <vital/types/class_map.h>
 #include <vital/types/class_map_types.h>
-#include <vital/bindings/c/types/class_map.h>
+#include <vital/bindings/c/types/class_map_activity.h>
 #include <vital/bindings/c/helpers/c_utils.h>
 
 namespace kwiver {

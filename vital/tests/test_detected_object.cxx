@@ -107,7 +107,7 @@ TEST(detected_object, modification)
   };
 
   auto const cm =
-    std::make_shared< kwiver::vital::class_map >( names, scores );
+    std::make_shared< kwiver::vital::detected_object_type >( names, scores );
   dobj.set_type( cm );
   EXPECT_EQ( cm, dobj.type() );
 
