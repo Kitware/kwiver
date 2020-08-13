@@ -44,7 +44,7 @@ PYBIND11_MODULE(activity, m)
     .def(py::init<kwiver::vital::activity_id_t,
                   kwiver::vital::activity_label_t,
                   kwiver::vital::activity_confidence_t,
-                  kwiver::vital::class_map_sptr,
+                  kwiver::vital::activity_type_sptr,
                   kwiver::vital::timestamp,
                   kwiver::vital::timestamp,
                   kwiver::vital::object_track_set_sptr>(),
@@ -52,7 +52,7 @@ PYBIND11_MODULE(activity, m)
           py::arg("activity_label") = kwiver::vital::UNDEFINED_ACTIVITY,
           py::arg("activity_confidence") = -1.0,
           py::arg("class_map") =
-           std::make_shared<kwiver::vital::class_map>(kwiver::vital::UNDEFINED_ACTIVITY,
+           std::make_shared<kwiver::vital::activity_type>(kwiver::vital::UNDEFINED_ACTIVITY,
                                                         -1.0),
           py::arg("start_time") = kwiver::vital::timestamp(-1, -1),
           py::arg("end_time") = kwiver::vital::timestamp(-1, -1),

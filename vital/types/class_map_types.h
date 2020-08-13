@@ -53,6 +53,7 @@ namespace vital  {
 
 class VITAL_EXPORT detected_object_type : public class_map<detected_object_type>
 {
+public:
 
 
   /**
@@ -99,6 +100,7 @@ using detected_object_type_scptr = std::shared_ptr< detected_object_type const >
 
 class VITAL_EXPORT activity_type : public class_map<activity_type>
 {
+public:
     /**
    * @brief Create an empty object.
    *

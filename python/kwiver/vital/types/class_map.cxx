@@ -31,42 +31,52 @@
 #include <pybind11/stl.h>
 
 #include <vital/types/class_map.h>
+#include <vital/types/class_map_types.h>
 
 namespace py = pybind11;
-
-
-
-PYBIND11_MODULE(class_map, m)
+namespace kv = kwiver::vital;
+template < typename T >
+void declare_class_map(py::module &m, std::string const &typestr )
 {
-  py::class_<kwiver::vital::class_map, std::shared_ptr<kwiver::vital::class_map>>(m, "ClassMap")
+  using Class = kv::class_map<T>;
+  const std::string pyclass_name = std::string( "ClassMap") + typestr;
+
+  py::class_<Class, std::shared_ptr< Class >>(m, pyclass_name.c_str() )
   .def(py::init<>())
   .def(py::init<std::vector<std::string>, std::vector<double>>())
   .def(py::init<std::string, double>())
 
-  .def("has_class_name", &kwiver::vital::class_map::has_class_name,
+  .def("has_class_name", &Class::has_class_name,
     py::arg("class_name"))
-  .def("score", &kwiver::vital::class_map::score,
+  .def("score", &Class::class_map::score,
     py::arg("class_name"))
-  .def("get_most_likely_class", [](std::shared_ptr<kwiver::vital::class_map> self)
+  .def("get_most_likely_class", [](std::shared_ptr<Class> self)
     {
       std::string max_name;
       double max_score;
       self->get_most_likely(max_name, max_score);
       return max_name;
     })
-  .def("get_most_likely_score", [](std::shared_ptr<kwiver::vital::class_map> self)
+  .def("get_most_likely_score", [](std::shared_ptr<Class> self)
     {
       std::string max_name;
       double max_score;
       self->get_most_likely(max_name, max_score);
       return max_score;
     })
-  .def("set_score", &kwiver::vital::class_map::set_score,
+  .def("set_score", &Class::set_score,
     py::arg("class_name"), py::arg("score"))
-  .def("delete_score", &kwiver::vital::class_map::delete_score,
+  .def("delete_score", &Class::delete_score,
     py::arg("class_name"))
-  .def("class_names", &kwiver::vital::class_map::class_names,
-    py::arg("threshold")=kwiver::vital::class_map::INVALID_SCORE)
-  .def_static("all_class_names", &kwiver::vital::class_map::all_class_names)
+  .def("class_names", &Class::class_names,
+    py::arg("threshold")=Class::INVALID_SCORE)
+  .def_static("all_class_names", &Class::all_class_names)
   ;
+}
+
+
+PYBIND11_MODULE(class_map, m)
+{
+  declare_class_map< kv::detected_object_type >( m, "DetObj" );
+  declare_class_map< kv::activity_type >( m, "Activity" );
 }
