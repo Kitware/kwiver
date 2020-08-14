@@ -28,15 +28,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <python/kwiver/vital/types/activity.h>
 #include <vital/vital_types.h>
 #include <vital/types/activity.h>
-
+#include <vital/types/class_map_types.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(activity, m)
+void activity(py::module &m)
 {
   py::class_<kwiver::vital::activity,
              std::shared_ptr<kwiver::vital::activity>>(m, "Activity")
@@ -51,7 +52,7 @@ PYBIND11_MODULE(activity, m)
           py::arg("activity_id") = -1,
           py::arg("activity_label") = kwiver::vital::UNDEFINED_ACTIVITY,
           py::arg("activity_confidence") = -1.0,
-          py::arg("class_map") =
+          py::arg("activity_type") =
            std::make_shared<kwiver::vital::activity_type>(kwiver::vital::UNDEFINED_ACTIVITY,
                                                         -1.0),
           py::arg("start_time") = kwiver::vital::timestamp(-1, -1),

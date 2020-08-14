@@ -23,12 +23,16 @@ target_link_libraries(python-vital.types-types
   PUBLIC ${PYTHON_LIBRARIES}
          vital)
 
-kwiver_add_python_library(activity
+kwiver_add_python_library(activity_types
   vital/types
+  activity.h
   activity.cxx
+  activity_type.h
+  activity_type.cxx
+  activity_types_module.cxx
   )
 
-target_link_libraries(python-vital.types-activity
+target_link_libraries(python-vital.types-activity_types
   PUBLIC ${PYTHON_LIBRARIES}
          vital)
 
@@ -106,6 +110,13 @@ kwiver_add_python_library(detected_object_set
   vital/types
   detected_object_set.cxx)
 target_link_libraries(python-vital.types-detected_object_set
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
+
+kwiver_add_python_library(detected_object_type
+  vital/types
+  detected_object_type.cxx)
+target_link_libraries(python-vital.types-detected_object_type
   PUBLIC ${PYTHON_LIBRARIES}
          vital)
 
@@ -213,6 +224,6 @@ if(NOT SKBUILD)
     # must be loaded after them.  (In particular, object_track_set
     # depends on track_set, and activity depends on object_track_set.)
     object_track_set
-    activity
+    activity_types
   )
 endif()
