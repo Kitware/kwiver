@@ -204,3 +204,20 @@ TEST(class_map, name_pool_activity)
   }
 
 }
+
+TEST(class_map, obj_activity_shared_name_pool)
+{
+  class_map<activity_type> cmA( names, scores );
+  
+  std::vector<std::string> alt_names =
+    { "a-person", "a-vehicle", "a-other", "a-clam", "a-barnacle" };
+
+  class_map<detected_object_type> cmO( alt_names, scores );
+
+  EXPECT_EQ( 5, class_map<activity_type>::all_class_names().size() );
+
+  for ( auto const& name : class_map<activity_type>::all_class_names() )
+  {
+    std::cout << "  --  " << name << std::endl;
+  }
+}
