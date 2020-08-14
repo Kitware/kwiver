@@ -46,8 +46,8 @@ namespace kwiver {
 namespace vital_c {
 
 // Allocate our shared pointer cache object
-SharedPointerCache< kwiver::vital::class_map<detected_object_type>, vital_class_map_object_t >
-  CM_SPTR_CACHE( "class_map" );
+SharedPointerCache< kwiver::vital::class_map< kwiver::vital::detected_object_type >, vital_class_map_object_t >
+  CMO_SPTR_CACHE( "class_map" );
 
 } }
 
@@ -57,9 +57,9 @@ vital_class_map_object_t* vital_class_map_object_new()
 {
   STANDARD_CATCH(
     "C::class_map:new", 0,
-    auto cm_sptr = std::make_shared< kwiver::vital::class_map<detected_object_type>> ();
+    auto cm_sptr = std::make_shared< kwiver::vital::class_map< kwiver::vital::detected_object_type >> ();
 
-    kwiver::vital_c::CM_SPTR_CACHE.store( cm_sptr );
+    kwiver::vital_c::CMO_SPTR_CACHE.store( cm_sptr );
     return reinterpret_cast<vital_class_map_object_t*>( cm_sptr.get() );
   );
   return 0;
@@ -71,7 +71,7 @@ void vital_class_map_object_destroy(vital_class_map_object_t* obj)
 {
   STANDARD_CATCH(
     "C::class_map::destroy", 0,
-    kwiver::vital_c::CM_SPTR_CACHE.erase( obj );
+    kwiver::vital_c::CMO_SPTR_CACHE.erase( obj );
 
   );
 }
@@ -92,8 +92,8 @@ vital_class_map_object_t* vital_class_map_object_new_from_list( vital_class_map_
       names.push_back(class_names[i]);
       scores.push_back(scores[i]);
     }
-    auto cm_sptr = std::make_shared< kwiver::vital::class_map<object>> ( names, scores );
-    kwiver::vital_c::CM_SPTR_CACHE.store( cm_sptr );
+    auto cm_sptr = std::make_shared< kwiver::vital::class_map< kwiver::vital::detected_object_type>> ( names, scores );
+    kwiver::vital_c::CMO_SPTR_CACHE.store( cm_sptr );
     return reinterpret_cast<vital_class_map_object_t*>( cm_sptr.get() );
   );
   return 0;
@@ -105,7 +105,7 @@ bool vital_class_map_object_has_class_name( vital_class_map_object_t* obj, char*
 {
   STANDARD_CATCH(
     "C::class_map:has_class_name", 0,
-    return kwiver::vital_c::CM_SPTR_CACHE.get( obj )->has_class_name( std::string( class_name ));
+    return kwiver::vital_c::CMO_SPTR_CACHE.get( obj )->has_class_name( std::string( class_name ));
     );
   return false;
 }
@@ -116,7 +116,7 @@ double vital_class_map_object_score( vital_class_map_object_t* obj, char* class_
 {
   STANDARD_CATCH(
     "C::class_map:score", 0,
-    return kwiver::vital_c::CM_SPTR_CACHE.get( obj )->score( std::string( class_name ));
+    return kwiver::vital_c::CMO_SPTR_CACHE.get( obj )->score( std::string( class_name ));
     );
   return 0;
 }
@@ -130,7 +130,7 @@ char* vital_class_map_object_get_most_likely_class( vital_class_map_object_t* ob
 
     std::string class_name;
     double score;
-    kwiver::vital_c::CM_SPTR_CACHE.get( obj )->get_most_likely( class_name, score );
+    kwiver::vital_c::CMO_SPTR_CACHE.get( obj )->get_most_likely( class_name, score );
 
     return strdup( class_name.c_str() );
     );
@@ -146,7 +146,7 @@ double vital_class_map_object_get_most_likely_score( vital_class_map_object_t* o
 
     std::string class_name;
     double score;
-    kwiver::vital_c::CM_SPTR_CACHE.get( obj )->get_most_likely( class_name, score );
+    kwiver::vital_c::CMO_SPTR_CACHE.get( obj )->get_most_likely( class_name, score );
 
     return score;
     );
@@ -161,7 +161,7 @@ void vital_class_map_object_set_score( vital_class_map_object_t* obj,
 {
   STANDARD_CATCH(
     "C::class_map:set_score", 0,
-    kwiver::vital_c::CM_SPTR_CACHE.get( obj )->set_score( std::string( class_name ), score);
+    kwiver::vital_c::CMO_SPTR_CACHE.get( obj )->set_score( std::string( class_name ), score);
     );
 }
 
@@ -172,7 +172,7 @@ void vital_class_map_object_delete_score( vital_class_map_object_t* obj,
 {
   STANDARD_CATCH(
     "C::class_map:delete_score", 0,
-    kwiver::vital_c::CM_SPTR_CACHE.get( obj )->delete_score( std::string( class_name ) );
+    kwiver::vital_c::CMO_SPTR_CACHE.get( obj )->delete_score( std::string( class_name ) );
     );
 }
 
@@ -184,7 +184,7 @@ char** vital_class_map_object_class_names( vital_class_map_object_t* obj,
   STANDARD_CATCH(
     "C::class_map:class_names", 0,
 
-    auto name_vector = kwiver::vital_c::CM_SPTR_CACHE.get( obj )->class_names();
+    auto name_vector = kwiver::vital_c::CMO_SPTR_CACHE.get( obj )->class_names();
     char** name_list = (char **) calloc( sizeof( char *), name_vector.size() +1 );
 
     for ( size_t i = 0; i < name_vector.size(); ++i )
@@ -204,7 +204,7 @@ char** vital_class_map_object_all_class_names(vital_class_map_object_t* obj)
   STANDARD_CATCH(
     "C::class_map:all_class_names", 0,
 
-    auto name_vector = kwiver::vital::class_map<detected_object_type>::all_class_names();
+    auto name_vector = kwiver::vital::class_map< kwiver::vital::detected_object_type >::all_class_names();
     char** name_list = (char **) calloc( sizeof( char *), name_vector.size() +1 );
 
     for ( size_t i = 0; i < name_vector.size(); ++i )

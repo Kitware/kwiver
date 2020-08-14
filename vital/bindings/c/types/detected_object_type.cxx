@@ -30,15 +30,16 @@
 
 /**
  * \file
- * \brief vital::class_map C interface implementation
+ * \brief vital::detected_object_type C interface implementation
  */
 
-#include "class_map_activity.h"
+#include "detected_object_type.h"
 
-#include <vital/types/class_map.h>
 #include <vital/types/class_map_types.h>
+
 #include <vital/bindings/c/helpers/c_utils.h>
-#include <vital/bindings/c/helpers/class_map_activity.h>
+#include <vital/bindings/c/helpers/detected_object_type.h>
+
 
 #include <cstring>
 
@@ -46,45 +47,45 @@ namespace kwiver {
 namespace vital_c {
 
 // Allocate our shared pointer cache object
-SharedPointerCache< kwiver::vital::class_map< kwiver::vital::activity_type >, vital_class_map_activity_t >
-  CMA_SPTR_CACHE( "class_map" );
+SharedPointerCache< kwiver::vital::detected_object_type, vital_detected_object_type_t >
+  DOT_SPTR_CACHE( "detected_object_type" );
 
 } }
 
 
 // ------------------------------------------------------------------
-vital_class_map_activity_t* vital_class_map_activity_new()
+vital_detected_object_type_t* vital_detected_object_type_new()
 {
   STANDARD_CATCH(
-    "C::class_map:new", 0,
-    auto cm_sptr = std::make_shared< kwiver::vital::class_map< kwiver::vital::activity_type >> ();
+    "C::detected_object_type:new", 0,
+    auto dot_sptr = std::make_shared< kwiver::vital::detected_object_type> ();
 
-    kwiver::vital_c::CMA_SPTR_CACHE.store( cm_sptr );
-    return reinterpret_cast<vital_class_map_activity_t*>( cm_sptr.get() );
+    kwiver::vital_c::DOT_SPTR_CACHE.store( dot_sptr );
+    return reinterpret_cast<vital_detected_object_type_t*>( dot_sptr.get() );
   );
   return 0;
 }
 
 
 // ------------------------------------------------------------------
-void vital_class_map_activity_destroy(vital_class_map_activity_t* obj)
+void vital_detected_object_type_destroy(vital_detected_object_type_t* obj)
 {
   STANDARD_CATCH(
-    "C::class_map::destroy", 0,
-    kwiver::vital_c::CMA_SPTR_CACHE.erase( obj );
+    "C::detected_object_type::destroy", 0,
+    kwiver::vital_c::DOT_SPTR_CACHE.erase( obj );
 
   );
 }
 
 
 // ------------------------------------------------------------------
-vital_class_map_activity_t* vital_class_map_activity_new_from_list( vital_class_map_activity_t* obj,
-                                                  size_t count,
-                                                  char** class_names,
-                                                  double* scores )
+vital_detected_object_type_t* vital_detected_object_type_new_from_list( vital_detected_object_type_t* obj,
+                                                                        size_t count,
+                                                                        char** class_names,
+                                                                        double* scores)
 {
   STANDARD_CATCH(
-    "C::class_map:new_from_list", 0,
+    "C::detected_object_type:new_from_list", 0,
     std::vector<std::string> names;
     std::vector< double > scores;
     for (size_t i = 0; i < count; ++i)
@@ -92,45 +93,45 @@ vital_class_map_activity_t* vital_class_map_activity_new_from_list( vital_class_
       names.push_back(class_names[i]);
       scores.push_back(scores[i]);
     }
-    auto cm_sptr = std::make_shared< kwiver::vital::class_map< kwiver::vital::activity_type >> ( names, scores );
-    kwiver::vital_c::CMA_SPTR_CACHE.store( cm_sptr );
-    return reinterpret_cast<vital_class_map_activity_t*>( cm_sptr.get() );
+    auto dot_sptr = std::make_shared< kwiver::vital::detected_object_type> ( names, scores );
+    kwiver::vital_c::DOT_SPTR_CACHE.store( dot_sptr );
+    return reinterpret_cast<vital_detected_object_type_t*>( dot_sptr.get() );
   );
   return 0;
 }
 
 
 // ------------------------------------------------------------------
-bool vital_class_map_activity_has_class_name( vital_class_map_activity_t* obj, char* class_name )
+bool vital_detected_object_type_has_class_name( vital_detected_object_type_t* obj, char* class_name )
 {
   STANDARD_CATCH(
-    "C::class_map:has_class_name", 0,
-    return kwiver::vital_c::CMA_SPTR_CACHE.get( obj )->has_class_name( std::string( class_name ));
+    "C::detected_object_type:has_class_name", 0,
+    return kwiver::vital_c::DOT_SPTR_CACHE.get( obj )->has_class_name( std::string( class_name ));
     );
   return false;
 }
 
 
 // ------------------------------------------------------------------
-double vital_class_map_activity_score( vital_class_map_activity_t* obj, char* class_name )
+double vital_detected_object_type_score( vital_detected_object_type_t* obj, char* class_name )
 {
   STANDARD_CATCH(
-    "C::class_map:score", 0,
-    return kwiver::vital_c::CMA_SPTR_CACHE.get( obj )->score( std::string( class_name ));
+    "C::detected_object_type:score", 0,
+    return kwiver::vital_c::DOT_SPTR_CACHE.get( obj )->score( std::string( class_name ));
     );
   return 0;
 }
 
 
 // ------------------------------------------------------------------
-char* vital_class_map_activity_get_most_likely_class( vital_class_map_activity_t* obj )
+char* vital_detected_object_type_get_most_likely_class( vital_detected_object_type_t* obj )
 {
   STANDARD_CATCH(
-    "C::class_map:get_most_likely_class", 0,
+    "C::detected_object_type:get_most_likely_class", 0,
 
     std::string class_name;
     double score;
-    kwiver::vital_c::CMA_SPTR_CACHE.get( obj )->get_most_likely( class_name, score );
+    kwiver::vital_c::DOT_SPTR_CACHE.get( obj )->get_most_likely( class_name, score );
 
     return strdup( class_name.c_str() );
     );
@@ -139,14 +140,14 @@ char* vital_class_map_activity_get_most_likely_class( vital_class_map_activity_t
 
 
 // ------------------------------------------------------------------
-double vital_class_map_activity_get_most_likely_score( vital_class_map_activity_t* obj )
+double vital_detected_object_type_get_most_likely_score( vital_detected_object_type_t* obj )
 {
   STANDARD_CATCH(
-    "C::class_map:get_most_likely_score", 0,
+    "C::detected_object_type:get_most_likely_score", 0,
 
     std::string class_name;
     double score;
-    kwiver::vital_c::CMA_SPTR_CACHE.get( obj )->get_most_likely( class_name, score );
+    kwiver::vital_c::DOT_SPTR_CACHE.get( obj )->get_most_likely( class_name, score );
 
     return score;
     );
@@ -155,43 +156,42 @@ double vital_class_map_activity_get_most_likely_score( vital_class_map_activity_
 
 
 // ------------------------------------------------------------------
-void vital_class_map_activity_set_score( vital_class_map_activity_t* obj,
-                                char* class_name,
-                                double score )
+void vital_detected_object_type_set_score( vital_detected_object_type_t* obj,
+                                           char* class_name,
+                                           double score)
 {
   STANDARD_CATCH(
-    "C::class_map:set_score", 0,
-    kwiver::vital_c::CMA_SPTR_CACHE.get( obj )->set_score( std::string( class_name ), score);
+    "C::detected_object_type:set_score", 0,
+    kwiver::vital_c::DOT_SPTR_CACHE.get( obj )->set_score( std::string( class_name ), score);
     );
 }
 
 
 // ------------------------------------------------------------------
-void vital_class_map_activity_delete_score( vital_class_map_activity_t* obj,
-                                   char* class_name)
+void vital_detected_object_type_delete_score( vital_detected_object_type_t* obj,
+                                              char* class_name)
 {
   STANDARD_CATCH(
-    "C::class_map:delete_score", 0,
-    kwiver::vital_c::CMA_SPTR_CACHE.get( obj )->delete_score( std::string( class_name ) );
+    "C::detected_object_type:delete_score", 0,
+    kwiver::vital_c::DOT_SPTR_CACHE.get( obj )->delete_score( std::string( class_name ) );
     );
 }
 
 
 // ------------------------------------------------------------------
-char** vital_class_map_activity_class_names( vital_class_map_activity_t* obj,
-                                    double thresh )
+char** vital_detected_object_type_class_names( vital_detected_object_type_t* obj,
+                                               double thresh )
 {
   STANDARD_CATCH(
-    "C::class_map:class_names", 0,
+    "C::detected_object_type:class_names", 0,
 
-    auto name_vector = kwiver::vital_c::CMA_SPTR_CACHE.get( obj )->class_names();
+    auto name_vector = kwiver::vital_c::DOT_SPTR_CACHE.get( obj )->class_names();
     char** name_list = (char **) calloc( sizeof( char *), name_vector.size() +1 );
 
     for ( size_t i = 0; i < name_vector.size(); ++i )
     {
       name_list[i] = strdup( name_vector[i].c_str() );
     }
-
     return name_list;
     );
   return 0;
@@ -199,19 +199,18 @@ char** vital_class_map_activity_class_names( vital_class_map_activity_t* obj,
 
 
 // ------------------------------------------------------------------
-char** vital_class_map_activity_all_class_names(vital_class_map_activity_t* obj)
+char** vital_detected_object_type_all_class_names(vital_detected_object_type_t* obj)
 {
   STANDARD_CATCH(
-    "C::class_map:all_class_names", 0,
+    "C::detected_object_type:all_class_names", 0,
 
-    auto name_vector = kwiver::vital::class_map< kwiver::vital::activity_type >::all_class_names();
+    auto name_vector = kwiver::vital::detected_object_type::all_class_names();
     char** name_list = (char **) calloc( sizeof( char *), name_vector.size() +1 );
 
     for ( size_t i = 0; i < name_vector.size(); ++i )
     {
       name_list[i] = strdup( name_vector[i].c_str() );
     }
-
     return name_list;
     );
   return 0;

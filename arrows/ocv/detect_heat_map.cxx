@@ -40,7 +40,7 @@
 #include <vital/types/detected_object.h>
 #include <vital/util/wall_timer.h>
 #include <vital/config/config_difference.h>
-
+#include <vital/types/class_map_types.h>
 #include <arrows/ocv/image_container.h>
 
 #include <opencv2/opencv.hpp>
@@ -404,9 +404,9 @@ public:
                      std::to_string(bbox.min_y()) << ", " <<
                      std::to_string(bbox.max_y()) << ")" );
 
-          auto cm = std::make_shared< class_map >();
-          cm->set_score( m_class_name, val );
-          detected_objects->add( std::make_shared< kwiver::vital::detected_object >( bbox, val, cm ) );
+          auto dot = std::make_shared< detected_object_type >();
+          dot->set_score( m_class_name, val );
+          detected_objects->add( std::make_shared< kwiver::vital::detected_object >( bbox, val, dot ) );
         }
       }
     }
@@ -584,9 +584,9 @@ public:
                  std::to_string(bbox.min_y()) << ", " <<
                  std::to_string(bbox.max_y()) << ")" );
 
-      auto cm = std::make_shared< class_map >();
-      cm->set_score( m_class_name, max_val );
-      detected_objects->add( std::make_shared< kwiver::vital::detected_object >( bbox, max_val, cm ) );
+      auto dot = std::make_shared< kwiver::vital::detected_object_type >();
+      dot->set_score( m_class_name, max_val );
+      detected_objects->add( std::make_shared< kwiver::vital::detected_object >( bbox, max_val, dot ) );
 
       // Make CV rect for bbox so that we can remove it from consideration
       // during next iteration.
@@ -624,8 +624,8 @@ public:
     cv::findContours(mask, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE,
                      cv::Point(0, 0) );
 
-    auto cm = std::make_shared< class_map >();
-    cm->set_score( m_class_name, m_fixed_score );
+    auto dot = std::make_shared< detected_object_type >();
+    dot->set_score( m_class_name, m_fixed_score );
 
     for(unsigned j=0; j < contours.size(); ++j)
     {
@@ -643,7 +643,7 @@ public:
           detected_objects->add(
             std::make_shared< kwiver::vital::detected_object >( bbox,
                                                                 m_fixed_score,
-                                                                cm ) );
+                                                                dot ) );
         }
       }
     }

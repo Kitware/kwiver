@@ -32,7 +32,7 @@
 #define ARROWS_OCV_HOUGH_CIRCLE_DETECTOR_H
 
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
-
+#include <vital/types/class_map_types.h>
 #include <vital/algo/image_object_detector.h>
 
 namespace kwiver {

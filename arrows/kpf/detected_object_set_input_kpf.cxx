@@ -168,7 +168,7 @@ read_all()
   size_t      detection_id;
   double      frame_number;
   vital_box_adapter_t box_adapter;
-  kwiver::vital::class_map_sptr types(new kwiver::vital::class_map());
+  kwiver::vital::detected_object_type_sptr types(new kwiver::vital::detected_object_type());
   kwiver::vital::detected_object_set_sptr frame_detections;
 
   // This will only work for files for which each non-Meta record contains at least

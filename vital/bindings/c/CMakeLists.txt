@@ -30,6 +30,7 @@ set(vital_c_public_headers
   types/detected_object.h
   types/detected_object_set.h
   types/detected_object_set.hxx
+  types/detected_object_type.h
   types/eigen.h
   types/feature.h
   types/feature_track_set.h
@@ -62,6 +63,7 @@ set(vital_c_private_headers
   helpers/descriptor_set.h
   helpers/detected_object.h
   helpers/detected_object_set.h
+  helpers/detected_object_type.h
   helpers/feature.h
   helpers/image_container.h
   helpers/landmark.h
@@ -91,7 +93,7 @@ set(vital_c_sources
   types/camera.cxx
   types/camera_intrinsics.cxx
   types/camera_map.cxx
-  types/class_map_object.h
+  types/class_map_object.cxx
   types/class_map_activity.cxx
   types/color.cxx
   types/covariance.cxx
@@ -99,6 +101,7 @@ set(vital_c_sources
   types/descriptor_set.cxx
   types/detected_object.cxx
   types/detected_object_set.cxx
+  types/detected_object_type.cxx
   types/eigen.cxx
   types/feature.cxx
   types/feature_track_set.cxx
