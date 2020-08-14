@@ -50,8 +50,12 @@ def test_create():
     adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.end_of_input)
 
 
-def check_type(ads_def, ads_data, ads_eoi):
+def check_type():
     from kwiver.sprokit.adapters import adapter_data_set
+
+    ads = adapter_data_set.AdapterDataSet.create()  # Check constructor with default argument
+    ads_data = adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.data)
+    ads_eoi = adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.end_of_input)
 
     if ads_def.type() != adapter_data_set.DataSetType.data:
         test_error("adapter_data_set type mismatch: constructor with default arg")
@@ -61,8 +65,6 @@ def check_type(ads_def, ads_data, ads_eoi):
 
     if ads_eoi.type() != adapter_data_set.DataSetType.end_of_input:
         test_error("adapter_data_set type mismatch: constructor with end_of_input arg")
-
-
 
 def test_enums():
     from kwiver.sprokit.adapters import adapter_data_set
@@ -136,62 +138,97 @@ def overwrite_helper(
         if retrieved_val != val:
             test_error("Retrieved incorrect value after overwriting with {}".format(new_data_type_str))
 
-
-
-def test_api_calls():
+def test_empty():
     from kwiver.sprokit.adapters import adapter_data_set
-    import kwiver.vital.types as kvt
-    from kwiver.sprokit.pipeline import datum
 
-    ads = adapter_data_set.AdapterDataSet.create()  # Check constructor with default argument
-    ads_data = adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.data)
-    ads_eoi = adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.end_of_input)
-
-    check_type(ads, ads_data, ads_eoi)
-
-    # Now do some checks for ads_def
-    if not ads.empty():
+    if not adapter_data_set.AdapterDataSet.create().empty():
         test_error("fresh data adapter_data_set instance is not empty")
 
-    # First check a python datum object
+# First check a python datum object
+def test_add_get_datum():
+    from kwiver.sprokit.adapters import adapter_data_set
+    from kwiver.sprokit.pipeline import datum
+
+    ads = adapter_data_set.AdapterDataSet.create()
     add_get_helper(ads, ads.add_datum, ads.get_port_data, datum.new("d1"), "datum")
-    # Next some basic types
+
+# Next some basic types
+def test_add_get_basic_types():
+    from kwiver.sprokit.adapters import adapter_data_set
+
+    ads = adapter_data_set.AdapterDataSet.create()
     add_get_helper(ads, ads.add_int, ads.get_port_data_int, 10, "int")
     add_get_helper(ads, ads.add_float, ads.get_port_data_float, 0.5, "float")
     add_get_helper(ads, ads.add_string, ads.get_port_data_string, "str1", "string")
-    # Next some kwiver vital types that are handled with pointers
+
+# Next some kwiver vital types that are handled with pointers
+def test_add_get_vital_types_by_ptr():
+    from kwiver.sprokit.adapters import adapter_data_set
+    import kwiver.vital.types as kvt
+
+    ads = adapter_data_set.AdapterDataSet.create()
     add_get_helper(ads, ads.add_image_container, ads.get_port_data_image_container, kvt.ImageContainer(kvt.Image()), "image_container")
     add_get_helper(ads, ads.add_descriptor_set, ads.get_port_data_descriptor_set, kvt.DescriptorSet(), "descriptor_set")
     add_get_helper(ads, ads.add_detected_object_set, ads.get_port_data_detected_object_set, kvt.DetectedObjectSet(), "detected_object_set")
     add_get_helper(ads, ads.add_track_set, ads.get_port_data_track_set, kvt.TrackSet(), "track_set")
     add_get_helper(ads, ads.add_object_track_set, ads.get_port_data_object_track_set, kvt.ObjectTrackSet(), "object_track_set")
-    # Next some bound native C++ types
+
+# Next some bound native C++ types
+def test_add_get_cpp_types():
+    from kwiver.sprokit.adapters import adapter_data_set
+    from kwiver.sprokit.pipeline import datum
+
+    ads = adapter_data_set.AdapterDataSet.create()
     add_get_helper(ads, ads.add_double_vector, ads.get_port_data_double_vector, datum.VectorDouble([3.14, 4.14]), "double_vector")
     add_get_helper(ads, ads.add_string_vector, ads.get_port_data_string_vector, datum.VectorString(["s00", "s01"]), "string_vector")
     add_get_helper(ads, ads.add_uchar_vector, ads.get_port_data_uchar_vector, datum.VectorUChar([100, 101]), "uchar_vector")
-    # Now try creating datums of these bound types
+
+# Now try creating datums of these bound types
+def test_add_get_cpp_types_with_datum():
+    from kwiver.sprokit.adapters import adapter_data_set
+    from kwiver.sprokit.pipeline import datum
+
+    ads = adapter_data_set.AdapterDataSet.create()
     add_get_helper(ads, ads.add_datum, ads.get_port_data_double_vector, datum.new_double_vector(datum.VectorDouble([6.3, 8.9])), "datum_double_vector")
     add_get_helper(ads, ads.add_datum, ads.get_port_data_string_vector, datum.new_string_vector(datum.VectorString(["foo", "bar"])), "datum_string_vector")
     add_get_helper(ads, ads.add_datum, ads.get_port_data_uchar_vector, datum.new_uchar_vector(datum.VectorUChar([102, 103])), "datum_uchar_vector")
-    # Next kwiver vital types
+
+# Next kwiver vital types
+def test_add_get_vital_types():
+    from kwiver.sprokit.adapters import adapter_data_set
+    import kwiver.vital.types as kvt
+
+    ads = adapter_data_set.AdapterDataSet.create()
     add_get_helper(ads, ads.add_bounding_box, ads.get_port_data_bounding_box, kvt.BoundingBox(1, 1, 2, 2), "bounding_box")
     add_get_helper(ads, ads.add_timestamp, ads.get_port_data_timestamp, kvt.Timestamp(), "timestamp")
     add_get_helper(ads, ads.add_f2f_homography, ads.get_port_data_f2f_homography, kvt.F2FHomography(1), "f2f_homography")
 
+# Now test overwriting
+def test_overwrite():
+    from kwiver.sprokit.adapters import adapter_data_set
+    from kwiver.sprokit.pipeline import datum
+    import kwiver.vital.types as kvt
 
-    # Now test overwriting
-    # First check overwriting port with the same datum type
     OVERWRITE_PORT = "test_overwrite_port"
+    ads = adapter_data_set.AdapterDataSet.create()
 
+    # Overwriting with same datum
     ads.add_datum(OVERWRITE_PORT, datum.new("d2"))
     overwrite_helper(ads.add_datum, ads.get_port_data, datum.new("d3"), "datum_string", OVERWRITE_PORT)
+
+    # Overwriting with completely different types
     overwrite_helper(ads.add_datum, ads.get_port_data, datum.new(12), "datum_int", OVERWRITE_PORT)
     overwrite_helper(ads.add_string_vector, ads.get_port_data_string_vector, datum.VectorString(["baz", "qux"]), "string_vector", OVERWRITE_PORT)
+    overwrite_helper(ads.add_timestamp, ads.get_port_data_timestamp, kvt.Timestamp(100, 10), "timestamp", OVERWRITE_PORT)
     overwrite_helper(ads.add_value, ads.get_port_data, 15, "int", OVERWRITE_PORT)
     overwrite_helper(ads.add_double_vector, ads.get_port_data_double_vector, datum.VectorDouble([4, 8]), "double_vector", OVERWRITE_PORT)
 
-    # Now test iter()
-    ads = ads_data
+def test_iter():
+    from kwiver.sprokit.adapters import adapter_data_set
+    from kwiver.sprokit.pipeline import datum
+    import kwiver.vital.types as kvt
+
+    ads = adapter_data_set.AdapterDataSet.create()
 
     # Construct a few elements
     string_value = "string_value"
