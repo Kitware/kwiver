@@ -1,6 +1,6 @@
 numpy==1.13.0
 pillow==7.1.0
-six==1.10.0
+six==1.11.0
 scipy
 
 # For Testing
