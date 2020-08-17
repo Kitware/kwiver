@@ -28,8 +28,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-
 def test_import():
     try:
         import kwiver.sprokit.adapters.adapter_data_set
@@ -164,7 +162,7 @@ def test_add_get_basic_types():
 # Next some kwiver vital types that are handled with pointers
 def test_add_get_vital_types_by_ptr():
     from kwiver.sprokit.adapters import adapter_data_set
-    import kwiver.vital.types as kvt
+    from kwiver.vital import types as kvt
 
     ads = adapter_data_set.AdapterDataSet.create()
     add_get_helper(ads, ads.add_image_container, ads.get_port_data_image_container, kvt.ImageContainer(kvt.Image()), "image_container")
@@ -195,8 +193,9 @@ def test_add_get_cpp_types_with_datum():
 
 # Next kwiver vital types
 def test_add_get_vital_types():
+    from kwiver.vital import types as kvt
     from kwiver.sprokit.adapters import adapter_data_set
-    import kwiver.vital.types as kvt
+    from kwiver.vital import types as kvt
 
     ads = adapter_data_set.AdapterDataSet.create()
     add_get_helper(ads, ads.add_bounding_box, ads.get_port_data_bounding_box, kvt.BoundingBox(1, 1, 2, 2), "bounding_box")
@@ -205,9 +204,9 @@ def test_add_get_vital_types():
 
 # Now test overwriting
 def test_overwrite():
+    from kwiver.vital import types as kvt
     from kwiver.sprokit.adapters import adapter_data_set
     from kwiver.sprokit.pipeline import datum
-    import kwiver.vital.types as kvt
 
     OVERWRITE_PORT = "test_overwrite_port"
     ads = adapter_data_set.AdapterDataSet.create()
@@ -224,9 +223,9 @@ def test_overwrite():
     overwrite_helper(ads.add_double_vector, ads.get_port_data_double_vector, datum.VectorDouble([4, 8]), "double_vector", OVERWRITE_PORT)
 
 def test_iter():
+    from kwiver.vital import types as kvt
     from kwiver.sprokit.adapters import adapter_data_set
     from kwiver.sprokit.pipeline import datum
-    import kwiver.vital.types as kvt
 
     ads = adapter_data_set.AdapterDataSet.create()
 
