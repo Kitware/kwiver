@@ -96,11 +96,9 @@ def test_api_calls(pipeline_dir):
     # Now send some data
     for i in range(10):
         ds = adapter_data_set.AdapterDataSet.create()
-        val = i
 
-        for port in input_list:
+        for val, port in enumerate(input_list, start=i):
             ds.add_int(port, val)
-            val += 1
 
         print("sending set:", i)
 
