@@ -28,6 +28,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from kwiver.sprokit.util.test import find_tests, run_test, test_error
+
 def test_import():
     try:
         import kwiver.sprokit.adapters.adapter_data_set
@@ -245,19 +247,12 @@ def test_iter():
             test_error("unknown port: {}".format(port))
 
 if __name__ == "__main__":
-    import os
     import sys
 
-    if not len(sys.argv) == 4:
-        test_error("Expected three arguments")
+    if not len(sys.argv) == 2:
+        test_error("Expected two arguments")
         sys.exit(1)
 
     testname = sys.argv[1]
-
-    os.chdir(sys.argv[2])
-
-    sys.path.append(sys.argv[3])
-
-    from kwiver.sprokit.util.test import *
 
     run_test(testname, find_tests(locals()))
