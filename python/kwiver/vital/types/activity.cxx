@@ -37,7 +37,7 @@
 
 namespace py = pybind11;
 
-void activity(py::module &m)
+PYBIND11_MODULE(activity, m)
 {
   py::class_<kwiver::vital::activity,
              std::shared_ptr<kwiver::vital::activity>>(m, "Activity")

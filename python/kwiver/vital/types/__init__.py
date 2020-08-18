@@ -10,9 +10,9 @@ from kwiver.vital.types.color import *
 from kwiver.vital.types.covariance import *
 from kwiver.vital.types.descriptor import *
 from kwiver.vital.types.descriptor_set import *
+from kwiver.vtial.types.detected_object_type import *
 from kwiver.vital.types.detected_object import *
 from kwiver.vital.types.detected_object_set import *
-from kwiver.vtial.types.detected_object_type import *
 from kwiver.vital.types.eigen import *
 from kwiver.vital.types.feature import *
 from kwiver.vital.types.homography import *

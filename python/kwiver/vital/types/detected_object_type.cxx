@@ -29,7 +29,7 @@
  */
 
 #include <pybind11/stl.h>
-
+#include <pybind11/embed.h>
 #include <vital/types/class_map_types.h>
 
 namespace py = pybind11;
@@ -37,7 +37,9 @@ namespace kv = kwiver::vital;
 
 PYBIND11_MODULE(detected_object_type, m)
 {
-    py::class_<kwiver::vital::detected_object_type, std::shared_ptr<kwiver::vital::detected_object_type>>(m, "DetectedObjectType")
+    py::class_<kwiver::vital::detected_object_type, 
+                            std::shared_ptr<kwiver::vital::detected_object_type>,
+                            kv::class_map<kv::detected_object_type> >(m, "DetectedObjectType")
   .def(py::init<>())
   .def(py::init<std::vector<std::string>, std::vector<double>>())
   .def(py::init<std::string, double>())
@@ -67,5 +69,34 @@ PYBIND11_MODULE(detected_object_type, m)
   .def("class_names", &kwiver::vital::detected_object_type::class_names,
     py::arg("threshold")=kwiver::vital::detected_object_type::INVALID_SCORE)
   .def_static("all_class_names", &kwiver::vital::detected_object_type::all_class_names)
+  .def("__len__", &kwiver::vital::detected_object_type::size)
+  .def("__iter__", [](kwiver::vital::detected_object_type& self){return py::make_iterator(self.cbegin(),self.cend());},
+          py::keep_alive<0,1>())
+  .def("__repr__", [](py::object& self)->std::string
+    {
+      auto info = py::dict(py::arg("self")=self);
+      py::exec(R"(
+        classname = self.__class__.__name__
+        devnice = self.__nice__()
+        retval = '<%s(%s) at %s>' % (classname, devnice, hex(id(self)))
+      )", py::globals(),info);
+      return info["retval"].cast<std::string>();
+    })
+  .def("__nice__", [](kwiver::vital::detected_object_type& self) -> std::string {
+    auto locals = py::dict(py::arg("self")=self);
+    py::exec(R"(
+        retval = 'size={}'.format(len(self))
+    )", py::globals(), locals);
+    return locals["retval"].cast<std::string>();
+    })
+  .def("__str__", [](py::object& self) -> std::string {
+    auto locals = py::dict(py::arg("self")=self);
+    py::exec(R"(
+        classname = self.__class__.__name__
+        devnice = self.__nice__()
+        retval = '<%s(%s)>' % (classname, devnice)
+    )", py::globals(), locals);
+    return locals["retval"].cast<std::string>();
+    })
   ;
 }

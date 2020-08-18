@@ -28,20 +28,71 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-syntax = "proto2";
+#include <arrows/serialize/json/activity_type.h>
+#include <arrows/serialize/json/load_save.h>
 
-package kwiver.protobuf;
+#include <vital/types/activity_type.h>
+#include <vital/internal/cereal/cereal.hpp>
+#include <vital/internal/cereal/archives/json.hpp>
 
-import "activity_type.proto";
-import "object_track_set.proto";
-import "timestamp.proto";
+#include <sstream>
 
-message activity {
-  required int64 id = 1;
-  required string label = 2;
-  optional activity_type activity_type_ = 3;
-  required double confidence = 4;
-  optional object_track_set participants = 5;
-  required timestamp start_frame = 6;
-  required timestamp end_frame = 7;
+namespace kasj = kwiver::arrows::serialize::json;
+
+namespace kwiver {
+namespace arrows {
+namespace serialize {
+namespace json {
+
+// ----------------------------------------------------------------------------
+activity_type::
+activity_type()
+{ }
+
+
+activity_type::
+~activity_type()
+{ }
+
+// ----------------------------------------------------------------------------
+std::shared_ptr< std::string >
+activity_type::
+serialize( const kwiver::vital::any& element )
+{
+  kwiver::vital::activity_type at =
+    kwiver::vital::any_cast< kwiver::vital::activity_type > ( element );
+
+  std::stringstream msg;
+  msg << "activity_type ";
+  {
+    cereal::JSONOutputArchive ar( msg );
+    save( ar, at );
+  }
+
+  return std::make_shared< std::string > ( msg.str() );
 }
+
+// ----------------------------------------------------------------------------
+kwiver::vital::any activity_type::
+deserialize( const std::string& message )
+{
+  std::stringstream msg(message);
+  kwiver::vital::activity_type at;
+  std::string tag;
+  msg >> tag;
+
+  if (tag != "activity_type" )
+  {
+    LOG_ERROR( logger(), "Invalid data type tag received. Expected \"activity_type\", received \""
+               << tag << "\". Message dropped." );
+  }
+  else
+  {
+    cereal::JSONInputArchive ar( msg );
+    load( ar, at );
+  }
+
+  return kwiver::vital::any(at);
+}
+
+} } } }

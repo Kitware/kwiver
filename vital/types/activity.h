@@ -64,13 +64,13 @@ public:
 
   /**
    * @brief Create an activity with activity id with optional activity label,
-   *        activity_confidence, class_map, starting frame, ending frame and
+   *        activity_confidence, activity_type, starting frame, ending frame and
    *        participants
    *
    * @param activity_id A numeric identifier associated with the activity
    * @param activity_label A label associated with the activity (default=UNDEFINED_ACTIVITY)
    * @param activity_confidence Confidence in the activity (default=-1.0)
-   * @param class_map Activity type associated with the activity (default=nullptr)
+   * @param activity_type Activity type associated with the activity (default=nullptr)
    * @param start Timestamp for starting frame of an activity (default=-1)
    * @param end Timstamp for ending frame of an activity (default=-1)
    * @param participants Participants in the activity (default=nullptr)
@@ -78,7 +78,7 @@ public:
   activity( activity_id_t activity_id,
             activity_label_t activity_label=UNDEFINED_ACTIVITY,
             activity_confidence_t activity_confidence=-1.0,
-            activity_type_sptr class_map=nullptr,
+            activity_type_sptr activity_type=nullptr,
             kwiver::vital::timestamp start=kwiver::vital::timestamp(-1, -1),
             kwiver::vital::timestamp end=kwiver::vital::timestamp(-1, -1),
             kwiver::vital::object_track_set_sptr participants=nullptr );
@@ -123,7 +123,7 @@ public:
    *
    * @param activity_type A map of classifications and scores for the activity
    */
-  void set_activity_type( activity_type_sptr class_map );
+  void set_activity_type( activity_type_sptr activity_type );
 
   /**
    * @brief Get activity confidence
@@ -191,7 +191,7 @@ public:
 private:
   activity_id_t m_activity_id;
   activity_label_t m_activity_label;
-  activity_type_sptr m_class_map;
+  activity_type_sptr m_activity_type;
   activity_confidence_t m_activity_confidence;
   kwiver::vital::object_track_set_sptr m_participants;
   kwiver::vital::timestamp m_start_frame, m_end_frame;

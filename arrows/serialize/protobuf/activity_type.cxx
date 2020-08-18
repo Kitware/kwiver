@@ -28,13 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "detected_object_type.h"
-#include "detected_object.h"
-#include "bounding_box.h"
+#include "activity_type.h"
 #include "convert_protobuf.h"
 
-#include <vital/types/detected_object.h>
-#include <vital/types/protobuf/detected_object.pb.h>
+#include <vital/types/class_map_types.h>
+#include <vital/types/protobuf/activity_type.pb.h>
 #include <vital/exceptions.h>
 
 namespace kwiver {
@@ -43,8 +41,8 @@ namespace serialize {
 namespace protobuf {
 
 // ----------------------------------------------------------------------------
-detected_object::
-detected_object()
+activity_type::
+activity_type()
 {
   // Verify that the version of the library that we linked against is
   // compatible with the version of the headers we compiled against.
@@ -52,64 +50,62 @@ detected_object()
 }
 
 
-detected_object::
-~detected_object()
+activity_type::
+~activity_type()
 { }
 
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
-detected_object::
+activity_type::
 serialize( const vital::any& element )
 {
-  kwiver::vital::detected_object det_object =
-    kwiver::vital::any_cast< kwiver::vital::detected_object > ( element );
+  kwiver::vital::activity_type at =
+    kwiver::vital::any_cast< kwiver::vital::activity_type > ( element );
 
   std::ostringstream msg;
-  msg << "detected_object "; // add type tag
+  msg << "activity_type "; // add type tag
 
-  kwiver::protobuf::detected_object proto_det_object;
-  convert_protobuf( det_object, proto_det_object );
+  kwiver::protobuf::activity_type proto_at;
+  convert_protobuf( at, proto_at );
 
-  if ( ! proto_det_object.SerializeToOstream( &msg ) )
+  if ( ! proto_at.SerializeToOstream( &msg ) )
   {
     VITAL_THROW( kwiver::vital::serialization_exception,
-                 "Error serializing detected_object from protobuf" );
+                 "Error serializing detected_type from protobuf" );
   }
-
   return std::make_shared< std::string > ( msg.str() );
 }
 
 // ----------------------------------------------------------------------------
-vital::any detected_object::
+vital::any activity_type::
 deserialize( const std::string& message )
 {
+  kwiver::vital::activity_type at;
   std::istringstream msg( message );
-  auto det_object_ptr = std::make_shared< kwiver::vital::detected_object >(
-    kwiver::vital::bounding_box_d { 0, 0, 0, 0 } );
 
   std::string tag;
   msg >> tag;
   msg.get();  // Eat delimiter
 
-  if (tag != "detected_object" )
+  if (tag != "activity_type" )
   {
-    LOG_ERROR( logger(), "Invalid data type tag received. Expected \"detected_object\", received \""
+    LOG_ERROR( logger(), "Invalid data type tag received. Expected \"activity_type\", received \""
                << tag << "\". Message dropped." );
   }
   else
   {
     // define our protobuf
-    kwiver::protobuf::detected_object proto_det_object;
-    if ( ! proto_det_object.ParseFromIstream( &msg ) )
+    kwiver::protobuf::activity_type proto_at;
+    if ( ! proto_at.ParseFromIstream( &msg ) )
     {
       VITAL_THROW( kwiver::vital::serialization_exception,
-                   "Error deserializing detected_object from protobuf" );
+                   "Error deserializing detected_type from protobuf" );
     }
 
-    convert_protobuf( proto_det_object, *det_object_ptr );
+    convert_protobuf( proto_at, at );
   }
 
-  return kwiver::vital::any( det_object_ptr );
+  return kwiver::vital::any(at);
 }
 
 } } } } // end namespace

@@ -125,6 +125,8 @@ TEST(detected_object_type, name_pool)
 
   EXPECT_EQ( 10, detected_object_type::all_class_names().size() );
 
+  EXPECT_EQ( 0, activity_type::all_class_names().size() );
+
   for ( auto const& name : detected_object_type::all_class_names() )
   {
     std::cout << "  --  " << name << std::endl;
