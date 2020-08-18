@@ -34,19 +34,12 @@ def test_import():
     except:
         test_error("Failed to import the adapter_data_set module")
 
-
-def check_port_val_equals(expected_val, actual_val, portname):
-    if expected_val != actual_val:
-        test_error("Value mismatch on port {}".format(portname))
-
-
 def test_create():
     from kwiver.sprokit.adapters import adapter_data_set
 
     adapter_data_set.AdapterDataSet.create()
     adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.data)
     adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.end_of_input)
-
 
 def check_type():
     from kwiver.sprokit.adapters import adapter_data_set
@@ -72,7 +65,6 @@ def test_enums():
 
     if int(adapter_data_set.DataSetType.end_of_input) != 2:
         test_error("adapter_data_set enum value mismatch: end_of_input")
-
 
 def test_is_end_of_data():
     from kwiver.sprokit.adapters import adapter_data_set
@@ -251,7 +243,6 @@ def test_iter():
                 test_error("Didn't retrieve correct string vector on third iteration")
         else:
             test_error("unknown port: {}".format(port))
-
 
 if __name__ == "__main__":
     import os
