@@ -75,8 +75,8 @@ PYBIND11_MODULE(embedded_pipeline, m)
 {
   class_< kwiver::embedded_pipeline,
         std::shared_ptr<kwiver::embedded_pipeline>,
-        ksp::embedded_pipeline_trampoline>(m, "EmbeddedPipeline")
-  .def(init<>())
+        ksp::embedded_pipeline_trampoline> ep(m, "EmbeddedPipeline");
+  ep.def(init<>())
   .def("build_pipeline", &ksp::build_pipeline)
   .def("send", &kwiver::embedded_pipeline::send)
   .def("send_end_of_input", &kwiver::embedded_pipeline::send_end_of_input)
@@ -100,6 +100,43 @@ PYBIND11_MODULE(embedded_pipeline, m)
   .def("update_config",
       static_cast<void (kwiver::embedded_pipeline::*)(kwiver::vital::config_block_sptr)>(&ksp::wrap_embedded_pipeline::update_config))
   ;
+  ep.doc() = R"(
+        Python bindings for kwiver::embedded_pipeline
+
+        Example:
+            >>> from kwiver.sprokit.adapters import adapter_data_set, embedded_pipeline
+            >>> import tempfile as tf, os
+            >>> # Write a basic pipeline to our tempfile. Disable deletion on closing
+            >>> # On Windows, the C++ process won't be able to access if still open in Python.
+            >>> # We'll write to the file, then close it, so the C++ process can read. Then delete.
+            >>> fp = tf.NamedTemporaryFile(mode="w+", delete=False)
+            >>> fp.write_lines(["process ia  :: input_adapter,"
+                              "\nprocess oa  :: output_adapter,"
+                              "\nconnect from ia.port1  to  oa.port1"])
+            >>> fp.flush(); fp.close()
+            >>>
+            >>> ep = embedded_pipeline.EmbeddedPipeline()
+            >>> ep.build_pipeline(fp.name)
+            >>> assert ep.input_port_names() == ["ia"]
+            >>> assert ep.output_port_names() == ["oa"]
+            >>>
+            >>> # Now lets run it
+            >>> ep.start()
+            >>> ads = adapter_data_set.AdapterDataSet.create()
+            >>> ads.add_int("ia", 5)
+            >>> ep.send(ads)
+            >>>
+            >>> # All done, send end of input
+            >>> ep.send_end_of_input()
+            >>>
+            >>> while True:
+                    ods = ep.receive()
+                    if not ods.is_end_of_data():
+                        assert ods.get_int() == 5
+            >>> os.remove(fp.name)
+
+
+        )";
 }
 
 namespace kwiver {

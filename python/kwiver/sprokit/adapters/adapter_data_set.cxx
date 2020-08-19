@@ -56,13 +56,13 @@ PYBIND11_MODULE(adapter_data_set, m)
     .value("end_of_input", adapter_data_set::end_of_input)
   ;
 
-  class_< adapter_data_set, std::shared_ptr<adapter_data_set > >(m, "AdapterDataSet")
-    .def_static("create", &adapter_data_set::create
+  class_< adapter_data_set, std::shared_ptr<adapter_data_set > > ads(m, "AdapterDataSet");
+    ads.def_static("create", &adapter_data_set::create
         , (arg("type") = adapter_data_set::data_set_type::data))
 
     .def("__iter__", [](adapter_data_set &self)
                                       {
-                                        return make_iterator(self.cbegin(),self.cend());
+                                        return make_iterator(self.cbegin(), self.cend());
                                       }
                         , keep_alive<0,1>())
     .def("type", &adapter_data_set::type)
@@ -128,4 +128,20 @@ PYBIND11_MODULE(adapter_data_set, m)
     .def("get_port_data_corner_points", &adapter_data_set::get_port_data<kwiver::vital::geo_polygon>)
     .def("get_port_data_f2f_homography", &adapter_data_set::get_port_data<kwiver::vital::f2f_homography>)
     ;
+    ads.doc() = R"(
+        Python bindings for kwiver::adapter::adapter_data_set
+
+        Example:
+            >>> from kwiver.sprokit.adapters import adapter_data_set
+            >>> # Following ads has type "data". We can add/get data to/from ports
+            >>> ads = adapter_data_set.create()
+            >>> assert ads.type() == adapter_data_set.DataSetType.data
+            >>> # Can add as a general python object
+            >>> ads.add("port1", "a_string")
+            >>> # Can also add by specifying type
+            >>> ads.add_int("port2", 5)
+            >>> # Get both values
+            >>> assert ads.get_port_data("port1") == "a_string"
+            >>> assert ads.get_port_data_int("port2") == 5
+        )";
 }
