@@ -249,7 +249,7 @@ def test_iter():
 if __name__ == "__main__":
     import sys
 
-    if not len(sys.argv) == 2:
+    if len(sys.argv) != 2:
         test_error("Expected two arguments")
         sys.exit(1)
 

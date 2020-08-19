@@ -66,7 +66,7 @@ if __name__ == '__main__':
     import os
     import sys
 
-    if not len(sys.argv) == 3:
+    if len(sys.argv) != 3:
         test_error("Expected three arguments")
         sys.exit(1)
 
