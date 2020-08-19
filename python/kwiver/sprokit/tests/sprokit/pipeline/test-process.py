@@ -274,7 +274,7 @@ def test_peek_at_datum_on_port():
 if __name__ == '__main__':
     import sys
 
-    if not len(sys.argv) == 2:
+    if len(sys.argv) != 2:
         test_error("Expected two arguments")
         sys.exit(1)
 
