@@ -110,32 +110,31 @@ PYBIND11_MODULE(embedded_pipeline, m)
             >>> # On Windows, the C++ process won't be able to access if still open in Python.
             >>> # We'll write to the file, then close it, so the C++ process can read. Then delete.
             >>> fp = tf.NamedTemporaryFile(mode="w+", delete=False)
-            >>> fp.write_lines(["process ia  :: input_adapter,"
-                              "\nprocess oa  :: output_adapter,"
-                              "\nconnect from ia.port1  to  oa.port1"])
+            >>> fp.writelines(["process ia  :: input_adapter",
+            >>>               "\nprocess oa  :: output_adapter",
+            >>>               "\nconnect from ia.port1  to  oa.port2"])
             >>> fp.flush(); fp.close()
             >>>
             >>> ep = embedded_pipeline.EmbeddedPipeline()
             >>> ep.build_pipeline(fp.name)
-            >>> assert ep.input_port_names() == ["ia"]
-            >>> assert ep.output_port_names() == ["oa"]
+            >>> assert list(ep.input_port_names()) == ["port1"]
+            >>> assert list(ep.output_port_names()) == ["port2"]
             >>>
             >>> # Now lets run it
             >>> ep.start()
             >>> ads = adapter_data_set.AdapterDataSet.create()
-            >>> ads.add_int("ia", 5)
+            >>> ads.add_int("port1", 5)
             >>> ep.send(ads)
             >>>
             >>> # All done, send end of input
             >>> ep.send_end_of_input()
             >>>
             >>> while True:
-                    ods = ep.receive()
-                    if not ods.is_end_of_data():
-                        assert ods.get_int() == 5
+            >>>     ods = ep.receive()
+            >>>     if not ods.is_end_of_data():
+            >>>         assert ods.get_port_data_int("port2") == 5
+            >>>         break
             >>> os.remove(fp.name)
-
-
         )";
 }
 

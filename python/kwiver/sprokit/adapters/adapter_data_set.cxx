@@ -134,10 +134,10 @@ PYBIND11_MODULE(adapter_data_set, m)
         Example:
             >>> from kwiver.sprokit.adapters import adapter_data_set
             >>> # Following ads has type "data". We can add/get data to/from ports
-            >>> ads = adapter_data_set.create()
+            >>> ads = adapter_data_set.AdapterDataSet.create()
             >>> assert ads.type() == adapter_data_set.DataSetType.data
             >>> # Can add as a general python object
-            >>> ads.add("port1", "a_string")
+            >>> ads.add_value("port1", "a_string")
             >>> # Can also add by specifying type
             >>> ads.add_int("port2", 5)
             >>> # Get both values
