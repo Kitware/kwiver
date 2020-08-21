@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -90,6 +90,7 @@ public:
   static const std::string APPLET_CATEGORY;
   static const std::string PROCESS_CATEGORY;
   static const std::string ALGORITHM_CATEGORY;
+  static const std::string CLUSTER_CATEGORY;
 
   /**
    * @brief Get attribute from factory
@@ -130,7 +131,7 @@ public:
       std::stringstream str;
       str << "Can not create object of requested type: " <<  typeid( T ).name()
           <<"  Factory created objects of type: " << m_interface_type;
-      throw kwiver::vital::plugin_factory_type_creation_error( str.str() );
+      VITAL_THROW( kwiver::vital::plugin_factory_type_creation_error, str.str() );
     }
 
     // Call derived class to create concrete type object
@@ -141,7 +142,7 @@ public:
 
       str << "plugin_factory:: Unable to create object of type "
           << typeid( T ).name();
-      throw kwiver::vital::plugin_factory_type_creation_error( str.str() );
+      VITAL_THROW( kwiver::vital::plugin_factory_type_creation_error, str.str() );
     }
 
     return new_object;

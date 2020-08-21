@@ -4,10 +4,11 @@ find_package(ZLIB MODULE REQUIRED)
 include_directories( ${ZLIB_INCLUDE_DIRS} )
 
 set( headers_public
+  activity.h
   bounding_box.h
+  class_map.h
   detected_object.h
   detected_object_set.h
-  detected_object_type.h
   image.h
   metadata.h
   object_track_set.h
@@ -21,18 +22,21 @@ set( headers_public
 
 set( private_headers
   load_save.h
+  load_save_point.h
   load_save_track_state.h
   load_save_track_set.h
   track_item.h
   )
 
 set( sources
+  activity.cxx
   bounding_box.cxx
+  class_map.cxx
   detected_object.cxx
   detected_object_set.cxx
-  detected_object_type.cxx
   image.cxx
   load_save.cxx
+  load_save_point.cxx
   load_save_metadata.cxx
   metadata.cxx
   object_track_set.cxx

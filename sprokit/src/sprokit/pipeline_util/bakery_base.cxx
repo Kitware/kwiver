@@ -63,7 +63,7 @@ protected:
     std::stringstream str;
     str <<  "Entry for provider \"" << provider << "\" does not have an element \""
         << entry << "\"";
-    throw provider_error_exception( str.str() );
+    VITAL_THROW( provider_error_exception, str.str() );
 
     // Could do a log message instead
     return true;
@@ -74,7 +74,7 @@ protected:
   {
     std::stringstream str;
     str << "Provider \"" << provider << "\" is not available";
-    throw provider_error_exception( str.str() );
+    VITAL_THROW( provider_error_exception, str.str() );
 
     // Could do a log message instead
     return true;
@@ -173,7 +173,8 @@ bakery_base
                         config_value_t const& value)
 {
   kwiver::vital::config_block_key_t const subkey = flatten_keys(value.key_path);
-  kwiver::vital::config_block_key_t const full_key = root_key + kwiver::vital::config_block::block_sep + subkey;
+  kwiver::vital::config_block_key_t const full_key = root_key +
+     kwiver::vital::config_block::block_sep() + subkey;
   bool is_readonly = false;
   bool is_relativepath = false;
   bool is_local_assign = false;
@@ -210,7 +211,7 @@ bakery_base
       }
       else
       {
-        throw unrecognized_config_flag_exception( full_key, flag);
+        VITAL_THROW( unrecognized_config_flag_exception, full_key, flag);
       }
     } // end foreach over flags
   }
@@ -226,7 +227,7 @@ bakery_base
     catch ( const provider_error_exception &e )
     {
       // Rethrow exception after adding location
-      throw provider_error_exception( e.what(), value.loc );
+      VITAL_THROW( provider_error_exception, e.what(), value.loc );
     }
   }
 
@@ -277,7 +278,7 @@ kwiver::vital::config_block_key_t
 bakery_base::
 flatten_keys(kwiver::vital::config_block_keys_t const& keys)
 {
-  return kwiver::vital::join(keys, kwiver::vital::config_block::block_sep);
+  return kwiver::vital::join(keys, kwiver::vital::config_block::block_sep());
 }
 
 
@@ -316,9 +317,9 @@ extract_configuration_from_decls( bakery_base::config_decls_t& configs )
       }
       else
       {
-        throw relativepath_exception(
-               "Can not resolve relative path because original source file is not known.",
-               info.defined_loc );
+        VITAL_THROW( relativepath_exception,
+                     "Can not resolve relative path because original source file is not known.",
+                     info.defined_loc );
       }
     }
 
