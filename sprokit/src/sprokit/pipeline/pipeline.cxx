@@ -1628,10 +1628,12 @@ pipeline::priv
     process_t const& proc = proc_data.second;
     process::connections_t unresolved_connections;
 
+    // Configure the process.
     proc->configure();
 
     bool resolved_types = false;
 
+    // Resolve any data dependent connections.
     for (process::connection_t const& data_dep_connection : data_dep_connections)
     {
       process::port_addr_t const& data_addr = data_dep_connection.first;
@@ -1642,10 +1644,13 @@ pipeline::priv
       process::name_t const& downstream_name = downstream_addr.first;
       process::port_t const& downstream_port = downstream_addr.second;
 
+      // if this is a connection from this process...
       if (name == data_name)
       {
         process::port_info_t const info = proc->output_port_info(data_port);
 
+        // The process should have resolved all data dependent ports
+        // by now. It is an error if there are still some around.
         if (info->type == process::type_data_dependent)
         {
           VITAL_THROW( untyped_data_dependent_exception,
@@ -1661,13 +1666,13 @@ pipeline::priv
       {
         unresolved_connections.push_back(data_dep_connection);
       }
-    }
+    } // end for
 
     if (resolved_types)
     {
       data_dep_connections = unresolved_connections;
     }
-  }
+  } // end for
 
   // Configure clusters.
   for (cluster_map_t::value_type const& cluster_data : cluster_map)
@@ -1853,12 +1858,12 @@ pipeline::priv
     {
       kwiver::vital::config_block_sptr const conn_config = config->subblock(priv::config_edge_conn);
       kwiver::vital::config_block_sptr const up_config =
-        conn_config->subblock(upstream_name + kwiver::vital::config_block::block_sep +
-                              upstream_subblock + kwiver::vital::config_block::block_sep + upstream_port);
+        conn_config->subblock(upstream_name + kwiver::vital::config_block::block_sep() +
+          upstream_subblock + kwiver::vital::config_block::block_sep() + upstream_port);
 
       kwiver::vital::config_block_sptr const down_config =
-        conn_config->subblock(downstream_name + kwiver::vital::config_block::block_sep +
-                              downstream_subblock + kwiver::vital::config_block::block_sep + downstream_port);
+        conn_config->subblock(downstream_name + kwiver::vital::config_block::block_sep() +
+          downstream_subblock + kwiver::vital::config_block::block_sep() + downstream_port);
 
       edge_config->merge_config(up_config);
       edge_config->merge_config(down_config);
@@ -1867,14 +1872,15 @@ pipeline::priv
       {
         std::stringstream msg;
         msg << "-- Up_config for \""
-            << upstream_name + kwiver::vital::config_block::block_sep
-             + upstream_subblock + kwiver::vital::config_block::block_sep + upstream_port
+            << upstream_name + kwiver::vital::config_block::block_sep()
+             + upstream_subblock + kwiver::vital::config_block::block_sep() + upstream_port
             << "\" :\n";
         kwiver::vital::config_block_formatter up_fmt( up_config );
         up_fmt.print(msg);
         msg << "\n-- Down_config for \""
-            << downstream_name + kwiver::vital::config_block::block_sep
-             + downstream_subblock + kwiver::vital::config_block::block_sep + downstream_port
+            << downstream_name + kwiver::vital::config_block::block_sep()
+             + downstream_subblock + kwiver::vital::config_block::block_sep()
+             + downstream_port
             << "\" :\n";
         kwiver::vital::config_block_formatter down_fmt( up_config );
         down_fmt.print(msg);

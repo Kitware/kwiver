@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2018 by Kitware, Inc.
+ * Copyright 2018-2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,9 +39,10 @@
 
 namespace kwiver {
 namespace vital {
+  class activity;
+  class class_map;
   class detected_object;
   class detected_object_set;
-  class detected_object_type;
   class geo_point;
   class geo_polygon;
   class polygon;
@@ -54,61 +55,66 @@ namespace cereal {
   class JSONInputArchive;
 
 KWIVER_SERIALIZE_JSON_EXPORT
-void save( cereal::JSONOutputArchive& archive, const kwiver::vital::bounding_box_d& bbox );
+void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::bounding_box_d& bbox );
 KWIVER_SERIALIZE_JSON_EXPORT
-void load( cereal::JSONInputArchive& archive, kwiver::vital::bounding_box_d& bbox );
+void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::bounding_box_d& bbox );
 
 KWIVER_SERIALIZE_JSON_EXPORT
-void save( cereal::JSONOutputArchive& archive, const kwiver::vital::detected_object& obj );
+void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::detected_object& obj );
 KWIVER_SERIALIZE_JSON_EXPORT
-void load( cereal::JSONInputArchive& archive, kwiver::vital::detected_object& obj );
+void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::detected_object& obj );
 
 KWIVER_SERIALIZE_JSON_EXPORT
-void save( cereal::JSONOutputArchive& archive, const kwiver::vital::detected_object_set& obj );
+void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::detected_object_set& obj );
 KWIVER_SERIALIZE_JSON_EXPORT
-void load( cereal::JSONInputArchive& archive, kwiver::vital::detected_object_set& obj );
+void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::detected_object_set& obj );
 
 KWIVER_SERIALIZE_JSON_EXPORT
-void save( cereal::JSONOutputArchive& archive, const kwiver::vital::detected_object_type& dot );
+void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::class_map& cm );
 KWIVER_SERIALIZE_JSON_EXPORT
-void load( cereal::JSONInputArchive& archive, kwiver::vital::detected_object_type& dot );
+void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::class_map& cm );
 
 KWIVER_SERIALIZE_JSON_EXPORT
-void save( cereal::JSONOutputArchive& archive, const kwiver::vital::timestamp& tstamp );
+void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::timestamp& tstamp );
 KWIVER_SERIALIZE_JSON_EXPORT
-void load( cereal::JSONInputArchive& archive, kwiver::vital::timestamp& tstamp );
+void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::timestamp& tstamp );
 
 KWIVER_SERIALIZE_JSON_EXPORT
-void save( cereal::JSONOutputArchive& archive, const kwiver::vital::image_container_sptr obj );
+void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::image_container_sptr obj );
 KWIVER_SERIALIZE_JSON_EXPORT
-void load( cereal::JSONInputArchive& archive, kwiver::vital::image_container_sptr& obj );
+void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::image_container_sptr& obj );
 
 KWIVER_SERIALIZE_JSON_EXPORT
-void save( cereal::JSONOutputArchive& archive, const kwiver::vital::metadata_vector& meta );
+void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::metadata_vector& meta );
 KWIVER_SERIALIZE_JSON_EXPORT
-void load( cereal::JSONInputArchive& archive, kwiver::vital::metadata_vector& meta );
+void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::metadata_vector& meta );
 
 KWIVER_SERIALIZE_JSON_EXPORT
-void save( cereal::JSONOutputArchive& archive, const kwiver::vital::metadata& meta );
+void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::metadata& meta );
 KWIVER_SERIALIZE_JSON_EXPORT
-void load( cereal::JSONInputArchive& archive, kwiver::vital::metadata& meta );
+void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::metadata& meta );
 
 KWIVER_SERIALIZE_JSON_EXPORT
-void save( cereal::JSONOutputArchive& archive, const kwiver::vital::geo_polygon& poly );
+void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::geo_polygon& poly );
 KWIVER_SERIALIZE_JSON_EXPORT
-void load( cereal::JSONInputArchive& archive, kwiver::vital::geo_polygon& poly );
+void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::geo_polygon& poly );
 
 KWIVER_SERIALIZE_JSON_EXPORT
-void save( cereal::JSONOutputArchive& archive, const kwiver::vital::geo_point& point );
+void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::geo_point& point );
 KWIVER_SERIALIZE_JSON_EXPORT
-void load( cereal::JSONInputArchive& archive, kwiver::vital::geo_point& point );
+void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::geo_point& point );
 
 KWIVER_SERIALIZE_JSON_EXPORT
-void save( cereal::JSONOutputArchive& archive, const kwiver::vital::polygon& poly );
+void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::polygon& poly );
 KWIVER_SERIALIZE_JSON_EXPORT
-void load( cereal::JSONInputArchive& archive, kwiver::vital::polygon& poly );
+void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::polygon& poly );
 
+KWIVER_SERIALIZE_JSON_EXPORT
+void save( cereal::JSONOutputArchive& archive,
+           const kwiver::vital::activity& activity );
+KWIVER_SERIALIZE_JSON_EXPORT
+void load( cereal::JSONInputArchive& archive,
+           kwiver::vital::activity& activity );
 }
-
 
 #endif // ARROWS_SERIALIZATION_JSON_LOAD_SAVE_H

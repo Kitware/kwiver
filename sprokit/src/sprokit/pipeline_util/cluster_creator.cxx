@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016-2017 by Kitware, Inc.
+ * Copyright 2016-2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -106,8 +106,9 @@ cluster_creator
                                                                         false, // relative path
                                                                         loc );
 
-    kwiver::vital::config_block_key_t const full_key = kwiver::vital::config_block_key_t( type ) +
-                                                       kwiver::vital::config_block::block_sep + key;
+    kwiver::vital::config_block_key_t const full_key =
+            kwiver::vital::config_block_key_t( type ) +
+             kwiver::vital::config_block::block_sep() + key;
     bakery_base::config_decl_t const decl = bakery_base::config_decl_t( full_key, info );
 
     all_configs.push_back( decl );
@@ -121,6 +122,7 @@ cluster_creator
   kwiver::vital::config_block_sptr const cluster_config = full_config->subblock_view( type );
   full_config->merge_config( cluster_config );
 
+  // Create object that will hold the cluster's processes and connections
   loaded_cluster_t const cluster = std::make_shared< loaded_cluster > ( full_config );
 
   cluster_bakery::opt_cluster_component_info_t const& opt_info = m_bakery.m_cluster;
@@ -156,7 +158,7 @@ cluster_creator
       value,
       description,
       tunable );
-  }
+  } // end for
 
   // Add config mappings.
   for( bakery_base::config_decl_t const & decl : mapped_decls )
@@ -170,9 +172,13 @@ cluster_creator
     kwiver::vital::config_block_keys_t source_key_path;
 
     /// \bug Does not work if (kwiver::vital::config_block::block_sep.size() != 1).
-    kwiver::vital::tokenize( key, mapped_key_path, kwiver::vital::config_block::block_sep, kwiver::vital::TokenizeTrimEmpty );
+    kwiver::vital::tokenize( key, mapped_key_path,
+                             kwiver::vital::config_block::block_sep(),
+                             kwiver::vital::TokenizeTrimEmpty );
     /// \bug Does not work if (kwiver::vital::config_block::block_sep.size() != 1).
-    kwiver::vital::tokenize( value, source_key_path, kwiver::vital::config_block::block_sep, kwiver::vital::TokenizeTrimEmpty );
+    kwiver::vital::tokenize( value, source_key_path,
+                             kwiver::vital::config_block::block_sep(),
+                             kwiver::vital::TokenizeTrimEmpty );
 
     if ( mapped_key_path.size() < 2 )
     {
@@ -195,7 +201,7 @@ cluster_creator
     kwiver::vital::config_block_key_t const source_key = bakery_base::flatten_keys( source_key_path );
 
     cluster->map_config( source_key, mapped_name, mapped_key );
-  }
+  } // end for
 
   // Add processes.
   for( bakery_base::process_decl_t const & proc_decl : m_bakery.m_processes )
@@ -206,7 +212,7 @@ cluster_creator
     kwiver::vital::config_block_sptr const proc_config = full_config->subblock_view( proc_name );
 
     cluster->add_process( proc_name, proc_type, proc_config );
-  }
+  } // end for
 
   // Add input ports.
   {
@@ -235,7 +241,7 @@ cluster_creator
           mapped_name,
           mapped_port );
       }
-    }
+    } // end for
   }
 
   // Add output ports.
@@ -263,7 +269,7 @@ cluster_creator
         port,
         mapped_name,
         mapped_port );
-    }
+    } // end for
   }
 
   // Add connections.
@@ -279,7 +285,7 @@ cluster_creator
 
     cluster->connect( upstream_name, upstream_port,
                       downstream_name, downstream_port );
-  }
+  } // end for
 
   return cluster; // return process cluster
 }

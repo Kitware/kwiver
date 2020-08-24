@@ -42,7 +42,8 @@ class kwiver::vital::explorer_context::priv
 public:
 
   // Collected command line args
-  kwiversys::CommandLineArguments m_args;
+  std::unique_ptr< cxxopts::Options > m_cmd_options;
+  cxxopts::ParseResult* m_result;
 
   // Global options
   bool opt_detail {false};
@@ -54,6 +55,7 @@ public:
   bool opt_all {false};
   bool opt_algo {false};
   bool opt_process {false};
+  bool opt_cluster {false};
   bool opt_scheduler {false};
   bool opt_summary {false};
   bool opt_attrs {false};
@@ -62,6 +64,7 @@ public:
   std::ostream* m_out_stream {nullptr};
 
   std::vector< std::string > opt_path;
+  std::vector< std::string > opt_cluster_path;
 
   // Used to wrap large text blocks
   kwiver::vital::wrap_text_block m_wtb;
@@ -88,13 +91,10 @@ public:
 
   std::function<void(kwiver::vital::plugin_factory_handle_t const)> display_attr;
 
-  priv()
-  {
-  }
+  priv() = default;
 
   virtual ~priv()
-  {
-  }
+  { }
 };
 
 
