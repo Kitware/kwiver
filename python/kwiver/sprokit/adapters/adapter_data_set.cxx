@@ -63,6 +63,12 @@ namespace python{
 // When these are updated to add more types, the same will need to be done for datum
 void add_value_correct_type(adapter_data_set &self, ::sprokit::process::port_t const& port, py::object obj)
 {
+
+  if (obj.is_none())
+  {
+    throw py::type_error("Cannot add NoneType to adapter_data_set");
+  }
+
   if (py::isinstance<::sprokit::datum>(obj))
   {
     ::sprokit::datum_t casted_obj = obj.cast<::sprokit::datum_t>();
@@ -185,18 +191,26 @@ PYBIND11_MODULE(adapter_data_set, m)
     .def("_add_int", &adapter_data_set::add_value<int>)
     .def("_add_float", &adapter_data_set::add_value<float>)
     .def("_add_string", &adapter_data_set::add_value<std::string>)
-
     // Next shared ptrs to kwiver vital types
-    .def("_add_image_container", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::image_container > >)
-    .def("_add_descriptor_set", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::descriptor_set > >)
-    .def("_add_detected_object_set", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::detected_object_set > >)
-    .def("_add_track_set", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::track_set > >)
-    .def("_add_feature_track_set", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::feature_track_set > >)
-    .def("_add_object_track_set", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::object_track_set > >)
+    .def("_add_image_container", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::image_container > >,
+      py::arg("port"), py::arg("val").none(false))
+    .def("_add_descriptor_set", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::descriptor_set > >,
+      py::arg("port"), py::arg("val").none(false))
+    .def("_add_detected_object_set", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::detected_object_set > >,
+      py::arg("port"), py::arg("val").none(false))
+    .def("_add_track_set", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::track_set > >,
+      py::arg("port"), py::arg("val").none(false))
+    .def("_add_feature_track_set", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::feature_track_set > >,
+      py::arg("port"), py::arg("val").none(false))
+    .def("_add_object_track_set", &adapter_data_set::add_value<std::shared_ptr<kwiver::vital::object_track_set > >,
+      py::arg("port"), py::arg("val").none(false))
     // Next shared ptrs to native C++ types
-    .def("_add_double_vector", &adapter_data_set::add_value<std::shared_ptr<std::vector<double>>>)
-    .def("_add_string_vector", &adapter_data_set::add_value<std::shared_ptr<std::vector<std::string>>>)
-    .def("_add_uchar_vector", &adapter_data_set::add_value<std::shared_ptr<std::vector<unsigned char>>>)
+    .def("_add_double_vector", &adapter_data_set::add_value<std::shared_ptr<std::vector<double>>>,
+      py::arg("port"), py::arg("val").none(false))
+    .def("_add_string_vector", &adapter_data_set::add_value<std::shared_ptr<std::vector<std::string>>>,
+      py::arg("port"), py::arg("val").none(false))
+    .def("_add_uchar_vector", &adapter_data_set::add_value<std::shared_ptr<std::vector<unsigned char>>>,
+      py::arg("port"), py::arg("val").none(false))
     // Next kwiver vital types
     .def("_add_bounding_box", &adapter_data_set::add_value<kwiver::vital::bounding_box_d>)
     .def("_add_timestamp", &adapter_data_set::add_value<kwiver::vital::timestamp>)

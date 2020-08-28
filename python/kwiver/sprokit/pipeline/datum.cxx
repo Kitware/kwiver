@@ -125,28 +125,28 @@ PYBIND11_MODULE(datum, m)
     , (arg("dat"))
     , "Creates a new datum packet containing a string.");
   m.def("new_image_container", &new_datum<std::shared_ptr<kwiver::vital::image_container>>
-    , (arg("dat"))
+    , (arg("dat").none(false))
     , "Creates a new datum packet containing an image container.");
   m.def("new_descriptor_set", &new_datum<std::shared_ptr<kwiver::vital::descriptor_set>>
-    , (arg("dat"))
+    , (arg("dat").none(false))
     , "Creates a new datum packet containing a descriptor set.");
   m.def("new_detected_object_set", &new_datum<std::shared_ptr<kwiver::vital::detected_object_set>>
-    , (arg("dat"))
+    , (arg("dat").none(false))
     , "Creates a new datum packet containing a detected object set.");
   m.def("new_track_set", &new_datum<std::shared_ptr<kwiver::vital::track_set>>
-    , (arg("dat"))
+    , (arg("dat").none(false))
     , "Creates a new datum packet containing a track set.");
   m.def("new_feature_track_set", &new_datum<std::shared_ptr<kwiver::vital::feature_track_set>>
-    , (arg("dat"))
+    , (arg("dat").none(false))
     , "Creates a new datum packet containing a feature track set.");
   m.def("new_object_track_set", &new_datum<std::shared_ptr<kwiver::vital::object_track_set>>
-    , (arg("dat"))
+    , (arg("dat").none(false))
     , "Creates a new datum packet containing an object track set.");
   m.def("new_double_vector", &new_datum<std::shared_ptr<std::vector<double>>>
-    , (arg("dat"))
+    , (arg("dat").none(false))
     , "Creates a new datum packet containing a double vector.");
   m.def("new_string_vector", &new_datum<std::shared_ptr<std::vector<std::string>>>
-    , (arg("dat"))
+    , (arg("dat").none(false))
     , "Creates a new datum packet containing a string vector.");
   m.def("new_bounding_box", &new_datum<kwiver::vital::bounding_box_d>
     , (arg("dat"))
@@ -158,7 +158,7 @@ PYBIND11_MODULE(datum, m)
     , (arg("dat"))
     , "Creates a new set of corner points");
   m.def("new_uchar_vector", &new_datum<std::shared_ptr<std::vector<unsigned char>>>
-    , (arg("dat"))
+    , (arg("dat").none(false))
     , "Creates a new datum packet containing an unsigned char vector.");
   m.def("new_f2f_homography", &new_datum<kwiver::vital::f2f_homography>
     , (arg("dat"))
@@ -236,6 +236,11 @@ namespace python{
 ::sprokit::datum
 new_datum_correct_type(object const& obj)
 {
+  if (obj.is_none())
+  {
+    throw type_error("Cannot create datum with NoneType");
+  }
+
   #define ADD_OBJECT(PYTYPE, TYPE) \
   if (isinstance<PYTYPE>(obj)) \
   { \
