@@ -288,7 +288,7 @@ def test_new_get_with_none():
     # Should also fail for the automatic type conversion
     expect_exception(
         "attempting to store none through automatic conversion",
-        RuntimeError,
+        TypeError,
         datum.new,
         None,
     )

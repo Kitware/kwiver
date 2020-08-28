@@ -449,7 +449,7 @@ def test_add_get_none():
     # Should also fail for the automatic type conversion
     expect_exception(
         "attempting to store none through automatic conversion",
-        RuntimeError,
+        TypeError,
         ads.add_value,
         "none_port",
         None,
