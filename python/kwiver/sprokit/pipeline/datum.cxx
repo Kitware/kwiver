@@ -262,7 +262,7 @@ new_datum_correct_type(object const& obj)
 
   #undef ADD_OBJECT
 
-  throw std::runtime_error("Unable to construct datum from object");
+  throw type_error("Unable to construct datum from object");
 }
 
 template<class T>
@@ -346,7 +346,7 @@ datum_get_datum_correct_type(::sprokit::datum const& self)
 
   std::string msg("Unable to convert object stored in datum. Data is of type: ");
   msg += any.type_name();
-  throw std::runtime_error(msg);
+  throw type_error(msg);
 }
 
 std::string

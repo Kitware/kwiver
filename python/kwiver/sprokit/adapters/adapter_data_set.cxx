@@ -97,7 +97,7 @@ void add_value_correct_type(adapter_data_set &self, ::sprokit::process::port_t c
 
   #undef ADD_OBJECT
 
-  throw std::runtime_error("Unable to add object to adapter data set");
+  throw py::type_error("Unable to add object to adapter data set");
 }
 
 // Take data of an unknown type from a port and return. Can't return as an "any" object,
@@ -135,7 +135,7 @@ py::object get_port_data_correct_type(adapter_data_set &self, ::sprokit::process
   msg += port;
   msg += ". Data is of type: ";
   msg += any.type_name();
-  throw std::runtime_error(msg);
+  throw py::type_error(msg);
 }
 
 }
