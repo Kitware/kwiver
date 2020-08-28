@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016-2017, 2019 by Kitware, Inc.
+ * Copyright 2016-2017, 2019-2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -234,6 +234,16 @@ public:
     }
     return it->second->get_datum<T>();
   }
+
+  /**
+   * @brief Return the number of elements in the adapter_data_set.
+   *
+   * This method returns the number of elements stored in the adapter_data_set.
+   * Similar to std::map::size()
+   *
+   * @return Number of elements in the adapter_data_set.
+   */
+  size_t size() const;
 
 protected:
   KWIVER_ADAPTER_NO_EXPORT adapter_data_set( data_set_type type ); // private CTOR - use factory method

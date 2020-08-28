@@ -1,6 +1,6 @@
 """
 ckwg +31
-Copyright 2015-2020 by Kitware, Inc.
+Copyright 2015-2017 by Kitware, Inc.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -124,6 +124,7 @@ class KwiverProcess(process.PythonProcess):
     # noinspection PyProtectedMember
     def __init__(self, conf):
         process.PythonProcess.__init__(self, conf)
+
         # establish the dictionaries for the declared traits.
         # indexed by their respective names
         #: :type: dict[str, KwiverProcess.type_trait]

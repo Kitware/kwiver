@@ -166,4 +166,12 @@ kwiver::adapter::adapter_data_set::type() const
   return m_set_type;
 }
 
+
+// ------------------------------------------------------------------
+size_t
+adapter_data_set::size() const
+{
+  return m_port_datum_set.size();
+}
+
 } } // end namespace

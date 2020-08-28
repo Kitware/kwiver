@@ -31,6 +31,7 @@
 #include <sprokit/processes/adapters/embedded_pipeline.h>
 #include <sprokit/pipeline_util/load_pipe_exception.h>
 
+#include <pybind11/stl.h>
 #include <python/kwiver/vital/util/pybind11.h>
 
 #include <memory>
@@ -123,7 +124,7 @@ PYBIND11_MODULE(embedded_pipeline, m)
             >>> # Now lets run it
             >>> ep.start()
             >>> ads = adapter_data_set.AdapterDataSet.create()
-            >>> ads.add_int("port1", 5)
+            >>> ads["port1"] = 5
             >>> ep.send(ads)
             >>>
             >>> # All done, send end of input
@@ -132,7 +133,7 @@ PYBIND11_MODULE(embedded_pipeline, m)
             >>> while True:
             >>>     ods = ep.receive()
             >>>     if not ods.is_end_of_data():
-            >>>         assert ods.get_port_data_int("port2") == 5
+            >>>         assert ods["port2"] == 5
             >>>         break
             >>> os.remove(fp.name)
         )";
