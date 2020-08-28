@@ -1,7 +1,12 @@
 project(sprokit_test_python_sprokit_adapters)
 
-set(kwiver_test_pipelines_directory
+# For pipelines that also can be used by C++ tests
+set(cpp_pipelines_dir
   "${KWIVER_SOURCE_DIR}/sprokit/tests/data/pipelines")
+
+# For pipelines that are meant to be tested with Python
+set(py_pipelines_dir
+  "${CMAKE_CURRENT_SOURCE_DIR}/pipelines/")
 
 
 # Simple testables require no pytest paramatarization
@@ -39,7 +44,8 @@ if (KWIVER_ENABLE_TESTS)
   include(kwiver-test-setup)
   foreach (group IN LISTS __paramaterized_testable_modnames)
     kwiver_discover_python_tests(${group} test-${group}.py
-      ${kwiver_test_pipelines_directory})
+      ${cpp_pipelines_dir}
+      ${py_pipelines_dir})
   endforeach()
 endif()
 ###
