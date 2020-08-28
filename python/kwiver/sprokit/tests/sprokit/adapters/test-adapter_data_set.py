@@ -416,27 +416,28 @@ def test_mix_add_and_get():
     )
 
 
-# Make sure that for types stored via pointer, None can be stored
-# and survives the roundtrip from None -> nullptr -> None.
-# Otherwise, should throw
-def test_add_get_none():
+# Make sure that None isn't acceptable, even for pointers
+def test_add_none():
     from kwiver.sprokit.adapters import adapter_data_set
-    # Still need this import so that pybind knows that a track_set
-    # is bound/managed by pointer
     from kwiver.vital import types as kvt
 
     ads = adapter_data_set.AdapterDataSet.create()
 
-    ads._add_string_vector("none_vector_string_port", None)
-    if not ads._get_port_data_string_vector("none_vector_string_port") is None:
-        test_error("None -> nullptr -> None failed for ptr to vector of strings")
+    expect_exception(
+        "attempting to store None as a string vector",
+        TypeError,
+        ads._add_string_vector,
+        "none_vector_string_port",
+        None,
+    )
 
-    ads._add_track_set("none_track_set_port", None)
-    if not ads._get_port_data_track_set("none_track_set_port") is None:
-        test_error("None -> nullptr -> None failed for ptr to track_set")
-
-    # Storing None should fail for types that aren't added via pointer
-    # in the binding code
+    expect_exception(
+        "attempting to store None as a track set",
+        TypeError,
+        ads._add_track_set,
+        "none_track_set_port",
+        None,
+    )
 
     expect_exception(
         "attempting to store None as a timestamp",
@@ -454,7 +455,6 @@ def test_add_get_none():
         "none_port",
         None,
     )
-
 
 def _create_ads():
     from kwiver.vital import types as kvt

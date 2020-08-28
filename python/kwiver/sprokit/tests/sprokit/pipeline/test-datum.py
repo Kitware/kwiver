@@ -259,25 +259,25 @@ def test_mix_new_and_get():
     datum_inst = datum.new_string_vector(datum.VectorString(["element1", "element2"]))
     check_same_type(datum_inst.get_datum(), datum.VectorString(["element1", "element2"]))
 
-# Make sure that for types stored via pointer, None can be stored
-# and survives the roundtrip from None -> nullptr -> None.
-# Otherwise, should throw.
-def test_new_get_with_none():
+# Make sure that None isn't acceptable, even for pointers
+def test_new_with_none():
     from kwiver.sprokit.pipeline import datum
-    # Still need this import so that pybind knows that a track_set
-    # is bound/managed by pointer
     from kwiver.vital import types as kvt
 
-    datum_inst = datum.new_string_vector(None)
-    if not datum_inst.get_string_vector() is None:
-        test_error("None -> nullptr -> None failed for ptr to vector of strings")
+    expect_exception(
+        "attempting to store None as a string vector",
+        TypeError,
+        datum.new_string_vector,
+        None,
+    )
 
-    datum_inst = datum.new_track_set(None)
-    if not datum_inst.get_track_set() is None:
-        test_error("None -> nullptr -> None failed for ptr to track_set")
+    expect_exception(
+        "attempting to store None as a track_set",
+        TypeError,
+        datum.new_track_set,
+        None,
+    )
 
-    # Storing None should fail for types that aren't added via pointer
-    # in the binding code
     expect_exception(
         "attempting to store None as a timestamp",
         TypeError,
