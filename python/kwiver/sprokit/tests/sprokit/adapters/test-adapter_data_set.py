@@ -30,6 +30,7 @@
 
 from kwiver.sprokit.util.test import expect_exception, find_tests, run_test, test_error
 
+from kwiver.sprokit.pipeline import datum
 
 def test_import():
     try:
@@ -101,7 +102,7 @@ def test_is_end_of_data():
 
 
 def check_same_type(retrieved_val, val, portname):
-    from kwiver.sprokit.pipeline import datum
+    from kwiver.sprokit.adapters import adapter_data_set
 
     if isinstance(val, datum.Datum):
         val = val.get_datum()
@@ -119,6 +120,7 @@ def check_same_type(retrieved_val, val, portname):
 def add_get_helper(
     instance, instance_add_fxn, instance_get_fxn, val, data_type_str,
 ):
+    from kwiver.sprokit.adapters import adapter_data_set
 
     # First the type specific add/get fxns
     portname = data_type_str + "_port"
@@ -143,7 +145,7 @@ def add_get_helper(
 def overwrite_helper(
     instance_add_fxn, instance_get_fxn, val, new_data_type_str, portname
 ):
-    from kwiver.sprokit.pipeline import datum
+    from kwiver.sprokit.adapters import adapter_data_set
 
     instance_add_fxn(portname, val)
     try:
@@ -175,7 +177,6 @@ def test_empty():
 # First check a python datum object
 def test_add_get_datum():
     from kwiver.sprokit.adapters import adapter_data_set
-    from kwiver.sprokit.pipeline import datum
 
     ads = adapter_data_set.AdapterDataSet.create()
     add_get_helper(ads, ads.add_datum, ads.get_port_data, datum.new("d1"), "datum")
@@ -265,7 +266,6 @@ def test_add_get_cpp_types():
 # Now try creating datums of these bound types
 def test_add_get_cpp_types_with_datum():
     from kwiver.sprokit.adapters import adapter_data_set
-    from kwiver.sprokit.pipeline import datum
 
     ads = adapter_data_set.AdapterDataSet.create()
     add_get_helper(
@@ -324,7 +324,6 @@ def test_add_get_vital_types():
 def test_overwrite():
     from kwiver.vital import types as kvt
     from kwiver.sprokit.adapters import adapter_data_set
-    from kwiver.sprokit.pipeline import datum
 
     OVERWRITE_PORT = "test_overwrite_port"
     ads = adapter_data_set.AdapterDataSet.create()
@@ -456,6 +455,7 @@ def test_add_none():
         None,
     )
 
+
 def _create_ads():
     from kwiver.vital import types as kvt
     from kwiver.sprokit.adapters import adapter_data_set
@@ -473,7 +473,6 @@ def _create_ads():
 def test_iter():
     from kwiver.vital import types as kvt
     from kwiver.sprokit.adapters import adapter_data_set
-    from kwiver.sprokit.pipeline import datum
 
     ads = _create_ads()
 
