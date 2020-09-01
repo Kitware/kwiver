@@ -54,7 +54,10 @@ class camera_trampoline
   unsigned int image_width() const override;
   unsigned int image_height() const override;
 };
-
+}
+}
+}
+using namespace kwiver::vital::python;
 PYBIND11_MODULE( camera, m )
 {
   py::class_< kv::camera,
@@ -75,11 +78,7 @@ PYBIND11_MODULE( camera, m )
 // The above link has a solution to this issue. The trampoline's implementation of
 // clone() also was modified to follow this pattern
 
-}
-}
-}
 
-using namespace kwiver::vital::python;
 kv::camera_sptr
 camera_trampoline
 ::clone() const

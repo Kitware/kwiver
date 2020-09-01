@@ -37,9 +37,12 @@
 #include <memory>
 #include <vector>
 
+
 namespace py = pybind11;
 namespace kv = kwiver::vital;
-
+namespace kwiver {
+namespace vital  {
+namespace python {
 
 template < typename T >
 py::tuple
@@ -131,6 +134,9 @@ void declare_rotation( py::module &m,
   m.def( "interpolated_rotations", &rot_interpolated_rotations< T > );
 
 
+}
+}
+}
 }
 
 using namespace kwiver::vital::python;

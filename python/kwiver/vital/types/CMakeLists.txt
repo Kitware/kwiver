@@ -88,6 +88,13 @@ target_link_libraries(python-vital.types-category_hierarchy
   PUBLIC ${PYTHON_LIBRARIES}
          vital)
 
+kwiver_add_python_library(class_map
+  vital/types
+  class_map.cxx)
+target_link_libraries(python-vital.types-class_map
+  PUBLIC ${PYTHON_LIBRARIES}
+         vital)
+
 kwiver_add_python_library(color
   vital/types
   color.cxx)
@@ -141,13 +148,6 @@ kwiver_add_python_library(detected_object_set
   vital/types
   detected_object_set.cxx)
 target_link_libraries(python-vital.types-detected_object_set
-  PUBLIC ${PYTHON_LIBRARIES}
-         vital)
-
-kwiver_add_python_library(detected_object_type
-  vital/types
-  detected_object_type.cxx)
-target_link_libraries(python-vital.types-detected_object_type
   PUBLIC ${PYTHON_LIBRARIES}
          vital)
 
@@ -400,6 +400,7 @@ if(NOT SKBUILD)
     camera_perspective
     camera_perspective_map
     camera_rpc
+    class_map
     color
     covariance
     database_query

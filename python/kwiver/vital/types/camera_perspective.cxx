@@ -234,10 +234,6 @@ camera_perspective_trampoline
   );
 }
 
-
-
-
-
 kv::matrix_3x4d
 camera_perspective_trampoline
 ::as_matrix() const
