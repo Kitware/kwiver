@@ -241,31 +241,31 @@ new_datum_correct_type(object const& obj)
     throw type_error("Cannot create datum with NoneType");
   }
 
-  #define ADD_OBJECT(PYTYPE, TYPE) \
+  #define CHECK_TYPE_NEW_DATUM(PYTYPE, TYPE) \
   if (isinstance<PYTYPE>(obj)) \
   { \
     TYPE casted_obj = obj.cast<TYPE>(); \
     return *(::sprokit::datum::new_datum<TYPE>(casted_obj)); \
   }
 
-  ADD_OBJECT(int_, int)
-  ADD_OBJECT(float_, float)
-  ADD_OBJECT(str, std::string)
-  ADD_OBJECT(kwiver::vital::image_container, std::shared_ptr<kwiver::vital::image_container>)
-  ADD_OBJECT(kwiver::vital::descriptor_set, std::shared_ptr<kwiver::vital::descriptor_set>)
-  ADD_OBJECT(kwiver::vital::detected_object_set, std::shared_ptr<kwiver::vital::detected_object_set>)
-  ADD_OBJECT(kwiver::vital::track_set, std::shared_ptr<kwiver::vital::track_set>)
-  ADD_OBJECT(kwiver::vital::feature_track_set, std::shared_ptr<kwiver::vital::feature_track_set>)
-  ADD_OBJECT(kwiver::vital::object_track_set, std::shared_ptr<kwiver::vital::object_track_set>)
-  ADD_OBJECT(std::vector<double>, std::shared_ptr<std::vector<double>>)
-  ADD_OBJECT(std::vector<std::string>, std::shared_ptr<std::vector<std::string>>)
-  ADD_OBJECT(std::vector<unsigned char>, std::shared_ptr<std::vector<unsigned char>>)
-  ADD_OBJECT(kwiver::vital::bounding_box_d, kwiver::vital::bounding_box_d)
-  ADD_OBJECT(kwiver::vital::timestamp, kwiver::vital::timestamp)
-  ADD_OBJECT(kwiver::vital::geo_polygon, kwiver::vital::geo_polygon)
-  ADD_OBJECT(kwiver::vital::f2f_homography, kwiver::vital::f2f_homography)
+  CHECK_TYPE_NEW_DATUM(int_, int)
+  CHECK_TYPE_NEW_DATUM(float_, float)
+  CHECK_TYPE_NEW_DATUM(str, std::string)
+  CHECK_TYPE_NEW_DATUM(kwiver::vital::image_container, std::shared_ptr<kwiver::vital::image_container>)
+  CHECK_TYPE_NEW_DATUM(kwiver::vital::descriptor_set, std::shared_ptr<kwiver::vital::descriptor_set>)
+  CHECK_TYPE_NEW_DATUM(kwiver::vital::detected_object_set, std::shared_ptr<kwiver::vital::detected_object_set>)
+  CHECK_TYPE_NEW_DATUM(kwiver::vital::track_set, std::shared_ptr<kwiver::vital::track_set>)
+  CHECK_TYPE_NEW_DATUM(kwiver::vital::feature_track_set, std::shared_ptr<kwiver::vital::feature_track_set>)
+  CHECK_TYPE_NEW_DATUM(kwiver::vital::object_track_set, std::shared_ptr<kwiver::vital::object_track_set>)
+  CHECK_TYPE_NEW_DATUM(std::vector<double>, std::shared_ptr<std::vector<double>>)
+  CHECK_TYPE_NEW_DATUM(std::vector<std::string>, std::shared_ptr<std::vector<std::string>>)
+  CHECK_TYPE_NEW_DATUM(std::vector<unsigned char>, std::shared_ptr<std::vector<unsigned char>>)
+  CHECK_TYPE_NEW_DATUM(kwiver::vital::bounding_box_d, kwiver::vital::bounding_box_d)
+  CHECK_TYPE_NEW_DATUM(kwiver::vital::timestamp, kwiver::vital::timestamp)
+  CHECK_TYPE_NEW_DATUM(kwiver::vital::geo_polygon, kwiver::vital::geo_polygon)
+  CHECK_TYPE_NEW_DATUM(kwiver::vital::f2f_homography, kwiver::vital::f2f_homography)
 
-  #undef ADD_OBJECT
+  #undef CHECK_TYPE_NEW_DATUM
 
   throw type_error("Unable to construct datum from object");
 }
@@ -324,30 +324,30 @@ datum_get_datum_correct_type(::sprokit::datum const& self)
 
   kwiver::vital::any const any = self.get_datum<kwiver::vital::any>();
 
-  #define GET_OBJECT(TYPE) \
-  if (typeid(TYPE) == any.type()) \
+  #define DATUM_GET_OBJECT(TYPE) \
+  if (any.is_type<TYPE>()) \
   { \
     return cast(kwiver::vital::any_cast<TYPE>(any)); \
   }
 
-  GET_OBJECT(int)
-  GET_OBJECT(float)
-  GET_OBJECT(std::string)
-  GET_OBJECT(std::shared_ptr<kwiver::vital::image_container>)
-  GET_OBJECT(std::shared_ptr<kwiver::vital::descriptor_set>)
-  GET_OBJECT(std::shared_ptr<kwiver::vital::detected_object_set>)
-  GET_OBJECT(std::shared_ptr<kwiver::vital::track_set>)
-  GET_OBJECT(std::shared_ptr<kwiver::vital::feature_track_set>)
-  GET_OBJECT(std::shared_ptr<kwiver::vital::object_track_set>)
-  GET_OBJECT(std::shared_ptr<std::vector<double>>)
-  GET_OBJECT(std::shared_ptr<std::vector<std::string>>)
-  GET_OBJECT(std::shared_ptr<std::vector<unsigned char>>)
-  GET_OBJECT(kwiver::vital::bounding_box_d)
-  GET_OBJECT(kwiver::vital::timestamp)
-  GET_OBJECT(kwiver::vital::geo_polygon)
-  GET_OBJECT(kwiver::vital::f2f_homography)
+  DATUM_GET_OBJECT(int)
+  DATUM_GET_OBJECT(float)
+  DATUM_GET_OBJECT(std::string)
+  DATUM_GET_OBJECT(std::shared_ptr<kwiver::vital::image_container>)
+  DATUM_GET_OBJECT(std::shared_ptr<kwiver::vital::descriptor_set>)
+  DATUM_GET_OBJECT(std::shared_ptr<kwiver::vital::detected_object_set>)
+  DATUM_GET_OBJECT(std::shared_ptr<kwiver::vital::track_set>)
+  DATUM_GET_OBJECT(std::shared_ptr<kwiver::vital::feature_track_set>)
+  DATUM_GET_OBJECT(std::shared_ptr<kwiver::vital::object_track_set>)
+  DATUM_GET_OBJECT(std::shared_ptr<std::vector<double>>)
+  DATUM_GET_OBJECT(std::shared_ptr<std::vector<std::string>>)
+  DATUM_GET_OBJECT(std::shared_ptr<std::vector<unsigned char>>)
+  DATUM_GET_OBJECT(kwiver::vital::bounding_box_d)
+  DATUM_GET_OBJECT(kwiver::vital::timestamp)
+  DATUM_GET_OBJECT(kwiver::vital::geo_polygon)
+  DATUM_GET_OBJECT(kwiver::vital::f2f_homography)
 
-  #undef GET_OBJECT
+  #undef DATUM_GET_OBJECT
 
   std::string msg("Unable to convert object stored in datum. Data is of type: ");
   msg += any.type_name();

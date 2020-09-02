@@ -76,7 +76,7 @@ void add_value_correct_type(adapter_data_set &self, ::sprokit::process::port_t c
     return;
   }
 
-  #define ADD_OBJECT(PYTYPE, TYPE) \
+  #define ADS_ADD_OBJECT(PYTYPE, TYPE) \
   if (py::isinstance<PYTYPE>(obj)) \
   { \
     TYPE casted_obj = obj.cast<TYPE>(); \
@@ -84,24 +84,24 @@ void add_value_correct_type(adapter_data_set &self, ::sprokit::process::port_t c
     return; \
   }
 
-  ADD_OBJECT(py::int_, int)
-  ADD_OBJECT(py::float_, float)
-  ADD_OBJECT(py::str, std::string)
-  ADD_OBJECT(kwiver::vital::image_container, std::shared_ptr<kwiver::vital::image_container>)
-  ADD_OBJECT(kwiver::vital::descriptor_set, std::shared_ptr<kwiver::vital::descriptor_set>)
-  ADD_OBJECT(kwiver::vital::detected_object_set, std::shared_ptr<kwiver::vital::detected_object_set>)
-  ADD_OBJECT(kwiver::vital::track_set, std::shared_ptr<kwiver::vital::track_set>)
-  ADD_OBJECT(kwiver::vital::feature_track_set, std::shared_ptr<kwiver::vital::feature_track_set>)
-  ADD_OBJECT(kwiver::vital::object_track_set, std::shared_ptr<kwiver::vital::object_track_set>)
-  ADD_OBJECT(std::vector<double>, std::shared_ptr<std::vector<double>>)
-  ADD_OBJECT(std::vector<std::string>, std::shared_ptr<std::vector<std::string>>)
-  ADD_OBJECT(std::vector<unsigned char>, std::shared_ptr<std::vector<unsigned char>>)
-  ADD_OBJECT(kwiver::vital::bounding_box_d, kwiver::vital::bounding_box_d)
-  ADD_OBJECT(kwiver::vital::timestamp, kwiver::vital::timestamp)
-  ADD_OBJECT(kwiver::vital::geo_polygon, kwiver::vital::geo_polygon)
-  ADD_OBJECT(kwiver::vital::f2f_homography, kwiver::vital::f2f_homography)
+  ADS_ADD_OBJECT(py::int_, int)
+  ADS_ADD_OBJECT(py::float_, float)
+  ADS_ADD_OBJECT(py::str, std::string)
+  ADS_ADD_OBJECT(kwiver::vital::image_container, std::shared_ptr<kwiver::vital::image_container>)
+  ADS_ADD_OBJECT(kwiver::vital::descriptor_set, std::shared_ptr<kwiver::vital::descriptor_set>)
+  ADS_ADD_OBJECT(kwiver::vital::detected_object_set, std::shared_ptr<kwiver::vital::detected_object_set>)
+  ADS_ADD_OBJECT(kwiver::vital::track_set, std::shared_ptr<kwiver::vital::track_set>)
+  ADS_ADD_OBJECT(kwiver::vital::feature_track_set, std::shared_ptr<kwiver::vital::feature_track_set>)
+  ADS_ADD_OBJECT(kwiver::vital::object_track_set, std::shared_ptr<kwiver::vital::object_track_set>)
+  ADS_ADD_OBJECT(std::vector<double>, std::shared_ptr<std::vector<double>>)
+  ADS_ADD_OBJECT(std::vector<std::string>, std::shared_ptr<std::vector<std::string>>)
+  ADS_ADD_OBJECT(std::vector<unsigned char>, std::shared_ptr<std::vector<unsigned char>>)
+  ADS_ADD_OBJECT(kwiver::vital::bounding_box_d, kwiver::vital::bounding_box_d)
+  ADS_ADD_OBJECT(kwiver::vital::timestamp, kwiver::vital::timestamp)
+  ADS_ADD_OBJECT(kwiver::vital::geo_polygon, kwiver::vital::geo_polygon)
+  ADS_ADD_OBJECT(kwiver::vital::f2f_homography, kwiver::vital::f2f_homography)
 
-  #undef ADD_OBJECT
+  #undef ADS_ADD_OBJECT
 
   throw py::type_error("Unable to add object to adapter data set");
 }
@@ -112,30 +112,30 @@ py::object get_port_data_correct_type(adapter_data_set &self, ::sprokit::process
 {
   kwiver::vital::any const any = self.get_port_data<kwiver::vital::any>(port);
 
-  #define GET_OBJECT(TYPE) \
-  if (typeid(TYPE) == any.type()) \
+  #define ADS_GET_OBJECT(TYPE) \
+  if (any.is_type<TYPE>()) \
   { \
     return py::cast(kwiver::vital::any_cast<TYPE>(any)); \
   }
 
-  GET_OBJECT(int)
-  GET_OBJECT(float)
-  GET_OBJECT(std::string)
-  GET_OBJECT(std::shared_ptr<kwiver::vital::image_container>)
-  GET_OBJECT(std::shared_ptr<kwiver::vital::descriptor_set>)
-  GET_OBJECT(std::shared_ptr<kwiver::vital::detected_object_set>)
-  GET_OBJECT(std::shared_ptr<kwiver::vital::track_set>)
-  GET_OBJECT(std::shared_ptr<kwiver::vital::feature_track_set>)
-  GET_OBJECT(std::shared_ptr<kwiver::vital::object_track_set>)
-  GET_OBJECT(std::shared_ptr<std::vector<double>>)
-  GET_OBJECT(std::shared_ptr<std::vector<std::string>>)
-  GET_OBJECT(std::shared_ptr<std::vector<unsigned char>>)
-  GET_OBJECT(kwiver::vital::bounding_box_d)
-  GET_OBJECT(kwiver::vital::timestamp)
-  GET_OBJECT(kwiver::vital::geo_polygon)
-  GET_OBJECT(kwiver::vital::f2f_homography)
+  ADS_GET_OBJECT(int)
+  ADS_GET_OBJECT(float)
+  ADS_GET_OBJECT(std::string)
+  ADS_GET_OBJECT(std::shared_ptr<kwiver::vital::image_container>)
+  ADS_GET_OBJECT(std::shared_ptr<kwiver::vital::descriptor_set>)
+  ADS_GET_OBJECT(std::shared_ptr<kwiver::vital::detected_object_set>)
+  ADS_GET_OBJECT(std::shared_ptr<kwiver::vital::track_set>)
+  ADS_GET_OBJECT(std::shared_ptr<kwiver::vital::feature_track_set>)
+  ADS_GET_OBJECT(std::shared_ptr<kwiver::vital::object_track_set>)
+  ADS_GET_OBJECT(std::shared_ptr<std::vector<double>>)
+  ADS_GET_OBJECT(std::shared_ptr<std::vector<std::string>>)
+  ADS_GET_OBJECT(std::shared_ptr<std::vector<unsigned char>>)
+  ADS_GET_OBJECT(kwiver::vital::bounding_box_d)
+  ADS_GET_OBJECT(kwiver::vital::timestamp)
+  ADS_GET_OBJECT(kwiver::vital::geo_polygon)
+  ADS_GET_OBJECT(kwiver::vital::f2f_homography)
 
-  #undef GET_OBJECT
+  #undef ADS_GET_OBJECT
 
   std::string msg("Unable to convert object found at adapter data set port: ");
   msg += port;
