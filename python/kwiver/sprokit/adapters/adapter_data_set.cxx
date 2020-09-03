@@ -29,7 +29,6 @@
  */
 
 #include <sprokit/processes/adapters/adapter_data_set.h>
-
 #include <pybind11/pybind11.h>
 
 // Type conversions
@@ -40,6 +39,29 @@
 using namespace kwiver::adapter;
 namespace py = pybind11;
 namespace kwiver{
+	namespace adapter {
+
+		template <typename T>
+		void
+		adapter_data_set::
+		add_value(::sprokit::process::port_t const& port, T const& val)
+		{
+			m_port_datum_set[port] = ::sprokit::datum::new_datum<T>(val);
+		}
+
+		template<typename T>
+		T
+		adapter_data_set::get_port_data(::sprokit::process::port_t const& port)
+		{
+			auto it = this->find(port);
+			if (it == this->end())
+			{
+				throw std::runtime_error("Data for port \"" + port + "\" is not in the adapter_data_set.");
+			}
+			return it->second->get_datum<T>();
+		}
+
+	}
 namespace sprokit{
 namespace python{
 

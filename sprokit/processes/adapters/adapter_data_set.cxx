@@ -47,7 +47,6 @@ struct local_ads : public adapter_data_set {
 
 } // end namespace
 
-
 // ------------------------------------------------------------------
 adapter_data_set
 ::adapter_data_set( data_set_type type )
