@@ -181,10 +181,12 @@ void adapter_data_set::add_value(sprokit::process::port_t const& port, T const& 
   m_port_datum_set[port] = sprokit::datum::new_datum<T>(val);
 }
 
-template<>
+template
+KWIVER_ADAPTER_EXPORT
 void adapter_data_set::add_value(sprokit::process::port_t const& port, int const& val);
 
-template<>
+template
+KWIVER_ADAPTER_EXPORT
 void adapter_data_set::add_value(sprokit::process::port_t const& port, vital::image_container_sptr const& val);
 
 } } // end namespace
