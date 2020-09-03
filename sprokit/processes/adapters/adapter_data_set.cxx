@@ -34,6 +34,7 @@
  */
 
 #include "adapter_data_set.h"
+#include <vital/types/image_container.h>
 
 namespace kwiver {
 namespace adapter {
@@ -46,6 +47,7 @@ struct local_ads : public adapter_data_set {
 };
 
 } // end namespace
+
 
 // ------------------------------------------------------------------
 adapter_data_set
@@ -172,5 +174,17 @@ adapter_data_set::size() const
 {
   return m_port_datum_set.size();
 }
+
+template <typename T>
+void adapter_data_set::add_value(sprokit::process::port_t const& port, T const& val)
+{
+  m_port_datum_set[port] = sprokit::datum::new_datum<T>(val);
+}
+
+template<>
+void adapter_data_set::add_value(sprokit::process::port_t const& port, int const& val);
+
+template<>
+void adapter_data_set::add_value(sprokit::process::port_t const& port, vital::image_container_sptr const& val);
 
 } } // end namespace

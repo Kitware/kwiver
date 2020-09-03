@@ -222,7 +222,16 @@ public:
    * type does not match the actual type of the data from the port.
    */
   template<typename T>
-  T get_port_data(sprokit::process::port_t const& port);
+  T get_port_data( sprokit::process::port_t const& port )
+  {
+    auto it = this->find( port );
+    if ( it == this->end() )
+    {
+      throw std::runtime_error( "Data for port \"" + port + "\" is not in the adapter_data_set." );
+    }
+    return it->second->get_datum<T>();
+  }
+
   /**
    * @brief Return the number of elements in the adapter_data_set.
    *
