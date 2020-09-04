@@ -149,14 +149,16 @@ function (kwiver_add_python_module path     modpath    module)
   # in source build this would be kwiver_python_install_path/project_name
   if(SKBUILD)
     set(pyfile_dst "${CMAKE_BINARY_DIR}/${modpath}/${module}.py")
+    set(mod_dist "${CMAKE_BINARY_DIR/${modpath}/")
     # installation path for this module
     set(pypkg_install_path "${CMAKE_INSTALL_PREFIX}/${modpath}")
   else()
     set(pyfile_dst "${kwiver_python_output_path}${python_noarchdir}/${python_sitename}/${project_name}/${modpath}/${module}.py")
+    set(mod_dst "${kwiver_python_output_path}${python_noarchdir}/${python_sitename}/${project_name}/${modpath}/" PARENT_SCOPE)
     # installation path for this module
     set(pypkg_install_path "${kwiver_python_install_path}/${project_name}/${modpath}")
   endif()
-
+  
   # copy and configure the source file into the binary directory
   if (KWIVER_SYMLINK_PYTHON)
     kwiver_symlink_file("python${python_arch}-${safe_modpath}-${module}"
