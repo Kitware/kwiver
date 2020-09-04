@@ -39,6 +39,10 @@ set(__all_modnames
   ${__testable_modnames}
   )
 
+
+set(mod_dst)
+# may need to somehow grab the location the module is written to
+# so we can then have nose run on it - configured to - pyfile_dst of kwiver_configure_file
 # Add files to the vital.tests python module
 foreach (modname IN LISTS __all_modnames)
   kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/${modname}.py
@@ -47,3 +51,25 @@ foreach (modname IN LISTS __all_modnames)
 endforeach()
 
 add_subdirectory(alg)
+# dont select all tests, just configure a single add test with the name vital_types
+# and have nose run, exporting the output to an Xunit xml via commandline args to ctest --
+# could probably have set that in the set kwiver_test_runner command or add test...
+# here all we should be doing is setting a single nosetest with the path
+# to the above generated module
+
+if (KWIVER_ENABLE_TESTS)
+
+  set(NOSE_RUNNER)
+  set(modpath vital/tests/)
+  set(kwiver_test_working_path)
+  set(kwiver_test_output_path)
+
+
+  include(kwiver-setup-tests-python)
+  if (NOSE_RUNNER)
+
+    kwiver_add_nosetests(py_vital)
+
+  endif()
+
+endif()
