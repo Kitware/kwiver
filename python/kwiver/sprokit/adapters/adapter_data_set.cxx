@@ -151,6 +151,13 @@ py::object get_port_data_correct_type(adapter_data_set &self, ::sprokit::process
 
 PYBIND11_MODULE(adapter_data_set, m)
 {
+  // Here we're essentially creating bindings for vectors of different types.
+  // Using pybind's automatic conversion of py::list <-> vector would cause issues.
+  // For example, how should the list [5, 2] be interpreted? As a vector of doubles,
+  // or as a vector of unsigned chars? To avoid this ambiguity, we're going to bind
+  // instances of vectors with certain template types explicitly.
+  // If the above list is to be interpreted as a vector of doubles,
+  // we would now use adapter_data_set.VectorDouble([5, 2]) on the Python side.
   py::bind_vector<std::vector<unsigned char>, std::shared_ptr<std::vector<unsigned char>>>(m, "VectorUChar", py::module_local(true));
   py::bind_vector<std::vector<double>, std::shared_ptr<std::vector<double>>>(m, "VectorDouble", py::module_local(true));
   py::bind_vector<std::vector<std::string>, std::shared_ptr<std::vector<std::string>>>(m, "VectorString", py::module_local(true));
@@ -175,13 +182,15 @@ PYBIND11_MODULE(adapter_data_set, m)
     .def("is_end_of_data", &adapter_data_set::is_end_of_data)
 
     // General add_value which adds any type, and __setitem__
-    .def("add_value", &kwiver::sprokit::python::add_value_correct_type)
+    .def("add_value", &kwiver::sprokit::python::add_value_correct_type,
+          "This method is equivalent to using __setitem__")
     .def("__setitem__", &kwiver::sprokit::python::add_value_correct_type)
 
     .def("add_datum", &adapter_data_set::add_datum)
 
     // General get_value which gets data of any type from a port and __getitem__
-    .def("get_port_data", &kwiver::sprokit::python::get_port_data_correct_type)
+    .def("get_port_data", &kwiver::sprokit::python::get_port_data_correct_type,
+          "This method is equivalent to using __getitem__")
     .def("__getitem__", &kwiver::sprokit::python::get_port_data_correct_type)
 
     // The add_value function is templated.
