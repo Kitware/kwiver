@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017-2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,6 @@
  */
 
 #include <vital/types/landmark.h>
-
-#include "covariance_class.cxx"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
@@ -65,6 +63,9 @@ class PyLandmarkBase
 
     virtual unsigned get_observations() { return 0;};
     virtual void set_observations(unsigned) { };
+
+    virtual py::object get_cos_obs_angle() { return py::none(); }
+    virtual void set_cos_obs_angle(py::object) { }
 };
 
 class PyLandmarkd
@@ -113,12 +114,12 @@ class PyLandmarkd
 
     py::object get_covariance()
             {
-              return py::cast<PyCovariance3d>(PyCovariance3d(landmark.get_covar()));
+              return py::cast<kwiver::vital::covariance_3d>(landmark.get_covar());
             };
     void set_covariance(py::object covar_obj)
             {
-              PyCovariance3d covar = covar_obj.cast<PyCovariance3d>();
-              landmark.set_covar(covar.get_covar());
+              kwiver::vital::covariance_3d covar = covar_obj.cast<kwiver::vital::covariance_3d>();
+              landmark.set_covar(covar);
             };
 
     kwiver::vital::rgb_color get_color() { return landmark.get_color(); };
@@ -126,6 +127,16 @@ class PyLandmarkd
 
     unsigned get_observations() { return landmark.get_observations(); };
     void set_observations(unsigned obs) { landmark.set_observations(obs); };
+
+    py::object get_cos_obs_angle()
+    {
+      return py::cast<double>(landmark.get_cos_obs_angle());
+    }
+    void set_cos_obs_angle(py::object obj)
+    {
+      double angle = obj.cast<double>();
+      landmark.set_cos_observation_angle(angle);
+    }
 };
 
 class PyLandmarkf
@@ -174,12 +185,12 @@ class PyLandmarkf
 
     py::object get_covariance()
             {
-              return py::cast<PyCovariance3f>(PyCovariance3f(landmark.get_covar()));
+              return py::cast<kwiver::vital::covariance_3f>(landmark.get_covar());
             };
     void set_covariance(py::object covar_obj)
             {
-              PyCovariance3f covar = covar_obj.cast<PyCovariance3f>();
-              landmark.set_covar(covar.get_covar());
+              kwiver::vital::covariance_3f covar = covar_obj.cast<kwiver::vital::covariance_3f>();
+              landmark.set_covar(covar);
             };
 
     kwiver::vital::rgb_color get_color() { return landmark.get_color(); };
@@ -187,6 +198,16 @@ class PyLandmarkf
 
     unsigned get_observations() { return landmark.get_observations(); };
     void set_observations(unsigned obs) { landmark.set_observations(obs); };
+
+    py::object get_cos_obs_angle()
+    {
+      return py::cast<float>(landmark.get_cos_obs_angle());
+    }
+    void set_cos_obs_angle(py::object obj)
+    {
+      float angle = obj.cast<float>();
+      landmark.set_cos_observation_angle(angle);
+    }
 };
 
 std::shared_ptr<PyLandmarkBase>
@@ -248,6 +269,7 @@ PYBIND11_MODULE(landmark, m)
   .def_property("covariance", &PyLandmarkBase::get_covariance, &PyLandmarkBase::set_covariance)
   .def_property("color", &PyLandmarkBase::get_color, &PyLandmarkBase::set_color)
   .def_property("observations", &PyLandmarkBase::get_observations, &PyLandmarkBase::set_observations)
+  .def_property("cos_obs_angle", &PyLandmarkBase::get_cos_obs_angle, &PyLandmarkBase::set_cos_obs_angle)
   ;
 
 }
