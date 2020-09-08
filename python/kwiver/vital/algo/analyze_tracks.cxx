@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2020 by Kitware, Inc.
+ * Copyright 2019-2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ void analyze_tracks(py::module &m)
               analyze_tracks_trampoline<> >(m, "AnalyzeTracks")
     .def(py::init())
     .def_static("static_type_name", &kwiver::vital::algo::analyze_tracks::static_type_name)
-    .def("analyze_tracks", &kwiver::vital::algo::analyze_tracks::print_info);
+    .def("print_info", &kwiver::vital::algo::analyze_tracks::print_info);
 }
 }
 }

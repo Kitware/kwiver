@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017-2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,7 @@ public:
    *
    * \throws kwiver::vital::file_not_found_exception
    */
-  void open( std::string const& filename );
+  virtual void open( std::string const& filename );
 
   /// Read track descriptors from an existing stream
   /**
@@ -98,7 +98,7 @@ public:
    * The currently open track descriptor set file is closed. If there is no
    * currently open file, then this method does nothing.
    */
-  void close();
+  virtual void close();
 
   /// Read next detected object set
   /**
