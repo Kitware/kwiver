@@ -179,15 +179,15 @@ adapter_data_set::size() const
 
 // ------------------------------------------------------------------
 template <typename T>
-void adapter_data_set::add_value(sprokit::process::port_t const& port, T const& val)
+void adapter_data_set::add_value(::sprokit::process::port_t const& port, T const& val)
 {
-  m_port_datum_set[port] = sprokit::datum::new_datum<T>(val);
+  m_port_datum_set[port] = ::sprokit::datum::new_datum<T>(val);
 }
 
 
 // ------------------------------------------------------------------
 template<typename T>
-T adapter_data_set::get_port_data( sprokit::process::port_t const& port )
+T adapter_data_set::get_port_data( ::sprokit::process::port_t const& port )
 {
   auto it = this->find( port );
   if ( it == this->end() )
@@ -202,12 +202,12 @@ T adapter_data_set::get_port_data( sprokit::process::port_t const& port )
 #define INSTANTIATE_ADS_ADD_VALUE(T) \
   template KWIVER_ADAPTER_EXPORT \
   void \
-  adapter_data_set::add_value(sprokit::process::port_t const& port, T const& val);
+  adapter_data_set::add_value(::sprokit::process::port_t const& port, T const& val);
 
 #define INSTANTIATE_ADS_GET_PORT_DATA(T) \
   template KWIVER_ADAPTER_EXPORT \
   T \
-  adapter_data_set::get_port_data(sprokit::process::port_t const& port);
+  adapter_data_set::get_port_data(::sprokit::process::port_t const& port);
 
 #define INSTANTIATE_ADS_ADD_GET_VALUE(T) \
   INSTANTIATE_ADS_ADD_VALUE(T) \
