@@ -96,7 +96,7 @@ endfunction ()
 # ------------------------------------------------------------------
 function (kwiver_add_test name instance)
   if (TARGET test-${name})
-    set(test_path "$<TARGET_FILE:test-${name}>")
+    set(test_path "$<TARGET_FILE:test-${name}>")  
   elseif (CMAKE_CONFIGURATION_TYPES)
     set(test_path "${kwiver_test_output_path}/$<CONFIGURATION>/test-${name}")
   else ()

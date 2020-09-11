@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017-2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
 
 #include <vital/types/track.h>
 
+#include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -59,7 +60,8 @@ PYBIND11_MODULE(track, m)
 {
   py::class_<kv::track_state, std::shared_ptr<kv::track_state>>(m, "TrackState")
   .def(py::init<int64_t>())
-  .def_property_readonly("frame_id", &kv::track_state::frame)
+  .def(py::self == py::self)
+  .def_property("frame_id", &kv::track_state::frame, &kv::track_state::set_frame)
   ;
 
   py::class_<kv::track, std::shared_ptr<kv::track>>(m, "Track")

@@ -158,7 +158,7 @@ function (kwiver_add_python_module path     modpath    module)
     # installation path for this module
     set(pypkg_install_path "${kwiver_python_install_path}/${project_name}/${modpath}")
   endif()
-
+  
   # copy and configure the source file into the binary directory
   if (KWIVER_SYMLINK_PYTHON)
     kwiver_symlink_file("python${python_arch}-${safe_modpath}-${module}"

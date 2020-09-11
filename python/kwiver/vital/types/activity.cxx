@@ -35,42 +35,41 @@
 #include <pybind11/stl.h>
 
 namespace py = pybind11;
+namespace kv = kwiver::vital;
 
 PYBIND11_MODULE(activity, m)
 {
-  py::class_<kwiver::vital::activity,
-             std::shared_ptr<kwiver::vital::activity>>(m, "Activity")
+  py::class_<kv::activity,
+             std::shared_ptr<kv::activity>>(m, "Activity")
     .def(py::init<>())
-    .def(py::init<kwiver::vital::activity_id_t,
-                  kwiver::vital::activity_label_t,
-                  kwiver::vital::activity_confidence_t,
-                  kwiver::vital::class_map_sptr,
-                  kwiver::vital::timestamp,
-                  kwiver::vital::timestamp,
-                  kwiver::vital::object_track_set_sptr>(),
-          py::arg("activity_id") = -1,
-          py::arg("activity_label") = kwiver::vital::UNDEFINED_ACTIVITY,
+    .def(py::init<kv::activity_id_t,
+                  kv::activity_label_t,
+                  kv::activity_confidence_t,
+                  kv::class_map_sptr,
+                  kv::timestamp,
+                  kv::timestamp,
+                  kv::object_track_set_sptr>(),
+          py::arg("activity_id"),
+          py::arg("activity_label") = kv::UNDEFINED_ACTIVITY,
           py::arg("activity_confidence") = -1.0,
-          py::arg("class_map") =
-           std::make_shared<kwiver::vital::class_map>(kwiver::vital::UNDEFINED_ACTIVITY,
-                                                        -1.0),
-          py::arg("start_time") = kwiver::vital::timestamp(-1, -1),
-          py::arg("end_time") = kwiver::vital::timestamp(-1, -1),
-          py::arg("participants") =
-           std::make_shared<kwiver::vital::object_track_set>() )
-    .def("id", &kwiver::vital::activity::id)
-    .def("set_id", &kwiver::vital::activity::set_id)
-    .def("label",  &kwiver::vital::activity::label)
-    .def("set_label", &kwiver::vital::activity::set_label)
-    .def("activity_type", &kwiver::vital::activity::activity_type)
-    .def("set_activity_type", &kwiver::vital::activity::set_activity_type)
-    .def("confidence", &kwiver::vital::activity::confidence)
-    .def("set_confidence", &kwiver::vital::activity::set_confidence)
-    .def("start_time", &kwiver::vital::activity::start)
-    .def("set_start_time", &kwiver::vital::activity::set_start)
-    .def("end_time", &kwiver::vital::activity::end)
-    .def("set_end_time", &kwiver::vital::activity::set_end)
-    .def("duration", &kwiver::vital::activity::duration)
-    .def("end", &kwiver::vital::activity::participants)
-    .def("set_end", &kwiver::vital::activity::set_participants);
+          py::arg("activity_type") = nullptr,
+          py::arg("start_time") = kv::timestamp(-1, -1),
+          py::arg("end_time") = kv::timestamp(-1, -1),
+          py::arg("participants") = nullptr)
+    .def_property("id", &kv::activity::id,
+                        &kv::activity::set_id)
+    .def_property("label", &kv::activity::label,
+                           &kv::activity::set_label)
+    .def_property("activity_type", &kv::activity::activity_type,
+                                   &kv::activity::set_activity_type)
+    .def_property("confidence", &kv::activity::confidence,
+                                &kv::activity::set_confidence)
+    .def_property("start_time", &kv::activity::start,
+                                &kv::activity::set_start)
+    .def_property("end_time", &kv::activity::end,
+                              &kv::activity::set_end)
+    .def_property("participants", &kv::activity::participants,
+                                  &kv::activity::set_participants)
+    .def_property_readonly("duration", &kv::activity::duration)
+    ;
 }
