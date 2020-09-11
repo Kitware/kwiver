@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2020 by Kitware, Inc.
+ * Copyright 2019-2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,8 +41,6 @@
 #include <python/kwiver/vital/util/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/analyze_tracks.h>
-#include <vital/types/track_set.h>
-#include <vital/types/image_container.h>
 
 #include <ostream>
 

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2019 by Kitware, Inc.
+ * Copyright 2019-2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,24 +42,21 @@
 #include <python/kwiver/vital/util/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/train_detector.h>
-#include <vital/types/detected_object_set.h>
-#include <vital/types/image_container.h>
-
-#include <pybind11/stl.h>
 
 namespace kwiver {
 namespace vital  {
 namespace python {
 
-template < class algorithm_def_td_base=kwiver::vital::algorithm_def<
-  kwiver::vital::algo::train_detector > >
+template < class algorithm_def_td_base=
+            kwiver::vital::algorithm_def<
+              kwiver::vital::algo::train_detector > >
 class algorithm_def_td_trampoline :
-  public algorithm_trampoline< algorithm_def_td_base >
+      public algorithm_trampoline<algorithm_def_td_base>
 {
   public:
-    using algorithm_trampoline< algorithm_def_td_base >::algorithm_trampoline;
+    using algorithm_trampoline<algorithm_def_td_base>::algorithm_trampoline;
 
-    std::string type_name() const override 
+    std::string type_name() const override
     {
       VITAL_PYBIND11_OVERLOAD(
         std::string,
@@ -70,13 +67,14 @@ class algorithm_def_td_trampoline :
 };
 
 
-template < class train_detector_base=kwiver::vital::algo::train_detector >
+template< class train_detector_base=
+                kwiver::vital::algo::train_detector >
 class train_detector_trampoline :
-  public algorithm_def_td_trampoline< train_detector_base >
+      public algorithm_def_td_trampoline< train_detector_base >
 {
   public:
-    using algorithm_def_td_trampoline< train_detector_base >::
-      algorithm_def_td_trampoline;
+    using algorithm_def_td_trampoline< train_detector_base>::
+              algorithm_def_td_trampoline;
 
     void
     add_data_from_disk( kwiver::vital::category_hierarchy_sptr object_labels,
@@ -129,4 +127,5 @@ class train_detector_trampoline :
 }
 }
 }
+
 #endif
