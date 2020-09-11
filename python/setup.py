@@ -122,8 +122,8 @@ setup(
                 'homography_writer=kwiver.sprokit.processes.homography_writer',
                 'multicam_homog_tracker=kwiver.sprokit.processes.multicam_homog_tracker',
                 'simple_homog_tracker=kwiver.sprokit.processes.simple_homog_tracker',
+                'stabilize_many_images=kwiver.sprokit.processes.stabilize_many_images',
                 'simple_object_detector=kwiver.vital.tests.alg.simple_image_object_detector',
-                'stabilize_many_images=kwiver.sprokit.process.stabilize_many_images',
                 ],
             'kwiver.cpp_search_paths': [
                 'sprokit_process=kwiver.vital.util.entrypoint:sprokit_process_path',
