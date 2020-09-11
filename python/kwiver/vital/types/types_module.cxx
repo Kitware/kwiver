@@ -37,6 +37,7 @@
 #include <pybind11/pybind11.h>
 #include <python/kwiver/vital/types/image.h>
 #include <python/kwiver/vital/types/image_container.h>
+#include <python/kwiver/vital/types/match_set.h>
 
 namespace py = pybind11;
 using namespace kwiver::vital::python;
@@ -45,4 +46,5 @@ PYBIND11_MODULE(types, m)
 {
   image::image(m);
   image_container::image_container(m);
+  match_set(m);
 }

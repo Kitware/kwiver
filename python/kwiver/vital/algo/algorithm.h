@@ -55,6 +55,7 @@ void register_algorithm(py::module &m,
                 &kwiver::vital::algorithm_def<implementation>::registered_names)
     .def_static("get_nested_algo_configuration",
                 &kwiver::vital::algorithm_def<implementation>::get_nested_algo_configuration)
+    // XXX The name of this isn't great
     .def_static("set_nested_algo_configuration", [] (std::string const& name, config_block_sptr config)
     {
       typename algorithm_def<implementation>::base_sptr ret;
