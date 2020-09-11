@@ -62,7 +62,7 @@ def create_detected_object():
     return DetectedObject(create_bounding_box())
 
 def compare_detected_object(do1, do2):
-    return compare_bounding_box(do1.bounding_box(), do2.bounding_box())
+    return compare_bounding_box(do1.bounding_box, do2.bounding_box)
 
 def create_detected_object_set():
     dos = DetectedObjectSet()

@@ -326,7 +326,7 @@ class SRNNTracker(KwiverProcess):
                         ts = self._step_id
                         d_obj = DetectedObject(bbox=item, confidence=1.0)
                     else:
-                        bbox = item.bounding_box()
+                        bbox = item.bounding_box
                         fid = timestamp.get_frame()
                         ts = timestamp.get_time_usec()
                         d_obj = item
@@ -391,7 +391,7 @@ class SRNNTracker(KwiverProcess):
 
                         if -similarity_mat[r, c] < self._similarity_threshold:
                             # initialize a new track
-                            if (track_state_list[c].detected_object.confidence()
+                            if (track_state_list[c].detected_object.confidence
                                    >= self._track_initialization_threshold):
                                 self._track_set.add_new_track_state(next_track_id,
                                         track_state_list[c])
@@ -404,7 +404,7 @@ class SRNNTracker(KwiverProcess):
                     if len(track_state_list) - len(col_idx_list) > 0:
                         for i in range(len(track_state_list)):
                             if (i not in col_idx_list
-                                and (track_state_list[i].detected_object.confidence()
+                                and (track_state_list[i].detected_object.confidence
                                      >= self._track_initialization_threshold)):
                                 self._track_set.add_new_track_state(next_track_id,
                                         track_state_list[i])
