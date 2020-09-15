@@ -64,8 +64,6 @@ endfunction ()
 #
 #
 function (kwiver_add_python_test group instance)
-  string(TOLOWER "${CMAKE_PROJECT_NAME}" project_name)
-
   kwiver_add_test(python-${group} ${instance} ${ARGN})
 endfunction ()
 
