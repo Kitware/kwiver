@@ -41,6 +41,15 @@ target_link_libraries( kwiver_algo_burnout
                        kwiver_algo_vxl
   )
 
+# TODO make this only happen in the appropriate circumstance
+kwiver_create_python_init( viame/arrows/burnout )
+
+# I didn't get a chance to look into this so I don't know if it's correct
+kwiver_add_python_module(
+   ${CMAKE_CURRENT_SOURCE_DIR}/burnout_trainer.py
+   kwiver/arrows/python
+   burnout_trainer )
+
 algorithms_create_plugin( kwiver_algo_burnout
   register_algorithms.cxx
   )
