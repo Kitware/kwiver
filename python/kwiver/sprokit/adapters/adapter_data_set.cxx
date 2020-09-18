@@ -107,7 +107,17 @@ void add_value_correct_type(ka::adapter_data_set &self, ::sprokit::process::port
 }
 
 // Take data of an unknown type from a port and return. Can't return as an "any" object,
-// so need to cast
+// so need to cast.
+//
+// The 'any.is_type<TYPE>()' call essentially does a string comparison
+// of the underlying C++ types. This allows for comparisons across pybind modules.
+// For example, adding a datum containing a datum.VectorDouble to an ADS then immediately
+// retrieving the value at that port will return an adapter_data_set.VectorDouble. The Python
+// types are different, but the C++ types are the same. Note that adding a datum.VectorDouble
+// directly will not work, due to how Pybind/Python handles opaque types. Add an
+// adapter_data_set.VectorDouble instead, or add a datum containing a datum.VectorDouble.
+// Comparing type_info hashes will not work if the types are defined in different modules.
+// See this issue for more information: https://github.com/pybind/pybind11/issues/912
 py::object get_port_data_correct_type(ka::adapter_data_set &self, ::sprokit::process::port_t const& port)
 {
   kwiver::vital::any const any = self.get_port_data<kwiver::vital::any>(port);

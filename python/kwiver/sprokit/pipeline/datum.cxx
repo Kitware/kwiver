@@ -313,7 +313,9 @@ datum_get_error(::sprokit::datum const& self)
   return self.get_error();
 }
 
-// This converts straight to a pybind11::object
+// This converts straight to a pybind11::object.
+// For an explanation of the 'any.is_type<TYPE>()' call,
+// see the comment in python/kwiver/sprokit/adapters/adapter_data_set.cxx.
 object
 datum_get_datum_correct_type(::sprokit::datum const& self)
 {
