@@ -38,10 +38,10 @@
 #include <iostream>
 #include <set>
 
-#include <vital/util/cpu_timer.h>
-
 #include <arrows/vxl/camera_map.h>
 #include <vital/io/eigen_io.h>
+#include <vital/util/cpu_timer.h>
+#include <vital/vital_config.h>
 
 #include <vpgl/algo/vpgl_bundle_adjust.h>
 
@@ -183,7 +183,7 @@ bundle_adjust
 /// Check that the algorithm's currently configuration is valid
 bool
 bundle_adjust
-::check_configuration(vital::config_block_sptr config) const
+::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
 {
   return true;
 }
@@ -256,15 +256,15 @@ bundle_adjust
       }
       super_map_inner_t frame_lm2feature_map;
 
-      for(const track_sptr& t : ftracks)
+      for(const track_sptr& tt : ftracks)
       {
-        const track_id_t id = t->id();
+        const track_id_t id = tt->id();
         // make sure the track id has an associated landmark
 
         if( lms.find(id) != lms.end() )
         {
           auto fts = std::dynamic_pointer_cast<feature_track_state>(
-                          *t->find(frame) );
+                          *tt->find(frame) );
           if( fts && fts->feature )
           {
             frame_lm2feature_map[id] = fts->feature;

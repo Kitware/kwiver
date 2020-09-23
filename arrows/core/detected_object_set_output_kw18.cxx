@@ -31,6 +31,7 @@
 #include "detected_object_set_output_kw18.h"
 
 #include <vital/util/tokenize.h>
+#include <vital/vital_config.h>
 
 #include <memory>
 #include <vector>
@@ -148,7 +149,7 @@ get_configuration() const
 // ------------------------------------------------------------------
 bool
 detected_object_set_output_kw18::
-check_configuration( vital::config_block_sptr config ) const
+check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
 {
   if( d->m_write_tot && d->m_tot_field1_ids.empty() )
   {
@@ -167,7 +168,8 @@ check_configuration( vital::config_block_sptr config ) const
 // ------------------------------------------------------------------
 void
 detected_object_set_output_kw18::
-write_set( const kwiver::vital::detected_object_set_sptr set, std::string const& image_name )
+write_set( const kwiver::vital::detected_object_set_sptr set,
+           VITAL_UNUSED std::string const& image_name )
 {
 
   if (d->m_first)
@@ -233,9 +235,9 @@ write_set( const kwiver::vital::detected_object_set_sptr set, std::string const&
     double ily = ( bbox.min_y() + bbox.max_y() ) / 2.0;
 
     static std::atomic<unsigned> id_counter( 0 );
-    const unsigned id = id_counter++;
+    const unsigned l_id = id_counter++;
 
-    stream() << id                  // 1: track id
+    stream() << l_id                  // 1: track id
              << " 1 "               // 2: track length
              << d->m_frame_number-1 // 3: frame number / set number
              << " 0 "               // 4: tracking plane x
@@ -270,6 +272,7 @@ write_set( const kwiver::vital::detected_object_set_sptr set, std::string const&
           f1 = std::max( f1, clf->score( id ) );
         }
       }
+
       for( const std::string id : d->m_parsed_tot_ids2 )
       {
         if( clf->has_class_name( id ) )
@@ -280,7 +283,7 @@ write_set( const kwiver::vital::detected_object_set_sptr set, std::string const&
 
       f3 = 1.0 - f2 - f1;
 
-      (*d->m_tot_writer) << id << " " << f1 << " " << f2 << " " << f3 << std::endl;
+      (*d->m_tot_writer) << l_id << " " << f1 << " " << f2 << " " << f3 << std::endl;
 
     } // end write_tot
   } // end foreach

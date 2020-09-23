@@ -39,7 +39,9 @@
 #include <iostream>
 #include <numeric>
 #include <Eigen/Dense>
+
 #include <vital/exceptions.h>
+#include <vital/vital_config.h>
 
 using namespace kwiver::vital;
 
@@ -66,11 +68,13 @@ class uv_unwrap_mesh::priv
 {
 public:
   /// Constructor
-  priv() : spacing(0.005)
+  priv()
+    : spacing(0.005)
   {
   }
 
-  priv(const priv& other)
+  // Not clear why this copy constructor is non-functional
+  priv( VITAL_UNUSED const priv& other )
   {
   }
 

@@ -43,17 +43,18 @@
 #include <fstream>
 #include <ctime>
 
-#include <vital/math_constants.h>
 #include <vital/exceptions.h>
 #include <vital/io/eigen_io.h>
+#include <vital/math_constants.h>
+#include <vital/vital_config.h>
 
-#include <vital/algo/estimate_essential_matrix.h>
-#include <vital/algo/triangulate_landmarks.h>
 #include <vital/algo/bundle_adjust.h>
-#include <vital/algo/optimize_cameras.h>
 #include <vital/algo/estimate_canonical_transform.h>
+#include <vital/algo/estimate_essential_matrix.h>
 #include <vital/algo/estimate_pnp.h>
 #include <vital/algo/estimate_similarity_transform.h>
+#include <vital/algo/optimize_cameras.h>
+#include <vital/algo/triangulate_landmarks.h>
 
 #include <arrows/mvg/algo/triangulate_landmarks.h>
 #include <arrows/mvg/epipolar_geometry.h>
@@ -401,7 +402,6 @@ public:
   std::set<rel_pose> m_rel_poses;
   std::set<frame_id_t> m_keyframes;
   Eigen::SparseMatrix<unsigned int> m_kf_match_matrix;
-  std::vector<frame_id_t> m_kf_mm_frames;
   std::set<frame_id_t> m_frames_removed_from_sfm_solution;
   vital::track_map_t m_track_map;
   std::random_device m_rd;     // only used once to initialise (seed) engine
@@ -1064,19 +1064,18 @@ initialize_cameras_landmarks::priv
   unsigned frames_skip = std::max(1u, static_cast<unsigned>(frames.size() / 2));
 
   do {
-
-    std::vector<frame_id_t> m_kf_mm_frames;
+    std::vector<frame_id_t> kf_mm_frames;
     int fid_idx = 0;
     for(auto fid: frames)
     {
-      if (fid_idx%frames_skip == 0)
+      if (fid_idx % frames_skip == 0)
       {
-        m_kf_mm_frames.push_back(fid);
+        kf_mm_frames.push_back(fid);
       }
       ++fid_idx;
     }
 
-    m_kf_match_matrix = match_matrix(tracks, m_kf_mm_frames);
+    m_kf_match_matrix = match_matrix(tracks, kf_mm_frames);
 
     const int cols = static_cast<int>(m_kf_match_matrix.cols());
 
@@ -1090,8 +1089,8 @@ initialize_cameras_landmarks::priv
       {
         if (it.row() > k && it.value() > min_matches)
         {
-          auto fid_0 = m_kf_mm_frames[it.row()];
-          auto fid_1 = m_kf_mm_frames[k];
+          auto fid_0 = kf_mm_frames[it.row()];
+          auto fid_1 = kf_mm_frames[k];
           if (fid_0 > fid_1)
           {
             std::swap(fid_0, fid_1);
@@ -1862,8 +1861,8 @@ void initialize_cameras_landmarks::priv
   simple_camera_perspective_map_sptr cams,
   landmark_map_sptr& landmarks,
   feature_track_set_sptr tracks,
-  sfm_constraints_sptr constraints,
-  frame_id_t target_frame)
+  VITAL_UNUSED sfm_constraints_sptr constraints,
+  VITAL_UNUSED frame_id_t target_frame)
 {
 
   if (m_track_map.empty())
@@ -2068,8 +2067,8 @@ initialize_cameras_landmarks::priv
 feature_track_set_changes_sptr
 initialize_cameras_landmarks::priv
 ::get_feature_track_changes(
-  feature_track_set_sptr tracks,
-  const simple_camera_perspective_map &cams) const
+  VITAL_UNUSED feature_track_set_sptr tracks,
+  VITAL_UNUSED const simple_camera_perspective_map &cams) const
 {
   auto chgs = std::make_shared<feature_track_set_changes>();
   /*
@@ -2127,9 +2126,9 @@ initialize_cameras_landmarks::priv
     return false;
   }
 
-  int num_constraints_used;
+  int l_num_constraints_used;
   if (fit_reconstruction_to_constraints(cams, lms, tracks,
-                                        constraints, num_constraints_used))
+                                        constraints, l_num_constraints_used))
   {
     std::set<frame_id_t> fixed_cams_empty;
     std::set<landmark_id_t> fixed_lms_empty;
@@ -2254,13 +2253,13 @@ initialize_cameras_landmarks::priv
                          << after_new_cam_rmse);
 
     }
-    int num_constraints_used;
+    int constraints_used;
     ba_constraints = nullptr;
     m_solution_was_fit_to_constraints = false;
     if (fit_reconstruction_to_constraints(cams, lms, tracks,
-                                          constraints, num_constraints_used))
+                                          constraints, constraints_used))
     {
-      if (num_constraints_used > 2)
+      if (constraints_used > 2)
       {
         ba_constraints = constraints;
         m_solution_was_fit_to_constraints = true;
@@ -2906,7 +2905,7 @@ initialize_cameras_landmarks::priv
 std::set<landmark_id_t>
 initialize_cameras_landmarks::priv
 ::find_visible_landmarks_in_frames(
-  const map_landmark_t &lmks,
+  VITAL_UNUSED const map_landmark_t &lmks,
   feature_track_set_sptr tracks,
   const std::set<frame_id_t> &frames)
 {

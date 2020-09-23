@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017-2018 by Kitware, Inc.
+ * Copyright 2017-2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@
 #include <fstream>
 
 #include <vital/exceptions.h>
+#include <vital/vital_config.h>
 #include <cereal/archives/portable_binary.hpp>
 
 
@@ -116,7 +117,7 @@ feature_descriptor_io
 // Check that the algorithm's currently configuration is valid
 bool
 feature_descriptor_io
-::check_configuration(vital::config_block_sptr config) const
+::check_configuration( VITAL_UNUSED vital::config_block_sptr config) const
 {
   return true;
 }
@@ -215,7 +216,7 @@ read_descriptors(Archive & ar, size_t num_desc)
 
   std::vector<descriptor_sptr> descriptors;
   descriptors.reserve(num_desc);
-  for( size_t i=0; i<num_desc; ++i )
+  for( size_t i = 0; i < num_desc; ++i )
   {
     std::shared_ptr<descriptor_array_of<T> > d;
     // allocate fixed vectors for common dimensions
@@ -231,7 +232,7 @@ read_descriptors(Archive & ar, size_t num_desc)
         d = std::make_shared<descriptor_dynamic<T> >(dim);
     }
     T* data = d->raw_data();
-    for(unsigned i=0; i<dim; ++i, ++data)
+    for(unsigned x = 0; x < dim; ++x, ++data)
     {
       ar( *data );
     }
