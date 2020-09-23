@@ -84,7 +84,7 @@ public:
    *
    * @param ctxt The calling context.
    */
-  virtual void pre_setup( context& ctxt ) { };
+  virtual void pre_setup( context& /* ctxt */ ) { };
 
   /**
    * @brief pipeline post-setup hook
@@ -94,7 +94,7 @@ public:
    *
    * @param ctxt The calling context.
    */
-  virtual void post_setup( context& ctxt ) { };
+  virtual void post_setup( context& /* ctxt */ ) { };
 
   /**
    * @brief End of data received from pipeline.
@@ -106,7 +106,7 @@ public:
    *
    * @param ctxt The calling context
    */
-  virtual void end_of_output( context& ctxt ) { };
+  virtual void end_of_output( context& /* ctxt */ ) { };
 
   /**
    * @brief Configure provider.
@@ -119,7 +119,7 @@ public:
    *
    * @param conf Configuration block.
    */
-  virtual void configure( kwiver::vital::config_block_sptr const conf );
+  virtual void configure( kwiver::vital::config_block_sptr const /* conf */ );
 
   /**
    * @brief Get default configuration block.
@@ -156,9 +156,9 @@ class embedded_pipeline_extension_registrar
   : public plugin_registrar
 {
 public:
-  embedded_pipeline_extension_registrar( kwiver::vital::plugin_loader& vpl,
-                    const std::string& mod_name )
-    : plugin_registrar( vpl, mod_name )
+  embedded_pipeline_extension_registrar( kwiver::vital::plugin_loader& vpl_,
+                    const std::string& mod_name_ )
+    : plugin_registrar( vpl_, mod_name_ )
   {
   }
 

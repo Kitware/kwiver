@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2018 by Kitware, Inc.
+ * Copyright 2018-2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -157,8 +157,8 @@ class algorithm_registrar
 {
 public:
   algorithm_registrar( kwiver::vital::plugin_loader& vpl,
-                       const std::string& mod_name )
-    : plugin_registrar( vpl, mod_name )
+                       const std::string& module_name )
+    : plugin_registrar( vpl, module_name )
   {
   }
 

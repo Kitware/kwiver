@@ -147,5 +147,3 @@ kwiver_install_headers(
   SUBDIR sprokit/pipeline
   NOPATH
   )
-
-sprokit_configure_pkgconfig(sprokit-pipeline)

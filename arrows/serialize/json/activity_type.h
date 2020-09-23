@@ -45,10 +45,8 @@ namespace arrows {
 namespace serialize {
 namespace json {
 
-
 class KWIVER_SERIALIZE_JSON_EXPORT activity_type
-  : public vital::algorithm_impl< activity_type,
-           vital::algo::data_serializer >
+  : public vital::algo::data_serializer
 {
 public:
   // Type name this class supports and description
@@ -61,9 +59,9 @@ public:
   activity_type();
   virtual ~activity_type();
 
-  virtual std::shared_ptr< std::string >
+  std::shared_ptr< std::string >
     serialize( const kwiver::vital::any& element ) override;
-  virtual kwiver::vital::any deserialize( const std::string& message ) override;
+  kwiver::vital::any deserialize( const std::string& message ) override;
 };
 
 } } } }

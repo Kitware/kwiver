@@ -35,6 +35,7 @@
 
 #include "example_detector.h"
 
+#include <vital/vital_config.h>
 
 namespace kwiver {
 namespace arrows {
@@ -118,7 +119,7 @@ set_configuration(vital::config_block_sptr config_in)
 // ------------------------------------------------------------------
 bool
 example_detector::
-check_configuration(vital::config_block_sptr config) const
+check_configuration( VITAL_UNUSED vital::config_block_sptr config) const
 {
   return true;
 }
@@ -127,11 +128,11 @@ check_configuration(vital::config_block_sptr config) const
 // ------------------------------------------------------------------
 kwiver::vital::detected_object_set_sptr
 example_detector::
-detect( vital::image_container_sptr image_data) const
+detect( VITAL_UNUSED vital::image_container_sptr image_data) const
 {
   auto detected_set = std::make_shared< kwiver::vital::detected_object_set>();
 
-  const double ct = (double)d->m_frame_ct;
+  const double ct { static_cast<double>(d->m_frame_ct) };
 
   kwiver::vital::bounding_box_d bbox(
           d->m_center_x + ct*d->m_dx - d->m_width/2.0,

@@ -82,8 +82,8 @@ public:
    *
    * @return \b true if the plugin should be loaded, \b false if plugin should not be loaded
    */
-  virtual bool load_plugin( path_t const& path,
-                            DL::LibraryHandle lib_handle ) const
+  virtual bool load_plugin( path_t const& /* path */,
+                            DL::LibraryHandle /* lib_handle */ ) const
     { return true; }
 
   /**
@@ -107,7 +107,7 @@ public:
    *
    * @return \b true if the plugin should be registered, \b false otherwise.
    */
-  virtual bool add_factory( plugin_factory_handle_t fact ) const
+  virtual bool add_factory( plugin_factory_handle_t /* fact */ ) const
     { return true; }
 
 
