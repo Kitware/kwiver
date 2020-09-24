@@ -88,7 +88,7 @@ class ResnetDescriptors(KwiverProcess):
         # self.declare_input_port_using_trait('framestamp', optional)
         self.declare_input_port_using_trait('image', required)
         self.declare_input_port_using_trait('detected_object_set', required)
-        self.declare_input_port_using_trait('timestamp', required)
+        self.declare_input_port_using_trait('timestamp', optional)
 
         #  output port ( port-name,flags)
         self.declare_output_port_using_trait('detected_object_set', optional)
@@ -117,9 +117,10 @@ class ResnetDescriptors(KwiverProcess):
         try:
             # Grab image container from port using traits
             in_img_c = self.grab_input_using_trait('image')
-            timestamp = self.grab_input_using_trait('timestamp')
             dos_ptr = self.grab_input_using_trait('detected_object_set')
-            print('timestamp = {!r}'.format(timestamp))
+            if self.has_input_port_edge_using_trait('timestamp'):
+                timestamp = self.grab_input_using_trait('timestamp')
+                print('timestamp = {!r}'.format(timestamp))
 
             # Get current frame and give it to app feature extractor
             im = get_pil_image(in_img_c.image())
@@ -144,8 +145,6 @@ class ResnetDescriptors(KwiverProcess):
                 # get new track state from new frame and detections
                 for idx, item in enumerate(dos):
                     bbox = item.bounding_box
-                    fid = timestamp.get_frame()
-                    ts = timestamp.get_time_usec()
                     d_obj = item
 
                     # store app feature to detectedObject

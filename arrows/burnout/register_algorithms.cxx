@@ -31,6 +31,7 @@
 #include <arrows/burnout/kwiver_algo_burnout_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
+#include <arrows/burnout/burnout_detector.h>
 #include <arrows/burnout/burnout_image_enhancer.h>
 #include <arrows/burnout/burnout_pixel_classification.h>
 #include <arrows/burnout/burnout_track_descriptors.h>
@@ -51,6 +52,7 @@ register_factories( ::kwiver::vital::plugin_loader& vpm )
     return;
   }
 
+  reg.register_algorithm< ::kwiver::arrows::burnout::burnout_detector >();
   reg.register_algorithm< ::kwiver::arrows::burnout::burnout_track_descriptors >();
   reg.register_algorithm< ::kwiver::arrows::burnout::burnout_image_enhancer >();
   reg.register_algorithm< ::kwiver::arrows::burnout::burnout_pixel_classification >();

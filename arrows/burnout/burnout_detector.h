@@ -28,64 +28,49 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef KWIVER_ARROWS_BURNOUT_DETECTOR
+#define KWIVER_ARROWS_BURNOUT_DETECTOR
 
-#include <sprokit/pipeline/process.h>
+#include <arrows/burnout/kwiver_algo_burnout_export.h>
 
-#include "kwiver_processes_export.h"
+#include <vital/algo/image_object_detector.h>
 
-#include <memory>
+namespace kwiver {
+namespace arrows {
+namespace burnout {
 
-namespace kwiver
-{
-
-// ----------------------------------------------------------------
 /**
- * \class merge_images_process
+ * @brief Burnout Image Filtering
  *
- * \brief Merges two images
- *
- * \iports
- * \iport{image}
- *
- * \oports
- * \oport{image1}
- * \oport{image2}
- *
+ * This method contains basic methods for image filtering on top of input
+ * images via automatic white balancing and smoothing.
  */
-class KWIVER_PROCESSES_NO_EXPORT merge_images_process
-  : public sprokit::process
+class KWIVER_ALGO_BURNOUT_EXPORT burnout_detector
+  : public vital::algorithm_impl< burnout_detector,
+      vital::algo::image_object_detector >
 {
 public:
-  PLUGIN_INFO( "merge_images",
-               "Merge multiple images into one.\n\n"
-               "This process merges all the channels in two input "
-               "images into a single output image based on the "
-               "implementation "
-               "of the 'merge_images' algorithm selected.\n"
-               "This process has two input ports accepting "
-               "the images. The first two connect commands will be "
-               "accepted as the input ports. The actual input port "
-               "names do not matter.\n"
-               "The channels from the image from the first port "
-               "connected will be added to the output image first."
-    )
 
-  merge_images_process( kwiver::vital::config_block_sptr const& config );
-  virtual ~merge_images_process();
+  burnout_detector();
+  virtual ~burnout_detector();
 
-protected:
-  void _configure() override;
-  void _step() override;
-  void input_port_undefined(port_t const& port) override;
+  PLUGIN_INFO( "burnout",
+               "Detect objects using burnout" )
+
+  vital::config_block_sptr get_configuration() const override;
+
+  void set_configuration( vital::config_block_sptr config ) override;
+  bool check_configuration( vital::config_block_sptr config ) const override;
+
+  kwiver::vital::detected_object_set_sptr detect(
+    kwiver::vital::image_container_sptr image_data ) const override;
 
 private:
-  void make_ports();
-  void make_config();
 
   class priv;
-  const std::unique_ptr<priv> d;
-}; // end class merge_images_process
+  const std::unique_ptr< priv > d;
+};
 
+} } }
 
-} // end namespace
+#endif /* KWIVER_ARROWS_BURNOUT_DETECTOR */
