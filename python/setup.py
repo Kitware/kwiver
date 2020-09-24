@@ -122,7 +122,7 @@ setup(
                 'homography_writer=kwiver.sprokit.processes.homography_writer',
                 'multicam_homog_tracker=kwiver.sprokit.processes.multicam_homog_tracker',
                 'simple_homog_tracker=kwiver.sprokit.processes.simple_homog_tracker',
-                'stabilize_many_images=kwiver.sprokit.process.stabilize_many_images',
+                'stabilize_many_images=kwiver.sprokit.processes.stabilize_many_images',
                 'alexnet_descriptors=kwiver.sprokit.processes.pytorch.alexnet_descriptors',
                 'resnet_augmentation=kwiver.sprokit.processes.pytorch.resnet_augmentation',
                 'resnet_descriptors=kwiver.sprokit.processes.pytorch.resnet_descriptors',
