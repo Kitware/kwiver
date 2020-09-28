@@ -13,9 +13,9 @@ kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/resnet_feature_extractor.p
   sprokit/processes/pytorch/utils
   resnet_feature_extractor )
 
-kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/augmented_resnet_feature_extractor.py
+kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/augment_feature_extractor.py
   sprokit/processes/pytorch/utils
-  augmented_resnet_feature_extractor )
+  augment_feature_extractor )
   
 kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/alexnet_feature_extractor.py
   sprokit/processes/pytorch/utils
