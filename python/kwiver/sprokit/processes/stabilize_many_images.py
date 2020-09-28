@@ -73,16 +73,16 @@ def stabilize_many_images(
         images, = yield output
         fds = list(map(compute_features_and_descriptors, images))
         spatial_homogs, spatial_matches = ris.step(fds)
-        all_features, all_descs = merge_feature_and_descriptor_sets([
+        valid = [i for i, h in enumerate(spatial_homogs) if h is not None]
+        val_features, val_descs = merge_feature_and_descriptor_sets([
             warp_features_and_descriptors(h, *fd)
             for h, fd in zip(spatial_homogs, fds)
-            # XXX Maybe we want to support something like this to
-            # handle questionable matches:
-            #   if h is not None
-        ], spatial_matches)
-        temporal_homog = eh.step(all_features, all_descs)
-        output = [compose_homographies(temporal_homog, sh)
-                  for sh in spatial_homogs]
+            if h is not None
+        ], [[m[i] for i in valid] for m in spatial_matches])
+        temporal_homog = eh.step(val_features, val_descs)
+        # Default unknown cameras to be the same as their neighbors
+        output = list(fill_nones(h and compose_homographies(temporal_homog, h)
+                                 for h in spatial_homogs))
 
 @Transformer.decorate
 def register_image_set(estimate_single_homography):
@@ -94,21 +94,28 @@ def register_image_set(estimate_single_homography):
       or similar callable
 
     The .step call expects one argument:
-    - a list of kvt.FeatureSet--kvt.DescriptorSet pairs (adjacent
-      images should overlap)
+    - a non-empty list of kvt.FeatureSet--kvt.DescriptorSet pairs
+      (adjacent images should overlap)
     and returns a tuple of:
     - a list of kvt.BaseHomography objects, one for each input image,
-      that map them to some common coordinate space
+      that map them to some common coordinate space, or None for an
+      unmappable image.  At least one element will not be None.
     - a list of lists, each with one index for each input image,
       indicating corresponding features across images.  (A value of
       None indicates a lack of a matching feature in the corresponding
       image)
 
     """
+    def comp(x, y):
+        """compose_homographies but returning None if either argument is"""
+        return None if x is None or y is None else compose_homographies(x, y)
+    prev_homogs = None
     output = None
     while True:
-        # The returned homographies will be relative to the "middle" one
         fds, = yield output
+        if prev_homogs is None:
+            prev_homogs = len(fds) * [None]
+        # The returned homographies will be relative to the "middle" one
         hl = len(fds) // 2
         # Compute homographies between adjacent images
         homogs, matches = [], []
@@ -117,17 +124,15 @@ def register_image_set(estimate_single_homography):
             sfd, tfd = lrfd if i < hl else lrfd[::-1]
             hm = estimate_single_homography(*sfd, *tfd)
             if hm is None:
-                # XXX It might be better to exclude features from
-                # across a bad match entirely.
-                # Reuse the estimate from last frame
+                # Reuse the estimate from last frame, if any
                 hm = prev_homogs[i], kvt.MatchSet()
             h, m = hm
             homogs.append(h)
             matches.append(m)
         # Compute homographies to center
         l2c, r2c = homogs[:hl], homogs[hl:]
-        l2c = list(itertools.accumulate(reversed(l2c), compose_homographies))[::-1]
-        r2c = itertools.accumulate(r2c, compose_homographies)
+        l2c = list(itertools.accumulate(reversed(l2c), comp))[::-1]
+        r2c = itertools.accumulate(r2c, comp)
         # Merge matches
         matches = combine_matches(itertools.chain(
             (m.matches() for m in matches[:hl]),
@@ -314,6 +319,18 @@ def merge_feature_and_descriptor_sets(fd_pairs, matches):
                 features.append(f)
                 descriptors.append(d)
     return kvt.SimpleFeatureSet(features), kvt.DescriptorSet(descriptors)
+
+def fill_nones(it):
+    """Flood-fill Nones in the provided iterable"""
+    it = iter(it)
+    for i, val in enumerate(it, 1):
+        if val is not None:
+            break
+    yield from itertools.repeat(val, i)
+    for x in it:
+        if x is not None:
+            val = x
+        yield val
 
 def compose_homographies(second, first):
     """Return a homography corresponding to applying the first, then the
