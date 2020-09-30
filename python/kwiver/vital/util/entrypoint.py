@@ -95,16 +95,24 @@ def get_library_path():
 
 def get_vital_logger_factory():
     return os.path.join(os.path.dirname(os.path.abspath(kwiver.__file__)),
-           'lib', 'kwiver', 'modules', 'vital_log4cplus_logger')
+           'lib', 'kwiver', 'plugins', 'logger', 'vital_log4cplus_logger')
 
 def sprokit_process_path():
     return os.path.join(os.path.dirname(os.path.abspath(kwiver.__file__)),
-           'lib', 'kwiver', 'processes')
+           'lib', 'kwiver', 'plugins', 'processes')
+
+def vital_algo_path():
+    return os.path.join(os.path.dirname(os.path.abspath(kwiver.__file__)),
+           'lib', 'kwiver', 'plugins', 'algorithms')
 
 def applets_path():
     return os.path.join(os.path.dirname(os.path.abspath(kwiver.__file__)),
-           'lib', 'kwiver', 'modules', 'applets')
+           'lib', 'kwiver', 'plugins', 'applets')
+
+def modules_path():
+    return os.path.join(os.path.dirname(os.path.abspath(kwiver.__file__)),
+           'lib', 'kwiver', 'plugins', 'modules')
 
 def plugin_explorer_path():
     return os.path.join(os.path.dirname(os.path.abspath(kwiver.__file__)),
-           'lib', 'kwiver', 'modules', 'plugin_explorer')
+           'lib', 'kwiver', 'plugins', 'plugin_explorer')
