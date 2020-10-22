@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017-2018 by Kitware, Inc.
+ * Copyright 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -28,52 +28,50 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * \file
- * \brief train_detector algorithm definition instantiation
- */
+#ifndef KWIVER_ARROWS_OCV_WINDOWED_DETECTOR
+#define KWIVER_ARROWS_OCV_WINDOWED_DETECTOR
 
-#include "train_detector.h"
 
-#include <vital/algo/algorithm.txx>
+#include <arrows/ocv/kwiver_algo_ocv_export.h>
+
+#include <vital/algo/image_object_detector.h>
 
 namespace kwiver {
-namespace vital {
-namespace algo {
+namespace arrows {
+namespace ocv {
 
-train_detector
-::train_detector()
+// -----------------------------------------------------------------------------
+/**
+ * @brief Window an arbitrary other detector over an image
+ * 
+ * This process should be moved to core from ocv when able
+ */
+class KWIVER_ALGO_OCV_EXPORT windowed_detector
+  : public vital::algorithm_impl< windowed_detector,
+      vital::algo::image_object_detector >
 {
-  attach_logger( "algo.train_detector" );
-}
+public:
 
-void
-train_detector
-::add_data_from_disk(
-  vital::category_hierarchy_sptr object_labels,
-  std::vector< std::string > train_image_names,
-  std::vector< kwiver::vital::detected_object_set_sptr > train_groundtruth,
-  std::vector< std::string > test_image_names,
-  std::vector< kwiver::vital::detected_object_set_sptr > test_groundtruth)
-{
-  throw std::runtime_error( "Method not implemented" );
-}
+  PLUGIN_INFO( "ocv_windowed",
+               "Window some other arbitrary detector across the image" )
 
+  windowed_detector();
+  virtual ~windowed_detector();
 
-void
-train_detector
-::add_data_from_memory(
-  vital::category_hierarchy_sptr object_labels,
-  std::vector< kwiver::vital::image_container_sptr > train_images,
-  std::vector< kwiver::vital::detected_object_set_sptr > train_groundtruth,
-  std::vector< kwiver::vital::image_container_sptr > test_images,
-  std::vector< kwiver::vital::detected_object_set_sptr > test_groundtruth)
-{
-  throw std::runtime_error( "Method not implemented" );
-}
+  virtual vital::config_block_sptr get_configuration() const;
+
+  virtual void set_configuration( vital::config_block_sptr config );
+  virtual bool check_configuration( vital::config_block_sptr config ) const;
+
+  virtual vital::detected_object_set_sptr detect(
+    vital::image_container_sptr image_data ) const;
+
+private:
+
+  class priv;
+  const std::unique_ptr< priv > d;
+};
 
 } } }
 
-/// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::train_detector);
-/// \endcond
+#endif /* KWIVER_ARROWS_OCV_WINDOWED_DETECTOR */
