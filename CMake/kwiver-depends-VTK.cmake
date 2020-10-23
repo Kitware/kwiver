@@ -6,16 +6,16 @@ option( KWIVER_ENABLE_VTK
   )
 
 if( KWIVER_ENABLE_VTK )
-    find_package(VTK REQUIRED
+    find_package(VTK 8.2
         COMPONENTS
         vtkCommonCore
         vtkCommonDataModel
         )
     if(VTK_VERSION VERSION_LESS 8.2)
-        message(FATAL_ERROR "${PROJECT_NAME} supports VTK >= v8.2 "
-            "(Found ${VTK_VERSION})")
-    endif()
-
-  include(${VTK_USE_FILE})
-
+        message(WARNING  "${PROJECT_NAME} supports VTK >= v8.2 "
+          "(Found ${VTK_VERSION}). Disabling VTK support")
+        set( KWIVER_ENABLE_VTK OFF CACHE BOOL "" FORCE)
+      else()
+        include(${VTK_USE_FILE})
+      endif()
 endif( KWIVER_ENABLE_VTK )
