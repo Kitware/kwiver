@@ -25,8 +25,7 @@ kwiver_add_library( kwiver_algo_vtk
 
 target_link_libraries( kwiver_algo_vtk
   PUBLIC               vital
-                       vtkCommonCore
-                       vtkCommonDataModel
+                       ${VTK_LIBRARIES}
   )
 
 #algorithms_create_plugin( kwiver_algo_vtk
