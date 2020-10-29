@@ -18,6 +18,20 @@ set( plugin_vtk_sources
   depth_utils.cxx
   )
 
+if (NOT VTK_VERSION VERSION_LESS 8.90)
+  set (VTK_ARROW_LIBS
+    VTK::CommonCore
+    VTK::CommonDataModel
+    VTK::RenderingCore
+    )
+else()
+  set (VTK_ARROW_LIBS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkRenderingCore
+    )
+endif()
+
 kwiver_add_library( kwiver_algo_vtk
   ${plugin_vtk_headers}
   ${plugin_vtk_sources}
@@ -25,7 +39,7 @@ kwiver_add_library( kwiver_algo_vtk
 
 target_link_libraries( kwiver_algo_vtk
   PUBLIC               vital
-                       ${VTK_LIBRARIES}
+                       ${VTK_ARROW_LIBS}
   )
 
 #algorithms_create_plugin( kwiver_algo_vtk
