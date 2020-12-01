@@ -28,6 +28,7 @@ set( plugin_core_headers
   filter_features_nonmax.h
   filter_features_scale.h
   filter_tracks.h
+  generate_texture.h
   handle_descriptor_request_core.h
   initialize_object_tracks_threshold.h
   keyframe_selector_basic.h
@@ -97,6 +98,7 @@ set( plugin_core_sources
   filter_features_nonmax.cxx
   filter_features_scale.cxx
   filter_tracks.cxx
+  generate_texture.cxx
   handle_descriptor_request_core.cxx
   initialize_object_tracks_threshold.cxx
   keyframe_selector_basic.cxx

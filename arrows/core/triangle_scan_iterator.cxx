@@ -118,6 +118,126 @@ bool triangle_scan_iterator::next()
   return true;
 }
 
+
+triangle_bb_iterator::triangle_bb_iterator(vital::vector_2d const& pt1,
+                                           vital::vector_2d const& pt2,
+                                           vital::vector_2d const& pt3) :
+  a(pt1), b(pt2), c(pt3), has_zero_area(false)
+{
+  tl_corner[0] = std::floor(std::min(std::min(a[0], b[0]), c[0]));
+  tl_corner[1] = std::floor(std::min(std::min(a[1], b[1]), c[1]));
+  br_corner[0] = std::ceil(std::max(std::max(a[0], b[0]), c[0]));
+  br_corner[1] = std::ceil(std::max(std::max(a[1], b[1]), c[1]));
+
+  v1 = b - a;
+  v2 = c - a;
+  v3 = c - b;
+  v1n = vital::vector_2d(-v1[1], v1[0]);
+  v2n = vital::vector_2d(v2[1], -v2[0]);
+  v3n = vital::vector_2d(-v3[1], v3[0]);
+
+  double area2 = v2[1] * v1[0] - v2[0] * v1[1];
+  if (area2 == 0.0)
+  {
+    has_zero_area = true;
+    s = 1.0;
+  }
+  else
+  {
+    s = 1.0 / (v2[1] * v1[0] - v2[0] * v1[1]);
+  }
+
+  v1n_normalized = v1n.normalized();
+  v2n_normalized = v2n.normalized();
+  v3n_normalized = v3n.normalized();
+
+  reset();
+}
+
+
+bool triangle_bb_iterator::next()
+{
+  if (has_zero_area)
+    return false;
+
+  if (cur_line < br_corner[1])
+  {
+    cur_line++;
+    update_scanline_range();
+    return true;
+  }
+  return false;
+}
+
+
+vital::vector_3d triangle_bb_iterator::barycentric_coordinates(vital::vector_2d const& p) const
+{
+  vital::vector_2d vp = p - this->a;
+  double b0 = this->s * this->v1n.dot(vp);
+  double b1 = this->s * this->v2n.dot(vp);
+  return vital::vector_3d(1.0 - b0 - b1, b1, b0);
+}
+
+
+inline bool triangle_bb_iterator::is_point_inside_triangle(vital::vector_2d const& p)
+{
+  vital::vector_2d vp = p - this->a;
+  double b0 = this->s * this->v1n.dot(vp);
+  double b1 = this->s * this->v2n.dot(vp);
+  return b0 >= 0 && b1 >= 0 && (b1 + b0) <= 1;
+}
+
+
+void triangle_bb_iterator::update_scanline_range()
+{
+  int left = tl_corner[0];
+  int right = br_corner[0];
+  while (left < right) {
+    vital::vector_2d p(left, this->cur_line);
+    vital::vector_2d v_ap = p - this->a;
+    vital::vector_2d v_bp = p - this->b;
+    vital::vector_2d v_cp = p - this->c;
+    if (is_point_inside_triangle({left, cur_line}))
+    {
+      break;
+    }
+    else if (std::abs(v1n_normalized.dot(v_ap)) <= threshold_point_line_dist ||
+             std::abs(v2n_normalized.dot(v_cp)) <= threshold_point_line_dist ||
+             std::abs(v3n_normalized.dot(v_bp)) <= threshold_point_line_dist)
+    {
+       break;
+    }
+    else
+    {
+      ++left;
+    }
+  }
+  while (right > left)
+  {
+    vital::vector_2d p(right, this->cur_line);
+    vital::vector_2d v_ap = p - this->a;
+    vital::vector_2d v_bp = p - this->b;
+    vital::vector_2d v_cp = p - this->c;
+    if (is_point_inside_triangle({right, cur_line}))
+    {
+      break;
+    }
+    else if (std::abs(v1n_normalized.dot(v_ap)) <= threshold_point_line_dist ||
+             std::abs(v2n_normalized.dot(v_cp)) <= threshold_point_line_dist ||
+             std::abs(v3n_normalized.dot(v_bp)) <= threshold_point_line_dist)
+    {
+      break;
+    }
+    else
+    {
+      --right;
+    }
+  }
+  x_min = left;
+  x_max = right;
+}
+
+
 }
 }
 }
