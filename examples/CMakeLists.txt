@@ -25,3 +25,6 @@ configure_file(pipelines/images_to_kwa.pipe.in ${EXAMPLE_DIR}/pipelines/images_t
 configure_file(pipelines/images_to_kwa_split.pipe.in ${EXAMPLE_DIR}/pipelines/images_to_kwa_split.pipe @ONLY )
 configure_file(pipelines/stabilize_images.pipe.in ${EXAMPLE_DIR}/pipelines/stabilize_images.pipe @ONLY )
 configure_file(pipelines/track_features.pipe.in ${EXAMPLE_DIR}/pipelines/track_features.pipe @ONLY )
+
+install( DIRECTORY applications
+	     DESTINATION ${EXAMPLE_DIR} )
