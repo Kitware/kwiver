@@ -1,3 +1,7 @@
+# This file is part of KWIVER, and is distributed under the
+# OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+# https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
+
 import argparse
 import os
 
@@ -47,7 +51,8 @@ parser.add_argument(
     "kwiver", help="Path to the kwiver binary")
 parser.add_argument(
     "video",
-    help="The source video to run on. Can also be a text file containing a list of newline-seperated image paths")
+    help="The source video to run on. Can also be a text file containing a \
+          list of newline-seperated image paths")
 
 # Which steps to run
 parser.add_argument(
@@ -94,7 +99,8 @@ parser.add_argument(
 # Optional but shared
 parser.add_argument(
     "--mask-file",
-    help="Mask video with the same number of frames as the input video. Or a text file of newline-seperated images.",
+    help="Mask video with the same number of frames as the input video. Or a \
+          text file of newline-seperated images.",
     default=None)
 
 # Per-process additional arguments
@@ -135,31 +141,44 @@ if args.mask_file is not None:
 else:
     mask_string = ""
 
-run_track_features = "{} track-features --video-file {} ".format(args.kwiver, args.video) + \
-                     "--track-file {}{} {}".format(args.track_file, mask_string, args.optional_track_features_args) + \
-                     "{}".format(args.tool_help)
+run_track_features = "{} track-features ".format(args.kwiver) + \
+    "--video-file {} ".format(args.video) + \
+    "--track-file {}{} {}".format(args.track_file,
+                                  mask_string,
+                                  args.optional_track_features_args) + \
+    "{}".format(args.tool_help)
 
 run_init_cameras = "{} init-cameras-landmarks ".format(args.kwiver) + \
-                   "--video {} --tracks {} --camera ".format(args.video, args.track_file) + \
-                   "{} --landmarks {}".format(args.camera_dir, args.landmarks_file) + \
-                   "{} {}".format(
-                       args.optional_init_cameras_landmarks_args, args.tool_help)
+    "--video {} --tracks {} --camera ".format(args.video,
+                                              args.track_file) + \
+    "{} --landmarks {}".format(args.camera_dir,
+                               args.landmarks_file) + \
+    "{} {}".format(args.optional_init_cameras_landmarks_args,
+                   args.tool_help)
 
-run_estimate_depth = "{} estimate-depth --video-source {} ".format(args.kwiver, args.video) + \
-                     "--input-cameras-dir {} --output-depths-dir {}".format(args.camera_dir, args.depth_dir) + \
-                     " --input-landmarks-file {}{}".format(args.landmarks_file, mask_string) + \
-                     " {} {}".format(
-                         args.optional_estimate_depth_args, args.tool_help)
+run_estimate_depth = "{} estimate-depth ".format(args.kwiver) + \
+    "--video-source {} ".format(args.video) + \
+    "--input-cameras-dir {} --output-depths-dir {}".format(args.camera_dir,
+                                                           args.depth_dir) + \
+    " --input-landmarks-file {}{}".format(args.landmarks_file,
+                                          mask_string) + \
+    " {} {}".format(
+    args.optional_estimate_depth_args, args.tool_help)
 
 run_fuse_depth = "{} fuse-depth ".format(args.kwiver) + \
-                 "--input-cameras-dir {} --input-depths-dir {} --input-landmarks-file {}".format(args.camera_dir, args.depth_dir, args.landmarks_file) + \
-                 " --output-mesh-file {} {} {}".format(
-                     args.uncolored_mesh, args.optional_fuse_depth_args, args.tool_help)
+    "--input-cameras-dir {} --input-depths-dir {} ".format(
+        args.camera_dir, args.depth_dir) + \
+    "--input-landmarks-file {}".format(args.landmarks_file) + \
+    " --output-mesh-file {} {} {}".format(args.uncolored_mesh,
+                                          args.optional_fuse_depth_args,
+                                          args.tool_help)
 
-run_color_mesh = "{} color-mesh --video-file {} ".format(args.kwiver, args.video) + \
-                 "--cameras-dir {} --input-mesh {} ".format(args.camera_dir, args.uncolored_mesh) + \
-                 "--output-mesh {}{}".format(args.colored_mesh, mask_string) + \
-                 " {} {}".format(args.optional_color_mesh_args, args.tool_help)
+run_color_mesh = "{} color-mesh ".format(args.kwiver) + \
+    "--video-file {} ".format(args.video) + \
+    "--cameras-dir {} --input-mesh {} ".format(args.camera_dir,
+                                               args.uncolored_mesh) + \
+    "--output-mesh {}{}".format(args.colored_mesh, mask_string) + \
+    " {} {}".format(args.optional_color_mesh_args, args.tool_help)
 
 
 if args.first_step <= 1 and args.last_step >= 1:
