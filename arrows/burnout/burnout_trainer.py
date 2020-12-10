@@ -187,24 +187,17 @@ class BurnOutTrainer(TrainDetector):
 
     def __init__(self):
         TrainDetector.__init__(self)
+        # These need to be set in .add_data_from_disk()
+        self._training_writer = None
+        self._categories = None
 
         self._identifier = "adaboost_pixel_classifier"
         self._temp_dir = "adaboost_training"
-        # TODO determine what this is supposed to represent
-        self._no_format = False
 
-        # These need to be set in .add_data_from_disk()
-        self._training_writer = None
-        self._validation_writer = None
-        self._categories = None
-
-        # TODO make this more general
-        self._burnin_exec = os.path.join(
-            "~/dev/VIAME/build/install/bin", "remove_metadata_burnin")
-        # TODO also make this one more general
-        self._feature_pipeline = "~/dev/VIAME/build/install/configs/pipelines/burnout_train_classifier.conf"
+        self._burnin_exec = "remove_metadata_burnin"
+        self._feature_pipeline = "burnout_train_classifier.conf"
         self._positive_identifiers = "1"
-        self._negative_identifers = "0"
+        self._negative_identifiers = "0"
         self._max_iter_count = "200"
 
     def get_configuration(self):
@@ -212,6 +205,12 @@ class BurnOutTrainer(TrainDetector):
         cfg = super(TrainDetector, self).get_configuration()
 
         cfg.set_value("identifier", self._identifier)
+        cfg.set_value("remove_metadata_burnin_exec", self._burnin_exec)
+        cfg.set_value("feature_pipeline", self._feature_pipeline)
+        cfg.set_value("temp_dir", self._temp_dir)
+        cfg.set_value("positive_identifiers", self._positive_identifiers)
+        cfg.set_value("negative_identifiers", self._negative_identifiers)
+        cfg.set_value("max_iter_count", self._max_iter_count)
 
         return cfg
 
@@ -221,13 +220,18 @@ class BurnOutTrainer(TrainDetector):
 
         # Read configs from file
         self._identifier = str(cfg.get_value("identifier"))
+        self._burnin_exec = str(cfg.get_value("remove_metadata_burnin_exec"))
+        self._feature_pipeline = str(cfg.get_value("feature_pipeline"))
+        self._temp_dir = str(cfg.get_value("temp_dir"))
+        self._positive_identifiers = str(cfg.get_value("positive_identifiers"))
+        self._negative_identifiers = str(cfg.get_value("negative_identifiers"))
+        self._max_iter_count = str(cfg.get_value("max_iter_count"))
 
         from vital.modules.modules import load_known_modules
         load_known_modules()
 
-        if not self._no_format:
-            self._training_writer = \
-                BurnoutDataWriter(self._temp_dir, is_train=True)
+        self._training_writer = \
+            BurnoutDataWriter(self._temp_dir, is_train=True)
 
         return True
 
@@ -293,7 +297,7 @@ class BurnOutTrainer(TrainDetector):
             self._training_writer.get_write_path(), "trained_classifier.adb")
         train_command = "train_pixel_model {}/features.txt {} --positive-identifiers {} --negative-identifiers {} --max-iter-count {}".format(
             self._temp_dir, model_file, self._positive_identifiers,
-            self._negative_identifers, self._max_iter_count)
+            self._negative_identifiers, self._max_iter_count)
 
         # TODO migrate to subprocess.run()
         print(feature_command)
