@@ -48,10 +48,10 @@ public:
   virtual ~buffer() { }
 
   /// The maximum number of elements that can be stored in the buffer.
-  virtual unsigned capacity() const = 0;
+  virtual size_t capacity() const = 0;
 
   /// \brief The number of elements currently in the buffer.
-  virtual unsigned size() const = 0;
+  virtual size_t size() const = 0;
 
   /// \brief Return the item \a offset away from the last item.
   ///
@@ -71,7 +71,7 @@ public:
   /// y \<= x.
   virtual bool has_datum_at( unsigned offset ) const = 0;
 
-  virtual unsigned offset_of( Data const& ) const = 0;
+  virtual size_t offset_of( Data const& ) const = 0;
 };
 
 

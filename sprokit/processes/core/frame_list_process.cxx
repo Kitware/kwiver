@@ -78,9 +78,9 @@ create_config_trait( frame_time, double, "0.03333333", "Inter frame time in seco
                      "timestamps for sequential frames. This can be used to simulate a frame rate in a "
                      "video stream application.");
 
-create_config_trait( no_path_in_name, bool, "true",
-                     "Set to true if the output image file path should not contain a full path to"
-                     "the image file and just contain the file name for the image." );
+create_config_trait( full_path_file_name, bool, "false",
+                     "Set to true if the output image file path should contain a full path to "
+                     "the image file instead of containing just the file name for the image." );
 
 create_config_trait( image_reader, std::string, "", "Algorithm configuration subblock" );
 
@@ -102,7 +102,7 @@ public:
   std::vector < kwiver::vital::path_t >::const_iterator m_current_file;
   kwiver::vital::frame_id_t m_frame_number;
   kwiver::vital::time_usec_t m_frame_time;
-  bool m_no_path_in_name;
+  bool m_full_path_file_name;
 
   // processing classes
   algo::image_io_sptr m_image_reader;
@@ -137,7 +137,7 @@ void frame_list_process
   // Examine the configuration
   d->m_config_image_list_filename = config_value_using_trait( image_list_file );
   d->m_config_frame_time          = config_value_using_trait( frame_time ) * 1e6; // in usec
-  d->m_no_path_in_name            = config_value_using_trait( no_path_in_name );
+  d->m_full_path_file_name        = config_value_using_trait( full_path_file_name );
 
   std::string path = config_value_using_trait( path );
   kwiver::vital::tokenize( path, d->m_config_path, ":", kwiver::vital::TokenizeTrimEmpty );
@@ -238,13 +238,9 @@ void frame_list_process
     d->m_frame_time += d->m_config_frame_time;
 
     // update filename
-    if ( d->m_no_path_in_name )
+    if ( !d->m_full_path_file_name )
     {
-      const size_t last_slash_idx = a_file.find_last_of("\\/");
-      if ( std::string::npos != last_slash_idx )
-      {
-        a_file.erase( 0, last_slash_idx + 1 );
-      }
+      a_file = kwiversys::SystemTools::GetFilenameName( a_file );
     }
 
     push_to_port_using_trait( timestamp, frame_ts );
@@ -289,7 +285,7 @@ void frame_list_process
   declare_config_using_trait( frame_time );
   declare_config_using_trait( image_reader );
   declare_config_using_trait( path );
-  declare_config_using_trait( no_path_in_name );
+  declare_config_using_trait( full_path_file_name );
 }
 
 

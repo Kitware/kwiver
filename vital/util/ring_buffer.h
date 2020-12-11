@@ -59,13 +59,13 @@ public:
   }
 
   /// \brief Returns the maximum capacity of the buffer.
-  virtual unsigned capacity() const
+  virtual size_t capacity() const
   {
     return static_cast<unsigned>( buffer_.size() );
   }
 
   /// \brief Returns the number of entries in the buffer.
-  virtual unsigned size() const
+  virtual size_t size() const
   {
     return item_count_;
   }
@@ -138,9 +138,9 @@ public:
   }
 
   /// \brief Not implemented
-  virtual unsigned offset_of( Data const& ) const
+  virtual size_t offset_of( Data const& ) const
   {
-    return static_cast< unsigned >( -1 );
+    return static_cast< size_t >( -1 );
   }
 
   /// \brief Empties the buffer and returns the buffer to the initial state.
@@ -154,7 +154,7 @@ protected:
   std::vector< Data > buffer_;
 
   unsigned head_;
-  unsigned item_count_;
+  size_t item_count_;
 };
 
 
