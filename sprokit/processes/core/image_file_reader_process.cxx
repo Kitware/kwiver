@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2019 by Kitware, Inc.
+ * Copyright 2015-2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -86,8 +86,7 @@ create_config_trait( no_path_in_name, bool, "true",
   "Set to true if the output image file path should not contain a full path to"
   "the image file and just contain the file name for the image." );
 
-create_config_trait( image_reader, std::string, "", "Algorithm configuration subblock." )
-
+create_algorithm_name_config_trait( image_reader );
 
 // ---------------------------------------------------------------------------------------
 // Private implementation class
@@ -161,19 +160,27 @@ void image_file_reader_process
 
   kwiver::vital::config_block_sptr algo_config = get_config(); // config for process
 
-  algo::image_io::set_nested_algo_configuration( "image_reader", algo_config, d->m_image_reader );
+  algo::image_io::set_nested_algo_configuration_using_trait(
+    image_reader,
+    algo_config,
+    d->m_image_reader);
   if ( ! d->m_image_reader )
   {
-    throw sprokit::invalid_configuration_exception( name(),
-             "Unable to create image_reader." );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(),
+                 "Unable to create image_reader." );
   }
 
-  algo::image_io::get_nested_algo_configuration( "image_reader", algo_config, d->m_image_reader );
+  algo::image_io::get_nested_algo_configuration_using_trait(
+    image_reader,
+    algo_config,
+    d->m_image_reader);
 
   // instantiate image reader and converter based on config type
-  if ( ! algo::image_io::check_nested_algo_configuration( "image_reader", algo_config ) )
+  if ( ! algo::image_io::check_nested_algo_configuration_using_trait(
+         image_reader,
+         algo_config ) )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 }
 
@@ -188,7 +195,7 @@ void image_file_reader_process
   if ( ! kwiversys::SystemTools::FileExists( file ) )
   {
     // Resolve against specified path
-    std::string resolved_file = kwiversys::SystemTools::FindFile( file, d->m_config_path, true );
+    resolved_file = kwiversys::SystemTools::FindFile( file, d->m_config_path, true );
     if ( resolved_file.empty() )
     {
       switch (d->m_config_error_mode)
@@ -199,7 +206,7 @@ void image_file_reader_process
 
       case priv::ERROR_ABORT:
       default:
-        throw kwiver::vital::file_not_found_exception( file, "could not locate file in path" );
+        VITAL_THROW( kwiver::vital::file_not_found_exception, file, "could not locate file in path" );
       } // end switch
     }
   }
@@ -257,6 +264,9 @@ void image_file_reader_process
 {
   // Set up for required ports
   sprokit::process::port_flags_t optional;
+  sprokit::process::port_flags_t shared;
+  shared.insert( flag_output_shared );
+
   sprokit::process::port_flags_t required;
   required.insert( flag_required );
 
@@ -267,7 +277,7 @@ void image_file_reader_process
 
   // -- outputs --
   declare_output_port_using_trait( timestamp, optional );
-  declare_output_port_using_trait( image, optional );
+  declare_output_port_using_trait( image, shared );
   declare_output_port_using_trait( image_file_name, optional );
 }
 

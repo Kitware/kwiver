@@ -284,7 +284,8 @@ public:
         block_ctxt.m_start_line = m_line_number;
         block_ctxt.m_previous_context = m_current_context;
 
-        m_current_context += token.value + kwiver::vital::config_block::block_sep;
+        m_current_context += token.value +
+                             kwiver::vital::config_block::block_sep();
 
         LOG_DEBUG( m_logger, "Starting new block \"" << m_current_context
                   << "\" at " << file_path << ":" << m_line_number );
@@ -464,7 +465,7 @@ public:
         return false;
       }
 
-      ++ m_line_number; // count line number
+      ++m_line_number; // count line number
       m_last_line = line; // save for error reporting
 
       string_trim( line ); // trim off spaces

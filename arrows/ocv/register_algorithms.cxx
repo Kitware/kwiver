@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2017-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -71,6 +45,9 @@
 #include <arrows/ocv/refine_detections_write_to_disk.h>
 #include <arrows/ocv/split_image.h>
 #include <arrows/ocv/track_features_klt.h>
+#include <arrows/ocv/detect_motion_3frame_differencing.h>
+#include <arrows/ocv/detect_motion_mog2.h>
+#include <arrows/ocv/detect_heat_map.h>
 
 namespace kwiver {
 namespace arrows {
@@ -113,6 +90,8 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_algorithm< match_features_flannbased >();
 
   reg.register_algorithm< hough_circle_detector >();
+  reg.register_algorithm< detect_motion_3frame_differencing >();
+  reg.register_algorithm< detect_motion_mog2 >();
 
   // Conditional algorithms
   // Source ``KWIVER_OCV_HAS_*`` symbol definitions can be found in the header
@@ -158,6 +137,8 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_algorithm< detect_features_SURF >();
   reg.register_algorithm< extract_descriptors_SURF >();
 #endif
+
+  reg.register_algorithm< detect_heat_map >();
 
   reg.register_algorithm< refine_detections_write_to_disk >();
   reg.register_algorithm< split_image >();

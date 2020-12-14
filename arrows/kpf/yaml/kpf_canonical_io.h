@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2017 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -50,7 +24,6 @@
 namespace kwiver {
 namespace vital {
 namespace kpf {
-
 
 /**
  * \file
@@ -96,6 +69,8 @@ template <>
 struct KPF_YAML_EXPORT writer< canonical::id_t >
 {
   writer( size_t i, int d ): id(i), domain(d) {}
+  writer( const canonical::id_t& i, int d )
+    : id( i ), domain( d ) {}
   explicit writer( const canonical::scoped< canonical::id_t >& s )
     : id( s.t ), domain( s.domain ) {}
   canonical::id_t id;
@@ -106,6 +81,8 @@ template <>
 struct KPF_YAML_EXPORT writer< canonical::timestamp_t >
 {
   writer( double t, int d ): ts(t), domain(d) {}
+  writer( const canonical::timestamp_t& t, int d )
+    : ts( t ), domain( d ) {}
   explicit writer( const canonical::scoped< canonical::timestamp_t >& s )
     : ts( s.t ), domain( s.domain ) {}
   canonical::timestamp_t ts;
@@ -116,7 +93,7 @@ template<>
 struct KPF_YAML_EXPORT writer< canonical::kv_t >
 {
   writer( const std::string& k, const std::string& v ): kv(k,v) {}
-  explicit writer( const canonical::kv_t kv_in ): kv( kv_in ) {}
+  explicit writer( const canonical::kv_t& kv_in ): kv( kv_in ) {}
   canonical::kv_t kv;
   // key/value has no domain, thus no scoped version
 };
@@ -125,6 +102,8 @@ template<>
 struct KPF_YAML_EXPORT writer< canonical::conf_t >
 {
   writer( double c, int d ): conf(c), domain(d) {}
+  writer( const canonical::conf_t& c, int d )
+    : conf( c ), domain( d ) {}
   explicit writer( const canonical::scoped< canonical::conf_t >& s )
     : conf( s.t ), domain( s.domain ) {}
   canonical::conf_t conf;
@@ -134,7 +113,7 @@ struct KPF_YAML_EXPORT writer< canonical::conf_t >
 template<>
 struct KPF_YAML_EXPORT writer< canonical::cset_t >
 {
-  writer( canonical::cset_t& c, int d ): cset(c), domain(d) {}
+  writer( const canonical::cset_t& c, int d ): cset(c), domain(d) {}
   explicit writer( const canonical::scoped< canonical::cset_t >& s )
     : cset( s.t ), domain( s.domain ) {}
   canonical::cset_t cset;
@@ -145,6 +124,8 @@ template<>
 struct KPF_YAML_EXPORT writer< canonical::eval_t >
 {
   writer( double c, int d ): eval(c), domain(d) {}
+  writer( const canonical::eval_t& e, int d )
+    : eval( e ), domain( d ) {}
   explicit writer( const canonical::scoped< canonical::eval_t >& s )
     : eval( s.t ), domain( s.domain ) {}
   canonical::eval_t eval;
@@ -163,6 +144,8 @@ template<>
 struct KPF_YAML_EXPORT writer< canonical::timestamp_range_t >
 {
   writer( double start, double stop ): tsr(start, stop) {}
+  writer( const canonical::timestamp_range_t& t, int d )
+    : tsr( t ), domain( d ) {}
   explicit writer( const canonical::scoped< canonical::timestamp_range_t >& s )
     : tsr( s.t ), domain( s.domain ) {}
   canonical::timestamp_range_t tsr;
@@ -254,7 +237,6 @@ struct KPF_YAML_EXPORT reader< canonical::cset_t >
   canonical::cset_t& cset;
   int domain;
 };
-
 
 template <>
 struct KPF_YAML_EXPORT reader< canonical::eval_t >

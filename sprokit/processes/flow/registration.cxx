@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2018 by Kitware, Inc.
+ * Copyright 2011-2018, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@
 #include "distribute_process.h"
 #include "pass_process.h"
 #include "sink_process.h"
+#include "mux_process.h"
 
 /**
  * \file flow/registration.cxx
@@ -52,7 +53,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 {
   sprokit::process_registrar reg( vpm, "flow_processes" );
 
-  if (sprokit::is_process_module_loaded( vpm, reg.module_name() ) )
+  if ( reg.is_module_loaded() )
   {
     return;
   }
@@ -61,8 +62,8 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_process< sprokit::distribute_process>();
   reg.register_process< sprokit::pass_process>();
   reg.register_process< sprokit::sink_process>();
+  reg.register_process< sprokit::mux_process>();
 
   // - - - - - - - - - - - - - - - - - - - - - - -
-  sprokit::mark_process_module_as_loaded( vpm, reg.module_name() );
-
+  reg.mark_module_as_loaded();
 }

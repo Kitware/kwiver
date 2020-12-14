@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2013-2015 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -42,7 +16,6 @@
     MACRO(kwiver::vital::byte); \
     MACRO(float); \
     MACRO(double)
-
 
 namespace kwiver {
 namespace arrows {
@@ -75,7 +48,6 @@ ocv_to_vital_descriptor(const cv::Mat& v)
   return vital::descriptor_sptr(d);
 }
 
-
 /// Templated helper function to convert descriptors into a cv::Mat
 template <typename T>
 cv::Mat
@@ -90,14 +62,13 @@ vital_descriptors_to_ocv(const std::vector<vital::descriptor_sptr>& desc)
         dynamic_cast<const vital::descriptor_array_of<T>*>(desc[i].get());
     if( !d || d->size() != dim )
     {
-      throw vital::invalid_value("mismatch type or size when converting descriptors to OpenCV");
+      VITAL_THROW( vital::invalid_value, "mismatch type or size when converting descriptors to OpenCV");
     }
     cv::Mat_<T> row = mat.row(i);
     std::copy(d->raw_data(), d->raw_data() + dim, row.begin());
   }
   return mat;
 }
-
 
 /// Convert OpenCV type number into a string
 std::string cv_type_to_string(int number)
@@ -144,7 +115,6 @@ std::string cv_type_to_string(int number)
 
 } // end anonymous namespace
 
-
 /// Return a vector of descriptor shared pointers
 std::vector<vital::descriptor_sptr>
 descriptor_set
@@ -165,14 +135,13 @@ descriptor_set
   {
   APPLY_TO_TYPES(CONVERT_CASE);
   default:
-    throw vital::invalid_value("No case to handle OpenCV descriptors of type "
+    VITAL_THROW( vital::invalid_value, "No case to handle OpenCV descriptors of type "
                                + cv_type_to_string(data_.type()));
   }
 #undef CONVERT_CASE
   /// \endcond
   return desc;
 }
-
 
 /// Convert any descriptor set to an OpenCV cv::Mat
 cv::Mat
@@ -200,6 +169,114 @@ descriptors_to_ocv_matrix(const vital::descriptor_set& desc_set)
 #undef CONVERT_CASE
   /// \endcond
   return cv::Mat();
+}
+
+/// Return the descriptor at the specified index
+vital::descriptor_sptr
+descriptor_set
+::at( size_t index )
+{
+
+  /// \cond DoxygenSuppress
+#define CONVERT_CASE(T) \
+  case cv::DataType<T>::type:                   \
+  return ocv_to_vital_descriptor<T>( data_.row(index) );
+
+  switch(data_.type())
+  {
+    APPLY_TO_TYPES(CONVERT_CASE);
+  default:
+    VITAL_THROW( vital::invalid_value, "No case to handle OpenCV descriptors of type "
+                               + cv_type_to_string(data_.type()));
+  }
+#undef CONVERT_CASE
+}
+
+/// Return the descriptor at the specified index (const)
+vital::descriptor_sptr const
+descriptor_set
+::at( size_t index ) const
+{
+
+  /// \cond DoxygenSuppress
+#define CONVERT_CASE(T)                         \
+  case cv::DataType<T>::type:                   \
+    return ocv_to_vital_descriptor<T>( data_.row(index) );
+
+  switch(data_.type())
+  {
+    APPLY_TO_TYPES(CONVERT_CASE);
+  default:
+    VITAL_THROW( vital::invalid_value, "No case to handle OpenCV descriptors of type "
+                               + cv_type_to_string(data_.type()));
+  }
+#undef CONVERT_CASE
+}
+
+/// Next-descriptor generation function.
+descriptor_set::iterator::next_value_func_t
+descriptor_set
+::get_iter_next_func()
+{
+  size_t row_counter = 0;
+  // Variable for copy into the lambda instance to hold the current row
+  // descriptor reference.
+  vital::descriptor_sptr d_sptr;
+  return [row_counter,d_sptr,this] () mutable ->iterator::reference {
+    if( row_counter >= size() )
+    {
+      VITAL_THROW( vital::stop_iteration_exception, "descriptor_set" );
+    }
+
+  /// \cond DoxygenSuppress
+#define CONVERT_CASE(T) \
+    case cv::DataType<T>::type:                                         \
+      d_sptr = ocv_to_vital_descriptor<T>( data_.row(row_counter++) ); \
+      break;
+
+  switch(data_.type())
+  {
+    APPLY_TO_TYPES(CONVERT_CASE);
+  default:
+    VITAL_THROW( vital::invalid_value, "No case to handle OpenCV descriptors of type "
+                               + cv_type_to_string(data_.type()));
+  }
+#undef CONVERT_CASE
+    return d_sptr;
+  };
+}
+
+/// Next-descriptor generation function. (const)
+descriptor_set::const_iterator::next_value_func_t
+descriptor_set
+::get_const_iter_next_func() const
+{
+  size_t row_counter = 0;
+  // Variable for copy into the lambda instance to hold the current row
+  // descriptor reference.
+  vital::descriptor_sptr d_sptr;
+  return [row_counter,d_sptr,this] () mutable ->const_iterator::reference {
+    if( row_counter >= size() )
+    {
+      VITAL_THROW( vital::stop_iteration_exception, "descriptor_set" );
+    }
+
+  /// \cond DoxygenSuppress
+#define CONVERT_CASE(T)                         \
+  case cv::DataType<T>::type:                   \
+    d_sptr = ocv_to_vital_descriptor<T>( data_.row(row_counter++) ); \
+    break;
+
+  switch(data_.type())
+  {
+    APPLY_TO_TYPES(CONVERT_CASE);
+  default:
+    VITAL_THROW( vital::invalid_value, "No case to handle OpenCV descriptors of type "
+                               + cv_type_to_string(data_.type()));
+  }
+#undef CONVERT_CASE
+    return d_sptr;
+  };
 }
 
 } // end namespace ocv

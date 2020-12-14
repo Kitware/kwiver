@@ -18,4 +18,3 @@ interconnected with those written in C++.
    pipeline_design
    pipeline_declaration
    process
-   embedded_pipeline

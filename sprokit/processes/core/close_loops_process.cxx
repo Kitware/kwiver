@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,11 +45,17 @@
 
 namespace algo = kwiver::vital::algo;
 
-namespace kwiver
-{
+namespace kwiver {
 
-  create_config_trait( detect_loops, std::string, "",
-    "Algorithm configuration subblock." )
+create_algorithm_name_config_trait( close_loops );
+
+create_port_trait( next_tracks, feature_track_set,
+                   "feature track set for the next frame.  Features are not yet matched for "
+                   "any frames.");
+
+create_port_trait( loop_back_tracks, feature_track_set,
+                   "feature track set from last call to detect loops.  May include loops "
+                   "(joined track sets, split track sets).");
 
 /**
  * \class track_features_process
@@ -143,27 +149,29 @@ void close_loops_process
   // Get our process config
   kwiver::vital::config_block_sptr algo_config = get_config();
 
-  const std::string algo_name = "close_loops";
-
   // Instantiate the configured algorithm
-  algo::close_loops::set_nested_algo_configuration(algo_name, algo_config,
+  algo::close_loops::set_nested_algo_configuration_using_trait(
+    close_loops,
+    algo_config,
     d->m_loop_closer );
 
   if ( ! d->m_loop_closer )
   {
-    throw sprokit::invalid_configuration_exception( name(),
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(),
       "Unable to create close_loops" );
   }
 
-  algo::close_loops::get_nested_algo_configuration(algo_name, algo_config,
+  algo::close_loops::get_nested_algo_configuration_using_trait(
+    close_loops,
+    algo_config,
     d->m_loop_closer);
 
   //// Check config so it will give run-time diagnostic if any config problems
   // are found
-  if ( ! algo::close_loops::check_nested_algo_configuration(
-      algo_name, algo_config ) )
+  if ( ! algo::close_loops::check_nested_algo_configuration_using_trait(
+         close_loops, algo_config ) )
   {
-    throw sprokit::invalid_configuration_exception( name(),
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(),
       "Configuration check failed." );
   }
 
@@ -177,17 +185,14 @@ close_loops_process
 {
   // timestamp
   kwiver::vital::timestamp frame_time = grab_from_port_using_trait( timestamp );
-
-  vital::feature_track_set_sptr next_tracks =
-    grab_from_port_as<vital::feature_track_set_sptr>("next_tracks");
+  vital::feature_track_set_sptr next_tracks = grab_from_port_using_trait(next_tracks);
 
   next_tracks = std::dynamic_pointer_cast<vital::feature_track_set>(next_tracks->clone());
 
   vital::feature_track_set_sptr curr_tracks;
   if (!d->first)
   {
-    vital::feature_track_set_sptr loop_back_tracks =
-      grab_from_port_as<vital::feature_track_set_sptr>("loop_back_tracks");
+    vital::feature_track_set_sptr loop_back_tracks = grab_from_port_using_trait(loop_back_tracks);
 
     loop_back_tracks = std::dynamic_pointer_cast<vital::feature_track_set>(loop_back_tracks->clone());
 
@@ -228,14 +233,8 @@ void close_loops_process
 
   // -- input --
   declare_input_port_using_trait( timestamp, required );
-
-  declare_input_port("next_tracks", "kwiver:feature_track_set", required,
-    "feature track set for the next frame.  Features are not yet matched for "
-    "any frames.");
-
-  declare_input_port("loop_back_tracks", "kwiver:feature_track_set", input_nodep,
-    "feature track set from last call to detect loops.  May include loops "
-    "(joined track sets, split track sets.");
+  declare_input_port_using_trait( next_tracks, required );
+  declare_input_port_using_trait( loop_back_tracks, required );
 
   // -- output --
   declare_output_port_using_trait(feature_track_set, optional );
@@ -246,7 +245,7 @@ void close_loops_process
 void close_loops_process
 ::make_config()
 {
-  declare_config_using_trait( detect_loops );
+  declare_config_using_trait( close_loops );
 }
 
 

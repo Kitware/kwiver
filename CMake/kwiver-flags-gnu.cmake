@@ -15,6 +15,12 @@ kwiver_check_compiler_flag( -Werror=init-self )
 kwiver_check_compiler_flag( -Werror=reorder )
 kwiver_check_compiler_flag( -Werror=overloaded-virtual )
 kwiver_check_compiler_flag( -Werror=cast-qual )
+kwiver_check_compiler_flag( -Werror=vla )
+kwiver_check_compiler_flag( -Wunused-parameter )
+kwiver_check_compiler_flag( -Wshadow=local )
+
+# to slience this warning
+kwiver_check_compiler_flag( -Wno-unknown-pragmas )
 
 # linker shared object control flags
 kwiver_check_compiler_flag( -Wl,--no-undefined )
@@ -50,8 +56,6 @@ if (KWIVER_CPP_EXTRA)
 
   # TODO: Python triggers warnings with this
   kwiver_check_compiler_flag(-Wold-style-cast)
-  # Variable naming warnings
-  kwiver_check_compiler_flag(-Wshadow)
   # Exception warnings
   kwiver_check_compiler_flag(-Wnoexcept)
   # Miscellaneous warnings
@@ -61,6 +65,7 @@ if (KWIVER_CPP_EXTRA)
   kwiver_check_compiler_flag(-Wdocumentation)
   kwiver_check_compiler_flag(-Wundef)
   kwiver_check_compiler_flag(-Wunused-macros)
+  kwiver_check_compiler_flag( -Wshadow )
 endif()
 
 OPTION(KWIVER_CPP_NITPICK "Generate warnings about nitpicky things" OFF)
@@ -111,4 +116,10 @@ if (KWIVER_CPP_COVERAGE   AND   CMAKE_BUILD_TYPE EQUAL "DEBUG")
   kwiver_check_compiler_flag(-ftest-coverage)
   # It seems as though the flag isn't detected alone.
   kwiver_check_compiler_flag(-fprofile-arcs)
+endif ()
+
+# GCC Flag used for stripping binaries of any unused symbols
+# Used for reducing the size of kwiver wheel since pypi has 60Mb constraint on wheel size
+if (SKBUILD)
+  kwiver_check_compiler_flag( -s )
 endif ()

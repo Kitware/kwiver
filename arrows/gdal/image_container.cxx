@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -63,19 +37,17 @@ void add_rpc_metadata(char* raw_md, vital::metadata_sptr md)
     return;
   }
 
-#define MAP_METADATA_SCALAR( GN, KN )                       \
-if ( key == #GN)                                            \
-{                                                           \
-  md->add( NEW_METADATA_ITEM(                               \
-    vital::VITAL_META_RPC_ ## KN, std::stod( value ) ) ) ;  \
-}                                                           \
+#define MAP_METADATA_SCALAR( GN, KN )                             \
+if ( key == #GN )                                                 \
+{                                                                 \
+  md->add< vital::VITAL_META_RPC_ ## KN >( std::stod( value ) );  \
+}
 
-#define MAP_METADATA_COEFF( GN, KN )          \
-if ( key == #GN)                              \
-{                                             \
-  md->add( NEW_METADATA_ITEM(                 \
-    vital::VITAL_META_RPC_ ## KN, value ) );  \
-}                                             \
+#define MAP_METADATA_COEFF( GN, KN )                \
+if ( key == #GN )                                   \
+{                                                   \
+  md->add< vital::VITAL_META_RPC_ ## KN >( value ); \
+}
 
   MAP_METADATA_SCALAR( HEIGHT_OFF,   HEIGHT_OFFSET )
   MAP_METADATA_SCALAR( HEIGHT_SCALE, HEIGHT_SCALE )
@@ -92,6 +64,41 @@ if ( key == #GN)                              \
   MAP_METADATA_COEFF( LINE_DEN_COEFF, ROW_DEN_COEFF )
   MAP_METADATA_COEFF( SAMP_NUM_COEFF, COL_NUM_COEFF )
   MAP_METADATA_COEFF( SAMP_DEN_COEFF, COL_DEN_COEFF )
+
+#undef MAP_METADATA_SCALAR
+#undef MAP_METADATA_COEFF
+}
+
+void add_nitf_metadata(char* raw_md, vital::metadata_sptr md)
+{
+  std::istringstream md_string(raw_md);
+
+  // Get the key
+  std::string key;
+  if ( !std::getline( md_string, key, '=') )
+  {
+    return;
+  }
+
+  // Get the value
+  std::string value;
+  if ( !std::getline( md_string, value, '=') )
+  {
+    return;
+  }
+
+#define MAP_METADATA_COEFF( GN, KN )                  \
+if ( key == #GN )                                     \
+{                                                     \
+  md->add< vital::VITAL_META_NITF_ ## KN >( value );  \
+}
+
+  MAP_METADATA_COEFF( NITF_IDATIM, IDATIM )
+  MAP_METADATA_COEFF( NITF_BLOCKA_FRFC_LOC_01, BLOCKA_FRFC_LOC_01 )
+  MAP_METADATA_COEFF( NITF_BLOCKA_FRLC_LOC_01, BLOCKA_FRLC_LOC_01 )
+  MAP_METADATA_COEFF( NITF_BLOCKA_LRLC_LOC_01, BLOCKA_LRLC_LOC_01 )
+  MAP_METADATA_COEFF( NITF_BLOCKA_LRFC_LOC_01, BLOCKA_LRFC_LOC_01 )
+  MAP_METADATA_COEFF( NITF_IMAGE_COMMENTS, IMAGE_COMMENTS )
 
 #undef MAP_METADATA_SCALAR
 #undef MAP_METADATA_COEFF
@@ -172,8 +179,7 @@ image_container
 
   vital::metadata_sptr md = std::make_shared<vital::metadata>();
 
-  md->add( NEW_METADATA_ITEM(
-    kwiver::vital::VITAL_META_IMAGE_URI, filename ) );
+  md->add< kwiver::vital::VITAL_META_IMAGE_URI >( filename );
 
   // Get geotransform and calculate corner points
   double geo_transform[6];
@@ -186,13 +192,15 @@ image_container
   if ( osrs.GetAuthorityCode("GEOGCS") )
   {
     vital::polygon points;
+    const double h = static_cast<double>(this->height());
+    const double w = static_cast<double>(this->width());
     points.push_back( apply_geo_transform(geo_transform, 0, 0) );
-    points.push_back( apply_geo_transform(geo_transform, 0, height() ) );
-    points.push_back( apply_geo_transform(geo_transform, width(), 0) );
-    points.push_back( apply_geo_transform(geo_transform, width(), height() ) );
+    points.push_back( apply_geo_transform(geo_transform, 0, h ) );
+    points.push_back( apply_geo_transform(geo_transform, w, 0) );
+    points.push_back( apply_geo_transform(geo_transform, w, h ) );
 
-    md->add( NEW_METADATA_ITEM( vital::VITAL_META_CORNER_POINTS,
-      vital::geo_polygon( points, atoi( osrs.GetAuthorityCode("GEOGCS") ) ) ) );
+    md->add< vital::VITAL_META_CORNER_POINTS >(
+      vital::geo_polygon( points, atoi( osrs.GetAuthorityCode("GEOGCS") ) ) );
   }
 
   // Get RPC metadata
@@ -205,7 +213,23 @@ image_container
     }
   }
 
+  // Get NITF metadata
+  char** nitf_metadata = gdal_dataset_->GetMetadata("");
+  if (CSLCount(nitf_metadata) > 0)
+  {
+    for (int i = 0; nitf_metadata[i] != NULL; ++i)
+    {
+      add_nitf_metadata( nitf_metadata[i] , md );
+    }
+  }
+
   this->set_metadata( md );
+}
+
+char**
+image_container::get_raw_metadata_for_domain(const char *domain)
+{
+  return this->gdal_dataset_->GetMetadata(domain);
 }
 
 // ----------------------------------------------------------------------------
@@ -218,7 +242,7 @@ image_container
 }
 
 // ----------------------------------------------------------------------------
-/// Return a vital image. Unlike other image container must allocate memory.
+/// Get image. Unlike other image containers must allocate memory
 vital::image
 image_container
 ::get_image() const
@@ -229,12 +253,43 @@ image_container
   CPLErr err;
   for (size_t i = 1; i <= depth(); ++i)
   {
-    GDALRasterBand* band = gdal_dataset_->GetRasterBand(i);
+    GDALRasterBand* band = gdal_dataset_->GetRasterBand(static_cast<int>(i));
     auto bandType = band->GetRasterDataType();
-    err = band->RasterIO(GF_Read, 0, 0, width(), height(),
+    const int h = static_cast<int>(this->height());
+    const int w = static_cast<int>(this->width());
+    err = band->RasterIO(GF_Read, 0, 0, w, h,
       static_cast<void*>(reinterpret_cast<GByte*>(
         img.first_pixel()) + (i-1)*img.d_step()*img.pixel_traits().num_bytes),
-      width(), height(), bandType, 0, 0);
+      w, h, bandType, 0, 0);
+    // TODO Error checking on return value
+    // this line silences unused variable warnings
+    (void) err;
+  }
+
+  return img;
+}
+
+// ----------------------------------------------------------------------------
+/// Get cropped view of image. Unlike other image containers must allocate memory
+vital::image
+image_container
+::get_image(unsigned x_offset, unsigned y_offset,
+            unsigned width, unsigned height) const
+{
+  vital::image img( width, height, depth(), false, pixel_traits_ );
+
+  // Loop over bands and copy data
+  CPLErr err;
+  for (size_t i = 1; i <= depth(); ++i)
+  {
+    GDALRasterBand* band = gdal_dataset_->GetRasterBand(i);
+    auto bandType = band->GetRasterDataType();
+    err = band->RasterIO(GF_Read, x_offset, y_offset, width, height,
+      static_cast<void*>(reinterpret_cast<GByte*>(
+        img.first_pixel()) + (i-1)*img.d_step()*img.pixel_traits().num_bytes),
+      width, height, bandType, 0, 0);
+
+    (void) err;
   }
 
   return img;

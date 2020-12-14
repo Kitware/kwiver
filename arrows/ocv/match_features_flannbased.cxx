@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2016 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -39,7 +13,6 @@ namespace kwiver {
 namespace arrows {
 namespace ocv {
 
-
 class match_features_flannbased::priv
 {
 public:
@@ -47,8 +20,9 @@ public:
   priv()
     : cross_check( true ),
       cross_check_k( 1 ),
-      matcher( new cv::FlannBasedMatcher )
+      binary_descriptors( false )
   {
+    this->create();
   }
 
   // Can't currently update parameters on BF implementation, so no update
@@ -58,7 +32,15 @@ public:
   void create()
   {
     // cross version compatible
-    matcher = cv::Ptr<cv::FlannBasedMatcher>( new cv::FlannBasedMatcher );
+    if (binary_descriptors)
+    {
+      matcher = cv::Ptr<cv::FlannBasedMatcher>(new cv::FlannBasedMatcher(
+        cv::makePtr<cv::flann::LshIndexParams>(12, 20, 2)));
+    }
+    else
+    {
+      matcher = cv::Ptr<cv::FlannBasedMatcher>(new cv::FlannBasedMatcher );
+    }
   }
 
   /// Compute descriptor matching from 1 to 2 and from 2 to 1.
@@ -102,10 +84,10 @@ public:
   /// Parameters
   bool cross_check;
   unsigned cross_check_k;
+  bool binary_descriptors;
   cv::Ptr<cv::FlannBasedMatcher> matcher;
 
 }; // end match_features_flannbased::priv
-
 
 match_features_flannbased
 ::match_features_flannbased()
@@ -114,12 +96,10 @@ match_features_flannbased
   attach_logger( "arrows.ocv.match_features_flannbased" );
 }
 
-
 match_features_flannbased
 ::~match_features_flannbased()
 {
 }
-
 
 vital::config_block_sptr
 match_features_flannbased
@@ -131,10 +111,12 @@ match_features_flannbased
                      "If cross-check filtering should be performed." );
   config->set_value( "cross_check_k", p_->cross_check_k,
                      "Number of neighbors to use when cross checking" );
+  config->set_value( "binary_descriptors", p_->binary_descriptors,
+                     "If false assume float descriptors (use L2 KDTree). "
+                     "If true assume binary descriptors (use LSH).");
 
   return config;
 }
-
 
 void
 match_features_flannbased
@@ -145,10 +127,10 @@ match_features_flannbased
 
   p_->cross_check = config->get_value<bool>( "cross_check" );
   p_->cross_check_k = config->get_value<unsigned>( "cross_check_k" );
+  p_->binary_descriptors = config->get_value<bool>( "binary_descriptors" );
 
   p_->create();
 }
-
 
 bool
 match_features_flannbased
@@ -168,7 +150,6 @@ match_features_flannbased
   return valid;
 }
 
-
 void
 match_features_flannbased
 ::ocv_match(const cv::Mat &descriptors1, const cv::Mat &descriptors2,
@@ -183,7 +164,6 @@ match_features_flannbased
     p_->matcher->match(descriptors1, descriptors2, matches);
   }
 }
-
 
 } // end namespace ocv
 } // end namespace arrows

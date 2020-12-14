@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2017 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include <test_tmpfn.h>
 
@@ -126,11 +100,11 @@ make_n_descriptors(size_t num_desc, size_t dim)
                     ? static_cast<double>(std::numeric_limits<T>::max()) : 1.0;
   const double scale = (tmax - tmin) / rmax;
 
-  for(unsigned i=0; i<num_desc; ++i)
+  for(unsigned i = 0; i < num_desc; ++i)
   {
     auto d = std::make_shared<descriptor_dynamic<T> >(dim);
     T* data = d->raw_data();
-    for(unsigned i=0; i<dim; ++i, ++data)
+    for(unsigned j = 0; j < dim; ++j, ++data)
     {
       *data = static_cast<T>(rand() * scale + tmin );
     }
@@ -196,12 +170,10 @@ equal_descriptor_set(descriptor_set_sptr ds1, descriptor_set_sptr ds2)
   {
     return ::testing::AssertionFailure() << "size mismatch";
   }
-  std::vector<descriptor_sptr> desc1 = ds1->descriptors();
-  std::vector<descriptor_sptr> desc2 = ds2->descriptors();
-  for( unsigned i=0; i< desc1.size(); ++i )
+  for( unsigned i=0; i< ds1->size(); ++i )
   {
-    descriptor_sptr d1 = desc1[i];
-    descriptor_sptr d2 = desc2[i];
+    descriptor_sptr d1 = ds1->at(i);
+    descriptor_sptr d2 = ds2->at(i);
     if( !d1 && !d2 )
     {
       continue;
@@ -326,8 +298,7 @@ TEST(feature_descriptor_io, write_mixed_descriptor_dim)
   descriptor_set_sptr descriptors1 = make_n_descriptors<int16_t>(50, 128);
   descriptor_set_sptr descriptors2 = make_n_descriptors<int16_t>(50, 64);
   std::vector<descriptor_sptr> desc1 = descriptors1->descriptors();
-  std::vector<descriptor_sptr> desc2 = descriptors2->descriptors();
-  desc1.insert(desc1.end(), desc2.begin(), desc2.end());
+  desc1.insert(desc1.end(), descriptors2->cbegin(), descriptors2->cend());
   descriptor_set_sptr descriptors = std::make_shared<simple_descriptor_set>(desc1);
   core::feature_descriptor_io fd_io;
   EXPECT_THROW(fd_io.save(filename, empty_features, descriptors),
@@ -347,8 +318,7 @@ TEST(feature_descriptor_io, write_mixed_descriptor_type)
   descriptor_set_sptr descriptors1 = make_n_descriptors<uint16_t>(50, 96);
   descriptor_set_sptr descriptors2 = make_n_descriptors<uint32_t>(50, 96);
   std::vector<descriptor_sptr> desc1 = descriptors1->descriptors();
-  std::vector<descriptor_sptr> desc2 = descriptors2->descriptors();
-  desc1.insert(desc1.end(), desc2.begin(), desc2.end());
+  desc1.insert(desc1.end(), descriptors2->cbegin(), descriptors2->cend());
   descriptor_set_sptr descriptors = std::make_shared<simple_descriptor_set>(desc1);
   core::feature_descriptor_io fd_io;
   EXPECT_THROW(fd_io.save(filename, empty_features, descriptors),

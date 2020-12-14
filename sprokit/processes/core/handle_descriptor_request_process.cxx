@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017-2018 by Kitware, Inc.
+ * Copyright 2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,17 +40,14 @@
 
 #include <boost/filesystem/path.hpp>
 
-#include <memory>
-#include <fstream>
-
-namespace kwiver
-{
+namespace kwiver {
 
 namespace algo = vital::algo;
 
-create_config_trait( image_pipeline_file, std::string, "",
-  "Filename for the image processing pipeline. This pipeline should take, "
-  "as input, a filename and produce descriptors as output." );
+create_port_trait( filename, file_name, "KWA input filename" );
+create_port_trait( stream_id, string, "Stream ID to place in file" );
+
+create_algorithm_name_config_trait( handler );
 
 //------------------------------------------------------------------------------
 // Private implementation class
@@ -73,9 +70,6 @@ handle_descriptor_request_process
   : process( config ),
     d( new handle_descriptor_request_process::priv )
 {
-  // Attach our logger name to process logger
-  attach_logger( vital::get_logger( name() ) );
-
   make_ports();
   make_config();
 }
@@ -101,43 +95,28 @@ handle_descriptor_request_process
 {
   vital::config_block_sptr algo_config = get_config();
 
-  d->image_pipeline_file = config_value_using_trait( image_pipeline_file );
-}
+  algo::handle_descriptor_request::set_nested_algo_configuration_using_trait(
+    handler,
+    algo_config,
+    d->m_handler );
 
-
-// -----------------------------------------------------------------------------
-void
-handle_descriptor_request_process
-::_init()
-{
-  auto dir = boost::filesystem::path( d->image_pipeline_file ).parent_path();
-
-  if( !d->image_pipeline_file.empty() )
+  if( !d->m_handler )
   {
-    std::unique_ptr< embedded_pipeline > new_pipeline =
-      std::unique_ptr< embedded_pipeline >( new embedded_pipeline() );
+    VITAL_THROW( sprokit::invalid_configuration_exception,
+                 name(), "Unable to create handle_descriptor_request" );
+  }
 
-    std::ifstream pipe_stream;
-    pipe_stream.open( d->image_pipeline_file, std::ifstream::in );
+  algo::handle_descriptor_request::get_nested_algo_configuration_using_trait(
+    handler,
+    algo_config,
+    d->m_handler );
 
-    if( !pipe_stream )
-    {
-      throw sprokit::invalid_configuration_exception(
-        name(), "Unable to open pipeline file: " + d->image_pipeline_file );
-    }
-
-    try
-    {
-      new_pipeline->build_pipeline( pipe_stream, dir.string() );
-      new_pipeline->start();
-    }
-    catch( const std::exception& e )
-    {
-      throw sprokit::invalid_configuration_exception( name(), e.what() );
-    }
-
-    d->image_pipeline = std::move( new_pipeline );
-    pipe_stream.close();
+  // Check config so it will give run-time diagnostic of config problems
+  if( !algo::handle_descriptor_request::check_nested_algo_configuration_using_trait(
+    handler, algo_config ) )
+  {
+    VITAL_THROW( sprokit::invalid_configuration_exception,
+                 name(), "Configuration check failed." );
   }
 }
 
@@ -208,15 +187,23 @@ void handle_descriptor_request_process
 {
   // Set up for required ports
   sprokit::process::port_flags_t optional;
-  sprokit::process::port_flags_t required;
 
+  sprokit::process::port_flags_t required;
   required.insert( flag_required );
+
+  sprokit::process::port_flags_t shared;
+  shared.insert( flag_output_shared );
 
   // -- input --
   declare_input_port_using_trait( descriptor_request, required );
 
   // -- output --
   declare_output_port_using_trait( track_descriptor_set, optional );
+
+  declare_output_port_using_trait( image, shared );
+  declare_output_port_using_trait( timestamp, optional );
+  declare_output_port_using_trait( filename, optional );
+  declare_output_port_using_trait( stream_id, optional );
 }
 
 
@@ -224,7 +211,7 @@ void handle_descriptor_request_process
 void handle_descriptor_request_process
 ::make_config()
 {
-  declare_config_using_trait( image_pipeline_file );
+  declare_config_using_trait( handler );
 }
 
 

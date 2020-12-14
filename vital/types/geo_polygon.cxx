@@ -39,6 +39,7 @@
 #include <algorithm>
 #include <cctype>
 #include <iomanip>
+#include <limits>
 #include <numeric>
 #include <stdexcept>
 
@@ -128,8 +129,8 @@ config_block_get_value_cast( config_block_value_t const& value )
   }
 
   // Set up helper lambda to check for errors
-  auto try_or_die = [&value]( std::istream& s ) {
-    if ( s.fail() ) {
+  auto try_or_die = [&value]( std::istream& in ) {
+    if ( in.fail() ) {
       VITAL_THROW( bad_config_block_cast,
                    "failed to convert from string representation \"" + value + "\"" );
     }
@@ -174,10 +175,12 @@ config_block_set_value_cast( geo_polygon const& value )
     []( double cur, vector_2d const& p ) {
       return std::max( { cur, std::fabs( p[0] ), std::fabs( p[1] ) } );
     });
-  auto const idigits =
+  auto const integer_digits =
     static_cast<int>( std::floor( std::log10( magnitude ) ) ) + 1;
+  auto const total_digits =
+    std::numeric_limits<double>::digits10 + 2;
 
-  str_result.precision( std::max( 0, 20 - idigits ) );
+  str_result.precision( std::max( 0, total_digits - integer_digits ) );
   str_result.setf( std::ios::fixed );
 
   // Write vertex coordinates
@@ -203,7 +206,8 @@ operator<<( std::ostream& str, vital::geo_polygon const& obj )
     auto const old_prec = str.precision();
     auto const verts = obj.polygon();
 
-    str << std::setprecision(22) << "{";
+    str.precision( std::numeric_limits<double>::digits10 + 2 );
+    str << "{";
     for ( size_t n = 0; n < verts.num_vertices(); ++n )
     {
       if ( n ) {

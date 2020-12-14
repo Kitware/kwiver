@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2016-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -44,13 +18,11 @@
 #include <vital/algo/match_features.h>
 #include <vital/util/thread_pool.h>
 
-
 namespace kwiver {
 namespace arrows {
 namespace core {
 
 using namespace kwiver::vital;
-
 
 /// Private implementation class
 class close_loops_keyframe::priv
@@ -77,9 +49,6 @@ public:
   /// stop matching against additional keyframes if at least one succeeds
   bool stop_after_match;
 
-  /// Indices of the the selected keyframes
-  std::vector<frame_id_t> keyframes;
-
   /// histogram of matches associated with each frame
   std::map<frame_id_t, unsigned int> frame_matches;
 
@@ -90,7 +59,6 @@ public:
   vital::algo::match_features_sptr matcher;
 };
 
-
 // ----------------------------------------------------------------------------
 /// Constructor
 close_loops_keyframe
@@ -100,13 +68,11 @@ close_loops_keyframe
   attach_logger( "arrows.core.close_loops_keyframe" );
 }
 
-
 /// Destructor
 close_loops_keyframe
 ::~close_loops_keyframe() noexcept
 {
 }
-
 
 // ----------------------------------------------------------------------------
 /// Get this alg's \link vital::config_block configuration block \endlink
@@ -142,7 +108,6 @@ close_loops_keyframe
   return config;
 }
 
-
 // ----------------------------------------------------------------------------
 /// Set this algo's properties via a config block
 void
@@ -164,7 +129,6 @@ close_loops_keyframe
   d_->stop_after_match = config->get_value<bool>("stop_after_match");
 }
 
-
 // ----------------------------------------------------------------------------
 bool
 close_loops_keyframe
@@ -178,7 +142,6 @@ close_loops_keyframe
   );
 }
 
-
 // ----------------------------------------------------------------------------
 /// Frame stitching using keyframe-base matching
 vital::feature_track_set_sptr
@@ -191,25 +154,40 @@ close_loops_keyframe
   // initialize frame matches for this frame
   d_->frame_matches[frame_number] = 0;
 
+  // get a vector of all frame numbers contained in the tracks
+  auto frame_set = input->all_frame_ids();
+  // Indices of the the selected keyframes
+  auto keyframe_set = input->keyframes();
+  std::vector<frame_id_t> frames(frame_set.begin(), frame_set.end());
+  std::vector<frame_id_t> keyframes(keyframe_set.begin(), keyframe_set.end());
+
   // do nothing for the first two frames, there is nothing to match
-  if( frame_number < 2 )
+  if( frames.size() <= 2 )
   {
     return input;
   }
 
   // compute the last frame we need to match to within the search bandwidth
   // the conditional accounts for the boundary case at startup
-  frame_id_t last_frame = 0;
-  if(frame_number > d_->search_bandwidth)
+  auto last_frame_itr = frames.rend();
+  if(frames.size() > static_cast<size_t>(d_->search_bandwidth))
   {
-    last_frame = frame_number - d_->search_bandwidth;
+    last_frame_itr = frames.rbegin() + d_->search_bandwidth;
   }
 
   // the first frame is always a key frame (for now)
   // This could proably be improved
-  if(d_->keyframes.empty())
+  if(keyframes.empty())
   {
-    d_->keyframes.push_back(input->first_frame());
+    keyframes.push_back(input->first_frame());
+    auto fd = input->frame_data(input->first_frame());
+    auto ffd = std::dynamic_pointer_cast<vital::feature_track_set_frame_data>(fd);
+    if (!ffd)
+    {
+      ffd = std::make_shared<vital::feature_track_set_frame_data>();
+      input->set_frame_data(ffd, input->first_frame());
+    }
+    ffd->is_keyframe = true;
   }
 
   // extract the subset of tracks on the current frame and their
@@ -233,7 +211,7 @@ close_loops_keyframe
   // between the current and previous frames.  This matching was done outside
   // of loop closure as part of the standard frame-to-frame tracking
   d_->frame_matches[frame_number] =
-      static_cast<unsigned int>(current_set->active_tracks( frame_number-1 ).size());
+      static_cast<unsigned int>(current_set->active_tracks( frames[frames.size() - 2] ).size());
 
   // used to compute the maximum number of matches between the current frame
   // and any of the key frames
@@ -242,10 +220,10 @@ close_loops_keyframe
   // use this iterator to step backward through the keyframes
   // as we step backward through the neighborhood to identify
   // which neighborhood frames are also keyframes
-  auto kitr = d_->keyframes.rbegin();
+  auto kitr = keyframes.rbegin();
   // since loop closure starts at frame n-2, if the latest
   // keyframe happens to be n-1 we need to skip that one
-  if (*kitr == frame_number-1)
+  if (*kitr == frames[frames.size() - 2])
   {
     ++kitr;
   }
@@ -255,26 +233,31 @@ close_loops_keyframe
 
   std::map<vital::frame_id_t, std::future<track_pairs_t> > all_matches;
   // stitch with all frames within a neighborhood of the current frame
-  for(vital::frame_id_t f = frame_number - 2; f >= last_frame; f-- )
+  for(auto f = frames.rbegin() + 2; f != last_frame_itr; ++f )
   {
-    all_matches[f] = pool.enqueue(match_func, f);
+    all_matches[*f] = pool.enqueue(match_func, *f);
   }
   // stitch with all previous keyframes
-  for(auto kitr = d_->keyframes.rbegin(); kitr != d_->keyframes.rend(); ++kitr)
+  for(auto k_itr = keyframes.rbegin(); k_itr != keyframes.rend(); ++k_itr)
   {
     // if this frame was already matched above then skip it
-    if(*kitr >= last_frame)
+    if(last_frame_itr == frames.rend() || *k_itr >= *last_frame_itr)
     {
       continue;
     }
-    all_matches[*kitr] = pool.enqueue(match_func, *kitr);
+    all_matches[*k_itr] = pool.enqueue(match_func, *k_itr);
   }
 
-
   // stitch with all frames within a neighborhood of the current frame
-  for(vital::frame_id_t f = frame_number - 2; f >= last_frame; f-- )
+  for(auto f = frames.rbegin() + 2; f != last_frame_itr; ++f )
   {
-    auto const& matches = all_matches[f].get();
+    if (!all_matches[*f].valid())
+    {
+      LOG_WARN(logger(), "match from " << frame_number << " to "
+                         << *f << " not available");
+      continue;
+    }
+    auto const& matches = all_matches[*f].get();
     int num_matched = static_cast<int>(matches.size());
     int num_linked = 0;
     if( num_matched >= d_->match_req )
@@ -294,7 +277,7 @@ close_loops_keyframe
     // if this frame is a keyframe then account for it in the
     // computation of the maximum number of matches to all keyframes
     std::string frame_name = "";
-    if(kitr != d_->keyframes.rend() && f == *kitr)
+    if(kitr != keyframes.rend() && *f == *kitr)
     {
       if( num_matched > max_keyframe_matched )
       {
@@ -304,23 +287,29 @@ close_loops_keyframe
       frame_name = "keyframe ";
     }
     LOG_INFO(logger(), "Matching frame " << frame_number << " to "
-                        << frame_name << f
+                        << frame_name << *f
                         << " has "<< num_matched << " matches and "
                         << num_linked << " joined tracks");
   }
   // divide by number of matched frames to get the average
   d_->frame_matches[frame_number] /=
-    static_cast<unsigned int>(frame_number - last_frame);
+    static_cast<unsigned int>(last_frame_itr - frames.rbegin() - 2);
 
   // stitch with all previous keyframes
-  for(auto kitr = d_->keyframes.rbegin(); kitr != d_->keyframes.rend(); ++kitr)
+  for(auto k_itr = keyframes.rbegin(); k_itr != keyframes.rend(); ++k_itr)
   {
     // if this frame was already matched above then skip it
-    if(*kitr >= last_frame)
+    if(last_frame_itr == frames.rend() || *k_itr >= *last_frame_itr)
     {
       continue;
     }
-    auto const& matches = all_matches[*kitr].get();
+    if (!all_matches[*k_itr].valid())
+    {
+      LOG_WARN(logger(), "keyframe match from "<< frame_number << " to "
+                         << *k_itr << " not available");
+      continue;
+    }
+    auto const& matches = all_matches[*k_itr].get();
     int num_matched = static_cast<int>(matches.size());
     int num_linked = 0;
     if( num_matched >= d_->match_req )
@@ -333,7 +322,7 @@ close_loops_keyframe
         }
       }
     }
-    LOG_INFO(logger(), "Matching frame " << frame_number << " to keyframe "<< *kitr
+    LOG_INFO(logger(), "Matching frame " << frame_number << " to keyframe "<< *k_itr
                        << " has "<< num_matched << " matches and "
                        << num_linked << " joined tracks");
     if( num_matched > max_keyframe_matched )
@@ -349,8 +338,7 @@ close_loops_keyframe
     {
       break;
     }
-  }
-
+  } // end for
 
   // keep track of frames that matched no keyframes
   if (max_keyframe_matched < d_->match_req)
@@ -364,7 +352,7 @@ close_loops_keyframe
   // of the search bandwidth, then add a new key frame by selecting the frame
   // since the first miss that has been most successful at matching.
   if (d_->keyframe_misses.size() > d_->min_keyframe_misses &&
-      d_->keyframe_misses.front() < last_frame)
+      d_->keyframe_misses.front() < *last_frame_itr)
   {
     auto hitr = d_->frame_matches.find(d_->keyframe_misses.front());
     unsigned int max_matches = 0;
@@ -383,14 +371,21 @@ close_loops_keyframe
     {
       // create the new keyframe and clear the list of misses
       LOG_INFO(logger(), "creating new keyframe on frame " << max_id);
-      d_->keyframes.push_back(max_id);
+      keyframes.push_back(max_id);
       d_->keyframe_misses.clear();
+      auto fd = input->frame_data(max_id);
+      auto ffd = std::dynamic_pointer_cast<vital::feature_track_set_frame_data>(fd);
+      if (!ffd)
+      {
+        ffd = std::make_shared<vital::feature_track_set_frame_data>();
+        input->set_frame_data(ffd, max_id);
+      }
+      ffd->is_keyframe = true;
     }
   }
 
   return input;
 }
-
 
 } // end namespace core
 } // end namespace arrows

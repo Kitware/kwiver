@@ -213,6 +213,7 @@ mesh_sptr read_ply(std::istream& is)
   {
     vector_3d& vert = (*verts)[v];
     is >> vert[0] >> vert[1] >> vert[2];
+    is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
   }
   for (unsigned int f=0; f<num_faces; ++f)
   {
@@ -324,7 +325,7 @@ read_obj(std::istream& is)
     {
       case 'v': // read a vertex
       {
-        char c2 = (char)is.peek();
+        char c2 = static_cast<char>(is.peek());
         switch (c2)
         {
           case 'n': // read a normal

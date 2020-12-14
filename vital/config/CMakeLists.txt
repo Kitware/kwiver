@@ -49,12 +49,13 @@ kwiver_add_library( vital_config
   ${CMAKE_CURRENT_BINARY_DIR}/vital_config_export.h
   )
 
+add_dependencies (vital_config kwiver_configure)
+
 target_link_libraries( vital_config
   PUBLIC               vital_exceptions
   PRIVATE              kwiversys
                        vital_logger
                        vital_util
-                       vital_vpm
   )
 
 kwiver_add_plugin( format_config

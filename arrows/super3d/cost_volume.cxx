@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2012-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
  /**
  * \file
@@ -49,19 +23,26 @@
 
 #include <limits>
 
+#include <vital/logger/logger.h>
+#include <vital/vital_config.h>
+
 namespace kwiver {
 namespace arrows {
 namespace super3d {
 
-void
+bool
 compute_world_cost_volume(const std::vector<vil_image_view<double> > &frames,
                           const std::vector<vpgl_perspective_camera<double> > &cameras,
                           world_space *ws,
                           unsigned int ref_frame,
                           unsigned int S,
                           vil_image_view<double> &cost_volume,
+                          cost_volume_callback_t callback,
                           const std::vector<vil_image_view<bool> > &masks)
 {
+  static vital::logger_handle_t logger =
+    vital::get_logger("arrows.super3d.compute_world_cost_volume");
+
   const vil_image_view<double> &ref = frames[ref_frame];
   cost_volume = vil_image_view<double>(ws->ni(), ws->nj(), 1, S);
   cost_volume.fill(0.0);
@@ -70,8 +51,10 @@ compute_world_cost_volume(const std::vector<vil_image_view<double> > &frames,
 
   double s_step = 1.0/static_cast<double>(S);
 
-  std::cout << "Computing cost volume of size (" << cost_volume.ni() << ", "
-            << cost_volume.nj() << ", " << cost_volume.nplanes() << ").\n";
+  LOG_DEBUG(logger, "Computing cost volume of size ("
+                     << cost_volume.ni() << ", "
+                     << cost_volume.nj() << ", "
+                     << cost_volume.nplanes() << ")");
 
   int ni = ws->ni(), nj = ws->nj();
   vil_image_view<double> warp_ref(ni, nj, 1), warp(ni, nj, 1);
@@ -82,7 +65,14 @@ compute_world_cost_volume(const std::vector<vil_image_view<double> > &frames,
   //Depths
   for (unsigned int k = 0; k < S; k++)
   {
-    std::cout << k << " " << std::flush;
+    LOG_TRACE(logger, "Depth Layer: " << k);
+    if (callback)
+    {
+      if (!callback(k))
+      {
+        return false;
+      }
+    }
     double s = (k + 0.5) * s_step;
 
     // Warp ref image to world volume
@@ -141,8 +131,7 @@ compute_world_cost_volume(const std::vector<vil_image_view<double> > &frames,
       }
     }
   }
-
-  std::cout << "\n";
+  return true;
 }
 
 //*****************************************************************************
@@ -150,22 +139,25 @@ compute_world_cost_volume(const std::vector<vil_image_view<double> > &frames,
 //Compute gradient weighting
 void
 compute_g(const vil_image_view<double> &ref_img,
-  vil_image_view<double> &g,
-  double alpha,
-  double beta,
-  vil_image_view<bool> *mask)
+          vil_image_view<double> &g,
+          double alpha,
+          VITAL_UNUSED double beta,
+          vil_image_view<bool> *mask)
 {
   g.set_size(ref_img.ni(), ref_img.nj(), 1);
 
   vil_image_view<double> ref_img_g;
   vil_sobel_3x3(ref_img, ref_img_g);
 
-  std::cout << "Computing g weighting.\n";
+  bool invalid_mask = !mask ||
+                      mask->ni() != ref_img.ni() ||
+                      mask->nj() != ref_img.nj();
+
   for (unsigned int i = 0; i < ref_img_g.ni(); i++)
   {
     for (unsigned int j = 0; j < ref_img_g.nj(); j++)
     {
-      if (!mask || !(*mask)(i, j))
+      if (invalid_mask || (*mask)(i, j))
       {
         double dx = ref_img_g(i, j, 0);
         double dy = ref_img_g(i, j, 1);
@@ -180,12 +172,46 @@ compute_g(const vil_image_view<double> &ref_img,
 
 //*****************************************************************************
 
+/// Compute the number of depth slices needed to properly sample the data
+double
+compute_depth_sampling(world_space const& ws,
+  std::vector<vpgl_perspective_camera<double> > const& cameras)
+{
+  double max_dist = 0.0;
+  for (unsigned i = 0; i < 3; ++i)
+  {
+    for (unsigned j = 0; j < 3; ++j)
+    {
+      auto near = ws.point_at_depth_on_axis((ws.ni() * i) / 2,
+                                            (ws.nj() * j) / 2, 0.0);
+      auto far = ws.point_at_depth_on_axis((ws.ni() * i) / 2,
+                                           (ws.nj() * j) / 2, 1.0);
+      for (auto const& cam : cameras)
+      {
+        auto p1 = cam.project(vgl_homg_point_3d<double>(near[0], near[1], near[2]));
+        auto p2 = cam.project(vgl_homg_point_3d<double>(far[0], far[1], far[2]));
+        double dist = (p2 - p1).length();
+        if (dist > max_dist)
+        {
+          max_dist = dist;
+        }
+      }
+    }
+  }
+  return max_dist;
+}
+
+//*****************************************************************************
+
 void
 save_cost_volume(const vil_image_view<double> &cost_volume,
                       const vil_image_view<double> &g_weight,
                       const char *file_name)
 {
-  std::cout << "Saving cost volume to " << file_name << "\n";
+  static vital::logger_handle_t logger =
+    vital::get_logger("arrows.super3d.save_cost_volume");
+  LOG_DEBUG(logger, "Saving cost volume to " << file_name);
+
   FILE *file = std::fopen(file_name, "wb");
 
   unsigned int ni = cost_volume.ni(), nj = cost_volume.nj();
@@ -219,7 +245,9 @@ load_cost_volume(vil_image_view<double> &cost_volume,
                       vil_image_view<double> &g_weight,
                       const char *file_name)
 {
-  std::cout << "Loading cost volume from " << file_name << "\n";
+  static vital::logger_handle_t logger =
+    vital::get_logger("arrows.super3d.load_cost_volume");
+  LOG_DEBUG(logger, "Loading cost volume from " << file_name);
 
   FILE *file = fopen(file_name, "rb");
 
@@ -228,7 +256,7 @@ load_cost_volume(vil_image_view<double> &cost_volume,
       fread(&nj, sizeof(unsigned int), 1, file) != 1 ||
       fread(&np, sizeof(unsigned int), 1, file) != 1 )
   {
-    std::cerr << "Error loading cost volume" << std::endl;
+    LOG_ERROR(logger, "Error loading cost volume");
     return;
   }
 
@@ -243,7 +271,7 @@ load_cost_volume(vil_image_view<double> &cost_volume,
       {
         if (fread(&cost_volume(i,j,s), sizeof(double), 1, file) != 1)
         {
-          std::cerr << "Error loading cost volume" << std::endl;
+          LOG_ERROR(logger, "Error loading cost volume");
           return;
         }
       }
@@ -254,7 +282,7 @@ load_cost_volume(vil_image_view<double> &cost_volume,
     for (unsigned int j = 0; j < nj; j++)
       if (fread(&g_weight(i,j), sizeof(double), 1, file) != 1)
       {
-        std::cerr << "Error loading cost volume" << std::endl;
+        LOG_ERROR(logger, "Error loading cost volume");
         return;
       }
 

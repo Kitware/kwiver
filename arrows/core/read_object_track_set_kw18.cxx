@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2017 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -37,7 +11,7 @@
 
 #include <vital/util/tokenize.h>
 #include <vital/util/data_stream_reader.h>
-
+#include <vital/vital_config.h>
 
 namespace kwiver {
 namespace arrows {
@@ -101,7 +75,6 @@ public:
   std::map< vital::frame_id_t, vital::track_sptr > m_all_tracks;
 };
 
-
 // ===============================================================================
 read_object_track_set_kw18
 ::read_object_track_set_kw18()
@@ -109,38 +82,35 @@ read_object_track_set_kw18
 {
 }
 
-
 read_object_track_set_kw18
 ::~read_object_track_set_kw18()
 {
 }
 
-
 // -------------------------------------------------------------------------------
 void
 read_object_track_set_kw18
-::set_configuration(vital::config_block_sptr config)
+::set_configuration( vital::config_block_sptr config )
 {
   d->m_delim = config->get_value<std::string>( "delimiter", d->m_delim );
   d->m_batch_load = config->get_value<bool>( "batch_load", d->m_batch_load );
 }
 
-
 // -------------------------------------------------------------------------------
 bool
 read_object_track_set_kw18
-::check_configuration( vital::config_block_sptr config ) const
+::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
 {
   return true;
 }
-
 
 // -------------------------------------------------------------------------------
 bool
 read_object_track_set_kw18
 ::read_set( vital::object_track_set_sptr& set )
 {
-  if( d->m_first )
+  auto const first = d->m_first;
+  if( first )
   {
     // Read in all detections
     d->read_all();
@@ -149,14 +119,19 @@ read_object_track_set_kw18
 
   if( d->m_batch_load )
   {
-    std::vector< vital::track_sptr > trks;
-
-    for( auto it = d->m_all_tracks.begin(); it != d->m_all_tracks.end(); ++it )
+    if ( !first )
     {
-      trks.push_back( it->second );
+      return false;
     }
 
-    set = vital::object_track_set_sptr( new vital::object_track_set( trks ) );
+    std::vector< vital::track_sptr > trks;
+
+    for( auto const& it : d->m_all_tracks )
+    {
+      trks.push_back( it.second );
+    }
+
+    set = std::make_shared< vital::object_track_set >( trks );
     return true;
   }
 
@@ -181,7 +156,6 @@ read_object_track_set_kw18
   // Return if we are done parsing
   return this->at_eof();
 }
-
 
 // -------------------------------------------------------------------------------
 void
@@ -211,7 +185,7 @@ read_object_track_set_kw18::priv
       str << "This is not a kw18 kw19 or kw20 file; found "
           << col.size() << " columns in\n\"" << line << "\"";
 
-      throw vital::invalid_data( str.str() );
+      VITAL_THROW( vital::invalid_data, str.str() );
     }
 
     /*

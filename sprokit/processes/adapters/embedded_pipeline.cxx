@@ -39,16 +39,15 @@
 #include <vital/config/config_block.h>
 #include <vital/logger/logger.h>
 #include <vital/plugin_loader/plugin_manager.h>
+#include <vital/vital_config.h>
 
 #include <sprokit/pipeline_util/pipeline_builder.h>
 #include <sprokit/pipeline/pipeline.h>
 #include <sprokit/pipeline/datum.h>
 #include <sprokit/pipeline/scheduler.h>
 #include <sprokit/pipeline/scheduler_factory.h>
-
 #include <sprokit/processes/adapters/input_adapter.h>
 #include <sprokit/processes/adapters/input_adapter_process.h>
-
 #include <sprokit/processes/adapters/output_adapter.h>
 #include <sprokit/processes/adapters/output_adapter_process.h>
 
@@ -78,10 +77,6 @@ public:
   // -- CONSTRUCTORS --
   priv()
     : m_logger( kwiver::vital::get_logger( "sprokit.embedded_pipeline" ))
-    , m_at_end( false )
-    , m_stop_flag( false )
-    , m_input_adapter_connected( false )
-    , m_output_adapter_connected( false )
   { }
 
 
@@ -105,10 +100,10 @@ public:
 
 //---------------------------
   vital::logger_handle_t m_logger;
-  bool m_at_end;
-  bool m_stop_flag;
-  bool m_input_adapter_connected;
-  bool m_output_adapter_connected;
+  bool m_at_end {false};
+  bool m_stop_flag {false};
+  bool m_input_adapter_connected {false};
+  bool m_output_adapter_connected {false};
 
   kwiver::input_adapter m_input_adapter;
   kwiver::output_adapter m_output_adapter;
@@ -221,7 +216,7 @@ embedded_pipeline
       m_priv->m_hooks.reset( ifact.create( ext_name ) );
 
       // Merge pipe config into plugin default config so we pick up
-      // the values that are expected but not specified.
+      // the values that are expected but not specified. (i.e. default values)
       epx_config = epx_config->subblock( ext_name ); // Get implementation subblock
       auto def_config = m_priv->m_hooks->get_configuration();
       def_config->merge_config( epx_config );
@@ -235,7 +230,7 @@ embedded_pipeline
   }
 
   // perform setup operation on pipeline and get it ready to run
-  // This throws many exceptions
+  // This throws many exceptions.
   try
   {
     m_priv->m_pipeline->setup_pipeline();
@@ -269,12 +264,13 @@ embedded_pipeline
   // Determine if new scheduler type has been specified in the config
   sprokit::scheduler::type_t scheduler_type =
     m_priv->m_pipe_config->get_value(
-      scheduler_block + kwiver::vital::config_block::block_sep + "type",  // key string
+      scheduler_block + kwiver::vital::config_block::block_sep() + "type",  // key string
       sprokit::scheduler_factory::default_type ); // default value
 
   // Get config sub block based on selected scheduler type from the main config
   m_priv->m_scheduler_config = m_priv->m_pipe_config->subblock(scheduler_block +
-                          kwiver::vital::config_block::block_sep + scheduler_type);
+                          kwiver::vital::config_block::block_sep() +
+                          scheduler_type);
 
   // Create the scheduler and attach the already built pipeline
   m_priv->m_scheduler = sprokit::create_scheduler(scheduler_type,
@@ -416,9 +412,6 @@ embedded_pipeline
   // Note: Can throws stop_before_start_exception Thrown when the
   // scheduler has not been started
   m_priv->m_scheduler->stop();
-
-  // Wait for scheduler to terminate.
-  m_priv->m_scheduler->wait();
 }
 
 
@@ -489,7 +482,7 @@ embedded_pipeline
 // ----------------------------------------------------------------------------
 void
 embedded_pipeline::
-update_config( kwiver::vital::config_block_sptr config )
+update_config( VITAL_UNUSED kwiver::vital::config_block_sptr config )
 {
 }
 

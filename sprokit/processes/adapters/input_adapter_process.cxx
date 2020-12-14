@@ -77,16 +77,16 @@ kwiver::adapter::ports_info_t
 input_adapter_process
 ::get_ports()
 {
-  kwiver::adapter::ports_info_t port_info;
+  kwiver::adapter::ports_info_t p_info;
 
   // formulate list of current input ports
   auto ports = this->output_ports();
   for( auto port : ports )
   {
-    port_info[port] = this->input_port_info( port );
+    p_info[port] = this->input_port_info( port );
   }
 
-  return port_info;
+  return p_info;
 }
 
 
@@ -99,6 +99,7 @@ input_adapter_process
   if ( m_active_ports.count( port ) == 0 )
   {
     port_flags_t p_flags;
+    p_flags.insert( flag_required );
 
     if ( port[0] != '_' ) // skip special ports (e.g. _heartbeat)
     {

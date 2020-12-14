@@ -37,6 +37,7 @@
 #include <vital/plugin_loader/plugin_manager.h>
 #include <vital/util/string.h>
 #include <vital/optional.h>
+#include <vital/vital_config.h>
 
 #include <boost/assign/ptr_map_inserter.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
@@ -65,7 +66,7 @@ static kwiver::vital::config_block_key_t const instrumentation_block_key =
   kwiver::vital::config_block_key_t("_instrumentation");
 static kwiver::vital::config_block_key_t const instrumentation_type_key =
   kwiver::vital::config_block_key_t(instrumentation_block_key
-                                    + kwiver::vital::config_block::block_sep + "type" );
+                              + kwiver::vital::config_block::block_sep() + "type" );
 
 process::property_t const process::property_no_threads = property_t("_no_thread");
 process::property_t const process::property_no_reentrancy = property_t("_no_reentrant");
@@ -82,7 +83,7 @@ kwiver::vital::config_block_key_t const process::config_type = kwiver::vital::co
 process::port_type_t const process::type_any = port_type_t("_any");
 process::port_type_t const process::type_none = port_type_t("_none");
 process::port_type_t const process::type_data_dependent = port_type_t("_data_dependent");
-process::port_type_t const process::type_flow_dependent = port_type_t("_flow_dependent/");
+process::port_type_t const process::type_flow_dependent = port_type_t("_flow_dependent/"); // Trailing '/' is important
 process::port_flag_t const process::flag_output_const = port_flag_t("_const");
 process::port_flag_t const process::flag_output_shared = port_flag_t("_shared");
 process::port_flag_t const process::flag_input_static = port_flag_t("_static");
@@ -356,17 +357,27 @@ process
   {
     datum_t const dat = d->check_required_input();
 
-    // If a non-data datum is in the inputs (these are empty, flush, complete, error, invalid)
-    // then propagate these controls to all output ports.
+    // If a non-data datum is in the inputs (these are empty, flush,
+    // complete, error, invalid) then propagate these controls to all
+    // output ports.
+    //
+    // This implements the "check_valid" semantics of supplying a
+    // datum if needed.
     if (dat)
     {
+      // Absorb the current input from all input ports
       d->grab_from_input_edges();
+
+      // Force this type of datum to all output ports to indicate
+      // condition to downstream processes
       d->push_to_output_edges(dat);
 
       complete = (dat->type() == datum::complete);
     }
     else
     {
+      // Null pointer returned - required data is present on ports
+      //
       // We don't want to reconfigure while the subclass is running. Since the
       // base class shouldn't be messing with while configuring, we only need to
       // lock around the base class _step method call.
@@ -382,11 +393,14 @@ process
 
   /// \todo Are there any post-_step actions?
 
+  // Send current process status to the scheduler.
   d->run_heartbeat();
 
   /// \todo Should this really be done here?
   if (complete || d->required_outputs_done())
   {
+    _finalize();
+
     mark_process_as_complete();
   }
 }
@@ -604,6 +618,17 @@ process
 
 
 // ------------------------------------------------------------------
+kwiver::vital::config_difference
+process
+::config_diff() const
+{
+  auto avail_conf = available_config();
+  //                                       ref-config  supplied-conf
+  return kwiver::vital::config_difference( avail_conf, d->conf );
+}
+
+
+// ------------------------------------------------------------------
 process::name_t
 process
 ::name() const
@@ -664,8 +689,9 @@ process
     if (instr_prov != "none" )
     {
       // Get instrumentation interface
-      kwiver::vital::config_block_sptr instr_block = d->conf->subblock_view( instrumentation_block_key
-                                    + kwiver::vital::config_block::block_sep + instr_prov );
+      kwiver::vital::config_block_sptr instr_block =
+        d->conf->subblock_view( instrumentation_block_key
+                    + kwiver::vital::config_block::block_sep() + instr_prov );
 
       instrumentation_factory ifact;
       d->m_proc_instrumentation.reset( ifact.create( instr_prov ) );
@@ -727,6 +753,14 @@ process
 void
 process
 ::_step()
+{
+}
+
+
+// ------------------------------------------------------------------
+void
+process
+::_finalize()
 {
 }
 
@@ -799,7 +833,7 @@ process
 // ------------------------------------------------------------------
 void
 process
-::input_port_undefined( port_t const& port )
+::input_port_undefined( VITAL_UNUSED port_t const& port )
 {
 }
 
@@ -833,7 +867,7 @@ process
 // ------------------------------------------------------------------
 void
 process
-::output_port_undefined( port_t const& port )
+::output_port_undefined( VITAL_UNUSED port_t const& port )
 {
 }
 
@@ -866,6 +900,8 @@ process
 
     if (!tag.empty())
     {
+      // Scan all ports and force this data type on those with the
+      // current tag.
       ports_t const& iports = d->input_flow_tag_ports[tag];
 
       for (port_t const& iport : iports)
@@ -894,6 +930,7 @@ process
           oport_info->frequency);
       }
 
+      // Save the data type assigned to this tag
       d->flow_tag_port_types[tag] = new_type;
 
       return true;
@@ -934,12 +971,17 @@ process
                  name(), port, old_type, new_type);
   }
 
+  // If data type is flow dependent, set the port type now based on
+  // the data type we have been passed.
   if (is_flow_dependent)
   {
+    // Check to see if there is a tag supplied
     priv::tag_t const tag = d->port_flow_tag_name(old_type);
 
     if (!tag.empty())
     {
+      // Since there are other ports with the same tag, force the data
+      // type for all these ports at this time.
       ports_t const& iports = d->input_flow_tag_ports[tag];
 
       for (port_t const& iport : iports)
@@ -948,12 +990,13 @@ process
 
         declare_input_port(
           iport,
-          new_type,
+          new_type, // <- new type
           iport_info->flags,
           iport_info->description,
           iport_info->frequency);
       }
 
+      // Output ports can share a tag with the input ports.
       ports_t const& oports = d->output_flow_tag_ports[tag];
 
       for (port_t const& oport : oports)
@@ -962,18 +1005,20 @@ process
 
         declare_output_port(
           oport,
-          new_type,
+          new_type, // <- new type
           oport_info->flags,
           oport_info->description,
           oport_info->frequency);
       }
 
+      // Save the data type that corresponds to this tag
       d->flow_tag_port_types[tag] = new_type;
 
       return true;
     }
-  }
+  } // end flow dependent
 
+  // Not flow dependent. use type as supplied for this port only
   declare_output_port(
     port,
     new_type,
@@ -1130,12 +1175,19 @@ process
 
   priv::tag_t const tag = d->port_flow_tag_name(port_type);
 
+  // This may look like an infinite loop, but when the port is
+  // declared below, there is no tag specification
   if (!tag.empty())
   {
+    // Add to list of ports that are using the tag
     d->output_flow_tag_ports[tag].push_back(port);
 
+    // Add to list for lookup of tag by port name
     d->output_port_tags[port] = tag;
 
+    // If there is a type already assigned to this tag, then create
+    // the port now. The tags are assigned a type during the later
+    // connect phase.
     if (d->flow_tag_port_types[tag])
     {
       port_type_t const& tag_type = *d->flow_tag_port_types[tag];
@@ -1903,6 +1955,7 @@ void process::stop_ ## N ## _processing()                               \
 }
 
 INSTR( init )
+INSTR( finalize )
 INSTR( reset )
 INSTR( flush )
 INSTR( step )
@@ -1948,6 +2001,13 @@ process::priv
 
 
 // ------------------------------------------------------------------
+/*
+ * This method puts a status packet on the hearbeat output port to
+ * indicate the status of this process to the scheduler. If a
+ * "complete" datum is encountered on this port by the scheduler, this
+ * process is considered no longer runnable and never gets stepped
+ * again.
+ */
 void
 process::priv
 ::run_heartbeat()
@@ -2025,18 +2085,25 @@ process::priv
  * level of checking required.
  *
  * @return Null datum_t if data is on the *required* input ports.
+ * Error datum is returned if error condition is fount
  */
 datum_t
 process::priv
 ::check_required_input()
 {
+  // If this is "check_none" mode, then it's the wild west.
+  // Any synchronization has to be done by the process.
   if ((check_input_level == check_none) ||
       required_inputs.empty())
   {
     return datum_t();
   }
 
+  // collection of the first datum from each required input port
   edge_data_t first_data;
+
+  // collection of all datum from all input ports for the first cycle,
+  // based on the frequency.
   edge_data_t data;
 
   // Loop over all required ports
@@ -2044,6 +2111,10 @@ process::priv
   {
     input_edge_map_t::const_iterator const i = input_edges.find(port);
 
+    // If port not found as an input edge. Port has been declared but
+    // not connected. This is unexpected since the pipeline builder
+    // requires that all "required" input ports be connected to
+    // another port.
     if (i == input_edges.end())
     {
       continue;
@@ -2066,7 +2137,8 @@ process::priv
     }
 
     // Since the top element in the edge was not flush or complete,
-    // look through the rest of the input on this edge.
+    // (it must be real data) look through the rest of the input on
+    // this edge.
     port_info_t const& port_info = q->input_port_info(port);
     port_frequency_t const& freq = port_info->frequency;
 
@@ -2079,10 +2151,13 @@ process::priv
 
       data.push_back(edat);
     }
-  } // end foreach port
+  } // end foreach required port
 
+  // Analyze the first data items on all required input ports
   data_info_t const first_info = edge_data_info(first_data);
 
+  // If just synchronization is required, throw an error if there is a
+  // synchronization problem.
   if (check_sync <= check_input_level)
   {
     if (!first_info->in_sync)
@@ -2097,15 +2172,21 @@ process::priv
     stamp_for_inputs = edat.stamp;
   }
 
+  // If we are not in "check_valid" mode, then no further checking is
+  // needed. Inputs are good.
   if (check_input_level < check_valid)
   {
     return datum_t();
   }
 
+  // Processing for "check_valid" mode
+  //
+  // Get status of all incoming packets.
   data_info_t const info = edge_data_info(data);
 
   switch (info->max_status)
   {
+    // Data is available for all ports
     case datum::data:
       break;
 
@@ -2225,6 +2306,12 @@ process::priv
 
 
 // ------------------------------------------------------------------
+/*
+ * This method checks to make sure that all required output ports have
+ * been marked as complete. They are marked complete by the receiving
+ * process (i.e. downstream process) when the process has compleated
+ * and is no longer running.
+ */
 bool
 process::priv
 ::required_outputs_done() const
@@ -2242,6 +2329,7 @@ process::priv
   {
     output_edge_map_t::const_iterator const i = output_edges.find(port);
 
+    // Output port not found.
     if (i == output_edges.end())
     {
       continue;
@@ -2256,6 +2344,7 @@ process::priv
     output_port_info_t const& info = *i->second;
     edges_t const& edges = info.edges;
 
+    // check all connections to this output port.
     for (edge_t const& edge : edges)
     {
       // If any required edge is not complete, then return false.
@@ -2263,14 +2352,17 @@ process::priv
       {
         return false;
       }
-    }
-  }
+    } // end for
+  } // end for
 
   return true;
 }
 
 
 // ------------------------------------------------------------------
+/* Return tag name if flow dependent port.
+ * Return empty string if there is no tag.
+ */
 process::priv::tag_t
 process::priv
 ::port_flow_tag_name(port_type_t const& port_type) const
@@ -2285,6 +2377,10 @@ process::priv
 
 
 // ------------------------------------------------------------------
+/*
+ * If there are no ports that are associated with the supplied tag,
+ * then erase the entry.
+ */
 void
 process::priv
 ::check_tag(tag_t const& tag)

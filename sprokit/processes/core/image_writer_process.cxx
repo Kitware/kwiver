@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016-2019 by Kitware, Inc.
+ * Copyright 2016-2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -125,23 +125,24 @@ void image_writer_process
   d->m_file_template = config_value_using_trait( file_name_template );
 
   // Get algo config entries
-  kwiver::vital::config_block_sptr algo_config = get_config();
+  kwiver::vital::config_block_sptr algo_config = get_config(); // config for process
 
-  algo::image_io::set_nested_algo_configuration(
-    "image_writer", algo_config, d->m_image_writer);
-
-  if( !d->m_image_writer )
+  algo::image_io::set_nested_algo_configuration_using_trait(
+    image_writer,
+    algo_config,
+    d->m_image_writer);
+  if ( ! d->m_image_writer )
   {
-    throw sprokit::invalid_configuration_exception( name(),
-      "Unable to create image_writer." );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(),
+             "Unable to create image_writer." );
   }
 
   // instantiate image reader and converter based on config type
-  if( !algo::image_io::check_nested_algo_configuration(
-    "image_writer", algo_config ) )
+  if ( ! algo::image_io::check_nested_algo_configuration_using_trait(
+         image_writer,
+         algo_config ) )
   {
-    throw sprokit::invalid_configuration_exception( name(),
-      "Configuration check failed." );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 }
 

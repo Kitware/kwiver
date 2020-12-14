@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2016 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -37,9 +11,11 @@
 
 #include <arrows/ceres/camera_smoothness.h>
 #include <arrows/ceres/camera_position.h>
+#include <arrows/ceres/camera_intrinsic_prior.h>
+
+#include <vital/math_constants.h>
 
 using namespace kwiver::vital;
-
 
 namespace kwiver {
 namespace arrows {
@@ -58,7 +34,6 @@ solver_options
   : options( other.options )
 {
 }
-
 
 /// populate the config block with options
 void
@@ -93,8 +68,11 @@ solver_options
   config->set_value("dogleg_type", o.dogleg_type,
                     "Dogleg strategy to use."
                     + ceres_options< ::ceres::DoglegType >());
+  config->set_value("update_state_every_iteration", o.update_state_every_iteration,
+                    "If true, the updated state is computed and provided in "
+                    "the callback on every iteration.  This slows down "
+                    "optimization but can be useful for debugging.");
 }
-
 
 /// set the member variables from the config block
 void
@@ -114,11 +92,10 @@ solver_options
   GET_VALUE(::ceres::PreconditionerType, preconditioner_type);
   GET_VALUE(::ceres::TrustRegionStrategyType, trust_region_strategy_type);
   GET_VALUE(::ceres::DoglegType, dogleg_type);
+  GET_VALUE(bool, update_state_every_iteration);
 
 #undef GET_VALUE
 }
-
-
 
 /// Constructor
 camera_options
@@ -135,7 +112,8 @@ camera_options
     optimize_dist_k4_k5_k6(false),
     camera_intrinsic_share_type(AUTO_SHARE_INTRINSICS),
     camera_path_smoothness(0.0),
-    camera_forward_motion_damping(0.0)
+    camera_forward_motion_damping(0.0),
+    minimum_hfov(0.0)
 {
 }
 
@@ -154,10 +132,10 @@ camera_options
     optimize_dist_k4_k5_k6(other.optimize_dist_k4_k5_k6),
     camera_intrinsic_share_type(other.camera_intrinsic_share_type),
     camera_path_smoothness(other.camera_path_smoothness),
-    camera_forward_motion_damping(other.camera_forward_motion_damping)
+    camera_forward_motion_damping(other.camera_forward_motion_damping),
+    minimum_hfov(other.minimum_hfov)
 {
 }
-
 
 /// populate the config block with options
 void
@@ -205,8 +183,13 @@ camera_options
                     "distances.  It causes the algorithm to prefer focal length change "
                     "over fast motion along the principal ray. "
                     "If set to zero the regularization is disabled.");
+  config->set_value("minimum_hfov", this->minimum_hfov,
+                    "A soft lower bound on the minimum horizontal field of "
+                    "view in degrees. This generates a soft upper bound on "
+                    "focal length if set greater than zero. If the focal "
+                    "length exceeds this limit it will incur a quadratic "
+                    "penalty.");
 }
-
 
 /// set the member variables from the config block
 void
@@ -229,9 +212,9 @@ camera_options
   GET_VALUE(ceres::CameraIntrinsicShareType, camera_intrinsic_share_type);
   GET_VALUE(double, camera_path_smoothness);
   GET_VALUE(double, camera_forward_motion_damping);
+  GET_VALUE(double, minimum_hfov);
 #undef GET_VALUE
 }
-
 
 /// Return true if any options to optimize intrinsic parameters are set
 bool
@@ -267,7 +250,6 @@ camera_options
   }
   return false;
 }
-
 
 /// enumerate the intrinsics held constant
 std::vector<int>
@@ -322,7 +304,6 @@ camera_options
   return constant_intrinsics;
 }
 
-
 /// extract the extrinsic paramters from a camera into the parameter array
 void
 camera_options
@@ -335,7 +316,6 @@ camera_options
   std::copy(center.data(), center.data()+3, params+3);
 }
 
-
 /// Update a camera object to use extrinsic parameters from an array
 void
 camera_options
@@ -345,7 +325,6 @@ camera_options
   camera->set_rotation(rotation_d(vector_3d(Eigen::Map<const vector_3d>(params))));
   camera->set_center(Eigen::Map<const vector_3d>(&params[3]));
 }
-
 
 /// extract the paramters from camera intrinsics into the parameter array
 void
@@ -369,7 +348,6 @@ camera_options
   }
 }
 
-
 /// update the camera intrinsics from a parameter array
 void
 camera_options
@@ -391,7 +369,6 @@ camera_options
     K->set_dist_coeffs(dc);
   }
 }
-
 
 /// extract the set of all unique intrinsic and extrinsic parameters from a camera map
 void
@@ -444,7 +421,6 @@ camera_options
     }
   }
 }
-
 
 /// update the camera objects using the extracted camera parameters
 void
@@ -503,7 +479,7 @@ camera_options
     return num_priors_applied;
   }
 
-  ::ceres::LossFunction *loss = LossFunctionFactory(SOFT_L_ONE_LOSS, 10.0);
+  ::ceres::LossFunction *loss = LossFunctionFactory(SOFT_L_ONE_LOSS, 100.0);
 
   for (auto& ext_par : ext_params)
   {
@@ -535,77 +511,142 @@ camera_options
   return num_priors_applied;
 }
 
+/// Add the camera intrinsic priors costs to the Ceres problem
+void
+camera_options
+::add_intrinsic_priors_cost(
+  ::ceres::Problem& problem,
+  std::vector<std::vector<double> >& int_params) const
+{
+  if (this->minimum_hfov <= 0.0)
+  {
+    return;
+  }
+  // scaling balances the response based on the number of other residuals.
+  double scale = static_cast<double>(std::max(1, problem.NumResiduals()));
+  auto scaled_loss = new ::ceres::ScaledLoss(NULL, scale,
+                           ::ceres::Ownership::TAKE_OWNERSHIP);
+  for (auto& int_par : int_params)
+  {
+    // assume image width is twice the principal point X coordinate
+    double width = 2.0 * int_par[1];
+    if (width <= 0.0)
+    {
+      width = 1280.0;
+    }
+    double max_focal_len = width / (2.0 * std::tan(this->minimum_hfov * kwiver::vital::deg_to_rad / 2.0));
+    auto cam_intrin_prior_cost =
+      camera_intrinsic_prior::create(max_focal_len, int_par.size());
+
+    double* foc_len = &int_par[0];
+    // add the loss with squared error
+    problem.AddResidualBlock(cam_intrin_prior_cost,
+                             scaled_loss,
+                             foc_len);
+  }
+}
+
 /// Add the camera path smoothness costs to the Ceres problem
 void
 camera_options
-::add_camera_path_smoothness_cost(::ceres::Problem& problem,
-                                  cam_param_map_t& ext_params) const
+::add_camera_path_smoothness_cost(
+    ::ceres::Problem& problem,
+    frame_params_t const& ordered_params) const
 {
   // Add camera path regularization residuals
   if( this->camera_path_smoothness > 0.0 &&
-      ext_params.size() >= 3 )
+      ordered_params.size() >= 3 )
   {
-    ::ceres::CostFunction* smoothness_cost = NULL;
-    typedef cam_param_map_t::iterator cp_itr_t;
-    cp_itr_t prev_cam = ext_params.begin();
-    cp_itr_t curr_cam = prev_cam;
+    double sum_dist = 0.0;
+    auto prev_cam = ordered_params.begin();
+    auto curr_cam = prev_cam;
     curr_cam++;
-    cp_itr_t next_cam = curr_cam;
+    auto next_cam = curr_cam;
     next_cam++;
-    for(; next_cam != ext_params.end();
+    std::vector<std::tuple<decltype(curr_cam), double, double> > constraints;
+    for(; next_cam != ordered_params.end();
         prev_cam = curr_cam, curr_cam = next_cam, next_cam++)
     {
-      if(std::abs(prev_cam->first - curr_cam->first) == 1 &&
-         std::abs(curr_cam->first - next_cam->first) == 1 )
+      double inv_dist = 1.0 / static_cast<double>(next_cam->first -
+                                                  prev_cam->first);
+      double frac = (curr_cam->first - prev_cam->first) * inv_dist;
+      if (inv_dist > 0.0 && frac > 0.0 && frac < 1.0 )
       {
-        if(!smoothness_cost)
-        {
-          smoothness_cost =
-            camera_position_smoothness::create(this->camera_path_smoothness);
-        }
-        problem.AddResidualBlock(smoothness_cost,
-                                 NULL,
-                                 &prev_cam->second[0],
-                                 &curr_cam->second[0],
-                                 &next_cam->second[0]);
+        sum_dist += (Eigen::Map<vector_3d>(prev_cam->second+3) -
+                     Eigen::Map<vector_3d>(next_cam->second+3)).norm();
+        constraints.push_back(std::make_tuple(curr_cam, inv_dist, frac));
       }
+    }
+    // Normalize the weight
+    const double weight = this->camera_path_smoothness
+                        * problem.NumResiduals();
+    const double scale = constraints.size() / sum_dist;
+    auto scaled_loss = new ::ceres::ScaledLoss(NULL, weight,
+                           ::ceres::Ownership::TAKE_OWNERSHIP);
+    for (auto const& t : constraints)
+    {
+      auto cam_itr = std::get<0>(t);
+      const double s = scale * std::get<1>(t);
+      ::ceres::CostFunction* smoothness_cost  =
+        camera_position_smoothness::create(s, std::get<2>(t));
+      problem.AddResidualBlock(smoothness_cost,
+                               scaled_loss,
+                               (cam_itr-1)->second,
+                               cam_itr->second,
+                               (cam_itr+1)->second);
     }
   }
 }
 
-
 /// Add the camera forward motion damping costs to the Ceres problem
 void
 camera_options
-::add_forward_motion_damping_cost(::ceres::Problem& problem,
-                                  cam_param_map_t& ext_params,
-                                  cam_intrinsic_id_map_t const& frame_to_intr_map) const
+::add_forward_motion_damping_cost(
+    ::ceres::Problem& problem,
+    frame_params_t const& ordered_params,
+    cam_intrinsic_id_map_t const& frame_to_intr_map) const
 {
   if( this->camera_forward_motion_damping > 0.0 &&
-      ext_params.size() >= 2 )
+      ordered_params.size() >= 2 )
   {
-    ::ceres::CostFunction* fwd_mo_cost =
-      camera_limit_forward_motion::create(this->camera_forward_motion_damping);
-    typedef cam_param_map_t::iterator cp_itr_t;
-    cp_itr_t prev_cam = ext_params.begin();
-    cp_itr_t curr_cam = prev_cam;
+    double sum_dist = 0.0;
+    auto prev_cam = ordered_params.begin();
+    auto curr_cam = prev_cam;
     curr_cam++;
-    for(; curr_cam != ext_params.end();
-        prev_cam = curr_cam, curr_cam++)
+    std::vector<decltype(curr_cam) > constraints;
+    for (; curr_cam != ordered_params.end();
+           prev_cam = curr_cam, curr_cam++)
     {
       // add a forward motion residual only when the camera intrinsic models
       // are not the same instance
       auto prev_idx = frame_to_intr_map.find(prev_cam->first);
       auto curr_idx = frame_to_intr_map.find(curr_cam->first);
-      if(prev_idx != frame_to_intr_map.end() &&
-         curr_idx != frame_to_intr_map.end() &&
-         prev_idx->second != curr_idx->second)
+      if (prev_idx != frame_to_intr_map.end() &&
+          curr_idx != frame_to_intr_map.end() &&
+          prev_idx->second != curr_idx->second)
       {
-        problem.AddResidualBlock(fwd_mo_cost,
-                                 NULL,
-                                 &prev_cam->second[0],
-                                 &curr_cam->second[0]);
+        sum_dist += (Eigen::Map<vector_3d>(prev_cam->second + 3) -
+                     Eigen::Map<vector_3d>(curr_cam->second + 3)).norm();
+        constraints.push_back(curr_cam);
       }
+    }
+    // Normalize the weight
+    const double weight = this->camera_forward_motion_damping
+                        * problem.NumResiduals();
+    const double scale = constraints.size() / sum_dist;
+    auto scaled_loss = new ::ceres::ScaledLoss(NULL, weight,
+                           ::ceres::Ownership::TAKE_OWNERSHIP);
+    for (auto curr_constraint : constraints)
+    {
+      auto prev_constraint = curr_constraint - 1;
+      double inv_dist = 1.0 / static_cast<double>(curr_constraint->first -
+                                                  prev_constraint->first);
+      ::ceres::CostFunction* fwd_mo_cost =
+        camera_limit_forward_motion::create(scale * inv_dist);
+      problem.AddResidualBlock(fwd_mo_cost,
+                               scaled_loss,
+                               prev_constraint->second,
+                               curr_constraint->second);
     }
   }
 }

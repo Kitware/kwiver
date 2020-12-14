@@ -1,37 +1,13 @@
-/*ckwg +29
- * Copyright 2017-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include "darknet_trainer.h"
 #include "darknet_custom_resize.h"
 
 #include <vital/util/cpu_timer.h>
+#include <vital/types/detected_object_set_util.h>
+#include <vital/vital_config.h>
 
 #include <arrows/ocv/image_container.h>
 #include <kwiversys/SystemTools.hxx>
@@ -39,11 +15,6 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
-
-#include <boost/filesystem.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
 
 #include <string>
 #include <sstream>
@@ -120,7 +91,6 @@ public:
   kwiver::vital::logger_handle_t m_logger;
 };
 
-
 // =============================================================================
 darknet_trainer::
 darknet_trainer()
@@ -132,7 +102,6 @@ darknet_trainer::
 ~darknet_trainer()
 {
 }
-
 
 // -----------------------------------------------------------------------------
 vital::config_block_sptr
@@ -178,7 +147,6 @@ get_configuration() const
   return config;
 }
 
-
 // -----------------------------------------------------------------------------
 void
 darknet_trainer::
@@ -206,7 +174,6 @@ set_configuration( vital::config_block_sptr config_in )
   this->d->m_crop_left   = config->get_value< bool >( "crop_left" );
 }
 
-
 // -----------------------------------------------------------------------------
 bool
 darknet_trainer::
@@ -223,7 +190,6 @@ check_configuration( vital::config_block_sptr config ) const
   return true;
 }
 
-
 // -----------------------------------------------------------------------------
 void
 darknet_trainer::
@@ -238,14 +204,13 @@ train_from_disk(
   if( !d->m_skip_format )
   {
     // Delete and reset folder contents
-    if( boost::filesystem::exists( d->m_train_directory ) &&
-        boost::filesystem::is_directory( d->m_train_directory ) )
+    if( kwiversys::SystemTools::FileExists( d->m_train_directory, false ) &&
+        kwiversys::SystemTools::FileIsDirectory( d->m_train_directory ) )
     {
-      boost::filesystem::remove_all( d->m_train_directory );
+      kwiversys::SystemTools::RemoveADirectory( d->m_train_directory );
     }
 
-    boost::filesystem::path dir( d->m_train_directory );
-    boost::filesystem::create_directories( dir );
+    kwiversys::SystemTools::MakeDirectory( d->m_train_directory );
 
     // Format train images
     std::vector< std::string > train_list, test_list;
@@ -289,7 +254,7 @@ train_from_disk(
 #else
   std::string darknet_cmd = "darknet";
 #endif
-  std::string darknet_args = "-i " + boost::lexical_cast< std::string >( d->m_gpu_index ) +
+  std::string darknet_args = "-i " + std::to_string( d->m_gpu_index ) +
     " detector train " + d->m_train_directory + "/yolo_v2.data "
                        + d->m_train_directory + "/yolo_v2.cfg ";
 
@@ -321,11 +286,8 @@ format_images( std::string folder, std::string prefix,
   std::string image_folder = folder + "/" + prefix + "_images";
   std::string label_folder = folder + "/" + prefix + "_labels";
 
-  boost::filesystem::path image_dir( image_folder );
-  boost::filesystem::path label_dir( label_folder );
-
-  boost::filesystem::create_directories( image_dir );
-  boost::filesystem::create_directories( label_dir );
+  kwiversys::SystemTools::MakeDirectory( image_folder );
+  kwiversys::SystemTools::MakeDirectory( label_folder );
 
   for( unsigned fid = 0; fid < image_names.size(); ++fid )
   {
@@ -355,7 +317,7 @@ format_images( std::string folder, std::string prefix,
     {
       resized_scale = format_image( original_image, resized_image,
         m_resize_option, m_scale, m_resize_i, m_resize_j );
-      scaled_detections_ptr->scale( resized_scale );
+      scale_detections( scaled_detections_ptr, resized_scale );
     }
     else
     {
@@ -429,7 +391,7 @@ format_images( std::string folder, std::string prefix,
           scaled_original, m_resize_i, m_resize_j );
 
         kwiver::vital::detected_object_set_sptr scaled_original_dets_ptr = groundtruth[fid]->clone();
-        scaled_original_dets_ptr->scale( scaled_original_scale );
+        scale_detections( scaled_original_dets_ptr, scaled_original_scale );
 
         std::string img_file, gt_file;
         generate_fn( image_folder, label_folder, img_file, gt_file );
@@ -500,11 +462,11 @@ print_detections(
 
       std::string line = category + " ";
 
-      line += boost::lexical_cast< std::string >( 0.5 * ( min_x + max_x ) / width ) + " ";
-      line += boost::lexical_cast< std::string >( 0.5 * ( min_y + max_y ) / height ) + " ";
+      line += std::to_string( 0.5 * ( min_x + max_x ) / width ) + " ";
+      line += std::to_string( 0.5 * ( min_y + max_y ) / height ) + " ";
 
-      line += boost::lexical_cast< std::string >( overlap.width() / width ) + " ";
-      line += boost::lexical_cast< std::string >( overlap.height() / height );
+      line += std::to_string( overlap.width() / width ) + " ";
+      line += std::to_string( overlap.height() / height );
 
       to_write.push_back( line );
     }
@@ -529,7 +491,8 @@ print_detections(
 void
 darknet_trainer::priv::
 generate_fn( std::string image_folder, std::string gt_folder,
-  std::string& image, std::string& gt, const int len )
+             std::string& image, std::string& gt,
+             VITAL_UNUSED const int len )
 {
   static int sample_counter = 0;
 

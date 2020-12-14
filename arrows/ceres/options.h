@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2016 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -45,11 +19,9 @@
 
 #include <unordered_map>
 
-
 namespace kwiver {
 namespace arrows {
 namespace ceres {
-
 
 /// Ceres solver options class
 /**
@@ -75,7 +47,6 @@ public:
   ::ceres::Solver::Options options;
 };
 
-
 /// Camera options class
 /**
  * The intended use of this class is for a PIMPL for an algorithm to
@@ -87,6 +58,7 @@ public:
   /// typedef for camera parameter map
   typedef std::unordered_map<vital::frame_id_t, std::vector<double> > cam_param_map_t;
   typedef std::unordered_map<vital::frame_id_t, unsigned int> cam_intrinsic_id_map_t;
+  typedef std::vector<std::pair<vital::frame_id_t, double *> > frame_params_t;
 
   /// Constructor
   camera_options();
@@ -181,20 +153,27 @@ public:
                            std::vector<std::vector<double> > const& int_params,
                            cam_intrinsic_id_map_t const& int_map) const;
 
-
+  /// Add the camera position priors costs to the Ceres problem
   int
   add_position_prior_cost(::ceres::Problem& problem,
                           cam_param_map_t& ext_params,
                           vital::sfm_constraints_sptr constraints);
 
+  /// Add the camera intrinsic priors costs to the Ceres problem
+  void add_intrinsic_priors_cost(
+    ::ceres::Problem& problem,
+    std::vector<std::vector<double> >& int_params) const;
+
   /// Add the camera path smoothness costs to the Ceres problem
-  void add_camera_path_smoothness_cost(::ceres::Problem& problem,
-                                       cam_param_map_t& ext_params) const;
+  void add_camera_path_smoothness_cost(
+    ::ceres::Problem& problem,
+    frame_params_t const& ordered_params) const;
 
   /// Add the camera forward motion damping costs to the Ceres problem
-  void add_forward_motion_damping_cost(::ceres::Problem& problem,
-                                       cam_param_map_t& ext_params,
-                                       cam_intrinsic_id_map_t const& frame_to_intr_map) const;
+  void add_forward_motion_damping_cost(
+    ::ceres::Problem& problem,
+    frame_params_t const& ordered_params,
+    cam_intrinsic_id_map_t const& frame_to_intr_map) const;
 
   /// enumerate the intrinsics held constant
   /**
@@ -243,11 +222,12 @@ public:
   double camera_path_smoothness;
   /// the scale of camera forward motion damping regularization
   double camera_forward_motion_damping;
+  /// a soft lower bound on the horizontal field of view
+  double minimum_hfov;
 };
-
 
 } // end namespace ceres
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_CERES_CAMERA_OPTIONS_H_
+#endif

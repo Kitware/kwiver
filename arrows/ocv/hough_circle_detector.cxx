@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2016 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -35,12 +9,14 @@
 
 #include "hough_circle_detector.h"
 
-#include <vector>
+#include <vital/config/config_difference.h>
 
 #include <arrows/ocv/image_container.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+
+#include <vector>
 
 namespace kwiver {
 namespace arrows {
@@ -77,18 +53,15 @@ public:
 
 }; // end class hough_circle_detector::priv
 
-
   // ==================================================================
 hough_circle_detector::
 hough_circle_detector()
   : d( new priv )
 { }
 
-
  hough_circle_detector::
 ~hough_circle_detector()
 { }
-
 
 // ------------------------------------------------------------------
 vital::config_block_sptr
@@ -126,12 +99,20 @@ get_configuration() const
   return config;
 }
 
-
 // ------------------------------------------------------------------
 void
 hough_circle_detector::
-set_configuration(vital::config_block_sptr config)
+set_configuration(vital::config_block_sptr config_in)
 {
+  // Starting with our generated config_block to ensure that assumed values are present
+  // An alternative is to check for key presence before performing a get_value() call.
+  vital::config_block_sptr config = this->get_configuration();
+
+  kwiver::vital::config_difference cd( config, config_in );
+  cd.warn_extra_keys( logger() );
+
+  config->merge_config( config_in );
+
   d->m_dp         = config->get_value<double>( "dp" );
   d->m_min_dist   = config->get_value<double>( "min_dist" );
   d->m_param1     = config->get_value<double>( "param1" );
@@ -140,15 +121,16 @@ set_configuration(vital::config_block_sptr config)
   d->m_max_radius = config->get_value<int>( "max_radius" );
 }
 
-
 // ------------------------------------------------------------------
 bool
 hough_circle_detector::
-check_configuration(vital::config_block_sptr config) const
+check_configuration(vital::config_block_sptr config_in) const
 {
-  return true;
-}
+  vital::config_block_sptr config = this->get_configuration();
 
+  kwiver::vital::config_difference cd( config, config_in );
+  return ! cd.warn_extra_keys( logger() );
+}
 
 // ------------------------------------------------------------------
 kwiver::vital::detected_object_set_sptr
@@ -158,12 +140,12 @@ detect( vital::image_container_sptr image_data) const
   auto detected_set = std::make_shared< kwiver::vital::detected_object_set>();
 
   using namespace kwiver::arrows::ocv;
-  cv::Mat src = image_container::vital_to_ocv( image_data->get_image(), 
+  cv::Mat src = image_container::vital_to_ocv( image_data->get_image(),
                                                image_container::BGR_COLOR );
   cv::Mat src_gray;
 
   // Convert it to gray
-  cvtColor( src, src_gray, CV_BGR2GRAY );
+  cvtColor( src, src_gray, cv::COLOR_BGR2GRAY );
 
   // Reduce the noise so we avoid false circle detection
   cv::GaussianBlur( src_gray, src_gray, cv::Size( 9, 9 ), 2, 2 );
@@ -173,7 +155,7 @@ detect( vital::image_container_sptr image_data) const
   // Apply the Hough Transform to find the circles
   cv::HoughCircles( src_gray, // i: source image
                     circles, // o: detected circles
-                    CV_HOUGH_GRADIENT, // i: method
+                    cv::HOUGH_GRADIENT, // i: method
                     d->m_dp, // i: dp
                     d->m_min_dist, //+ src_gray.rows / 8, // i: minDist
                     d->m_param1, // i: param1 for canny edge detector

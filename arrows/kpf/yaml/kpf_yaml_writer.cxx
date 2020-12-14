@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2017-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -210,9 +184,10 @@ operator<<( record_yaml_writer& w, const writer< canonical::activity_t >& io )
     w << writer< canonical::eval_t>( e );
   }
 
-  w.oss << "actors: [{ ";
+  w.oss << "actors: [ ";
   for (auto a: act.actors)
   {
+    w.oss << "{ ";
     w.oss << "id" << a.actor_id.domain << ": " << a.actor_id.t.d << ", ";
     w.oss << "timespan: [{ ";
     for (auto t: a.actor_timespan )
@@ -220,9 +195,34 @@ operator<<( record_yaml_writer& w, const writer< canonical::activity_t >& io )
       w.oss << "tsr" << t.domain << ": [" << t.t.start << " , " << t.t.stop << "], ";
     }
     w.oss << " }], ";
+    w.oss << " }, ";
   }
-  w.oss << "}], ";
+  w.oss << "], ";
 
+  return w;
+}
+
+record_yaml_writer&
+operator<<( record_yaml_writer& w, const packet_t& p )
+{
+  auto d = p.header.domain;
+  switch (p.header.style)
+  {
+  case packet_style::META:   w << writer< canonical::meta_t>( p.meta.txt ); break;
+  case packet_style::ID:     w << writer< canonical::id_t>( p.id, d ); break;
+  case packet_style::TS:     w << writer< canonical::timestamp_t>( p.timestamp, d );  break;
+  case packet_style::TSR:    w << writer< canonical::timestamp_range_t>( p.timestamp_range, d); break;
+  case packet_style::GEOM:   w << writer< canonical::bbox_t>( p.bbox, d ); break;
+  case packet_style::POLY:   w << writer< canonical::poly_t>( p.poly, d ); break;
+  case packet_style::CONF:   w << writer< canonical::conf_t>( p.conf, d ); break;
+  case packet_style::CSET:   w << writer< canonical::cset_t>( *p.cset, d ); break;
+  case packet_style::ACT:    w << writer< canonical::activity_t>( p.activity, d ); break;
+  case packet_style::EVAL:   w << writer< canonical::eval_t>( p.eval, d ); break;
+  case packet_style::KV:     w << writer< canonical::kv_t>( p.kv ); break;
+  default:
+    LOG_ERROR( main_logger, "No KPF packet writer for " << p );
+    break;
+  }
   return w;
 }
 

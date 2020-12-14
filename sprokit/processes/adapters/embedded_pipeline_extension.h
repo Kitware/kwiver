@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2018 by Kitware, Inc.
+ * Copyright 2018, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,12 @@
 
 #include <sprokit/processes/adapters/kwiver_adapter_export.h>
 
+#include <sprokit/pipeline/pipeline.h>
 #include <vital/config/config_block.h>
 #include <vital/logger/logger.h>
-#include <sprokit/pipeline/pipeline.h>
+#include <vital/plugin_loader/plugin_info.h>
+#include <vital/plugin_loader/plugin_registrar.h>
+#include <vital/vital_config.h>
 
 #include <memory>
 
@@ -82,7 +85,7 @@ public:
    *
    * @param ctxt The calling context.
    */
-  virtual void pre_setup( context& ctxt ) { };
+  virtual void pre_setup( VITAL_UNUSED context& ctxt ) { };
 
   /**
    * @brief pipeline post-setup hook
@@ -92,7 +95,7 @@ public:
    *
    * @param ctxt The calling context.
    */
-  virtual void post_setup( context& ctxt ) { };
+  virtual void post_setup( VITAL_UNUSED context& ctxt ) { };
 
   /**
    * @brief End of data received from pipeline.
@@ -104,28 +107,30 @@ public:
    *
    * @param ctxt The calling context
    */
-  virtual void end_of_output( context& ctxt ) { };
-
-  // Add other hooks as needed.
-
+  virtual void end_of_output( VITAL_UNUSED context& ctxt ) { };
 
   /**
    * @brief Configure provider.
    *
-   * This method sends the config block to the implementation. The
-   * derived class would use the contents of this config block.
+   * This method sends the epx config sub-block to the
+   * implementation. The derived class would use the contents of this
+   * config block to modify its behaviour. This is how the epx gets
+   * its configuration and only needs to be overridden if the epx is
+   * expecting config items.
    *
    * @param conf Configuration block.
    */
-  virtual void configure( kwiver::vital::config_block_sptr const conf );
+  virtual void configure( VITAL_UNUSED kwiver::vital::config_block_sptr const conf );
 
   /**
    * @brief Get default configuration block.
    *
    * This method returns the default configuration block for this
-   * instrumentation implementation. The config block returned is used
-   * during introspection to provide documentation on what config
-   * parameters are needed and what they mean.
+   * pipeline extension and should contain all configuration items
+   * that are needed by this implementation. The config block returned
+   * is used during introspection to provide documentation on what
+   * config parameters are needed and what they mean. The config block
+   * should contain any default values for the config items.
    *
    * @return Pointer to config block.
    */
@@ -138,6 +143,65 @@ protected:
 
 // define pointer type for this interface
 using embedded_pipeline_extension_sptr = std::shared_ptr< embedded_pipeline_extension >;
+
+
+// ============================================================================
+/// Derived class to register Embedded Pipeline Extensions
+/**
+ * Embedded Pipeline Extension Registrar
+ *
+ * This class assists in registering embedded pipeline extensions
+ *
+ */
+class embedded_pipeline_extension_registrar
+  : public plugin_registrar
+{
+public:
+  embedded_pipeline_extension_registrar( kwiver::vital::plugin_loader& p_vpl,
+                    const std::string& p_module_name )
+    : plugin_registrar( p_vpl, p_module_name )
+  {
+  }
+
+    // Use forced naming convention for modules
+  bool is_module_loaded() override
+  {
+    return plugin_loader().is_module_loaded( "epx." + module_name() );
+  }
+
+  void mark_module_as_loaded() override
+  {
+    plugin_loader().mark_module_as_loaded( "epx." + module_name() );
+  }
+
+  // ----------------------------------------------------------------------------
+  /// Register an Embedded Pipeline Extension plugin.
+  /**
+   * A EPX of the specified type is registered with the plugin
+   * manager.
+   *
+   * @tparam epx_t Type of the EPX being registered.
+   *
+   * @return The plugin loader reference is returned.
+   */
+  template <typename epx_t>
+  kwiver::vital::plugin_factory_handle_t register_EPX()
+  {
+    using kvpf = kwiver::vital::plugin_factory;
+
+    kwiver::vital::plugin_factory* fact = new kwiver::vital::plugin_factory_0< epx_t >(
+      typeid( kwiver::embedded_pipeline_extension ).name() );
+
+    fact->add_attribute( kvpf::PLUGIN_NAME,      epx_t::_plugin_name )
+      .add_attribute( kvpf::PLUGIN_DESCRIPTION,  epx_t::_plugin_description )
+      .add_attribute( kvpf::PLUGIN_MODULE_NAME,  this->module_name() )
+      .add_attribute( kvpf::PLUGIN_ORGANIZATION, this->organization() )
+      .add_attribute( kwiver::vital::plugin_factory::PLUGIN_CATEGORY, "embedded-pipeline-extension" )
+      ;
+
+    return plugin_loader().add_factory( fact );
+  }
+};
 
 } // end namespace
 

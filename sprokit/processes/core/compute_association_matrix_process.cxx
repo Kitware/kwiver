@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,8 +43,9 @@
 
 #include <sprokit/pipeline/process_exception.h>
 
-namespace kwiver
-{
+namespace kwiver {
+
+create_algorithm_name_config_trait( matrix_generator );
 
 namespace algo = vital::algo;
 
@@ -91,24 +92,28 @@ void compute_association_matrix_process
 
   vital::config_block_sptr algo_config = get_config();
 
-  algo::compute_association_matrix::set_nested_algo_configuration(
-    "matrix_generator", algo_config, d->m_matrix_generator );
+  algo::compute_association_matrix::set_nested_algo_configuration_using_trait(
+    matrix_generator,
+    algo_config,
+    d->m_matrix_generator );
 
   if( !d->m_matrix_generator )
   {
-    throw sprokit::invalid_configuration_exception(
-      name(), "Unable to create compute_association_matrix" );
+    VITAL_THROW( sprokit::invalid_configuration_exception,
+                 name(), "Unable to create compute_association_matrix" );
   }
 
-  algo::compute_association_matrix::get_nested_algo_configuration(
-    "matrix_generator", algo_config, d->m_matrix_generator );
+  algo::compute_association_matrix::get_nested_algo_configuration_using_trait(
+    matrix_generator,
+    algo_config,
+    d->m_matrix_generator );
 
   // Check config so it will give run-time diagnostic of config problems
-  if( !algo::compute_association_matrix::check_nested_algo_configuration(
-    "matrix_generator", algo_config ) )
+  if( !algo::compute_association_matrix::check_nested_algo_configuration_using_trait(
+    matrix_generator, algo_config ) )
   {
-    throw sprokit::invalid_configuration_exception(
-      name(), "Configuration check failed." );
+    VITAL_THROW( sprokit::invalid_configuration_exception,
+                 name(), "Configuration check failed." );
   }
 }
 
@@ -119,9 +124,9 @@ compute_association_matrix_process
 ::_step()
 {
   // Check for end of video since we're in manual management mode
-  auto port_info = peek_at_port_using_trait( detected_object_set );
+  auto p_info = peek_at_port_using_trait( detected_object_set );
 
-  if( port_info.datum->type() == sprokit::datum::complete )
+  if( p_info.datum->type() == sprokit::datum::complete )
   {
     grab_edge_datum_using_trait( detected_object_set );
     mark_process_as_complete();
@@ -213,6 +218,7 @@ void compute_association_matrix_process
 void compute_association_matrix_process
 ::make_config()
 {
+  declare_config_using_trait( matrix_generator );
 }
 
 

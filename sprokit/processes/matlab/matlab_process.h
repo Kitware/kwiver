@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,9 @@ class KWIVER_PROCESSES_MATLAB_NO_EXPORT matlab_process
   : public sprokit::process
 {
 public:
+  PLUGIN_INFO( "matlab_bridge",
+               "Bridge to process written in matlab." )
+
   matlab_process( kwiver::vital::config_block_sptr const& config );
   virtual ~matlab_process();
 
@@ -73,4 +76,4 @@ private:
 
 } } // end namespace
 
-#endif // KWIVER_MATLAB_PROCESS_H_
+#endif

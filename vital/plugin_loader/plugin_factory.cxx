@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,11 @@ const std::string plugin_factory::PLUGIN_ORGANIZATION( "plugin-organization" );
 const std::string plugin_factory::PLUGIN_LICENSE( "plugin-license" );
 const std::string plugin_factory::PLUGIN_CATEGORY( "plugin-category" );
 const std::string plugin_factory::PLUGIN_PROCESS_PROPERTIES( "plugin-process-properties" );
+
+const std::string plugin_factory::APPLET_CATEGORY( "kwiver-applet" );
+const std::string plugin_factory::PROCESS_CATEGORY( "process" );
+const std::string plugin_factory::ALGORITHM_CATEGORY( "algorithm" );
+const std::string plugin_factory::CLUSTER_CATEGORY( "cluster" );
 
 
 // ------------------------------------------------------------------

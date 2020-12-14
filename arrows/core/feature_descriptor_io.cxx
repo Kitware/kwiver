@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2017-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -38,15 +12,14 @@
 #include <fstream>
 
 #include <vital/exceptions.h>
+#include <vital/vital_config.h>
 #include <cereal/archives/portable_binary.hpp>
-
 
 using namespace kwiver::vital;
 
 namespace kwiver {
 namespace arrows {
 namespace core {
-
 
 // Private implementation class
 class feature_descriptor_io::priv
@@ -61,8 +34,6 @@ public:
   bool write_float_features;
 };
 
-
-
 // Constructor
 feature_descriptor_io
 ::feature_descriptor_io()
@@ -71,13 +42,11 @@ feature_descriptor_io
   attach_logger( "arrows.core.feature_descriptor_io" );
 }
 
-
 // Destructor
 feature_descriptor_io
 ::~feature_descriptor_io()
 {
 }
-
 
 // ----------------------------------------------------------------------------
 // Get this algorithm's \link vital::config_block configuration block \endlink
@@ -95,7 +64,6 @@ feature_descriptor_io
   return config;
 }
 
-
 // ----------------------------------------------------------------------------
 // Set this algorithm's properties via a config block
 void
@@ -111,12 +79,11 @@ feature_descriptor_io
                                                      d_->write_float_features);
 }
 
-
 // ----------------------------------------------------------------------------
 // Check that the algorithm's currently configuration is valid
 bool
 feature_descriptor_io
-::check_configuration(vital::config_block_sptr config) const
+::check_configuration( VITAL_UNUSED vital::config_block_sptr config) const
 {
   return true;
 }
@@ -132,7 +99,7 @@ save_features(Archive & ar, std::vector<feature_sptr> const& features)
   {
     if( !f )
     {
-      throw vital::invalid_data("not able to write a Null feature");
+      VITAL_THROW( vital::invalid_data,"not able to write a Null feature");
     }
     if( auto ft = std::dynamic_pointer_cast<feature_<T> >(f) )
     {
@@ -144,7 +111,6 @@ save_features(Archive & ar, std::vector<feature_sptr> const& features)
     }
   }
 }
-
 
 // ----------------------------------------------------------------------------
 // Helper function to unserialized a vector of N features of known type
@@ -163,25 +129,24 @@ read_features(Archive & ar, size_t num_feat)
   return std::make_shared<vital::simple_feature_set>(features);
 }
 
-
 // ----------------------------------------------------------------------------
 // Helper function to serialized a vector of descriptors of known type
 template <typename Archive, typename T>
 void
-save_descriptors(Archive & ar, std::vector<descriptor_sptr> const& descriptors)
+save_descriptors(Archive & ar, descriptor_set_sptr const& descriptors)
 {
   // dimensionality of each descriptor
-  cereal::size_type dim = descriptors[0]->size();
+  cereal::size_type dim = descriptors->at(0)->size();
   ar( cereal::make_size_tag( dim ) );
-  for( const descriptor_sptr d : descriptors )
+  for( descriptor_sptr const d : *descriptors )
   {
     if( !d )
     {
-      throw vital::invalid_data("not able to write a Null descriptor");
+      VITAL_THROW( vital::invalid_data, "not able to write a Null descriptor");
     }
     if( d->size() != dim )
     {
-      throw vital::invalid_data(std::string("descriptor dimension is not ")
+      VITAL_THROW( vital::invalid_data, std::string("descriptor dimension is not ")
                                 + "consistent, should be " + std::to_string(dim)
                                 + ", is " + std::to_string(d->size()));
     }
@@ -195,13 +160,12 @@ save_descriptors(Archive & ar, std::vector<descriptor_sptr> const& descriptors)
     }
     else
     {
-      throw vital::invalid_data(std::string("saving descriptors of type ")
+      VITAL_THROW( vital::invalid_data, std::string("saving descriptors of type ")
                                 + typeid(T).name() + " but received type "
                                 + d->data_type().name());
     }
   }
 }
-
 
 // ----------------------------------------------------------------------------
 // Helper function to unserialized a vector of N descriptors of known type
@@ -215,7 +179,7 @@ read_descriptors(Archive & ar, size_t num_desc)
 
   std::vector<descriptor_sptr> descriptors;
   descriptors.reserve(num_desc);
-  for( size_t i=0; i<num_desc; ++i )
+  for( size_t i = 0; i < num_desc; ++i )
   {
     std::shared_ptr<descriptor_array_of<T> > d;
     // allocate fixed vectors for common dimensions
@@ -231,7 +195,7 @@ read_descriptors(Archive & ar, size_t num_desc)
         d = std::make_shared<descriptor_dynamic<T> >(dim);
     }
     T* data = d->raw_data();
-    for(unsigned i=0; i<dim; ++i, ++data)
+    for(unsigned x = 0; x < dim; ++x, ++data)
     {
       ar( *data );
     }
@@ -240,14 +204,12 @@ read_descriptors(Archive & ar, size_t num_desc)
   return std::make_shared<vital::simple_descriptor_set>(descriptors);
 }
 
-
 // ----------------------------------------------------------------------------
 // compute base 2 log of integers at compile time
 constexpr size_t log2(size_t n)
 {
   return ( (n<2) ? 0 : 1+log2(n/2));
 }
-
 
 // ----------------------------------------------------------------------------
 // compute a unique byte code for built-in types
@@ -259,7 +221,6 @@ struct type_traits
     (std::numeric_limits<T>::is_signed << 4) +
     log2(sizeof(T)));
 };
-
 
 // ----------------------------------------------------------------------------
 uint8_t code_from_typeid(std::type_info const& tid)
@@ -287,7 +248,6 @@ uint8_t code_from_typeid(std::type_info const& tid)
 
 }
 
-
 // ----------------------------------------------------------------------------
 // Implementation specific load functionality.
 void
@@ -304,7 +264,7 @@ feature_descriptor_io
   ifile.read(file_id, 4);
   if (std::strncmp(file_id, "KWFD", 4) != 0)
   {
-    throw vital::invalid_data("Does not look like a KWIVER feature/descriptor file: "
+    VITAL_THROW( vital::invalid_data, "Does not look like a KWIVER feature/descriptor file: "
                               + filename);
   }
 
@@ -316,7 +276,7 @@ feature_descriptor_io
   ar( version );
   if( version != 1 )
   {
-    throw vital::invalid_data( "Unknown file format version: "
+    VITAL_THROW( vital::invalid_data, "Unknown file format version: "
                                + std::to_string(version) );
   }
 
@@ -335,7 +295,7 @@ feature_descriptor_io
         feat = read_features<Archive_t, double>(ar, num_feat);
         break;
       default:
-        throw vital::invalid_data("unknown feature type code: "
+        VITAL_THROW( vital::invalid_data, "unknown feature type code: "
                                   + std::to_string(type_code));
     }
   }
@@ -370,7 +330,7 @@ feature_descriptor_io
 #undef DO_CASE
 
       default:
-        throw vital::invalid_data("unknown descriptor type code: "
+        VITAL_THROW( vital::invalid_data, "unknown descriptor type code: "
                                   + std::to_string(type_code));
     }
   }
@@ -379,7 +339,6 @@ feature_descriptor_io
     desc = descriptor_set_sptr();
   }
 }
-
 
 // ----------------------------------------------------------------------------
 // Implementation specific save functionality.
@@ -429,7 +388,7 @@ feature_descriptor_io
         save_features<Archive_t, double>(ar, features);
         break;
       default:
-        throw vital::invalid_data("features must be float or double");
+        VITAL_THROW( vital::invalid_data, "features must be float or double");
     }
   }
   else
@@ -439,16 +398,14 @@ feature_descriptor_io
 
   if( desc && desc->size() > 0 )
   {
-    std::vector<descriptor_sptr> descriptors = desc->descriptors();
-
-    ar( cereal::make_size_tag( static_cast<cereal::size_type>(descriptors.size()) ) ); // number of elements
-    uint8_t type_code = code_from_typeid(descriptors[0]->data_type());
+    ar( cereal::make_size_tag( static_cast<cereal::size_type>(desc->size()) ) ); // number of elements
+    uint8_t type_code = code_from_typeid(desc->at(0)->data_type());
     ar( type_code );
     switch( type_code )
     {
 #define DO_CASE(T)                                       \
       case type_traits<T>::code:                         \
-        save_descriptors<Archive_t, T>(ar, descriptors); \
+        save_descriptors<Archive_t, T>(ar, desc); \
         break
 
       DO_CASE(uint8_t);
@@ -464,8 +421,8 @@ feature_descriptor_io
 #undef DO_CASE
 
       default:
-        throw vital::invalid_data(std::string("descriptor type not supported: ")
-                                  + descriptors[0]->data_type().name());
+        VITAL_THROW( vital::invalid_data, std::string("descriptor type not supported: ")
+                     + desc->at(0)->data_type().name());
     }
   }
   else

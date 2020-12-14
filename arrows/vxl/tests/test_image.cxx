@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2013-2017 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -147,7 +121,7 @@ template <typename T, int Depth>
 struct image_type
 {
   using pixel_type = T;
-  static constexpr int depth = Depth;
+  static constexpr unsigned int depth = Depth;
 };
 
 // ----------------------------------------------------------------------------
@@ -525,4 +499,34 @@ TYPED_TEST(image_conversion, vital_to_vxl_interleaved)
   kwiver::vital::image_of<TypeParam> img{ 200, 300, 3, true };
   populate_vital_image<TypeParam>( img );
   run_vital_conversion_tests( img );
+}
+
+// ----------------------------------------------------------------------------
+template <typename T>
+class get_image : public ::testing::Test
+{
+};
+
+using get_image_types = ::testing::Types<
+  image_type<byte, 1>,
+  image_type<byte, 3>,
+  image_type<uint16_t, 1>,
+  image_type<uint16_t, 3>,
+  image_type<float, 1>,
+  image_type<float, 3>,
+  image_type<double, 1>,
+  image_type<double, 3>
+  >;
+  TYPED_TEST_CASE(get_image, get_image_types);
+
+// ----------------------------------------------------------------------------
+TYPED_TEST(get_image, crop)
+{
+  using pix_t = typename TypeParam::pixel_type;
+  vil_image_view<pix_t> img{ full_width, full_height, TypeParam::depth };
+  populate_vil_image( img );
+
+  image_container_sptr img_cont = std::make_shared<vxl::image_container>(img);
+
+  test_get_image_crop<pix_t>( img_cont );
 }

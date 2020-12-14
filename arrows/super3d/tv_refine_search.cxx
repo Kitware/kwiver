@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2012-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
  /**
  * \file
@@ -48,6 +22,8 @@
 #include <vnl/vnl_double_3.h>
 #include <vnl/vnl_double_2.h>
 
+#include <vital/logger/logger.h>
+
 namespace kwiver {
 namespace arrows {
 namespace super3d {
@@ -63,6 +39,9 @@ refine_depth(vil_image_view<double> &cost_volume,
              double epsilon,
              depth_refinement_monitor *drm)
 {
+  static vital::logger_handle_t logger =
+    vital::get_logger("arrows.super3d.refine_depth");
+
   vil_image_view<double> sqrt_cost_range(cost_volume.ni(), cost_volume.nj(), 1);
   double a_step = 1.0 / cost_volume.nplanes();
 
@@ -102,17 +81,20 @@ refine_depth(vil_image_view<double> &cost_volume,
 
   for (unsigned int iter = 1; iter <= iterations; iter++)
   {
-    std::cout << "theta: " << theta << "\n";
+    LOG_TRACE(logger, "theta: " << theta);
     min_search_bound(a, d, cost_volume, sqrt_cost_range, theta, lambda);
     huber(q, d, a, g, theta, 0.25/theta, epsilon);
     theta = pow(10.0, log(theta)/denom - beta);
 
     if (drm)
     {
-      if (drm->callback_ && !(iter % drm->interval_))
+      if (drm->callback_)
       {
         depth_refinement_monitor::update_data data;
-        data.current_result.deep_copy(d);
+        if (!(iter % drm->interval_))
+        {
+          data.current_result.deep_copy(d);
+        }
         data.num_iterations = iter;
         // if the callback returns false, that means
         // the user has requested early termination
@@ -257,8 +239,8 @@ min_search_bound(vil_image_view<double> &a,
         {
           continue;
         }
-        const double diff = dij - k;
-        const double e = coeff*diff*diff + (*cost);
+        const double dd = dij - k;
+        const double e = coeff * dd * dd + (*cost);
         if (e < best_e)
         {
           best_e = e;

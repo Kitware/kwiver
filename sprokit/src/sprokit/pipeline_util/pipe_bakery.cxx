@@ -35,7 +35,7 @@
 #include "cluster_bakery.h"
 #include "cluster_creator.h"
 
-#include "load_pipe.h"
+#include "pipeline_builder.h"
 #include "pipe_declaration_types.h"
 
 #include <vital/config/config_block.h>
@@ -60,21 +60,6 @@ namespace {
 static kwiver::vital::config_block_key_t const config_pipeline_key = kwiver::vital::config_block_key_t( "_pipeline" );
 
 } // end anonymous
-
-// ------------------------------------------------------------------
-pipeline_t
-bake_pipe_from_file( kwiver::vital::path_t const& fname )
-{
-  return bake_pipe_blocks( load_pipe_blocks_from_file( fname ) );
-}
-
-
-// ------------------------------------------------------------------
-pipeline_t
-bake_pipe( std::istream& istr )
-{
-  return bake_pipe_blocks( load_pipe_blocks( istr ) );
-}
 
 
 // ==================================================================
@@ -148,39 +133,23 @@ bake_pipe_blocks( pipe_blocks const& blocks )
 } // bake_pipe_blocks
 
 
-// ------------------------------------------------------------------
-cluster_info_t
-bake_cluster_from_file( kwiver::vital::path_t const& fname )
-{
-  return bake_cluster_blocks( load_cluster_blocks_from_file( fname ) );
-}
-
-
-// ------------------------------------------------------------------
-cluster_info_t
-bake_cluster( std::istream& istr )
-{
-  return bake_cluster_blocks( load_cluster_blocks( istr ) );
-}
-
-
-// ------------------------------------------------------------------
+// ============================================================================
 cluster_info_t
 bake_cluster_blocks( cluster_blocks const& blocks )
 {
-  cluster_bakery bakery;
+  auto bakery = std::make_shared< cluster_bakery >();
 
   for ( auto b : blocks )
   {
-    kwiver::vital::visit( bakery, b );
+    kwiver::vital::visit( *bakery, b );
   }
 
-  if ( bakery.m_processes.empty() )
+  if ( bakery->m_processes.empty() )
   {
     VITAL_THROW( cluster_without_processes_exception );
   }
 
-  cluster_bakery::opt_cluster_component_info_t const& opt_cluster = bakery.m_cluster;
+  cluster_bakery::opt_cluster_component_info_t const& opt_cluster = bakery->m_cluster;
 
   if ( ! opt_cluster )
   {
@@ -195,11 +164,14 @@ bake_cluster_blocks( cluster_blocks const& blocks )
     VITAL_THROW( cluster_without_ports_exception );
   }
 
-  process::type_t const& type = bakery.m_type;
-  process::description_t const& description = bakery.m_description;
-  process_factory_func_t const ctor = cluster_creator( bakery );
+  process::type_t const& type = bakery->m_type;
+  process::description_t const& description = bakery->m_description;
+
+  // Bakery is copied into cluster_creator so it can be const.
+  process_factory_func_t const ctor = cluster_creator( *bakery );
 
   cluster_info_t const info = std::make_shared< cluster_info > ( type, description, ctor );
+  info->m_bakery = bakery;
 
   return info;
 }

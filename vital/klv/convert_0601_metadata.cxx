@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016-2017 by Kitware, Inc.
+ * Copyright 2016-2017, 2019-2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ namespace vital {
 namespace {
 
 // ----------------------------------------------------------------------------
-template < int N = 2 >
+template < int N >
 Eigen::Matrix< double, N, 1 >
 empty_vector()
 {
@@ -67,7 +67,7 @@ empty_vector()
 }
 
 // ----------------------------------------------------------------------------
-template < int N = 2 >
+template < int N >
 bool
 is_empty( Eigen::Matrix< double, N, 1, 0, N, 1 > const& vec )
 {
@@ -92,6 +92,13 @@ is_valid_lon_lat( vector_2d const& vec )
          ( lon >= -180.0 && lon <= 360.0 );
 }
 
+// ----------------------------------------------------------------------------
+bool
+is_valid_lon_lat( vector_3d const& vec )
+{
+  return is_valid_lon_lat( static_cast< vector_2d >(vec.head( 2 )) );
+}
+
 } // end namespace
 
 // ----------------------------------------------------------------------------
@@ -111,7 +118,7 @@ convert_metadata
              << m_metadata_traits.tag_to_symbol( vital_tag ) );
 
   // If the input data is already in the correct type
-  if ( metadata::typeid_for_tag( vital_tag ) == data.type() )
+  if ( convert_metadata::typeid_for_tag( vital_tag ) == data.type() )
   {
     // leave data as is since it already correct type.
     return data;
@@ -119,7 +126,7 @@ convert_metadata
 
 
   // If destination type is double, then source must be convertable to double
-  if ( metadata::typeid_for_tag( vital_tag ) == typeid( double ) )
+  if ( convert_metadata::typeid_for_tag( vital_tag ) == typeid( double ) )
   {
     if ( klv_0601_has_double( tag ) )
     {
@@ -161,20 +168,20 @@ convert_metadata
 {
   static kwiver::vital::logger_handle_t logger( kwiver::vital::get_logger( "vital.convert_metadata" ) );
 
-  md.add( NEW_METADATA_ITEM( VITAL_META_METADATA_ORIGIN, MISB_0601 ) );
+  md.add< VITAL_META_METADATA_ORIGIN >( MISB_0601 );
 
   //
   // Data items that are used to collect multi-value metadataa items such as
   // lat-lon points and image corner points. All geodetic points are assumed to
   // be WGS84 lat-lon.
   //
-  auto raw_sensor_location = empty_vector();
-  auto raw_frame_center = empty_vector();
-  auto raw_corner_pt1 = empty_vector(); // offsets relative to frame_center
-  auto raw_corner_pt2 = empty_vector();
-  auto raw_corner_pt3 = empty_vector();
-  auto raw_corner_pt4 = empty_vector();
-  auto raw_target_location = empty_vector();
+  auto raw_sensor_location = empty_vector<3>();
+  auto raw_frame_center = empty_vector<3>();
+  auto raw_corner_pt1 = empty_vector<2>(); // offsets relative to frame_center
+  auto raw_corner_pt2 = empty_vector<2>();
+  auto raw_corner_pt3 = empty_vector<2>();
+  auto raw_corner_pt4 = empty_vector<2>();
+  auto raw_target_location = empty_vector<3>();
 
   for ( auto itr = lds.begin(); itr != lds.end(); ++itr )
   {
@@ -197,21 +204,21 @@ convert_metadata
     switch (tag)
     {
 // Refine simple case to a define
-#define CASE(N)                                                         \
-  case KLV_0601_ ## N:                                                  \
-    md.add( NEW_METADATA_ITEM( VITAL_META_ ## N,                        \
-      normalize_0601_tag_data( KLV_0601_ ## N, VITAL_META_ ## N, data ) ) ); \
+#define CASE(N)                                                             \
+  case KLV_0601_ ## N:                                                      \
+    md.add_any< VITAL_META_ ## N >(                                         \
+      normalize_0601_tag_data( KLV_0601_ ## N, VITAL_META_ ## N, data ) );  \
     break
 
-#define CASE_COPY(N)                                                    \
-  case KLV_0601_ ## N:                                                  \
-    md.add( NEW_METADATA_ITEM( VITAL_META_ ## N, data ) );              \
+#define CASE_COPY(N)                        \
+  case KLV_0601_ ## N:                      \
+    md.add_any< VITAL_META_ ## N >( data ); \
     break
 
-#define CASE2(KN,VN)                                                    \
-  case KLV_0601_ ## KN:                                                 \
-    md.add( NEW_METADATA_ITEM( VITAL_META_ ## VN,                       \
-      normalize_0601_tag_data( KLV_0601_ ## KN, VITAL_META_ ## VN, data ) ) ); \
+#define CASE2(KN,VN)                                                          \
+  case KLV_0601_ ## KN:                                                       \
+    md.add_any< VITAL_META_ ## VN >(                                          \
+      normalize_0601_tag_data( KLV_0601_ ## KN, VITAL_META_ ## VN, data ) );  \
     break
 
       CASE( UNIX_TIMESTAMP );
@@ -225,7 +232,6 @@ convert_metadata
       CASE( PLATFORM_DESIGNATION );
       CASE( IMAGE_SOURCE_SENSOR );
       CASE( IMAGE_COORDINATE_SYSTEM );
-      CASE2( SENSOR_TRUE_ALTITUDE, SENSOR_ALTITUDE );
       CASE( SENSOR_HORIZONTAL_FOV );
       CASE( SENSOR_VERTICAL_FOV );
       CASE( SENSOR_REL_AZ_ANGLE );
@@ -233,14 +239,12 @@ convert_metadata
       CASE( SENSOR_REL_ROLL_ANGLE );
       CASE( SLANT_RANGE );
       CASE( TARGET_WIDTH );
-      CASE( FRAME_CENTER_ELEV );
       CASE( ICING_DETECTED);
       CASE( WIND_DIRECTION );
       CASE( WIND_SPEED );
       CASE( STATIC_PRESSURE );
       CASE( DENSITY_ALTITUDE );
       CASE( OUTSIDE_AIR_TEMPERATURE );
-      CASE( TARGET_LOCATION_ELEV );
       CASE( TARGET_TRK_GATE_WIDTH );
       CASE( TARGET_TRK_GATE_HEIGHT );
       CASE_COPY( SECURITY_LOCAL_MD_SET );
@@ -264,37 +268,37 @@ convert_metadata
 
       // Source specific metadata tags
 
-      // These are prefixed with the spec. number because the data format is specification specific.
-      CASE2( WEAPON_LOAD, 0601_WEAPON_LOAD );
-      CASE2( WEAPON_FIRED, 0601_WEAPON_FIRED );
+      // These are suffixed with the spec. number because the data format is specification specific.
+      CASE2( WEAPON_LOAD, WEAPON_LOAD_0601 );
+      CASE2( WEAPON_FIRED, WEAPON_FIRED_0601 );
 
 #undef CASE
 #undef CASE2
 
       // option (2) Use klv 0601 native to double converter.
 
+    case KLV_0601_SENSOR_TRUE_ALTITUDE:
+      raw_sensor_location[2] = klv_0601_value_double( KLV_0601_SENSOR_TRUE_ALTITUDE, data );
+      break;
+
     case KLV_0601_SENSOR_LATITUDE:
-    {
       raw_sensor_location[1] = klv_0601_value_double( KLV_0601_SENSOR_LATITUDE, data );
-    }
       break;
 
     case KLV_0601_SENSOR_LONGITUDE:
-    {
       raw_sensor_location[0] = klv_0601_value_double( KLV_0601_SENSOR_LONGITUDE, data );
-    }
       break;
 
     case KLV_0601_FRAME_CENTER_LAT:
-    {
       raw_frame_center[1] = klv_0601_value_double( KLV_0601_FRAME_CENTER_LAT, data );
-    }
       break;
 
     case KLV_0601_FRAME_CENTER_LONG:
-    {
       raw_frame_center[0] = klv_0601_value_double( KLV_0601_FRAME_CENTER_LONG, data );
-    }
+      break;
+
+    case KLV_0601_FRAME_CENTER_ELEV:
+      raw_frame_center[2] = klv_0601_value_double( KLV_0601_FRAME_CENTER_ELEV, data );
       break;
 
       // Sometimes these offsets are set to zero. Even if the image is
@@ -383,18 +387,23 @@ convert_metadata
     }
       break;
 
+    case KLV_0601_TARGET_LOCATION_ELEV:
+      raw_target_location[2] = klv_0601_value_double( KLV_0601_TARGET_LOCATION_ELEV, data );
+      break;
+
     case KLV_0601_TARGET_LOCATION_LAT:
-    {
       raw_target_location[1] = klv_0601_value_double( KLV_0601_TARGET_LOCATION_LAT, data );
-    }
       break;
 
     case KLV_0601_TARGET_LOCATION_LONG:
-    {
       raw_target_location[0] = klv_0601_value_double( KLV_0601_TARGET_LOCATION_LONG, data );
-    }
       break;
 
+      // And all the others
+    case KLV_0601_UNKNOWN:
+    case KLV_0601_CHECKSUM:
+    case KLV_0601_ENUM_END:
+    case KLV_0601_GENERIC_FLAG_DATA_01:
     default:
       LOG_DEBUG( logger, "KLV 0601 key: " << int(itr->first) << " is not supported." );
       break;
@@ -412,8 +421,9 @@ convert_metadata
     }
     else
     {
-      auto const sensor_location = geo_point{ raw_sensor_location, SRID::lat_lon_WGS84 };
-      md.add( NEW_METADATA_ITEM( VITAL_META_SENSOR_LOCATION, sensor_location ) );
+      vector_3d sensor_loc(raw_sensor_location[0], raw_sensor_location[1], raw_sensor_location[2]);
+      auto const sensor_location = geo_point{ sensor_loc, SRID::lat_lon_WGS84 };
+      md.add< VITAL_META_SENSOR_LOCATION >( sensor_location );
     }
   }
 
@@ -426,7 +436,7 @@ convert_metadata
     else
     {
       auto const frame_center = geo_point{ raw_frame_center, SRID::lat_lon_WGS84 };
-      md.add( NEW_METADATA_ITEM( VITAL_META_FRAME_CENTER, frame_center ) );
+      md.add< VITAL_META_FRAME_CENTER >( frame_center );
     }
   }
 
@@ -439,7 +449,7 @@ convert_metadata
     else
     {
       auto const target_location = geo_point{ raw_target_location, SRID::lat_lon_WGS84 };
-      md.add( NEW_METADATA_ITEM( VITAL_META_TARGET_LOCATION, target_location ) );
+      md.add< VITAL_META_TARGET_LOCATION >( target_location );
     }
   }
 
@@ -488,14 +498,14 @@ convert_metadata
       {
         // If all points are set and valid, then build corner point structure
         kwiver::vital::polygon raw_corners;
-
-        raw_corners.push_back( raw_corner_pt1 + raw_frame_center );
-        raw_corners.push_back( raw_corner_pt2 + raw_frame_center );
-        raw_corners.push_back( raw_corner_pt3 + raw_frame_center );
-        raw_corners.push_back( raw_corner_pt4 + raw_frame_center );
+        vector_2d rfc( raw_frame_center[0], raw_frame_center[1] );
+        raw_corners.push_back( raw_corner_pt1 + rfc );
+        raw_corners.push_back( raw_corner_pt2 + rfc );
+        raw_corners.push_back( raw_corner_pt3 + rfc );
+        raw_corners.push_back( raw_corner_pt4 + rfc );
 
         kwiver::vital::geo_polygon corners{ raw_corners, kwiver::vital::SRID::lat_lon_WGS84 };
-        md.add( NEW_METADATA_ITEM( VITAL_META_CORNER_POINTS, corners ) );
+        md.add< VITAL_META_CORNER_POINTS >( corners );
       }
     }
   } // corner points are empty

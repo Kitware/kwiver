@@ -3,33 +3,24 @@ set -e
 
 INSTALL_DIR=$HOME/deps
 FLETCH_DIR=/opt/kitware/fletch
+CMAKE_INSTALL_DIR=$HOME/cmake-install
 export PATH=$INSTALL_DIR/bin:$FLETCH_DIR/bin:$PATH
 HASH_DIR=/opt/kitware/hashes
 mkdir -p $FLETCH_DIR
 mkdir -p $HASH_DIR
 mkdir -p $INSTALL_DIR
-
+mkdir -p $CMAKE_INSTALL_DIR
 # Make a directory to test installation of KWIVER into
 mkdir -p $HOME/install
-
-# check if directory is cached
-if [ ! -f "$INSTALL_DIR/bin/cmake" ]; then
-  cd /tmp
-  wget --no-check-certificate https://cmake.org/files/v3.4/cmake-3.4.0-Linux-x86_64.sh
-  bash cmake-3.4.0-Linux-x86_64.sh --skip-license --prefix="$INSTALL_DIR/"
-else
-  echo 'Using cached CMake directory.';
-fi
-
 
 # download and unpack Fletch
 HASH_FILE="$HASH_DIR/fletch.sha512"
 cd /tmp
 if [ -f $TRAVIS_BUILD_DIR/doc/release-notes/master.txt ]; then
-  TAR_FILE_ID=599c39468d777f7d33e9cbe5
+  TAR_FILE_ID=5d3a2d40877dfcc9022ec9f5
   echo "Using master branch of Fletch"
 else
-  TAR_FILE_ID=599f2db18d777f7d33e9cc9e
+  TAR_FILE_ID=5d3f0c94877dfcc90235f064
   echo "Using release branch of Fletch"
 fi
 
@@ -44,3 +35,6 @@ else
   tar -xzf fletch.tgz -C /opt/kitware
   cp fletch.sha512 $HASH_FILE
 fi
+
+echo "Downloading and installing cmake 3.15 binaries into: " $CMAKE_INSTALL_DIR
+wget -qO- "https://cmake.org/files/v3.15/cmake-3.15.7-Linux-x86_64.tar.gz" | tar --strip-components=1 -xz -C $CMAKE_INSTALL_DIR

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2018 by Kitware, Inc.
+ * Copyright 2018, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 #define PLUGIN_LOADER_PLUGIN_REGISTRAR_H
 
 #include <vital/plugin_loader/plugin_factory.h>
+#include <vital/plugin_loader/plugin_loader.h>
 
 #if ! defined( KWIVER_DEFAULT_PLUGIN_ORGANIZATION )
 #define KWIVER_DEFAULT_PLUGIN_ORGANIZATION "undefined"
@@ -65,11 +66,13 @@ public:
   {
   }
 
+  virtual ~plugin_registrar() = default;
+
   /// Check if module is loaded.
-  bool is_module_loaded() { return m_plugin_loader.is_module_loaded( mod_name ); }
+  virtual bool is_module_loaded() { return m_plugin_loader.is_module_loaded( mod_name ); }
 
   /// Mark module as loaded.
-  void mark_module_as_loaded() { m_plugin_loader.mark_module_as_loaded( mod_name ); }
+  virtual void mark_module_as_loaded() { m_plugin_loader.mark_module_as_loaded( mod_name ); }
 
   /// Return module name.
   const std::string& module_name() const { return this->mod_name; }

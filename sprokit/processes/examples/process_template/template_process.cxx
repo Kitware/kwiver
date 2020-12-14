@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@
 
 #include <sprokit/processes/kwiver_type_traits.h>
 #include <vital/types/timestamp.h>
+#include <vital/vital_config.h>
 #include <arrows/ocv/image_container.h>
 
 #include <opencv2/core/core.hpp>
@@ -236,7 +237,7 @@ template_process
 //++ to get the new config values from the supplied config
 void
 template_process
-::_reconfigure(kwiver::vital::config_block_sptr const& conf)
+::_reconfigure( VITAL_UNUSED kwiver::vital::config_block_sptr const& conf)
 {
   scoped_reconfigure_instrumentation();
 
@@ -252,15 +253,22 @@ template_process
 {
   // Set up for required ports
   sprokit::process::port_flags_t required;
+
   sprokit::process::port_flags_t optional;
   required.insert( flag_required );
+
+  sprokit::process::port_flags_t shared;
+  shared.insert( flag_output_shared );
+
 
   // -- input --
   declare_input_port_using_trait( timestamp, optional );
   declare_input_port_using_trait( image, required );
 
   // -- output --
-  declare_output_port_using_trait( image, optional );
+  // since images are passed by shared ptr, they must be
+  // marked as shared.
+  declare_output_port_using_trait( image, shared );
 }
 
 

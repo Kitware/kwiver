@@ -1,5 +1,9 @@
 # Central location for KWIVER external dependency declaration and resolution
 
+# On macOS, prefer unix-style packages (e.g. from Fletch) over Frameworks
+# when looking for dependencies
+set(CMAKE_FIND_FRAMEWORK LAST)
+
 # Required for Vital
 include( kwiver-depends-Eigen )
 
@@ -8,7 +12,8 @@ include( kwiver-depends-log4cxx )
 include( kwiver-depends-log4cplus )
 
 # Required for Sprokit and Track Oracle
-if(KWIVER_ENABLE_SPROKIT OR KWIVER_ENABLE_TRACK_ORACLE)
+if(KWIVER_ENABLE_SPROKIT OR KWIVER_ENABLE_TRACK_ORACLE
+    OR (KWIVER_ENABLE_TOOLS AND NOT VITAL_USE_STD_REGEX))
   include( kwiver-depends-Boost )
 endif()
 
@@ -25,7 +30,9 @@ if(KWIVER_ENABLE_ARROWS)
   include( kwiver-depends-PROJ )
   include( kwiver-depends-VisCL )
   include( kwiver-depends-Ceres )
+  include( kwiver-depends-Qt )
   include( kwiver-depends-VXL )
+  include( kwiver-depends-VTK )
   include( kwiver-depends-Matlab )
   include( kwiver-depends-darknet )
   include( kwiver-depends-Burn-Out )
@@ -33,6 +40,7 @@ if(KWIVER_ENABLE_ARROWS)
   include( kwiver-depends-kpf )
   include( kwiver-depends-ffmpeg )
   include( kwiver-depends-GDAL )
+  include( kwiver-depends-PyTorch )
 endif()
 
 include( kwiver-depends-ZeroMQ )

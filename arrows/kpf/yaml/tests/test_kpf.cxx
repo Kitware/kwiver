@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2017 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -64,6 +38,7 @@ using std::make_pair;
 using std::make_tuple;
 
 namespace KPF=kwiver::vital::kpf;
+namespace KPFC=kwiver::vital::kpf::canonical;
 
 namespace { // anon
 
@@ -106,7 +81,6 @@ bool operator==( const user_complex_detection_t& lhs,
     (lhs.poly_x == rhs.poly_x) &&
     (lhs.poly_y == rhs.poly_y);
 }
-
 
 struct user_box_adapter_t: public KPF::kpf_box_adapter< user_complex_detection_t >
 {
@@ -282,7 +256,6 @@ static const string improper_kpf =
 
 } // ... anon
 
-
 int
 main( int argc, char* argv[] )
 {
@@ -326,4 +299,45 @@ IMPLEMENT_TEST( improper_kpf_parse )
     reader.flush();
   }
   TEST_EQUAL( "Got to end of improper kpf_parse", true, true );
+}
+
+IMPLEMENT_TEST( kpf_packet_extraction )
+{
+  vector< user_complex_detection_t > src_dets = make_sample_detections();
+  stringstream ss;
+  write_detections_to_stream( ss, src_dets );
+
+  KPF::kpf_yaml_parser_t parser( ss );
+  KPF::kpf_reader_t reader( parser );
+
+  TEST_EQUAL( "Start of packet extraction: reader is good", static_cast<bool>(reader), true );
+
+  // read a line of packets
+  reader.next();
+  TEST_EQUAL( "Read one line; reader is good", static_cast<bool>(reader), true );
+
+  auto packet_buffer = reader.get_packet_buffer();
+  TEST_EQUAL( "After one line: non-zero number of packets", packet_buffer.empty(), false );
+
+  const auto id_header = KPF::packet_header_t( KPF::packet_style::ID, KPFC::id_t::DETECTION_ID );
+
+  // get the detection ID
+  auto id_one = reader.transfer_packet_from_buffer( id_header );
+  TEST_EQUAL( "After one line: first transfer of ID succeeded", id_one.first, true );
+  TEST_EQUAL( "After one line: reader still good", static_cast<bool>(reader), true );
+
+  // get the detection ID again (should fail but leave reader good)
+  auto id_two = reader.transfer_packet_from_buffer( id_header );
+  TEST_EQUAL( "After one line: second transfer of ID failed", id_two.first, false );
+  TEST_EQUAL( "After one line: reader still good", static_cast<bool>(reader), true );
+
+  // we should be able to read non-zero more lines
+  size_t c = 0;
+  while (reader.next())
+  {
+    ++c;
+    reader.flush();
+  }
+  TEST_EQUAL( "Read more lines after first line", c > 0, true );
+
 }

@@ -120,7 +120,7 @@ main(int argc, char* argv[])
 }
 
 // ==================================================================
-IMPLEMENT_TEST(non_blocking)
+IMPLEMENT_TEST(nonblocking)
 {
   std::stringstream pipeline_desc;
   pipeline_desc
@@ -143,7 +143,7 @@ IMPLEMENT_TEST(non_blocking)
 
   // Start pipeline
   ep.start();
-  const int limit(50);
+  constexpr int limit(50);
 
   for ( int i = 0; i < limit; ++i )
   {

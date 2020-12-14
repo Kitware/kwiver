@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2017 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -34,6 +8,8 @@
  */
 
 #include "write_object_track_set_kw18.h"
+
+#include <vital/vital_config.h>
 
 #include <time.h>
 
@@ -77,7 +53,6 @@ public:
   std::map< unsigned, vital::track_sptr > m_tracks;
 };
 
-
 // ===============================================================================
 write_object_track_set_kw18
 ::write_object_track_set_kw18()
@@ -85,9 +60,13 @@ write_object_track_set_kw18
 {
 }
 
-
 write_object_track_set_kw18
 ::~write_object_track_set_kw18()
+{
+}
+
+void write_object_track_set_kw18
+::close()
 {
   for( auto trk_pair : d->m_tracks )
   {
@@ -104,7 +83,7 @@ write_object_track_set_kw18
         continue;
       }
 
-      vital::detected_object_sptr det = ts->detection;
+      vital::detected_object_sptr det = ts->detection();
       const vital::bounding_box_d empty_box = vital::bounding_box_d( -1, -1, -1, -1 );
       vital::bounding_box_d bbox = ( det ? det->bounding_box() : empty_box );
 
@@ -125,13 +104,14 @@ write_object_track_set_kw18
                << "0 "                     // 15: world-loc x
                << "0 "                     // 16: world-loc y
                << "0 "                     // 17: world-loc z
-               << ts->frame() << " "       // 18: timestamp
+               << ts->time() << " "        // 18: timestamp
                << det->confidence()        // 19: confidence
                << std::endl;
     }
   }
-}
 
+  write_object_track_set::close();
+}
 
 // -------------------------------------------------------------------------------
 void
@@ -141,20 +121,21 @@ write_object_track_set_kw18
   d->m_delim = config->get_value<std::string>( "delimiter", d->m_delim );
 }
 
-
 // -------------------------------------------------------------------------------
 bool
 write_object_track_set_kw18
-::check_configuration(vital::config_block_sptr config) const
+::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
 {
   return true;
 }
 
-
 // -------------------------------------------------------------------------------
 void
 write_object_track_set_kw18
-::write_set( const kwiver::vital::object_track_set_sptr set )
+::write_set(
+  kwiver::vital::object_track_set_sptr const& set,
+  kwiver::vital::timestamp const& /*ts*/,
+  std::string const& /*frame_identifier*/ )
 {
   if( d->m_first )
   {

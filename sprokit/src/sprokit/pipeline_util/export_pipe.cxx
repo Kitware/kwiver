@@ -35,6 +35,7 @@
 #include <vital/util/wrap_text_block.h>
 
 #include <sprokit/pipeline_util/pipe_declaration_types.h>
+#include <sprokit/pipeline_util/pipeline_builder.h>
 
 #include <sprokit/pipeline/pipeline.h>
 #include <sprokit/pipeline/pipeline_exception.h>
@@ -123,7 +124,8 @@ config_printer
   kwiver::vital::config_block_keys_t const& keys = config_block.key;
   sprokit::config_values_t const& values = config_block.values;
 
-  kwiver::vital::config_block_key_t const key_path = kwiver::vital::join( keys, kwiver::vital::config_block::block_sep );
+  kwiver::vital::config_block_key_t const key_path =
+     kwiver::vital::join( keys, kwiver::vital::config_block::block_sep() );
 
   // generate pipe level config block
   m_ostr << "config " << key_path << std::endl;
@@ -284,7 +286,7 @@ config_printer
 // ------------------------------------------------------------------
 void
 config_printer
-::output_process( sprokit::process_t const& proc )
+  ::output_process( sprokit::process_t const& proc )
 {
   sprokit::process::name_t const name = proc->name();
   kwiver::vital::config_block_keys_t const keys = proc->available_config();
@@ -293,7 +295,7 @@ config_printer
   kwiver::vital::wrap_text_block wtb;
   wtb.set_indent_string( "  #    " );
 
-  for( kwiver::vital::config_block_key_t const & key : keys )
+  for ( kwiver::vital::config_block_key_t const& key : keys )
   {
     if ( kwiver::vital::starts_with( key, "_" ) )
     {
@@ -310,9 +312,9 @@ config_printer
     bool const is_tunable = ( 0 != std::count( tunable_keys.begin(), tunable_keys.end(), key ) );
     std::string const tunable = ( is_tunable ? "yes" : "no" );
 
-    m_ostr << "  # Key: " << key << std::endl
-           << "  # Description:\n" << desc
-           << "  # Tunable: " << tunable << std::endl;
+    m_ostr  << "  # Key: " << key << std::endl
+            << "  # Description:\n" << desc
+            << "  # Tunable: " << tunable << std::endl;
 
     kwiver::vital::config_block_value_t const& def = info->def;
 
@@ -325,11 +327,13 @@ config_printer
       m_ostr << "  # Default value: " << def << std::endl;
     }
 
-    kwiver::vital::config_block_key_t const resolved_key = norm_name + kwiver::vital::config_block::block_sep + key;
+    kwiver::vital::config_block_key_t const resolved_key =
+      norm_name + kwiver::vital::config_block::block_sep() + key;
 
     if ( m_config->has_value( resolved_key ) )
     {
-      kwiver::vital::config_block_value_t const cur_value = m_config->get_value< kwiver::vital::config_block_value_t > ( resolved_key );
+      kwiver::vital::config_block_value_t const cur_value =
+        m_config->get_value< kwiver::vital::config_block_value_t > ( resolved_key );
 
       m_ostr << "  # Current value: " << cur_value << std::endl;
     }
@@ -367,7 +371,8 @@ key_printer
   const auto & value = config_value.value;
   const auto & keys = config_value.key_path;
 
-  const auto key_path = kwiver::vital::join( keys, kwiver::vital::config_block::block_sep );
+  const auto key_path = kwiver::vital::join( keys,
+               kwiver::vital::config_block::block_sep() );
 
   const auto & flags = config_value.flags;
 
@@ -428,7 +433,7 @@ generate( std::ostream& str )
 {
   sprokit::pipeline_t const pipe = m_builder.pipeline();
   kwiver::vital::config_block_sptr const config = m_builder.config();
-  sprokit::pipe_blocks const blocks = m_builder.blocks();
+  sprokit::pipe_blocks const blocks = m_builder.pipeline_blocks();
 
   config_printer printer( str, pipe, config );
 

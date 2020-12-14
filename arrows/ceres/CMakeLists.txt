@@ -6,6 +6,8 @@ set( ceres_headers_public
   lens_distortion.h
   optimize_cameras.h
   reprojection_error.h
+  camera_intrinsic_prior.h
+  camera_position.h
   camera_smoothness.h
   )
 set( ceres_headers_private
@@ -37,7 +39,7 @@ kwiver_add_library( kwiver_algo_ceres
   ${ceres_sources}
   )
 target_link_libraries( kwiver_algo_ceres
-  PUBLIC               kwiver_algo_core
+  PUBLIC               vital_algo
   PRIVATE              ceres
   )
 if(NOT CERES_USES_MINIGLOG)

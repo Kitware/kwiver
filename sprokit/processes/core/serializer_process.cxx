@@ -75,15 +75,12 @@ namespace kwiver {
  serialization_type = json
 
  # -- connect inputs to algo that generates image and mask messages
- connect from foo.image to ser.grp/ImageAndMask/image  # supplies image to ImageAndMask implementation
- connect from bar.image to ser.grp/ImageAndMask/mask   # supplies mask to ImageAndMask implementation
+ connect from foo.image to ser.imgmask/image  # supplies image to imgmask message
+ connect from bar.image to ser.imgmask/mask   # supplies mask to imgmask message
 
  # -- connect output to transport
- connect ser.grp to trans.message
+ connect ser.imgmask to trans.message
 
- # -- connect a single input algorithm
- connect from foo.detections to ser.detections  # connect detection set to be serialized
- connect from ser.detections to det_trans.message
  * \endcode
  *
  */
@@ -288,6 +285,7 @@ output_port_undefined(port_t const& port_name)
     {
       port_flags_t required;
       required.insert( flag_required );
+      required.insert( flag_output_shared );
 
       LOG_TRACE( logger(), "Creating output port: \"" << port_name << "\"" );
 

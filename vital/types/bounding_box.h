@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016-2017 by Kitware, Inc.
+ * Copyright 2016-2017, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,7 +72,7 @@ public:
    * @param height Height of box.
    */
   bounding_box( vector_type const& upper_left,
-                T const& width, T const& height )
+                T width, T height )
   {
     vector_type lr( upper_left );
     lr.x() += width;
@@ -93,6 +93,33 @@ public:
     vector_type ul( xmin, ymin );
     vector_type lr( xmax, ymax );
     m_bbox =  Eigen::AlignedBox< T, 2 >( ul, lr );
+  }
+
+  /**
+   * @brief Create default (invalid) box.
+   */
+  bounding_box()
+  {
+    // NOTE: Any initial state logic here
+    // Should be reproduced in the reset method
+  }
+
+  /**
+   * @brief Check to see if the two corner points are valid.
+   *
+   * @return true if the box is valid
+   */
+  bool is_valid() const
+  {
+    return !m_bbox.isEmpty();
+  }
+
+  /**
+   * @brief Reset the bounding box to an initial invalid state.
+   */
+  void reset()
+  {
+    m_bbox.setEmpty();
   }
 
   /**
@@ -211,6 +238,21 @@ bool operator== ( bounding_box<T> const& lhs, bounding_box<T> const& rhs )
 }
 
 
+/**
+ * @brief Inequality operator for bounding box
+ *
+ * @param lhs The box to check against
+ * @param rhs The other box to check against
+ *
+ * @return \b true if boxes are different
+ */
+template <typename T>
+bool operator!= ( bounding_box<T> const& lhs, bounding_box<T> const& rhs )
+{
+  return !(lhs == rhs);
+}
+
+
 // Define for common types.
 typedef bounding_box< int > bounding_box_i;
 typedef bounding_box< double > bounding_box_d;
@@ -240,14 +282,13 @@ bounding_box<T> & translate( bounding_box<T>& bbox,
 /**
  * @brief Scale a box by some scale factor.
  *
- * This operator scales bounding_box by the specified
- * amount.
+ * This operator scales bounding_box by the specified factor. A new
+ * box is returned that has been scaled from the input box.
  *
- * @param[in,out] bbox Box to translate
- * @param[in] scale_factor Scale factor to use
+ * @param bbox Box to scale
+ * @param scale_factor Scale factor to use
  *
- * @return The specified parameter box, updated with the new
- * coordinates, is returned.
+ * @return A new bounding box that has been scaled.
  */
 template < typename T >
 bounding_box<T> scale( bounding_box<T> const& bbox,

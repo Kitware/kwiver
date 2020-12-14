@@ -63,66 +63,44 @@ a PR until it conforms to the requirements described here (e.g.
 coding style, release notes, etc.) and it is confirmed that the code
 has sufficient unit tests and does not break any existing unit tests.
 
+Commits
+-------
+
+While not a strict requirement, it is beneficial for commits to record a set of
+separate, logical changes.  Ideally, each commit should compile and have
+correct code style (this is partly enforced by our workflow tools, and such
+enforcement may be expanded in the future).  "Fixup" commits only serve to
+clutter the history and make it harder to understand what changed.  Judicious
+use of amend and rebase is encouraged.
+
+Additionally, commits should follow the accepted conventions for git commit
+messages.  In short:
+
+- Use proper spelling and grammar; avoid "twitter speak".
+- Use complete sentences (including the first line) and appropriate
+  capitalization.  Use imperative mood.
+- Try to limit the subject line to 50 characters.  *Don't* end with a period.
+- Limit body lines (when necessary; occasionally just a subject is enough) to
+  72 characters (unless this is impossible e.g. due to a long URL).
+
+For further reading, see:
+
+- https://chris.beams.io/posts/git-commit/
+- https://www.freecodecamp.org/news/writing-good-commit-messages-a-practical-guide/
+- https://medium.com/@steveamaza/how-to-write-a-proper-git-commit-message-e028865e5791
+
 
 Coding Style
 ============
 
-When developing KWIVER, please keep to the prevailing style of the code.
-Some guidelines to keep in mind for different languages in the codebase are as
-follows:
+When developing KWIVER, please keep to the prevailing style of the code. KWIVER
+uses ``uncrustify`` to assist with style consistency.
 
-CMake
------
+CMake, C++
+----------
 
-* 2-space indentation
-
-* Lowercase for private variables
-
-* Uppercase for user-controlled variables
-
-* Prefer functions over macros
-
-  * They have variable scoping and debugging them is much easier
-
-* Prefer ``foreach (IN LISTS)`` and ``list(APPEND)``
-
-* Prefer ``kwiver_configure_file`` over ``configure_file`` when possible to
-  avoid adding dependencies to the configure step
-
-* Use the ``kwiver_`` wrappers of common commands (e.g., ``add_library``,
-  ``add_test``, etc.) as they automatically Do The Right Thing with
-  installation, compile flags, build locations, and more)
-
-* Quote *all* paths and variable expansions unless list expansion is required
-  (usually in command arguments or optional arguments)
-
-C++
----
-
-* 2-space indentation
-
-* Use lowercase with underscores for symbol names
-
-* Store intermediate values into local ``const`` variables so that they are
-  easily available when debugging
-
-* There is no fixed line length, but keep it reasonable
-
-* Default to using ``const`` everywhere
-
-* All modifiers of a type go *after* the type (e.g., ``char const*``, not
-  ``const char*``)
-
-* Export symbols (or import them if possible)
-
-* Use braces around all control (even single-line if) blocks
-
-* Use typedefs
-
-* Use exceptions and return values, not error codes and output parameters
-
-  * This allows for chaining functions, works with ``<algorithm>`` better,
-    and allows more variables to be ``const``
+Please refer to the `style guide <doc/code-style.rst>`_ for a detailed
+description and explanation of the coding style we follow.
 
 Python
 ------
@@ -138,12 +116,11 @@ Python
 Testing
 =======
 
-Generally, all new code should come with tests. The goal is sustained
-95% coverage and higher (due to impossible-to-generically-create
-corner cases such as files which are readable, but error out in the
-middle). Tests should be grouped into a single executable for each
-class, group of cooperating classes (e.g., types tests), or
-higher-level use case. In C++, use the ``TEST_`` macros which will
-hook into the testing infrastructure automatically and in Python, name
-functions so that they start with ``test_`` and they will be picked up
-automatically.
+Generally, all new code should come with tests. The goal is sustained 95%
+coverage and higher (due to impossible-to-generically-create corner cases such
+as files which are readable, but error out in the middle). Tests should be
+grouped into a single executable for each class, group of cooperating classes
+(e.g., types tests), or higher-level use case. In C++, use Google Test and
+follow the examples of other tests to integrate with the testing infrastructure
+automatically. In Python, name functions so that they start with ``test_`` and
+they will be picked up automatically.

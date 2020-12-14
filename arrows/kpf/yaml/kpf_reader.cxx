@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2017-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -54,7 +28,6 @@ using std::make_pair;
 namespace kwiver {
 namespace vital {
 namespace kpf {
-
 
 kpf_reader_t
 ::kpf_reader_t( kpf_parser_base_t& p )
@@ -87,7 +60,6 @@ kpf_reader_t
 {
   return this->meta_buffer;
 }
-
 
 bool
 kpf_reader_t
@@ -156,7 +128,7 @@ kpf_reader_t
 
 pair< bool, packet_t >
 kpf_reader_t
-::transfer_kv_packet_from_buffer( const string& key )
+::transfer_kv_packet_from_buffer( const string& key, bool set_bad_if_missing )
 {
   if (! this->verify_reader_status() )
   {
@@ -177,6 +149,10 @@ kpf_reader_t
 
   if (probe == this->packet_buffer.end())
   {
+    if (set_bad_if_missing)
+    {
+      this->reader_status = false;
+    }
     return make_pair( false, packet_t() );
   }
 
@@ -189,10 +165,9 @@ kpf_reader_t
   return ret;
 }
 
-
 pair< bool, packet_t >
 kpf_reader_t
-::transfer_packet_from_buffer( const packet_header_t& h )
+::transfer_packet_from_buffer( const packet_header_t& h, bool set_bad_if_missing )
 {
   if (! this->verify_reader_status() )
   {
@@ -233,7 +208,10 @@ kpf_reader_t
   }
   if (probe == this->packet_buffer.end())
   {
-    this->reader_status = false;
+    if (set_bad_if_missing)
+    {
+      this->reader_status = false;
+    }
     return make_pair( false, packet_t() );
   }
 
@@ -250,7 +228,8 @@ bool
 kpf_reader_t
 ::process_reader( packet_bounce_t& b )
 {
-  auto probe = this->transfer_packet_from_buffer( b.my_header() );
+  // fail if missing; this is (I think) only called by readers
+  auto probe = this->transfer_packet_from_buffer( b.my_header(), true );
   if (probe.first)
   {
     b.set_from_buffer( probe.second );
@@ -319,7 +298,7 @@ kpf_reader_t&
 operator>>( kpf_reader_t& t,
             const reader< canonical::id_t >& r )
 {
-  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::ID, r.domain ));
+  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::ID, r.domain ), true );
   if (probe.first)
   {
     r.id_ref = probe.second.id.d;
@@ -331,7 +310,7 @@ kpf_reader_t&
 operator>>( kpf_reader_t& t,
             const reader< canonical::timestamp_t >& r )
 {
-  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::TS, r.domain ));
+  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::TS, r.domain ), true );
   if (probe.first)
   {
     switch (r.which)
@@ -366,7 +345,7 @@ kpf_reader_t&
 operator>>( kpf_reader_t& t,
             const reader< canonical::conf_t >& r )
 {
-  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::CONF, r.domain ));
+  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::CONF, r.domain ), true);
   if (probe.first)
   {
     r.conf = probe.second.conf.d;
@@ -378,7 +357,7 @@ kpf_reader_t&
 operator>>( kpf_reader_t& t,
             const reader< canonical::cset_t >& r )
 {
-  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::CSET, r.domain ));
+  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::CSET, r.domain ), true);
   if (probe.first)
   {
     r.cset = *probe.second.cset;
@@ -390,7 +369,7 @@ kpf_reader_t&
 operator>>( kpf_reader_t& t,
             const reader< canonical::meta_t >& r )
 {
-  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::META ));
+  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::META ), true);
   if (probe.first)
   {
     r.txt = probe.second.meta.txt;
@@ -402,7 +381,7 @@ kpf_reader_t&
 operator>>( kpf_reader_t& t,
             const reader< canonical::timestamp_range_t >& r )
 {
-  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::TSR ));
+  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::TSR ), true);
   if (probe.first)
   {
     switch (r.which)
@@ -422,7 +401,6 @@ operator>>( kpf_reader_t& t,
   }
   return t;
 }
-
 
 } // ...kpf
 } // ...vital
