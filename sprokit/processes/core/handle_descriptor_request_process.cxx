@@ -59,6 +59,7 @@ public:
 
   std::string image_pipeline_file;
 
+  algo::handle_descriptor_request_sptr m_handler;
   std::unique_ptr< embedded_pipeline > image_pipeline;
 }; // end priv class
 
@@ -219,6 +220,7 @@ void handle_descriptor_request_process
 handle_descriptor_request_process::priv
 ::priv()
   : image_pipeline_file("")
+  , m_handler()
   , image_pipeline()
 {
 }
