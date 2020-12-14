@@ -1,45 +1,17 @@
-# ckwg +29
-# Copyright 2020 by Kitware, Inc.
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-#    * Redistributions of source code must retain the above copyright notice,
-#    this list of conditions and the following disclaimer.
-#
-#    * Redistributions in binary form must reproduce the above copyright notice,
-#    this list of conditions and the following disclaimer in the documentation
-#    and/or other materials provided with the distribution.
-#
-#    * Neither name of Kitware, Inc. nor the names of any contributors may be used
-#    to endorse or promote products derived from this software without specific
-#    prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
-# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# This file is part of KWIVER, and is distributed under the
+# OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+# https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 from __future__ import print_function
 from __future__ import division
 
 from vital.algo import TrainDetector
-from vital.algo import DetectedObjectSetOutput
 
 from vital.types import BoundingBox
 from vital.types import CategoryHierarchy  # probably uneeded
 from vital.types import DetectedObjectSet
-from vital.types import DetectedObject
 from vital.types import DetectedObjectType
 
-from vital.util import VitalPIL
 from vital.util.VitalPIL import get_pil_image
 
 from PIL import Image as PILImage
@@ -49,15 +21,12 @@ from shutil import copyfile
 
 import argparse
 import numpy as np
-import pickle
 import os
 import shutil
 import signal
 import sys
 import subprocess
-import threading
 import time
-import pdb
 
 # Taken from
 # https://github.com/Kitware/burn-out/blob/master/library/object_detectors/pixel_annotation_loader.cxx
@@ -100,7 +69,6 @@ class BurnoutDataWriter():
 
         # We assume this is called with write_path as an empty directory
         # This should probably make a call to a logger or something
-        print("About to make directory for BurnoutWriter")
         print("About to make directory " +
               self._write_path + " for BurnOutTrainer")
 
@@ -137,22 +105,20 @@ class BurnoutDataWriter():
             output_mask = np.zeros_like(
                 PILImage.open(filename), dtype=np.uint8)
 
-        # Get the mask for the detection and where to place it within the
-        # image-wide mask
-        # TODO determine which colors to use for each class
-
         # Errors if we try to index with empty arrays
         # The underlying array for the image is read-only
         if output_mask.ndim != 3:
-            output_mask = np.repeat(np.expand_dims(output_mask, axis=2), repeats=3, axis=2)
+            output_mask = np.repeat(np.expand_dims(
+                output_mask, axis=2), repeats=3, axis=2)
         else:
             output_mask = output_mask.copy()
 
         for gt_det in gt_frame_dets:
             bbox = gt_det.bounding_box()
             if gt_det.mask is None:
-                print("viame_csv_reader::read_poly needs to be turned on")
-                continue
+                raise ValueError(
+                    "viame_csv_reader::read_poly needs to be turned on")
+
             det_mask = np.asarray(get_pil_image(gt_det.mask.image()))
             # These are the inds of the interior regions of the polygon w.r.t.
             # the detection
@@ -163,9 +129,9 @@ class BurnoutDataWriter():
 
             # remove point outside the image
             invalid_inds = np.logical_or(np.logical_or(y_inds < 0,
-                                         y_inds >= output_mask.shape[0]),
+                                                       y_inds >= output_mask.shape[0]),
                                          np.logical_or(x_inds < 0,
-                                         x_inds >= output_mask.shape[1]))
+                                                       x_inds >= output_mask.shape[1]))
             valid_inds = np.logical_not(invalid_inds)
             x_inds = x_inds[valid_inds]
             y_inds = y_inds[valid_inds]
@@ -187,9 +153,9 @@ class BurnOutTrainer(TrainDetector):
 
     def __init__(self):
         TrainDetector.__init__(self)
-        # These need to be set in .add_data_from_disk()
+
+        self.proc = None
         self._training_writer = None
-        self._categories = None
 
         self._identifier = "adaboost_pixel_classifier"
         self._temp_dir = "adaboost_training"
@@ -199,6 +165,9 @@ class BurnOutTrainer(TrainDetector):
         self._positive_identifiers = "1"
         self._negative_identifiers = "0"
         self._max_iter_count = "200"
+
+        # This needs to be set in .add_data_from_disk()
+        self._categories = None
 
     def get_configuration(self):
         # Inherit from the base class
@@ -218,7 +187,6 @@ class BurnOutTrainer(TrainDetector):
         cfg = self.get_configuration()
         cfg.merge_config(cfg_in)
 
-        # Read configs from file
         self._identifier = str(cfg.get_value("identifier"))
         self._burnin_exec = str(cfg.get_value("remove_metadata_burnin_exec"))
         self._feature_pipeline = str(cfg.get_value("feature_pipeline"))
@@ -265,64 +233,64 @@ class BurnOutTrainer(TrainDetector):
     def add_data_from_disk(self, categories, train_files, train_dets,
                            test_files, test_dets):
         if len(train_files) != len(train_dets):
-            print("Error: train file and groundtruth count mismatch")
-            return
+            raise ValueError(
+                "Error: train file and groundtruth count mismatch")
 
         if categories is not None:
             self._categories = categories.all_class_names()
 
         all_files = train_files + test_files
         all_dets = train_dets + test_dets
-        for i in range(len(train_files) + len(test_files)):
-            filename = all_files[i]
+        for i, filename in enumerate(all_files):
             groundtruth, use_frame = self.filter_truth(
                 all_dets[i], categories)
             if use_frame:
-                print("About to write trianing set")
                 self._training_writer.write_set(
                     groundtruth, os.path.abspath(filename), i)
 
     def update_model(self):
-        # TODO make these cross platform
-        # TODO migrate to .format() since that should be supported on all
-        # versions of python we expect
-        feature_commands = ["{} -c {} \\".format(self._burnin_exec, self._feature_pipeline),
-                            "    --extract-features {} \\".format(
-                                self._temp_dir),
-                            "    --gt-image-type png \\",
-                            "    --feature-file {}/features.txt".format(
-                                self._temp_dir)]
-        feature_command = "\n".join(feature_commands)
-        model_file = os.path.join(
-            self._training_writer.get_write_path(), "trained_classifier.adb")
-        train_command = "train_pixel_model {}/features.txt {} --positive-identifiers {} --negative-identifiers {} --max-iter-count {}".format(
-            self._temp_dir, model_file, self._positive_identifiers,
-            self._negative_identifiers, self._max_iter_count)
+        """Generate a model on disk based on the intermediate images"""
+        # Generate the features from images
+        features_file = os.path.join(self._temp_dir, "features.txt")
+        feature_command = [self._burnin_exec,
+                           "-c",
+                           self._feature_pipeline,
+                           "--extract-features",
+                           self._temp_dir,
+                           "--gt-image-type",
+                           "png",
+                           "--feature-file",
+                           features_file]
 
-        # TODO migrate to subprocess.run()
-        print(feature_command)
-        os.system(feature_command)
-        print(train_command)
-        os.system(train_command)
-        final_model_folder = os.path.join(os.getcwd(), "category_models")
-        os.makedirs(final_model_folder, exist_ok=True)
-        final_model_file = os.path.join(
-            final_model_folder, "trained_classifier.adb")
-        try:
-            shutil.copyfile(model_file, final_model_file)
-        except FileNotFoundError:
-            print("Final model was not produced to {}".format(model_file))
+        self.proc = subprocess.run(feature_command)
+
+        model_folder = os.path.join(self._temp_dir, "trained_model")
+        os.makedirs(model_folder, exist_ok=True)
+        model_file = os.path.join(model_folder, "trained_classifier.adb")
+
+        train_command = ["train_pixel_model",
+                         features_file,
+                         model_file,
+                         "--positive-identifiers",
+                         self._positive_identifiers,
+                         "--negative-identifiers",
+                         self._negative_identifiers,
+                         "--max-iter-count",
+                         self._max_iter_count]
+
+        self.proc = subprocess.run(train_command)
 
     def interupt_handler(self):
-        # Also left in just in case
-        self.proc.send_signal(signal.SIGINT)
-        timeout = 0
-        while self.proc.poll() is None:
-            time.sleep(0.1)
-            timeout += 0.1
-            if timeout > 5:
-                self.proc.kill()
-                break
+        # Give the subprocess five seconds to exit cleanly
+        if self.proc is not None:
+            self.proc.send_signal(signal.SIGINT)
+            timeout = 0
+            while self.proc.poll() is None:
+                time.sleep(0.1)
+                timeout += 0.1
+                if timeout > 5:
+                    self.proc.kill()
+                    break
         sys.exit(0)
 
 
