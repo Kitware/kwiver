@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include "color_commonality_filter.h"
 
@@ -409,7 +407,7 @@ void perform_filtering( const vil_image_view<InputType>& input,
 
 } // end anonoymous namespace
 
-// --------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Private implementation class
 class color_commonality_filter::priv
 {
@@ -438,7 +436,7 @@ public:
   std::vector<unsigned> intensity_histogram;
 };
 
-// --------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 color_commonality_filter
 ::color_commonality_filter()
 : d( new priv() )
@@ -446,11 +444,13 @@ color_commonality_filter
   attach_logger( "arrows.vxl.color_commonality_filter" );
 }
 
+// ----------------------------------------------------------------------------
 color_commonality_filter
 ::~color_commonality_filter()
 {
 }
 
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 color_commonality_filter
 ::get_configuration() const
@@ -481,6 +481,7 @@ color_commonality_filter
   return config;
 }
 
+// ----------------------------------------------------------------------------
 void
 color_commonality_filter
 ::set_configuration( vital::config_block_sptr in_config )
@@ -519,6 +520,7 @@ color_commonality_filter
   d->intensity_histogram.resize( d->intensity_resolution, 0 );
 }
 
+// ----------------------------------------------------------------------------
 bool
 color_commonality_filter
 ::check_configuration( vital::config_block_sptr config ) const
@@ -531,7 +533,7 @@ color_commonality_filter
   return true;
 }
 
-// Perform stitch operation
+// ----------------------------------------------------------------------------
 kwiver::vital::image_container_sptr
 color_commonality_filter
 ::filter( kwiver::vital::image_container_sptr image_data )

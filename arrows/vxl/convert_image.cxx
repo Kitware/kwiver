@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include "convert_image.h"
 
@@ -86,7 +84,7 @@ void combine_channels( const vil_image_view<Type>& src,
   }
 }
 
-
+// Convert a fraction of images to grey
 template< typename Type >
 void random_grey_conversion( const vil_image_view<Type>& src,
                              vil_image_view<Type>& dst,
@@ -279,7 +277,7 @@ void percentile_scale_image( const vil_image_view< InputType >& src,
 
 } // end anonoymous namespace
 
-// --------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Private implementation class
 class convert_image::priv
 {
@@ -305,7 +303,7 @@ public:
   double percentile_norm;
 };
 
-// --------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 convert_image
 ::convert_image()
 : d( new priv() )
@@ -342,6 +340,7 @@ convert_image
   return config;
 }
 
+// ----------------------------------------------------------------------------
 void
 convert_image
 ::set_configuration( vital::config_block_sptr in_config )
@@ -366,6 +365,7 @@ convert_image
   }
 }
 
+// ----------------------------------------------------------------------------
 bool
 convert_image
 ::check_configuration( vital::config_block_sptr config ) const
@@ -373,7 +373,7 @@ convert_image
   return true;
 }
 
-// Perform stitch operation
+// ----------------------------------------------------------------------------
 kwiver::vital::image_container_sptr
 convert_image
 ::filter( kwiver::vital::image_container_sptr image_data )
@@ -415,7 +415,7 @@ convert_image
 #define HANDLE_INPUT_CASE(T)                                           \
   case T:                                                              \
     {                                                                  \
-      typedef vil_pixel_format_type_of<T >::component_type ipix_t;     \
+      typedef vil_pixel_format_type_of< T >::component_type ipix_t;    \
                                                                        \
       if( d->format == "disable" )                                     \
       {                                                                \

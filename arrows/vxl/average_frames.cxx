@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2012-2019 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include "average_frames.h"
 
@@ -576,7 +574,7 @@ public:
   }
 };
 
-// --------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 average_frames
 ::average_frames()
 : d( new priv() )
@@ -584,11 +582,13 @@ average_frames
   attach_logger( "arrows.vxl.average_frames" );
 }
 
+// ----------------------------------------------------------------------------
 average_frames
 ::~average_frames()
 {
 }
 
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 average_frames
 ::get_configuration() const
@@ -612,6 +612,7 @@ average_frames
   return config;
 }
 
+// ----------------------------------------------------------------------------
 void
 average_frames
 ::set_configuration( vital::config_block_sptr in_config )
@@ -637,7 +638,7 @@ average_frames
   return true;
 }
 
-// Perform stitch operation
+// ----------------------------------------------------------------------------
 kwiver::vital::image_container_sptr
 average_frames
 ::filter( kwiver::vital::image_container_sptr image_data )
