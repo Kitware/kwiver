@@ -687,7 +687,7 @@ average_frames
     }                                                                  \
     break;                                                             \
 
-  switch (view->pixel_format())
+  switch ( view->pixel_format() )
   {
     HANDLE_CASE(VIL_PIXEL_FORMAT_BOOL);
     HANDLE_CASE(VIL_PIXEL_FORMAT_SBYTE);
@@ -701,25 +701,34 @@ average_frames
     HANDLE_CASE(VIL_PIXEL_FORMAT_DOUBLE);
 #undef HANDLE_CASE
 
+  case VIL_PIXEL_FORMAT_BYTE:
+    {
+      // Default byte case
+      vil_image_view< vxl_byte > input = view;
+
+      d->load_model( true );
+
+      if( !d->output_variance )
+      {
+        vil_image_view< vxl_byte > output;
+        d->byte_averager->process_frame( input, output );
+        return std::make_shared< vxl::image_container >( output );
+      }
+      else
+      {
+        vil_image_view< vxl_byte > tmp;
+        vil_image_view< double > output;
+        d->byte_averager->process_frame( input, tmp, output );
+        return std::make_shared< vxl::image_container >( output );
+      }
+      break;
+    }
+
   default:
-    // Default byte case
-    vil_image_view< vxl_byte > input = view;
-
-    d->load_model( true );
-
-    if( !d->output_variance )
-    {
-      vil_image_view< vxl_byte > output;
-      d->byte_averager->process_frame( input, output );
-      return std::make_shared< vxl::image_container >( output );
-    }
-    else
-    {
-      vil_image_view< vxl_byte > tmp;
-      vil_image_view< double > output;
-      d->byte_averager->process_frame( input, tmp, output );
-      return std::make_shared< vxl::image_container >( output );
-    }
+    // The image type was not one we handle
+    LOG_ERROR( logger(), "Invalid input format " << view->pixel_format()
+                         << " type received" );
+    return kwiver::vital::image_container_sptr();
   }
 
   // Code not reached, prevent warning
