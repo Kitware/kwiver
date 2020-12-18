@@ -572,6 +572,27 @@ public:
       throw std::runtime_error( "Invalid averaging type!" );
     }
   }
+
+  // Compute the updated average with the current frame
+  // return the average or the variance
+  kwiver::vital::image_container_sptr
+  process_frame( vil_image_view< double > input )
+  {
+    load_model( false );
+
+    if( !output_variance )
+    {
+      vil_image_view< double > output;
+      float_averager->process_frame( input, output );
+      return std::make_shared< vxl::image_container >( output );
+    }
+    else
+    {
+      vil_image_view< double > tmp, output;
+      float_averager->process_frame( input, tmp, output );
+      return std::make_shared< vxl::image_container >( output );
+    }
+  }
 };
 
 // ----------------------------------------------------------------------------
@@ -657,25 +678,12 @@ average_frames
 #define HANDLE_CASE(T)                                                 \
   case T:                                                              \
     {                                                                  \
-      typedef vil_pixel_format_type_of<T >::component_type pix_t;      \
+      typedef vil_pixel_format_type_of< T >::component_type pix_t;     \
       vil_image_view< pix_t > uncast_input = view;                     \
       vil_image_view< double > input;                                  \
       vil_convert_cast( uncast_input, input );                         \
                                                                        \
-      d->load_model( false );                                          \
-                                                                       \
-      if( !d->output_variance )                                        \
-      {                                                                \
-        vil_image_view< double > output;                               \
-        d->float_averager->process_frame( input, output );             \
-        return std::make_shared< vxl::image_container >( output );     \
-      }                                                                \
-      else                                                             \
-      {                                                                \
-        vil_image_view< double > tmp, output;                          \
-        d->float_averager->process_frame( input, tmp, output );        \
-        return std::make_shared< vxl::image_container >( output );     \
-      }                                                                \
+      d->process_frame( input );                                       \
     }                                                                  \
     break;                                                             \
 
