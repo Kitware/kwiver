@@ -65,8 +65,8 @@ public:
   {
     // TODO: Allow custom homography matrix?
     return cv::xfeatures2d::DAISY::create( radius, q_radius, q_theta, q_hist,
-                                           norm, cv::noArray(), interpolation,
-                                           use_orientation );
+      static_cast<cv::xfeatures2d::DAISY::NormalizationType>(norm),
+      cv::noArray(), interpolation, use_orientation );
   }
 
   void update_config( config_block_sptr config ) const
