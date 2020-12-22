@@ -165,6 +165,7 @@ class BurnOutTrainer(TrainDetector):
         self._positive_identifiers = "1"
         self._negative_identifiers = "0"
         self._max_iter_count = "200"
+        self._generate_empty_images = "true"
 
         # This needs to be set in .add_data_from_disk()
         self._categories = None
@@ -180,6 +181,7 @@ class BurnOutTrainer(TrainDetector):
         cfg.set_value("positive_identifiers", self._positive_identifiers)
         cfg.set_value("negative_identifiers", self._negative_identifiers)
         cfg.set_value("max_iter_count", self._max_iter_count)
+        cfg.set_value("generate_empty_images", self._generate_empty_images)
 
         return cfg
 
@@ -194,12 +196,14 @@ class BurnOutTrainer(TrainDetector):
         self._positive_identifiers = str(cfg.get_value("positive_identifiers"))
         self._negative_identifiers = str(cfg.get_value("negative_identifiers"))
         self._max_iter_count = str(cfg.get_value("max_iter_count"))
+        self._generate_empty_images = str(cfg.get_value("generate_empty_images"))
 
         from vital.modules.modules import load_known_modules
         load_known_modules()
 
         self._training_writer = \
-            BurnoutDataWriter(self._temp_dir, is_train=True)
+            BurnoutDataWriter(self._temp_dir, is_train=True,
+            generate_for_empty=(self._generate_empty_images=="true"))
 
         return True
 
