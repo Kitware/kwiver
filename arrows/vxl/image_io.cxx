@@ -151,9 +151,8 @@ plane_filename(std::string filename, unsigned p)
   std::string file_name_with_ext =
     kwiversys::SystemTools::GetFilenameName(filename);
 
-  std::size_t last_index = file_name_with_ext.find_last_of( "." );
-  std::string file_name_no_ext = file_name_with_ext.substr( 0, last_index );
-  std::string file_extension = file_name_with_ext.substr( last_index );
+  std::string file_name_no_ext = kwiversys::SystemTools::GetFilenameWithoutLastExtension( file_name_with_ext );
+  std::string file_extension = kwiversys::SystemTools::GetFilenameLastExtension( file_name_with_ext );
 
   std::vector<std::string> full_path;
   std::string plane_id = ( p > 0 ? "_" + std::to_string(p) : "" );

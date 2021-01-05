@@ -532,7 +532,7 @@ public:
       }
       else
       {
-        float_averager.reset( 
+        float_averager.reset(
           new windowed_frame_averager< double >( round, window_size ) );
       }
     }
@@ -546,7 +546,7 @@ public:
       else
       {
         float_averager.reset(
-          new cumulative_frame_averager< double >( round ) );  
+          new cumulative_frame_averager< double >( round ) );
       }
     }
     else if( type == "exponential" )
@@ -564,7 +564,7 @@ public:
       else
       {
         float_averager.reset(
-          new exponential_frame_averager< double >( round, exp_weight ) );   
+          new exponential_frame_averager< double >( round, exp_weight ) );
       }
     }
     else
@@ -656,6 +656,21 @@ bool
 average_frames
 ::check_configuration( vital::config_block_sptr config ) const
 {
+  std::string type = config->get_value< std::string >( "type" );
+  if( !(type == "cumulative" ||
+        type == "window" ||
+        type == "exponential") )
+  {
+    return false;
+  }
+  else if( type == "exponential")
+  {
+    double exp_weight = config->get_value< double >( "exp_weight" );
+    if( exp_weight <= 0 || exp_weight > 1 )
+    {
+      return false;
+    }
+  }
   return true;
 }
 

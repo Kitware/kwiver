@@ -2,8 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#ifndef KWIVER_ARROWS_VXL_convert_image_
-#define KWIVER_ARROWS_VXL_convert_image_
+#ifndef KWIVER_ARROWS_VXL_CONVERT_IMAGE_
+#define KWIVER_ARROWS_VXL_CONVERT_IMAGE_
 
 #include <arrows/vxl/kwiver_algo_vxl_export.h>
 
@@ -50,4 +50,4 @@ private:
 
 } } }
 
-#endif /* KWIVER_ARROWS_VXL_convert_image_ */
+#endif
