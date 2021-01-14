@@ -1,6 +1,32 @@
-// This file is part of KWIVER, and is distributed under the
-// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
-// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
+/*ckwg +29
+ * Copyright 2015-2017, 2020 by Kitware, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ *  * Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
+ *    to endorse or promote products derived from this software without specific
+ *    prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 /**
  * \file
@@ -44,22 +70,25 @@ namespace kwiver {
 
 // (config-key, value-type, default-value, description )
 create_config_trait( error_mode, std::string, "abort",
-                     "How to handle file not found errors. Options are 'abort' and 'skip'. "
-                     "Specifying 'fail' will cause an exception to be thrown. "
-                     "The 'pass' option will only log a warning and wait for the next file name." );
+  "How to handle file not found errors. Options are 'abort' and 'skip'. "
+  "The 'pass' option will only log a warning and wait for the next file name." );
 
 create_config_trait( path, std::string, "",
-                     "Path to search for image file. The format is the same as the standard "
-                     "path specification, a set of directories separated by a colon (':')" );
+  "Path to search for image file. The format is the same as the standard "
+  "path specification, a set of directories separated by a colon (':')" );
 
 create_config_trait( frame_time, double, "0.3333333", "Inter frame time in seconds. "
-                     "The generated timestamps will have the specified number of seconds in the generated "
-                     "timestamps for sequential frames. This can be used to simulate a frame rate in a "
-                     "video stream application.");
+  "The generated timestamps will have the specified number of seconds in the generated "
+  "timestamps for sequential frames. This can be used to simulate a frame rate in a "
+  "video stream application." );
+
+create_config_trait( no_path_in_name, bool, "true",
+  "Set to true if the output image file path should not contain a full path to"
+  "the image file and just contain the file name for the image." );
 
 create_algorithm_name_config_trait( image_reader );
 
-//----------------------------------------------------------------
+// ---------------------------------------------------------------------------------------
 // Private implementation class
 class image_file_reader_process::priv
 {
@@ -82,6 +111,7 @@ public:
   int m_config_error_mode; // error mode
   std::vector< std::string > m_config_path;
   kwiver::vital::time_usec_t m_config_frame_time;
+  bool m_no_path_in_name;
 
   // local state
   kwiver::vital::frame_id_t m_frame_number;
@@ -92,7 +122,8 @@ public:
 
 }; // end priv class
 
-// ================================================================
+
+// =======================================================================================
 
 image_file_reader_process
 ::image_file_reader_process( kwiver::vital::config_block_sptr const& config )
@@ -103,12 +134,14 @@ image_file_reader_process
   make_config();
 }
 
+
 image_file_reader_process
 ::~image_file_reader_process()
 {
 }
 
-// ----------------------------------------------------------------
+
+// ---------------------------------------------------------------------------------------
 void image_file_reader_process
 ::_configure()
 {
@@ -118,6 +151,7 @@ void image_file_reader_process
   std::string mode = config_value_using_trait( error_mode );
   std::string path = config_value_using_trait( path );
   d->m_config_frame_time = config_value_using_trait( frame_time ) * 1e6; // in usec
+  d->m_no_path_in_name = config_value_using_trait( no_path_in_name );
 
   kwiver::vital::tokenize( path, d->m_config_path, ":", kwiver::vital::TokenizeTrimEmpty );
   d->m_config_path.push_back( "." ); // add current directory
@@ -150,7 +184,8 @@ void image_file_reader_process
   }
 }
 
-// ----------------------------------------------------------------
+
+// ---------------------------------------------------------------------------------------
 void image_file_reader_process
 ::_step()
 {
@@ -207,12 +242,23 @@ void image_file_reader_process
     d->m_frame_time += d->m_config_frame_time;
   }
 
+  if ( d->m_no_path_in_name )
+  {
+    const size_t last_slash_idx = resolved_file.find_last_of("\\/");
+
+    if ( std::string::npos != last_slash_idx )
+    {
+      resolved_file.erase( 0, last_slash_idx + 1 );
+    }
+  }
+
   push_to_port_using_trait( timestamp, frame_ts );
   push_to_port_using_trait( image, img_c );
   push_to_port_using_trait( image_file_name, resolved_file );
 }
 
-// ----------------------------------------------------------------
+
+// ---------------------------------------------------------------------------------------
 void image_file_reader_process
 ::make_ports()
 {
@@ -225,34 +271,37 @@ void image_file_reader_process
   required.insert( flag_required );
 
   // -- inputs --
-  declare_input_port_using_trait( image_file_name, required, "Name of the image file to read. "
-                                  "The file is searched for using the specified path in addition to the "
-                                  "local directory.");
+  declare_input_port_using_trait( image_file_name, required,
+    "Name of the image file to read. The file is searched for using the specified path "
+    "in addition to the local directory.");
 
   // -- outputs --
   declare_output_port_using_trait( timestamp, optional );
   declare_output_port_using_trait( image, shared );
   declare_output_port_using_trait( image_file_name, optional );
-
 }
 
-// ----------------------------------------------------------------
+
+// ---------------------------------------------------------------------------------------
 void image_file_reader_process
 ::make_config()
 {
+  declare_config_using_trait( frame_time );
   declare_config_using_trait( error_mode );
   declare_config_using_trait( path );
   declare_config_using_trait( image_reader );
-  declare_config_using_trait( frame_time );
+  declare_config_using_trait( no_path_in_name );
 }
 
-// ================================================================
+
+// =======================================================================================
 image_file_reader_process::priv
 ::priv()
   : m_frame_number( 1 )
   , m_frame_time( 0 )
 {
 }
+
 
 image_file_reader_process::priv
 ::~priv()

@@ -1,6 +1,32 @@
-// This file is part of KWIVER, and is distributed under the
-// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
-// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
+/*ckwg +29
+ * Copyright 2018, 2020 by Kitware, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ *  * Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
+ *    to endorse or promote products derived from this software without specific
+ *    prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include "merge_images_process.h"
 
@@ -29,8 +55,7 @@ public:
   std::set< std::string > p_port_list;
 };
 
-// ================================================================
-
+// ============================================================================
 merge_images_process
 ::merge_images_process( kwiver::vital::config_block_sptr const& config )
   : process( config ),
@@ -40,12 +65,14 @@ merge_images_process
   make_config();
 }
 
+
 merge_images_process
 ::~merge_images_process()
 {
 }
 
-// ----------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
 void merge_images_process
 ::_configure()
 {
@@ -76,7 +103,8 @@ void merge_images_process
   }
 }
 
-// ----------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
 void
 merge_images_process
 ::_step()
@@ -86,20 +114,34 @@ merge_images_process
   for ( const auto port_name : d->p_port_list )
   {
     kwiver::vital::image_container_sptr image_sptr =
-        grab_from_port_as<kwiver::vital::image_container_sptr>( port_name );
-    image_list.push_back(image_sptr);
+      grab_from_port_as< kwiver::vital::image_container_sptr >( port_name );
+
+    image_list.push_back( image_sptr );
   }
 
   kwiver::vital::image_container_sptr output;
 
-  // Get feature tracks
-  output = d->m_images_merger->merge( image_list[0], image_list[1]);
+  // Merge images sequentially
+  if( image_list.empty() )
+  {
+    LOG_WARN( logger(), "No input images provided" );
+  }
+  else
+  {
+    output = image_list[0];
+  }
+
+  for( unsigned i = 1; i < image_list.size(); ++i )
+  {
+    output = d->m_images_merger->merge( output, image_list[i] );
+  }
 
   // Return by value
   push_to_port_using_trait( image, output);
 }
 
-// ----------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
 void merge_images_process
 ::make_ports()
 {
@@ -108,14 +150,12 @@ void merge_images_process
   required.insert( flag_required );
   required.insert( flag_output_shared );
 
-  // -- input --
-  // input ports are defined based on connections
-
   // -- output --
   declare_output_port_using_trait( image, required );
 }
 
-// ----------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
 void merge_images_process
 ::make_config()
 {
@@ -170,9 +210,11 @@ merge_images_process::priv
 {
 }
 
+
 merge_images_process::priv
 ::~priv()
 {
 }
+
 
 } // end namespace

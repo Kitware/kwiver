@@ -1,21 +1,42 @@
-// This file is part of KWIVER, and is distributed under the
-// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
-// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
+/*ckwg +29
+ * Copyright 2017, 2020 by Kitware, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ *  * Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
+ *    to endorse or promote products derived from this software without specific
+ *    prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include "handle_descriptor_request_process.h"
 
 #include <vital/vital_types.h>
-#include <vital/types/timestamp.h>
-#include <vital/types/timestamp_config.h>
-#include <vital/types/image_container.h>
-#include <vital/types/object_track_set.h>
-#include <vital/types/matrix.h>
-
 #include <vital/algo/handle_descriptor_request.h>
 
 #include <kwiver_type_traits.h>
 
 #include <sprokit/pipeline/process_exception.h>
+#include <sprokit/processes/adapters/embedded_pipeline.h>
 
 #include <boost/filesystem/path.hpp>
 
@@ -36,10 +57,12 @@ public:
   priv();
   ~priv();
 
-  unsigned track_read_delay;
+  std::string image_pipeline_file;
 
   algo::handle_descriptor_request_sptr m_handler;
+  std::unique_ptr< embedded_pipeline > image_pipeline;
 }; // end priv class
+
 
 // =============================================================================
 
@@ -52,13 +75,23 @@ handle_descriptor_request_process
   make_config();
 }
 
+
 handle_descriptor_request_process
 ::~handle_descriptor_request_process()
 {
+  if( d->image_pipeline )
+  {
+    d->image_pipeline->send_end_of_input();
+    d->image_pipeline->receive();
+    d->image_pipeline->wait();
+    d->image_pipeline.reset();
+  }
 }
 
+
 // -----------------------------------------------------------------------------
-void handle_descriptor_request_process
+void
+handle_descriptor_request_process
 ::_configure()
 {
   vital::config_block_sptr algo_config = get_config();
@@ -88,6 +121,7 @@ void handle_descriptor_request_process
   }
 }
 
+
 // -----------------------------------------------------------------------------
 void
 handle_descriptor_request_process
@@ -98,51 +132,55 @@ handle_descriptor_request_process
 
   request = grab_from_port_using_trait( descriptor_request );
 
-  // Special case, output empty results
+  // Special case, output empty results and pass thru if not specified
   if( !request )
   {
     push_to_port_using_trait( track_descriptor_set, vital::track_descriptor_set_sptr() );
-
-    push_to_port_using_trait( image, vital::image_container_sptr() );
-    push_to_port_using_trait( timestamp, vital::timestamp() );
-    push_to_port_using_trait( filename, "" );
-    push_to_port_using_trait( stream_id, "" );
-    return;
+    return; // Normal return, no failure
   }
 
-  // Get output matrix and detections
+  // Get output descriptors from internal pipeline
   vital::track_descriptor_set_sptr descriptors;
-  std::vector< vital::image_container_sptr > images;
 
-  vital::string_t filename;
-  vital::string_t stream_id;
+  // Get filepaths
+  boost::filesystem::path p( request->data_location() );
 
-  if( request && !d->m_handler->handle( request, descriptors, images ) )
+  vital::string_t filename = p.string();
+  vital::string_t stream_id = p.stem().string();
+
+  if( d->image_pipeline )
   {
-    LOG_ERROR( logger(), "Could not handle descriptor request" );
+    // Set request on pipeline inputs
+    auto ids = adapter::adapter_data_set::create();
+
+    ids->add_value( "filename", filename );
+    ids->add_value( "stream_id", stream_id );
+
+    // Send the request through the pipeline and wait for a result
+    d->image_pipeline->send( ids );
+
+    auto const& ods = d->image_pipeline->receive();
+
+    if( ods->is_end_of_data() )
+    {
+      throw std::runtime_error( "Pipeline terminated unexpectingly" );
+    }
+
+    // Grab result from pipeline output data set
+    auto const& iter = ods->find( "track_descriptor_set" );
+
+    if( iter == ods->end() )
+    {
+      throw std::runtime_error( "Empty pipeline output" );
+    }
+
+    descriptors = iter->second->get_datum< vital::track_descriptor_set_sptr >();
   }
 
   // Return all outputs
   push_to_port_using_trait( track_descriptor_set, descriptors );
-
-  if( request )
-  {
-    boost::filesystem::path p( request->data_location() );
-    filename = p.stem().string();
-    stream_id = filename;
-  }
-
-  // Step image output pipeline if connected
-  for( auto image : images )
-  {
-    vital::timestamp ts;
-
-    push_to_port_using_trait( image, image );
-    push_to_port_using_trait( timestamp, ts );
-    push_to_port_using_trait( filename, filename );
-    push_to_port_using_trait( stream_id, stream_id );
-  }
 }
+
 
 // -----------------------------------------------------------------------------
 void handle_descriptor_request_process
@@ -169,6 +207,7 @@ void handle_descriptor_request_process
   declare_output_port_using_trait( stream_id, optional );
 }
 
+
 // -----------------------------------------------------------------------------
 void handle_descriptor_request_process
 ::make_config()
@@ -176,11 +215,16 @@ void handle_descriptor_request_process
   declare_config_using_trait( handler );
 }
 
+
 // =============================================================================
 handle_descriptor_request_process::priv
 ::priv()
+  : image_pipeline_file("")
+  , m_handler()
+  , image_pipeline()
 {
 }
+
 
 handle_descriptor_request_process::priv
 ::~priv()

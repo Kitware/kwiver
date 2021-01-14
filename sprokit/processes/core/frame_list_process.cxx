@@ -53,9 +53,13 @@ create_config_trait( frame_time, double, "0.03333333", "Inter frame time in seco
                      "timestamps for sequential frames. This can be used to simulate a frame rate in a "
                      "video stream application.");
 
-create_algorithm_name_config_trait( image_reader );
+create_config_trait( full_path_file_name, bool, "false",
+                     "Set to true if the output image file path should contain a full path to "
+                     "the image file instead of containing just the file name for the image." );
 
-//----------------------------------------------------------------
+create_config_trait( image_reader, std::string, "", "Algorithm configuration subblock" );
+
+// ----------------------------------------------------------------------------
 // Private implementation class
 class frame_list_process::priv
 {
@@ -73,14 +77,15 @@ public:
   std::vector < kwiver::vital::path_t >::const_iterator m_current_file;
   kwiver::vital::frame_id_t m_frame_number;
   kwiver::vital::time_usec_t m_frame_time;
+  bool m_full_path_file_name;
 
   // processing classes
   algo::image_io_sptr m_image_reader;
 
 }; // end priv class
 
-// ================================================================
 
+// ----------------------------------------------------------------------------
 frame_list_process
 ::frame_list_process( kwiver::vital::config_block_sptr const& config )
   : process( config ),
@@ -90,12 +95,14 @@ frame_list_process
   make_config();
 }
 
+// ----------------------------------------------------------------------------
 frame_list_process
 ::~frame_list_process()
 {
 }
 
-// ----------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
 void frame_list_process
 ::_configure()
 {
@@ -104,6 +111,7 @@ void frame_list_process
   // Examine the configuration
   d->m_config_image_list_filename = config_value_using_trait( image_list_file );
   d->m_config_frame_time          = config_value_using_trait( frame_time ) * 1e6; // in usec
+  d->m_full_path_file_name        = config_value_using_trait( full_path_file_name );
 
   std::string path = config_value_using_trait( path );
   kwiver::vital::tokenize( path, d->m_config_path, ":", kwiver::vital::TokenizeTrimEmpty );
@@ -127,7 +135,8 @@ void frame_list_process
   }
 }
 
-// ----------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
 // Post connection initialization
 void frame_list_process
 ::_init()
@@ -166,7 +175,8 @@ void frame_list_process
   d->m_frame_number = 1;
 }
 
-// ----------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
 void frame_list_process
 ::_step()
 {
@@ -201,6 +211,12 @@ void frame_list_process
     ++d->m_frame_number;
     d->m_frame_time += d->m_config_frame_time;
 
+    // update filename
+    if ( !d->m_full_path_file_name )
+    {
+      a_file = kwiversys::SystemTools::GetFilenameName( a_file );
+    }
+
     push_to_port_using_trait( timestamp, frame_ts );
     push_to_port_using_trait( image, img_c );
     push_to_port_using_trait( image_file_name, a_file );
@@ -213,7 +229,7 @@ void frame_list_process
 
     // indicate done
     mark_process_as_complete();
-    const sprokit::datum_t dat= sprokit::datum::complete_datum();
+    const sprokit::datum_t dat = sprokit::datum::complete_datum();
 
     push_datum_to_port_using_trait( timestamp, dat );
     push_datum_to_port_using_trait( image, dat );
@@ -221,7 +237,9 @@ void frame_list_process
   }
 }
 
+
 // ----------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void frame_list_process
 ::make_ports()
 {
@@ -235,7 +253,9 @@ void frame_list_process
   declare_output_port_using_trait( image_file_name, optional );
 }
 
+
 // ----------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void frame_list_process
 ::make_config()
 {
@@ -243,15 +263,18 @@ void frame_list_process
   declare_config_using_trait( frame_time );
   declare_config_using_trait( image_reader );
   declare_config_using_trait( path );
+  declare_config_using_trait( full_path_file_name );
 }
 
-// ================================================================
+
+// ---------------------------------------------------------------------------
 frame_list_process::priv
 ::priv()
   : m_frame_number( 1 )
   , m_frame_time( 0 )
 {
 }
+
 
 frame_list_process::priv
 ::~priv()
