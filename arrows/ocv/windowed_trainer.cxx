@@ -803,7 +803,7 @@ windowed_trainer::priv
           continue;
         }
 
-        auto dot_ovr = std::make_shared< kwiver::vital::detected_object_type >(
+        auto dot_ovr = std::make_shared< kwiver::vital::class_map >(
           m_small_action, 1.0 );
 
         odet->set_type( dot_ovr );
