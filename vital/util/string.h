@@ -40,7 +40,7 @@ string_format( const std::string fmt_str, ... );
  * @return \b true if string starts with pattern
  */
 inline bool
-starts_with( const std::string& input, const std::string& pattern)
+starts_with( std::string const& input, std::string const& pattern)
 {
   return (0 == input.compare( 0, pattern.size(), pattern ) );
 }
@@ -59,10 +59,10 @@ starts_with( const std::string& input, const std::string& pattern)
  * @return Single string with all elements joined with separator.
  */
 VITAL_UTIL_EXPORT std::string
-join( const std::vector<std::string>& elements, const std::string& str_separator);
+join( std::vector<std::string> const& elements, std::string const& str_separator);
 
 VITAL_UTIL_EXPORT std::string
-join( const std::set<std::string>& elements, const std::string& str_separator);
+join( std::set<std::string> const& elements, std::string const& str_separator);
 //@}
 
 /**

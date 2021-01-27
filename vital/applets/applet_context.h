@@ -28,8 +28,8 @@ public:
   // Used to wrap large text blocks
   kwiver::vital::wrap_text_block m_wtb;
 
-  // name of the applet. as in kwiver <applet> <args..>
-  std::string m_applet_name;
+  // name of the applet. as in kwiver <ap pl et> <args..>
+  std::vector<std::string> m_applet_name;
 
     /**
    * Results from parsing the command options. Note that you do not

@@ -118,7 +118,7 @@ protected:
    *
    * @return Applet name
    */
-  const std::string& applet_name() const;
+  std::string applet_name() const;
 
   /**
    * @brief Wrap text block.
@@ -130,7 +130,7 @@ protected:
    *
    * @return Text string wrapped into a block.
    */
-  std::string wrap_text( const std::string& text );
+  std::string wrap_text( std::string const& text );
 
   /**
    * @brief Return original arguments
@@ -139,7 +139,7 @@ protected:
    *
    * @return Read only vector of args
    */
-  const std::vector<std::string>& applet_args() const;
+  std::vector<std::string> const& applet_args() const;
 
 private:
   /**

@@ -8,6 +8,7 @@
 
 #include <vital/config/config_block_io.h>
 #include <vital/util/get_paths.h>
+#include <vital/util/string.h>
 
 namespace kwiver {
 namespace tools {
@@ -80,7 +81,7 @@ initialize( kwiver::tools::applet_context* ctxt)
 // ----------------------------------------------------------------------------
 std::string
 kwiver_applet::
-wrap_text( const std::string& text )
+wrap_text( std::string const& text )
 {
   if ( m_context )
   {
@@ -91,7 +92,7 @@ wrap_text( const std::string& text )
 }
 
 // ----------------------------------------------------------------------------
-const std::vector<std::string>&
+std::vector<std::string> const&
 kwiver_applet::
 applet_args() const
 {
@@ -104,13 +105,13 @@ applet_args() const
 }
 
 // ----------------------------------------------------------------------------
-const std::string&
+std::string
 kwiver_applet::
 applet_name() const
 {
   if ( m_context )
   {
-    return m_context->m_applet_name;
+    return ::kwiver::vital::join( m_context->m_applet_name, " " );
   }
 
   throw std::runtime_error( "Invalid context pointer" );
