@@ -25,6 +25,7 @@ const std::string plugin_factory::APPLET_CATEGORY( "kwiver-applet" );
 const std::string plugin_factory::PROCESS_CATEGORY( "process" );
 const std::string plugin_factory::ALGORITHM_CATEGORY( "algorithm" );
 const std::string plugin_factory::CLUSTER_CATEGORY( "cluster" );
+const std::string plugin_factory::SCHEDULER_CATEGORY( "scheduler" );
 
 // ------------------------------------------------------------------
 plugin_factory::

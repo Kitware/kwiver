@@ -65,6 +65,7 @@ public:
   static const std::string PROCESS_CATEGORY;
   static const std::string ALGORITHM_CATEGORY;
   static const std::string CLUSTER_CATEGORY;
+  static const std::string SCHEDULER_CATEGORY;
 
   /**
    * @brief Get attribute from factory

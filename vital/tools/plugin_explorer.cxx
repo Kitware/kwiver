@@ -217,8 +217,8 @@ display_factory( kwiver::vital::plugin_factory_handle_t const fact )
 }
 
 // ------------------------------------------------------------------
-void display_by_category( const kwiver::vital::plugin_map_t& plugin_map,
-                          const std::string& category )
+void display_by_category( kwiver::vital::plugin_map_t const& plugin_map,
+                          std::string const& category )
 {
   for( const auto it : plugin_map )
   {
@@ -390,7 +390,7 @@ main( int argc, char* argv[] )
                                                        "This program display information about plugins." ) );
 
   G_context.m_cmd_options->add_options()
-    ( "h,help", "Display applet usage" )
+    ( "h,help", "Display program usage" )
     ( "v,version", "Display version information" )
     ;
 
@@ -419,7 +419,8 @@ main( int argc, char* argv[] )
 
     ( "scheduler", "Display scheduler type plugins" )
 
-    ( "filter", "Filter based on <attr-name> <attr-value>",
+    ( "filter", "Filter based on <attr-name> <attr-value>. The attribute name is matched as a string while "
+      "the attribute values is matched as a regexp.",
       cxxopts::value<std::vector<std::string>>())
 
     ( "all", "Display all plugin types" )
@@ -726,25 +727,25 @@ main( int argc, char* argv[] )
   if ( G_context.opt_algo )
   {
     auto plugin_map = vpm.plugin_map();
-    display_by_category( plugin_map, "algorithm" );
+    display_by_category( plugin_map, kvpf::ALGORITHM_CATEGORY );
   }
 
   else if ( G_context.opt_process )
   {
     auto plugin_map = vpm.plugin_map();
-    display_by_category( plugin_map, "process" );
+    display_by_category( plugin_map, kvpf::PROCESS_CATEGORY );
   }
 
   else if ( G_context.opt_cluster )
   {
     auto plugin_map = vpm.plugin_map();
-    display_by_category( plugin_map, "cluster" );
+    display_by_category( plugin_map, kvpf::CLUSTER_CATEGORY );
   }
 
   else if ( G_context.opt_scheduler )
   {
     auto plugin_map = vpm.plugin_map();
-    display_by_category( plugin_map, "scheduler" );
+    display_by_category( plugin_map, kvpf::SCHEDULER_CATEGORY );
   }
 
   // ------------------------------------------------------------------
