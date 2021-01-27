@@ -19,7 +19,7 @@ class pipeline_runner
 public:
   pipeline_runner();
 
-  PLUGIN_INFO( "runner",
+  PLUGIN_INFO( "pipe:run",
                "Runs a pipeline");
 
   int run() override;

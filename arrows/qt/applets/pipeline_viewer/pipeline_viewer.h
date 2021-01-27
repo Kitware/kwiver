@@ -16,7 +16,7 @@ namespace tools {
 class pipeline_viewer : public kwiver_applet
 {
 public:
-  PLUGIN_INFO( "pipe-gui",
+  PLUGIN_INFO( "pipe:gui",
                "Run pipelines in a simple GUI.\n\n"
                "This program provides a simple Qt-based front-end "
                "for executing pipelines and viewing images produced by the same." );

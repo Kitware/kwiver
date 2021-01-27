@@ -22,7 +22,7 @@ public:
   estimate_depth();
   virtual ~estimate_depth();
 
-  PLUGIN_INFO( "estimate-depth",
+  PLUGIN_INFO( "depth:estimate",
                "Depth estimation utility");
 
   int run() override;

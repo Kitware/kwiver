@@ -19,7 +19,7 @@ public:
   color_mesh();
   virtual ~color_mesh();
 
-  PLUGIN_INFO( "color-mesh",
+  PLUGIN_INFO( "mesh:color",
                "Color a mesh from a video and cameras");
 
   int run() override;
