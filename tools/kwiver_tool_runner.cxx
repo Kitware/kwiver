@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
   kwiver::vital::plugin_manager_internal& vpm = kwiver::vital::plugin_manager_internal::instance();
 
   const std::string exec_path = kwiver::vital::get_executable_path();
-  vpm.add_search_path(exec_path + "/../lib/kwiver/plugins");
+  vpm.add_search_path(exec_path + "/../" KWIVER_LIBDIR "/kwiver/plugins");
 
   vpm.load_all_plugins();
 

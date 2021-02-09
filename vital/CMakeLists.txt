@@ -19,9 +19,9 @@ set(KWSYS_USE_MD5 1)
 
 set(KWSYS_INSTALL_EXPORT_NAME  ${kwiver_export_name})
 set(KWSYS_INSTALL_INCLUDE_DIR  "include")
-set(KWSYS_INSTALL_LIB_DIR      lib)
+set(KWSYS_INSTALL_LIB_DIR      ${CMAKE_INSTALL_LIBDIR})
 set(KWSYS_INCLUDE_DIR          ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "")
-set(KWSYS_INSTALL_BIN_DIR      bin)
+set(KWSYS_INSTALL_BIN_DIR      ${CMAKE_INSTALL_BINDIR})
 
 # Save our custom CXX flags and reset so we pass no special flags to kwiversys.
 # Our flags are more strict than expected and causes many warnings and errors.
@@ -41,9 +41,9 @@ set_property(GLOBAL APPEND PROPERTY kwiver_libraries kwiversys)
 # Note that some of the following duplicates what is in kwiver_add_library()
 set_target_properties( ${KWSYS_NAMESPACE}
   PROPERTIES
-  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}"
+  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}"
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}"
   INTERFACE_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/vital/kwiversys>$<INSTALL_INTERFACE:include>"
   )
 

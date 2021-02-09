@@ -29,7 +29,7 @@ endif ()
 if (WIN32)
   set(cmakedir cmake)
 else ()
-  set(cmakedir lib${LIB_SUFFIX}/cmake/sprokit)
+  set(cmakedir ${CMAKE_INSTALL_LIBDIR}/cmake/sprokit)
 endif ()
 
 set(sprokit_macros_file "${sprokit_binary_dir}/sprokit-macros.cmake")

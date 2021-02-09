@@ -183,7 +183,7 @@ function(kwiver_add_executable name)
 
   set_target_properties(${name}
     PROPERTIES
-      RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+      RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}"
       INSTALL_RPATH "\$ORIGIN/../${KWIVER_DEFAULT_LIBRARY_DIR}:\$ORIGIN/"
     )
 
@@ -202,7 +202,7 @@ function(kwiver_add_executable name)
   kwiver_install(
     TARGETS     ${name}
     ${exports}
-    DESTINATION bin
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
     COMPONENT   ${component}
     )
 endfunction()
@@ -253,9 +253,9 @@ function(kwiver_add_library     name)
 
   set_target_properties("${name}"
     PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${library_dir}${LIB_SUFFIX}/${library_subdir}${library_subdir_suffix}"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${library_dir}${LIB_SUFFIX}/${library_subdir}${library_subdir_suffix}"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${library_subdir}${library_subdir_suffix}"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${library_dir}/${library_subdir}${library_subdir_suffix}"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${library_dir}/${library_subdir}${library_subdir_suffix}"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}/${library_subdir}${library_subdir_suffix}"
     INSTALL_RPATH            "\$ORIGIN/${lib_subdir_path_to_root}${lib_dir_path_to_root}/${KWIVER_DEFAULT_LIBRARY_DIR}:\$ORIGIN/"
     INTERFACE_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR};${CMAKE_BINARY_DIR}>$<INSTALL_INTERFACE:include>"
     ${props}
@@ -271,9 +271,9 @@ function(kwiver_add_library     name)
     string(TOUPPER "${config}" upper_config)
     set_target_properties("${name}"
       PROPERTIES
-      "ARCHIVE_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/${library_dir}${LIB_SUFFIX}/${config}/${library_subdir}"
-      "LIBRARY_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/${library_dir}${LIB_SUFFIX}/${config}/${library_subdir}"
-      "RUNTIME_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/bin/${config}/${library_subdir}"
+      "ARCHIVE_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/${library_dir}/${config}/${library_subdir}"
+      "LIBRARY_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/${library_dir}/${config}/${library_subdir}"
+      "RUNTIME_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}/${config}/${library_subdir}"
       )
   endforeach()
 
@@ -291,15 +291,13 @@ function(kwiver_add_library     name)
   if (SKBUILD)
     set(LIB_PREFIX "${CMAKE_INSTALL_PREFIX}/")
   endif()
-  # LIB_SUFFIX should only apply to installation location, not the build
-  # locations that properties above this point pertain to.
   if (NOT SKBUILD OR NOT target_type STREQUAL "STATIC_LIBRARY")
     kwiver_install(
       TARGETS             "${name}"
       ${exports}
-      ARCHIVE DESTINATION "${LIB_PREFIX}${library_dir}${LIB_SUFFIX}/${library_subdir}"
-      LIBRARY DESTINATION "${LIB_PREFIX}${library_dir}${LIB_SUFFIX}/${library_subdir}"
-      RUNTIME DESTINATION "bin/${library_subdir}"
+      ARCHIVE DESTINATION "${LIB_PREFIX}${library_dir}/${library_subdir}"
+      LIBRARY DESTINATION "${LIB_PREFIX}${library_dir}/${library_subdir}"
+      RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}/${library_subdir}"
       COMPONENT           ${component}
       )
   endif()
@@ -478,12 +476,12 @@ endfunction()
 #
 macro( kwiver_make_module_path    root subdir )
   if (WIN32)
-    set(kwiver_module_path_result   "${root}/lib/${subdir}" )
+    set(kwiver_module_path_result   "${root}/${CMAKE_INSTALL_LIBDIR}/${subdir}" )
     if(KWIVER_USE_CONFIGURATION_SUBDIRECTORY)
-      list( APPEND  kwiver_module_path_result   "${root}/lib/$<CONFIGURATION>/${subdir}" )
+      list( APPEND  kwiver_module_path_result   "${root}/${CMAKE_INSTALL_LIBDIR}/$<CONFIGURATION>/${subdir}" )
     endif()
   else()  # Other Unix systems
-    set(kwiver_module_path_result  "${root}/lib${LIB_SUFFIX}/${subdir}" )
+    set(kwiver_module_path_result  "${root}/${CMAKE_INSTALL_LIBDIR}/${subdir}" )
   endif()
 endmacro()
 

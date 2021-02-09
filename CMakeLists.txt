@@ -5,6 +5,8 @@ cmake_minimum_required(VERSION 3.15)
 
 project(KWIVER)
 
+include(GNUInstallDirs)
+
 ###
 # KWIVER version
 set(KWIVER_VERSION_MAJOR 1)
@@ -41,7 +43,7 @@ set(KWIVER_SOURCE_DIR           "${CMAKE_SOURCE_DIR}")
 set(KWIVER_BINARY_DIR           "${CMAKE_BINARY_DIR}")
 
 # Default library dir
-set(KWIVER_DEFAULT_LIBRARY_DIR "lib" CACHE STRING
+set(KWIVER_DEFAULT_LIBRARY_DIR "${CMAKE_INSTALL_LIBDIR}" CACHE STRING
     "Default library directory for kwiver")
 mark_as_advanced(KWIVER_DEFAULT_LIBRARY_DIR)
 
@@ -206,7 +208,7 @@ endif()
 
 
 # ===========================================================================================
-link_directories( ${KWIVER_BINARY_DIR}/lib )
+link_directories( ${KWIVER_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR} )
 
 # ===========================================================================================
 ###
@@ -232,11 +234,6 @@ endif ()
 # Generate vital/version.h. This file is needed by sprokit so must be generated here, before sprokit is included
 #---------------------------------------------------------------------
 #
-
-
-set( LIB_SUFFIX "" CACHE STRING
-  "Library directory suffix. e.g. suffix=\"kwiver\" will install libraries in \"libkwiver\" rather than \"lib\"")
-mark_as_advanced( LIB_SUFFIX )
 
 if (KWIVER_ENABLE_TRACK_ORACLE)
   add_subdirectory( track_oracle )
@@ -303,7 +300,7 @@ kwiver_create_sphinx()
 #############################################################################################
 # Top level installation
 #
-set(kwiver_cmake_install_dir lib${LIB_SUFFIX}/cmake/kwiver)
+set(kwiver_cmake_install_dir ${CMAKE_INSTALL_LIBDIR}/cmake/kwiver)
 
 # Install rules for CMake utilities
 include( kwiver-install-utils )
