@@ -17,7 +17,7 @@ kwiver_install_headers(
   ${header_files}
   )
 
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} --gpu-architecture sm_30)
+#set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} --gpu-architecture sm_30)
 if (UNIX AND NOT APPLE)
   set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} --compiler-options '-fPIC')
 endif ()
