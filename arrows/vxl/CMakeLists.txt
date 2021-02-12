@@ -7,12 +7,14 @@ set(vxl_headers_public
   camera.h
   camera_map.h
   close_loops_homography_guided.h
+  color_commonality_filter.h
   compute_homography_overlap.h
   estimate_canonical_transform.h
   estimate_essential_matrix.h
   estimate_fundamental_matrix.h
   estimate_homography.h
   estimate_similarity_transform.h
+  high_pass_filter.h
   image_container.h
   image_io.h
   match_features_constrained.h
@@ -39,7 +41,9 @@ set(vxl_sources
   camera.cxx
   camera_map.cxx
   close_loops_homography_guided.cxx
+  color_commonality_filter.cxx
   compute_homography_overlap.cxx
+  high_pass_filter.cxx
   estimate_canonical_transform.cxx
   estimate_essential_matrix.cxx
   estimate_fundamental_matrix.cxx
@@ -68,6 +72,7 @@ target_link_libraries( kwiver_algo_vxl
                        rrel rsdl
                        vnl
                        vidl
+                       vil_algo
                        vgl_algo
                        vpgl_algo
                        kwiversys
