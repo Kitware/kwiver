@@ -28,7 +28,7 @@ public:
   // Used to wrap large text blocks
   kwiver::vital::wrap_text_block m_wtb;
 
-  // name of the applet. as in kwiver <ap pl et> <args..>
+  // array of names forming fully qualified name of applet
   std::vector<std::string> m_applet_name;
 
     /**
