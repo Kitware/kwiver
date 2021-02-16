@@ -713,9 +713,11 @@ average_frames
       else
       {
         vil_image_view< vxl_byte > tmp;
-        vil_image_view< double > output;
-        d->byte_averager->process_frame( input, tmp, output );
-        return std::make_shared< vxl::image_container >( output );
+        vil_image_view< double > variance;
+        d->byte_averager->process_frame( input, tmp, variance );
+        vil_image_view< vxl_byte > byte_variance;
+        vil_convert_cast( variance, byte_variance );
+        return std::make_shared< vxl::image_container >( byte_variance );
       }
       break;
     }
