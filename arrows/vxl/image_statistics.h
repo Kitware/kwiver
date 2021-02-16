@@ -136,7 +136,7 @@ percentile_threshold_above(
   vil_image_view< bool >& dst, unsigned sampling_points = 1000 )
 {
   percentile_threshold_above(
-    src, std::vector< double >{ 1, percentile }, dst, sampling_points );
+    src, std::vector< double >( 1, percentile ), dst, sampling_points );
 }
 
 #endif
