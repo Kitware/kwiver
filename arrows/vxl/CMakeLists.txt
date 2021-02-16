@@ -1,7 +1,11 @@
 # Build / Install plugin containing VXL algorithm implementations + support
 # structures
 
+set(CMAKE_FOLDER "Arrows/VXL")
+
 set(vxl_headers_public
+  aligned_edge_detection.h
+  average_frames.h
   bounding_box.h
   bundle_adjust.h
   camera.h
@@ -9,6 +13,7 @@ set(vxl_headers_public
   close_loops_homography_guided.h
   color_commonality_filter.h
   compute_homography_overlap.h
+  convert_image.h
   estimate_canonical_transform.h
   estimate_essential_matrix.h
   estimate_fundamental_matrix.h
@@ -37,18 +42,21 @@ kwiver_install_headers(
   )
 
 set(vxl_sources
+  aligned_edge_detection.cxx
+  average_frames.cxx
   bundle_adjust.cxx
   camera.cxx
   camera_map.cxx
   close_loops_homography_guided.cxx
   color_commonality_filter.cxx
   compute_homography_overlap.cxx
-  high_pass_filter.cxx
+  convert_image.cxx
   estimate_canonical_transform.cxx
   estimate_essential_matrix.cxx
   estimate_fundamental_matrix.cxx
   estimate_homography.cxx
   estimate_similarity_transform.cxx
+  high_pass_filter.cxx
   image_container.cxx
   image_io.cxx
   match_features_constrained.cxx
