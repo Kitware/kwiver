@@ -55,7 +55,6 @@ process writer
   :: image_writer
   image_writer:type                     = vxl
   file_name_template                    = output/image%04d.png
-  image_writer:vxl:split_channels       = true
 
 
 # connections
