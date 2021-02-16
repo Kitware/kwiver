@@ -154,12 +154,15 @@ threshold
   vil_image_view_base_sptr view{
     vxl::image_container::vital_to_vxl( image_data->get_image() ) };
 
-#define HANDLE_CASE( T )                                               \
-  case T:                                                              \
-  {                                                                    \
-    using ipix_t = vil_pixel_format_type_of< T >::component_type;      \
-    vil_image_view< bool > thresholded{ d->filter< ipix_t >( view ) }; \
-    return std::make_shared< vxl::image_container >( thresholded );    \
+#define HANDLE_CASE( T )                                                 \
+  case T:                                                                \
+  {                                                                      \
+    using ipix_t = vil_pixel_format_type_of< T >::component_type;        \
+    vil_image_view< bool > thresholded{ d->filter< ipix_t >( view ) };   \
+    vil_image_view< vxl_byte > byte_thresholded;                         \
+    vil_convert_cast( thresholded, byte_thresholded );                   \
+    vil_math_scale_values( byte_thresholded, 255 );                      \
+    return std::make_shared< vxl::image_container >( byte_thresholded ); \
   }
 
   switch( view->pixel_format() )
