@@ -51,6 +51,7 @@
 #include <arrows/core/uv_unwrap_mesh.h>
 #include <arrows/core/video_input_filter.h>
 #include <arrows/core/video_input_image_list.h>
+#include <arrows/core/video_input_arf.h>
 #include <arrows/core/video_input_pos.h>
 #include <arrows/core/video_input_splice.h>
 #include <arrows/core/video_input_split.h>
@@ -112,6 +113,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_algorithm< transfer_bbox_with_depth_map >();
   reg.register_algorithm< transform_detected_object_set >();
   reg.register_algorithm< uv_unwrap_mesh >();
+  reg.register_algorithm< video_input_arf >();
   reg.register_algorithm< video_input_filter >();
   reg.register_algorithm< video_input_image_list >();
   reg.register_algorithm< video_input_pos >();
