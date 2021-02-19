@@ -84,13 +84,13 @@ class TestF2WHomography(object):
         f_ids = [5, 0, -10]
         for f_id in f_ids:
             f2w = F2WHomography(f_id)
-            nt.assert_equal(f2w.frame_id, f_id)
+            self.assertEqual(f2w.frame_id, f_id)
 
             f2w = F2WHomography(HomographyD(), f_id)
-            nt.assert_equal(f2w.frame_id, f_id)
+            self.assertEqual(f2w.frame_id, f_id)
 
             f2w_copy = F2WHomography(f2w)
-            nt.assert_equal(f2w_copy.frame_id, f_id)
+            self.assertEqual(f2w_copy.frame_id, f_id)
 
     def check_each_element_equal(self, f2w, hom):
         mat = hom.matrix()

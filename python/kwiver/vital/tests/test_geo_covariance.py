@@ -100,8 +100,8 @@ class TestVitalGeoCovariance(unittest.TestCase):
     def test_initial_is_empty(self):
         gc1, gc2, gc3 = self._create_geo_covar()
         nt.ok_(gc1.is_empty())
-        nt.assert_false(gc2.is_empty())
-        nt.assert_false(gc3.is_empty())
+        self.assertFalse(gc2.is_empty())
+        self.assertFalse(gc3.is_empty())
 
     def test_initial_crs(self):
         gc1, gc2, gc3 = self._create_geo_covar()
@@ -133,7 +133,7 @@ class TestVitalGeoCovariance(unittest.TestCase):
         gc2.set_location(self.loc3, self.crs_utm_18n)
         loc3_expected = np.concatenate([self.loc3, [0]])
 
-        nt.assert_false(gc2.is_empty())
+        self.assertFalse(gc2.is_empty())
         nt.assert_equals(gc2.crs(), self.crs_utm_18n)
         np.testing.assert_array_almost_equal(gc2.location(), loc3_expected)
         np.testing.assert_array_almost_equal(
@@ -144,7 +144,7 @@ class TestVitalGeoCovariance(unittest.TestCase):
         gc2.set_location(self.loc2, self.crs_ll)
         loc2_expected = np.concatenate([self.loc2, [0]])
 
-        nt.assert_false(gc2.is_empty())
+        self.assertFalse(gc2.is_empty())
         nt.assert_equals(gc2.crs(), self.crs_ll)
         np.testing.assert_array_almost_equal(gc2.location(), loc2_expected)
         np.testing.assert_array_almost_equal(gc2.location(self.crs_ll), loc2_expected)

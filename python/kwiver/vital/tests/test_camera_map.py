@@ -49,7 +49,7 @@ class TestCameraMap (unittest.TestCase):
             5: scap()
         }
         cm = CameraMap(m)
-        nose.tools.assert_equal(cm.size, 3)
+        self.assertEqual(cm.size, 3)
 
     def test_as_dict(self):
         m = {
@@ -59,4 +59,4 @@ class TestCameraMap (unittest.TestCase):
         }
         cm = CameraMap(m)
         m2 = cm.as_dict()
-        nose.tools.assert_equal(m[0].image_width(), m2[0].image_width())
+        self.assertEqual(m[0].image_width(), m2[0].image_width())

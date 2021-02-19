@@ -57,17 +57,17 @@ class TestVitalImageContainer (object):
     def test_size(self):
         i = Image(720, 480)
         ic = ImageContainer(i)
-        nose.tools.assert_equal(ic.size(), 720 * 480)
+        self.assertEqual(ic.size(), 720 * 480)
 
     def test_width(self):
         i = Image(720, 480)
         ic = ImageContainer(i)
-        nose.tools.assert_equal(ic.width(), 720)
+        self.assertEqual(ic.width(), 720)
 
     def test_height(self):
         i = Image(720, 480)
         ic = ImageContainer(i)
-        nose.tools.assert_equal(ic.height(), 480)
+        self.assertEqual(ic.height(), 480)
 
     def test_fromarray(self):
         dtype_names = ['bool',

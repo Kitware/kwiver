@@ -59,7 +59,7 @@ class TestVitalDatabaseQuery(object):
         # First check default
         nt.assert_equals(dq.id.value(), "",
             "Fresh database_query instance starts with non_empty id")
-        nt.assert_false(dq.id.is_valid(),
+        self.assertFalse(dq.id.is_valid(),
             "Fresh database_query instance starts with valid id")
 
         # Now check setting, then getting
@@ -79,7 +79,7 @@ class TestVitalDatabaseQuery(object):
         dq.id = uid.UID()
         nt.assert_equals(dq.id.value(), "",
             "Setting id back to empty string failed")
-        nt.assert_false(dq.id.is_valid(),
+        self.assertFalse(dq.id.is_valid(),
             "id should be invalid after setting to empty string")
 
     @nt.raises(TypeError)
@@ -278,8 +278,8 @@ class TestVitalDatabaseQuery(object):
     def test_set_and_get_temporal_bounds(self):
         dq = self._create_database_query()
         # First check the defaults
-        nt.assert_false(dq.temporal_lower_bound().is_valid())
-        nt.assert_false(dq.temporal_upper_bound().is_valid())
+        self.assertFalse(dq.temporal_lower_bound().is_valid())
+        self.assertFalse(dq.temporal_upper_bound().is_valid())
 
         test_bounds = [(Timestamp(100, 1), Timestamp(100, 1)),
                        (Timestamp(100, 1), Timestamp(200, 2)),
@@ -292,8 +292,8 @@ class TestVitalDatabaseQuery(object):
 
         # Set to default constructed timestamps
         dq.set_temporal_bounds(Timestamp(), Timestamp())
-        nt.assert_false(dq.temporal_lower_bound().is_valid())
-        nt.assert_false(dq.temporal_upper_bound().is_valid())
+        self.assertFalse(dq.temporal_lower_bound().is_valid())
+        self.assertFalse(dq.temporal_upper_bound().is_valid())
 
     @nt.raises(RuntimeError)
     def test_bad_set_bounds_logic_error(self):

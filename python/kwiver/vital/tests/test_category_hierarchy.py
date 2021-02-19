@@ -92,7 +92,7 @@ class TestVitalCategoryHierarchy(unittest.TestCase):
     # Manually delete the file
     def tearDown(self):
         os.remove(self.fp.name)
-        nt.assert_false(os.path.exists(self.fp.name))
+        self.assertFalse(os.path.exists(self.fp.name))
 
     def test_default_constructor(self):
         CategoryHierarchy()
@@ -158,7 +158,7 @@ class TestVitalCategoryHierarchy(unittest.TestCase):
         # have the expected class names
         for name, id_ in zip(self.class_names, self.ids):
             # empty
-            nt.assert_false(
+            self.assertFalse(
                 empty.has_class_name(name),
                 "Empty hierarchy had classname {}".format(name),
             )
@@ -188,7 +188,7 @@ class TestVitalCategoryHierarchy(unittest.TestCase):
         # Each class has 2 synonyms, so size is 3 * # classes
         nt.assert_equals(from_file.size(), 3 * len(self.class_names))
         # Make sure class5, which was commented out, is not present
-        nt.assert_false(from_file.has_class_name("class5"))
+        self.assertFalse(from_file.has_class_name("class5"))
 
         # Tests for from_lists
         nt.assert_equals(from_lists.all_class_names(), self.class_names)

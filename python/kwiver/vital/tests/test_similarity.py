@@ -57,7 +57,7 @@ class TestSimiliarity (unittest.TestCase):
         cls.t = [1, -2, 5]
 
     def check_members_equal(self, sim, exp_type, exp_scale, exp_rot_mat, exp_trans, prec):
-        nose.tools.assert_equal(sim.type_name, exp_type)
+        self.assertEqual(sim.type_name, exp_type)
         numpy.testing.assert_almost_equal(sim.scale, exp_scale, prec)
         numpy.testing.assert_array_almost_equal(sim.rotation.matrix(), exp_rot_mat, prec)
         numpy.testing.assert_array_almost_equal(sim.translation, exp_trans, prec)
@@ -110,7 +110,7 @@ class TestSimiliarity (unittest.TestCase):
         s3 = SimilarityD(self.s, self.r, self.t)
         s4 = SimilarityD(self.s, self.r, self.t)
         nose.tools.ok_(s3 == s4)
-        nose.tools.assert_false(s1 == s3)
+        self.assertFalse(s1 == s3)
 
         # Float
         s1 = SimilarityF()
@@ -120,35 +120,35 @@ class TestSimiliarity (unittest.TestCase):
         s3 = SimilarityF(self.s, self.r_f, self.t)
         s4 = SimilarityF(self.s, self.r_f, self.t)
         nose.tools.ok_(s3 == s4)
-        nose.tools.assert_false(s1 == s3)
+        self.assertFalse(s1 == s3)
 
     def test_not_equal(self):
         # Double
         s1 = SimilarityD()
         s2 = SimilarityD()
-        nose.tools.assert_false(s1 != s2)
+        self.assertFalse(s1 != s2)
 
         s3 = SimilarityD(self.s, self.r, self.t)
         s4 = SimilarityD(self.s, self.r, self.t)
-        nose.tools.assert_false(s3 != s4)
+        self.assertFalse(s3 != s4)
         nose.tools.ok_(s1 != s3)
 
         # Float
         s1 = SimilarityF()
         s2 = SimilarityF()
-        nose.tools.assert_false(s1 != s2)
+        self.assertFalse(s1 != s2)
 
         s3 = SimilarityF(self.s, self.r_f, self.t)
         s4 = SimilarityF(self.s, self.r_f, self.t)
-        nose.tools.assert_false(s3 != s4)
+        self.assertFalse(s3 != s4)
         nose.tools.ok_(s1 != s3)
 
     def test_get_scale(self):
         s = SimilarityD()
-        nose.tools.assert_equal(s.scale, 1.0)
+        self.assertEqual(s.scale, 1.0)
 
         s = SimilarityD(self.s, self.r, self.t)
-        nose.tools.assert_equal(s.scale, self.s)
+        self.assertEqual(s.scale, self.s)
 
     def test_get_rotation(self):
         s = SimilarityD()
@@ -159,10 +159,10 @@ class TestSimiliarity (unittest.TestCase):
 
     def test_get_translation(self):
         s = SimilarityD()
-        numpy.testing.assert_equal(s.translation, [0,0,0])
+        self.assertEqual(s.translation, [0,0,0])
 
         s = SimilarityD(self.s, self.r, self.t)
-        numpy.testing.assert_equal(s.translation, self.t)
+        self.assertEqual(s.translation, self.t)
 
     def test_convert_matrix(self):
         sim = SimilarityD()
@@ -200,8 +200,8 @@ class TestSimiliarity (unittest.TestCase):
         v1 = [4, 2.1, 9.125]
         v2 = s * v1
         v3 = s.inverse() * v2
-        nose.tools.assert_false(numpy.allclose(v1, v2))
-        nose.tools.assert_true(numpy.allclose(v1, v3))
+        self.assertFalse(numpy.allclose(v1, v2))
+        self.assertTrue(numpy.allclose(v1, v3))
 
     def test_mul_fail(self):
         s = SimilarityD(self.s, self.r, self.t)
@@ -213,7 +213,7 @@ class TestSimiliarity (unittest.TestCase):
     def test_inverse(self):
         # Inverse of identity is itself
         s = SimilarityD()
-        nose.tools.assert_equal(s, s.inverse())
+        self.assertEqual(s, s.inverse())
 
         s = SimilarityD(self.s, self.r, self.t)
         s_i = s.inverse()

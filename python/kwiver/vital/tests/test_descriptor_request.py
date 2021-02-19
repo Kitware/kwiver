@@ -56,7 +56,7 @@ class TestVitalDescriptorRequest(object):
 
         # First check default
         nt.assert_equals(dr.id.value(), "")
-        nt.assert_false(dr.id.is_valid())
+        self.assertFalse(dr.id.is_valid())
 
         # Now check setting and getting a few values
         dr.id = UID("first")
@@ -81,8 +81,8 @@ class TestVitalDescriptorRequest(object):
         dr = DescriptorRequest()
 
         # First check the defaults
-        nt.assert_false(dr.temporal_lower_bound().is_valid())
-        nt.assert_false(dr.temporal_upper_bound().is_valid())
+        self.assertFalse(dr.temporal_lower_bound().is_valid())
+        self.assertFalse(dr.temporal_upper_bound().is_valid())
 
         test_bounds = [
             (Timestamp(100, 1), Timestamp(100, 1)),
@@ -96,8 +96,8 @@ class TestVitalDescriptorRequest(object):
             nt.assert_equals(dr.temporal_upper_bound(), t2)
 
         dr.set_temporal_bounds(Timestamp(), Timestamp())
-        nt.assert_false(dr.temporal_lower_bound().is_valid())
-        nt.assert_false(dr.temporal_upper_bound().is_valid())
+        self.assertFalse(dr.temporal_lower_bound().is_valid())
+        self.assertFalse(dr.temporal_upper_bound().is_valid())
 
     @nt.raises(TypeError)
     def test_bad_set_temporal_bounds(self):

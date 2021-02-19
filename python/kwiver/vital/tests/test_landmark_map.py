@@ -62,5 +62,5 @@ class TestSimpleLandmarkMap(unittest.TestCase):
 
     def test_methods(self):
         sm = SimpleLandmarkMap(self.landmarks_dict)
-        nt.assert_equal(sm.size(), 2)
+        self.assertEqual(sm.size(), 2)
         nt.assert_dict_equal(sm.landmarks(), self.landmarks_dict)

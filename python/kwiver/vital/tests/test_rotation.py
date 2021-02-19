@@ -52,30 +52,30 @@ class TestVitalRotation(unittest.TestCase):
     def test_new_default(self):
         # That these even construct
         rot_d = RotationD()
-        nose.tools.assert_equal(rot_d.type_name, "d")
+        self.assertEqual(rot_d.type_name, "d")
 
         rot_f = RotationF()
-        nose.tools.assert_equal(rot_f.type_name, "f")
+        self.assertEqual(rot_f.type_name, "f")
 
     def test_eq(self):
         # Identities should equal
         r1 = RotationD()
         r2 = RotationD()
-        nose.tools.assert_equal(r1, r2)
+        self.assertEqual(r1, r2)
 
         r3 = RotationD([1, 2, 3, 4])
         r4 = RotationD([1, 2, 3, 4])
-        nose.tools.assert_equal(r3, r4)
-        nose.tools.assert_false(r1 == r3)
+        self.assertEqual(r3, r4)
+        self.assertFalse(r1 == r3)
 
         r1 = RotationF()
         r2 = RotationF()
-        nose.tools.assert_equal(r1, r2)
+        self.assertEqual(r1, r2)
 
         r3 = RotationF([1, 2, 3, 4])
         r4 = RotationF([1, 2, 3, 4])
-        nose.tools.assert_equal(r3, r4)
-        nose.tools.assert_false(r1 == r3)
+        self.assertEqual(r3, r4)
+        self.assertFalse(r1 == r3)
 
         r1 = RotationD([1, 2, 3, 4])
         r2 = RotationD([-1, -2, -3, -4])
@@ -85,20 +85,20 @@ class TestVitalRotation(unittest.TestCase):
         # Identities should equal
         r1 = RotationD()
         r2 = RotationD()
-        nose.tools.assert_false(r1 != r2)
+        self.assertFalse(r1 != r2)
 
         r3 = RotationD([1, 2, 3, 4])
         r4 = RotationD([1, 2, 3, 4])
-        nose.tools.assert_false(r3 != r4)
+        self.assertFalse(r3 != r4)
         nose.tools.ok_(r1 != r3)
 
         r1 = RotationF()
         r2 = RotationF()
-        nose.tools.assert_false(r1 != r2)
+        self.assertFalse(r1 != r2)
 
         r3 = RotationF([1, 2, 3, 4])
         r4 = RotationF([1, 2, 3, 4])
-        nose.tools.assert_false(r3 != r4)
+        self.assertFalse(r3 != r4)
         nose.tools.ok_(r1 != r3)
 
     def test_to_matrix(self):
@@ -124,11 +124,11 @@ class TestVitalRotation(unittest.TestCase):
         rot_d = RotationD()
         rot_f = RotationF()
 
-        numpy.testing.assert_equal(rot_d.axis(), ident_axis)
-        nose.tools.assert_equal(rot_d.angle(), ident_angle)
+        self.assertEqual(rot_d.axis(), ident_axis)
+        self.assertEqual(rot_d.angle(), ident_angle)
 
-        numpy.testing.assert_equal(rot_f.axis(), ident_axis)
-        nose.tools.assert_equal(rot_f.angle(), ident_angle)
+        self.assertEqual(rot_f.axis(), ident_axis)
+        self.assertEqual(rot_f.angle(), ident_angle)
 
     def test_to_rodrigues(self):
         # rodrigues identity: [0,0,0]
@@ -138,10 +138,10 @@ class TestVitalRotation(unittest.TestCase):
         rot_f = RotationF()
 
         rod = rot_d.rodrigues()
-        numpy.testing.assert_equal(rod, ident_rod)
+        self.assertEqual(rod, ident_rod)
 
         rod = rot_f.rodrigues()
-        numpy.testing.assert_equal(rod, ident_rod)
+        self.assertEqual(rod, ident_rod)
 
     def test_to_ypr(self):
         # ypr identity: (pi/2, 0, pi)
@@ -192,13 +192,13 @@ class TestVitalRotation(unittest.TestCase):
     def test_from_quaternion(self):
         q = array_normalize([+2, -1, -3, +0], float)
         r = RotationD(q)
-        numpy.testing.assert_equal(r.quaternion(), q)
+        self.assertEqual(r.quaternion(), q)
 
     def test_from_rodrigues(self):
         rod_list_1 = [0, 0, 0]
 
         r1 = RotationD(rod_list_1)
-        numpy.testing.assert_equal(r1.rodrigues(), rod_list_1)
+        self.assertEqual(r1.rodrigues(), rod_list_1)
 
         # This one will get normalized by magnitude in rotation instance
         # This vector's is less than 2*pi, so we should expect this vector to be
@@ -220,8 +220,8 @@ class TestVitalRotation(unittest.TestCase):
         axis_norm = array_normalize(axis)
 
         r = RotationD(angle, axis)
-        nose.tools.assert_equal(angle, r.angle())
-        numpy.testing.assert_equal(axis_norm, r.axis())
+        self.assertEqual(angle, r.angle())
+        self.assertEqual(axis_norm, r.axis())
 
     def test_from_ypr(self):
         y = 1.2
@@ -317,12 +317,12 @@ class TestVitalRotation(unittest.TestCase):
 
         r_res_d = r_ident_d * r_other_d
         nose.tools.assert_is_not(r_other_d, r_res_d)
-        numpy.testing.assert_equal(r_res_d, r_other_d)
-        numpy.testing.assert_equal(r_res_d.quaternion(), expected_quat)
+        self.assertEqual(r_res_d, r_other_d)
+        self.assertEqual(r_res_d.quaternion(), expected_quat)
 
         r_res_f = r_ident_f * r_other_f
         nose.tools.assert_is_not(r_other_f, r_res_f)
-        numpy.testing.assert_equal(r_res_f, r_other_f)
+        self.assertEqual(r_res_f, r_other_f)
         numpy.testing.assert_allclose(r_res_f.quaternion(), expected_quat, 1e-7)
 
     def test_mul_vector(self):
@@ -355,7 +355,7 @@ class TestVitalRotation(unittest.TestCase):
         a = math.pi / 2
         y = RotationD(a, [0, 1, 0])
         i_list = rotation.interpolated_rotations(x, y, 3)
-        nose.tools.assert_equal([i.type_name for i in i_list], ["d"] * 3)
+        self.assertEqual([i.type_name for i in i_list], ["d"] * 3)
 
         i0_e_axis, i0_e_angle = [0, 1, 0], a * 0.25
         i1_e_axis, i1_e_angle = [0, 1, 0], a * 0.50

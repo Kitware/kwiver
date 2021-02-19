@@ -72,7 +72,7 @@ class TestVitalTrackDescriptorAndHistoryEntry(object):
 
         # Test the first history entry timestamp
         # Can't use == because of definition for timestamp
-        nt.assert_false(h1.get_timestamp().is_valid())
+        self.assertFalse(h1.get_timestamp().is_valid())
 
         # Can use == on second timestamp
         nt.assert_equals(h2.get_timestamp(), timestamp.Timestamp(123, 1))
@@ -281,12 +281,12 @@ class TestVitalTrackDescriptorAndHistoryEntry(object):
     def test_has_descriptor(self):
         tds = self._create_track_descriptors()
         for td in tds:
-            nt.assert_false(td.has_descriptor())
+            self.assertFalse(td.has_descriptor())
             td.resize_descriptor(5)
-            nt.assert_true(td.has_descriptor())
+            self.assertTrue(td.has_descriptor())
 
             td.resize_descriptor(0)
-            nt.assert_false(td.has_descriptor())
+            self.assertFalse(td.has_descriptor())
 
     def test_set_and_get_history(self):
         tds = self._create_track_descriptors()
@@ -301,7 +301,7 @@ class TestVitalTrackDescriptorAndHistoryEntry(object):
 
             # Check that the first element is the same
             # == operator will return false since first timestamp is invalid
-            nt.assert_false(history_out[0].get_timestamp().is_valid())
+            self.assertFalse(history_out[0].get_timestamp().is_valid())
             nt.assert_equals(history_out[0].get_image_location(), histories_cpy[0].get_image_location())
             nt.assert_equals(history_out[0].get_world_location(), histories_cpy[0].get_world_location())
 
@@ -319,14 +319,14 @@ class TestVitalTrackDescriptorAndHistoryEntry(object):
 
             td.add_history_entry(histories[0])
             history_out = td.get_history()
-            nt.assert_false(history_out[0].get_timestamp().is_valid())
+            self.assertFalse(history_out[0].get_timestamp().is_valid())
             nt.assert_equals(history_out[0].get_image_location(), histories_cpy[0].get_image_location())
             nt.assert_equals(history_out[0].get_world_location(), histories_cpy[0].get_world_location())
 
             td.add_history_entry(histories[1])
             history_out = td.get_history()
             # Check that the first is still correct
-            nt.assert_false(history_out[0].get_timestamp().is_valid())
+            self.assertFalse(history_out[0].get_timestamp().is_valid())
             nt.assert_equals(history_out[0].get_image_location(), histories_cpy[0].get_image_location())
             nt.assert_equals(history_out[0].get_world_location(), histories_cpy[0].get_world_location())
 

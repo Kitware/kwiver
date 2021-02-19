@@ -69,16 +69,16 @@ class TestFeatureTrackState(unittest.TestCase):
       test_ft.inlier = True
       self.assertTrue(test_ft.inlier)
       self.assertEqual(test_ft.frame_id, 13)
-      nt.assert_equal(test_ft.feature, self.f1)
-      nt.assert_equal(test_ft.descriptor, self.desc)
+      self.assertEqual(test_ft.feature, self.f1)
+      self.assertEqual(test_ft.descriptor, self.desc)
     def test_methods(self):
       test_ft = ftstate(13, self.f1, self.desc)
       test_ft_clone = test_ft.clone()
       nt.ok_(isinstance(test_ft_clone, ftstate))
-      nt.assert_equal(test_ft_clone.frame_id, test_ft.frame_id)
+      self.assertEqual(test_ft_clone.frame_id, test_ft.frame_id)
       test_ft_downcast = test_ft.downcast()
       nt.ok_(isinstance(test_ft_downcast, ftstate))
-      nt.assert_equal(test_ft_downcast.frame_id, test_ft.frame_id)
+      self.assertEqual(test_ft_downcast.frame_id, test_ft.frame_id)
 
 """
 Test Feature Track Set
@@ -101,7 +101,7 @@ class TestFeatureTrackSet(unittest.TestCase):
     def test_methods(self):
       test_feat_set = ftset(self._track_arr)
       self.assertEqual(test_feat_set.all_frame_ids(), {1, 15})
-      nt.assert_equal(test_feat_set.get_track(1), self._track_arr[1] )
+      self.assertEqual(test_feat_set.get_track(1), self._track_arr[1] )
       self.assertEqual(0, test_feat_set.first_frame())
       self.assertEqual(15, test_feat_set.last_frame())
       self.assertEqual(5, len(test_feat_set.tracks()))

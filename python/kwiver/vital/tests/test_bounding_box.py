@@ -91,13 +91,13 @@ class TestBoundingBox(unittest.TestCase):
 
     def check_py_overloads(self, bbox):
         try:
-            nt.assert_equal(bbox.__nice__(), "0, 0, 180, 240")
-            nt.assert_equal(bbox.__repr__()[13:29], "(0, 0, 180, 240)")
-            nt.assert_equal(str(bbox)[13:29], "(0, 0, 180, 240)")
+            self.assertEqual(bbox.__nice__(), "0, 0, 180, 240")
+            self.assertEqual(bbox.__repr__()[13:29], "(0, 0, 180, 240)")
+            self.assertEqual(str(bbox)[13:29], "(0, 0, 180, 240)")
         except:
-            nt.assert_equal(bbox.__nice__(), "0.0, 0.0, 180.0, 240.0")
-            nt.assert_equal(bbox.__repr__()[13:37], "(0.0, 0.0, 180.0, 240.0)")
-            nt.assert_equal(str(bbox)[13:37], "(0.0, 0.0, 180.0, 240.0)")
+            self.assertEqual(bbox.__nice__(), "0.0, 0.0, 180.0, 240.0")
+            self.assertEqual(bbox.__repr__()[13:37], "(0.0, 0.0, 180.0, 240.0)")
+            self.assertEqual(str(bbox)[13:37], "(0.0, 0.0, 180.0, 240.0)")
 
     def test_constructorI(self):
         bbI()

@@ -80,8 +80,8 @@ class TestHomography (unittest.TestCase):
         h_d = HomographyD()
         h_f = HomographyF()
 
-        nose.tools.assert_equal(h_d.type_name, 'd')
-        nose.tools.assert_equal(h_f.type_name, 'f')
+        self.assertEqual(h_d.type_name, 'd')
+        self.assertEqual(h_f.type_name, 'f')
 
     def test_as_matrix(self):
         np.testing.assert_almost_equal(

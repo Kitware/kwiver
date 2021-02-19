@@ -58,10 +58,10 @@ class TestVitalFeature(unittest.TestCase):
 
     def test_get_typename(self):
         f = FeatureD()
-        nt.assert_equal(f.type_name, "d")
+        self.assertEqual(f.type_name, "d")
 
         f = FeatureF()
-        nt.assert_equal(f.type_name, "f")
+        self.assertEqual(f.type_name, "f")
 
     def test_get_default_location(self):
         f = FeatureD()
@@ -76,24 +76,24 @@ class TestVitalFeature(unittest.TestCase):
 
     def test_get_default_mag(self):
         f = FeatureD()
-        nt.assert_equal(f.magnitude, 0)
+        self.assertEqual(f.magnitude, 0)
 
         f = FeatureD([1, 1], mag=1.1)
-        nt.assert_equal(f.magnitude, 1.1)
+        self.assertEqual(f.magnitude, 1.1)
 
     def test_get_default_scale(self):
         f = FeatureD()
-        nt.assert_equal(f.scale, 1)
+        self.assertEqual(f.scale, 1)
 
         f = FeatureD([1, 1], scale=2.1)
-        nt.assert_equal(f.scale, 2.1)
+        self.assertEqual(f.scale, 2.1)
 
     def test_get_default_angle(self):
         f = FeatureD()
-        nt.assert_equal(f.angle, 0)
+        self.assertEqual(f.angle, 0)
 
         f = FeatureD([1, 1], angle=1.1)
-        nt.assert_equal(f.angle, 1.1)
+        self.assertEqual(f.angle, 1.1)
 
     def test_get_default_covar(self):
         dflt_covar = Covar2d()
@@ -104,11 +104,11 @@ class TestVitalFeature(unittest.TestCase):
     def test_get_default_color(self):
         dflt_color = RGBColor()
         f = FeatureD()
-        nt.assert_equal(f.color, dflt_color)
+        self.assertEqual(f.color, dflt_color)
 
         c = RGBColor(5, 32, 10)
         f = FeatureD([1, 1], rgb_color=c)
-        nt.assert_equal(f.color, c)
+        self.assertEqual(f.color, c)
 
     def test_set_and_get_location(self):
         f = FeatureD()
@@ -176,11 +176,11 @@ class TestVitalFeature(unittest.TestCase):
 
         f = FeatureD()
         f.color = expected
-        nt.assert_equal(f.color, expected)
+        self.assertEqual(f.color, expected)
 
         f = FeatureF()
         f.color = expected
-        nt.assert_equal(f.color, expected)
+        self.assertEqual(f.color, expected)
 
     def comparison_helper(self, f1, f2, eq_=False, eq_except_angle=False):
         nt.assert_equals(f1 == f2, eq_)
@@ -188,7 +188,7 @@ class TestVitalFeature(unittest.TestCase):
         nt.assert_equals(f1.equal_except_for_angle(f2), eq_except_angle)
 
     def test_comparisons(self):
-        nt.assert_false(FeatureD() == FeatureF())
+        self.assertFalse(FeatureD() == FeatureF())
 
         ctors = [FeatureD, FeatureF]
         for ctor in ctors:

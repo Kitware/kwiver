@@ -172,9 +172,9 @@ class TestSimpleCameraPerspective(unittest.TestCase):
                                                                     [0, 1, 0],
                                                                     [0, 0, 1]]))
         rot_ = cph.call_rotation(a)
-        nt.assert_equal(rot_, self.rot)
+        self.assertEqual(rot_, self.rot)
         intr_ = cph.call_intrinsics(a)
-        nt.assert_equal(intr_, self.intrins)
+        self.assertEqual(intr_, self.intrins)
         ih_ = cph.call_image_height(a)
         self.assertEqual(ih_, 720)
         iw_ = cph.call_image_width(a)
@@ -193,9 +193,9 @@ class TestSimpleCameraPerspective(unittest.TestCase):
         scap_ = scap(center=self.vec, rotation=self.rot, intrinsics=self.intrins)
         np.testing.assert_array_equal(scap_.get_center(), self.vec)
         self.assertIsInstance(scap_.get_rotation(), RotationD)
-        nt.assert_equal(scap_.get_rotation(),self.rot)
+        self.assertEqual(scap_.get_rotation(),self.rot)
         self.assertIsInstance(scap_.get_intrinsics(), ci)
-        nt.assert_equal(scap_.get_intrinsics(), self.intrins)
+        self.assertEqual(scap_.get_intrinsics(), self.intrins)
 
         # Test setters
         new_center = np.array([0, 2, 0])
@@ -203,9 +203,9 @@ class TestSimpleCameraPerspective(unittest.TestCase):
         np.testing.assert_array_equal(scap_.get_center(),new_center)
         new_rot = RotationD(1, np.array([0, 2, 0]))
         scap_.set_rotation(new_rot)
-        nt.assert_equal(scap_.get_rotation(), new_rot)
+        self.assertEqual(scap_.get_rotation(), new_rot)
         scap_.set_intrinsics(self.intrins_empty)
-        nt.assert_equal(scap_.get_intrinsics(), self.intrins_empty)
+        self.assertEqual(scap_.get_intrinsics(), self.intrins_empty)
         scap_.set_translation(np.array([1, 0, 3]))
         np.testing.assert_array_equal(scap_.get_center(), -(scap_.get_rotation().inverse()*np.array([1, 0, 3])))
 
@@ -259,7 +259,7 @@ class TestCameraPerspectiveImpl(unittest.TestCase):
 
         campp_look_at = cph.call_clone_look_at(cam_test, np.array([2, 3, 4]), np.array([0, 0, 1]))
         self.assertIsInstance(campp_look_at, CameraPerspectiveImpl)
-        nt.assert_equal(campp_look_at.rot, RotationD(0, [0, 1, 0]))
+        self.assertEqual(campp_look_at.rot, RotationD(0, [0, 1, 0]))
 
     def test_overrides(self):
         rot_ = RotationD(0, [1, 0, 0])
@@ -276,12 +276,12 @@ class TestCameraPerspectiveImpl(unittest.TestCase):
         cam_test = CameraPerspectiveImpl(rot_, cent, intrins_)
 
         np.testing.assert_array_equal(cam_test.get_center(), cent)
-        nt.assert_equal(cam_test.rotation(), rot_)
+        self.assertEqual(cam_test.rotation(), rot_)
         np.testing.assert_array_equal(cam_test.translation(), -(cam_test.rot.inverse() * cam_test.center))
         np.testing.assert_array_equal(cam_test.center_covar().matrix(), np.array([[1, 0, 0],
                                                                                   [0, 1, 0],
                                                                                   [0, 0, 1]]))
-        nt.assert_equal(cam_test.intrinsics(), intrins_)
+        self.assertEqual(cam_test.intrinsics(), intrins_)
         self.assertEqual(cam_test.image_height(), 720)
         self.assertEqual(cam_test.image_width(), 1080)
         np.testing.assert_array_equal(cam_test.pose_matrix(), np.array([[1, 0, 0],

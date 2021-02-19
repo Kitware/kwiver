@@ -66,7 +66,7 @@ class CameraPerspectiveMapTest(unittest.TestCase):
         ret_dict = self.ca.cameras()
         self.assertIsInstance(ret_dict, dict)
         self.assertEqual(len(ret_dict),3)
-        nt.assert_equal(ret_dict[1],self.a)
+        self.assertEqual(ret_dict[1],self.a)
 
     def test_frame_ids(self):
         # get_frame_ids()
@@ -79,7 +79,7 @@ class CameraPerspectiveMapTest(unittest.TestCase):
         # find
         ret_persp = self.ca.find(2)
         self.assertIsInstance(ret_persp, scap)
-        nt.assert_equal(ret_persp, self.a2)
+        self.assertEqual(ret_persp, self.a2)
 
     def test_erase(self):
         # erase
@@ -99,7 +99,7 @@ class CameraPerspectiveMapTest(unittest.TestCase):
         new_ca = self.ca.clone()
         self.assertIsInstance(new_ca, cam)
         self.assertEqual(new_ca.size(), 3)
-        nt.assert_equal(new_ca.cameras().keys(), self.ca.cameras().keys())
+        self.assertEqual(new_ca.cameras().keys(), self.ca.cameras().keys())
 
     def test_clear(self):
         # clear

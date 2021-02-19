@@ -66,14 +66,14 @@ class TestVitalLocalCartesian(unittest.TestCase):
 
     def test_initial_orientation(self):
         lc = LocalCartesian(self.origA, 0)
-        nt.assert_equal(lc.get_orientation(), 0)
+        self.assertEqual(lc.get_orientation(), 0)
 
         lc = LocalCartesian(self.origA, 33)
-        nt.assert_equal(lc.get_orientation(), 33)
+        self.assertEqual(lc.get_orientation(), 33)
 
     def check_origin_and_orient_equal(self, lc, origin, orient):
         np.testing.assert_array_almost_equal(lc.get_origin().location(), origin.location())
-        nt.assert_equal(lc.get_orientation(), orient)
+        self.assertEqual(lc.get_orientation(), orient)
 
     def test_api(self):
         lc = LocalCartesian(self.origA, 0)

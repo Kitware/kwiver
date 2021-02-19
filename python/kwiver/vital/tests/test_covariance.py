@@ -133,43 +133,43 @@ class TestVitalCovariance(unittest.TestCase):
 
         c = Covar4d(m)
         # Test matrix upper triangle locations
-        nose.tools.assert_equal(c[0, 0], 0)
-        nose.tools.assert_equal(c[0, 1], 5)
-        nose.tools.assert_equal(c[0, 2], 10)
-        nose.tools.assert_equal(c[0, 3], 15)
-        nose.tools.assert_equal(c[1, 1], 10)
-        nose.tools.assert_equal(c[1, 2], 15)
-        nose.tools.assert_equal(c[1, 3], 20)
-        nose.tools.assert_equal(c[2, 2], 20)
-        nose.tools.assert_equal(c[2, 3], 25)
-        nose.tools.assert_equal(c[3, 3], 30)
+        self.assertEqual(c[0, 0], 0)
+        self.assertEqual(c[0, 1], 5)
+        self.assertEqual(c[0, 2], 10)
+        self.assertEqual(c[0, 3], 15)
+        self.assertEqual(c[1, 1], 10)
+        self.assertEqual(c[1, 2], 15)
+        self.assertEqual(c[1, 3], 20)
+        self.assertEqual(c[2, 2], 20)
+        self.assertEqual(c[2, 3], 25)
+        self.assertEqual(c[3, 3], 30)
 
-        nose.tools.assert_equal(c[0, 1], c[1, 0])
-        nose.tools.assert_equal(c[0, 2], c[2, 0])
-        nose.tools.assert_equal(c[0, 3], c[3, 0])
-        nose.tools.assert_equal(c[1, 2], c[2, 1])
-        nose.tools.assert_equal(c[1, 3], c[3, 1])
-        nose.tools.assert_equal(c[2, 3], c[3, 2])
+        self.assertEqual(c[0, 1], c[1, 0])
+        self.assertEqual(c[0, 2], c[2, 0])
+        self.assertEqual(c[0, 3], c[3, 0])
+        self.assertEqual(c[1, 2], c[2, 1])
+        self.assertEqual(c[1, 3], c[3, 1])
+        self.assertEqual(c[2, 3], c[3, 2])
 
         c = Covar4f(m)
         # Test matrix upper triangle locations
-        nose.tools.assert_equal(c[0, 0], 0)
-        nose.tools.assert_equal(c[0, 1], 5)
-        nose.tools.assert_equal(c[0, 2], 10)
-        nose.tools.assert_equal(c[0, 3], 15)
-        nose.tools.assert_equal(c[1, 1], 10)
-        nose.tools.assert_equal(c[1, 2], 15)
-        nose.tools.assert_equal(c[1, 3], 20)
-        nose.tools.assert_equal(c[2, 2], 20)
-        nose.tools.assert_equal(c[2, 3], 25)
-        nose.tools.assert_equal(c[3, 3], 30)
+        self.assertEqual(c[0, 0], 0)
+        self.assertEqual(c[0, 1], 5)
+        self.assertEqual(c[0, 2], 10)
+        self.assertEqual(c[0, 3], 15)
+        self.assertEqual(c[1, 1], 10)
+        self.assertEqual(c[1, 2], 15)
+        self.assertEqual(c[1, 3], 20)
+        self.assertEqual(c[2, 2], 20)
+        self.assertEqual(c[2, 3], 25)
+        self.assertEqual(c[3, 3], 30)
 
-        nose.tools.assert_equal(c[0, 1], c[1, 0])
-        nose.tools.assert_equal(c[0, 2], c[2, 0])
-        nose.tools.assert_equal(c[0, 3], c[3, 0])
-        nose.tools.assert_equal(c[1, 2], c[2, 1])
-        nose.tools.assert_equal(c[1, 3], c[3, 1])
-        nose.tools.assert_equal(c[2, 3], c[3, 2])
+        self.assertEqual(c[0, 1], c[1, 0])
+        self.assertEqual(c[0, 2], c[2, 0])
+        self.assertEqual(c[0, 3], c[3, 0])
+        self.assertEqual(c[1, 2], c[2, 1])
+        self.assertEqual(c[1, 3], c[3, 1])
+        self.assertEqual(c[2, 3], c[3, 2])
 
     def test_get_oob(self):
         # 2x2 covariance mat
@@ -198,31 +198,31 @@ class TestVitalCovariance(unittest.TestCase):
         c[2, 2] = 3
 
         # Test matrix upper triangle locations
-        nose.tools.assert_equal(c[0, 0], 0)
-        nose.tools.assert_equal(c[0, 1], 1)
-        nose.tools.assert_equal(c[0, 2], 10)
-        nose.tools.assert_equal(c[0, 3], 15)
-        nose.tools.assert_equal(c[1, 1], 10)
-        nose.tools.assert_equal(c[1, 2], 15)
-        nose.tools.assert_equal(c[1, 3], 20)
-        nose.tools.assert_equal(c[2, 2], 3)
-        nose.tools.assert_equal(c[2, 3], 25)
-        nose.tools.assert_equal(c[3, 3], 30)
+        self.assertEqual(c[0, 0], 0)
+        self.assertEqual(c[0, 1], 1)
+        self.assertEqual(c[0, 2], 10)
+        self.assertEqual(c[0, 3], 15)
+        self.assertEqual(c[1, 1], 10)
+        self.assertEqual(c[1, 2], 15)
+        self.assertEqual(c[1, 3], 20)
+        self.assertEqual(c[2, 2], 3)
+        self.assertEqual(c[2, 3], 25)
+        self.assertEqual(c[3, 3], 30)
 
-        nose.tools.assert_equal(c[0, 1], c[1, 0])
-        nose.tools.assert_equal(c[0, 2], c[2, 0])
-        nose.tools.assert_equal(c[0, 3], c[3, 0])
-        nose.tools.assert_equal(c[1, 2], c[2, 1])
-        nose.tools.assert_equal(c[1, 3], c[3, 1])
-        nose.tools.assert_equal(c[2, 3], c[3, 2])
+        self.assertEqual(c[0, 1], c[1, 0])
+        self.assertEqual(c[0, 2], c[2, 0])
+        self.assertEqual(c[0, 3], c[3, 0])
+        self.assertEqual(c[1, 2], c[2, 1])
+        self.assertEqual(c[1, 3], c[3, 1])
+        self.assertEqual(c[2, 3], c[3, 2])
 
         # Set in upper triangle and see it reflect in lower
         c[0, 2] = 42
-        nose.tools.assert_equal(c[2, 0], 42)
+        self.assertEqual(c[2, 0], 42)
 
         # Change something in lower triangle and see it reflected in upper
         c[2, 1] = 43
-        nose.tools.assert_equal(c[1, 2], 43)
+        self.assertEqual(c[1, 2], 43)
 
         # FLOAT
         c = Covar4f(m)
@@ -231,31 +231,31 @@ class TestVitalCovariance(unittest.TestCase):
         c[2, 2] = 3
 
         # Test matrix upper triangle locations
-        nose.tools.assert_equal(c[0, 0], 0)
-        nose.tools.assert_equal(c[0, 1], 1)
-        nose.tools.assert_equal(c[0, 2], 10)
-        nose.tools.assert_equal(c[0, 3], 15)
-        nose.tools.assert_equal(c[1, 1], 10)
-        nose.tools.assert_equal(c[1, 2], 15)
-        nose.tools.assert_equal(c[1, 3], 20)
-        nose.tools.assert_equal(c[2, 2], 3)
-        nose.tools.assert_equal(c[2, 3], 25)
-        nose.tools.assert_equal(c[3, 3], 30)
+        self.assertEqual(c[0, 0], 0)
+        self.assertEqual(c[0, 1], 1)
+        self.assertEqual(c[0, 2], 10)
+        self.assertEqual(c[0, 3], 15)
+        self.assertEqual(c[1, 1], 10)
+        self.assertEqual(c[1, 2], 15)
+        self.assertEqual(c[1, 3], 20)
+        self.assertEqual(c[2, 2], 3)
+        self.assertEqual(c[2, 3], 25)
+        self.assertEqual(c[3, 3], 30)
 
-        nose.tools.assert_equal(c[0, 1], c[1, 0])
-        nose.tools.assert_equal(c[0, 2], c[2, 0])
-        nose.tools.assert_equal(c[0, 3], c[3, 0])
-        nose.tools.assert_equal(c[1, 2], c[2, 1])
-        nose.tools.assert_equal(c[1, 3], c[3, 1])
-        nose.tools.assert_equal(c[2, 3], c[3, 2])
+        self.assertEqual(c[0, 1], c[1, 0])
+        self.assertEqual(c[0, 2], c[2, 0])
+        self.assertEqual(c[0, 3], c[3, 0])
+        self.assertEqual(c[1, 2], c[2, 1])
+        self.assertEqual(c[1, 3], c[3, 1])
+        self.assertEqual(c[2, 3], c[3, 2])
 
         # Set in upper triangle and see it reflect in lower
         c[0, 2] = 42
-        nose.tools.assert_equal(c[2, 0], 42)
+        self.assertEqual(c[2, 0], 42)
 
         # Change something in lower triangle and see it reflected in upper
         c[2, 1] = 43
-        nose.tools.assert_equal(c[1, 2], 43)
+        self.assertEqual(c[1, 2], 43)
 
     def test_set_oob(self):
         # 2x2 covariance mat

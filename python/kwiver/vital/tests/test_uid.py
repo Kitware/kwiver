@@ -77,29 +77,29 @@ class TestVitalUID(object):
     def test_value(self):
         (empty1, empty2, empty3, foo_, foo_bar, baz_qux) = self._create_uids()
 
-        nt.assert_equal(empty1.value(), "")
-        nt.assert_equal(empty2.value(), "")
-        nt.assert_equal(empty3.value(), "")
-        nt.assert_equal(foo_.value(), "foo_")
-        nt.assert_equal(foo_bar.value(), "foo_bar")
-        nt.assert_equal(baz_qux.value(), "baz_qux")
+        self.assertEqual(empty1.value(), "")
+        self.assertEqual(empty2.value(), "")
+        self.assertEqual(empty3.value(), "")
+        self.assertEqual(foo_.value(), "foo_")
+        self.assertEqual(foo_bar.value(), "foo_bar")
+        self.assertEqual(baz_qux.value(), "baz_qux")
 
     def test_size_and_length(self):
         (empty1, empty2, empty3, foo_, foo_bar, baz_qux) = self._create_uids()
 
-        nt.assert_equal(empty1.size(), 0)
-        nt.assert_equal(empty2.size(), 0)
-        nt.assert_equal(empty3.size(), 0)
-        nt.assert_equal(foo_.size(), 4)
-        nt.assert_equal(foo_bar.size(), 7)
-        nt.assert_equal(baz_qux.size(), 7)
+        self.assertEqual(empty1.size(), 0)
+        self.assertEqual(empty2.size(), 0)
+        self.assertEqual(empty3.size(), 0)
+        self.assertEqual(foo_.size(), 4)
+        self.assertEqual(foo_bar.size(), 7)
+        self.assertEqual(baz_qux.size(), 7)
 
-        nt.assert_equal(len(empty1), empty1.size())
-        nt.assert_equal(len(empty2), empty2.size())
-        nt.assert_equal(len(empty3), empty3.size())
-        nt.assert_equal(len(foo_), foo_.size())
-        nt.assert_equal(len(foo_bar), foo_bar.size())
-        nt.assert_equal(len(baz_qux), baz_qux.size())
+        self.assertEqual(len(empty1), empty1.size())
+        self.assertEqual(len(empty2), empty2.size())
+        self.assertEqual(len(empty3), empty3.size())
+        self.assertEqual(len(foo_), foo_.size())
+        self.assertEqual(len(foo_bar), foo_bar.size())
+        self.assertEqual(len(baz_qux), baz_qux.size())
 
     def test_copy_equal(self):
         instances = self._create_uids()
@@ -108,7 +108,7 @@ class TestVitalUID(object):
         for i in range(len(instances)):
             uid = instances[i]
             uid_copy = instances_copy[i]
-            nt.assert_equal(
+            self.assertEqual(
                 uid,
                 uid_copy,
                 "{} and {} uids not equal".format(uid.value(), uid_copy.value()),
@@ -116,9 +116,9 @@ class TestVitalUID(object):
 
     def test_empty_equal(self):
         (empty1, empty2, empty3, foo_, _, _) = self._create_uids()
-        nt.assert_equal(empty1, empty2)
-        nt.assert_equal(empty1, empty3)
-        nt.assert_equal(empty2, empty3)
+        self.assertEqual(empty1, empty2)
+        self.assertEqual(empty1, empty3)
+        self.assertEqual(empty2, empty3)
 
         nt.ok_(not empty1 == foo_)
         nt.ok_(not empty2 == foo_)
@@ -149,9 +149,9 @@ class TestVitalUID(object):
             Test_str,
         ) = self._create_uids_for_equals_check()
         # Test that same string constructed different ways is equivalent
-        nt.assert_equal(test_str1, test_str2)
-        nt.assert_equal(test_str1, test_str3)
-        nt.assert_equal(test_str2, test_str3)
+        self.assertEqual(test_str1, test_str2)
+        self.assertEqual(test_str1, test_str3)
+        self.assertEqual(test_str2, test_str3)
 
         nt.ok_(not test_str1 == test_strtest_str)
         nt.ok_(not test_str1 == Atest_str)

@@ -60,7 +60,7 @@ class TestSimpleMatchSet(unittest.TestCase):
 
     def test_size(self):
         m = MatchSet(self.match_set)
-        nt.assert_equal(m.size(), 3)
+        self.assertEqual(m.size(), 3)
 
     def test_matches(self):
         m = MatchSet(self.match_set)
@@ -68,5 +68,5 @@ class TestSimpleMatchSet(unittest.TestCase):
 
     def test_py_helpers(self):
         m = MatchSet(self.match_set)
-        nt.assert_equal(str(m), "<MatchSet>")
-        nt.assert_equal(repr(m)[1:9], "MatchSet")
+        self.assertEqual(str(m), "<MatchSet>")
+        self.assertEqual(repr(m)[1:9], "MatchSet")

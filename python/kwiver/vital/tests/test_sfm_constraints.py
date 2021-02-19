@@ -81,10 +81,10 @@ class TestSFMConstraints(unittest.TestCase):
       # metadata property
       s = SFMConstraints(self.meta_, self.geo_)
       get_meta = s.metadata
-      nt.assert_equal(get_meta.size(), 0)
+      self.assertEqual(get_meta.size(), 0)
       m = SimpleMetadataMap()
       s.metadata = m
-      nt.assert_equal(s.metadata.size(), 0)
+      self.assertEqual(s.metadata.size(), 0)
 
       # local_geo_property
       ret_geo = s.local_geo_cs
@@ -98,8 +98,8 @@ class TestSFMConstraints(unittest.TestCase):
 
     def test_get_camera_position_prior_local(self):
       s = SFMConstraints(self.meta_, self.geo_)
-      nt.assert_false(s.get_camera_position_prior_local(0, np.array([0, 1, 3])))
-      nt.assert_false(s.get_camera_position_prior_local(0, RotationD([1, 2, 3, 4])))
+      self.assertFalse(s.get_camera_position_prior_local(0, np.array([0, 1, 3])))
+      self.assertFalse(s.get_camera_position_prior_local(0, RotationD([1, 2, 3, 4])))
 
     def test_camera_position_priors(self):
       s = SFMConstraints(self.meta_, self.geo_)
@@ -114,10 +114,10 @@ class TestSFMConstraints(unittest.TestCase):
       foundb, b = s.get_image_height(0, b)
       nt.ok_(founda)
       nt.ok_(foundb)
-      nt.assert_equal(a, 1080)
-      nt.assert_equal(b, 720)
+      self.assertEqual(a, 1080)
+      self.assertEqual(b, 720)
       found_focal = True
       focal_len = 0.1
       found_focal, focal_len = s.get_focal_length_prior(0, focal_len)
-      nt.assert_false(found_focal)
+      self.assertFalse(found_focal)
       nt.assert_almost_equal(focal_len, 0.1)

@@ -192,7 +192,7 @@ class TestVitalAlgorithmsCommon(object):
         nested_cfg.subblock_view("algorithm").set_value("type", "foo")
 
         # Check should fail
-        nose.tools.assert_false(
+        self.assertFalse(
             instance.check_nested_algo_configuration("algorithm", nested_cfg)
         )
 

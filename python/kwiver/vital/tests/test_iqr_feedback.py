@@ -49,7 +49,7 @@ class TestVitalIQRFeedback(object):
 
         # First check default
         nt.assert_equals(iqrf.query_id.value(), "")
-        nt.assert_false(iqrf.query_id.is_valid())
+        self.assertFalse(iqrf.query_id.is_valid())
 
         # Now check setting and getting a few values
         iqrf.query_id = UID("first")

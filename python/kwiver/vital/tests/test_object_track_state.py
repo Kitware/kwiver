@@ -68,9 +68,9 @@ class TestObjectTrackState (unittest.TestCase):
         """
         do = self._create_detected_object()
         ts = ObjectTrackState(0, 0, do)
-        nose.tools.assert_equal(ts.frame_id, 0)
+        self.assertEqual(ts.frame_id, 0)
         ts = ObjectTrackState(14691234578, 0, do)
-        nose.tools.assert_equal(ts.frame_id, 14691234578)
+        self.assertEqual(ts.frame_id, 14691234578)
 
     def test_time_usec(self):
         """
@@ -78,9 +78,9 @@ class TestObjectTrackState (unittest.TestCase):
         """
         do = self._create_detected_object()
         ts = ObjectTrackState(0, 0, do)
-        nose.tools.assert_equal(ts.time_usec, 0)
+        self.assertEqual(ts.time_usec, 0)
         ts = ObjectTrackState(0, 14691234578 , do)
-        nose.tools.assert_equal(ts.time_usec, 14691234578)
+        self.assertEqual(ts.time_usec, 14691234578)
 
     def test_detection(self):
         """
@@ -88,4 +88,4 @@ class TestObjectTrackState (unittest.TestCase):
         """
         do = self._create_detected_object()
         ts = ObjectTrackState(0, 0, do)
-        nose.tools.assert_equal(ts.detection(), do)
+        self.assertEqual(ts.detection(), do)

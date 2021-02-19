@@ -80,28 +80,28 @@ class TestVitalGeodesy(unittest.TestCase):
 
     def test_utm_ups_zone_initial_values(self):
         z1 = g.UTMUPSZone(self.loc1)
-        nt.assert_equal(z1.number, 18)
-        nt.assert_equal(z1.north, True)
+        self.assertEqual(z1.number, 18)
+        self.assertEqual(z1.north, True)
 
         z2 = g.UTMUPSZone(self.loc2)
-        nt.assert_equal(z2.number, 31)
-        nt.assert_equal(z2.north, True)
+        self.assertEqual(z2.number, 31)
+        self.assertEqual(z2.north, True)
 
         z3 = g.UTMUPSZone(self.loc3)
-        nt.assert_equal(z3.number, 20)
-        nt.assert_equal(z3.north, True)
+        self.assertEqual(z3.number, 20)
+        self.assertEqual(z3.north, True)
 
         z4 = g.UTMUPSZone(self.loc4)
-        nt.assert_equal(z4.number, 0)
-        nt.assert_equal(z4.north, True)
+        self.assertEqual(z4.number, 0)
+        self.assertEqual(z4.north, True)
 
         z5 = g.UTMUPSZone(self.loc5)
-        nt.assert_equal(z5.number, 58)
-        nt.assert_equal(z5.north, False)
+        self.assertEqual(z5.number, 58)
+        self.assertEqual(z5.north, False)
 
         z6 = g.UTMUPSZone(self.loc6)
-        nt.assert_equal(z6.number, 0)
-        nt.assert_equal(z6.north, False)
+        self.assertEqual(z6.number, 0)
+        self.assertEqual(z6.north, False)
 
     def test_set_utm_ups_zone_struct_values(self):
         # Test getting and setting a few values
@@ -149,77 +149,77 @@ class TestVitalGeodesy(unittest.TestCase):
         desc_wgs84_ll = g.geo_crs_description(g.SRID.lat_lon_WGS84)
         self.print_desc("WGS84 lat/lon", desc_wgs84_ll)
 
-        nt.assert_equal(self.get_desc_value(desc_wgs84_ll, "datum"), "WGS84")
-        nt.assert_equal(self.get_desc_value(desc_wgs84_ll, "ellipse"), "WGS84")
-        nt.assert_equal(self.get_desc_value(desc_wgs84_ll, "projection"), "longlat")
+        self.assertEqual(self.get_desc_value(desc_wgs84_ll, "datum"), "WGS84")
+        self.assertEqual(self.get_desc_value(desc_wgs84_ll, "ellipse"), "WGS84")
+        self.assertEqual(self.get_desc_value(desc_wgs84_ll, "projection"), "longlat")
 
         # Test NAD83 lat/lon
         desc_nad83_ll = g.geo_crs_description(g.SRID.lat_lon_NAD83)
         self.print_desc("NAD83 lat/lon", desc_nad83_ll)
 
-        nt.assert_equal(self.get_desc_value(desc_nad83_ll, "datum"), "NAD83")
-        nt.assert_equal(self.get_desc_value(desc_nad83_ll, "ellipse"), "GRS80")
-        nt.assert_equal(self.get_desc_value(desc_nad83_ll, "projection"), "longlat")
+        self.assertEqual(self.get_desc_value(desc_nad83_ll, "datum"), "NAD83")
+        self.assertEqual(self.get_desc_value(desc_nad83_ll, "ellipse"), "GRS80")
+        self.assertEqual(self.get_desc_value(desc_nad83_ll, "projection"), "longlat")
 
         # Test WGS84 UTM North
         WGS84_UTM_21N = g.SRID.UTM_WGS84_north + 21
         desc_wgs84_utm_21n = g.geo_crs_description(WGS84_UTM_21N)
         self.print_desc("WGS84 UTM North 21", desc_wgs84_utm_21n)
 
-        nt.assert_equal(self.get_desc_value(desc_wgs84_utm_21n, "datum"), "WGS84")
-        nt.assert_equal(self.get_desc_value(desc_wgs84_utm_21n, "ellipse"), "WGS84")
-        nt.assert_equal(self.get_desc_value(desc_wgs84_utm_21n, "projection"), "utm")
-        nt.assert_equal(self.get_desc_value(desc_wgs84_utm_21n, "zone"), "21")
-        nt.assert_equal(self.get_desc_value(desc_wgs84_utm_21n, "hemisphere"), "north")
+        self.assertEqual(self.get_desc_value(desc_wgs84_utm_21n, "datum"), "WGS84")
+        self.assertEqual(self.get_desc_value(desc_wgs84_utm_21n, "ellipse"), "WGS84")
+        self.assertEqual(self.get_desc_value(desc_wgs84_utm_21n, "projection"), "utm")
+        self.assertEqual(self.get_desc_value(desc_wgs84_utm_21n, "zone"), "21")
+        self.assertEqual(self.get_desc_value(desc_wgs84_utm_21n, "hemisphere"), "north")
 
         # Test WGS84 UTM South
         WGS84_UTM_55S = g.SRID.UTM_WGS84_south + 55
         desc_wgs84_utm_55s = g.geo_crs_description(WGS84_UTM_55S)
         self.print_desc("WGS84 UTM South 55", desc_wgs84_utm_55s)
 
-        nt.assert_equal(self.get_desc_value(desc_wgs84_utm_55s, "datum"), "WGS84")
-        nt.assert_equal(self.get_desc_value(desc_wgs84_utm_55s, "ellipse"), "WGS84")
-        nt.assert_equal(self.get_desc_value(desc_wgs84_utm_55s, "projection"), "utm")
-        nt.assert_equal(self.get_desc_value(desc_wgs84_utm_55s, "zone"), "55")
-        nt.assert_equal(self.get_desc_value(desc_wgs84_utm_55s, "hemisphere"), "south")
+        self.assertEqual(self.get_desc_value(desc_wgs84_utm_55s, "datum"), "WGS84")
+        self.assertEqual(self.get_desc_value(desc_wgs84_utm_55s, "ellipse"), "WGS84")
+        self.assertEqual(self.get_desc_value(desc_wgs84_utm_55s, "projection"), "utm")
+        self.assertEqual(self.get_desc_value(desc_wgs84_utm_55s, "zone"), "55")
+        self.assertEqual(self.get_desc_value(desc_wgs84_utm_55s, "hemisphere"), "south")
 
         # Test NAD83 UTM West
         NAD83_UTM_18S = g.SRID.UTM_NAD83_northwest + 18
         desc_nad83_utm_18s = g.geo_crs_description(NAD83_UTM_18S)
         self.print_desc("NAD83 UTM North 18", desc_nad83_utm_18s)
 
-        nt.assert_equal(self.get_desc_value(desc_nad83_utm_18s, "datum"), "NAD83")
-        nt.assert_equal(self.get_desc_value(desc_nad83_utm_18s, "ellipse"), "GRS80")
-        nt.assert_equal(self.get_desc_value(desc_nad83_utm_18s, "projection"), "utm")
-        nt.assert_equal(self.get_desc_value(desc_nad83_utm_18s, "zone"), "18")
-        nt.assert_equal(self.get_desc_value(desc_nad83_utm_18s, "hemisphere"), "north")
+        self.assertEqual(self.get_desc_value(desc_nad83_utm_18s, "datum"), "NAD83")
+        self.assertEqual(self.get_desc_value(desc_nad83_utm_18s, "ellipse"), "GRS80")
+        self.assertEqual(self.get_desc_value(desc_nad83_utm_18s, "projection"), "utm")
+        self.assertEqual(self.get_desc_value(desc_nad83_utm_18s, "zone"), "18")
+        self.assertEqual(self.get_desc_value(desc_nad83_utm_18s, "hemisphere"), "north")
 
         # Test NAD83 UTM East
         NAD83_UTM_59S = g.SRID.UTM_NAD83_northeast + 59
         desc_nad83_utm_59s = g.geo_crs_description(NAD83_UTM_59S)
         self.print_desc("NAD83 UTM North 59", desc_nad83_utm_59s)
 
-        nt.assert_equal(self.get_desc_value(desc_nad83_utm_59s, "datum"), "NAD83")
-        nt.assert_equal(self.get_desc_value(desc_nad83_utm_59s, "ellipse"), "GRS80")
-        nt.assert_equal(self.get_desc_value(desc_nad83_utm_59s, "projection"), "utm")
-        nt.assert_equal(self.get_desc_value(desc_nad83_utm_59s, "zone"), "59")
-        nt.assert_equal(self.get_desc_value(desc_nad83_utm_59s, "hemisphere"), "north")
+        self.assertEqual(self.get_desc_value(desc_nad83_utm_59s, "datum"), "NAD83")
+        self.assertEqual(self.get_desc_value(desc_nad83_utm_59s, "ellipse"), "GRS80")
+        self.assertEqual(self.get_desc_value(desc_nad83_utm_59s, "projection"), "utm")
+        self.assertEqual(self.get_desc_value(desc_nad83_utm_59s, "zone"), "59")
+        self.assertEqual(self.get_desc_value(desc_nad83_utm_59s, "hemisphere"), "north")
 
         # Test WGS84 UPS North
         desc_wgs84_ups_n = g.geo_crs_description(g.SRID.UPS_WGS84_north)
         self.print_desc("WGS84 UPS North", desc_wgs84_ups_n)
 
-        nt.assert_equal(self.get_desc_value(desc_wgs84_ups_n, "datum"), "WGS84")
-        nt.assert_equal(self.get_desc_value(desc_wgs84_ups_n, "ellipse"), "WGS84")
-        nt.assert_equal(self.get_desc_value(desc_wgs84_ups_n, "projection"), "stere")
+        self.assertEqual(self.get_desc_value(desc_wgs84_ups_n, "datum"), "WGS84")
+        self.assertEqual(self.get_desc_value(desc_wgs84_ups_n, "ellipse"), "WGS84")
+        self.assertEqual(self.get_desc_value(desc_wgs84_ups_n, "projection"), "stere")
 
         # Test WGS84 UPS South
         desc_wgs84_ups_s = g.geo_crs_description(g.SRID.UPS_WGS84_south)
         self.print_desc("WGS84 UPS South", desc_wgs84_ups_s)
 
-        nt.assert_equal(self.get_desc_value(desc_wgs84_ups_s, "datum"), "WGS84")
-        nt.assert_equal(self.get_desc_value(desc_wgs84_ups_s, "ellipse"), "WGS84")
-        nt.assert_equal(self.get_desc_value(desc_wgs84_ups_s, "projection"), "stere")
+        self.assertEqual(self.get_desc_value(desc_wgs84_ups_s, "datum"), "WGS84")
+        self.assertEqual(self.get_desc_value(desc_wgs84_ups_s, "ellipse"), "WGS84")
+        self.assertEqual(self.get_desc_value(desc_wgs84_ups_s, "projection"), "stere")
 
     def test_convert(self):
         modules.load_known_modules()

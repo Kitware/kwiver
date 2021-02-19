@@ -74,7 +74,7 @@ class TestVitalCameraSubclass(unittest.TestCase):
         nt.ok_(isinstance(cloned_cam, SimpleCamera))
 
         # Check ID is the same
-        nt.assert_equal(cam.id_, cloned_cam.id_)
+        self.assertEqual(cam.id_, cloned_cam.id_)
 
     def test_project_override(self):
         cam = SimpleCamera(3)
@@ -85,11 +85,11 @@ class TestVitalCameraSubclass(unittest.TestCase):
 
     def test_width_override(self):
         cam = SimpleCamera(4)
-        nt.assert_equal(helper.call_image_width(cam), 1080)
+        self.assertEqual(helper.call_image_width(cam), 1080)
 
     def test_height_override(self):
         cam = SimpleCamera(4)
-        nt.assert_equal(helper.call_image_height(cam), 720)
+        self.assertEqual(helper.call_image_height(cam), 720)
 
 class TestVitalCamera(unittest.TestCase):
     def test_init(self):

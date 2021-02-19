@@ -338,23 +338,23 @@ class TestVitalMetadata(unittest.TestCase):
     def test_erase(self):
         m = Metadata()
         for tag in self.tags:
-            nt.assert_false(m.erase(tag))
+            self.assertFalse(m.erase(tag))
         self.populate_metadata(m)
         for tag in self.small_tag:
-            nt.assert_true(m.erase(tag))
+            self.assertTrue(m.erase(tag))
 
     # Tests for has and find
     def test_retrieve(self):
         m = Metadata()
         # Make sure there are no initial elements
         for tag in self.tags:
-            nt.assert_false(m.has(tag))
+            self.assertFalse(m.has(tag))
             nt.ok_(isinstance(m.find(tag), UnknownMetadataItem))
         self.populate_metadata(m)
         uint64_type_impl = tc.get_uint64_rep()
         possible_types = {"int", "bool", uint64_type_impl, "string", "double"}
         for tag in self.small_tag:
-            nt.assert_true(m.has(tag))
+            self.assertTrue(m.has(tag))
             nt.ok_(isinstance(m.find(tag), MetadataItem))
             found = m.find(tag)
             nt.assert_in(found.type, possible_types)
@@ -364,14 +364,14 @@ class TestVitalMetadata(unittest.TestCase):
         self.populate_metadata(m)
         metadatas = [Metadata(), m]
         for m in metadatas:
-            nt.assert_false(m.timestamp.is_valid())
+            self.assertFalse(m.timestamp.is_valid())
 
             t = Timestamp()
 
             t.set_time_seconds(1234)
             m.timestamp = t
             nt.assert_equals(m.timestamp.get_time_seconds(), 1234)
-            nt.assert_false(m.timestamp.has_valid_frame())
+            self.assertFalse(m.timestamp.has_valid_frame())
 
             t.set_frame(1)
             m.timestamp = t

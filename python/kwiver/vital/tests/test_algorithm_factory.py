@@ -58,11 +58,11 @@ def test_algorithm_factory():
     )
 
     # Check with an empty implementation
-    nt.assert_equal(
+    self.assertEqual(
         algorithm_factory.has_algorithm_impl_name("image_object_detector", ""), False
     )
     # Check with dummy implementation
-    nt.assert_equal(
+    self.assertEqual(
         algorithm_factory.has_algorithm_impl_name(
             "image_object_detector", "NotAnObjectDetector"
         ),
@@ -76,9 +76,9 @@ def test_algorithm_factory():
         "Dummy example_detector not registered",
     )
     # Check with an empty algorithm return empty list
-    nt.assert_equal(len(algorithm_factory.implementations("")), 0)
+    self.assertEqual(len(algorithm_factory.implementations("")), 0)
     # Check with dummy algorithm returns empty list
-    nt.assert_equal(len(algorithm_factory.implementations("NotAnAlgorithm")), 0)
+    self.assertEqual(len(algorithm_factory.implementations("NotAnAlgorithm")), 0)
 
     # Make sure creating works
     alg_out = algorithm_factory.create_algorithm(

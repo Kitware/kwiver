@@ -58,7 +58,7 @@ class TestVitalConfig(object):
         valuea = 'valuea'
         c.set_value(keya, valuea)
         get_valuea = c.get_value(keya)
-        nose.tools.assert_equal(valuea, get_valuea)
+        self.assertEqual(valuea, get_valuea)
 
     def test_get_value_nested(self):
         c = config.empty_config()
@@ -68,7 +68,7 @@ class TestVitalConfig(object):
         c.set_value(keya + config.Config.block_sep() + keyb, valuea)
         nc = c.subblock(keya)
         get_valuea = nc.get_value(keyb)
-        nose.tools.assert_equal(valuea, get_valuea)
+        self.assertEqual(valuea, get_valuea)
 
     @nose.tools.raises(RuntimeError)
     def test_get_value_no_exist(self):
@@ -81,7 +81,7 @@ class TestVitalConfig(object):
         keyb = 'keyb'
         valueb = 'valueb'
         get_valueb = c.get_value(keyb, valueb)
-        nose.tools.assert_equal(valueb, get_valueb)
+        self.assertEqual(valueb, get_valueb)
 
     @nose.tools.raises(RuntimeError)
     def test_unset_value(self):
@@ -104,7 +104,7 @@ class TestVitalConfig(object):
         c.set_value(keyb, valueb)
 
         avail = c.available_values()
-        nose.tools.assert_equal(len(avail), 2)
+        self.assertEqual(len(avail), 2)
 
     def test_available_values_are_iterable(self):
         c = config.empty_config()
@@ -150,11 +150,11 @@ class TestVitalConfig(object):
         get_valuea = d.get_value(keya)
         get_valueb = d.get_value(keyb)
 
-        nose.tools.assert_equal(valuea, get_valuea,
+        self.assertEqual(valuea, get_valuea,
                                 "Subblock does not inherit expected keys")
-        nose.tools.assert_equal(valueb, get_valueb,
+        self.assertEqual(valueb, get_valueb,
                                 "Subblock does not inherit expected keys")
-        nose.tools.assert_equal(d.has_value(keyc), False,
+        self.assertEqual(d.has_value(keyc), False,
                                 "Subblock inherited unrelated key" )
 
     def test_subblock_view(self):
@@ -177,20 +177,20 @@ class TestVitalConfig(object):
         nose.tools.ok_(d.has_value(keya),
                        "Subblock does not inherit expected keys")
 
-        nose.tools.assert_equal(d.has_value(keyb), False,
+        self.assertEqual(d.has_value(keyb), False,
                                "Subblock inherited unrelated key")
 
         c.set_value(block1 + config.Config.block_sep() + keya, valueb)
 
         get_valuea1 = d.get_value(keya)
 
-        nose.tools.assert_equal(valueb, get_valuea1,
+        self.assertEqual(valueb, get_valuea1,
                                "Subblock view persisted a changed value")
 
         d.set_value(keya, valuea)
 
         get_valuea2 = d.get_value(keya)
-        nose.tools.assert_equal(valuea, get_valuea2,
+        self.assertEqual(valuea, get_valuea2,
                                "Subblock view set value was not changed in parent")
 
     def test_merge_config(self):
@@ -210,9 +210,9 @@ class TestVitalConfig(object):
         get_valuea = c.get_value(keya)
         get_valueb = c.get_value(keyb)
         get_valuec = c.get_value(keyc)
-        nose.tools.assert_equal(valuea, get_valuea, "Unmerged key changed")
-        nose.tools.assert_equal(valueb, get_valueb, "Conflicting key was not overwritten")
-        nose.tools.assert_equal(valuec, get_valuec, "New key did not appear")
+        self.assertEqual(valuea, get_valuea, "Unmerged key changed")
+        self.assertEqual(valueb, get_valueb, "Conflicting key was not overwritten")
+        self.assertEqual(valuec, get_valuec, "New key did not appear")
 
     def test_getitem(self):
         c = config.empty_config()
@@ -220,7 +220,7 @@ class TestVitalConfig(object):
         value = 'oldvalue'
         c[key] = value
 
-        nose.tools.assert_equal(c[key], value)
+        self.assertEqual(c[key], value)
         nose.tools.ok_(key in c, "{0} is not in config after insertion".format(key))
 
         value = 'newvalue'
@@ -228,7 +228,7 @@ class TestVitalConfig(object):
         c[key] = value
         value = 'replacedvalue'
 
-        nose.tools.assert_equal(c[key], origvalue, "Value was overwritten")
+        self.assertEqual(c[key], origvalue, "Value was overwritten")
 
     @nose.tools.raises(KeyError)
     def test_invalid_getitem(self):
@@ -242,7 +242,7 @@ class TestVitalConfig(object):
         value = 'oldvalue'
         c[key] = value
         del c[key]
-        nose.tools.assert_equal(c.has_value(key), False, "The key was not deleted")
+        self.assertEqual(c.has_value(key), False, "The key was not deleted")
 
     @nose.tools.raises(KeyError)
     def test_invalid_delitem(self):
@@ -255,7 +255,7 @@ class TestVitalConfig(object):
         key = 'key'
         value = 10
         c[key] = value
-        nose.tools.assert_equal(c[key], str(value))
+        self.assertEqual(c[key], str(value))
 
 ##################geo_poly tests###################
 
@@ -263,7 +263,7 @@ class TestVitalConfig(object):
         pts_in = gp1.polygon().get_vertices()
         pts_out = gp2.polygon().get_vertices()
 
-        nose.tools.assert_equal(len(pts_in), len(pts_out))
+        self.assertEqual(len(pts_in), len(pts_out))
         for loc_in, loc_out in zip(pts_in, pts_out):
             np.testing.assert_array_almost_equal(loc_in, loc_out, decimal=15)
 

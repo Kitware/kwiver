@@ -50,15 +50,15 @@ class TestVitalTrackSet (object):
         ts = TrackSet()
         l = len(ts)
         s = ts.size()
-        nt.assert_equal(l, 0)
-        nt.assert_equal(l, s)
+        self.assertEqual(l, 0)
+        self.assertEqual(l, s)
 
     def test_new_nonempty(self):
         n = 10
         tracks = [Track(i) for i in range(n)]
         ts = TrackSet(tracks)
-        nt.assert_equal(len(ts), n)
-        nt.assert_equal(ts.size(), n)
+        self.assertEqual(len(ts), n)
+        self.assertEqual(ts.size(), n)
 
     def test_tracklist_accessor(self):
         n = 10
@@ -66,9 +66,9 @@ class TestVitalTrackSet (object):
         ts = TrackSet(tracks)
         ts_tracks = ts.tracks()
 
-        nt.assert_equal(len(ts_tracks), n)
+        self.assertEqual(len(ts_tracks), n)
         for i, t in enumerate(ts_tracks):
-            nt.assert_equal(t.id, i)
+            self.assertEqual(t.id, i)
 
     def test_all_frame_ids_single_track(self):
         # From a single track
@@ -78,7 +78,7 @@ class TestVitalTrackSet (object):
             t.append(TrackState(i))
         ts = TrackSet([t])
 
-        nt.assert_equal(
+        self.assertEqual(
             ts.all_frame_ids(),
             set(range(10))
         )
@@ -93,7 +93,7 @@ class TestVitalTrackSet (object):
         for i in range(n, n+5):
             t2.append(TrackState(i))
         ts = TrackSet([t1, t2])
-        nt.assert_equal(
+        self.assertEqual(
             ts.all_frame_ids(),
             set(range(n+5))
         )
@@ -101,38 +101,38 @@ class TestVitalTrackSet (object):
     def test_first_frame(self):
         # no tracks
         ts = TrackSet()
-        nt.assert_equal(ts.first_frame(), 0)
+        self.assertEqual(ts.first_frame(), 0)
 
         # one track
         t = Track(1)
         t.append(TrackState(1))
         t.append(TrackState(2))
         ts = TrackSet([t])
-        nt.assert_equal(ts.first_frame(), 1)
+        self.assertEqual(ts.first_frame(), 1)
 
         # two tracks
         t2 = Track(2)
         t2.append(TrackState(3))
         ts = TrackSet([t, t2])
-        nt.assert_equal(ts.first_frame(), 1)
+        self.assertEqual(ts.first_frame(), 1)
 
     def test_last_frame(self):
         # no tracks
         ts = TrackSet()
-        nt.assert_equal(ts.last_frame(), 0)
+        self.assertEqual(ts.last_frame(), 0)
 
         # one track
         t = Track(1)
         t.append(TrackState(1))
         t.append(TrackState(2))
         ts = TrackSet([t])
-        nt.assert_equal(ts.last_frame(), 2)
+        self.assertEqual(ts.last_frame(), 2)
 
         # two tracks
         t2 = Track(2)
         t2.append(TrackState(3))
         ts = TrackSet([t, t2])
-        nt.assert_equal(ts.last_frame(), 3)
+        self.assertEqual(ts.last_frame(), 3)
 
     def test_get_track_empty(self):
         # Empty set

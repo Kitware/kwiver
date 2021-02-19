@@ -73,8 +73,8 @@ class TestVitalTrackInterval(object):
 
     def test_get_set_timestamps(self):
         ti = TrackInterval()
-        nt.assert_false(ti.start.is_valid())
-        nt.assert_false(ti.stop.is_valid())
+        self.assertFalse(ti.start.is_valid())
+        self.assertFalse(ti.stop.is_valid())
 
         ts1, ts2 = Timestamp(1234, 1), Timestamp(5678, 2)
         ti.start = ts1
@@ -97,7 +97,7 @@ class TestVitalTrackInterval(object):
         nt.ok_(ti.stop  == Timestamp(5678, 2))
 
         ti.stop = Timestamp()
-        nt.assert_false(ti.stop.is_valid())
+        self.assertFalse(ti.stop.is_valid())
         ti.stop.set_time_seconds(4321)
         nt.assert_equals(ti.stop.get_time_seconds(), 4321)
 

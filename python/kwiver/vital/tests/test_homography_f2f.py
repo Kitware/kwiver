@@ -45,8 +45,8 @@ class TestF2FHomography(object):
     def check_properties(self, f2f_hom, mat, from_id, to_id, prec=6):
         f2f_mat = f2f_hom.homography.matrix()
         np.testing.assert_array_almost_equal(f2f_mat, mat, prec)
-        nt.assert_equal(f2f_hom.from_id, from_id)
-        nt.assert_equal(f2f_hom.to_id, to_id)
+        self.assertEqual(f2f_hom.from_id, from_id)
+        self.assertEqual(f2f_hom.to_id, to_id)
 
     def test_init_from_frame(self):
         ident_hom = HomographyD()

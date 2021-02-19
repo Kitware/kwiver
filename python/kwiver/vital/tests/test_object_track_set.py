@@ -72,21 +72,21 @@ class TestObjectTrackSet (unittest.TestCase):
         Test all frame ids stored in object track set are between [0, 10)
         """
         obs = ObjectTrackSet([self._create_track()])
-        nose.tools.assert_equal(obs.all_frame_ids(), set(range(10)))
+        self.assertEqual(obs.all_frame_ids(), set(range(10)))
 
     def test_first_frame(self):
         """
         Test first frame id in the track set is 0
         """
         obs = ObjectTrackSet([self._create_track()])
-        nose.tools.assert_equal(obs.first_frame(), 0)
+        self.assertEqual(obs.first_frame(), 0)
 
     def test_last_frame(self):
         """
         Test last frame id in the track set is 9
         """
         obs = ObjectTrackSet([self._create_track()])
-        nose.tools.assert_equal(obs.last_frame(), 9)
+        self.assertEqual(obs.last_frame(), 9)
 
     def test_tracks(self):
         """
@@ -94,7 +94,7 @@ class TestObjectTrackSet (unittest.TestCase):
         """
         obj_track = self._create_track()
         obs = ObjectTrackSet([obj_track])
-        nose.tools.assert_equal(obs.tracks()[0], obj_track)
+        self.assertEqual(obs.tracks()[0], obj_track)
 
     def test_get_track(self):
         """
@@ -102,4 +102,4 @@ class TestObjectTrackSet (unittest.TestCase):
         """
         obj_track = self._create_track()
         obs = ObjectTrackSet([obj_track])
-        nose.tools.assert_equal(obs.get_track(0), obj_track)
+        self.assertEqual(obs.get_track(0), obj_track)

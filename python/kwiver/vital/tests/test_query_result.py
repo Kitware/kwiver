@@ -78,7 +78,7 @@ class TestVitalQueryResult(object):
 
         # First check default
         nt.assert_equals(qr.query_id.value(), "")
-        nt.assert_false(qr.query_id.is_valid())
+        self.assertFalse(qr.query_id.is_valid())
 
         # Now check setting and getting a few values
         qr.query_id = UID("first")
@@ -171,8 +171,8 @@ class TestVitalQueryResult(object):
         qr = self._create_query_result()
 
         # First check the defaults
-        nt.assert_false(qr.start_time().is_valid())
-        nt.assert_false(qr.end_time().is_valid())
+        self.assertFalse(qr.start_time().is_valid())
+        self.assertFalse(qr.end_time().is_valid())
 
         test_bounds = [
             (Timestamp(100, 1), Timestamp(100, 1)),
@@ -186,8 +186,8 @@ class TestVitalQueryResult(object):
             nt.assert_equals(qr.end_time(), t2)
 
         qr.set_temporal_bounds(Timestamp(), Timestamp())
-        nt.assert_false(qr.start_time().is_valid())
-        nt.assert_false(qr.end_time().is_valid())
+        self.assertFalse(qr.start_time().is_valid())
+        self.assertFalse(qr.end_time().is_valid())
 
     @nt.raises(TypeError)
     def test_bad_set_bounds(self):

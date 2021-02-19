@@ -72,7 +72,7 @@ class TestVitalGeoPolygon(unittest.TestCase):
         g_poly1 = gp.GeoPolygon()
         g_poly2 = gp.GeoPolygon(self._create_polygon(), self.crs_ll)
         nt.ok_(g_poly1.is_empty())
-        nt.assert_false(g_poly2.is_empty())
+        self.assertFalse(g_poly2.is_empty())
 
     def test_initial_crs(self):
         g_poly1 = gp.GeoPolygon()
@@ -112,7 +112,7 @@ class TestVitalGeoPolygon(unittest.TestCase):
             np.testing.assert_array_almost_equal(
                 instance.polygon(self.crs_ll).at(0), self.loc2_ll
             )
-            nt.assert_false(instance.is_empty())
+            self.assertFalse(instance.is_empty())
             instance.set_polygon(Polygon([self.loc_utm]), self.crs_utm_6s)
 
             nt.assert_equals(instance.polygon().num_vertices(), 1)
@@ -121,7 +121,7 @@ class TestVitalGeoPolygon(unittest.TestCase):
             np.testing.assert_array_almost_equal(
                 instance.polygon(self.crs_utm_6s).at(0), self.loc_utm
             )
-            nt.assert_false(instance.is_empty())
+            self.assertFalse(instance.is_empty())
 
             try:
                 loc_out = instance.polygon(self.crs_ll).at(0)

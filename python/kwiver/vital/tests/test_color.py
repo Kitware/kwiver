@@ -52,28 +52,28 @@ class TestRGBColor (unittest.TestCase):
         RGBColor(400, 400, 400)
 
     def test_r(self):
-        nose.tools.assert_equal(RGBColor().r, 255)
-        nose.tools.assert_equal(RGBColor(r=0).r, 0)
-        nose.tools.assert_equal(RGBColor(r=44.4).r, 44)
-        nose.tools.assert_equal(RGBColor(r=400).r, 400-256)
+        self.assertEqual(RGBColor().r, 255)
+        self.assertEqual(RGBColor(r=0).r, 0)
+        self.assertEqual(RGBColor(r=44.4).r, 44)
+        self.assertEqual(RGBColor(r=400).r, 400-256)
 
     def test_g(self):
-        nose.tools.assert_equal(RGBColor().g, 255)
-        nose.tools.assert_equal(RGBColor(g=0).g, 0)
-        nose.tools.assert_equal(RGBColor(g=44.4).g, 44)
-        nose.tools.assert_equal(RGBColor(g=400).g, 400-256)
+        self.assertEqual(RGBColor().g, 255)
+        self.assertEqual(RGBColor(g=0).g, 0)
+        self.assertEqual(RGBColor(g=44.4).g, 44)
+        self.assertEqual(RGBColor(g=400).g, 400-256)
 
     def test_b(self):
-        nose.tools.assert_equal(RGBColor().b, 255)
-        nose.tools.assert_equal(RGBColor(b=0).b, 0)
-        nose.tools.assert_equal(RGBColor(b=44.4).b, 44)
-        nose.tools.assert_equal(RGBColor(b=400).b, 400-256)
+        self.assertEqual(RGBColor().b, 255)
+        self.assertEqual(RGBColor(b=0).b, 0)
+        self.assertEqual(RGBColor(b=44.4).b, 44)
+        self.assertEqual(RGBColor(b=400).b, 400-256)
 
     def test_getitem_access(self):
         c = RGBColor(10, 20, 30)
-        nose.tools.assert_true(c.r == c[0] == 10)
-        nose.tools.assert_true(c.g == c[1] == 20)
-        nose.tools.assert_true(c.b == c[2] == 30)
+        self.assertTrue(c.r == c[0] == 10)
+        self.assertTrue(c.g == c[1] == 20)
+        self.assertTrue(c.b == c[2] == 30)
 
     def test_getitem_access_IndexError(self):
         c = RGBColor(10, 20, 30)
@@ -85,9 +85,9 @@ class TestRGBColor (unittest.TestCase):
     def test_equality(self):
         c1 = RGBColor()
         c2 = RGBColor()
-        nose.tools.assert_true(c1 == c2)
-        nose.tools.assert_false(c1 != c2)
+        self.assertTrue(c1 == c2)
+        self.assertFalse(c1 != c2)
 
     def test_repr(self):
         c = RGBColor()
-        nose.tools.assert_equal(repr(c), "RGBColor{255, 255, 255}")
+        self.assertEqual(repr(c), "RGBColor{255, 255, 255}")

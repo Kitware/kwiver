@@ -160,26 +160,26 @@ class TestVitalDetectedObject(unittest.TestCase):
     def test_nice_format(self):
         # Test default
         do = DetectedObject(self.bbox)
-        nt.assert_equal(do.__nice__(), "conf=1.0")
+        self.assertEqual(do.__nice__(), "conf=1.0")
 
         do.confidence = -0.5
-        nt.assert_equal(do.__nice__(), "conf=-0.5")
+        self.assertEqual(do.__nice__(), "conf=-0.5")
 
     def test_repr_format(self):
         # Test default
         do = DetectedObject(self.bbox)
-        nt.assert_equal(do.__repr__(), "<DetectedObject(conf=1.0) at {}>".format(hex(id(do))))
+        self.assertEqual(do.__repr__(), "<DetectedObject(conf=1.0) at {}>".format(hex(id(do))))
 
         do = DetectedObject(self.bbox, confidence=-0.5)
-        nt.assert_equal(do.__repr__(), "<DetectedObject(conf=-0.5) at {}>".format(hex(id(do))))
+        self.assertEqual(do.__repr__(), "<DetectedObject(conf=-0.5) at {}>".format(hex(id(do))))
 
     def test_str_format(self):
         # Test default
         do = DetectedObject(self.bbox)
-        nt.assert_equal(do.__str__(), "<DetectedObject(conf=1.0)>")
+        self.assertEqual(do.__str__(), "<DetectedObject(conf=1.0)>")
 
         do = DetectedObject(self.bbox, confidence=-0.5)
-        nt.assert_equal(do.__str__(), "<DetectedObject(conf=-0.5)>")
+        self.assertEqual(do.__str__(), "<DetectedObject(conf=-0.5)>")
 
     def test_clone(self):
         do = DetectedObject(self.bbox)
@@ -199,7 +199,7 @@ class TestVitalDetectedObject(unittest.TestCase):
 
         do.add_keypoint(self.keypoint_id, self.keypoint_to_add)
         # First show that its a deep copy. Should no longer be equal
-        nt.assert_false(self.check_det_objs_equal(do, do_clone))
+        self.assertFalse(self.check_det_objs_equal(do, do_clone))
 
         # Now clone
         do_clone = do.clone()
@@ -243,18 +243,18 @@ class TestVitalDetectedObject(unittest.TestCase):
     def test_get_set_index(self):
         # Check default
         do = DetectedObject(self.bbox)
-        nt.assert_equal(do.index, 0)
+        self.assertEqual(do.index, 0)
 
         do.index = 5
-        nt.assert_equal(do.index, 5)
+        self.assertEqual(do.index, 5)
 
     def test_get_set_detector_name(self):
         # Check default
         do = DetectedObject(self.bbox)
-        nt.assert_equal(do.detector_name, "")
+        self.assertEqual(do.detector_name, "")
 
         do.detector_name = self.detector_name
-        nt.assert_equal(do.detector_name, self.detector_name)
+        self.assertEqual(do.detector_name, self.detector_name)
 
     def test_get_set_type(self):
         # Check default
@@ -310,35 +310,35 @@ class TestVitalDetectedObject(unittest.TestCase):
         # the detected_objects reference
         self.descriptor[0] += 1
         # print(do.descriptor_copy().todoublearray(), self.descriptor.todoublearray())
-        nt.assert_false(self.check_descriptors_equal(do.descriptor_copy(), self.descriptor))
+        self.assertFalse(self.check_descriptors_equal(do.descriptor_copy(), self.descriptor))
 
         # Storing the copy in a new variable, obviously, allows for modification
         desc = do.descriptor_copy()
         desc[0] += 1
-        nt.assert_false(self.check_descriptors_equal(do.descriptor_copy(), desc))
+        self.assertFalse(self.check_descriptors_equal(do.descriptor_copy(), desc))
 
     def test_notes(self):
         # Check default
         do = DetectedObject(self.bbox)
-        nt.assert_equal(do.notes, [])
+        self.assertEqual(do.notes, [])
 
         # Clearing empty is OK
         do.clear_notes()
-        nt.assert_equal(do.notes, [])
+        self.assertEqual(do.notes, [])
 
         # Add a few values
         do.add_note(self.note_to_add)
         exp_notes = [self.note_to_add]
-        nt.assert_equal(do.notes, exp_notes)
+        self.assertEqual(do.notes, exp_notes)
 
         new_note = "other_example_note"
         do.add_note(new_note)
         exp_notes.append(new_note)
-        nt.assert_equal(do.notes, exp_notes)
+        self.assertEqual(do.notes, exp_notes)
 
         # Clearing works as expected
         do.clear_notes()
-        nt.assert_equal(do.notes, [])
+        self.assertEqual(do.notes, [])
 
     def test_keypoints(self):
         # Check default

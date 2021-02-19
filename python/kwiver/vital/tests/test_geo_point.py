@@ -71,8 +71,8 @@ class TestVitalGeoPoint(unittest.TestCase):
     def test_initial_is_empty(self):
         p1, p2, p3 = self._create_points()
         nt.ok_(p1.is_empty())
-        nt.assert_false(p2.is_empty())
-        nt.assert_false(p3.is_empty())
+        self.assertFalse(p2.is_empty())
+        self.assertFalse(p3.is_empty())
 
     def test_initial_crs(self):
         p1, p2, p3 = self._create_points()
@@ -104,7 +104,7 @@ class TestVitalGeoPoint(unittest.TestCase):
         p2.set_location(self.loc3, self.crs_utm_18n)
         loc3_expected = np.concatenate([self.loc3, [0]])
 
-        nt.assert_false(p2.is_empty())
+        self.assertFalse(p2.is_empty())
         nt.assert_equals(p2.crs(), self.crs_utm_18n)
         np.testing.assert_array_almost_equal(p2.location(), loc3_expected)
         np.testing.assert_array_almost_equal(
@@ -115,7 +115,7 @@ class TestVitalGeoPoint(unittest.TestCase):
         p2.set_location(self.loc2, self.crs_ll)
         loc2_expected = np.concatenate([self.loc2, [0]])
 
-        nt.assert_false(p2.is_empty())
+        self.assertFalse(p2.is_empty())
         nt.assert_equals(p2.crs(), self.crs_ll)
         np.testing.assert_array_almost_equal(p2.location(), loc2_expected)
         np.testing.assert_array_almost_equal(p2.location(self.crs_ll), loc2_expected)

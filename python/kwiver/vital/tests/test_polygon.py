@@ -71,7 +71,7 @@ class TestVitalPolygon(object):
         np.testing.assert_array_equal(pts[2], p2.at(2))
         np.testing.assert_array_equal(pts[3], p2.at(3))
 
-        nt.assert_equal(p2.num_vertices(), 4)
+        self.assertEqual(p2.num_vertices(), 4)
 
     def test_at_point_not_in_array(self):
         _, p2 = self._create_polygons()
@@ -90,8 +90,8 @@ class TestVitalPolygon(object):
 
     def test_initial_num_vertices(self):
         p1, p2 = self._create_polygons()
-        nt.assert_equal(p1.num_vertices(), 0)
-        nt.assert_equal(p2.num_vertices(), 4)
+        self.assertEqual(p1.num_vertices(), 0)
+        self.assertEqual(p2.num_vertices(), 4)
 
     def test_push_back(self):
         p1, p2 = self._create_polygons()
@@ -99,17 +99,17 @@ class TestVitalPolygon(object):
         # Start with p1
         # Check pushing back np_arrays
         p1.push_back(pts[0])
-        nt.assert_equal(p1.num_vertices(), 1)
+        self.assertEqual(p1.num_vertices(), 1)
 
         p1.push_back(pts[1])
-        nt.assert_equal(p1.num_vertices(), 2)
+        self.assertEqual(p1.num_vertices(), 2)
 
         # Check pushing back x and y coords
         p1.push_back(pts[2][0], pts[2][1])
-        nt.assert_equal(p1.num_vertices(), 3)
+        self.assertEqual(p1.num_vertices(), 3)
 
         p1.push_back(pts[3][0], pts[3][1])
-        nt.assert_equal(p1.num_vertices(), 4)
+        self.assertEqual(p1.num_vertices(), 4)
 
         np.testing.assert_array_equal(pts[0], p1.at(0))
         np.testing.assert_array_equal(pts[1], p1.at(1))
@@ -120,12 +120,12 @@ class TestVitalPolygon(object):
         # Check np_arrays
         temp_pt = np.array([40, 35])
         p2.push_back(temp_pt)
-        nt.assert_equal(p2.num_vertices(), 5)
+        self.assertEqual(p2.num_vertices(), 5)
 
         # Check x and y coords
         x, y = 20, 10
         p2.push_back(x, y)
-        nt.assert_equal(p2.num_vertices(), 6)
+        self.assertEqual(p2.num_vertices(), 6)
 
         np.testing.assert_array_equal(temp_pt, p2.at(4))
         np.testing.assert_array_equal(np.array([x, y]), p2.at(5))
@@ -135,10 +135,10 @@ class TestVitalPolygon(object):
         p1, p2 = self._create_polygons()
 
         # p1 shouldn't contain any points
-        nt.assert_false(p1.contains(pts[0]))  # Check np arrays
-        nt.assert_false(p1.contains(pts[1]))  # Check np arrays
-        nt.assert_false(p1.contains(pts[2][0], pts[2][1]))  # Check x and y coords
-        nt.assert_false(p1.contains(pts[3][0], pts[3][1]))  # Check x and y coords
+        self.assertFalse(p1.contains(pts[0]))  # Check np arrays
+        self.assertFalse(p1.contains(pts[1]))  # Check np arrays
+        self.assertFalse(p1.contains(pts[2][0], pts[2][1]))  # Check x and y coords
+        self.assertFalse(p1.contains(pts[3][0], pts[3][1]))  # Check x and y coords
 
         # p2 should contain all, as they are vertices
         nt.ok_(p2.contains(pts[0]))  # Check np arrays

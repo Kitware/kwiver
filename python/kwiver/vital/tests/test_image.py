@@ -54,45 +54,45 @@ class TestVitalImage (object):
 
     def test_size(self):
         img = Image()
-        nose.tools.assert_equal(img.size(), 0)
+        self.assertEqual(img.size(), 0)
 
         img = Image(720, 480)
-        nose.tools.assert_equal(img.size(), 720*480)
+        self.assertEqual(img.size(), 720*480)
 
     def test_getitem_uint8(self):
         img = Image(720, 480)
-        nose.tools.assert_equal(img.pixel_type_name(), "uint8")
+        self.assertEqual(img.pixel_type_name(), "uint8")
         val1 = img[0,0]
         val2 = img[0,0,0]
-        nose.tools.assert_equal(val1, val2)
+        self.assertEqual(val1, val2)
 
     def test_getitem_int32(self):
         img = Image(720, 480, 3, True, Image.PIXEL_SIGNED, 4)
-        nose.tools.assert_equal(img.pixel_type_name(), "int32")
+        self.assertEqual(img.pixel_type_name(), "int32")
         val1 = img[0,0]
         val2 = img[0,0,0]
-        nose.tools.assert_equal(val1, val2)
+        self.assertEqual(val1, val2)
 
     def test_getitem_float(self):
         img = Image(720, 480, 3, True, Image.PIXEL_FLOAT, 4)
-        nose.tools.assert_equal(img.pixel_type_name(), "float")
+        self.assertEqual(img.pixel_type_name(), "float")
         val1 = img[0,0]
         val2 = img[0,0,0]
-        nose.tools.assert_equal(val1, val2)
+        self.assertEqual(val1, val2)
 
     def test_getitem_double(self):
         img = Image(720, 480, 3, True, Image.PIXEL_FLOAT, 8)
-        nose.tools.assert_equal(img.pixel_type_name(), "double")
+        self.assertEqual(img.pixel_type_name(), "double")
         val1 = img[0,0]
         val2 = img[0,0,0]
-        nose.tools.assert_equal(val1, val2)
+        self.assertEqual(val1, val2)
 
     def test_getitem_bool(self):
         img = Image(720, 480, 1, True, Image.PIXEL_BOOL, 1)
-        nose.tools.assert_equal(img.pixel_type_name(), "bool")
+        self.assertEqual(img.pixel_type_name(), "bool")
         val1 = img[0,0]
         val2 = img[0,0,0]
-        nose.tools.assert_equal(val1, val2)
+        self.assertEqual(val1, val2)
 
     def test_numpy_conversion(self):
         # TODO: do pytest parametarize once we move to pytest
