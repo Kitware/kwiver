@@ -34,7 +34,6 @@ Tests for BoundingBox python class, templates implemented as BoundingBoxD/F/I de
 
 """
 import unittest
-import nose.tools as nt
 import numpy as np
 
 from kwiver.vital.types import (
@@ -68,26 +67,26 @@ class TestBoundingBox(unittest.TestCase):
         self.check_py_overloads(m)
 
     def check_points(self, bbox):
-        nt.assert_almost_equal(bbox.min_x(), self.ul_d[0])
-        nt.assert_almost_equal(bbox.min_y(), self.ul_d[1])
-        nt.assert_almost_equal(bbox.max_x(), self.lr_d[0])
-        nt.assert_almost_equal(bbox.max_y(), self.lr_d[1])
+        self.assertAlmostEqual(bbox.min_x(), self.ul_d[0])
+        self.assertAlmostEqual(bbox.min_y(), self.ul_d[1])
+        self.assertAlmostEqual(bbox.max_x(), self.lr_d[0])
+        self.assertAlmostEqual(bbox.max_y(), self.lr_d[1])
         np.testing.assert_array_almost_equal(bbox.upper_left(), self.ul_d )
         np.testing.assert_array_almost_equal(bbox.lower_right(), self.lr_d)
 
     def check_dimensions(self, bbox):
         np.testing.assert_array_almost_equal(bbox.center(), [90.0, 120.0])
-        nt.assert_almost_equal(bbox.width(), self.width_d)
-        nt.assert_almost_equal(bbox.height(), self.height_d)
-        nt.assert_almost_equal(bbox.area(), self.width_d * self.height_d)
+        self.assertAlmostEqual(bbox.width(), self.width_d)
+        self.assertAlmostEqual(bbox.height(), self.height_d)
+        self.assertAlmostEqual(bbox.area(), self.width_d * self.height_d)
 
     def check_has_points(self, bbox):
-        nt.ok_(bbox.is_valid())
-        nt.ok_(bbox.contains(np.array([25, 25])))
-        nt.ok_(not bbox.contains(np.array([-1, 0])))
+        assert(bbox.is_valid())
+        assert(bbox.contains(np.array([25, 25])))
+        assert(not bbox.contains(np.array([-1, 0])))
 
     def check_is_not_valid(self, bbox):
-        nt.ok_(not bbox.is_valid())
+        assert(not bbox.is_valid())
 
     def check_py_overloads(self, bbox):
         try:

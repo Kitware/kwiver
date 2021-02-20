@@ -34,7 +34,6 @@ Tests for DetectedObjectSet interface class.
 
 """
 import unittest
-import nose.tools
 import numpy as np
 from kwiver.vital.tests.cpp_helpers import det_obj_set_helpers as dos_helper
 from kwiver.vital.types import (

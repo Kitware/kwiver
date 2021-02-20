@@ -37,7 +37,7 @@ Tests for the vital class mesh
 import numpy as np
 import numpy.testing as npt
 import unittest
-import nose.tools as nt
+
 
 from kwiver.vital.types import Mesh
 
@@ -55,14 +55,14 @@ class TestMesh(unittest.TestCase):
         import os
         print(os.getcwd())
         m = Mesh.from_ply_file("tests/data/cube.ply")
-        nt.ok_(m.is_init())
+        assert(m.is_init())
         self.assertEqual(m.num_verts(), 8)
         self.assertEqual(m.num_faces(), 6)
         self.assertEqual(m.num_edges(), 0)
 
     def test_bad_mesh(self):
         m = Mesh()
-        nt.ok_(not m.is_init())
+        assert(not m.is_init())
         self.assertEqual(m.num_verts(), 0)
         self.assertEqual(m.num_faces(), 0)
         self.assertEqual(m.num_edges(), 0)

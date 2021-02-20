@@ -34,7 +34,6 @@ Test Python interface to vital::image
 
 """
 # -*- coding: utf-8 -*-
-import nose.tools
 
 from kwiver.vital.types import Image
 import numpy as np

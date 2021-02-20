@@ -33,9 +33,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Tests for vital::query_result interface
 
 """
-import nose.tools as nt
-import numpy as np
 
+import numpy as np
+import unittest, pytest
 from kwiver.vital.types import (
     BoundingBoxD as BoundingBox,
     DetectedObject,
@@ -55,7 +55,7 @@ from kwiver.vital.types import (
 from kwiver.vital.tests.py_helpers import create_track_descriptor_set
 
 
-class TestVitalQueryResult(object):
+class TestVitalQueryResult(unittest.TestCase):
     def test_create(self):
         QueryResult()
 
@@ -77,24 +77,24 @@ class TestVitalQueryResult(object):
         qr = self._create_query_result()
 
         # First check default
-        nt.assert_equals(qr.query_id.value(), "")
+        self.assertEqual(qr.query_id.value(), "")
         self.assertFalse(qr.query_id.is_valid())
 
         # Now check setting and getting a few values
         qr.query_id = UID("first")
-        nt.assert_equals(qr.query_id.value(), "first")
+        self.assertEqual(qr.query_id.value(), "first")
 
         qr.query_id = UID("second")
-        nt.assert_equals(qr.query_id.value(), "second")
+        self.assertEqual(qr.query_id.value(), "second")
 
         qr.query_id = UID("42")
-        nt.assert_equals(qr.query_id.value(), "42")
+        self.assertEqual(qr.query_id.value(), "42")
 
         # Try setting back to empty
         qr.query_id = UID()
-        nt.assert_equals(qr.query_id.value(), "")
+        self.assertEqual(qr.query_id.value(), "")
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_query_id(self):
         qr = self._create_query_result()
         qr.query_id = "string, not uid"
@@ -102,21 +102,21 @@ class TestVitalQueryResult(object):
     def test_set_and_get_stream_id(self):
         qr = self._create_query_result()
 
-        nt.assert_equals(qr.stream_id, "")
+        self.assertEqual(qr.stream_id, "")
 
         qr.stream_id = "first"
-        nt.assert_equals(qr.stream_id, "first")
+        self.assertEqual(qr.stream_id, "first")
 
         qr.stream_id = "second"
-        nt.assert_equals(qr.stream_id, "second")
+        self.assertEqual(qr.stream_id, "second")
 
         qr.stream_id = "42"
-        nt.assert_equals(qr.stream_id, "42")
+        self.assertEqual(qr.stream_id, "42")
 
         qr.stream_id = ""
-        nt.assert_equals(qr.stream_id, "")
+        self.assertEqual(qr.stream_id, "")
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_stream_id(self):
         qr = self._create_query_result()
         qr.stream_id = 5
@@ -125,18 +125,18 @@ class TestVitalQueryResult(object):
         qr = self._create_query_result()
 
         qr.instance_id = 1
-        nt.assert_equals(qr.instance_id, 1)
+        self.assertEqual(qr.instance_id, 1)
 
         qr.instance_id += 1
-        nt.assert_equals(qr.instance_id, 2)
+        self.assertEqual(qr.instance_id, 2)
 
         qr.instance_id = 1234
-        nt.assert_equals(qr.instance_id, 1234)
+        self.assertEqual(qr.instance_id, 1234)
 
         qr.instance_id = 0
-        nt.assert_equals(qr.instance_id, 0)
+        self.assertEqual(qr.instance_id, 0)
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_instance_id(self):
         qr = self._create_query_result()
         qr.instance_id = "string, not numeric"
@@ -145,11 +145,11 @@ class TestVitalQueryResult(object):
         qr = self._create_query_result()
 
         qr.relevancy_score = 1
-        nt.assert_equals(qr.relevancy_score, 1)
+        self.assertEqual(qr.relevancy_score, 1)
 
         d = 1234567
         qr.relevancy_score = d
-        nt.assert_equals(qr.relevancy_score, d)
+        self.assertEqual(qr.relevancy_score, d)
 
         # Check precision
         d = 1234.5678901234567
@@ -160,9 +160,9 @@ class TestVitalQueryResult(object):
         np.testing.assert_almost_equal(qr.relevancy_score, -d, decimal=15)
 
         qr.relevancy_score = 0
-        nt.assert_equals(qr.relevancy_score, 0)
+        self.assertEqual(qr.relevancy_score, 0)
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_relevancy_score(self):
         qr = self._create_query_result()
         qr.relevancy_score = "string, not double"
@@ -182,14 +182,14 @@ class TestVitalQueryResult(object):
 
         for (t1, t2) in test_bounds:
             qr.set_temporal_bounds(t1, t2)
-            nt.assert_equals(qr.start_time(), t1)
-            nt.assert_equals(qr.end_time(), t2)
+            self.assertEqual(qr.start_time(), t1)
+            self.assertEqual(qr.end_time(), t2)
 
         qr.set_temporal_bounds(Timestamp(), Timestamp())
         self.assertFalse(qr.start_time().is_valid())
         self.assertFalse(qr.end_time().is_valid())
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_bounds(self):
         qr = self._create_query_result()
         qr.set_temporal_bounds("string", "another_string")
@@ -199,17 +199,17 @@ class TestVitalQueryResult(object):
         crs_ll = g.SRID.lat_lon_WGS84
         crs_utm_18n = g.SRID.UTM_WGS84_north + 18
 
-        nt.ok_(qr.location.is_empty())
+        assert(qr.location.is_empty())
 
         p = GeoPoint(np.array([-73.759291, 42.849631]), crs_ll)
         qr.location = p
-        nt.assert_equals(qr.location.crs(), crs_ll)
+        self.assertEqual(qr.location.crs(), crs_ll)
         np.testing.assert_array_almost_equal(qr.location.location(), p.location())
 
         # Increase the precision, add altitude
         p = GeoPoint(np.array([77.397577193572642, 38.17996907564275, 50]), crs_ll)
         qr.location = p
-        nt.assert_equals(qr.location.crs(), crs_ll)
+        self.assertEqual(qr.location.crs(), crs_ll)
         np.testing.assert_array_almost_equal(
             qr.location.location(), p.location(), decimal=15
         )
@@ -217,14 +217,14 @@ class TestVitalQueryResult(object):
         # Try different crs
         p = GeoPoint(np.array([601375.01, 4744863.31]), crs_utm_18n)
         qr.location = p
-        nt.assert_equals(qr.location.crs(), crs_utm_18n)
+        self.assertEqual(qr.location.crs(), crs_utm_18n)
         np.testing.assert_array_almost_equal(qr.location.location(), p.location())
 
         # Back to empty
         qr.location = GeoPoint()
-        nt.ok_(qr.location.is_empty())
+        assert(qr.location.is_empty())
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_location(self):
         qr = self._create_query_result()
         qr.location = 5
@@ -234,27 +234,27 @@ class TestVitalQueryResult(object):
 
         ots = self._create_object_track_set()
         qr.tracks = ots
-        nt.assert_equals(qr.tracks.size(), ots.size())
-        nt.assert_equals(ots.size(), 1)
+        self.assertEqual(qr.tracks.size(), ots.size())
+        self.assertEqual(ots.size(), 1)
 
         # Changes made to the elements of object_track_set should reflect
         # in qr.tracks, since they are pointers
         # Establish id of 0 in both
-        nt.assert_equals(qr.tracks.tracks()[0].id, ots.tracks()[0].id)
-        nt.assert_equals(ots.tracks()[0].id, 0)
+        self.assertEqual(qr.tracks.tracks()[0].id, ots.tracks()[0].id)
+        self.assertEqual(ots.tracks()[0].id, 0)
 
         # Change one of them
         ots.tracks()[0].id = 1
 
         # See changes in both
-        nt.assert_equals(qr.tracks.tracks()[0].id, ots.tracks()[0].id)
-        nt.assert_equals(ots.tracks()[0].id, 1)
+        self.assertEqual(qr.tracks.tracks()[0].id, ots.tracks()[0].id)
+        self.assertEqual(ots.tracks()[0].id, 1)
 
         # Set to default-constructed object
         qr.tracks = ObjectTrackSet()
-        nt.assert_equals(qr.tracks.size(), 0)
+        self.assertEqual(qr.tracks.size(), 0)
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_tracks(self):
         qr = self._create_query_result()
         qr.tracks = "string, not object_track_set"
@@ -262,7 +262,7 @@ class TestVitalQueryResult(object):
     def test_set_and_get_descriptors(self):
         qr = self._create_query_result()
 
-        nt.assert_equals(qr.descriptors, [])
+        self.assertEqual(qr.descriptors, [])
 
         # Test getting and setting a few values
         (td_set, lists_used) = create_track_descriptor_set()
@@ -272,21 +272,21 @@ class TestVitalQueryResult(object):
 
         # Modifying an element of the list reflects in qr.descriptors
         td_set[0][0] += 10
-        nt.assert_almost_equal(qr.descriptors[0][0], td_set[0][0])
+        self.assertAlmostEqual(qr.descriptors[0][0], td_set[0][0])
 
         # But changing the list itself shouldn't
-        nt.assert_equals(len(qr.descriptors), len(td_set))
+        self.assertEqual(len(qr.descriptors), len(td_set))
 
         new_td = track_descriptor.TrackDescriptor.create("new_td")
         new_td.resize_descriptor(3, 10)
 
         td_set.append(new_td)
-        nt.assert_not_equal(len(qr.descriptors), len(td_set))
+        self.assertNotEqual(len(qr.descriptors), len(td_set))
 
         qr.descriptors = []
-        nt.assert_equals(qr.descriptors, [])
+        self.assertEqual(qr.descriptors, [])
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_descriptors(self):
         qr = self._create_query_result()
         qr.descriptors = "string, not track_descriptor_set"
@@ -296,24 +296,24 @@ class TestVitalQueryResult(object):
 
         imc_list = [ImageContainer(Image())]
         qr.image_data = imc_list
-        nt.assert_equals(len(qr.image_data), len(imc_list))
-        nt.assert_equals(len(imc_list), 1)
-        nt.assert_equals(qr.image_data[0].size(), imc_list[0].size())
-        nt.assert_equals(imc_list[0].size(), 0)
+        self.assertEqual(len(qr.image_data), len(imc_list))
+        self.assertEqual(len(imc_list), 1)
+        self.assertEqual(qr.image_data[0].size(), imc_list[0].size())
+        self.assertEqual(imc_list[0].size(), 0)
 
         imc_list.append(ImageContainer(Image(720, 480)))
         qr.image_data = imc_list
-        nt.assert_equals(len(qr.image_data), len(imc_list))
-        nt.assert_equals(len(imc_list), 2)
-        nt.assert_equals(qr.image_data[0].size(), imc_list[0].size())
-        nt.assert_equals(imc_list[0].size(), 0)
-        nt.assert_equals(qr.image_data[1].size(), imc_list[1].size())
-        nt.assert_equals(imc_list[1].size(), 720 * 480)
+        self.assertEqual(len(qr.image_data), len(imc_list))
+        self.assertEqual(len(imc_list), 2)
+        self.assertEqual(qr.image_data[0].size(), imc_list[0].size())
+        self.assertEqual(imc_list[0].size(), 0)
+        self.assertEqual(qr.image_data[1].size(), imc_list[1].size())
+        self.assertEqual(imc_list[1].size(), 720 * 480)
 
         qr.image_data = []
-        nt.assert_equals(len(qr.image_data), 0)
+        self.assertEqual(len(qr.image_data), 0)
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_image_data(self):
         qr = self._create_query_result()
         qr.image_data = "string, not image_data"

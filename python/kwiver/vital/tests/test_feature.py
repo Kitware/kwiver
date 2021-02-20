@@ -36,7 +36,6 @@
 import random
 import unittest
 
-import nose.tools as nt
 import numpy as np
 
 from kwiver.vital.types import Covar2d, Covar2f, Feature, FeatureF, FeatureD, RGBColor
@@ -51,7 +50,7 @@ class TestVitalFeature(unittest.TestCase):
         f4 = FeatureD()
 
     def test_no_construct_base(self):
-        with nt.assert_raises_regexp(
+        with self.assertRaisesRegex(
             TypeError, "kwiver.vital.types.feature.Feature: No constructor defined!"
         ):
             Feature()
@@ -127,34 +126,34 @@ class TestVitalFeature(unittest.TestCase):
         f = FeatureD()
         expected = random.random()
         f.magnitude = expected
-        nt.assert_almost_equal(f.magnitude, expected, 16)
+        self.assertAlmostEqual(f.magnitude, expected, 16)
 
         f = FeatureF()
         expected = random.random()
         f.magnitude = expected
-        nt.assert_almost_equal(f.magnitude, expected, 6)
+        self.assertAlmostEqual(f.magnitude, expected, 6)
 
     def test_set_and_get_scale(self):
         f = FeatureD()
         expected = random.random()
         f.scale = expected
-        nt.assert_almost_equal(f.scale, expected, 16)
+        self.assertAlmostEqual(f.scale, expected, 16)
 
         f = FeatureF()
         expected = random.random()
         f.scale = expected
-        nt.assert_almost_equal(f.scale, expected, 6)
+        self.assertAlmostEqual(f.scale, expected, 6)
 
     def test_set_and_get_angle(self):
         f = FeatureD()
         expected = random.random()
         f.angle = expected
-        nt.assert_almost_equal(f.angle, expected, 16)
+        self.assertAlmostEqual(f.angle, expected, 16)
 
         f = FeatureF()
         expected = random.random()
         f.angle = expected
-        nt.assert_almost_equal(f.angle, expected, 6)
+        self.assertAlmostEqual(f.angle, expected, 6)
 
     def test_set_and_get_covar(self):
         f = FeatureD()
@@ -183,9 +182,9 @@ class TestVitalFeature(unittest.TestCase):
         self.assertEqual(f.color, expected)
 
     def comparison_helper(self, f1, f2, eq_=False, eq_except_angle=False):
-        nt.assert_equals(f1 == f2, eq_)
-        nt.assert_equals(f1 != f2, not eq_)
-        nt.assert_equals(f1.equal_except_for_angle(f2), eq_except_angle)
+        self.assertEqual(f1 == f2, eq_)
+        self.assertEqual(f1 != f2, not eq_)
+        self.assertEqual(f1.equal_except_for_angle(f2), eq_except_angle)
 
     def test_comparisons(self):
         self.assertFalse(FeatureD() == FeatureF())
@@ -257,15 +256,15 @@ class TestVitalFeature(unittest.TestCase):
         float_def = FeatureF()
         float_nondef = FeatureF([1, 1], 1, 2, 1)
 
-        nt.ok_(FeatureD(double_def)    == double_def)
-        nt.ok_(FeatureD(double_nondef) == double_nondef)
-        nt.ok_(FeatureF(double_def)    != double_def)
-        nt.ok_(FeatureF(double_nondef) != double_nondef)
+        assert(FeatureD(double_def)    == double_def)
+        assert(FeatureD(double_nondef) == double_nondef)
+        assert(FeatureF(double_def)    != double_def)
+        assert(FeatureF(double_nondef) != double_nondef)
 
-        nt.ok_(FeatureF(float_def)    == float_def)
-        nt.ok_(FeatureF(float_nondef) == float_nondef)
-        nt.ok_(FeatureD(float_def)    != float_def)
-        nt.ok_(FeatureD(float_nondef) != float_nondef)
+        assert(FeatureF(float_def)    == float_def)
+        assert(FeatureF(float_nondef) == float_nondef)
+        assert(FeatureD(float_def)    != float_def)
+        assert(FeatureD(float_nondef) != float_nondef)
 
     def test_clone(self):
         features = [
@@ -276,25 +275,25 @@ class TestVitalFeature(unittest.TestCase):
         ]
         for f in features:
             f_clone = f.clone()
-            nt.ok_(f == f_clone)
+            assert(f == f_clone)
 
             # Changing one doesn't reflect in the other
             f_clone.scale = f.scale + 1
-            nt.ok_(f != f_clone)
+            assert(f != f_clone)
 
     def test_to_str_default(self):
         features = [FeatureD(), FeatureF()]
         for f in features:
             s = str(f).split()
 
-            nt.assert_equals(s[0], "0")  # loc[0]
-            nt.assert_equals(s[1], "0")  # loc[1]
-            nt.assert_equals(s[2], "0")  # mag
-            nt.assert_equals(s[3], "1")  # scale
-            nt.assert_equals(s[4], "0")  # angle
-            nt.assert_equals(s[5], "255")  # color.r
-            nt.assert_equals(s[6], "255")  # color.g
-            nt.assert_equals(s[7], "255")  # color.b
+            self.assertEqual(s[0], "0")  # loc[0]
+            self.assertEqual(s[1], "0")  # loc[1]
+            self.assertEqual(s[2], "0")  # mag
+            self.assertEqual(s[3], "1")  # scale
+            self.assertEqual(s[4], "0")  # angle
+            self.assertEqual(s[5], "255")  # color.r
+            self.assertEqual(s[6], "255")  # color.g
+            self.assertEqual(s[7], "255")  # color.b
 
         print("Default feature representation:", features[0], sep="\n")
 
@@ -316,8 +315,8 @@ class TestVitalFeature(unittest.TestCase):
             np.testing.assert_almost_equal(float(s[2]), 1.5)  # mag
             np.testing.assert_almost_equal(float(s[3]), 2.5)  # scale
             np.testing.assert_almost_equal(float(s[4]), 1.7)  # angle
-            nt.assert_equals(int(s[5]), expected_color.r)  # color.r
-            nt.assert_equals(int(s[6]), expected_color.g)  # color.g
-            nt.assert_equals(int(s[7]), expected_color.b)  # color.b
+            self.assertEqual(int(s[5]), expected_color.r)  # color.r
+            self.assertEqual(int(s[6]), expected_color.g)  # color.g
+            self.assertEqual(int(s[7]), expected_color.b)  # color.b
 
         print("Non default feature representation:", features[0], sep="\n")

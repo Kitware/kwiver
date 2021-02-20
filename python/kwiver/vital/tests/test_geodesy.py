@@ -33,7 +33,6 @@
 # Tests for Python interface to vital geodesy function/classes
 
 # """
-import nose.tools as nt
 import numpy as np
 import unittest
 
@@ -52,17 +51,17 @@ class TestVitalGeodesy(unittest.TestCase):
         self.pts = [self.loc1, self.loc2, self.loc3, self.loc4, self.loc5, self.loc6]
 
     def test_srid(self):
-        nt.assert_equals(g.SRID.lat_lon_NAD83, 4269)
-        nt.assert_equals(g.SRID.lat_lon_WGS84, 4326)
+        self.assertEqual(g.SRID.lat_lon_NAD83, 4269)
+        self.assertEqual(g.SRID.lat_lon_WGS84, 4326)
 
-        nt.assert_equals(g.SRID.UPS_WGS84_north, 32661)
-        nt.assert_equals(g.SRID.UPS_WGS84_south, 32761)
+        self.assertEqual(g.SRID.UPS_WGS84_north, 32661)
+        self.assertEqual(g.SRID.UPS_WGS84_south, 32761)
 
-        nt.assert_equals(g.SRID.UTM_WGS84_north, 32600)
-        nt.assert_equals(g.SRID.UTM_WGS84_south, 32700)
+        self.assertEqual(g.SRID.UTM_WGS84_north, 32600)
+        self.assertEqual(g.SRID.UTM_WGS84_south, 32700)
 
-        nt.assert_equals(g.SRID.UTM_NAD83_northeast, 3313)
-        nt.assert_equals(g.SRID.UTM_NAD83_northwest, 26900)
+        self.assertEqual(g.SRID.UTM_NAD83_northeast, 3313)
+        self.assertEqual(g.SRID.UTM_NAD83_northwest, 26900)
 
     def test_constructor_calls(self):
         for pt in self.pts:
@@ -111,26 +110,26 @@ class TestVitalGeodesy(unittest.TestCase):
             z.number = num
             z.north = north_bool
 
-            nt.assert_equals(z.number, num)
-            nt.assert_equals(z.north, north_bool)
+            self.assertEqual(z.number, num)
+            self.assertEqual(z.north, north_bool)
 
     def test_bad_set_utm_ups_zone_struct_values(self):
         # Set to a valid value first
         z = g.UTMUPSZone(self.loc1)
-        with nt.assert_raises(TypeError):
+        with pytest.raises(TypeError):
             z.number = "string, not int"
 
-        with nt.assert_raises(TypeError):
+        with pytest.raises(TypeError):
             z.north = "string, not bool"
 
-        nt.assert_equals(z.number, 18)
-        nt.assert_equals(z.north, True)
+        self.assertEqual(z.number, 18)
+        self.assertEqual(z.north, True)
 
     def test_zone_range_error(self):
-        with nt.assert_raises(ValueError):
+        with pytest.raises(ValueError):
             g.UTMUPSZone(0, -100)
 
-        with nt.assert_raises(ValueError):
+        with pytest.raises(ValueError):
             g.UTMUPSZone(0, 100)
 
     # Below functions were based off of the C++ geodesy tests

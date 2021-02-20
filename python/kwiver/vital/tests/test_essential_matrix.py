@@ -38,7 +38,6 @@ from kwiver.vital.types.essential_matrix import BaseEssentialMatrix, \
                                                 EssentialMatrixD, EssentialMatrixF
 from kwiver.vital.types import RotationD, RotationF
 
-import nose.tools as nt
 import numpy as np
 import unittest
 
@@ -56,7 +55,7 @@ class TestVitalEssentialMatrix(unittest.TestCase):
         self.translation = np.array([-1.0, 1.0, 4.0])
 
     def test_no_construct_base(self):
-        with nt.assert_raises_regexp(
+        with self.assertRaisesRegex(
             TypeError,
             "kwiver.vital.types.essential_matrix.BaseEssentialMatrix: No constructor defined!",
         ):
@@ -89,11 +88,11 @@ class TestVitalEssentialMatrix(unittest.TestCase):
         emd_as_float = EssentialMatrixF(emd)
         emf_as_double = EssentialMatrixD(emf)
 
-        nt.assert_equals(emf.type_name, "f")
-        nt.assert_equals(emd_as_float.type_name, "f")
+        self.assertEqual(emf.type_name, "f")
+        self.assertEqual(emd_as_float.type_name, "f")
 
-        nt.assert_equals(emd.type_name, "d")
-        nt.assert_equals(emf_as_double.type_name, "d")
+        self.assertEqual(emd.type_name, "d")
+        self.assertEqual(emf_as_double.type_name, "d")
 
     def test_clone_matrix_equal(self):
         emf, emd = self._create_ems()
@@ -110,8 +109,8 @@ class TestVitalEssentialMatrix(unittest.TestCase):
     def test_clone_is_same_type(self):
         emf, emd = self._create_ems()
 
-        nt.ok_(isinstance(emf.clone(), EssentialMatrixF))
-        nt.ok_(isinstance(emd.clone(), EssentialMatrixD))
+        assert(isinstance(emf.clone(), EssentialMatrixF))
+        assert(isinstance(emd.clone(), EssentialMatrixD))
 
     def check_arrays_similar(self, m1, m2):
         are_equal = np.allclose(m1, m2)
@@ -124,7 +123,7 @@ class TestVitalEssentialMatrix(unittest.TestCase):
 
         u, s, vh = np.linalg.svd(em.matrix())
         np.testing.assert_array_almost_equal(s, [1, 1, 0])
-        nt.assert_almost_equal(np.linalg.norm(em.translation()), 1, prec)
+        self.assertAlmostEqual(np.linalg.norm(em.translation()), 1, prec)
 
         t_extracted = u[:, 2]
 
@@ -137,7 +136,7 @@ class TestVitalEssentialMatrix(unittest.TestCase):
             r1_extracted, rot.matrix()
         ) or self.check_arrays_similar(r2_extracted, rot.matrix())
 
-        nt.ok_(
+        assert(
             matches_one,
             "Extracted rotation should match input or twisted pair for matrix of type: {}".format(
                 em.type_name
@@ -187,25 +186,25 @@ class TestVitalEssentialMatrix(unittest.TestCase):
         m1, m2, m3, m4 = em1.matrix(), em2.matrix(), em3.matrix(), em4.matrix()
         m = em.matrix()
 
-        nt.ok_(
+        assert(
             self.check_arrays_similar(m, m1),
             "Possible factorization 1 should match source for type: {}".format(
                 em.type_name
             ),
         )
-        nt.ok_(
+        assert(
             self.check_arrays_similar(m, m2),
             "Possible factorization 2 should match source for type: {}".format(
                 em.type_name
             ),
         )
-        nt.ok_(
+        assert(
             self.check_arrays_similar(m, m3),
             "Possible factorization 3 should match source for type: {}".format(
                 em.type_name
             ),
         )
-        nt.ok_(
+        assert(
             self.check_arrays_similar(m, m4),
             "Possible factorization 4 should match source for type: {}".format(
                 em.type_name
@@ -235,13 +234,13 @@ class TestVitalEssentialMatrix(unittest.TestCase):
         np.testing.assert_array_almost_equal(
             emf.compute_twisted_rotation().matrix(), emf.twisted_rotation().matrix(), 6
         )
-        nt.ok_(isinstance(emf.compute_twisted_rotation(), RotationF))
+        assert(isinstance(emf.compute_twisted_rotation(), RotationF))
 
         # Check rotation
         np.testing.assert_array_almost_equal(
             emf.get_rotation().matrix(), emf.rotation().matrix(), 6
         )
-        nt.ok_(isinstance(emf.get_rotation(), RotationF))
+        assert(isinstance(emf.get_rotation(), RotationF))
 
         # Lastly check translation
         np.testing.assert_array_almost_equal(
@@ -254,12 +253,12 @@ class TestVitalEssentialMatrix(unittest.TestCase):
         np.testing.assert_array_almost_equal(
             emd.compute_twisted_rotation().matrix(), emd.twisted_rotation().matrix(), 15
         )
-        nt.ok_(isinstance(emd.compute_twisted_rotation(), RotationD))
+        assert(isinstance(emd.compute_twisted_rotation(), RotationD))
 
         np.testing.assert_array_almost_equal(
             emd.get_rotation().matrix(), emd.rotation().matrix(), 15
         )
-        nt.ok_(isinstance(emd.get_rotation(), RotationD))
+        assert(isinstance(emd.get_rotation(), RotationD))
 
         np.testing.assert_array_almost_equal(
             emd.get_translation(), emd.translation(), 15
@@ -317,23 +316,23 @@ class TestVitalEssentialMatrix(unittest.TestCase):
 
     def test_get_item_oob(self):
         for em in self._create_ems():
-            with nt.assert_raises(IndexError):
+            with pytest.raises(IndexError):
                 em[-1, 0]
 
-            with nt.assert_raises(IndexError):
+            with pytest.raises(IndexError):
                 em[3, 0]
 
-            with nt.assert_raises(IndexError):
+            with pytest.raises(IndexError):
                 em[0, -1]
 
-            with nt.assert_raises(IndexError):
+            with pytest.raises(IndexError):
                 em[0, 3]
 
-            with nt.assert_raises(IndexError):
+            with pytest.raises(IndexError):
                 em[-1, 3]
 
-            with nt.assert_raises(IndexError):
+            with pytest.raises(IndexError):
                 em[-1, -1]
 
-            with nt.assert_raises(IndexError):
+            with pytest.raises(IndexError):
                 em[3, 3]

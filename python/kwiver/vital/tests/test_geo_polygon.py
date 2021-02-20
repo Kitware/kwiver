@@ -34,7 +34,6 @@
 
 # """
 
-import nose.tools as nt
 import numpy as np
 import unittest
 
@@ -71,14 +70,14 @@ class TestVitalGeoPolygon(unittest.TestCase):
     def test_inital_is_empty(self):
         g_poly1 = gp.GeoPolygon()
         g_poly2 = gp.GeoPolygon(self._create_polygon(), self.crs_ll)
-        nt.ok_(g_poly1.is_empty())
+        assert(g_poly1.is_empty())
         self.assertFalse(g_poly2.is_empty())
 
     def test_initial_crs(self):
         g_poly1 = gp.GeoPolygon()
         g_poly2 = gp.GeoPolygon(self._create_polygon(), self.crs_ll)
-        nt.assert_equals(g_poly1.crs(), -1)
-        nt.assert_equals(g_poly2.crs(), self.crs_ll)
+        self.assertEqual(g_poly1.crs(), -1)
+        self.assertEqual(g_poly2.crs(), self.crs_ll)
 
 
     def test_initial_polygon(self):
@@ -94,8 +93,8 @@ class TestVitalGeoPolygon(unittest.TestCase):
 
     def test_no_polygon_for_key(self):
         g_poly = gp.GeoPolygon()
-        nt.assert_raises(IndexError, g_poly.polygon)
-        nt.assert_raises(IndexError, g_poly.polygon, self.crs_ll)
+        pytest.raises(IndexError, g_poly.polygon)
+        pytest.raises(IndexError, g_poly.polygon, self.crs_ll)
 
     # Try setting the polygon member by using the above locations.
     def test_set_polygon(self):
@@ -106,8 +105,8 @@ class TestVitalGeoPolygon(unittest.TestCase):
 
             instance.set_polygon(Polygon([self.loc2_ll]), self.crs_ll)
 
-            nt.assert_equals(instance.polygon().num_vertices(), 1)
-            nt.assert_equals(instance.crs(), self.crs_ll)
+            self.assertEqual(instance.polygon().num_vertices(), 1)
+            self.assertEqual(instance.crs(), self.crs_ll)
             np.testing.assert_array_almost_equal(instance.polygon().at(0), self.loc2_ll)
             np.testing.assert_array_almost_equal(
                 instance.polygon(self.crs_ll).at(0), self.loc2_ll
@@ -115,8 +114,8 @@ class TestVitalGeoPolygon(unittest.TestCase):
             self.assertFalse(instance.is_empty())
             instance.set_polygon(Polygon([self.loc_utm]), self.crs_utm_6s)
 
-            nt.assert_equals(instance.polygon().num_vertices(), 1)
-            nt.assert_equals(instance.crs(), self.crs_utm_6s)
+            self.assertEqual(instance.polygon().num_vertices(), 1)
+            self.assertEqual(instance.crs(), self.crs_utm_6s)
             np.testing.assert_array_almost_equal(instance.polygon().at(0), self.loc_utm)
             np.testing.assert_array_almost_equal(
                 instance.polygon(self.crs_utm_6s).at(0), self.loc_utm
@@ -131,7 +130,7 @@ class TestVitalGeoPolygon(unittest.TestCase):
                 pass
             else:
                 diff_loc_out_loc2_ll = np.linalg.norm(loc_out - self.loc2_ll)
-                nt.assert_not_equal(
+                self.assertNotEqual(
                     diff_loc_out_loc2_ll,
                     0,
                     msg="Changing the location did not clear the location cache",
@@ -158,7 +157,7 @@ class TestVitalGeoPolygon(unittest.TestCase):
 
     def test_to_str_empty(self):
         g_poly1 = gp.GeoPolygon()
-        nt.assert_equals(str(g_poly1), "{ empty }")
+        self.assertEqual(str(g_poly1), "{ empty }")
         print("empty geo_polygon:", str(g_poly1), sep='\n')
 
     # Also test double roundtrip
@@ -171,24 +170,24 @@ class TestVitalGeoPolygon(unittest.TestCase):
         split_str = str(g_poly).split()
 
         # Initial character
-        nt.assert_equals(split_str[0], "{")
+        self.assertEqual(split_str[0], "{")
 
         # x coord
         np.testing.assert_almost_equal(float(split_str[1]), x_in, decimal=15)
 
         # Separator
-        nt.assert_equals(split_str[2], "/")
+        self.assertEqual(split_str[2], "/")
 
         # y coord
         np.testing.assert_almost_equal(float(split_str[3]), y_in, decimal=15)
 
         # Closing character
-        nt.assert_equals(split_str[4], "}")
+        self.assertEqual(split_str[4], "}")
 
         # @
-        nt.assert_equals(split_str[5], "@")
+        self.assertEqual(split_str[5], "@")
 
         # crs_ll
-        nt.assert_equals(int(split_str[6]), self.crs_ll)
+        self.assertEqual(int(split_str[6]), self.crs_ll)
 
         print("geo_polygon with data:", str(g_poly), sep='\n')

@@ -35,7 +35,6 @@ Tests for RGBColor interface
 """
 import unittest
 
-import nose.tools
 import numpy
 
 from kwiver.vital.types import RGBColor
@@ -77,7 +76,7 @@ class TestRGBColor (unittest.TestCase):
 
     def test_getitem_access_IndexError(self):
         c = RGBColor(10, 20, 30)
-        nose.tools.assert_raises(
+        pytest.raises(
             IndexError,
             c.__getitem__, 4
         )

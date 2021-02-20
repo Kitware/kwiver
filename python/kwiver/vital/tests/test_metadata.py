@@ -36,10 +36,10 @@ unknown_metadata_item, and metadata
 """
 
 
-import nose.tools as nt
+
 import numpy as np
 import sys
-import unittest
+import unittest, pytest
 
 from kwiver.vital.types.metadata_traits import *
 from kwiver.vital.types.metadata import *
@@ -87,7 +87,7 @@ class TypeInfo(object):
 class TestVitalMetadataItem(object):
     def test_no_construct_base(self):
         err_msg = "kwiver.vital.types.metadata.MetadataItem: No constructor defined!"
-        with nt.assert_raises_regexp(TypeError, err_msg):
+        with self.assertRaisesRegex(TypeError, err_msg):
             MetadataItem()
 
 # There are 2 subclasses (although one is templated),
@@ -231,67 +231,67 @@ class TestVitalMetadataItemSubclasses(unittest.TestCase):
         self.check_typename(inst, type_info.typename)
 
     def check_initial_properties(self, inst, prop_info):
-        nt.assert_equals(inst.name, prop_info.name)
-        nt.assert_equals(inst.tag, prop_info.tag)
+        self.assertEqual(inst.name, prop_info.name)
+        self.assertEqual(inst.tag, prop_info.tag)
 
         # A few tests on inst.data
-        nt.ok_(isinstance(inst.data, type(prop_info.data)))
+        assert(isinstance(inst.data, type(prop_info.data)))
         if isinstance(prop_info.data, GeoPoint):
-            nt.assert_equals(inst.data.crs(), prop_info.data.crs())
+            self.assertEqual(inst.data.crs(), prop_info.data.crs())
             if prop_info.data.is_empty():
-                nt.ok_(inst.data.is_empty())
+                assert(inst.data.is_empty())
             else:
                 inst_loc = inst.data.location()
                 exp_loc = prop_info.data.location()
                 np.testing.assert_array_almost_equal(inst_loc, exp_loc)
 
         elif isinstance(prop_info.data, GeoPolygon):
-            nt.assert_equals(inst.data.crs(), prop_info.data.crs())
+            self.assertEqual(inst.data.crs(), prop_info.data.crs())
             if prop_info.data.is_empty():
-                nt.ok_(inst.data.is_empty())
+                assert(inst.data.is_empty())
             else:
                 inst_verts = inst.data.polygon().get_vertices()
                 exp_verts = prop_info.data.polygon().get_vertices()
                 np.testing.assert_array_almost_equal(inst_verts, exp_verts)
 
         else:
-            nt.assert_equals(inst.data, prop_info.data)
+            self.assertEqual(inst.data, prop_info.data)
 
     def check_is_valid(self, inst, is_valid):
-        nt.assert_equals(bool(inst), is_valid)
-        nt.assert_equals(inst.is_valid(), is_valid)
-        nt.assert_equals(inst.__nonzero__(), is_valid)
-        nt.assert_equals(inst.__bool__(), is_valid)
+        self.assertEqual(bool(inst), is_valid)
+        self.assertEqual(inst.is_valid(), is_valid)
+        self.assertEqual(inst.__nonzero__(), is_valid)
+        self.assertEqual(inst.__bool__(), is_valid)
 
     # Following 3 functions test whether the conversion functions work
     # as expected. If the conversion is possible, test that the data matches
     # Otherwise, check that the proper exception is thrown.
     def check_as_double(self, inst, exp_has_double, exp_val):
-        nt.assert_equals(inst.has_double(), exp_has_double)
+        self.assertEqual(inst.has_double(), exp_has_double)
         if inst.has_double() or exp_val is not None:
             # Make sure that the value we're about to compare is correct type
             np.testing.assert_almost_equal(inst.as_double(), exp_val)
         else:
-            with nt.assert_raises(RuntimeError):
+            with pytest.raises(RuntimeError):
                 inst.as_double()
 
     def check_as_uint64(self, inst, exp_has_uint64, exp_val):
-        nt.assert_equals(inst.has_uint64(), exp_has_uint64)
+        self.assertEqual(inst.has_uint64(), exp_has_uint64)
         if inst.has_uint64() or exp_val is not None:
             # Make sure that the value we're about to compare is correct type
-            nt.assert_equals(inst.as_uint64(), exp_val)
+            self.assertEqual(inst.as_uint64(), exp_val)
         else:
-            with nt.assert_raises(RuntimeError):
+            with pytest.raises(RuntimeError):
                 inst.as_uint64()
 
     # as_string is defined for every type
     def check_as_string(self, inst, exp_has_string, exp_val):
-        nt.assert_equals(inst.has_string(), exp_has_string)
+        self.assertEqual(inst.has_string(), exp_has_string)
         # Always able to convert
-        nt.assert_equals(inst.as_string(), exp_val)
+        self.assertEqual(inst.as_string(), exp_val)
 
     def check_typename(self, inst, typename):
-        nt.assert_equals(inst.type, typename)
+        self.assertEqual(inst.type, typename)
 
 
 # And finally, the actual metadata class
@@ -327,13 +327,13 @@ class TestVitalMetadata(unittest.TestCase):
 
     def test_add(self):
         m = Metadata()
-        nt.assert_equals(m.size(), 0)
-        nt.ok_(m.empty())
+        self.assertEqual(m.size(), 0)
+        assert(m.empty())
         m.add(0, self.tags[-1])
         m.add("hello", self.tags[3])
         m.add(2, self.tags[1])
         m.add(True, self.tags[4])
-        nt.assert_equals(m.size(), 4)
+        self.assertEqual(m.size(), 4)
 
     def test_erase(self):
         m = Metadata()
@@ -349,15 +349,15 @@ class TestVitalMetadata(unittest.TestCase):
         # Make sure there are no initial elements
         for tag in self.tags:
             self.assertFalse(m.has(tag))
-            nt.ok_(isinstance(m.find(tag), UnknownMetadataItem))
+            assert(isinstance(m.find(tag), UnknownMetadataItem))
         self.populate_metadata(m)
         uint64_type_impl = tc.get_uint64_rep()
         possible_types = {"int", "bool", uint64_type_impl, "string", "double"}
         for tag in self.small_tag:
             self.assertTrue(m.has(tag))
-            nt.ok_(isinstance(m.find(tag), MetadataItem))
+            assert(isinstance(m.find(tag), MetadataItem))
             found = m.find(tag)
-            nt.assert_in(found.type, possible_types)
+            self.assertIn(found.type, possible_types)
 
     def test_timestamp(self):
         m = Metadata()
@@ -370,9 +370,9 @@ class TestVitalMetadata(unittest.TestCase):
 
             t.set_time_seconds(1234)
             m.timestamp = t
-            nt.assert_equals(m.timestamp.get_time_seconds(), 1234)
+            self.assertEqual(m.timestamp.get_time_seconds(), 1234)
             self.assertFalse(m.timestamp.has_valid_frame())
 
             t.set_frame(1)
             m.timestamp = t
-            nt.ok_(m.timestamp == t)
+            assert(m.timestamp == t)

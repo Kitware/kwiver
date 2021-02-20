@@ -35,11 +35,11 @@
 # """
 
 from kwiver.vital.types import Polygon
-import nose.tools as nt
+
 import numpy as np
+import unittest, pytest
 
-
-class TestVitalPolygon(object):
+class TestVitalPolygon(unittest.TestCase):
     def _create_points(self):
         return [
             np.array([10, 10]),
@@ -59,8 +59,8 @@ class TestVitalPolygon(object):
 
     def test_at_out_of_bounds(self):
         p1, p2 = self._create_polygons()
-        nt.assert_raises(IndexError, p1.at, 0)
-        nt.assert_raises(IndexError, p2.at, 4)
+        pytest.raises(IndexError, p1.at, 0)
+        pytest.raises(IndexError, p2.at, 4)
 
     def test_at_with_initial_points(self):
         pts = self._create_points()
@@ -75,16 +75,16 @@ class TestVitalPolygon(object):
 
     def test_at_point_not_in_array(self):
         _, p2 = self._create_polygons()
-        nt.assert_raises(
+        pytest.raises(
             AssertionError, np.testing.assert_array_equal, np.array([17, 200]), p2.at(0)
         )
-        nt.assert_raises(
+        pytest.raises(
             AssertionError, np.testing.assert_array_equal, np.array([17, 200]), p2.at(1)
         )
-        nt.assert_raises(
+        pytest.raises(
             AssertionError, np.testing.assert_array_equal, np.array([17, 200]), p2.at(2)
         )
-        nt.assert_raises(
+        pytest.raises(
             AssertionError, np.testing.assert_array_equal, np.array([17, 200]), p2.at(3)
         )
 
@@ -141,17 +141,17 @@ class TestVitalPolygon(object):
         self.assertFalse(p1.contains(pts[3][0], pts[3][1]))  # Check x and y coords
 
         # p2 should contain all, as they are vertices
-        nt.ok_(p2.contains(pts[0]))  # Check np arrays
-        nt.ok_(p2.contains(pts[1]))  # Check np arrays
-        nt.ok_(p2.contains(pts[2][0], pts[2][1]))  # Check x and y coords
-        nt.ok_(p2.contains(pts[3][0], pts[3][1]))  # Check x and y coords
+        assert(p2.contains(pts[0]))  # Check np arrays
+        assert(p2.contains(pts[1]))  # Check np arrays
+        assert(p2.contains(pts[2][0], pts[2][1]))  # Check x and y coords
+        assert(p2.contains(pts[3][0], pts[3][1]))  # Check x and y coords
 
         # p2 should also contain boundary points,
         # and points inside the shape
-        nt.ok_(p2.contains(25, 40))  # x and y coord inside
-        nt.ok_(p2.contains(35, 50))  # x and y coord boundary
-        nt.ok_(p2.contains(np.array([20, 30])))  # np_array inside
-        nt.ok_(p2.contains(np.array([10, 30])))  # np_array boundary
+        assert(p2.contains(25, 40))  # x and y coord inside
+        assert(p2.contains(35, 50))  # x and y coord boundary
+        assert(p2.contains(np.array([20, 30])))  # np_array inside
+        assert(p2.contains(np.array([10, 30])))  # np_array boundary
 
     def test_get_vertices(self):
         pts = self._create_points()

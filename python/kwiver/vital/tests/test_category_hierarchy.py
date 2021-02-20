@@ -36,7 +36,6 @@ Tests for Python interface to vital::category_hierarchy
 
 from kwiver.vital.types import CategoryHierarchy
 
-import nose.tools as nt
 import os
 import tempfile
 import unittest
@@ -103,7 +102,7 @@ class TestVitalCategoryHierarchy(unittest.TestCase):
     def test_constructor_from_file_no_exist(self):
         expected_err_msg = "Unable to open nonexistant_file.txt"
 
-        with nt.assert_raises_regexp(RuntimeError, expected_err_msg):
+        with self.assertRaisesRegex(RuntimeError, expected_err_msg):
             CategoryHierarchy("nonexistant_file.txt")
 
     def test_construct_from_lists(self):
@@ -129,27 +128,27 @@ class TestVitalCategoryHierarchy(unittest.TestCase):
     def test_constructor_throws_exceptions(self):
 
         # Passing class_names and parent_names of different sizes
-        with nt.assert_raises_regexp(ValueError, "Parameter vector sizes differ."):
+        with self.assertRaisesRegex(ValueError, "Parameter vector sizes differ."):
             CategoryHierarchy(self.class_names, self.parent_names[:-1])
 
-        with nt.assert_raises_regexp(ValueError, "Parameter vector sizes differ."):
+        with self.assertRaisesRegex(ValueError, "Parameter vector sizes differ."):
             CategoryHierarchy(self.class_names[:-1], self.parent_names)
 
-        with nt.assert_raises_regexp(ValueError, "Parameter vector sizes differ."):
+        with self.assertRaisesRegex(ValueError, "Parameter vector sizes differ."):
             CategoryHierarchy([], self.parent_names)
 
         # Passing class_names and ids of different sizes
-        with nt.assert_raises_regexp(ValueError, "Parameter vector sizes differ."):
+        with self.assertRaisesRegex(ValueError, "Parameter vector sizes differ."):
             CategoryHierarchy(self.class_names, ids=self.ids[:-1])
 
-        with nt.assert_raises_regexp(ValueError, "Parameter vector sizes differ."):
+        with self.assertRaisesRegex(ValueError, "Parameter vector sizes differ."):
             CategoryHierarchy(self.class_names[:-1], ids=self.ids)
 
-        with nt.assert_raises_regexp(ValueError, "Parameter vector sizes differ."):
+        with self.assertRaisesRegex(ValueError, "Parameter vector sizes differ."):
             CategoryHierarchy([], ids=self.ids)
 
         # Passing empty class_names also throws exception
-        with nt.assert_raises_regexp(ValueError, "Parameter vector are empty."):
+        with self.assertRaisesRegex(ValueError, "Parameter vector are empty."):
             CategoryHierarchy([])
 
     def test_initial_classes(self):
@@ -164,35 +163,35 @@ class TestVitalCategoryHierarchy(unittest.TestCase):
             )
 
             # from_file
-            nt.ok_(
+            assert(
                 from_file.has_class_name(name),
                 "heirarchy constructed from file does not have {}".format(name),
             )
-            nt.assert_equals(from_file.get_class_id(name), id_)
-            nt.assert_equals(from_file.get_class_name(name), name)
+            self.assertEqual(from_file.get_class_id(name), id_)
+            self.assertEqual(from_file.get_class_name(name), name)
 
             # from_lists
-            nt.ok_(
+            assert(
                 from_lists.has_class_name(name),
                 "heirarchy constructed from lists does not have {}".format(name),
             )
-            nt.assert_equals(from_lists.get_class_id(name), id_)
-            nt.assert_equals(from_lists.get_class_name(name), name)
+            self.assertEqual(from_lists.get_class_id(name), id_)
+            self.assertEqual(from_lists.get_class_name(name), name)
 
         # Tests for empty
-        nt.assert_equals(empty.all_class_names(), [])
-        nt.assert_equals(empty.size(), 0)
+        self.assertEqual(empty.all_class_names(), [])
+        self.assertEqual(empty.size(), 0)
 
         # Tests for from_file
-        nt.assert_equals(from_file.all_class_names(), self.class_names)
+        self.assertEqual(from_file.all_class_names(), self.class_names)
         # Each class has 2 synonyms, so size is 3 * # classes
-        nt.assert_equals(from_file.size(), 3 * len(self.class_names))
+        self.assertEqual(from_file.size(), 3 * len(self.class_names))
         # Make sure class5, which was commented out, is not present
         self.assertFalse(from_file.has_class_name("class5"))
 
         # Tests for from_lists
-        nt.assert_equals(from_lists.all_class_names(), self.class_names)
-        nt.assert_equals(from_lists.size(), len(self.class_names))
+        self.assertEqual(from_lists.all_class_names(), self.class_names)
+        self.assertEqual(from_lists.size(), len(self.class_names))
 
     # Only hierarchies constructed from files can be constructed with synonyms
     def test_initial_synonyms(self):
@@ -201,75 +200,75 @@ class TestVitalCategoryHierarchy(unittest.TestCase):
         for cname in ch.all_class_names():
             syn0_name = cname + "_syn0"
             syn1_name = cname + "_syn1"
-            nt.ok_(ch.has_class_name(syn0_name))
-            nt.ok_(ch.has_class_name(syn1_name))
-            nt.assert_equals(ch.get_class_name(syn0_name), cname)
-            nt.assert_equals(ch.get_class_name(syn1_name), cname)
+            assert(ch.has_class_name(syn0_name))
+            assert(ch.has_class_name(syn1_name))
+            self.assertEqual(ch.get_class_name(syn0_name), cname)
+            self.assertEqual(ch.get_class_name(syn1_name), cname)
 
 
     def test_initial_relationships(self):
         empty, from_file, from_lists = self._create_hierarchies()
 
         # Tests for empty
-        nt.assert_equals(empty.child_class_names(), [])
+        self.assertEqual(empty.child_class_names(), [])
 
         # Tests for from_file
-        nt.assert_equals(from_file.child_class_names(), ["class2_0"])
-        nt.assert_equals(from_file.get_class_parents("class0"), [])
-        nt.assert_equals(from_file.get_class_parents("class2_0"), ["class1_0", "class1_1"])
-        nt.assert_equals(from_file.get_class_parents("class1_0"), ["class0"])
-        nt.assert_equals(from_file.get_class_parents("class1_1"), ["class0"])
+        self.assertEqual(from_file.child_class_names(), ["class2_0"])
+        self.assertEqual(from_file.get_class_parents("class0"), [])
+        self.assertEqual(from_file.get_class_parents("class2_0"), ["class1_0", "class1_1"])
+        self.assertEqual(from_file.get_class_parents("class1_0"), ["class0"])
+        self.assertEqual(from_file.get_class_parents("class1_1"), ["class0"])
 
         # Tests for from_lists
-        nt.assert_equals(from_lists.child_class_names(), ["class1_1", "class2_0"])
-        nt.assert_equals(from_lists.get_class_parents("class0"), [])
-        nt.assert_equals(from_lists.get_class_parents("class2_0"), ["class1_0"])
-        nt.assert_equals(from_lists.get_class_parents("class1_0"), ["class0"])
-        nt.assert_equals(from_lists.get_class_parents("class1_1"), ["class0"])
+        self.assertEqual(from_lists.child_class_names(), ["class1_1", "class2_0"])
+        self.assertEqual(from_lists.get_class_parents("class0"), [])
+        self.assertEqual(from_lists.get_class_parents("class2_0"), ["class1_0"])
+        self.assertEqual(from_lists.get_class_parents("class1_0"), ["class0"])
+        self.assertEqual(from_lists.get_class_parents("class1_1"), ["class0"])
 
     def test_add_class(self):
         ch = CategoryHierarchy()
 
         # Check default for parent_name and id params
         ch.add_class("class0")
-        nt.assert_equals(ch.get_class_id("class0"), -1)
+        self.assertEqual(ch.get_class_id("class0"), -1)
 
         # Now for parent_name
         ch.add_class("class1", id=0)
-        nt.assert_equals(ch.get_class_id("class1"), 0)
+        self.assertEqual(ch.get_class_id("class1"), 0)
 
         # Now for id
         ch.add_class("class2", parent_name="class1")
-        nt.assert_equals(ch.get_class_id("class2"), -1)
+        self.assertEqual(ch.get_class_id("class2"), -1)
 
         # Check has_class_name returns correct result
-        nt.ok_(ch.has_class_name("class0"))
-        nt.ok_(ch.has_class_name("class1"))
-        nt.ok_(ch.has_class_name("class2"))
+        assert(ch.has_class_name("class0"))
+        assert(ch.has_class_name("class1"))
+        assert(ch.has_class_name("class2"))
 
         # Check class list
-        nt.assert_equals(ch.all_class_names(), ["class1", "class0", "class2"])
-        nt.assert_equals(ch.size(), 3)
+        self.assertEqual(ch.all_class_names(), ["class1", "class0", "class2"])
+        self.assertEqual(ch.size(), 3)
 
         # Check relationships are correct
         # TODO: Should this only be class2 and class0? Current implementation
         # of add_class only adds class1 to class2's parents. Class2 isn't added
         # to Class1's list of children, which makes it a child class.
-        nt.assert_equals(ch.child_class_names(), ["class1", "class0", "class2"])
+        self.assertEqual(ch.child_class_names(), ["class1", "class0", "class2"])
 
-        nt.assert_equals(ch.get_class_parents("class0"), [])
-        nt.assert_equals(ch.get_class_parents("class1"), [])
-        nt.assert_equals(ch.get_class_parents("class2"), ["class1"])
+        self.assertEqual(ch.get_class_parents("class0"), [])
+        self.assertEqual(ch.get_class_parents("class1"), [])
+        self.assertEqual(ch.get_class_parents("class2"), ["class1"])
 
     def test_add_class_already_exists(self):
         ch = CategoryHierarchy(self.class_names, self.parent_names, self.ids)
 
-        with nt.assert_raises_regexp(RuntimeError, "Category already exists"):
+        with self.assertRaisesRegex(RuntimeError, "Category already exists"):
             ch.add_class(self.class_names[0])
 
         ch.add_class("new_class")
 
-        with nt.assert_raises_regexp(RuntimeError, "Category already exists"):
+        with self.assertRaisesRegex(RuntimeError, "Category already exists"):
             ch.add_class("new_class")
 
     def test_add_relationship(self):
@@ -285,10 +284,10 @@ class TestVitalCategoryHierarchy(unittest.TestCase):
         ch.add_relationship("class2_0", "class1_0")
         ch.add_relationship("class2_0", "class1_1")
 
-        nt.assert_equals(ch.child_class_names(), ["class2_0"])
-        nt.assert_equals(ch.get_class_parents("class2_0"), ["class1_0", "class1_1"])
-        nt.assert_equals(ch.get_class_parents("class1_0"), ["class0"])
-        nt.assert_equals(ch.get_class_parents("class1_1"), ["class0"])
+        self.assertEqual(ch.child_class_names(), ["class2_0"])
+        self.assertEqual(ch.get_class_parents("class2_0"), ["class1_0", "class1_1"])
+        self.assertEqual(ch.get_class_parents("class1_0"), ["class0"])
+        self.assertEqual(ch.get_class_parents("class1_1"), ["class0"])
 
     def test_add_synonym(self):
         ch = CategoryHierarchy(self.class_names, self.parent_names, self.ids)
@@ -299,28 +298,28 @@ class TestVitalCategoryHierarchy(unittest.TestCase):
         ch.add_synonym("class1_0", "class1_0_syn1")
 
         # First check the old classes exist
-        nt.assert_equals(ch.all_class_names(), self.class_names)
+        self.assertEqual(ch.all_class_names(), self.class_names)
 
         # Check the size
-        nt.assert_equals(ch.size(), 8)
+        self.assertEqual(ch.size(), 8)
 
         # Now check synonyms exist
-        nt.ok_(ch.has_class_name("class2_0_syn0"))
-        nt.ok_(ch.has_class_name("class2_0_syn1"))
-        nt.ok_(ch.has_class_name("class1_0_syn0"))
-        nt.ok_(ch.has_class_name("class1_0_syn1"))
+        assert(ch.has_class_name("class2_0_syn0"))
+        assert(ch.has_class_name("class2_0_syn1"))
+        assert(ch.has_class_name("class1_0_syn0"))
+        assert(ch.has_class_name("class1_0_syn1"))
 
         # Check the name of the actual category
-        nt.assert_equals(ch.get_class_name("class2_0_syn0"), "class2_0")
-        nt.assert_equals(ch.get_class_name("class2_0_syn1"), "class2_0")
-        nt.assert_equals(ch.get_class_name("class1_0_syn0"), "class1_0")
-        nt.assert_equals(ch.get_class_name("class1_0_syn1"), "class1_0")
+        self.assertEqual(ch.get_class_name("class2_0_syn0"), "class2_0")
+        self.assertEqual(ch.get_class_name("class2_0_syn1"), "class2_0")
+        self.assertEqual(ch.get_class_name("class1_0_syn0"), "class1_0")
+        self.assertEqual(ch.get_class_name("class1_0_syn1"), "class1_0")
 
         # Now check that the relationships are still intact
-        nt.assert_equals(ch.get_class_parents("class2_0_syn0"), ["class1_0"])
-        nt.assert_equals(ch.get_class_parents("class2_0_syn1"), ["class1_0"])
-        nt.assert_equals(ch.get_class_parents("class1_0_syn0"), ["class0"])
-        nt.assert_equals(ch.get_class_parents("class1_0_syn1"), ["class0"])
+        self.assertEqual(ch.get_class_parents("class2_0_syn0"), ["class1_0"])
+        self.assertEqual(ch.get_class_parents("class2_0_syn1"), ["class1_0"])
+        self.assertEqual(ch.get_class_parents("class1_0_syn0"), ["class0"])
+        self.assertEqual(ch.get_class_parents("class1_0_syn1"), ["class0"])
 
     def test_add_synonym_already_exists(self):
         ch = CategoryHierarchy()
@@ -330,10 +329,10 @@ class TestVitalCategoryHierarchy(unittest.TestCase):
 
         expected_err_msg = "Synonym name already exists in hierarchy"
 
-        with nt.assert_raises_regexp(RuntimeError, expected_err_msg):
+        with self.assertRaisesRegex(RuntimeError, expected_err_msg):
             ch.add_synonym("class0", "class0_syn0")
 
-        with nt.assert_raises_regexp(RuntimeError, expected_err_msg):
+        with self.assertRaisesRegex(RuntimeError, expected_err_msg):
             ch.add_synonym("class0", "class0_syn1")
 
     def test_load_from_file(self):
@@ -343,27 +342,27 @@ class TestVitalCategoryHierarchy(unittest.TestCase):
         ch.add_synonym("class-1", "class-1_syn1")
 
         ch.load_from_file(self.fp.name)
-        nt.assert_equals(ch.all_class_names(), self.class_names + ["class-1"])
+        self.assertEqual(ch.all_class_names(), self.class_names + ["class-1"])
 
         # Check synonyms
         for cname in self.class_names + ["class-1"]:
-            nt.ok_(ch.has_class_name(cname + "_syn0"))
-            nt.ok_(ch.has_class_name(cname + "_syn1"))
-            nt.assert_equals(ch.get_class_name(cname + "_syn0"), cname)
-            nt.assert_equals(ch.get_class_name(cname + "_syn1"), cname)
+            assert(ch.has_class_name(cname + "_syn0"))
+            assert(ch.has_class_name(cname + "_syn1"))
+            self.assertEqual(ch.get_class_name(cname + "_syn0"), cname)
+            self.assertEqual(ch.get_class_name(cname + "_syn1"), cname)
 
         # Now check that the relationships are still intact
-        nt.assert_equals(ch.child_class_names(), ["class2_0", "class-1"])
-        nt.assert_equals(ch.get_class_parents("class0"), [])
-        nt.assert_equals(ch.get_class_parents("class2_0"), ["class1_0", "class1_1"])
-        nt.assert_equals(ch.get_class_parents("class1_0"), ["class0"])
-        nt.assert_equals(ch.get_class_parents("class1_1"), ["class0"])
+        self.assertEqual(ch.child_class_names(), ["class2_0", "class-1"])
+        self.assertEqual(ch.get_class_parents("class0"), [])
+        self.assertEqual(ch.get_class_parents("class2_0"), ["class1_0", "class1_1"])
+        self.assertEqual(ch.get_class_parents("class1_0"), ["class0"])
+        self.assertEqual(ch.get_class_parents("class1_1"), ["class0"])
 
     def test_load_from_file_not_exist(self):
         ch = CategoryHierarchy()
         expected_err_msg = "Unable to open nonexistant_file.txt"
 
-        with nt.assert_raises_regexp(RuntimeError, expected_err_msg):
+        with self.assertRaisesRegex(RuntimeError, expected_err_msg):
             ch.load_from_file("nonexistant_file.txt")
 
     # Some functions throw exceptions if the category
@@ -373,26 +372,26 @@ class TestVitalCategoryHierarchy(unittest.TestCase):
         expected_err_msg = "Class node absent_class does not exist"
 
         for ch in chs:
-            with nt.assert_raises_regexp(RuntimeError, expected_err_msg):
+            with self.assertRaisesRegex(RuntimeError, expected_err_msg):
                 ch.add_class("new_class1", "absent_class")
 
-            with nt.assert_raises_regexp(RuntimeError, expected_err_msg):
+            with self.assertRaisesRegex(RuntimeError, expected_err_msg):
                 ch.get_class_name("absent_class")
 
-            with nt.assert_raises_regexp(RuntimeError, expected_err_msg):
+            with self.assertRaisesRegex(RuntimeError, expected_err_msg):
                 ch.get_class_id("absent_class")
 
-            with nt.assert_raises_regexp(RuntimeError, expected_err_msg):
+            with self.assertRaisesRegex(RuntimeError, expected_err_msg):
                 ch.get_class_parents("absent_class")
 
-            with nt.assert_raises_regexp(RuntimeError, expected_err_msg):
+            with self.assertRaisesRegex(RuntimeError, expected_err_msg):
                 ch.add_relationship("absent_class", "another_absent_class")
 
             ch.add_class("new_class2")
-            with nt.assert_raises_regexp(RuntimeError, expected_err_msg):
+            with self.assertRaisesRegex(RuntimeError, expected_err_msg):
                 ch.add_relationship("new_class2", "absent_class")
 
-            with nt.assert_raises_regexp(RuntimeError, expected_err_msg):
+            with self.assertRaisesRegex(RuntimeError, expected_err_msg):
                 ch.add_synonym("absent_class", "synonym")
 
     # Extra test for the sort function used
@@ -410,5 +409,5 @@ class TestVitalCategoryHierarchy(unittest.TestCase):
 
         # names with ids are first sorted (in alphabetical order), followed by
         # names without ids in alphabetical order
-        nt.assert_equals(ch.all_class_names(), ["d", "a", "b", "c"])
-        nt.assert_equals(ch.child_class_names(), ["d", "a", "b", "c"])
+        self.assertEqual(ch.all_class_names(), ["d", "a", "b", "c"])
+        self.assertEqual(ch.child_class_names(), ["d", "a", "b", "c"])

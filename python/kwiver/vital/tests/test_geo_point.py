@@ -34,9 +34,8 @@
 
 # """
 
-import nose.tools as nt
 import numpy as np
-import unittest
+import unittest, pytest
 
 from kwiver.vital.types import geo_point as gp, geodesy
 from kwiver.vital.modules import modules
@@ -70,15 +69,15 @@ class TestVitalGeoPoint(unittest.TestCase):
 
     def test_initial_is_empty(self):
         p1, p2, p3 = self._create_points()
-        nt.ok_(p1.is_empty())
+        assert(p1.is_empty())
         self.assertFalse(p2.is_empty())
         self.assertFalse(p3.is_empty())
 
     def test_initial_crs(self):
         p1, p2, p3 = self._create_points()
-        nt.assert_equals(p1.crs(), -1)
-        nt.assert_equals(p2.crs(), self.crs_ll)
-        nt.assert_equals(p3.crs(), self.crs_ll)
+        self.assertEqual(p1.crs(), -1)
+        self.assertEqual(p2.crs(), self.crs_ll)
+        self.assertEqual(p3.crs(), self.crs_ll)
 
     def test_initial_location(self):
         _, p2, p3 = self._create_points()
@@ -94,8 +93,8 @@ class TestVitalGeoPoint(unittest.TestCase):
 
     def test_no_location_for_key(self):
         p1 = gp.GeoPoint()
-        nt.assert_raises(IndexError, p1.location)
-        nt.assert_raises(IndexError, p1.location, self.crs_ll)
+        pytest.raises(IndexError, p1.location)
+        pytest.raises(IndexError, p1.location, self.crs_ll)
 
     def test_set_location(self):
         _, p2, _ = self._create_points()
@@ -105,7 +104,7 @@ class TestVitalGeoPoint(unittest.TestCase):
         loc3_expected = np.concatenate([self.loc3, [0]])
 
         self.assertFalse(p2.is_empty())
-        nt.assert_equals(p2.crs(), self.crs_utm_18n)
+        self.assertEqual(p2.crs(), self.crs_utm_18n)
         np.testing.assert_array_almost_equal(p2.location(), loc3_expected)
         np.testing.assert_array_almost_equal(
             p2.location(self.crs_utm_18n), loc3_expected
@@ -116,7 +115,7 @@ class TestVitalGeoPoint(unittest.TestCase):
         loc2_expected = np.concatenate([self.loc2, [0]])
 
         self.assertFalse(p2.is_empty())
-        nt.assert_equals(p2.crs(), self.crs_ll)
+        self.assertEqual(p2.crs(), self.crs_ll)
         np.testing.assert_array_almost_equal(p2.location(), loc2_expected)
         np.testing.assert_array_almost_equal(p2.location(self.crs_ll), loc2_expected)
 
@@ -130,7 +129,7 @@ class TestVitalGeoPoint(unittest.TestCase):
 
         else:
             diff_loc2_loc3_utm = np.linalg.norm(loc2_utm - loc3_expected)
-            nt.assert_not_equal(
+            self.assertNotEqual(
                 diff_loc2_loc3_utm,
                 0,
                 msg="Changing the location did not clear the location cache",
@@ -153,8 +152,8 @@ class TestVitalGeoPoint(unittest.TestCase):
 
         np.testing.assert_array_almost_equal(p_ll.location(), conv_loc_ll, decimal=7)
         np.testing.assert_array_almost_equal(p_utm.location(), conv_loc_utm, decimal=2)
-        nt.ok_(epsilon_ll_to_utm < 10**(-2))
-        nt.ok_(epsilon_utm_to_ll < 10**(-7))
+        assert(epsilon_ll_to_utm < 10**(-2))
+        assert(epsilon_utm_to_ll < 10**(-7))
 
         print("LL->UTM epsilon:", epsilon_ll_to_utm)
         print("UTM->LL epsilon:", epsilon_utm_to_ll)
@@ -173,15 +172,15 @@ class TestVitalGeoPoint(unittest.TestCase):
         np.testing.assert_array_almost_equal(
             p_utma.location(), conv_loc_utma, decimal=2
         )
-        nt.ok_(epsilon_lla_to_utma < 10**(-2))
-        nt.ok_(epsilon_utma_to_lla < 10**(-7))
+        assert(epsilon_lla_to_utma < 10**(-2))
+        assert(epsilon_utma_to_lla < 10**(-7))
 
         print("LLa->UTMa epsilon:", epsilon_lla_to_utma)
         print("UTMa->LLa epsilon:", epsilon_utma_to_lla)
 
     def test_to_str_empty(self):
         p1 = gp.GeoPoint()
-        nt.assert_equals(str(p1), "geo_point\n[ empty ]")
+        self.assertEqual(str(p1), "geo_point\n[ empty ]")
         print("empty geo_point to string:", str(p1), sep='\n')
 
     # Also make sure the doubles roundtrip
@@ -193,25 +192,25 @@ class TestVitalGeoPoint(unittest.TestCase):
         split_str = str(p1).split()
 
         # Initial strings
-        nt.assert_equals(split_str[0], "geo_point")
-        nt.assert_equals(split_str[1], "[")
+        self.assertEqual(split_str[0], "geo_point")
+        self.assertEqual(split_str[1], "[")
 
         # Parsing easting
         easting_out, comma = split_str[2][:-1], split_str[2][-1]
-        nt.assert_equals(comma, ",")
+        self.assertEqual(comma, ",")
         np.testing.assert_almost_equal(float(easting_out), easting_in, decimal=15)
 
         # Parsing northing
         northing_out, comma = split_str[3][:-1], split_str[3][-1]
-        nt.assert_equals(comma, ",")
+        self.assertEqual(comma, ",")
         np.testing.assert_almost_equal(float(northing_out), northing_in, decimal=15)
 
         # Altitude (0)
         altitude_out = split_str[4]
-        nt.assert_almost_equal(float(altitude_out), 0)
+        self.assertAlmostEqual(float(altitude_out), 0)
 
-        nt.assert_equals(split_str[5], "]")
-        nt.assert_equals(split_str[6], "@")
-        nt.assert_equals(int(split_str[7]), self.crs_ll)
+        self.assertEqual(split_str[5], "]")
+        self.assertEqual(split_str[6], "@")
+        self.assertEqual(int(split_str[7]), self.crs_ll)
 
         print("geo_point with data:", str(p1), sep='\n')

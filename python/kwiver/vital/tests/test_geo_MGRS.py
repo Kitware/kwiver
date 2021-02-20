@@ -35,12 +35,10 @@ Tests for geo_MGRS interface
 """
 import unittest
 
-import nose.tools as nt
-
 from kwiver.vital.types import GeoMGRS
 
 
-class TestVitalGeoMGRS(object):
+class TestVitalGeoMGRS(unittest.TestCase):
     def _create_geo_mgrs(self):
         return (GeoMGRS(), GeoMGRS(""), GeoMGRS("foo"), GeoMGRS("1.234"))
 

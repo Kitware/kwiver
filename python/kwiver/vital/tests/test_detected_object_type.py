@@ -34,7 +34,6 @@ Tests for DetectedObjectType interface class.
 
 """
 import unittest
-import nose.tools
 import numpy as np
 
 

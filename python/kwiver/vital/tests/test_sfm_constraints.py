@@ -34,7 +34,7 @@ Tests for Python interface to vital::sfm_constraints
 
 """
 
-import nose.tools as nt
+
 import unittest
 import numpy as np
 from kwiver.vital.modules import modules
@@ -103,7 +103,7 @@ class TestSFMConstraints(unittest.TestCase):
 
     def test_camera_position_priors(self):
       s = SFMConstraints(self.meta_, self.geo_)
-      nt.assert_dict_equal(s.get_camera_position_priors(), {})
+      self.assertDictEqual(s.get_camera_position_priors(), {})
 
     def test_image_properties(self):
       s = SFMConstraints(self.meta_, self.geo_)
@@ -112,12 +112,12 @@ class TestSFMConstraints(unittest.TestCase):
       founda, foundb = False, False
       founda, a = s.get_image_width(0, a)
       foundb, b = s.get_image_height(0, b)
-      nt.ok_(founda)
-      nt.ok_(foundb)
+      assert(founda)
+      assert(foundb)
       self.assertEqual(a, 1080)
       self.assertEqual(b, 720)
       found_focal = True
       focal_len = 0.1
       found_focal, focal_len = s.get_focal_length_prior(0, focal_len)
       self.assertFalse(found_focal)
-      nt.assert_almost_equal(focal_len, 0.1)
+      self.assertAlmostEqual(focal_len, 0.1)

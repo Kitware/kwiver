@@ -35,7 +35,7 @@ Tests for RGBColor interface
 """
 import unittest
 
-import nose.tools
+
 
 from kwiver.vital.types import Timestamp
 

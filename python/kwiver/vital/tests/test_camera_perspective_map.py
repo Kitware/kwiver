@@ -35,7 +35,6 @@ Tests for CameraPerspectiveMap interface
 """
 
 import unittest
-import nose.tools as nt
 import numpy as np
 from kwiver.vital.types import CameraMap
 from kwiver.vital.types import CameraPerspectiveMap as cam
@@ -141,7 +140,7 @@ class TestCamPerspectiveInheritance(unittest.TestCase):
         a2 = scap()
         cam_dct = {1:a1, 2:a2}
         CameraPerspectiveInheritance(cam_dct)
-        nt.ok_(issubclass(CameraPerspectiveInheritance, cam))
+        assert(issubclass(CameraPerspectiveInheritance, cam))
 
     def test_methods(self):
         a1 = scap()

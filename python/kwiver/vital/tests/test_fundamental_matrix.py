@@ -36,7 +36,6 @@ Tests for Python interface to vital::fundamental_matrix
 
 from kwiver.vital.types import FundamentalMatrixF, FundamentalMatrixD
 
-import nose.tools as nt
 import numpy as np
 import unittest
 
@@ -84,26 +83,26 @@ class TestVitalFundamentalMatrix(unittest.TestCase):
         # float
         fmf = FundamentalMatrixF(self.rand_float_mat)
         fmf_cpy = FundamentalMatrixF(fmf)
-        nt.assert_equals(fmf.type_name, "f")
-        nt.assert_equals(fmf_cpy.type_name, "f")
+        self.assertEqual(fmf.type_name, "f")
+        self.assertEqual(fmf_cpy.type_name, "f")
 
         # double
         fmd = FundamentalMatrixD(self.rand_double_mat)
         fmd_cpy = FundamentalMatrixD(fmd)
-        nt.assert_equals(fmd.type_name, "d")
-        nt.assert_equals(fmd_cpy.type_name, "d")
+        self.assertEqual(fmd.type_name, "d")
+        self.assertEqual(fmd_cpy.type_name, "d")
 
         # Copy constructor from other fundamental_matrix type
         fmd_as_float = FundamentalMatrixF(fmd)
         fmf_as_double = FundamentalMatrixD(fmf)
-        nt.assert_equals(fmd_as_float.type_name, "f")
-        nt.assert_equals(fmf_as_double.type_name, "d")
+        self.assertEqual(fmd_as_float.type_name, "f")
+        self.assertEqual(fmf_as_double.type_name, "d")
 
         # fundamental_matrix<float> from double array and vice versa
         fmf = FundamentalMatrixF(self.rand_double_mat)
         fmd = FundamentalMatrixD(self.rand_float_mat)
-        nt.assert_equals(fmf.type_name, "f")
-        nt.assert_equals(fmd.type_name, "d")
+        self.assertEqual(fmf.type_name, "f")
+        self.assertEqual(fmd.type_name, "d")
 
     def test_clone_matrix_equal(self):
         m = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
@@ -136,18 +135,18 @@ class TestVitalFundamentalMatrix(unittest.TestCase):
 
         fmf = FundamentalMatrixF(m)
         fmd = FundamentalMatrixD(m)
-        nt.ok_(isinstance(fmf.clone(), FundamentalMatrixF))
-        nt.ok_(isinstance(fmd.clone(), FundamentalMatrixD))
+        assert(isinstance(fmf.clone(), FundamentalMatrixF))
+        assert(isinstance(fmd.clone(), FundamentalMatrixD))
 
         fmf_cpy = FundamentalMatrixF(fmf)
         fmd_cpy = FundamentalMatrixD(fmd)
-        nt.ok_(isinstance(fmf_cpy.clone(), FundamentalMatrixF))
-        nt.ok_(isinstance(fmd_cpy.clone(), FundamentalMatrixD))
+        assert(isinstance(fmf_cpy.clone(), FundamentalMatrixF))
+        assert(isinstance(fmd_cpy.clone(), FundamentalMatrixD))
 
         fmd_as_float = FundamentalMatrixF(fmd)
         fmf_as_double = FundamentalMatrixD(fmf)
-        nt.ok_(isinstance(fmd_as_float.clone(), FundamentalMatrixF))
-        nt.ok_(isinstance(fmf_as_double.clone(), FundamentalMatrixD))
+        assert(isinstance(fmd_as_float.clone(), FundamentalMatrixF))
+        assert(isinstance(fmf_as_double.clone(), FundamentalMatrixD))
 
     def svd_helper(self, m):
         u, s, vh = np.linalg.svd(m)
@@ -222,23 +221,23 @@ class TestVitalFundamentalMatrix(unittest.TestCase):
 
     def test_getitem_oob(self):
         for fm in self._create_fms():
-            with nt.assert_raises(IndexError):
+            with pytest.raises(IndexError):
                 fm[-1, 0]
 
-            with nt.assert_raises(IndexError):
+            with pytest.raises(IndexError):
                 fm[3, 0]
 
-            with nt.assert_raises(IndexError):
+            with pytest.raises(IndexError):
                 fm[0, -1]
 
-            with nt.assert_raises(IndexError):
+            with pytest.raises(IndexError):
                 fm[0, 3]
 
-            with nt.assert_raises(IndexError):
+            with pytest.raises(IndexError):
                 fm[-1, 3]
 
-            with nt.assert_raises(IndexError):
+            with pytest.raises(IndexError):
                 fm[-1, -1]
 
-            with nt.assert_raises(IndexError):
+            with pytest.raises(IndexError):
                 fm[3, 3]

@@ -38,7 +38,6 @@ import sys
 import os
 import unittest
 
-import nose.tools
 import numpy as np
 
 from kwiver.vital.exceptions.math import PointMapsToInfinityException
@@ -47,7 +46,7 @@ from kwiver.vital.types.homography import *
 
 class TestHomography (unittest.TestCase):
     def test_no_init_base(self):
-         with nose.tools.assert_raises_regexp(
+         with pytest.raises_regexp(
             TypeError, "kwiver.vital.types.homography.BaseHomography: No constructor defined!"
         ):
             BaseHomography()
@@ -214,7 +213,7 @@ class TestHomography (unittest.TestCase):
             h = ctor([[1, 0, 1],
                       [0, 1, 1],
                       [0, 0, 0]])
-            nose.tools.assert_raises(
+            pytest.raises(
                 RuntimeError,
                 h.map, test_p
             )
@@ -225,7 +224,7 @@ class TestHomography (unittest.TestCase):
                       [0, 1, 1],
                       [0, 0, e]])
             print("E Matrix:", h.matrix())
-            nose.tools.assert_raises(
+            pytest.raises(
                 RuntimeError,
                 h.map, test_p
             )
@@ -235,8 +234,8 @@ class TestHomography (unittest.TestCase):
                       [0, 1,  1],
                       [0, 0, .5]])
             r = h.map(test_p)
-            nose.tools.assert_almost_equal(r[0], 4)
-            nose.tools.assert_almost_equal(r[1], 4)
+            self.assertAlmostEqual(r[0], 4)
+            self.assertAlmostEqual(r[1], 4)
 
     def test_multiply(self):
         # Test multiplying homographies together

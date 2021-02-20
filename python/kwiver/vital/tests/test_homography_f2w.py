@@ -34,7 +34,6 @@ Tests for python F2WHomography interface
 
 """
 
-import nose.tools as nt
 import numpy as np
 
 from kwiver.vital.types import F2WHomography, HomographyD, HomographyF
@@ -96,7 +95,7 @@ class TestF2WHomography(object):
         mat = hom.matrix()
         for i in range(3):
             for j in range(3):
-                nt.assert_almost_equal(f2w.get(i, j), mat[i, j])
+                self.assertAlmostEqual(f2w.get(i, j), mat[i, j])
 
     def test_get(self):
         homs = [HomographyD.random(), HomographyF.random()]
@@ -114,20 +113,20 @@ class TestF2WHomography(object):
         f2ws = F2WHomography(5), F2WHomography(HomographyD.random(), 5)
         exp_err_msg = "Tried to perform get\\(\\) out of bounds"
         for f2w in f2ws:
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2w.get(3, 0)
 
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2w.get(-4, 0)
 
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2w.get(0, 3)
 
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2w.get(0, -4)
 
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2w.get(5, 5)
 
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2w.get(-6, -6)

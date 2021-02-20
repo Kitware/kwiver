@@ -35,7 +35,7 @@ Tests for ObjectTrackSet
 """
 import unittest
 
-import nose.tools
+
 import numpy
 
 from six.moves import range

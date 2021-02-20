@@ -35,7 +35,7 @@ Tests for ObjectTrackState
 """
 import unittest
 
-import nose.tools
+
 import numpy
 
 from kwiver.vital.types import ObjectTrackState, BoundingBoxD as bbD, DetectedObjectType as DOT, \

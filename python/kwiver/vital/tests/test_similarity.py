@@ -34,9 +34,9 @@ tests for Similarity class
 
 """
 from __future__ import print_function
-import unittest
+import unittest, pytest
 
-import nose.tools
+
 import numpy
 
 from kwiver.vital.types import (
@@ -105,21 +105,21 @@ class TestSimiliarity (unittest.TestCase):
         # Double
         s1 = SimilarityD()
         s2 = SimilarityD()
-        nose.tools.ok_(s1 == s2)
+        assert(s1 == s2)
 
         s3 = SimilarityD(self.s, self.r, self.t)
         s4 = SimilarityD(self.s, self.r, self.t)
-        nose.tools.ok_(s3 == s4)
+        assert(s3 == s4)
         self.assertFalse(s1 == s3)
 
         # Float
         s1 = SimilarityF()
         s2 = SimilarityF()
-        nose.tools.ok_(s1 == s2)
+        assert(s1 == s2)
 
         s3 = SimilarityF(self.s, self.r_f, self.t)
         s4 = SimilarityF(self.s, self.r_f, self.t)
-        nose.tools.ok_(s3 == s4)
+        assert(s3 == s4)
         self.assertFalse(s1 == s3)
 
     def test_not_equal(self):
@@ -131,7 +131,7 @@ class TestSimiliarity (unittest.TestCase):
         s3 = SimilarityD(self.s, self.r, self.t)
         s4 = SimilarityD(self.s, self.r, self.t)
         self.assertFalse(s3 != s4)
-        nose.tools.ok_(s1 != s3)
+        assert(s1 != s3)
 
         # Float
         s1 = SimilarityF()
@@ -141,7 +141,7 @@ class TestSimiliarity (unittest.TestCase):
         s3 = SimilarityF(self.s, self.r_f, self.t)
         s4 = SimilarityF(self.s, self.r_f, self.t)
         self.assertFalse(s3 != s4)
-        nose.tools.ok_(s1 != s3)
+        assert(s1 != s3)
 
     def test_get_scale(self):
         s = SimilarityD()
@@ -189,7 +189,7 @@ class TestSimiliarity (unittest.TestCase):
         print('sim12 comp:\n', sim_comp)
         print('mat comp:\n', mat_comp)
         print('sim - mat:\n', sim_comp - mat_comp)
-        nose.tools.assert_almost_equal(
+        self.assertAlmostEqual(
             numpy.linalg.norm(sim_comp - mat_comp, 2),
             0., 12
         )
@@ -205,9 +205,9 @@ class TestSimiliarity (unittest.TestCase):
 
     def test_mul_fail(self):
         s = SimilarityD(self.s, self.r, self.t)
-        with nose.tools.assert_raises(TypeError):
+        with pytest.raises(TypeError):
             s * 0
-        with nose.tools.assert_raises(TypeError):
+        with pytest.raises(TypeError):
             s * 'foo'
 
     def test_inverse(self):
@@ -219,7 +219,7 @@ class TestSimiliarity (unittest.TestCase):
         s_i = s.inverse()
         i = s * s_i
         # Similarity composed with inverse should be identity
-        nose.tools.assert_almost_equal(i.scale, 1., 14)
-        nose.tools.assert_almost_equal(i.rotation.angle(), .0, 14)
-        nose.tools.assert_almost_equal(numpy.linalg.norm(i.translation, 2),
+        self.assertAlmostEqual(i.scale, 1., 14)
+        self.assertAlmostEqual(i.rotation.angle(), .0, 14)
+        self.assertAlmostEqual(numpy.linalg.norm(i.translation, 2),
                                        0., 12)

@@ -34,9 +34,8 @@
 
 # """
 
-import nose.tools as nt
 import numpy as np
-import unittest
+import unittest, pytest
 
 from kwiver.vital.types import Covar3f, GeoCovariance, geodesy, GeoPoint
 from kwiver.vital.modules import modules
@@ -95,19 +94,19 @@ class TestVitalGeoCovariance(unittest.TestCase):
     def test_inheritance(self):
         gcs = self._create_geo_covar()
         for gc in gcs:
-            nt.ok_(isinstance(gc, GeoPoint))
+            assert(isinstance(gc, GeoPoint))
 
     def test_initial_is_empty(self):
         gc1, gc2, gc3 = self._create_geo_covar()
-        nt.ok_(gc1.is_empty())
+        assert(gc1.is_empty())
         self.assertFalse(gc2.is_empty())
         self.assertFalse(gc3.is_empty())
 
     def test_initial_crs(self):
         gc1, gc2, gc3 = self._create_geo_covar()
-        nt.assert_equals(gc1.crs(), -1)
-        nt.assert_equals(gc2.crs(), self.crs_ll)
-        nt.assert_equals(gc3.crs(), self.crs_ll)
+        self.assertEqual(gc1.crs(), -1)
+        self.assertEqual(gc2.crs(), self.crs_ll)
+        self.assertEqual(gc3.crs(), self.crs_ll)
 
     def test_initial_location(self):
         _, gc2, gc3 = self._create_geo_covar()
@@ -123,8 +122,8 @@ class TestVitalGeoCovariance(unittest.TestCase):
 
     def test_no_location_for_key(self):
         gc1 = GeoCovariance()
-        nt.assert_raises(IndexError, gc1.location)
-        nt.assert_raises(IndexError, gc1.location, self.crs_ll)
+        pytest.raises(IndexError, gc1.location)
+        pytest.raises(IndexError, gc1.location, self.crs_ll)
 
     def test_set_location(self):
         _, gc2, _ = self._create_geo_covar()
@@ -134,7 +133,7 @@ class TestVitalGeoCovariance(unittest.TestCase):
         loc3_expected = np.concatenate([self.loc3, [0]])
 
         self.assertFalse(gc2.is_empty())
-        nt.assert_equals(gc2.crs(), self.crs_utm_18n)
+        self.assertEqual(gc2.crs(), self.crs_utm_18n)
         np.testing.assert_array_almost_equal(gc2.location(), loc3_expected)
         np.testing.assert_array_almost_equal(
             gc2.location(self.crs_utm_18n), loc3_expected
@@ -145,7 +144,7 @@ class TestVitalGeoCovariance(unittest.TestCase):
         loc2_expected = np.concatenate([self.loc2, [0]])
 
         self.assertFalse(gc2.is_empty())
-        nt.assert_equals(gc2.crs(), self.crs_ll)
+        self.assertEqual(gc2.crs(), self.crs_ll)
         np.testing.assert_array_almost_equal(gc2.location(), loc2_expected)
         np.testing.assert_array_almost_equal(gc2.location(self.crs_ll), loc2_expected)
 
@@ -159,7 +158,7 @@ class TestVitalGeoCovariance(unittest.TestCase):
 
         else:
             diff_loc2_loc3_utm = np.linalg.norm(loc2_utm - loc3_expected)
-            nt.assert_not_equal(
+            self.assertNotEqual(
                 diff_loc2_loc3_utm,
                 0,
                 msg="Changing the location did not clear the location cache",
@@ -182,8 +181,8 @@ class TestVitalGeoCovariance(unittest.TestCase):
 
         np.testing.assert_array_almost_equal(gc_ll.location(), conv_loc_ll, decimal=7)
         np.testing.assert_array_almost_equal(gc_utm.location(), conv_loc_utm, decimal=2)
-        nt.ok_(epsilon_ll_to_utm < 10 ** (-2))
-        nt.ok_(epsilon_utm_to_ll < 10 ** (-7))
+        assert(epsilon_ll_to_utm < 10 ** (-2))
+        assert(epsilon_utm_to_ll < 10 ** (-7))
 
         print("LL->UTM epsilon:", epsilon_ll_to_utm)
         print("UTM->LL epsilon:", epsilon_utm_to_ll)
@@ -202,15 +201,15 @@ class TestVitalGeoCovariance(unittest.TestCase):
         np.testing.assert_array_almost_equal(
             gc_utma.location(), conv_loc_utma, decimal=2
         )
-        nt.ok_(epsilon_lla_to_utma < 10 ** (-2))
-        nt.ok_(epsilon_utma_to_lla < 10 ** (-7))
+        assert(epsilon_lla_to_utma < 10 ** (-2))
+        assert(epsilon_utma_to_lla < 10 ** (-7))
 
         print("LLa->UTMa epsilon:", epsilon_lla_to_utma)
         print("UTMa->LLa epsilon:", epsilon_utma_to_lla)
 
     def test_to_str_empty(self):
         gc = GeoCovariance()
-        nt.assert_equals(str(gc), "geo_covariance\n[ empty ]")
+        self.assertEqual(str(gc), "geo_covariance\n[ empty ]")
         print("empty geo_covariance to string:", str(gc), sep="\n")
 
     def test_to_str(self):
@@ -221,28 +220,28 @@ class TestVitalGeoCovariance(unittest.TestCase):
         split_str = str(gc).split()
 
         # Initial strings
-        nt.assert_equals(split_str[0], "geo_covariance")
-        nt.assert_equals(split_str[1], "-")
-        nt.assert_equals(split_str[2], "value")
-        nt.assert_equals(split_str[3], ":")
-        nt.assert_equals(split_str[4], "[")
+        self.assertEqual(split_str[0], "geo_covariance")
+        self.assertEqual(split_str[1], "-")
+        self.assertEqual(split_str[2], "value")
+        self.assertEqual(split_str[3], ":")
+        self.assertEqual(split_str[4], "[")
 
         # Parsing easting
         easting_out, comma = split_str[5][:-1], split_str[5][-1]
-        nt.assert_equals(comma, ",")
+        self.assertEqual(comma, ",")
         np.testing.assert_almost_equal(float(easting_out), easting_in, decimal=15)
 
         # Parsing northing
         northing_out, comma = split_str[6][:-1], split_str[6][-1]
-        nt.assert_equals(comma, ",")
+        self.assertEqual(comma, ",")
         np.testing.assert_almost_equal(float(northing_out), northing_in, decimal=15)
 
         # Altitude (0)
         altitude_out = split_str[7]
-        nt.assert_almost_equal(float(altitude_out), 0)
+        self.assertAlmostEqual(float(altitude_out), 0)
 
-        nt.assert_equals(split_str[8], "]")
-        nt.assert_equals(split_str[9], "@")
-        nt.assert_equals(int(split_str[10]), self.crs_ll)
+        self.assertEqual(split_str[8], "]")
+        self.assertEqual(split_str[9], "@")
+        self.assertEqual(int(split_str[10]), self.crs_ll)
 
         print("geo_point with data:", str(gc), sep="\n")

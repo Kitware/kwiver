@@ -36,7 +36,6 @@ Tests for Landmark interface
 from __future__ import print_function
 import unittest
 
-import nose.tools
 import numpy
 import numpy.testing as npt
 from kwiver.vital.types import Landmark, LandmarkF, LandmarkD, Covar3f, Covar3d, RGBColor
@@ -100,13 +99,13 @@ class TestLandmarks (unittest.TestCase):
         self.assertEqual(l.scale, 1)
 
         l = LandmarkF([3, 4, 5], 44.5)
-        nose.tools.assert_almost_equal(l.scale, 44.5, self.precs[1])
+        self.assertAlmostEqual(l.scale, 44.5, self.precs[1])
 
         l = LandmarkD()
         self.assertEqual(l.scale, 1)
 
         l = LandmarkD([3, 4, 5], 44.5)
-        nose.tools.assert_almost_equal(l.scale, 44.5, self.precs[0])
+        self.assertAlmostEqual(l.scale, 44.5, self.precs[0])
 
     def test_set_scale(self):
 
@@ -118,10 +117,10 @@ class TestLandmarks (unittest.TestCase):
         self.assertEqual(l.scale, 2)
 
         l.scale = 2.456
-        nose.tools.assert_almost_equal(l.scale, 2.456, self.precs[1])
+        self.assertAlmostEqual(l.scale, 2.456, self.precs[1])
 
         l.scale = -2
-        nose.tools.assert_almost_equal(l.scale, -2, self.precs[1])
+        self.assertAlmostEqual(l.scale, -2, self.precs[1])
 
         l = LandmarkD()
         l.scale = 1
@@ -131,10 +130,10 @@ class TestLandmarks (unittest.TestCase):
         self.assertEqual(l.scale, 2)
 
         l.scale = 2.456
-        nose.tools.assert_almost_equal(l.scale, 2.456, self.precs[0])
+        self.assertAlmostEqual(l.scale, 2.456, self.precs[0])
 
         l.scale = -2
-        nose.tools.assert_almost_equal(l.scale, -2, self.precs[0])
+        self.assertAlmostEqual(l.scale, -2, self.precs[0])
 
 
     def test_normal(self):

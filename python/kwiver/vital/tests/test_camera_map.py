@@ -35,7 +35,6 @@ Tests for CameraMap interface
 """
 import unittest
 
-import nose.tools
 
 from kwiver.vital.types import Camera, CameraMap, SimpleCameraPerspective as scap
 

@@ -37,7 +37,7 @@ from __future__ import print_function
 import math
 import unittest
 
-import nose.tools
+
 import numpy
 
 from kwiver.vital.types import rotation, RotationD, RotationF
@@ -90,7 +90,7 @@ class TestVitalRotation(unittest.TestCase):
         r3 = RotationD([1, 2, 3, 4])
         r4 = RotationD([1, 2, 3, 4])
         self.assertFalse(r3 != r4)
-        nose.tools.ok_(r1 != r3)
+        assert(r1 != r3)
 
         r1 = RotationF()
         r2 = RotationF()
@@ -99,7 +99,7 @@ class TestVitalRotation(unittest.TestCase):
         r3 = RotationF([1, 2, 3, 4])
         r4 = RotationF([1, 2, 3, 4])
         self.assertFalse(r3 != r4)
-        nose.tools.ok_(r1 != r3)
+        assert(r1 != r3)
 
     def test_to_matrix(self):
         # Default value should be identity
@@ -157,19 +157,19 @@ class TestVitalRotation(unittest.TestCase):
     def test_from_rotation(self):
         r = RotationD()
         r_cpy = RotationD(r)
-        nose.tools.ok_(r == r_cpy)
+        assert(r == r_cpy)
 
         r = RotationD([1, 2, 3, 4])
         r_cpy = RotationD(r)
-        nose.tools.ok_(r == r_cpy)
+        assert(r == r_cpy)
 
         r = RotationF()
         r_cpy = RotationF(r)
-        nose.tools.ok_(r == r_cpy)
+        assert(r == r_cpy)
 
         r = RotationF([1, 2, 3, 4])
         r_cpy = RotationF(r)
-        nose.tools.ok_(r == r_cpy)
+        assert(r == r_cpy)
 
     def test_from_rotation_other_type(self):
         r = RotationD()
@@ -231,58 +231,58 @@ class TestVitalRotation(unittest.TestCase):
         # XXX
         rot = RotationD(y, p, r)
         ry, rp, rr = rot.yaw_pitch_roll()
-        nose.tools.assert_almost_equal(y, ry, 14)
-        nose.tools.assert_almost_equal(p, rp, 14)
-        nose.tools.assert_almost_equal(r, rr, 14)
+        self.assertAlmostEqual(y, ry, 14)
+        self.assertAlmostEqual(p, rp, 14)
+        self.assertAlmostEqual(r, rr, 14)
 
         # 0XX
         rot = RotationD(0, p, r)
         ry, rp, rr = rot.yaw_pitch_roll()
-        nose.tools.assert_almost_equal(0, ry, 14)
-        nose.tools.assert_almost_equal(p, rp, 14)
-        nose.tools.assert_almost_equal(r, rr, 14)
+        self.assertAlmostEqual(0, ry, 14)
+        self.assertAlmostEqual(p, rp, 14)
+        self.assertAlmostEqual(r, rr, 14)
 
         # X0X
         rot = RotationD(y, 0, r)
         ry, rp, rr = rot.yaw_pitch_roll()
-        nose.tools.assert_almost_equal(y, ry, 14)
-        nose.tools.assert_almost_equal(0, rp, 14)
-        nose.tools.assert_almost_equal(r, rr, 14)
+        self.assertAlmostEqual(y, ry, 14)
+        self.assertAlmostEqual(0, rp, 14)
+        self.assertAlmostEqual(r, rr, 14)
 
         # XX0
         rot = RotationD(y, p, 0)
         ry, rp, rr = rot.yaw_pitch_roll()
-        nose.tools.assert_almost_equal(y, ry, 14)
-        nose.tools.assert_almost_equal(p, rp, 14)
-        nose.tools.assert_almost_equal(0, rr, 14)
+        self.assertAlmostEqual(y, ry, 14)
+        self.assertAlmostEqual(p, rp, 14)
+        self.assertAlmostEqual(0, rr, 14)
 
         # 00X
         rot = RotationD(0, 0, r)
         ry, rp, rr = rot.yaw_pitch_roll()
-        nose.tools.assert_almost_equal(0, ry, 14)
-        nose.tools.assert_almost_equal(0, rp, 14)
-        nose.tools.assert_almost_equal(r, rr, 14)
+        self.assertAlmostEqual(0, ry, 14)
+        self.assertAlmostEqual(0, rp, 14)
+        self.assertAlmostEqual(r, rr, 14)
 
         # 0X0
         rot = RotationD(0, p, 0)
         ry, rp, rr = rot.yaw_pitch_roll()
-        nose.tools.assert_almost_equal(0, ry, 14)
-        nose.tools.assert_almost_equal(p, rp, 14)
-        nose.tools.assert_almost_equal(0, rr, 14)
+        self.assertAlmostEqual(0, ry, 14)
+        self.assertAlmostEqual(p, rp, 14)
+        self.assertAlmostEqual(0, rr, 14)
 
         # X00
         rot = RotationD(y, 0, 0)
         ry, rp, rr = rot.yaw_pitch_roll()
-        nose.tools.assert_almost_equal(y, ry, 14)
-        nose.tools.assert_almost_equal(0, rp, 14)
-        nose.tools.assert_almost_equal(0, rr, 14)
+        self.assertAlmostEqual(y, ry, 14)
+        self.assertAlmostEqual(0, rp, 14)
+        self.assertAlmostEqual(0, rr, 14)
 
         # 000
         rot = RotationD(0, 0, 0)
         ry, rp, rr = rot.yaw_pitch_roll()
-        nose.tools.assert_almost_equal(0, ry, 14)
-        nose.tools.assert_almost_equal(0, rp, 14)
-        nose.tools.assert_almost_equal(0, rr, 14)
+        self.assertAlmostEqual(0, ry, 14)
+        self.assertAlmostEqual(0, rp, 14)
+        self.assertAlmostEqual(0, rr, 14)
 
     def test_from_matrix(self):
         # Create a non-identity matrix from a different constructor that we
@@ -316,12 +316,12 @@ class TestVitalRotation(unittest.TestCase):
         r_other_f = RotationF(expected_quat)
 
         r_res_d = r_ident_d * r_other_d
-        nose.tools.assert_is_not(r_other_d, r_res_d)
+        self.assertIsNot(r_other_d, r_res_d)
         self.assertEqual(r_res_d, r_other_d)
         self.assertEqual(r_res_d.quaternion(), expected_quat)
 
         r_res_f = r_ident_f * r_other_f
-        nose.tools.assert_is_not(r_other_f, r_res_f)
+        self.assertIsNot(r_other_f, r_res_f)
         self.assertEqual(r_res_f, r_other_f)
         numpy.testing.assert_allclose(r_res_f.quaternion(), expected_quat, 1e-7)
 
@@ -347,8 +347,8 @@ class TestVitalRotation(unittest.TestCase):
 
         z_d = rotation.interpolate_rotation(x_d, y_d, 0.5)
         z_f = rotation.interpolate_rotation(x_f, y_f, 0.5)
-        nose.tools.assert_almost_equal((z_d.inverse() * r_d).angle(), 0, 14)
-        nose.tools.assert_almost_equal((z_f.inverse() * r_f).angle(), 0, 6)
+        self.assertAlmostEqual((z_d.inverse() * r_d).angle(), 0, 14)
+        self.assertAlmostEqual((z_f.inverse() * r_f).angle(), 0, 6)
 
     def test_interpolated_rotations(self):
         x = RotationD(0, [1, 0, 0])

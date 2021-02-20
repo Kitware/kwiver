@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Tests for vital::descriptor_request interface
 
 """
-import nose.tools as nt
+import unittest, pytest
 import numpy.testing as npt
 import numpy as np
 from kwiver.vital.types import (
@@ -47,7 +47,7 @@ from kwiver.vital.types import (
 )
 
 
-class TestVitalDescriptorRequest(object):
+class TestVitalDescriptorRequest(unittest.TestCase):
     def test_create(self):
         DescriptorRequest()
 
@@ -55,24 +55,24 @@ class TestVitalDescriptorRequest(object):
         dr = DescriptorRequest()
 
         # First check default
-        nt.assert_equals(dr.id.value(), "")
+        self.assertEqual(dr.id.value(), "")
         self.assertFalse(dr.id.is_valid())
 
         # Now check setting and getting a few values
         dr.id = UID("first")
-        nt.assert_equals(dr.id.value(), "first")
+        self.assertEqual(dr.id.value(), "first")
 
         dr.id = UID("second")
-        nt.assert_equals(dr.id.value(), "second")
+        self.assertEqual(dr.id.value(), "second")
 
         dr.id = UID("42")
-        nt.assert_equals(dr.id.value(), "42")
+        self.assertEqual(dr.id.value(), "42")
 
         # Try setting back to empty
         dr.id = UID()
-        nt.assert_equals(dr.id.value(), "")
+        self.assertEqual(dr.id.value(), "")
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_id(self):
         dr = DescriptorRequest()
         dr.id = "string, not uid"
@@ -92,14 +92,14 @@ class TestVitalDescriptorRequest(object):
 
         for (t1, t2) in test_bounds:
             dr.set_temporal_bounds(t1, t2)
-            nt.assert_equals(dr.temporal_lower_bound(), t1)
-            nt.assert_equals(dr.temporal_upper_bound(), t2)
+            self.assertEqual(dr.temporal_lower_bound(), t1)
+            self.assertEqual(dr.temporal_upper_bound(), t2)
 
         dr.set_temporal_bounds(Timestamp(), Timestamp())
         self.assertFalse(dr.temporal_lower_bound().is_valid())
         self.assertFalse(dr.temporal_upper_bound().is_valid())
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_temporal_bounds(self):
         dr = DescriptorRequest()
         dr.set_temporal_bounds("string", "another_string")
@@ -113,7 +113,7 @@ class TestVitalDescriptorRequest(object):
         b_arr = dr.spatial_regions
         npt.assert_array_equal(b_arr[0].upper_left(), ul)
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_spatial_regions(self):
         dr = DescriptorRequest()
         dr.spatial_regions = "string, not list"
@@ -123,24 +123,24 @@ class TestVitalDescriptorRequest(object):
 
         imc_list = [ImageContainer(Image())]
         dr.image_data = imc_list
-        nt.assert_equals(len(dr.image_data), len(imc_list))
-        nt.assert_equals(len(imc_list), 1)
-        nt.assert_equals(dr.image_data[0].size(), imc_list[0].size())
-        nt.assert_equals(imc_list[0].size(), 0)
+        self.assertEqual(len(dr.image_data), len(imc_list))
+        self.assertEqual(len(imc_list), 1)
+        self.assertEqual(dr.image_data[0].size(), imc_list[0].size())
+        self.assertEqual(imc_list[0].size(), 0)
 
         imc_list.append(ImageContainer(Image(720, 480)))
         dr.image_data = imc_list
-        nt.assert_equals(len(dr.image_data), len(imc_list))
-        nt.assert_equals(len(imc_list), 2)
-        nt.assert_equals(dr.image_data[0].size(), imc_list[0].size())
-        nt.assert_equals(imc_list[0].size(), 0)
-        nt.assert_equals(dr.image_data[1].size(), imc_list[1].size())
-        nt.assert_equals(imc_list[1].size(), 720 * 480)
+        self.assertEqual(len(dr.image_data), len(imc_list))
+        self.assertEqual(len(imc_list), 2)
+        self.assertEqual(dr.image_data[0].size(), imc_list[0].size())
+        self.assertEqual(imc_list[0].size(), 0)
+        self.assertEqual(dr.image_data[1].size(), imc_list[1].size())
+        self.assertEqual(imc_list[1].size(), 720 * 480)
 
         dr.image_data = []
-        nt.assert_equals(len(dr.image_data), 0)
+        self.assertEqual(len(dr.image_data), 0)
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_image_data(self):
         dr = DescriptorRequest()
         dr.image_data = "string, not image_data"
@@ -148,21 +148,21 @@ class TestVitalDescriptorRequest(object):
     def test_set_and_get_data_location(self):
         dr = DescriptorRequest()
 
-        nt.assert_equals(dr.data_location, "")
+        self.assertEqual(dr.data_location, "")
 
         dr.data_location = "first"
-        nt.assert_equals(dr.data_location, "first")
+        self.assertEqual(dr.data_location, "first")
 
         dr.data_location = "second"
-        nt.assert_equals(dr.data_location, "second")
+        self.assertEqual(dr.data_location, "second")
 
         dr.data_location = "42"
-        nt.assert_equals(dr.data_location, "42")
+        self.assertEqual(dr.data_location, "42")
 
         dr.data_location = ""
-        nt.assert_equals(dr.data_location, "")
+        self.assertEqual(dr.data_location, "")
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_data_location(self):
         dr = DescriptorRequest()
         dr.data_location = 5

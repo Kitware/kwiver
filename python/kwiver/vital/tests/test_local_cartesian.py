@@ -37,7 +37,6 @@ Tests for Python interface to vital::local_cartesian
 from kwiver.vital.types import LocalCartesian, GeoPoint, geodesy
 from kwiver.vital.modules import modules
 
-import nose.tools as nt
 import numpy as np
 import unittest
 

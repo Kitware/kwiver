@@ -37,7 +37,6 @@ from __future__ import print_function
 import random
 import unittest
 
-import nose.tools
 import pytest
 from six.moves import range
 import numpy
@@ -56,7 +55,7 @@ class TestDescriptor (unittest.TestCase):
 
     def test_new_invalid_size(self):
         # Check that we need to pass an integer size.
-        nose.tools.assert_raises(
+        pytest.raises(
             TypeError,
             new_descriptor, 42.3
         )
@@ -109,6 +108,6 @@ class TestDescriptor (unittest.TestCase):
         c = new_descriptor(5)
         d[:] = 1
         b[:] = 1
-        nose.tools.ok_(d==b)
-        nose.tools.ok_(c!=b)
-        nose.tools.ok_(not c!=c)
+        assert(d==b)
+        assert(c!=b)
+        assert(not c!=c)

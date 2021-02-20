@@ -35,8 +35,7 @@ Tests for Vital python Covariance class
 """
 from __future__ import print_function
 import unittest
-
-import nose.tools
+import pytest
 import numpy as np
 
 from kwiver.vital.types.covariance import Covar2d, Covar2f, Covar3d, Covar3f, Covar4d, Covar4f
@@ -175,13 +174,13 @@ class TestVitalCovariance(unittest.TestCase):
         # 2x2 covariance mat
         c = Covar2d()
         _ = c[0, 0]  # Valid access
-        nose.tools.assert_raises(IndexError, c.__getitem__, (0, 2))
-        nose.tools.assert_raises(IndexError, c.__getitem__, (-1, 0))
+        pytest.raises(IndexError, c.__getitem__, (0, 2))
+        pytest.raises(IndexError, c.__getitem__, (-1, 0))
 
         c = Covar2f()
         _ = c[0, 0]  # Valid access
-        nose.tools.assert_raises(IndexError, c.__getitem__, (0, 2))
-        nose.tools.assert_raises(IndexError, c.__getitem__, (-1, 0))
+        pytest.raises(IndexError, c.__getitem__, (0, 2))
+        pytest.raises(IndexError, c.__getitem__, (-1, 0))
 
     def test_set(self):
         m = np.ndarray((4, 4))
@@ -261,10 +260,10 @@ class TestVitalCovariance(unittest.TestCase):
         # 2x2 covariance mat
         c = Covar2f()
         c[0, 0] = 1  # Valid set
-        nose.tools.assert_raises(IndexError, c.__setitem__, (0, 2), 1)
-        nose.tools.assert_raises(IndexError, c.__setitem__, (-1, 0), 1)
+        pytest.raises(IndexError, c.__setitem__, (0, 2), 1)
+        pytest.raises(IndexError, c.__setitem__, (-1, 0), 1)
 
         c = Covar2d()
         c[0, 0] = 1  # Valid set
-        nose.tools.assert_raises(IndexError, c.__setitem__, (0, 2), 1)
-        nose.tools.assert_raises(IndexError, c.__setitem__, (-1, 0), 1)
+        pytest.raises(IndexError, c.__setitem__, (0, 2), 1)
+        pytest.raises(IndexError, c.__setitem__, (-1, 0), 1)

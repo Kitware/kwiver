@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Base class for testing the common functionality of all algorithms
 """
-import nose.tools
+import unittest
 import os
 
 from kwiver.vital.modules import modules
@@ -46,7 +46,7 @@ def _dummy_algorithm_cfg():
     return generate_dummy_config(threshold=0.3)
 
 
-class TestVitalAlgorithmsCommon(object):
+class TestVitalAlgorithmsCommon(unittest.TestCase):
     def get_algo_list(self):
         modules.load_known_modules()
         algo_list = []
@@ -111,13 +111,12 @@ class TestVitalAlgorithmsCommon(object):
 
     # Test create function
     # For an invalid value it raises RuntimeError
-    @nose.tools.raises(RuntimeError)
     def bad_create_helper(self, abstract_algo):
         # Should fail to create an algorithm without a factory
         abstract_algo.create("NonExistantAlgorithm")
 
     def create_helper(self, abstract_algo, simple_impl_name):
-        nose.tools.ok_(
+        assert(
             simple_impl_name in abstract_algo.registered_names(),
             "No simple implementation found for {}".format(
                 abstract_algo.static_type_name()
@@ -125,17 +124,17 @@ class TestVitalAlgorithmsCommon(object):
         )
         algo_out = abstract_algo.create(simple_impl_name)
 
-        nose.tools.ok_(isinstance(algo_out, abstract_algo))
+        assert(isinstance(algo_out, abstract_algo))
 
     def algo_factory_create_helper(self, abstract_algo, simple_impl_name):
-        nose.tools.ok_(
+        assert(
             algorithm_factory.has_algorithm_impl_name(
                 abstract_algo.static_type_name(), simple_impl_name
             ),
             "{} not found by the factory".format(simple_impl_name),
         )
 
-        nose.tools.ok_(
+        assert(
             simple_impl_name
             in algorithm_factory.implementations(abstract_algo.static_type_name()),
             "{} not in implementations list for {}".format(
@@ -145,44 +144,44 @@ class TestVitalAlgorithmsCommon(object):
 
         algo_out = abstract_algo.create(simple_impl_name)
 
-        nose.tools.ok_(isinstance(algo_out, abstract_algo))
+        assert(isinstance(algo_out, abstract_algo))
 
     def config_helper(self, instance):
         instance_cfg = instance.get_configuration()
         # Verify that "threshold" config value is present
-        nose.tools.ok_(
+        assert(
             instance_cfg.has_value("threshold"), "threshold config value not present"
         )
         # Verify that the value for key "threshold" is 0.0
         threshold_value = instance_cfg.get_value("threshold")
-        nose.tools.ok_(
+        assert(
             threshold_value == "0.0",
             "threshold config value {}, expected 0.0".format(threshold_value),
         )
 
         test_cfg = _dummy_algorithm_cfg()
         # Verify that the instance has different configuration before setting to test
-        nose.tools.ok_(not instance.check_configuration(test_cfg))
+        assert(not instance.check_configuration(test_cfg))
         instance.set_configuration(test_cfg)
         # Verify that the config value is being set properly
-        nose.tools.ok_(instance.check_configuration(test_cfg))
+        assert(instance.check_configuration(test_cfg))
 
     def nested_config_helper(self, instance, abstract_algo):
         nested_cfg = config.empty_config()
         instance.get_nested_algo_configuration("algorithm", nested_cfg, instance)
 
-        nose.tools.ok_(
+        assert(
             instance.check_nested_algo_configuration("algorithm", nested_cfg)
         )
 
         nested_algo = instance.set_nested_algo_configuration("algorithm", nested_cfg)
 
         # Should have created a concrete algorithm instance
-        nose.tools.ok_(type(instance) is type(nested_algo))
+        assert(type(instance) is type(nested_algo))
 
         # Verify that the value for key "threshold" is 0.0
         threshold_value = nested_algo.get_configuration().get_value("threshold")
-        nose.tools.ok_(
+        assert(
             threshold_value == "0.0",
             "threshold config value {}, expected 0.0".format(threshold_value),
         )
@@ -197,11 +196,11 @@ class TestVitalAlgorithmsCommon(object):
         )
 
         # Should get back nullptr
-        nose.tools.ok_(
+        assert(
             instance.set_nested_algo_configuration("algorithm", nested_cfg) is None
         )
 
     def impl_helper(self, instance):
         a = instance.impl_name
         instance.impl_name = "example_impl_name"
-        nose.tools.assert_equals(instance.impl_name, "example_impl_name")
+        self.assertEqual(instance.impl_name, "example_impl_name")

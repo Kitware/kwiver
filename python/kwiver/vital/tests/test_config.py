@@ -30,13 +30,13 @@
 from kwiver.vital.config import config
 from kwiver.vital.tests.py_helpers import create_geo_poly
 from kwiver.vital.types import GeoPolygon
-
+import unittest
+import pytest
 import numpy as np
-import nose.tools
 
-class TestVitalConfig(object):
+class TestVitalConfig(unittest.TestCase):
     def test_create(self):
-        nose.tools.ok_(len(config.empty_config()) == 0)
+        assert(len(config.empty_config()) == 0)
         config.ConfigKeys()
 
     def test_api_calls(self):
@@ -49,8 +49,8 @@ class TestVitalConfig(object):
         keyb = 'keyb'
         valuea = 'valuea'
         c.set_value(keya, valuea)
-        nose.tools.ok_(c.has_value(keya))
-        nose.tools.ok_(not c.has_value(keyb))
+        assert(c.has_value(keya))
+        assert(not c.has_value(keyb))
 
     def test_get_value(self):
         c = config.empty_config()
@@ -70,7 +70,7 @@ class TestVitalConfig(object):
         get_valuea = nc.get_value(keyb)
         self.assertEqual(valuea, get_valuea)
 
-    @nose.tools.raises(RuntimeError)
+    @pytest.mark.xfail(raises=RuntimeError)
     def test_get_value_no_exist(self):
         c = config.empty_config()
         keya = 'keya'
@@ -83,7 +83,7 @@ class TestVitalConfig(object):
         get_valueb = c.get_value(keyb, valueb)
         self.assertEqual(valueb, get_valueb)
 
-    @nose.tools.raises(RuntimeError)
+    @pytest.mark.xfail(raises=RuntimeError)
     def test_unset_value(self):
         c = config.empty_config()
         keya = 'keya'
@@ -108,9 +108,9 @@ class TestVitalConfig(object):
 
     def test_available_values_are_iterable(self):
         c = config.empty_config()
-        nose.tools.ok_(hasattr(c, "__getitem__"))
+        assert(hasattr(c, "__getitem__"))
 
-    @nose.tools.raises(RuntimeError)
+    @pytest.mark.xfail(raises=RuntimeError)
     def test_read_only(self):
         c = config.empty_config()
         keya = 'keya'
@@ -120,7 +120,7 @@ class TestVitalConfig(object):
         c.mark_read_only(keya)
         c.set_value(keya, valueb)
 
-    @nose.tools.raises(RuntimeError)
+    @pytest.mark.xfail(raises=RuntimeError)
     def test_read_only_unset(self):
         c = config.empty_config()
         keya = 'keya'
@@ -174,7 +174,7 @@ class TestVitalConfig(object):
 
         d = c.subblock_view(block1)
 
-        nose.tools.ok_(d.has_value(keya),
+        assert(d.has_value(keya),
                        "Subblock does not inherit expected keys")
 
         self.assertEqual(d.has_value(keyb), False,
@@ -221,7 +221,7 @@ class TestVitalConfig(object):
         c[key] = value
 
         self.assertEqual(c[key], value)
-        nose.tools.ok_(key in c, "{0} is not in config after insertion".format(key))
+        assert(key in c, "{0} is not in config after insertion".format(key))
 
         value = 'newvalue'
         origvalue = 'newvalue'
@@ -230,7 +230,7 @@ class TestVitalConfig(object):
 
         self.assertEqual(c[key], origvalue, "Value was overwritten")
 
-    @nose.tools.raises(KeyError)
+    @pytest.mark.xfail(raises=KeyError)
     def test_invalid_getitem(self):
         c = config.empty_config()
         key = 'key'
@@ -244,7 +244,7 @@ class TestVitalConfig(object):
         del c[key]
         self.assertEqual(c.has_value(key), False, "The key was not deleted")
 
-    @nose.tools.raises(KeyError)
+    @pytest.mark.xfail(raises=KeyError)
     def test_invalid_delitem(self):
         c = config.empty_config()
         key = 'key'
@@ -284,8 +284,8 @@ class TestVitalConfig(object):
         c.set_value_geo_poly(keya, valuea)
         get_valuea = c.get_value_geo_poly(keya)
 
-        nose.tools.ok_(valuea.is_empty())
-        nose.tools.ok_(get_valuea.is_empty())
+        assert(valuea.is_empty())
+        assert(get_valuea.is_empty())
 
     def test_default_value_geo_poly(self):
         c = config.empty_config()
@@ -296,7 +296,7 @@ class TestVitalConfig(object):
 
         self.check_pts_equal(valueb, get_valueb)
 
-    @nose.tools.raises(RuntimeError)
+    @pytest.mark.xfail(raises=RuntimeError)
     def test_get_value_geo_poly_no_exist(self):
         c = config.empty_config()
         keya = 'keya'
@@ -313,7 +313,7 @@ class TestVitalConfig(object):
 
         self.check_pts_equal(valuea, get_valuea)
 
-    @nose.tools.raises(RuntimeError)
+    @pytest.mark.xfail(raises=RuntimeError)
     def test_unset_geo_poly(self):
         c = config.empty_config()
         keya = 'keya'
@@ -328,12 +328,12 @@ class TestVitalConfig(object):
         value_gp = create_geo_poly()
         value_str = 'value_str'
 
-        nose.tools.assert_raises(TypeError, c.set_value_geo_poly, key, value_str)
-        nose.tools.assert_raises(TypeError, c.set_value, key, value_gp)
+        pytest.raises(TypeError, c.set_value_geo_poly, key, value_str)
+        pytest.raises(TypeError, c.set_value, key, value_gp)
 
         c.set_value(key, value_str)
 
-        nose.tools.assert_raises(RuntimeError, c.get_value_geo_poly, key)
+        pytest.raises(RuntimeError, c.get_value_geo_poly, key)
 
     def test_get_geo_poly_str(self):
         c = config.empty_config()
@@ -342,6 +342,6 @@ class TestVitalConfig(object):
 
         c.set_value_geo_poly(keya, valuea)
         str_out = c.get_value(keya)
-        nose.tools.ok_(isinstance(str_out, str))
+        assert(isinstance(str_out, str))
 
 ################end geo_poly tests#################

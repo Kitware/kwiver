@@ -36,11 +36,12 @@ Tests for Python interface to vital::track_descriptor
 
 
 
-import nose.tools as nt
+
 from kwiver.vital.types import track_descriptor, uid, bounding_box, timestamp, descriptor
 import numpy as np
+import unittest, pytest
 # Tests for the inner class of TrackDescriptor
-class TestVitalTrackDescriptorAndHistoryEntry(object):
+class TestVitalTrackDescriptorAndHistoryEntry(unittest.TestCase):
     ##################### Tests on history_entry #####################
     def _create_history_entries(self):
         h1 = track_descriptor.HistoryEntry(
@@ -75,19 +76,19 @@ class TestVitalTrackDescriptorAndHistoryEntry(object):
         self.assertFalse(h1.get_timestamp().is_valid())
 
         # Can use == on second timestamp
-        nt.assert_equals(h2.get_timestamp(), timestamp.Timestamp(123, 1))
+        self.assertEqual(h2.get_timestamp(), timestamp.Timestamp(123, 1))
 
 
     def test_get_image_location(self):
         (h1, h2) = self._create_history_entries()
 
-        nt.assert_equals(h1.get_image_location(), bounding_box.BoundingBoxD(5, 10, 15, 20))
-        nt.assert_equals(h2.get_image_location(), bounding_box.BoundingBoxD(45, 50, 55, 60))
+        self.assertEqual(h1.get_image_location(), bounding_box.BoundingBoxD(5, 10, 15, 20))
+        self.assertEqual(h2.get_image_location(), bounding_box.BoundingBoxD(45, 50, 55, 60))
     def test_get_world_location(self):
         (h1, h2) = self._create_history_entries()
 
-        nt.assert_equals(h1.get_world_location(), bounding_box.BoundingBoxD(25, 30, 35, 40))
-        nt.assert_equals(h2.get_world_location(), bounding_box.BoundingBoxD(0, 0, 0, 0))
+        self.assertEqual(h1.get_world_location(), bounding_box.BoundingBoxD(25, 30, 35, 40))
+        self.assertEqual(h2.get_world_location(), bounding_box.BoundingBoxD(0, 0, 0, 0))
 
     ##################### Tests on track_descriptor #####################
 
@@ -109,56 +110,56 @@ class TestVitalTrackDescriptorAndHistoryEntry(object):
         default_types = ["test_type", "", "test_type", ""]
         for td, default_type in zip(tds, default_types):
 
-            nt.assert_equals(td.type, default_type)
+            self.assertEqual(td.type, default_type)
 
             td.type = "bar"
-            nt.assert_equals(td.type, "bar")
+            self.assertEqual(td.type, "bar")
 
             td.type = "baz"
-            nt.assert_equals(td.type, "baz")
+            self.assertEqual(td.type, "baz")
 
             td.type = "0"
-            nt.assert_equals(td.type, "0")
+            self.assertEqual(td.type, "0")
 
             td.type = ""
-            nt.assert_equals(td.type, "")
+            self.assertEqual(td.type, "")
 
     def test_set_and_get_uid(self):
         tds = self._create_track_descriptors()
         for td in tds:
             # Check default
-            nt.assert_equals(td.uid, uid.UID())
+            self.assertEqual(td.uid, uid.UID())
 
             uid1 = uid.UID("first")
             td.uid = uid1
-            nt.assert_equals(td.uid, uid1)
+            self.assertEqual(td.uid, uid1)
 
             uid2 = uid.UID("second")
             td.uid = uid2
-            nt.assert_equals(td.uid, uid2)
+            self.assertEqual(td.uid, uid2)
 
             uid_empty = uid.UID()
             td.uid = uid_empty
-            nt.assert_equals(td.uid, uid_empty)
+            self.assertEqual(td.uid, uid_empty)
 
             td.uid = uid1
-            nt.assert_equals(td.uid, uid1)
+            self.assertEqual(td.uid, uid1)
 
     def test_add_and_get_track_ids(self):
         tds = self._create_track_descriptors()
         for td in tds:
             td.add_track_id(14)
-            nt.assert_equals(td.get_track_ids(), [14])
+            self.assertEqual(td.get_track_ids(), [14])
 
             td.add_track_id(0)
-            nt.assert_equals(td.get_track_ids(), [14, 0])
+            self.assertEqual(td.get_track_ids(), [14, 0])
 
             td.add_track_id(42)
-            nt.assert_equals(td.get_track_ids(), [14, 0, 42])
+            self.assertEqual(td.get_track_ids(), [14, 0, 42])
 
             # Now test adding multiple track ids
             td.add_track_ids([100, 12345, 8274653])
-            nt.assert_equals(td.get_track_ids(), [14, 0, 42, 100, 12345, 8274653])
+            self.assertEqual(td.get_track_ids(), [14, 0, 42, 100, 12345, 8274653])
 
     def _create_descriptors(self):
         dd1 = descriptor.new_descriptor(3, 'd')
@@ -180,7 +181,7 @@ class TestVitalTrackDescriptorAndHistoryEntry(object):
             dds_copy = self._create_descriptors()
             for dd, dd_copy in zip(dds, dds_copy):
                 td.set_descriptor(dd)
-                nt.assert_equals(td.descriptor_size(), len(dd.todoublearray()))
+                self.assertEqual(td.descriptor_size(), len(dd.todoublearray()))
                 dd_out = td.get_descriptor()
                 np.testing.assert_array_almost_equal(dd_out.todoublearray(), dd_copy.todoublearray())
 
@@ -206,7 +207,7 @@ class TestVitalTrackDescriptorAndHistoryEntry(object):
     def test_set_descriptor_wrong_type(self):
         tds = self._create_track_descriptors()
         for td in tds:
-            nt.assert_raises(TypeError, td.set_descriptor, descriptor.new_descriptor(5, 'f'))
+            pytest.raises(TypeError, td.set_descriptor, descriptor.new_descriptor(5, 'f'))
 
     def test_resize_descriptor_with_value(self):
         tds = self._create_track_descriptors()
@@ -214,19 +215,19 @@ class TestVitalTrackDescriptorAndHistoryEntry(object):
             # adds the value of 20 to array 5 times
             td.resize_descriptor(5, 20)
             np.testing.assert_array_almost_equal(td.get_descriptor().todoublearray(), [20] * 5)
-            nt.assert_equals(td.descriptor_size(), 5)
+            self.assertEqual(td.descriptor_size(), 5)
 
             td.resize_descriptor(2, 10)
             np.testing.assert_array_almost_equal(td.get_descriptor().todoublearray(), [10] * 2)
-            nt.assert_equals(td.descriptor_size(), 2)
+            self.assertEqual(td.descriptor_size(), 2)
 
             td.resize_descriptor(8, -3.1415)
             np.testing.assert_array_almost_equal(td.get_descriptor().todoublearray(), [-3.1415] * 8)
-            nt.assert_equals(td.descriptor_size(), 8)
+            self.assertEqual(td.descriptor_size(), 8)
 
             td.resize_descriptor(0, -3.1415)
             np.testing.assert_array_equal(td.get_descriptor().todoublearray(), [])
-            nt.assert_equals(td.descriptor_size(), 0)
+            self.assertEqual(td.descriptor_size(), 0)
 
     def test_resize_descriptor_no_value(self):
         tds = self._create_track_descriptors()
@@ -234,7 +235,7 @@ class TestVitalTrackDescriptorAndHistoryEntry(object):
         for td in tds:
             for s in sizes:
                 td.resize_descriptor(s)
-                nt.assert_equals(td.descriptor_size(), s)
+                self.assertEqual(td.descriptor_size(), s)
 
     def test_get_and_set_item(self):
         tds = self._create_track_descriptors()
@@ -272,10 +273,10 @@ class TestVitalTrackDescriptorAndHistoryEntry(object):
             for s in sizes:
                 td.resize_descriptor(s, 20)
                 # Check that we cant access index s
-                with nt.assert_raises(IndexError):
+                with pytest.raises(IndexError):
                     dummy = td[s]
 
-                with nt.assert_raises(IndexError):
+                with pytest.raises(IndexError):
                     dummy = td.at(s)
 
     def test_has_descriptor(self):
@@ -293,20 +294,20 @@ class TestVitalTrackDescriptorAndHistoryEntry(object):
         histories = list(self._create_history_entries())
         histories_cpy = list(self._create_history_entries())
         for td in tds:
-            nt.assert_equals(td.get_history(), [])
+            self.assertEqual(td.get_history(), [])
             td.set_history(histories)
 
             history_out = td.get_history()
-            nt.assert_equals(len(history_out), 2)
+            self.assertEqual(len(history_out), 2)
 
             # Check that the first element is the same
             # == operator will return false since first timestamp is invalid
             self.assertFalse(history_out[0].get_timestamp().is_valid())
-            nt.assert_equals(history_out[0].get_image_location(), histories_cpy[0].get_image_location())
-            nt.assert_equals(history_out[0].get_world_location(), histories_cpy[0].get_world_location())
+            self.assertEqual(history_out[0].get_image_location(), histories_cpy[0].get_image_location())
+            self.assertEqual(history_out[0].get_world_location(), histories_cpy[0].get_world_location())
 
             # Check that the second element is the same
-            nt.assert_equals(history_out[1], histories_cpy[1])
+            self.assertEqual(history_out[1], histories_cpy[1])
 
 
     def test_add_history_entry(self):
@@ -315,20 +316,20 @@ class TestVitalTrackDescriptorAndHistoryEntry(object):
         histories_cpy = list(self._create_history_entries())
 
         for td in tds:
-            nt.assert_equals(td.get_history(), [])
+            self.assertEqual(td.get_history(), [])
 
             td.add_history_entry(histories[0])
             history_out = td.get_history()
             self.assertFalse(history_out[0].get_timestamp().is_valid())
-            nt.assert_equals(history_out[0].get_image_location(), histories_cpy[0].get_image_location())
-            nt.assert_equals(history_out[0].get_world_location(), histories_cpy[0].get_world_location())
+            self.assertEqual(history_out[0].get_image_location(), histories_cpy[0].get_image_location())
+            self.assertEqual(history_out[0].get_world_location(), histories_cpy[0].get_world_location())
 
             td.add_history_entry(histories[1])
             history_out = td.get_history()
             # Check that the first is still correct
             self.assertFalse(history_out[0].get_timestamp().is_valid())
-            nt.assert_equals(history_out[0].get_image_location(), histories_cpy[0].get_image_location())
-            nt.assert_equals(history_out[0].get_world_location(), histories_cpy[0].get_world_location())
+            self.assertEqual(history_out[0].get_image_location(), histories_cpy[0].get_image_location())
+            self.assertEqual(history_out[0].get_world_location(), histories_cpy[0].get_world_location())
 
             # Can use == on the second
-            nt.assert_equals(history_out[1], histories_cpy[1])
+            self.assertEqual(history_out[1], histories_cpy[1])

@@ -34,14 +34,14 @@ Tests for Python interface to vital::track_set
 
 """
 from six.moves import range
-
+import unittest, pytest
 from kwiver.vital.types import Track, TrackState
 from kwiver.vital.types import TrackSet
 
-import nose.tools as nt
 
 
-class TestVitalTrackSet (object):
+
+class TestVitalTrackSet (unittest.TestCase):
 
     def test_new(self):
         ts = TrackSet()
@@ -137,7 +137,7 @@ class TestVitalTrackSet (object):
     def test_get_track_empty(self):
         # Empty set
         ts = TrackSet()
-        nt.assert_raises(
+        pytest.raises(
             IndexError,
             ts.get_track, 0
         )
@@ -152,7 +152,7 @@ class TestVitalTrackSet (object):
         # test failure to get track from set when set does have contents, but
         # TID is not present
         ts = TrackSet([Track(0), Track(1), Track(3)])
-        nt.assert_raises(
+        pytest.raises(
             IndexError,
             ts.get_track, 2
         )

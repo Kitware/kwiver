@@ -35,7 +35,6 @@ Tests for Python interface to vital::feature_track_set/state
 """
 
 import unittest
-import nose.tools as nt
 import numpy as np
 from kwiver.vital.tests.py_helpers import no_call_pure_virtual_method
 from kwiver.vital.types import (
@@ -74,10 +73,10 @@ class TestFeatureTrackState(unittest.TestCase):
     def test_methods(self):
       test_ft = ftstate(13, self.f1, self.desc)
       test_ft_clone = test_ft.clone()
-      nt.ok_(isinstance(test_ft_clone, ftstate))
+      assert(isinstance(test_ft_clone, ftstate))
       self.assertEqual(test_ft_clone.frame_id, test_ft.frame_id)
       test_ft_downcast = test_ft.downcast()
-      nt.ok_(isinstance(test_ft_downcast, ftstate))
+      assert(isinstance(test_ft_downcast, ftstate))
       self.assertEqual(test_ft_downcast.frame_id, test_ft.frame_id)
 
 """

@@ -33,11 +33,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Tests for track_interval interface
 
 """
-import nose.tools as nt
 
+import unittest, pytest
 from kwiver.vital.types import TrackInterval, Timestamp
 
-class TestVitalTrackInterval(object):
+class TestVitalTrackInterval(unittest.TestCase):
     def test_create(self):
         TrackInterval()
         TrackInterval(20, Timestamp(), Timestamp())
@@ -45,30 +45,30 @@ class TestVitalTrackInterval(object):
 
     def test_get_set_track_id(self):
         ti = TrackInterval()
-        nt.assert_equals(ti.track, 0)
+        self.assertEqual(ti.track, 0)
 
         ti.track = 5
-        nt.assert_equals(ti.track, 5)
+        self.assertEqual(ti.track, 5)
 
         ti.track = -12
-        nt.assert_equals(ti.track, -12)
+        self.assertEqual(ti.track, -12)
 
         ti.track = 0
-        nt.assert_equals(ti.track, 0)
+        self.assertEqual(ti.track, 0)
 
 
         # Check initial id
         ti = TrackInterval(20, Timestamp(), Timestamp())
-        nt.assert_equals(ti.track, 20)
+        self.assertEqual(ti.track, 20)
 
         ti.track = 5
-        nt.assert_equals(ti.track, 5)
+        self.assertEqual(ti.track, 5)
 
         ti.track = -12
-        nt.assert_equals(ti.track, -12)
+        self.assertEqual(ti.track, -12)
 
         ti.track = 0
-        nt.assert_equals(ti.track, 0)
+        self.assertEqual(ti.track, 0)
 
 
     def test_get_set_timestamps(self):
@@ -79,63 +79,63 @@ class TestVitalTrackInterval(object):
         ts1, ts2 = Timestamp(1234, 1), Timestamp(5678, 2)
         ti.start = ts1
         ti.stop = ts2
-        nt.ok_(ti.start == ts1)
-        nt.ok_(ti.stop ==  ts2)
+        assert(ti.start == ts1)
+        assert(ti.stop ==  ts2)
 
         # Confirm its a copy, not a reference
         ts1.set_frame(3)
-        nt.ok_(ti.start != ts1)
+        assert(ti.start != ts1)
 
         ti.start.set_frame(3)
-        nt.ok_(ti.start == ts1)
+        assert(ti.start == ts1)
 
         # Getting and setting with other constructor
         ti = TrackInterval(21, Timestamp(1234, 1), Timestamp(5678, 2))
-        nt.ok_(ti.start.is_valid())
-        nt.ok_(ti.stop.is_valid())
-        nt.ok_(ti.start == Timestamp(1234, 1))
-        nt.ok_(ti.stop  == Timestamp(5678, 2))
+        assert(ti.start.is_valid())
+        assert(ti.stop.is_valid())
+        assert(ti.start == Timestamp(1234, 1))
+        assert(ti.stop  == Timestamp(5678, 2))
 
         ti.stop = Timestamp()
         self.assertFalse(ti.stop.is_valid())
         ti.stop.set_time_seconds(4321)
-        nt.assert_equals(ti.stop.get_time_seconds(), 4321)
+        self.assertEqual(ti.stop.get_time_seconds(), 4321)
 
         ts1 = Timestamp(8765, 4)
         ti.start = ts1
-        nt.ok_(ti.start == ts1)
+        assert(ti.start == ts1)
 
     def test_set_incorrect_type(self):
         ti = TrackInterval()
 
-        with nt.assert_raises(TypeError):
+        with pytest.raises(TypeError):
             ti.track = "5"
 
-        with nt.assert_raises(TypeError):
+        with pytest.raises(TypeError):
             ti.start = "5"
 
-        with nt.assert_raises(TypeError):
+        with pytest.raises(TypeError):
             ti.stop = "5"
 
 
         ti = TrackInterval(21, Timestamp(1234, 1), Timestamp(5678, 2))
 
-        with nt.assert_raises(TypeError):
+        with pytest.raises(TypeError):
             ti.track = "5"
 
-        with nt.assert_raises(TypeError):
+        with pytest.raises(TypeError):
             ti.start = "5"
 
-        with nt.assert_raises(TypeError):
+        with pytest.raises(TypeError):
             ti.stop = "5"
 
 
     def test_set_no_attribute(self):
         ti = TrackInterval()
-        with nt.assert_raises(AttributeError):
+        with pytest.raises(AttributeError):
             ti.nonexistant_attribute = 5
 
 
         ti = TrackInterval(21, Timestamp(1234, 1), Timestamp(5678, 2))
-        with nt.assert_raises(AttributeError):
+        with pytest.raises(AttributeError):
             ti.nonexistant_attribute = 5

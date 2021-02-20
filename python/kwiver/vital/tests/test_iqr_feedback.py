@@ -35,8 +35,7 @@ Tests for Python interface to vital::iqr_feedback
 """
 
 from kwiver.vital.types import IQRFeedback, UID
-
-import nose.tools as nt
+import pytest
 import numpy.testing as npt
 
 
@@ -48,24 +47,24 @@ class TestVitalIQRFeedback(object):
         iqrf = IQRFeedback()
 
         # First check default
-        nt.assert_equals(iqrf.query_id.value(), "")
+        self.assertEqual(iqrf.query_id.value(), "")
         self.assertFalse(iqrf.query_id.is_valid())
 
         # Now check setting and getting a few values
         iqrf.query_id = UID("first")
-        nt.assert_equals(iqrf.query_id.value(), "first")
+        self.assertEqual(iqrf.query_id.value(), "first")
 
         iqrf.query_id = UID("second")
-        nt.assert_equals(iqrf.query_id.value(), "second")
+        self.assertEqual(iqrf.query_id.value(), "second")
 
         iqrf.query_id = UID("42")
-        nt.assert_equals(iqrf.query_id.value(), "42")
+        self.assertEqual(iqrf.query_id.value(), "42")
 
         # Try setting back to empty
         iqrf.query_id = UID()
-        nt.assert_equals(iqrf.query_id.value(), "")
+        self.assertEqual(iqrf.query_id.value(), "")
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_query_id(self):
         iqrf = IQRFeedback()
         iqrf.query_id = "string, not uid"
@@ -97,13 +96,13 @@ class TestVitalIQRFeedback(object):
         npt.assert_array_equal(iqrf.positive_ids, [])
         npt.assert_array_equal(iqrf.negative_ids, [])
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_pos_ids(self):
         iqrf = IQRFeedback()
         iqrf.positive_ids = "string, not list"
 
 
-    @nt.raises(TypeError)
+    @pytest.mark.xfail(raises=TypeError)
     def test_bad_set_neg_ids(self):
         iqrf = IQRFeedback()
         iqrf.negative_ids = "string, not list"

@@ -34,7 +34,6 @@ Tests for python F2FHomography interface
 
 """
 
-import nose.tools as nt
 import numpy as np
 
 from kwiver.vital.types import HomographyD, HomographyF
@@ -159,13 +158,13 @@ class TestF2FHomography(object):
         exp_err_msg = "Homography frame identifiers do not match up"
 
         # 0 != 1, so this should throw
-        with nt.assert_raises_regexp(RuntimeError, exp_err_msg):
+        with self.assertRaisesRegex(RuntimeError, exp_err_msg):
             f1 * f2
 
     def check_each_element_equal(self, f2f, mat, prec=6):
         for i in range(3):
             for j in range(3):
-                nt.assert_almost_equal(f2f.get(i, j), mat[i, j], prec)
+                self.assertAlmostEqual(f2f.get(i, j), mat[i, j], prec)
 
     def test_get_ident(self):
         f2f = F2FHomography(10)
@@ -184,22 +183,22 @@ class TestF2FHomography(object):
         f2fs = F2FHomography(5), F2FHomography(HomographyD.random(), 5, 10)
         exp_err_msg = "Tried to perform get\\(\\) out of bounds"
         for f2f in f2fs:
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2f.get(3, 0)
 
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2f.get(-4, 0)
 
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2f.get(0, 3)
 
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2f.get(0, -4)
 
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2f.get(5, 5)
 
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2f.get(-6, -6)
 
     def check_str(self, f2f):
@@ -208,9 +207,9 @@ class TestF2FHomography(object):
         to_str = str(f2f)
         str_split = to_str.split()
 
-        nt.assert_equals(int(str_split[0]), f2f.from_id)
-        nt.assert_equals(str_split[1], "->")
-        nt.assert_equals(int(str_split[2]), f2f.to_id)
+        self.assertEqual(int(str_split[0]), f2f.from_id)
+        self.assertEqual(str_split[1], "->")
+        self.assertEqual(int(str_split[2]), f2f.to_id)
 
         # Now the matrix
         m_out = [float(x) for x in str_split[3:]]

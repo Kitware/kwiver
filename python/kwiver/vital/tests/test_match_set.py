@@ -34,7 +34,7 @@ Tests for the vital class match_set
 
 """
 
-import nose.tools as nt
+
 import numpy.testing as npt
 import numpy as np
 import unittest

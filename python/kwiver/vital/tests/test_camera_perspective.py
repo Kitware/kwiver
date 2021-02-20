@@ -35,8 +35,6 @@ Tests for Camera Perspective python class.
 """
 
 import unittest
-
-import nose.tools as nt
 import numpy as np
 from kwiver.vital.tests.py_helpers import no_call_pure_virtual_method
 from kwiver.vital.types import CameraPerspective as cap
@@ -181,7 +179,7 @@ class TestSimpleCameraPerspective(unittest.TestCase):
         self.assertEqual(iw_, 1080)
         clone_look_at_ = cph.call_clone_look_at(a, np.array([1, 0, 0]), np.array([0,1,0]))
         self.assertIsInstance(clone_look_at_, scap)
-        nt.assert_not_equal(clone_look_at_.get_rotation(), self.rot)
+        self.assertNotEqual(clone_look_at_.get_rotation(), self.rot)
         cam_ = cph.call_as_matrix(a)
         np.testing.assert_array_almost_equal(cam_, np.array([[10.5, 3.1, 3.14, -69.5378],
                                                         [0, 8.75, 6.28, -63.0826],
@@ -238,7 +236,7 @@ class TestCameraPerspectiveImpl(unittest.TestCase):
         CameraPerspectiveImpl(rot_, cent, intrins_)
 
     def test_inheritance(self):
-        nt.ok_(issubclass(CameraPerspectiveImpl,cap))
+        assert(issubclass(CameraPerspectiveImpl,cap))
 
     def test_clone_clone_look_at(self):
         rot_ = RotationD(0, [1, 0, 0])

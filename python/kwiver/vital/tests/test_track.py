@@ -34,13 +34,13 @@ Tests for Track interface class
 
 """
 
-import nose.tools
-import numpy
 
+import numpy
+import unittest, pytest
 from kwiver.vital.types import Track, TrackState, Feature, Descriptor
 
 
-class TestVitalTrack (object):
+class TestVitalTrack (unittest.TestCase):
 
     def test_new(self):
         t = Track()
@@ -133,27 +133,27 @@ class TestVitalTrack (object):
         t.append(TrackState(9))
 
         ts = t.find_state(0)
-        nose.tools.assert_is_not_none(ts)
+        self.assertIsNotNone(ts)
         self.assertEqual(ts.frame_id, 0)
 
         ts = t.find_state(1)
-        nose.tools.assert_is_not_none(ts)
+        self.assertIsNotNone(ts)
         self.assertEqual(ts.frame_id, 1)
 
         ts = t.find_state(5)
-        nose.tools.assert_is_not_none(ts)
+        self.assertIsNotNone(ts)
         self.assertEqual(ts.frame_id, 5)
 
         ts = t.find_state(9)
-        nose.tools.assert_is_not_none(ts)
+        self.assertIsNotNone(ts)
         self.assertEqual(ts.frame_id, 9)
 
-        nose.tools.assert_raises(
+        pytest.raises(
             IndexError,
             t.find_state, 10
         )
         t.append(TrackState(10))
-        nose.tools.assert_is_not_none(t.find_state(10))
+        self.assertIsNotNone(t.find_state(10))
         self.assertEqual(t.find_state(10).frame_id, 10)
 
     def test_track_getitem(self):
@@ -166,27 +166,27 @@ class TestVitalTrack (object):
         t.append(TrackState(9))
 
         ts = t[0]
-        nose.tools.assert_is_not_none(ts)
+        self.assertIsNotNone(ts)
         self.assertEqual(ts.frame_id, 0)
 
         ts = t[1]
-        nose.tools.assert_is_not_none(ts)
+        self.assertIsNotNone(ts)
         self.assertEqual(ts.frame_id, 1)
 
         ts = t[5]
-        nose.tools.assert_is_not_none(ts)
+        self.assertIsNotNone(ts)
         self.assertEqual(ts.frame_id, 5)
 
         ts = t[9]
-        nose.tools.assert_is_not_none(ts)
+        self.assertIsNotNone(ts)
         self.assertEqual(ts.frame_id, 9)
 
-        nose.tools.assert_raises(
+        pytest.raises(
             IndexError,
             t.find_state, 10
         )
         t.append(TrackState(10))
-        nose.tools.assert_is_not_none(t[10])
+        self.assertIsNotNone(t[10])
         self.assertEqual(t[10].frame_id, 10)
 
     def test_iteration(self):
