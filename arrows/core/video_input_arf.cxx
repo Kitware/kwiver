@@ -48,10 +48,10 @@ public:
   std::map< kv::path_t, kv::metadata_sptr > metadata_by_path;
 
   // Utilities for little/big endian conversion
-  unsigned short byteswap(unsigned short);
-  unsigned long byteswap(unsigned long);
-  unsigned int byteswap(unsigned int);
-  unsigned __int64 byteswap(unsigned __int64);
+  uint8_t byteswap(uint8_t);
+  uint16_t byteswap(uint16_t);
+  uint32_t byteswap(uint32_t);
+  uint64_t byteswap(uint64_t);
 
   void byteswap_img_bytes(unsigned char* img_bytes);
 
@@ -455,21 +455,29 @@ video_input_arf
 }
 
 // ----------------------------------------------------------------------------
-unsigned short
+uint8_t
 video_input_arf::priv
-::byteswap(unsigned short value)
+::byteswap(uint8_t value)
+{
+  return value;
+}
+
+// ----------------------------------------------------------------------------
+uint16_t
+video_input_arf::priv
+::byteswap(uint16_t value)
 {
 #ifdef WIN32
   return _byteswap_ushort(value);
 #else
-  return __builtin_bswap16(value);
+  return __builtin_bswap32(value);
 #endif
 }
 
 // ----------------------------------------------------------------------------
-unsigned int
+uint32_t
 video_input_arf::priv
-::byteswap(unsigned int value)
+::byteswap(uint32_t value)
 {
 #ifdef WIN32
   return _byteswap_ulong(value);
@@ -479,21 +487,9 @@ video_input_arf::priv
 }
 
 // ----------------------------------------------------------------------------
-unsigned long
+uint64_t
 video_input_arf::priv
-::byteswap(unsigned long value)
-{
-#ifdef WIN32
-  return _byteswap_ulong(value);
-#else
-  return __builtin_bswap32(value);
-#endif
-}
-
-// ----------------------------------------------------------------------------
-unsigned __int64
-video_input_arf::priv
-::byteswap(unsigned __int64 value)
+::byteswap(uint64_t value)
 {
 #ifdef WIN32
   return _byteswap_uint64(value);
