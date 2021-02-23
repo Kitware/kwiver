@@ -3,9 +3,9 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include "convert_image.h"
+#include "image_statistics.h"
 
 #include <arrows/vxl/image_container.h>
-#include <vital/range/iota.h>
 
 #include <vil/vil_convert.h>
 #include <vil/vil_image_view.h>
@@ -46,7 +46,7 @@ scale_image( vil_image_view< InType > const& src,
 
   vil_transform(
     src, dst,
-    [ max_input_value, max_output_value, dp_scale ]( InType pixel ){
+    [ = ]( InType pixel ){
       if( pixel <= max_input_value )
       {
         return static_cast< OutType >(
@@ -74,96 +74,6 @@ combine_channels( vil_image_view< Type > const& src,
   {
     vil_math_mean_over_planes( src, dst );
   }
-}
-
-// ----------------------------------------------------------------------------
-// Calculate the values of our image percentiles from x sampling points
-template < typename PixType >
-std::vector< PixType >
-sample_and_sort_image( vil_image_view< PixType > const& src,
-                       unsigned int sampling_points,
-                       bool remove_extremes )
-{
-  if( src.ni() * src.nj() < sampling_points )
-  {
-    sampling_points = src.ni() * src.nj();
-  }
-
-  std::vector< PixType > dst;
-
-  if( sampling_points == 0 )
-  {
-    return dst;
-  }
-
-  auto const scanning_area = src.size();
-  auto const ni = src.ni();
-  auto const nj = src.nj();
-  auto const np = src.nplanes();
-  auto const pixel_step =
-    static_cast< unsigned >( scanning_area / sampling_points );
-
-  dst.reserve( sampling_points * np );
-
-  unsigned position = 0;
-
-  for( unsigned p = 0; p < np; ++p )
-  {
-    for( unsigned s = 0; s < sampling_points; ++s, position += pixel_step )
-    {
-      unsigned i = position % ni;
-      unsigned j = ( position / ni ) % nj;
-      dst.push_back( src( i, j, p ) );
-    }
-  }
-
-  std::sort( dst.begin(), dst.end() );
-
-  if( remove_extremes )
-  {
-    constexpr auto low = PixType{ 0 };
-    while( !dst.empty() && dst.front() == low )
-    {
-      dst.erase( dst.begin() );
-    }
-
-    constexpr auto high = std::numeric_limits< PixType >::max();
-    while( !dst.empty() && dst.back() == high )
-    {
-      dst.pop_back();
-    }
-  }
-  return dst;
-}
-
-// ----------------------------------------------------------------------------
-// Estimate the pixel values at given percentiles using a subset of points
-template < typename PixType >
-std::vector< PixType >
-get_image_percentiles(
-  vil_image_view< PixType > const& src,
-  std::vector< double > const& percentiles,
-  unsigned sampling_points, bool remove_extremes )
-{
-  std::vector< PixType > sorted_samples =
-    sample_and_sort_image( src, sampling_points, remove_extremes );
-
-  std::vector< PixType > dst( percentiles.size() );
-  double sampling_points_minus1 =
-    static_cast< double >( sorted_samples.size() - 1 );
-
-  for( auto const i : vital::range::iota( percentiles.size() ) )
-  {
-    // Find the index by multiplying the number of points by the percentile
-    // The number is adjusted by -1 to account for the fact that percentiles
-    // are the number which fall below a value. The +0.5 is to account for
-    // truncation by static cast.
-    auto ind =
-      static_cast< size_t >(
-        sampling_points_minus1 * percentiles[ i ] + 0.5 );
-    dst[ i ] = sorted_samples[ ind ];
-  }
-  return dst;
 }
 
 // ----------------------------------------------------------------------------
@@ -334,7 +244,7 @@ convert_image::priv
     percentile_scale_image(
       input, output, percentile_norm, 1.0 - percentile_norm, 1e8 );
   }
-  else if( scale_factor == 0.0 )
+  else if( scale_factor == 0.0 || scale_factor == 1.0 )
   {
     vil_convert_cast( input, output );
   }
@@ -442,35 +352,40 @@ convert_image
     vxl::image_container::vital_to_vxl( image_data->get_image() );
 
   // Perform different actions based on input type
-#define HANDLE_OUTPUT_CASE( S, T )                                             \
-  if( d->format == S )                                                         \
-  {                                                                            \
-    using opix_t = vil_pixel_format_type_of< T >::component_type;              \
-    vil_image_view< opix_t > output = d->scale_and_convert< opix_t >( input ); \
-    return std::make_shared< vxl::image_container >( output );                 \
+#define HANDLE_OUTPUT_CASE( S, T )                                \
+  if( d->format == S )                                            \
+  {                                                               \
+    using opix_t = vil_pixel_format_type_of< T >::component_type; \
+    auto const& output = d->scale_and_convert< opix_t >( input ); \
+    return std::make_shared< vxl::image_container >( output );    \
   }
 
-#define HANDLE_INPUT_CASE( T )                                                \
-  case T:                                                                     \
-  {                                                                           \
-    using ipix_t = vil_pixel_format_type_of< T >::component_type;             \
-    if( d->format == "disable" )                                              \
-    {                                                                         \
-      return image_data;                                                      \
-    }                                                                         \
-    vil_image_view< ipix_t > input = d->apply_transforms< ipix_t >( view );   \
-                                                                              \
-    HANDLE_OUTPUT_CASE( "byte", VIL_PIXEL_FORMAT_BYTE );                      \
-    HANDLE_OUTPUT_CASE( "sbyte", VIL_PIXEL_FORMAT_SBYTE );                    \
-    HANDLE_OUTPUT_CASE( "uint16", VIL_PIXEL_FORMAT_UINT_16 );                 \
-    HANDLE_OUTPUT_CASE( "int16", VIL_PIXEL_FORMAT_INT_16 );                   \
-    HANDLE_OUTPUT_CASE( "uint32", VIL_PIXEL_FORMAT_UINT_32 );                 \
-    HANDLE_OUTPUT_CASE( "int32", VIL_PIXEL_FORMAT_INT_32 );                   \
-    HANDLE_OUTPUT_CASE( "uint64", VIL_PIXEL_FORMAT_UINT_64 );                 \
-    HANDLE_OUTPUT_CASE( "int64", VIL_PIXEL_FORMAT_INT_64 );                   \
-    HANDLE_OUTPUT_CASE( "float", VIL_PIXEL_FORMAT_FLOAT );                    \
-    HANDLE_OUTPUT_CASE( "double", VIL_PIXEL_FORMAT_DOUBLE );                  \
-    break;                                                                    \
+#define HANDLE_INPUT_CASE( T )                                      \
+  case T:                                                           \
+  {                                                                 \
+    using ipix_t = vil_pixel_format_type_of< T >::component_type;   \
+    if( d->format == "disable" )                                    \
+    {                                                               \
+      return image_data;                                            \
+    }                                                               \
+    auto const& input = d->apply_transforms< ipix_t >( view );      \
+    if( d->format == "copy" )                                       \
+    {                                                               \
+      auto const& output = d->scale_and_convert< ipix_t >( input ); \
+      return std::make_shared< vxl::image_container >( output );    \
+    }                                                               \
+                                                                    \
+    HANDLE_OUTPUT_CASE( "byte", VIL_PIXEL_FORMAT_BYTE );            \
+    HANDLE_OUTPUT_CASE( "sbyte", VIL_PIXEL_FORMAT_SBYTE );          \
+    HANDLE_OUTPUT_CASE( "uint16", VIL_PIXEL_FORMAT_UINT_16 );       \
+    HANDLE_OUTPUT_CASE( "int16", VIL_PIXEL_FORMAT_INT_16 );         \
+    HANDLE_OUTPUT_CASE( "uint32", VIL_PIXEL_FORMAT_UINT_32 );       \
+    HANDLE_OUTPUT_CASE( "int32", VIL_PIXEL_FORMAT_INT_32 );         \
+    HANDLE_OUTPUT_CASE( "uint64", VIL_PIXEL_FORMAT_UINT_64 );       \
+    HANDLE_OUTPUT_CASE( "int64", VIL_PIXEL_FORMAT_INT_64 );         \
+    HANDLE_OUTPUT_CASE( "float", VIL_PIXEL_FORMAT_FLOAT );          \
+    HANDLE_OUTPUT_CASE( "double", VIL_PIXEL_FORMAT_DOUBLE );        \
+    break;                                                          \
   }
 
   switch( view->pixel_format() )
@@ -495,6 +410,9 @@ convert_image
 #undef HANDLE_INPUT_CASE
 #undef HANDLE_OUTPUT_CASE
 
+  // If we get here, one of the input type handling branches was hit, but did
+  // not produce a result; the output type must have been invalid
+  LOG_ERROR( logger(), "Invalid output format type received" );
   return nullptr;
 }
 
