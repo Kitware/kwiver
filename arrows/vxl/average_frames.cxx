@@ -545,10 +545,13 @@ public:
     }
     else
     {
-      vil_image_view< PixType > tmp;
-      vil_image_view< double > output;
-      averager->process_frame( input, tmp, output );
-      return std::make_shared< vxl::image_container >( output );
+      // This is initially an unused argument and then the cast value we return
+      vil_image_view< PixType > placeholder;
+      vil_image_view< double > variance;
+      averager->process_frame( input, placeholder, variance );
+      // Convert the pixel format from to PixType
+      vil_convert_cast( variance, placeholder );
+      return std::make_shared< vxl::image_container >( placeholder );
     }
   }
 };
@@ -590,8 +593,7 @@ average_frames
     "Should we spend a little extra time rounding when possible?" );
   config->set_value(
     "output_variance", d->output_variance,
-    "If set, will compute an estimated variance for each pixel which "
-    "will be outputted as either a double-precision or byte image." );
+    "If set, will compute an estimated variance for each pixel." );
 
   return config;
 }
