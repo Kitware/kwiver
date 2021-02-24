@@ -40,6 +40,7 @@ from kwiver.vital.types import RotationD, RotationF
 
 import numpy as np
 import unittest
+import pytest
 
 
 class TestVitalEssentialMatrix(unittest.TestCase):

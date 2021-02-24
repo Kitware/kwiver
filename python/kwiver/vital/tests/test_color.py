@@ -34,7 +34,7 @@ Tests for RGBColor interface
 
 """
 import unittest
-
+import pytest
 import numpy
 
 from kwiver.vital.types import RGBColor

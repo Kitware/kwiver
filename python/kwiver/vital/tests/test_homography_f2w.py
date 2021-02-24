@@ -35,11 +35,12 @@ Tests for python F2WHomography interface
 """
 
 import numpy as np
+import unittest
 
 from kwiver.vital.types import F2WHomography, HomographyD, HomographyF
 
 
-class TestF2WHomography(object):
+class TestF2WHomography(unittest.TestCase):
     def test_frame_init(self):
         F2WHomography(5)
         F2WHomography(-7)

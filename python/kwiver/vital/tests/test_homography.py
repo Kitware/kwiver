@@ -37,6 +37,7 @@ from __future__ import print_function
 import sys
 import os
 import unittest
+import pytest
 
 import numpy as np
 
@@ -46,7 +47,7 @@ from kwiver.vital.types.homography import *
 
 class TestHomography (unittest.TestCase):
     def test_no_init_base(self):
-         with pytest.raises_regexp(
+         with self.assertRaisesRegex(
             TypeError, "kwiver.vital.types.homography.BaseHomography: No constructor defined!"
         ):
             BaseHomography()

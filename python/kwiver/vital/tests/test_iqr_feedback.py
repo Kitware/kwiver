@@ -37,9 +37,9 @@ Tests for Python interface to vital::iqr_feedback
 from kwiver.vital.types import IQRFeedback, UID
 import pytest
 import numpy.testing as npt
+import unittest
 
-
-class TestVitalIQRFeedback(object):
+class TestVitalIQRFeedback(unittest.TestCase):
     def test_new(self):
         IQRFeedback()
 

@@ -37,9 +37,11 @@ Test Python interface to vital::image
 
 from kwiver.vital.types import Image
 import numpy as np
+import unittest
+
 from kwiver.vital.tests.py_helpers import create_numpy_image, map_dtype_name_to_pixel_type
 
-class TestVitalImage (object):
+class TestVitalImage (unittest.TestCase):
 
     def test_new(self):
         img = Image()

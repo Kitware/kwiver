@@ -37,7 +37,7 @@ from __future__ import print_function
 import unittest, pytest
 
 
-import numpy
+import numpy as np
 
 from kwiver.vital.types import (
     RotationF,
@@ -58,9 +58,9 @@ class TestSimiliarity (unittest.TestCase):
 
     def check_members_equal(self, sim, exp_type, exp_scale, exp_rot_mat, exp_trans, prec):
         self.assertEqual(sim.type_name, exp_type)
-        numpy.testing.assert_almost_equal(sim.scale, exp_scale, prec)
-        numpy.testing.assert_array_almost_equal(sim.rotation.matrix(), exp_rot_mat, prec)
-        numpy.testing.assert_array_almost_equal(sim.translation, exp_trans, prec)
+        np.testing.assert_almost_equal(sim.scale, exp_scale, prec)
+        np.testing.assert_array_almost_equal(sim.rotation.matrix(), exp_rot_mat, prec)
+        np.testing.assert_array_almost_equal(sim.translation, exp_trans, prec)
 
     def test_new_default(self):
         self.check_members_equal(SimilarityD(), 'd', 1, RotationD().matrix(), [0, 0, 0], 15)
@@ -152,21 +152,21 @@ class TestSimiliarity (unittest.TestCase):
 
     def test_get_rotation(self):
         s = SimilarityD()
-        numpy.testing.assert_array_almost_equal(s.rotation.matrix(), RotationD().matrix())
+        np.testing.assert_array_almost_equal(s.rotation.matrix(), RotationD().matrix())
 
         s = SimilarityD(self.s, self.r, self.t)
-        numpy.testing.assert_array_almost_equal(s.rotation.matrix(), self.r.matrix())
+        np.testing.assert_array_almost_equal(s.rotation.matrix(), self.r.matrix())
 
     def test_get_translation(self):
         s = SimilarityD()
-        self.assertEqual(s.translation, [0,0,0])
+        np.testing.assert_array_equal(s.translation, [0,0,0])
 
         s = SimilarityD(self.s, self.r, self.t)
-        self.assertEqual(s.translation, self.t)
+        np.testing.assert_array_equal(s.translation, self.t)
 
     def test_convert_matrix(self):
         sim = SimilarityD()
-        numpy.testing.assert_array_equal(sim.matrix(), numpy.eye(4))
+        np.testing.assert_array_equal(sim.matrix(), np.eye(4))
 
         sim1 = SimilarityD(self.s, self.r, self.t)
         mat1 = sim1.matrix()
@@ -176,7 +176,7 @@ class TestSimiliarity (unittest.TestCase):
         print("Sim1:", sim1.matrix())
         print("Sim2:", sim2.matrix())
 
-        numpy.testing.assert_array_almost_equal(mat1, mat2, decimal=14)
+        np.testing.assert_array_almost_equal(mat1, mat2, decimal=14)
 
     def test_mul_sim(self):
         s1 = SimilarityD(self.s, self.r, self.t)
@@ -185,12 +185,12 @@ class TestSimiliarity (unittest.TestCase):
                         [4, 6.5, 8])
 
         sim_comp = (s1 * s2).matrix()
-        mat_comp = numpy.dot(s1.matrix(), s2.matrix())
+        mat_comp = np.dot(s1.matrix(), s2.matrix())
         print('sim12 comp:\n', sim_comp)
         print('mat comp:\n', mat_comp)
         print('sim - mat:\n', sim_comp - mat_comp)
         self.assertAlmostEqual(
-            numpy.linalg.norm(sim_comp - mat_comp, 2),
+            np.linalg.norm(sim_comp - mat_comp, 2),
             0., 12
         )
 
@@ -200,8 +200,8 @@ class TestSimiliarity (unittest.TestCase):
         v1 = [4, 2.1, 9.125]
         v2 = s * v1
         v3 = s.inverse() * v2
-        self.assertFalse(numpy.allclose(v1, v2))
-        self.assertTrue(numpy.allclose(v1, v3))
+        self.assertFalse(np.allclose(v1, v2))
+        self.assertTrue(np.allclose(v1, v3))
 
     def test_mul_fail(self):
         s = SimilarityD(self.s, self.r, self.t)
@@ -221,5 +221,5 @@ class TestSimiliarity (unittest.TestCase):
         # Similarity composed with inverse should be identity
         self.assertAlmostEqual(i.scale, 1., 14)
         self.assertAlmostEqual(i.rotation.angle(), .0, 14)
-        self.assertAlmostEqual(numpy.linalg.norm(i.translation, 2),
+        self.assertAlmostEqual(np.linalg.norm(i.translation, 2),
                                        0., 12)

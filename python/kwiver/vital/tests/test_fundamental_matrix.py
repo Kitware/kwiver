@@ -38,6 +38,7 @@ from kwiver.vital.types import FundamentalMatrixF, FundamentalMatrixD
 
 import numpy as np
 import unittest
+import pytest
 
 class TestVitalFundamentalMatrix(unittest.TestCase):
     def setUp(self):

@@ -62,21 +62,21 @@ class TestLandmarks (unittest.TestCase):
 
     def test_get_loc(self):
         l = LandmarkF()
-        self.assertEqual(l.loc, [0,0,0])
+        npt.assert_array_equal(l.loc, [0,0,0])
 
         l = LandmarkF([1, 2, 3])
-        self.assertEqual(l.loc, [1,2,3])
+        npt.assert_array_equal(l.loc, [1,2,3])
 
         l = LandmarkD()
-        self.assertEqual(l.loc, [0,0,0])
+        npt.assert_array_equal(l.loc, [0,0,0])
 
         l = LandmarkD([1, 2, 3])
-        self.assertEqual(l.loc, [1,2,3])
+        npt.assert_array_equal(l.loc, [1,2,3])
 
     def test_set_loc(self):
         l = LandmarkF()
         l.loc = [1,1,1]
-        self.assertEqual(l.loc, [1, 1, 1])
+        npt.assert_array_equal(l.loc, [1, 1, 1])
 
         l.loc = [9.12,
                     4.1,
@@ -85,7 +85,7 @@ class TestLandmarks (unittest.TestCase):
 
         l = LandmarkD()
         l.loc = [1,1,1]
-        self.assertEqual(l.loc, [1, 1, 1])
+        npt.assert_array_equal(l.loc, [1, 1, 1])
 
         l.loc = [9.12,
                     4.1,
@@ -139,16 +139,16 @@ class TestLandmarks (unittest.TestCase):
     def test_normal(self):
 
         l = LandmarkF()
-        self.assertEqual(l.normal, [0,0,0])
+        npt.assert_array_equal(l.normal, [0,0,0])
 
         l.normal = [0,1,0]
-        self.assertEqual(l.normal, [0,1,0])
+        npt.assert_array_equal(l.normal, [0,1,0])
 
         l = LandmarkD()
-        self.assertEqual(l.normal, [0,0,0])
+        npt.assert_array_equal(l.normal, [0,0,0])
 
         l.normal = [0,1,0]
-        self.assertEqual(l.normal, [0,1,0])
+        npt.assert_array_equal(l.normal, [0,1,0])
 
     def test_covariance(self):
         covars = [Covar3d(7), Covar3f(7)]

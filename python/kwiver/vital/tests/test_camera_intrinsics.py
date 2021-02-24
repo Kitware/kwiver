@@ -243,8 +243,8 @@ class TestVitalSimpleCameraIntrinsics(unittest.TestCase):
         assert(isinstance(s, str))
 
     def test_as_matrix(self):
-        self.assertEqual(SimpleCameraIntrinsics().as_matrix(), np.eye(3))
-        self.assertEqual(
+        np.testing.assert_array_equal(SimpleCameraIntrinsics().as_matrix(), np.eye(3))
+        np.testing.assert_array_equal(
             SimpleCameraIntrinsics(10, (2, 3), 2, 5).as_matrix(),
             [[10, 5, 2], [0, 5, 3], [0, 0, 1]],
         )

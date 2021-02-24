@@ -36,6 +36,7 @@
 
 import numpy as np
 import unittest
+import pytest
 
 from kwiver.vital.types import geo_polygon as gp, geodesy, Polygon
 from kwiver.vital.config import config

@@ -40,11 +40,12 @@ from kwiver.vital.types import (
     ImageContainer
 )
 
+import unittest
 import numpy as np
 from kwiver.vital.tests.py_helpers import create_numpy_image, map_dtype_name_to_pixel_type
 
 
-class TestVitalImageContainer (object):
+class TestVitalImageContainer (unittest.TestCase):
 
     def test_new(self):
         image = Image()

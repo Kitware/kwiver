@@ -35,12 +35,13 @@ Tests for python F2FHomography interface
 """
 
 import numpy as np
+import unittest
 
 from kwiver.vital.types import HomographyD, HomographyF
 from kwiver.vital.types.homography_f2f import *
 
 
-class TestF2FHomography(object):
+class TestF2FHomography(unittest.TestCase):
     def check_properties(self, f2f_hom, mat, from_id, to_id, prec=6):
         f2f_mat = f2f_hom.homography.matrix()
         np.testing.assert_array_almost_equal(f2f_mat, mat, prec)

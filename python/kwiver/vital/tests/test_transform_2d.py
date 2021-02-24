@@ -55,7 +55,7 @@ class SimpleTransform2D(Transform2D):
     def inverse_(self):
         return SimpleTransform2D(1/self.arr)
 
-class TestVitalTransform2D(object):
+class TestVitalTransform2D(unittest.TestCase):
     # Note that clone and inverse_ are skipped. See binding code for explanation
     def test_bad_call_virtual_map(self):
         t = Transform2D()

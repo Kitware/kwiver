@@ -36,7 +36,7 @@ Helper functions for testing various Vital components
 import logging
 import math
 from six.moves import range
-
+import unittest
 import numpy as np
 
 
@@ -290,7 +290,7 @@ def no_call_pure_virtual_method(mthd, *args, **kwargs):
     :param: **kwargs: Kwargs forwarded to method call
     :return:
     """
-    with self.assertRaisesRegex(
+    with unittest.TestCase().assertRaisesRegex(
                 RuntimeError, "Tried to call pure virtual function",
             ):
                 mthd(*args, **kwargs)

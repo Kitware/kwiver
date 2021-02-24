@@ -35,6 +35,7 @@
 # """
 import numpy as np
 import unittest
+import pytest
 
 from kwiver.vital.modules import modules
 from kwiver.vital.types import geodesy as g

@@ -84,7 +84,7 @@ class TypeInfo(object):
         self.as_string = as_string
 
 
-class TestVitalMetadataItem(object):
+class TestVitalMetadataItem(unittest.TestCase):
     def test_no_construct_base(self):
         err_msg = "kwiver.vital.types.metadata.MetadataItem: No constructor defined!"
         with self.assertRaisesRegex(TypeError, err_msg):
