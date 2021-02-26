@@ -102,6 +102,31 @@ TEST(descriptor_set, populated_set)
 }
 
 // ----------------------------------------------------------------------------
+TEST(descriptor_set, iterator_const_conversion)
+{
+  static constexpr unsigned num_desc = 100;
+  static constexpr unsigned dim = 128;
+
+  cv::Mat data(num_desc, dim, CV_64F);
+  cv::randu(data, 0, 1);
+  ocv::descriptor_set ds(data);
+
+  EXPECT_EQ( num_desc,  ds.size() );
+  EXPECT_FALSE( ds.empty() );
+  EXPECT_EQ( data.data, ds.ocv_desc_matrix().data )
+    << "descriptor_set should contain original cv::Mat";
+
+  // use a const_iterator for iteration but initialize from begin()
+  // this requires converting a const_iterator to an iterator
+  typedef descriptor_set::const_iterator desc_itr;
+  for( desc_itr dit(ds.begin()); dit != ds.end(); ++dit )
+  {
+    auto temp_d = *dit;
+    ASSERT_EQ( temp_d->size(), dim );
+  }
+}
+
+// ----------------------------------------------------------------------------
 // Test spawning multiple iterators and that their returns do not conflict with
 // each other.
 TEST( descriptor_set, coiteration )
