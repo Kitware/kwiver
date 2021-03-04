@@ -65,13 +65,13 @@ class online_frame_averager : public online_frame_averager_base
 public:
   // Process a new frame, returning the current frame average
   virtual void process_frame( vil_image_view< PixType > const& input,
-                              vil_image_view< PixType >& average ) = 0;
+                              vil_image_view< double >& average ) = 0;
 
   // Process a new frame, and additionally compute a per-pixel instantaneous
   // variance estimation, which can be further averaged to estimate the
   // per-pixel variance over x frames
   void process_frame(
-    vil_image_view< PixType > const& input, vil_image_view< PixType >& average,
+    vil_image_view< PixType > const& input, vil_image_view< double >& average,
     vil_image_view< double >& variance );
 
 protected:
@@ -95,7 +95,7 @@ public:
 
   // Process a new frame, returning the current frame average
   void process_frame( vil_image_view< PixType > const& input,
-                      vil_image_view< PixType >& average ) override;
+                      vil_image_view< double >& average ) override;
 
   // Reset the internal average.
   void reset() override;
@@ -117,7 +117,7 @@ public:
 
   // Process a new frame, returning the current frame average
   void process_frame( vil_image_view< PixType > const& input,
-                      vil_image_view< PixType >& average ) override;
+                      vil_image_view< double >& average ) override;
 
   // Reset the internal average.
   void reset() override;
@@ -143,7 +143,7 @@ public:
 
   // Process a new frame, returning the current frame average
   void process_frame( vil_image_view< PixType > const& input,
-                      vil_image_view< PixType >& average ) override;
+                      vil_image_view< double >& average ) override;
 
   // Reset the internal average
   void reset() override;
@@ -163,7 +163,7 @@ template < typename PixType >
 void
 online_frame_averager< PixType >
 ::process_frame( vil_image_view< PixType > const& input,
-                 vil_image_view< PixType >& average,
+                 vil_image_view< double >& average,
                  vil_image_view< double >& variance )
 {
   // Check if this is the first time we have processed a frame of this size
@@ -251,7 +251,7 @@ template < typename PixType >
 void
 cumulative_frame_averager< PixType >
 ::process_frame( vil_image_view< PixType > const& input,
-                 vil_image_view< PixType >& average )
+                 vil_image_view< double >& average )
 {
   if( this->has_resolution_changed( input ) )
   {
@@ -318,7 +318,7 @@ template < typename PixType >
 void
 exponential_frame_averager< PixType >
 ::process_frame( vil_image_view< PixType > const& input,
-                 vil_image_view< PixType >& average )
+                 vil_image_view< double >& average )
 {
   if( this->has_resolution_changed( input ) )
   {
@@ -370,7 +370,7 @@ template < typename PixType >
 void
 windowed_frame_averager< PixType >
 ::process_frame( vil_image_view< PixType > const& input,
-                 vil_image_view< PixType >& average )
+                 vil_image_view< double >& average )
 {
   if( this->has_resolution_changed( input ) )
   {
@@ -554,13 +554,13 @@ public:
 
     if( !output_variance )
     {
-      vil_image_view< PixType > output;
+      vil_image_view< double > output;
       averager->process_frame( input, output );
       return std::make_shared< vxl::image_container >( output );
     }
     else
     {
-      vil_image_view< PixType > tmp;
+      vil_image_view< double > tmp;
       vil_image_view< double > output;
       averager->process_frame( input, tmp, output );
       return std::make_shared< vxl::image_container >( output );
