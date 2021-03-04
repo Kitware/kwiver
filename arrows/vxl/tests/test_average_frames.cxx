@@ -39,6 +39,13 @@ static std::string cumulative_second_expected_name =
 static std::string cumulative_third_expected_name =
   "images/cumulative_expected_third_average.png";
 
+static std::string sum_first_expected_name =
+  "images/sum_expected_first_average.png";
+static std::string sum_second_expected_name =
+  "images/sum_expected_second_average.png";
+static std::string sum_third_expected_name =
+  "images/sum_expected_third_average.png";
+
 static std::string exponential_first_expected_name =
   "images/exponential_expected_first_average.png";
 static std::string exponential_second_expected_name =
@@ -121,7 +128,7 @@ test_averaging_type( kv::path_t data_dir, std::string type,
 }
 
 // ----------------------------------------------------------------------------
-TEST_F ( average_frames, window )
+TEST_F(average_frames, window)
 {
   test_averaging_type( data_dir, "window", { window_first_expected_name,
                                              window_second_expected_name,
@@ -129,7 +136,7 @@ TEST_F ( average_frames, window )
 }
 
 // ----------------------------------------------------------------------------
-TEST_F ( average_frames, cumulative )
+TEST_F(average_frames, cumulative)
 {
   test_averaging_type( data_dir, "cumulative",
                        { cumulative_first_expected_name,
@@ -138,7 +145,15 @@ TEST_F ( average_frames, cumulative )
 }
 
 // ----------------------------------------------------------------------------
-TEST_F ( average_frames, exponential )
+TEST_F(average_frames, sum)
+{
+  test_averaging_type( data_dir, "sum", { sum_first_expected_name,
+                                          sum_second_expected_name,
+                                          sum_third_expected_name } );
+}
+
+// ----------------------------------------------------------------------------
+TEST_F(average_frames, exponential)
 {
   test_averaging_type( data_dir, "exponential",
                        { exponential_first_expected_name,
