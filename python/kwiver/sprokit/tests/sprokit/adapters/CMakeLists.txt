@@ -20,14 +20,17 @@ set(__simple_testable_modnames
 
 # KWIVER_ENABLE_TESTS is always true for now (because we are in the test
 # subdir), but the python tests should be moved to the python source dir.
-if (KWIVER_ENABLE_TESTS)
-  include(kwiver-test-setup)
+if (KWIVER_ENABLE_TESTS AND PYTEST_RUNNER)
   # Register individual tests with ctest
   foreach (group IN LISTS __simple_testable_modnames)
     # SeeAlso:
     #     # defines sprokit_discover_python_tests
     #     sprokit/conf/sprokit-macro-python-tests.cmake
-    kwiver_discover_python_tests(${group} test-${group}.py)
+    kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/${group}.py sprokit/tests/sprokit/adapters ${group})
+  endforeach()
+  include(kwiver-setup-tests-python)
+  foreach (group IN LISTS __simple_testable_modnames)
+    kwiver_add_pytest(${group} python)
   endforeach()
 endif()
 ###
@@ -40,10 +43,13 @@ set(__paramaterized_testable_modnames
 
 
 # Setup simple tests with parameters
-if (KWIVER_ENABLE_TESTS)
-  include(kwiver-test-setup)
+if (KWIVER_ENABLE_TESTS AND PYTEST_RUNNER)
+  include(kwiver-setup-tests-python)
   foreach (group IN LISTS __paramaterized_testable_modnames)
-    kwiver_discover_python_tests(${group} test-${group}.py
+    kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/${group}.py
+      sprokit/tests/sprokit/adapters ${group}
+    )
+    kwiver_add_pytest(${group} python
       ${cpp_pipelines_dir}
       ${py_pipelines_dir})
   endforeach()

@@ -15,3 +15,7 @@ foreach (modname IN LISTS __all_modnames)
     arrows/tests
     ${modname})
 endforeach()
+include(kwiver-tests-setup-python)
+foreach (modname in LISTS __all_modnames)
+  kwiver_add_pytest(${modname} python)
+endforeach()
