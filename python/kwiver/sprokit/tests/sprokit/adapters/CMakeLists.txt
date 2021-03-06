@@ -26,11 +26,11 @@ if (KWIVER_ENABLE_TESTS AND PYTEST_RUNNER)
     # SeeAlso:
     #     # defines sprokit_discover_python_tests
     #     sprokit/conf/sprokit-macro-python-tests.cmake
-    kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/${group}.py sprokit/tests/sprokit/adapters ${group})
+    kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/test-${group}.py sprokit/tests/sprokit/adapters test-${group})
   endforeach()
   include(kwiver-setup-tests-python)
   foreach (group IN LISTS __simple_testable_modnames)
-    kwiver_add_pytest(${group} python)
+    kwiver_add_pytest(test-${group} python)
   endforeach()
 endif()
 ###
@@ -46,10 +46,10 @@ set(__paramaterized_testable_modnames
 if (KWIVER_ENABLE_TESTS AND PYTEST_RUNNER)
   include(kwiver-setup-tests-python)
   foreach (group IN LISTS __paramaterized_testable_modnames)
-    kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/${group}.py
+    kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/test-${group}.py
       sprokit/tests/sprokit/adapters ${group}
     )
-    kwiver_add_pytest(${group} python
+    kwiver_add_pytest(test-${group} python
       ${cpp_pipelines_dir}
       ${py_pipelines_dir})
   endforeach()

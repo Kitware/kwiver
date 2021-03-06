@@ -12,12 +12,12 @@ set(__modnames
 if (KWIVER_ENABLE_TESTS AND PYTEST_RUNNER)
 
   foreach (group IN LISTS __modnames)
-    kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/${group}.py sprokit/tests/sprokit/pipeline_util ${group})
+    kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/test-${group}.py sprokit/tests/sprokit/pipeline_util test-${group})
     # kwiver_discover_python_tests(${group} test-${group}.py
     #   ${kwiver_test_pipelines_directory})
   endforeach()
   include(kwiver-setup-tests-python)
   foreach (group IN LISTS __modnames)
-    kwiver_add_pytest(${group} python ${kwiver_test_pipelines_directory})
+    kwiver_add_pytest(test-${group} python ${kwiver_test_pipelines_directory})
   endforeach()
 endif()
