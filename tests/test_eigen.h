@@ -36,6 +36,16 @@ PrintTo( Vector2d const& v, ::std::ostream* os )
 }
 
 // ----------------------------------------------------------------------------
+void
+PrintTo( Vector3d const& v, ::std::ostream* os )
+{
+  // This function exists because a) it produces better formatting, and
+  // b) Google Test needs an exact match or it will fall back to the generic
+  // value printer...
+  (*os) << v[0] << ", " << v[1] << ", " << v[2];
+}
+
+// ----------------------------------------------------------------------------
 template <typename T>
 ::std::ostream&
 operator<<( ::std::ostream& os, Quaternion<T> const& v )
