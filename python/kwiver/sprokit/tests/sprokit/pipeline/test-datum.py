@@ -79,8 +79,8 @@ class TestDatum(unittest.TestCase):
         if p is not None:
             test_error("A flush datum does not have None as its data")
 
-
-    def test_complete(self):
+    @staticmethod
+    def test_complete():
         d = datum.complete()
 
         if not d.type() == datum.DatumType.complete:
