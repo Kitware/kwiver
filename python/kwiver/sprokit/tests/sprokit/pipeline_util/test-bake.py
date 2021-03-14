@@ -28,71 +28,40 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+import unittest, pytest
 from kwiver.sprokit.util.test import find_tests, run_test, test_error
 
-def test_import(path_unused):
-    try:
-        import kwiver.sprokit.pipeline_util.bake
-    except:
-        test_error("Failed to import the bake module")
+class TestSprokitbake(unittest.TestCase):
+    def test_simple_pipeline(self, path):
+        from kwiver.vital import config
+        from kwiver.sprokit.pipeline import pipeline
+        from kwiver.vital.modules import modules
+        from kwiver.sprokit.pipeline_util import bake
+        from kwiver.sprokit.pipeline_util import load
+        blocks = load.load_pipe_file(path)
+        modules.load_known_modules()
+        bake.bake_pipe_file(path)
+        with open(path, 'r') as fin:
+            bake.bake_pipe(fin)
+        bake.bake_pipe_blocks(blocks)
+        bake.extract_configuration(blocks)
 
-
-def test_simple_pipeline(path):
-    from kwiver.vital import config
-    from kwiver.sprokit.pipeline import pipeline
-    from kwiver.vital.modules import modules
-    from kwiver.sprokit.pipeline_util import bake
-    from kwiver.sprokit.pipeline_util import load
-
-    blocks = load.load_pipe_file(path)
-
-    modules.load_known_modules()
-
-    bake.bake_pipe_file(path)
-    with open(path, 'r') as fin:
-        bake.bake_pipe(fin)
-    bake.bake_pipe_blocks(blocks)
-    bake.extract_configuration(blocks)
-
-
-def test_cluster_multiplier(path):
-    from kwiver.vital import config
-    from kwiver.sprokit.pipeline import pipeline
-    from kwiver.vital.modules import modules
-    from kwiver.sprokit.pipeline_util import bake
-    from kwiver.sprokit.pipeline_util import load
-
-    blocks = load.load_cluster_file(path)
-
-    modules.load_known_modules()
-
-    bake.bake_cluster_file(path)
-    with open(path, 'r') as fin:
-        bake.bake_cluster(fin)
-    info = bake.bake_cluster_blocks(blocks)
-
-    conf = config.empty_config()
-
-    info.type()
-    info.description()
-    info.create()
-    info.create(conf)
-
-    bake.register_cluster(info)
-
-
-if __name__ == '__main__':
-    import os
-    import sys
-
-    if len(sys.argv) != 3:
-        test_error("Expected three arguments")
-        sys.exit(1)
-
-    testname = sys.argv[1]
-
-    pipeline_dir = sys.argv[2]
-
-    path = os.path.join(pipeline_dir, '%s.pipe' % testname)
-
-    run_test(testname, find_tests(locals()), path)
+    def test_cluster_multiplier(self, path):
+        from kwiver.vital import config
+        from kwiver.sprokit.pipeline import pipeline
+        from kwiver.vital.modules import modules
+        from kwiver.sprokit.pipeline_util import bake
+        from kwiver.sprokit.pipeline_util import load
+        blocks = load.load_cluster_file(path)
+        modules.load_known_modules()
+        bake.bake_cluster_file(path)
+        with open(path, 'r') as fin:
+            bake.bake_cluster(fin)
+        info = bake.bake_cluster_blocks(blocks)
+        conf = config.empty_config()
+        info.type()
+        info.description()
+        info.create()
+        info.create(conf)
+        bake.register_cluster(info)

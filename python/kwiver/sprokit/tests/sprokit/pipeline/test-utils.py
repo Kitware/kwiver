@@ -28,28 +28,11 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+import unittest, pytest
 from kwiver.sprokit.util.test import find_tests, run_test, test_error
 
-def test_import():
-    try:
-        import kwiver.sprokit.pipeline.utils
-    except:
-        test_error("Failed to import the utils module")
-
-
-def test_name_thread():
-    from kwiver.sprokit.pipeline import utils
-
-    utils.name_thread("a_name")
-
-
-if __name__ == '__main__':
-    import sys
-
-    if len(sys.argv) != 2:
-        test_error("Expected two arguments")
-        sys.exit(1)
-
-    testname = sys.argv[1]
-
-    run_test(testname, find_tests(locals()))
+class TestSprokitutils(unittest.TestCase):
+    def test_name_thread(self):
+        from kwiver.sprokit.pipeline import utils
+        utils.name_thread('a_name')

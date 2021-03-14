@@ -28,104 +28,67 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+import unittest, pytest
 from kwiver.sprokit.util.test import find_tests, run_test, test_error
 
-def test_import():
-    try:
-        import kwiver.sprokit.pipeline.edge
-    except:
-        test_error("Failed to import the edge module")
+class TestSprokitedge(unittest.TestCase):
+    def test_create(self):
+        from kwiver.vital.config import config
+        from kwiver.sprokit.pipeline import edge
+        c = config.empty_config()
+        edge.Edge()
+        edge.Edge(c)
+        edge.Edges()
 
+    def test_datum_create(self):
+        from kwiver.sprokit.pipeline import datum
+        from kwiver.sprokit.pipeline import edge
+        from kwiver.sprokit.pipeline import stamp
+        d = datum.complete()
+        s = stamp.new_stamp(1)
+        edge.EdgeDatum()
+        edge.EdgeDatum(d, s)
+        edge.EdgeData()
 
-def test_create():
-    from kwiver.vital.config import config
-    from kwiver.sprokit.pipeline import edge
+    def test_api_calls(self):
+        from kwiver.vital.config import config
+        from kwiver.sprokit.pipeline import datum
+        from kwiver.sprokit.pipeline import edge
+        from kwiver.vital.modules import modules
+        from kwiver.sprokit.pipeline import process
+        from kwiver.sprokit.pipeline import process_factory
+        from kwiver.sprokit.pipeline import stamp
+        e = edge.Edge()
+        e.makes_dependency()
+        e.has_data()
+        e.full_of_data()
+        e.datum_count()
+        d = datum.complete()
+        s = stamp.new_stamp(1)
+        ed = edge.EdgeDatum(d, s)
+        e.push_datum(ed)
+        e.get_datum()
+        e.push_datum(ed)
+        e.peek_datum()
+        e.pop_datum()
+        modules.load_known_modules()
+        p = process_factory.create_process('orphan', 'process_name')
+        e.set_upstream_process(p)
+        e.set_downstream_process(p)
+        e.mark_downstream_as_complete()
+        e.is_downstream_complete()
+        e.config_dependency
+        e.config_capacity
 
-    c = config.empty_config()
-
-    edge.Edge()
-    edge.Edge(c)
-    edge.Edges()
-
-
-def test_datum_create():
-    from kwiver.sprokit.pipeline import datum
-    from kwiver.sprokit.pipeline import edge
-    from kwiver.sprokit.pipeline import stamp
-
-    d = datum.complete()
-    s = stamp.new_stamp(1)
-
-    edge.EdgeDatum()
-    edge.EdgeDatum(d, s)
-    edge.EdgeData()
-
-
-def test_api_calls():
-    from kwiver.vital.config import config
-    from kwiver.sprokit.pipeline import datum
-    from kwiver.sprokit.pipeline import edge
-    from kwiver.vital.modules import modules
-    from kwiver.sprokit.pipeline import process
-    from kwiver.sprokit.pipeline import process_factory
-    from kwiver.sprokit.pipeline import stamp
-
-    e = edge.Edge()
-
-    e.makes_dependency()
-    e.has_data()
-    e.full_of_data()
-    e.datum_count()
-
-    d = datum.complete()
-    s = stamp.new_stamp(1)
-
-    ed = edge.EdgeDatum(d, s)
-
-    e.push_datum(ed)
-    e.get_datum()
-
-    e.push_datum(ed)
-    e.peek_datum()
-    e.pop_datum()
-
-    modules.load_known_modules()
-
-    p = process_factory.create_process('orphan', 'process_name')
-
-    e.set_upstream_process(p)
-    e.set_downstream_process(p)
-
-    e.mark_downstream_as_complete()
-    e.is_downstream_complete()
-
-    e.config_dependency
-    e.config_capacity
-
-
-def test_datum_api_calls():
-    from kwiver.sprokit.pipeline import datum
-    from kwiver.sprokit.pipeline import edge
-    from kwiver.sprokit.pipeline import stamp
-
-    d = datum.complete()
-    s = stamp.new_stamp(1)
-
-    ed = edge.EdgeDatum(d, s)
-
-    ed.datum
-    ed.datum = d
-    ed.stamp
-    ed.stamp = s
-
-
-if __name__ == '__main__':
-    import sys
-
-    if len(sys.argv) != 2:
-        test_error("Expected two arguments")
-        sys.exit(1)
-
-    testname = sys.argv[1]
-
-    run_test(testname, find_tests(locals()))
+    def test_datum_api_calls(self):
+        from kwiver.sprokit.pipeline import datum
+        from kwiver.sprokit.pipeline import edge
+        from kwiver.sprokit.pipeline import stamp
+        d = datum.complete()
+        s = stamp.new_stamp(1)
+        ed = edge.EdgeDatum(d, s)
+        ed.datum
+        ed.datum = d
+        ed.stamp
+        ed.stamp = s

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #ckwg +28
-# Copyright 2012-2020 by Kitware, Inc.
+# Copyright 2011-2020 by Kitware, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,62 +28,31 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+import unittest, pytest
 from kwiver.sprokit.util.test import find_tests, run_test, test_error
 
-def test_import():
-    try:
-        import kwiver.vital.modules.modules
-    except:
-        test_error("Failed to import the modules module")
+class TestSprokitpymodules(unittest.TestCase):
+    def test_load(self):
+        from kwiver.vital.modules import modules
+        from kwiver.sprokit.pipeline import process_factory
+        modules.load_known_modules()
+        types = process_factory.types()
+        if ('test_python_process' not in types):
+            test_error('Failed to load Python processes')
 
+    def test_masking(self):
+        from kwiver.vital.modules import modules
+        from kwiver.sprokit.pipeline import process_factory
+        modules.load_known_modules()
+        types = process_factory.types()
+        if ('test_python_process' in types):
+            test_error('Failed to mask out Python processes')
 
-# TEST_PROPERTY(ENVIRONMENT, SPROKIT_PYTHON_MODULES=kwiver.sprokit.tests.processes)
-def test_load():
-    from kwiver.vital.modules import modules
-    from kwiver.sprokit.pipeline import process_factory
-
-    modules.load_known_modules()
-
-    types = process_factory.types()
-
-    if 'test_python_process' not in types:
-        test_error("Failed to load Python processes")
-
-
-# TEST_PROPERTY(ENVIRONMENT, SPROKIT_NO_PYTHON_MODULES=)
-def test_masking():
-    from kwiver.vital.modules import modules
-    from kwiver.sprokit.pipeline import process_factory
-
-    modules.load_known_modules()
-
-    types = process_factory.types()
-
-    if 'test_python_process' in types:
-        test_error("Failed to mask out Python processes")
-
-
-# TEST_PROPERTY(ENVIRONMENT, SPROKIT_PYTHON_MODULES=kwiver.sprokit.tests.processes)
-def test_extra_modules():
-    from kwiver.vital.modules import modules
-    from kwiver.sprokit.pipeline import process_factory
-
-    modules.load_known_modules()
-
-    types = process_factory.types()
-
-    if 'extra_test_python_process' not in types:
-        test_error("Failed to load extra Python processes")
-
-
-
-if __name__ == '__main__':
-    import sys
-
-    if len(sys.argv) != 2:
-        test_error("Expected two arguments")
-        sys.exit(1)
-
-    testname = sys.argv[1]
-
-    run_test(testname, find_tests(locals()))
+    def test_extra_modules(self):
+        from kwiver.vital.modules import modules
+        from kwiver.sprokit.pipeline import process_factory
+        modules.load_known_modules()
+        types = process_factory.types()
+        if ('extra_test_python_process' not in types):
+            test_error('Failed to load extra Python processes')

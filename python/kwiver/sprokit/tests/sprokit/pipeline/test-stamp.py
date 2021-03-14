@@ -28,48 +28,25 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+import unittest, pytest
 from kwiver.sprokit.util.test import find_tests, run_test, test_error
 
-def test_import():
-    try:
-        import kwiver.sprokit.pipeline.stamp
-    except:
-        test_error("Failed to import the stamp module")
+class TestSprokitstamp(unittest.TestCase):
+    def test_create(self):
+        from kwiver.sprokit.pipeline import stamp
+        stamp.new_stamp(1)
 
-
-def test_create():
-    from kwiver.sprokit.pipeline import stamp
-
-    stamp.new_stamp(1)
-
-
-def test_api_calls():
-    from kwiver.sprokit.pipeline import stamp
-
-    s = stamp.new_stamp(1)
-    si = stamp.incremented_stamp(s)
-    t = stamp.new_stamp(2)
-
-    if s > si:
-        test_error("A stamp is greater than its increment")
-
-    if si < s:
-        test_error("A stamp is greater than its increment")
-
-    si2 = stamp.incremented_stamp(si)
-    ti = stamp.incremented_stamp(t)
-
-    if not si2 == ti:
-        test_error("Stamps with different rates do not compare as equal")
-
-
-if __name__ == '__main__':
-    import sys
-
-    if len(sys.argv) != 2:
-        test_error("Expected two arguments")
-        sys.exit(1)
-
-    testname = sys.argv[1]
-
-    run_test(testname, find_tests(locals()))
+    def test_api_calls(self):
+        from kwiver.sprokit.pipeline import stamp
+        s = stamp.new_stamp(1)
+        si = stamp.incremented_stamp(s)
+        t = stamp.new_stamp(2)
+        if (s > si):
+            test_error('A stamp is greater than its increment')
+        if (si < s):
+            test_error('A stamp is greater than its increment')
+        si2 = stamp.incremented_stamp(si)
+        ti = stamp.incremented_stamp(t)
+        if (not (si2 == ti)):
+            test_error('Stamps with different rates do not compare as equal')

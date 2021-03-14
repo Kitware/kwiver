@@ -28,22 +28,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from kwiver.sprokit.util.test import find_tests, run_test, test_error
 
-def test_import():
-    try:
-        import kwiver.sprokit.pipeline.scheduler
-    except:
-        test_error("Failed to import the scheduler module")
-
-
-if __name__ == '__main__':
-    import sys
-
-    if len(sys.argv) != 2:
-        test_error("Expected two arguments")
-        sys.exit(1)
-
-    testname = sys.argv[1]
-
-    run_test(testname, find_tests(locals()))
+import unittest, pytest
+from kwiver.sprokit.util.test import find_tests, run_test, test_erro
+class TestSprokitscheduler(unittest.TestCase):
+    
