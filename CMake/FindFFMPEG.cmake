@@ -87,15 +87,15 @@ find_library( FFMPEG_swresample_LIBRARY swresample
 
   if( FFMPEG_avcodec_LIBRARY )
   if( FFMPEG_avformat_LIBRARY )
-
+    if( FFMPEG_avfilter_LIBRARY )
+       set( FFMPEG_LIBRARIES ${FFMPEG_LIBRARIES} ${FFMPEG_avfilter_LIBRARY} )
+    endif()
     set( FFMPEG_FOUND "YES" )
     set( FFMPEG_LIBRARIES ${FFMPEG_avformat_LIBRARY} ${FFMPEG_avcodec_LIBRARY} )
     if( FFMPEG_avutil_LIBRARY )
        set( FFMPEG_LIBRARIES ${FFMPEG_LIBRARIES} ${FFMPEG_avutil_LIBRARY} )
     endif()
-    if( FFMPEG_avfilter_LIBRARY )
-       set( FFMPEG_LIBRARIES ${FFMPEG_LIBRARIES} ${FFMPEG_avfilter_LIBRARY} )
-    endif()
+
     if( FFMPEG_swscale_LIBRARY )
        set( FFMPEG_LIBRARIES ${FFMPEG_LIBRARIES} ${FFMPEG_swscale_LIBRARY} )
     endif()
