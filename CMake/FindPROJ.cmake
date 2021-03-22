@@ -20,7 +20,7 @@ elseif(NOT PROJ_FOUND)
 
   setup_find_root_context(PROJ)
 
-  find_path(PROJ_INCLUDE_DIR "proj_api.h"
+  find_path(PROJ_INCLUDE_DIR "proj.h"
     ${PROJ_FIND_OPTS}
     DOC "Path to the root directory containing the PROJ header file."
     )
@@ -33,7 +33,7 @@ elseif(NOT PROJ_FOUND)
     set(_PROJ_LIB_PATH_HINT HINTS "${proj_lib_dir}" "${proj_lib_dir}64" NO_CMAKE_SYSTEM_PATH)
   endif()
 
-  find_library(PROJ_LIBRARY NAMES proj proj_4_9 proj_4_9_d proj_5_2 proj_5_2_d
+  find_library(PROJ_LIBRARY NAMES proj proj_5_2 proj_5_2_d
     ${_PROJ_LIB_PATH_HINT}
     ${PROJ_FIND_OPTS}
     DOC "Path to the PROJ library."
@@ -45,9 +45,4 @@ elseif(NOT PROJ_FOUND)
   find_package_handle_standard_args(PROJ DEFAULT_MSG
     PROJ_INCLUDE_DIR PROJ_LIBRARY
     )
-
-  ###
-  # for compatibility
-  set( PROJ4_LIBRARY ${PROJ_LIBRARY} )
-  set( PROJ4_INCLUDE ${PROJ_INCLUDE} )
 endif()

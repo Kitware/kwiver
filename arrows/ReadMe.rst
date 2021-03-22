@@ -20,7 +20,7 @@ Directory Structure and Provided Functionality
 `<arrows/ocv>`_       Algorithms implemented using OpenCV_.
                       Includes feature detectors and descriptor, homography
                       and fundamental matrix estimation, image IO, and more.
-`<arrows/proj>`_      Geographic conversion functions implemented with PROJ4_.
+`<arrows/proj>`_      Geographic conversion functions implemented with PROJ_.
 `<arrows/uuid>`_      [*Experimental*] Implementation of unique IDs using libuuid
 `<arrows/viscl>`_     [*Experimental*] Algorithms using VisCL to implement
                       algorithms in OpenCL 
