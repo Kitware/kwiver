@@ -2,14 +2,17 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief OCV resection_camera algorithm implementation
+/**
+ * \file
+ * \brief OCV resection_camera algorithm implementation
+ */
 
 #include "resection_camera.h"
 #include "camera_intrinsics.h"
 
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/eigen.hpp>
+#include <cmath>
 
 
 using namespace std;
@@ -54,11 +57,11 @@ resection_camera
 {
   // get base config from base class
   vital::config_block_sptr config =
-    vital::algo::resection_camera::get_configuration();
-  config->set_value( "reproj_accuracy", d_->reproj_accuracy,
-                     "desired re-projection positive accuracy" );
-  config->set_value( "max_iterations", d_->max_iterations,
-                     "maximum number of iterations to run PnP [1, INT_MAX]" );
+      vital::algo::resection_camera::get_configuration();
+  config->set_value("confidence_threshold", d_->confidence_threshold,
+    "Confidence that estimated matrix is correct, range (0.0, 1.0]");
+  config->set_value("max_iterations", d_->max_iterations,
+    "maximum number of iterations to run PnP [1, INT_MAX]");
   return config;
 }
 
@@ -89,9 +92,9 @@ resection_camera
     good_conf = false;
   }
 
-  int max_iterations = config->get_value< int >( "max_iterations",
-                                                 d_->max_iterations );
-  if( max_iterations < 1 )
+  int max_iterations = config->get_value<int>("max_iterations", d_->max_iterations);
+
+  if (max_iterations < 1)
   {
     LOG_ERROR( d_->m_logger,
                "max iterations is " << max_iterations <<
@@ -120,7 +123,39 @@ resection_camera::resection(
   auto const pts3_count = pts3d.size();
   if( pts2_count < min_count || pts3_count < min_count )
   {
-    LOG_ERROR( d_->m_logger, "not enough points to resection camera" );
+    projs.push_back(cv::Point2f(static_cast<float>(p.x()),
+                                static_cast<float>(p.y())));
+  }
+  for(const vital::vector_3d& X : pts3d)
+  {
+    Xs.push_back(cv::Point3f(static_cast<float>(X.x()),
+                             static_cast<float>(X.y()),
+                             static_cast<float>(X.z())));
+  }
+
+  const double reproj_error = 4;
+
+  vital::matrix_3x3d K = cal->as_matrix();
+  cv::Mat cv_K;
+  cv::eigen2cv(K, cv_K);
+
+  std::vector<double> dist_coeffs = get_ocv_dist_coeffs(cal);
+
+  cv::Mat inliers_mat;
+  cv::Mat rvec, tvec;
+  bool success =
+    cv::solvePnPRansac(Xs, projs, cv_K, dist_coeffs, rvec, tvec, false,
+                       d_->max_iterations, reproj_error,
+                       d_->confidence_threshold, inliers_mat,
+                       cv::SOLVEPNP_EPNP);
+
+  double inlier_ratio = ((double)inliers_mat.rows / (double)Xs.size());
+
+  if (!success || tvec.rows == 0 || rvec.rows == 0)
+  {
+    LOG_DEBUG(d_->m_logger, "no PnP solution after " << d_->max_iterations
+              << " iterations with confidence " << d_->confidence_threshold
+              << " and best inlier ratio " << inlier_ratio );
     return vital::camera_perspective_sptr();
   }
   if (pts2cnt != pts3cnt)
@@ -196,11 +231,11 @@ resection_camera::resection(
     LOG_WARN( d_->m_logger, "non-finite camera center found" );
     return vital::camera_perspective_sptr();
   }
-  return dynamic_pointer_cast<vital::camera_perspective>(res_cam);
+  return std::dynamic_pointer_cast<vital::camera_perspective>(res_cam);
 }
 
 kwiver::vital::camera_perspective_sptr
-resection_camera::resection(kwiver::vital::frame_id_t frame,
+resection_camera::resection(kwiver::vital::frame_id_t const & frame,
           kwiver::vital::landmark_map_sptr landmarks,
           kwiver::vital::feature_track_set_sptr tracks,
           kwiver::vital::camera_intrinsics_sptr cal
@@ -208,7 +243,6 @@ resection_camera::resection(kwiver::vital::frame_id_t frame,
 {
   return vital::algo::resection_camera::resection(frame,landmarks,tracks,cal);
 }
-
 
 } // end namespace ocv
 

@@ -19,10 +19,7 @@ namespace kwiver {
 
 namespace vital {
 
-namespace algo {
-
-/// An abstract base class to resection a camera using 3D feature and point
-/// projection pairs.
+/// An abstract base class to resection a camera using 3D feature and point projection pairs.
 class VITAL_ALGO_EXPORT resection_camera
   : public kwiver::vital::algorithm_def< resection_camera >
 {
@@ -61,7 +58,7 @@ public:
   /// \return estimated camera parameters
   virtual
   kwiver::vital::camera_perspective_sptr
-  resect(kwiver::vital::frame_id_t const & frame, ///< [in]  frame number for which to estimate a camera
+  resection(kwiver::vital::frame_id_t const & frame, ///< [in]  frame number for which to estimate a camera
             kwiver::vital::landmark_map_sptr landmarks, ///< [in]  3D landmarks locations to constrain camera
             kwiver::vital::feature_track_set_sptr tracks, ///< [in]  2D feature tracks in image coordinates
             kwiver::vital::camera_intrinsics_sptr cal = nullptr ///< [in] initial guess intrinsic parameters of the camera, [out] refined intrinsic parameters of the camera
