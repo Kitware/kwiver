@@ -12,7 +12,6 @@
 
 #include <vital/vital_config.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
-
 #include <vital/algo/resection_camera.h>
 
 namespace kwiver {
@@ -26,11 +25,9 @@ class KWIVER_ALGO_OCV_EXPORT resection_camera
 {
 public:
   PLUGIN_INFO( "ocv",
-               "Estimate camera pose and projection matrix with perspective N point method")
-
+               "Estimate camera pose and projection matrix using OpenCV calibrate camera method based on N point correspondences")
   /// Instantiate.
   resection_camera();
-
   /// Destroy.
   virtual ~resection_camera();
 
@@ -47,11 +44,12 @@ public:
   /// \return estimated camera parameters
   virtual
   kwiver::vital::camera_perspective_sptr
-  resection(const std::vector<vital::vector_2d>& pts2d, ///< [in]  2d projections of pts3d in the same order as pts3d
-           const std::vector<vital::vector_3d>& pts3d, ///< [in]  3d landmarks in the same order as pts2d, assuming a 1-1 correspondence
-           std::vector<bool>& inliers, ///< [out] inlier flags for each point, the value is true if this pair is an inlier to the estimate
-		   const kwiver::vital::camera_intrinsics_sptr cal = nullptr ///< [in]  optional initial intrinsic parameters for the camera
-  ) const override;
+  resection(
+	  std::vector<kwiver::vital::vector_2d> const & pts2d, ///< [in]  2d projections of pts3d in the same order as pts3d
+	  std::vector<kwiver::vital::vector_3d> const & pts3d, ///< [in]  3d points in the same order as pts2d, assuming a 1-1 correspondence
+      std::vector<bool>& inliers, ///< [out] inlier flags for each point, the value is true if this pair is an inlier to the estimate
+      kwiver::vital::camera_intrinsics_sptr init_cal = nullptr ///< [in]  initial guess intrinsic parameters of the camera
+  ) const;
 
 private:
   /// private implementation class
