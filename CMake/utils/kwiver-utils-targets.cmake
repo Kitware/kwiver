@@ -278,9 +278,9 @@ function(kwiver_add_library     name)
   endforeach()
 
   if(SKBUILD)
-    set_target_properties("${name}"
-    PROPERTIES
-    INSTALL_RPATH "$<TARGET_PROPERTY:${name},INSTALL_RPATH>;${CMAKE_INSTALL_PREFIX}/${KWIVER_DEFAULT_LIBRARY_DIR}"
+    set_property(TARGET "${name}"
+    APPEND
+    PROPERTY INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${KWIVER_DEFAULT_LIBRARY_DIR}"
     )
   endif(SKBUILD)
 
