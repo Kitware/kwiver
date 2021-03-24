@@ -23,18 +23,17 @@ resection_camera::resection_camera()
   attach_logger( "algo.resection_camera" );
 }
 
-//kwiver::vital::camera_perspective_sptr
-//resection_camera::resection(
-//	kwiver::vital::frame_id_t const& frame, ///< [in]  frame number for which to estimate a camera
-//    kwiver::vital::landmark_map_sptr landmarks, ///< [in]  3D landmarks locations to constrain camera
-//    kwiver::vital::feature_track_set_sptr tracks, ///< [in]  2D feature tracks in image coordinates
-//    kwiver::vital::camera_intrinsics_sptr init_cal ///< [in]  initial guess intrinsic parameters of the camera
-//) const
-//{
-//	kwiver::vital::camera_perspective_sptr res;
-//	// TODO: implement
-//	return res;
-//}
+kwiver::vital::camera_perspective_sptr
+resection_camera::resect(kwiver::vital::frame_id_t const & frame,
+          kwiver::vital::landmark_map_sptr landmarks,
+          kwiver::vital::feature_track_set_sptr tracks,
+          kwiver::vital::camera_intrinsics_sptr cal
+) const
+{
+	kwiver::vital::camera_perspective_sptr res;
+	// TODO: implement
+	return res;
+}
 
 
 } } } // end namespace

@@ -48,8 +48,8 @@ public:
 	  std::vector<kwiver::vital::vector_2d> const & pts2d, ///< [in]  2d projections of pts3d in the same order as pts3d
 	  std::vector<kwiver::vital::vector_3d> const & pts3d, ///< [in]  3d points in the same order as pts2d, assuming a 1-1 correspondence
       std::vector<bool>& inliers, ///< [out] inlier flags for each point, the value is true if this pair is an inlier to the estimate
-      kwiver::vital::camera_intrinsics_sptr init_cal = nullptr ///< [in]  initial guess intrinsic parameters of the camera
-  ) const;
+      kwiver::vital::camera_intrinsics_sptr cal = nullptr ///< [in] optional guess on intrinsic parameters of the camera, [out] refined intrinsic parameters of the camera
+  ) const override;
 
 private:
   /// private implementation class
