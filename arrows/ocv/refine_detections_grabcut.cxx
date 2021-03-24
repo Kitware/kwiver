@@ -111,6 +111,7 @@ refine_detections_grabcut
   using ic = ocv::image_container;
   cv::Mat img = ic::vital_to_ocv( image_data->get_image(), ic::BGR_COLOR );
   cv::Rect img_rect( 0, 0, img.cols, img.rows );
+  bounding_box<double> vital_img_rect( 0, 0, img.cols, img.rows );
 
   if( !detections )
   {
@@ -120,7 +121,7 @@ refine_detections_grabcut
   auto result = std::make_shared< vital::detected_object_set >();
   for( auto const& det : *detections )
   {
-    auto&& bbox = det->bounding_box();
+    auto&& bbox = intersection( det->bounding_box(), vital_img_rect );
     // Determine context crop and translate the bounding box
     auto cbbox = vital::scale_about_center( bbox, d_->context_scale_factor );
     auto ctx_rect = bbox_to_mask_rect( cbbox ) & img_rect;

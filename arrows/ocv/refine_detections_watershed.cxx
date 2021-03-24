@@ -100,53 +100,65 @@ refine_detections_watershed
           vital::detected_object_set_sptr detections ) const
 {
   using ic = ocv::image_container;
-  cv::Mat img = ic::vital_to_ocv( image_data->get_image(), ic::BGR_COLOR );
-  cv::Rect img_rect( 0, 0, img.cols, img.rows );
 
-  if( !detections )
+  if( !detections || !image_data )
   {
     return detections;
   }
 
+  cv::Mat img = ic::vital_to_ocv( image_data->get_image(), ic::BGR_COLOR );
+  cv::Rect img_rect( 0, 0, img.cols, img.rows );
+
+  bounding_box< double > vital_img_rect( 0, 0, img.cols, img.rows );
   cv::Mat background( img.size(), CV_8UC1, 255 );
   // Explicitly convert 0 to a Scalar to avoid interpretation as NULL
   cv::Mat markers( img.size(), CV_32SC1, cv::Scalar( 0 ) );
 
   std::vector< cv::Mat > seeds;
+  auto result = std::make_shared< vital::detected_object_set >();
+  auto valid_detections = std::make_shared< vital::detected_object_set >();
   size_t i;
   for( i = 0; i < detections->size(); ++i )
   {
     auto&& det = detections->at( i );
-    auto&& bbox = det->bounding_box();
+    auto&& bbox = intersection( det->bounding_box(), vital_img_rect );
     auto rect = bbox_to_mask_rect( bbox );
-    background( rect & img_rect ) = 0;
-    cv::Mat m = markers( rect & img_rect );
-    cv::Mat already_set = m != 0;
-    cv::Mat seed;
-    if( d_->seed_with_existing_masks && det->mask() )
+    // Invalid rectangle, simply return the unmodified input
+    if( rect.empty() )
     {
-      // Clone because this is modified below (crop_mask.setTo)
-      seed = get_standard_mask( det ).clone();
+      result->add( std::move( det ) );
     }
     else
     {
-      auto seed_bbox = vital::scale_about_center( bbox, d_->seed_scale_factor );
-      seed = cv::Mat( rect.size(), CV_8UC1, cv::Scalar( 0 ) );
-      seed( ( bbox_to_mask_rect( seed_bbox ) & rect ) - rect.tl() ) = 1;
+      background( rect & img_rect ) = 0;
+      cv::Mat m = markers( rect & img_rect );
+      cv::Mat already_set = m != 0;
+      cv::Mat seed;
+      if( d_->seed_with_existing_masks && det->mask() )
+      {
+        // Clone because this is modified below (crop_mask.setTo)
+        seed = get_standard_mask( det ).clone();
+      }
+      else
+      {
+        auto seed_bbox = vital::scale_about_center( bbox, d_->seed_scale_factor );
+        seed = cv::Mat( rect.size(), CV_8UC1, cv::Scalar( 0 ) );
+        seed( ( bbox_to_mask_rect( seed_bbox ) & rect ) - rect.tl() ) = 1;
+      }
+      m.setTo( i + 1, seed );
+      m.setTo( -1, seed & already_set );
+      seeds.push_back( std::move( seed ) );
+      valid_detections->add( std::move( det ) );
     }
-    m.setTo( i + 1, seed );
-    m.setTo( -1, seed & already_set );
-    seeds.push_back( std::move( seed ) );
   }
   markers = cv::max( markers, 0 );
   markers.setTo( i + 1, background );
   cv::watershed( img, markers );
 
-  auto result = std::make_shared< vital::detected_object_set >();
-  for( i = 0; i < detections->size(); ++i )
+  for( i = 0; i < valid_detections->size(); ++i )
   {
-    auto&& det = detections->at( i );
-    auto&& bbox = det->bounding_box();
+    auto&& det = valid_detections->at( i );
+    auto&& bbox = intersection( det->bounding_box(), vital_img_rect );
     auto rect = bbox_to_mask_rect( bbox );
     auto crop_rect = rect & img_rect;
     auto& mask = seeds[ i ];
