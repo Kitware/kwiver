@@ -23,7 +23,7 @@ static constexpr double outlier_center_tolerance = 0.05;
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
-  ::testing::InitGoogleTest( &argc, argv );
+  ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
 
@@ -31,7 +31,7 @@ int main(int argc, char** argv)
 TEST(resection_camera, create)
 {
   plugin_manager::instance().load_all_plugins();
-  EXPECT_NE( nullptr, algo::resection_camera::create("ocv") );
+  EXPECT_NE(nullptr, algo::resection_camera::create("ocv"));
 }
 
 // ----------------------------------------------------------------------------

@@ -7,12 +7,11 @@
  * \brief OCV resection_camera algorithm implementation
  */
 
-#include <cmath>
-
 #include "resection_camera.h"
 
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/eigen.hpp>
+#include <cmath>
 
 #include "camera_intrinsics.h"
 
@@ -53,13 +52,10 @@ resection_camera::get_configuration() const
   // get base config from base class
   vital::config_block_sptr config =
       vital::algo::resection_camera::get_configuration();
-
   config->set_value("confidence_threshold", d_->confidence_threshold,
     "Confidence that estimated matrix is correct, range (0.0, 1.0]");
-
   config->set_value("max_iterations", d_->max_iterations,
     "maximum number of iterations to run PnP [1, INT_MAX]");
-
   return config;
 }
 
@@ -89,8 +85,7 @@ resection_camera::check_configuration(vital::config_block_sptr config) const
     good_conf = false;
   }
 
-  int max_iterations =
-    config->get_value<int>("max_iterations", d_->max_iterations);
+  int max_iterations = config->get_value<int>("max_iterations", d_->max_iterations);
 
   if (max_iterations < 1)
   {
@@ -98,7 +93,6 @@ resection_camera::check_configuration(vital::config_block_sptr config) const
       << ", needs to be greater than zero.");
     good_conf = false;
   }
-
   return good_conf;
 }
 
@@ -159,7 +153,6 @@ resection_camera::resection(
     LOG_DEBUG(d_->m_logger, "no PnP solution after " << d_->max_iterations
               << " iterations with confidence " << d_->confidence_threshold
               << " and best inlier ratio " << inlier_ratio );
-
     return vital::camera_perspective_sptr();
   }
 
@@ -190,9 +183,19 @@ resection_camera::resection(
     LOG_WARN(d_->m_logger, "non-finite camera center found");
     return vital::camera_perspective_sptr();
   }
-
   return std::dynamic_pointer_cast<vital::camera_perspective>(res_cam);
 }
+
+kwiver::vital::camera_perspective_sptr
+resection_camera::resection(kwiver::vital::frame_id_t const & frame,
+          kwiver::vital::landmark_map_sptr landmarks,
+          kwiver::vital::feature_track_set_sptr tracks,
+          kwiver::vital::camera_intrinsics_sptr cal
+) const
+{
+  return vital::algo::resection_camera::resection(frame,landmarks,tracks,cal);
+}
+
 
 } // end namespace ocv
 } // end namespace arrows

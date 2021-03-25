@@ -20,20 +20,20 @@ namespace algo {
 
 resection_camera::resection_camera()
 {
-  attach_logger( "algo.resection_camera" );
+  attach_logger("algo.resection_camera");
 }
 
-kwiver::vital::camera_perspective_sptr
-resection_camera::resect(kwiver::vital::frame_id_t const & frame,
-          kwiver::vital::landmark_map_sptr landmarks,
-          kwiver::vital::feature_track_set_sptr tracks,
-          kwiver::vital::camera_intrinsics_sptr cal
-) const
+camera_perspective_sptr
+resection_camera::resection (frame_id_t const &frame,
+			     landmark_map_sptr landmarks,
+			     feature_track_set_sptr tracks,
+			     camera_intrinsics_sptr cal) const
 {
-	kwiver::vital::camera_perspective_sptr res;
-	// TODO: implement
-	return res;
+  std::vector<vector_2d> const pts2d;
+  std::vector<vector_3d> const pts3d;
+  // TODO: convert frame number, tracks, and landmarks into 2d and 3d points
+  std::vector<bool> inliers;
+  return resection(pts2d, pts3d, inliers, cal);
 }
-
 
 } } } // end namespace
