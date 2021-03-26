@@ -2,11 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include <test_eigen.h>
-#include <test_scene.h>
-
 #include <vital/math_constants.h>
 #include <arrows/mvg/projected_track_set.h>
+#include <test_scene.h>
+#include <test_eigen.h>
 
 using namespace kwiver::vital;
 using namespace kwiver::arrows::mvg;
@@ -30,7 +29,6 @@ TEST(resection_camera, ideal_points)
 
   auto cams = cameras->cameras();
   auto cam = dynamic_pointer_cast<camera_perspective>(cams[frmID]);
-  camera_intrinsics_sptr cal = cam->intrinsics();
 
   // corresponding image points
   vector<vector_2d> pts_projs;
@@ -47,7 +45,7 @@ TEST(resection_camera, ideal_points)
   // camera pose from the points and their projections
   vector<bool> inliers;
   resection_camera res_cam;
-  auto est_cam = res_cam.resection(pts_projs, pts_3d, inliers, cam->intrinsics());
+  auto est_cam = res_cam.resection(pts_projs, pts_3d, cam->intrinsics(), inliers);
 
   // true and computed camera poses
   const auto
@@ -90,7 +88,6 @@ TEST(resection_camera, noisy_points)
 
   auto cams = cameras->cameras();
   auto cam = dynamic_pointer_cast<camera_perspective>(cams[frmID]);
-  camera_intrinsics_sptr cal = cam->intrinsics();
 
   // corresponding image points
   vector<vector_2d> pts_projs;
@@ -107,7 +104,8 @@ TEST(resection_camera, noisy_points)
   // camera pose from the points and their projections
   vector<bool> inliers;
   resection_camera res_cam;
-  auto est_cam = res_cam.resection(pts_projs, pts_3d, inliers, cam->intrinsics());
+  auto est_cam = res_cam.resection(pts_projs, pts_3d, cam->intrinsics(), inliers);
+  EXPECT_NE(est_cam, nullptr) << "no resection matrix produced";
 
   // true and computed camera poses
   const auto
@@ -150,7 +148,6 @@ TEST(resection_camera, outlier_points)
 
   auto cams = cameras->cameras();
   auto cam = dynamic_pointer_cast<camera_perspective>(cams[frmID]);
-  camera_intrinsics_sptr cal = cam->intrinsics();
 
   // corresponding image points
   unsigned i = 0;
@@ -173,7 +170,7 @@ TEST(resection_camera, outlier_points)
   // camera pose from the points and their projections
   vector<bool> inliers;
   resection_camera res_cam;
-  auto est_cam = res_cam.resection(pts_projs, pts_3d, inliers, cam->intrinsics());
+  auto est_cam = res_cam.resection(pts_projs, pts_3d, cam->intrinsics(), inliers);
 
   // true and computed camera poses
   const auto
