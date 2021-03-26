@@ -106,15 +106,15 @@ resection_camera
 
 kwiver::vital::camera_perspective_sptr
 resection_camera::resection(
-	vector<kwiver::vital::vector_2d> const & pts2d,
-    vector<kwiver::vital::vector_3d> const & pts3d,
-    vector<bool>& inliers,
-    kwiver::vital::camera_intrinsics_sptr cal
+	std::vector<kwiver::vital::vector_2d> const & pts2d,
+    std::vector<kwiver::vital::vector_3d> const & pts3d,
+    kwiver::vital::camera_intrinsics_sptr cal,
+    std::vector<bool>& inliers
 ) const
 {
   if( cal == nullptr )
   {
-    LOG_ERROR(d_->m_logger, "camera calibration guess should not be null in this implementation");
+    LOG_ERROR(d_->m_logger, "camera calibration guess cannot be null");
     return vital::camera_perspective_sptr();
   }
 
@@ -123,33 +123,35 @@ resection_camera::resection(
   auto const pts3_count = pts3d.size();
   if( pts2_count < min_count || pts3_count < min_count )
   {
-    projs.push_back(cv::Point2f(static_cast<float>(p.x()),
-                                static_cast<float>(p.y())));
+    LOG_ERROR(d_->m_logger, "not enough points to resection camera");
+    return vital::camera_perspective_sptr();
   }
-  for(const vital::vector_3d& X : pts3d)
-  {
+  if (pts2cnt != pts3cnt)
+    LOG_WARN(d_->m_logger, "counts of 3D points and projections do not match");
+
+  std::vector<cv::Point2f> projs;
+  std::vector<cv::Point3f> Xs;
+  for(const auto & p : pts2d)
+    projs.push_back(cv::Point2f(static_cast<float>(p.x()), static_cast<float>(p.y())));
+  for(const auto & X : pts3d)
     Xs.push_back(cv::Point3f(static_cast<float>(X.x()),
                              static_cast<float>(X.y()),
                              static_cast<float>(X.z())));
-  }
-
-  const double reproj_error = 4;
 
   vital::matrix_3x3d K = cal->as_matrix();
-  cv::Mat cv_K;
-  cv::eigen2cv(K, cv_K);
-
+  cv::Mat cv_K; cv::eigen2cv(K, cv_K);
   std::vector<double> dist_coeffs = get_ocv_dist_coeffs(cal);
 
-  cv::Mat inliers_mat;
-  cv::Mat rvec, tvec;
-  bool success =
-    cv::solvePnPRansac(Xs, projs, cv_K, dist_coeffs, rvec, tvec, false,
-                       d_->max_iterations, reproj_error,
-                       d_->confidence_threshold, inliers_mat,
-                       cv::SOLVEPNP_EPNP);
+  // TODO: initialize for cv::calibrateCamera, e.g. image size, which requires an approximate cal to exist
+  const double reproj_error = 4.;
+  cv::Mat inliers_mat, rvec, tvec;
+  bool success = cv::solvePnPRansac(Xs, projs,
+    cv_K, dist_coeffs, rvec, tvec, false,
+    d_->max_iterations, reproj_error,
+    d_->confidence_threshold, inliers_mat,
+    cv::SOLVEPNP_EPNP);
 
-  double inlier_ratio = ((double)inliers_mat.rows / (double)Xs.size());
+  double inlier_ratio = (inliers_mat.rows / (double)Xs.size());
 
   if (!success || tvec.rows == 0 || rvec.rows == 0)
   {
@@ -202,8 +204,7 @@ resection_camera::resection(
   rotation_d rot(rvec_eig);
   res_cam->set_rotation(rot);
   res_cam->set_translation(tvec_eig);
-  cal.reset(new simple_camera_intrinsics(K, dist_eig));
-  res_cam->set_intrinsics(cal);
+  res_cam->set_intrinsics(cal); // TODO: set from calibration estimates
 
   if (!isfinite(res_cam->center().x()))
   {

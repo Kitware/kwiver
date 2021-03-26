@@ -2,15 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include <algorithm>
-
-#include <test_eigen.h>
-#include <test_scene.h>
-
 #include <vital/math_constants.h>
 #include <arrows/mvg/projected_track_set.h>
-#include <arrows/mvg/metrics.h>
-#include <arrows/mvg/epipolar_geometry.h>
+#include <test_scene.h>
+#include <test_eigen.h>
 
 using namespace kwiver::vital;
 using namespace kwiver::arrows::mvg;
@@ -34,7 +29,6 @@ TEST(resection_camera, ideal_points)
 
   auto cams = cameras->cameras();
   auto cam = dynamic_pointer_cast<camera_perspective>(cams[frmID]);
-  camera_intrinsics_sptr cal = cam->intrinsics();
 
   // corresponding image points
   vector<vector_2d> pts_projs;
@@ -51,7 +45,7 @@ TEST(resection_camera, ideal_points)
   // camera pose from the points and their projections
   vector<bool> inliers;
   resection_camera res_cam;
-  auto est_cam = res_cam.resection(pts_projs, pts_3d, inliers, cam->intrinsics());
+  auto est_cam = res_cam.resection(pts_projs, pts_3d, cam->intrinsics(), inliers);
 
   // true and computed camera poses
   const auto
@@ -74,7 +68,7 @@ TEST(resection_camera, ideal_points)
 }
 
 // ----------------------------------------------------------------------------
-// Test camera resection with noisy points
+// Test camera resection with noisy points.
 TEST(resection_camera, noisy_points)
 {
   // landmarks at random locations
@@ -94,7 +88,6 @@ TEST(resection_camera, noisy_points)
 
   auto cams = cameras->cameras();
   auto cam = dynamic_pointer_cast<camera_perspective>(cams[frmID]);
-  camera_intrinsics_sptr cal = cam->intrinsics();
 
   // corresponding image points
   vector<vector_2d> pts_projs;
@@ -111,7 +104,8 @@ TEST(resection_camera, noisy_points)
   // camera pose from the points and their projections
   vector<bool> inliers;
   resection_camera res_cam;
-  auto est_cam = res_cam.resection(pts_projs, pts_3d, inliers, cam->intrinsics());
+  auto est_cam = res_cam.resection(pts_projs, pts_3d, cam->intrinsics(), inliers);
+  EXPECT_NE(est_cam, nullptr) << "no resection matrix produced";
 
   // true and computed camera poses
   const auto
@@ -134,33 +128,29 @@ TEST(resection_camera, noisy_points)
 }
 
 // ----------------------------------------------------------------------------
-// Test pnp pose estimation with outliers
+// Test camera resection with outliers.
 TEST(resection_camera, outlier_points)
 {
-  resection_camera res_cam;
-
-  // create landmarks at the random locations
-  landmark_map_sptr landmarks = kwiver::testing::init_landmarks(100);
+  // landmarks at random locations
+  landmark_map_sptr landmarks = kwiver::testing::init_landmarks(128);
   landmarks = kwiver::testing::noisy_landmarks(landmarks, 1.0);
 
-  // create a camera sequence (elliptical path)
+  // camera sequence (elliptical path)
   camera_map_sptr cameras = kwiver::testing::camera_seq();
 
-  // create tracks from the projections
-  auto tracks = dynamic_pointer_cast<feature_track_set>(
-    projected_tracks(landmarks, cameras));
+  // tracks from projections
+  auto tracks = dynamic_pointer_cast<feature_track_set>( projected_tracks(landmarks, cameras));
 
-  // add random noise to track image locations
+  // random noise to track image locations
   tracks = kwiver::testing::noisy_tracks(tracks, 0.5);
 
-  const frame_id_t frmID = 10;
+  const frame_id_t frmID = 2;
 
-  camera_map::map_camera_t cams = cameras->cameras();
+  auto cams = cameras->cameras();
   auto cam = dynamic_pointer_cast<camera_perspective>(cams[frmID]);
-  camera_intrinsics_sptr cal = cam->intrinsics();
 
-  // extract corresponding image points
-  unsigned int i = 0;
+  // corresponding image points
+  unsigned i = 0;
   vector<vector_2d> pts_projs;
   vector<vector_3d> pts_3d;
   for (auto const& track : tracks->tracks())
@@ -168,37 +158,37 @@ TEST(resection_camera, outlier_points)
     auto lm_id = track->id();
     auto lm_it = landmarks->landmarks().find(lm_id);
     pts_3d.push_back(lm_it->second->loc());
-
-    if (++i % 3 == 0)
+    if (++i % 3)
     {
-      pts_projs.push_back(kwiver::testing::random_point2d(1000.0));
-    }
-    else
-    {
-      auto const fts =
-        dynamic_pointer_cast<feature_track_state>(*track->find(frmID));
+      auto const fts = dynamic_pointer_cast<feature_track_state>(*track->find(frmID));
       pts_projs.push_back(fts->feature->loc());
     }
+    else // outlier
+      pts_projs.push_back(kwiver::testing::random_point2d(1000.));
   }
 
-  // compute the camera pose from the points and their projections
+  // camera pose from the points and their projections
   vector<bool> inliers;
-  auto est_cam = res_cam.resection(pts_projs, pts_3d, inliers, cam->intrinsics());
+  resection_camera res_cam;
+  auto est_cam = res_cam.resection(pts_projs, pts_3d, cam->intrinsics(), inliers);
+
+  // true and computed camera poses
+  const auto
+    &camR = cam->rotation(),
+    &estR = est_cam->rotation();
+  cout << "cam R:\n" << camR.matrix() << endl
+  << "est R:\n" << estR.matrix() << endl
+  << "cam C = " << cam->center().transpose() << endl
+  << "est C = " << est_cam->center().transpose() << endl;
+
+  auto R_err = camR.inverse()*estR;
+  cout << "rotation error = " << R_err.angle()*180./pi << " degrees" << endl;
 
   // compare true and computed camera poses
-  cout << "true R = " << cam->rotation().matrix() << endl;
-  cout << "Estimated R = " << est_cam->rotation().matrix() << endl;
-  cout << "true C = " << cam->center() << endl;
-  cout << "Estimated C = " << est_cam->center() << endl;
-
-  auto R_err = cam->rotation().inverse()*est_cam->rotation();
-  cout << "Rotation error = " << R_err.angle()*180.0 / pi << " degrees" << endl;
-
   EXPECT_LT(R_err.angle(), outlier_rotation_tolerance);
   EXPECT_MATRIX_SIMILAR(cam->center(), est_cam->center(), outlier_center_tolerance);
 
-  unsigned int inlier_cnt = count(inliers.begin(), inliers.end(), true);
-  cout << "num inliers " << inlier_cnt << endl;
-  EXPECT_GT(inlier_cnt, pts_projs.size() / 3)
-    << "Not enough inliers";
+  auto inlier_cnt = count(inliers.begin(), inliers.end(), true);
+  cout << "inlier count = " << inlier_cnt << endl;
+  EXPECT_GT(inlier_cnt, pts_projs.size() / 3) << "not enough inliers";
 }
