@@ -111,7 +111,7 @@ refine_detections_grabcut
   using ic = ocv::image_container;
   cv::Mat img = ic::vital_to_ocv( image_data->get_image(), ic::BGR_COLOR );
   cv::Rect img_rect( 0, 0, img.cols, img.rows );
-  bounding_box<double> vital_img_rect( 0, 0, img.cols, img.rows );
+  bounding_box< double > vital_img_rect( 0, 0, img.cols, img.rows );
 
   if( !detections )
   {
@@ -126,38 +126,45 @@ refine_detections_grabcut
     auto cbbox = vital::scale_about_center( bbox, d_->context_scale_factor );
     auto ctx_rect = bbox_to_mask_rect( cbbox ) & img_rect;
     auto rect = bbox_to_mask_rect( bbox );
-    auto mask_rect = ctx_rect | rect;
-    // Perform GrabCut
-    cv::Mat mask( mask_rect.size(), CV_8UC1, cv::GC_BGD );
-    auto mask_roi = [&]( cv::Rect r ){
-      return r.empty() ? cv::Mat() : mask( r - mask_rect.tl() );
-    };
-    cv::Mat bgdModel, fgdModel;
-    mask_roi( rect & ctx_rect ) = cv::GC_PR_FGD;
-    if( d_->seed_with_existing_masks && det->mask() )
+    if( rect.empty() )
     {
-      mask_roi( rect ).setTo( cv::GC_FGD, get_standard_mask( det ) );
+      result->add( std::move( det ) );
     }
     else
     {
-      auto fgbbox = vital::scale_about_center( bbox, d_->foreground_scale_factor );
-      mask_roi( bbox_to_mask_rect( fgbbox ) & mask_rect ) = cv::GC_FGD;
+      auto mask_rect = ctx_rect | rect;
+      // Perform GrabCut
+      cv::Mat mask( mask_rect.size(), CV_8UC1, cv::GC_BGD );
+      auto mask_roi = [&]( cv::Rect r ){
+        return r.empty() ? cv::Mat() : mask( r - mask_rect.tl() );
+      };
+      cv::Mat bgdModel, fgdModel;
+      mask_roi( rect & ctx_rect ) = cv::GC_PR_FGD;
+      if( d_->seed_with_existing_masks && det->mask() )
+      {
+        mask_roi( rect ).setTo( cv::GC_FGD, get_standard_mask( det ) );
+      }
+      else
+      {
+        auto fgbbox = vital::scale_about_center( bbox, d_->foreground_scale_factor );
+        mask_roi( bbox_to_mask_rect( fgbbox ) & mask_rect ) = cv::GC_FGD;
+      }
+      cv::Mat crop_mask = mask_roi( ctx_rect );
+      cv::grabCut( img( ctx_rect ), crop_mask, cv::Rect(), bgdModel, fgdModel,
+                   d_->iter_count, cv::GC_INIT_WITH_MASK );
+      // Crop mask and relabel pixels
+      mask = mask_roi( rect ).clone();
+      std::array< uint8_t, 256 > lut;
+      lut[ cv::GC_BGD ] = lut[ cv::GC_PR_BGD ] = 0;
+      lut[ cv::GC_FGD ] = lut[ cv::GC_PR_FGD ] = 1;
+      cv::LUT( mask, lut, mask );
+      // Add detection with mask to the output
+      auto new_det = det->clone();
+      // mask is a single-channel image, so the ic::ColorMode argument
+      // should be irrelevant
+      new_det->set_mask( std::make_shared< ic >( mask, ic::OTHER_COLOR ) );
+      result->add( std::move( new_det ) );
     }
-    cv::Mat crop_mask = mask_roi( ctx_rect );
-    cv::grabCut( img( ctx_rect ), crop_mask, cv::Rect(), bgdModel, fgdModel,
-                 d_->iter_count, cv::GC_INIT_WITH_MASK );
-    // Crop mask and relabel pixels
-    mask = mask_roi( rect ).clone();
-    std::array< uint8_t, 256 > lut;
-    lut[ cv::GC_BGD ] = lut[ cv::GC_PR_BGD ] = 0;
-    lut[ cv::GC_FGD ] = lut[ cv::GC_PR_FGD ] = 1;
-    cv::LUT( mask, lut, mask );
-    // Add detection with mask to the output
-    auto new_det = det->clone();
-    // mask is a single-channel image, so the ic::ColorMode argument
-    // should be irrelevant
-    new_det->set_mask( std::make_shared< ic >( mask, ic::OTHER_COLOR ) );
-    result->add( std::move( new_det ) );
   }
   return result;
 }
