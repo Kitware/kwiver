@@ -57,7 +57,7 @@ TEST(resection_camera, ideal_points)
   << "est C = " << est_cam->center().transpose() << endl;
 
   auto R_err = camR.inverse()*estR;
-  cout << "rotation error = " << R_err.angle()*180./pi << " degrees" << endl;
+  cout << "rotation error = " << R_err.angle()*180/pi << " degrees" << endl;
 
   EXPECT_LT(R_err.angle(), ideal_rotation_tolerance);
   EXPECT_MATRIX_SIMILAR(cam->center(), est_cam->center(), ideal_center_tolerance);
@@ -86,13 +86,10 @@ TEST(resection_camera, noisy_points)
 
   const frame_id_t frmID = 1;
 
-  auto cams = cameras->cameras();
-  auto cam = dynamic_pointer_cast<camera_perspective>(cams[frmID]);
-
   // corresponding image points
   vector<vector_2d> pts_projs;
   vector<vector_3d> pts_3d;
-  for (auto const& track : tracks->tracks())
+  for (auto const & track : tracks->tracks())
   {
     auto lm_id = track->id();
     auto lm_it = landmarks->landmarks().find(lm_id);
@@ -102,10 +99,12 @@ TEST(resection_camera, noisy_points)
   }
 
   // camera pose from the points and their projections
-  vector<bool> inliers;
   resection_camera res_cam;
+  auto cams = cameras->cameras();
+  auto cam = dynamic_pointer_cast<camera_perspective>(cams[frmID]);
+  vector<bool> inliers;
   auto est_cam = res_cam.resection(pts_projs, pts_3d, cam->intrinsics(), inliers);
-  EXPECT_NE(est_cam, nullptr) << "no resection matrix produced";
+  EXPECT_NE(est_cam, nullptr) << "resection camera failed";
 
   // true and computed camera poses
   const auto
@@ -117,7 +116,7 @@ TEST(resection_camera, noisy_points)
   << "est C = " << est_cam->center().transpose() << endl;
 
   auto R_err = camR.inverse()*estR;
-  cout << "rotation error = " << R_err.angle()*180./pi << " degrees" << endl;
+  cout << "rotation error = " << R_err.angle()*180/pi << " degrees" << endl;
 
   EXPECT_LT(R_err.angle(), noisy_rotation_tolerance);
   EXPECT_MATRIX_SIMILAR(cam->center(), est_cam->center(), noisy_center_tolerance);
@@ -182,7 +181,7 @@ TEST(resection_camera, outlier_points)
   << "est C = " << est_cam->center().transpose() << endl;
 
   auto R_err = camR.inverse()*estR;
-  cout << "rotation error = " << R_err.angle()*180./pi << " degrees" << endl;
+  cout << "rotation error = " << R_err.angle()*180/pi << " degrees" << endl;
 
   // compare true and computed camera poses
   EXPECT_LT(R_err.angle(), outlier_rotation_tolerance);
@@ -190,5 +189,5 @@ TEST(resection_camera, outlier_points)
 
   auto inlier_cnt = count(inliers.begin(), inliers.end(), true);
   cout << "inlier count = " << inlier_cnt << endl;
-  EXPECT_GT(inlier_cnt, pts_projs.size() / 3) << "not enough inliers";
+  EXPECT_GT(inlier_cnt, pts_projs.size()/3) << "not enough inliers";
 }

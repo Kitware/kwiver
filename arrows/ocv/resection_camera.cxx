@@ -15,6 +15,9 @@
 
 #include "camera_intrinsics.h"
 
+using namespace std;
+using namespace cv;
+
 namespace kwiver {
 namespace arrows {
 namespace ocv
@@ -98,10 +101,10 @@ resection_camera::check_configuration(vital::config_block_sptr config) const
 
 kwiver::vital::camera_perspective_sptr
 resection_camera::resection(
-	std::vector<kwiver::vital::vector_2d> const & pts2d,
-    std::vector<kwiver::vital::vector_3d> const & pts3d,
+	vector<kwiver::vital::vector_2d> const & pts2d,
+    vector<kwiver::vital::vector_3d> const & pts3d,
     kwiver::vital::camera_intrinsics_sptr cal,
-    std::vector<bool>& inliers
+    vector<bool>& inliers
 ) const
 {
   if (cal==nullptr)
@@ -121,56 +124,46 @@ resection_camera::resection(
   if (pts2cnt != pts3cnt)
     LOG_WARN(d_->m_logger, "counts of 3D points and projections do not match");
 
-  std::vector<cv::Point2f> projs;
-  std::vector<cv::Point3f> Xs;
+  vector<Point2f> projs;
+  vector<Point3f> Xs;
   for(const auto & p : pts2d)
-    projs.push_back(cv::Point2f(static_cast<float>(p.x()), static_cast<float>(p.y())));
+    projs.push_back(Point2f(static_cast<float>(p.x()), static_cast<float>(p.y())));
   for(const auto & X : pts3d)
-    Xs.push_back(cv::Point3f(static_cast<float>(X.x()),
+    Xs.push_back(Point3f(static_cast<float>(X.x()),
                              static_cast<float>(X.y()),
                              static_cast<float>(X.z())));
 
   vital::matrix_3x3d K = cal->as_matrix();
-  cv::Mat cv_K; cv::eigen2cv(K, cv_K);
-  std::vector<double> dist_coeffs = get_ocv_dist_coeffs(cal);
+  Mat cv_K; eigen2cv(K, cv_K);
+  auto dist_coeffs = get_ocv_dist_coeffs(cal);
+  Mat inliers_mat;
+  vector<Mat> vrvec, vtvec;
 
-  // TODO: initialize for cv::calibrateCamera, e.g. image size, which requires an approximate cal to exist
-  const double reproj_error = 4.;
-  cv::Mat inliers_mat, rvec, tvec;
-  bool success = cv::solvePnPRansac(Xs, projs,
-    cv_K, dist_coeffs, rvec, tvec, false,
-    d_->max_iterations, reproj_error,
-    d_->confidence_threshold, inliers_mat,
-    cv::SOLVEPNP_EPNP);
+  vector<vector<Point3f>> objPts = {Xs};
+  vector<vector<Point2f>> imgPts = {projs};
+  Size imgSize(cal->image_width(), cal->image_height());
+  int flags = CALIB_USE_INTRINSIC_GUESS;
+  const auto err = calibrateCamera(objPts, imgPts, imgSize, cv_K, dist_coeffs, vrvec, vtvec, flags);
+  const auto reproj_error = 4.;
+  if (err>reproj_error)
+    LOG_WARN(d_->m_logger, "estimated re-projection error " << err << " > " << reproj_error << " expected re-projection error");
 
-  double inlier_ratio = (inliers_mat.rows / (double)Xs.size());
+  Mat rvec=vrvec[0], tvec=vtvec[0];
+  vector<Point2f> prjPts; projectPoints(Xs, rvec, tvec, cv_K, dist_coeffs, prjPts);
+  auto cnt = Xs.size();
+  inliers.resize(cnt);
+  while (cnt--) inliers[cnt] = norm(prjPts[cnt]-projs[cnt])<reproj_error;
 
-  if (!success || tvec.rows == 0 || rvec.rows == 0)
-  {
-    LOG_DEBUG(d_->m_logger, "no PnP solution after " << d_->max_iterations
-              << " iterations with confidence " << d_->confidence_threshold
-              << " and best inlier ratio " << inlier_ratio );
-    return vital::camera_perspective_sptr();
-  }
-
-  inliers.assign(Xs.size(), 0);
-
-  for(int i = 0; i < inliers_mat.rows; ++i)
-  {
-    int idx = inliers_mat.at<int>(i);
-    inliers[idx] = true;
-  }
-
-  auto res_cam = std::make_shared<vital::simple_camera_perspective>();
+  auto res_cam = make_shared<vital::simple_camera_perspective>();
   Eigen::Vector3d rvec_eig, tvec_eig;
-  cv::cv2eigen(rvec, rvec_eig);
-  cv::cv2eigen(tvec, tvec_eig);
+  cv2eigen(rvec, rvec_eig);
+  cv2eigen(tvec, tvec_eig);
   vital::rotation_d rot(rvec_eig);
   res_cam->set_rotation(rot);
   res_cam->set_translation(tvec_eig);
   res_cam->set_intrinsics(cal); // TODO: set from calibration estimates
 
-  if (!std::isfinite(res_cam->center().x()))
+  if (!isfinite(res_cam->center().x()))
   {
     LOG_DEBUG(d_->m_logger, "rvec " << rvec.at<double>(0) << " " <<
               rvec.at<double>(1) << " " << rvec.at<double>(2));
@@ -180,7 +173,7 @@ resection_camera::resection(
     LOG_WARN(d_->m_logger, "non-finite camera center found");
     return vital::camera_perspective_sptr();
   }
-  return std::dynamic_pointer_cast<vital::camera_perspective>(res_cam);
+  return dynamic_pointer_cast<vital::camera_perspective>(res_cam);
 }
 
 kwiver::vital::camera_perspective_sptr
