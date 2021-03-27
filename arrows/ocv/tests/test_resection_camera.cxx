@@ -16,9 +16,7 @@ static constexpr double
   ideal_rotation_tolerance = 1e-6,
   ideal_center_tolerance = 1e-6,
   noisy_rotation_tolerance = 0.008,
-  noisy_center_tolerance = 0.05,
-  outlier_rotation_tolerance = 0.008,
-  outlier_center_tolerance = 0.05;
+  noisy_center_tolerance = 0.05;
 
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
