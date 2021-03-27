@@ -157,9 +157,9 @@ resection_camera::resection(
 
   auto res_cam = make_shared<simple_camera_perspective>();
   Eigen::Vector3d rvec_eig, tvec_eig;
-  auto len = dist_coeffs.size();
-  Eigen::VectorXd dist_eig(len);
-  while (len--) dist_eig[len]=dist_coeffs[len];
+  cnt = dist_coeffs.size();
+  Eigen::VectorXd dist_eig(cnt);
+  while (cnt--) dist_eig[cnt]=dist_coeffs[cnt];
   cv2eigen(rvec, rvec_eig);
   cv2eigen(tvec, tvec_eig);
   cv2eigen(cv_K, K);
