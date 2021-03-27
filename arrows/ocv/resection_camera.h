@@ -25,7 +25,7 @@ class KWIVER_ALGO_OCV_EXPORT resection_camera
 {
 public:
   PLUGIN_INFO( "ocv",
-               "Estimate camera pose and projection matrix using OpenCV calibrate camera method based on N point correspondences")
+               "resection camera using OpenCV calibrate camera method")
   /// Instantiate.
   resection_camera();
   /// Destroy.

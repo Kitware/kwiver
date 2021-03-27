@@ -14,6 +14,8 @@
 INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::resection_camera);
 /// \endcond
 
+using namespace std;
+
 namespace kwiver {
 namespace vital {
 namespace algo {
