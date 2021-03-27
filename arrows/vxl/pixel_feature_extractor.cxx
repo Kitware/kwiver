@@ -251,8 +251,9 @@ pixel_feature_extractor::priv
   if( enable_color )
   {
     // 3 channels
-    filtered_images.push_back(
-      convert_to_typed_vil_image_view< pix_t >( input_image ) );
+    auto color = convert_to_typed_vil_image_view< pix_t >(
+      input_image );
+    filtered_images.push_back( color );
   }
 
   // These three features require processing the vil_image directly
@@ -272,7 +273,7 @@ pixel_feature_extractor::priv
     }
 
     auto const double_gray = static_cast< vil_image_view< double > >(
-      vil_convert_cast( double{}, input_image_sptr ) );
+      vil_convert_cast( double(), input_image_sptr ) );
 
     if( enable_average || enable_normalized_variance )
     {

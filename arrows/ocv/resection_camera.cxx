@@ -14,9 +14,7 @@
 
 using namespace std;
 using namespace cv;
-
-using namespace std;
-using namespace cv;
+using namespace kwiver::vital;
 
 namespace kwiver {
 
@@ -107,13 +105,13 @@ kwiver::vital::camera_perspective_sptr
 resection_camera::resection(
 	vector<kwiver::vital::vector_2d> const & pts2d,
     vector<kwiver::vital::vector_3d> const & pts3d,
-    kwiver::vital::camera_intrinsics_sptr cal,
-    vector<bool>& inliers
+    vector<bool>& inliers,
+    kwiver::vital::camera_intrinsics_sptr cal
 ) const
 {
   if( cal == nullptr )
   {
-    LOG_ERROR( d_->m_logger, "camera calibration guess should not be null" );
+    LOG_ERROR(d_->m_logger, "camera calibration guess should not be null in this implementation");
     return vital::camera_perspective_sptr();
   }
 
@@ -134,10 +132,10 @@ resection_camera::resection(
     projs.push_back(Point2f(static_cast<float>(p.x()), static_cast<float>(p.y())));
   for(const auto & X : pts3d)
     Xs.push_back(Point3f(static_cast<float>(X.x()),
-                             static_cast<float>(X.y()),
-                             static_cast<float>(X.z())));
+			 static_cast<float>(X.y()),
+			 static_cast<float>(X.z())));
 
-  vital::matrix_3x3d K = cal->as_matrix();
+  matrix_3x3d K = cal->as_matrix();
   Mat cv_K; eigen2cv(K, cv_K);
   auto dist_coeffs = get_ocv_dist_coeffs(cal);
   Mat inliers_mat;
@@ -158,14 +156,19 @@ resection_camera::resection(
   inliers.resize(cnt);
   while (cnt--) inliers[cnt] = norm(prjPts[cnt]-projs[cnt])<reproj_error;
 
-  auto res_cam = make_shared<vital::simple_camera_perspective>();
+  auto res_cam = make_shared<simple_camera_perspective>();
   Eigen::Vector3d rvec_eig, tvec_eig;
+  cnt = dist_coeffs.size();
+  Eigen::VectorXd dist_eig(cnt);
+  while (cnt--) dist_eig[cnt]=dist_coeffs[cnt];
   cv2eigen(rvec, rvec_eig);
   cv2eigen(tvec, tvec_eig);
-  vital::rotation_d rot(rvec_eig);
+  cv2eigen(cv_K, K);
+  rotation_d rot(rvec_eig);
   res_cam->set_rotation(rot);
   res_cam->set_translation(tvec_eig);
-  res_cam->set_intrinsics(cal); // TODO: set from calibration estimates
+  cal.reset(new simple_camera_intrinsics(K, dist_eig));
+  res_cam->set_intrinsics(cal);
 
   if (!isfinite(res_cam->center().x()))
   {
@@ -195,6 +198,17 @@ resection_camera::resection(
   }
   return dynamic_pointer_cast<vital::camera_perspective>(res_cam);
 }
+
+kwiver::vital::camera_perspective_sptr
+resection_camera::resection(kwiver::vital::frame_id_t frame,
+          kwiver::vital::landmark_map_sptr landmarks,
+          kwiver::vital::feature_track_set_sptr tracks,
+          kwiver::vital::camera_intrinsics_sptr cal
+) const
+{
+  return vital::algo::resection_camera::resection(frame,landmarks,tracks,cal);
+}
+
 
 } // end namespace ocv
 
