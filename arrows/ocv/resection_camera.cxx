@@ -8,14 +8,12 @@
 #include "resection_camera.h"
 #include "camera_intrinsics.h"
 
-#include <cmath>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/eigen.hpp>
 
 
 using namespace std;
 using namespace cv;
-using namespace kwiver::vital;
 
 namespace kwiver {
 
@@ -24,20 +22,23 @@ namespace arrows {
 namespace ocv {
 
 // ----------------------------------------------------------------------------
+
 struct resection_camera::priv
 {
-  double reproj_accuracy = 1.;
+  double reproj_accuracy = 4.;
   int max_iterations = 32;
   vital::logger_handle_t m_logger;
 
-  priv() : m_logger( vital::get_logger( "arrows.ocv.resection_camera" ) )
+  priv() : m_logger{ vital::get_logger( "arrows.ocv.resection_camera" ) }
   {
   }
 };
 
+// ----------------------------------------------------------------------------
+
 resection_camera
 ::resection_camera()
-  : d_( new priv )
+  : d_{ new priv }
 {
 }
 
@@ -45,8 +46,7 @@ resection_camera::~resection_camera()
 {
 }
 
-/// Get this algorithm's \link vital::config_block configuration block
-/// \endlink.
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 resection_camera
 ::get_configuration() const
@@ -100,13 +100,13 @@ resection_camera
   return good_conf;
 }
 
-kwiver::vital::camera_perspective_sptr
+vital::camera_perspective_sptr
 resection_camera
 ::resection(
-  vector< kwiver::vital::vector_2d > const& pts2d,
-  vector< kwiver::vital::vector_3d > const& pts3d,
+  vector< vital::vector_2d > const& pts2d,
+  vector< vital::vector_3d > const& pts3d,
   vector< bool >& inliers,
-  kwiver::vital::camera_intrinsics_sptr cal ) const
+  vital::camera_intrinsics_sptr cal ) const
 {
   if( cal == nullptr )
   {
@@ -114,35 +114,32 @@ resection_camera
     return vital::camera_perspective_sptr();
   }
 
-  const unsigned minCnt = 3;
-  const unsigned pts2cnt = pts2d.size();
-  const unsigned pts3cnt = pts3d.size();
-  if( pts2cnt < minCnt || pts3cnt < minCnt )
+  constexpr size_t min_count = 3;
+  auto const pts2_count = pts2d.size();
+  auto const pts3_count = pts3d.size();
+  if( pts2_count < min_count || pts3_count < min_count )
   {
     LOG_ERROR( d_->m_logger, "not enough points to resection camera" );
     return vital::camera_perspective_sptr();
   }
-  if( pts2cnt != pts3cnt )
+  if( pts2_count != pts3_count )
   {
     LOG_WARN( d_->m_logger,
               "counts of 3D points and projections do not match" );
   }
 
   vector< Point2f > projs;
-  vector< Point3f > Xs;
-  for( const auto& p : pts2d )
+  for( auto const& p : pts2d )
   {
-    projs.push_back( Point2f( static_cast< float >( p.x() ),
-                              static_cast< float >( p.y() ) ) );
+    projs.emplace_back( p.x(), p.y() );
   }
+  vector< Point3f > Xs;
   for( const auto& X : pts3d )
   {
-    Xs.push_back( Point3f( static_cast< float >( X.x() ),
-                           static_cast< float >( X.y() ),
-                           static_cast< float >( X.z() ) ) );
+    Xs.emplace_back( X.x(), X.y(), X.z() );
   }
 
-  matrix_3x3d K = cal->as_matrix();
+  vital::matrix_3x3d K = cal->as_matrix();
   Mat cv_K;
   eigen2cv( K, cv_K );
 
@@ -153,20 +150,20 @@ resection_camera
   vector< vector< Point2f > > imgPts = { projs };
   Size imgSize( cal->image_width(), cal->image_height() );
   int flags = CALIB_USE_INTRINSIC_GUESS;
-  const auto reproj_error = d_->reproj_accuracy;
-  const auto err = calibrateCamera( objPts, imgPts,
+  auto const reproj_error = d_->reproj_accuracy;
+  auto const err = calibrateCamera( objPts, imgPts,
                                     imgSize, cv_K, dist_coeffs, vrvec, vtvec,
                                     flags,
-                                    TermCriteria( TermCriteria::COUNT +
+                                    TermCriteria{ TermCriteria::COUNT +
                                                   TermCriteria::EPS,
                                                   d_->max_iterations,
-                                                  reproj_error )
+                                                  reproj_error }
                                     );
   if( err > reproj_error )
   {
     LOG_WARN( d_->m_logger, "estimated re-projection error " <<
-              err << " > " << reproj_error <<
-          " expected re-projection error" );
+              err << " exceeds expected re-projection error " <<
+              reproj_error );
   }
 
   Mat rvec = vrvec[ 0 ];
@@ -181,20 +178,23 @@ resection_camera
     inliers[ cnt ] = norm( prjPts[ cnt ] - projs[ cnt ] ) < reproj_error;
   }
 
-  auto res_cam = make_shared< simple_camera_perspective >();
+  auto res_cam = make_shared< vital::simple_camera_perspective >();
   Eigen::Vector3d rvec_eig, tvec_eig;
   cnt = dist_coeffs.size();
 
   Eigen::VectorXd dist_eig( cnt );
-  while( cnt-- ) { dist_eig[ cnt ] = dist_coeffs[ cnt ]; }
+  while( cnt-- )
+  {
+    dist_eig[ cnt ] = dist_coeffs[ cnt ];
+  }
   cv2eigen( rvec, rvec_eig );
   cv2eigen( tvec, tvec_eig );
   cv2eigen( cv_K, K );
 
-  rotation_d rot( rvec_eig );
+  vital::rotation_d rot( rvec_eig );
   res_cam->set_rotation( rot );
   res_cam->set_translation( tvec_eig );
-  cal.reset( new simple_camera_intrinsics( K, dist_eig ) );
+  cal.reset( new vital::simple_camera_intrinsics( K, dist_eig ) );
   res_cam->set_intrinsics( cal );
 
   auto ctr = res_cam->center();
@@ -209,7 +209,7 @@ resection_camera
     LOG_WARN( d_->m_logger, "non-finite camera center found" );
     return vital::camera_perspective_sptr();
   }
-  return dynamic_pointer_cast< vital::camera_perspective >( res_cam );
+  return res_cam;
 }
 
 } // end namespace ocv

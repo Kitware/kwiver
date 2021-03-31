@@ -28,7 +28,6 @@ class KWIVER_ALGO_OCV_EXPORT resection_camera
 public:
   PLUGIN_INFO( "ocv",
                "resection camera using OpenCV calibrate camera method" )
-  /// Instantiate.
   resection_camera();
   /// Destroy.
   virtual ~resection_camera();
@@ -63,7 +62,7 @@ public:
 private:
   /// private implementation
   class priv;
-  const std::unique_ptr< priv > d_;
+  std::unique_ptr< priv > const d_;
 };
 
 } // end namespace ocv

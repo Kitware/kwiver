@@ -65,6 +65,22 @@ public:
     kwiver::vital::feature_track_set_sptr tracks,
     unsigned width, unsigned height ) const;
 
+  /// Estimate camera parameters for a frame from landmarks and tracks.
+  /// This is a convenience function, callin internally
+  /// resection(pts2d, pts3d, ...) with the recoverd point correspondences.
+  /// \param [in] frmID frame number for which to estimate a camera
+  /// \param [in] landmarks 3D landmarks locations to constrain camera
+  /// \param [in] tracks 2D feature tracks in image coordinates
+  /// \param [in] cal initial guess on intrinsic parameters of the camera
+  /// \return estimated camera parameters
+  virtual
+  kwiver::vital::camera_perspective_sptr
+  resection(
+    kwiver::vital::frame_id_t frmID,
+    kwiver::vital::landmark_map_sptr landmarks,
+    kwiver::vital::feature_track_set_sptr tracks,
+    kwiver::vital::camera_intrinsics_sptr cal ) const;
+
 protected:
   resection_camera();
 };
