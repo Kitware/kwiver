@@ -11,42 +11,46 @@
 #define VITAL_ALGO_RESECTION_CAMERA_H_
 
 #include <vital/algo/algorithm.h>
-#include <vital/types/feature_track_set.h>
 #include <vital/types/camera_perspective.h>
+#include <vital/types/feature_track_set.h>
 #include <vital/types/landmark_map.h>
 
 #include <vector>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
-/// An abstract base class to resection a camera using 3D feature and point projection pairs.
+/// An abstract base class to resection a camera using 3D feature and point
+/// projection pairs.
 class VITAL_ALGO_EXPORT resection_camera
-  : public kwiver::vital::algorithm_def<resection_camera>
+  : public kwiver::vital::algorithm_def< resection_camera >
 {
 public:
   /// \return name of this algorithm
-  static std::string static_type_name() { return "resection_camera"; }
+  static std::string
+  static_type_name() { return "resection_camera"; }
 
-  /// Estimate camera parameters from 3D points and their corresponding projections.
+  /// Estimate camera parameters from 3D points and their corresponding
+  /// projections.
   /// \param [in] pts2d 2d projections of pts3d in the same order as pts3d
-  /// \param [in] pts3d 3d points in the same order as pts2d, assuming a 1-1 correspondence
+  /// \param [in] pts3d 3d points in a 1-1 correspondence with pts2d
   /// \param [out] inliers inlier flags for the point pairs
   /// \param [in] cal initial guess on intrinsic parameters of the camera
   /// \return estimated camera parameters
   virtual
   kwiver::vital::camera_perspective_sptr
   resection(
-    std::vector<kwiver::vital::vector_2d> const & pts2d,
-    std::vector<kwiver::vital::vector_3d> const & pts3d,
-    std::vector<bool> & inliers,
-    kwiver::vital::camera_intrinsics_sptr cal
-  ) const=0;
+    std::vector< kwiver::vital::vector_2d > const& pts2d,
+    std::vector< kwiver::vital::vector_3d > const& pts3d,
+    std::vector< bool >& inliers,
+    kwiver::vital::camera_intrinsics_sptr cal ) const = 0;
 
   /// Estimate camera parameters for a frame from landmarks and tracks.
-  /// This is a convenience function, constructing the pts2d and pts3d from a frame, landmarks, tracks,
-  /// and then call resection() with the point correspondences.
+  /// This is a convenience function, callin internally
+  /// resection(pts2d, pts3d, ...) with the recoverd point correspondences.
   /// \param [in] frmID frame number for which to estimate a camera
   /// \param [in] landmarks 3D landmarks locations to constrain camera
   /// \param [in] tracks 2D feature tracks in image coordinates
@@ -59,16 +63,19 @@ public:
     kwiver::vital::frame_id_t frmID,
     kwiver::vital::landmark_map_sptr landmarks,
     kwiver::vital::feature_track_set_sptr tracks,
-    unsigned width, unsigned height
-  ) const;
+    unsigned width, unsigned height ) const;
 
 protected:
   resection_camera();
 };
 
 /// Shared pointer type of base resection_camera algorithm definition class
-typedef std::shared_ptr<resection_camera> resection_camera_sptr;
+typedef std::shared_ptr< resection_camera > resection_camera_sptr;
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+}     // end namespace
 
 #endif // VITAL_ALGO_RESECTION_CAMERA_H_
