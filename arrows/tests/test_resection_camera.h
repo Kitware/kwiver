@@ -90,7 +90,49 @@ TEST(resection_camera, noisy_points)
   auto cams = cameras->cameras();
   auto cam = dynamic_pointer_cast<camera_perspective>(cams[frmID]);
   auto est_cam = res_cam.resection(frmID, landmarks, tracks, cam->image_width(), cam->image_height());
-  EXPECT_NE(est_cam, nullptr) << "resection camera failed";
+  EXPECT_NE(est_cam, nullptr) << "noisy resection camera failed";
+
+  // true and computed camera poses
+  const auto
+    &camR = cam->rotation(),
+    &estR = est_cam->rotation();
+  cout << "cam R:\n" << camR.matrix() << endl
+  << "est R:\n" << estR.matrix() << endl
+  << "cam C = " << cam->center().transpose() << endl
+  << "est C = " << est_cam->center().transpose() << endl;
+
+  auto R_err = camR.inverse()*estR;
+  cout << "rotation error = " << R_err.angle()*180/pi << " degrees" << endl;
+
+  EXPECT_LT(R_err.angle(), noisy_rotation_tolerance);
+  EXPECT_MATRIX_SIMILAR(cam->center(), est_cam->center(), noisy_center_tolerance);
+}
+
+// ----------------------------------------------------------------------------
+// Test camera resection with noisy points and initial calibration guess
+TEST(resection_camera, noisy_points_cal)
+{
+  // landmarks at random locations
+  landmark_map_sptr landmarks = kwiver::testing::init_landmarks(128);
+  landmarks = kwiver::testing::noisy_landmarks(landmarks, 1.0);
+
+  // camera sequence (elliptical path)
+  camera_map_sptr cameras = kwiver::testing::camera_seq();
+
+  // tracks from the projections
+  auto tracks = dynamic_pointer_cast<feature_track_set>(projected_tracks(landmarks, cameras));
+
+  // random noise to track image locations
+  tracks = kwiver::testing::noisy_tracks(tracks, 0.5);
+
+  const frame_id_t frmID = 2;
+
+  // resection camera using 3D landmarks, 2D feature tracks and a camera intrinsics guess
+  resection_camera res_cam;
+  auto cams = cameras->cameras();
+  auto cam = dynamic_pointer_cast<camera_perspective>(cams[frmID]);
+  auto est_cam = res_cam.resection(frmID, landmarks, tracks, cam->intrinsics());
+  EXPECT_NE(est_cam, nullptr) << "null resection camera on noisy points with initial cal guess";
 
   // true and computed camera poses
   const auto
