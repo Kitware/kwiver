@@ -81,7 +81,7 @@ TEST(resection_camera, noisy_points)
   // tracks from the projections
   auto tracks = projected_tracks(landmarks, cameras);
 
-  // random noise to track image locations
+  // Add some random noise to the track image locations
   tracks = kwiver::testing::noisy_tracks(tracks, 0.5);
 
   const frame_id_t frmID = 1;
