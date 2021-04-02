@@ -27,7 +27,8 @@ resection_camera
   attach_logger( "algo.resection_camera" );
 }
 
-void get_points(frame_id_t frmID, landmark_map_sptr landmarks, feature_track_set_sptr tracks,
+void get_points(const frame_id_t frmID,
+  const landmark_map_sptr landmarks, const feature_track_set_sptr tracks,
   vector< vector_3d > & pts_3d, vector< vector_2d > & pts_projs)
 {
   auto lmx = landmarks->landmarks();
@@ -47,7 +48,7 @@ void get_points(frame_id_t frmID, landmark_map_sptr landmarks, feature_track_set
 
 camera_perspective_sptr
 resection_camera
-::resection( frame_id_t frmID,
+::resection( frame_id_t frame,
              landmark_map_sptr landmarks,
              feature_track_set_sptr tracks,
              unsigned width, unsigned height ) const
@@ -70,7 +71,7 @@ resection_camera
 ::resection( frame_id_t frmID,
              landmark_map_sptr landmarks,
              feature_track_set_sptr tracks,
-	       kwiver::vital::camera_intrinsics_sptr cal ) const
+             kwiver::vital::camera_intrinsics_sptr cal ) const
 {
   vector< vector_3d > pts_3d; // world points
   vector< vector_2d > pts_projs; // corresponding image points
@@ -80,8 +81,8 @@ resection_camera
   return resection( pts_projs, pts_3d, inliers, cal );
 }
 
-} // end algo
+} // namespace algo
 
-} // end vital
+} // namespace vital
 
-} // end kwiver
+} // namespace kwiver

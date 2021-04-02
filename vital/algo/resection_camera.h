@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief resection_camera algorithm definition
- */
+/// \file
+/// \brief resection_camera algorithm definition
 
 #ifndef VITAL_ALGO_RESECTION_CAMERA_H_
 #define VITAL_ALGO_RESECTION_CAMERA_H_
@@ -66,8 +64,10 @@ public:
     unsigned width, unsigned height ) const;
 
   /// Estimate camera parameters for a frame from landmarks and tracks.
-  /// This is a convenience function, callin internally
-  /// resection(pts2d, pts3d, ...) with the recoverd point correspondences.
+  ///
+  /// This is a convenience overload; the default implementation calls
+  /// resection(pts2d, pts3d, ...) with the recovered point correspondences.
+  ///
   /// \param [in] frmID frame number for which to estimate a camera
   /// \param [in] landmarks 3D landmarks locations to constrain camera
   /// \param [in] tracks 2D feature tracks in image coordinates
@@ -85,13 +85,13 @@ protected:
   resection_camera();
 };
 
-/// Shared pointer type of base resection_camera algorithm definition class
-typedef std::shared_ptr< resection_camera > resection_camera_sptr;
+/// Shared pointer type of base resection_camera algorithm definition class.
+using resection_camera_sptr = std::shared_ptr< resection_camera >;
 
 } // namespace algo
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
-#endif // VITAL_ALGO_RESECTION_CAMERA_H_
+#endif
