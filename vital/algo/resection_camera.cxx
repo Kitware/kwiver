@@ -53,17 +53,14 @@ resection_camera
              feature_track_set_sptr tracks,
              unsigned width, unsigned height ) const
 {
-  vector< vector_3d > pts_3d; // world points
-  vector< vector_2d > pts_projs; // corresponding image points
-  get_points(frmID, landmarks, tracks, pts_3d, pts_projs);
-  // resection camera using point correspondences and image dimensions
-  const vector_2d principal_point( width / 2., height / 2. );
-  camera_intrinsics_sptr cal(
-    new simple_camera_intrinsics( ( width + height ) / 2., principal_point,
-                                  1.0, 0.0,
-                                  Eigen::VectorXd(), width, height ) );
-  vector< bool > inliers;
-  return resection( pts_projs, pts_3d, inliers, cal );
+  // Generate calibration guess from image dimensions.
+  auto const principal_point = vector_2d{ width * 0.5, height * 0.5 };
+  auto cal = std::make_shared< simple_camera_intrinsics >(
+    ( width + height ) * 0.5, principal_point, 1.0, 0.0,
+    Eigen::VectorXd(), width, height );
+
+  // Resection using guessed calibration.
+  return resection( frame_id, landmarks, tracks, cal );
 }
 
 camera_perspective_sptr
@@ -73,10 +70,21 @@ resection_camera
              feature_track_set_sptr tracks,
              kwiver::vital::camera_intrinsics_sptr cal ) const
 {
-  vector< vector_3d > pts_3d; // world points
-  vector< vector_2d > pts_projs; // corresponding image points
-  get_points(frmID, landmarks, tracks, pts_3d, pts_projs);
-  // resection camera using point correspondences and initial calibration guess
+  auto world_points = vector< vector_3d >{};
+  auto camera_points = vector< vector_2d >{};
+
+  auto const& real_landmarks = landmarks->landmarks();
+  for( auto const& fts : tracks->frame_feature_track_states(frame_id) )
+  {
+    auto lmi = real_landmarks.find( fts->track()->id() );
+    if( lmi != real_landmarks.end() )
+    {
+      world_points.emplace_back( lmi->second->loc() );
+      camera_points.emplace_back( fts->feature->loc() );
+    }
+  }
+
+  // Resection camera using point correspondences and initial calibration guess.
   vector< bool > inliers;
   return resection( pts_projs, pts_3d, inliers, cal );
 }
