@@ -2,22 +2,18 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV resection_camera algorithm implementation
- */
+/// \file
+/// \brief OCV resection_camera algorithm implementation
 
 #include "resection_camera.h"
+#include "camera_intrinsics.h"
 
-#include <cmath>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/eigen.hpp>
 
-#include "camera_intrinsics.h"
 
 using namespace std;
 using namespace cv;
-using namespace kwiver::vital;
 
 namespace kwiver {
 
@@ -25,10 +21,11 @@ namespace arrows {
 
 namespace ocv {
 
-/// private implementation
+// ----------------------------------------------------------------------------
+
 struct resection_camera::priv
 {
-  double reproj_accuracy = 3.;
+  double reproj_accuracy = 4.;
   int max_iterations = 32;
   vital::logger_handle_t m_logger;
 
@@ -37,9 +34,11 @@ struct resection_camera::priv
   }
 };
 
+// ----------------------------------------------------------------------------
+
 resection_camera
 ::resection_camera()
-  : d_( new priv )
+  : d_{ new priv }
 {
 }
 
@@ -102,13 +101,13 @@ resection_camera
   return good_conf;
 }
 
-kwiver::vital::camera_perspective_sptr
+vital::camera_perspective_sptr
 resection_camera
 ::resection(
-  vector< kwiver::vital::vector_2d > const& pts2d,
-  vector< kwiver::vital::vector_3d > const& pts3d,
+  vector< vital::vector_2d > const& pts2d,
+  vector< vital::vector_3d > const& pts3d,
   vector< bool >& inliers,
-  kwiver::vital::camera_intrinsics_sptr cal ) const
+  vital::camera_intrinsics_sptr cal ) const
 {
   if( cal == nullptr )
   {
@@ -144,7 +143,7 @@ resection_camera
                            static_cast< float >( X.z() ) ) );
   }
 
-  matrix_3x3d K = cal->as_matrix();
+  vital::matrix_3x3d K = cal->as_matrix();
   Mat cv_K;
   eigen2cv( K, cv_K );
 
@@ -183,7 +182,7 @@ resection_camera
     inliers[ cnt ] = norm( prjPts[ cnt ] - projs[ cnt ] ) < reproj_error;
   }
 
-  auto res_cam = make_shared< simple_camera_perspective >();
+  auto res_cam = make_shared< vital::simple_camera_perspective >();
   Eigen::Vector3d rvec_eig, tvec_eig;
   cnt = dist_coeffs.size();
 
@@ -193,10 +192,10 @@ resection_camera
   cv2eigen( tvec, tvec_eig );
   cv2eigen( cv_K, K );
 
-  rotation_d rot( rvec_eig );
+  vital::rotation_d rot( rvec_eig );
   res_cam->set_rotation( rot );
   res_cam->set_translation( tvec_eig );
-  cal.reset( new simple_camera_intrinsics( K, dist_eig ) );
+  cal.reset( new vital::simple_camera_intrinsics( K, dist_eig ) );
   res_cam->set_intrinsics( cal );
 
   auto ctr = res_cam->center();

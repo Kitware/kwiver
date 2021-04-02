@@ -54,9 +54,8 @@ public:
   using vital::algo::resection_camera::resection;
 
 private:
-  /// private implementation class
+  /// private implementation
   class priv;
-
   const std::unique_ptr< priv > d_;
 };
 
