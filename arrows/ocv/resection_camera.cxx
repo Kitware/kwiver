@@ -114,9 +114,9 @@ resection_camera
     return vital::camera_perspective_sptr();
   }
 
-  const unsigned minCnt = 3;
-  const unsigned pts2cnt = pts2d.size();
-  const unsigned pts3cnt = pts3d.size();
+  constexpr size_t min_count = 3;
+  auto const pts2_count = pts2d.size();
+  auto const pts3_count = pts3d.size();
   if( pts2cnt < minCnt || pts3cnt < minCnt )
   {
     LOG_ERROR( d_->m_logger, "not enough points to resection camera" );
