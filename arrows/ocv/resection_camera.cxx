@@ -130,7 +130,7 @@ resection_camera
 
   vector< Point2f > projs;
   vector< Point3f > Xs;
-  for( const auto& p : pts2d )
+  for( auto const& p : pts2d )
   {
     projs.push_back( Point2f( static_cast< float >( p.x() ),
                               static_cast< float >( p.y() ) ) );
