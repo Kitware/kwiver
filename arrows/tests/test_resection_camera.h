@@ -52,9 +52,9 @@ TEST(resection_camera, ideal_points)
   auto const& camR = cam->rotation();
   auto const& estR = est_cam->rotation();
   cout << "cam R:\n" << camR.matrix() << endl
-  << "est R:\n" << estR.matrix() << endl
-  << "cam C = " << cam->center().transpose() << endl
-  << "est C = " << est_cam->center().transpose() << endl;
+       << "est R:\n" << estR.matrix() << endl
+       << "cam C = " << cam->center().transpose() << endl
+       << "est C = " << est_cam->center().transpose() << endl;
 
   auto R_err = camR.inverse()*estR;
   cout << "rotation error = " << R_err.angle()*180/pi << " degrees" << endl;
