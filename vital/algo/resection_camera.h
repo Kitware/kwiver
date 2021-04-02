@@ -34,7 +34,6 @@ public:
   /// Estimate camera parameters from 3D points and their corresponding
   /// projections.
   ///
-  /// \param [in] pts2d 2d projections of pts3d points
   /// \param [in] pts2d 2d projections of pts3d in the same order as pts3d
   /// \param [in] pts3d 3d points in a 1-1 correspondence with pts2d
   /// \param [out] inliers inlier flags for the point pairs
@@ -49,13 +48,15 @@ public:
     kwiver::vital::camera_intrinsics_sptr cal ) const = 0;
 
   /// Estimate camera parameters for a frame from landmarks and tracks.
+  ///
   /// This is a convenience function, callin internally
   /// resection(pts2d, pts3d, ...) with the recoverd point correspondences.
+  ///
   /// \param [in] frmID frame number for which to estimate a camera
-  /// \param [in] landmarks 3D landmarks locations to constrain camera
+  /// \param [in] landmarks 3D landmark locations to constrain camera
   /// \param [in] tracks 2D feature tracks in image coordinates
-  /// \param [in] width image matrix column count
-  /// \param [in] height image matrix row count
+  /// \param [in] width image size in the x dimension in pixels
+  /// \param [in] height image size in the y dimension in pixels
   /// \return estimated camera parameters
   virtual
   kwiver::vital::camera_perspective_sptr
@@ -66,8 +67,10 @@ public:
     unsigned width, unsigned height ) const;
 
   /// Estimate camera parameters for a frame from landmarks and tracks.
-  /// This is a convenience function, callin internally
-  /// resection(pts2d, pts3d, ...) with the recoverd point correspondences.
+  ///
+  /// This is a convenience overload; the default implementation calls
+  /// resection(pts2d, pts3d, ...) with the recovered point correspondences.
+  ///
   /// \param [in] frmID frame number for which to estimate a camera
   /// \param [in] landmarks 3D landmarks locations to constrain camera
   /// \param [in] tracks 2D feature tracks in image coordinates
@@ -85,8 +88,8 @@ protected:
   resection_camera();
 };
 
-/// Shared pointer type of base resection_camera algorithm definition class
-typedef std::shared_ptr< resection_camera > resection_camera_sptr;
+/// Shared pointer type of base resection_camera algorithm definition class.
+using resection_camera_sptr = std::shared_ptr< resection_camera >;
 
 } // namespace algo
 
