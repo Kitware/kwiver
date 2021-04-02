@@ -5,44 +5,37 @@
 #ifndef ARROWS_CORE_VIDEO_INPUT_ARF_H
 #define ARROWS_CORE_VIDEO_INPUT_ARF_H
 
-#include <vital/algo/video_input.h>
-
 #include <arrows/core/kwiver_algo_core_export.h>
+
+#include <vital/algo/video_input.h>
 
 namespace kwiver {
 namespace arrows {
 namespace core {
 
-/// Metadata reader using the NVESD ARF file format.
-// (Automatic Target Recognition Working Group Raster Format)
 // ----------------------------------------------------------------
-/**
- * This class implements a video input algorithm that returns only metadata.
- *
- * The algorithm takes configuration for a directory full of images
- * and an associated directory name for the metadata files. These
- * metadata files have the same base name as the image files.
- */
+/// Video reader for the NVESD ARF file format.
+// (Automatic Target Recognition Working Group Raster Format)
 class KWIVER_ALGO_CORE_EXPORT video_input_arf
-  : public  vital::algo::video_input
+  : public vital::algo::video_input
 {
 public:
-  PLUGIN_INFO(  "arf",
-                "Read video metadata in NVESD ARF format."
-                " This algorithm takes an arf video file" )
+  PLUGIN_INFO( "arf",
+               "Read video metadata in NVESD ARF format. "
+               "This algorithm takes an arf video file" )
 
   /// Constructor
   video_input_arf();
   virtual ~video_input_arf();
 
   /// Get this algorithm's \link vital::config_block configuration block \endlink
-  virtual vital::config_block_sptr get_configuration() const override;
+  vital::config_block_sptr get_configuration() const override;
 
   /// Set this algorithm's properties via a config block
-  virtual void set_configuration(vital::config_block_sptr config) override;
+  void set_configuration(vital::config_block_sptr config) override;
 
   /// Check that the algorithm's currently configuration is valid
-  virtual bool check_configuration(vital::config_block_sptr config) const override;
+  bool check_configuration(vital::config_block_sptr config) const override;
 
   void open(std::string list_name) override;
   void close() override;
@@ -52,12 +45,12 @@ public:
   bool seekable() const override;
   size_t num_frames() const override;
 
-  virtual bool next_frame( kwiver::vital::timestamp& ts,
-                           uint32_t timeout = 0 ) override;
+  bool next_frame( kwiver::vital::timestamp& ts,
+                   uint32_t timeout = 0 ) override;
 
-  virtual bool seek_frame( kwiver::vital::timestamp& ts,
-                           kwiver::vital::timestamp::frame_t frame_number,
-                           uint32_t timeout = 0 ) override;
+  bool seek_frame( kwiver::vital::timestamp& ts,
+                   kwiver::vital::timestamp::frame_t frame_number,
+                   uint32_t timeout = 0 ) override;
 
   kwiver::vital::timestamp frame_timestamp() const override;
   kwiver::vital::image_container_sptr frame_image() override;
@@ -65,11 +58,10 @@ public:
   kwiver::vital::metadata_map_sptr metadata_map() override;
 
 private:
-  /// private implementation class
   class priv;
-  const std::unique_ptr<priv> d;
+  std::unique_ptr<priv> const d;
 };
 
 } } } // end namespace
 
-#endif // ARROWS_CORE_VIDEO_INPUT_ARF_H
+#endif

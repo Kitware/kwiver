@@ -49,9 +49,9 @@
 #include <arrows/core/transfer_bbox_with_depth_map.h>
 #include <arrows/core/transform_detected_object_set.h>
 #include <arrows/core/uv_unwrap_mesh.h>
+#include <arrows/core/video_input_arf.h>
 #include <arrows/core/video_input_filter.h>
 #include <arrows/core/video_input_image_list.h>
-#include <arrows/core/video_input_arf.h>
 #include <arrows/core/video_input_pos.h>
 #include <arrows/core/video_input_splice.h>
 #include <arrows/core/video_input_split.h>

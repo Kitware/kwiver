@@ -1,6 +1,7 @@
 // This file is part of KWIVER, and is distributed under the
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
+
 // Implementation was heavily taken from
 // https://www.mathworks.com/matlabcentral/fileexchange/78652-arf_read_write
 
@@ -14,13 +15,10 @@
 #include <vital/exceptions.h>
 #include <vital/vital_types.h>
 
-#include <kwiversys/SystemTools.hxx>
-
 #include <fstream>
 #include <iostream>
 
 const uint32_t GAP_SIZE = 40;
-const uint32_t HEADER_SIZE = 104;
 const uint32_t COLOR_MAP_SIZE = 256 * 3;
 
 namespace kv = kwiver::vital;
@@ -29,35 +27,26 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
+// ----------------------------------------------------------------------------
 class video_input_arf::priv
 {
 public:
-  priv()
-  {
-    int num = 1;
-    if (*(char*)&num == 1)// Are we little endian?
-      convert_endian = true;// Yep, convert it
-    else
-      convert_endian = false;
-  }
+  constexpr static uint16_t endian_test = 0x1234;
+  constexpr static bool convert_endian =
+    (static_cast<uint8_t const&>(endian_test) == 0x34);
 
   // Metadata map
   bool have_metadata_map = false;
   vital::metadata_sptr metadata = nullptr;
   vital::metadata_map::map_metadata_t metadata_map;
-  std::map< kv::path_t, kv::metadata_sptr > metadata_by_path;
 
   // Utilities for little/big endian conversion
-  uint8_t byteswap(uint8_t);
-  uint16_t byteswap(uint16_t);
   uint32_t byteswap(uint32_t);
-  uint64_t byteswap(uint64_t);
 
-  void byteswap_img_bytes(unsigned char* img_bytes);
+  void byteswap_image_bytes(unsigned char* img_bytes);
 
-  // local state
+  // Local state
   FILE* file = nullptr;
-  bool convert_endian;
   bool frame_info = false;
   uint32_t version = 0;
   uint32_t offset = 0;
@@ -69,13 +58,14 @@ public:
   uint32_t img_size = 0;
 
   kv::image_pixel_traits px;
-  kv::frame_id_t frame_number = 0;
+  kv::frame_id_t current_frame = 0;
+  kv::image_container_sptr current_image;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_input_arf
 ::video_input_arf()
-  : d( new video_input_arf::priv )
+  : d{ new video_input_arf::priv }
 {
   attach_logger( "arrows.core.video_input_arf" );
 
@@ -84,30 +74,31 @@ video_input_arf
   set_capability( vital::algo::video_input::HAS_FRAME_TIME, true );
   set_capability( vital::algo::video_input::HAS_METADATA, false );
 
-  set_capability( vital::algo::video_input::HAS_FRAME_DATA, false );// MAYBE
-  set_capability( vital::algo::video_input::HAS_ABSOLUTE_FRAME_TIME, false ); // MAYBE
+  set_capability( vital::algo::video_input::HAS_FRAME_DATA, false );
+  set_capability( vital::algo::video_input::HAS_ABSOLUTE_FRAME_TIME, false );
   set_capability( vital::algo::video_input::HAS_TIMEOUT, false );
   set_capability( vital::algo::video_input::IS_SEEKABLE, true );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_input_arf
 ::~video_input_arf()
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 video_input_arf
 ::get_configuration() const
 {
-  // get base config from base class
-  vital::config_block_sptr config = vital::algo::video_input::get_configuration();
+  // Get base config from base class
+  vital::config_block_sptr config =
+    vital::algo::video_input::get_configuration();
 
   return config;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 video_input_arf
 ::set_configuration( vital::config_block_sptr in_config )
@@ -116,7 +107,7 @@ video_input_arf
   config->merge_config(in_config);
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_arf
 ::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
@@ -124,14 +115,12 @@ video_input_arf
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 video_input_arf
 ::open( std::string filename)
 {
-  typedef kwiversys::SystemTools ST;
-
-  // close the video in case already open
+  // Close the video in case already open
   this->close();
 
   d->file = fopen(filename.c_str(), "rb");
@@ -140,40 +129,41 @@ video_input_arf
     VITAL_THROW(kv::invalid_file, filename, "Could not open file");
   }
 
-  unsigned char header[32];
+  uint32_t header[32];
   fread(header, 4, 8, d->file);
-  uint32_t* iheader = (uint32_t*)&header;
-  uint32_t magic = d->byteswap(iheader[0]);
+  uint32_t magic = d->byteswap(header[0]);
   if (magic != 3149642413)
   {
     VITAL_THROW(kv::invalid_file, filename, "Is not an ARF file");
   }
 
-  d->version = d->byteswap(iheader[1]);
+  d->version = d->byteswap(header[1]);
   if (d->version != 2)
   {
     VITAL_THROW(kv::invalid_file, filename, "Unsupported ARF version");
   }
 
-  d->rows = d->byteswap(iheader[2]);
-  d->cols = d->byteswap(iheader[3]);
-  uint32_t imgtype = d->byteswap(iheader[4]);
-  d->num_frames = d->byteswap(iheader[5]);
-  d->offset = d->byteswap(iheader[6]);
-  uint32_t flags = d->byteswap(iheader[7]);
+  d->rows = d->byteswap(header[2]);
+  d->cols = d->byteswap(header[3]);
+  uint32_t imgtype = d->byteswap(header[4]);
+  d->num_frames = d->byteswap(header[5]);
+  d->offset = d->byteswap(header[6]);
+  uint32_t flags = d->byteswap(header[7]);
 
   bool arf_info = (flags & (2 ^ 0)) != 0;
   bool arf_colormap = (flags & (2 ^ 1)) != 0;
   bool arf_comment = (flags & (2 ^ 2)) != 0;
   bool arf_multiband = (flags & (2 ^ 3)) != 0;
   bool arf_framedata = (flags & (2 ^ 4)) != 0;
-  bool arf_extra = (flags & (2 ^ 5 - 1)) != 0;
+  bool arf_extra = (flags & ((2 ^ 5) - 1)) != 0;
   if (arf_extra)
-    std::cout << "Additional unsupported/unimplemented ARF flags exist, read may fail\n";
+    LOG_INFO(logger(),
+      "Additional unsupported/unimplemented ARF flags exist, read may fail");
 
   if (flags == 1 && d->offset == 288)
   {
-    std::cout << "header looks incorrect, assuming ARF_COMMENT instead of ARF_INFO\n";
+    LOG_INFO(logger(),
+      "header looks incorrect, assuming ARF_COMMENT instead of ARF_INFO");
     arf_info = false;
     arf_comment = true;
   }
@@ -214,6 +204,7 @@ video_input_arf
 
   if (arf_framedata)
   {
+    // TODO
     uint32_t footer_flags;
     fread(&footer_flags, 4, 1, d->file);
     d->frame_info = (footer_flags & (2 ^ 0)) != 0;
@@ -224,63 +215,60 @@ video_input_arf
   {
   case 0:
     d->bpp = 1;//uint8
-    d->px.num_bytes = d->bpp;
     d->px.type = kv::image_pixel_traits::UNSIGNED;
     break;
   case 1:
   case 2:
   case 5:
     d->bpp = 2;// uint16
-    d->px.num_bytes = d->bpp;
     d->px.type = kv::image_pixel_traits::UNSIGNED;
     break;
   case 3://
-    d->bpp = 2;// uint16
-    d->px.num_bytes = d->bpp;
-    d->px.type = kv::image_pixel_traits::UNSIGNED;
+    d->bpp = 2;// int16
+    d->px.type = kv::image_pixel_traits::SIGNED;
     break;
   case 6:
     d->bpp = 4;// uint32
-    d->px.num_bytes = d->bpp;
     d->px.type = kv::image_pixel_traits::UNSIGNED;
     break;
   case 7:
     d->bpp = 4;// single
-    d->px.num_bytes = d->bpp;
     d->px.type = kv::image_pixel_traits::FLOAT;
     break;
   case 8:
     d->bpp = 8;// double
-    d->px.num_bytes = d->bpp;
     d->px.type = kv::image_pixel_traits::FLOAT;
     break;
   case 10:
     d->bpp = 3;// uint8
-    d->px.num_bytes = d->bpp;
     d->px.type = kv::image_pixel_traits::UNSIGNED;
+    break;
   default:
     close();
-    VITAL_THROW(kv::invalid_file, filename, "Unsupported ARF image type (bits per pixel)");
+    VITAL_THROW(kv::invalid_file, filename,
+      "Unsupported ARF image type (bits per pixel)");
   }
+  d->px.num_bytes = d->bpp;
 
   if (d->offset == 0)
   {
     // TODO sum all this up to take a guess...
     //d->offset = 32 + 140 * arf_info + 768 * arf_colormap + 256 * arf_comment;
-    std::cout << "No offest found, assuming offset of " << d->offset << "\n";
+    LOG_INFO(logger(), "No offest found, assuming offset of " << d->offset);
   }
 
   if (d->num_frames == 0)
   {
+    // TODO Fatal or not?
     VITAL_THROW(kv::invalid_file, filename, "ARF file has no frames");
   }
 
   d->img_size = (d->rows * d->cols * d->bpp);
 
-  d->frame_number = 0;
+  d->current_frame = 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 video_input_arf
 ::close()
@@ -299,18 +287,19 @@ video_input_arf
   d->frame_pad = 0;
   d->bpp = 0;
 
-  d->frame_number = 0;
+  d->current_frame = 0;
+  d->current_image = nullptr;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_arf
 ::end_of_video() const
 {
-  return  d->frame_number == d->num_frames;
+  return  d->current_frame == d->num_frames;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_arf
 ::good() const
@@ -318,7 +307,7 @@ video_input_arf
   return d->img_size>0 && ! this->end_of_video();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_arf
 ::seekable() const
@@ -326,7 +315,7 @@ video_input_arf
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 size_t
 video_input_arf
 ::num_frames() const
@@ -334,13 +323,13 @@ video_input_arf
   return d->num_frames;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_arf
 ::next_frame(kv::timestamp& ts,   // returns timestamp
               VITAL_UNUSED uint32_t     timeout ) // not supported
 {
-  // reset current timestamp
+  // Reset current timestamp
   ts = kv::timestamp();
 
   // Check for at end of video
@@ -349,7 +338,8 @@ video_input_arf
     return false;
   }
 
-  ++d->frame_number;
+  ++d->current_frame;
+  d->current_image = nullptr;
 
   // Check for at end of video
   if ( this->end_of_video() )
@@ -363,23 +353,24 @@ video_input_arf
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_arf
 ::seek_frame(kv::timestamp& ts,   // returns timestamp
-             kv::timestamp::frame_t frame_number,
+             kv::timestamp::frame_t current_frame,
              VITAL_UNUSED uint32_t  timeout )
 {
-  // reset current timestamp
+  // Reset current timestamp
   ts = kv::timestamp();
 
   // Check if requested frame exists
-  if (frame_number > d->num_frames || frame_number <= 0)
+  if (current_frame > d->num_frames || current_frame <= 0)
   {
     return false;
   }
 
-  d->frame_number = frame_number;
+  d->current_image = nullptr;
+  d->current_frame = current_frame;
 
   // Return timestamp
   ts = this->frame_timestamp();
@@ -387,7 +378,7 @@ video_input_arf
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kv::timestamp
 video_input_arf
 ::frame_timestamp() const
@@ -400,12 +391,12 @@ video_input_arf
 
   kv::timestamp ts;
 
-  ts.set_frame( d->frame_number );
+  ts.set_frame( d->current_frame);
 
   return ts;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kv::image_container_sptr
 video_input_arf
 ::frame_image()
@@ -413,37 +404,37 @@ video_input_arf
   if (!good())
     return nullptr;
 
-  auto img_bytes = std::make_shared<kv::image_memory>(d->img_size);
+  if (!d->current_image && this->good())
+  {
+    auto img_bytes = std::make_shared<kv::image_memory>(d->img_size);
 
-  // TODO Questions if using the GAP_SIZE is correct or not..
-  fseek(d->file, d->offset + (d->frame_number * (d->img_size + GAP_SIZE)), SEEK_SET);
-  fread(img_bytes->data(), 1, d->img_size, d->file);
-  if (d->convert_endian)
-    d->byteswap_img_bytes((unsigned char*)img_bytes->data());
+    // TODO Questions if using the GAP_SIZE is correct or not..
+    fseek(d->file, d->offset + (d->current_frame * (d->img_size + GAP_SIZE)),
+      SEEK_SET);
+    fread(img_bytes->data(), d->img_size, 1, d->file);
+    if (d->convert_endian)
+    {
+      d->byteswap_image_bytes(
+        reinterpret_cast<unsigned char*>(img_bytes->data()));
+    }
 
-  kv::image img(img_bytes,img_bytes->data(),
-    d->cols, d->rows, 1, 1, d->cols, 1, d->px);
+    // TODO Test with multi channel images
+    kv::image img(img_bytes, img_bytes->data(),
+      d->cols, d->rows, 1, 1, d->cols, 1, d->px);
 
-  auto m = std::make_shared<kv::metadata>();
-  m->set_timestamp(this->frame_timestamp());
-  auto imc = std::make_shared<kv::simple_image_container>(img);
-  imc->set_metadata(m);
-
-  return imc;
+    auto m = std::make_shared<kv::metadata>();
+    m->set_timestamp(this->frame_timestamp());
+    d->current_image = std::make_shared< kv::simple_image_container >(img, m);
+  }
+  return  d->current_image;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kv::metadata_vector
 video_input_arf
 ::frame_metadata()
 {
-  kv::metadata_vector vect;
-  if ( d->metadata )
-  {
-    vect.push_back( d->metadata );
-  }
-
-  return vect;
+  return {};
 }
 
 // ----------------------------------------------------------------------------
@@ -451,27 +442,7 @@ kv::metadata_map_sptr
 video_input_arf
 ::metadata_map()
 {
-  return std::make_shared< kv::simple_metadata_map >(d->metadata_map);
-}
-
-// ----------------------------------------------------------------------------
-uint8_t
-video_input_arf::priv
-::byteswap(uint8_t value)
-{
-  return value;
-}
-
-// ----------------------------------------------------------------------------
-uint16_t
-video_input_arf::priv
-::byteswap(uint16_t value)
-{
-#ifdef WIN32
-  return _byteswap_ushort(value);
-#else
-  return __builtin_bswap32(value);
-#endif
+  return nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -487,21 +458,9 @@ video_input_arf::priv
 }
 
 // ----------------------------------------------------------------------------
-uint64_t
-video_input_arf::priv
-::byteswap(uint64_t value)
-{
-#ifdef WIN32
-  return _byteswap_uint64(value);
-#else
-  return __builtin_bswap64(value);
-#endif
-}
-
-// ----------------------------------------------------------------------------
 void
 video_input_arf::priv
-::byteswap_img_bytes(unsigned char* img_bytes)
+::byteswap_image_bytes(unsigned char* img_bytes)
 {
   if (bpp == 1)
     return; // Unless imgtype == 10?
@@ -551,4 +510,4 @@ video_input_arf::priv
   }
 }
 
-} } }     // end namespace
+} } } // end namespace
