@@ -29,7 +29,7 @@ struct resection_camera::priv
   int max_iterations = 32;
   vital::logger_handle_t m_logger;
 
-  priv() : m_logger( vital::get_logger( "arrows.ocv.resection_camera" ) )
+  priv() : m_logger{ vital::get_logger( "arrows.ocv.resection_camera" ) }
   {
   }
 };
