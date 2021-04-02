@@ -17,7 +17,7 @@ using namespace std;
 // Test camera resection with ideal points.
 TEST(resection_camera, ideal_points)
 {
-  // landmarks at random locations
+  // Landmarks at random locations
   landmark_map_sptr landmarks = kwiver::testing::init_landmarks( 128 );
   landmarks = kwiver::testing::noisy_landmarks(landmarks, 1.0);
 
