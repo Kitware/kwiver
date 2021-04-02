@@ -49,9 +49,8 @@ TEST(resection_camera, ideal_points)
   auto est_cam = res_cam.resection(pts_projs, pts_3d, inliers, cam->intrinsics());
 
   // true and computed camera poses
-  const auto
-    &camR = cam->rotation(),
-    &estR = est_cam->rotation();
+  auto const& camR = cam->rotation();
+  auto const& estR = est_cam->rotation();
   cout << "cam R:\n" << camR.matrix() << endl
   << "est R:\n" << estR.matrix() << endl
   << "cam C = " << cam->center().transpose() << endl
