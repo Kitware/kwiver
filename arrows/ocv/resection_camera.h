@@ -62,6 +62,7 @@ public:
 private:
   /// private implementation
   class priv;
+
   std::unique_ptr< priv > const d_;
 };
 

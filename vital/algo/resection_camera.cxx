@@ -34,13 +34,13 @@ resection_camera
              feature_track_set_sptr tracks,
              unsigned width, unsigned height ) const
 {
-  // Generate calibration guess from image dimensions
-  auto const principal_point = vector_2d{ width * 0.5, height * 0.5 };
+  // Generate calibration guess from image dimensions.
+  auto const principal_point = vector_2d{ width* 0.5, height* 0.5 };
   auto cal = std::make_shared< simple_camera_intrinsics >(
     ( width + height ) * 0.5, principal_point, 1.0, 0.0,
     Eigen::VectorXd(), width, height );
 
-  // Resection using guessed calibration
+  // Resection using guessed calibration.
   return resection( frame_id, landmarks, tracks, cal );
 }
 
@@ -56,23 +56,18 @@ resection_camera
   auto camera_points = vector< vector_2d >{};
 
   auto const& real_landmarks = landmarks->landmarks();
-
-  for( auto const& track : tracks->tracks() )
+  for( auto const& fts : tracks->frame_feature_track_states( frame_id ) )
   {
-    auto const fti = track->find( frame_id );
-    if( fti != track->end() )
+    auto lmi = real_landmarks.find( fts->track()->id() );
+    if( lmi != real_landmarks.end() )
     {
-      auto const fts = dynamic_pointer_cast< feature_track_state >( *fti );
-      auto lmi = real_landmarks.find( track->id() );
-      if( lmi != real_landmarks.end() )
-      {
-        world_points.push_back( lmi->second->loc() );
-        camera_points.push_back( fts->feature->loc() );
-      }
+      world_points.emplace_back( lmi->second->loc() );
+      camera_points.emplace_back( fts->feature->loc() );
     }
   }
 
-  // Resection camera using point correspondences and initial calibration guess
+  // Resection camera using point correspondences and initial calibration
+  // guess.
   vector< bool > inliers;
   return resection( camera_points, world_points, inliers, cal );
 }

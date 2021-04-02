@@ -5,12 +5,11 @@
 /// \file
 /// \brief OCV resection_camera algorithm implementation
 
-#include "resection_camera.h"
 #include "camera_intrinsics.h"
+#include "resection_camera.h"
 
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/eigen.hpp>
-
 
 using namespace std;
 using namespace cv;
@@ -84,7 +83,7 @@ resection_camera
   {
     LOG_ERROR( d_->m_logger,
                "reproj_accuracy parameter is " << reproj_accuracy <<
-          ", but needs to be positive." );
+               ", but needs to be positive." );
     good_conf = false;
   }
 
@@ -94,7 +93,7 @@ resection_camera
   {
     LOG_ERROR( d_->m_logger,
                "max iterations is " << max_iterations <<
-          ", needs to be greater than zero." );
+               ", needs to be greater than zero." );
     good_conf = false;
   }
   return good_conf;
@@ -133,6 +132,7 @@ resection_camera
   {
     projs.emplace_back( p.x(), p.y() );
   }
+
   vector< Point3f > Xs;
   for( const auto& X : pts3d )
   {
@@ -157,8 +157,7 @@ resection_camera
                                     TermCriteria{ TermCriteria::COUNT +
                                                   TermCriteria::EPS,
                                                   d_->max_iterations,
-                                                  reproj_error }
-                                    );
+                                                  reproj_error } );
   if( err > reproj_error )
   {
     LOG_WARN( d_->m_logger, "estimated re-projection error " <<
