@@ -20,6 +20,7 @@ namespace vital {
 
 namespace algo {
 
+// ----------------------------------------------------------------------------
 resection_camera
 ::resection_camera()
 {
