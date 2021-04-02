@@ -3,7 +3,9 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include <arrows/ocv/resection_camera.h>
+
 #include <vital/plugin_loader/plugin_manager.h>
+
 #include <gtest/gtest.h>
 
 using namespace kwiver::vital;
@@ -19,7 +21,7 @@ static constexpr double
   noisy_center_tolerance = 0.05;
 
 // ----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int main( int argc, char** argv )
 {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

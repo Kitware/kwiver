@@ -117,29 +117,26 @@ resection_camera
   constexpr size_t min_count = 3;
   auto const pts2_count = pts2d.size();
   auto const pts3_count = pts3d.size();
-  if( pts2cnt < minCnt || pts3cnt < minCnt )
+  if( pts2_count < min_count || pts3_count < min_count )
   {
     LOG_ERROR( d_->m_logger, "not enough points to resection camera" );
     return vital::camera_perspective_sptr();
   }
-  if( pts2cnt != pts3cnt )
+  if( pts2_count != pts3_count )
   {
     LOG_WARN( d_->m_logger,
               "counts of 3D points and projections do not match" );
   }
 
   vector< Point2f > projs;
-  vector< Point3f > Xs;
   for( auto const& p : pts2d )
   {
-    projs.push_back( Point2f( static_cast< float >( p.x() ),
-                              static_cast< float >( p.y() ) ) );
+    projs.emplace_back( p.x(), p.y() );
   }
+  vector< Point3f > Xs;
   for( const auto& X : pts3d )
   {
-    Xs.push_back( Point3f( static_cast< float >( X.x() ),
-                           static_cast< float >( X.y() ),
-                           static_cast< float >( X.z() ) ) );
+    Xs.emplace_back( X.x(), X.y(), X.z() );
   }
 
   vital::matrix_3x3d K = cal->as_matrix();
@@ -151,22 +148,22 @@ resection_camera
   vector< Mat > vrvec, vtvec;
   vector< vector< Point3f > > objPts = { Xs };
   vector< vector< Point2f > > imgPts = { projs };
-  Size imgSize( cal->image_width(), cal->image_height() );
+  Size imgSize{ cal->image_width(), cal->image_height() };
   int flags = CALIB_USE_INTRINSIC_GUESS;
-  const auto reproj_error = d_->reproj_accuracy;
-  const auto err = calibrateCamera( objPts, imgPts,
+  auto const reproj_error = d_->reproj_accuracy;
+  auto const err = calibrateCamera( objPts, imgPts,
                                     imgSize, cv_K, dist_coeffs, vrvec, vtvec,
                                     flags,
-                                    TermCriteria( TermCriteria::COUNT +
+                                    TermCriteria{ TermCriteria::COUNT +
                                                   TermCriteria::EPS,
                                                   d_->max_iterations,
-                                                  reproj_error )
+                                                  reproj_error }
                                     );
   if( err > reproj_error )
   {
     LOG_WARN( d_->m_logger, "estimated re-projection error " <<
-              err << " > " << reproj_error <<
-          " expected re-projection error" );
+              err << " exceeds expected re-projection error " <<
+              reproj_error );
   }
 
   Mat rvec = vrvec[ 0 ];
@@ -186,7 +183,10 @@ resection_camera
   cnt = dist_coeffs.size();
 
   Eigen::VectorXd dist_eig( cnt );
-  while( cnt-- ) { dist_eig[ cnt ] = dist_coeffs[ cnt ]; }
+  while( cnt-- )
+  {
+    dist_eig[ cnt ] = dist_coeffs[ cnt ];
+  }
   cv2eigen( rvec, rvec_eig );
   cv2eigen( tvec, tvec_eig );
   cv2eigen( cv_K, K );
@@ -209,7 +209,7 @@ resection_camera
     LOG_WARN( d_->m_logger, "non-finite camera center found" );
     return vital::camera_perspective_sptr();
   }
-  return dynamic_pointer_cast< vital::camera_perspective >( res_cam );
+  return res_cam;
 }
 
 } // end namespace ocv

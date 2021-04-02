@@ -21,15 +21,13 @@ namespace arrows {
 namespace ocv {
 
 /// Use OpenCV to estimate a camera's pose and projection matrix from 3D
-/// feature
-/// and point projection pairs.
+/// feature and point projection pairs.
 class KWIVER_ALGO_OCV_EXPORT resection_camera
   : public vital::algo::resection_camera
 {
 public:
   PLUGIN_INFO( "ocv",
                "resection camera using OpenCV calibrate camera method" )
-  /// Instantiate.
   resection_camera();
   /// Destroy.
   virtual ~resection_camera();
@@ -56,7 +54,7 @@ public:
 private:
   /// private implementation
   class priv;
-  const std::unique_ptr< priv > d_;
+  std::unique_ptr< priv > const d_;
 };
 
 } // end namespace ocv

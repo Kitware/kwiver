@@ -2,10 +2,12 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include <vital/math_constants.h>
-#include <arrows/mvg/projected_track_set.h>
-#include <test_scene.h>
 #include <test_eigen.h>
+#include <test_scene.h>
+
+#include <arrows/mvg/projected_track_set.h>
+
+#include <vital/math_constants.h>
 
 using namespace kwiver::vital;
 using namespace kwiver::arrows::mvg;
@@ -16,7 +18,7 @@ using namespace std;
 TEST(resection_camera, ideal_points)
 {
   // landmarks at random locations
-  landmark_map_sptr landmarks = kwiver::testing::init_landmarks(128);
+  landmark_map_sptr landmarks = kwiver::testing::init_landmarks( 128 );
   landmarks = kwiver::testing::noisy_landmarks(landmarks, 1.0);
 
   // camera sequence (elliptical path)
