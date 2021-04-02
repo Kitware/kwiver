@@ -37,14 +37,14 @@ TEST(resection_camera, ideal_points)
     auto lm_id = track->id();
     auto lm_it = landmarks->landmarks().find(lm_id);
     pts_3d.push_back(lm_it->second->loc());
-    auto const fts = dynamic_pointer_cast<feature_track_state>(*track->find(frmID));
+    auto const fts = dynamic_pointer_cast<feature_track_state>(*track->find(test_frame));
     pts_projs.push_back(fts->feature->loc());
   }
 
   // camera pose from the points and their projections
   resection_camera res_cam;
   auto cams = cameras->cameras();
-  auto cam = dynamic_pointer_cast<camera_perspective>(cams[frmID]);
+  auto cam = dynamic_pointer_cast<camera_perspective>(cams[test_frame]);
   vector<bool> inliers;
   auto est_cam = res_cam.resection(pts_projs, pts_3d, inliers, cam->intrinsics());
 
@@ -57,7 +57,7 @@ TEST(resection_camera, ideal_points)
        << "est C = " << est_cam->center().transpose() << endl;
 
   auto R_err = camR.inverse()*estR;
-  cout << "rotation error = " << R_err.angle()*180/pi << " degrees" << endl;
+  cout << "rotation error = " << rad_to_deg*R_err.angle() << " degrees" << endl;
 
   EXPECT_LT(R_err.angle(), ideal_rotation_tolerance);
   EXPECT_MATRIX_SIMILAR(cam->center(), est_cam->center(), ideal_center_tolerance);
