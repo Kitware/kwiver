@@ -79,7 +79,7 @@ TEST(resection_camera, noisy_points)
   camera_map_sptr cameras = kwiver::testing::camera_seq();
 
   // tracks from the projections
-  auto tracks = dynamic_pointer_cast<feature_track_set>(projected_tracks(landmarks, cameras));
+  auto tracks = projected_tracks(landmarks, cameras);
 
   // random noise to track image locations
   tracks = kwiver::testing::noisy_tracks(tracks, 0.5);
