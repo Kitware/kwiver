@@ -148,7 +148,7 @@ resection_camera
   vector< Mat > vrvec, vtvec;
   vector< vector< Point3f > > objPts = { Xs };
   vector< vector< Point2f > > imgPts = { projs };
-  Size imgSize{ cal->image_width(), cal->image_height() };
+  Size imgSize( cal->image_width(), cal->image_height() );
   int flags = CALIB_USE_INTRINSIC_GUESS;
   auto const reproj_error = d_->reproj_accuracy;
   auto const err = calibrateCamera( objPts, imgPts,
