@@ -61,7 +61,7 @@ resection_camera
 ::resection( frame_id_t frmID,
              landmark_map_sptr landmarks,
              feature_track_set_sptr tracks,
-	     kwiver::vital::camera_intrinsics_sptr cal ) const
+	       kwiver::vital::camera_intrinsics_sptr cal ) const
 {
   vector< vector_3d > pts_3d; // world points
   vector< vector_2d > pts_projs; // corresponding image points

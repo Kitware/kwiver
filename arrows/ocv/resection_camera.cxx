@@ -46,8 +46,7 @@ resection_camera::~resection_camera()
 {
 }
 
-/// Get this algorithm's \link vital::config_block configuration block
-/// \endlink.
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 resection_camera
 ::get_configuration() const
