@@ -27,6 +27,24 @@ resection_camera
   attach_logger( "algo.resection_camera" );
 }
 
+void get_points(frame_id_t frmID, landmark_map_sptr landmarks, feature_track_set_sptr tracks,
+  vector< vector_3d > & pts_3d, vector< vector_2d > & pts_projs)
+{
+  auto lmx = landmarks->landmarks();
+  for( auto const& track : tracks->tracks() )
+  {
+    auto lm_id = track->id();
+    auto lm_it = lmx.find( lm_id );
+    if (lm_it == lmx.end()) continue;
+    auto tr_id = track->find( frmID );
+    if (tr_id == track->end()) continue;
+    auto const fts =
+      dynamic_pointer_cast< feature_track_state >( *track->find( frmID ) );
+    pts_3d.emplace_back( lm_it->second->loc() );
+    pts_projs.emplace_back( fts->feature->loc() );
+  }
+}
+
 camera_perspective_sptr
 resection_camera
 ::resection( frame_id_t frmID,
@@ -36,15 +54,7 @@ resection_camera
 {
   vector< vector_3d > pts_3d; // world points
   vector< vector_2d > pts_projs; // corresponding image points
-  for( auto const& track : tracks->tracks() )
-  {
-    auto lm_id = track->id();
-    auto lm_it = landmarks->landmarks().find( lm_id );
-    pts_3d.push_back( lm_it->second->loc() );
-    auto const fts =
-      dynamic_pointer_cast< feature_track_state >( *track->find( frmID ) );
-    pts_projs.push_back( fts->feature->loc() );
-  }
+  get_points(frmID, landmarks, tracks, pts_3d, pts_projs);
   // resection camera using point correspondences and image dimensions
   const vector_2d principal_point( width / 2., height / 2. );
   camera_intrinsics_sptr cal(
@@ -64,15 +74,7 @@ resection_camera
 {
   vector< vector_3d > pts_3d; // world points
   vector< vector_2d > pts_projs; // corresponding image points
-  for( auto const& track : tracks->tracks() )
-  {
-    auto lm_id = track->id();
-    auto lm_it = landmarks->landmarks().find( lm_id );
-    pts_3d.push_back( lm_it->second->loc() );
-    auto const fts =
-      dynamic_pointer_cast< feature_track_state >( *track->find( frmID ) );
-    pts_projs.push_back( fts->feature->loc() );
-  }
+  get_points(frmID, landmarks, tracks, pts_3d, pts_projs);
   // resection camera using point correspondences and initial calibration guess
   vector< bool > inliers;
   return resection( pts_projs, pts_3d, inliers, cal );
