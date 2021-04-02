@@ -27,7 +27,7 @@ TEST(resection_camera, ideal_points)
   // tracks from projections
   track_set_sptr tracks = projected_tracks(landmarks, cameras);
 
-  const frame_id_t frmID = 0;
+  constexpr frame_id_t test_frame = 0;
 
   // corresponding image points
   vector<vector_2d> pts_projs;
