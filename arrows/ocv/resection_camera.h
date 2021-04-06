@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV resection_camera algorithm impl interface
- */
+/// \file
+/// \brief OCV resection_camera algorithm impl interface
 
 #ifndef KWIVER_ARROWS_OCV_RESECTION_CAMERA_H_
 #define KWIVER_ARROWS_OCV_RESECTION_CAMERA_H_
@@ -49,15 +47,7 @@ public:
     std::vector< bool >& inliers,
     kwiver::vital::camera_intrinsics_sptr cal ) const override;
 
-  /// Estimate camera parameters for a frame from landmarks and tracks.
-  /// This is a convenience function, constructing the pts2d and pts3d from a frame, landmarks, and tracks, and then call resection() with the point correspondences.
-  /// \return estimated camera parameters
-  virtual kwiver::vital::camera_perspective_sptr
-  resection (kwiver::vital::frame_id_t const &frame, ///< [in]  frame number for which to estimate a camera
-      kwiver::vital::landmark_map_sptr landmarks, ///< [in]  3D landmarks locations to constrain camera
-      kwiver::vital::feature_track_set_sptr tracks, ///< [in]  2D feature tracks in image coordinates
-      kwiver::vital::camera_intrinsics_sptr cal = nullptr ///< [in] initial guess intrinsic parameters of the camera
-  ) const override;
+  using vital::algo::resection_camera::resection;
 
 private:
   /// private implementation

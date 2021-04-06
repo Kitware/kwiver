@@ -29,9 +29,6 @@ TEST ( resection_camera, ideal_points )
 
   constexpr frame_id_t test_frame = 0;
 
-  auto cams = cameras->cameras();
-  auto cam = dynamic_pointer_cast<camera_perspective>(cams[frmID]);
-
   // corresponding image points
   vector< vector_2d > pts_projs;
   vector< vector_3d > pts_3d;
@@ -64,7 +61,7 @@ TEST ( resection_camera, ideal_points )
 
   auto R_err = camR.inverse() * estR;
   cout << "rotation error = " << rad_to_deg * R_err.angle() << " degrees" <<
-  endl;
+    endl;
 
   EXPECT_LT( R_err.angle(), ideal_rotation_tolerance );
   EXPECT_MATRIX_SIMILAR( cam->center(),
@@ -96,6 +93,7 @@ TEST ( resection_camera, noisy_points )
 
   auto cams = cameras->cameras();
   auto cam = dynamic_pointer_cast< camera_perspective >( cams[ frmID ] );
+  resection_camera res_cam;
   auto est_cam = res_cam.resection( frmID, landmarks, tracks,
                                     cam->image_width(), cam->image_height() );
   EXPECT_NE( est_cam, nullptr ) << "noisy resection camera failed";
@@ -111,7 +109,7 @@ TEST ( resection_camera, noisy_points )
 
   auto R_err = camR.inverse() * estR;
   cout << "rotation error = " << R_err.angle() * 180 / pi << " degrees" <<
-  endl;
+    endl;
 
   EXPECT_LT( R_err.angle(), noisy_rotation_tolerance );
   EXPECT_MATRIX_SIMILAR( cam->center(),
@@ -157,7 +155,7 @@ TEST ( resection_camera, noisy_points_cal )
     res_cam.resection( frmID, landmarks, tracks, cam->intrinsics() );
   EXPECT_NE( est_cam,
              nullptr ) <<
-  "null resection camera on noisy points, missing tracks with initial cal guess";
+    "null resection camera on noisy points, missing tracks with initial cal guess";
 
   // true and computed camera poses
   const auto
@@ -170,7 +168,7 @@ TEST ( resection_camera, noisy_points_cal )
 
   auto R_err = camR.inverse() * estR;
   cout << "rotation error = " << R_err.angle() * 180 / pi << " degrees" <<
-  endl;
+    endl;
 
   EXPECT_LT( R_err.angle(), noisy_rotation_tolerance );
   EXPECT_MATRIX_SIMILAR( cam->center(),
