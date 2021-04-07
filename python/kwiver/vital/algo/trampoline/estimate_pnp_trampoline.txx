@@ -29,10 +29,10 @@
  */
 
 /**
- * \file estimate_homography_trampoline.txx
+ * \file estimate_pnp_trampoline.txx
  *
  * \brief trampoline for overriding virtual functions for
- *        \link kwiver::vital::algo::estimate_homography \endlink
+ *        \link kwiver::vital::algo::estimate_pnp \endlink
  */
 
 #ifndef ESTIMATE_PNP_TRAMPOLINE_TXX
