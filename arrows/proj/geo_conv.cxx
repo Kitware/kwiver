@@ -23,6 +23,7 @@ namespace proj {
 namespace {
 
 using props_t = std::unordered_map< std::string, std::string >;
+using proj_key_t = std::pair< int, int >;
 
 // ----------------------------------------------------------------------------
 struct proj_cleanup
@@ -45,18 +46,49 @@ using pj_context_uptr_t = std::unique_ptr< PJ_CONTEXT, proj_cleanup >;
 using pj_uptr_t = std::unique_ptr< PJ, proj_cleanup >;
 
 // ----------------------------------------------------------------------------
+struct proj_hash_t
+{
+#if __cplusplus >= 20140000
+  constexpr
+#endif
+  size_t
+  operator()( proj_key_t const& key ) const
+  {
+    constexpr auto hash = std::hash< int64_t >{};
+
+    return hash( static_cast< int64_t >( key.first ) << 32 | key.second );
+  }
+};
+
+// ----------------------------------------------------------------------------
+struct proj_storage
+{
+  using proj_map_t = std::unordered_map< proj_key_t, pj_uptr_t, proj_hash_t >;
+
+  pj_context_uptr_t context;
+  proj_map_t projections;
+};
+
+// ----------------------------------------------------------------------------
+proj_storage*
+storage()
+{
+  static thread_local proj_storage the_storage;
+
+  if( !the_storage.context )
+  {
+    the_storage.context.reset( proj_context_create() );
+    proj_context_use_proj4_init_rules( the_storage.context.get(), 1 );
+  }
+
+  return &the_storage;
+}
+
+// ----------------------------------------------------------------------------
 PJ_CONTEXT*
 context()
 {
-  static thread_local pj_context_uptr_t the_context;
-
-  if( !the_context )
-  {
-    the_context.reset( proj_context_create() );
-    proj_context_use_proj4_init_rules( the_context.get(), 1 );
-  }
-
-  return the_context.get();
+  return storage()->context.get();
 }
 
 // ----------------------------------------------------------------------------
@@ -85,22 +117,7 @@ projection( int crs )
 PJ*
 projection( int crs_from, int crs_to )
 {
-  using key_t = std::pair< int, int >;
-
-  struct hash_t
-  {
-    size_t // TODO(C++14) make this constexpr
-    operator()( key_t const& key ) const
-    {
-      constexpr auto hash = std::hash< int64_t >{};
-
-      return hash( static_cast< int64_t >( key.first ) << 32 | key.second );
-    }
-  };
-
-  using map_t = std::unordered_map< key_t, pj_uptr_t, hash_t >;
-
-  static thread_local map_t projections;
+  auto& projections = storage()->projections;
 
   auto const key = std::make_pair( crs_from, crs_to );
   auto const i = projections.find( key );
