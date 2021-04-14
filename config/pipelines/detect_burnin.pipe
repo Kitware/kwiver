@@ -75,11 +75,22 @@ process detect_burnin__dilater
   filter:vxl_morphology:kernel_radius   = 2.0
 
 # =============================================================================
-process detect_burnin__out
+process detect_burnin__convert
   :: image_filter
   filter:type                           = vxl_convert_image
   filter:vxl_convert_image:type         = byte
   filter:vxl_convert_image:scale_factor = 255
+
+# =============================================================================
+process detect_burnin__merge
+  :: merge_image
+  merge_images:type                     = ocv
+
+# =============================================================================
+process detect_burnin__out
+  :: image_filter
+  filter:type                          = ocv_inpainting
+  filter:ocv_inpainting:inpaint_method = mask
 
 ###############################################################################
 
@@ -102,4 +113,13 @@ connect from detect_burnin__closer.image
         to   detect_burnin__dilater.image
 
 connect from detect_burnin__dilater.image
+        to   detect_burnin__convert.image
+
+connect from detect_burnin__in.image
+        to   detect_burnin__merge.image1
+
+connect from detect_burnin__convert.image
+        to   detect_burnin__merge.image2
+
+connect from detect_burnin__merge.image
         to   detect_burnin__out.image
