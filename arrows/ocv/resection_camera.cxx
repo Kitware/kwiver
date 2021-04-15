@@ -24,8 +24,8 @@ namespace ocv {
 
 struct resection_camera::priv
 {
-  double reproj_accuracy = 4.;
-  int max_iterations = 32;
+  double reproj_accuracy = 1.;
+  int max_iterations = 300;
   vital::logger_handle_t m_logger;
 
   priv() : m_logger{ vital::get_logger( "arrows.ocv.resection_camera" ) }
