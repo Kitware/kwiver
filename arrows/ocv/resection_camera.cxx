@@ -34,7 +34,6 @@ struct resection_camera::priv
 };
 
 // ----------------------------------------------------------------------------
-
 resection_camera
 ::resection_camera()
   : d_{ new priv }
