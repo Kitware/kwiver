@@ -55,10 +55,10 @@ private:
   std::unique_ptr< priv > const d_;
 };
 
-} // end namespace ocv
+} // namespace ocv
 
-} // end namespace arrows
+} // namespace arrows
 
-} // end namespace kwiver
+} // namespace kwiver
 
 #endif
