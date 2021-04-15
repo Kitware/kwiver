@@ -10,7 +10,6 @@
 #include <vital/vital_config.h>
 
 #include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/photo.hpp>
 
 namespace kwiver {
@@ -26,7 +25,8 @@ enum inpainting_method
   METHOD_navier_stokes,
 };
 
-ENUM_CONVERTER( method_converter, inpainting_method, { "mask", METHOD_mask },
+ENUM_CONVERTER( method_converter, inpainting_method,
+                { "mask", METHOD_mask },
                 { "telea", METHOD_telea },
                 { "navier_stokes", METHOD_navier_stokes } )
 
@@ -35,13 +35,8 @@ ENUM_CONVERTER( method_converter, inpainting_method, { "mask", METHOD_mask },
 class inpaint::priv
 {
 public:
-
   priv( inpaint* parent )
     : p{ parent }
-  {
-  }
-
-  ~priv()
   {
   }
 
@@ -69,11 +64,11 @@ vital::config_block_sptr
 inpaint
 ::get_configuration() const
 {
-  // get base config from base class
+  // Get base config from base class
   vital::config_block_sptr config = algorithm::get_configuration();
 
-  config->set_value( "inpaint_method", method_converter().to_string(
-                       d->method ),
+  config->set_value( "inpaint_method",
+                     method_converter().to_string( d->method ),
                      "Inpainting method, possible values: " +
                      method_converter().element_name_string() );
   config->set_value( "radius", d->radius,

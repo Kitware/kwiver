@@ -17,36 +17,39 @@ namespace ocv {
 
 /// OCV image inpainting process
 ///
-/// Create a masked RGB image from a RGBA image
+/// Create an inpainted RGB image from an RGBA one. This is used to fix the RGB
+/// image which has corrupted content in the regions specified by the non-zero
+/// elements of the Alpha channel. The value for the corrupted pixels are
+/// estimated from the neighboring pixels.
 class KWIVER_ALGO_OCV_EXPORT inpaint
   : public vital::algo::image_filter
 {
 public:
   PLUGIN_INFO( "ocv_inpainting",
-               "Inpaint a RGBA image using non-zero A values as a mask." )
+               "Inpaint an RGBA image using non-zero alpha values as a mask." )
 
   inpaint();
   virtual ~inpaint();
 
   /// Get this algorithm's \link vital::config_block configuration block
   /// \endlink
-  virtual vital::config_block_sptr get_configuration() const;
+  vital::config_block_sptr get_configuration() const override;
   /// Set this algorithm's properties via a config block
-  virtual void set_configuration( vital::config_block_sptr config );
+  void set_configuration( vital::config_block_sptr config ) override;
   /// Check that the algorithm's currently configuration is valid
-  virtual bool check_configuration( vital::config_block_sptr config ) const;
+  bool check_configuration( vital::config_block_sptr config ) const override;
 
   /// Perform high pass filtering
-  virtual kwiver::vital::image_container_sptr filter(
-    kwiver::vital::image_container_sptr image_data );
+  kwiver::vital::image_container_sptr filter(
+    kwiver::vital::image_container_sptr image_data ) override;
 
 private:
   class priv;
 
-  const std::unique_ptr< priv > d;
+  std::unique_ptr< priv > const d;
 };
 
-} // namespace vxl
+} // namespace ocv
 
 } // namespace arrows
 

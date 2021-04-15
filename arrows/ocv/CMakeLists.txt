@@ -35,9 +35,9 @@ set( ocv_headers_public
   feature_detect_extract_SURF.h
   detect_heat_map.h
   hough_circle_detector.h
-  inpaint.h
   image_container.h
   image_io.h
+  inpaint.h
   mat_image_memory.h
   match_features.h
   match_features_bruteforce.h
@@ -89,9 +89,9 @@ set( ocv_sources
   feature_detect_extract_ORB.cxx
   feature_detect_extract_SIFT.cxx
   feature_detect_extract_SURF.cxx
-  inpaint.cxx
   image_container.cxx
   image_io.cxx
+  inpaint.cxx
   mat_image_memory.cxx
   match_features.cxx
   match_features_bruteforce.cxx
