@@ -22,7 +22,6 @@ namespace arrows {
 namespace ocv {
 
 // ----------------------------------------------------------------------------
-
 struct resection_camera::priv
 {
   double reproj_accuracy = 1.;
