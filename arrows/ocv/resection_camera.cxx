@@ -5,8 +5,9 @@
 /// \file
 /// \brief OCV resection_camera algorithm implementation
 
-#include "camera_intrinsics.h"
 #include "resection_camera.h"
+
+#include "camera_intrinsics.h"
 
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/eigen.hpp>
