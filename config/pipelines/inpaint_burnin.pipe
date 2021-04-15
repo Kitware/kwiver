@@ -1,0 +1,13 @@
+include pipelines/detect_burnin.pipe
+
+# =============================================================================
+process inpaint_burnin__inpainted
+  :: merge_image
+  merge_images:type                          = ocv_inpainting
+  merge_images:ocv_inpainting:inpaint_method = mask
+
+connect from detect_burnin__in.image
+        to   inpaint_burnin__inpainted.image1
+
+connect from detect_burnin__mask.image
+        to   inpaint_burnin__inpainted.image2

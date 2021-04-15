@@ -1,4 +1,4 @@
-include pipelines/detect_burnin.pipe
+include pipelines/inpaint_burnin.pipe
 
 # ================================================================
 process input
@@ -35,5 +35,5 @@ connect from input.image
 # connect from detect_burnin__filter.image
 #         to filtered_writer.image
 
-connect from detect_burnin__out.image
+connect from inpaint_burnin__inpainted.image
         to   writer.image
