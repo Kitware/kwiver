@@ -112,40 +112,41 @@ inpaint
 // ----------------------------------------------------------------------------
 kwiver::vital::image_container_sptr
 inpaint
-::filter( kwiver::vital::image_container_sptr image )
+::merge( kwiver::vital::image_container_sptr image,
+         kwiver::vital::image_container_sptr mask ) const
 {
   cv::Mat cv_image = ocv::image_container::vital_to_ocv(
     image->get_image(), ocv::image_container::RGB_COLOR );
+  cv::Mat cv_mask = ocv::image_container::vital_to_ocv(
+    mask->get_image(), ocv::image_container::RGB_COLOR );
 
-  if( cv_image.channels() != 4 )
+  if( cv_image.size() != cv_mask.size() )
   {
     LOG_ERROR(
       logger(),
-      "Expected 4 image channels but instead there were " <<
-        cv_image.channels() );
+      "Image and masks sizes were different. " << cv_image.size() << " vs. " <<
+        cv_mask.size() );
     return image;
   }
-  cv::Mat rgba_channels[ 4 ];
-  cv::split( cv_image, rgba_channels );
-  cv::merge( rgba_channels, 3, cv_image ); // merge the first three channels
+
   switch( d->method )
   {
     case METHOD_telea:
     {
-      cv::inpaint( cv_image, rgba_channels[ 3 ], cv_image, d->radius,
+      cv::inpaint( cv_image, cv_mask, cv_image, d->radius,
                    cv::INPAINT_TELEA );
       break;
     }
     case METHOD_navier_stokes:
     {
-      cv::inpaint( cv_image, rgba_channels[ 3 ], cv_image, d->radius,
+      cv::inpaint( cv_image, cv_mask, cv_image, d->radius,
                    cv::INPAINT_NS );
       break;
     }
     case METHOD_mask:
     {
       cv::Mat zeros = cv::Mat::zeros( cv_image.size(), cv_image.type() );
-      zeros.copyTo( cv_image, rgba_channels[ 3 ] );
+      zeros.copyTo( cv_image, cv_mask );
       break;
     }
     default:

@@ -7,7 +7,7 @@
 
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
 
-#include <vital/algo/image_filter.h>
+#include <vital/algo/merge_images.h>
 
 namespace kwiver {
 
@@ -15,18 +15,16 @@ namespace arrows {
 
 namespace ocv {
 
-/// OCV image inpainting process
+/// OCV image inpainting process.
 ///
-/// Create an inpainted RGB image from an RGBA one. This is used to fix the RGB
-/// image which has corrupted content in the regions specified by the non-zero
-/// elements of the Alpha channel. The value for the corrupted pixels are
-/// estimated from the neighboring pixels.
+/// Replace pixels in the image specified by non-zero elements in the mask with
+/// inpainted values estimated from surrounding pixels.
 class KWIVER_ALGO_OCV_EXPORT inpaint
-  : public vital::algo::image_filter
+  : public vital::algo::merge_images
 {
 public:
   PLUGIN_INFO( "ocv_inpainting",
-               "Inpaint an RGBA image using non-zero alpha values as a mask." )
+               "Inpaint pixels specified by non-zero mask values." )
 
   inpaint();
   virtual ~inpaint();
@@ -39,9 +37,10 @@ public:
   /// Check that the algorithm's currently configuration is valid
   bool check_configuration( vital::config_block_sptr config ) const override;
 
-  /// Perform high pass filtering
-  kwiver::vital::image_container_sptr filter(
-    kwiver::vital::image_container_sptr image_data ) override;
+  /// Inpaint image based on locations specied in mask
+  kwiver::vital::image_container_sptr merge(
+    kwiver::vital::image_container_sptr image,
+    kwiver::vital::image_container_sptr mask ) const override;
 
 private:
   class priv;
