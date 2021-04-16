@@ -1,13 +1,23 @@
 include pipelines/detect_burnin.pipe
 
 # =============================================================================
-process inpaint_burnin__inpainted
+# This is a no-op filter which simply allows for consistent naming
+process inpaint_burnin__in_image
+  :: image_filter
+  filter:type                                = vxl_convert_image
+  filter:vxl_convert_image:format            = disable
+
+# =============================================================================
+process inpaint_burnin__out_inpainted
   :: merge_image
   merge_images:type                          = ocv_inpainting
   merge_images:ocv_inpainting:inpaint_method = mask
 
-connect from detect_burnin__in.image
-        to   inpaint_burnin__inpainted.image1
+connect from inpaint_burnin__in_image.image
+        to   detect_burnin__in_image.image
 
-connect from detect_burnin__mask.image
-        to   inpaint_burnin__inpainted.image2
+connect from detect_burnin__in_image.image
+        to   inpaint_burnin__out_inpainted.image1
+
+connect from detect_burnin__out_mask.image
+        to   inpaint_burnin__out_inpainted.image2

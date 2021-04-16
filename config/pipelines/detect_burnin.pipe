@@ -1,5 +1,5 @@
 # =============================================================================
-process detect_burnin__in
+process detect_burnin__in_image
   :: image_filter
   filter:type                           = vxl_convert_image
   filter:vxl_convert_image:type         = copy
@@ -75,7 +75,7 @@ process detect_burnin__dilater
   filter:vxl_morphology:kernel_radius   = 2.0
 
 # =============================================================================
-process detect_burnin__mask
+process detect_burnin__out_mask
   :: image_filter
   filter:type                           = vxl_convert_image
   filter:vxl_convert_image:type         = byte
@@ -83,7 +83,7 @@ process detect_burnin__mask
 
 ###############################################################################
 
-connect from detect_burnin__in.image
+connect from detect_burnin__in_image.image
         to   detect_burnin__filter.image
 
 connect from detect_burnin__filter.image
@@ -102,4 +102,4 @@ connect from detect_burnin__closer.image
         to   detect_burnin__dilater.image
 
 connect from detect_burnin__dilater.image
-        to   detect_burnin__mask.image
+        to   detect_burnin__out_mask.image
