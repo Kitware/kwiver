@@ -18,7 +18,7 @@ kwiver_add_python_library(types
   )
 
 target_link_libraries(python-vital.types-types
-  PUBLIC ${PYTHON_LIBRARIES} pybind11::pybind11
+  PRIVATE ${PYTHON_LIBRARIES} pybind11::pybind11
          vital)
 
 kwiver_add_python_library(activity

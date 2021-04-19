@@ -39,7 +39,7 @@ kwiver_add_python_library( json
 )
 
 target_link_libraries( python-arrows.serialize.json-json
-  PUBLIC ${PYTHON_LIBRARIES} pybind11::pybind11
+  PRIVATE ${PYTHON_LIBRARIES} pybind11::pybind11
          vital
          kwiver_serialize_json
 )
