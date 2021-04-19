@@ -16,7 +16,7 @@ process inpaint_burnin__out_inpainted
 connect from inpaint_burnin__in_image.image
         to   detect_burnin__in_image.image
 
-connect from detect_burnin__in_image.image
+connect from inpaint_burnin__in_image.image
         to   inpaint_burnin__out_inpainted.image1
 
 connect from detect_burnin__out_mask.image

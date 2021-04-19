@@ -124,8 +124,8 @@ inpaint
   {
     LOG_ERROR(
       logger(),
-      "Image and masks sizes were different. " << cv_image.size() << " vs. " <<
-        cv_mask.size() );
+      "Image size " << cv_image.size() << " does not match mask size " <<
+          cv_mask.size() );
     return image;
   }
 
