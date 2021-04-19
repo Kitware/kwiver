@@ -1,5 +1,3 @@
-include_directories(${pybind11_INCLUDE_DIR})
-
 set( vital_config_python_headers
      config.h
     )
@@ -16,7 +14,7 @@ kwiver_add_python_library( config
     )
 
 target_link_libraries( python-vital.config-config
-                      PUBLIC ${PYTHON_LIBRARIES}
+                      PUBLIC ${PYTHON_LIBRARIES} pybind11::pybind11
                       vital_config
                       PRIVATE vital
                      )
