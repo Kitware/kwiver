@@ -21,13 +21,10 @@ namespace ocv {
 enum inpainting_method
 {
   METHOD_mask,
-  METHOD_telea,
   METHOD_navier_stokes,
 };
 
-ENUM_CONVERTER( method_converter, inpainting_method,
-                { "mask", METHOD_mask },
-                { "telea", METHOD_telea },
+ENUM_CONVERTER( method_converter, inpainting_method, { "mask", METHOD_mask },
                 { "navier_stokes", METHOD_navier_stokes } )
 
 // ----------------------------------------------------------------------------
@@ -42,7 +39,7 @@ public:
 
   inpaint* p;
   // Internal parameters/settings
-  inpainting_method method{ METHOD_telea };
+  inpainting_method method{ METHOD_navier_stokes };
   float radius{ 3.0 };
 };
 
@@ -131,12 +128,6 @@ inpaint
 
   switch( d->method )
   {
-    case METHOD_telea:
-    {
-      cv::inpaint( cv_image, cv_mask, cv_image, d->radius,
-                   cv::INPAINT_TELEA );
-      break;
-    }
     case METHOD_navier_stokes:
     {
       cv::inpaint( cv_image, cv_mask, cv_image, d->radius,
