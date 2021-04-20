@@ -325,7 +325,7 @@ NOAA Fisheries Strategic Initiative on Automated Image Analysis.
 .. _Kitware: http://www.kitware.com/
 .. _MAP-Tk: https://github.com/Kitware/maptk
 .. _OpenCV: http://opencv.org/
-.. _PROJ4: http://proj4.org/
+.. _PROJ: http://proj.org/
 .. _Travis CI: https://travis-ci.org/
 .. _VIAME: https://github.com/Kitware/VIAME
 .. _Vibrant: https://github.com/Kitware/vibrant
