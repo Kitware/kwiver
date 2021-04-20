@@ -1,7 +1,5 @@
 project(vital_python_util)
 
-include_directories(${pybind11_INCLUDE_DIR})
-
 set(python_util_srcs
   python_exceptions.cxx)
 
@@ -15,7 +13,7 @@ kwiver_add_library(vital_python_util
   ${python_util_headers})
 
 target_link_libraries(vital_python_util
-  PUBLIC     ${PYTHON_LIBRARIES}
+  PUBLIC ${PYTHON_LIBRARIES} pybind11::pybind11
   )
 
 kwiver_install_headers(
