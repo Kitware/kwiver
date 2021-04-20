@@ -9,7 +9,9 @@
 #include <sprokit/pipeline_util/export_dot.h>
 
 #include <vital/config/config_block.h>
+#include <vital/config/config_block_io.h>
 #include <vital/plugin_loader/plugin_manager.h>
+#include <vital/util/get_paths.h>
 
 #include <sprokit/pipeline/pipeline.h>
 #include <sprokit/pipeline/process.h>
@@ -140,11 +142,15 @@ run()
     kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
     vpm.load_all_plugins();
 
-    // Add search path to builder.
+    // Add user-provided paths
     if ( cmd_args.count("include") > 0 )
     {
       builder.add_search_path( cmd_args["include"].as<std::vector<std::string>>() );
     }
+
+    // Add standard search locations
+    const std::string prefix = kwiver::vital::get_executable_path() + "/..";
+    builder.add_search_path( kwiver::vital::kwiver_config_file_paths( prefix ) );
 
     // Load the pipeline file.
     kwiver::vital::path_t const pipe_file( cmd_args["pipe-file"].as<std::string>() );
