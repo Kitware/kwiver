@@ -39,6 +39,7 @@
 #include <arrows/ocv/feature_detect_extract_SIFT.h>
 #include <arrows/ocv/feature_detect_extract_SURF.h>
 #include <arrows/ocv/image_io.h>
+#include <arrows/ocv/inpaint.h>
 #include <arrows/ocv/match_features_bruteforce.h>
 #include <arrows/ocv/match_features_flannbased.h>
 #include <arrows/ocv/merge_images.h>
@@ -75,6 +76,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_algorithm< estimate_fundamental_matrix >();
   reg.register_algorithm< estimate_homography >();
   reg.register_algorithm< image_io >();
+  reg.register_algorithm< inpaint >();
   reg.register_algorithm< draw_detected_object_set >();
 
   reg.register_algorithm< detect_features_BRISK >();
