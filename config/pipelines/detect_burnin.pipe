@@ -79,6 +79,13 @@ process detect_burnin__out_mask
   :: image_filter
   filter:type                           = vxl_convert_image
   filter:vxl_convert_image:type         = byte
+  filter:vxl_convert_image:scale_factor = 1
+
+# =============================================================================
+process detect_burnin__out_mask_scaled
+  :: image_filter
+  filter:type                           = vxl_convert_image
+  filter:vxl_convert_image:type         = byte
   filter:vxl_convert_image:scale_factor = 255
 
 ###############################################################################
@@ -103,3 +110,6 @@ connect from detect_burnin__closer.image
 
 connect from detect_burnin__dilater.image
         to   detect_burnin__out_mask.image
+
+connect from detect_burnin__out_mask.image
+        to   detect_burnin__out_mask_scaled.image

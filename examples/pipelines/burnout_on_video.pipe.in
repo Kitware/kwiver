@@ -19,12 +19,20 @@ process input
 #   image_writer:vxl:split_channels       = true
 
 # ================================================================
-process writer
+process inpainted_writer
   :: image_writer
   image_writer:type                     = vxl
-  file_name_template                    = output/image%06d.png
-  image_writer:vxl:force_byte           = true
-  image_writer:vxl:auto_stretch         = true
+  file_name_template                    = inpainted/image%06d.png
+  image_writer:vxl:force_byte           = false
+  image_writer:vxl:auto_stretch         = false
+
+# ================================================================
+process mask_writer
+  :: image_writer
+  image_writer:type                     = vxl
+  file_name_template                    = mask/image%06d.png
+  image_writer:vxl:force_byte           = false
+  image_writer:vxl:auto_stretch         = false
 
 ###############################################################################
 
@@ -35,5 +43,8 @@ connect from input.image
 # connect from detect_burnin__filter.image
 #         to filtered_writer.image
 
+connect from detect_burnin__out_mask_scaled.image
+        to   mask_writer.image
+
 connect from inpaint_burnin__out_inpainted.image
-        to   writer.image
+        to   inpainted_writer.image
