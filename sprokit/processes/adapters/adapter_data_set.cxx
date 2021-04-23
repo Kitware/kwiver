@@ -142,68 +142,93 @@ void adapter_data_set::add_value(::sprokit::process::port_t const& port, T const
   m_port_datum_set[port] = ::sprokit::datum::new_datum<T>(val);
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template<typename T>
-T adapter_data_set::get_port_data( ::sprokit::process::port_t const& port )
+T adapter_data_set::value( ::sprokit::process::port_t const& port )
 {
   auto it = this->find( port );
   if ( it == this->end() )
   {
-    throw std::runtime_error( "Data for port \"" + port + "\" is not in the adapter_data_set." );
+    throw std::runtime_error{ "Data for port \"" + port +
+                              "\" is not in the adapter_data_set." };
   }
   return it->second->get_datum<T>();
 }
 
-// ------------------------------------------------------------------
-#define INSTANTIATE_ADS_ADD_VALUE(T) \
+// ----------------------------------------------------------------------------
+template<typename T>
+T adapter_data_set::value_or( ::sprokit::process::port_t const& port,
+                              T const& value_if_missing )
+{
+  auto it = this->find( port );
+  if( it != this->end() )
+  {
+    return it->second->get_datum< T >();
+  }
+  return value_if_missing;
+}
+
+// ----------------------------------------------------------------------------
+#define INSTANTIATE_ADS_ADD_VALUE( T ) \
   template KWIVER_ADAPTER_EXPORT \
   void \
-  adapter_data_set::add_value(::sprokit::process::port_t const& port, T const& val);
+  adapter_data_set \
+  ::add_value( ::sprokit::process::port_t const& port, T const& val );
 
-#define INSTANTIATE_ADS_GET_PORT_DATA(T) \
+#define INSTANTIATE_ADS_VALUE( T ) \
   template KWIVER_ADAPTER_EXPORT \
   T \
-  adapter_data_set::get_port_data(::sprokit::process::port_t const& port);
+  adapter_data_set \
+  ::value( ::sprokit::process::port_t const& port );
 
-#define INSTANTIATE_ADS_ADD_GET_VALUE(T) \
-  INSTANTIATE_ADS_ADD_VALUE(T) \
-  INSTANTIATE_ADS_GET_PORT_DATA(T)
+#define INSTANTIATE_ADS_VALUE_OR( T ) \
+  template KWIVER_ADAPTER_EXPORT \
+  T \
+  adapter_data_set \
+  ::value_or( ::sprokit::process::port_t const& port, \
+              T const& value_if_missing );
 
-INSTANTIATE_ADS_ADD_GET_VALUE(int);
-INSTANTIATE_ADS_ADD_GET_VALUE(float);
-INSTANTIATE_ADS_ADD_GET_VALUE(double);
-INSTANTIATE_ADS_ADD_GET_VALUE(bool);
+#define INSTANTIATE_ADS_ALL( T ) \
+  INSTANTIATE_ADS_ADD_VALUE( T ) \
+  INSTANTIATE_ADS_VALUE( T ) \
+  INSTANTIATE_ADS_VALUE_OR( T )
 
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::any);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::bounding_box_d);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::timestamp);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::geo_polygon);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::image_container_sptr);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::image_container_set_sptr);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::feature_set_sptr);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::database_query_sptr);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::descriptor_set_sptr);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::descriptor_request_sptr);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::query_result_set_sptr);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::iqr_feedback_sptr);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::string_t);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::string_vector_sptr);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::track_set_sptr);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::feature_track_set_sptr);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::object_track_set_sptr);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::double_vector_sptr);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::detected_object_set_sptr);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::track_descriptor_set_sptr);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::matrix_d);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::f2f_homography);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::metadata_vector);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::uid);
+INSTANTIATE_ADS_ALL( int );
+INSTANTIATE_ADS_ALL( float );
+INSTANTIATE_ADS_ALL( double );
+INSTANTIATE_ADS_ALL( bool );
 
-INSTANTIATE_ADS_ADD_GET_VALUE(std::shared_ptr<std::vector<unsigned char>>);
-INSTANTIATE_ADS_ADD_GET_VALUE(kwiver::vital::string_sptr);
+INSTANTIATE_ADS_ALL( kwiver::vital::any );
+INSTANTIATE_ADS_ALL( kwiver::vital::bounding_box_d );
+INSTANTIATE_ADS_ALL( kwiver::vital::timestamp );
+INSTANTIATE_ADS_ALL( kwiver::vital::geo_polygon );
+INSTANTIATE_ADS_ALL( kwiver::vital::image_container_sptr );
+INSTANTIATE_ADS_ALL( kwiver::vital::image_container_set_sptr );
+INSTANTIATE_ADS_ALL( kwiver::vital::feature_set_sptr );
+INSTANTIATE_ADS_ALL( kwiver::vital::database_query_sptr );
+INSTANTIATE_ADS_ALL( kwiver::vital::descriptor_set_sptr );
+INSTANTIATE_ADS_ALL( kwiver::vital::descriptor_request_sptr );
+INSTANTIATE_ADS_ALL( kwiver::vital::query_result_set_sptr );
+INSTANTIATE_ADS_ALL( kwiver::vital::iqr_feedback_sptr );
+INSTANTIATE_ADS_ALL( kwiver::vital::string_t );
+INSTANTIATE_ADS_ALL( kwiver::vital::string_vector_sptr );
+INSTANTIATE_ADS_ALL( kwiver::vital::track_set_sptr );
+INSTANTIATE_ADS_ALL( kwiver::vital::feature_track_set_sptr );
+INSTANTIATE_ADS_ALL( kwiver::vital::object_track_set_sptr );
+INSTANTIATE_ADS_ALL( kwiver::vital::double_vector_sptr );
+INSTANTIATE_ADS_ALL( kwiver::vital::detected_object_set_sptr );
+INSTANTIATE_ADS_ALL( kwiver::vital::track_descriptor_set_sptr );
+INSTANTIATE_ADS_ALL( kwiver::vital::matrix_d );
+INSTANTIATE_ADS_ALL( kwiver::vital::f2f_homography );
+INSTANTIATE_ADS_ALL( kwiver::vital::metadata_vector );
+INSTANTIATE_ADS_ALL( kwiver::vital::uid );
+
+INSTANTIATE_ADS_ALL( std::shared_ptr< std::vector< unsigned char > > );
+INSTANTIATE_ADS_ALL( kwiver::vital::string_sptr );
 
 #undef INSTANTIATE_ADS_ADD_VALUE
-#undef INSTANTIATE_ADS_GET_PORT_DATA
-#undef INSTANTIATE_ADS_ADD_GET_VALUE
+#undef INSTANTIATE_ADS_VALUE
+#undef INSTANTIATE_ADS_VALUE_OR
+#undef INSTANTIATE_ADS_ALL
 
 } } // end namespace
