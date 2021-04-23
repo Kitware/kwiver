@@ -8,7 +8,7 @@
 
 
 # results of tests being run will be exported to an Xunit xml file
-if (PYTEST_RUNNER)
+if (PYTHON_TEST)
 
   set(no_install TRUE)
   string(TOLOWER "${CMAKE_PROJECT_NAME}" project_name)
@@ -18,15 +18,7 @@ if (PYTEST_RUNNER)
   else ()
     set(kwiver_test_output_path    "${KWIVER_BINARY_DIR}/tests/bin")
   endif ()
-  if(VENV_CREATED)
-      if(Python3_INTERPRETER_ID STREQUAL "Anaconda")
-        set(PYTEST_COMMAND "$ENV{CONDA_EXE} activate {VENV_DIR} && ")
-      else()
-        set(PYTEST_COMMAND "source ${VENV_DIR}/bin/activate && ")
-      endif()
-  else()
-    set(PYTEST_COMMAND)
-  endif()
+
   if (CTEST_BINARY_DIRECTORY)
     set(kwiver_test_working_path "${CTEST_BINARY_DIRECTORY}")
   else()

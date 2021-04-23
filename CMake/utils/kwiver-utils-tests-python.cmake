@@ -133,32 +133,29 @@ endfunction ()
 # Adds a python module testing suite run by pytest
 #
 function (kwiver_add_pytest name targ)
-  if(VENV_CREATED)
-    set(ADD_TEST 1)
+
+  set(CHECK_DEPS_CMD "${KWIVER_SOURCE_DIR}/python/check_imports.py")
+  execute_process(COMMAND "${PYTHON_TEST_EXE}" "${CHECK_DEPS_CMD}" "-f" "${name}.py" "-ii" "kwiver"
+  WORKING_DIRECTORY "${KWIVER_SOURCE_DIR}/python/kwiver/vital/tests/"
+  RESULT_VARIABLE DEPS_MET
+  ERROR_VARIABLE DEP_CHECK_ERROR
+  OUTPUT_VARIABLE DEP_CHECK_OUT)
+  if(DEPS_MET AND NOT DEPS_MET  EQUAL 0)
+    message(WARNING "Python test: ${name}.py will not be run, dependencies not met
+    ERROR: ${DEPS_MET} ${DEP_CHECK_ERROR} ${DEP_CHECK_OUT}")
   else()
-    set(CHECK_DEPS_CMD "${KWIVER_SOURCE_DIR}/python/check_imports.py")
-    execute_process(COMMAND "${PYTHON_TEST_EXE}" "${CHECK_DEPS_CMD}" "-f" "${name}.py" "-ii" "kwiver"
-    WORKING_DIRECTORY "${KWIVER_SOURCE_DIR}/python/kwiver/vital/tests/"
-    RESULT_VARIABLE DEPS_MET
-    ERROR_VARIABLE DEP_CHECK_ERROR
-    OUTPUT_VARIABLE DEP_CHECK_OUT)
-    if(DEPS_MET AND NOT DEPS_MET  EQUAL 0)
-      message(WARNING "Python test: ${name}.py will not be run, dependencies not met
-      ERROR: ${DEPS_MET} ${DEP_CHECK_ERROR} ${DEP_CHECK_OUT}")
-    else()
-      set(ADD_TEST 1)
-    endif()
+    set(ADD_TEST 1)
   endif()
   if(ADD_TEST)
     if (WIN32)
       add_test(
         NAME    test-python-${name}
-        COMMAND cmd /C "${PYTEST_COMMAND} ${kwiver_test_runner}${name}.py"
+        COMMAND cmd /C "${PYTHON_TEST_CMD} ${kwiver_test_runner}${name}.py"
                 ${ARGN})
     else()
       add_test(
         NAME    test-python-${name}
-        COMMAND bash -c "${PYTEST_COMMAND} ${kwiver_test_runner}${name}.py"
+        COMMAND bash -c "${PYTHON_TEST_CMD} ${kwiver_test_runner}${name}.py"
                 ${ARGN})
     endif()
 

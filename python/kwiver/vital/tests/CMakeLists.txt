@@ -90,7 +90,7 @@ foreach (modname IN LISTS __all_modnames)
 endforeach()
 
 # Add python vital.tests to CTest if python test runner is available
-if (KWIVER_ENABLE_TESTS AND PYTEST_RUNNER)
+if (PYTHON_TESTS)
   if (WIN32)
     set(WIN_TEST_CONFIG_TYPE "$<CONFIG>")
   endif()
