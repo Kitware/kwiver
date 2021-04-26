@@ -150,6 +150,14 @@ def test_add_get_basic_types():
     retrieved_val = datum_inst.get_float()
     check_same_type(retrieved_val, 0.5)
 
+    datum_inst = datum.new_double(3.14)
+    retrieved_val = datum_inst.get_double()
+    check_same_type(retrieved_val, 3.14)
+
+    datum_inst = datum.new_bool(True)
+    retrieved_val = datum_inst.get_bool()
+    check_same_type(retrieved_val, True)
+
     datum_inst = datum.new_string("str1")
     retrieved_val = datum_inst.get_string()
     check_same_type(retrieved_val, "str1")
@@ -157,6 +165,7 @@ def test_add_get_basic_types():
     # Now the ones with automatic conversion
     check_automatic_conversion(10)
     check_automatic_conversion(0.5)
+    check_automatic_conversion(True)
     check_automatic_conversion("str1")
 
 # Next some kwiver vital types that are handled with pointers

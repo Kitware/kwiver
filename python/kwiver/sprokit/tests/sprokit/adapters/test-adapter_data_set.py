@@ -189,6 +189,8 @@ def test_add_get_basic_types():
     ads = adapter_data_set.AdapterDataSet.create()
     add_get_helper(ads, ads._add_int, ads._get_port_data_int, 10, "int")
     add_get_helper(ads, ads._add_float, ads._get_port_data_float, 0.5, "float")
+    add_get_helper(ads, ads._add_double, ads._get_port_data_double, 3.14, "double")
+    add_get_helper(ads, ads._add_bool, ads._get_port_data_bool, True, "bool")
     add_get_helper(ads, ads._add_string, ads._get_port_data_string, "str1", "string")
 
 
