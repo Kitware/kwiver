@@ -258,6 +258,16 @@ function (kwiver_create_python_init    modpath)
     COMPONENT   runtime)
 endfunction ()
 
+macro(get_python_mod_dst)
+  string(REPLACE "${CMAKE_SOURCE_DIR}/kwiver"  "" "${modpath}" "${CMAKE_CURRENT_SOURCE_DIR}" )
+  if(SKBUILD)
+    set(mod_dst "${CMAKE_BINARY_DIR/${modpath}/")
+  else()
+    set(mod_dst "${kwiver_python_output_path}${python_noarchdir}/${python_sitename}/${project_name}/${modpath}/")
+  endif()
+endmacro(get_python_mod_dst)
+
+
 ###
 # wrapper around add_custom_target eventually implementing python specific logic
 #

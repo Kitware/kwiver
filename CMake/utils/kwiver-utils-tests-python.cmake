@@ -134,59 +134,45 @@ endfunction ()
 #
 function (kwiver_add_pytest name targ)
 
-  set(CHECK_DEPS_CMD "${KWIVER_SOURCE_DIR}/python/check_imports.py")
-  execute_process(COMMAND "${PYTHON_TEST_EXE}" "${CHECK_DEPS_CMD}" "-f" "${name}.py" "-ii" "kwiver"
-  WORKING_DIRECTORY "${KWIVER_SOURCE_DIR}/python/kwiver/vital/tests/"
-  RESULT_VARIABLE DEPS_MET
-  ERROR_VARIABLE DEP_CHECK_ERROR
-  OUTPUT_VARIABLE DEP_CHECK_OUT)
-  if(DEPS_MET AND NOT DEPS_MET  EQUAL 0)
-    message(WARNING "Python test: ${name}.py will not be run, dependencies not met
-    ERROR: ${DEPS_MET} ${DEP_CHECK_ERROR} ${DEP_CHECK_OUT}")
+  if (WIN32)
+    add_test(
+      NAME    test-python-${name}
+      COMMAND cmd /C "${kwiver_pytest_runner}${targ}${name}.py"
+              ${ARGN})
   else()
-    set(ADD_TEST 1)
+    add_test(
+      NAME    test-python-${name}
+      COMMAND bash -c "${kwiver_pytest_runner}${name}.py"
+              ${ARGN})
   endif()
-  if(ADD_TEST)
-    if (WIN32)
-      add_test(
-        NAME    test-python-${name}
-        COMMAND cmd /C "${PYTHON_TEST_CMD} ${kwiver_test_runner}${name}.py"
-                ${ARGN})
-    else()
-      add_test(
-        NAME    test-python-${name}
-        COMMAND bash -c "${PYTHON_TEST_CMD} ${kwiver_test_runner}${name}.py"
-                ${ARGN})
-    endif()
 
+  set_tests_properties(test-python-${name}
+    PROPERTIES
+      FAIL_REGULAR_EXPRESSION "^Error: ;\nError: ")
+  if (kwiver_test_working_path)
     set_tests_properties(test-python-${name}
       PROPERTIES
-        FAIL_REGULAR_EXPRESSION "^Error: ;\nError: ")
-    if (kwiver_test_working_path)
-      set_tests_properties(test-python-${name}
-        PROPERTIES
-        WORKING_DIRECTORY "${kwiver_test_working_path}")
-    endif ()
-    if (kwiver_test_environment)
-      set_tests_properties(test-python-${name}
-        PROPERTIES
-        ENVIRONMENT "${kwiver_test_environment}")
-    endif ()
-    if (KWIVER_TEST_ADD_TARGETS)
-      add_custom_target(test-python-${name})
-      add_custom_command(
-        TARGET  test-python-${name}
-        COMMAND ${kwiver_test_environment}
-                ${kwiver_test_runner}
-                "${kwiver_test_output_path}"
-                ${ARGN}
-        WORKING_DIRECTORY
-                "${kwiver_test_working_path}"
-        COMMENT "Running test \"${name}\"")
-        add_dependencies(${targ}
-                        test-python-${name})
-    endif ()
-  endif()
+      WORKING_DIRECTORY "${kwiver_test_working_path}")
+  endif ()
+  if (kwiver_test_environment)
+    set_tests_properties(test-python-${name}
+      PROPERTIES
+      ENVIRONMENT "${kwiver_test_environment}")
+  endif ()
+  if (KWIVER_TEST_ADD_TARGETS)
+    add_custom_target(test-python-${name})
+    add_custom_command(
+      TARGET  test-python-${name}
+      COMMAND ${kwiver_test_environment}
+              ${kwiver_test_runner}
+              "${kwiver_test_output_path}"
+              ${ARGN}
+      WORKING_DIRECTORY
+              "${kwiver_test_working_path}"
+      COMMENT "Running test \"${name}\"")
+      add_dependencies(${targ}
+                      test-python-${name})
+  endif ()
 endfunction()
 
 

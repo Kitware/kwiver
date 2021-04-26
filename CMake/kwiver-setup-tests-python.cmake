@@ -24,6 +24,6 @@ if (PYTHON_TEST)
   else()
     set(kwiver_test_working_path "${KWIVER_BINARY_DIR}")
   endif()
-
-  set(kwiver_test_runner "${PYTEST_RUNNER} ${mod_dst}")
+  get_python_mod_dst()
+  set(kwiver_pytest_runner "python${KWIVER_PYTHON_MAJOR_VERSION} -m pytest ${mod_dst}")
 endif()
