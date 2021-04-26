@@ -196,6 +196,27 @@ mark_as_advanced(PYTHON_ABIFLAGS)
 
 
 ###
+# Python dependencies
+#
+# Add python packages needed to execute the bindings
+# to requirements.txt file
+#
+set(PYTHON_REQS "numpy>=1.13.0,<=1.19.0;six>=1.10.0,<=1.13.0")
+
+if(SKBUILD)
+  set(PYTHON_REQS "${PYTHON_REQS};scikit-build<=0.11.1")
+endif(SKBUILD)
+
+if(KWIVER_ENABLE_PYTORCH)
+  set(PYTHON_REQS "${PYTHON_REQS};opencv-python>=3.4.2.17,<=4.0.0;pillow>=7.0.0,<=7.1.2;scipy>=1.2,<=1.5")
+endif(KWIVER_ENABLE_PYTORCH)
+
+if(KWIVER_ENABLE_ARROWS)
+  set(PYTHON_REQS "${PYTHON_REQS};torch==1.4.0;torchvision==0.5.0")
+endif()
+
+
+###
 # PyBind11
 #
 #
@@ -215,13 +236,17 @@ mark_as_advanced(PYTHON_ABIFLAGS)
 
 if (KWIVER_ENABLE_TESTS)
 
-  message("KWIVER_PYTHON and KWIVER_TESTING enabled.")
-  message("Python tests will be added to CTest.")
-  message("Tests are executed by PYTEST, for sucessful test execution, please install the appropriate pytest for your python distribution.")
+  message(STATUS "KWIVER_PYTHON and KWIVER_TESTING enabled.")
+  message(STATUS "Python tests will be added to CTest.")
+  message(STATUS "Tests are executed by PYTEST, for sucessful test execution, please install the appropriate pytest for your python distribution.")
+  message(STATUS "Testing dependencies will be added to Python requirements.")
   set(PYTHON_TEST 1)
+  set(PYTHON_REQS "${PYTHON_REQS};nose>1.2;coverage>=4.4.1,<5.0.0;pytest>=4.6,<=6.0;multimethod>=1.2,<=1.4")
 
 endif()
 
+string(REPLACE ";" "\n" PYTHON_REQS "${PYTHON_REQS}")
+file(WRITE ${KWIVER_BINARY_DIR}/python/requirements.txt "${PYTHON_REQS}")
 ###
 # Python package build locations
 #
