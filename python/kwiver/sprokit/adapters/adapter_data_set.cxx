@@ -59,7 +59,8 @@ void add_value_correct_type(ka::adapter_data_set &self, ::sprokit::process::port
   }
 
   ADS_ADD_OBJECT(py::int_, int)
-  ADS_ADD_OBJECT(py::float_, float)
+  ADS_ADD_OBJECT(py::float_, double) // Python floats have double precision
+  ADS_ADD_OBJECT(py::bool_, bool)
   ADS_ADD_OBJECT(py::str, std::string)
   ADS_ADD_OBJECT(kwiver::vital::image_container, std::shared_ptr<kwiver::vital::image_container>)
   ADS_ADD_OBJECT(kwiver::vital::descriptor_set, std::shared_ptr<kwiver::vital::descriptor_set>)
@@ -104,6 +105,8 @@ py::object get_port_data_correct_type(ka::adapter_data_set &self, ::sprokit::pro
 
   ADS_GET_OBJECT(int)
   ADS_GET_OBJECT(float)
+  ADS_GET_OBJECT(double)
+  ADS_GET_OBJECT(bool)
   ADS_GET_OBJECT(std::string)
   ADS_GET_OBJECT(std::shared_ptr<kwiver::vital::image_container>)
   ADS_GET_OBJECT(std::shared_ptr<kwiver::vital::descriptor_set>)
@@ -182,6 +185,8 @@ PYBIND11_MODULE(adapter_data_set, m)
     // First the native C++ types
     .def("_add_int", &ka::adapter_data_set::add_value<int>)
     .def("_add_float", &ka::adapter_data_set::add_value<float>)
+    .def("_add_double", &ka::adapter_data_set::add_value<double>)
+    .def("_add_bool", &ka::adapter_data_set::add_value<bool>)
     .def("_add_string", &ka::adapter_data_set::add_value<std::string>)
     // Next shared ptrs to kwiver vital types
     .def("_add_image_container", &ka::adapter_data_set::add_value<std::shared_ptr<kwiver::vital::image_container > >,
@@ -214,6 +219,8 @@ PYBIND11_MODULE(adapter_data_set, m)
     // get_port_data is also templated
     .def("_get_port_data_int", &ka::adapter_data_set::get_port_data<int>)
     .def("_get_port_data_float", &ka::adapter_data_set::get_port_data<float>)
+    .def("_get_port_data_double", &ka::adapter_data_set::get_port_data<double>)
+    .def("_get_port_data_bool", &ka::adapter_data_set::get_port_data<bool>)
     .def("_get_port_data_string", &ka::adapter_data_set::get_port_data<std::string>)
     // Next shared ptrs to kwiver vital types
     .def("_get_port_data_image_container", &ka::adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::image_container > >)
