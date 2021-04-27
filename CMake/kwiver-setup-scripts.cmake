@@ -99,7 +99,7 @@ if (KWIVER_ENABLE_PYTHON)
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "\n# set to suppress loading python modules/processes\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "# export SPROKIT_NO_PYTHON_MODULES\n\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export KWIVER_PYTHON_DEFAULT_LOG_LEVEL=WARN\n" )
-  file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "python${KWIVER_PYTHON_MAJOR_VERSION} -m pip install -U -r ${KWIVER_BINARY_DIR}/python/requirements.txt\n" )
+  file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "python${KWIVER_PYTHON_MAJOR_VERSION} -m pip install -r ${KWIVER_BINARY_DIR}/python/requirements.txt\n" )
 
 
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" ":: Python environment\n")
@@ -115,7 +115,7 @@ if (KWIVER_ENABLE_PYTHON)
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "\n:: set to suppress loading python modules/processes\n" )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "::set SPROKIT_NO_PYTHON_MODULES=false\n\n" )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set KWIVER_PYTHON_DEFAULT_LOG_LEVEL=WARN\n" )
-  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "python${KWIVER_PYTHON_MAJOR_VERSION} -m pip install -U -r ${KWIVER_BINARY_DIR}/python/requirements.txt\n" )
+  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "python${KWIVER_PYTHON_MAJOR_VERSION} -m pip install -r ${KWIVER_BINARY_DIR}/python/requirements.txt\n" )
 endif()
 
 if ( KWIVER_ENABLE_MATLAB )

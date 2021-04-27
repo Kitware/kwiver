@@ -201,18 +201,19 @@ mark_as_advanced(PYTHON_ABIFLAGS)
 # Add python packages needed to execute the bindings
 # to requirements.txt file
 #
-set(PYTHON_REQS "numpy>=1.13.0,<=1.19.0;six>=1.10.0,<=1.13.0")
+list(APPEND PYTHON_REQS "numpy>=1.13.0,<=1.19.0" "six>=1.10.0,<=1.13.0")
 
 if(SKBUILD)
-  set(PYTHON_REQS "${PYTHON_REQS};scikit-build<=0.11.1")
-endif(SKBUILD)
+  list(APPEND PYTHON_REQS "scikit-build<=0.11.1")
+endif()
 
 if(KWIVER_ENABLE_PYTORCH)
-  set(PYTHON_REQS "${PYTHON_REQS};opencv-python>=3.4.2.17,<=4.0.0;pillow>=7.0.0,<=7.1.2;scipy>=1.2,<=1.5")
-endif(KWIVER_ENABLE_PYTORCH)
-
-if(KWIVER_ENABLE_ARROWS)
-  set(PYTHON_REQS "${PYTHON_REQS};torch==1.4.0;torchvision==0.5.0")
+  list(APPEND PYTHON_REQS "opencv-python>=3.4.2.17,<=4.0.0"
+                          "pillow>=7.0.0,<=7.1.2"
+                          "scipy>=1.2,<=1.5"
+                          "torch==1.4.0"
+                          "torchvision==0.5.0"
+                        )
 endif()
 
 
