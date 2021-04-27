@@ -112,10 +112,11 @@ inpaint
 ::merge( kwiver::vital::image_container_sptr image,
          kwiver::vital::image_container_sptr mask ) const
 {
-  cv::Mat cv_image = ocv::image_container::vital_to_ocv(
+  auto const& cv_image = ocv::image_container::vital_to_ocv(
     image->get_image(), ocv::image_container::RGB_COLOR );
-  cv::Mat cv_mask = ocv::image_container::vital_to_ocv(
+  auto const& cv_mask = ocv::image_container::vital_to_ocv(
     mask->get_image(), ocv::image_container::RGB_COLOR );
+  auto cv_out = cv::Mat{};
 
   if( cv_image.size() != cv_mask.size() )
   {
@@ -130,14 +131,15 @@ inpaint
   {
     case METHOD_navier_stokes:
     {
-      cv::inpaint( cv_image, cv_mask, cv_image, d->radius,
-                   cv::INPAINT_NS );
+      cv_out = cv::Mat::zeros( cv_image.size(), cv_image.type() );
+      cv::inpaint( cv_image, cv_mask, cv_out, d->radius, cv::INPAINT_NS );
       break;
     }
     case METHOD_mask:
     {
       cv::Mat zeros = cv::Mat::zeros( cv_image.size(), cv_image.type() );
-      zeros.copyTo( cv_image, cv_mask );
+      cv_out = cv_image.clone();
+      zeros.copyTo( cv_out, cv_mask );
       break;
     }
     default:
@@ -146,7 +148,7 @@ inpaint
     }
   }
   return std::make_shared< ocv::image_container >(
-    cv_image, ocv::image_container::RGB_COLOR );
+    cv_out, ocv::image_container::RGB_COLOR );
 }
 
 } // namespace ocv
