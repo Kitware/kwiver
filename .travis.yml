@@ -26,7 +26,6 @@ before_script:
   - sudo apt install python3-pip
   - python3 -m pip install --upgrade pip
   - pip3 install -q -U setuptools
-  - pip3 install -q -r python/requirements.txt
 
 script:
   - export PATH=$HOME/deps/bin:$PATH
