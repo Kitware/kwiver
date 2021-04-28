@@ -8,6 +8,8 @@
 
 #include <kwiversys/SystemTools.hxx>
 
+#include <vital/range/iota.h>
+
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -33,6 +35,8 @@
 #include <iomanip>
 #include <numeric>
 #include <sstream>
+
+namespace kvr = kwiver::vital::range;
 
 namespace // anonymous
 {
@@ -196,7 +200,7 @@ mesh_coloration
   LOG_INFO( logger_, "Initialize camera and image list: frame " << frame_ );
   initialize_data_list( frame_ );
 
-  int numFrames = static_cast< int >( data_list_.size() );
+  auto const numFrames = data_list_.size();
 
   if( input_ == 0 || numFrames == 0 )
   {
@@ -268,13 +272,13 @@ mesh_coloration
       return false;
     }
 
-    int i = 0;
+    size_t i = 0;
     for( auto it = depthBuffer.begin(); it != depthBuffer.end(); ++it )
     {
       kwiver::vital::camera_perspective_sptr camera = data_list_[ i ].camera_;
       auto const& colorImage = data_list_[ i ].image_;
-      int width = colorImage.width();
-      int height = colorImage.height();
+      auto const width = static_cast< int >( colorImage.width() );
+      auto const height = static_cast< int >( colorImage.height() );
       DepthBuffer db;
       db.Buffer =
         render_depth_buffer( ren_win, camera, width, height, db.Range );
@@ -310,11 +314,11 @@ mesh_coloration
 
     vtkNew< vtkIntArray > cameraIndex;
     cameraIndex->SetNumberOfComponents( 1 );
-    cameraIndex->SetNumberOfTuples( numFrames );
+    cameraIndex->SetNumberOfTuples( static_cast< int >( numFrames ) );
     cameraIndex->SetName( "camera_index" );
     output_->GetFieldData()->AddArray( cameraIndex );
 
-    int i = 0;
+    size_t i = 0;
     for( auto it = perFrameColor.begin(); it != perFrameColor.end(); ++it )
     {
       ( *it ) = vtkSmartPointer< vtkUnsignedCharArray >::New();
@@ -327,20 +331,22 @@ mesh_coloration
 
       std::ostringstream ostr;
       kwiver::vital::frame_id_t frame = data_list_[ i ].frame_;
-      cameraIndex->SetValue( i, frame );
+      cameraIndex->SetValue( static_cast< vtkIdType >( i ),
+                             static_cast< int >( frame ) );
       ostr << "frame_" << std::setfill( '0' ) << std::setw( 4 ) << frame;
       ( *it )->SetName( ostr.str().c_str() );
       output_->GetPointData()->AddArray( *it );
       ++i;
     }
   }
-  unsigned int progress_step = nbMeshPoint / 100;
-  for( vtkIdType id = 0; id < nbMeshPoint; id++ )
+  auto const progress_step = nbMeshPoint / 100;
+  for( auto const id : kvr::iota( nbMeshPoint ) )
   {
     if( id % progress_step == 0 )
     {
-      report_progress_changed( "Coloring Mesh Points",
-                               ( 100 * id ) / nbMeshPoint );
+      report_progress_changed(
+        "Coloring Mesh Points",
+        static_cast< int >( ( 100 * id ) / nbMeshPoint ) );
     }
     if( !all_frames_ )
     {
@@ -356,7 +362,7 @@ mesh_coloration
     kwiver::vital::vector_3d pointNormal;
     normals->GetTuple( id, pointNormal.data() );
 
-    for( int idData = 0; idData < numFrames; idData++ )
+    for( auto const idData : kvr::iota( numFrames ) )
     {
       kwiver::vital::camera_perspective_sptr camera =
         data_list_[ idData ].camera_;
@@ -379,29 +385,34 @@ mesh_coloration
       // project 3D point to pixel coordinates
       auto pixelPosition = camera->project( position );
       auto const& colorImage = data_list_[ idData ].image_;
-      int width = colorImage.width();
-      int height = colorImage.height();
+      auto const width = colorImage.width();
+      auto const height = colorImage.height();
 
       if( pixelPosition[ 0 ] < 0.0 ||
           pixelPosition[ 1 ] < 0.0 ||
-          pixelPosition[ 0 ] >= width ||
-          pixelPosition[ 1 ] >= height )
+          pixelPosition[ 0 ] >= static_cast< double >( width ) ||
+          pixelPosition[ 1 ] >= static_cast< double >( height ) )
       {
         continue;
       }
+
       bool has_mask = true;
       auto const& maskImage = data_list_[ idData ].mask_image_;
+      auto const maskWidth = static_cast< double >( maskImage.width() );
+      auto const maskHeight = static_cast< double >( maskImage.height() );
+
       if( pixelPosition[ 0 ] < 0.0 ||
           pixelPosition[ 1 ] < 0.0 ||
-          pixelPosition[ 0 ] >= maskImage.width() ||
-          pixelPosition[ 1 ] >= maskImage.height() )
+          pixelPosition[ 0 ] >= maskWidth ||
+          pixelPosition[ 1 ] >= maskHeight )
       {
         has_mask = false;
       }
+
       try
       {
-        int x = static_cast< int >( pixelPosition[ 0 ] );
-        int y = static_cast< int >( pixelPosition[ 1 ] );
+        auto const x = static_cast< size_t >( pixelPosition[ 0 ] );
+        auto const y = static_cast< size_t >( pixelPosition[ 1 ] );
         kwiver::vital::rgb_color rgb = colorImage.at( x, y );
         bool showPoint = true;
 
@@ -410,13 +421,13 @@ mesh_coloration
           showPoint = ( maskImage.at( x, y ).r > 0 );
         }
 
-        float depthBufferValue = 0;
+        double depthBufferValue = 0;
         if( remove_occluded_ )
         {
           double* range = depthBuffer[ idData ].Range;
           float depthBufferValueNorm =
             depthBuffer[ idData ].Buffer->GetValue(
-              x + width * ( height - y - 1 ) );
+              static_cast< vtkIdType >( x + width * ( height - y - 1 ) ) );
           depthBufferValue =
             range[ 0 ] + ( range[ 1 ] - range[ 0 ] ) * depthBufferValueNorm;
         }
@@ -451,7 +462,7 @@ mesh_coloration
         double const sum0 = std::accumulate( list0.begin(), list0.end(), 0 );
         double const sum1 = std::accumulate( list1.begin(), list1.end(), 0 );
         double const sum2 = std::accumulate( list2.begin(), list2.end(), 0 );
-        double const nb_val = list0.size();
+        double const nb_val = static_cast< double >( list0.size() );
         meanValues->SetTuple3( id, sum0 / (double) nb_val,
                                sum1 / (double) nb_val,
                                sum2 / (double) nb_val );
@@ -461,7 +472,7 @@ mesh_coloration
         ComputeMedian< double >( list1, median1 );
         ComputeMedian< double >( list2, median2 );
         medianValues->SetTuple3( id, median0, median1, median2 );
-        countValues->SetTuple1( id, list0.size() );
+        countValues->SetTuple1( id, nb_val );
       }
 
       list0.clear();
@@ -545,7 +556,7 @@ mesh_coloration
   // Take a subset of images
   if( frame_id < 0 )
   {
-    unsigned int counter = 0;
+    int counter = 0;
 
     for( auto const& cam_itr : cam_map )
     {
@@ -621,7 +632,7 @@ mesh_coloration
   depthRange[ 0 ] = std::numeric_limits< double >::max();
   depthRange[ 1 ] = std::numeric_limits< double >::lowest();
 
-  for( int i = 0; i < 8; ++i )
+  for( int i : kvr::iota( 8 ) )
   {
     double depth =
       camera_persp->depth( kwiver::vital::vector_3d( bb[ i ][ 0 ],
