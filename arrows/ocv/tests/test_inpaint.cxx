@@ -94,6 +94,13 @@ TEST_F(inpaint, navier_stokes)
 }
 
 // ----------------------------------------------------------------------------
+TEST_F(inpaint, telea)
+{
+  config->set_value( "inpaint_method", "telea" );
+  test_inpaint_type( config, expected_telea_result_file );
+}
+
+// ----------------------------------------------------------------------------
 TEST_F(inpaint, mask)
 {
   config->set_value( "inpaint_method", "mask" );
