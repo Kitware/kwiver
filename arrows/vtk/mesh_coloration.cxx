@@ -90,11 +90,11 @@ mesh_coloration
 // ----------------------------------------------------------------------------
 mesh_coloration
 ::mesh_coloration(
-  kwiver::vital::config_block_sptr& video_config,
+  kwiver::vital::config_block_sptr const& video_config,
   std::string const& video_path,
-  kwiver::vital::config_block_sptr& mask_config,
+  kwiver::vital::config_block_sptr const& mask_config,
   std::string const& mask_path,
-  kwiver::vital::camera_map_sptr& cameras )
+  kwiver::vital::camera_map_sptr const& cameras )
   : mesh_coloration()
 {
   set_video( video_config, video_path );
@@ -106,7 +106,7 @@ mesh_coloration
 void
 mesh_coloration
 ::set_video(
-  kwiver::vital::config_block_sptr& video_config,
+  kwiver::vital::config_block_sptr const& video_config,
   std::string const& video_path )
 {
   video_path_ = video_path;
@@ -117,7 +117,7 @@ mesh_coloration
 // ----------------------------------------------------------------------------
 void
 mesh_coloration
-::set_mask( kwiver::vital::config_block_sptr& mask_config,
+::set_mask( kwiver::vital::config_block_sptr const& mask_config,
             std::string const& mask_path )
 {
   mask_path_ = mask_path;
@@ -140,7 +140,7 @@ mesh_coloration
 // ----------------------------------------------------------------------------
 void
 mesh_coloration
-::set_cameras( kwiver::vital::camera_map_sptr& cameras )
+::set_cameras( kwiver::vital::camera_map_sptr const& cameras )
 {
   cameras_ = cameras;
 }

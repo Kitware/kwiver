@@ -45,19 +45,19 @@ public:
   /// \param video_path Video file path
   /// \param mask_config Configuration for reading the mask
   /// \param mask_path Mask file path
-  mesh_coloration( kwiver::vital::config_block_sptr& video_config,
+  mesh_coloration( kwiver::vital::config_block_sptr const& video_config,
                    std::string const& video_path,
-                   kwiver::vital::config_block_sptr& mask_config,
+                   kwiver::vital::config_block_sptr const& mask_config,
                    std::string const& mask_path,
-                   kwiver::vital::camera_map_sptr& cameras );
+                   kwiver::vital::camera_map_sptr const& cameras );
   /// Set video input.
-  void set_video( kwiver::vital::config_block_sptr& video_config,
+  void set_video( kwiver::vital::config_block_sptr const& video_config,
                   std::string const& video_path );
   /// Set mask to restrict area to be colored. Optional.
-  void set_mask( kwiver::vital::config_block_sptr& mask_config,
+  void set_mask( kwiver::vital::config_block_sptr const& mask_config,
                  std::string const& mask_path );
   /// Set cameras (and frames) to be used for coloring.
-  void set_cameras( kwiver::vital::camera_map_sptr& cameras );
+  void set_cameras( kwiver::vital::camera_map_sptr const& cameras );
   /// Input mesh to be colored.
   void set_input( vtkSmartPointer< vtkPolyData > input );
   /// Input mesh to be colored.
