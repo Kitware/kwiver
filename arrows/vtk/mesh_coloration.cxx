@@ -463,9 +463,8 @@ mesh_coloration
         double const sum1 = std::accumulate( list1.begin(), list1.end(), 0 );
         double const sum2 = std::accumulate( list2.begin(), list2.end(), 0 );
         double const nb_val = static_cast< double >( list0.size() );
-        meanValues->SetTuple3( id, sum0 / (double) nb_val,
-                               sum1 / (double) nb_val,
-                               sum2 / (double) nb_val );
+        meanValues->SetTuple3(
+          id, sum0 / nb_val, sum1 / nb_val, sum2 / nb_val );
 
         double median0, median1, median2;
         ComputeMedian< double >( list0, median0 );
