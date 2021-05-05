@@ -32,7 +32,7 @@ Utilities to support testing for json serialization of vital types
 """
 
 from kwiver.vital.types import ActivityType
-from kwiver.vital.types import BoundingBox
+from kwiver.vital.types import BoundingBoxD as BoundingBox
 from kwiver.vital.types import DetectedObject
 from kwiver.vital.types import DetectedObjectSet
 from kwiver.vital.types import DetectedObjectType

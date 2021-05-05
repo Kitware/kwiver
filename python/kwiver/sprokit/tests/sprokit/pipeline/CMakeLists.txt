@@ -23,7 +23,7 @@ set(__simple_testable_modnames
 # subdir), but the python tests should be moved to the python source dir.
 if (KWIVER_ENABLE_TESTS AND PYTEST_RUNNER)
 
-# Register individual tests with ctest
+  # Register individual tests with ctest
   foreach (group IN LISTS __simple_testable_modnames)
     # SeeAlso:
     #     # defines sprokit_discover_python_tests
