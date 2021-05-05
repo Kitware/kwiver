@@ -293,6 +293,7 @@ video_input_filter
 
     if ( ! status )
     {
+      d->d_at_eov = d->d_video_input->end_of_video();
       return false;
     }
 
