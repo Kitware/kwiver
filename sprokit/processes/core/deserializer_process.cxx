@@ -103,7 +103,7 @@ deserializer_process
   scoped_step_instrumentation();
 
   // Loop over all registered groups
-  for (const auto msg_spec_it : m_message_spec_list )
+  for (auto const& msg_spec_it : m_message_spec_list )
   {
     // Each iteration of this loop expects a multi-element message
     // with the following format

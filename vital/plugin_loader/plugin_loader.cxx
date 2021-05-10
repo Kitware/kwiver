@@ -187,7 +187,7 @@ plugin_loader
 {
   std::vector< std::string > retval;
 
-  for( auto const it : m_impl->m_library_map )
+  for( auto const& it : m_impl->m_library_map )
   {
     retval.push_back( it.first );
   } // end foreach
