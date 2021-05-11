@@ -232,7 +232,7 @@ write_set( const kwiver::vital::detected_object_set_sptr set,
 
       double f1 = 0.0, f2 = 0.0, f3 = 0.0;
 
-      for( const std::string id : d->m_parsed_tot_ids1 )
+      for( auto const& id : d->m_parsed_tot_ids1 )
       {
         if( clf->has_class_name( id ) )
         {
@@ -240,7 +240,7 @@ write_set( const kwiver::vital::detected_object_set_sptr set,
         }
       }
 
-      for( const std::string id : d->m_parsed_tot_ids2 )
+      for( auto const& id : d->m_parsed_tot_ids2 )
       {
         if( clf->has_class_name( id ) )
         {

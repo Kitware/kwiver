@@ -294,7 +294,7 @@ decode_message( const std::string& message )
 void serializer_base::
 dump_msg_spec()
 {
-  for ( const auto it : m_message_spec_list )
+  for ( auto const& it : m_message_spec_list )
   {
     std::cout << "Message tag: " << it.first << std::endl;
 
@@ -302,7 +302,7 @@ dump_msg_spec()
 
     std::cout << "   Serialized port name: " << msg_spec.m_serialized_port_name << std::endl;
 
-    for ( const auto elem_it : msg_spec.m_elements )
+    for ( auto const& elem_it : msg_spec.m_elements )
     {
       const auto& msg_elem = elem_it.second;
 
