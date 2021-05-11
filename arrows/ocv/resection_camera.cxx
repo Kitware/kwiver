@@ -32,8 +32,8 @@ public:
 
   vital::logger_handle_t m_logger;
 
-  double reproj_accuracy = 1.;
-  int max_iterations = 300;
+  double reproj_accuracy = 4.;
+  int max_iterations = 64;
 };
 
 // ----------------------------------------------------------------------------
@@ -59,7 +59,7 @@ resection_camera
   config->set_value( "reproj_accuracy", d_->reproj_accuracy,
                      "desired re-projection positive accuracy" );
   config->set_value( "max_iterations", d_->max_iterations,
-                     "maximum number of iterations to run PnP [1, INT_MAX]" );
+                     "maximum number of iterations to run optimization [1, INT_MAX]" );
   return config;
 }
 
@@ -163,12 +163,13 @@ resection_camera
   auto const reproj_error = d_->reproj_accuracy;
 
   auto const err =
-    cv::calibrateCamera( world_points_vec, image_points_vec,
-                         image_size, cv_K, dist_coeffs,
-                         vrvec, vtvec, flags,
-                         cv::TermCriteria{
-                           cv::TermCriteria::COUNT + cv::TermCriteria::EPS,
-                           d_->max_iterations, reproj_error } );
+    cv::calibrateCamera(
+      world_points_vec, image_points_vec,
+      image_size, cv_K, dist_coeffs,
+      vrvec, vtvec, flags,
+      cv::TermCriteria{
+          cv::TermCriteria::COUNT + cv::TermCriteria::EPS,
+          d_->max_iterations, reproj_error } );
 
   if( err > reproj_error )
   {
