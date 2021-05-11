@@ -38,7 +38,9 @@ public:
   void update_config(vital::config_block_sptr config) override;
 };
 
-void build_pipeline(embedded_pipeline& self, vital::path_t const& desc_file);
+void build_pipeline(embedded_pipeline& self,
+                    vital::path_t const& desc_file,
+                    std::string const& def_dir = "");
 
 }
 }
@@ -52,7 +54,9 @@ PYBIND11_MODULE(embedded_pipeline, m)
         std::shared_ptr<kwiver::embedded_pipeline>,
         ksp::embedded_pipeline_trampoline> ep(m, "EmbeddedPipeline");
   ep.def(init<>())
-  .def("build_pipeline", &ksp::build_pipeline)
+  .def("build_pipeline", &ksp::build_pipeline,
+    arg("desc_file"),
+    arg("def_dir") = "")
   .def("send", &kwiver::embedded_pipeline::send)
   .def("send_end_of_input", &kwiver::embedded_pipeline::send_end_of_input)
   .def("receive", &kwiver::embedded_pipeline::receive)
@@ -151,14 +155,16 @@ embedded_pipeline_trampoline
   );
 }
 
-void build_pipeline(embedded_pipeline& self, vital::path_t const& desc_file)
+void build_pipeline(embedded_pipeline& self,
+                    vital::path_t const& desc_file,
+                    std::string const& def_dir)
 {
   std::ifstream desc_stream(desc_file);
   if (! desc_stream )
   {
     throw ::sprokit::file_no_exist_exception(desc_file);
   }
-  self.build_pipeline(desc_stream);
+  self.build_pipeline(desc_stream, def_dir);
 }
 }
 }
