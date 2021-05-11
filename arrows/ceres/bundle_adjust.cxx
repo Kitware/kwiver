@@ -9,20 +9,21 @@
 
 #include "bundle_adjust.h"
 
-#include <iostream>
-#include <iomanip>
-#include <set>
-#include <unordered_set>
-
 #include <vital/io/eigen_io.h>
 #include <vital/vital_config.h>
 
 #include <arrows/ceres/reprojection_error.h>
 #include <arrows/ceres/types.h>
 #include <arrows/ceres/options.h>
-#include <ceres/loss_function.h>
+#include <arrows/mvg/camera_options.h>
 
+#include <ceres/loss_function.h>
 #include <ceres/ceres.h>
+
+#include <iostream>
+#include <iomanip>
+#include <set>
+#include <unordered_set>
 
 using namespace kwiver::vital;
 
