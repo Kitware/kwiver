@@ -70,8 +70,8 @@ CERES_ENUM_HELPERS(::ceres, TrustRegionStrategyType)
 CERES_ENUM_HELPERS(::ceres, DoglegType)
 
 CERES_ENUM_HELPERS(kwiver::arrows::ceres, LossFunctionType)
-CERES_ENUM_HELPERS(kwiver::arrows::ceres, LensDistortionType)
-CERES_ENUM_HELPERS(kwiver::arrows::ceres, CameraIntrinsicShareType)
+//CERES_ENUM_HELPERS(kwiver::arrows::ceres, LensDistortionType)
+//CERES_ENUM_HELPERS(kwiver::arrows::ceres, CameraIntrinsicShareType)
 
 #undef CERES_ENUM_HELPERS
 
@@ -116,58 +116,6 @@ StringToLossFunctionType(std::string value, LossFunctionType* type)
   STRENUM(CAUCHY_LOSS);
   STRENUM(ARCTAN_LOSS);
   STRENUM(TUKEY_LOSS);
-  return false;
-}
-
-/// Provide a string representation for a LensDisortionType value
-const char*
-LensDistortionTypeToString(LensDistortionType type)
-{
-  switch (type)
-  {
-    CASESTR(NO_DISTORTION);
-    CASESTR(POLYNOMIAL_RADIAL_DISTORTION);
-    CASESTR(POLYNOMIAL_RADIAL_TANGENTIAL_DISTORTION);
-    CASESTR(RATIONAL_RADIAL_TANGENTIAL_DISTORTION);
-    default:
-      return "UNKNOWN";
-  }
-}
-
-/// Parse a LensDistortionType value from a string or return false
-bool
-StringToLensDistortionType(std::string value, LensDistortionType* type)
-{
-  UpperCase(&value);
-  STRENUM(NO_DISTORTION);
-  STRENUM(POLYNOMIAL_RADIAL_DISTORTION);
-  STRENUM(POLYNOMIAL_RADIAL_TANGENTIAL_DISTORTION);
-  STRENUM(RATIONAL_RADIAL_TANGENTIAL_DISTORTION);
-  return false;
-}
-
-/// Provide a string representation for a CameraIntrinsicShareType value
-KWIVER_ALGO_CERES_EXPORT const char*
-CameraIntrinsicShareTypeToString(CameraIntrinsicShareType type)
-{
-  switch (type)
-  {
-    CASESTR(AUTO_SHARE_INTRINSICS);
-    CASESTR(FORCE_COMMON_INTRINSICS);
-    CASESTR(FORCE_UNIQUE_INTRINSICS);
-    default:
-      return "UNKNOWN";
-  }
-}
-
-/// Parse a CameraIntrinsicShareType value from a string or return false
-KWIVER_ALGO_CERES_EXPORT bool
-StringToCameraIntrinsicShareType(std::string value, CameraIntrinsicShareType* type)
-{
-  UpperCase(&value);
-  STRENUM(AUTO_SHARE_INTRINSICS);
-  STRENUM(FORCE_COMMON_INTRINSICS);
-  STRENUM(FORCE_UNIQUE_INTRINSICS);
   return false;
 }
 

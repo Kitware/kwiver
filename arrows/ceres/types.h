@@ -32,23 +32,6 @@ enum LossFunctionType
   TUKEY_LOSS
 };
 
-/// The various models for lens distortion supported in the config
-enum LensDistortionType
-{
-  NO_DISTORTION,
-  POLYNOMIAL_RADIAL_DISTORTION,
-  POLYNOMIAL_RADIAL_TANGENTIAL_DISTORTION,
-  RATIONAL_RADIAL_TANGENTIAL_DISTORTION
-};
-
-/// The options for camera intrinsic sharing supported in the config
-enum CameraIntrinsicShareType
-{
-  AUTO_SHARE_INTRINSICS,
-  FORCE_COMMON_INTRINSICS,
-  FORCE_UNIQUE_INTRINSICS
-};
-
 /// Provide a string representation for a LossFunctionType value
 KWIVER_ALGO_CERES_EXPORT const char*
 LossFunctionTypeToString(LossFunctionType type);
@@ -60,26 +43,6 @@ StringToLossFunctionType(std::string value, LossFunctionType* type);
 /// Construct a LossFunction object from the specified enum type
 KWIVER_ALGO_CERES_EXPORT ::ceres::LossFunction*
 LossFunctionFactory(LossFunctionType type, double scale=1.0);
-
-/// Provide a string representation for a LensDisortionType value
-KWIVER_ALGO_CERES_EXPORT const char*
-LensDistortionTypeToString(LensDistortionType type);
-
-/// Parse a LensDistortionType value from a string or return false
-KWIVER_ALGO_CERES_EXPORT bool
-StringToLensDistortionType(std::string value, LensDistortionType* type);
-
-/// Return the number of distortion parameters required for each type
-KWIVER_ALGO_CERES_EXPORT unsigned int
-num_distortion_params(LensDistortionType type);
-
-/// Provide a string representation for a CameraIntrinsicShareType value
-KWIVER_ALGO_CERES_EXPORT const char*
-CameraIntrinsicShareTypeToString(CameraIntrinsicShareType type);
-
-/// Parse a CameraIntrinsicShareType value from a string or return false
-KWIVER_ALGO_CERES_EXPORT bool
-StringToCameraIntrinsicShareType(std::string value, CameraIntrinsicShareType* type);
 
 /// Defult implementation of string options for Ceres enums
 template <typename T>
@@ -124,8 +87,9 @@ CERES_ENUM_HELPERS(::ceres, TrustRegionStrategyType)
 CERES_ENUM_HELPERS(::ceres, DoglegType)
 
 CERES_ENUM_HELPERS(kwiver::arrows::ceres, LossFunctionType)
-CERES_ENUM_HELPERS(kwiver::arrows::ceres, LensDistortionType)
-CERES_ENUM_HELPERS(kwiver::arrows::ceres, CameraIntrinsicShareType)
+
+//CERES_ENUM_HELPERS(kwiver::arrows::mvg, LensDistortionType)
+//CERES_ENUM_HELPERS(kwiver::arrows::mvg, CameraIntrinsicShareType)
 
 #undef CERES_ENUM_HELPERS
 
