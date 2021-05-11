@@ -44,6 +44,15 @@ PYBIND11_MODULE(mesh, m)
     .def("has_tex_coords", &kwiver::vital::mesh::has_tex_coords)
     .def("tex_coords",   &kwiver::vital::mesh::tex_coords)
     .def("set_tex_source",   &kwiver::vital::mesh::set_tex_source)
+    .def("compute_vertex_normals", &kwiver::vital::mesh::compute_vertex_normals)
+    .def("compute_vertex_normals_from_faces",
+         &kwiver::vital::mesh::compute_vertex_normals_from_faces)
+    .def("compute_face_normals",
+         &kwiver::vital::mesh::compute_face_normals, py::arg("norm") = true)
+    .def("face_normals", [](kwiver::vital::mesh& self)
+    {
+        return self.faces().normals();
+    })
     .def_static("from_ply_file", [](std::string path)
     {
       return kwiver::vital::read_ply(path);
