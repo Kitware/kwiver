@@ -32,8 +32,8 @@ public:
 
   vital::logger_handle_t m_logger;
 
-  double reproj_accuracy = 1.;
-  int max_iterations = 300;
+  double reproj_accuracy = 4.;
+  int max_iterations = 64;
 };
 
 // ----------------------------------------------------------------------------
@@ -59,7 +59,7 @@ resection_camera
   config->set_value( "reproj_accuracy", d_->reproj_accuracy,
                      "desired re-projection positive accuracy" );
   config->set_value( "max_iterations", d_->max_iterations,
-                     "maximum number of iterations to run PnP [1, INT_MAX]" );
+                     "maximum number of iterations to run optimization [1, INT_MAX]" );
   return config;
 }
 
