@@ -5,7 +5,6 @@ set(CMAKE_FOLDER "Arrows/Ceres")
 
 set( ceres_headers_public
   bundle_adjust.h
-  lens_distortion.h
   optimize_cameras.h
   reprojection_error.h
   camera_intrinsic_prior.h

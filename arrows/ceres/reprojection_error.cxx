@@ -9,8 +9,8 @@
 
 #include "reprojection_error.h"
 
-#include <arrows/ceres/lens_distortion.h>
 #include <arrows/ceres/types.h>
+#include <arrows/mvg/lens_distortion.h>
 
 #include <ceres/ceres.h>
 #include <ceres/rotation.h>
@@ -218,6 +218,6 @@ create_cost_func(LensDistortionType ldt, double x, double y)
   }
 }
 
-} // end namespace ceres
-} // end namespace arrows
-} // end namespace kwiver
+} // namespace ceres
+} // namespace arrows
+} // namespace kwiver

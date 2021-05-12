@@ -52,9 +52,9 @@ ceres_options()
   return std::string();
 }
 
-} // end namespace ceres
-} // end namespace arrows
-} // end namespace kwiver
+} // namespace ceres
+} // namespace arrows
+} // namespace kwiver
 
 #define CERES_ENUM_HELPERS(NS, ceres_type)                              \
 namespace kwiver {                                                      \

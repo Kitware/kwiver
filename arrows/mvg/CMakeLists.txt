@@ -9,6 +9,7 @@ set( plugin_mvg_headers
   algo/initialize_cameras_landmarks_basic.h
   algo/triangulate_landmarks.h
   camera_options.h
+  lens_distortion.h
   epipolar_geometry.h
   interpolate_camera.h
   necker_reverse.h

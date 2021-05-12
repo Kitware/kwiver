@@ -12,12 +12,9 @@
 
 #include <vital/vital_config.h>
 #include <vital/config/config_block.h>
-#include <vital/types/camera_perspective.h>
-#include <vital/types/camera_map.h>
 #include <vital/types/sfm_constraints.h>
 #include <arrows/ceres/types.h>
-
-#include <unordered_map>
+#include <arrows/mvg/camera_options.h>
 
 namespace kwiver {
 namespace arrows {
@@ -45,6 +42,36 @@ public:
 
   /// the Ceres solver options
   ::ceres::Solver::Options options;
+};
+
+/// Camera options class
+/**
+ * The intended use of this class is for a PIMPL for an algorithm to
+ * inherit from this class to share these options with that algorithm
+ */
+struct camera_options: public mvg::camera_options
+{
+  /// Add the camera position priors costs to the Ceres problem
+  int
+  add_position_prior_cost(::ceres::Problem& problem,
+                          cam_param_map_t& ext_params,
+                          vital::sfm_constraints_sptr constraints);
+
+  /// Add the camera intrinsic priors costs to the Ceres problem
+  void add_intrinsic_priors_cost(
+    ::ceres::Problem& problem,
+    std::vector<std::vector<double> >& int_params) const;
+
+  /// Add the camera path smoothness costs to the Ceres problem
+  void add_camera_path_smoothness_cost(
+    ::ceres::Problem& problem,
+    frame_params_t const& ordered_params) const;
+
+  /// Add the camera forward motion damping costs to the Ceres problem
+  void add_forward_motion_damping_cost(
+    ::ceres::Problem& problem,
+    frame_params_t const& ordered_params,
+    cam_intrinsic_id_map_t const& frame_to_intr_map) const;
 };
 
 } // namespace ceres
