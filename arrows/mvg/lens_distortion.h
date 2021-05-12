@@ -4,18 +4,18 @@
 
 /**
  * \file
- * \brief Header for lens distorion functions
+ * \brief Header for lens distortion functions
  */
 
-#ifndef KWIVER_ARROWS_CERES_LENS_DISTORTION_H_
-#define KWIVER_ARROWS_CERES_LENS_DISTORTION_H_
+#ifndef KWIVER_ARROWS_MVG_LENS_DISTORTION_H_
+#define KWIVER_ARROWS_MVG_LENS_DISTORTION_H_
 
 #include <vital/vital_config.h>
-#include <arrows/ceres/kwiver_algo_ceres_export.h>
+//#include <arrows/ceres/kwiver_algo_ceres_export.h>
 
 namespace kwiver {
 namespace arrows {
-namespace ceres {
+namespace mvg{
 
 /// Class to hold to distortion function and traits
 class distortion_poly_radial
@@ -137,8 +137,8 @@ public:
   }
 };
 
-} // end namespace ceres
-} // end namespace arrows
-} // end namespace kwiver
+} // namespace mvg
+} // namespace arrows
+} // namespace kwiver
 
 #endif

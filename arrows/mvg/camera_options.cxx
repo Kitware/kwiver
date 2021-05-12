@@ -8,6 +8,7 @@
  */
 
 #include "camera_options.h"
+#include "lens_distortion.h"
 
 namespace kwiver {
 namespace arrows {
@@ -15,6 +16,12 @@ namespace mvg {
 
 #define CASESTR(x) case x: return #x
 #define STRENUM(x) if (value == #x) { *type = x; return true;}
+
+/// Convert a string to uppercase
+static void UpperCase(std::string* input)
+{
+  std::transform(input->begin(), input->end(), input->begin(), ::toupper);
+}
 
 /// Provide a string representation for a LensDisortionType value
 const char*
@@ -41,6 +48,23 @@ StringToLensDistortionType(std::string value, LensDistortionType* type)
   STRENUM(POLYNOMIAL_RADIAL_TANGENTIAL_DISTORTION);
   STRENUM(RATIONAL_RADIAL_TANGENTIAL_DISTORTION);
   return false;
+}
+
+/// Return the number of distortion parameters required for each type
+unsigned int
+num_distortion_params(LensDistortionType type)
+{
+  switch(type)
+  {
+  case POLYNOMIAL_RADIAL_DISTORTION:
+    return distortion_poly_radial::num_coeffs;
+  case POLYNOMIAL_RADIAL_TANGENTIAL_DISTORTION:
+    return distortion_poly_radial_tangential::num_coeffs;
+  case RATIONAL_RADIAL_TANGENTIAL_DISTORTION:
+    return distortion_ratpoly_radial_tangential::num_coeffs;
+  default:
+    return 0;
+  }
 }
 
 /// Provide a string representation for a CameraIntrinsicShareType value
@@ -123,7 +147,7 @@ camera_options
 		    "Include skew parameters in bundle adjustment.");
   config->set_value("lens_distortion_type", this->lens_distortion_type,
 		    "Lens distortion model to use."
-		    + ceres_options< ceres::LensDistortionType >());
+		    + cam_options< LensDistortionType >());
   config->set_value("optimize_dist_k1", this->optimize_dist_k1,
 		    "Include radial lens distortion parameter k1 in "
 		    "bundle adjustment.");
@@ -144,7 +168,7 @@ camera_options
 		    "AUTO shares intrinsics between cameras with a common camera_intrinsic_sptr\n"
 		    "COMMON enforces that all cameras share common intrinsics\n"
 		    "UNIQUE enforces that each camera has its own intrinsics parameters."
-		    + ceres_options< ceres::CameraIntrinsicShareType >());
+		    + cam_options< CameraIntrinsicShareType >());
   config->set_value("camera_path_smoothness", this->camera_path_smoothness,
 		    "Controls the amount a regularization to apply to the camera path. "
 		    "If set to zero the path regularization is disabled.");
@@ -278,7 +302,7 @@ camera_options
 /// extract the extrinsic paramters from a camera into the parameter array
 void
 camera_options
-::extract_camera_extrinsics(const vital::camera_perspective_sptr camera,
+::extract_camera_extrinsics(const camera_perspective_sptr camera,
 			    double* params) const
 {
   vector_3d rot = camera->rotation().rodrigues();
@@ -290,7 +314,7 @@ camera_options
 /// Update a camera object to use extrinsic parameters from an array
 void
 camera_options
-::update_camera_extrinsics(std::shared_ptr<vital::simple_camera_perspective> camera,
+::update_camera_extrinsics(std::shared_ptr<simple_camera_perspective> camera,
 			   double const* params) const
 {
   camera->set_rotation(rotation_d(vector_3d(Eigen::Map<const vector_3d>(params))));
@@ -300,7 +324,7 @@ camera_options
 /// extract the paramters from camera intrinsics into the parameter array
 void
 camera_options
-::extract_camera_intrinsics(const vital::camera_intrinsics_sptr K,
+::extract_camera_intrinsics(const camera_intrinsics_sptr K,
 			    double* params) const
 {
   params[0] = K->focal_length();
@@ -322,7 +346,7 @@ camera_options
 /// update the camera intrinsics from a parameter array
 void
 camera_options
-::update_camera_intrinsics(std::shared_ptr<vital::simple_camera_intrinsics> K,
+::update_camera_intrinsics(std::shared_ptr<simple_camera_intrinsics> K,
 			   const double* params) const
 {
   K->set_focal_length(params[0]);
@@ -396,7 +420,7 @@ camera_options
 /// update the camera objects using the extracted camera parameters
 void
 camera_options
-::update_camera_parameters(vital::camera_map::map_camera_t& cameras,
+::update_camera_parameters(camera_map::map_camera_t& cameras,
 			   cam_param_map_t const& ext_params,
 			   std::vector<std::vector<double> > const& int_params,
 			   cam_intrinsic_id_map_t const& int_map) const
@@ -442,7 +466,7 @@ camera_options
 ::add_position_prior_cost(
   ::ceres::Problem& problem,
   cam_param_map_t& ext_params,
-  vital::sfm_constraints_sptr constraints)
+  sfm_constraints_sptr constraints)
 {
   int num_priors_applied = 0;
   if (!constraints)
@@ -505,7 +529,7 @@ camera_options
     {
       width = 1280.0;
     }
-    double max_focal_len = width / (2.0 * std::tan(this->minimum_hfov * kwiver::vital::deg_to_rad / 2.0));
+    double max_focal_len = width / (2.0 * std::tan(this->minimum_hfov * deg_to_rad / 2.0));
     auto cam_intrin_prior_cost =
       camera_intrinsic_prior::create(max_focal_len, int_par.size());
 

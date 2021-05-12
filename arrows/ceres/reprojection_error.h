@@ -12,11 +12,14 @@
 
 #include <vital/vital_config.h>
 #include <arrows/ceres/kwiver_algo_ceres_export.h>
-
 #include <arrows/ceres/types.h>
+#include <arrows/mvg/camera_options.h>
 
 namespace kwiver {
 namespace arrows {
+
+using namespace mvg;
+
 namespace ceres {
 
 /// Factory to create Ceres cost functions for each lens distortion type
