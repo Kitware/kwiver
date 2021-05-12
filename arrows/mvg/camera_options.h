@@ -34,17 +34,17 @@ enum LensDistortionType
 };
 
 /// Provide a string representation for a LensDisortionType value
-//KWIVER_ALGO_CERES_EXPORT
+//KWIVER_ALGO_MVG_EXPORT
 const char*
 LensDistortionTypeToString(LensDistortionType type);
 
 /// Parse a LensDistortionType value from a string or return false
-//KWIVER_ALGO_CERES_EXPORT
+//KWIVER_ALGO_MVG_EXPORT
 bool
 StringToLensDistortionType(std::string value, LensDistortionType* type);
 
 /// Return the number of distortion parameters required for each type
-//KWIVER_ALGO_CERES_EXPORT
+//KWIVER_ALGO_MVG_EXPORT
 unsigned int
 num_distortion_params(LensDistortionType type);
 
@@ -57,19 +57,19 @@ enum CameraIntrinsicShareType
 };
 
 /// Provide a string representation for a CameraIntrinsicShareType value
-//KWIVER_ALGO_CERES_EXPORT
+//KWIVER_ALGO_MVG_EXPORT
 const char*
 CameraIntrinsicShareTypeToString(CameraIntrinsicShareType type);
 
 /// Parse a CameraIntrinsicShareType value from a string or return false
-//KWIVER_ALGO_CERES_EXPORT
+//KWIVER_ALGO_MVG_EXPORT
 bool
 StringToCameraIntrinsicShareType(std::string value, CameraIntrinsicShareType* type);
 
 /// Defult implementation of string options for cam enums
 template <typename T>
 std::string
-cam_options()
+mvg_options()
 {
   return std::string();
 }
@@ -234,5 +234,33 @@ public:
 } // namespace mvg
 } // namespace arrows
 } // namespace kwiver
+
+#define MVG_ENUM_HELPERS(NS, mvg_type)                              \
+namespace kwiver {                                                      \
+namespace vital {                                                       \
+                                                                        \
+template<>                                                              \
+config_block_value_t                                                    \
+config_block_set_value_cast(NS::mvg_type const& value);               \
+                                                                        \
+template<>                                                              \
+NS::mvg_type                                                          \
+config_block_get_value_cast(config_block_value_t const& value);         \
+                                                                        \
+}                                                                       \
+                                                                        \
+namespace arrows {                                                      \
+namespace mvg {                                                       \
+                                                                        \
+template<>                                                              \
+std::string                                                             \
+mvg_options< NS::mvg_type >();                                      \
+                                                                        \
+}                                                                       \
+}                                                                       \
+}
+
+MVG_ENUM_HELPERS(kwiver::arrows::mvg, LensDistortionType)
+MVG_ENUM_HELPERS(kwiver::arrows::mvg, CameraIntrinsicShareType)
 
 #endif
