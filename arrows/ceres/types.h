@@ -88,9 +88,6 @@ CERES_ENUM_HELPERS(::ceres, DoglegType)
 
 CERES_ENUM_HELPERS(kwiver::arrows::ceres, LossFunctionType)
 
-//CERES_ENUM_HELPERS(kwiver::arrows::mvg, LensDistortionType)
-//CERES_ENUM_HELPERS(kwiver::arrows::mvg, CameraIntrinsicShareType)
-
 #undef CERES_ENUM_HELPERS
 
 #endif
