@@ -70,11 +70,6 @@ CERES_ENUM_HELPERS(::ceres, TrustRegionStrategyType)
 CERES_ENUM_HELPERS(::ceres, DoglegType)
 
 CERES_ENUM_HELPERS(kwiver::arrows::ceres, LossFunctionType)
-//CERES_ENUM_HELPERS(kwiver::arrows::ceres, LensDistortionType)
-//CERES_ENUM_HELPERS(kwiver::arrows::ceres, CameraIntrinsicShareType)
-
-#undef CERES_ENUM_HELPERS
-
 namespace kwiver {
 namespace arrows {
 namespace ceres {
