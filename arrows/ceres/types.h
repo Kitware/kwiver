@@ -44,7 +44,7 @@ StringToLossFunctionType(std::string value, LossFunctionType* type);
 KWIVER_ALGO_CERES_EXPORT ::ceres::LossFunction*
 LossFunctionFactory(LossFunctionType type, double scale=1.0);
 
-/// Defult implementation of string options for Ceres enums
+/// Default implementation of string options for Ceres enums
 template <typename T>
 std::string
 ceres_options()

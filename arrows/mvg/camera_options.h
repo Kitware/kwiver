@@ -66,7 +66,7 @@ CameraIntrinsicShareTypeToString(CameraIntrinsicShareType type);
 bool
 StringToCameraIntrinsicShareType(std::string value, CameraIntrinsicShareType* type);
 
-/// Defult implementation of string options for cam enums
+/// Default implementation of string options for cam enums
 template <typename T>
 std::string
 mvg_options()
@@ -79,9 +79,8 @@ mvg_options()
  * The intended use of this class is for a PIMPL for an algorithm to
  * inherit from this class to share these options with that algorithm
  */
-class camera_options
+struct camera_options
 {
-public:
   /// typedef for camera parameter map
   typedef std::unordered_map<frame_id_t, std::vector<double> > cam_param_map_t;
   typedef std::unordered_map<frame_id_t, unsigned int> cam_intrinsic_id_map_t;
@@ -235,32 +234,34 @@ public:
 } // namespace arrows
 } // namespace kwiver
 
-#define MVG_ENUM_HELPERS(NS, mvg_type)                              \
-namespace kwiver {                                                      \
-namespace vital {                                                       \
-                                                                        \
-template<>                                                              \
-config_block_value_t                                                    \
-config_block_set_value_cast(NS::mvg_type const& value);               \
-                                                                        \
-template<>                                                              \
-NS::mvg_type                                                          \
-config_block_get_value_cast(config_block_value_t const& value);         \
-                                                                        \
-}                                                                       \
-                                                                        \
-namespace arrows {                                                      \
-namespace mvg {                                                       \
-                                                                        \
-template<>                                                              \
-std::string                                                             \
-mvg_options< NS::mvg_type >();                                      \
-                                                                        \
-}                                                                       \
-}                                                                       \
+#define MVG_ENUM_HELPERS(NS, mvg_type) \
+namespace kwiver { \
+namespace vital { \
+\
+template<> \
+config_block_value_t \
+config_block_set_value_cast(NS::mvg_type const& value); \
+\
+template<> \
+NS::mvg_type \
+config_block_get_value_cast(config_block_value_t const& value); \
+\
+}\
+\
+namespace arrows { \
+namespace mvg { \
+\
+template<> \
+std::string \
+mvg_options< NS::mvg_type >(); \
+\
+}\
+}\
 }
 
 MVG_ENUM_HELPERS(kwiver::arrows::mvg, LensDistortionType)
 MVG_ENUM_HELPERS(kwiver::arrows::mvg, CameraIntrinsicShareType)
+
+#undef MVG_ENUM_HELPERS
 
 #endif

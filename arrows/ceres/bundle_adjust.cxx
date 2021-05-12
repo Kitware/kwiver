@@ -160,7 +160,7 @@ bundle_adjust
   // get the solver options
   d_->solver_options::get_configuration(config);
 
-  // get the camera configuation options
+  // get the camera configuration options
   d_->camera_options::get_configuration(config);
 
   return config;
