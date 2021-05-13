@@ -9,12 +9,19 @@
 
 #include <vital/any.h>
 #include <vital/exceptions/io.h>
+#include <vital/range/iota.h>
 #include <vital/types/geo_point.h>
 #include <vital/types/geo_polygon.h>
 #include <vital/types/geodesy.h>
 
 #include <iostream>
+#include <iterator>
+#include <sstream>
+#include <string>
 #include <typeinfo>
+#include <vector>
+
+using kwiver::vital::range::iota;
 
 namespace kv = kwiver::vital;
 
@@ -23,6 +30,50 @@ namespace kwiver {
 namespace arrows {
 
 namespace core {
+
+namespace {
+
+// ----------------------------------------------------------------------------
+template < typename Out >
+void
+split( const std::string& s, char delim, Out result )
+{
+  std::istringstream iss( s );
+  std::string item;
+
+  while( std::getline( iss, item, delim ) )
+  {
+    *result++ = item;
+  }
+}
+
+// ----------------------------------------------------------------------------
+std::vector< std::string >
+split( const std::string& s, char delim )
+{
+  std::vector< std::string > elems;
+  split( s, delim, std::back_inserter( elems ) );
+  return elems;
+}
+
+// ----------------------------------------------------------------------------
+std::string
+trim( const std::string& str,
+      const std::string& whitespace = " \t" )
+{
+  const auto strBegin = str.find_first_not_of( whitespace );
+
+  if( strBegin == std::string::npos )
+  {
+    return "";     // no content
+  }
+  const auto strEnd = str.find_last_not_of( whitespace );
+  const auto strRange = strEnd - strBegin + 1;
+
+  return str.substr( strBegin, strRange );
+}
+
+} // namespace
 
 // ----------------------------------------------------------------------------
 class metadata_map_io_csv::priv
@@ -36,9 +87,11 @@ public:
                        std::ostream& fout );
   // Quote csv header item as needed, and explode types as needed
   void write_csv_header( kv::vital_metadata_tag const& csv_field,
-                         std::ostream& fout );
+                         std::ostream& fout,
+                         std::string const& field_name = "" );
 
   kv::metadata_traits md_traits;
+  std::vector< std::string > column_names;
 };
 
 // ----------------------------------------------------------------------------
@@ -108,9 +161,14 @@ metadata_map_io_csv::priv
 void
 metadata_map_io_csv::priv
 ::write_csv_header( kv::vital_metadata_tag const& csv_field,
-                    std::ostream& fout )
+                    std::ostream& fout,
+                    std::string const& field_name )
 {
-  if( csv_field == kv::VITAL_META_SENSOR_LOCATION )
+  if( csv_field == kv::VITAL_META_UNKNOWN )
+  {
+    fout << "\"" << field_name << "\",";
+  }
+  else if( csv_field == kv::VITAL_META_SENSOR_LOCATION )
   {
     fout << "\"Sensor Geodetic lon (EPSG:4326)\","
             "\"Sensor Geodetic lat (EPSG:4326)\","
@@ -161,6 +219,20 @@ metadata_map_io_csv
 }
 
 // ----------------------------------------------------------------------------
+void
+metadata_map_io_csv
+::set_configuration( vital::config_block_sptr config )
+{
+  auto const names_string = config->get_value< std::string >( "column_names" );
+  auto const untrimed_column_names = split( names_string, ',' );
+
+  for( auto const& name : untrimed_column_names )
+  {
+    d_->column_names.push_back( trim( name ) );
+  }
+}
+
+// ----------------------------------------------------------------------------
 kv::metadata_map_sptr
 metadata_map_io_csv
 ::load_( VITAL_UNUSED std::istream& fin, std::string const& filename ) const
@@ -182,7 +254,8 @@ metadata_map_io_csv
   }
 
   // Accumulate the unique metadata IDs
-  std::set< kv::vital_metadata_tag > metadata_ids;
+  std::set< kv::vital_metadata_tag > present_metadata_ids;
+
   for( auto const& frame_data : data->metadata() )
   {
     for( auto const& metadata_packet : frame_data.second )
@@ -192,18 +265,53 @@ metadata_map_io_csv
         auto const type_id = metadata_item.first;
         if( type_id != kv::VITAL_META_VIDEO_URI )
         {
-          metadata_ids.insert( type_id );
+          present_metadata_ids.insert( type_id );
         }
       }
     }
   }
 
+  std::vector< std::string > metadata_names;
+  std::vector< kv::vital_metadata_tag > ordered_metadata_ids;
+
+  for( auto const& name : d_->column_names )
+  {
+    if( /* TODO name is valid metadata name*/ false )
+    {
+      kv::vital_metadata_tag id;
+      ordered_metadata_ids.push_back( id );
+      // This is a placeholder to keep the two vectors aligned
+      metadata_names.push_back( "" );
+      present_metadata_ids.erase( id ); // Avoid duplicating present columns
+    }
+    else
+    {
+      // TODO Consider whether UNKNOWN is the right tag or if something to show
+      // explicitly that this is not in our set of tags is better
+      ordered_metadata_ids.push_back( kv::VITAL_META_UNKNOWN );
+      metadata_names.push_back( name );
+    }
+  }
+
+  // TODO consider checking whether the last feature is an * to determine
+  // whether to add present fields as well
+  for( auto const& id : present_metadata_ids )
+  {
+    ordered_metadata_ids.push_back( id );
+    // Again, this is just a placeholder to keep vectors aligned
+    metadata_names.push_back( "" );
+  }
+
   // Write out the csv header
   fout << "\"frame ID\",";
-  for( auto const& metadata_id : metadata_ids )
+  assert( ordered_metadata_ids.size() == metadata_names.size() );
+  for( auto const& i : iota( ordered_metadata_ids.size() ) )
   {
-    d_->write_csv_header( metadata_id, fout );
+    auto const& metadata_id = ordered_metadata_ids.at( i );
+    auto const& metadata_name = metadata_names.at( i );
+    d_->write_csv_header( metadata_id, fout, metadata_name );
   }
+
   fout << std::endl;
 
   for( auto const& frame_data : data->metadata() )
@@ -212,7 +320,7 @@ metadata_map_io_csv
     {
       // Write the frame number
       fout << frame_data.first << ",";
-      for( auto const& metadata_id : metadata_ids )
+      for( auto const& metadata_id : ordered_metadata_ids )
       {
         if( metadata_packet->has( metadata_id ) )
         {
