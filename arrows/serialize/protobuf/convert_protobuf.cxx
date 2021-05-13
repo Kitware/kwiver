@@ -696,7 +696,7 @@ void convert_protobuf( const ::kwiver::vital::geo_point& point,
 void convert_protobuf( const ::kwiver::protobuf::polygon&  proto_poly,
                        ::kwiver::vital::polygon& poly )
 {
-  for ( const auto vert : proto_poly.point_list() )
+  for ( auto const& vert : proto_poly.point_list() )
   {
     poly.push_back( vert.x(), vert.y() );
   }
@@ -707,7 +707,7 @@ void convert_protobuf( const ::kwiver::vital::polygon& poly,
                        ::kwiver::protobuf::polygon&  proto_poly )
 {
   const auto vertices = poly.get_vertices();
-  for ( const auto vert : vertices )
+  for ( auto const& vert : vertices )
   {
     auto* proto_item = proto_poly.add_point_list();
     proto_item->set_x( vert[0] );

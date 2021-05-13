@@ -312,7 +312,7 @@ optimize_cameras
 
   // extract the landmark parameters
   std::vector<std::vector<double> > landmark_params;
-  for(const landmark_sptr lm : landmarks)
+  for(auto const& lm : landmarks)
   {
     vector_3d loc = lm->loc();
     landmark_params.push_back(std::vector<double>(loc.data(), loc.data()+3));

@@ -95,7 +95,7 @@ template <typename Archive, typename T>
 void
 save_features(Archive & ar, std::vector<feature_sptr> const& features)
 {
-  for( const feature_sptr f : features )
+  for( auto const& f : features )
   {
     if( !f )
     {

@@ -118,7 +118,7 @@ output_adapter_process
   auto data_set = kwiver::adapter::adapter_data_set::create();
 
   // The grab call is blocking, so it will wait until data is there.
-  for( auto const p : m_active_ports )
+  for( auto const& p : m_active_ports )
   {
     LOG_TRACE( logger(), "Getting data from port \"" << p <<"\"" );
 

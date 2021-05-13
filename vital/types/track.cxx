@@ -269,7 +269,7 @@ track
 {
   std::set< frame_id_t > ids;
 
-  for( track_state_sptr const ts : this->history_ )
+  for( auto const& ts : this->history_ )
   {
     ids.insert( ts->frame() );
   }

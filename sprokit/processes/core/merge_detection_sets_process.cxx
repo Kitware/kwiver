@@ -68,7 +68,7 @@ merge_detection_sets_process
 
   auto set_out = std::make_shared< vital::detected_object_set > ();
 
-  for ( const auto port_name : d->p_port_list )
+  for ( auto const& port_name : d->p_port_list )
   {
     vital::detected_object_set_sptr set_in = grab_from_port_as<vital::detected_object_set_sptr>( port_name );
     set_out->add( set_in );

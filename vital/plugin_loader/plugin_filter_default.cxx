@@ -56,7 +56,7 @@ plugin_filter_default
   // Check the two types and name as a signature.
   if ( fact_list.size() > 0)
   {
-    for( auto const afact : fact_list )
+    for( auto const& afact : fact_list )
     {
       std::string interf;
       afact->get_attribute( plugin_factory::INTERFACE_TYPE, interf );

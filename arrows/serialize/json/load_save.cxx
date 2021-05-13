@@ -497,7 +497,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::polygon& poly )
   std::vector< ::kwiver::vital::polygon::point_t > points;
   archive( CEREAL_NVP( points ) );
 
-  for ( const auto pt : points )
+  for ( auto const& pt : points )
   {
     poly.push_back( pt );
   }
