@@ -19,8 +19,10 @@
 
 using namespace kwiver::vital;
 
-using kwiver::arrows::mvg::reprojection_rmse;
+using kwiver::arrows::mvg::LensDistortionType;
 using kwiver::arrows::mvg::projected_tracks;
+using kwiver::arrows::mvg::reprojection_rmse;
+using kwiver::arrows::ceres::create_cost_func;
 
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
@@ -34,7 +36,7 @@ int main(int argc, char** argv)
 static void
 test_reprojection_error(
   camera_perspective const& cam, landmark const& lm, feature const& f,
-  kwiver::arrows::ceres::LensDistortionType dist_type )
+  LensDistortionType dist_type )
 {
   ::ceres::CostFunction* cost_func =
       create_cost_func(dist_type, f.loc().x(), f.loc().y());
@@ -85,7 +87,7 @@ static Eigen::VectorXd distortion_coefficients( int dim )
 struct reprojection_test
 {
   char const* const distortion_model;
-  kwiver::arrows::ceres::LensDistortionType const distortion_type;
+  LensDistortionType const distortion_type;
   int const distortion_coefficients_dimension;
 };
 
@@ -97,6 +99,7 @@ PrintTo( reprojection_test const& v, ::std::ostream* os )
 }
 
 // ----------------------------------------------------------------------------
+
 class reprojection_error : public ::testing::TestWithParam<reprojection_test>
 {
 };
@@ -170,11 +173,9 @@ TEST_P(reprojection_error, compare_projections)
 
 // ----------------------------------------------------------------------------
 #define DISTORTION( t, k ) \
-  reprojection_test{ #t, kwiver::arrows::ceres::t, k }
+  reprojection_test{ #t, kwiver::arrows::mvg::t, k }
 
-INSTANTIATE_TEST_CASE_P(
-  ,
-  reprojection_error,
+INSTANTIATE_TEST_CASE_P(, reprojection_error,
   ::testing::Values(
     DISTORTION( NO_DISTORTION, 0 ),
     DISTORTION( POLYNOMIAL_RADIAL_DISTORTION, 0 ),
@@ -191,4 +192,4 @@ INSTANTIATE_TEST_CASE_P(
     DISTORTION( RATIONAL_RADIAL_TANGENTIAL_DISTORTION, 4 ),
     DISTORTION( RATIONAL_RADIAL_TANGENTIAL_DISTORTION, 5 ),
     DISTORTION( RATIONAL_RADIAL_TANGENTIAL_DISTORTION, 8 )
-  ) );
+));

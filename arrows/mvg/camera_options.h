@@ -10,6 +10,8 @@
 #ifndef KWIVER_ARROWS_MVG_CAMERA_OPTIONS_H_
 #define KWIVER_ARROWS_MVG_CAMERA_OPTIONS_H_
 
+#include "lens_distortion.h"
+
 #include <vital/vital_types.h>
 #include <vital/config/config_block.h>
 #include <vital/types/camera_map.h>
@@ -23,30 +25,6 @@ using namespace vital;
 
 namespace arrows {
 namespace mvg {
-
-/// The various models for lens distortion supported in the config
-enum LensDistortionType
-{
-  NO_DISTORTION,
-  POLYNOMIAL_RADIAL_DISTORTION,
-  POLYNOMIAL_RADIAL_TANGENTIAL_DISTORTION,
-  RATIONAL_RADIAL_TANGENTIAL_DISTORTION
-};
-
-/// Provide a string representation for a LensDisortionType value
-//KWIVER_ALGO_MVG_EXPORT
-const char*
-LensDistortionTypeToString(LensDistortionType type);
-
-/// Parse a LensDistortionType value from a string or return false
-//KWIVER_ALGO_MVG_EXPORT
-bool
-StringToLensDistortionType(std::string value, LensDistortionType* type);
-
-/// Return the number of distortion parameters required for each type
-//KWIVER_ALGO_MVG_EXPORT
-unsigned int
-num_distortion_params(LensDistortionType type);
 
 /// The options for camera intrinsic sharing supported in the config
 enum CameraIntrinsicShareType
@@ -79,7 +57,7 @@ mvg_options()
  * The intended use of this class is for a PIMPL for an algorithm to
  * inherit from this class to share these options with that algorithm
  */
-struct camera_options
+struct KWIVER_ALGO_MVG_EXPORT camera_options
 {
   /// typedef for camera parameter map
   typedef std::unordered_map<frame_id_t, std::vector<double> > cam_param_map_t;
