@@ -11,11 +11,37 @@
 #define KWIVER_ARROWS_MVG_LENS_DISTORTION_H_
 
 #include <vital/vital_config.h>
-//#include <arrows/ceres/kwiver_algo_ceres_export.h>
+#include <arrows/mvg/kwiver_algo_mvg_export.h>
+
+#include <string>
 
 namespace kwiver {
 namespace arrows {
 namespace mvg{
+
+/// The various models for lens distortion supported in the config
+enum LensDistortionType
+{
+  NO_DISTORTION,
+  POLYNOMIAL_RADIAL_DISTORTION,
+  POLYNOMIAL_RADIAL_TANGENTIAL_DISTORTION,
+  RATIONAL_RADIAL_TANGENTIAL_DISTORTION
+};
+
+/// Provide a string representation for a LensDisortionType value
+KWIVER_ALGO_MVG_EXPORT
+const char*
+LensDistortionTypeToString(LensDistortionType type);
+
+/// Parse a LensDistortionType value from a string or return false
+KWIVER_ALGO_MVG_EXPORT
+bool
+StringToLensDistortionType(std::string value, LensDistortionType* type);
+
+/// Return the number of distortion parameters required for each type
+KWIVER_ALGO_MVG_EXPORT
+unsigned int
+num_distortion_params(LensDistortionType type);
 
 /// Class to hold to distortion function and traits
 class distortion_poly_radial
