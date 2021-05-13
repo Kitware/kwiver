@@ -15,7 +15,6 @@
 #include <arrows/ceres/reprojection_error.h>
 #include <arrows/ceres/types.h>
 #include <arrows/ceres/options.h>
-#include <arrows/mvg/camera_options.h>
 
 #include <ceres/loss_function.h>
 #include <ceres/ceres.h>
@@ -190,10 +189,10 @@ bundle_adjust
   d_->loss_function_scale = config->get_value<double>("loss_function_scale",
                                                       d_->loss_function_scale);
 
-  // set the camera configuation options
+  // set the camera configuration options
   d_->solver_options::set_configuration(config);
 
-  // set the camera configuation options
+  // set the camera configuration options
   d_->camera_options::set_configuration(config);
 }
 
