@@ -12,6 +12,8 @@
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/eigen.hpp>
 
+#include <arrows/mvg/camera_options.h>
+
 #include <vital/range/iota.h>
 
 namespace kvr = kwiver::vital::range;
@@ -23,10 +25,11 @@ namespace arrows {
 namespace ocv {
 
 // ----------------------------------------------------------------------------
-class resection_camera::priv
+class resection_camera::priv: public mvg::camera_options
 {
 public:
-  priv() : m_logger{ vital::get_logger( "arrows.ocv.resection_camera" ) }
+  priv() : mvg::camera_options(),
+    m_logger{ vital::get_logger( "arrows.ocv.resection_camera" ) }
   {
   }
 
@@ -60,6 +63,8 @@ resection_camera
                      "desired re-projection positive accuracy" );
   config->set_value( "max_iterations", d_->max_iterations,
                      "maximum number of iterations to run optimization [1, INT_MAX]" );
+  // get the camera configuration options
+  d_->mvg::camera_options::get_configuration(config);
   return config;
 }
 
@@ -72,6 +77,8 @@ resection_camera
                                                      d_->reproj_accuracy );
   d_->max_iterations = config->get_value< int >( "max_iterations",
                                                  d_->max_iterations );
+  // set the camera configuration options
+  d_->mvg::camera_options::set_configuration(config);
 }
 
 // ----------------------------------------------------------------------------
