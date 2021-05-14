@@ -107,7 +107,9 @@ solver_options
 camera_options
 ::camera_options( const camera_options& other )
   : mvg::camera_options(other),
-    camera_intrinsic_share_type(other.camera_intrinsic_share_type)
+    camera_intrinsic_share_type(other.camera_intrinsic_share_type),
+    camera_path_smoothness( other.camera_path_smoothness ),
+    camera_forward_motion_damping( other.camera_forward_motion_damping )
 {
 }
 
@@ -124,6 +126,16 @@ camera_options
                      "COMMON enforces that all cameras share common intrinsics\n"
                      "UNIQUE enforces that each camera has its own intrinsics parameters." +
                      ceres_options< CameraIntrinsicShareType >() );
+  config->set_value( "camera_path_smoothness", this->camera_path_smoothness,
+                     "Controls the amount a regularization to apply to the camera path. "
+                     "If set to zero the path regularization is disabled." );
+  config->set_value( "camera_forward_motion_damping",
+                     this->camera_forward_motion_damping,
+                     "Controls the amount a regularization to apply to limit camera "
+                     "forward motion.  This option is useful for zoom lenses at long "
+                     "distances.  It causes the algorithm to prefer focal length change "
+                     "over fast motion along the principal ray. "
+                     "If set to zero the regularization is disabled." );
 }
 
 /// set the member variables from the config block
@@ -135,6 +147,8 @@ camera_options
 #define GET_VALUE( vtype, vname ) \
   this->vname = config->get_value< vtype >(#vname, this->vname );
   GET_VALUE( CameraIntrinsicShareType, camera_intrinsic_share_type );
+  GET_VALUE( double, camera_path_smoothness );
+  GET_VALUE( double, camera_forward_motion_damping );
 #undef GET_VALUE
 }
 

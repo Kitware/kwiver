@@ -135,8 +135,6 @@ camera_options
     optimize_dist_k3( false ),
     optimize_dist_p1_p2( false ),
     optimize_dist_k4_k5_k6( false ),
-    camera_path_smoothness( 0.0 ),
-    camera_forward_motion_damping( 0.0 ),
     minimum_hfov( 0.0 )
 {
 }
@@ -154,8 +152,6 @@ camera_options
     optimize_dist_k3( other.optimize_dist_k3 ),
     optimize_dist_p1_p2( other.optimize_dist_p1_p2 ),
     optimize_dist_k4_k5_k6( other.optimize_dist_k4_k5_k6 ),
-    camera_path_smoothness( other.camera_path_smoothness ),
-    camera_forward_motion_damping( other.camera_forward_motion_damping ),
     minimum_hfov( other.minimum_hfov )
 {
 }
@@ -192,16 +188,6 @@ camera_options
   config->set_value( "optimize_dist_k4_k5_k6", this->optimize_dist_k4_k5_k6,
                      "Include radial lens distortion parameters "
                      "k4, k5, and k6 in bundle adjustment." );
-  config->set_value( "camera_path_smoothness", this->camera_path_smoothness,
-                     "Controls the amount a regularization to apply to the camera path. "
-                     "If set to zero the path regularization is disabled." );
-  config->set_value( "camera_forward_motion_damping",
-                     this->camera_forward_motion_damping,
-                     "Controls the amount a regularization to apply to limit camera "
-                     "forward motion.  This option is useful for zoom lenses at long "
-                     "distances.  It causes the algorithm to prefer focal length change "
-                     "over fast motion along the principal ray. "
-                     "If set to zero the regularization is disabled." );
   config->set_value( "minimum_hfov", this->minimum_hfov,
                      "A soft lower bound on the minimum horizontal field of "
                      "view in degrees. This generates a soft upper bound on "
@@ -228,8 +214,6 @@ camera_options
   GET_VALUE( bool, optimize_dist_p1_p2 );
   GET_VALUE( bool, optimize_dist_k4_k5_k6 );
   GET_VALUE( LensDistortionType, lens_distortion_type );
-  GET_VALUE( double, camera_path_smoothness );
-  GET_VALUE( double, camera_forward_motion_damping );
   GET_VALUE( double, minimum_hfov );
 #undef GET_VALUE
 }

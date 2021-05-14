@@ -116,8 +116,12 @@ struct camera_options : public mvg::camera_options
                                   std::vector< std::vector< double > >& int_params,
                                   cam_intrinsic_id_map_t& int_map ) const;
 
-  /// the type of sharing of intrinsics between cameras to use
+  /// type of sharing of intrinsics between cameras to use
   CameraIntrinsicShareType camera_intrinsic_share_type = AUTO_SHARE_INTRINSICS;
+  /// amount of the camera path smoothness regularization
+  double camera_path_smoothness = 0.0;
+  /// scale of camera forward motion damping regularization
+  double camera_forward_motion_damping = 0.0;
 };
 
 } // namespace ceres
