@@ -58,9 +58,9 @@ void add_value_correct_type(ka::adapter_data_set &self, ::sprokit::process::port
     return; \
   }
 
+  ADS_ADD_OBJECT(py::bool_, bool) // Check bool first as its a subclass of int
   ADS_ADD_OBJECT(py::int_, int)
   ADS_ADD_OBJECT(py::float_, double) // Python floats have double precision
-  ADS_ADD_OBJECT(py::bool_, bool)
   ADS_ADD_OBJECT(py::str, std::string)
   ADS_ADD_OBJECT(kwiver::vital::image_container, std::shared_ptr<kwiver::vital::image_container>)
   ADS_ADD_OBJECT(kwiver::vital::descriptor_set, std::shared_ptr<kwiver::vital::descriptor_set>)
@@ -95,7 +95,7 @@ void add_value_correct_type(ka::adapter_data_set &self, ::sprokit::process::port
 // See this issue for more information: https://github.com/pybind/pybind11/issues/912
 py::object get_port_data_correct_type(ka::adapter_data_set &self, ::sprokit::process::port_t const& port)
 {
-  kwiver::vital::any const any = self.get_port_data<kwiver::vital::any>(port);
+  kwiver::vital::any const any = self.value<kwiver::vital::any>(port);
 
   #define ADS_GET_OBJECT(TYPE) \
   if (any.is_type<TYPE>()) \
@@ -129,6 +129,35 @@ py::object get_port_data_correct_type(ka::adapter_data_set &self, ::sprokit::pro
   msg += ". Data is of type: ";
   msg += any.type_name();
   throw py::type_error(msg);
+}
+
+template < typename T >
+py::object value_or(ka::adapter_data_set &self,
+                    ::sprokit::process::port_t const& port,
+                    py::object value_if_missing=py::none())
+{
+  try
+  {
+    return py::cast(self.value<T>(port));
+  }
+  catch(std::runtime_error const& e)
+  {
+    return value_if_missing;
+  }
+}
+
+py::object value_or_correct_type(ka::adapter_data_set &self,
+                                 ::sprokit::process::port_t const& port,
+                                 py::object value_if_missing=py::none())
+{
+  try
+  {
+    return get_port_data_correct_type(self, port);
+  }
+  catch(std::runtime_error const& e)
+  {
+    return value_if_missing;
+  }
 }
 
 }
@@ -174,9 +203,15 @@ PYBIND11_MODULE(adapter_data_set, m)
 
     .def("add_datum", &ka::adapter_data_set::add_datum)
 
-    // General get_value which gets data of any type from a port and __getitem__
+    // General methods for retrieving data with an arbitrary type from a port.
     .def("get_port_data", &kwiver::sprokit::python::get_port_data_correct_type,
           "This method is equivalent to using __getitem__")
+    .def("value", &kwiver::sprokit::python::get_port_data_correct_type,
+          "This method is equivalent to using __getitem__")
+    .def("value_or", &kwiver::sprokit::python::value_or_correct_type,
+          "This method is similar to the \"get\" method provided by "
+           "python dictionaries")
+
     .def("__getitem__", &kwiver::sprokit::python::get_port_data_correct_type)
 
     // The add_value function is templated.
@@ -216,28 +251,40 @@ PYBIND11_MODULE(adapter_data_set, m)
 
     .def("empty", &ka::adapter_data_set::empty)
 
-    // get_port_data is also templated
-    .def("_get_port_data_int", &ka::adapter_data_set::get_port_data<int>)
-    .def("_get_port_data_float", &ka::adapter_data_set::get_port_data<float>)
-    .def("_get_port_data_double", &ka::adapter_data_set::get_port_data<double>)
-    .def("_get_port_data_bool", &ka::adapter_data_set::get_port_data<bool>)
-    .def("_get_port_data_string", &ka::adapter_data_set::get_port_data<std::string>)
+    #define BIND_TYPED_GETTERS(type_str, type) \
+    .def("_get_port_data_" type_str, &ka::adapter_data_set::get_port_data<type>) \
+    .def("_value_" type_str, &ka::adapter_data_set::value<type>) \
+    .def("_value_or_" type_str, &kwiver::sprokit::python::value_or<type>, \
+      py::arg("port"), py::arg("value_if_missing") = py::none())
+
+    // Native C++ types
+    BIND_TYPED_GETTERS("int", int)
+    BIND_TYPED_GETTERS("float", float)
+    BIND_TYPED_GETTERS("double", double)
+    BIND_TYPED_GETTERS("bool", bool)
+    BIND_TYPED_GETTERS("string", std::string)
+
     // Next shared ptrs to kwiver vital types
-    .def("_get_port_data_image_container", &ka::adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::image_container > >)
-    .def("_get_port_data_descriptor_set", &ka::adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::descriptor_set > >)
-    .def("_get_port_data_detected_object_set", &ka::adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::detected_object_set > >)
-    .def("_get_port_data_track_set", &ka::adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::track_set > >)
-    .def("_get_port_data_feature_track_set", &ka::adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::feature_track_set > >)
-    .def("_get_port_data_object_track_set", &ka::adapter_data_set::get_port_data<std::shared_ptr<kwiver::vital::object_track_set > >)
+    BIND_TYPED_GETTERS("image_container", std::shared_ptr<kwiver::vital::image_container >)
+    BIND_TYPED_GETTERS("descriptor_set", std::shared_ptr<kwiver::vital::descriptor_set >)
+    BIND_TYPED_GETTERS("detected_object_set", std::shared_ptr<kwiver::vital::detected_object_set >)
+    BIND_TYPED_GETTERS("track_set", std::shared_ptr<kwiver::vital::track_set >)
+    BIND_TYPED_GETTERS("feature_track_set", std::shared_ptr<kwiver::vital::feature_track_set >)
+    BIND_TYPED_GETTERS("object_track_set", std::shared_ptr<kwiver::vital::object_track_set >)
+
     //Next shared ptrs to native C++ types
-    .def("_get_port_data_double_vector", &ka::adapter_data_set::get_port_data<std::shared_ptr<std::vector<double>>>)
-    .def("_get_port_data_string_vector", &ka::adapter_data_set::get_port_data<std::shared_ptr<std::vector<std::string>>>)
-    .def("_get_port_data_uchar_vector", &ka::adapter_data_set::get_port_data<std::shared_ptr<std::vector<unsigned char>>>)
+    BIND_TYPED_GETTERS("double_vector", std::shared_ptr<std::vector<double>>)
+    BIND_TYPED_GETTERS("string_vector", std::shared_ptr<std::vector<std::string>>)
+    BIND_TYPED_GETTERS("uchar_vector", std::shared_ptr<std::vector<unsigned char>>)
+
     //Next kwiver vital types
-    .def("_get_port_data_bounding_box", &ka::adapter_data_set::get_port_data<kwiver::vital::bounding_box_d>)
-    .def("_get_port_data_timestamp", &ka::adapter_data_set::get_port_data<kwiver::vital::timestamp>)
-    .def("_get_port_data_corner_points", &ka::adapter_data_set::get_port_data<kwiver::vital::geo_polygon>)
-    .def("_get_port_data_f2f_homography", &ka::adapter_data_set::get_port_data<kwiver::vital::f2f_homography>)
+    BIND_TYPED_GETTERS("bounding_box", kwiver::vital::bounding_box_d)
+    BIND_TYPED_GETTERS("timestamp", kwiver::vital::timestamp)
+    BIND_TYPED_GETTERS("corner_points", kwiver::vital::geo_polygon)
+    BIND_TYPED_GETTERS("f2f_homography", kwiver::vital::f2f_homography)
+
+    #undef BIND_TYPED_GETTERS
+
     .def("__nice__", [](const ka::adapter_data_set& self) -> std::string {
     auto locals = py::dict(py::arg("self")=self);
       py::exec(R"(
