@@ -8,10 +8,9 @@
  */
 
 #include "reprojection_error.h"
+#include "lens_distortion.h"
 
 #include <arrows/ceres/types.h>
-#include <arrows/mvg/lens_distortion.h>
-
 #include <ceres/ceres.h>
 #include <ceres/rotation.h>
 

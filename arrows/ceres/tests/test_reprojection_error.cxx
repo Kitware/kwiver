@@ -10,7 +10,7 @@
 #include <test_scene.h>
 
 #include <arrows/ceres/reprojection_error.h>
-#include <arrows/ceres/types.h>
+#include <arrows/ceres/options.h>
 
 #include <arrows/mvg/metrics.h>
 #include <arrows/mvg/projected_track_set.h>
@@ -23,6 +23,7 @@ using kwiver::arrows::mvg::LensDistortionType;
 using kwiver::arrows::mvg::projected_tracks;
 using kwiver::arrows::mvg::reprojection_rmse;
 using kwiver::arrows::ceres::create_cost_func;
+using kwiver::arrows::ceres::num_distortion_params;
 
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)

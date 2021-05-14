@@ -154,6 +154,23 @@ camera_options
 #undef GET_VALUE
 }
 
+/// Return the number of distortion parameters required for each type.
+unsigned int
+num_distortion_params( LensDistortionType type )
+{
+  switch( type )
+  {
+    case POLYNOMIAL_RADIAL_DISTORTION:
+      return distortion_poly_radial::num_coeffs;
+    case POLYNOMIAL_RADIAL_TANGENTIAL_DISTORTION:
+      return distortion_poly_radial_tangential::num_coeffs;
+    case RATIONAL_RADIAL_TANGENTIAL_DISTORTION:
+      return distortion_ratpoly_radial_tangential::num_coeffs;
+    default:
+      return 0;
+  }
+}
+
 int
 camera_options
 ::add_position_prior_cost(
