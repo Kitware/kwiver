@@ -21,8 +21,6 @@
 
 namespace kwiver {
 
-using namespace vital;
-
 namespace arrows {
 
 namespace mvg {
@@ -52,72 +50,10 @@ struct KWIVER_ALGO_MVG_EXPORT camera_options
   virtual ~camera_options(){};
 
   /// populate the config block with options
-  virtual void get_configuration( config_block_sptr config ) const;
+  virtual void get_configuration( vital::config_block_sptr config ) const;
 
   /// set the member variables from the config block
-  virtual void set_configuration( config_block_sptr config );
-
-  /// Return true if any options to optimize intrinsic parameters are set.
-  bool optimize_intrinsics() const;
-
-  /// Update a camera object to use extrinsic parameters from an array
-
-  /**
-   *  \param [out] camera The simple_camera instance to update
-   *  \param [in] params The array of 6 doubles to extract the data from
-   *
-   *  This function is the inverse of extract_camera_extrinsics
-   */
-  void update_camera_extrinsics(
-    std::shared_ptr< simple_camera_perspective > camera,
-    double const* params ) const;
-
-  /// extract the parameters from camera intrinsics into the parameter array
-
-  /**
-   *  \param [in]  K The camera intrinsics object to extract data from
-   *  \param [out] params and array of double to populate with parameters
-   *
-   *  \note the size of param is at least 5 but may be up to 12 depending
-   *  on the number of distortion parameters used.
-   *
-   *  This function is the inverse of update_camera_intrinsics
-   */
-  void extract_camera_intrinsics( const camera_intrinsics_sptr K,
-                                  double* params ) const;
-
-  /// update the camera intrinsics from a parameter array
-
-  /**
-   *  \param [out] K The simple_camera_intrinsics instance to update
-   *  \param [in] params The array of doubles to extract the data from
-   *
-   *  This function is the inverse of extract_camera_intrinsics
-   */
-  void update_camera_intrinsics( std::shared_ptr< simple_camera_intrinsics > K,
-                                 const double* params ) const;
-
-  /**
-   * Enumerate the intrinsics held constant.
-   *
-   * Based on the settings of the boolean optimization switches
-   * populate a vector of indices marking which intrinsic camera
-   * parameters are held constant.  Indices are:
-   *   - \b 0 : focal length
-   *   - \b 1 : principal point X
-   *   - \b 2 : principal point Y
-   *   - \b 3 : aspect ratio
-   *   - \b 4 : skew
-   *   - \b 5 : radial distortion (k1)
-   *   - \b 6 : radial distortion (k2)
-   *   - \b 7 : tangential distortion (p1)
-   *   - \b 8 : tangential distortion (p2)
-   *   - \b 9 : radial distortion (k3)
-   *   - \b 10 : radial distortion (k4)
-   *   - \b 11 : radial distortion (k5)
-   *   - \b 12 : radial distortion (k6)
-   */
-  std::vector< int > enumerate_constant_intrinsics() const;
+  virtual void set_configuration( vital::config_block_sptr config );
 
   /// option to optimize the focal length
   bool optimize_focal_length;
