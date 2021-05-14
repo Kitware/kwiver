@@ -9,53 +9,56 @@
 
 #include "camera_options.h"
 
-#include "../ceres/lens_distortion.h"
-
-#define MVG_ENUM_HELPERS( NS, mvg_type ) \
-  namespace kwiver { \
-  namespace vital { \
-\
-  template <> \
-  config_block_value_t \
-  config_block_set_value_cast( NS::mvg_type const & value ) \
-  { \
-    return NS::mvg_type##ToString( value ); \
-  } \
-\
-  template <> \
-  NS::mvg_type \
-  config_block_get_value_cast( config_block_value_t const & value ) \
-  { \
-    NS::mvg_type cet; \
-    if( !NS::StringTo##mvg_type( value, &cet ) ) \
-    VITAL_THROW( bad_config_block_cast, value ); \
-    return cet; \
-  } \
-\
-  } \
-\
-  namespace arrows { \
-  namespace mvg { \
-\
-  template <> \
-  std::string \
-  mvg_options< NS::mvg_type >() \
-  { \
-    typedef NS::mvg_type T; \
-    std::string options_str = "\nMust be one of the following options:"; \
-    std::string opt; \
-    for( unsigned i = 0; i < 20; ++i ) \
-    { \
-      opt = NS::mvg_type##ToString( static_cast< T >( i ) ); \
-      if( opt == "UNKNOWN" ) break; \
-      options_str += "\n  - " + opt; \
-    } \
-    return options_str; \
-  } \
-\
-  } \
-  } \
-  }
+#define MVG_ENUM_HELPERS(NS, ceres_type)                                \
+namespace kwiver {                                                      \
+namespace vital {                                                       \
+                                                                        \
+template<>                                                              \
+config_block_value_t                                                    \
+config_block_set_value_cast(NS::ceres_type const& value)                \
+{                                                                       \
+  return NS::ceres_type##ToString(value);                               \
+}                                                                       \
+                                                                        \
+template<>                                                              \
+NS::ceres_type                                                          \
+config_block_get_value_cast(config_block_value_t const& value)          \
+{                                                                       \
+  NS::ceres_type cet;                                                   \
+  if(!NS::StringTo##ceres_type(value, &cet))                            \
+  {                                                                     \
+    VITAL_THROW( bad_config_block_cast,value);                          \
+  }                                                                     \
+  return cet;                                                           \
+}                                                                       \
+                                                                        \
+}                                                                       \
+                                                                        \
+namespace arrows {                                                      \
+namespace mvg {                                                       \
+                                                                        \
+template<>                                                              \
+std::string                                                             \
+mvg_options< NS::ceres_type >()                                       \
+{                                                                       \
+  typedef NS::ceres_type T;                                             \
+  std::string options_str = "\nMust be one of the following options:";  \
+  std::string opt;                                                      \
+  for (unsigned i=0; i<20; ++i)                                         \
+  {                                                                     \
+    opt = NS::ceres_type##ToString(static_cast<T>(i));                  \
+    if (opt == "UNKNOWN")                                               \
+    {                                                                   \
+      break;                                                            \
+    }                                                                   \
+    options_str += "\n  - " + opt;                                      \
+  }                                                                     \
+  return options_str;                                                   \
+}                                                                       \
+                                                                        \
+}                                                                       \
+}                                                                       \
+}
 
 MVG_ENUM_HELPERS( kwiver::arrows::mvg, LensDistortionType )
 

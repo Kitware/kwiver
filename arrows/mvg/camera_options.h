@@ -105,30 +105,31 @@ struct KWIVER_ALGO_MVG_EXPORT camera_options
 
 } // namespace kwiver
 
-#define MVG_ENUM_HELPERS( NS, mvg_type ) \
-  namespace kwiver { \
-  namespace vital { \
-\
-  template <> \
-  config_block_value_t \
-  config_block_set_value_cast( NS::mvg_type const & value ); \
-\
-  template <> \
-  NS::mvg_type \
-  config_block_get_value_cast( config_block_value_t const & value ); \
-\
-  } \
-\
-  namespace arrows { \
-  namespace mvg { \
-\
-  template <> \
-  std::string \
-  mvg_options< NS::mvg_type >(); \
-\
-  } \
-  } \
-  }
+
+#define MVG_ENUM_HELPERS(NS, ceres_type)                                \
+namespace kwiver {                                                      \
+namespace vital {                                                       \
+                                                                        \
+template<>                                                              \
+config_block_value_t                                                    \
+config_block_set_value_cast(NS::ceres_type const& value);               \
+                                                                        \
+template<>                                                              \
+NS::ceres_type                                                          \
+config_block_get_value_cast(config_block_value_t const& value);         \
+                                                                        \
+}                                                                       \
+                                                                        \
+namespace arrows {                                                      \
+namespace mvg {                                                         \
+                                                                        \
+template<>                                                              \
+std::string                                                             \
+mvg_options< NS::ceres_type >();                                        \
+                                                                        \
+}                                                                       \
+}                                                                       \
+}
 
 MVG_ENUM_HELPERS( kwiver::arrows::mvg, LensDistortionType )
 
