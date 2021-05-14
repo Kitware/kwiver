@@ -137,7 +137,9 @@ config_block_sptr VITAL_CONFIG_EXPORT read_config_file(
  *   locations to be searched.
  * \param install_prefix
  *   The prefix to which the application is installed (should be one directory
- *   higher than the location of the executing binary).
+ *   higher than the location of the executing binary).  If not specified
+ *   (empty), an attempt to guess the prefix based on the path of the running
+ *   executable will be made.
  * \param merge
  *   If \c true, search all locations for matching config files, merging their
  *   contents, with files earlier in the search order taking precedence. If
@@ -227,7 +229,9 @@ void VITAL_CONFIG_EXPORT write_config( config_block_sptr const& config,
  *   locations to be searched.
  * \param install_prefix
  *   The prefix to which the application and KWIVER are installed (should be
- *   one directory higher than the location of the executing binary).
+ *   one directory higher than the location of the executing binary).  If not
+ *   specified (empty), an attempt to guess the prefix based on the path of
+ *   the running executable will be made.
  *
  * \return
  *   List of additional application configuration search paths.
@@ -258,6 +262,9 @@ application_config_file_paths(std::string const& application_name,
  *
  * \return
  *   List of additional application configuration search paths.
+ *
+ * \note This is the only function that will not guess the install prefix if
+ *       an empty prefix is specified.
  */
 config_path_list_t VITAL_CONFIG_EXPORT
 application_config_file_paths(std::string const& application_name,
@@ -273,7 +280,9 @@ application_config_file_paths(std::string const& application_name,
  * installed configuration files for the current version of KWIVER
  *
  * \param install_prefix
- *   The prefix to which KWIVER is installed.
+ *   The prefix to which KWIVER is installed.  If not specified (empty), an
+ *   attempt to guess the prefix based on the path of the running executable
+ *   will be made.
  *
  * \return
  *   List of KWIVER configuration search paths.
