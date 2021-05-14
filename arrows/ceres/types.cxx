@@ -8,8 +8,8 @@
  */
 
 #include <arrows/ceres/types.h>
-#include <arrows/mvg/lens_distortion.h>
 #include <ceres/loss_function.h>
+#include "lens_distortion.h"
 
 using namespace kwiver::vital;
 

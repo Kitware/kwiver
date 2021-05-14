@@ -218,6 +218,11 @@ struct camera_options : public mvg::camera_options
   double camera_forward_motion_damping = 0.0;
 };
 
+/// Return the number of distortion parameters required for each type.
+KWIVER_ALGO_CERES_EXPORT
+unsigned int
+num_distortion_params(mvg::LensDistortionType type);
+
 } // namespace ceres
 
 } // namespace arrows

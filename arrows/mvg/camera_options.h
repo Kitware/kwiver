@@ -10,7 +10,8 @@
 #ifndef KWIVER_ARROWS_MVG_CAMERA_OPTIONS_H_
 #define KWIVER_ARROWS_MVG_CAMERA_OPTIONS_H_
 
-#include "lens_distortion.h"
+#include <arrows/ceres/lens_distortion.h>
+#include <arrows/mvg/kwiver_algo_mvg_export.h>
 
 #include <vital/config/config_block.h>
 #include <vital/types/camera_map.h>
@@ -24,6 +25,25 @@ namespace kwiver {
 namespace arrows {
 
 namespace mvg {
+
+/// various models for lens distortion supported in the config
+enum LensDistortionType
+{
+  NO_DISTORTION,
+  POLYNOMIAL_RADIAL_DISTORTION,
+  POLYNOMIAL_RADIAL_TANGENTIAL_DISTORTION,
+  RATIONAL_RADIAL_TANGENTIAL_DISTORTION
+};
+
+/// Provide a string representation for a LensDisortionType value.
+KWIVER_ALGO_MVG_EXPORT
+const char*
+LensDistortionTypeToString(LensDistortionType type);
+
+/// Parse a LensDistortionType value from a string or return false.
+KWIVER_ALGO_MVG_EXPORT
+bool
+StringToLensDistortionType(std::string value, LensDistortionType* type);
 
 /// Default implementation of string options for cam enums
 template < typename T >
