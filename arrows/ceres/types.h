@@ -44,6 +44,25 @@ StringToLossFunctionType(std::string value, LossFunctionType* type);
 KWIVER_ALGO_CERES_EXPORT ::ceres::LossFunction*
 LossFunctionFactory(LossFunctionType type, double scale=1.0);
 
+/// The options for camera intrinsic sharing supported in the config
+enum CameraIntrinsicShareType
+{
+  AUTO_SHARE_INTRINSICS,
+  FORCE_COMMON_INTRINSICS,
+  FORCE_UNIQUE_INTRINSICS,
+};
+
+/// Provide a string representation for a CameraIntrinsicShareType value
+KWIVER_ALGO_CERES_EXPORT
+const char*
+CameraIntrinsicShareTypeToString( CameraIntrinsicShareType type );
+
+/// Parse a CameraIntrinsicShareType value from a string or return false
+KWIVER_ALGO_CERES_EXPORT
+bool
+StringToCameraIntrinsicShareType( std::string value,
+                                  CameraIntrinsicShareType* type );
+
 /// Default implementation of string options for Ceres enums
 template <typename T>
 std::string
@@ -86,7 +105,8 @@ CERES_ENUM_HELPERS(::ceres, PreconditionerType)
 CERES_ENUM_HELPERS(::ceres, TrustRegionStrategyType)
 CERES_ENUM_HELPERS(::ceres, DoglegType)
 
-CERES_ENUM_HELPERS(kwiver::arrows::ceres, LossFunctionType)
+CERES_ENUM_HELPERS( kwiver::arrows::ceres, LossFunctionType )
+CERES_ENUM_HELPERS( kwiver::arrows::ceres, CameraIntrinsicShareType )
 
 #undef CERES_ENUM_HELPERS
 
