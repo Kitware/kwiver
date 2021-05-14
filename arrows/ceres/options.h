@@ -56,18 +56,18 @@ public:
 struct camera_options : public mvg::camera_options
 {
   /// typedef for camera parameter map
-  typedef std::unordered_map< frame_id_t,
+  typedef std::unordered_map< vital::frame_id_t,
                               std::vector< double > > cam_param_map_t;
-  typedef std::unordered_map< frame_id_t,
+  typedef std::unordered_map< vital::frame_id_t,
                               unsigned int > cam_intrinsic_id_map_t;
-  typedef std::vector< std::pair< frame_id_t, double* > > frame_params_t;
+  typedef std::vector< std::pair< vital::frame_id_t, double* > > frame_params_t;
 
   camera_options(): mvg::camera_options() {}
   camera_options( const camera_options& other );
-  virtual void get_configuration( config_block_sptr config ) const override;
+  virtual void get_configuration( vital::config_block_sptr config ) const override;
 
   /// set the member variables from the config block
-  virtual void set_configuration( config_block_sptr config ) override;
+  virtual void set_configuration( vital::config_block_sptr config ) override;
 
   /// Add the camera position priors costs to the Ceres problem.
   int
@@ -99,7 +99,7 @@ struct camera_options : public mvg::camera_options
    *
    *  This function is the inverse of update_camera_extrinsics.
    */
-  void extract_camera_extrinsics( const camera_perspective_sptr camera,
+  void extract_camera_extrinsics( const vital::camera_perspective_sptr camera,
                                   double* params ) const;
   /**
    * Extract the set of all unique intrinsic and extrinsic parameters from a
@@ -118,7 +118,7 @@ struct camera_options : public mvg::camera_options
    *
    *  This function is the inverse of update_camera_parameters.
    */
-  void extract_camera_parameters( camera_map::map_camera_t const& cameras,
+  void extract_camera_parameters( vital::camera_map::map_camera_t const& cameras,
                                   cam_param_map_t& ext_params,
                                   std::vector< std::vector< double > >& int_params,
                                   cam_intrinsic_id_map_t& int_map ) const;
@@ -143,10 +143,72 @@ struct camera_options : public mvg::camera_options
    *  This function is the inverse of extract_camera_parameters.
    */
   void
-  update_camera_parameters( camera_map::map_camera_t& cameras,
+  update_camera_parameters( vital::camera_map::map_camera_t& cameras,
                             cam_param_map_t const& ext_params,
                             std::vector< std::vector< double > > const& int_params,
                             cam_intrinsic_id_map_t const& int_map ) const;
+
+  /// Return true if any options to optimize intrinsic parameters are set.
+  bool optimize_intrinsics() const;
+
+  /**
+   * Update a camera object to use extrinsic parameters from an array.
+   *
+   *  \param [out] camera The simple_camera instance to update
+   *  \param [in] params The array of 6 doubles to extract the data from
+   *
+   *  This function is the inverse of extract_camera_extrinsics.
+   */
+  void update_camera_extrinsics(
+    std::shared_ptr< vital::simple_camera_perspective > camera,
+    double const* params ) const;
+
+  /**
+   * Extract the parameters from camera intrinsics into the parameter array.
+   *
+   *  \param [in]  K The camera intrinsics object to extract data from
+   *  \param [out] params and array of double to populate with parameters
+   *
+   *  \note the size of param is at least 5 but may be up to 12 depending
+   *  on the number of distortion parameters used.
+   *
+   *  This function is the inverse of update_camera_intrinsics.
+   */
+  void extract_camera_intrinsics( const vital::camera_intrinsics_sptr K,
+                                  double* params ) const;
+
+  /**
+   * Update the camera intrinsics from a parameter array.
+   *
+   *  \param [out] K The simple_camera_intrinsics instance to update
+   *  \param [in] params The array of doubles to extract the data from
+   *
+   *  This function is the inverse of extract_camera_intrinsics.
+   */
+  void update_camera_intrinsics( std::shared_ptr< vital::simple_camera_intrinsics > K,
+                                 const double* params ) const;
+
+  /**
+   * Enumerate the intrinsics held constant.
+   *
+   * Based on the settings of the boolean optimization switches
+   * populate a vector of indices marking which intrinsic camera
+   * parameters are held constant.  Indices are:
+   *   - \b 0 : focal length
+   *   - \b 1 : principal point X
+   *   - \b 2 : principal point Y
+   *   - \b 3 : aspect ratio
+   *   - \b 4 : skew
+   *   - \b 5 : radial distortion (k1)
+   *   - \b 6 : radial distortion (k2)
+   *   - \b 7 : tangential distortion (p1)
+   *   - \b 8 : tangential distortion (p2)
+   *   - \b 9 : radial distortion (k3)
+   *   - \b 10 : radial distortion (k4)
+   *   - \b 11 : radial distortion (k5)
+   *   - \b 12 : radial distortion (k6)
+   */
+  std::vector< int > enumerate_constant_intrinsics() const;
 
   /// type of sharing of intrinsics between cameras to use
   CameraIntrinsicShareType camera_intrinsic_share_type = AUTO_SHARE_INTRINSICS;
