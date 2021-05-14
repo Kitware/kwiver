@@ -43,13 +43,6 @@ mvg_options()
  */
 struct KWIVER_ALGO_MVG_EXPORT camera_options
 {
-  /// typedef for camera parameter map
-  typedef std::unordered_map< frame_id_t,
-                              std::vector< double > > cam_param_map_t;
-  typedef std::unordered_map< frame_id_t,
-                              unsigned int > cam_intrinsic_id_map_t;
-  typedef std::vector< std::pair< frame_id_t, double* > > frame_params_t;
-
   /// constructor
   camera_options();
 
@@ -64,7 +57,7 @@ struct KWIVER_ALGO_MVG_EXPORT camera_options
   /// set the member variables from the config block
   virtual void set_configuration( config_block_sptr config );
 
-  /// Return true if any options to optimize intrinsic parameters are set
+  /// Return true if any options to optimize intrinsic parameters are set.
   bool optimize_intrinsics() const;
 
   /// Update a camera object to use extrinsic parameters from an array
@@ -103,31 +96,6 @@ struct KWIVER_ALGO_MVG_EXPORT camera_options
    */
   void update_camera_intrinsics( std::shared_ptr< simple_camera_intrinsics > K,
                                  const double* params ) const;
-
-  /**
-   * Update the camera objects using the extracted camera parameters.
-   *
-   *  \param [out] cameras    The map of frame numbers to cameras to update
-   *  \param [in]  ext_params A map from frame number to vector of extrinsic
-   *parameters
-   *  \param [in]  int_params A vector of unique camera intrinsic parameter
-   *vectors
-   *  \param [in]  int_map    A map from frame number to index into \p
-   *int_params.
-   *                          The mapping may be many-to-one for shared
-   *intrinsics.
-   *
-   *  The original camera_intrinsic objects are reused if they were not
-   *optimized.
-   *  Otherwise new camera_intrinsic instances are created.
-   *
-   *  This function is the inverse of extract_camera_parameters.
-   */
-  void
-  update_camera_parameters( camera_map::map_camera_t& cameras,
-                            cam_param_map_t const& ext_params,
-                            std::vector< std::vector< double > > const& int_params,
-                            cam_intrinsic_id_map_t const& int_map ) const;
 
   /**
    * Enumerate the intrinsics held constant.

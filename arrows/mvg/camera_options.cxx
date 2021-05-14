@@ -365,53 +365,6 @@ camera_options
   }
 }
 
-/// update the camera objects using the extracted camera parameters
-void
-camera_options
-::update_camera_parameters( camera_map::map_camera_t& cameras,
-                            cam_param_map_t const& ext_params,
-                            std::vector< std::vector< double > > const& int_params,
-                            cam_intrinsic_id_map_t const& int_map ) const
-{
-  std::vector< camera_intrinsics_sptr > updated_intr;
-  if( this->optimize_intrinsics() )
-  {
-    // Update the camera intrinics with optimized values
-    for( const std::vector< double >& cip : int_params )
-    {
-      auto K = std::make_shared< simple_camera_intrinsics >();
-      this->update_camera_intrinsics( K, &cip[ 0 ] );
-      updated_intr.push_back( camera_intrinsics_sptr( K ) );
-    }
-  }
-
-  // Update the cameras with the optimized values
-  typedef std::map< frame_id_t, std::vector< double > > cam_param_map_t;
-  for( const cam_param_map_t::value_type& cp : ext_params )
-  {
-    auto orig_cam =
-      std::dynamic_pointer_cast< camera_perspective >( cameras[ cp.first ] );
-    auto simp_cam = std::dynamic_pointer_cast< simple_camera_perspective >(
-      orig_cam );
-    if( !simp_cam )
-    {
-      simp_cam = std::make_shared< simple_camera_perspective >();
-      cameras[ cp.first ] = simp_cam;
-    }
-
-    camera_intrinsics_sptr K = orig_cam->intrinsics();
-    if( this->optimize_intrinsics() )
-    {
-      // look-up updated intrinsics
-      auto map_itr = int_map.find( cp.first );
-      unsigned int intr_idx = map_itr->second;
-      K = updated_intr[ intr_idx ];
-    }
-    this->update_camera_extrinsics( simp_cam, &cp.second[ 0 ] );
-    simp_cam->set_intrinsics( K );
-  }
-}
-
 } // namespace mvg
 
 } // namespace arrows
