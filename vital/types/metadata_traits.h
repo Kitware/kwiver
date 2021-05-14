@@ -95,6 +95,17 @@ public:
    */
   vital_meta_trait_base const& find( vital_metadata_tag tag ) const;
 
+  /// Find traits entry for name.
+  /**
+   * This method returns the metadata trait entry for the
+   * specified tag. A default entry is returned if an invalid tag value is specified.
+   *
+   * @param tag Metadata name.
+   *
+   * @return Metadata traits entry.
+   */
+  vital_meta_trait_base const& find_name( std::string name ) const;
+
   /// Convert tag value to enum symbol
   /**
    * This method returns the symbol name for the supplied tag.
@@ -114,6 +125,16 @@ public:
    * @return Long name for this tag.
    */
   std::string tag_to_name( vital_metadata_tag tag ) const;
+
+  /// Get tag for metadata name.
+  /**
+   * This method returns the tag for the short name.
+   *
+   * @param name Metadata name value.
+   *
+   * @return Metadata tag.
+   */
+  vital_metadata_tag name_to_tag( std::string name ) const;
 
   // Get metadata tag description
   /**
@@ -135,6 +156,7 @@ private:
   typedef std::shared_ptr< vital_meta_trait_base > trait_ptr;
 #endif
   std::map< kwiver::vital::vital_metadata_tag, trait_ptr> m_trait_table;
+  std::map< std::string, trait_ptr> m_name_trait_table;
 
 }; // end class metadata_traits
 

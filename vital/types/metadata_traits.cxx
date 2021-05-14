@@ -69,6 +69,14 @@ metadata_traits
   KWIVER_VITAL_METADATA_TAGS( TABLE_ENTRY )
 
 #undef TABLE_ENTRY
+
+#define NAME_TABLE_ENTRY(TAG, NAME, TYPE, ...)        \
+  m_name_trait_table[NAME] = trait_ptr( \
+    static_cast< vital_meta_trait_base* >(new vital_meta_trait_object<VITAL_META_ ## TAG>() ) );
+
+  KWIVER_VITAL_METADATA_TAGS( NAME_TABLE_ENTRY )
+#undef NAME_TABLE_ENTRY
+
 #undef DEFINE_VITAL_META_TRAIT
 
 }
@@ -90,6 +98,21 @@ metadata_traits
   {
     LOG_INFO( m_logger, "Could not find trait for tag: " << tag );
     ix = m_trait_table.find(VITAL_META_UNKNOWN);
+  }
+  return *ix->second;
+}
+
+// ------------------------------------------------------------------
+vital_meta_trait_base const&
+metadata_traits
+::find_name( std::string name ) const
+{
+  auto ix = m_name_trait_table.find( name );
+  if ( ix == m_name_trait_table.end() )
+  {
+    LOG_INFO( m_logger, "Could not find trait for tag: " << name );
+    auto const defualt_ix = m_trait_table.find(VITAL_META_UNKNOWN);
+    return *defualt_ix->second;
   }
   return *ix->second;
 }
@@ -122,6 +145,15 @@ metadata_traits
 {
   vital_meta_trait_base const& trait = find( tag );
   return trait.name();
+}
+
+// ------------------------------------------------------------------
+vital_metadata_tag
+metadata_traits
+::name_to_tag( std::string name ) const
+{
+  vital_meta_trait_base const& trait = find_name( name );
+  return trait.tag();
 }
 
 // ------------------------------------------------------------------
