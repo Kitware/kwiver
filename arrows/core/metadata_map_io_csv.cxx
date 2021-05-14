@@ -276,21 +276,20 @@ metadata_map_io_csv
 
   for( auto const& name : d_->column_names )
   {
-    if( /* TODO name is valid metadata name*/ false )
-    {
-      kv::vital_metadata_tag id;
-      ordered_metadata_ids.push_back( id );
-      // This is a placeholder to keep the two vectors aligned
-      metadata_names.push_back( "" );
-      present_metadata_ids.erase( id ); // Avoid duplicating present columns
-    }
-    else
+    auto const trait_id = d_->md_traits.name_to_tag( name );
+    if( trait_id == kv::VITAL_META_UNKNOWN )
     {
       // TODO Consider whether UNKNOWN is the right tag or if something to show
       // explicitly that this is not in our set of tags is better
-      ordered_metadata_ids.push_back( kv::VITAL_META_UNKNOWN );
       metadata_names.push_back( name );
     }
+    else
+    {
+      // This is a placeholder to keep the two vectors aligned
+      metadata_names.push_back( "" );
+      present_metadata_ids.erase( trait_id ); // Avoid duplicating present columns
+    }
+    ordered_metadata_ids.push_back( trait_id );
   }
 
   // TODO consider checking whether the last feature is an * to determine
