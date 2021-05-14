@@ -185,6 +185,11 @@ Unit Tests
 
 General Documentation
 
+Python
+
+  * Add argument to build_pipeline command to include additonal directories in which
+    to search for pipe files to load
+
 Bug Fixes
 ---------
 
