@@ -69,7 +69,9 @@ CERES_ENUM_HELPERS(::ceres, PreconditionerType)
 CERES_ENUM_HELPERS(::ceres, TrustRegionStrategyType)
 CERES_ENUM_HELPERS(::ceres, DoglegType)
 
-CERES_ENUM_HELPERS(kwiver::arrows::ceres, LossFunctionType)
+CERES_ENUM_HELPERS( kwiver::arrows::ceres, LossFunctionType )
+CERES_ENUM_HELPERS( kwiver::arrows::ceres, CameraIntrinsicShareType )
+
 namespace kwiver {
 namespace arrows {
 namespace ceres {
@@ -77,7 +79,7 @@ namespace ceres {
 #define CASESTR(x) case x: return #x
 #define STRENUM(x) if (value == #x) { *type = x; return true;}
 
-/// Convert a string to uppercase
+/// Convert a string to upper case
 static void UpperCase(std::string* input)
 {
   std::transform(input->begin(), input->end(), input->begin(), ::toupper);
@@ -111,6 +113,32 @@ StringToLossFunctionType(std::string value, LossFunctionType* type)
   STRENUM(CAUCHY_LOSS);
   STRENUM(ARCTAN_LOSS);
   STRENUM(TUKEY_LOSS);
+  return false;
+}
+
+/// Provide a string representation for a CameraIntrinsicShareType value
+const char*
+CameraIntrinsicShareTypeToString( CameraIntrinsicShareType type )
+{
+  switch( type )
+  {
+    CASESTR( AUTO_SHARE_INTRINSICS );
+    CASESTR( FORCE_COMMON_INTRINSICS );
+    CASESTR( FORCE_UNIQUE_INTRINSICS );
+    default:
+      return "UNKNOWN";
+  }
+}
+
+/// Parse a CameraIntrinsicShareType value from a string or return false
+bool
+StringToCameraIntrinsicShareType( std::string value,
+                                  CameraIntrinsicShareType* type )
+{
+  UpperCase( &value );
+  STRENUM( AUTO_SHARE_INTRINSICS );
+  STRENUM( FORCE_COMMON_INTRINSICS );
+  STRENUM( FORCE_UNIQUE_INTRINSICS );
   return false;
 }
 

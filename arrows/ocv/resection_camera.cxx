@@ -25,11 +25,12 @@ namespace arrows {
 namespace ocv {
 
 // ----------------------------------------------------------------------------
-class resection_camera::priv: public mvg::camera_options
+class resection_camera::priv : public mvg::camera_options
 {
 public:
+
   priv() : mvg::camera_options(),
-    m_logger{ vital::get_logger( "arrows.ocv.resection_camera" ) }
+           m_logger{ vital::get_logger( "arrows.ocv.resection_camera" ) }
   {
   }
 
@@ -64,7 +65,7 @@ resection_camera
   config->set_value( "max_iterations", d_->max_iterations,
                      "maximum number of iterations to run optimization [1, INT_MAX]" );
   // get the camera configuration options
-  d_->mvg::camera_options::get_configuration(config);
+  d_->mvg::camera_options::get_configuration( config );
   return config;
 }
 
@@ -78,7 +79,7 @@ resection_camera
   d_->max_iterations = config->get_value< int >( "max_iterations",
                                                  d_->max_iterations );
   // set the camera configuration options
-  d_->mvg::camera_options::set_configuration(config);
+  d_->mvg::camera_options::set_configuration( config );
 }
 
 // ----------------------------------------------------------------------------
@@ -174,8 +175,8 @@ resection_camera
                          image_size, cv_K, dist_coeffs,
                          vrvec, vtvec, flags,
                          cv::TermCriteria{
-                           cv::TermCriteria::COUNT + cv::TermCriteria::EPS,
-                           d_->max_iterations, reproj_error } );
+          cv::TermCriteria::COUNT + cv::TermCriteria::EPS,
+          d_->max_iterations, reproj_error } );
 
   if( err > reproj_error )
   {
