@@ -79,7 +79,7 @@ struct KWIVER_ALGO_MVG_EXPORT camera_options
     std::shared_ptr< simple_camera_perspective > camera,
     double const* params ) const;
 
-  /// extract the paramters from camera intrinsics into the parameter array
+  /// extract the parameters from camera intrinsics into the parameter array
 
   /**
    *  \param [in]  K The camera intrinsics object to extract data from
@@ -104,9 +104,9 @@ struct KWIVER_ALGO_MVG_EXPORT camera_options
   void update_camera_intrinsics( std::shared_ptr< simple_camera_intrinsics > K,
                                  const double* params ) const;
 
-  /// update the camera objects using the extracted camera parameters
-
   /**
+   * Update the camera objects using the extracted camera parameters.
+   *
    *  \param [out] cameras    The map of frame numbers to cameras to update
    *  \param [in]  ext_params A map from frame number to vector of extrinsic
    *parameters
@@ -121,7 +121,7 @@ struct KWIVER_ALGO_MVG_EXPORT camera_options
    *optimized.
    *  Otherwise new camera_intrinsic instances are created.
    *
-   *  This function is the inverse of extract_camera_parameters
+   *  This function is the inverse of extract_camera_parameters.
    */
   void
   update_camera_parameters( camera_map::map_camera_t& cameras,
@@ -129,12 +129,12 @@ struct KWIVER_ALGO_MVG_EXPORT camera_options
                             std::vector< std::vector< double > > const& int_params,
                             cam_intrinsic_id_map_t const& int_map ) const;
 
-  /// enumerate the intrinsics held constant
-
   /**
+   * Enumerate the intrinsics held constant.
+   *
    * Based on the settings of the boolean optimization switches
-   * poplulate a vector of indices marking which intrinsic camera
-   * paramaters are held constant.  Indices are:
+   * populate a vector of indices marking which intrinsic camera
+   * parameters are held constant.  Indices are:
    *   - \b 0 : focal length
    *   - \b 1 : principal point X
    *   - \b 2 : principal point Y
@@ -171,10 +171,6 @@ struct KWIVER_ALGO_MVG_EXPORT camera_options
   bool optimize_dist_p1_p2;
   /// option to optimize radial distortion parameters k4, k5, k6
   bool optimize_dist_k4_k5_k6;
-  /// the amount of the camera path smoothness regularization
-  double camera_path_smoothness;
-  /// the scale of camera forward motion damping regularization
-  double camera_forward_motion_damping;
   /// a soft lower bound on the horizontal field of view
   double minimum_hfov;
 };
