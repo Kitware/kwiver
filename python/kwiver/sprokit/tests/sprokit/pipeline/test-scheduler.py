@@ -32,4 +32,8 @@
 import unittest, pytest
 from kwiver.sprokit.util.test import find_tests, run_test, test_erro
 class TestSprokitscheduler(unittest.TestCase):
-    
+    def test_import():
+        try:
+            import kwiver.sprokit.pipeline.scheduler
+        except:
+            test_error("Failed to import the scheduler module")
