@@ -28,9 +28,15 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from kwiver.sprokit.util.test import expect_exception, find_tests, run_test, test_error
+from kwiver.sprokit.util.test import (
+    expect_exception,
+    find_tests,
+    run_test,
+    test_error,
+)
 
 from kwiver.sprokit.pipeline import datum
+
 
 def test_import():
     try:
@@ -44,7 +50,9 @@ def test_create():
 
     adapter_data_set.AdapterDataSet.create()
     adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.data)
-    adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.end_of_input)
+    adapter_data_set.AdapterDataSet.create(
+        adapter_data_set.DataSetType.end_of_input
+    )
 
 
 def check_type():
@@ -53,19 +61,25 @@ def check_type():
     ads = (
         adapter_data_set.AdapterDataSet.create()
     )  # Check constructor with default argument
-    ads_data = adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.data)
+    ads_data = adapter_data_set.AdapterDataSet.create(
+        adapter_data_set.DataSetType.data
+    )
     ads_eoi = adapter_data_set.AdapterDataSet.create(
         adapter_data_set.DataSetType.end_of_input
     )
 
     if ads_def.type() != adapter_data_set.DataSetType.data:
-        test_error("adapter_data_set type mismatch: constructor with default arg")
+        test_error(
+            "adapter_data_set type mismatch: constructor with default arg"
+        )
 
     if ads_data.type() != adapter_data_set.DataSetType.data:
         test_error("adapter_data_set type mismatch: constructor with data arg")
 
     if ads_eoi.type() != adapter_data_set.DataSetType.end_of_input:
-        test_error("adapter_data_set type mismatch: constructor with end_of_input arg")
+        test_error(
+            "adapter_data_set type mismatch: constructor with end_of_input arg"
+        )
 
 
 def test_enums():
@@ -82,7 +96,9 @@ def test_is_end_of_data():
     from kwiver.sprokit.adapters import adapter_data_set
 
     ads_def = adapter_data_set.AdapterDataSet.create()  # test default argument
-    ads_data = adapter_data_set.AdapterDataSet.create(adapter_data_set.DataSetType.data)
+    ads_data = adapter_data_set.AdapterDataSet.create(
+        adapter_data_set.DataSetType.data
+    )
     ads_eoi = adapter_data_set.AdapterDataSet.create(
         adapter_data_set.DataSetType.end_of_input
     )
@@ -99,47 +115,6 @@ def test_is_end_of_data():
 
     if not ads_eoi.is_end_of_data():
         test_error('adapter_data_set of type "end_of_input" is not empty')
-
-
-def check_same_type(retrieved_val, val, portname):
-    from kwiver.sprokit.adapters import adapter_data_set
-
-    if isinstance(val, datum.Datum):
-        val = val.get_datum()
-    if not type(retrieved_val) is type(val):
-        msg = "Retrieved value of type: {} at port {}. Expected type: {}"
-        msg = msg.format(type(retrieved_val), portname, type(val))
-        test_error(msg)
-
-
-# adds and retrieves val to/from the
-# adapter_data_set instance 3 times
-# once with the add/get fxn specified,
-# once with the add/get function that automatically casts,
-# once with the index operator
-def add_get_helper(
-    instance, instance_add_fxn, instance_get_fxn, val, data_type_str,
-):
-    from kwiver.sprokit.adapters import adapter_data_set
-
-    # First the type specific add/get fxns
-    portname = data_type_str + "_port"
-    instance_add_fxn(portname, val)
-    retrieved_val = instance_get_fxn(portname)  # Throws if port not found
-    check_same_type(retrieved_val, val, portname)
-
-    # Next the automatic type handling add/get fxns
-    # First add_value and get_port_data
-    portname = "py_" + portname
-    instance.add_value(portname, val)
-    retrieved_val = instance.get_port_data(portname)
-    check_same_type(retrieved_val, val, portname)
-
-    # Now __getitem__ and __setitem__
-    portname += "2"
-    instance[portname] = val
-    retrieved_val = instance[portname]
-    check_same_type(retrieved_val, val, portname)
 
 
 def overwrite_helper(
@@ -179,7 +154,29 @@ def test_add_get_datum():
     from kwiver.sprokit.adapters import adapter_data_set
 
     ads = adapter_data_set.AdapterDataSet.create()
-    add_get_helper(ads, ads.add_datum, ads.get_port_data, datum.new("d1"), "datum")
+
+    val = "d1"
+    d = datum.new(val)
+    ads.add_datum("datum_port", d)
+    retrieved_val = ads.get_port_data("datum_port")
+    err_ne(val, retrieved_val)
+
+
+def err_ne(expected, actual):
+    if expected != actual:
+        test_error("Expected value of {}, got {}".format(expected, actual))
+
+
+def err_is_not(expected, actual):
+    if expected is not actual:
+        msg = "Expected {} and {} to point to same object"
+        test_error(msg.format(expected, actual))
+
+
+def err_is_not_none(actual):
+    if actual is not None:
+        msg = "Expected to get None, got {} instead"
+        test_error(msg.format(actual))
 
 
 # Next some basic types
@@ -187,11 +184,175 @@ def test_add_get_basic_types():
     from kwiver.sprokit.adapters import adapter_data_set
 
     ads = adapter_data_set.AdapterDataSet.create()
-    add_get_helper(ads, ads._add_int, ads._get_port_data_int, 10, "int")
-    add_get_helper(ads, ads._add_float, ads._get_port_data_float, 0.5, "float")
-    add_get_helper(ads, ads._add_double, ads._get_port_data_double, 3.14, "double")
-    add_get_helper(ads, ads._add_bool, ads._get_port_data_bool, True, "bool")
-    add_get_helper(ads, ads._add_string, ads._get_port_data_string, "str1", "string")
+
+    val = 10
+    # Typed methods
+    ads._add_int("int_port", val)
+    retrieved_val1 = ads._get_port_data_int("int_port")
+    retrieved_val2 = ads._value_int("int_port")
+    retrieved_val3 = ads._value_or_int("int_port")
+
+    # Non typed methods
+    ads.add_value("int_port2", val)
+    ads["int_port3"] = val
+    retrieved_val4 = ads.get_port_data("int_port2")
+    retrieved_val5 = ads.value("int_port3")
+    retrieved_val6 = ads.value_or("int_port3")
+    retrieved_val7 = ads["int_port3"]
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_ne(val, retrieved_val3)
+    err_ne(val, retrieved_val4)
+    err_ne(val, retrieved_val5)
+    err_ne(val, retrieved_val6)
+    err_ne(val, retrieved_val7)
+
+    val = 0.5
+    # Typed methods
+    ads._add_float("float_port", val)
+    retrieved_val1 = ads._get_port_data_float("float_port")
+    retrieved_val2 = ads._value_float("float_port")
+    retrieved_val3 = ads._value_or_float("float_port")
+
+    # Non typed methods
+    ads.add_value("float_port2", val)
+    ads["float_port3"] = val
+    retrieved_val4 = ads.get_port_data("float_port2")
+    retrieved_val5 = ads.value("float_port3")
+    retrieved_val6 = ads.value_or("float_port3")
+    retrieved_val7 = ads["float_port3"]
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_ne(val, retrieved_val3)
+    err_ne(val, retrieved_val4)
+    err_ne(val, retrieved_val5)
+    err_ne(val, retrieved_val6)
+    err_ne(val, retrieved_val7)
+
+    val = 3.14
+    # Typed methods
+    ads._add_double("double_port", val)
+    retrieved_val1 = ads._get_port_data_double("double_port")
+    retrieved_val2 = ads._value_double("double_port")
+    retrieved_val3 = ads._value_or_double("double_port")
+
+    # Non typed methods
+    ads.add_value("double_port2", val)
+    ads["double_port3"] = val
+    retrieved_val4 = ads.get_port_data("double_port2")
+    retrieved_val5 = ads.value("double_port3")
+    retrieved_val6 = ads.value_or("double_port3")
+    retrieved_val7 = ads["double_port3"]
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_ne(val, retrieved_val3)
+    err_ne(val, retrieved_val4)
+    err_ne(val, retrieved_val5)
+    err_ne(val, retrieved_val6)
+    err_ne(val, retrieved_val7)
+
+    val = True
+    # Typed methods
+    ads._add_bool("bool_port", val)
+    retrieved_val1 = ads._get_port_data_bool("bool_port")
+    retrieved_val2 = ads._value_bool("bool_port")
+    retrieved_val3 = ads._value_or_bool("bool_port")
+
+    # Non typed methods
+    ads.add_value("bool_port2", val)
+    ads["bool_port3"] = val
+    retrieved_val4 = ads.get_port_data("bool_port2")
+    retrieved_val5 = ads.value("bool_port3")
+    retrieved_val6 = ads.value_or("bool_port3")
+    retrieved_val7 = ads["bool_port3"]
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_ne(val, retrieved_val3)
+    err_ne(val, retrieved_val4)
+    err_ne(val, retrieved_val5)
+    err_ne(val, retrieved_val6)
+    err_ne(val, retrieved_val7)
+
+    val = "str1"
+    # Typed methods
+    ads._add_string("string_port", val)
+    retrieved_val1 = ads._get_port_data_string("string_port")
+    retrieved_val2 = ads._value_string("string_port")
+    retrieved_val3 = ads._value_or_string("string_port")
+
+    # Non typed methods
+    ads.add_value("string_port2", val)
+    ads["string_port3"] = val
+    retrieved_val4 = ads.get_port_data("string_port2")
+    retrieved_val5 = ads.value("string_port3")
+    retrieved_val6 = ads.value_or("string_port3")
+    retrieved_val7 = ads["string_port3"]
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_ne(val, retrieved_val3)
+    err_ne(val, retrieved_val4)
+    err_ne(val, retrieved_val5)
+    err_ne(val, retrieved_val6)
+    err_ne(val, retrieved_val7)
+
+
+# Make sure that value_or works as expected when data is not found
+def test_value_or_basic_types():
+    from kwiver.sprokit.adapters import adapter_data_set
+
+    ads = adapter_data_set.AdapterDataSet.create()
+
+    val = 10
+    # Typed
+    retrieved_val1 = ads._value_or_int("nonexistant_port", val)
+
+    # Non typed
+    retrieved_val2 = ads.value_or("nonexistant_port", val)
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    # Check default values
+    err_is_not_none(ads.value_or("nonexistant_port"))
+    err_is_not_none(ads._value_or_int("nonexistant_port"))
+
+    val = 0.5
+    # Typed
+    retrieved_val1 = ads._value_or_float("nonexistant_port", val)
+
+    # Non typed
+    retrieved_val2 = ads.value_or("nonexistant_port", val)
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_is_not_none(ads._value_or_float("nonexistant_port"))
+
+    val = 3.14
+    # Typed
+    retrieved_val1 = ads._value_or_double("nonexistant_port", val)
+
+    # Non typed
+    retrieved_val2 = ads.value_or("nonexistant_port", val)
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_is_not_none(ads._value_or_double("nonexistant_port"))
+
+    val = True
+    # Typed
+    retrieved_val1 = ads._value_or_bool("nonexistant_port", val)
+
+    # Non typed
+    retrieved_val2 = ads.value_or("nonexistant_port", val)
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_is_not_none(ads._value_or_bool("nonexistant_port"))
+
+    val = "str1"
+    # Typed
+    retrieved_val1 = ads._value_or_string("nonexistant_port", val)
+
+    # Non typed
+    retrieved_val2 = ads.value_or("nonexistant_port", val)
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_is_not_none(ads._value_or_string("nonexistant_port"))
 
 
 # Next some kwiver vital types that are handled with pointers
@@ -200,41 +361,179 @@ def test_add_get_vital_types_by_ptr():
     from kwiver.vital import types as kvt
 
     ads = adapter_data_set.AdapterDataSet.create()
-    add_get_helper(
-        ads,
-        ads._add_image_container,
-        ads._get_port_data_image_container,
-        kvt.ImageContainer(kvt.Image()),
-        "image_container",
+
+    val = kvt.ImageContainer(kvt.Image())
+    # Typed methods
+    ads._add_image_container("image_container_port", val)
+    retrieved_val1 = ads._get_port_data_image_container("image_container_port")
+    retrieved_val2 = ads._value_image_container("image_container_port")
+    retrieved_val3 = ads._value_or_image_container("image_container_port")
+
+    # Non typed methods
+    ads.add_value("image_container_port2", val)
+    ads["image_container_port3"] = val
+    retrieved_val4 = ads.get_port_data("image_container_port2")
+    retrieved_val5 = ads.value("image_container_port3")
+    retrieved_val6 = ads.value_or("image_container_port3")
+    retrieved_val7 = ads["image_container_port3"]
+    err_is_not(val, retrieved_val1)
+    err_is_not(val, retrieved_val2)
+    err_is_not(val, retrieved_val3)
+    err_is_not(val, retrieved_val4)
+    err_is_not(val, retrieved_val5)
+    err_is_not(val, retrieved_val6)
+    err_is_not(val, retrieved_val7)
+
+    val = kvt.DescriptorSet()
+    # Typed methods
+    ads._add_descriptor_set("descriptor_set_port", val)
+    retrieved_val1 = ads._get_port_data_descriptor_set("descriptor_set_port")
+    retrieved_val2 = ads._value_descriptor_set("descriptor_set_port")
+    retrieved_val3 = ads._value_or_descriptor_set("descriptor_set_port")
+
+    # Non typed methods
+    ads.add_value("descriptor_set_port2", val)
+    ads["descriptor_set_port3"] = val
+    retrieved_val4 = ads.get_port_data("descriptor_set_port2")
+    retrieved_val5 = ads.value("descriptor_set_port3")
+    retrieved_val6 = ads.value_or("descriptor_set_port3")
+    retrieved_val7 = ads["descriptor_set_port3"]
+    err_is_not(val, retrieved_val1)
+    err_is_not(val, retrieved_val2)
+    err_is_not(val, retrieved_val3)
+    err_is_not(val, retrieved_val4)
+    err_is_not(val, retrieved_val5)
+    err_is_not(val, retrieved_val6)
+    err_is_not(val, retrieved_val7)
+
+    val = kvt.DetectedObjectSet()
+    # Typed methods
+    ads._add_detected_object_set("detected_object_set_port", val)
+    retrieved_val1 = ads._get_port_data_detected_object_set(
+        "detected_object_set_port"
     )
-    add_get_helper(
-        ads,
-        ads._add_descriptor_set,
-        ads._get_port_data_descriptor_set,
-        kvt.DescriptorSet(),
-        "descriptor_set",
+    retrieved_val2 = ads._value_detected_object_set("detected_object_set_port")
+    retrieved_val3 = ads._value_or_detected_object_set(
+        "detected_object_set_port"
     )
-    add_get_helper(
-        ads,
-        ads._add_detected_object_set,
-        ads._get_port_data_detected_object_set,
-        kvt.DetectedObjectSet(),
-        "detected_object_set",
+
+    # Non typed methods
+    ads.add_value("detected_object_set_port2", val)
+    ads["detected_object_set_port3"] = val
+    retrieved_val4 = ads.get_port_data("detected_object_set_port2")
+    retrieved_val5 = ads.value("detected_object_set_port3")
+    retrieved_val6 = ads.value_or("detected_object_set_port3")
+    retrieved_val7 = ads["detected_object_set_port3"]
+    err_is_not(val, retrieved_val1)
+    err_is_not(val, retrieved_val2)
+    err_is_not(val, retrieved_val3)
+    err_is_not(val, retrieved_val4)
+    err_is_not(val, retrieved_val5)
+    err_is_not(val, retrieved_val6)
+    err_is_not(val, retrieved_val7)
+
+    val = kvt.TrackSet()
+    # Typed methods
+    ads._add_track_set("track_set_port", val)
+    retrieved_val1 = ads._get_port_data_track_set("track_set_port")
+    retrieved_val2 = ads._value_track_set("track_set_port")
+    retrieved_val3 = ads._value_or_track_set("track_set_port")
+
+    # Non typed methods
+    ads.add_value("track_set_port2", val)
+    ads["track_set_port3"] = val
+    retrieved_val4 = ads.get_port_data("track_set_port2")
+    retrieved_val5 = ads.value("track_set_port3")
+    retrieved_val6 = ads.value_or("track_set_port3")
+    retrieved_val7 = ads["track_set_port3"]
+    err_is_not(val, retrieved_val1)
+    err_is_not(val, retrieved_val2)
+    err_is_not(val, retrieved_val3)
+    err_is_not(val, retrieved_val4)
+    err_is_not(val, retrieved_val5)
+    err_is_not(val, retrieved_val6)
+    err_is_not(val, retrieved_val7)
+
+    val = kvt.ObjectTrackSet()
+    # Typed methods
+    ads._add_object_track_set("object_track_set_port", val)
+    retrieved_val1 = ads._get_port_data_object_track_set(
+        "object_track_set_port"
     )
-    add_get_helper(
-        ads,
-        ads._add_track_set,
-        ads._get_port_data_track_set,
-        kvt.TrackSet(),
-        "track_set",
-    )
-    add_get_helper(
-        ads,
-        ads._add_object_track_set,
-        ads._get_port_data_object_track_set,
-        kvt.ObjectTrackSet(),
-        "object_track_set",
-    )
+    retrieved_val2 = ads._value_object_track_set("object_track_set_port")
+    retrieved_val3 = ads._value_or_object_track_set("object_track_set_port")
+
+    # Non typed methods
+    ads.add_value("object_track_set_port2", val)
+    ads["object_track_set_port3"] = val
+    retrieved_val4 = ads.get_port_data("object_track_set_port2")
+    retrieved_val5 = ads.value("object_track_set_port3")
+    retrieved_val6 = ads.value_or("object_track_set_port3")
+    retrieved_val7 = ads["object_track_set_port3"]
+    err_is_not(val, retrieved_val1)
+    err_is_not(val, retrieved_val2)
+    err_is_not(val, retrieved_val3)
+    err_is_not(val, retrieved_val4)
+    err_is_not(val, retrieved_val5)
+    err_is_not(val, retrieved_val6)
+    err_is_not(val, retrieved_val7)
+
+
+def test_value_or_vital_types_by_ptr():
+    from kwiver.sprokit.adapters import adapter_data_set
+    import kwiver.vital.types as kvt
+
+    ads = adapter_data_set.AdapterDataSet.create()
+
+    val = kvt.ImageContainer(kvt.Image())
+    # Typed
+    retrieved_val1 = ads._value_or_image_container("nonexistant_port", val)
+
+    # Non typed
+    retrieved_val2 = ads.value_or("nonexistant_port", val)
+    err_is_not(val, retrieved_val1)
+    err_is_not(val, retrieved_val2)
+    err_is_not_none(ads._value_or_image_container("nonexistant_port"))
+
+    val = kvt.DescriptorSet()
+    # Typed
+    retrieved_val1 = ads._value_or_descriptor_set("nonexistant_port", val)
+
+    # Non typed
+    retrieved_val2 = ads.value_or("nonexistant_port", val)
+    err_is_not(val, retrieved_val1)
+    err_is_not(val, retrieved_val2)
+    err_is_not_none(ads._value_or_descriptor_set("nonexistant_port"))
+
+    val = kvt.DetectedObjectSet()
+    # Typed
+    retrieved_val1 = ads._value_or_detected_object_set("nonexistant_port", val)
+
+    # Non typed
+    retrieved_val2 = ads.value_or("nonexistant_port", val)
+    err_is_not(val, retrieved_val1)
+    err_is_not(val, retrieved_val2)
+    err_is_not_none(ads._value_or_detected_object_set("nonexistant_port"))
+
+    val = kvt.TrackSet()
+    # Typed
+    retrieved_val1 = ads._value_or_track_set("nonexistant_port", val)
+
+    # Non typed
+    retrieved_val2 = ads.value_or("nonexistant_port", val)
+    err_is_not(val, retrieved_val1)
+    err_is_not(val, retrieved_val2)
+    err_is_not_none(ads._value_or_track_set("nonexistant_port"))
+
+    val = kvt.ObjectTrackSet()
+    # Typed
+    retrieved_val1 = ads._value_or_object_track_set("nonexistant_port", val)
+
+    # Non typed
+    retrieved_val2 = ads.value_or("nonexistant_port", val)
+    err_is_not(val, retrieved_val1)
+    err_is_not(val, retrieved_val2)
+    err_is_not_none(ads._value_or_object_track_set("nonexistant_port"))
 
 
 # Next some bound native C++ types
@@ -242,27 +541,108 @@ def test_add_get_cpp_types():
     from kwiver.sprokit.adapters import adapter_data_set
 
     ads = adapter_data_set.AdapterDataSet.create()
-    add_get_helper(
-        ads,
-        ads._add_double_vector,
-        ads._get_port_data_double_vector,
-        adapter_data_set.VectorDouble([3.14, 4.14]),
-        "double_vector",
-    )
-    add_get_helper(
-        ads,
-        ads._add_string_vector,
-        ads._get_port_data_string_vector,
-        adapter_data_set.VectorString(["s00", "s01"]),
-        "string_vector",
-    )
-    add_get_helper(
-        ads,
-        ads._add_uchar_vector,
-        ads._get_port_data_uchar_vector,
-        adapter_data_set.VectorUChar([100, 101]),
-        "uchar_vector",
-    )
+
+    val = adapter_data_set.VectorDouble([3.14, 4.14])
+    # Typed methods
+    ads._add_double_vector("double_vector_port", val)
+    retrieved_val1 = ads._get_port_data_double_vector("double_vector_port")
+    retrieved_val2 = ads._value_double_vector("double_vector_port")
+    retrieved_val3 = ads._value_or_double_vector("double_vector_port")
+
+    # Non typed methods
+    ads.add_value("double_vector_port2", val)
+    ads["double_vector_port3"] = val
+    retrieved_val4 = ads.get_port_data("double_vector_port2")
+    retrieved_val5 = ads.value("double_vector_port3")
+    retrieved_val6 = ads.value_or("double_vector_port3")
+    retrieved_val7 = ads["double_vector_port3"]
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_ne(val, retrieved_val3)
+    err_ne(val, retrieved_val4)
+    err_ne(val, retrieved_val5)
+    err_ne(val, retrieved_val6)
+    err_ne(val, retrieved_val7)
+
+    val = adapter_data_set.VectorString(["s00", "s01"])
+    # Typed methods
+    ads._add_string_vector("string_vector_port", val)
+    retrieved_val1 = ads._get_port_data_string_vector("string_vector_port")
+    retrieved_val2 = ads._value_string_vector("string_vector_port")
+    retrieved_val3 = ads._value_or_string_vector("string_vector_port")
+
+    # Non typed methods
+    ads.add_value("string_vector_port2", val)
+    ads["string_vector_port3"] = val
+    retrieved_val4 = ads.get_port_data("string_vector_port2")
+    retrieved_val5 = ads.value("string_vector_port3")
+    retrieved_val6 = ads.value_or("string_vector_port3")
+    retrieved_val7 = ads["string_vector_port3"]
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_ne(val, retrieved_val3)
+    err_ne(val, retrieved_val4)
+    err_ne(val, retrieved_val5)
+    err_ne(val, retrieved_val6)
+    err_ne(val, retrieved_val7)
+
+    val = adapter_data_set.VectorUChar([100, 101])
+    # Typed methods
+    ads._add_uchar_vector("uchar_vector_port", val)
+    retrieved_val1 = ads._get_port_data_uchar_vector("uchar_vector_port")
+    retrieved_val2 = ads._value_uchar_vector("uchar_vector_port")
+    retrieved_val3 = ads._value_or_uchar_vector("uchar_vector_port")
+
+    # Non typed methods
+    ads.add_value("uchar_vector_port2", val)
+    ads["uchar_vector_port3"] = val
+    retrieved_val4 = ads.get_port_data("uchar_vector_port2")
+    retrieved_val5 = ads.value("uchar_vector_port3")
+    retrieved_val6 = ads.value_or("uchar_vector_port3")
+    retrieved_val7 = ads["uchar_vector_port3"]
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_ne(val, retrieved_val3)
+    err_ne(val, retrieved_val4)
+    err_ne(val, retrieved_val5)
+    err_ne(val, retrieved_val6)
+    err_ne(val, retrieved_val7)
+
+
+def test_value_or_cpp_types():
+    from kwiver.sprokit.adapters import adapter_data_set
+    import kwiver.vital.types as kvt
+
+    ads = adapter_data_set.AdapterDataSet.create()
+    val = adapter_data_set.VectorDouble([3.14, 4.14])
+    # Typed
+    retrieved_val1 = ads._value_or_double_vector("nonexistant_port", val)
+
+    # Non typed
+    retrieved_val2 = ads.value_or("nonexistant_port", val)
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_is_not_none(ads._value_or_double_vector("nonexistant_port"))
+
+    val = adapter_data_set.VectorString(["s00", "s01"])
+    # Typed
+    retrieved_val1 = ads._value_or_string_vector("nonexistant_port", val)
+
+    # Non typed
+    retrieved_val2 = ads.value_or("nonexistant_port", val)
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_is_not_none(ads._value_or_string_vector("nonexistant_port"))
+
+    val = adapter_data_set.VectorUChar([100, 101])
+    # Typed
+    retrieved_val1 = ads._value_or_uchar_vector("nonexistant_port", val)
+
+    # Non typed
+    retrieved_val2 = ads.value_or("nonexistant_port", val)
+    err_ne(str(val), str(retrieved_val1))
+    err_ne(str(val), str(retrieved_val2))
+    err_is_not_none(ads._value_or_uchar_vector("nonexistant_port"))
 
 
 # Now try creating datums of these bound types
@@ -270,27 +650,64 @@ def test_add_get_cpp_types_with_datum():
     from kwiver.sprokit.adapters import adapter_data_set
 
     ads = adapter_data_set.AdapterDataSet.create()
-    add_get_helper(
-        ads,
-        ads.add_datum,
-        ads._get_port_data_double_vector,
-        datum.new_double_vector(datum.VectorDouble([6.3, 8.9])),
-        "datum_double_vector",
+
+    val = datum.VectorDouble([6.3, 8.9])
+    d = datum.new_double_vector(val)
+    ads.add_datum("datum_double_vector_port", d)
+    retrieved_val1 = ads._get_port_data_double_vector(
+        "datum_double_vector_port"
     )
-    add_get_helper(
-        ads,
-        ads.add_datum,
-        ads._get_port_data_string_vector,
-        datum.new_string_vector(datum.VectorString(["foo", "bar"])),
-        "datum_string_vector",
+    retrieved_val2 = ads._value_double_vector("datum_double_vector_port")
+    retrieved_val3 = ads._value_or_double_vector("datum_double_vector_port")
+    retrieved_val4 = ads.get_port_data("datum_double_vector_port")
+    retrieved_val5 = ads.value("datum_double_vector_port")
+    retrieved_val6 = ads.value_or("datum_double_vector_port")
+    retrieved_val7 = ads["datum_double_vector_port"]
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_ne(val, retrieved_val3)
+    err_ne(val, retrieved_val4)
+    err_ne(val, retrieved_val5)
+    err_ne(val, retrieved_val6)
+    err_ne(val, retrieved_val7)
+
+    val = datum.VectorString(["foo", "bar"])
+    d = datum.new_string_vector(val)
+    ads.add_datum("datum_string_vector_port", d)
+    retrieved_val1 = ads._get_port_data_string_vector(
+        "datum_string_vector_port"
     )
-    add_get_helper(
-        ads,
-        ads.add_datum,
-        ads._get_port_data_uchar_vector,
-        datum.new_uchar_vector(datum.VectorUChar([102, 103])),
-        "datum_uchar_vector",
-    )
+    retrieved_val2 = ads._value_string_vector("datum_string_vector_port")
+    retrieved_val3 = ads._value_or_string_vector("datum_string_vector_port")
+    retrieved_val4 = ads.get_port_data("datum_string_vector_port")
+    retrieved_val5 = ads.value("datum_string_vector_port")
+    retrieved_val6 = ads.value_or("datum_string_vector_port")
+    retrieved_val7 = ads["datum_string_vector_port"]
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_ne(val, retrieved_val3)
+    err_ne(val, retrieved_val4)
+    err_ne(val, retrieved_val5)
+    err_ne(val, retrieved_val6)
+    err_ne(val, retrieved_val7)
+
+    val = datum.VectorUChar([102, 103])
+    d = datum.new_uchar_vector(val)
+    ads.add_datum("datum_uchar_vector_port", d)
+    retrieved_val1 = ads._get_port_data_uchar_vector("datum_uchar_vector_port")
+    retrieved_val2 = ads._value_uchar_vector("datum_uchar_vector_port")
+    retrieved_val3 = ads._value_or_uchar_vector("datum_uchar_vector_port")
+    retrieved_val4 = ads.get_port_data("datum_uchar_vector_port")
+    retrieved_val5 = ads.value("datum_uchar_vector_port")
+    retrieved_val6 = ads.value_or("datum_uchar_vector_port")
+    retrieved_val7 = ads["datum_uchar_vector_port"]
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_ne(val, retrieved_val3)
+    err_ne(val, retrieved_val4)
+    err_ne(val, retrieved_val5)
+    err_ne(val, retrieved_val6)
+    err_ne(val, retrieved_val7)
 
 
 # Next kwiver vital types
@@ -299,27 +716,108 @@ def test_add_get_vital_types():
     from kwiver.sprokit.adapters import adapter_data_set
 
     ads = adapter_data_set.AdapterDataSet.create()
-    add_get_helper(
-        ads,
-        ads._add_bounding_box,
-        ads._get_port_data_bounding_box,
-        kvt.BoundingBoxD(1, 1, 2, 2),
-        "bounding_box",
-    )
-    add_get_helper(
-        ads,
-        ads._add_timestamp,
-        ads._get_port_data_timestamp,
-        kvt.Timestamp(),
-        "timestamp",
-    )
-    add_get_helper(
-        ads,
-        ads._add_f2f_homography,
-        ads._get_port_data_f2f_homography,
-        kvt.F2FHomography(1),
-        "f2f_homography",
-    )
+
+    val = kvt.BoundingBoxD(1, 1, 2, 2)
+    # Typed methods
+    ads._add_bounding_box("bounding_box_port", val)
+    retrieved_val1 = ads._get_port_data_bounding_box("bounding_box_port")
+    retrieved_val2 = ads._value_bounding_box("bounding_box_port")
+    retrieved_val3 = ads._value_or_bounding_box("bounding_box_port")
+
+    # Non typed methods
+    ads.add_value("bounding_box_port2", val)
+    ads["bounding_box_port3"] = val
+    retrieved_val4 = ads.get_port_data("bounding_box_port2")
+    retrieved_val5 = ads.value("bounding_box_port3")
+    retrieved_val6 = ads.value_or("bounding_box_port3")
+    retrieved_val7 = ads["bounding_box_port3"]
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_ne(val, retrieved_val3)
+    err_ne(val, retrieved_val4)
+    err_ne(val, retrieved_val5)
+    err_ne(val, retrieved_val6)
+    err_ne(val, retrieved_val7)
+
+    val = kvt.Timestamp(100, 1)
+    # Typed methods
+    ads._add_timestamp("timestamp_port", val)
+    retrieved_val1 = ads._get_port_data_timestamp("timestamp_port")
+    retrieved_val2 = ads._value_timestamp("timestamp_port")
+    retrieved_val3 = ads._value_or_timestamp("timestamp_port")
+
+    # Non typed methods
+    ads.add_value("timestamp_port2", val)
+    ads["timestamp_port3"] = val
+    retrieved_val4 = ads.get_port_data("timestamp_port2")
+    retrieved_val5 = ads.value("timestamp_port3")
+    retrieved_val6 = ads.value_or("timestamp_port3")
+    retrieved_val7 = ads["timestamp_port3"]
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_ne(val, retrieved_val3)
+    err_ne(val, retrieved_val4)
+    err_ne(val, retrieved_val5)
+    err_ne(val, retrieved_val6)
+    err_ne(val, retrieved_val7)
+
+    val = kvt.F2FHomography(1)
+    # Typed methods
+    ads._add_f2f_homography("f2f_homography_port", val)
+    retrieved_val1 = ads._get_port_data_f2f_homography("f2f_homography_port")
+    retrieved_val2 = ads._value_f2f_homography("f2f_homography_port")
+    retrieved_val3 = ads._value_or_f2f_homography("f2f_homography_port")
+
+    # Non typed methods
+    ads.add_value("f2f_homography_port2", val)
+    ads["f2f_homography_port3"] = val
+    retrieved_val4 = ads.get_port_data("f2f_homography_port2")
+    retrieved_val5 = ads.value("f2f_homography_port3")
+    retrieved_val6 = ads.value_or("f2f_homography_port3")
+    retrieved_val7 = ads["f2f_homography_port3"]
+    err_ne(str(val), str(retrieved_val1))
+    err_ne(str(val), str(retrieved_val2))
+    err_ne(str(val), str(retrieved_val3))
+    err_ne(str(val), str(retrieved_val4))
+    err_ne(str(val), str(retrieved_val5))
+    err_ne(str(val), str(retrieved_val6))
+    err_ne(str(val), str(retrieved_val7))
+
+
+def test_value_or_vital_types():
+    from kwiver.sprokit.adapters import adapter_data_set
+    import kwiver.vital.types as kvt
+
+    ads = adapter_data_set.AdapterDataSet.create()
+    val = kvt.BoundingBoxD(1, 1, 2, 2)
+    # Typed
+    retrieved_val1 = ads._value_or_bounding_box("nonexistant_port", val)
+
+    # Non typed
+    retrieved_val2 = ads.value_or("nonexistant_port", val)
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_is_not_none(ads._value_or_bounding_box("nonexistant_port"))
+
+    val = kvt.Timestamp(100, 1)
+    # Typed
+    retrieved_val1 = ads._value_or_timestamp("nonexistant_port", val)
+
+    # Non typed
+    retrieved_val2 = ads.value_or("nonexistant_port", val)
+    err_ne(val, retrieved_val1)
+    err_ne(val, retrieved_val2)
+    err_is_not_none(ads._value_or_timestamp("nonexistant_port"))
+
+    val = kvt.F2FHomography(1)
+    # Typed
+    retrieved_val1 = ads._value_or_f2f_homography("nonexistant_port", val)
+
+    # Non typed
+    retrieved_val2 = ads.value_or("nonexistant_port", val)
+    err_ne(str(val), str(retrieved_val1))
+    err_ne(str(val), str(retrieved_val2))
+    err_is_not_none(ads._value_or_f2f_homography("nonexistant_port"))
 
 
 # Now test overwriting
@@ -342,7 +840,11 @@ def test_overwrite():
 
     # Overwriting with completely different types
     overwrite_helper(
-        ads.add_datum, ads.get_port_data, datum.new(12), "datum_int", OVERWRITE_PORT
+        ads.add_datum,
+        ads.get_port_data,
+        datum.new(12),
+        "datum_int",
+        OVERWRITE_PORT,
     )
     overwrite_helper(
         ads._add_string_vector,
@@ -358,7 +860,9 @@ def test_overwrite():
         "timestamp",
         OVERWRITE_PORT,
     )
-    overwrite_helper(ads.add_value, ads.get_port_data, 15, "int", OVERWRITE_PORT)
+    overwrite_helper(
+        ads.add_value, ads.get_port_data, 15, "int", OVERWRITE_PORT
+    )
     overwrite_helper(
         ads._add_double_vector,
         ads._get_port_data_double_vector,
@@ -380,40 +884,39 @@ def test_mix_add_and_get():
     # Try adding with generic adder first, retrieving with
     # type specific get function
     ads["string_port"] = "string_value"
-    check_same_type(
-        ads._get_port_data_string("string_port"), "string_value", "string_port"
+    err_ne(
+        ads._get_port_data_string("string_port"),
+        "string_value",
     )
 
     ads["timestamp_port"] = kvt.Timestamp(1000000000, 10)
-    check_same_type(
+    err_ne(
         ads._get_port_data_timestamp("timestamp_port"),
         kvt.Timestamp(1000000000, 10),
-        "timestamp_port",
     )
 
-    ads["vector_string_port"] = adapter_data_set.VectorString(["element1", "element2"])
-    check_same_type(
+    ads["vector_string_port"] = adapter_data_set.VectorString(
+        ["element1", "element2"]
+    )
+    err_ne(
         ads._get_port_data_string_vector("vector_string_port"),
         adapter_data_set.VectorString(["element1", "element2"]),
-        "vector_string_port",
     )
 
     # Now try the opposite
     ads._add_string("string_port", "string_value")
-    check_same_type(ads["string_port"], "string_value", "string_port")
+    err_ne(ads["string_port"], "string_value")
 
     ads._add_timestamp("timestamp_port", kvt.Timestamp(1000000000, 10))
-    check_same_type(
-        ads["timestamp_port"], kvt.Timestamp(1000000000, 10), "timestamp_port"
-    )
+    err_ne(ads["timestamp_port"], kvt.Timestamp(1000000000, 10))
 
     ads._add_string_vector(
-        "vector_string_port", adapter_data_set.VectorString(["element1", "element2"])
+        "vector_string_port",
+        adapter_data_set.VectorString(["element1", "element2"]),
     )
-    check_same_type(
+    err_ne(
         ads["vector_string_port"],
         adapter_data_set.VectorString(["element1", "element2"]),
-        "vector_string_port",
     )
 
 
@@ -467,7 +970,9 @@ def _create_ads():
     # Construct a few elements
     ads["string_port"] = "string_value"
     ads["timestamp_port"] = kvt.Timestamp(1000000000, 10)
-    ads["vector_string_port"] = adapter_data_set.VectorString(["element1", "element2"])
+    ads["vector_string_port"] = adapter_data_set.VectorString(
+        ["element1", "element2"]
+    )
 
     return ads
 
@@ -481,7 +986,9 @@ def test_iter():
     for port, dat in ads:
         if port == "string_port":
             if dat.get_datum() != "string_value":
-                test_error("Didn't retrieve correct string value on first iteration")
+                test_error(
+                    "Didn't retrieve correct string value on first iteration"
+                )
         elif port == "timestamp_port":
             if dat.get_datum() != kvt.Timestamp(1000000000, 10):
                 test_error(
@@ -489,14 +996,18 @@ def test_iter():
                 )
         elif port == "vector_string_port":
             if dat.get_datum() != datum.VectorString(["element1", "element2"]):
-                test_error("Didn't retrieve correct string vector on third iteration")
+                test_error(
+                    "Didn't retrieve correct string vector on third iteration"
+                )
         else:
             test_error("unknown port: {}".format(port))
 
 
 def check_formatting_fxn(exp, act, fxn_name):
     if not act == exp:
-        test_error("Expected {} to return '{}'. Got '{}'".format(fxn_name, exp, act))
+        test_error(
+            "Expected {} to return '{}'. Got '{}'".format(fxn_name, exp, act)
+        )
 
     print(act)
 
@@ -548,12 +1059,16 @@ def test_len():
 
     # Check initial
     if len(ads) != 0:
-        test_error("adapter_data_set with 0 values returned size {}".format(len(ads)))
+        test_error(
+            "adapter_data_set with 0 values returned size {}".format(len(ads))
+        )
 
     ads = _create_ads()
 
     if len(ads) != 3:
-        test_error("adapter_data_set with 3 values returned size {}".format(len(ads)))
+        test_error(
+            "adapter_data_set with 3 values returned size {}".format(len(ads))
+        )
 
 
 if __name__ == "__main__":

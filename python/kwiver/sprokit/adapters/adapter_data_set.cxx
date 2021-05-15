@@ -209,9 +209,9 @@ PYBIND11_MODULE(adapter_data_set, m)
     .def("value", &kwiver::sprokit::python::get_port_data_correct_type,
           "This method is equivalent to using __getitem__")
     .def("value_or", &kwiver::sprokit::python::value_or_correct_type,
+          py::arg("port"), py::arg("value_if_missing") = py::none(),
           "This method is similar to the \"get\" method provided by "
            "python dictionaries")
-
     .def("__getitem__", &kwiver::sprokit::python::get_port_data_correct_type)
 
     // The add_value function is templated.
