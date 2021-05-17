@@ -34,9 +34,9 @@ namespace core {
 namespace {
 
 // ----------------------------------------------------------------------------
-template < typename Out >
+template < typename out >
 void
-split( const std::string& s, char delim, Out result )
+split( std::string const& s, char delim, out result )
 {
   std::istringstream iss( s );
   std::string item;
@@ -49,7 +49,7 @@ split( const std::string& s, char delim, Out result )
 
 // ----------------------------------------------------------------------------
 std::vector< std::string >
-split( const std::string& s, char delim )
+split( std::string const& s, char delim )
 {
   std::vector< std::string > elems;
   split( s, delim, std::back_inserter( elems ) );
@@ -58,19 +58,18 @@ split( const std::string& s, char delim )
 
 // ----------------------------------------------------------------------------
 std::string
-trim( const std::string& str,
-      const std::string& whitespace = " \t" )
+trim( std::string const& str, std::string const& whitespace = " \t" )
 {
-  const auto strBegin = str.find_first_not_of( whitespace );
+  auto const str_begin = str.find_first_not_of( whitespace );
 
-  if( strBegin == std::string::npos )
+  if( str_begin == std::string::npos )
   {
-    return "";     // no content
+    return ""; // no content
   }
-  const auto strEnd = str.find_last_not_of( whitespace );
-  const auto strRange = strEnd - strBegin + 1;
+  auto const str_end = str.find_last_not_of( whitespace );
+  auto const str_range = str_end - str_begin + 1;
 
-  return str.substr( strBegin, strRange );
+  return str.substr( str_begin, str_range );
 }
 
 } // namespace
@@ -287,7 +286,8 @@ metadata_map_io_csv
     {
       // This is a placeholder to keep the two vectors aligned
       metadata_names.push_back( "" );
-      present_metadata_ids.erase( trait_id ); // Avoid duplicating present columns
+      // Avoid duplicating present columns
+      present_metadata_ids.erase( trait_id );
     }
     ordered_metadata_ids.push_back( trait_id );
   }

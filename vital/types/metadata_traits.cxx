@@ -70,8 +70,8 @@ metadata_traits
 
 #undef TABLE_ENTRY
 
-#define NAME_TABLE_ENTRY(TAG, NAME, TYPE, ...)        \
-  m_name_trait_table[NAME] = trait_ptr( \
+#define NAME_TABLE_ENTRY(TAG, NAME, TYPE, ...) \
+  m_name_trait_table[NAME] = trait_ptr(        \
     static_cast< vital_meta_trait_base* >(new vital_meta_trait_object<VITAL_META_ ## TAG>() ) );
 
   KWIVER_VITAL_METADATA_TAGS( NAME_TABLE_ENTRY )
@@ -85,7 +85,6 @@ metadata_traits
 metadata_traits
 ::~metadata_traits()
 {
-
 }
 
 // ------------------------------------------------------------------
@@ -152,7 +151,7 @@ vital_metadata_tag
 metadata_traits
 ::name_to_tag( std::string name ) const
 {
-  vital_meta_trait_base const& trait = find_name( name );
+  auto const& trait = find_name( name );
   return trait.tag();
 }
 
