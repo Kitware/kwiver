@@ -275,7 +275,7 @@ metadata_map_io_csv
 
   for( auto const& name : d_->column_names )
   {
-    auto const trait_id = d_->md_traits.name_to_tag( name );
+    auto const trait_id = d_->md_traits.enum_name_to_tag( name );
     if( trait_id == kv::VITAL_META_UNKNOWN )
     {
       // TODO Consider whether UNKNOWN is the right tag or if something to show

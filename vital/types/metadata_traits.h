@@ -106,6 +106,17 @@ public:
    */
   vital_meta_trait_base const& find_name( std::string name ) const;
 
+  /// Find traits entry for the enum name.
+  /**
+   * This method returns the metadata trait entry for the
+   * specified tag. A default entry is returned if an invalid tag value is specified.
+   *
+   * @param tag Metadata enum name, e.g. UNIX_TIMESTAMP.
+   *
+   * @return Metadata traits entry.
+   */
+  vital_meta_trait_base const& find_enum_name( std::string name ) const;
+
   /// Convert tag value to enum symbol
   /**
    * This method returns the symbol name for the supplied tag.
@@ -136,6 +147,16 @@ public:
    */
   vital_metadata_tag name_to_tag( std::string name ) const;
 
+  /// Get tag for metadata enum name.
+  /**
+   * This method returns the tag for the enum name.
+   *
+   * @param name Metadata enum name value.
+   *
+   * @return Metadata tag.
+   */
+  vital_metadata_tag enum_name_to_tag( std::string name ) const;
+
   // Get metadata tag description
   /**
    * This method returns the long description string for the specified
@@ -157,6 +178,7 @@ private:
 #endif
   std::map< kwiver::vital::vital_metadata_tag, trait_ptr> m_trait_table;
   std::map< std::string, trait_ptr> m_name_trait_table;
+  std::map< std::string, trait_ptr> m_enum_name_trait_table;
 
 }; // end class metadata_traits
 
