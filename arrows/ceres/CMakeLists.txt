@@ -12,6 +12,7 @@ set( ceres_headers_public
   camera_smoothness.h
   )
 set( ceres_headers_private
+  lens_distortion.h
   options.h
   types.h
   )
