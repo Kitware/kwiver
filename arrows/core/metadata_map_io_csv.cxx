@@ -50,6 +50,7 @@ public:
   kv::metadata_traits md_traits;
   bool write_remaining_columns{ true };
   bool write_enum_names{ false };
+  std::string names_string;
   std::vector< std::string > column_names;
 };
 
@@ -193,14 +194,42 @@ metadata_map_io_csv
     "write_remaining_columns" );
   d_->write_enum_names = config->get_value< bool >( "write_enum_names" );
 
-  auto const names_string = config->get_value< std::string >( "column_names" );
+  d_->names_string = config->get_value< std::string >( "column_names" );
   std::vector< std::string > untrimmed_column_names;
-  kwiver::vital::tokenize( names_string, untrimmed_column_names, "," );
+  kwiver::vital::tokenize( d_->names_string, untrimmed_column_names, "," );
 
   for( auto name : untrimmed_column_names )
   {
     d_->column_names.push_back( kwiver::vital::string_trim( name ) );
   }
+}
+
+// ----------------------------------------------------------------------------
+bool
+metadata_map_io_csv
+::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+{
+  return true;
+}
+
+// ----------------------------------------------------------------------------
+vital::config_block_sptr
+metadata_map_io_csv
+::get_configuration() const
+{
+  // get base config from base class
+  auto config = algorithm::get_configuration();
+
+  config->set_value( "column_names", d_->names_string,
+                     "Comma-seperated values specified column order. Can "
+                     "either be the enum names, e.g. VIDEO_KEY_FRAME or the "
+                     "description, e.g. 'Is frame a key frame'" );
+  config->set_value( "write_enum_names", d_->write_enum_names,
+                     "Write enum names rather than descriptive names" );
+  config->set_value( "write_remaining_columns", d_->write_remaining_columns,
+                     "Write columns present in the metadata but not in the "
+                     "manually-specified list." );
+  return config;
 }
 
 // ----------------------------------------------------------------------------

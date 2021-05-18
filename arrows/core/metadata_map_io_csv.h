@@ -52,6 +52,12 @@ public:
   ///  Set configuration values
   void set_configuration( vital::config_block_sptr config ) override;
 
+  /// Check supplied configuration
+  bool check_configuration( vital::config_block_sptr config ) const override;
+
+  /// Get current configuration
+  vital::config_block_sptr get_configuration() const override;
+
 private:
   class priv;
 

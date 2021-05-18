@@ -97,7 +97,7 @@ public:
    */
   vital_meta_trait_base const& find( vital_metadata_tag tag ) const;
 
-  /// Convert tag value to enum symbol
+  /// Convert tag value to enum symbol.
   /**
    * This method returns the symbol name for the supplied tag.
    *
@@ -147,7 +147,7 @@ public:
    */
   vital_metadata_tag enum_name_to_tag( std::string name ) const;
 
-  // Get metadata tag description
+  // Get metadata tag description.
   /**
    * This method returns the long description string for the specified
    * tag.
