@@ -90,6 +90,8 @@ public:
                          std::string const& field_name = "" );
 
   kv::metadata_traits md_traits;
+  bool write_remaining_columns{ true };
+  bool write_enum_names{ false };
   std::vector< std::string > column_names;
 };
 
@@ -198,8 +200,15 @@ metadata_map_io_csv::priv
   }
   else
   {
-    // Quote all other data
-    fout << '"' << md_traits.tag_to_name( csv_field ) << "\",";
+    // Quote all other data either as the enum name or description
+    if( write_enum_names )
+    {
+      fout << '"' << md_traits.tag_to_enum_name( csv_field ) << "\",";
+    }
+    else
+    {
+      fout << '"' << md_traits.tag_to_name( csv_field ) << "\",";
+    }
   }
 }
 
@@ -222,6 +231,10 @@ void
 metadata_map_io_csv
 ::set_configuration( vital::config_block_sptr config )
 {
+  d_->write_remaining_columns = config->get_value< bool >(
+    "write_remaining_columns" );
+  d_->write_enum_names = config->get_value< bool >( "write_enum_names" );
+
   auto const names_string = config->get_value< std::string >( "column_names" );
   auto const untrimed_column_names = split( names_string, ',' );
 
@@ -275,30 +288,45 @@ metadata_map_io_csv
 
   for( auto const& name : d_->column_names )
   {
-    auto const trait_id = d_->md_traits.enum_name_to_tag( name );
-    if( trait_id == kv::VITAL_META_UNKNOWN )
-    {
-      // TODO Consider whether UNKNOWN is the right tag or if something to show
-      // explicitly that this is not in our set of tags is better
-      metadata_names.push_back( name );
-    }
-    else
+    auto trait_id = d_->md_traits.enum_name_to_tag( name );
+    if( trait_id != kv::VITAL_META_UNKNOWN )
     {
       // This is a placeholder to keep the two vectors aligned
       metadata_names.push_back( "" );
       // Avoid duplicating present columns
       present_metadata_ids.erase( trait_id );
     }
+    else if( kv::VITAL_META_UNKNOWN !=
+             ( trait_id = d_->md_traits.name_to_tag( name ) ) )
+    {
+      // This is a placeholder to keep the two vectors aligned
+      metadata_names.push_back( "" );
+      // Avoid duplicating present columns
+      present_metadata_ids.erase( trait_id );
+      LOG_INFO(
+        logger(),
+        "Description "  << name << " matched enum "
+                        << d_->md_traits.tag_to_enum_name( trait_id ) );
+    }
+    else
+    {
+      // TODO Consider whether UNKNOWN is the right tag or if something to show
+      // explicitly that this is not in our set of tags is better
+      metadata_names.push_back( name );
+    }
     ordered_metadata_ids.push_back( trait_id );
   }
 
-  // TODO consider checking whether the last feature is an * to determine
-  // whether to add present fields as well
-  for( auto const& id : present_metadata_ids )
+  // Determine whether to write columns present in the metadata but not
+  // explicitly provided
+  if( d_->write_remaining_columns )
   {
-    ordered_metadata_ids.push_back( id );
-    // Again, this is just a placeholder to keep vectors aligned
-    metadata_names.push_back( "" );
+    for( auto const& id : present_metadata_ids )
+    {
+      ordered_metadata_ids.push_back( id );
+      // Again, this is just a placeholder to keep vectors aligned
+      metadata_names.push_back( "" );
+    }
   }
 
   // Write out the csv header

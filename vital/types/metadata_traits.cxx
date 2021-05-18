@@ -39,6 +39,7 @@ struct vital_meta_trait_object
   {                                                                     \
     virtual std::string name() const override { return std::string(NAME); } \
     virtual std::string description() const override { return std::string(TD); } \
+    virtual std::string enum_name() const override { return #TAG; } \
     virtual std::type_info const& tag_type() const override { return typeid(T); } \
     virtual bool is_integral() const override { return std::is_integral<T>::value; } \
     virtual bool is_signed() const override { return std::is_signed<T>::value; } \
@@ -118,7 +119,7 @@ metadata_traits
   auto ix = m_name_trait_table.find( name );
   if ( ix == m_name_trait_table.end() )
   {
-    LOG_INFO( m_logger, "Could not find trait for tag: " << name );
+    LOG_INFO( m_logger, "Could not find trait for name: " << name );
     auto const defualt_ix = m_trait_table.find(VITAL_META_UNKNOWN);
     return *defualt_ix->second;
   }
@@ -133,7 +134,7 @@ metadata_traits
   auto ix = m_enum_name_trait_table.find( name );
   if ( ix == m_enum_name_trait_table.end() )
   {
-    LOG_INFO( m_logger, "Could not find trait for tag: " << name );
+    LOG_INFO( m_logger, "Could not find trait for enum name: " << name );
     auto const defualt_ix = m_trait_table.find(VITAL_META_UNKNOWN);
     return *defualt_ix->second;
   }
@@ -177,6 +178,15 @@ metadata_traits
 {
   auto const& trait = find_name( name );
   return trait.tag();
+}
+
+// ----------------------------------------------------------------------------
+std::string
+metadata_traits
+::tag_to_enum_name( vital_metadata_tag tag ) const
+{
+  auto const& trait = find( tag );
+  return trait.enum_name();
 }
 
 // ----------------------------------------------------------------------------

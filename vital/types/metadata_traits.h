@@ -34,6 +34,7 @@ struct vital_meta_trait_base
   virtual ~vital_meta_trait_base() = default;
   virtual std::string name() const = 0;
   virtual std::string description() const = 0;
+  virtual std::string enum_name() const = 0;
   virtual std::type_info const& tag_type() const = 0;
   virtual bool is_integral() const = 0;
   virtual bool is_signed() const = 0;
@@ -54,7 +55,8 @@ struct vital_meta_trait_base
   struct vital_meta_trait<TAG>                                          \
   {                                                                     \
     static std::string name() { return std::string(NAME); }             \
-    static std::string  description() { return std::string(LD); }       \
+    static std::string description() { return std::string(LD); }        \
+    static std::string enum_name() { return #TAG; }                     \
     static std::type_info const& tag_type() { return typeid(T); }       \
     static bool is_integral() { return std::is_integral<T>::value; }    \
     static bool is_signed() { return std::is_signed<T>::value; }        \
@@ -146,6 +148,16 @@ public:
    * @return Metadata tag.
    */
   vital_metadata_tag name_to_tag( std::string name ) const;
+
+  /// Get tag for metadata enum name.
+  /**
+   * This method returns the enum name for the given tag.
+   *
+   * @param tag Metadata tag value.
+   *
+   * @return Enum name string.
+   */
+  std::string tag_to_enum_name( vital_metadata_tag tag ) const;
 
   /// Get tag for metadata enum name.
   /**
