@@ -9,14 +9,15 @@
 
 #include <vital/any.h>
 #include <vital/exceptions/io.h>
-#include <vital/range/iota.h>
 #include <vital/types/geo_point.h>
 #include <vital/types/geo_polygon.h>
 #include <vital/types/geodesy.h>
+#include <vital/util/string.h>
+#include <vital/util/tokenize.h>
 
-#include <iostream>
+#include <vital/range/iota.h>
+
 #include <iterator>
-#include <sstream>
 #include <string>
 #include <typeinfo>
 #include <vector>
@@ -30,49 +31,6 @@ namespace kwiver {
 namespace arrows {
 
 namespace core {
-
-namespace {
-
-// ----------------------------------------------------------------------------
-template < typename out >
-void
-split( std::string const& s, char delim, out result )
-{
-  std::istringstream iss( s );
-  std::string item;
-
-  while( std::getline( iss, item, delim ) )
-  {
-    *result++ = item;
-  }
-}
-
-// ----------------------------------------------------------------------------
-std::vector< std::string >
-split( std::string const& s, char delim )
-{
-  std::vector< std::string > elems;
-  split( s, delim, std::back_inserter( elems ) );
-  return elems;
-}
-
-// ----------------------------------------------------------------------------
-std::string
-trim( std::string const& str, std::string const& whitespace = " \t" )
-{
-  auto const str_begin = str.find_first_not_of( whitespace );
-
-  if( str_begin == std::string::npos )
-  {
-    return ""; // no content
-  }
-  auto const str_end = str.find_last_not_of( whitespace );
-  auto const str_range = str_end - str_begin + 1;
-
-  return str.substr( str_begin, str_range );
-}
-
-} // namespace
 
 // ----------------------------------------------------------------------------
 class metadata_map_io_csv::priv
@@ -165,7 +123,7 @@ metadata_map_io_csv::priv
                     std::ostream& fout,
                     std::string const& field_name )
 {
-  if( csv_field == kv::VITAL_META_UNKNOWN )
+  if( csv_field == kv::VITAL_META_LAST_TAG )
   {
     fout << "\"" << field_name << "\",";
   }
@@ -236,11 +194,12 @@ metadata_map_io_csv
   d_->write_enum_names = config->get_value< bool >( "write_enum_names" );
 
   auto const names_string = config->get_value< std::string >( "column_names" );
-  auto const untrimed_column_names = split( names_string, ',' );
+  std::vector< std::string > untrimmed_column_names;
+  kwiver::vital::tokenize( names_string, untrimmed_column_names, "," );
 
-  for( auto const& name : untrimed_column_names )
+  for( auto name : untrimmed_column_names )
   {
-    d_->column_names.push_back( trim( name ) );
+    d_->column_names.push_back( kwiver::vital::string_trim( name ) );
   }
 }
 
@@ -310,9 +269,10 @@ metadata_map_io_csv
     }
     else
     {
-      // TODO Consider whether UNKNOWN is the right tag or if something to show
-      // explicitly that this is not in our set of tags is better
       metadata_names.push_back( name );
+      // Force `name` to be used by setting this to tag that won't be in the
+      // metadata which is being serialized
+      trait_id = kv::VITAL_META_LAST_TAG;
     }
     ordered_metadata_ids.push_back( trait_id );
   }
@@ -334,8 +294,8 @@ metadata_map_io_csv
   assert( ordered_metadata_ids.size() == metadata_names.size() );
   for( auto const& i : iota( ordered_metadata_ids.size() ) )
   {
-    auto const& metadata_id = ordered_metadata_ids.at( i );
-    auto const& metadata_name = metadata_names.at( i );
+    auto const& metadata_id = ordered_metadata_ids[ i ];
+    auto const& metadata_name = metadata_names[ i ];
     d_->write_csv_header( metadata_id, fout, metadata_name );
   }
 

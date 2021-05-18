@@ -97,28 +97,6 @@ public:
    */
   vital_meta_trait_base const& find( vital_metadata_tag tag ) const;
 
-  /// Find traits entry for name.
-  /**
-   * This method returns the metadata trait entry for the
-   * specified tag. A default entry is returned if an invalid tag value is specified.
-   *
-   * @param tag Metadata name.
-   *
-   * @return Metadata traits entry.
-   */
-  vital_meta_trait_base const& find_name( std::string name ) const;
-
-  /// Find traits entry for the enum name.
-  /**
-   * This method returns the metadata trait entry for the
-   * specified tag. A default entry is returned if an invalid tag value is specified.
-   *
-   * @param tag Metadata enum name, e.g. UNIX_TIMESTAMP.
-   *
-   * @return Metadata traits entry.
-   */
-  vital_meta_trait_base const& find_enum_name( std::string name ) const;
-
   /// Convert tag value to enum symbol
   /**
    * This method returns the symbol name for the supplied tag.
@@ -147,7 +125,7 @@ public:
    *
    * @return Metadata tag.
    */
-  vital_metadata_tag name_to_tag( std::string name ) const;
+  vital_metadata_tag name_to_tag( std::string const& name ) const;
 
   /// Get tag for metadata enum name.
   /**
@@ -189,8 +167,8 @@ private:
   typedef std::shared_ptr< vital_meta_trait_base > trait_ptr;
 #endif
   std::map< kwiver::vital::vital_metadata_tag, trait_ptr> m_trait_table;
-  std::map< std::string, trait_ptr> m_name_trait_table;
-  std::map< std::string, trait_ptr> m_enum_name_trait_table;
+  std::map< std::string, kwiver::vital::vital_metadata_tag > m_name_tag_table;
+  std::map< std::string, kwiver::vital::vital_metadata_tag > m_enum_name_tag_table;
 
 }; // end class metadata_traits
 

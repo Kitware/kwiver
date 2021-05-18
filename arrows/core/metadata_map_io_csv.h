@@ -49,8 +49,8 @@ public:
               kwiver::vital::metadata_map_sptr data,
               std::string const& filename ) const override;
 
-   ///  Set configuration values, namely the column ordering
-   void set_configuration( vital::config_block_sptr config ) override;
+  ///  Set configuration values
+  void set_configuration( vital::config_block_sptr config ) override;
 
 private:
   class priv;

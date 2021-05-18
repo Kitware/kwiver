@@ -73,16 +73,14 @@ metadata_traits
 
   // Create name table
 #define NAME_TABLE_ENTRY(TAG, NAME, TYPE, ...) \
-  m_name_trait_table[NAME] = trait_ptr(        \
-    static_cast< vital_meta_trait_base* >(new vital_meta_trait_object<VITAL_META_ ## TAG>() ) );
+  m_name_tag_table[NAME] = VITAL_META_ ## TAG;
 
   KWIVER_VITAL_METADATA_TAGS( NAME_TABLE_ENTRY )
 #undef NAME_TABLE_ENTRY
 
   // Create enum name table
 #define ENUM_NAME_TABLE_ENTRY(TAG, NAME, TYPE, ...) \
-  m_enum_name_trait_table[#TAG] = trait_ptr(        \
-    static_cast< vital_meta_trait_base* >(new vital_meta_trait_object<VITAL_META_ ## TAG>() ) );
+  m_enum_name_tag_table[#TAG] = VITAL_META_ ## TAG;
 
   KWIVER_VITAL_METADATA_TAGS( ENUM_NAME_TABLE_ENTRY )
 #undef ENUM_NAME_TABLE_ENTRY
@@ -107,36 +105,6 @@ metadata_traits
   {
     LOG_INFO( m_logger, "Could not find trait for tag: " << tag );
     ix = m_trait_table.find(VITAL_META_UNKNOWN);
-  }
-  return *ix->second;
-}
-
-// ----------------------------------------------------------------------------
-vital_meta_trait_base const&
-metadata_traits
-::find_name( std::string name ) const
-{
-  auto ix = m_name_trait_table.find( name );
-  if ( ix == m_name_trait_table.end() )
-  {
-    LOG_INFO( m_logger, "Could not find trait for name: " << name );
-    auto const defualt_ix = m_trait_table.find(VITAL_META_UNKNOWN);
-    return *defualt_ix->second;
-  }
-  return *ix->second;
-}
-
-// ----------------------------------------------------------------------------
-vital_meta_trait_base const&
-metadata_traits
-::find_enum_name( std::string name ) const
-{
-  auto ix = m_enum_name_trait_table.find( name );
-  if ( ix == m_enum_name_trait_table.end() )
-  {
-    LOG_INFO( m_logger, "Could not find trait for enum name: " << name );
-    auto const defualt_ix = m_trait_table.find(VITAL_META_UNKNOWN);
-    return *defualt_ix->second;
   }
   return *ix->second;
 }
@@ -174,10 +142,9 @@ metadata_traits
 // ----------------------------------------------------------------------------
 vital_metadata_tag
 metadata_traits
-::name_to_tag( std::string name ) const
+::name_to_tag( std::string const& name ) const
 {
-  auto const& trait = find_name( name );
-  return trait.tag();
+  return m_name_tag_table.find( name )->second;
 }
 
 // ----------------------------------------------------------------------------
@@ -194,8 +161,7 @@ vital_metadata_tag
 metadata_traits
 ::enum_name_to_tag( std::string name ) const
 {
-  auto const& trait = find_enum_name( name );
-  return trait.tag();
+  return m_enum_name_tag_table.find( name )->second;
 }
 
 // ----------------------------------------------------------------------------
