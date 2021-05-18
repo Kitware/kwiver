@@ -124,7 +124,7 @@ metadata_map_io_csv::priv
                     std::ostream& fout,
                     std::string const& field_name )
 {
-  if( csv_field == kv::VITAL_META_LAST_TAG )
+  if( csv_field == kv::VITAL_META_UNKNOWN )
   {
     fout << "\"" << field_name << "\",";
   }
@@ -299,9 +299,6 @@ metadata_map_io_csv
     else
     {
       metadata_names.push_back( name );
-      // Force `name` to be used by setting this to tag that won't be in the
-      // metadata which is being serialized
-      trait_id = kv::VITAL_META_LAST_TAG;
     }
     ordered_metadata_ids.push_back( trait_id );
   }
