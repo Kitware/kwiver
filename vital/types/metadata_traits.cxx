@@ -132,7 +132,13 @@ vital_metadata_tag
 metadata_traits
 ::name_to_tag( std::string const& name ) const
 {
-  return m_name_tag_table.find( name )->second;
+  auto ix = m_name_tag_table.find( name );
+  if ( ix == m_name_tag_table.end() )
+  {
+    LOG_INFO( m_logger, "Could not find tag for name: " << name );
+    return VITAL_META_UNKNOWN;
+  }
+  return ix->second;
 }
 
 // ----------------------------------------------------------------------------
@@ -149,7 +155,13 @@ vital_metadata_tag
 metadata_traits
 ::enum_name_to_tag( std::string name ) const
 {
-  return m_enum_name_tag_table.find( name )->second;
+  auto ix = m_enum_name_tag_table.find( name );
+  if ( ix == m_enum_name_tag_table.end() )
+  {
+    LOG_INFO( m_logger, "Could not find tag for enum name: " << name );
+    return VITAL_META_UNKNOWN;
+  }
+  return ix->second;
 }
 
 // ----------------------------------------------------------------------------
