@@ -44,6 +44,7 @@ PYBIND11_MODULE(mesh, m)
     .def("has_tex_coords", &kv::mesh::has_tex_coords)
     .def("tex_coords",   &kv::mesh::tex_coords)
     .def("set_tex_source",   &kv::mesh::set_tex_source)
+    .def("texture_map", &kv::mesh::texture_map)
     .def("compute_vertex_normals", &kv::mesh::compute_vertex_normals)
     .def("compute_vertex_normals_from_faces",
          &kv::mesh::compute_vertex_normals_from_faces)
