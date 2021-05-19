@@ -22,9 +22,8 @@
 #include <typeinfo>
 #include <vector>
 
-using kwiver::vital::range::iota;
-
 namespace kv = kwiver::vital;
+namespace kvr = kv::range;
 
 namespace kwiver {
 
@@ -284,21 +283,25 @@ metadata_map_io_csv
       // Avoid duplicating present columns
       present_metadata_ids.erase( trait_id );
     }
-    else if( kv::VITAL_META_UNKNOWN !=
-             ( trait_id = d_->md_traits.name_to_tag( name ) ) )
+    else // Try matching the description
     {
-      // This is a placeholder to keep the two vectors aligned
-      metadata_names.push_back( "" );
-      // Avoid duplicating present columns
-      present_metadata_ids.erase( trait_id );
-      LOG_INFO(
-        logger(),
-        "Description "  << name << " matched enum "
-                        << d_->md_traits.tag_to_enum_name( trait_id ) );
-    }
-    else
-    {
-      metadata_names.push_back( name );
+      trait_id = d_->md_traits.name_to_tag( name );
+
+      if( trait_id != kv::VITAL_META_UNKNOWN )
+      {
+        // This is a placeholder to keep the two vectors aligned
+        metadata_names.push_back( "" );
+        // Avoid duplicating present columns
+        present_metadata_ids.erase( trait_id );
+        LOG_INFO(
+          logger(),
+          "Description \""  << name << "\" matched enum "
+                            << d_->md_traits.tag_to_enum_name( trait_id ) );
+      }
+      else
+      {
+        metadata_names.push_back( name );
+      }
     }
     ordered_metadata_ids.push_back( trait_id );
   }
@@ -318,7 +321,7 @@ metadata_map_io_csv
   // Write out the csv header
   fout << "\"frame ID\",";
   assert( ordered_metadata_ids.size() == metadata_names.size() );
-  for( auto const& i : iota( ordered_metadata_ids.size() ) )
+  for( auto const& i : kvr::iota( ordered_metadata_ids.size() ) )
   {
     auto const& metadata_id = ordered_metadata_ids[ i ];
     auto const& metadata_name = metadata_names[ i ];

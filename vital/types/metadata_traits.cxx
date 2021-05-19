@@ -62,28 +62,16 @@ metadata_traits
 ::metadata_traits()
   : m_logger( kwiver::vital::get_logger( "vital.metadata_traits" ) )
 {
-  // Create trait table
-#define TABLE_ENTRY(TAG, NAME, TYPE, ...)        \
-  m_trait_table[VITAL_META_ ## TAG] = trait_ptr( \
-    static_cast< vital_meta_trait_base* >(new vital_meta_trait_object<VITAL_META_ ## TAG>() ) );
+  // Create trait, tag, and enum name tables
+#define TABLE_ENTRY(TAG, NAME, TYPE, ...)           \
+  m_trait_table[VITAL_META_ ## TAG] = trait_ptr(    \
+    static_cast< vital_meta_trait_base* >(new vital_meta_trait_object<VITAL_META_ ## TAG>() ) ); \
+  m_name_tag_table[NAME] = VITAL_META_ ## TAG;      \
+  m_enum_name_tag_table[#TAG] = VITAL_META_ ## TAG; \
 
   KWIVER_VITAL_METADATA_TAGS( TABLE_ENTRY )
 
 #undef TABLE_ENTRY
-
-  // Create name table
-#define NAME_TABLE_ENTRY(TAG, NAME, TYPE, ...) \
-  m_name_tag_table[NAME] = VITAL_META_ ## TAG;
-
-  KWIVER_VITAL_METADATA_TAGS( NAME_TABLE_ENTRY )
-#undef NAME_TABLE_ENTRY
-
-  // Create enum name table
-#define ENUM_NAME_TABLE_ENTRY(TAG, NAME, TYPE, ...) \
-  m_enum_name_tag_table[#TAG] = VITAL_META_ ## TAG;
-
-  KWIVER_VITAL_METADATA_TAGS( ENUM_NAME_TABLE_ENTRY )
-#undef ENUM_NAME_TABLE_ENTRY
 
 #undef DEFINE_VITAL_META_TRAIT
 
