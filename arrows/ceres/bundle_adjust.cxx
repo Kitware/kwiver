@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of Ceres bundle adjustment algorithm
- */
+/// \file
+/// \brief Implementation of Ceres bundle adjustment algorithm
 
 #include "bundle_adjust.h"
 
@@ -36,11 +34,9 @@ namespace ceres {
 // Private implementation class
 class bundle_adjust::priv
   : public solver_options,
-
     public camera_options
 {
 public:
-
   // Constructor
   priv( bundle_adjust* p )
     : solver_options(),
@@ -106,15 +102,15 @@ public:
                      "iter         cost  cost_change   |gradient|       "
                      "|step|  iter_time total_time" );
         }
-        LOG_DEBUG( ba.logger(),
-                   std::setw( 4 ) << summary.iteration << " " <<
-                   std::setw( 12 ) << summary.cost << " " <<
-                   std::setw( 12 ) << summary.cost_change << " " <<
-                   std::setw( 12 ) << summary.gradient_max_norm << " " <<
-                   std::setw( 12 ) << summary.step_norm << " " <<
-                   std::setw(
-                     10 ) << summary.iteration_time_in_seconds << " " <<
-                   std::setw( 10 ) << summary.cumulative_time_in_seconds );
+        LOG_DEBUG(
+          ba.logger(),
+	     std::setw( 4 ) << summary.iteration << " " <<
+	     std::setw( 12 ) << summary.cost << " " <<
+	     std::setw( 12 ) << summary.cost_change << " " <<
+	     std::setw( 12 ) << summary.gradient_max_norm << " " <<
+	     std::setw( 12 ) << summary.step_norm << " " <<
+	     std::setw( 10 ) << summary.iteration_time_in_seconds << " " <<
+	     std::setw( 10 ) << summary.cumulative_time_in_seconds );
       }
       return ( ba.trigger_callback() )
              ? ::ceres::SOLVER_CONTINUE
@@ -129,7 +125,6 @@ public:
 };
 
 // ----------------------------------------------------------------------------
-// Constructor
 bundle_adjust
 ::bundle_adjust()
   : d_( new priv( this ) )
@@ -137,7 +132,6 @@ bundle_adjust
   attach_logger( "arrows.ceres.bundle_adjust" );
 }
 
-// Destructor
 bundle_adjust
 ::~bundle_adjust()
 {
@@ -180,8 +174,7 @@ bundle_adjust
 {
   ::ceres::Solver::Options& o = d_->options;
   // Starting with our generated config_block to ensure that assumed values are
-  // present
-  // An alternative is to check for key presence before performing a
+  // present. An alternative is to check for key presence before performing a
   // get_value() call.
   config_block_sptr config = this->get_configuration();
   config->merge_config( in_config );
@@ -327,13 +320,13 @@ bundle_adjust
     if( d_->landmark_params.find( lm_id ) == d_->landmark_params.end() )
     {
       vector_3d loc = lm.second->loc();
-      d_->landmark_params[ lm_id ] = std::vector< double >(
-        loc.data(), loc.data() + 3 );
+      d_->landmark_params[ lm_id ] =
+        std::vector< double >( loc.data(), loc.data() + 3 );
     }
   }
 
-  typedef std::unordered_map< track_id_t,
-                              std::vector< double > > lm_param_map_t;
+  using lm_param_map_t =
+    std::unordered_map< track_id_t, std::vector< double > >;
 
   d_->camera_params.clear();
   d_->camera_intr_params.clear();

@@ -100,7 +100,6 @@ PrintTo( reprojection_test const& v, ::std::ostream* os )
 }
 
 // ----------------------------------------------------------------------------
-
 class reprojection_error : public ::testing::TestWithParam<reprojection_test>
 {
 };
@@ -176,7 +175,9 @@ TEST_P(reprojection_error, compare_projections)
 #define DISTORTION( t, k ) \
   reprojection_test{ #t, kwiver::arrows::mvg::t, k }
 
-INSTANTIATE_TEST_CASE_P(, reprojection_error,
+INSTANTIATE_TEST_CASE_P(
+  ,
+  reprojection_error,
   ::testing::Values(
     DISTORTION( NO_DISTORTION, 0 ),
     DISTORTION( POLYNOMIAL_RADIAL_DISTORTION, 0 ),

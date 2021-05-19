@@ -2,11 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of Ceres options helper classes
- */
+/// \file
+/// \brief Implementation of Ceres options helper classes
 
+#include "lens_distortion.h"
 #include "options.h"
 
 #include <arrows/ceres/camera_intrinsic_prior.h>
@@ -25,21 +24,19 @@ using namespace mvg;
 
 namespace ceres {
 
-/// constructor
 solver_options
 ::solver_options()
   : options()
 {
 }
 
-/// copy constructor
 solver_options
 ::solver_options( const solver_options& other )
   : options( other.options )
 {
 }
 
-/// populate the config block with options
+/// Populate the config block with options.
 void
 solver_options
 ::get_configuration( config_block_sptr config ) const
@@ -103,24 +100,23 @@ solver_options
 #undef GET_VALUE
 }
 
-//=== camera options
+// === camera options
 
-/// copy constructor
 camera_options
 ::camera_options( const camera_options& other )
-  : mvg::camera_options(other),
-    camera_intrinsic_share_type(other.camera_intrinsic_share_type),
+  : mvg::camera_options( other ),
+    camera_intrinsic_share_type( other.camera_intrinsic_share_type ),
     camera_path_smoothness( other.camera_path_smoothness ),
     camera_forward_motion_damping( other.camera_forward_motion_damping )
 {
 }
 
-/// populate the config block with options
+/// Populate the config block with options.
 void
 camera_options
 ::get_configuration( config_block_sptr config ) const
 {
-  mvg::camera_options::get_configuration(config);
+  mvg::camera_options::get_configuration( config );
   config->set_value( "camera_intrinsic_share_type",
                      this->camera_intrinsic_share_type,
                      "Determines how to share intrinsics across cameras.\n"
@@ -140,12 +136,12 @@ camera_options
                      "If set to zero the regularization is disabled." );
 }
 
-/// set the member variables from the config block
+/// Set the member variables from the config block.
 void
 camera_options
 ::set_configuration( config_block_sptr config )
 {
-  mvg::camera_options::set_configuration(config);
+  mvg::camera_options::set_configuration( config );
 #define GET_VALUE( vtype, vname ) \
   this->vname = config->get_value< vtype >(#vname, this->vname );
   GET_VALUE( CameraIntrinsicShareType, camera_intrinsic_share_type );
@@ -265,7 +261,7 @@ camera_options
   ::ceres::Problem& problem,
   frame_params_t const& ordered_params ) const
 {
-  // Add camera path regularization residuals
+  // Add camera path regularization residuals.
   if( this->camera_path_smoothness > 0.0 &&
       ordered_params.size() >= 3 )
   {
@@ -293,7 +289,7 @@ camera_options
       }
     }
 
-    // Normalize the weight
+    // Normalize the weight.
     const double weight = this->camera_path_smoothness *
                           problem.NumResiduals();
     const double scale = constraints.size() / sum_dist;
@@ -435,7 +431,7 @@ camera_options
   }
 }
 
-/// update the camera objects using the extracted camera parameters
+/// Update the camera objects using the extracted camera parameters.
 void
 camera_options
 ::update_camera_parameters( camera_map::map_camera_t& cameras,
@@ -517,7 +513,7 @@ camera_options
   return false;
 }
 
-/// enumerate the intrinsics held constant
+/// Enumerate the intrinsics held constant.
 std::vector< int >
 camera_options
 ::enumerate_constant_intrinsics() const
@@ -582,7 +578,7 @@ camera_options
   camera->set_center( Eigen::Map< const vector_3d >( &params[ 3 ] ) );
 }
 
-/// extract the paramters from camera intrinsics into the parameter array
+/// Extract the parameters from camera intrinsics into the parameter array.
 void
 camera_options
 ::extract_camera_intrinsics( const camera_intrinsics_sptr K,
@@ -606,7 +602,7 @@ camera_options
   }
 }
 
-/// update the camera intrinsics from a parameter array
+/// Update the camera intrinsics from a parameter array.
 void
 camera_options
 ::update_camera_intrinsics( std::shared_ptr< simple_camera_intrinsics > K,
