@@ -2,67 +2,65 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of MVG camera options.
- */
+/// \file
+/// \brief Implementation of MVG camera options.
 
 #include "camera_options.h"
 
-#define MVG_ENUM_HELPERS(NS, ceres_type)                                \
-namespace kwiver {                                                      \
-namespace vital {                                                       \
-                                                                        \
-template<>                                                              \
-config_block_value_t                                                    \
-config_block_set_value_cast(NS::ceres_type const& value)                \
-{                                                                       \
-  return NS::ceres_type##ToString(value);                               \
-}                                                                       \
-                                                                        \
-template<>                                                              \
-NS::ceres_type                                                          \
-config_block_get_value_cast(config_block_value_t const& value)          \
-{                                                                       \
-  NS::ceres_type cet;                                                   \
-  if(!NS::StringTo##ceres_type(value, &cet))                            \
-  {                                                                     \
-    VITAL_THROW( bad_config_block_cast,value);                          \
-  }                                                                     \
-  return cet;                                                           \
-}                                                                       \
-                                                                        \
-}                                                                       \
-                                                                        \
-namespace arrows {                                                      \
-namespace mvg {                                                       \
-                                                                        \
-template<>                                                              \
-std::string                                                             \
-mvg_options< NS::ceres_type >()                                       \
-{                                                                       \
-  typedef NS::ceres_type T;                                             \
-  std::string options_str = "\nMust be one of the following options:";  \
-  std::string opt;                                                      \
-  for (unsigned i=0; i<20; ++i)                                         \
-  {                                                                     \
-    opt = NS::ceres_type##ToString(static_cast<T>(i));                  \
-    if (opt == "UNKNOWN")                                               \
-    {                                                                   \
-      break;                                                            \
-    }                                                                   \
-    options_str += "\n  - " + opt;                                      \
-  }                                                                     \
-  return options_str;                                                   \
-}                                                                       \
-                                                                        \
-}                                                                       \
-}                                                                       \
-}
+#define MVG_ENUM_HELPERS( NS, ceres_type )                                \
+  namespace kwiver {                                                      \
+  namespace vital {                                                       \
+                                                                          \
+  template <>                                                             \
+  config_block_value_t                                                    \
+  config_block_set_value_cast( NS::ceres_type const & value )             \
+  {                                                                       \
+    return NS::ceres_type##ToString( value );                             \
+  }                                                                       \
+                                                                          \
+  template <>                                                             \
+  NS::ceres_type                                                          \
+  config_block_get_value_cast( config_block_value_t const & value )       \
+  {                                                                       \
+    NS::ceres_type cet;                                                   \
+    if( !NS::StringTo##ceres_type( value, &cet ) )                        \
+    {                                                                     \
+      VITAL_THROW( bad_config_block_cast, value );                        \
+    }                                                                     \
+    return cet;                                                           \
+  }                                                                       \
+                                                                          \
+  }                                                                       \
+                                                                          \
+  namespace arrows {                                                      \
+  namespace mvg {                                                         \
+                                                                          \
+  template <>                                                             \
+  std::string                                                             \
+  mvg_options< NS::ceres_type >()                                         \
+  {                                                                       \
+    typedef NS::ceres_type T;                                             \
+    std::string options_str = "\nMust be one of the following options:";  \
+    std::string opt;                                                      \
+    for( unsigned i = 0; i < 20; ++i )                                    \
+    {                                                                     \
+      opt = NS::ceres_type##ToString( static_cast< T >( i ) );            \
+      if( opt == "UNKNOWN" )                                              \
+      {                                                                   \
+        break;                                                            \
+      }                                                                   \
+      options_str += "\n  - " + opt;                                      \
+    }                                                                     \
+    return options_str;                                                   \
+  }                                                                       \
+                                                                          \
+  }                                                                       \
+  }                                                                       \
+  }
 
 MVG_ENUM_HELPERS( kwiver::arrows::mvg, LensDistortionType )
 
-#undef CERES_ENUM_HELPERS
+#undef MVG_ENUM_HELPERS
 
 namespace kwiver {
 
@@ -75,14 +73,14 @@ namespace mvg {
 #define CASESTR( x ) case x: return #x
 #define STRENUM( x ) if( value == #x ) { *type = x; return true; }
 
-/// Convert a string to upper case
+/// Convert a string to upper case.
 static void
 UpperCase( std::string* input )
 {
   std::transform( input->begin(), input->end(), input->begin(), ::toupper );
 }
 
-/// Provide a string representation for a LensDisortionType value
+/// Provide a string representation for a LensDisortionType value.
 const char*
 LensDistortionTypeToString( LensDistortionType type )
 {
@@ -97,7 +95,7 @@ LensDistortionTypeToString( LensDistortionType type )
   }
 }
 
-/// Parse a LensDistortionType value from a string or return false
+/// Parse a LensDistortionType value from a string or return false.
 bool
 StringToLensDistortionType( std::string value, LensDistortionType* type )
 {
@@ -109,7 +107,6 @@ StringToLensDistortionType( std::string value, LensDistortionType* type )
   return false;
 }
 
-/// Constructor
 camera_options
 ::camera_options()
   : optimize_focal_length( true ),
@@ -126,7 +123,6 @@ camera_options
 {
 }
 
-/// Copy Constructor
 camera_options
 ::camera_options( const camera_options& other )
   : optimize_focal_length( other.optimize_focal_length ),
@@ -143,7 +139,6 @@ camera_options
 {
 }
 
-/// populate the config block with options
 void
 camera_options
 ::get_configuration( config_block_sptr config ) const
@@ -183,7 +178,6 @@ camera_options
                      "penalty." );
 }
 
-/// set the member variables from the config block
 void
 camera_options
 ::set_configuration( config_block_sptr config )
