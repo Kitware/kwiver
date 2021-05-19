@@ -9,12 +9,12 @@
 
 #include "camera_intrinsics.h"
 
-#include <opencv2/calib3d/calib3d.hpp>
-#include <opencv2/core/eigen.hpp>
-
 #include <arrows/mvg/camera_options.h>
 
 #include <vital/range/iota.h>
+
+#include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/core/eigen.hpp>
 
 namespace kvr = kwiver::vital::range;
 
@@ -25,12 +25,9 @@ namespace arrows {
 namespace ocv {
 
 // ----------------------------------------------------------------------------
-class resection_camera::priv : public mvg::camera_options
+struct resection_camera::priv : public mvg::camera_options
 {
-public:
-
-  priv() : mvg::camera_options(),
-           m_logger{ vital::get_logger( "arrows.ocv.resection_camera" ) }
+  priv() : m_logger{ vital::get_logger( "arrows.ocv.resection_camera" ) }
   {
   }
 
@@ -57,15 +54,13 @@ vital::config_block_sptr
 resection_camera
 ::get_configuration() const
 {
-  // get base config from base class
   vital::config_block_sptr config =
     vital::algo::resection_camera::get_configuration();
+  d_->get_configuration( config );
   config->set_value( "reproj_accuracy", d_->reproj_accuracy,
                      "desired re-projection positive accuracy" );
   config->set_value( "max_iterations", d_->max_iterations,
                      "maximum number of iterations to run optimization [1, INT_MAX]" );
-  // get the camera configuration options
-  d_->mvg::camera_options::get_configuration( config );
   return config;
 }
 
@@ -74,12 +69,11 @@ void
 resection_camera
 ::set_configuration( vital::config_block_sptr config )
 {
+  d_->set_configuration( config );
   d_->reproj_accuracy = config->get_value< double >( "reproj_accuracy",
                                                      d_->reproj_accuracy );
   d_->max_iterations = config->get_value< int >( "max_iterations",
                                                  d_->max_iterations );
-  // set the camera configuration options
-  d_->mvg::camera_options::set_configuration( config );
 }
 
 // ----------------------------------------------------------------------------
@@ -126,17 +120,21 @@ resection_camera
   }
 
   auto const point_count = image_points.size();
-  if( point_count != world_points.size() )
-  {
-    LOG_WARN( d_->m_logger,
-              "counts of 3D points and projections do not match" );
-  }
-
   constexpr size_t min_count = 3;
   if( point_count < min_count )
   {
-    LOG_ERROR( d_->m_logger, "not enough points to resection camera" );
+    LOG_ERROR( d_->m_logger,
+               "camera resection needs at least " << min_count << " points, "
+               "but only " << point_count << " were provided" );
     return nullptr;
+  }
+
+  auto const wpoint_count = world_points.size();
+  if( point_count != wpoint_count )
+  {
+    LOG_WARN( d_->m_logger,
+              "counts of 3D points (" << wpoint_count << ") and "
+              "their projections (" << point_count << ") do not match" );
   }
 
   std::vector< cv::Point2f > cv_image_points;
@@ -157,7 +155,6 @@ resection_camera
   cv::Mat cv_K;
   eigen2cv( K, cv_K );
 
-  auto dist_coeffs = get_ocv_dist_coeffs( cal );
   cv::Mat inliers_mat;
   std::vector< cv::Mat > vrvec, vtvec;
   auto const world_points_vec =
@@ -167,16 +164,55 @@ resection_camera
   auto const image_size =
     cv::Size{ static_cast< int >( cal->image_width() ),
               static_cast< int >( cal->image_height() ) };
+  auto dist_coeffs = get_ocv_dist_coeffs( cal );
   int flags = cv::CALIB_USE_INTRINSIC_GUESS;
+  if( !d_->optimize_focal_length )
+  {
+    flags |= cv::CALIB_FIX_FOCAL_LENGTH;
+  }
+  if( !d_->optimize_aspect_ratio )
+  {
+    flags |= cv::CALIB_FIX_ASPECT_RATIO;
+  }
+  if( !d_->optimize_principal_point )
+  {
+    flags |= cv::CALIB_FIX_PRINCIPAL_POINT;
+  }
+  if( !d_->optimize_dist_k1 )
+  {
+    flags |= cv::CALIB_FIX_K1;
+  }
+  if( !d_->optimize_dist_k2 )
+  {
+    flags |= cv::CALIB_FIX_K2;
+  }
+  if( !d_->optimize_dist_k3 )
+  {
+    flags |= cv::CALIB_FIX_K3;
+  }
+  if( !d_->optimize_dist_p1_p2 )
+  {
+    flags |= cv::CALIB_ZERO_TANGENT_DIST;
+  }
+  if( d_->optimize_dist_k4_k5_k6 )
+  {
+    flags |= cv::CALIB_RATIONAL_MODEL;
+  }
+  else
+  {
+    flags |= cv::CALIB_FIX_K4 | cv::CALIB_FIX_K5 | cv::CALIB_FIX_K6;
+  }
+
   auto const reproj_error = d_->reproj_accuracy;
 
   auto const err =
-    cv::calibrateCamera( world_points_vec, image_points_vec,
-                         image_size, cv_K, dist_coeffs,
-                         vrvec, vtvec, flags,
-                         cv::TermCriteria{
-          cv::TermCriteria::COUNT + cv::TermCriteria::EPS,
-          d_->max_iterations, reproj_error } );
+    cv::calibrateCamera(
+      world_points_vec, image_points_vec,
+      image_size, cv_K, dist_coeffs,
+      vrvec, vtvec, flags,
+      cv::TermCriteria{
+        cv::TermCriteria::COUNT + cv::TermCriteria::EPS,
+        d_->max_iterations, reproj_error } );
 
   if( err > reproj_error )
   {

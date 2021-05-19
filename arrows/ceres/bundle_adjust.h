@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for Ceres bundle adjustment algorithm
- */
+/// \file
+/// \brief Header for Ceres bundle adjustment algorithm
 
 #ifndef KWIVER_ARROWS_CERES_BUNDLE_ADJUST_H_
 #define KWIVER_ARROWS_CERES_BUNDLE_ADJUST_H_
@@ -42,13 +40,10 @@ public:
   virtual bool check_configuration( vital::config_block_sptr config ) const;
 
   /// Optimize the camera and landmark parameters given a set of feature tracks
-
-  /**
-   * \param [in,out] cameras the cameras to optimize
-   * \param [in,out] landmarks the landmarks to optimize
-   * \param [in] tracks the feature tracks to use as constraints
-   * \param [in] metadata the frame metadata to use as constraints
-   */
+  /// \param [in,out] cameras The cameras to optimize.
+  /// \param [in,out] landmarks The landmarks to optimize.
+  /// \param [in] tracks The feature tracks to use as constraints.
+  /// \param [in] metadata The frame metadata to use as constraints.
   virtual void
   optimize( vital::camera_map_sptr& cameras,
             vital::landmark_map_sptr& landmarks,
@@ -56,17 +51,14 @@ public:
             vital::sfm_constraints_sptr constraints = nullptr ) const;
 
   /// Optimize the camera and landmark parameters given a set of feature tracks
-
-  /**
-   * \param [in,out] cameras the cameras to optimize
-   * \param [in,out] landmarks the landmarks to optimize
-   * \param [in] tracks the feature tracks to use as constraints
-   * \param [in] fixed_cameras frame ids for cameras to be fixed in the
-   *optimization
-   * \param [in] fixed_landmarks landmark ids for landmarks to be fixed in the
-   *optimization
-   * \param [in] metadata the frame metadata to use as constraints
-   */
+  /// \param [in,out] cameras the cameras to optimize
+  /// \param [in,out] landmarks the landmarks to optimize
+  /// \param [in] tracks the feature tracks to use as constraints
+  /// \param [in] fixed_cameras frame ids for cameras to be fixed in the
+  /// optimization
+  /// \param [in] fixed_landmarks landmark ids for landmarks to be fixed in the
+  /// optimization
+  /// \param [in] metadata the frame metadata to use as constraints
   virtual void
   optimize(
     kwiver::vital::simple_camera_perspective_map& cameras,

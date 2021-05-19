@@ -34,6 +34,7 @@ struct vital_meta_trait_base
   virtual ~vital_meta_trait_base() = default;
   virtual std::string name() const = 0;
   virtual std::string description() const = 0;
+  virtual std::string enum_name() const = 0;
   virtual std::type_info const& tag_type() const = 0;
   virtual bool is_integral() const = 0;
   virtual bool is_signed() const = 0;
@@ -54,7 +55,8 @@ struct vital_meta_trait_base
   struct vital_meta_trait<TAG>                                          \
   {                                                                     \
     static std::string name() { return std::string(NAME); }             \
-    static std::string  description() { return std::string(LD); }       \
+    static std::string description() { return std::string(LD); }        \
+    static std::string enum_name() { return #TAG; }                     \
     static std::type_info const& tag_type() { return typeid(T); }       \
     static bool is_integral() { return std::is_integral<T>::value; }    \
     static bool is_signed() { return std::is_signed<T>::value; }        \
@@ -95,7 +97,7 @@ public:
    */
   vital_meta_trait_base const& find( vital_metadata_tag tag ) const;
 
-  /// Convert tag value to enum symbol
+  /// Convert tag value to enum symbol.
   /**
    * This method returns the symbol name for the supplied tag.
    *
@@ -115,7 +117,37 @@ public:
    */
   std::string tag_to_name( vital_metadata_tag tag ) const;
 
-  // Get metadata tag description
+  /// Get tag for metadata name.
+  /**
+   * This method returns the tag for the short name.
+   *
+   * @param name Metadata name value.
+   *
+   * @return Metadata tag.
+   */
+  vital_metadata_tag name_to_tag( std::string const& name ) const;
+
+  /// Get tag for metadata enum name.
+  /**
+   * This method returns the enum name for the given tag.
+   *
+   * @param tag Metadata tag value.
+   *
+   * @return Enum name string.
+   */
+  std::string tag_to_enum_name( vital_metadata_tag tag ) const;
+
+  /// Get tag for metadata enum name.
+  /**
+   * This method returns the tag for the enum name.
+   *
+   * @param name Metadata enum name value.
+   *
+   * @return Metadata tag.
+   */
+  vital_metadata_tag enum_name_to_tag( std::string name ) const;
+
+  // Get metadata tag description.
   /**
    * This method returns the long description string for the specified
    * tag.
@@ -135,6 +167,8 @@ private:
   typedef std::shared_ptr< vital_meta_trait_base > trait_ptr;
 #endif
   std::map< kwiver::vital::vital_metadata_tag, trait_ptr> m_trait_table;
+  std::map< std::string, kwiver::vital::vital_metadata_tag > m_name_tag_table;
+  std::map< std::string, kwiver::vital::vital_metadata_tag > m_enum_name_tag_table;
 
 }; // end class metadata_traits
 
