@@ -123,19 +123,26 @@ def test_error_():
     if p is not None:
         test_error("An error datum does not have None as its data")
 
-def check_same_type(retrieved_val, val):
-    if not type(retrieved_val) is type(val):
-        msg = "Retrieved value of type: {}. Expected type: {}"
-        msg = msg.format(type(retrieved_val), type(val))
-        test_error(msg)
+def err_ne(expected, actual):
+    if expected != actual:
+        test_error("Expected value of {}, got {}".format(expected, actual))
+
+
+def err_is_not(expected, actual):
+    if expected is not actual:
+        msg = "Expected {} and {} to point to same object"
+        test_error(msg.format(expected, actual))
+
+def err_str_ne(expected, actual):
+    err_ne(str(expected), str(actual))
 
 # Check the automatic type conversion done by new() and get_datum()
-def check_automatic_conversion(val):
+def check_automatic_conversion(val, compare_fxn):
     from kwiver.sprokit.pipeline import datum
 
     datum_inst = datum.new(val)
     retrieved_val = datum_inst.get_datum()
-    check_same_type(retrieved_val, val)
+    compare_fxn(retrieved_val, val)
 
 # Next some basic types
 def test_add_get_basic_types():
@@ -144,60 +151,65 @@ def test_add_get_basic_types():
     # Try the typed constructor/get fxns first
     datum_inst = datum.new_int(10)
     retrieved_val = datum_inst.get_int()
-    check_same_type(retrieved_val, 10)
+    err_ne(retrieved_val, 10)
 
     datum_inst = datum.new_float(0.5)
     retrieved_val = datum_inst.get_float()
-    check_same_type(retrieved_val, 0.5)
+    err_ne(retrieved_val, 0.5)
 
     datum_inst = datum.new_double(3.14)
     retrieved_val = datum_inst.get_double()
-    check_same_type(retrieved_val, 3.14)
+    err_ne(retrieved_val, 3.14)
 
     datum_inst = datum.new_bool(True)
     retrieved_val = datum_inst.get_bool()
-    check_same_type(retrieved_val, True)
+    err_ne(retrieved_val, True)
 
     datum_inst = datum.new_string("str1")
     retrieved_val = datum_inst.get_string()
-    check_same_type(retrieved_val, "str1")
+    err_ne(retrieved_val, "str1")
 
     # Now the ones with automatic conversion
-    check_automatic_conversion(10)
-    check_automatic_conversion(0.5)
-    check_automatic_conversion(True)
-    check_automatic_conversion("str1")
+    check_automatic_conversion(10, err_ne)
+    check_automatic_conversion(0.5, err_ne)
+    check_automatic_conversion(True, err_ne)
+    check_automatic_conversion("str1", err_ne)
 
 # Next some kwiver vital types that are handled with pointers
 def test_add_get_vital_types_by_ptr():
     from kwiver.sprokit.pipeline import datum
     from kwiver.vital import types as kvt
 
-    datum_inst = datum.new_image_container(kvt.ImageContainer(kvt.Image()))
+    val = kvt.ImageContainer(kvt.Image())
+    datum_inst = datum.new_image_container(val)
     retrieved_val = datum_inst.get_image_container()
-    check_same_type(retrieved_val, kvt.ImageContainer(kvt.Image()))
+    err_is_not(retrieved_val, val)
 
-    datum_inst = datum.new_descriptor_set(kvt.DescriptorSet())
+    val = kvt.DescriptorSet()
+    datum_inst = datum.new_descriptor_set(val)
     retrieved_val = datum_inst.get_descriptor_set()
-    check_same_type(retrieved_val, kvt.DescriptorSet())
+    err_is_not(retrieved_val, val)
 
-    datum_inst = datum.new_detected_object_set(kvt.DetectedObjectSet())
+    val = kvt.DetectedObjectSet()
+    datum_inst = datum.new_detected_object_set(val)
     retrieved_val = datum_inst.get_detected_object_set()
-    check_same_type(retrieved_val, kvt.DetectedObjectSet())
+    err_is_not(retrieved_val, val)
 
-    datum_inst = datum.new_track_set(kvt.TrackSet())
+    val = kvt.TrackSet()
+    datum_inst = datum.new_track_set(val)
     retrieved_val = datum_inst.get_track_set()
-    check_same_type(retrieved_val, kvt.TrackSet())
+    err_is_not(retrieved_val, val)
 
-    datum_inst = datum.new_object_track_set(kvt.ObjectTrackSet())
+    val = kvt.ObjectTrackSet()
+    datum_inst = datum.new_object_track_set(val)
     retrieved_val = datum_inst.get_object_track_set()
-    check_same_type(retrieved_val, kvt.ObjectTrackSet())
+    err_is_not(retrieved_val, val)
 
-    check_automatic_conversion(kvt.ImageContainer(kvt.Image()))
-    check_automatic_conversion(kvt.DescriptorSet())
-    check_automatic_conversion(kvt.DetectedObjectSet())
-    check_automatic_conversion(kvt.TrackSet())
-    check_automatic_conversion(kvt.ObjectTrackSet())
+    check_automatic_conversion(kvt.ImageContainer(kvt.Image()), err_is_not)
+    check_automatic_conversion(kvt.DescriptorSet(), err_is_not)
+    check_automatic_conversion(kvt.DetectedObjectSet(), err_is_not)
+    check_automatic_conversion(kvt.TrackSet(), err_is_not)
+    check_automatic_conversion(kvt.ObjectTrackSet(), err_is_not)
 
 # Next some bound native C++ types
 def test_add_get_cpp_types():
@@ -205,19 +217,19 @@ def test_add_get_cpp_types():
 
     datum_inst = datum.new_double_vector(datum.VectorDouble([3.14, 4.14]))
     retrieved_val = datum_inst.get_double_vector()
-    check_same_type(retrieved_val, datum.VectorDouble([3.14, 4.14]))
+    err_ne(retrieved_val, datum.VectorDouble([3.14, 4.14]))
 
     datum_inst = datum.new_string_vector(datum.VectorString(["s00", "s01"]))
     retrieved_val = datum_inst.get_string_vector()
-    check_same_type(retrieved_val, datum.VectorString(["s00", "s01"]))
+    err_ne(retrieved_val, datum.VectorString(["s00", "s01"]))
 
     datum_inst = datum.new_uchar_vector(datum.VectorUChar([100, 101]))
     retrieved_val = datum_inst.get_uchar_vector()
-    check_same_type(retrieved_val, datum.VectorUChar([100, 101]))
+    err_ne(retrieved_val, datum.VectorUChar([100, 101]))
 
-    check_automatic_conversion(datum.VectorDouble([3.14, 4.14]))
-    check_automatic_conversion(datum.VectorString(["s00", "s01"]))
-    check_automatic_conversion(datum.VectorUChar([100, 101]))
+    check_automatic_conversion(datum.VectorDouble([3.14, 4.14]), err_ne)
+    check_automatic_conversion(datum.VectorString(["s00", "s01"]), err_ne)
+    check_automatic_conversion(datum.VectorUChar([100, 101]), err_ne)
 
 # Next kwiver vital types
 def test_add_get_vital_types():
@@ -226,19 +238,19 @@ def test_add_get_vital_types():
 
     datum_inst = datum.new_bounding_box(kvt.BoundingBoxD(1, 1, 2, 2))
     retrieved_val = datum_inst.get_bounding_box()
-    check_same_type(retrieved_val, kvt.BoundingBoxD(1, 1, 2, 2))
+    err_ne(retrieved_val, kvt.BoundingBoxD(1, 1, 2, 2))
 
-    datum_inst = datum.new_timestamp(kvt.Timestamp())
+    datum_inst = datum.new_timestamp(kvt.Timestamp(123, 1))
     retrieved_val = datum_inst.get_timestamp()
-    check_same_type(retrieved_val, kvt.Timestamp())
+    err_ne(retrieved_val, kvt.Timestamp(123, 1))
 
     datum_inst = datum.new_f2f_homography(kvt.F2FHomography(1))
     retrieved_val = datum_inst.get_f2f_homography()
-    check_same_type(retrieved_val, kvt.F2FHomography(1))
+    err_str_ne(retrieved_val, kvt.F2FHomography(1))
 
-    check_automatic_conversion(kvt.BoundingBoxD(1, 1, 2, 2))
-    check_automatic_conversion(kvt.Timestamp())
-    check_automatic_conversion(kvt.F2FHomography(1))
+    check_automatic_conversion(kvt.BoundingBoxD(1, 1, 2, 2), err_ne)
+    check_automatic_conversion(kvt.Timestamp(123, 1), err_ne)
+    check_automatic_conversion(kvt.F2FHomography(1), err_str_ne)
 
 # Want to make sure data inside a datum created with the automatic
 # conversion constructor can be retrieved with a type specific getter, and
@@ -250,23 +262,23 @@ def test_mix_new_and_get():
     # Try creating with generic constructor first, retrieving with
     # type specific get function
     datum_inst = datum.new("string_value")
-    check_same_type(datum_inst.get_string(), "string_value")
+    err_ne(datum_inst.get_string(), "string_value")
 
     datum_inst = datum.new(kvt.Timestamp(1000000000, 10))
-    check_same_type(datum_inst.get_timestamp(), kvt.Timestamp(1000000000, 10))
+    err_ne(datum_inst.get_timestamp(), kvt.Timestamp(1000000000, 10))
 
     datum_inst = datum.new(datum.VectorString(["element1", "element2"]))
-    check_same_type(datum_inst.get_string_vector(), datum.VectorString(["element1", "element2"]))
+    err_ne(datum_inst.get_string_vector(), datum.VectorString(["element1", "element2"]))
 
     # Now try the opposite
     datum_inst = datum.new_string("string_value")
-    check_same_type(datum_inst.get_datum(), "string_value")
+    err_ne(datum_inst.get_datum(), "string_value")
 
     datum_inst = datum.new_timestamp(kvt.Timestamp(1000000000, 10))
-    check_same_type(datum_inst.get_datum(), kvt.Timestamp(1000000000, 10))
+    err_ne(datum_inst.get_datum(), kvt.Timestamp(1000000000, 10))
 
     datum_inst = datum.new_string_vector(datum.VectorString(["element1", "element2"]))
-    check_same_type(datum_inst.get_datum(), datum.VectorString(["element1", "element2"]))
+    err_ne(datum_inst.get_datum(), datum.VectorString(["element1", "element2"]))
 
 # Make sure that None isn't acceptable, even for pointers
 def test_new_with_none():
