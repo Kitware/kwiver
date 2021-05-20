@@ -39,6 +39,7 @@ struct vital_meta_trait_object
   {                                                                     \
     virtual std::string name() const override { return std::string(NAME); } \
     virtual std::string description() const override { return std::string(TD); } \
+    virtual std::string enum_name() const override { return #TAG; } \
     virtual std::type_info const& tag_type() const override { return typeid(T); } \
     virtual bool is_integral() const override { return std::is_integral<T>::value; } \
     virtual bool is_signed() const override { return std::is_signed<T>::value; } \
@@ -56,31 +57,33 @@ struct vital_meta_trait_object
 
   KWIVER_VITAL_METADATA_TAGS( DEFINE_VITAL_META_TRAIT )
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 metadata_traits
 ::metadata_traits()
   : m_logger( kwiver::vital::get_logger( "vital.metadata_traits" ) )
 {
-  // Create trait table
-#define TABLE_ENTRY(TAG, NAME, TYPE, ...)        \
-  m_trait_table[VITAL_META_ ## TAG] = trait_ptr( \
-    static_cast< vital_meta_trait_base* >(new vital_meta_trait_object<VITAL_META_ ## TAG>() ) );
+  // Create trait, tag, and enum name tables
+#define TABLE_ENTRY(TAG, NAME, TYPE, ...)           \
+  m_trait_table[VITAL_META_ ## TAG] = trait_ptr(    \
+    static_cast< vital_meta_trait_base* >(new vital_meta_trait_object<VITAL_META_ ## TAG>() ) ); \
+  m_name_tag_table[NAME] = VITAL_META_ ## TAG;      \
+  m_enum_name_tag_table[#TAG] = VITAL_META_ ## TAG; \
 
   KWIVER_VITAL_METADATA_TAGS( TABLE_ENTRY )
 
 #undef TABLE_ENTRY
+
 #undef DEFINE_VITAL_META_TRAIT
 
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 metadata_traits
 ::~metadata_traits()
 {
-
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital_meta_trait_base const&
 metadata_traits
 ::find( vital_metadata_tag tag ) const
@@ -94,7 +97,7 @@ metadata_traits
   return *ix->second;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string
 metadata_traits
 ::tag_to_symbol( vital_metadata_tag tag ) const
@@ -115,7 +118,7 @@ metadata_traits
 #undef TAG_CASE
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string
 metadata_traits
 ::tag_to_name( vital_metadata_tag tag ) const
@@ -124,7 +127,44 @@ metadata_traits
   return trait.name();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+vital_metadata_tag
+metadata_traits
+::name_to_tag( std::string const& name ) const
+{
+  auto ix = m_name_tag_table.find( name );
+  if ( ix == m_name_tag_table.end() )
+  {
+    LOG_INFO( m_logger, "Could not find tag for name: " << name );
+    return VITAL_META_UNKNOWN;
+  }
+  return ix->second;
+}
+
+// ----------------------------------------------------------------------------
+std::string
+metadata_traits
+::tag_to_enum_name( vital_metadata_tag tag ) const
+{
+  auto const& trait = find( tag );
+  return trait.enum_name();
+}
+
+// ----------------------------------------------------------------------------
+vital_metadata_tag
+metadata_traits
+::enum_name_to_tag( std::string name ) const
+{
+  auto ix = m_enum_name_tag_table.find( name );
+  if ( ix == m_enum_name_tag_table.end() )
+  {
+    LOG_INFO( m_logger, "Could not find tag for enum name: " << name );
+    return VITAL_META_UNKNOWN;
+  }
+  return ix->second;
+}
+
+// ----------------------------------------------------------------------------
 std::string
 metadata_traits
 ::tag_to_description( vital_metadata_tag tag ) const
