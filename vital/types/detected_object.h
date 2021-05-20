@@ -325,6 +325,24 @@ public:
    */
   void clear_keypoints();
 
+  /**
+   * @brief Get detection polygon.
+   *
+   * This method returns the polygon associated with this detection.
+   *
+   * @return Polyogn.
+   */
+  std::vector< vital::point_2d > polygon() const;
+
+  /**
+   * @brief Set polygon for this detection.
+   *
+   * This method supplies a new polygon for this detection.
+   *
+   * @param p Polygon vector 
+   */
+  void set_mask( std::vector< vital::point_2d > p );
+
 private:
   kwiver::vital::geo_point m_geo_point;
   bounding_box_d m_bounding_box;
@@ -340,6 +358,7 @@ private:
 
   std::vector< std::string > m_notes;
   std::map< std::string, vital::point_2d > m_keypoints;
+  std::vector< vital::point_2d > m_polygons;
 };
 
 } // namespace vital

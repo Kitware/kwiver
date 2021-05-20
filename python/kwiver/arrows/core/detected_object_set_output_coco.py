@@ -105,6 +105,7 @@ class DetectedObjectSetOutputCoco(DetectedObjectSetOutput):
                 ],
                 score=det.confidence(),
             )
+            # TODO add a mask here so it can actually be read
             if det.type() is not None:
                 d['category_id'] = type(self).categories.setdefault(
                     det.type().get_most_likely_class(),
