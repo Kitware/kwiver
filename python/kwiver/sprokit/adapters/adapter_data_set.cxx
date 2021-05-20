@@ -219,7 +219,9 @@ PYBIND11_MODULE(adapter_data_set, m)
     // each with a different type.
     // First the native C++ types
     .def("_add_int", &ka::adapter_data_set::add_value<int>)
-    .def("_add_float", &ka::adapter_data_set::add_value<float>)
+    .def("_add_float", &ka::adapter_data_set::add_value<float>,
+      "Warning: Python floats have double precision. Adding them "
+      "to an adapter_data_set using this method will truncate.")
     .def("_add_double", &ka::adapter_data_set::add_value<double>)
     .def("_add_bool", &ka::adapter_data_set::add_value<bool>)
     .def("_add_string", &ka::adapter_data_set::add_value<std::string>)
