@@ -6,3 +6,8 @@ over the previous v1.6.0 release.
 
 Bug Fixes over 1.6.0
 --------------------
+
+Arrows: Core
+
+ * Add additional config options to the CSV metadata writer. Primarily, allow
+   the column ordering of the output to be specified.
