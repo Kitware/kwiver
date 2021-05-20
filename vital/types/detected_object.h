@@ -341,7 +341,7 @@ public:
    *
    * @param p Polygon vector 
    */
-  void set_mask( std::vector< vital::point_2d > p );
+  void set_polygon( std::vector< vital::point_2d > p );
 
 private:
   kwiver::vital::geo_point m_geo_point;
@@ -358,7 +358,7 @@ private:
 
   std::vector< std::string > m_notes;
   std::map< std::string, vital::point_2d > m_keypoints;
-  std::vector< vital::point_2d > m_polygons;
+  std::vector< vital::point_2d > m_polygon;
 };
 
 } // namespace vital

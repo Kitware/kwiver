@@ -69,6 +69,7 @@ detected_object
   new_obj->m_detector_name = this->m_detector_name;
   new_obj->m_geo_point = this->m_geo_point;
   new_obj->m_keypoints = this->m_keypoints;
+  new_obj->m_polygon = this->m_polygon;
   new_obj->m_notes = this->m_notes;
 
   return new_obj;
@@ -248,6 +249,22 @@ detected_object
 ::clear_keypoints()
 {
   m_keypoints.clear();
+}
+
+// ----------------------------------------------------------------------------
+std::vector< vital::point_2d >
+detected_object
+::polygon() const
+{
+  return m_polygon;
+}
+
+// ----------------------------------------------------------------------------
+void
+detected_object
+::set_polygon( std::vector< vital::point_2d > p )
+{
+  m_polygon = p;
 }
 
 } // namespace vital
