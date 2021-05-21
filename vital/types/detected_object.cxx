@@ -267,6 +267,33 @@ detected_object
   m_polygon = p;
 }
 
+// ----------------------------------------------------------------------------
+std::vector< double >
+detected_object
+::get_flattened_polygon() const
+{
+  std::vector< double > flattened_polygon;
+  for( auto const& point : m_polygon )
+  {
+     flattened_polygon.push_back(point[0]);
+     flattened_polygon.push_back(point[1]);
+  }
+  return flattened_polygon;
+}
+
+// ----------------------------------------------------------------------------
+void
+detected_object
+::set_flattened_polygon( std::vector< double > p )
+{
+  m_polygon.clear();
+  for( unsigned i = 0; i < poly_elements.size(); i+=2 )
+  {
+    // Add an x, y point
+    m_polygon.push_back( vital::point_2d< double >( p[ j ], p[ j + 1 ] ) );
+  }
+}
+
 } // namespace vital
 
 } // namespace kwiver
