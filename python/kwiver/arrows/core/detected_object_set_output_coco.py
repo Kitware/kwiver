@@ -105,6 +105,8 @@ class DetectedObjectSetOutputCoco(DetectedObjectSetOutput):
                 ],
                 score=det.confidence(),
             )
+            # TODO, figure out how to use masks if they're present 
+            d['segmentations']=det.polygon()
             # TODO add a mask here so it can actually be read
             if det.type() is not None:
                 d['category_id'] = type(self).categories.setdefault(
