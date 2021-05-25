@@ -352,6 +352,10 @@ public:
    */
   void clear_keypoints();
 
+  // Temp functions to go away when updating to latest
+  void set_length( double l );
+  void set_head_tail( double x1, double y1, double x2, double y2 );
+
 private:
   kwiver::vital::geo_point m_geo_point;
   bounding_box_d m_bounding_box;

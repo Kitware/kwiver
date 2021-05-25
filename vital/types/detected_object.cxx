@@ -277,6 +277,23 @@ detected_object
   m_keypoints.clear();
 }
 
+// Temp functions when updating to latest
+void
+detected_object
+::set_head_tail( double x1, double y1, double x2, double y2 )
+{
+  m_keypoints[ "head" ] = vital::point_2d( x1, y1 );
+  m_keypoints[ "tail" ] = vital::point_2d( x2, y2 );
+}
+
+void
+detected_object
+::set_length( double l )
+{
+  m_notes.push_back( ":length=" + std::to_string( l ) );
+}
+
+
 } // namespace vital
 
 } // namespace kwiver

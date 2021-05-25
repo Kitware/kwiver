@@ -135,6 +135,10 @@ PYBIND11_MODULE(detected_object, m)
   .def("type", &det_obj::type)
   .def("set_type", &det_obj::set_type,
     py::arg("c"))
+  .def("set_length", &det_obj::set_length,
+    py::arg("l"))
+  .def("set_head_tail", &det_obj::set_head_tail,
+    py::arg("x1"),py::arg("y1"),py::arg("x2"),py::arg("y2"))
   .def_property("mask", &det_obj::mask, &det_obj::set_mask)
   ;
 }
