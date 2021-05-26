@@ -97,7 +97,7 @@ LensDistortionTypeToString( LensDistortionType type )
 
 /// Parse a LensDistortionType value from a string or return false.
 bool
-StringToLensDistortionType( std::string value, LensDistortionType* type )
+StringToLensDistortionType( std::string value, LensDistortionType& type )
 {
   UpperCase( &value );
   STRENUM( NO_DISTORTION );
