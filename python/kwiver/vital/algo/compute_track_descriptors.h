@@ -9,10 +9,16 @@
 
 namespace py = pybind11;
 namespace kwiver {
-namespace vital  {
+
+namespace vital {
+
 namespace python {
-void compute_track_descriptors(py::module &m);
-}
-}
-}
+
+void compute_track_descriptors( py::module& m );
+
+} // namespace python
+
+} // namespace vital
+
+} // namespace kwiver
 #endif

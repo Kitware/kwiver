@@ -4,10 +4,16 @@
 #include <pybind11/pybind11.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace python {
-void detected_object_set_input(pybind11::module &m);
-}
-}
-}
+
+void detected_object_set_input( pybind11::module& m );
+
+} // namespace python
+
+} // namespace vital
+
+} // namespace kwiver
 #endif

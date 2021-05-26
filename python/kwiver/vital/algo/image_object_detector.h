@@ -9,10 +9,16 @@
 
 namespace py = pybind11;
 namespace kwiver {
-namespace vital  {
+
+namespace vital {
+
 namespace python {
-void image_object_detector(py::module &m);
-}
-}
-}
+
+void image_object_detector( py::module& m );
+
+} // namespace python
+
+} // namespace vital
+
+} // namespace kwiver
 #endif

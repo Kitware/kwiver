@@ -37,84 +37,99 @@
 #include <pybind11/pybind11.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace python {
 
 /*
  * NOTE: These classes and macros have just been lifted from pybind11 and
  * rewritten to use the Python interpreter's standard PyGILState_* API, because
  * of the inherent compatibility issues in the pybind11 version. In the future,
- * we would like to get similar classes and macros merged into upstream pybind11
+ * we would like to get similar classes and macros merged into upstream
+ *pybind11
  * so that they become standard.
  */
 
 class gil_scoped_acquire
 {
-  public:
-    gil_scoped_acquire()
-    {
-      state = PyGILState_Ensure();
-    }
+public:
 
-    ~gil_scoped_acquire()
-    {
-      PyGILState_Release( state );
-    }
+  gil_scoped_acquire()
+  {
+    state = PyGILState_Ensure();
+  }
 
-  private:
-    PyGILState_STATE state;
+  ~gil_scoped_acquire()
+  {
+    PyGILState_Release( state );
+  }
+
+private:
+
+  PyGILState_STATE state;
 };
 
 class gil_scoped_release
 {
-  public:
-    gil_scoped_release()
-    {
-      state = PyEval_SaveThread();
-    }
+public:
 
-    ~gil_scoped_release()
-    {
-      PyEval_RestoreThread( state );
-    }
+  gil_scoped_release()
+  {
+    state = PyEval_SaveThread();
+  }
 
-  private:
-    PyThreadState* state;
+  ~gil_scoped_release()
+  {
+    PyEval_RestoreThread( state );
+  }
+
+private:
+
+  PyThreadState* state;
 };
 
 #define VITAL_PYBIND11_OVERLOAD_INT( ret_type, cname, name, ... ) \
-{ \
+  { \
     kwiver::vital::python::gil_scoped_acquire gil; \
-    pybind11::function overload = pybind11::get_overload( static_cast< const cname* > ( this ), name ); \
+    pybind11::function overload = \
+      pybind11::get_overload( static_cast< const cname* >( this ), name ); \
     if( overload ) \
     { \
-          auto o = overload( __VA_ARGS__ ); \
-          if( pybind11::detail::cast_is_temporary_value_reference< ret_type >::value ) \
-          { \
-                  static pybind11::detail::overload_caster_t< ret_type > caster; \
-                  return pybind11::detail::cast_ref< ret_type > ( std::move( o ), caster ); \
-                } \
-          else \
-          { \
-                  return pybind11::detail::cast_safe< ret_type > ( std::move( o ) ); \
-                } \
-        } \
-}
+      auto o = overload( __VA_ARGS__ ); \
+      if( pybind11::detail::cast_is_temporary_value_reference< ret_type >:: \
+          value ) \
+      { \
+        static pybind11::detail::overload_caster_t< ret_type > caster; \
+        return pybind11::detail::cast_ref< ret_type >( std::move( o ), \
+                                                       caster ); \
+      } \
+      else \
+      { \
+        return pybind11::detail::cast_safe< ret_type >( std::move( o ) ); \
+      } \
+    } \
+  }
 
 #define VITAL_PYBIND11_OVERLOAD_NAME( ret_type, cname, name, fn, ... ) \
-    VITAL_PYBIND11_OVERLOAD_INT( ret_type, cname, name, __VA_ARGS__ ) \
+  VITAL_PYBIND11_OVERLOAD_INT( ret_type, cname, name, __VA_ARGS__ ) \
   return cname::fn( __VA_ARGS__ )
 
 #define VITAL_PYBIND11_OVERLOAD_PURE_NAME( ret_type, cname, name, fn, ... ) \
-    VITAL_PYBIND11_OVERLOAD_INT( ret_type, cname, name, __VA_ARGS__ ) \
-  pybind11::pybind11_fail( "Tried to call pure virtual function \"" #cname "::" name "\"" );
+  VITAL_PYBIND11_OVERLOAD_INT( ret_type, cname, name, __VA_ARGS__ ) \
+  pybind11::pybind11_fail( \
+    "Tried to call pure virtual function \"" #cname "::" name "\"" );
 
 #define VITAL_PYBIND11_OVERLOAD( ret_type, cname, fn, ... ) \
-    VITAL_PYBIND11_OVERLOAD_NAME( ret_type, cname, #fn, fn, __VA_ARGS__ )
+  VITAL_PYBIND11_OVERLOAD_NAME( ret_type, cname, #fn, fn, __VA_ARGS__ )
 
 #define VITAL_PYBIND11_OVERLOAD_PURE( ret_type, cname, fn, ... ) \
-    VITAL_PYBIND11_OVERLOAD_PURE_NAME( ret_type, cname, #fn, fn, __VA_ARGS__ )
+  VITAL_PYBIND11_OVERLOAD_PURE_NAME( ret_type, cname, #fn, fn, __VA_ARGS__ )
 
-} } }
+} // namespace python
+
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // VITAL_PYTHON_UTIL_PYBIND11_H
