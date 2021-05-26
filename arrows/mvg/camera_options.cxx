@@ -75,7 +75,7 @@ namespace mvg {
 
 /// Convert a string to upper case.
 static void
-UpperCase( std::string* input )
+UpperCase( std::string& input )
 {
   std::transform( input->begin(), input->end(), input->begin(), ::toupper );
 }
