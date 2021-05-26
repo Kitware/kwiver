@@ -23,7 +23,8 @@ namespace arrows {
 
 namespace mvg {
 
-/// various models for lens distortion supported in the config
+/// Enumerate various models for lens distortion supported in the
+/// configuration.
 enum LensDistortionType
 {
   NO_DISTORTION,
@@ -40,7 +41,7 @@ LensDistortionTypeToString( LensDistortionType type );
 /// Parse a LensDistortionType value from a string or return false.
 KWIVER_ALGO_MVG_EXPORT
 bool
-StringToLensDistortionType( std::string value, LensDistortionType* type );
+StringToLensDistortionType( std::string value, LensDistortionType& type );
 
 /// Default implementation of string options for cam enums
 template < typename T >
@@ -52,16 +53,12 @@ mvg_options()
 }
 
 /// Camera options class
-
+///
 /// The intended use of this class is for a PIMPL for an algorithm to
 /// inherit from this class to share these options with that algorithm.
 struct KWIVER_ALGO_MVG_EXPORT camera_options
 {
-  camera_options();
-
-  camera_options( const camera_options& other );
-
-  virtual ~camera_options() {}
+  virtual ~camera_options() = default;
 
   /// Populate the config block with options.
   virtual void get_configuration( vital::config_block_sptr config ) const;
@@ -70,27 +67,27 @@ struct KWIVER_ALGO_MVG_EXPORT camera_options
   virtual void set_configuration( vital::config_block_sptr config );
 
   /// Optimize the focal length?
-  bool optimize_focal_length;
+  bool optimize_focal_length = true;
   /// Optimize aspect ratio?
-  bool optimize_aspect_ratio;
+  bool optimize_aspect_ratio = false;
   /// Optimize principal point?
-  bool optimize_principal_point;
+  bool optimize_principal_point = false;
   /// Optimize skew?
-  bool optimize_skew;
+  bool optimize_skew = false;
   /// Lens distortion model to use
-  LensDistortionType lens_distortion_type;
+  LensDistortionType lens_distortion_type = NO_DISTORTION;
   /// Optimize radial distortion parameter k1?
-  bool optimize_dist_k1;
+  bool optimize_dist_k1 = true;
   /// Optimize radial distortion parameter k2?
-  bool optimize_dist_k2;
+  bool optimize_dist_k2 = false;
   /// Optimize radial distortion parameter k3?
-  bool optimize_dist_k3;
+  bool optimize_dist_k3 = false;
   /// Optimize tangential distortions parameters p1, p2?
-  bool optimize_dist_p1_p2;
+  bool optimize_dist_p1_p2 = false;
   /// Optimize radial distortion parameters k4, k5, k6?
-  bool optimize_dist_k4_k5_k6;
+  bool optimize_dist_k4_k5_k6 = false;
   /// soft lower bound on the horizontal field of view
-  double minimum_hfov;
+  double minimum_hfov = 0.0;
 };
 
 } // namespace mvg

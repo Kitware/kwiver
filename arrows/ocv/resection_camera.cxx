@@ -163,10 +163,11 @@ resection_camera
   auto const reproj_error = d_->reproj_accuracy;
 
   auto const err =
-    cv::calibrateCamera( world_points_vec, image_points_vec,
-                         image_size, cv_K, dist_coeffs,
-                         vrvec, vtvec, flags,
-                         cv::TermCriteria{
+    cv::calibrateCamera(
+      world_points_vec, image_points_vec,
+      image_size, cv_K, dist_coeffs,
+      vrvec, vtvec, flags,
+      cv::TermCriteria{
           cv::TermCriteria::COUNT + cv::TermCriteria::EPS,
           d_->max_iterations, reproj_error } );
 

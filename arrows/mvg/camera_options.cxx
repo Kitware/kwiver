@@ -7,23 +7,23 @@
 
 #include "camera_options.h"
 
-#define MVG_ENUM_HELPERS( NS, ceres_type )                                \
+#define MVG_ENUM_HELPERS( NS, mvg_type )                                  \
   namespace kwiver {                                                      \
   namespace vital {                                                       \
                                                                           \
   template <>                                                             \
   config_block_value_t                                                    \
-  config_block_set_value_cast( NS::ceres_type const & value )             \
+  config_block_set_value_cast( NS::mvg_type const & value )               \
   {                                                                       \
-    return NS::ceres_type##ToString( value );                             \
+    return NS::mvg_type##ToString( value );                               \
   }                                                                       \
                                                                           \
   template <>                                                             \
-  NS::ceres_type                                                          \
+  NS::mvg_type                                                            \
   config_block_get_value_cast( config_block_value_t const & value )       \
   {                                                                       \
-    NS::ceres_type cet;                                                   \
-    if( !NS::StringTo##ceres_type( value, &cet ) )                        \
+    NS::mvg_type cet;                                                     \
+    if( !NS::StringTo##mvg_type( value, cet ) )                           \
     {                                                                     \
       VITAL_THROW( bad_config_block_cast, value );                        \
     }                                                                     \
@@ -37,14 +37,14 @@
                                                                           \
   template <>                                                             \
   std::string                                                             \
-  mvg_options< NS::ceres_type >()                                         \
+  mvg_options< NS::mvg_type >()                                           \
   {                                                                       \
-    typedef NS::ceres_type T;                                             \
+    typedef NS::mvg_type T;                                               \
     std::string options_str = "\nMust be one of the following options:";  \
     std::string opt;                                                      \
     for( unsigned i = 0; i < 20; ++i )                                    \
     {                                                                     \
-      opt = NS::ceres_type##ToString( static_cast< T >( i ) );            \
+      opt = NS::mvg_type##ToString( static_cast< T >( i ) );              \
       if( opt == "UNKNOWN" )                                              \
       {                                                                   \
         break;                                                            \
@@ -62,25 +62,26 @@ MVG_ENUM_HELPERS( kwiver::arrows::mvg, LensDistortionType )
 
 #undef MVG_ENUM_HELPERS
 
-namespace kwiver {
+using namespace kwiver::vital;
 
-using namespace vital;
+namespace kwiver {
 
 namespace arrows {
 
 namespace mvg {
 
 #define CASESTR( x ) case x: return #x
-#define STRENUM( x ) if( value == #x ) { *type = x; return true; }
+#define STRENUM( x ) if( value == #x ) { type = x; return true; }
 
-/// Convert a string to upper case.
-static void
-UpperCase( std::string& input )
+// Convert a string to the upper case.
+static std::string&
+UpperCase( std::string& str )
 {
-  std::transform( input->begin(), input->end(), input->begin(), ::toupper );
+  std::transform( str.begin(), str.end(), str.begin(), ::toupper );
+  return str;
 }
 
-/// Provide a string representation for a LensDisortionType value.
+// ----------------------------------------------------------------------------
 const char*
 LensDistortionTypeToString( LensDistortionType type )
 {
@@ -95,11 +96,10 @@ LensDistortionTypeToString( LensDistortionType type )
   }
 }
 
-/// Parse a LensDistortionType value from a string or return false.
 bool
 StringToLensDistortionType( std::string value, LensDistortionType& type )
 {
-  UpperCase( &value );
+  UpperCase( value );
   STRENUM( NO_DISTORTION );
   STRENUM( POLYNOMIAL_RADIAL_DISTORTION );
   STRENUM( POLYNOMIAL_RADIAL_TANGENTIAL_DISTORTION );
@@ -107,38 +107,7 @@ StringToLensDistortionType( std::string value, LensDistortionType& type )
   return false;
 }
 
-camera_options
-::camera_options()
-  : optimize_focal_length( true ),
-    optimize_aspect_ratio( false ),
-    optimize_principal_point( false ),
-    optimize_skew( false ),
-    lens_distortion_type( NO_DISTORTION ),
-    optimize_dist_k1( true ),
-    optimize_dist_k2( false ),
-    optimize_dist_k3( false ),
-    optimize_dist_p1_p2( false ),
-    optimize_dist_k4_k5_k6( false ),
-    minimum_hfov( 0.0 )
-{
-}
-
-camera_options
-::camera_options( const camera_options& other )
-  : optimize_focal_length( other.optimize_focal_length ),
-    optimize_aspect_ratio( other.optimize_aspect_ratio ),
-    optimize_principal_point( other.optimize_principal_point ),
-    optimize_skew( other.optimize_skew ),
-    lens_distortion_type( other.lens_distortion_type ),
-    optimize_dist_k1( other.optimize_dist_k1 ),
-    optimize_dist_k2( other.optimize_dist_k2 ),
-    optimize_dist_k3( other.optimize_dist_k3 ),
-    optimize_dist_p1_p2( other.optimize_dist_p1_p2 ),
-    optimize_dist_k4_k5_k6( other.optimize_dist_k4_k5_k6 ),
-    minimum_hfov( other.minimum_hfov )
-{
-}
-
+// ----------------------------------------------------------------------------
 void
 camera_options
 ::get_configuration( config_block_sptr config ) const
