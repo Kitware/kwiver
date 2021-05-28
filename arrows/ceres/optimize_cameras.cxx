@@ -25,7 +25,6 @@ class optimize_cameras::priv
     public camera_options
 {
 public:
-  // Constructor
   priv()
   : camera_options(),
     verbose(false),

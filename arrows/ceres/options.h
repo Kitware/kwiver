@@ -21,17 +21,14 @@ namespace arrows {
 namespace ceres {
 
 /// Ceres solver options class
-
-/// The intended use of this class is for a PIMPL for an algorithm to
-/// inherit from this class to share these options with that algorithm.
+///
+/// PIMPL class should inherit from this class
+/// to share these options with that algorithm.
 class solver_options
 {
 public:
-  /// Constructor
-  solver_options();
-
-  /// Copy Constructor
-  solver_options( const solver_options& other );
+  solver_options() = default;
+  solver_options( const solver_options& other ) = default;
 
   /// Populate the config block with options.
   void get_configuration( vital::config_block_sptr config ) const;
@@ -44,21 +41,22 @@ public:
 };
 
 /// Camera options class
-
-/// The intended use of this class is for an algorithm's PIMPL class to
-/// inherit from this class to share these options with that algorithm.
+///
+/// PIMPL class should inherit from this class
+/// to share these options with that algorithm.
 struct camera_options : public mvg::camera_options
 {
-  typedef std::unordered_map< vital::frame_id_t,
-                              std::vector< double > > cam_param_map_t;
-  typedef std::unordered_map< vital::frame_id_t,
-                              unsigned int > cam_intrinsic_id_map_t;
-  typedef std::vector< std::pair< vital::frame_id_t,
-                                  double* > > frame_params_t;
+  using cam_param_map_t =
+    std::unordered_map< vital::frame_id_t, std::vector< double > >;
+  using cam_intrinsic_id_map_t =
+    std::unordered_map< vital::frame_id_t, unsigned int >;
+  using frame_params_t =
+    std::vector< std::pair< vital::frame_id_t, double* > >;
 
-  camera_options() : mvg::camera_options() {}
+  camera_options() = default;
   camera_options( const camera_options& other );
 
+  /// Populate the config block with options.
   virtual void get_configuration(
     vital::config_block_sptr config ) const override;
 
@@ -89,25 +87,24 @@ struct camera_options : public mvg::camera_options
 
   /// Extract the extrinsic parameters from a camera into the parameter array.
   ///
-  ///  \param [in]  camera The camera object to extract data from
-  ///  \param [out] params and array of 6 doubles to populate with parameters
+  /// \param [in]  camera The camera object to extract data from
+  /// \param [out] params and array of 6 doubles to populate with parameters
   ///
-  ///  This function is the inverse of update_camera_extrinsics.
+  /// This function is the inverse of update_camera_extrinsics.
   void extract_camera_extrinsics( const vital::camera_perspective_sptr camera,
                                   double* params ) const;
   /// Extract the set of all unique intrinsic and extrinsic parameters from a
   /// camera map.
   ///
-  ///  \param [in]  cameras    The map of frame numbers to cameras to extract
-  /// parameters from
-  ///  \param [out] ext_params A map from frame number to vector of extrinsic
-  /// parameters
-  ///  \param [out] int_params A vector of unique camera intrinsic parameter
-  /// vectors
-  ///  \param [out] int_map    A map from frame number to index into \p
-  /// int_params.
-  ///                          The mapping may be many-to-one for shared
-  /// intrinsics.
+  /// \param [in] cameras
+  ///   The map of frame numbers to cameras to extract parameters from
+  /// \param [out] ext_params
+  ///   A map from frame number to vector of extrinsic parameters
+  /// \param [out] int_params
+  ///   A vector of unique camera intrinsic parameter vectors
+  /// \param [out] int_map
+  ///   A map from frame number to index into \p int_params.
+  ///   The mapping may be many-to-one for shared intrinsics.
   ///
   ///  This function is the inverse of update_camera_parameters.
   void extract_camera_parameters(
@@ -118,21 +115,20 @@ struct camera_options : public mvg::camera_options
 
   /// Update the camera objects using the extracted camera parameters.
   ///
-  ///  \param [out] cameras    The map of frame numbers to cameras to update
-  ///  \param [in]  ext_params A map from frame number to vector of extrinsic
-  /// parameters
-  ///  \param [in]  int_params A vector of unique camera intrinsic parameter
-  /// vectors
-  ///  \param [in]  int_map    A map from frame number to index into \p
-  /// int_params.
-  ///                          The mapping may be many-to-one for shared
-  /// intrinsics.
+  /// \param [out] cameras
+  ///   The map of frame numbers to cameras to update
+  /// \param [in] ext_params
+  ///   A map from frame number to vector of extrinsic parameters
+  /// \param [in] int_params
+  ///   A vector of unique camera intrinsic parameter vectors
+  /// \param [in] int_map
+  ///   A map from frame number to index into \p int_params.
+  ///   The mapping may be many-to-one for shared intrinsics.
   ///
-  ///  The original camera_intrinsic objects are reused if they were not
-  /// optimized.
-  ///  Otherwise new camera_intrinsic instances are created.
+  /// The original camera_intrinsic objects are reused if they were not
+  /// optimized. Otherwise new camera_intrinsic instances are created.
   ///
-  ///  This function is the inverse of extract_camera_parameters.
+  /// This function is the inverse of extract_camera_parameters.
   void
   update_camera_parameters( vital::camera_map::map_camera_t& cameras,
                             cam_param_map_t const& ext_params,
@@ -144,32 +140,32 @@ struct camera_options : public mvg::camera_options
 
   /// Update a camera object to use extrinsic parameters from an array.
   ///
-  ///  \param [out] camera The simple_camera instance to update
-  ///  \param [in] params The array of 6 doubles to extract the data from
+  /// \param [out] camera The simple_camera instance to update
+  /// \param [in] params The array of 6 doubles to extract the data from
   ///
-  ///  This function is the inverse of extract_camera_extrinsics.
+  /// This function is the inverse of extract_camera_extrinsics.
   void update_camera_extrinsics(
     std::shared_ptr< vital::simple_camera_perspective > camera,
     double const* params ) const;
 
   /// Extract the parameters from camera intrinsics into the parameter array.
   ///
-  ///  \param [in]  K The camera intrinsics object to extract data from
-  ///  \param [out] params and array of double to populate with parameters
+  /// \param [in]  K The camera intrinsics object to extract data from
+  /// \param [out] params and array of double to populate with parameters
   ///
-  ///  \note the size of param is at least 5 but may be up to 12 depending
+  /// \note the size of param is at least 5 but may be up to 12 depending
   ///  on the number of distortion parameters used.
   ///
-  ///  This function is the inverse of update_camera_intrinsics.
+  /// This function is the inverse of update_camera_intrinsics.
   void extract_camera_intrinsics( const vital::camera_intrinsics_sptr K,
                                   double* params ) const;
 
   /// Update the camera intrinsics from a parameter array.
   ///
-  ///  \param [out] K The simple_camera_intrinsics instance to update
-  ///  \param [in] params The array of doubles to extract the data from
+  /// \param [out] K The simple_camera_intrinsics instance to update
+  /// \param [in] params The array of doubles to extract the data from
   ///
-  ///  This function is the inverse of extract_camera_intrinsics.
+  /// This function is the inverse of extract_camera_intrinsics.
   void update_camera_intrinsics(
     std::shared_ptr< vital::simple_camera_intrinsics > K,
     const double* params ) const;
