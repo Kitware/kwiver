@@ -143,10 +143,17 @@ public:
   * \param [in] fid the frame id of the camera to insert
   * \param [in] cam the camera to insert
   */
-  void insert(frame_id_t fid, std::shared_ptr<T> cam)
+  //@{
+  void insert(frame_id_t fid, std::shared_ptr<T> const& cam)
   {
     data_[fid] = cam;
   }
+
+  void insert(frame_id_t fid, std::shared_ptr<T>&& cam)
+  {
+    data_[fid] = std::move(cam);
+  }
+  //@}
 
   /// Clear the map of all cameras
   void clear()
