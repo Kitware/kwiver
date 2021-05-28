@@ -14,29 +14,15 @@
 
 #include <vital/math_constants.h>
 
-namespace kwiver {
+using namespace kwiver::vital;
+using namespace kwiver::arrows::mvg;
 
-using namespace vital;
+namespace kwiver {
 
 namespace arrows {
 
-using namespace mvg;
-
 namespace ceres {
 
-solver_options
-::solver_options()
-  : options()
-{
-}
-
-solver_options
-::solver_options( const solver_options& other )
-  : options( other.options )
-{
-}
-
-/// Populate the config block with options.
 void
 solver_options
 ::get_configuration( config_block_sptr config ) const
@@ -77,7 +63,6 @@ solver_options
                      "optimization but can be useful for debugging." );
 }
 
-/// set the member variables from the config block
 void
 solver_options
 ::set_configuration( config_block_sptr config )
@@ -100,8 +85,7 @@ solver_options
 #undef GET_VALUE
 }
 
-// === camera options
-
+// ----------------------------------------------------------------------------
 camera_options
 ::camera_options( const camera_options& other )
   : mvg::camera_options( other ),
@@ -111,7 +95,6 @@ camera_options
 {
 }
 
-/// Populate the config block with options.
 void
 camera_options
 ::get_configuration( config_block_sptr config ) const
@@ -136,7 +119,6 @@ camera_options
                      "If set to zero the regularization is disabled." );
 }
 
-/// Set the member variables from the config block.
 void
 camera_options
 ::set_configuration( config_block_sptr config )
@@ -150,7 +132,6 @@ camera_options
 #undef GET_VALUE
 }
 
-/// Return the number of distortion parameters required for each type.
 unsigned int
 num_distortion_params( LensDistortionType type )
 {
@@ -213,7 +194,6 @@ camera_options
   return num_priors_applied;
 }
 
-/// Add the camera intrinsic priors costs to the Ceres problem.
 void
 camera_options
 ::add_intrinsic_priors_cost(
@@ -254,7 +234,6 @@ camera_options
   }
 }
 
-/// Add the camera path smoothness costs to the Ceres problem.
 void
 camera_options
 ::add_camera_path_smoothness_cost(
@@ -310,7 +289,6 @@ camera_options
   }
 }
 
-/// Add the camera forward motion damping costs to the Ceres problem.
 void
 camera_options
 ::add_forward_motion_damping_cost(
@@ -365,7 +343,6 @@ camera_options
   }
 }
 
-/// Extract the extrinsic parameters from a camera into the parameter array.
 void
 camera_options
 ::extract_camera_extrinsics( const camera_perspective_sptr camera,
@@ -377,8 +354,6 @@ camera_options
   std::copy( center.data(), center.data() + 3, params + 3 );
 }
 
-/// Extract the set of all unique intrinsic and extrinsic parameters from a
-/// camera map.
 void
 camera_options
 ::extract_camera_parameters( camera_map::map_camera_t const& cameras,
@@ -431,7 +406,6 @@ camera_options
   }
 }
 
-/// Update the camera objects using the extracted camera parameters.
 void
 camera_options
 ::update_camera_parameters( camera_map::map_camera_t& cameras,
@@ -478,7 +452,6 @@ camera_options
   }
 }
 
-/// Return true if any options to optimize intrinsic parameters are set.
 bool
 camera_options
 ::optimize_intrinsics() const
@@ -513,7 +486,6 @@ camera_options
   return false;
 }
 
-/// Enumerate the intrinsics held constant.
 std::vector< int >
 camera_options
 ::enumerate_constant_intrinsics() const
@@ -566,7 +538,6 @@ camera_options
   return constant_intrinsics;
 }
 
-/// Update a camera object to use extrinsic parameters from an array.
 void
 camera_options
 ::update_camera_extrinsics(
@@ -578,7 +549,6 @@ camera_options
   camera->set_center( Eigen::Map< const vector_3d >( &params[ 3 ] ) );
 }
 
-/// Extract the parameters from camera intrinsics into the parameter array.
 void
 camera_options
 ::extract_camera_intrinsics( const camera_intrinsics_sptr K,
@@ -602,7 +572,6 @@ camera_options
   }
 }
 
-/// Update the camera intrinsics from a parameter array.
 void
 camera_options
 ::update_camera_intrinsics( std::shared_ptr< simple_camera_intrinsics > K,

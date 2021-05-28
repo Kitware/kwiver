@@ -45,7 +45,6 @@ StringToLensDistortionType( std::string value, LensDistortionType& type );
 
 /// Default implementation of string options for cam enums
 template < typename T >
-
 std::string
 mvg_options()
 {
