@@ -4078,7 +4078,17 @@ initialize_cameras_landmarks
   }
 
   // Compute keyframes to use for SFM
-  m_priv->m_keyframes = keyframes_for_sfm(tracks);
+  auto all_frames = tracks->all_frame_ids();
+  auto const max_keyframes = m_priv->m_max_cams_in_keyframe_init;
+  if (max_keyframes < 0 ||
+      all_frames.size() <= static_cast<size_t>(max_keyframes))
+  {
+    m_priv->m_keyframes = std::move(all_frames);
+  }
+  else
+  {
+    m_priv->m_keyframes = keyframes_for_sfm(tracks);
+  }
 
   m_priv->m_already_merged_landmarks.clear();
   m_priv->check_inputs(tracks);
