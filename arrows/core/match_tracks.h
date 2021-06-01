@@ -23,18 +23,23 @@
 #include <vital/types/feature_track_set.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 /// Typedef for a vector of pairs of tracks
-typedef std::vector<std::pair<vital::track_sptr, vital::track_sptr> > track_pairs_t;
+typedef std::vector< std::pair< vital::track_sptr,
+                                vital::track_sptr > > track_pairs_t;
 /// Typedef for a map from one track to another
-typedef std::map<vital::track_sptr, vital::track_sptr> track_map_t;
+typedef std::map< vital::track_sptr, vital::track_sptr > track_map_t;
 
 /// Compute matching feature track pairs between two frames
+
 /**
  * This function extracts all the feature tracks found on \p current_frame and
- * \p target_frame.  It then extracts the corresponding features and descriptors
+ * \p target_frame.  It then extracts the corresponding features and
+ *descriptors
  * and uses the provided matcher algorithm to identify matching tracks
  *
  *  \param matcher The matcher algorithm to use in feature/descriptor matching
@@ -49,6 +54,7 @@ track_pairs_t match_tracks( vital::algo::match_features_sptr matcher,
                             vital::frame_id_t target_frame );
 
 /// Compute matching feature track pairs between two frames
+
 /**
  * This function extracts all the feature tracks found on \p target_frame.
  * It then extracts the corresponding features and descriptors
@@ -60,9 +66,12 @@ track_pairs_t match_tracks( vital::algo::match_features_sptr matcher,
  *
  *  \param matcher The matcher algorithm to use in feature/descriptor matching
  *  \param all_tracks The set of all feature tracks on which to detect matches
- *  \param current_tracks A subset of \p all_tracks intersecting the source frame
- *  \param current_features The features corresponding to \p current_tracks on the source frame
- *  \param current_descriptors The descriptors corresponding to \p current_tracks on the source frame
+ *  \param current_tracks A subset of \p all_tracks intersecting the source
+ *frame
+ *  \param current_features The features corresponding to \p current_tracks on
+ *the source frame
+ *  \param current_descriptors The descriptors corresponding to \p
+ *current_tracks on the source frame
  *  \param target_frame The index of the destination frame to match
  *  \return A vector of matching track pairs of the form (current, target)
  */
@@ -74,6 +83,7 @@ track_pairs_t match_tracks( vital::algo::match_features_sptr matcher,
                             vital::frame_id_t target_frame );
 
 /// Compute matching feature track pairs between two frames
+
 /**
  * This function uses the provide matcher algorithm to identify matching tracks
  * between the sets of provided tracks, features, and descriptors.
@@ -86,11 +96,15 @@ track_pairs_t match_tracks( vital::algo::match_features_sptr matcher,
  *
  *  \param matcher The matcher algorithm to use in feature/descriptor matching
  *  \param current_tracks A set of feature tracks intersecting the source frame
- *  \param current_features The features corresponding to \p current_tracks on the source frame
- *  \param current_descriptors The descriptors corresponding to \p current_tracks on the source frame
+ *  \param current_features The features corresponding to \p current_tracks on
+ *the source frame
+ *  \param current_descriptors The descriptors corresponding to \p
+ *current_tracks on the source frame
  *  \param target_tracks A set of feature tracks intersecting the target frame
- *  \param target_features The features corresponding to \p target_tracks on the target frame
- *  \param target_descriptors The descriptors corresponding to \p target_tracks on the target frame
+ *  \param target_features The features corresponding to \p target_tracks on
+ *the target frame
+ *  \param target_descriptors The descriptors corresponding to \p target_tracks
+ *on the target frame
  *  \return A vector of matching track pairs of the form (current, target)
  */
 track_pairs_t match_tracks( vital::algo::match_features_sptr matcher,
@@ -99,10 +113,12 @@ track_pairs_t match_tracks( vital::algo::match_features_sptr matcher,
                             vital::descriptor_set_sptr current_descriptors,
                             vital::feature_track_set_sptr target_tracks,
                             vital::feature_set_sptr target_features,
-                            vital::descriptor_set_sptr target_descriptors);
+                            vital::descriptor_set_sptr target_descriptors );
 
 } // end namespace core
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

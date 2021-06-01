@@ -15,7 +15,9 @@
  */
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 /// \brief Algorithm that filters tracks on various attributes
@@ -32,29 +34,34 @@ public:
   /// Destructor
   virtual ~filter_tracks();
 
-  /// Get this algorithm's \link vital::config_block configuration block \endlink
+  /// Get this algorithm's \link vital::config_block configuration block
+  /// \endlink
   virtual vital::config_block_sptr get_configuration() const;
   /// Set this algorithm's properties via a config block
-  virtual void set_configuration(vital::config_block_sptr config);
+  virtual void set_configuration( vital::config_block_sptr config );
   /// Check that the algorithm's configuration config_block is valid
-  virtual bool check_configuration(vital::config_block_sptr config) const;
+  virtual bool check_configuration( vital::config_block_sptr config ) const;
 
   /// filter a track set
+
   /**
    * \param track set to filter
    * \returns a filtered version of the track set
    */
   virtual vital::track_set_sptr
-  filter(vital::track_set_sptr input) const;
+  filter( vital::track_set_sptr input ) const;
 
 private:
   /// private implementation class
   class priv;
-  const std::unique_ptr<priv> d_;
+
+  const std::unique_ptr< priv > d_;
 };
 
 } // end namespace core
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

@@ -10,10 +10,13 @@
 #include <vital/algo/train_detector.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace darknet {
 
 // ----------------------------------------------------------------
+
 /**
  * @brief Darknet Training Utility Class
  */
@@ -36,7 +39,8 @@ public:
                         std::vector< std::string > train_image_names,
                         std::vector< vital::detected_object_set_sptr > train_groundtruth,
                         std::vector< std::string > test_image_names,
-                        std::vector< vital::detected_object_set_sptr > test_groundtruth ) override;
+                        std::vector< vital::detected_object_set_sptr > test_groundtruth )
+  override;
 
 private:
   class priv;
@@ -44,6 +48,10 @@ private:
   const std::unique_ptr< priv > d;
 };
 
-} } }
+} // namespace darknet
+
+} // namespace arrows
+
+} // namespace kwiver
 
 #endif /* KWIVER_ARROWS_DARKNET_TRAINER */

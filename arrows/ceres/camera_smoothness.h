@@ -18,7 +18,9 @@
 #include <ceres/rotation.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace ceres {
 
 /// Ceres camera smoothness functor
@@ -26,14 +28,15 @@ class camera_position_smoothness
 {
 public:
   /// Constructor
-  camera_position_smoothness(const double smoothness,
-                             const double fraction = 0.5)
-      : smoothness_(smoothness),
-        f1_(1.0-fraction),
-        f2_(fraction)
+  camera_position_smoothness( const double smoothness,
+                              const double fraction = 0.5 )
+    : smoothness_( smoothness ),
+      f1_( 1.0 - fraction ),
+      f2_( fraction )
   {}
 
   /// Position smoothness error functor for use in Ceres
+
   /**
    * \param [in] prev_pos: Camera pose data block at previous time
    * \param [in] curr_pos: Camera pose data block at current time
@@ -46,26 +49,32 @@ public:
    * the difference between current position and the average between
    * previous and next positions.
    */
-  template <typename T> bool operator()(const T* const prev_pose,
-                                        const T* const curr_pose,
-                                        const T* const next_pose,
-                                        T* residuals) const
+  template < typename T > bool
+  operator()( const T* const prev_pose,
+              const T* const curr_pose,
+              const T* const next_pose,
+              T* residuals ) const
   {
-    residuals[0] = smoothness_ *
-      (f1_ * prev_pose[3] + f2_ * next_pose[3] - curr_pose[3]);
-    residuals[1] = smoothness_ *
-      (f1_ * prev_pose[4] + f2_ * next_pose[4] - curr_pose[4]);
-    residuals[2] = smoothness_ *
-      (f1_ * prev_pose[5] + f2_ * next_pose[5] - curr_pose[5]);
+    residuals[ 0 ] = smoothness_ *
+                     ( f1_ * prev_pose[ 3 ] + f2_ * next_pose[ 3 ] -
+                       curr_pose[ 3 ] );
+    residuals[ 1 ] = smoothness_ *
+                     ( f1_ * prev_pose[ 4 ] + f2_ * next_pose[ 4 ] -
+                       curr_pose[ 4 ] );
+    residuals[ 2 ] = smoothness_ *
+                     ( f1_ * prev_pose[ 5 ] + f2_ * next_pose[ 5 ] -
+                       curr_pose[ 5 ] );
 
     return true;
   }
 
   /// Cost function factory
-  static ::ceres::CostFunction* create(const double s, const double f = 0.5)
+  static ::ceres::CostFunction*
+  create( const double s, const double f = 0.5 )
   {
     typedef camera_position_smoothness Self;
-    return new ::ceres::AutoDiffCostFunction<Self, 3, 6, 6, 6>(new Self(s, f));
+    return new ::ceres::AutoDiffCostFunction< Self, 3, 6, 6,
+                                              6 >( new Self( s, f ) );
   }
 
   double smoothness_;
@@ -74,6 +83,7 @@ public:
 };
 
 /// Ceres camera limit forward motion functor
+
 /**
  *  This class is to reglarize camera motion to minimize the amount of motion
  *  in the camera looking direction.  This is useful with zoom lenses at long
@@ -85,10 +95,11 @@ class camera_limit_forward_motion
 {
 public:
   /// Constructor
-  camera_limit_forward_motion(const double scale)
-      : scale_(scale) {}
+  camera_limit_forward_motion( const double scale )
+    : scale_( scale ) {}
 
   /// Camera forward motion error functor for use in Ceres
+
   /**
    * \param [in] pose1: Camera pose data block at time 1
    * \param [in] pose2: Camera pose data block at time 2
@@ -97,9 +108,10 @@ public:
    * Camera pose blocks contain 6 parameters:
    *   3 for rotation(angle axis), 3 for center
    */
-  template <typename T> bool operator()(const T* const pose1,
-                                        const T* const pose2,
-                                        T* residuals) const
+  template < typename T > bool
+  operator()( const T* const pose1,
+              const T* const pose2,
+              T* residuals ) const
   {
     // Apply external parameters (Pose)
     const T* rotation1 = pose1;
@@ -107,32 +119,33 @@ public:
     const T* center1 = pose1 + 3;
     const T* center2 = pose2 + 3;
 
-    T baseline[3];
-    baseline[0] = center2[0] - center1[0];
-    baseline[1] = center2[1] - center1[1];
-    baseline[2] = center2[2] - center1[2];
+    T baseline[ 3 ];
+    baseline[ 0 ] = center2[ 0 ] - center1[ 0 ];
+    baseline[ 1 ] = center2[ 1 ] - center1[ 1 ];
+    baseline[ 2 ] = center2[ 2 ] - center1[ 2 ];
 
-    T rotated_baseline1[3];
-    T rotated_baseline2[3];
+    T rotated_baseline1[ 3 ];
+    T rotated_baseline2[ 3 ];
     // Rotate the point according the camera rotation
-    ::ceres::AngleAxisRotatePoint(rotation1,
-                                  baseline,
-                                  rotated_baseline1);
-    ::ceres::AngleAxisRotatePoint(rotation2,
-                                  baseline,
-                                  rotated_baseline2);
+    ::ceres::AngleAxisRotatePoint( rotation1,
+                                   baseline,
+                                   rotated_baseline1 );
+    ::ceres::AngleAxisRotatePoint( rotation2,
+                                   baseline,
+                                   rotated_baseline2 );
 
-    residuals[0] = scale_ * rotated_baseline1[2] *
-                   scale_ * rotated_baseline2[2];
+    residuals[ 0 ] = scale_ * rotated_baseline1[ 2 ] *
+                     scale_ * rotated_baseline2[ 2 ];
 
     return true;
   }
 
   /// Cost function factory
-  static ::ceres::CostFunction* create(const double s)
+  static ::ceres::CostFunction*
+  create( const double s )
   {
     typedef camera_limit_forward_motion Self;
-    return new ::ceres::AutoDiffCostFunction<Self, 1, 6, 6>(new Self(s));
+    return new ::ceres::AutoDiffCostFunction< Self, 1, 6, 6 >( new Self( s ) );
   }
 
   /// the magnitude of this constraint
@@ -140,7 +153,9 @@ public:
 };
 
 } // end namespace ceres
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

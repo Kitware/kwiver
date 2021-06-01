@@ -18,10 +18,13 @@
 #include <unordered_map>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 /// A custom track set implementation that provides fast indexing by frame id
+
 /**
  * This track_set_implementation is designed to make querying tracks by frame
  * id more efficient.  The simple track set must scan every track state of
@@ -37,7 +40,8 @@ public:
   frame_index_track_set_impl();
 
   /// Constructor from a vector of tracks
-  explicit frame_index_track_set_impl( const std::vector< vital::track_sptr >& tracks );
+  explicit frame_index_track_set_impl(
+    const std::vector< vital::track_sptr >& tracks );
 
   /// Destructor
   virtual ~frame_index_track_set_impl() = default;
@@ -61,7 +65,7 @@ public:
   virtual void notify_new_state( vital::track_state_sptr ts );
 
   /// Notify the container that a state has been removed from an existing track
-  virtual void notify_removed_state(vital::track_state_sptr ts);
+  virtual void notify_removed_state( vital::track_state_sptr ts );
 
   /// Remove a track from the set and return true if successful
   virtual bool remove( vital::track_sptr t );
@@ -85,7 +89,7 @@ public:
   virtual vital::track_sptr const get_track( vital::track_id_t tid ) const;
 
   /// Return all tracks active on a frame.
-  virtual std::vector< vital::track_sptr>
+  virtual std::vector< vital::track_sptr >
   active_tracks( vital::frame_id_t offset = -1 ) const;
 
   /// Return all tracks inactive on a frame.
@@ -104,12 +108,14 @@ public:
   virtual double percentage_tracked( vital::frame_id_t offset1 = -2,
                                      vital::frame_id_t offset2 = -1 ) const;
 
-  /// Return a vector of state data corresponding to the tracks on the given frame.
+  /// Return a vector of state data corresponding to the tracks on the given
+  /// frame.
   virtual std::vector< vital::track_state_sptr >
   frame_states( vital::frame_id_t offset = -1 ) const;
 
   /// Returns all frame data as map of frame index to track_set_frame_data
-  virtual vital::track_set_frame_data_map_t all_frame_data() const
+  virtual vital::track_set_frame_data_map_t
+  all_frame_data() const
   {
     return frame_data_;
   }
@@ -119,10 +125,11 @@ public:
   frame_data( vital::frame_id_t offset = -1 ) const;
 
   /// Removes the frame data for the frame offset
-  virtual bool remove_frame_data(vital::frame_id_t offset);
+  virtual bool remove_frame_data( vital::frame_id_t offset );
 
   /// Set additional frame data associated with all tracks for all frames
-  virtual bool set_frame_data( vital::track_set_frame_data_map_t const& fmap )
+  virtual bool
+  set_frame_data( vital::track_set_frame_data_map_t const& fmap )
   {
     frame_data_ = fmap;
     return true;
@@ -146,15 +153,19 @@ protected:
   vital::track_set_frame_data_map_t frame_data_;
 
 private:
+
   /// The vector of all tracks
-  std::unordered_map<vital::track_id_t, vital::track_sptr > all_tracks_;
+  std::unordered_map< vital::track_id_t, vital::track_sptr > all_tracks_;
 
   /// The mapping from frames to track states
-  mutable std::map<vital::frame_id_t, std::set<vital::track_state_sptr> > frame_map_;
+  mutable std::map< vital::frame_id_t,
+                    std::set< vital::track_state_sptr > > frame_map_;
 };
 
 } // end namespace core
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

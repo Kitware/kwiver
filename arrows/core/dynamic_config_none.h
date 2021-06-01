@@ -15,7 +15,9 @@
 #include <vital/algo/dynamic_configuration.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 /// A class for bypassing image conversion
@@ -31,9 +33,11 @@ public:
   dynamic_config_none();
 
   virtual void set_configuration( kwiver::vital::config_block_sptr config );
-  virtual bool check_configuration( kwiver::vital::config_block_sptr config ) const;
+  virtual bool check_configuration( kwiver::vital::config_block_sptr config )
+  const;
 
   /// Return dynamic configuration values
+
   /**
    * This method returns dynamic configuration values. A valid config
    * block is returned even if there are not values being returned.
@@ -41,6 +45,10 @@ public:
   virtual kwiver::vital::config_block_sptr get_dynamic_configuration();
 };
 
-} } } // end namespace
+} // namespace core
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif /* ARROWS_CORE_DYNAMIC_CONFIG_NONE_H */

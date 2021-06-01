@@ -17,12 +17,14 @@
 #include <vital/vital_config.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 /// A class for unwrapping a mesh and generating texture coordinates
 class KWIVER_ALGO_CORE_EXPORT uv_unwrap_mesh
-    : public vital::algo::uv_unwrap_mesh
+  : public vital::algo::uv_unwrap_mesh
 {
 public:
   PLUGIN_INFO( "core",
@@ -32,10 +34,10 @@ public:
   vital::config_block_sptr get_configuration() const override;
 
   /// Set configuration
-  void set_configuration(vital::config_block_sptr in_config) override;
+  void set_configuration( vital::config_block_sptr in_config ) override;
 
   /// Check configuration
-  bool check_configuration(vital::config_block_sptr config) const override;
+  bool check_configuration( vital::config_block_sptr config ) const override;
 
   /// Constructor
   uv_unwrap_mesh();
@@ -44,19 +46,23 @@ public:
   virtual ~uv_unwrap_mesh();
 
   /// Unwrap a mesh and generate texture coordinate
+
   /**
    * \param mesh [in/out]
    */
-  void unwrap(kwiver::vital::mesh_sptr mesh) const override;
+  void unwrap( kwiver::vital::mesh_sptr mesh ) const override;
 
 private:
   /// private implementation class
   class priv;
-  const std::unique_ptr<priv> d_;
+
+  const std::unique_ptr< priv > d_;
 };
 
-}
-}
-}
+} // namespace core
+
+} // namespace arrows
+
+} // namespace kwiver
 
 #endif // KWIVER_ARROWS_CORE_UV_UNWRAP_MESH_H

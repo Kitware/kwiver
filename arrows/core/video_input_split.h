@@ -10,17 +10,20 @@
 #include <arrows/core/kwiver_algo_core_export.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 /// Video input that pulls image and metadata inputs from different sources.
 // ----------------------------------------------------------------
+
 /**
  * This class implements a video input algorithm that holds two other video
  * input algorithms and pulls imagery from one and metadata from the other.
  */
 class KWIVER_ALGO_CORE_EXPORT video_input_split
-  : public  vital::algo::video_input
+  : public vital::algo::video_input
 {
 public:
   PLUGIN_INFO( "split",
@@ -32,14 +35,15 @@ public:
   video_input_split();
   virtual ~video_input_split();
 
-  /// Get this algorithm's \link vital::config_block configuration block \endlink
+  /// Get this algorithm's \link vital::config_block configuration block
+  /// \endlink
   virtual vital::config_block_sptr get_configuration() const;
 
   /// Set this algorithm's properties via a config block
-  virtual void set_configuration(vital::config_block_sptr config);
+  virtual void set_configuration( vital::config_block_sptr config );
 
   /// Check that the algorithm's currently configuration is valid
-  virtual bool check_configuration(vital::config_block_sptr config) const;
+  virtual bool check_configuration( vital::config_block_sptr config ) const;
 
   virtual void open( std::string name );
   virtual void close();
@@ -68,9 +72,14 @@ private:
 
   /// private implementation class
   class priv;
-  const std::unique_ptr<priv> d;
+
+  const std::unique_ptr< priv > d;
 };
 
-} } } // end namespace
+} // namespace core
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif // ARROWS_CORE_VIDEO_INPUT_SPLIT_H

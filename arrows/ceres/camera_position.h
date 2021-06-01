@@ -18,7 +18,9 @@
 #include <ceres/rotation.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace ceres {
 
 /// Ceres camera smoothness functor
@@ -26,10 +28,11 @@ class camera_position
 {
 public:
   /// Constructor
-  camera_position(vital::vector_3d const& position_prior_local)
-      : position_prior_local_(position_prior_local) {}
+  camera_position( vital::vector_3d const& position_prior_local )
+    : position_prior_local_( position_prior_local ) {}
 
   /// Position smoothness error functor for use in Ceres
+
   /**
    * \param [in] pose: Camera pose data block
    * \param [out] residuals
@@ -39,28 +42,34 @@ public:
    * Only the camera center is used in this function to penalize
    * the difference between the position and the prior from metadata
    */
-  template <typename T> bool operator()(const T* const pose,
-                                        T* residuals) const
+  template < typename T > bool
+  operator()( const T* const pose,
+              T* residuals ) const
   {
-    residuals[0] = T(position_prior_local_[0]) - pose[3];
-    residuals[1] = T(position_prior_local_[1]) - pose[4];
-    residuals[2] = T(position_prior_local_[2]) - pose[5];
+    residuals[ 0 ] = T( position_prior_local_[ 0 ] ) - pose[ 3 ];
+    residuals[ 1 ] = T( position_prior_local_[ 1 ] ) - pose[ 4 ];
+    residuals[ 2 ] = T( position_prior_local_[ 2 ] ) - pose[ 5 ];
 
     return true;
   }
 
   /// Cost function factory
-  static ::ceres::CostFunction* create(vital::vector_3d const& position_prior_local )
+  static ::ceres::CostFunction*
+  create( vital::vector_3d const& position_prior_local )
   {
     typedef camera_position Self;
-    return new ::ceres::AutoDiffCostFunction<Self, 3, 6>(new Self(position_prior_local));
+    return new ::ceres::AutoDiffCostFunction< Self, 3,
+                                              6 >( new Self(
+                                                     position_prior_local ) );
   }
 
   vital::vector_3d position_prior_local_;
 };
 
 } // end namespace ceres
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

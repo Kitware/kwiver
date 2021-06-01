@@ -14,15 +14,18 @@
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/compute_ref_homography.h>
+#include <vital/types/feature_track_set.h>
 #include <vital/types/homography.h>
 #include <vital/types/image_container.h>
-#include <vital/types/feature_track_set.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 /// Default impl class for mapping each image to some reference image.
+
 /**
  * This class differs from estimate_homographies in that estimate_homographies
  * simply performs a homography regression from matching feature points. This
@@ -48,7 +51,9 @@ public:
   /// Default Destructor
   virtual ~compute_ref_homography_core();
 
-  /// Get this algorithm's \link vital::config_block configuration block \endlink
+  /// Get this algorithm's \link vital::config_block configuration block
+  /// \endlink
+
   /**
    * This base virtual function implementation returns an empty configuration
    * block whose name is set to \c this->type_name.
@@ -59,6 +64,7 @@ public:
   virtual vital::config_block_sptr get_configuration() const;
 
   /// Set this algorithm's properties via a config block
+
   /**
    * \throws no_such_configuration_value_exception
    *    Thrown if an expected configuration value is not present.
@@ -72,6 +78,7 @@ public:
   virtual void set_configuration( vital::config_block_sptr config );
 
   /// Check that the algorithm's currently configuration is valid
+
   /**
    * This checks solely within the provided \c config_block and not against
    * the current state of the instance. This isn't static for inheritence
@@ -84,6 +91,7 @@ public:
   virtual bool check_configuration( vital::config_block_sptr config ) const;
 
   /// Estimate the transformation which maps some frame to a reference frame
+
   /**
    * Similarly to track_features, this class was designed to be called in
    * an online fashion for each sequential frame.
@@ -97,14 +105,16 @@ public:
             vital::feature_track_set_sptr tracks ) const;
 
 private:
-
   /// Class storing internal variables
   class priv;
-  const std::unique_ptr<priv> d_;
+
+  const std::unique_ptr< priv > d_;
 };
 
 } // end namespace core
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

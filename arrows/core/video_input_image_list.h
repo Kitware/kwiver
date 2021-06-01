@@ -16,6 +16,7 @@ namespace arrows {
 namespace core {
 
 // ----------------------------------------------------------------------------
+
 /**
  * \brief Video input using list of images.
  *
