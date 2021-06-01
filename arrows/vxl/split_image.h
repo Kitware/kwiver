@@ -17,12 +17,14 @@
 #include <vital/vital_config.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace vxl {
 
 /// A class for drawing various information about feature tracks
 class KWIVER_ALGO_VXL_EXPORT split_image
-: public vital::algo::split_image
+  : public vital::algo::split_image
 {
 public:
   PLUGIN_INFO( "vxl",
@@ -34,16 +36,21 @@ public:
   /// Destructor
   virtual ~split_image();
 
-  virtual void set_configuration( VITAL_UNUSED kwiver::vital::config_block_sptr ) { }
-  virtual bool check_configuration( VITAL_UNUSED kwiver::vital::config_block_sptr config) const { return true; }
+  virtual void
+  set_configuration( VITAL_UNUSED kwiver::vital::config_block_sptr ) {}
+  virtual bool
+  check_configuration( VITAL_UNUSED kwiver::vital::config_block_sptr config )
+  const { return true; }
 
   /// Split image
   virtual std::vector< kwiver::vital::image_container_sptr >
-  split(kwiver::vital::image_container_sptr img) const;
+  split( kwiver::vital::image_container_sptr img ) const;
 };
 
 } // end namespace vxl
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

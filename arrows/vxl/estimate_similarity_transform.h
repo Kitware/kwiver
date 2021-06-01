@@ -16,7 +16,9 @@
 #include <vital/types/vector.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace vxl {
 
 /// VXL implementation of similarity transform estimation
@@ -30,11 +32,18 @@ public:
 
   // No custom configuration at this time
   /// \cond Doxygen Suppress
-  virtual void set_configuration(vital::config_block_sptr /*config*/) { };
-  virtual bool check_configuration(vital::config_block_sptr /*config*/) const { return true; }
+  virtual void
+  set_configuration( vital::config_block_sptr /*config*/ ) {}
+
+  virtual bool
+  check_configuration( vital::config_block_sptr /*config*/ ) const
+  {
+    return true;
+  }
   /// \endcond
 
   /// Estimate the similarity transform between two corresponding point sets
+
   /**
    * \param from List of length N of 3D points in the from space.
    * \param to   List of length N of 3D points in the to space.
@@ -45,14 +54,15 @@ public:
    *          \c from into \c to).
    */
   virtual vital::similarity_d
-  estimate_transform(std::vector<vital::vector_3d> const& from,
-                     std::vector<vital::vector_3d> const& to) const;
+  estimate_transform( std::vector< vital::vector_3d > const& from,
+                      std::vector< vital::vector_3d > const& to ) const;
   using vital::algo::estimate_similarity_transform::estimate_transform;
-
 };
 
 } // end namespace vxl
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

@@ -14,7 +14,9 @@
 #include <vital/algo/uuid_factory.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace uuid {
 
 class KWIVER_ALGO_UUID_EXPORT uuid_factory_uuid
@@ -24,17 +26,22 @@ public:
   uuid_factory_uuid();
   virtual ~uuid_factory_uuid();
 
-  virtual void set_configuration(vital::config_block_sptr config);
-  virtual bool check_configuration(vital::config_block_sptr config) const;
+  virtual void set_configuration( vital::config_block_sptr config );
+  virtual bool check_configuration( vital::config_block_sptr config ) const;
 
   // Main method to generate UUID's
   virtual kwiver::vital::uid create_uuid();
 
 private:
   class priv;
+
   std::unique_ptr< priv > d;
 };
 
-} } } // end namespace
+} // namespace uuid
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif /* KWIVER_ARROWS_UUID_FACTORY_H */

@@ -5,11 +5,13 @@
 #ifndef KWIVER_ARROWS_VTK_APPLETS_COLOR_MESH_H
 #define KWIVER_ARROWS_VTK_APPLETS_COLOR_MESH_H
 
-#include <vital/applets/kwiver_applet.h>
 #include <arrows/vtk/applets/kwiver_algo_vtk_applets_export.h>
+#include <vital/applets/kwiver_applet.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace vtk {
 
 class KWIVER_ALGO_VTK_APPLETS_EXPORT color_mesh
@@ -20,17 +22,21 @@ public:
   virtual ~color_mesh();
 
   PLUGIN_INFO( "color-mesh",
-               "Color a mesh from a video and cameras");
+               "Color a mesh from a video and cameras" );
 
   int run() override;
   void add_command_options() override;
 
 private:
   class priv;
-  const std::unique_ptr<priv> d;
 
+  const std::unique_ptr< priv > d;
 }; // end of class
 
-} } } // end namespace
+} // namespace vtk
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif

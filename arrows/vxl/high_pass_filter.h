@@ -15,10 +15,10 @@ namespace arrows {
 
 namespace vxl {
 
- /// VXL High Pass Filtering Process
- ///
- /// This method contains basic methods for high pass image filtering
- /// on top of input images
+/// VXL High Pass Filtering Process
+///
+/// This method contains basic methods for high pass image filtering
+/// on top of input images
 class KWIVER_ALGO_VXL_EXPORT high_pass_filter
   : public vital::algo::image_filter
 {

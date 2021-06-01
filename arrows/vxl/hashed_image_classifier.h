@@ -79,6 +79,7 @@ operator<<( std::ostream& os,
 
 /// Stream operator declaration for the hashed_image_classifier class.
 template < typename FeatureType, typename OutputType >
+
 std::ostream&
 operator<<( std::ostream& os,
             hashed_image_classifier< FeatureType, OutputType > const& obj );
@@ -167,7 +168,7 @@ public:
   virtual void set_model( model_sptr_t external_model );
 
   /// The stream operator function for writing out models.
-  friend std::ostream& operator<<<>( std::ostream& os, self_t const& obj );
+  friend std::ostream& operator<<<>( std::ostream& os, self_t const & obj );
 
 protected:
   // A pointer to our internal data

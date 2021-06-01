@@ -15,10 +15,14 @@
 #include <vital/algo/match_features.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace vxl {
 
-/// A match_feature algorithm that uses feature position, orientation, and scale constraints
+/// A match_feature algorithm that uses feature position, orientation, and
+/// scale constraints
+
 /**
  *  This matching algorithm assumes that the features to be matched are already
  *  somewhat well aligned geometrically.  The use cases are very similar images
@@ -45,14 +49,16 @@ public:
   /// Destructor
   virtual ~match_features_constrained();
 
-  /// Get this algorithm's \link vital::config_block configuration block \endlink
+  /// Get this algorithm's \link vital::config_block configuration block
+  /// \endlink
   virtual vital::config_block_sptr get_configuration() const;
   /// Set this algorithm's properties via a config block
-  virtual void set_configuration(vital::config_block_sptr config);
+  virtual void set_configuration( vital::config_block_sptr config );
   /// Check that the algorithm's configuration vital::config_block is valid
-  virtual bool check_configuration(vital::config_block_sptr config) const;
+  virtual bool check_configuration( vital::config_block_sptr config ) const;
 
   /// Match one set of features and corresponding descriptors to another
+
   /**
    * \param [in] feat1 the first set of features to match
    * \param [in] desc1 the descriptors corresponding to \a feat1
@@ -61,17 +67,21 @@ public:
    * \returns a set of matching indices from \a feat1 to \a feat2
    */
   virtual vital::match_set_sptr
-  match(vital::feature_set_sptr feat1, vital::descriptor_set_sptr desc1,
-        vital::feature_set_sptr feat2, vital::descriptor_set_sptr desc2) const;
+  match( vital::feature_set_sptr feat1, vital::descriptor_set_sptr desc1,
+         vital::feature_set_sptr feat2,
+         vital::descriptor_set_sptr desc2 ) const;
 
 private:
   /// private implementation class
   class priv;
-  const std::unique_ptr<priv> d_;
+
+  const std::unique_ptr< priv > d_;
 };
 
 } // end namespace vxl
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

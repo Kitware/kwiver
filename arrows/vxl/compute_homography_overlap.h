@@ -15,10 +15,13 @@
 #include <vnl/vnl_double_3x3.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace vxl {
 
 /// Return the overlap between two images.
+
 /**
  * This function assumes that a homography perfectly describes the
  * transformation between these 2 images (in some reference coordinate
@@ -29,7 +32,9 @@ double
 overlap( const vnl_double_3x3& h, const unsigned ni, const unsigned nj );
 
 } // end namespace vxl
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

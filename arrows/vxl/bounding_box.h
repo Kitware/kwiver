@@ -16,7 +16,9 @@
 #include <vital/types/bounding_box.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace vxl {
 
 /**
@@ -28,16 +30,19 @@ namespace vxl {
  *
  * @return Equivalent bounding box.
  */
-template <typename T>
-kwiver::vital::bounding_box<T> convert( const vgl_box_2d<T>& vbox )
+template < typename T >
+
+kwiver::vital::bounding_box< T >
+convert( const vgl_box_2d< T >& vbox )
 {
-  return kwiver::vital::bounding_box<T>( vbox.min_x(),
-                                         vbox.min_y(),
-                                         vbox.max_x(),
-                                         vbox.max_y() );
+  return kwiver::vital::bounding_box< T >( vbox.min_x(),
+                                           vbox.min_y(),
+                                           vbox.max_x(),
+                                           vbox.max_y() );
 }
 
 // ------------------------------------------------------------------
+
 /**
  * @brief Convert bounding box to vgl_box_2d
  *
@@ -45,13 +50,18 @@ kwiver::vital::bounding_box<T> convert( const vgl_box_2d<T>& vbox )
  *
  * @return Equivalent vgl_box_2d
  */
-template <typename T>
-vgl_box_2d<T> convert(const kwiver::vital::bounding_box<T>& bbox )
+template < typename T >
+vgl_box_2d< T >
+convert( const kwiver::vital::bounding_box< T >& bbox )
 {
-  return vgl_box_2d<T>( bbox.min_x(), bbox.max_x(),
-                        bbox.min_y(), bbox.max_y() );
+  return vgl_box_2d< T >( bbox.min_x(), bbox.max_x(),
+                          bbox.min_y(), bbox.max_y() );
 }
 
-} } } // end namespace
+} // namespace vxl
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif /* ARROWS_VXL_BOUNDING_BOX_H */

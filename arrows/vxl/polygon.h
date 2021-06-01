@@ -11,13 +11,15 @@
 #define KWIVER_ALGORITHM_VXL_POLYGON_H
 
 #include <arrows/vxl/kwiver_algo_vxl_export.h>
-#include <vital/types/polygon.h>
 #include <vgl/vgl_polygon.h>
+#include <vital/types/polygon.h>
 
 #include <memory>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace vxl {
 
 /**
@@ -31,7 +33,8 @@ namespace vxl {
  * @return Shared pointer to vgl_polygon.
  */
 KWIVER_ALGO_VXL_EXPORT
-std::shared_ptr< vgl_polygon< double > > vital_to_vxl( kwiver::vital::polygon_sptr poly );
+std::shared_ptr< vgl_polygon< double > > vital_to_vxl(
+  kwiver::vital::polygon_sptr poly );
 
 /**
  * @brief Convert vgl_polygon to vital polygon.
@@ -43,11 +46,16 @@ std::shared_ptr< vgl_polygon< double > > vital_to_vxl( kwiver::vital::polygon_sp
  *
  * @return shared pointer to new vital polygon
  *
- * @throws std::out_of_range if the input polygon does not have any sheets/contours.
+ * @throws std::out_of_range if the input polygon does not have any
+ *sheets/contours.
  */
 KWIVER_ALGO_VXL_EXPORT
 kwiver::vital::polygon_sptr vxl_to_vital( const vgl_polygon< double >& poly );
 
-} } } // end namespace
+} // namespace vxl
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif // KWIVER_ALGORITHM_VXL_POLYGON_H

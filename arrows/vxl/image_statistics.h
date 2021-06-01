@@ -16,6 +16,7 @@
 // ----------------------------------------------------------------------------
 // Calculate the values of our image percentiles from x sampling points
 template < typename PixType >
+
 std::vector< PixType >
 sample_and_sort_image( vil_image_view< PixType > const& src,
                        unsigned int sampling_points,

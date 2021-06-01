@@ -31,6 +31,7 @@ namespace vtk {
 
 /// Color a mesh from a video and cameras.
 class KWIVER_ALGO_VTK_EXPORT mesh_coloration :
+
   public kwiver::vital::noncopyable
 {
 public:
@@ -155,10 +156,11 @@ protected:
                      kwiver::vital::frame_id_t frame )
       : image_{ imageContainer->get_image() },
         mask_image_{
-          maskImageContainer ? maskImageContainer->get_image()
-                             : kwiver::vital::image_of< uint8_t >{} },
+                    maskImageContainer ? maskImageContainer->get_image()
+                                       : kwiver::vital::image_of< uint8_t >{} },
         camera_{ camera }, frame_{ frame }
     {}
+
     kwiver::vital::image_of< uint8_t > image_;
     kwiver::vital::image_of< uint8_t > mask_image_;
     kwiver::vital::camera_perspective_sptr camera_;

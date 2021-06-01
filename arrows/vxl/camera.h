@@ -17,40 +17,50 @@
 #include <vpgl/vpgl_perspective_camera.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace vxl {
 
 /// Construct a camera_sptr from a vpgl_perspective_camera
-template <typename T>
+template < typename T >
+
 KWIVER_ALGO_VXL_EXPORT
-vital::camera_perspective_sptr vpgl_camera_to_vital(const vpgl_perspective_camera<T>& vcam);
+vital::camera_perspective_sptr vpgl_camera_to_vital(
+  const vpgl_perspective_camera< T >& vcam );
 
 /// Convert a vpgl_perspective_camera to a vital::camera_
-template <typename T>
+template < typename T >
+
 KWIVER_ALGO_VXL_EXPORT
-void vpgl_camera_to_vital(const vpgl_perspective_camera<T>& vcam,
-                          vital::simple_camera_perspective& mcam);
+void vpgl_camera_to_vital( const vpgl_perspective_camera< T >& vcam,
+                           vital::simple_camera_perspective& mcam );
 
 /// Convert a vital::camera_ to a vpgl_perspective_camera
-template <typename T>
+template < typename T >
+
 KWIVER_ALGO_VXL_EXPORT
-void vital_to_vpgl_camera(const vital::camera_perspective& mcam,
-                          vpgl_perspective_camera<T>& vcam);
+void vital_to_vpgl_camera( const vital::camera_perspective& mcam,
+                           vpgl_perspective_camera< T >& vcam );
 
 /// Convert a vpgl_calibration_matrix to a vital::camera_intrinsics_
-template <typename T>
+template < typename T >
+
 KWIVER_ALGO_VXL_EXPORT
-void vpgl_calibration_to_vital(const vpgl_calibration_matrix<T>& vcal,
-                               vital::simple_camera_intrinsics& mcal);
+void vpgl_calibration_to_vital( const vpgl_calibration_matrix< T >& vcal,
+                                vital::simple_camera_intrinsics& mcal );
 
 /// Convert a vital::camera_intrinsics_ to a vpgl_calibration_matrix
-template <typename T>
+template < typename T >
+
 KWIVER_ALGO_VXL_EXPORT
-void vital_to_vpgl_calibration(const vital::camera_intrinsics& mcal,
-                               vpgl_calibration_matrix<T>& vcal);
+void vital_to_vpgl_calibration( const vital::camera_intrinsics& mcal,
+                                vpgl_calibration_matrix< T >& vcal );
 
 } // end namespace vxl
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif
