@@ -98,8 +98,8 @@ class TestSFMConstraints(unittest.TestCase):
 
     def test_get_camera_position_prior_local(self):
       s = SFMConstraints(self.meta_, self.geo_)
-      nt.assert_false(s.get_camera_position_prior_local(0, np.array([0, 1, 3])))
-      nt.assert_false(s.get_camera_position_prior_local(0, RotationD([1, 2, 3, 4])))
+      nt.ok_(s.get_camera_position_prior_local(0) is None)
+      nt.ok_(s.get_camera_orientation_prior_local(0) is None)
 
     def test_camera_position_priors(self):
       s = SFMConstraints(self.meta_, self.geo_)
@@ -108,16 +108,11 @@ class TestSFMConstraints(unittest.TestCase):
     def test_image_properties(self):
       s = SFMConstraints(self.meta_, self.geo_)
       s.store_image_size(0, 1080, 720)
-      a,b = 0,0
-      founda, foundb = False, False
-      founda, a = s.get_image_width(0, a)
-      foundb, b = s.get_image_height(0, b)
-      nt.ok_(founda)
-      nt.ok_(foundb)
+      a = s.get_image_width(0)
+      b = s.get_image_height(0)
+      nt.ok_(a)
+      nt.ok_(b)
       nt.assert_equal(a, 1080)
       nt.assert_equal(b, 720)
-      found_focal = True
-      focal_len = 0.1
-      found_focal, focal_len = s.get_focal_length_prior(0, focal_len)
-      nt.assert_false(found_focal)
-      nt.assert_almost_equal(focal_len, 0.1)
+      focal_len = s.get_focal_length_prior(0)
+      nt.ok_(focal_len is None)

@@ -14,76 +14,39 @@
 #include <vital/types/rotation.h>
 
 namespace kwiver {
+
 namespace vital {
 
-/// Private implementation class
+// ----------------------------------------------------------------------------
 class sfm_constraints::priv
 {
 public:
-  /// Constructor
-  priv();
-
-  /// Destructor
-  ~priv();
-
-  struct im_data {
-    int width;
-    int height;
-
-    im_data() :
-      width(-1),
-      height(-1)
-    {
-
-    }
-    im_data(int w_, int h_):
-      width(w_),
-      height(h_)
-    {
-
-    }
-    im_data(const im_data& other):
-      width(other.width),
-      height(other.height)
-    {
-
-    }
-
+  struct im_size
+  {
+    unsigned width;
+    unsigned height;
   };
 
   metadata_map_sptr m_md;
   local_geo_cs m_lgcs;
-  std::map<frame_id_t, im_data> m_image_data;
+  std::map<frame_id_t, im_size> m_image_sizes;
 };
 
-sfm_constraints::priv
-::priv()
-{
-
-}
-
-sfm_constraints::priv
-::~priv()
-{
-
-}
-
+// ----------------------------------------------------------------------------
 sfm_constraints
 ::sfm_constraints(const sfm_constraints& other)
-  : m_priv(new priv)
+  : m_priv{new priv{*other.m_priv}}
 {
-  m_priv->m_lgcs = other.m_priv->m_lgcs;
-  m_priv->m_md = other.m_priv->m_md;
-  m_priv->m_image_data = other.m_priv->m_image_data;
 }
 
+// ----------------------------------------------------------------------------
 sfm_constraints
 ::sfm_constraints()
   : m_priv(new priv)
 {
-
 }
 
+// ----------------------------------------------------------------------------
 sfm_constraints
 ::sfm_constraints( metadata_map_sptr md,
                    local_geo_cs const& lgcs)
@@ -93,12 +56,13 @@ sfm_constraints
   m_priv->m_lgcs = lgcs;
 }
 
+// ----------------------------------------------------------------------------
 sfm_constraints
 ::~sfm_constraints()
 {
-
 }
 
+// ----------------------------------------------------------------------------
 metadata_map_sptr
 sfm_constraints
 ::get_metadata()
@@ -106,6 +70,7 @@ sfm_constraints
   return m_priv->m_md;
 }
 
+// ----------------------------------------------------------------------------
 void
 sfm_constraints
 ::set_metadata(metadata_map_sptr md)
@@ -113,6 +78,7 @@ sfm_constraints
   m_priv->m_md = md;
 }
 
+// ----------------------------------------------------------------------------
 local_geo_cs
 sfm_constraints
 ::get_local_geo_cs()
@@ -120,6 +86,7 @@ sfm_constraints
   return m_priv->m_lgcs;
 }
 
+// ----------------------------------------------------------------------------
 void
 sfm_constraints
 ::set_local_geo_cs(local_geo_cs const& lgcs)
@@ -127,24 +94,26 @@ sfm_constraints
   m_priv->m_lgcs = lgcs;
 }
 
-bool
+// ----------------------------------------------------------------------------
+optional<float>
 sfm_constraints
-::get_focal_length_prior(frame_id_t fid, float &focal_length) const
+::get_focal_length_prior(frame_id_t fid) const
 {
   if (!m_priv->m_md)
   {
-    return false;
+    return nullopt;
   }
 
   auto &md = *m_priv->m_md;
 
   std::set<frame_id_t> frame_ids_to_try;
 
-  int image_width = -1;
-  if (!get_image_width(fid, image_width))
+  auto const& image_width = get_image_width(fid);
+  if (!image_width)
   {
-    return false;
+    return nullopt;
   }
+  auto const image_width_double = static_cast<double>(*image_width);
 
   if (fid >= 0)
   {
@@ -162,46 +131,46 @@ sfm_constraints
     {
       double hfov = md.get<VITAL_META_SENSOR_HORIZONTAL_FOV>(test_fid);
       focal_lengths.push_back(static_cast<float>(
-        (image_width*0.5) / tan(0.5*hfov*deg_to_rad)));
+        (image_width_double * 0.5) / tan(0.5 * hfov * deg_to_rad)));
       continue;
     }
 
     if ( md.has<VITAL_META_TARGET_WIDTH>(test_fid) &&
          md.has<VITAL_META_SLANT_RANGE>(test_fid) )
     {
-      focal_length = static_cast<float>(image_width *
-        md.get<VITAL_META_SLANT_RANGE>(test_fid) /
-        md.get<VITAL_META_TARGET_WIDTH>(test_fid) );
+      auto const focal_length =
+        static_cast<float>(
+          image_width_double *
+          md.get<VITAL_META_SLANT_RANGE>(test_fid) /
+          md.get<VITAL_META_TARGET_WIDTH>(test_fid) );
       focal_lengths.push_back(focal_length);
       continue;
     }
   }
   if (focal_lengths.empty())
   {
-    return false;
+    return nullopt;
   }
   // compute the median focal length
   std::nth_element(focal_lengths.begin(),
                    focal_lengths.begin() + focal_lengths.size() / 2,
                    focal_lengths.end());
-  focal_length = focal_lengths[focal_lengths.size() / 2];
-
-  return true;
+  return focal_lengths[focal_lengths.size() / 2];
 }
 
-bool
+// ----------------------------------------------------------------------------
+optional<rotation_d>
 sfm_constraints
-::get_camera_orientation_prior_local(frame_id_t fid,
-                                     rotation_d &R_loc) const
+::get_camera_orientation_prior_local(frame_id_t fid) const
 {
   if (m_priv->m_lgcs.origin().is_empty())
   {
-    return false;
+    return nullopt;
   }
 
   if (!m_priv->m_md)
   {
-    return false;
+    return nullopt;
   }
 
   auto &md = *m_priv->m_md;
@@ -224,34 +193,32 @@ sfm_constraints
       sensor_rel_roll = md.get<VITAL_META_SENSOR_REL_ROLL_ANGLE>(fid);
     }
 
-    if (std::isnan(platform_heading) || std::isnan(platform_pitch) || std::isnan(platform_roll) ||
-        std::isnan(sensor_rel_az) || std::isnan(sensor_rel_el) || std::isnan(sensor_rel_roll))
+    if (std::isfinite(platform_heading) && std::isfinite(platform_pitch) &&
+        std::isfinite(platform_roll) && std::isfinite(sensor_rel_az) &&
+        std::isfinite(sensor_rel_el) && std::isfinite(sensor_rel_roll))
     {
-      return false;
+      return compose_rotations<double>(
+        platform_heading, platform_pitch, platform_roll,
+        sensor_rel_az, sensor_rel_el, sensor_rel_roll);
     }
-
-    R_loc = compose_rotations<double>(platform_heading, platform_pitch, platform_roll,
-                                      sensor_rel_az, sensor_rel_el, sensor_rel_roll);
-
-    return true;
   }
 
-  return false;
+  return nullopt;
 }
 
-bool
+// ----------------------------------------------------------------------------
+optional<vector_3d>
 sfm_constraints
-::get_camera_position_prior_local(frame_id_t fid,
-                                  vector_3d &pos_loc) const
+::get_camera_position_prior_local(frame_id_t fid) const
 {
   if (m_priv->m_lgcs.origin().is_empty())
   {
-    return false;
+    return nullopt;
   }
 
   if (!m_priv->m_md)
   {
-    return false;
+    return nullopt;
   }
 
   kwiver::vital::geo_point gloc;
@@ -261,20 +228,17 @@ sfm_constraints
   }
   else
   {
-    return false;
+    return nullopt;
   }
 
   auto geo_origin = m_priv->m_lgcs.origin();
   vector_3d loc = gloc.location(geo_origin.crs());
   loc -= geo_origin.location();
 
-  pos_loc[0] = loc.x();
-  pos_loc[1] = loc.y();
-  pos_loc[2] = loc.z();
-
-  return true;
+  return loc;
 }
 
+// ----------------------------------------------------------------------------
 sfm_constraints::position_map
 sfm_constraints
 ::get_camera_position_priors() const
@@ -290,84 +254,85 @@ sfm_constraints
   {
     auto fid = mdv.first;
 
-    vector_3d loc;
-    if (!get_camera_position_prior_local(fid, loc))
+    auto const& loc = get_camera_position_prior_local(fid);
+    if (!loc)
     {
       continue;
     }
     if (local_positions.empty())
     {
-      local_positions[fid] = loc;
+      local_positions[fid] = *loc;
     }
     else
     {
       auto last_loc = local_positions.crbegin()->second;
-      if (loc == last_loc)
+      if (*loc == last_loc)
       {
         continue;
       }
-      local_positions[fid] = loc;
+      local_positions[fid] = *loc;
     }
   }
   return local_positions;
 }
 
+// ----------------------------------------------------------------------------
 void
 sfm_constraints
-::store_image_size(frame_id_t fid, int image_width, int image_height)
+::store_image_size(
+  frame_id_t fid, unsigned image_width, unsigned image_height)
 {
-  m_priv->m_image_data[fid] = priv::im_data(image_width, image_height);
+  m_priv->m_image_sizes[fid] = {image_width, image_height};
 }
 
-bool
+// ----------------------------------------------------------------------------
+optional<unsigned>
 sfm_constraints
-::get_image_height(frame_id_t fid, int &image_height) const
+::get_image_height(frame_id_t fid) const
 {
   if (fid >= 0)
   {
-    auto data_it = m_priv->m_image_data.find(fid);
-    if (data_it == m_priv->m_image_data.end())
+    auto const data_it = m_priv->m_image_sizes.find(fid);
+    if (data_it == m_priv->m_image_sizes.end())
     {
-      return false;
+      return nullopt;
     }
-    image_height = data_it->second.height;
-    return true;
+    return data_it->second.height;
   }
   else
   {
-    if (m_priv->m_image_data.empty())
+    if (m_priv->m_image_sizes.empty())
     {
-      return false;
+      return nullopt;
     }
-    image_height = m_priv->m_image_data.begin()->second.height;
-    return true;
+    return m_priv->m_image_sizes.begin()->second.height;
   }
 }
 
-bool
+// ----------------------------------------------------------------------------
+optional<unsigned>
 sfm_constraints
-::get_image_width(frame_id_t fid, int &image_width) const
+::get_image_width(frame_id_t fid) const
 {
   if (fid >= 0)
   {
-    auto data_it = m_priv->m_image_data.find(fid);
-    if (data_it == m_priv->m_image_data.end())
+    auto const data_it = m_priv->m_image_sizes.find(fid);
+    if (data_it == m_priv->m_image_sizes.end())
     {
-      return false;
+      return nullopt;
     }
-    image_width = data_it->second.width;
-    return true;
+    return data_it->second.width;
   }
   else
   {
-    if (m_priv->m_image_data.empty())
+    if (m_priv->m_image_sizes.empty())
     {
-      return false;
+      return nullopt;
     }
-    image_width = m_priv->m_image_data.begin()->second.width;
-    return true;
+    return m_priv->m_image_sizes.begin()->second.width;
   }
 }
 
-}
-}
+} // namespace vital
+
+} // namespace kwiver
