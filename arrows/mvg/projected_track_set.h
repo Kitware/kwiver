@@ -11,18 +11,21 @@
 #ifndef KWIVER_ARROWS_MVG_PROJECTED_TRACK_SET_H_
 #define KWIVER_ARROWS_MVG_PROJECTED_TRACK_SET_H_
 
-#include <vital/vital_config.h>
 #include <arrows/mvg/kwiver_algo_mvg_export.h>
+#include <vital/vital_config.h>
 
-#include <vital/types/feature_track_set.h>
 #include <vital/types/camera_map.h>
+#include <vital/types/feature_track_set.h>
 #include <vital/types/landmark_map.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace mvg {
 
 /// Use the cameras to project the landmarks back into their images.
+
 /**
  * \param landmarks input landmark locations
  * \param cameras input camera map
@@ -30,11 +33,13 @@ namespace mvg {
  */
 vital::feature_track_set_sptr
 KWIVER_ALGO_MVG_EXPORT
-projected_tracks(vital::landmark_map_sptr landmarks,
-                 vital::camera_map_sptr cameras);
+projected_tracks( vital::landmark_map_sptr landmarks,
+                  vital::camera_map_sptr cameras );
 
 } // end namespace mvg
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif // ALGORITHMS_PROJECTED_TRACK_SET_H_

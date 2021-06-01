@@ -15,17 +15,20 @@
 #include <arrows/ffmpeg/kwiver_algo_ffmpeg_export.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace ffmpeg {
 
 /// Video input using ffmpeg services.
 // ---------------------------------------------------------------------------
+
 /**
  * This class implements a video input algorithm using ffmpeg video services.
  *
  */
 class KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_input
-  : public  vital::algo::video_input
+  : public vital::algo::video_input
 {
 public:
   /// Constructor
@@ -35,14 +38,15 @@ public:
   PLUGIN_INFO( "ffmpeg",
                "Use FFMPEG to read video files as a sequence of images." )
 
-  /// Get this algorithm's \link vital::config_block configuration block \endlink
+  /// Get this algorithm's \link vital::config_block configuration block
+  /// \endlink
   vital::config_block_sptr get_configuration() const override;
 
   /// Set this algorithm's properties via a config block
-  void set_configuration(vital::config_block_sptr config) override;
+  void set_configuration( vital::config_block_sptr config ) override;
 
   /// Check that the algorithm's currently configuration is valid
-  bool check_configuration(vital::config_block_sptr config) const override;
+  bool check_configuration( vital::config_block_sptr config ) const override;
 
   void open( std::string video_name ) override;
   void close() override;
@@ -57,19 +61,24 @@ public:
                    uint32_t timeout = 0 ) override;
   bool seek_frame( ::kwiver::vital::timestamp& ts,
                    ::kwiver::vital::timestamp::frame_t frame_number,
-                   uint32_t timeout = 0) override;
+                   uint32_t timeout = 0 ) override;
 
   ::kwiver::vital::timestamp frame_timestamp() const override;
-  ::kwiver::vital::image_container_sptr frame_image() override ;
+  ::kwiver::vital::image_container_sptr frame_image() override;
   ::kwiver::vital::metadata_vector frame_metadata() override;
   ::kwiver::vital::metadata_map_sptr metadata_map() override;
 
 private:
   /// private implementation class
   class priv;
-  const std::unique_ptr<priv> d;
+
+  const std::unique_ptr< priv > d;
 };
 
-} } } // end namespace
+} // namespace ffmpeg
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif // KWIVER_ARROWS_FFMPEG_FFMPEG_VIDEO_INPUT_H

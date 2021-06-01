@@ -14,7 +14,9 @@
 #include <vital/algo/merge_images.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace ocv {
 
 // Implementation of merge image channels.
@@ -28,7 +30,7 @@ public:
                "output image first, followed by the channels from the "
                "second image. This implementation takes no configuration "
                "parameters."
-    )
+               )
 
   /// Constructor
   merge_images();
@@ -36,16 +38,20 @@ public:
   /// Destructor
   virtual ~merge_images() = default;
 
-  void set_configuration( kwiver::vital::config_block_sptr ) override { }
-  bool check_configuration( kwiver::vital::config_block_sptr config ) const override
+  void
+  set_configuration( kwiver::vital::config_block_sptr ) override {}
+  bool
+  check_configuration( kwiver::vital::config_block_sptr config ) const override
   { return true; }
 
   /// Merge images
   kwiver::vital::image_container_sptr
-    merge(kwiver::vital::image_container_sptr image1,
-          kwiver::vital::image_container_sptr image2) const override;
+  merge( kwiver::vital::image_container_sptr image1,
+         kwiver::vital::image_container_sptr image2 ) const override;
 };
 
 } // end namespace ocv
+
 } // end namespace arrows
+
 } // end namespace kwiver

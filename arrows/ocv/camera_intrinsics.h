@@ -4,7 +4,8 @@
 
 /**
  * \file
- * \brief OCV camera intrinsics.  Converts kwiver intrinsics to OpenCV intrinsics.
+ * \brief OCV camera intrinsics.  Converts kwiver intrinsics to OpenCV
+ *intrinsics.
  */
 
 #ifndef KWIVER_ARROWS_OCV_CAMERA_INTRINSICS_H_
@@ -18,21 +19,26 @@
 #include <vital/types/camera_intrinsics.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace ocv {
 
 /// return OpenCV distortion coefficients given the camera intrinsics
 KWIVER_ALGO_OCV_EXPORT
-std::vector<double>
-get_ocv_dist_coeffs(vital::camera_intrinsics_sptr intrinsics);
+std::vector< double >
+get_ocv_dist_coeffs( vital::camera_intrinsics_sptr intrinsics );
 
-/// return OpenCV formatted distortion coefficients based on vital distortion coefficients
+/// return OpenCV formatted distortion coefficients based on vital distortion
+/// coefficients
 KWIVER_ALGO_OCV_EXPORT
-std::vector<double>
-dist_coeffs_to_ocv(std::vector<double> const& vital_dist_coeffs);
+std::vector< double >
+dist_coeffs_to_ocv( std::vector< double > const& vital_dist_coeffs );
 
 } // end namespace ocv
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

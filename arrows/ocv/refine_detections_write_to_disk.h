@@ -15,12 +15,14 @@
 #include <vital/algo/refine_detections.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace ocv {
 
 /// A class for drawing various information about feature tracks
 class KWIVER_ALGO_OCV_EXPORT refine_detections_write_to_disk
-: public vital::algo::refine_detections
+  : public vital::algo::refine_detections
 {
 public:
   PLUGIN_INFO( "ocv_write",
@@ -32,14 +34,16 @@ public:
   /// Destructor
   virtual ~refine_detections_write_to_disk();
 
-  /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
+  /// Get this algorithm's \link kwiver::vital::config_block configuration
+  /// block \endlink
   virtual vital::config_block_sptr get_configuration() const;
   /// Set this algorithm's properties via a config block
-  virtual void set_configuration(vital::config_block_sptr config);
+  virtual void set_configuration( vital::config_block_sptr config );
   /// Check that the algorithm's currently configuration is valid
-  virtual bool check_configuration(vital::config_block_sptr config) const;
+  virtual bool check_configuration( vital::config_block_sptr config ) const;
 
   /// Refine all object detections on the provided image
+
   /**
    * This method analyzes the supplied image and and detections on it,
    * returning a refined set of detections.
@@ -53,14 +57,16 @@ public:
           vital::detected_object_set_sptr detections ) const;
 
 private:
-
   /// private implementation class
   class priv;
-  const std::unique_ptr<priv> d_;
+
+  const std::unique_ptr< priv > d_;
 };
 
 } // end namespace ocv
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

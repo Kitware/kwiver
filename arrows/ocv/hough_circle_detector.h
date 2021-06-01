@@ -10,7 +10,9 @@
 #include <vital/algo/image_object_detector.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace ocv {
 
 class KWIVER_ALGO_OCV_EXPORT hough_circle_detector
@@ -24,17 +26,23 @@ public:
   virtual ~hough_circle_detector();
 
   virtual vital::config_block_sptr get_configuration() const;
-  virtual void set_configuration(vital::config_block_sptr config);
-  virtual bool check_configuration(vital::config_block_sptr config) const;
+  virtual void set_configuration( vital::config_block_sptr config );
+  virtual bool check_configuration( vital::config_block_sptr config ) const;
 
   // Main detection method
-  virtual vital::detected_object_set_sptr detect( vital::image_container_sptr image_data) const;
+  virtual vital::detected_object_set_sptr detect(
+    vital::image_container_sptr image_data ) const;
 
 private:
   class priv;
-  const std::unique_ptr<priv> d;
+
+  const std::unique_ptr< priv > d;
 };
 
-} } } // end namespace
+} // namespace ocv
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif /* ARROWS_OCV_HOUGH_CIRCLE_DETECTOR_H */

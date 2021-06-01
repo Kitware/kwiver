@@ -8,53 +8,64 @@
 #include <arrows/serialize/protobuf/kwiver_serialize_protobuf_export.h>
 
 #include <vital/types/activity.h>
-#include <vital/types/metadata.h>
 #include <vital/types/bounding_box.h>
 #include <vital/types/image_container.h>
+#include <vital/types/metadata.h>
+#include <vital/types/object_track_set.h>
 #include <vital/types/track.h>
 #include <vital/types/track_set.h>
-#include <vital/types/object_track_set.h>
 
 namespace kwiver {
+
 namespace vital {
-  class detected_object;
-  class detected_object_set;
-  class geo_point;
-  class geo_polygon;
-  class object_track_state;
-  class polygon;
-  class timestamp;
-  class track_state;
-} } // end namespace
+
+class detected_object;
+class detected_object_set;
+class geo_point;
+class geo_polygon;
+class object_track_state;
+class polygon;
+class timestamp;
+class track_state;
+
+} // namespace vital
+
+}   // end namespace
 
 namespace kwiver {
+
 namespace protobuf {
 
-  class activity;
-  class activity_type;
-  class bounding_box;
-  class detected_object_type;
-  class detected_object;
-  class detected_object_set;
-  class geo_point;
-  class geo_polygon;
-  class image;
-  class metadata;
-  class metadata_vector;
-  class object_track_state;
-  class object_track_set;
-  class polygon;
-  class string;
-  class timestamp;
-  class track;
-  class track_set;
-  class track_state;
+class activity;
+class activity_type;
+class bounding_box;
+class detected_object_type;
+class detected_object;
+class detected_object_set;
+class geo_point;
+class geo_polygon;
+class image;
+class metadata;
+class metadata_vector;
+class object_track_state;
+class object_track_set;
+class polygon;
+class string;
+class timestamp;
+class track;
+class track_set;
+class track_state;
 
-} } // end namespace
+} // namespace protobuf
+
+}   // end namespace
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace serialize {
+
 namespace protobuf {
 
 // ---- activity
@@ -86,8 +97,9 @@ void convert_protobuf( const ::kwiver::vital::bounding_box_d& bbox,
 
 // ---- detected_object
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
-void convert_protobuf( const ::kwiver::protobuf::detected_object& proto_det_object,
-                       ::kwiver::vital::detected_object&          det_object );
+void convert_protobuf(
+  const ::kwiver::protobuf::detected_object& proto_det_object,
+  ::kwiver::vital::detected_object&          det_object );
 
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const ::kwiver::vital::detected_object&  det_object,
@@ -95,8 +107,9 @@ void convert_protobuf( const ::kwiver::vital::detected_object&  det_object,
 
 // ---- detected_object_set
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
-void convert_protobuf( const ::kwiver::protobuf::detected_object_set& proto_dos,
-                       ::kwiver::vital::detected_object_set&          dos );
+void convert_protobuf(
+  const ::kwiver::protobuf::detected_object_set& proto_dos,
+  ::kwiver::vital::detected_object_set&          dos );
 
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const ::kwiver::vital::detected_object_set&  dos,
@@ -104,8 +117,9 @@ void convert_protobuf( const ::kwiver::vital::detected_object_set&  dos,
 
 // ---- detected_object
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
-void convert_protobuf( const ::kwiver::protobuf::detected_object_type&  proto_dot,
-                       ::kwiver::vital::detected_object_type&           dot );
+void convert_protobuf(
+  const ::kwiver::protobuf::detected_object_type&  proto_dot,
+  ::kwiver::vital::detected_object_type&           dot );
 
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const ::kwiver::vital::detected_object_type& dot,
@@ -144,7 +158,7 @@ void convert_protobuf( const ::kwiver::protobuf::image&       proto_img,
                        ::kwiver::vital::image_container_sptr& img );
 
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
-void convert_protobuf( const ::kwiver::vital::image_container_sptr  img,
+void convert_protobuf( const ::kwiver::vital::image_container_sptr img,
                        ::kwiver::protobuf::image&                   proto_img  );
 
 // ---- timestamp
@@ -189,16 +203,18 @@ void convert_protobuf( const ::kwiver::protobuf::track_state& proto_trk_state,
 
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const ::kwiver::vital::track_state& trk_state,
-                        ::kwiver::protobuf::track_state& proto_trk_state );
+                       ::kwiver::protobuf::track_state& proto_trk_state );
 
 // ---- object track state
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
-void convert_protobuf( const ::kwiver::protobuf::object_track_state& proto_obj_trk_state,
-                       ::kwiver::vital::object_track_state& obj_trk_state );
+void convert_protobuf(
+  const ::kwiver::protobuf::object_track_state& proto_obj_trk_state,
+  ::kwiver::vital::object_track_state& obj_trk_state );
 
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
-void convert_protobuf( const ::kwiver::vital::object_track_state& obj_trk_state,
-                        ::kwiver::protobuf::object_track_state& proto_obj_trk_state );
+void convert_protobuf(
+  const ::kwiver::vital::object_track_state& obj_trk_state,
+  ::kwiver::protobuf::object_track_state& proto_obj_trk_state );
 
 // ---- track
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
@@ -207,7 +223,7 @@ void convert_protobuf( const ::kwiver::protobuf::track& proto_trk,
 
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const ::kwiver::vital::track_sptr& trk_sptr,
-                        ::kwiver::protobuf::track& proto_trk );
+                       ::kwiver::protobuf::track& proto_trk );
 
 // ---- track set
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
@@ -216,17 +232,25 @@ void convert_protobuf( const ::kwiver::protobuf::track_set& proto_trk_set,
 
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const ::kwiver::vital::track_set_sptr& trk_set_sptr,
-                        ::kwiver::protobuf::track_set& proto_trk_set );
+                       ::kwiver::protobuf::track_set& proto_trk_set );
 
 // ---- object track set
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
-void convert_protobuf( const ::kwiver::protobuf::object_track_set& proto_obj_trk_set,
-                       ::kwiver::vital::object_track_set_sptr& obj_trk_set_sptr );
+void convert_protobuf(
+  const ::kwiver::protobuf::object_track_set& proto_obj_trk_set,
+  ::kwiver::vital::object_track_set_sptr& obj_trk_set_sptr );
 
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
-void convert_protobuf( const ::kwiver::vital::object_track_set_sptr& obj_trk_set_sptr,
-                        ::kwiver::protobuf::object_track_set& proto_obj_trk_set );
+void convert_protobuf(
+  const ::kwiver::vital::object_track_set_sptr& obj_trk_set_sptr,
+  ::kwiver::protobuf::object_track_set& proto_obj_trk_set );
 
-} } } }  // end namespace
+} // namespace protobuf
+
+} // namespace serialize
+
+} // namespace arrows
+
+}        // end namespace
 
 #endif // ARROWS_SERIALILIZATION_PROTOBUF_CONVERT_PROTOBUF_H

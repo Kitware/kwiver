@@ -16,7 +16,9 @@
 #include <string>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace kpf {
 
 /**
@@ -39,29 +41,31 @@ enum class packet_style
   ACT,      // an activity
   EVAL,     // an evaluation result
   ATTR,     // an attribute
-  KV        // a generic key/value pair
+  KV, // a generic key/value pair
 };
 
 /**
  * @brief The KPF packet header.
  *
- * This is what combines the semantic type (the style) with the user-specified context
+ * This is what combines the semantic type (the style) with the user-specified
+ *context
  * (the domain).
  *
  */
 
 struct KPF_YAML_EXPORT packet_header_t
 {
-  enum { ANY_DOMAIN = -2, NO_DOMAIN = -1 };
+  enum { ANY_DOMAIN = -2, NO_DOMAIN = -1, };
 
-  packet_style style;
-  int domain;
-  packet_header_t(): style( packet_style::INVALID ), domain( NO_DOMAIN ) {}
-  packet_header_t( packet_style s, int d ): style(s), domain(d) {}
-  explicit packet_header_t( packet_style s ): style(s), domain( NO_DOMAIN ) {}
+packet_style style;
+int domain;
+packet_header_t() : style( packet_style::INVALID ), domain( NO_DOMAIN ) {}
+packet_header_t( packet_style s, int d ) : style( s ), domain( d ) {}
+explicit packet_header_t( packet_style s ) : style( s ), domain( NO_DOMAIN ) {}
 };
 
-KPF_YAML_EXPORT bool operator==( const packet_header_t& lhs, const packet_header_t& rhs );
+KPF_YAML_EXPORT bool operator==( const packet_header_t& lhs,
+                                 const packet_header_t& rhs );
 
 /**
  * @brief Class for sorting packets based on their header.
@@ -73,7 +77,8 @@ KPF_YAML_EXPORT bool operator==( const packet_header_t& lhs, const packet_header
 class KPF_YAML_EXPORT packet_header_cmp
 {
 public:
-  bool operator()( const packet_header_t& lhs, const packet_header_t& rhs ) const;
+  bool operator()( const packet_header_t& lhs,
+                   const packet_header_t& rhs ) const;
 };
 
 /**
@@ -89,10 +94,13 @@ KPF_YAML_EXPORT std::string style2str( packet_style );
  *
  */
 
-KPF_YAML_EXPORT std::ostream& operator<<( std::ostream& os, const packet_header_t& p );
+KPF_YAML_EXPORT std::ostream& operator<<( std::ostream& os,
+                                          const packet_header_t& p );
 
 } // ...kpf
+
 } // ...vital
+
 } // ...kwiver
 
 #endif

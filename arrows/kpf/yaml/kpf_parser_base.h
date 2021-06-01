@@ -18,7 +18,9 @@
 #include <arrows/kpf/yaml/kpf_yaml_schemas.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace kpf {
 
 class kpf_parser_base_t
@@ -34,7 +36,9 @@ public:
 };
 
 } // ...kpf
+
 } // ...vital
+
 } // ...kwiver
 
 #endif

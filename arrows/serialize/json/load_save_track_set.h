@@ -10,38 +10,46 @@
 #ifndef SERIAL_JSON_LOAD_SAVE_TRACK_SET_H
 #define SERIAL_JSON_LOAD_SAVE_TRACK_SET_H
 
-#include <vital/types/track_set.h>
 #include <vital/types/object_track_set.h>
+#include <vital/types/track_set.h>
 
 #include <vital/internal/cereal/types/polymorphic.hpp>
 
-CEREAL_REGISTER_TYPE(kwiver::vital::track_set);
-CEREAL_REGISTER_TYPE(kwiver::vital::object_track_set);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(kwiver::vital::track_set,
-                                     kwiver::vital::object_track_set);
+CEREAL_REGISTER_TYPE( kwiver::vital::track_set );
+CEREAL_REGISTER_TYPE( kwiver::vital::object_track_set );
+CEREAL_REGISTER_POLYMORPHIC_RELATION( kwiver::vital::track_set,
+                                      kwiver::vital::object_track_set );
 
 namespace kwiver {
+
 namespace vital {
-  class track_set;
-  class object_track_set;
-} } // end namespace
+
+class track_set;
+class object_track_set;
+
+} // namespace vital
+
+}   // end namespace
 
 namespace cereal {
-  class JSONOutputArchive;
-  class JSONInputArchive;
 
-KWIVER_SERIALIZE_JSON_EXPORT
-void save( cereal::JSONOutputArchive& archive, const kwiver::vital::track_set& trk_set );
-KWIVER_SERIALIZE_JSON_EXPORT
-void load( cereal::JSONInputArchive& archive, kwiver::vital::track_set& trk_set );
+class JSONOutputArchive;
+class JSONInputArchive;
 
 KWIVER_SERIALIZE_JSON_EXPORT
 void save( cereal::JSONOutputArchive& archive,
-            const kwiver::vital::object_track_set& obj_trk_set );
+           const kwiver::vital::track_set& trk_set );
 KWIVER_SERIALIZE_JSON_EXPORT
 void load( cereal::JSONInputArchive& archive,
-            kwiver::vital::object_track_set& obj_trk_set );
+           kwiver::vital::track_set& trk_set );
 
-}
+KWIVER_SERIALIZE_JSON_EXPORT
+void save( cereal::JSONOutputArchive& archive,
+           const kwiver::vital::object_track_set& obj_trk_set );
+KWIVER_SERIALIZE_JSON_EXPORT
+void load( cereal::JSONInputArchive& archive,
+           kwiver::vital::object_track_set& obj_trk_set );
+
+} // namespace cereal
 
 #endif // SERIAL_JSON_LOAD_SAVE_TRACK_SET_H

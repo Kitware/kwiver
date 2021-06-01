@@ -5,11 +5,13 @@
 #ifndef KWIVER_ARROWS_MVG_APPLETS_TRACK_FEATURES_H
 #define KWIVER_ARROWS_MVG_APPLETS_TRACK_FEATURES_H
 
-#include <vital/applets/kwiver_applet.h>
 #include <arrows/mvg/applets/kwiver_algo_mvg_applets_export.h>
+#include <vital/applets/kwiver_applet.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace mvg {
 
 class KWIVER_ALGO_MVG_APPLETS_EXPORT track_features
@@ -20,17 +22,21 @@ public:
   virtual ~track_features();
 
   PLUGIN_INFO( "track-features",
-               "Feature tracking utility");
+               "Feature tracking utility" );
 
   int run() override;
   void add_command_options() override;
 
 private:
   class priv;
-  const std::unique_ptr<priv> d;
 
+  const std::unique_ptr< priv > d;
 }; // end of class
 
-} } } // end namespace
+} // namespace mvg
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif

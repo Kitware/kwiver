@@ -12,11 +12,13 @@
 
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
 
-#include <vital/types/bounding_box.h>
 #include <opencv2/core.hpp>
+#include <vital/types/bounding_box.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace ocv {
 
 /**
@@ -28,14 +30,18 @@ namespace ocv {
  *
  * @return Equivalent bounding box.
  */
-template <typename T>
-kwiver::vital::bounding_box<T> convert( const cv::Rect& vbox )
+template < typename T >
+
+kwiver::vital::bounding_box< T >
+convert( const cv::Rect& vbox )
 {
-  typename kwiver::vital::bounding_box<T>::vector_type bb_tl( vbox.x, vbox.y );
-  return kwiver::vital::bounding_box<T>( bb_tl, vbox.width, vbox.height );
+  typename kwiver::vital::bounding_box< T >::vector_type bb_tl( vbox.x,
+                                                                vbox.y );
+  return kwiver::vital::bounding_box< T >( bb_tl, vbox.width, vbox.height );
 }
 
 // ------------------------------------------------------------------
+
 /**
  * @brief Convert bounding box to CvRect
  *
@@ -43,8 +49,9 @@ kwiver::vital::bounding_box<T> convert( const cv::Rect& vbox )
  *
  * @return Equivalent CvRect
  */
-template <typename T>
-cv::Rect convert(const kwiver::vital::bounding_box<T>& bbox )
+template < typename T >
+cv::Rect
+convert( const kwiver::vital::bounding_box< T >& bbox )
 {
   // Note that CvRect has integer values. If T is a floating type. the
   // fractions are turncated.
@@ -54,6 +61,10 @@ cv::Rect convert(const kwiver::vital::bounding_box<T>& bbox )
            static_cast< int >( bbox.height() ) };
 }
 
-} } } // end namespace
+} // namespace ocv
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif /* ARROWS_OCV_BOUNDING_BOX_H */

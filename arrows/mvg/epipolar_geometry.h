@@ -10,19 +10,22 @@
 #ifndef KWIVER_ARROWS_MVG_EPIPOLAR_GEOMETRY_H_
 #define KWIVER_ARROWS_MVG_EPIPOLAR_GEOMETRY_H_
 
-#include <vital/vital_config.h>
 #include <arrows/mvg/kwiver_algo_mvg_export.h>
+#include <vital/vital_config.h>
 
+#include <vector>
 #include <vital/types/camera_perspective.h>
 #include <vital/types/essential_matrix.h>
 #include <vital/types/fundamental_matrix.h>
-#include <vector>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace mvg {
 
 /// Test corresponding points against a fundamental matrix and mark inliers
+
 /**
  * \param [in]  fm   the fundamental matrix
  * \param [in]  pts1 the vector or corresponding points from the first image
@@ -32,13 +35,14 @@ namespace mvg {
  *                true if this pair is an inlier to the fundamental matrix
  */
 KWIVER_ALGO_MVG_EXPORT
-std::vector<bool>
-mark_fm_inliers(vital::fundamental_matrix const& fm,
-                std::vector<vital::vector_2d> const& pts1,
-                std::vector<vital::vector_2d> const& pts2,
-                double inlier_scale = 1.0);
+std::vector< bool >
+mark_fm_inliers( vital::fundamental_matrix const& fm,
+                 std::vector< vital::vector_2d > const& pts1,
+                 std::vector< vital::vector_2d > const& pts2,
+                 double inlier_scale = 1.0 );
 
 /// Compute a valid left camera from an essential matrix
+
 /**
  * There are four valid left camera possibilities for any essential
  * matrix (assuming the right camera is the identity camera).
@@ -55,31 +59,35 @@ mark_fm_inliers(vital::fundamental_matrix const& fm,
  */
 KWIVER_ALGO_MVG_EXPORT
 kwiver::vital::simple_camera_perspective
-extract_valid_left_camera(const kwiver::vital::essential_matrix_d& e,
-                          const kwiver::vital::vector_2d& left_pt,
-                          const kwiver::vital::vector_2d& right_pt);
+extract_valid_left_camera( const kwiver::vital::essential_matrix_d& e,
+                           const kwiver::vital::vector_2d& left_pt,
+                           const kwiver::vital::vector_2d& right_pt );
 
 /// Compute the fundamental matrix from a pair of cameras
 KWIVER_ALGO_MVG_EXPORT
 kwiver::vital::fundamental_matrix_sptr
-fundamental_matrix_from_cameras(kwiver::vital::camera_perspective const& right_cam,
-                                kwiver::vital::camera_perspective const& left_cam);
+fundamental_matrix_from_cameras(
+  kwiver::vital::camera_perspective const& right_cam,
+  kwiver::vital::camera_perspective const& left_cam );
 
 /// Compute the essential matrix from a pair of cameras
 KWIVER_ALGO_MVG_EXPORT
 kwiver::vital::essential_matrix_sptr
-essential_matrix_from_cameras(kwiver::vital::camera_perspective const& right_cam,
-                              kwiver::vital::camera_perspective const& left_cam);
+essential_matrix_from_cameras(
+  kwiver::vital::camera_perspective const& right_cam,
+  kwiver::vital::camera_perspective const& left_cam );
 
 /// Convert an essential matrix to a fundamental matrix
 KWIVER_ALGO_MVG_EXPORT
 kwiver::vital::fundamental_matrix_sptr
-essential_matrix_to_fundamental(kwiver::vital::essential_matrix const& E,
-                                kwiver::vital::camera_intrinsics const& right_cal,
-                                kwiver::vital::camera_intrinsics const& left_cal);
+essential_matrix_to_fundamental( kwiver::vital::essential_matrix const& E,
+                                 kwiver::vital::camera_intrinsics const& right_cal,
+                                 kwiver::vital::camera_intrinsics const& left_cal );
 
 } // end namespace mvg
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

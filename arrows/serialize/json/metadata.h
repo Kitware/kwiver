@@ -36,6 +36,7 @@ public:
 
   metadata();
   virtual ~metadata();
+
   std::shared_ptr< std::string > serialize_meta(
     vital::metadata_vector const& elements );
   std::shared_ptr< std::string > serialize_map(

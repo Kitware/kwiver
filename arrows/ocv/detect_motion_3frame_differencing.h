@@ -14,15 +14,17 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <vital/types/timestamp.h>
-#include <vital/vital_config.h>
 #include <vital/algo/detect_motion.h>
 #include <vital/config/config_block.h>
+#include <vital/types/timestamp.h>
+#include <vital/vital_config.h>
 
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace ocv {
 
 /// OCV implementation of detect_motion using three-frame differencing
@@ -37,14 +39,16 @@ public:
   /// Destructor
   virtual ~detect_motion_3frame_differencing() noexcept;
 
-  /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
+  /// Get this algorithm's \link kwiver::vital::config_block configuration
+  /// block \endlink
   virtual vital::config_block_sptr get_configuration() const;
   /// Set this algorithm's properties via a config block
-  virtual void set_configuration(vital::config_block_sptr config);
+  virtual void set_configuration( vital::config_block_sptr config );
   /// Check that the algorithm's configuration vital::config_block is valid
-  virtual bool check_configuration(vital::config_block_sptr config) const;
+  virtual bool check_configuration( vital::config_block_sptr config ) const;
 
   /// Detect motion from a sequence of images
+
   /**
    * This method detects motion of foreground objects within a
    * sequence of images in which the background remains stationary.
@@ -63,18 +67,21 @@ public:
    * and has the same width and height dimensions as the input image.
    */
   virtual kwiver::vital::image_container_sptr
-    process_image( const kwiver::vital::timestamp& ts,
-                   const kwiver::vital::image_container_sptr image,
-                   bool reset_model );
+  process_image( const kwiver::vital::timestamp& ts,
+                 const kwiver::vital::image_container_sptr image,
+                 bool reset_model );
 
 private:
   // private implementation class
   class priv;
-  std::unique_ptr<priv> d_;
+
+  std::unique_ptr< priv > d_;
 };
 
 } // end namespace ocv
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

@@ -9,8 +9,11 @@
 #include <vital/algo/data_serializer.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace serialize {
+
 namespace protobuf {
 
 class KWIVER_SERIALIZE_PROTOBUF_EXPORT geo_polygon
@@ -23,10 +26,17 @@ public:
   geo_polygon();
   virtual ~geo_polygon();
 
-  std::shared_ptr< std::string > serialize( const vital::any& element ) override;
+  std::shared_ptr< std::string > serialize( const vital::any& element )
+  override;
   vital::any deserialize( const std::string& message ) override;
 };
 
-} } } }       // end namespace kwiver
+} // namespace protobuf
+
+} // namespace serialize
+
+} // namespace arrows
+
+}             // end namespace kwiver
 
 #endif // ARROWS_SERIALIZATION_PROTOBUF_GEO_POLYGON_H

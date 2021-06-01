@@ -9,13 +9,18 @@
 #include <vital/algo/data_serializer.h>
 
 namespace cereal {
-  class JSONOutputArchive;
-  class JSONInputArchive;
-}
+
+class JSONOutputArchive;
+class JSONInputArchive;
+
+} // namespace cereal
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace serialize {
+
 namespace json {
 
 class KWIVER_SERIALIZE_JSON_EXPORT timestamp
@@ -28,10 +33,17 @@ public:
   timestamp();
   virtual ~timestamp();
 
-  std::shared_ptr< std::string > serialize( const vital::any& elements ) override;
+  std::shared_ptr< std::string > serialize( const vital::any& elements )
+  override;
   vital::any deserialize( const std::string& message ) override;
 };
 
-} } } }
+} // namespace json
+
+} // namespace serialize
+
+} // namespace arrows
+
+} // namespace kwiver
 
 #endif

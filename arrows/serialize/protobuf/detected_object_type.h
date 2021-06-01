@@ -8,8 +8,11 @@
 #include <arrows/serialize/protobuf/kwiver_serialize_protobuf_export.h>
 #include <vital/algo/data_serializer.h>
 namespace kwiver {
+
 namespace arrows {
+
 namespace serialize {
+
 namespace protobuf {
 
 class KWIVER_SERIALIZE_PROTOBUF_EXPORT detected_object_type
@@ -22,10 +25,17 @@ public:
   detected_object_type();
   virtual ~detected_object_type();
 
-  std::shared_ptr< std::string > serialize( const vital::any& element ) override;
+  std::shared_ptr< std::string > serialize( const vital::any& element )
+  override;
   vital::any deserialize( const std::string& message ) override;
 };
 
-} } } }       // end namespace kwiver
+} // namespace protobuf
+
+} // namespace serialize
+
+} // namespace arrows
+
+}             // end namespace kwiver
 
 #endif // ARROWS_SERIALIZATION_PROTO_DETECTED_OBJECT_TYPEH

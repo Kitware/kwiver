@@ -5,18 +5,23 @@
 #ifndef ARROWS_SERIALIZATION_JSON_ACTIVITY_TYPE
 #define ARROWS_SERIALIZATION_JSON_ACTIVITY_TYPE
 
+#include "load_save.h"
 #include <arrows/serialize/json/kwiver_serialize_json_export.h>
 #include <vital/algo/data_serializer.h>
-#include "load_save.h"
 
 namespace cereal {
-  class JSONOutputArchive;
-  class JSONInputArchive;
+
+class JSONOutputArchive;
+class JSONInputArchive;
+
 } // end namespace cereal
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace serialize {
+
 namespace json {
 
 class KWIVER_SERIALIZE_JSON_EXPORT activity_type
@@ -28,16 +33,22 @@ public:
     "kwiver:activity_type",
     "Serializes an activity_type using JSON notation. "
     "This implementation only handles a single data item."
-  );
+    );
 
   activity_type();
   virtual ~activity_type();
 
   std::shared_ptr< std::string >
-    serialize( const kwiver::vital::any& element ) override;
+  serialize( const kwiver::vital::any& element ) override;
   kwiver::vital::any deserialize( const std::string& message ) override;
 };
 
-} } } }
+} // namespace json
+
+} // namespace serialize
+
+} // namespace arrows
+
+} // namespace kwiver
 
 #endif
