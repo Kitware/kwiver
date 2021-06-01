@@ -484,8 +484,9 @@ camera_options
   for (auto& ext_par : ext_params)
   {
     auto fid = ext_par.first;
-    vector_3d position_prior_local;
-    if(!constraints->get_camera_position_prior_local(fid,position_prior_local))
+    auto const& position_prior_local =
+      constraints->get_camera_position_prior_local(fid);
+    if(!position_prior_local)
     {
       continue;
     }
@@ -501,7 +502,7 @@ camera_options
     }
 
     auto position_prior_cost =
-      camera_position::create(position_prior_local);
+      camera_position::create(*position_prior_local);
 
     problem.AddResidualBlock(position_prior_cost,
       loss,
