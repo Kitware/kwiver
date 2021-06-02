@@ -10,20 +10,23 @@
 #ifndef KWIVER_ARROWS_CERES_CAMERA_OPTIONS_H_
 #define KWIVER_ARROWS_CERES_CAMERA_OPTIONS_H_
 
-#include <vital/vital_config.h>
-#include <vital/config/config_block.h>
-#include <vital/types/camera_perspective.h>
-#include <vital/types/camera_map.h>
-#include <vital/types/sfm_constraints.h>
 #include <arrows/ceres/types.h>
+#include <vital/config/config_block.h>
+#include <vital/types/camera_map.h>
+#include <vital/types/camera_perspective.h>
+#include <vital/types/sfm_constraints.h>
+#include <vital/vital_config.h>
 
 #include <unordered_map>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace ceres {
 
 /// Ceres solver options class
+
 /**
  * The intended use of this class is for a PIMPL for an algorithm to
  * inherit from this class to share these options with that algorithm
@@ -35,19 +38,20 @@ public:
   solver_options();
 
   /// Copy Constructor
-  solver_options(const solver_options& other);
+  solver_options( const solver_options& other );
 
   /// populate the config block with options
-  void get_configuration(vital::config_block_sptr config) const;
+  void get_configuration( vital::config_block_sptr config ) const;
 
   /// set the member variables from the config block
-  void set_configuration(vital::config_block_sptr config);
+  void set_configuration( vital::config_block_sptr config );
 
   /// the Ceres solver options
   ::ceres::Solver::Options options;
 };
 
 /// Camera options class
+
 /**
  * The intended use of this class is for a PIMPL for an algorithm to
  * inherit from this class to share these options with that algorithm
@@ -56,36 +60,41 @@ class camera_options
 {
 public:
   /// typedef for camera parameter map
-  typedef std::unordered_map<vital::frame_id_t, std::vector<double> > cam_param_map_t;
-  typedef std::unordered_map<vital::frame_id_t, unsigned int> cam_intrinsic_id_map_t;
-  typedef std::vector<std::pair<vital::frame_id_t, double *> > frame_params_t;
+  typedef std::unordered_map< vital::frame_id_t,
+                              std::vector< double > > cam_param_map_t;
+  typedef std::unordered_map< vital::frame_id_t,
+                              unsigned int > cam_intrinsic_id_map_t;
+  typedef std::vector< std::pair< vital::frame_id_t,
+                                  double* > > frame_params_t;
 
   /// Constructor
   camera_options();
 
   /// Copy Constructor
-  camera_options(const camera_options& other);
+  camera_options( const camera_options& other );
 
   /// populate the config block with options
-  void get_configuration(vital::config_block_sptr config) const;
+  void get_configuration( vital::config_block_sptr config ) const;
 
   /// set the member variables from the config block
-  void set_configuration(vital::config_block_sptr config);
+  void set_configuration( vital::config_block_sptr config );
 
   /// Return true if any options to optimize intrinsic parameters are set
   bool optimize_intrinsics() const;
 
   /// extract the extrinsic paramters from a camera into the parameter array
+
   /**
    *  \param [in]  camera The camera object to extract data from
    *  \param [out] params and array of 6 doubles to populate with parameters
    *
    *  This function is the inverse of update_camera_extrinsics
    */
-  void extract_camera_extrinsics(const vital::camera_perspective_sptr camera,
-                                 double* params) const;
+  void extract_camera_extrinsics( const vital::camera_perspective_sptr camera,
+                                  double* params ) const;
 
   /// Update a camera object to use extrinsic parameters from an array
+
   /**
    *  \param [out] camera The simple_camera instance to update
    *  \param [in] params The array of 6 doubles to extract the data from
@@ -93,10 +102,11 @@ public:
    *  This function is the inverse of extract_camera_extrinsics
    */
   void update_camera_extrinsics(
-    std::shared_ptr<vital::simple_camera_perspective> camera,
-    double const* params) const;
+    std::shared_ptr< vital::simple_camera_perspective > camera,
+    double const* params ) const;
 
   /// extract the paramters from camera intrinsics into the parameter array
+
   /**
    *  \param [in]  K The camera intrinsics object to extract data from
    *  \param [out] params and array of double to populate with parameters
@@ -106,76 +116,93 @@ public:
    *
    *  This function is the inverse of update_camera_intrinsics
    */
-  void extract_camera_intrinsics(const vital::camera_intrinsics_sptr K,
-                                 double* params) const;
+  void extract_camera_intrinsics( const vital::camera_intrinsics_sptr K,
+                                  double* params ) const;
 
   /// update the camera intrinsics from a parameter array
+
   /**
    *  \param [out] K The simple_camera_intrinsics instance to update
    *  \param [in] params The array of doubles to extract the data from
    *
    *  This function is the inverse of extract_camera_intrinsics
    */
-  void update_camera_intrinsics(std::shared_ptr<vital::simple_camera_intrinsics> K,
-                                const double* params) const;
+  void update_camera_intrinsics(
+    std::shared_ptr< vital::simple_camera_intrinsics > K,
+    const double* params ) const;
 
-  /// extract the set of all unique intrinsic and extrinsic parameters from a camera map
+  /// extract the set of all unique intrinsic and extrinsic parameters from a
+  /// camera map
+
   /**
-   *  \param [in]  cameras    The map of frame numbers to cameras to extract parameters from
-   *  \param [out] ext_params A map from frame number to vector of extrinsic parameters
-   *  \param [out] int_params A vector of unique camera intrinsic parameter vectors
-   *  \param [out] int_map    A map from frame number to index into \p int_params.
-   *                          The mapping may be many-to-one for shared intrinsics.
+   *  \param [in]  cameras    The map of frame numbers to cameras to extract
+   *parameters from
+   *  \param [out] ext_params A map from frame number to vector of extrinsic
+   *parameters
+   *  \param [out] int_params A vector of unique camera intrinsic parameter
+   *vectors
+   *  \param [out] int_map    A map from frame number to index into \p
+   *int_params.
+   *                          The mapping may be many-to-one for shared
+   *intrinsics.
    *
    *  This function is the inverse of update_camera_parameters
    */
-  void extract_camera_parameters(vital::camera_map::map_camera_t const& cameras,
-                                 cam_param_map_t& ext_params,
-                                 std::vector<std::vector<double> >& int_params,
-                                 cam_intrinsic_id_map_t& int_map) const;
+  void extract_camera_parameters(
+    vital::camera_map::map_camera_t const& cameras,
+    cam_param_map_t& ext_params,
+    std::vector< std::vector< double > >& int_params,
+    cam_intrinsic_id_map_t& int_map ) const;
 
   /// update the camera objects using the extracted camera parameters
+
   /**
    *  \param [out] cameras    The map of frame numbers to cameras to update
-   *  \param [in]  ext_params A map from frame number to vector of extrinsic parameters
-   *  \param [in]  int_params A vector of unique camera intrinsic parameter vectors
-   *  \param [in]  int_map    A map from frame number to index into \p int_params.
-   *                          The mapping may be many-to-one for shared intrinsics.
+   *  \param [in]  ext_params A map from frame number to vector of extrinsic
+   *parameters
+   *  \param [in]  int_params A vector of unique camera intrinsic parameter
+   *vectors
+   *  \param [in]  int_map    A map from frame number to index into \p
+   *int_params.
+   *                          The mapping may be many-to-one for shared
+   *intrinsics.
    *
-   *  The original camera_intrinsic objects are reused if they were not optimized.
+   *  The original camera_intrinsic objects are reused if they were not
+   *optimized.
    *  Otherwise new camera_intrinsic instances are created.
    *
    *  This function is the inverse of extract_camera_parameters
    */
   void
-  update_camera_parameters(vital::camera_map::map_camera_t& cameras,
-                           cam_param_map_t const& ext_params,
-                           std::vector<std::vector<double> > const& int_params,
-                           cam_intrinsic_id_map_t const& int_map) const;
+  update_camera_parameters( vital::camera_map::map_camera_t& cameras,
+                            cam_param_map_t const& ext_params,
+                            std::vector< std::vector< double > > const& int_params,
+                            cam_intrinsic_id_map_t const& int_map ) const;
 
   /// Add the camera position priors costs to the Ceres problem
   int
-  add_position_prior_cost(::ceres::Problem& problem,
-                          cam_param_map_t& ext_params,
-                          vital::sfm_constraints_sptr constraints);
+  add_position_prior_cost( ::ceres::Problem& problem,
+                           cam_param_map_t& ext_params,
+                           vital::sfm_constraints_sptr constraints );
 
   /// Add the camera intrinsic priors costs to the Ceres problem
   void add_intrinsic_priors_cost(
     ::ceres::Problem& problem,
-    std::vector<std::vector<double> >& int_params) const;
+    std::vector< std::vector< double > >& int_params ) const;
 
   /// Add the camera path smoothness costs to the Ceres problem
   void add_camera_path_smoothness_cost(
     ::ceres::Problem& problem,
-    frame_params_t const& ordered_params) const;
+    frame_params_t const& ordered_params ) const;
 
   /// Add the camera forward motion damping costs to the Ceres problem
   void add_forward_motion_damping_cost(
     ::ceres::Problem& problem,
     frame_params_t const& ordered_params,
-    cam_intrinsic_id_map_t const& frame_to_intr_map) const;
+    cam_intrinsic_id_map_t const& frame_to_intr_map ) const;
 
   /// enumerate the intrinsics held constant
+
   /**
    * Based on the settings of the boolean optimization switches
    * poplulate a vector of indices marking which intrinsic camera
@@ -194,7 +221,7 @@ public:
    *   - \b 11 : radial distortion (k5)
    *   - \b 12 : radial distortion (k6)
    */
-  std::vector<int> enumerate_constant_intrinsics() const;
+  std::vector< int > enumerate_constant_intrinsics() const;
 
   /// option to optimize the focal length
   bool optimize_focal_length;
@@ -227,7 +254,9 @@ public:
 };
 
 } // end namespace ceres
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif
