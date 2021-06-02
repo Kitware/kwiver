@@ -14,40 +14,42 @@
 #include <iosfwd>
 
 namespace sprokit {
+
 namespace python {
 
 class SPROKIT_PYTHON_UTIL_EXPORT pyistream_device
   : public boost::iostreams::source
 {
-  public:
-    pyistream_device(pybind11::object const& obj);
-    ~pyistream_device();
+public:
+  pyistream_device( pybind11::object const& obj );
+  ~pyistream_device();
 
-    std::streamsize read(char_type* s, std::streamsize n);
+  std::streamsize read( char_type* s, std::streamsize n );
 
-  private:
-    pybind11::object m_obj;
+private:
+  pybind11::object m_obj;
 };
 
-typedef boost::iostreams::stream<pyistream_device> pyistream;
+typedef boost::iostreams::stream< pyistream_device > pyistream;
 
 // ----------------------------------------------------------------------------
 class SPROKIT_PYTHON_UTIL_EXPORT pyostream_device
   : public boost::iostreams::sink
 {
-  public:
-    pyostream_device(pybind11::object const& obj);
-    ~pyostream_device();
+public:
+  pyostream_device( pybind11::object const& obj );
+  ~pyostream_device();
 
-    std::streamsize write(char_type const* s, std::streamsize n);
+  std::streamsize write( char_type const* s, std::streamsize n );
 
-  private:
-    pybind11::object m_obj;
+private:
+  pybind11::object m_obj;
 };
 
-typedef boost::iostreams::stream<pyostream_device> pyostream;
+typedef boost::iostreams::stream< pyostream_device > pyostream;
 
-}
-}
+} // namespace python
+
+} // namespace sprokit
 
 #endif // SPROKIT_PYTHON_UTIL_PYSTREAM_H
