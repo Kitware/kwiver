@@ -10,10 +10,13 @@
 #include <vital/algo/compute_track_descriptors.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace burnout {
 
 // ----------------------------------------------------------------
+
 /**
  * @brief burnout_track_descriptors
  *
@@ -41,11 +44,15 @@ public:
   kwiver::vital::track_descriptor_set_sptr flush() override;
 
 private:
-
   class priv;
-  const std::unique_ptr<priv> d;
+
+  const std::unique_ptr< priv > d;
 };
 
-} } }
+} // namespace burnout
+
+} // namespace arrows
+
+} // namespace kwiver
 
 #endif /* KWIVER_ARROWS_BURNOUT_TRACK_DESCRIPTORS */

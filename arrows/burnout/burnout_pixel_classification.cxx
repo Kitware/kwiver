@@ -4,9 +4,9 @@
 
 #include "burnout_pixel_classification.h"
 
-#include <string>
-#include <sstream>
 #include <exception>
+#include <sstream>
+#include <string>
 
 #include <arrows/vxl/image_container.h>
 
@@ -15,7 +15,9 @@
 #include <pipelines/remove_burnin_pipeline.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace burnout {
 
 // ==================================================================================
@@ -23,9 +25,9 @@ class burnout_pixel_classification::priv
 {
 public:
   priv()
-    : m_config_file( "burnout_classification.conf" )
-    , m_output_type( "mask" )
-    , m_process( "classifier" )
+    : m_config_file( "burnout_classification.conf" ),
+      m_output_type( "mask" ),
+      m_process( "classifier" )
   {}
 
   ~priv()
@@ -58,12 +60,13 @@ burnout_pixel_classification
   // Get base config from base class
   vital::config_block_sptr config = vital::algorithm::get_configuration();
 
-  config->set_value( "config_file", d->m_config_file,  "Name of config file." );
+  config->set_value( "config_file", d->m_config_file,
+                     "Name of config file." );
 
   config->set_value( "output_type", d->m_output_type,  "Type of output."
-    "Can be set to either \"inpainted_image\" or \"mask\" depending on if you want "
-    "a mask showing pixel level detections, or an inpainted output image with "
-    "all masked pixels filled in with other values." );
+                                                       "Can be set to either \"inpainted_image\" or \"mask\" depending on if you want "
+                                                       "a mask showing pixel level detections, or an inpainted output image with "
+                                                       "all masked pixels filled in with other values." );
 
   return config;
 }
@@ -88,13 +91,15 @@ burnout_pixel_classification
   if( !d->m_process.set_params( vidtk_config ) )
   {
     std::string reason = "Failed to set pipeline parameters";
-    VITAL_THROW( vital::algorithm_configuration_exception, type_name(), impl_name(), reason );
+    VITAL_THROW( vital::algorithm_configuration_exception,
+                 type_name(), impl_name(), reason );
   }
 
   if( !d->m_process.initialize() )
   {
     std::string reason = "Failed to initialize pipeline";
-    VITAL_THROW( vital::algorithm_configuration_exception, type_name(), impl_name(), reason );
+    VITAL_THROW( vital::algorithm_configuration_exception,
+                 type_name(), impl_name(), reason );
   }
 }
 
@@ -130,7 +135,8 @@ burnout_pixel_classification
 
   if( image_data )
   {
-    input_image = vxl::image_container::vital_to_vxl( image_data->get_image() );
+    input_image =
+      vxl::image_container::vital_to_vxl( image_data->get_image() );
   }
   else
   {
@@ -156,4 +162,8 @@ burnout_pixel_classification
     new arrows::vxl::image_container( d->m_process.inpainted_image() ) );
 }
 
-} } } // end namespace
+} // namespace burnout
+
+} // namespace arrows
+
+}     // end namespace

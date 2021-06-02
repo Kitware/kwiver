@@ -10,7 +10,9 @@
 #include <arrows/burnout/burnout_track_descriptors.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace burnout {
 
 extern "C"
@@ -20,7 +22,7 @@ register_factories( ::kwiver::vital::plugin_loader& vpm )
 {
   ::kwiver::vital::algorithm_registrar reg( vpm, "arrows.burnout" );
 
-  if (reg.is_module_loaded())
+  if( reg.is_module_loaded() )
   {
     return;
   }
@@ -32,4 +34,8 @@ register_factories( ::kwiver::vital::plugin_loader& vpm )
   reg.mark_module_as_loaded();
 }
 
-} } } // end namespace
+} // namespace burnout
+
+} // namespace arrows
+
+}     // end namespace
