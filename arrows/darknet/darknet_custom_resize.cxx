@@ -6,11 +6,13 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include <string>
 #include <exception>
+#include <string>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace darknet {
 
 double
@@ -81,4 +83,8 @@ format_image( const cv::Mat& src, cv::Mat& dst, std::string option,
   return scale;
 }
 
-} } } // end namespace
+} // namespace darknet
+
+} // namespace arrows
+
+}     // end namespace

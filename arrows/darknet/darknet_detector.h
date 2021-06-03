@@ -10,10 +10,13 @@
 #include <vital/algo/image_object_detector.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace darknet {
 
 // -----------------------------------------------------------------------------
+
 /**
  * @brief
  *
@@ -38,9 +41,14 @@ public:
 
 private:
   class priv;
-  const std::unique_ptr<priv> d;
+
+  const std::unique_ptr< priv > d;
 };
 
-} } }
+} // namespace darknet
+
+} // namespace arrows
+
+} // namespace kwiver
 
 #endif /* KWIVER_ARROWS_DARKENT_DETECTOR */

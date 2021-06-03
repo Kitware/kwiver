@@ -9,7 +9,9 @@
 #include <arrows/darknet/darknet_trainer.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace darknet {
 
 extern "C"
@@ -19,7 +21,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 {
   ::kwiver::vital::algorithm_registrar reg( vpm, "arrows.darknet" );
 
-  if (reg.is_module_loaded())
+  if( reg.is_module_loaded() )
   {
     return;
   }
@@ -30,4 +32,8 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.mark_module_as_loaded();
 }
 
-} } } // end namespace
+} // namespace darknet
+
+} // namespace arrows
+
+}     // end namespace
