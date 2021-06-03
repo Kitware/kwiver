@@ -17,7 +17,9 @@
 #include <memory>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 class KWIVER_ALGO_CORE_EXPORT detected_object_set_input_kw18
@@ -44,18 +46,25 @@ public:
   detected_object_set_input_kw18();
   virtual ~detected_object_set_input_kw18();
 
-  virtual void set_configuration(vital::config_block_sptr config);
-  virtual bool check_configuration(vital::config_block_sptr config) const;
+  virtual void set_configuration( vital::config_block_sptr config );
+  virtual bool check_configuration( vital::config_block_sptr config ) const;
 
-  virtual bool read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name );
+  virtual bool read_set( kwiver::vital::detected_object_set_sptr& set,
+                         std::string& image_name );
 
 private:
+
   virtual void new_stream();
 
   class priv;
+
   std::unique_ptr< priv > d;
 };
 
-} } } // end namespace
+} // namespace core
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif // KWIVER_ARROWS_CORE_DETECTED_OBJECT_SET_INPUT_KW18_H
