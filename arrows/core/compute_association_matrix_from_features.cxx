@@ -10,17 +10,19 @@
 #include "compute_association_matrix_from_features.h"
 
 #include <vital/algo/detected_object_filter.h>
-#include <vital/types/object_track_set.h>
 #include <vital/exceptions/algorithm.h>
+#include <vital/types/object_track_set.h>
 #include <vital/vital_config.h>
 
+#include <algorithm>
+#include <atomic>
 #include <string>
 #include <vector>
-#include <atomic>
-#include <algorithm>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 using namespace kwiver::vital;
@@ -29,10 +31,11 @@ using namespace kwiver::vital;
 class compute_association_matrix_from_features::priv
 {
 public:
+
   /// Constructor
   priv()
-    : m_max_distance( -1.0 )
-    , m_logger( vital::get_logger( "compute_association_matrix_from_features" ) )
+    : m_max_distance( -1.0 ),
+      m_logger( vital::get_logger( "compute_association_matrix_from_features" ) )
   {
   }
 
@@ -69,8 +72,8 @@ compute_association_matrix_from_features
 
   // Maximum allowed pixel distance for matches
   config->set_value( "max_distance", d_->m_max_distance,
-    "Maximum allowed pixel distance for matches. Is expressed "
-    "in raw pixel distance." );
+                     "Maximum allowed pixel distance for matches. Is expressed "
+                     "in raw pixel distance." );
 
   // Sub-algorithm implementation name + sub_config block
   // - Feature filter algorithm
@@ -89,7 +92,8 @@ compute_association_matrix_from_features
   config->merge_config( in_config );
 
   algo::detected_object_filter::set_nested_algo_configuration( "filter",
-    config, d_->m_filter );
+                                                               config,
+                                                               d_->m_filter );
 
   d_->m_max_distance = config->get_value< double >( "max_distance" );
 }
@@ -99,8 +103,9 @@ compute_association_matrix_from_features
 ::check_configuration( vital::config_block_sptr config ) const
 {
   return (
-    algo::detected_object_filter::check_nested_algo_configuration( "filter", config )
-  );
+    algo::detected_object_filter::check_nested_algo_configuration( "filter",
+                                                                   config )
+    );
 }
 
 /// Compute an association matrix given detections and tracks
@@ -126,17 +131,18 @@ compute_association_matrix_from_features
   }
   else
   {
-    matrix = kwiver::vital::matrix_d( filtered_tracks.size(), filtered_dets->size() );
+    matrix = kwiver::vital::matrix_d(
+      filtered_tracks.size(), filtered_dets->size() );
 
     for( unsigned t = 0; t < filtered_tracks.size(); ++t )
     {
       for( unsigned d = 0; d < filtered_dets->size(); ++d )
       {
-        track_sptr trk = filtered_tracks[t];
-        detected_object_sptr det = filtered_dets->at(d);
+        track_sptr trk = filtered_tracks[ t ];
+        detected_object_sptr det = filtered_dets->at( d );
 
         auto det_features = det->descriptor();
-        auto trk_features = decltype(det_features){};
+        auto trk_features = decltype( det_features ){};
 
         if( !trk->empty() )
         {
@@ -152,8 +158,11 @@ compute_association_matrix_from_features
               auto center1 = trk_state->detection()->bounding_box().center();
               auto center2 = det->bounding_box().center();
 
-              dist = ( center1[0] - center2[0] ) * ( center1[0] - center2[0] );
-              dist += ( ( center1[1] - center2[1] ) * ( center1[1] - center2[1] ) );
+              dist = ( center1[ 0 ] - center2[ 0 ] ) *
+                     ( center1[ 0 ] - center2[ 0 ] );
+              dist +=
+                ( ( center1[ 1 ] - center2[ 1 ] ) *
+                  ( center1[ 1 ] - center2[ 1 ] ) );
               dist = std::sqrt( dist );
             }
 
@@ -174,8 +183,8 @@ compute_association_matrix_from_features
           double sum_sqr = 0.0;
 
           for( auto pos1 = det_features->raw_data(),
-                    pos2 = trk_features->raw_data(),
-                    end = pos1 + det_features->size();
+               pos2 = trk_features->raw_data(),
+               end = pos1 + det_features->size();
                pos1 != end; ++pos1, ++pos2 )
           {
             sum_sqr += ( ( *pos1 - *pos2 ) * ( *pos1 - *pos2 ) );
@@ -196,5 +205,7 @@ compute_association_matrix_from_features
 }
 
 } // end namespace core
+
 } // end namespace arrows
+
 } // end namespace kwiver

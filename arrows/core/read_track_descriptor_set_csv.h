@@ -15,7 +15,9 @@
 #include <vital/algo/read_track_descriptor_set.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 class KWIVER_ALGO_CORE_EXPORT read_track_descriptor_set_csv
@@ -35,9 +37,14 @@ public:
 
 private:
   class priv;
+
   std::unique_ptr< priv > d;
 };
 
-} } } // end namespace
+} // namespace core
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif // KWIVER_ARROWS_TRACK_DESCRIPTOR_SET_OUTPUT_CSV_H

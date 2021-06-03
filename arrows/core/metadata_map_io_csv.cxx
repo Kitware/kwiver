@@ -194,6 +194,7 @@ metadata_map_io_csv
   d_->write_enum_names = config->get_value< bool >( "write_enum_names" );
 
   d_->names_string = config->get_value< std::string >( "column_names" );
+
   std::vector< std::string > untrimmed_column_names;
   kwiver::vital::tokenize( d_->names_string, untrimmed_column_names, "," );
 
@@ -295,8 +296,8 @@ metadata_map_io_csv
         present_metadata_ids.erase( trait_id );
         LOG_INFO(
           logger(),
-          "Description \""  << name << "\" matched enum "
-                            << d_->md_traits.tag_to_enum_name( trait_id ) );
+          "Description \"" << name << "\" matched enum " <<
+            d_->md_traits.tag_to_enum_name( trait_id ) );
       }
       else
       {

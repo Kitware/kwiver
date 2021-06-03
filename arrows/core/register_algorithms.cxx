@@ -13,8 +13,8 @@
 
 #include <arrows/core/associate_detections_to_tracks_threshold.h>
 #include <arrows/core/class_probablity_filter.h>
-#include <arrows/core/close_loops_bad_frames_only.h>
 #include <arrows/core/close_loops_appearance_indexed.h>
+#include <arrows/core/close_loops_bad_frames_only.h>
 #include <arrows/core/close_loops_exhaustive.h>
 #include <arrows/core/close_loops_keyframe.h>
 #include <arrows/core/close_loops_multi_method.h>
@@ -59,7 +59,9 @@
 #include <arrows/core/write_track_descriptor_set_csv.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 // ----------------------------------------------------------------------------
@@ -70,7 +72,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 {
   kwiver::vital::algorithm_registrar reg( vpm, "arrows.core" );
 
-  if (reg.is_module_loaded())
+  if( reg.is_module_loaded() )
   {
     return;
   }
@@ -126,5 +128,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 }
 
 } // end namespace core
+
 } // end namespace arrows
+
 } // end namespace kwiver

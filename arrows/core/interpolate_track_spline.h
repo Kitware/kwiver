@@ -15,10 +15,13 @@
 #include <vital/algo/interpolate_track.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 /// Fills in missing track segments using spline interpolation
+
 /**
  * This class generates additional track states in between known states using
  * a configurable variety of spline-based interpolation techniques that do not
@@ -52,9 +55,14 @@ public:
 protected:
   /// private implementation class
   class priv;
-  std::unique_ptr<priv> const d_;
+
+  std::unique_ptr< priv > const d_;
 };
 
-} } } // end namespace
+} // namespace core
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif
