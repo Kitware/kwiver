@@ -10,24 +10,27 @@
 #include "convert_image_bypass.h"
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 /// Default Constructor
 convert_image_bypass
 ::convert_image_bypass()
 {
-
 }
 
 /// Default image converter ( does nothing )
 vital::image_container_sptr
 convert_image_bypass
-::convert(vital::image_container_sptr img) const
+::convert( vital::image_container_sptr img ) const
 {
   return img;
 }
 
 } // end namespace core
+
 } // end namespace arrows
+
 } // end namespace kwiver

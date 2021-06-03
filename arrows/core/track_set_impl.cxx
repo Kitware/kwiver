@@ -14,7 +14,9 @@
 #include <limits>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 using namespace kwiver::vital;
@@ -28,11 +30,11 @@ frame_index_track_set_impl
 frame_index_track_set_impl
 ::frame_index_track_set_impl( const std::vector< track_sptr >& tracks )
 {
-  for (auto const &t : tracks)
+  for( auto const& t : tracks )
   {
-    if (t)
+    if( t )
     {
-      all_tracks_.insert(std::make_pair(t->id(), t));
+      all_tracks_.insert( std::make_pair( t->id(), t ) );
     }
   }
 }
@@ -43,11 +45,11 @@ frame_index_track_set_impl
 ::populate_frame_map() const
 {
   frame_map_.clear();
-  for(auto const& track : all_tracks_)
+  for( auto const& track : all_tracks_ )
   {
-    for(auto const& ts : *track.second)
+    for( auto const& ts : *track.second )
     {
-      frame_map_[ts->frame()].insert(ts);
+      frame_map_[ ts->frame() ].insert( ts );
     }
   }
 }
@@ -57,7 +59,7 @@ void
 frame_index_track_set_impl
 ::populate_frame_map_on_demand() const
 {
-  if(frame_map_.empty() && !all_tracks_.empty())
+  if( frame_map_.empty() && !all_tracks_.empty() )
   {
     populate_frame_map();
   }
@@ -84,11 +86,12 @@ bool
 frame_index_track_set_impl
 ::contains( vital::track_sptr t ) const
 {
-  if (!t)
+  if( !t )
   {
     return false;
   }
-  auto itr = all_tracks_.find(t->id());
+
+  auto itr = all_tracks_.find( t->id() );
   return itr != all_tracks_.end() && itr->second == t;
 }
 
@@ -99,11 +102,11 @@ frame_index_track_set_impl
 {
   all_tracks_.clear();
 
-  for (auto const &t : tracks)
+  for( auto const& t : tracks )
   {
-    if (t)
+    if( t )
     {
-      all_tracks_.insert(std::make_pair( t->id(), t));
+      all_tracks_.insert( std::make_pair( t->id(), t ) );
     }
   }
 
@@ -115,18 +118,18 @@ void
 frame_index_track_set_impl
 ::insert( vital::track_sptr t )
 {
-  if (!t)
+  if( !t )
   {
     return;
   }
-  all_tracks_.insert(std::make_pair(t->id(), t));
+  all_tracks_.insert( std::make_pair( t->id(), t ) );
 
-  if (!frame_map_.empty())
+  if( !frame_map_.empty() )
   {
     // update the frame map with the new track
-    for (auto const& ts : *t)
+    for( auto const& ts : *t )
     {
-      frame_map_[ts->frame()].insert(ts);
+      frame_map_[ ts->frame() ].insert( ts );
     }
   }
 }
@@ -136,41 +139,41 @@ void
 frame_index_track_set_impl
 ::notify_new_state( vital::track_state_sptr ts )
 {
-  if (!frame_map_.empty())
+  if( !frame_map_.empty() )
   {
     // update the frame map with the new state
-    frame_map_[ts->frame()].insert(ts);
+    frame_map_[ ts->frame() ].insert( ts );
   }
 }
 
 /// Notify the container that a state has been removed from an existing track
 void
 frame_index_track_set_impl
-::notify_removed_state(vital::track_state_sptr ts)
+::notify_removed_state( vital::track_state_sptr ts )
 {
-  if (frame_map_.empty())
+  if( frame_map_.empty() )
   {
     return;
   }
 
   auto fn = ts->frame();
-  auto fm_it = frame_map_.find(fn);
-  if (fm_it == frame_map_.end())
+  auto fm_it = frame_map_.find( fn );
+  if( fm_it == frame_map_.end() )
   {
     return;
   }
 
-  auto &ts_set = fm_it->second;
-  auto ts_it = ts_set.find(ts);
-  if (ts_it != ts_set.end())
+  auto& ts_set = fm_it->second;
+  auto ts_it = ts_set.find( ts );
+  if( ts_it != ts_set.end() )
   {
-    ts_set.erase(ts_it);
+    ts_set.erase( ts_it );
   }
 
-  if (fm_it->second.empty())
+  if( fm_it->second.empty() )
   {
-    //no track states for this frame so remove the frame from the map
-    frame_map_.erase(fm_it);
+    // no track states for this frame so remove the frame from the map
+    frame_map_.erase( fm_it );
   }
 }
 
@@ -179,27 +182,29 @@ bool
 frame_index_track_set_impl
 ::remove( vital::track_sptr t )
 {
-  if (!t)
+  if( !t )
   {
     return false;
   }
-  auto itr = all_tracks_.find(t->id());
-  if ( itr == all_tracks_.end() || itr->second != t )
-  {
-    return false;
-  }
-  all_tracks_.erase(itr);
 
-  if (!frame_map_.empty())
+  auto itr = all_tracks_.find( t->id() );
+  if( itr == all_tracks_.end() || itr->second != t )
+  {
+    return false;
+  }
+  all_tracks_.erase( itr );
+
+  if( !frame_map_.empty() )
   {
     // remove from the frame map
-    for (auto const& ts : *t)
+    for( auto const& ts : *t )
     {
-      frame_map_[ts->frame()].erase(ts);
-      if (frame_map_[ts->frame()].empty())
-      { // There are not track states in the frame map.  So remove the frame's
+      frame_map_[ ts->frame() ].erase( ts );
+      if( frame_map_[ ts->frame() ].empty() )
+      {
+        // There are not track states in the frame map.  So remove the frame's
         // entry from the frame map.
-        frame_map_.erase(ts->frame());
+        frame_map_.erase( ts->frame() );
       }
     }
   }
@@ -212,41 +217,41 @@ std::vector< track_sptr >
 frame_index_track_set_impl
 ::tracks() const
 {
-  std::vector<track_sptr> tks(all_tracks_.size());
+  std::vector< track_sptr > tks( all_tracks_.size() );
   size_t i = 0;
-  for (auto const &t : all_tracks_)
+  for( auto const& t : all_tracks_ )
   {
-    tks[i++] = t.second;
+    tks[ i++ ] = t.second;
   }
   return tks;
 }
 
 /// Return the set of all frame IDs covered by these tracks
-std::set<frame_id_t>
+std::set< frame_id_t >
 frame_index_track_set_impl
 ::all_frame_ids() const
 {
   // populate the frame map if empty
   populate_frame_map_on_demand();
 
-  std::set<frame_id_t> ids;
+  std::set< frame_id_t > ids;
   // extract all the keys from frame_map_
-  for(auto const& fmi : frame_map_)
+  for( auto const& fmi : frame_map_ )
   {
-    ids.insert(fmi.first);
+    ids.insert( fmi.first );
   }
   return ids;
 }
 
 /// Return the set of all track IDs in this track set
-std::set<track_id_t>
+std::set< track_id_t >
 frame_index_track_set_impl
 ::all_track_ids() const
 {
-  std::set<track_id_t> ids;
-  for( auto const& t : all_tracks_)
+  std::set< track_id_t > ids;
+  for( auto const& t : all_tracks_ )
   {
-    ids.insert(t.first);
+    ids.insert( t.first );
   }
   return ids;
 }
@@ -278,10 +283,10 @@ frame_index_track_set_impl
 /// Return the track in the set with the specified id.
 track_sptr const
 frame_index_track_set_impl
-::get_track(track_id_t tid) const
+::get_track( track_id_t tid ) const
 {
-  auto t_it = all_tracks_.find(tid);
-  if (t_it != all_tracks_.end())
+  auto t_it = all_tracks_.find( tid );
+  if( t_it != all_tracks_.end() )
   {
     return t_it->second;
   }
@@ -292,21 +297,21 @@ frame_index_track_set_impl
 /// Return all tracks active on a frame.
 std::vector< track_sptr >
 frame_index_track_set_impl
-::active_tracks(frame_id_t offset) const
+::active_tracks( frame_id_t offset ) const
 {
   // populate the frame map if empty
   populate_frame_map_on_demand();
 
-  std::vector<track_sptr> active_tracks;
-  frame_id_t frame_number = offset_to_frame(offset);
-  auto const& map_itr = frame_map_.find(frame_number);
+  std::vector< track_sptr > active_tracks;
+  frame_id_t frame_number = offset_to_frame( offset );
+  auto const& map_itr = frame_map_.find( frame_number );
   if( map_itr != frame_map_.end() )
   {
-    auto &track_set = map_itr->second;
-    active_tracks.reserve(track_set.size());
-    for( auto const& ts : track_set)
+    auto& track_set = map_itr->second;
+    active_tracks.reserve( track_set.size() );
+    for( auto const& ts : track_set )
     {
-      active_tracks.push_back(ts->track());
+      active_tracks.push_back( ts->track() );
     }
   }
   return active_tracks;
@@ -315,17 +320,17 @@ frame_index_track_set_impl
 /// Return all tracks not active on a frame.
 std::vector< track_sptr >
 frame_index_track_set_impl
-::inactive_tracks(frame_id_t offset) const
+::inactive_tracks( frame_id_t offset ) const
 {
-  std::vector<track_sptr> inactive_tracks;
-  frame_id_t frame_number = offset_to_frame(offset);
+  std::vector< track_sptr > inactive_tracks;
+  frame_id_t frame_number = offset_to_frame( offset );
   // TODO consider computing this as a set difference between all_tracks_
   // and active_tracks()
-  for( auto const& t : all_tracks_)
+  for( auto const& t : all_tracks_ )
   {
-    if( t.second->find(frame_number) == t.second->end() )
+    if( t.second->find( frame_number ) == t.second->end() )
     {
-      inactive_tracks.push_back(t.second);
+      inactive_tracks.push_back( t.second );
     }
   }
   return inactive_tracks;
@@ -334,14 +339,14 @@ frame_index_track_set_impl
 /// Return all new tracks on a given frame.
 std::vector< track_sptr >
 frame_index_track_set_impl
-::new_tracks(frame_id_t offset) const
+::new_tracks( frame_id_t offset ) const
 {
   // populate the frame map if empty
   populate_frame_map_on_demand();
 
-  std::vector<track_sptr> new_tracks;
-  frame_id_t frame_number = offset_to_frame(offset);
-  auto const& map_itr = frame_map_.find(frame_number);
+  std::vector< track_sptr > new_tracks;
+  frame_id_t frame_number = offset_to_frame( offset );
+  auto const& map_itr = frame_map_.find( frame_number );
   if( map_itr != frame_map_.end() )
   {
     for( auto const& ts : map_itr->second )
@@ -349,7 +354,7 @@ frame_index_track_set_impl
       auto t = ts->track();
       if( t->first_frame() == frame_number )
       {
-        new_tracks.push_back(ts->track());
+        new_tracks.push_back( ts->track() );
       }
     }
   }
@@ -359,14 +364,14 @@ frame_index_track_set_impl
 /// Return all terminated tracks on a given frame.
 std::vector< track_sptr >
 frame_index_track_set_impl
-::terminated_tracks(frame_id_t offset) const
+::terminated_tracks( frame_id_t offset ) const
 {
   // populate the frame map if empty
   populate_frame_map_on_demand();
 
-  std::vector<track_sptr> terminated_tracks;
-  frame_id_t frame_number = offset_to_frame(offset);
-  auto const& map_itr = frame_map_.find(frame_number);
+  std::vector< track_sptr > terminated_tracks;
+  frame_id_t frame_number = offset_to_frame( offset );
+  auto const& map_itr = frame_map_.find( frame_number );
   if( map_itr != frame_map_.end() )
   {
     for( auto const& ts : map_itr->second )
@@ -374,14 +379,15 @@ frame_index_track_set_impl
       auto t = ts->track();
       if( t->last_frame() == frame_number )
       {
-        terminated_tracks.push_back(ts->track());
+        terminated_tracks.push_back( ts->track() );
       }
     }
   }
   return terminated_tracks;
 }
 
-bool track_less(const track_sptr &t1, const track_sptr &t2)
+bool
+track_less( const track_sptr& t1, const track_sptr& t2 )
 {
   return t1->id() < t2->id();
 }
@@ -389,49 +395,51 @@ bool track_less(const track_sptr &t1, const track_sptr &t2)
 /// Return the percentage of tracks successfully tracked to the next frame.
 double
 frame_index_track_set_impl
-::percentage_tracked(frame_id_t offset1, frame_id_t offset2) const
+::percentage_tracked( frame_id_t offset1, frame_id_t offset2 ) const
 {
   // populate the frame map if empty
   populate_frame_map_on_demand();
 
-  std::vector<track_sptr> tracks1 = this->active_tracks(offset1);
-  std::sort(tracks1.begin(), tracks1.end(), track_less);
-  std::vector<track_sptr> tracks2 = this->active_tracks(offset2);
-  std::sort(tracks2.begin(), tracks2.end(), track_less);
+  std::vector< track_sptr > tracks1 = this->active_tracks( offset1 );
+  std::sort( tracks1.begin(), tracks1.end(), track_less );
 
-  std::vector<track_sptr> isect_tracks;
-  std::set_intersection(tracks1.begin(), tracks1.end(),
-                        tracks2.begin(), tracks2.end(),
-                        std::back_inserter(isect_tracks), track_less);
+  std::vector< track_sptr > tracks2 = this->active_tracks( offset2 );
+  std::sort( tracks2.begin(), tracks2.end(), track_less );
 
-  std::vector<track_sptr> union_tracks;
-  std::set_union(tracks1.begin(), tracks1.end(),
-                 tracks2.begin(), tracks2.end(),
-                 std::back_inserter(union_tracks), track_less);
+  std::vector< track_sptr > isect_tracks;
+  std::set_intersection( tracks1.begin(), tracks1.end(),
+                         tracks2.begin(), tracks2.end(),
+                         std::back_inserter( isect_tracks ), track_less );
+
+  std::vector< track_sptr > union_tracks;
+  std::set_union( tracks1.begin(), tracks1.end(),
+                  tracks2.begin(), tracks2.end(),
+                  std::back_inserter( union_tracks ), track_less );
 
   if( union_tracks.empty() )
   {
     return 0.0;
   }
-  return static_cast<double>(isect_tracks.size()) / union_tracks.size();
+  return static_cast< double >( isect_tracks.size() ) / union_tracks.size();
 }
 
-/// Return a vector of state data corresponding to the tracks on the given frame.
-std::vector<track_state_sptr>
+/// Return a vector of state data corresponding to the tracks on the given
+/// frame.
+std::vector< track_state_sptr >
 frame_index_track_set_impl
 ::frame_states( frame_id_t offset ) const
 {
   // populate the frame map if empty
   populate_frame_map_on_demand();
 
-  std::vector<track_state_sptr> vdata;
-  frame_id_t frame_number = offset_to_frame(offset);
-  auto const& map_itr = frame_map_.find(frame_number);
+  std::vector< track_state_sptr > vdata;
+  frame_id_t frame_number = offset_to_frame( offset );
+  auto const& map_itr = frame_map_.find( frame_number );
   if( map_itr != frame_map_.end() )
   {
     for( auto const& ts : map_itr->second )
     {
-      vdata.push_back(ts);
+      vdata.push_back( ts );
     }
   }
   return vdata;
@@ -442,9 +450,9 @@ track_set_frame_data_sptr
 frame_index_track_set_impl
 ::frame_data( frame_id_t offset ) const
 {
-  frame_id_t frame_number = offset_to_frame(offset);
-  auto itr = frame_data_.find(frame_number);
-  if ( itr != frame_data_.end() )
+  frame_id_t frame_number = offset_to_frame( offset );
+  auto itr = frame_data_.find( frame_number );
+  if( itr != frame_data_.end() )
   {
     return itr->second;
   }
@@ -454,13 +462,13 @@ frame_index_track_set_impl
 /// Removes the frame data for the frame offset
 bool
 frame_index_track_set_impl
-::remove_frame_data(frame_id_t offset)
+::remove_frame_data( frame_id_t offset )
 {
-  frame_id_t frame_number = offset_to_frame(offset);
-  auto itr = frame_data_.find(frame_number);
-  if (itr != frame_data_.end())
+  frame_id_t frame_number = offset_to_frame( offset );
+  auto itr = frame_data_.find( frame_number );
+  if( itr != frame_data_.end() )
   {
-    frame_data_.erase(itr);
+    frame_data_.erase( itr );
     return true;
   }
   return false;
@@ -472,20 +480,20 @@ frame_index_track_set_impl
 ::set_frame_data( track_set_frame_data_sptr data,
                   frame_id_t offset )
 {
-  frame_id_t frame_number = offset_to_frame(offset);
-  if ( !data )
+  frame_id_t frame_number = offset_to_frame( offset );
+  if( !data )
   {
     // remove the data on the specified frame
-    auto itr = frame_data_.find(frame_number);
-    if ( itr == frame_data_.end() )
+    auto itr = frame_data_.find( frame_number );
+    if( itr == frame_data_.end() )
     {
       return false;
     }
-    frame_data_.erase(itr);
+    frame_data_.erase( itr );
   }
   else
   {
-    frame_data_[frame_number] = data;
+    frame_data_[ frame_number ] = data;
   }
   return true;
 }
@@ -494,17 +502,18 @@ track_set_implementation_uptr
 frame_index_track_set_impl
 ::clone( vital::clone_type ct ) const
 {
-  std::unique_ptr<frame_index_track_set_impl> the_clone =
-    std::unique_ptr<frame_index_track_set_impl>(new frame_index_track_set_impl());
+  std::unique_ptr< frame_index_track_set_impl > the_clone =
+    std::unique_ptr< frame_index_track_set_impl >(
+       new frame_index_track_set_impl() );
 
   // clone the track data
-  for ( auto const& trk : all_tracks_ )
+  for( auto const& trk : all_tracks_ )
   {
     the_clone->all_tracks_.emplace( trk.first, trk.second->clone( ct ) );
   }
 
   // clone the frame data
-  for ( auto const& fd : frame_data_ )
+  for( auto const& fd : frame_data_ )
   {
     the_clone->frame_data_.emplace( fd.first, fd.second->clone() );
   }
@@ -517,5 +526,7 @@ frame_index_track_set_impl
 }
 
 } // end namespace core
+
 } // end namespace arrows
+
 } // end namespace kwiver

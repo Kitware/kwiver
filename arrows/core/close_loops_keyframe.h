@@ -15,10 +15,13 @@
 #include <vital/algo/close_loops.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 /// Attempts to stitch over previous frames.
+
 /**
  * This class attempts close loops with all previous (or as specified) frames
  */
@@ -35,7 +38,9 @@ public:
   /// Destructor
   virtual ~close_loops_keyframe() noexcept;
 
-  /// Get this algorithm's \link vital::config_block configuration block \endlink
+  /// Get this algorithm's \link vital::config_block configuration block
+  /// \endlink
+
   /**
    * This base virtual function implementation returns an empty configuration
    * block whose name is set to \c this->type_name.
@@ -46,6 +51,7 @@ public:
   virtual vital::config_block_sptr get_configuration() const;
 
   /// Set this algorithm's properties via a config block
+
   /**
    * \throws no_such_configuration_value_exception
    *    Thrown if an expected configuration value is not present.
@@ -56,9 +62,10 @@ public:
    * \param config  The \c config_block instance containing the configuration
    *                parameters for this algorithm
    */
-  virtual void set_configuration(vital::config_block_sptr config);
+  virtual void set_configuration( vital::config_block_sptr config );
 
   /// Check that the algorithm's currently configuration is valid
+
   /**
    * This checks solely within the provided \c config_block and not against
    * the current state of the instance. This isn't static for inheritence
@@ -68,9 +75,10 @@ public:
    *
    * \returns true if the configuration check passed and false if it didn't.
    */
-  virtual bool check_configuration(vital::config_block_sptr config) const;
+  virtual bool check_configuration( vital::config_block_sptr config ) const;
 
   /// Perform keyframe guided stitching
+
   /**
    * \param [in] frame_number the frame number of the current frame
    * \param [in] input the input feature track set to stitch
@@ -83,16 +91,20 @@ public:
   stitch( vital::frame_id_t frame_number,
           vital::feature_track_set_sptr input,
           vital::image_container_sptr image,
-          vital::image_container_sptr mask = vital::image_container_sptr() ) const;
+          vital::image_container_sptr mask =
+            vital::image_container_sptr() ) const;
 
 private:
   /// private implementation class
   class priv;
-  const std::unique_ptr<priv> d_;
+
+  const std::unique_ptr< priv > d_;
 };
 
 } // end namespace core
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

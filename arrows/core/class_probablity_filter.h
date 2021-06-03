@@ -9,14 +9,17 @@
 
 #include <vital/algo/detected_object_filter.h>
 
-#include <utility>
 #include <set>
+#include <utility>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 // ----------------------------------------------------------------
+
 /**
  * @brief Filters detections based on class probability.
  *
@@ -52,17 +55,23 @@ public:
   virtual ~class_probablity_filter() = default;
 
   virtual vital::config_block_sptr get_configuration() const;
-  virtual void set_configuration(vital::config_block_sptr config);
-  virtual bool check_configuration(vital::config_block_sptr config) const;
+  virtual void set_configuration( vital::config_block_sptr config );
+  virtual bool check_configuration( vital::config_block_sptr config ) const;
 
-  virtual vital::detected_object_set_sptr filter( const vital::detected_object_set_sptr input_set) const;
+  virtual vital::detected_object_set_sptr filter(
+    const vital::detected_object_set_sptr input_set ) const;
 
 private:
+
   bool m_keep_all_classes;
-  std::set<std::string> m_keep_classes;
+  std::set< std::string > m_keep_classes;
   double m_threshold;
 };
 
-}}} //End namespace
+} // namespace core
+
+} // namespace arrows
+
+}   // End namespace
 
 #endif
