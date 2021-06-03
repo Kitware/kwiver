@@ -15,11 +15,13 @@
 #include <vital/algo/algorithm.h>
 #include <vital/algo/handle_descriptor_request.h>
 
-#include <vital/algo/image_io.h>
 #include <vital/algo/compute_track_descriptors.h>
+#include <vital/algo/image_io.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 /// A basic query formulator
@@ -33,7 +35,9 @@ public:
   /// Default Constructor
   handle_descriptor_request_core();
 
-  /// Get this algorithm's \link vital::config_block configuration block \endlink
+  /// Get this algorithm's \link vital::config_block configuration block
+  /// \endlink
+
   /**
    * This base virtual function implementation returns an empty configuration
    * block whose name is set to \c this->type_name.
@@ -44,6 +48,7 @@ public:
   virtual vital::config_block_sptr get_configuration() const;
 
   /// Set this algorithm's properties via a config block
+
   /**
    * \throws no_such_configuration_value_exception
    *    Thrown if an expected configuration value is not present.
@@ -57,6 +62,7 @@ public:
   virtual void set_configuration( vital::config_block_sptr config );
 
   /// Check that the algorithm's currently configuration is valid
+
   /**
    * This checks solely within the provided \c config_block and not against
    * the current state of the instance. This isn't static for inheritence
@@ -75,7 +81,6 @@ public:
     std::vector< kwiver::vital::image_container_sptr >& imgs );
 
 private:
-
   /// The feature detector algorithm to use
   vital::algo::image_io_sptr reader_;
 
@@ -84,7 +89,9 @@ private:
 };
 
 } // end namespace core
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

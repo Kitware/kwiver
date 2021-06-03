@@ -10,11 +10,14 @@
 #include <arrows/core/kwiver_algo_core_export.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 /// Metadata reader using the AFRL POS file format.
 // ----------------------------------------------------------------
+
 /**
  * This class implements a video input algorithm that returns only metadata.
  *
@@ -23,7 +26,7 @@ namespace core {
  * metadata files have the same base name as the image files.
  */
 class KWIVER_ALGO_CORE_EXPORT video_input_pos
-  : public  vital::algo::video_input
+  : public vital::algo::video_input
 {
 public:
   PLUGIN_INFO(  "pos",
@@ -38,14 +41,15 @@ public:
   video_input_pos();
   virtual ~video_input_pos();
 
-  /// Get this algorithm's \link vital::config_block configuration block \endlink
+  /// Get this algorithm's \link vital::config_block configuration block
+  /// \endlink
   virtual vital::config_block_sptr get_configuration() const;
 
   /// Set this algorithm's properties via a config block
-  virtual void set_configuration(vital::config_block_sptr config);
+  virtual void set_configuration( vital::config_block_sptr config );
 
   /// Check that the algorithm's currently configuration is valid
-  virtual bool check_configuration(vital::config_block_sptr config) const;
+  virtual bool check_configuration( vital::config_block_sptr config ) const;
 
   /**
    * @brief Open a list of images.
@@ -79,9 +83,14 @@ public:
 private:
   /// private implementation class
   class priv;
-  const std::unique_ptr<priv> d;
+
+  const std::unique_ptr< priv > d;
 };
 
-} } } // end namespace
+} // namespace core
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif // ARROWS_CORE_VIDEO_INPUT_POS_H
