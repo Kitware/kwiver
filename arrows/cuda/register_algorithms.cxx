@@ -13,7 +13,9 @@
 #include <arrows/cuda/integrate_depth_maps.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace cuda {
 
 extern "C"
@@ -23,7 +25,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 {
   kwiver::vital::algorithm_registrar reg( vpm, "arrows.cuda" );
 
-  if (reg.is_module_loaded())
+  if( reg.is_module_loaded() )
   {
     return;
   }
@@ -34,5 +36,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 }
 
 } // end namespace cuda
+
 } // end namespace arrows
+
 } // end namespace kwiver
