@@ -32,15 +32,15 @@ test_resection_camera(
   // True and computed camera poses
   auto const& expected_rotation = expected_camera->rotation();
   auto const& estimated_rotation = estimated_camera->rotation();
-  std::cout
-    << "expected center:\n" << expected_camera->center().transpose() << '\n'
-    << "estimated center:\n" << estimated_camera->center().transpose() << '\n'
-    << "expected rotation:\n" << expected_rotation.matrix() << '\n'
-    << "estimated rotation:\n" << estimated_rotation.matrix() << '\n';
+  std::cout <<
+    "expected center:\n" << expected_camera->center().transpose() << '\n' <<
+    "estimated center:\n" << estimated_camera->center().transpose() << '\n' <<
+    "expected rotation:\n" << expected_rotation.matrix() << '\n' <<
+    "estimated rotation:\n" << estimated_rotation.matrix() << '\n';
 
   auto rotation_error = expected_rotation.inverse() * estimated_rotation;
-  std::cout << "rotation error = "
-            << rad_to_deg * rotation_error.angle() << " degrees" << std::endl;
+  std::cout << "rotation error = " <<
+    rad_to_deg * rotation_error.angle() << " degrees" << std::endl;
 
   EXPECT_LT( rotation_error.angle(), rotation_tolerance );
   EXPECT_MATRIX_SIMILAR( expected_camera->center(),
@@ -82,15 +82,15 @@ TEST ( resection_camera, ideal_points )
 
   // Do the test
   test_resection_cameras(
-    [ & ]( frame_id_t test_frame, camera_perspective_sptr const& camera ){
+    [ & ]( frame_id_t test_frame, camera_perspective_sptr const& camera ) {
       auto inliers = std::unordered_set< landmark_id_t >{};
       test_resection_camera( landmarks, tracks, test_frame, camera,
                              ideal_center_tolerance, ideal_rotation_tolerance,
                              camera->intrinsics(), &inliers );
 
       std::cout << "inlier count = " << inliers.size() << std::endl;
-      EXPECT_EQ( landmarks->size(), inliers.size() )
-        << "all points should be inliers";
+      EXPECT_EQ( landmarks->size(), inliers.size() ) <<
+        "all points should be inliers";
     }, camera_map );
 }
 
@@ -111,7 +111,7 @@ TEST ( resection_camera, noisy_points_with_image_size )
 
   // Do the test
   test_resection_cameras(
-    [ & ]( frame_id_t test_frame, camera_perspective_sptr const& camera ){
+    [ & ]( frame_id_t test_frame, camera_perspective_sptr const& camera ) {
       test_resection_camera( landmarks, tracks, test_frame, camera,
                              noisy_center_tolerance, noisy_rotation_tolerance,
                              camera->image_width(), camera->image_height() );
@@ -137,7 +137,7 @@ TEST ( resection_camera, noisy_points_with_initial_calibration )
 
   // Do the test
   test_resection_cameras(
-    [ & ]( frame_id_t test_frame, camera_perspective_sptr const& camera ){
+    [ & ]( frame_id_t test_frame, camera_perspective_sptr const& camera ) {
       test_resection_camera( landmarks, tracks, test_frame, camera,
                              noisy_center_tolerance, noisy_rotation_tolerance,
                              camera->intrinsics() );
