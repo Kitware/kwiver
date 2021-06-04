@@ -15,7 +15,9 @@
 #include <vital/algo/image_io.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace qt {
 
 /// A class for using Qt to read and write images.
@@ -55,7 +57,9 @@ private:
 };
 
 } // end namespace qt
+
 } // end namespace arrows
+
 } // end namespace kwiver
 
 #endif

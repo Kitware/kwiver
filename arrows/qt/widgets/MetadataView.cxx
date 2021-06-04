@@ -27,14 +27,16 @@ namespace kv = kwiver::vital;
 namespace kvr = kwiver::vital::range;
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace qt {
 
 QTE_IMPLEMENT_D_FUNC( MetadataView )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-//BEGIN MetadataViewPrivate
+// BEGIN MetadataViewPrivate
 
 // ----------------------------------------------------------------------------
 class MetadataViewPrivate
@@ -177,11 +179,11 @@ MetadataViewPrivate
   }
 }
 
-//END MetadataViewPrivate
+// END MetadataViewPrivate
 
 ///////////////////////////////////////////////////////////////////////////////
 
-//BEGIN MetadataView
+// BEGIN MetadataView
 
 // ----------------------------------------------------------------------------
 MetadataView
@@ -295,6 +297,7 @@ MetadataView
     for( auto const& mde : *mdp )
     {
       using md_tag_type_t =
+
         std::underlying_type< kv::vital_metadata_tag >::type;
 
       auto const k = static_cast< md_tag_type_t >( mde.first );
@@ -316,8 +319,10 @@ MetadataView
   }
 }
 
-//END MetadataView
+// END MetadataView
 
 } // namespace qt
+
 } // namespace arrows
+
 } // namespace kwiver

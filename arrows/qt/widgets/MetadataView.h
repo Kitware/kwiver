@@ -13,7 +13,9 @@
 #include <QScrollArea>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace qt {
 
 class MetadataViewPrivate;
@@ -44,7 +46,9 @@ private:
 };
 
 } // namespace qt
+
 } // namespace arrows
+
 } // namespace kwiver
 
 #endif

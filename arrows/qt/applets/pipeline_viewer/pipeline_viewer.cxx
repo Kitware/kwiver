@@ -27,7 +27,7 @@ kwiver::tools::pipeline_viewer
     auto const& arg = args[ i ];
     auto const l = arg.size() + 1;
 
-    auto marg = std::unique_ptr< char[] >{ new char[ l ] };
+    auto marg = std::unique_ptr< char[] >{ new char [ l ] };
     memcpy( marg.get(), arg.c_str(), l );
 
     argv[ i ] = marg.get();

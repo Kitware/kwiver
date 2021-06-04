@@ -33,7 +33,7 @@ main( int argc, char** argv )
 }
 
 // ----------------------------------------------------------------------------
-TEST( image, create )
+TEST ( image, create )
 {
   plugin_manager::instance().load_all_plugins();
 
@@ -41,8 +41,8 @@ TEST( image, create )
   ASSERT_NE( nullptr, img_io = algo::image_io::create( "qt" ) );
 
   algo::image_io* img_io_ptr = img_io.get();
-  EXPECT_EQ( typeid( qt::image_io ), typeid( *img_io_ptr ) )
-    << "Factory method did not construct the correct type";
+  EXPECT_EQ( typeid( qt::image_io ), typeid( *img_io_ptr ) ) <<
+    "Factory method did not construct the correct type";
 }
 
 namespace {
@@ -148,9 +148,11 @@ struct image_type
 // Declare storage for these members, which is required to use them in
 // assertions
 template < typename T, size_t Depth, QImage::Format QImageFormat >
+
 constexpr size_t image_type< T, Depth, QImageFormat >::depth;
 
 template < typename T, size_t Depth, QImage::Format QImageFormat >
+
 constexpr QImage::Format image_type< T, Depth, QImageFormat >::qimage_format;
 
 // ----------------------------------------------------------------------------
@@ -169,7 +171,7 @@ using test_types = ::testing::Types<
 TYPED_TEST_CASE( image_io, test_types );
 
 // ----------------------------------------------------------------------------
-TYPED_TEST( image_io, type )
+TYPED_TEST ( image_io, type )
 {
   using pix_t = typename TypeParam::pixel_type;
 
@@ -177,7 +179,8 @@ TYPED_TEST( image_io, type )
   populate_vital_image< pix_t >( img );
 
   auto const image_ext = ( img.depth() == 4 ? ".png" : ".tiff" );
-  auto const image_path = kwiver::testing::temp_file_name( "test-", image_ext );
+  auto const image_path =
+    kwiver::testing::temp_file_name( "test-", image_ext );
 
   auto c = std::make_shared< simple_image_container >( img );
   qt::image_io io;
@@ -188,8 +191,8 @@ TYPED_TEST( image_io, type )
   EXPECT_EQ( img.pixel_traits(), img2.pixel_traits() );
   EXPECT_EQ( img.depth(), img2.depth() );
   EXPECT_TRUE( equal_content( img, img2 ) );
-  EXPECT_EQ( 0, std::remove( image_path.c_str() ) )
-    << "Failed to delete temporary image file.";
+  EXPECT_EQ( 0, std::remove( image_path.c_str() ) ) <<
+    "Failed to delete temporary image file.";
 }
 
 namespace {
@@ -198,6 +201,7 @@ template < typename T, size_t Depth >
 void compare_pixels( QImage const&, image const&, int, int );
 
 template < typename T, size_t Depth >
+
 void compare_pixels( image const&, QImage const&, size_t, size_t );
 
 // ----------------------------------------------------------------------------
@@ -337,11 +341,10 @@ run_qt_conversion_tests( QImage const& img )
       for( auto const i : range::iota( img.width() ) )
       {
         compare_pixels< pix_t, T::depth >( img, vimg, i, j );
-        ASSERT_FALSE( ::testing::Test::HasNonfatalFailure() )
-          << "Pixels differ at " << i << ", " << j;
+        ASSERT_FALSE( ::testing::Test::HasNonfatalFailure() ) <<
+          "Pixels differ at " << i << ", " << j;
       }
-    }
-  }();
+    } } ( );
 
   // Convert back to QImage and test again
   auto img2 = qt::image_container::vital_to_qt( vimg );
@@ -358,15 +361,15 @@ run_vital_conversion_tests( image_of< typename T::pixel_type > const& img )
 
   // Convert to a vil image and verify that the properties are correct
   auto qimg = qt::image_container::vital_to_qt( img );
-  ASSERT_TRUE( !qimg.isNull() )
-    << "vital::image conversion did not produce a valid QImage";
+  ASSERT_TRUE( !qimg.isNull() ) <<
+    "vital::image conversion did not produce a valid QImage";
 
   EXPECT_EQ( native_format( T::qimage_format ), qimg.format() );
   EXPECT_EQ( static_cast< int >( img.height() ), qimg.height() );
   EXPECT_EQ( static_cast< int >( img.width() ), qimg.width() );
   EXPECT_NE( static_cast< void const* >( img.first_pixel() ),
-             static_cast< void const* >( qimg.constBits() ) )
-    << "QImage should NOT share memory with vital::image";
+             static_cast< void const* >( qimg.constBits() ) ) <<
+    "QImage should NOT share memory with vital::image";
 
   // Don't try to compare images if they don't have the same layout!
   ASSERT_FALSE( ::testing::Test::HasNonfatalFailure() );
@@ -377,11 +380,10 @@ run_vital_conversion_tests( image_of< typename T::pixel_type > const& img )
       for( auto const i : range::iota( img.width() ) )
       {
         compare_pixels< pix_t, T::depth >( img, qimg, i, j );
-        ASSERT_FALSE( ::testing::Test::HasNonfatalFailure() )
-          << "Pixels differ at " << i << ", " << j;
+        ASSERT_FALSE( ::testing::Test::HasNonfatalFailure() ) <<
+          "Pixels differ at " << i << ", " << j;
       }
-    }
-  }();
+    } } ( );
 
   // Convert back to vital::image and test again
   image img2 = qt::image_container::qt_to_vital( qimg );
@@ -389,8 +391,8 @@ run_vital_conversion_tests( image_of< typename T::pixel_type > const& img )
   EXPECT_EQ( image_pixel_traits_of< pix_t >::static_type,
              img2.pixel_traits().type );
   EXPECT_TRUE( equal_content( img, img2 ) );
-  EXPECT_NE( img.first_pixel(), img2.first_pixel() )
-    << "re-converted vital::image should NOT share memory with original";
+  EXPECT_NE( img.first_pixel(), img2.first_pixel() ) <<
+    "re-converted vital::image should NOT share memory with original";
 }
 
 } // namespace (anonymous)
@@ -404,7 +406,7 @@ class image_conversion : public ::testing::Test
 TYPED_TEST_CASE( image_conversion, test_types );
 
 // ----------------------------------------------------------------------------
-TYPED_TEST( image_conversion, qt_to_vital )
+TYPED_TEST ( image_conversion, qt_to_vital )
 {
   using pix_t = typename TypeParam::pixel_type;
 
@@ -415,7 +417,7 @@ TYPED_TEST( image_conversion, qt_to_vital )
 }
 
 // ----------------------------------------------------------------------------
-TYPED_TEST( image_conversion, vital_to_qt )
+TYPED_TEST ( image_conversion, vital_to_qt )
 {
   using pix_t = typename TypeParam::pixel_type;
 
@@ -428,7 +430,7 @@ TYPED_TEST( image_conversion, vital_to_qt )
 }
 
 // ----------------------------------------------------------------------------
-TEST( image_conversion, vital_to_qt_interleaved )
+TEST ( image_conversion, vital_to_qt_interleaved )
 {
   using test_type_t = image_type< byte, 3, QImage::Format_RGB888 >;
 

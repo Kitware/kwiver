@@ -14,7 +14,9 @@
 #include <QWidget>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace qt {
 
 class LoggerViewPrivate;
@@ -29,8 +31,8 @@ public:
   ~LoggerView();
 
   void logHandler( kwiver::vital::kwiver_logger::log_level_t,
-                   std::string const& name, std::string const& msg,
-                   kwiver::vital::logger_ns::location_info const& loc );
+                   std::string const & name, std::string const & msg,
+                   kwiver::vital::logger_ns::location_info const & loc );
 
 signals:
   void messageLogged( QString const& msg );
@@ -46,7 +48,9 @@ private:
 };
 
 } // namespace qt
+
 } // namespace arrows
+
 } // namespace kwiver
 
 #endif

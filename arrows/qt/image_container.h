@@ -47,25 +47,30 @@ public:
   image_container& operator=( image_container&& other ) = default;
 
   operator bool() const { return !data_.isNull(); }
-  bool operator!() const { return data_.isNull(); }
+  bool
+  operator!() const { return data_.isNull(); }
 
   /// \copydoc vital::image_container::size
-  size_t size() const override
+  size_t
+  size() const override
   { return static_cast< size_t >( data_.sizeInBytes() ); }
 
   /// \copydoc vital::image_container::width
-  size_t width() const override
+  size_t
+  width() const override
   { return static_cast< size_t >( data_.width() ); }
 
   /// \copydoc vital::image_container::height
-  size_t height() const override
+  size_t
+  height() const override
   { return static_cast< size_t >( data_.height() ); }
 
   /// \copydoc vital::image_container::depth
   size_t depth() const override;
 
   /// \copydoc vital::image_container::get_image
-  vital::image get_image() const override
+  vital::image
+  get_image() const override
   { return qt_to_vital( data_ ); }
   using vital::image_container::get_image;
 

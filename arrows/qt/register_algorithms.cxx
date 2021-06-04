@@ -13,7 +13,9 @@
 #include <arrows/qt/image_io.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace qt {
 
 // ----------------------------------------------------------------------------
@@ -35,5 +37,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 }
 
 } // end namespace qt
+
 } // end namespace arrows
+
 } // end namespace kwiver

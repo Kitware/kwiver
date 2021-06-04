@@ -11,6 +11,7 @@
 #include <vector>
 
 namespace kwiver {
+
 namespace tools {
 
 class pipeline_viewer : public kwiver_applet
@@ -25,6 +26,7 @@ public:
 };
 
 } // namespace tools
+
 } // namespace kwiver
 
 #endif

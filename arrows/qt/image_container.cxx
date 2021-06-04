@@ -23,7 +23,8 @@ public:
   qt_image_memory( QImage const& img ) : image_{ img }
   { size_ = static_cast< size_t >( image_.sizeInBytes() ); }
 
-  virtual void* data() override { return image_.bits(); }
+  virtual void*
+  data() override { return image_.bits(); }
 
   QImage image_;
 };

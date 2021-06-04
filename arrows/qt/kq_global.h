@@ -14,7 +14,8 @@
   inline private_name* public_name::d_func() \
   { return static_cast< private_name* >( qGetPtrHelper( this->d_ptr ) ); } \
   inline private_name const* public_name::d_func() const \
-  { return static_cast< private_name const* >( qGetPtrHelper( this->d_ptr ) ); }
+  { return static_cast< private_name const* >( qGetPtrHelper( this->d_ptr ) ); \
+  }
 
 /// Implement d-function.
 ///

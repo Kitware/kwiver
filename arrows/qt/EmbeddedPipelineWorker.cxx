@@ -39,8 +39,10 @@ class EmbeddedPipeline : public kwiver::embedded_pipeline
 public:
   EmbeddedPipeline( RequiredEndcaps );
 
-  bool hasInput() const { return this->inputConnected_; }
-  bool hasOutput() const { return this->outputConnected_; }
+  bool
+  hasInput() const { return this->inputConnected_; }
+  bool
+  hasOutput() const { return this->outputConnected_; }
 
 protected:
   bool connect_input_adapter() override;
@@ -58,11 +60,11 @@ EmbeddedPipeline
 {
   // Helper to convert to std::string using the system locale (don't assume it
   // is UTF-8 like QString::toStdString does)
-  auto ss = []( QString const& qs ){
-    auto const& data = qs.toLocal8Bit();
-    auto const l = static_cast< size_t >( data.size() );
-    return std::string{ data.constData(), l };
-  };
+  auto ss = [ ]( QString const& qs ) {
+              auto const& data = qs.toLocal8Bit();
+              auto const l = static_cast< size_t >( data.size() );
+              return std::string{ data.constData(), l };
+            };
 
   auto const& an = ss( qApp->applicationName() );
   auto const& av = ss( qApp->applicationVersion() );
@@ -193,6 +195,7 @@ EmbeddedPipelineWorkerPrivate
   if( output->is_end_of_data() )
   {
     this->atEnd = true;
+
     emit q->finished();
     return;
   }

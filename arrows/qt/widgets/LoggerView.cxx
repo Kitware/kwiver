@@ -10,7 +10,9 @@
 namespace kv = kwiver::vital;
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace qt {
 
 // ----------------------------------------------------------------------------
@@ -70,5 +72,7 @@ LoggerView
 }
 
 } // namespace qt
+
 } // namespace arrows
+
 } // namespace kwiver
