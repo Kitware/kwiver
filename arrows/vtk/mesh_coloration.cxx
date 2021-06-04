@@ -49,6 +49,7 @@ static char const* const BLOCK_MR = "mask_reader";
 // ----------------------------------------------------------------------------
 /// Compute median of a vector
 template < typename T >
+
 static void
 ComputeMedian( std::vector< T > vector, double& median )
 {
@@ -215,6 +216,7 @@ mesh_coloration
     LOG_INFO( logger_, "Done: frame " << frame_ );
     return false;
   }
+
   vtkDataArray* normals = input_->GetPointData()->GetNormals();
 
   if( !normals )
@@ -227,6 +229,7 @@ mesh_coloration
     input_ = compute_normals->GetOutput();
     normals = input_->GetPointData()->GetNormals();
   }
+
   vtkPoints* meshPointList = input_->GetPoints();
 
   if( meshPointList == 0 )
@@ -235,6 +238,7 @@ mesh_coloration
     LOG_INFO( logger_, "Done: frame " << frame_ );
     return false;
   }
+
   vtkIdType nbMeshPoint = meshPointList->GetNumberOfPoints();
 
   // per frame colors
@@ -339,6 +343,7 @@ mesh_coloration
       ++i;
     }
   }
+
   auto const progress_step = nbMeshPoint / 100;
   for( auto const id : kvr::iota( nbMeshPoint ) )
   {
@@ -511,13 +516,13 @@ mesh_coloration
         kwiver::vital::image_container_sptr maskImage{
           mask_reader_->frame_image() };
         data_list_.push_back(
-          coloration_data( image, maskImage, cam_ptr, cam_itr.first ) );
+            coloration_data( image, maskImage, cam_ptr, cam_itr.first ) );
       }
       else
       {
         kwiver::vital::image_container_sptr maskImage;
         data_list_.push_back(
-          coloration_data( image, maskImage, cam_ptr, cam_itr.first ) );
+            coloration_data( image, maskImage, cam_ptr, cam_itr.first ) );
       }
     }
     catch ( kwiver::vital::image_type_mismatch_exception const& )
@@ -617,17 +622,15 @@ mesh_coloration
   ren_win->SetSize( width, height );
 
   double* bounds = input_->GetBounds();
-  double const bb[ 8 ][ 3 ] = {
-    { bounds[ 0 ], bounds[ 2 ], bounds[ 4 ] },
+  double const bb[ 8 ][ 3 ] =
+  { { bounds[ 0 ], bounds[ 2 ], bounds[ 4 ] },
     { bounds[ 1 ], bounds[ 2 ], bounds[ 4 ] },
     { bounds[ 0 ], bounds[ 3 ], bounds[ 4 ] },
     { bounds[ 1 ], bounds[ 3 ], bounds[ 4 ] },
-
     { bounds[ 0 ], bounds[ 2 ], bounds[ 5 ] },
     { bounds[ 1 ], bounds[ 2 ], bounds[ 5 ] },
     { bounds[ 0 ], bounds[ 3 ], bounds[ 5 ] },
-    { bounds[ 1 ], bounds[ 3 ], bounds[ 5 ] },
-  };
+    { bounds[ 1 ], bounds[ 3 ], bounds[ 5 ] }, };
   depthRange[ 0 ] = std::numeric_limits< double >::max();
   depthRange[ 1 ] = std::numeric_limits< double >::lowest();
 
@@ -651,6 +654,7 @@ mesh_coloration
   {
     depthRange[ 0 ] = 0;
   }
+
   vtkNew< vtkKwiverCamera > cam;
   int imageDimensions[ 2 ] = { width, height };
   cam->SetCamera( camera_persp );

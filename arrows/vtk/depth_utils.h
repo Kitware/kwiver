@@ -3,9 +3,9 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
-* \file
-* \brief Header for VTK depth estimation utility functions.
-*/
+ * \file
+ * \brief Header for VTK depth estimation utility functions.
+ */
 
 #ifndef KWIVER_ARROWS_VTK_DEPTH_UTILS_H_
 #define KWIVER_ARROWS_VTK_DEPTH_UTILS_H_
@@ -21,10 +21,13 @@
 #include <vtkSmartPointer.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace vtk {
 
 /// Convert an estimated depth image into vtkImageData
+
 /**
  * The vtkImageData contains not just the depth image, but also the
  * associated uncertainty, color, and weight images as well as a bounding
@@ -37,20 +40,24 @@ namespace vtk {
  * image.
  *
  * \param depth_img       The floating point depth value at each pixel
- * \param color_img       The source uncropped RGB image corresonding to depth_img
- * \param uncertainty_img The optional standard deviation of the depth at each pixel
+ * \param color_img       The source uncropped RGB image corresonding to
+ *depth_img
+ * \param uncertainty_img The optional standard deviation of the depth at each
+ *pixel
  * \param mask_img        The mask of which pixels to ignore
- * \param crop_box        The bounding box used to crop depth_img from color_img
+ * \param crop_box        The bounding box used to crop depth_img from
+ *color_img
  */
 KWIVER_ALGO_VTK_EXPORT
-vtkSmartPointer<vtkImageData>
-depth_to_vtk(kwiver::vital::image_of<double> const& depth_img,
-             kwiver::vital::image_of<unsigned char> const& color_img,
-             kwiver::vital::bounding_box<int> const& crop_box = {},
-             kwiver::vital::image_of<double> const& uncertainty_img = {},
-             kwiver::vital::image_of<unsigned char> const& mask_img = {});
+vtkSmartPointer< vtkImageData >
+depth_to_vtk( kwiver::vital::image_of< double > const& depth_img,
+              kwiver::vital::image_of< unsigned char > const& color_img,
+              kwiver::vital::bounding_box< int > const& crop_box = {},
+              kwiver::vital::image_of< double > const& uncertainty_img = {},
+              kwiver::vital::image_of< unsigned char > const& mask_img = {} );
 
 /// Load the depth map saved as a VTK array
+
 /**
  * Read in the information stored in a single output file
  *
@@ -63,27 +70,30 @@ depth_to_vtk(kwiver::vital::image_of<double> const& depth_img,
  */
 KWIVER_ALGO_VTK_EXPORT
 void
-load_depth_map(const std::string& filename,
-               vital::bounding_box<int>& crop,
-               kwiver::vital::image_container_sptr& depth_out,
-               kwiver::vital::image_container_sptr& weight_out,
-               kwiver::vital::image_container_sptr& uncertainty_out,
-               kwiver::vital::image_container_sptr& color_out);
+load_depth_map( const std::string& filename,
+                vital::bounding_box< int >& crop,
+                kwiver::vital::image_container_sptr& depth_out,
+                kwiver::vital::image_container_sptr& weight_out,
+                kwiver::vital::image_container_sptr& uncertainty_out,
+                kwiver::vital::image_container_sptr& color_out );
 
 /// Convert a volume and metadata to the VTK format
+
 /**
  * \param [in] volume   The volumetric data to convert
  * \param [in] origin   The local coordinate system origin of the data
  * \param [in] spacing  The voxel spacing per axis
  */
 KWIVER_ALGO_VTK_EXPORT
-vtkSmartPointer<vtkImageData>
-volume_to_vtk(kwiver::vital::image_container_sptr volume,
-              kwiver::vital::vector_3d const& origin,
-              kwiver::vital::vector_3d const& spacing);
+vtkSmartPointer< vtkImageData >
+volume_to_vtk( kwiver::vital::image_container_sptr volume,
+               kwiver::vital::vector_3d const& origin,
+               kwiver::vital::vector_3d const& spacing );
 
-} //end namespace vtk
-} //end namespace arrows
-} //end namespace kwiver
+} // end namespace vtk
+
+} // end namespace arrows
+
+} // end namespace kwiver
 
 #endif

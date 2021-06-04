@@ -5,11 +5,13 @@
 #ifndef KWIVER_ARROWS_VTK_APPLETS_FUSE_DEPTH_H
 #define KWIVER_ARROWS_VTK_APPLETS_FUSE_DEPTH_H
 
-#include <vital/applets/kwiver_applet.h>
 #include <arrows/vtk/applets/kwiver_algo_vtk_applets_export.h>
+#include <vital/applets/kwiver_applet.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace vtk {
 
 class KWIVER_ALGO_VTK_APPLETS_EXPORT fuse_depth
@@ -20,18 +22,21 @@ public:
   virtual ~fuse_depth();
 
   PLUGIN_INFO( "fuse-depth",
-               "Fuse depth maps from multiple cameras into a single surface");
+               "Fuse depth maps from multiple cameras into a single surface" );
 
   int run() override;
   void add_command_options() override;
 
 private:
   class priv;
-  std::unique_ptr<priv> d;
 
-
+  std::unique_ptr< priv > d;
 }; // end of class
 
-} } } // end namespace
+} // namespace vtk
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif

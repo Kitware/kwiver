@@ -8,11 +8,13 @@
 #include <vital/types/camera_map.h>
 #include <vital/types/landmark_map.h>
 
-#include <vital/applets/kwiver_applet.h>
 #include <arrows/vtk/applets/kwiver_algo_vtk_applets_export.h>
+#include <vital/applets/kwiver_applet.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace vtk {
 
 class KWIVER_ALGO_VTK_APPLETS_EXPORT estimate_depth
@@ -23,17 +25,21 @@ public:
   virtual ~estimate_depth();
 
   PLUGIN_INFO( "estimate-depth",
-               "Depth estimation utility");
+               "Depth estimation utility" );
 
   int run() override;
   void add_command_options() override;
 
 private:
   class priv;
-  std::unique_ptr<priv> d;
 
+  std::unique_ptr< priv > d;
 }; // end of class
 
-} } } // end namespace
+} // namespace vtk
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif

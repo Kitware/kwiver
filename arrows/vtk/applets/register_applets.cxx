@@ -8,15 +8,17 @@
  */
 
 #include <arrows/vtk/applets/kwiver_algo_vtk_applets_export.h>
-#include <vital/plugin_loader/plugin_loader.h>
 #include <vital/applets/applet_registrar.h>
+#include <vital/plugin_loader/plugin_loader.h>
 
 #include <arrows/vtk/applets/color_mesh.h>
 #include <arrows/vtk/applets/estimate_depth.h>
 #include <arrows/vtk/applets/fuse_depth.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace vtk {
 
 // ----------------------------------------------------------------------------
@@ -27,7 +29,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 {
   kwiver::applet_registrar reg( vpm, "arrows.vtk.applets" );
 
-  if (reg.is_module_loaded())
+  if( reg.is_module_loaded() )
   {
     return;
   }
@@ -41,5 +43,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 }
 
 } // end namespace vtk
+
 } // end namespace arrows
+
 } // end namespace kwiver
