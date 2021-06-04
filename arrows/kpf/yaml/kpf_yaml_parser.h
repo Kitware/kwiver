@@ -20,10 +20,12 @@
 #include <yaml-cpp/yaml.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace kpf {
 
-class KPF_YAML_EXPORT kpf_yaml_parser_t: public kpf_parser_base_t
+class KPF_YAML_EXPORT kpf_yaml_parser_t : public kpf_parser_base_t
 {
 public:
   explicit kpf_yaml_parser_t( std::istream& is );
@@ -41,7 +43,9 @@ private:
 };
 
 } // ...kpf
+
 } // ...vital
+
 } // ...kwiver
 
 #endif

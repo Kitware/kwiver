@@ -4,13 +4,15 @@
 
 #include "kpf_packet_header.h"
 
-#include <string>
 #include <map>
+#include <string>
 
 using std::map;
 using std::string;
 
-namespace { // anon
+namespace {
+
+// anon
 
 using kwiver::vital::kpf::packet_style;
 
@@ -41,12 +43,11 @@ struct tag2type_bimap_t
     this->style2tag[ packet_style::KV ] = "kv";
     this->style2tag[ packet_style::META ] = "meta";
 
-    for (auto i=this->style2tag.begin(); i != this->style2tag.end(); ++i )
+    for( auto i = this->style2tag.begin(); i != this->style2tag.end(); ++i )
     {
       this->tag2style[ i->second ] = i->first;
-
     }
- };
+  }
 };
 
 static tag2type_bimap_t TAG2TYPE_BIMAP;
@@ -54,21 +55,24 @@ static tag2type_bimap_t TAG2TYPE_BIMAP;
 } // ...anon
 
 namespace kwiver {
+
 namespace vital {
+
 namespace kpf {
 
 bool
 operator==( const packet_header_t& lhs, const packet_header_t& rhs )
 {
-  return ( (lhs.style == rhs.style) && (lhs.domain == rhs.domain) );
+  return ( ( lhs.style == rhs.style ) && ( lhs.domain == rhs.domain ) );
 }
 
 bool
 packet_header_cmp
 ::operator()( const packet_header_t& lhs, const packet_header_t& rhs ) const
-{ return ( lhs.style == rhs.style )
-  ? (lhs.domain < rhs.domain)
-  : (lhs.style < rhs.style);
+{
+  return ( lhs.style == rhs.style )
+         ? ( lhs.domain < rhs.domain )
+         : ( lhs.style < rhs.style );
 }
 
 //
@@ -80,10 +84,9 @@ str2style( const string& s )
 {
   auto probe = TAG2TYPE_BIMAP.tag2style.find( s );
   return
-    (probe == TAG2TYPE_BIMAP.tag2style.end())
+    ( probe == TAG2TYPE_BIMAP.tag2style.end() )
     ? packet_style::INVALID
     : probe->second;
-
 }
 
 //
@@ -95,11 +98,13 @@ style2str( packet_style s )
 {
   auto probe = TAG2TYPE_BIMAP.style2tag.find( s );
   return
-    (probe == TAG2TYPE_BIMAP.style2tag.end())
+    ( probe == TAG2TYPE_BIMAP.style2tag.end() )
     ? "invalid"
     : probe->second;
 }
 
 } // ...kpf
+
 } // ...vital
+
 } // ...kwiver

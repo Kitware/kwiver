@@ -12,6 +12,7 @@
 #include <sstream>
 
 namespace kwiver {
+
 namespace vital {
 
 kpf_exception
@@ -27,8 +28,8 @@ kpf_exception
 
 // ------------------------------------------------------------------
 kpf_token_underrun_exception
-::kpf_token_underrun_exception(std::string const& message) noexcept
-  : m_message(message)
+::kpf_token_underrun_exception( std::string const& message ) noexcept
+  : m_message( message )
 {
   m_what = message;
 }
@@ -39,4 +40,5 @@ kpf_token_underrun_exception
 }
 
 } // ...vital
+
 } // ...kwiver

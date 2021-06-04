@@ -17,11 +17,12 @@
 #include <vital/exceptions/base.h>
 
 namespace kwiver {
+
 namespace vital {
 
 // ------------------------------------------------------------------
 /// Generic kpf exception
-class  KPF_YAML_EXPORT kpf_exception
+class KPF_YAML_EXPORT kpf_exception
   : public vital_exception
 {
 public:
@@ -33,19 +34,21 @@ public:
 
 // ------------------------------------------------------------------
 /// Exception for not enough tokens to complete parse
+
 /**
  * Example: attempting to parse a geometry string (needs four tokens)
  * but only two tokens are left.
  */
-class  KPF_YAML_EXPORT kpf_token_underrun_exception
+class KPF_YAML_EXPORT kpf_token_underrun_exception
   : public kpf_exception
 {
 public:
   /// Constructor
+
   /**
    * \param message     Description of the parsing circumstances
    */
-  kpf_token_underrun_exception(std::string const& message) noexcept;
+  kpf_token_underrun_exception( std::string const& message ) noexcept;
   /// Destructor
   virtual ~kpf_token_underrun_exception() noexcept;
 
@@ -54,5 +57,6 @@ public:
 };
 
 } // ...vital
+
 } // ...kwiver
 #endif

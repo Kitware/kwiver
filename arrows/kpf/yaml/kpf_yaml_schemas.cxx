@@ -11,79 +11,79 @@
 #include "kpf_yaml_schemas.h"
 
 #include <vital/logger/logger.h>
-static kwiver::vital::logger_handle_t main_logger( kwiver::vital::get_logger( "arrows.kpf.kpf_yaml_schemas" ) );
+
+static kwiver::vital::logger_handle_t main_logger( kwiver::vital::get_logger(
+                                                     "arrows.kpf.kpf_yaml_schemas" ) );
 
 using std::vector;
 using std::string;
 
 namespace // anon
 {
+
 namespace KPF = kwiver::vital::kpf;
 
 vector< KPF::validation_data >
 required_packets( KPF::schema_style schema )
 {
-  switch (schema )
+  switch( schema )
   {
-  case KPF::schema_style::GEOM:
-    return {
-      KPF::validation_data( KPF::packet_style::ID ),
-      KPF::validation_data( KPF::packet_style::TS ),
-      KPF::validation_data( KPF::packet_style::GEOM )
-    };
+    case KPF::schema_style::GEOM:
+      return {
+        KPF::validation_data( KPF::packet_style::ID ),
+        KPF::validation_data( KPF::packet_style::TS ),
+        KPF::validation_data( KPF::packet_style::GEOM ) };
 
-  case KPF::schema_style::ACT:
-    return {
-      KPF::validation_data( KPF::packet_style::ACT ),
-      KPF::validation_data( KPF::packet_style::ID ),
-      KPF::validation_data( KPF::packet_style::KV, "timespan" ),
-      KPF::validation_data( KPF::packet_style::KV, "actors" )
-    };
+    case KPF::schema_style::ACT:
+      return {
+        KPF::validation_data( KPF::packet_style::ACT ),
+        KPF::validation_data( KPF::packet_style::ID ),
+        KPF::validation_data( KPF::packet_style::KV, "timespan" ),
+        KPF::validation_data( KPF::packet_style::KV, "actors" ) };
 
-  case KPF::schema_style::TYPES:
-    return {
-      KPF::validation_data( KPF::packet_style::ID ),
-      KPF::validation_data( KPF::packet_style::CSET )
-    };
+    case KPF::schema_style::TYPES:
+      return {
+        KPF::validation_data( KPF::packet_style::ID ),
+        KPF::validation_data( KPF::packet_style::CSET ) };
 
-  case KPF::schema_style::REGIONS:
-    return {
-      KPF::validation_data( KPF::packet_style::ID ),
-      KPF::validation_data( KPF::packet_style::TS ),
-      KPF::validation_data( KPF::packet_style::POLY )
-    };
+    case KPF::schema_style::REGIONS:
+      return {
+        KPF::validation_data( KPF::packet_style::ID ),
+        KPF::validation_data( KPF::packet_style::TS ),
+        KPF::validation_data( KPF::packet_style::POLY ) };
 
-  default:
-    LOG_ERROR( main_logger, "Unhandled validation schema request for "
-               << static_cast<int>( schema ) );
-    // this should never be present and thus should trigger an
-    // invalidation upstream
-    return {
-      KPF::validation_data( KPF::packet_style::INVALID )
-    };
+    default:
+      LOG_ERROR( main_logger, "Unhandled validation schema request for " <<
+                 static_cast< int >( schema ) );
+      // this should never be present and thus should trigger an
+      // invalidation upstream
+      return {
+        KPF::validation_data( KPF::packet_style::INVALID ) };
   }
 }
 
 } // ...anon
 
 namespace kwiver {
+
 namespace vital {
+
 namespace kpf {
 
 string
 validation_data
 ::schema_style_to_str( schema_style s )
 {
-  switch (s)
+  switch( s )
   {
-  case schema_style::INVALID:     return "invalid";
-  case schema_style::META:        return "meta";
-  case schema_style::GEOM:        return "geom";
-  case schema_style::ACT:         return "act";
-  case schema_style::TYPES:       return "types";
-  case schema_style::REGIONS:     return "regions";
-  case schema_style::UNSPECIFIED: return "unspecified";
-  default: return "invalid";
+    case schema_style::INVALID:     return "invalid";
+    case schema_style::META:        return "meta";
+    case schema_style::GEOM:        return "geom";
+    case schema_style::ACT:         return "act";
+    case schema_style::TYPES:       return "types";
+    case schema_style::REGIONS:     return "regions";
+    case schema_style::UNSPECIFIED: return "unspecified";
+    default: return "invalid";
   }
 }
 
@@ -91,10 +91,13 @@ schema_style
 validation_data
 ::str_to_schema_style( const string& s )
 {
-  for (auto style: { schema_style::INVALID, schema_style::META, schema_style::GEOM, schema_style::ACT,
-        schema_style::TYPES, schema_style::REGIONS, schema_style::UNSPECIFIED } )
+  for( auto style :
+       { schema_style::INVALID, schema_style::META, schema_style::GEOM,
+          schema_style::ACT,
+          schema_style::TYPES, schema_style::REGIONS,
+          schema_style::UNSPECIFIED } )
   {
-    if (s == schema_style_to_str( style ))
+    if( s == schema_style_to_str( style ) )
     {
       return style;
     }
@@ -119,13 +122,13 @@ validation_data
   // will default to KV. However, timespan is *NOT* a KV.
   // Represent this as a validation_data packet with a null key.
 
-  auto h = packet_header_parser( it->first.as<string>() );
+  auto h = packet_header_parser( it->first.as< string >() );
   LOG_DEBUG( main_logger, "vd ctor " << h );
   this->style = h.style;
   this->key = "";
-  if ( this->style == packet_style::KV )
+  if( this->style == packet_style::KV )
   {
-      this->key = it->first.as<string>();
+    this->key = it->first.as< string >();
   }
 }
 
@@ -140,31 +143,33 @@ validate_schema( schema_style schema, const packet_buffer_t& packets )
   vector< validation_data > ret;
 
   // quick-exit for the no-exam-required cases
-  if ( schema == schema_style::INVALID ) return ret;
-  if ( schema == schema_style::UNSPECIFIED) return ret;
+  if( schema == schema_style::INVALID ) { return ret; }
+  if( schema == schema_style::UNSPECIFIED ) { return ret; }
 
   const auto& req = required_packets( schema );
-  LOG_DEBUG( main_logger, "Looking for required '" << validation_data::schema_style_to_str( schema ));
+  LOG_DEBUG( main_logger, "Looking for required '" << validation_data::schema_style_to_str(
+               schema ) );
 
-  for (const auto& v: req )
+  for( const auto& v : req )
   {
-  LOG_DEBUG( main_logger, "verification check for " << style2str( v.style ) << " / '" << v.key << "'" );
+    LOG_DEBUG( main_logger, "verification check for " << style2str(
+                 v.style ) << " / '" << v.key << "'" );
 
     bool found = false;
-    for (auto p = packets.begin(); (! found ) && p != packets.end(); ++p )
+    for( auto p = packets.begin(); ( !found ) && p != packets.end(); ++p )
     {
       // look at each packet (quick exit if found); if the styles match
       // it's found UNLESS it's a key, in which case we actually have to
       // look into the packet
-      if (v.style == p->second.header.style)
+      if( v.style == p->second.header.style )
       {
-        if ( v.style != KPF::packet_style::KV )
+        if( v.style != KPF::packet_style::KV )
         {
           found = true;
         }
         else
         {
-          if (v.key == p->second.kv.key)
+          if( v.key == p->second.kv.key )
           {
             found = true;
           }
@@ -175,18 +180,18 @@ validate_schema( schema_style schema, const packet_buffer_t& packets )
 
     LOG_DEBUG( main_logger, "Found: " << found );
 
-    if ( ! found )
+    if( !found )
     {
       ret.push_back( v );
     }
-
   } // ... for all requirements
 
   return ret;
 }
 
 vector< validation_data >
-validate_schema( schema_style schema, const vector< validation_data>& vpackets )
+validate_schema( schema_style schema,
+                 const vector< validation_data >& vpackets )
 {
   //
   // Check if the required packets are present; return a list of those
@@ -196,44 +201,49 @@ validate_schema( schema_style schema, const vector< validation_data>& vpackets )
   vector< validation_data > ret;
 
   // quick-exit for the no-exam-required cases
-  if ( schema == schema_style::INVALID ) return ret;
-  if ( schema == schema_style::UNSPECIFIED) return ret;
+  if( schema == schema_style::INVALID ) { return ret; }
+  if( schema == schema_style::UNSPECIFIED ) { return ret; }
 
   const auto& req = required_packets( schema );
-  LOG_DEBUG( main_logger, "Looking for required '" << validation_data::schema_style_to_str( schema ) << "'" );
+  LOG_DEBUG( main_logger, "Looking for required '" << validation_data::schema_style_to_str(
+               schema ) << "'" );
 
-  for (const auto& v: req )
+  for( const auto& v : req )
   {
-    LOG_DEBUG( main_logger, "verification check for " << style2str( v.style ) << " / '" << v.key << "'" );
+    LOG_DEBUG( main_logger, "verification check for " << style2str(
+                 v.style ) << " / '" << v.key << "'" );
+
     bool found = false;
-    for (auto p = vpackets.begin(); (! found ) && p != vpackets.end(); ++p )
+    for( auto p = vpackets.begin(); ( !found ) && p != vpackets.end(); ++p )
     {
-      if (v.style == p->style)
+      if( v.style == p->style )
       {
-        if ( v.style == KPF::packet_style::KV )
+        if( v.style == KPF::packet_style::KV )
         {
-          found = (v.key == p->key);
+          found = ( v.key == p->key );
         }
         else
         {
           found = true;
         }
       }
-      LOG_DEBUG( main_logger, "...vs " << style2str(p->style) << "/ '" << p->key << "' ? " << found );
+      LOG_DEBUG( main_logger, "...vs " << style2str(
+                   p->style ) << "/ '" << p->key << "' ? " << found );
     } // ... for each packet
 
     LOG_DEBUG( main_logger, "Found: " << found );
 
-    if ( ! found )
+    if( !found )
     {
       ret.push_back( v );
     }
-
   } // ... for all requirements
 
   return ret;
 }
 
 } // ...kpf
+
 } // ...vital
+
 } // ...kwiver

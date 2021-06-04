@@ -13,19 +13,22 @@
 
 #include <arrows/kpf/yaml/kpf_packet.h>
 
-#include <string>
-#include <vector>
-#include <tuple>
 #include <map>
+#include <string>
+#include <tuple>
+#include <vector>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace kpf {
 
 /**
  * @brief This maps KPF packet headers to their full packets.
  *
- * The packet buffer holds the parsed KPF packets for the current line (aka record.)
+ * The packet buffer holds the parsed KPF packets for the current line (aka
+ *record.)
  * Packets are transferred out of the buffer to the client via the kfp_reader.
  *
  * The packet buffer is a multimap because some packets may appear multiple
@@ -51,10 +54,13 @@ typedef std::tuple< bool, std::string, int > header_parse_t;
 packet_header_t KPF_YAML_EXPORT
 packet_header_parser( const std::string& s );
 
-header_parse_t KPF_YAML_EXPORT parse_header( const std::string& s, bool expect_colon );
+header_parse_t KPF_YAML_EXPORT parse_header( const std::string& s,
+                                             bool expect_colon );
 
 } // ...kpf
+
 } // ...vital
+
 } // ...kwiver
 
 #endif

@@ -12,14 +12,18 @@
 #include <arrows/kpf/yaml/kpf_parse_utils.h>
 
 #include <vital/logger/logger.h>
-static kwiver::vital::logger_handle_t main_logger( kwiver::vital::get_logger( "arrows.kpf.bounce_buffer" ) );
+
+static kwiver::vital::logger_handle_t main_logger( kwiver::vital::get_logger(
+                                                     "arrows.kpf.bounce_buffer" ) );
 
 using std::string;
 using std::pair;
 using std::make_pair;
 
 namespace kwiver {
+
 namespace vital {
+
 namespace kpf {
 
 packet_bounce_t
@@ -46,14 +50,16 @@ packet_bounce_t
 ::init( const string& s )
 {
   this->header = packet_header_parser( s );
-  if (! (this->header.style == packet_style::INVALID))
+  if( !( this->header.style == packet_style::INVALID ) )
   {
-    LOG_ERROR( main_logger, "Couldn't create a reader for packets of type '" << s << "'");
+    LOG_ERROR( main_logger,
+               "Couldn't create a reader for packets of type '" << s << "'" );
     return;
   }
 }
 
-void packet_bounce_t
+void
+packet_bounce_t
 ::init( const packet_header_t& h )
 {
   this->header = h;
@@ -93,5 +99,7 @@ packet_bounce_t
 }
 
 } // ...kpf
+
 } // ...vital
+
 } // ...kwiver

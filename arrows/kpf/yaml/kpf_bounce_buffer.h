@@ -22,7 +22,9 @@
 #include <utility>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace kpf {
 
 class KPF_YAML_EXPORT packet_bounce_t
@@ -55,8 +57,9 @@ protected:
 };
 
 } // ...kpf
+
 } // ...vital
+
 } // ...kwiver
 
 #endif
-

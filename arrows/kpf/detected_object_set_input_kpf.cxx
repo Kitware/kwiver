@@ -9,34 +9,36 @@
 
 #include "detected_object_set_input_kpf.h"
 
+#include "yaml/kpf_canonical_io_adapter.h"
 #include "yaml/kpf_reader.h"
 #include "yaml/kpf_yaml_parser.h"
-#include "yaml/kpf_canonical_io_adapter.h"
 
 #include "vital_kpf_adapters.h"
 
+#include <vital/exceptions.h>
 #include <vital/util/data_stream_reader.h>
 #include <vital/vital_config.h>
-#include <vital/exceptions.h>
 
+#include <cstdlib>
 #include <map>
 #include <sstream>
-#include <cstdlib>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace kpf {
 
 // ------------------------------------------------------------------
 class detected_object_set_input_kpf::priv
 {
 public:
-  priv( detected_object_set_input_kpf* parent)
-    : m_parent( parent )
-    , m_first( true )
-  { }
+  priv( detected_object_set_input_kpf* parent )
+    : m_parent( parent ),
+      m_first( true )
+  {}
 
-  ~priv() { }
+  ~priv() {}
 
   void read_all();
 
@@ -52,8 +54,8 @@ public:
 };
 
 // ==================================================================
-detected_object_set_input_kpf::
-detected_object_set_input_kpf()
+detected_object_set_input_kpf
+::detected_object_set_input_kpf()
   : d( new detected_object_set_input_kpf::priv( this ) )
 {
   attach_logger( "arrows.kpf.detected_object_set_input_kpf" );
@@ -66,24 +68,25 @@ detected_object_set_input_kpf::
 
 // ------------------------------------------------------------------
 void
-detected_object_set_input_kpf::
-set_configuration( VITAL_UNUSED vital::config_block_sptr config)
-{ }
+detected_object_set_input_kpf
+::set_configuration( VITAL_UNUSED vital::config_block_sptr config )
+{}
 
 // ------------------------------------------------------------------
 bool
-detected_object_set_input_kpf::
-check_configuration( VITAL_UNUSED vital::config_block_sptr config) const
+detected_object_set_input_kpf
+::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
 {
   return true;
 }
 
 // ------------------------------------------------------------------
 bool
-detected_object_set_input_kpf::
-read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name )
+detected_object_set_input_kpf
+::read_set( kwiver::vital::detected_object_set_sptr& set,
+            std::string& image_name )
 {
-  if ( d->m_first )
+  if( d->m_first )
   {
     // Read in all detections
     d->read_all();
@@ -98,15 +101,15 @@ read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name
   image_name.clear();
 
   // return detection set at current index if there is one
-  if ( 0 == d->m_detected_sets.count( d->m_current_idx ) )
+  if( 0 == d->m_detected_sets.count( d->m_current_idx ) )
   {
     // return empty set
-    set = std::make_shared< kwiver::vital::detected_object_set>();
+    set = std::make_shared< kwiver::vital::detected_object_set >();
   }
   else
   {
     // Return detections for this frame.
-    set = d->m_detected_sets[d->m_current_idx];
+    set = d->m_detected_sets[ d->m_current_idx ];
   }
 
   ++d->m_current_idx;
@@ -115,77 +118,98 @@ read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name
 
 // ------------------------------------------------------------------
 void
-detected_object_set_input_kpf::
-new_stream()
+detected_object_set_input_kpf
+::new_stream()
 {
   d->m_first = true;
 }
 
 // ==================================================================
 void
-detected_object_set_input_kpf::priv::
-read_all()
+detected_object_set_input_kpf::priv
+::read_all()
 {
   m_detected_sets.clear();
 
-  KPF::kpf_yaml_parser_t parser(m_parent->stream());
-  KPF::kpf_reader_t reader(parser);
+  KPF::kpf_yaml_parser_t parser( m_parent->stream() );
+  KPF::kpf_reader_t reader( parser );
 
-  size_t      detection_id;
-  double      frame_number;
+  size_t detection_id;
+  double frame_number;
   vital_box_adapter_t box_adapter;
-  kwiver::vital::detected_object_type_sptr types(new kwiver::vital::detected_object_type());
+  kwiver::vital::detected_object_type_sptr types(
+     new kwiver::vital::detected_object_type() );
   kwiver::vital::detected_object_set_sptr frame_detections;
 
-  // This will only work for files for which each non-Meta record contains at least
-  // these elements (the minimum necessary to build a detection).  Should heterogenous
+  // This will only work for files for which each non-Meta record contains at
+  // least
+  // these elements (the minimum necessary to build a detection).  Should
+  // heterogenous
   // KPF files become common in the wild, this would have to be revisited.
-  while ( reader >> KPF::reader< KPFC::id_t >(detection_id, KPFC::id_t::DETECTION_ID)
-                >> KPF::reader< KPFC::timestamp_t>(frame_number, KPFC::timestamp_t::FRAME_NUMBER)
-                >> KPF::reader< KPFC::bbox_t >(box_adapter, KPFC::bbox_t::IMAGE_COORDS) )
+  while( reader >>
+         KPF::reader< KPFC::id_t >( detection_id, KPFC::id_t::DETECTION_ID ) >>
+         KPF::reader< KPFC::timestamp_t >( frame_number,
+                                           KPFC::timestamp_t::FRAME_NUMBER ) >>
+         KPF::reader< KPFC::bbox_t >( box_adapter,
+                                      KPFC::bbox_t::IMAGE_COORDS ) )
   {
     std::string detector_name = "kpf_reader";
-    double      confidence = 1.0;
-    uint64_t    index = 0;
+    double confidence = 1.0;
+    uint64_t index = 0;
 
-    // We've gotten a record that has the least possible info for a detections.  What
-    // else can we find that might be useful?  In particular pick up the elements
+    // We've gotten a record that has the least possible info for a detections.
+    //  What
+    // else can we find that might be useful?  In particular pick up the
+    // elements
     // our sister writer writes
-    auto det_name_packet = reader.transfer_kv_packet_from_buffer("detector_name");
-    if ( det_name_packet.first )
+    auto det_name_packet = reader.transfer_kv_packet_from_buffer(
+                             "detector_name" );
+    if( det_name_packet.first )
     {
       detector_name = det_name_packet.second.kv.val;
     }
 
-    auto confidence_packet = reader.transfer_packet_from_buffer( KPF::packet_header_t( KPF::packet_style::CONF, DETECTOR_DOMAIN ) );
-    if ( confidence_packet.first )
+    auto confidence_packet = reader.transfer_packet_from_buffer( KPF::packet_header_t(
+                                                                   KPF::
+                                                                   packet_style
+                                                                   ::CONF,
+                                                                   DETECTOR_DOMAIN ) );
+    if( confidence_packet.first )
     {
       confidence = confidence_packet.second.conf.d;
     }
 
-    auto index_packet = reader.transfer_packet_from_buffer( KPF::packet_header_t( KPF::packet_style::ID, KPFC::id_t::TRACK_ID ) );
-    if ( index_packet.first )
+    auto index_packet = reader.transfer_packet_from_buffer( KPF::packet_header_t(
+                                                              KPF::packet_style
+                                                              ::ID,
+                                                              KPFC::id_t::
+                                                              TRACK_ID ) );
+    if( index_packet.first )
     {
       index = index_packet.second.conf.d;
     }
 
-    kwiver::vital::bounding_box_d bbox(0, 0, 0, 0);
-    box_adapter.get(bbox);
-    kwiver::vital::detected_object_sptr det(new kwiver::vital::detected_object(bbox, confidence, types));
-    det->set_detector_name(detector_name);
-    det->set_index(index);
+    kwiver::vital::bounding_box_d bbox( 0, 0, 0, 0 );
+    box_adapter.get( bbox );
 
-    frame_detections = m_detected_sets[frame_number];
-    if (frame_detections.get() == nullptr)
+    kwiver::vital::detected_object_sptr det( new kwiver::vital::detected_object(
+                                               bbox, confidence,
+                                               types ) );
+    det->set_detector_name( detector_name );
+    det->set_index( index );
+
+    frame_detections = m_detected_sets[ frame_number ];
+    if( frame_detections.get() == nullptr )
     {
       // create a new detection set entry
-      frame_detections = std::make_shared<kwiver::vital::detected_object_set>();
-      m_detected_sets[frame_number] = frame_detections;
+      frame_detections =
+        std::make_shared< kwiver::vital::detected_object_set >();
+      m_detected_sets[ frame_number ] = frame_detections;
     }
-    frame_detections->add(det);
+    frame_detections->add( det );
 
     // did we receive any metadata?
-    for (auto m : reader.get_meta_packets())
+    for( auto m : reader.get_meta_packets() )
     {
       std::cout << "Metadata: '" << m << "'\n";
     }
@@ -193,7 +217,10 @@ read_all()
     reader.flush();
   }
   LOG_TRACE( m_parent->logger(), "DONE" );
-
 } // read_all
 
-} } } // end namespace
+} // namespace kpf
+
+} // namespace arrows
+
+}     // end namespace

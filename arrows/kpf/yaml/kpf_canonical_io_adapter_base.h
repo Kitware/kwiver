@@ -21,7 +21,9 @@
 #include <arrows/kpf/yaml/kpf_bounce_buffer.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace kpf {
 
 class kpf_reader_t;
@@ -29,7 +31,8 @@ class kpf_reader_t;
 struct kpf_canonical_io_adapter_base
 {
   packet_bounce_t packet_bounce;
-  kpf_canonical_io_adapter_base& set_domain( int d ) { this->packet_bounce.set_domain(d); return *this; }
+  kpf_canonical_io_adapter_base&
+  set_domain( int d ) { this->packet_bounce.set_domain( d ); return *this; }
 };
 
 KPF_YAML_EXPORT
@@ -37,7 +40,9 @@ kpf_reader_t& operator>>( kpf_reader_t& t,
                           kpf_canonical_io_adapter_base& io );
 
 } // ...kpf
+
 } // ...vital
+
 } // ...kwiver
 
 #endif

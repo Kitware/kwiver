@@ -12,9 +12,9 @@
 
 #include "kpf_reader.h"
 
-#include <vector>
-#include <stdexcept>
 #include <algorithm>
+#include <stdexcept>
+#include <vector>
 
 #include <arrows/kpf/yaml/kpf_canonical_io_adapter.h>
 
@@ -26,12 +26,14 @@ using std::pair;
 using std::make_pair;
 
 namespace kwiver {
+
 namespace vital {
+
 namespace kpf {
 
 kpf_reader_t
 ::kpf_reader_t( kpf_parser_base_t& p )
-  : parser(p)
+  : parser( p )
 {
   this->reader_status = this->parser.get_status();
 }
@@ -73,18 +75,19 @@ kpf_reader_t
 
   bool non_meta_packets_added = false;
   packet_header_t meta_packet_h( packet_style::META );
-  while ( ! non_meta_packets_added )
+  while( !non_meta_packets_added )
   {
     packet_buffer_t local_packet_buffer;
     bool rc = this->parser.parse_next_record( local_packet_buffer );
-    if (! rc )
+    if( !rc )
     {
       break;
     }
+
     // pull any meta packets out
     packet_buffer_cit p;
-    while ( (p = local_packet_buffer.find( meta_packet_h ))
-           != local_packet_buffer.end() )
+    while( ( p = local_packet_buffer.find( meta_packet_h ) ) !=
+           local_packet_buffer.end() )
     {
       this->meta_buffer.push_back( p->second.meta.txt );
       local_packet_buffer.erase( p );
@@ -92,9 +95,10 @@ kpf_reader_t
 
     // if we have any packets left, push them into the
     // global packet buffer and set the flag
-    if (! local_packet_buffer.empty())
+    if( !local_packet_buffer.empty() )
     {
-      this->packet_buffer.insert( local_packet_buffer.begin(), local_packet_buffer.end() );
+      this->packet_buffer.insert(
+          local_packet_buffer.begin(), local_packet_buffer.end() );
       non_meta_packets_added = true;
     }
   }
@@ -105,7 +109,7 @@ bool
 kpf_reader_t
 ::verify_reader_status()
 {
-  if (! this->reader_status )
+  if( !this->reader_status )
   {
     return false;
   }
@@ -115,9 +119,9 @@ kpf_reader_t
   // from the stream.
   //
 
-  if (this->packet_buffer.empty())
+  if( this->packet_buffer.empty() )
   {
-    if ( ! this->parse_next_line() )
+    if( !this->parse_next_line() )
     {
       this->reader_status = false;
       return false;
@@ -130,7 +134,7 @@ pair< bool, packet_t >
 kpf_reader_t
 ::transfer_kv_packet_from_buffer( const string& key, bool set_bad_if_missing )
 {
-  if (! this->verify_reader_status() )
+  if( !this->verify_reader_status() )
   {
     return make_pair( false, packet_t() );
   }
@@ -143,13 +147,15 @@ kpf_reader_t
   auto probe =
     std::find_if( this->packet_buffer.cbegin(),
                   this->packet_buffer.cend(),
-                  [key]( const std::pair< packet_header_t, packet_t>& p) -> bool {
-                    return ((p.first.style == packet_style::KV) &&
-                            (p.second.kv.key == key )); });
+                  [ key ]( const std::pair< packet_header_t,
+                                            packet_t >& p ) -> bool {
+                    return ( ( p.first.style == packet_style::KV ) &&
+                             ( p.second.kv.key == key ) );
+                  } );
 
-  if (probe == this->packet_buffer.end())
+  if( probe == this->packet_buffer.end() )
   {
-    if (set_bad_if_missing)
+    if( set_bad_if_missing )
     {
       this->reader_status = false;
     }
@@ -167,9 +173,10 @@ kpf_reader_t
 
 pair< bool, packet_t >
 kpf_reader_t
-::transfer_packet_from_buffer( const packet_header_t& h, bool set_bad_if_missing )
+::transfer_packet_from_buffer( const packet_header_t& h,
+                               bool set_bad_if_missing )
 {
-  if (! this->verify_reader_status() )
+  if( !this->verify_reader_status() )
   {
     return make_pair( false, packet_t() );
   }
@@ -178,7 +185,7 @@ kpf_reader_t
   // if the head is invalid (i.e. the null reader) we're done
   //
 
-  if (h.style == packet_style::INVALID)
+  if( h.style == packet_style::INVALID )
   {
     return make_pair( true, packet_t() );
   }
@@ -189,13 +196,13 @@ kpf_reader_t
   //
 
   packet_buffer_cit probe = this->packet_buffer.end();
-  if (h.domain == packet_header_t::ANY_DOMAIN)
+  if( h.domain == packet_header_t::ANY_DOMAIN )
   {
-    for (packet_buffer_cit any_probe = this->packet_buffer.begin();
+    for( packet_buffer_cit any_probe = this->packet_buffer.begin();
          any_probe != this->packet_buffer.end();
          ++any_probe )
     {
-      if (any_probe->first.style == h.style)
+      if( any_probe->first.style == h.style )
       {
         probe = any_probe;
         break;
@@ -206,9 +213,9 @@ kpf_reader_t
   {
     probe = this->packet_buffer.find( h );
   }
-  if (probe == this->packet_buffer.end())
+  if( probe == this->packet_buffer.end() )
   {
-    if (set_bad_if_missing)
+    if( set_bad_if_missing )
     {
       this->reader_status = false;
     }
@@ -230,7 +237,7 @@ kpf_reader_t
 {
   // fail if missing; this is (I think) only called by readers
   auto probe = this->transfer_packet_from_buffer( b.my_header(), true );
-  if (probe.first)
+  if( probe.first )
   {
     b.set_from_buffer( probe.second );
   }
@@ -241,7 +248,7 @@ bool
 kpf_reader_t
 ::process( packet_bounce_t& b )
 {
-  if ( this->reader_status )
+  if( this->reader_status )
   {
     bool okay = this->process_reader( b );
     this->reader_status = okay && this->reader_status;
@@ -264,8 +271,9 @@ kpf_reader_t
   return this->process( io.packet_bounce );
 }
 
-kpf_reader_t& operator>>( kpf_reader_t& t,
-                          kpf_canonical_io_adapter_base& io )
+kpf_reader_t&
+operator>>( kpf_reader_t& t,
+            kpf_canonical_io_adapter_base& io )
 {
   return t >> io.packet_bounce;
 }
@@ -298,8 +306,10 @@ kpf_reader_t&
 operator>>( kpf_reader_t& t,
             const reader< canonical::id_t >& r )
 {
-  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::ID, r.domain ), true );
-  if (probe.first)
+  auto probe =
+    t.transfer_packet_from_buffer( packet_header_t( packet_style::ID,
+                                                    r.domain ), true );
+  if( probe.first )
   {
     r.id_ref = probe.second.id.d;
   }
@@ -310,20 +320,22 @@ kpf_reader_t&
 operator>>( kpf_reader_t& t,
             const reader< canonical::timestamp_t >& r )
 {
-  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::TS, r.domain ), true );
-  if (probe.first)
+  auto probe =
+    t.transfer_packet_from_buffer( packet_header_t( packet_style::TS,
+                                                    r.domain ), true );
+  if( probe.first )
   {
-    switch (r.which)
+    switch( r.which )
     {
       case reader< canonical::timestamp_t >::to_int:
-        r.int_ts = static_cast<int>( probe.second.timestamp.d );
+        r.int_ts = static_cast< int >( probe.second.timestamp.d );
         break;
       case reader< canonical::timestamp_t >::to_unsigned:
-        r.unsigned_ts = static_cast<unsigned>( probe.second.timestamp.d );
+        r.unsigned_ts = static_cast< unsigned >( probe.second.timestamp.d );
         break;
       case reader< canonical::timestamp_t >::to_double:
         r.double_ts = probe.second.timestamp.d;
-      break;
+        break;
     }
   }
   return t;
@@ -334,7 +346,7 @@ operator>>( kpf_reader_t& t,
             const reader< canonical::kv_t >& r )
 {
   auto probe = t.transfer_kv_packet_from_buffer( r.key );
-  if (probe.first)
+  if( probe.first )
   {
     r.val = probe.second.kv.val;
   }
@@ -345,8 +357,10 @@ kpf_reader_t&
 operator>>( kpf_reader_t& t,
             const reader< canonical::conf_t >& r )
 {
-  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::CONF, r.domain ), true);
-  if (probe.first)
+  auto probe =
+    t.transfer_packet_from_buffer( packet_header_t( packet_style::CONF,
+                                                    r.domain ), true );
+  if( probe.first )
   {
     r.conf = probe.second.conf.d;
   }
@@ -357,8 +371,10 @@ kpf_reader_t&
 operator>>( kpf_reader_t& t,
             const reader< canonical::cset_t >& r )
 {
-  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::CSET, r.domain ), true);
-  if (probe.first)
+  auto probe =
+    t.transfer_packet_from_buffer( packet_header_t( packet_style::CSET,
+                                                    r.domain ), true );
+  if( probe.first )
   {
     r.cset = *probe.second.cset;
   }
@@ -369,8 +385,10 @@ kpf_reader_t&
 operator>>( kpf_reader_t& t,
             const reader< canonical::meta_t >& r )
 {
-  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::META ), true);
-  if (probe.first)
+  auto probe =
+    t.transfer_packet_from_buffer( packet_header_t(
+                                     packet_style::META ), true );
+  if( probe.first )
   {
     r.txt = probe.second.meta.txt;
   }
@@ -381,27 +399,38 @@ kpf_reader_t&
 operator>>( kpf_reader_t& t,
             const reader< canonical::timestamp_range_t >& r )
 {
-  auto probe = t.transfer_packet_from_buffer( packet_header_t( packet_style::TSR ), true);
-  if (probe.first)
+  auto probe =
+    t.transfer_packet_from_buffer( packet_header_t(
+                                     packet_style::TSR ), true );
+  if( probe.first )
   {
-    switch (r.which)
+    switch( r.which )
     {
       case reader< canonical::timestamp_range_t >::to_int:
-        r.int_ts = make_pair( static_cast< int >( probe.second.timestamp_range.start ),
-                              static_cast< int >( probe.second.timestamp_range.stop ) );
+        r.int_ts =
+          make_pair(
+            static_cast< int >( probe.second.timestamp_range.start ),
+            static_cast< int >( probe.second.timestamp_range.
+                                stop ) );
         break;
       case reader< canonical::timestamp_range_t >::to_unsigned:
-        r.unsigned_ts = make_pair( static_cast< unsigned>( probe.second.timestamp_range.start ),
-                                   static_cast< unsigned>( probe.second.timestamp_range.stop ) );
+        r.unsigned_ts =
+          make_pair( static_cast< unsigned >( probe.second.timestamp_range.
+                                              start ),
+                     static_cast< unsigned >( probe.second.
+                                              timestamp_range.stop ) );
         break;
       case reader< canonical::timestamp_range_t >::to_double:
-        r.double_ts = make_pair( probe.second.timestamp_range.start, probe.second.timestamp_range.stop );
-      break;
+        r.double_ts = make_pair( probe.second.timestamp_range.start,
+                                 probe.second.timestamp_range.stop );
+        break;
     }
   }
   return t;
 }
 
 } // ...kpf
+
 } // ...vital
+
 } // ...kwiver

@@ -19,12 +19,14 @@
 #include <utility>
 #include <vector>
 
-#include <arrows/kpf/yaml/kpf_yaml_export.h>
-#include <arrows/kpf/yaml/kpf_packet_header.h>
 #include <arrows/kpf/yaml/kpf_canonical_types.h>
+#include <arrows/kpf/yaml/kpf_packet_header.h>
+#include <arrows/kpf/yaml/kpf_yaml_export.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace kpf {
 
 /**
@@ -50,20 +52,24 @@ struct KPF_YAML_EXPORT packet_t
     canonical::eval_t eval;
     canonical::activity_t activity;
   };
-  packet_t(): header( packet_header_t() ) {}
+  packet_t() : header( packet_header_t() ) {}
   packet_t( const packet_header_t& h );
   ~packet_t();
   packet_t( const packet_t& other );
+
   packet_t& operator=( const packet_t& other );
 
-  packet_t( packet_t&& other);
+  packet_t( packet_t&& other );
   packet_t& operator=( packet_t&& other );
 };
 
-KPF_YAML_EXPORT std::ostream& operator<<( std::ostream& os, const packet_t& p );
+KPF_YAML_EXPORT std::ostream& operator<<( std::ostream& os,
+                                          const packet_t& p );
 
 } // ...kpf
+
 } // ...vital
+
 } // ...kwiver
 
 #endif
