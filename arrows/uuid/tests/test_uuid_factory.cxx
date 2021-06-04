@@ -17,14 +17,15 @@ namespace algo = kwiver::vital::algo;
 namespace kac = kwiver::arrows::uuid;
 
 // ----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int
+main( int argc, char** argv )
 {
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
 }
 
 // ------------------------------------------------------------------
-TEST(uuid, test_api)
+TEST ( uuid, test_api )
 {
   kac::uuid_factory_uuid algo;
 
@@ -37,7 +38,7 @@ TEST(uuid, test_api)
 }
 
 // ------------------------------------------------------------------
-TEST(uuid, test_loading)
+TEST ( uuid, test_loading )
 {
   kwiver::vital::plugin_manager::instance().load_all_plugins();
 
@@ -47,7 +48,8 @@ TEST(uuid, test_loading)
 
   algo::uuid_factory_sptr fact;
 
-  // Check config so it will give run-time diagnostic if any config problems are found
+  // Check config so it will give run-time diagnostic if any config problems
+  // are found
   ASSERT_TRUE(
     algo::uuid_factory::check_nested_algo_configuration( "uuid_cfg", cfg ) );
 
