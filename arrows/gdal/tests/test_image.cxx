@@ -19,16 +19,16 @@ kwiver::vital::path_t g_data_dir;
 
 namespace algo = kwiver::vital::algo;
 namespace gdal = kwiver::arrows::gdal;
+
 static int expected_size = 32;
 static std::string geotiff_file_name = "test.tif";
 static std::string nitf_file_name = "test.ntf";
 static std::string jpeg_file_name = "test.jpg";
 static std::string png_file_name = "test.png";
-static std::vector<int> test_x_pixels = {0, 3, 11, 21, 31};
-static std::vector<int> test_y_pixels = {0, 5, 8, 13, 31};
+static std::vector< int > test_x_pixels = { 0, 3, 11, 21, 31 };
+static std::vector< int > test_y_pixels = { 0, 5, 8, 13, 31 };
 
-static std::vector< kwiver::vital::vital_metadata_tag > rpc_tags =
-{
+static std::vector< kwiver::vital::vital_metadata_tag > rpc_tags = {
   kwiver::vital::VITAL_META_RPC_HEIGHT_OFFSET,
   kwiver::vital::VITAL_META_RPC_HEIGHT_SCALE,
   kwiver::vital::VITAL_META_RPC_LONG_OFFSET,
@@ -38,45 +38,43 @@ static std::vector< kwiver::vital::vital_metadata_tag > rpc_tags =
   kwiver::vital::VITAL_META_RPC_ROW_OFFSET,
   kwiver::vital::VITAL_META_RPC_ROW_SCALE,
   kwiver::vital::VITAL_META_RPC_COL_OFFSET,
-  kwiver::vital::VITAL_META_RPC_COL_SCALE ,
+  kwiver::vital::VITAL_META_RPC_COL_SCALE,
   kwiver::vital::VITAL_META_RPC_ROW_NUM_COEFF,
   kwiver::vital::VITAL_META_RPC_ROW_DEN_COEFF,
   kwiver::vital::VITAL_META_RPC_COL_NUM_COEFF,
-  kwiver::vital::VITAL_META_RPC_COL_DEN_COEFF,
-};
+  kwiver::vital::VITAL_META_RPC_COL_DEN_COEFF, };
 
-static std::vector< kwiver::vital::vital_metadata_tag > nitf_tags =
-{
+static std::vector< kwiver::vital::vital_metadata_tag > nitf_tags = {
   kwiver::vital::VITAL_META_NITF_IDATIM,
   kwiver::vital::VITAL_META_NITF_BLOCKA_FRFC_LOC_01,
   kwiver::vital::VITAL_META_NITF_BLOCKA_FRLC_LOC_01,
   kwiver::vital::VITAL_META_NITF_BLOCKA_LRLC_LOC_01,
   kwiver::vital::VITAL_META_NITF_BLOCKA_LRFC_LOC_01,
-  kwiver::vital::VITAL_META_NITF_IMAGE_COMMENTS,
-};
+  kwiver::vital::VITAL_META_NITF_IMAGE_COMMENTS, };
 
 // ----------------------------------------------------------------------------
 int
-main(int argc, char* argv[])
+main( int argc, char* argv[] )
 {
   ::testing::InitGoogleTest( &argc, argv );
 
-  GET_ARG(1, g_data_dir);
+  GET_ARG( 1, g_data_dir );
 
   return RUN_ALL_TESTS();
 }
 
 // ----------------------------------------------------------------------------
-void test_rpc_metadata(kwiver::vital::metadata_sptr md)
+void
+test_rpc_metadata( kwiver::vital::metadata_sptr md )
 {
   kwiver::vital::metadata_traits md_traits;
-  for ( auto const& tag : rpc_tags )
+  for( auto const& tag : rpc_tags )
   {
-    EXPECT_TRUE( md->has( tag ) )
-      << "Image metadata should include " << md_traits.tag_to_name( tag );
+    EXPECT_TRUE( md->has( tag ) ) <<
+      "Image metadata should include " << md_traits.tag_to_name( tag );
   }
 
-  if (md->size() > 0)
+  if( md->size() > 0 )
   {
     std::cout << "-----------------------------------\n" << std::endl;
     kwiver::vital::print_metadata( std::cout, *md );
@@ -84,17 +82,17 @@ void test_rpc_metadata(kwiver::vital::metadata_sptr md)
 }
 
 // ----------------------------------------------------------------------------
-void test_nitf_metadata(kwiver::vital::metadata_sptr md)
+void
+test_nitf_metadata( kwiver::vital::metadata_sptr md )
 {
-
   kwiver::vital::metadata_traits md_traits;
-  for ( auto const& tag : nitf_tags )
+  for( auto const& tag : nitf_tags )
   {
-    EXPECT_TRUE( md->has( tag ) )
-      << "Image metadata should include " << md_traits.tag_to_name( tag );
+    EXPECT_TRUE( md->has( tag ) ) <<
+      "Image metadata should include " << md_traits.tag_to_name( tag );
   }
 
-  if (md->size() > 0)
+  if( md->size() > 0 )
   {
     kwiver::vital::print_metadata( std::cout, *md );
   }
@@ -103,130 +101,134 @@ void test_nitf_metadata(kwiver::vital::metadata_sptr md)
 // ----------------------------------------------------------------------------
 class image_io : public ::testing::Test
 {
-  TEST_ARG(data_dir);
+  TEST_ARG( data_dir );
 };
 
 // ----------------------------------------------------------------------------
-TEST_F(image_io, create)
+TEST_F ( image_io, create )
 {
   kwiver::vital::plugin_manager::instance().load_all_plugins();
 
-  ASSERT_NE(nullptr, algo::image_io::create("gdal"));
+  ASSERT_NE( nullptr, algo::image_io::create( "gdal" ) );
 }
 
-TEST_F(image_io, load_geotiff)
+TEST_F ( image_io, load_geotiff )
 {
   kwiver::arrows::gdal::image_io img_io;
 
   kwiver::vital::path_t file_path = data_dir + "/" + geotiff_file_name;
-  auto img_ptr = img_io.load(file_path);
+  auto img_ptr = img_io.load( file_path );
 
   EXPECT_EQ( img_ptr->width(), expected_size );
   EXPECT_EQ( img_ptr->height(), expected_size );
   EXPECT_EQ( img_ptr->depth(), 1 );
 
   // Test some pixel values
-  kwiver::vital::image_of<uint16_t> img(img_ptr->get_image());
-  for ( auto x_px : test_x_pixels )
+  kwiver::vital::image_of< uint16_t > img( img_ptr->get_image() );
+  for( auto x_px : test_x_pixels )
   {
-    for ( auto y_px : test_y_pixels )
+    for( auto y_px : test_y_pixels )
     {
-      uint16_t expected_pixel_value = (std::numeric_limits<uint16_t>::max() + 1)
-        *x_px*y_px/expected_size/expected_size;
-      EXPECT_EQ( img(x_px, y_px), expected_pixel_value);
+      uint16_t expected_pixel_value =
+        ( std::numeric_limits< uint16_t >::max() + 1 ) *
+        x_px * y_px / expected_size /
+        expected_size;
+      EXPECT_EQ( img( x_px, y_px ), expected_pixel_value );
     }
   }
 
   auto md = img_ptr->get_metadata();
 
-  test_rpc_metadata(md);
+  test_rpc_metadata( md );
 
   // Test corner points
-  ASSERT_TRUE( md->has( kwiver::vital::VITAL_META_CORNER_POINTS ) )
-    << "Metadata should include corner points.";
+  ASSERT_TRUE( md->has( kwiver::vital::VITAL_META_CORNER_POINTS ) ) <<
+    "Metadata should include corner points.";
 
   kwiver::vital::geo_polygon corner_pts;
   md->find( kwiver::vital::VITAL_META_CORNER_POINTS ).data( corner_pts );
-  EXPECT_EQ( corner_pts.crs(), 4326);
-  EXPECT_TRUE( corner_pts.polygon( 4326 ).contains( -16.0, 0.0) );
-  EXPECT_TRUE( corner_pts.polygon( 4326 ).contains( 0.0, 32.0) );
-  EXPECT_TRUE( corner_pts.polygon( 4326 ).contains( 0.0, -32.0) );
-  EXPECT_TRUE( corner_pts.polygon( 4326 ).contains( 16.0, 0.0) );
+  EXPECT_EQ( corner_pts.crs(), 4326 );
+  EXPECT_TRUE( corner_pts.polygon( 4326 ).contains( -16.0, 0.0 ) );
+  EXPECT_TRUE( corner_pts.polygon( 4326 ).contains( 0.0, 32.0 ) );
+  EXPECT_TRUE( corner_pts.polygon( 4326 ).contains( 0.0, -32.0 ) );
+  EXPECT_TRUE( corner_pts.polygon( 4326 ).contains( 16.0, 0.0 ) );
 }
 
-TEST_F(image_io, load_nitf)
+TEST_F ( image_io, load_nitf )
 {
   kwiver::arrows::gdal::image_io img_io;
 
   kwiver::vital::path_t file_path = data_dir + "/" + nitf_file_name;
-  auto img_ptr = img_io.load(file_path);
+  auto img_ptr = img_io.load( file_path );
 
   EXPECT_EQ( img_ptr->width(), expected_size );
   EXPECT_EQ( img_ptr->height(), expected_size );
   EXPECT_EQ( img_ptr->depth(), 1 );
 
   // Test some pixel values
-  kwiver::vital::image_of<float> img(img_ptr->get_image());
-  for ( auto x_px : test_x_pixels )
+  kwiver::vital::image_of< float > img( img_ptr->get_image() );
+  for( auto x_px : test_x_pixels )
   {
-    for ( auto y_px : test_y_pixels )
+    for( auto y_px : test_y_pixels )
     {
-      float expected_pixel_value = x_px*y_px/float(expected_size*expected_size);
-      EXPECT_EQ( img(x_px, y_px), expected_pixel_value);
+      float expected_pixel_value = x_px * y_px /
+                                   float(expected_size * expected_size);
+      EXPECT_EQ( img( x_px, y_px ), expected_pixel_value );
     }
   }
 
   auto md = img_ptr->get_metadata();
 
-  test_rpc_metadata(md);
+  test_rpc_metadata( md );
 }
 
-TEST_F(image_io, load_nitf_2)
+TEST_F ( image_io, load_nitf_2 )
 {
   kwiver::arrows::gdal::image_io img_io;
   kwiver::vital::path_t file_path = data_dir + "/" + nitf_file_name;
-  auto img_ptr = img_io.load(file_path);
+  auto img_ptr = img_io.load( file_path );
 
-  EXPECT_EQ( img_ptr->width(), 32);
-  EXPECT_EQ( img_ptr->height(), 32);
+  EXPECT_EQ( img_ptr->width(), 32 );
+  EXPECT_EQ( img_ptr->height(), 32 );
   EXPECT_EQ( img_ptr->depth(), 1 );
 
   auto md = img_ptr->get_metadata();
-  test_nitf_metadata(md);
+  test_nitf_metadata( md );
 }
 
-TEST_F(image_io, load_jpeg)
+TEST_F ( image_io, load_jpeg )
 {
   kwiver::arrows::gdal::image_io img_io;
 
   kwiver::vital::path_t file_path = data_dir + "/" + jpeg_file_name;
-  auto img_ptr = img_io.load(file_path);
+  auto img_ptr = img_io.load( file_path );
 
   EXPECT_EQ( img_ptr->width(), expected_size );
   EXPECT_EQ( img_ptr->height(), expected_size );
   EXPECT_EQ( img_ptr->depth(), 3 );
 
   uint8_t norm_fact =
-    expected_size*expected_size/(std::numeric_limits<uint8_t>::max() + 1);
+    expected_size * expected_size /
+    ( std::numeric_limits< uint8_t >::max() + 1 );
 
   // Test some pixel values
-  kwiver::vital::image_of<uint8_t> img(img_ptr->get_image());
-  for ( auto x_px : test_x_pixels )
+  kwiver::vital::image_of< uint8_t > img( img_ptr->get_image() );
+  for( auto x_px : test_x_pixels )
   {
-    for ( auto y_px : test_y_pixels )
+    for( auto y_px : test_y_pixels )
     {
       auto pixel = img.at( x_px, y_px );
 
-      uint8_t expected_red = x_px*y_px/norm_fact;
-      uint8_t expected_blue = (expected_size - x_px - 1)*y_px/norm_fact;
-      uint8_t expected_green = x_px*(expected_size - y_px - 1)/norm_fact;
+      uint8_t expected_red = x_px * y_px / norm_fact;
+      uint8_t expected_blue = ( expected_size - x_px - 1 ) * y_px / norm_fact;
+      uint8_t expected_green = x_px * ( expected_size - y_px - 1 ) / norm_fact;
       // Due to lossy compression exact comparisons will fail
-      EXPECT_NEAR( pixel.r, expected_red, 1 )
-        << "Incorrect red value at pixel (" << x_px << "," << y_px << ")";
-      EXPECT_NEAR( pixel.b, expected_blue,1 )
-        << "Incorrect blue value at pixel (" << x_px << "," << y_px << ")";
-      EXPECT_NEAR( pixel.g, expected_green, 1 )
-        << "Incorrect green value at pixel (" << x_px << "," << y_px << ")";
+      EXPECT_NEAR( pixel.r, expected_red, 1 ) <<
+        "Incorrect red value at pixel (" << x_px << "," << y_px << ")";
+      EXPECT_NEAR( pixel.b, expected_blue, 1 ) <<
+        "Incorrect blue value at pixel (" << x_px << "," << y_px << ")";
+      EXPECT_NEAR( pixel.g, expected_green, 1 ) <<
+        "Incorrect green value at pixel (" << x_px << "," << y_px << ")";
     }
   }
 }
@@ -234,18 +236,17 @@ TEST_F(image_io, load_jpeg)
 // ----------------------------------------------------------------------------
 class get_image : public ::testing::Test
 {
-  TEST_ARG(data_dir);
+  TEST_ARG( data_dir );
 };
 
 // ----------------------------------------------------------------------------
-TEST_F(get_image, crop)
+TEST_F ( get_image, crop )
 {
   kwiver::arrows::gdal::image_io img_io;
 
   kwiver::vital::path_t file_path = data_dir + "/" + png_file_name;
 
-  auto img_cont = img_io.load(file_path);
+  auto img_cont = img_io.load( file_path );
 
-  test_get_image_crop<uint8_t>( img_cont );
+  test_get_image_crop< uint8_t >( img_cont );
 }
-
