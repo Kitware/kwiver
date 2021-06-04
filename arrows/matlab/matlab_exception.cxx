@@ -10,18 +10,24 @@
 #include "matlab_exception.h"
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace matlab {
 
-matlab_exception::
-matlab_exception(const std::string& msg) noexcept
+matlab_exception
+::matlab_exception( const std::string& msg ) noexcept
   : vital_exception()
 {
-    m_what = msg;
+  m_what = msg;
 }
 
 matlab_exception::
 ~matlab_exception() noexcept
-{ }
+{}
 
-} } } // end namespace
+} // namespace matlab
+
+} // namespace arrows
+
+}     // end namespace

@@ -10,12 +10,14 @@
 #include <arrows/matlab/kwiver_algo_matlab_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
-#include <arrows/matlab/matlab_image_object_detector.h>
-#include <arrows/matlab/matlab_image_filter.h>
 #include <arrows/matlab/matlab_detection_output.h>
+#include <arrows/matlab/matlab_image_filter.h>
+#include <arrows/matlab/matlab_image_object_detector.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace matlab {
 
 extern "C"
@@ -25,7 +27,7 @@ register_factories( ::kwiver::vital::plugin_loader& vpm )
 {
   ::kwiver::vital::algorithm_registrar reg( vpm, "arrows.matlab" );
 
-  if (reg.is_module_loaded())
+  if( reg.is_module_loaded() )
   {
     return;
   }
@@ -37,4 +39,8 @@ register_factories( ::kwiver::vital::plugin_loader& vpm )
   reg.mark_module_as_loaded();
 }
 
-} } } // end namespace
+} // namespace matlab
+
+} // namespace arrows
+
+}     // end namespace

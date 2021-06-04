@@ -10,11 +10,11 @@
 #ifndef VITAL_MATLAB_ENGINE_H
 #define VITAL_MATLAB_ENGINE_H
 
-#include <vital/vital_config.h>
-#include <vital/noncopyable.h>
-#include <vital/logger/logger.h>
-#include <arrows/matlab/mxarray.h>
 #include <arrows/matlab/kwiver_algo_matlab_export.h>
+#include <arrows/matlab/mxarray.h>
+#include <vital/logger/logger.h>
+#include <vital/noncopyable.h>
+#include <vital/vital_config.h>
 
 // Matlab includes
 #include <engine.h>
@@ -22,10 +22,13 @@
 #include <cstdlib>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace matlab {
 
 // -----------------------------------------------------------------
+
 /**
  * @brief MatLab engine interface.
  *
@@ -95,7 +98,7 @@ public:
    *
    * @throws matlab_exception if error setting value
    */
-  void put_variable( const std::string& name, MxArraySptr val);
+  void put_variable( const std::string& name, MxArraySptr val );
 
   /**
    * @brief Return visibility of matlab engine.
@@ -135,9 +138,12 @@ private:
   kwiver::vital::logger_handle_t m_logger;
   Engine* m_engine_handle;
   char* m_output_buffer;
-
 }; // end class matlab_engine
 
-} } } // end namespace
+} // namespace matlab
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif /* VITAL_MATLAB_ENGINE_H */

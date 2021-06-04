@@ -16,52 +16,58 @@
 #include <string>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace matlab {
 
 // ------------------------------------------------------------------
 class matlab_detection_output::priv
 {
 public:
-  priv( matlab_detection_output* parent)
-    : m_parent( parent )
-    , m_first( true )
-  { }
+  priv( matlab_detection_output* parent )
+    : m_parent( parent ),
+      m_first( true )
+  {}
 
-  ~priv() { }
+  ~priv() {}
 
-  matlab_engine* engine()
+  matlab_engine*
+  engine()
   {
     // JIT allocation of engine if needed.
     //
-    //@bug Because of the way these algorithms are managed and
+    // @bug Because of the way these algorithms are managed and
     // duplicated, the matlab engine pointer must be shared with all
     // copies of this algorithm.  This is not optimal, since different
     // detectors may collide in the engine.  Doing the JIT creation
     // causes problems in that it allocates multiple engines. The real
     // solution is to get better control of creating these objects and
     // not have them clone themselves all the time.
-    if ( ! m_matlab_engine)
+    if( !m_matlab_engine )
     {
       m_matlab_engine.reset( new matlab_engine );
-      LOG_DEBUG( m_logger, "Allocating a matlab engine @ " << m_matlab_engine );
+      LOG_DEBUG( m_logger,
+                 "Allocating a matlab engine @ " << m_matlab_engine );
     }
 
     return m_matlab_engine.get();
   }
 
   // ------------------------------------------------------------------
-  void check_result()
+  void
+  check_result()
   {
     const std::string& results( engine()->output() );
-    if ( results.size() > 0 )
+    if( results.size() > 0 )
     {
       LOG_INFO( m_logger, engine() << " Matlab output: " << results );
     }
   }
 
   // ------------------------------------------------------------------
-  void eval( const std::string& expr )
+  void
+  eval( const std::string& expr )
   {
     LOG_DEBUG( m_logger, engine() << " Matlab eval: " << expr );
     engine()->eval( expr );
@@ -69,9 +75,10 @@ public:
   }
 
   // ------------------------------------------------------------------
-  void initialize_once()
+  void
+  initialize_once()
   {
-    if ( ! m_first)
+    if( !m_first )
     {
       return;
     }
@@ -84,7 +91,8 @@ public:
     eval( buffer.str() );
 
     // Create path to program file so we can do addpath('path');
-    std::string full_path = kwiversys::SystemTools::CollapseFullPath( m_matlab_program );
+    std::string full_path = kwiversys::SystemTools::CollapseFullPath(
+      m_matlab_program );
     full_path = kwiversys::SystemTools::GetFilenamePath( full_path );
 
     eval( "addpath('" + full_path + "')" );
@@ -98,9 +106,10 @@ public:
     for( auto k : keys )
     {
       std::stringstream config_command;
-      config_command <<  k << "=" << algo_config->get_value<std::string>( k ) << ";";
+      config_command <<  k << "=" <<
+            algo_config->get_value< std::string >( k ) << ";";
       eval( config_command.str() );
-    }// end foreach
+    } // end foreach
 
     eval( "detector_initialize()" );
   }
@@ -115,14 +124,14 @@ public:
   vital::config_block_sptr m_config;
 
 private:
-  // MatLab support. The engine is allocated at the latest time.
-  std::shared_ptr<matlab_engine> m_matlab_engine;
 
+  // MatLab support. The engine is allocated at the latest time.
+  std::shared_ptr< matlab_engine > m_matlab_engine;
 };
 
 // ==================================================================
-matlab_detection_output::
-matlab_detection_output()
+matlab_detection_output
+::matlab_detection_output()
   : d( new matlab_detection_output::priv( this ) )
 {
 }
@@ -134,8 +143,8 @@ matlab_detection_output::
 
 // ------------------------------------------------------------------
 vital::config_block_sptr
-matlab_detection_output::
-get_configuration() const
+matlab_detection_output
+::get_configuration() const
 {
   // Get base config from base class
   vital::config_block_sptr config = vital::algorithm::get_configuration();
@@ -148,36 +157,38 @@ get_configuration() const
 
 // ------------------------------------------------------------------
 void
-matlab_detection_output::
-set_configuration( vital::config_block_sptr config )
+matlab_detection_output
+::set_configuration( vital::config_block_sptr config )
 {
   d->m_config = config;
 
   // Load specified program file into matlab engine
-  d->m_matlab_program = config->get_value<std::string>( "program_file" );
+  d->m_matlab_program = config->get_value< std::string >( "program_file" );
 }
 
 // ------------------------------------------------------------------
 bool
-matlab_detection_output::
-check_configuration( vital::config_block_sptr config ) const
+matlab_detection_output
+::check_configuration( vital::config_block_sptr config ) const
 {
   return true;
 }
 
 // ------------------------------------------------------------------
 void
-matlab_detection_output::
-write_set( const kwiver::vital::detected_object_set_sptr detections,
-           std::string const&                            image_name )
+matlab_detection_output
+::write_set( const kwiver::vital::detected_object_set_sptr detections,
+             std::string const&                            image_name )
 {
   d->initialize_once();
 
-  MxArraySptr mx_image_name = std::make_shared<MxArray>( MxArray::Cell() );
+  MxArraySptr mx_image_name = std::make_shared< MxArray >( MxArray::Cell() );
   mx_image_name->set( 0, image_name );
-  MxArraySptr mx_detections = std::make_shared<MxArray>();
-  MxArraySptr mx_class =  std::make_shared<MxArray>( MxArray::Cell(detections->size(), 2) );
-  unsigned det_index(0);
+
+  MxArraySptr mx_detections = std::make_shared< MxArray >();
+  MxArraySptr mx_class =
+    std::make_shared< MxArray >( MxArray::Cell( detections->size(), 2 ) );
+  unsigned det_index( 0 );
 
   for( const auto det : *detections )
   {
@@ -192,14 +203,14 @@ write_set( const kwiver::vital::detected_object_set_sptr detections,
 
     // Process classifications if there are any
     const auto cm( det->type() );
-    if ( cm )
+    if( cm )
     {
       const auto name_list( cm->class_names() );
       for( auto name : name_list )
       {
         // Add classification entry to cell array
         mx_class->set( det_index, 0, name.c_str() );
-        mx_class->set( det_index, 1, cm->score(name) );
+        mx_class->set( det_index, 1, cm->score( name ) );
       } // end foreach
     }
 
@@ -207,12 +218,17 @@ write_set( const kwiver::vital::detected_object_set_sptr detections,
   } // end foreach
 
   // push detection set information into matlab
-  d->engine()->put_variable(  "detected_object_set" , mx_detections );
-  d->engine()->put_variable(  "detected_object_classification" , mx_class );
-  d->engine()->put_variable(  "image_name" , mx_image_name );
+  d->engine()->put_variable(  "detected_object_set", mx_detections );
+  d->engine()->put_variable(  "detected_object_classification", mx_class );
+  d->engine()->put_variable(  "image_name", mx_image_name );
 
   // call matlab function
-  d->eval( "write_set(detected_object_set, detected_object_classification, image_name)" );
+  d->eval(
+    "write_set(detected_object_set, detected_object_classification, image_name)" );
 }
 
-} } } // end namespace
+} // namespace matlab
+
+} // namespace arrows
+
+}     // end namespace

@@ -13,27 +13,31 @@
 #include <sstream>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace matlab {
 
 // ------------------------------------------------------------------
-matlab_engine::
-matlab_engine()
-  : m_logger( kwiver::vital::get_logger( "arrows.matlab.matlab_engine" ) )
-  , m_engine_handle( 0 )
-  , m_output_buffer( 0 )
+matlab_engine
+::matlab_engine()
+  : m_logger( kwiver::vital::get_logger( "arrows.matlab.matlab_engine" ) ),
+    m_engine_handle( 0 ),
+    m_output_buffer( 0 )
 {
   m_engine_handle = engOpen( "" );
-  if ( 0 == m_engine_handle)
+  if( 0 == m_engine_handle )
   {
     VITAL_THROW( matlab_exception, "Error opening MatLab engine" );
   }
 
-  m_output_buffer = static_cast< char * >(malloc( 4096 ));
+  m_output_buffer = static_cast< char* >( malloc( 4096 ) );
+
   int status = engOutputBuffer( m_engine_handle, m_output_buffer, 4096 );
-  if ( status )
+  if( status )
   {
-    VITAL_THROW( matlab_exception,"Invalid engine handle in engOutputBuffer() call" );
+    VITAL_THROW( matlab_exception,
+                 "Invalid engine handle in engOutputBuffer() call" );
   }
 }
 
@@ -44,9 +48,10 @@ matlab_engine::
   int status = engClose( m_engine_handle );
   m_engine_handle = 0;
 
-  if ( status )
+  if( status )
   {
-    LOG_WARN( m_logger, "Error returned from closing MatLab engine: " << status );
+    LOG_WARN( m_logger,
+              "Error returned from closing MatLab engine: " << status );
   }
 
   free( m_output_buffer );
@@ -55,11 +60,11 @@ matlab_engine::
 
 // ------------------------------------------------------------------
 void
-matlab_engine::
-eval( const std::string& cmd )
+matlab_engine
+::eval( const std::string& cmd )
 {
   int status = engEvalString( m_engine_handle, cmd.c_str() );
-  if ( 1 == status )
+  if( 1 == status )
   {
     VITAL_THROW( matlab_exception, "Engine session no longer active" );
   }
@@ -67,11 +72,11 @@ eval( const std::string& cmd )
 
 // ------------------------------------------------------------------
 MxArraySptr
-matlab_engine::
-get_variable( const std::string& name )
+matlab_engine
+::get_variable( const std::string& name )
 {
   mxArray* var = engGetVariable( m_engine_handle, name.c_str() );
-  if ( ! var )
+  if( !var )
   {
     std::stringstream str;
     str << "Variable \"" << name << "\" does not exist.";
@@ -83,11 +88,12 @@ get_variable( const std::string& name )
 
 // ------------------------------------------------------------------
 void
-matlab_engine::
-put_variable( const std::string& name, MxArraySptr val )
+matlab_engine
+::put_variable( const std::string& name, MxArraySptr val )
 {
-  int status = engPutVariable( m_engine_handle, name.c_str(), val.get()->get() );
-  if ( status )
+  int status =
+    engPutVariable( m_engine_handle, name.c_str(), val.get()->get() );
+  if( status )
   {
     std::stringstream str;
     str << "Error assigning value to variable \"" << name << "\"";
@@ -97,36 +103,40 @@ put_variable( const std::string& name, MxArraySptr val )
 
 // ------------------------------------------------------------------
 bool
-matlab_engine::
-get_visible()
+matlab_engine
+::get_visible()
 {
   bool retval( 0 );
   int status = engGetVisible( m_engine_handle, &retval );
-  if ( status )
+  if( status )
   {
-    LOG_WARN( m_logger, "Error returned from engGetVisible()");
+    LOG_WARN( m_logger, "Error returned from engGetVisible()" );
   }
   return retval;
 }
 
 // ------------------------------------------------------------------
 void
-matlab_engine::
-set_visible( bool vis )
+matlab_engine
+::set_visible( bool vis )
 {
   int status = engSetVisible( m_engine_handle, vis );
-  if ( status )
+  if( status )
   {
-    LOG_WARN( m_logger, "Error returned from engSetVisible()");
+    LOG_WARN( m_logger, "Error returned from engSetVisible()" );
   }
 }
 
 // ------------------------------------------------------------------
 std::string
-matlab_engine::
-output() const
+matlab_engine
+::output() const
 {
   return std::string( m_output_buffer );
 }
 
-} } }     // end namesapce
+} // namespace matlab
+
+} // namespace arrows
+
+}         // end namesapce

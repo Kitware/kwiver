@@ -12,11 +12,13 @@
 
 #include <vital/types/image_container.h>
 
-#include <arrows/matlab/mxarray.h>
 #include <arrows/matlab/kwiver_algo_matlab_export.h>
+#include <arrows/matlab/mxarray.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace matlab {
 
 /**
@@ -31,10 +33,12 @@ namespace matlab {
  * @return Managed array containing the image.
  */
 KWIVER_ALGO_MATLAB_EXPORT
-MxArraySptr convert_mx_image( const kwiver::vital::image_container_sptr image );
+MxArraySptr convert_mx_image(
+  const kwiver::vital::image_container_sptr image );
 
 KWIVER_ALGO_MATLAB_EXPORT
-kwiver::vital::image_container_sptr convert_mx_image( const MxArraySptr image );
+kwiver::vital::image_container_sptr convert_mx_image(
+  const MxArraySptr image );
 
 /** \defgroup create_matlab_array Create Matlab Array
  * Factory functions to create managed Matlab arrays.
@@ -81,6 +85,10 @@ KWIVER_ALGO_MATLAB_EXPORT
 MxArraySptr create_mxDoubleArray( size_t r, size_t c );
 //@}
 
-} } } // end namespace
+} // namespace matlab
+
+} // namespace arrows
+
+}     // end namespace
 
 #endif // ARROWS_MATLAB_UTIL_H
