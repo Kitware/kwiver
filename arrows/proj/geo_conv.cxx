@@ -92,7 +92,8 @@ context()
 }
 
 // ----------------------------------------------------------------------------
-std::string epsg_to_init( int crs )
+std::string
+epsg_to_init( int crs )
 {
   return "EPSG:" + std::to_string( crs );
 }
@@ -134,7 +135,7 @@ projection( int crs_from, int crs_to )
       auto const msg =
         "Failed to construct PROJ projection"
         " from EPSG:" + std::to_string( crs_from );
-        " to EPSG:" + std::to_string( crs_to );
+      " to EPSG:" + std::to_string( crs_to );
       throw std::runtime_error( msg );
     }
 
@@ -149,7 +150,7 @@ projection( int crs_from, int crs_to )
       auto const msg =
         "Failed to construct normalized PROJ projection"
         " from EPSG:" + std::to_string( crs_from );
-        " to EPSG:" + std::to_string( crs_to );
+      " to EPSG:" + std::to_string( crs_to );
       throw std::runtime_error( msg );
     }
 
@@ -204,12 +205,9 @@ geo_conversion
 ::describe( int crs )
 {
   static const auto prop_map =
-    std::unordered_map< std::string, std::string >{
-      { "datum", "datum" },
-      { "ellps", "ellipse" },
-      { "proj", "projection" },
-      { "units", "units" },
-    };
+    std::unordered_map< std::string, std::string >{ { "datum", "datum" },
+    { "ellps", "ellipse" }, { "proj", "projection" },
+    { "units", "units" }, };
 
   // Get CRS init string
   auto const proj = projection( crs );

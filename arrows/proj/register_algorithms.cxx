@@ -14,7 +14,9 @@
 #include <vital/types/geodesy.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace proj {
 
 extern "C"
@@ -23,7 +25,7 @@ void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {
   static auto const module_name = std::string( "arrows.proj" );
-  if (vpm.is_module_loaded( module_name ) )
+  if( vpm.is_module_loaded( module_name ) )
   {
     return;
   }
@@ -36,5 +38,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 }
 
 } // end namespace proj
+
 } // end namespace arrows
+
 } // end namespace kwiver
