@@ -6,35 +6,38 @@
 
 #include <arrows/viscl/utils.h>
 
-#include <viscl/core/manager.h>
 #include <boost/shared_ptr.hpp>
+#include <viscl/core/manager.h>
 
 #include <memory>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace vcl {
 
 /// Return a vector of feature shared pointers
-std::vector<vital::feature_sptr>
+std::vector< vital::feature_sptr >
 feature_set
 ::features() const
 {
-  std::vector<vital::feature_sptr> features;
+  std::vector< vital::feature_sptr > features;
 
   unsigned int numkpts = size();
   viscl::cl_queue_t queue = viscl::manager::inst()->create_queue();
 
-  std::vector<cl_int2> kpts;
-  kpts.resize(numkpts);
-  queue->enqueueReadBuffer(*data_.features_().get(), CL_TRUE, 0, sizeof(cl_int2)*numkpts, &kpts[0]);
+  std::vector< cl_int2 > kpts;
+  kpts.resize( numkpts );
+  queue->enqueueReadBuffer( *data_.features_().get(), CL_TRUE, 0,
+                            sizeof( cl_int2 ) * numkpts, &kpts[ 0 ] );
 
-  //These features only have locations set for them
-  for (unsigned int i = 0; i < numkpts; i++)
+  // These features only have locations set for them
+  for( unsigned int i = 0; i < numkpts; i++ )
   {
-    vital::feature_f *f = new vital::feature_f();
-    f->set_loc(vital::vector_2f(kpts[i].s[0], kpts[i].s[1]));
-    features.push_back(vital::feature_sptr(f));
+    vital::feature_f* f = new vital::feature_f();
+    f->set_loc( vital::vector_2f( kpts[ i ].s[ 0 ], kpts[ i ].s[ 1 ] ) );
+    features.push_back( vital::feature_sptr( f ) );
   }
 
   return features;
@@ -42,72 +45,82 @@ feature_set
 
 // Convert any feature set to a VisCL data (upload if needed)
 feature_set::type
-features_to_viscl(const vital::feature_set& features)
+features_to_viscl( const vital::feature_set& features )
 {
-  //if already on GPU in VisCL format, then access it
+  // if already on GPU in VisCL format, then access it
   if( const vcl::feature_set* f =
-          dynamic_cast<const vcl::feature_set*>(&features) )
+        dynamic_cast< const vcl::feature_set* >( &features ) )
   {
     return f->viscl_features();
   }
 
   unsigned int width, height;
-  min_image_dimensions(features, width, height);
+  min_image_dimensions( features, width, height );
 
-  //kpt map is half width and height
+  // kpt map is half width and height
   unsigned int ni, nj;
-  ni = (width >> 1) + 1;
-  nj = (height >> 1) + 1;
+  ni = ( width >> 1 ) + 1;
+  nj = ( height >> 1 ) + 1;
+
   size_t size = ni * nj;
-  int *kp_map = new int [size];
-  for (unsigned int i = 0; i < size; i++)
-    kp_map[i] = -1;
+  int* kp_map = new int [ size ];
+  for( unsigned int i = 0; i < size; i++ )
+  {
+    kp_map[ i ] = -1;
+  }
 
   feature_set::type fs;
-  int numfeat[1];
-  numfeat[0] = static_cast<int>(features.size());
-  fs.features_ = viscl::manager::inst()->create_buffer<cl_int2>(CL_MEM_READ_WRITE, numfeat[0]);
-  fs.numfeat_ = viscl::manager::inst()->create_buffer<int>(CL_MEM_READ_WRITE, 1);
+  int numfeat[ 1 ];
+  numfeat[ 0 ] = static_cast< int >( features.size() );
+  fs.features_ = viscl::manager::inst()->create_buffer< cl_int2 >(
+    CL_MEM_READ_WRITE, numfeat[ 0 ] );
+  fs.numfeat_ = viscl::manager::inst()->create_buffer< int >(
+    CL_MEM_READ_WRITE, 1 );
 
-  //write number of features
+  // write number of features
   viscl::cl_queue_t queue = viscl::manager::inst()->create_queue();
-  queue->enqueueWriteBuffer(*fs.numfeat_().get(), CL_TRUE, 0, fs.numfeat_.mem_size(), numfeat);
+  queue->enqueueWriteBuffer(
+    *fs.numfeat_().get(), CL_TRUE, 0, fs.numfeat_.mem_size(), numfeat );
 
-  //write features
-  std::vector<vital::feature_sptr> feat = features.features();
-  cl_int2 *buf = new cl_int2[features.size()];
-  typedef std::vector<vital::feature_sptr>::const_iterator feat_itr;
+  // write features
+  std::vector< vital::feature_sptr > feat = features.features();
+  cl_int2* buf = new cl_int2[ features.size() ];
+  typedef std::vector< vital::feature_sptr >::const_iterator feat_itr;
+
   unsigned int j = 0;
-  for(feat_itr it = feat.begin(); it != feat.end(); ++it, j++)
+  for( feat_itr it = feat.begin(); it != feat.end(); ++it, j++ )
   {
     const vital::feature_sptr f = *it;
 
     cl_int2 kp;
-    kp.s[0] = static_cast<int>(f->loc()[0]);
-    kp.s[1] = static_cast<int>(f->loc()[1]);
-    buf[j] = kp;
-    size_t index = (kp.s[0] >> 1) * nj + (kp.s[1] >> 1);
-    assert(index < size);
+    kp.s[ 0 ] = static_cast< int >( f->loc()[ 0 ] );
+    kp.s[ 1 ] = static_cast< int >( f->loc()[ 1 ] );
+    buf[ j ] = kp;
 
-    kp_map[index] = j;
+    size_t index = ( kp.s[ 0 ] >> 1 ) * nj + ( kp.s[ 1 ] >> 1 );
+    assert( index < size );
+
+    kp_map[ index ] = j;
   }
 
-  queue->enqueueWriteBuffer(*fs.features_().get(), CL_TRUE, 0, fs.features_.mem_size(), buf);
+  queue->enqueueWriteBuffer(
+    *fs.features_().get(), CL_TRUE, 0, fs.features_.mem_size(), buf );
   queue->finish();
 
-  cl::ImageFormat kptimg_fmt(CL_R, CL_SIGNED_INT32);
-  //+ There is a problem here with the shared prt. The package wants a std::shared_ptr
-  fs.kptmap_ = viscl::image(boost::make_shared<cl::Image2D>(
-                            viscl::manager::inst()->get_context(),
-                            CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                            kptimg_fmt,
-                            ni,
-                            nj,
-                            0,
-                            (void *)kp_map));
+  cl::ImageFormat kptimg_fmt( CL_R, CL_SIGNED_INT32 );
+  // + There is a problem here with the shared prt. The package wants a
+  // std::shared_ptr
+  fs.kptmap_ = viscl::image( boost::make_shared< cl::Image2D >(
+                               viscl::manager::inst()->get_context(),
+                               CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                               kptimg_fmt,
+                               ni,
+                               nj,
+                               0,
+                               (void*) kp_map ) );
 
-  delete [] buf;
-  delete [] kp_map;
+  delete[] buf;
+  delete[] kp_map;
 
   return fs;
 }
@@ -116,12 +129,16 @@ size_t
 feature_set
 ::size() const
 {
-  int buf[1];
+  int buf[ 1 ];
   viscl::cl_queue_t q = viscl::manager::inst()->create_queue();
-  q->enqueueReadBuffer(*data_.numfeat_().get(), CL_TRUE, 0, data_.numfeat_.mem_size(), buf);
-  return buf[0];
+  q->enqueueReadBuffer(
+    *data_.numfeat_().get(), CL_TRUE, 0, data_.numfeat_.mem_size(),
+    buf );
+  return buf[ 0 ];
 }
 
 } // end namespace vcl
+
 } // end namespace arrows
+
 } // end namespace kwiver

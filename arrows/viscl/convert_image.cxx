@@ -7,25 +7,28 @@
 #include <arrows/viscl/image_container.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace vcl {
 
 /// Default Constructor
 convert_image
 ::convert_image()
 {
-
 }
 
 /// Image convert to viscl underlying type
 vital::image_container_sptr
 convert_image
-::convert(vital::image_container_sptr img) const
+::convert( vital::image_container_sptr img ) const
 {
   // make new viscl image container
-  return std::shared_ptr<image_container>(new image_container(*img));
+  return std::shared_ptr< image_container >( new image_container( *img ) );
 }
 
 } // end namespace vcl
+
 } // end namespace arrows
+
 } // end namespace kwiver
