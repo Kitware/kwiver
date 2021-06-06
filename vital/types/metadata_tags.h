@@ -36,7 +36,7 @@
   CALL( MISSION_ID,                                                     \
         "Mission ID",                                                   \
         std::string,                                                    \
-        "Descriptive Mission Identifier to distinguish event or sortie. "\
+        "Descriptive Mission Identifier to distinguish event or sortie. " \
         "Value field is Free Text." )                                   \
   CALL( MISSION_NUMBER,                                                 \
         "Episode Number",                                               \
@@ -473,7 +473,7 @@
 
 namespace kwiver {
 namespace vital {
-
+      
 enum vital_metadata_tag {
 #define ENUM_ITEM( TAG, NAME, T, ... ) VITAL_META_ ## TAG,
 
@@ -484,7 +484,7 @@ enum vital_metadata_tag {
 
   // User tags can be generated for a specific application and
   // should start with a value not less than the following.
-  VITAL_META_LAST_TAG
+  VITAL_META_LAST_TAG,
 };
 
 } } // end namespace
