@@ -484,7 +484,7 @@ enum vital_metadata_tag {
 
   // User tags can be generated for a specific application and
   // should start with a value not less than the following.
-  VITAL_META_LAST_TAG,
+  VITAL_META_LAST_TAG
 };
 
 } } // end namespace
