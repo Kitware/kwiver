@@ -45,4 +45,4 @@ bool convert_MISP_microsec_time( std::vector< unsigned char > const& buf, std::i
 
 } } } // end namespace
 
-#endif 
+#endif
