@@ -8,14 +8,17 @@
  * make KLV 0601 traits.
  */
 
-#ifndef KWIVER_VITAL_KLV_0601_TRAITS_H_
-#define KWIVER_VITAL_KLV_0601_TRAITS_H_
+#ifndef KWIVER_ARROWS_KLV_KLV_0601_TRAITS_H_
+#define KWIVER_ARROWS_KLV_KLV_0601_TRAITS_H_
 
-#include <vital/klv/klv_0601.h>
+#include <arrows/klv/kwiver_algo_klv_export.h>
+#include <arrows/klv/klv_0601.h>
+
 #include <limits>
 
 namespace kwiver {
-namespace vital {
+namespace arrows {
+namespace klv {
 
 class std_0102_lds { };
 
@@ -232,6 +235,6 @@ KLV_CAST(          UAS_LDS_VERSION_NUMBER );
 #undef KLV_SCALE_OFFSET
 #undef KLV_SCALE_INVALID
 
-} } // end namespace
+} } } // end namespace
 
 #endif

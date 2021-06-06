@@ -14,11 +14,11 @@
 #include <vital/exceptions/metadata.h>
 #include <vital/exceptions/video.h>
 #include <vital/util/tokenize.h>
-#include <vital/klv/convert_metadata.h>
-#include <vital/klv/misp_time.h>
-#include <vital/klv/klv_data.h>
 #include <vital/vital_config.h>
 
+#include <arrows/klv/convert_metadata.h>
+#include <arrows/klv/misp_time.h>
+#include <arrows/klv/klv_data.h>
 #include <arrows/vxl/image_container.h>
 
 #include <vidl/vidl_config.h>
@@ -141,7 +141,7 @@ public:
 
   std::deque<uint8_t> md_buffer; // working buffer for metadata stream
 
-  kwiver::vital::convert_metadata converter; // metadata converter object
+  kwiver::arrows::klv::convert_metadata converter; // metadata converter object
 
   static std::mutex s_open_mutex;
 
@@ -169,10 +169,10 @@ public:
 
     // Add new metadata to the end of current metadata stream
     md_buffer.insert(md_buffer.end(), curr_md.begin(), curr_md.end());
-    kwiver::vital::klv_data klv_packet;
+    kwiver::arrows::klv::klv_data klv_packet;
 
     // If we have collected enough of the stream to make a KLV packet
-    while ( klv_pop_next_packet( md_buffer, klv_packet ) )
+    while ( kwiver::arrows::klv::klv_pop_next_packet( md_buffer, klv_packet ) )
     {
       auto meta = std::make_shared<kwiver::vital::metadata>();
 
@@ -257,11 +257,11 @@ public:
     }
     else if ( time_source == "klv0601" )
     {
-      retval = klv_time( kwiver::vital::convert_metadata::MISB_0601 );
+      retval = klv_time( kwiver::arrows::klv::convert_metadata::MISB_0601 );
     }
     else if ( time_source == "klv0104" )
     {
-      retval = klv_time( kwiver::vital::convert_metadata::MISB_0104 );
+      retval = klv_time( kwiver::arrows::klv::convert_metadata::MISB_0104 );
     }
     else if ( time_source == "start_at_0" )
     {
@@ -320,7 +320,7 @@ public:
     {
       std::vector< unsigned char > pkt_data = d_video_stream.current_packet_data();
 
-      if ( kwiver::vital::find_MISP_microsec_time(  pkt_data, ts ) )
+      if ( kwiver::arrows::klv::find_MISP_microsec_time(  pkt_data, ts ) )
       {
         meta_ts = ts; // in usec
         LOG_DEBUG( this->d_logger, "Found MISP frame time:" << meta_ts );

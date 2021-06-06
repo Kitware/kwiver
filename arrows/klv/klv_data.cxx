@@ -7,13 +7,14 @@
  * \brief This file contains the implementation for the klv data class.
  */
 
-#include <vital/klv/klv_data.h>
+#include <arrows/klv/klv_data.h>
 
 #include <algorithm>
 #include <iomanip>
 
 namespace kwiver {
-namespace vital {
+namespace arrows {
+namespace klv {
 
   klv_data
   ::klv_data()
@@ -151,4 +152,4 @@ std::ostream & operator<<( std::ostream& str, klv_data const& obj )
   return str;
 }
 
-} } // end namespace
+} } } // end namespace

@@ -7,23 +7,24 @@
  * \brief This file contains the interface for the klv_key class.
  */
 
-#ifndef KWIVER_VITAL_KLV_KEY_H_
-#define KWIVER_VITAL_KLV_KEY_H_
+#ifndef KWIVER_ARROWS_KLV_KLV_KEY_H_
+#define KWIVER_ARROWS_KLV_KLV_KEY_H_
 
-#include <vital/klv/vital_klv_export.h>
+#include <arrows/klv/kwiver_algo_klv_export.h>
 
 #include <cstddef>
 #include <iostream>
 #include <cstdint>
 
 namespace kwiver {
-namespace vital {
+namespace arrows {
+namespace klv {
 
 class klv_data;
 
 /// A class to represent a KLV key
 template <unsigned int LEN>
-class VITAL_KLV_EXPORT klv_key
+class KWIVER_ALGO_KLV_EXPORT klv_key
 {
 public:
   klv_key();
@@ -53,7 +54,7 @@ protected:
 /// Ouput stream operator for \a klv_key
 /// formats output as a hex string
 template <unsigned int LEN>
-VITAL_KLV_EXPORT
+KWIVER_ALGO_KLV_EXPORT
 std::ostream& operator <<(std::ostream& os, const klv_key<LEN>& key);
 
 // ----------------------------------------------------------------
@@ -61,7 +62,7 @@ std::ostream& operator <<(std::ostream& os, const klv_key<LEN>& key);
  *
  *
  */
-class VITAL_KLV_EXPORT klv_uds_key :
+class KWIVER_ALGO_KLV_EXPORT klv_uds_key :
   public klv_key< 16 >
 {
 public:
@@ -150,7 +151,7 @@ public:
 
 // ----------------------------------------------------------------
 /// A LDS (Local Data Set) key with 1 byte length
-class VITAL_KLV_EXPORT klv_lds_key
+class KWIVER_ALGO_KLV_EXPORT klv_lds_key
   : public klv_key<1>
 {
 public:
@@ -164,6 +165,6 @@ public:
   operator uint8_t() const { return key_[0]; }
 };
 
-} } // end namespace
+} } } // end namespace
 
 #endif

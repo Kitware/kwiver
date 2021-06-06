@@ -20,7 +20,8 @@
 #include <cctype>
 
 namespace kwiver {
-namespace vital {
+namespace arrows {
+namespace klv {
 
 namespace {
 
@@ -430,4 +431,4 @@ print_klv( std::ostream& str, klv_data const& klv )
   return str;
 } // print_klv
 
-} }   // end namespace
+} } }  // end namespace

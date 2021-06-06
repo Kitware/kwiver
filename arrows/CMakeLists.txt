@@ -81,6 +81,11 @@ if( KWIVER_ENABLE_KPF )
   add_subdirectory( kpf )
 endif()
 
+# if klv is enabled
+if( KWIVER_ENABLE_KLV )
+  add_subdirectory( klv )
+endif()
+
 # if GDAL is enabled
 if ( KWIVER_ENABLE_GDAL )
   add_subdirectory( gdal )

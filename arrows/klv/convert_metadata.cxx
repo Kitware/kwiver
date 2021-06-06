@@ -9,14 +9,15 @@
 
 #include "convert_metadata.h"
 
-#include <vital/klv/klv_0601.h>
-#include <vital/klv/klv_0104.h>
-#include <vital/klv/klv_data.h>
-#include <vital/klv/klv_parse.h>
+#include <arrows/klv/klv_0601.h>
+#include <arrows/klv/klv_0104.h>
+#include <arrows/klv/klv_data.h>
+#include <arrows/klv/klv_parse.h>
 #include <vital/exceptions/metadata.h>
 
 namespace kwiver {
-namespace vital {
+namespace arrows {
+namespace klv {
 
 const std::string convert_metadata::MISB_0104( "MISB_0104" );
 const std::string convert_metadata::MISB_0601( "MISB_0601" );
@@ -57,7 +58,7 @@ convert_metadata
 
 // ==================================================================
 void convert_metadata
-::convert( klv_data const& klv, metadata& md )
+::convert( klv_data const& klv, kwiver::vital::metadata& md )
 {
   klv_uds_key uds_key( klv ); // create key from raw data
 
@@ -66,7 +67,7 @@ void convert_metadata
     if ( ! klv_0601_checksum( klv ) )
     {
       // serious error
-      VITAL_THROW( metadata_exception, "checksum error on 0601 packet");
+      VITAL_THROW( kwiver::vital::metadata_exception, "checksum error on 0601 packet");
     }
 
     klv_lds_vector_t lds = parse_klv_lds( klv );
@@ -88,12 +89,12 @@ void convert_metadata
 // ------------------------------------------------------------------
 std::type_info const&
 convert_metadata
-::typeid_for_tag( vital_metadata_tag tag )
+::typeid_for_tag( kwiver::vital::vital_metadata_tag tag )
 {
 
   switch (tag)
   {
-#define VITAL_META_TRAIT_CASE(TAG, NAME, T, ...) case VITAL_META_ ## TAG: return typeid(T);
+#define VITAL_META_TRAIT_CASE(TAG, NAME, T, ...) case kwiver::vital::VITAL_META_ ## TAG: return typeid(T);
 
     KWIVER_VITAL_METADATA_TAGS( VITAL_META_TRAIT_CASE )
 
@@ -103,4 +104,4 @@ convert_metadata
   }
 }
 
-} } // end namespace
+} } } // end namespace

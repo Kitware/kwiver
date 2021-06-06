@@ -9,7 +9,7 @@
 
 #include <test_common.h>
 
-#include <vital/klv/klv_parse.h>
+#include <arrows/klv/klv_parse.h>
 
 #define TEST_ARGS ()
 

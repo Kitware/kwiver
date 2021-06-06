@@ -7,10 +7,10 @@
  * \brief This file contains the interface for the klv data class.
  */
 
-#ifndef KWIVER_VITAL_KLV_DATA_H_
-#define KWIVER_VITAL_KLV_DATA_H_
+#ifndef KWIVER_ARROWS_KLV_KLV_DATA_H_
+#define KWIVER_ARROWS_KLV_KLV_DATA_H_
 
-#include <vital/klv/vital_klv_export.h>
+#include <arrows/klv/kwiver_algo_klv_export.h>
 
 #include <cstddef>
 #include <iostream>
@@ -18,7 +18,8 @@
 #include <cstdint>
 
 namespace kwiver {
-namespace vital {
+namespace arrows {
+namespace klv {
 
 // ----------------------------------------------------------------
 /** A container for a raw KLV packet.
@@ -29,7 +30,7 @@ namespace vital {
  * An object of this class is immutable. Once it is created, it can
  * not be changed, only querried.
  */
-class VITAL_KLV_EXPORT klv_data
+class KWIVER_ALGO_KLV_EXPORT klv_data
 {
 public:
   typedef std::vector< uint8_t > container_t;
@@ -83,6 +84,6 @@ private:
 /// Output operator
 std::ostream& operator<< (std::ostream& str, klv_data const& obj);
 
-} } // end namespace
+} } } // end namespace
 
 #endif

@@ -13,7 +13,8 @@
  */
 
 namespace kwiver {
-namespace vital {
+namespace arrows {
+namespace klv {
 
 // ------------------------------------------------------------------
 template < unsigned int LEN >
@@ -337,9 +338,9 @@ klv_lds_key
 
 #define INSTANTIATE_KLV_KEY(NUM)                                        \
 template class klv_key<NUM>;                                            \
-template VITAL_KLV_EXPORT std::ostream& operator <<(std::ostream& os, klv_key<NUM> const& key)
+template KWIVER_ALGO_KLV_EXPORT std::ostream& operator <<(std::ostream& os, klv_key<NUM> const& key)
 
 INSTANTIATE_KLV_KEY(1);
 INSTANTIATE_KLV_KEY(16);
 
-} } // end namespace
+} } } // end namespace
