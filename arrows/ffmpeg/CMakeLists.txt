@@ -53,7 +53,7 @@ endif()
 
 target_link_libraries( kwiver_algo_ffmpeg
   PUBLIC               vital_algo
-  PRIVATE              vital_klv kwiversys
+  PRIVATE              kwiver_algo_klv kwiversys
                        ${FFMPEG_LIBRARIES}
                        ${ZLIB_LIBRARIES}
   )

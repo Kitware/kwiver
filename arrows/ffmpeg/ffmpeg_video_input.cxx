@@ -13,9 +13,9 @@
 #include <vital/types/timestamp.h>
 #include <vital/exceptions/io.h>
 #include <vital/exceptions/video.h>
-#include <vital/klv/convert_metadata.h>
-#include <vital/klv/misp_time.h>
-#include <vital/klv/klv_data.h>
+#include <arrows/klv/convert_metadata.h>
+#include <arrows/klv/misp_time.h>
+#include <arrows/klv/klv_data.h>
 #include <vital/util/tokenize.h>
 #include <vital/types/image_container.h>
 #include <vital/vital_config.h>
