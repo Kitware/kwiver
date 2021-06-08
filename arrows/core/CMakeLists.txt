@@ -16,6 +16,7 @@ set( plugin_core_headers
   convert_image_bypass.h
   create_detection_grid.h
   depth_utils.h
+  derive_metadata.h
   detect_features_filtered.h
   detected_object_set_input_kw18.h
   detected_object_set_output_kw18.h
@@ -86,6 +87,7 @@ set( plugin_core_sources
   convert_image_bypass.cxx
   create_detection_grid.cxx
   depth_utils.cxx
+  derive_metadata.cxx
   detect_features_filtered.cxx
   detected_object_set_input_kw18.cxx
   detected_object_set_output_kw18.cxx

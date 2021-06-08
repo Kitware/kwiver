@@ -353,6 +353,10 @@
         "Average GSD value (meters/pixel)",                             \
         double,                                                         \
         "" )                                                            \
+  CALL( VNIIRS,                                                         \
+        "VNIIRs image quality",                                         \
+        double,                                                         \
+        "Unitless metric computed from GSD and image quality" )         \
   CALL( GPS_SEC,                                                        \
         "GPS seconds",                                                  \
         double,                                                         \
