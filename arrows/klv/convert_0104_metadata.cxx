@@ -100,7 +100,7 @@ convert_metadata
     }
 
     // If the destination is integral.
-    kwiver::vital::vital_meta_trait_base const& trait = m_metadata_traits.find( vital_tag );
+    auto const& trait = m_metadata_traits.find( vital_tag );
     if ( trait.is_integral() )
     {
       kwiver::vital::any converted_data = convert_to_int.convert( data );
@@ -119,7 +119,8 @@ convert_metadata
 
 // ------------------------------------------------------------------
 void convert_metadata
-::convert_0104_metadata( klv_uds_vector_t const& uds, kwiver::vital::metadata& md )
+::convert_0104_metadata( klv_uds_vector_t const& uds,
+                         kwiver::vital::metadata& md )
 {
   //
   // Data items that are used to collect multi-value metadata items such as
@@ -169,14 +170,14 @@ void convert_metadata
     switch (tag)
     {
 // Refine simple case to a define
-#define CASE(N)                           \
-case klv_0104::N:                         \
+#define CASE(N)                                          \
+case klv_0104::N:                                        \
   md.add_any< kwiver::vital::VITAL_META_ ## N >( data ); \
   break
 
-#define CASE2(KN,MN)                        \
-case klv_0104::KN:                          \
-  md.add_any< kwiver::vital::VITAL_META_ ## MN >( data );  \
+#define CASE2(KN,MN)                                      \
+case klv_0104::KN:                                        \
+  md.add_any< kwiver::vital::VITAL_META_ ## MN >( data ); \
   break
 
       CASE( UNIX_TIMESTAMP );

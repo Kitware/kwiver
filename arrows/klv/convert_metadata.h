@@ -12,12 +12,13 @@
 
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
-#include <vital/types/metadata.h>
-#include <vital/types/metadata_traits.h>
-
 #include <arrows/klv/klv_0601.h>
 #include <arrows/klv/klv_0104.h>
 #include <arrows/klv/klv_parse.h>
+
+#include <vital/types/metadata.h>
+#include <vital/types/metadata_traits.h>
+
 #include <vital/util/any_converter.h>
 
 #include <vital/logger/logger.h>

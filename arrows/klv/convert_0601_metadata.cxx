@@ -71,7 +71,8 @@ is_valid_lon_lat( kwiver::vital::vector_2d const& vec )
 bool
 is_valid_lon_lat( kwiver::vital::vector_3d const& vec )
 {
-  return is_valid_lon_lat( static_cast< kwiver::vital::vector_2d >(vec.head( 2 )) );
+  return is_valid_lon_lat(
+    static_cast< kwiver::vital::vector_2d >( vec.head( 2 ) ) );
 }
 
 } // end namespace
@@ -114,7 +115,7 @@ convert_metadata
   try
   {
     // If the destination is integral.
-    kwiver::vital::vital_meta_trait_base const& trait = m_metadata_traits.find( vital_tag );
+    auto const& trait = m_metadata_traits.find( vital_tag );
     if ( trait.is_integral() )
     {
       kwiver::vital::any converted_data = convert_to_int.convert( data );
