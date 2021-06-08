@@ -113,6 +113,7 @@ class TestVitalMetadataTags(unittest.TestCase):
             mt.tags.VITAL_META_WEAPON_LOAD_0601,
             mt.tags.VITAL_META_WEAPON_FIRED_0601,
             mt.tags.VITAL_META_AVERAGE_GSD,
+            mt.tags.VITAL_META_VNIIRS,
             mt.tags.VITAL_META_GPS_SEC,
             mt.tags.VITAL_META_GPS_WEEK,
             mt.tags.VITAL_META_NORTHING_VEL,
