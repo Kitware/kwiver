@@ -380,6 +380,13 @@ public:
   ~metadata() = default;
 
   /**
+   * \brief Return a deep copy of the current metadata map.
+   *
+   * Metadata contains a map of pointers, so it needs to be deep copied
+   */
+  metadata deep_copy();
+
+  /**
    * \brief Add metadata item to collection.
    *
    * This method adds a metadata item to the collection. The collection takes

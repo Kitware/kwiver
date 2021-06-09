@@ -98,6 +98,22 @@ metadata
 { }
 
 // ---------------------------------------------------------------------
+metadata
+metadata
+::deep_copy()
+{
+  metadata copy;
+  copy.set_timestamp( m_timestamp );
+
+  for( auto const& md_item: m_metadata_map )
+  {
+    // Add a copy of the the other metadata map's items
+    copy.add_copy( md_item.second );
+  }
+  return copy;
+}
+
+// ---------------------------------------------------------------------
 void
 metadata
 ::add( std::unique_ptr< metadata_item >&& item )

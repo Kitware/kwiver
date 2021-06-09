@@ -12,21 +12,17 @@
 
 #include <arrows/core/kwiver_algo_core_export.h>
 
-#include <functional>
-#include <vector>
-
 #include <vital/algo/video_input.h>
 #include <vital/types/bounding_box.h>
 #include <vital/types/camera_perspective.h>
 #include <vital/types/camera_perspective_map.h>
 #include <vital/types/landmark.h>
 
-using namespace kwiver::vital;
+#include <functional>
+#include <vector>
 
 namespace kwiver {
-
 namespace arrows {
-
 namespace core {
 
 /**
@@ -37,10 +33,6 @@ KWIVER_ALGO_CORE_EXPORT
 kwiver::vital::metadata_vector
 compute_derived_metadata( kwiver::vital::metadata_vector metadata_vec );
 
-} // end namespace core
-
-} // end namespace arrows
-
-} // end namespace kwiver
+} } } // end namespace
 
 #endif
