@@ -51,10 +51,6 @@ target_link_libraries( kwiver_algo_klv
                 vital_logger
   )
 
-algorithms_create_plugin( kwiver_algo_klv
-  register_algorithms.cxx
-  )
-
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory( tests )
 endif()
