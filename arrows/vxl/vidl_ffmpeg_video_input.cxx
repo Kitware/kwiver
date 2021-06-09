@@ -9,10 +9,11 @@
 
 #include "vidl_ffmpeg_video_input.h"
 
+#include <arrows/vxl/image_container.h>
+
 #include <arrows/klv/convert_metadata.h>
 #include <arrows/klv/misp_time.h>
 #include <arrows/klv/klv_data.h>
-#include <arrows/vxl/image_container.h>
 
 #include <vital/types/timestamp.h>
 #include <vital/exceptions/io.h>

@@ -11,8 +11,8 @@
 #ifndef KWIVER_ARROWS_KLV_KLV_0601_TRAITS_H_
 #define KWIVER_ARROWS_KLV_KLV_0601_TRAITS_H_
 
-#include <arrows/klv/kwiver_algo_klv_export.h>
 #include <arrows/klv/klv_0601.h>
+#include <arrows/klv/kwiver_algo_klv_export.h>
 
 #include <limits>
 

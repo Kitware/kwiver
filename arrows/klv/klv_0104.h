@@ -10,8 +10,8 @@
 #ifndef KWIVER_ARROWS_KLV_KLV_0104_H_
 #define KWIVER_ARROWS_KLV_KLV_0104_H_
 
-#include <arrows/klv/kwiver_algo_klv_export.h>
 #include <arrows/klv/klv_key.h>
+#include <arrows/klv/kwiver_algo_klv_export.h>
 
 #include <vital/any.h>
 #include <vital/vital_config.h>
