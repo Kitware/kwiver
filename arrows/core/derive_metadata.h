@@ -22,7 +22,9 @@
 #include <vector>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 /**
@@ -31,8 +33,13 @@ namespace core {
  */
 KWIVER_ALGO_CORE_EXPORT
 kwiver::vital::metadata_vector
-compute_derived_metadata( kwiver::vital::metadata_vector metadata_vec );
+compute_derived_metadata( kwiver::vital::metadata_vector metadata_vec,
+                          size_t frame_width, size_t frame_height );
 
-} } } // end namespace
+} // namespace core
+
+} // namespace arrows
+
+} // namespace kwiver
 
 #endif
