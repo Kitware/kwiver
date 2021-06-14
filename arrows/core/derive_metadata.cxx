@@ -233,7 +233,8 @@ compute_gsd( kwiver::vital::metadata_sptr const& metadata,
   double yaw, pitch, roll;
   total_rotation.get_yaw_pitch_roll( yaw, pitch, roll );
 
-  double const slant_range = get_slant_range( metadata );
+  // Ideally slant range should be pre-calculated
+  double const slant_range = compute_slant_range( metadata );
   double const altitude_difference = slant_range * sin( -pitch );
 
   // Approximate dimensions of image on ground plane
@@ -273,6 +274,8 @@ compute_vniirs( double gsd, double rer, double snr )
                 a2 * ( 1.0 - std::exp( a3 / snr ) ) * log10_rer +
                 a4 * std::pow( log10_rer, 4 ) +
                 a5 / snr;
+  // 2.0 is defined as the lower bound for VNIIRs
+  vniirs = std::max( vniirs, 2.0 );
   return vniirs;
 }
 
@@ -296,7 +299,7 @@ compute_snr()
 
 // ----------------------------------------------------------------------------
 kwiver::vital::metadata_vector
-compute_derived_metadata( kwiver::vital::metadata_vector metadata_vec,
+compute_derived_metadata( kwiver::vital::metadata_vector const& metadata_vec,
                           size_t frame_width, size_t frame_height )
 {
   kv::metadata_vector updated_values;
