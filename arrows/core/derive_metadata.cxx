@@ -99,7 +99,7 @@ get_sensor_fov( kwiver::vital::metadata_sptr metadata )
   kv::metadata_item const& y_fov_item =
     metadata->find( kv::VITAL_META_SENSOR_VERTICAL_FOV );
 
-  if( !x_fov_item && !y_fov_item )
+  if( !x_fov_item || !y_fov_item )
   {
     VITAL_THROW( kv::invalid_value,
                  "metadata does not contain sensor fov" );
@@ -226,16 +226,6 @@ compute_gsd( kwiver::vital::metadata_sptr const& metadata,
     double const target_width = get_target_width( metadata );
 
     return target_width / frame_width;
-  }
-
-  // Fill in possibly missing sensor FOV dimension
-  if( !sensor_fov[ 0 ] )
-  {
-    sensor_fov[ 0 ] = sensor_fov[ 1 ] * frame_width / frame_height;
-  }
-  else if( !sensor_fov[ 1 ] )
-  {
-    sensor_fov[ 1 ] = sensor_fov[ 0 ] * frame_height / frame_width;
   }
 
   // Intermediate Values
