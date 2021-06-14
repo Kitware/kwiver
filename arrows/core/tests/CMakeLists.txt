@@ -9,6 +9,7 @@ set( test_libraries    kwiver_algo_core vital vital_vpm )
 ##############################
 # Algorithms core plugin tests
 ##############################
+kwiver_discover_gtests(core derive_metadata           LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core detected_object_io        LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core dynamic_configuration     LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core feature_descriptor_io     LIBRARIES ${test_libraries})
