@@ -2,10 +2,6 @@
 
 set(CMAKE_FOLDER "Arrows/VTK")
 
-if(NOT KWIVER_ENABLE_KLV)
-  message(FATAL_ERROR "-- The KLV arrow must be enabled (KWIVER_ENABLE_KLV)")
-endif()
-
 set( plugin_vtk_headers
   depth_utils.h
   mesh_coloration.h

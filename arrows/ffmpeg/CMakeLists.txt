@@ -3,6 +3,11 @@
 
 set(CMAKE_FOLDER "Arrows/FFmpeg")
 
+if(NOT KWIVER_ENABLE_KLV)
+  message(FATAL_ERROR
+          "The FFmpeg arrow requires the KLV arrow (KWIVER_ENABLE_KLV)")
+endif()
+
 include_directories(${FFMPEG_INCLUDE_DIR})
 
 if (NOT FFMPEG_FOUND_SEVERAL)
