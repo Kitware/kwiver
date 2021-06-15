@@ -99,18 +99,24 @@ metadata
 
 // ---------------------------------------------------------------------
 metadata
-metadata
-::deep_copy()
+::metadata( metadata const& other )
 {
-  metadata copy;
-  copy.set_timestamp( m_timestamp );
+  set_timestamp( other.m_timestamp );
 
-  for( auto const& md_item : m_metadata_map )
+  for( auto const& md_item : other.m_metadata_map )
   {
-    // Add a copy of the the other metadata map's items
-    copy.add_copy( md_item.second );
+    // Add a copy of the other metadata map's items
+    add_copy( md_item.second );
   }
-  return copy;
+}
+
+// ---------------------------------------------------------------------
+metadata&
+metadata::operator=( metadata const& other )
+{
+  auto copy = other;
+  *this = std::move( copy );
+  return *this;
 }
 
 // ---------------------------------------------------------------------

@@ -377,14 +377,11 @@ public:
   using const_iterator_t = metadata_map_t::const_iterator;
 
   metadata();
+  metadata( metadata const& other );
+  metadata( metadata&& other ) = default;
   ~metadata() = default;
-
-  /**
-   * \brief Return a deep copy of the current metadata map.
-   *
-   * Metadata contains a map of pointers, so it needs to be deep copied
-   */
-  metadata deep_copy();
+  metadata& operator=( metadata&& other ) = default;
+  metadata& operator=( metadata const& other );
 
   /**
    * \brief Add metadata item to collection.

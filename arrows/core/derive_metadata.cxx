@@ -308,7 +308,7 @@ compute_derived_metadata( kwiver::vital::metadata_vector const& metadata_vec,
   {
     // Deep copy metadata
     auto updated_metadata =
-      std::make_shared< kv::metadata >( metadata->deep_copy() );
+      std::make_shared< kv::metadata >( *metadata );
 
     try
     {
