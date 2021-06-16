@@ -48,7 +48,7 @@ main()
   //+ Check attribute kwiver::vital::plugin_factory::PLUGIN_NAME for duplicates
   // within the list
 
-  for( const auto fact : proc_list )
+  for( auto const& fact : proc_list )
   {
     sprokit::process::type_t type;
     if ( ! fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, type ) )

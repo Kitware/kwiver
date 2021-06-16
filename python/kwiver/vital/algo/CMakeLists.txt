@@ -1,7 +1,5 @@
 project(vital_python_algo)
 
-include_directories(${pybind11_INCLUDE_DIR})
-
 kwiver_add_python_library(algos
   vital/algo
   activity_detector.h
@@ -176,7 +174,7 @@ kwiver_add_python_library(algos
 
 
 target_link_libraries(python-vital.algo-algos
-  PUBLIC ${PYTHON_LIBRARIES}
+  PRIVATE ${PYTHON_LIBRARIES}
           vital
           vital_config
           vital_algo
@@ -189,7 +187,7 @@ kwiver_add_python_library(algorithm_factory
 )
 
 target_link_libraries(python-vital.algo-algorithm_factory
-  PUBLIC ${PYTHON_LIBRARIES}
+  PRIVATE ${PYTHON_LIBRARIES} pybind11::pybind11
           vital
           vital_algo
 )

@@ -261,7 +261,7 @@ track_set_implementation
 {
   std::set<track_id_t> track_ids;
   std::vector<track_state_sptr> ts = this->frame_states(offset);
-  for (auto const data : ts)
+  for (auto const& data : ts)
   {
     track_ids.insert(data->track()->id());
   }

@@ -220,7 +220,7 @@ display_factory( kwiver::vital::plugin_factory_handle_t const fact )
 void display_by_category( const kwiver::vital::plugin_map_t& plugin_map,
                           const std::string& category )
 {
-  for( const auto it : plugin_map )
+  for( auto const& it : plugin_map )
   {
     std::string ds = kwiver::vital::demangle( it.first );
 
@@ -237,7 +237,7 @@ void display_by_category( const kwiver::vital::plugin_map_t& plugin_map,
     }
 
     // Get vector of factories
-    for( kwiver::vital::plugin_factory_handle_t const fact : facts )
+    for( auto const& fact : facts )
     {
       std::string cat;
       if ( ! fact->get_attribute( kvpf::PLUGIN_CATEGORY, cat )
@@ -714,7 +714,7 @@ main( int argc, char* argv[] )
   {
     pe_out() << "---- Registered module names:\n";
     auto module_list = vpm.module_map();
-    for( auto const name : module_list )
+    for( auto const& name : module_list )
     {
       pe_out() << "   " << name.first << "  loaded from: " << name.second << std::endl;
     }
@@ -774,7 +774,7 @@ main( int argc, char* argv[] )
 
       // Get vector of factories
       kwiver::vital::plugin_factory_vector_t const& facts = it.second;
-      for( kwiver::vital::plugin_factory_handle_t const fact : facts )
+      for( auto const& fact : facts )
       {
         // If regexp matching is enabled, and this does not match, skip it
         if ( G_context.opt_type_filt )

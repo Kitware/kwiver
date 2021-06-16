@@ -68,7 +68,7 @@ Arrows: Core
  * Added a utility function to depth_utils.h to find similar cameras by view
    angle.
 
- * Added a utility funciton to depth_utils.h to gather corresponding cameras,
+ * Added a utility function to depth_utils.h to gather corresponding cameras,
    images, and masks from video sources for use in depth map estimation.
 
 Arrows: Ceres
@@ -138,7 +138,7 @@ Arrows: Super3d
 
  * Changed the compute_depth parameters to take a sampling rate, in pixels,
    instead of an absolute number of depth slices.  This allows the algorithm
-   the scale the number of slices appropriatlely ensuring at least a minimum
+   the scale the number of slices appropriately ensuring at least a minimum
    sampling rate when projecting into support images.
 
  * Updated the Super3D compute_depth algorithm to compute uncertainty.
@@ -150,7 +150,7 @@ Arrows: VTK
  * Added utility function to convert depth images to vtkImageData.
    This function was ported from TeleSculptor.
 
- * Added an applet to estimate depth maps from multple views.
+ * Added an applet to estimate depth maps from multiple views.
 
  * Added a new applet for fusing depth maps in volume and extracting a
    surface mesh.
@@ -185,6 +185,11 @@ Unit Tests
 
 General Documentation
 
+Python
+
+  * Add argument to build_pipeline command to include additonal directories in which
+    to search for pipe files to load
+
 Bug Fixes
 ---------
 
@@ -203,3 +208,6 @@ Sprokit: Processes
 
  * Fixed the compute_track_descriptors process's handling of null
    output from its nested algorithm.
+
+ * Fix configuration check for read_object_track, enabling configuration to
+   succeed.

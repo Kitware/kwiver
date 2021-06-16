@@ -191,11 +191,39 @@ public:
    *
    * @throws std::runtime_error if the specified port name is not in this set.
    *
-   * @throws sprokit::bad_datum_cast_exception if the requested data
-   * type does not match the actual type of the data from the port.
+   * @throws sprokit::bad_datum_cast_exception if the requested data type does
+   *         not match the actual type of the data from the port.
    */
   template<typename T>
-  T get_port_data( ::sprokit::process::port_t const& port );
+  T value( ::sprokit::process::port_t const& port );
+
+
+  /**
+   * @brief Get data value for specific port, or default value if not found.
+   *
+   * This method returns the data value for the specified port.
+   *
+   * @param port Name of port
+   *
+   * @return Data value corresponding to the port, or \p value_if_missing if
+   *         no such element is found.
+   *
+   * @throws sprokit::bad_datum_cast_exception if the requested data type does
+   *         not match the actual type of the data from the port.
+   */
+  template< typename T >
+  T value_or( ::sprokit::process::port_t const& port,
+              T const& value_if_missing = {} );
+
+  /**
+   * @copydoc value
+   *
+   * @deprecated This method exists for historic reasons. Use #value instead.
+   */
+  template< typename T >
+  [[ deprecated( "use value() instead" ) ]]
+  T get_port_data( ::sprokit::process::port_t const& port )
+  { return this->value< T >( port ); }
 
   /**
    * @brief Return the number of elements in the adapter_data_set.

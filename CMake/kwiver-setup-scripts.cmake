@@ -49,11 +49,11 @@ if ( fletch_FOUND )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PATH=${fletch_ROOT}/bin;%PATH%;\n" )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PATH=${fletch_ROOT}/x64/${_vcVersion}/bin;%PATH%;\n" )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set GDAL_DATA=${GDAL_ROOT}/share/gdal\n" )
-  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PROJ_LIB=${PROJ4_ROOT}/share/proj\n" )
+  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PROJ_LIB=${PROJ_ROOT}/share/proj\n" )
 
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export ${LIBRARY_PATH_VAR}=${fletch_ROOT}/lib:$${LIBRARY_PATH_VAR}\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export GDAL_DATA=${GDAL_ROOT}/share/gdal\n" )
-  file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export PROJ_LIB=${PROJ4_ROOT}/share/proj\n" )
+  file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export PROJ_LIB=${PROJ_ROOT}/share/proj\n" )
 endif()
 
 ###
@@ -99,6 +99,8 @@ if (KWIVER_ENABLE_PYTHON)
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "\n# set to suppress loading python modules/processes\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "# export SPROKIT_NO_PYTHON_MODULES\n\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export KWIVER_PYTHON_DEFAULT_LOG_LEVEL=WARN\n" )
+  file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "python${KWIVER_PYTHON_MAJOR_VERSION} -m pip install -r ${KWIVER_BINARY_DIR}/python/requirements.txt\n" )
+
 
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" ":: Python environment\n")
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PYTHON_LIBRARY=${PYTHON_LIBRARY}\n" )
@@ -113,6 +115,7 @@ if (KWIVER_ENABLE_PYTHON)
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "\n:: set to suppress loading python modules/processes\n" )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "::set SPROKIT_NO_PYTHON_MODULES=false\n\n" )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set KWIVER_PYTHON_DEFAULT_LOG_LEVEL=WARN\n" )
+  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "python${KWIVER_PYTHON_MAJOR_VERSION} -m pip install -r ${KWIVER_BINARY_DIR}/python/requirements.txt\n" )
 endif()
 
 if ( KWIVER_ENABLE_MATLAB )

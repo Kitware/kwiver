@@ -61,7 +61,7 @@ public:
   virtual char const* id() const = 0;
   virtual geo_crs_description_t describe( int crs ) = 0;
   virtual vector_2d operator()( vector_2d const& point, int from, int to ) = 0;
-  virtual vector_3d operator()( vector_3d const& point, int from, int to)  = 0;
+  virtual vector_3d operator()( vector_3d const& point, int from, int to ) = 0;
 
 protected:
   virtual ~geo_conversion() = default;
