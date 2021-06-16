@@ -6,3 +6,8 @@ v1.6.0 release.
 
 Bug Fixes since v1.6.0
 ----------------------
+
+Arrows: Core
+
+ * Fixed several uses of wrong values in the core implementation of
+   compute_ref_homography
