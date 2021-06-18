@@ -50,7 +50,7 @@ make_metadata()
       kv::geo_point::geo_3d_point_t{ 0, 0, 0 }, kv::SRID::lat_lon_WGS84 } );
 
   // Replicate these values except without the slant range field
-  auto const m2 = std::make_shared< kv::metadata >( *m1.get() );
+  auto const m2 = std::make_shared< kv::metadata >( *m1 );
   m2->erase( kv::VITAL_META_SLANT_RANGE );
   return { m1, m2 };
 }

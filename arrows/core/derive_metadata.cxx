@@ -210,7 +210,8 @@ double
 compute_gsd( kwiver::vital::metadata_sptr const& metadata,
              size_t frame_width, size_t frame_height )
 {
-  if ( frame_width == 0 || frame_height == 0 ) {
+  if ( frame_width == 0 || frame_height == 0 )
+  {
     VITAL_THROW( kv::invalid_value, "frame dimensions cannot be zero" );
   }
 
@@ -304,11 +305,10 @@ compute_derived_metadata( kwiver::vital::metadata_vector const& metadata_vec,
 {
   kv::metadata_vector updated_values;
 
-  for( auto const metadata : metadata_vec )
+  for( auto const& metadata : metadata_vec )
   {
     // Deep copy metadata
-    auto updated_metadata =
-      std::make_shared< kv::metadata >( *metadata );
+    auto updated_metadata = std::make_shared< kv::metadata >( *metadata );
 
     try
     {
