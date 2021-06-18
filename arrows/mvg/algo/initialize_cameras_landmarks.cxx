@@ -355,12 +355,13 @@ public:
     simple_camera_perspective_map_sptr const &cams,
     feature_track_set_sptr &tracks);
 
-  bool verbose;
-  bool continue_processing;
-  double interim_reproj_thresh;
-  double final_reproj_thresh;
-  double image_coverage_threshold;
-  double zoom_scale_thresh;
+  bool verbose = false;
+  bool continue_processing = true;
+  double interim_reproj_thresh = 10.0;
+  double final_reproj_thresh = 2.0;
+  double image_coverage_threshold = 0.05;
+  double zoom_scale_thresh = 0.1;
+
   vital::simple_camera_perspective m_base_camera;
   vital::algo::estimate_essential_matrix_sptr e_estimator;
   vital::algo::optimize_cameras_sptr camera_optimizer;
@@ -370,58 +371,39 @@ public:
   vital::algo::estimate_canonical_transform_sptr m_canonical_estimator;
   vital::algo::estimate_similarity_transform_sptr m_similarity_estimator;
   /// Logger handle
-  vital::logger_handle_t m_logger;
-  double m_thresh_triang_cos_ang;
+  vital::logger_handle_t m_logger =
+    vital::get_logger("arrows.mvg.initialize_cameras_landmarks");
+
+  double m_thresh_triang_cos_ang = std::cos(deg_to_rad * 2.0);
   vital::algo::estimate_pnp_sptr m_pnp;
   std::set<rel_pose> m_rel_poses;
   std::set<frame_id_t> m_keyframes;
   Eigen::SparseMatrix<unsigned int> m_kf_match_matrix;
   std::set<frame_id_t> m_frames_removed_from_sfm_solution;
   vital::track_map_t m_track_map;
-  std::random_device m_rd;     // only used once to initialise (seed) engine
-  std::mt19937 m_rng;    // random-number engine used (Mersenne-Twister in this case)
-  double m_reverse_ba_error_ratio;
-  bool m_solution_was_fit_to_constraints;
-  int m_max_cams_in_keyframe_init;
-  double m_frac_frames_for_init;
-  double m_metadata_init_permissive_triang_thresh;
-  bool m_init_intrinsics_from_metadata;
-  bool m_config_defines_base_intrinsics;
-  bool m_do_final_sfm_cleaning;
-  bool m_force_common_intrinsics;
+
+  // random-number engine used (Mersenne-Twister in this case)
+  std::mt19937 m_rng{std::random_device{}()};
+
+  double m_reverse_ba_error_ratio = 0.0;
+  bool m_solution_was_fit_to_constraints = false;
+  int m_max_cams_in_keyframe_init = 20;
+  unsigned m_min_frame_to_frame_matches = 100;
+  double m_frac_frames_for_init = -1.0;
+  double m_metadata_init_permissive_triang_thresh = 10000;
+  bool m_init_intrinsics_from_metadata = true;
+  bool m_config_defines_base_intrinsics = false;
+  bool m_do_final_sfm_cleaning = false;
+  bool m_force_common_intrinsics = true;
   std::set<landmark_id_t> m_already_merged_landmarks;
 };
 
 initialize_cameras_landmarks::priv
 ::priv()
-  : verbose(false),
-  continue_processing(true),
-  interim_reproj_thresh(10.0),
-  final_reproj_thresh(2.0),
-  image_coverage_threshold(0.05),
-  zoom_scale_thresh(0.1),
-  m_base_camera(),
-  e_estimator(),
-  camera_optimizer(),
   // use the core triangulation as the default, users can change it
-  lm_triangulator(new mvg::triangulate_landmarks()),
-  bundle_adjuster(),
-  global_bundle_adjuster(),
-  m_logger(vital::get_logger("arrows.mvg.initialize_cameras_landmarks")),
-  m_thresh_triang_cos_ang(cos(deg_to_rad * 2.0)),
-  m_rng(m_rd()),
-  m_reverse_ba_error_ratio(0.0),
-  m_solution_was_fit_to_constraints(false),
-  m_max_cams_in_keyframe_init(20),
-  m_frac_frames_for_init(-1.0),
-  m_metadata_init_permissive_triang_thresh(10000),
-  m_init_intrinsics_from_metadata(true),
-  m_config_defines_base_intrinsics(false),
-  m_do_final_sfm_cleaning(false),
-  m_force_common_intrinsics(true)
+  : lm_triangulator(new mvg::triangulate_landmarks())
 {
-
-  }
+}
 
 initialize_cameras_landmarks::priv
 ::~priv()
@@ -1036,7 +1018,7 @@ initialize_cameras_landmarks::priv
 
   do {
     std::vector<frame_id_t> kf_mm_frames;
-    int fid_idx = 0;
+    unsigned fid_idx = 0;
     for(auto fid: frames)
     {
       if (fid_idx % frames_skip == 0)
@@ -1050,15 +1032,13 @@ initialize_cameras_landmarks::priv
 
     const int cols = static_cast<int>(m_kf_match_matrix.cols());
 
-    const int min_matches = 100;
-
     std::vector<std::pair<frame_id_t, frame_id_t>> pairs_to_process;
     for (int k = 0; k < cols; ++k)
     {
       for (Eigen::SparseMatrix<unsigned int>::InnerIterator
              it(m_kf_match_matrix, k); it; ++it)
       {
-        if (it.row() > k && it.value() > min_matches)
+        if (it.row() > k && it.value() > m_min_frame_to_frame_matches)
         {
           auto fid_0 = kf_mm_frames[it.row()];
           auto fid_1 = kf_mm_frames[k];
@@ -3825,6 +3805,11 @@ initialize_cameras_landmarks
   config->set_value("frac_frames_for_init", m_priv->m_frac_frames_for_init,
                     "fraction of keyframes used in relative pose initialization");
 
+  config->set_value("min_frame_to_frame_matches",
+                    m_priv->m_min_frame_to_frame_matches,
+                    "Minimum number of frame-to-frame feature matches "
+                    "required to attempt reconstruction");
+
   config->set_value("interim_reproj_thresh", m_priv->interim_reproj_thresh,
                     "Threshold for rejecting landmarks based on reprojection "
                     "error (in pixels) during intermediate processing steps.");
@@ -3981,6 +3966,11 @@ initialize_cameras_landmarks
     config->get_value<int>("max_cams_in_keyframe_init",
       m_priv->m_max_cams_in_keyframe_init);
 
+  m_priv->m_min_frame_to_frame_matches =
+    config->get_value<unsigned>(
+      "min_frame_to_frame_matches",
+      m_priv->m_min_frame_to_frame_matches);
+
   m_priv->m_metadata_init_permissive_triang_thresh =
     config->get_value<double>("metadata_init_permissive_triang_thresh",
       m_priv->m_metadata_init_permissive_triang_thresh);
@@ -4088,7 +4078,17 @@ initialize_cameras_landmarks
   }
 
   // Compute keyframes to use for SFM
-  m_priv->m_keyframes = keyframes_for_sfm(tracks);
+  auto all_frames = tracks->all_frame_ids();
+  auto const max_keyframes = m_priv->m_max_cams_in_keyframe_init;
+  if (max_keyframes < 0 ||
+      all_frames.size() <= static_cast<size_t>(max_keyframes))
+  {
+    m_priv->m_keyframes = std::move(all_frames);
+  }
+  else
+  {
+    m_priv->m_keyframes = keyframes_for_sfm(tracks);
+  }
 
   m_priv->m_already_merged_landmarks.clear();
   m_priv->check_inputs(tracks);
