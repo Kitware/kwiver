@@ -44,7 +44,7 @@
 #define VITAL_NO_RETURN [[noreturn]]
 
 #cmakedefine01  VITAL_USE_ABI_DEMANGLE
-#cmakedefine  VITAL_STD_MAP_UNIQUE_PTR_ALLOWED
+#cmakedefine  VITAL_STD_MAP_NO_UNIQUE_PTR
 
 #define VITAL_FINAL final
 

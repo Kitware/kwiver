@@ -55,11 +55,7 @@ void
 attribute_set::
 add( const std::string& name, const kwiver::vital::any& val )
 {
-#ifdef VITAL_STD_MAP_UNIQUE_PTR_ALLOWED
-  m_attr_map[name] = std::make_unique<kwiver::vital::any>(val);
-#else
-  m_attr_map[name] = std::make_shared<kwiver::vital::any>(val);
-#endif
+  m_attr_map[name] = make_map_unique<kwiver::vital::any>(val);
 }
 
 // ------------------------------------------------------------------

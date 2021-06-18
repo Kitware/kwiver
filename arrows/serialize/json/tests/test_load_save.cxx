@@ -427,7 +427,7 @@ void compare_meta_collection( const kwiver::vital::metadata& lhs,
   // Check to make sure they are the same
   for ( const auto& it : lhs )
   {
-    const auto lhs_item = it.second;
+    const auto& lhs_item = it.second;
 
     EXPECT_TRUE( rhs.has( lhs_item->tag() ) );
 

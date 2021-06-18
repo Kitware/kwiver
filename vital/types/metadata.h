@@ -12,14 +12,16 @@
 
 #include <vital/vital_export.h>
 
-#include <vital/any.h>
 #include <vital/exceptions/metadata.h>
+
 #include <vital/types/metadata_tags.h>
 #include <vital/types/timestamp.h>
 
+#include <vital/any.h>
+#include <vital/unique_map_ptr.h>
+
 #include <iostream>
 #include <map>
-#include <memory>
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -363,16 +365,7 @@ private:
 class VITAL_EXPORT metadata
 {
 public:
-// The design for this collection requires that the elements in the
-// collection are owned by the collection and are only returned by
-// value. This is why the std::unique_ptr is used. Unfortunately, not
-// all stdc implementations support maps with unique_ptrs. The
-// following is done to work around this limitation.
-#ifdef VITAL_STD_MAP_UNIQUE_PTR_ALLOWED
-  using item_ptr = std::unique_ptr< metadata_item >;
-#else
-  using item_ptr = std::shared_ptr< metadata_item >;
-#endif
+  using item_ptr = unique_map_ptr< metadata_item >;
   using metadata_map_t = std::map< vital_metadata_tag, item_ptr >;
   using const_iterator_t = metadata_map_t::const_iterator;
 
@@ -401,7 +394,7 @@ public:
    *
    * \param item New metadata item to be copied into the collection.
    */
-  void add_copy( std::shared_ptr<metadata_item const> const& item );
+  void add_copy( metadata_item const& item );
 
   //@{
   /**
