@@ -56,8 +56,7 @@ TEST( metadata, add_metadata )
 {
   // create item
   using rmdi_t = typed_metadata< VITAL_META_UNIX_TIMESTAMP, uint64_t >;
-  auto rmdi =
-    std::make_shared< rmdi_t >( "test uint item", uint64_t{ 314159 } );
+  auto rmdi = rmdi_t{ "test uint item", uint64_t{ 314159 } };
 
   using umdd_t = typed_metadata< VITAL_META_PLATFORM_HEADING_ANGLE, double >;
   auto umdd = std::unique_ptr< umdd_t >{

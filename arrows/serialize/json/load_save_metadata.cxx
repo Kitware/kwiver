@@ -198,12 +198,11 @@ namespace cereal {
 void save( ::cereal::JSONOutputArchive& archive,
            kwiver::vital::metadata_vector const& meta_packets )
 {
-  std::vector< kwiver::vital::metadata > meta_packets_dereferenced;
+  archive( make_size_tag( static_cast< size_type >( meta_packets.size() ) ) );
   for( auto const& packet : meta_packets )
   {
-    meta_packets_dereferenced.push_back( *packet );
+    archive( *packet );
   }
-  save( archive, meta_packets_dereferenced );
 }
 
 // ----------------------------------------------------------------------------
@@ -213,10 +212,10 @@ void load( ::cereal::JSONInputArchive& archive,
   std::vector< kwiver::vital::metadata > meta_packets_dereferenced;
   load( archive, meta_packets_dereferenced );
 
-  for( auto const& meta_packet : meta_packets_dereferenced )
+  for( auto&& meta_packet : meta_packets_dereferenced )
   {
     meta.push_back(
-      std::make_shared< kwiver::vital::metadata >( meta_packet ) );
+      std::make_shared< kwiver::vital::metadata >( std::move( meta_packet ) ) );
   }
 }
 
@@ -231,7 +230,7 @@ void save( ::cereal::JSONOutputArchive& archive,
   {
     // element is <tag, any>
     const auto tag = item.first;
-    const auto metap = item.second;
+    const auto& metap = item.second;
     packet_vec.emplace_back( tag, metap->data() );
   }
 

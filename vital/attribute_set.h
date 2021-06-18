@@ -13,13 +13,14 @@
 #include <vital/vital_export.h>
 #include <vital/vital_config.h>
 
+#include <vital/exceptions/base.h>
+
 #include <vital/any.h>
 #include <vital/noncopyable.h>
-#include <vital/exceptions/base.h>
+#include <vital/unique_map_ptr.h>
 
 #include <map>
 #include <string>
-#include <memory>
 
 namespace kwiver {
 namespace vital {
@@ -54,13 +55,9 @@ class VITAL_EXPORT attribute_set
   : private noncopyable
 {
 public:
-  #ifdef VITAL_STD_MAP_UNIQUE_PTR_ALLOWED
-  typedef std::unique_ptr< kwiver::vital::any > item_ptr;
-#else
-  typedef std::shared_ptr< kwiver::vital::any > item_ptr;
-#endif
-  typedef std::map< std::string, item_ptr > attribute_map_t;
-  typedef attribute_map_t::const_iterator const_iterator_t;
+  using item_ptr = unique_map_ptr< kwiver::vital::any >;
+  using attribute_map_t = std::map< std::string, item_ptr >;
+  using const_iterator_t = attribute_map_t::const_iterator;
 
   attribute_set();
   ~attribute_set();

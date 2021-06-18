@@ -495,13 +495,13 @@ TEST_F(ffmpeg_video_input, no_sync_metadata)
     EXPECT_TRUE(md_vect.size() > 0)
       << "Each frame tested should have metadata present";
 
-    for (auto md : md_vect)
+    for (auto const& md : md_vect)
     {
       EXPECT_TRUE(md->has(kwiver::vital::VITAL_META_UNIX_TIMESTAMP))
         << "Each of the first five frames should have a UNIX time stamp in"
         << " its metadata";
 
-      for (auto md_item : *md)
+      for (auto const& md_item : *md)
       {
         if (md_item.first == kwiver::vital::VITAL_META_UNIX_TIMESTAMP)
         {
@@ -565,7 +565,7 @@ TEST_F(ffmpeg_video_input, sync_metadata)
         << "Each of the first five frames should have a UNIX time stamp in"
         << " its metadata";
 
-      for (auto md_item : *md)
+      for (auto const& md_item : *md)
       {
         if (md_item.first == kwiver::vital::VITAL_META_UNIX_TIMESTAMP)
         {

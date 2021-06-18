@@ -9,17 +9,18 @@
 #ifndef KWIVER_VITAL_METADATA_TRAITS_H_
 #define KWIVER_VITAL_METADATA_TRAITS_H_
 
-#include <vital/vital_export.h>
+#include <vital/logger/logger.h>
 
 #include <vital/types/geo_point.h>
 #include <vital/types/geo_polygon.h>
 #include <vital/types/matrix.h>
 #include <vital/types/metadata.h>
 
-#include <vital/logger/logger.h>
+#include <vital/unique_map_ptr.h>
+
+#include <vital/vital_export.h>
 
 #include <type_traits>
-#include <memory>
 
 namespace kwiver {
 namespace vital {
@@ -40,7 +41,8 @@ struct vital_meta_trait_base
   virtual bool is_signed() const = 0;
   virtual bool is_floating_point() const = 0;
   virtual vital_metadata_tag tag() const = 0;
-  virtual std::unique_ptr<metadata_item> create_metadata_item( const kwiver::vital::any& data ) const = 0;
+  virtual std::unique_ptr<metadata_item> create_metadata_item(
+    any const& data ) const = 0;
 };
 
 // ------------------------------------------------------------------
@@ -85,6 +87,12 @@ class VITAL_EXPORT metadata_traits
 public:
   metadata_traits();
   ~metadata_traits();
+
+  metadata_traits( metadata_traits const& ) = delete;
+  metadata_traits( metadata_traits&& ) = default;
+
+  metadata_traits& operator=( metadata_traits const& ) = delete;
+  metadata_traits& operator=( metadata_traits&& ) = default;
 
   /// Find traits entry for specified tag.
   /**
@@ -159,16 +167,12 @@ public:
   std::string tag_to_description( vital_metadata_tag tag ) const;
 
 private:
-  kwiver::vital::logger_handle_t m_logger;
+  logger_handle_t m_logger;
 
-#ifdef VITAL_STD_MAP_UNIQUE_PTR_ALLOWED
-  typedef std::unique_ptr< vital_meta_trait_base > trait_ptr;
-#else
-  typedef std::shared_ptr< vital_meta_trait_base > trait_ptr;
-#endif
-  std::map< kwiver::vital::vital_metadata_tag, trait_ptr> m_trait_table;
-  std::map< std::string, kwiver::vital::vital_metadata_tag > m_name_tag_table;
-  std::map< std::string, kwiver::vital::vital_metadata_tag > m_enum_name_tag_table;
+  using trait_ptr = unique_map_ptr< vital_meta_trait_base >;
+  std::map< vital_metadata_tag, trait_ptr> m_trait_table;
+  std::map< std::string, vital_metadata_tag > m_name_tag_table;
+  std::map< std::string, vital_metadata_tag > m_enum_name_tag_table;
 
 }; // end class metadata_traits
 

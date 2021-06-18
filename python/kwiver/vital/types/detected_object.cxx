@@ -74,20 +74,10 @@ det_obj_const_safe_set_descriptor(detected_object& self, descriptor_sptr desc)
   }
 }
 
-
-// TODO: uncomment these when rebased on latest master with metadata API changes
-// Those changes will make copying metadata objects much easier.
-// metadata_sptr
-metadata_sptr copy_metadata(metadata_sptr m)
+metadata_sptr
+copy_metadata(metadata_sptr m)
 {
-  auto m_clone = std::make_shared<metadata>();
-  auto eix = m->end();
-  auto ix = m->begin();
-  for (; ix != eix; ix++)
-  {
-    m_clone->add_copy(ix->second);
-  }
-  return m_clone;
+  return std::make_shared<metadata>(*m);
 }
 
 image_container_sptr

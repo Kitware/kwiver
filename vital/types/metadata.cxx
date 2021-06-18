@@ -130,27 +130,22 @@ metadata
   }
 
   auto const tag = item->tag();
-#ifdef VITAL_STD_MAP_UNIQUE_PTR_ALLOWED
-  this->m_metadata_map[ tag ] = std::move( item );
-#else
+#ifdef VITAL_STD_MAP_NO_UNIQUE_PTR
   this->m_metadata_map[ tag ] = item_ptr{ item.release() };
+#else
+  this->m_metadata_map[ tag ] = std::move( item );
 #endif
 }
 
 // ---------------------------------------------------------------------
 void
 metadata
-::add_copy( std::shared_ptr<metadata_item const> const& item )
+::add_copy( metadata_item const& item )
 {
-  if ( !item )
-  {
-    throw std::invalid_argument{ "null pointer" };
-  }
-
   // Since the design intent for this map is that the metadata
   // collection owns the elements, we will clone the item passed in.
   // The original parameter will be freed eventually.
-  this->m_metadata_map[ item->tag() ] = item_ptr{ item->clone() };
+  this->m_metadata_map[ item.tag() ] = item_ptr{ item.clone() };
 }
 
 // -------------------------------------------------------------------
@@ -321,7 +316,7 @@ bool test_equal_content( const kwiver::vital::metadata& one,
   {
     // element is <tag, any>
     const auto tag = mi.first;
-    const auto metap = mi.second;
+    const auto& metap = mi.second;
 
     auto& omi = other.find( tag );
     if ( ! omi ) { return false; }

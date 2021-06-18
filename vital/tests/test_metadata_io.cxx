@@ -130,7 +130,7 @@ TEST_F(metadata_pos_io, output_format)
   EXPECT_EQ( input_md->size(), md->size() )
     << "Metadata does not have same size after IO!";
 
-  for (auto mdi : *input_md)
+  for (auto const& mdi : *input_md)
   {
     compare_tag( *mdi.second, md );
   }

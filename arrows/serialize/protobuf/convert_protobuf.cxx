@@ -590,7 +590,7 @@ void convert_protobuf( const ::kwiver::vital::metadata& metadata,
 
     // element is <tag, any>
     const auto tag = mi.first;
-    const auto metap = mi.second;
+    const auto& metap = mi.second;
     const auto& trait = traits.find( tag );
 
     proto_item->set_metadata_tag( tag );
