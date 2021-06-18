@@ -55,7 +55,10 @@ public:
   virtual void set_tracks( std::vector< vital::track_sptr > const& tracks );
 
   /// Insert a track shared pointer into this container
-  virtual void insert( vital::track_sptr t );
+  //@{
+  virtual void insert( vital::track_sptr const& t );
+  virtual void insert( vital::track_sptr&& t );
+  //@}
 
   /// Notify the container that a new state has been added to an existing track
   virtual void notify_new_state( vital::track_state_sptr ts );

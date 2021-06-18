@@ -4,6 +4,8 @@
 
 #include <vital/types/camera_perspective.h>
 
+#include <vital/overload.h>
+
 #include <python/kwiver/vital/util/pybind11.h>
 
 #include <pybind11/eigen.h>
@@ -91,7 +93,9 @@ PYBIND11_MODULE( camera_perspective, m )
   .def( "set_translation",  &kv::simple_camera_perspective::set_translation )
   .def( "set_center_covar", &kv::simple_camera_perspective::set_center_covar )
   .def( "set_rotation",     &kv::simple_camera_perspective::set_rotation )
-  .def( "set_intrinsics",   &kv::simple_camera_perspective::set_intrinsics )
+  .def( "set_intrinsics",
+        kv::overload< kv::camera_intrinsics_sptr const& >(
+          &kv::simple_camera_perspective::set_intrinsics ) )
   .def( "look_at",          &kv::simple_camera_perspective::look_at,
          py::arg( "stare_point" ), py::arg( "up_direction" ) = kv::vector_3d::UnitZ() )
 
