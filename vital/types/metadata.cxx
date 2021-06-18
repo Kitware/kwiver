@@ -98,6 +98,28 @@ metadata
 { }
 
 // ---------------------------------------------------------------------
+metadata
+::metadata( metadata const& other )
+{
+  set_timestamp( other.m_timestamp );
+
+  for( auto const& md_item : other.m_metadata_map )
+  {
+    // Add a copy of the other metadata map's items
+    add_copy( md_item.second );
+  }
+}
+
+// ---------------------------------------------------------------------
+metadata&
+metadata::operator=( metadata const& other )
+{
+  auto copy = other;
+  *this = std::move( copy );
+  return *this;
+}
+
+// ---------------------------------------------------------------------
 void
 metadata
 ::add( std::unique_ptr< metadata_item >&& item )
