@@ -102,3 +102,6 @@ if( KWIVER_ENABLE_VTK)
 endif()
 
 add_subdirectory( serialize )
+
+# Register the template arrow with CMake. This arrow is used to demonstrate the process of creating an arrow. Look in arrows/arrowtemplate for more info
+add_subdirectory( arrowtemplate )
