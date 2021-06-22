@@ -29,6 +29,10 @@ namespace core {
 
 namespace {
 
+///////////////////////////////////////////////////////////////////////////////
+
+//BEGIN helpers
+
 static ::kwiver::vital::metadata_traits meta_traits;
 
 // ----------------------------------------------------------------------------
@@ -282,7 +286,7 @@ compute_vniirs( double gsd, double rer, double snr )
 
 // ----------------------------------------------------------------------------
 double
-compute_rer()
+compute_rer( kwiver::vital::image_container_scptr const& image )
 {
   // TODO: Implement
   return 0.3; // Dummy value within reasonable range
@@ -290,7 +294,7 @@ compute_rer()
 
 // ----------------------------------------------------------------------------
 double
-compute_snr()
+compute_snr( kwiver::vital::image_container_scptr const& image )
 {
   // TODO: Implement
   return 15.0; // Dummy value within reasonable range
@@ -298,14 +302,67 @@ compute_snr()
 
 } // namespace <anonymous>
 
+//END helpers
+
+///////////////////////////////////////////////////////////////////////////////
+
+//BEGIN algorithm interface
+
+// ----------------------------------------------------------------------------
+derive_metadata
+::derive_metadata()
+{
+}
+
+// ----------------------------------------------------------------------------
+derive_metadata
+::~derive_metadata()
+{
+}
+
+// ----------------------------------------------------------------------------
+vital::config_block_sptr
+derive_metadata
+::get_configuration() const
+{
+  // No configuration; return from base class
+  return vital::algo::metadata_filter::get_configuration();
+}
+
+// ----------------------------------------------------------------------------
+void
+derive_metadata
+::set_configuration( vital::config_block_sptr )
+{
+  // No configuration
+}
+
+// ----------------------------------------------------------------------------
+bool
+derive_metadata
+::check_configuration( vital::config_block_sptr ) const
+{
+  // No configuration, so always return true
+  return true;
+}
+
+// ----------------------------------------------------------------------------
+bool
+derive_metadata
+::uses_image() const
+{
+  return true;
+}
+
 // ----------------------------------------------------------------------------
 kwiver::vital::metadata_vector
-compute_derived_metadata( kwiver::vital::metadata_vector const& metadata_vec,
-                          size_t frame_width, size_t frame_height )
+derive_metadata
+::filter( kwiver::vital::metadata_vector const& input_metadata,
+          kwiver::vital::image_container_scptr const& input_image )
 {
   kv::metadata_vector updated_values;
 
-  for( auto const& metadata : metadata_vec )
+  for( auto const& metadata : input_metadata )
   {
     // Deep copy metadata
     auto updated_metadata = std::make_shared< kv::metadata >( *metadata );
@@ -319,20 +376,26 @@ compute_derived_metadata( kwiver::vital::metadata_vector const& metadata_vec,
       updated_metadata->add(
         slant_range_trait.create_metadata_item( slant_range_value ) );
 
-      // Compute GSD
-      auto const gsd_value =
-        compute_gsd( updated_metadata, frame_width, frame_height );
-      auto const& gsd_trait = meta_traits.find( kv::VITAL_META_AVERAGE_GSD );
-      updated_metadata->add( gsd_trait.create_metadata_item( gsd_value ) );
+      if( input_image )
+      {
+        auto const frame_width = input_image->width();
+        auto const frame_height = input_image->height();
 
-      // Compute VNIIRS
-      auto const rer_value = compute_rer();
-      auto const snr_value = compute_snr();
-      auto const vniirs_value = compute_vniirs( gsd_value, rer_value,
-                                                snr_value );
-      auto const& vniirs_trait = meta_traits.find( kv::VITAL_META_VNIIRS );
-      updated_metadata->add(
-        vniirs_trait.create_metadata_item( vniirs_value ) );
+        // Compute GSD
+        auto const gsd_value =
+          compute_gsd( updated_metadata, frame_width, frame_height );
+        auto const& gsd_trait = meta_traits.find( kv::VITAL_META_AVERAGE_GSD );
+        updated_metadata->add( gsd_trait.create_metadata_item( gsd_value ) );
+
+        // Compute VNIIRS
+        auto const rer_value = compute_rer( input_image );
+        auto const snr_value = compute_snr( input_image );
+        auto const vniirs_value = compute_vniirs( gsd_value, rer_value,
+                                                  snr_value );
+        auto const& vniirs_trait = meta_traits.find( kv::VITAL_META_VNIIRS );
+        updated_metadata->add(
+          vniirs_trait.create_metadata_item( vniirs_value ) );
+      }
     }
     catch ( kv::invalid_value const& e )
     {
@@ -344,6 +407,8 @@ compute_derived_metadata( kwiver::vital::metadata_vector const& metadata_vec,
 
   return updated_values;
 }
+
+//END algorithm interface
 
 } // namespace core
 
