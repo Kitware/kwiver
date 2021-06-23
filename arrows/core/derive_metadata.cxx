@@ -232,6 +232,15 @@ compute_slant_range( kwiver::vital::metadata_sptr const& metadata )
   return slant_range;
 }
 
+double
+compute_horizontal_gsd( double slant_range, double horizontal_sensor_fov,
+                        double frame_width )
+{
+  return 2.0 * slant_range *
+         tan( (horizontal_sensor_fov* kv::deg_to_rad) / 2.0 ) /
+         static_cast< float >( frame_width );
+}
+
 // ----------------------------------------------------------------------------
 double
 compute_gsd( kwiver::vital::metadata_sptr const& metadata,
@@ -249,21 +258,23 @@ compute_gsd( kwiver::vital::metadata_sptr const& metadata,
     kv::rotation_d const total_rotation = get_total_rotation( metadata );
     double yaw, pitch, roll;
     total_rotation.get_yaw_pitch_roll( yaw, pitch, roll );
-    // Ideally slant range should be pre-calculated
+
     double const slant_range = get_slant_range( metadata );
-    double const sensor_horizontal_fov_rad = get_sensor_horizontal_fov( metadata );
+    double const sensor_horizontal_fov_rad =
+      get_sensor_horizontal_fov( metadata );
     double const sensor_vertical_fov_rad = get_sensor_vertical_fov( metadata );
 
-    if( slant_range > 0 && slant_range <= 5000000 &&
+    if( slant_range > 0 && slant_range <= 5e6 &&
         sensor_horizontal_fov_rad >= 0 &&
         sensor_horizontal_fov_rad <= kv::pi &&
-        sensor_vertical_fov_rad >= 0 && sensor_vertical_fov_rad <= kv::pi )
+        sensor_vertical_fov_rad >= 0 &&
+        sensor_vertical_fov_rad <= kv::pi )
     {
-
       // Approximate dimensions of image on ground plane
       double const gsd_horiz =
-        2.0 * slant_range * std::tan( ( sensor_horizontal_fov_rad / 2.0 ) /
-                                      static_cast< float >( frame_width ) );
+        compute_horizontal_gsd( slant_range, sensor_horizontal_fov_rad,
+                                frame_width );
+
       double const gsd_vert =
         2.0 * slant_range * std::tan(
           ( sensor_vertical_fov_rad / 2.0 ) /
@@ -284,16 +295,15 @@ compute_gsd( kwiver::vital::metadata_sptr const& metadata,
   try
   {
     auto const horizontal_sensor_fov = get_sensor_horizontal_fov( metadata );
-    // Note that the reference implementation doesn't use computed slant range for
-    // this method
+    // Note that the reference implementation doesn't use computed slant range
+    // for this method
     auto const slant_range = get_slant_range( metadata );
 
-    if( slant_range > 0 && slant_range < 5000000 &&
+    if( slant_range > 0 && slant_range < 5e6 &&
         horizontal_sensor_fov >= 0 && horizontal_sensor_fov <= 180 )
     {
-      return 2000.0 * slant_range * tan(
-        (horizontal_sensor_fov* kv::deg_to_rad) / 2.0 ) /
-             static_cast< float >( frame_width );
+      return compute_horizontal_gsd( slant_range, horizontal_sensor_fov,
+                                     frame_width );
     }
   }
   catch ( kv::invalid_value const& e )
