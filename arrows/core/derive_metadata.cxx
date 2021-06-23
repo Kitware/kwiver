@@ -52,6 +52,13 @@ get_platform_rotation( kwiver::vital::metadata_sptr const& metadata )
   auto const pitch = pitch_item.as_double() * kv::deg_to_rad;
   auto const roll = roll_item.as_double() * kv::deg_to_rad;
 
+  if( pitch < -20 * kv::deg_to_rad || pitch > 20 * kv::deg_to_rad ||
+      roll < -50 * kv::deg_to_rad || roll > 50 * kv::deg_to_rad )
+  {
+    VITAL_THROW( kv::invalid_value,
+                 "platform orientation metadata not in valid range" );
+  }
+
   return { yaw, pitch, roll };
 }
 
@@ -77,6 +84,13 @@ get_sensor_rotation( kwiver::vital::metadata_sptr const& metadata )
   auto const pitch = pitch_item.as_double() * kv::deg_to_rad;
   auto const roll = roll_item.as_double() * kv::deg_to_rad;
 
+  if( yaw < 0 || yaw > 360 * kv::deg_to_rad || pitch < -180 * kv::deg_to_rad ||
+      pitch > 180 * kv::deg_to_rad || roll < 0 || roll > 360 * kv::deg_to_rad )
+  {
+    VITAL_THROW( kv::invalid_value,
+                 "sensor orientations metadata not in the valid range" );
+  }
+
   return { yaw, pitch, roll };
 }
 
@@ -91,24 +105,37 @@ get_total_rotation( kwiver::vital::metadata_sptr const& metadata )
 }
 
 // ----------------------------------------------------------------------------
-kwiver::vital::vector_2d
-get_sensor_fov( kwiver::vital::metadata_sptr metadata )
+// Returns in radians
+double
+get_sensor_horizontal_fov( kwiver::vital::metadata_sptr metadata )
 {
   kv::metadata_item const& x_fov_item =
     metadata->find( kv::VITAL_META_SENSOR_HORIZONTAL_FOV );
+
+  if( !x_fov_item )
+  {
+    VITAL_THROW( kv::invalid_value,
+                 "metadata does not contain horizontal sensor fov" );
+  }
+
+  return x_fov_item.as_double() * kv::deg_to_rad;
+}
+
+// ----------------------------------------------------------------------------
+// Returns in radians
+double
+get_sensor_vertical_fov( kwiver::vital::metadata_sptr metadata )
+{
   kv::metadata_item const& y_fov_item =
     metadata->find( kv::VITAL_META_SENSOR_VERTICAL_FOV );
 
-  if( !x_fov_item || !y_fov_item )
+  if( !y_fov_item )
   {
     VITAL_THROW( kv::invalid_value,
-                 "metadata does not contain sensor fov" );
+                 "metadata does not contain vertical sensor fov" );
   }
 
-  auto const x_fov = x_fov_item.as_double() * kv::deg_to_rad;
-  auto const y_fov = y_fov_item.as_double() * kv::deg_to_rad;
-
-  return { x_fov, y_fov };
+  return y_fov_item.as_double() * kv::deg_to_rad;
 }
 
 // ----------------------------------------------------------------------------
@@ -210,47 +237,86 @@ double
 compute_gsd( kwiver::vital::metadata_sptr const& metadata,
              size_t frame_width, size_t frame_height )
 {
-  if ( frame_width == 0 || frame_height == 0 )
+  if( frame_width < 1 || frame_height < 1 )
   {
-    VITAL_THROW( kv::invalid_value, "frame dimensions cannot be zero" );
+    VITAL_THROW( kv::invalid_value, "frame dimensions must both be positive" );
   }
 
-  kv::vector_2d sensor_fov;
+  // RP1201 method
   try
   {
-    // Attempt to acquire sensor FOV
-    sensor_fov = get_sensor_fov( metadata );
+    // Intermediate values
+    kv::rotation_d const total_rotation = get_total_rotation( metadata );
+    double yaw, pitch, roll;
+    total_rotation.get_yaw_pitch_roll( yaw, pitch, roll );
+    // Ideally slant range should be pre-calculated
+    double const slant_range = get_slant_range( metadata );
+    double const sensor_horizontal_fov_rad = get_sensor_horizontal_fov( metadata );
+    double const sensor_vertical_fov_rad = get_sensor_vertical_fov( metadata );
+
+    if( slant_range > 0 && slant_range <= 5000000 &&
+        sensor_horizontal_fov_rad >= 0 &&
+        sensor_horizontal_fov_rad <= kv::pi &&
+        sensor_vertical_fov_rad >= 0 && sensor_vertical_fov_rad <= kv::pi )
+    {
+
+      // Approximate dimensions of image on ground plane
+      double const gsd_horiz =
+        2.0 * slant_range * std::tan( ( sensor_horizontal_fov_rad / 2.0 ) /
+                                      static_cast< float >( frame_width ) );
+      double const gsd_vert =
+        2.0 * slant_range * std::tan(
+          ( sensor_vertical_fov_rad / 2.0 ) /
+          static_cast< float >( frame_height ) ) /
+        std::sin( -pitch );
+
+      // GSD is the geometric mean of each dimensions's GSD
+      // All values in meters per pixel
+      return std::sqrt( gsd_horiz * gsd_vert );
+    }
   }
   catch ( kv::invalid_value const& e )
   {
-    // Fall back to calculating GSD from target width
-    double const target_width = get_target_width( metadata );
-
-    return target_width / frame_width;
+    // Move onto the next case
   }
 
-  // Intermediate Values
-  kv::rotation_d const total_rotation = get_total_rotation( metadata );
-  double yaw, pitch, roll;
-  total_rotation.get_yaw_pitch_roll( yaw, pitch, roll );
+  // RP 1201 horizontal axis only
+  try
+  {
+    auto const horizontal_sensor_fov = get_sensor_horizontal_fov( metadata );
+    // Note that the reference implementation doesn't use computed slant range for
+    // this method
+    auto const slant_range = get_slant_range( metadata );
 
-  // Ideally slant range should be pre-calculated
-  double const slant_range = compute_slant_range( metadata );
-  double const altitude_difference = slant_range * sin( -pitch );
+    if( slant_range > 0 && slant_range < 5000000 &&
+        horizontal_sensor_fov >= 0 && horizontal_sensor_fov <= 180 )
+    {
+      return 2000.0 * slant_range * tan(
+        (horizontal_sensor_fov* kv::deg_to_rad) / 2.0 ) /
+             static_cast< float >( frame_width );
+    }
+  }
+  catch ( kv::invalid_value const& e )
+  {
+    // Move on to the next case
+  }
 
-  // Approximate dimensions of image on ground plane
-  double const target_width = 2.0 * slant_range *
-                              std::tan( sensor_fov[ 0 ] / 2.0 );
-  double const target_height =
-    2.0 * ( slant_range * std::cos( pitch ) - altitude_difference *
-            std::tan( kv::pi_over_2 - sensor_fov[ 1 ] / 2 ) );
+  // Target width horizontal axis only
+  try
+  {
+    auto const target_width = get_target_width( metadata );
 
-  // GSD is the geometric mean of each dimensions's GSD
-  // All values in meters per pixel
-  double const x_gsd = target_width / frame_width;
-  double const y_gsd = target_height / frame_height;
-  double const gsd = std::sqrt( x_gsd * y_gsd );
-  return gsd;
+    if( target_width > 0 && target_width < 10000 )
+    {
+      return target_width / static_cast< float >( frame_width );
+    }
+  }
+  catch ( kv::invalid_value const& e )
+  {
+    // Move on to the next case
+  }
+
+  return 0;
 }
 
 // ----------------------------------------------------------------------------
