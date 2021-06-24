@@ -42,6 +42,8 @@ public:
   /// Check that the algorithm's configuration config_block is valid.
   bool check_configuration( vital::config_block_sptr config ) const override;
 
+  /// Estimate camera parameters from 3D points and their corresponding
+  /// projections.
   kwiver::vital::camera_perspective_sptr
   resection(
     std::vector< kwiver::vital::vector_2d > const& image_points,
@@ -52,7 +54,7 @@ public:
   using vital::algo::resection_camera::resection;
 
 private:
-  class priv;
+  struct priv;
 
   std::unique_ptr< priv > const d_;
 };
