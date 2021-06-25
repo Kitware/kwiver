@@ -93,7 +93,7 @@ get_total_rotation( kwiver::vital::metadata_sptr const& metadata )
 // ----------------------------------------------------------------------------
 // Returns in radians
 double
-get_sensor_horizontal_fov( kwiver::vital::metadata_sptr metadata )
+get_sensor_horizontal_fov( kwiver::vital::metadata_sptr const& metadata )
 {
   kv::metadata_item const& x_fov_item =
     metadata->find( kv::VITAL_META_SENSOR_HORIZONTAL_FOV );
@@ -110,7 +110,7 @@ get_sensor_horizontal_fov( kwiver::vital::metadata_sptr metadata )
 // ----------------------------------------------------------------------------
 // Returns in radians
 double
-get_sensor_vertical_fov( kwiver::vital::metadata_sptr metadata )
+get_sensor_vertical_fov( kwiver::vital::metadata_sptr const& metadata )
 {
   kv::metadata_item const& y_fov_item =
     metadata->find( kv::VITAL_META_SENSOR_VERTICAL_FOV );
