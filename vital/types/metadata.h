@@ -209,9 +209,6 @@ private:
     : public metadata_item
   {
   public:
-    // Dummy class not convertible to any other type
-    class unknown_t {};
-
     unknown_metadata_item()
       : metadata_item( "<UNKNOWN>", unknown_t{}, VITAL_META_UNKNOWN )
     { }
@@ -229,6 +226,9 @@ private:
     }
 
 private:
+    // Dummy class not convertible to any other type
+    class unknown_t {};
+
     // never used - required to make python bindings valid
     metadata_item* clone() const override { return nullptr; }
   }; // end class unknown_metadata_item
