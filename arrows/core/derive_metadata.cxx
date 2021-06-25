@@ -218,12 +218,24 @@ compute_slant_range( kwiver::vital::metadata_sptr const& metadata )
   return slant_range;
 }
 
+// ----------------------------------------------------------------------------
 double
 compute_horizontal_gsd( double slant_range, double horizontal_sensor_fov,
                         double frame_width )
 {
   return 2.0 * slant_range *
          tan( ( horizontal_sensor_fov * kv::deg_to_rad ) / 2.0 ) / frame_width;
+}
+
+// ----------------------------------------------------------------------------
+double
+compute_vertical_gsd( double slant_range, double vertical_sensor_fov,
+                      double pitch, double frame_height )
+{
+  double const interior_angle = kv::pi_over_2 + pitch;
+  return 2.0 * slant_range *
+         ( std::sin( interior_angle ) - std::cos( interior_angle ) *
+          std::tan( interior_angle - vertical_sensor_fov / 2 ) ) / frame_height;
 }
 
 // ----------------------------------------------------------------------------
@@ -254,8 +266,8 @@ compute_gsd( kwiver::vital::metadata_sptr const& metadata,
                               frame_width );
 
     double const gsd_vertical =
-      2.0 * slant_range * std::tan(
-        ( sensor_vertical_fov_rad / 2.0 ) / frame_height ) / std::sin( -pitch );
+      compute_vertical_gsd( slant_range, sensor_vertical_fov_rad, pitch,
+                            frame_height);
 
     // GSD is the geometric mean of each dimensions's GSD
     // All values in meters per pixel
