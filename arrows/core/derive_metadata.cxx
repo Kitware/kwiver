@@ -271,11 +271,11 @@ compute_gsd( kwiver::vital::metadata_sptr const& metadata,
         sensor_vertical_fov_rad <= kv::pi )
     {
       // Approximate dimensions of image on ground plane
-      double const gsd_horiz =
+      double const gsd_horizontal =
         compute_horizontal_gsd( slant_range, sensor_horizontal_fov_rad,
                                 frame_width );
 
-      double const gsd_vert =
+      double const gsd_vertical =
         2.0 * slant_range * std::tan(
           ( sensor_vertical_fov_rad / 2.0 ) /
           static_cast< float >( frame_height ) ) /
@@ -283,7 +283,7 @@ compute_gsd( kwiver::vital::metadata_sptr const& metadata,
 
       // GSD is the geometric mean of each dimensions's GSD
       // All values in meters per pixel
-      return std::sqrt( gsd_horiz * gsd_vert );
+      return std::sqrt( gsd_horizontal * gsd_vertical );
     }
   }
   catch ( kv::invalid_value const& e )
