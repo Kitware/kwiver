@@ -101,7 +101,7 @@ get_total_rotation( kwiver::vital::metadata_sptr const& metadata )
   // Absolute (not relative to platform)
   kv::rotation_d const platform_rotation = get_platform_rotation( metadata );
   kv::rotation_d const sensor_rotation = get_sensor_rotation( metadata );
-  return platform_rotation * sensor_rotation;
+  return kv::compose_rotations(platform_rotation, sensor_rotation);
 }
 
 // ----------------------------------------------------------------------------

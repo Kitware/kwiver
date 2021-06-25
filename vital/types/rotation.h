@@ -208,21 +208,30 @@ VITAL_EXPORT
 void interpolated_rotations( rotation_< T > const& A, rotation_< T > const& B,
                              size_t n, std::vector< rotation_< T > >& interp_rots );
 
-// TODO: Consider moving this method to a utilities header/directory
+// TODO: Consider moving these methods to a utilities header/directory
 /// Compose an aerial platform's orientation with sensor orientation
-/**
- * \param platform_yaw yaw angle for aerial platform
- * \param platform_pitch pitch angle for aerial platform
- * \param platform_roll roll angle for aerial platform
- * \param sensor_yaw yaw angle for aerial sensor
- * \param sensor_pitch pitch angle for aerial sensor
- * \param sensor_roll roll angle for aerial sensor
- */
+///
+/// \param platform_yaw yaw angle for aerial platform
+/// \param platform_pitch pitch angle for aerial platform
+/// \param platform_roll roll angle for aerial platform
+/// \param sensor_yaw yaw angle for aerial sensor
+/// \param sensor_pitch pitch angle for aerial sensor
+/// \param sensor_roll roll angle for aerial sensor
 template < typename T >
 VITAL_EXPORT
-rotation_< T > compose_rotations(
+rotation_< T >
+compose_rotations(
   T platform_yaw, T platform_pitch, T platform_roll,
   T sensor_yaw, T sensor_pitch, T sensor_roll );
+
+/// Compose an aerial platform's orientation with sensor orientation
+/// \param platform_rotation rotation for aerial platform
+/// \param sensor_rotation rotation for aerial sensor
+template < typename T >
+VITAL_EXPORT
+rotation_< T >
+compose_rotations( rotation_< T > const & platform_rotation,
+                   rotation_< T > const & sensor_rotation );
 
 } } // end namespace vital
 
