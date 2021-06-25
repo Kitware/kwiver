@@ -16,7 +16,6 @@
 #include <vital/math_constants.h>
 
 #include <memory>
-#include <limits>
 
 #include <cmath>
 
