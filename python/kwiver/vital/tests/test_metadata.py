@@ -216,10 +216,10 @@ class TestVitalMetadataItemSubclasses(unittest.TestCase):
         # UnknownMetadataItem - This is a separate subclass of metadata_item
         # Can keep the tag the same
         inst = UnknownMetadataItem()
-        exp_name = "Requested metadata item is not in collection"
-        exp_string = "--Unknown metadata item--"
-        prop_info = PropInfo(exp_name, tag, 0)
-        type_info = TypeInfo("void", as_string=exp_string, as_double=0, as_uint64=0)
+        exp_name = "<UNKNOWN>"
+        exp_string = "<UNKNOWN>"
+        prop_info = PropInfo(exp_name, tag, None)
+        type_info = TypeInfo("kwiver::vital::unknown_metadata_item::unknown_t", as_string=exp_string)
         self.check_instance(inst, prop_info, type_info, is_valid=False)
 
     def check_instance(self, inst, prop_info, type_info, is_valid=True):
@@ -234,28 +234,29 @@ class TestVitalMetadataItemSubclasses(unittest.TestCase):
         nt.assert_equals(inst.name, prop_info.name)
         nt.assert_equals(inst.tag, prop_info.tag)
 
-        # A few tests on inst.data
-        nt.ok_(isinstance(inst.data, type(prop_info.data)))
-        if isinstance(prop_info.data, GeoPoint):
-            nt.assert_equals(inst.data.crs(), prop_info.data.crs())
-            if prop_info.data.is_empty():
-                nt.ok_(inst.data.is_empty())
-            else:
-                inst_loc = inst.data.location()
-                exp_loc = prop_info.data.location()
-                np.testing.assert_array_almost_equal(inst_loc, exp_loc)
+        if prop_info.data is not None:
+            # A few tests on inst.data
+            nt.ok_(isinstance(inst.data, type(prop_info.data)))
+            if isinstance(prop_info.data, GeoPoint):
+                nt.assert_equals(inst.data.crs(), prop_info.data.crs())
+                if prop_info.data.is_empty():
+                    nt.ok_(inst.data.is_empty())
+                else:
+                    inst_loc = inst.data.location()
+                    exp_loc = prop_info.data.location()
+                    np.testing.assert_array_almost_equal(inst_loc, exp_loc)
 
-        elif isinstance(prop_info.data, GeoPolygon):
-            nt.assert_equals(inst.data.crs(), prop_info.data.crs())
-            if prop_info.data.is_empty():
-                nt.ok_(inst.data.is_empty())
-            else:
-                inst_verts = inst.data.polygon().get_vertices()
-                exp_verts = prop_info.data.polygon().get_vertices()
-                np.testing.assert_array_almost_equal(inst_verts, exp_verts)
+            elif isinstance(prop_info.data, GeoPolygon):
+                nt.assert_equals(inst.data.crs(), prop_info.data.crs())
+                if prop_info.data.is_empty():
+                    nt.ok_(inst.data.is_empty())
+                else:
+                    inst_verts = inst.data.polygon().get_vertices()
+                    exp_verts = prop_info.data.polygon().get_vertices()
+                    np.testing.assert_array_almost_equal(inst_verts, exp_verts)
 
-        else:
-            nt.assert_equals(inst.data, prop_info.data)
+            else:
+                nt.assert_equals(inst.data, prop_info.data)
 
     def check_is_valid(self, inst, is_valid):
         nt.assert_equals(bool(inst), is_valid)
