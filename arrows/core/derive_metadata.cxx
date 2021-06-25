@@ -235,7 +235,8 @@ compute_vertical_gsd( double slant_range, double vertical_sensor_fov,
   double const interior_angle = kv::pi_over_2 + pitch;
   return 2.0 * slant_range *
          ( std::sin( interior_angle ) - std::cos( interior_angle ) *
-          std::tan( interior_angle - vertical_sensor_fov / 2 ) ) / frame_height;
+           std::tan( interior_angle - vertical_sensor_fov / 2 ) )
+         / frame_height;
 }
 
 // ----------------------------------------------------------------------------
