@@ -224,7 +224,8 @@ compose_rotations(
   T platform_yaw, T platform_pitch, T platform_roll,
   T sensor_yaw, T sensor_pitch, T sensor_roll );
 
-/// Compose an aerial platform's orientation with sensor orientation
+/// Compose an aerial platform's orientation with sensor orientation.
+///
 /// \param platform_rotation rotation for aerial platform
 /// \param sensor_rotation rotation for aerial sensor
 template < typename T >
