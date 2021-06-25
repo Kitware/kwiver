@@ -15,15 +15,28 @@ Vital Algo
 
  * Extended the API for compute_depth to also return an uncertainty image.
 
+ * Added API for camera resectioning.
+
 Vital Applets
 
  * Added utility functions to help validate config file entries for input
    and output files and directories.
 
+Vital Config:
+
+ * Added use of environment variable `KWIVER_CONFIG_PREFIX` in conjunction with previous
+   search strategy for config location.
+
+ * Introduced function using config search pattern to locate files, returning valid path(s).
+
 Vital Types
 
- * Add new method to metadata class to add a metadata item being
-   passed by shared_ptr
+ * Added new method to metadata class to add a metadata item being
+   passed by shared_ptr.
+
+ * Added methods to track to facilitate removing states by frame number or iterator.
+
+ * Use specific typing `frame_id_t` for `track_features::track`.
 
 Vital Plugin-loader
 
@@ -65,11 +78,15 @@ Arrows: Core
 
  * Updated dump-klv applet to load default configuration from a file.
 
+ * Updated dump-klv to support option including metadata in write out.
+
  * Added a utility function to depth_utils.h to find similar cameras by view
    angle.
 
  * Added a utility function to depth_utils.h to gather corresponding cameras,
    images, and masks from video sources for use in depth map estimation.
+
+ * Added serialization of video metadata to CSV output for file export.
 
 Arrows: Ceres
 
@@ -132,7 +149,21 @@ Arrows: MVG
 
 Arrows: OpenCV
 
+ * Added Telea inpainting method.
+
+ * Added Navier-Stokes inpainting method.
+
+ * Added Black-Mask inpainting method.
+
+ * Added OpenCV implementation of resection camera algorithm.
+
+Arrows: PROJ
+
+ * Accepted use of PROJ 5 and 6.
+
 Arrows: Serialization
+
+ * Added capacity to read and write video metadata as json types.
 
 Arrows: Super3d
 
@@ -157,15 +188,28 @@ Arrows: VTK
 
 Arrows: VXL
 
+ * Added pixel extractor type converter.
+
 Arrows: Python
 
 Sprokit
+
+Sprokit: Pipeline
+
+ * Added signal indicating pipeline endcap input termination.
+
+ * Embedded pipelines search config paths on construction.
 
 Sprokit: Processes
 
  * Added four new PyTorch-using Python Sprokit processes for tracking
    (srnn_tracker), descriptor computation (alexnet_descriptors and
    resnet_descriptors), and augmentation (resnet_augmentation).
+
+  * Added method to request data from Adapter Dataset with support for a
+    fallback option if data is unavailable.
+
+  * Replaced API call get_port_data with more conventional `value`.
 
 Sprokit: Bindings
 
@@ -187,13 +231,25 @@ General Documentation
 
 Python
 
-  * Add argument to build_pipeline command to include additonal directories in which
-    to search for pipe files to load
+  * Added argument to build_pipeline command to include additonal directories in which
+    to search for pipe files to load.
+
+  * Python virtual env creation and dependency install removed from build process.
+    Added Kwiver Python dependency install to setup script instead.
+
+  * Added Python Algo for Camera resection Vital Algo.
+
+  * Added metadata_map_io Python Algo.
 
 Bug Fixes
 ---------
 
 Arrows: Core
+
+ * Fixed several uses of wrong values in the core implementation of
+   compute_ref_homography.
+
+ * Fixed failure to report end of video status.
 
 Arrows: Ceres
 
@@ -202,6 +258,12 @@ Arrows: CUDA
  * Fixed an issue in which depth imagery was loaded transposed and flipped
    and then later flipped and transposed back during CUDA processing.
 
+Arrows: FFmpeg
+
+ * Prevented looping seeks in some video files.
+
+ * Fixed imporper setting of capability metadata.
+
 Arrows: Super3D
 
 Sprokit: Processes
@@ -209,5 +271,12 @@ Sprokit: Processes
  * Fixed the compute_track_descriptors process's handling of null
    output from its nested algorithm.
 
- * Fix configuration check for read_object_track, enabling configuration to
+ * Fixed configuration check for read_object_track, enabling configuration to
    succeed.
+
+Sprokit: Pipelines
+
+
+Python:
+
+ * Fixed `kwiver.arrows.core` `mesh` exposure to module importation.
