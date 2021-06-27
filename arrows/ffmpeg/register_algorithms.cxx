@@ -13,7 +13,9 @@
 #include <arrows/ffmpeg/ffmpeg_video_input.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace ffmpeg {
 
 extern "C"
@@ -23,7 +25,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 {
   ::kwiver::vital::algorithm_registrar reg( vpm, "arrows.ffmpeg" );
 
-  if (reg.is_module_loaded())
+  if( reg.is_module_loaded() )
   {
     return;
   }
@@ -34,5 +36,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 }
 
 } // end namespace ffmpeg
+
 } // end namespace arrows
+
 } // end namespace kwiver

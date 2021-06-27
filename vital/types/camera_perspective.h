@@ -232,12 +232,20 @@ public:
   void set_rotation( const rotation_d& rotation ) { orientation_ = rotation; }
 
   /// Set the intrinsics
+  //@{
   void set_intrinsics( const camera_intrinsics_sptr& intrinsics )
   {
     intrinsics_ = ! intrinsics
                   ? camera_intrinsics_sptr(new simple_camera_intrinsics())
                   : intrinsics;
   }
+  void set_intrinsics( camera_intrinsics_sptr&& intrinsics )
+  {
+    intrinsics_ = ! intrinsics
+                  ? std::make_shared< simple_camera_intrinsics >()
+                  : std::move( intrinsics );
+  }
+  //@}
 
   /// Rotate the camera about its center such that it looks at the given point.
   /**

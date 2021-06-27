@@ -165,6 +165,7 @@ camera_options
   GET_VALUE( bool, optimize_dist_k4_k5_k6 );
   GET_VALUE( LensDistortionType, lens_distortion_type );
   GET_VALUE( double, minimum_hfov );
+
 #undef GET_VALUE
 }
 

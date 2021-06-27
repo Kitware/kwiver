@@ -353,6 +353,13 @@
         "Average GSD value (meters/pixel)",                             \
         double,                                                         \
         "" )                                                            \
+  CALL( VNIIRS,                                                         \
+        "Video-National Imagery Interpretability Rating Scale",         \
+        double,                                                         \
+        "A subjective quality scale from 2 to 11 for rating the "       \
+        "intelligence value of airborne motion imagery in the visible " \
+        "spectrum. "                                                    \
+        "See https://gwg.nga.mil/misb/docs/standards/ST0901.2.pdf" )    \
   CALL( GPS_SEC,                                                        \
         "GPS seconds",                                                  \
         double,                                                         \

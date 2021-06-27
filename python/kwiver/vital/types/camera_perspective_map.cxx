@@ -5,6 +5,8 @@
 #include <vital/types/camera_perspective.h>
 #include <vital/types/camera_perspective_map.h>
 
+#include <vital/overload.h>
+
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -28,6 +30,8 @@ class camera_perspective_map_trampoline
 
 PYBIND11_MODULE( camera_perspective_map, m)
 {
+  using cam_sptr_t = std::shared_ptr< kv::camera_perspective >;
+
   py::class_< kv::camera_map_of_< kv::camera_perspective >,
               std::shared_ptr< kv::camera_map_of_< kv::camera_perspective > >,
               camera_perspective_map_trampoline >(m, "CameraPerspectiveMap" )
@@ -38,7 +42,9 @@ PYBIND11_MODULE( camera_perspective_map, m)
   .def( "get_frame_ids",              &kv::camera_map_of_< kv::camera_perspective >::get_frame_ids )
   .def( "find",                       &kv::camera_map_of_< kv::camera_perspective >::find )
   .def( "erase",                      &kv::camera_map_of_< kv::camera_perspective >::erase )
-  .def( "insert",                     &kv::camera_map_of_< kv::camera_perspective >::insert )
+  .def( "insert",
+        kv::overload< kv::frame_id_t, cam_sptr_t const& >(
+          &kv::camera_map_of_< kv::camera_perspective >::insert ) )
   .def( "clear",                      &kv::camera_map_of_< kv::camera_perspective >::clear )
   .def( "set_from_base_camera_map",   &kv::camera_map_of_< kv::camera_perspective >::set_from_base_camera_map )
   .def( "clone",                      &kv::camera_map_of_< kv::camera_perspective >::clone )

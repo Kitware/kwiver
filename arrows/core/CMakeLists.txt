@@ -16,6 +16,7 @@ set( plugin_core_headers
   convert_image_bypass.h
   create_detection_grid.h
   depth_utils.h
+  derive_metadata.h
   detect_features_filtered.h
   detected_object_set_input_kw18.h
   detected_object_set_output_kw18.h
@@ -49,6 +50,7 @@ set( plugin_core_headers
   uv_unwrap_mesh.h
   video_input_filter.h
   video_input_image_list.h
+  video_input_metadata_filter.h
   video_input_pos.h
   video_input_splice.h
   video_input_split.h
@@ -86,6 +88,7 @@ set( plugin_core_sources
   convert_image_bypass.cxx
   create_detection_grid.cxx
   depth_utils.cxx
+  derive_metadata.cxx
   detect_features_filtered.cxx
   detected_object_set_input_kw18.cxx
   detected_object_set_output_kw18.cxx
@@ -119,6 +122,7 @@ set( plugin_core_sources
   uv_unwrap_mesh.cxx
   video_input_filter.cxx
   video_input_image_list.cxx
+  video_input_metadata_filter.cxx
   video_input_pos.cxx
   video_input_splice.cxx
   video_input_split.cxx
