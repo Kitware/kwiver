@@ -94,6 +94,9 @@ Arrows: Ceres
    and independently control logging fully summaries after optimization
    completes.
 
+ * Refactored camera estimation configuration options and moved those utilities
+   to the new MVG arrow for easier reuse without depending on Ceres Solver.
+
 Arrows: CUDA
 
 Arrows: FFmpeg
@@ -148,6 +151,9 @@ Arrows: MVG
    as the implementation in the CUDA arrow, but does not require a GPU.
 
 Arrows: OpenCV
+
+ * Added a new camera resectioning algorithm implementation using
+   cv::calibrateCamera().
 
  * Added Telea inpainting method.
 
