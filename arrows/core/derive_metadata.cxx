@@ -42,7 +42,10 @@ get_platform_rotation( kwiver::vital::metadata_sptr const& metadata )
   kv::metadata_item const& roll_item =
     metadata->find( kv::VITAL_META_PLATFORM_ROLL_ANGLE );
 
-  if( !yaw_item || !pitch_item || !roll_item )
+  if( !yaw_item || !pitch_item || !roll_item ||
+      std::isnan( yaw_item.as_double() ) ||
+      std::isnan( pitch_item.as_double() ) ||
+      std::isnan( roll_item.as_double() ) )
   {
     VITAL_THROW( kv::invalid_value,
                  "metadata does not contain platform orientation" );
@@ -67,7 +70,10 @@ get_sensor_rotation( kwiver::vital::metadata_sptr const& metadata )
   kv::metadata_item const& roll_item =
     metadata->find( kv::VITAL_META_SENSOR_REL_ROLL_ANGLE );
 
-  if( !yaw_item || !pitch_item || !roll_item )
+  if( !yaw_item || !pitch_item || !roll_item ||
+      std::isnan( yaw_item.as_double() ) ||
+      std::isnan( pitch_item.as_double() ) ||
+      std::isnan( roll_item.as_double() ) )
   {
     VITAL_THROW( kv::invalid_value,
                  "metadata does not contain sensor orientation" );
@@ -95,16 +101,16 @@ get_total_rotation( kwiver::vital::metadata_sptr const& metadata )
 double
 get_sensor_horizontal_fov( kwiver::vital::metadata_sptr const& metadata )
 {
-  kv::metadata_item const& x_fov_item =
+  kv::metadata_item const& item =
     metadata->find( kv::VITAL_META_SENSOR_HORIZONTAL_FOV );
 
-  if( !x_fov_item )
+  if( !item || std::isnan( item.as_double() ) )
   {
     VITAL_THROW( kv::invalid_value,
                  "metadata does not contain horizontal sensor fov" );
   }
 
-  return x_fov_item.as_double() * kv::deg_to_rad;
+  return item.as_double() * kv::deg_to_rad;
 }
 
 // ----------------------------------------------------------------------------
@@ -112,16 +118,16 @@ get_sensor_horizontal_fov( kwiver::vital::metadata_sptr const& metadata )
 double
 get_sensor_vertical_fov( kwiver::vital::metadata_sptr const& metadata )
 {
-  kv::metadata_item const& y_fov_item =
+  kv::metadata_item const& item =
     metadata->find( kv::VITAL_META_SENSOR_VERTICAL_FOV );
 
-  if( !y_fov_item )
+  if( !item || std::isnan( item.as_double() ) )
   {
     VITAL_THROW( kv::invalid_value,
                  "metadata does not contain vertical sensor fov" );
   }
 
-  return y_fov_item.as_double() * kv::deg_to_rad;
+  return item.as_double() * kv::deg_to_rad;
 }
 
 // ----------------------------------------------------------------------------
@@ -131,7 +137,7 @@ get_slant_range( kwiver::vital::metadata_sptr const& metadata )
   kv::metadata_item const& item =
     metadata->find( kv::VITAL_META_SLANT_RANGE );
 
-  if( !item )
+  if( !item || std::isnan( item.as_double() ) )
   {
     VITAL_THROW( kv::invalid_value,
                  "metadata does not contain slant range" );
@@ -147,7 +153,7 @@ get_sensor_location( kwiver::vital::metadata_sptr const& metadata )
   kv::metadata_item const& item =
     metadata->find( kv::VITAL_META_SENSOR_LOCATION );
 
-  if( !item )
+  if( !item || std::isnan( item.as_double() ) )
   {
     VITAL_THROW( kv::invalid_value,
                  "metadata does not contain sensor location" );
@@ -163,7 +169,7 @@ get_frame_center( kwiver::vital::metadata_sptr const& metadata )
   kv::metadata_item const& item =
     metadata->find( kv::VITAL_META_FRAME_CENTER );
 
-  if( !item )
+  if( !item || std::isnan( item.as_double() ) )
   {
     VITAL_THROW( kv::invalid_value,
                  "metadata does not contain frame center" );
@@ -179,7 +185,7 @@ get_target_width( kwiver::vital::metadata_sptr const& metadata )
   kv::metadata_item const& item =
     metadata->find( kv::VITAL_META_TARGET_WIDTH );
 
-  if( !item )
+  if( !item || std::isnan( item.as_double() ) )
   {
     VITAL_THROW( kv::invalid_value,
                  "metadata does not contain target width" );
