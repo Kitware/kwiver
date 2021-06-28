@@ -41,6 +41,7 @@ if(KWIVER_ENABLE_ARROWS)
   include( kwiver-depends-ffmpeg )
   include( kwiver-depends-GDAL )
   include( kwiver-depends-PyTorch )
+  include( kwiver-depends-COLMAP )
 endif()
 
 include( kwiver-depends-ZeroMQ )
