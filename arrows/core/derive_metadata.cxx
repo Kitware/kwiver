@@ -226,22 +226,22 @@ compute_slant_range( kwiver::vital::metadata_sptr const& metadata )
 
 // ----------------------------------------------------------------------------
 double
-compute_horizontal_gsd( double slant_range, double horizontal_sensor_fov,
+compute_horizontal_gsd( double slant_range, double sensor_horizontal_fov,
                         double frame_width )
 {
   return 2.0 * slant_range *
-         tan( ( horizontal_sensor_fov * kv::deg_to_rad ) / 2.0 ) / frame_width;
+         tan( ( sensor_horizontal_fov * kv::deg_to_rad ) / 2.0 ) / frame_width;
 }
 
 // ----------------------------------------------------------------------------
 double
-compute_vertical_gsd( double slant_range, double vertical_sensor_fov,
+compute_vertical_gsd( double slant_range, double sensor_vertical_fov,
                       double pitch, double frame_height )
 {
   double const interior_angle = kv::pi_over_2 + pitch;
   return 2.0 * slant_range *
          ( std::sin( interior_angle ) - std::cos( interior_angle ) *
-           std::tan( interior_angle - vertical_sensor_fov / 2 ) )
+           std::tan( interior_angle - sensor_vertical_fov / 2 ) )
          / frame_height;
 }
 
@@ -288,12 +288,12 @@ compute_gsd( kwiver::vital::metadata_sptr const& metadata,
   // Horizontal axis only
   try
   {
-    auto const horizontal_sensor_fov = get_sensor_horizontal_fov( metadata );
+    auto const sensor_horizontal_fov = get_sensor_horizontal_fov( metadata );
     // Note that the reference implementation doesn't use computed slant range
     // for this method
     auto const slant_range = get_slant_range( metadata );
 
-    return compute_horizontal_gsd( slant_range, horizontal_sensor_fov,
+    return compute_horizontal_gsd( slant_range, sensor_horizontal_fov,
                                     frame_width );
   }
   catch ( kv::invalid_value const& e )
