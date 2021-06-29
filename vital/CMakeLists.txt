@@ -283,7 +283,6 @@ add_subdirectory( util )
 add_subdirectory( range )
 add_subdirectory( bindings )
 add_subdirectory( config )
-add_subdirectory( klv )
 add_subdirectory( logger )
 add_subdirectory( plugin_loader )
 

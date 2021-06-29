@@ -7,30 +7,32 @@
  * converter class.
  */
 
-#ifndef KWIVER_VITAL_KLV_CONVERT_METADATA_H_
-#define KWIVER_VITAL_KLV_CONVERT_METADATA_H_
+#ifndef KWIVER_ARROWS_KLV_KLV_CONVERT_METADATA_H_
+#define KWIVER_ARROWS_KLV_KLV_CONVERT_METADATA_H_
 
-#include <vital/klv/vital_klv_export.h>
+#include <arrows/klv/kwiver_algo_klv_export.h>
+
+#include <arrows/klv/klv_0601.h>
+#include <arrows/klv/klv_0104.h>
+#include <arrows/klv/klv_parse.h>
 
 #include <vital/types/metadata.h>
 #include <vital/types/metadata_traits.h>
 
-#include <vital/klv/klv_0601.h>
-#include <vital/klv/klv_0104.h>
-#include <vital/klv/klv_parse.h>
 #include <vital/util/any_converter.h>
 
 #include <vital/logger/logger.h>
 
 namespace kwiver {
-namespace vital {
+namespace arrows {
+namespace klv {
 
 // ----------------------------------------------------------------
 /**
  * @brief
  *
  */
-class VITAL_KLV_EXPORT convert_metadata
+class KWIVER_ALGO_KLV_EXPORT convert_metadata
 {
 public:
   // -- CONSTRUCTORS --
@@ -45,7 +47,7 @@ public:
    *
    * @throws metadata_exception When error encountered.
    */
-   void convert( klv_data const& klv, metadata& md );
+   void convert( klv_data const& klv, kwiver::vital::metadata& md );
 
   /**
    * \brief Get type representation for vital metadata tag.
@@ -57,7 +59,7 @@ public:
    *
    * \return Type info for this tag
    */
-  static std::type_info const& typeid_for_tag( vital_metadata_tag tag );
+  static std::type_info const& typeid_for_tag( kwiver::vital::vital_metadata_tag tag );
 
   /** Constants used to determine the source of this metadata
    * collection. The value of the VITAL_META_METADATA_ORIGIN tag is
@@ -82,8 +84,8 @@ public:
 
 private:
 
-  void convert_0601_metadata( klv_lds_vector_t const& lds, metadata& md );
-  void convert_0104_metadata( klv_uds_vector_t const& uds, metadata& md );
+  void convert_0601_metadata( klv_lds_vector_t const& lds, kwiver::vital::metadata& md );
+  void convert_0104_metadata( klv_uds_vector_t const& uds, kwiver::vital::metadata& md );
 
   kwiver::vital::any normalize_0601_tag_data( klv_0601_tag tag,
                                               kwiver::vital::vital_metadata_tag vital_tag,
@@ -95,13 +97,13 @@ private:
 
   kwiver::vital::logger_handle_t m_logger;
 
-  any_converter< double > convert_to_double;
-  any_converter< uint64_t > convert_to_int;
+  kwiver::vital::any_converter< double > convert_to_double;
+  kwiver::vital::any_converter< uint64_t > convert_to_int;
 
-  metadata_traits m_metadata_traits;
+  kwiver::vital::metadata_traits m_metadata_traits;
 
 }; // end class convert_metadata
 
-} } // end namespace
+} } } // end namespace
 
 #endif

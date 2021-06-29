@@ -8,7 +8,8 @@
 #include <string>
 
 namespace kwiver {
-namespace vital {
+namespace arrows {
+namespace klv {
 
 namespace {
 
@@ -111,4 +112,4 @@ static const std::string misp_tag("MISPmicrosectime");
   return retval;
 }
 
-} } // end namespace
+} } } // end namespace

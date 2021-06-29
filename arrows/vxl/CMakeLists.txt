@@ -3,6 +3,10 @@
 
 set(CMAKE_FOLDER "Arrows/VXL")
 
+if(NOT KWIVER_ENABLE_KLV)
+  message(FATAL_ERROR "The VXL arrow requires the KLV arrow (KWIVER_ENABLE_KLV)")
+endif()
+
 set(vxl_headers_public
   aligned_edge_detection.h
   average_frames.h
@@ -84,7 +88,7 @@ kwiver_add_library( kwiver_algo_vxl
 target_link_libraries( kwiver_algo_vxl
   PUBLIC               vital_algo
                        vil vpgl vgl
-  PRIVATE              vital_klv
+  PRIVATE              kwiver_algo_klv
                        vital_config
                        kwiver_algo_mvg
                        rrel rsdl

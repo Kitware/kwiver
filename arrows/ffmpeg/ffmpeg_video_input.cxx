@@ -10,9 +10,9 @@
 #include "ffmpeg_init.h"
 #include "ffmpeg_video_input.h"
 
-#include <vital/klv/convert_metadata.h>
-#include <vital/klv/klv_data.h>
-#include <vital/klv/misp_time.h>
+#include <arrows/klv/convert_metadata.h>
+#include <arrows/klv/misp_time.h>
+#include <arrows/klv/klv_data.h>
 
 #include <vital/exceptions/io.h>
 #include <vital/exceptions/video.h>
@@ -99,7 +99,7 @@ public:
   std::map< int, std::deque< uint8_t > > curr_metadata;
 
   // metadata converter object
-  kwiver::vital::convert_metadata converter;
+  kwiver::arrows::klv::convert_metadata converter;
 
   /**
    * Storage for the metadata map.
@@ -689,7 +689,7 @@ public:
       // Copy the current raw metadata
       std::deque< uint8_t > md_buffer = md.second;
 
-      kwiver::vital::klv_data klv_packet;
+      kwiver::arrows::klv::klv_data klv_packet;
 
       // If we have collected enough of the stream to make a KLV packet
       while( klv_pop_next_packet( md_buffer, klv_packet ) )

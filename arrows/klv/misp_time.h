@@ -2,16 +2,17 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#ifndef VITAL_KLV_MISP_TIME_H
-#define VITAL_KLV_MISP_TIME_H
+#ifndef KWIVER_ARROWS_KLV_KLV_MISP_TIME_H
+#define KWIVER_ARROWS_KLV_KLV_MISP_TIME_H
 
-#include <vital/klv/vital_klv_export.h>
+#include <arrows/klv/kwiver_algo_klv_export.h>
 
 #include <vector>
 #include <cstdint>
 
 namespace kwiver {
-namespace vital {
+namespace arrows {
+namespace klv {
 
 /**
  * @brief Find MISP time packet in raw buffer and convert.
@@ -25,7 +26,7 @@ namespace vital {
  *
  * @return \b true if MISP time packet found in buffer.
  */
-VITAL_KLV_EXPORT
+KWIVER_ALGO_KLV_EXPORT
 bool find_MISP_microsec_time(  std::vector< unsigned char > const& raw_data, std::int64_t& ts );
 
 /**
@@ -39,9 +40,9 @@ bool find_MISP_microsec_time(  std::vector< unsigned char > const& raw_data, std
  *
  * @return \b true if the buffer passes validity checks.
  */
-VITAL_KLV_EXPORT
+KWIVER_ALGO_KLV_EXPORT
 bool convert_MISP_microsec_time( std::vector< unsigned char > const& buf, std::int64_t& ts );
 
-} } // end namespace
+} } } // end namespace
 
-#endif /* VITAL_KLV_MISP_TIME_H */
+#endif

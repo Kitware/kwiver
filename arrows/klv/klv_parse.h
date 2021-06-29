@@ -6,11 +6,11 @@
  * Interface to the KLV parsing functions.
  */
 
-#ifndef KWIVER_VITAL_KLV_PARSE_H_
-#define KWIVER_VITAL_KLV_PARSE_H_
+#ifndef KWIVER_ARROWS_KLV_KLV_PARSE_H_
+#define KWIVER_ARROWS_KLV_KLV_PARSE_H_
 
-#include <vital/klv/vital_klv_export.h>
-#include <vital/klv/klv_key.h>
+#include <arrows/klv/kwiver_algo_klv_export.h>
+#include <arrows/klv/klv_key.h>
 
 #include <vector>
 #include <deque>
@@ -18,7 +18,8 @@
 #include <cstdint>
 
 namespace kwiver {
-namespace vital {
+namespace arrows {
+namespace klv {
 
 class klv_data;
 
@@ -44,7 +45,7 @@ typedef std::vector< klv_uds_pair > klv_uds_vector_t;
  *
  * @return \c true if packet returned; \c false if no packet returned.
  */
-VITAL_KLV_EXPORT bool
+KWIVER_ALGO_KLV_EXPORT bool
 klv_pop_next_packet( std::deque< uint8_t >& data, klv_data& klv_packet);
 
 /**
@@ -58,7 +59,7 @@ klv_pop_next_packet( std::deque< uint8_t >& data, klv_data& klv_packet);
  *
  * @return A vector of klv LDS packets.
  */
-VITAL_KLV_EXPORT klv_lds_vector_t
+KWIVER_ALGO_KLV_EXPORT klv_lds_vector_t
 parse_klv_lds(klv_data const& data);
 
 /**
@@ -74,7 +75,7 @@ parse_klv_lds(klv_data const& data);
  *
  * @return A vector of klv UDS packets.
  */
-VITAL_KLV_EXPORT klv_uds_vector_t
+KWIVER_ALGO_KLV_EXPORT klv_uds_vector_t
 parse_klv_uds( klv_data const& data );
 
 /**
@@ -86,9 +87,9 @@ parse_klv_uds( klv_data const& data );
  * @param str stream to format on
  * @param klv packet to decode
  */
-VITAL_KLV_EXPORT std::ostream&
+KWIVER_ALGO_KLV_EXPORT std::ostream&
 print_klv( std::ostream& str, klv_data const& klv );
 
-} } // end namespace
+} } } // end namespace
 
 #endif

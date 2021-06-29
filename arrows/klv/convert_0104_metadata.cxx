@@ -9,15 +9,16 @@
 
 #include "convert_metadata.h"
 
-#include <vital/klv/klv_0104.h>
-#include <vital/klv/klv_data.h>
+#include <arrows/klv/klv_0104.h>
+#include <arrows/klv/klv_data.h>
 
 #include <vital/exceptions/metadata.h>
 #include <vital/types/geodesy.h>
 #include <vital/vital_config.h>
 
 namespace kwiver {
-namespace vital {
+namespace arrows {
+namespace klv {
 
 namespace {
 
@@ -53,7 +54,7 @@ is_empty( Eigen::Matrix< double, N, 1, 0, N, 1 > const& vec )
 
 // ----------------------------------------------------------------------------
 bool
-is_valid_lon_lat( vector_2d const& vec )
+is_valid_lon_lat( kwiver::vital::vector_2d const& vec )
 {
   auto const lat = vec[1];
   auto const lon = vec[0];
@@ -63,9 +64,9 @@ is_valid_lon_lat( vector_2d const& vec )
 
 // ----------------------------------------------------------------------------
 bool
-is_valid_lon_lat( vector_3d const& vec )
+is_valid_lon_lat( kwiver::vital::vector_3d const& vec )
 {
-  return is_valid_lon_lat( static_cast< vector_2d >(vec.head(2)) );
+  return is_valid_lon_lat( static_cast< kwiver::vital::vector_2d >(vec.head(2)) );
 }
 
 } // end namespace
@@ -99,7 +100,7 @@ convert_metadata
     }
 
     // If the destination is integral.
-    vital_meta_trait_base const& trait = m_metadata_traits.find( vital_tag );
+    auto const& trait = m_metadata_traits.find( vital_tag );
     if ( trait.is_integral() )
     {
       kwiver::vital::any converted_data = convert_to_int.convert( data );
@@ -118,7 +119,8 @@ convert_metadata
 
 // ------------------------------------------------------------------
 void convert_metadata
-::convert_0104_metadata( klv_uds_vector_t const& uds, metadata& md )
+::convert_0104_metadata( klv_uds_vector_t const& uds,
+                         kwiver::vital::metadata& md )
 {
   //
   // Data items that are used to collect multi-value metadata items such as
@@ -136,7 +138,7 @@ void convert_metadata
   // Add our "origin" tag to indicate that the source of this metadata
   // collection is from a 0104 spec packet.
   //
-  md.add< VITAL_META_METADATA_ORIGIN >( MISB_0104 );
+  md.add< kwiver::vital::VITAL_META_METADATA_ORIGIN >( MISB_0104 );
 
   for ( auto itr = uds.begin(); itr != uds.end(); ++itr )
   {
@@ -168,14 +170,14 @@ void convert_metadata
     switch (tag)
     {
 // Refine simple case to a define
-#define CASE(N)                           \
-case klv_0104::N:                         \
-  md.add_any< VITAL_META_ ## N >( data ); \
+#define CASE(N)                                          \
+case klv_0104::N:                                        \
+  md.add_any< kwiver::vital::VITAL_META_ ## N >( data ); \
   break
 
-#define CASE2(KN,MN)                        \
-case klv_0104::KN:                          \
-  md.add_any< VITAL_META_ ## MN >( data );  \
+#define CASE2(KN,MN)                                      \
+case klv_0104::KN:                                        \
+  md.add_any< kwiver::vital::VITAL_META_ ## MN >( data ); \
   break
 
       CASE( UNIX_TIMESTAMP );
@@ -282,9 +284,9 @@ case klv_0104::KN:                          \
     }
     else
     {
-      vector_3d sensor_loc(raw_sensor_location[0], raw_sensor_location[1], raw_sensor_location[2]);
-      auto const sensor_location = geo_point{ sensor_loc, SRID::lat_lon_WGS84 };
-      md.add< VITAL_META_SENSOR_LOCATION >( sensor_location );
+      kwiver::vital::vector_3d sensor_loc(raw_sensor_location[0], raw_sensor_location[1], raw_sensor_location[2]);
+      auto const sensor_location = kwiver::vital::geo_point{ sensor_loc, kwiver::vital::SRID::lat_lon_WGS84 };
+      md.add< kwiver::vital::VITAL_META_SENSOR_LOCATION >( sensor_location );
     }
   }
 
@@ -296,8 +298,8 @@ case klv_0104::KN:                          \
     }
     else
     {
-      auto const frame_center = geo_point{ raw_frame_center, SRID::lat_lon_WGS84 };
-      md.add< VITAL_META_FRAME_CENTER >( frame_center );
+      auto const frame_center = kwiver::vital::geo_point{ raw_frame_center, kwiver::vital::SRID::lat_lon_WGS84 };
+      md.add< kwiver::vital::VITAL_META_FRAME_CENTER >( frame_center );
     }
   }
 
@@ -347,9 +349,9 @@ case klv_0104::KN:                          \
       raw_corners.push_back( raw_corner_pt4 );
 
       kwiver::vital::geo_polygon corners{ raw_corners, kwiver::vital::SRID::lat_lon_WGS84 };
-      md.add< VITAL_META_CORNER_POINTS >( corners );
+      md.add< kwiver::vital::VITAL_META_CORNER_POINTS >( corners );
     }
   }
 }
 
-} } // end namespace
+} } } // end namespace

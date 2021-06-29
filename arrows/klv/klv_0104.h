@@ -7,11 +7,12 @@
  * \brief This file contains the interface for klv 0104 video metadata.
  */
 
-#ifndef KWIVER_VITAL_KLV_0104_H_
-#define KWIVER_VITAL_KLV_0104_H_
+#ifndef KWIVER_ARROWS_KLV_KLV_0104_H_
+#define KWIVER_ARROWS_KLV_KLV_0104_H_
 
-#include <vital/klv/vital_klv_export.h>
-#include <vital/klv/klv_key.h>
+#include <arrows/klv/klv_key.h>
+#include <arrows/klv/kwiver_algo_klv_export.h>
+
 #include <vital/any.h>
 #include <vital/vital_config.h>
 
@@ -23,14 +24,15 @@
 #include <cstdint>
 
 namespace kwiver {
-namespace vital {
+namespace arrows {
+namespace klv {
 
 // ----------------------------------------------------------------
 /**
  * @brief klv 0104 metadata representation.
  *
  */
-class VITAL_KLV_EXPORT klv_0104
+class KWIVER_ALGO_KLV_EXPORT klv_0104
 {
 public:
   static klv_uds_key key();
@@ -191,6 +193,6 @@ private:
   std::vector< traits_base* > m_traitsvec;
 };
 
-} }   // end namespace
+} } }  // end namespace
 
 #endif

@@ -1,6 +1,6 @@
-#
-# KLV parsing toolkit
-#
+# Build / Install Key-Length-Value Metadata Arrow
+
+set(CMAKE_FOLDER "Arrows/KLV")
 
 set( sources
   convert_metadata.cxx
@@ -28,30 +28,29 @@ set( private_headers
   klv_0601_traits.h
 )
 
-kwiver_add_library( vital_klv
+kwiver_install_headers(
+  ${public_headers}
+  SUBDIR   arrows/klv
+  )
+
+kwiver_install_headers(
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_klv_export.h
+  NOPATH
+  SUBDIR      arrows/klv
+  )
+
+kwiver_add_library( kwiver_algo_klv
   ${sources}
   ${public_headers}
   ${private_headers}
   )
 
-target_link_libraries( vital_klv
+target_link_libraries( kwiver_algo_klv
+  PUBLIC        vital_algo
   PRIVATE       vital
                 vital_logger
   )
 
-kwiver_install_headers(
-  ${public_headers}
-  SUBDIR   vital/klv
-  )
-
-kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/vital_klv_export.h
-  NOPATH
-  SUBDIR      vital/klv
-  )
-
-###
-# Add tests if enabled
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory( tests )
 endif()

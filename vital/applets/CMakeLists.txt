@@ -44,7 +44,6 @@ kwiver_add_plugin( vital_applets
   SOURCES      ${sources} ${headers}
   PRIVATE      vital
                vital_vpm
-               vital_klv
                vital_algo
                vital_logger
                kwiversys

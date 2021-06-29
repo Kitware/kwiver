@@ -106,7 +106,7 @@
         "" )                                                            \
   CALL( SENSOR_LOCATION,                                                \
         "Sensor Geodetic Location (lon/lat/alt)",                       \
-        geo_point,                                                      \
+        kwiver::vital::geo_point,                                       \
         "Contains the 3D coordinate of the sensor. "                    \
         "The location is ordered lon, lat. "                            \
         "The altitude is optional and is in meters." )                  \
@@ -162,16 +162,16 @@
         "Target Width within sensor field of view." )                   \
   CALL( FRAME_CENTER,                                                   \
         "Geodetic Frame Center, (lon/lat/elev)",                        \
-        geo_point,                                                      \
+        kwiver::vital::geo_point,                                       \
         "Contains the 3D coordinate of the frame center. "              \
         "The location is ordered lon, lat, and elevation in meters. "   \
         "Elevation is not always set." )                                \
   CALL( CORNER_POINTS,                                                  \
         "Corner points (lon/lat)",                                      \
-        geo_polygon,                                                    \
+        kwiver::vital::geo_polygon,                                     \
         "A four sided polygon representing the image bounds, "          \
         "The corners are ordered "                                      \
-        "upper left, upper right, lower right, lower left.")            \
+        "upper left, upper right, lower right, lower left." )           \
   CALL( ICING_DETECTED,                                                 \
         "Icing Detected",                                               \
         uint64_t,                                                       \
@@ -201,7 +201,7 @@
         "Temperature outside aircraft." )                               \
   CALL( TARGET_LOCATION,                                                \
         "Target Geodetic Location (lon/lat/elev)",                      \
-        geo_point,                                                      \
+        kwiver::vital::geo_point,                                       \
         "Contains the 3D coordinate of the target. "                    \
         "The location is ordered lon, lat. "                            \
         "The elevation is optional and is in meters." )                 \
@@ -482,8 +482,7 @@ namespace kwiver {
 namespace vital {
 
 enum vital_metadata_tag {
-
-#define ENUM_ITEM(TAG, NAME, T, ...) VITAL_META_ ## TAG,
+#define ENUM_ITEM( TAG, NAME, T, ... ) VITAL_META_ ## TAG,
 
   // Generate enum items
   KWIVER_VITAL_METADATA_TAGS( ENUM_ITEM )
