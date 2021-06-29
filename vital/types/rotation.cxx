@@ -294,6 +294,20 @@ compose_rotations(
   return kwiver::vital::rotation_< T >(R);
 }
 
+template < typename T >
+rotation_< T >
+compose_rotations( rotation_< T > const& platform_rotation,
+                   rotation_< T > const& sensor_rotation )
+{
+  T platform_yaw, platform_pitch, platform_roll;
+  T sensor_yaw,   sensor_pitch,   sensor_roll;
+  platform_rotation.get_yaw_pitch_roll(platform_yaw, platform_pitch,
+                                       platform_roll);
+  sensor_rotation.get_yaw_pitch_roll(sensor_yaw, sensor_pitch, sensor_roll);
+  return compose_rotations(platform_yaw, platform_pitch, platform_roll,
+                           sensor_yaw,   sensor_pitch,   sensor_roll);
+}
+
 /// \cond DoxygenSuppress
 #define INSTANTIATE_ROTATION( T )                                       \
   template class VITAL_EXPORT rotation_< T >;                           \
@@ -304,7 +318,8 @@ compose_rotations(
   template VITAL_EXPORT rotation_< T > interpolate_rotation( rotation_< T > const & A, rotation_< T > const & B, T f ); \
   template VITAL_EXPORT void                                            \
   interpolated_rotations( rotation_< T > const & A, rotation_< T > const & B, size_t n, std::vector< rotation_< T > > &interp_rots ); \
-  template VITAL_EXPORT rotation_< T > compose_rotations( T p_y, T p_p, T p_r, T s_y, T s_p, T s_r )
+  template VITAL_EXPORT rotation_< T > compose_rotations( T p_y, T p_p, T p_r, T s_y, T s_p, T s_r ); \
+  template VITAL_EXPORT rotation_< T > compose_rotations( rotation_< T > const&, rotation_< T > const&)
 
 INSTANTIATE_ROTATION( double );
 INSTANTIATE_ROTATION( float );

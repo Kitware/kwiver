@@ -42,7 +42,10 @@ get_platform_rotation( kwiver::vital::metadata_sptr const& metadata )
   kv::metadata_item const& roll_item =
     metadata->find( kv::VITAL_META_PLATFORM_ROLL_ANGLE );
 
-  if( !yaw_item || !pitch_item || !roll_item )
+  if( !yaw_item || !pitch_item || !roll_item ||
+      !std::isfinite( yaw_item.as_double() ) ||
+      !std::isfinite( pitch_item.as_double() ) ||
+      !std::isfinite( roll_item.as_double() ) )
   {
     VITAL_THROW( kv::invalid_value,
                  "metadata does not contain platform orientation" );
@@ -67,7 +70,10 @@ get_sensor_rotation( kwiver::vital::metadata_sptr const& metadata )
   kv::metadata_item const& roll_item =
     metadata->find( kv::VITAL_META_SENSOR_REL_ROLL_ANGLE );
 
-  if( !yaw_item || !pitch_item || !roll_item )
+  if( !yaw_item || !pitch_item || !roll_item ||
+      !std::isfinite( yaw_item.as_double() ) ||
+      !std::isfinite( pitch_item.as_double() ) ||
+      !std::isfinite( roll_item.as_double() ) )
   {
     VITAL_THROW( kv::invalid_value,
                  "metadata does not contain sensor orientation" );
@@ -87,28 +93,41 @@ get_total_rotation( kwiver::vital::metadata_sptr const& metadata )
   // Absolute (not relative to platform)
   kv::rotation_d const platform_rotation = get_platform_rotation( metadata );
   kv::rotation_d const sensor_rotation = get_sensor_rotation( metadata );
-  return platform_rotation * sensor_rotation;
+  return kv::compose_rotations(platform_rotation, sensor_rotation);
 }
 
 // ----------------------------------------------------------------------------
-kwiver::vital::vector_2d
-get_sensor_fov( kwiver::vital::metadata_sptr metadata )
+// Returns in radians
+double
+get_sensor_horizontal_fov( kwiver::vital::metadata_sptr const& metadata )
 {
-  kv::metadata_item const& x_fov_item =
+  kv::metadata_item const& item =
     metadata->find( kv::VITAL_META_SENSOR_HORIZONTAL_FOV );
-  kv::metadata_item const& y_fov_item =
-    metadata->find( kv::VITAL_META_SENSOR_VERTICAL_FOV );
 
-  if( !x_fov_item || !y_fov_item )
+  if( !item || !std::isfinite( item.as_double() ) )
   {
     VITAL_THROW( kv::invalid_value,
-                 "metadata does not contain sensor fov" );
+                 "metadata does not contain horizontal sensor fov" );
   }
 
-  auto const x_fov = x_fov_item.as_double() * kv::deg_to_rad;
-  auto const y_fov = y_fov_item.as_double() * kv::deg_to_rad;
+  return item.as_double() * kv::deg_to_rad;
+}
 
-  return { x_fov, y_fov };
+// ----------------------------------------------------------------------------
+// Returns in radians
+double
+get_sensor_vertical_fov( kwiver::vital::metadata_sptr const& metadata )
+{
+  kv::metadata_item const& item =
+    metadata->find( kv::VITAL_META_SENSOR_VERTICAL_FOV );
+
+  if( !item || !std::isfinite( item.as_double() ) )
+  {
+    VITAL_THROW( kv::invalid_value,
+                 "metadata does not contain vertical sensor fov" );
+  }
+
+  return item.as_double() * kv::deg_to_rad;
 }
 
 // ----------------------------------------------------------------------------
@@ -118,7 +137,7 @@ get_slant_range( kwiver::vital::metadata_sptr const& metadata )
   kv::metadata_item const& item =
     metadata->find( kv::VITAL_META_SLANT_RANGE );
 
-  if( !item )
+  if( !item || !std::isfinite( item.as_double() ) )
   {
     VITAL_THROW( kv::invalid_value,
                  "metadata does not contain slant range" );
@@ -134,7 +153,7 @@ get_sensor_location( kwiver::vital::metadata_sptr const& metadata )
   kv::metadata_item const& item =
     metadata->find( kv::VITAL_META_SENSOR_LOCATION );
 
-  if( !item )
+  if( !item || !std::isfinite( item.as_double() ) )
   {
     VITAL_THROW( kv::invalid_value,
                  "metadata does not contain sensor location" );
@@ -150,7 +169,7 @@ get_frame_center( kwiver::vital::metadata_sptr const& metadata )
   kv::metadata_item const& item =
     metadata->find( kv::VITAL_META_FRAME_CENTER );
 
-  if( !item )
+  if( !item || !std::isfinite( item.as_double() ) )
   {
     VITAL_THROW( kv::invalid_value,
                  "metadata does not contain frame center" );
@@ -166,7 +185,7 @@ get_target_width( kwiver::vital::metadata_sptr const& metadata )
   kv::metadata_item const& item =
     metadata->find( kv::VITAL_META_TARGET_WIDTH );
 
-  if( !item )
+  if( !item || !std::isfinite( item.as_double() ) )
   {
     VITAL_THROW( kv::invalid_value,
                  "metadata does not contain target width" );
@@ -207,50 +226,94 @@ compute_slant_range( kwiver::vital::metadata_sptr const& metadata )
 
 // ----------------------------------------------------------------------------
 double
+compute_horizontal_gsd( double slant_range, double sensor_horizontal_fov,
+                        double frame_width )
+{
+  return 2.0 * slant_range *
+         tan( ( sensor_horizontal_fov * kv::deg_to_rad ) / 2.0 ) / frame_width;
+}
+
+// ----------------------------------------------------------------------------
+double
+compute_vertical_gsd( double slant_range, double sensor_vertical_fov,
+                      double pitch, double frame_height )
+{
+  double const interior_angle = kv::pi_over_2 + pitch;
+  return 2.0 * slant_range *
+         ( std::sin( interior_angle ) - std::cos( interior_angle ) *
+           std::tan( interior_angle - sensor_vertical_fov / 2 ) )
+         / frame_height;
+}
+
+// ----------------------------------------------------------------------------
+double
 compute_gsd( kwiver::vital::metadata_sptr const& metadata,
              size_t frame_width, size_t frame_height )
 {
-  if ( frame_width == 0 || frame_height == 0 )
+  if( frame_width < 1 || frame_height < 1 )
   {
-    VITAL_THROW( kv::invalid_value, "frame dimensions cannot be zero" );
+    VITAL_THROW( kv::invalid_value, "frame dimensions must both be positive" );
   }
 
-  kv::vector_2d sensor_fov;
   try
   {
-    // Attempt to acquire sensor FOV
-    sensor_fov = get_sensor_fov( metadata );
+    // Intermediate values
+    kv::rotation_d const total_rotation = get_total_rotation( metadata );
+    double yaw, pitch, roll;
+    total_rotation.get_yaw_pitch_roll( yaw, pitch, roll );
+
+    double const slant_range = get_slant_range( metadata );
+    double const sensor_horizontal_fov_rad =
+      get_sensor_horizontal_fov( metadata );
+    double const sensor_vertical_fov_rad = get_sensor_vertical_fov( metadata );
+
+    // Approximate dimensions of image on ground plane
+    double const gsd_horizontal =
+      compute_horizontal_gsd( slant_range, sensor_horizontal_fov_rad,
+                              frame_width );
+
+    double const gsd_vertical =
+      compute_vertical_gsd( slant_range, sensor_vertical_fov_rad, pitch,
+                            frame_height);
+
+    // GSD is the geometric mean of each dimensions's GSD
+    // All values in meters per pixel
+    return std::sqrt( gsd_horizontal * gsd_vertical );
   }
   catch ( kv::invalid_value const& e )
   {
-    // Fall back to calculating GSD from target width
-    double const target_width = get_target_width( metadata );
+    // Move onto the next case
+  }
+
+  // Horizontal axis only
+  try
+  {
+    auto const sensor_horizontal_fov = get_sensor_horizontal_fov( metadata );
+    // Note that the reference implementation doesn't use computed slant range
+    // for this method
+    auto const slant_range = get_slant_range( metadata );
+
+    return compute_horizontal_gsd( slant_range, sensor_horizontal_fov,
+                                    frame_width );
+  }
+  catch ( kv::invalid_value const& e )
+  {
+    // Move on to the next case
+  }
+
+  // Target width horizontal axis only
+  try
+  {
+    auto const target_width = get_target_width( metadata );
 
     return target_width / frame_width;
   }
+  catch ( kv::invalid_value const& e )
+  {
+    // Move on to the next case
+  }
 
-  // Intermediate Values
-  kv::rotation_d const total_rotation = get_total_rotation( metadata );
-  double yaw, pitch, roll;
-  total_rotation.get_yaw_pitch_roll( yaw, pitch, roll );
-
-  // Ideally slant range should be pre-calculated
-  double const slant_range = compute_slant_range( metadata );
-  double const altitude_difference = slant_range * sin( -pitch );
-
-  // Approximate dimensions of image on ground plane
-  double const target_width = 2.0 * slant_range *
-                              std::tan( sensor_fov[ 0 ] / 2.0 );
-  double const target_height =
-    2.0 * ( slant_range * std::cos( pitch ) - altitude_difference *
-            std::tan( kv::pi_over_2 - sensor_fov[ 1 ] / 2 ) );
-
-  // GSD is the geometric mean of each dimensions's GSD
-  // All values in meters per pixel
-  double const x_gsd = target_width / frame_width;
-  double const y_gsd = target_height / frame_height;
-  double const gsd = std::sqrt( x_gsd * y_gsd );
-  return gsd;
+  VITAL_THROW( kv::invalid_value, "insufficient metadata to calculate GSD" );
 }
 
 // ----------------------------------------------------------------------------
