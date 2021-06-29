@@ -93,8 +93,10 @@ TEST_F( derive_metadata, compute_derived )
   kv::metadata_item const& slant_range_value =
     derived_metadata.at( 0 )->find( kv::VITAL_META_SLANT_RANGE );
 
-  // Shouldn't be too far away from reference value
-  EXPECT_NEAR( 0.202224, gsd_value.as_double(), 0.05 );
+  // Reference value is 0.202224; we use current actual output value here to
+  //   detect regression (or confirm intentional change)
+  EXPECT_NEAR( 0.199086, gsd_value.as_double(), 0.000001 );
+
   // This will not actualy be correct due to image terms
   // EXPECT_DOUBLE_EQ( 6.58, vniirs_value.as_double() );
   EXPECT_DOUBLE_EQ( 13296.55762, slant_range_value.as_double() );
