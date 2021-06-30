@@ -20,7 +20,7 @@
 
 namespace kv = kwiver::vital;
 
-static kwiver::vital::metadata_traits meta_traits;
+static kv::metadata_traits meta_traits;
 
 namespace {
 
@@ -28,7 +28,7 @@ double constexpr FRAME_CENTER_ELEVATION = 749.755127;
 double constexpr SENSOR_ELEVATION = 6942.789551;
 
 // ----------------------------------------------------------------------------
-kwiver::vital::metadata_vector
+kv::metadata_vector
 make_metadata()
 {
   kv::metadata_sptr m1 = std::make_shared< kv::metadata >();
@@ -55,6 +55,17 @@ make_metadata()
   return { m1 };
 }
 
+// ----------------------------------------------------------------------------
+kv::image_container_scptr
+make_image()
+{
+  constexpr auto frame_height = size_t{ 720 };
+  constexpr auto frame_width = size_t{ 1080 };
+
+  auto image = kv::image{ frame_width, frame_height };
+  return std::make_shared< kv::simple_image_container >( image );
+}
+
 } // namespace <anonymous>
 
 // ----------------------------------------------------------------------------
@@ -71,12 +82,8 @@ class derive_metadata : public ::testing::Test
   void
   SetUp()
   {
-    auto meta = make_metadata();
-    constexpr auto frame_height = size_t{ 720 };
-    constexpr auto frame_width = size_t{ 1080 };
-
-    derived_metadata = kwiver::arrows::core::compute_derived_metadata(
-      meta, frame_width, frame_height );
+    auto algo = kwiver::arrows::core::derive_metadata{};
+    derived_metadata = algo.filter( make_metadata(), make_image() );
   }
 
 public:

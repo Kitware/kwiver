@@ -10,15 +10,7 @@
 
 #include <arrows/core/kwiver_algo_core_export.h>
 
-#include <vital/algo/video_input.h>
-
-#include <vital/types/bounding_box.h>
-#include <vital/types/camera_perspective.h>
-#include <vital/types/camera_perspective_map.h>
-#include <vital/types/landmark.h>
-
-#include <functional>
-#include <vector>
+#include <vital/algo/metadata_filter.h>
 
 namespace kwiver {
 
@@ -26,22 +18,33 @@ namespace arrows {
 
 namespace core {
 
-/// Fills in metadata values which can be calculated from other metadata.
-///
-/// \param metadata_vec A vector of metadata packets.
-/// \param frame_width Width of the image in pixels.
-/// \param frame_height Height of the image in pixels.
-///
-/// \returns An amended metadata vector.
-///
-/// \todo
-///   Eventually this should be replaced with a version which takes in an image
-///   as a parameter instead of just frame dimensions and incorporates pixel
-///   data into computations.
-KWIVER_ALGO_CORE_EXPORT
-kwiver::vital::metadata_vector
-compute_derived_metadata( kwiver::vital::metadata_vector const& metadata_vec,
-                          size_t frame_width, size_t frame_height );
+class KWIVER_ALGO_CORE_EXPORT derive_metadata
+  : public vital::algo::metadata_filter
+{
+public:
+  derive_metadata();
+  virtual ~derive_metadata();
+
+  PLUGIN_INFO( "derive_metadata",
+               "Fills in metadata values which can be calculated "
+               "from other metadata." )
+
+  vital::config_block_sptr get_configuration() const override;
+  void set_configuration(vital::config_block_sptr config) override;
+  bool check_configuration(vital::config_block_sptr config) const override;
+
+  bool uses_image() const override;
+
+  /// Fills in metadata values which can be calculated from other metadata.
+  ///
+  /// \param input_metadata Input vector of metadata packets.
+  /// \param input_image Associated video image.
+  ///
+  /// \returns An amended metadata vector.
+  kwiver::vital::metadata_vector filter(
+    kwiver::vital::metadata_vector const& input_metadata,
+    kwiver::vital::image_container_scptr const& input_image ) override;
+};
 
 } // namespace core
 
