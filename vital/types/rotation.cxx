@@ -50,22 +50,20 @@ template < typename T >
 rotation_< T >
 ::rotation_( const T& yaw, const T& pitch, const T& roll )
 {
-  using std::cos;
-  using std::sin;
-  static const double root_two = std::sqrt( static_cast<double>(2.0) );
-  static const T inv_root_two = static_cast< T > ( 1.0 / root_two );
-
-  // compute the rotation from North-East-Down (NED) coordinates to
-  // East-North-Up coordinates (ENU). It is a 180 degree rotation about
-  // the axis [1/sqrt(2), 1/sqrt(2), 0]
-  const rotation_< T > Rned2enu( Eigen::Quaternion< T > ( 0, inv_root_two, inv_root_two, 0 ) );
-  const double half_x = 0.5 * static_cast< double > ( -roll );
-  const double half_y = 0.5 * static_cast< double > ( -pitch );
-  const double half_z = 0.5 * static_cast< double > ( -yaw );
-  rotation_< T > Rx( Eigen::Quaternion< T > ( T( cos( half_x ) ), T( sin( half_x ) ), 0, 0 ) );
-  rotation_< T > Ry( Eigen::Quaternion< T > ( T( cos( half_y ) ), 0, T( sin( half_y ) ), 0 ) );
-  rotation_< T > Rz( Eigen::Quaternion< T > ( T( cos( half_z ) ), 0, 0, T( sin( half_z ) ) ) );
-  *this = Rx * Ry * Rz * Rned2enu;
+  T const half_x = T( 0.5 ) * roll;
+  T const half_y = T( 0.5 ) * pitch;
+  T const half_z = T( 0.5 ) * yaw;
+  T const sin_x = std::sin( half_x );
+  T const cos_x = std::cos( half_x );
+  T const sin_y = std::sin( half_y );
+  T const cos_y = std::cos( half_y );
+  T const sin_z = std::sin( half_z );
+  T const cos_z = std::cos( half_z );
+  *this = Eigen::Quaternion< T >{
+    cos_x * cos_y * cos_z + sin_x * sin_y * sin_z,
+    sin_x * cos_y * cos_z - cos_x * sin_y * sin_z,
+    cos_x * sin_y * cos_z + sin_x * cos_y * sin_z,
+    cos_x * cos_y * sin_z - sin_x * sin_y * cos_z };
 }
 
 /// Constructor - from a matrix
@@ -151,12 +149,11 @@ void
 rotation_< T >
 ::get_yaw_pitch_roll( T& yaw, T& pitch, T& roll ) const
 {
-  Eigen::Matrix< T, 3, 3 > rotM( this->matrix() );
-  T cos_p = T( std::sqrt( double( rotM( 1, 2 ) * rotM( 1, 2 ) ) + rotM( 2, 2 ) * rotM( 2, 2 ) ) );
-
-  yaw   = T( std::atan2( double( rotM( 0, 0 ) ), double( rotM( 0, 1 ) ) ) );
-  pitch = T( std::atan2( double( rotM( 0, 2 ) ), double(cos_p) ) );
-  roll  = T( std::atan2( double( -rotM( 1, 2 ) ), double( -rotM( 2, 2 ) ) ) );
+  roll = std::atan2( 2.0 * ( q_.w() * q_.x() + q_.y() * q_.z() ),
+                     1.0 - 2.0 * ( q_.x() * q_.x() + q_.y() * q_.y() ) );
+  pitch = std::asin( 2.0 * ( q_.w() * q_.y() - q_.x() * q_.z() ) );
+  yaw = std::atan2( 2.0 * ( q_.w() * q_.z() + q_.x() * q_.y() ),
+                    1.0 - 2.0 * ( q_.y() * q_.y() + q_.z() * q_.z() ) );
 }
 
 /// Compose two rotations
@@ -227,85 +224,25 @@ interpolated_rotations( rotation_< T > const& A, rotation_< T > const& B, size_t
 }
 
 template < typename T >
-Eigen::Matrix< T, 3, 3> rotation_zyx(T yaw, T pitch, T roll)
+VITAL_EXPORT
+rotation_< T >
+ned_to_enu( rotation_< T > const& r )
 {
-  typedef Eigen::Matrix< T, 3, 3> matrix_3x3;
-
-  matrix_3x3 Rr;
-  matrix_3x3 Rp;
-  matrix_3x3 Ry;
-
-  auto cos_roll = static_cast<T>( cos( static_cast<double>(roll) ) );
-  auto sin_roll = static_cast<T>( sin( static_cast<double>(roll) ) );
-  auto cos_pitch = static_cast<T>( cos( static_cast<double>(pitch) ) );
-  auto sin_pitch = static_cast<T>( sin( static_cast<double>(pitch) ) );
-  auto cos_yaw = static_cast<T>( cos( static_cast<double>(yaw) ) );
-  auto sin_yaw = static_cast<T>( sin( static_cast<double>(yaw) ) );
-
-  // about x
-  Rr << 1, 0, 0,
-    0, cos_roll, -sin_roll,
-    0, sin_roll, cos_roll;
-
-  // about y
-  Rp << cos_pitch, 0, sin_pitch,
-    0, 1, 0,
-    -sin_pitch, 0, cos_pitch;
-
-  // about z
-  Ry << cos_yaw, -sin_yaw, 0,
-    sin_yaw, cos_yaw, 0,
-    0, 0, 1;
-  return Ry*Rp*Rr;
+  auto axis = Eigen::Matrix< T, 3, 1 >{ 1, 1, 0 };
+  auto angle = T{ -pi };
+  auto adjustment = rotation_< T >{ angle, axis };
+  return adjustment * r;
 }
 
 template < typename T >
+VITAL_EXPORT
 rotation_< T >
-compose_rotations(
-  T platform_yaw, T platform_pitch, T platform_roll,
-  T sensor_yaw,   T sensor_pitch,   T sensor_roll)
+enu_to_ned( rotation_< T > const& r )
 {
-  typedef Eigen::Matrix< T, 3, 3> matrix_3x3;
-
-  auto deg_to_rad_ = static_cast<T>(deg_to_rad);
-
-  matrix_3x3 R;
-  // rotation from east north up to platform
-  // platform has x out nose, y out left wing, z up
-  matrix_3x3 Rp = rotation_zyx<T>(deg_to_rad_*(-platform_yaw + 90.0),
-                                  deg_to_rad_*(-platform_pitch),
-                                  deg_to_rad_*platform_roll);
-
-  // rotation from platform to gimbal
-  // gimbal x is camera viewing direction
-  // gimbal y is left in image (-x in standard computer vision image coordinates)
-  matrix_3x3 Rs = rotation_zyx<T>(deg_to_rad_*(-sensor_yaw),
-                                  deg_to_rad_*(-sensor_pitch),
-                                  deg_to_rad_*sensor_roll);
-
-  // rotation from gimbal frame to camera frame
-  // camera frame has x right in image, y down, z along optical axis
-  matrix_3x3 R_c;
-  R_c << 0, -1, 0,
-         0, 0, -1,
-         1, 0, 0;
-
-  R = R_c*Rs.transpose()*Rp.transpose();
-  return kwiver::vital::rotation_< T >(R);
-}
-
-template < typename T >
-rotation_< T >
-compose_rotations( rotation_< T > const& platform_rotation,
-                   rotation_< T > const& sensor_rotation )
-{
-  T platform_yaw, platform_pitch, platform_roll;
-  T sensor_yaw,   sensor_pitch,   sensor_roll;
-  platform_rotation.get_yaw_pitch_roll(platform_yaw, platform_pitch,
-                                       platform_roll);
-  sensor_rotation.get_yaw_pitch_roll(sensor_yaw, sensor_pitch, sensor_roll);
-  return compose_rotations(platform_yaw, platform_pitch, platform_roll,
-                           sensor_yaw,   sensor_pitch,   sensor_roll);
+  auto axis = Eigen::Matrix< T, 3, 1 >{ 1, 1, 0 };
+  auto angle = T{ pi };
+  auto adjustment = rotation_< T >{ angle, axis };
+  return adjustment * r;
 }
 
 /// \cond DoxygenSuppress
@@ -318,8 +255,8 @@ compose_rotations( rotation_< T > const& platform_rotation,
   template VITAL_EXPORT rotation_< T > interpolate_rotation( rotation_< T > const & A, rotation_< T > const & B, T f ); \
   template VITAL_EXPORT void                                            \
   interpolated_rotations( rotation_< T > const & A, rotation_< T > const & B, size_t n, std::vector< rotation_< T > > &interp_rots ); \
-  template VITAL_EXPORT rotation_< T > compose_rotations( T p_y, T p_p, T p_r, T s_y, T s_p, T s_r ); \
-  template VITAL_EXPORT rotation_< T > compose_rotations( rotation_< T > const&, rotation_< T > const&)
+  template VITAL_EXPORT rotation_< T > ned_to_enu( rotation_< T > const& r ); \
+  template VITAL_EXPORT rotation_< T > enu_to_ned( rotation_< T > const& r )
 
 INSTANTIATE_ROTATION( double );
 INSTANTIATE_ROTATION( float );

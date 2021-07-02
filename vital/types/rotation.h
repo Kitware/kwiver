@@ -71,16 +71,15 @@ public:
   rotation_< T > ( T angle, const Eigen::Matrix< T, 3, 1 > &axis );
 
   /// Constructor - from yaw, pitch, and roll (radians)
-  /**
-   * This constructor is intended for use with yaw, pitch, and roll (in radians)
-   * output from an inertial navigation system, specifying the orientation of a
-   * moving coordinate system relative to an east/north/up (ENU) coordinate
-   * system. When all three angles are zero, the coordinate system's x, y, and
-   * z axes align with north, east, and down respectively.  Non-zero yaw, pitch,
-   * and roll define a sequence of intrinsic rotations around the z, y, and then
-   * x axes respectively.  The resulting rotation object takes a vector in ENU
-   * and rotates it into the moving coordinate system.
-   */
+  ///
+  /// This constructor creates a rotation representing the orientation of an
+  /// object as determined by the given \c yaw , \c pitch , and \c roll radian
+  /// values. In accordance with standard YPR convention, \c roll rotates along
+  /// the x axis, which is understood to be pointing north, \c pitch along the y
+  /// axis (east), and \c yaw along the z axis (down). To convert from this
+  /// North-East-Down coordinate system to one in which x, y, and z are facing
+  /// east, north, and up, respectively, call the \link ned_to_enu() \endlink
+  /// utility function on the constructed object.
   rotation_< T > ( const T &yaw, const T &pitch, const T &roll );
 
   /// Constructor - from a matrix
@@ -117,6 +116,12 @@ public:
   Eigen::Matrix< T, 3, 1 > rodrigues() const;
 
   /// Convert to yaw, pitch, and roll (radians)
+  ///
+  /// In accordance with standard YPR convention, \c roll rotates along
+  /// the x axis, which is understood to be pointing north, \c pitch along the y
+  /// axis (east), and \c yaw along the z axis (down). If this object currently
+  /// uses the ENU coordinate system, you must call \link enu_to_ned() \endlink
+  /// on it in order to get the correct values (NED is assumed).
   void get_yaw_pitch_roll( T& yaw, T& pitch, T& roll ) const;
 
   /// Compute the inverse rotation
@@ -208,31 +213,43 @@ VITAL_EXPORT
 void interpolated_rotations( rotation_< T > const& A, rotation_< T > const& B,
                              size_t n, std::vector< rotation_< T > >& interp_rots );
 
-// TODO: Consider moving these methods to a utilities header/directory
-/// Compose an aerial platform's orientation with sensor orientation
+/// Convert rotation \c r from ENU coordinate system to NED.
 ///
-/// \param platform_yaw yaw angle for aerial platform
-/// \param platform_pitch pitch angle for aerial platform
-/// \param platform_roll roll angle for aerial platform
-/// \param sensor_yaw yaw angle for aerial sensor
-/// \param sensor_pitch pitch angle for aerial sensor
-/// \param sensor_roll roll angle for aerial sensor
+/// The East-North-Up coordinate system is the convention for specifying yaw,
+/// pitch, and roll for aerial craft, while the North-East-Down coordinate
+/// system is common for computer vision applications on aerial photos. This
+/// function converts a rotation between the two conventions.
+///
+/// Inverse of \link ned_to_enu() \endlink.
+///
+/// \param r Rotation with the x axis pointing east, y axis pointing north,
+///          and z axis pointing up.
+///
+/// \returns A copy of \c r with the x axis pointing north, y axis pointing
+///          east, and z axis pointing down.
 template < typename T >
 VITAL_EXPORT
 rotation_< T >
-compose_rotations(
-  T platform_yaw, T platform_pitch, T platform_roll,
-  T sensor_yaw, T sensor_pitch, T sensor_roll );
+enu_to_ned( rotation_< T > const& r );
 
-/// Compose an aerial platform's orientation with sensor orientation.
+/// Convert rotation \c r from NED coordinate system to ENU.
 ///
-/// \param platform_rotation rotation for aerial platform
-/// \param sensor_rotation rotation for aerial sensor
+/// The East-North-Up coordinate system is the convention for specifying yaw,
+/// pitch, and roll for aerial craft, while the North-East-Down coordinate
+/// system is common for computer vision applications on aerial photos. This
+/// function converts a rotation between the two conventions.
+///
+/// Inverse of \link enu_to_ned() \endlink.
+///
+/// \param r Rotation with the x axis pointing north, y axis pointing east,
+///          and z axis pointing down.
+///
+/// \returns A copy of \c r with the x axis pointing east, y axis pointing
+///          north, and z axis pointing up.
 template < typename T >
 VITAL_EXPORT
 rotation_< T >
-compose_rotations( rotation_< T > const & platform_rotation,
-                   rotation_< T > const & sensor_rotation );
+ned_to_enu( rotation_< T > const& r );
 
 } } // end namespace vital
 
