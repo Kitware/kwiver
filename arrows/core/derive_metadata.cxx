@@ -97,7 +97,7 @@ get_total_rotation( kwiver::vital::metadata_sptr const& metadata )
   // Absolute (not relative to platform)
   kv::rotation_d const platform_rotation = get_platform_rotation( metadata );
   kv::rotation_d const sensor_rotation = get_sensor_rotation( metadata );
-  return kv::compose_rotations(platform_rotation, sensor_rotation);
+  return platform_rotation * sensor_rotation;
 }
 
 // ----------------------------------------------------------------------------
@@ -233,8 +233,7 @@ double
 compute_horizontal_gsd( double slant_range, double sensor_horizontal_fov,
                         double frame_width )
 {
-  return 2.0 * slant_range *
-         tan( ( sensor_horizontal_fov * kv::deg_to_rad ) / 2.0 ) / frame_width;
+  return 2.0 * slant_range * tan( sensor_horizontal_fov / 2.0 ) / frame_width;
 }
 
 // ----------------------------------------------------------------------------
@@ -242,11 +241,15 @@ double
 compute_vertical_gsd( double slant_range, double sensor_vertical_fov,
                       double pitch, double frame_height )
 {
+  if ( pitch >= 0 )
+  {
+    VITAL_THROW( kv::invalid_value, "pitch must be negative" );
+  }
   double const interior_angle = kv::pi_over_2 + pitch;
-  return 2.0 * slant_range *
-         ( std::sin( interior_angle ) - std::cos( interior_angle ) *
-           std::tan( interior_angle - sensor_vertical_fov / 2 ) )
-         / frame_height;
+  double const altitude = slant_range * std::cos( interior_angle );
+  double const vertical_gsd = 2.0 * altitude * std::sin( sensor_vertical_fov ) /
+    ( frame_height * ( 1.0 + std::cos( 2.0 * interior_angle ) ) );
+  return vertical_gsd;
 }
 
 // ----------------------------------------------------------------------------
@@ -267,17 +270,16 @@ compute_gsd( kwiver::vital::metadata_sptr const& metadata,
     total_rotation.get_yaw_pitch_roll( yaw, pitch, roll );
 
     double const slant_range = get_slant_range( metadata );
-    double const sensor_horizontal_fov_rad =
+    double const sensor_horizontal_fov =
       get_sensor_horizontal_fov( metadata );
-    double const sensor_vertical_fov_rad = get_sensor_vertical_fov( metadata );
+    double const sensor_vertical_fov = get_sensor_vertical_fov( metadata );
 
     // Approximate dimensions of image on ground plane
     double const gsd_horizontal =
-      compute_horizontal_gsd( slant_range, sensor_horizontal_fov_rad,
-                              frame_width );
+      compute_horizontal_gsd( slant_range, sensor_horizontal_fov, frame_width );
 
     double const gsd_vertical =
-      compute_vertical_gsd( slant_range, sensor_vertical_fov_rad, pitch,
+      compute_vertical_gsd( slant_range, sensor_vertical_fov, pitch,
                             frame_height);
 
     // GSD is the geometric mean of each dimensions's GSD
