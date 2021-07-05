@@ -375,6 +375,7 @@ compute_snr( kwiver::vital::image_container_scptr const& image )
 derive_metadata
 ::derive_metadata()
 {
+  this->set_capability( CAN_USE_FRAME_IMAGE, true );
 }
 
 // ----------------------------------------------------------------------------
@@ -406,14 +407,6 @@ derive_metadata
 ::check_configuration( vital::config_block_sptr ) const
 {
   // No configuration, so always return true
-  return true;
-}
-
-// ----------------------------------------------------------------------------
-bool
-derive_metadata
-::uses_image() const
-{
   return true;
 }
 

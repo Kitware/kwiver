@@ -14,10 +14,31 @@ namespace vital {
 
 namespace algo {
 
+const algorithm_capabilities::capability_name_t
+metadata_filter::CAN_USE_FRAME_IMAGE( "can-use-frame-image" );
+
+// ----------------------------------------------------------------------------
 metadata_filter
 ::metadata_filter()
 {
   attach_logger( "algo.metadata_filter" ); // specify a logger
+}
+
+// ----------------------------------------------------------------------------
+algorithm_capabilities const&
+metadata_filter
+::get_implementation_capabilities() const
+{
+  return m_capabilities;
+}
+
+// ----------------------------------------------------------------------------
+void
+metadata_filter
+::set_capability(
+  algorithm_capabilities::capability_name_t const& name, bool value )
+{
+  m_capabilities.set_capability( name, value );
 }
 
 } // namespace algo
