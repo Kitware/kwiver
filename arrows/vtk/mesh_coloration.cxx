@@ -429,7 +429,8 @@ mesh_coloration
             depthBuffer[ idData ].Buffer->GetValue(
               static_cast< vtkIdType >( x + width * ( height - y - 1 ) ) );
           depthBufferValue =
-            range[ 0 ] + ( range[ 1 ] - range[ 0 ] ) * depthBufferValueNorm;
+            2 * range[1] * range[0] / (range[1] + range[0] - (2 * depthBufferValueNorm - 1) * (range[1] - range[0]));
+
         }
         if( ( !remove_occluded_ ||
               depthBufferValue + occlusion_threshold_ > depth ) &&
@@ -649,7 +650,7 @@ mesh_coloration
   // we only render points in front of the camera
   if( depthRange[ 0 ] < 0 )
   {
-    depthRange[ 0 ] = 0;
+    depthRange[ 0 ] = 0.01;
   }
   vtkNew< vtkKwiverCamera > cam;
   int imageDimensions[ 2 ] = { width, height };
