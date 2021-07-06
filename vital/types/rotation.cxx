@@ -50,9 +50,9 @@ template < typename T >
 rotation_< T >
 ::rotation_( const T& yaw, const T& pitch, const T& roll )
 {
-  T const half_x = T( 0.5 ) * roll;
-  T const half_y = T( 0.5 ) * pitch;
-  T const half_z = T( 0.5 ) * yaw;
+  T const half_x = static_cast< T >( 0.5 ) * roll;
+  T const half_y = static_cast< T >( 0.5 ) * pitch;
+  T const half_z = static_cast< T >( 0.5 ) * yaw;
   T const sin_x = std::sin( half_x );
   T const cos_x = std::cos( half_x );
   T const sin_y = std::sin( half_y );
@@ -149,11 +149,13 @@ void
 rotation_< T >
 ::get_yaw_pitch_roll( T& yaw, T& pitch, T& roll ) const
 {
-  roll = std::atan2( 2.0 * ( q_.w() * q_.x() + q_.y() * q_.z() ),
-                     1.0 - 2.0 * ( q_.x() * q_.x() + q_.y() * q_.y() ) );
-  pitch = std::asin( 2.0 * ( q_.w() * q_.y() - q_.x() * q_.z() ) );
-  yaw = std::atan2( 2.0 * ( q_.w() * q_.z() + q_.x() * q_.y() ),
-                    1.0 - 2.0 * ( q_.y() * q_.y() + q_.z() * q_.z() ) );
+  constexpr auto _1 = static_cast< T >( 1.0 );
+  constexpr auto _2 = static_cast< T >( 2.0 );
+  roll = std::atan2( _2 * ( q_.w() * q_.x() + q_.y() * q_.z() ),
+                     _1 - _2 * ( q_.x() * q_.x() + q_.y() * q_.y() ) );
+  pitch = std::asin( _2 * ( q_.w() * q_.y() - q_.x() * q_.z() ) );
+  yaw = std::atan2( _2 * ( q_.w() * q_.z() + q_.x() * q_.y() ),
+                    _1 - _2 * ( q_.y() * q_.y() + q_.z() * q_.z() ) );
 }
 
 /// Compose two rotations
