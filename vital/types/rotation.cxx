@@ -224,7 +224,6 @@ interpolated_rotations( rotation_< T > const& A, rotation_< T > const& B, size_t
 }
 
 template < typename T >
-VITAL_EXPORT
 rotation_< T >
 ned_to_enu( rotation_< T > const& r )
 {
@@ -235,7 +234,6 @@ ned_to_enu( rotation_< T > const& r )
 }
 
 template < typename T >
-VITAL_EXPORT
 rotation_< T >
 enu_to_ned( rotation_< T > const& r )
 {
