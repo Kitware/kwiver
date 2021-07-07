@@ -3,6 +3,7 @@ set(EXAMPLE_DIR ${CMAKE_BINARY_DIR}/examples)
 file(MAKE_DIRECTORY "${EXAMPLE_DIR}/pipelines/output")
 file(MAKE_DIRECTORY "${EXAMPLE_DIR}/models")
 
+add_subdirectory(applications)
 add_subdirectory(cpp)
 add_subdirectory(external)
 
