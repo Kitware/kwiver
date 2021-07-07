@@ -50,6 +50,7 @@ template < typename T >
 rotation_< T >
 ::rotation_( const T& yaw, const T& pitch, const T& roll )
 {
+  // See https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Euler_angles_to_quaternion_conversion
   T const half_x = static_cast< T >( 0.5 ) * roll;
   T const half_y = static_cast< T >( 0.5 ) * pitch;
   T const half_z = static_cast< T >( 0.5 ) * yaw;
@@ -149,6 +150,7 @@ void
 rotation_< T >
 ::get_yaw_pitch_roll( T& yaw, T& pitch, T& roll ) const
 {
+  // See https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Quaternion_to_Euler_angles_conversion
   constexpr auto _1 = static_cast< T >( 1.0 );
   constexpr auto _2 = static_cast< T >( 2.0 );
   roll = std::atan2( _2 * ( q_.w() * q_.x() + q_.y() * q_.z() ),
