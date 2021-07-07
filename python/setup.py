@@ -134,7 +134,9 @@ setup(
             'kwiver.cpp_search_paths': [
                 'sprokit_process=kwiver.vital.util.entrypoint:sprokit_process_path',
                 'applets=kwiver.vital.util.entrypoint:applets_path',
-                'plugin_explorer=kwiver.vital.util.entrypoint:plugin_explorer_path'
+                'plugin_explorer=kwiver.vital.util.entrypoint:plugin_explorer_path',
+                'vital_algo=kwiver.vital.util.entrypoint:vital_algo_path',
+                'modules_path=kwiver.vital.util.entrypoint:modules_path'
                 ],
             'kwiver.env.ld_library_path': [
                 'kwiver_ld_library_path=kwiver.vital.util.entrypoint:get_library_path',
