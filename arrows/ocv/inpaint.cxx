@@ -22,10 +22,12 @@ enum inpainting_method
 {
   METHOD_mask,
   METHOD_navier_stokes,
+  METHOD_telea
 };
 
 ENUM_CONVERTER( method_converter, inpainting_method, { "mask", METHOD_mask },
-                { "navier_stokes", METHOD_navier_stokes } )
+                { "navier_stokes", METHOD_navier_stokes },
+                { "telea", METHOD_telea } )
 
 // ----------------------------------------------------------------------------
 /// Private implementation class
@@ -133,6 +135,12 @@ inpaint
     {
       cv_out = cv::Mat::zeros( cv_image.size(), cv_image.type() );
       cv::inpaint( cv_image, cv_mask, cv_out, d->radius, cv::INPAINT_NS );
+      break;
+    }
+    case METHOD_telea:
+    {
+      cv_out = cv::Mat::zeros( cv_image.size(), cv_image.type() );
+      cv::inpaint( cv_image, cv_mask, cv_out, d->radius, cv::INPAINT_TELEA );
       break;
     }
     case METHOD_mask:
