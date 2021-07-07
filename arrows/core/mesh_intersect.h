@@ -29,7 +29,7 @@ namespace core {
  * \param [in]   a     corner point of triangle
  * \param [in]   b     corner point of triangle
  * \param [in]   c     corner point of triangle
- * \param [out]  dist  is the distance to the triangle
+ * \param [out]  dist  the distance to the triangle
  * \param [out]  u     barycentric coordinate of the intersection
  * \param [out]  v     barycentric coordinate of the intersection
  * \returns      true  if intersection occurs
@@ -58,7 +58,7 @@ mesh_intersect_triangle(const vital::point_3d& p,
  * \param [in]   b     corner point of triangle
  * \param [in]   c     corner point of triangle
  * \param [in]   n     pre-computed normal for triangle
- * \param [out]  dist  is the distance to the triangle
+ * \param [out]  dist  the distance to the triangle
  * \param [out]  u     barycentric coordinate of the intersection
  * \param [out]  v     barycentric coordinate of the intersection
  * \returns      true  if intersection occurs
@@ -87,7 +87,7 @@ mesh_intersect_triangle(const vital::point_3d& p,
  * \param [in]   b     corner point of triangle
  * \param [in]   c     corner point of triangle
  * \param [in]   n     pre-computed normal for triangle
- * \param [out]  dist  is the distance to the triangle
+ * \param [out]  dist  the distance to the triangle
  * \param [out]  u     barycentric coordinate of the intersection
  * \param [out]  v     barycentric coordinate of the intersection
  * \returns      true  if intersection occurs and the new dist is less than the old distance (but > 0)
@@ -103,6 +103,88 @@ mesh_intersect_triangle_min_dist(const vital::point_3d& p,
                                  const vital::vector_3d& n,
                                  double& dist,
                                  double& u, double& v);
+
+/// Find the closest point on the triangle to a reference point
+/**
+ * Find the closest point on the triangle a,b,c to point p. The un-normalized
+ * normal vector (b-a)x(c-a) is precomputed and also passed in
+ *
+ * \param [in]   p     reference point to get closest distance to
+ * \param [in]   a     corner point of triangle
+ * \param [in]   b     corner point of triangle
+ * \param [in]   c     corner point of triangle
+ * \param [in]   n     pre-computed normal for triangle
+ * \param [out]  dist  the distance to the triangle
+ * \param [out]  u     barycentric coordinate of the intersection
+ * \param [out]  v     barycentric coordinate of the intersection
+ * \returns      a code indicating that the closest point:
+ *               - 0 does not exist (should not occur)
+ *               - 1 is \a a
+ *               - 2 is \a b
+ *               - 3 is on the edge from \a a to \a b
+ *               - 4 is \a c
+ *               - 5 is on the edge from \a a to \a c
+ *               - 6 is on the edge from \a b to \a c
+ *               - 7 is on the face of the triangle
+ */
+KWIVER_ALGO_CORE_EXPORT
+unsigned char
+mesh_triangle_closest_point(const vital::point_3d& p,
+                            const vital::point_3d& a,
+                            const vital::point_3d& b,
+                            const vital::point_3d& c,
+                            const vital::vector_3d& n,
+                            double& dist,
+                            double& u, double& v);
+
+/// Find the closest point on the triangle to a reference point
+/**
+ * Find the closest point on the triangle a,b,c to point p.
+ *
+ * \param [in]   p     reference point to get closest distance to
+ * \param [in]   a     corner point of triangle
+ * \param [in]   b     corner point of triangle
+ * \param [in]   c     corner point of triangle
+ * \param [out]  dist  the distance to the triangle
+ * \param [out]  u     barycentric coordinate of the intersection
+ * \param [out]  v     barycentric coordinate of the intersection
+ * \returns      a code indicating that the closest point:
+ *               - 0 does not exist (should not occur)
+ *               - 1 is \a a
+ *               - 2 is \a b
+ *               - 3 is on the edge from \a a to \a b
+ *               - 4 is \a c
+ *               - 5 is on the edge from \a a to \a c
+ *               - 6 is on the edge from \a b to \a c
+ *               - 7 is on the face of the triangle
+ */
+KWIVER_ALGO_CORE_EXPORT
+unsigned char
+mesh_triangle_closest_point(const vital::point_3d& p,
+                            const vital::point_3d& a,
+                            const vital::point_3d& b,
+                            const vital::point_3d& c,
+                            double& dist,
+                            double& u, double& v);
+
+/// Find the closest point on the triangle to a reference point
+/**
+ * Find the closest point on the triangle a,b,c to point p
+ *
+ * \param [in]   p     reference point to get closest distance to
+ * \param [in]   a     corner point of triangle
+ * \param [in]   b     corner point of triangle
+ * \param [in]   c     corner point of triangle
+ * \param [out]  dist  the closest distance to the triangle
+ * \returns      the point on the triangle closest to the reference point
+ */
+KWIVER_ALGO_CORE_EXPORT
+vital::point_3d
+mesh_triangle_closest_point(const vital::point_3d& p,
+                            const vital::point_3d& a,
+                            const vital::point_3d& b,
+                            const vital::point_3d& c,
+                            double& dist);
 
 }
 }
