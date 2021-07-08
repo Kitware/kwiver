@@ -8,10 +8,9 @@
 #include <vital/applets/applet_registrar.h>
 #include <vital/exceptions/base.h>
 #include <vital/plugin_loader/plugin_factory.h>
-#include <vital/plugin_loader/plugin_filter_category.h>
-#include <vital/plugin_loader/plugin_filter_default.h>
 #include <vital/plugin_loader/plugin_manager_internal.h>
 #include <vital/util/get_paths.h>
+#include <vital/util/tokenize.h>
 
 #include <algorithm>
 #include <cstdlib>
@@ -20,10 +19,93 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <set>
 #include <utility>
 
-using applet_factory = kwiver::vital::implementation_factory_by_name< kwiver::tools::kwiver_applet >;
 using applet_context_t = std::shared_ptr< kwiver::tools::applet_context >;
+namespace kv = kwiver::vital;
+
+class command_node;
+using command_node_sptr = std::shared_ptr<command_node>;
+bool compare_node( command_node_sptr const& n1, command_node_sptr const& n2 );
+
+// -------------------------------------------------------------------
+class command_node
+{
+public:
+  command_node(std::string const& name)
+    : m_name( name )
+  { }
+
+  virtual ~command_node() = default;
+
+  void
+  add_factory( kv::plugin_factory_handle_t fact )
+  {
+    m_factory = fact;
+  }
+
+  bool
+  is_command() const { return ( m_factory != nullptr ); }
+
+  command_node_sptr
+  find( std::string const& name )
+  {
+    for ( auto& n : m_nodes )
+    {
+      if ( name == n->m_name )
+      {
+        return n;
+      }
+    } // end for
+    return nullptr;
+  }
+
+  void
+  add( command_node_sptr n )
+  {
+    m_nodes.insert(n);
+    return;
+  }
+
+  void
+  print_subtree_help( std::string const& pfx = "")
+  {
+    for ( auto const& n : m_nodes )
+    {
+      n->print_subtree_help( pfx + " " + this->m_name );
+    }
+
+    if( this->is_command() )
+    {
+      std::cout << pfx << " " << this->m_name << " " << std::endl;
+      return;
+    }
+  }
+
+  // This is just used for debugging tree construction.
+  void
+  dump_tree(std::string const& pfx = "") const
+  {
+    std::cout << pfx << "Name: " << m_name << "   is_command: " << is_command() << "\n";
+    for ( auto const& n : m_nodes )
+    {
+      n->dump_tree( pfx + "    " );
+    }
+  }
+
+  struct compare_node
+  {
+    bool operator()( command_node_sptr const& n1, command_node_sptr const& n2 )
+    {
+      return (n1->m_name < n2->m_name);
+    }
+  };
+
+  std::string m_name;
+  std::set< command_node_sptr, compare_node > m_nodes;
+  kv::plugin_factory_handle_t m_factory;
+};
 
 // ============================================================================
 /**
@@ -40,7 +122,7 @@ public:
 
     // Parse the command line
     // Command line format:
-    // arg0 [runner-flags] <applet> [applet-args]
+    // arg0 [runner-flags] <applet path> [applet-args]
 
     // The first applet args is the program name.
     m_applet_args.push_back( "kwiver" );
@@ -57,15 +139,29 @@ public:
         }
         else
         {
-          // found applet name
-          m_applet_name = std::string( (*p_argv)[i] );
-          state = 1; // advance state
+          // found applet name component
+          //+ Should just change state and re-evaluate token
+          m_applet_name.push_back( std::string( (*p_argv)[i] ));
+          state = 1;
         }
       }
       else if (state == 1)
       {
-        // Collecting applet parameters
-        m_applet_args.push_back( (*p_argv)[i] );
+       if ( (*p_argv)[i][0] == '-' )
+        {
+          // Collecting applet parameters
+          m_applet_args.push_back( (*p_argv)[i] );
+          state = 2;
+        }
+       else
+       {
+          m_applet_name.push_back( std::string( (*p_argv)[i] ));
+       }
+      }
+      else if (state == 2)
+      {
+          // Collecting applet parameters
+          m_applet_args.push_back( (*p_argv)[i] );
       }
     } // end for
 
@@ -73,12 +169,82 @@ public:
 
   // ----------------------
   // tool runner arguments.
-  std::string m_output_file; // empty is no file specified
-
   std::vector<std::string> m_runner_args;
   std::vector<std::string> m_applet_args;
-  std::string m_applet_name;
+
+  // Applet name may contain args but we can't tell before running
+  // these words against the command tree.
+  std::vector<std::string> m_applet_name;
 };
+
+// --------------------------------------------------------------------
+// This function parses all applets and builds the command
+// tree, which is returned
+command_node_sptr
+build_command_tree( kwiver::vital::plugin_manager& vpm )
+{
+  command_node_sptr root = std::make_shared<command_node>( "Root" );
+
+  // Get list of factories for implementations of the applet
+  const auto fact_list = vpm.get_factories( typeid( kwiver::tools::kwiver_applet ).name() );
+
+  for( auto fact : fact_list )
+  {
+    std::string buf = "-- Not Set --";
+    fact->get_attribute( kv::plugin_factory::PLUGIN_NAME, buf );
+
+    // split string on ';' for multiple paths
+    std::vector<std::string> paths;
+    tokenize( buf, paths, ";", kv::TokenizeTrimEmpty );
+
+    for ( auto const& w : paths )
+    {
+      auto current_node = root;
+      // split each path string on ':'
+      std::vector<std::string> words;
+      tokenize( w, words, ":", kv::TokenizeTrimEmpty );
+
+      for ( auto const& c : words )
+      {
+        command_node_sptr n = current_node->find( c );
+        if ( !n )
+        {
+          // node doesn't exist, need to add it
+          n =  std::make_shared< command_node >( c );
+          current_node->add( n );
+        }
+        else if ( n && n->is_command() )
+        {
+          // error found a terminal node
+          std::cerr << "Could not register applet. Command \"";
+          for ( auto const& ew : words )
+          {
+            std::cerr << ew;
+            if ( ew == c )
+            {
+              break;
+            }
+            std::cerr << " ";
+
+          }
+          std::cerr << "\" already exists. Defined by ";
+          auto f = n->m_factory;
+          std::string plugin_file;
+          f->get_attribute( kv::plugin_factory::PLUGIN_FILE_NAME, plugin_file );
+          std::cerr << plugin_file << std::endl;
+          exit( -1 );
+        }
+
+        current_node = n;
+      } // end for
+
+      // Add factory to the last node.
+      current_node->add_factory( fact );
+    }
+  } // end for
+
+  return root;
+}
 
 // ----------------------------------------------------------------------------
 /**
@@ -88,8 +254,8 @@ void tool_runner_usage( VITAL_UNUSED applet_context_t ctxt,
                         kwiver::vital::plugin_manager& vpm )
 {
   // display help message
-  std::cout << "Usage: kwiver  <applet>  [args]" << std::endl
-            << "<applet> can be one of the following:" << std::endl
+  std::cout << "Usage: kwiver [--help] <tool>  [args]" << std::endl
+            << "<tool> can be one of the following:" << std::endl
             << "help - prints this message." << std::endl
             << "Available tools are listed below:" << std::endl;
 
@@ -105,6 +271,9 @@ void tool_runner_usage( VITAL_UNUSED applet_context_t ctxt,
   {
     std::string buf = "-- Not Set --";
     fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, buf );
+    // need to format the name since the command words are separated by ':'
+    std::vector<std::string> paths;
+    tokenize( buf, paths, ";", kv::TokenizeTrimEmpty );
 
     std::string descr = "-- Not Set --";
     fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, descr );
@@ -117,8 +286,13 @@ void tool_runner_usage( VITAL_UNUSED applet_context_t ctxt,
       descr = descr.substr( 0, pos );
     }
 
-    help_text.push_back( help_pair({ buf, descr }) );
-    tab_stop = std::max( tab_stop, buf.size() );
+    // make help entry for all name variants
+    for ( auto name : paths )
+    {
+      std::replace( name.begin(), name.end(), ':', ' ');
+      help_text.push_back( help_pair({ name, descr }) );
+      tab_stop = std::max( tab_stop, name.size() );
+    }
   } // end for
 
   // add some space after the longest applet name
@@ -134,51 +308,21 @@ void tool_runner_usage( VITAL_UNUSED applet_context_t ctxt,
   }
 }
 
-// ----------------------------------------------------------------------------
-/**
- * This function handles the "help" operation. If there is an arg
- * after the help, then that arg is taken to be the applet name and
- * help is displayed for it.
- *
- * If the only arg is "help", then call the function to generate short
- * help for all known applets.
- */
-void help_applet( const command_line_parser& options,
-                  applet_context_t tool_context,
-                  kwiver::vital::plugin_manager& vpm )
-{
-  if ( options.m_applet_args.size() < 2 )
-  {
-    tool_runner_usage( tool_context, vpm );
-    return;
-  }
-
-  // Create applet based on the name provided
-  applet_factory app_fact;
-  std::string buf = "-- Not Set --";
-  auto fact = app_fact.find_factory( options.m_applet_args[1] );
-  fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, buf );
-
-  kwiver::tools::kwiver_applet_sptr applet( app_fact.create( options.m_applet_args[1] ) );
-  tool_context->m_applet_name = options.m_applet_args[1];
-  applet->initialize( tool_context.get() );
-  applet->add_command_options();
-
-  // display help text
-  std::cout << applet->m_cmd_options->help();
-}
-
 // ============================================================================
 int main(int argc, char *argv[])
 {
+  bool opt_debug { false };
+  bool opt_help { false };
+
   //
   // Global shared context
   // Allocated on the stack so it will automatically clean up
   //
   applet_context_t tool_context = std::make_shared< kwiver::tools::applet_context >();
-
+  command_node_sptr cmd_root;
   kwiver::vital::plugin_manager_internal& vpm = kwiver::vital::plugin_manager_internal::instance();
 
+  // Add plugin library relative to our executable tree
   const std::string exec_path = kwiver::vital::get_executable_path();
   vpm.add_search_path(exec_path + "/../lib/kwiver/plugins");
 
@@ -186,12 +330,60 @@ int main(int argc, char *argv[])
 
   // initialize the global context
   tool_context->m_wtb.set_indent_string( "      " );
-
+  cmd_root = build_command_tree( vpm );
   command_line_parser options( argc, &argv );
 
-  if ( (options.m_applet_name == "help") || (argc == 1) )
+  // Process runner args
+  for ( size_t i = 0; i < options.m_runner_args.size(); i++)
   {
-    help_applet( options, tool_context, vpm );
+    // There are only a few options that need to be handled, so we are
+    // doing it this way.
+    if ( options.m_runner_args[i] == "--debug" )
+    {
+      // The debug option is not advertised since the output can be
+      // confusing.
+      opt_debug = true;
+    }
+    else if ( options.m_runner_args[i] == "--help" )
+    {
+      opt_help = true;
+    }
+  } // end for
+
+  if ( opt_debug )
+  {
+    // Print the command line options
+    std::cout << "Runner args: ";
+    for ( auto const& a : options.m_runner_args )
+    {
+      std::cout << "\"" << a << "\" ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Applet name: " ;
+    for ( auto const& a : options.m_applet_name )
+    {
+      std::cout << "\"" << a << "\" ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Applet args: " ;
+    for ( auto const& a : options.m_applet_args )
+    {
+      std::cout << "\"" << a << "\" ";
+    }
+    std::cout << std::endl << std::endl;
+
+    std::cout << "Command tree:" << std::endl;
+    cmd_root->dump_tree();
+    std::cout << std::endl << std::endl;
+  } // end debug
+
+  // If there is no argument on the command or only a 'help' as an
+  // argument or the --help option is present, then display usage info
+  if ( (argc == 1) || (options.m_applet_name[0] == "help") || opt_help )
+  {
+    tool_runner_usage( tool_context, vpm );
     return 0;
   } // end help code
 
@@ -199,10 +391,57 @@ int main(int argc, char *argv[])
   try
   {
     // Create applet based on the name provided
-    applet_factory app_fact;
-    kwiver::tools::kwiver_applet_sptr applet( app_fact.create( options.m_applet_name ) );
+    auto cn = cmd_root;
+    size_t ci;
+    for ( ci = 0; ci < options.m_applet_name.size(); ci++)
+    {
+      auto n = cn->find( options.m_applet_name[ci] );
+      if ( ! n )
+      {
+        break;
+      }
+      cn = n;
+    } // end for
 
-    tool_context->m_applet_name = options.m_applet_name;
+    // If we ended on a node that does not have a command
+    if ( !cn->is_command() )
+    {
+      // If there are no matches or we run out of command words
+      // before we reach a terminal command node.
+      if ( ci == 0 )
+      {
+        // error - no command match at all. Give full help
+        std::cerr << "Command not found.\n\n";
+        tool_runner_usage( tool_context, vpm );
+      }
+      else
+      {
+        // Partial command match - just subtree help
+        std::cerr << "Command not found. Related commands are as follows:\n";
+        cn->print_subtree_help();
+      }
+
+      exit(-1);
+    }
+
+    // ci is the index to the first word past the end of the last
+    // command word. These words are actually part of the applet
+    // args so we need to insert words[ci]...[size-1] at start of
+    // options.m_applet_args
+    for( size_t ai = ci; ai < options.m_applet_name.size(); ai++)
+    {
+      options.m_applet_args.insert(
+        options.m_applet_args.begin()+1, // skip first "kwiver" element
+        options.m_applet_name[ai] );
+    } // end for
+
+    kwiver::tools::kwiver_applet_sptr applet(
+      cn->m_factory->create_object<kwiver::tools::kwiver_applet>() );
+
+    // Copy the command group (aka applet name) into the context.
+    tool_context->m_applet_name =
+      std::vector< std::string > (options.m_applet_name.begin(),
+                                  options.m_applet_name.begin() + ci );
     tool_context->m_argv = options.m_applet_args; // save a copy of the args
 
     // Pass the context to the applet. This is done as a separate call
@@ -210,8 +449,8 @@ int main(int argc, char *argv[])
     // parameters.
     applet->initialize( tool_context.get() );
 
-    // Call the applet so it can add the commands that it is looking
-    // for.
+    // Call the applet so it can add the command line options that it
+    // is looking for.
     applet->add_command_options();
 
     int local_argc = 0;
@@ -220,12 +459,12 @@ int main(int argc, char *argv[])
 
     // There are some cases where the applet wants to do its own
     // command line parsing (e.g. QT apps). If this flag is not set,
-    // then we will parse our standard arg set
+    // then we will parse our standard arg set.
     if ( ! tool_context->m_skip_command_args_parsing )
     {
       // Convert args list back to argv style. :-(
       // This is needed for the command options support package.
-      argv_vect.resize( options.m_applet_args.size() +1, nullptr );
+      argv_vect.resize( options.m_applet_args.size()+1, nullptr );
       for (std::size_t i = 0; i != options.m_applet_args.size(); ++i)
       {
         argv_vect[i] = &options.m_applet_args[i][0];
@@ -233,6 +472,7 @@ int main(int argc, char *argv[])
     }
     else
     {
+      // Make a valid dummy argv
       argv_vect.resize( 2, nullptr );
       argv_vect[0] = &options.m_applet_args[0][0];
     }
@@ -240,8 +480,19 @@ int main(int argc, char *argv[])
     local_argc = argv_vect.size()-1;
     local_argv = &argv_vect[0];
 
+    if ( opt_debug )
+    {
+      std::cout << "Command line size: " << local_argc << std::endl
+                << "Command line: ";
+      for ( int i = 0; i < local_argc; ++i )
+      {
+        std::cout << "\"" << argv_vect[i] << "\" ";
+      }
+      std::cout << std::endl << std::endl;
+    }
+
     // The parse result has to be created locally due to class design.
-    // No default CTOR, copy CTOR or operation.
+    // No default CTOR, copy CTOR or copy operation so we just have to use the local copy.
     cxxopts::ParseResult local_result = applet->m_cmd_options->parse( local_argc, local_argv );
 
     // Make results available in the context,
@@ -262,7 +513,7 @@ int main(int argc, char *argv[])
 
     exit(-1);
   }
-  catch ( kwiver::vital::vital_exception& e )
+  catch ( kv::vital_exception& e )
   {
     std::cerr << "Caught unhandled kwiver::vital::vital_exception: " << e.what() << std::endl;
     exit( -1 );

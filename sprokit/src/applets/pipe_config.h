@@ -22,7 +22,7 @@ public:
   int run() override;
   void add_command_options() override;
 
-  PLUGIN_INFO( "pipe-config",
+  PLUGIN_INFO( "pipe:config",
     "Configures a pipeline\n\n"
     "This tool reads a pipeline configuration file, applies the program options "
     "and generates a \"compiled\" config file. "

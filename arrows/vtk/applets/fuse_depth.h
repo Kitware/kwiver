@@ -19,7 +19,7 @@ public:
   fuse_depth();
   virtual ~fuse_depth();
 
-  PLUGIN_INFO( "fuse-depth",
+  PLUGIN_INFO( "depth:fuse",
                "Fuse depth maps from multiple cameras into a single surface");
 
   int run() override;

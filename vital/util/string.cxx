@@ -46,8 +46,8 @@ string_format( const std::string fmt_str, ... )
 
 // ------------------------------------------------------------------
 std::string
-join( const std::vector< std::string >& elements,
-      const std::string&                str_separator )
+join( std::vector< std::string > const& elements,
+      std::string const&                str_separator )
 {
   const char* const separator = str_separator.c_str();
 
@@ -72,8 +72,8 @@ join( const std::vector< std::string >& elements,
 
 // ------------------------------------------------------------------
 std::string
-join( const std::set< std::string >&  elements,
-      const std::string&              str_separator )
+join( std::set< std::string > const&  elements,
+      std::string const&              str_separator )
 {
   std::vector< std::string > vec_elem( elements.size() );
   std::copy( elements.begin(), elements.end(), vec_elem.begin() );

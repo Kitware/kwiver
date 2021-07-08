@@ -23,7 +23,7 @@ public:
   render_mesh(){}
   virtual ~render_mesh() = default;
 
-  PLUGIN_INFO( "render-mesh",
+  PLUGIN_INFO( "mesh:render",
                "Render a depth or height map from a mesh.\n\n"
                "This tool reads in a mesh file and a camera and renders "
                "various images such as depth map or height map.");

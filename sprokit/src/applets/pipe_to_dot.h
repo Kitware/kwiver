@@ -22,8 +22,9 @@ public:
   int run() override;
   void add_command_options() override;
 
-  PLUGIN_INFO( "pipe-to-dot",
-               "Create DOT output of pipe topology")
+  PLUGIN_INFO( "pipe:convert-to-dot;pipe:convert:to:dot",
+               "Create DOT output of pipe topology in Graphviz DOT "
+               "graph description language.")
 
 }; // end of class
 
