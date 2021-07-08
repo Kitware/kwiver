@@ -330,40 +330,78 @@ different include file based on mode.::
 Using enums in config entries
 -----------------------------
 
-Quite often a configuration parameter can only take a fixed number of
-values such as when the user is trying to configure an enum. The enum
-support in vital directly supports converting strings to enum values
-with the use of the ``enum_converter`` and enum support in the config
-block. The enum converter will verify that the supplied string
-represents an enum value, and throw an error if it does not. The list
-of valid enum strings is provided to assist in documenting config
-entries.
+In many cases, a config item can only take on a a small set of
+specific values or operating modes. These are usually specified in the
+config as strings and them compared against the allowable set of
+values wherever the mode needs to be verified. This can be tedious and
+error prone. An alternate way to handle this and to also communicate
+the design intent is to use an enum to list all valid
+alternatives. KWIVER provides support for converting and verifying
+this type of configuration item.
 
-The following code snippet shows how to use the enum support to create
-a new config entry and convert config entry to an enum value.::
+The first step is to define the enum which lists all valid
+alternatives. The following is an example of available estimation
+methods.
 
-   #include <vital/util/enum_converter.h>
+`enum method_t { EST_7_POINT, EST_8_POINT };`
 
-   using kvll = kwiver::vital::kwiver_logger::log_level_t;
+The string names for each enum value are assigned as follows:
 
-   // Declare the enum converter
-   //              converter-name   enum-type
-   ENUM_CONVERTER( level_converter, kvll,
-      { "trace", kvll::LEVEL_TRACE },
-      { "debug", kvll::LEVEL_DEBUG },
-      { "info",  kvll::LEVEL_INFO },
-      { "warn",  kvll::LEVEL_WARN },
-      { "error", kvll::LEVEL_ERROR }
-    );
+`// Define the enum converter`
+`ENUM_CONVERTER( method_converter, method_t,`
+`{ "EST_7_POINT",   EST_7_POINT },`
+`{ "EST_8_POINT",   EST_8_POINT }`
 
+The `ENUM_CONVERTER` macro takes two arguments followed by the list of
+string, value pairs. This macro defines a class that implements the
+conversions for an enum. The first argument is the name of the enum
+converter class and the second is the type name of the enum to
+convert. As you can see the string names are cleverly named the same
+as the enum elements, although they do not have to be the same. This
+macro is defined in the include file:
 
-    // Create config entry from enum. level_converter supplies the list of
-    // valid enum strings.
-   conf->set_value( "level", level_converter().to_string( m_log_level ),
-                   "Logger level to use when generating log messages. "
-                   "Allowable values are: " + level_converter().element_name_string()
-    );
+`#include <util/enum_converter.h>`
 
+Configuration items for this type of entry are created with the aid of
+the enum converter to supply default values and detailed help text, as
+shown below:
 
-   // Convert config entry to an enum value.
-   kvll log_level = conf->get_enum_value<level_converter>( "level" );
+`config->set_value("method", method_converter().to_string( d_->method ),`
+`"Fundamental matrix estimation method to use. Choices are: "`
+`+ method_converter().element_name_string() );`
+
+The default value for this config item is taken from the `d_->method`
+field and converted to the corresponding string using the
+`to_string()` method on the converter. In addition, the list of valid
+strings is added to the help text using the `element_name_string()`
+method.
+
+When the enum value needs to be determined from a the config entry,
+the following code can be used:
+
+`d_->method = config->get_enum_value< method_converter >( "method" );`
+
+In this call the `get_enum_value<>()` method on the config block is
+used to extract and convert the config value. This call is templated
+on the enum converter class name and specifies the name of the config
+item to convert. If all goes well, the string value from the config
+item is converted to the corresponding enum value. If the string in
+the config item is not a valid alternative in the converter, an
+`std::runtime_error` is thrown with the list of valid alternatives
+included with the error message. A typical error message looks like:
+
+> Unknown name for enum: "foo". Valid names are: "EST\_7\_POINT", "EST\_8\_POINT".
+
+As an alternative to throwing an exception, the alternate signature
+for `get_enum_value<>()` has a default value parameter which is
+returned if the config item is missing or its value is not valid.
+
+Advantages
+''''''''''
+
+Using an enum to represent a fixed number of alternatives is more
+robust than using the config based strings and allows for more
+efficient implementations such as using a switch statement rather than
+comparing against the raw strings. Extracting the enum from the config
+item provides error checking for free since only the explicitly
+declared strings are allowed.
