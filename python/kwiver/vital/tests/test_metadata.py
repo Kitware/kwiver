@@ -234,29 +234,28 @@ class TestVitalMetadataItemSubclasses(unittest.TestCase):
         nt.assert_equals(inst.name, prop_info.name)
         nt.assert_equals(inst.tag, prop_info.tag)
 
-        if prop_info.data is not None:
-            # A few tests on inst.data
-            nt.ok_(isinstance(inst.data, type(prop_info.data)))
-            if isinstance(prop_info.data, GeoPoint):
-                nt.assert_equals(inst.data.crs(), prop_info.data.crs())
-                if prop_info.data.is_empty():
-                    nt.ok_(inst.data.is_empty())
-                else:
-                    inst_loc = inst.data.location()
-                    exp_loc = prop_info.data.location()
-                    np.testing.assert_array_almost_equal(inst_loc, exp_loc)
-
-            elif isinstance(prop_info.data, GeoPolygon):
-                nt.assert_equals(inst.data.crs(), prop_info.data.crs())
-                if prop_info.data.is_empty():
-                    nt.ok_(inst.data.is_empty())
-                else:
-                    inst_verts = inst.data.polygon().get_vertices()
-                    exp_verts = prop_info.data.polygon().get_vertices()
-                    np.testing.assert_array_almost_equal(inst_verts, exp_verts)
-
+        # A few tests on inst.data
+        nt.ok_(isinstance(inst.data, type(prop_info.data)))
+        if isinstance(prop_info.data, GeoPoint):
+            nt.assert_equals(inst.data.crs(), prop_info.data.crs())
+            if prop_info.data.is_empty():
+                nt.ok_(inst.data.is_empty())
             else:
-                nt.assert_equals(inst.data, prop_info.data)
+                inst_loc = inst.data.location()
+                exp_loc = prop_info.data.location()
+                np.testing.assert_array_almost_equal(inst_loc, exp_loc)
+
+        elif isinstance(prop_info.data, GeoPolygon):
+            nt.assert_equals(inst.data.crs(), prop_info.data.crs())
+            if prop_info.data.is_empty():
+                nt.ok_(inst.data.is_empty())
+            else:
+                inst_verts = inst.data.polygon().get_vertices()
+                exp_verts = prop_info.data.polygon().get_vertices()
+                np.testing.assert_array_almost_equal(inst_verts, exp_verts)
+
+        else:
+            nt.assert_equals(inst.data, prop_info.data)
 
     def check_is_valid(self, inst, is_valid):
         nt.assert_equals(bool(inst), is_valid)

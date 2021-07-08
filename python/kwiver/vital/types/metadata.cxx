@@ -116,13 +116,14 @@ PYBIND11_MODULE( metadata, m )
   .def_property_readonly( "tag",  &unknown_metadata_item::tag )
   .def_property_readonly( "data", [] ( unknown_metadata_item const& self )
   {
-    any dat = self.data();
-    return any_cast< int >( dat ); //data is int 0
+    return py::none();
   })
   .def( "as_string",  &unknown_metadata_item::as_string )
   .def( "as_double",  &unknown_metadata_item::as_double )
   .def( "as_uint64",  &unknown_metadata_item::as_uint64 )
   ;
+
+
 
   // Now the typed subclasses (around 100 of them)
   KWIVER_VITAL_METADATA_TAGS( REGISTER_TYPED_METADATA )
