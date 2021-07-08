@@ -34,7 +34,6 @@ Tests for CameraRPC interface class.
 
 """
 import unittest
-import nose.tools as nt
 import numpy as np
 import math
 
@@ -208,7 +207,7 @@ class TestInheritedRPC(unittest.TestCase):
         InheritedRPC()
 
     def test_inheritance(self):
-        nt.ok_(issubclass(InheritedRPC, crpc))
+        assert(issubclass(InheritedRPC, crpc))
 
     def test_clone(self):
         irpc = InheritedRPC()

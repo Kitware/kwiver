@@ -35,8 +35,7 @@ Tests for Vital python Covariance class
 """
 from __future__ import print_function
 import unittest
-
-import nose.tools
+import pytest
 import numpy as np
 
 from kwiver.vital.types.covariance import Covar2d, Covar2f, Covar3d, Covar3f, Covar4d, Covar4f
@@ -133,55 +132,55 @@ class TestVitalCovariance(unittest.TestCase):
 
         c = Covar4d(m)
         # Test matrix upper triangle locations
-        nose.tools.assert_equal(c[0, 0], 0)
-        nose.tools.assert_equal(c[0, 1], 5)
-        nose.tools.assert_equal(c[0, 2], 10)
-        nose.tools.assert_equal(c[0, 3], 15)
-        nose.tools.assert_equal(c[1, 1], 10)
-        nose.tools.assert_equal(c[1, 2], 15)
-        nose.tools.assert_equal(c[1, 3], 20)
-        nose.tools.assert_equal(c[2, 2], 20)
-        nose.tools.assert_equal(c[2, 3], 25)
-        nose.tools.assert_equal(c[3, 3], 30)
+        self.assertEqual(c[0, 0], 0)
+        self.assertEqual(c[0, 1], 5)
+        self.assertEqual(c[0, 2], 10)
+        self.assertEqual(c[0, 3], 15)
+        self.assertEqual(c[1, 1], 10)
+        self.assertEqual(c[1, 2], 15)
+        self.assertEqual(c[1, 3], 20)
+        self.assertEqual(c[2, 2], 20)
+        self.assertEqual(c[2, 3], 25)
+        self.assertEqual(c[3, 3], 30)
 
-        nose.tools.assert_equal(c[0, 1], c[1, 0])
-        nose.tools.assert_equal(c[0, 2], c[2, 0])
-        nose.tools.assert_equal(c[0, 3], c[3, 0])
-        nose.tools.assert_equal(c[1, 2], c[2, 1])
-        nose.tools.assert_equal(c[1, 3], c[3, 1])
-        nose.tools.assert_equal(c[2, 3], c[3, 2])
+        self.assertEqual(c[0, 1], c[1, 0])
+        self.assertEqual(c[0, 2], c[2, 0])
+        self.assertEqual(c[0, 3], c[3, 0])
+        self.assertEqual(c[1, 2], c[2, 1])
+        self.assertEqual(c[1, 3], c[3, 1])
+        self.assertEqual(c[2, 3], c[3, 2])
 
         c = Covar4f(m)
         # Test matrix upper triangle locations
-        nose.tools.assert_equal(c[0, 0], 0)
-        nose.tools.assert_equal(c[0, 1], 5)
-        nose.tools.assert_equal(c[0, 2], 10)
-        nose.tools.assert_equal(c[0, 3], 15)
-        nose.tools.assert_equal(c[1, 1], 10)
-        nose.tools.assert_equal(c[1, 2], 15)
-        nose.tools.assert_equal(c[1, 3], 20)
-        nose.tools.assert_equal(c[2, 2], 20)
-        nose.tools.assert_equal(c[2, 3], 25)
-        nose.tools.assert_equal(c[3, 3], 30)
+        self.assertEqual(c[0, 0], 0)
+        self.assertEqual(c[0, 1], 5)
+        self.assertEqual(c[0, 2], 10)
+        self.assertEqual(c[0, 3], 15)
+        self.assertEqual(c[1, 1], 10)
+        self.assertEqual(c[1, 2], 15)
+        self.assertEqual(c[1, 3], 20)
+        self.assertEqual(c[2, 2], 20)
+        self.assertEqual(c[2, 3], 25)
+        self.assertEqual(c[3, 3], 30)
 
-        nose.tools.assert_equal(c[0, 1], c[1, 0])
-        nose.tools.assert_equal(c[0, 2], c[2, 0])
-        nose.tools.assert_equal(c[0, 3], c[3, 0])
-        nose.tools.assert_equal(c[1, 2], c[2, 1])
-        nose.tools.assert_equal(c[1, 3], c[3, 1])
-        nose.tools.assert_equal(c[2, 3], c[3, 2])
+        self.assertEqual(c[0, 1], c[1, 0])
+        self.assertEqual(c[0, 2], c[2, 0])
+        self.assertEqual(c[0, 3], c[3, 0])
+        self.assertEqual(c[1, 2], c[2, 1])
+        self.assertEqual(c[1, 3], c[3, 1])
+        self.assertEqual(c[2, 3], c[3, 2])
 
     def test_get_oob(self):
         # 2x2 covariance mat
         c = Covar2d()
         _ = c[0, 0]  # Valid access
-        nose.tools.assert_raises(IndexError, c.__getitem__, (0, 2))
-        nose.tools.assert_raises(IndexError, c.__getitem__, (-1, 0))
+        pytest.raises(IndexError, c.__getitem__, (0, 2))
+        pytest.raises(IndexError, c.__getitem__, (-1, 0))
 
         c = Covar2f()
         _ = c[0, 0]  # Valid access
-        nose.tools.assert_raises(IndexError, c.__getitem__, (0, 2))
-        nose.tools.assert_raises(IndexError, c.__getitem__, (-1, 0))
+        pytest.raises(IndexError, c.__getitem__, (0, 2))
+        pytest.raises(IndexError, c.__getitem__, (-1, 0))
 
     def test_set(self):
         m = np.ndarray((4, 4))
@@ -198,31 +197,31 @@ class TestVitalCovariance(unittest.TestCase):
         c[2, 2] = 3
 
         # Test matrix upper triangle locations
-        nose.tools.assert_equal(c[0, 0], 0)
-        nose.tools.assert_equal(c[0, 1], 1)
-        nose.tools.assert_equal(c[0, 2], 10)
-        nose.tools.assert_equal(c[0, 3], 15)
-        nose.tools.assert_equal(c[1, 1], 10)
-        nose.tools.assert_equal(c[1, 2], 15)
-        nose.tools.assert_equal(c[1, 3], 20)
-        nose.tools.assert_equal(c[2, 2], 3)
-        nose.tools.assert_equal(c[2, 3], 25)
-        nose.tools.assert_equal(c[3, 3], 30)
+        self.assertEqual(c[0, 0], 0)
+        self.assertEqual(c[0, 1], 1)
+        self.assertEqual(c[0, 2], 10)
+        self.assertEqual(c[0, 3], 15)
+        self.assertEqual(c[1, 1], 10)
+        self.assertEqual(c[1, 2], 15)
+        self.assertEqual(c[1, 3], 20)
+        self.assertEqual(c[2, 2], 3)
+        self.assertEqual(c[2, 3], 25)
+        self.assertEqual(c[3, 3], 30)
 
-        nose.tools.assert_equal(c[0, 1], c[1, 0])
-        nose.tools.assert_equal(c[0, 2], c[2, 0])
-        nose.tools.assert_equal(c[0, 3], c[3, 0])
-        nose.tools.assert_equal(c[1, 2], c[2, 1])
-        nose.tools.assert_equal(c[1, 3], c[3, 1])
-        nose.tools.assert_equal(c[2, 3], c[3, 2])
+        self.assertEqual(c[0, 1], c[1, 0])
+        self.assertEqual(c[0, 2], c[2, 0])
+        self.assertEqual(c[0, 3], c[3, 0])
+        self.assertEqual(c[1, 2], c[2, 1])
+        self.assertEqual(c[1, 3], c[3, 1])
+        self.assertEqual(c[2, 3], c[3, 2])
 
         # Set in upper triangle and see it reflect in lower
         c[0, 2] = 42
-        nose.tools.assert_equal(c[2, 0], 42)
+        self.assertEqual(c[2, 0], 42)
 
         # Change something in lower triangle and see it reflected in upper
         c[2, 1] = 43
-        nose.tools.assert_equal(c[1, 2], 43)
+        self.assertEqual(c[1, 2], 43)
 
         # FLOAT
         c = Covar4f(m)
@@ -231,40 +230,40 @@ class TestVitalCovariance(unittest.TestCase):
         c[2, 2] = 3
 
         # Test matrix upper triangle locations
-        nose.tools.assert_equal(c[0, 0], 0)
-        nose.tools.assert_equal(c[0, 1], 1)
-        nose.tools.assert_equal(c[0, 2], 10)
-        nose.tools.assert_equal(c[0, 3], 15)
-        nose.tools.assert_equal(c[1, 1], 10)
-        nose.tools.assert_equal(c[1, 2], 15)
-        nose.tools.assert_equal(c[1, 3], 20)
-        nose.tools.assert_equal(c[2, 2], 3)
-        nose.tools.assert_equal(c[2, 3], 25)
-        nose.tools.assert_equal(c[3, 3], 30)
+        self.assertEqual(c[0, 0], 0)
+        self.assertEqual(c[0, 1], 1)
+        self.assertEqual(c[0, 2], 10)
+        self.assertEqual(c[0, 3], 15)
+        self.assertEqual(c[1, 1], 10)
+        self.assertEqual(c[1, 2], 15)
+        self.assertEqual(c[1, 3], 20)
+        self.assertEqual(c[2, 2], 3)
+        self.assertEqual(c[2, 3], 25)
+        self.assertEqual(c[3, 3], 30)
 
-        nose.tools.assert_equal(c[0, 1], c[1, 0])
-        nose.tools.assert_equal(c[0, 2], c[2, 0])
-        nose.tools.assert_equal(c[0, 3], c[3, 0])
-        nose.tools.assert_equal(c[1, 2], c[2, 1])
-        nose.tools.assert_equal(c[1, 3], c[3, 1])
-        nose.tools.assert_equal(c[2, 3], c[3, 2])
+        self.assertEqual(c[0, 1], c[1, 0])
+        self.assertEqual(c[0, 2], c[2, 0])
+        self.assertEqual(c[0, 3], c[3, 0])
+        self.assertEqual(c[1, 2], c[2, 1])
+        self.assertEqual(c[1, 3], c[3, 1])
+        self.assertEqual(c[2, 3], c[3, 2])
 
         # Set in upper triangle and see it reflect in lower
         c[0, 2] = 42
-        nose.tools.assert_equal(c[2, 0], 42)
+        self.assertEqual(c[2, 0], 42)
 
         # Change something in lower triangle and see it reflected in upper
         c[2, 1] = 43
-        nose.tools.assert_equal(c[1, 2], 43)
+        self.assertEqual(c[1, 2], 43)
 
     def test_set_oob(self):
         # 2x2 covariance mat
         c = Covar2f()
         c[0, 0] = 1  # Valid set
-        nose.tools.assert_raises(IndexError, c.__setitem__, (0, 2), 1)
-        nose.tools.assert_raises(IndexError, c.__setitem__, (-1, 0), 1)
+        pytest.raises(IndexError, c.__setitem__, (0, 2), 1)
+        pytest.raises(IndexError, c.__setitem__, (-1, 0), 1)
 
         c = Covar2d()
         c[0, 0] = 1  # Valid set
-        nose.tools.assert_raises(IndexError, c.__setitem__, (0, 2), 1)
-        nose.tools.assert_raises(IndexError, c.__setitem__, (-1, 0), 1)
+        pytest.raises(IndexError, c.__setitem__, (0, 2), 1)
+        pytest.raises(IndexError, c.__setitem__, (-1, 0), 1)

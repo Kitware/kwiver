@@ -35,7 +35,7 @@ Tests for TrackState interface class
 """
 import unittest
 
-import nose.tools
+
 import numpy
 
 from kwiver.vital.types import TrackState
@@ -46,52 +46,52 @@ from kwiver.vital.types import TrackState
 class TestTrackState (unittest.TestCase):
     def test_new_ts(self):
         ts = TrackState(0)
-        nose.tools.assert_equal(ts.frame_id, 0)
+        self.assertEqual(ts.frame_id, 0)
 
         ts = TrackState(23456)
-        nose.tools.assert_equal(ts.frame_id, 23456)
+        self.assertEqual(ts.frame_id, 23456)
 
     def test_get_set_frame_id(self):
         ts = TrackState(0)
 
         ts.frame_id = 23456
-        nose.tools.assert_equal(ts.frame_id, 23456)
+        self.assertEqual(ts.frame_id, 23456)
 
         # Back to 0
         ts.frame_id = 0
-        nose.tools.assert_equal(ts.frame_id, 0)
+        self.assertEqual(ts.frame_id, 0)
 
     def test_equality(self):
         ts1 = TrackState(0)
         ts2 = TrackState(0)
 
-        nose.tools.ok_(ts1 == ts2)
+        assert(ts1 == ts2)
 
         ts2.frame_id = 23456
-        nose.tools.assert_false(ts1 == ts2)
+        self.assertFalse(ts1 == ts2)
 
         ts1.frame_id = 23456
-        nose.tools.ok_(ts1 == ts2)
+        assert(ts1 == ts2)
 
 '''
     def test_feat_empty(self):
         ts = TrackState(0)
-        nose.tools.assert_is_none(ts.feature)
+        self.assertIsNone(ts.feature)
 
     def test_desc_empty(self):
         ts = TrackState(0)
-        nose.tools.assert_is_none(ts.descriptor)
+        self.assertIsNone(ts.descriptor)
 
     def test_feat(self):
         f = Feature()
         ts = TrackState(0, f)
-        nose.tools.assert_equal(ts.feature, f)
+        self.assertEqual(ts.feature, f)
 
     def test_desc(self):
         # Some random initialized descriptor
         d = Descriptor()
         d[:] = 1
-        nose.tools.assert_equal(d.sum(), d.size)
+        self.assertEqual(d.sum(), d.size)
 
         ts = TrackState(0, descriptor=d)
         numpy.testing.assert_equal(d, ts.descriptor)

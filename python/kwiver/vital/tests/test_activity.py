@@ -35,7 +35,6 @@ Tests for Activity python class.
 """
 
 import unittest
-import nose.tools as nt
 import numpy as np
 from kwiver.vital.types import ( Activity,
             ActivityType,

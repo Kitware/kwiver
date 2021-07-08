@@ -35,11 +35,10 @@ Tests for Python interface to vital::uid
 """
 
 from kwiver.vital.types import UID
+import unittest
 
-import nose.tools as nt
 
-
-class TestVitalUID(object):
+class TestVitalUID(unittest.TestCase):
     # Creates some uid objects we'll use for testing
     # Note that if a uid represents a valid string, its name is the string
     # Otherwise, it's empty, and is named as such
@@ -64,42 +63,42 @@ class TestVitalUID(object):
     def test_is_valid(self):
         (empty1, empty2, empty3, foo_, foo_bar, baz_qux) = self._create_uids()
         # 1, 2, 4 should not be valid
-        nt.ok_(
+        assert(
             not empty1.is_valid(), "uid with default constructor should not be valid"
         )
-        nt.ok_(not empty2.is_valid(), "uid with empty string should not be valid")
-        nt.ok_(not empty3.is_valid(), "uid with 0 bytes copied should not be valid")
+        assert(not empty2.is_valid(), "uid with empty string should not be valid")
+        assert(not empty3.is_valid(), "uid with 0 bytes copied should not be valid")
         # 3, 5, 6 should be valid
-        nt.ok_(foo_.is_valid(), "uid with 4 bytes copied should be valid")
-        nt.ok_(foo_bar.is_valid(), "uid with non empty string copied be valid")
-        nt.ok_(baz_qux.is_valid(), "uid with all bytes copied should be valid")
+        assert(foo_.is_valid(), "uid with 4 bytes copied should be valid")
+        assert(foo_bar.is_valid(), "uid with non empty string copied be valid")
+        assert(baz_qux.is_valid(), "uid with all bytes copied should be valid")
 
     def test_value(self):
         (empty1, empty2, empty3, foo_, foo_bar, baz_qux) = self._create_uids()
 
-        nt.assert_equal(empty1.value(), "")
-        nt.assert_equal(empty2.value(), "")
-        nt.assert_equal(empty3.value(), "")
-        nt.assert_equal(foo_.value(), "foo_")
-        nt.assert_equal(foo_bar.value(), "foo_bar")
-        nt.assert_equal(baz_qux.value(), "baz_qux")
+        self.assertEqual(empty1.value(), "")
+        self.assertEqual(empty2.value(), "")
+        self.assertEqual(empty3.value(), "")
+        self.assertEqual(foo_.value(), "foo_")
+        self.assertEqual(foo_bar.value(), "foo_bar")
+        self.assertEqual(baz_qux.value(), "baz_qux")
 
     def test_size_and_length(self):
         (empty1, empty2, empty3, foo_, foo_bar, baz_qux) = self._create_uids()
 
-        nt.assert_equal(empty1.size(), 0)
-        nt.assert_equal(empty2.size(), 0)
-        nt.assert_equal(empty3.size(), 0)
-        nt.assert_equal(foo_.size(), 4)
-        nt.assert_equal(foo_bar.size(), 7)
-        nt.assert_equal(baz_qux.size(), 7)
+        self.assertEqual(empty1.size(), 0)
+        self.assertEqual(empty2.size(), 0)
+        self.assertEqual(empty3.size(), 0)
+        self.assertEqual(foo_.size(), 4)
+        self.assertEqual(foo_bar.size(), 7)
+        self.assertEqual(baz_qux.size(), 7)
 
-        nt.assert_equal(len(empty1), empty1.size())
-        nt.assert_equal(len(empty2), empty2.size())
-        nt.assert_equal(len(empty3), empty3.size())
-        nt.assert_equal(len(foo_), foo_.size())
-        nt.assert_equal(len(foo_bar), foo_bar.size())
-        nt.assert_equal(len(baz_qux), baz_qux.size())
+        self.assertEqual(len(empty1), empty1.size())
+        self.assertEqual(len(empty2), empty2.size())
+        self.assertEqual(len(empty3), empty3.size())
+        self.assertEqual(len(foo_), foo_.size())
+        self.assertEqual(len(foo_bar), foo_bar.size())
+        self.assertEqual(len(baz_qux), baz_qux.size())
 
     def test_copy_equal(self):
         instances = self._create_uids()
@@ -108,7 +107,7 @@ class TestVitalUID(object):
         for i in range(len(instances)):
             uid = instances[i]
             uid_copy = instances_copy[i]
-            nt.assert_equal(
+            self.assertEqual(
                 uid,
                 uid_copy,
                 "{} and {} uids not equal".format(uid.value(), uid_copy.value()),
@@ -116,13 +115,13 @@ class TestVitalUID(object):
 
     def test_empty_equal(self):
         (empty1, empty2, empty3, foo_, _, _) = self._create_uids()
-        nt.assert_equal(empty1, empty2)
-        nt.assert_equal(empty1, empty3)
-        nt.assert_equal(empty2, empty3)
+        self.assertEqual(empty1, empty2)
+        self.assertEqual(empty1, empty3)
+        self.assertEqual(empty2, empty3)
 
-        nt.ok_(not empty1 == foo_)
-        nt.ok_(not empty2 == foo_)
-        nt.ok_(not empty3 == foo_)
+        assert(not empty1 == foo_)
+        assert(not empty2 == foo_)
+        assert(not empty3 == foo_)
 
     # This creates some uid objects we'll use for the equals
     # and not equals tests. These are better tests than the objects
@@ -149,14 +148,14 @@ class TestVitalUID(object):
             Test_str,
         ) = self._create_uids_for_equals_check()
         # Test that same string constructed different ways is equivalent
-        nt.assert_equal(test_str1, test_str2)
-        nt.assert_equal(test_str1, test_str3)
-        nt.assert_equal(test_str2, test_str3)
+        self.assertEqual(test_str1, test_str2)
+        self.assertEqual(test_str1, test_str3)
+        self.assertEqual(test_str2, test_str3)
 
-        nt.ok_(not test_str1 == test_strtest_str)
-        nt.ok_(not test_str1 == Atest_str)
-        nt.ok_(not test_str1 == test_strA)
-        nt.ok_(not test_str1 == Test_str)
+        assert(not test_str1 == test_strtest_str)
+        assert(not test_str1 == Atest_str)
+        assert(not test_str1 == test_strA)
+        assert(not test_str1 == Test_str)
 
     def test_not_equals(self):
         (
@@ -169,14 +168,14 @@ class TestVitalUID(object):
             Test_str,
         ) = self._create_uids_for_equals_check()
 
-        nt.ok_(not test_str1 != test_str2)
-        nt.ok_(not test_str1 != test_str3)
-        nt.ok_(not test_str2 != test_str3)
+        assert(not test_str1 != test_str2)
+        assert(not test_str1 != test_str3)
+        assert(not test_str2 != test_str3)
 
-        nt.ok_(test_str1 != test_strtest_str)
-        nt.ok_(test_str1 != Atest_str)
-        nt.ok_(test_str1 != test_strA)
-        nt.ok_(test_str1 != Test_str)
+        assert(test_str1 != test_strtest_str)
+        assert(test_str1 != Atest_str)
+        assert(test_str1 != test_strA)
+        assert(test_str1 != Test_str)
 
     def test_less_than(self):
         ab = UID("ab")
@@ -184,11 +183,11 @@ class TestVitalUID(object):
         bc = UID("bc")
         Ab = UID("Ab")
 
-        nt.ok_(ab < abc)
-        nt.ok_(ab < bc)
-        nt.ok_(Ab < ab)
+        assert(ab < abc)
+        assert(ab < bc)
+        assert(Ab < ab)
 
-        nt.ok_(not abc < ab)
-        nt.ok_(not bc < ab)
-        nt.ok_(not ab < Ab)
-        nt.ok_(not ab < ab)
+        assert(not abc < ab)
+        assert(not bc < ab)
+        assert(not ab < Ab)
+        assert(not ab < ab)

@@ -33,7 +33,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Tests for DetectedObject interface class.
 
 """
-import nose.tools as nt
 import numpy as np
 import pytest
 import unittest
@@ -160,35 +159,35 @@ class TestVitalDetectedObject(unittest.TestCase):
     def test_nice_format(self):
         # Test default
         do = DetectedObject(self.bbox)
-        nt.assert_equal(do.__nice__(), "conf=1.0")
+        self.assertEqual(do.__nice__(), "conf=1.0")
 
         do.confidence = -0.5
-        nt.assert_equal(do.__nice__(), "conf=-0.5")
+        self.assertEqual(do.__nice__(), "conf=-0.5")
 
     def test_repr_format(self):
         # Test default
         do = DetectedObject(self.bbox)
-        nt.assert_equal(do.__repr__(), "<DetectedObject(conf=1.0) at {}>".format(hex(id(do))))
+        self.assertEqual(do.__repr__(), "<DetectedObject(conf=1.0) at {}>".format(hex(id(do))))
 
         do = DetectedObject(self.bbox, confidence=-0.5)
-        nt.assert_equal(do.__repr__(), "<DetectedObject(conf=-0.5) at {}>".format(hex(id(do))))
+        self.assertEqual(do.__repr__(), "<DetectedObject(conf=-0.5) at {}>".format(hex(id(do))))
 
     def test_str_format(self):
         # Test default
         do = DetectedObject(self.bbox)
-        nt.assert_equal(do.__str__(), "<DetectedObject(conf=1.0)>")
+        self.assertEqual(do.__str__(), "<DetectedObject(conf=1.0)>")
 
         do = DetectedObject(self.bbox, confidence=-0.5)
-        nt.assert_equal(do.__str__(), "<DetectedObject(conf=-0.5)>")
+        self.assertEqual(do.__str__(), "<DetectedObject(conf=-0.5)>")
 
     def test_clone(self):
         do = DetectedObject(self.bbox)
         do_clone = do.clone()
-        nt.ok_(self.check_det_objs_equal(do, do_clone))
+        assert(self.check_det_objs_equal(do, do_clone))
 
         do = DetectedObject(self.bbox, self.conf, self.dot, self.mask)
         do_clone = do.clone()
-        nt.ok_(self.check_det_objs_equal(do, do_clone))
+        assert(self.check_det_objs_equal(do, do_clone))
 
         # Try setting some values
         do.geo_point = self.geo_point
@@ -199,33 +198,33 @@ class TestVitalDetectedObject(unittest.TestCase):
 
         do.add_keypoint(self.keypoint_id, self.keypoint_to_add)
         # First show that its a deep copy. Should no longer be equal
-        nt.assert_false(self.check_det_objs_equal(do, do_clone))
+        self.assertFalse(self.check_det_objs_equal(do, do_clone))
 
         # Now clone
         do_clone = do.clone()
-        nt.ok_(self.check_det_objs_equal(do, do_clone))
+        assert(self.check_det_objs_equal(do, do_clone))
 
     def test_get_set_bbox(self):
         do = DetectedObject(self.bbox)
 
         # Check default
-        nt.ok_(do.bounding_box, self.bbox)
+        assert(do.bounding_box, self.bbox)
 
         # Setting to different value
         new_bbox = BoundingBox(20, 20, 40, 40)
         do.bounding_box = new_bbox
-        nt.ok_(do.bounding_box == new_bbox)
+        assert(do.bounding_box == new_bbox)
 
 
     def test_get_set_geo_point(self):
         do = DetectedObject(self.bbox)
 
         # Check default
-        nt.ok_(self.check_geo_points_equal(do.geo_point, GeoPoint()))
+        assert(self.check_geo_points_equal(do.geo_point, GeoPoint()))
 
         # Setting to different value
         do.geo_point = self.geo_point
-        nt.ok_(self.check_geo_points_equal(do.geo_point, self.geo_point))
+        assert(self.check_geo_points_equal(do.geo_point, self.geo_point))
 
     def test_get_set_confidence(self):
         # Check default
@@ -243,56 +242,56 @@ class TestVitalDetectedObject(unittest.TestCase):
     def test_get_set_index(self):
         # Check default
         do = DetectedObject(self.bbox)
-        nt.assert_equal(do.index, 0)
+        self.assertEqual(do.index, 0)
 
         do.index = 5
-        nt.assert_equal(do.index, 5)
+        self.assertEqual(do.index, 5)
 
     def test_get_set_detector_name(self):
         # Check default
         do = DetectedObject(self.bbox)
-        nt.assert_equal(do.detector_name, "")
+        self.assertEqual(do.detector_name, "")
 
         do.detector_name = self.detector_name
-        nt.assert_equal(do.detector_name, self.detector_name)
+        self.assertEqual(do.detector_name, self.detector_name)
 
     def test_get_set_type(self):
         # Check default
         do = DetectedObject(self.bbox)
-        nt.ok_(self.check_det_obj_types_equal(do.type, None))
+        assert(self.check_det_obj_types_equal(do.type, None))
 
         # Check setting through setter
         do.type = self.dot
-        nt.ok_(self.check_det_obj_types_equal(do.type, self.dot))
+        assert(self.check_det_obj_types_equal(do.type, self.dot))
 
         # Check setting through constructor
         new_dot = DetectedObjectType("other_example_class", -3.14)
         do = DetectedObject(self.bbox, classifications=new_dot)
-        nt.ok_(self.check_det_obj_types_equal(do.type, new_dot))
+        assert(self.check_det_obj_types_equal(do.type, new_dot))
 
     # See TODO in binding code for an explanation of why these are
     # commented out
     def test_get_set_mask(self):
         # Check default
         do = DetectedObject(self.bbox)
-        nt.ok_(self.check_img_containers_equal(do.mask, None))
+        assert(self.check_img_containers_equal(do.mask, None))
 
         # Check setting through setter
         do.mask = self.mask
-        nt.ok_(self.check_img_containers_equal(do.mask, self.mask))
+        assert(self.check_img_containers_equal(do.mask, self.mask))
 
         # Check setting through constructor
         new_mask = ImageContainer(Image(2048, 1080))
         do = DetectedObject(self.bbox, mask=new_mask)
-        nt.ok_(self.check_img_containers_equal(do.mask, new_mask))
+        assert(self.check_img_containers_equal(do.mask, new_mask))
 
     def test_descriptor(self):
         # Check default
         do = DetectedObject(self.bbox)
-        nt.ok_(self.check_descriptors_equal(do.descriptor_copy(), None))
+        assert(self.check_descriptors_equal(do.descriptor_copy(), None))
 
         do.set_descriptor(self.descriptor)
-        nt.ok_(self.check_descriptors_equal(do.descriptor_copy(), self.descriptor))
+        assert(self.check_descriptors_equal(do.descriptor_copy(), self.descriptor))
 
     # In the C++ class, a pointer to a const descriptor is stored/exposed
     # Pybind casts away all const-ness, which would result in undefined behavior if the
@@ -304,41 +303,41 @@ class TestVitalDetectedObject(unittest.TestCase):
         # Attempts to modify the descriptor don't work
         do.descriptor_copy()[0] += 1
         # print(do.descriptor_copy().todoublearray(), self.descriptor.todoublearray())
-        nt.ok_(self.check_descriptors_equal(do.descriptor_copy(), self.descriptor))
+        assert(self.check_descriptors_equal(do.descriptor_copy(), self.descriptor))
 
         # Modify the object copied from. Changes should not be reflected in
         # the detected_objects reference
         self.descriptor[0] += 1
         # print(do.descriptor_copy().todoublearray(), self.descriptor.todoublearray())
-        nt.assert_false(self.check_descriptors_equal(do.descriptor_copy(), self.descriptor))
+        self.assertFalse(self.check_descriptors_equal(do.descriptor_copy(), self.descriptor))
 
         # Storing the copy in a new variable, obviously, allows for modification
         desc = do.descriptor_copy()
         desc[0] += 1
-        nt.assert_false(self.check_descriptors_equal(do.descriptor_copy(), desc))
+        self.assertFalse(self.check_descriptors_equal(do.descriptor_copy(), desc))
 
     def test_notes(self):
         # Check default
         do = DetectedObject(self.bbox)
-        nt.assert_equal(do.notes, [])
+        self.assertEqual(do.notes, [])
 
         # Clearing empty is OK
         do.clear_notes()
-        nt.assert_equal(do.notes, [])
+        self.assertEqual(do.notes, [])
 
         # Add a few values
         do.add_note(self.note_to_add)
         exp_notes = [self.note_to_add]
-        nt.assert_equal(do.notes, exp_notes)
+        self.assertEqual(do.notes, exp_notes)
 
         new_note = "other_example_note"
         do.add_note(new_note)
         exp_notes.append(new_note)
-        nt.assert_equal(do.notes, exp_notes)
+        self.assertEqual(do.notes, exp_notes)
 
         # Clearing works as expected
         do.clear_notes()
-        nt.assert_equal(do.notes, [])
+        self.assertEqual(do.notes, [])
 
     def test_keypoints(self):
         # Check default

@@ -36,9 +36,9 @@ Helper functions for testing various Vital components
 import logging
 import math
 from six.moves import range
-
+import unittest
 import numpy as np
-import nose.tools as nt
+
 
 from kwiver.vital.types import (
     Camera,
@@ -290,7 +290,7 @@ def no_call_pure_virtual_method(mthd, *args, **kwargs):
     :param: **kwargs: Kwargs forwarded to method call
     :return:
     """
-    with nt.assert_raises_regexp(
+    with unittest.TestCase().assertRaisesRegex(
                 RuntimeError, "Tried to call pure virtual function",
             ):
                 mthd(*args, **kwargs)

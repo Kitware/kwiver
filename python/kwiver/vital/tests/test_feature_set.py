@@ -37,9 +37,8 @@ Tests for Python interface to vital::uid
 from kwiver.vital.types import FeatureD, FeatureF, FeatureSet, SimpleFeatureSet
 from kwiver.vital.tests.py_helpers import no_call_pure_virtual_method
 
-import nose.tools as nt
 import numpy as np
-
+import unittest
 
 class ConcreteFeatureSet(FeatureSet):
     def __init__(self):
@@ -52,7 +51,7 @@ class ConcreteFeatureSet(FeatureSet):
         return [FeatureD([1, 2], 3, 4, 5)]
 
 
-class TestVitalFeatureSet(object):
+class TestVitalFeatureSet(unittest.TestCase):
     def test_new(self):
         FeatureSet()
 
@@ -63,13 +62,13 @@ class TestVitalFeatureSet(object):
         no_call_pure_virtual_method(FeatureSet().features)
 
     def test_overriden_size(self):
-        nt.assert_equals(ConcreteFeatureSet().size(), 100)
+        self.assertEqual(ConcreteFeatureSet().size(), 100)
 
     def test_overriden_features(self):
-        nt.assert_equals(ConcreteFeatureSet().features(), [FeatureD([1, 2], 3, 4, 5)])
+        self.assertEqual(ConcreteFeatureSet().features(), [FeatureD([1, 2], 3, 4, 5)])
 
 
-class TestVitalSimpleFeatureSet(object):
+class TestVitalSimpleFeatureSet(unittest.TestCase):
     def _create_features(self):
         return [
             FeatureF(),
@@ -88,8 +87,8 @@ class TestVitalSimpleFeatureSet(object):
     def test_size(self):
         empty, nonempty = self._create_feature_sets()
 
-        nt.assert_equals(empty.size(), 0)
-        nt.assert_equals(nonempty.size(), 4)
+        self.assertEqual(empty.size(), 0)
+        self.assertEqual(nonempty.size(), 4)
 
     def test_features(self):
         empty, nonempty = self._create_feature_sets()
@@ -100,4 +99,4 @@ class TestVitalSimpleFeatureSet(object):
         # Test that elements can be modified using the features method, and are not copied
         f = nonempty.features()[0]
         f.scale += 1
-        nt.ok_(nonempty.features()[0] == f)
+        assert(nonempty.features()[0] == f)

@@ -34,13 +34,13 @@ Tests for python F2WHomography interface
 
 """
 
-import nose.tools as nt
 import numpy as np
+import unittest
 
 from kwiver.vital.types import F2WHomography, HomographyD, HomographyF
 
 
-class TestF2WHomography(object):
+class TestF2WHomography(unittest.TestCase):
     def test_frame_init(self):
         F2WHomography(5)
         F2WHomography(-7)
@@ -84,19 +84,19 @@ class TestF2WHomography(object):
         f_ids = [5, 0, -10]
         for f_id in f_ids:
             f2w = F2WHomography(f_id)
-            nt.assert_equal(f2w.frame_id, f_id)
+            self.assertEqual(f2w.frame_id, f_id)
 
             f2w = F2WHomography(HomographyD(), f_id)
-            nt.assert_equal(f2w.frame_id, f_id)
+            self.assertEqual(f2w.frame_id, f_id)
 
             f2w_copy = F2WHomography(f2w)
-            nt.assert_equal(f2w_copy.frame_id, f_id)
+            self.assertEqual(f2w_copy.frame_id, f_id)
 
     def check_each_element_equal(self, f2w, hom):
         mat = hom.matrix()
         for i in range(3):
             for j in range(3):
-                nt.assert_almost_equal(f2w.get(i, j), mat[i, j])
+                self.assertAlmostEqual(f2w.get(i, j), mat[i, j])
 
     def test_get(self):
         homs = [HomographyD.random(), HomographyF.random()]
@@ -114,20 +114,20 @@ class TestF2WHomography(object):
         f2ws = F2WHomography(5), F2WHomography(HomographyD.random(), 5)
         exp_err_msg = "Tried to perform get\\(\\) out of bounds"
         for f2w in f2ws:
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2w.get(3, 0)
 
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2w.get(-4, 0)
 
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2w.get(0, 3)
 
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2w.get(0, -4)
 
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2w.get(5, 5)
 
-            with nt.assert_raises_regexp(IndexError, exp_err_msg):
+            with self.assertRaisesRegex(IndexError, exp_err_msg):
                 f2w.get(-6, -6)

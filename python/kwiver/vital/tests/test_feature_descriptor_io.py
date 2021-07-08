@@ -28,11 +28,11 @@
 
 from unittest import TestCase
 from kwiver.vital.algo import FeatureDescriptorIO
-import nose.tools
 import tempfile
 from kwiver.vital.modules import modules
 import os
 from unittest.mock import Mock
+import pytest
 
 class TestVitalFeatureDescriptorIO(TestCase):
     def setUp(self):
@@ -47,23 +47,23 @@ class TestVitalFeatureDescriptorIO(TestCase):
         self.feature_set = Mock()
         self.descriptor_set = Mock()
 
-    @nose.tools.raises(Exception)
+    @pytest.mark.xfail(raises=Exception)
     def test_load_nonexistant(self):
         self.instance.load("nonexistant_filename.txt", self.feature_set,
                            self.descriptor_set)
 
-    @nose.tools.raises(Exception)
+    @pytest.mark.xfail(raises=Exception)
     def test_load_directory(self):
         with tempfile.TemporaryDirectory() as directory_name:
             self.instance.load(directory_name, self.feature_set,
                                self.descriptor_set)
 
-    @nose.tools.raises(Exception)
+    @pytest.mark.xfail(raises=Exception)
     def test_save_nonexistant(self):
         self.instance.save("nonexistant_filename.txt", self.feature_set,
                            self.descriptor_set)
 
-    @nose.tools.raises(Exception)
+    @pytest.mark.xfail(raises=Exception)
     def test_save_directory(self):
         with tempfile.TemporaryDirectory() as directory_name:
             self.instance.save(directory_name, self.feature_set,

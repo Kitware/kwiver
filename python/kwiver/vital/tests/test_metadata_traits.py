@@ -36,7 +36,7 @@ unknown_metadata_item, and metadata
 """
 
 import unittest
-import nose.tools as nt
+
 import numpy as np
 
 from kwiver.vital.types.metadata_traits import *

@@ -34,7 +34,6 @@ Tests for Camera interface class.
 
 """
 import unittest
-import nose.tools as nt
 import numpy as np
 
 from kwiver.vital.tests.py_helpers import no_call_pure_virtual_method
@@ -64,17 +63,17 @@ class TestVitalCameraSubclass(unittest.TestCase):
         SimpleCamera(1)
 
     def test_inheritance(self):
-        nt.ok_(issubclass(SimpleCamera, Camera))
+        assert(issubclass(SimpleCamera, Camera))
 
     def test_clone_override(self):
         cam = SimpleCamera(2)
         cloned_cam = helper.call_clone(cam)
 
         # Check that the clone was not sliced
-        nt.ok_(isinstance(cloned_cam, SimpleCamera))
+        assert(isinstance(cloned_cam, SimpleCamera))
 
         # Check ID is the same
-        nt.assert_equal(cam.id_, cloned_cam.id_)
+        self.assertEqual(cam.id_, cloned_cam.id_)
 
     def test_project_override(self):
         cam = SimpleCamera(3)
@@ -85,11 +84,11 @@ class TestVitalCameraSubclass(unittest.TestCase):
 
     def test_width_override(self):
         cam = SimpleCamera(4)
-        nt.assert_equal(helper.call_image_width(cam), 1080)
+        self.assertEqual(helper.call_image_width(cam), 1080)
 
     def test_height_override(self):
         cam = SimpleCamera(4)
-        nt.assert_equal(helper.call_image_height(cam), 720)
+        self.assertEqual(helper.call_image_height(cam), 720)
 
 class TestVitalCamera(unittest.TestCase):
     def test_init(self):

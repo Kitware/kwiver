@@ -37,11 +37,11 @@ Tests for Python interface to vital::point
 from kwiver.vital.types import Covar2f, Covar3f, Covar4f
 from kwiver.vital.types.point import *
 
-import nose.tools as nt
+import unittest, pytest
 import numpy as np
 
 
-class TestVitalPoint(object):
+class TestVitalPoint(unittest.TestCase):
     def test_default_constructors(self):
         Point2i()
         Point2d()
@@ -64,7 +64,7 @@ class TestVitalPoint(object):
         expected_types = ["2i", "2d", "2f", "3d", "3f", "4d", "4f"]
 
         for pt, t in zip(pts, expected_types):
-            nt.assert_equals(pt.type_name, t)
+            self.assertEqual(pt.type_name, t)
 
     def test_type_name_nondef_ctor(self):
         loc2_int = np.random.randint(low=-10, high=10, size=2)
@@ -85,7 +85,7 @@ class TestVitalPoint(object):
         expected_types = ["2i", "2d", "2f", "3d", "3f", "4d", "4f"]
 
         for pt, t in zip(pts, expected_types):
-            nt.assert_equals(pt.type_name, t)
+            self.assertEqual(pt.type_name, t)
 
     def test_non_default_constructors(self):
         vector_init = np.array([-5, 10])
@@ -174,23 +174,23 @@ class TestVitalPoint(object):
         )
 
     def test_set_covariance_wrong_dim(self):
-        with nt.assert_raises(TypeError):
+        with pytest.raises(TypeError):
             Point2i().covariance = Covar3f()
 
-        with nt.assert_raises(TypeError):
+        with pytest.raises(TypeError):
             Point3f().covariance = Covar4f()
 
-        with nt.assert_raises(TypeError):
+        with pytest.raises(TypeError):
             Point4f().covariance = Covar3f()
 
     def test_set_value_wrong_dim(self):
-        with nt.assert_raises(TypeError):
+        with pytest.raises(TypeError):
             Point2i().value = np.ones(3)
 
-        with nt.assert_raises(TypeError):
+        with pytest.raises(TypeError):
             Point3f().value = np.ones(4)
 
-        with nt.assert_raises(TypeError):
+        with pytest.raises(TypeError):
             Point4f().value = np.ones(3)
 
     def test_cast_int_value(self):
