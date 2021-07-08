@@ -8,6 +8,10 @@ kwiver_add_executable( kwiver
            kwiver_tool_runner.cxx
 )
 
+target_compile_definitions( kwiver
+  PRIVATE KWIVER_LIBDIR=\"${CMAKE_INSTALL_LIBDIR}\"
+)
+
 target_link_libraries( kwiver
   PRIVATE        vital
                  vital_vpm

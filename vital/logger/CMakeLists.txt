@@ -89,11 +89,15 @@ if (KWIVER_ENABLE_LOG4CPLUS)
     SUBDIR           ${kwiver_plugin_logger_subdir}
     )
 
-kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/vital_log4cplus_logger_export.h
-  NOPATH
-  SUBDIR      vital/logger
-  )
+  target_compile_definitions( vital_log4cplus_logger
+    PRIVATE KWIVER_LIBDIR=\"${CMAKE_INSTALL_LIBDIR}\"
+    )
+
+  kwiver_install_headers(
+    ${CMAKE_CURRENT_BINARY_DIR}/vital_log4cplus_logger_export.h
+    NOPATH
+    SUBDIR      vital/logger
+    )
 
 endif()
 

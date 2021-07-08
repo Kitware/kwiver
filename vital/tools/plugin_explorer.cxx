@@ -664,7 +664,8 @@ main( int argc, char* argv[] )
   if ( ! G_context.opt_skip_relative)
   {
     // Add path relative to the current executable/binary directory
-    vpm.add_search_path(kwiver::vital::get_executable_path() + "/../lib/kwiver/plugins");
+    vpm.add_search_path(kwiver::vital::get_executable_path() +
+                        "/../" KWIVER_LIBDIR "/kwiver/plugins");
   }
 
   // Look for plugin file name from command line

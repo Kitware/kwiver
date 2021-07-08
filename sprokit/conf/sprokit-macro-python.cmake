@@ -64,7 +64,7 @@ function (sprokit_add_python_module    path     modpath    module)
       set(python_install_path lib)
       set(python_arch u)
     else ()
-      set(python_install_path "lib${LIB_SUFFIX}")
+      set(python_install_path "${CMAKE_INSTALL_LIBDIR}")
     endif ()
   endif ()
 

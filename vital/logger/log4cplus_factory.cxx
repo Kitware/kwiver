@@ -337,10 +337,14 @@ public:
       {
         config_file = exe_path + "/" + prop_file;
       }
-      else if (ST::FileExists(exe_path + "/../lib/kwiver/" + prop_file))
+      else
       {
-        config_file = exe_path + "/../lib/kwiver/" + prop_file;
-      }
+        auto const prop_path =
+          exe_path + "/../" KWIVER_LIBDIR "/kwiver/" + prop_file;
+        if (ST::FileExists(prop_path))
+        {
+          config_file = prop_path;
+        }
     }
 
     if ( ! config_file.empty())

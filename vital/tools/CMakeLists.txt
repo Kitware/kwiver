@@ -8,6 +8,10 @@ kwiver_add_executable( plugin_explorer
   plugin_explorer.cxx
   )
 
+target_compile_definitions( plugin_explorer
+  PRIVATE KWIVER_LIBDIR=\"${CMAKE_INSTALL_LIBDIR}\"
+  )
+
 target_link_libraries( plugin_explorer
   PRIVATE        vital
                  vital_vpm
