@@ -247,6 +247,19 @@ enu_to_ned( rotation_< T > const& r )
   return adjustment * r;
 }
 
+template < typename T >
+rotation_< T >
+uas_ypr_to_rotation( T platform_yaw, T platform_pitch, T platform_roll,
+                     T sensor_yaw,   T sensor_pitch,   T sensor_roll )
+{
+  auto const platform_rotation =
+    rotation_< T >{ platform_yaw, platform_pitch, platform_roll };
+  auto const sensor_rotation =
+    rotation_< T >{ sensor_yaw, sensor_pitch, sensor_roll };
+
+  return ned_to_enu( platform_rotation * sensor_rotation );
+}
+
 /// \cond DoxygenSuppress
 #define INSTANTIATE_ROTATION( T )                                       \
   template class VITAL_EXPORT rotation_< T >;                           \
@@ -258,7 +271,10 @@ enu_to_ned( rotation_< T > const& r )
   template VITAL_EXPORT void                                            \
   interpolated_rotations( rotation_< T > const & A, rotation_< T > const & B, size_t n, std::vector< rotation_< T > > &interp_rots ); \
   template VITAL_EXPORT rotation_< T > ned_to_enu( rotation_< T > const& r ); \
-  template VITAL_EXPORT rotation_< T > enu_to_ned( rotation_< T > const& r )
+  template VITAL_EXPORT rotation_< T > enu_to_ned( rotation_< T > const& r ); \
+  template VITAL_EXPORT rotation_< T > uas_ypr_to_rotation(             \
+    T platform_yaw, T platform_pitch, T platform_roll,                  \
+    T sensor_yaw,   T sensor_pitch,   T sensor_roll )
 
 INSTANTIATE_ROTATION( double );
 INSTANTIATE_ROTATION( float );

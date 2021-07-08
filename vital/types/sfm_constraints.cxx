@@ -230,9 +230,9 @@ sfm_constraints
       return false;
     }
 
-    R_loc = rotation_d{ platform_heading, platform_pitch, platform_roll } *
-            rotation_d{ sensor_rel_az, sensor_rel_el, sensor_rel_roll };
-    R_loc = ned_to_enu( R_loc );
+    R_loc =
+      uas_ypr_to_rotation( platform_heading, platform_pitch, platform_roll,
+                           sensor_rel_az,    sensor_rel_el,  sensor_rel_roll );
 
     return true;
   }
