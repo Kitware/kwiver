@@ -216,8 +216,8 @@ class TestVitalMetadataItemSubclasses(unittest.TestCase):
         # UnknownMetadataItem - This is a separate subclass of metadata_item
         # Can keep the tag the same
         inst = UnknownMetadataItem()
-        exp_name = "<UNKNOWN>"
-        exp_string = "<UNKNOWN>"
+        exp_name = "Requested metadata item is not in collection"
+        exp_string = "--Unknown metadata item--"
         prop_info = PropInfo(exp_name, tag, None)
         type_info = TypeInfo("kwiver::vital::unknown_metadata_item::unknown_t", as_string=exp_string)
         self.check_instance(inst, prop_info, type_info, is_valid=False)

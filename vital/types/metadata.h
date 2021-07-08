@@ -210,14 +210,17 @@ private:
   {
   public:
     unknown_metadata_item()
-      : metadata_item( "<UNKNOWN>", unknown_t{}, VITAL_META_UNKNOWN )
+      : metadata_item( "Requested metadata item is not in collection",
+                       unknown_t{}, VITAL_META_UNKNOWN )
     { }
 
     bool is_valid() const override { return false; }
 
     std::type_info const& type() const override { return typeid( unknown_t ); }
 
-    std::string as_string() const override { return "<UNKNOWN>"; }
+    std::string as_string() const override {
+      return "--Unknown metadata item--";
+    }
 
     std::ostream& print_value(std::ostream& os) const override
     {
