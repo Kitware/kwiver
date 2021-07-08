@@ -20,10 +20,18 @@ else ()
     "${PYTHON_EXECUTABLE}")
 endif ()
 
-add_subdirectory(test)
-add_subdirectory(sprokit)
-add_subdirectory(modules)
-add_subdirectory(processes)
+if (PYTEST_RUNNER)
+  if (WIN32)
+    set(WIN_TEST_CONFIG_TYPE "$<CONFIG>")
+  endif()
+
+  add_subdirectory(test)
+  add_subdirectory(sprokit)
+  add_subdirectory(modules)
+  add_subdirectory(processes)
+
+endif()
+
 
 kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
                          sprokit/tests

@@ -29,80 +29,64 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from kwiver.sprokit.util.test import expect_exception, find_tests, run_test, test_error
+import unittest
+class Testtest(unittest.TestCase):
 
-# TEST_PROPERTY(WILL_FAIL, TRUE)
-def test_return_code():
-    import sys
+    # TEST_PROPERTY(WILL_FAIL, TRUE)
+    @staticmethod
+    def test_error_string():
+        test_error('an error')
 
-    sys.exit(1)
+    @staticmethod
+    def test_error_string_mid():
+        import sys
 
+        sys.stderr.write('Test')
+        test_error('an error')
 
-# TEST_PROPERTY(WILL_FAIL, TRUE)
-def test_error_string():
-    test_error('an error')
+    @staticmethod
+    # TEST_PROPERTY(WILL_FAIL, TRUE)
+    def test_error_string_stdout():
+        import sys
 
+        sys.stdout.write('Error: an error\n')
 
-def test_error_string_mid():
-    import sys
+    @staticmethod
+    # TEST_PROPERTY(WILL_FAIL, TRUE)
+    def test_error_string_second_line():
+        import sys
 
-    sys.stderr.write('Test')
-    test_error('an error')
+        sys.stderr.write('Not an error\n')
+        test_error("an error")
 
+    @staticmethod
+    def raise_exception():
+        raise NotImplementedError
 
-# TEST_PROPERTY(WILL_FAIL, TRUE)
-def test_error_string_stdout():
-    import sys
+    @staticmethod
+    def test_expected_exception():
+        expect_exception('when throwing an exception', NotImplementedError,
+                        raise_exception)
 
-    sys.stdout.write('Error: an error\n')
+    @staticmethod
+    # TEST_PROPERTY(WILL_FAIL, TRUE)
+    def test_unexpected_exception():
+        expect_exception('when throwing an unexpected exception', SyntaxError,
+                        raise_exception)
 
+    @staticmethod
+    # TEST_PROPERTY(ENVIRONMENT, TEST_ENVVAR=test_value)
+    def test_environment():
+        import os
 
-# TEST_PROPERTY(WILL_FAIL, TRUE)
-def test_error_string_second_line():
-    import sys
+        envvar = 'TEST_ENVVAR'
 
-    sys.stderr.write('Not an error\n')
-    test_error("an error")
+        if envvar not in os.environ:
+            test_error('failed to get environment from CTest')
+        else:
+            expected = 'test_value'
 
+            envvalue = os.environ[envvar]
 
-def raise_exception():
-    raise NotImplementedError
-
-
-def test_expected_exception():
-    expect_exception('when throwing an exception', NotImplementedError,
-                     raise_exception)
-
-
-# TEST_PROPERTY(WILL_FAIL, TRUE)
-def test_unexpected_exception():
-    expect_exception('when throwing an unexpected exception', SyntaxError,
-                     raise_exception)
-
-
-# TEST_PROPERTY(ENVIRONMENT, TEST_ENVVAR=test_value)
-def test_environment():
-    import os
-
-    envvar = 'TEST_ENVVAR'
-
-    if envvar not in os.environ:
-        test_error('failed to get environment from CTest')
-    else:
-        expected = 'test_value'
-
-        envvalue = os.environ[envvar]
-
-        if envvalue != expected:
-            test_error('did not get expected value')
-
-
-if __name__ == '__main__':
-    import sys
-
-    if len(sys.argv) != 2:
-        test_error("Expected two arguments")
-        sys.exit(1)
-
-    testname = sys.argv[1]
-
-    run_test(testname, find_tests(locals()))
+            if envvalue != expected:
+                test_error('did not get expected value')

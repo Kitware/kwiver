@@ -28,155 +28,114 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+import unittest, pytest
 from kwiver.sprokit.util.test import find_tests, run_test, test_error
 
-def test_import():
-    try:
+class TestSprokitscheduler_registry(unittest.TestCase):
+    def test_api_calls(self):
         from kwiver.vital.config import config
-        import kwiver.sprokit.pipeline.scheduler_factory
-    except:
-        test_error("Failed to import the scheduler_factory module")
+        from kwiver.vital.modules import modules
+        from kwiver.sprokit.pipeline import pipeline
+        from kwiver.sprokit.pipeline import scheduler_factory
+        modules.load_known_modules()
+        sched_type = 'thread_per_process'
+        c = config.empty_config()
+        p = pipeline.Pipeline()
+        scheduler_factory.create_scheduler(sched_type, p)
+        scheduler_factory.create_scheduler(sched_type, p, c)
+        scheduler_factory.types()
+        scheduler_factory.description(sched_type)
+        scheduler_factory.default_type
 
+    def example_scheduler(self, check_init):
+        from kwiver.sprokit.pipeline import scheduler
 
-def test_api_calls():
-    from kwiver.vital.config import config
-    from kwiver.vital.modules import modules
-    from kwiver.sprokit.pipeline import pipeline
-    from kwiver.sprokit.pipeline import scheduler_factory
+        class PythonExample(scheduler.PythonScheduler):
 
-    modules.load_known_modules()
+            def __init__(self, pipe, conf):
+                scheduler.PythonScheduler.__init__(self, pipe, conf)
+                self.ran_start = check_init
+                self.ran_wait = check_init
+                self.ran_stop = check_init
+                self.ran_pause = check_init
+                self.ran_resume = check_init
 
-    sched_type = 'thread_per_process'
-    c = config.empty_config()
-    p = pipeline.Pipeline()
+            def _start(self):
+                self.ran_start = True
 
-    scheduler_factory.create_scheduler(sched_type, p)
-    scheduler_factory.create_scheduler(sched_type, p, c)
-    scheduler_factory.types()
-    scheduler_factory.description(sched_type)
-    scheduler_factory.default_type
+            def _wait(self):
+                self.ran_wait = True
 
+            def _stop(self):
+                self.ran_stop = True
 
-def example_scheduler(check_init):
-    from kwiver.sprokit.pipeline import scheduler
+            def _pause(self):
+                self.ran_pause = True
 
-    class PythonExample(scheduler.PythonScheduler):
-        def __init__(self, pipe, conf):
-            scheduler.PythonScheduler.__init__(self, pipe, conf)
+            def _resume(self):
+                self.ran_resume = True
 
-            self.ran_start = check_init
-            self.ran_wait = check_init
-            self.ran_stop = check_init
-            self.ran_pause = check_init
-            self.ran_resume = check_init
+            def __del__(self):
+                if (not self.ran_start):
+                    test_error('start override was not called')
+                if (not self.ran_wait):
+                    test_error('wait override was not called')
+                if (not self.ran_stop):
+                    test_error('stop override was not called')
+                if (not self.ran_pause):
+                    test_error('pause override was not called')
+                if (not self.ran_resume):
+                    test_error('resume override was not called')
+        return PythonExample
 
-        def _start(self):
-            self.ran_start = True
+    def test_register(self):
+        from kwiver.vital.config import config
+        from kwiver.vital.modules import modules
+        from kwiver.sprokit.pipeline import pipeline
+        from kwiver.sprokit.pipeline import scheduler_factory
+        modules.load_known_modules()
+        sched_type = 'python_example'
+        sched_desc = 'simple description'
+        scheduler_factory.add_scheduler(sched_type, sched_desc, example_scheduler(True))
+        if (not (sched_desc == scheduler_factory.description(sched_type))):
+            test_error('Description was not preserved when registering')
+        p = pipeline.Pipeline()
+        try:
+            s = scheduler_factory.create_scheduler(sched_type, p)
+            if (s is None):
+                raise Exception()
+        except:
+            test_error('Could not create newly registered scheduler type')
 
-        def _wait(self):
-            self.ran_wait = True
+    def test_wrapper_api(self):
+        from kwiver.vital.config import config
+        from kwiver.vital.modules import modules
+        from kwiver.sprokit.pipeline import pipeline
+        from kwiver.sprokit.pipeline import process_factory
+        from kwiver.sprokit.pipeline import scheduler_factory
+        sched_type = 'python_example'
+        sched_desc = 'simple description'
+        modules.load_known_modules()
+        scheduler_factory.add_scheduler(sched_type, sched_desc, example_scheduler(False))
+        p = pipeline.Pipeline()
+        proc_type = 'orphan'
+        proc_name = 'orphan'
+        proc = process_factory.create_process(proc_type, proc_name)
+        p.add_process(proc)
 
-        def _stop(self):
-            self.ran_stop = True
-
-        def _pause(self):
-            self.ran_pause = True
-
-        def _resume(self):
-            self.ran_resume = True
-
-        def __del__(self):
-            if not self.ran_start:
-                test_error("start override was not called")
-            if not self.ran_wait:
-                test_error("wait override was not called")
-            if not self.ran_stop:
-                test_error("stop override was not called")
-            if not self.ran_pause:
-                test_error("pause override was not called")
-            if not self.ran_resume:
-                test_error("resume override was not called")
-
-    return PythonExample
-
-
-def test_register():
-    from kwiver.vital.config import config
-    from kwiver.vital.modules import modules
-    from kwiver.sprokit.pipeline import pipeline
-    from kwiver.sprokit.pipeline import scheduler_factory
-
-    modules.load_known_modules()
-
-    sched_type = 'python_example'
-    sched_desc = 'simple description'
-
-    scheduler_factory.add_scheduler(sched_type, sched_desc, example_scheduler(True))
-
-    if not sched_desc == scheduler_factory.description(sched_type):
-        test_error("Description was not preserved when registering")
-
-    p = pipeline.Pipeline()
-
-    try:
+        def check_scheduler(s):
+            if (s is None):
+                test_error("Got a 'None' scheduler")
+                return
+            s.start()
+            s.pause()
+            s.resume()
+            s.stop()
+            s.start()
+            s.wait()
+            del s
+        p.reset()
+        p.setup_pipeline()
         s = scheduler_factory.create_scheduler(sched_type, p)
-        if s is None:
-            raise Exception()
-    except:
-        test_error("Could not create newly registered scheduler type")
-
-
-def test_wrapper_api():
-    from kwiver.vital.config import config
-    from kwiver.vital.modules import modules
-    from kwiver.sprokit.pipeline import pipeline
-    from kwiver.sprokit.pipeline import process_factory
-    from kwiver.sprokit.pipeline import scheduler_factory
-
-    sched_type = 'python_example'
-    sched_desc = 'simple description'
-
-    modules.load_known_modules()
-
-    scheduler_factory.add_scheduler(sched_type, sched_desc, example_scheduler(False))
-
-    p = pipeline.Pipeline()
-
-    proc_type = 'orphan'
-    proc_name = 'orphan'
-
-    proc = process_factory.create_process(proc_type, proc_name)
-
-    p.add_process(proc)
-
-    def check_scheduler(s):
-        if s is None:
-            test_error("Got a 'None' scheduler")
-            return
-
-        s.start()
-        s.pause()
-        s.resume()
-        s.stop()
-        s.start()
-        s.wait()
-
-        del s
-
-    p.reset()
-    p.setup_pipeline()
-
-    s = scheduler_factory.create_scheduler(sched_type, p)
-    check_scheduler(s)
-
-
-if __name__ == '__main__':
-    import sys
-
-    if len(sys.argv) != 2:
-        test_error("Expected two arguments")
-        sys.exit(1)
-
-    testname = sys.argv[1]
-
-    run_test(testname, find_tests(locals()))
+        check_scheduler(s)
