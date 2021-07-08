@@ -94,6 +94,12 @@ PYBIND11_MODULE(datum, m)
   m.def("new_float", &new_datum<float>
     , (arg("dat"))
     , "Creates a new datum packet containing a float.");
+  m.def("new_double", &new_datum<double>
+    , (arg("dat"))
+    , "Creates a new datum packet containing a double.");
+  m.def("new_bool", &new_datum<bool>
+    , (arg("dat"))
+    , "Creates a new datum packet containing a bool.");
   m.def("new_string", &new_datum<std::string>
     , (arg("dat"))
     , "Creates a new datum packet containing a string.");
@@ -164,8 +170,14 @@ PYBIND11_MODULE(datum, m)
       , "Get the data contained within the packet (if coming from a python process).")
     .def("get_datum_ptr", &datum_get_datum_ptr
       , "Get pointer to datum object as a PyCapsule.")
-    .def("get_int", &datum_get_object<int>)
-    .def("get_float", &datum_get_object<float>)
+    .def("get_int", &datum_get_object<int>
+      , "Convert the data to a int")
+    .def("get_float", &datum_get_object<float>
+      , "Convert the data to a float")
+    .def("get_double", &datum_get_object<double>
+      , "Convert the data to a double")
+    .def("get_bool", &datum_get_object<bool>
+      , "Convert the data to a bool")
     .def("get_image_container", &datum_get_object<std::shared_ptr<kwiver::vital::image_container>>
       , "Convert the data to an image container")
     .def("get_descriptor_set", &datum_get_object<std::shared_ptr<kwiver::vital::descriptor_set>>
@@ -221,7 +233,8 @@ new_datum_correct_type(object const& obj)
   }
 
   CHECK_TYPE_NEW_DATUM(int_, int)
-  CHECK_TYPE_NEW_DATUM(float_, float)
+  CHECK_TYPE_NEW_DATUM(float_, double)
+  CHECK_TYPE_NEW_DATUM(bool_, bool)
   CHECK_TYPE_NEW_DATUM(str, std::string)
   CHECK_TYPE_NEW_DATUM(kwiver::vital::image_container, std::shared_ptr<kwiver::vital::image_container>)
   CHECK_TYPE_NEW_DATUM(kwiver::vital::descriptor_set, std::shared_ptr<kwiver::vital::descriptor_set>)
@@ -306,6 +319,8 @@ datum_get_datum_correct_type(::sprokit::datum const& self)
 
   DATUM_GET_OBJECT(int)
   DATUM_GET_OBJECT(float)
+  DATUM_GET_OBJECT(double)
+  DATUM_GET_OBJECT(bool)
   DATUM_GET_OBJECT(std::string)
   DATUM_GET_OBJECT(std::shared_ptr<kwiver::vital::image_container>)
   DATUM_GET_OBJECT(std::shared_ptr<kwiver::vital::descriptor_set>)
