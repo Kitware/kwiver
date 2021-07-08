@@ -127,8 +127,10 @@ embedded_pipeline
 ::embedded_pipeline()
   : m_priv( new priv() )
 {
+  using plugin_type = kwiver::vital::plugin_manager::plugin_type;
   // load processes
-  kwiver::vital::plugin_manager::instance().load_all_plugins();
+  kwiver::vital::plugin_manager::instance().load_all_plugins(
+    plugin_type::PROCESSES | plugin_type::ALGORITHMS );
 
   // make our context object
   m_priv->m_context = std::make_shared< real_context >( m_priv );
