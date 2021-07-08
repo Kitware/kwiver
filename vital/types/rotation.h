@@ -251,6 +251,26 @@ VITAL_EXPORT
 rotation_< T >
 ned_to_enu( rotation_< T > const& r );
 
+/// Combine platform and sensor YPR from a UAS source into a single rotation.
+///
+/// This is a convenience function to compose the yaw, pitch, and roll of an
+/// unmanned aerial system's platform and sensor into a single rotation object
+/// in the ENU coordinate system.
+///
+/// \param platform_yaw z (down) rotation of the aerial platform
+/// \param platform_pitch y (east) rotation of the aerial platform
+/// \param platform_roll x (north) rotation of the aerial platform
+/// \param sensor_yaw z (down) rotation of the sensor relative to the platform
+/// \param sensor_pitch y (east) rotation of the sensor relative to the platform
+/// \param sensor_roll x (north) rotation of the sensor relative to the platform
+///
+/// \returns The total rotation of the sensor in East-North-Up coordinates
+template < typename T >
+VITAL_EXPORT
+rotation_< T >
+uas_ypr_to_rotation( T platform_yaw, T platform_pitch, T platform_roll,
+                     T sensor_yaw,   T sensor_pitch,   T sensor_roll );
+
 } } // end namespace vital
 
 #endif // VITAL_ROTATION_H_

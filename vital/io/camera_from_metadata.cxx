@@ -327,10 +327,9 @@ update_camera_from_metadata(metadata const& md,
   {
     // Only set the camera's rotation if all metadata angles are present
 
-    auto platform_rotation =
-      rotation_d{ platform_yaw, platform_pitch, platform_roll };
-    auto sensor_rotation = rotation_d{ sensor_yaw, sensor_pitch, sensor_roll };
-    auto rotation = ned_to_enu( platform_rotation * sensor_rotation );
+    auto const rotation =
+      uas_ypr_to_rotation( platform_yaw, platform_pitch, platform_roll,
+                           sensor_yaw,   sensor_pitch,   sensor_roll );
     cam.set_rotation( rotation );
 
     rotation_set = true;
