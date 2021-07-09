@@ -151,12 +151,9 @@ resection_camera
     cv_world_points.emplace_back( p.x(), p.y(), p.z() );
   }
 
-  vital::matrix_3x3d K = cal->as_matrix();
-  cv::Mat cv_K;
-  eigen2cv( K, cv_K );
-
   cv::Mat inliers_mat;
-  std::vector< cv::Mat > vrvec, vtvec;
+  using vmat = std::vector< cv::Mat >;
+  vmat vrvec, vtvec;
   auto const world_points_vec =
     std::vector< std::vector< cv::Point3f > >{ cv_world_points };
   auto const image_points_vec =
@@ -205,15 +202,42 @@ resection_camera
 
   auto const reproj_error = d_->reproj_accuracy;
 
-  auto const err =
-    cv::calibrateCamera(
+  auto err = std::numeric_limits<double>::infinity();
+  vital::matrix_3x3d K = cal->as_matrix();
+  cv::TermCriteria term_criteria{
+    cv::TermCriteria::COUNT + cv::TermCriteria::EPS,
+    d_->max_iterations, reproj_error };
+  using MatD = cv::Mat_<double>;
+  MatD cv_K;
+  eigen2cv( K, cv_K );
+  auto const focal_scales = {0.5, 1.0, 2.0};
+  auto focal_scale = 0.0; // preferred focal scale after optimization
+  auto const dc0 = dist_coeffs;
+  for (auto const scale : focal_scales)
+  { // minimize re-projection error over multiple focal scales
+    auto dc = dc0;
+    vmat rv,tv;
+    MatD cvK;
+    eigen2cv( K, cvK );
+    cvK(0,0)*=scale;
+    cvK(1,1)*=scale;
+    auto const e = cv::calibrateCamera(
       world_points_vec, image_points_vec,
-      image_size, cv_K, dist_coeffs,
-      vrvec, vtvec, flags,
-      cv::TermCriteria{
-        cv::TermCriteria::COUNT + cv::TermCriteria::EPS,
-        d_->max_iterations, reproj_error } );
+      image_size, cvK, dc, rv, tv,
+      flags, term_criteria );
+    if (e < err)
+    {
+      cv_K = cvK;
+      dist_coeffs = dc;
+      vrvec = rv;
+      vtvec = tv;
+      focal_scale = scale;
+      err = e;
+    }
+  }
 
+  LOG_INFO( d_->m_logger, "re-projection error=" << err <<
+	    ", focal scale=" << focal_scale);
   if( err > reproj_error )
   {
     LOG_WARN( d_->m_logger, "estimated re-projection error " <<
