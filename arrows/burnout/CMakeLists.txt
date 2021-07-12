@@ -44,3 +44,13 @@ target_link_libraries( kwiver_algo_burnout
 algorithms_create_plugin( kwiver_algo_burnout
   register_algorithms.cxx
   )
+
+if ( KWIVER_ENABLE_PYTHON )
+
+  kwiver_add_python_module(
+     ${CMAKE_CURRENT_SOURCE_DIR}/burnout_trainer.py
+     kwiver/arrows/python
+     burnout_trainer )
+
+endif()
+
