@@ -10,20 +10,23 @@
 #ifndef VITAL_ALGO_SERIALIZE_H
 #define VITAL_ALGO_SERIALIZE_H
 
-#include <vital/vital_config.h>
 #include <vital/algo/algorithm.h>
 #include <vital/any.h>
+#include <vital/vital_config.h>
 
-#include <memory>
-#include <string>
-#include <set>
 #include <map>
+#include <memory>
+#include <set>
+#include <string>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// An abstract base class serializing and deserializing.
+
 /**
  * This class represents a pair of methods that serialize and
  * deserialize concrete data types. These methods are guaranteed to
@@ -46,11 +49,11 @@ class VITAL_ALGO_EXPORT data_serializer
   : public kwiver::vital::algorithm_def< data_serializer >
 {
 public:
-
   /// Return the name of this algorithm
   static std::string static_type_name() { return "data_serializer"; }
 
   /// Serialize the item into a byte string.
+
   /**
    * This method serializes the supplied data item(s) and returns a
    * byte string.
@@ -75,9 +78,11 @@ public:
    * @throws kwiver::vital::bad_any_cast
    * @throws kwiver::vital::serialization - for unexpected element name
    */
-  virtual std::shared_ptr< std::string > serialize( const vital::any& element ) = 0;
+  virtual std::shared_ptr< std::string > serialize( const vital::any& element )
+  = 0;
 
   /// Deserialize byte string into data type.
+
   /**
    * Deserialize the supplied string of bytes into new data
    * item(s). This method must handle an input byte string created by the
@@ -106,19 +111,21 @@ public:
    */
   virtual vital::any deserialize( const std::string& message ) = 0;
 
-  virtual void set_configuration( kwiver::vital::config_block_sptr config ) { }
-  virtual bool check_configuration(config_block_sptr config) const { return true; }
+  virtual void set_configuration( kwiver::vital::config_block_sptr config ) {}
+  virtual bool
+  check_configuration( config_block_sptr config ) const { return true; }
 
 protected:
   data_serializer();
-
 };
 
 /// Shared pointer for detect_features algorithm definition class
-typedef std::shared_ptr<data_serializer> data_serializer_sptr;
+typedef std::shared_ptr< data_serializer > data_serializer_sptr;
 
 } // end namespaces
-}
-}
+
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // VITAL_ALGO_SERIALIZE_H

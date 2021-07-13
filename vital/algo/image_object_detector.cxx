@@ -11,7 +11,9 @@
 #include <vital/algo/image_object_detector.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 image_object_detector
@@ -20,8 +22,12 @@ image_object_detector
   attach_logger( "algo.image_object_detector" ); // specify a logger
 }
 
-} } }
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 /// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::image_object_detector);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::image_object_detector );
 /// \endcond

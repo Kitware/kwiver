@@ -7,11 +7,13 @@
  * \brief compute_stereo_depth_map algorithm definition instantiation
  */
 
-#include <vital/algo/compute_stereo_depth_map.h>
 #include <vital/algo/algorithm.txx>
+#include <vital/algo/compute_stereo_depth_map.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 compute_stereo_depth_map
@@ -20,8 +22,12 @@ compute_stereo_depth_map
   attach_logger( "algo.compute_stereo_depth_map" );
 }
 
-} } }
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 /// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::compute_stereo_depth_map);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::compute_stereo_depth_map );
 /// \endcond
