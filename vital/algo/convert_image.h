@@ -7,17 +7,20 @@
 
 #include <vital/vital_config.h>
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include <vital/algo/algorithm.h>
 #include <vital/types/image_container.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// An abstract base class for converting base image type.
+
 /**
  * Arrows that implement this interface convert the input image type
  * (e.g. BGR 16) to a different type (e.g. RGB 8). Concrete
@@ -29,27 +32,32 @@ namespace algo {
  * interface.
  */
 class VITAL_ALGO_EXPORT convert_image
-  : public kwiver::vital::algorithm_def<convert_image>
+  : public kwiver::vital::algorithm_def< convert_image >
 {
 public:
   /// Return the name of this algorithm
   static std::string static_type_name() { return "convert_image"; }
 
   /// Set this algorithm's properties via a config block
-  virtual void set_configuration(kwiver::vital::config_block_sptr config);
+  virtual void set_configuration( kwiver::vital::config_block_sptr config );
   /// Check that the algorithm's currently configuration is valid
-  virtual bool check_configuration(kwiver::vital::config_block_sptr config) const;
+  virtual bool check_configuration( kwiver::vital::config_block_sptr config )
+  const;
 
   /// Convert image base type
-  virtual kwiver::vital::image_container_sptr convert(kwiver::vital::image_container_sptr img) const = 0;
+  virtual kwiver::vital::image_container_sptr convert(
+    kwiver::vital::image_container_sptr img ) const = 0;
 
 protected:
   convert_image();
-
 };
 
-typedef std::shared_ptr<convert_image> convert_image_sptr;
+typedef std::shared_ptr< convert_image > convert_image_sptr;
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+}     // end namespace
 
 #endif // VITAL_ALGO_CONVERT_IMAGE_H_

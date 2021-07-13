@@ -14,24 +14,27 @@
 
 #include <vital/algo/algorithm.h>
 
-#include <vital/types/timestamp.h>
-#include <vital/types/object_track_set.h>
 #include <vital/types/image_container.h>
+#include <vital/types/object_track_set.h>
+#include <vital/types/timestamp.h>
 #include <vital/types/track_descriptor_set.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// An abstract base class for computing track descriptors
 class VITAL_ALGO_EXPORT compute_track_descriptors
-  : public kwiver::vital::algorithm_def<compute_track_descriptors>
+  : public kwiver::vital::algorithm_def< compute_track_descriptors >
 {
 public:
   /// Return the name of this algorithm
   static std::string static_type_name() { return "compute_track_descriptors"; }
 
   /// Compute track descriptors given an image and tracks
+
   /**
    * \param ts timestamp for the current frame
    * \param image_data contains the image data to process
@@ -45,6 +48,7 @@ public:
            kwiver::vital::object_track_set_sptr tracks ) = 0;
 
   /// Flush any remaining in-progress descriptors
+
   /**
    * This is typically called at the end of a video, in case
    * any temporal descriptors and currently in progress and
@@ -56,12 +60,17 @@ public:
 
 protected:
   compute_track_descriptors();
-
 };
 
-/// Shared pointer for base compute_track_descriptors algorithm definition class
-typedef std::shared_ptr<compute_track_descriptors> compute_track_descriptors_sptr;
+/// Shared pointer for base compute_track_descriptors algorithm definition
+/// class
+typedef std::shared_ptr< compute_track_descriptors >
+  compute_track_descriptors_sptr;
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+}     // end namespace
 
 #endif // VITAL_ALGO_COMPUTE_TRACK_DESCRIPTORS_H_
