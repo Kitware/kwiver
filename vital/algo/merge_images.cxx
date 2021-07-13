@@ -6,10 +6,12 @@
 
 #include "merge_images.h"
 
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::merge_images);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::merge_images );
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 merge_images
@@ -18,4 +20,8 @@ merge_images
   attach_logger( "merge_images" );
 }
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+}     // end namespace

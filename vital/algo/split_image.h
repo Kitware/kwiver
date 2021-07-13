@@ -13,12 +13,14 @@
 #include <vital/types/image_container.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// An abstract base class for converting base image type
 class VITAL_ALGO_EXPORT split_image
-  : public kwiver::vital::algorithm_def<split_image>
+  : public kwiver::vital::algorithm_def< split_image >
 {
 public:
   /// Return the name of this algorithm
@@ -26,15 +28,18 @@ public:
 
   /// Split image
   virtual std::vector< kwiver::vital::image_container_sptr >
-    split(kwiver::vital::image_container_sptr img) const = 0;
+  split( kwiver::vital::image_container_sptr img ) const = 0;
 
 protected:
   split_image();
-
 };
 
-typedef std::shared_ptr<split_image> split_image_sptr;
+typedef std::shared_ptr< split_image > split_image_sptr;
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+}     // end namespace
 
 #endif // VITAL_ALGO_SPLIT_IMAGE_H_
