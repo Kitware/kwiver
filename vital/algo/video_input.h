@@ -10,8 +10,8 @@
 #ifndef VITAL_ALGO_VIDEO_INPUT_H_
 #define VITAL_ALGO_VIDEO_INPUT_H_
 
-#include <vital/vital_config.h>
 #include <vital/algo/vital_algo_export.h>
+#include <vital/vital_config.h>
 
 #include <vital/algorithm_capabilities.h>
 
@@ -25,11 +25,14 @@
 #include <vector>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 // ==================================================================
 /// An abstract base class for reading videos
+
 /**
  * This class represents an abstract interface for reading
  * videos. Once the video is opened, the frames are returned in order.
@@ -105,18 +108,22 @@ namespace algo {
  * the abbreviation of the capability.
  */
 class VITAL_ALGO_EXPORT video_input
-  : public kwiver::vital::algorithm_def<video_input>
+  : public kwiver::vital::algorithm_def< video_input >
 {
 public:
-
   // Common capabilities
   // -- basic capabilities --
-  static const algorithm_capabilities::capability_name_t HAS_EOV;         // has end of video indication
+  static const algorithm_capabilities::capability_name_t HAS_EOV;         // has
+                                                                          // end
+                                                                          // of
+                                                                          // video
+                                                                          // indication
   static const algorithm_capabilities::capability_name_t HAS_FRAME_NUMBERS;
   static const algorithm_capabilities::capability_name_t HAS_FRAME_TIME;
   static const algorithm_capabilities::capability_name_t HAS_FRAME_DATA;
   static const algorithm_capabilities::capability_name_t HAS_FRAME_RATE;
-  static const algorithm_capabilities::capability_name_t HAS_ABSOLUTE_FRAME_TIME;
+  static const algorithm_capabilities::capability_name_t
+    HAS_ABSOLUTE_FRAME_TIME;
   static const algorithm_capabilities::capability_name_t HAS_METADATA;
   static const algorithm_capabilities::capability_name_t HAS_TIMEOUT;
   static const algorithm_capabilities::capability_name_t IS_SEEKABLE;
@@ -279,7 +286,7 @@ public:
    *
    * \return The time stamp of the current frame.
    */
-  virtual kwiver::vital::timestamp frame_timestamp( ) const = 0;
+  virtual kwiver::vital::timestamp frame_timestamp() const = 0;
 
   /**
    * \brief Get current frame from video stream.
@@ -295,7 +302,7 @@ public:
    *
    * \throws video_stream_exception when there is an error in the video stream.
    */
-  virtual kwiver::vital::image_container_sptr frame_image( ) = 0;
+  virtual kwiver::vital::image_container_sptr frame_image() = 0;
 
   /**
    * \brief Get metadata collection for current frame.
@@ -382,15 +389,20 @@ public:
 protected:
   video_input(); // CTOR
 
-  void set_capability( algorithm_capabilities::capability_name_t const& name, bool val );
+  void set_capability( algorithm_capabilities::capability_name_t const& name,
+                       bool val );
 
 private:
   algorithm_capabilities m_capabilities;
 };
 
 /// Shared pointer type for generic video_input definition type.
-typedef std::shared_ptr<video_input> video_input_sptr;
+typedef std::shared_ptr< video_input > video_input_sptr;
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // end namespace
 
 #endif // VITAL_ALGO_VIDEO_INPUT_H_

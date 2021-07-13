@@ -241,4 +241,4 @@ algorithm
   return true;
 }
 
-} }     // end namespace
+} } // end namespace

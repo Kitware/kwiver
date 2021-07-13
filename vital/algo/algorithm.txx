@@ -99,7 +99,7 @@ algorithm_def< Self >
 }
 
 }
-}     // end namespace
+} // end namespace
 
 /// \cond DoxygenSuppress
 #define INSTANTIATE_ALGORITHM_DEF( T ) \

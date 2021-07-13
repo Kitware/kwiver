@@ -17,11 +17,13 @@
 #include <kwiversys/SystemTools.hxx>
 
 /// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::image_io);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::image_io );
 /// \endcond
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 const algorithm_capabilities::capability_name_t image_io::HAS_TIME( "has-time" );
@@ -34,57 +36,57 @@ image_io
 
 image_container_sptr
 image_io
-::load(std::string const& filename) const
+::load( std::string const& filename ) const
 {
   // Make sure that the given file path exists and is a file.
-  if ( ! kwiversys::SystemTools::FileExists( filename ) )
+  if( !kwiversys::SystemTools::FileExists( filename ) )
   {
-    VITAL_THROW( path_not_exists, filename);
+    VITAL_THROW( path_not_exists, filename );
   }
-  else if ( kwiversys::SystemTools::FileIsDirectory( filename ) )
+  else if( kwiversys::SystemTools::FileIsDirectory( filename ) )
   {
-    VITAL_THROW( path_not_a_file, filename);
+    VITAL_THROW( path_not_a_file, filename );
   }
 
-  return this->load_(filename);
+  return this->load_( filename );
 }
 
 void
 image_io
-::save(std::string const& filename, image_container_sptr data) const
+::save( std::string const& filename, image_container_sptr data ) const
 {
   // Make sure that the given file path's containing directory exists and is
   // actually a directory.
   std::string containing_dir = kwiversys::SystemTools::GetFilenamePath(
     kwiversys::SystemTools::CollapseFullPath( filename ) );
 
-  if ( ! kwiversys::SystemTools::FileExists( containing_dir ) )
+  if( !kwiversys::SystemTools::FileExists( containing_dir ) )
   {
-    VITAL_THROW( path_not_exists, containing_dir);
+    VITAL_THROW( path_not_exists, containing_dir );
   }
-  else if ( ! kwiversys::SystemTools::FileIsDirectory( containing_dir ) )
+  else if( !kwiversys::SystemTools::FileIsDirectory( containing_dir ) )
   {
     VITAL_THROW( path_not_a_directory, containing_dir );
   }
 
-  this->save_(filename, data);
+  this->save_( filename, data );
 }
 
 metadata_sptr
 image_io
-::load_metadata(std::string const& filename) const
+::load_metadata( std::string const& filename ) const
 {
   // Make sure that the given file path exists and is a file.
-  if ( ! kwiversys::SystemTools::FileExists( filename ) )
+  if( !kwiversys::SystemTools::FileExists( filename ) )
   {
-    VITAL_THROW( path_not_exists, filename);
+    VITAL_THROW( path_not_exists, filename );
   }
-  else if ( kwiversys::SystemTools::FileIsDirectory( filename ) )
+  else if( kwiversys::SystemTools::FileIsDirectory( filename ) )
   {
-    VITAL_THROW( path_not_a_file, filename);
+    VITAL_THROW( path_not_a_file, filename );
   }
 
-  return this->load_metadata_(filename);
+  return this->load_metadata_( filename );
 }
 
 const vital::algorithm_capabilities&
@@ -96,17 +98,22 @@ image_io
 
 void
 image_io
-::set_capability( algorithm_capabilities::capability_name_t const& name, bool val )
+::set_capability( algorithm_capabilities::capability_name_t const& name,
+                  bool val )
 {
   this->m_capabilities.set_capability( name, val );
 }
 
 metadata_sptr
 image_io
-::load_metadata_(VITAL_UNUSED std::string const& filename) const
+::load_metadata_( VITAL_UNUSED std::string const& filename ) const
 {
   // No metadata-only loading by default.
   return nullptr;
 }
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // end namespace

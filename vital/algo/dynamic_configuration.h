@@ -44,6 +44,6 @@ typedef std::shared_ptr< dynamic_configuration > dynamic_configuration_sptr;
 
 }
 }
-}     // end namespace
+} // end namespace
 
 #endif // DYNAMIC_CONFIGURATION_H

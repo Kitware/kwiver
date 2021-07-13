@@ -9,7 +9,9 @@
 INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::handle_descriptor_request );
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 handle_descriptor_request
@@ -35,4 +37,8 @@ handle_descriptor_request
   return true;
 }
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // end namespace
