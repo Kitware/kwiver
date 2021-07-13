@@ -16,14 +16,17 @@
 
 #include <vital/algo/algorithm.h>
 #include <vital/types/feature_track_set.h>
-#include <vital/types/image_container.h>
 #include <vital/types/homography_f2f.h>
+#include <vital/types/image_container.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// Abstract base class for mapping each image to some reference image.
+
 /**
  * This class differs from estimate_homographies in that estimate_homographies
  * simply performs a homography regression from matching feature points. This
@@ -32,14 +35,14 @@ namespace algo {
  * space derived from some initial refrerence image.
  */
 class VITAL_ALGO_EXPORT compute_ref_homography
-  : public kwiver::vital::algorithm_def<compute_ref_homography>
+  : public kwiver::vital::algorithm_def< compute_ref_homography >
 {
 public:
-
   /// Return the name of this algorithm
   static std::string static_type_name() { return "compute_ref_homography"; }
 
   /// Estimate the transformation which maps some frame to a reference frame
+
   /**
    * Similarly to track_features, this class was designed to be called in
    * an online fashion for each sequential frame. The output homography
@@ -62,12 +65,16 @@ public:
 
 protected:
   compute_ref_homography();
-
 };
 
-/// Shared pointer type of base compute_ref_homography algorithm definition class
-typedef std::shared_ptr<compute_ref_homography> compute_ref_homography_sptr;
+/// Shared pointer type of base compute_ref_homography algorithm definition
+/// class
+typedef std::shared_ptr< compute_ref_homography > compute_ref_homography_sptr;
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // VITAL_COMPUTE_REF_HOMOGRAPHY_H_
