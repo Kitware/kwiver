@@ -107,3 +107,8 @@ if( KWIVER_ENABLE_VTK)
 endif()
 
 add_subdirectory( serialize )
+
+# Register the colmap arrow with CMake.
+if( KWIVER_ENABLE_COLMAP )
+  add_subdirectory( colmap )
+endif()
