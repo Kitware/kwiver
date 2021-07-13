@@ -44,6 +44,20 @@ TEST(mesh_intersect, intersect_triangle)
   dist2 -= 0.001;
 
   EXPECT_FALSE( mesh_intersect_triangle_min_dist(p, d, a, b, c, n, dist2, u2, v2) );
+
+  // Test triangle in different plane
+  p = {2,1,1};
+  d = {-1,0,0};
+  a = {0,0,0}, b = {0,3,0}, c = {0,0,2};
+  n = (b.value()-a.value()).cross(c.value()-a.value());
+  dist = std::numeric_limits<double>::infinity();
+
+  EXPECT_TRUE( mesh_intersect_triangle(p, d, a, b, c, n, dist, u1, v1) );
+
+  r1 = p.value() + dist*d;
+  r2 = (1 - u1 - v1)*a.value() + u1*b.value() + v1*c.value();
+
+  EXPECT_NEAR( (r2 - r1).norm(), 0.0, 1e-14 );
 }
 
 // ----------------------------------------------------------------------------

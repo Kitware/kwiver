@@ -48,15 +48,21 @@ mesh_intersect_triangle(const vital::point_3d& p,
   vector_3d t(d.cross(ap));
   v = (b.value() - p.value()).dot(t);
   if (v < 0.0 || v > denom)
+  {
     return false;
+  }
 
   u = -(c.value() - p.value()).dot(t);
   if (u < 0.0 || u+v > denom)
+  {
     return false;
+  }
 
   dist = ap.dot(n);
   if (dist < 0.0)
+  {
     return false;
+  }
 
   u /= denom;
   v /= denom;
@@ -78,21 +84,29 @@ mesh_intersect_triangle_min_dist(const vital::point_3d& p,
 {
   double denom = -d.dot(n);
   if (denom <= 0) // back facing triangles
+  {
     return false;
+  }
 
   vector_3d ap(p.value() - a.value());
   double new_dist = ap.dot(n)/denom;
   if (new_dist < 0.0 || new_dist > dist)
+  {
     return false;
+  }
 
   vector_3d t(d.cross(ap));
   v = (b.value() - p.value()).dot(t);
   if (v < 0.0 || v > denom)
+  {
     return false;
+  }
 
   u = -(c.value() - p.value()).dot(t);
   if (u < 0.0 || u + v > denom)
+  {
     return false;
+  }
 
   dist = new_dist;
   u /= denom;
@@ -129,45 +143,57 @@ mesh_triangle_closest_point(const vital::point_3d& p,
 
   unsigned char state = 0;
   double uv;
-  if (u <= eps) {
+  if (u <= eps)
+  {
     double p_v = v - u * ab.dot(ca)/ca.squaredNorm();
-    if (p_v <= eps) {
+    if (p_v <= eps)
+    {
       state = 1;
     }
-    else if (p_v >= 1.0) {
+    else if (p_v >= 1.0)
+    {
       state = 4;
     }
-    else {
+    else
+    {
       u = 0.0; v = p_v;
       dist = ((1 - v)*ap + v*cp).norm();
       return 5;
     }
   }
-  if (v <= eps) {
+  if (v <= eps)
+  {
     double p_u = u - v * ca.dot(ab)/ab.squaredNorm();
-    if (p_u <= eps) {
+    if (p_u <= eps)
+    {
       state = 1;
     }
-    else if (p_u >= 1.0) {
+    else if (p_u >= 1.0)
+    {
       state = 2;
     }
-    else {
+    else
+    {
       u = p_u; v = 0.0;
       dist = ((1 - u)*ap + u*bp).norm();
       return 3;
     }
   }
-  if ((uv = 1.0 - u - v) <= eps) {
+  if ((uv = 1.0 - u - v) <= eps)
+  {
     double s = -ca.dot(bc)/bc.squaredNorm();
     double p_u = u + uv * s;
     double p_v = v + uv * (1.0-s);
-    if (p_v <= eps) {
+    if (p_v <= eps)
+    {
       state = 2;
     }
-    else if (p_u <= eps) {
+    else if (p_u <= eps)
+    {
       state = 4;
     }
-    else {
+    else
+    {
       u=p_u; v=p_v;
       dist = (u*bp + v*cp).norm();
       return 6;
