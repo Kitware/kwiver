@@ -6,7 +6,9 @@
 #include <vital/algo/compute_association_matrix.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 compute_association_matrix
@@ -15,6 +17,10 @@ compute_association_matrix
   attach_logger( "algo.compute_association_matrix" );
 }
 
-} } }
+} // namespace algo
 
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::compute_association_matrix);
+} // namespace vital
+
+} // namespace kwiver
+
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::compute_association_matrix );

@@ -6,7 +6,9 @@
 #include <vital/algo/analyze_tracks.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 analyze_tracks
@@ -15,6 +17,10 @@ analyze_tracks
   attach_logger( "algo.analyze_tracks" );
 }
 
-} } }
+} // namespace algo
 
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::analyze_tracks);
+} // namespace vital
+
+} // namespace kwiver
+
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::analyze_tracks );
