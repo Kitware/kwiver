@@ -25,6 +25,7 @@ class signal_base;
 template < typename... Args > class signal;
 
 // ----------------------------------------------------------------------------
+
 /**
  * \brief Slot execution context.
  *
@@ -44,7 +45,8 @@ public:
   ~context();
 
 private:
-  template < typename... Args > friend class signal;
+  template < typename... Args >
+  friend class signal;
 
   void connect( signal_base* signal );
   void disconnect( signal_base* signal );

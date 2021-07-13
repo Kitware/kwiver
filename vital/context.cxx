@@ -22,11 +22,11 @@ context::~context()
 {
   // Disconnect from all connected signals
   std::unique_lock< std::mutex > lock{ this->m_mutex };
-  while ( !this->m_connections.empty() )
+  while( !this->m_connections.empty() )
   {
     auto failed = false;
     auto iter = this->m_connections.begin();
-    while ( iter != this->m_connections.end() )
+    while( iter != this->m_connections.end() )
     {
       // Attempt to disconnect; if the signal is being emitted or destroyed, we
       // will not be able to get the mutex, so skip it and try again after
@@ -34,7 +34,7 @@ context::~context()
       auto* const connection = *iter;
       std::unique_lock< std::mutex > connection_lock{
         connection->m_mutex, std::try_to_lock };
-      if ( connection_lock.owns_lock() )
+      if( connection_lock.owns_lock() )
       {
         connection->disconnect( this );
         iter = this->m_connections.erase( iter );
@@ -45,7 +45,7 @@ context::~context()
         ++iter;
       }
     }
-    if ( failed )
+    if( failed )
     {
       // Need to back off our lock to let a connected signal do something
       lock.unlock();
