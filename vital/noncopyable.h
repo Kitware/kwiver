@@ -8,12 +8,12 @@
 #include <vital/vital_config.h>
 
 namespace kwiver {
+
 namespace vital {
 
 class noncopyable
 {
 protected:
-
   noncopyable() = default;
   virtual ~noncopyable() = default;
 
@@ -21,6 +21,8 @@ protected:
   noncopyable& operator=( const noncopyable& ) = delete;
 };
 
-} }
+} // namespace vital
+
+} // namespace kwiver
 
 #endif /* VITAL_NONCOPYABLE_H */
