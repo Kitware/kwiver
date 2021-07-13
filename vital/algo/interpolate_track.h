@@ -5,28 +5,32 @@
 #ifndef VITAL_ALGO_INTERPOLATE_TRACK_H
 #define VITAL_ALGO_INTERPOLATE_TRACK_H
 
-#include <vital/vital_config.h>
-#include <vital/types/object_track_set.h>
 #include <vital/algo/algorithm.h>
 #include <vital/algo/video_input.h>
+#include <vital/types/object_track_set.h>
+#include <vital/vital_config.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// Abstract base class for interpolating track states.
+
 /**
  * This class represents the abstract interface for algorithms that
  * interpolate track states.
  */
 class VITAL_ALGO_EXPORT interpolate_track
-  : public kwiver::vital::algorithm_def<interpolate_track>
+  : public kwiver::vital::algorithm_def< interpolate_track >
 {
 public:
   /// Return the name of this algorithm.
   static std::string static_type_name() { return "interpolate_track"; }
 
   /// Supply video input algorithm
+
   /**
    * This method supplies the video input algorithm to use for getting
    * the frames needed to interpolate track states.
@@ -36,6 +40,7 @@ public:
   void set_video_input( video_input_sptr input );
 
   /// This method interpolates the states between track states.
+
   /**
    * This method interpolates track states to fill in missing states
    * between the states supplied in the input parameter. An output
@@ -49,9 +54,10 @@ public:
   virtual track_sptr interpolate( track_sptr init_states ) = 0;
 
   /// Typedef for the callback function signature
-  typedef std::function<void(int, int)> progress_callback_t;
+  typedef std::function< void ( int, int ) > progress_callback_t;
 
   /// Set a callback function to report intermediate progress
+
   /**
    * This method establishes the callback function that will be called
    * occasionally to report the progress of the interpolation
@@ -86,6 +92,10 @@ protected:
   progress_callback_t m_progress_callback;
 };
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+}     // end namespace
 
 #endif /* VITAL_ALGO_INTERPOLATE_TRACK_H */

@@ -11,7 +11,9 @@
 #include <vital/algo/image_filter.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 image_filter
@@ -20,8 +22,12 @@ image_filter
   attach_logger( "algo.image_filter" ); // specify a logger
 }
 
-} } }
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 /// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::image_filter);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::image_filter );
 /// \endcond

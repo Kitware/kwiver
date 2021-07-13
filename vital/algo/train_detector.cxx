@@ -13,7 +13,9 @@
 #include <vital/vital_config.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 train_detector
@@ -29,7 +31,7 @@ train_detector
   VITAL_UNUSED std::vector< std::string > train_image_names,
   VITAL_UNUSED std::vector< kwiver::vital::detected_object_set_sptr > train_groundtruth,
   VITAL_UNUSED std::vector< std::string > test_image_names,
-  VITAL_UNUSED std::vector< kwiver::vital::detected_object_set_sptr > test_groundtruth)
+  VITAL_UNUSED std::vector< kwiver::vital::detected_object_set_sptr > test_groundtruth )
 {
   throw std::runtime_error( "Method not implemented" );
 }
@@ -41,13 +43,17 @@ train_detector
   VITAL_UNUSED std::vector< kwiver::vital::image_container_sptr > train_images,
   VITAL_UNUSED std::vector< kwiver::vital::detected_object_set_sptr > train_groundtruth,
   VITAL_UNUSED std::vector< kwiver::vital::image_container_sptr > test_images,
-  VITAL_UNUSED std::vector< kwiver::vital::detected_object_set_sptr > test_groundtruth)
+  VITAL_UNUSED std::vector< kwiver::vital::detected_object_set_sptr > test_groundtruth )
 {
   throw std::runtime_error( "Method not implemented" );
 }
 
-} } }
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 /// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::train_detector);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::train_detector );
 /// \endcond
