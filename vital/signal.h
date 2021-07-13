@@ -20,6 +20,7 @@ namespace kwiver {
 namespace vital {
 
 // ----------------------------------------------------------------------------
+
 /**
  * \brief Base class for ::signal.
  *
@@ -44,6 +45,7 @@ protected:
 };
 
 // ----------------------------------------------------------------------------
+
 /**
  * \brief Encapsulation class for an event signal.
  *
@@ -74,10 +76,11 @@ public:
   using slot_t = std::function< void ( Args... ) >;
 
   signal() = default;
+
   ~signal()
   {
     std::lock_guard< std::mutex > lock{ this->m_mutex };
-    for ( auto const& iter : m_slots )
+    for( auto const& iter : m_slots )
     {
       iter.first->disconnect( this );
     }
@@ -93,7 +96,7 @@ public:
   operator()( Args... args )
   {
     std::lock_guard< std::mutex > lock{ this->m_mutex };
-    for ( auto const& iter : m_slots )
+    for( auto const& iter : m_slots )
     {
       iter.second( args... );
     }

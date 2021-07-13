@@ -5,12 +5,13 @@
 #ifndef KWIVER_VITAL_ANY_H
 #define KWIVER_VITAL_ANY_H
 
-#include <vital/vital_config.h>
 #include <vital/util/demangle.h>
 
+#include <vital/vital_config.h>
+
 #include <memory>
-#include <typeinfo>
 #include <type_traits>
+#include <typeinfo>
 
 #include <cstring>
 
@@ -19,6 +20,7 @@ namespace kwiver {
 namespace vital {
 
 // ============================================================================
+
 /**
  * @brief Class that contains *any* data type.
  *
@@ -33,6 +35,7 @@ class any
   using non_self = typename std::enable_if< !is_self< T >::value >::type*;
 
 public:
+
   /**
    * @brief Create empty object.
    *
@@ -54,7 +57,7 @@ public:
   {
     using value_t = typename std::decay< T >::type;
     this->m_content.reset(
-      new internal_typed< value_t >{ std::forward< T >( value ) } );
+        new internal_typed< value_t >{ std::forward< T >( value ) } );
   }
 
   /**
@@ -98,7 +101,8 @@ public:
    *
    * @return Modified current (this) object.
    */
-  any& swap( any& rhs ) noexcept
+  any&
+  swap( any& rhs ) noexcept
   {
     this->m_content.swap( rhs.m_content );
     return *this;
@@ -114,7 +118,8 @@ public:
    * @return Reference to this object.
    */
   template < typename T >
-  any& operator=( T&& rhs )
+  any&
+  operator=( T&& rhs )
   {
     any{ std::forward< T >( rhs ) }.swap( *this );
     return *this;
@@ -128,7 +133,8 @@ public:
    * @return \c true if no value in object, \c false if there is a
    * value.
    */
-  bool empty() const noexcept
+  bool
+  empty() const noexcept
   {
     return !m_content;
   }
@@ -140,7 +146,8 @@ public:
    * object. The empty() method will return /b true after this call.
    *
    */
-  void clear() noexcept
+  void
+  clear() noexcept
   {
     m_content.reset();
   }
@@ -154,16 +161,17 @@ public:
    * You can get the type name string from the following, but the name string
    * may not be all that helpful.
    *
-   \code
-   kwiver::vital::any any_double(3.14159);
-   std::cout << "Type name: " << any_double.type().name() << std::endl;
-   \endcode
+   *  \code
+   *  kwiver::vital::any any_double(3.14159);
+   *  std::cout << "Type name: " << any_double.type().name() << std::endl;
+   *  \endcode
    *
    * @return The type info for the datum in this object is returned.
    */
-  std::type_info const& type() const noexcept
+  std::type_info const&
+  type() const noexcept
   {
-    return m_content ? m_content->type() : typeid(void);
+    return m_content ? m_content->type() : typeid( void );
   }
 
   /**
@@ -173,9 +181,10 @@ public:
    * specified by the template parameter.
    */
   template < typename T >
-  bool is_type() const
+  bool
+  is_type() const
   {
-    if ( m_content )
+    if( m_content )
     {
       auto const& my_type = this->m_content->type();
       return std::strcmp( typeid( T ).name(), my_type.name() ) == 0;
@@ -190,36 +199,42 @@ public:
    *
    * @return Demangled type name string.
    */
-  std::string type_name() const noexcept
+  std::string
+  type_name() const noexcept
   {
     return demangle( this->type().name() );
   }
 
 private:
+
   // --------------------------------------------------------------------------
   // Base class for representing content
   class internal
   {
   public:
-    virtual ~internal() { }
+    virtual ~internal() {}
+
     virtual std::type_info const& type() const noexcept = 0;
     virtual internal* clone() const = 0;
   };
 
   // --------------------------------------------------------------------------
   // Type specific content
-  template < typename T > class internal_typed : public internal
+  template < typename T >
+  class internal_typed : public internal
   {
   public:
     internal_typed( T const& value ) : m_any_data( value ) {}
     internal_typed( T&& value ) : m_any_data( std::move( value ) ) {}
 
-    virtual std::type_info const& type() const noexcept
+    virtual std::type_info const&
+    type() const noexcept
     {
-      return typeid(T);
+      return typeid( T );
     }
 
-    virtual internal* clone() const
+    virtual internal*
+    clone() const
     {
       return new internal_typed{ m_any_data };
     }
@@ -241,13 +256,15 @@ private:
   friend T any_cast( any const& );
 
   template < typename T >
-  internal_typed< T >* content()
+  internal_typed< T >*
+  content()
   {
     return static_cast< internal_typed< T >* >( this->m_content.get() );
   }
 
   template < typename T >
-  internal_typed< T > const* content() const
+  internal_typed< T > const*
+  content() const
   {
     return static_cast< internal_typed< T >* >( this->m_content.get() );
   }
@@ -275,17 +292,23 @@ public:
     // Construct helpful message
     if( !from_type.empty() )
     {
-      m_message = "vital::bad_any_cast: failed conversion using kwiver::vital::any_cast from type \""
-        + demangle( from_type ) + "\" to type \"" + demangle( to_type ) + "\"";
+      m_message =
+        "vital::bad_any_cast: failed conversion using kwiver::vital::any_cast from type \""
+        +
+        demangle( from_type ) + "\" to type \"" +
+        demangle( to_type ) + "\"";
     }
     else
     {
-      m_message = "vital::bad_any_cast: attempted to cast an uninitialized kwiver::vital::any object";
+      m_message =
+        "vital::bad_any_cast: attempted to cast an uninitialized kwiver::vital::any object";
     }
   }
 
-  virtual ~bad_any_cast() noexcept {};
-  char const* what() const noexcept override
+  virtual ~bad_any_cast() noexcept{}
+
+  char const*
+  what() const noexcept override
   {
     return m_message.c_str();
   }
@@ -299,6 +322,7 @@ private:
 //BEGIN Casting functions
 
 // ----------------------------------------------------------------------------
+
 /**
  * @brief Get value pointer from a container.
  *
@@ -314,7 +338,7 @@ template < typename T >
 inline T*
 any_cast( any* operand ) noexcept
 {
-  if ( operand && ( operand->is_type< T >() ) )
+  if( operand && ( operand->is_type< T >() ) )
   {
     return &( operand->content< T >()->m_any_data );
   }
@@ -322,6 +346,7 @@ any_cast( any* operand ) noexcept
 }
 
 // ----------------------------------------------------------------------------
+
 /**
  * @brief Get value pointer from a container.
  *
@@ -337,7 +362,7 @@ template < typename T >
 inline T const*
 any_cast( any const* operand ) noexcept
 {
-  if ( operand && ( operand->is_type< T >() ) )
+  if( operand && ( operand->is_type< T >() ) )
   {
     return &( operand->content< T >()->m_any_data );
   }
@@ -345,6 +370,7 @@ any_cast( any const* operand ) noexcept
 }
 
 // ----------------------------------------------------------------------------
+
 /**
  * @brief Get value from a container.
  *
@@ -359,9 +385,9 @@ template < typename T >
 inline T
 any_cast( any const& aval )
 {
-  if ( aval.m_content )
+  if( aval.m_content )
   {
-    if ( aval.is_type< T >() )
+    if( aval.is_type< T >() )
     {
       return aval.content< T >()->m_any_data;
     }

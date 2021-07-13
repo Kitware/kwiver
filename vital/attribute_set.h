@@ -10,18 +10,19 @@
 #ifndef KWIVER_VITAL_TTRIBUTE_SET_H
 #define KWIVER_VITAL_TTRIBUTE_SET_H
 
-#include <vital/vital_export.h>
 #include <vital/vital_config.h>
+#include <vital/vital_export.h>
 
 #include <vital/any.h>
-#include <vital/noncopyable.h>
 #include <vital/exceptions/base.h>
+#include <vital/noncopyable.h>
 
 #include <map>
-#include <string>
 #include <memory>
+#include <string>
 
 namespace kwiver {
+
 namespace vital {
 
 // ------------------------
@@ -39,6 +40,7 @@ typedef std::shared_ptr< attribute_set > attribute_set_sptr;
 
 // -----------------------------------------------------------------
 /// General purpose attribute set.
+
 /**
  * This class represents a set of general purpose attributes. The main
  * purpose of this class is to provide a mechanism for associating an
@@ -54,7 +56,7 @@ class VITAL_EXPORT attribute_set
   : private noncopyable
 {
 public:
-  #ifdef VITAL_STD_MAP_UNIQUE_PTR_ALLOWED
+#ifdef VITAL_STD_MAP_UNIQUE_PTR_ALLOWED
   typedef std::unique_ptr< kwiver::vital::any > item_ptr;
 #else
   typedef std::shared_ptr< kwiver::vital::any > item_ptr;
@@ -94,8 +96,9 @@ public:
    * @param name Name if attribute
    * @param val Value of attribute
    */
-  template<typename T>
-  void add( const std::string& name, const T& val )
+  template < typename T >
+  void
+  add( const std::string& name, const T& val )
   {
     add( name, kwiver::vital::any( val ) );
   }
@@ -191,10 +194,11 @@ public:
    * @throws kwiver::vital::bad_any_cast if actual type does not match
    * requested type.
    */
-  template<typename T>
-  T get( const std::string& name ) const
+  template < typename T >
+  T
+  get( const std::string& name ) const
   {
-    return kwiver::vital::any_cast<T>( data(name ) );
+    return kwiver::vital::any_cast< T >( data( name ) );
   }
 
   /**
@@ -211,19 +215,20 @@ public:
    * type.
    *
    * Example usage:
-   \code
-   if (is_type<std::string>("operator"))
-   {
-     auto val = get<std::string>("operator");
-     ...
-   }
-   \endcode
+   *  \code
+   *  if (is_type<std::string>("operator"))
+   *  {
+   *  auto val = get<std::string>("operator");
+   *  ...
+   *  }
+   *  \endcode
    */
-  template< typename T>
-  bool is_type( const std::string& name ) const
+  template < typename T >
+  bool
+  is_type( const std::string& name ) const
   {
     const auto val = data( name );
-    return (typeid(T) == val.type());
+    return ( typeid( T ) == val.type() );
   }
 
 private:
@@ -232,6 +237,8 @@ private:
 
 typedef std::shared_ptr< attribute_set > attribute_set_sptr;
 
-} } // end namespace
+} // namespace vital
+
+}   // end namespace
 
 #endif /* KWIVER_VITAL_TTRIBUTE_SET_H */

@@ -7,14 +7,16 @@
 
 #include <vital/vital_export.h>
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace kwiver {
+
 namespace vital {
 
 // ----------------------------------------------------------------
+
 /**
  * \brief Algorithm capability set.
  *
@@ -37,6 +39,7 @@ public:
   ~algorithm_capabilities();
 
   /// Indicate if capability is supported.
+
   /**
    * This method reports if the specified capability is supported by the
    * concrete implementation. If the capability is supported, then the
@@ -50,6 +53,7 @@ public:
   bool has_capability( capability_name_t const& name ) const;
 
   /// Get list of supported capabilities.
+
   /**
    * This method returns a vector of all capabilities supported by the
    * current algorithm implementation. Only the names are returned.
@@ -59,6 +63,7 @@ public:
   capability_list_t capability_list() const;
 
   /// Return value of capability,
+
   /**
    * This method returns the value of the specified capability.  \b false
    * is also returned if the capability does not exist.  it is a
@@ -73,6 +78,7 @@ public:
   bool capability( capability_name_t const& name ) const;
 
   /// Set capability value.
+
   /**
    * This method creates a capability and sets it to the specified value.
    * The value is replaced if the capability already exists.
@@ -87,9 +93,12 @@ public:
 private:
   /// private implementation class
   class priv;
-  std::unique_ptr<priv> d;
+
+  std::unique_ptr< priv > d;
 };
 
-} } // end namespace
+} // namespace vital
+
+} // namespace kwiver
 
 #endif /* VITAL_ALGORITHM_CAPABILITIES_H */

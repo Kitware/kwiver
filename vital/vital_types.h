@@ -12,12 +12,13 @@
 #ifndef KWIVER_CORE_TYPES_H
 #define KWIVER_CORE_TYPES_H
 
-#include <string>
-#include <vector>
 #include <cstdint>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace kwiver {
+
 namespace vital {
 
 /// The type to be used for general strings
@@ -62,8 +63,10 @@ typedef int64_t activity_id_t;
 typedef std::string activity_label_t;
 
 /// Global activity used to denote an undefined activity label
-const activity_label_t UNDEFINED_ACTIVITY("UNDEFINED_ACTIVITY");
+const activity_label_t UNDEFINED_ACTIVITY( "UNDEFINED_ACTIVITY" );
 
-} } // end namespace
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // KWIVER_CORE_TYPES_H
