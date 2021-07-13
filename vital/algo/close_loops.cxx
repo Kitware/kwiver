@@ -6,7 +6,9 @@
 #include <vital/algo/close_loops.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 close_loops
@@ -15,6 +17,10 @@ close_loops
   attach_logger( "algo.close_loops" );
 }
 
-} } }
+} // namespace algo
 
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::close_loops);
+} // namespace vital
+
+} // namespace kwiver
+
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::close_loops );

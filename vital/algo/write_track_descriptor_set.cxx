@@ -18,17 +18,19 @@
 #include <kwiversys/SystemTools.hxx>
 
 /// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::write_track_descriptor_set);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::write_track_descriptor_set );
 /// \endcond
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 write_track_descriptor_set
 ::write_track_descriptor_set()
   : m_stream( 0 )
-  , m_stream_owned( false )
+    , m_stream_owned( false )
 {
   attach_logger( "algo.write_track_descriptor_set" );
 }
@@ -46,7 +48,7 @@ write_track_descriptor_set
   // try to open the file
   std::unique_ptr< std::ostream > file( new std::ofstream( filename ) );
 
-  if( ! *file )
+  if( !*file )
   {
     VITAL_THROW( file_not_found_exception, filename, "open failed" );
   }
@@ -94,4 +96,8 @@ write_track_descriptor_set
   return m_filename;
 }
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+}     // end namespace
