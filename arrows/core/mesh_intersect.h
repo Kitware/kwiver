@@ -46,7 +46,7 @@ mesh_intersect_triangle(const vital::point_3d& p,
                         double& u, double& v);
 
 
-/// Intersect the ray from point to a triangle
+/// Intersect a ray from point to a triangle
 /**
  * Intersect the ray from point p with direction d and the triangle defined
  * by a,b,c. The un-normalized normal vector (b-a)x(c-a) is precomputed and
@@ -185,6 +185,48 @@ mesh_triangle_closest_point(const vital::point_3d& p,
                             const vital::point_3d& b,
                             const vital::point_3d& c,
                             double& dist);
+
+/// Find the closest point on a triangulated mesh to a reference point
+/**
+ * Find the closest point on the triangulated mesh to point p.
+ *
+ * \param [in]   p     reference point to get closest distance to
+ * \param [in]   mesh  the mesh
+ * \param [out]  cp    the closest point on the mesh
+ * \param [out]  u     barycentric coordinate of the intersection
+ * \param [out]  v     barycentric coordinate of the intersection
+ * \returns      the face index of the closest triangle (one of them
+ *               if on an edge or vertex). If the operation failed or is
+ *               not possible -1 is returned.
+ */
+KWIVER_ALGO_CORE_EXPORT
+int
+mesh_closest_point(const vital::point_3d& p,
+                   const vital::mesh& mesh,
+                   vital::point_3d& cp,
+                   double& u, double& v);
+
+/// Intersect a ray from point to a triangulated mesh
+/**
+ * Intersect the ray from point p with direction d and a triangulated mesh.
+ *
+ * \param [in]   p     point that is the start of the ray
+ * \param [in]   d     direction of the ray
+ * \param [in]   mesh  the mesh
+ * \param [out]  dist  the distance to the mesh
+ * \param [out]  u     barycentric coordinate of the intersection
+ * \param [out]  v     barycentric coordinate of the intersection
+ * \returns      the face index of the intersected triangle (one of them
+ *               if on an edge or vertex). If the operation failed or is
+ *               not possible -1 is returned.
+ */
+KWIVER_ALGO_CORE_EXPORT
+int
+mesh_intersect(const vital::point_3d& p,
+               const vital::vector_3d& d,
+               const vital::mesh& mesh,
+               double& dist,
+               double& u, double& v);
 
 }
 }

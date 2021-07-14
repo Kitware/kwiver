@@ -8,6 +8,8 @@
  */
 
 #include "mesh_intersect.h"
+#include <limits>
+#include <vital/logger/logger.h>
 
 namespace kwiver {
 namespace arrows {
@@ -251,6 +253,110 @@ mesh_triangle_closest_point(const vital::point_3d& p,
                   t*a[2] + u*b[2] + v*c[2]);
 }
 
+/// Find the closest point on a triangulated mesh to a reference point
+int
+mesh_closest_point(const vital::point_3d& p,
+                   const vital::mesh& mesh,
+                   vital::point_3d& cp,
+                   double& u, double& v)
+{
+  // check for a triangular mesh
+  if (mesh.faces().regularity() != 3)
+  {
+    LOG_ERROR(vital::get_logger("arrows.core.mesh_closest_point"),
+      "Closest point calculation requires triangular mesh.");
+    return -1;
+  }
+
+  const mesh_vertex_array<3>& verts = mesh.vertices<3>();
+  const mesh_regular_face_array<3>& faces =
+    static_cast<const mesh_regular_face_array<3>&>(mesh.faces());
+
+  int isect = -1;
+  double u1, v1;
+  double shortest_dist = std::numeric_limits<double>::infinity();
+  for (unsigned int i=0; i<faces.size(); ++i)
+  {
+    const mesh_regular_face<3>& f = faces[i];
+    vital::point_3d a(verts[f[0]]);
+    vital::point_3d b(verts[f[1]]);
+    vital::point_3d c(verts[f[2]]);
+    double dist = shortest_dist;
+    if (mesh_triangle_closest_point(p, a, b, c, dist, u1, v1) &&
+        dist < shortest_dist)
+    {
+      u = u1;
+      v = v1;
+      isect = i;
+      shortest_dist = dist;
+    }
+  }
+
+  // Get the closest point in physical space from barycentric coordinates
+  double t = 1 - u - v;
+  const mesh_regular_face<3>& f = faces[isect];
+  vital::point_3d a(verts[f[0]]);
+  vital::point_3d b(verts[f[1]]);
+  vital::point_3d c(verts[f[2]]);
+  cp.set_value(vector_3d(t*a[0] + u*b[0] + v*c[0],
+                         t*a[1] + u*b[1] + v*c[1],
+                         t*a[2] + u*b[2] + v*c[2]));
+  return isect;
+}
+
+/// Intersect a ray from point to a triangulated mesh
+int
+mesh_intersect(const vital::point_3d& p,
+               const vital::vector_3d& d,
+               const vital::mesh& mesh,
+               double& dist,
+               double& u, double& v)
+{
+  // check for a triangular mesh
+  if (mesh.faces().regularity() != 3)
+  {
+    LOG_ERROR(vital::get_logger("arrows.core.mesh_closest_point"),
+      "Closest point calculation requires triangular mesh.");
+    return -1;
+  }
+
+  // Calculate normals if needed
+  if (!mesh.faces().has_normals())
+  {
+    LOG_ERROR(vital::get_logger("arrows.core.mesh_closest_point"),
+      "Closest point calculation requires faces normals.");
+    return -1;
+  }
+
+  const mesh_vertex_array<3>& verts = mesh.vertices<3>();
+  const mesh_regular_face_array<3>& faces =
+    static_cast<const mesh_regular_face_array<3>&>(mesh.faces());
+
+  // Check that normal magnitude corresponds to face area
+  if ( ((verts[faces[0][1]] - verts[faces[0][0]])
+        .cross(verts[faces[0][2]] - verts[faces[0][0]])
+               - 0.5*faces.normal(0)).norm() < 1e-14 )
+  {
+    LOG_ERROR(vital::get_logger("arrows.core.mesh_closest_point"),
+      "Closest point calculation requires faces normal lengths be set to face area.");
+    return -1;
+  }
+
+  int isect = -1;
+  dist = std::numeric_limits<double>::infinity();
+  for (unsigned int i=0; i<faces.size(); ++i)
+  {
+    const mesh_regular_face<3>& f = faces[i];
+    vital::point_3d a(verts[f[0]]);
+    vital::point_3d b(verts[f[1]]);
+    vital::point_3d c(verts[f[2]]);
+    if (mesh_intersect_triangle_min_dist(p, d, a, b, c, faces.normal(i), dist, u, v))
+    {
+      isect = i;
+    }
+  }
+  return isect;
+}
 
 }
 }
