@@ -15,6 +15,7 @@
 #include <vital/types/geo_polygon.h>
 #include <vital/types/matrix.h>
 #include <vital/types/metadata.h>
+#include <vital/types/metadata_types.h>
 
 #include <vital/logger/logger.h>
 
