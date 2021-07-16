@@ -218,8 +218,8 @@ class TestVitalMetadataItemSubclasses(unittest.TestCase):
         inst = UnknownMetadataItem()
         exp_name = "Requested metadata item is not in collection"
         exp_string = "--Unknown metadata item--"
-        prop_info = PropInfo(exp_name, tag, 0)
-        type_info = TypeInfo("void", as_string=exp_string, as_double=0, as_uint64=0)
+        prop_info = PropInfo(exp_name, tag, None)
+        type_info = TypeInfo(type(None), as_string=exp_string)
         self.check_instance(inst, prop_info, type_info, is_valid=False)
 
     def check_instance(self, inst, prop_info, type_info, is_valid=True):
