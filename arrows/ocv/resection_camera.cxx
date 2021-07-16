@@ -34,7 +34,7 @@ struct resection_camera::priv : public mvg::camera_options
   vital::logger_handle_t m_logger;
 
   double reproj_accuracy = 4.;
-  int max_iterations = 64;
+  int max_iterations = 32;
 };
 
 // ----------------------------------------------------------------------------
@@ -206,21 +206,21 @@ resection_camera
   vital::matrix_3x3d K = cal->as_matrix();
   cv::TermCriteria term_criteria{
     cv::TermCriteria::COUNT + cv::TermCriteria::EPS,
-    d_->max_iterations, reproj_error };
+    d_->max_iterations, DBL_EPSILON };
   using MatD = cv::Mat_<double>;
   MatD cv_K;
   eigen2cv( K, cv_K );
+  auto const dc0 = dist_coeffs;
   auto const focal_scales = {0.5, 1.0, 2.0};
   auto focal_scale = 0.0; // preferred focal scale after optimization
-  auto const dc0 = dist_coeffs;
   for (auto const scale : focal_scales)
   { // minimize re-projection error over multiple focal scales
     auto dc = dc0;
     vmat rv,tv;
     MatD cvK;
     eigen2cv( K, cvK );
-    cvK(0,0)*=scale;
-    cvK(1,1)*=scale;
+    cvK(0,0) *= scale;
+    cvK(1,1) *= scale;
     auto const e = cv::calibrateCamera(
       world_points_vec, image_points_vec,
       image_size, cvK, dc, rv, tv,
