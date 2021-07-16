@@ -108,7 +108,6 @@ class TestVitalMetadataTags(unittest.TestCase):
             mt.tags.VITAL_META_EVENT_START_DATE_TIME_UTC,
             mt.tags.VITAL_META_MISSION_START_TIME_UTC,
             mt.tags.VITAL_META_SECURITY_CLASSIFICATION,
-            mt.tags.VITAL_META_CLASSIFICATION,
             mt.tags.VITAL_META_SECURITY_LOCAL_MD_SET,
             mt.tags.VITAL_META_WEAPON_LOAD_0601,
             mt.tags.VITAL_META_WEAPON_FIRED_0601,

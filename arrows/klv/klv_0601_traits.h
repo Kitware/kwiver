@@ -14,13 +14,15 @@
 #include <arrows/klv/klv_0601.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
+#include <vital/types/metadata_types.h>
+
 #include <limits>
+
+namespace kv = kwiver::vital;
 
 namespace kwiver {
 namespace arrows {
 namespace klv {
-
-class std_0102_lds { };
 
 /// Define traits for a given KLV 0601 tag
 /// All tag traits should be defined using the macro below
@@ -89,7 +91,7 @@ KLV_TRAITS( TARGET_TRK_GATE_HEIGHT,      "Target Track Gate Height",        uint
 KLV_TRAITS( TARGET_ERROR_EST_CE90,       "Target Error Estimate - CE90",    uint16_t);
 KLV_TRAITS( TARGET_ERROR_EST_LE90,       "Target Error Estimate - LE90",    uint16_t);
 KLV_TRAITS( GENERIC_FLAG_DATA_01,        "Generic Flag Data 01",            uint8_t);
-KLV_TRAITS( SECURITY_LOCAL_MD_SET,       "Security Local Metadata Set",     std_0102_lds);
+KLV_TRAITS( SECURITY_LOCAL_MD_SET,       "Security Local Metadata Set",     kv::std_0102_lds);
 KLV_TRAITS( DIFFERENTIAL_PRESSURE,       "Differential Pressure",           uint16_t);
 KLV_TRAITS( PLATFORM_ANG_OF_ATTACK,      "Platform Angle of Attack",        int16_t);
 KLV_TRAITS( PLATFORM_VERTICAL_SPEED,     "Platform Vertical Speed",         int16_t);

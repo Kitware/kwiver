@@ -14,6 +14,7 @@
 
 #include <vital/exceptions/metadata.h>
 #include <vital/types/geodesy.h>
+#include <vital/types/metadata_types.h>
 #include <vital/vital_config.h>
 
 namespace kwiver {
@@ -207,7 +208,7 @@ case klv_0104::KN:                                        \
       CASE( START_DATE_TIME_UTC );
       CASE2( MISSION_START_TIME, MISSION_START_TIME_UTC );
       CASE( SECURITY_CLASSIFICATION );
-      CASE( CLASSIFICATION );
+      CASE( SECURITY_LOCAL_MD_SET );
       CASE( SENSOR_TYPE );
       CASE( EVENT_START_DATE_TIME_UTC );
 
