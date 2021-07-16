@@ -114,10 +114,14 @@ PYBIND11_MODULE( metadata, m )
   .def( "__nonzero__", &unknown_metadata_item::is_valid )
   .def( "__bool__",    &unknown_metadata_item::is_valid )
   .def_property_readonly( "tag",  &unknown_metadata_item::tag )
+  .def_property_readonly( "type", [] ( unknown_metadata_item const& self )
+  {
+    return py::none().get_type();
+  } )
   .def_property_readonly( "data", [] ( unknown_metadata_item const& self )
   {
     return py::none();
-  })
+  } )
   .def( "as_string",  &unknown_metadata_item::as_string )
   .def( "as_double",  &unknown_metadata_item::as_double )
   .def( "as_uint64",  &unknown_metadata_item::as_uint64 )

@@ -219,7 +219,7 @@ class TestVitalMetadataItemSubclasses(unittest.TestCase):
         exp_name = "Requested metadata item is not in collection"
         exp_string = "--Unknown metadata item--"
         prop_info = PropInfo(exp_name, tag, None)
-        type_info = TypeInfo("kwiver::vital::unknown_metadata_item::unknown_t", as_string=exp_string)
+        type_info = TypeInfo(type(None), as_string=exp_string)
         self.check_instance(inst, prop_info, type_info, is_valid=False)
 
     def check_instance(self, inst, prop_info, type_info, is_valid=True):
