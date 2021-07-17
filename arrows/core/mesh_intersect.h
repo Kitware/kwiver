@@ -4,7 +4,8 @@
 
 /**
  * \file
- * \brief Operations to modify meshes
+ * \brief Operations to calculate closest points and ray intersections
+ *        to triangles and meshes
  */
 
 #ifndef KWIVER_ARROWS_CORE_MESH_INTERSECT_H
@@ -25,7 +26,8 @@ namespace core {
 
 /**
  * Intersect the ray from point p with direction d and the triangle
- * defined by a,b,c.
+ * defined by a,b,c. Returns the distance to the mesh from the point
+ * and the barycentric coordinates of the intersection on the triangle.
  *
  * \param [in]   p     point that is the start of the ray
  * \param [in]   d     direction of the ray
@@ -54,7 +56,8 @@ mesh_intersect_triangle( const vital::point_3d& p,
 /**
  * Intersect the ray from point p with direction d and the triangle defined
  * by a,b,c. The un-normalized normal vector (b-a)x(c-a) is precomputed and
- * also passed in.
+ * also passed in. Returns the distance to the mesh from the point
+ * and the barycentric coordinates of the intersection on the triangle.
  *
  * \param [in]   p     point that is the start of the ray
  * \param [in]   d     direction of the ray
@@ -86,7 +89,9 @@ mesh_intersect_triangle( const vital::point_3d& p,
 /**
  * Intersect the ray from point p with direction d and the triangle defined
  * by a,b,c. The un-normalized normal vector (b-a)x(c-a) is precomputed and
- * also passed in.
+ * also passed in. Returns the distance to the mesh from the point
+ * and the barycentric coordinates of the intersection on the triangle if
+ * the distance is smaller.
  *
  * \param [in]   p     point that is the start of the ray
  * \param [in]   d     direction of the ray
@@ -98,7 +103,7 @@ mesh_intersect_triangle( const vital::point_3d& p,
  * \param [out]  u     barycentric coordinate of the intersection
  * \param [out]  v     barycentric coordinate of the intersection
  * \returns      true  if intersection occurs and the new dist is less than the
- * old distance (but > 0)
+ *                     old distance (but > 0)
  * Barycentric coordinates are u and v such that (1-u-v)*a + u*b + v*c =
  * p+dist*d
  */
@@ -117,7 +122,9 @@ mesh_intersect_triangle_min_dist( const vital::point_3d& p,
 
 /**
  * Find the closest point on the triangle a,b,c to point p. The un-normalized
- * normal vector (b-a)x(c-a) is precomputed and also passed in
+ * normal vector (b-a)x(c-a) is precomputed and also passed in. Returns the
+ * distance to the mesh from the point and the barycentric coordinates on
+ * the triangle of the intersection.
  *
  * \param [in]   p     reference point to get closest distance to
  * \param [in]   a     corner point of triangle
@@ -136,6 +143,8 @@ mesh_intersect_triangle_min_dist( const vital::point_3d& p,
  *               - 5 is on the edge from \a a to \a c
  *               - 6 is on the edge from \a b to \a c
  *               - 7 is on the face of the triangle
+ * Barycentric coordinates are u and v such that (1-u-v)*a + u*b + v*c =
+ * p+dist*d
  */
 KWIVER_ALGO_CORE_EXPORT
 unsigned char
@@ -150,7 +159,9 @@ mesh_triangle_closest_point( const vital::point_3d& p,
 /// Find the closest point on the triangle to a reference point
 
 /**
- * Find the closest point on the triangle a,b,c to point p.
+ * Find the closest point on the triangle a,b,c to point p. Returns the
+ * distance to the mesh from the point and the barycentric coordinates on
+ * the triangle of the intersection.
  *
  * \param [in]   p     reference point to get closest distance to
  * \param [in]   a     corner point of triangle
@@ -168,6 +179,8 @@ mesh_triangle_closest_point( const vital::point_3d& p,
  *               - 5 is on the edge from \a a to \a c
  *               - 6 is on the edge from \a b to \a c
  *               - 7 is on the face of the triangle
+ * Barycentric coordinates are u and v such that (1-u-v)*a + u*b + v*c =
+ * p+dist*d
  */
 KWIVER_ALGO_CORE_EXPORT
 unsigned char
@@ -181,7 +194,8 @@ mesh_triangle_closest_point( const vital::point_3d& p,
 /// Find the closest point on the triangle to a reference point
 
 /**
- * Find the closest point on the triangle a,b,c to point p
+ * Find the closest point on the triangle a,b,c to point p. Returns the
+ * distance to the mesh from the point and the closest point.
  *
  * \param [in]   p     reference point to get closest distance to
  * \param [in]   a     corner point of triangle
@@ -201,7 +215,10 @@ mesh_triangle_closest_point( const vital::point_3d& p,
 /// Find the closest point on a triangulated mesh to a reference point
 
 /**
- * Find the closest point on the triangulated mesh to point p.
+ * Find the closest point on the triangulated mesh to point p. Returns the
+ * distance to the mesh from the point, the index of the mesh triangle
+ * that the closest point is on, the closest point, and the barycentric
+ * coordinates of the intersection on the triangle.
  *
  * \param [in]   p     reference point to get closest distance to
  * \param [in]   mesh  the mesh
@@ -211,6 +228,8 @@ mesh_triangle_closest_point( const vital::point_3d& p,
  * \returns      the face index of the closest triangle (one of them
  *               if on an edge or vertex). If the operation failed or is
  *               not possible -1 is returned.
+ * Barycentric coordinates are u and v such that (1-u-v)*a + u*b + v*c =
+ * p+dist*d
  */
 KWIVER_ALGO_CORE_EXPORT
 int
@@ -223,6 +242,9 @@ mesh_closest_point( const vital::point_3d& p,
 
 /**
  * Intersect the ray from point p with direction d and a triangulated mesh.
+ * Returns the distance to the mesh from the point, the index of the mesh
+ * triangle that the closest point is on, and the barycentric coordinates
+ * of the intersection on the triangle.
  *
  * \param [in]   p     point that is the start of the ray
  * \param [in]   d     direction of the ray
@@ -233,6 +255,8 @@ mesh_closest_point( const vital::point_3d& p,
  * \returns      the face index of the intersected triangle (one of them
  *               if on an edge or vertex). If the operation failed or is
  *               not possible -1 is returned.
+ * Barycentric coordinates are u and v such that (1-u-v)*a + u*b + v*c =
+ * p+dist*d
  */
 KWIVER_ALGO_CORE_EXPORT
 int
