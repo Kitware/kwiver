@@ -16,10 +16,13 @@
 #include <vital/types/point.h>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace core {
 
 /// Intersect the ray from point to a triangle
+
 /**
  * Intersect the ray from point p with direction d and the triangle
  * defined by a,b,c.
@@ -33,20 +36,21 @@ namespace core {
  * \param [out]  u     barycentric coordinate of the intersection
  * \param [out]  v     barycentric coordinate of the intersection
  * \returns      true  if intersection occurs
- * Barycentric coordinates are u and v such that (1-u-v)*a + u*b + v*c = p+dist*d
+ * Barycentric coordinates are u and v such that (1-u-v)*a + u*b + v*c =
+ * p+dist*d
  */
 KWIVER_ALGO_CORE_EXPORT
 bool
-mesh_intersect_triangle(const vital::point_3d& p,
-                        const vital::vector_3d& d,
-                        const vital::point_3d& a,
-                        const vital::point_3d& b,
-                        const vital::point_3d& c,
-                        double& dist,
-                        double& u, double& v);
-
+mesh_intersect_triangle( const vital::point_3d& p,
+                         const vital::vector_3d& d,
+                         const vital::point_3d& a,
+                         const vital::point_3d& b,
+                         const vital::point_3d& c,
+                         double& dist,
+                         double& u, double& v );
 
 /// Intersect a ray from point to a triangle
+
 /**
  * Intersect the ray from point p with direction d and the triangle defined
  * by a,b,c. The un-normalized normal vector (b-a)x(c-a) is precomputed and
@@ -62,20 +66,23 @@ mesh_intersect_triangle(const vital::point_3d& p,
  * \param [out]  u     barycentric coordinate of the intersection
  * \param [out]  v     barycentric coordinate of the intersection
  * \returns      true  if intersection occurs
- * Barycentric coordinates are u and v such that (1-u-v)*a + u*b + v*c = p+dist*d
+ * Barycentric coordinates are u and v such that (1-u-v)*a + u*b + v*c =
+ * p+dist*d
  */
 KWIVER_ALGO_CORE_EXPORT
 bool
-mesh_intersect_triangle(const vital::point_3d& p,
-                        const vital::vector_3d& d,
-                        const vital::point_3d& a,
-                        const vital::point_3d& b,
-                        const vital::point_3d& c,
-                        const vital::vector_3d& n,
-                        double& dist,
-                        double& u, double& v);
+mesh_intersect_triangle( const vital::point_3d& p,
+                         const vital::vector_3d& d,
+                         const vital::point_3d& a,
+                         const vital::point_3d& b,
+                         const vital::point_3d& c,
+                         const vital::vector_3d& n,
+                         double& dist,
+                         double& u, double& v );
 
-/// Intersect the ray from point to a triangle and check if the distance is smaller
+/// Intersect the ray from point to a triangle and check if the distance is
+/// smaller
+
 /**
  * Intersect the ray from point p with direction d and the triangle defined
  * by a,b,c. The un-normalized normal vector (b-a)x(c-a) is precomputed and
@@ -90,21 +97,24 @@ mesh_intersect_triangle(const vital::point_3d& p,
  * \param [out]  dist  the distance to the triangle
  * \param [out]  u     barycentric coordinate of the intersection
  * \param [out]  v     barycentric coordinate of the intersection
- * \returns      true  if intersection occurs and the new dist is less than the old distance (but > 0)
- * Barycentric coordinates are u and v such that (1-u-v)*a + u*b + v*c = p+dist*d
+ * \returns      true  if intersection occurs and the new dist is less than the
+ * old distance (but > 0)
+ * Barycentric coordinates are u and v such that (1-u-v)*a + u*b + v*c =
+ * p+dist*d
  */
 KWIVER_ALGO_CORE_EXPORT
 bool
-mesh_intersect_triangle_min_dist(const vital::point_3d& p,
-                                 const vital::vector_3d& d,
-                                 const vital::point_3d& a,
-                                 const vital::point_3d& b,
-                                 const vital::point_3d& c,
-                                 const vital::vector_3d& n,
-                                 double& dist,
-                                 double& u, double& v);
+mesh_intersect_triangle_min_dist( const vital::point_3d& p,
+                                  const vital::vector_3d& d,
+                                  const vital::point_3d& a,
+                                  const vital::point_3d& b,
+                                  const vital::point_3d& c,
+                                  const vital::vector_3d& n,
+                                  double& dist,
+                                  double& u, double& v );
 
 /// Find the closest point on the triangle to a reference point
+
 /**
  * Find the closest point on the triangle a,b,c to point p. The un-normalized
  * normal vector (b-a)x(c-a) is precomputed and also passed in
@@ -129,15 +139,16 @@ mesh_intersect_triangle_min_dist(const vital::point_3d& p,
  */
 KWIVER_ALGO_CORE_EXPORT
 unsigned char
-mesh_triangle_closest_point(const vital::point_3d& p,
-                            const vital::point_3d& a,
-                            const vital::point_3d& b,
-                            const vital::point_3d& c,
-                            const vital::vector_3d& n,
-                            double& dist,
-                            double& u, double& v);
+mesh_triangle_closest_point( const vital::point_3d& p,
+                             const vital::point_3d& a,
+                             const vital::point_3d& b,
+                             const vital::point_3d& c,
+                             const vital::vector_3d& n,
+                             double& dist,
+                             double& u, double& v );
 
 /// Find the closest point on the triangle to a reference point
+
 /**
  * Find the closest point on the triangle a,b,c to point p.
  *
@@ -160,14 +171,15 @@ mesh_triangle_closest_point(const vital::point_3d& p,
  */
 KWIVER_ALGO_CORE_EXPORT
 unsigned char
-mesh_triangle_closest_point(const vital::point_3d& p,
-                            const vital::point_3d& a,
-                            const vital::point_3d& b,
-                            const vital::point_3d& c,
-                            double& dist,
-                            double& u, double& v);
+mesh_triangle_closest_point( const vital::point_3d& p,
+                             const vital::point_3d& a,
+                             const vital::point_3d& b,
+                             const vital::point_3d& c,
+                             double& dist,
+                             double& u, double& v );
 
 /// Find the closest point on the triangle to a reference point
+
 /**
  * Find the closest point on the triangle a,b,c to point p
  *
@@ -180,13 +192,14 @@ mesh_triangle_closest_point(const vital::point_3d& p,
  */
 KWIVER_ALGO_CORE_EXPORT
 vital::point_3d
-mesh_triangle_closest_point(const vital::point_3d& p,
-                            const vital::point_3d& a,
-                            const vital::point_3d& b,
-                            const vital::point_3d& c,
-                            double& dist);
+mesh_triangle_closest_point( const vital::point_3d& p,
+                             const vital::point_3d& a,
+                             const vital::point_3d& b,
+                             const vital::point_3d& c,
+                             double& dist );
 
 /// Find the closest point on a triangulated mesh to a reference point
+
 /**
  * Find the closest point on the triangulated mesh to point p.
  *
@@ -201,12 +214,13 @@ mesh_triangle_closest_point(const vital::point_3d& p,
  */
 KWIVER_ALGO_CORE_EXPORT
 int
-mesh_closest_point(const vital::point_3d& p,
-                   const vital::mesh& mesh,
-                   vital::point_3d& cp,
-                   double& u, double& v);
+mesh_closest_point( const vital::point_3d& p,
+                    const vital::mesh& mesh,
+                    vital::point_3d& cp,
+                    double& u, double& v );
 
 /// Intersect a ray from point to a triangulated mesh
+
 /**
  * Intersect the ray from point p with direction d and a triangulated mesh.
  *
@@ -222,13 +236,15 @@ mesh_closest_point(const vital::point_3d& p,
  */
 KWIVER_ALGO_CORE_EXPORT
 int
-mesh_intersect(const vital::point_3d& p,
-               const vital::vector_3d& d,
-               const vital::mesh& mesh,
-               double& dist,
-               double& u, double& v);
+mesh_intersect( const vital::point_3d& p,
+                const vital::vector_3d& d,
+                const vital::mesh& mesh,
+                double& dist,
+                double& u, double& v );
 
-}
-}
-}
+} // namespace core
+
+} // namespace arrows
+
+} // namespace kwiver
 #endif // KWIVER_ARROWS_CORE_MESH_INTERSECT_H
