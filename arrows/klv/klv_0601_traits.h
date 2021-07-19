@@ -91,7 +91,7 @@ KLV_TRAITS( TARGET_TRK_GATE_HEIGHT,      "Target Track Gate Height",        uint
 KLV_TRAITS( TARGET_ERROR_EST_CE90,       "Target Error Estimate - CE90",    uint16_t);
 KLV_TRAITS( TARGET_ERROR_EST_LE90,       "Target Error Estimate - LE90",    uint16_t);
 KLV_TRAITS( GENERIC_FLAG_DATA_01,        "Generic Flag Data 01",            uint8_t);
-KLV_TRAITS( SECURITY_LOCAL_MD_SET,       "Security Local Metadata Set",     kv::std_0102_lds);
+KLV_TRAITS( SECURITY_SPECIFICATION,      "Security Specification (ST0102)", kv::std_0102_lds);
 KLV_TRAITS( DIFFERENTIAL_PRESSURE,       "Differential Pressure",           uint16_t);
 KLV_TRAITS( PLATFORM_ANG_OF_ATTACK,      "Platform Angle of Attack",        int16_t);
 KLV_TRAITS( PLATFORM_VERTICAL_SPEED,     "Platform Vertical Speed",         int16_t);

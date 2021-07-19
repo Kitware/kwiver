@@ -331,8 +331,8 @@
         "Security Classification",                                      \
         std::string,                                                    \
         "" )                                                            \
-  CALL( SECURITY_LOCAL_MD_SET,                                          \
-        "Security Local Metadata Set",                                  \
+  CALL( SECURITY_SPECIFICATION,                                         \
+        "Security Specification (ST0102)",                              \
         kwiver::vital::std_0102_lds,                                    \
         "Refer to std 0102 lds" )                                       \
   CALL( WEAPON_LOAD_0601,                                               \
