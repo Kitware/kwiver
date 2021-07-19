@@ -254,6 +254,9 @@ class TestVitalMetadataItemSubclasses(unittest.TestCase):
                 exp_verts = prop_info.data.polygon().get_vertices()
                 np.testing.assert_array_almost_equal(inst_verts, exp_verts)
 
+        elif prop_info.data is None:
+            nt.ok_(inst.data is None)
+
         else:
             nt.assert_equals(inst.data, prop_info.data)
 
