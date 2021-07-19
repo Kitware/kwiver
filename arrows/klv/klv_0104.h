@@ -46,7 +46,7 @@ public:
               PLATFORM_DESIGNATION_ALT,
               STREAM_ID,
               ITEM_DESIGNATOR_ID,
-              CLASSIFICATION,
+              SECURITY_SPECIFICATION,
               SECURITY_CLASSIFICATION,
               IMAGE_SOURCE_SENSOR,
               SENSOR_HORIZONTAL_FOV,
