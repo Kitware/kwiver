@@ -268,7 +268,7 @@ void downsample_process
 int downsample_process::priv
 ::target_frame_count( double time_seconds )
 {
-  return static_cast< int >( std::floor( time_seconds * target_frame_rate_ ) );
+  return static_cast< int >( std::floor( time_seconds * target_frame_rate_ + 1e-10 ) );
 }
 
 
