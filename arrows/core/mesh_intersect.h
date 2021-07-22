@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Operations to calculate closest points and ray intersections
- *        to triangles and meshes
- */
+/// \file
+/// Operations to calculate closest points and ray intersections
+/// to triangles and meshes.
 
 #ifndef KWIVER_ARROWS_CORE_MESH_INTERSECT_H
 #define KWIVER_ARROWS_CORE_MESH_INTERSECT_H

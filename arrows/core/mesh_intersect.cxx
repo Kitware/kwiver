@@ -2,13 +2,14 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of mesh operations
- */
+/// \file
+/// Operations to calculate closest points and ray intersections
+/// to triangles and meshes.
 
 #include "mesh_intersect.h"
+
 #include <limits>
+
 #include <vital/logger/logger.h>
 
 namespace kwiver {
@@ -19,30 +20,21 @@ namespace core {
 
 using namespace kwiver::vital;
 
-/// Intersect the ray from point to a triangle
+// ----------------------------------------------------------------------------
 bool
-mesh_intersect_triangle( const vital::point_3d& p,
-                         const vital::vector_3d& d,
-                         const vital::point_3d& a,
-                         const vital::point_3d& b,
-                         const vital::point_3d& c,
-                         double& dist,
-                         double& u, double& v )
+mesh_intersect_triangle(
+  const point_3d& p, const vector_3d& d, const point_3d& a, const point_3d& b,
+  const point_3d& c, double& dist, double& u, double& v )
 {
   vector_3d n( ( b.value() - a.value() ).cross( c.value() - a.value() ) );
   return mesh_intersect_triangle( p, d, a, b, c, n, dist, u, v );
 }
 
-/// Intersect the ray from point to a triangle
+// ----------------------------------------------------------------------------
 bool
-mesh_intersect_triangle( const vital::point_3d& p,
-                         const vital::vector_3d& d,
-                         const vital::point_3d& a,
-                         const vital::point_3d& b,
-                         const vital::point_3d& c,
-                         const vital::vector_3d& n,
-                         double& dist,
-                         double& u, double& v )
+mesh_intersect_triangle(
+  const point_3d& p, const vector_3d& d, const point_3d& a, const point_3d& b,
+  const point_3d& c, const vector_3d& n, double& dist, double& u, double& v )
 {
   double denom = -d.dot( n );
 
@@ -78,17 +70,11 @@ mesh_intersect_triangle( const vital::point_3d& p,
   return true;
 }
 
-/// Intersect the ray from point to a triangle and check if the distance is
-/// smaller
+// ----------------------------------------------------------------------------
 bool
-mesh_intersect_triangle_min_dist( const vital::point_3d& p,
-                                  const vital::vector_3d& d,
-                                  const vital::point_3d& a,
-                                  const vital::point_3d& b,
-                                  const vital::point_3d& c,
-                                  const vital::vector_3d& n,
-                                  double& dist,
-                                  double& u, double& v )
+mesh_intersect_triangle_min_dist(
+  const point_3d& p, const vector_3d& d, const point_3d& a, const point_3d& b,
+  const point_3d& c, const vector_3d& n, double& dist, double& u, double& v )
 {
   double denom = -d.dot( n );
 
@@ -125,15 +111,11 @@ mesh_intersect_triangle_min_dist( const vital::point_3d& p,
   return true;
 }
 
-/// Find the closest point on the triangle to a reference point
+// ----------------------------------------------------------------------------
 unsigned char
-mesh_triangle_closest_point( const vital::point_3d& p,
-                             const vital::point_3d& a,
-                             const vital::point_3d& b,
-                             const vital::point_3d& c,
-                             const vital::vector_3d& n,
-                             double& dist,
-                             double& u, double& v )
+mesh_triangle_closest_point(
+  const point_3d& p, const point_3d& a, const point_3d& b, const point_3d& c,
+  const vector_3d& n, double& dist, double& u, double& v )
 {
   double denom = 1.0 / n.squaredNorm();
 
@@ -240,26 +222,21 @@ mesh_triangle_closest_point( const vital::point_3d& p,
   return 0;
 }
 
-/// Find the closest point on the triangle to a reference point
+// ----------------------------------------------------------------------------
 unsigned char
-mesh_triangle_closest_point( const vital::point_3d& p,
-                             const vital::point_3d& a,
-                             const vital::point_3d& b,
-                             const vital::point_3d& c,
-                             double& dist,
-                             double& u, double& v )
+mesh_triangle_closest_point(
+  const point_3d& p, const point_3d& a, const point_3d& b, const point_3d& c,
+  double& dist, double& u, double& v )
 {
   vector_3d n( ( b.value() - a.value() ).cross( c.value() - a.value() ) );
   return mesh_triangle_closest_point( p, a, b, c, n, dist, u, v );
 }
 
-/// Find the closest point on the triangle to a reference point
+// ----------------------------------------------------------------------------
 vital::point_3d
-mesh_triangle_closest_point( const vital::point_3d& p,
-                             const vital::point_3d& a,
-                             const vital::point_3d& b,
-                             const vital::point_3d& c,
-                             double& dist )
+mesh_triangle_closest_point(
+  const point_3d& p, const point_3d& a, const point_3d& b, const point_3d& c,
+  double& dist )
 {
   double u, v;
   mesh_triangle_closest_point( p, a, b, c, dist, u, v );
@@ -270,12 +247,10 @@ mesh_triangle_closest_point( const vital::point_3d& p,
                    t * a[ 2 ] + u * b[ 2 ] + v * c[ 2 ] );
 }
 
-/// Find the closest point on a triangulated mesh to a reference point
+// ----------------------------------------------------------------------------
 int
-mesh_closest_point( const vital::point_3d& p,
-                    const vital::mesh& mesh,
-                    vital::point_3d& cp,
-                    double& u, double& v )
+mesh_closest_point(
+  const point_3d& p, const mesh& mesh, point_3d& cp, double& u, double& v )
 {
   // check for a triangular mesh
   if( mesh.faces().regularity() != 3 )
@@ -322,13 +297,11 @@ mesh_closest_point( const vital::point_3d& p,
   return isect;
 }
 
-/// Intersect a ray from point to a triangulated mesh
+// ----------------------------------------------------------------------------
 int
-mesh_intersect( const vital::point_3d& p,
-                const vital::vector_3d& d,
-                const vital::mesh& mesh,
-                double& dist,
-                double& u, double& v )
+mesh_intersect(
+  const point_3d& p, const vector_3d& d, const mesh& mesh, double& dist,
+  double& u, double& v )
 {
   // check for a triangular mesh
   if( mesh.faces().regularity() != 3 )

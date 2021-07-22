@@ -7,6 +7,7 @@
 #include <vital/plugin_loader/plugin_manager.h>
 
 #include <arrows/core/mesh_intersect.h>
+
 #include <Eigen/Geometry>
 
 using namespace kwiver::vital;
@@ -141,7 +142,6 @@ TEST ( mesh_intersect, triangle_closest_point )
 // ----------------------------------------------------------------------------
 TEST ( mesh_intersect, mesh_closest_point )
 {
-  // Mesh
   mesh_sptr mesh = generate_mesh();
 
   point_3d p1( 1, 1, 1 ); // On face 3
@@ -187,7 +187,6 @@ TEST ( mesh_intersect, mesh_closest_point )
 
 TEST ( mesh_intersect, mesh_intersect )
 {
-  // Mesh
   mesh_sptr mesh = generate_mesh();
 
   point_3d p1( 1, 1, 1 ); // Intersects face 3
