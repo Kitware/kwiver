@@ -12,6 +12,8 @@
 
 #include <vital/logger/logger.h>
 
+#include <Eigen/Geometry>
+
 namespace kwiver {
 
 namespace arrows {
