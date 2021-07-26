@@ -1,12 +1,13 @@
-project(kwiver_klv_tests)
+project(arrows_test_klv)
+
+set(CMAKE_FOLDER "Arrows/KLV/Tests")
 
 include(kwiver-test-setup)
 
-set( test_libraries vital vital_vpm )
+set( test_libraries kwiver_algo_core vital )
 
 ##############################
 # KLV tests
 ##############################
 
-# TODO implement this test!
-# kwiver_discover_tests(KLV             test_libraries test_klv.cxx)
+kwiver_discover_gtests( klv klv_read_write LIBRARIES ${test_libraries} )
