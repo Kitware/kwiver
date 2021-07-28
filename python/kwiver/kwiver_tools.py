@@ -21,19 +21,6 @@ KWIVER_SUPPORTED_TOOLS = ['kwiver', 'plugin_explorer']
 logger = vital_logging.getLogger(__name__)
 
 
-def _create_env_var_string(values: List[str]) -> str:
-    """
-    Create colon separated string based on a list of environment variable list.
-
-    Args:
-        values: List of environment variable values
-
-    Returns:
-        Colon separated list
-    """
-    return ":".join(values)
-
-
 def _setup_environment() -> Dict:
     """
     Create a dictionary with environment variables for running kwiver tools.
@@ -53,7 +40,7 @@ def _setup_environment() -> Dict:
             logger.warn(f"Invalid path {ld_library_path} specified in {entry_point.name}")
         else:
             ld_library_paths.append(ld_library_path)
-    ld_library_path_str = _create_env_var_string(ld_library_paths)
+    ld_library_path_str = ":".join(ld_library_paths)
 
     # Add logger factories
     vital_logger_factory = None
@@ -102,9 +89,6 @@ def _kwiver_tools(tool_name: str, args: List[str]) -> int:
 def plugin_explorer() -> None:
     """
     Console script function for plugin_explorer.
-
-    Returns:
-        None
     """
     cmd_args = ["--skip-relative"]
     cmd_args.extend(sys.argv[1:])
@@ -114,8 +98,5 @@ def plugin_explorer() -> None:
 def kwiver() -> None:
     """
     Console script function for kwiver runner.
-
-    Returns:
-        None
     """
     raise SystemExit(_kwiver_tools("kwiver", sys.argv[1:]))
