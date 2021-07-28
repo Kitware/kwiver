@@ -1,3 +1,10 @@
+"""
+Console scripts for the tools provided by KWIVER.
+
+These scripts are used in the wheel setup the environment to kwiver tools and
+launch them in a subprocess.
+"""
+
 import os
 import subprocess
 import kwiver
@@ -12,7 +19,17 @@ KWIVER_BIN_DIR = os.path.join(os.path.dirname(os.path.abspath(kwiver.__file__)),
 KWIVER_SUPPORTED_TOOLS = ['kwiver', 'plugin_explorer']
 logger = vital_logging.getLogger(__name__)
 
-def _create_env_var_string( values ):
+
+def _create_env_var_string(values):
+    """
+    Create colon separated string based on a list of environment variable list.
+
+    Args:
+        values: List of environment variable values
+
+    Returns:
+        Colon separated list
+    """
     env_var_value = ""
     # Append values
     for value in values:
@@ -20,7 +37,18 @@ def _create_env_var_string( values ):
         env_var_value += "{0}:".format(value)
     return env_var_value
 
+
 def _setup_environment():
+    """
+    Create a dictionary with environment variables for running kwiver tools.
+
+    The dictionary includes appending LD_LIBRARY_PATH, adding path to vital
+    logging factory to VITAL_LOGGER_FACTORY, and path to default plugins in
+    KWIVER_PLUGIN_PATH.
+
+    Returns:
+        Dictionary with environment variables used for running tools
+    """
     # Add additional ld libraries
     ld_library_paths = []
     for entry_point in iter_entry_points('kwiver.env.ld_library_path'):
@@ -55,6 +83,16 @@ def _setup_environment():
 
 
 def _kwiver_tools(tool_name, args):
+    """
+    Configure logging, setup environment and run a subprocess with kwiver tool in it.
+
+    Args:
+        tool_name: Name of the tool that would be run as a subprocess
+        args: Command line argument provided by the user for the tool
+
+    Return:
+        Return code for the subprocess that runs the tool
+    """
     vital_logging._configure_logging()
     assert tool_name in KWIVER_SUPPORTED_TOOLS, "Unsupported tool {0} specified".format(tool_name)
     tool_environment = _setup_environment()
@@ -66,10 +104,22 @@ def _kwiver_tools(tool_name, args):
 
 
 def plugin_explorer():
+    """
+    Console script function for plugin_explorer.
+
+    Returns:
+        None
+    """
     cmd_args = ["--skip-relative"]
     cmd_args.extend(sys.argv[1:])
     raise SystemExit(_kwiver_tools("plugin_explorer", cmd_args))
 
 
 def kwiver():
+    """
+    Console script function for kwiver runner.
+
+    Returns:
+        None
+    """
     raise SystemExit(_kwiver_tools("kwiver", sys.argv[1:]))
