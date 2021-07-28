@@ -11,6 +11,7 @@ import kwiver
 import sys
 
 from pkg_resources import iter_entry_points
+from typing import Dict, List
 
 from kwiver.vital import vital_logging
 from kwiver.vital.util.initial_plugin_path import get_initial_plugin_path
@@ -20,7 +21,7 @@ KWIVER_SUPPORTED_TOOLS = ['kwiver', 'plugin_explorer']
 logger = vital_logging.getLogger(__name__)
 
 
-def _create_env_var_string(values):
+def _create_env_var_string(values: List[str]) -> str:
     """
     Create colon separated string based on a list of environment variable list.
 
@@ -38,7 +39,7 @@ def _create_env_var_string(values):
     return env_var_value
 
 
-def _setup_environment():
+def _setup_environment() -> Dict:
     """
     Create a dictionary with environment variables for running kwiver tools.
 
@@ -82,7 +83,7 @@ def _setup_environment():
     return tool_environment
 
 
-def _kwiver_tools(tool_name, args):
+def _kwiver_tools(tool_name: str, args: List[str]) -> int:
     """
     Configure logging, setup environment and run a subprocess with kwiver tool in it.
 
@@ -103,7 +104,7 @@ def _kwiver_tools(tool_name, args):
     return subprocess_complete.returncode
 
 
-def plugin_explorer():
+def plugin_explorer() -> None:
     """
     Console script function for plugin_explorer.
 
@@ -115,7 +116,7 @@ def plugin_explorer():
     raise SystemExit(_kwiver_tools("plugin_explorer", cmd_args))
 
 
-def kwiver():
+def kwiver() -> None:
     """
     Console script function for kwiver runner.
 
