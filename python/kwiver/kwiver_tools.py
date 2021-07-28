@@ -31,12 +31,7 @@ def _create_env_var_string(values: List[str]) -> str:
     Returns:
         Colon separated list
     """
-    env_var_value = ""
-    # Append values
-    for value in values:
-        assert isinstance(value, str), "environment variables must be string, {0} specified".format( value )
-        env_var_value += "{0}:".format(value)
-    return env_var_value
+    return ":".join(values)
 
 
 def _setup_environment() -> Dict:
