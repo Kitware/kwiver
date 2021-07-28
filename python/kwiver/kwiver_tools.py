@@ -55,7 +55,7 @@ def _setup_environment() -> Dict:
     for entry_point in iter_entry_points('kwiver.env.ld_library_path'):
         ld_library_path = entry_point.load()()
         if not os.path.exists(ld_library_path):
-            logger.warn("Invalid path {0} specified in {1}".format(ld_library_path, entry_point.name))
+            logger.warn(f"Invalid path {ld_library_path} specified in {entry_point.name}")
         else:
             ld_library_paths.append(ld_library_path)
     ld_library_path_str = _create_env_var_string(ld_library_paths)
@@ -95,10 +95,10 @@ def _kwiver_tools(tool_name: str, args: List[str]) -> int:
         Return code for the subprocess that runs the tool
     """
     vital_logging._configure_logging()
-    assert tool_name in KWIVER_SUPPORTED_TOOLS, "Unsupported tool {0} specified".format(tool_name)
+    assert tool_name in KWIVER_SUPPORTED_TOOLS, f"Unsupported tool {tool_name} specified"
     tool_environment = _setup_environment()
     tool_path = os.path.join(KWIVER_BIN_DIR, tool_name)
-    assert os.path.exists(tool_path), "Tool {0} not available in {1}".format(tool_name, tool_path)
+    assert os.path.exists(tool_path), f"Tool {tool_name} not available in {tool_path}"
     args.insert(0, tool_path)
     subprocess_complete = subprocess.run(args, shell=False, check=False, env=tool_environment)
     return subprocess_complete.returncode
