@@ -61,7 +61,8 @@ def _kwiver_tools(tool_name, args):
     tool_path = os.path.join(KWIVER_BIN_DIR, tool_name)
     assert os.path.exists(tool_path), "Tool {0} not available in {1}".format(tool_name, tool_path)
     args.insert(0, tool_path)
-    subprocess.run(args, shell=False, check=True, env=tool_environment)
+    subprocess_complete = subprocess.run(args, shell=False, check=False, env=tool_environment)
+    return subprocess_complete.returncode
 
 
 def plugin_explorer():
