@@ -648,9 +648,10 @@ mesh_coloration
     }
   }
   // we only render points in front of the camera
-  if( depthRange[ 0 ] < 0 )
+  double minDepth = depthRange[ 1 ] * 0.001;
+  if( depthRange[ 0 ] <  minDepth)
   {
-    depthRange[ 0 ] = 0.01;
+    depthRange[ 0 ] = minDepth;
   }
   vtkNew< vtkKwiverCamera > cam;
   int imageDimensions[ 2 ] = { width, height };
