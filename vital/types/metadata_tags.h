@@ -315,18 +315,16 @@
         "Sensor Elevation Angle (deg)",                                 \
         double,                                                         \
         "" )                                                            \
-  CALL( START_DATE_TIME_UTC,                                            \
-        "Start Date Time (UTC)",                                        \
-        std::string,                                                    \
-        "" )                                                            \
-  CALL( EVENT_START_DATE_TIME_UTC,                                      \
-        "Event Start Date Time (UTC)",                                  \
-        std::string,                                                    \
-        "" )                                                            \
-  CALL( MISSION_START_TIME_UTC,                                         \
-        "Mission Start Date Time (UTC)",                                \
-        std::string,                                                    \
-        "" )                                                            \
+  CALL( START_TIMESTAMP,                                                \
+        "Start Timestamp",                                              \
+        uint64_t,                                                       \
+        "Time of collection start. Microseconds since Jan. 1, 1970 "    \
+        "(UTC)." )                                                      \
+  CALL( EVENT_START_TIMESTAMP,                                          \
+        "Event Start Timestamp",                                        \
+        uint64_t,                                                       \
+        "Time of event, mission, etc. start. Microseconds since "       \
+        "Jan. 1, 1970 (UTC)." )                                         \
   CALL( SECURITY_CLASSIFICATION,                                        \
         "Security Classification",                                      \
         std::string,                                                    \

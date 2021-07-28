@@ -127,8 +127,8 @@ klv_0104::klv_0104()
   m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0701080101000000UL )] = SLANT_RANGE;
   m_key_to_tag[klv_uds_key( 0x060E2B3401010101UL, 0x0701100102000000UL )] = ANGLE_TO_NORTH;
   m_key_to_tag[klv_uds_key( 0x060E2B3401010101UL, 0x0701100103000000UL )] = OBLIQUITY_ANGLE;
-  m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0702010201010000UL )] = START_DATE_TIME_UTC;
-  m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0702010207010000UL )] = EVENT_START_DATE_TIME_UTC;
+  m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0702010201010000UL )] = START_DATETIME;
+  m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0702010207010000UL )] = EVENT_START_DATETIME;
   m_key_to_tag[klv_uds_key( 0x060e2b3401010103UL, 0x0702010101050000UL )] = UNIX_TIMESTAMP;
   m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0e0101010a000000UL )] = PLATFORM_TRUE_AIRSPEED;
   m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0e0101010b000000UL )] = PLATFORM_INDICATED_AIRSPEED;
@@ -183,9 +183,8 @@ klv_0104::klv_0104()
   m_traitsvec[SLANT_RANGE] =                 NEW_TRAIT( double,       "Slant range" );
   m_traitsvec[ANGLE_TO_NORTH] =              NEW_TRAIT( double,       "Angle to north" );
   m_traitsvec[OBLIQUITY_ANGLE] =             NEW_TRAIT( double,       "Obliquity angle" );
-  m_traitsvec[START_DATE_TIME_UTC] =         NEW_TRAIT( std::string,  "Start Date Time - UTC" );
-  m_traitsvec[EVENT_START_DATE_TIME_UTC] =   NEW_TRAIT( std::string,  "Event Start Date Time - UTC" );
-  m_traitsvec[MISSION_START_TIME] =          NEW_TRAIT( std::string,  "Mission Start Date Time - UTC" );
+  m_traitsvec[START_DATETIME] =              NEW_TRAIT( std::string,  "Start Datetime" );
+  m_traitsvec[EVENT_START_DATETIME] =        NEW_TRAIT( std::string,  "Event Start Datetime" );
   m_traitsvec[UNIX_TIMESTAMP] =              NEW_TRAIT( uint64_t,     "Unix timestamp" );
   m_traitsvec[PLATFORM_TRUE_AIRSPEED] =      NEW_TRAIT( double,       "Platform true airspeed" );
   m_traitsvec[PLATFORM_INDICATED_AIRSPEED] = NEW_TRAIT( double,       "Platform indicated airspeed" );
