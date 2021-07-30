@@ -14,6 +14,7 @@ kwiver_discover_gtests(core detected_object_io        LIBRARIES ${test_libraries
 kwiver_discover_gtests(core dynamic_configuration     LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core feature_descriptor_io     LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core interpolate_track_spline  LIBRARIES ${test_libraries})
+kwiver_discover_gtests(core mesh_intersect            LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core mesh_operations           LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core render_mesh_depth_map     LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core track_set_impl            LIBRARIES ${test_libraries})
