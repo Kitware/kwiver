@@ -441,6 +441,53 @@ klv_write_imap( double value, double minimum, double maximum, Iterator& data,
 }
 
 // ---------------------------------------------------------------------------
+template < class Iterator >
+std::string
+klv_read_string( Iterator& data, size_t length )
+{
+  KLV_ASSERT_UINT8_ITERATOR( data );
+
+  auto const s = std::string( data, data + length );
+  data += length;
+
+  // "\0" means empty string
+  // We avoid constructing a temp string object to compare against
+  return ( s.size() == 1 && s[ 0 ] == '\0' ) ? "" : s;
+}
+
+// ---------------------------------------------------------------------------
+template < class Iterator >
+void
+klv_write_string( std::string const& value, Iterator& data, size_t max_length )
+{
+  KLV_ASSERT_UINT8_ITERATOR( data );
+
+  if( klv_string_length( value ) > max_length )
+  {
+    VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+                 "string will overrun end of data buffer" );
+  }
+
+  // Empty string represented as "\0"
+  if( value.empty() )
+  {
+    *data = '\0';
+    ++data;
+    return;
+  }
+
+  // "\0" is reserved for empty string
+  // We avoid constructing a temp string object to compare against
+  if( value.size() == 1 && value[ 0 ] == '\0' )
+  {
+    VITAL_THROW( kwiver::vital::metadata_type_overflow,
+                 "the string \"\\0\" cannot be written to KLV stream" );
+  }
+
+  data = std::copy( value.cbegin(), value.cend(), data );
+}
+
+// ---------------------------------------------------------------------------
 template < class T >
 size_t
 _int_bit_length( T value )

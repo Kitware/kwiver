@@ -604,6 +604,7 @@ test_ber_oid_length( T value, size_t expected_length )
   EXPECT_EQ( expected_length, klv_ber_oid_length( value ) );
 }
 
+// ----------------------------------------------------------------------------
 TEST ( klv, ber_oid_length )
 {
   CALL_TEST( test_ber_oid_length< uint8_t >,  0,                  1 );
@@ -825,4 +826,119 @@ TEST ( klv, write_imap )
   CALL_TEST( test_write_imap, -double_qnan, 4, 0.0, 1.0 );
   CALL_TEST( test_write_imap,  double_snan, 5, 0.0, 1.0 );
   CALL_TEST( test_write_imap, -double_snan, 8, 0.0, 1.0 );
+}
+
+// ----------------------------------------------------------------------------
+void
+test_read_string( std::string const& s, vec_t const& bytes )
+{
+  auto it = bytes.cbegin();
+  EXPECT_EQ( s, klv_read_string( it, bytes.size() ) );
+  EXPECT_EQ( bytes.cend(), it );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( klv, read_string )
+{
+  // Here we tolerate reading zero bytes as empty string, though in practice
+  // all strings should have positive length. A case could be made for throwing
+  // an exception instead
+  CALL_TEST( test_read_string, "",   {} );
+  CALL_TEST( test_read_string, "",   { '\0' } );
+  CALL_TEST( test_read_string, "\1", { '\1' } );
+  CALL_TEST( test_read_string, "Kitware",
+             { 'K', 'i', 't', 'w', 'a', 'r', 'e' } );
+  CALL_TEST( test_read_string, { "\0Kitware\0", 9 },
+             { '\0', 'K', 'i', 't', 'w', 'a', 'r', 'e', '\0' } );
+}
+
+// ----------------------------------------------------------------------------
+template < class E >
+void
+test_write_string_throw( std::string const& s, size_t max_length )
+{
+  auto data = vec_t( max_length, 0xba );
+  auto it = data.begin();
+  EXPECT_THROW( klv_write_string( s, it, max_length ), E );
+  EXPECT_EQ( data.begin(), it );
+}
+
+// ----------------------------------------------------------------------------
+void
+test_write_string_buffer_overflow( std::string const& s, size_t max_length )
+{
+  test_write_string_throw< kv::metadata_buffer_overflow >( s, max_length );
+}
+
+// ----------------------------------------------------------------------------
+void
+test_write_string_type_overflow( std::string const& s, size_t max_length )
+{
+  test_write_string_throw< kv::metadata_type_overflow >( s, max_length );
+}
+
+// ----------------------------------------------------------------------------
+void
+test_write_string( std::string const& s )
+{
+  auto data = vec_t( klv_string_length( s ), 0xba );
+  auto it = data.begin();
+  klv_write_string( s, it, data.size() );
+  EXPECT_EQ( it, data.end() );
+  it = data.begin();
+  EXPECT_EQ( s, klv_read_string( it, data.size() ) );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( klv, write_string )
+{
+  // Valid values
+  CALL_TEST( test_write_string, "" );
+  CALL_TEST( test_write_string, "\1" );
+  CALL_TEST( test_write_string, "Kitware" );
+  CALL_TEST( test_write_string, { "\0Kitware\0", 9 } );
+
+  // Not enough buffer space given
+  CALL_TEST( test_write_string_buffer_overflow, "",                   0 );
+  CALL_TEST( test_write_string_buffer_overflow, "\n",                 0 );
+  CALL_TEST( test_write_string_buffer_overflow, "Kitware",            6 );
+  CALL_TEST( test_write_string_buffer_overflow, { "\0Kitware\0", 9 }, 8 );
+
+  // String which can't be written
+  CALL_TEST( test_write_string_type_overflow, { "\0", 1 }, 1 );
+}
+
+// ----------------------------------------------------------------------------
+void
+test_string_length( std::string const& s, size_t length )
+{
+  EXPECT_EQ( length, klv_string_length( s ) );
+}
+
+// ----------------------------------------------------------------------------
+template < class E >
+void
+test_string_length_throw( std::string const& s )
+{
+  EXPECT_THROW( klv_string_length( s ), E );
+}
+
+// ----------------------------------------------------------------------------
+void
+test_string_length_type_overflow( std::string const& s )
+{
+  test_string_length_throw< kv::metadata_type_overflow >( s );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( klv, string_length )
+{
+  // Valid values
+  CALL_TEST( test_string_length, "",                   1 );
+  CALL_TEST( test_string_length, "\1",                 1 );
+  CALL_TEST( test_string_length, "Kitware",            7 );
+  CALL_TEST( test_string_length, { "\0Kitware\0", 9 }, 9 );
+
+  // String which can't be written
+  CALL_TEST( test_string_length_type_overflow, { "\0", 1 } );
 }
