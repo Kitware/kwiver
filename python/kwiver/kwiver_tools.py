@@ -55,6 +55,7 @@ def _setup_environment():
 
 
 def _kwiver_tools(tool_name, args):
+    vital_logging._configure_logging()
     assert tool_name in KWIVER_SUPPORTED_TOOLS, "Unsupported tool {0} specified".format(tool_name)
     tool_environment = _setup_environment()
     tool_path = os.path.join(KWIVER_BIN_DIR, tool_name)
