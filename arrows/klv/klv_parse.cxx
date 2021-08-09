@@ -10,13 +10,13 @@
 #include "klv_data.h"
 #include "klv_key.h"
 #include "klv_parse.h"
+#include "klv_read_write.txx"
 
 #include <vital/exceptions/metadata.h>
 
 #include <vital/logger/logger.h>
 
 #include <iomanip>
-#include <numeric>
 #include <sstream>
 
 #include <cctype>
@@ -30,45 +30,6 @@ namespace arrows {
 namespace klv {
 
 namespace {
-
-// ---------------------------------------------------------------------------
-// Reads a big-endian-encoded unsigned integer from a sequence of bytes
-template < class T, class Iterator >
-T
-read_uint_msb( Iterator data_begin, Iterator data_end )
-{
-  // Ensure types are compatible with our assumptions
-  static_assert( std::is_integral<T>::value, "T must be an integer type" );
-  static_assert( std::is_unsigned<T>::value, "T must be an unsigned type" );
-  static_assert(
-    std::is_same< typename std::decay< decltype( *data_begin ) >::type,
-                  uint8_t >::value, "Iterator must point to uint8_t" );
-
-  // Ensure iterators are compatible with our assumptions
-  ptrdiff_t const distance = std::distance( data_begin, data_end );
-  if ( distance < 0 )
-  {
-    VITAL_THROW( kv::invalid_value, "end iterator cannot be before begin" );
-  }
-
-  auto const length = static_cast< size_t >( distance );
-  if ( sizeof( T ) <= length )
-  {
-    VITAL_THROW( kv::invalid_value, std::string() +
-                 "specified type too small too hold data (" +
-                 std::to_string( sizeof(T) ) + " < " +
-                 std::to_string(length) + ")" );
-  }
-
-  // Functor to insert each successive byte into the output value
-  auto const accumulator = [ ]( T value, uint8_t byte ) {
-                             return ( value << 8 ) | byte;
-                           };
-
-  // Reduce span to final result
-  return std::accumulate( data_begin, data_end, static_cast< T >( 0 ),
-                          accumulator );
-}
 
 // ---------------------------------------------------------------------------
 // If unprintable chars detected, replaces them with '.' and appends hex of
@@ -111,42 +72,6 @@ format_string( std::string const& value )
   }
 
   return ss.str();
-}
-
-// ---------------------------------------------------------------------------
-// Extract an unsigned integer using BER (basic encoding rules)
-// Modifies data iterator to end of the data just parsed, or leaves it as given
-// on error
-template < class Iterator >
-size_t
-read_ber_encoded( Iterator& data, size_t length )
-{
-  // Make sure we're reading bytes
-  static_assert(
-    std::is_same< typename std::decay< decltype( *data ) >::type,
-                  uint8_t >::value, "Iterator must point to uint8_t" );
-
-  // Short form - first bit is 0, remaining bits are the value itself
-  if( !( 0x80 & *data ) )
-  {
-    return *( data++ );
-  }
-
-  // Long form - first bit is 1, remaining bits are the length of value
-  size_t const value_length = ( 0x7F & *data );
-
-  // + 1 for the initial byte we just read
-  if( value_length + 1 > length )
-  {
-    VITAL_THROW( kv::metadata_exception,
-                 "insufficient buffer length for complete BER decoding" );
-  }
-
-  auto const data_end = ++data + value_length;
-  auto const value = read_uint_msb< size_t >( data, data_end );
-  data = data_end;
-
-  return value;
 }
 
 } // end namespace
@@ -196,7 +121,7 @@ klv_pop_next_packet( std::deque< uint8_t >& data, klv_data& klv_packet )
           // value_begin not const because it is modified by read_ber_encoded()
           auto value_begin = data.cbegin() + key_length;
           auto const value_length =
-            read_ber_encoded( value_begin, data.size() - key_length );
+            klv_read_ber< size_t >( value_begin, data.size() - key_length );
           auto const value_offset =
             static_cast< size_t >(
               std::distance( data.cbegin(), value_begin ) );
@@ -261,7 +186,7 @@ parse_klv_lds( klv_data const& data )
 
       // Parse length
       auto const length_begin = it;
-      auto const value_length = read_ber_encoded( it, remaining_length );
+      auto const value_length = klv_read_ber< size_t >( it, remaining_length );
       remaining_length -= std::distance( length_begin, it );
       if ( remaining_length < value_length )
       {

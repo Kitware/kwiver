@@ -2,10 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief VITAL Exceptions pertaining to metadata operations
- */
+/// \file
+/// \brief VITAL Exceptions pertaining to metadata operations
+///
 
 #ifndef VITAL_CORE_EXCEPTIONS_METADATA_H_
 #define VITAL_CORE_EXCEPTIONS_METADATA_H_
@@ -15,6 +14,7 @@
 #include <vital/exceptions/base.h>
 
 namespace kwiver {
+
 namespace vital {
 
 // ------------------------------------------------------------------
@@ -29,6 +29,30 @@ public:
   virtual ~metadata_exception() noexcept;
 };
 
-} } // end namespace
+// ------------------------------------------------------------------
+/// Data buffer is too small to complete read or write operation.
+class VITAL_EXCEPTIONS_EXPORT metadata_buffer_overflow
+  : public metadata_exception
+{
+public:
+  metadata_buffer_overflow( std::string const& str );
 
-#endif // VITAL_CORE_EXCEPTIONS_METADATA_H_
+  virtual ~metadata_buffer_overflow() noexcept;
+};
+
+// ------------------------------------------------------------------
+/// Size of value is greater than data type or format allows.
+class VITAL_EXCEPTIONS_EXPORT metadata_type_overflow
+  : public metadata_exception
+{
+public:
+  metadata_type_overflow( std::string const& str );
+
+  virtual ~metadata_type_overflow() noexcept;
+};
+
+} // namespace vital
+
+} // namespace kwiver
+
+#endif
