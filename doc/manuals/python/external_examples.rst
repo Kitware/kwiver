@@ -1,4 +1,4 @@
-The documention detailing the python functionality of Kwiver is designed to be as comprehensive as neccesary for a basic quick start guide.
+The documentation detailing the python functionality of Kwiver is designed to be as comprehensive as neccesary for a basic quick start guide.
 For more real work examples and use cases, please refer to the following external repositories.
 
 These repositories contain good examples of using Kwiver from python, but may not be maintained or 100% compatible with
