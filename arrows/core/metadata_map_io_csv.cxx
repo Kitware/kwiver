@@ -44,13 +44,16 @@ public:
   // Quote csv header item as needed, and explode types as needed
   void write_csv_header( kv::vital_metadata_tag const& csv_field,
                          std::ostream& fout,
-                         std::string const& field_name = "" );
+                         std::string const& field_name,
+                         std::string const& field_override );
 
   kv::metadata_traits md_traits;
   bool write_remaining_columns{ true };
   bool write_enum_names{ false };
   std::string names_string;
   std::vector< std::string > column_names;
+  std::string overrides_string;
+  std::vector< std::string > column_overrides;
 };
 
 // ----------------------------------------------------------------------------
@@ -121,9 +124,14 @@ void
 metadata_map_io_csv::priv
 ::write_csv_header( kv::vital_metadata_tag const& csv_field,
                     std::ostream& fout,
-                    std::string const& field_name )
+                    std::string const& field_name,
+                    std::string const& field_override )
 {
-  if( csv_field == kv::VITAL_META_UNKNOWN )
+  if( !field_override.empty() )
+  {
+    fout << "\"" << field_override << "\",";
+  }
+  else if( csv_field == kv::VITAL_META_UNKNOWN )
   {
     fout << "\"" << field_name << "\",";
   }
@@ -193,14 +201,20 @@ metadata_map_io_csv
     "write_remaining_columns" );
   d_->write_enum_names = config->get_value< bool >( "write_enum_names" );
 
-  d_->names_string = config->get_value< std::string >( "column_names" );
-  std::vector< std::string > untrimmed_column_names;
-  kwiver::vital::tokenize( d_->names_string, untrimmed_column_names, "," );
+  auto const split_and_trim =
+    []( std::string const& s ) -> std::vector< std::string > {
+      std::vector< std::string > result;
+      kwiver::vital::tokenize( s, result, "," );
+      std::for_each( result.begin(), result.end(),
+                     kwiver::vital::string_trim );
+      return result;
+    };
 
-  for( auto name : untrimmed_column_names )
-  {
-    d_->column_names.push_back( kwiver::vital::string_trim( name ) );
-  }
+  d_->names_string = config->get_value< std::string >( "column_names" );
+  d_->column_names = split_and_trim( d_->names_string );
+  d_->overrides_string = config->get_value< std::string >( "column_overrides" );
+  d_->column_overrides = split_and_trim( d_->overrides_string );
+  d_->column_overrides.resize( d_->column_names.size() );
 }
 
 // ----------------------------------------------------------------------------
@@ -220,9 +234,13 @@ metadata_map_io_csv
   auto config = algorithm::get_configuration();
 
   config->set_value( "column_names", d_->names_string,
-                     "Comma-seperated values specified column order. Can "
+                     "Comma-separated values specifying column order. Can "
                      "either be the enum names, e.g. VIDEO_KEY_FRAME or the "
                      "description, e.g. 'Is frame a key frame'" );
+  config->set_value( "column_overrides", d_->overrides_string,
+                     "Comma-separated values overriding the final column names"
+                     "as they appear in the output file. Order matches up with"
+                     "column_names." );
   config->set_value( "write_enum_names", d_->write_enum_names,
                      "Write enum names rather than descriptive names" );
   config->set_value( "write_remaining_columns", d_->write_remaining_columns,
@@ -270,40 +288,29 @@ metadata_map_io_csv
     }
   }
 
-  std::vector< std::string > metadata_names;
-  std::vector< kv::vital_metadata_tag > ordered_metadata_ids;
-
-  for( auto const& name : d_->column_names )
+  struct metadata_info
   {
-    auto trait_id = d_->md_traits.enum_name_to_tag( name );
-    if( trait_id != kv::VITAL_META_UNKNOWN )
+    kv::vital_metadata_tag id;
+    std::string name;
+    std::string str;
+  };
+
+  std::vector< metadata_info > infos;
+  for( auto const i : kvr::iota( d_->column_names.size() ) )
+  {
+    auto const& name = d_->column_names[ i ];
+    auto const& str = d_->column_overrides[ i ];
+    kv::vital_metadata_tag trait_id;
+    if( ( trait_id = d_->md_traits.enum_name_to_tag( name ) ) !=
+        kv::VITAL_META_UNKNOWN ||
+        ( trait_id = d_->md_traits.name_to_tag( name ) ) !=
+        kv::VITAL_META_UNKNOWN )
     {
-      // This is a placeholder to keep the two vectors aligned
-      metadata_names.push_back( "" );
       // Avoid duplicating present columns
       present_metadata_ids.erase( trait_id );
     }
-    else // Try matching the description
-    {
-      trait_id = d_->md_traits.name_to_tag( name );
 
-      if( trait_id != kv::VITAL_META_UNKNOWN )
-      {
-        // This is a placeholder to keep the two vectors aligned
-        metadata_names.push_back( "" );
-        // Avoid duplicating present columns
-        present_metadata_ids.erase( trait_id );
-        LOG_INFO(
-          logger(),
-          "Description \""  << name << "\" matched enum "
-                            << d_->md_traits.tag_to_enum_name( trait_id ) );
-      }
-      else
-      {
-        metadata_names.push_back( name );
-      }
-    }
-    ordered_metadata_ids.push_back( trait_id );
+    infos.push_back( { trait_id, name, str } );
   }
 
   // Determine whether to write columns present in the metadata but not
@@ -312,20 +319,15 @@ metadata_map_io_csv
   {
     for( auto const& id : present_metadata_ids )
     {
-      ordered_metadata_ids.push_back( id );
-      // Again, this is just a placeholder to keep vectors aligned
-      metadata_names.push_back( "" );
+      infos.push_back( { id, "", "" } );
     }
   }
 
   // Write out the csv header
   fout << "\"frame ID\",";
-  assert( ordered_metadata_ids.size() == metadata_names.size() );
-  for( auto const& i : kvr::iota( ordered_metadata_ids.size() ) )
+  for( auto const& info : infos )
   {
-    auto const& metadata_id = ordered_metadata_ids[ i ];
-    auto const& metadata_name = metadata_names[ i ];
-    d_->write_csv_header( metadata_id, fout, metadata_name );
+    d_->write_csv_header( info.id, fout, info.name, info.str );
   }
 
   fout << std::endl;
@@ -336,11 +338,11 @@ metadata_map_io_csv
     {
       // Write the frame number
       fout << frame_data.first << ",";
-      for( auto const& metadata_id : ordered_metadata_ids )
+      for( auto const& info : infos )
       {
-        if( metadata_packet->has( metadata_id ) )
+        if( metadata_packet->has( info.id ) )
         {
-          d_->write_csv_item( metadata_packet->find( metadata_id ), fout );
+          d_->write_csv_item( metadata_packet->find( info.id ), fout );
         }
         // Write an empty field
         else
