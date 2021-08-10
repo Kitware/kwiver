@@ -10,11 +10,11 @@ perform this task follow.
 The documentation for implementing Python vital components, processes, or arrows without a corresponding C++ side is described in a different section of this documentation,
 link to follow.
 
-All python bindings use [PyBind11](https://github.com/pybind/pybind11)
+All python bindings use `PyBind11`_
 
 As a general rule for all alterations made to C++ code that do not change the outward facing interface, no change needs to be made on the Python bindings side.
 If however a signature or the intended usage of an interface changes, the corresponding python binding may require a change.
-See the [PyBind11 Docs](https://pybind11.readthedocs.io/en/stable/) for guidance on writing/editing binding code.
+See the `PyBind11 Docs`_ for guidance on writing/editing binding code.
 If a change is made to a C++ type bound by the python bindings that would require a change in the binding code, that edit should be made in the same PR as the corresponding change on the C++
 side. Each subset of bindings has slightly differing conventions regarding the implementation/alteration of new/edited binding code. Those conventions follow below.
 
@@ -34,8 +34,8 @@ in terms of translation to Python as Python has no concept of generics. Thus, fo
 over that type must be bound. The recommended approach to doing this, to avoid writing repetitive, massive, and unwieldy binding files, is to create generic binding code, and instantiate
 said binding code with the desired type, and corresponding type name. A good example of this convention can be found in the BoundingBox vital/type binding.
 
-Once the binding code has been written, in the CMakeLists file in the python/kwiver/vital/types directory, a call to `kwiver_add_python_library` must be made, alongside a corresponding link command, and the name of the
-vital type on the python side added to the call to `kwiver_create_python_init`. There are many examples of this already existing, following those examples and following those conventions
+Once the binding code has been written, in the CMakeLists file in the python/kwiver/vital/types directory, a call to ``kwiver_add_python_library`` must be made, alongside a corresponding link command, and the name of the
+vital type on the python side added to the call to ``kwiver_create_python_init``. There are many examples of this already existing, following those examples and following those conventions
 is best practice.
 
 Simply extending a type is a little more straightforward. If the C++ change warrants a change to the python bindings, alter the python bindings in such a way as described by the PyBind11 documentation
@@ -82,3 +82,7 @@ When adding or extending arrows, a nearly identical process to the arrow C++ -> 
 
 The primary difference between adding/editing an arrow or algo is that arrows do not require a trampoline, or a registration call. Instead, much like algo a single call to the function
 encapsulating the binding code in python/kwiver/arrows/core/core_module.cxx should be made, and the files added to the appropriate lists in the related CMakeLists.
+
+
+.. _PyBind11 Docs: https://pybind11.readthedocs.io/en/stable/
+.. _PyBind11: https://pybind11.readthedocs.io/en/stable/
