@@ -5,7 +5,7 @@
 /// \file
 /// Interface to the basic KLV read/write functions.
 
-// This file currently handles the serialization / deserialization of three
+// This file currently handles the serialization / deserialization of these
 // basic formats of KLV data:
 // - int : General signed or unsigned integer of any integral byte length up to
 // 8. Important to get this one precisely right because it's the base of most
@@ -16,6 +16,12 @@
 // - BER-OID : Unsigned integer which encodes its own length. First bit of each
 // byte signals whether there is another following byte; lower seven bits
 // concatenated together form the actual value.
+// - IMAP : Floating-point number between defined upper and lower limits,
+// represented as an integer, the full range of which is uniformly mapped
+// between those limits. Has special defined values for infinities, NaNs, etc.
+// If zero is within the limits, the conversion maps one integral value to zero
+// exactly. The number of bytes is variable and determines the precision of the
+// mapping.
 //
 // The functions are templated to be able to handle any iterator type (pointer,
 // std::vector, std::deque, etc), different native integer sizes (uint8_t ...
@@ -200,6 +206,97 @@ template < class T >
 KWIVER_ALGO_KLV_EXPORT
 size_t
 klv_ber_oid_length( T value );
+
+// ---------------------------------------------------------------------------
+/// Read an IMAP-encoded floating-point value from a sequence of bytes.
+///
+/// For an explanation of IMAP, see the MISB ST1201 document.
+/// \see https://gwg.nga.mil/misb/docs/standards/ST1201.4.pdf
+///
+/// \param minimum Lower end of mapped range.
+/// \param maximum Upper end of mapped range.
+/// \param[in,out] data Iterator to sequence of \c uint8_t. Set to end of read
+/// bytes on success, left as is on error.
+/// \param length Number of bytes to read.
+///
+/// \returns Floating-point number decoded from \p data buffer.
+///
+/// \throws logic_error When \p minimum is not less than \p maximum, either is
+/// nonfinite, or \p length is zero.
+/// \throws metadata_type_overflow When \p length is greater than the size of a
+/// \c uint64_t or the difference between \p minimum and \p maximum is to large
+/// for a \c double to hold.
+template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
+double
+klv_read_imap( double minimum, double maximum, Iterator& data, size_t length );
+
+// ---------------------------------------------------------------------------
+/// Write a floating-point value into the IMAP format.
+///
+/// For an explanation of IMAP, see the MISB ST1201 document.
+/// \see https://gwg.nga.mil/misb/docs/standards/ST1201.4.pdf
+///
+/// \param value Floating-point number to encode into IMAP.
+/// \param minimum Lower end of mapped range.
+/// \param maximum Upper end of mapped range.
+/// \param[in,out] data Writeable iterator to sequence of \c uint8_t. Set to
+/// end of written bytes on success, left as is on error.
+/// \param length Number of bytes to write. This determines the precision of
+/// the encoded value.
+///
+/// \throws logic_error When \p minimum is not less than \p maximum, either is
+/// nonfinite, or \p length is zero.
+/// \throws metadata_type_overflow When the difference between \p minimum and
+/// \p maximum is to large for a \c double to hold.
+template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
+void
+klv_write_imap( double value, double minimum, double maximum, Iterator& data,
+                size_t length );
+
+// ---------------------------------------------------------------------------
+/// Return the number of bytes required for the given IMAP specification.
+///
+/// Precision here is the distance between successive discrete mapped values.
+/// For an explanation of IMAP, see the MISB ST1201 document.
+/// \see https://gwg.nga.mil/misb/docs/standards/ST1201.4.pdf
+///
+/// \param minimum Lower end of mapped range.
+/// \param maximum Upper end of mapped range.
+/// \param precision Desired precision of IMAP value.
+///
+/// \returns Byte length of an IMAP value meeting the provided parameters.
+///
+/// \throws logic_error When \p minimum is not less than \p maximum, \p
+/// precision is greater than their span, or any of the three is nonfinite.
+/// \throws metadata_type_overflow When \p length is greater than the size of a
+/// \c uint64_t or the difference between \p minimum and \p maximum is to large
+/// for a \c double to hold.
+KWIVER_ALGO_KLV_EXPORT
+size_t
+klv_imap_length( double minimum, double maximum, double precision );
+
+// ---------------------------------------------------------------------------
+/// Return the precision offered by the given IMAP specification.
+///
+/// Precision here is the distance between successive discrete mapped values.
+/// For an explanation of IMAP, see the MISB ST1201 document.
+/// \see https://gwg.nga.mil/misb/docs/standards/ST1201.4.pdf
+///
+/// \param minimum Lower end of mapped range.
+/// \param maximum Upper end of mapped range.
+/// \param length Desired byte length of IMAP value.
+///
+/// \returns Precision of an IMAP value meeting the provided parameters.
+///
+/// \throws logic_error When \p minimum is not less than \p maximum, either is
+/// nonfinite, or \p length is zero.
+/// \throws metadata_type_overflow When the difference between \p minimum and
+/// \p maximum is to large for a \c double to hold.
+KWIVER_ALGO_KLV_EXPORT
+double
+klv_imap_precision( double minimum, double maximum, size_t length );
 
 } // namespace klv
 

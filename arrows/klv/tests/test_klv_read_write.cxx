@@ -46,6 +46,12 @@ auto const int16_max = std::numeric_limits< int16_t >::max();
 auto const int32_max = std::numeric_limits< int32_t >::max();
 auto const int64_max = std::numeric_limits< int64_t >::max();
 
+auto const double_min = std::numeric_limits< double >::lowest();
+auto const double_max = std::numeric_limits< double >::max();
+auto const double_inf = std::numeric_limits< double >::infinity();
+auto const double_qnan = std::numeric_limits< double >::quiet_NaN();
+auto const double_snan = std::numeric_limits< double >::signaling_NaN();
+
 // ----------------------------------------------------------------------------
 template < class T >
 void
@@ -620,4 +626,203 @@ TEST ( klv, ber_oid_length )
   CALL_TEST( test_ber_oid_length< uint64_t >, ( 1ull << 63 ) - 1, 9 );
   CALL_TEST( test_ber_oid_length< uint64_t >, ( 1ull << 63 ),     10 );
   CALL_TEST( test_ber_oid_length< uint64_t >, uint64_max,         10 );
+}
+
+// ----------------------------------------------------------------------------
+void
+test_read_imap( uint64_t int_value, size_t length, double double_value,
+                double minimum, double maximum )
+{
+  auto data = vec_t( length, 0xba );
+  auto it = data.begin();
+  klv_write_int< uint64_t >( int_value, it, length );
+  it = data.begin();
+
+  auto const result = klv_read_imap( minimum, maximum, it, length );
+  if( std::isnan( double_value ) )
+  {
+    // GTest won't print result value on fail, so do it manually
+    EXPECT_TRUE( std::isnan( result ) ) << "result: " << result;
+    EXPECT_EQ( std::signbit( double_value ), std::signbit( result ) );
+  }
+  else
+  {
+    EXPECT_DOUBLE_EQ( double_value, result );
+  }
+  EXPECT_EQ( data.end(), it );
+}
+
+// ----------------------------------------------------------------------------
+template < class E >
+void
+test_read_imap_throw( uint64_t int_value, size_t length,
+                      double minimum, double maximum )
+{
+  auto const write_length = std::max< size_t >( 1, length );
+  auto data = vec_t( write_length, 0xba );
+  auto it = data.begin();
+  klv_write_int< uint64_t >( int_value, it, write_length );
+  it = data.begin();
+  EXPECT_THROW( klv_read_imap( minimum, maximum, it, length ), E );
+  EXPECT_EQ( data.begin(), it );
+}
+
+// ----------------------------------------------------------------------------
+void
+test_read_imap_type_overflow( uint64_t int_value, size_t length,
+                              double minimum, double maximum )
+{
+  test_read_imap_throw< kv::metadata_type_overflow >(
+    int_value, length, minimum, maximum );
+}
+
+// ----------------------------------------------------------------------------
+void
+test_read_imap_logic_error( uint64_t int_value, size_t length,
+                            double minimum, double maximum )
+{
+  test_read_imap_throw< std::logic_error >(
+    int_value, length, minimum, maximum );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( klv, read_imap )
+{
+  // Normal values
+  CALL_TEST( test_read_imap, 0,       1, -1.0, -1.0, 1.0 );
+  CALL_TEST( test_read_imap, 1 << 6,  1,  0.0, -1.0, 1.0 );
+  CALL_TEST( test_read_imap, 1 << 7,  1,  1.0, -1.0, 1.0 );
+  CALL_TEST( test_read_imap, 0,       3, -1.0, -1.0, 1.0 );
+  CALL_TEST( test_read_imap, 1 << 22, 3,  0.0, -1.0, 1.0 );
+  CALL_TEST( test_read_imap, 1 << 23, 3,  1.0, -1.0, 1.0 );
+
+  // Values from examples in ST1201.4, Table 6
+  CALL_TEST( test_read_imap, 0x000000, 3,      -900.0, -900.0, 19000.0 );
+  CALL_TEST( test_read_imap, 0x038400, 3,         0.0, -900.0, 19000.0 );
+  CALL_TEST( test_read_imap, 0x038E00, 3,        10.0, -900.0, 19000.0 );
+  CALL_TEST( test_read_imap, 0xE80000, 3, -double_inf, -900.0, 19000.0 );
+
+  // Values from examples in ST1201.4, Table 7
+  CALL_TEST( test_read_imap, 0x0000, 2, 0.1,               0.1, 0.9 );
+  CALL_TEST( test_read_imap, 0x3333, 2, 0.499993896484375, 0.1, 0.9 );
+  CALL_TEST( test_read_imap, 0x6666, 2, 0.899987792968750, 0.1, 0.9 );
+  CALL_TEST( test_read_imap, 0xE800, 2, -double_inf,       0.1, 0.9 );
+
+  // Special values
+  CALL_TEST( test_read_imap, _imap_infinity(   false, 5 ), 5,
+             +double_inf,  1.0, 2.0 );
+  CALL_TEST( test_read_imap, _imap_infinity(   true,  5 ), 5,
+             -double_inf,  1.0, 2.0 );
+  CALL_TEST( test_read_imap, _imap_quiet_nan(  false, 5 ), 5,
+             +double_qnan, 1.0, 2.0 );
+  CALL_TEST( test_read_imap, _imap_quiet_nan(  true,  5 ), 5,
+             -double_qnan, 1.0, 2.0 );
+  CALL_TEST( test_read_imap, _imap_signal_nan( false, 5 ), 5,
+             +double_snan, 1.0, 2.0 );
+  CALL_TEST( test_read_imap, _imap_signal_nan( true,  5 ), 5,
+             -double_snan, 1.0, 2.0 );
+
+  // Values too large for native type
+  CALL_TEST( test_read_imap_type_overflow, uint64_max, 9, -123.0, 321.0 );
+
+  // Invalid arguments
+  CALL_TEST( test_read_imap_logic_error, 0, 0,         0.0,         1.0 );
+  CALL_TEST( test_read_imap_logic_error, 0, 1,         0.0,         0.0 );
+  CALL_TEST( test_read_imap_logic_error, 0, 1,         0.0,        -1.0 );
+  CALL_TEST( test_read_imap_logic_error, 0, 1, -double_inf,         0.0 );
+  CALL_TEST( test_read_imap_logic_error, 0, 1,         0.0, +double_inf );
+  CALL_TEST( test_read_imap_logic_error, 0, 1, double_qnan,         0.0 );
+  CALL_TEST( test_read_imap_logic_error, 0, 1,         0.0, double_qnan );
+}
+
+// ----------------------------------------------------------------------------
+void
+test_write_imap( double value, double expected_value, size_t length,
+                 double minimum, double maximum, bool force_exact = true )
+{
+  auto data = vec_t( length, 0xba );
+  auto it = data.begin();
+  klv_write_imap( value, minimum, maximum, it, data.size() );
+  EXPECT_EQ( data.end(), it );
+  it = data.begin();
+
+  auto const result = klv_read_imap( minimum, maximum, it, data.size() );
+  if( std::isnan( expected_value ) )
+  {
+    // GTest won't print result value on fail, so do it manually
+    EXPECT_TRUE( std::isnan( result ) ) << "result: " << result;
+    EXPECT_EQ( std::signbit( expected_value ), std::signbit( result ) );
+  }
+  else if( force_exact || value == 0.0 || !std::isfinite( expected_value ) )
+  {
+    // Zero should be mapped (floating-point-) exactly
+    EXPECT_DOUBLE_EQ( expected_value, result );
+  }
+  else
+  {
+    auto const precision = klv_imap_precision( minimum, maximum, length );
+    EXPECT_NEAR( expected_value, result, precision / 2.0 );
+  }
+  EXPECT_EQ( data.end(), it );
+}
+
+// ----------------------------------------------------------------------------
+void
+test_write_imap( double value, size_t length, double minimum, double maximum )
+{
+  test_write_imap( value, value, length, minimum, maximum, false );
+}
+
+// ----------------------------------------------------------------------------
+template < class E >
+void
+test_write_imap_throw( double value, double minimum, double maximum,
+                       size_t length )
+{
+  auto data = vec_t( length, 0xba );
+  auto it = data.begin();
+  EXPECT_THROW( klv_write_imap( value, minimum, maximum, it, data.size() ),
+                E );
+  EXPECT_EQ( data.begin(), it );
+}
+
+// ----------------------------------------------------------------------------
+void
+test_write_imap_logic_error( double value, double minimum, double maximum,
+                             size_t length )
+{
+  test_write_imap_throw< std::logic_error >( value, minimum, maximum, length );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( klv, write_imap )
+{
+  // Valid values
+  CALL_TEST( test_write_imap, -1.0,   8, -1.0, 1.0 );
+  CALL_TEST( test_write_imap, -0.765, 7, -1.0, 1.0 );
+  CALL_TEST( test_write_imap, -0.5,   5, -1.0, 1.0 );
+  CALL_TEST( test_write_imap,  0.0,   3, -1.0, 1.0 );
+  CALL_TEST( test_write_imap,  0.72,  1, -1.0, 1.0 );
+  CALL_TEST( test_write_imap,  0.99,  2, -1.0, 1.0 );
+  CALL_TEST( test_write_imap,  1.0,   8, -1.0, 1.0 );
+
+  // Values from examples in ST1201.4, Table 6
+  CALL_TEST( test_write_imap,      -900.0, 3, -900.0, 19000.0 );
+  CALL_TEST( test_write_imap,         0.0, 3, -900.0, 19000.0 );
+  CALL_TEST( test_write_imap,        10.0, 3, -900.0, 19000.0 );
+  CALL_TEST( test_write_imap, -double_inf, 3, -900.0, 19000.0 );
+
+  // Values from examples in ST1201.4, Table 7
+  CALL_TEST( test_write_imap,         0.1,                    2, 0.1, 0.9 );
+  CALL_TEST( test_write_imap,         0.5, 0.499993896484375, 2, 0.1, 0.9 );
+  CALL_TEST( test_write_imap,         0.9, 0.899987792968750, 2, 0.1, 0.9 );
+  CALL_TEST( test_write_imap, -double_inf,                    2, 0.1, 0.9 );
+
+  // Special values
+  CALL_TEST( test_write_imap,  double_inf,  1, 0.0, 1.0 );
+  CALL_TEST( test_write_imap, -double_inf,  2, 0.0, 1.0 );
+  CALL_TEST( test_write_imap,  double_qnan, 3, 0.0, 1.0 );
+  CALL_TEST( test_write_imap, -double_qnan, 4, 0.0, 1.0 );
+  CALL_TEST( test_write_imap,  double_snan, 5, 0.0, 1.0 );
+  CALL_TEST( test_write_imap, -double_snan, 8, 0.0, 1.0 );
 }
