@@ -6,6 +6,7 @@ set( sources
   convert_metadata.cxx
   convert_0601_metadata.cxx
   convert_0104_metadata.cxx
+  klv_blob.cxx
   klv_checksum.cxx
   klv_data.cxx
   klv_key.cxx
