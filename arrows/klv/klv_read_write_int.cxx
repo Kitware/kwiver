@@ -5,21 +5,27 @@
 /// \file
 /// Implementation of the templated basic KLV read/write functions.
 
-#include "klv_read_write.h"
+#include "klv_read_write_int.h"
 
 #include <vital/exceptions.h>
 
+#include <deque>
 #include <limits>
 #include <numeric>
 #include <string>
+#include <vector>
 
 #include <cmath>
+
+namespace kv = kwiver::vital;
 
 namespace kwiver {
 
 namespace arrows {
 
 namespace klv {
+
+namespace {
 
 // ---------------------------------------------------------------------------
 // Macros for verifying type attributes
@@ -44,16 +50,49 @@ namespace klv {
 // ---------------------------------------------------------------------------
 // Return number of bits required to store the given signed or unsigned int.
 template < class T >
-KWIVER_ALGO_KLV_EXPORT
 size_t
-_int_bit_length( T value );
+int_bit_length( T value )
+{
+  KLV_ASSERT_INT( T );
+
+  if( value == 0 )
+  {
+    return 1;
+  }
+
+  // Transform signed number into equivalent-length unsigned number
+  using UnsignedT = typename std::make_unsigned< T >::type;
+
+  auto unsigned_value = static_cast< UnsignedT >( value );
+  if( std::is_signed< T >::value )
+  {
+    unsigned_value = ( ( value < 0 ) ? ~unsigned_value : unsigned_value ) << 1;
+  }
+
+  // Find out number of bits needed
+  size_t i = 0;
+  for(; unsigned_value; ++i )
+  {
+    unsigned_value >>= 1;
+  }
+  return i;
+}
 
 // ---------------------------------------------------------------------------
-// Return whether left-shifting by given amount would overflow type T.
 template < int shift_amount, typename T >
-KWIVER_ALGO_KLV_EXPORT
+// Return whether left-shifting by given amount would overflow type T.
 bool
-_left_shift_overflow( T value );
+left_shift_overflow( T value )
+{
+  KLV_ASSERT_UINT( T );
+
+  constexpr auto retained_bits = ( 8 * sizeof( T ) ) - shift_amount;
+  constexpr auto mask = static_cast< T >( ~0ull << retained_bits );
+
+  return ( value & mask ) != 0;
+}
+
+} // namespace
 
 // ---------------------------------------------------------------------------
 template < class T, class Iterator >
@@ -66,7 +105,7 @@ klv_read_int( Iterator& data, size_t length )
 
   if( sizeof( T ) < length )
   {
-    VITAL_THROW( kwiver::vital::metadata_type_overflow,
+    VITAL_THROW( kv::metadata_type_overflow,
                  "integer will overflow given type" );
   }
 
@@ -114,7 +153,7 @@ klv_write_int( T value, Iterator& data, size_t length )
   auto const value_length = klv_int_length( value );
   if( value_length > length )
   {
-    VITAL_THROW( kwiver::vital::metadata_type_overflow,
+    VITAL_THROW( kv::metadata_type_overflow,
                  "integer not representable using given length" );
   }
 
@@ -135,7 +174,7 @@ template < class T >
 size_t
 klv_int_length( T value )
 {
-  return ( _int_bit_length( value ) + 7 ) / 8;
+  return ( int_bit_length( value ) + 7 ) / 8;
 }
 
 // ---------------------------------------------------------------------------
@@ -149,7 +188,7 @@ klv_read_ber( Iterator& data, size_t max_length )
 
   if( !max_length )
   {
-    VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+    VITAL_THROW( kv::metadata_buffer_overflow,
                  "BER decoding overruns end of data buffer" );
   }
 
@@ -167,7 +206,7 @@ klv_read_ber( Iterator& data, size_t max_length )
 
   if( total_length > max_length )
   {
-    VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+    VITAL_THROW( kv::metadata_buffer_overflow,
                  "BER decoding overruns end of data buffer" );
   }
 
@@ -176,7 +215,7 @@ klv_read_ber( Iterator& data, size_t max_length )
   {
     return klv_read_int< T >( ++data, total_length - 1 );
   }
-  catch ( const kwiver::vital::metadata_type_overflow& e )
+  catch ( const kv::metadata_type_overflow& e )
   {
     data = rewind;
 
@@ -195,7 +234,7 @@ klv_write_ber( T value, Iterator& data, size_t max_length )
   auto const value_length = klv_ber_length( value );
   if( value_length > max_length )
   {
-    VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+    VITAL_THROW( kv::metadata_buffer_overflow,
                  "BER encoding overruns end of data buffer" );
   }
 
@@ -206,7 +245,7 @@ klv_write_ber( T value, Iterator& data, size_t max_length )
   }
   else
   {
-    *data = static_cast< uint8_t >( ( 0x7F & value_length - 1 ) | 0x80 );
+    *data = static_cast< uint8_t >( ( 0x7F & ( value_length - 1 ) ) | 0x80 );
     klv_write_int( value, ++data, value_length - 1 );
   }
 }
@@ -237,15 +276,15 @@ klv_read_ber_oid( Iterator& data, size_t max_length )
     if( !max_length )
     {
       data = rewind;
-      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+      VITAL_THROW( kv::metadata_buffer_overflow,
                    "BER-OID decoding overruns end of data buffer" );
     }
     --max_length;
 
-    if( _left_shift_overflow< 7, T >( value ) )
+    if( left_shift_overflow< 7, T >( value ) )
     {
       data = rewind;
-      VITAL_THROW( kwiver::vital::metadata_type_overflow,
+      VITAL_THROW( kv::metadata_type_overflow,
                    "BER-OID value will overflow given type" );
     }
 
@@ -267,7 +306,7 @@ klv_write_ber_oid( T value, Iterator& data, size_t max_length )
   auto value_length = klv_ber_oid_length( value );
   if( value_length > max_length )
   {
-    VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+    VITAL_THROW( kv::metadata_buffer_overflow,
                  "BER-OID encoding overruns end of data buffer" );
   }
 
@@ -295,51 +334,68 @@ size_t
 klv_ber_oid_length( T value )
 {
   KLV_ASSERT_UINT( T );
-  return ( _int_bit_length( value ) + 6 ) / 7;
+  return ( int_bit_length( value ) + 6 ) / 7;
 }
 
 // ---------------------------------------------------------------------------
-template < class T >
-size_t
-_int_bit_length( T value )
-{
-  KLV_ASSERT_INT( T );
+#define KLV_INSTANTIATE_ALL_UINT( INSTANTIATE, ... ) \
+  INSTANTIATE( __VA_ARGS__, uint8_t  );              \
+  INSTANTIATE( __VA_ARGS__, uint16_t );              \
+  INSTANTIATE( __VA_ARGS__, uint32_t );              \
+  INSTANTIATE( __VA_ARGS__, uint64_t )
 
-  if( value == 0 )
-  {
-    return 1;
-  }
+#define KLV_INSTANTIATE_ALL_SINT( INSTANTIATE, ... ) \
+  INSTANTIATE( __VA_ARGS__, int8_t  );               \
+  INSTANTIATE( __VA_ARGS__, int16_t );               \
+  INSTANTIATE( __VA_ARGS__, int32_t );               \
+  INSTANTIATE( __VA_ARGS__, int64_t )
 
-  // Transform signed number into equivalent-length unsigned number
-  using UnsignedT = typename std::make_unsigned< T >::type;
+#define KLV_INSTANTIATE_ALL_INT( INSTANTIATE, ... )     \
+  KLV_INSTANTIATE_ALL_UINT( INSTANTIATE, __VA_ARGS__ ); \
+  KLV_INSTANTIATE_ALL_SINT( INSTANTIATE, __VA_ARGS__ )
 
-  auto unsigned_value = static_cast< UnsignedT >( value );
-  if( std::is_signed< T >::value )
-  {
-    unsigned_value = ( ( value < 0 ) ? ~unsigned_value : unsigned_value ) << 1;
-  }
+#define KLV_INSTANTIATE_ALL_CITER( INSTANTIATE, ... )                          \
+  INSTANTIATE( __VA_ARGS__, uint8_t const* );                                  \
+  INSTANTIATE( __VA_ARGS__, typename std::vector< uint8_t >::const_iterator ); \
+  INSTANTIATE( __VA_ARGS__, typename std::deque<  uint8_t >::const_iterator )
 
-  // Find out number of bits needed
-  size_t i = 0;
-  for(; unsigned_value; ++i )
-  {
-    unsigned_value >>= 1;
-  }
-  return i;
-}
+#define KLV_INSTANTIATE_ALL_WITER( INSTANTIATE, ... )                    \
+  INSTANTIATE( __VA_ARGS__, uint8_t* );                                  \
+  INSTANTIATE( __VA_ARGS__, typename std::vector< uint8_t >::iterator ); \
+  INSTANTIATE( __VA_ARGS__, typename std::deque<  uint8_t >::iterator )
 
-// ---------------------------------------------------------------------------
-template < int shift_amount, typename T >
-bool
-_left_shift_overflow( T value )
-{
-  KLV_ASSERT_UINT( T );
+#define KLV_INSTANTIATE_ALL_ITER( INSTANTIATE, ... )     \
+  KLV_INSTANTIATE_ALL_CITER( INSTANTIATE, __VA_ARGS__ ); \
+  KLV_INSTANTIATE_ALL_WITER( INSTANTIATE, __VA_ARGS__ )
 
-  constexpr auto retained_bits = ( 8 * sizeof( T ) ) - shift_amount;
-  constexpr auto mask = static_cast< T >( ~0ull << retained_bits );
+#define KLV_INSTANTIATE_READ( FN, T, ITERATOR ) \
+  template KWIVER_ALGO_KLV_EXPORT T             \
+  FN< T, ITERATOR >( ITERATOR&, size_t )
 
-  return ( value & mask ) != 0;
-}
+#define KLV_INSTANTIATE_WRITE( FN, T, ITERATOR ) \
+  template KWIVER_ALGO_KLV_EXPORT void           \
+  FN< T, ITERATOR >( T, ITERATOR&, size_t )
+
+#define KLV_INSTANTIATE_LENGTH( FN, T ) \
+  template KWIVER_ALGO_KLV_EXPORT size_t FN< T >( T )
+
+KLV_INSTANTIATE_ALL_INT( KLV_INSTANTIATE_ALL_ITER, KLV_INSTANTIATE_READ,
+                         klv_read_int );
+KLV_INSTANTIATE_ALL_INT( KLV_INSTANTIATE_ALL_WITER, KLV_INSTANTIATE_WRITE,
+                         klv_write_int );
+KLV_INSTANTIATE_ALL_INT( KLV_INSTANTIATE_LENGTH, klv_int_length );
+
+KLV_INSTANTIATE_ALL_UINT( KLV_INSTANTIATE_ALL_ITER, KLV_INSTANTIATE_READ,
+                          klv_read_ber );
+KLV_INSTANTIATE_ALL_UINT( KLV_INSTANTIATE_ALL_WITER, KLV_INSTANTIATE_WRITE,
+                          klv_write_ber );
+KLV_INSTANTIATE_ALL_UINT( KLV_INSTANTIATE_LENGTH, klv_ber_length );
+
+KLV_INSTANTIATE_ALL_UINT( KLV_INSTANTIATE_ALL_ITER, KLV_INSTANTIATE_READ,
+                          klv_read_ber_oid );
+KLV_INSTANTIATE_ALL_UINT( KLV_INSTANTIATE_ALL_WITER, KLV_INSTANTIATE_WRITE,
+                          klv_write_ber_oid );
+KLV_INSTANTIATE_ALL_UINT( KLV_INSTANTIATE_LENGTH, klv_ber_oid_length );
 
 } // namespace klv
 

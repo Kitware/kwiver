@@ -22,12 +22,12 @@
 // uint64_t), and different KLV integer sizes (1 ... 8). This hopefully allows
 // these functions to be reused in every KLV standard.
 
-#ifndef KWIVER_ARROWS_KLV_KLV_READ_WRITE_H_
-#define KWIVER_ARROWS_KLV_KLV_READ_WRITE_H_
+#ifndef KWIVER_ARROWS_KLV_KLV_READ_WRITE_INT_H_
+#define KWIVER_ARROWS_KLV_KLV_READ_WRITE_INT_H_
 
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
-#include <cstdlib>
+#include <cstddef>
 
 namespace kwiver {
 

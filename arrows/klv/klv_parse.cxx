@@ -10,7 +10,7 @@
 #include "klv_data.h"
 #include "klv_key.h"
 #include "klv_parse.h"
-#include "klv_read_write.txx"
+#include "klv_read_write_int.h"
 
 #include <vital/exceptions/metadata.h>
 

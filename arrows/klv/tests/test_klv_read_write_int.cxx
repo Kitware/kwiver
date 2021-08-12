@@ -5,7 +5,9 @@
 /// \file
 /// \brief Test basic KLV read / write functions
 
-#include <arrows/klv/klv_read_write.txx>
+#include <arrows/klv/klv_read_write_int.h>
+
+#include <vital/exceptions.h>
 
 #include <gtest/gtest.h>
 
