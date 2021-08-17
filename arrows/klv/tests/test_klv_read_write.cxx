@@ -46,9 +46,15 @@ auto const int16_max = std::numeric_limits< int16_t >::max();
 auto const int32_max = std::numeric_limits< int32_t >::max();
 auto const int64_max = std::numeric_limits< int64_t >::max();
 
-auto const double_min = std::numeric_limits< double >::lowest();
-auto const double_max = std::numeric_limits< double >::max();
-auto const double_inf = std::numeric_limits< double >::infinity();
+auto const float_min  = std::numeric_limits< float >::lowest();
+auto const float_max  = std::numeric_limits< float >::max();
+auto const float_inf  = std::numeric_limits< float >::infinity();
+auto const float_qnan = std::numeric_limits< float >::quiet_NaN();
+auto const float_snan = std::numeric_limits< float >::signaling_NaN();
+
+auto const double_min  = std::numeric_limits< double >::lowest();
+auto const double_max  = std::numeric_limits< double >::max();
+auto const double_inf  = std::numeric_limits< double >::infinity();
 auto const double_qnan = std::numeric_limits< double >::quiet_NaN();
 auto const double_snan = std::numeric_limits< double >::signaling_NaN();
 
@@ -627,6 +633,176 @@ TEST ( klv, ber_oid_length )
   CALL_TEST( test_ber_oid_length< uint64_t >, ( 1ull << 63 ) - 1, 9 );
   CALL_TEST( test_ber_oid_length< uint64_t >, ( 1ull << 63 ),     10 );
   CALL_TEST( test_ber_oid_length< uint64_t >, uint64_max,         10 );
+}
+
+// ----------------------------------------------------------------------------
+void
+test_read_float( double value, vec_t const& bytes )
+{
+  auto it = bytes.cbegin();
+  auto const result = klv_read_float( it, bytes.size() );
+  if( std::isnan( value ) )
+  {
+    // GTest won't print result value on fail, so do it manually
+    EXPECT_TRUE( std::isnan( result ) ) << "result: " << result;
+    EXPECT_EQ( std::signbit( value ), std::signbit( result ) );
+  }
+  else
+  {
+    EXPECT_DOUBLE_EQ( value, result );
+  }
+  EXPECT_EQ( bytes.cend(), it );
+}
+
+// ----------------------------------------------------------------------------
+template < class E >
+void
+test_read_float_throw( vec_t const& bytes )
+{
+  auto it = bytes.cbegin();
+  EXPECT_THROW( klv_read_float( it, bytes.size() ), E );
+}
+
+// ----------------------------------------------------------------------------
+void
+test_read_float_invalid_value( vec_t const& bytes )
+{
+  test_read_float_throw< kv::invalid_value >( bytes );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( klv, read_float )
+{
+  // Bit patterns confirmed on Wolfram-Alpha
+  // Normal values - float
+  CALL_TEST( test_read_float,  0.0f,   { 0x00, 0x00, 0x00, 0x00 } );
+  CALL_TEST( test_read_float, -0.1f,   { 0xBD, 0xCC, 0xCC, 0xCD } );
+  CALL_TEST( test_read_float, +0.1f,   { 0x3D, 0xCC, 0xCC, 0xCD } );
+  CALL_TEST( test_read_float, -1e23f,  { 0xE5, 0xA9, 0x68, 0x16 } );
+  CALL_TEST( test_read_float, +1e-23f, { 0x19, 0x41, 0x6D, 0x9A } );
+
+  // Special values - float
+  CALL_TEST( test_read_float,  float_min,  { 0xFF, 0x7F, 0xFF, 0xFF } );
+  CALL_TEST( test_read_float,  float_max,  { 0x7F, 0x7F, 0xFF, 0xFF } );
+  CALL_TEST( test_read_float, -float_inf,  { 0xFF, 0x80, 0x00, 0x00 } );
+  CALL_TEST( test_read_float, +float_inf,  { 0x7F, 0x80, 0x00, 0x00 } );
+  CALL_TEST( test_read_float, -float_qnan, { 0xFF, 0x80, 0x00, 0x01 } );
+  CALL_TEST( test_read_float, +float_qnan, { 0x7F, 0x80, 0x00, 0x01 } );
+
+  // Normal values - double
+  CALL_TEST( test_read_float,  0.0,
+             { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } );
+  CALL_TEST( test_read_float, +1.01,
+             { 0x3F, 0xF0, 0x28, 0xF5, 0xC2, 0x8F, 0x5C, 0x29 } );
+  CALL_TEST( test_read_float, -1.01,
+             { 0xBF, 0xF0, 0x28, 0xF5, 0xC2, 0x8F, 0x5C, 0x29 } );
+  CALL_TEST( test_read_float, +1.1e123,
+             { 0x59, 0x7A, 0x9F, 0xC3, 0x03, 0x5E, 0x18, 0x09 } );
+  CALL_TEST( test_read_float, -1.1e-123,
+             { 0xA6, 0x67, 0x44, 0xE8, 0x54, 0xEE, 0xA5, 0x5D } );
+
+  // Special values - double
+  CALL_TEST( test_read_float,  double_min,
+             { 0xFF, 0xEF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF } );
+  CALL_TEST( test_read_float,  double_max,
+             { 0x7F, 0xEF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF } );
+  CALL_TEST( test_read_float, -double_inf,
+             { 0xFF, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } );
+  CALL_TEST( test_read_float, +double_inf,
+             { 0x7F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } );
+  CALL_TEST( test_read_float, -double_qnan,
+             { 0xFF, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 } );
+  CALL_TEST( test_read_float, +double_qnan,
+             { 0x7F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 } );
+
+  // Invalid length
+  CALL_TEST( test_read_float_invalid_value, {} );
+  CALL_TEST( test_read_float_invalid_value, { 0x00 } );
+  CALL_TEST( test_read_float_invalid_value, { 0x00, 0x00 } );
+  CALL_TEST( test_read_float_invalid_value, { 0x00, 0x00, 0x00, 0x00, 0x00 } );
+}
+
+// ----------------------------------------------------------------------------
+void
+test_write_float( double value, size_t length )
+{
+  vec_t bytes( length, 0xba );
+  auto it = bytes.begin();
+  klv_write_float( value, it, length );
+  EXPECT_EQ( it, bytes.end() );
+  it = bytes.begin();
+  auto const result = klv_read_float( it, length );
+  if( std::isnan( value ) )
+  {
+    // GTest won't print result value on fail, so do it manually
+    EXPECT_TRUE( std::isnan( result ) ) << "result: " << result;
+    EXPECT_EQ( std::signbit( value ), std::signbit( result ) );
+  }
+  else
+  {
+    EXPECT_EQ( result, value );
+  }
+}
+
+// ----------------------------------------------------------------------------
+template < class E >
+void
+test_write_float_throw( double value, size_t length )
+{
+  vec_t bytes( length, 0xba );
+  auto it = bytes.begin();
+  EXPECT_THROW( klv_write_float( value, it, bytes.size() ), E );
+}
+
+// ----------------------------------------------------------------------------
+void
+test_write_float_invalid_value( double value, size_t length )
+{
+  test_write_float_throw< kv::invalid_value >( value, length );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( klv, write_float )
+{
+  // Normal values - float
+  CALL_TEST( test_write_float, +0.0f,   4 );
+  CALL_TEST( test_write_float, -0.0f,   4 );
+  CALL_TEST( test_write_float, +1.234f, 4 );
+  CALL_TEST( test_write_float, -1.234f, 4 );
+
+  // Special values - float
+  CALL_TEST( test_write_float,  float_min,  4 );
+  CALL_TEST( test_write_float,  float_max,  4 );
+  CALL_TEST( test_write_float, -float_inf,  4 );
+  CALL_TEST( test_write_float, +float_inf,  4 );
+  CALL_TEST( test_write_float, -float_qnan, 4 );
+  CALL_TEST( test_write_float, +float_qnan, 4 );
+  CALL_TEST( test_write_float, -float_snan, 4 );
+  CALL_TEST( test_write_float, +float_snan, 4 );
+
+  // Normal values - double
+  CALL_TEST( test_write_float, +0.0,   8 );
+  CALL_TEST( test_write_float, -0.0,   8 );
+  CALL_TEST( test_write_float, +1.234, 8 );
+  CALL_TEST( test_write_float, -1.234, 8 );
+
+  // Special values - double
+  CALL_TEST( test_write_float,  double_min,  8 );
+  CALL_TEST( test_write_float,  double_max,  8 );
+  CALL_TEST( test_write_float, -double_inf,  8 );
+  CALL_TEST( test_write_float, +double_inf,  8 );
+  CALL_TEST( test_write_float, -double_qnan, 8 );
+  CALL_TEST( test_write_float, +double_qnan, 8 );
+  CALL_TEST( test_write_float, -double_snan, 8 );
+  CALL_TEST( test_write_float, +double_snan, 8 );
+
+  // Invalid length
+  CALL_TEST( test_write_float_invalid_value, 0.0, 0 );
+  CALL_TEST( test_write_float_invalid_value, 0.0, 1 );
+  CALL_TEST( test_write_float_invalid_value, 0.0, 2 );
+  CALL_TEST( test_write_float_invalid_value, 0.0, 3 );
+  CALL_TEST( test_write_float_invalid_value, 0.0, 5 );
+  CALL_TEST( test_write_float_invalid_value, 0.0, 9 );
 }
 
 // ----------------------------------------------------------------------------

@@ -14,6 +14,7 @@
 #include <string>
 
 #include <cmath>
+#include <cstring>
 
 namespace kwiver {
 
@@ -341,6 +342,69 @@ klv_ber_oid_length( T value )
 {
   KLV_ASSERT_UINT( T );
   return ( _int_bit_length( value ) + 6 ) / 7;
+}
+
+// ---------------------------------------------------------------------------
+template < class Iterator >
+double
+klv_read_float( Iterator& data, size_t length )
+{
+  static_assert( std::numeric_limits< float  >::is_iec559 &&
+                 std::numeric_limits< double >::is_iec559,
+                 "non-IEEE-754 platform is not supported" );
+  if( length == sizeof( float ) )
+  {
+    static_assert( sizeof( float ) == sizeof( uint32_t ),
+                   "non-32-bit float not supported" );
+    auto const int_value = klv_read_int< uint32_t >( data, length );
+    float float_value;
+    std::memcpy( &float_value, &int_value, sizeof( float_value ) );
+    return float_value;
+  }
+  else if( length == sizeof( double ) )
+  {
+    static_assert( sizeof( double ) == sizeof( uint64_t ),
+                   "non-64-bit double not supported" );
+    auto const int_value = klv_read_int< uint64_t >( data, length );
+    double float_value;
+    std::memcpy( &float_value, &int_value, sizeof( float_value ) );
+    return float_value;
+  }
+  VITAL_THROW( kwiver::vital::invalid_value,
+               "length must be sizeof(float) or sizeof(double)" );
+}
+
+// ---------------------------------------------------------------------------
+template < class Iterator >
+void
+klv_write_float( double value, Iterator& data, size_t length )
+{
+  static_assert( std::numeric_limits< float  >::is_iec559 &&
+                 std::numeric_limits< double >::is_iec559,
+                 "non-IEEE-754 platform is not supported" );
+  if( length == sizeof( float ) )
+  {
+    static_assert( sizeof( float ) == sizeof( uint32_t ),
+                   "non-32-bit float not supported" );
+    auto const float_value = static_cast< float >( value );
+    uint32_t int_value;
+    std::memcpy( &int_value, &float_value, sizeof( int_value ) );
+    klv_write_int( int_value, data, length );
+  }
+  else if( length == sizeof( double ) )
+  {
+    static_assert( sizeof( double ) == sizeof( uint64_t ),
+                   "non-64-bit double not supported" );
+    auto const float_value = static_cast< double >( value );
+    uint64_t int_value;
+    std::memcpy( &int_value, &float_value, sizeof( int_value ) );
+    klv_write_int( int_value, data, length );
+  }
+  else
+  {
+    VITAL_THROW( kwiver::vital::invalid_value,
+                 "length must be sizeof(float) or sizeof(double)" );
+  }
 }
 
 // ---------------------------------------------------------------------------
