@@ -143,16 +143,30 @@ class TestVitalRotation(unittest.TestCase):
         rod = rot_f.rodrigues()
         numpy.testing.assert_equal(rod, ident_rod)
 
-    def test_to_ypr(self):
-        # ypr identity: (pi/2, 0, pi)
-        ident_ypr = (math.pi / 2, 0, -math.pi)
+    def test_enu_ned(self):
+        # ENU means x=east, y=north, z=up (default for general cv use)
+        # NED means x=north, y=east, z=down (convention for yaw-pitch-roll)
+        # Below are the ENU identity rotations in each coordinate system
+        ident_enu = (0, 0, 0)
+        ident_ned = (math.pi / 2, 0, math.pi)
 
-        rot_d = RotationD()
-        rot_f = RotationF()
+        # deals with equivalence of e.g. +pi and -pi with respect to orientation
+        def assert_angles_almost_equal(angles1, angles2, digits):
+            for angle1, angle2 in zip(angles1, angles2):
+                numpy.testing.assert_almost_equal(math.sin(angle1), math.sin(angle2), digits)
+                numpy.testing.assert_almost_equal(math.cos(angle1), math.cos(angle2), digits)
 
-        numpy.testing.assert_almost_equal(rot_d.yaw_pitch_roll(), ident_ypr, 15)
+        rot_d = rotation.enu_to_ned(RotationD())
+        rot_f = rotation.enu_to_ned(RotationF())
 
-        numpy.testing.assert_almost_equal(rot_f.yaw_pitch_roll(), ident_ypr)
+        assert_angles_almost_equal(rot_d.yaw_pitch_roll(), ident_ned, 14)
+        assert_angles_almost_equal(rot_f.yaw_pitch_roll(), ident_ned, 6)
+
+        rot_d = rotation.ned_to_enu(rot_d)
+        rot_f = rotation.ned_to_enu(rot_f)
+
+        assert_angles_almost_equal(rot_d.yaw_pitch_roll(), ident_enu, 14)
+        assert_angles_almost_equal(rot_f.yaw_pitch_roll(), ident_enu, 6)
 
     def test_from_rotation(self):
         r = RotationD()
