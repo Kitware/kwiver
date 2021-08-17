@@ -1,0 +1,14 @@
+KWIVER v1.7.0 Release Notes
+===========================
+
+This is a minor release of KWIVER that provides both new functionality and fixes
+over the previous v1.6.0 release.
+
+
+Updates
+-------
+
+Build System
+
+* Removed some CMake statements and support for old CMake version predating the
+  current minimum version specification.
