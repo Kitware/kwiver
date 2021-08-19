@@ -337,13 +337,23 @@ compute_vniirs( double gsd, double rer, double snr )
   gsd *= meters_to_inches;
 
   double const log10_gsd = std::log10( gsd );
-  double const log10_rer = std::log10( rer );
 
-  auto vniirs = a0 +
-                a1 * log10_gsd +
-                a2 * ( 1.0 - std::exp( a3 / snr ) ) * log10_rer +
-                a4 * std::pow( log10_rer, 4 ) +
-                a5 / snr;
+  // double const log10_rer = std::log10( rer );
+  // auto vniirs = a0 +
+  //               a1 * log10_gsd +
+  //               a2 * ( 1.0 - std::exp( a3 / snr ) ) * log10_rer +
+  //               a4 * std::pow( log10_rer, 4 ) +
+  //               a5 / snr;
+  // Above is full equation; below is partial equation since we don't actually
+  // know RER or SNR
+  (void)rer;
+  (void)snr;
+  (void)a2;
+  (void)a3;
+  (void)a4;
+  (void)a5;
+  auto vniirs = a0 + a1 * log10_gsd;
+
   // 2.0 is defined as the lower bound for VNIIRs
   vniirs = std::max( vniirs, 2.0 );
   return vniirs;
