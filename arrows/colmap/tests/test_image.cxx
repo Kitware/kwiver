@@ -1,5 +1,5 @@
-#include <arrows/colmap/colmap.h>
-#include <colmap/mvs/image_container.h>
+#include <arrows/colmap/image_container.h>
+#include <colmap/mvs/image.h>
 #include <fstream>
 #include <gtest/gtest.h>
 #include <iostream>
