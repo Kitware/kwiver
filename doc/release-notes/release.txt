@@ -9,4 +9,6 @@ Bug Fixes since v1.6.0
 
 Build System
 
-* Fix missing `ZeroMQ_INCLUDE_DIR` set when building statically.
+ * Fix missing `ZeroMQ_INCLUDE_DIR` set when building statically.
+
+ * Fix missing-closing-bracket typo in `CMake/utils/kwiver-utils-python.cmake`.
