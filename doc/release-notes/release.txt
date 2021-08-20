@@ -6,3 +6,7 @@ v1.6.0 release.
 
 Bug Fixes since v1.6.0
 ----------------------
+
+Build System
+
+* Fix missing-closing-bracket typo in `CMake/utils/kwiver-utils-python.cmake`.
