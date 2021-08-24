@@ -6,3 +6,22 @@ v1.6.0 release.
 
 Bug Fixes since v1.6.0
 ----------------------
+
+Arrows: MVG
+
+ * Fixed a typo in the command line argument name for camera path in the
+   init_cameras_landmarks applet.  This was preventing changing the camera
+   directory in the applet.
+
+Arrows: VTK
+
+ * Fixed an error in the calculation of depth used in mesh coloring.  This
+   caused coloring to fail to apply color in some cases.  It was primarily
+   an issue when the near plane was much closer to the camera than to the
+   far plane.
+
+Build System
+
+ * Fix missing `ZeroMQ_INCLUDE_DIR` set when building statically.
+
+ * Fix missing-closing-bracket typo in `CMake/utils/kwiver-utils-python.cmake`.
