@@ -161,9 +161,9 @@ public:
       config->subblock_view("video_reader")->merge_config(
         load_default_video_input_config(video_file));
     }
-    if ( cmd_args.count("carmera") > 0 )
+    if ( cmd_args.count("camera") > 0 )
     {
-      camera_directory = cmd_args["carmera"].as<std::string>();
+      camera_directory = cmd_args["camera"].as<std::string>();
       config->set_value("output_cameras_directory", camera_directory);
     }
     if ( cmd_args.count("landmarks") > 0 )
