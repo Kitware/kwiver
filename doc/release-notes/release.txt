@@ -12,3 +12,9 @@ Arrows: MVG
  * Fixed a typo in the command line argument name for camera path in the
    init_cameras_landmarks applet.  This was preventing changing the camera
    directory in the applet.
+
+Build System
+
+ * Fix missing `ZeroMQ_INCLUDE_DIR` set when building statically.
+
+ * Fix missing-closing-bracket typo in `CMake/utils/kwiver-utils-python.cmake`.
