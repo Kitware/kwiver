@@ -1,11 +1,10 @@
-###
-# Top level build script for kwiver-build
-#
+# ==============================================================================
+# Top level build script for kwiver
 cmake_minimum_required(VERSION 3.15)
 
 project(KWIVER)
 
-###
+# ==============================================================================
 # KWIVER version
 set(KWIVER_VERSION_MAJOR 2)
 set(KWIVER_VERSION_MINOR 0)
@@ -15,7 +14,7 @@ set(KWIVER_VERSION "${KWIVER_VERSION_MAJOR}.${KWIVER_VERSION_MINOR}.${KWIVER_VER
 # Organize target into folders for IDEs that support it
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-###
+# ==============================================================================
 # Look for and use Fletch to find dependencies
 #
 set( fletch_DIR "" CACHE PATH "Path to FLETCH packages" )
@@ -27,9 +26,9 @@ if ( IS_DIRECTORY ${fletch_DIR} )
   endif()
 endif()
 
-###
+# ==============================================================================
 # project specific directories
-##
+#
 set(KWIVER_CMAKE_DIR            "${CMAKE_SOURCE_DIR}/CMake")
 
 # root directories
@@ -41,53 +40,46 @@ set(KWIVER_DEFAULT_LIBRARY_DIR "lib" CACHE STRING
     "Default library directory for kwiver")
 mark_as_advanced(KWIVER_DEFAULT_LIBRARY_DIR)
 
-#
+set( LIB_SUFFIX "" CACHE STRING
+     "Library directory suffix. e.g. suffix=\"kwiver\" will install libraries in \"libkwiver\" rather than \"lib\"")
+mark_as_advanced( LIB_SUFFIX )
+
+# ==============================================================================
 # kwiver module config file.
 set(KWIVER_CONFIG_FILE          "${KWIVER_BINARY_DIR}/kwiver-config.cmake")
-
-if(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.20)
-    set(_vcVersion vc16)
-  elseif(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.10)
-    set(_vcVersion vc15)
-  elseif(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19)
-    set(_vcVersion vc14)
-  else()
-    message(FATAL_ERROR "KWIVER requires Visual Studio 2015 or greater")
-  endif()
-endif()
 
 # prepend our CMake resources
 list(INSERT CMAKE_MODULE_PATH 0 ${KWIVER_CMAKE_DIR})
 
-# import CMake future modules
+# Import other CMake modules that are back-ports from "future" versions.
+# "Future" generally meaning versions of CMake that are greater than the one
+# currently used.
 include(kwiver-cmake-future)
 
-# ===========================================================================================
-# project global includes
+# ==============================================================================
+# Project global includes and links
 include_directories("${KWIVER_SOURCE_DIR}")
 include_directories("${KWIVER_SOURCE_DIR}/sprokit/src")
 include_directories("${KWIVER_BINARY_DIR}")
 include_directories("${KWIVER_BINARY_DIR}/sprokit/src")
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
-
 # include vital internal headers for private use only
 include_directories("${KWIVER_SOURCE_DIR}/vital/internal")
-
 # kwiversys includes are generated in the binary directory
 include_directories("${KWIVER_BINARY_DIR}/vital/kwiversys")
 
-# ===========================================================================================
-
 include_directories( SYSTEM ${CMAKE_CURRENT_SOURCE_DIR} )
 
-# ===========================================================================================
-###
+link_directories( ${KWIVER_BINARY_DIR}/lib )
+
+# ==============================================================================
 # User options
 include(CMakeDependentOption)
 
+# TODO: Add a comment documenting why we have a separate build-shared flag.
 OPTION(KWIVER_BUILD_SHARED     "Build KWIVER components shared or not" TRUE )
 MARK_AS_ADVANCED( KWIVER_BUILD_SHARED )
+set(BUILD_SHARED_LIBS ${KWIVER_BUILD_SHARED})
 
 OPTION(KWIVER_EXPORT_COMPILE_COMMANDS "Export compile commands to support LSP development." FALSE )
 MARK_AS_ADVANCED( KWIVER_EXPORT_COMPILE_COMMANDS )
@@ -95,6 +87,7 @@ if (KWIVER_EXPORT_COMPILE_COMMANDS )
   set(CMAKE_EXPORT_COMPILE_COMMANDS ${KWIVER_EXPORT_COMPILE_COMMANDS})
 endif()
 
+# TODO: Enable-* flags will need clean-up with reorganization.
 OPTION(KWIVER_ENABLE_TESTS                "Enable testing" OFF )
 OPTION(KWIVER_ENABLE_ARROWS               "Enable building arrows" OFF )
 OPTION(KWIVER_ENABLE_TOOLS                "Enable tools" OFF )
@@ -121,10 +114,12 @@ MARK_AS_ADVANCED(KWIVER_USE_BUILD_TREE)
 
 option( KWIVER_ENABLE_EXTRAS "Enable extras content" OFF )
 
-## TODO: How should pytgon and c lib interact?
-OPTION( KWIVER_ENABLE_C_BINDINGS               "Enable C bindings libraries" OFF)
-CMAKE_DEPENDENT_OPTION( KWIVER_ENABLE_PYTHON   "Enable python code" OFF
-  KWIVER_ENABLE_C_BINDINGS OFF )
+OPTION( KWIVER_ENABLE_PYTHON "Enable python code" OFF )
+if (KWIVER_ENABLE_PYTHON)
+  if (NOT WIN32)
+    OPTION(KWIVER_SYMLINK_PYTHON "Symlink python files instead of copying." OFF)
+  endif()
+endif()
 
 if (KWIVER_ENABLE_SERIALIZE_PROTOBUF)
   if (WIN32)
@@ -133,24 +128,10 @@ if (KWIVER_ENABLE_SERIALIZE_PROTOBUF)
   endif()
 endif()
 
-# =========================================================================================
-###
+# ==============================================================================
 # KWIVER CMake config
 #
 include( kwiver-utils )
-
-if (KWIVER_ENABLE_PYTHON)
-  if (NOT WIN32)
-    OPTION(KWIVER_SYMLINK_PYTHON "Symlink python files instead of copying." OFF)
-  endif()
-
-  if( NOT KWIVER_ENABLE_C_BINDINGS )
-    message( SEND_ERROR  "Python can not be enabled unless KWIVER_ENABLE_C_BINDINGS "
-      "is also enabled." )
-  endif()
-endif()
-
-set(BUILD_SHARED_LIBS ${KWIVER_BUILD_SHARED})
 
 # Set directories where loadable modules are stored.
 # These subdirs are under .../lib/
@@ -167,46 +148,35 @@ set( kwiver_plugin_applets_subdir                 ${kwiver_plugin_subdir}/applet
 # other well known subdirs
 set( kwiver_config_subdir                         share/kwiver/${KWIVER_VERSION}/config)
 
-##
-# System specific compiler flags
-include( kwiver-flags )
+add_definitions(-DKWIVER_DEFAULT_PLUGIN_ORGANIZATION="Kitware Inc.")
 
-##
-# check compiler support
+# ==============================================================================
+# System specific compiler flags and support
+include( kwiver-flags )
 include( kwiver-configcheck )
 
 # set the name for our package export
 set( kwiver_export_name      kwiver_exports )
 
-###
+# ==============================================================================
 # External Dependencies and Modules - Most Will be supplied by Fletch
-include( kwiver-depends )
+#include( kwiver-depends )
+# TODO: devise something more clear than this pattern: dependencies are too far
+#   detached from what requires them. This makes it very unclear what depends
+#   on what. Easy to create wild global flags.
 
-###
+# ==============================================================================
 # Configure setup scripts
 include( kwiver-setup-scripts )
 
-# define which boost we are using
-if (DEFINED BOOST_ROOT)
-  set(BOOST_ROOT_ARG ${BOOST_ROOT})
-else()
-  set(BOOST_ROOT_ARG ${Boost_LIBRARY_DIR}/..)
+if(MSVC)
+  # Generate files to inform msvc of the kwiver runtime environment.
+  # The "list" of batch files for use in setup is defined in
+  # "kwiver-setup-scripts" (`SETUP_BATCH_FILES`).
+  kwiver_setup_msvc_env() # Setup .bat scripts need to be complete and on disk
 endif()
 
-add_definitions(-DKWIVER_DEFAULT_PLUGIN_ORGANIZATION="Kitware Inc.")
-
-# This regex stuff is to support CentOS with broken std::regex
-if ( NOT VITAL_USE_STD_REGEX )
-  set( VITAL_BOOST_REGEX ${Boost_REGEX_LIBRARY})
-  add_definitions( -DKWIVER_USE_BOOST_REGEX )
-endif()
-
-
-# ===========================================================================================
-link_directories( ${KWIVER_BINARY_DIR}/lib )
-
-# ===========================================================================================
-###
+# ==============================================================================
 # Add tests if enabled
 if (KWIVER_ENABLE_TESTS)
   enable_testing()
@@ -223,81 +193,52 @@ if (NOT IS_ABSOLUTE "${CMAKE_INSTALL_PREFIX}")
     "(${CMAKE_INSTALL_PREFIX}).")
 endif ()
 
-# =============================================================================================
-
-###
-# Generate vital/version.h. This file is needed by sprokit so must be generated here, before sprokit is included
-#---------------------------------------------------------------------
-#
-
-
-set( LIB_SUFFIX "" CACHE STRING
-  "Library directory suffix. e.g. suffix=\"kwiver\" will install libraries in \"libkwiver\" rather than \"lib\"")
-mark_as_advanced( LIB_SUFFIX )
-
-if (KWIVER_ENABLE_TRACK_ORACLE)
-  add_subdirectory( track_oracle )
-endif()
-
-if (KWIVER_ENABLE_ARROWS)
-  add_subdirectory( arrows )
-endif()
-
-if (KWIVER_ENABLE_SPROKIT)
-  add_subdirectory(sprokit)
-endif()
-
-if (KWIVER_ENABLE_EXTRAS)
-  add_subdirectory(extras)
-endif()
-
-if (KWIVER_ENABLE_EXAMPLES)
-  add_subdirectory(examples)
-endif()
-
-if (KWIVER_ENABLE_TOOLS)
-  add_subdirectory(tools)
-endif()
-
-if (KWIVER_ENABLE_PYTHON)
-  add_subdirectory(python)
-endif()
-###
-# include as the last subdir
+# ==============================================================================
+# Descend into project directories noq.
 add_subdirectory( vital )
 
-# this is where the algorithm default configuration files live
-add_subdirectory(config)
+#if (KWIVER_ENABLE_TRACK_ORACLE)
+#  add_subdirectory( track_oracle )
+#endif()
+#
+#if (KWIVER_ENABLE_ARROWS)
+#  add_subdirectory( arrows )
+#endif()
+#
+#if (KWIVER_ENABLE_SPROKIT)
+#  add_subdirectory(sprokit)
+#endif()
+#
+#if (KWIVER_ENABLE_EXTRAS)
+#  add_subdirectory(extras)
+#endif()
+#
+#if (KWIVER_ENABLE_EXAMPLES)
+#  add_subdirectory(examples)
+#endif()
+#
+#if (KWIVER_ENABLE_TOOLS)
+#  add_subdirectory(tools)
+#endif()
+#
+#if (KWIVER_ENABLE_PYTHON)
+#  add_subdirectory(python)
+#endif()
+####
+## include as the last subdir
+#
+## this is where the algorithm default configuration files live
+#add_subdirectory(config)
 
 
-# Use Git (if available) to add Git hash info to the version header
-set(kwiver_configure_with_git on)
-kwiver_configure_file(version.h
-  "${CMAKE_CURRENT_SOURCE_DIR}/vital/version.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vital/version.h"
-  KWIVER_VERSION_MAJOR
-  KWIVER_VERSION_MINOR
-  KWIVER_VERSION_PATCH
-  KWIVER_VERSION
-  KWIVER_SOURCE_DIR
-  )
-set(kwiver_configure_with_git)
-
-
-
-if(MSVC)
-  # Generate files to inform msvc of the kwiver runtime environment
-  kwiver_setup_msvc_env() # Setup .bat scripts need to be complete and on disk
-endif()
-
-#############################################################################################
+# ==============================================================================
 # Marking source root for documentation generation
 #
 kwiver_create_doxygen( kwiver "${CMAKE_CURRENT_LIST_DIR}" )
 kwiver_create_sphinx()
 
 
-#############################################################################################
+# ==============================================================================
 # Top level installation
 #
 set(kwiver_cmake_install_dir lib${LIB_SUFFIX}/cmake/kwiver)
@@ -310,12 +251,27 @@ get_property(kwiver_libs GLOBAL PROPERTY kwiver_libraries)
 string(REPLACE ";" " " kwiver_libs "${kwiver_libs}")
 
 # setup general paths to includes and libs for packages we use/provide
-list(APPEND KWIVER_INCLUDE_DIRS "${EIGEN3_INCLUDE_DIR}")
+set( KWIVER_INCLUDE_DIRS "")
 set( KWIVER_LIBRARY_DIRS "")
 
+# TODO: use global property to capture found, external-to-fletch eigen dep
+if ( NOT fletch_ENABLED_Eigen )
+  list(APPEND KWIVER_INCLUDE_DIRS "${EIGEN3_INCLUDE_DIR}")
+endif ()
+
+# TODO: use global property to capture found, external-to-fletch boost dep
 if ( NOT fletch_ENABLED_Boost)
-  list( APPEND KWIVER_INCLUDE_DIRS "${BOOST_ROOT_ARG}/include")
-  list( APPEND KWIVER_LIBRARY_DIRS "${BOOST_ROOT_ARG}/lib")
+  # define which boost we are using
+  if (DEFINED BOOST_ROOT)
+    set(BOOST_ROOT_ARG ${BOOST_ROOT})
+  elseif (DEFINED Boost_LIBRARY_DIR)
+    set(BOOST_ROOT_ARG ${Boost_LIBRARY_DIR}/..)
+  endif()
+
+  if (DEFINED BOOST_ROOT_ARG)
+    list( APPEND KWIVER_INCLUDE_DIRS "${BOOST_ROOT_ARG}/include")
+    list( APPEND KWIVER_LIBRARY_DIRS "${BOOST_ROOT_ARG}/lib")
+  endif()
 endif()
 
 if (fletch_FOUND)
@@ -354,7 +310,8 @@ if(NOT SKBUILD)
     FILE        kwiver-config-targets.cmake
     )
 endif()
-###
+
+# ==============================================================================
 # link compile commands to root of source tree
 if ( CMAKE_EXPORT_COMPILE_COMMANDS )
   # link file to root of source tree
@@ -362,12 +319,21 @@ if ( CMAKE_EXPORT_COMPILE_COMMANDS )
                        ${CMAKE_SOURCE_DIR}/compile_commands.json )
 endif()
 
-# --------------------------------------------------------------------------------------
+# ==============================================================================
+# Configure header file defining plugin path defaults.
+#
 # Build a default set of plugin path dirs
 # Provide that list as the default value for the path option.
 #
 # By this point, all eligible paths should have been added to the kwiver_plugin_path
-# property
+# property via calls to the `kwiver_add_module_path` cmake function.
+#
+# This is here at the project level because it is currently assumed that more
+# than VITAL will add paths.
+#
+# TODO: Revisit the above assumption.
+#       If no longer true, this may be moved into the vital sub-project.
+#
 if (WIN32)
   set(path_sep "\\073")
 else()  # Other Unix systems
@@ -425,37 +391,3 @@ endforeach(p)
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vital/kwiver-include-paths.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vital/kwiver-include-paths.h" )
-
-
-# ===========================================================================================
-# CPack Packaging
-#
-
-#TODO: Define package dependencies
-set(KWIVER_DEPS "")
-
-if(EXISTS /etc/redhat-release)
-  file(READ /etc/redhat-release RHEL_VERSION)
-  string(REGEX REPLACE ".*release ([^\\. ]*).*" "\\1" RHEL_VERSION "${RHEL_VERSION}")
-  set(CPACK_SYSTEM_NAME "el${RHEL_VERSION}.${CMAKE_SYSTEM_PROCESSOR}")
-  set(CPACK_RPM_PACKAGE_AUTOREQPROV " no")
-  set(CPACK_RPM_PACKAGE_REQUIRES "${KWIVER_DEPS}")
-else()
-  set(CPACK_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
-endif()
-
-set(CPACK_PACKAGE_NAME              "KWIVER")
-set(CPACK_PACKAGE_VENDOR            "Kitware, Inc.")
-set(CPACK_PACKAGE_CONTACT           "kitware@kitware.com")
-set(CPACK_MONOLITHIC_INSTALL        true)
-set(CPACK_PACKAGE_VERSION_MAJOR     "${KWIVER_VERSION_MAJOR}")
-set(CPACK_PACKAGE_VERSION_MINOR     "${KWIVER_VERSION_MINOR}")
-set(CPACK_PACKAGE_VERSION_PATCH     "${KWIVER_VERSION_PATCH}")
-set(CPACK_PACKAGE_VERSION           "${KWIVER_VERSION}")
-set(CPACK_RESOURCE_FILE_LICENSE     "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-set(CPACK_PACKAGING_INSTALL_PREFIX  "${CMAKE_INSTALL_PREFIX}")
-set(CPACK_PACKAGE_FILE_NAME         "${CPACK_PACKAGE_NAME}-"
-                                    "${CPACK_PACKAGE_VERSION}-"
-                                    "${CPACK_SYSTEM_NAME}")
-
-include (CPack)

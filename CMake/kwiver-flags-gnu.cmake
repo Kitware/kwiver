@@ -116,8 +116,8 @@ if (KWIVER_CPP_COVERAGE   AND   CMAKE_BUILD_TYPE EQUAL "DEBUG")
   kwiver_check_compiler_flag(-fprofile-arcs)
 endif ()
 
-# GCC Flag used for stripping binaries of any unused symbols
-# Used for reducing the size of kwiver wheel since pypi has 60Mb constraint on wheel size
 if (SKBUILD)
+  # GCC Flag used for stripping binaries of any unused symbols
+  # Used for reducing the size of kwiver wheel since pypi has 60Mb constraint on wheel size
   kwiver_check_compiler_flag( -s )
 endif ()

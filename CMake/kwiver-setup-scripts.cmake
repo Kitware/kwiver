@@ -1,5 +1,10 @@
 ###
 # Configure setup scripts.
+#
+# These scripts are provided and configured to be sourced before using the
+# build-tree. The setup script may optionally also be installed into the
+# install-tree.
+#
 
 # Create initial setup shell script
 set(KWIVER_SETUP_SCRIPT_FILE    "${KWIVER_BINARY_DIR}/setup_KWIVER.sh" )
@@ -46,6 +51,19 @@ if( KWIVER_INSTALL_SET_UP_SCRIPT )
 endif()
 
 if ( fletch_FOUND )
+  # Get the VisualStudio version if we're using windows.
+  if(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.20)
+      set(_vcVersion vc16)
+    elseif(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.10)
+      set(_vcVersion vc15)
+    elseif(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19)
+      set(_vcVersion vc14)
+    else()
+      message(FATAL_ERROR "KWIVER requires Visual Studio 2015 or greater")
+    endif()
+  endif()
+
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PATH=${fletch_ROOT}/bin;%PATH%;\n" )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PATH=${fletch_ROOT}/x64/${_vcVersion}/bin;%PATH%;\n" )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set GDAL_DATA=${GDAL_ROOT}/share/gdal\n" )

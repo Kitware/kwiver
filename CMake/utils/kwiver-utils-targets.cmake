@@ -462,9 +462,6 @@ endfunction()
 # Uses the global option KWIVER_USE_CONFIGURATION_SUBDIRECTORY
 # to control adding config specific directories to the path.
 #
-# Options are:
-# SUBDIR - subdirectory in lib where plugin will be installed.
-#
 function( kwiver_add_module_path    dir )
     set_property(GLOBAL APPEND PROPERTY kwiver_plugin_path  "${dir}" )
 endfunction()
