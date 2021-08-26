@@ -43,6 +43,10 @@ target_link_libraries( kwiver_algo_cuda
   PRIVATE              kwiver_algo_core
 )
 
+target_include_directories( kwiver_algo_cuda SYSTEM
+  PRIVATE                   ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
+)
+
 algorithms_create_plugin( kwiver_algo_cuda
   register_algorithms.cxx
   )
