@@ -22,6 +22,10 @@
 // If zero is within the limits, the conversion maps one integral value to zero
 // exactly. The number of bytes is variable and determines the precision of the
 // mapping.
+// - string : String separated into bytes regardless of encoding. Null
+// characters are not terminators, but a single null byte signifies the empty
+// string. This is to differentiate the empty string from the null / unknown
+// value, which is indicated for all data types by a byte length of zero.
 //
 // The functions are templated to be able to handle any iterator type (pointer,
 // std::vector, std::deque, etc), different native integer sizes (uint8_t ...
@@ -32,6 +36,8 @@
 #define KWIVER_ARROWS_KLV_KLV_READ_WRITE_H_
 
 #include <arrows/klv/kwiver_algo_klv_export.h>
+
+#include <string>
 
 #include <cstdlib>
 
@@ -297,6 +303,52 @@ klv_imap_length( double minimum, double maximum, double precision );
 KWIVER_ALGO_KLV_EXPORT
 double
 klv_imap_precision( double minimum, double maximum, size_t length );
+
+// ---------------------------------------------------------------------------
+/// Read a string from a sequence of bytes.
+///
+/// This function performs a straightforward copy, except a single null
+/// character is parsed as the empty string. Otherwise, null characters have no
+/// special meaning.
+///
+/// \returns String read from \p data.
+template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
+std::string
+klv_read_string( Iterator& data, size_t length );
+
+// ---------------------------------------------------------------------------
+/// Write a string to a sequence of bytes.
+///
+/// This function performs a straightforward copy, except the empty string is
+/// written as a single null character. Therefore, an input string consisting
+/// of a single null character cannot be written. Otherwise, null characters
+/// have no special meaning.
+///
+/// \param[in,out] data Writeable iterator to sequence of \c uint8_t. Set to
+/// end of written bytes on success, left as is on error.
+/// \param max_length Maximum number of bytes to write.
+///
+/// \throws metadata_buffer_overflow When required to write more than \p
+/// max_length bytes.
+/// \throws metadata_type_overflow When \p value is a single null character.
+template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
+void
+klv_write_string( std::string const& value, Iterator& data,
+                  size_t max_length );
+
+// ---------------------------------------------------------------------------
+/// Return the number of bytes required to store the given string.
+///
+/// \param value String whose byte length is being queried.
+///
+/// \returns Bytes required to store \p value.
+///
+/// \throws metadata_type_overflow When \p value is a single null character.
+KWIVER_ALGO_KLV_EXPORT
+size_t
+klv_string_length( std::string const& value );
 
 } // namespace klv
 

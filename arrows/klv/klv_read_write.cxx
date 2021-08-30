@@ -10,6 +10,7 @@
 #include <stdexcept>
 
 namespace kv = kwiver::vital;
+#include <algorithm>
 
 namespace kwiver {
 
@@ -144,6 +145,21 @@ _check_range_length( double minimum, double maximum, size_t length )
     VITAL_THROW( kv::metadata_type_overflow,
                  "value too large for native type" );
   }
+}
+
+// ---------------------------------------------------------------------------
+size_t
+klv_string_length( std::string const& value )
+{
+  // "\0" is reserved for empty string
+  // We avoid constructing a temp string object to compare against
+  if( value.size() == 1 && value[ 0 ] == '\0' )
+  {
+    VITAL_THROW( kwiver::vital::metadata_type_overflow,
+                 "the string \"\\0\" cannot be written to KLV stream" );
+  }
+
+  return std::max< size_t >( value.size(), 1 );
 }
 
 } // namespace klv
