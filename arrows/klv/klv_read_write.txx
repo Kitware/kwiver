@@ -11,6 +11,7 @@
 
 #include <limits>
 #include <numeric>
+#include <stdexcept>
 #include <string>
 
 #include <cmath>
@@ -54,6 +55,18 @@ template < int shift_amount, typename T >
 KWIVER_ALGO_KLV_EXPORT
 bool
 _left_shift_overflow( T value );
+
+// ---------------------------------------------------------------------------
+// Minimum integer representable using the given number of bytes
+template < class T >
+KWIVER_ALGO_KLV_EXPORT
+T _int_min( size_t length );
+
+// ---------------------------------------------------------------------------
+// Maximum integer representable using the given number of bytes
+template < class T >
+KWIVER_ALGO_KLV_EXPORT
+T _int_max( size_t length );
 
 // ---------------------------------------------------------------------------
 // Returns the IMAP representation of positive or negative infinity.
@@ -344,6 +357,114 @@ klv_ber_oid_length( T value )
 }
 
 // ---------------------------------------------------------------------------
+template < class T, class Iterator >
+double
+klv_read_flint( double minimum, double maximum, Iterator& data, size_t length )
+{
+  KLV_ASSERT_INT( T );
+  KLV_ASSERT_UINT8_ITERATOR( data );
+
+  _check_range_length( minimum, maximum, length );
+
+  // Before read to avoid moving iterator
+  if( std::is_signed< T >::value && minimum != -maximum )
+  {
+    throw std::logic_error( "range must be symmetrical around zero" );
+  }
+
+  auto const int_value = klv_read_int< T >( data, length );
+  auto const float_value = static_cast< double >( int_value );
+
+  // C++17: if constexpr
+  if( std::is_signed< T >::value )
+  {
+    // Special invalid / out-of-range value
+    if( int_value == _int_min< T >( length ) )
+    {
+      return std::numeric_limits< double >::quiet_NaN();
+    }
+
+    auto const scale = maximum / _int_max< T >( length );
+    return float_value * scale;
+  }
+  else
+  {
+    auto const scale = ( maximum - minimum ) / _int_max< T >( length );
+    return float_value * scale + minimum;
+  }
+}
+
+// ---------------------------------------------------------------------------
+template < class T, class Iterator >
+void
+klv_write_flint( double value, double minimum, double maximum, Iterator& data,
+                 size_t length )
+{
+  // Ensure types are compatible with our assumptions
+  KLV_ASSERT_INT( T );
+  KLV_ASSERT_UINT8_ITERATOR( data );
+
+  _check_range_length( minimum, maximum, length );
+
+  // C++17: if constexpr
+  if( std::is_signed< T >::value )
+  {
+    if( minimum != -maximum )
+    {
+      throw std::logic_error( "range must be symmetrical around zero" );
+    }
+
+    auto const max_int = _int_max< T >( length );
+    auto const min_int = _int_min< T >( length );
+    auto const scale = max_int / maximum;
+    auto const float_value = value * scale;
+    auto int_value = static_cast< T >( float_value );
+
+    if( !( value <= maximum && minimum <= value ) )
+    {
+      // Special invalid / out-of-range value
+      int_value = min_int;
+    }
+    else if( float_value >= max_int )
+    {
+      // Ensure floating-point rounding doesn't result in integer overflow
+      int_value = max_int;
+    }
+    else if( float_value <= min_int + 1 )
+    {
+      // Ensure floating-point rounding doesn't result in integer underflow
+      int_value = min_int + 1;
+    }
+    klv_write_int( int_value, data, length );
+  }
+  else
+  {
+    // Clamp out-of-range values
+    value = std::isnan( value ) ? minimum : value;
+    value = std::max( value, minimum );
+    value = std::min( value, maximum );
+
+    auto const min_int = _int_min< T >( length );
+    auto const max_int = _int_max< T >( length );
+    auto const scale = max_int / ( maximum - minimum );
+    auto const float_value = ( value - minimum ) * scale;
+    auto int_value = static_cast< T >( float_value );
+
+    if( float_value >= max_int )
+    {
+      // Ensure floating-point rounding doesn't result in integer overflow
+      int_value = max_int;
+    }
+    else if( float_value <= min_int )
+    {
+      // Ensure floating-point rounding doesn't result in integer underflow
+      int_value = min_int;
+    }
+    klv_write_int( int_value, data, length );
+  }
+}
+
+// ---------------------------------------------------------------------------
 template < class Iterator >
 double
 klv_read_imap( double minimum, double maximum, Iterator& data, size_t length )
@@ -515,6 +636,57 @@ _int_bit_length( T value )
     unsigned_value >>= 1;
   }
   return i;
+}
+
+// ---------------------------------------------------------------------------
+template < class T >
+T
+_int_min( size_t length )
+{
+  KLV_ASSERT_INT( T );
+
+  if( !length )
+  {
+    return 0;
+  }
+
+  // C++17: if constexpr
+  if( std::is_signed< T >::value )
+  {
+    return -static_cast< T >( ( 0x80ull << ( ( length - 1 ) * 8 ) ) - 1 ) - 1;
+  }
+  else
+  {
+    return 0;
+  }
+}
+
+// ---------------------------------------------------------------------------
+template < class T >
+T
+_int_max( size_t length )
+{
+  KLV_ASSERT_INT( T );
+
+  if( !length )
+  {
+    return 0;
+  }
+
+  // C++17: if constexpr
+  if( std::is_signed< T >::value )
+  {
+    return ( 0x80ull << ( ( length - 1 ) * 8 ) ) - 1;
+  }
+  else
+  {
+    T value = 0;
+    for( size_t i = 0; i < length; ++i )
+    {
+      value |= static_cast< T >( 0xFF ) << ( i * 8 );
+    }
+    return value;
+  }
 }
 
 // ---------------------------------------------------------------------------

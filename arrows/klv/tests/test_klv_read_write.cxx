@@ -630,6 +630,237 @@ TEST ( klv, ber_oid_length )
 }
 
 // ----------------------------------------------------------------------------
+template < class T >
+void
+test_read_flint( T int_value, size_t length, double double_value,
+                 double minimum, double maximum )
+{
+  auto data = vec_t( length, 0xba );
+  auto it = data.begin();
+  klv_write_int< T >( int_value, it, length );
+  it = data.begin();
+
+  auto const result = klv_read_flint< T >( minimum, maximum, it, length );
+  if( std::isnan( double_value ) )
+  {
+    // GTest won't print result value on fail, so do it manually
+    EXPECT_TRUE( std::isnan( result ) ) << "result: " << result;
+    EXPECT_EQ( std::signbit( double_value ), std::signbit( result ) );
+  }
+  else
+  {
+    EXPECT_DOUBLE_EQ( double_value, result );
+  }
+  EXPECT_EQ( data.end(), it );
+}
+
+// ----------------------------------------------------------------------------
+template < class T, class E >
+void
+test_read_flint_throw( T int_value, size_t length, double minimum,
+                       double maximum )
+{
+  auto data = vec_t( length, 0xba );
+  auto it = data.begin();
+  klv_write_int< T >( int_value, it, length );
+  it = data.begin();
+  EXPECT_THROW( klv_read_flint< T >( minimum, maximum, it, length ), E );
+  EXPECT_EQ( data.begin(), it );
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+void
+test_read_flint_logic_error( T int_value, size_t length, double minimum,
+                             double maximum )
+{
+  test_read_flint_throw< T, std::logic_error >( int_value, length, minimum,
+                                                maximum );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( klv, read_flint )
+{
+  // Decimals provided by Wolfram Alpha's super-precision arithmetic
+  // Unsigned values
+  CALL_TEST( test_read_flint< uint8_t >,  0x00,               1,
+             -1.0,                   -1.0,    1.0 );
+  CALL_TEST( test_read_flint< uint8_t >,  0xFF,               1,
+             1.0,                   -1.0,    1.0 );
+  CALL_TEST( test_read_flint< uint8_t >,  0xA3,               1,
+             0.2784313725490196,    -1.0,    1.0 );
+  CALL_TEST( test_read_flint< uint8_t >,  0x29,               1,
+             -0.6784313725490196,    -1.0,    1.0 );
+  CALL_TEST( test_read_flint< uint16_t >, 0xA196,             2,
+             1.4716258487830925e10, -2.0e10, 3.5e10 );
+  CALL_TEST( test_read_flint< uint32_t >, 0x000000,           3,
+             -2.0e10,                -2.0e10, 3.5e10 );
+  CALL_TEST( test_read_flint< uint32_t >, 0xFFE345,           3,
+             3.4975891707890730e10, -2.0e10, 3.5e10 );
+  CALL_TEST( test_read_flint< uint32_t >, 0xA3425468,         4,
+             4.8060157894170880e10,  2.0e10, 6.4e10 );
+  CALL_TEST( test_read_flint< uint64_t >, 0x0000000001,       5,
+             -9.9999999999536158e-6, -1.0e-5, 4.1e-5 );
+  CALL_TEST( test_read_flint< uint64_t >, 0xFF001234FFFFFFFF, 8,
+             2.7773500442970544e99, -3.0e99, 2.8e99 );
+  CALL_TEST( test_read_flint< uint64_t >, 0xFFFFFFFFFFFFFFFF, 8,
+             2.0,                    1.0,    2.0 );
+
+  // Signed values
+  CALL_TEST( test_read_flint< int8_t >,   0x00ll,               1,
+             0.0,                -1.0, 1.0 );
+  CALL_TEST( test_read_flint< int8_t >,  -0x7Fll,               1,
+             -1.0,                -1.0, 1.0 );
+  CALL_TEST( test_read_flint< int8_t >,   0x7Fll,               1,
+             1.0,                -1.0, 1.0 );
+  CALL_TEST( test_read_flint< int32_t >, -0x7FFFFFll,           3,
+             -1.0,                -1.0, 1.0 );
+  CALL_TEST( test_read_flint< int32_t >,  0x321CBAll,           3,
+             0.3915017117859973, -1.0, 1.0 );
+  CALL_TEST( test_read_flint< int32_t >, -0x123ABCll,           3,
+             -0.1424174478551683, -1.0, 1.0 );
+  CALL_TEST( test_read_flint< int32_t >,  0x7FFFFFll,           3,
+             1.0,                -1.0, 1.0 );
+  CALL_TEST( test_read_flint< int64_t >,  0x00ll,               5,
+             0.0,                -1.0, 1.0 );
+  CALL_TEST( test_read_flint< int64_t >, -0x7FFFFFFFFFFFFFFFll, 8,
+             -2.0,                -2.0, 2.0 );
+  CALL_TEST( test_read_flint< int64_t >,  0x7FFFFFFFFFFFFFFFll, 8,
+             2.0,                -2.0, 2.0 );
+
+  // Lowest representable value = NaN
+  CALL_TEST( test_read_flint< int8_t >,  int8_min,        1,
+             double_qnan, -1.0, 1.0 );
+  CALL_TEST( test_read_flint< int64_t >, -0x8000000000ll, 5,
+             double_qnan, -1.0, 1.0 );
+  CALL_TEST( test_read_flint< int64_t >, int64_min,       8,
+             double_qnan, -1.0, 1.0 );
+
+  // Invalid values
+  auto test_uint_invalid_value = test_read_flint_logic_error< uint64_t >;
+  auto test_sint_invalid_value = test_read_flint_logic_error< int64_t >;
+  CALL_TEST( test_uint_invalid_value, 0, 1, 0.0, 0.0 );
+  CALL_TEST( test_uint_invalid_value, 0, 1, 0.0, -1.0 );
+  CALL_TEST( test_uint_invalid_value, 0, 1, -double_inf, 0.0 );
+  CALL_TEST( test_uint_invalid_value, 0, 1, 0.0, double_inf );
+  CALL_TEST( test_uint_invalid_value, 0, 1, double_qnan, 0.0 );
+  CALL_TEST( test_uint_invalid_value, 0, 1, 0.0, double_qnan );
+  CALL_TEST( test_sint_invalid_value, 0, 1, -0.0, 0.0 );
+  CALL_TEST( test_sint_invalid_value, 0, 1, -0.9, 1.0 );
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+void
+test_write_flint( size_t length, double value, double expected_value,
+                  double minimum, double maximum )
+{
+  auto data = vec_t( length, 0xba );
+  auto it = data.begin();
+  klv_write_flint< T >( value, minimum, maximum, it, length );
+  EXPECT_EQ( data.end(), it );
+  it = data.begin();
+
+  auto const result = klv_read_flint< T >( minimum, maximum, it, length );
+  if( std::isnan( expected_value ) )
+  {
+    // GTest won't print result value on fail, so do it manually
+    EXPECT_TRUE( std::isnan( result ) ) << "result: " << result;
+    EXPECT_EQ( std::signbit( expected_value ), std::signbit( result ) );
+  }
+  else
+  {
+    auto const precision = klv_flint_precision( minimum, maximum, length );
+    if( expected_value / precision < 1.0e15 )
+    {
+      EXPECT_NEAR( expected_value, result, precision );
+    }
+    else
+    {
+      EXPECT_DOUBLE_EQ( expected_value, result );
+    }
+  }
+  EXPECT_EQ( data.end(), it );
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+void
+test_write_flint( size_t length, double value, double minimum, double maximum )
+{
+  test_write_flint< T >( length, value, value, minimum, maximum );
+}
+
+// ----------------------------------------------------------------------------
+template < class T, class E >
+void
+test_write_flint_throw( size_t length, double value, double minimum,
+                        double maximum )
+{
+  auto data = vec_t( length, 0xba );
+  auto it = data.begin();
+  EXPECT_THROW( klv_write_flint< T >( value, minimum, maximum, it, length ),
+                E );
+  EXPECT_EQ( data.begin(), it );
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+void
+test_write_flint_logic_error( size_t length, double value, double minimum,
+                              double maximum )
+{
+  test_write_flint_throw< T, std::logic_error >( length, value, minimum,
+                                                 maximum );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( klv, write_flint )
+{
+  // Unsigned values
+  CALL_TEST( test_write_flint< uint8_t  >, 1,  double_qnan,   0.1,  0.1, 1.0 );
+  CALL_TEST( test_write_flint< uint8_t  >, 1,  0.1,                 0.1, 1.0 );
+  CALL_TEST( test_write_flint< uint8_t  >, 1,  0.42,                0.1, 1.0 );
+  CALL_TEST( test_write_flint< uint8_t  >, 1,  0.65,                0.1, 1.0 );
+  CALL_TEST( test_write_flint< uint8_t  >, 1,  1.0,                 0.1, 1.0 );
+  CALL_TEST( test_write_flint< uint64_t >, 5, -7.01,         -7.0, -7.0, 1.0 );
+  CALL_TEST( test_write_flint< uint64_t >, 5,  0.0,                -7.0, 1.0 );
+  CALL_TEST( test_write_flint< uint64_t >, 5,  double_qnan,  -7.0, -7.0, 1.0 );
+  CALL_TEST( test_write_flint< uint64_t >, 6,  0.42,               -7.0, 1.0 );
+  CALL_TEST( test_write_flint< uint64_t >, 7,  0.65,               -7.0, 1.0 );
+  CALL_TEST( test_write_flint< uint64_t >, 8,  1.0,                -7.0, 1.0 );
+  CALL_TEST( test_write_flint< uint64_t >, 8,  1.01,          1.0, -7.0, 1.0 );
+
+  // Signed values
+  CALL_TEST( test_write_flint< int8_t  >, 1, -1.01, double_qnan, -1.0, 1.0 );
+  CALL_TEST( test_write_flint< int8_t  >, 1, -1.0,               -1.0, 1.0 );
+  CALL_TEST( test_write_flint< int8_t  >, 1, -0.22,              -1.0, 1.0 );
+  CALL_TEST( test_write_flint< int8_t  >, 1,  0.0,               -1.0, 1.0 );
+  CALL_TEST( test_write_flint< int8_t  >, 1,  0.22,              -1.0, 1.0 );
+  CALL_TEST( test_write_flint< int8_t  >, 1,  1.0,               -1.0, 1.0 );
+  CALL_TEST( test_write_flint< int8_t  >, 1,  1.01, double_qnan, -1.0, 1.0 );
+  CALL_TEST( test_write_flint< int64_t >, 8, -7.01, double_qnan, -7.0, 7.0 );
+  CALL_TEST( test_write_flint< int64_t >, 7, -7.0,               -7.0, 7.0 );
+  CALL_TEST( test_write_flint< int64_t >, 6, -0.22,              -7.0, 7.0 );
+  CALL_TEST( test_write_flint< int64_t >, 5,  0.0,               -7.0, 7.0 );
+  CALL_TEST( test_write_flint< int64_t >, 6,  0.22,              -7.0, 7.0 );
+  CALL_TEST( test_write_flint< int64_t >, 7,  7.0,               -7.0, 7.0 );
+  CALL_TEST( test_write_flint< int64_t >, 8,  7.01, double_qnan, -7.0, 7.0 );
+
+  // Invalid values
+  auto test_uint_invalid_value = test_write_flint_logic_error< uint64_t >;
+  auto test_sint_invalid_value = test_write_flint_logic_error< int64_t >;
+  CALL_TEST( test_uint_invalid_value, 1, 0.0,  0.0,         0.0 );
+  CALL_TEST( test_uint_invalid_value, 1, 0.0,  0.0,        -1.0 );
+  CALL_TEST( test_uint_invalid_value, 1, 0.0, -double_inf,  0.0 );
+  CALL_TEST( test_uint_invalid_value, 1, 0.0,  0.0,         double_inf );
+  CALL_TEST( test_uint_invalid_value, 1, 0.0,  double_qnan, 0.0 );
+  CALL_TEST( test_uint_invalid_value, 1, 0.0,  0.0,         double_qnan );
+  CALL_TEST( test_sint_invalid_value, 1, 0.0, -0.0,         0.0 );
+  CALL_TEST( test_sint_invalid_value, 1, 0.0, -0.9,         1.0 );
+}
+
+// ----------------------------------------------------------------------------
 void
 test_read_imap( uint64_t int_value, size_t length, double double_value,
                 double minimum, double maximum )

@@ -149,6 +149,29 @@ _check_range_length( double minimum, double maximum, size_t length )
 
 // ---------------------------------------------------------------------------
 size_t
+klv_flint_length( double minimum, double maximum, double precision )
+{
+  _check_range_precision( minimum, maximum, precision );
+
+  // Based on IMAP, but without the one extra bit IMAP uses for NaN, Inf
+  auto const length_bits = std::ceil( std::log2( maximum - minimum ) ) -
+                           std::floor( std::log2( precision ) );
+  return static_cast< size_t >( std::ceil( length_bits / 8.0 ) );
+}
+
+// ---------------------------------------------------------------------------
+double
+klv_flint_precision( double minimum, double maximum, size_t length )
+{
+  _check_range_length( minimum, maximum, length );
+
+  // Based on IMAP, but without the one extra bit IMAP uses for NaN, Inf
+  auto const length_bits = length * 8.0;
+  return std::exp2( std::log2( maximum - minimum ) - length_bits );
+}
+
+// ---------------------------------------------------------------------------
+size_t
 klv_string_length( std::string const& value )
 {
   // "\0" is reserved for empty string
