@@ -418,7 +418,7 @@ klv_write_flint( double value, double minimum, double maximum, Iterator& data,
     auto const min_int = _int_min< T >( length );
     auto const scale = max_int / maximum;
     auto const float_value = value * scale;
-    auto int_value = static_cast< T >( float_value );
+    auto int_value = static_cast< T >( std::round( float_value ) );
 
     if( !( value <= maximum && minimum <= value ) )
     {
@@ -448,7 +448,7 @@ klv_write_flint( double value, double minimum, double maximum, Iterator& data,
     auto const max_int = _int_max< T >( length );
     auto const scale = max_int / ( maximum - minimum );
     auto const float_value = ( value - minimum ) * scale;
-    auto int_value = static_cast< T >( float_value );
+    auto int_value = static_cast< T >( std::round( float_value ) );
 
     if( float_value >= max_int )
     {
