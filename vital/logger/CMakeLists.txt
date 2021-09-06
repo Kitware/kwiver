@@ -56,7 +56,7 @@ set( plugin_base_src
 
 ###
 # Build log4cxx plug-in if configured
-if (KWIVER_ENABLE_LOG4CXX)
+if (KWIVER_ENABLE_DEP_LOG4CXX)
   set ( log4cxx_lib     ${Log4cxx_LIBRARY} ${ApacheRunTime_LIBRARY} )
   include_directories ( SYSTEM ${Log4cxx_INCLUDE_DIR} ${ApacheRunTime_INCLUDE_DIR} )
   kwiver_add_plugin( vital_log4cxx_logger
@@ -74,7 +74,7 @@ endif()
 
 ###
 # Build log4cplus plug-in if configured
-if (KWIVER_ENABLE_LOG4CPLUS)
+if (KWIVER_ENABLE_DEP_LOG4CPLUS)
   kwiver_add_plugin( vital_log4cplus_logger
     SOURCES          log4cplus_factory.cxx
     PRIVATE          ${log4cplus_lib}

@@ -1,11 +1,11 @@
 # Optional find and confgure VTK dependency
 
-option( KWIVER_ENABLE_VTK
+option( KWIVER_ENABLE_DEP_VTK
   "Enable VTK dependent code and plugins (Arrows)"
   ${fletch_ENABLED_VTK}
   )
 
-if( KWIVER_ENABLE_VTK )
+if( KWIVER_ENABLE_DEP_VTK )
   find_package(VTK)
   if(VTK_VERSION VERSION_LESS 9.0)
     find_package(VTK REQUIRED
@@ -37,4 +37,4 @@ if( KWIVER_ENABLE_VTK )
         )
   endif()
 
-endif( KWIVER_ENABLE_VTK )
+endif( KWIVER_ENABLE_DEP_VTK )

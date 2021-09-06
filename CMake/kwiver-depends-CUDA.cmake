@@ -1,11 +1,11 @@
 # Optionally find and configure CUDA dependency
 
-option( KWIVER_ENABLE_CUDA
+option( KWIVER_ENABLE_DEP_CUDA
   "Enable CUDA dependent code and plugins"
   OFF
   )
 
-if( KWIVER_ENABLE_CUDA )
+if( KWIVER_ENABLE_DEP_CUDA )
   include(CheckLanguage)
   check_language(CUDA)
   if(CMAKE_CUDA_COMPILER)
@@ -28,4 +28,4 @@ if( KWIVER_ENABLE_CUDA )
     endif()
   endif()
   message(STATUS "CUDA Architectures: ${CMAKE_CUDA_ARCHITECTURES}")
-endif( KWIVER_ENABLE_CUDA )
+endif( KWIVER_ENABLE_DEP_CUDA )

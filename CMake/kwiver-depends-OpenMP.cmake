@@ -9,12 +9,12 @@ elseif()
   set( OPENMP_DEFAULT ON )
 endif()
 
-option( KWIVER_ENABLE_OPENMP
+option( KWIVER_ENABLE_DEP_OPENMP
   "Enable OpenMP for parallel processing"
   ${OPENMP_DEFAULT}
   )
 
-if( KWIVER_ENABLE_OPENMP )
+if( KWIVER_ENABLE_DEP_OPENMP )
   find_package( OpenMP REQUIRED )
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")

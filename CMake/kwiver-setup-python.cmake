@@ -207,7 +207,7 @@ if(SKBUILD)
   list(APPEND PYTHON_REQS "scikit-build<=0.11.1")
 endif()
 
-if(KWIVER_ENABLE_PYTORCH)
+if(KWIVER_ENABLE_DEP_PYTORCH)
   list(APPEND PYTHON_REQS "opencv-python>=3.4.2.17,<=4.0.0"
                           "pillow>=7.0.0,<=7.1.2"
                           "scipy>=1.2,<=1.5"

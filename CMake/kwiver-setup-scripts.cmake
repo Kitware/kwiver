@@ -79,7 +79,7 @@ endif()
 file( COPY log4cxx.properties       DESTINATION  "${KWIVER_BINARY_DIR}" )
 install( FILES log4cxx.properties   DESTINATION ${CMAKE_INSTALL_PREFIX} )
 
-if ( KWIVER_ENABLE_LOG4CXX )
+if ( KWIVER_ENABLE_DEP_LOG4CXX )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export VITAL_LOGGER_FACTORY=$this_dir/lib/${kwiver_plugin_logger_subdir}/vital_log4cxx_logger\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export LOG4CXX_CONFIGURATION=$this_dir/log4cxx.properties\n" )
   if(WIN32)
@@ -92,7 +92,7 @@ endif()
 file( COPY log4cplus.properties       DESTINATION  "${KWIVER_BINARY_DIR}" )
 install( FILES log4cplus.properties   DESTINATION ${CMAKE_INSTALL_PREFIX} )
 
-if ( KWIVER_ENABLE_LOG4CPLUS )
+if ( KWIVER_ENABLE_DEP_LOG4CPLUS )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export VITAL_LOGGER_FACTORY=$this_dir/lib/${kwiver_plugin_logger_subdir}/vital_log4cplus_logger\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export LOG4CPLUS_CONFIGURATION=$this_dir/log4cplus.properties\n" )
 
@@ -136,7 +136,7 @@ if (KWIVER_ENABLE_PYTHON)
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "python${KWIVER_PYTHON_MAJOR_VERSION} -m pip install -r ${KWIVER_BINARY_DIR}/python/requirements.txt\n" )
 endif()
 
-if ( KWIVER_ENABLE_MATLAB )
+if ( KWIVER_ENABLE_DEP_MATLAB )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export LD_LIBRARY_PATH=${Matlab_LIBRARY_DIR}:$LD_LIBRARY_PATH\n" )
 
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PATH=${Matlab_LIBRARY_DIR};%PATH%\n" )

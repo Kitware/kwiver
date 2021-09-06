@@ -101,8 +101,8 @@ OPTION(KWIVER_ENABLE_SERIALIZE_JSON       "Enable json serialization" OFF )
 OPTION(KWIVER_ENABLE_SPROKIT              "Enable building sprokit" OFF )
 
 if(KWIVER_ENABLE_ARROWS)
-  OPTION(KWIVER_ENABLE_MVG                "Enable Multi-View Geometry Arrow" ON )
-  OPTION(KWIVER_ENABLE_KLV                "Enable Key-Length-Value Metadata Arrow" ON)
+  OPTION(KWIVER_ENABLE_ARROW_MVG          "Enable Multi-View Geometry Arrow" ON )
+  OPTION(KWIVER_ENABLE_ARROW_KLV          "Enable Key-Length-Value Metadata Arrow" ON)
 endif()
 
 CMAKE_DEPENDENT_OPTION(KWIVER_ENABLE_PROCESSES
@@ -160,7 +160,7 @@ set( kwiver_export_name      kwiver_exports )
 
 # ==============================================================================
 # External Dependencies and Modules - Most Will be supplied by Fletch
-#include( kwiver-depends )
+include( kwiver-depends )
 # TODO: devise something more clear than this pattern: dependencies are too far
 #   detached from what requires them. This makes it very unclear what depends
 #   on what. Easy to create wild global flags.

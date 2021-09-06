@@ -1,12 +1,12 @@
 #
 # Optionally find and configure ZeroMQ dependency
 
-option( KWIVER_ENABLE_ZeroMQ
+option( KWIVER_ENABLE_DEP_ZeroMQ
   "Enable ZeroMQ dependent code and plugins"
   OFF
   )
 
-if( KWIVER_ENABLE_ZeroMQ )
+if( KWIVER_ENABLE_DEP_ZeroMQ )
   if(KWIVER_BUILD_SHARED)
     find_package( ZeroMQ REQUIRED )
   else()
@@ -22,4 +22,4 @@ if( KWIVER_ENABLE_ZeroMQ )
     set(ZeroMQ_INCLUDE_DIR "${fletch_ROOT}/include")
   endif()
   include_directories(SYSTEM ${ZeroMQ_INCLUDE_DIR})
-endif( KWIVER_ENABLE_ZeroMQ )
+endif( KWIVER_ENABLE_DEP_ZeroMQ )

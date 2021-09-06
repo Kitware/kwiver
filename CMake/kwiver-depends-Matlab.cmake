@@ -2,12 +2,12 @@
 # Find Matlab
 #
 
-OPTION( KWIVER_ENABLE_MATLAB
+OPTION( KWIVER_ENABLE_DEP_MATLAB
   "Enable Matlab dependent code and plugins (Requires a Matlab installation)"
   OFF
   )
 
-if (KWIVER_ENABLE_MATLAB)
+if (KWIVER_ENABLE_DEP_MATLAB)
   find_package( Matlab REQUIRED
     COMPONENTS
       ENG_LIBRARY MX_LIBRARY
