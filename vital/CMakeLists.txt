@@ -5,6 +5,12 @@ project( vital )
 set(CMAKE_FOLDER "Vital")
 
 # ==============================================================================
+# Vital requirements
+# TODO: Eigen (find_package_once? kwiver_find_package?
+#       - to allow the creation of standard "depends" like current, but avoid
+#         monolithic include at the project root.)
+
+# ==============================================================================
 # KWSys
 #---------------------------------------------------------------------
 # Create the kwsys library for vital.
@@ -64,15 +70,12 @@ endif()
 set( CMAKE_CXX_FLAGS ${save_flags} )
 
 # ==============================================================================
-# Vital requirements
-# TODO: Eigen (find_package_once? kwiver_find_package?
-#       - to allow the creation of standard "depends" like current, but avoid
-#         monolithic include at the project root.)
-
-# ==============================================================================
 # Other VITAL-specific setup and flags
 
 # This regex stuff is to support CentOS with broken std::regex
+# - VITAL_USE_STD_REGEX is the product of a compile check, see
+#   ``CMake/kwiver-configcheck.cmake`` ~L68.
+# - This was introduced for being able to CXXOPTS, found in ``vital/applets/``.
 if ( NOT VITAL_USE_STD_REGEX )
   set( VITAL_BOOST_REGEX ${Boost_REGEX_LIBRARY})
   add_definitions( -DKWIVER_USE_BOOST_REGEX )
@@ -97,6 +100,19 @@ kwiver_configure_file(version.h
                       KWIVER_SOURCE_DIR
                       )
 set(kwiver_configure_with_git)  # Unset modifier variable
+
+# ==============================================================================
+# Configure compiler options header
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vital_config.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vital_config.h" )
+
+# ==============================================================================
+# Subdirectory entries
+add_subdirectory( logger )
+
+# ==============================================================================
+# Vital Library
 
 ## ==================================================================
 ## These headers are installed
