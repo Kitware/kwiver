@@ -109,7 +109,8 @@ configure_file(
 
 # ==============================================================================
 # Subdirectory entries
-add_subdirectory( logger )
+add_subdirectory( util )      # -- Creates library "vital_util"
+add_subdirectory( logger )    # -- Created library "vital_logger", requires util
 
 # ==============================================================================
 # Vital Library

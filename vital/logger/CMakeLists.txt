@@ -62,7 +62,8 @@ if (KWIVER_ENABLE_DEP_LOG4CXX)
   kwiver_add_plugin( vital_log4cxx_logger
     SOURCES          log4cxx_factory.cxx
     PRIVATE          ${log4cxx_lib}
-                     kwiversys vital_logger
+                     kwiversys
+                     vital_logger
     SUBDIR           ${kwiver_plugin_logger_subdir}
     )
   kwiver_install_headers(
@@ -78,7 +79,9 @@ if (KWIVER_ENABLE_DEP_LOG4CPLUS)
   kwiver_add_plugin( vital_log4cplus_logger
     SOURCES          log4cplus_factory.cxx
     PRIVATE          ${log4cplus_lib}
-                     kwiversys vital_logger vital_util
+                     kwiversys
+                     vital_logger
+                     vital_util
                      log4cplus::log4cplus
     SUBDIR           ${kwiver_plugin_logger_subdir}
     )
