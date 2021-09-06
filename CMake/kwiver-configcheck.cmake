@@ -54,7 +54,7 @@ endmacro()
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 # C++11 is required
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 kwiver_check_required_feature(CPP_AUTO         auto.cxx            "auto type specifier")
