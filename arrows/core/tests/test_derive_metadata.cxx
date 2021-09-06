@@ -50,6 +50,8 @@ make_metadata()
       kv::geo_point::geo_3d_point_t{
         0, 0, FRAME_CENTER_ELEVATION }, kv::SRID::lat_lon_WGS84 } );
 
+  m1->add< kv::VITAL_META_IMAGE_SOURCE_SENSOR >( "SENSOR_SWIR" );
+
   return { m1 };
 }
 
@@ -103,4 +105,8 @@ TEST_F( derive_metadata, compute_derived )
   // This only takes into account terms a0 and a1
   EXPECT_NEAR( 6.578680, vniirs_value.as_double(), 0.000001 );
   EXPECT_DOUBLE_EQ( 13296.55762, slant_range_value.as_double() );
+
+  auto const wavelength =
+    derived_metadata.at( 0 )->find( kv::VITAL_META_WAVELENGTH ).as_string();
+  EXPECT_EQ( std::string{ "NIR" }, wavelength );
 }

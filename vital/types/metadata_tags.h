@@ -10,6 +10,7 @@
 
 namespace kwiver {
 namespace vital {
+
 // ----------------------------------------------------------------------------
 enum vital_metadata_tag {
   VITAL_META_UNKNOWN,
@@ -77,6 +78,7 @@ enum vital_metadata_tag {
   VITAL_META_SECURITY_CLASSIFICATION,
   VITAL_META_AVERAGE_GSD,
   VITAL_META_VNIIRS,
+  VITAL_META_WAVELENGTH,
   VITAL_META_GPS_SEC,
   VITAL_META_GPS_WEEK,
   VITAL_META_NORTHING_VEL,
