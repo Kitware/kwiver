@@ -2,11 +2,11 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include "kwiver_logger_factory.h"
+#include "vital/logger/kwiver_logger_factory.h"
 #include <log4cxx/logger.h>
 #include <memory>
 
-#include <vital/logger/vital_log4cxx_logger_export.h>
+#include <vital/logger_plugins/vital_log4cxx_logger_export.h>
 
 namespace kwiver {
 namespace vital {

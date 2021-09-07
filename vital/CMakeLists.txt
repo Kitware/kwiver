@@ -109,20 +109,30 @@ configure_file(
 
 # ==============================================================================
 # Subdirectory entries
-add_subdirectory( util )      # -- Creates library "vital_util"
-add_subdirectory( logger )    # -- Created library "vital_logger", requires util
+#
+# Things here should be in an order that takes into account inter-library
+# requirements.
+#
+# -- Creates library "vital_exceptions"
+add_subdirectory( exceptions )
+# -- Creates library "vital_util"
+add_subdirectory( util )
+# -- Creates library "vital_logger"
+# Requires: vital_util
+add_subdirectory( logger )
+# -- Creates library "vital_config"
+# Requires: vital_logger, vital_util
+#add_subdirectory( config )
+
 
 # ==============================================================================
 # Vital Library
 
-## ==================================================================
-## These headers are installed
-##
-#set( vital_public_headers
+# "Public" headers are those that are installed.
+set( vital_public_headers
 #  vital_types.h
 #
 #  algorithm_capabilities.h
-#  any.h
 #  attribute_set.h
 #  bitflags.h
 #  context.h
@@ -212,10 +222,10 @@ add_subdirectory( logger )    # -- Created library "vital_logger", requires util
 #  types/transform_2d.h
 #  types/uid.h
 #  types/vector.h
-#)
-#
-## ----------------------
-#set( vital_sources
+)
+
+# ----------------------
+set( vital_sources
 #  algorithm_capabilities.cxx
 #  attribute_set.cxx
 #  context.cxx
@@ -277,14 +287,14 @@ add_subdirectory( logger )    # -- Created library "vital_logger", requires util
 #  types/track_descriptor.cxx
 #  types/track_set.cxx
 #  types/uid.cxx
-#)
+)
 
 #kwiver_install_headers(
 #  ${vital_public_headers}
 #  SUBDIR   vital
 #  )
 
-## install export header
+# install export header
 #kwiver_install_headers(
 #  ${CMAKE_CURRENT_BINARY_DIR}/vital_export.h
 #  ${CMAKE_CURRENT_BINARY_DIR}/vital_config.h
@@ -308,6 +318,17 @@ add_subdirectory( logger )    # -- Created library "vital_logger", requires util
 #                  vital_util
 #                  Eigen3::Eigen
 #  )
+
+# ==============================================================================
+# Built-in plugin modules
+#
+# This is specifically after the Vital library definition as some of these
+# require the vital library for parts and utility.
+# And, you know, the plugin management stuff (except for the logger, which works
+# independently from the main plugin management so that it can have logging
+# itself).
+#
+add_subdirectory( logger_plugins )
 
 ####
 ##
