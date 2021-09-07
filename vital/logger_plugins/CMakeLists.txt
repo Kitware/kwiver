@@ -1,5 +1,5 @@
 #
-# Plugin modules for vital logger.
+# Plugin modules for vital/logger components.
 #
 
 ###

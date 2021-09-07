@@ -101,6 +101,23 @@ kwiver_configure_file(version.h
                       )
 set(kwiver_configure_with_git)  # Unset modifier variable
 
+
+# ==============================================================================
+#
+# This option adds another directory to the path by appending the configuration type to
+# existing directories.
+#
+# TODO: Add rationale on why this option/feature exists. E.g. When is it used?
+#
+set(default OFF)
+
+if (CMAKE_CONFIGURATION_TYPES)
+  set(default ON)
+endif ()
+
+option(KWIVER_USE_CONFIGURATION_SUBDIRECTORY
+       "Look in the configuration's subdirectory for each module path (e.g. debug, release, ...)" ${default})
+
 # ==============================================================================
 # Configure compiler options header
 configure_file(
@@ -115,6 +132,8 @@ configure_file(
 #
 # -- Creates library "vital_exceptions"
 add_subdirectory( exceptions )
+# -- NO LIBRARY YET -- (will) Creates library "vital_types"
+add_subdirectory( types )
 # -- Creates library "vital_util"
 add_subdirectory( util )
 # -- Creates library "vital_logger"
@@ -122,7 +141,7 @@ add_subdirectory( util )
 add_subdirectory( logger )
 # -- Creates library "vital_config"
 # Requires: vital_logger, vital_util
-#add_subdirectory( config )
+add_subdirectory( config )
 
 
 # ==============================================================================
@@ -329,6 +348,7 @@ set( vital_sources
 # itself).
 #
 add_subdirectory( logger_plugins )
+#add_subdirectory( config_plugins )  # TODO: uncomment on revision of plugin management
 
 ####
 ##
@@ -343,22 +363,13 @@ add_subdirectory( logger_plugins )
 #option(KWIVER_USE_CONFIGURATION_SUBDIRECTORY
 #  "Look in the configuration's subdirectory for each module path (e.g. debug, release, ...)" ${default})
 #
-####
-## configure our compiler options
-#configure_file(
-#  "${CMAKE_CURRENT_SOURCE_DIR}/vital_config.h.in"
-#  "${CMAKE_CURRENT_BINARY_DIR}/vital_config.h" )
 #
 ####
 ##
-#add_subdirectory( exceptions )
 #add_subdirectory( algo )
-#add_subdirectory( util )
 #add_subdirectory( range )
 #add_subdirectory( bindings )
-#add_subdirectory( config )
-#add_subdirectory( logger )
-#add_subdirectory( plugin_loader )
+#add_subdirectory( plugin_management )
 #
 #if (KWIVER_ENABLE_TOOLS)
 #  add_subdirectory( applets )

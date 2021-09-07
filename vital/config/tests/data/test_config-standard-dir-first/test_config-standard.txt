@@ -1,0 +1,2 @@
+general:zero = 1
+general:first = foo
