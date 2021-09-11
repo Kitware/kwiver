@@ -142,7 +142,9 @@ add_subdirectory( logger )
 # -- Creates library "vital_config"
 # Requires: vital_logger, vital_util
 add_subdirectory( config )
-
+# -- Creates library "vital_pm"
+# Requires: vital_exceptions, vital_logger, vital_util
+add_subdirectory( plugin_management )
 
 # ==============================================================================
 # Vital Library
@@ -369,7 +371,6 @@ add_subdirectory( logger_plugins )
 #add_subdirectory( algo )
 #add_subdirectory( range )
 #add_subdirectory( bindings )
-#add_subdirectory( plugin_management )
 #
 #if (KWIVER_ENABLE_TOOLS)
 #  add_subdirectory( applets )
