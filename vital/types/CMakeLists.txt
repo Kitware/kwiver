@@ -6,6 +6,7 @@
 #
 
 set( vital_types_public_headers
+     bitflags.h
      core.h
      vector.h
      )
