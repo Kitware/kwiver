@@ -140,9 +140,9 @@ add_subdirectory( util )
 # Requires: vital_util
 add_subdirectory( logger )
 # -- Creates library "vital_config"
-# Requires: vital_logger, vital_util
+# Requires: vital_logger, vital_util (vital_types)
 add_subdirectory( config )
-# -- Creates library "vital_pm"
+# -- Creates library "vital_vpm"
 # Requires: vital_exceptions, vital_logger, vital_util
 add_subdirectory( plugin_management )
 
@@ -150,17 +150,22 @@ add_subdirectory( plugin_management )
 # Vital Library
 
 # "Public" headers are those that are installed.
+# NOTE: Some of these pure headers are utilized in the above "dependent"
+#       libraries. Don't know what the correct "solution" for this seemingly
+#       "cyclical" dependency.
 set( vital_public_headers
+# Shared pure headers with above "deps"
+  bitflags.h
+  noncopyable.h
+
+  algorithm_capabilities.h
+
 #  vital_types.h
-#
-#  algorithm_capabilities.h
 #  attribute_set.h
-#  bitflags.h
 #  context.h
 #  exceptions.h
 #  iterator.h
 #  math_constants.h
-#  noncopyable.h
 #  optional.h
 #  set.h
 #  signal.h
@@ -247,10 +252,10 @@ set( vital_public_headers
 
 # ----------------------
 set( vital_sources
-#  algorithm_capabilities.cxx
+  algorithm_capabilities.cxx
 #  attribute_set.cxx
 #  context.cxx
-#
+
 #  io/camera_from_metadata.cxx
 #  io/camera_io.cxx
 #  io/camera_map_io.cxx
@@ -310,35 +315,35 @@ set( vital_sources
 #  types/uid.cxx
 )
 
-#kwiver_install_headers(
-#  ${vital_public_headers}
-#  SUBDIR   vital
-#  )
+kwiver_install_headers(
+  ${vital_public_headers}
+  SUBDIR   vital
+  )
 
-# install export header
-#kwiver_install_headers(
-#  ${CMAKE_CURRENT_BINARY_DIR}/vital_export.h
-#  ${CMAKE_CURRENT_BINARY_DIR}/vital_config.h
-#  ${CMAKE_CURRENT_BINARY_DIR}/version.h
-#  SUBDIR   vital
-#  NOPATH
-#  )
+# install generated headers
+kwiver_install_headers(
+  ${CMAKE_CURRENT_BINARY_DIR}/vital_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vital_config.h
+  ${CMAKE_CURRENT_BINARY_DIR}/version.h
+  SUBDIR   vital
+  NOPATH
+  )
 
-#kwiver_add_library( vital
-#  ${vital_public_headers}
-#  ${vital_sources}
-#  ${CMAKE_CURRENT_BINARY_DIR}/vital_export.h
-#  ${CMAKE_CURRENT_BINARY_DIR}/vital_config.h
-#  )
+kwiver_add_library( vital
+  ${vital_public_headers}
+  ${vital_sources}
+  ${CMAKE_CURRENT_BINARY_DIR}/vital_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vital_config.h
+  )
 
-#target_link_libraries( vital
-#  PRIVATE         kwiversys
-#  PUBLIC          vital_config
-#                  vital_exceptions
-#                  vital_logger
-#                  vital_util
-#                  Eigen3::Eigen
-#  )
+target_link_libraries( vital
+  PRIVATE         kwiversys
+  PUBLIC          vital_config
+                  vital_exceptions
+                  vital_logger
+                  vital_util
+                  Eigen3::Eigen
+  )
 
 # ==============================================================================
 # Built-in plugin modules
