@@ -104,8 +104,8 @@ set(kwiver_configure_with_git)  # Unset modifier variable
 
 # ==============================================================================
 #
-# This option adds another directory to the path by appending the configuration type to
-# existing directories.
+# This option adds another directory to the path by appending the configuration
+# type to existing directories.
 #
 # TODO: Add rationale on why this option/feature exists. E.g. When is it used?
 #
@@ -336,12 +336,16 @@ kwiver_add_library( vital
   ${CMAKE_CURRENT_BINARY_DIR}/vital_config.h
   )
 
+# Make sure the configuration targets flush before building this library.
+add_dependencies (vital kwiver_configure)
+
 target_link_libraries( vital
   PRIVATE         kwiversys
-  PUBLIC          vital_config
-                  vital_exceptions
-                  vital_logger
+  PUBLIC          vital_exceptions
                   vital_util
+                  vital_logger
+                  vital_config
+                  vital_vpm
                   Eigen3::Eigen
   )
 
@@ -355,7 +359,7 @@ target_link_libraries( vital
 # itself).
 #
 add_subdirectory( logger_plugins )
-#add_subdirectory( config_plugins )  # TODO: uncomment on revision of plugin management
+add_subdirectory( config_plugins )
 
 ####
 ##

@@ -192,7 +192,7 @@ public:
   explicit concrete_plugin_factory( std::string const& plugin_name )
   {
     // Set some standard attributes
-    this->add_attribute( INTERFACE_TYPE, INTERFACE::type_name() )
+    this->add_attribute( INTERFACE_TYPE, typeid( INTERFACE ).name() )
          .add_attribute( CONCRETE_TYPE, typeid( CONCRETE ).name() )
          .add_attribute( PLUGIN_NAME, plugin_name );
   }

@@ -19,6 +19,10 @@ namespace vital {
  *
  * This class encapsulates several different formatting options for
  * a config block.
+ *
+ * TODO: This likely should be an "algorithm" and not be located in the config
+ *       module since there is no inbuilt use of this -- It seems to only be
+ *       used in down-stream libraries/tools.
  */
 class VITAL_CONFIG_EXPORT config_block_formatter
 {

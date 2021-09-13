@@ -20,6 +20,12 @@ typedef std::shared_ptr<pluggable> pluggable_sptr;
  *
  * This base provides minimal structure and more acts as a means of
  * categorization so that factories have a basic type to handle.
+ *
+ * This interface intentionally does not utilize `config_block` in any
+ * definitions so that we can have plugins in our configuration world
+ * -- NOTE: This could be revised to have the config stuff that are plugins to
+ *          not live in the config module if that is feasible (e.g. they're
+ *          algorithms in a way).
  */
 class pluggable
 {
@@ -48,7 +54,6 @@ public:
    */
 //  virtual void get_config( config_block & cb ) const = 0;
 
-public:
   virtual ~pluggable() = default;
 };
 
