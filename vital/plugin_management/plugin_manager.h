@@ -103,6 +103,16 @@ public:
    */
   void add_path_from_environment( std::string env_var);
 
+  /**
+   * @brief Get plugin manager search path
+   *
+   *  This method returns the search path used to load algorithms.
+   *
+   * @return vector of paths that are searched
+   */
+  [[nodiscard]]
+  path_list_t const& search_path() const;
+
   // Loading Plugins ===========================================================
   /**
    * @brief Load all reachable plugins.
@@ -230,15 +240,6 @@ public:
 //  void mark_module_as_loaded( module_t const& name );
 
 protected:
-
-  /**
-   * @brief Get plugin manager search path
-   *
-   *  This method returns the search path used to load algorithms.
-   *
-   * @return vector of paths that are searched
-   */
-  path_list_t const& search_path() const;
 
   plugin_manager();
   ~plugin_manager();
