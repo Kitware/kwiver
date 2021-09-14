@@ -12,6 +12,7 @@ set( sources
   klv_key.cxx
   klv_parse.cxx
   klv_read_write.cxx
+  klv_value.cxx
   klv_0601.cxx
   klv_0104.cxx
   misp_time.cxx
