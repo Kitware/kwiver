@@ -80,19 +80,17 @@ print( std::ostream& str )
 
 pluggable_sptr
 format_config_block_markdown::
-from_config( config_block const& cb )
+from_config( config_block const& /* cb */ )
 {
   // No parameter constructor, just return new instance
-  (void)cb;
   return std::make_shared<format_config_block_markdown>();
 }
 
 void
 format_config_block_markdown::
-get_default_config( config_block & cb )
+get_default_config( config_block & /* cb */ )
 {
   // No constructor parameters, so nothing to set in the config block.
-  (void)cb;
 }
 
 // ============================================================================
@@ -217,19 +215,17 @@ format_block( std::ostream& str,
 
 pluggable_sptr
 format_config_block_tree::
-from_config( config_block const& cb )
+from_config( config_block const& /* cb */ )
 {
   // No parameter constructor, just return new instance
-  (void)cb;
   return std::make_shared<format_config_block_tree>();
 }
 
 void
 format_config_block_tree::
-get_default_config( config_block & cb )
+get_default_config( config_block & /* cb */ )
 {
   // No constructor parameters, so nothing to set in the config block.
-  (void)cb;
 }
 
 // ============================================================================
