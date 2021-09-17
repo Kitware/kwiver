@@ -5,7 +5,7 @@
 #include "vital_applets_export.h"
 
 #include <vital/plugin_loader/plugin_loader.h>
-#include <vital/applets/applet_registrar.h>
+#include <vital/applets_plugins/applet_registrar.h>
 
 #include "config_explorer.h"
 
