@@ -145,6 +145,8 @@ add_subdirectory( config )
 # -- Creates library "vital_vpm"
 # Requires: vital_exceptions, vital_logger, vital_util
 add_subdirectory( plugin_management )
+# -- Created library "vital_applets"
+add_subdirectory( applets )
 
 # ==============================================================================
 # Vital Library
@@ -346,6 +348,7 @@ target_link_libraries( vital
                   vital_logger
                   vital_config
                   vital_vpm
+                  vital_applets
                   Eigen3::Eigen
   )
 
@@ -360,6 +363,7 @@ target_link_libraries( vital
 #
 add_subdirectory( logger_plugins )
 add_subdirectory( config_plugins )
+add_subdirectory( applets_plugins )
 
 ####
 ##
