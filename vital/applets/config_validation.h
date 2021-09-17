@@ -5,7 +5,7 @@
 #ifndef KWIVER_TOOLS_CONFIG_VALIDATION_H
 #define KWIVER_TOOLS_CONFIG_VALIDATION_H
 
-#include <vital/applets/kwiver_tools_applet_export.h>
+#include <vital/applets/vital_applets_export.h>
 
 #include <vital/config/config_block.h>
 #include <vital/logger/logger.h>
@@ -26,7 +26,7 @@ namespace tools {
  *
  * \returns true if sucessfully validated
  */
-KWIVER_TOOLS_APPLET_EXPORT
+VITAL_APPLETS_EXPORT
 bool
 validate_required_input_file(std::string const& name,
                              kwiver::vital::config_block const& config,
@@ -43,7 +43,7 @@ validate_required_input_file(std::string const& name,
  *
  * \returns true if file not set or if set and sucessfully validated
  */
-KWIVER_TOOLS_APPLET_EXPORT
+VITAL_APPLETS_EXPORT
 bool
 validate_optional_input_file(std::string const& name,
                              kwiver::vital::config_block const& config,
@@ -65,7 +65,7 @@ validate_optional_input_file(std::string const& name,
  *                       permission
  * \returns true if sucessfully validated
  */
-KWIVER_TOOLS_APPLET_EXPORT
+VITAL_APPLETS_EXPORT
 bool
 validate_required_output_file(std::string const& name,
                               kwiver::vital::config_block const& config,
@@ -89,7 +89,7 @@ validate_required_output_file(std::string const& name,
  *                       permission
  * \returns true if file not set or if set and sucessfully validated
  */
-KWIVER_TOOLS_APPLET_EXPORT
+VITAL_APPLETS_EXPORT
 bool
 validate_optional_output_file(std::string const& name,
                               kwiver::vital::config_block const& config,
@@ -108,7 +108,7 @@ validate_optional_output_file(std::string const& name,
  *
  * \returns true if sucessfully validated
  */
-KWIVER_TOOLS_APPLET_EXPORT
+VITAL_APPLETS_EXPORT
 bool
 validate_required_input_dir(std::string const& name,
                             kwiver::vital::config_block const& config,
@@ -125,7 +125,7 @@ validate_required_input_dir(std::string const& name,
  *
  * \returns true if directory not set or if set and sucessfully validated
  */
-KWIVER_TOOLS_APPLET_EXPORT
+VITAL_APPLETS_EXPORT
 bool
 validate_optional_input_dir(std::string const& name,
                             kwiver::vital::config_block const& config,
@@ -145,7 +145,7 @@ validate_optional_input_dir(std::string const& name,
  *
  * \returns true if sucessfully validated
  */
-KWIVER_TOOLS_APPLET_EXPORT
+VITAL_APPLETS_EXPORT
 bool
 validate_required_output_dir(std::string const& name,
                              kwiver::vital::config_block const& config,
@@ -166,7 +166,7 @@ validate_required_output_dir(std::string const& name,
  *
  * \returns true if directory not set or if set and sucessfully validated
  */
-KWIVER_TOOLS_APPLET_EXPORT
+VITAL_APPLETS_EXPORT
 bool
 validate_optional_output_dir(std::string const& name,
                              kwiver::vital::config_block const& config,

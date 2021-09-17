@@ -5,11 +5,12 @@
 #ifndef KWIVER_TOOLS_KWIVER_APPLET_H
 #define KWIVER_TOOLS_KWIVER_APPLET_H
 
-#include <vital/applets/kwiver_tools_applet_export.h>
-#include <vital/plugin_loader/plugin_info.h>
+#include <vital/applets/vital_applets_export.h>
+//#include <vital/plugin_management/plugin_info.h>
 
 #include <vital/applets/cxxopts.hpp>
 #include <vital/config/config_block.h>
+#include <vital/plugin_management/pluggable.h>
 
 #include <ostream>
 #include <memory>
@@ -28,7 +29,7 @@ class applet_context;
  * This class represents the abstract base class for all loadable
  * applets.
  */
-class KWIVER_TOOLS_APPLET_EXPORT kwiver_applet
+class VITAL_APPLETS_EXPORT kwiver_applet : public vital::pluggable
 {
 public:
   kwiver_applet();
@@ -108,6 +109,11 @@ m_cmd_options.add_option("group")
    */
   std::unique_ptr< cxxopts::Options > m_cmd_options;
 
+  // It is expected that implementations will not be constructed meaningfully
+  // from config blocks but instead use the input provided by command-line args.
+  template< typename T>
+  static vital::pluggable_sptr from_config( vital::config_block const& cb ) { return std::make_shared<T>()(); }
+
 protected:
 
   /**
@@ -152,11 +158,5 @@ private:
 typedef std::shared_ptr<kwiver_applet> kwiver_applet_sptr;
 
 } } // end namespace
-
-// ==================================================================
-// Support for adding factories
-
-#define ADD_APPLET( applet_T)                               \
-  add_factory( new kwiver::vital::plugin_factory_0< applet_T >( typeid( kwiver::tools::kwiver_applet ).name() ) )
 
 #endif /* KWIVER_TOOLS_KWIVER_APPLET_H */
