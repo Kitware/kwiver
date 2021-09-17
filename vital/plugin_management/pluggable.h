@@ -32,12 +32,11 @@ class pluggable
 public:
   /// Expected static functions:
 
-  /// Return a human-readable name for interface being defined.
-  /// This is defined at the interface level and categorizes implementations
-  /// registered for it.
-  //static std::string type_name();
-
-  /// Curry construction of this concrete class from an input config_block instance.
+  /**
+   * Curry construction of this concrete class from an input config_block instance.
+   * This must be defined on concrete implementations as this is what will
+   * return a real instance pointer.
+   */
   // static pluggable_sptr from_config( config_block const& cb );
 
   /// Set into a config-block the default configuration for this concrete type.
