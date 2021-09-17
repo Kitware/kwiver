@@ -6,10 +6,12 @@ project(KWIVER)
 
 # ==============================================================================
 # KWIVER version
-set(KWIVER_VERSION_MAJOR 2)
-set(KWIVER_VERSION_MINOR 0)
-set(KWIVER_VERSION_PATCH 0)
-set(KWIVER_VERSION "${KWIVER_VERSION_MAJOR}.${KWIVER_VERSION_MINOR}.${KWIVER_VERSION_PATCH}")
+file( READ "VERSION" KWIVER_VERSION )
+string( STRIP "${KWIVER_VERSION}" KWIVER_VERSION )
+string( REGEX MATCH "^([0-9]+)\.([0-9]+)\.([0-9]+)" _ "${KWIVER_VERSION}" )
+set( KWIVER_VERSION_MAJOR "${CMAKE_MATCH_1}" )
+set( KWIVER_VERSION_MINOR "${CMAKE_MATCH_2}" )
+set( KWIVER_VERSION_PATCH "${CMAKE_MATCH_3}" )
 
 # Organize target into folders for IDEs that support it
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
