@@ -279,7 +279,24 @@ public:
       this->f_frame_number_offset = 1;
     }
 
-    this->f_start_time = this->f_video_stream->start_time;
+    // Start time taken from the first decodable frame
+    av_seek_frame( this->f_format_context, this->f_video_index, 0,
+                   AVSEEK_FLAG_FRAME );
+    int send_err;
+    int recv_err;
+    do {
+      // Read frames until we can successfully decode one
+      av_read_frame( this->f_format_context, this->f_packet );
+      send_err = avcodec_send_packet( this->f_video_encoding, this->f_packet );
+      recv_err = avcodec_receive_frame( this->f_video_encoding, this->f_frame );
+      av_packet_unref( this->f_packet );
+    } while( send_err || recv_err );
+    this->f_start_time = av_frame_get_best_effort_timestamp( this->f_frame );
+    // Seek back to start
+    av_seek_frame( this->f_format_context, this->f_video_index, 0,
+                   AVSEEK_FLAG_FRAME );
+    avcodec_flush_buffers( this->f_video_encoding );
+
     this->frame_advanced = false;
     this->f_frame->data[ 0 ] = NULL;
     return true;
@@ -510,8 +527,10 @@ public:
     {
       for( auto md_it = md.second.begin(); md_it != md.second.end();)
       {
-        // Skip if timestamp is too large while in sync mode
-        if( md_it->first <= this->f_pts || !this->sync_metadata )
+        // Skip if timestamp is too large while in sync mode, or timestamp is
+        // to small
+        if( ( md_it->first <= this->f_pts || !this->sync_metadata ) &&
+            md_it->first >= this->f_start_time )
         {
           this->curr_metadata[ md.first ].insert(
               curr_metadata[ md.first ].end(),
@@ -645,8 +664,9 @@ public:
   unsigned int
   frame_number() const
   {
-    // Quick return if the stream isn't open.
-    if( !this->is_valid() )
+    // Quick return if the stream isn't open or we're before the first
+    // decodable frame.
+    if( !this->is_valid() || this->f_pts < this->f_start_time )
     {
       return static_cast< unsigned int >( -1 );
     }
@@ -1219,7 +1239,7 @@ kwiver::vital::timestamp
 ffmpeg_video_input
 ::frame_timestamp() const
 {
-  if( !this->good() )
+  if( !this->good() || d->frame_number() == static_cast< unsigned int >( -1 ) )
   {
     return {};
   }
