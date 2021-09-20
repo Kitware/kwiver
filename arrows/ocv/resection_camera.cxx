@@ -211,10 +211,12 @@ resection_camera
   MatD cv_K;
   eigen2cv( K, cv_K );
   auto const dc0 = dist_coeffs;
-  auto const focal_scales = {0.5, 1.0, 2.0};
-  auto focal_scale = 0.0; // preferred focal scale after optimization
+  auto const focal_scales = { 0.5, 1.0, 2.0 };
+  // focal scale search parameter for optimization
+  auto focal_scale = 0.0;
+  // minimize re-projection error over multiple focal scales
   for (auto const scale : focal_scales)
-  { // minimize re-projection error over multiple focal scales
+  {
     auto dc = dc0;
     vmat rv,tv;
     MatD cvK;
@@ -236,7 +238,7 @@ resection_camera
     }
   }
 
-  LOG_INFO( d_->m_logger, "re-projection error=" << err <<
+  LOG_DEBUG( d_->m_logger, "re-projection error=" << err <<
 	    ", focal scale=" << focal_scale);
   if( err > reproj_error )
   {
