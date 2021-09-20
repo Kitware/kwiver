@@ -214,6 +214,40 @@ size_t
 klv_ber_oid_length( T value );
 
 // ---------------------------------------------------------------------------
+/// Read an IEEE-754 floating-point number from a sequence of bytes
+/// (big-endian).
+///
+/// \param[in,out] data Iterator to sequence of \c uint8_t. Set to end of read
+/// bytes on success, left as is on error.
+/// \param length Number of bytes to read. Must be \c sizeof(float) or \c
+/// sizeof(double).
+///
+/// \returns Floating-point value read from \p data.
+///
+/// \throws invalid_value When \p length is not \c sizeof(float) or \c
+/// sizeof(double).
+template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
+double
+klv_read_float( Iterator& data, size_t length );
+
+// ---------------------------------------------------------------------------
+/// Write an IEEE-754 floating-point number to a sequence of bytes
+/// (big-endian).
+///
+/// \param[in,out] data Writeable iterator to sequence of \c uint8_t. Set to
+/// end of written bytes on success, left as is on error.
+/// \param length Number of bytes to write. Must be \c sizeof(float) or \c
+/// sizeof(double).
+///
+/// \throws invalid_value When \p length is not \c sizeof(float) or \c
+/// sizeof(double).
+template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
+void
+klv_write_float( double value, Iterator& data, size_t length );
+
+// ---------------------------------------------------------------------------
 /// Read an IMAP-encoded floating-point value from a sequence of bytes.
 ///
 /// For an explanation of IMAP, see the MISB ST1201 document.
