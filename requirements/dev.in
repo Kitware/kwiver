@@ -1,3 +1,5 @@
 black
+ipython
+jedi < 0.18
 pip-tools
 scikit-build
