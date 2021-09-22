@@ -222,13 +222,11 @@ add_subdirectory( vital )
 #if (KWIVER_ENABLE_TOOLS)
 #  add_subdirectory(tools)
 #endif()
-#
-#if (KWIVER_ENABLE_PYTHON)
-#  add_subdirectory(python)
-#endif()
-####
-## include as the last subdir
-#
+
+if (KWIVER_ENABLE_PYTHON)
+  add_subdirectory( python/kwiver )
+endif()
+
 ## this is where the algorithm default configuration files live
 #add_subdirectory(config)
 
@@ -393,3 +391,4 @@ endforeach(p)
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vital/kwiver-include-paths.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vital/kwiver-include-paths.h" )
+# END -- possible move to vital sub-directory
