@@ -61,7 +61,7 @@ convert_metadata
 void convert_metadata
 ::convert( klv_data const& klv, kwiver::vital::metadata& md )
 {
-  klv_uds_key uds_key( klv ); // create key from raw data
+  klv_uds_key uds_key{ klv.key_begin() }; // create key from raw data
 
   if ( is_klv_0601_key( uds_key ) )
   {
