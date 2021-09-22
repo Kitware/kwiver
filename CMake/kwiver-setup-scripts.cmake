@@ -77,7 +77,10 @@ endif()
 ###
 # Install the basic logger properties file.
 file( COPY log4cxx.properties       DESTINATION  "${KWIVER_BINARY_DIR}" )
-install( FILES log4cxx.properties   DESTINATION ${CMAKE_INSTALL_PREFIX} )
+if( NOT SKBUILD )
+  # Doesn't need to be in the python package
+  install( FILES log4cxx.properties   DESTINATION ${CMAKE_INSTALL_PREFIX} )
+endif()
 
 if ( KWIVER_ENABLE_DEP_LOG4CXX )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export VITAL_LOGGER_FACTORY=$this_dir/lib/${kwiver_plugin_logger_subdir}/vital_log4cxx_logger\n" )
@@ -90,7 +93,10 @@ endif()
 
 ###
 file( COPY log4cplus.properties       DESTINATION  "${KWIVER_BINARY_DIR}" )
-install( FILES log4cplus.properties   DESTINATION ${CMAKE_INSTALL_PREFIX} )
+if( NOT SKBUILD )
+  # Doesn't need to be in the python package
+  install( FILES log4cplus.properties   DESTINATION ${CMAKE_INSTALL_PREFIX} )
+endif()
 
 if ( KWIVER_ENABLE_DEP_LOG4CPLUS )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export VITAL_LOGGER_FACTORY=$this_dir/lib/${kwiver_plugin_logger_subdir}/vital_log4cplus_logger\n" )
@@ -117,7 +123,7 @@ if (KWIVER_ENABLE_PYTHON)
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "\n# set to suppress loading python modules/processes\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "# export SPROKIT_NO_PYTHON_MODULES\n\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export KWIVER_PYTHON_DEFAULT_LOG_LEVEL=WARN\n" )
-  file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "python${KWIVER_PYTHON_MAJOR_VERSION} -m pip install -r ${KWIVER_BINARY_DIR}/python/requirements.txt\n" )
+#  file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "python${KWIVER_PYTHON_MAJOR_VERSION} -m pip install -r ${KWIVER_BINARY_DIR}/python/requirements.txt\n" )
 
 
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" ":: Python environment\n")
@@ -133,7 +139,7 @@ if (KWIVER_ENABLE_PYTHON)
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "\n:: set to suppress loading python modules/processes\n" )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "::set SPROKIT_NO_PYTHON_MODULES=false\n\n" )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set KWIVER_PYTHON_DEFAULT_LOG_LEVEL=WARN\n" )
-  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "python${KWIVER_PYTHON_MAJOR_VERSION} -m pip install -r ${KWIVER_BINARY_DIR}/python/requirements.txt\n" )
+#  file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "python${KWIVER_PYTHON_MAJOR_VERSION} -m pip install -r ${KWIVER_BINARY_DIR}/python/requirements.txt\n" )
 endif()
 
 if ( KWIVER_ENABLE_DEP_MATLAB )
