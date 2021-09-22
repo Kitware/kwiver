@@ -7,9 +7,9 @@
 
 #include <vital/plugin_management/vital_vpm_export.h>
 
-#include <vital/types/core.h>
 #include <vital/logger/logger.h>
 #include <vital/plugin_management/plugin_factory.h>
+#include <vital/typedefs.h>
 
 #include <vector>
 #include <string>
