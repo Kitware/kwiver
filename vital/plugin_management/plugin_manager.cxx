@@ -14,6 +14,7 @@
 
 #include <kwiversys/SystemTools.hxx>
 
+#include <exception>
 #include <mutex>
 
 namespace kwiver {
@@ -301,7 +302,17 @@ std::vector<std::string>
 plugin_manager
 ::_impl_names( std::string const& interface_type_name ) const
 {
-  auto & fact_vec = m_priv->m_loader->get_plugin_map().at( interface_type_name );
+  auto const& plugin_map = m_priv->m_loader->get_plugin_map();
+
+  // There might not be any registered implementations for the given interface.
+  // * If there is an interface key in the map but the value is an empty vector,
+  //   an empty vector of strings will still be returned.
+  if( ! plugin_map.count( interface_type_name ) )
+  {
+    return {};
+  }
+
+  auto const& fact_vec = plugin_map.at( interface_type_name );
   std::vector<std::string> plugin_name_vec;
   std::string cur_name;
   for( auto const& fact : fact_vec )
@@ -310,7 +321,7 @@ plugin_manager
     // required part of adding a factory, however technically the registrant
     // has the ability to "unset" it, so let's be cautious and guard against
     // that. In this case we choose
-    if( ! fact->get_attribute( plugin_factory::PLUGIN_NAME, cur_name )
+    if( !fact->get_attribute( plugin_factory::PLUGIN_NAME, cur_name )
         || cur_name.empty() )
     {
       plugin_name_vec.emplace_back( "<UNNAMED>" );

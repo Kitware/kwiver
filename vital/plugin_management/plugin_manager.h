@@ -176,17 +176,17 @@ public:
   }
 
   /**
-   * Get the vector of plugin implementation names registered for a given
+   * @brief Get the vector of plugin implementation names registered for a given
    * interface type.
    *
-   * If a plugin has not registered a non-empty name, we will represent those
-   * here as "<UNNAMED>" entries.
+   * If a registered plugin does not have a non-empty PLUGIN_NAME, we will
+   * represent those here as "<UNNAMED>" entries.
+   *
+   * The returned vector may be empty if there are no implementations currently
+   * registered for the given interface.
    *
    * @tparam INTERFACE Type of the interface to check for plugin implementations
    * of.
-   *
-   * @throws std::out_if_range - If there are no implementations registered for
-   * the given interface.
    *
    * @return Vector of plugin implementation names.
    */
@@ -278,11 +278,13 @@ protected:
    * @brief Protected accessor of interface implementation names given the
    * interface type name.
    *
+   * The returned vector may be empty if there are no implementations currently
+   * registered for the given interface.
+   *
    * @param interface_type_name String type name of the interface to check for
    * plugin implementations of.
    *
-   * @throws std::out_if_range - If there are no implementations registered for
-   * the given interface name.
+   * @return Vector of plugin implementation names.
    */
   [[nodiscard]]
   std::vector<std::string> _impl_names( std::string const& interface_type_name) const;
