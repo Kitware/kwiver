@@ -86,6 +86,12 @@ tag_traits()
     { TRAITS_OF( VITAL_META_VIDEO_KEY_FRAME ),
       "Is Key Frame",
       "True if the current frame is a key frame." },
+    { TRAITS_OF( VITAL_META_VIDEO_FRAME_NUMBER ),
+      "Frame Number",
+      "Frame number of video input." },
+    { TRAITS_OF( VITAL_META_VIDEO_MICROSECONDS ),
+      "Video Relative Timestamp",
+      "Microseconds since beginning of video input." },
     { TRAITS_OF( VITAL_META_SENSOR_LOCATION ),
       "Sensor Geodetic Location (lon/lat/alt)",
       "Three-dimensional coordinates of the sensor: longitude, latitude, and "

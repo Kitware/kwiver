@@ -8,6 +8,7 @@
  */
 
 #include "metadata.h"
+#include "metadata_traits.h"
 
 #include <vital/types/metadata_traits.h>
 #include <vital/util/demangle.h>
@@ -190,8 +191,6 @@ metadata
 metadata
 ::metadata( metadata const& other )
 {
-  set_timestamp( other.m_timestamp );
-
   for( auto const& md_item : other.m_metadata_map )
   {
     // Add a copy of the other metadata map's items
@@ -336,15 +335,43 @@ void
 metadata
 ::set_timestamp( kwiver::vital::timestamp const& ts )
 {
-  this->m_timestamp = ts;
+  if( ts.has_valid_frame() )
+  {
+    this->add_any< VITAL_META_VIDEO_FRAME_NUMBER >(
+      static_cast< uint64_t >( ts.get_frame() ) );
+  }
+  else
+  {
+    this->erase( VITAL_META_VIDEO_FRAME_NUMBER );
+  }
+  if( ts.has_valid_time() )
+  {
+    this->add_any< VITAL_META_VIDEO_MICROSECONDS >(
+      static_cast< uint64_t >( ts.get_time_usec() ) );
+  }
+  else
+  {
+    this->erase( VITAL_META_VIDEO_MICROSECONDS );
+  }
 }
 
 // ---------------------------------------------------------------------
-kwiver::vital::timestamp const&
+kwiver::vital::timestamp
 metadata
 ::timestamp() const
 {
-  return this->m_timestamp;
+  kwiver::vital::timestamp timestamp_;
+  if( this->has( VITAL_META_VIDEO_FRAME_NUMBER ) )
+  {
+    timestamp_.set_frame(
+      this->find( VITAL_META_VIDEO_FRAME_NUMBER ).as_uint64() );
+  }
+  if( this->has( VITAL_META_VIDEO_MICROSECONDS ) )
+  {
+    timestamp_.set_time_usec(
+      this->find( VITAL_META_VIDEO_MICROSECONDS ).as_uint64() );
+  }
+  return timestamp_;
 }
 
 // ------------------------------------------------------------------

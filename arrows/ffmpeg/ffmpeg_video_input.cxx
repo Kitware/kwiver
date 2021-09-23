@@ -682,7 +682,10 @@ public:
   {
     // Add frame number to timestamp
     kwiver::vital::timestamp ts;
-    ts.set_frame( this->frame_number() );
+    ts.set_frame( this->frame_number() + 1 );
+    auto const time_seconds =
+      ( f_pts - f_start_time ) * av_q2d( this->f_video_stream->time_base );
+    ts.set_time_usec( static_cast< uint64_t >( time_seconds * 1000000.0 ) ) ;
     md->set_timestamp( ts );
 
     // Add file name/uri
