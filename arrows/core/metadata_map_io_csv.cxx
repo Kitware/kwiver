@@ -18,6 +18,7 @@
 
 #include <vital/range/iota.h>
 
+#include <iomanip>
 #include <iterator>
 #include <string>
 #include <typeinfo>
@@ -120,7 +121,25 @@ metadata_map_io_csv::priv
 ::write_csv_item( kv::metadata_item const& metadata,
                   std::ostream& fout )
 {
-  kv::visit( write_visitor{ fout }, metadata.data() );
+  if( metadata.tag() == kv::VITAL_META_VIDEO_MICROSECONDS )
+  {
+    // Print as hh:mm:ss.ssssss
+    auto const microseconds = metadata.as_uint64();
+    auto const seconds = ( microseconds / 1000000 );
+    auto const minutes = ( seconds / 60 );
+    auto const hours = ( minutes / 60 );
+    auto const flags = fout.flags();
+    fout << std::setfill( '0' );
+    fout << std::setw( 2 ) << hours << ':';
+    fout << std::setw( 2 ) << ( minutes % 60 ) << ':';
+    fout << std::setw( 2 ) << ( seconds % 60 ) << '.';
+    fout << std::setw( 6 ) << ( microseconds % 1000000 ) << ',';
+    fout.flags( flags );
+  }
+  else
+  {
+    kv::visit( write_visitor{ fout }, metadata.data() );
+  }
 }
 
 // ----------------------------------------------------------------------------
