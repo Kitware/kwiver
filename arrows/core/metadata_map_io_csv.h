@@ -52,7 +52,10 @@ public:
   ///  Set configuration values
   void set_configuration( vital::config_block_sptr config ) override;
 
-  /// Check supplied configuration
+  /// Check supplied configuration.
+  ///
+  /// The options \c every_n_microseconds and \c every_n_frames cannot appear
+  /// in the same configuration.
   bool check_configuration( vital::config_block_sptr config ) const override;
 
   /// Get current configuration

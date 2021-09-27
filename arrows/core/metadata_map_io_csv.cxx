@@ -8,6 +8,7 @@
 #include "metadata_map_io_csv.h"
 
 #include <vital/any.h>
+#include <vital/exceptions/algorithm.h>
 #include <vital/exceptions/io.h>
 #include <vital/types/geo_point.h>
 #include <vital/types/geo_polygon.h>
@@ -54,6 +55,8 @@ public:
   std::vector< std::string > column_names;
   std::string overrides_string;
   std::vector< std::string > column_overrides;
+  uint64_t every_n_microseconds;
+  uint64_t every_n_frames;
 };
 
 // ----------------------------------------------------------------------------
@@ -200,6 +203,12 @@ metadata_map_io_csv
   d_->write_remaining_columns = config->get_value< bool >(
     "write_remaining_columns" );
   d_->write_enum_names = config->get_value< bool >( "write_enum_names" );
+  d_->every_n_microseconds =
+    config->has_value( "every_n_microseconds" )
+    ? config->get_value< uint64_t >( "every_n_microseconds" ) : 0;
+  d_->every_n_frames =
+    config->has_value( "every_n_frames" )
+    ? config->get_value< uint64_t >( "every_n_frames" ) : 0;
 
   auto const split_and_trim =
     []( std::string const& s ) -> std::vector< std::string > {
@@ -220,9 +229,10 @@ metadata_map_io_csv
 // ----------------------------------------------------------------------------
 bool
 metadata_map_io_csv
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( vital::config_block_sptr config ) const
 {
-  return true;
+  return !( config->has_value( "every_n_microseconds" ) &&
+            config->has_value( "every_n_frames" ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -246,6 +256,15 @@ metadata_map_io_csv
   config->set_value( "write_remaining_columns", d_->write_remaining_columns,
                      "Write columns present in the metadata but not in the "
                      "manually-specified list." );
+  config->set_value( "every_n_microseconds", d_->every_n_microseconds,
+                     "Minimum time between successive rows of output. Packets "
+                     "more frequent than this will be ignored. If nonzero, "
+                     "packets without a timestamp are also ignored." );
+  config->set_value( "every_n_frames", d_->every_n_frames,
+                     "Number of frames to skip between successive rows of "
+                     "output, plus one. A value of 1 will print one packet for "
+                     "every frame, while a value of 0 will print all packets "
+                     "for every frame." );
   return config;
 }
 
@@ -332,10 +351,44 @@ metadata_map_io_csv
 
   fout << std::endl;
 
+  if( d_->every_n_microseconds && d_->every_n_frames )
+  {
+    throw kv::algorithm_configuration_exception(
+      this->type_name(), this->impl_name(),
+      "options 'every_n_microseconds' and 'every_n_frames' are incompatible" );
+  }
+
+  uint64_t next_timestamp = d_->every_n_microseconds;
+  uint64_t next_frame = 1;
   for( auto const& frame_data : data->metadata() )
   {
     for( auto const& metadata_packet : frame_data.second )
     {
+      // Write only at the specified frequency
+      auto const timestamp = metadata_packet->timestamp();
+      if( d_->every_n_microseconds )
+      {
+        if( !timestamp.has_valid_time() ||
+            timestamp.get_time_usec() < next_timestamp )
+        {
+          continue;
+        }
+        next_timestamp +=
+          ( ( timestamp.get_time_usec() - next_timestamp ) /
+            d_->every_n_microseconds + 1 ) * d_->every_n_microseconds;
+      }
+      if( d_->every_n_frames )
+      {
+        if( !timestamp.has_valid_frame() ||
+            timestamp.get_frame() < next_frame )
+        {
+          continue;
+        }
+        next_frame +=
+          ( ( timestamp.get_frame() - next_frame ) /
+            d_->every_n_frames + 1 ) * d_->every_n_frames;
+      }
+
       // Write the frame number
       fout << frame_data.first << ",";
       for( auto const& info : infos )
