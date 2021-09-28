@@ -10,8 +10,8 @@
 
 #include <vital/types/geo_point.h>
 #include <vital/types/geo_polygon.h>
-#include <vital/types/metadata.h>
-#include <vital/types/metadata_types.h>
+#include <vital/types/metadata_tags.h>
+#include <vital/vital_types.h>
 #include <vital/vital_export.h>
 
 #include <typeinfo>

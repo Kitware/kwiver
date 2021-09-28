@@ -204,8 +204,7 @@ initialize_cameras_with_metadata(std::map<frame_id_t,
       }
       if(auto& mdi = m.second->find(VITAL_META_SENSOR_LOCATION))
       {
-        geo_point gloc;
-        mdi.data(gloc);
+        auto gloc = mdi.get< geo_point >();
 
         // set the origin to the ground
         vital::vector_3d loc = gloc.location();
@@ -284,33 +283,33 @@ update_camera_from_metadata(metadata const& md,
   double platform_yaw = 0.0, platform_pitch = 0.0, platform_roll = 0.0;
   if (auto& mdi = md.find(VITAL_META_PLATFORM_HEADING_ANGLE))
   {
-    mdi.data(platform_yaw);
+    platform_yaw = mdi.get< double >();
     has_platform_yaw = true;
   }
   if (auto& mdi = md.find(VITAL_META_PLATFORM_PITCH_ANGLE))
   {
-    mdi.data(platform_pitch);
+    platform_pitch = mdi.get< double >();
     has_platform_pitch = true;
   }
   if (auto& mdi = md.find(VITAL_META_PLATFORM_ROLL_ANGLE))
   {
-    mdi.data(platform_roll);
+    platform_roll = mdi.get< double >();
     has_platform_roll = true;
   }
   double sensor_yaw = 0.0, sensor_pitch = 0.0, sensor_roll = 0.0;
   if (auto& mdi = md.find(VITAL_META_SENSOR_REL_AZ_ANGLE))
   {
-    mdi.data(sensor_yaw);
+    sensor_yaw = mdi.get< double >();
     has_sensor_yaw = true;
   }
   if (auto& mdi = md.find(VITAL_META_SENSOR_REL_EL_ANGLE))
   {
-    mdi.data(sensor_pitch);
+    sensor_pitch = mdi.get< double >();
     has_sensor_pitch = true;
   }
   if (auto& mdi = md.find(VITAL_META_SENSOR_REL_ROLL_ANGLE))
   {
-    mdi.data(sensor_roll);
+    sensor_roll = mdi.get< double >();
   }
 
   if (has_platform_yaw && has_platform_pitch && has_platform_roll &&
@@ -333,8 +332,7 @@ update_camera_from_metadata(metadata const& md,
 
   if (auto& mdi = md.find(VITAL_META_SENSOR_LOCATION))
   {
-    geo_point gloc;
-    mdi.data(gloc);
+    auto const gloc = mdi.get< geo_point >();
 
     // get the location in the same UTM zone as the origin
     vector_3d loc = gloc.location(lgcs.origin().crs())

@@ -406,7 +406,7 @@ void compare_meta_collection( const kwiver::vital::metadata& lhs,
     const auto& rhs_item = rhs.find( lhs_item->tag() );
 
     // test for data being the same
-    EXPECT_EQ( lhs_item->data().type(), rhs_item.data().type() );
+    EXPECT_EQ( lhs_item->type(), rhs_item.type() );
 
     //+ TBD check data values for equal
   } // end for

@@ -576,9 +576,67 @@ void convert_protobuf( const ::kwiver::protobuf::metadata&  proto,
   } // end for
 }
 
+namespace {
+// ----------------------------------------------------------------------------
+struct convert_visitor {
+  template< class T >
+  void operator()( T const& data ) const
+  {
+    std::stringstream ss;
+    ss << data;
+    proto_item.set_string_value( ss.str() );
+  }
+
+  ::kwiver::protobuf::metadata_metadata_item& proto_item;
+};
+
+// ----------------------------------------------------------------------------
+template<>
+void
+convert_visitor::operator()< uint64_t >( uint64_t const& data ) const
+{
+  proto_item.set_int_value( data );
+}
+
+// ----------------------------------------------------------------------------
+template<>
+void
+convert_visitor::operator()< std::string >( std::string const& data ) const
+{
+  proto_item.set_string_value( data );
+}
+
+// ----------------------------------------------------------------------------
+template<>
+void
+convert_visitor::operator()< double >( double const& data ) const
+{
+  proto_item.set_double_value( data );
+}
+
+// ----------------------------------------------------------------------------
+template<>
+void
+convert_visitor::operator()< kwiver::vital::geo_point >(
+  kwiver::vital::geo_point const& data ) const
+{
+  convert_protobuf( data, *proto_item.mutable_geo_point_value() );
+}
+
+// ----------------------------------------------------------------------------
+template<>
+void
+convert_visitor::operator()< kwiver::vital::geo_polygon >(
+  kwiver::vital::geo_polygon const& data ) const
+{
+  convert_protobuf( data, *proto_item.mutable_geo_polygon_value() );
+}
+
+} // namespace <anonymous>
+
 // ----------------------------------------------------------------------------
 void convert_protobuf( const ::kwiver::vital::metadata& metadata,
-                  ::kwiver::protobuf::metadata&  proto_meta )
+                       ::kwiver::protobuf::metadata&  proto_meta )
 {
   // Serialize one metadata collection
   for ( const auto& mi : metadata )
@@ -588,58 +646,10 @@ void convert_protobuf( const ::kwiver::vital::metadata& metadata,
     // element is <tag, any>
     const auto tag = mi.first;
     const auto metap = mi.second;
-    const auto& trait = ::kwiver::vital::tag_traits_by_tag( tag );
 
     proto_item->set_metadata_tag( tag );
 
-    if ( metap->has_double() )
-    {
-      proto_item->set_double_value( metap->as_double() );
-    }
-    else if ( metap->has_uint64() )
-    {
-      proto_item->set_int_value( metap->as_uint64() );
-    }
-    else if ( metap->has_string() )
-    {
-      proto_item->set_string_value( metap->as_string() );
-    }
-    else if ( trait.type() == typeid(::kwiver::vital::geo_point) )
-    {
-      ::kwiver::vital::geo_point pt;
-      if ( ! metap->data<::kwiver::vital::geo_point>( pt ) )
-      {
-        std::stringstream str;
-        str << "Error extracting data item from metadata. "
-            << "Expected \"::kwiver::vital::geo_point\" but found \""
-            << metap->data().type_name() << "\"." ;
-        VITAL_THROW( ::kwiver::vital::metadata_exception, str.str() );
-      }
-
-      auto* proto_pt = proto_item->mutable_geo_point_value();
-      convert_protobuf( pt, *proto_pt );
-    }
-    else if ( trait.type() == typeid(::kwiver::vital::geo_polygon) )
-    {
-      ::kwiver::vital::geo_polygon poly;
-      if ( ! metap->data<::kwiver::vital::geo_polygon>( poly ) )
-      {
-        std::stringstream str;
-        str << "Error extracting data item from metadata. "
-            << "Expected \"::kwiver::vital::geo_polygon\" but found \""
-            << metap->data().type_name() << "\"." ;
-        VITAL_THROW( ::kwiver::vital::metadata_exception, str.str() );
-
-      }
-
-      auto* proto_poly = proto_item->mutable_geo_polygon_value();
-      convert_protobuf( poly, *proto_poly );
-    }
-    else
-    {
-      // encode as string.
-      proto_item->set_string_value( metap->as_string() );
-    }
+    ::kwiver::vital::visit( convert_visitor{ *proto_item }, metap->data() );
   } //end for
 }
 
