@@ -20,8 +20,6 @@
 
 namespace kv = kwiver::vital;
 
-static kv::metadata_traits meta_traits;
-
 namespace {
 
 double constexpr FRAME_CENTER_ELEVATION = 749.755127;

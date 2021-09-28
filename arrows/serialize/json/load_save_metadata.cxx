@@ -21,9 +21,6 @@ namespace kv = kwiver::vital;
 
 namespace {
 
-// ---- STATIC DATA ----
-static ::kwiver::vital::metadata_traits meta_traits;
-
 // ----------------------------------------------------------------------------
 struct meta_item
 {
@@ -47,58 +44,51 @@ struct meta_item
   template < class Archive >
   void save( Archive& archive ) const
   {
-    const auto& trait = meta_traits.find( tag );
+    const auto& trait = kwiver::vital::tag_traits_by_tag( tag );
 
     archive( CEREAL_NVP( tag ) );
 
     std::string type;
     // This is a switch on the item data type
-    if ( trait.is_floating_point() )
+    if ( trait.type() == typeid( double ) )
     {
       const double value = kv::any_cast< double > ( this->item_value );
       archive( CEREAL_NVP( value ) );
       type = "float";
     }
-    else if ( trait.is_integral() )
+    else if ( trait.type() == typeid( bool ) )
     {
-      // bool metadata passes the is_integral() check but cannot be cast
-      // to uint64_t
-      if ( trait.tag_type() == typeid( bool ) )
-      {
-        const bool value = kv::any_cast< bool > ( this->item_value );
-        archive( CEREAL_NVP( value ) );
-        type = "boolean";
-      }
-      // We don't want negative ints to be serialized as large postive unsigned
-      // values since this would be confusing for external applications
-      else if ( trait.is_signed() )
-      {
-        const int value = kv::any_cast< int > ( this->item_value );
-        archive( CEREAL_NVP( value ) );
-        type = "integer";
-      }
-      else
-      {
-        const uint64_t value = kv::any_cast< uint64_t > ( this->item_value );
-        archive( CEREAL_NVP( value ) );
-        type = "unsigned integer";
-      }
+      const bool value = kv::any_cast< bool > ( this->item_value );
+      archive( CEREAL_NVP( value ) );
+      type = "boolean";
     }
-    else if ( trait.tag_type() == typeid( std::string ) )
+    else if ( trait.type() == typeid( int ) )
+    {
+      const int value = kv::any_cast< int > ( this->item_value );
+      archive( CEREAL_NVP( value ) );
+      type = "integer";
+    }
+    else if ( trait.type() == typeid( uint64_t ) )
+    {
+      const uint64_t value = kv::any_cast< uint64_t > ( this->item_value );
+      archive( CEREAL_NVP( value ) );
+      type = "unsigned integer";
+    }
+    else if ( trait.type() == typeid( std::string ) )
     {
       const std::string value =
         kv::any_cast< std::string > ( this->item_value );
       archive( CEREAL_NVP( value ) );
       type = "string";
     }
-    else if ( trait.tag_type() == typeid( kv::geo_point ) )
+    else if ( trait.type() == typeid( kv::geo_point ) )
     {
       const kv::geo_point value =
         kv::any_cast< kv::geo_point > ( this->item_value );
       archive( CEREAL_NVP( value ) );
       type = "geo-point";
     }
-    else if ( trait.tag_type() == typeid( kv::geo_polygon ) )
+    else if ( trait.type() == typeid( kv::geo_polygon ) )
     {
       const kv::geo_polygon value =
         kv::any_cast< kv::geo_polygon > ( this->item_value );
@@ -127,53 +117,46 @@ struct meta_item
     archive( CEREAL_NVP( tag ) );
 
     // Get associated traits to assist with decoding the data portion
-    const auto& trait = meta_traits.find( tag );
+    const auto& trait = kwiver::vital::tag_traits_by_tag( tag );
 
     // this is a switch on the element data type
-    if ( trait.is_floating_point() )
+    if ( trait.type() == typeid( double ) )
     {
       double value;
       archive( CEREAL_NVP( value ) );
       this->item_value = kv::any( value );
     }
-    else if ( trait.is_integral() )
+    else if ( trait.type() == typeid( bool ) )
     {
-      // is_integral() returns true for a bool, which needs to be handled differently
-      if ( trait.tag_type() == typeid( bool ) )
-      {
-        bool value;
-        archive( CEREAL_NVP( value ) );
-        this->item_value = kv::any( value );
-      }
-      else
-      {
-        if( trait.is_signed() )
-        {
-          int value;
-          archive( CEREAL_NVP( value ) );
-          this->item_value = kv::any( value );
-        }
-        else
-        {
-          uint64_t value;
-          archive( CEREAL_NVP( value ) );
-          this->item_value = kv::any( value );
-        }
-      }
+      bool value;
+      archive( CEREAL_NVP( value ) );
+      this->item_value = kv::any( value );
     }
-    else if ( trait.tag_type() == typeid( std::string ) )
+    else if( trait.type() == typeid( int ) )
+    {
+      int value;
+      archive( CEREAL_NVP( value ) );
+      this->item_value = kv::any( value );
+    }
+    else if( trait.type() == typeid( uint64_t ) )
+    {
+      uint64_t value;
+      archive( CEREAL_NVP( value ) );
+      this->item_value = kv::any( value );
+    }
+    else if ( trait.type() == typeid( std::string ) )
     {
       std::string value;
       archive( CEREAL_NVP( value ) );
       this->item_value = kv::any( value );
     }
-    else if ( trait.tag_type() == typeid( kv::geo_point ) )
+    else if ( trait.type() == typeid( kv::geo_point ) )
     {
       kv::geo_point value;
       archive( CEREAL_NVP( value ) );
       this->item_value = kv::any( value );
     }
-    else if ( trait.tag_type() == typeid( kv::geo_polygon ) )
+    else if ( trait.type() == typeid( kv::geo_polygon ) )
     {
       kv::geo_polygon value;
       archive( CEREAL_NVP( value ) );
@@ -250,8 +233,7 @@ void load( ::cereal::JSONInputArchive& archive,
   // Convert the intermediate form back to a real metadata collection
   for( auto const& it : meta_vect )
   {
-    auto const& trait = meta_traits.find( it.tag );
-    packet_map.add( trait.create_metadata_item( it.item_value ) );
+    packet_map.add_any( it.tag, it.item_value );
   }
 }
 

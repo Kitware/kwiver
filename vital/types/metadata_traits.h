@@ -2,177 +2,178 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file \brief This file contains the interface for metadata traits.
- */
+/// \file
+/// \brief This file contains the interface for metadata traits.
 
 #ifndef KWIVER_VITAL_METADATA_TRAITS_H_
 #define KWIVER_VITAL_METADATA_TRAITS_H_
 
-#include <vital/vital_export.h>
-
 #include <vital/types/geo_point.h>
 #include <vital/types/geo_polygon.h>
-#include <vital/types/matrix.h>
 #include <vital/types/metadata.h>
 #include <vital/types/metadata_types.h>
+#include <vital/vital_export.h>
 
-#include <vital/logger/logger.h>
-
-#include <type_traits>
-#include <memory>
+#include <typeinfo>
 
 namespace kwiver {
+
 namespace vital {
 
-// ------------------------------------------------------------------
-/// Interface to run-time metadata traits.
-/**
- *
- */
-struct vital_meta_trait_base
-{
-  virtual ~vital_meta_trait_base() = default;
-  virtual std::string name() const = 0;
-  virtual std::string description() const = 0;
-  virtual std::string enum_name() const = 0;
-  virtual std::type_info const& tag_type() const = 0;
-  virtual bool is_integral() const = 0;
-  virtual bool is_signed() const = 0;
-  virtual bool is_floating_point() const = 0;
-  virtual vital_metadata_tag tag() const = 0;
-  virtual std::unique_ptr<metadata_item> create_metadata_item( const kwiver::vital::any& data ) const = 0;
-};
 
-// ------------------------------------------------------------------
-// vital meta compile time traits
-//
-//
+// ----------------------------------------------------------------------------
+template < vital_metadata_tag Tag > struct metadata_tag_static_traits;
 
-// Macro to define basic metadata trait
-// This macro is available for others to create separate sets of traits.
-#define DEFINE_VITAL_METADATA_TRAIT(TAG, NAME, T, LD)                   \
-  template <>                                                           \
-  struct vital_meta_trait<TAG>                                          \
-  {                                                                     \
-    static std::string name() { return std::string(NAME); }             \
-    static std::string description() { return std::string(LD); }        \
-    static std::string enum_name() { return #TAG; }                     \
-    static std::type_info const& tag_type() { return typeid(T); }       \
-    static bool is_integral() { return std::is_integral<T>::value; }    \
-    static bool is_signed() { return std::is_signed<T>::value; }        \
-    static bool is_floating_point() { return std::is_floating_point<T>::value; } \
-    static vital_metadata_tag tag() { return TAG; }                     \
-    typedef T type;                                                     \
-  };
+#define TAG_TYPE( TAG, TYPE ) template <> \
+  struct metadata_tag_static_traits< TAG > { using type = TYPE; }
 
-// Macro to define build-in traits.
-#define DEFINE_VITAL_META_TRAIT(TAG, NAME, T, LD)   DEFINE_VITAL_METADATA_TRAIT( VITAL_META_ ## TAG, NAME, T, LD )
+TAG_TYPE( VITAL_META_UNKNOWN, int );
+TAG_TYPE( VITAL_META_METADATA_ORIGIN, string_t );
+TAG_TYPE( VITAL_META_UNIX_TIMESTAMP, uint64_t );
+TAG_TYPE( VITAL_META_MISSION_ID, string_t );
+TAG_TYPE( VITAL_META_MISSION_NUMBER, string_t );
+TAG_TYPE( VITAL_META_PLATFORM_TAIL_NUMBER, string_t );
+TAG_TYPE( VITAL_META_PLATFORM_HEADING_ANGLE, double );
+TAG_TYPE( VITAL_META_PLATFORM_PITCH_ANGLE, double );
+TAG_TYPE( VITAL_META_PLATFORM_ROLL_ANGLE, double );
+TAG_TYPE( VITAL_META_PLATFORM_TRUE_AIRSPEED, double );
+TAG_TYPE( VITAL_META_PLATFORM_INDICATED_AIRSPEED, double );
+TAG_TYPE( VITAL_META_PLATFORM_DESIGNATION, string_t );
+TAG_TYPE( VITAL_META_IMAGE_SOURCE_SENSOR, string_t );
+TAG_TYPE( VITAL_META_IMAGE_COORDINATE_SYSTEM, string_t );
+TAG_TYPE( VITAL_META_IMAGE_URI, string_t );
+TAG_TYPE( VITAL_META_VIDEO_DATA_STREAM_INDEX, int );
+TAG_TYPE( VITAL_META_VIDEO_URI, string_t );
+TAG_TYPE( VITAL_META_VIDEO_KEY_FRAME, bool );
+TAG_TYPE( VITAL_META_SENSOR_LOCATION, geo_point );
+TAG_TYPE( VITAL_META_SENSOR_HORIZONTAL_FOV, double );
+TAG_TYPE( VITAL_META_SENSOR_VERTICAL_FOV, double );
+TAG_TYPE( VITAL_META_SENSOR_REL_AZ_ANGLE, double );
+TAG_TYPE( VITAL_META_SENSOR_REL_EL_ANGLE, double );
+TAG_TYPE( VITAL_META_SENSOR_REL_ROLL_ANGLE, double );
+TAG_TYPE( VITAL_META_SENSOR_YAW_ANGLE, double );
+TAG_TYPE( VITAL_META_SENSOR_PITCH_ANGLE, double );
+TAG_TYPE( VITAL_META_SENSOR_ROLL_ANGLE, double );
+TAG_TYPE( VITAL_META_SENSOR_TYPE, string_t );
+TAG_TYPE( VITAL_META_SLANT_RANGE, double );
+TAG_TYPE( VITAL_META_TARGET_WIDTH, double );
+TAG_TYPE( VITAL_META_FRAME_CENTER, geo_point );
+TAG_TYPE( VITAL_META_CORNER_POINTS, geo_polygon );
+TAG_TYPE( VITAL_META_ICING_DETECTED, uint64_t );
+TAG_TYPE( VITAL_META_WIND_DIRECTION, double );
+TAG_TYPE( VITAL_META_WIND_SPEED, double );
+TAG_TYPE( VITAL_META_STATIC_PRESSURE, double );
+TAG_TYPE( VITAL_META_DENSITY_ALTITUDE, double );
+TAG_TYPE( VITAL_META_OUTSIDE_AIR_TEMPERATURE, double );
+TAG_TYPE( VITAL_META_TARGET_LOCATION, geo_point );
+TAG_TYPE( VITAL_META_TARGET_TRK_GATE_WIDTH, double );
+TAG_TYPE( VITAL_META_TARGET_TRK_GATE_HEIGHT, double );
+TAG_TYPE( VITAL_META_TARGET_ERROR_EST_CE90, double );
+TAG_TYPE( VITAL_META_TARGET_ERROR_EST_LE90, double );
+TAG_TYPE( VITAL_META_DIFFERENTIAL_PRESSURE, double );
+TAG_TYPE( VITAL_META_PLATFORM_ANG_OF_ATTACK, double );
+TAG_TYPE( VITAL_META_PLATFORM_VERTICAL_SPEED, double );
+TAG_TYPE( VITAL_META_PLATFORM_SIDESLIP_ANGLE, double );
+TAG_TYPE( VITAL_META_AIRFIELD_BAROMET_PRESS, double );
+TAG_TYPE( VITAL_META_AIRFIELD_ELEVATION, double );
+TAG_TYPE( VITAL_META_RELATIVE_HUMIDITY, double );
+TAG_TYPE( VITAL_META_PLATFORM_GROUND_SPEED, double );
+TAG_TYPE( VITAL_META_GROUND_RANGE, double );
+TAG_TYPE( VITAL_META_PLATFORM_FUEL_REMAINING, double );
+TAG_TYPE( VITAL_META_PLATFORM_CALL_SIGN, string_t );
+TAG_TYPE( VITAL_META_LASER_PRF_CODE, uint64_t );
+TAG_TYPE( VITAL_META_SENSOR_FOV_NAME, uint64_t );
+TAG_TYPE( VITAL_META_PLATFORM_MAGNET_HEADING, double );
+TAG_TYPE( VITAL_META_UAS_LDS_VERSION_NUMBER, uint64_t );
+TAG_TYPE( VITAL_META_ANGLE_TO_NORTH, double );
+TAG_TYPE( VITAL_META_OBLIQUITY_ANGLE, double );
+TAG_TYPE( VITAL_META_START_TIMESTAMP, uint64_t );
+TAG_TYPE( VITAL_META_EVENT_START_TIMESTAMP, uint64_t );
+TAG_TYPE( VITAL_META_SECURITY_CLASSIFICATION, string_t );
+TAG_TYPE( VITAL_META_AVERAGE_GSD, double );
+TAG_TYPE( VITAL_META_VNIIRS, double );
+TAG_TYPE( VITAL_META_GPS_SEC, double );
+TAG_TYPE( VITAL_META_GPS_WEEK, int );
+TAG_TYPE( VITAL_META_NORTHING_VEL, double );
+TAG_TYPE( VITAL_META_EASTING_VEL, double );
+TAG_TYPE( VITAL_META_UP_VEL, double );
+TAG_TYPE( VITAL_META_IMU_STATUS, int );
+TAG_TYPE( VITAL_META_LOCAL_ADJ, int );
+TAG_TYPE( VITAL_META_DST_FLAGS, int );
+TAG_TYPE( VITAL_META_RPC_HEIGHT_OFFSET, double );
+TAG_TYPE( VITAL_META_RPC_HEIGHT_SCALE, double );
+TAG_TYPE( VITAL_META_RPC_LONG_OFFSET, double );
+TAG_TYPE( VITAL_META_RPC_LONG_SCALE, double );
+TAG_TYPE( VITAL_META_RPC_LAT_OFFSET, double );
+TAG_TYPE( VITAL_META_RPC_LAT_SCALE, double );
+TAG_TYPE( VITAL_META_RPC_ROW_OFFSET, double );
+TAG_TYPE( VITAL_META_RPC_ROW_SCALE, double );
+TAG_TYPE( VITAL_META_RPC_COL_OFFSET, double );
+TAG_TYPE( VITAL_META_RPC_COL_SCALE, double );
+TAG_TYPE( VITAL_META_RPC_ROW_NUM_COEFF, string_t );
+TAG_TYPE( VITAL_META_RPC_ROW_DEN_COEFF, string_t );
+TAG_TYPE( VITAL_META_RPC_COL_NUM_COEFF, string_t );
+TAG_TYPE( VITAL_META_RPC_COL_DEN_COEFF, string_t );
+TAG_TYPE( VITAL_META_NITF_IDATIM, string_t );
+TAG_TYPE( VITAL_META_NITF_BLOCKA_FRFC_LOC_01, string_t );
+TAG_TYPE( VITAL_META_NITF_BLOCKA_FRLC_LOC_01, string_t );
+TAG_TYPE( VITAL_META_NITF_BLOCKA_LRFC_LOC_01, string_t );
+TAG_TYPE( VITAL_META_NITF_BLOCKA_LRLC_LOC_01, string_t );
+TAG_TYPE( VITAL_META_NITF_IMAGE_COMMENTS, string_t );
 
-//
-// Define all compile time metadata traits
-//
-  KWIVER_VITAL_METADATA_TAGS( DEFINE_VITAL_META_TRAIT )
+#undef TAG_TYPE
 
-#undef DEFINE_VITAL_META_TRAIT
-
-// -----------------------------------------------------------------
-/**
- *
- *
- */
-class VITAL_EXPORT metadata_traits
+// ----------------------------------------------------------------------------
+class VITAL_EXPORT metadata_tag_traits
 {
 public:
-  metadata_traits();
-  ~metadata_traits();
+  metadata_tag_traits( vital_metadata_tag tag, std::string const& enum_name,
+                       std::type_info const& type, std::string const& name,
+                       std::string const& description );
 
-  /// Find traits entry for specified tag.
-  /**
-   * This method returns the metadata trait entry for the
-   * specified tag. A default entry is returned if an invalid tag value is specified.
-   *
-   * @param tag Metadata tag value.
-   *
-   * @return Metadata traits entry.
-   */
-  vital_meta_trait_base const& find( vital_metadata_tag tag ) const;
+  vital_metadata_tag
+  tag() const;
 
-  /// Convert tag value to enum symbol.
-  /**
-   * This method returns the symbol name for the supplied tag.
-   *
-   * @param tag Metadata tag value
-   *
-   * @return String representation of the tag symbol.
-   */
-  std::string tag_to_symbol( vital_metadata_tag tag ) const;
+  std::string
+  name() const;
 
-  /// Get name for metadata tag.
-  /**
-   * This method returns the long form name for the specified tag.
-   *
-   * @param tag Metadata tag value.
-   *
-   * @return Long name for this tag.
-   */
-  std::string tag_to_name( vital_metadata_tag tag ) const;
+  std::string
+  enum_name() const;
 
-  /// Get tag for metadata name.
-  /**
-   * This method returns the tag for the short name.
-   *
-   * @param name Metadata name value.
-   *
-   * @return Metadata tag.
-   */
-  vital_metadata_tag name_to_tag( std::string const& name ) const;
+  std::type_info const&
+  type() const;
 
-  /// Get tag for metadata enum name.
-  /**
-   * This method returns the enum name for the given tag.
-   *
-   * @param tag Metadata tag value.
-   *
-   * @return Enum name string.
-   */
-  std::string tag_to_enum_name( vital_metadata_tag tag ) const;
+  std::string
+  type_name() const;
 
-  /// Get tag for metadata enum name.
-  /**
-   * This method returns the tag for the enum name.
-   *
-   * @param name Metadata enum name value.
-   *
-   * @return Metadata tag.
-   */
-  vital_metadata_tag enum_name_to_tag( std::string name ) const;
-
-  // Get metadata tag description.
-  /**
-   * This method returns the long description string for the specified
-   * tag.
-   *
-   * @param tag Metadata tag value.
-   *
-   * @return Long description for this tag.
-   */
-  std::string tag_to_description( vital_metadata_tag tag ) const;
+  std::string
+  description() const;
 
 private:
-  kwiver::vital::logger_handle_t m_logger;
+  vital_metadata_tag m_tag;
+  std::string m_enum_name;
+  std::type_info const& m_type;
+  std::string m_name;
+  std::string m_description;
+};
 
-#ifdef VITAL_STD_MAP_UNIQUE_PTR_ALLOWED
-  typedef std::unique_ptr< vital_meta_trait_base > trait_ptr;
-#else
-  typedef std::shared_ptr< vital_meta_trait_base > trait_ptr;
-#endif
-  std::map< kwiver::vital::vital_metadata_tag, trait_ptr> m_trait_table;
-  std::map< std::string, kwiver::vital::vital_metadata_tag > m_name_tag_table;
-  std::map< std::string, kwiver::vital::vital_metadata_tag > m_enum_name_tag_table;
+// ----------------------------------------------------------------------------
+VITAL_EXPORT
+metadata_tag_traits const&
+tag_traits_by_tag( vital_metadata_tag tag );
 
-}; // end class metadata_traits
+// ----------------------------------------------------------------------------
+VITAL_EXPORT
+metadata_tag_traits const&
+tag_traits_by_name( std::string const& name );
 
-} } // end namespace
+// ----------------------------------------------------------------------------
+VITAL_EXPORT
+metadata_tag_traits const&
+tag_traits_by_enum_name( std::string const& name );
+
+} // namespace vital
+
+} // namespace kwiver
 
 #endif

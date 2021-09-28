@@ -86,52 +86,16 @@ is_valid_lon_lat( kwiver::vital::vector_3d const& vec )
  */
 kwiver::vital::any
 convert_metadata
-::normalize_0601_tag_data( klv_0601_tag tag,
+::normalize_0601_tag_data( VITAL_UNUSED klv_0601_tag tag,
                            kwiver::vital::vital_metadata_tag vital_tag,
                            kwiver::vital::any const& data )
 {
-  LOG_TRACE( m_logger, "Converting 0601 tag to Vital: "
-             << m_metadata_traits.tag_to_symbol( vital_tag ) );
-
-  // If the input data is already in the correct type
-  if ( convert_metadata::typeid_for_tag( vital_tag ) == data.type() )
+  if( convert_metadata::typeid_for_tag( vital_tag ) != data.type() )
   {
-    // leave data as is since it already correct type.
-    return data;
+    throw kwiver::vital::bad_any_cast(
+      data.type_name(),
+      kwiver::vital::tag_traits_by_tag( vital_tag ).type_name() );
   }
-
-  // If destination type is double, then source must be convertable to double
-  if ( convert_metadata::typeid_for_tag( vital_tag ) == typeid( double ) )
-  {
-    if ( klv_0601_has_double( tag ) )
-    {
-      kwiver::vital::any converted_data = klv_0601_value_double( tag, data );
-      return converted_data;
-    }
-    // Could use convert_to_double.convert here to coerce the type if
-    // we believe the tags tables are correct.
-  }
-
-  try
-  {
-    // If the destination is integral.
-    auto const& trait = m_metadata_traits.find( vital_tag );
-    if ( trait.is_integral() )
-    {
-      kwiver::vital::any converted_data = convert_to_int.convert( data );
-      return converted_data;
-    }
-  }
-  catch (kwiver::vital::bad_any_cast const& e)
-  {
-    LOG_DEBUG( m_logger, "Data not convertable for tag: "
-              << m_metadata_traits.tag_to_symbol( vital_tag )
-              << ",  " << e.what() );
-  }
-
-    LOG_DEBUG( m_logger, "Tag data not converted for tag: "
-              << m_metadata_traits.tag_to_symbol( vital_tag ) );
-
   return data;
 }
 
@@ -220,7 +184,6 @@ convert_metadata
       CASE( OUTSIDE_AIR_TEMPERATURE );
       CASE( TARGET_TRK_GATE_WIDTH );
       CASE( TARGET_TRK_GATE_HEIGHT );
-      CASE_COPY( SECURITY_SPECIFICATION );
       CASE( TARGET_ERROR_EST_CE90 );
       CASE( TARGET_ERROR_EST_LE90 );
       CASE( DIFFERENTIAL_PRESSURE );
@@ -238,12 +201,6 @@ convert_metadata
       CASE( SENSOR_FOV_NAME );
       CASE( PLATFORM_MAGNET_HEADING );
       CASE( UAS_LDS_VERSION_NUMBER );
-
-      // Source specific metadata tags
-
-      // These are suffixed with the spec. number because the data format is specification specific.
-      CASE2( WEAPON_LOAD, WEAPON_LOAD_0601 );
-      CASE2( WEAPON_FIRED, WEAPON_FIRED_0601 );
 
 #undef CASE
 #undef CASE2

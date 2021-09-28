@@ -33,8 +33,6 @@ namespace {
 
 //BEGIN helpers
 
-static ::kwiver::vital::metadata_traits meta_traits;
-
 // ----------------------------------------------------------------------------
 kwiver::vital::rotation_d
 get_platform_rotation( kwiver::vital::metadata_sptr const& metadata )
@@ -438,11 +436,8 @@ derive_metadata
     try
     {
       // Compute slant range. Must be inserted before GSD calculation
-      auto const slant_range_value = compute_slant_range( updated_metadata );
-      auto const& slant_range_trait =
-        meta_traits.find( kv::VITAL_META_SLANT_RANGE );
-      updated_metadata->add(
-        slant_range_trait.create_metadata_item( slant_range_value ) );
+      auto const slant_range = compute_slant_range( updated_metadata );
+      updated_metadata->add< kv::VITAL_META_SLANT_RANGE >( slant_range );
 
       if( input_image )
       {
@@ -450,19 +445,15 @@ derive_metadata
         auto const frame_height = input_image->height();
 
         // Compute GSD
-        auto const gsd_value =
+        auto const gsd =
           compute_gsd( updated_metadata, frame_width, frame_height );
-        auto const& gsd_trait = meta_traits.find( kv::VITAL_META_AVERAGE_GSD );
-        updated_metadata->add( gsd_trait.create_metadata_item( gsd_value ) );
+        updated_metadata->add< kv::VITAL_META_AVERAGE_GSD >( gsd );
 
         // Compute VNIIRS
-        auto const rer_value = compute_rer( input_image );
-        auto const snr_value = compute_snr( input_image );
-        auto const vniirs_value = compute_vniirs( gsd_value, rer_value,
-                                                  snr_value );
-        auto const& vniirs_trait = meta_traits.find( kv::VITAL_META_VNIIRS );
-        updated_metadata->add(
-          vniirs_trait.create_metadata_item( vniirs_value ) );
+        auto const rer = compute_rer( input_image );
+        auto const snr = compute_snr( input_image );
+        auto const vniirs = compute_vniirs( gsd, rer, snr );
+        updated_metadata->add< kv::VITAL_META_VNIIRS >( vniirs );
       }
     }
     catch ( kv::invalid_value const& e )

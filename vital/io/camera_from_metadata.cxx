@@ -21,7 +21,6 @@ Eigen::VectorXd
 tags_to_vector( metadata_sptr const& md,
                 std::vector<vital_metadata_tag> tags )
 {
-  metadata_traits md_traits;
   auto vec_length = tags.size();
 
   Eigen::VectorXd rslt(vec_length);
@@ -35,7 +34,7 @@ tags_to_vector( metadata_sptr const& md,
     else
     {
       VITAL_THROW(metadata_exception, "Missing RPC metadata: " +
-                                      md_traits.tag_to_name(tags[i]));
+                                      tag_traits_by_tag(tags[i]).name());
     }
   }
 
@@ -47,7 +46,6 @@ rpc_matrix
 tags_to_matrix( metadata_sptr const& md,
                 std::vector<vital_metadata_tag> tags )
 {
-  metadata_traits md_traits;
   if (tags.size() != 4)
   {
     VITAL_THROW(metadata_exception,
@@ -65,7 +63,7 @@ tags_to_matrix( metadata_sptr const& md,
     else
     {
       VITAL_THROW(metadata_exception, "Missing RPC metadata: " +
-                                      md_traits.tag_to_name(tags[i]));
+                                      tag_traits_by_tag(tags[i]).name());
     }
   }
 
@@ -100,8 +98,6 @@ VITAL_EXPORT camera_from_metadata( metadata_sptr const& md )
   vector_3d world_scale, world_offset;
   vector_2d image_scale, image_offset;
   rpc_matrix rpc_coeffs;
-
-  metadata_traits md_traits;
 
   std::vector<vital_metadata_tag> world_scale_tags = {
     VITAL_META_RPC_LONG_SCALE,
