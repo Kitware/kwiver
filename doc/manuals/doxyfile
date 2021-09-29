@@ -58,7 +58,7 @@ PROJECT_LOGO           =
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       =
+OUTPUT_DIRECTORY       = _build
 
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create 4096 sub-
 # directories (in 2 levels) under the output directory of each output format and
@@ -1130,7 +1130,7 @@ GENERATE_HTML          = NO
 # The default directory is: html.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_OUTPUT            = ./_build/doxygen_html
+HTML_OUTPUT            = doxygen_html
 
 # The HTML_FILE_EXTENSION tag can be used to specify the file extension for each
 # generated HTML page (for example: .htm, .php, .asp).
@@ -1674,7 +1674,7 @@ GENERATE_LATEX         = NO
 # The default directory is: latex.
 # This tag requires that the tag GENERATE_LATEX is set to YES.
 
-LATEX_OUTPUT           = ./_build/latex
+LATEX_OUTPUT           = latex
 
 # The LATEX_CMD_NAME tag can be used to specify the LaTeX command name to be
 # invoked.
@@ -1954,7 +1954,7 @@ GENERATE_XML           = YES
 # The default directory is: xml.
 # This tag requires that the tag GENERATE_XML is set to YES.
 
-XML_OUTPUT             = ./_build/xml
+XML_OUTPUT             = xml
 
 # If the XML_PROGRAMLISTING tag is set to YES, doxygen will dump the program
 # listings (including syntax highlighting and cross-referencing information) to
