@@ -28,8 +28,8 @@ set(vital_vpm_sources
 #  plugin_filter_category.cxx
   )
 
-# TODO: Why is this one specifically marked as always shared?
-#       Something to do with python?
+# This has to be built shared due to the use of the singleton pattern holding
+# the central manager instance.
 kwiver_add_library(vital_vpm SHARED
   ${vital_vpm_headers_public}
   ${vital_vpm_headers_private}
