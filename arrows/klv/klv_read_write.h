@@ -226,8 +226,8 @@ klv_ber_oid_length( T value );
 ///
 /// This function allows signed or unsigned integer types. The mapping is
 /// linear. The range is inclusive on both ends. The entire range of the
-/// integer is used, unless the integer is signed, in which case the lowest
-/// representable value is mapped to quiet NaN.
+/// integer type is used, unless the integer is signed, in which case the
+/// lowest representable value is mapped to quiet NaN.
 ///
 /// \param minimum Lower end of mapped range.
 /// \param maximum Upper end of mapped range.
@@ -242,8 +242,8 @@ klv_ber_oid_length( T value );
 template < class T, class Iterator >
 KWIVER_ALGO_KLV_EXPORT
 double
-klv_read_flint( double minimum, double maximum, Iterator& data,
-                size_t length );
+klv_read_flint( double minimum, double maximum,
+                Iterator& data, size_t length );
 
 // ---------------------------------------------------------------------------
 /// Map a floating-point number within a range to an integer and write it to a
@@ -251,8 +251,8 @@ klv_read_flint( double minimum, double maximum, Iterator& data,
 ///
 /// This function allows signed or unsigned integer types. The mapping is
 /// linear. The range is inclusive on both ends. The entire range of the
-/// integer is used, unless the integer is signed, in which case invalid or
-/// out-of-range \p value is mapped to the lowest representable integer. For
+/// integer type is used, unless the integer is signed, in which case invalid
+/// or out-of-range \p value is mapped to the lowest representable integer. For
 /// unsigned integers, out-of-range \p value is silently clamped to the range,
 /// and NaN \p value is changed to \p minimum.
 ///
@@ -268,8 +268,8 @@ klv_read_flint( double minimum, double maximum, Iterator& data,
 template < class T, class Iterator >
 KWIVER_ALGO_KLV_EXPORT
 void
-klv_write_flint( double value, double minimum, double maximum, Iterator& data,
-                 size_t length );
+klv_write_flint( double value, double minimum, double maximum,
+                 Iterator& data, size_t length );
 
 // ---------------------------------------------------------------------------
 /// Return the number of bytes required for the given flint specification.
@@ -297,7 +297,7 @@ klv_flint_length( double minimum, double maximum, double precision );
 ///
 /// \param minimum Lower end of mapped range.
 /// \param maximum Upper end of mapped range.
-/// \param length Desired byte length of IMAP value.
+/// \param length Desired byte length of flint value.
 ///
 /// \returns Precision of a flint value meeting the provided parameters.
 ///

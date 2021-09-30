@@ -397,8 +397,8 @@ klv_read_flint( double minimum, double maximum, Iterator& data, size_t length )
 // ---------------------------------------------------------------------------
 template < class T, class Iterator >
 void
-klv_write_flint( double value, double minimum, double maximum, Iterator& data,
-                 size_t length )
+klv_write_flint( double value, double minimum, double maximum,
+                 Iterator& data, size_t length )
 {
   // Ensure types are compatible with our assumptions
   KLV_ASSERT_INT( T );
@@ -430,10 +430,10 @@ klv_write_flint( double value, double minimum, double maximum, Iterator& data,
       // Ensure floating-point rounding doesn't result in integer overflow
       int_value = max_int;
     }
-    else if( float_value <= min_int + 1 )
+    else if( float_value <= -max_int )
     {
       // Ensure floating-point rounding doesn't result in integer underflow
-      int_value = min_int + 1;
+      int_value = -max_int;
     }
     klv_write_int( int_value, data, length );
   }
@@ -650,7 +650,6 @@ _int_min( size_t length )
     return 0;
   }
 
-  // C++17: if constexpr
   if( std::is_signed< T >::value )
   {
     return -static_cast< T >( ( 0x80ull << ( ( length - 1 ) * 8 ) ) - 1 ) - 1;
@@ -663,7 +662,7 @@ _int_min( size_t length )
 
 // ---------------------------------------------------------------------------
 template < class T >
-T
+T // TODO(C++14): make this constexpr
 _int_max( size_t length )
 {
   KLV_ASSERT_INT( T );
@@ -673,7 +672,6 @@ _int_max( size_t length )
     return 0;
   }
 
-  // C++17: if constexpr
   if( std::is_signed< T >::value )
   {
     return ( 0x80ull << ( ( length - 1 ) * 8 ) ) - 1;
