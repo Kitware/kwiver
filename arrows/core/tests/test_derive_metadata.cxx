@@ -102,7 +102,7 @@ TEST_F( derive_metadata, compute_derived )
 
   EXPECT_NEAR( 0.202224, gsd_value.as_double(), 0.000001);
 
-  // This will not actualy be correct due to image terms
-  // EXPECT_DOUBLE_EQ( 6.58, vniirs_value.as_double() );
+  // This only takes into account terms a0 and a1
+  EXPECT_NEAR( 6.578680, vniirs_value.as_double(), 0.000001 );
   EXPECT_DOUBLE_EQ( 13296.55762, slant_range_value.as_double() );
 }
