@@ -52,6 +52,10 @@ define_property(GLOBAL PROPERTY kwiver_python_modules
 
 
 ###
+# Change a filesystem path into something that is acceptable in CMake target
+# names.
+#
+# This effectively replaces "/"s with "."s.
 #
 macro (_kwiver_create_safe_modpath    modpath    result)
   string(REPLACE "/" "." "${result}" "${modpath}")
@@ -59,26 +63,34 @@ endmacro ()
 
 
 ###
-#
 # kwiver_add_python_library( name modpath )
 #
 # Create a target for a python module library. This is a shared library that may
-# be imported in the python interpreter. The resulting target should be used
-# with `target_link_libraries` to connect appropriate symbol linkage.
+# be imported in the python interpreter.
 #
-# This will create a target whose name follows the pattern
-# "python-{modpath}-{name}", where "modpath" will have "/" replaced with ".".
-# E.g. `kwiver_add_python_library( _config vital/config ... )` will result in a
-# target name "python-vital.config-_config".
+# This function includes target linking similar to the ``kwiver_add_plugin``
+# utility function. Python libraries will automatically be included in the
+# PRIVATE linkage of the library.
 #
-# Additional arguments are passed onto `kwiver_add_library` after specifying
-# the library name and that the library will be a MODULE.
+# Options are:
+#   SOURCES - list of source files for this library.
+#   PUBLIC - list of libraries the plugin will publicly link against.
+#   PRIVATE - list of libraries the plugin will privately link against.
 #
 function (kwiver_add_python_library    name    modpath)
+  set(options)
+  set(oneValueArgs)
+  set(multiValueArgs SOURCES PUBLIC PRIVATE)
+  cmake_parse_arguments(PYLIB "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
+
   _kwiver_create_safe_modpath("${modpath}" safe_modpath)
 
   string(TOLOWER "${CMAKE_PROJECT_NAME}" project_name)
   if(SKBUILD)
+    # This is required as libraries are installed into the python package just
+    # as they are installed by CMake. Setting library_* in the following way
+    # causes the python libraries to be placed into the build and install trees
+    # as if the build/install root was the python package root.
     set(library_dir "")
     set(library_subdir "${modpath}")
   else()
@@ -88,15 +100,25 @@ function (kwiver_add_python_library    name    modpath)
 
   set(no_export ON)
   set(no_export_header ON)
+  set(pylib_target_name "python-${safe_modpath}-${name}")
 
-  kwiver_add_library("python-${safe_modpath}-${name}" MODULE
-    ${ARGN})
+  kwiver_add_library("${pylib_target_name}" MODULE ${PYLIB_SOURCES})
+
+  # Given the documented intention that these are python libraries, we will
+  # implicitly include the python libraries under the PRIVATE linkage.
+  # This assumes ``find_package(Python)`` was performed before invoking this
+  # function, which should be a general requirement anyway.
+  list(INSERT PYLIB_PRIVATE 0 ${PYTHON_LIBRARIES})
+  target_link_libraries( "${pylib_target_name}"
+    PUBLIC    ${PYLIB_PUBLIC}
+    PRIVATE   ${PYLIB_PRIVATE}
+    )
 
   if(MSVC)
     # Issues arise with the msvc compiler with some projects where it cannot
     # compile bindings without the optimizer expanding some inline functions (i.e. debug builds)
     # So always have the optimizer expand the inline functions in the python bindings projects
-    target_compile_options("python-${safe_modpath}-${name}" PUBLIC "/Ob2")
+    target_compile_options("${pylib_target_name}" PUBLIC "/Ob2")
   endif()
 
   set(pysuffix "${CMAKE_SHARED_MODULE_SUFFIX}")
@@ -104,14 +126,14 @@ function (kwiver_add_python_library    name    modpath)
     set(pysuffix .pyd)
   endif ()
 
-  set_target_properties("python-${safe_modpath}-${name}"
+  set_target_properties("${pylib_target_name}"
     PROPERTIES
       OUTPUT_NAME "${name}"
       PREFIX      ""
       SUFFIX      "${pysuffix}"
     )
 
-  add_dependencies(python      "python-${safe_modpath}-${name}")
+  add_dependencies(python      "${pylib_target_name}")
   set_property(GLOBAL APPEND PROPERTY kwiver_python_modules ${name})
 endfunction ()
 

@@ -11,12 +11,8 @@ set( module_sources
 kwiver_add_python_library(
   _config
   vital/config
-  ${module_headers}
-  ${module_sources}
-)
-target_link_libraries(
-  python-vital.config-_config
-  PRIVATE ${PYTHON_LIBRARIES}
-          pybind11::pybind11
+  SOURCES ${module_headers}
+          ${module_sources}
+  PRIVATE pybind11::pybind11
           vital
 )
