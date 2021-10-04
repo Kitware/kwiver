@@ -87,36 +87,12 @@ convert_metadata
                            kwiver::vital::vital_metadata_tag vital_tag,
                            kwiver::vital::any const& data )
 {
-  // If the input data is already in the correct type, just return.
-  if ( convert_metadata::typeid_for_tag( vital_tag ) == data.type() )
+  if( convert_metadata::typeid_for_tag( vital_tag ) != data.type() )
   {
-    return data;
+    throw kwiver::vital::bad_any_cast(
+      data.type_name(),
+      kwiver::vital::tag_traits_by_tag( vital_tag ).type_name() );
   }
-
-  try
-  {
-    // If destination type is double, then source must be convertable to double
-    if ( convert_metadata::typeid_for_tag( vital_tag ) == typeid( double ) )
-    {
-      kwiver::vital::any converted_data = convert_to_double.convert( data );
-      return converted_data;
-    }
-
-    // If the destination is integral.
-    auto const& trait = m_metadata_traits.find( vital_tag );
-    if ( trait.is_integral() )
-    {
-      kwiver::vital::any converted_data = convert_to_int.convert( data );
-      return converted_data;
-    }
-  }
-  catch (kwiver::vital::bad_any_cast const& e)
-  {
-    LOG_DEBUG( m_logger, "Data not convertable for tag: "
-              << m_metadata_traits.tag_to_symbol( vital_tag )
-              << ",  " << e.what() );
-  }
-
   return data;
 }
 
@@ -208,7 +184,6 @@ case klv_0104::KN:                                        \
       CASE( ANGLE_TO_NORTH );
       CASE( OBLIQUITY_ANGLE );
       CASE( SECURITY_CLASSIFICATION );
-      CASE( SECURITY_SPECIFICATION );
       CASE( SENSOR_TYPE );
 
 #undef CASE

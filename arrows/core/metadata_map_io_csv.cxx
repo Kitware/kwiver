@@ -47,7 +47,6 @@ public:
                          std::string const& field_name,
                          std::string const& field_override );
 
-  kv::metadata_traits md_traits;
   bool write_remaining_columns{ true };
   bool write_enum_names{ false };
   std::string names_string;
@@ -169,11 +168,11 @@ metadata_map_io_csv::priv
     // Quote all other data either as the enum name or description
     if( write_enum_names )
     {
-      fout << '"' << md_traits.tag_to_enum_name( csv_field ) << "\",";
+      fout << '"' << kv::tag_traits_by_tag( csv_field ).enum_name() << "\",";
     }
     else
     {
-      fout << '"' << md_traits.tag_to_name( csv_field ) << "\",";
+      fout << '"' << kv::tag_traits_by_tag( csv_field ).name() << "\",";
     }
   }
 }
@@ -301,9 +300,9 @@ metadata_map_io_csv
     auto const& name = d_->column_names[ i ];
     auto const& str = d_->column_overrides[ i ];
     kv::vital_metadata_tag trait_id;
-    if( ( trait_id = d_->md_traits.enum_name_to_tag( name ) ) !=
+    if( ( trait_id = kv::tag_traits_by_enum_name( name ).tag() ) !=
         kv::VITAL_META_UNKNOWN ||
-        ( trait_id = d_->md_traits.name_to_tag( name ) ) !=
+        ( trait_id = kv::tag_traits_by_name( name ).tag() ) !=
         kv::VITAL_META_UNKNOWN )
     {
       // Avoid duplicating present columns

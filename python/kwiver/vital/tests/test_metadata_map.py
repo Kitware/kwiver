@@ -126,7 +126,7 @@ class TestMetadataMapSub(unittest.TestCase):
         mms = MetadataMapSub(self.map)
         nt.ok_(mmh.has_item(mms, self.tags[1], 1))
         ret_typed = mms.get_item(self.tags[0], 1)
-        nt.assert_equal(ret_typed.name, "Unknown / Undefined entry")
+        nt.assert_equal(ret_typed.name, "Unknown / Undefined Entry")
 
     def test_get_vector(self):
         mms = MetadataMapSub(self.map)

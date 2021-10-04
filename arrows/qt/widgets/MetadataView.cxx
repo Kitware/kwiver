@@ -245,7 +245,6 @@ MetadataView
   d->clear();
 
   QSet< kv::vital_metadata_tag > mdKeys;
-  auto traits = kv::metadata_traits{};
 
   // Collect all keys present in the metadata map
   for( auto const& mdi : *mdMap )
@@ -270,7 +269,7 @@ MetadataView
     if( mdKeys.contains( tag ) )
     {
       d->clearItemValue( k );
-      d->addItem( k, qtString( traits.tag_to_name( tag ) ) );
+      d->addItem( k, qtString( kv::tag_traits_by_tag( tag ).name() ) );
     }
   }
 }
@@ -281,8 +280,6 @@ MetadataView
 ::updateMetadata( kv::metadata_vector const& mdVec )
 {
   QTE_D();
-
-  auto traits = kv::metadata_traits{};
 
   auto const keys = d->itemIds();
   for( auto const k : keys )
@@ -305,7 +302,7 @@ MetadataView
         if( !keys.contains( k ) )
         {
           auto const tag = static_cast< kv::vital_metadata_tag >( k );
-          d->addItem( k, qtString( traits.tag_to_name( tag ) ) );
+          d->addItem( k, qtString( kv::tag_traits_by_tag( tag ).name() ) );
         }
         d->setItemValue( k, qtString( mdi->as_string() ) );
       }

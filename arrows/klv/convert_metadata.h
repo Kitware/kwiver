@@ -99,9 +99,6 @@ private:
 
   kwiver::vital::any_converter< double > convert_to_double;
   kwiver::vital::any_converter< uint64_t > convert_to_int;
-
-  kwiver::vital::metadata_traits m_metadata_traits;
-
 }; // end class convert_metadata
 
 } } } // end namespace

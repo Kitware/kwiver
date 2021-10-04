@@ -30,297 +30,82 @@
 namespace kwiver {
 namespace vital {
 
-template <vital_metadata_tag tag> struct vital_meta_trait;
-
 // -----------------------------------------------------------------
-/**
- * \brief Abstract base class for metadata items
- * This class is the abstract base class for a single metadata
- * item. This mainly provides the interface for the type specific
- * derived classes.
- *
- * All metadata items need a common base class so they can be managed
- * in a collection.
- */
 class VITAL_EXPORT metadata_item
 {
 public:
-  virtual ~metadata_item() = default;
+  /// \throws logic_error If \p data's type does not match \p tag.
+  metadata_item( vital_metadata_tag tag, kwiver::vital::any const& data );
 
-  /**
-   * \brief Test if metadata item is valid.
-   * This method tests if this metadata item is valid.
-   *
-   * \return \c true if the item is valid, otherwise \c false.
-   *
-   * \sa metadata::find
-   */
-  virtual bool is_valid() const;
+  /// \throws logic_error If \p data's type does not match \p tag.
+  metadata_item( vital_metadata_tag tag, kwiver::vital::any&& data );
+
+  /// Test if the metadata item is valid.
+  bool is_valid() const;
 
   /// \copydoc is_valid
   operator bool() const { return this->is_valid(); }
 
-  /**
-   * \brief Get name of metadata item.
-   *
-   * This method returns the descriptive name for this metadata item.
-   *
-   * \return Descriptive name of this metadata entry.
-   */
-  std::string const& name() const;
+  /// Get the name of the metadata item.
+  std::string name() const;
 
-  /**
-   * \brief Get vital metadata tag.
-   *
-   * This method returns the vital metadata tag enum value.
-   *
-   * \return Metadata tag value.
-   */
+  /// Get the metadata item's tag.
   vital_metadata_tag tag() const { return m_tag; };
 
-    /**
-   * \brief Get metadata data type.
-   *
-   * This method returns the type-info for this metadata item.
-   *
-   * \return Type info for metadata tag.
-   */
-  virtual std::type_info const& type() const = 0;
+  /// Get the type of the metadata item's value.
+  std::type_info const& type() const;
 
-  /**
-   * \brief Get actual data for metadata item.
-   *
-   * This method returns the actual raw data for this metadata item as
-   * a "any" object. Non-standard data types must be handled through this
-   * call.
-   *
-   * \return Data for metadata item.
-   */
+  /// Get the value of the metadata item.
   kwiver::vital::any data() const;
 
-  template< typename T>
-  bool data(T& val) const
+  /// Get the value of the metadata item.
+  ///
+  /// \return \c true on success, \c false on error.
+  template< typename T >
+  bool data( T& val ) const
   {
-    if (typeid(T) == m_data.type())
+    if ( typeid( T ) == m_data.type() )
     {
-      val = kwiver::vital::any_cast<T>( data() );
+      val = kwiver::vital::any_cast< T >( data() );
       return true;
     }
-    else
-    {
-      return false; // could throw
-    }
+    return false;
   }
 
-  /**
-   * \brief Get metadata value as double.
-   *
-   * This method returns the metadata item value as a double or throws
-   * an exception if data is not a double.
-   *
-   * \return Data for metadata item as double.
-   * \throws bad_any_cast if data type is not really a double.
-   */
+  /// Get the value of the metadata item as a \c double.
+  ///
+  /// \throws bad_any_cast If contained value is not a \c double.
   double as_double() const;
 
-  /**
-   * \brief Does this entry contain double type data?
-   * This method returns \b true if this metadata item contains a data
-   * value with double type.
-   *
-   * \return \b true if data type is double, \b false otherwise/
-   */
+  /// Check if the metadata item contains a \c double value.
   bool has_double() const;
 
-  /**
-   * \brief Get metadata value as uint64.
-   *
-   * This method returns the metadata item value as a uint64 or throws
-   * an exception if data is not a uint64.
-   *
-   * \return Data for metadata item as uint64.
-   * \throws bad_any_cast if data type is not really a uint64.
-   */
+  /// Get the value of the metadata item as a \c uint64_t.
+  ///
+  /// \throws bad_any_cast If contained value is not a \c uint64_t.
   uint64_t as_uint64() const;
 
-  /**
-   * \brief Does this entry contain uint64 type data?
-   *
-   * This method returns \b true if this metadata item contains a data
-   * value with uint64 type.
-   *
-   * \return \b true if data type is uint64, \b false otherwise/
-   */
+  /// Check if the metadata item contains a \c uint64_t value.
   bool has_uint64() const;
 
-  /**
-   * \brief Get metadata value as string.
-   *
-   * This method returns the metadata item value as a string.  If the
-   * data is actually a string (as indicated by has_string() method)
-   * the native value is returned. If the data is of another type, it
-   * is converted to a string.
-   *
-   * \return Data for metadata item as string.
-   */
-  virtual std::string as_string() const = 0;
+  /// Convert the value of the metadata item to \c std::string.
+  ///
+  /// \throws logic_error If the contained value is not a supported type.
+  std::string as_string() const;
 
-  /**
-   * \brief Determine if item has string representation.
-   *
-   * This method returns \b true if this metadata item contains a data
-   * value with std::string type.
-   *
-   * \return \b true if data type is std::string, \b false otherwise/
-   */
+  /// Check if the metadata item contains a \c std::string value.
   bool has_string() const;
 
-  /**
-   * \brief Print the value of this item to an output stream.
-   *
-   * This method is has the advantage over \c as_string() that it allow
-   * control over string formatting (e.g. precision of floats).
-   */
-  virtual std::ostream& print_value(std::ostream& os) const = 0;
+  /// Print the value of this item to an output stream.
+  std::ostream& print_value( std::ostream& os ) const;
 
-protected:
-  metadata_item( std::string const& name,
-                 kwiver::vital::any const& data,
-                 vital_metadata_tag tag );
-  metadata_item( std::string const& name,
-                 kwiver::vital::any&& data,
-                 vital_metadata_tag tag );
-
-  const std::string m_name;
-  const kwiver::vital::any m_data;
-  const vital_metadata_tag m_tag;
+  /// Create a new copy of the metadata item.
+  metadata_item* clone() const;
 
 private:
-  friend class metadata;
-  virtual metadata_item* clone() const = 0;
-}; // end class metadata_item
-
-// -----------------------------------------------------------------
-/*
- * This class is returned when find can not locate the requested tag.
- *
- */
-  class unknown_metadata_item
-    : public metadata_item
-  {
-  public:
-    unknown_metadata_item()
-      : metadata_item( "Requested metadata item is not in collection",
-                       unknown_t{}, VITAL_META_UNKNOWN )
-    { }
-
-    bool is_valid() const override { return false; }
-
-    std::type_info const& type() const override { return typeid( unknown_t ); }
-
-    std::string as_string() const override {
-      return "--Unknown metadata item--";
-    }
-
-    std::ostream& print_value(std::ostream& os) const override
-    {
-      os << this->as_string();
-      return os;
-    }
-
-private:
-    // Dummy class not convertible to any other type
-    class unknown_t {};
-
-    // never used - required to make python bindings valid
-    metadata_item* clone() const override { return nullptr; }
-  }; // end class unknown_metadata_item
-
-
-// -----------------------------------------------------------------
-/// Class for typed metadata values.
-/**
- * \brief Class for typed metadata values.
-
- * This class represents a typed metadata item.
- *
- * NOTE: Does it really add any benefit to have the metadata item
- * object have a type in addition to the contained data type
- * (kwiver::vital::any)? The type from the traits could be used to
- * guide creating of the metadata item, but having this extra type
- * allows the contained and the assumed metadata type to be
- * different. How should we deal with that case?
- *
- * The advantage is that it is easier to convert to string if the data
- * type is known in advance rather than having to handle multiple
- * possibly unknown types at run time.
- *
- * \tparam TAG Metadata tag value
- * \tparam TYPE Metadata value representation type
- */
-template<vital_metadata_tag TAG, typename TYPE>
-class typed_metadata
-  : public metadata_item
-{
-public:
-  typed_metadata( std::string const& p_name, TYPE const& p_data )
-    : metadata_item( p_name, p_data, TAG )
-  {
-  }
-
-  typed_metadata( std::string const& p_name, TYPE&& p_data )
-    : metadata_item( p_name, std::move( p_data ), TAG )
-  {
-  }
-
-  typed_metadata( std::string const& p_name, kwiver::vital::any const& p_data )
-    : metadata_item( p_name, p_data, TAG )
-  {
-    if ( p_data.type() != typeid(TYPE) )
-    {
-      std::stringstream msg;
-      msg << "Creating typed_metadata object with data type ("
-          << demangle( p_data.type().name() )
-          << ") different from type object was created with ("
-          << demangle( typeid(TYPE).name() ) << ")";
-      VITAL_THROW( metadata_exception, msg.str() );
-    }
-  }
-
-  virtual ~typed_metadata() = default;
-
-  std::type_info const& type() const override { return typeid( TYPE ); }
-  std::string as_string() const override
-  {
-    if ( this->has_string() )
-    {
-      return kwiver::vital::any_cast< std::string  > ( m_data );
-    }
-
-    // Else convert to a string
-    const auto var = kwiver::vital::any_cast< TYPE > ( m_data );
-    std::stringstream ss;
-
-    ss << var;
-    return ss.str();
-  }
-
-  // Print the value of this item to an output stream
-  std::ostream& print_value(std::ostream& os) const override
-  {
-    TYPE var = kwiver::vital::any_cast< TYPE > ( m_data );
-    os << var;
-    return os;
-  }
-
-private:
-  // Create a copy of this metadata item. This is needed to disconnect
-  // a metadata item from a shared pointer.
-  metadata_item* clone() const override
-  {
-    return new typed_metadata<TAG, TYPE>( *this );
-  }
-}; // end class typed_metadata
+  kwiver::vital::any const m_data;
+  vital_metadata_tag const m_tag;
+};
 
 // -----------------------------------------------------------------
 /**
@@ -419,23 +204,19 @@ public:
    * \param data Metadata value.
    */
   template < vital_metadata_tag Tag >
-  void add( typename vital_meta_trait< Tag >::type&& data )
+  void add( type_of_tag< Tag >&& data )
   {
-    using tag_t = vital_meta_trait< Tag >;
-    using result_t = typed_metadata< Tag, typename tag_t::type >;
-    using ptr_t = std::unique_ptr< result_t >;
-    this->add( ptr_t{ new result_t{ tag_t::name(), std::move( data ) } } );
+    this->add( std::unique_ptr< metadata_item >( new metadata_item{ Tag, std::move( data ) } ) );
   }
 
   template < vital_metadata_tag Tag >
-  void add( typename vital_meta_trait< Tag >::type const& data )
+  void add( type_of_tag< Tag > const& data )
   {
-    using tag_t = vital_meta_trait< Tag >;
-    using result_t = typed_metadata< Tag, typename tag_t::type >;
-    using ptr_t = std::unique_ptr< result_t >;
-    this->add( ptr_t{ new result_t{ tag_t::name(), data } } );
+    this->add( std::unique_ptr< metadata_item >( new metadata_item{ Tag, data } ) );
   }
   //@}
+
+  void add_any( vital_metadata_tag tag, any const& data );
 
   /**
    * \brief Add metadata item to collection.
@@ -450,10 +231,11 @@ public:
   template < vital_metadata_tag Tag >
   void add_any( any const& data )
   {
-    using tag_t = vital_meta_trait< Tag >;
-    using result_t = typed_metadata< Tag, typename tag_t::type >;
-    using ptr_t = std::unique_ptr< result_t >;
-    this->add( ptr_t{ new result_t{ tag_t::name(), data } } );
+    if( !data.is_type< type_of_tag< Tag > >() )
+    {
+      throw bad_any_cast{ data.type_name(), demangle( typeid( type_of_tag< Tag > ).name() ) };
+    }
+    this->add( std::unique_ptr< metadata_item >( new metadata_item{ Tag, data } ) );
   }
 
   /**
