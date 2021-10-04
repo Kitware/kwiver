@@ -9,7 +9,7 @@
 #include <vital/config/config_difference.h>
 #include <vital/types/geo_polygon.h>
 
-#include "config_module_helpers.h"
+#include "module_config_helpers.h"
 
 
 namespace py = pybind11;
