@@ -10,6 +10,7 @@
 #ifndef KWIVER_ARROWS_KLV_KLV_0601_H_
 #define KWIVER_ARROWS_KLV_KLV_0601_H_
 
+#include "klv_data.h"
 #include "klv_key.h"
 
 #include <arrows/klv/kwiver_algo_klv_export.h>

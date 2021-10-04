@@ -83,7 +83,7 @@ format_string( std::string const& value )
 bool
 klv_pop_next_packet( std::deque< uint8_t >& data, klv_data& klv_packet )
 {
-  auto const key_length = klv_uds_key::size();
+  auto const key_length = klv_uds_key::length;
 
   // Key (key_length bytes) with no Length or Value - must be in Label category
   auto const min_packet_length = key_length;
@@ -232,7 +232,7 @@ parse_klv_uds( klv_data const& klv )
 
   for( klv_data packet; klv_pop_next_packet( data, packet ); )
   {
-    auto const key = klv_uds_key{ packet }; // 16 byte key
+    auto const key = klv_uds_key{ packet.key_begin() }; // 16 byte key
     auto const value =
       std::vector< uint8_t >{ packet.value_begin(), packet.value_end() };
     uds_pairs.push_back( { key, value } );
@@ -251,7 +251,7 @@ parse_klv_uds( klv_data const& klv )
 std::ostream&
 print_klv( std::ostream& str, klv_data const& klv )
 {
-  auto const uds_key = klv_uds_key{ klv }; // create key from raw data
+  auto const uds_key = klv_uds_key{ klv.key_begin() }; // create key from raw data
 
   if( is_klv_0601_key( uds_key ) )
   {
