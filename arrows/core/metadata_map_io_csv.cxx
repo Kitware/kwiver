@@ -136,32 +136,32 @@ metadata_map_io_csv::priv
   }
   else if( csv_field == kv::VITAL_META_SENSOR_LOCATION )
   {
-    fout << "\"Sensor Geodetic lon (EPSG:4326)\","
-            "\"Sensor Geodetic lat (EPSG:4326)\","
-            "\"Sensor Geodetic altitude (meters)\",";
+    fout << "\"Sensor Geodetic Longitude (EPSG:4326)\","
+            "\"Sensor Geodetic Latitude (EPSG:4326)\","
+            "\"Sensor Geodetic Altitude (meters)\",";
   }
   else if( csv_field == kv::VITAL_META_FRAME_CENTER )
   {
-    fout << "\"Geodetic Frame Center lon (EPSG:4326)\","
-            "\"Geodetic Frame Center lat (EPSG:4326)\","
-            "\"Geodetic Frame Center elevation (meters)\",";
+    fout << "\"Geodetic Frame Center Longitude (EPSG:4326)\","
+            "\"Geodetic Frame Center Latitude (EPSG:4326)\","
+            "\"Geodetic Frame Center Elevation (meters)\",";
   }
   else if( csv_field == kv::VITAL_META_TARGET_LOCATION )
   {
-    fout << "\"Target Geodetic Location lon (EPSG:4326)\","
-            "\"Target Geodetic Location lat (EPSG:4326)\","
-            "\"Target Geodetic Location elevation (meters)\",";
+    fout << "\"Target Geodetic Location Longitude (EPSG:4326)\","
+            "\"Target Geodetic Location Latitude (EPSG:4326)\","
+            "\"Target Geodetic Location Elevation (meters)\",";
   }
   else if( csv_field == kv::VITAL_META_CORNER_POINTS )
   {
-    fout << "\"Upper left corner point lon (EPSG:4326)\","
-            "\"Upper left corner point lat (EPSG:4326)\","
-            "\"Upper right corner point lon (EPSG:4326)\","
-            "\"Upper right corner point lat (EPSG:4326)\","
-            "\"Lower right corner point lon (EPSG:4326)\","
-            "\"Lower right corner point lat (EPSG:4326)\","
-            "\"Lower left corner point lon (EPSG:4326)\","
-            "\"Lower left corner point lat (EPSG:4326)\",";
+    fout << "\"Upper Left Corner Longitude (EPSG:4326)\","
+            "\"Upper Left Corner Latitude (EPSG:4326)\","
+            "\"Upper Right Corner Longitude (EPSG:4326)\","
+            "\"Upper Right Corner Latitude (EPSG:4326)\","
+            "\"Lower Right Corner Longitude (EPSG:4326)\","
+            "\"Lower Right Corner Latitude (EPSG:4326)\","
+            "\"Lower Left Corner Longitude (EPSG:4326)\","
+            "\"Lower Left Corner Latitude (EPSG:4326)\",";
   }
   else
   {
@@ -323,7 +323,7 @@ metadata_map_io_csv
   }
 
   // Write out the csv header
-  fout << "\"frame ID\",";
+  fout << "\"Frame ID\",";
   for( auto const& info : infos )
   {
     d_->write_csv_header( info.id, fout, info.name, info.str );
