@@ -260,6 +260,156 @@ protected:
   }
 };
 
+// ----------------------------------------------------------------------------
+/// Interprets data as an unsigned integer.
+class KWIVER_ALGO_KLV_EXPORT klv_uint_format
+  : public klv_data_format_< uint64_t >
+{
+public:
+  klv_uint_format( size_t fixed_length = 0 );
+
+  virtual
+  ~klv_uint_format() = default;
+
+  std::string
+  description() const override;
+
+protected:
+  uint64_t
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( uint64_t const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( uint64_t const& value, size_t length_hint ) const override;
+};
+
+// ----------------------------------------------------------------------------
+/// Interprets data as a signed integer.
+class KWIVER_ALGO_KLV_EXPORT klv_sint_format
+  : public klv_data_format_< int64_t >
+{
+public:
+  klv_sint_format( size_t fixed_length = 0 );
+
+  virtual
+  ~klv_sint_format() = default;
+
+  std::string
+  description() const override;
+
+protected:
+  int64_t
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( int64_t const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( int64_t const& value, size_t length_hint ) const override;
+};
+
+// ----------------------------------------------------------------------------
+/// Interprets data as an enum type.
+template < class T >
+class KWIVER_ALGO_KLV_EXPORT klv_enum_format : public klv_data_format_< T >
+{
+public:
+  klv_enum_format( size_t fixed_length = 1 )
+    : klv_data_format_< T >{ fixed_length }
+  {}
+
+  virtual
+  ~klv_enum_format() = default;
+
+  std::string
+  description() const override
+  {
+    std::stringstream ss;
+    ss << this->type_name() << " enumeration of "
+       << this->length_description();
+    return ss.str();
+  }
+
+protected:
+  T
+  read_typed( klv_read_iter_t& data, size_t length ) const override
+  {
+    return static_cast< T >( klv_read_int< uint64_t >( data, length ) );
+  }
+
+  void
+  write_typed( T const& value,
+               klv_write_iter_t& data, size_t length ) const override
+  {
+    klv_write_int( static_cast< uint64_t >( value ), data, length );
+  }
+
+  size_t
+  length_of_typed( T const& value,
+                   VITAL_UNUSED size_t length_hint ) const override
+  {
+    return klv_int_length( static_cast< uint64_t >( value ) );
+  }
+
+  size_t m_length;
+};
+
+// ----------------------------------------------------------------------------
+/// Interprets data as an unsigned integer encoded in BER format.
+class KWIVER_ALGO_KLV_EXPORT klv_ber_format
+  : public klv_data_format_< uint64_t >
+{
+public:
+  klv_ber_format();
+
+  virtual
+  ~klv_ber_format() = default;
+
+  std::string
+  description() const override;
+
+protected:
+  uint64_t
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( uint64_t const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( uint64_t const& value, size_t length_hint ) const override;
+};
+
+// ----------------------------------------------------------------------------
+/// Interprets data as an unsigned integer encoded in BER-OID format.
+class KWIVER_ALGO_KLV_EXPORT klv_ber_oid_format
+  : public klv_data_format_< uint64_t >
+{
+public:
+  klv_ber_oid_format();
+
+  virtual
+  ~klv_ber_oid_format() = default;
+
+  std::string
+  description() const override;
+
+protected:
+  uint64_t
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( uint64_t const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( uint64_t const& value, size_t length_hint ) const override;
+};
+
 } // namespace klv
 
 } // namespace arrows
