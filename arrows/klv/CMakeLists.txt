@@ -9,6 +9,7 @@ set( sources
   klv_blob.cxx
   klv_checksum.cxx
   klv_data.cxx
+  klv_data_format.cxx
   klv_key.cxx
   klv_parse.cxx
   klv_read_write.cxx
