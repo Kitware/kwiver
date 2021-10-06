@@ -373,6 +373,45 @@ compute_snr( kwiver::vital::image_container_scptr const& image )
   return 15.0; // Dummy value within reasonable range
 }
 
+// ----------------------------------------------------------------------------
+std::string
+compute_wavelength( std::string const& image_source )
+{
+  auto const contains_any_of =
+    [ &image_source ]( std::vector< std::string > const& strings ) {
+    auto const contains_string = [ & ]( std::string const& s ) {
+      return image_source.find( s ) != image_source.npos;
+    };
+    return std::any_of( strings.begin(), strings.end(), contains_string );
+  };
+
+  if( contains_any_of( { "VIS", "EO", "TV" } ) )
+  {
+    return "VIS";
+  }
+  if( contains_any_of( { "NIR", "NWIR", "SIR", "SWIR" } ) )
+  {
+    return "NIR";
+  }
+  if( contains_any_of( { "MIR", "MWIR" } ) )
+  {
+    return "MIR";
+  }
+  if( contains_any_of( { "LIR", "LWIR" } ) )
+  {
+    return "LIR";
+  }
+  if( contains_any_of( { "FIR", "FWIR" } ) )
+  {
+    return "FIR";
+  }
+  if( contains_any_of( { "IR" } ) )
+  {
+    return "IR";
+  }
+  return "";
+}
+
 } // namespace <anonymous>
 
 //END helpers
@@ -435,6 +474,18 @@ derive_metadata
 
     try
     {
+      // Compute wavelength
+      auto const& image_source =
+        metadata->find( kv::VITAL_META_IMAGE_SOURCE_SENSOR );
+      if( image_source && !metadata->has( kv::VITAL_META_WAVELENGTH ) )
+      {
+        auto const wavelength = compute_wavelength( image_source.as_string() );
+        if( !wavelength.empty() )
+        {
+          updated_metadata->add< kv::VITAL_META_WAVELENGTH >( wavelength );
+        }
+      }
+
       // Compute slant range. Must be inserted before GSD calculation
       auto const slant_range = compute_slant_range( updated_metadata );
       updated_metadata->add< kv::VITAL_META_SLANT_RANGE >( slant_range );

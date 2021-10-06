@@ -111,6 +111,7 @@ class TestVitalMetadataTags(unittest.TestCase):
             mt.tags.VITAL_META_SECURITY_CLASSIFICATION,
             mt.tags.VITAL_META_AVERAGE_GSD,
             mt.tags.VITAL_META_VNIIRS,
+            mt.tags.VITAL_META_WAVELENGTH,
             mt.tags.VITAL_META_GPS_SEC,
             mt.tags.VITAL_META_GPS_WEEK,
             mt.tags.VITAL_META_NORTHING_VEL,

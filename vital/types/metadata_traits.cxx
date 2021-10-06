@@ -261,6 +261,12 @@ tag_traits()
       "A subjective quality scale from 2 to 11 for rating the intelligence "
       "value of airborne motion imagery in the visible spectrum. See "
       "https://gwg.nga.mil/misb/docs/standards/ST0901.2.pdf" },
+    { TRAITS_OF( VITAL_META_WAVELENGTH ),
+      "Sensor Wavelength",
+      "Wavelength band currently in use. Standardized values: 'VIS' "
+      "(visible), 'IR' (infrared), 'NIR' (near/short-wave infrared), 'MIR' "
+      "(mid-wave infrared), 'LIR' (long-wave infrared), 'FIR' "
+      "(far-infrared)." },
     { TRAITS_OF( VITAL_META_GPS_SEC ),
       "GPS Seconds",
       "" },
