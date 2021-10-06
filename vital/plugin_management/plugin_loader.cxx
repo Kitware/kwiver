@@ -417,7 +417,7 @@ plugin_loader_impl
       str = std::string( last_error );
     }
 
-    LOG_INFO( m_parent->m_logger, "plugin_loader:: Unable to bind to function \"" << m_init_function << "()\" : "
+    LOG_WARN( m_parent->m_logger, "plugin_loader:: Unable to bind to function \"" << m_init_function << "()\" : "
               << str );
 
     DL::CloseLibrary( lib_handle );

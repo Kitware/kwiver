@@ -95,24 +95,39 @@ protected:
   }
 
 /**
-* Use SFINAE To check if the templated type has "interface_name" static method.
-*
-* Usage example:
-* @code
-*   static_assert( has_interface_name<T>::value );
-* @endcode
-*/
+ * Use SFINAE To check if the templated type has "interface_name" static method.
+ *
+ * Usage example:
+ * @code
+ *   static_assert( has_interface_name<T>::value );
+ * @endcode
+ */
 CREATE_HAS_CHECK( interface_name );
 
 /**
-* Use SFINAE To check if the templated type has "from_config" static method.
-*
-* Usage example:
-* @code
-*   static_assert( has_from_config<T>::value );
-* @endcode
-*/
+ * Use SFINAE To check if the templated type has "from_config" static method.
+ *
+ * Usage example:
+ * @code
+ *   static_assert( has_from_config<T>::value );
+ * @endcode
+ */
 CREATE_HAS_CHECK( from_config );
+
+/**
+ * Use SFINAE To check if the templated type has "get_default_config" static
+ * method.
+ *
+ * Usage example:
+ * @code
+ *   static_assert( has_get_default_config<T>::value );
+ * @endcode
+*/
+CREATE_HAS_CHECK( get_default_config );
+
+// Clean up our macro.
+#undef CREATE_HAS_CHECK
+
 
 }
 
