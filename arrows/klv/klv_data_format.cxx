@@ -54,6 +54,90 @@ klv_data_format
 }
 
 // ----------------------------------------------------------------------------
+klv_blob_format
+::klv_blob_format( size_t fixed_length )
+  : klv_data_format_< data_type >{ fixed_length }
+{}
+
+// ----------------------------------------------------------------------------
+klv_blob
+klv_blob_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  return klv_read_blob( data, length );
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_blob_format
+::write_typed( klv_blob const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  return klv_write_blob( value, data, length );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_blob_format
+::length_of_typed( klv_blob const& value,
+                   VITAL_UNUSED size_t length_hint ) const
+{
+  return klv_blob_length( value );
+}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_blob_format
+::description() const
+{
+  std::stringstream ss;
+  ss << "raw bytes of " << length_description();
+  return ss.str();
+}
+
+// ----------------------------------------------------------------------------
+klv_string_format
+::klv_string_format( size_t fixed_length )
+  : klv_data_format_< data_type >{ fixed_length }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_string_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  return klv_read_string( data, length );
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_string_format
+::write_typed( std::string const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  klv_write_string( value, data, length );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_string_format
+::length_of_typed( std::string const& value,
+                   VITAL_UNUSED size_t length_hint ) const
+{
+  return klv_string_length( value );
+}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_string_format
+::description() const
+{
+  std::stringstream ss;
+  ss << "string of " << length_description();
+  return ss.str();
+}
+
+// ----------------------------------------------------------------------------
 klv_uint_format
 ::klv_uint_format( size_t fixed_length )
   : klv_data_format_< data_type >{ fixed_length }

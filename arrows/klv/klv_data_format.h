@@ -261,6 +261,56 @@ protected:
 };
 
 // ----------------------------------------------------------------------------
+/// Treats data as a binary blob, or uninterpreted sequence of bytes.
+class KWIVER_ALGO_KLV_EXPORT klv_blob_format
+  : public klv_data_format_< klv_blob >
+{
+public:
+  klv_blob_format( size_t fixed_length = 0 );
+
+  virtual
+  ~klv_blob_format() = default;
+
+  std::string
+  description() const override;
+
+protected:
+  klv_blob
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_blob const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_blob const& value, size_t length_hint ) const override;
+};
+
+// ----------------------------------------------------------------------------
+/// Interprets data as a string.
+class KWIVER_ALGO_KLV_EXPORT klv_string_format
+  : public klv_data_format_< std::string >
+{
+public:
+  klv_string_format( size_t fixed_length = 0 );
+
+  std::string
+  description() const override;
+
+protected:
+  std::string
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( std::string const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( std::string const& value,
+                   size_t length_hint ) const override;
+};
+
+// ----------------------------------------------------------------------------
 /// Interprets data as an unsigned integer.
 class KWIVER_ALGO_KLV_EXPORT klv_uint_format
   : public klv_data_format_< uint64_t >
