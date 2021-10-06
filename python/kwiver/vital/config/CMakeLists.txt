@@ -1,5 +1,9 @@
-kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py "vital/config" __init__ )
+set( THIS_MODULE vital/config )
 
+kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py "${THIS_MODULE}" __init__ )
+
+################################################################################
+# Python Module Library: _config
 set( module_headers
   module_config_helpers.h
   )
@@ -10,7 +14,7 @@ set( module_sources
 
 kwiver_add_python_library(
   _config
-  vital/config
+  ${THIS_MODULE}
   SOURCES ${module_headers}
           ${module_sources}
   PRIVATE pybind11::pybind11

@@ -12,7 +12,8 @@
 namespace kwiver::vital
 {
 
-// Pluggable base-class ========================================================
+// ----------------------------------------------------------------------------
+// Pluggable base-class
 
 class pluggable;
 typedef std::shared_ptr<pluggable> pluggable_sptr;
@@ -77,7 +78,8 @@ protected:
 };
 
 
-// Static-method Existence Helpers =============================================
+// ----------------------------------------------------------------------------
+// Static-method Existence Helpers
 
 #define CREATE_HAS_CHECK( funcname ) \
   template< typename T > \
