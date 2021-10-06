@@ -361,14 +361,12 @@ public:
    *
    * \return Timestamp value.
    */
-  kwiver::vital::timestamp const& timestamp() const;
+  kwiver::vital::timestamp timestamp() const;
 
   static std::string format_string( std::string const& val );
 
 private:
   metadata_map_t m_metadata_map;
-  kwiver::vital::timestamp m_timestamp;
-
 }; // end class metadata
 
 using metadata_sptr = std::shared_ptr< metadata >;
