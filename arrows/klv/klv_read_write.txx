@@ -451,14 +451,15 @@ klv_write_flint( double value, double minimum, double maximum,
     auto const float_value = ( value - minimum ) * scale;
     auto int_value = static_cast< T >( std::round( float_value ) );
 
+    // Clamp the value to max/min range. This tests float_value instead of
+    // int_value because int_value may have over/underflowed due to rounding
+    // errors
     if( float_value >= max_int )
     {
-      // Ensure floating-point rounding doesn't result in integer overflow
       int_value = max_int;
     }
     else if( float_value <= min_int )
     {
-      // Ensure floating-point rounding doesn't result in integer underflow
       int_value = min_int;
     }
     klv_write_int( int_value, data, length );
