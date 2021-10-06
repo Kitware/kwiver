@@ -1,4 +1,9 @@
 
+# Exporting Plugin Implementations
+Add to your ``setup.py`` entrypoints section a "kwiver_plugins" namespace.
+This namespace is defined in the ``kwiver.vital.plugins.constants`` module under
+the ``PLUGIN_NAMESPACE`` attribute.
+
 # Building
 Python Requirements
 `pip install -r requirements/dev.txt`
@@ -6,6 +11,9 @@ Python Requirements
 We assume CMake is available on the system.
 Otherwise, CMake is also installable via pip.
 Will be installed via above requirements file.
+
+PyBind11 is used extensively here to facilitate the binding interface.
+PyBind11 version 2.8.0 is currently being utilize
 
 ```bash
 python3 setup.py bdist_wheel \
