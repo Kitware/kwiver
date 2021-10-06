@@ -406,6 +406,15 @@ klv_write_flint( double value, double minimum, double maximum,
 
   _check_range_length( minimum, maximum, length );
 
+  // Check for NaN
+  auto const min_int = _int_min< T >( length );
+  auto const max_int = _int_max< T >( length );
+  if( std::isnan( value ) )
+  {
+    klv_write_int( min_int, data, length );
+    return;
+  }
+
   // C++17: if constexpr
   if( std::is_signed< T >::value )
   {
@@ -414,8 +423,6 @@ klv_write_flint( double value, double minimum, double maximum,
       throw std::logic_error( "range must be symmetrical around zero" );
     }
 
-    auto const max_int = _int_max< T >( length );
-    auto const min_int = _int_min< T >( length );
     auto const scale = max_int / maximum;
     auto const float_value = value * scale;
     auto int_value = static_cast< T >( std::round( float_value ) );
@@ -440,12 +447,10 @@ klv_write_flint( double value, double minimum, double maximum,
   else
   {
     // Clamp out-of-range values
-    value = std::isnan( value ) ? minimum : value;
+    // C++17: std::clamp()
     value = std::max( value, minimum );
     value = std::min( value, maximum );
 
-    auto const min_int = _int_min< T >( length );
-    auto const max_int = _int_max< T >( length );
     auto const scale = max_int / ( maximum - minimum );
     auto const float_value = ( value - minimum ) * scale;
     auto int_value = static_cast< T >( std::round( float_value ) );
