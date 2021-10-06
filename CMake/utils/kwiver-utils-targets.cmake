@@ -407,6 +407,10 @@ endfunction()
 ####
 # This function creates a target for a loadable plugin.
 #
+# The ``SUBDIR`` option should be one of the ``kwiver_plugin_*_subdir`` values
+# as set in the project top-level ``CMakeLists.txt`` file. This will indicate
+# which "category" ths plugin belongs to.
+#
 # Options are:
 # SOURCES - list of source files needed to create the plugin.
 # PUBLIC - list of libraries the plugin will publicaly link against.
