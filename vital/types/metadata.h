@@ -170,7 +170,7 @@ public:
   metadata();
   metadata( metadata const& other );
   metadata( metadata&& other ) = default;
-  ~metadata() = default;
+  virtual ~metadata() = default;
   metadata& operator=( metadata&& other ) = default;
   metadata& operator=( metadata const& other );
 
@@ -364,6 +364,19 @@ public:
   kwiver::vital::timestamp timestamp() const;
 
   static std::string format_string( std::string const& val );
+
+protected:
+  // These functions can be overridden in a derived class to allow simultaneous
+  // manipulation of an alternate metadata representation using the same
+  // generalized interface.
+
+  // Add the given item to the alternate internal representation. Return false
+  // if the given tag cannot be represented.
+  virtual bool add_internal( metadata_item const& item );
+
+  // Remove the given tag's data from the alternate internal representation, if
+  // such data exists. Fail silently.
+  virtual void erase_internal( vital_metadata_tag tag );
 
 private:
   metadata_map_t m_metadata_map;

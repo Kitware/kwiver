@@ -10,6 +10,7 @@
 #include "metadata.h"
 #include "metadata_traits.h"
 
+#include <vital/logger/logger.h>
 #include <vital/types/metadata_traits.h>
 #include <vital/util/demangle.h>
 
@@ -223,6 +224,14 @@ metadata
 #else
   this->m_metadata_map[ tag ] = item_ptr{ item.release() };
 #endif
+  if( !add_internal( *item ) )
+  {
+    std::stringstream ss;
+    ss  << demangle( typeid( *this ).name() ) << ": tag "
+        << tag_traits_by_tag( tag ).enum_name()
+        << " not supported by internal data structure";
+    LOG_DEBUG( get_logger( "metadata" ), ss.str() );
+  }
 }
 
 // ---------------------------------------------------------------------
@@ -238,7 +247,16 @@ metadata
   // Since the design intent for this map is that the metadata
   // collection owns the elements, we will clone the item passed in.
   // The original parameter will be freed eventually.
-  this->m_metadata_map[ item->tag() ] = item_ptr{ item->clone() };
+  auto const tag = item->tag();
+  this->m_metadata_map[ tag ] = item_ptr{ item->clone() };
+  if( !add_internal( *item ) )
+  {
+    std::stringstream ss;
+    ss  << demangle( typeid( *this ).name() ) << ": tag "
+        << tag_traits_by_tag( tag ).enum_name()
+        << " not supported by internal data structure";
+    LOG_DEBUG( get_logger( "metadata" ), ss.str() );
+  }
 }
 
 // -------------------------------------------------------------------
@@ -282,6 +300,7 @@ bool
 metadata
 ::erase( vital_metadata_tag tag )
 {
+  erase_internal( tag );
   return m_metadata_map.erase( tag ) > 0;
 }
 
@@ -373,6 +392,16 @@ metadata
   }
   return timestamp_;
 }
+
+// ------------------------------------------------------------------
+bool
+metadata
+::add_internal( metadata_item const& item ) { return true; }
+
+// ------------------------------------------------------------------
+void
+metadata
+::erase_internal( vital_metadata_tag tag ) {}
 
 // ------------------------------------------------------------------
 std::string
