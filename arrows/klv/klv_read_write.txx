@@ -376,7 +376,6 @@ klv_read_flint( double minimum, double maximum, Iterator& data, size_t length )
   auto const int_value = klv_read_int< T >( data, length );
   auto const float_value = static_cast< double >( int_value );
 
-  // C++17: if constexpr
   if( std::is_signed< T >::value )
   {
     // Special invalid / out-of-range value
@@ -421,7 +420,7 @@ klv_write_flint( double value, double minimum, double maximum,
     auto const float_value = value * scale;
     auto int_value = static_cast< T >( std::round( float_value ) );
 
-    if( !( value <= maximum && minimum <= value ) )
+    if( !( minimum <= value && value <= maximum ) )
     {
       // Special invalid / out-of-range value
       int_value = min_int;
