@@ -705,7 +705,7 @@ _int_bit_length( T value )
 
 // ---------------------------------------------------------------------------
 template < class T >
-T
+T // TODO(C++14): make this constexpr
 _int_min( size_t length )
 {
   KLV_ASSERT_INT( T );
