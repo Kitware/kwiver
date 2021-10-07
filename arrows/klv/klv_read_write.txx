@@ -412,9 +412,10 @@ klv_write_flint( double value, double minimum, double maximum,
     throw std::logic_error( "range must be symmetrical around zero" );
   }
 
-  // Check for NaN
   auto const min_int = _int_min< T >( length );
   auto const max_int = _int_max< T >( length );
+
+  // Check for NaN
   if( std::isnan( value ) )
   {
     klv_write_int( min_int, data, length );
