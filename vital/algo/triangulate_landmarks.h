@@ -77,8 +77,8 @@ typedef std::shared_ptr< triangulate_landmarks > triangulate_landmarks_sptr;
 
 } // namespace algo
 
-} // end namespace vital
+} // namespace vital
 
-} // end namespace kwiver
+} // namespace kwiver
 
 #endif // VITAL_ALGO_TRIANGULATE_LANDMARKS_H_

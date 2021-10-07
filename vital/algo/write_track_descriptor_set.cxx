@@ -100,4 +100,4 @@ write_track_descriptor_set
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
