@@ -59,6 +59,6 @@ typedef std::shared_ptr< draw_detected_object_set >
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_DRAW_DETECTED_OBJECT_SET_H

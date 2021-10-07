@@ -5,9 +5,9 @@
 /**
  * \file
  * \brief Instantiation of \link kwiver::vital::algo::algorithm_def
- * algorithm_def<T>
- *        \endlink for \link kwiver::vital::algo::filter_tracks
- *        filter_tracks \endlink
+ *        algorithm_def<T> \endlink for
+ *        \link kwiver::vital::algo::filter_tracks filter_tracks
+ *        \endlink
  */
 
 #include <vital/algo/algorithm.txx>
@@ -29,6 +29,6 @@ filter_tracks
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::filter_tracks );

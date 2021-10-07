@@ -61,6 +61,6 @@ filter_features
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::filter_features );

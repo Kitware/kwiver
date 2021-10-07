@@ -53,7 +53,7 @@ public:
    * \param filename Name of file to open
    *
    * \throws kwiver::vital::path_not_exists Thrown when the given path does not
-   * exist.
+   *    exist.
    *
    * \throws kwiver::vital::path_not_a_file Thrown when the given path does
    *    not point to a file (i.e. it points to a directory).
@@ -124,6 +124,6 @@ typedef std::shared_ptr< read_object_track_set > read_object_track_set_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_READ_OBJECT_TRACK_SET_H

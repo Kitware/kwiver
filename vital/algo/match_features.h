@@ -57,6 +57,6 @@ typedef std::shared_ptr< match_features > match_features_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_MATCH_FEATURES_H_

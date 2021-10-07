@@ -155,10 +155,9 @@ public:
    * registered implementation name.
    *
    * If the name is valid, we also recursively call check_configuration() on
-   * the
-   * set implementation. This is done with a fresh create so we don't have to
-   * rely on the implementation being defined in the instance this is called
-   * from.
+   * theset implementation. This is done with a fresh create so we don't have
+   * to rely on the implementation being defined in the instance this is
+   * called from.
    *
    * \param     type_name   The type name of the nested algorithm.
    * \param     name        An identifying name for the nested algorithm.
@@ -209,12 +208,12 @@ private:
  *  algorithm, and create new instance by name.
  *  Each algorithm definition should be declared as shown below
  *  \code
- *   class my_algo_def
- *   : public algorithm_def<my_algo_def>
- *   {
- *     ...
- *   };
- *   \endcode
+    class my_algo_def
+    : public algorithm_def<my_algo_def>
+    {
+      ...
+    };
+    \endcode
  *  \sa algorithm_impl
  */
 template < typename Self >
@@ -244,8 +243,7 @@ public:
    * algorithm_def.
    * If the variable pointed to by \c nested_algo is a defined sptr to an
    * implementation, its \link kwiver::vital::config_block configuration
-   * \endlink
-   * parameters are merged with the given
+   * \endlink parameters are merged with the given
    * \link kwiver::vital::config_block config_block \endlink.
    *
    * \param     name        An identifying name for the nested algorithm
@@ -289,10 +287,9 @@ public:
    * registered implementation name.
    *
    * If the name is valid, we also recursively call check_configuration() on
-   * the
-   * set implementation. This is done with a fresh create so we don't have to
-   * rely on the implementation being defined in the instance this is called
-   * from.
+   * the set implementation. This is done with a fresh create so we don't
+   * have to rely on the implementation being defined in the instance this
+   * is called from.
    *
    * \param     name        An identifying name for the nested algorithm.
    * \param     config      The \c config_block to check.

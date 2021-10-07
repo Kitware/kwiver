@@ -23,8 +23,7 @@ has_algorithm_impl_name( std::string const& type_name,
   {
     std::string attr_val;
     if( a_fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME,
-                               attr_val ) &&
-        ( attr_val == impl_name ) )
+                               attr_val ) && ( attr_val == impl_name ) )
     {
       return true;
     }
@@ -48,8 +47,7 @@ create_algorithm( std::string const& algo_name,
   {
     std::string attr_val;
     if( a_fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME,
-                               attr_val ) &&
-        ( attr_val == impl_name ) )
+                               attr_val ) && ( attr_val == impl_name ) )
     {
       kwiver::vital::algorithm_factory* pf =
         dynamic_cast< kwiver::vital::algorithm_factory* >( a_fact.get() );
@@ -57,10 +55,9 @@ create_algorithm( std::string const& algo_name,
       {
         // Wrong type of factory returned.
         std::stringstream str;
-        str     << "Factory for algorithm name \"" << algo_name <<
-            "\" implementation \""
-                << impl_name <<
-            "\" could not be converted to algorithm_factory type.";
+        str  << "Factory for algorithm name \"" << algo_name
+             << "\" implementation \"" << impl_name
+             << "\" could not be converted to algorithm_factory type.";
         VITAL_THROW( kwiver::vital::plugin_factory_not_found, str.str() );
       }
 
@@ -80,4 +77,4 @@ create_algorithm( std::string const& algo_name,
 
 } // namespace vital
 
-}   // end namesapce
+} // namesapce kwiver

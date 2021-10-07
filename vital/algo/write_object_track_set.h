@@ -113,6 +113,6 @@ typedef std::shared_ptr< write_object_track_set > write_object_track_set_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_WRITE_OBJECT_TRACK_SET_H

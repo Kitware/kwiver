@@ -5,7 +5,7 @@
 /**
  * \file
  * \brief Header defining abstract \link
- * kwiver::vital::algo::integrate_depth_maps
+ *        kwiver::vital::algo::integrate_depth_maps
  *        integrate_depth_maps \endlink algorithm
  */
 
@@ -99,6 +99,6 @@ typedef std::shared_ptr< integrate_depth_maps > integrate_depth_maps_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_INTEGRATE_DEPTH_MAPS_H_

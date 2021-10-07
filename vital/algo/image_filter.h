@@ -58,6 +58,6 @@ typedef std::shared_ptr< image_filter > image_filter_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif /* VITAL_ALGO_IMAGE_FILTER_H */

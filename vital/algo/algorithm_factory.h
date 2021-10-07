@@ -51,8 +51,8 @@ public:
   {
     // Delegate to derived class
     return create_object_a();
-    // + could push algo and impl strings into the base algorithm class.
-    // + possibly through the CTOR
+    //+ could push algo and impl strings into the base algorithm class.
+    //+ possibly through the CTOR
   }
 
 private:
@@ -172,8 +172,7 @@ public:
     fact->add_attribute( kvpf::PLUGIN_DESCRIPTION,
                          algorithm_t::_plugin_description )
       .add_attribute( kvpf::PLUGIN_MODULE_NAME,  this->module_name() )
-      .add_attribute( kvpf::PLUGIN_ORGANIZATION, this->organization() )
-    ;
+      .add_attribute( kvpf::PLUGIN_ORGANIZATION, this->organization() );
 
     return plugin_loader().add_factory( fact );
   }
@@ -279,6 +278,6 @@ public:
 
 } // namespace vital
 
-}   // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_ALGORITHM_FACTORY_H
