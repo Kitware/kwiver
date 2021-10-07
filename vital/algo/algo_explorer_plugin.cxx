@@ -97,14 +97,14 @@ algo_explorer
   if( m_context->if_brief() )
   {
     m_context->output_stream()  << indent << "Algorithm type: "
-                                << type << "   Implementation: " << impl <<
-        std::endl;
+                                << type << "   Implementation: " << impl
+                                << std::endl;
     return;
   }
 
   m_context->output_stream()    << "---------------------\n"
-                                << "Info on algorithm type \"" << type <<
-      "\" implementation \"" << impl << "\""
+                                << "Info on algorithm type \"" << type
+                                << "\" implementation \"" << impl << "\""
                                 << std::endl;
 
   m_context->display_attr( fact );
@@ -127,8 +127,8 @@ algo_explorer
       auto val =
         config->get_value< kwiver::vital::config_block_value_t >( key );
 
-      m_context->output_stream() << indent << "\"" << key << "\" = \"" <<
-          val << "\"\n";
+      m_context->output_stream() << indent << "\"" << key << "\" = \""
+                                 << val << "\"\n";
 
       kwiver::vital::config_block_description_t descr =
         config->get_description( key );
@@ -217,8 +217,8 @@ algo_explorer_pipe
   fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, impl );
 
   // algo.type = impl
-  m_context->output_stream()    << "# ---------------------------------" <<
-      std::endl
+  m_context->output_stream()    << "# ---------------------------------"
+                                << std::endl
                                 << "type = " << impl << std::endl
                                 << descrip << std::endl
                                 << "block " << impl << std::endl;
@@ -245,7 +245,7 @@ algo_explorer_pipe
 
 } // namespace vital
 
-}   // end namespace
+} // namespace kwiver
 
 // ==================================================================
 extern "C"
