@@ -75,7 +75,7 @@ protected:
 /// type definition for shared pointer to a triangulate landmarks algorithm
 typedef std::shared_ptr< triangulate_landmarks > triangulate_landmarks_sptr;
 
-} // end namespace algo
+} // namespace algo
 
 } // end namespace vital
 
