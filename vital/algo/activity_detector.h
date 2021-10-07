@@ -49,6 +49,6 @@ typedef std::shared_ptr< activity_detector > activity_detector_sptr;
 
 } // namespace vital
 
-}     // end namespace
+}     // namespace kwiver
 
 #endif
