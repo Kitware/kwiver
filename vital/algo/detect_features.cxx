@@ -7,8 +7,9 @@
  * \brief detect_features algorithm definition instantiation
  */
 
-#include <vital/algo/algorithm.txx>
 #include <vital/algo/detect_features.h>
+
+#include <vital/algo/algorithm.txx>
 
 namespace kwiver {
 

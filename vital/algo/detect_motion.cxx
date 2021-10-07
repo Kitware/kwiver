@@ -7,8 +7,9 @@
  * \brief detect_motion algorithm instantiation
  */
 
-#include <vital/algo/algorithm.txx>
 #include <vital/algo/detect_motion.h>
+
+#include <vital/algo/algorithm.txx>
 
 namespace kwiver {
 

@@ -56,8 +56,7 @@ public:
    */
   virtual kwiver::vital::similarity_d
   estimate_transform( std::vector< kwiver::vital::vector_3d > const& from,
-                      std::vector< kwiver::vital::vector_3d > const& to ) const
-  = 0;
+                      std::vector< kwiver::vital::vector_3d > const& to ) const = 0;
 
   /// Estimate the similarity transform between two corresponding sets of
   /// cameras
@@ -141,10 +140,10 @@ protected:
 typedef std::shared_ptr< estimate_similarity_transform >
   estimate_similarity_transform_sptr;
 
-} // end namespace algo
+} // namespace algo
 
-} // end namespace vital
+} // namespace vital
 
-} // end namespace kwiver
+} // namespace kwiver
 
 #endif // VITAL_ALGO_ESTIMATE_SIMILARITY_TRANSFORM_H_

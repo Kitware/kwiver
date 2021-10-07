@@ -17,10 +17,10 @@ namespace algo {
 /// an external source.
 
 /**
- * This class represents an interface to an external source of
- * configuration values. A typical application would be an external
- * U.I. control that is desired to control the performance of an
- * algorithm by varying some of its configuration values.
+ * \brief This class represents an interface to an external source of
+ *        configuration values. A typical application would be an external
+ *        U.I. control that is desired to control the performance of an
+ *        algorithm by varying some of its configuration values.
  */
 class VITAL_ALGO_EXPORT dynamic_configuration
   : public kwiver::vital::algorithm_def< dynamic_configuration >
@@ -34,8 +34,8 @@ public:
   /// Return dynamic configuration values
 
   /**
-   * This method returns dynamic configuration values. a valid config
-   * block is returned even if there are not values being returned.
+   * \brief This method returns dynamic configuration values. a valid config
+   *        block is returned even if there are not values being returned.
    */
   virtual config_block_sptr get_dynamic_configuration() = 0;
 
@@ -50,6 +50,6 @@ typedef std::shared_ptr< dynamic_configuration > dynamic_configuration_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // DYNAMIC_CONFIGURATION_H

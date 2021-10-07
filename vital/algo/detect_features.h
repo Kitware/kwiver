@@ -62,6 +62,6 @@ typedef std::shared_ptr< detect_features > detect_features_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_DETECT_FEATURES_H_

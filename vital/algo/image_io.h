@@ -165,6 +165,6 @@ typedef std::shared_ptr< image_io > image_io_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_IMAGE_IO_H_

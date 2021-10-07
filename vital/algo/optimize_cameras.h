@@ -76,8 +76,7 @@ public:
   optimize( kwiver::vital::camera_perspective_sptr& camera,
             const std::vector< kwiver::vital::feature_sptr >& features,
             const std::vector< kwiver::vital::landmark_sptr >& landmarks,
-            kwiver::vital::sfm_constraints_sptr constraints = nullptr ) const =
-  0;
+            kwiver::vital::sfm_constraints_sptr constraints = nullptr ) const = 0;
 
 protected:
   optimize_cameras();
@@ -90,6 +89,6 @@ typedef std::shared_ptr< optimize_cameras > optimize_cameras_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_OPTIMIZE_CAMERAS_H_
