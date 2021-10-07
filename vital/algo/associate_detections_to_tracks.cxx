@@ -6,7 +6,9 @@
 #include <vital/algo/associate_detections_to_tracks.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 associate_detections_to_tracks
@@ -15,6 +17,10 @@ associate_detections_to_tracks
   attach_logger( "algo.associate_detections_to_tracks" );
 }
 
-} } }
+} // namespace algo
 
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::associate_detections_to_tracks);
+} // namespace vital
+
+} // namespace kwiver
+
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::associate_detections_to_tracks );
