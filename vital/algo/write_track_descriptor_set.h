@@ -91,7 +91,8 @@ public:
    *
    * \param set Detected object set
    */
-  virtual void write_set( const kwiver::vital::track_descriptor_set_sptr set ) = 0;
+  virtual void write_set( const kwiver::vital::track_descriptor_set_sptr set )
+  = 0;
 
 protected:
   write_track_descriptor_set();

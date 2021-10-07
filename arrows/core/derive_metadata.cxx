@@ -33,8 +33,6 @@ namespace {
 
 //BEGIN helpers
 
-static ::kwiver::vital::metadata_traits meta_traits;
-
 // ----------------------------------------------------------------------------
 kwiver::vital::rotation_d
 get_platform_rotation( kwiver::vital::metadata_sptr const& metadata )
@@ -97,7 +95,7 @@ get_total_rotation( kwiver::vital::metadata_sptr const& metadata )
   // Absolute (not relative to platform)
   kv::rotation_d const platform_rotation = get_platform_rotation( metadata );
   kv::rotation_d const sensor_rotation = get_sensor_rotation( metadata );
-  return kv::compose_rotations(platform_rotation, sensor_rotation);
+  return platform_rotation * sensor_rotation;
 }
 
 // ----------------------------------------------------------------------------
@@ -233,8 +231,7 @@ double
 compute_horizontal_gsd( double slant_range, double sensor_horizontal_fov,
                         double frame_width )
 {
-  return 2.0 * slant_range *
-         tan( ( sensor_horizontal_fov * kv::deg_to_rad ) / 2.0 ) / frame_width;
+  return 2.0 * slant_range * tan( sensor_horizontal_fov / 2.0 ) / frame_width;
 }
 
 // ----------------------------------------------------------------------------
@@ -242,11 +239,15 @@ double
 compute_vertical_gsd( double slant_range, double sensor_vertical_fov,
                       double pitch, double frame_height )
 {
+  if ( pitch >= 0 )
+  {
+    VITAL_THROW( kv::invalid_value, "pitch must be negative" );
+  }
   double const interior_angle = kv::pi_over_2 + pitch;
-  return 2.0 * slant_range *
-         ( std::sin( interior_angle ) - std::cos( interior_angle ) *
-           std::tan( interior_angle - sensor_vertical_fov / 2 ) )
-         / frame_height;
+  double const altitude = slant_range * std::cos( interior_angle );
+  double const vertical_gsd = 2.0 * altitude * std::sin( sensor_vertical_fov ) /
+    ( frame_height * ( 1.0 + std::cos( 2.0 * interior_angle ) ) );
+  return vertical_gsd;
 }
 
 // ----------------------------------------------------------------------------
@@ -267,17 +268,16 @@ compute_gsd( kwiver::vital::metadata_sptr const& metadata,
     total_rotation.get_yaw_pitch_roll( yaw, pitch, roll );
 
     double const slant_range = get_slant_range( metadata );
-    double const sensor_horizontal_fov_rad =
+    double const sensor_horizontal_fov =
       get_sensor_horizontal_fov( metadata );
-    double const sensor_vertical_fov_rad = get_sensor_vertical_fov( metadata );
+    double const sensor_vertical_fov = get_sensor_vertical_fov( metadata );
 
     // Approximate dimensions of image on ground plane
     double const gsd_horizontal =
-      compute_horizontal_gsd( slant_range, sensor_horizontal_fov_rad,
-                              frame_width );
+      compute_horizontal_gsd( slant_range, sensor_horizontal_fov, frame_width );
 
     double const gsd_vertical =
-      compute_vertical_gsd( slant_range, sensor_vertical_fov_rad, pitch,
+      compute_vertical_gsd( slant_range, sensor_vertical_fov, pitch,
                             frame_height);
 
     // GSD is the geometric mean of each dimensions's GSD
@@ -335,13 +335,23 @@ compute_vniirs( double gsd, double rer, double snr )
   gsd *= meters_to_inches;
 
   double const log10_gsd = std::log10( gsd );
-  double const log10_rer = std::log10( rer );
 
-  auto vniirs = a0 +
-                a1 * log10_gsd +
-                a2 * ( 1.0 - std::exp( a3 / snr ) ) * log10_rer +
-                a4 * std::pow( log10_rer, 4 ) +
-                a5 / snr;
+  // double const log10_rer = std::log10( rer );
+  // auto vniirs = a0 +
+  //               a1 * log10_gsd +
+  //               a2 * ( 1.0 - std::exp( a3 / snr ) ) * log10_rer +
+  //               a4 * std::pow( log10_rer, 4 ) +
+  //               a5 / snr;
+  // Above is full equation; below is partial equation since we don't actually
+  // know RER or SNR
+  (void)rer;
+  (void)snr;
+  (void)a2;
+  (void)a3;
+  (void)a4;
+  (void)a5;
+  auto vniirs = a0 + a1 * log10_gsd;
+
   // 2.0 is defined as the lower bound for VNIIRs
   vniirs = std::max( vniirs, 2.0 );
   return vniirs;
@@ -363,6 +373,45 @@ compute_snr( kwiver::vital::image_container_scptr const& image )
   return 15.0; // Dummy value within reasonable range
 }
 
+// ----------------------------------------------------------------------------
+std::string
+compute_wavelength( std::string const& image_source )
+{
+  auto const contains_any_of =
+    [ &image_source ]( std::vector< std::string > const& strings ) {
+    auto const contains_string = [ & ]( std::string const& s ) {
+      return image_source.find( s ) != image_source.npos;
+    };
+    return std::any_of( strings.begin(), strings.end(), contains_string );
+  };
+
+  if( contains_any_of( { "VIS", "EO", "TV" } ) )
+  {
+    return "VIS";
+  }
+  if( contains_any_of( { "NIR", "NWIR", "SIR", "SWIR" } ) )
+  {
+    return "NIR";
+  }
+  if( contains_any_of( { "MIR", "MWIR" } ) )
+  {
+    return "MIR";
+  }
+  if( contains_any_of( { "LIR", "LWIR" } ) )
+  {
+    return "LIR";
+  }
+  if( contains_any_of( { "FIR", "FWIR" } ) )
+  {
+    return "FIR";
+  }
+  if( contains_any_of( { "IR" } ) )
+  {
+    return "IR";
+  }
+  return "";
+}
+
 } // namespace <anonymous>
 
 //END helpers
@@ -375,6 +424,7 @@ compute_snr( kwiver::vital::image_container_scptr const& image )
 derive_metadata
 ::derive_metadata()
 {
+  this->set_capability( CAN_USE_FRAME_IMAGE, true );
 }
 
 // ----------------------------------------------------------------------------
@@ -410,14 +460,6 @@ derive_metadata
 }
 
 // ----------------------------------------------------------------------------
-bool
-derive_metadata
-::uses_image() const
-{
-  return true;
-}
-
-// ----------------------------------------------------------------------------
 kwiver::vital::metadata_vector
 derive_metadata
 ::filter( kwiver::vital::metadata_vector const& input_metadata,
@@ -432,12 +474,21 @@ derive_metadata
 
     try
     {
+      // Compute wavelength
+      auto const& image_source =
+        metadata->find( kv::VITAL_META_IMAGE_SOURCE_SENSOR );
+      if( image_source && !metadata->has( kv::VITAL_META_WAVELENGTH ) )
+      {
+        auto const wavelength = compute_wavelength( image_source.as_string() );
+        if( !wavelength.empty() )
+        {
+          updated_metadata->add< kv::VITAL_META_WAVELENGTH >( wavelength );
+        }
+      }
+
       // Compute slant range. Must be inserted before GSD calculation
-      auto const slant_range_value = compute_slant_range( updated_metadata );
-      auto const& slant_range_trait =
-        meta_traits.find( kv::VITAL_META_SLANT_RANGE );
-      updated_metadata->add(
-        slant_range_trait.create_metadata_item( slant_range_value ) );
+      auto const slant_range = compute_slant_range( updated_metadata );
+      updated_metadata->add< kv::VITAL_META_SLANT_RANGE >( slant_range );
 
       if( input_image )
       {
@@ -445,19 +496,15 @@ derive_metadata
         auto const frame_height = input_image->height();
 
         // Compute GSD
-        auto const gsd_value =
+        auto const gsd =
           compute_gsd( updated_metadata, frame_width, frame_height );
-        auto const& gsd_trait = meta_traits.find( kv::VITAL_META_AVERAGE_GSD );
-        updated_metadata->add( gsd_trait.create_metadata_item( gsd_value ) );
+        updated_metadata->add< kv::VITAL_META_AVERAGE_GSD >( gsd );
 
         // Compute VNIIRS
-        auto const rer_value = compute_rer( input_image );
-        auto const snr_value = compute_snr( input_image );
-        auto const vniirs_value = compute_vniirs( gsd_value, rer_value,
-                                                  snr_value );
-        auto const& vniirs_trait = meta_traits.find( kv::VITAL_META_VNIIRS );
-        updated_metadata->add(
-          vniirs_trait.create_metadata_item( vniirs_value ) );
+        auto const rer = compute_rer( input_image );
+        auto const snr = compute_snr( input_image );
+        auto const vniirs = compute_vniirs( gsd, rer, snr );
+        updated_metadata->add< kv::VITAL_META_VNIIRS >( vniirs );
       }
     }
     catch ( kv::invalid_value const& e )

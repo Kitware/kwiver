@@ -13,6 +13,7 @@
 
 #include <vital/exceptions/metadata.h>
 #include <vital/logger/logger.h>
+#include <vital/types/metadata_types.h>
 
 #include <type_traits>
 #include <sstream>
@@ -20,11 +21,11 @@
 #include <iomanip>
 #include <mutex>
 
+namespace kv = kwiver::vital;
+
 namespace kwiver {
 namespace arrows {
 namespace klv {
-
-class std_0102_lds { };
 
 // ------------------------------------------------------------------
 /// Provides interpretation of raw data to kwiver::vital::any and can also
@@ -99,7 +100,7 @@ klv_0104::klv_0104()
   m_key_to_tag[klv_uds_key( 0x060e2b3401010103UL, 0x0101210100000000UL )] = PLATFORM_DESIGNATION_ALT;
   m_key_to_tag[klv_uds_key( 0x060e2b3401010103UL, 0x0103040200000000UL )] = STREAM_ID;
   m_key_to_tag[klv_uds_key( 0x060e2b3401010103UL, 0x0103060100000000UL )] = ITEM_DESIGNATOR_ID;
-  m_key_to_tag[klv_uds_key( 0x060e2b3402010101UL, 0x0208020000000000UL )] = CLASSIFICATION;
+  m_key_to_tag[klv_uds_key( 0x060e2b3402010101UL, 0x0208020000000000UL )] = SECURITY_SPECIFICATION;
   m_key_to_tag[klv_uds_key( 0x060e2b3401010103UL, 0x0208020100000000UL )] = SECURITY_CLASSIFICATION;
   m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0420010201010000UL )] = IMAGE_SOURCE_SENSOR;
   m_key_to_tag[klv_uds_key( 0x060e2b3401010102UL, 0x0420020101080000UL )] = SENSOR_HORIZONTAL_FOV;
@@ -126,8 +127,8 @@ klv_0104::klv_0104()
   m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0701080101000000UL )] = SLANT_RANGE;
   m_key_to_tag[klv_uds_key( 0x060E2B3401010101UL, 0x0701100102000000UL )] = ANGLE_TO_NORTH;
   m_key_to_tag[klv_uds_key( 0x060E2B3401010101UL, 0x0701100103000000UL )] = OBLIQUITY_ANGLE;
-  m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0702010201010000UL )] = START_DATE_TIME_UTC;
-  m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0702010207010000UL )] = EVENT_START_DATE_TIME_UTC;
+  m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0702010201010000UL )] = START_DATETIME;
+  m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0702010207010000UL )] = EVENT_START_DATETIME;
   m_key_to_tag[klv_uds_key( 0x060e2b3401010103UL, 0x0702010101050000UL )] = UNIX_TIMESTAMP;
   m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0e0101010a000000UL )] = PLATFORM_TRUE_AIRSPEED;
   m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0e0101010b000000UL )] = PLATFORM_INDICATED_AIRSPEED;
@@ -154,7 +155,8 @@ klv_0104::klv_0104()
   m_traitsvec[PLATFORM_DESIGNATION_ALT] =    NEW_TRAIT( std::string,  "Platform designation (alternate key)" );
   m_traitsvec[STREAM_ID] =                   NEW_TRAIT( std::string,  "Stream ID" );
   m_traitsvec[ITEM_DESIGNATOR_ID] =          NEW_TRAIT( std::string,  "Item Designator ID (16 bytes)" );
-  m_traitsvec[CLASSIFICATION] =              NEW_TRAIT( std_0102_lds, "Classification" );
+  m_traitsvec[SECURITY_SPECIFICATION] =      NEW_TRAIT( kv::std_0102_lds,
+                                                                      "Security Specification (ST0102)" );
   m_traitsvec[SECURITY_CLASSIFICATION] =     NEW_TRAIT( std::string,  "Security Classification" );
   m_traitsvec[IMAGE_SOURCE_SENSOR] =         NEW_TRAIT( std::string,  "Image Source sensor" );
   m_traitsvec[SENSOR_HORIZONTAL_FOV] =       NEW_TRAIT( double,       "Sensor horizontal field of view" );
@@ -181,9 +183,8 @@ klv_0104::klv_0104()
   m_traitsvec[SLANT_RANGE] =                 NEW_TRAIT( double,       "Slant range" );
   m_traitsvec[ANGLE_TO_NORTH] =              NEW_TRAIT( double,       "Angle to north" );
   m_traitsvec[OBLIQUITY_ANGLE] =             NEW_TRAIT( double,       "Obliquity angle" );
-  m_traitsvec[START_DATE_TIME_UTC] =         NEW_TRAIT( std::string,  "Start Date Time - UTC" );
-  m_traitsvec[EVENT_START_DATE_TIME_UTC] =   NEW_TRAIT( std::string,  "Event Start Date Time - UTC" );
-  m_traitsvec[MISSION_START_TIME] =          NEW_TRAIT( std::string,  "Mission Start Date Time - UTC" );
+  m_traitsvec[START_DATETIME] =              NEW_TRAIT( std::string,  "Start Datetime" );
+  m_traitsvec[EVENT_START_DATETIME] =        NEW_TRAIT( std::string,  "Event Start Datetime" );
   m_traitsvec[UNIX_TIMESTAMP] =              NEW_TRAIT( uint64_t,     "Unix timestamp" );
   m_traitsvec[PLATFORM_TRUE_AIRSPEED] =      NEW_TRAIT( double,       "Platform true airspeed" );
   m_traitsvec[PLATFORM_INDICATED_AIRSPEED] = NEW_TRAIT( double,       "Platform indicated airspeed" );
@@ -323,7 +324,7 @@ traits< double >::convert( uint8_t const* data, std::size_t length )
 // Specialization for extracting std_0102_lds from a raw byte stream
 template < >
 kwiver::vital::any
-traits< std_0102_lds >::convert( uint8_t const* data, std::size_t length )
+traits< kv::std_0102_lds >::convert( uint8_t const* data, std::size_t length )
 {
   // TODO:  Need to handle this for real
   std::string value( reinterpret_cast< char const* > ( data ), length );
@@ -335,7 +336,7 @@ traits< std_0102_lds >::convert( uint8_t const* data, std::size_t length )
   // TEMP handling for std_0102_lds objects.
 template < >
 std::string
-traits< std_0102_lds >::to_string( kwiver::vital::any const& data ) const
+traits< kv::std_0102_lds >::to_string( kwiver::vital::any const& data ) const
 {
   std::string var = kwiver::vital::any_cast< std::string > ( data );
   return var;

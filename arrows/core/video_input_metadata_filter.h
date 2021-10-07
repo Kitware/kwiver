@@ -54,10 +54,6 @@ public:
   kwiver::vital::metadata_vector frame_metadata() override;
   kwiver::vital::metadata_map_sptr metadata_map() override;
 
-protected:
-  virtual kwiver::vital::metadata_vector transform_frame_metadata(
-    kwiver::vital::metadata_vector const& ) = 0;
-
 private:
   class priv;
 

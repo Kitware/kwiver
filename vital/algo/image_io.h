@@ -4,7 +4,8 @@
 
 /**
  * \file
- * \brief Interface for image_io \link kwiver::vital::algo::algorithm_def algorithm
+ * \brief Interface for image_io \link kwiver::vital::algo::algorithm_def
+ * algorithm
  *        definition \endlink.
  */
 
@@ -21,10 +22,13 @@
 #include <vital/types/metadata.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// An abstract base class for reading and writing images
+
 /**
  * This class represents an abstract interface for reading and writing
  * images.
@@ -37,7 +41,7 @@ namespace algo {
  *     is not supplied, then the metadata will not have the timestamp set.
  */
 class VITAL_ALGO_EXPORT image_io
-  : public kwiver::vital::algorithm_def<image_io>
+  : public kwiver::vital::algorithm_def< image_io >
 {
 public:
   // Common capabilities
@@ -50,8 +54,10 @@ public:
   static std::string static_type_name() { return "image_io"; }
 
   /// Load image from the file
+
   /**
-   * \throws kwiver::vital::path_not_exists Thrown when the given path does not exist.
+   * \throws kwiver::vital::path_not_exists Thrown when the given path does not
+   * exist.
    *
    * \throws kwiver::vital::path_not_a_file Thrown when the given path does
    *    not point to a file (i.e. it points to a directory).
@@ -59,9 +65,11 @@ public:
    * \param filename the path to the file to load
    * \returns an image container refering to the loaded image
    */
-  kwiver::vital::image_container_sptr load(std::string const& filename) const;
+  kwiver::vital::image_container_sptr load(
+    std::string const& filename ) const;
 
   /// Save image to a file
+
   /**
    * Image file format is based on file extension.
    *
@@ -75,11 +83,14 @@ public:
    * \param filename the path to the file to save
    * \param data the image container refering to the image to write
    */
-  void save(std::string const& filename, kwiver::vital::image_container_sptr data) const;
+  void save( std::string const& filename,
+             kwiver::vital::image_container_sptr data ) const;
 
   /// Get the image metadata
+
   /**
-   * \throws kwiver::vital::path_not_exists Thrown when the given path does not exist.
+   * \throws kwiver::vital::path_not_exists Thrown when the given path does not
+   * exist.
    *
    * \throws kwiver::vital::path_not_a_file Thrown when the given path does
    *    not point to a file (i.e. it points to a directory).
@@ -87,7 +98,8 @@ public:
    * \param filename the path to the file to read
    * \returns pointer to the loaded metadata
    */
-  kwiver::vital::metadata_sptr load_metadata(std::string const& filename) const;
+  kwiver::vital::metadata_sptr load_metadata( std::string const& filename )
+  const;
 
   /**
    * \brief Return capabilities of concrete implementation.
@@ -101,10 +113,12 @@ public:
 protected:
   image_io();
 
-  void set_capability( algorithm_capabilities::capability_name_t const& name, bool val );
+  void set_capability( algorithm_capabilities::capability_name_t const& name,
+                       bool val );
 
 private:
   /// Implementation specific load functionality.
+
   /**
    * Concrete implementations of image_io class must provide an
    * implementation for this method.
@@ -112,9 +126,11 @@ private:
    * \param filename the path to the file the load
    * \returns an image container refering to the loaded image
    */
-  virtual kwiver::vital::image_container_sptr load_(std::string const& filename) const = 0;
+  virtual kwiver::vital::image_container_sptr load_(
+    std::string const& filename ) const = 0;
 
   /// Implementation specific save functionality.
+
   /**
    * Concrete implementations of image_io class must provide an
    * implementation for this method.
@@ -122,10 +138,11 @@ private:
    * \param filename the path to the file to save
    * \param data the image container refering to the image to write
    */
-  virtual void save_(std::string const& filename,
-                     kwiver::vital::image_container_sptr data) const = 0;
+  virtual void save_( std::string const& filename,
+                      kwiver::vital::image_container_sptr data ) const = 0;
 
   /// Implementation specific metadata functionality.
+
   /**
    * If a concrete implementation provides metadata, it must be provided
    * in both load() and load_metadata(), and it must be the same metadata.
@@ -135,14 +152,19 @@ private:
    * \param filename the path to the file to read
    * \returns pointer to the loaded metadata
    */
-  virtual kwiver::vital::metadata_sptr load_metadata_(std::string const& filename) const;
+  virtual kwiver::vital::metadata_sptr load_metadata_(
+    std::string const& filename ) const;
 
   algorithm_capabilities m_capabilities;
 };
 
 /// Shared pointer type for generic image_io definition type.
-typedef std::shared_ptr<image_io> image_io_sptr;
+typedef std::shared_ptr< image_io > image_io_sptr;
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // VITAL_ALGO_IMAGE_IO_H_

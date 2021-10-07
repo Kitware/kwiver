@@ -103,6 +103,8 @@ void declare_rotation( py::module &m,
 
   m.def( "interpolate_rotation", &kv::interpolate_rotation< T > );
   m.def( "interpolated_rotations", &rot_interpolated_rotations< T > );
+  m.def( "ned_to_enu", &ned_to_enu< T > );
+  m.def( "enu_to_ned", &enu_to_ned< T > );
 
 }
 }

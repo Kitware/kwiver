@@ -4,7 +4,8 @@
 
 /**
  * \file
- * \brief Header defining abstract \link kwiver::vital::algo::optimize_cameras camera
+ * \brief Header defining abstract \link kwiver::vital::algo::optimize_cameras
+ * camera
  *        optimization \endlink algorithm
  */
 
@@ -16,23 +17,26 @@
 #include <vital/algo/algorithm.h>
 #include <vital/types/camera_map.h>
 #include <vital/types/camera_perspective.h>
-#include <vital/types/landmark_map.h>
 #include <vital/types/feature_track_set.h>
+#include <vital/types/landmark_map.h>
 #include <vital/types/sfm_constraints.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// Abstract algorithm definition base for optimizing cameras
 class VITAL_ALGO_EXPORT optimize_cameras
-  : public kwiver::vital::algorithm_def<optimize_cameras>
+  : public kwiver::vital::algorithm_def< optimize_cameras >
 {
 public:
   /// Return the name of this algorithm definition
   static std::string static_type_name() { return "optimize_cameras"; }
 
   /// Optimize camera parameters given sets of landmarks and feature tracks
+
   /**
    * We only optimize cameras that have associating tracks and landmarks in
    * the given maps.  The default implementation collects the corresponding
@@ -48,12 +52,13 @@ public:
    *                          optimization.
    */
   virtual void
-  optimize(kwiver::vital::camera_map_sptr & cameras,
-           kwiver::vital::feature_track_set_sptr tracks,
-           kwiver::vital::landmark_map_sptr landmarks,
-           kwiver::vital::sfm_constraints_sptr constraints = nullptr) const;
+  optimize( kwiver::vital::camera_map_sptr& cameras,
+            kwiver::vital::feature_track_set_sptr tracks,
+            kwiver::vital::landmark_map_sptr landmarks,
+            kwiver::vital::sfm_constraints_sptr constraints = nullptr ) const;
 
   /// Optimize a single camera given corresponding features and landmarks
+
   /**
    * This function assumes that 2D features viewed by this camera have
    * already been put into correspondence with 3D landmarks by aligning
@@ -68,19 +73,22 @@ public:
    *                          optimization.
    */
   virtual void
-  optimize(kwiver::vital::camera_perspective_sptr& camera,
-           const std::vector<kwiver::vital::feature_sptr>& features,
-           const std::vector<kwiver::vital::landmark_sptr>& landmarks,
-           kwiver::vital::sfm_constraints_sptr constraints = nullptr) const = 0;
+  optimize( kwiver::vital::camera_perspective_sptr& camera,
+            const std::vector< kwiver::vital::feature_sptr >& features,
+            const std::vector< kwiver::vital::landmark_sptr >& landmarks,
+            kwiver::vital::sfm_constraints_sptr constraints = nullptr ) const = 0;
 
 protected:
   optimize_cameras();
-
 };
 
 /// Type definition for shared pointer to an optimize cameras algorithm
-typedef std::shared_ptr<optimize_cameras> optimize_cameras_sptr;
+typedef std::shared_ptr< optimize_cameras > optimize_cameras_sptr;
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // VITAL_ALGO_OPTIMIZE_CAMERAS_H_

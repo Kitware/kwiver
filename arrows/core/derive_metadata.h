@@ -33,8 +33,6 @@ public:
   void set_configuration(vital::config_block_sptr config) override;
   bool check_configuration(vital::config_block_sptr config) const override;
 
-  bool uses_image() const override;
-
   /// Fills in metadata values which can be calculated from other metadata.
   ///
   /// \param input_metadata Input vector of metadata packets.
