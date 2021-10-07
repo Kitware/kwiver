@@ -11,7 +11,9 @@
 #include <vital/algo/refine_detections.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 refine_detections
@@ -20,8 +22,12 @@ refine_detections
   attach_logger( "algo.refine_detections" ); // specify a logger
 }
 
-} } }
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 /// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::refine_detections);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::refine_detections );
 /// \endcond
