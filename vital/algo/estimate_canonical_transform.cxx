@@ -12,11 +12,13 @@
 #include <vital/algo/estimate_canonical_transform.h>
 
 /// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::estimate_canonical_transform);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::estimate_canonical_transform );
 /// \endcond
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 estimate_canonical_transform
@@ -25,4 +27,8 @@ estimate_canonical_transform
   attach_logger( "algo.estimate_canonical_transform" );
 }
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
