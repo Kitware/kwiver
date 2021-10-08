@@ -6,9 +6,8 @@
  * \file
  * \brief Instantiation of \link
  *        kwiver::vital::algo::algorithm_def algorithm_def<T> \endlink for
- * \link
- *        kwiver::vital::algo::integrate_depth_maps integrate_depth_maps
- * \endlink
+ *        \link kwiver::vital::algo::integrate_depth_maps
+ *        integrate_depth_maps \endlink
  */
 
 #include <vital/algo/algorithm.txx>

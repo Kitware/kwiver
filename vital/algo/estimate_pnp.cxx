@@ -30,4 +30,4 @@ estimate_pnp
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver

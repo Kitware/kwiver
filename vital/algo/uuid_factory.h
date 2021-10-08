@@ -44,6 +44,6 @@ typedef std::shared_ptr< uuid_factory > uuid_factory_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif /* VITAL_ALGO_UUID_FACTORY_H */

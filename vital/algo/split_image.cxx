@@ -24,4 +24,4 @@ split_image
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver

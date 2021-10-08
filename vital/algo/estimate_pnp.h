@@ -65,6 +65,6 @@ typedef std::shared_ptr< estimate_pnp > estimate_pnp_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_ESTIMATE_PNP_H_

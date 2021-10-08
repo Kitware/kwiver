@@ -71,6 +71,6 @@ typedef std::shared_ptr< compute_track_descriptors >
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_COMPUTE_TRACK_DESCRIPTORS_H_

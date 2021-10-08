@@ -141,4 +141,4 @@ read_object_track_set
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver

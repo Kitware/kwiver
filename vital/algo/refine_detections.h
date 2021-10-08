@@ -60,6 +60,6 @@ typedef std::shared_ptr< refine_detections > refine_detections_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif //VITAL_ALGO_REFINE_DETECTIONS_H_

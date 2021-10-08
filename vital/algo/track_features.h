@@ -63,6 +63,6 @@ typedef std::shared_ptr< track_features > track_features_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_TRACK_FEATURES_H_

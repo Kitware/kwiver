@@ -52,8 +52,7 @@ public:
   optimize( kwiver::vital::camera_map_sptr& cameras,
             kwiver::vital::landmark_map_sptr& landmarks,
             kwiver::vital::feature_track_set_sptr tracks,
-            kwiver::vital::sfm_constraints_sptr constraints = nullptr ) const =
-  0;
+            kwiver::vital::sfm_constraints_sptr constraints = nullptr ) const = 0;
 
   /// Optimize the camera and landmark parameters given a set of feature tracks
 
@@ -78,8 +77,7 @@ public:
   /// Typedef for the callback function signature
   typedef std::function< bool ( kwiver::vital::camera_map_sptr,
                                 kwiver::vital::landmark_map_sptr,
-                                kwiver::vital::feature_track_set_changes_sptr ) >
-    callback_t;
+                                kwiver::vital::feature_track_set_changes_sptr ) > callback_t;
 
   /// Set a callback function to report intermediate progress
   virtual void set_callback( callback_t cb );
@@ -98,6 +96,6 @@ typedef std::shared_ptr< bundle_adjust > bundle_adjust_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_BUNDLE_ADJUST_H_
