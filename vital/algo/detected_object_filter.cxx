@@ -11,7 +11,9 @@
 #include <vital/algo/detected_object_filter.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 detected_object_filter
@@ -20,8 +22,12 @@ detected_object_filter
   attach_logger( "algo.detected_object_filter" );
 }
 
-} } }
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 /// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::detected_object_filter);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::detected_object_filter );
 /// \endcond
