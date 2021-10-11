@@ -54,6 +54,6 @@ typedef std::shared_ptr< compute_stereo_depth_map >
 
 } // namespace vital
 
-} // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_COMPUTE_STEREO_DEPTH_MAP_H_

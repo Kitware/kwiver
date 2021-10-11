@@ -57,6 +57,6 @@ typedef std::shared_ptr< analyze_tracks > analyze_tracks_sptr;
 
 } // namespace vital
 
-} // end namespace
+} // end kwiver
 
 #endif // VITAL_ALGO_ANALYZE_TRACKS_H_

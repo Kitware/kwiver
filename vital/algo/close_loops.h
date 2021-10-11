@@ -53,8 +53,8 @@ public:
   stitch( kwiver::vital::frame_id_t frame_number,
           kwiver::vital::feature_track_set_sptr input,
           kwiver::vital::image_container_sptr image,
-          kwiver::vital::image_container_sptr mask = kwiver::vital::image_container_sptr() )
-  const = 0;
+          kwiver::vital::image_container_sptr mask =
+	  kwiver::vital::image_container_sptr() ) const = 0;
 
 protected:
   close_loops();
@@ -66,6 +66,6 @@ typedef std::shared_ptr< close_loops > close_loops_sptr;
 
 } // namespace vital
 
-} // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_CLOSE_LOOPS_H_

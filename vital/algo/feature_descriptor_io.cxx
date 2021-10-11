@@ -82,4 +82,4 @@ feature_descriptor_io
 
 } // namespace vital
 
-} // end namespace
+} // namespace kwiver

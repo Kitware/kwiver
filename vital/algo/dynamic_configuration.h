@@ -8,7 +8,9 @@
 #include <vital/algo/algorithm.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// Abstract algorithm for getting dynamic configuration values from
@@ -42,8 +44,10 @@ protected:
 /// Shared pointer for generic dynamic_configuration definition type.
 typedef std::shared_ptr< dynamic_configuration > dynamic_configuration_sptr;
 
-}
-}
-} // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // DYNAMIC_CONFIGURATION_H

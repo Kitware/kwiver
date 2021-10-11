@@ -16,6 +16,7 @@
 #include <algorithm>
 
 namespace kwiver {
+
 namespace vital {
 
 // ------------------------------------------------------------------
@@ -241,4 +242,6 @@ algorithm
   return true;
 }
 
-} } // end namespace
+} // namespace vital
+
+} // namespace kwiver

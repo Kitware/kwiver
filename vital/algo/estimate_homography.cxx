@@ -58,4 +58,4 @@ estimate_homography
 
 } // namespace vital
 
-} // end namespace
+} // namespace kwiver

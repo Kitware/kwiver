@@ -120,6 +120,6 @@ typedef std::shared_ptr< feature_descriptor_io > feature_descriptor_io_sptr;
 
 } // namespace vital
 
-} // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_FEATURE_DESCRIPTOR_IO_H_

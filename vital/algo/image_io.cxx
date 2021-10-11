@@ -116,4 +116,4 @@ image_io
 
 } // namespace vital
 
-} // end namespace
+} // namespace kwiver

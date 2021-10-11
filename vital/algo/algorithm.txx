@@ -21,6 +21,7 @@
 #include <vital/exceptions/algorithm.h>
 
 namespace kwiver {
+
 namespace vital {
 
 // ------------------------------------------------------------------
@@ -98,8 +99,9 @@ algorithm_def< Self >
                                                      name, config );
 }
 
-}
-} // end namespace
+} // namespace vital
+
+} // namespace kwiver
 
 /// \cond DoxygenSuppress
 #define INSTANTIATE_ALGORITHM_DEF( T ) \

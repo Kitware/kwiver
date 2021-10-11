@@ -85,6 +85,6 @@ typedef std::shared_ptr< estimate_homography > estimate_homography_sptr;
 
 } // namespace vital
 
-} // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_ESTIMATE_HOMOGRAPHY_H_

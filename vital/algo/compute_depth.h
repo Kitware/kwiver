@@ -92,8 +92,7 @@ public:
   typedef std::function< bool ( kwiver::vital::image_container_sptr,
                                 std::string const&,
                                 unsigned int,
-                                kwiver::vital::image_container_sptr ) >
-    callback_t;
+                                kwiver::vital::image_container_sptr ) > callback_t;
 
   /// Set a callback function to report intermediate progress
   virtual void set_callback( callback_t cb );

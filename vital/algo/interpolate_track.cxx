@@ -65,4 +65,4 @@ interpolate_track
 
 } // namespace vital
 
-} // end namespace
+} // namespace kwiver

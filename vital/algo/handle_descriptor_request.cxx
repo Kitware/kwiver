@@ -41,4 +41,4 @@ handle_descriptor_request
 
 } // namespace vital
 
-} // end namespace
+} // namespace kwiver

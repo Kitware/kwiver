@@ -58,6 +58,6 @@ typedef std::shared_ptr< image_object_detector > image_object_detector_sptr;
 
 } // namespace vital
 
-} // end namespace
+} // namespace kwiver
 
 #endif //VITAL_ALGO_IMAGE_OBJECT_DETECTOR_H_

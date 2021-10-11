@@ -80,4 +80,4 @@ estimate_essential_matrix
 
 } // namespace vital
 
-} // end namespace
+} // namespace kwiver

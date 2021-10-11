@@ -113,17 +113,12 @@ class VITAL_ALGO_EXPORT video_input
 public:
   // Common capabilities
   // -- basic capabilities --
-  static const algorithm_capabilities::capability_name_t HAS_EOV;         // has
-                                                                          // end
-                                                                          // of
-                                                                          // video
-                                                                          // indication
+  static const algorithm_capabilities::capability_name_t HAS_EOV; // has end of video indication
   static const algorithm_capabilities::capability_name_t HAS_FRAME_NUMBERS;
   static const algorithm_capabilities::capability_name_t HAS_FRAME_TIME;
   static const algorithm_capabilities::capability_name_t HAS_FRAME_DATA;
   static const algorithm_capabilities::capability_name_t HAS_FRAME_RATE;
-  static const algorithm_capabilities::capability_name_t
-    HAS_ABSOLUTE_FRAME_TIME;
+  static const algorithm_capabilities::capability_name_t HAS_ABSOLUTE_FRAME_TIME;
   static const algorithm_capabilities::capability_name_t HAS_METADATA;
   static const algorithm_capabilities::capability_name_t HAS_TIMEOUT;
   static const algorithm_capabilities::capability_name_t IS_SEEKABLE;
@@ -403,6 +398,6 @@ typedef std::shared_ptr< video_input > video_input_sptr;
 
 } // namespace vital
 
-} // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_VIDEO_INPUT_H_
