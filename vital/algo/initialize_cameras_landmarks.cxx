@@ -5,8 +5,8 @@
 /**
  * \file
  * \brief Instantiation of \link kwiver::vital::algo::algorithm_def
- * algorithm_def<T> \endlink
- *        for \link kwiver::vital::algo::initialize_cameras_landmarks
+ *        algorithm_def<T> \endlink for
+ *        \link kwiver::vital::algo::initialize_cameras_landmarks
  *        initialize_cameras_landmarks \endlink
  */
 

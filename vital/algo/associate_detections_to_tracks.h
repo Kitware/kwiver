@@ -33,10 +33,7 @@ public:
 
   /// Return the name of this algorithm
   static std::string
-  static_type_name()
-  {
-    return "associate_detections_to_tracks";
-  }
+  static_type_name() { return "associate_detections_to_tracks"; }
 
   /// Use cost matrices to assign detections to existing tracks
 
@@ -72,6 +69,6 @@ typedef std::shared_ptr< associate_detections_to_tracks >
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_ASSOCIATE_DETECTIONS_TO_TRACKS_H_

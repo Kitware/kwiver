@@ -40,6 +40,6 @@ typedef std::shared_ptr< split_image > split_image_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_SPLIT_IMAGE_H_

@@ -61,6 +61,6 @@ typedef std::shared_ptr< detected_object_filter > detected_object_filter_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif

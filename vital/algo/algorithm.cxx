@@ -79,7 +79,7 @@ algorithm
 {
   config_block_description_t type_comment =
     "Algorithm to use for '" + name + "'.\n"
-                                      "Must be one of the following options:";
+    "Must be one of the following options:";
 
   // Get list of factories for the algo_name
   kwiver::vital::plugin_manager& vpm =
@@ -149,16 +149,16 @@ algorithm
     else
     {
       std::stringstream msg;
-      msg       << "Could not find implementation \"" << iname
-                << "\" for \"" << type_name << "\"";
+      msg << "Could not find implementation \"" << iname
+          << "\" for \"" << type_name << "\"";
 
       // Add line number if known
       std::string file;
       int line( 0 );
       if( config->get_location( type_key, file, line ) )
       {
-        msg     << " as requested from "
-                << file << ":" << line;
+        msg << " as requested from "
+            << file << ":" << line;
       }
 
       LOG_WARN( logger, msg.str() );
@@ -167,8 +167,8 @@ algorithm
   else
   {
     LOG_WARN( logger, "Config item \""  << type_key
-                                        << "\" not found for \"" << type_name <<
-        "\"." );
+                                        << "\" not found for \""
+                                        << type_name << "\"." );
   }
 }
 
@@ -197,8 +197,8 @@ algorithm
   {
     std::stringstream msg;
     msg << "Implementation '" << instance_name << "' for algorithm type "
-        << type_key <<
-        " could not be found.\nMake sure KWIVER_PLUGIN_PATH is set correctly.";
+        << type_key
+	<< " could not be found.\nMake sure KWIVER_PLUGIN_PATH is set correctly.";
 
     // Get list of factories for the algo_name
     kwiver::vital::plugin_manager& vpm =
@@ -257,4 +257,4 @@ algorithm
 
 } // namespace vital
 
-}       // end namespace
+} // namespace kwiver

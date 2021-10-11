@@ -83,6 +83,6 @@ typedef std::shared_ptr< train_detector > train_detector_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_TRAIN_DETECTOR_H_

@@ -57,6 +57,6 @@ typedef std::shared_ptr< initialize_object_tracks >
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_INITIALIZE_OBJECT_TRACKS_H_

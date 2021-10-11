@@ -57,4 +57,4 @@ estimate_fundamental_matrix
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver

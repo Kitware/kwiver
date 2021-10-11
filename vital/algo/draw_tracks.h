@@ -53,8 +53,8 @@ public:
   virtual kwiver::vital::image_container_sptr
   draw( kwiver::vital::track_set_sptr display_set,
         kwiver::vital::image_container_sptr_list image_data,
-        kwiver::vital::track_set_sptr comparison_set = kwiver::vital::track_set_sptr() )
-  = 0;
+        kwiver::vital::track_set_sptr comparison_set =
+	kwiver::vital::track_set_sptr() ) = 0;
 
 protected:
   draw_tracks();
@@ -67,6 +67,6 @@ typedef std::shared_ptr< draw_tracks > draw_tracks_sptr;
 
 } // namespace vital
 
-}     // end namespace algo
+} // namespace algo kwiver
 
 #endif // VITAL_ALGO_DRAW_TRACKS_H_

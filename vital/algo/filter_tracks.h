@@ -54,6 +54,6 @@ typedef std::shared_ptr< filter_tracks > filter_tracks_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_FILTER_TRACKS_H_

@@ -21,7 +21,9 @@
 */
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
   /// \brief Abstract base class for track set filter algorithms.
@@ -53,6 +55,10 @@ namespace algo {
   /// type definition for shared pointer to a filter_tracks algorithm
   typedef std::shared_ptr<keyframe_selection> keyframe_selection_sptr;
 
-}}} // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // VITAL_ALGO_KEYFRAME_SELECTION_H_

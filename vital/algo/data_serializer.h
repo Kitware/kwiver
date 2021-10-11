@@ -78,8 +78,7 @@ public:
    * @throws kwiver::vital::bad_any_cast
    * @throws kwiver::vital::serialization - for unexpected element name
    */
-  virtual std::shared_ptr< std::string > serialize( const vital::any& element )
-  = 0;
+  virtual std::shared_ptr< std::string > serialize( const vital::any& element ) = 0;
 
   /// Deserialize byte string into data type.
 

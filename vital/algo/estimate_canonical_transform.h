@@ -44,11 +44,7 @@ class VITAL_ALGO_EXPORT estimate_canonical_transform
 public:
 
   /// Name of this algo definition
-  static std::string
-  static_type_name()
-  {
-    return "estimate_canonical_transform";
-  }
+  static std::string static_type_name() { return "estimate_canonical_transform"; }
 
   /// Estimate a canonical similarity transform for cameras and points
 
@@ -63,8 +59,7 @@ public:
    */
   virtual kwiver::vital::similarity_d
   estimate_transform( kwiver::vital::camera_map_sptr const cameras,
-                      kwiver::vital::landmark_map_sptr const landmarks ) const
-  = 0;
+                      kwiver::vital::landmark_map_sptr const landmarks ) const = 0;
 
 protected:
   estimate_canonical_transform();
@@ -78,6 +73,6 @@ typedef std::shared_ptr< estimate_canonical_transform >
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_ESTIMATE_CANONICAL_TRANSFORM_H_

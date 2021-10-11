@@ -51,8 +51,8 @@ public:
   virtual kwiver::vital::descriptor_set_sptr
   extract( kwiver::vital::image_container_sptr image_data,
            kwiver::vital::feature_set_sptr& features,
-           kwiver::vital::image_container_sptr image_mask = kwiver::vital::image_container_sptr() )
-  const = 0;
+           kwiver::vital::image_container_sptr image_mask =
+	   kwiver::vital::image_container_sptr() ) const = 0;
 
 protected:
   extract_descriptors();
@@ -65,6 +65,6 @@ typedef std::shared_ptr< extract_descriptors > extract_descriptors_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_EXTRACT_DESCRIPTORS_H_
