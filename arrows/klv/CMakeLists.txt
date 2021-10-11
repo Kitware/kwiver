@@ -6,9 +6,15 @@ set( sources
   convert_metadata.cxx
   convert_0601_metadata.cxx
   convert_0104_metadata.cxx
-  klv_parse.cxx
+  klv_blob.cxx
+  klv_checksum.cxx
   klv_data.cxx
+  klv_data_format.cxx
   klv_key.cxx
+  klv_parse.cxx
+  klv_read_write.cxx
+  klv_tag_traits.cxx
+  klv_value.cxx
   klv_0601.cxx
   klv_0104.cxx
   misp_time.cxx
@@ -16,9 +22,9 @@ set( sources
 
 set( public_headers
   convert_metadata.h
-  klv_parse.h
   klv_data.h
   klv_key.h
+  klv_parse.h
   klv_0601.h
   klv_0104.h
   misp_time.h

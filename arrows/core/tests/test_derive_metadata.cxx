@@ -20,8 +20,6 @@
 
 namespace kv = kwiver::vital;
 
-static kv::metadata_traits meta_traits;
-
 namespace {
 
 double constexpr FRAME_CENTER_ELEVATION = 749.755127;
@@ -52,6 +50,8 @@ make_metadata()
       kv::geo_point::geo_3d_point_t{
         0, 0, FRAME_CENTER_ELEVATION }, kv::SRID::lat_lon_WGS84 } );
 
+  m1->add< kv::VITAL_META_IMAGE_SOURCE_SENSOR >( "SENSOR_SWIR" );
+
   return { m1 };
 }
 
@@ -60,7 +60,7 @@ kv::image_container_scptr
 make_image()
 {
   constexpr auto frame_height = size_t{ 720 };
-  constexpr auto frame_width = size_t{ 1080 };
+  constexpr auto frame_width = size_t{ 1280 };
 
   auto image = kv::image{ frame_width, frame_height };
   return std::make_shared< kv::simple_image_container >( image );
@@ -100,11 +100,13 @@ TEST_F( derive_metadata, compute_derived )
   kv::metadata_item const& slant_range_value =
     derived_metadata.at( 0 )->find( kv::VITAL_META_SLANT_RANGE );
 
-  // Reference value is 0.202224; we use current actual output value here to
-  //   detect regression (or confirm intentional change)
-  EXPECT_NEAR( 0.199086, gsd_value.as_double(), 0.000001 );
+  EXPECT_NEAR( 0.202224, gsd_value.as_double(), 0.000001);
 
-  // This will not actualy be correct due to image terms
-  // EXPECT_DOUBLE_EQ( 6.58, vniirs_value.as_double() );
+  // This only takes into account terms a0 and a1
+  EXPECT_NEAR( 6.578680, vniirs_value.as_double(), 0.000001 );
   EXPECT_DOUBLE_EQ( 13296.55762, slant_range_value.as_double() );
+
+  auto const wavelength =
+    derived_metadata.at( 0 )->find( kv::VITAL_META_WAVELENGTH ).as_string();
+  EXPECT_EQ( std::string{ "NIR" }, wavelength );
 }

@@ -16,6 +16,8 @@
 
 #include <functional>
 
+namespace kv = kwiver::vital;
+
 namespace kwiver {
 namespace arrows {
 namespace klv {
@@ -96,7 +98,7 @@ klv_convert< std::string > ( const uint8_t* data, std::size_t length )
 // \note this is a place holder for now.
 template < >
 kwiver::vital::any
-klv_convert< kwiver::arrows::klv::std_0102_lds > ( const uint8_t* data, std::size_t length )
+klv_convert< kv::std_0102_lds > ( const uint8_t* data, std::size_t length )
 {
   // Need to decode this for real
   std::string value( reinterpret_cast< char const* > ( data ), length );
@@ -182,7 +184,7 @@ format_hex< std::string > ( std::ostream& os, kwiver::vital::any const& data )
 // Specialization for writing a STD 0102 LDS in hex bytes
 template < >
 void
-format_hex< kwiver::arrows::klv::std_0102_lds > ( std::ostream& os, kwiver::vital::any const& data )
+format_hex< kv::std_0102_lds > ( std::ostream& os, kwiver::vital::any const& data )
 {
   std::iostream::fmtflags f( os.flags() );
   std::string d = kwiver::vital::any_cast< std::string > ( data );

@@ -26,7 +26,7 @@ config_block_set_value_cast( py::object const& value );
 void
 config_set_value( kwiver::vital::config_block_sptr self,
                   kwiver::vital::config_block_key_t const& key,
-                  kwiver::vital::config_block_key_t const& value  );
+                  kwiver::vital::config_block_key_t const& value );
 
 /// Get a value in a configuration block using key
 kwiver::vital::config_block_value_t
@@ -57,7 +57,7 @@ config_setitem( kwiver::vital::config_block_sptr self,
 /// Delete value in a configuration block using a key
 void
 config_delitem( kwiver::vital::config_block_sptr self,
-                kwiver::vital::config_block_key_t const&  key );
+                kwiver::vital::config_block_key_t const& key );
 
 /// pybind11 module for config
 void

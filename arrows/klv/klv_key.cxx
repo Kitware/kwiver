@@ -2,206 +2,91 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
+/// \file
+/// \brief This file contains the implementation for the KLV key classes.
+
 #include "klv_key.h"
-#include "klv_data.h"
-#include <algorithm>
+#include "klv_read_write.txx"
+
 #include <iomanip>
 
-/**
- * \file
- * \brief This file contains the implementation for the klv_key class.
- */
-
 namespace kwiver {
+
 namespace arrows {
+
 namespace klv {
 
-// ------------------------------------------------------------------
-template < unsigned int LEN >
-klv_key< LEN >
-  ::klv_key()
-{
-  std::fill( key_, key_ + LEN, 0 );
-}
-
-// ------------------------------------------------------------------
-template < unsigned int LEN >
-klv_key< LEN >
-  ::klv_key( const uint8_t data[LEN] )
-{
-  std::copy( data, data + LEN, key_ );
-}
-
-// ------------------------------------------------------------------
-template < unsigned int LEN >
-bool
-klv_key< LEN >
-  ::operator==( const klv_key& rhs ) const
-{
-  for ( unsigned int i = 0; i < LEN; ++i )
-  {
-    if ( key_[i] != rhs.key_[i] )
-    {
-      return false;
-    }
-  }
-  return true;
-}
-
-// ------------------------------------------------------------------
-/// Less than operator
-template < unsigned int LEN >
-bool
-klv_key< LEN >
-  ::operator<( const klv_key& rhs ) const
-{
-  for ( unsigned int i = 0; i < LEN; ++i )
-  {
-    if ( key_[i] != rhs.key_[i] )
-    {
-      return key_[i] < rhs.key_[i];
-    }
-  }
-  return false;
-}
-
-// ------------------------------------------------------------------
-template < unsigned int LEN >
-std::ostream&
-operator<<( std::ostream& os, const klv_key< LEN >& key )
-{
-  std::ostream::fmtflags f( os.flags() );
-
-  for ( unsigned int i = 0; i < LEN; ++i )
-  {
-    os << std::hex << std::setfill( '0' ) << std::setw( 2 ) << int(key[i]);
-    if ( (i % 4) == 3) os << " ";
-  }
-
-  os.flags( f );
-  return os;
-}
-
-//============================================================================
-
-/// All UDS keys start with this 4 byte prefix
-const uint8_t klv_uds_key
+// ----------------------------------------------------------------------------
+uint8_t const
+klv_uds_key
 ::prefix[] = { 0x06, 0x0e, 0x2b, 0x34 };
 
-/// The UDS 4 byte prefix represted as a uint32 (MSB first)
-const uint32_t klv_uds_key
-::prefix_uint32 = ( static_cast< uint32_t > ( klv_uds_key::prefix[0] ) << 24 ) |
-                  ( static_cast< uint32_t > ( klv_uds_key::prefix[1] ) << 16 ) |
-                  ( static_cast< uint32_t > ( klv_uds_key::prefix[2] ) << 8 )  |
-                    static_cast< uint32_t > ( klv_uds_key::prefix[3] );
-
-// ------------------------------------------------------------------
-// Create key from raw klv data
+// ----------------------------------------------------------------------------
 klv_uds_key
-::klv_uds_key(klv_data const& raw_packet)
+::klv_uds_key() : m_key{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+klv_uds_key
+::klv_uds_key( uint64_t word1, uint64_t word2 )
 {
-  unsigned int i = 0;
-  klv_data::const_iterator_t it = raw_packet.key_begin();
-  for ( ; (it != raw_packet.key_end()) && (i < 16); it++, i++)
-  {
-    this->key_[i] = *it;
-  }
+  auto it = m_key;
+  klv_write_int( word1, it, sizeof( uint64_t ) );
+  klv_write_int( word2, it, sizeof( uint64_t ) );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+uint8_t
 klv_uds_key
-::klv_uds_key( const uint8_t data[16] )
-  : klv_key< 16 > ( data )
+::operator[]( size_t index ) const
 {
+  return ( index < length ) ? m_key[ index ] : 0u;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+klv_uds_key::const_iterator
 klv_uds_key
-::klv_uds_key( const uint16_t data[8] )
+::cbegin() const
 {
-  for ( unsigned int i = 0; i < 8; ++i )
-  {
-    key_[2 * i]     = static_cast< uint8_t > ( data[i] >> 8 );
-    key_[2 * i + 1] = static_cast< uint8_t > ( data[i] );
-  }
+  return m_key;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+klv_uds_key::const_iterator
 klv_uds_key
-::klv_uds_key( const uint32_t data[4] )
+::cend() const
 {
-  for ( unsigned int i = 0; i < 4; ++i )
-  {
-    key_[4 * i]     = static_cast< uint8_t > ( data[i] >> 24 );
-    key_[4 * i + 1] = static_cast< uint8_t > ( data[i] >> 16 );
-    key_[4 * i + 2] = static_cast< uint8_t > ( data[i] >> 8 );
-    key_[4 * i + 3] = static_cast< uint8_t > ( data[i] );
-  }
+  return m_key + length;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+bool
 klv_uds_key
-::klv_uds_key( const uint64_t data[2] )
-{
-  for ( unsigned int i = 0; i < 8; ++i )
-  {
-    key_[i]     = static_cast< uint8_t > ( data[0] >> ( 7 - i ) * 8 );
-    key_[i + 8] = static_cast< uint8_t > ( data[1] >> ( 7 - i ) * 8 );
-  }
-}
-
-// ------------------------------------------------------------------
-klv_uds_key
-::klv_uds_key( uint64_t d1, uint64_t d2 )
-{
-  for ( unsigned int i = 0; i < 8; ++i )
-  {
-    key_[i]   = static_cast< uint8_t > ( d1 >> ( 7 - i ) * 8 );
-    key_[i + 8] = static_cast< uint8_t > ( d2 >> ( 7 - i ) * 8 );
-  }
-}
-
-// ------------------------------------------------------------------
-klv_uds_key
-::klv_uds_key( uint32_t d1, uint32_t d2,
-               uint32_t d3, uint32_t d4 )
-{
-  for ( unsigned int i = 0; i < 4; ++i )
-  {
-    key_[i]    = static_cast< uint8_t > ( d1 >> ( 3 - i ) * 8 );
-    key_[i + 4]  = static_cast< uint8_t > ( d2 >> ( 3 - i ) * 8 );
-    key_[i + 8]  = static_cast< uint8_t > ( d3 >> ( 3 - i ) * 8 );
-    key_[i + 12] = static_cast< uint8_t > ( d4 >> ( 3 - i ) * 8 );
-  }
-}
-
-// ------------------------------------------------------------------
-/// Check if this is a valid 16-byte SMPTE-administered Universal Label
-bool klv_uds_key
 ::is_valid() const
 {
-  if( !this->is_prefix_valid() )
+  if( !is_prefix_valid() )
   {
     return false;
   }
 
-  // UL Designator bytes have 0 in most significant bit
-  for(int i = 4; i < 8; ++i)
+  auto const is_msb_set = []( uint8_t byte ) -> bool {
+                            return byte & 0x80;
+                          };
+
+  // Bytes 4-7 cannot have most significiant bit set
+  if( std::any_of( m_key + 4, m_key + 8, is_msb_set ) )
   {
-    if( key_[i] & 0x80 )
-    {
-      return false;
-    }
+    return false;
   }
 
-  switch (this->category())
+  switch( category() )
   {
     case CATEGORY_SINGLE:
-      return this->single_type() != SINGLE_INVALID;
+      return single_type() != SINGLE_INVALID;
     case CATEGORY_GROUP:
-      return this->group_type() != GROUP_INVALID;
+      return group_type() != GROUP_INVALID;
     case CATEGORY_WRAPPER:
-      return this->wrapper_type() != WRAPPER_INVALID;
+      return wrapper_type() != WRAPPER_INVALID;
     case CATEGORY_LABEL:
     case CATEGORY_PRIVATE:
       return true;
@@ -209,138 +94,158 @@ bool klv_uds_key
     default:
       return false;
   }
-  return true;
 }
 
-// ------------------------------------------------------------------
-/// Return true if this key has the required 4 byte prefix
+// ----------------------------------------------------------------------------
 bool
 klv_uds_key
 ::is_prefix_valid() const
 {
-  return key_[0] == prefix[0] &&
-         key_[1] == prefix[1] &&
-         key_[2] == prefix[2] &&
-         key_[3] == prefix[3];
+  return std::equal( m_key, m_key + 4, prefix );
 }
 
-// ------------------------------------------------------------------
-/// Return the category represented by this key
+// ----------------------------------------------------------------------------
 klv_uds_key::category_t
 klv_uds_key
 ::category() const
 {
-  return (key_[4] > 0x05) ? CATEGORY_INVALID
-                          : static_cast<category_t>(key_[4]);
+  auto const byte = m_key[ 4 ];
+  return ( byte < CATEGORY_ENUM_END )
+         ? static_cast< category_t >( byte )
+         : CATEGORY_INVALID;
 }
 
-// ------------------------------------------------------------------
-/// Return the type of single item (aka dictionary) used.
-/// Only valid for keys with CATEGORY_SINGLE
+// ----------------------------------------------------------------------------
 klv_uds_key::single_t
 klv_uds_key
 ::single_type() const
 {
-  if (this->category() != CATEGORY_SINGLE || key_[5] > 0x04)
-  {
-    return SINGLE_INVALID;
-  }
-  return static_cast<single_t>(key_[5]);
+  auto const byte = m_key[ 5 ];
+  return ( byte < SINGLE_ENUM_END && category() == CATEGORY_SINGLE )
+         ? static_cast< single_t >( byte )
+         : SINGLE_INVALID;
 }
 
-// ------------------------------------------------------------------
-/// Return the type of grouping used.
-/// Only valid for keys with CATEGORY_GROUP
+// ----------------------------------------------------------------------------
 klv_uds_key::group_t
 klv_uds_key
 ::group_type() const
 {
-  // group type encoded in the lower 3 bits
-  uint8_t g = key_[5] & 0x07;
-  if (this->category() != CATEGORY_GROUP || g > 0x05)
-  {
-    return GROUP_INVALID;
-  }
-  return static_cast<group_t>(g);
+  // Group type encoded in the lower 3 bits
+  auto const byte = m_key[ 5 ] & 0x07;
+  return ( byte < GROUP_ENUM_END && category() == CATEGORY_GROUP )
+         ? static_cast< group_t >( byte )
+         : GROUP_INVALID;
 }
 
-// ------------------------------------------------------------------
-/// Return the type of wrapper used.
-/// Only valid for keys with CATEGORY_WRAPPER
+// ----------------------------------------------------------------------------
 klv_uds_key::wrapper_t
 klv_uds_key
 ::wrapper_type() const
 {
-  if (this->category() != CATEGORY_WRAPPER || key_[5] > 0x02)
-  {
-    return WRAPPER_INVALID;
-  }
-  return static_cast<wrapper_t>(key_[5]);
+  auto const byte = m_key[ 5 ];
+  return ( byte < WRAPPER_ENUM_END && category() == CATEGORY_WRAPPER )
+         ? static_cast< wrapper_t >( byte )
+         : WRAPPER_INVALID;
 }
 
-// ------------------------------------------------------------------
-/// Return the number of bytes used to represent length of each group item.
-/// Valid only for GROUP_GLOBAL_SET, GROUP_LOCAL_SET, GROUP_VARIABLE_PACK
-/// \note return value of 0 indicates BER encoding in either long or short
-///       form that can contain variable numbers of bytes
-std::size_t
+// ----------------------------------------------------------------------------
+size_t
 klv_uds_key
 ::group_item_length_size() const
 {
-  uint8_t s = (key_[5] & 0x60) >> 5;
-  // the two-bit number from bits 6 and 7 map to 0, 1, 2, 4
-  s = (s == 3) ? 4 : s;
-  switch(this->group_type())
+  // The two-bit number from bits 6 and 7 maps to 0, 1, 2, 4
+  uint8_t result = ( m_key[ 5 ] & 0x60 ) >> 5;
+  result = ( result == 3 ) ? 4 : result;
+
+  switch( group_type() )
   {
     case GROUP_GLOBAL_SET:
     case GROUP_LOCAL_SET:
     case GROUP_VARIABLE_PACK:
-      return s;
+      return result;
     default:
-      break;
+      return 0;
   }
-  return 0;
 }
 
-// ------------------------------------------------------------------
-/// Return the number of bytes used to represent the local tags.
-/// Valid only for GROUP_LOCAL_SET
-/// \note return value of 0 indicates OID BER encoding
-///       that can contain variable numbers of bytes
-std::size_t
+// ----------------------------------------------------------------------------
+size_t
 klv_uds_key
 ::group_item_tag_size() const
 {
-  if (this->group_type() != GROUP_LOCAL_SET)
+  if( this->group_type() != GROUP_LOCAL_SET )
   {
     return 0;
   }
-  // the two-bit number from bits 4 and 5 map to the following values
-  const size_t map[] = {1, 0, 2, 4};
-  return map[(key_[5] & 0x18) >> 3];
+
+  // The two-bit number from bits 4 and 5 maps to the following values
+  size_t const map[] = { 1, 0, 2, 4 };
+  return map[ ( m_key[ 5 ] & 0x18 ) >> 3 ];
 }
 
-//============================================================================
-
-klv_lds_key
-::klv_lds_key(uint8_t data)
+// ----------------------------------------------------------------------------
+bool
+operator==( klv_uds_key const& lhs, klv_uds_key const& rhs )
 {
-  key_[0] = data;
+  // SMPTE specifies that byte 7 does not play a role in a key's uniqueness
+  return std::equal( lhs.cbegin(), lhs.cbegin() + 7, rhs.cbegin() ) &&
+         std::equal( lhs.cbegin() + 8, lhs.cend(), rhs.cbegin() + 8 );
 }
 
-klv_lds_key
-::klv_lds_key(const uint8_t data[1])
+// ----------------------------------------------------------------------------
+bool
+operator!=( klv_uds_key const& lhs, klv_uds_key const& rhs )
 {
-  key_[0] = *data;
+  return !( lhs == rhs );
 }
 
-//============================================================================
+// ----------------------------------------------------------------------------
+bool
+operator<( klv_uds_key const& lhs, klv_uds_key const& rhs )
+{
+  // SMPTE specifies that byte 7 does not play a role in a key's uniqueness
+  return std::lexicographical_compare( lhs.cbegin(), lhs.cbegin() + 7,
+                                       rhs.cbegin(), rhs.cbegin() + 7 ) ||
+         ( std::equal( lhs.cbegin(), lhs.cbegin() + 7, rhs.cbegin() ) &&
+           std::lexicographical_compare( lhs.cbegin() + 8, lhs.cend(),
+                                         rhs.cbegin() + 8, rhs.cend() ) );
+}
 
-#define INSTANTIATE_KLV_KEY(NUM)                                        \
-template class klv_key<NUM>;                                            \
-template KWIVER_ALGO_KLV_EXPORT std::ostream& operator <<(std::ostream& os, klv_key<NUM> const& key)
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_uds_key const& key )
+{
+  auto const flags = os.flags();
+  for( size_t i = 0; i < key.length; ++i )
+  {
+    os << std::hex << std::setfill( '0' ) << std::setw( 2 );
+    os << static_cast< unsigned int >( key[ i ] );
+    if( i % 4 == 3 && i != key.length - 1 )
+    {
+      os << ' ';
+    }
+  }
+  os.flags( flags );
+  return os;
+}
 
-INSTANTIATE_KLV_KEY(1);
-INSTANTIATE_KLV_KEY(16);
+// ----------------------------------------------------------------------------
+size_t
+klv_uds_key_length( klv_uds_key value )
+{
+  return value.length;
+}
 
-} } } // end namespace
+// ----------------------------------------------------------------------------
+size_t
+klv_lds_key_length( klv_lds_key value )
+{
+  return klv_ber_oid_length( value );
+}
+
+} // namespace klv
+
+} // namespace arrows
+
+} // namespace kwiver

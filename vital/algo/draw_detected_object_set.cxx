@@ -6,7 +6,9 @@
 #include <vital/algo/draw_detected_object_set.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 draw_detected_object_set
@@ -15,6 +17,10 @@ draw_detected_object_set
   attach_logger( "algo.draw_detected_object_set" );
 }
 
-} } }
+} // namespace algo
 
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::draw_detected_object_set);
+} // namespace vital
+
+} // namespace kwiver
+
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::draw_detected_object_set );

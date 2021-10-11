@@ -1,13 +1,32 @@
-KWIVER v1.5.2 Release Notes
+KWIVER v1.6.1 Release Notes
 ===========================
 
 This is a patch release of KWIVER that provides fixes over the previous
-v1.5.1 release.
+v1.6.0 release.
 
-Bug Fixes since v1.5.1
+Bug Fixes since v1.6.0
 ----------------------
 
-Processes: Core
+Arrows: MVG
 
- * Fix configuration check for read_object_track, enabling configuration to
-   succeed.
+ * Fixed a typo in the command line argument name for camera path in the
+   init_cameras_landmarks applet.  This was preventing changing the camera
+   directory in the applet.
+
+Arrows: VTK
+
+ * Fixed an error in the calculation of depth used in mesh coloring.  This
+   caused coloring to fail to apply color in some cases.  It was primarily
+   an issue when the near plane was much closer to the camera than to the
+   far plane.
+
+Build System
+
+ * Fix missing `ZeroMQ_INCLUDE_DIR` set when building statically.
+
+ * Fix missing-closing-bracket typo in `CMake/utils/kwiver-utils-python.cmake`.
+
+ * Include CUDA include directories when building CUDA arrow.  This is needed
+   if CUDA is not installed in standard system locations.
+
+ * Enable the CUDA arrow in the Docker container.

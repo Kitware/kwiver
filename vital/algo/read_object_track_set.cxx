@@ -22,13 +22,15 @@ INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::read_object_track_set );
 /// \endcond
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 read_object_track_set
 ::read_object_track_set()
   : m_stream( 0 )
-  , m_stream_owned( false )
+    , m_stream_owned( false )
 {
   attach_logger( "algo.read_object_track_set" );
 }
@@ -57,7 +59,7 @@ read_object_track_set
   m_stream = 0;
 
   // Make sure that the given file path exists and is a file.
-  if( ! kwiversys::SystemTools::FileExists( filename ) )
+  if( !kwiversys::SystemTools::FileExists( filename ) )
   {
     VITAL_THROW( path_not_exists, filename );
   }
@@ -70,7 +72,7 @@ read_object_track_set
   // try to open the file
   std::unique_ptr< std::istream > file( new std::ifstream( filename ) );
 
-  if( ! *file )
+  if( !*file )
   {
     VITAL_THROW( file_not_found_exception, filename, "open failed" );
   }
@@ -97,7 +99,7 @@ void
 read_object_track_set
 ::close()
 {
-  if ( m_stream_owned )
+  if( m_stream_owned )
   {
     delete m_stream;
   }
@@ -110,7 +112,7 @@ bool
 read_object_track_set
 ::at_eof() const
 {
-  if ( m_stream )
+  if( m_stream )
   {
     return m_stream->eof();
   }
@@ -135,4 +137,8 @@ read_object_track_set
 {
 }
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver

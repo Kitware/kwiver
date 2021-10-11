@@ -8,31 +8,42 @@
  */
 
 #include "metadata.h"
+#include "metadata_traits.h"
 
+#include <vital/types/metadata_traits.h>
 #include <vital/util/demangle.h>
+
+#include <typeindex>
 
 namespace kwiver {
 namespace vital {
 
+// ----------------------------------------------------------------------------
 metadata_item
-::metadata_item( std::string const& p_name,
-                 kwiver::vital::any const& p_data,
-                 vital_metadata_tag p_tag )
-    : m_name{ p_name },
-      m_data{ p_data },
+::metadata_item( vital_metadata_tag p_tag,
+                 kwiver::vital::any const& p_data )
+    : m_data{ p_data },
       m_tag{ p_tag }
 {
+  if( tag_traits_by_tag( m_tag ).type() != m_data.type() )
+  {
+    throw bad_any_cast( m_data.type_name(),
+                        tag_traits_by_tag( m_tag ).type_name() );
+  }
 }
 
 // ----------------------------------------------------------------------------
 metadata_item
-::metadata_item( std::string const& p_name,
-                 kwiver::vital::any&& p_data,
-                 vital_metadata_tag p_tag )
-    : m_name{ p_name },
-      m_data{ std::move( p_data ) },
+::metadata_item( vital_metadata_tag p_tag,
+                 kwiver::vital::any&& p_data )
+    : m_data{ std::move( p_data ) },
       m_tag{ p_tag }
 {
+  if( tag_traits_by_tag( m_tag ).type() != m_data.type() )
+  {
+    throw bad_any_cast( m_data.type_name(),
+                        tag_traits_by_tag( m_tag ).type_name() );
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -40,16 +51,26 @@ bool
 metadata_item
 ::is_valid() const
 {
-  return true;
+  return m_tag != VITAL_META_UNKNOWN;
 }
 
-std::string const&
+// ----------------------------------------------------------------------------
+std::string
 metadata_item
 ::name() const
 {
-  return this->m_name;
+  return tag_traits_by_tag( m_tag ).name();
 }
 
+// ----------------------------------------------------------------------------
+std::type_info const&
+metadata_item
+::type() const
+{
+  return tag_traits_by_tag( m_tag ).type();
+}
+
+// ----------------------------------------------------------------------------
 kwiver::vital::any
 metadata_item
 ::data() const
@@ -57,6 +78,7 @@ metadata_item
   return this->m_data;
 }
 
+// ----------------------------------------------------------------------------
 double
 metadata_item
 ::as_double() const
@@ -64,6 +86,7 @@ metadata_item
   return kwiver::vital::any_cast< double > ( this->m_data );
 }
 
+// ----------------------------------------------------------------------------
 bool
 metadata_item
 ::has_double() const
@@ -71,6 +94,7 @@ metadata_item
   return m_data.type() == typeid( double );
 }
 
+// ----------------------------------------------------------------------------
 uint64_t
 metadata_item
 ::as_uint64() const
@@ -78,6 +102,7 @@ metadata_item
   return kwiver::vital::any_cast< uint64_t > ( this->m_data );
 }
 
+// ----------------------------------------------------------------------------
 bool
 metadata_item
 ::has_uint64() const
@@ -85,12 +110,77 @@ metadata_item
   return m_data.type() == typeid( uint64_t );
 }
 
+// ----------------------------------------------------------------------------
+std::string
+metadata_item
+::as_string() const
+{
+  if( this->has_string() )
+  {
+    return any_cast< string_t >( m_data );
+  }
+
+  std::stringstream ss;
+  print_value( ss );
+  return ss.str();
+}
+
+// ----------------------------------------------------------------------------
 bool
 metadata_item
 ::has_string() const
 {
   return m_data.type() == typeid( std::string );
 }
+
+// ----------------------------------------------------------------------------
+std::ostream&
+metadata_item
+::print_value( std::ostream& os ) const
+{
+  if( m_data.is_type< bool >() )
+  {
+    os << any_cast< bool >( m_data );
+  }
+  else if( m_data.is_type< uint64_t >() )
+  {
+    os << any_cast< uint64_t >( m_data );
+  }
+  else if ( m_data.is_type< int >() )
+  {
+    os << any_cast< int >( m_data );
+  }
+  else if( m_data.is_type< double >() )
+  {
+    os << any_cast< double >( m_data );
+  }
+  else if( m_data.is_type< string_t >() )
+  {
+    os << any_cast< string_t >( m_data );
+  }
+  else if( m_data.is_type< geo_point >() )
+  {
+    os << any_cast< geo_point >( m_data );
+  }
+  else if ( m_data.is_type< geo_polygon >() )
+  {
+    os << any_cast< geo_polygon >( m_data );
+  }
+  else
+  {
+    throw std::logic_error( "unsupported type" );
+  }
+  return os;
+}
+
+// ---------------------------------------------------------------------
+metadata_item*
+metadata_item
+::clone() const
+{
+  return new metadata_item{ *this };
+}
+
 
 // ==================================================================
 metadata
@@ -101,8 +191,6 @@ metadata
 metadata
 ::metadata( metadata const& other )
 {
-  set_timestamp( other.m_timestamp );
-
   for( auto const& md_item : other.m_metadata_map )
   {
     // Add a copy of the other metadata map's items
@@ -154,6 +242,18 @@ metadata
 }
 
 // -------------------------------------------------------------------
+void
+metadata
+::add_any( vital_metadata_tag tag, any const& data )
+{
+  if( tag_traits_by_tag( tag ).type() != data.type() )
+  {
+    throw bad_any_cast{ data.type_name(), tag_traits_by_tag( tag ).type_name() };
+  }
+  this->add( std::unique_ptr< metadata_item >( new metadata_item{ tag, data } ) );
+}
+
+// -------------------------------------------------------------------
 bool
 metadata
 ::has( vital_metadata_tag tag ) const
@@ -166,7 +266,7 @@ metadata_item const&
 metadata
 ::find( vital_metadata_tag tag ) const
 {
-  static unknown_metadata_item unknown_item;
+  static metadata_item unknown_item{ VITAL_META_UNKNOWN, 0 };
 
   const_iterator_t it = m_metadata_map.find( tag );
   if ( it == m_metadata_map.end() )
@@ -235,15 +335,43 @@ void
 metadata
 ::set_timestamp( kwiver::vital::timestamp const& ts )
 {
-  this->m_timestamp = ts;
+  if( ts.has_valid_frame() )
+  {
+    this->add_any< VITAL_META_VIDEO_FRAME_NUMBER >(
+      static_cast< uint64_t >( ts.get_frame() ) );
+  }
+  else
+  {
+    this->erase( VITAL_META_VIDEO_FRAME_NUMBER );
+  }
+  if( ts.has_valid_time() )
+  {
+    this->add_any< VITAL_META_VIDEO_MICROSECONDS >(
+      static_cast< uint64_t >( ts.get_time_usec() ) );
+  }
+  else
+  {
+    this->erase( VITAL_META_VIDEO_MICROSECONDS );
+  }
 }
 
 // ---------------------------------------------------------------------
-kwiver::vital::timestamp const&
+kwiver::vital::timestamp
 metadata
 ::timestamp() const
 {
-  return this->m_timestamp;
+  kwiver::vital::timestamp timestamp_;
+  if( this->has( VITAL_META_VIDEO_FRAME_NUMBER ) )
+  {
+    timestamp_.set_frame(
+      this->find( VITAL_META_VIDEO_FRAME_NUMBER ).as_uint64() );
+  }
+  if( this->has( VITAL_META_VIDEO_MICROSECONDS ) )
+  {
+    timestamp_.set_time_usec(
+      this->find( VITAL_META_VIDEO_MICROSECONDS ).as_uint64() );
+  }
+  return timestamp_;
 }
 
 // ------------------------------------------------------------------

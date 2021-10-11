@@ -4,7 +4,11 @@
 
 #include "video_input_metadata_filter.h"
 
+#include <vital/algo/metadata_filter.h>
+
 #include <vital/exceptions.h>
+
+namespace kv = kwiver::vital;
 
 namespace kwiver {
 
@@ -16,8 +20,53 @@ namespace core {
 class video_input_metadata_filter::priv
 {
 public:
+  kv::image_container_scptr current_image_for_transform() const;
+
+  kv::metadata_vector transform_frame_metadata(
+    kv::metadata_vector const&,
+    kv::image_container_scptr const& ) const;
+
+  kv::metadata_vector transform_current_frame_metadata() const;
+
   vital::algo::video_input_sptr video_input;
+  vital::algo::metadata_filter_sptr metadata_filter;
+
+  bool filter_uses_image = true;
 };
+
+// ----------------------------------------------------------------------------
+kv::image_container_scptr
+video_input_metadata_filter::priv
+::current_image_for_transform() const
+{
+  return ( this->filter_uses_image
+    ? this->video_input->frame_image()
+    : nullptr );
+}
+
+// ----------------------------------------------------------------------------
+kv::metadata_vector
+video_input_metadata_filter::priv
+::transform_frame_metadata(
+  kv::metadata_vector const& in,
+  kv::image_container_scptr const& image ) const
+{
+  if( !metadata_filter )
+  {
+    return in;
+  }
+
+  return metadata_filter->filter( in, image );
+}
+
+// ----------------------------------------------------------------------------
+kv::metadata_vector
+video_input_metadata_filter::priv
+::transform_current_frame_metadata() const
+{
+  return this->transform_frame_metadata(
+    this->video_input->frame_metadata(), this->current_image_for_transform() );
+}
 
 // ----------------------------------------------------------------------------
 video_input_metadata_filter
@@ -27,7 +76,7 @@ video_input_metadata_filter
   attach_logger( "arrows.core.video_input_metadata_filter" );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_input_metadata_filter
 ::~video_input_metadata_filter()
 {
@@ -42,6 +91,8 @@ video_input_metadata_filter
 
   vital::algo::video_input::get_nested_algo_configuration(
     "video_input", config, m_d->video_input );
+  vital::algo::metadata_filter::get_nested_algo_configuration(
+    "metadata_filter", config, m_d->metadata_filter );
 
   return config;
 }
@@ -56,6 +107,15 @@ video_input_metadata_filter
 
   vital::algo::video_input::set_nested_algo_configuration(
     "video_input", config, m_d->video_input );
+  vital::algo::metadata_filter::set_nested_algo_configuration(
+    "metadata_filter", config, m_d->metadata_filter );
+
+  if( m_d->metadata_filter )
+  {
+    auto const& caps = m_d->metadata_filter->get_implementation_capabilities();
+    m_d->filter_uses_image =
+      caps.capability( vital::algo::metadata_filter::CAN_USE_FRAME_IMAGE );
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -64,8 +124,11 @@ video_input_metadata_filter
 ::check_configuration(
   vital::config_block_sptr config ) const
 {
-  return vital::algo::video_input::check_nested_algo_configuration(
-    "video_input", config );
+  return
+    vital::algo::video_input::check_nested_algo_configuration(
+      "video_input", config ) &&
+    vital::algo::metadata_filter::check_nested_algo_configuration(
+      "metadata_filter", config );
 }
 
 // ----------------------------------------------------------------------------
@@ -75,7 +138,7 @@ video_input_metadata_filter
 {
   if( !m_d->video_input )
   {
-    VITAL_THROW( kwiver::vital::algorithm_configuration_exception,
+    VITAL_THROW( kv::algorithm_configuration_exception,
                  type_name(), impl_name(), "invalid video_input." );
   }
   m_d->video_input->open( name );
@@ -83,7 +146,7 @@ video_input_metadata_filter
   auto const& vi_caps = m_d->video_input->get_implementation_capabilities();
 
   using vi = vital::algo::video_input;
-  using cn = kwiver::vital::algorithm_capabilities::capability_name_t;
+  using cn = kv::algorithm_capabilities::capability_name_t;
 
   auto copy_capability =
     [ & ]( cn const& cap ){
@@ -115,7 +178,7 @@ video_input_metadata_filter
 // ----------------------------------------------------------------------------
 bool
 video_input_metadata_filter
-::next_frame( kwiver::vital::timestamp& ts, uint32_t timeout )
+::next_frame( kv::timestamp& ts, uint32_t timeout )
 {
   if( !m_d->video_input )
   {
@@ -129,8 +192,8 @@ video_input_metadata_filter
 bool
 video_input_metadata_filter
 ::seek_frame(
-  kwiver::vital::timestamp& ts,
-  kwiver::vital::timestamp::frame_t frame_number,
+  kv::timestamp& ts,
+  kv::timestamp::frame_t frame_number,
   uint32_t timeout )
 {
   if( !m_d->video_input )
@@ -142,7 +205,7 @@ video_input_metadata_filter
 }
 
 // ----------------------------------------------------------------------------
-kwiver::vital::image_container_sptr
+kv::image_container_sptr
 video_input_metadata_filter
 ::frame_image()
 {
@@ -155,7 +218,7 @@ video_input_metadata_filter
 }
 
 // ----------------------------------------------------------------------------
-kwiver::vital::metadata_vector
+kv::metadata_vector
 video_input_metadata_filter
 ::frame_metadata()
 {
@@ -164,33 +227,76 @@ video_input_metadata_filter
     return {};
   }
 
-  return this->transform_frame_metadata(
-    m_d->video_input->frame_metadata() );
+  return m_d->transform_current_frame_metadata();
 }
 
 // ----------------------------------------------------------------------------
-kwiver::vital::metadata_map_sptr
+kv::metadata_map_sptr
 video_input_metadata_filter
 ::metadata_map()
 {
   if( !m_d->video_input )
   {
-    return {};
+    return std::make_shared< kv::simple_metadata_map >();
   }
 
-  auto const& map_ptr = m_d->video_input->metadata_map();
-  if( !map_ptr )
+  if( !m_d->metadata_filter )
   {
-    return nullptr;
+    return m_d->video_input->metadata_map();
   }
 
   auto out = vital::metadata_map::map_metadata_t{};
-  for( auto const& i : map_ptr->metadata() )
-  {
-    out.emplace( i.first, this->transform_frame_metadata( i.second ) );
-  }
 
-  return std::make_shared< kwiver::vital::simple_metadata_map >( out );
+  if( m_d->filter_uses_image )
+  {
+    if( !m_d->video_input->seekable() )
+    {
+      return std::make_shared< kv::simple_metadata_map >();
+    }
+
+    auto const was_at_end = m_d->video_input->end_of_video();
+    auto const previous_frame =
+      m_d->video_input->frame_timestamp().get_frame();
+
+    auto ts = kv::timestamp{};
+    if( !m_d->video_input->seek_frame( ts, 0 ) )
+    {
+      return std::make_shared< kv::simple_metadata_map >();
+    }
+
+    while( !m_d->video_input->end_of_video() )
+    {
+      out.emplace( ts.get_frame(), m_d->transform_current_frame_metadata() );
+
+      if( !m_d->video_input->next_frame( ts ) )
+      {
+        break;
+      }
+    }
+
+    if( !was_at_end )
+    {
+      m_d->video_input->seek_frame( ts, previous_frame );
+    }
+
+    return std::make_shared< kv::simple_metadata_map >( out );
+  }
+  else
+  {
+    auto const& map_ptr = m_d->video_input->metadata_map();
+    if( !map_ptr )
+    {
+      return nullptr;
+    }
+
+    for( auto const& i : map_ptr->metadata() )
+    {
+      out.emplace(
+        i.first, m_d->transform_frame_metadata( i.second, nullptr ) );
+    }
+
+    return std::make_shared< kv::simple_metadata_map >( out );
+  }
 }
 
 // ----------------------------------------------------------------------------
