@@ -8,7 +8,6 @@
 #include "klv_blob.h"
 
 #include <iomanip>
-#include <ostream>
 
 namespace kwiver {
 
