@@ -16,6 +16,13 @@
 // - BER-OID : Unsigned integer which encodes its own length. First bit of each
 // byte signals whether there is another following byte; lower seven bits
 // concatenated together form the actual value.
+// - flint : Predecessor to IMAP. Floating-point number between defined upper
+// and lower limits, represented as a signed or unsigned integer, the full
+// range of which is uniformly mapped between those limits. The signed version
+// is always mapped to a range symmetrical around zero (e.g. -90 to 90). The
+// lowest possible signed integer is used as an out-of-range / NaN indicator.
+// Unsigned integers are used for non-symmetrical ranges (e.g. -30 to 100), and
+// have no special values, so out-of-range values are clamped.
 // - IMAP : Floating-point number between defined upper and lower limits,
 // represented as an integer, the full range of which is uniformly mapped
 // between those limits. Has special defined values for infinities, NaNs, etc.
@@ -212,6 +219,95 @@ template < class T >
 KWIVER_ALGO_KLV_EXPORT
 size_t
 klv_ber_oid_length( T value );
+
+// ---------------------------------------------------------------------------
+/// Read an integer from a sequence of bytes and map it to a defined
+/// floating-point range.
+///
+/// This function allows signed or unsigned integer types. The mapping is
+/// linear. The range is inclusive on both ends. The entire range of the
+/// integer type is used, unless the integer is signed, in which case the
+/// lowest representable value is mapped to quiet NaN.
+///
+/// \param minimum Lower end of mapped range.
+/// \param maximum Upper end of mapped range.
+/// \param[in,out] data Iterator to sequence of \c uint8_t. Set to end of
+/// read bytes on success, left as is on error.
+/// \param length Number of bytes to read.
+///
+/// \returns Floating-point number mapped from read integer.
+///
+/// \throws invalid_value When \p minimum is not less than \p maximum.
+/// \throws metadata_type_overflow When the read value is too large for \c T.
+template < class T, class Iterator >
+KWIVER_ALGO_KLV_EXPORT
+double
+klv_read_flint( double minimum, double maximum,
+                Iterator& data, size_t length );
+
+// ---------------------------------------------------------------------------
+/// Map a floating-point number within a range to an integer and write it to a
+/// sequence of bytes.
+///
+/// This function allows signed or unsigned integer types. The mapping is
+/// linear. The range is inclusive on both ends. The entire range of the
+/// integer type is used, unless the integer is signed, in which case invalid
+/// or out-of-range \p value is mapped to the lowest representable integer. For
+/// unsigned integers, out-of-range \p value is silently clamped to the range,
+/// and NaN \p value is changed to \p minimum.
+///
+/// \param value Floating-point number to map to an integer.
+/// \param minimum Lower end of mapped range.
+/// \param maximum Upper end of mapped range.
+/// \param[in,out] data Writeable iterator to sequence of \c uint8_t. Set to
+/// end of written bytes on success, left as is on error.
+/// \param length Number of bytes to read.
+///
+/// \throws invalid_value When \p minimum is not less than \p maximum, or if
+/// \c T is signed and the range is not symmetrical around zero.
+template < class T, class Iterator >
+KWIVER_ALGO_KLV_EXPORT
+void
+klv_write_flint( double value, double minimum, double maximum,
+                 Iterator& data, size_t length );
+
+// ---------------------------------------------------------------------------
+/// Return the number of bytes required for the given flint specification.
+///
+/// Precision here is the distance between successive discrete mapped values.
+///
+/// \param minimum Lower end of mapped range.
+/// \param maximum Upper end of mapped range.
+/// \param precision Desired precision of flint value.
+///
+/// \returns Byte length of a flint value meeting the provided parameters.
+///
+/// \throws logic_error When \p minimum is not less than \p maximum, \p
+/// precision is greater than their span, or any of the three is nonfinite.
+/// \throws metadata_type_overflow When the difference between \p minimum and
+/// \p maximum is to large for a \c double to hold.
+KWIVER_ALGO_KLV_EXPORT
+size_t
+klv_flint_length( double minimum, double maximum, double precision );
+
+// ---------------------------------------------------------------------------
+/// Return the precision offered by the given flint specification.
+///
+/// Precision here is the distance between successive discrete mapped values.
+///
+/// \param minimum Lower end of mapped range.
+/// \param maximum Upper end of mapped range.
+/// \param length Desired byte length of flint value.
+///
+/// \returns Precision of a flint value meeting the provided parameters.
+///
+/// \throws logic_error When \p minimum is not less than \p maximum, either is
+/// nonfinite, or \p length is zero.
+/// \throws metadata_type_overflow When the difference between \p minimum and
+/// \p maximum is to large for a \c double to hold.
+KWIVER_ALGO_KLV_EXPORT
+double
+klv_flint_precision( double minimum, double maximum, size_t length );
 
 // ---------------------------------------------------------------------------
 /// Read an IEEE-754 floating-point number from a sequence of bytes
