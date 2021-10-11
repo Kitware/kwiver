@@ -21,7 +21,9 @@
 #include <vital/types/fundamental_matrix.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// An abstract base class for estimating a fundamental matrix from matching 2D points
@@ -72,6 +74,10 @@ protected:
 /// Shared pointer type of base estimate_fundamental_matrix algorithm definition class
 typedef std::shared_ptr<estimate_fundamental_matrix> estimate_fundamental_matrix_sptr;
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // VITAL_ALGO_ESTIMATE_FUNDAMENTAL_MATRIX_H_

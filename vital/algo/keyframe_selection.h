@@ -62,6 +62,6 @@ typedef std::shared_ptr< keyframe_selection > keyframe_selection_sptr;
 
 } // namespace vital
 
-}   // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_KEYFRAME_SELECTION_H_

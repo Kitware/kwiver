@@ -10,27 +10,30 @@
 #ifndef VITAL_ALGO_INITIALIZE_OBJECT_TRACKS_MATRIX_H_
 #define VITAL_ALGO_INITIALIZE_OBJECT_TRACKS_MATRIX_H_
 
-#include <vital/vital_config.h>
 #include <vital/algo/algorithm.h>
+#include <vital/vital_config.h>
 
-#include <vital/types/timestamp.h>
-#include <vital/types/object_track_set.h>
 #include <vital/types/detected_object_set.h>
 #include <vital/types/image_container.h>
+#include <vital/types/object_track_set.h>
+#include <vital/types/timestamp.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// An abstract base class for computing association cost matrices for tracking
 class VITAL_ALGO_EXPORT initialize_object_tracks
-  : public kwiver::vital::algorithm_def<initialize_object_tracks>
+  : public kwiver::vital::algorithm_def< initialize_object_tracks >
 {
 public:
   /// Return the name of this algorithm
   static std::string static_type_name() { return "initialize_object_tracks"; }
 
   /// Initialize new object tracks given detections.
+
   /**
    * \param ts frame ID
    * \param image contains the input image for the current frame
@@ -44,12 +47,16 @@ public:
 
 protected:
   initialize_object_tracks();
-
 };
 
 /// Shared pointer for initialize_object_tracks algorithm definition class
-typedef std::shared_ptr<initialize_object_tracks> initialize_object_tracks_sptr;
+typedef std::shared_ptr< initialize_object_tracks >
+  initialize_object_tracks_sptr;
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // VITAL_ALGO_INITIALIZE_OBJECT_TRACKS_H_
