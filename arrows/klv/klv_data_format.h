@@ -366,11 +366,14 @@ protected:
 // ----------------------------------------------------------------------------
 /// Interprets data as an enum type.
 template < class T >
-class KWIVER_ALGO_KLV_EXPORT klv_enum_format : public klv_data_format_< T >
+class KWIVER_ALGO_KLV_EXPORT klv_enum_format
+  : public klv_data_format_< typename std::decay< T >::type >
 {
 public:
+  using data_type = typename std::decay< T >::type;
+
   klv_enum_format( size_t fixed_length = 1 )
-    : klv_data_format_< T >{ fixed_length }
+    : klv_data_format_< data_type >{ fixed_length }
   {}
 
   virtual
@@ -386,21 +389,22 @@ public:
   }
 
 protected:
-  T
+  data_type
   read_typed( klv_read_iter_t& data, size_t length ) const override
   {
-    return static_cast< T >( klv_read_int< uint64_t >( data, length ) );
+    return static_cast< data_type >(
+      klv_read_int< uint64_t >( data, length ) );
   }
 
   void
-  write_typed( T const& value,
+  write_typed( data_type const& value,
                klv_write_iter_t& data, size_t length ) const override
   {
     klv_write_int( static_cast< uint64_t >( value ), data, length );
   }
 
   size_t
-  length_of_typed( T const& value,
+  length_of_typed( data_type const& value,
                    VITAL_UNUSED size_t length_hint ) const override
   {
     return klv_int_length( static_cast< uint64_t >( value ) );
