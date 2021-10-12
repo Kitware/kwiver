@@ -44,11 +44,7 @@ public:
   virtual ~detected_object_set_output();
 
   /// Return the name of this algorithm
-  static std::string
-  static_type_name()
-  {
-    return "detected_object_set_output";
-  }
+  static std::string static_type_name() { return "detected_object_set_output"; }
 
   /// Open a file of detection sets.
 
@@ -118,13 +114,12 @@ private:
 };
 
 /// Shared pointer type for generic detected_object_set_output definition type.
-typedef std::shared_ptr< detected_object_set_output >
-  detected_object_set_output_sptr;
+typedef std::shared_ptr< detected_object_set_output > detected_object_set_output_sptr;
 
 } // namespace algo
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // _VITAL_DETECTED_OBJECT_SET_OUTPUT_H

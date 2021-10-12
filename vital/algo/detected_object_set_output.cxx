@@ -29,8 +29,8 @@ namespace algo {
 
 detected_object_set_output
 ::detected_object_set_output()
-  : m_stream( 0 )
-    , m_stream_owned( false )
+  : m_stream( 0 ),
+    m_stream_owned( false )
 {
   attach_logger( "algo.detected_object_set_output" );
 }
@@ -100,4 +100,4 @@ detected_object_set_output
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver

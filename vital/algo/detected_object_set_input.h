@@ -53,10 +53,10 @@ public:
    * \param filename Name of file to open
    *
    * \throws kwiver::vital::path_not_exists Thrown when the given path does not
-   * exist.
+   *         exist.
    *
    * \throws kwiver::vital::path_not_a_file Thrown when the given path does
-   *    not point to a file (i.e. it points to a directory).
+   *         not point to a file (i.e. it points to a directory).
    *
    * \throws kwiver::vital::file_not_found_exception
    */
@@ -130,6 +130,6 @@ typedef std::shared_ptr< detected_object_set_input >
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // _VITAL_DETECTED_OBJECT_SET_INPUT_H

@@ -32,7 +32,6 @@ class VITAL_ALGO_EXPORT estimate_fundamental_matrix
   : public kwiver::vital::algorithm_def< estimate_fundamental_matrix >
 {
 public:
-
   /// Return the name of this algorithm
   static std::string
   static_type_name()
@@ -45,8 +44,8 @@ public:
   /**
    * \param [in]  feat1 the set of all features from the first image
    * \param [in]  feat2 the set of all features from the second image
-   * \param [in]  matches the set of correspondences between \a feat1 and \a
-   * feat2
+   * \param [in]  matches the set of correspondences between \a feat1 and
+   *                      \a feat2
    * \param [out] inliers for each point pair, the value is true if
    *                      this pair is an inlier to the estimate
    * \param [in]  inlier_scale error distance tolerated for matches to be
