@@ -13,7 +13,7 @@
 #include <sstream>
 
 #ifndef KWIVER_ARROWS_KLV_KLV_VALUE_H_
-# define KWIVER_ARROWS_KLV_KLV_VALUE_H_
+#define KWIVER_ARROWS_KLV_KLV_VALUE_H_
 
 namespace kwiver {
 
@@ -24,7 +24,7 @@ namespace klv {
 // ----------------------------------------------------------------------------
 /// Exception indicating a \c klv_value container did not contain the requested
 /// type.
-class klv_bad_value_cast : public std::bad_cast
+class KWIVER_ALGO_KLV_EXPORT klv_bad_value_cast : public std::bad_cast
 {
 public:
   klv_bad_value_cast( std::type_info const& requested_type,
@@ -47,7 +47,7 @@ private:
 /// data formats, the length can vary to reflect the precision of the numerical
 /// value. Knowing this precision may be desirable when performing
 /// calculations or writing the value back to KLV.
-class klv_value
+class KWIVER_ALGO_KLV_EXPORT klv_value
 {
 public:
   klv_value();
@@ -186,19 +186,19 @@ public:
     return ptr ? &ptr->m_item : nullptr;
   }
 
-  friend bool
+  friend KWIVER_ALGO_KLV_EXPORT bool
   operator<( klv_value const& lhs, klv_value const& rhs );
 
-  friend bool
+  friend KWIVER_ALGO_KLV_EXPORT bool
   operator==( klv_value const& lhs, klv_value const& rhs );
 
-  friend std::ostream&
+  friend KWIVER_ALGO_KLV_EXPORT std::ostream&
   operator<<( std::ostream& os, klv_value const& rhs );
 
 private:
 
   // Abstract base class interfacing with the contained data type.
-  class internal_base
+  class KWIVER_ALGO_KLV_EXPORT internal_base
   {
   public:
     virtual ~internal_base() = default;
@@ -213,7 +213,7 @@ private:
 
   // Type-specific implementation of the internal_base interface.
   template < class T >
-  class internal_ : public internal_base
+  class KWIVER_ALGO_KLV_EXPORT internal_ : public internal_base
   {
   public:
     explicit
@@ -290,18 +290,22 @@ private:
 };
 
 // ---------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
 bool
 operator<( klv_value const& lhs, klv_value const& rhs );
 
 // ---------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
 bool
 operator==( klv_value const& lhs, klv_value const& rhs );
 
 // ---------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
 bool
 operator!=( klv_value const& lhs, klv_value const& rhs );
 
 // ---------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
 std::ostream&
 operator<<( std::ostream& os, klv_value const& rhs );
 
