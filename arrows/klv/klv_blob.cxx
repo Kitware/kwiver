@@ -7,6 +7,9 @@
 
 #include "klv_blob.h"
 
+#include <iomanip>
+#include <ostream>
+
 namespace kwiver {
 
 namespace arrows {
@@ -53,6 +56,39 @@ klv_blob
 ::operator->() const
 {
   return &bytes;
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_blob const& blob )
+{
+  auto const flags = os.flags();
+
+  os << std::hex << std::setfill( '0' );
+  os << "< ";
+  for( auto const c : *blob )
+  {
+    os << std::setw( 2 ) << static_cast< unsigned int >( c ) << ' ';
+  }
+  os << ">";
+
+  os.flags( flags );
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator==( klv_blob const& lhs, klv_blob const& rhs )
+{
+  return *lhs == *rhs;
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator<( klv_blob const& lhs, klv_blob const& rhs )
+{
+  return std::lexicographical_compare( lhs->cbegin(), lhs->cend(),
+                                       rhs->cbegin(), rhs->cend() );
 }
 
 // ----------------------------------------------------------------------------
