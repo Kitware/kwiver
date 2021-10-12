@@ -11,7 +11,9 @@
 #include <vital/algo/track_features.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 track_features
@@ -20,8 +22,12 @@ track_features
   attach_logger( "algo.track_features" );
 }
 
-} } }
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 /// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::track_features);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::track_features );
 /// \endcond

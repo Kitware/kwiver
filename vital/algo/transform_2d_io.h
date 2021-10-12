@@ -20,16 +20,19 @@
 #include <vital/types/transform_2d.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// An abstract base class for reading and writing transforms
+
 /**
  * This class represents an abstract interface for reading and writing
  * transforms.
  */
 class VITAL_ALGO_EXPORT transform_2d_io
-  : public kwiver::vital::algorithm_def<transform_2d_io>
+  : public kwiver::vital::algorithm_def< transform_2d_io >
 {
 public:
   virtual ~transform_2d_io() = default;
@@ -38,6 +41,7 @@ public:
   static std::string static_type_name() { return "transform_2d_io"; }
 
   /// Load transform from the file
+
   /**
    * \throws kwiver::vital::path_not_exists
    *   Thrown when the given path does not exist.
@@ -52,6 +56,7 @@ public:
   kwiver::vital::transform_2d_sptr load( std::string const& filename ) const;
 
   /// Save transform to a file
+
   /**
    * Transform file format is based on the algorithm instance.
    *
@@ -78,6 +83,7 @@ protected:
 
 private:
   /// Implementation specific load functionality.
+
   /**
    * Concrete implementations of transform_2d_io class must provide an
    * implementation for this method.
@@ -89,6 +95,7 @@ private:
     std::string const& filename ) const = 0;
 
   /// Implementation specific save functionality.
+
   /**
    * Concrete implementations of transform_2d_io class must provide an
    * implementation for this method.
@@ -104,7 +111,9 @@ private:
 using transform_2d_io_sptr = std::shared_ptr< transform_2d_io >;
 
 } // namespace algo
+
 } // namespace vital
+
 } // namespace kwiver
 
 #endif

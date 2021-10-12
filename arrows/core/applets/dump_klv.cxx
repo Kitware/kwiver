@@ -81,7 +81,6 @@ dump_klv
 {
   const std::string opt_app_name = applet_name();
   std::string video_file;
-  kv::metadata_traits md_traits;
 
   auto& cmd_args = command_args();
 
@@ -222,7 +221,7 @@ dump_klv
             auto const& name = ix.second->name();
             auto const& data = ix.second->data();
             auto const& tag = ix.second->tag();
-            auto const& descrip = md_traits.tag_to_description( tag );
+            auto const& descrip = kv::tag_traits_by_tag( tag ).description();
 
             std::cout
                 << "Metadata item: " << name << std::endl

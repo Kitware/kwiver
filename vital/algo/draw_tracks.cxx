@@ -6,7 +6,9 @@
 #include <vital/algo/draw_tracks.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 draw_tracks
@@ -15,6 +17,10 @@ draw_tracks
   attach_logger( "algo.draw_tracks" );
 }
 
-} } }
+} // namespace algo
 
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::draw_tracks);
+} // namespace vital
+
+} // namespace kwiver
+
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::draw_tracks );

@@ -89,6 +89,6 @@ typedef std::shared_ptr< estimate_fundamental_matrix >
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_ESTIMATE_FUNDAMENTAL_MATRIX_H_

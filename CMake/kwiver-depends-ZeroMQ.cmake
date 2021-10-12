@@ -16,6 +16,10 @@ if( KWIVER_ENABLE_ZeroMQ )
                   PATHS ${fletch_ROOT}
                   PATH_SUFFIXES lib
                 )
+    # Without the use of the `find_package` above, the `ZeroMQ_INCLUDE_DIR`
+    # variable does not get set. Setting it here to the known location for ZMQ
+    # headers (also covers cppzmq).
+    set(ZeroMQ_INCLUDE_DIR "${fletch_ROOT}/include")
   endif()
   include_directories(SYSTEM ${ZeroMQ_INCLUDE_DIR})
 endif( KWIVER_ENABLE_ZeroMQ )

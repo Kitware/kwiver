@@ -21,7 +21,6 @@ Eigen::VectorXd
 tags_to_vector( metadata_sptr const& md,
                 std::vector<vital_metadata_tag> tags )
 {
-  metadata_traits md_traits;
   auto vec_length = tags.size();
 
   Eigen::VectorXd rslt(vec_length);
@@ -35,7 +34,7 @@ tags_to_vector( metadata_sptr const& md,
     else
     {
       VITAL_THROW(metadata_exception, "Missing RPC metadata: " +
-                                      md_traits.tag_to_name(tags[i]));
+                                      tag_traits_by_tag(tags[i]).name());
     }
   }
 
@@ -47,7 +46,6 @@ rpc_matrix
 tags_to_matrix( metadata_sptr const& md,
                 std::vector<vital_metadata_tag> tags )
 {
-  metadata_traits md_traits;
   if (tags.size() != 4)
   {
     VITAL_THROW(metadata_exception,
@@ -65,7 +63,7 @@ tags_to_matrix( metadata_sptr const& md,
     else
     {
       VITAL_THROW(metadata_exception, "Missing RPC metadata: " +
-                                      md_traits.tag_to_name(tags[i]));
+                                      tag_traits_by_tag(tags[i]).name());
     }
   }
 
@@ -100,8 +98,6 @@ VITAL_EXPORT camera_from_metadata( metadata_sptr const& md )
   vector_3d world_scale, world_offset;
   vector_2d image_scale, image_offset;
   rpc_matrix rpc_coeffs;
-
-  metadata_traits md_traits;
 
   std::vector<vital_metadata_tag> world_scale_tags = {
     VITAL_META_RPC_LONG_SCALE,
@@ -325,13 +321,12 @@ update_camera_from_metadata(metadata const& md,
         std::isnan(platform_roll) || std::isnan(sensor_yaw) ||
         std::isnan(sensor_pitch) || std::isnan(sensor_roll)))
   {
-    //only set the camera's rotation if all metadata angles are present
+    // Only set the camera's rotation if all metadata angles are present
 
-    auto R = compose_rotations<double>(
-      platform_yaw, platform_pitch, platform_roll,
-      sensor_yaw, sensor_pitch, sensor_roll);
-
-    cam.set_rotation(R);
+    auto const rotation =
+      uas_ypr_to_rotation( platform_yaw, platform_pitch, platform_roll,
+                           sensor_yaw,   sensor_pitch,   sensor_roll );
+    cam.set_rotation( rotation );
 
     rotation_set = true;
   }
@@ -396,13 +391,11 @@ update_metadata_from_camera(simple_camera_perspective const& cam,
     // We have a complete metadata rotation.
     // Note that sensor roll is ignored here on purpose.
     double yaw, pitch, roll;
-    cam.rotation().get_yaw_pitch_roll(yaw, pitch, roll);
-    yaw *= rad_to_deg;
-    pitch *= rad_to_deg;
-    roll *= rad_to_deg;
-    md.add<VITAL_META_SENSOR_YAW_ANGLE>(yaw);
-    md.add<VITAL_META_SENSOR_PITCH_ANGLE>(pitch);
-    md.add<VITAL_META_SENSOR_ROLL_ANGLE>(roll);
+    auto rotation = enu_to_ned( cam.rotation() );
+    rotation.get_yaw_pitch_roll( yaw, pitch, roll );
+    md.add< VITAL_META_SENSOR_YAW_ANGLE >( yaw * rad_to_deg );
+    md.add< VITAL_META_SENSOR_PITCH_ANGLE >( pitch * rad_to_deg );
+    md.add< VITAL_META_SENSOR_ROLL_ANGLE >( roll * rad_to_deg );
   }
 
   if (md.has(VITAL_META_SENSOR_LOCATION))

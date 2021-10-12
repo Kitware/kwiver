@@ -86,10 +86,10 @@ public:
    * \returns the metadata value
    */
   template <vital_metadata_tag tag>
-  typename vital_meta_trait<tag>::type
+  type_of_tag<tag>
   get(frame_id_t fid) const
   {
-    typename vital_meta_trait<tag>::type val {};
+    type_of_tag<tag> val {};
     this->get_item(tag, fid).data(val);
     return val;
   }
@@ -153,8 +153,7 @@ public:
     }
 
     std::stringstream msg;
-    metadata_traits md_traits;
-    msg << "Metadata item for tag " << md_traits.tag_to_name(tag)
+    msg << "Metadata item for tag " << tag_traits_by_tag( tag ).name()
         << " is not present for frame " << fid;
     VITAL_THROW( metadata_exception, msg.str() );
   }

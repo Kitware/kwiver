@@ -10,6 +10,7 @@
 #ifndef KWIVER_ARROWS_KLV_KLV_0601_H_
 #define KWIVER_ARROWS_KLV_KLV_0601_H_
 
+#include "klv_data.h"
 #include "klv_key.h"
 
 #include <arrows/klv/kwiver_algo_klv_export.h>
@@ -77,7 +78,7 @@ enum klv_0601_tag {KLV_0601_UNKNOWN                     = 0,
                    KLV_0601_TARGET_ERROR_EST_CE90       = 45,
                    KLV_0601_TARGET_ERROR_EST_LE90       = 46,
                    KLV_0601_GENERIC_FLAG_DATA_01        = 47,
-                   KLV_0601_SECURITY_LOCAL_MD_SET       = 48,
+                   KLV_0601_SECURITY_SPECIFICATION      = 48,
                    KLV_0601_DIFFERENTIAL_PRESSURE       = 49,
                    KLV_0601_PLATFORM_ANG_OF_ATTACK      = 50,
                    KLV_0601_PLATFORM_VERTICAL_SPEED     = 51,

@@ -10,25 +10,27 @@
 #ifndef VITAL_ALGO_DETECT_MOTION_H
 #define VITAL_ALGO_DETECT_MOTION_H
 
-#include <vital/vital_config.h>
 #include <vital/algo/algorithm.h>
 #include <vital/types/image_container.h>
 #include <vital/types/timestamp.h>
+#include <vital/vital_config.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// \brief Abstract base class for motion detection algorithms.
 class VITAL_ALGO_EXPORT detect_motion
-  : public kwiver::vital::algorithm_def<detect_motion>
+  : public kwiver::vital::algorithm_def< detect_motion >
 {
 public:
-
   /// Return the name of this algorithm.
   static std::string static_type_name() { return "detect_motion"; }
 
   /// Detect motion from a sequence of images
+
   /**
    * This method detects motion of foreground objects within a
    * sequence of images in which the background remains stationary.
@@ -47,18 +49,21 @@ public:
    * and has the same width and height dimensions as the input image.
    */
   virtual image_container_sptr
-    process_image( const timestamp& ts,
-                   const image_container_sptr image,
-                   bool reset_model ) = 0;
+  process_image( const timestamp& ts,
+                 const image_container_sptr image,
+                 bool reset_model ) = 0;
 
 protected:
   detect_motion();
-
 };
 
 /// type definition for shared pointer to a detect_motion algorithm
-typedef std::shared_ptr<detect_motion> detect_motion_sptr;
+typedef std::shared_ptr< detect_motion > detect_motion_sptr;
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // VITAL_ALGO_DETECT_MOTION_H

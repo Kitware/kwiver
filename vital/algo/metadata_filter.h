@@ -12,6 +12,8 @@
 
 #include <vital/algo/algorithm.h>
 
+#include <vital/algorithm_capabilities.h>
+
 #include <vital/types/image_container.h>
 #include <vital/types/metadata.h>
 
@@ -30,15 +32,16 @@ class VITAL_ALGO_EXPORT metadata_filter
   : public kwiver::vital::algorithm_def< metadata_filter >
 {
 public:
+  /// Algorithm can use the frame image for its operation.
+  ///
+  /// This capability indicates if the algorithm is able to make use of the
+  /// frame image. If this is not set, it implies that passing a null pointer
+  /// as the input image to #filter will not affect the results, which may
+  /// afford significant optimization opportunities to users.
+  static const algorithm_capabilities::capability_name_t CAN_USE_FRAME_IMAGE;
+
   /// Return the name of this algorithm.
   static std::string static_type_name() { return "metadata_filter"; }
-
-  /// Return if this filter uses the image for filtering.
-  ///
-  /// This method returns whether the algorithm uses the image in its
-  /// implementation. It may be more efficient to not obtain the image if the
-  /// algorithm does not use it.
-  virtual bool uses_image() const = 0;
 
   /// Filter metadata and return resulting metadata.
   ///
@@ -53,8 +56,21 @@ public:
     kwiver::vital::metadata_vector const& input_metadata,
     kwiver::vital::image_container_scptr const& input_image ) = 0;
 
+  /// Return capabilities of concrete implementation.
+  ///
+  /// This method returns the capabilities of the algorithm implementation.
+  ///
+  /// \return Reference to supported algorithm capabilities.
+  algorithm_capabilities const& get_implementation_capabilities() const;
+
 protected:
   metadata_filter();
+
+  void set_capability(
+    algorithm_capabilities::capability_name_t const& name, bool value );
+
+private:
+  algorithm_capabilities m_capabilities;
 };
 
 /// Type alias for shared pointer to a metadata_filter algorithm.

@@ -61,7 +61,7 @@ convert_metadata
 void convert_metadata
 ::convert( klv_data const& klv, kwiver::vital::metadata& md )
 {
-  klv_uds_key uds_key( klv ); // create key from raw data
+  klv_uds_key uds_key{ klv.key_begin() }; // create key from raw data
 
   if ( is_klv_0601_key( uds_key ) )
   {
@@ -93,17 +93,7 @@ std::type_info const&
 convert_metadata
 ::typeid_for_tag( kwiver::vital::vital_metadata_tag tag )
 {
-
-  switch (tag)
-  {
-#define VITAL_META_TRAIT_CASE(TAG, NAME, T, ...) case kwiver::vital::VITAL_META_ ## TAG: return typeid(T);
-
-    KWIVER_VITAL_METADATA_TAGS( VITAL_META_TRAIT_CASE )
-
-#undef VITAL_META_TRAIT_CASE
-
-  default: return typeid(void);
-  }
+  return kwiver::vital::tag_traits_by_tag( tag ).type();
 }
 
 } } } // end namespace

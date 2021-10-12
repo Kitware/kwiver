@@ -53,7 +53,6 @@ namespace python {
 class gil_scoped_acquire
 {
 public:
-
   gil_scoped_acquire()
   {
     state = PyGILState_Ensure();
@@ -65,14 +64,12 @@ public:
   }
 
 private:
-
   PyGILState_STATE state;
 };
 
 class gil_scoped_release
 {
 public:
-
   gil_scoped_release()
   {
     state = PyEval_SaveThread();
@@ -84,7 +81,6 @@ public:
   }
 
 private:
-
   PyThreadState* state;
 };
 

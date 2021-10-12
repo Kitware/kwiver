@@ -6,10 +6,12 @@
 
 #include "split_image.h"
 
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::split_image);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::split_image );
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 split_image
@@ -18,4 +20,8 @@ split_image
   attach_logger( "algo.split_image" );
 }
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver

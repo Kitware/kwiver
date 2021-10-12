@@ -14,7 +14,10 @@
 
 #include <vital/exceptions/metadata.h>
 #include <vital/types/geodesy.h>
+#include <vital/types/metadata_types.h>
 #include <vital/vital_config.h>
+
+namespace kv = kwiver::vital;
 
 namespace kwiver {
 namespace arrows {
@@ -84,36 +87,12 @@ convert_metadata
                            kwiver::vital::vital_metadata_tag vital_tag,
                            kwiver::vital::any const& data )
 {
-  // If the input data is already in the correct type, just return.
-  if ( convert_metadata::typeid_for_tag( vital_tag ) == data.type() )
+  if( convert_metadata::typeid_for_tag( vital_tag ) != data.type() )
   {
-    return data;
+    throw kwiver::vital::bad_any_cast(
+      data.type_name(),
+      kwiver::vital::tag_traits_by_tag( vital_tag ).type_name() );
   }
-
-  try
-  {
-    // If destination type is double, then source must be convertable to double
-    if ( convert_metadata::typeid_for_tag( vital_tag ) == typeid( double ) )
-    {
-      kwiver::vital::any converted_data = convert_to_double.convert( data );
-      return converted_data;
-    }
-
-    // If the destination is integral.
-    auto const& trait = m_metadata_traits.find( vital_tag );
-    if ( trait.is_integral() )
-    {
-      kwiver::vital::any converted_data = convert_to_int.convert( data );
-      return converted_data;
-    }
-  }
-  catch (kwiver::vital::bad_any_cast const& e)
-  {
-    LOG_DEBUG( m_logger, "Data not convertable for tag: "
-              << m_metadata_traits.tag_to_symbol( vital_tag )
-              << ",  " << e.what() );
-  }
-
   return data;
 }
 
@@ -204,15 +183,29 @@ case klv_0104::KN:                                        \
       CASE2( FOV_NAME, SENSOR_FOV_NAME );
       CASE( ANGLE_TO_NORTH );
       CASE( OBLIQUITY_ANGLE );
-      CASE( START_DATE_TIME_UTC );
-      CASE2( MISSION_START_TIME, MISSION_START_TIME_UTC );
       CASE( SECURITY_CLASSIFICATION );
-      CASE( CLASSIFICATION );
       CASE( SENSOR_TYPE );
-      CASE( EVENT_START_DATE_TIME_UTC );
 
 #undef CASE
 #undef CASE2
+
+    case klv_0104::START_DATETIME:
+    {
+      auto const datetime = kv::any_cast< std::string >( data );
+      auto const timestamp =
+         kv::std_0104_datetime_to_unix_timestamp( datetime );
+      md.add_any< kv::VITAL_META_START_TIMESTAMP >( timestamp );
+      break;
+    }
+
+    case klv_0104::EVENT_START_DATETIME:
+    {
+      auto const datetime = kv::any_cast< std::string >( data );
+      auto const timestamp =
+         kv::std_0104_datetime_to_unix_timestamp( datetime );
+      md.add_any< kv::VITAL_META_EVENT_START_TIMESTAMP >( timestamp );
+      break;
+    }
 
     case klv_0104::SENSOR_ALTITUDE:
       raw_sensor_location[2] =  kwiver::vital::any_cast< double >(data) ;

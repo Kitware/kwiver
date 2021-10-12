@@ -10,15 +10,18 @@
 #ifndef VITAL_ALGO_UUID_FACTORY_H
 #define VITAL_ALGO_UUID_FACTORY_H
 
-#include <vital/vital_config.h>
 #include <vital/algo/algorithm.h>
 #include <vital/types/uid.h>
+#include <vital/vital_config.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// Abstract base class for creating uuid's
+
 /**
  *
  */
@@ -37,6 +40,10 @@ protected:
 
 typedef std::shared_ptr< uuid_factory > uuid_factory_sptr;
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 #endif /* VITAL_ALGO_UUID_FACTORY_H */

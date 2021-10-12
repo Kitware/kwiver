@@ -8,6 +8,7 @@
 #include "metadata_map_io_csv.h"
 
 #include <vital/any.h>
+#include <vital/exceptions/algorithm.h>
 #include <vital/exceptions/io.h>
 #include <vital/types/geo_point.h>
 #include <vital/types/geo_polygon.h>
@@ -44,13 +45,17 @@ public:
   // Quote csv header item as needed, and explode types as needed
   void write_csv_header( kv::vital_metadata_tag const& csv_field,
                          std::ostream& fout,
-                         std::string const& field_name = "" );
+                         std::string const& field_name,
+                         std::string const& field_override );
 
-  kv::metadata_traits md_traits;
   bool write_remaining_columns{ true };
   bool write_enum_names{ false };
   std::string names_string;
   std::vector< std::string > column_names;
+  std::string overrides_string;
+  std::vector< std::string > column_overrides;
+  uint64_t every_n_microseconds;
+  uint64_t every_n_frames;
 };
 
 // ----------------------------------------------------------------------------
@@ -121,51 +126,56 @@ void
 metadata_map_io_csv::priv
 ::write_csv_header( kv::vital_metadata_tag const& csv_field,
                     std::ostream& fout,
-                    std::string const& field_name )
+                    std::string const& field_name,
+                    std::string const& field_override )
 {
-  if( csv_field == kv::VITAL_META_UNKNOWN )
+  if( !field_override.empty() )
+  {
+    fout << "\"" << field_override << "\",";
+  }
+  else if( csv_field == kv::VITAL_META_UNKNOWN )
   {
     fout << "\"" << field_name << "\",";
   }
   else if( csv_field == kv::VITAL_META_SENSOR_LOCATION )
   {
-    fout << "\"Sensor Geodetic lon (EPSG:4326)\","
-            "\"Sensor Geodetic lat (EPSG:4326)\","
-            "\"Sensor Geodetic altitude (meters)\",";
+    fout << "\"Sensor Geodetic Longitude (EPSG:4326)\","
+            "\"Sensor Geodetic Latitude (EPSG:4326)\","
+            "\"Sensor Geodetic Altitude (meters)\",";
   }
   else if( csv_field == kv::VITAL_META_FRAME_CENTER )
   {
-    fout << "\"Geodetic Frame Center lon (EPSG:4326)\","
-            "\"Geodetic Frame Center lat (EPSG:4326)\","
-            "\"Geodetic Frame Center elevation (meters)\",";
+    fout << "\"Geodetic Frame Center Longitude (EPSG:4326)\","
+            "\"Geodetic Frame Center Latitude (EPSG:4326)\","
+            "\"Geodetic Frame Center Elevation (meters)\",";
   }
   else if( csv_field == kv::VITAL_META_TARGET_LOCATION )
   {
-    fout << "\"Target Geodetic Location lon (EPSG:4326)\","
-            "\"Target Geodetic Location lat (EPSG:4326)\","
-            "\"Target Geodetic Location elevation (meters)\",";
+    fout << "\"Target Geodetic Location Longitude (EPSG:4326)\","
+            "\"Target Geodetic Location Latitude (EPSG:4326)\","
+            "\"Target Geodetic Location Elevation (meters)\",";
   }
   else if( csv_field == kv::VITAL_META_CORNER_POINTS )
   {
-    fout << "\"Upper left corner point lon (EPSG:4326)\","
-            "\"Upper left corner point lat (EPSG:4326)\","
-            "\"Upper right corner point lon (EPSG:4326)\","
-            "\"Upper right corner point lat (EPSG:4326)\","
-            "\"Lower right corner point lon (EPSG:4326)\","
-            "\"Lower right corner point lat (EPSG:4326)\","
-            "\"Lower left corner point lon (EPSG:4326)\","
-            "\"Lower left corner point lat (EPSG:4326)\",";
+    fout << "\"Upper Left Corner Longitude (EPSG:4326)\","
+            "\"Upper Left Corner Latitude (EPSG:4326)\","
+            "\"Upper Right Corner Longitude (EPSG:4326)\","
+            "\"Upper Right Corner Latitude (EPSG:4326)\","
+            "\"Lower Right Corner Longitude (EPSG:4326)\","
+            "\"Lower Right Corner Latitude (EPSG:4326)\","
+            "\"Lower Left Corner Longitude (EPSG:4326)\","
+            "\"Lower Left Corner Latitude (EPSG:4326)\",";
   }
   else
   {
     // Quote all other data either as the enum name or description
     if( write_enum_names )
     {
-      fout << '"' << md_traits.tag_to_enum_name( csv_field ) << "\",";
+      fout << '"' << kv::tag_traits_by_tag( csv_field ).enum_name() << "\",";
     }
     else
     {
-      fout << '"' << md_traits.tag_to_name( csv_field ) << "\",";
+      fout << '"' << kv::tag_traits_by_tag( csv_field ).name() << "\",";
     }
   }
 }
@@ -192,23 +202,36 @@ metadata_map_io_csv
   d_->write_remaining_columns = config->get_value< bool >(
     "write_remaining_columns" );
   d_->write_enum_names = config->get_value< bool >( "write_enum_names" );
+  d_->every_n_microseconds =
+    config->has_value( "every_n_microseconds" )
+    ? config->get_value< uint64_t >( "every_n_microseconds" ) : 0;
+  d_->every_n_frames =
+    config->has_value( "every_n_frames" )
+    ? config->get_value< uint64_t >( "every_n_frames" ) : 0;
+
+  auto const split_and_trim =
+    []( std::string const& s ) -> std::vector< std::string > {
+      std::vector< std::string > result;
+      kwiver::vital::tokenize( s, result, "," );
+      std::for_each( result.begin(), result.end(),
+                     kwiver::vital::string_trim );
+      return result;
+    };
 
   d_->names_string = config->get_value< std::string >( "column_names" );
-  std::vector< std::string > untrimmed_column_names;
-  kwiver::vital::tokenize( d_->names_string, untrimmed_column_names, "," );
-
-  for( auto name : untrimmed_column_names )
-  {
-    d_->column_names.push_back( kwiver::vital::string_trim( name ) );
-  }
+  d_->column_names = split_and_trim( d_->names_string );
+  d_->overrides_string = config->get_value< std::string >( "column_overrides" );
+  d_->column_overrides = split_and_trim( d_->overrides_string );
+  d_->column_overrides.resize( d_->column_names.size() );
 }
 
 // ----------------------------------------------------------------------------
 bool
 metadata_map_io_csv
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( vital::config_block_sptr config ) const
 {
-  return true;
+  return !( config->has_value( "every_n_microseconds" ) &&
+            config->has_value( "every_n_frames" ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -220,14 +243,27 @@ metadata_map_io_csv
   auto config = algorithm::get_configuration();
 
   config->set_value( "column_names", d_->names_string,
-                     "Comma-seperated values specified column order. Can "
+                     "Comma-separated values specifying column order. Can "
                      "either be the enum names, e.g. VIDEO_KEY_FRAME or the "
                      "description, e.g. 'Is frame a key frame'" );
+  config->set_value( "column_overrides", d_->overrides_string,
+                     "Comma-separated values overriding the final column names"
+                     "as they appear in the output file. Order matches up with"
+                     "column_names." );
   config->set_value( "write_enum_names", d_->write_enum_names,
                      "Write enum names rather than descriptive names" );
   config->set_value( "write_remaining_columns", d_->write_remaining_columns,
                      "Write columns present in the metadata but not in the "
                      "manually-specified list." );
+  config->set_value( "every_n_microseconds", d_->every_n_microseconds,
+                     "Minimum time between successive rows of output. Packets "
+                     "more frequent than this will be ignored. If nonzero, "
+                     "packets without a timestamp are also ignored." );
+  config->set_value( "every_n_frames", d_->every_n_frames,
+                     "Number of frames to skip between successive rows of "
+                     "output, plus one. A value of 1 will print one packet for "
+                     "every frame, while a value of 0 will print all packets "
+                     "for every frame." );
   return config;
 }
 
@@ -270,40 +306,29 @@ metadata_map_io_csv
     }
   }
 
-  std::vector< std::string > metadata_names;
-  std::vector< kv::vital_metadata_tag > ordered_metadata_ids;
-
-  for( auto const& name : d_->column_names )
+  struct metadata_info
   {
-    auto trait_id = d_->md_traits.enum_name_to_tag( name );
-    if( trait_id != kv::VITAL_META_UNKNOWN )
+    kv::vital_metadata_tag id;
+    std::string name;
+    std::string str;
+  };
+
+  std::vector< metadata_info > infos;
+  for( auto const i : kvr::iota( d_->column_names.size() ) )
+  {
+    auto const& name = d_->column_names[ i ];
+    auto const& str = d_->column_overrides[ i ];
+    kv::vital_metadata_tag trait_id;
+    if( ( trait_id = kv::tag_traits_by_enum_name( name ).tag() ) !=
+        kv::VITAL_META_UNKNOWN ||
+        ( trait_id = kv::tag_traits_by_name( name ).tag() ) !=
+        kv::VITAL_META_UNKNOWN )
     {
-      // This is a placeholder to keep the two vectors aligned
-      metadata_names.push_back( "" );
       // Avoid duplicating present columns
       present_metadata_ids.erase( trait_id );
     }
-    else // Try matching the description
-    {
-      trait_id = d_->md_traits.name_to_tag( name );
 
-      if( trait_id != kv::VITAL_META_UNKNOWN )
-      {
-        // This is a placeholder to keep the two vectors aligned
-        metadata_names.push_back( "" );
-        // Avoid duplicating present columns
-        present_metadata_ids.erase( trait_id );
-        LOG_INFO(
-          logger(),
-          "Description \""  << name << "\" matched enum "
-                            << d_->md_traits.tag_to_enum_name( trait_id ) );
-      }
-      else
-      {
-        metadata_names.push_back( name );
-      }
-    }
-    ordered_metadata_ids.push_back( trait_id );
+    infos.push_back( { trait_id, name, str } );
   }
 
   // Determine whether to write columns present in the metadata but not
@@ -312,35 +337,64 @@ metadata_map_io_csv
   {
     for( auto const& id : present_metadata_ids )
     {
-      ordered_metadata_ids.push_back( id );
-      // Again, this is just a placeholder to keep vectors aligned
-      metadata_names.push_back( "" );
+      infos.push_back( { id, "", "" } );
     }
   }
 
   // Write out the csv header
-  fout << "\"frame ID\",";
-  assert( ordered_metadata_ids.size() == metadata_names.size() );
-  for( auto const& i : kvr::iota( ordered_metadata_ids.size() ) )
+  fout << "\"Frame ID\",";
+  for( auto const& info : infos )
   {
-    auto const& metadata_id = ordered_metadata_ids[ i ];
-    auto const& metadata_name = metadata_names[ i ];
-    d_->write_csv_header( metadata_id, fout, metadata_name );
+    d_->write_csv_header( info.id, fout, info.name, info.str );
   }
 
   fout << std::endl;
 
+  if( d_->every_n_microseconds && d_->every_n_frames )
+  {
+    throw kv::algorithm_configuration_exception(
+      this->type_name(), this->impl_name(),
+      "options 'every_n_microseconds' and 'every_n_frames' are incompatible" );
+  }
+
+  uint64_t next_timestamp = d_->every_n_microseconds;
+  uint64_t next_frame = 1;
   for( auto const& frame_data : data->metadata() )
   {
     for( auto const& metadata_packet : frame_data.second )
     {
+      // Write only at the specified frequency
+      auto const timestamp = metadata_packet->timestamp();
+      if( d_->every_n_microseconds )
+      {
+        if( !timestamp.has_valid_time() ||
+            timestamp.get_time_usec() < next_timestamp )
+        {
+          continue;
+        }
+        next_timestamp +=
+          ( ( timestamp.get_time_usec() - next_timestamp ) /
+            d_->every_n_microseconds + 1 ) * d_->every_n_microseconds;
+      }
+      if( d_->every_n_frames )
+      {
+        if( !timestamp.has_valid_frame() ||
+            timestamp.get_frame() < next_frame )
+        {
+          continue;
+        }
+        next_frame +=
+          ( ( timestamp.get_frame() - next_frame ) /
+            d_->every_n_frames + 1 ) * d_->every_n_frames;
+      }
+
       // Write the frame number
       fout << frame_data.first << ",";
-      for( auto const& metadata_id : ordered_metadata_ids )
+      for( auto const& info : infos )
       {
-        if( metadata_packet->has( metadata_id ) )
+        if( metadata_packet->has( info.id ) )
         {
-          d_->write_csv_item( metadata_packet->find( metadata_id ), fout );
+          d_->write_csv_item( metadata_packet->find( info.id ), fout );
         }
         // Write an empty field
         else

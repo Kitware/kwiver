@@ -1,13 +1,23 @@
-KWIVER v1.6.1 Release Notes
+KWIVER v1.7.0 Release Notes
 ===========================
 
-This is a patch release of KWIVER that provides  fixes
+This is a minor release of KWIVER that provides both new functionality and fixes
 over the previous v1.6.0 release.
 
-Bug Fixes over 1.6.0
---------------------
 
-Arrows: Core
+Updates
+-------
 
- * Add additional config options to the CSV metadata writer. Primarily, allow
-   the column ordering of the output to be specified.
+Vital
+
+Vital Types
+
+* Modified rotation_ constructor from yaw-pitch-roll to keep the given
+  North-East-Down coordinate system as-is instead of automatically converting to
+  East-North-Up. Added utility functions which perform conversion between NED
+  and ENU coordinates.
+
+Build System
+
+* Removed some CMake statements and support for old CMake version predating the
+  current minimum version specification.
