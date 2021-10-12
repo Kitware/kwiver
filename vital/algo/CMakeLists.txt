@@ -9,67 +9,125 @@
 set( public_headers
 
   algorithm.h
+  algorithm_factory.h
   analyze_tracks.h
+  associate_detections_to_tracks.h
   bundle_adjust.h
   close_loops.h
+  compute_association_matrix.h
+  compute_depth.h
   compute_ref_homography.h
+  compute_stereo_depth_map.h
+  compute_track_descriptors.h
   convert_image.h
+  data_serializer.h
+  detect_features.h
+  detect_motion.h
   detected_object_filter.h
   detected_object_set_input.h
   detected_object_set_output.h
-  detect_features.h
-  detection_refiner.h
+  draw_detected_object_set.h
   draw_tracks.h
+  dynamic_configuration.h
   estimate_canonical_transform.h
   estimate_essential_matrix.h
   estimate_fundamental_matrix.h
   estimate_homography.h
+  estimate_pnp.h
   estimate_similarity_transform.h
   extract_descriptors.h
+  feature_descriptor_io.h
   filter_features.h
-  geo_map.h
+  filter_tracks.h
+  handle_descriptor_request.h
   image_filter.h
   image_io.h
   image_object_detector.h
   initialize_cameras_landmarks.h
+  initialize_object_tracks.h
+  integrate_depth_maps.h
+  interpolate_track.h
+  keyframe_selection.h
+  match_descriptor_sets.h
   match_features.h
+  merge_images.h
   optimize_cameras.h
+  query_track_descriptor_set.h
+  read_object_track_set.h
+  read_track_descriptor_set.h
+  refine_detections.h
+  split_image.h
   track_features.h
+  train_detector.h
+  transform_2d_io.h
   triangulate_landmarks.h
+  uuid_factory.h
+  uv_unwrap_mesh.h
   video_input.h
+  write_object_track_set.h
+  write_track_descriptor_set.h
   )
 
 set( sources
 
   algorithm.cxx
+  algorithm_factory.cxx
   analyze_tracks.cxx
+  associate_detections_to_tracks.cxx
   bundle_adjust.cxx
   close_loops.cxx
+  compute_association_matrix.cxx
+  compute_depth.cxx
   compute_ref_homography.cxx
+  compute_stereo_depth_map.cxx
+  compute_track_descriptors.cxx
   convert_image.cxx
+  data_serializer.cxx
+  detect_features.cxx
+  detect_motion.cxx
   detected_object_filter.cxx
   detected_object_set_input.cxx
   detected_object_set_output.cxx
-  detect_features.cxx
-  detection_refiner.cxx
+  draw_detected_object_set.cxx
   draw_tracks.cxx
+  dynamic_configuration.cxx
   estimate_canonical_transform.cxx
   estimate_essential_matrix.cxx
   estimate_fundamental_matrix.cxx
   estimate_homography.cxx
+  estimate_pnp.cxx
   estimate_similarity_transform.cxx
   extract_descriptors.cxx
+  feature_descriptor_io.cxx
   filter_features.cxx
-  geo_map.cxx
+  filter_tracks.cxx
+  handle_descriptor_request.cxx
   image_filter.cxx
   image_io.cxx
   image_object_detector.cxx
   initialize_cameras_landmarks.cxx
+  initialize_object_tracks.cxx
+  integrate_depth_maps.cxx
+  interpolate_track.cxx
+  keyframe_selection.cxx
+  match_descriptor_sets.cxx
   match_features.cxx
+  merge_images.cxx
   optimize_cameras.cxx
+  query_track_descriptor_set.cxx
+  read_object_track_set.cxx
+  read_track_descriptor_set.cxx
+  refine_detections.cxx
+  split_image.cxx
   track_features.cxx
+  train_detector.cxx
+  transform_2d_io.cxx
   triangulate_landmarks.cxx
+  uuid_factory.cxx
+  uv_unwrap_mesh.cxx
   video_input.cxx
+  write_object_track_set.cxx
+  write_track_descriptor_set.cxx
 )
 
 kwiver_install_headers(
@@ -96,4 +154,18 @@ target_link_libraries( vital_algo
   PUBLIC          vital
                   vital_config
                   vital_logger
+                  vital_vpm
   )
+
+if (KWIVER_ENABLE_TOOLS)
+###
+#     plugins for plugin explorer
+kwiver_add_plugin( algo_explorer_plugin
+  SUBDIR   ${kwiver_plugin_plugin_explorer_subdir}
+  SOURCES  algo_explorer_plugin.cxx
+  PRIVATE  vital
+           vital_vpm
+           vital_config
+           vital_algo
+           explorer_plugin )
+endif()

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2013 by Kitware, Inc.
+ * Copyright 2011-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,16 +31,24 @@
 #ifndef SPROKIT_PIPELINE_EDGE_H
 #define SPROKIT_PIPELINE_EDGE_H
 
-#include "pipeline-config.h"
+#include <sprokit/pipeline/sprokit_pipeline_export.h>
 
 #include <vital/config/config_block.h>
+#include <vital/noncopyable.h>
+#include <vital/optional.h>
+
 #include "types.h"
 
+#ifdef WIN32
+#pragma warning (push)
+#pragma warning (disable : 4244)
+#pragma warning (disable : 4267)
+#endif
 #include <boost/chrono/system_clocks.hpp>
-#include <boost/noncopyable.hpp>
 #include <boost/operators.hpp>
-#include <boost/optional.hpp>
-#include <boost/scoped_ptr.hpp>
+#ifdef WIN32
+#pragma warning (pop)
+#endif
 
 #include <vector>
 
@@ -109,7 +117,7 @@ typedef std::vector< edge_t > edges_t;
  * \ingroup base_classes
  */
 class SPROKIT_PIPELINE_EXPORT edge
-  : private boost::noncopyable
+  : private kwiver::vital::noncopyable
 {
 public:
   /**
@@ -268,7 +276,7 @@ public:
    *
    * \returns The next datum available from the edge, or \c boost::none if the timeout was reached.
    */
-  boost::optional< edge_datum_t > try_get_datum( duration_t const& duration );
+  kwiver::vital::optional< edge_datum_t > try_get_datum( duration_t const& duration );
 
   /**
    * \brief Trigger the edge to flush all data and not accept any more data.
@@ -335,7 +343,7 @@ public:
 
 private:
   class SPROKIT_PIPELINE_NO_EXPORT priv;
-  boost::scoped_ptr< priv > d;
+  std::unique_ptr< priv > d;
 };
 
 }

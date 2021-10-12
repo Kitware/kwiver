@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2017, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,19 +72,19 @@ public:
    * @param height Height of box.
    */
   bounding_box( vector_type const& upper_left,
-                T const& width, T const& height )
+                T width, T height )
   {
     vector_type lr( upper_left );
     lr.x() += width;
     lr.y() += height;
-    m_bbox =  Eigen::AlignedBox< T, 2 >( upper_left, lr );
+    m_bbox = Eigen::AlignedBox< T, 2 >( upper_left, lr );
   }
 
   /**
    * @brief Create a box from four coordinates.
    *
    * @param xmin Minimum x coordinate
-   * @param ymin minimum y coordinate
+   * @param ymin Minimum y coordinate
    * @param xmax Maximum x coordinate
    * @param ymax Maximum y coordinate
    */
@@ -92,7 +92,34 @@ public:
   {
     vector_type ul( xmin, ymin );
     vector_type lr( xmax, ymax );
-    m_bbox =  Eigen::AlignedBox< T, 2 >( ul, lr );
+    m_bbox = Eigen::AlignedBox< T, 2 >( ul, lr );
+  }
+
+  /**
+   * @brief Create default (invalid) box.
+   */
+  bounding_box()
+  {
+    // NOTE: Any initial state logic here
+    // Should be reproduced in the reset method
+  }
+
+  /**
+   * @brief Check to see if the two corner points are valid.
+   *
+   * @return true if the box is valid
+   */
+  bool is_valid() const
+  {
+    return !m_bbox.isEmpty();
+  }
+
+  /**
+   * @brief Reset the bounding box to an initial invalid state.
+   */
+  void reset()
+  {
+    m_bbox.setEmpty();
   }
 
   /**
@@ -142,6 +169,13 @@ public:
    */
   double area() const { return m_bbox.volume(); }
 
+  /**
+  * @brief Check if point inside box.
+  *
+  * @return true if point is inside box
+  */
+  bool contains(vector_type const& pt) const { return m_bbox.contains(pt); }
+
 protected:
   /*
    * @brief Obscure accessors for underlying data.
@@ -149,8 +183,8 @@ protected:
    *
    * @return Underlying data type.
    */
-  Eigen::AlignedBox< T, 2 >& get_eabb()  { return m_bbox; }
-  Eigen::AlignedBox< T, 2 > get_eabb() const  { return m_bbox; }
+  Eigen::AlignedBox< T, 2 >& get_eabb() { return m_bbox; }
+  Eigen::AlignedBox< T, 2 > get_eabb() const { return m_bbox; }
 
 private:
   // Note that this class is implemented using Eigen types.
@@ -168,6 +202,15 @@ private:
   template < typename T1 >
   friend bounding_box<T1> & translate( bounding_box<T1>& bbox,
                               typename bounding_box<T1>::vector_type const& pt );
+
+  template < typename T1 >
+  friend bounding_box<T1> scale( bounding_box<T1> const& bbox,
+                                 double scale_factor );
+
+  template < typename T1 >
+  friend bounding_box<T1> scale_about_center( bounding_box<T1> const& bbox,
+                                              double scale_factor );
+
   template<typename T2>
   friend bounding_box<T2> intersection( bounding_box<T2> const& one,
                                         bounding_box<T2> const& other );
@@ -179,22 +222,38 @@ private:
 /**
  * @brief Equality operator for bounding box
  *
- * @param other The box to check against
+ * @param lhs The box to check against
+ * @param rhs The other box to check against
  *
  * @return \b true if boxes are identical
  */
 template <typename T>
 bool operator== ( bounding_box<T> const& lhs, bounding_box<T> const& rhs )
 {
-  if ( ( lhs == &rhs ) ||
-       ( lhs->upper_left() == rhs.upper_left()  &&
-         lhs->lower_right() == rhs.lower_right() )
+  if ( ( &lhs == &rhs ) ||
+       ( lhs.upper_left() == rhs.upper_left()  &&
+         lhs.lower_right() == rhs.lower_right() )
     )
   {
     return true;
   }
 
   return false;
+}
+
+
+/**
+ * @brief Inequality operator for bounding box
+ *
+ * @param lhs The box to check against
+ * @param rhs The other box to check against
+ *
+ * @return \b true if boxes are different
+ */
+template <typename T>
+bool operator!= ( bounding_box<T> const& lhs, bounding_box<T> const& rhs )
+{
+  return !(lhs == rhs);
 }
 
 
@@ -215,12 +274,57 @@ typedef bounding_box< double > bounding_box_d;
  * @return The specified parameter box, updated with the new
  * coordinates, is returned.
  */
-  template < typename T >
-  bounding_box<T> & translate( bounding_box<T>& bbox,
-                               typename bounding_box<T>::vector_type const& pt )
+template < typename T >
+bounding_box<T> & translate( bounding_box<T>& bbox,
+                             typename bounding_box<T>::vector_type const& pt )
 {
   bbox.get_eabb().translate( pt );
   return bbox;
+}
+
+
+/**
+ * @brief Scale a box by some scale factor.
+ *
+ * This operator scales bounding_box by the specified factor. A new
+ * box is returned that has been scaled from the input box.
+ *
+ * @param bbox Box to scale
+ * @param scale_factor Scale factor to use
+ *
+ * @return A new bounding box that has been scaled.
+ */
+template < typename T >
+bounding_box<T> scale( bounding_box<T> const& bbox,
+                       double scale_factor )
+{
+  return bounding_box<T>(
+    (bbox.upper_left().template cast<double>() * scale_factor).template cast<T>(),
+    (bbox.lower_right().template cast<double>() * scale_factor).template cast<T>() );
+}
+
+
+/**
+ * @brief Scale a box by some scale factor.
+ *
+ * This operator scales bounding_box by the specified amount.
+ * This scales the aspect ratio of the box without moving its center.
+ *
+ * @param[in,out] bbox Box to scale
+ * @param[in] scale_factor Scale factor to use
+ *
+ * @return The specified parameter box, updated with the new
+ * coordinates, is returned.
+ */
+template < typename T >
+bounding_box<T> scale_about_center( bounding_box<T> const& bbox,
+                                    double scale_factor )
+{
+  typename bounding_box<T>::vector_type offset(
+    ( bbox.width() * ( scale_factor - 1.0 ) ) / 2,
+    ( bbox.height() * ( scale_factor - 1.0 ) ) / 2 );
+
+  return bounding_box<T>(bbox.upper_left()-offset,bbox.lower_right()+offset);
 }
 
 

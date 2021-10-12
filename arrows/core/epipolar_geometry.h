@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2015-2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@
 #include <vital/vital_config.h>
 #include <arrows/core/kwiver_algo_core_export.h>
 
-#include <vital/types/camera.h>
+#include <vital/types/camera_perspective.h>
 #include <vital/types/essential_matrix.h>
 #include <vital/types/fundamental_matrix.h>
 #include <vector>
@@ -81,7 +81,7 @@ mark_fm_inliers(vital::fundamental_matrix const& fm,
  *                left camera assuming the right camera is the identity
  */
 KWIVER_ALGO_CORE_EXPORT
-kwiver::vital::simple_camera
+kwiver::vital::simple_camera_perspective
 extract_valid_left_camera(const kwiver::vital::essential_matrix_d& e,
                           const kwiver::vital::vector_2d& left_pt,
                           const kwiver::vital::vector_2d& right_pt);
@@ -90,15 +90,15 @@ extract_valid_left_camera(const kwiver::vital::essential_matrix_d& e,
 /// Compute the fundamental matrix from a pair of cameras
 KWIVER_ALGO_CORE_EXPORT
 kwiver::vital::fundamental_matrix_sptr
-fundamental_matrix_from_cameras(kwiver::vital::camera const& right_cam,
-                                kwiver::vital::camera const& left_cam);
+fundamental_matrix_from_cameras(kwiver::vital::camera_perspective const& right_cam,
+                                kwiver::vital::camera_perspective const& left_cam);
 
 
 /// Compute the essential matrix from a pair of cameras
 KWIVER_ALGO_CORE_EXPORT
 kwiver::vital::essential_matrix_sptr
-essential_matrix_from_cameras(kwiver::vital::camera const& right_cam,
-                              kwiver::vital::camera const& left_cam);
+essential_matrix_from_cameras(kwiver::vital::camera_perspective const& right_cam,
+                              kwiver::vital::camera_perspective const& left_cam);
 
 
 /// Convert an essential matrix to a fundamental matrix
@@ -111,4 +111,4 @@ essential_matrix_to_fundamental(kwiver::vital::essential_matrix const& E,
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_CORE_EPIPOLAR_GEOMETRY_H_
+#endif

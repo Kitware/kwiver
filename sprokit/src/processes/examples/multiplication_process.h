@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2012 by Kitware, Inc.
+ * Copyright 2011-2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,9 @@
 #ifndef SPROKIT_PROCESSES_EXAMPLES_MULTIPLICATION_PROCESS_H
 #define SPROKIT_PROCESSES_EXAMPLES_MULTIPLICATION_PROCESS_H
 
-#include "examples-config.h"
+#include "processes_examples_export.h"
 
 #include <sprokit/pipeline/process.h>
-
-#include <boost/scoped_ptr.hpp>
 
 /**
  * \file multiplication_process.h
@@ -43,8 +41,7 @@
  * \brief Declaration of the multiplication process.
  */
 
-namespace sprokit
-{
+namespace sprokit {
 
 /**
  * \class multiplication_process
@@ -68,28 +65,33 @@ namespace sprokit
  *
  * \ingroup examples
  */
-class SPROKIT_PROCESSES_EXAMPLES_NO_EXPORT multiplication_process
+class PROCESSES_EXAMPLES_NO_EXPORT multiplication_process
   : public process
 {
-  public:
-    /**
-     * \brief Constructor.
-     *
-     * \param config The configuration for the process.
-     */
-    multiplication_process(kwiver::vital::config_block_sptr const& config);
-    /**
-     * \brief Destructor.
-     */
-    ~multiplication_process();
-  protected:
-    /**
-     * \brief Step the process.
-     */
-    void _step();
-  private:
-    class priv;
-    boost::scoped_ptr<priv> d;
+public:
+  PLUGIN_INFO( "multiplication",
+               "Multiplies numbers" );
+  /**
+   * \brief Constructor.
+   *
+   * \param config The configuration for the process.
+   */
+
+  multiplication_process(kwiver::vital::config_block_sptr const& config);
+  /**
+   * \brief Destructor.
+   */
+  ~multiplication_process();
+
+protected:
+  /**
+   * \brief Step the process.
+   */
+  void _step() override;
+
+private:
+  class priv;
+  std::unique_ptr<priv> d;
 };
 
 }

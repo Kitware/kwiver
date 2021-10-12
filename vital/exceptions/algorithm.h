@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014 by Kitware, Inc.
+ * Copyright 2014-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,16 +44,19 @@ namespace vital {
 
 // ------------------------------------------------------------------
 /// Base class for all algorithm related exceptions
-class VITAL_EXPORT algorithm_exception
-  : public vital_core_base_exception
+/**
+ * \ingroup exceptions
+ */
+class VITAL_EXCEPTIONS_EXPORT algorithm_exception
+  : public vital_exception
 {
   public:
     /// Constructor
     algorithm_exception(std::string type,
                         std::string impl,
-                        std::string reason) VITAL_NOTHROW;
+                        std::string reason) noexcept;
     /// Deconstructor
-    virtual ~algorithm_exception() VITAL_NOTHROW;
+    virtual ~algorithm_exception() noexcept;
 
     /// The name of the algorithm type
     std::string m_algo_type;
@@ -68,31 +71,37 @@ class VITAL_EXPORT algorithm_exception
 
 // ------------------------------------------------------------------
 /// Exception for when an algorithm receives an invalid configuration
-class VITAL_EXPORT algorithm_configuration_exception
+/**
+ * \ingroup exceptions
+ */
+class VITAL_EXCEPTIONS_EXPORT algorithm_configuration_exception
   : public algorithm_exception
 {
   public:
     /// Constructor
     algorithm_configuration_exception(std::string type,
                                       std::string impl,
-                                      std::string reason) VITAL_NOTHROW;
+                                      std::string reason) noexcept;
     /// Destructor
-    virtual ~algorithm_configuration_exception() VITAL_NOTHROW;
+    virtual ~algorithm_configuration_exception() noexcept;
 };
 
 
 // ------------------------------------------------------------------
 /// Exception for when checking an invalid impl name against an algo def
-class VITAL_EXPORT invalid_name_exception
+/**
+ * \ingroup exceptions
+ */
+class VITAL_EXCEPTIONS_EXPORT invalid_name_exception
   : public algorithm_exception
 {
   public:
     /// Constructor
     invalid_name_exception(std::string type,
-                           std::string impl) VITAL_NOTHROW;
+                           std::string impl) noexcept;
 
     /// Destructor
-    virtual ~invalid_name_exception() VITAL_NOTHROW;
+    virtual ~invalid_name_exception() noexcept;
 };
 
 } } // end namespace vital

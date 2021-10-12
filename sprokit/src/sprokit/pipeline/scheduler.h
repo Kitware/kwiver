@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2013 by Kitware, Inc.
+ * Copyright 2011-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,13 +31,12 @@
 #ifndef SPROKIT_PIPELINE_SCHEDULER_H
 #define SPROKIT_PIPELINE_SCHEDULER_H
 
-#include "pipeline-config.h"
+#include <sprokit/pipeline/sprokit_pipeline_export.h>
 
 #include "types.h"
 #include <vital/config/config_block.h>
-
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
+#include <vital/logger/logger.h>
+#include <vital/noncopyable.h>
 
 /**
  * \file scheduler.h
@@ -45,8 +44,7 @@
  * \brief Header for \link sprokit::scheduler schedulers\endlink.
  */
 
-namespace sprokit
-{
+namespace sprokit {
 
 /**
  * \class scheduler scheduler.h <sprokit/pipeline/scheduler.h>
@@ -60,9 +58,14 @@ namespace sprokit
  * \ingroup base_classes
  */
 class SPROKIT_PIPELINE_EXPORT scheduler
-  : boost::noncopyable
+  : private kwiver::vital::noncopyable
 {
   public:
+    /// The type of registry keys.
+    typedef std::string type_t;
+    /// Scheduler description
+    typedef std::string description_t;
+
     /**
      * \brief Destructor.
      */
@@ -74,30 +77,35 @@ class SPROKIT_PIPELINE_EXPORT scheduler
      * \throws restart_scheduler_exception Thrown when the scheduler was already started.
      */
     void start();
+
     /**
      * \brief Wait until execution is finished.
      *
      * \throws restart_scheduler_exception Thrown when the scheduler has not been started.
      */
     void wait();
+
     /**
      * \brief Pause execution.
      *
      * \throws pause_before_start_exception Thrown when the scheduler has not been started.
      */
     void pause();
+
     /**
      * \brief Resume execution.
      *
      * \throws resume_unpaused_scheduler_exception Thrown when the scheduler is not paused.
      */
     void resume();
+
     /**
      * \brief Stop execution of the pipeline.
      *
      * \throws stop_before_start_exception Thrown when the scheduler has not been started.
      */
     void stop();
+
   protected:
     /**
      * \brief Constructor.
@@ -114,23 +122,30 @@ class SPROKIT_PIPELINE_EXPORT scheduler
      * pipeline. Exceptions should be thrown instead.
      */
     virtual void _start() = 0;
+
     /**
      * \brief Wait until execution is finished.
      */
     virtual void _wait() = 0;
+
     /**
      * \brief Pause execution.
      */
     virtual void _pause() = 0;
+
     /**
      * \brief Resume execution.
      */
     virtual void _resume() = 0;
+
     /**
      * \brief Stop execution of the pipeline.
      *
-     * \warning Implementations should *not* return if they fail to stop the
-     * pipeline. Exceptions should be thrown instead.
+     * This method may return before all processes are stopped. Call
+     * wait() to synchronize with the termination event.
+     *
+     * \warning Implementations should *not* return if they fail to
+     * stop the pipeline. Exceptions should be thrown instead.
      */
     virtual void _stop() = 0;
 
@@ -148,9 +163,21 @@ class SPROKIT_PIPELINE_EXPORT scheduler
      * \returns The pipeline.
      */
     pipeline_t pipeline() const;
+
+    /**
+     * \brief Get logger handle
+     *
+     * \returns Logger handle so log messages can be generated.
+     */
+    kwiver::vital::logger_handle_t logger();
+
+    // The logger handle
+    kwiver::vital::logger_handle_t m_logger;
+
   private:
+
     class SPROKIT_PIPELINE_NO_EXPORT priv;
-    boost::scoped_ptr<priv> d;
+    std::unique_ptr<priv> d;
 };
 
 }

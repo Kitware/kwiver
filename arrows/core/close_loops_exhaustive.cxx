@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,14 +34,15 @@
  */
 
 #include "close_loops_exhaustive.h"
+#include "match_tracks.h"
 
 #include <algorithm>
-#include <functional>
 #include <set>
 #include <vector>
 
 #include <vital/exceptions/algorithm.h>
 #include <vital/algo/match_features.h>
+#include <vital/util/thread_pool.h>
 
 
 namespace kwiver {
@@ -56,17 +57,8 @@ class close_loops_exhaustive::priv
 public:
   /// Constructor
   priv()
-    : match_req(100),
-      num_look_back(-1),
-      m_logger( vital::get_logger( "arrows.core.close_loops_exhaustive" ))
-  {
-  }
-
-  priv(const priv& other)
-    : match_req(other.match_req),
-      num_look_back(other.num_look_back),
-      matcher(!other.matcher ? algo::match_features_sptr() : other.matcher->clone()),
-      m_logger( vital::get_logger( "arrows.core.close_loops_exhaustive" ))
+    : match_req(100)
+    , num_look_back(-1)
   {
   }
 
@@ -78,44 +70,27 @@ public:
 
   /// The feature matching algorithm to use
   vital::algo::match_features_sptr matcher;
-
-  /// Logger handle
-  vital::logger_handle_t m_logger;
 };
 
 
+// ----------------------------------------------------------------------------
 /// Constructor
 close_loops_exhaustive
 ::close_loops_exhaustive()
 : d_(new priv)
 {
-}
-
-
-/// Copy Constructor
-close_loops_exhaustive
-::close_loops_exhaustive(const close_loops_exhaustive& other)
-: d_(new priv(*other.d_))
-{
+  attach_logger( "arrows.core.close_loops_exhaustive" );
 }
 
 
 /// Destructor
 close_loops_exhaustive
-::~close_loops_exhaustive() VITAL_NOTHROW
+::~close_loops_exhaustive() noexcept
 {
 }
 
 
-std::string
-close_loops_exhaustive
-::description() const
-{
-  return "Exhaustive matching of all frame pairs, "
-         "or all frames within a moving window";
-}
-
-
+// ----------------------------------------------------------------------------
 /// Get this alg's \link vital::config_block configuration block \endlink
   vital::config_block_sptr
 close_loops_exhaustive
@@ -139,6 +114,7 @@ close_loops_exhaustive
 }
 
 
+// ----------------------------------------------------------------------------
 /// Set this algo's properties via a config block
 void
 close_loops_exhaustive
@@ -158,6 +134,7 @@ close_loops_exhaustive
 }
 
 
+// ----------------------------------------------------------------------------
 bool
 close_loops_exhaustive
 ::check_configuration(vital::config_block_sptr config) const
@@ -168,20 +145,11 @@ close_loops_exhaustive
 }
 
 
-namespace {
-/// Functor to help remove tracks from vector
-bool track_in_set( track_sptr trk_ptr, std::set<track_id_t>* set_ptr )
-{
-  return set_ptr->find( trk_ptr->id() ) != set_ptr->end();
-}
-}
-
-
 /// Exaustive loop closure
-vital::track_set_sptr
+vital::feature_track_set_sptr
 close_loops_exhaustive
 ::stitch( vital::frame_id_t frame_number,
-          vital::track_set_sptr input,
+          vital::feature_track_set_sptr input,
           vital::image_container_sptr,
           vital::image_container_sptr ) const
 {
@@ -193,7 +161,8 @@ close_loops_exhaustive
   }
 
   std::vector< vital::track_sptr > all_tracks = input->tracks();
-  vital::track_set_sptr current_set = input->active_tracks( frame_number );
+  auto current_set = std::make_shared<vital::feature_track_set>(
+                         input->active_tracks( frame_number ) );
 
   std::vector<vital::track_sptr> current_tracks = current_set->tracks();
   vital::descriptor_set_sptr current_descriptors =
@@ -201,51 +170,43 @@ close_loops_exhaustive
   vital::feature_set_sptr current_features =
       current_set->frame_features( frame_number );
 
+  // lambda function to encapsulate the parameters to be shared across all threads
+  auto match_func = [=] (frame_id_t f)
+  {
+    return match_tracks(d_->matcher, input, current_set,
+                        current_features, current_descriptors, f);
+  };
+
+  // access the thread pool
+  vital::thread_pool& pool = vital::thread_pool::instance();
+
+  std::map<vital::frame_id_t, std::future<track_pairs_t> > all_matches;
+  // enqueue a task to run matching for each frame within a neighborhood
   for(vital::frame_id_t f = frame_number - 2; f >= last_frame; f-- )
   {
-    vital::track_set_sptr f_set = input->active_tracks( f );
+    all_matches[f] = pool.enqueue(match_func, f);
+  }
 
-    // run matcher alg
-    vital::match_set_sptr mset = d_->matcher->match(f_set->frame_features( f ),
-                                                    f_set->frame_descriptors( f ),
-                                                    current_features,
-                                                    current_descriptors);
-
-    LOG_INFO(d_->m_logger, "Matching frame " << frame_number << " to "<< f
-                             << " matched "<< mset->size() << " features");
-    if( mset->size() < static_cast<unsigned int>(d_->match_req) )
+  // retrieve match results and stitch frames together
+  for(vital::frame_id_t f = frame_number - 2; f >= last_frame; f-- )
+  {
+    auto const& matches = all_matches[f].get();
+    size_t num_matched = matches.size();
+    int num_linked = 0;
+    if( num_matched >= d_->match_req )
     {
-      continue;
-    }
-
-    // modify track history
-    std::vector<vital::track_sptr> f_tracks = f_set->tracks();
-    std::vector<vital::match> matches = mset->matches();
-    std::set<vital::track_id_t> to_remove;
-
-    for( unsigned i = 0; i < matches.size(); i++ )
-    {
-      unsigned f_idx = matches[i].first;
-      unsigned c_idx = matches[i].second;
-      if( f_tracks[ f_idx ]->append( *current_tracks[ c_idx ] ) )
+      for( auto const& m : matches )
       {
-        to_remove.insert( current_tracks[ c_idx ]->id() );
-        current_tracks[ c_idx ] = f_tracks[ f_idx ];
+        if( input->merge_tracks(m.first, m.second) )
+        {
+          ++num_linked;
+        }
       }
     }
 
-    if( !to_remove.empty() )
-    {
-      LOG_INFO(d_->m_logger, "Matching frame " << frame_number << " to "<< f
-                             << " joined "<<to_remove.size() << " tracks");
-      all_tracks.erase(
-        std::remove_if( all_tracks.begin(), all_tracks.end(),
-                        std::bind( track_in_set, std::placeholders::_1, &to_remove ) ),
-        all_tracks.end()
-      );
-      // recreate the track set with the new filtered tracks
-      input = std::make_shared<simple_track_set>( all_tracks );
-    }
+    LOG_INFO(logger(), "Matching frame " << frame_number << " to " << f
+                       << " has "<< num_matched << " matches and "
+                       << num_linked << " joined tracks");
   }
 
   return input;

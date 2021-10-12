@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2013 by Kitware, Inc.
+ * Copyright 2011-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,8 +45,7 @@
  * \brief Implementation of the base class for \link sprokit::scheduler schedulers\endlink.
  */
 
-namespace sprokit
-{
+namespace sprokit {
 
 class scheduler::priv
 {
@@ -72,28 +71,34 @@ class scheduler::priv
     mutex_t mut;
 };
 
+
+// ============================================================================
 scheduler
 ::~scheduler()
 {
 }
 
+
 scheduler
 ::scheduler(pipeline_t const& pipe, kwiver::vital::config_block_sptr const& config)
-  : d()
+  : m_logger( kwiver::vital::get_logger( "scheduler.base" ) )
+  , d()
 {
   if (!config)
   {
-    throw null_scheduler_config_exception();
+    VITAL_THROW( null_scheduler_config_exception );
   }
 
   if (!pipe)
   {
-    throw null_scheduler_pipeline_exception();
+    VITAL_THROW( null_scheduler_pipeline_exception );
   }
 
   d.reset(new priv(this, pipe));
 }
 
+
+// ----------------------------------------------------------------------------
 void
 scheduler
 ::start()
@@ -104,7 +109,7 @@ scheduler
 
   if (d->running)
   {
-    throw restart_scheduler_exception();
+    VITAL_THROW( restart_scheduler_exception );
   }
 
   d->p->start();
@@ -114,6 +119,8 @@ scheduler
   d->running = true;
 }
 
+
+// ----------------------------------------------------------------------------
 void
 scheduler
 ::wait()
@@ -122,7 +129,7 @@ scheduler
 
   if (!d->running)
   {
-    throw wait_before_start_exception();
+    VITAL_THROW( wait_before_start_exception );
   }
 
   // Allow many threads to wait on the scheduler.
@@ -150,6 +157,8 @@ scheduler
   }
 }
 
+
+// ----------------------------------------------------------------------------
 void
 scheduler
 ::pause()
@@ -158,7 +167,7 @@ scheduler
 
   if (!d->running)
   {
-    throw pause_before_start_exception();
+    VITAL_THROW( pause_before_start_exception );
   }
 
   priv::upgrade_to_unique_lock_t const write_lock(lock);
@@ -167,7 +176,7 @@ scheduler
 
   if (d->paused)
   {
-    throw repause_scheduler_exception();
+    VITAL_THROW( repause_scheduler_exception );
   }
 
   _pause();
@@ -175,6 +184,8 @@ scheduler
   d->paused = true;
 }
 
+
+// ----------------------------------------------------------------------------
 void
 scheduler
 ::resume()
@@ -185,12 +196,12 @@ scheduler
 
   if (!d->running)
   {
-    throw resume_before_start_exception();
+    VITAL_THROW( resume_before_start_exception );
   }
 
   if (!d->paused)
   {
-    throw resume_unpaused_scheduler_exception();
+    VITAL_THROW( resume_unpaused_scheduler_exception );
   }
 
   _resume();
@@ -198,6 +209,8 @@ scheduler
   d->paused = false;
 }
 
+
+// ----------------------------------------------------------------------------
 void
 scheduler
 ::stop()
@@ -208,12 +221,14 @@ scheduler
 
   if (!d->running)
   {
-    throw stop_before_start_exception();
+    VITAL_THROW( stop_before_start_exception );
   }
 
   d->stop();
 }
 
+
+// ----------------------------------------------------------------------------
 void
 scheduler
 ::shutdown()
@@ -228,6 +243,8 @@ scheduler
   }
 }
 
+
+// ----------------------------------------------------------------------------
 pipeline_t
 scheduler
 ::pipeline() const
@@ -235,6 +252,17 @@ scheduler
   return d->p;
 }
 
+
+// ----------------------------------------------------------------------------
+kwiver::vital::logger_handle_t
+scheduler
+::logger()
+{
+  return m_logger;
+}
+
+
+// ============================================================================
 scheduler::priv
 ::priv(scheduler* sched, pipeline_t const& pipe)
   : q(sched)
@@ -250,6 +278,8 @@ scheduler::priv
 {
 }
 
+
+// ----------------------------------------------------------------------------
 void
 scheduler::priv
 ::stop()

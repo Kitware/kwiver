@@ -35,7 +35,6 @@
 
 #include "output_adapter_process.h"
 
-#include <vital/vital_foreach.h>
 #include <kwiver_type_traits.h>
 
 #include <stdexcept>
@@ -78,9 +77,6 @@ output_adapter_process
   : process( config )
   , d( new output_adapter_process::priv )
 {
-  // Attach our logger name to process logger
-  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
-
   declare_config_using_trait( wait_on_queue_full );
 }
 
@@ -109,7 +105,7 @@ output_adapter_process
 
   // formulate list of current output ports
   auto ports = this->output_ports();
-  VITAL_FOREACH( auto port, ports )
+  for( auto port : ports )
   {
     port_info[port] = this->output_port_info( port );
   }
@@ -119,14 +115,15 @@ output_adapter_process
 
 
 // ------------------------------------------------------------------
-sprokit::process::port_info_t
+void
 output_adapter_process
-::_input_port_info(port_t const& port)
+::input_port_undefined(port_t const& port)
 {
   // If we have not created the port, then make a new one.
   if ( m_active_ports.count( port ) == 0 )
   {
     port_flags_t p_flags;
+    p_flags.insert( flag_required );
 
     LOG_TRACE( logger(), "Creating input port: \"" << port << "\" on process \"" << name() << "\"" );
 
@@ -140,8 +137,6 @@ output_adapter_process
     // Add to our list of existing ports
     m_active_ports.insert( port );
   }
-
-  return process::_input_port_info(port);
 }
 
 
@@ -152,27 +147,10 @@ output_adapter_process
 {
   LOG_TRACE( logger(), "Processing data set" );
 
-  // Take a peek at the first port to see if it is the end of data
-  // marker.  If so, push end marker into our output interface queue.
-  // The assumption is that if the first port is at end, then they all
-  // are.
-  auto edat = this->peek_at_port( *m_active_ports.begin() );
-  if ( edat.datum->type() == sprokit::datum::complete )
-  {
-    LOG_DEBUG( logger(), "End of data detected." );
-
-    // Send end of input into interface queue indicating no more data will be sent.
-    auto ds = kwiver::adapter::adapter_data_set::create( kwiver::adapter::adapter_data_set::end_of_input );
-    this->get_interface_queue()->Send( ds );
-    mark_process_as_complete();
-
-    return;
-  }
-
   auto data_set = kwiver::adapter::adapter_data_set::create();
 
   // The grab call is blocking, so it will wait until data is there.
-  VITAL_FOREACH( auto const p, m_active_ports )
+  for( auto const p : m_active_ports )
   {
     LOG_TRACE( logger(), "Getting data from port \"" << p <<"\"" );
 
@@ -187,8 +165,19 @@ output_adapter_process
     // Send received data to consumer thread
     this->get_interface_queue()->Send( data_set );
   }
+}
 
-  return;
+
+// ----------------------------------------------------------------
+void
+output_adapter_process
+::_finalize()
+{
+  LOG_DEBUG( logger(), "End of data detected." );
+
+  // Send end of input into interface queue indicating no more data will be sent.
+  auto ds = kwiver::adapter::adapter_data_set::create( kwiver::adapter::adapter_data_set::end_of_input );
+  this->get_interface_queue()->Send( ds );
 }
 
 

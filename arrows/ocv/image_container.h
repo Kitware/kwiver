@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2016 by Kitware, Inc.
+ * Copyright 2013-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,13 +54,14 @@ class KWIVER_ALGO_OCV_EXPORT image_container
 {
 public:
 
+  enum ColorMode{RGB_COLOR, BGR_COLOR, OTHER_COLOR};
+
   /// Constructor - from a cv::Mat
-  explicit image_container(const cv::Mat& d)
-  : data_(d) {}
+  explicit image_container(const cv::Mat& d, ColorMode cm);
 
   /// Constructor - convert kwiver image to cv::Mat
   explicit image_container(const vital::image& vital_image)
-  : data_(vital_to_ocv(vital_image)) {}
+  : data_(vital_to_ocv(vital_image, RGB_COLOR)) {}
 
   /// Constructor - convert base image container to cv::Mat
   explicit image_container(const vital::image_container& image_cont);
@@ -85,20 +86,44 @@ public:
   /// The depth (or number of channels) of the image
   virtual size_t depth() const { return data_.channels(); }
 
-  /// Get and in-memory image class to access the data
-  virtual vital::image get_image() const { return ocv_to_vital(data_); }
+  /// Get an in-memory image class to access the data
+  virtual vital::image get_image() const { return ocv_to_vital(data_, RGB_COLOR); }
+  using vital::image_container::get_image;
 
   /// Access the underlying cv::Mat data structure
   cv::Mat get_Mat() const { return data_; }
 
   /// Convert an OpenCV cv::Mat to a VITAL image
-  static vital::image ocv_to_vital(const cv::Mat& img);
+  /**
+   * This function constructs a vital::image from a cv::Mat and wraps the same
+   * memory.  If the memory is owned by the cv::Mat this function will use a
+   * mat_image_memory class to retain the original memory and reference
+   * counting.  If the cv::Mat does not own the memory, the vital::image will
+   * point to the same memory but also not take ownership.  That is
+   * vital::image::memory() will return nullptr.
+   */
+  static vital::image ocv_to_vital(const cv::Mat& img, ColorMode cm);
 
   /// Convert an OpenCV cv::Mat type value to a vital::image_pixel_traits
   static vital::image_pixel_traits ocv_to_vital(int type);
 
   /// Convert a VITAL image to an OpenCV cv::Mat
-  static cv::Mat vital_to_ocv(const vital::image& img);
+  /**
+  * This function constructs a cv::Mat from a vital::image and wraps the same
+  * memory whenever possible.  If the vital::image contains a mat_image_memory
+  * then the image data was originally created as a cv::Mat and this
+  * function will reconstruct the cv::Mat using the original memory and
+  * reference counting, if possible.  If the vital::image does not own its
+  * memory, then the wrapped cv::Mat will also not own the memory.
+  *
+  * The supported memory layouts are far more restricted in cv::Mat than in
+  * vital::image.  If the image is not of a compatible type and cannot be
+  * directly wrapped then the a new cv::Mat is allocated and the image is
+  * deep copied.  The same is true if the user requests a color mode other
+  * than the default BGR used by OpenCV.  The data will be copied into new
+  * memory and the color is converted.
+  */
+  static cv::Mat vital_to_ocv(const vital::image& img, ColorMode cm);
 
   /// Convert a vital::image_pixel_traits to an OpenCV cv::Mat type integer
   static int vital_to_ocv(const vital::image_pixel_traits& pt);
@@ -117,11 +142,12 @@ protected:
  *
  * \param img Image container to convert to cv::mat
  */
-KWIVER_ALGO_OCV_EXPORT cv::Mat image_container_to_ocv_matrix(const vital::image_container& img);
+KWIVER_ALGO_OCV_EXPORT cv::Mat image_container_to_ocv_matrix(const vital::image_container& img,
+                           image_container::ColorMode cm = image_container::BGR_COLOR);
 
 
 } // end namespace ocv
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_OCV_IMAGE_CONTAINER_H_
+#endif

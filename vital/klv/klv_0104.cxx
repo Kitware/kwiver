@@ -37,7 +37,7 @@
 #include "klv_0104.h"
 #include "klv_data.h"
 
-#include <vital/exceptions/klv.h>
+#include <vital/exceptions/metadata.h>
 #include <vital/logger/logger.h>
 
 #include <type_traits>
@@ -174,7 +174,6 @@ klv_0104::klv_0104()
   m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0105050000000000UL )] = MISSION_NUMBER;
   m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0701100101000000UL )] = SENSOR_ROLL_ANGLE;
   m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0701100102000000UL )] = ANGLE_TO_NORTH;
-  m_key_to_tag[klv_uds_key( 0x060e2b3401010101UL, 0x0701100103000000UL )] = OBLIQUITY_ANGLE;
 
   //UNKNOWN is the last entry of the enum and thus the number of tags
   m_traitsvec.resize( UNKNOWN );
@@ -186,7 +185,7 @@ klv_0104::klv_0104()
   m_traitsvec[PLATFORM_DESIGNATION_ALT] =    NEW_TRAIT( std::string,  "Platform designation (alternate key)" );
   m_traitsvec[STREAM_ID] =                   NEW_TRAIT( std::string,  "Stream ID" );
   m_traitsvec[ITEM_DESIGNATOR_ID] =          NEW_TRAIT( std::string,  "Item Designator ID (16 bytes)" );
-  m_traitsvec[CLASSIFICATION] =              NEW_TRAIT( std_0102_lds,  "Classification" );
+  m_traitsvec[CLASSIFICATION] =              NEW_TRAIT( std_0102_lds, "Classification" );
   m_traitsvec[SECURITY_CLASSIFICATION] =     NEW_TRAIT( std::string,  "Security Classification" );
   m_traitsvec[IMAGE_SOURCE_SENSOR] =         NEW_TRAIT( std::string,  "Image Source sensor" );
   m_traitsvec[SENSOR_HORIZONTAL_FOV] =       NEW_TRAIT( double,       "Sensor horizontal field of view" );
@@ -229,8 +228,6 @@ klv_0104::klv_0104()
   m_traitsvec[MISSION_ID] =                  NEW_TRAIT( std::string,  "Mission ID" );
   m_traitsvec[PLATFORM_TAIL_NUMBER] =        NEW_TRAIT( std::string,  "Platform tail number" );
   m_traitsvec[MISSION_NUMBER] =              NEW_TRAIT( std::string,  "Episode Number" );
-  m_traitsvec[ANGLE_TO_NORTH] =              NEW_TRAIT( double,       "Angle to North" );
-  m_traitsvec[OBLIQUITY_ANGLE] =             NEW_TRAIT( double,       "Sensor Elevation Angle" );
   m_traitsvec[SENSOR_ROLL_ANGLE] =           NEW_TRAIT( double,       "Sensor Roll Angle" );
 
 #undef NEW_TRAIT
@@ -352,7 +349,7 @@ traits< double >::convert( uint8_t const* data, std::size_t length )
   }
   else
   {
-    throw kwiver::vital::klv_exception( "Length does not correspond to double or float." );
+    VITAL_THROW( kwiver::vital::metadata_exception, "Length does not correspond to double or float." );
   }
 
   return val;
@@ -413,7 +410,7 @@ klv_0104::get_value( tag tg, kwiver::vital::any const& data ) const
   traits< T >* t = dynamic_cast< traits< T >* > ( m_traitsvec[tg] );
   if ( ! t )
   {
-    throw kwiver::vital::klv_exception( t->m_name + "' type mismatch" );
+    VITAL_THROW( kwiver::vital::metadata_exception, t->m_name + "' type mismatch" );
   }
 
   return kwiver::vital::any_cast< T > ( data );

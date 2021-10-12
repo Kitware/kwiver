@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,13 +36,9 @@
 #ifndef KWIVER_ARROWS_OCV_ANALYZE_TRACKS_H_
 #define KWIVER_ARROWS_OCV_ANALYZE_TRACKS_H_
 
-
-#include <vital/vital_config.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
 
 #include <vital/algo/analyze_tracks.h>
-
-#include <memory>
 
 namespace kwiver {
 namespace arrows {
@@ -53,18 +49,14 @@ class KWIVER_ALGO_OCV_EXPORT analyze_tracks
 : public vital::algorithm_impl<analyze_tracks, vital::algo::analyze_tracks>
 {
 public:
+  PLUGIN_INFO( "ocv",
+               "Use OpenCV to analyze statistics of feature tracks." )
 
   /// Constructor
   analyze_tracks();
 
-  /// Copy Constructor
-  analyze_tracks(const analyze_tracks& other);
-
   /// Destructor
   virtual ~analyze_tracks();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "ocv"; }
 
   /// Get this algorithm's \link vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -93,4 +85,4 @@ private:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_OCV_ANALYZE_TRACKS_H_
+#endif

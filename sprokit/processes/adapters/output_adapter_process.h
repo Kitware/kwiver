@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
 #ifndef KWIVER_OUTPUT_ADAPTER_PROCESS_H
 #define KWIVER_OUTPUT_ADAPTER_PROCESS_H
 
-#include <sprokit/processes/adapters/kwiver_adapter_processes_export.h>
+#include <sprokit/processes/adapters/kwiver_adapter_export.h>
 
 #include <sprokit/pipeline/process.h>
 
@@ -45,17 +45,24 @@
 namespace kwiver {
 
 // ----------------------------------------------------------------
-class KWIVER_ADAPTER_PROCESSES_NO_EXPORT output_adapter_process
+class KWIVER_ADAPTER_EXPORT output_adapter_process
   : public sprokit::process,
     public adapter::adapter_base
 {
 public:
+  PLUGIN_INFO( "output_adapter",
+               "Sink process for embedded pipeline.\n\n"
+               "Accepts data items from pipeline ports. "
+               "Ports are dynamically created as needed based on "
+               "connections specified in the pipeline file." )
+
   // -- CONSTRUCTORS --
   output_adapter_process( kwiver::vital::config_block_sptr const& config );
   virtual ~output_adapter_process();
 
   // Process interface
-  virtual void _step();
+  void _step() override;
+  void _finalize() override;
 
   /**
    * @brief Return list of active ports.
@@ -68,10 +75,10 @@ public:
   adapter::ports_info_t get_ports();
 
 private:
-  void _configure();
+  void _configure() override;
 
   // This is used to intercept connections and make ports JIT
-  virtual sprokit::process::port_info_t _input_port_info(port_t const& port);
+  void input_port_undefined(port_t const& port) override;
 
   class priv;
   const std::unique_ptr<priv> d;

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013 by Kitware, Inc.
+ * Copyright 2013-2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 #ifndef SPROKIT_PROCESSES_EXAMPLES_EXPECT_PROCESS_H
 #define SPROKIT_PROCESSES_EXAMPLES_EXPECT_PROCESS_H
 
-#include "examples-config.h"
+#include "processes_examples_export.h"
 
 #include <sprokit/pipeline/process.h>
 
@@ -63,27 +63,31 @@ namespace sprokit
  *
  * \ingroup examples
  */
-class SPROKIT_PROCESSES_EXAMPLES_NO_EXPORT expect_process
+class PROCESSES_EXAMPLES_NO_EXPORT expect_process
   : public process
 {
-  public:
-    /**
-     * \brief Constructor.
-     *
-     * \param config The configuration for the process.
-     */
-    expect_process(kwiver::vital::config_block_sptr const& config);
-    /**
-     * \brief Destructor.
-     */
-    ~expect_process();
-  protected:
-    void _configure();
-    void _step();
-    void _reconfigure(kwiver::vital::config_block_sptr const& conf);
-  private:
-    class priv;
-    boost::scoped_ptr<priv> d;
+public:
+  PLUGIN_INFO( "expect",
+               "A process which expects some conditions" );
+  /**
+   * \brief Constructor.
+   *
+   * \param config The configuration for the process.
+   */
+  expect_process(kwiver::vital::config_block_sptr const& config);
+  /**
+   * \brief Destructor.
+   */
+  ~expect_process();
+
+protected:
+  void _configure() override;
+  void _step() override;
+  void _reconfigure(kwiver::vital::config_block_sptr const& conf) override;
+
+private:
+  class priv;
+  std::unique_ptr<priv> d;
 };
 
 }

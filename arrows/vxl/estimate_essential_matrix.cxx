@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@
 
 #include "estimate_essential_matrix.h"
 
-#include <vital/vital_foreach.h>
 
 #include <vital/types/feature.h>
 #include <arrows/vxl/camera.h>
@@ -63,12 +62,6 @@ public:
   {
   }
 
-  priv(const priv& other)
-  : verbose(other.verbose),
-    num_ransac_samples(other.num_ransac_samples)
-  {
-  }
-
   bool verbose;
   unsigned num_ransac_samples;
 };
@@ -78,14 +71,6 @@ public:
 estimate_essential_matrix
 ::estimate_essential_matrix()
 : d_(new priv)
-{
-}
-
-
-/// Copy Constructor
-estimate_essential_matrix
-::estimate_essential_matrix(const estimate_essential_matrix& other)
-: d_(new priv(*other.d_))
 {
 }
 
@@ -154,12 +139,12 @@ estimate_essential_matrix
   vital_to_vpgl_calibration(*cal1, vcal1);
   vital_to_vpgl_calibration(*cal2, vcal2);
 
-  vcl_vector<vgl_point_2d<double> > right_points, left_points;
-  VITAL_FOREACH(const vector_2d& v, pts1)
+  std::vector<vgl_point_2d<double> > right_points, left_points;
+  for(const vector_2d& v : pts1)
   {
     right_points.push_back(vgl_point_2d<double>(v.x(), v.y()));
   }
-  VITAL_FOREACH(const vector_2d& v, pts2)
+  for(const vector_2d& v : pts2)
   {
     left_points.push_back(vgl_point_2d<double>(v.x(), v.y()));
   }

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2015 by Kitware, Inc.
+ * Copyright 2011-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@
 #include <vital/config/vital_config_export.h>
 #include <vital/noncopyable.h>
 #include <vital/util/source_location.h>
+#include <vital/util/tokenize.h>
 
 #include "config_block_types.h"
 #include "config_block_exception.h"
@@ -56,6 +57,9 @@
 
 namespace kwiver {
 namespace vital {
+
+template < typename R >
+R config_block_get_value_cast_default( config_block_value_t const& value );
 
 // ----------------------------------------------------------------
 /**
@@ -172,7 +176,55 @@ public:
    * \returns The value stored within the configuration, or \p def if something goes wrong.
    */
   template < typename T >
-  T get_value( config_block_key_t const& key, T const& def ) const VITAL_NOTHROW;
+  T get_value( config_block_key_t const& key, T const& def ) const noexcept;
+
+
+  /// Convert string to enum value.
+  /**
+   * \param key The index of the configuration value to retrieve.
+   * \tparam C Type of the enum converter. Must be derived from
+   * enum_converter struct.
+   * \return Correctly typed enum value
+   * \throws std::runtime_error with message detailing valid enum strings.
+   */
+  template < typename C>
+  typename C::enum_type get_enum_value( const config_block_key_t& key ) const;
+
+
+  /// Cast the value as an enum, returning a default value in case of an error.
+  /**
+  * Get value from config entry converted to enum type. If
+  * the config entry is not there or the value can not be
+  * converted, the specified default value is
+  * returned. Unfortunately, there is no way to tell what went
+  * wrong.
+  *
+  * \param key The index of the configuration value to retrieve.
+  * \param def The value \p key does not exist or the cast fails.
+  * \tparam C  Type of the enum converter. Must be derived from
+  *            enum_converter struct.
+  * \returns   The enum value stored within the configuration, or
+  *            \p def if something goes wrong.
+  */
+  template < typename C >
+  typename C::enum_type
+  get_enum_value(config_block_key_t const& key,
+                 typename C::enum_type const& def) const noexcept;
+
+
+  /// Convert string to vector of values.
+  /**
+   * Convert config string into a vector of values of the same type. This method
+   * splits the config string associated with the key using the supplied delimeter
+   * string. Each of these resulting strings is converted to the templated type and
+   * added to the output vector. The final set of values is returned in the vector.
+   *
+   * \param key The index of the configuration value to retrieve.
+   * \param delim List of delimeter characters for splitting vector elements.
+   * \tparam T Type of vector element.
+   */
+  template< typename T >
+  std::vector< T > get_value_as_vector( config_block_key_t const& key, const std::string& delim = " " ) const;
 
 
   /// Get the description associated to a value
@@ -180,8 +232,8 @@ public:
    * If the provided key has no description associated with it, an empty
    * \c config_block_description_t value is returned.
    *
-   * \throws no_such_configuration_value_exception Thrown if the requested
-   *                                               key does not exist.
+   * \throws no_such_configuration_value_exception Thrown if the
+   *  requested key does not exist.
    *
    * \param key The name of the parameter to get the description of.
    * \returns The description of the requested key.
@@ -306,6 +358,17 @@ public:
   void merge_config( config_block_sptr const& config );
 
 
+  /// Get difference between this and other config block.
+  /**
+   * This method determines the difference between two config blocks
+   * (this - other) and returns a new config block that contains all
+   * entries that are in \b this config block but not in the other.
+   *
+   * \param other The config block to be differenced with.
+   */
+  config_block_sptr difference_config( const config_block_sptr other ) const;
+
+
   ///Return the values available in the configuration.
   /**
    * This method returns a list of all config entry keys available
@@ -326,20 +389,12 @@ public:
    */
   bool has_value( config_block_key_t const& key ) const;
 
+
   /// The separator between blocks.
   static config_block_key_t const block_sep;
 
   /// The magic group for global parameters.
   static config_block_key_t const global_value;
-
-
-  /// Format config in printable form
-  /**
-   * This method formats the config entries onto the supplied stream.
-   *
-   * \param str Stream to accept formated text.
-   */
-  void print( std::ostream & str );
 
   /// Set source file location where entry is defined.
   /**
@@ -351,6 +406,8 @@ public:
    * \param line Line number in file
    */
   void set_location( config_block_key_t const& key, std::shared_ptr< std::string > file, int line );
+  void set_location( config_block_key_t const& key, const kwiver::vital::source_location& loc );
+
 
   /// Get file location where config key was defined.
   /**
@@ -362,12 +419,25 @@ public:
    * \param[out] file Name of the last file where this symbol was defined
    * \param[out] line Line number in file of definition
    *
-   * \return \b true if the symbol definition is available.
+   * \return \b true if the location is available.
    */
   bool get_location( config_block_key_t const& key,
                      std::string& file,
                      int& line) const;
 
+
+  /// Get file location where config key was defined.
+  /**
+   * This method returns the location where the specified config entry
+   * was defined. If it is no location for the definition of the
+   * symbol, the output parameters are unchanged.
+   *
+   * \param[in] key Name of the config entry
+   * \param[out] loc Location of where this entry was defined.
+   *
+   * \return \b true if the location is available.
+   */
+  bool get_location( config_block_key_t const& key, kwiver::vital::source_location& loc ) const;
 
 private:
   /// Internal constructor
@@ -398,6 +468,20 @@ private:
                     config_block_value_t const& value,
                     config_block_description_t const& descr = config_block_key_t() );
 
+  /// Copies config entry to this config block.
+  /**
+   * This function copies one config entry, as specified by the \b key
+   * from the specified config block to this block.
+   *
+   * @param key Specifies the config entry to copy.
+   * @param from The source config block.
+   */
+  void copy_entry( config_block_key_t const& key,
+                   const config_block_sptr from );
+
+  void copy_entry( config_block_key_t const& key,
+                   const config_block* from );
+
   typedef std::map< config_block_key_t, config_block_value_t > store_t;
   typedef std::set< config_block_key_t > ro_list_t;
 
@@ -421,27 +505,8 @@ private:
   // list of keys that are read-only
   ro_list_t m_ro_list;
 
-  /**
-   * This structure contains the source location where a config entry
-   * was defined. The file is managed by smart pointer so that all
-   * entries, and there could be a lot of them, share the same string.
-   */
-  class source_location
-  {
-  public:
-    source_location() : m_line(0) { }
-    source_location( std::shared_ptr< std::string > f, int l )
-      : m_file( f ), m_line( l ) { }
 
-    std::string file() const { return *m_file; }
-    int line() const { return m_line; }
-
-  private:
-    std::shared_ptr< std::string > m_file;
-    int m_line;
-  };
-
-  typedef std::map< config_block_key_t, source_location > location_t;
+  typedef std::map< config_block_key_t, kwiver::vital::source_location > location_t;
 
   // location where key was defined.
   location_t m_def_store;
@@ -486,14 +551,15 @@ config_block_get_value_cast_default( config_block_value_t const& value )
     interpreter >> result;
     if( interpreter.fail() )
     {
-      throw bad_config_block_cast( "failed to convert from string representation \"" + value + "\"" );
+      VITAL_THROW( bad_config_block_cast,
+                   "failed to convert from string representation \"" + value + "\"" );
     }
 
     return result;
   }
   catch( std::exception& e )
   {
-    throw bad_config_block_cast( e.what() );
+    VITAL_THROW( bad_config_block_cast, e.what() );
   }
 }
 
@@ -517,11 +583,11 @@ config_block_get_value_cast( config_block_value_t const& value )
   std::stringstream str;
   str << value;
 
-  timestamp::time_t t;
+  kwiver::vital::time_usec_t t;
   str >> t;
   obj.set_time( t );
 
-  timestamp::frame_t f;
+  kwiver::vital::frame_id_t f;
   str >> f;
   obj.set_frame( f );
 
@@ -582,7 +648,7 @@ config_block
   config_block_value_t value;
   if ( ! find_value(key, value ) )
   {
-    throw no_such_configuration_value_exception( key );
+    VITAL_THROW( no_such_configuration_value_exception, key );
   }
 
   try
@@ -593,8 +659,43 @@ config_block
   catch ( bad_config_block_cast const& e )
   {
     // Upgrade exception by adding more known details.
-    throw bad_config_block_cast_exception( key, value, typeid( T ).name(), e.what() );
+    VITAL_THROW( bad_config_block_cast_exception,
+                 key, value, typeid( T ).name(), e.what() );
   }
+}
+
+
+// ------------------------------------------------------------------
+template < typename C >
+typename C::enum_type
+config_block
+::get_enum_value( const config_block_key_t& key ) const
+{
+  return C().from_string( get_value < std::string >( key ) );
+}
+
+
+// ------------------------------------------------------------------
+template< typename T >
+std::vector< T >
+config_block
+::get_value_as_vector( config_block_key_t const& key, const std::string& delim ) const
+{
+  config_block_value_t val = get_value< std::string >( key );
+
+  std::vector< std::string> sv;
+  // Split string by delimeter into vector of strings
+  tokenize( val, sv, delim, kwiver::vital::TokenizeTrimEmpty );
+
+  std::vector< T > val_vector;
+  // iterate over all strings and convert to target type
+  for (std::string str : sv )
+  {
+    T val = config_block_get_value_cast<T>( str );
+    val_vector.push_back( val );
+  }
+
+  return val_vector;
 }
 
 
@@ -603,13 +704,32 @@ config_block
 template < typename T >
 T
 config_block
-::get_value( config_block_key_t const& key, T const& def ) const VITAL_NOTHROW
+::get_value( config_block_key_t const& key, T const& def ) const noexcept
 {
   try
   {
     return get_value< T > ( key );
   }
   catch ( ... )
+  {
+    return def;
+  }
+}
+
+
+// ------------------------------------------------------------------
+// Cast the value as an enum, returning a default value in case of an error.
+template < typename C >
+typename C::enum_type
+config_block
+::get_enum_value(config_block_key_t const& key,
+                 typename C::enum_type const& def) const noexcept
+{
+  try
+  {
+    return get_enum_value< C >(key);
+  }
+  catch (...)
   {
     return def;
   }
@@ -654,14 +774,15 @@ config_block_set_value_cast_default( T const& value )
     val_str << value;
     if ( val_str.fail() )
     {
-      throw bad_config_block_cast( "failed to convert value to string representation" );
+      VITAL_THROW( bad_config_block_cast,
+                   "failed to convert value to string representation" );
     }
 
     return val_str.str();
   }
     catch( std::exception& e )
   {
-    throw bad_config_block_cast( e.what() );
+    VITAL_THROW( bad_config_block_cast, e.what() );
   }
 }
 
@@ -783,4 +904,4 @@ config_block
 
 } }
 
-#endif // KWIVER_CONFIG_BLOCK_H_
+#endif

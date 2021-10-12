@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,14 +91,6 @@ typedef std::deque< checkpoint_entry_t > checkpoint_buffer_t;
 typedef checkpoint_buffer_t::reverse_iterator buffer_ritr;
 
 
-// Functor to help remove tracks from vector
-bool
-track_id_in_set( track_sptr trk_ptr, std::set<track_id_t>* set_ptr )
-{
-  return set_ptr->find( trk_ptr->id() ) != set_ptr->end();
-}
-
-
 // If possible convert a src1 to ref and src2 to ref homography to a src2 to src1 homography
 bool
 convert( const f2f_homography_sptr &src1_to_ref,
@@ -133,21 +125,7 @@ public:
   : enabled_( true ),
     max_checkpoint_frames_( 10000 ),
     checkpoint_percent_overlap_( 0.70 ),
-    homography_filename_( "" ),
-    m_logger( vital::get_logger( "arrows.vxl.close_loops_homography_guided" ))
-  {
-  }
-
-  priv( const priv& other )
-  : enabled_( other.enabled_ ),
-    max_checkpoint_frames_( other.max_checkpoint_frames_ ),
-    checkpoint_percent_overlap_( other.checkpoint_percent_overlap_ ),
-    homography_filename_( other.homography_filename_ ),
-    ref_computer_( !other.ref_computer_ ? algo::compute_ref_homography_sptr()
-                                        : other.ref_computer_->clone() ),
-    matcher_( !other.matcher_ ? algo::match_features_sptr()
-                              : other.matcher_->clone() ),
-    m_logger( vital::get_logger( "arrows.vxl.close_loops_homography_guided" ))
+    homography_filename_( "" )
   {
   }
 
@@ -175,22 +153,15 @@ public:
 
   /// The feature matching algorithm to use
   vital::algo::match_features_sptr matcher_;
-  /// Logger handle
-  vital::logger_handle_t m_logger;
 };
 
 
+// ----------------------------------------------------------------------------
 close_loops_homography_guided
 ::close_loops_homography_guided()
 : d_( new priv() )
 {
-}
-
-
-close_loops_homography_guided
-::close_loops_homography_guided( const close_loops_homography_guided& other )
-: d_( new priv( *other.d_ ) )
-{
+  attach_logger( "arrows.vxl.close_loops_homography_guided" );
 }
 
 
@@ -200,6 +171,7 @@ close_loops_homography_guided
 }
 
 
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 close_loops_homography_guided
 ::get_configuration() const
@@ -278,10 +250,10 @@ close_loops_homography_guided
 
 
 // Perform stitch operation
-track_set_sptr
+feature_track_set_sptr
 close_loops_homography_guided
 ::stitch( frame_id_t frame_number,
-          track_set_sptr input,
+          feature_track_set_sptr input,
           image_container_sptr image,
           image_container_sptr mask ) const
 {
@@ -370,57 +342,36 @@ close_loops_homography_guided
   {
     const frame_id_t prior_frame = best_frame_to_test->fid;
 
-    // Get all tracks on target frame
-    track_set_sptr prior_set = input->active_tracks( prior_frame );
-
-    // Get all tracks on the current frame
-    track_set_sptr current_set = input->active_tracks( frame_number );
-
     // Perform matching operation
     match_set_sptr mset = d_->matcher_->match(
-      current_set->frame_features( frame_number ),
-      current_set->frame_descriptors( frame_number ),
-      prior_set->frame_features( prior_frame ),
-      prior_set->frame_descriptors( prior_frame ) );
+      input->frame_features( frame_number ),
+      input->frame_descriptors( frame_number ),
+      input->frame_features( prior_frame ),
+      input->frame_descriptors( prior_frame ) );
 
     // Test matcher results
     if( mset->size() > 0 ) // If matches are good
     {
       // Logging
-      LOG_INFO(d_->m_logger, "Stitching frames " << prior_frame << " and " << frame_number);
-
-      // Get all tracks, we will modify this
-      std::vector< track_sptr > all_tracks = input->tracks();
+      LOG_INFO(logger(), "Stitching frames " << prior_frame << " and " << frame_number);
 
       // Get all tracks on the past frame
-      std::vector< track_sptr > prior_trks = prior_set->tracks();
+      std::vector< track_sptr > prior_trks = input->active_tracks( prior_frame );
 
       // Get all tracks on the current frame
-      std::vector< track_sptr > current_trks = current_set->tracks();
+      std::vector< track_sptr > current_trks = input->active_tracks( frame_number );
 
       // Get all matches
       std::vector<match> matches = mset->matches();
-      std::set<track_id_t> to_remove;
 
       for( unsigned i = 0; i < matches.size(); i++ )
       {
-        if( prior_trks[ matches[i].second ]->append( *current_trks[ matches[i].first ] ) )
-        {
-          to_remove.insert( current_trks[ matches[i].first ]->id() );
-        }
-      }
-
-      if( !to_remove.empty() )
-      {
-        all_tracks.erase(
-          std::remove_if( all_tracks.begin(), all_tracks.end(),
-                          std::bind( track_id_in_set, std::placeholders::_1, &to_remove ) ),
-          all_tracks.end()
-        );
+        input->merge_tracks( current_trks[ matches[i].first ],
+                             prior_trks[ matches[i].second ] );
       }
 
       // Return updated set
-      return track_set_sptr( new simple_track_set( all_tracks ) );
+      return input;
     }
   }
 

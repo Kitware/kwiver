@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,17 +36,14 @@
 #ifndef KWIVER_ARROWS__CLOSE_LOOPS_EXHAUSTIVE_H_
 #define KWIVER_ARROWS__CLOSE_LOOPS_EXHAUSTIVE_H_
 
-#include <vital/vital_config.h>
 #include <arrows/core/kwiver_algo_core_export.h>
 
 #include <vital/algo/algorithm.h>
 #include <vital/types/image_container.h>
-#include <vital/types/track_set.h>
+#include <vital/types/feature_track_set.h>
 
 #include <vital/algo/close_loops.h>
 #include <vital/config/config_block.h>
-
-#include <memory>
 
 namespace kwiver {
 namespace arrows {
@@ -60,21 +57,15 @@ class KWIVER_ALGO_CORE_EXPORT close_loops_exhaustive
   : public vital::algorithm_impl<close_loops_exhaustive, vital::algo::close_loops>
 {
 public:
+  PLUGIN_INFO( "exhaustive",
+               "Exhaustive matching of all frame pairs, "
+               "or all frames within a moving window." )
 
   /// Default Constructor
   close_loops_exhaustive();
 
-  /// Copy Constructor
-  close_loops_exhaustive(const close_loops_exhaustive&);
-
   /// Destructor
-  virtual ~close_loops_exhaustive() VITAL_NOTHROW;
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "exhaustive"; }
-
-  /// Returns implementation description
-  virtual std::string description() const;
+  virtual ~close_loops_exhaustive() noexcept;
 
   /// Get this algorithm's \link vital::config_block configuration block \endlink
   /**
@@ -114,15 +105,15 @@ public:
   /// Perform exhaustive stitching
   /**
    * \param [in] frame_number the frame number of the current frame
-   * \param [in] input the input track set to stitch
+   * \param [in] input the input feature track set to stitch
    * \param [in] image image data for the current frame
    * \param [in] mask Optional mask image where positive values indicate
    *                  regions to consider in the input image.
-   * \returns an updated set a tracks after the stitching operation
+   * \returns an updated set of feature tracks after the stitching operation
    */
-  virtual vital::track_set_sptr
+  virtual vital::feature_track_set_sptr
   stitch( vital::frame_id_t frame_number,
-          vital::track_set_sptr input,
+          vital::feature_track_set_sptr input,
           vital::image_container_sptr image,
           vital::image_container_sptr mask = vital::image_container_sptr() ) const;
 
@@ -138,4 +129,4 @@ private:
 } // end namespace kwiver
 
 
-#endif // KWIVER_ARROWS__CLOSE_LOOPS_EXHAUSTIVE_H_
+#endif

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2012 by Kitware, Inc.
+ * Copyright 2011-2012, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 #ifndef SPROKIT_PROCESSES_EXAMPLES_NUMBER_PROCESS_H
 #define SPROKIT_PROCESSES_EXAMPLES_NUMBER_PROCESS_H
 
-#include "examples-config.h"
+#include "processes_examples_export.h"
 
 #include <sprokit/pipeline/process.h>
 
@@ -69,35 +69,39 @@ namespace sprokit
  *
  * \ingroup examples
  */
-class SPROKIT_PROCESSES_EXAMPLES_NO_EXPORT number_process
+class PROCESSES_EXAMPLES_NO_EXPORT number_process
   : public process
 {
-  public:
-    /**
-     * \brief Constructor.
-     *
-     * \param config The configuration for the process.
-     */
-    number_process(kwiver::vital::config_block_sptr const& config);
-    /**
-     * \brief Destructor.
-     */
-    ~number_process();
-  protected:
-    /**
-     * \brief Configure the process.
-     */
-    void _configure();
+public:
+  PLUGIN_INFO( "numbers",
+               "Outputs numbers within a range" );
+  /**
+   * \brief Constructor.
+   *
+   * \param config The configuration for the process.
+   */
+  number_process(kwiver::vital::config_block_sptr const &config);
+  /**
+   * \brief Destructor.
+   */
+  ~number_process();
 
-    /**
-     * \brief Step the process.
-     */
-    void _step();
-  private:
-    class priv;
-    std::unique_ptr<priv> d;
+protected:
+  /**
+   * \brief Configure the process.
+   */
+  void _configure() override;
+
+  /**
+   * \brief Step the process.
+   */
+  void _step() override;
+
+private:
+  class priv;
+  std::unique_ptr<priv> d;
 };
 
-}
+} // namespace sprokit
 
 #endif // SPROKIT_PROCESSES_EXAMPLES_NUMBER_PROCESS_H

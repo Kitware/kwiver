@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2015-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,9 @@
 #ifndef KWIVER_ARROWS_CORE_FILTER_FEATURES_MAGNITUDE_H_
 #define KWIVER_ARROWS_CORE_FILTER_FEATURES_MAGNITUDE_H_
 
-#include <vital/vital_config.h>
 #include <arrows/core/kwiver_algo_core_export.h>
 
 #include <vital/algo/filter_features.h>
-
-#include <memory>
 
 /**
  * \file
@@ -52,17 +49,15 @@ class KWIVER_ALGO_CORE_EXPORT filter_features_magnitude
   : public vital::algorithm_impl<filter_features_magnitude, vital::algo::filter_features>
 {
 public:
+  PLUGIN_INFO( "magnitude",
+               "Filter features using a threshold"
+               " on the magnitude of the detector response function." )
+
   /// Constructor
   filter_features_magnitude();
 
   /// Destructor
   virtual ~filter_features_magnitude();
-
-  /// Copy Constructor
-  filter_features_magnitude(const filter_features_magnitude& other);
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "magnitude"; }
 
   /// Get this algorithm's \link vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -93,4 +88,4 @@ private:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_CORE_FILTER_FEATURES_MAGNITUDE_H_
+#endif

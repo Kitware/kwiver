@@ -31,11 +31,9 @@
 #ifndef KWIVER_VITAL_PLUGIN_FACTORY_H
 #define KWIVER_VITAL_PLUGIN_FACTORY_H
 
-#include <vital/vital_config.h>
 #include <vital/plugin_loader/vital_vpm_export.h>
 
 #include <vital/noncopyable.h>
-#include <vital/vital_foreach.h>
 #include <vital/exceptions/plugin.h>
 #include <string>
 #include <sstream>
@@ -60,19 +58,38 @@ typedef std::vector< plugin_factory_handle_t >    plugin_factory_vector_t;
  *
  */
 class VITAL_VPM_EXPORT plugin_factory
-  : public std::enable_shared_from_this< plugin_factory >,
-    private kwiver::vital::noncopyable
+  : public std::enable_shared_from_this< plugin_factory >
+  , private kwiver::vital::noncopyable
 {
 public:
   virtual ~plugin_factory();
 
-  // standard set of attributes
+  // This is the list of the global attributes that are available to
+  // all customers. It is not required to have all attributes
+  // present. Applications can use additional attributes that are
+  // specific to the application in the application wrapper for this
+  // plugin factory/manager. Do not add local scope attributes to this
+  // list.
   static const std::string INTERFACE_TYPE;
   static const std::string CONCRETE_TYPE;
   static const std::string PLUGIN_FILE_NAME;
+  static const std::string PLUGIN_CATEGORY;
+  static const std::string PLUGIN_PROCESS_PROPERTIES;
+
+  // User settable
   static const std::string PLUGIN_NAME;
   static const std::string PLUGIN_DESCRIPTION;
   static const std::string PLUGIN_VERSION;
+  static const std::string PLUGIN_MODULE_NAME; // logical module name
+  static const std::string PLUGIN_FACTORY_TYPE; // typename of factory class
+  static const std::string PLUGIN_AUTHOR;
+  static const std::string PLUGIN_ORGANIZATION;
+  static const std::string PLUGIN_LICENSE;
+
+  // plugin categories
+  static const std::string APPLET_CATEGORY;
+  static const std::string PROCESS_CATEGORY;
+  static const std::string ALGORITHM_CATEGORY;
 
   /**
    * @brief Get attribute from factory
@@ -113,7 +130,7 @@ public:
       std::stringstream str;
       str << "Can not create object of requested type: " <<  typeid( T ).name()
           <<"  Factory created objects of type: " << m_interface_type;
-      throw kwiver::vital::plugin_factory_type_creation_error( str.str() );
+      VITAL_THROW( kwiver::vital::plugin_factory_type_creation_error, str.str() );
     }
 
     // Call derived class to create concrete type object
@@ -124,7 +141,7 @@ public:
 
       str << "plugin_factory:: Unable to create object of type "
           << typeid( T ).name();
-      throw kwiver::vital::plugin_factory_type_creation_error( str.str() );
+      VITAL_THROW( kwiver::vital::plugin_factory_type_creation_error, str.str() );
     }
 
     return new_object;
@@ -138,7 +155,7 @@ public:
    */
   template < class T > void for_each_attr( T& f )
   {
-    VITAL_FOREACH( auto val, m_attribute_map )
+    for( auto val : m_attribute_map )
     {
       f( val.first, val.second );
     }
@@ -146,7 +163,7 @@ public:
 
   template < class T > void for_each_attr( T const& f ) const
   {
-    VITAL_FOREACH( auto const val, m_attribute_map )
+    for( auto const val : m_attribute_map )
     {
       f( val.first, val.second );
     }
@@ -162,7 +179,7 @@ protected:
 
 private:
   // Method to create concrete object
-  virtual void* create_object_i() = 0;
+  virtual void* create_object_i() { return 0; }
 
   typedef std::map< std::string, std::string > attribute_map_t;
   attribute_map_t m_attribute_map;
@@ -192,7 +209,7 @@ public:
     this->add_attribute( CONCRETE_TYPE, typeid( T ).name() );
   }
 
-  virtual ~plugin_factory_0() {}
+  virtual ~plugin_factory_0() = default;
 
 protected:
   virtual void* create_object_i()

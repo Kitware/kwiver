@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,10 +36,11 @@
 #ifndef SPROKIT_PIPELINE_UTIL_CLUSTER_INFO_H
 #define SPROKIT_PIPELINE_UTIL_CLUSTER_INFO_H
 
-#include "pipeline_util-config.h"
+#include<sprokit/pipeline_util/sprokit_pipeline_util_export.h>
 
 #include "pipe_declaration_types.h"
 #include <sprokit/pipeline/types.h>
+#include <sprokit/pipeline/process_factory.h>
 
 
 namespace sprokit {
@@ -61,8 +62,8 @@ class SPROKIT_PIPELINE_UTIL_EXPORT cluster_info
      * \param ctor_ A function to create an instance of the cluster.
      */
     cluster_info(process::type_t const& type_,
-                 process_registry::description_t const& description_,
-                 process_ctor_t const& ctor_);
+                 process::description_t const& description_,
+                 process_factory_func_t const& ctor_);
     /**
      * \brief Destructor.
      */
@@ -72,14 +73,14 @@ class SPROKIT_PIPELINE_UTIL_EXPORT cluster_info
     process::type_t const type;
 
     /// A description of the cluster.
-    process_registry::description_t const description;
+    process::description_t const description;
 
     /// A factory function to create an instance of the cluster.
-    process_ctor_t const ctor;
+    process_factory_func_t const ctor;
 };
 
 /// A handle to information about a cluster.
-typedef boost::shared_ptr<cluster_info> cluster_info_t;
+typedef std::shared_ptr<cluster_info> cluster_info_t;
 
 } // end namespace sprokit
 

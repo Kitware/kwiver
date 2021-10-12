@@ -28,38 +28,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sprokit/pipeline/process_registry.h>
+#include <sprokit/processes/vxl/kwiver_processes_vxl_export.h>
+
+#include <sprokit/pipeline/process_factory.h>
+#include <vital/plugin_loader/plugin_loader.h>
 
 // -- list processes to register --
 #include "kw_archive_writer_process.h"
 
-extern "C"
-KWIVER_PROCESSES_VXL_EXPORT void register_processes();
-
-
 // ----------------------------------------------------------------
 /*! \brief Regsiter processes
  *
- *
  */
-void register_processes()
+extern "C"
+KWIVER_PROCESSES_VXL_EXPORT
+void register_factories( kwiver::vital::plugin_loader& vpm )
 {
-  static sprokit::process_registry::module_t const module_name =
-    sprokit::process_registry::module_t( "kwiver_processes_vxl" );
+  using namespace sprokit;
 
-  sprokit::process_registry_t const registry( sprokit::process_registry::self() );
+  process_registrar reg( vpm, "kwiver_processes_vxl" );
 
-  if ( registry->is_module_loaded( module_name ) )
+  if ( reg.is_module_loaded() )
   {
     return;
   }
 
-  // ----------------------------------------------------------------
-
-  registry->register_process(
-    "kw_archive_writer", "Write kw archives",
-    sprokit::create_process< kwiver::kw_archive_writer_process > );
+  reg.register_process< kwiver::kw_archive_writer_process >();
 
   // - - - - - - - - - - - - - - - - - - - - - - -
-  registry->mark_module_as_loaded( module_name );
+  reg.mark_module_as_loaded();
+
 }

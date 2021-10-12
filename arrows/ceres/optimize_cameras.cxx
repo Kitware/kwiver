@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,19 +46,18 @@ namespace arrows {
 namespace ceres {
 
 
-/// Private implementation class
+// Private implementation class
 class optimize_cameras::priv
   : public solver_options,
     public camera_options
 {
 public:
-  /// Constructor
+  // Constructor
   priv()
   : camera_options(),
     verbose(false),
     loss_function_type(TRIVIAL_LOSS),
-    loss_function_scale(1.0),
-    m_logger( vital::get_logger( "arrows.ceres.optimize_cameras" ))
+    loss_function_scale(1.0)
   {
   }
 
@@ -66,47 +65,38 @@ public:
   : camera_options(other),
     verbose(other.verbose),
     loss_function_type(other.loss_function_type),
-    loss_function_scale(other.loss_function_scale),
-    m_logger( vital::get_logger( "arrows.ceres.optimize_cameras" ))
+    loss_function_scale(other.loss_function_scale)
   {
   }
 
-  /// verbose output
+  // verbose output
   bool verbose;
-  /// the robust loss function type to use
+  // the robust loss function type to use
   LossFunctionType loss_function_type;
-  /// the scale of the loss function
+  // the scale of the loss function
   double loss_function_scale;
-
-  /// Logger handle
-  vital::logger_handle_t m_logger;
 };
 
 
-/// Constructor
+// ----------------------------------------------------------------------------
+// Constructor
 optimize_cameras
 ::optimize_cameras()
 : d_(new priv)
 {
+  attach_logger( "arrows.ceres.optimize_cameras" );
 }
 
 
-/// Copy Constructor
-optimize_cameras
-::optimize_cameras(const optimize_cameras& other)
-: d_(new priv(*other.d_))
-{
-}
-
-
-/// Destructor
+// Destructor
 optimize_cameras
 ::~optimize_cameras()
 {
 }
 
 
-/// Get this algorithm's \link vital::config_block configuration block \endlink
+// ----------------------------------------------------------------------------
+// Get this algorithm's \link vital::config_block configuration block \endlink
 config_block_sptr
 optimize_cameras
 ::get_configuration() const
@@ -132,7 +122,8 @@ optimize_cameras
 }
 
 
-/// Set this algorithm's properties via a config block
+// ----------------------------------------------------------------------------
+// Set this algorithm's properties via a config block
 void
 optimize_cameras
 ::set_configuration(config_block_sptr in_config)
@@ -162,7 +153,8 @@ optimize_cameras
 }
 
 
-/// Check that the algorithm's currently configuration is valid
+// ----------------------------------------------------------------------------
+// Check that the algorithm's currently configuration is valid
 bool
 optimize_cameras
 ::check_configuration(config_block_sptr config) const
@@ -170,23 +162,25 @@ optimize_cameras
   std::string msg;
   if( !d_->options.IsValid(&msg) )
   {
-    LOG_ERROR( d_->m_logger, msg);
+    LOG_ERROR( logger(), msg);
     return false;
   }
   return true;
 }
 
 
-/// Optimize camera parameters given sets of landmarks and tracks
+// ----------------------------------------------------------------------------
+// Optimize camera parameters given sets of landmarks and feature tracks
 void
 optimize_cameras
 ::optimize(vital::camera_map_sptr & cameras,
-           vital::track_set_sptr tracks,
-           vital::landmark_map_sptr landmarks) const
+           vital::feature_track_set_sptr tracks,
+           vital::landmark_map_sptr landmarks,
+           vital::sfm_constraints_sptr constraints) const
 {
   if( !cameras || !landmarks || !tracks )
   {
-    throw vital::invalid_value("One or more input data pieces are Null!");
+    VITAL_THROW( vital::invalid_value, "One or more input data pieces are Null!");
   }
   typedef camera_map::map_camera_t map_camera_t;
   typedef landmark_map::map_landmark_t map_landmark_t;
@@ -199,19 +193,19 @@ optimize_cameras
   // Extract the landmark locations into a mutable map
   typedef std::map<track_id_t, std::vector<double> > lm_param_map_t;
   lm_param_map_t landmark_params;
-  VITAL_FOREACH(const map_landmark_t::value_type& lm, lms)
+  for(const map_landmark_t::value_type& lm : lms)
   {
     vector_3d loc = lm.second->loc();
     landmark_params[lm.first] = std::vector<double>(loc.data(), loc.data()+3);
   }
 
   // a map from frame number to extrinsic parameters
-  typedef std::map<frame_id_t, std::vector<double> > cam_param_map_t;
+  typedef std::unordered_map<frame_id_t, std::vector<double> > cam_param_map_t;
   cam_param_map_t camera_params;
   // vector of unique camera intrinsic parameters
   std::vector<std::vector<double> > camera_intr_params;
   // a map from frame number to index of unique camera intrinsics in camera_intr_params
-  std::map<frame_id_t, unsigned int> frame_to_intr_map;
+  std::unordered_map<frame_id_t, unsigned int> frame_to_intr_map;
 
   // Extract the raw camera parameter into the provided maps
   d_->extract_camera_parameters(cams,
@@ -232,7 +226,7 @@ optimize_cameras
   bool loss_func_used = false;
 
   // Add the residuals for each relevant observation
-  VITAL_FOREACH(const track_sptr& t, trks)
+  for(const track_sptr& t : trks)
   {
     const track_id_t id = t->id();
     lm_param_map_t::iterator lm_itr = landmark_params.find(id);
@@ -244,14 +238,19 @@ optimize_cameras
 
     for(track::history_const_itr ts = t->begin(); ts != t->end(); ++ts)
     {
-      cam_param_map_t::iterator cam_itr = camera_params.find(ts->frame_id);
+      cam_param_map_t::iterator cam_itr = camera_params.find((*ts)->frame());
       if( cam_itr == camera_params.end() )
       {
         continue;
       }
-      unsigned intr_idx = frame_to_intr_map[ts->frame_id];
+      unsigned intr_idx = frame_to_intr_map[(*ts)->frame()];
       double * intr_params_ptr = &camera_intr_params[intr_idx][0];
-      vector_2d pt = ts->feat->loc();
+      auto fts = std::dynamic_pointer_cast<feature_track_state>(*ts);
+      if( !fts || !fts->feature )
+      {
+        continue;
+      }
+      vector_2d pt = fts->feature->loc();
       problem.AddResidualBlock(create_cost_func(d_->lens_distortion_type,
                                                 pt.x(), pt.y()),
                                loss_func,
@@ -263,7 +262,7 @@ optimize_cameras
   }
 
   const unsigned int ndp = num_distortion_params(d_->lens_distortion_type);
-  VITAL_FOREACH(std::vector<double>& cip, camera_intr_params)
+  for(std::vector<double>& cip : camera_intr_params)
   {
     // apply the constraints
     if (constant_intrinsics.size() > 4 + ndp)
@@ -279,16 +278,34 @@ optimize_cameras
     }
   }
   // Set the landmarks constant
-  VITAL_FOREACH(lm_param_map_t::value_type& lmp, landmark_params)
+  for(lm_param_map_t::value_type& lmp : landmark_params)
   {
     problem.SetParameterBlockConstant(&lmp.second[0]);
   }
 
-  // Add camera path regularization residuals
-  d_->add_camera_path_smoothness_cost(problem, camera_params);
+  if (d_->camera_path_smoothness > 0.0 ||
+      d_->camera_forward_motion_damping > 0.0)
+  {
+    // sort the camera parameters in order of frame number
+    std::vector<std::pair<vital::frame_id_t, double *> > ordered_params;
+    for (auto& item : camera_params)
+    {
+      ordered_params.push_back(std::make_pair(item.first, &item.second[0]));
+    }
+    std::sort(ordered_params.begin(), ordered_params.end());
 
-  // Add camera path regularization residuals
-  d_->add_forward_motion_damping_cost(problem, camera_params, frame_to_intr_map);
+    // Add camera path regularization residuals
+    d_->add_camera_path_smoothness_cost(problem, ordered_params);
+
+    // Add forward motion regularization residuals
+    d_->add_forward_motion_damping_cost(problem, ordered_params, frame_to_intr_map);
+  }
+
+  // add costs for priors
+  int num_position_priors_applied =
+    d_->add_position_prior_cost(problem, camera_params, constraints);
+
+  d_->add_intrinsic_priors_cost(problem, camera_intr_params);
 
   // If the loss function was added to a residual block, ownership was
   // transfered.  If not then we need to delete it.
@@ -301,7 +318,7 @@ optimize_cameras
   ::ceres::Solve(d_->options, &problem, &summary);
   if( d_->verbose )
   {
-    LOG_DEBUG(d_->m_logger, "Ceres Full Report:\n" << summary.FullReport());
+    LOG_DEBUG(logger(), "Ceres Full Report:\n" << summary.FullReport());
   }
 
   // Update the cameras with the optimized values
@@ -311,12 +328,14 @@ optimize_cameras
 }
 
 
-/// Optimize a single camera given corresponding features and landmarks
+// ----------------------------------------------------------------------------
+// Optimize a single camera given corresponding features and landmarks
 void
 optimize_cameras
-::optimize(vital::camera_sptr& camera,
+::optimize(vital::camera_perspective_sptr& camera,
            const std::vector<vital::feature_sptr>& features,
-           const std::vector<vital::landmark_sptr>& landmarks) const
+           const std::vector<vital::landmark_sptr>& landmarks,
+           kwiver::vital::sfm_constraints_sptr constraints) const
 {
   // extract camera parameters to optimize
   const unsigned int ndp = num_distortion_params(d_->lens_distortion_type);
@@ -328,7 +347,7 @@ optimize_cameras
 
   // extract the landmark parameters
   std::vector<std::vector<double> > landmark_params;
-  VITAL_FOREACH(const landmark_sptr lm, landmarks)
+  for(const landmark_sptr lm : landmarks)
   {
     vector_3d loc = lm->loc();
     landmark_params.push_back(std::vector<double>(loc.data(), loc.data()+3));
@@ -383,7 +402,7 @@ optimize_cameras
   ::ceres::Solve(d_->options, &problem, &summary);
   if( d_->verbose )
   {
-    LOG_DEBUG(d_->m_logger, "Ceres Full Report:\n" << summary.FullReport());
+    LOG_DEBUG(logger(), "Ceres Full Report:\n" << summary.FullReport());
   }
 
   // update the cameras from optimized parameters
@@ -394,7 +413,7 @@ optimize_cameras
     d_->update_camera_intrinsics(new_K, &cam_intrinsic_params[0]);
     K = new_K;
   }
-  auto new_camera = std::make_shared<simple_camera>();
+  auto new_camera = std::make_shared<simple_camera_perspective>();
   new_camera->set_intrinsics(K);
   d_->update_camera_extrinsics(new_camera, &cam_extrinsic_params[0]);
   camera = new_camera;

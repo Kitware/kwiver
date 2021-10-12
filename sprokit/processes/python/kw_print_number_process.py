@@ -26,10 +26,10 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+from __future__ import print_function
 import sprokit.pipeline.process
-import sprokit.pipeline.config
-import sprokit.pipeline.process_registry
+import vital.config.config
+
 import os.path
 
 class kw_print_number_process(sprokit.pipeline.process.PythonProcess):
@@ -60,8 +60,6 @@ class kw_print_number_process(sprokit.pipeline.process.PythonProcess):
         if not path:
             raise RuntimeError('The path given was empty')
 
-        print "KEITH Path is ",path
-
         self.fout = open(path, 'w+')
         self.fout.flush()
 
@@ -77,19 +75,22 @@ class kw_print_number_process(sprokit.pipeline.process.PythonProcess):
     def _step(self):
         num = self.grab_value_from_port('input')
 
-        print "Number received:", num
+        print("Number received:", num)
         self.fout.write('%d\n' % num)
 
         self._base_step()
 
 # ==================================================================
 def __sprokit_register__():
-    module_name = 'python:kwiver.print_number'
-    reg = sprokit.pipeline.process_registry.ProcessRegistry.self()
+    from sprokit.pipeline import process_factory
 
-    if reg.is_module_loaded(module_name):
+    module_name = 'python:kwiver.print_number'
+
+    if process_factory.is_process_module_loaded(module_name):
         return
 
-    reg.register_process('kw_print_number_process', 'A Simple Kwiver Test Process', kw_print_number_process)
+    process_factory.add_process('kw_print_number_process',
+                                'A Simple Kwiver Test Process',
+                                kw_print_number_process)
 
-    reg.mark_module_as_loaded(module_name)
+    process_factory.mark_process_module_as_loaded(module_name)

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2016 by Kitware, Inc.
+ * Copyright 2013-2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,6 @@
 #ifndef KWIVER_ARROWS_OCV_IMAGE_IO_H_
 #define KWIVER_ARROWS_OCV_IMAGE_IO_H_
 
-
-#include <vital/vital_config.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
 
 #include <vital/algo/image_io.h>
@@ -51,8 +49,8 @@ class KWIVER_ALGO_OCV_EXPORT image_io
   : public vital::algorithm_impl<image_io, vital::algo::image_io>
 {
 public:
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "ocv"; }
+  PLUGIN_INFO( "ocv",
+               "Read and write image using OpenCV." )
 
   // No configuration for this class yet
   /// \cond DoxygenSuppress
@@ -63,7 +61,7 @@ public:
 private:
   /// Implementation specific load functionality.
   /**
-   * \param filename the path to the file the load
+   * \param filename the path to the file to load
    * \returns an image container refering to the loaded image
    */
   virtual vital::image_container_sptr load_(const std::string& filename) const;
@@ -75,10 +73,17 @@ private:
    */
   virtual void save_(const std::string& filename,
                      vital::image_container_sptr data) const;
+
+  /// Implementation specific metadata functionality.
+  /**
+   * \param filename the path to the file to read
+   * \returns pointer to the loaded metadata
+   */
+  virtual kwiver::vital::metadata_sptr load_metadata_(std::string const& filename) const;
 };
 
 } // end namespace ocv
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_OCV_IMAGE_IO_H_
+#endif

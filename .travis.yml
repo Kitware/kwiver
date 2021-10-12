@@ -1,47 +1,63 @@
 #Travis CI configuration for KWIVER
 # See http://travis-ci.org/Kitware/kwiver/
 
-sudo: false
-
+dist: bionic
 language: cpp
-compiler:
-  - gcc
-  - clang
+
+matrix:
+  include:
+    - compiler: gcc
+      env:
+        - C_COMPILER=gcc
+        - CXX_COMPILER=g++
+    - compiler: clang
+      env: # default clang is version 7.0.0
+        - C_COMPILER=clang
+        - CXX_COMPILER=clang++
 
 cache:
   directories:
   - $HOME/deps
+  - /opt/kitware
 
 before_script:
+  - sudo apt-get install -y libproj-dev libgl1-mesa-dev libxt-dev libatlas-base-dev
   - bash .travis/install-deps.sh
-
-addons:
-  apt:
-    packages:
-    - libproj-dev
-    - libgl1-mesa-dev
-    - libxt-dev
-    - libqt4-dev
-    - libatlas-base-dev
 
 script:
   - export PATH=$HOME/deps/bin:$PATH
   - mkdir build
   - cd build
-  - cmake -DKWIVER_ENABLE_ARROWS=ON
+  # Travis needs help finding libomp (OpenMP) with Clang builds
+  - export LD_LIBRARY_PATH=$(if [[ $CXX == "clang++" ]]; then echo -n '/usr/local/clang/lib'; fi)
+  - export LD_LIBRARY_PATH=/opt/kitware/fletch/lib:$LD_LIBRARY_PATH
+  - cmake -DCMAKE_C_COMPILER=$C_COMPILER
+          -DCMAKE_CXX_COMPILER=$CXX_COMPILER
+          -DCMAKE_INSTALL_PREFIX=$HOME/install
+          -Dfletch_DIR=/opt/kitware/fletch/share/cmake/
+          -DKWIVER_ENABLE_ARROWS=ON
           -DKWIVER_ENABLE_CERES=ON
           -DKWIVER_ENABLE_C_BINDINGS=ON
           -DKWIVER_ENABLE_DOCS=OFF
+          -DKWIVER_ENABLE_FFMPEG=ON
+          -DKWIVER_ENABLE_GDAL=ON
           -DKWIVER_ENABLE_LOG4CXX=OFF
+          -DKWIVER_ENABLE_LOG4CPLUS=ON
           -DKWIVER_ENABLE_OPENCV=ON
           -DKWIVER_ENABLE_PROJ=ON
-          -DKWIVER_ENABLE_PYTHON=OFF
-          -DKWIVER_ENABLE_SPROKIT=OFF
+          -DKWIVER_ENABLE_PROCESSES=ON
+          -DKWIVER_ENABLE_PYTHON=ON
+          -DKWIVER_ENABLE_SERIALIZE_JSON=ON
+          -DKWIVER_ENABLE_SERIALIZE_PROTOBUF=ON
+          -DKWIVER_ENABLE_SPROKIT=ON
           -DKWIVER_ENABLE_TESTS=ON
           -DKWIVER_ENABLE_TOOLS=ON
-          -DKWIVER_ENABLE_TRACK_ORACLE=OFF
+          -DKWIVER_ENABLE_TRACK_ORACLE=ON
           -DKWIVER_ENABLE_VISCL=OFF
           -DKWIVER_ENABLE_VXL=ON
+          -DKWIVER_USE_BUILD_TREE=ON
           ../
   - make -j2
+  - make install
+  - . ./setup_KWIVER.sh
   - ctest

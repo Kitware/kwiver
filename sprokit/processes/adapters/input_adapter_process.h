@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
 #ifndef PROCESS_INPUT_ADAPTER_PROCESS_H
 #define PROCESS_INPUT_ADAPTER_PROCESS_H
 
-#include <sprokit/processes/adapters/kwiver_adapter_processes_export.h>
+#include <sprokit/processes/adapters/kwiver_adapter_export.h>
 
 #include <sprokit/pipeline/process.h>
 
@@ -44,17 +44,23 @@
 
 namespace kwiver {
 
-class KWIVER_ADAPTER_PROCESSES_NO_EXPORT input_adapter_process
+// ----------------------------------------------------------------
+class KWIVER_ADAPTER_EXPORT input_adapter_process
   : public sprokit::process,
     public adapter::adapter_base
 {
 public:
+  PLUGIN_INFO( "input_adapter",
+               "Source process for embedded pipeline.\n\n"
+               "Pushes data items into pipeline ports. "
+               "Ports are dynamically created as needed based on connections specified in the pipeline file." )
+
   // -- CONSTRUCTORS --
   input_adapter_process( kwiver::vital::config_block_sptr const& config );
   virtual ~input_adapter_process();
 
   // Process interface
-  virtual void _step();
+  void _step() override;
 
   /**
    * @brief Return list of active ports.
@@ -69,7 +75,7 @@ public:
 private:
 
   // This is used to intercept connections and make ports JIT
-  virtual sprokit::process::port_info_t _output_port_info( sprokit::process::port_t const& port);
+  void output_port_undefined( sprokit::process::port_t const& port) override;
 
 }; // end class input_adapter_process
 

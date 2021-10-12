@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,13 +36,9 @@
 #ifndef KWIVER_ARROWS_OCV_DRAW_TRACKS_H_
 #define KWIVER_ARROWS_OCV_DRAW_TRACKS_H_
 
-
-#include <vital/vital_config.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
 
 #include <vital/algo/draw_tracks.h>
-
-#include <memory>
 
 namespace kwiver {
 namespace arrows {
@@ -53,18 +49,14 @@ class KWIVER_ALGO_OCV_EXPORT draw_tracks
 : public vital::algorithm_impl<draw_tracks, vital::algo::draw_tracks>
 {
 public:
+  PLUGIN_INFO( "ocv",
+               "Use OpenCV to draw tracked features on the images." )
 
   /// Constructor
   draw_tracks();
 
-  /// Copy Constructor
-  draw_tracks(const draw_tracks& other);
-
   /// Destructor
   virtual ~draw_tracks();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "ocv"; }
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -96,11 +88,11 @@ private:
 
   /// private implementation class
   class priv;
-  const std::unique_ptr<priv> d_;
+  const std::unique_ptr<priv> d;
 };
 
 } // end namespace ocv
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_OCV_DRAW_TRACKS_H_
+#endif

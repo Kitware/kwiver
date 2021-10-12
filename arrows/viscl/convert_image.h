@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,6 @@
 #ifndef KWIVER_ARROWS_VISCL_CONVERT_IMAGE_H_
 #define KWIVER_ARROWS_VISCL_CONVERT_IMAGE_H_
 
-
-#include <vital/vital_config.h>
 #include <arrows/viscl/kwiver_algo_viscl_export.h>
 
 #include <vital/algo/convert_image.h>
@@ -50,12 +48,6 @@ public:
   /// Default Constructor
   convert_image();
 
-  /// Copy Constructor
-  convert_image(const convert_image &);
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "viscl"; }
-
   /// Image convert to viscl underlying type
   /**
    * \param [in] img image to be converted
@@ -70,4 +62,4 @@ public:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_VISCL_CONVERT_IMAGE_H_
+#endif

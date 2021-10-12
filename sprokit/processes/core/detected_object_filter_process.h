@@ -46,24 +46,14 @@ namespace kwiver
 {
 
 // ----------------------------------------------------------------
-/**
- * \class detected_object_filter_process
- *
- * \brief Filters a set of detections
- *
- * \iports
- * \iport{detected_object_set}
- * Input set of detected objects.
- *
- * \oports
- * \oport{detected_object_set}
- * List of detected objects that pass the filter criteria.
- */
-
 class KWIVER_PROCESSES_NO_EXPORT detected_object_filter_process
   : public sprokit::process
 {
 public:
+  PLUGIN_INFO( "detected_object_filter",
+               "Filters sets of detected objects using the "
+               "detected_object_filter algorithm." )
+
   detected_object_filter_process( kwiver::vital::config_block_sptr const& config );
   virtual ~detected_object_filter_process();
 

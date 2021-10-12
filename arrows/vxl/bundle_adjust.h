@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,35 +36,27 @@
 #ifndef KWIVER_ARROWS_VXL_BUNDLE_ADJUST_H_
 #define KWIVER_ARROWS_VXL_BUNDLE_ADJUST_H_
 
-
-#include <vital/vital_config.h>
 #include <arrows/vxl/kwiver_algo_vxl_export.h>
 
 #include <vital/algo/bundle_adjust.h>
-
-#include <memory>
-
 
 namespace kwiver {
 namespace arrows {
 namespace vxl {
 
-/// A class for bundle adjustment of tracks using VXL
+/// A class for bundle adjustment of feature tracks using VXL
 class KWIVER_ALGO_VXL_EXPORT bundle_adjust
 : public vital::algorithm_impl<bundle_adjust, vital::algo::bundle_adjust>
 {
 public:
+  PLUGIN_INFO( "vxl",
+               "Use VXL (vpgl) to bundle adjust cameras and landmarks." )
+
   /// Constructor
   bundle_adjust();
 
   /// Destructor
   virtual ~bundle_adjust();
-
-  /// Copy Constructor
-  bundle_adjust(const bundle_adjust& other);
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "vxl"; }
 
   /// Get this algorithm's \link vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -73,16 +65,20 @@ public:
   /// Check that the algorithm's currently configuration is valid
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
-  /// Optimize the camera and landmark parameters given a set of tracks
+  /// Optimize the camera and landmark parameters given a set of feature tracks
   /**
    * \param [in,out] cameras the cameras to optimize
    * \param [in,out] landmarks the landmarks to optimize
-   * \param [in] tracks the tracks to use as constraints
+   * \param [in] tracks the feature tracks to use as constraints
+   * \param [in] metadata the frame metadata to use as constraints
    */
   virtual void
   optimize(vital::camera_map_sptr& cameras,
            vital::landmark_map_sptr& landmarks,
-           vital::track_set_sptr tracks) const;
+           vital::feature_track_set_sptr tracks,
+           vital::sfm_constraints_sptr constraints = nullptr) const;
+
+  using vital::algo::bundle_adjust::optimize;
 
 private:
   /// private implementation class
@@ -95,4 +91,4 @@ private:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_VXL_BUNDLE_ADJUST_H_
+#endif

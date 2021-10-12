@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2015-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,9 @@
 #ifndef KWIVER_ARROWS__ESTIMATE_CANONICAL_TRANSFORM_H_
 #define KWIVER_ARROWS__ESTIMATE_CANONICAL_TRANSFORM_H_
 
-#include <vital/vital_config.h>
 #include <arrows/core/kwiver_algo_core_export.h>
 
 #include <vital/algo/estimate_canonical_transform.h>
-
-#include <memory>
 
 /**
  * \file
@@ -68,6 +65,10 @@ class KWIVER_ALGO_CORE_EXPORT estimate_canonical_transform
                                  vital::algo::estimate_canonical_transform>
 {
 public:
+  PLUGIN_INFO( "core_pca",
+               "Uses PCA to estimate a canonical similarity transform"
+               " that aligns the best fit plane to Z=0" )
+
   /// Constructor
   estimate_canonical_transform();
 
@@ -76,9 +77,6 @@ public:
 
   /// Copy Constructor
   estimate_canonical_transform(const estimate_canonical_transform& other);
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "core_pca"; }
 
   /// Get this algorithm's \link vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -111,4 +109,4 @@ private:
 } // end namespace kwiver
 
 
-#endif // KWIVER_ARROWS__ESTIMATE_CANONICAL_TRANSFORM_H_
+#endif

@@ -91,6 +91,10 @@ image_container
     { \
       typedef vil_pixel_format_type_of<F >::component_type pix_t; \
       vil_image_view<pix_t> img(data_); \
+      if( !img.memory_chunk() ) \
+      { \
+        return 0; \
+      } \
       return img.memory_chunk()->size(); \
     }
     CONVERT_CASE( VIL_PIXEL_FORMAT_BYTE)
@@ -146,7 +150,7 @@ image_container
     CONVERT_CASE( VIL_PIXEL_FORMAT_BOOL)
 #undef CONVERT_CASE
     default:
-      throw vital::image_type_mismatch_exception("kwiver::arrows::vxl::image_container::vxl_to_vital(const vil_image_view_base&)");
+      VITAL_THROW( vital::image_type_mismatch_exception, "kwiver::arrows::vxl::image_container::vxl_to_vital(const vil_image_view_base&)");
   }
   return vital::image();
 }
@@ -231,7 +235,7 @@ image_container
           break;
       }
   }
-  throw vital::image_type_mismatch_exception("kwiver::arrows::vxl::image_container::vital_to_vxl(const image&)");
+  VITAL_THROW( vital::image_type_mismatch_exception, "kwiver::arrows::vxl::image_container::vital_to_vxl(const image&)");
   return vil_image_view_base_sptr();
 }
 

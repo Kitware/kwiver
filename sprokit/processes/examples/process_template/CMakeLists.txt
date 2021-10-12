@@ -11,10 +11,12 @@ set( sources
   register_processes.cxx
 
   template_process.cxx
+  template_algo_wrapper.cxx
 )
 
 set( private_headers
   template_process.h
+  template_algo_wrapper.h
 )
 
 kwiver_private_header_group( ${private_headers} )
@@ -37,11 +39,11 @@ endif()
 ##++ This builds a plugin containing the specified process(s)
 ##++ Replace "template_process" with the desired name of the plugin file
 kwiver_add_plugin( template_processes
-  SUBDIR           sprokit
-  SOURCES        ${sources}
-                 ${private_headers}
+  SUBDIR           ${kwiver_plugin_process_subdir}
+  SOURCES          ${sources}
+                   ${private_headers}
   PRIVATE          sprokit_pipeline
-                   vital vital_apm vital_logger vital_config
+                   vital vital_vpm vital_logger vital_config
                    kwiver_algo_ocv
                    kwiversys
  )

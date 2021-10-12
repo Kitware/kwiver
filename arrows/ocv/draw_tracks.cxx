@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,19 +35,9 @@
 
 #include "draw_tracks.h"
 
-#include <set>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <iomanip>
-#include <algorithm>
-#include <stdio.h> // using C99 interface to support older compilers
-#include <deque>
-
-#include <vital/vital_config.h>
-#include <vital/vital_foreach.h>
-#include <vital/logger/logger.h>
 #include <vital/exceptions/io.h>
+#include <vital/types/feature_track_set.h>
+#include <vital/util/string.h>
 
 #include <kwiversys/SystemTools.hxx>
 
@@ -56,6 +46,14 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
+
+#include <set>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
+#include <algorithm>
+#include <deque>
 
 using namespace kwiver::vital;
 
@@ -72,10 +70,6 @@ typedef std::vector< std::pair< cv::Point, cv::Point > > line_vec_t;
 /// Helper typedef for storing past frame id offsets
 typedef std::vector< frame_id_t > fid_offset_vec_t;
 
-#if VITAL_SYSTEM_WIN_API
-#define snprintf _snprintf
-#endif
-
 /// Private implementation class
 class draw_tracks::priv
 {
@@ -91,15 +85,8 @@ public:
     swap_comparison_set( false ),
     write_images_to_disk( true ),
     pattern( "feature_tracks_%05d.png" ),
-    cur_frame_id( 0 ),
-    m_logger( kwiver::vital::get_logger( "arrows.ocv.draw_tracks" ) )
+    cur_frame_id( 1 )
   {
-  }
-
-  /// Copy Constructor
-  priv( const priv& other )
-  {
-    *this = other;
   }
 
   /// Destructor
@@ -121,23 +108,13 @@ public:
   /// Internal variables
   std::deque< cv::Mat > buffer; // managed as a circular buffer
   frame_id_t cur_frame_id;
-
-  kwiver::vital::logger_handle_t m_logger;
 };
 
 
 /// Constructor
 draw_tracks
 ::draw_tracks()
-: d_( new priv )
-{
-}
-
-
-/// Copy constructor
-draw_tracks
-::draw_tracks( const draw_tracks& other )
-: d_( new priv( *other.d_ ) )
+: d( new priv )
 {
 }
 
@@ -156,37 +133,37 @@ draw_tracks
 {
   vital::config_block_sptr config = vital::algo::draw_tracks::get_configuration();
 
-  config->set_value( "draw_track_ids", d_->draw_track_ids,
+  config->set_value( "draw_track_ids", d->draw_track_ids,
                      "Draw track ids next to each feature point." );
-  config->set_value( "draw_untracked_features", d_->draw_untracked_features,
+  config->set_value( "draw_untracked_features", d->draw_untracked_features,
                      "Draw untracked feature points in error_color." );
-  config->set_value( "draw_match_lines", d_->draw_match_lines,
+  config->set_value( "draw_match_lines", d->draw_match_lines,
                      "Draw lines between tracked features on the current frame "
                      "to any past frames." );
-  config->set_value( "draw_shift_lines", d_->draw_shift_lines,
+  config->set_value( "draw_shift_lines", d->draw_shift_lines,
                      "Draw lines showing the movement of the feature in the image "
                      "plane from the last frame to the current one drawn on every "
                      "single image individually." );
-  config->set_value( "draw_comparison_lines", d_->draw_comparison_lines,
+  config->set_value( "draw_comparison_lines", d->draw_comparison_lines,
                      "If more than 1 track set is input to this class, should we "
                      "draw comparison lines between tracks with the same ids in "
                      "both input sets?" );
-  config->set_value( "swap_comparison_set", d_->swap_comparison_set,
+  config->set_value( "swap_comparison_set", d->swap_comparison_set,
                      "If we are using a comparison track set, swap it and the input "
                      "track set, so that the comparison set becomes the main set "
                      "being displayed." );
-  config->set_value( "write_images_to_disk", d_->write_images_to_disk,
+  config->set_value( "write_images_to_disk", d->write_images_to_disk,
                      "Should images be written out to disk?" );
-  config->set_value( "pattern", d_->pattern,
+  config->set_value( "pattern", d->pattern,
                      "The output pattern for writing images to disk." );
 
   std::stringstream ss;
-  if ( !d_->past_frames_to_show.empty() )
+  if ( !d->past_frames_to_show.empty() )
   {
-    ss << d_->past_frames_to_show[0];
-    for(unsigned i=1; i < d_->past_frames_to_show.size(); ++i)
+    ss << d->past_frames_to_show[0];
+    for(unsigned i=1; i < d->past_frames_to_show.size(); ++i)
     {
-      ss << ", " << d_->past_frames_to_show[i];
+      ss << ", " << d->past_frames_to_show[i];
     }
   }
   config->set_value( "past_frames_to_show", ss.str(),
@@ -211,12 +188,12 @@ draw_tracks
   std::string past_frames_str = config->get_value<std::string>( "past_frames_to_show" );
 
   std::stringstream ss( past_frames_str );
-  d_->past_frames_to_show.clear();
+  d->past_frames_to_show.clear();
 
   unsigned next_int;
   while( ss >> next_int )
   {
-    d_->past_frames_to_show.push_back( next_int );
+    d->past_frames_to_show.push_back( next_int );
 
     if( ss.peek() == ',' )
     {
@@ -224,18 +201,18 @@ draw_tracks
     }
   }
 
-  d_->draw_track_ids = config->get_value<bool>( "draw_track_ids" );
-  d_->draw_untracked_features = config->get_value<bool>( "draw_untracked_features" );
-  d_->draw_match_lines = config->get_value<bool>( "draw_match_lines" );
-  d_->draw_shift_lines = config->get_value<bool>( "draw_shift_lines" );
-  d_->draw_comparison_lines = config->get_value<bool>( "draw_comparison_lines" );
-  d_->swap_comparison_set = config->get_value<bool>( "swap_comparison_set" );
-  d_->write_images_to_disk = config->get_value<bool>( "write_images_to_disk" );
-  d_->pattern = config->get_value<std::string>( "pattern" );
+  d->draw_track_ids = config->get_value<bool>( "draw_track_ids" );
+  d->draw_untracked_features = config->get_value<bool>( "draw_untracked_features" );
+  d->draw_match_lines = config->get_value<bool>( "draw_match_lines" );
+  d->draw_shift_lines = config->get_value<bool>( "draw_shift_lines" );
+  d->draw_comparison_lines = config->get_value<bool>( "draw_comparison_lines" );
+  d->swap_comparison_set = config->get_value<bool>( "swap_comparison_set" );
+  d->write_images_to_disk = config->get_value<bool>( "write_images_to_disk" );
+  d->pattern = config->get_value<std::string>( "pattern" );
 
-  if( !d_->past_frames_to_show.empty() )
+  if( !d->past_frames_to_show.empty() )
   {
-    d_->buffer.resize( *std::max_element( d_->past_frames_to_show.begin(), d_->past_frames_to_show.end()) );
+    d->buffer.resize( *std::max_element( d->past_frames_to_show.begin(), d->past_frames_to_show.end()) );
   }
 }
 
@@ -260,10 +237,16 @@ void subtract_from_all( fid_offset_vec_t& offsets, unsigned value )
 
 
 /// Helper function to convert a track state to an OpenCV point
-cv::Point state_to_cv_point( const track::track_state& ts )
+cv::Point state_to_cv_point( track_state_sptr ts )
 {
-  return cv::Point( static_cast<int>(ts.feat->loc()[0]),
-                    static_cast<int>(ts.feat->loc()[1]) );
+  auto fts = std::dynamic_pointer_cast<feature_track_state>(ts);
+  if( fts && fts->feature )
+  {
+    return cv::Point( static_cast<int>(fts->feature->loc()[0]),
+                      static_cast<int>(fts->feature->loc()[1]) );
+  }
+  //TODO Maybe throw an exception here
+  return cv::Point();
 }
 
 
@@ -281,13 +264,17 @@ void generate_match_lines( const track_sptr trk,
 
   track::history_const_itr frame_itr = trk->find( frame_id );
 
-  if( frame_itr == trk->end() || !frame_itr->feat )
+  if( frame_itr == trk->end() )
+  {
+    return;
+  }
+  auto fts = std::dynamic_pointer_cast<feature_track_state>(*frame_itr);
+  if( !fts || !fts->feature )
   {
     return;
   }
 
-  const cv::Point frame_loc( static_cast<int>(frame_itr->feat->loc()[0]),
-                             static_cast<int>(frame_itr->feat->loc()[1]) );
+  const cv::Point frame_loc = state_to_cv_point(*frame_itr);
 
   fid_offset_vec_t rem_offsets = frame_offsets;
 
@@ -301,20 +288,24 @@ void generate_match_lines( const track_sptr trk,
       const frame_id_t test_frame_id = frame_id - offset_to_test;
       track::history_const_itr test_itr = trk->find( test_frame_id );
 
-      if( test_itr != trk->end() && test_itr->feat )
+      if( test_itr != trk->end() )
       {
-        // add line
-        cv::Point test_loc = state_to_cv_point( *test_itr );
-        cv::Point frame_offset = static_cast<int>( frame_offsets.size() ) * image_offset;
-        cv::Point test_offset = static_cast<int>( frame_offsets.size() - i - 1 ) * image_offset;
-        line_list.push_back( std::make_pair( frame_loc + frame_offset, test_loc + test_offset ) );
+        fts = std::dynamic_pointer_cast<feature_track_state>(*test_itr);
+        if( fts && fts->feature )
+        {
+          // add line
+          cv::Point test_loc = state_to_cv_point( *test_itr );
+          cv::Point frame_offset = static_cast<int>( frame_offsets.size() ) * image_offset;
+          cv::Point test_offset = static_cast<int>( frame_offsets.size() - i - 1 ) * image_offset;
+          line_list.push_back( std::make_pair( frame_loc + frame_offset, test_loc + test_offset ) );
 
-        // call this function recursively to pick up anymore lines
-        subtract_from_all( rem_offsets, offset_to_test );
-        generate_match_lines( trk, test_frame_id, rem_offsets, image_offset, line_list );
+          // call this function recursively to pick up anymore lines
+          subtract_from_all( rem_offsets, offset_to_test );
+          generate_match_lines( trk, test_frame_id, rem_offsets, image_offset, line_list );
 
-        // break out of loop
-        return;
+          // break out of loop
+          return;
+        }
       }
     }
   }
@@ -332,7 +323,7 @@ draw_tracks
   track_set_sptr display_set = input_display_set;
   track_set_sptr comparison_set = input_comparison_set;
 
-  if( d_->swap_comparison_set )
+  if( d->swap_comparison_set )
   {
     std::swap( display_set, comparison_set );
   }
@@ -340,7 +331,7 @@ draw_tracks
   // Validate inputs
   if( image_data.empty() )
   {
-    LOG_ERROR(m_logger, "valid imagery must be provided");
+    LOG_ERROR(logger(), "valid imagery must be provided");
     return image_container_sptr();
   }
 
@@ -351,13 +342,13 @@ draw_tracks
   cv::Mat output_image;
 
   // The total number of past frames we are showing
-  const unsigned past_frames = static_cast<unsigned>( d_->past_frames_to_show.size() );
+  const unsigned past_frames = static_cast<unsigned>( d->past_frames_to_show.size() );
 
   // The total number of output frames to display
   const unsigned display_frames = past_frames + 1;
 
   // Generate output images
-  frame_id_t fid = d_->cur_frame_id;
+  frame_id_t fid = d->cur_frame_id;
 
   // Colors to use
   const cv::Scalar default_color( 255, 0, 0 );
@@ -368,13 +359,13 @@ draw_tracks
   const cv::Scalar uncompared_color( 240, 32, 160 );
 
   // Iterate over all images
-  VITAL_FOREACH( image_container_sptr ctr_sptr, image_data )
+  for( image_container_sptr ctr_sptr : image_data )
   {
     // Should the current frame be written to disk?
-    bool write_image_to_disk = d_->write_images_to_disk;
+    bool write_image_to_disk = d->write_images_to_disk;
 
     // Clone a copy of the current image (so we don't modify the original input).
-    cv::Mat img = ocv::image_container::vital_to_ocv( ctr_sptr->get_image() ).clone();
+    cv::Mat img = ocv::image_container::vital_to_ocv( ctr_sptr->get_image(), ocv::image_container::BGR_COLOR ).clone();
 
     // Convert to 3 channel image if not one already
     if( img.channels() == 1 )
@@ -396,11 +387,12 @@ draw_tracks
     bool comparison_track_found = false;
 
     // Draw points on input image
-    VITAL_FOREACH( track_sptr trk, display_set->active_tracks( fid )->tracks() )
+    for( track_sptr trk : display_set->active_tracks( fid ) )
     {
-      track::track_state ts = *( trk->find( fid ) );
+      auto ts = *( trk->find( fid ) );
+      auto fts = std::dynamic_pointer_cast<feature_track_state>(ts);
 
-      if( !ts.feat )
+      if( !fts || !fts->feature )
       {
         continue;
       }
@@ -427,13 +419,13 @@ draw_tracks
       }
 
       // Generate and store match lines for later use
-      if( d_->draw_match_lines )
+      if( d->draw_match_lines )
       {
-        generate_match_lines( trk, fid, d_->past_frames_to_show, pt_adj, lines );
+        generate_match_lines( trk, fid, d->past_frames_to_show, pt_adj, lines );
       }
 
       // Generate comparison lines
-      if( d_->draw_comparison_lines && comparison_set_provided )
+      if( d->draw_comparison_lines && comparison_set_provided )
       {
         track_sptr comparison_trk = comparison_set->get_track( trk->id() );
 
@@ -441,11 +433,15 @@ draw_tracks
         {
           track::history_const_itr itr = comparison_trk->find( fid );
 
-          if( itr != comparison_trk->end() && itr->feat )
+          if( itr != comparison_trk->end() )
           {
-            cv::Point other_loc = state_to_cv_point( *itr );
-            cv::line( img, other_loc, loc, error_color, 2 );
-            comparison_track_found = true;
+            fts = std::dynamic_pointer_cast<feature_track_state>(*itr);
+            if( fts && fts->feature )
+            {
+              cv::Point other_loc = state_to_cv_point( *itr );
+              cv::line( img, other_loc, loc, error_color, 2 );
+              comparison_track_found = true;
+            }
           }
         }
         else
@@ -455,23 +451,27 @@ draw_tracks
       }
 
       // Generate and draw shift lines on the video
-      if( d_->draw_shift_lines && trk->size() > 1 && fid > 0 )
+      if( d->draw_shift_lines && trk->size() > 1 && fid > 0 )
       {
         track::history_const_itr itr = trk->find( fid-1 );
 
-        if( itr != trk->end() && itr->feat )
+        if( itr != trk->end() )
         {
-          cv::Point prior_loc = state_to_cv_point( *itr );
-          cv::line( img, prior_loc, loc, color );
+          fts = std::dynamic_pointer_cast<feature_track_state>(*itr);
+          if( fts && fts->feature )
+          {
+            cv::Point prior_loc = state_to_cv_point( *itr );
+            cv::line( img, prior_loc, loc, color );
+          }
         }
       }
 
-      if( d_->draw_track_ids && trk->size() > 1 )
+      if( d->draw_track_ids && trk->size() > 1 )
       {
         cv::putText( img, tid_str, loc + txt_offset, cv::FONT_HERSHEY_COMPLEX_SMALL, 0.5, color );
       }
 
-      if( d_->draw_untracked_features || trk->size() > 1 )
+      if( d->draw_untracked_features || trk->size() > 1 )
       {
         cv::circle( img, loc, 1, color, 3 );
       }
@@ -489,23 +489,16 @@ draw_tracks
     // was a %f, for example. An alternative could be to append a 5
     // digit frame number to the base file name and not use format
     // specifiers.
-    std::string ofn;
-    size_t max_len = d_->pattern.size() + 4096;
-    ofn.resize( max_len );
-    int num_bytes = snprintf( &ofn[0], max_len, d_->pattern.c_str(), fid );
-    if (num_bytes < 0) // format conversion error
+    std::string ofn = kwiver::vital::string_format( d->pattern, fid );
+    if ( ofn.empty() )
     {
-      LOG_WARN( m_logger, "Could not format output file name: \"" <<  d_->pattern
+      LOG_WARN( logger(), "Could not format output file name: \"" <<  d->pattern
                 << "\". Disabling writing to disk." );
 
       // The safest thing is to disable writing since we have no idea
       // what the file name looks like after a format conversion
       // error.
       write_image_to_disk = false;
-    }
-    else if (static_cast< unsigned >(num_bytes) < max_len)
-    {
-      ofn.resize( num_bytes );
     }
 
     output_image = cv::Mat( img.rows, display_frames*img.cols, img.type(), cv::Scalar(0) );
@@ -514,10 +507,10 @@ draw_tracks
     {
       cv::Mat region( output_image, cv::Rect( i*img.cols, 0, img.cols, img.rows ) );
 
-      if( ((signed) d_->buffer.size() >= d_->past_frames_to_show[i]) &&
-          (d_->past_frames_to_show[i] != 0) )
+      if( ((signed) d->buffer.size() >= d->past_frames_to_show[i]) &&
+          (d->past_frames_to_show[i] != 0) )
       {
-        d_->buffer[ d_->buffer.size()-d_->past_frames_to_show[i] ].copyTo( region );
+        d->buffer[ d->buffer.size()-d->past_frames_to_show[i] ].copyTo( region );
       }
     }
 
@@ -538,9 +531,9 @@ draw_tracks
       {
         if( ! ST::MakeDirectory( parent_dir ) )
         {
-          throw file_write_exception(parent_dir, "Attempted directory creation, "
-                                                 "but no directory created! No "
-                                                 "idea what happened here...");
+          VITAL_THROW( file_write_exception,parent_dir,
+                       "Attempted directory creation, but no directory created! "
+                       "No idea what happened here...");
         }
       }
       cv::imwrite( ofn.c_str(), output_image );
@@ -548,10 +541,10 @@ draw_tracks
 
     // Store last image with all features and shift lines already drawn on it
     // add new element to buffer
-    if( d_->buffer.size() > 0 )
+    if( d->buffer.size() > 0 )
     {
-      d_->buffer.push_back( img );
-      d_->buffer.pop_front();
+      d->buffer.push_back( img );
+      d->buffer.pop_front();
     }
 
     // Increase frame id counter
@@ -559,10 +552,10 @@ draw_tracks
   }
 
   // Store latest states
-  d_->cur_frame_id = fid;
+  d->cur_frame_id = fid;
 
   // Return the last generated image
-  return image_container_sptr( new ocv::image_container( output_image ) );
+  return image_container_sptr( new ocv::image_container( output_image, ocv::image_container::BGR_COLOR) );
 }
 
 } // end namespace ocv

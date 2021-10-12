@@ -63,8 +63,8 @@ public:
                            frame_id_t const from_id,
                            frame_id_t const to_id )
     : h_( homography_sptr( new homography_< T > ( h ) ) ),
-    from_id_( from_id ),
-    to_id_( to_id )
+      from_id_( from_id ),
+      to_id_( to_id )
   { }
 
 
@@ -85,7 +85,7 @@ public:
   f2f_homography( f2f_homography const& h );
 
   /// Destructor
-  virtual ~f2f_homography() VITAL_DEFAULT_DTOR
+  virtual ~f2f_homography() = default;
 
   /// Get the sptr of the contained homography transformation
   virtual homography_sptr homography() const;

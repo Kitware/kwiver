@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,14 +36,11 @@
 #ifndef KWIVER_ARROWS_CORE_HIERARCHICAL_BUNDLE_ADJUST_H_
 #define KWIVER_ARROWS_CORE_HIERARCHICAL_BUNDLE_ADJUST_H_
 
-#include <vital/vital_config.h>
 #include <arrows/core/kwiver_algo_core_export.h>
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/bundle_adjust.h>
 #include <vital/config/config_block.h>
-
-#include <memory>
 
 
 namespace kwiver {
@@ -55,16 +52,14 @@ class KWIVER_ALGO_CORE_EXPORT hierarchical_bundle_adjust
   : public vital::algorithm_impl<hierarchical_bundle_adjust, vital::algo::bundle_adjust>
 {
 public:
+  PLUGIN_INFO( "hierarchical",
+               "Run a bundle adjustment algorithm in a temporally hierarchical fashion"
+               " (useful for video)" )
 
   /// Constructor
   hierarchical_bundle_adjust();
-  /// Copy constructor
-  hierarchical_bundle_adjust(hierarchical_bundle_adjust const& other);
   /// Destructor
-  virtual ~hierarchical_bundle_adjust() VITAL_NOTHROW;
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "hierarchical"; }
+  virtual ~hierarchical_bundle_adjust() noexcept;
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -76,7 +71,10 @@ public:
   /// Optimize the camera and landmark parameters given a set of tracks
   virtual void optimize(vital::camera_map_sptr & cameras,
                         vital::landmark_map_sptr & landmarks,
-                        vital::track_set_sptr tracks) const;
+                        vital::feature_track_set_sptr tracks,
+                        vital::sfm_constraints_sptr constraints = nullptr) const;
+
+  using vital::algo::bundle_adjust::optimize;
 
 private:
   // private implementation class
@@ -92,4 +90,4 @@ typedef std::shared_ptr<hierarchical_bundle_adjust> hierarchical_bundle_adjust_s
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_CORE_HIERARCHICAL_BUNDLE_ADJUST_H_
+#endif

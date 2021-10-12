@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,14 +36,11 @@
 #ifndef KWIVER_ARROWS_FEATURE_DETECT_EXTRACT_ORB_H_
 #define KWIVER_ARROWS_FEATURE_DETECT_EXTRACT_ORB_H_
 
-#include <memory>
-#include <string>
-
-#include <vital/vital_config.h>
-
 #include <arrows/ocv/detect_features.h>
 #include <arrows/ocv/extract_descriptors.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
+
+#include <string>
 
 namespace kwiver {
 namespace arrows {
@@ -56,20 +53,14 @@ class KWIVER_ALGO_OCV_EXPORT detect_features_ORB
                                   vital::algo::detect_features >
 {
 public:
+  PLUGIN_INFO( "ocv_ORB",
+               "OpenCV feature detection via the ORB algorithm" )
+
   /// Constructor
   detect_features_ORB();
-  /// Copy Constructor
-  detect_features_ORB(detect_features_ORB const &other);
+
   /// Destructor
   virtual ~detect_features_ORB();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "ocv_ORB"; }
-  /// Returns an optional descriptive string for an implementation
-  virtual std::string description() const
-  {
-    return "OpenCV ORB feature detector and extractor implementation";
-  }
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -90,20 +81,14 @@ class KWIVER_ALGO_OCV_EXPORT extract_descriptors_ORB
                                   vital::algo::extract_descriptors >
 {
 public:
+  PLUGIN_INFO( "ocv_ORB",
+               "OpenCV feature-point descriptor extraction via the ORB algorithm" )
+
   /// Constructor
   extract_descriptors_ORB();
-  /// Copy Constructor
-  extract_descriptors_ORB(extract_descriptors_ORB const &other);
+
   /// Destructor
   virtual ~extract_descriptors_ORB();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "ocv_ORB"; }
-  /// Returns an optional descriptive string for an implementation
-  virtual std::string description() const
-  {
-    return "OpenCV ORB feature detector and extractor implementation";
-  }
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -122,4 +107,4 @@ private:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_FEATURE_DETECT_EXTRACT_ORB_H_
+#endif

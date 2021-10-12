@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,15 +31,13 @@
 #include <test_common.h>
 
 #include <vital/config/config_block.h>
-#include <vital/vital_foreach.h>
 
-#include <sprokit/tools/pipeline_builder.h>
-#include <sprokit/tools/literal_pipeline.h>
-#include <sprokit/pipeline/modules.h>
+#include <sprokit/pipeline_util/pipeline_builder.h>
+#include <sprokit/pipeline_util/literal_pipeline.h>
 #include <sprokit/pipeline/pipeline.h>
 #include <sprokit/pipeline/datum.h>
 #include <sprokit/pipeline/scheduler.h>
-#include <sprokit/pipeline/scheduler_registry.h>
+#include <sprokit/pipeline/scheduler_factory.h>
 
 #include <sprokit/processes/adapters/input_adapter.h>
 #include <sprokit/processes/adapters/input_adapter_process.h>
@@ -65,26 +63,31 @@ main(int argc, char* argv[])
 
   testname_t const testname = argv[1];
 
+  kwiver::vital::plugin_manager::instance().load_all_plugins();
+
   RUN_TEST(testname);
 }
 
 
 IMPLEMENT_TEST( basic_pipeline )
 {
+  sprokit::scheduler::type_t scheduler_type = sprokit::scheduler_factory::default_type;
   kwiver::input_adapter input_ad;
   kwiver::output_adapter output_ad;
-
-  // load processes
-  sprokit::load_known_modules();
 
   // Use SPROKIT macros to create pipeline description
   std::stringstream pipeline_desc;
   pipeline_desc << SPROKIT_PROCESS( "input_adapter",  "ia" )
+                << SPROKIT_CONFIG( "test", "value" )
+
                 << SPROKIT_PROCESS( "output_adapter", "oa" )
 
                 << SPROKIT_CONNECT( "ia", "port1",    "oa", "port1" )
                 << SPROKIT_CONNECT( "ia", "port2",    "oa", "port3" ) // yeah, i know
                 << SPROKIT_CONNECT( "ia", "port3",    "oa", "port2" )
+
+                << SPROKIT_CONFIG_BLOCK( "_scheduler" )
+                << SPROKIT_CONFIG( "type", scheduler_type )
     ;
 
     // create a pipeline
@@ -122,7 +125,7 @@ IMPLEMENT_TEST( basic_pipeline )
   auto input_list = input_ad.port_list();
   TEST_EQUAL( "Number of input ports", input_list.size(), 3 );
   std::cout << "Input adapter ports:\n";
-  VITAL_FOREACH( auto port, input_list )
+  for( auto port : input_list )
   {
     std::cout << "    " << port << "\n";
   }
@@ -130,17 +133,15 @@ IMPLEMENT_TEST( basic_pipeline )
   auto output_list = output_ad.port_list();
   TEST_EQUAL( "Number of output ports", output_list.size(), 3 );
   std::cout << "\nOutput adapter ports:\n";
-  VITAL_FOREACH( auto port, output_list )
+  for( auto port : output_list )
   {
     std::cout << "    " << port << "\n";
   }
 
-  sprokit::scheduler_registry::type_t scheduler_type = sprokit::scheduler_registry::default_type;
   kwiver::vital::config_block_sptr const scheduler_config = conf->subblock(scheduler_block +
                                               kwiver::vital::config_block::block_sep + scheduler_type);
 
-  sprokit::scheduler_registry_t reg = sprokit::scheduler_registry::self();
-  sprokit::scheduler_t scheduler = reg->create_scheduler(scheduler_type, pipe, scheduler_config);
+  sprokit::scheduler_t scheduler = sprokit::create_scheduler(scheduler_type, pipe, scheduler_config);
 
   if (!scheduler)
   {
@@ -156,7 +157,7 @@ IMPLEMENT_TEST( basic_pipeline )
     auto ds = kwiver::adapter::adapter_data_set::create();
     int val = i;
 
-    VITAL_FOREACH( auto port, input_list )
+    for( auto port : input_list )
     {
       ds->add_value( port, (val++) );
     }
@@ -216,7 +217,7 @@ IMPLEMENT_TEST( embedded_pipeline )
   TEST_EQUAL( "Number of input ports", input_list.size(), 3 );
 
   std::cout << "Input adapter ports:\n";
-  VITAL_FOREACH( auto port, input_list )
+  for( auto port : input_list )
   {
     std::cout << "    " << port << "\n";
   }
@@ -225,7 +226,7 @@ IMPLEMENT_TEST( embedded_pipeline )
   TEST_EQUAL( "Number of output ports", output_list.size(), 3 );
 
   std::cout << "\nOutput adapter ports:\n";
-  VITAL_FOREACH( auto port, output_list )
+  for( auto port : output_list )
   {
     std::cout << "    " << port << "\n";
   }
@@ -239,7 +240,7 @@ IMPLEMENT_TEST( embedded_pipeline )
     auto ds = kwiver::adapter::adapter_data_set::create();
     int val = i;
 
-    VITAL_FOREACH( auto port, input_list )
+    for( auto port : input_list )
     {
       ds->add_value( port, (val++) );
     }
@@ -272,6 +273,7 @@ IMPLEMENT_TEST( embedded_pipeline )
     }
   } // end while
 
+  ep.wait();
 }
 
 
@@ -284,7 +286,7 @@ public:
   virtual ~src_ep() { }
 
 protected:
-  virtual bool connect_input_adapter() { return true; }
+  virtual bool connect_input_adapter() override { return true; }
 };
 
 
@@ -331,4 +333,107 @@ IMPLEMENT_TEST( embedded_pipeline_source )
     }
 
   } // end while
+
+  ep.wait();
+}
+
+// ============================================================================
+class config_ep
+  : public kwiver::embedded_pipeline
+{
+public:
+  config_ep() { }
+  virtual ~config_ep() { }
+
+protected:
+  virtual void update_config( kwiver::vital::config_block_sptr config ) override
+  {
+    // Test to see if the config has test = value
+    TEST_EQUAL( "Has expected entry", config->has_value( "ia:test" ), true );
+
+    std::string val = config->get_value<std::string>( "ia:test" );
+    TEST_EQUAL( "Has expected value", val, "value" );
+  }
+};
+
+
+// ----------------------------------------------------------------------------
+IMPLEMENT_TEST( update_config )
+{
+  sprokit::scheduler::type_t scheduler_type = sprokit::scheduler_factory::default_type;
+  kwiver::input_adapter input_ad;
+  kwiver::output_adapter output_ad;
+
+  // Use SPROKIT macros to create pipeline description
+  std::stringstream pipeline_desc;
+  pipeline_desc << SPROKIT_PROCESS( "input_adapter",  "ia" )
+                << SPROKIT_CONFIG( "test", "value" )
+
+                << SPROKIT_PROCESS( "output_adapter", "oa" )
+
+                << SPROKIT_CONNECT( "ia", "port1",    "oa", "port1" )
+                << SPROKIT_CONNECT( "ia", "port2",    "oa", "port3" ) // yeah, i know
+                << SPROKIT_CONNECT( "ia", "port3",    "oa", "port2" )
+
+                << SPROKIT_CONFIG_BLOCK( "_scheduler" )
+                << SPROKIT_CONFIG( "type", scheduler_type )
+    ;
+
+  // create embedded pipeline
+  config_ep ep;
+  ep.build_pipeline( pipeline_desc );
+
+}
+
+
+// ----------------------------------------------------------------------------
+IMPLEMENT_TEST( epx_test )
+{
+  // Use SPROKIT macros to create pipeline description
+  std::stringstream pipeline_desc;
+  pipeline_desc << SPROKIT_PROCESS( "numbers",  "num" )
+                << SPROKIT_PROCESS( "output_adapter", "oa" )
+
+                << SPROKIT_CONNECT( "num", "number", "oa", "int" )
+
+                << SPROKIT_CONFIG_BLOCK( "_pipeline" )
+                << SPROKIT_CONFIG( "embedded_pipeline_extension:type", "test" )
+                << SPROKIT_CONFIG( "embedded_pipeline_extension:test:one", "one-test" )
+                << SPROKIT_CONFIG( "embedded_pipeline_extension:test:two", "two-test" )
+
+    ;
+
+  // create embedded pipeline
+  src_ep ep;
+  ep.build_pipeline( pipeline_desc );
+
+  // Start pipeline
+  ep.start();
+
+  int expected(0);
+
+  while( true )
+  {
+    auto ods = ep.receive(); // blocks
+
+    // check for end of data marker
+    if ( ods->is_end_of_data() )
+    {
+      TEST_EQUAL( "at_end() set correctly", ep.at_end(), true );
+      break;
+    }
+
+    int val = ods->get_port_data<int>( "int" );
+
+    if ( val != expected++ )
+    {
+      std::stringstream str;
+      str << "Unexpected value from pipeline. Expected " << expected
+          << " got " << val;
+      TEST_ERROR( str.str() );
+    }
+
+  } // end while
+
+  ep.wait();
 }

@@ -36,7 +36,6 @@
 
 #include <vital/algo/algorithm.txx>
 #include <vital/algo/estimate_canonical_transform.h>
-#include <vital/vital_foreach.h>
 
 
 /// \cond DoxygenSuppress
@@ -52,7 +51,7 @@ namespace algo {
 estimate_canonical_transform
 ::estimate_canonical_transform()
 {
-  attach_logger( "estimate_canonical_transform" );
+  attach_logger( "algo.estimate_canonical_transform" );
 }
 
 } } } // end namespace

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2015 by Kitware, Inc.
+ * Copyright 2013-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,8 @@
 
 #include <vector>
 
+#include <opencv2/imgproc/imgproc.hpp>
+
 #include <vital/exceptions/image.h>
 #include <arrows/ocv/feature_set.h>
 #include <arrows/ocv/image_container.h>
@@ -52,7 +54,7 @@ vital::feature_set_sptr
 detect_features
 ::detect(vital::image_container_sptr image_data, vital::image_container_sptr mask) const
 {
-  cv::Mat cv_img = ocv::image_container::vital_to_ocv(image_data->get_image());
+  cv::Mat cv_img = image_container::vital_to_ocv(image_data->get_image(), ocv::image_container::BGR_COLOR );
   cv::Mat cv_mask;
   std::vector<cv::KeyPoint> keypoints;
 
@@ -63,7 +65,7 @@ detect_features
     if ( image_data->width() != mask->width() ||
          image_data->height() != mask->height() )
     {
-      throw image_size_mismatch_exception(
+      VITAL_THROW( image_size_mismatch_exception,
           "OCV detect feature algorithm given a non-zero mask with mismatched "
           "shape compared to input image",
           image_data->width(), image_data->height(),
@@ -79,7 +81,8 @@ detect_features
                    s.first_pixel(),
                    s.width(),  s.height(), 1 /*depth*/,
                    s.w_step(), s.h_step(), s.d_step(), s.pixel_traits());
-    cv_mask = ocv::image_container::vital_to_ocv(i);
+    cv_mask = ocv::image_container::vital_to_ocv(i, ocv::image_container::BGR_COLOR);
+    cv::threshold(cv_mask, cv_mask, 128, 255, cv::THRESH_BINARY);
   }
 
   detector->detect(cv_img, keypoints, cv_mask);

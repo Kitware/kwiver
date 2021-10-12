@@ -33,25 +33,32 @@
  * \brief PROJ algorithm registration implementation
  */
 
-#include "register_algorithms.h"
+#include <arrows/proj/geo_conv.h>
 
-#include <arrows/algorithm_plugin_interface_macros.h>
-#include <arrows/proj/geo_map.h>
-
+#include <arrows/proj/kwiver_algo_proj_plugin_export.h>
+#include <vital/algo/algorithm_factory.h>
+#include <vital/types/geodesy.h>
 
 namespace kwiver {
 namespace arrows {
 namespace proj {
 
-/// Register PROJ algorithm implementations with the given or global registrar
-int register_algorithms( vital::registrar &reg )
+extern "C"
+KWIVER_ALGO_PROJ_PLUGIN_EXPORT
+void
+register_factories( kwiver::vital::plugin_loader& vpm )
 {
-  REGISTRATION_INIT( reg );
+  static auto const module_name = std::string( "arrows.proj" );
+  if (vpm.is_module_loaded( module_name ) )
+  {
+    return;
+  }
 
-  REGISTER_TYPE( proj::geo_map );
+  // register geo-conversion functor
+  static auto geo_conv = kwiver::arrows::proj::geo_conversion{};
+  vital::set_geo_conv( &geo_conv );
 
-  REGISTRATION_SUMMARY();
-  return REGISTRATION_FAILURES();
+  vpm.mark_module_as_loaded( module_name );
 }
 
 } // end namespace proj

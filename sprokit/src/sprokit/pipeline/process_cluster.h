@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2012-2013 by Kitware, Inc.
+ * Copyright 2012-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,9 @@
 #ifndef SPROKIT_PIPELINE_PROCESS_CLUSTER_H
 #define SPROKIT_PIPELINE_PROCESS_CLUSTER_H
 
-#include "pipeline-config.h"
+#include <sprokit/pipeline/sprokit_pipeline_export.h>
 
 #include "process.h"
-
-#include <boost/scoped_ptr.hpp>
 
 /**
  * \file process_cluster.h
@@ -46,11 +44,8 @@
 namespace sprokit
 {
 
+/// A pre-built collection of processes.
 /**
- * \class process_cluster process_cluster.h <sprokit/pipeline/process_cluster.h>
- *
- * \brief A pre-built collection of processes.
- *
  * This class represents a set of associated processes and their
  * interconnects. An object of this type is built from a cluster
  * specification and when complete, behaves like a process.
@@ -59,55 +54,57 @@ namespace sprokit
  * definitions are loaded. They can also be specified in a regular
  * pipeline description file.
  *
+ * Note that a bespoke cluster can be created by using this API directly.
+ *
  * \ingroup base_classes
  */
-class SPROKIT_PIPELINE_EXPORT process_cluster
-  : public process
-{
+  class SPROKIT_PIPELINE_EXPORT process_cluster
+    : public process
+  {
   public:
+    /// The processes in the cluster.
     /**
-     * \brief The processes in the cluster.
-     *
      * \returns The processes in the cluster.
      */
     processes_t processes() const;
+
+    /// Input mappings for the cluster.
     /**
-     * \brief Input mappings for the cluster.
-     *
      * \returns The input mappings for the cluster.
      */
     connections_t input_mappings() const;
+
+    /// Output mappings for the cluster.
     /**
-     * \brief Output mappings for the cluster.
-     *
      * \returns The output mappings for the cluster.
      */
     connections_t output_mappings() const;
+
+    /// Internal connections between processes in the cluster.
     /**
-     * \brief Internal connections between processes in the cluster.
-     *
      * \returns The internal connections between processes in the cluster.
      */
     connections_t internal_connections() const;
 
     /// A property which indicates that the process is a cluster of processes.
     static property_t const property_cluster;
-  protected:
+
+    /// Constructor.
     /**
-     * \brief Constructor.
-     *
      * \warning Configuration errors must \em not throw exceptions here.
      *
      * \param config Contains configuration for the process.
      */
     process_cluster(kwiver::vital::config_block_sptr const& config);
-    /**
-     * \brief Destructor.
-     */
+
+    /// Destructor.
     virtual ~process_cluster();
 
+  protected:
+    /// Map a configuration value to a process.
     /**
-     * \brief Map a configuration value to a process.
+     * This method establishes how cluster level config items are
+     * mapped to the individual processes.
      *
      * \throws mapping_after_process_exception Thrown when a process named \p name_ already exists.
      *
@@ -118,8 +115,11 @@ class SPROKIT_PIPELINE_EXPORT process_cluster
     void map_config(kwiver::vital::config_block_key_t const& key,
                     name_t const& name_,
                     kwiver::vital::config_block_key_t const& mapped_key);
+
+    /// Add a process to the cluster.
     /**
-     * \brief Add a process to the cluster.
+     * This method adds a process to the cluster. The config supplied
+     * is passed directly to the process when it is created.
      *
      * \throws duplicate_process_name_exception Thrown when a process named \p name_ already exists.
      *
@@ -130,9 +130,9 @@ class SPROKIT_PIPELINE_EXPORT process_cluster
     void add_process(name_t const& name_,
                      type_t const& type_,
                      kwiver::vital::config_block_sptr const& config = kwiver::vital::config_block::empty_config());
+
+    /// Map a port to an input on the cluster.
     /**
-     * \brief Map a port to an input on the cluster.
-     *
      * \throws no_such_process_exception Thrown when \p name_ does not exist in the cluster.
      * \throws no_such_port_exception Thrown when the process \p name_ does not have an input port \p port.
      *
@@ -143,9 +143,9 @@ class SPROKIT_PIPELINE_EXPORT process_cluster
     void map_input(port_t const& port,
                    name_t const& name_,
                    port_t const& mapped_port);
+
+    /// Map a port to an output on the cluster.
     /**
-     * \brief Map a port to an output on the cluster.
-     *
      * \throws no_such_process_exception Thrown when \p name_ does not exist in the cluster.
      * \throws no_such_port_exception Thrown when the process \p name_ does not have an output port \p port.
      *
@@ -156,9 +156,9 @@ class SPROKIT_PIPELINE_EXPORT process_cluster
     void map_output(port_t const& port,
                     name_t const& name_,
                     port_t const& mapped_port);
+
+    /// Connect processes within the cluster.
     /**
-     * \brief Connect processes within the cluster.
-     *
      * \throws no_such_process_exception Thrown when either \p upstream_name or \p downstream_name do not exist in the cluster.
      * \throws no_such_port_exception Thrown when a port requested for connection does not exist.
      *
@@ -170,45 +170,57 @@ class SPROKIT_PIPELINE_EXPORT process_cluster
     void connect(name_t const& upstream_name, port_t const& upstream_port,
                  name_t const& downstream_name, port_t const& downstream_port);
 
+    /// Pre-connection initialization for subclasses.
     /**
-     * \brief Pre-connection initialization for subclasses.
-     */
-    void _configure();
-
-    /**
-     * \brief Post-connection initialization for subclasses.
-     */
-    void _init();
-
-    /**
-     * \brief Reset logic for subclasses.
-     */
-    void _reset();
-
-    /**
-     * \brief A stub implementation to ensure that clusters should not be stepped.
      *
-     * \throws process_exception Always thrown since clusters should not be stepped.
      */
-    void _step();
+    void _configure() override;
 
+    /// Post-connection initialization for subclasses.
     /**
-     * \brief Runtime configuration for subclasses.
+     *
+     */
+    void _init() override;
+
+    /// Reset logic for subclasses.
+    /**
+     *
+     */
+    void _reset() override;
+
+    /// Finalize logic for the cluster
+    /**
+     *
+     */
+    void _finalize() override;
+
+    /// Runtime configuration for subclasses.
+    /**
+     *
      *
      * \params conf The configuration block to apply.
      */
-    virtual void _reconfigure(kwiver::vital::config_block_sptr const& conf);
+    void _reconfigure(kwiver::vital::config_block_sptr const& conf) override;
 
+    /// Subclass property query method.
     /**
-     * \brief Subclass property query method.
+     *
      *
      * \returns Properties on the subclass.
      */
-    virtual properties_t _properties() const;
+    properties_t _properties() const override;
+
   private:
+    /// A stub implementation to ensure that clusters should not be stepped.
+    /**
+     *
+     * \throws process_exception Always thrown since clusters should not be stepped.
+     */
+    void _step() final;
+
     class SPROKIT_PIPELINE_NO_EXPORT priv;
-    boost::scoped_ptr<priv> d;
-};
+    std::unique_ptr<priv> d;
+  };
 
 }
 

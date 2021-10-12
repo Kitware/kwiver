@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,9 @@
 
 #include <vital/util/tokenize.h>
 #include <vital/util/data_stream_reader.h>
-#include <vital/logger/logger.h>
 #include <vital/exceptions.h>
+
+#include <kwiversys/SystemTools.hxx>
 
 #include <map>
 #include <sstream>
@@ -71,14 +72,14 @@ enum{
   COL_CONFIDENCE// 18
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class detected_object_set_input_kw18::priv
 {
 public:
-  priv( detected_object_set_input_kw18* parent)
+  priv( detected_object_set_input_kw18* parent )
     : m_parent( parent )
-    , m_logger( kwiver::vital::get_logger( "detected_object_set_input_kw18" ) )
     , m_first( true )
+    , m_default_type( "-" )
   { }
 
   ~priv() { }
@@ -86,8 +87,8 @@ public:
   void read_all();
 
   detected_object_set_input_kw18* m_parent;
-  kwiver::vital::logger_handle_t m_logger;
   bool m_first;
+  std::string m_default_type;
 
   int m_current_idx;
   int m_last_idx;
@@ -95,22 +96,20 @@ public:
   // Map of detected objects indexed by frame number. Each set
   // contains all detections for a single frame.
   std::map< int, kwiver::vital::detected_object_set_sptr > m_detected_sets;
+
+  // Compilation of all loaded detection id to type strings.
+  std::map< int, std::string > m_detection_ids;
 };
 
 
-// ==================================================================
+// ============================================================================
 detected_object_set_input_kw18::
 detected_object_set_input_kw18()
   : d( new detected_object_set_input_kw18::priv( this ) )
 {
+  attach_logger( "arrows.core.detected_object_set_input_kw18" );
 }
 
-
-detected_object_set_input_kw18::
-detected_object_set_input_kw18( detected_object_set_input_kw18 const& other)
-  : d(new priv(*other.d))
-{
-}
 
 detected_object_set_input_kw18::
 ~detected_object_set_input_kw18()
@@ -118,14 +117,16 @@ detected_object_set_input_kw18::
 }
 
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_input_kw18::
 set_configuration(vital::config_block_sptr config)
-{ }
+{
+  d->m_default_type = config->get_value<std::string>("default_type", d->m_default_type );
+}
 
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set_input_kw18::
 check_configuration(vital::config_block_sptr config) const
@@ -134,7 +135,7 @@ check_configuration(vital::config_block_sptr config) const
 }
 
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set_input_kw18::
 read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name )
@@ -144,17 +145,21 @@ read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name
     // Read in all detections
     d->read_all();
     d->m_first = false;
+    d->m_current_idx = 0;
 
     // set up iterators for returning sets.
-    d->m_current_idx = d->m_detected_sets.begin()->first;
-    d->m_last_idx = d->m_detected_sets.rbegin()->first;
+    if ( ! d->m_detected_sets.empty() )
+    {
+      d->m_last_idx = d->m_detected_sets.rbegin()->first;
+    }
+    else
+    {
+      d->m_last_idx = 0;
+    }
   } // end first
 
-  // we do not return image name
-  image_name.clear();
-
-  // test for end of stream
-  if (this->at_eof())
+  // test for end of all loaded detections
+  if (d->m_current_idx > d->m_last_idx)
   {
     return false;
   }
@@ -177,7 +182,7 @@ read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name
 }
 
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_input_kw18::
 new_stream()
@@ -186,7 +191,7 @@ new_stream()
 }
 
 
-// ==================================================================
+// ============================================================================
 void
 detected_object_set_input_kw18::priv::
 read_all()
@@ -194,19 +199,39 @@ read_all()
   std::string line;
   kwiver::vital::data_stream_reader stream_reader( m_parent->stream() );
 
+  // Check for types file
+  m_detection_ids.clear();
+
+  std::string types_fn = m_parent->filename() + ".types";
+
+  if( kwiversys::SystemTools::FileExists( types_fn ) )
+  {
+    std::ifstream fin( types_fn );
+    while( !fin.eof() )
+    {
+      int id;
+      std::string lbl;
+
+      fin >> id >> lbl;
+      m_detection_ids[id] = lbl;
+    }
+    fin.close();
+  }
+
+  // Read detections
   m_detected_sets.clear();
 
   while ( stream_reader.getline( line ) )
   {
     std::vector< std::string > col;
-    kwiver::vital::tokenize( line, col, " ", true );
+    kwiver::vital::tokenize( line, col, " ", kwiver::vital::TokenizeTrimEmpty );
 
     if ( ( col.size() < 18 ) || ( col.size() > 20 ) )
     {
       std::stringstream str;
       str << "This is not a kw18 kw19 or kw20 file; found " << col.size()
           << " columns in\n\"" << line << "\"";
-      throw kwiver::vital::invalid_data( str.str() );
+      VITAL_THROW( kwiver::vital::invalid_data, str.str() );
     }
 
     /*
@@ -218,6 +243,7 @@ read_all()
      * This allows for track states to be written in a non-contiguous
      * manner as may be done by streaming writers.
      */
+    int id = atoi( col[COL_ID].c_str() );
     int index = atoi( col[COL_FRAME].c_str() );
     if ( 0 == m_detected_sets.count( index ) )
     {
@@ -231,14 +257,36 @@ read_all()
       atof( col[COL_MAX_X].c_str() ),
       atof( col[COL_MAX_Y].c_str() ) );
 
-    double conf(1.0);
+    double conf = 1.0;
+
     if ( col.size() == 19 )
     {
       conf = atof( col[COL_CONFIDENCE].c_str() );
     }
 
     // Create detection
-    kwiver::vital::detected_object_sptr dob = std::make_shared< kwiver::vital::detected_object>( bbox, conf );
+    kwiver::vital::detected_object_sptr dob;
+
+    if( m_detection_ids.empty() )
+    {
+      dob = std::make_shared< kwiver::vital::detected_object>( bbox, conf );
+    }
+    else
+    {
+      kwiver::vital::detected_object_type_sptr dot =
+        std::make_shared<kwiver::vital::detected_object_type>();
+
+      if( m_detection_ids.find( id ) != m_detection_ids.end() )
+      {
+        dot->set_score( m_detection_ids[id], ( conf == -1.0 ? 1.0 : conf ) );
+      }
+      else
+      {
+        dot->set_score( m_default_type, conf );
+      }
+
+      dob = std::make_shared< kwiver::vital::detected_object>( bbox, conf, dot );
+    }
 
     // Add detection to set for the frame
     m_detected_sets[index]->add( dob );

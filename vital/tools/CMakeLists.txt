@@ -1,18 +1,6 @@
 #
-# CMake file fot the vital tools
+# CMake file for the vital tools
 #
-
-kwiver_add_executable( algo_explorer
-  algo_explorer.cxx
-  )
-
-target_link_libraries( algo_explorer
-  vital
-  vital_apm
-  vital_algo
-  vital_logger
-  kwiversys
-  )
 
 ###
 #
@@ -25,34 +13,39 @@ target_link_libraries( plugin_explorer
                  vital_vpm
                  vital_logger
                  kwiversys
+                 explorer_plugin
   )
 
-###
-#
-kwiver_add_executable( dump_klv
-  dump_klv.cxx
+
+set( public_headers
+  explorer_plugin.h
   )
 
-target_link_libraries( dump_klv
-  PRIVATE     vital
-              vital_config
-              vital_apm
-              vital_klv
-              vital_algo
-              vital_logger
-              vital_video_metadata
-              kwiversys
+set_source_files_properties(plugin_explorer.cxx
+  PROPERTIES
+    COMPILE_DEFINITIONS "PLUGIN_EXPLORER_VERSION=\"1.2\"")
+
+# public headers for explorer
+kwiver_install_headers(
+         ${public_headers}
+  SUBDIR vital/tools
   )
 
-###
-#
-kwiver_add_executable( config_explorer
-  config_explorer.cxx
+kwiver_install_headers(
+         ${CMAKE_CURRENT_BINARY_DIR}/explorer_plugin_export.h
+  NOPATH
+  SUBDIR vital/tools
   )
 
-target_link_libraries( config_explorer
-  PRIVATE     vital
-              vital_config
-              vital_logger
-              kwiversys
+kwiver_add_library( explorer_plugin
+  ${CMAKE_CURRENT_BINARY_DIR}/explorer_plugin_export.h
+  ${public_headers}
+  explorer_context.cxx
+  )
+
+target_link_libraries( explorer_plugin
+  PUBLIC   vital
+           ${VITAL_BOOST_REGEX}
+  PRIVATE  kwiversys
+           vital_util
   )

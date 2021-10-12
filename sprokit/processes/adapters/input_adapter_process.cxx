@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,6 @@
 
 #include "input_adapter_process.h"
 
-#include <vital/vital_foreach.h>
 
 #include <stdexcept>
 #include <sstream>
@@ -65,8 +64,6 @@ input_adapter_process
 ::input_adapter_process( kwiver::vital::config_block_sptr const& config )
   : process( config )
 {
-  // Attach our logger name to process logger
-  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
 }
 
 
@@ -84,7 +81,7 @@ input_adapter_process
 
   // formulate list of current input ports
   auto ports = this->output_ports();
-  VITAL_FOREACH( auto port, ports )
+  for( auto port : ports )
   {
     port_info[port] = this->input_port_info( port );
   }
@@ -94,14 +91,15 @@ input_adapter_process
 
 
 // ------------------------------------------------------------------
-sprokit::process::port_info_t
+void
 input_adapter_process
-::_output_port_info( sprokit::process::port_t const& port )
+::output_port_undefined( sprokit::process::port_t const& port )
 {
   // If we have not created the port, then make a new one.
   if ( m_active_ports.count( port ) == 0 )
   {
     port_flags_t p_flags;
+    p_flags.insert( flag_required );
 
     if ( port[0] != '_' ) // skip special ports (e.g. _heartbeat)
     {
@@ -118,8 +116,6 @@ input_adapter_process
       m_active_ports.insert( port );
     }
   }
-
-  return process::_output_port_info(port);
 }
 
 
@@ -129,7 +125,7 @@ input_adapter_process
 ::_step()
 {
   LOG_TRACE( logger(), "Processing data set" );
-  auto data_set = this->get_interface_queue()->Receive(); // blocks
+  auto data_set = this->get_interface_queue()->Receive(); // blocking call
   std::set< sprokit::process::port_t > unused_ports = m_active_ports; // copy set of active ports
 
   // Handle end of input as last data supplied.
@@ -141,7 +137,7 @@ input_adapter_process
     mark_process_as_complete();
     const auto dat( sprokit::datum::complete_datum() );
 
-    VITAL_FOREACH( auto p, m_active_ports )
+    for( auto p : m_active_ports )
     {
       // Push each datum to their port
       push_datum_to_port( p, dat );
@@ -153,24 +149,22 @@ input_adapter_process
   // Need to assure that all defined ports have a datum, and
   // there are no unconnected ports specified.
 
-  auto ie = data_set->end();
-  for ( auto ix = data_set->begin(); ix != ie; ++ix )
+  for ( auto ix : *data_set )
   {
     // validate the port name against our list of created ports
-    if ( m_active_ports.count( ix->first ) == 1 )
+    if ( m_active_ports.count( ix.first ) == 1 )
     {
       // Push each datum to their port
-      this->push_datum_to_port( ix->first, ix->second );
+      this->push_datum_to_port( ix.first, ix.second );
 
       // Remove this port from set so we know data has been sent.
       // Any remaining names are considered unused.
-      unused_ports.erase( ix->first );
+      unused_ports.erase( ix.first );
     }
     else
     {
       std::stringstream str;
-      str << "Process " << name() << ": Unconnected port \"" << ix->first << "\" specified in data packet. ";
-      LOG_ERROR( logger(), str.str() );
+      str << "Process " << name() << ": Unconnected port \"" << ix.first << "\" specified in data packet. ";
       throw std::runtime_error( str.str() );
     }
   } // end for
@@ -178,12 +172,10 @@ input_adapter_process
   // check to see if all ports have been supplied with a datum
   if ( unused_ports.size() != 0 )
   {
-    auto ie = data_set->end();
-    for ( auto ix = data_set->begin(); ix != ie; ++ix )
+    for ( auto port : unused_ports )
     {
-      std::stringstream str;
-      str << "Process: " << name() << ": Port \"" << ix->first << "\" has not been supplied with a datum";
-      LOG_ERROR( logger(), str.str() );
+      LOG_ERROR( logger(), "Process: " << name() << ": Port \"" << port
+                 << "\" has not been supplied with a datum");
     } // end for
 
     throw std::runtime_error( "Process " + name() + " has not been supplied data for all ports." );

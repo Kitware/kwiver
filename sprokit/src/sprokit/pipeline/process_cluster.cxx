@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2012-2013 by Kitware, Inc.
+ * Copyright 2012-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,10 +33,9 @@
 #include "pipeline_exception.h"
 #include "process_cluster_exception.h"
 #include "process_exception.h"
-#include "process_registry.h"
+#include "process_factory.h"
 
 #include <vital/logger/logger.h>
-#include <vital/vital_foreach.h>
 
 #include <algorithm>
 #include <map>
@@ -49,11 +48,11 @@
  * \brief Implementation for \link sprokit::process_cluster process cluster\endlink.
  */
 
-namespace sprokit
-{
+namespace sprokit {
 
 process::property_t const process_cluster::property_cluster = process::property_t("_cluster");
 
+// ==================================================================
 class process_cluster::priv
 {
   public:
@@ -76,13 +75,15 @@ class process_cluster::priv
     kwiver::vital::logger_handle_t m_logger;
 };
 
+
+// ==================================================================
 processes_t
 process_cluster
 ::processes() const
 {
   processes_t procs;
 
-  VITAL_FOREACH (priv::process_map_t::value_type const& process_entry, d->processes)
+  for (priv::process_map_t::value_type const& process_entry : d->processes)
   {
     process_t const& proc = process_entry.second;
 
@@ -92,6 +93,8 @@ process_cluster
   return procs;
 }
 
+
+// ------------------------------------------------------------------
 process::connections_t
 process_cluster
 ::input_mappings() const
@@ -99,6 +102,8 @@ process_cluster
   return d->input_mappings;
 }
 
+
+// ------------------------------------------------------------------
 process::connections_t
 process_cluster
 ::output_mappings() const
@@ -106,6 +111,8 @@ process_cluster
   return d->output_mappings;
 }
 
+
+// ------------------------------------------------------------------
 process::connections_t
 process_cluster
 ::internal_connections() const
@@ -113,6 +120,8 @@ process_cluster
   return d->internal_connections;
 }
 
+
+// ------------------------------------------------------------------
 process_cluster
 ::process_cluster(kwiver::vital::config_block_sptr const& config)
   : process(config)
@@ -120,6 +129,8 @@ process_cluster
 {
 }
 
+
+// ------------------------------------------------------------------
 process_cluster
 ::~process_cluster()
 {
@@ -127,14 +138,19 @@ process_cluster
 
 static process::name_t convert_name(process::name_t const& cluster_name, process::name_t const& process_name);
 
+
+// ------------------------------------------------------------------
 void
 process_cluster
-::map_config(kwiver::vital::config_block_key_t const& key, name_t const& name_, kwiver::vital::config_block_key_t const& mapped_key)
+::map_config(kwiver::vital::config_block_key_t const& key,
+             name_t const& name_,
+             kwiver::vital::config_block_key_t const& mapped_key)
 {
   if (d->has_name(name_))
   {
-    throw mapping_after_process_exception(name(), key,
-                                          name_, mapped_key);
+    VITAL_THROW( mapping_after_process_exception,
+                 name(), key,
+                 name_, mapped_key);
   }
 
   priv::config_mapping_t const mapping = priv::config_mapping_t(key, mapped_key);
@@ -142,74 +158,94 @@ process_cluster
   d->config_map[name_].push_back(mapping);
 }
 
+
+// ------------------------------------------------------------------
 void
 process_cluster
-::add_process(name_t const& name_, type_t const& type_, kwiver::vital::config_block_sptr const& conf)
+::add_process( name_t const& name_, // local process name
+               type_t const& type_, // process type
+               kwiver::vital::config_block_sptr const& conf )
 {
-  if (d->processes.count(name_))
+  if ( d->processes.count( name_ ) )
   {
-    throw duplicate_process_name_exception(name_);
+    VITAL_THROW( duplicate_process_name_exception,
+                 name_ );
   }
 
-  typedef std::set<kwiver::vital::config_block_key_t> key_set_t;
+  typedef std::set< kwiver::vital::config_block_key_t > key_set_t;
 
   kwiver::vital::config_block_keys_t const cur_keys = conf->available_values();
   key_set_t ro_keys;
 
   kwiver::vital::config_block_sptr const new_conf = kwiver::vital::config_block::empty_config();
 
-  VITAL_FOREACH (kwiver::vital::config_block_key_t const& key, cur_keys)
+  // Loop over all config keys provided and make a list of those that are READ_ONLY
+  for ( kwiver::vital::config_block_key_t const& key : cur_keys )
   {
-    kwiver::vital::config_block_value_t const value = conf->get_value<kwiver::vital::config_block_value_t>(key);
+    kwiver::vital::config_block_value_t const value =
+      conf->get_value< kwiver::vital::config_block_value_t >( key );
 
-    new_conf->set_value(key, value);
+    new_conf->set_value( key, value );
 
-    if (conf->is_read_only(key))
+    if ( conf->is_read_only( key ) )
     {
-      ro_keys.insert(key);
+      ro_keys.insert( key );
     }
   }
 
-  priv::config_mappings_t const mappings = d->config_map[name_];
+  // Now map these configs for the named process
+  priv::config_mappings_t const mappings = d->config_map[ name_ ];
 
-  VITAL_FOREACH (priv::config_mapping_t const& mapping, mappings)
+  for ( priv::config_mapping_t const& mapping : mappings )
   {
     kwiver::vital::config_block_key_t const& key = mapping.first;
     kwiver::vital::config_block_key_t const& mapped_key = mapping.second;
 
-    kwiver::vital::config_block_value_t const value = config_value<kwiver::vital::config_block_value_t>(key);
+    kwiver::vital::config_block_value_t const value =
+      config_value< kwiver::vital::config_block_value_t >( key );
 
-    if (ro_keys.count(mapped_key))
+    if ( ro_keys.count( mapped_key ) )
     {
-      kwiver::vital::config_block_value_t const new_value = new_conf->get_value<kwiver::vital::config_block_value_t>(mapped_key);
+      kwiver::vital::config_block_value_t const new_value =
+        new_conf->get_value< kwiver::vital::config_block_value_t >( mapped_key );
 
-      throw mapping_to_read_only_value_exception(name(), key, value, name_, mapped_key, new_value);
+      VITAL_THROW( mapping_to_read_only_value_exception,
+                   name(), key, value, name_, mapped_key, new_value );
     }
 
-    if (new_conf->has_value(mapped_key))
+    if ( new_conf->has_value( mapped_key ) )
     {
-      LOG_WARN( d->m_logger, "Config item \"" << mapped_key << "\" already has a value. Value will be replaced." );
+      LOG_WARN( d->m_logger,
+                "Config item \"" << mapped_key <<
+      "\" already has a value. Value will be replaced." );
     }
 
-    new_conf->set_value(mapped_key, value);
+    // Create an entry for the config value to be keyed by the mapped key
+    new_conf->set_value( mapped_key, value );
+
     // Make sure that the parameter is not reconfigured away by anything other
     // than this cluster.
-    new_conf->mark_read_only(mapped_key);
+    new_conf->mark_read_only( mapped_key );
   }
 
-  VITAL_FOREACH (kwiver::vital::config_block_key_t const& key, ro_keys)
+  // Make sure all RO entries are marked
+  for ( kwiver::vital::config_block_key_t const& key : ro_keys )
   {
-    new_conf->mark_read_only(key);
+    new_conf->mark_read_only( key );
   }
 
-  process_registry_t const reg = process_registry::self();
-  name_t const real_name = convert_name(name(), name_);
+  // convert the supplied process name into the cluster based name and
+  // create using that name.
+  name_t const real_name = convert_name( name(), name_ );
 
-  process_t const proc = reg->create_process(type_, real_name, new_conf);
+  process_t const proc = create_process( type_, real_name, new_conf );
 
-  d->processes[name_] = proc;
+  // Note we are filing the process under the supplied name
+  d->processes[ name_ ] = proc;
 }
 
+
+// ------------------------------------------------------------------
 void
 process_cluster
 ::map_input(port_t const& port, name_t const& name_, port_t const& mapped_port)
@@ -220,14 +256,15 @@ process_cluster
 
   if (!proc->input_port_info(mapped_port))
   {
-    throw no_such_port_exception(name_, mapped_port);
+    VITAL_THROW( no_such_port_exception,
+                 name_, mapped_port);
 
     return;
   }
 
   name_t const real_name = convert_name(name(), name_);
 
-  VITAL_FOREACH (connection_t const& input_mapping, d->input_mappings)
+  for (connection_t const& input_mapping : d->input_mappings)
   {
     port_addr_t const& process_addr = input_mapping.second;
     name_t const& process_name = process_addr.first;
@@ -236,7 +273,8 @@ process_cluster
     if ((process_name == real_name) &&
         (process_port == mapped_port))
     {
-      throw port_reconnect_exception(process_name, mapped_port);
+      VITAL_THROW( port_reconnect_exception,
+                   process_name, mapped_port);
     }
   }
 
@@ -248,6 +286,8 @@ process_cluster
   d->input_mappings.push_back(connection);
 }
 
+
+// ------------------------------------------------------------------
 void
 process_cluster
 ::map_output(port_t const& port, name_t const& name_, port_t const& mapped_port)
@@ -260,19 +300,21 @@ process_cluster
 
   if (!proc->output_port_info(mapped_port))
   {
-    throw no_such_port_exception(name_, mapped_port);
+    VITAL_THROW( no_such_port_exception,
+                 name_, mapped_port);
 
     return;
   }
 
-  VITAL_FOREACH (connection_t const& output_mapping, d->output_mappings)
+  for (connection_t const& output_mapping : d->output_mappings)
   {
     port_addr_t const& cluster_addr = output_mapping.second;
     port_t const& cluster_port = cluster_addr.second;
 
     if (cluster_port == port)
     {
-      throw port_reconnect_exception(name(), port);
+      VITAL_THROW( port_reconnect_exception,
+                   name(), port);
     }
   }
 
@@ -286,6 +328,8 @@ process_cluster
   d->output_mappings.push_back(connection);
 }
 
+
+// ------------------------------------------------------------------
 void
 process_cluster
 ::connect(name_t const& upstream_name, port_t const& upstream_port,
@@ -298,14 +342,16 @@ process_cluster
 
   if (!up_proc->output_port_info(upstream_port))
   {
-    throw no_such_port_exception(upstream_name, upstream_port);
+    VITAL_THROW( no_such_port_exception,
+                 upstream_name, upstream_port);
   }
 
   process_t const& down_proc = d->processes[downstream_name];
 
   if (!down_proc->input_port_info(downstream_port))
   {
-    throw no_such_port_exception(downstream_name, downstream_port);
+    VITAL_THROW( no_such_port_exception,
+                 downstream_name, downstream_port);
   }
 
   name_t const up_real_name = convert_name(name(), upstream_name);
@@ -319,74 +365,97 @@ process_cluster
   d->internal_connections.push_back(connection);
 }
 
+
+// ============================================================================
+// Stub process implementations.
 void
 process_cluster
 ::_configure()
 {
 }
 
+
+// ------------------------------------------------------------------
 void
 process_cluster
 ::_init()
 {
 }
 
+
+// ------------------------------------------------------------------
 void
 process_cluster
 ::_reset()
 {
 }
 
+
+// ------------------------------------------------------------------
+void
+process_cluster
+::_finalize()
+{
+}
+
+
+// ------------------------------------------------------------------
 void
 process_cluster
 ::_step()
 {
-  throw process_exception();
+  VITAL_THROW( process_exception );
 }
 
+
+// ------------------------------------------------------------------
 void
 process_cluster
-::_reconfigure(kwiver::vital::config_block_sptr const& conf)
+::_reconfigure( kwiver::vital::config_block_sptr const& conf )
 {
   kwiver::vital::config_block_keys_t const tunable_keys = available_tunable_config();
 
-  VITAL_FOREACH (priv::config_map_t::value_type const& config_mapping, d->config_map)
+  for ( priv::config_map_t::value_type const& config_mapping : d->config_map )
   {
     name_t const& name_ = config_mapping.first;
     priv::config_mappings_t const& mappings = config_mapping.second;
 
-    kwiver::vital::config_block_sptr const provide_conf = kwiver::vital::config_block::empty_config();
+    kwiver::vital::config_block_sptr const provide_conf =
+      kwiver::vital::config_block::empty_config();
 
-    VITAL_FOREACH (priv::config_mapping_t const& mapping, mappings)
+    for ( priv::config_mapping_t const& mapping : mappings )
     {
       kwiver::vital::config_block_key_t const& key = mapping.first;
 
-      if (!std::count(tunable_keys.begin(), tunable_keys.end(), key))
+      if ( !std::count( tunable_keys.begin(), tunable_keys.end(), key ) )
       {
         continue;
       }
 
       kwiver::vital::config_block_key_t const& mapped_key = mapping.second;
 
-      kwiver::vital::config_block_value_t const& value = config_value<kwiver::vital::config_block_value_t>(key);
+      kwiver::vital::config_block_value_t const& value =
+        config_value< kwiver::vital::config_block_value_t >( key );
 
-      provide_conf->set_value(mapped_key, value);
+      provide_conf->set_value( mapped_key, value );
     }
 
-    process_t const proc = d->processes[name_];
+    process_t const proc = d->processes[ name_ ];
 
     // Grab the new subblock for the process.
-    kwiver::vital::config_block_sptr const proc_conf = conf->subblock(name_);
+    kwiver::vital::config_block_sptr const proc_conf = conf->subblock( name_ );
 
     // Reconfigure the given process normally.
-    proc->reconfigure(proc_conf);
+    proc->reconfigure( proc_conf );
     // Overwrite any provided configuration values which may be read-only.
-    proc->reconfigure_with_provides(provide_conf);
+    proc->reconfigure_with_provides( provide_conf );
   }
 
-  process::_reconfigure(conf);
+  process::_reconfigure( conf );
 }
 
+
+// ------------------------------------------------------------------
 process::properties_t
 process_cluster
 ::_properties() const
@@ -398,6 +467,8 @@ process_cluster
   return base_properties;
 }
 
+
+// ==================================================================
 process_cluster::priv
 ::priv()
   : config_map()
@@ -409,11 +480,15 @@ process_cluster::priv
 {
 }
 
+
+// ------------------------------------------------------------------
 process_cluster::priv
 ::~priv()
 {
 }
 
+
+// ------------------------------------------------------------------
 bool
 process_cluster::priv
 ::has_name(name_t const& name) const
@@ -421,18 +496,28 @@ process_cluster::priv
   return (0 != processes.count(name));
 }
 
+
+// ------------------------------------------------------------------
 void
 process_cluster::priv
 ::ensure_name(name_t const& name) const
 {
   if (!has_name(name))
   {
-    throw no_such_process_exception(name);
+    VITAL_THROW( no_such_process_exception,
+                 name);
   }
 }
 
+
+// ------------------------------------------------------------------
+/*
+ * This function creates a new name from the cluster name and process name.
+ * The result is <cluster>/<proc>
+ */
 process::name_t
-convert_name(process::name_t const& cluster_name, process::name_t const& process_name)
+convert_name(process::name_t const& cluster_name,
+             process::name_t const& process_name)
 {
   static process::name_t const sep = process::name_t("/");
 
@@ -441,4 +526,4 @@ convert_name(process::name_t const& cluster_name, process::name_t const& process
   return full_name;
 }
 
-}
+} // end namespace

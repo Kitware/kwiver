@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@
 #ifndef KWIVER_ARROWS_CORE_CLOSE_LOOPS_MULTI_METHOD_H_
 #define KWIVER_ARROWS_CORE_CLOSE_LOOPS_MULTI_METHOD_H_
 
-#include <vital/vital_config.h>
 #include <arrows/core/kwiver_algo_core_export.h>
 
 #include <vital/algo/algorithm.h>
@@ -61,21 +60,14 @@ class KWIVER_ALGO_CORE_EXPORT close_loops_multi_method
   : public vital::algorithm_impl<close_loops_multi_method, vital::algo::close_loops>
 {
 public:
+  PLUGIN_INFO( "multi_method",
+               "Iteratively run multiple loop closure algorithms." )
 
   /// Default Constructor
   close_loops_multi_method();
 
-  /// Copy Constructor
-  close_loops_multi_method(const close_loops_multi_method&);
-
   /// Destructor
-  virtual ~close_loops_multi_method() VITAL_DEFAULT_DTOR;
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "multi_method"; }
-
-  /// Returns implementation description string
-  virtual std::string description() const;
+  virtual ~close_loops_multi_method() = default;
 
   /// Get this algorithm's \link vital::config_block configuration block \endlink
   /**
@@ -116,14 +108,14 @@ public:
   /**
    * \param frame_number the frame number of the current frame
    * \param image image data for the current frame
-   * \param input the input track set to stitch
+   * \param input the input feature track set to stitch
    * \param mask Optional mask image where positive values indicate
    *             regions to consider in the input image.
-   * \returns an updated set a tracks after the stitching operation
+   * \returns an updated set of feature tracks after the stitching operation
    */
-  virtual vital::track_set_sptr
+  virtual vital::feature_track_set_sptr
   stitch( vital::frame_id_t frame_number,
-          vital::track_set_sptr input,
+          vital::feature_track_set_sptr input,
           vital::image_container_sptr image,
           vital::image_container_sptr mask = vital::image_container_sptr() ) const;
 
@@ -141,4 +133,4 @@ private:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_CORE_CLOSE_LOOPS_MULTI_METHOD_H_
+#endif

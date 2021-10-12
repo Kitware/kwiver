@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,6 @@
 
 #include "image_filter_process.h"
 
-#include <vital/algorithm_plugin_manager.h>
 #include <vital/algo/image_filter.h>
 
 #include <sprokit/processes/kwiver_type_traits.h>
@@ -38,7 +37,7 @@
 
 namespace kwiver {
 
-create_config_trait( filter, std::string, "", "Algorithm configuration subblock" );
+create_algorithm_name_config_trait( filter );
 
 //----------------------------------------------------------------
 // Private implementation class
@@ -59,11 +58,6 @@ image_filter_process( kwiver::vital::config_block_sptr const& config )
   : process( config ),
     d( new image_filter_process::priv )
 {
-  // Attach our logger name to process logger
-  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
-
-  kwiver::vital::algorithm_plugin_manager::load_plugins_once();
-
   make_ports();
   make_config();
 }
@@ -80,21 +74,30 @@ void
 image_filter_process::
 _configure()
 {
+  scoped_configure_instrumentation();
+
   vital::config_block_sptr algo_config = get_config();
 
-  vital::algo::image_filter::set_nested_algo_configuration( "filter", algo_config, d->m_filter );
+  vital::algo::image_filter::set_nested_algo_configuration_using_trait(
+    filter,
+    algo_config,
+    d->m_filter );
 
   if ( ! d->m_filter )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Unable to create filter" );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create filter" );
   }
 
-  vital::algo::image_filter::get_nested_algo_configuration( "filter", algo_config, d->m_filter );
+  vital::algo::image_filter::get_nested_algo_configuration_using_trait(
+    filter,
+    algo_config,
+    d->m_filter );
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! vital::algo::image_filter::check_nested_algo_configuration( "filter", algo_config ) )
+  if ( ! vital::algo::image_filter::check_nested_algo_configuration_using_trait(
+         filter, algo_config ) )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 }
 
@@ -106,8 +109,15 @@ _step()
 {
   vital::image_container_sptr input = grab_from_port_using_trait( image );
 
-  // Get detections from filter on image
-  vital::image_container_sptr result = d->m_filter->filter( input );
+  vital::image_container_sptr result;
+
+  if( input )
+  {
+    scoped_step_instrumentation();
+
+    // Get detections from filter on image
+    result = d->m_filter->filter( input );
+  }
 
   push_to_port_using_trait( image, result );
 }
@@ -120,15 +130,18 @@ make_ports()
 {
   // Set up for required ports
   sprokit::process::port_flags_t required;
-  sprokit::process::port_flags_t optional;
-
   required.insert( flag_required );
+
+  // We are outputting a shared ref to the output image, therefore we
+  // should mark it as shared.
+  sprokit::process::port_flags_t output;
+  output.insert( flag_output_shared );
 
   // -- input --
   declare_input_port_using_trait( image, required );
 
   // -- output --
-  declare_output_port_using_trait( image, optional );
+  declare_output_port_using_trait( image, output );
 }
 
 

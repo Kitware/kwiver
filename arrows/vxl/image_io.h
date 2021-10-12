@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2016 by Kitware, Inc.
+ * Copyright 2013-2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,13 +36,9 @@
 #ifndef KWIVER_ARROWS_VXL_IMAGE_IO_H_
 #define KWIVER_ARROWS_VXL_IMAGE_IO_H_
 
-
-#include <vital/vital_config.h>
 #include <arrows/vxl/kwiver_algo_vxl_export.h>
 
 #include <vital/algo/image_io.h>
-
-#include <memory>
 
 namespace kwiver {
 namespace arrows {
@@ -53,17 +49,14 @@ class KWIVER_ALGO_VXL_EXPORT image_io
   : public vital::algorithm_impl<image_io, vital::algo::image_io>
 {
 public:
+  PLUGIN_INFO( "vxl",
+               "Use VXL (vil) to load and save image files." )
+
   /// Constructor
   image_io();
 
   /// Destructor
   virtual ~image_io();
-
-  /// Copy Constructor
-  image_io(const image_io& other);
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "vxl"; }
 
   /// Get this algorithm's \link vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -78,7 +71,7 @@ private:
    * NOTE: When loading boolean images (ppm, pbm, etc.), true-value regions are
    * represented in the returned image as regions of 1's.
    *
-   * \param filename the path to the file the load
+   * \param filename the path to the file to load
    * \returns an image container refering to the loaded image
    */
   virtual vital::image_container_sptr load_(const std::string& filename) const;
@@ -91,6 +84,13 @@ private:
   virtual void save_(const std::string& filename,
                      vital::image_container_sptr data) const;
 
+  /// Implementation specific metadata functionality.
+  /**
+   * \param filename the path to the file to read
+   * \returns pointer to the loaded metadata
+   */
+  virtual kwiver::vital::metadata_sptr load_metadata_(std::string const& filename) const;
+
   /// private implementation class
   class priv;
   const std::unique_ptr<priv> d_;
@@ -100,4 +100,4 @@ private:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_VXL_IMAGE_IO_H_
+#endif

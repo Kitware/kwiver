@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2012 by Kitware, Inc.
+ * Copyright 2011-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 #ifndef SPROKIT_PIPELINE_PROCESS_EXCEPTION_H
 #define SPROKIT_PIPELINE_PROCESS_EXCEPTION_H
 
-#include "pipeline-config.h"
+#include <sprokit/pipeline/sprokit_pipeline_export.h>
 
 #include <vital/config/config_block.h>
 #include "process.h"
@@ -45,9 +45,9 @@
  * \brief Header for exceptions used within \link sprokit::process processes\endlink.
  */
 
-namespace sprokit
-{
+namespace sprokit {
 
+// ----------------------------------------------------------------------------
 /**
  * \class process_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -62,13 +62,14 @@ class SPROKIT_PIPELINE_EXPORT process_exception
     /**
      * \brief Constructor.
      */
-    process_exception() throw();
+    process_exception() noexcept;
     /**
      * \brief Destructor.
      */
-    virtual ~process_exception() throw();
+    virtual ~process_exception() noexcept;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class null_process_config_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -83,13 +84,14 @@ class SPROKIT_PIPELINE_EXPORT null_process_config_exception
     /**
      * \brief Constructor.
      */
-    null_process_config_exception() throw();
+    null_process_config_exception() noexcept;
     /**
      * \brief Destructor.
      */
-    ~null_process_config_exception() throw();
+    ~null_process_config_exception() noexcept;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class already_initialized_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -106,16 +108,17 @@ class SPROKIT_PIPELINE_EXPORT already_initialized_exception
      *
      * \param name The name of the process.
      */
-    already_initialized_exception(process::name_t const& name) throw();
+    already_initialized_exception(process::name_t const& name) noexcept;
     /**
      * \brief Destructor.
      */
-    ~already_initialized_exception() throw();
+    ~already_initialized_exception() noexcept;
 
     /// The name of the \ref process.
     process::name_t const m_name;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class unconfigured_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -132,16 +135,17 @@ class SPROKIT_PIPELINE_EXPORT unconfigured_exception
      *
      * \param name The name of the process.
      */
-    unconfigured_exception(process::name_t const& name) throw();
+    unconfigured_exception(process::name_t const& name) noexcept;
     /**
      * \brief Destructor.
      */
-    ~unconfigured_exception() throw();
+    ~unconfigured_exception() noexcept;
 
     /// The name of the \ref process.
     process::name_t const m_name;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class reconfigured_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -158,16 +162,17 @@ class SPROKIT_PIPELINE_EXPORT reconfigured_exception
      *
      * \param name The name of the process.
      */
-    reconfigured_exception(process::name_t const& name) throw();
+    reconfigured_exception(process::name_t const& name) noexcept;
     /**
      * \brief Destructor.
      */
-    ~reconfigured_exception() throw();
+    ~reconfigured_exception() noexcept;
 
     /// The name of the \ref process.
     process::name_t const m_name;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class reinitialization_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -184,16 +189,17 @@ class SPROKIT_PIPELINE_EXPORT reinitialization_exception
      *
      * \param name The name of the process.
      */
-    reinitialization_exception(process::name_t const& name) throw();
+    reinitialization_exception(process::name_t const& name) noexcept;
     /**
      * \brief Destructor.
      */
-    ~reinitialization_exception() throw();
+    ~reinitialization_exception() noexcept;
 
     /// The name of the \ref process.
     process::name_t const m_name;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class null_conf_info_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -211,11 +217,11 @@ class SPROKIT_PIPELINE_EXPORT null_conf_info_exception
      * \param name The name of the process.
      * \param key The configuration key with \c NULL information.
      */
-    null_conf_info_exception(process::name_t const& name, kwiver::vital::config_block_key_t const& key) throw();
+    null_conf_info_exception(process::name_t const& name, kwiver::vital::config_block_key_t const& key) noexcept;
     /**
      * \brief Destructor.
      */
-    ~null_conf_info_exception() throw();
+    ~null_conf_info_exception() noexcept;
 
     /// The name of the \ref process.
     process::name_t const m_name;
@@ -223,6 +229,7 @@ class SPROKIT_PIPELINE_EXPORT null_conf_info_exception
     kwiver::vital::config_block_key_t const m_key;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class null_port_info_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -241,11 +248,11 @@ class SPROKIT_PIPELINE_EXPORT null_port_info_exception
      * \param port The port with \c NULL information.
      * \param type The type of port.
      */
-    null_port_info_exception(process::name_t const& name, process::port_t const& port, std::string const& type) throw();
+    null_port_info_exception(process::name_t const& name, process::port_t const& port, std::string const& type) noexcept;
     /**
      * \brief Destructor.
      */
-    ~null_port_info_exception() throw();
+    ~null_port_info_exception() noexcept;
 
     /// The name of the \ref process.
     process::name_t const m_name;
@@ -253,6 +260,7 @@ class SPROKIT_PIPELINE_EXPORT null_port_info_exception
     process::port_t const m_port;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class null_input_port_info_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -270,13 +278,14 @@ class SPROKIT_PIPELINE_EXPORT null_input_port_info_exception
      * \param name The name of the \ref process.
      * \param port The port with \c NULL information.
      */
-    null_input_port_info_exception(process::name_t const& name, process::port_t const& port) throw();
+    null_input_port_info_exception(process::name_t const& name, process::port_t const& port) noexcept;
     /**
      * \brief Destructor.
      */
-    ~null_input_port_info_exception() throw();
+    ~null_input_port_info_exception() noexcept;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class null_output_port_info_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -294,13 +303,14 @@ class SPROKIT_PIPELINE_EXPORT null_output_port_info_exception
      * \param name The name of the \ref process.
      * \param port The port with \c NULL information.
      */
-    null_output_port_info_exception(process::name_t const& name, process::port_t const& port) throw();
+    null_output_port_info_exception(process::name_t const& name, process::port_t const& port) noexcept;
     /**
      * \brief Destructor.
      */
-    ~null_output_port_info_exception() throw();
+    ~null_output_port_info_exception() noexcept;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class flag_mismatch_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -319,11 +329,11 @@ class SPROKIT_PIPELINE_EXPORT flag_mismatch_exception
      * \param port The port with \c NULL information.
      * \param reason The reason why the flags are incompatible.
      */
-    flag_mismatch_exception(process::name_t const& name, process::port_t const& port, std::string const& reason) throw();
+    flag_mismatch_exception(process::name_t const& name, process::port_t const& port, std::string const& reason) noexcept;
     /**
      * \brief Destructor.
      */
-    ~flag_mismatch_exception() throw();
+    ~flag_mismatch_exception() noexcept;
 
     /// The name of the \ref process.
     process::name_t const m_name;
@@ -333,6 +343,7 @@ class SPROKIT_PIPELINE_EXPORT flag_mismatch_exception
     std::string const m_reason;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class set_type_on_initialized_process_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -351,11 +362,11 @@ class SPROKIT_PIPELINE_EXPORT set_type_on_initialized_process_exception
      * \param port The name of the port on the \ref process.
      * \param type The type that was attempted to be set.
      */
-    set_type_on_initialized_process_exception(process::name_t const& name, process::port_t const& port, process::port_type_t const& type) throw();
+    set_type_on_initialized_process_exception(process::name_t const& name, process::port_t const& port, process::port_type_t const& type) noexcept;
     /**
      * \brief Destructor.
      */
-    ~set_type_on_initialized_process_exception() throw();
+    ~set_type_on_initialized_process_exception() noexcept;
 
     /// The name of the \ref process.
     process::name_t const m_name;
@@ -365,6 +376,7 @@ class SPROKIT_PIPELINE_EXPORT set_type_on_initialized_process_exception
     process::port_type_t const m_type;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class set_frequency_on_initialized_process_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -383,11 +395,13 @@ class SPROKIT_PIPELINE_EXPORT set_frequency_on_initialized_process_exception
      * \param port The name of the port on the \ref process.
      * \param frequency The frequency that was attempted to be set.
      */
-    set_frequency_on_initialized_process_exception(process::name_t const& name, process::port_t const& port, process::port_frequency_t const& frequency) throw();
+    set_frequency_on_initialized_process_exception(process::name_t const& name,
+                                                   process::port_t const& port,
+                                                   process::port_frequency_t const& frequency) noexcept;
     /**
      * \brief Destructor.
      */
-    ~set_frequency_on_initialized_process_exception() throw();
+    ~set_frequency_on_initialized_process_exception() noexcept;
 
     /// The name of the \ref process.
     process::name_t const m_name;
@@ -397,6 +411,7 @@ class SPROKIT_PIPELINE_EXPORT set_frequency_on_initialized_process_exception
     process::port_frequency_t const m_frequency;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class uninitialized_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -413,16 +428,17 @@ class SPROKIT_PIPELINE_EXPORT uninitialized_exception
      *
      * \param name The name of the process.
      */
-    uninitialized_exception(process::name_t const& name) throw();
+    uninitialized_exception(process::name_t const& name) noexcept;
     /**
      * \brief Destructor.
      */
-    ~uninitialized_exception() throw();
+    ~uninitialized_exception() noexcept;
 
     /// The name of the \ref process.
     process::name_t const m_name;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class port_connection_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -440,11 +456,11 @@ class SPROKIT_PIPELINE_EXPORT port_connection_exception
      * \param name The name of the process.
      * \param port The name of the port.
      */
-    port_connection_exception(process::name_t const& name, process::port_t const& port) throw();
+    port_connection_exception(process::name_t const& name, process::port_t const& port) noexcept;
     /**
      * \brief Destructor.
      */
-    virtual ~port_connection_exception() throw();
+    virtual ~port_connection_exception() noexcept;
 
     /// The name of the \ref process which was connected to.
     process::name_t const m_name;
@@ -452,6 +468,7 @@ class SPROKIT_PIPELINE_EXPORT port_connection_exception
     process::port_t const m_port;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class connect_to_initialized_process_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -469,13 +486,14 @@ class SPROKIT_PIPELINE_EXPORT connect_to_initialized_process_exception
      * \param name The name of the process.
      * \param port The name of the port.
      */
-    connect_to_initialized_process_exception(process::name_t const& name, process::port_t const& port) throw();
+    connect_to_initialized_process_exception(process::name_t const& name, process::port_t const& port) noexcept;
     /**
      * \brief Destructor.
      */
-    ~connect_to_initialized_process_exception() throw();
+    ~connect_to_initialized_process_exception() noexcept;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class no_such_port_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -493,13 +511,26 @@ class SPROKIT_PIPELINE_EXPORT no_such_port_exception
      * \param name The name of the process.
      * \param port The name of the port.
      */
-    no_such_port_exception(process::name_t const& name, process::port_t const& port) throw();
+    no_such_port_exception(process::name_t const& name, process::port_t const& port) noexcept;
+
+    /**
+     * \brief Constructor.
+     *
+     * \param name The name of the process.
+     * \param port The name of the port.
+     * \param all_ports List of all available ports
+     */
+    no_such_port_exception(process::name_t const& name, process::port_t const& port,
+                                        process::ports_t const& all_ports) noexcept;
+
+
     /**
      * \brief Destructor.
      */
-    ~no_such_port_exception() throw();
+    ~no_such_port_exception() noexcept;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class null_edge_port_connection_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -517,13 +548,15 @@ class SPROKIT_PIPELINE_EXPORT null_edge_port_connection_exception
      * \param name The name of the process.
      * \param port The name of the port.
      */
-    null_edge_port_connection_exception(process::name_t const& name, process::port_t const& port) throw();
+    null_edge_port_connection_exception(process::name_t const& name, process::port_t const& port) noexcept;
+
     /**
      * \brief Destructor.
      */
-    ~null_edge_port_connection_exception() throw();
+    ~null_edge_port_connection_exception() noexcept;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class static_type_reset_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -543,11 +576,11 @@ class SPROKIT_PIPELINE_EXPORT static_type_reset_exception
      * \param orig_type The original type of the port.
      * \param new_type The type that was attempted to be set on the port.
      */
-    static_type_reset_exception(process::name_t const& name, process::port_t const& port, process::port_type_t const& orig_type, process::port_type_t const& new_type) throw();
+    static_type_reset_exception(process::name_t const& name, process::port_t const& port, process::port_type_t const& orig_type, process::port_type_t const& new_type) noexcept;
     /**
      * \brief Destructor.
      */
-    ~static_type_reset_exception() throw();
+    ~static_type_reset_exception() noexcept;
 
     /// The original type on the port.
     process::port_type_t const m_orig_type;
@@ -555,6 +588,7 @@ class SPROKIT_PIPELINE_EXPORT static_type_reset_exception
     process::port_type_t const m_new_type;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class port_reconnect_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -572,13 +606,14 @@ class SPROKIT_PIPELINE_EXPORT port_reconnect_exception
      * \param name The name of the process.
      * \param port The name of the port.
      */
-    port_reconnect_exception(process::name_t const& name, process::port_t const& port) throw();
+    port_reconnect_exception(process::name_t const& name, process::port_t const& port) noexcept;
     /**
      * \brief Destructor.
      */
-    ~port_reconnect_exception() throw();
+    ~port_reconnect_exception() noexcept;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class missing_connection_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -597,16 +632,17 @@ class SPROKIT_PIPELINE_EXPORT missing_connection_exception
      * \param port The name of the port.
      * \param reason The reason why the connection is necessary.
      */
-    missing_connection_exception(process::name_t const& name, process::port_t const& port, std::string const& reason) throw();
+    missing_connection_exception(process::name_t const& name, process::port_t const& port, std::string const& reason) noexcept;
     /**
      * \brief Destructor.
      */
-    ~missing_connection_exception() throw();
+    ~missing_connection_exception() noexcept;
 
     /// A reason for the missing connection.
     std::string const m_reason;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class process_configuration_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -621,13 +657,14 @@ class SPROKIT_PIPELINE_EXPORT process_configuration_exception
     /**
      * \brief Constructor.
      */
-    process_configuration_exception() throw();
+    process_configuration_exception() noexcept;
     /**
      * \brief Destructor.
      */
-    virtual ~process_configuration_exception() throw();
+    virtual ~process_configuration_exception() noexcept;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class unknown_configuration_value_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -645,11 +682,11 @@ class SPROKIT_PIPELINE_EXPORT unknown_configuration_value_exception
      * \param name The name of the process.
      * \param key The key requested.
      */
-    unknown_configuration_value_exception(process::name_t const& name, kwiver::vital::config_block_key_t const& key) throw();
+    unknown_configuration_value_exception(process::name_t const& name, kwiver::vital::config_block_key_t const& key) noexcept;
     /**
      * \brief Destructor.
      */
-    ~unknown_configuration_value_exception() throw();
+    ~unknown_configuration_value_exception() noexcept;
 
     /// The name of the \ref process which was connected to.
     process::name_t const m_name;
@@ -657,6 +694,7 @@ class SPROKIT_PIPELINE_EXPORT unknown_configuration_value_exception
     kwiver::vital::config_block_key_t const m_key;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class invalid_configuration_value_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -676,11 +714,11 @@ class SPROKIT_PIPELINE_EXPORT invalid_configuration_value_exception
      * \param value The value given.
      * \param desc A description of the configuration value.
      */
-    invalid_configuration_value_exception(process::name_t const& name, kwiver::vital::config_block_key_t const& key, kwiver::vital::config_block_value_t const& value, kwiver::vital::config_block_description_t const& desc) throw();
+    invalid_configuration_value_exception(process::name_t const& name, kwiver::vital::config_block_key_t const& key, kwiver::vital::config_block_value_t const& value, kwiver::vital::config_block_description_t const& desc) noexcept;
     /**
      * \brief Destructor.
      */
-    ~invalid_configuration_value_exception() throw();
+    ~invalid_configuration_value_exception() noexcept;
 
     /// The name of the \ref process which was connected to.
     process::name_t const m_name;
@@ -692,6 +730,7 @@ class SPROKIT_PIPELINE_EXPORT invalid_configuration_value_exception
     kwiver::vital::config_block_description_t const m_desc;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class invalid_configuration_exception process_exception.h <sprokit/pipeline/process_exception.h>
  *
@@ -709,11 +748,11 @@ class SPROKIT_PIPELINE_EXPORT invalid_configuration_exception
      * \param name The name of the process.
      * \param reason The reason why the configuration is invalid.
      */
-    invalid_configuration_exception(process::name_t const& name, std::string const& reason) throw();
+    invalid_configuration_exception(process::name_t const& name, std::string const& reason) noexcept;
     /**
      * \brief Destructor.
      */
-    ~invalid_configuration_exception() throw();
+    ~invalid_configuration_exception() noexcept;
 
     /// The name of the \ref process which was connected to.
     process::name_t const m_name;

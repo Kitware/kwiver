@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ public:
 
   /// Open a file of detection sets.
   /**
-   * This method opens a detection set file for reading.
+   * This method opens a detection set file for writing.
    *
    * \param filename Name of file to open
    *
@@ -80,12 +80,12 @@ public:
    * \throws kwiver::vital::path_not_a_file Thrown when the given path does
    *    not point to a file (i.e. it points to a directory).
    */
-  void open( std::string const& filename );
+  virtual void open( std::string const& filename );
 
   /// Write detections to an existing stream
   /**
-   * This method specifies the output stream to use for reading
-   * detections. Using a stream is handy when the detections are
+   * This method specifies the output stream to use for writing
+   * detections. Using a stream is handy when the detections output is
    * available in a stream format.
    *
    * @param strm output stream to use
@@ -97,7 +97,7 @@ public:
    * The currently open detection set file is closed. If there is no
    * currently open file, then this method does nothing.
    */
-  void close();
+  virtual void close();
 
   /// Write detected object set.
   /**
@@ -109,6 +109,12 @@ public:
    */
   virtual void write_set( const kwiver::vital::detected_object_set_sptr set,
                           std::string const& image_path ) = 0;
+
+  /// Perform end-of-stream actions.
+  /**
+   * This method writes any necessary final data to the currently open file.
+   */
+  virtual void complete() {}
 
 
 protected:

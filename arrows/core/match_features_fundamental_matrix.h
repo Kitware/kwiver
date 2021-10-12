@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@
 #ifndef KWIVER_ARROWS__MATCH_FEATURES_FUNDMENTAL_MATRIX_H_
 #define KWIVER_ARROWS__MATCH_FEATURES_FUNDMENTAL_MATRIX_H_
 
-#include <vital/vital_config.h>
 #include <arrows/core/kwiver_algo_core_export.h>
 
 #include <vital/algo/filter_features.h>
@@ -44,8 +43,6 @@
 #include <vital/algo/estimate_fundamental_matrix.h>
 #include <vital/algo/match_features.h>
 #include <vital/config/config_block.h>
-
-#include <memory>
 
 namespace kwiver {
 namespace arrows {
@@ -66,17 +63,15 @@ class KWIVER_ALGO_CORE_EXPORT match_features_fundamental_matrix
   : public vital::algorithm_impl<match_features_fundamental_matrix, vital::algo::match_features>
 {
 public:
+  PLUGIN_INFO( "fundamental_matrix_guided",
+               "Use an estimated fundamental matrix as a geometric filter"
+               " to remove outlier matches." )
+
   /// Default Constructor
   match_features_fundamental_matrix();
 
-  /// Copy Constructor
-  match_features_fundamental_matrix(const match_features_fundamental_matrix&);
-
   /// Destructor
   virtual ~match_features_fundamental_matrix();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "fundamental_matrix_guided"; }
 
   /// Get this alg's \link vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -109,4 +104,4 @@ private:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS__MATCH_FEATURES_FUNDMENTAL_MATRIX_H_
+#endif

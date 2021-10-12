@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,14 +39,11 @@
 #include <opencv2/opencv_modules.hpp>
 #if defined(HAVE_OPENCV_NONFREE) || defined(HAVE_OPENCV_XFEATURES2D)
 
-#include <memory>
-#include <string>
-
-#include <vital/vital_config.h>
-
 #include <arrows/ocv/detect_features.h>
 #include <arrows/ocv/extract_descriptors.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
+
+#include <string>
 
 namespace kwiver {
 namespace arrows {
@@ -59,20 +56,14 @@ class KWIVER_ALGO_OCV_EXPORT detect_features_SURF
                                   vital::algo::detect_features >
 {
 public:
+  PLUGIN_INFO( "ocv_SURF",
+               "OpenCV feature detection via the SURF algorithm" )
+
   /// Constructor
   detect_features_SURF();
-  /// Copy Constructor
-  detect_features_SURF(detect_features_SURF const &other);
+
   /// Destructor
   virtual ~detect_features_SURF();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "ocv_SURF"; }
-  /// Returns an optional descriptive string for an implementation
-  virtual std::string description() const
-  {
-    return "OpenCV SURF feature detector and extractor implementation";
-  }
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -93,20 +84,14 @@ class KWIVER_ALGO_OCV_EXPORT extract_descriptors_SURF
                                   vital::algo::extract_descriptors >
 {
 public:
+  PLUGIN_INFO( "ocv_SURF",
+               "OpenCV feature-point descriptor extraction via the SURF algorithm" )
+
   /// Constructor
   extract_descriptors_SURF();
-  /// Copy Constructor
-  extract_descriptors_SURF(extract_descriptors_SURF const &other);
+
   /// Destructor
   virtual ~extract_descriptors_SURF();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "ocv_SURF"; }
-  /// Returns an optional descriptive string for an implementation
-  virtual std::string description() const
-  {
-    return "OpenCV SURF feature detector and extractor implementation";
-  }
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -130,4 +115,4 @@ private:
 
 #endif //defined(HAVE_OPENCV_NONFREE) || defined(HAVE_OPENCV_XFEATURES2D)
 
-#endif // KWIVER_ARROWS_FEATURE_DETECT_EXTRACT_SURF_H_
+#endif

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,13 +31,9 @@
 #ifndef KWIVER_ARROWS_VISCL_DETECT_FEATURES_H_
 #define KWIVER_ARROWS_VISCL_DETECT_FEATURES_H_
 
-
-#include <vital/vital_config.h>
 #include <arrows/viscl/kwiver_algo_viscl_export.h>
 
 #include <vital/algo/detect_features.h>
-
-#include <memory>
 
 namespace kwiver {
 namespace arrows {
@@ -53,12 +49,6 @@ public:
 
   /// Destructor
   virtual ~detect_features();
-
-  /// Copy Constructor
-  detect_features(const detect_features& other);
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "viscl"; }
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -88,4 +78,4 @@ private:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_VISCL_DETECT_FEATURES_H_
+#endif

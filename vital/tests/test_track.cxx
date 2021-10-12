@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014 by Kitware, Inc.
+ * Copyright 2014-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,33 +33,55 @@
  * \brief test core track class
  */
 
-#include <test_common.h>
-
-#include <iostream>
-#include <vector>
 #include <vital/types/track.h>
 
-#define TEST_ARGS ()
+#include <gtest/gtest.h>
 
-DECLARE_TEST_MAP();
-
-int
-main(int argc, char* argv[])
+// ----------------------------------------------------------------------------
+int main(int argc, char** argv)
 {
-  CHECK_ARGS(1);
-
-  testname_t const testname = argv[1];
-
-  RUN_TEST(testname);
+  ::testing::InitGoogleTest( &argc, argv );
+  return RUN_ALL_TESTS();
 }
 
-
-IMPLEMENT_TEST(track_id)
+// ----------------------------------------------------------------------------
+TEST(track, id)
 {
-  using namespace kwiver::vital;
-  track t;
-  TEST_EQUAL("Initial Track ID", t.id(), 0);
+  auto t = kwiver::vital::track::create();
+  EXPECT_EQ( kwiver::vital::invalid_track_id, t->id() );
 
-  t.set_id(25);
-  TEST_EQUAL("Get/Set Track ID", t.id(), 25);
+  t->set_id( 25 );
+  EXPECT_EQ( 25, t->id() );
+}
+
+TEST(track, insert_remove)
+{
+  auto t = kwiver::vital::track::create();
+  auto ts1 = std::make_shared < kwiver::vital::track_state>(1);
+  auto ts2 = std::make_shared < kwiver::vital::track_state>(2);
+  auto ts4 = std::make_shared < kwiver::vital::track_state>(4);
+  auto ts7 = std::make_shared < kwiver::vital::track_state>(7);
+  auto ts8 = std::make_shared < kwiver::vital::track_state>(8);
+
+  t->insert(ts1);
+  t->insert(ts2);
+  t->insert(ts4);
+  t->insert(ts8);
+
+  EXPECT_EQ(4, t->size());
+  EXPECT_TRUE(t->remove(ts2));
+  EXPECT_EQ(3, t->size());
+  EXPECT_FALSE(t->remove(ts2));
+  EXPECT_EQ(3, t->size());
+  EXPECT_TRUE(t->remove(ts1));
+  EXPECT_EQ(2, t->size());
+  EXPECT_TRUE(t->remove(ts4));
+  EXPECT_EQ(1, t->size());
+  EXPECT_TRUE(t->remove(ts8));
+  EXPECT_EQ(0, t->size());
+  EXPECT_FALSE(t->remove(ts1));
+  t->insert(ts7);
+  EXPECT_EQ(1, t->size());
+  EXPECT_TRUE(t->remove(ts7));
+  EXPECT_FALSE(t->remove(ts7));
 }

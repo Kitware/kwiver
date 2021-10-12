@@ -1,6 +1,6 @@
-#!@PYTHON_EXECUTABLE@
+#!/usr/bin/env python
 #ckwg +28
-# Copyright 2011-2013 by Kitware, Inc.
+# Copyright 2011-2013, 2020 by Kitware, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,59 +31,44 @@
 
 def test_import():
     try:
-        from sprokit.pipeline import config
-        import sprokit.pipeline.process_registry
+        from vital.config import config
+        import sprokit.pipeline.process_factory
     except:
-        test_error("Failed to import the process_registry module")
-
-
-def test_create():
-    from sprokit.pipeline import config
-    from sprokit.pipeline import process_registry
-
-    process_registry.ProcessRegistry.self()
-    process_registry.ProcessDescription()
-    process_registry.ProcessModule()
+        test_error("Failed to import the process_factory module")
 
 
 def test_api_calls():
-    from sprokit.pipeline import config
-    from sprokit.pipeline import modules
+    from vital.config import config
+    from vital.modules import modules
     from sprokit.pipeline import process
-    from sprokit.pipeline import process_registry
+    from sprokit.pipeline import process_factory
 
     modules.load_known_modules()
-
-    reg = process_registry.ProcessRegistry.self()
 
     proc_type = 'orphan'
     c = config.empty_config()
 
-    reg.create_process(proc_type, process.ProcessName())
-    reg.create_process(proc_type, process.ProcessName(), c)
-    reg.types()
-    reg.description(proc_type)
+    process_factory.create_process(proc_type, '')
+    process_factory.create_process(proc_type, '', c)
+    process_factory.types()
+    process_factory.description(proc_type)
 
-    process_registry.Process.property_no_threads
-    process_registry.Process.property_no_reentrancy
-    process_registry.Process.property_unsync_input
-    process_registry.Process.property_unsync_output
-    process_registry.Process.port_heartbeat
-    process_registry.Process.config_name
-    process_registry.Process.config_type
-    process_registry.Process.type_any
-    process_registry.Process.type_none
-    process_registry.Process.type_data_dependent
-    process_registry.Process.type_flow_dependent
-    process_registry.Process.flag_output_const
-    process_registry.Process.flag_input_static
-    process_registry.Process.flag_input_mutable
-    process_registry.Process.flag_input_nodep
-    process_registry.Process.flag_required
-
-    cluster_bases = process_registry.ProcessCluster.__bases__
-    if not cluster_bases[0] == process_registry.Process:
-        test_error("The cluster class does not inherit from the process class")
+    process_factory.Process.property_no_threads
+    process_factory.Process.property_no_reentrancy
+    process_factory.Process.property_unsync_input
+    process_factory.Process.property_unsync_output
+    process_factory.Process.port_heartbeat
+    process_factory.Process.config_name
+    process_factory.Process.config_type
+    process_factory.Process.type_any
+    process_factory.Process.type_none
+    process_factory.Process.type_data_dependent
+    process_factory.Process.type_flow_dependent
+    process_factory.Process.flag_output_const
+    process_factory.Process.flag_input_static
+    process_factory.Process.flag_input_mutable
+    process_factory.Process.flag_input_nodep
+    process_factory.Process.flag_required
 
 
 def example_process(check_init):
@@ -97,6 +82,7 @@ def example_process(check_init):
             self.ran_init = check_init
             self.ran_reset = check_init
             self.ran_step = check_init
+            self.ran_finalize = check_init
             self.ran_reconfigure = check_init
             self.ran_properties = check_init
             self.ran_input_ports = check_init
@@ -127,6 +113,11 @@ def example_process(check_init):
             self.ran_step = True
 
             self._base_step()
+
+        def _finalize(self):
+            self.ran_finalize = True
+
+            self._base_finalize()
 
         def _reconfigure(self, conf):
             self.ran_reconfigure = True
@@ -240,22 +231,20 @@ def base_example_process_cluster():
 
 
 def test_register():
-    from sprokit.pipeline import config
+    from vital.config import config
     from sprokit.pipeline import process
-    from sprokit.pipeline import process_registry
+    from sprokit.pipeline import process_factory
 
     proc_type = 'python_example'
     proc_desc = 'simple description'
 
-    reg = process_registry.ProcessRegistry.self()
+    process_factory.add_process(proc_type, proc_desc, example_process(True))
 
-    reg.register_process(proc_type, proc_desc, example_process(True))
-
-    if not proc_desc == reg.description(proc_type):
+    if not proc_desc == process_factory.description(proc_type):
         test_error("Description was not preserved when registering")
 
     try:
-        p = reg.create_process(proc_type, process.ProcessName())
+        p = process_factory.create_process(proc_type, '')
         if p is None:
             raise Exception()
     except:
@@ -263,23 +252,23 @@ def test_register():
 
 
 def test_register_cluster():
-    from sprokit.pipeline import config
+    from vital.config import config
     from sprokit.pipeline import process
     from sprokit.pipeline import process_cluster
-    from sprokit.pipeline import process_registry
+    from sprokit.pipeline import process_factory
 
     proc_type = 'python_example'
     proc_desc = 'simple description'
 
-    reg = process_registry.ProcessRegistry.self()
+    process_factory.add_process(proc_type, proc_desc, base_example_process_cluster())
 
-    reg.register_process(proc_type, proc_desc, base_example_process_cluster())
-
-    if not proc_desc == reg.description(proc_type):
+    if not proc_desc == process_factory.description(proc_type):
         test_error("Description was not preserved when registering")
 
+    p = None
+
     try:
-        p = reg.create_process(proc_type, process.ProcessName())
+        p = process_factory.create_process(proc_type, '')
         if p is None:
             raise Exception()
     except BaseException:
@@ -294,10 +283,10 @@ def test_register_cluster():
 
 
 def test_wrapper_api():
-    from sprokit.pipeline import config
+    from vital.config import config
     from sprokit.pipeline import edge
     from sprokit.pipeline import process
-    from sprokit.pipeline import process_registry
+    from sprokit.pipeline import process_factory
 
     proc_type = 'python_example'
     proc_desc = 'simple description'
@@ -310,10 +299,8 @@ def test_wrapper_api():
     key = 'no_such_key'
     ptype = 'no_type'
 
-    reg = process_registry.ProcessRegistry.self()
-
-    reg.register_process(proc_type, proc_desc, example_process(False))
-    reg.register_process(proc_base_type, proc_base_desc, base_example_process())
+    process_factory.add_process(proc_type, proc_desc, example_process(False))
+    process_factory.add_process(proc_base_type, proc_base_desc, base_example_process())
 
     def check_process(p):
         if p is None:
@@ -363,10 +350,10 @@ def test_wrapper_api():
 
         del p
 
-    p = reg.create_process(proc_type, process.ProcessName())
+    p = process_factory.create_process(proc_type, '')
     check_process(p)
 
-    p = reg.create_process(proc_base_type, process.ProcessName())
+    p = process_factory.create_process(proc_base_type, '')
     check_process(p)
 
 

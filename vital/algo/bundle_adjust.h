@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2015 by Kitware, Inc.
+ * Copyright 2014-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,9 +40,11 @@
 #include <vital/vital_config.h>
 
 #include <vital/algo/algorithm.h>
-#include <vital/types/track_set.h>
+#include <vital/types/feature_track_set.h>
 #include <vital/types/camera_map.h>
+#include <vital/types/camera_perspective_map.h>
 #include <vital/types/landmark_map.h>
+#include <vital/types/sfm_constraints.h>
 
 #include <functional>
 
@@ -50,7 +52,7 @@ namespace kwiver {
 namespace vital {
 namespace algo {
 
-/// An abstract base class for bundle adjustment using tracks
+/// An abstract base class for bundle adjustment using feature tracks
 class VITAL_ALGO_EXPORT bundle_adjust
   : public kwiver::vital::algorithm_def<bundle_adjust>
 {
@@ -58,7 +60,7 @@ public:
   /// Return the name of this algorithm
   static std::string static_type_name() { return "bundle_adjust"; }
 
-  /// Optimize the camera and landmark parameters given a set of tracks
+  /// Optimize the camera and landmark parameters given a set of feature tracks
   /**
    * Implementations of this function should not modify the underlying objects
    * contained in the input structures. Output references should either be new
@@ -66,16 +68,36 @@ public:
    *
    * \param [in,out] cameras the cameras to optimize
    * \param [in,out] landmarks the landmarks to optimize
-   * \param [in] tracks the tracks to use as constraints
+   * \param [in] tracks the feature tracks to use as constraints
+   * \param [in] metadata the frame metadata to use as constraints
    */
   virtual void
   optimize(kwiver::vital::camera_map_sptr& cameras,
            kwiver::vital::landmark_map_sptr& landmarks,
-           kwiver::vital::track_set_sptr tracks) const = 0;
+           kwiver::vital::feature_track_set_sptr tracks,
+           kwiver::vital::sfm_constraints_sptr constraints = nullptr) const = 0;
+
+  /// Optimize the camera and landmark parameters given a set of feature tracks
+  /**
+   * \param [in,out] cameras the cameras to optimize
+   * \param [in,out] landmarks the landmarks to optimize
+   * \param [in] tracks the feature tracks to use as constraints
+   * \param [in] fixed_cameras frame ids for cameras to be fixed in the optimization
+   * \param [in] fixed_landmarks landmark ids for landmarks to be fixed in the optimization
+   * \param [in] metadata the frame metadata to use as constraints
+   */
+  virtual void
+  optimize(kwiver::vital::simple_camera_perspective_map &cameras,
+           kwiver::vital::landmark_map::map_landmark_t &landmarks,
+           vital::feature_track_set_sptr tracks,
+           const std::set<vital::frame_id_t>& fixed_cameras,
+           const std::set<vital::landmark_id_t>& fixed_landmarks,
+           kwiver::vital::sfm_constraints_sptr constraints = nullptr) const;
 
   /// Typedef for the callback function signature
   typedef std::function<bool(kwiver::vital::camera_map_sptr,
-                             kwiver::vital::landmark_map_sptr)> callback_t;
+                             kwiver::vital::landmark_map_sptr,
+                             kwiver::vital::feature_track_set_changes_sptr)> callback_t;
 
   /// Set a callback function to report intermediate progress
   virtual void set_callback(callback_t cb);

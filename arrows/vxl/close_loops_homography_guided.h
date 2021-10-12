@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2017, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,22 +37,18 @@
 #ifndef KWIVER_ARROWS_VXL_CLOSE_LOOPS_HOMOGRAPHY_GUIDED_H_
 #define KWIVER_ARROWS_VXL_CLOSE_LOOPS_HOMOGRAPHY_GUIDED_H_
 
-
-#include <vital/vital_config.h>
 #include <arrows/vxl/kwiver_algo_vxl_export.h>
 
 #include <vital/types/image_container.h>
-#include <vital/types/track_set.h>
+#include <vital/types/feature_track_set.h>
 
 #include <vital/algo/close_loops.h>
-
-#include <memory>
 
 namespace kwiver {
 namespace arrows {
 namespace vxl {
 
-/// Attempts to stitch tracks over a long period of time.
+/// Attempts to stitch feature tracks over a long period of time.
 /**
  * This class attempts to make longer-term loop closures by utilizing a
  * variety of techniques, one of which involves using homographies to
@@ -63,6 +59,9 @@ class KWIVER_ALGO_VXL_EXPORT close_loops_homography_guided
   : public vital::algorithm_impl<vxl::close_loops_homography_guided, vital::algo::close_loops>
 {
 public:
+  PLUGIN_INFO( "vxl_homography_guided",
+               "Use VXL to estimate a sequence of ground plane homographies to identify "
+               "frames to match for loop closure." )
 
   /// Default Constructor
   close_loops_homography_guided();
@@ -72,9 +71,6 @@ public:
 
   /// Destructor
   virtual ~close_loops_homography_guided();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "vxl_homography_guided"; }
 
   /// Get this algorithm's \link vital::config_block configuration block \endlink
   /**
@@ -114,15 +110,15 @@ public:
   /// Perform loop closure operation.
   /**
    * \param frame_number the frame number of the current frame
-   * \param input the input track set to stitch
+   * \param input the input feature track set to stitch
    * \param image image data for the current frame
    * \param mask Optional mask image where positive values indicate
    *                  regions to consider in the input image.
-   * \returns an updated set a tracks after the stitching operation
+   * \returns an updated set of feature tracks after the stitching operation
    */
-  virtual vital::track_set_sptr
+  virtual vital::feature_track_set_sptr
   stitch( vital::frame_id_t frame_number,
-          vital::track_set_sptr input,
+          vital::feature_track_set_sptr input,
           vital::image_container_sptr image,
           vital::image_container_sptr mask = vital::image_container_sptr() ) const;
 
@@ -139,4 +135,4 @@ private:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_VXL_CLOSE_LOOPS_HOMOGRAPHY_GUIDED_H_
+#endif

@@ -68,7 +68,7 @@ class VITAL_EXPORT essential_matrix
 {
 public:
   /// Destructor
-  virtual ~essential_matrix() VITAL_DEFAULT_DTOR
+  virtual ~essential_matrix() = default;
 
   /// Create a clone of this essential_matrix object, returning as smart pointer
   /**
@@ -188,8 +188,6 @@ protected:
   rotation_<T> rot_;
   /// the translation used to parameterize the essential  matrix
   vector_t trans_;
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 

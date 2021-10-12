@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2018, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,6 @@
 
 #include "detected_object_type.h"
 
-#include <vital/vital_foreach.h>
 
 #include <stdexcept>
 #include <limits>
@@ -43,9 +42,10 @@ namespace vital {
 
 const double detected_object_type::INVALID_SCORE = std::numeric_limits< double >::min();
 
-// Master list of all class_names
+// Master list of all type names, and members associated with the same
+signal< std::string const& > detected_object_type::class_name_added;
 std::set< std::string > detected_object_type::s_master_name_set;
-
+std::mutex detected_object_type::s_table_mutex;
 
 // ==================================================================
 namespace {
@@ -74,13 +74,13 @@ struct more_second
 } // end namespace
 
 // ------------------------------------------------------------------
-detected_object_type::
-detected_object_type()
+detected_object_type
+::detected_object_type()
 { }
 
-detected_object_type::
-detected_object_type( const std::vector< std::string >& class_names,
-                      const std::vector< double >& scores )
+detected_object_type
+::detected_object_type( const std::vector< std::string >& class_names,
+                        const std::vector< double >& scores )
 {
   if ( class_names.size() != scores.size() )
   {
@@ -88,40 +88,56 @@ detected_object_type( const std::vector< std::string >& class_names,
     throw std::invalid_argument( "Parameter vector sizes differ." );
   }
 
-  if ( class_names.size() == 0 )
+  if ( class_names.empty() )
   {
     // Throw error
     throw std::invalid_argument( "Parameter vector are empty." );
   }
 
-  for (size_t i = 0; i < class_names.size(); i++)
+  for ( size_t i = 0; i < class_names.size(); i++ )
   {
     set_score( class_names[i], scores[i] );
   }
 }
 
+detected_object_type
+::detected_object_type( const std::string& class_name, double score )
+{
+  if ( class_name.empty() )
+  {
+    throw std::invalid_argument( "Must supply a non-empty class name." );
+  }
+
+  set_score( class_name, score );
+}
+
 
 // ------------------------------------------------------------------
 bool
-detected_object_type::
-has_class_name( const std::string& class_name ) const
+detected_object_type
+::has_class_name( const std::string& class_name ) const
 {
   try
   {
     const std::string* str_ptr = find_string( class_name );
     return ( 0 != m_classes.count( str_ptr ) );
   }
+<<<<<<< HEAD
   catch ( std::runtime_error& e )
   {
   }
+=======
+  catch ( ... ) {}
+
+>>>>>>> origin/viame/master
   return false;
 }
 
 
 // ------------------------------------------------------------------
 double
-detected_object_type::
-score( const std::string& class_name ) const
+detected_object_type
+::score( const std::string& class_name ) const
 {
   const std::string* str_ptr = find_string( class_name );
 
@@ -140,8 +156,25 @@ score( const std::string& class_name ) const
 
 // ------------------------------------------------------------------
 void
-detected_object_type::
-  get_most_likely( std::string& max_name, double& max_score ) const
+detected_object_type
+::get_most_likely( std::string& max_name ) const
+{
+  if ( m_classes.empty() )
+  {
+    // Throw error
+    throw std::runtime_error( "This detection has no scores." );
+  }
+
+  auto it = std::max_element( m_classes.begin(), m_classes.end(), less_second< const std::string*, double > () );
+
+  max_name = std::string ( *(it->first) );
+}
+
+
+// ------------------------------------------------------------------
+void
+detected_object_type
+::get_most_likely( std::string& max_name, double& max_score ) const
 {
   if ( m_classes.empty() )
   {
@@ -158,15 +191,17 @@ detected_object_type::
 
 // ------------------------------------------------------------------
 void
-detected_object_type::
-set_score( const std::string& class_name, double score )
+detected_object_type
+::set_score( const std::string& class_name, double score )
 {
   // Check to see if class_name is in the master set.
   // If not, add it
+  std::lock_guard< std::mutex > lock{ s_table_mutex };
   auto it = s_master_name_set.find( class_name );
   if ( it == s_master_name_set.end() )
   {
     auto result = s_master_name_set.insert( class_name );
+    class_name_added( class_name );
     it = result.first;
   }
 
@@ -180,8 +215,8 @@ set_score( const std::string& class_name, double score )
 
 // ------------------------------------------------------------------
 void
-detected_object_type::
-delete_score( const std::string& class_name )
+detected_object_type
+::delete_score( const std::string& class_name )
 {
   auto str_ptr = find_string( class_name );
   if ( 0 == m_classes.count( str_ptr ) )
@@ -198,8 +233,8 @@ delete_score( const std::string& class_name )
 
 // ------------------------------------------------------------------
 std::vector< std::string >
-detected_object_type::
-class_names( double threshold ) const
+detected_object_type
+::class_names( double threshold ) const
 {
   std::vector< std::pair< const std::string*, double > > items( m_classes.begin(), m_classes.end() );
 
@@ -225,10 +260,46 @@ class_names( double threshold ) const
 
 // ------------------------------------------------------------------
 size_t
-detected_object_type::
-size() const
+detected_object_type
+::size() const
 {
   return m_classes.size();
+}
+
+
+// ------------------------------------------------------------------
+detected_object_type::class_const_iterator_t
+detected_object_type
+::begin() const
+{
+  return m_classes.begin();
+}
+
+
+// ------------------------------------------------------------------
+detected_object_type::class_const_iterator_t
+detected_object_type
+::cbegin() const
+{
+  return m_classes.cbegin();
+}
+
+
+// ------------------------------------------------------------------
+detected_object_type::class_const_iterator_t
+detected_object_type
+::end() const
+{
+  return m_classes.end();
+}
+
+
+// ------------------------------------------------------------------
+detected_object_type::class_const_iterator_t
+detected_object_type
+::cend() const
+{
+  return m_classes.cend();
 }
 
 
@@ -244,11 +315,14 @@ size() const
  * @param str String to resolve
  *
  * @return Address of string in master list.
+ *
+ * @throws std::runtime_error if the string is not in the global set.
  */
 const std::string*
-detected_object_type::
-find_string( const std::string& str ) const
+detected_object_type
+::find_string( const std::string& str ) const
 {
+  std::lock_guard< std::mutex > lock{ s_table_mutex };
   auto it = s_master_name_set.find( str );
   if ( it == s_master_name_set.end() )
   {
@@ -262,13 +336,13 @@ find_string( const std::string& str ) const
 }
 
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::vector< std::string >
-detected_object_type::
-all_class_names()
+detected_object_type
+::all_class_names()
 {
-  std::vector< std::string > names( s_master_name_set.begin(), s_master_name_set.end() );
-  return names;
+  std::lock_guard< std::mutex > lock{ s_table_mutex };
+  return { s_master_name_set.begin(), s_master_name_set.end() };
 }
 
 } } // end namespace

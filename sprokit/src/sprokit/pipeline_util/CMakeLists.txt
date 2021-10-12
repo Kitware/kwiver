@@ -4,54 +4,50 @@ project(sprokit_pipeline_util)
 
 set(pipeline_util_srcs
   bakery_base.cxx
-  check_provider.cxx
   cluster_bakery.cxx
   cluster_creator.cxx
   cluster_info.cxx
   cluster_splitter.cxx
-  config_provider_sorter.cxx
-  ensure_provided.cxx
   export_dot.cxx
   export_dot_exception.cxx
-  extract_literal_value.cxx
-  load_pipe.cxx
+  export_pipe.cxx
+  lex_processor.cxx
   load_pipe_exception.cxx
   loaded_cluster.cxx
   pipe_bakery.cxx
   pipe_bakery_exception.cxx
-  pipe_grammar.cxx
+  pipe_parser.cxx
+  pipeline_builder.cxx
   provided_by_cluster.cxx
-  provider_dereferencer.cxx
-  providers.cxx
+  token.cxx
+  pipe_display.cxx
   )
 
 set(pipeline_util_headers
   export_dot.h
   export_dot_exception.h
-  load_pipe.h
+  export_pipe.h
+  literal_pipeline.h
   load_pipe_exception.h
   path.h
   pipe_bakery.h
   pipe_bakery_exception.h
   pipe_declaration_types.h
-  pipe_grammar.h
-  pipeline_util-config.h
   )
 
 set(pipeline_util_private_headers
   bakery_base.h
-  check_provider.h
   cluster_bakery.h
   cluster_creator.h
   cluster_info.h
   cluster_splitter.h
-  config_provider_sorter.h
-  ensure_provided.h
-  extract_literal_value.h
+  lex_processor.h
   loaded_cluster.h
+  pipe_parser.h
+  pipeline_builder.h
   provided_by_cluster.h
-  provider_dereferencer.h
-  providers.h
+  token.h
+  pipe_display.h
   )
 
 if (WIN32)
@@ -87,40 +83,45 @@ else ()
     ${sprokit_pipe_include_options})
 endif ()
 
-set_source_files_properties(load_pipe.cxx
+set_source_files_properties(pipeline_builder.cxx
   PROPERTIES
     COMPILE_DEFINITIONS "${load_pipe_build_options}")
 
-sprokit_private_header_group(${pipeline_util_private_headers})
+kwiver_private_header_group(${pipeline_util_private_headers})
 
-sprokit_add_library(sprokit_pipeline_util
+kwiver_add_library(sprokit_pipeline_util
   ${pipeline_util_srcs}
   ${pipeline_util_headers}
   ${pipeline_util_private_headers}
   )
 
-
 target_link_libraries(sprokit_pipeline_util
   PUBLIC      sprokit_pipeline
-            ${Boost_FILESYSTEM_LIBRARY}
             ${Boost_SYSTEM_LIBRARY}
   PRIVATE     vital_config
+              vital_util
+              vital_exceptions
             ${Boost_CHRONO_LIBRARY}
             ${Boost_THREAD_LIBRARY}
             ${CMAKE_THREAD_LIBS_INIT}
+             kwiversys
  )
-
-set_target_properties(sprokit_pipeline_util
-  PROPERTIES
-    VERSION       ${KWIVER_VERSION}
-    SOVERSION     0
-    DEFINE_SYMBOL MAKE_SPROKIT_PIPELINE_UTIL_LIB)
 
 if (WIN32)
   add_dependencies(sprokit_pipeline_util
     configure-include-paths.h)
 endif ()
 
-sprokit_install_headers(sprokit/pipeline_util ${pipeline_util_headers})
+kwiver_install_headers(
+  ${pipeline_util_headers}
+  SUBDIR sprokit/pipeline_util
+  )
+
+# install export header
+kwiver_install_headers(
+  ${CMAKE_CURRENT_BINARY_DIR}/sprokit_pipeline_util_export.h
+  SUBDIR   sprokit/pipeline_util
+  NOPATH
+  )
 
 sprokit_configure_pkgconfig(sprokit-pipeline_util)

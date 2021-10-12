@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,15 +36,13 @@
 #ifndef KWIVER_ARROWS_VXL_OPTIMIZE_CAMERAS_H_
 #define KWIVER_ARROWS_VXL_OPTIMIZE_CAMERAS_H_
 
-
-#include <string>
-
-#include <vital/vital_config.h>
 #include <arrows/vxl/kwiver_algo_vxl_export.h>
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/optimize_cameras.h>
+#include <vital/types/camera_perspective.h>
 
+#include <string>
 
 namespace kwiver {
 namespace arrows {
@@ -54,7 +52,9 @@ class KWIVER_ALGO_VXL_EXPORT optimize_cameras
   : public vital::algorithm_impl<optimize_cameras, vital::algo::optimize_cameras>
 {
 public:
-  virtual std::string impl_name() const { return "vxl"; }
+  PLUGIN_INFO( "vxl",
+               "Use VXL (vpgl) to optimize camera parameters for fixed "
+               "landmarks and tracks." )
 
   /// \cond DoxygenSuppress
   virtual void set_configuration(vital::config_block_sptr /*config*/) { }
@@ -74,11 +74,14 @@ public:
    *                          to use as constraints.
    * \param[in]     landmarks The vector of landmarks corresponding to
    *                          \p features.
+   * \param[in]     metadata  The optional metadata to constrain the
+   *                          optimization.
    */
   virtual void
-  optimize(vital::camera_sptr & camera,
+  optimize(kwiver::vital::camera_perspective_sptr & camera,
            const std::vector<vital::feature_sptr>& features,
-           const std::vector<vital::landmark_sptr>& landmarks) const;
+           const std::vector<vital::landmark_sptr>& landmarks,
+           kwiver::vital::sfm_constraints_sptr constraints = nullptr) const;
 };
 
 
@@ -86,4 +89,4 @@ public:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_VXL_OPTIMIZE_CAMERAS_H_
+#endif

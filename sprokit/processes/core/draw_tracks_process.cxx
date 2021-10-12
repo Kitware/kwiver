@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2015-2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,10 +35,9 @@
 
 #include "draw_tracks_process.h"
 
-#include <vital/algorithm_plugin_manager.h>
 #include <vital/vital_types.h>
 #include <vital/types/image_container.h>
-#include <vital/types/track_set.h>
+#include <vital/types/feature_track_set.h>
 
 #include <vital/algo/draw_tracks.h>
 
@@ -53,7 +52,7 @@ namespace kwiver
 create_port_trait( output_image, image, "Image with tracks" );
 
 // config items
-//          None for now
+create_algorithm_name_config_trait( draw_tracks );
 
 //----------------------------------------------------------------
 // Private implementation class
@@ -74,10 +73,6 @@ draw_tracks_process
   : process( config ),
     d( new draw_tracks_process::priv )
 {
-  // Attach our logger name to process logger
-  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
-  kwiver::vital::algorithm_plugin_manager::load_plugins_once();
-
   make_ports();
   make_config();
 }
@@ -94,22 +89,32 @@ void
 draw_tracks_process
 ::_configure()
 {
+  scoped_configure_instrumentation();
+
   kwiver::vital::config_block_sptr algo_config = get_config();
 
-  algo::draw_tracks::set_nested_algo_configuration( "draw_tracks", algo_config, d->m_draw_tracks );
+  algo::draw_tracks::set_nested_algo_configuration_using_trait(
+    draw_tracks,
+    algo_config,
+    d->m_draw_tracks );
   if ( ! d->m_draw_tracks )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Unable to create draw_tracks" );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(),
+                 "Unable to create draw_tracks" );
   }
 
-  algo::draw_tracks::get_nested_algo_configuration( "draw_tracks", algo_config, d->m_draw_tracks );
+  algo::draw_tracks::get_nested_algo_configuration_using_trait(
+    draw_tracks,
+    algo_config,
+    d->m_draw_tracks );
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! algo::draw_tracks::check_nested_algo_configuration( "draw_tracks", algo_config ) )
+  if ( ! algo::draw_tracks::check_nested_algo_configuration_using_trait(
+         draw_tracks, algo_config ) )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(),
+                 "Configuration check failed." );
   }
-
 }
 
 
@@ -119,12 +124,17 @@ draw_tracks_process
 ::_step()
 {
   kwiver::vital::image_container_sptr img = grab_from_port_using_trait( image );
-  vital::track_set_sptr tracks = grab_from_port_using_trait( track_set );
-  kwiver::vital::image_container_sptr_list image_list;
-  image_list.push_back( img );
+  vital::feature_track_set_sptr tracks = grab_from_port_using_trait( feature_track_set );
 
-  kwiver::vital::image_container_sptr annotated_image =
-    d->m_draw_tracks->draw( tracks, image_list );
+  kwiver::vital::image_container_sptr annotated_image;
+  {
+    scoped_step_instrumentation();
+
+    kwiver::vital::image_container_sptr_list image_list;
+    image_list.push_back( img );
+
+    annotated_image = d->m_draw_tracks->draw( tracks, image_list );
+  }
 
   // ( port, value )
   push_to_port_using_trait( output_image, annotated_image );
@@ -145,7 +155,7 @@ draw_tracks_process
 
   // -- input --
   declare_input_port_using_trait( image, required );
-  declare_input_port_using_trait( track_set, required );
+  declare_input_port_using_trait( feature_track_set, required );
 
   // -- output --
   declare_output_port_using_trait( output_image, optional );
@@ -157,6 +167,7 @@ void
 draw_tracks_process
 ::make_config()
 {
+  declare_config_using_trait( draw_tracks );
 }
 
 

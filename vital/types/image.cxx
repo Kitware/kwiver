@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2016 by Kitware, Inc.
+ * Copyright 2013-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,28 @@
 
 namespace kwiver {
 namespace vital {
+
+template <typename T> VITAL_EXPORT
+image_pixel_traits::pixel_type const image_pixel_traits_of<T>::static_type;
+
+template struct image_pixel_traits_of<char>;
+template struct image_pixel_traits_of<signed char>;
+template struct image_pixel_traits_of<unsigned char>;
+template struct image_pixel_traits_of<signed short>;
+template struct image_pixel_traits_of<unsigned short>;
+template struct image_pixel_traits_of<signed int>;
+template struct image_pixel_traits_of<unsigned int>;
+template struct image_pixel_traits_of<signed long>;
+template struct image_pixel_traits_of<unsigned long>;
+template struct image_pixel_traits_of<signed long long>;
+template struct image_pixel_traits_of<unsigned long long>;
+template struct image_pixel_traits_of<float>;
+template struct image_pixel_traits_of<double>;
+
+VITAL_EXPORT
+image_pixel_traits::pixel_type const image_pixel_traits_of<bool>::static_type;
+
+template <> struct image_pixel_traits_of<bool>;
 
 /// Output stream operator for image_pixel_traits::pixel_type
 std::ostream& operator<<(std::ostream& os, image_pixel_traits::pixel_type pt)
@@ -265,6 +287,20 @@ image
   return *this;
 }
 
+/// Equality operator
+bool image::
+operator==( image const& other ) const
+{
+  return  data_         == other.data_ &&
+          first_pixel_  == other.first_pixel_ &&
+          pixel_traits_ == other.pixel_traits_ &&
+          width_        == other.width_ &&
+          height_       == other.height_ &&
+          depth_        == other.depth_ &&
+          w_step_       == other.w_step_ &&
+          h_step_       == other.h_step_ &&
+          d_step_       == other.d_step_;
+}
 
 /// The size of the image data in bytes
 size_t
@@ -383,6 +419,23 @@ image
   }
   h_step_ = width * w_step_;
   d_step_ = ( w_step_ == 1 ) ? width * height : 1;
+}
+
+
+/// Get a cropped view of the image.
+image
+image
+::crop(size_t x_offset, size_t y_offset, size_t width, size_t height) const
+{
+  auto crop_first_pixel = reinterpret_cast< const char* >( this->first_pixel() );
+  crop_first_pixel +=
+    static_cast< ptrdiff_t >( this->pixel_traits().num_bytes ) *
+    ( this->w_step() * static_cast< ptrdiff_t >( x_offset ) +
+      this->h_step() * static_cast< ptrdiff_t >( y_offset ) );
+  return image( this->memory(), crop_first_pixel,
+                width, height, this->depth(),
+                this->w_step(), this->h_step(), this->d_step(),
+                this->pixel_traits() );
 }
 
 

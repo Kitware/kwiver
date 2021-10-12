@@ -39,13 +39,10 @@
 // Only available in OpenCV 3.x
 #ifdef KWIVER_HAS_OPENCV_VER_3
 
-#include <memory>
-#include <string>
-
-#include <vital/vital_config.h>
-
 #include <arrows/ocv/detect_features.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
+
+#include <string>
 
 namespace kwiver {
 namespace arrows {
@@ -58,21 +55,14 @@ class KWIVER_ALGO_OCV_EXPORT detect_features_AGAST
                                   vital::algo::detect_features >
 {
 public:
+  PLUGIN_INFO( "ocv_AGAST",
+               "OpenCV feature detection via the AGAST algorithm" )
+
   /// Constructor
   detect_features_AGAST();
 
-  /// Copy constructor
-  detect_features_AGAST(const detect_features_AGAST &other);
-
   /// Destructor
   virtual ~detect_features_AGAST();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "ocv_AGAST"; }
-  /// Returns a descriptive string for this implementation
-  virtual std::string description() const {
-    return "OpenCV feature detection via the AGAST algorithm";
-  }
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;

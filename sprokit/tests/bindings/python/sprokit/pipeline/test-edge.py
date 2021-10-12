@@ -1,4 +1,4 @@
-#!@PYTHON_EXECUTABLE@
+#!/usr/bin/env python
 #ckwg +28
 # Copyright 2011-2013 by Kitware, Inc.
 # All rights reserved.
@@ -37,7 +37,7 @@ def test_import():
 
 
 def test_create():
-    from sprokit.pipeline import config
+    from vital.config import config
     from sprokit.pipeline import edge
 
     c = config.empty_config()
@@ -61,12 +61,12 @@ def test_datum_create():
 
 
 def test_api_calls():
-    from sprokit.pipeline import config
+    from vital.config import config
     from sprokit.pipeline import datum
     from sprokit.pipeline import edge
-    from sprokit.pipeline import modules
+    from vital.modules import modules
     from sprokit.pipeline import process
-    from sprokit.pipeline import process_registry
+    from sprokit.pipeline import process_factory
     from sprokit.pipeline import stamp
 
     e = edge.Edge()
@@ -90,9 +90,7 @@ def test_api_calls():
 
     modules.load_known_modules()
 
-    reg = process_registry.ProcessRegistry.self()
-
-    p = reg.create_process('orphan', process.ProcessName())
+    p = process_factory.create_process('orphan', 'process_name')
 
     e.set_upstream_process(p)
     e.set_downstream_process(p)

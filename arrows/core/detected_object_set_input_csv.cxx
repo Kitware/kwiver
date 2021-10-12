@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@
 
 #include <vital/util/tokenize.h>
 #include <vital/util/data_stream_reader.h>
-#include <vital/logger/logger.h>
 #include <vital/exceptions.h>
 
 #include <sstream>
@@ -55,7 +54,7 @@ namespace core {
 /// - 5: BR-x
 /// - 6: BR-y
 /// - 7: confidence
-/// 8,9  : class-name   score  (this pair may be omitted or may repeat any number of times)
+/// - 8,9  : class-name   score  (this pair may be omitted or may repeat any number of times)
 ///
 
 // ------------------------------------------------------------------
@@ -64,7 +63,6 @@ class detected_object_set_input_csv::priv
 public:
   priv( detected_object_set_input_csv* parent)
     : m_parent( parent )
-    , m_logger( kwiver::vital::get_logger( "detected_object_set_input_csv" ) )
     , m_first( true )
     , m_frame_number( 0 )
     , m_delim( "," )
@@ -79,7 +77,6 @@ public:
 
   // -------------------------------------
   detected_object_set_input_csv* m_parent;
-  kwiver::vital::logger_handle_t m_logger;
   bool m_first;
   int m_frame_number;
   std::string m_delim;
@@ -96,14 +93,9 @@ detected_object_set_input_csv::
 detected_object_set_input_csv()
   : d( new detected_object_set_input_csv::priv( this ) )
 {
+  attach_logger( "arrows.core.detected_object_set_input_csv" );
 }
 
-
-detected_object_set_input_csv::
-detected_object_set_input_csv( detected_object_set_input_csv const& other)
-  : d( new priv( *other.d ) )
-{
-}
 
 detected_object_set_input_csv::
 ~detected_object_set_input_csv()
@@ -138,7 +130,7 @@ check_configuration(vital::config_block_sptr config) const
 // ------------------------------------------------------------------
 bool
 detected_object_set_input_csv::
-read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name )
+read_set( kwiver::vital::detected_object_set_sptr& set, std::string& image_name )
 {
   if ( d->m_first )
   {
@@ -216,7 +208,7 @@ get_input()
   }
 
   m_input_buffer.clear();
-  kwiver::vital::tokenize( line, m_input_buffer, m_delim, true );
+  kwiver::vital::tokenize( line, m_input_buffer, m_delim, kwiver::vital::TokenizeNoTrimEmpty );
 
   // Test the minimum number of fields.
   if ( m_input_buffer.size() < 7 )
@@ -224,7 +216,7 @@ get_input()
     std::stringstream str;
     str << "Too few field in input at line " << m_stream_reader->line_number() << std::endl
         << "\"" << line << "\"";
-    throw kwiver::vital::invalid_data( str.str() );
+    VITAL_THROW( kwiver::vital::invalid_data, str.str() );
   }
 
   if ( ! ( m_input_buffer.size() & 0x001 ) )
@@ -232,7 +224,7 @@ get_input()
     std::stringstream str;
     str << "Invalid format in input at line " << m_stream_reader->line_number() << std::endl
         << "\"" << line << "\"";
-    throw kwiver::vital::invalid_data( str.str() );
+    VITAL_THROW( kwiver::vital::invalid_data, str.str() );
   }
 
   return true;

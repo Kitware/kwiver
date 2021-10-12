@@ -56,6 +56,9 @@ class KWIVER_ALGO_OCV_EXPORT extract_descriptors_FREAK
                                             vital::algo::extract_descriptors >
 {
 public:
+  PLUGIN_INFO( "ocv_FREAK",
+               "OpenCV feature-point descriptor extraction via the FREAK algorithm" )
+
   /// Constructor
   extract_descriptors_FREAK();
 
@@ -67,13 +70,6 @@ public:
 
   /// Destructor
   virtual ~extract_descriptors_FREAK();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "ocv_FREAK"; }
-  /// Returns a descriptive string for this implementation
-  virtual std::string description() const {
-    return "OpenCV feature-point descriptor extraction via the FREAK algorithm";
-  }
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;

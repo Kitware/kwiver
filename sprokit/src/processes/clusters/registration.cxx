@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2012-2013 by Kitware, Inc.
+ * Copyright 2012-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,137 +28,104 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "registration.h"
-
-#if defined(_WIN32) || defined(_WIN64)
-#include <processes/clusters/cluster-paths.h>
-#endif
-
-#include <vital/logger/logger.h>
-#include <vital/vital_foreach.h>
-
-#include <sprokit/pipeline_util/load_pipe_exception.h>
-#include <sprokit/pipeline_util/path.h>
-#include <sprokit/pipeline_util/pipe_bakery.h>
-#include <sprokit/pipeline_util/pipe_bakery_exception.h>
-
-#include <sprokit/pipeline/process_registry.h>
-#include <sprokit/pipeline/process_registry_exception.h>
-#include <sprokit/pipeline/utils.h>
-
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/filesystem/operations.hpp>
-
-#include <algorithm>
-
 /**
  * \file clusters/registration.cxx
  *
  * \brief Register processes for use.
  */
 
+#include "processes_clusters_export.h"
+
+#include <processes/clusters/cluster-paths.h>
+
+#include <vital/logger/logger.h>
+#include <vital/util/tokenize.h>
+
+#include <sprokit/pipeline_util/load_pipe_exception.h>
+#include <sprokit/pipeline_util/pipeline_builder.h>
+#include <sprokit/pipeline_util/pipe_bakery.h>
+#include <sprokit/pipeline_util/pipe_bakery_exception.h>
+
+#include <sprokit/pipeline/process_factory.h>
+#include <sprokit/pipeline/process_registry_exception.h>
+#include <sprokit/pipeline/utils.h>
+
+#include <algorithm>
+#include <kwiversys/SystemTools.hxx>
+#include <kwiversys/Directory.hxx>
+
 using namespace sprokit;
 
-namespace
-{
-
-#if defined(_WIN32) || defined(_WIN64)
-typedef std::wstring cluster_path_t;
-#else
-typedef std::string cluster_path_t;
-#endif
-
-}
-
-static cluster_path_t const default_include_dirs = cluster_path_t(DEFAULT_CLUSTER_PATHS);
-static envvar_name_t const sprokit_include_envvar = envvar_name_t("SPROKIT_CLUSTER_PATH");
-static std::string const pipe_suffix = std::string(".cluster");
-
-static bool is_separator(cluster_path_t::value_type ch);
-
+static std::string const default_include_dirs = std::string(DEFAULT_CLUSTER_PATHS);
+static std::string const sprokit_include_envvar = std::string("SPROKIT_CLUSTER_PATH");
+static std::string const cluster_suffix = std::string(".cluster");
+static const std::string path_separator( 1, PATH_SEPARATOR_CHAR );
 
 // ------------------------------------------------------------------
+/**
+ * \brief Cluster loader.
+ *
+ * This function loads and instantiates cluster processes.
+ */
+extern "C"
+PROCESSES_CLUSTERS_EXPORT
 void
-register_processes()
+register_factories( kwiver::vital::plugin_loader& vpm )
 {
-  static process_registry::module_t const module_name = process_registry::module_t("cluster_processes");
-  static kwiver::vital::logger_handle_t logger = kwiver::vital::get_logger( "sprokit:register_cluster" );
+  process_registrar reg( vpm, "cluster_processes" );
 
-  process_registry_t const registry = process_registry::self();
+  static kwiver::vital::logger_handle_t logger = kwiver::vital::get_logger( "sprokit.register_cluster" );
 
-  if (registry->is_module_loaded(module_name))
+  // See if clusters have already been loaded
+  if ( reg.is_module_loaded() )
   {
     return;
   }
 
-  process::types_t const current_types = registry->types();
-  process::types_t new_types;
-
-  typedef path_t include_path_t;
-  typedef std::vector<include_path_t> include_paths_t;
-
-  include_paths_t include_dirs;
+  kwiver::vital::path_list_t include_dirs;
 
   // Build include directories.
-  {
-    include_paths_t include_dirs_tmp;
+  kwiversys::SystemTools::GetPath( include_dirs, sprokit_include_envvar.c_str() );
+  kwiver::vital::tokenize( default_include_dirs, include_dirs, path_separator, kwiver::vital::TokenizeTrimEmpty );
 
-    envvar_value_t const extra_include_dirs = get_envvar(sprokit_include_envvar);
-
-    if (extra_include_dirs)
-    {
-      boost::split(include_dirs_tmp, *extra_include_dirs, is_separator, boost::token_compress_on);
-
-      include_dirs.insert(include_dirs.end(), include_dirs_tmp.begin(), include_dirs_tmp.end());
-    }
-
-    boost::split(include_dirs_tmp, default_include_dirs, is_separator, boost::token_compress_on);
-
-    include_dirs.insert(include_dirs.end(), include_dirs_tmp.begin(), include_dirs_tmp.end());
-  }
-
-  VITAL_FOREACH (include_path_t const& include_dir, include_dirs)
+  for ( const kwiver::vital::path_t& include_dir : include_dirs)
   {
     // log file
     LOG_DEBUG( logger, "Loading clusters from directory: " << include_dir );
-    if (!boost::filesystem::exists(include_dir))
+    if ( ! kwiversys::SystemTools::FileExists( include_dir) )
     {
-      LOG_WARN( logger, "Path not found loading clusters: " << include_dir );
+      LOG_DEBUG( logger, "Path not found loading clusters: " << include_dir );
       continue;
     }
 
-    if (!boost::filesystem::is_directory(include_dir))
+    if ( ! kwiversys::SystemTools::FileIsDirectory(include_dir) )
     {
       LOG_WARN( logger, "Path not directory loading clusters: " << include_dir );
       continue;
     }
 
-    boost::system::error_code ec;
-    boost::filesystem::directory_iterator module_dir_iter(include_dir, ec);
 
-    /// \todo Check ec.
+    kwiversys::Directory dir;
+    dir.Load( include_dir );
+    unsigned long num_files = dir.GetNumberOfFiles();
 
-    while (module_dir_iter != boost::filesystem::directory_iterator())
+    for (unsigned long i = 0; i < num_files; ++i )
     {
-      boost::filesystem::directory_entry const ent = *module_dir_iter;
+      std::string pstr = dir.GetPath();
+      pstr += "/" + std::string( dir.GetFile( i ) );
 
-      ++module_dir_iter;
-
-      path_t const path = ent.path();
-      path_t::string_type const& pstr = path.native();
-
-      if (!boost::ends_with(pstr, pipe_suffix))
+      if ( kwiversys::SystemTools::GetFilenameLastExtension( pstr ) != cluster_suffix )
       {
         continue;
       }
 
       // log loading file
-      LOG_DEBUG( logger, "Loading cluster from file: " << pstr.c_str() );
+      LOG_DEBUG( logger, "Loading cluster from file: " << pstr );
 
-      if (ent.status().type() != boost::filesystem::regular_file)
+      // Check that we're looking a file
+      if ( kwiversys::SystemTools::FileIsDirectory( pstr ) )
       {
-        LOG_WARN( logger, "Found non-file loading clusters: " << pstr.c_str() );
+        LOG_WARN( logger, "Found non-file loading clusters: " << pstr );
         continue;
       }
 
@@ -166,51 +133,45 @@ register_processes()
 
       try
       {
-        info = bake_cluster_from_file(path);
+        // Compile cluster specification
+        pipeline_builder builder;
+
+        builder.load_cluster( pstr );
+        info = builder.cluster_info();
       }
       catch (load_pipe_exception const& e)
       {
-        LOG_ERROR( logger, "Exception caught loading cluster: " << e.what() );
+        LOG_WARN( logger, "Exception caught loading cluster: " << e.what() );
         continue;
       }
       catch (pipe_bakery_exception const& e)
       {
-        LOG_ERROR( logger, "Exception caught loading cluster: " << e.what() );
+        LOG_WARN( logger, "Exception caught processing cluster definition: " << e.what() );
         continue;
       }
 
       if (info)
       {
         process::type_t const& type = info->type;
-        process_registry::description_t const& description = info->description;
-        process_ctor_t const& ctor = info->ctor;
+        std::string const& description = info->description;
+        process_factory_func_t const& ctor = info->ctor;
 
         try
         {
-          registry->register_process(type, description, ctor);
+          // Add cluster to process registry with a specific factory function
+          auto fact = vpm.add_factory( new sprokit::cpp_process_factory( type, typeid( sprokit::process ).name(), ctor ) );
+          fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, description );
+
+          // Indicate this is a cluster and add source file name
+          fact->add_attribute( "sprokit.cluster", pstr );
         }
-        catch (process_type_already_exists_exception const& e)
+        catch (kwiver::vital::plugin_already_exists const& e)
         {
-          LOG_ERROR( logger, "Exception caught loading cluster: " << e.what() );
+          LOG_WARN( logger, "Exception caught loading cluster: " << e.what() );
         }
       }
     }
   }
 
-  registry->mark_module_as_loaded(module_name);
-}
-
-
-// ------------------------------------------------------------------
-bool
-is_separator(cluster_path_t::value_type ch)
-{
-  cluster_path_t::value_type const separator =
-#if defined(_WIN32) || defined(_WIN64)
-    ';';
-#else
-    ':';
-#endif
-
-  return (ch == separator);
+  reg.mark_module_as_loaded();
 }

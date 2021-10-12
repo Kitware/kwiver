@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2015-2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS [yas] elisp error!AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -30,7 +30,6 @@
 
 #include "extract_descriptors_process.h"
 
-#include <vital/algorithm_plugin_manager.h>
 #include <vital/vital_types.h>
 #include <vital/types/timestamp.h>
 #include <vital/types/timestamp_config.h>
@@ -45,8 +44,9 @@
 
 namespace algo = kwiver::vital::algo;
 
-namespace kwiver
-{
+namespace kwiver {
+
+create_algorithm_name_config_trait( descriptor_extractor );
 
 //----------------------------------------------------------------
 // Private implementation class
@@ -72,9 +72,6 @@ extract_descriptors_process
   : process( config ),
     d( new extract_descriptors_process::priv )
 {
-  // Attach our logger name to process logger
-  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
-  kwiver::vital::algorithm_plugin_manager::load_plugins_once();
   make_ports();
   make_config();
 }
@@ -90,22 +87,32 @@ extract_descriptors_process
 void extract_descriptors_process
 ::_configure()
 {
+  scoped_configure_instrumentation();
+
   // Get our process config
   kwiver::vital::config_block_sptr algo_config = get_config();
 
   // Instantiate the configured algorithm
-  algo::extract_descriptors::set_nested_algo_configuration( "descriptor_extractor", algo_config, d->m_extractor );
+  algo::extract_descriptors::set_nested_algo_configuration_using_trait(
+    descriptor_extractor,
+    algo_config,
+    d->m_extractor );
   if ( ! d->m_extractor )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Unable to create descriptor_extractor" );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create descriptor_extractor" );
   }
 
-  algo::extract_descriptors::get_nested_algo_configuration( "descriptor_extractor", algo_config, d->m_extractor );
+  algo::extract_descriptors::get_nested_algo_configuration_using_trait(
+    descriptor_extractor,
+    algo_config,
+    d->m_extractor );
 
   // Check config so it will give run-time diagnostic if any config problems are found
-  if ( ! algo::extract_descriptors::check_nested_algo_configuration( "descriptor_extractor", algo_config ) )
+  if ( ! algo::extract_descriptors::check_nested_algo_configuration_using_trait(
+         descriptor_extractor,
+         algo_config ) )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 }
 
@@ -119,11 +126,17 @@ extract_descriptors_process
   kwiver::vital::image_container_sptr img = grab_from_port_using_trait( image );
   kwiver::vital::feature_set_sptr features =  grab_from_port_using_trait( feature_set );
 
-  // LOG_DEBUG - this is a good thing to have in all processes that handle frames.
-  LOG_DEBUG( logger(), "Processing frame " << frame_time );
+  kwiver::vital::descriptor_set_sptr curr_desc;
 
-  // extract stuff on the current frame
-  kwiver::vital::descriptor_set_sptr curr_desc = d->m_extractor->extract( img, features );
+  {
+    scoped_step_instrumentation();
+
+    // LOG_DEBUG - this is a good thing to have in all processes that handle frames.
+    LOG_DEBUG( logger(), "Processing frame " << frame_time );
+
+    // extract stuff on the current frame
+    curr_desc = d->m_extractor->extract( img, features );
+  }
 
   // return by value
   push_to_port_using_trait( descriptor_set, curr_desc );
@@ -153,6 +166,7 @@ void extract_descriptors_process
 void extract_descriptors_process
 ::make_config()
 {
+  declare_config_using_trait( descriptor_extractor );
 }
 
 

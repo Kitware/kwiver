@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,9 +35,8 @@
 
 #include "detected_object_set_output_csv.h"
 
-#include <time.h>
+#include <ctime>
 
-#include <vital/vital_foreach.h>
 
 namespace kwiver {
 namespace arrows {
@@ -49,7 +48,6 @@ class detected_object_set_output_csv::priv
 public:
   priv( detected_object_set_output_csv* parent)
     : m_parent( parent )
-    , m_logger( kwiver::vital::get_logger( "detected_object_set_output_csv" ) )
     , m_first( true )
     , m_frame_number( 1 )
     , m_delim( "," )
@@ -58,7 +56,6 @@ public:
   ~priv() { }
 
   detected_object_set_output_csv* m_parent;
-  kwiver::vital::logger_handle_t m_logger;
   bool m_first;
   int m_frame_number;
   std::string m_delim;
@@ -70,14 +67,9 @@ detected_object_set_output_csv::
 detected_object_set_output_csv()
   : d( new detected_object_set_output_csv::priv( this ) )
 {
+  attach_logger( "arrows.core.detected_object_set_output_csv" );
 }
 
-
-detected_object_set_output_csv::
-detected_object_set_output_csv( detected_object_set_output_csv const& other)
-  : d( new priv( *other.d ) )
-{
-}
 
 detected_object_set_output_csv::
 ~detected_object_set_output_csv()
@@ -111,7 +103,7 @@ write_set( const kwiver::vital::detected_object_set_sptr set, std::string const&
 
   if (d->m_first)
   {
-    time_t rawtime;
+    std::time_t rawtime;
     struct tm * timeinfo;
 
     time ( &rawtime );
@@ -141,26 +133,26 @@ write_set( const kwiver::vital::detected_object_set_sptr set, std::string const&
     d->m_first = false;
   } // end first
 
-  // Get detections from set
-  const auto detections = set->select();
-  VITAL_FOREACH( const auto det, detections )
+  // process all detections
+  auto ie =  set->cend();
+  for ( auto det = set->cbegin(); det != ie; ++det )
   {
-    const kwiver::vital::bounding_box_d bbox( det->bounding_box() );
+    const kwiver::vital::bounding_box_d bbox( (*det)->bounding_box() );
     stream() << d->m_frame_number << d->m_delim
              << image_name << d->m_delim
              << bbox.min_x() << d->m_delim // 2: TL-x
              << bbox.min_y() << d->m_delim // 3: TL-y
              << bbox.max_x() << d->m_delim // 4: BR-x
              << bbox.max_y() << d->m_delim // 5: BR-y
-             << det->confidence()          // 6: confidence value
+             << (*det)->confidence()          // 6: confidence value
       ;
 
     // Process classifications if there are any
-    const auto dot( det->type() );
+    const auto dot( (*det)->type() );
     if ( dot )
     {
       const auto name_list( dot->class_names() );
-      VITAL_FOREACH( auto name, name_list )
+      for( auto name : name_list )
       {
         // Write out the <name> <score> pair
         stream() << d->m_delim << name << d->m_delim << dot->score( name );

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,9 @@
 #ifndef KWIVER_ARROWS_VISCL_EXTRACT_DESCRIPTORS_H_
 #define KWIVER_ARROWS_VISCL_EXTRACT_DESCRIPTORS_H_
 
-
-#include <vital/vital_config.h>
 #include <arrows/viscl/kwiver_algo_viscl_export.h>
 
 #include <vital/algo/extract_descriptors.h>
-
-#include <memory>
-
 
 namespace kwiver {
 namespace arrows {
@@ -54,12 +49,6 @@ public:
 
   /// Destructor
   virtual ~extract_descriptors();
-
-  /// Copy Constructor
-  extract_descriptors(const extract_descriptors& other);
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "viscl"; }
 
   // No configuration for this class yet TODO: eventually descriptor size
   virtual void set_configuration(vital::config_block_sptr /*config*/) { }
@@ -85,4 +74,4 @@ private:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_VISCL_EXTRACT_DESCRIPTORS_H_
+#endif

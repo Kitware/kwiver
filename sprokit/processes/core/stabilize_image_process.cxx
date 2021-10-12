@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2015-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS [yas] elisp error!AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -30,12 +30,11 @@
 
 #include "stabilize_image_process.h"
 
-#include <vital/algorithm_plugin_manager.h>
 #include <vital/vital_types.h>
 #include <vital/types/timestamp.h>
 #include <vital/types/timestamp_config.h>
 #include <vital/types/image_container.h>
-#include <vital/types/track_set.h>
+#include <vital/types/feature_track_set.h>
 #include <vital/types/homography.h>
 
 #include <vital/algo/track_features.h>
@@ -47,8 +46,10 @@
 
 namespace algo = kwiver::vital::algo;
 
-namespace kwiver
-{
+namespace kwiver {
+
+create_algorithm_name_config_trait( track_features );
+create_algorithm_name_config_trait( homography_generator );
 
 //----------------------------------------------------------------
 // Private implementation class
@@ -68,7 +69,7 @@ public:
   algo::track_features_sptr         m_feature_tracker;
   algo::compute_ref_homography_sptr m_compute_homog;
 
-  vital::track_set_sptr m_tracks; // last set of tracks
+  vital::feature_track_set_sptr m_tracks; // last set of tracks
 
 }; // end priv class
 
@@ -79,8 +80,6 @@ stabilize_image_process
   : process( config ),
     d( new stabilize_image_process::priv )
 {
-  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
-  kwiver::vital::algorithm_plugin_manager::load_plugins_once();
   make_ports();
   make_config();
 }
@@ -96,30 +95,35 @@ stabilize_image_process
 void stabilize_image_process
 ::_configure()
 {
+  scoped_configure_instrumentation();
+
   kwiver::vital::config_block_sptr algo_config = get_config();
 
-  algo::track_features::set_nested_algo_configuration( "track_features", algo_config, d->m_feature_tracker );
+  algo::track_features::set_nested_algo_configuration_using_trait(
+    track_features, algo_config, d->m_feature_tracker );
   if ( ! d->m_feature_tracker )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Unable to create \"track_features\"" );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create \"track_features\"" );
   }
-  algo::track_features::get_nested_algo_configuration( "track_features", algo_config, d->m_feature_tracker );
+  algo::track_features::get_nested_algo_configuration_using_trait(
+    track_features, algo_config, d->m_feature_tracker );
 
   // ----
-  algo::compute_ref_homography::set_nested_algo_configuration( "homography_generator", algo_config, d->m_compute_homog );
+  algo::compute_ref_homography::set_nested_algo_configuration_using_trait(
+    homography_generator, algo_config, d->m_compute_homog );
   if ( ! d->m_compute_homog )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Unable to create \"compute_ref_homography\"" );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create \"compute_ref_homography\"" );
   }
-  algo::compute_ref_homography::get_nested_algo_configuration( "homography_generator", algo_config, d->m_compute_homog );
+  algo::compute_ref_homography::get_nested_algo_configuration_using_trait(
+    homography_generator, algo_config, d->m_compute_homog );
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! algo::track_features::check_nested_algo_configuration( "track_features", algo_config ) ||
-       ! algo::compute_ref_homography::check_nested_algo_configuration("homography_generator", algo_config ) )
+  if ( ! algo::track_features::check_nested_algo_configuration_using_trait( track_features, algo_config ) ||
+       ! algo::compute_ref_homography::check_nested_algo_configuration_using_trait( homography_generator, algo_config ) )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
-
 }
 
 
@@ -136,14 +140,20 @@ stabilize_image_process
   // image
   kwiver::vital::image_container_sptr img = grab_from_port_using_trait( image );
 
-  // LOG_DEBUG - this is a good thing to have in all processes that handle frames.
-  LOG_DEBUG( logger(), "Processing frame " << frame_time );
+  {
+    scoped_step_instrumentation();
 
-  // Get feature tracks
-  d->m_tracks = d->m_feature_tracker->track( d->m_tracks, frame_time.get_frame(), img );
+    // LOG_DEBUG - this is a good thing to have in all processes that handle frames.
+    LOG_DEBUG( logger(), "Processing frame " << frame_time );
 
-  // Get stabilization homography
-  src_to_ref_homography = d->m_compute_homog->estimate( frame_time.get_frame(), d->m_tracks );
+    // Get feature tracks
+    d->m_tracks = d->m_feature_tracker->track( d->m_tracks,
+                                               static_cast<unsigned int>(frame_time.get_frame()),
+                                               img );
+
+    // Get stabilization homography
+    src_to_ref_homography = d->m_compute_homog->estimate( frame_time.get_frame(), d->m_tracks );
+  }
 
   // return by value
   push_to_port_using_trait( homography_src_to_ref, *src_to_ref_homography );
@@ -171,7 +181,8 @@ void stabilize_image_process
 void stabilize_image_process
 ::make_config()
 {
-
+  declare_config_using_trait( track_features );
+  declare_config_using_trait( homography_generator );
 }
 
 

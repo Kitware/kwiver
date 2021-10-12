@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2015-2017, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@
 #ifndef KWIVER_ARROWS_CERES_BUNDLE_ADJUST_H_
 #define KWIVER_ARROWS_CERES_BUNDLE_ADJUST_H_
 
-#include <vital/vital_config.h>
 #include <arrows/ceres/kwiver_algo_ceres_export.h>
 
 #include <vital/algo/bundle_adjust.h>
@@ -47,7 +46,7 @@ namespace kwiver {
 namespace arrows {
 namespace ceres {
 
-/// A class for bundle adjustment of tracks using Ceres
+/// A class for bundle adjustment of feature tracks using Ceres
 class KWIVER_ALGO_CERES_EXPORT bundle_adjust
 : public vital::algorithm_impl<bundle_adjust, vital::algo::bundle_adjust>
 {
@@ -58,12 +57,6 @@ public:
   /// Destructor
   virtual ~bundle_adjust();
 
-  /// Copy Constructor
-  bundle_adjust(const bundle_adjust& other);
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "ceres"; }
-
   /// Get this algorithm's \link vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
   /// Set this algorithm's properties via a config block
@@ -71,16 +64,37 @@ public:
   /// Check that the algorithm's currently configuration is valid
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
-  /// Optimize the camera and landmark parameters given a set of tracks
+  /// Optimize the camera and landmark parameters given a set of feature tracks
   /**
    * \param [in,out] cameras the cameras to optimize
    * \param [in,out] landmarks the landmarks to optimize
-   * \param [in] tracks the tracks to use as constraints
-   */
+   * \param [in] tracks the feature tracks to use as constraints
+   * \param [in] metadata the frame metadata to use as constraints
+  */
   virtual void
-  optimize(vital::camera_map_sptr& cameras,
-           vital::landmark_map_sptr& landmarks,
-           vital::track_set_sptr tracks) const;
+    optimize(vital::camera_map_sptr& cameras,
+             vital::landmark_map_sptr& landmarks,
+             vital::feature_track_set_sptr tracks,
+             vital::sfm_constraints_sptr constraints = nullptr) const;
+
+
+  /// Optimize the camera and landmark parameters given a set of feature tracks
+  /**
+   * \param [in,out] cameras the cameras to optimize
+   * \param [in,out] landmarks the landmarks to optimize
+   * \param [in] tracks the feature tracks to use as constraints
+   * \param [in] fixed_cameras frame ids for cameras to be fixed in the optimization
+   * \param [in] fixed_landmarks landmark ids for landmarks to be fixed in the optimization
+   * \param [in] metadata the frame metadata to use as constraints
+  */
+  virtual void
+  optimize(
+    kwiver::vital::simple_camera_perspective_map &cameras,
+    kwiver::vital::landmark_map::map_landmark_t &landmarks,
+    vital::feature_track_set_sptr tracks,
+    const std::set<vital::frame_id_t>& fixed_cameras,
+    const std::set<vital::landmark_id_t>& fixed_landmarks,
+    kwiver::vital::sfm_constraints_sptr constraints = nullptr) const;
 
   /// Set a callback function to report intermediate progress
   virtual void set_callback(callback_t cb);
@@ -98,4 +112,4 @@ private:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_CERES_BUNDLE_ADJUST_H_
+#endif

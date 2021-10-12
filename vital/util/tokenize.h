@@ -36,8 +36,15 @@
 #ifndef VITAL_TOKENIZE_H
 #define VITAL_TOKENIZE_H
 
+#include <string>
+
 namespace kwiver {
 namespace vital {
+
+enum {
+  TokenizeNoTrimEmpty = 0,
+  TokenizeTrimEmpty = 1
+};
 
 /**
  * @brief Split string into set of tokens.

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2016 by Kitware, Inc.
+ * Copyright 2013-2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,13 +36,10 @@
 #ifndef KWIVER_ARROWS_VXL_ESTIMATE_SIMILARITY_TRANSFORM_H_
 #define KWIVER_ARROWS_VXL_ESTIMATE_SIMILARITY_TRANSFORM_H_
 
-
-#include <vital/vital_config.h>
 #include <arrows/vxl/kwiver_algo_vxl_export.h>
 
 #include <vital/algo/estimate_similarity_transform.h>
 #include <vital/types/vector.h>
-
 
 namespace kwiver {
 namespace arrows {
@@ -54,8 +51,9 @@ class KWIVER_ALGO_VXL_EXPORT estimate_similarity_transform
                                          vital::algo::estimate_similarity_transform>
 {
 public:
-  /// Name of this implementation
-  virtual std::string impl_name() const { return "vxl"; }
+  PLUGIN_INFO( "vxl",
+               "Use VXL (vpgl) to estimate a 3D similarity transformation "
+               "between corresponding landmarks." )
 
   // No custom configuration at this time
   /// \cond Doxygen Suppress
@@ -85,4 +83,4 @@ public:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_VXL_ESTIMATE_SIMILARITY_TRANSFORM_H_
+#endif

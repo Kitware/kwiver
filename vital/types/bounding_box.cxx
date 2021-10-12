@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,11 +36,15 @@ namespace vital {
 //
 // Instantiate operators
 //
-#define instantiate(T)                                                  \
-template bounding_box<T> & translate( bounding_box<T>& bbox,            \
+#define instantiate(T)                                                          \
+template bounding_box<T> & translate( bounding_box<T>& bbox,                    \
                                       bounding_box<T>::vector_type const& pt ); \
-template bounding_box<T> intersection( bounding_box<T> const& one,      \
-                                       bounding_box<T> const& other )
+template bounding_box<T> scale( bounding_box<T> const& bbox,                    \
+                                double scale_factor );                          \
+template bounding_box<T> scale_about_center( bounding_box<T> const& bbox,       \
+                                             double scale_factor );             \
+template bounding_box<T> intersection( bounding_box<T> const& one,              \
+                                       bounding_box<T> const& other );
 
 instantiate( int );
 instantiate( double );

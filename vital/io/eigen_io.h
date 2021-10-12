@@ -67,12 +67,26 @@ operator>>( std::istream& s, Matrix< T, M, N >& m )
     {
       if ( ! ( s >> std::skipws >> m( i, j ) ) )
       {
-        throw kwiver::vital::invalid_data( "Encountered a non-numeric value while "
+        VITAL_THROW( kwiver::vital::invalid_data, "Encountered a non-numeric value while "
                                     "parsing an Eigen::Matrix" );
       }
     }
   }
   return s;
+}
+
+
+/// Serialization of fixed Eigen matrices
+template < typename Archive, typename T, int M, int N, int O, int MM, int NN >
+void serialize(Archive & archive, Matrix< T, M, N, O, MM, NN >& m)
+{
+  for ( int i = 0; i < M; ++i )
+  {
+    for ( int j = 0; j < N; ++j )
+    {
+      archive( m( i, j ) );
+    }
+  }
 }
 
 } // end namespace Eigen

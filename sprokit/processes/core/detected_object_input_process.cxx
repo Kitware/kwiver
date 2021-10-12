@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,6 @@
 
 #include "detected_object_input_process.h"
 
-#include <vital/algorithm_plugin_manager.h>
 #include <vital/vital_types.h>
 #include <vital/exceptions.h>
 #include <vital/algo/detected_object_set_input.h>
@@ -50,9 +49,10 @@ namespace kwiver {
 
 // (config-key, value-type, default-value, description )
 create_config_trait( file_name, std::string, "", "Name of the detection set file to read." );
-create_config_trait( reader, std::string , "", "Algorithm type to use as the reader." );
 
-//----------------------------------------------------------------
+create_algorithm_name_config_trait( reader )
+
+//------------------------------------------------------------------------------
 // Private implementation class
 class detected_object_input_process::priv
 {
@@ -67,16 +67,13 @@ public:
 }; // end priv class
 
 
-// ================================================================
+// =============================================================================
 
 detected_object_input_process
 ::detected_object_input_process( kwiver::vital::config_block_sptr const& config )
   : process( config ),
     d( new detected_object_input_process::priv )
 {
-  // Attach our logger name to process logger
-  attach_logger( kwiver::vital::get_logger( name() ) );
-  kwiver::vital::algorithm_plugin_manager::load_plugins_once();
   make_ports();
   make_config();
 }
@@ -88,52 +85,83 @@ detected_object_input_process
 }
 
 
-// ----------------------------------------------------------------
+// -----------------------------------------------------------------------------
 void detected_object_input_process
 ::_configure()
 {
+  scoped_configure_instrumentation();
+
   // Get process config entries
   d->m_file_name = config_value_using_trait( file_name );
   if ( d->m_file_name.empty() )
   {
-    throw sprokit::invalid_configuration_exception( name(),
-             "Required file name not specified." );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(),
+                 "Required file name not specified." );
   }
 
   // Get algo config entries
   kwiver::vital::config_block_sptr algo_config = get_config(); // config for process
 
   // validate configuration
-  if ( ! algo::detected_object_set_input::check_nested_algo_configuration( "reader", algo_config ) )
+  if ( ! algo::detected_object_set_input::check_nested_algo_configuration_using_trait(
+         reader, algo_config ) )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 
   // instantiate image reader and converter based on config type
-  algo::detected_object_set_input::set_nested_algo_configuration( "reader", algo_config, d->m_reader);
+  algo::detected_object_set_input::set_nested_algo_configuration_using_trait(
+    reader,
+    algo_config,
+    d->m_reader);
   if ( ! d->m_reader )
   {
-    throw sprokit::invalid_configuration_exception( name(),
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(),
              "Unable to create reader." );
   }
 }
 
 
-// ----------------------------------------------------------------
+// -----------------------------------------------------------------------------
 void detected_object_input_process
 ::_init()
 {
+  scoped_init_instrumentation();
+
   d->m_reader->open( d->m_file_name ); // throws
 }
 
 
-// ----------------------------------------------------------------
+// -----------------------------------------------------------------------------
 void detected_object_input_process
 ::_step()
 {
   std::string image_name;
   kwiver::vital::detected_object_set_sptr set;
-  if ( d->m_reader->read_set( set, image_name ) )
+  bool is_finished = false;
+  bool has_input = has_input_port_edge_using_trait( image_file_name );
+
+  if( has_input )
+  {
+    auto port_info = peek_at_port_using_trait( image_file_name );
+
+    if( port_info.datum->type() == sprokit::datum::complete )
+    {
+      is_finished = true;
+    }
+    else
+    {
+      image_name = grab_from_port_using_trait( image_file_name );
+    }
+  }
+
+  if( !is_finished )
+  {
+    scoped_step_instrumentation();
+    is_finished = !d->m_reader->read_set( set, image_name ) && !has_input;
+  }
+
+  if( !is_finished )
   {
     push_to_port_using_trait( image_file_name, image_name );
     push_to_port_using_trait( detected_object_set, set );
@@ -144,7 +172,7 @@ void detected_object_input_process
 
     // indicate done
     mark_process_as_complete();
-    const sprokit::datum_t dat= sprokit::datum::complete_datum();
+    const sprokit::datum_t dat = sprokit::datum::complete_datum();
 
     push_datum_to_port_using_trait( detected_object_set, dat );
     push_datum_to_port_using_trait( image_file_name, dat );
@@ -152,19 +180,21 @@ void detected_object_input_process
 }
 
 
-// ----------------------------------------------------------------
+// -----------------------------------------------------------------------------
 void detected_object_input_process
 ::make_ports()
 {
   // Set up for required ports
   sprokit::process::port_flags_t optional;
 
+  declare_input_port_using_trait( image_file_name, optional );
+
   declare_output_port_using_trait( image_file_name, optional );
   declare_output_port_using_trait( detected_object_set, optional );
 }
 
 
-// ----------------------------------------------------------------
+// -----------------------------------------------------------------------------
 void detected_object_input_process
 ::make_config()
 {
@@ -173,7 +203,7 @@ void detected_object_input_process
 }
 
 
-// ================================================================
+// =============================================================================
 detected_object_input_process::priv
 ::priv()
 {

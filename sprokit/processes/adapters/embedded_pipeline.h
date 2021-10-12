@@ -1,4 +1,3 @@
-
 /*ckwg +29
  * Copyright 2016 by Kitware, Inc.
  * All rights reserved.
@@ -59,29 +58,32 @@ namespace kwiver {
  * send() method. Outputs from the pipeline are retrieved using the
  * receive() method.
  *
- * The pipeline description must contain only one input adapter
- * (process type "input_adapter") and only one output adapter (process
- * type "output_adapter"). The actual process names are up to you.
- * The pipeline should be configured so that the inputs to the
- * pipeline come from the input_adapter and the outputs go to the
- * output_adapter. There are no other constraints on the pipeline
- * topology.
+ * The pipeline description must contain no more than one input
+ * adapter (process type "input_adapter") and no more than one output
+ * adapter (process type "output_adapter"). The actual process names
+ * are up to you.  The pipeline should be configured so that the
+ * inputs to the pipeline come from the input_adapter and the outputs
+ * go to the output_adapter. There are no other constraints on the
+ * pipeline topology.
+ *
+ * Refer to the documentation for generating pipelines that contain
+ * source or sink processes.
  *
  * When creating a data set for the input adapter, there must be a
  * datum for each port on the input_adapter_process. The process will
  * throw an exception if there is a datum for a port that is not
- * connected or there is a port that did not have a datum in the set.
+ * connected or there is a port that does not have a datum in the set.
  *
  * Example:
 \code
-  #include <sprokit/tools/literal_pipeline.h>
+  #include <sprokit/pipeline_util/literal_pipeline.h>
 
   // SPROKIT macros can be used to create pipeline description
   std::stringstream pipeline_desc;
   pipeline_desc << SPROKIT_PROCESS( "input_adapter",  "ia" )
                 << SPROKIT_PROCESS( "output_adapter", "oa" )
 
-                << SPROKIT_CONNECT( "ia", "port1",    "oa", "port1" )
+                << SPROKIT_CONNECT( "ia", "counter",  "oa", "out_num" )
                 << SPROKIT_CONNECT( "ia", "port2",    "oa", "port3" )
                 << SPROKIT_CONNECT( "ia", "port3",    "oa", "port2" )
     ;
@@ -108,12 +110,24 @@ namespace kwiver {
     // Create dataset for input
     auto ds = kwiver::adapter::adapter_data_set::create();
 
+    // Add value to be pushed to the named port
     ds.add_value( "counter", i );
+
+    // Data values need to be supplied to all connected ports
+    // (based on the previous pipeline definition)
+    ds.add_value( "port2", i );
+    ds.add_value( "port3", i );
     ep.send( ds ); // push into pipeline
 
     // Get output from pipeline
     auto rds = ep.receive();
-  }
+
+    // get value from the output adapter
+    int val = rds->get_port_data<int>( "out_num" );
+
+    // val should be the same as i
+
+  } // end for
 
   ep.send_end_of_input(); // indicate end of input
 
@@ -141,8 +155,20 @@ public:
    * supplied stream.
    *
    * @param istr Input stream containing the pipeline description.
+   *
+   * @param def_dir The directory name used to report errors in the
+   * input stream and is used as the current directory to locate
+   * includes and to resolve relpath. Since the input stream being
+   * processed has no file name, the name "in-stream" is appended to
+   * the directory supplied so that errors in the stream can be
+   * differentiated from errors from other files. If this parameter is
+   * not supplied, the current directory is used.
+   *
+   * @throws std::runtime_error when there is a problem
+   * constructing the pipeline or if there is a problem connecting
+   * inputs or outputs.
    */
-  void build_pipeline( std::istream& istr );
+  void build_pipeline( std::istream& istr, std::string const& def_dir = "" );
 
   /**
    * @brief Send data set to input adapter.
@@ -202,11 +228,10 @@ public:
    * @brief Can pipeline accept more input?
    *
    * This method checks to see if the input adapter process can accept
-   * more data. Calling the send() method when this method returns \b
-   * true will cause the caller to wait until the pipeline can accept
-   * the input.
+   * more data. This method can be used to create a polling
+   * (non-blocking) approach to sending data to the pipeline.
    *
-   * @return \b true if interface queue is full and a send() call would wait.
+   * @return \b true if interface queue is full.
    */
   bool full() const;
 
@@ -214,11 +239,10 @@ public:
    * @brief Is any pipeline output ready?
    *
    * This method checks to see if there is a pipeline output data set
-   * ready. Calling the receive() method when this method returns \b
-   * true will cause the caller to wait until the pipeline produces
-   * another data set.
+   * ready. This method can be used if the pipeline owner is polling
+   * for output.
    *
-   * @return \b true if interface queue is full and thread would wait for receive().
+   * @return \b true if interface queue is empty.
    */
   bool empty() const;
 
@@ -258,6 +282,14 @@ public:
   void wait();
 
   /**
+   * @brief Stop an executing pipeline.
+   *
+   * This method signals the pipeline to stop and waits until it has
+   * terminated.
+   */
+  void stop();
+
+  /**
    * @brief Get list of input ports.
    *
    * This method returns the list of all active data ports on the
@@ -290,7 +322,7 @@ public:
   /**
    * @brief Report if input adapter is connected.
    *
-   * This method
+   * This method determines if the input adapter is connected.
    *
    * @return \b true if input adapter is connected.
    */
@@ -299,11 +331,13 @@ public:
   /**
    * @brief Report if output adapter is connected.
    *
-   * This method
+   * This method determines if the output adapter is connected.
    *
    * @return \b true if output adapter is connected.
    */
   bool output_adapter_connected() const;
+
+  class priv;
 
 protected:
   /**
@@ -326,11 +360,22 @@ protected:
    */
   virtual bool connect_output_adapter();
 
-  kwiver::vital::logger_handle_t m_logger;
+  /**
+   * @brief Update pipeline config.
+   *
+   * This method provides the ability for a derived class to inspect
+   * and update the pipeline config before it is used to create the
+   * pipeline. Additional config entries can be added or existing ones
+   * modified to suit a specific application.
+   *
+   * The default implementation does not modify the config in any way.
+   *
+   * @param[in,out] config Configuration to update.
+   */
+  virtual void update_config( kwiver::vital::config_block_sptr config );
 
 private:
-  class priv;
-  std::unique_ptr< priv > m_priv;
+  std::shared_ptr< priv > m_priv;
 
 }; // end class embedded_pipeline
 

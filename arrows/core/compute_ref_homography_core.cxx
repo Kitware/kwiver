@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,6 @@
 #include <memory>
 
 #include <vital/algo/estimate_homography.h>
-#include <vital/logger/logger.h>
 
 #include <Eigen/LU>
 
@@ -104,6 +103,7 @@ typedef std::vector< track_info_t > track_info_buffer_t;
 typedef std::shared_ptr< track_info_buffer_t > track_info_buffer_sptr;
 
 
+// ----------------------------------------------------------------------------
 // Helper function for sorting tis
 bool
 compare_ti( const track_info_t& c1, const track_info_t& c2 )
@@ -112,6 +112,7 @@ compare_ti( const track_info_t& c1, const track_info_t& c2 )
 }
 
 
+// ----------------------------------------------------------------------------
 // Find a track in a given buffer
 track_info_buffer_t::iterator
 find_track( const track_sptr& trk, track_info_buffer_sptr buffer )
@@ -122,11 +123,12 @@ find_track( const track_sptr& trk, track_info_buffer_sptr buffer )
 }
 
 
+// ----------------------------------------------------------------------------
 // Reset all is found flags
 void
 reset_active_flags( track_info_buffer_sptr buffer )
 {
-  VITAL_FOREACH ( track_info_t& ti , *buffer )
+  for ( track_info_t& ti : *buffer )
   {
     ti.active = false;
   }
@@ -151,21 +153,6 @@ public:
     frames_since_reset( 0 ),
     allow_ref_frame_regression( true ),
     min_ref_frame( 0 )
-  {
-  }
-
-  priv( const priv& other )
-  : use_backproject_error( other.use_backproject_error ),
-    backproject_threshold_sqr( other.backproject_threshold_sqr ),
-    forget_track_threshold( other.forget_track_threshold ),
-    min_track_length( other.min_track_length ),
-    inlier_scale( other.inlier_scale ),
-    minimum_inliers( other.minimum_inliers ),
-    h_estimator( !other.h_estimator ? algo::estimate_homography_sptr()
-                                    : other.h_estimator->clone() ),
-    frames_since_reset( other.frames_since_reset ),
-    allow_ref_frame_regression( other.allow_ref_frame_regression ),
-    min_ref_frame( other.min_ref_frame )
   {
   }
 
@@ -245,7 +232,7 @@ public:
 
       // Check for positive inlier count
       unsigned inlier_count = 0;
-      VITAL_FOREACH (bool b , inliers)
+      for (bool b : inliers)
       {
         if ( b )
         {
@@ -297,21 +284,13 @@ public:
 };
 
 
+// ----------------------------------------------------------------------------
 compute_ref_homography_core
 ::compute_ref_homography_core()
 : d_( new priv() )
 {
-  attach_logger( "compute_ref_homography_core" );
-  d_->m_logger = this->m_logger;
-}
-
-
-compute_ref_homography_core
-::compute_ref_homography_core( const compute_ref_homography_core& other )
-: d_( new priv( *other.d_ ) )
-{
-  attach_logger( "compute_ref_homography_core" );
-  d_->m_logger = this->m_logger;
+  attach_logger( "arrows.core.compute_ref_homography_core" );
+  d_->m_logger = this->logger();
 }
 
 
@@ -321,15 +300,8 @@ compute_ref_homography_core
 }
 
 
-std::string
-compute_ref_homography_core
-::description() const
-{
-  return "Default online sequential-frame reference homography estimator";
-}
-
-
-  vital::config_block_sptr
+// ----------------------------------------------------------------------------
+vital::config_block_sptr
 compute_ref_homography_core
 ::get_configuration() const
 {
@@ -367,6 +339,7 @@ compute_ref_homography_core
 }
 
 
+// ----------------------------------------------------------------------------
 void
 compute_ref_homography_core
 ::set_configuration( vital::config_block_sptr in_config )
@@ -395,6 +368,7 @@ compute_ref_homography_core
 }
 
 
+// ----------------------------------------------------------------------------
 bool
 compute_ref_homography_core
 ::check_configuration(vital::config_block_sptr config) const
@@ -406,17 +380,18 @@ compute_ref_homography_core
 }
 
 
+// ----------------------------------------------------------------------------
 // Perform actual current to reference frame estimation
 f2f_homography_sptr
 compute_ref_homography_core
 ::estimate( frame_id_t frame_number,
-            track_set_sptr tracks ) const
+            feature_track_set_sptr tracks ) const
 {
-  LOG_DEBUG( d_->m_logger,
+  LOG_DEBUG( logger(),
              "Starting ref homography estimation for frame " << frame_number );
 
   // Get active tracks for the current frame
-  std::vector< track_sptr > active_tracks = tracks->active_tracks( frame_number )->tracks();
+  std::vector< track_sptr > active_tracks = tracks->active_tracks( frame_number );
 
   // This is either the first frame, or a new reference frame
   if( !d_->buffer )
@@ -431,7 +406,7 @@ compute_ref_homography_core
 
   // Flag tracks on this frame as new tracks, or "active" tracks, or tracks
   // that are not new.
-  VITAL_FOREACH ( track_sptr trk , active_tracks )
+  for ( track_sptr trk : active_tracks )
   {
     track_info_buffer_t::iterator p = find_track( trk, d_->buffer );
 
@@ -447,7 +422,7 @@ compute_ref_homography_core
       new_tracks.push_back( trk );
     }
   }
-  LOG_DEBUG( d_->m_logger,
+  LOG_DEBUG( logger(),
              active_tracks.size() << " tracks on current frame (" <<
              (active_tracks.size() - new_tracks.size()) << " active, " <<
              new_tracks.size() << " new)" );
@@ -456,7 +431,7 @@ compute_ref_homography_core
   // a while.
   frame_id_t earliest_ref = std::numeric_limits<frame_id_t>::max();
 
-  VITAL_FOREACH ( track_info_t& ti , *(d_->buffer) )
+  for ( track_info_t& ti : *(d_->buffer) )
   {
     if( ti.active || ++ti.missed_count < d_->forget_track_threshold )
     {
@@ -471,20 +446,25 @@ compute_ref_homography_core
       earliest_ref = ti.ref_id;
     }
   }
-  LOG_DEBUG( d_->m_logger,
+  LOG_DEBUG( logger(),
              "Earliest Ref: " << earliest_ref );
 
   // Add new tracks to buffer.
-  VITAL_FOREACH ( track_sptr trk , new_tracks )
+  for ( track_sptr trk : new_tracks )
   {
     track::history_const_itr itr = trk->find( frame_number );
+    if( itr == trk->end() )
+    {
+      continue;
+    }
 
-    if( itr != trk->end() && itr->feat )
+    auto fts = std::dynamic_pointer_cast<feature_track_state>(*itr);
+    if( fts && fts->feature )
     {
       track_info_t new_entry;
 
       new_entry.tid = trk->id();
-      new_entry.ref_loc = vector_2d( itr->feat->loc() );
+      new_entry.ref_loc = vector_2d( fts->feature->loc() );
       new_entry.ref_id = frame_number;
       new_entry.active = false; // don't want to use this track on this frame
       new_entry.trk = trk;
@@ -507,7 +487,7 @@ compute_ref_homography_core
   size_t track_size_thresh = std::min( d_->min_track_length, d_->frames_since_reset + 1 );
 
   // Collect cur/ref points from track infos that have earliest-frame references
-  VITAL_FOREACH ( track_info_t& ti , *new_buffer )
+  for ( track_info_t& ti : *new_buffer )
   {
     // If the track is active and have a state on the earliest ref frame,
     // also include those points for homography estimation.
@@ -517,14 +497,15 @@ compute_ref_homography_core
     {
       track::history_const_itr itr = ti.trk->find( frame_number );
 
-      if( itr->feat )
+      auto fts = std::dynamic_pointer_cast<feature_track_state>(*itr);
+      if( fts && fts->feature )
       {
         pts_ref.push_back( ti.ref_loc );
-        pts_cur.push_back( itr->feat->loc() );
+        pts_cur.push_back( fts->feature->loc() );
       }
     }
   }
-  LOG_DEBUG( d_->m_logger,
+  LOG_DEBUG( logger(),
              "Using " << pts_ref.size() << " points for estimation" );
 
   // Compute homography if possible
@@ -536,7 +517,7 @@ compute_ref_homography_core
 
   if( bad_homog )
   {
-    LOG_DEBUG( d_->m_logger, "estimation FAILED" );
+    LOG_DEBUG( logger(), "estimation FAILED" );
     // Start of new shot. Both frames the same and identity transform.
     output = f2f_homography_sptr( new f2f_homography( frame_number ) );
     d_->frames_since_reset = 0;
@@ -544,7 +525,7 @@ compute_ref_homography_core
   }
   else
   {
-    LOG_DEBUG( d_->m_logger, "estimation SUCCEEDED" );
+    LOG_DEBUG( logger(), "estimation SUCCEEDED" );
     // extend current shot
     h = h->normalize();
     output = f2f_homography_sptr( new f2f_homography( h, frame_number, earliest_ref ) );
@@ -554,13 +535,18 @@ compute_ref_homography_core
   //  - With a valid homography, transform the reference location of active
   //    tracks with a different reference frame than the current earliest_ref
   unsigned int ti_reset_count = 0;
-  VITAL_FOREACH ( track_info_t& ti , *new_buffer )
+  for ( track_info_t& ti : *new_buffer )
   {
     track::history_const_itr itr = ti.trk->find( frame_number );
 
     // skip updating track items for tracks that don't have a state on this
     // frame, or a state without a feature (location)
-    if ( itr == ti.trk->end() || !(itr->feat) )
+    if ( itr == ti.trk->end() )
+    {
+      continue;
+    }
+    auto fts = std::dynamic_pointer_cast<feature_track_state>(*itr);
+    if ( !fts || !fts->feature )
     {
       continue;
     }
@@ -579,7 +565,7 @@ compute_ref_homography_core
       // of.
       else if( d_->use_backproject_error && ti.active )
       {
-        vector_2d warped = output->homography()->map( itr->feat->loc() );
+        vector_2d warped = output->homography()->map( fts->feature->loc() );
         double dist_sqr = ( warped - ti.ref_loc ).squaredNorm();
 
         if( dist_sqr > d_->backproject_threshold_sqr )
@@ -593,14 +579,14 @@ compute_ref_homography_core
     else if ( !d_->allow_ref_frame_regression && ti.active )
     {
       ++ti_reset_count;
-      ti.ref_loc = vector_2d( itr->feat->loc() );
+      ti.ref_loc = vector_2d( fts->feature->loc() );
       ti.ref_id = frame_number;
     }
   }
 
-  if ( IS_DEBUG_ENABLED( d_->m_logger ) &&  ti_reset_count )
+  if ( IS_DEBUG_ENABLED( logger() ) &&  ti_reset_count )
   {
-    LOG_DEBUG( d_->m_logger,
+    LOG_DEBUG( logger(),
                "Resetting " << ti_reset_count <<
                " tracks to reference frame: " << frame_number );
   }

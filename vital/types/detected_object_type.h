@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,12 +36,15 @@
 #ifndef VITAL_DETECTED_OBJECT_TYPE_H_
 #define VITAL_DETECTED_OBJECT_TYPE_H_
 
+#include <vital/signal.h>
 #include <vital/vital_export.h>
 
-#include <vector>
+#include <functional>
 #include <map>
-#include <set>
 #include <memory>
+#include <mutex>
+#include <set>
+#include <vector>
 
 namespace kwiver {
 namespace vital {
@@ -59,7 +62,7 @@ namespace vital {
  * class captures the set of possible types along with the relative
  * likelyhood or score.
  *
- * Note that score values in this object are not constrained to
+ * Note that score values in this object are *not* constrained to
  * [0.0,1.0] because different detectors use different approaches for
  * scores. These scores can be normalized, but that is up to the user
  * of these values.
@@ -73,6 +76,9 @@ class VITAL_EXPORT detected_object_type
 public:
   static const double INVALID_SCORE;
 
+  using class_map_t = std::map< std::string const*, double >;
+  using class_const_iterator_t = class_map_t::const_iterator;
+
   /**
    * @brief Create an empty object.
    *
@@ -81,7 +87,7 @@ public:
   detected_object_type();
 
   /**
-   * @brief Create new object type classes.
+   * @brief Create new object type class.
    *
    * Create a new object type instance with a set of labels and
    * likelyhoods. The parameters have corresponding ordering, which
@@ -96,6 +102,18 @@ public:
    */
   detected_object_type( const std::vector< std::string >& class_names,
                         const std::vector< double >& scores );
+
+  /**
+   * @brief Create new object type class.
+   *
+   * Create a new object type instance from a single class name
+   * and label.
+   *
+   * @param class_name Class name
+   * @param score Probability score for the class
+   */
+  detected_object_type( const std::string& class_name,
+                        double score );
 
   /**
    * @brief Determine if class-name is present.
@@ -126,6 +144,21 @@ public:
   double score( const std::string& class_name ) const;
 
   /**
+   * @brief Get max class name.
+   *
+   * This method returns the most likely class for this object.
+   *
+   * If there are no scores associated with this detection, then an
+   * exception is thrown
+   *
+   * @param[out] max_name Class name with the maximum score.
+   *
+   * @throws std::runtime_error If no scores are associated with this
+   *                            detection.
+   */
+  void get_most_likely( std::string& max_name ) const;
+
+  /**
    * @brief Get max score and name.
    *
    * This method returns the maximum score or the most likely class
@@ -139,8 +172,6 @@ public:
    *
    * @throws std::runtime_error If no scores are associated with this
    *                            detection.
-   *
-   * @return Maximum score for this object type.
    */
   void get_most_likely( std::string& max_name, double& max_score ) const;
 
@@ -148,7 +179,7 @@ public:
    * @brief Set score for a class.
    *
    * This method sets or updates the score for a type name. Note that
-   * the score value is not constrained to [0.0,1.0].
+   * the score value is *not* constrained to [0.0,1.0].
    *
    * If the class_name specified is not previously associated with
    * this object type, it is added, If it is present, the score is
@@ -198,14 +229,65 @@ public:
    */
   size_t size() const;
 
+  //@{
+  /**
+   * @brief Get start iterator to all class/score pairs.
+   *
+   * This method returns an iterator that may be used to iterate over all
+   * class/score pairs. The order in which items will be seen by this iterator
+   * is unspecified.
+   *
+   * @return Start iterator to all class/score pairs.
+   *
+   * @sa end
+   */
+  class_const_iterator_t begin() const;
+  class_const_iterator_t cbegin() const;
+  //@}
+
+  //@{
+  /**
+   * @brief Get end iterator to all class/score pairs.
+   *
+   * This method returns an iterator that may be used to end iteration over all
+   * class/score pairs.
+   *
+   * @return End iterator to all class/score pairs.
+   *
+   * @sa begin
+   */
+  class_const_iterator_t end() const;
+  class_const_iterator_t cend() const;
+  //@}
+
   /**
    * @brief Get list of all class_names in use.
    *
    * This method returns an ordered vector of all class_name strings.
+   * This set of strings represents the superset of all class_names
+   * used to classify objects. Strings are added to this set when a
+   * previously unseen class_name is passed to the CTOR or
    *
    * @return Vector of class names.
    */
   static std::vector < std::string > all_class_names();
+
+  /**
+   * @brief Signal emitted when a new type name is created.
+   *
+   * This signal is emitted whenever a new type name is seen for the first
+   * time. Applications which need to perform some function when this occurs
+   * may do so by connecting to this signal. The name of the new type is passed
+   * to the slot.
+   *
+   * @warning
+   * Connected slots execute on whichever thread caused the creation of a new
+   * detected object type name. This thread should generally be treated as
+   * arbitrary, and the slot coded accordingly. Note also that it may be
+   * important for performance that the slot does not take a long time to
+   * execute.
+   */
+  static signal< std::string const& > class_name_added;
 
 private:
   const std::string* find_string( const std::string& str ) const;
@@ -216,7 +298,7 @@ private:
    * This map represents the ordered set of possibilities for this
    * object along with the class names.
    */
-  std::map< const std::string*, double > m_classes;
+  class_map_t m_classes;
 
   /**
    * @brief Set of all class_names used.
@@ -227,10 +309,14 @@ private:
    * set_score().
    */
   static std::set< std::string > s_master_name_set;
+
+  // Used to control access to shared resources
+  static std::mutex s_table_mutex;
 };
 
 // typedef for a object_type shared pointer
-typedef std::shared_ptr< detected_object_type > detected_object_type_sptr;
+using detected_object_type_sptr = std::shared_ptr< detected_object_type >;
+using detected_object_type_scptr = std::shared_ptr< detected_object_type const >;
 
 } }
 

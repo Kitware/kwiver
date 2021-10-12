@@ -28,51 +28,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sprokit/pipeline/process_registry.h>
+#include <sprokit/processes/ocv/kwiver_processes_ocv_export.h>
+#include <sprokit/pipeline/process_factory.h>
+#include <vital/plugin_loader/plugin_loader.h>
 
 // -- list processes to register --
 #include "image_viewer_process.h"
-#include "draw_detected_object_boxes_process.h"
-
-
-extern "C"
-KWIVER_PROCESSES_OCV_EXPORT void register_processes();
-
+#include "detect_in_subregions_process.h"
 
 // ----------------------------------------------------------------
 /*! \brief Regsiter processes
  *
- *
  */
-void register_processes()
+extern "C"
+KWIVER_PROCESSES_OCV_EXPORT
+void
+register_factories( kwiver::vital::plugin_loader& vpm )
 {
-  static sprokit::process_registry::module_t const module_name =
-    sprokit::process_registry::module_t( "kwiver_processes_ocv" );
+  using namespace sprokit;
 
-  sprokit::process_registry_t const registry( sprokit::process_registry::self() );
+  process_registrar reg( vpm, "kwiver_processes_ocv" );
 
-  if ( registry->is_module_loaded( module_name ) )
+  if ( reg.is_module_loaded() )
   {
     return;
   }
 
-  // ----------------------------------------------------------------
-
-  registry->register_process(
-    "image_viewer", "Display input image and delay",
-    sprokit::create_process< kwiver::image_viewer_process > );
-
-  registry->register_process( //+ support for legacy process name. Will be
-    "view_image", "Display input image and delay. Legacy process and will be removed in a future release. "
-    "Convert to use \"image_viewer\" before it is too late.",
-    sprokit::create_process< kwiver::image_viewer_process > );
-
-  registry->register_process(
-    "draw_detected_object_boxes",
-    "Draw detected object boxes on images.",
-    sprokit::create_process< kwiver::draw_detected_object_boxes_process > );
-
+  reg.register_process< kwiver::image_viewer_process >();
+  reg.register_process< kwiver::detect_in_subregions_process >();
 
 // - - - - - - - - - - - - - - - - - - - - - - -
-  registry->mark_module_as_loaded( module_name );
+  reg.mark_module_as_loaded();
 }

@@ -36,18 +36,14 @@
 #ifndef KWIVER_ARROWS_DETECT_FEATURES_MSER_H_
 #define KWIVER_ARROWS_DETECT_FEATURES_MSER_H_
 
-#include <memory>
-#include <string>
-
-#include <vital/vital_config.h>
-
 #include <arrows/ocv/detect_features.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
+
+#include <string>
 
 namespace kwiver {
 namespace arrows {
 namespace ocv{
-
 
 class KWIVER_ALGO_OCV_EXPORT detect_features_MSER
   : public vital::algorithm_impl< detect_features_MSER,
@@ -55,19 +51,14 @@ class KWIVER_ALGO_OCV_EXPORT detect_features_MSER
                                   vital::algo::detect_features >
 {
 public:
+  PLUGIN_INFO("ocv_MSER",
+              "OpenCV feature detection via the MSER algorithm" )
+
   /// Constructor
   detect_features_MSER();
-  /// Copy Constructor
-  detect_features_MSER(detect_features_MSER const &other);
+
   /// Destructor
   virtual ~detect_features_MSER();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "ocv_MSER"; }
-  /// Returns a descriptive string for this implementation
-  virtual std::string description() const {
-    return "OpenCV feature detection via the MSER algorithm";
-  }
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;

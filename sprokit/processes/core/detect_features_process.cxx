@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2015-2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS [yas] elisp error!AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -30,7 +30,6 @@
 
 #include "detect_features_process.h"
 
-#include <vital/algorithm_plugin_manager.h>
 #include <vital/vital_types.h>
 #include <vital/types/timestamp.h>
 #include <vital/types/timestamp_config.h>
@@ -45,10 +44,35 @@
 
 namespace algo = kwiver::vital::algo;
 
-namespace kwiver
-{
+namespace kwiver {
 
-  create_config_trait( feature_detector, std::string, "", "Algorithm configuration subblock." )
+create_algorithm_name_config_trait( feature_detector );
+
+/**
+ * \class detect_features_process
+ *
+ * \brief Detect feature points in supplied images.
+ *
+ * \process This process generates a list of detected features that
+ * can be used to determine coordinate transforms between images. The
+ * actual rendering is done by the selected \b detect_features
+ * algorithm implementation
+ *
+ * \iports
+ *
+ * \iport{timestamp} time stamp for incoming images.
+ *
+ * \iport{image} Input image to be processed.
+ *
+ * \oports
+ *
+ * \oport{feature_set} Set of detected features for input image.
+ *
+ * \configs
+ *
+ * \config{feature_detector} Name of the configuration subblock that selects
+ * and configures the feature detector algorithm
+ */
 
 //----------------------------------------------------------------
 // Private implementation class
@@ -74,9 +98,6 @@ detect_features_process
   : process( config ),
     d( new detect_features_process::priv )
 {
-  // Attach our logger name to process logger
-  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
-  kwiver::vital::algorithm_plugin_manager::load_plugins_once();
   make_ports();
   make_config();
 }
@@ -92,20 +113,26 @@ detect_features_process
 void detect_features_process
 ::_configure()
 {
+  scoped_configure_instrumentation();
+
   // Get our process config
   kwiver::vital::config_block_sptr algo_config = get_config();
 
   // Check config so it will give run-time diagnostic if any config problems are found
-  if ( ! algo::detect_features::check_nested_algo_configuration( "feature_detector", algo_config ) )
+  if ( ! algo::detect_features::check_nested_algo_configuration_using_trait(
+         feature_detector, algo_config ) )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 
   // Instantiate the configured algorithm
-  algo::detect_features::set_nested_algo_configuration( "feature_detector", algo_config, d->m_detector );
+  algo::detect_features::set_nested_algo_configuration_using_trait(
+    feature_detector,
+    algo_config,
+    d->m_detector );
   if ( ! d->m_detector )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Unable to create feature_detector" );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create feature_detector" );
   }
 }
 
@@ -121,10 +148,16 @@ detect_features_process
   // image
   kwiver::vital::image_container_sptr img = grab_from_port_using_trait( image );
 
-  LOG_DEBUG( logger(), "Processing frame " << frame_time );
+  kwiver::vital::feature_set_sptr curr_feat;
 
-  // detect features on the current frame
-  kwiver::vital::feature_set_sptr curr_feat = d->m_detector->detect( img );
+  {
+    scoped_step_instrumentation();
+
+    LOG_DEBUG( logger(), "Processing frame " << frame_time );
+
+    // detect features on the current frame
+    curr_feat = d->m_detector->detect( img );
+  }
 
   // return by value
   push_to_port_using_trait( feature_set, curr_feat );

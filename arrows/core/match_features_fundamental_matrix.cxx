@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@
 
 #include "match_features_fundamental_matrix.h"
 
+#include <algorithm>
 #include <iostream>
 
 #include <vital/exceptions/algorithm.h>
@@ -49,28 +50,16 @@ namespace arrows {
 namespace core
 {
 
-/// Private implementation class
+// Private implementation class
 class match_features_fundamental_matrix::priv
 {
 public:
-  /// Constructor
+  // Constructor
   priv()
   : inlier_scale(10.0),
     min_required_inlier_count(0),
     min_required_inlier_percent(0.0),
-    m_logger( vital::get_logger( "arrows.core.match_features_fundamental_matrix" ))
-  {
-  }
-
-  priv(const priv& other)
-  : inlier_scale(other.inlier_scale),
-    min_required_inlier_count(other.min_required_inlier_count),
-    min_required_inlier_percent(other.min_required_inlier_percent),
-    matcher_(!other.matcher_ ? algo::match_features_sptr()
-                             : other.matcher_->clone()),
-    f_estimator_(!other.f_estimator_ ? algo::estimate_fundamental_matrix_sptr()
-                                   : other.f_estimator_->clone()),
-    m_logger( vital::get_logger( "arrows.core.match_features_fundamental_matrix" ))
+    motion_filter_percentile(0.75)
   {
   }
 
@@ -83,41 +72,39 @@ public:
   // min inlier percent required to make any matches
   double min_required_inlier_percent;
 
-  /// The feature matching algorithm to use
+  // filter outliers with motion larger than this percentile
+  double motion_filter_percentile;
+
+  // The feature matching algorithm to use
   vital::algo::match_features_sptr matcher_;
 
-  /// The fundamental matrix estimation algorithm to use
+  // The fundamental matrix estimation algorithm to use
   vital::algo::estimate_fundamental_matrix_sptr f_estimator_;
 
-  /// Logger handle
+  // Logger handle
   vital::logger_handle_t m_logger;
 };
 
 
-/// Constructor
+// ----------------------------------------------------------------------------
+// Constructor
 match_features_fundamental_matrix
 ::match_features_fundamental_matrix()
 : d_(new priv)
 {
+  attach_logger( "arrows.core.match_features_fundamental_matrix" );
 }
 
 
-/// Copy Constructor
-match_features_fundamental_matrix
-::match_features_fundamental_matrix(const match_features_fundamental_matrix& other)
-: d_(new priv(*other.d_))
-{
-}
-
-
-/// Destructor
+// Destructor
 match_features_fundamental_matrix
 ::~match_features_fundamental_matrix()
 {
 }
 
 
-/// Get this alg's \link vital::config_block configuration block \endlink
+// ----------------------------------------------------------------------------
+// Get this alg's \link vital::config_block configuration block \endlink
 vital::config_block_sptr
 match_features_fundamental_matrix
 ::get_configuration() const
@@ -133,6 +120,11 @@ match_features_fundamental_matrix
                     "The minimum required percentage of inlier points. If the "
                     "percentage of points considered inliers is less than this "
                     "amount, no matches will be returned.");
+  config->set_value("motion_filter_percentile", d_->motion_filter_percentile,
+                    "If less than 1.0, find this percentile of the motion "
+                    "magnitude and filter matches with motion larger than "
+                    "twice this value.  This helps remove outlier matches "
+                    "when the motion between images is small.");
 
   // nested algorithm configurations
   vital::algo::estimate_fundamental_matrix::get_nested_algo_configuration("fundamental_matrix_estimator",
@@ -144,6 +136,7 @@ match_features_fundamental_matrix
 }
 
 
+// ----------------------------------------------------------------------------
 void
 match_features_fundamental_matrix
 ::set_configuration(vital::config_block_sptr in_config)
@@ -162,17 +155,22 @@ match_features_fundamental_matrix
   d_->inlier_scale = config->get_value<double>("inlier_scale");
   d_->min_required_inlier_count = config->get_value<int>("min_required_inlier_count");
   d_->min_required_inlier_percent = config->get_value<double>("min_required_inlier_percent");
+  d_->motion_filter_percentile =
+    config->get_value<double>("motion_filter_percentile");
 }
 
+
+// ----------------------------------------------------------------------------
 bool
 match_features_fundamental_matrix
 ::check_configuration(vital::config_block_sptr config) const
 {
   bool config_valid = true;
+  double motion_filter_percentile =
+    config->get_value<double>("motion_filter_percentile",
+                              d_->motion_filter_percentile);
   // this algorithm is optional
-  if (config->has_value("filter_features") &&
-      config->get_value<std::string>("filter_features") != "" &&
-      !vital::algo::filter_features::check_nested_algo_configuration("filter_features", config))
+  if (motion_filter_percentile < 0.0 || motion_filter_percentile > 1.0)
   {
     config_valid = false;
   }
@@ -187,7 +185,21 @@ match_features_fundamental_matrix
 }
 
 
-/// Match one set of features and corresponding descriptors to another
+namespace {
+
+// compute the p-th percentile of the data
+double percentile(std::vector<double> const & data, double p)
+{
+  p = std::max(0.0, std::min(1.0, p));
+  std::vector<double> d(data);
+  size_t nth_idx = static_cast<size_t>(d.size() * p);
+  std::nth_element(d.begin(), d.begin() + nth_idx, d.end());
+  return d[nth_idx];
+}
+}
+
+// ----------------------------------------------------------------------------
+// Match one set of features and corresponding descriptors to another
 match_set_sptr
 match_features_fundamental_matrix
 ::match(feature_set_sptr feat1, descriptor_set_sptr desc1,
@@ -206,7 +218,7 @@ match_features_fundamental_matrix
   fundamental_matrix_sptr F = d_->f_estimator_->estimate(feat1, feat2, init_matches,
                                                      inliers, d_->inlier_scale);
   int inlier_count = static_cast<int>(std::count(inliers.begin(), inliers.end(), true));
-  LOG_INFO(d_->m_logger, "inlier ratio: " << inlier_count << "/" << inliers.size());
+  LOG_INFO(logger(), "inlier ratio: " << inlier_count << "/" << inliers.size());
 
   // verify matching criteria are met
   if( !inlier_count || inlier_count < d_->min_required_inlier_count ||
@@ -226,7 +238,38 @@ match_features_fundamental_matrix
     }
   }
 
-  return match_set_sptr(new simple_match_set(inlier_m));
+  if (d_->motion_filter_percentile >= 1.0)
+  {
+    return match_set_sptr(new simple_match_set(inlier_m));
+  }
+
+  // Further filter the matches by motion amount to remove outliers.
+  // For relatively small motions there may be outliers that agree
+  // with the epipolar geometry but have unusually large motion.
+  // Discard matches with motion above the twice the Nth percentile.
+  auto f1 = feat1->features();
+  auto f2 = feat2->features();
+  std::vector<double> dists;
+  dists.reserve(inlier_m.size());
+  for (auto const& m : inlier_m)
+  {
+    vector_2d dist = f1[m.first]->loc() - f2[m.second]->loc();
+    dists.push_back(dist.norm());
+  }
+  double max_dist = 2.0 * percentile(dists, d_->motion_filter_percentile);
+  std::vector<vital::match> filtered_m;
+  for (unsigned i = 0; i < inlier_m.size(); ++i)
+  {
+    if (dists[i] < max_dist)
+    {
+      filtered_m.push_back(inlier_m[i]);
+    }
+  }
+
+  LOG_DEBUG(logger(), "Filtered " << inlier_m.size() - filtered_m.size() <<
+                      " matches with motion greater than " << max_dist);
+
+  return match_set_sptr(new simple_match_set(filtered_m));
 }
 
 

@@ -1,6 +1,6 @@
-#!@PYTHON_EXECUTABLE@
+#!/usr/bin/env python
 #ckwg +28
-# Copyright 2011-2013 by Kitware, Inc.
+# Copyright 2011-2013, 2020 by Kitware, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+cpp_scheds = ["sync","thread_per_process"] # One shop stop if we add any more c++ schedulers to the tests
 
 def make_source(conf):
     from sprokit.pipeline import process
@@ -62,7 +63,7 @@ def make_source(conf):
                 self.mark_process_as_complete()
                 dat = datum.complete()
             else:
-                dat = datum.new(self.counter)
+                dat = datum.new_int(self.counter)
                 self.counter += 1
 
             self.push_datum_to_port(self.port_output, dat)
@@ -79,6 +80,8 @@ def make_sink(conf):
         def __init__(self, conf):
             process.PythonProcess.__init__(self, conf)
 
+            self.stepped = False
+            self.finalized = False
             self.conf_output = 'output'
 
             self.declare_configuration_key(self.conf_output, 'output.txt', 'Output file name', False)
@@ -104,41 +107,51 @@ def make_sink(conf):
 
             self.fout.write('%d\n' % num)
             self.fout.flush()
+            self.stepped = True
 
             self._base_step()
+
+        def _finalize(self):
+            self.finalized = True
 
     return Sink(conf)
 
 
 def create_process(type, name, conf):
-    from sprokit.pipeline import modules
-    from sprokit.pipeline import process_registry
+    from vital.modules import modules
+    from sprokit.pipeline import process_factory
 
     modules.load_known_modules()
 
-    reg = process_registry.ProcessRegistry.self()
-
-    p = reg.create_process(type, name, conf)
+    p = process_factory.create_process(type, name, conf)
 
     return p
 
 
 def run_pipeline(sched_type, pipe, conf):
-    from sprokit.pipeline import config
-    from sprokit.pipeline import modules
-    from sprokit.pipeline import scheduler_registry
+    from vital.config import config
+    from vital.modules import modules
+    from sprokit.pipeline import scheduler_factory
+    import sys
 
     modules.load_known_modules()
 
-    reg = scheduler_registry.SchedulerRegistry.self()
+    if sched_type in cpp_scheds:
+        expect_exception("trying to run a python process on a C++ scheduler", RuntimeError,
+                         scheduler_factory.create_scheduler, sched_type, pipe, conf)
 
-    s = reg.create_scheduler(sched_type, pipe, conf)
+    else:
+        s = scheduler_factory.create_scheduler(sched_type, pipe, conf)
 
-    s.start()
-    s.wait()
+        s.start()
+        s.wait()
 
 
 def check_file(fname, expect):
+    # Don't check for c++ scheds--we shouldn't have produced a file, and don't want to get caught up with leftovers
+    if sched_type in cpp_scheds:
+        return
+
     with open(fname, 'r') as fin:
         ints = list([int(l.strip()) for l in list(fin)])
 
@@ -159,7 +172,7 @@ def check_file(fname, expect):
 
 
 def test_python_to_python(sched_type):
-    from sprokit.pipeline import config
+    from vital.config import config
     from sprokit.pipeline import pipeline
     from sprokit.pipeline import process
 
@@ -202,9 +215,12 @@ def test_python_to_python(sched_type):
 
     check_file(output_file, list(range(min, max)))
 
+    if t.stepped and not t.finalized:
+        test_error("sink process not finalized")
+
 
 def test_cpp_to_python(sched_type):
-    from sprokit.pipeline import config
+    from vital.config import config
     from sprokit.pipeline import pipeline
     from sprokit.pipeline import process
 
@@ -248,7 +264,7 @@ def test_cpp_to_python(sched_type):
 
 
 def test_python_to_cpp(sched_type):
-    from sprokit.pipeline import config
+    from vital.config import config
     from sprokit.pipeline import pipeline
     from sprokit.pipeline import process
 
@@ -292,7 +308,7 @@ def test_python_to_cpp(sched_type):
 
 
 def test_python_via_cpp(sched_type):
-    from sprokit.pipeline import config
+    from vital.config import config
     from sprokit.pipeline import pipeline
     from sprokit.pipeline import process
 
@@ -370,7 +386,7 @@ if __name__ == '__main__':
     import sys
 
     if not len(sys.argv) == 4:
-        test_error("Expected three arguments")
+        test_error("Expected three arguments. \"name-of-test\" \"new cwd\" \"python path to add\"")
         sys.exit(1)
 
     (testname, sched_type) = tuple(sys.argv[1].split('-', 1))

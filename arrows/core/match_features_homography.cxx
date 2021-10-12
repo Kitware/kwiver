@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2016 by Kitware, Inc.
+ * Copyright 2013-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,24 +47,15 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-/// Private implementation class
+// Private implementation class
 class match_features_homography::priv
 {
 public:
-  /// Constructor
+  // Constructor
   priv()
-  : inlier_scale(10.0),
+  : inlier_scale(1.0),
     min_required_inlier_count(0),
-    min_required_inlier_percent(0.0),
-    m_logger( vital::get_logger( "arrows.core.match_features_homography" ))
-  {
-  }
-
-  priv(const priv& other)
-  : inlier_scale(other.inlier_scale),
-    min_required_inlier_count(other.min_required_inlier_count),
-    min_required_inlier_percent(other.min_required_inlier_percent),
-    m_logger( vital::get_logger( "arrows.core.match_features_homography" ))
+    min_required_inlier_percent(0.0)
   {
   }
 
@@ -76,43 +67,28 @@ public:
 
   // min inlier percent required to make any matches
   double min_required_inlier_percent;
-  /// Logger handle
-  vital::logger_handle_t m_logger;
 };
 
 
-/// Constructor
+// ----------------------------------------------------------------------------
+// Constructor
 match_features_homography
 ::match_features_homography()
 : d_(new priv)
 {
+  attach_logger( "arrows.core.match_features_homography" );
 }
 
 
-/// Copy Constructor
-match_features_homography
-::match_features_homography(const match_features_homography& other)
-: d_(new priv(*other.d_)),
-  matcher1_(!other.matcher1_ ? algo::match_features_sptr()
-                             : other.matcher1_->clone()),
-  matcher2_(!other.matcher2_ ? algo::match_features_sptr()
-                             : other.matcher2_->clone()),
-  h_estimator_(!other.h_estimator_ ? algo::estimate_homography_sptr()
-                                   : other.h_estimator_->clone()),
-  feature_filter_(!other.feature_filter_ ? algo::filter_features_sptr()
-                                         : other.feature_filter_->clone())
-{
-}
-
-
-/// Destructor
+// Destructor
 match_features_homography
 ::~match_features_homography()
 {
 }
 
 
-/// Get this alg's \link vital::config_block configuration block \endlink
+// ----------------------------------------------------------------------------
+// Get this alg's \link vital::config_block configuration block \endlink
 vital::config_block_sptr
 match_features_homography
 ::get_configuration() const
@@ -120,7 +96,9 @@ match_features_homography
   vital::config_block_sptr config = algorithm::get_configuration();
   config->set_value("inlier_scale", d_->inlier_scale,
                     "The acceptable error distance (in pixels) between warped "
-                    "and measured points to be considered an inlier match.");
+                    "and measured points to be considered an inlier match. "
+                    "Note that this scale is multiplied by the average scale of "
+                    "the features being matched at each stage.");
   config->set_value("min_required_inlier_count", d_->min_required_inlier_count,
                     "The minimum required inlier point count. If there are less "
                     "than this many inliers, no matches will be output.");
@@ -143,6 +121,7 @@ match_features_homography
 }
 
 
+// ----------------------------------------------------------------------------
 void
 match_features_homography
 ::set_configuration(vital::config_block_sptr in_config)
@@ -168,6 +147,8 @@ match_features_homography
   d_->min_required_inlier_percent = config->get_value<double>("min_required_inlier_percent");
 }
 
+
+// ----------------------------------------------------------------------------
 bool
 match_features_homography
 ::check_configuration(vital::config_block_sptr config) const
@@ -197,7 +178,49 @@ match_features_homography
 }
 
 
-/// Match one set of features and corresponding descriptors to another
+// ----------------------------------------------------------------------------
+namespace {
+// Compute the average feature scale
+double
+average_feature_scale(feature_set_sptr features)
+{
+  double scale = 0.0;
+  if( !features )
+  {
+    return scale;
+  }
+  for( auto const& f : features->features() )
+  {
+    scale += f->scale();
+  }
+  if( features->size() > 0 )
+  {
+    scale /= features->size();
+  }
+  return scale;
+}
+
+
+// Compute the minimum feature scale
+double
+min_feature_scale(feature_set_sptr features)
+{
+  double min_scale = std::numeric_limits<double>::infinity();
+  if( !features || features->size() == 0 )
+  {
+    return 1.0;
+  }
+  for( auto const& f : features->features() )
+  {
+    min_scale = std::min(min_scale, f->scale());
+  }
+  return min_scale;
+}
+
+}
+
+
+// Match one set of features and corresponding descriptors to another
 match_set_sptr
 match_features_homography
 ::match(feature_set_sptr feat1, descriptor_set_sptr desc1,
@@ -209,29 +232,48 @@ match_features_homography
   }
 
   // filter features if a filter_features is set
-  feature_set_sptr src_feat;
-  descriptor_set_sptr src_desc;
+  feature_set_sptr    src_feat = feat1,  dst_feat = feat2;
+  descriptor_set_sptr src_desc = desc1,  dst_desc = desc2;
   if (feature_filter_.get())
   {
-    std::pair<feature_set_sptr, descriptor_set_sptr> ret = feature_filter_->filter(feat1, desc1);
+    // filter source image features
+    auto ret = feature_filter_->filter(feat1, desc1);
     src_feat = ret.first;
     src_desc = ret.second;
-  }
-  else
-  {
-    src_feat = feat1;
-    src_desc = desc1;
+
+    // filter destination image features
+    ret = feature_filter_->filter(feat2, desc2);
+    dst_feat = ret.first;
+    dst_desc = ret.second;
   }
 
+  double avg_scale = ( average_feature_scale(src_feat)
+                     + average_feature_scale(dst_feat) ) / 2.0;
+
+  // ideally the notion of scale would be standardized relative to
+  // some baseline, regardless of the detector, but currently it is not
+  // so we get the minimum observed scale in the data
+  double min_scale = std::min( min_feature_scale(feat1),
+                               min_feature_scale(feat2) );
+
+  double scale_ratio = avg_scale / min_scale;
+  LOG_DEBUG( logger(), "Filtered scale ratio: " << scale_ratio );
+
+
   // compute the initial matches
-  match_set_sptr init_matches = matcher1_->match(src_feat, src_desc, feat2, desc2);
+  match_set_sptr init_matches = matcher1_->match(src_feat, src_desc,
+                                                 dst_feat, dst_desc);
 
   // estimate a homography from the initial matches
   std::vector<bool> inliers;
-  homography_sptr H = h_estimator_->estimate(feat1, feat2, init_matches,
-                                             inliers, d_->inlier_scale);
-  int inlier_count = static_cast<int>(std::count(inliers.begin(), inliers.end(), true));
-  LOG_INFO(d_->m_logger, "inlier ratio: " << inlier_count << "/" << inliers.size());
+  homography_sptr H = h_estimator_->estimate(src_feat, dst_feat, init_matches,
+                                             inliers, d_->inlier_scale * scale_ratio);
+
+  // count the number of inliers
+  int inlier_count = static_cast<int>(std::count(inliers.begin(),
+                                                 inliers.end(), true));
+  LOG_INFO(logger(), "inlier ratio: " <<
+                         inlier_count << "/" << inliers.size());
 
   // verify matching criteria are met
   if( !inlier_count || inlier_count < d_->min_required_inlier_count ||

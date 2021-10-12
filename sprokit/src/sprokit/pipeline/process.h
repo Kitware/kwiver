@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2013 by Kitware, Inc.
+ * Copyright 2011-2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,24 +31,34 @@
 #ifndef SPROKIT_PIPELINE_PROCESS_H
 #define SPROKIT_PIPELINE_PROCESS_H
 
-#include "pipeline-config.h"
+#include <sprokit/pipeline/sprokit_pipeline_export.h>
 
 #include "edge.h"
 #include "datum.h"
 #include "types.h"
 
 #include <vital/config/config_block.h>
+#include <vital/config/config_difference.h>
 #include <vital/logger/logger.h>
+#include <vital/plugin_loader/plugin_info.h>
 
-#include <boost/cstdint.hpp>
-#include <boost/noncopyable.hpp>
+#ifdef WIN32
+#pragma warning (push)
+#pragma warning (disable : 4146)
+#pragma warning (disable : 4244)
+#pragma warning (disable : 4267)
+#endif
+
 #include <boost/rational.hpp>
-#include <boost/scoped_ptr.hpp>
+#ifdef WIN32
+#pragma warning (pop)
+#endif
 
 #include <set>
 #include <string>
 #include <utility>
 #include <vector>
+#include <memory>
 
 /**
  * \file process.h
@@ -56,8 +66,7 @@
  * \brief Header for \link sprokit::process processes\endlink.
  */
 
-namespace sprokit
-{
+namespace sprokit {
 
 /// A group of processes.
 typedef std::vector<process_t> processes_t;
@@ -97,30 +106,42 @@ typedef std::vector<process_t> processes_t;
  * \ingroup base_classes
  */
 class SPROKIT_PIPELINE_EXPORT process
-  : boost::noncopyable
 {
   public:
     /// The type for the type of a process.
     typedef std::string type_t;
+
+    /// Process description
+    typedef std::string description_t;
+
     /// A group of types.
     typedef std::vector<type_t> types_t;
+
     /// The type for the name of a process.
     typedef std::string name_t;
+
     /// The type for a group of process names.
     typedef std::vector<name_t> names_t;
+
     /// The type for a property on a process.
     typedef std::string property_t;
+
     /// The type for a set of properties on a process.
     ///@todo Add reference to predefined properties.
     typedef std::set<property_t> properties_t;
+
     /// The type for a description of a port.
     typedef std::string port_description_t;
+
     /// The type for the name of a port on a process.
     typedef std::string port_t;
+
     /// The type for a group of ports.
     typedef std::vector<port_t> ports_t;
+
     /// The type for the type of data on a port.
     typedef std::string port_type_t;
+
     /// The type for the component of a frequency.
     typedef size_t frequency_component_t;
 
@@ -144,14 +165,20 @@ class SPROKIT_PIPELINE_EXPORT process
     /// The type for a flag on a port.
     ///\todo Add descriptions of predefined port flags.
     typedef std::string port_flag_t;
+
     /// The type for a group of port flags.
     typedef std::set<port_flag_t> port_flags_t;
+
     /// The type for the address of a port within the pipeline.
+    /// Derived from "process.port"
     typedef std::pair<name_t, port_t> port_addr_t;
+
     /// The type for a group of port addresses.
     typedef std::vector<port_addr_t> port_addrs_t;
+
     /// The type for a connection within the pipeline.
     typedef std::pair<port_addr_t, port_addr_t> connection_t;
+
     /// The type for a group of connections.
     typedef std::vector<connection_t> connections_t;
 
@@ -193,7 +220,7 @@ class SPROKIT_PIPELINE_EXPORT process
         port_frequency_t const frequency;
     };
     /// Type for information about a port.
-    typedef boost::shared_ptr<port_info const> port_info_t;
+    typedef std::shared_ptr<port_info const> port_info_t;
 
     /**
      * \class conf_info process.h <sprokit/pipeline/process.h>
@@ -226,7 +253,7 @@ class SPROKIT_PIPELINE_EXPORT process
         bool const tunable;
     };
     /// Type for information about a configuration parameter.
-    typedef boost::shared_ptr<conf_info const> conf_info_t;
+    typedef std::shared_ptr<conf_info const> conf_info_t;
 
     /**
      * \class data_info process.h <sprokit/pipeline/process.h>
@@ -258,7 +285,7 @@ class SPROKIT_PIPELINE_EXPORT process
         datum::type_t const max_status;
     };
     /// Type for information about a set of data.
-    typedef boost::shared_ptr<data_info const> data_info_t;
+    typedef std::shared_ptr<data_info const> data_info_t;
 
     /**
      * \brief Data checking levels. All levels include lower levels.
@@ -490,6 +517,21 @@ class SPROKIT_PIPELINE_EXPORT process
     conf_info_t config_info(kwiver::vital::config_block_key_t const& key);
 
     /**
+     * \brief Determine difference between process config and pipe config
+     *
+     * This method returns the differences between the configuration
+     * declared by the process and the actual configuration provided
+     * by the pipe file. These differences can be queried from the
+     * returned object. Extra config items are those that are supplied
+     * by the pipe file but not declared by the process. Unspecified
+     * config items are those that are declared by the process but not
+     * specified in the pipe file.
+     *
+     * \return Object with the config differences
+     */
+    kwiver::vital::config_difference config_diff() const;
+
+    /**
      * \brief The name of the process.
      *
      * The instance name of this process is returned as a string. The
@@ -513,25 +555,42 @@ class SPROKIT_PIPELINE_EXPORT process
      */
     type_t type() const;
 
+    /*
+     * Process properties. A process can have more than one property.
+     */
     /// A property which indicates that the process cannot be run in a thread of its own.
     static property_t const property_no_threads;
+
     /// A property which indicates that the process is not reentrant.
     static property_t const property_no_reentrancy;
+
     /// A property which indicates that the input of the process is not synchronized.
     static property_t const property_unsync_input;
+
     /// A property which indicates that the output of the process is not synchronized.
     static property_t const property_unsync_output;
+
+    /// Indicates that the process has selected an instrumentation provider.
+    static property_t const property_instrumented;
+
+    /// Indicates the process is written in Python
+    static property_t const property_python;
 
     /// The name of the heartbeat port.
     static port_t const port_heartbeat;
 
     /// The name of the configuration value for the name.
     static kwiver::vital::config_block_key_t const config_name;
+
     /// The name of the configuration value for the type.
     static kwiver::vital::config_block_key_t const config_type;
 
+    /*
+     * Port types.
+     */
     /// A type which means that the type of the data is irrelevant.
     static port_type_t const type_any;
+
     /// A type which indicates that no actual data is ever created.
     static port_type_t const type_none;
 
@@ -563,7 +622,7 @@ class SPROKIT_PIPELINE_EXPORT process
       process::port_t const port_input = port_t("pass");
 
       declare_input_port(
-         priv::port_input, // port name
+         port_input, // port name
          type_flow_dependent + "tag",
          required,
          port_description_t("The datum to pass."));
@@ -596,7 +655,7 @@ class SPROKIT_PIPELINE_EXPORT process
     static port_flag_t const flag_output_shared;
 
     /**
-     * \brief A flag which indicates that the input may be defined as
+     * \brief A flag which indicates that the input \b may be defined as
      * a configuration value.
      *
      * If this port is not connected, the value supplied is taken from
@@ -611,7 +670,7 @@ class SPROKIT_PIPELINE_EXPORT process
      * \code
      process circ
        :: circle_writer
-          :static/foo  3.14159
+          static/radius = 3.14159
      * \endcode
      *
      * This flag may \b not be combined with \ref flag_required because
@@ -651,7 +710,6 @@ class SPROKIT_PIPELINE_EXPORT process
     static port_flag_t const flag_required;
 
 
-  protected:
     /**
      * \brief Constructor.
      *
@@ -665,6 +723,8 @@ class SPROKIT_PIPELINE_EXPORT process
      * \brief Destructor.
      */
     virtual ~process();
+
+  protected:
 
     /**
      * \brief Pre-connection initialization for subclasses.
@@ -680,8 +740,8 @@ class SPROKIT_PIPELINE_EXPORT process
      * \brief Post-connection initialization for subclasses.
      *
      * Initialization is the final step before a process is
-     * stepped. This is where processes should have a chance to get a
-     * first look at the edges that are connected to a port and change
+     * stepped. This is where processes have a chance to get a first
+     * look at the edges that are connected to a port and change
      * behavior based on them. After this is called, the process will
      * be stepped until it is either complete or the scheduler is
      * stopped.
@@ -713,15 +773,37 @@ class SPROKIT_PIPELINE_EXPORT process
      * \li Obtaining data from the input edges.
      * \li Running the algorithm.
      * \li Pushing data out via the output edges.
-     *
      */
     virtual void _step();
+
+    /**
+     * \brief Termination processing for subclasses.
+     *
+     * This method is called when the all upstream processes have
+     * terminated and a \c complete datum is present on all \b
+     * required input ports. The _step() method will never be called
+     * after this method is called.
+     *
+     * If a process self terminates by calling
+     * mark_process_as_complete(), this method will not be called.
+     */
+    virtual void _finalize();
 
     /**
      * \brief Runtime configuration for subclasses.
      *
      * This method is called after the process is initially configured
-     * and started. A config block with updated values is supplied.
+     * and started. A config block with updated values is
+     * supplied. Only config keys that have the tunable attribute to
+     * be reconfigured.
+     *
+     * This method call be called at any time to supply the new
+     * configuration, and possibly from a thread that is different
+     * from which is calling the step() method.
+     *
+     * The intent of this method is to provide a way to dynamically
+     * change the behaviour of a process. The process must deal with
+     * any synchronization issues.
      *
      * \params conf The configuration block to apply.
      */
@@ -771,6 +853,7 @@ class SPROKIT_PIPELINE_EXPORT process
      * \returns The names of all input ports available in the subclass.
      */
     virtual ports_t _input_ports() const;
+
     /**
      * \brief Subclass output ports.
      *
@@ -788,6 +871,22 @@ class SPROKIT_PIPELINE_EXPORT process
     virtual port_info_t _input_port_info(port_t const& port);
 
     /**
+     * \brief Process handler for undefined input port
+     *
+     * This method is called when port_info is is being requested for
+     * this process and the port is not defined. The default
+     * implementation is to do nothing, which will cause the process
+     * to throw an exception.
+     *
+     * The process can override this method and create the undefined
+     * port. This is a form of just-in-time port creation which is
+     * used for processes that can handle multiple inputs.
+     *
+     * \param port Name of the port
+     */
+    virtual void input_port_undefined(port_t const& port);
+
+    /**
      * \brief Subclass output port information.
      *
      * \param port The port to get information about.
@@ -795,6 +894,22 @@ class SPROKIT_PIPELINE_EXPORT process
      * \returns Information about an output port.
      */
     virtual port_info_t _output_port_info(port_t const& port);
+
+    /**
+     * \brief Process handler for undefined output port
+     *
+     * This method is called when port_info is is being requested for
+     * this process and the port is not defined. The default
+     * implementation is to do nothing, which will cause the process
+     * to throw an exception.
+     *
+     * The process can override this method and create the undefined
+     * port. This is a form of just-in-time port creation which is
+     * used for processes that can handle multiple outputs.
+     *
+     * \param port Name of the port
+     */
+    virtual void output_port_undefined(port_t const& port);
 
     /**
      * \brief Subclass input port type setting.
@@ -805,6 +920,7 @@ class SPROKIT_PIPELINE_EXPORT process
      * \returns True if the type can work, false otherwise.
      */
     virtual bool _set_input_port_type(port_t const& port, port_type_t const& new_type);
+
     /**
      * \brief Subclass output port type setting.
      *
@@ -817,6 +933,9 @@ class SPROKIT_PIPELINE_EXPORT process
 
     /**
      * \brief Subclass available configuration keys.
+     *
+     * This method returns the list of all config keys that are
+     * available to this process.
      *
      * \returns The names of all available configuration keys.
      */
@@ -840,6 +959,7 @@ class SPROKIT_PIPELINE_EXPORT process
      * \param info Information about the port.
      */
     void declare_input_port(port_t const& port, port_info_t const& info);
+
     /**
      * \brief Declare an output port for the process.
      *
@@ -1104,6 +1224,25 @@ class SPROKIT_PIPELINE_EXPORT process
     T grab_from_port_as(port_t const& port) const;
 
     /**
+     * \brief Grab a datum from a port as a certain type.
+     *
+     * This method grabs an input value directly from the port with no handling
+     * for static ports, iff the port is connected. This call will block until
+     * a datum is available.
+     *
+     * \sa process::has_input_port_edge
+     *
+     * \param port The port to get data from.
+     *
+     * \throws no_such_port_exception if the named port does not exist.
+     *
+     * \returns The datum from the port, or a default-constructed value if the
+     *          port is not connected.
+     */
+    template <typename T>
+    T try_grab_from_port_as(port_t const& port) const;
+
+    /**
      * \brief Grab an input as a specific type.
      *
      * This method returns a data value form a port or the configured
@@ -1191,8 +1330,7 @@ class SPROKIT_PIPELINE_EXPORT process
      * \flag{required} are guaranteed to be synchronized. When the inputs are
      * not synchronized, an error datum is pushed to all output ports and all
      * input ports will be grabbed from based on the relative frequency of the
-     * ports. If this behavior is not wanted, it must be manually handled. The
-     * default is that it is enabled.
+     * ports.
      *
      * If set to \ref check_valid, the input ports which are marked as
      * \flag{required} are guaranteed to have valid data available. When the
@@ -1220,6 +1358,116 @@ class SPROKIT_PIPELINE_EXPORT process
      */
     static data_info_t edge_data_info(edge_data_t const& data);
 
+//@{
+    /**
+     * \brief Process instrumentation interface.
+     *
+     * These calls are available to the process writer to self
+     * instrument the process implementation. Unfortunately there is
+     * no way to put this instrumentation in the interface since a
+     * process is responsible for getting inputs and pushing outputs.
+     *
+     * The start call is used to indicate the beginning of substantial processing.
+     * The end call is used to indicate the end of substantial processing.
+     *
+     * The \c data parameter, if specified, is passed to the
+     * instrumentation provider. How this data is used is
+     * implementation dependent.
+     *
+     * Instrumentation is enabled by supplying the following config
+     * entries in the pipeline definition file for each process that
+     * is to be instrumented.
+     *
+     * process process_type
+     *   :: my_proc
+     *     block _instrumentation
+     *       type =  none   # default value. disabled
+     *       # optionally specify instrumentation provider
+     *       type =  RightTrack  # enables RightTrack instrumentation for this process
+     *       RightTrack:foo   value    # instrumentation provider specific config.
+     *     endblock
+     *
+     */
+    void start_init_processing( std::string const& data );
+    void start_init_processing();
+    void stop_init_processing();
+
+    void start_finalize_processing( std::string const& data );
+    void start_finalize_processing();
+    void stop_finalize_processing();
+
+    void start_reset_processing( std::string const& data );
+    void start_reset_processing();
+    void stop_reset_processing( );
+
+    void start_flush_processing( std::string const& data );
+    void start_flush_processing();
+    void stop_flush_processing( );
+
+    void start_step_processing( std::string const& data );
+    void start_step_processing();
+    void stop_step_processing( );
+
+    void start_configure_processing( std::string const& data );
+    void start_configure_processing();
+    void stop_configure_processing( );
+
+    void start_reconfigure_processing( std::string const& data );
+    void start_reconfigure_processing();
+    void stop_reconfigure_processing( );
+//@}
+
+/*
+ * Helper macro and structure to make scoped instrumentation using the
+ * allocation is acquisition pattern.
+ */
+#define SCOPED_INSTRUMENTATION(T)                                       \
+struct scoped_ ## T ## _instrumentation_                                \
+{                                                                       \
+  scoped_ ## T ## _instrumentation_(process* proc)                      \
+  : m_process(proc)                                                     \
+  {                                                                     \
+    m_process->start_ ## T ## _processing();                            \
+  }                                                                     \
+  scoped_ ## T ## _instrumentation_(process* proc, const std::string& data) \
+  : m_process(proc)                                                     \
+  {                                                                     \
+    m_process->start_ ## T ## _processing(data);                        \
+  }                                                                     \
+  ~scoped_ ## T ## _instrumentation_() { m_process->stop_ ## T ## _processing(); } \
+private:                                                                \
+  process* m_process;                                                   \
+}
+
+SCOPED_INSTRUMENTATION(init);
+SCOPED_INSTRUMENTATION(finalize);
+SCOPED_INSTRUMENTATION(reset);
+SCOPED_INSTRUMENTATION(flush);
+SCOPED_INSTRUMENTATION(step);
+SCOPED_INSTRUMENTATION(configure);
+SCOPED_INSTRUMENTATION(reconfigure);
+
+#undef SCOPED_INSTRUMENTATION
+
+///@{
+/**
+ * Scoped instrumetation macros provide an alternative to inserting
+ * individual start and stop calls in the process methods. The start
+ * call is made when the scope is entered and the stop call is made
+ * when the scope is exited.
+ */
+#define scoped_init_instrumentation()        scoped_init_instrumentation_( this )
+#define scoped_finalize_instrumentation()    scoped_finalize_instrumentation_( this )
+#define scoped_reset_instrumentation()       scoped_reset_instrumentation_( this )
+#define scoped_flush_instrumentation()       scoped_flush_instrumentation_( this )
+#define scoped_step_instrumentation()        scoped_step_instrumentation_( this )
+#define scoped_configure_instrumentation()   scoped_configure_instrumentation_( this )
+#define scoped_reconfigure_instrumentation() scoped_reconfigure_instrumentation_( this )
+///@}
+
+    class SPROKIT_PIPELINE_NO_EXPORT priv;
+    std::shared_ptr<priv> d;
+
   private:
     kwiver::vital::config_block_value_t config_value_raw(kwiver::vital::config_block_key_t const& key) const;
 
@@ -1233,10 +1481,12 @@ class SPROKIT_PIPELINE_EXPORT process
     friend class process_cluster;
     SPROKIT_PIPELINE_NO_EXPORT void reconfigure_with_provides(kwiver::vital::config_block_sptr const& conf);
 
-    class SPROKIT_PIPELINE_NO_EXPORT priv;
-    boost::scoped_ptr<priv> d;
+    friend class process_factory;
+    SPROKIT_PIPELINE_NO_EXPORT void add_property ( const property_t& prop );
 };
 
+
+// ----------------------------------------------------------------------------
 template <typename T>
 T
 process
@@ -1245,6 +1495,8 @@ process
   return kwiver::vital::config_block_get_value_cast<T>(config_value_raw(key));
 }
 
+
+// ----------------------------------------------------------------------------
 template <typename T>
 T
 process
@@ -1253,6 +1505,18 @@ process
   return grab_datum_from_port(port)->get_datum<T>();
 }
 
+// ----------------------------------------------------------------------------
+template <typename T>
+T
+process
+::try_grab_from_port_as(port_t const& port) const
+{
+  return (has_input_port_edge(port)
+          ? grab_datum_from_port(port)->get_datum<T>()
+          : T{} );
+}
+
+// ----------------------------------------------------------------------------
 template <typename T>
 T
 process
@@ -1266,6 +1530,8 @@ process
   return grab_from_port_as<T>(port);
 }
 
+
+// ----------------------------------------------------------------------------
 template <typename T>
 void
 process

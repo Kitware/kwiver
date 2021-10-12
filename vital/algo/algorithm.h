@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2015 by Kitware, Inc.
+ * Copyright 2013-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,13 +39,13 @@
 #include <vital/vital_config.h>
 #include <vital/algo/vital_algo_export.h>
 
+#include <vital/config/config_block.h>
+#include <vital/logger/logger.h>
+#include <vital/plugin_loader/plugin_info.h>
+
 #include <string>
 #include <vector>
 #include <memory>
-
-#include <vital/config/config_block.h>
-#include <vital/registrar.h>
-#include <vital/logger/logger.h>
 
 namespace kwiver {
 namespace vital {
@@ -59,62 +59,19 @@ typedef std::shared_ptr< algorithm > algorithm_sptr;
 /**
  * @brief An abstract base class for all algorithms
  *
- * This class is an sbstract base class for all algorithm
+ * This class is an abstract base class for all algorithm
  * implementations.
  */
 class VITAL_ALGO_EXPORT algorithm
 {
 public:
-  virtual ~algorithm() VITAL_DEFAULT_DTOR;
+  virtual ~algorithm() = default;
 
-  /// Return the name of this algorithm
+  /// Return the name of the base algorithm
   virtual std::string type_name() const = 0;
 
   /// Return the name of this implementation
-  virtual std::string impl_name() const = 0;
-
-  /// Returns an optional descriptive string for an implementation
-  virtual std::string description() const = 0;
-
-  /// Returns a clone of this algorithm as a base class shared pointer
-  virtual algorithm_sptr base_clone() const = 0;
-
-  /// Factory method to make an instance of an algorithm by type_name and impl_name
-  static algorithm_sptr create(std::string const& type_name,
-                               std::string const& impl_name);
-
-  /// Return a vector of the impl_name of each registered implementation for type_name
-  /**
-   * \param type_name Type name of algorithm for which to find all implementation names
-   *
-   * \note If type_name is not specified or is an empty string, this function
-   *       will return the all registered algorithms of any type.  The returned
-   *       names will be of the form "type_name:impl_name".  If type_name is
-   *       specified, the results will be of the form "impl_name".
-   */
-  static std::vector<std::string> registered_names(std::string const& type_name = "");
-
-  /// Check the given type name against registered algorithms
-  /**
-   * \param type_name Type name of algorithm to validate
-   * \returns true if the given \c type_name describes at least one valid
-   *          registered algorithm, or false if not.
-   *
-   * \note This algorithm returns false for an valid abstract type name if there
-   *       are no concrete instances registered with the plugin manager
-   */
-  static bool has_type_name(std::string const& type_name);
-
-  /// Check the given type and implementation names against registered algorithms
-  /**
-   * \param type_name Type name of algorithm to validate
-   * \param impl_name Implementation name of algorithm to validate
-   * \returns true if the given \c type_name and \c impl_name describe a valid
-   *          registered algorithm, or false if not.
-   */
-  static bool has_impl_name(std::string const& type_name,
-                            std::string const& impl_name);
-
+  virtual std::string impl_name() const final;
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   /**
@@ -141,7 +98,7 @@ public:
    *    Thrown if an expected configuration value is not present.
    *
    * \throws algorithm_configuration_exception
-   *    Thrown when the algorithm is given an invalid \c config_block or is'
+   *    Thrown when the algorithm is given an invalid \c config_block or is
    *    otherwise unable to configure itself.
    *
    * \param config  The \c config_block instance containing the configuration
@@ -184,9 +141,10 @@ public:
   /**
    * If the value for the config parameter "type" is supported by the
    * concrete algorithm class, then a new algorithm object is created,
-   * configured and returned via the \c nested_algo pointer.
+   * configured using the set_configuration() method and returned via
+   * the \c nested_algo pointer.
    *
-   * The nested algorithm will not be set if the implementation switch (as
+   * The nested algorithm will not be set if the implementation type (as
    * defined in the \c get_nested_algo_configuration) is not present or set to
    * an invalid value relative to the registered names for this
    * \c type_name
@@ -196,7 +154,7 @@ public:
    * \param[in] config              The \c config_block instance from which we will
    *                                draw configuration needed for the nested
    *                                algorithm instance.
-   * \param[in,out] nested_algo The nested algorithm's sptr variable.
+   * \param[out] nested_algo The nested algorithm's sptr variable.
    */
   static void set_nested_algo_configuration(std::string const& type_name,
                                             std::string const& name,
@@ -221,6 +179,9 @@ public:
                                               std::string const& name,
                                               config_block_sptr config);
 
+  void set_impl_name( const std::string& name );
+  kwiver::vital::logger_handle_t logger() const;
+
 protected:
   algorithm(); // CTOR
 
@@ -233,14 +194,13 @@ protected:
    * something relevant to the concrete algorithm.
    *
    * A logger is attached by the base class, but it is expected that
-   * that one of the derived classes will attach a more meaningful
-   * logger.
+   * one of the derived classes will attach a more meaningful logger.
    *
    * \param name Name of the logger to attach.
    */
   void attach_logger( std::string const& name );
 
-
+private:
   /**
    * \brief Logger handle.
    *
@@ -248,13 +208,14 @@ protected:
    */
   kwiver::vital::logger_handle_t m_logger;
 
+  std::string m_impl_name;
 };
 
 
 // ------------------------------------------------------------------
 /// An intermediate templated base class for algorithm definition
 /**
- *  Uses the curiously recurring template pattern to declare the
+ *  Uses the curiously recurring template pattern (CRTP) to declare the
  *  clone function and automatically provide functions to register
  *  algorithm, and create new instance by name.
  *  Each algorithm definition should be declared as shown below
@@ -275,13 +236,7 @@ public:
   /// Shared pointer type of the templated vital::algorithm_def class
   typedef std::shared_ptr<Self> base_sptr;
 
-  virtual ~algorithm_def() VITAL_DEFAULT_DTOR;
-
-  /// Returns a clone of this algorithm as a specific algorithm pointer
-  virtual base_sptr clone() const = 0;
-
-  /// Register instances of this algorithm with a given registrar
-  static bool register_instance(registrar &reg, base_sptr inst);
+  virtual ~algorithm_def() = default;
 
   /// Factory method to make an instance of this algorithm by impl_name
   static base_sptr create(std::string const& impl_name);
@@ -291,27 +246,6 @@ public:
 
   /// Return the name of this algorithm.
   virtual std::string type_name() const { return Self::static_type_name(); }
-
-  /// Check the given name against registered implementation names
-  /**
-   * If the given name is not a valid implementation name.
-   *
-   * \param impl_name implementation name to check for the validity of.
-   * \returns true if the given \c impl_name is valid for this definition, or
-   *          false if it is not a valid implementation name.
-   */
-  static bool has_impl_name(std::string const& impl_name);
-
-  /// Return a \c config_block for all registered implementations
-  /**
-   * For each registered implementation of this definition, add a subblock,
-   * labeled under the name of that implementation, of that implementation's
-   * config_block.
-   *
-   * If no implementation of this definition has any configuraiton properties,
-   * the \c config_block returned will be empty.
-   */
-  static config_block_sptr get_impl_configurations();
 
   /// Helper function for properly getting a nested algorithm's configuration
   /**
@@ -330,7 +264,7 @@ public:
                                             config_block_sptr config,
                                             base_sptr nested_algo);
 
-  /// Instantiate nested algorighm.
+  /// Instantiate nested algorithm.
   /**
    * A new concrete algorithm object is created if the value for the
    * config parameter "type" is supported. The new object is returned
@@ -368,7 +302,7 @@ public:
                                               config_block_sptr config);
 };
 
-
+//+ This whole class may not be needed
 // ------------------------------------------------------------------
 /// An intermediate templated base class for algorithm implementations
 /**
@@ -414,34 +348,8 @@ class algorithm_impl
 {
 public:
   /// shared pointer type of this impl's base vital::algorithm_def class.
-  typedef std::shared_ptr<BaseDef> base_sptr;
 
-  virtual ~algorithm_impl() VITAL_DEFAULT_DTOR;
-
-  /// Returns a clone of this algorithm as a generic algorithm pointer
-  virtual algorithm_sptr base_clone() const
-  {
-    return algorithm_sptr(new Self(static_cast<const Self&>(*this)));
-  }
-
-  /// Returns a clone of this algorithm as a pointer of the base definition type
-  virtual base_sptr clone() const
-  {
-    return base_sptr(new Self(static_cast<const Self&>(*this)));
-  }
-
-  /// Return an optional descriptive string for an implementation
-  virtual std::string description() const
-  {
-    return "";
-  }
-
-  /// Register this algorithm implementation under the BaseDef type definition
-  static bool register_self(registrar &reg = vital::registrar::instance())
-  {
-    return algorithm_def<BaseDef>::register_instance(reg, base_sptr(new Self));
-  }
-
+  virtual ~algorithm_impl() = default;
 };
 
 

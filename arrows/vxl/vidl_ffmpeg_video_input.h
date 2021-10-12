@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,15 +56,12 @@ class KWIVER_ALGO_VXL_EXPORT vidl_ffmpeg_video_input
   : public vital::algorithm_impl < vidl_ffmpeg_video_input, vital::algo::video_input >
 {
 public:
+  PLUGIN_INFO( "vidl_ffmpeg",
+               "Use VXL (vidl with FFMPEG) to read video files as a sequence of images." )
+
   /// Constructor
   vidl_ffmpeg_video_input();
   virtual ~vidl_ffmpeg_video_input();
-
-  /// copy constructor
-  vidl_ffmpeg_video_input( vidl_ffmpeg_video_input const& other );
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "vxl"; }
 
   /// Get this algorithm's \link vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -80,12 +77,23 @@ public:
 
   virtual bool end_of_video() const;
   virtual bool good() const;
+  virtual bool seekable() const;
+  virtual size_t num_frames() const;
 
   virtual bool next_frame( kwiver::vital::timestamp& ts,
                            uint32_t timeout = 0 );
 
+  virtual double frame_rate();
+
+  virtual bool seek_frame( kwiver::vital::timestamp& ts,
+                           kwiver::vital::timestamp::frame_t frame_number,
+                           uint32_t timeout = 0 );
+
+  virtual kwiver::vital::timestamp frame_timestamp() const;
+
   virtual kwiver::vital::image_container_sptr frame_image();
-  virtual kwiver::vital::video_metadata_vector frame_metadata();
+  virtual kwiver::vital::metadata_vector frame_metadata();
+  virtual kwiver::vital::metadata_map_sptr metadata_map();
 
 private:
   /// private implementation class

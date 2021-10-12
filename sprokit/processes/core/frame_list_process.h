@@ -34,10 +34,7 @@
 #include <sprokit/pipeline/process.h>
 #include "kwiver_processes_export.h"
 
-#include <memory>
-
-namespace kwiver
-{
+namespace kwiver {
 
 // ----------------------------------------------------------------
 /**
@@ -55,6 +52,10 @@ class KWIVER_PROCESSES_NO_EXPORT frame_list_process
   : public sprokit::process
 {
 public:
+  PLUGIN_INFO( "frame_list_input",
+               "Reads a list of image file names and generates stream of "
+               "images and associated time stamps." )
+
   frame_list_process( kwiver::vital::config_block_sptr const& config );
   virtual ~frame_list_process();
 

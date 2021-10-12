@@ -39,13 +39,11 @@
 #include <opencv2/opencv_modules.hpp>
 #if ! defined(KWIVER_HAS_OPENCV_VER_3) || defined(HAVE_OPENCV_XFEATURES2D)
 
-#include <memory>
-#include <string>
-
 #include <vital/algo/extract_descriptors.h>
-#include <vital/vital_config.h>
 
 #include <arrows/ocv/extract_descriptors.h>
+
+#include <string>
 
 namespace kwiver {
 namespace arrows {
@@ -57,24 +55,14 @@ class KWIVER_ALGO_OCV_EXPORT extract_descriptors_BRIEF
                                          vital::algo::extract_descriptors>
 {
 public:
+  PLUGIN_INFO( "ocv_BRIEF",
+               "OpenCV feature-point descriptor extraction via the BRIEF algorithm" )
+
   /// Constructor
   extract_descriptors_BRIEF();
 
-  /// Copy Constructor
-  /**
-   * \param other The other BRIEF descriptor extractor to copy
-   */
-  extract_descriptors_BRIEF(extract_descriptors_BRIEF const &other);
-
   /// Destructor
   virtual ~extract_descriptors_BRIEF();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "ocv_BRIEF"; }
-  /// Returns a descriptive string for this implementation
-  virtual std::string description() const {
-    return "OpenCV feature-point descriptor extraction via the BRIEF algorithm";
-  }
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;

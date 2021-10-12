@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,47 +28,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <test_common.h>
-#include <test_math.h>
+#include <test_eigen.h>
 #include <test_scene.h>
+
+#include <vital/plugin_loader/plugin_manager.h>
 
 #include <arrows/core/projected_track_set.h>
 #include <arrows/core/epipolar_geometry.h>
 #include <arrows/vxl/estimate_essential_matrix.h>
-#include <arrows/vxl/register_algorithms.h>
 
 #include <Eigen/LU>
 
-
-#define TEST_ARGS ()
-
-DECLARE_TEST_MAP();
-
-int
-main(int argc, char* argv[])
-{
-  CHECK_ARGS(1);
-
-  kwiver::arrows::vxl::register_algorithms();
-
-  testname_t const testname = argv[1];
-
-  RUN_TEST(testname);
-}
-
 using namespace kwiver::vital;
 
-IMPLEMENT_TEST(create)
+// ----------------------------------------------------------------------------
+int main(int argc, char** argv)
 {
-  using namespace kwiver::arrows;
-  algo::estimate_essential_matrix_sptr est_e = algo::estimate_essential_matrix::create("vxl");
-  if (!est_e)
-  {
-    TEST_ERROR("Unable to create vxl::estimate_essential_matrix by name");
-  }
+  ::testing::InitGoogleTest( &argc, argv );
+  return RUN_ALL_TESTS();
 }
 
+// ----------------------------------------------------------------------------
+TEST(estimate_essential_matrix, create)
+{
+  plugin_manager::instance().load_all_plugins();
 
+  EXPECT_NE( nullptr, algo::estimate_essential_matrix::create("vxl") );
+}
+
+// ----------------------------------------------------------------------------
 // Print epipolar distance of pairs of points given a fundamental matrix
 void print_epipolar_distances(const kwiver::vital::matrix_3x3d& F,
                               const std::vector<kwiver::vital::vector_2d> right_pts,
@@ -92,9 +80,9 @@ void print_epipolar_distances(const kwiver::vital::matrix_3x3d& F,
   }
 }
 
-
-// test essential matrix estimation with ideal points
-IMPLEMENT_TEST(ideal_points)
+// ----------------------------------------------------------------------------
+// Test essential matrix estimation with ideal points
+TEST(estimate_essential_matrix, ideal_points)
 {
   using namespace kwiver::arrows;
   vxl::estimate_essential_matrix est_e;
@@ -113,8 +101,8 @@ IMPLEMENT_TEST(ideal_points)
   const frame_id_t frame2 = 10;
 
   camera_map::map_camera_t cams = cameras->cameras();
-  camera_sptr cam1 = cams[frame1];
-  camera_sptr cam2 = cams[frame2];
+  auto cam1 = std::dynamic_pointer_cast<camera_perspective>(cams[frame1]);
+  auto cam2 = std::dynamic_pointer_cast<camera_perspective>(cams[frame2]);
   camera_intrinsics_sptr cal1 = cam1->intrinsics();
   camera_intrinsics_sptr cal2 = cam2->intrinsics();
 
@@ -126,8 +114,10 @@ IMPLEMENT_TEST(ideal_points)
   std::vector<vector_2d> pts1, pts2;
   for(unsigned int i=0; i<trks.size(); ++i)
   {
-    pts1.push_back(trks[i]->find(frame1)->feat->loc());
-    pts2.push_back(trks[i]->find(frame2)->feat->loc());
+    auto fts1 = std::dynamic_pointer_cast<feature_track_state>(*trks[i]->find(frame1));
+    auto fts2 = std::dynamic_pointer_cast<feature_track_state>(*trks[i]->find(frame2));
+    pts1.push_back(fts1->feature->loc());
+    pts2.push_back(fts2->feature->loc());
   }
 
   // print the epipolar distances using this essential matrix
@@ -136,29 +126,21 @@ IMPLEMENT_TEST(ideal_points)
 
   // compute the essential matrix from the corresponding points
   std::vector<bool> inliers;
-  essential_matrix_sptr E_sptr = est_e.estimate(pts1, pts2, cal1, cal2,
-                                                inliers, 1.5);
-  matrix_3x3d E = E_sptr->matrix();
-  // check for sign difference
-  if( true_E->matrix().cwiseProduct(E).sum() < 0.0 )
-  {
-    E *= -1;
-  }
+  auto estimated_E = est_e.estimate(pts1, pts2, cal1, cal2, inliers, 1.5);
 
   // compare true and computed essential matrices
-  std::cout << "true E = "<< *true_E << std::endl;
-  std::cout << "Estimated E = "<< E << std::endl;
-  TEST_NEAR("Essential Matrix Estimate", E, true_E->matrix(), 1e-8);
+  std::cout << "true E = " << *true_E << std::endl;
+  std::cout << "Estimated E = " << *estimated_E << std::endl;
+  EXPECT_MATRIX_SIMILAR( true_E->matrix(), estimated_E->matrix(), 1e-8 );
 
-  unsigned num_inliers = static_cast<unsigned>(std::count(inliers.begin(),
-                                                          inliers.end(), true));
-  std::cout << "num inliers "<<num_inliers<<std::endl;
-  TEST_EQUAL("All points are inliers", num_inliers, pts1.size());
+  std::cout << "num inliers " << inliers.size() << std::endl;
+  EXPECT_EQ( pts1.size(), inliers.size() )
+    << "All points should be inliers";
 }
 
-
-// test essential matrix estimation with noisy points
-IMPLEMENT_TEST(noisy_points)
+// ----------------------------------------------------------------------------
+// Test essential matrix estimation with noisy points
+TEST(estimate_essential_matrix, noisy_points)
 {
   using namespace kwiver::arrows;
   vxl::estimate_essential_matrix est_e;
@@ -171,7 +153,7 @@ IMPLEMENT_TEST(noisy_points)
   camera_map_sptr cameras = kwiver::testing::camera_seq();
 
   // create tracks from the projections
-  track_set_sptr tracks = projected_tracks(landmarks, cameras);
+  feature_track_set_sptr tracks = projected_tracks(landmarks, cameras);
 
   // add random noise to track image locations
   tracks = kwiver::testing::noisy_tracks(tracks, 0.5);
@@ -180,8 +162,8 @@ IMPLEMENT_TEST(noisy_points)
   const frame_id_t frame2 = 10;
 
   camera_map::map_camera_t cams = cameras->cameras();
-  camera_sptr cam1 = cams[frame1];
-  camera_sptr cam2 = cams[frame2];
+  auto cam1 = std::dynamic_pointer_cast<camera_perspective>(cams[frame1]);
+  auto cam2 = std::dynamic_pointer_cast<camera_perspective>(cams[frame2]);
   camera_intrinsics_sptr cal1 = cam1->intrinsics();
   camera_intrinsics_sptr cal2 = cam2->intrinsics();
 
@@ -193,8 +175,10 @@ IMPLEMENT_TEST(noisy_points)
   std::vector<vector_2d> pts1, pts2;
   for(unsigned int i=0; i<trks.size(); ++i)
   {
-    pts1.push_back(trks[i]->find(frame1)->feat->loc());
-    pts2.push_back(trks[i]->find(frame2)->feat->loc());
+    auto fts1 = std::dynamic_pointer_cast<feature_track_state>(*trks[i]->find(frame1));
+    auto fts2 = std::dynamic_pointer_cast<feature_track_state>(*trks[i]->find(frame2));
+    pts1.push_back(fts1->feature->loc());
+    pts2.push_back(fts2->feature->loc());
   }
 
   // print the epipolar distances using this essential matrix
@@ -203,23 +187,14 @@ IMPLEMENT_TEST(noisy_points)
 
   // compute the essential matrix from the corresponding points
   std::vector<bool> inliers;
-  essential_matrix_sptr E_sptr = est_e.estimate(pts1, pts2, cal1, cal2,
-                                                inliers, 1.5);
-  matrix_3x3d E = E_sptr->matrix();
-  // check for sign difference
-  if( true_E->matrix().cwiseProduct(E).sum() < 0.0 )
-  {
-    E *= -1;
-  }
+  auto estimated_E = est_e.estimate(pts1, pts2, cal1, cal2, inliers, 1.5);
 
   // compare true and computed essential matrices
   std::cout << "true E = "<< *true_E << std::endl;
-  std::cout << "Estimated E = "<< E << std::endl;
-  TEST_NEAR("Essential Matrix Estimate", E, true_E->matrix(), 0.01);
+  std::cout << "Estimated E = "<< *estimated_E << std::endl;
+  EXPECT_MATRIX_SIMILAR( true_E->matrix(), estimated_E->matrix(), 1e-2 );
 
-  unsigned num_inliers = static_cast<unsigned>(std::count(inliers.begin(),
-                                                          inliers.end(), true));
-  std::cout << "num inliers "<<num_inliers<<std::endl;
-  bool enough_inliers = num_inliers > pts1.size() / 3;
-  TEST_EQUAL("Enough inliers", enough_inliers, true);
+  std::cout << "num inliers " << inliers.size() << std::endl;
+  EXPECT_GT( inliers.size(), pts1.size() / 3 )
+    << "Not enough inliers";
 }

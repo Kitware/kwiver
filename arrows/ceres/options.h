@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,9 +38,13 @@
 
 #include <vital/vital_config.h>
 #include <vital/config/config_block.h>
-#include <vital/types/camera.h>
+#include <vital/types/camera_perspective.h>
 #include <vital/types/camera_map.h>
+#include <vital/types/sfm_constraints.h>
 #include <arrows/ceres/types.h>
+
+#include <unordered_map>
+
 
 namespace kwiver {
 namespace arrows {
@@ -81,8 +85,9 @@ class camera_options
 {
 public:
   /// typedef for camera parameter map
-  typedef std::map<vital::frame_id_t, std::vector<double> > cam_param_map_t;
-  typedef std::map<vital::frame_id_t, unsigned int> cam_intrinsic_id_map_t;
+  typedef std::unordered_map<vital::frame_id_t, std::vector<double> > cam_param_map_t;
+  typedef std::unordered_map<vital::frame_id_t, unsigned int> cam_intrinsic_id_map_t;
+  typedef std::vector<std::pair<vital::frame_id_t, double *> > frame_params_t;
 
   /// Constructor
   camera_options();
@@ -106,7 +111,7 @@ public:
    *
    *  This function is the inverse of update_camera_extrinsics
    */
-  void extract_camera_extrinsics(const vital::camera_sptr camera,
+  void extract_camera_extrinsics(const vital::camera_perspective_sptr camera,
                                  double* params) const;
 
   /// Update a camera object to use extrinsic parameters from an array
@@ -116,8 +121,9 @@ public:
    *
    *  This function is the inverse of extract_camera_extrinsics
    */
-  void update_camera_extrinsics(std::shared_ptr<vital::simple_camera> camera,
-                                double const* params) const;
+  void update_camera_extrinsics(
+    std::shared_ptr<vital::simple_camera_perspective> camera,
+    double const* params) const;
 
   /// extract the paramters from camera intrinsics into the parameter array
   /**
@@ -176,14 +182,27 @@ public:
                            std::vector<std::vector<double> > const& int_params,
                            cam_intrinsic_id_map_t const& int_map) const;
 
+  /// Add the camera position priors costs to the Ceres problem
+  int
+  add_position_prior_cost(::ceres::Problem& problem,
+                          cam_param_map_t& ext_params,
+                          vital::sfm_constraints_sptr constraints);
+
+  /// Add the camera intrinsic priors costs to the Ceres problem
+  void add_intrinsic_priors_cost(
+    ::ceres::Problem& problem,
+    std::vector<std::vector<double> >& int_params) const;
+
   /// Add the camera path smoothness costs to the Ceres problem
-  void add_camera_path_smoothness_cost(::ceres::Problem& problem,
-                                       cam_param_map_t& ext_params) const;
+  void add_camera_path_smoothness_cost(
+    ::ceres::Problem& problem,
+    frame_params_t const& ordered_params) const;
 
   /// Add the camera forward motion damping costs to the Ceres problem
-  void add_forward_motion_damping_cost(::ceres::Problem& problem,
-                                       cam_param_map_t& ext_params,
-                                       cam_intrinsic_id_map_t const& frame_to_intr_map) const;
+  void add_forward_motion_damping_cost(
+    ::ceres::Problem& problem,
+    frame_params_t const& ordered_params,
+    cam_intrinsic_id_map_t const& frame_to_intr_map) const;
 
   /// enumerate the intrinsics held constant
   /**
@@ -232,6 +251,8 @@ public:
   double camera_path_smoothness;
   /// the scale of camera forward motion damping regularization
   double camera_forward_motion_damping;
+  /// a soft lower bound on the horizontal field of view
+  double minimum_hfov;
 };
 
 
@@ -239,4 +260,4 @@ public:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_CERES_CAMERA_OPTIONS_H_
+#endif

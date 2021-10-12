@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2012 by Kitware, Inc.
+ * Copyright 2012-2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,9 @@
 #ifndef SPROKIT_PROCESSES_EXAMPLES_MULTIPLIER_CLUSTER_H
 #define SPROKIT_PROCESSES_EXAMPLES_MULTIPLIER_CLUSTER_H
 
-#include "examples-config.h"
+#include "processes_examples_export.h"
 
 #include <sprokit/pipeline/process_cluster.h>
-
-#include <boost/scoped_ptr.hpp>
 
 /**
  * \file multiplier_cluster.h
@@ -43,8 +41,7 @@
  * \brief Declaration of the multiplier cluster.
  */
 
-namespace sprokit
-{
+namespace sprokit {
 
 /**
  * \class multiplier_cluster
@@ -55,23 +52,27 @@ namespace sprokit
  *
  * \ingroup examples
  */
-class SPROKIT_PROCESSES_EXAMPLES_NO_EXPORT multiplier_cluster
+class PROCESSES_EXAMPLES_NO_EXPORT multiplier_cluster
   : public process_cluster
 {
-  public:
-    /**
-     * \brief Constructor.
-     *
-     * \param config The configuration for the process.
-     */
-    multiplier_cluster(kwiver::vital::config_block_sptr const& config);
-    /**
-     * \brief Destructor.
-     */
-    ~multiplier_cluster();
-  private:
-    class priv;
-    boost::scoped_ptr<priv> d;
+public:
+  PLUGIN_INFO( "multiplier_cluster",
+               "A constant factor multiplier cluster" );
+  /**
+   * \brief Constructor.
+   *
+   * \param config The configuration for the process.
+   */
+  multiplier_cluster(kwiver::vital::config_block_sptr const& config);
+
+  /**
+   * \brief Destructor.
+   */
+  virtual ~multiplier_cluster();
+
+private:
+  class priv;
+  std::unique_ptr<priv> d;
 };
 
 }

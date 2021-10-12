@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,29 +63,8 @@ close_loops_bad_frames_only
 }
 
 
-/// Copy Constructor
-close_loops_bad_frames_only
-::close_loops_bad_frames_only(const close_loops_bad_frames_only& other)
-: enabled_(other.enabled_),
-  percent_match_req_(other.percent_match_req_),
-  new_shot_length_(other.new_shot_length_),
-  max_search_length_(other.max_search_length_),
-  matcher_(!other.matcher_ ? algo::match_features_sptr() : other.matcher_->clone())
-{
-}
-
-
-std::string
-close_loops_bad_frames_only
-::description() const
-{
-  return "Attempts short-term loop closure based on percentage of feature "
-    "points tracked.";
-}
-
-
-/// Get this alg's \link vital::config_block configuration block \endlink
-  vital::config_block_sptr
+// ----------------------------------------------------------------------------
+vital::config_block_sptr
 close_loops_bad_frames_only
 ::get_configuration() const
 {
@@ -121,6 +100,7 @@ close_loops_bad_frames_only
 }
 
 
+// ----------------------------------------------------------------------------
 /// Set this algo's properties via a config block
 void
 close_loops_bad_frames_only
@@ -146,7 +126,8 @@ close_loops_bad_frames_only
 }
 
 
-bool
+// ----------------------------------------------------------------------------
+  bool
 close_loops_bad_frames_only
 ::check_configuration(vital::config_block_sptr config) const
 {
@@ -158,18 +139,12 @@ close_loops_bad_frames_only
 }
 
 
-/// Functor to help remove tracks from vector
-bool track_id_in_set( track_sptr trk_ptr, std::set<track_id_t>* set_ptr )
-{
-  return set_ptr->find( trk_ptr->id() ) != set_ptr->end();
-}
-
-
+// ----------------------------------------------------------------------------
 /// Handle track bad frame detection if enabled
-vital::track_set_sptr
+vital::feature_track_set_sptr
 close_loops_bad_frames_only
 ::stitch( vital::frame_id_t frame_number,
-          vital::track_set_sptr input,
+          vital::feature_track_set_sptr input,
           vital::image_container_sptr,
           vital::image_container_sptr ) const
 {
@@ -209,11 +184,14 @@ close_loops_bad_frames_only
     last_frame_to_test = frame_to_test - max_search_length_;
   }
 
-  vital::track_set_sptr stitch_frame_set = input->active_tracks( frame_to_stitch );
+  auto stitch_frame_set = std::make_shared<vital::feature_track_set>(
+                              input->active_tracks( frame_to_stitch ) );
+
 
   for( ; frame_to_test > last_frame_to_test; frame_to_test-- )
   {
-    vital::track_set_sptr test_frame_set = input->active_tracks( frame_to_test );
+    auto test_frame_set = std::make_shared<vital::feature_track_set>(
+                              input->active_tracks( frame_to_test ) );
 
     // run matcher alg
     vital::match_set_sptr mset = matcher_->match(test_frame_set->frame_features( frame_to_test ),
@@ -230,26 +208,14 @@ close_loops_bad_frames_only
       std::vector<vital::track_sptr> test_frame_trks = test_frame_set->tracks();
       std::vector<vital::track_sptr> stitch_frame_trks = stitch_frame_set->tracks();
       std::vector<vital::match> matches = mset->matches();
-      std::set<vital::track_id_t> to_remove;
 
       for( unsigned i = 0; i < matches.size(); i++ )
       {
-        if( test_frame_trks[ matches[i].first ]->append( *stitch_frame_trks[ matches[i].second ] ) )
-        {
-          to_remove.insert( stitch_frame_trks[ matches[i].second ]->id() );
-        }
+        input->merge_tracks( stitch_frame_trks[ matches[i].second ],
+                             test_frame_trks[ matches[i].first] );
       }
 
-      if( !to_remove.empty() )
-      {
-        all_tracks.erase(
-          std::remove_if( all_tracks.begin(), all_tracks.end(),
-                          std::bind( track_id_in_set, std::placeholders::_1, &to_remove ) ),
-          all_tracks.end()
-        );
-      }
-
-      return track_set_sptr( new simple_track_set( all_tracks ) );
+      return input;
     }
   }
 

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,12 +35,14 @@
 
 #include "hough_circle_detector.h"
 
-#include <vector>
+#include <vital/config/config_difference.h>
 
 #include <arrows/ocv/image_container.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+
+#include <vector>
 
 namespace kwiver {
 namespace arrows {
@@ -78,15 +80,10 @@ public:
 }; // end class hough_circle_detector::priv
 
 
+  // ==================================================================
 hough_circle_detector::
 hough_circle_detector()
   : d( new priv )
-{ }
-
-
-hough_circle_detector::
-hough_circle_detector( const hough_circle_detector& other)
-  : d( new priv( *other.d ) )
 { }
 
 
@@ -135,8 +132,17 @@ get_configuration() const
 // ------------------------------------------------------------------
 void
 hough_circle_detector::
-set_configuration(vital::config_block_sptr config)
+set_configuration(vital::config_block_sptr config_in)
 {
+  // Starting with our generated config_block to ensure that assumed values are present
+  // An alternative is to check for key presence before performing a get_value() call.
+  vital::config_block_sptr config = this->get_configuration();
+
+  kwiver::vital::config_difference cd( config, config_in );
+  cd.warn_extra_keys( logger() );
+
+  config->merge_config( config_in );
+
   d->m_dp         = config->get_value<double>( "dp" );
   d->m_min_dist   = config->get_value<double>( "min_dist" );
   d->m_param1     = config->get_value<double>( "param1" );
@@ -149,9 +155,12 @@ set_configuration(vital::config_block_sptr config)
 // ------------------------------------------------------------------
 bool
 hough_circle_detector::
-check_configuration(vital::config_block_sptr config) const
+check_configuration(vital::config_block_sptr config_in) const
 {
-  return true;
+  vital::config_block_sptr config = this->get_configuration();
+
+  kwiver::vital::config_difference cd( config, config_in );
+  return ! cd.warn_extra_keys( logger() );
 }
 
 
@@ -162,7 +171,9 @@ detect( vital::image_container_sptr image_data) const
 {
   auto detected_set = std::make_shared< kwiver::vital::detected_object_set>();
 
-  cv::Mat src = kwiver::arrows::ocv::image_container::vital_to_ocv( image_data->get_image() );
+  using namespace kwiver::arrows::ocv;
+  cv::Mat src = image_container::vital_to_ocv( image_data->get_image(),
+                                               image_container::BGR_COLOR );
   cv::Mat src_gray;
 
   // Convert it to gray
@@ -184,7 +195,7 @@ detect( vital::image_container_sptr image_data) const
                     d->m_min_radius, // i: min radius
                     d->m_max_radius ); // i: max radius
 
-  LOG_DEBUG( m_logger, "Detected " << circles.size() << " objects." );
+  LOG_DEBUG( logger(), "Detected " << circles.size() << " objects." );
 
   // process results
   for ( size_t i = 0; i < circles.size(); ++i )

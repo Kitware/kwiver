@@ -1,4 +1,4 @@
-#!@PYTHON_EXECUTABLE@
+#!/usr/bin/env python
 #ckwg +28
 # Copyright 2011-2013 by Kitware, Inc.
 # All rights reserved.
@@ -39,12 +39,7 @@ def test_import(path_unused):
 def test_create(path_unused):
     from sprokit.pipeline_util import load
 
-    load.Token()
-    load.ConfigFlag()
     load.ConfigFlags()
-    load.ConfigProvider()
-    load.ConfigKeyOptions()
-    load.ConfigKey()
     load.ConfigValue()
     load.ConfigValues()
     load.ConfigBlock()
@@ -65,46 +60,32 @@ def test_create(path_unused):
 def test_api_calls(path_unused):
     from sprokit.pipeline import config
     from sprokit.pipeline import process
-    from sprokit.pipeline import process_registry
+    from sprokit.pipeline import process_factory
     from sprokit.pipeline_util import load
-
-    o = load.ConfigKeyOptions()
-    o.flags
-    o.provider
-    o.flags = load.ConfigFlags()
-    o.provider = load.ConfigProvider()
-
-    o = load.ConfigKey()
-    o.key_path
-    o.options
-    o.key_path = config.ConfigKeys()
-    o.options = load.ConfigKeyOptions()
 
     o = load.ConfigValue()
     o.key
     o.value
-    o.key = load.ConfigKey()
-    o.value = config.ConfigValue()
+    o.value = ''
 
     o = load.ConfigBlock()
     o.key
     o.values
-    o.key = config.ConfigKeys()
     o.values = load.ConfigValues()
 
     o = load.ProcessBlock()
     o.name
     o.type
     o.config_values
-    o.name = process.ProcessName()
-    o.type = process.ProcessType()
+    o.name = ''
+    o.type = ''
     o.config_values = load.ConfigValues()
 
     o = load.ConnectBlock()
     o.from_
     o.to
-    o.from_ = process.PortAddr()
-    o.to = process.PortAddr()
+    o.from_ = process.PortAddr().getAddr()
+    o.to = process.PortAddr().getAddr()
 
     o = load.PipeBlock()
     o.config = load.ConfigBlock()
@@ -117,24 +98,24 @@ def test_api_calls(path_unused):
     o = load.ClusterConfig()
     o.description
     o.config_value
-    o.description = config.ConfigDescription()
+    o.description = ''
     o.config_value = load.ConfigValue()
 
     o = load.ClusterInput()
     o.description
     o.from_
     o.targets
-    o.description = process.PortDescription()
-    o.from_ = process.Port()
+    o.description = ''
+    o.from_ = ''
     o.targets = process.PortAddrs()
 
     o = load.ClusterOutput()
     o.description
     o.from_
     o.to
-    o.description = process.PortDescription()
-    o.from_ = process.PortAddr()
-    o.to = process.Port()
+    o.description = ''
+    o.from_ = process.PortAddr().getAddr()
+    o.to = ''
 
     o = load.ClusterSubblock()
     o.config = load.ClusterConfig()
@@ -163,8 +144,8 @@ def test_api_calls(path_unused):
     o.type
     o.description
     o.subblocks
-    o.type = process.ProcessType()
-    o.description = process_registry.ProcessDescription()
+    o.type = ''
+    o.description = ''
     o.subblocks = load.ClusterSubblocks()
 
     o = load.ClusterDefineBlock()

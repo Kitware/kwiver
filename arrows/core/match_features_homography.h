@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2016 by Kitware, Inc.
+ * Copyright 2013-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@
 #ifndef KWIVER_ARROWS_CORE_MATCH_FEATURES_HOMOGRAPHY_H_
 #define KWIVER_ARROWS_CORE_MATCH_FEATURES_HOMOGRAPHY_H_
 
-#include <vital/vital_config.h>
 #include <arrows/core/kwiver_algo_core_export.h>
 
 #include <vital/algo/filter_features.h>
@@ -45,7 +44,6 @@
 #include <vital/algo/match_features.h>
 #include <vital/config/config_block.h>
 
-#include <memory>
 
 namespace kwiver {
 namespace arrows {
@@ -79,17 +77,15 @@ class KWIVER_ALGO_CORE_EXPORT match_features_homography
   : public vital::algorithm_impl<match_features_homography, vital::algo::match_features>
 {
 public:
+  PLUGIN_INFO( "homography_guided",
+               "Use an estimated homography as a geometric filter"
+               " to remove outlier matches." )
+
   /// Default Constructor
   match_features_homography();
 
-  /// Copy Constructor
-  match_features_homography(const match_features_homography&);
-
   /// Destructor
   virtual ~match_features_homography();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "homography_guided"; }
 
   /// Get this alg's \link vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -154,4 +150,4 @@ private:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_CORE_MATCH_FEATURES_HOMOGRAPHY_H_
+#endif

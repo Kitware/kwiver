@@ -36,18 +36,14 @@
 #ifndef KWIVER_ARROWS_DETECT_FEATURES_GFTT_H_
 #define KWIVER_ARROWS_DETECT_FEATURES_GFTT_H_
 
-#include <memory>
-#include <string>
-
-#include <vital/vital_config.h>
-
 #include <arrows/ocv/detect_features.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
+
+#include <string>
 
 namespace kwiver {
 namespace arrows {
 namespace ocv {
-
 
 class KWIVER_ALGO_OCV_EXPORT detect_features_GFTT
   : public vital::algorithm_impl< detect_features_GFTT,
@@ -55,21 +51,14 @@ class KWIVER_ALGO_OCV_EXPORT detect_features_GFTT
                                   vital::algo::detect_features >
 {
 public:
+  PLUGIN_INFO( "ocv_GFTT",
+               "OpenCV feature detection via the GFTT algorithm" )
+
   /// Constructor
   detect_features_GFTT();
 
-  /// Copy constructor
-  detect_features_GFTT(const detect_features_GFTT &other);
-
   /// Destructor
   virtual ~detect_features_GFTT();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "ocv_GFTT"; }
-  /// Returns a descriptive string for this implementation
-  virtual std::string description() const {
-    return "OpenCV feature detection via the GFTT algorithm";
-  }
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;

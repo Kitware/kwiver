@@ -1,6 +1,6 @@
 #include <sprokit/pipeline/process.h>
 
-#include <boost/scoped_ptr.hpp>
+#include <memory>
 
 using namespace sprokit;
 
@@ -15,7 +15,7 @@ class compare_string_process
     void _step();
   private:
     class priv;
-    boost::scoped_ptr<priv> d;
+    std::unique_ptr<priv> d;
 };
 
 class compare_string_process::priv
@@ -125,7 +125,7 @@ register_processes()
 
   process_registry_t const registry = process_registry::self();
 
-  if (registry->is_module_loaded(module_name))
+  if (registry->is_process_module_loaded(module_name))
   {
     return;
   }

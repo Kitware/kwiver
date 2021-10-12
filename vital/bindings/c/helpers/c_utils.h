@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2015-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,6 +63,10 @@ static auto m_logger( kwiver::vital::get_logger( "vital.c_utils" ) );
  * before setting the new message. If it is desired to retain the message for
  * some other purpose, it should be copied/duplicated before re-using an error
  * handle.
+ *
+ * \param eh_ptr Pointer to an error handle structure. May be null.
+ * \param ec Integer error code.
+ * \param msg C-string message to encode.
  */
 #define POPULATE_EH(eh_ptr, ec, msg)                                                \
   do                                                                                \
@@ -182,7 +186,7 @@ public:
 
   /// Exception for when a given entry doesn't exist in this cache
   class NoEntryException
-    : public kwiver::vital::vital_core_base_exception
+    : public kwiver::vital::vital_exception
   {
   public:
     NoEntryException( std::string const &reason )
@@ -193,7 +197,7 @@ public:
 
   /// Exception for when we're asked to do something with a null pointer
   class NullPointerException
-    : public kwiver::vital::vital_core_base_exception
+    : public kwiver::vital::vital_exception
   {
   public:
     NullPointerException( std::string const &reason)
@@ -212,7 +216,7 @@ public:
 
   // ------------------------------------------------------------------
   /// Destructor
-  virtual ~SharedPointerCache() VITAL_DEFAULT_DTOR
+  virtual ~SharedPointerCache() = default;
 
   // ------------------------------------------------------------------
   /// Store a shared pointer

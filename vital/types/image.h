@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2016 by Kitware, Inc.
+ * Copyright 2013-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -133,6 +133,7 @@ struct image_pixel_traits_helper<true, false, true>
 template <typename T>
 struct image_pixel_traits_of : public image_pixel_traits
 {
+  VITAL_EXPORT
   const static image_pixel_traits::pixel_type static_type =
     image_pixel_traits_helper<std::numeric_limits<T>::is_specialized,
                               std::numeric_limits<T>::is_integer,
@@ -145,6 +146,7 @@ struct image_pixel_traits_of : public image_pixel_traits
 template <>
 struct image_pixel_traits_of<bool> : public image_pixel_traits
 {
+  VITAL_EXPORT
   const static image_pixel_traits::pixel_type static_type = image_pixel_traits::BOOL;
   image_pixel_traits_of<bool>()
   : image_pixel_traits(static_type, sizeof(bool)) {}
@@ -152,7 +154,7 @@ struct image_pixel_traits_of<bool> : public image_pixel_traits
 
 
 // ==================================================================
-/// Provide compile-time look-up of data type from pixel_type enum and size 
+/// Provide compile-time look-up of data type from pixel_type enum and size
 /*
  * This struct and its specializations provide compile-time mapping from
  * image_pixel_traits properties (pixel_type and num_bytes) to a concrete type
@@ -240,11 +242,41 @@ protected:
 typedef std::shared_ptr< image_memory > image_memory_sptr;
 
 
-// ==================================================================
+// ===========================================================================
 /// The representation of an in-memory image.
 /**
- * Images share memory using the image_memory class.  This is
- * effectively a view on an image.
+ * This base image class represents an image with a dynamic data type.  The
+ * underlying data type can be queried using pixel_traits().  To properly
+ * access individual pixels the data type must be known.  The templated at<T>()
+ * member function provides direct access to pixels.  Alternatively, cast the
+ * image itself into an image_of object.  The typed image_of class is a bit
+ * easier to work with once the type is known, but this base class is useful
+ * in APIs that may operate on images of various types.
+ *
+ * Memory Management
+ * -----------------
+ *
+ * This image class supports two modes of memory management.  Either the image
+ * owns its memory or it does not.  If the image owns its memory the
+ * image::memory() function will return a shared pointer to that image_memory
+ * object.  Otherwise, image::memory() will return nullptr.  In both cases,
+ * image::first_pixel() returns a pointer to the first pixel of the memory
+ * that appears in the image.  The address of the first pixel does not need
+ * to match the starting address of the image_memory.  There can be multiple
+ * different views into the same memory (e.g. a cropped image view) and these
+ * views may use the same memory object with a different offsets to the first
+ * pixel, size, and step parameters.
+ *
+ * Typically the image manages its own memory in a reference counted
+ * image_memory object.  Creating a new image will allocate this memory, which
+ * can be accessed from image::memory().  Copying an image will make a shallow
+ * copy refering to the same memory object, and the memory will be deleted
+ * when all images are done with it.
+ *
+ * There is a special constructor that allows construction of an image as a
+ * veiw into some existing memory.  In this case the image does not own the
+ * memory and image::memory() will return nullptr.  The user must ensure that
+ * the memory exists for the lifetime of the image.
  */
 class VITAL_EXPORT image
 {
@@ -324,9 +356,29 @@ public:
   const image& operator=( const image& other );
 
   /// Const access to the image memory
+  /**
+   * \copydoc image::memory()
+   */
   const image_memory_sptr& memory() const { return data_; }
 
   /// Access to the image memory
+  /**
+   * In most cases, when interacting with image data, you should use the
+   * first_pixel() function instead of memory().  The memory() function
+   * provides access to the underlying reference counted memory for advanced
+   * memory management applications.  It returns a block of data that contains
+   * the image somewhere within.  The block of data may contain only the
+   * pixels in this image, but it could also contain much more hidden data
+   * if the image is a crop or subsampling of an original image that was
+   * larger.  The blocks of memory are typically shared between copies of
+   * this image, and each copy may have a different view into the memory.
+   *
+   * This function may also return \c nullptr for a valid image that is a
+   * view into some external memory (first_pixel() is still valid in this
+   * case).  Use caution when accessing the memory directly and always check
+   * that the memory is not \c nullptr.  Never assume that the image data
+   * must be contained in the memory block returned by this function.
+   */
   image_memory_sptr memory() { return data_; }
 
   /// The size of the image managed data in bytes
@@ -342,15 +394,27 @@ public:
 
   /// Const access to the pointer to first image pixel
   /**
-   * This may differ from \a data() if the image is a
-   * window into a large image memory chunk.
+   * \copydoc image::first_pixel()
    */
   const void* first_pixel() const { return first_pixel_; }
 
   /// Access to the pointer to first image pixel
   /**
-   * This may differ from \a data() if the image is a
-   * window into a larger image memory chunk.
+   * Returns a raw void pointer to the first pixel in the image.
+   * This is the starting point for iterating through the image using
+   * offsets of w_step(), h_step(), and d_step().  See also
+   * image_of::first_pixel() for a variant of this function that
+   * returns a pointer to the underlying pixel type.
+   *
+   * \note the address returned may differ from the starting address
+   * returned by image::memory() if the image is a window into a larger
+   * block of image memory.
+   *
+   * \note If the address returned is not \c nullptr but image::memory()
+   * returns \c nullptr, then this image is a view into external memory
+   * not owned by this image object.
+   *
+   * \sa image_of::first_pixel()
    */
   void* first_pixel() { return first_pixel_; }
 
@@ -378,17 +442,47 @@ public:
   /// Return true if the pixels accessible in this image form a contiguous memory block
   bool is_contiguous() const;
 
+  /// Equality operator
+  /**
+   * Compares this image to another image to test equality.
+   *
+   * \param other image to compare with
+   *
+   * \note This function computes only "shallow" equality.  That is, the images
+   *       are considered equal if they point to the same memory and have the
+   *       dimensions and pixel step sizes.  Deep equality testing requires
+   *       stepping through and testing that the values of each pixel are the
+   *       same even if the memory and possibly memory layout differ.
+   *
+   * \sa   For deep equality comparison see equal_content
+   */
+  bool operator==( image const& other ) const;
+
+  /// Inequality operator
+  /**
+  * Compares this image to another image to test inequality.
+  *
+  * \param other image to compare with
+  *
+  * \note This function computes only "shallow" inequality.  Refer to the
+  *       equality operator (==) for details.
+  */
+  bool operator!=(image const& other) const
+  {
+    return !(*this == other);
+  }
+
   /// Access pixels in the first channel of the image
   /**
    * \param i width position (x)
    * \param j height position (y)
    */
   template <typename T>
-  inline T& at( unsigned i, unsigned j )
+  inline T& at( size_t i, size_t j )
   {
     if( i >= width_ || j >= height_ )
     {
-      throw std::out_of_range("kwiver::vital::image::at<T>(unsigned, unsigned)");
+      throw std::out_of_range("kwiver::vital::image::at<T>(size_t, size_t)");
     }
     return reinterpret_cast<T*>(first_pixel_)[w_step_ * i + h_step_ * j];
   }
@@ -396,11 +490,11 @@ public:
 
   /// Const access pixels in the first channel of the image
   template <typename T>
-  inline const T& at( unsigned i, unsigned j ) const
+  inline const T& at( size_t i, size_t j ) const
   {
     if( i >= width_ || j >= height_ )
     {
-      throw std::out_of_range("kwiver::vital::image::at<T>(unsigned, unsigned) const");
+      throw std::out_of_range("kwiver::vital::image::at<T>(size_t, size_t) const");
     }
     return reinterpret_cast<const T*>(first_pixel_)[w_step_ * i + h_step_ * j];
   }
@@ -408,11 +502,11 @@ public:
 
   /// Access pixels in the image (width, height, channel)
   template <typename T>
-  inline T& at( unsigned i, unsigned j, unsigned k )
+  inline T& at( size_t i, size_t j, size_t k )
   {
     if( i >= width_ || j >= height_ || k >= depth_ )
     {
-      throw std::out_of_range("kwiver::vital::image::at<T>(unsigned, unsigned, unsigned)");
+      throw std::out_of_range("kwiver::vital::image::at<T>(size_t, size_t, size_t)");
     }
     return reinterpret_cast<T*>(first_pixel_)[w_step_ * i + h_step_ * j + d_step_ * k];
   }
@@ -420,11 +514,11 @@ public:
 
   /// Const access pixels in the image (width, height, channel)
   template <typename T>
-  inline const T& at( unsigned i, unsigned j, unsigned k ) const
+  inline const T& at( size_t i, size_t j, size_t k ) const
   {
     if( i >= width_ || j >= height_ || k >= depth_ )
     {
-      throw std::out_of_range("kwiver::vital::image::at<T>(unsigned, unsigned, unsigned) const");
+      throw std::out_of_range("kwiver::vital::image::at<T>(size_t, size_t, size_t) const");
     }
     return reinterpret_cast<const T*>(first_pixel_)[w_step_ * i + h_step_ * j + d_step_ * k];
   }
@@ -443,6 +537,16 @@ public:
    */
   void set_size( size_t width, size_t height, size_t depth );
 
+  /// Get a cropped view of the image.
+  /**
+   * Get a cropped view of the image. The cropped view shares memory with the
+   * original image so no deep copy is done.
+   * \param x_offset start of the crop region in x (width)
+   * \param y_offset start of the crop region in y (height)
+   * \param width width of the crop region
+   * \param height height of the crop region
+   */
+  image crop(size_t x_offset, size_t y_offset, size_t width, size_t height) const;
 
 protected:
   /// Smart pointer to memory viewed by this class
@@ -466,11 +570,41 @@ protected:
 };
 
 
-// ==================================================================
-/// The representation of an in-memory image.
+// ===========================================================================
+/// The representation of a type-specific in-memory image.
 /**
- * Images share memory using the image_memory class.  This is
- * effectively a view on an image.
+ * This class is derived from the image() class to provide convenience
+ * functions that require the pixel type to be known at compile time.
+ * This derived class does not add any data or change any behavior of the
+ * base image() class.  It simply provides a strongly-typed view of the data.
+ * The constructors in this class make it easier to construct an image.
+ * For example,
+\code
+image I;
+// direct construction of a double image
+I = image(100, 100, 1, false, pixel_traits_of<double>());
+// equivalent construction using image_of
+I = image_of<double>(100, 100);
+\endcode
+ *
+ * Once cast as an image_of() the operator()() is available to directly access
+ * pixels with a simpler syntax. For example
+\code
+image_of<float> my_img(100, 100);     // make a float image of size 100 x 100
+float val = my_img(10, 10);           // get pixel at 10, 10
+      val = my_img.at<float>(10, 10); // image::at method does the same thing
+\endcode
+ *
+ * An image() can be directly assigned to an image_of() object and this will
+ * throw a image_type_mismatch_exception if the underlying type does not match.
+ * For example
+\code
+// make a 16-bit unsigned image with the base class
+image my_img(100, 100, 1, false, pixel_traits_of<uint16_t>());
+
+image_of<uint16_t> my_img16 = my_img; // this works
+image_of<float> my_imgf = my_img;     // this throws an exception
+\endcode
  */
 template <typename T>
 class image_of : public image
@@ -480,6 +614,7 @@ public:
   image_of()
   : image(image_pixel_traits_of<T>()) {}
 
+  // ----------------------------------------------------------------------------
   /// Constructor that allocates image memory
   /**
    * Create a new blank (empty) image of specified size.
@@ -492,6 +627,7 @@ public:
   image_of( size_t width, size_t height, size_t depth = 1, bool interleave = false )
   : image( width, height, depth, interleave, image_pixel_traits_of<T>() ) {}
 
+  // ----------------------------------------------------------------------------
   /// Constructor that points at existing memory
   /**
    * Create a new image from supplied memory.
@@ -512,6 +648,7 @@ public:
   : image( first_pixel, width, height, depth,
            w_step, h_step, d_step, image_pixel_traits_of<T>() ) {}
 
+  // ----------------------------------------------------------------------------
   /// Constructor that shares memory with another image
   /**
    * Create a new image from existing image.
@@ -533,6 +670,7 @@ public:
   : image( mem, first_pixel, width, height, depth,
            w_step, h_step, d_step, image_pixel_traits_of<T>() ) {}
 
+  // ----------------------------------------------------------------------------
   /// Constructor from base class
   /**
    * The new image will share the same memory as the old image
@@ -543,21 +681,25 @@ public:
   {
     if ( other.pixel_traits() != image_pixel_traits_of<T>() )
     {
-      throw image_type_mismatch_exception("kwiver::vital::image_of<T>(kwiver::vital::image)");
+      VITAL_THROW( image_type_mismatch_exception,
+                   "kwiver::vital::image_of<T>(kwiver::vital::image)");
     }
   }
 
+  // ----------------------------------------------------------------------------
   /// Assignment operator
   const image_of<T>& operator=( const image& other )
   {
     if ( other.pixel_traits() != image_pixel_traits_of<T>() )
     {
-      throw image_type_mismatch_exception("kwiver::vital::image_of<T>::operator=(kwiver::vital::image)");
+      VITAL_THROW( image_type_mismatch_exception,
+                   "kwiver::vital::image_of<T>::operator=(kwiver::vital::image)");
     }
     image::operator=(other);
     return *this;
   }
 
+  // ----------------------------------------------------------------------------
   /// Const access to the pointer to first image pixel
   /**
    * This may differ from \a data() if the image is a
@@ -565,6 +707,7 @@ public:
    */
   const T* first_pixel() const { return reinterpret_cast<const T*>(first_pixel_); }
 
+  // ----------------------------------------------------------------------------
   /// Access to the pointer to first image pixel
   /**
    * This may differ from \a data() if the image is a
@@ -572,6 +715,7 @@ public:
    */
   T* first_pixel() { return reinterpret_cast<T*>(first_pixel_); }
 
+  // ----------------------------------------------------------------------------
   /// Const access pixels in the image
   /**
    * This returns the specified pixel in the image as an rgb_color. This
@@ -584,11 +728,11 @@ public:
    * \param i width position (x)
    * \param j height position (y)
    */
-  inline rgb_color at( unsigned i, unsigned j ) const
+  inline rgb_color at( size_t i, size_t j ) const
   {
     if( i >= width_ || j >= height_ )
     {
-      throw std::out_of_range("kwiver::vital::image::at(unsigned, unsigned) const");
+      throw std::out_of_range("kwiver::vital::image::at(size_t, size_t) const");
     }
 
     T const* data = this->first_pixel();
@@ -604,34 +748,34 @@ public:
     return { r, g, b };
   }
 
-
+  // ----------------------------------------------------------------------------
   /// Access pixels in the first channel of the image
   /**
    * \param i width position (x)
    * \param j height position (y)
    */
-  inline T& operator()( unsigned i, unsigned j )
+  inline T& operator()( size_t i, size_t j )
   {
     return image::at<T>(i,j);
   }
 
-
+  // ----------------------------------------------------------------------------
   /// Const access pixels in the first channel of the image
-  inline const T& operator()( unsigned i, unsigned j ) const
+  inline const T& operator()( size_t i, size_t j ) const
   {
     return image::at<T>(i,j);
   }
 
-
+  // ----------------------------------------------------------------------------
   /// Access pixels in the image (width, height, channel)
-  inline T& operator()( unsigned i, unsigned j, unsigned k )
+  inline T& operator()( size_t i, size_t j, size_t k )
   {
     return image::at<T>(i,j,k);
   }
 
-
+  // ----------------------------------------------------------------------------
   /// Const access pixels in the image (width, height, channel)
-  inline const T& operator()( unsigned i, unsigned j, unsigned k ) const
+  inline const T& operator()( size_t i, size_t j, size_t k ) const
   {
     return image::at<T>(i,j,k);
   }

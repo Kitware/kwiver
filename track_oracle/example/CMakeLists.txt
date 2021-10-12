@@ -1,6 +1,3 @@
-add_executable( test_template test_template.cxx )
-target_link_libraries( test_template track_oracle data_terms vital vital_logger )
-
 #
 # example using the track oracle
 #
@@ -14,7 +11,6 @@ target_link_libraries( track_oracle_example
   data_terms
   vital
   vital_logger
-  ${Boost_SYSTEM_LIBRARY}
 )
 
 #
@@ -29,8 +25,13 @@ target_link_libraries( track_reader_example
  track_oracle
  data_terms
  track_oracle_file_formats
- ${Boost_SYSTEM_LIBRARY}
 )
+
+if( KWIVER_ENABLE_KPF )
+  target_link_libraries( track_reader_example
+    kpf_utils
+  )
+endif()
 
 #
 # example track writer
@@ -81,3 +82,21 @@ target_link_libraries( xml_tokenizer_example
   vital_logger
   track_oracle_tokenizers
 )
+
+#
+# example KPF activity parser
+#
+
+if( KWIVER_ENABLE_KPF )
+
+  add_executable( kpf_activity_example
+    kpf_activity_example.cxx
+  )
+
+  target_link_libraries( kpf_activity_example
+    vital_logger
+    track_oracle
+    data_terms
+    track_oracle_file_formats
+  )
+endif()

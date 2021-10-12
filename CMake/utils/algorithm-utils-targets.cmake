@@ -62,30 +62,20 @@ add_custom_target( all-plugins )
 function(algorithms_create_plugin    base_lib)
   message( STATUS "Building plugin \"${base_lib}\"" )
 
-  # Configure template cxx source file
-  set(shell_source "${KWIVER_CMAKE_DIR}/templates/cxx/plugin_shell.cxx")
-
   # Make a plugin from the supplied files. The name here is largely
   # irrelevant since they are discovered at run time.
   set( plugin_name   "${base_lib}_plugin" )
 
   # create module library given generated source, linked to given library
-  set(library_subdir /modules)
+  set(library_subdir /${kwiver_plugin_module_subdir})
   set(no_version ON)
-  set(no_export_header ON)
 
   kwiver_add_plugin( ${plugin_name}
-    SOURCES  ${shell_source} ${ARGN}
+    SOURCES  ${ARGN}
     # Not adding link to known base library because if the base_lib isn't
     # linking against it, its either doing something really complex or doing
     # something wrong (most likely the wrong).
     PRIVATE  ${base_lib}
-    )
-
-  # used by plugin shell
-  target_compile_definitions( ${plugin_name}
-    PRIVATE
-    "KWIVER_PLUGIN_LIB_NAME=\"${base_lib}\""
     )
 
   set_target_properties( ${plugin_name}
@@ -105,9 +95,12 @@ function(algorithms_create_plugin    base_lib)
     foreach( dep ${deps} )
       if(TARGET "${dep}")
         list(APPEND PLUGIN_BUNDLE_PATHS $<TARGET_FILE_DIR:${dep}>)
-        get_target_property(recursive_deps ${dep} LINK_LIBRARIES)
-        if(recursive_deps)
-          list(APPEND rdeps ${recursive_deps})
+        get_target_property(target_type ${dep} TYPE)
+        if (NOT ${target_type} STREQUAL "INTERFACE_LIBRARY")
+          get_target_property(recursive_deps ${dep} LINK_LIBRARIES)
+          if(recursive_deps)
+            list(APPEND rdeps ${recursive_deps})
+          endif()
         endif()
       elseif(EXISTS "${dep}")
         get_filename_component(dep_dir "${dep}" DIRECTORY)

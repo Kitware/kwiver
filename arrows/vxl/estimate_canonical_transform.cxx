@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2015-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@
 #include "estimate_canonical_transform.h"
 
 #include <vital/logger/logger.h>
+#include <vital/types/camera_perspective.h>
 
 #include <algorithm>
 
@@ -53,12 +54,13 @@ namespace kwiver {
 namespace arrows {
 namespace vxl {
 
-/// Private implementation class
+
+// Private implementation class
 class estimate_canonical_transform::priv
 {
 public:
   enum rrel_method_types {RANSAC, LMS, IRLS};
-  /// Constructor
+  // Constructor
   priv()
     : estimate_scale(true),
       trace_level(0),
@@ -68,30 +70,16 @@ public:
       prior_inlier_scale(0.1),
       irls_max_iterations(15),
       irls_iterations_for_scale(2),
-      irls_conv_tolerance(1e-4),
-      m_logger( vital::get_logger( "arrows.vxl.estimate_canonical_transform" ))
+      irls_conv_tolerance(1e-4)
   {
   }
 
-  priv(const priv& other)
-    : estimate_scale(other.estimate_scale),
-      trace_level(other.trace_level),
-      rrel_method(other.rrel_method),
-      desired_prob_good(other.desired_prob_good),
-      max_outlier_frac(other.max_outlier_frac),
-      prior_inlier_scale(other.prior_inlier_scale),
-      irls_max_iterations(other.irls_max_iterations),
-      irls_iterations_for_scale(other.irls_iterations_for_scale),
-      irls_conv_tolerance(other.irls_conv_tolerance),
-      m_logger( vital::get_logger( "arrows.vxl.estimate_canonical_transform" ))
-  {
-  }
-
-  /// Helper function to estimate a ground plane from the data points
+  // ----------------------------------------------------------------------------
+  // Helper function to estimate a ground plane from the data points
   vector_4d estimate_plane(std::vector<vector_3d> const& points) const
   {
     std::vector< vnl_vector<double> > vnl_points;
-    VITAL_FOREACH(vector_3d const& p, points)
+    for(vector_3d const& p : points)
     {
       vnl_points.push_back(vnl_vector<double>(vnl_double_3(p[0], p[1], p[2])));
     }
@@ -188,36 +176,33 @@ public:
   int irls_iterations_for_scale;
   // The convergence tolerance for IRLS
   double irls_conv_tolerance;
+
   // Logger handle
   vital::logger_handle_t m_logger;
 };
 
 
-/// Constructor
+// ----------------------------------------------------------------------------
+// Constructor
 estimate_canonical_transform
 ::estimate_canonical_transform()
 : d_(new priv)
 {
+  attach_logger( "arrows.vxl.estimate_canonical_transform" );
+  d_->m_logger = logger();
 }
 
 
-/// Copy Constructor
-estimate_canonical_transform
-::estimate_canonical_transform(const estimate_canonical_transform& other)
-: d_(new priv(*other.d_))
-{
-}
-
-
-/// Destructor
+// Destructor
 estimate_canonical_transform
 ::~estimate_canonical_transform()
 {
 }
 
 
-/// Get this algorithm's \link vital::config_block configuration block \endlink
-  vital::config_block_sptr
+// ----------------------------------------------------------------------------
+// Get this algorithm's \link vital::config_block configuration block \endlink
+vital::config_block_sptr
 estimate_canonical_transform
 ::get_configuration() const
 {
@@ -263,7 +248,8 @@ estimate_canonical_transform
 }
 
 
-/// Set this algorithm's properties via a config block
+// ----------------------------------------------------------------------------
+// Set this algorithm's properties via a config block
 void
 estimate_canonical_transform
 ::set_configuration(vital::config_block_sptr config)
@@ -281,7 +267,8 @@ estimate_canonical_transform
 }
 
 
-/// Check that the algorithm's configuration vital::config_block is valid
+// ----------------------------------------------------------------------------
+// Check that the algorithm's configuration vital::config_block is valid
 bool
 estimate_canonical_transform
 ::check_configuration(vital::config_block_sptr config) const
@@ -290,7 +277,8 @@ estimate_canonical_transform
 }
 
 
-/// Estimate a canonical similarity transform for cameras and points
+// ----------------------------------------------------------------------------
+// Estimate a canonical similarity transform for cameras and points
 kwiver::vital::similarity_d
 estimate_canonical_transform
 ::estimate_transform(kwiver::vital::camera_map_sptr const cameras,
@@ -298,7 +286,7 @@ estimate_canonical_transform
 {
   using namespace arrows;
   std::vector<vector_3d> points;
-  VITAL_FOREACH(auto const& p, landmarks->landmarks())
+  for(auto const& p : landmarks->landmarks())
   {
     points.push_back(p.second->loc());
   }
@@ -307,7 +295,7 @@ estimate_canonical_transform
   vector_3d normal = plane.head<3>();
 
   //project the points onto the plane
-  VITAL_FOREACH(vector_3d& p, points)
+  for(vector_3d& p : points)
   {
     p -= (normal.dot(p) + plane[3]) * normal;
   }
@@ -316,7 +304,7 @@ estimate_canonical_transform
   vital::vector_3d center(0,0,0);
   double s=0.0;
   vital::matrix_3x3d covar = vital::matrix_3x3d::Zero();
-  VITAL_FOREACH(vector_3d const& p, points)
+  for(vector_3d const& p : points)
   {
     center += p;
     covar += p * p.transpose();
@@ -341,9 +329,10 @@ estimate_canonical_transform
     vital::vector_3d cam_center(0,0,0);
     vital::vector_3d cam_up(0,0,0);
     typedef vital::camera_map::map_camera_t cam_map_t;
-    VITAL_FOREACH(const cam_map_t::value_type& p, cameras->cameras())
+    for(const cam_map_t::value_type& p : cameras->cameras())
     {
-      cam_center += p.second->center();
+      auto cam_ptr = std::dynamic_pointer_cast<camera_perspective>(p.second);
+      cam_center += cam_ptr->center();
     }
     cam_center /= static_cast<double>(cameras->size());
     cam_center -= center;

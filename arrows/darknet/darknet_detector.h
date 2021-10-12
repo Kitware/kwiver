@@ -34,37 +34,33 @@
 
 #include <arrows/darknet/kwiver_algo_darknet_export.h>
 
-#include <vital/vital_config.h>
-
 #include <vital/algo/image_object_detector.h>
 
 namespace kwiver {
 namespace arrows {
 namespace darknet {
 
-// ----------------------------------------------------------------
+// -----------------------------------------------------------------------------
 /**
  * @brief
  *
  */
 class KWIVER_ALGO_DARKNET_EXPORT darknet_detector
-  : public vital::algorithm_impl<darknet_detector, vital::algo::image_object_detector>
+  : public vital::algorithm_impl< darknet_detector,
+      vital::algo::image_object_detector >
 {
 public:
 
   darknet_detector();
-  darknet_detector(darknet_detector const& frd);
-
   virtual ~darknet_detector();
-
-  virtual std::string impl_name() const { return "darknet_detector"; }
 
   virtual vital::config_block_sptr get_configuration() const;
 
-  virtual void set_configuration(vital::config_block_sptr config);
-  virtual bool check_configuration(vital::config_block_sptr config) const;
+  virtual void set_configuration( vital::config_block_sptr config );
+  virtual bool check_configuration( vital::config_block_sptr config ) const;
 
-  virtual vital::detected_object_set_sptr detect( vital::image_container_sptr image_data ) const;
+  virtual vital::detected_object_set_sptr detect(
+    vital::image_container_sptr image_data ) const;
 
 private:
 

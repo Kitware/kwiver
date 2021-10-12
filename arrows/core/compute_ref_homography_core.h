@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,21 +36,17 @@
 #ifndef KWIVER_ARROWS_CORE_COMPUTE_REF_HOMOGRAPHY_CORE_H_
 #define KWIVER_ARROWS_CORE_COMPUTE_REF_HOMOGRAPHY_CORE_H_
 
-#include <vital/vital_config.h>
 #include <arrows/core/kwiver_algo_core_export.h>
 
 #include <vital/algo/algorithm.h>
 #include <vital/algo/compute_ref_homography.h>
 #include <vital/types/homography.h>
 #include <vital/types/image_container.h>
-#include <vital/types/track_set.h>
-
-#include <memory>
+#include <vital/types/feature_track_set.h>
 
 namespace kwiver {
 namespace arrows {
 namespace core {
-
 
 /// Default impl class for mapping each image to some reference image.
 /**
@@ -69,21 +65,14 @@ class KWIVER_ALGO_CORE_EXPORT compute_ref_homography_core
   : public vital::algorithm_impl<compute_ref_homography_core, vital::algo::compute_ref_homography>
 {
 public:
+  PLUGIN_INFO( "core",
+               "Default online sequential-frame reference homography estimator." )
 
   /// Default Constructor
   compute_ref_homography_core();
 
-  /// Copy Constructor
-  compute_ref_homography_core( const compute_ref_homography_core& );
-
   /// Default Destructor
   virtual ~compute_ref_homography_core();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "core"; }
-
-  /// Return implementation description string
-  virtual std::string description() const;
 
   /// Get this algorithm's \link vital::config_block configuration block \endlink
   /**
@@ -131,7 +120,7 @@ public:
    */
   virtual vital::f2f_homography_sptr
   estimate( vital::frame_id_t frame_number,
-            vital::track_set_sptr tracks ) const;
+            vital::feature_track_set_sptr tracks ) const;
 
 private:
 
@@ -146,4 +135,4 @@ private:
 } // end namespace kwiver
 
 
-#endif // KWIVER_ARROWS_CORE_COMPUTE_REF_HOMOGRAPHY_CORE_H_
+#endif

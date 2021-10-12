@@ -16,16 +16,35 @@
 #     If set, the target will not be installed under this component (the
 #     default is 'runtime').
 #
+#   library_dir
+#     If set, it would replace lib folder within build and install directories.
+#     ( the default is ${KWIVER_DEFAULT_LIBRARY_DIR ). library_dir should not
+#     have leading or trailing slashes. These slashes would be removed if they
+#     are passed in the library_dir
+#
 #   library_subdir
 #     If set, library targets will be placed into the directory within the install
 #     directory. This is necessary due to the way some systems use
 #     CMAKE_BUILD_TYPE as a directory in the output path.
 #
+#   library_subdir_suffix
+#     If set, the suffix will be appended to the subdirectory for the target.
+#     This is placed after the CMAKE_BUILD_TYPE subdirectory if necessary.
+#
+
 include(CMakeParseArguments)
 include (GenerateExportHeader)
 
 
 # Global collection variables
+define_property(GLOBAL PROPERTY kwiver_executables
+  BRIEF_DOCS "KWIVER Executables"
+  FULL_DOCS "List of KWIVER executables created by the kwiver_add_executable function."
+  )
+define_property(GLOBAL PROPERTY kwiver_executables_paths
+  BRIEF_DOCS "KWIVER Executables Paths"
+  FULL_DOCS "List of the binary/build paths for all KWIVER executables created by the kwiver_add_executable function."
+  )
 define_property(GLOBAL PROPERTY kwiver_export_targets
   BRIEF_DOCS "Targets exported by KWIVER"
   FULL_DOCS "List of KWIVER targets to be exported in build and install trees."
@@ -37,6 +56,10 @@ define_property(GLOBAL PROPERTY kwiver_libraries
 define_property(GLOBAL PROPERTY kwiver_plugin_libraries
   BRIEF_DOCS "Generated plugin libraries"
   FULL_DOCS "List of generated shared plugin module libraries"
+  )
+define_property(GLOBAL PROPERTY kwiver_plugin_path
+  BRIEF_DOCS "Plugin search path"
+  FULL_DOCS "List of directories to search ar run time for plugins"
   )
 
 
@@ -59,21 +82,69 @@ function(_kwiver_export name)
   set_property(GLOBAL APPEND PROPERTY kwiver_export_targets ${name})
 endfunction()
 
+#+
+# Check if library_dir is undefined and set it to default ( lib )
+#-
+function(_kwiver_check_and_set_library_dir)
+  if(NOT DEFINED library_dir)
+    set(library_dir ${KWIVER_DEFAULT_LIBRARY_DIR} PARENT_SCOPE)
+  endif()
+endfunction()
+
+#+
+# Helper function to check and replace leading and trailing slashes in a path
+#
+# _kwiver_validate_path_value( op_path ip_path )
+#
+# The first argument is the path returned from the function without leading or
+# trailing slashes, the second argument is the input path which may or may not
+# have leading and trailing slashes
+#-
+function(_kwiver_validate_path_value op_path ip_path)
+  if(NOT DEFINED ip_path)
+    message(FATAL_ERROR, "Cannot validate undefined path ${ip_path}")
+  endif()
+  string(REGEX REPLACE "^/" "" ip_path "${ip_path}")
+  string(REGEX REPLACE "/$" "" ip_path "${ip_path}")
+  set(${op_path} "${ip_path}" PARENT_SCOPE)
+endfunction()
+
+#+
+# Helper function to compute relative path of the root of a path
+#
+# _kwiver_path_to_root_from_lib_dir( path_to_root lib_dir )
+#
+# The first argument is a string that represents the relative path from a path
+# to root of the path. The second argument is a path
+#-
+function(_kwiver_path_to_root_from_lib_dir path_to_root lib_dir)
+  set(_path_to_root "")
+  if(NOT DEFINED lib_dir)
+    message(WARNING "Trying to determine root path for undefined variable ${lib_dir}")
+  else()
+    string(LENGTH "${lib_dir}" len_lib_dir)
+    if(${len_lib_dir} GREATER 0)
+        string(REPLACE "/" ";" library_dir_list ${lib_dir})
+        list(LENGTH library_dir_list len_library_dir_list)
+        if(CMAKE_VERSION VERSION_GREATER "3.15")
+          string(REPEAT "../" ${len_library_dir_list} path_to_root)
+        else()
+          foreach(_ RANGE 1 ${len_library_dir_list})
+            string(CONCAT _path_to_root "${_path_to_root}" "../")
+          endforeach()
+        endif()
+    endif()
+  endif()
+  set(${path_to_root} ${_path_to_root} PARENT_SCOPE)
+endfunction()
 
 # ------------------------------
 function(_kwiver_compile_pic name)
   message(STATUS "Adding PIC flag to target: ${name}")
-  if (CMAKE_VERSION VERSION_GREATER "2.8.12")
-    set_target_properties("${name}"
-      PROPERTIES
-        POSITION_INDEPENDENT_CODE TRUE
-      )
-  elseif(NOT MSVC)
-    set_target_properties("${name}"
-      PROPERTIES
-        COMPILE_FLAGS "-fPIC"
-      )
-  endif()
+  set_target_properties("${name}"
+    PROPERTIES
+      POSITION_INDEPENDENT_CODE TRUE
+    )
 endfunction()
 
 
@@ -109,15 +180,24 @@ endfunction()
 #-
 function(kwiver_add_executable name)
   add_executable(${name} ${ARGN})
+
   set_target_properties(${name}
     PROPERTIES
       RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-      INSTALL_RPATH "\$ORIGIN/../lib:\$ORIGIN/"
+      INSTALL_RPATH "\$ORIGIN/../${KWIVER_DEFAULT_LIBRARY_DIR}:\$ORIGIN/"
     )
 
   if(NOT component)
     set(component runtime)
   endif()
+
+  # Add to global collection variable
+  set_property(GLOBAL APPEND
+    PROPERTY kwiver_executables "${name}"
+    )
+  set_property(GLOBAL APPEND
+    PROPERTY kwiver_executables_paths "${CMAKE_CURRENT_BINARY_DIR}"
+    )
 
   kwiver_install(
     TARGETS     ${name}
@@ -149,10 +229,16 @@ function(kwiver_add_library     name)
 
   add_library("${name}" ${ARGN})
 
+  _kwiver_check_and_set_library_dir()
+  _kwiver_validate_path_value(library_dir "${library_dir}")
+  _kwiver_path_to_root_from_lib_dir(lib_dir_path_to_root "${library_dir}")
+  _kwiver_validate_path_value(library_subdir "${library_subdir}")
+  _kwiver_path_to_root_from_lib_dir(lib_subdir_path_to_root "${library_subdir}")
+
   if ( APPLE )
     set( props
       MACOSX_RPATH         TRUE
-      INSTALL_NAME_DIR     "@executable_path/../lib"
+      INSTALL_NAME_DIR     "@executable_path/${lib_subdir_path_to_root}${lib_dir_path_to_root}/${KWIVER_DEFAULT_LIBRARY_DIR}"
       )
   else()
     if ( NOT no_version ) # optional versioning
@@ -167,10 +253,11 @@ function(kwiver_add_library     name)
 
   set_target_properties("${name}"
     PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib${LIB_SUFFIX}${library_subdir}"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib${LIB_SUFFIX}${library_subdir}"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin${library_subdir}"
-    INSTALL_RPATH            "\$ORIGIN/../lib:\$ORIGIN/"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${library_dir}${LIB_SUFFIX}/${library_subdir}${library_subdir_suffix}"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${library_dir}${LIB_SUFFIX}/${library_subdir}${library_subdir_suffix}"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${library_subdir}${library_subdir_suffix}"
+    INSTALL_RPATH            "\$ORIGIN/${lib_subdir_path_to_root}${lib_dir_path_to_root}/${KWIVER_DEFAULT_LIBRARY_DIR}:\$ORIGIN/"
+    INTERFACE_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR};${CMAKE_BINARY_DIR}>$<INSTALL_INTERFACE:include>"
     ${props}
     )
 
@@ -184,9 +271,9 @@ function(kwiver_add_library     name)
     string(TOUPPER "${config}" upper_config)
     set_target_properties("${name}"
       PROPERTIES
-      "ARCHIVE_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/lib${LIB_SUFFIX}/${config}${library_subdir}"
-      "LIBRARY_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/lib${LIB_SUFFIX}/${config}${library_subdir}"
-      "RUNTIME_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/bin/${config}${library_subdir}"
+      "ARCHIVE_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/${library_dir}${LIB_SUFFIX}/${config}/${library_subdir}"
+      "LIBRARY_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/${library_dir}${LIB_SUFFIX}/${config}/${library_subdir}"
+      "RUNTIME_OUTPUT_DIRECTORY_${upper_config}" "${CMAKE_BINARY_DIR}/bin/${config}/${library_subdir}"
       )
   endforeach()
 
@@ -199,20 +286,20 @@ function(kwiver_add_library     name)
     _kwiver_compile_pic("${name}")
   endif()
 
-  _kwiver_export(${name})
+  _kwiver_export("${name}")
   # LIB_SUFFIX should only apply to installation location, not the build
   # locations that properties above this point pertain to.
   kwiver_install(
     TARGETS             "${name}"
     ${exports}
-    ARCHIVE DESTINATION lib${LIB_SUFFIX}${library_subdir}
-    LIBRARY DESTINATION lib${LIB_SUFFIX}${library_subdir}
-    RUNTIME DESTINATION bin${library_subdir}
+    ARCHIVE DESTINATION "${library_dir}${LIB_SUFFIX}/${library_subdir}"
+    LIBRARY DESTINATION "${library_dir}${LIB_SUFFIX}/${library_subdir}"
+    RUNTIME DESTINATION "bin/${library_subdir}"
     COMPONENT           ${component}
     )
 
   if ( NOT no_export)
-    set_property(GLOBAL APPEND PROPERTY kwiver_libraries ${name})
+    set_property(GLOBAL APPEND PROPERTY kwiver_libraries "${name}")
   endif()
 endfunction()
 
@@ -228,6 +315,7 @@ function(kwiver_export_targets file)
   get_property(export_targets GLOBAL PROPERTY kwiver_export_targets)
   export(
     TARGETS ${export_targets}
+    NAMESPACE kwiver::
     ${ARGN}
     FILE "${file}"
     )
@@ -253,7 +341,6 @@ endfunction()
 #
 # If the file name has a leading path component, it is appended to the
 # install path to allow installing of headers in subdirectories.
-#
 #-
 function(kwiver_install_headers)
   set(options NOPATH)
@@ -314,7 +401,7 @@ endfunction()
 # SOURCES - list of source files needed to create the plugin.
 # PUBLIC - list of libraries the plugin will publically link against.
 # PRIVATE - list of libraries the plugin will privately link against.
-# SUBDIR - subdirectory in lib where plugin will be installed.
+# SUBDIR - subdirectory in "lib" where plugin will be installed.
 #
 function( kwiver_add_plugin        name )
   set(options)
@@ -322,9 +409,17 @@ function( kwiver_add_plugin        name )
   set(multiValueArgs SOURCES PUBLIC PRIVATE)
   cmake_parse_arguments(PLUGIN "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
+  _kwiver_check_and_set_library_dir()
+  _kwiver_validate_path_value(library_dir "${library_dir}")
+  _kwiver_path_to_root_from_lib_dir(lib_dir_path_to_root "${library_dir}")
+
   if ( PLUGIN_SUBDIR )
     set(library_subdir "/${PLUGIN_SUBDIR}") # put plugins in this subdir
   endif()
+
+  _kwiver_validate_path_value(library_subdir "${library_subdir}")
+  _kwiver_path_to_root_from_lib_dir(lib_subdir_path_to_root "${library_subdir}")
+
 
   set( no_export ON ) # do not export this product
   set( no_version ON ) # do not version plugins
@@ -340,7 +435,7 @@ function( kwiver_add_plugin        name )
     PROPERTIES
       PREFIX           ""
       SUFFIX           ${CMAKE_SHARED_MODULE_SUFFIX}
-      INSTALL_RPATH    "\$ORIGIN/../../lib:\$ORIGIN/"
+      INSTALL_RPATH    "\$ORIGIN/${lib_subdir_path_to_root}${lib_dir_path_to_root}/${KWIVER_DEFAULT_LIBRARY_DIR}:\$ORIGIN/"
       )
 
   # Add to global collection variable
@@ -349,3 +444,49 @@ function( kwiver_add_plugin        name )
     )
 
 endfunction()
+
+
+####
+# This function adds the supplied paths to the default set of paths
+# searched at **runtime** for modules.
+#
+# Uses the global option KWIVER_USE_CONFIGURATION_SUBDIRECTORY
+# to control adding config specific directories to the path.
+#
+# Options are:
+# SUBDIR - subdirectory in lib where plugin will be installed.
+#
+function( kwiver_add_module_path    dir )
+    set_property(GLOBAL APPEND PROPERTY kwiver_plugin_path  "${dir}" )
+endfunction()
+
+
+####
+# This macro creates the module directory for the plugin loader based
+# on current system and other options. The resulting directory string
+# is placed in the "kwiver_module_path_result" variable. Note that the
+# result may be more than one path.
+#
+macro( kwiver_make_module_path    root subdir )
+  if (WIN32)
+    set(kwiver_module_path_result   "${root}/lib/${subdir}" )
+    if(KWIVER_USE_CONFIGURATION_SUBDIRECTORY)
+      list( APPEND  kwiver_module_path_result   "${root}/lib/$<CONFIGURATION>/${subdir}" )
+    endif()
+  else()  # Other Unix systems
+    set(kwiver_module_path_result  "${root}/lib${LIB_SUFFIX}/${subdir}" )
+  endif()
+endmacro()
+
+###
+# This macro creates a symbolic link from source file to dest file.
+#
+add_custom_target( gen_symlinks ALL )
+macro(kwiver_make_symlink src dest)
+  add_custom_command(
+    TARGET gen_symlinks
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${src} ${dest}
+    DEPENDS  ${dest}
+    COMMENT "mklink ${src} -> ${dest}")
+endmacro()

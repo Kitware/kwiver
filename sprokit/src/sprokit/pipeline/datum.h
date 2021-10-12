@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2013 by Kitware, Inc.
+ * Copyright 2011-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,11 @@
 #ifndef SPROKIT_PIPELINE_DATUM_H
 #define SPROKIT_PIPELINE_DATUM_H
 
-#include "pipeline-config.h"
+#include <sprokit/pipeline/sprokit_pipeline_export.h>
 
 #include "types.h"
 
-#include <boost/any.hpp>
+#include <vital/any.h>
 #include <boost/operators.hpp>
 
 #include <string>
@@ -83,14 +83,14 @@ class SPROKIT_PIPELINE_EXPORT datum
     /**
      * \brief Create a datum with the #data type.
      *
-     * This method is for bindings to be able to create boost::any objects
+     * This method is for bindings to be able to create kwiver::vital::any objects
      * manually.
      *
      * \param dat The data to pass through the edge.
      *
      * \returns A new datum containing a result.
      */
-    static datum_t new_datum(boost::any const& dat);
+    static datum_t new_datum(kwiver::vital::any const& dat);
 
     /**
      * \brief Create a datum with the #data type.
@@ -166,7 +166,7 @@ class SPROKIT_PIPELINE_EXPORT datum
      * \brief Compare two data for equality.
      *
      * \note This returns false for two data packets which point to the same
-     * internal data since \c boost::any does not give access to it without
+     * internal data since \c kwiver::vital::any does not give access to it without
      * knowing the type.
      *
      * \param dat The datum to compare to.
@@ -178,13 +178,14 @@ class SPROKIT_PIPELINE_EXPORT datum
   private:
     SPROKIT_PIPELINE_NO_EXPORT datum(type_t ty);
     SPROKIT_PIPELINE_NO_EXPORT datum(error_t const& err);
-    SPROKIT_PIPELINE_NO_EXPORT datum(boost::any const& dat);
+    SPROKIT_PIPELINE_NO_EXPORT datum(kwiver::vital::any const& dat);
 
     type_t const m_type;
     error_t const m_error;
-    boost::any const m_datum;
+    kwiver::vital::any const m_datum;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class datum_exception datum.h <sprokit/pipeline/datum.h>
  *
@@ -199,13 +200,14 @@ class SPROKIT_PIPELINE_EXPORT datum_exception
     /**
      * \brief Constructor.
      */
-    datum_exception() throw();
+    datum_exception() noexcept;
     /**
      * \brief Destructor.
      */
-    virtual ~datum_exception() throw();
+    virtual ~datum_exception() noexcept;
 };
 
+// ----------------------------------------------------------------------------
 /**
  * \class bad_datum_cast_exception datum.h <sprokit/pipeline/datum.h>
  *
@@ -226,11 +228,11 @@ class SPROKIT_PIPELINE_EXPORT bad_datum_cast_exception
      * \param error The type that was requested.
      * \param reason The reason for the bad cast.
      */
-    bad_datum_cast_exception(std::string const& requested_typeid, std::string const& typeid_, datum::type_t const& type, datum::error_t const& error, char const* reason) throw();
+    bad_datum_cast_exception(std::string const& requested_typeid, std::string const& typeid_, datum::type_t const& type, datum::error_t const& error, char const* reason) noexcept;
     /**
      * \brief Destructor.
      */
-    ~bad_datum_cast_exception() throw();
+    ~bad_datum_cast_exception() noexcept;
 
     /// The requested datum type.
     std::string const m_requested_typeid;
@@ -244,33 +246,37 @@ class SPROKIT_PIPELINE_EXPORT bad_datum_cast_exception
     std::string const m_reason;
 };
 
+// ----------------------------------------------------------------------------
 template <typename T>
 datum_t
 datum::new_datum(T const& dat)
 {
-  return new_datum(boost::any(dat));
+  return new_datum(kwiver::vital::any(dat));
 }
 
+// ----------------------------------------------------------------------------
 template <typename T>
 T
 datum::get_datum() const
 {
   try
   {
-    return boost::any_cast<T>(m_datum);
+    return kwiver::vital::any_cast<T>(m_datum);
   }
-  catch (boost::bad_any_cast const& e)
+  catch (kwiver::vital::bad_any_cast const& e)
   {
     std::string const req_type_name = typeid(T).name();
     std::string const type_name = m_datum.type().name();
 
-    throw bad_datum_cast_exception(req_type_name, type_name, m_type, m_error, e.what());
+    VITAL_THROW( bad_datum_cast_exception,
+                 req_type_name, type_name, m_type, m_error, e.what());
   }
 }
 
+// ----------------------------------------------------------------------------
 template <>
 inline
-boost::any
+kwiver::vital::any
 datum::get_datum() const
 {
   return m_datum;

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@
 #ifndef KWIVER_ARROWS_CORE_CONVERT_IMAGE_BYPASS_H_
 #define KWIVER_ARROWS_CORE_CONVERT_IMAGE_BYPASS_H_
 
-#include <vital/vital_config.h>
 #include <arrows/core/kwiver_algo_core_export.h>
 
 #include <vital/algo/convert_image.h>
@@ -50,17 +49,11 @@ class KWIVER_ALGO_CORE_EXPORT convert_image_bypass
   : public vital::algorithm_impl<convert_image_bypass, vital::algo::convert_image>
 {
 public:
+  PLUGIN_INFO( "bypass",
+               "Performs no conversion and returns the given image container." )
+
    /// Default Constructor
   convert_image_bypass();
-
-  /// Copy Constructor
-  convert_image_bypass(const convert_image_bypass&);
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "bypass"; }
-
-  /// Return descriptive string for this implementation
-  virtual std::string description() const;
 
   /// Default image converter ( does nothing )
   /**
@@ -74,4 +67,4 @@ public:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_CORE_CONVERT_IMAGE_BYPASS_H_
+#endif

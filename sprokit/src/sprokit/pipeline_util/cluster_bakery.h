@@ -38,7 +38,7 @@
 
 #include "bakery_base.h"
 
-#include <boost/optional.hpp>
+#include <vital/optional.h>
 
 #include <vector>
 
@@ -63,6 +63,7 @@ public:
   using bakery_base::operator();
   void operator()( cluster_pipe_block const& cluster_block_ );
 
+  // --------------------------
   class cluster_component_info_t
   {
   public:
@@ -77,10 +78,10 @@ public:
     input_maps_t m_inputs;
     output_maps_t m_outputs;
   };
-  typedef boost::optional< cluster_component_info_t > opt_cluster_component_info_t;
+  typedef kwiver::vital::optional< cluster_component_info_t > opt_cluster_component_info_t;
 
   process::type_t m_type;
-  process_registry::description_t m_description;
+  process::description_t m_description;
   opt_cluster_component_info_t m_cluster;
 };
 

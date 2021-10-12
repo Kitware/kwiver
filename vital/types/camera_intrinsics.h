@@ -75,6 +75,10 @@ public:
   virtual double aspect_ratio() const = 0;
   /// Access the skew
   virtual double skew() const = 0;
+  /// Access the image width
+  virtual unsigned int image_width() const = 0;
+  /// Access the image height
+  virtual unsigned int image_height() const = 0;
   /// Access the distortion coefficients
   virtual std::vector<double> dist_coeffs() const
   { return std::vector<double>(); }
@@ -115,6 +119,19 @@ public:
    */
   virtual vector_2d undistort(const vector_2d& dist_pt) const { return dist_pt; };
 
+  /// Check if a normalized image coordinate can map into image coordinates
+  /**
+  *  Some points may lie outside the domain of the mapping function and produce
+  *  invalid results.  This function tests if the point lies in the valid domain
+  */
+  virtual bool is_map_valid(const vector_2d& norm_pt) const { return true; }
+
+  /// Check if a 3D point in camera coordinates can map into image coordinates
+  /**
+  *  Some points may lie outside the domain of the mapping function and produce
+  *  invalid results.  This function tests if the point lies in the valid domain
+  */
+  virtual bool is_map_valid(const vector_3d& norm_hpt) const;
 };
 
 /// output stream operator for a base class camera_intrinsics
@@ -137,7 +154,10 @@ public:
     principal_point_(0.0, 0.0),
     aspect_ratio_(1.0),
     skew_(0.0),
-    dist_coeffs_()
+    dist_coeffs_(),
+    image_width_(0),
+    image_height_(0),
+    max_distort_radius_sq_(std::numeric_limits<double>::infinity())
   {}
 
   /// Constructor for camera intrinsics
@@ -145,12 +165,17 @@ public:
                            const vector_2d& principal_point,
                            const double aspect_ratio=1.0,
                            const double skew=0.0,
-                           const vector_t dist_coeffs=vector_t())
+                           const vector_t dist_coeffs=vector_t(),
+                           const unsigned int image_width=0,
+                           const unsigned int image_height=0)
   : focal_length_(focal_length),
     principal_point_(principal_point),
     aspect_ratio_(aspect_ratio),
     skew_(skew),
-    dist_coeffs_(dist_coeffs)
+    dist_coeffs_(dist_coeffs),
+    image_width_(image_width),
+    image_height_(image_height),
+    max_distort_radius_sq_(compute_max_distort_radius_sq())
   {}
 
   /// Constructor from the base class
@@ -158,10 +183,14 @@ public:
   : focal_length_(base.focal_length()),
     principal_point_(base.principal_point()),
     aspect_ratio_(base.aspect_ratio()),
-    skew_(base.skew())
+    skew_(base.skew()),
+    image_width_(base.image_width()),
+    image_height_(base.image_height()),
+    max_distort_radius_sq_(std::numeric_limits<double>::infinity())
   {
     std::vector<double> dc = base.dist_coeffs();
     dist_coeffs_ = vector_t::Map(dc.data(), dc.size());
+    max_distort_radius_sq_ = compute_max_distort_radius_sq();
   }
 
   /// Create a clone of this object
@@ -184,11 +213,17 @@ public:
   virtual double aspect_ratio() const { return aspect_ratio_; }
   /// Access the skew
   virtual double skew() const { return skew_; }
+  /// Access the image width
+  virtual unsigned int image_width() const { return image_width_; }
+  /// Access the image height
+  virtual unsigned int image_height() const { return image_height_; }
   /// Access the distortion coefficients
   virtual std::vector<double> dist_coeffs() const
   {
     return std::vector<double>(dist_coeffs_.data(), dist_coeffs_.data() + dist_coeffs_.size());
   }
+  /// Access the maximum distortion radius
+  double max_distort_radius() const { return std::sqrt(max_distort_radius_sq_); }
 
   /// Access the focal length
   const double& get_focal_length() const { return focal_length_; }
@@ -198,8 +233,14 @@ public:
   const double& get_aspect_ratio() const { return aspect_ratio_; }
   /// Access the skew
   const double& get_skew() const { return skew_; }
+  /// Access the image width
+  const unsigned int& get_image_width() const { return image_width_; }
+  /// Access the image height
+  const unsigned int& get_image_height() const { return image_height_; }
   /// Access the distortion coefficients
   const vector_t& get_dist_coeffs() const { return dist_coeffs_; }
+  /// Access the maximum distortion radius squared
+  const double& get_max_distort_radius_sq() const { return max_distort_radius_sq_; }
 
   /// Set the focal length
   void set_focal_length(const double& focal_length) { focal_length_ = focal_length; }
@@ -209,8 +250,16 @@ public:
   void set_aspect_ratio(const double& aspect_ratio) { aspect_ratio_ = aspect_ratio; }
   /// Set the skew
   void set_skew(const double& skew) { skew_ = skew; }
+  /// Set the image width
+  void set_image_width(const unsigned int width) { image_width_ = width; }
+  /// Set the image height
+  void set_image_height(const unsigned int height) { image_height_ = height; }
   /// Set the distortion coefficients
-  void set_dist_coeffs(const vector_t& d) { dist_coeffs_ = d; }
+  void set_dist_coeffs(const vector_t& d)
+  {
+    dist_coeffs_ = d;
+    max_distort_radius_sq_ = compute_max_distort_radius_sq();
+  }
 
   /// Map normalized image coordinates into distorted coordinates
   virtual vector_2d distort(const vector_2d& norm_pt) const;
@@ -221,7 +270,29 @@ public:
    */
   virtual vector_2d undistort(const vector_2d& dist_pt) const;
 
+  /// Check if a normalized image coordinate can map into image coordinates
+  /**
+  *  Tests if a point lies beyond the maximum distortion radius
+  */
+  virtual bool is_map_valid(const vector_2d& norm_pt) const;
+
+  using camera_intrinsics::is_map_valid;
+
+  /// Compute maximum squared radius for radial distortion given coefficients
+  /** A point at radius r is distorted to \f$(1 + a r^2 + b r^4 + c r^6) r\f$.
+   *  This function computes the maximum value of r before the function
+   *  curves back on itself (i.e. the slope is negative).  In many cases
+   *  the maximum radius is infinity.  Beyond this maximum radius the
+   *  distortion function is no longer injective.  Points beyond this radius
+   *  can project into the image bounds even if they are far outside the
+   *  field of view.
+   */
+  static double max_distort_radius_sq(double a, double b, double c);
+
 protected:
+  /// Compute the maximum distortion radius (squared) from dist_coeffs_
+  virtual double compute_max_distort_radius_sq() const;
+
   /// focal length of camera
   double focal_length_;
   /// principal point of camera
@@ -232,8 +303,16 @@ protected:
   double skew_;
   /// Lens distortion coefficients
   vector_t dist_coeffs_;
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  /// Image width
+  unsigned int image_width_;
+  /// Image height
+  unsigned int image_height_;
+  /// maximum distortion radius (squared)
+  /** Do not trust the radial distortion of points beyond this radius.
+   *  The value is stored as radius squared because we mostly work
+   *  with squared values for efficiency (avoids many square roots)
+   */
+  double max_distort_radius_sq_;
 };
 
 

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,11 +48,7 @@ class KWIVER_ALGO_MATLAB_EXPORT matlab_detection_output
 {
 public:
   matlab_detection_output();
-  matlab_detection_output( matlab_detection_output const& other);
   virtual ~matlab_detection_output();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "matlab"; }
 
   virtual vital::config_block_sptr get_configuration() const;
   virtual void set_configuration(vital::config_block_sptr config);
@@ -67,4 +63,4 @@ private:
 
 } } } // end namespace
 
-#endif /* KWIVER_VITAL_BINDINGS_MATLAB_DETECTION_OUTPUT_H_ */
+#endif

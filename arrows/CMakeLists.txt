@@ -15,7 +15,13 @@ endif()
 
 # Add OpenCV plugin if enabled
 if( KWIVER_ENABLE_OPENCV )
+  #add_subdirectory( dbow2 )
   add_subdirectory( ocv )
+endif()
+
+# Add SVM plugin if enabled
+if( KWIVER_ENABLE_SVM)
+  add_subdirectory( svm )
 endif()
 
 # Add PROJ plugin if enabled
@@ -23,9 +29,29 @@ if( KWIVER_ENABLE_PROJ )
   add_subdirectory( proj )
 endif()
 
+# Add Qt plugin if enabled
+if( KWIVER_ENABLE_QT )
+  add_subdirectory( qt )
+endif()
+
 # Add VXL plugin if enabled
 if( KWIVER_ENABLE_VXL )
   add_subdirectory( vxl )
+
+  # Super3D depends on VXL
+  option( KWIVER_ENABLE_SUPER3D
+    "Enable SUPER3D dependent code and plugins (Arrows)"
+    ON
+    )
+
+  # Add super3d plugin if enabled
+  if( KWIVER_ENABLE_SUPER3D )
+    add_subdirectory( super3d )
+  endif()
+endif()
+
+if ( KWIVER_ENABLE_CUDA )
+  #add_subdirectory( cuda )
 endif()
 
 # Add VisCL plugin if enabled
@@ -35,11 +61,53 @@ if( KWIVER_ENABLE_VISCL )
 endif()
 
 # if matlab is enabled
-if (KWIVER_ENABLE_MATLAB)
+if( KWIVER_ENABLE_MATLAB )
   add_subdirectory( matlab )
 endif()
 
 # if darknet is enabled
-if (KWIVER_ENABLE_DARKNET)
+if( KWIVER_ENABLE_DARKNET )
   add_subdirectory( darknet )
 endif()
+
+# if database is enabled
+if (KWIVER_ENABLE_DATABASE)
+  add_subdirectory( database )
+endif()
+
+  # if burnout is enabled
+if( KWIVER_ENABLE_BURNOUT )
+  add_subdirectory( burnout )
+endif()
+
+# if kpf is enabled
+if( KWIVER_ENABLE_KPF )
+  add_subdirectory( kpf )
+endif()
+
+# if GDAL is enabled
+if ( KWIVER_ENABLE_GDAL )
+  add_subdirectory( gdal )
+endif()
+
+# if uuid is enabled
+if( KWIVER_ENABLE_UUID )
+  add_subdirectory( uuid )
+endif()
+
+# if python is enabled
+if( KWIVER_ENABLE_PYTHON )
+  kwiver_create_python_init( kwiver/arrows )
+  add_subdirectory( python )
+
+  if( KWIVER_ENABLE_PYTORCH )
+    add_subdirectory( pytorch )
+  endif()
+endif()
+
+# if FFMPEG is enabled
+if( KWIVER_ENABLE_FFMPEG)
+  add_subdirectory( ffmpeg )
+endif()
+
+add_subdirectory( serialize )

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2017 by Kitware, Inc.
+ * Copyright 2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,6 @@
 
 #include "detected_object_filter_process.h"
 
-#include <vital/algorithm_plugin_manager.h>
 #include <vital/algo/detected_object_filter.h>
 #include <sprokit/processes/kwiver_type_traits.h>
 #include <sprokit/pipeline/process_exception.h>
@@ -45,7 +44,34 @@
 
 namespace kwiver {
 
-create_config_trait( filter, std::string, "", "Algorithm configuration subblock." )
+create_algorithm_name_config_trait( filter );
+
+// ----------------------------------------------------------------
+/**
+ * \class detected_object_filter_process
+ *
+ * \brief Filter detected image object sets.
+ *
+ * \process This process filters a set of detected image objects and
+ * produces a new set of detected image objects. The actual processing
+ * is done by the selected \b detected_object_filter algorithm
+ * implementation.
+ *
+ * \iports
+ *
+ * \iport{detected_object_set} Set of objects to be passed to the
+ * filtering algorithm.
+ *
+ * \oports
+ *
+ * \oport{detected_object_set} SEt of objects produced by the
+ * filtering algorithm.
+ *
+ * \configs
+ *
+ * \config{filter} Name of the configuration subblock that selects
+ * and configures the drawing algorithm.
+ */
 
 //----------------------------------------------------------------
 // Private implementation class
@@ -67,11 +93,6 @@ detected_object_filter_process
   : process( config )
   , d( new detected_object_filter_process::priv )
 {
-  // Attach our logger name to process logger
-  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
-
-  kwiver::vital::algorithm_plugin_manager::load_plugins_once();
-
   make_ports();
   make_config();
 }
@@ -88,18 +109,25 @@ void
 detected_object_filter_process
 ::_configure()
 {
+  scoped_configure_instrumentation();
+
   vital::config_block_sptr algo_config = get_config();
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! vital::algo::detected_object_filter::check_nested_algo_configuration( "filter", algo_config ) )
+  if ( ! vital::algo::detected_object_filter::check_nested_algo_configuration_using_trait(
+         filter, algo_config ) )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 
-  vital::algo::detected_object_filter::set_nested_algo_configuration( "filter", algo_config, d->m_filter );
+  vital::algo::detected_object_filter::set_nested_algo_configuration_using_trait(
+    filter,
+    algo_config,
+    d->m_filter );
+
   if ( ! d->m_filter )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Unable to create filter" );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create filter" );
   }
 }
 
@@ -110,7 +138,14 @@ detected_object_filter_process
 ::_step()
 {
   vital::detected_object_set_sptr input = grab_from_port_using_trait( detected_object_set );
-  vital::detected_object_set_sptr result = d->m_filter->filter( input );
+
+  vital::detected_object_set_sptr result;
+
+  {
+    scoped_step_instrumentation();
+
+    result = d->m_filter->filter( input );
+  }
 
   push_to_port_using_trait( detected_object_set, result );
 }
@@ -155,6 +190,5 @@ detected_object_filter_process::priv
 ::~priv()
 {
 }
-
 
 } //end namespace

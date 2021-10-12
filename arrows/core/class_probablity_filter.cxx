@@ -30,9 +30,8 @@
 
 #include "class_probablity_filter.h"
 
-#include <vital/vital_foreach.h>
-
-#include <sstream>
+#include <vital/config/config_difference.h>
+#include <vital/util/string.h>
 
 /**
  * \todo The interactions between the list of classes and keep_all_classes
@@ -88,7 +87,8 @@ class_probablity_filter::get_configuration() const
 
 // ------------------------------------------------------------------
 void
-class_probablity_filter::set_configuration( vital::config_block_sptr config_in )
+class_probablity_filter::
+set_configuration( vital::config_block_sptr config_in )
 {
   vital::config_block_sptr config = this->get_configuration();
 
@@ -98,15 +98,13 @@ class_probablity_filter::set_configuration( vital::config_block_sptr config_in )
 
   std::string list = config->get_value< std::string > ( "keep_classes" );
   std::string parsed;
-  {
-    std::stringstream ss( list );
+  std::stringstream ss( list );
 
-    while ( std::getline( ss, parsed, ';' ) )
+  while ( std::getline( ss, parsed, ';' ) )
+  {
+    if ( ! parsed.empty() )
     {
-      if ( ! parsed.empty() )
-      {
-        m_keep_classes.insert( parsed );
-      }
+      m_keep_classes.insert( parsed );
     }
   }
 }
@@ -114,29 +112,38 @@ class_probablity_filter::set_configuration( vital::config_block_sptr config_in )
 
 // ------------------------------------------------------------------
 bool
-class_probablity_filter::check_configuration( vital::config_block_sptr config ) const
+class_probablity_filter::
+check_configuration( vital::config_block_sptr config ) const
 {
+  kwiver::vital::config_difference cd( this->get_configuration(), config );
+  const auto key_list = cd.extra_keys();
+
+  if ( ! key_list.empty() )
+  {
+    LOG_WARN( logger(), "Additional parameters found in config block that are not required or desired: "
+              << kwiver::vital::join( key_list, ", " ) );
+  }
+
   return true;
 }
 
 
 // ------------------------------------------------------------------
 vital::detected_object_set_sptr
-class_probablity_filter::filter( const vital::detected_object_set_sptr input_set ) const
+class_probablity_filter::
+filter( const vital::detected_object_set_sptr input_set ) const
 {
   auto ret_set = std::make_shared<vital::detected_object_set>();
 
-  // Get list of all detections from the set.
-  auto detections = input_set->select();
-
   // loop over all detections
-  VITAL_FOREACH( auto det, detections )
+  auto ie = input_set->cend();
+  for ( auto det = input_set->cbegin(); det != ie; ++det )
   {
     bool det_selected( false );
     auto out_dot = std::make_shared<vital::detected_object_type>( );
 
     // Make sure that there is an associated DOT
-    auto input_dot = det->type();
+    auto input_dot = (*det)->type();
     if ( ! input_dot )
     {
       // This is unexpected - maybe log something
@@ -147,12 +154,13 @@ class_probablity_filter::filter( const vital::detected_object_set_sptr input_set
     auto selected_names = input_dot->class_names( m_threshold );
 
     // Loop over all selected class names
-    VITAL_FOREACH( const std::string& a_name, selected_names )
+    for( const std::string& a_name : selected_names )
     {
       if ( m_keep_all_classes || m_keep_classes.count( a_name ) )
       {
         // insert class-name/score into DOT
         out_dot->set_score( a_name, input_dot->score( a_name ) );
+        LOG_TRACE( logger(), "Selecting class: " << a_name << "  score: " << input_dot->score( a_name ) );
         det_selected = true;
       }
     } // end foreach class-name
@@ -162,7 +170,7 @@ class_probablity_filter::filter( const vital::detected_object_set_sptr input_set
     // Add to returned set
     if (det_selected)
     {
-      auto out_det = det->clone();
+      auto out_det = (*det)->clone();
       out_det->set_type( out_dot );
       ret_set->add( out_det );
     }

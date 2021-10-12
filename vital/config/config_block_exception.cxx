@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2016 by Kitware, Inc.
+ * Copyright 2013-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,29 +42,20 @@ namespace vital {
 
 // ------------------------------------------------------------------
 config_block_exception
-::config_block_exception() VITAL_NOTHROW
-  : std::exception()
+::config_block_exception() noexcept
 {
 }
 
 
 config_block_exception
-::~config_block_exception() VITAL_NOTHROW
+::~config_block_exception() noexcept
 {
-}
-
-
-char const*
-config_block_exception
-::what() const VITAL_NOTHROW
-{
-  return this->m_what.c_str();
 }
 
 
 // ------------------------------------------------------------------
 bad_config_block_cast
-::bad_config_block_cast( std::string const& reason ) VITAL_NOTHROW
+::bad_config_block_cast( std::string const& reason ) noexcept
   : config_block_exception()
 {
   this->m_what = reason;
@@ -72,7 +63,7 @@ bad_config_block_cast
 
 
 bad_config_block_cast
-::~bad_config_block_cast() VITAL_NOTHROW
+::~bad_config_block_cast() noexcept
 {
 }
 
@@ -82,7 +73,7 @@ bad_config_block_cast_exception
 ::bad_config_block_cast_exception( config_block_key_t const&    key,
                                    config_block_value_t const&  value,
                                    std::string const&           type,
-                                   std::string const&           reason ) VITAL_NOTHROW
+                                   std::string const&           reason ) noexcept
 : config_block_exception(),
   m_key( key ),
   m_value( value ),
@@ -98,14 +89,14 @@ bad_config_block_cast_exception
 
 
 bad_config_block_cast_exception
-::~bad_config_block_cast_exception() VITAL_NOTHROW
+::~bad_config_block_cast_exception() noexcept
 {
 }
 
 
 // ------------------------------------------------------------------
 no_such_configuration_value_exception
-::no_such_configuration_value_exception( config_block_key_t const& key ) VITAL_NOTHROW
+::no_such_configuration_value_exception( config_block_key_t const& key ) noexcept
   : config_block_exception(),
   m_key( key )
 {
@@ -118,7 +109,7 @@ no_such_configuration_value_exception
 
 
 no_such_configuration_value_exception
-::~no_such_configuration_value_exception() VITAL_NOTHROW
+::~no_such_configuration_value_exception() noexcept
 {
 }
 
@@ -127,7 +118,7 @@ no_such_configuration_value_exception
 set_on_read_only_value_exception
 ::set_on_read_only_value_exception( config_block_key_t const&   key,
                                       config_block_value_t const& value,
-                                      config_block_value_t const& new_value ) VITAL_NOTHROW
+                                      config_block_value_t const& new_value ) noexcept
   : config_block_exception(),
   m_key( key ),
   m_value( value ),
@@ -144,7 +135,7 @@ set_on_read_only_value_exception
 
 
 set_on_read_only_value_exception
-::~set_on_read_only_value_exception() VITAL_NOTHROW
+::~set_on_read_only_value_exception() noexcept
 {
 }
 
@@ -152,7 +143,7 @@ set_on_read_only_value_exception
 // ------------------------------------------------------------------
 unset_on_read_only_value_exception
 ::unset_on_read_only_value_exception( config_block_key_t const&   key,
-                                        config_block_value_t const& value ) VITAL_NOTHROW
+                                        config_block_value_t const& value ) noexcept
   : config_block_exception(),
   m_key( key ),
   m_value( value )
@@ -168,7 +159,7 @@ unset_on_read_only_value_exception
 
 
 unset_on_read_only_value_exception
-::~unset_on_read_only_value_exception() VITAL_NOTHROW
+::~unset_on_read_only_value_exception() noexcept
 {
 }
 
@@ -176,7 +167,7 @@ unset_on_read_only_value_exception
 // ------------------------------------------------------------------
 config_block_io_exception
 ::config_block_io_exception( config_path_t const& file_path,
-                             std::string const& reason ) VITAL_NOTHROW
+                             std::string const& reason ) noexcept
   : config_block_exception(),
   m_file_path( file_path ),
   m_reason( reason )
@@ -185,21 +176,21 @@ config_block_io_exception
 
 
 config_block_io_exception
-::~config_block_io_exception() VITAL_NOTHROW
+::~config_block_io_exception() noexcept
 {
 }
 
 
 // ------------------------------------------------------------------
 bad_configuration_cast
-::bad_configuration_cast(std::string const& reason) VITAL_NOTHROW
+::bad_configuration_cast(std::string const& reason) noexcept
   : config_block_exception()
 {
   m_what = reason;
 }
 
 bad_configuration_cast
-::~bad_configuration_cast() VITAL_NOTHROW
+::~bad_configuration_cast() noexcept
 {
 }
 
@@ -209,7 +200,7 @@ bad_configuration_cast_exception
 ::bad_configuration_cast_exception(kwiver::vital::config_block_key_t const& key,
                                    kwiver::vital::config_block_value_t const& value,
                                    char const* type,
-                                   char const* reason) VITAL_NOTHROW
+                                   char const* reason) noexcept
   : config_block_exception()
   , m_key(key)
   , m_value(value)
@@ -226,14 +217,14 @@ bad_configuration_cast_exception
 }
 
 bad_configuration_cast_exception
-::~bad_configuration_cast_exception() VITAL_NOTHROW
+::~bad_configuration_cast_exception() noexcept
 {
 }
 
 
 // ------------------------------------------------------------------
 config_file_not_found_exception
-::config_file_not_found_exception( config_path_t const& file_path, std::string const& reason ) VITAL_NOTHROW
+::config_file_not_found_exception( config_path_t const& file_path, std::string const& reason ) noexcept
   : config_block_io_exception( file_path, reason )
 {
   std::ostringstream sstr;
@@ -245,14 +236,14 @@ config_file_not_found_exception
 
 
 config_file_not_found_exception
-::~config_file_not_found_exception() VITAL_NOTHROW
+::~config_file_not_found_exception() noexcept
 {
 }
 
 
 // ------------------------------------------------------------------
 config_file_not_read_exception
-::config_file_not_read_exception( config_path_t const& file_path, std::string const& reason ) VITAL_NOTHROW
+::config_file_not_read_exception( config_path_t const& file_path, std::string const& reason ) noexcept
   : config_block_io_exception( file_path, reason )
 {
   std::ostringstream sstr;
@@ -264,14 +255,14 @@ config_file_not_read_exception
 
 
 config_file_not_read_exception
-::~config_file_not_read_exception() VITAL_NOTHROW
+::~config_file_not_read_exception() noexcept
 {
 }
 
 
 // ------------------------------------------------------------------
 config_file_not_parsed_exception
-::config_file_not_parsed_exception( config_path_t const& file_path, std::string const& reason ) VITAL_NOTHROW
+::config_file_not_parsed_exception( config_path_t const& file_path, std::string const& reason ) noexcept
   : config_block_io_exception( file_path, reason )
 {
   std::ostringstream sstr;
@@ -283,14 +274,14 @@ config_file_not_parsed_exception
 
 
 config_file_not_parsed_exception
-::~config_file_not_parsed_exception() VITAL_NOTHROW
+::~config_file_not_parsed_exception() noexcept
 {
 }
 
 
 // ------------------------------------------------------------------
 config_file_write_exception
-::config_file_write_exception( config_path_t const& file_path, std::string const& reason ) VITAL_NOTHROW
+::config_file_write_exception( config_path_t const& file_path, std::string const& reason ) noexcept
   : config_block_io_exception( file_path, reason )
 {
   std::ostringstream sstr;
@@ -302,7 +293,7 @@ config_file_write_exception
 
 
 config_file_write_exception
-::~config_file_write_exception() VITAL_NOTHROW
+::~config_file_write_exception() noexcept
 {
 }
 

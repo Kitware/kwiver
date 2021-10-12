@@ -26,9 +26,12 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+from __future__ import print_function
 from sprokit.pipeline import process
 from kwiver.kwiver_process import KwiverProcess
+from vital.util.VitalPIL import from_pil, get_pil_image
+from sprokit import sprokit_logging
+logger = sprokit_logging.getLogger(__name__)
 
 apply_descriptor_test_mode = False
 try:
@@ -43,9 +46,9 @@ try:
 except:
     # By doing this we allow folks to test that their KWIVER environment is properly built, before
     # building and configuring SMQTK
-    print "SMQTK not configured into this Python instance.  Entering ApplyDescriptor test mode"
+    logger.info("SMQTK not configured into this Python instance.  Entering ApplyDescriptor test mode")
     apply_descriptor_test_mode = True
-    
+
 
 class ApplyDescriptor(KwiverProcess):
     """
@@ -106,16 +109,16 @@ class ApplyDescriptor(KwiverProcess):
         # grab image container from port using traits
         in_img_c = self.grab_input_using_trait('image')
 
-        # If we're in test mode, just grab the image and 
+        # If we're in test mode, just grab the image and
         # push a fake descriptor without trying to use
         # smqtk.
         if not apply_descriptor_test_mode:
             # Get image from conatiner
-            in_img = in_img_c.get_image()
+            in_img = in_img_c.image()
 
 
             # convert generic image to PIL image
-            pil_image = in_img.get_pil_image()
+            pil_image = get_pil_image(in_img)
             pix = np.array(pil_image)
 
             # get image in acceptable format
@@ -136,15 +139,13 @@ class ApplyDescriptor(KwiverProcess):
 
 # ==================================================================
 def __sprokit_register__():
-    from sprokit.pipeline import process_registry
+    from sprokit.pipeline import process_factory
 
     module_name = 'python:kwiver.ApplyDescriptor'
 
-    reg = process_registry.ProcessRegistry.self()
-
-    if reg.is_module_loaded(module_name):
+    if process_factory.is_process_module_loaded(module_name):
         return
 
-    reg.register_process('ApplyDescriptor', 'Apply descriptor to image', ApplyDescriptor)
+    process_factory.add_process('ApplyDescriptor', 'Apply descriptor to image', ApplyDescriptor)
 
-    reg.mark_module_as_loaded(module_name)
+    process_factory.mark_process_module_as_loaded(module_name)

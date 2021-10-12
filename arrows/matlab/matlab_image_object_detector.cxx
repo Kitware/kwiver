@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,6 @@
 #include "matlab_engine.h"
 #include "matlab_util.h"
 
-#include <vital/vital_foreach.h>
-#include <vital/logger/logger.h>
 #include <kwiversys/SystemTools.hxx>
 
 #include <arrows/ocv/image_container.h>
@@ -97,8 +95,7 @@ class matlab_image_object_detector::priv
 public:
   // -- CONSTRUCTORS --
   priv()
-    : m_logger( kwiver::vital::get_logger( "vital.matlab_image_object_detector" ) )
-    , m_first( true )
+    : m_first( true )
   {}
 
   ~priv()
@@ -172,7 +169,7 @@ public:
     // Iterate over all values in this config block and pass the values
     // to the matlab as variable assignments.
     auto keys = algo_config->available_values();
-    VITAL_FOREACH( auto k, keys )
+    for( auto k : keys )
     {
       std::stringstream config_command;
       config_command <<  k << "=" << algo_config->get_value<std::string>( k ) << ";";
@@ -203,13 +200,10 @@ private:
 matlab_image_object_detector::
 matlab_image_object_detector()
   : d( new priv )
-{ }
-
-
-matlab_image_object_detector::
-matlab_image_object_detector( const matlab_image_object_detector& other)
-  : d( new priv( *other.d ) )
-{ }
+{
+  attach_logger( "arrows.matlab.matlab_image_object_detector" );
+  d->m_logger = logger();
+}
 
 
  matlab_image_object_detector::

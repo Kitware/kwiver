@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2016 by Kitware, Inc.
+ * Copyright 2013-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,19 +37,11 @@
 #define ARROWS_PLUGINS_CORE_TRACK_FEATURES_CORE_H_
 
 
-#include <vital/vital_config.h>
 #include <arrows/core/kwiver_algo_core_export.h>
 
-#include <vital/algo/algorithm.h>
 #include <vital/algo/track_features.h>
 #include <vital/types/image_container.h>
-#include <vital/types/track_set.h>
-
-#include <vital/algo/detect_features.h>
-#include <vital/algo/extract_descriptors.h>
-#include <vital/algo/match_features.h>
-#include <vital/algo/close_loops.h>
-
+#include <vital/types/feature_track_set.h>
 
 namespace kwiver {
 namespace arrows {
@@ -60,15 +52,15 @@ class KWIVER_ALGO_CORE_EXPORT track_features_core
   : public vital::algorithm_impl<track_features_core, vital::algo::track_features>
 {
 public:
+  PLUGIN_INFO( "core",
+               "Track features from frame to frame"
+               " using feature detection, matching, and loop closure." )
 
   /// Default Constructor
   track_features_core();
 
-  /// Copy Constructor
-  track_features_core(const track_features_core&);
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "core"; }
+  /// Destructor
+  virtual ~track_features_core() noexcept;
 
   /// Get this algorithm's \link vital::config_block configuration block \endlink
   /**
@@ -105,49 +97,36 @@ public:
    */
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
-  /// Extend a previous set of tracks using the current frame
+  /// Extend a previous set of feature tracks using the current frame
   /**
    * \throws image_size_mismatch_exception
    *    When the given non-zero mask image does not match the size of the
    *    dimensions of the given image data.
    *
-   * \param [in] prev_tracks the tracks from previous tracking steps
+   * \param [in] prev_tracks the feature tracks from previous tracking steps
    * \param [in] frame_number the frame number of the current frame
    * \param [in] image_data the image pixels for the current frame
    * \param [in] mask Optional mask image that uses positive values to denote
    *                  regions of the input image to consider for feature
    *                  tracking. An empty sptr indicates no mask (default
    *                  value).
-   * \returns an updated set a tracks including the current frame
+   * \returns an updated set of feature tracks including the current frame
    */
-  virtual vital::track_set_sptr
-  track(vital::track_set_sptr prev_tracks,
+  virtual vital::feature_track_set_sptr
+  track(vital::feature_track_set_sptr prev_tracks,
         unsigned int frame_number,
         vital::image_container_sptr image_data,
         vital::image_container_sptr mask = vital::image_container_sptr()) const;
 
 
 private:
-
-  /// The feature detector algorithm to use
-  vital::algo::detect_features_sptr detector_;
-
-  /// The descriptor extractor algorithm to use
-  vital::algo::extract_descriptors_sptr extractor_;
-
-  /// The feature matching algorithm to use
-  vital::algo::match_features_sptr matcher_;
-
-  /// The loop closure algorithm to use
-  vital::algo::close_loops_sptr closer_;
-
-  /// The ID to use for the next created track
-  mutable unsigned long next_track_id_;
-
+  /// private implementation class
+  class priv;
+  const std::unique_ptr<priv> d_;
 };
 
 } // end namespace core
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_CORE_TRACK_FEATURES_CORE_H_
+#endif

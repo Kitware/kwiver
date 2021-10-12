@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2016 by Kitware, Inc.
+ * Copyright 2011-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,18 +35,17 @@
 #include "cluster_bakery.h"
 #include "cluster_creator.h"
 
-#include "load_pipe.h"
+#include "pipeline_builder.h"
 #include "pipe_declaration_types.h"
-#include "providers.h"
 
 #include <vital/config/config_block.h>
+
 #include <sprokit/pipeline/pipeline.h>
 #include <sprokit/pipeline/process.h>
 #include <sprokit/pipeline/process_cluster.h>
-#include <sprokit/pipeline/process_registry.h>
+#include <sprokit/pipeline/process_factory.h>
 
-#include <boost/foreach.hpp>
-#include <boost/make_shared.hpp>
+#include <memory>
 
 /**
  * \file pipe_bakery.cxx
@@ -61,21 +60,6 @@ namespace {
 static kwiver::vital::config_block_key_t const config_pipeline_key = kwiver::vital::config_block_key_t( "_pipeline" );
 
 } // end anonymous
-
-// ------------------------------------------------------------------
-pipeline_t
-bake_pipe_from_file( path_t const& fname )
-{
-  return bake_pipe_blocks( load_pipe_blocks_from_file( fname ) );
-}
-
-
-// ------------------------------------------------------------------
-pipeline_t
-bake_pipe( std::istream& istr, path_t const& inc_root )
-{
-  return bake_pipe_blocks( load_pipe_blocks( istr, inc_root ) );
-}
 
 
 // ==================================================================
@@ -98,28 +82,32 @@ bake_pipe_blocks( pipe_blocks const& blocks )
 
   pipe_bakery bakery;
 
-  std::for_each( blocks.begin(), blocks.end(), boost::apply_visitor( bakery ) );
+  // apply main visitor to collect
+  for ( auto b : blocks )
+  {
+    kwiver::vital::visit( bakery, b );
+  }
 
   bakery_base::config_decls_t& configs = bakery.m_configs;
+
+  // Convert config entries to global config.
   kwiver::vital::config_block_sptr global_conf = bakery_base::extract_configuration_from_decls( configs );
 
   // Create pipeline.
   kwiver::vital::config_block_sptr const pipeline_conf = global_conf->subblock_view( config_pipeline_key );
 
-  pipe = boost::make_shared< pipeline > ( pipeline_conf );
+  pipe = std::make_shared< pipeline > ( pipeline_conf );
 
   // Create processes.
   {
-    process_registry_t reg = process_registry::self();
-
-    BOOST_FOREACH( bakery_base::process_decl_t const & decl, bakery.m_processes )
+    for( bakery_base::process_decl_t const & decl : bakery.m_processes )
     {
       process::name_t const& proc_name = decl.first;
       process::type_t const& proc_type = decl.second;
       kwiver::vital::config_block_sptr const proc_conf = global_conf->subblock_view( proc_name );
 
       // Create process with its config block.
-      process_t const proc = reg->create_process( proc_type, proc_name, proc_conf );
+      process_t const proc = create_process( proc_type, proc_name, proc_conf );
 
       pipe->add_process( proc );
     }
@@ -127,7 +115,7 @@ bake_pipe_blocks( pipe_blocks const& blocks )
 
   // Make connections.
   {
-    BOOST_FOREACH( process::connection_t const & conn, bakery.m_connections )
+    for( process::connection_t const & conn : bakery.m_connections )
     {
       process::port_addr_t const& up = conn.first;
       process::port_addr_t const& down = conn.second;
@@ -145,40 +133,27 @@ bake_pipe_blocks( pipe_blocks const& blocks )
 } // bake_pipe_blocks
 
 
-// ------------------------------------------------------------------
-cluster_info_t
-bake_cluster_from_file( path_t const& fname )
-{
-  return bake_cluster_blocks( load_cluster_blocks_from_file( fname ) );
-}
-
-
-// ------------------------------------------------------------------
-cluster_info_t
-bake_cluster( std::istream& istr, path_t const& inc_root )
-{
-  return bake_cluster_blocks( load_cluster_blocks( istr, inc_root ) );
-}
-
-
-// ------------------------------------------------------------------
+// ============================================================================
 cluster_info_t
 bake_cluster_blocks( cluster_blocks const& blocks )
 {
   cluster_bakery bakery;
 
-  std::for_each( blocks.begin(), blocks.end(), boost::apply_visitor( bakery ) );
+  for ( auto b : blocks )
+  {
+    kwiver::vital::visit( bakery, b );
+  }
 
   if ( bakery.m_processes.empty() )
   {
-    throw cluster_without_processes_exception();
+    VITAL_THROW( cluster_without_processes_exception );
   }
 
   cluster_bakery::opt_cluster_component_info_t const& opt_cluster = bakery.m_cluster;
 
   if ( ! opt_cluster )
   {
-    throw missing_cluster_block_exception();
+    VITAL_THROW( missing_cluster_block_exception );
   }
 
   cluster_bakery::cluster_component_info_t const& cluster = *opt_cluster;
@@ -186,18 +161,14 @@ bake_cluster_blocks( cluster_blocks const& blocks )
   if ( cluster.m_inputs.empty() &&
        cluster.m_outputs.empty() )
   {
-    throw cluster_without_ports_exception();
+    VITAL_THROW( cluster_without_ports_exception );
   }
 
-  bakery_base::config_decls_t& configs = bakery.m_configs;
-
-  bakery_base::dereference_static_providers( configs );
-
   process::type_t const& type = bakery.m_type;
-  process_registry::description_t const& description = bakery.m_description;
-  process_ctor_t const ctor = cluster_creator( bakery );
+  process::description_t const& description = bakery.m_description;
+  process_factory_func_t const ctor = cluster_creator( bakery );
 
-  cluster_info_t const info = boost::make_shared< cluster_info > ( type, description, ctor );
+  cluster_info_t const info = std::make_shared< cluster_info > ( type, description, ctor );
 
   return info;
 }
@@ -209,7 +180,10 @@ extract_configuration( pipe_blocks const& blocks )
 {
   pipe_bakery bakery;
 
-  std::for_each( blocks.begin(), blocks.end(), boost::apply_visitor( bakery ) );
+  for (auto b : blocks )
+  {
+    kwiver::vital::visit( bakery, b );
+  }
 
   bakery_base::config_decls_t& configs = bakery.m_configs;
 

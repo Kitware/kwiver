@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,9 +36,6 @@
 #ifndef KWIVER_ARROWS_VXL_CAMERA_MAP_H_
 #define KWIVER_ARROWS_VXL_CAMERA_MAP_H_
 
-
-#include <map>
-
 #include <vital/vital_config.h>
 #include <arrows/vxl/kwiver_algo_vxl_export.h>
 
@@ -46,6 +43,7 @@
 
 #include <vpgl/vpgl_perspective_camera.h>
 
+#include <map>
 
 namespace kwiver {
 namespace arrows {
@@ -92,4 +90,4 @@ camera_map_to_vpgl(const vital::camera_map& cam_map);
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_VXL_CAMERA_MAP_H_
+#endif

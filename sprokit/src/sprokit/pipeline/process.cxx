@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2013 by Kitware, Inc.
+ * Copyright 2011-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,23 +30,22 @@
 
 #include "process.h"
 #include "process_exception.h"
+#include "process_instrumentation.h"
 
 #include "stamp.h"
 
-#include <vital/vital_foreach.h>
+#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/util/string.h>
+#include <vital/optional.h>
 
-#include <boost/algorithm/string/predicate.hpp>
 #include <boost/assign/ptr_map_inserter.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/optional.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <map>
 #include <utility>
+#include <memory>
 
 /**
  * \file process.cxx
@@ -54,13 +53,26 @@
  * \brief Implementation of the base class for \link sprokit::process processes\endlink.
  */
 
-namespace sprokit
-{
+namespace sprokit {
+
+namespace { // anonymous
+
+typedef kwiver::vital::implementation_factory_by_name< sprokit::process_instrumentation > instrumentation_factory;
+
+} // anonymous
+
+static kwiver::vital::config_block_key_t const instrumentation_block_key =
+  kwiver::vital::config_block_key_t("_instrumentation");
+static kwiver::vital::config_block_key_t const instrumentation_type_key =
+  kwiver::vital::config_block_key_t(instrumentation_block_key
+                                    + kwiver::vital::config_block::block_sep + "type" );
 
 process::property_t const process::property_no_threads = property_t("_no_thread");
 process::property_t const process::property_no_reentrancy = property_t("_no_reentrant");
 process::property_t const process::property_unsync_input = property_t("_unsync_input");
 process::property_t const process::property_unsync_output = property_t("_unsync_output");
+process::property_t const process::property_instrumented = property_t("_instrumented");
+process::property_t const process::property_python = property_t("_python");
 
 process::port_t const process::port_heartbeat = port_t("_heartbeat");
 
@@ -70,7 +82,7 @@ kwiver::vital::config_block_key_t const process::config_type = kwiver::vital::co
 process::port_type_t const process::type_any = port_type_t("_any");
 process::port_type_t const process::type_none = port_type_t("_none");
 process::port_type_t const process::type_data_dependent = port_type_t("_data_dependent");
-process::port_type_t const process::type_flow_dependent = port_type_t("_flow_dependent/");
+process::port_type_t const process::type_flow_dependent = port_type_t("_flow_dependent/"); // Trailing '/' is important
 process::port_flag_t const process::flag_output_const = port_flag_t("_const");
 process::port_flag_t const process::flag_output_shared = port_flag_t("_shared");
 process::port_flag_t const process::flag_input_static = port_flag_t("_static");
@@ -179,14 +191,14 @@ class process::priv
 
     typedef port_t tag_t;
 
-    typedef boost::optional<port_type_t> flow_tag_port_type_t;
+    typedef kwiver::vital::optional<port_type_t> flow_tag_port_type_t;
     typedef std::map<tag_t, flow_tag_port_type_t> flow_tag_port_type_map_t;
 
     typedef std::map<tag_t, ports_t> flow_tag_port_map_t;
 
     typedef std::map<port_t, tag_t> port_tag_map_t;
 
-    typedef boost::optional<port_frequency_t> core_frequency_t;
+    typedef kwiver::vital::optional<port_frequency_t> core_frequency_t;
 
     tag_t port_flow_tag_name(port_type_t const& port_type) const;
     void check_tag(tag_t const& tag);
@@ -204,7 +216,7 @@ class process::priv
     mutable mutex_t output_edges_mut;
 
     process* const q;
-   kwiver::vital::config_block_sptr conf;
+    kwiver::vital::config_block_sptr conf;
 
     typedef std::set<port_t> port_set_t;
 
@@ -233,6 +245,10 @@ class process::priv
     mutex_t reconfigure_mut;
 
     kwiver::vital::logger_handle_t m_logger;
+    std::unique_ptr< sprokit::process_instrumentation > m_proc_instrumentation; // instrumentation provider
+
+    // List of properties that are associated with this object
+    properties_t m_properties;
 
     static kwiver::vital::config_block_value_t const default_name;
 };
@@ -247,12 +263,14 @@ process
 {
   if (d->initialized)
   {
-    throw already_initialized_exception(d->name);
+    VITAL_THROW( already_initialized_exception,
+                 d->name);
   }
 
   if (d->configured)
   {
-    throw reconfigured_exception(d->name);
+    VITAL_THROW( reconfigured_exception,
+                 d->name);
   }
 
   _configure();
@@ -268,12 +286,14 @@ process
 {
   if (!d->configured)
   {
-    throw unconfigured_exception(d->name);
+    VITAL_THROW( unconfigured_exception,
+                 d->name);
   }
 
   if (d->initialized)
   {
-    throw reinitialization_exception(d->name);
+    VITAL_THROW( reinitialization_exception,
+                 d->name);
   }
 
   _init();
@@ -312,12 +332,14 @@ process
 {
   if (!d->configured)
   {
-    throw unconfigured_exception(d->name);
+    VITAL_THROW( unconfigured_exception,
+                 d->name);
   }
 
   if (!d->initialized || !d->output_stamps_made)
   {
-    throw uninitialized_exception(d->name);
+    VITAL_THROW( uninitialized_exception,
+                 d->name);
   }
 
   /// \todo Make reentrant.
@@ -334,17 +356,27 @@ process
   {
     datum_t const dat = d->check_required_input();
 
-    // If a non-data datum is in the inputs (these are empty, flush, complete, error, invalid)
-    // then propagate these controls to all output ports.
+    // If a non-data datum is in the inputs (these are empty, flush,
+    // complete, error, invalid) then propagate these controls to all
+    // output ports.
+    //
+    // This implements the "check_valid" semantics of supplying a
+    // datum if needed.
     if (dat)
     {
+      // Absorb the current input from all input ports
       d->grab_from_input_edges();
+
+      // Force this type of datum to all output ports to indicate
+      // condition to downstream processes
       d->push_to_output_edges(dat);
 
       complete = (dat->type() == datum::complete);
     }
     else
     {
+      // Null pointer returned - required data is present on ports
+      //
       // We don't want to reconfigure while the subclass is running. Since the
       // base class shouldn't be messing with while configuring, we only need to
       // lock around the base class _step method call.
@@ -360,13 +392,25 @@ process
 
   /// \todo Are there any post-_step actions?
 
+  // Send current process status to the scheduler.
   d->run_heartbeat();
 
   /// \todo Should this really be done here?
   if (complete || d->required_outputs_done())
   {
+    _finalize();
+
     mark_process_as_complete();
   }
+}
+
+
+// ----------------------------------------------------------------------------
+void
+process
+::add_property( const property_t& prop )
+{
+  d->m_properties.insert( prop );
 }
 
 
@@ -375,7 +419,15 @@ process::properties_t
 process
 ::properties() const
 {
-  return _properties();
+  // Fetch property set from this
+  properties_t result( d->m_properties );
+
+  // Get properties from derived class
+  properties_t derived = _properties();
+
+  result.insert( derived.begin(), derived.end() );
+
+  return result;
 }
 
 
@@ -386,12 +438,14 @@ process
 {
   if (!edge)
   {
-    throw null_edge_port_connection_exception(d->name, port);
+    VITAL_THROW( null_edge_port_connection_exception,
+                 d->name, port);
   }
 
   if (d->initialized)
   {
-    throw connect_to_initialized_process_exception(d->name, port);
+    VITAL_THROW( connect_to_initialized_process_exception,
+                 d->name, port);
   }
 
   d->connect_input_port(port, edge);
@@ -405,7 +459,8 @@ process
 {
   if (!edge)
   {
-    throw null_edge_port_connection_exception(d->name, port);
+    VITAL_THROW( null_edge_port_connection_exception,
+                 d->name, port);
   }
 
   d->connect_output_port(port, edge);
@@ -419,7 +474,7 @@ process
 {
   ports_t ports = _input_ports();
 
-  VITAL_FOREACH (priv::port_map_t::value_type const& port, d->input_ports)
+  for (priv::port_map_t::value_type const& port : d->input_ports)
   {
     port_t const& port_name = port.first;
 
@@ -437,7 +492,7 @@ process
 {
   ports_t ports = _output_ports();
 
-  VITAL_FOREACH (priv::port_map_t::value_type const& port, d->output_ports)
+  for (priv::port_map_t::value_type const& port : d->output_ports)
   {
     port_t const& port_name = port.first;
 
@@ -456,6 +511,8 @@ process
   return _input_port_info(port);
 }
 
+
+// ------------------------------------------------------------------
 process::port_info_t
 process
 ::output_port_info(port_t const& port)
@@ -471,7 +528,8 @@ process
 {
   if (d->initialized)
   {
-    throw set_type_on_initialized_process_exception(d->name, port, new_type);
+    VITAL_THROW( set_type_on_initialized_process_exception,
+                 d->name, port, new_type);
   }
 
   if (new_type == type_any)
@@ -490,7 +548,8 @@ process
 {
   if (d->initialized)
   {
-    throw set_type_on_initialized_process_exception(d->name, port, new_type);
+    VITAL_THROW( set_type_on_initialized_process_exception,
+                 d->name, port, new_type);
   }
 
   if (new_type == type_any)
@@ -509,7 +568,7 @@ process
 {
   kwiver::vital::config_block_keys_t keys = _available_config();
 
-  VITAL_FOREACH (priv::conf_map_t::value_type const& conf, d->config_keys)
+  for (priv::conf_map_t::value_type const& conf : d->config_keys)
   {
     kwiver::vital::config_block_key_t const& key = conf.first;
 
@@ -528,7 +587,7 @@ process
   kwiver::vital::config_block_keys_t const all_keys = available_config();
   kwiver::vital::config_block_keys_t keys;
 
-  VITAL_FOREACH (kwiver::vital::config_block_key_t const& key, all_keys)
+  for (kwiver::vital::config_block_key_t const& key : all_keys)
   {
     // Read-only parameters aren't tunable.
     if (d->conf->is_read_only(key))
@@ -554,6 +613,17 @@ process
 ::config_info(kwiver::vital::config_block_key_t const& key)
 {
   return _config_info(key);
+}
+
+
+// ------------------------------------------------------------------
+kwiver::vital::config_difference
+process
+::config_diff() const
+{
+  auto avail_conf = available_config();
+  //                                       ref-config  supplied-conf
+  return kwiver::vital::config_difference( avail_conf, d->conf );
 }
 
 
@@ -585,7 +655,7 @@ process
 {
   if (!config)
   {
-    throw null_process_config_exception();
+    VITAL_THROW( null_process_config_exception );
   }
 
   d.reset(new priv(this, config));
@@ -594,6 +664,7 @@ process
     config_name,
     kwiver::vital::config_block_value_t(),
     kwiver::vital::config_block_description_t("The name of the process."));
+
   declare_configuration_key(
     config_type,
     kwiver::vital::config_block_value_t(),
@@ -609,8 +680,31 @@ process
     port_description_t("Outputs the heartbeat stamp with an empty datum."),
     port_frequency_t(1));
 
+  // Test to see if instrumentation is enabled
+  if ( d->conf->has_value( instrumentation_type_key ))
+  {
+    std::string instr_prov = d->conf->get_value< std::string >( instrumentation_type_key );
+
+    if (instr_prov != "none" )
+    {
+      // Get instrumentation interface
+      kwiver::vital::config_block_sptr instr_block = d->conf->subblock_view( instrumentation_block_key
+                                    + kwiver::vital::config_block::block_sep + instr_prov );
+
+      instrumentation_factory ifact;
+      d->m_proc_instrumentation.reset( ifact.create( instr_prov ) );
+      d->m_proc_instrumentation->set_process( *this );
+
+      kwiver::vital::config_block_sptr prov_block = instr_block->subblock_view( instr_prov );
+      d->m_proc_instrumentation->configure( instr_block );
+
+      // Add this as a property
+      add_property( property_instrumented );
+    }
+  }
+
   // Set default logger name
-  attach_logger( kwiver::vital::get_logger( std::string( "process." ) + name() ) );
+  attach_logger( kwiver::vital::get_logger( std::string( "sprokit.process." ) + name() ) );
 }
 
 
@@ -664,6 +758,14 @@ process
 // ------------------------------------------------------------------
 void
 process
+::_finalize()
+{
+}
+
+
+// ------------------------------------------------------------------
+void
+process
 ::_reconfigure(kwiver::vital::config_block_sptr const& /*conf*/)
 {
 }
@@ -705,32 +807,67 @@ process::port_info_t
 process
 ::_input_port_info(port_t const& port)
 {
-  priv::port_map_t::const_iterator const i = d->input_ports.find(port);
+  priv::port_map_t::const_iterator i = d->input_ports.find(port);
+
+  if (i == d->input_ports.end())
+  {
+    // Port not found. Check with the process to see if it wants to
+    // define the port.
+    input_port_undefined( port );
+
+    // Update iterator
+    i = d->input_ports.find(port);
+  }
 
   if (i != d->input_ports.end())
   {
     return i->second;
   }
 
-  throw no_such_port_exception(d->name, port);
+  VITAL_THROW( no_such_port_exception,
+               d->name, port, input_ports());
 }
 
+// ------------------------------------------------------------------
+void
+process
+::input_port_undefined( port_t const& port )
+{
+}
 
 // ------------------------------------------------------------------
 process::port_info_t
 process
 ::_output_port_info(port_t const& port)
 {
-  priv::port_map_t::const_iterator const i = d->output_ports.find(port);
+  priv::port_map_t::const_iterator i = d->output_ports.find(port);
+
+  if (i == d->output_ports.end())
+  {
+    // Port not found. Check with the process to see if it wants to
+    // define the port.
+    output_port_undefined( port );
+
+    // Update iterator
+    i = d->output_ports.find(port);
+  }
 
   if (i != d->output_ports.end())
   {
     return i->second;
   }
 
-  throw no_such_port_exception(d->name, port);
+  VITAL_THROW( no_such_port_exception,
+               d->name, port, output_ports());
 }
 
+
+// ------------------------------------------------------------------
+void
+process
+::output_port_undefined( port_t const& port )
+{
+}
 
 // ------------------------------------------------------------------
 bool
@@ -746,12 +883,13 @@ process
   }
 
   bool const is_data_dependent = (old_type == type_data_dependent);
-  bool const is_flow_dependent = boost::starts_with(old_type, type_flow_dependent);
+  bool const is_flow_dependent = kwiver::vital::starts_with(old_type, type_flow_dependent);
   bool const is_any = (old_type == type_any);
 
   if (!is_data_dependent && !is_flow_dependent && !is_any)
   {
-    throw static_type_reset_exception(name(), port, old_type, new_type);
+    VITAL_THROW( static_type_reset_exception,
+                 name(), port, old_type, new_type);
   }
 
   if (is_flow_dependent)
@@ -760,9 +898,11 @@ process
 
     if (!tag.empty())
     {
+      // Scan all ports and force this data type on those with the
+      // current tag.
       ports_t const& iports = d->input_flow_tag_ports[tag];
 
-      VITAL_FOREACH (port_t const& iport, iports)
+      for (port_t const& iport : iports)
       {
         port_info_t const iport_info = input_port_info(iport);
 
@@ -776,7 +916,7 @@ process
 
       ports_t const& oports = d->output_flow_tag_ports[tag];
 
-      VITAL_FOREACH (port_t const& oport, oports)
+      for (port_t const& oport : oports)
       {
         port_info_t const oport_info = output_port_info(oport);
 
@@ -788,6 +928,7 @@ process
           oport_info->frequency);
       }
 
+      // Save the data type assigned to this tag
       d->flow_tag_port_types[tag] = new_type;
 
       return true;
@@ -819,54 +960,63 @@ process
   }
 
   bool const is_data_dependent = (old_type == type_data_dependent);
-  bool const is_flow_dependent = boost::starts_with(old_type, type_flow_dependent);
+  bool const is_flow_dependent = kwiver::vital::starts_with(old_type, type_flow_dependent);
   bool const is_any = (old_type == type_any);
 
   if (!is_data_dependent && !is_flow_dependent && !is_any)
   {
-    throw static_type_reset_exception(name(), port, old_type, new_type);
+    VITAL_THROW( static_type_reset_exception,
+                 name(), port, old_type, new_type);
   }
 
+  // If data type is flow dependent, set the port type now based on
+  // the data type we have been passed.
   if (is_flow_dependent)
   {
+    // Check to see if there is a tag supplied
     priv::tag_t const tag = d->port_flow_tag_name(old_type);
 
     if (!tag.empty())
     {
+      // Since there are other ports with the same tag, force the data
+      // type for all these ports at this time.
       ports_t const& iports = d->input_flow_tag_ports[tag];
 
-      VITAL_FOREACH (port_t const& iport, iports)
+      for (port_t const& iport : iports)
       {
         port_info_t const iport_info = input_port_info(iport);
 
         declare_input_port(
           iport,
-          new_type,
+          new_type, // <- new type
           iport_info->flags,
           iport_info->description,
           iport_info->frequency);
       }
 
+      // Output ports can share a tag with the input ports.
       ports_t const& oports = d->output_flow_tag_ports[tag];
 
-      VITAL_FOREACH (port_t const& oport, oports)
+      for (port_t const& oport : oports)
       {
         port_info_t const oport_info = output_port_info(oport);
 
         declare_output_port(
           oport,
-          new_type,
+          new_type, // <- new type
           oport_info->flags,
           oport_info->description,
           oport_info->frequency);
       }
 
+      // Save the data type that corresponds to this tag
       d->flow_tag_port_types[tag] = new_type;
 
       return true;
     }
-  }
+  } // end flow dependent
 
+  // Not flow dependent. use type as supplied for this port only
   declare_output_port(
     port,
     new_type,
@@ -899,7 +1049,8 @@ process
     return i->second;
   }
 
-  throw unknown_configuration_value_exception(d->name, key);
+  VITAL_THROW( unknown_configuration_value_exception,
+               d->name, key);
 }
 
 
@@ -910,7 +1061,8 @@ process
 {
   if (!info)
   {
-    throw null_input_port_info_exception(d->name, port);
+    VITAL_THROW( null_input_port_info_exception,
+                 d->name, port);
   }
 
   port_type_t const& port_type = info->type;
@@ -947,15 +1099,21 @@ process
   {
     static std::string const reason = "An input port cannot be required and static";
 
-    throw flag_mismatch_exception(d->name, port, reason);
+    VITAL_THROW( flag_mismatch_exception,
+                 d->name, port, reason);
   }
 
   if (static_)
   {
+    // Here is where we create a config key to supply data to this
+    // static port. Note that the config key name is prefixed with
+    // "static/". It is assumed that the person who writes the config
+    // knows to add the static prefix also.
     declare_configuration_key(
       static_input_prefix + port,
       kwiver::vital::config_block_value_t(),
-      kwiver::vital::config_block_description_t("A default value to use for the \'" + port + "\' port if it is not connected."));
+      kwiver::vital::config_block_description_t("A default value to use for the \'"
+                                                + port + "\' port if it is not connected."));
 
     d->static_inputs.insert(port);
   }
@@ -975,7 +1133,8 @@ process
     static std::string const reason = "An input port cannot be shared and const "
                                       "(\'const\' is a stricter \'shared\')";
 
-    throw flag_mismatch_exception(d->name, port, reason);
+    VITAL_THROW( flag_mismatch_exception,
+                 d->name, port, reason);
   }
 
   d->input_ports[port] = info;
@@ -991,7 +1150,7 @@ process
                      port_description_t const& description_,
                      port_frequency_t const& frequency_)
 {
-  declare_input_port(port, boost::make_shared<port_info>(
+  declare_input_port(port, std::make_shared<port_info>(
     type_,
     flags_,
     description_,
@@ -1006,19 +1165,27 @@ process
 {
   if (!info)
   {
-    throw null_output_port_info_exception(d->name, port);
+    VITAL_THROW( null_output_port_info_exception,
+                 d->name, port);
   }
 
   port_type_t const& port_type = info->type;
 
   priv::tag_t const tag = d->port_flow_tag_name(port_type);
 
+  // This may look like an infinite loop, but when the port is
+  // declared below, there is no tag specification
   if (!tag.empty())
   {
+    // Add to list of ports that are using the tag
     d->output_flow_tag_ports[tag].push_back(port);
 
+    // Add to list for lookup of tag by port name
     d->output_port_tags[port] = tag;
 
+    // If there is a type already assigned to this tag, then create
+    // the port now. The tags are assigned a type during the later
+    // connect phase.
     if (d->flow_tag_port_types[tag])
     {
       port_type_t const& tag_type = *d->flow_tag_port_types[tag];
@@ -1055,7 +1222,7 @@ process
                       port_description_t const& description_,
                       port_frequency_t const& frequency_)
 {
-  declare_output_port(port, boost::make_shared<port_info>(
+  declare_output_port(port, std::make_shared<port_info>(
     type_,
     flags_,
     description_,
@@ -1070,7 +1237,8 @@ process
 {
   if (d->initialized)
   {
-    throw set_frequency_on_initialized_process_exception(d->name, port, new_frequency);
+    VITAL_THROW( set_frequency_on_initialized_process_exception,
+                 d->name, port, new_frequency);
   }
 
   port_info_t const info = input_port_info(port);
@@ -1097,7 +1265,8 @@ process
 {
   if (d->initialized)
   {
-    throw set_frequency_on_initialized_process_exception(d->name, port, new_frequency);
+    VITAL_THROW( set_frequency_on_initialized_process_exception,
+                 d->name, port, new_frequency);
   }
 
   port_info_t const info = output_port_info(port);
@@ -1125,7 +1294,8 @@ process
   // Ensure the port exists.
   if (!d->input_ports.count(port))
   {
-    throw no_such_port_exception(d->name, port);
+    VITAL_THROW( no_such_port_exception,
+                 d->name, port);
   }
 
   // Remove from known ports.
@@ -1166,7 +1336,8 @@ process
   // Ensure the port exists.
   if (!d->output_ports.count(port))
   {
-    throw no_such_port_exception(d->name, port);
+    VITAL_THROW( no_such_port_exception,
+                 d->name, port);
   }
 
   // Remove from known ports.
@@ -1210,7 +1381,8 @@ process
 {
   if (!info)
   {
-    throw null_conf_info_exception(d->name, key);
+    VITAL_THROW( null_conf_info_exception,
+                 d->name, key);
   }
 
   d->config_keys[key] = info;
@@ -1225,7 +1397,7 @@ process
                             kwiver::vital::config_block_description_t const& description_,
                             bool tunable_)
 {
-  declare_configuration_key(key, boost::make_shared<conf_info>(
+  declare_configuration_key(key, std::make_shared<conf_info>(
     def_,
     description_,
     tunable_));
@@ -1240,7 +1412,7 @@ process
   d->is_complete = true;
 
   // Indicate to input edges that we are complete.
-  VITAL_FOREACH (priv::input_edge_map_t::value_type const& port_edge, d->input_edges)
+  for (priv::input_edge_map_t::value_type const& port_edge : d->input_edges)
   {
     priv::input_port_info_t const& info = *port_edge.second;
     edge_t const& edge = info.edge;
@@ -1257,7 +1429,8 @@ process
 {
   if (!d->input_ports.count(port))
   {
-    throw no_such_port_exception(d->name, port);
+    VITAL_THROW( no_such_port_exception,
+                 d->name, port);
   }
 
   return (0 != d->input_edges.count(port));
@@ -1271,7 +1444,8 @@ process
 {
   if (!d->output_ports.count(port))
   {
-    throw no_such_port_exception(d->name, port);
+    VITAL_THROW( no_such_port_exception,
+                 d->name, port);
   }
 
   priv::shared_lock_t lock(d->output_edges_mut);
@@ -1306,7 +1480,8 @@ process
 {
   if (!d->input_ports.count(port))
   {
-    throw no_such_port_exception(d->name, port);
+    VITAL_THROW( no_such_port_exception,
+                 d->name, port);
   }
 
   priv::input_edge_map_t::const_iterator const e = d->input_edges.find(port);
@@ -1315,7 +1490,8 @@ process
   {
     static std::string const reason = "Data was requested from the port";
 
-    throw missing_connection_exception(d->name, port, reason);
+    VITAL_THROW( missing_connection_exception,
+                 d->name, port, reason);
   }
 
   priv::input_port_info_t const& info = *e->second;
@@ -1343,7 +1519,8 @@ process
 {
   if (!d->input_ports.count(port))
   {
-    throw no_such_port_exception(d->name, port);
+    VITAL_THROW( no_such_port_exception,
+                 d->name, port);
   }
 
   priv::input_edge_map_t::const_iterator const e = d->input_edges.find(port);
@@ -1352,7 +1529,8 @@ process
   {
     static std::string const reason = "Data was requested from the port";
 
-    throw missing_connection_exception(d->name, port, reason);
+    VITAL_THROW( missing_connection_exception,
+                 d->name, port, reason);
   }
 
   priv::input_port_info_t const& info = *e->second;
@@ -1380,7 +1558,8 @@ process
 {
   if (!d->output_ports.count(port))
   {
-    throw no_such_port_exception(d->name, port);
+    VITAL_THROW( no_such_port_exception,
+                 d->name, port);
   }
 
   priv::shared_lock_t lock(d->output_edges_mut);
@@ -1404,7 +1583,7 @@ process
 
   edges_t const& edges = info.edges;
 
-  VITAL_FOREACH (edge_t const& edge, edges)
+  for (edge_t const& edge : edges)
   {
     edge->push_datum(dat);
   }
@@ -1418,7 +1597,8 @@ process
 {
   if (!d->output_ports.count(port))
   {
-    throw no_such_port_exception(d->name, port);
+    VITAL_THROW( no_such_port_exception,
+                 d->name, port);
   }
 
   stamp_t push_stamp;
@@ -1444,9 +1624,9 @@ process
 
     if (!port_stamp)
     {
-      static std::string const reason = "The stamp for an output port was not initialized";
+      static std::string const reason = "The stamp for an output port was not initialized in ";
 
-      throw std::runtime_error(reason);
+      throw std::runtime_error(reason + this->name());
     }
 
     {
@@ -1492,7 +1672,7 @@ process
   edge_datum_t const& fst = data[0];
   stamp_t const& st = fst.stamp;
 
-  VITAL_FOREACH (edge_datum_t const& edat, data)
+  for (edge_datum_t const& edat : data)
   {
     datum_t const& dat = edat.datum;
     stamp_t const& st2 = edat.stamp;
@@ -1511,7 +1691,7 @@ process
     }
   }
 
-  return boost::make_shared<data_info>(in_sync, max_type);
+  return std::make_shared<data_info>(in_sync, max_type);
 }
 
 
@@ -1524,7 +1704,8 @@ process
 
   if (i == d->config_keys.end())
   {
-    throw unknown_configuration_value_exception(d->name, key);
+    VITAL_THROW( unknown_configuration_value_exception,
+                 d->name, key);
   }
 
   if (d->conf->has_value(key))
@@ -1604,7 +1785,7 @@ process
   // Loop over all entires in the supplied config block and select all
   // entries that are for this process and are flagged as tunable.
   // Then update the process config with the new value.
-  VITAL_FOREACH (kwiver::vital::config_block_key_t const& key, new_keys)
+  for (kwiver::vital::config_block_key_t const& key : new_keys)
   {
     bool const for_process = (0 != std::count(process_keys.begin(), process_keys.end(), key));
 
@@ -1670,7 +1851,7 @@ process
 
  kwiver::vital::config_block_sptr const new_conf = kwiver::vital::config_block::empty_config();
 
-  VITAL_FOREACH (kwiver::vital::config_block_key_t const& key, all_keys)
+  for (kwiver::vital::config_block_key_t const& key : all_keys)
   {
     bool const has_old_value = d->conf->has_value(key);
     bool const for_process = (0 != std::count(process_keys.begin(), process_keys.end(), key));
@@ -1744,6 +1925,42 @@ process::logger() const
 }
 
 
+// ------------------------------------------------------------------
+// Instrumentation implementation
+#define INSTR(N)                                                        \
+void process::start_ ## N ## _processing( std::string const& data )     \
+{                                                                       \
+  if (d->m_proc_instrumentation)                                        \
+  {                                                                     \
+    d->m_proc_instrumentation->start_ ## N ## _processing( data );      \
+  }                                                                     \
+}                                                                       \
+                                                                        \
+void process::start_ ## N ##_processing()                               \
+{                                                                       \
+  if (d->m_proc_instrumentation)                                        \
+  {                                                                     \
+    d->m_proc_instrumentation->start_ ## N ## _processing( "" );        \
+  }                                                                     \
+}                                                                       \
+                                                                        \
+void process::stop_ ## N ## _processing()                               \
+{                                                                       \
+  if (d->m_proc_instrumentation)                                        \
+  {                                                                     \
+    d->m_proc_instrumentation->stop_ ## N ## _processing();             \
+  }                                                                     \
+}
+
+INSTR( init )
+INSTR( finalize )
+INSTR( reset )
+INSTR( flush )
+INSTR( step )
+INSTR( configure )
+INSTR( reconfigure )
+
+
 // ==================================================================
 process::priv
 ::priv(process* proc,kwiver::vital::config_block_sptr const& c)
@@ -1782,6 +1999,13 @@ process::priv
 
 
 // ------------------------------------------------------------------
+/*
+ * This method puts a status packet on the hearbeat output port to
+ * indicate the status of this process to the scheduler. If a
+ * "complete" datum is encountered on this port by the scheduler, this
+ * process is considered no longer runnable and never gets stepped
+ * again.
+ */
 void
 process::priv
 ::run_heartbeat()
@@ -1806,22 +2030,16 @@ void
 process::priv
 ::connect_input_port(port_t const& port, edge_t const& edge)
 {
-  // This may seem really strange, but it happens during execption
-  // handling.
-  if ( &port == 0 )
-  {
-    LOG_ERROR( m_logger, "Port reference is NULL" );
-    return;
-  }
-
   if (!input_ports.count(port))
   {
-    throw no_such_port_exception(name, port);
+    VITAL_THROW( no_such_port_exception,
+                 name, port);
   }
 
   if (input_edges.count(port))
   {
-    throw port_reconnect_exception(name, port);
+    VITAL_THROW( port_reconnect_exception,
+                 name, port);
   }
 
   boost::assign::ptr_map_insert<input_port_info_t>(input_edges)(port, edge);
@@ -1835,7 +2053,8 @@ process::priv
 {
   if (!output_ports.count(port))
   {
-    throw no_such_port_exception(name, port);
+    VITAL_THROW( no_such_port_exception,
+                 name, port);
   }
 
   unique_lock_t lock(output_edges_mut);
@@ -1859,28 +2078,41 @@ process::priv
 /**
  * @brief Check all required ports.
  *
- * This method checks all required
+ * This method checks all *required* input ports to see if real data
+ * is present. The current 'check_input_level' is used to determine
+ * level of checking required.
  *
- * @return
+ * @return Null datum_t if data is on the *required* input ports.
+ * Error datum is returned if error condition is fount
  */
 datum_t
 process::priv
 ::check_required_input()
 {
+  // If this is "check_none" mode, then it's the wild west.
+  // Any synchronization has to be done by the process.
   if ((check_input_level == check_none) ||
       required_inputs.empty())
   {
     return datum_t();
   }
 
+  // collection of the first datum from each required input port
   edge_data_t first_data;
+
+  // collection of all datum from all input ports for the first cycle,
+  // based on the frequency.
   edge_data_t data;
 
   // Loop over all required ports
-  VITAL_FOREACH (port_t const& port, required_inputs)
+  for (port_t const& port : required_inputs)
   {
     input_edge_map_t::const_iterator const i = input_edges.find(port);
 
+    // If port not found as an input edge. Port has been declared but
+    // not connected. This is unexpected since the pipeline builder
+    // requires that all "required" input ports be connected to
+    // another port.
     if (i == input_edges.end())
     {
       continue;
@@ -1903,7 +2135,8 @@ process::priv
     }
 
     // Since the top element in the edge was not flush or complete,
-    // look through the rest of the input on this edge.
+    // (it must be real data) look through the rest of the input on
+    // this edge.
     port_info_t const& port_info = q->input_port_info(port);
     port_frequency_t const& freq = port_info->frequency;
 
@@ -1916,10 +2149,13 @@ process::priv
 
       data.push_back(edat);
     }
-  } // end foreach port
+  } // end foreach required port
 
+  // Analyze the first data items on all required input ports
   data_info_t const first_info = edge_data_info(first_data);
 
+  // If just synchronization is required, throw an error if there is a
+  // synchronization problem.
   if (check_sync <= check_input_level)
   {
     if (!first_info->in_sync)
@@ -1934,15 +2170,21 @@ process::priv
     stamp_for_inputs = edat.stamp;
   }
 
+  // If we are not in "check_valid" mode, then no further checking is
+  // needed. Inputs are good.
   if (check_input_level < check_valid)
   {
     return datum_t();
   }
 
+  // Processing for "check_valid" mode
+  //
+  // Get status of all incoming packets.
   data_info_t const info = edge_data_info(data);
 
   switch (info->max_status)
   {
+    // Data is available for all ports
     case datum::data:
       break;
 
@@ -1981,7 +2223,7 @@ void
 process::priv
 ::grab_from_input_edges()
 {
-  VITAL_FOREACH (port_map_t::value_type const& iport, input_ports)
+  for (port_map_t::value_type const& iport : input_ports)
   {
     port_t const& port = iport.first;
     port_info_t const& info = iport.second;
@@ -2026,7 +2268,7 @@ process::priv
 {
   datum::type_t const dat_type = dat->type();
 
-  VITAL_FOREACH (port_map_t::value_type const& oport, output_ports)
+  for (port_map_t::value_type const& oport : output_ports)
   {
     port_t const& port = oport.first;
 
@@ -2062,6 +2304,12 @@ process::priv
 
 
 // ------------------------------------------------------------------
+/*
+ * This method checks to make sure that all required output ports have
+ * been marked as complete. They are marked complete by the receiving
+ * process (i.e. downstream process) when the process has compleated
+ * and is no longer running.
+ */
 bool
 process::priv
 ::required_outputs_done() const
@@ -2075,10 +2323,11 @@ process::priv
 
   (void)lock;
 
-  VITAL_FOREACH (port_t const& port, required_outputs)
+  for (port_t const& port : required_outputs)
   {
     output_edge_map_t::const_iterator const i = output_edges.find(port);
 
+    // Output port not found.
     if (i == output_edges.end())
     {
       continue;
@@ -2093,26 +2342,30 @@ process::priv
     output_port_info_t const& info = *i->second;
     edges_t const& edges = info.edges;
 
-    VITAL_FOREACH (edge_t const& edge, edges)
+    // check all connections to this output port.
+    for (edge_t const& edge : edges)
     {
       // If any required edge is not complete, then return false.
       if (!edge->is_downstream_complete())
       {
         return false;
       }
-    }
-  }
+    } // end for
+  } // end for
 
   return true;
 }
 
 
 // ------------------------------------------------------------------
+/* Return tag name if flow dependent port.
+ * Return empty string if there is no tag.
+ */
 process::priv::tag_t
 process::priv
 ::port_flow_tag_name(port_type_t const& port_type) const
 {
-  if (boost::starts_with(port_type, type_flow_dependent))
+  if (kwiver::vital::starts_with(port_type, type_flow_dependent))
   {
     return port_type.substr(type_flow_dependent.size());
   }
@@ -2122,6 +2375,10 @@ process::priv
 
 
 // ------------------------------------------------------------------
+/*
+ * If there are no ports that are associated with the supplied tag,
+ * then erase the entry.
+ */
 void
 process::priv
 ::check_tag(tag_t const& tag)
@@ -2141,7 +2398,7 @@ void
 process::priv
 ::make_output_stamps()
 {
-  VITAL_FOREACH (port_map_t::value_type const& oport, output_ports)
+  for (port_map_t::value_type const& oport : output_ports)
   {
     port_t const& port_name = oport.first;
 
@@ -2218,4 +2475,4 @@ process::priv::output_port_info_t
 {
 }
 
-} // end namespace
+} // end name space

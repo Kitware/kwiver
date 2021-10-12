@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2016 by Kitware, Inc.
+ * Copyright 2013-2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,14 +36,9 @@
 #ifndef KWIVER_ARROWS_OCV_MATCH_FEATURES_H_
 #define KWIVER_ARROWS_OCV_MATCH_FEATURES_H_
 
-#include <memory>
-
-#include <vital/vital_config.h>
 #include <vital/algo/match_features.h>
 
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
-
-#include <memory>
 
 #include <opencv2/features2d/features2d.hpp>
 
@@ -62,10 +57,10 @@ class KWIVER_ALGO_OCV_EXPORT match_features
 public:
   /// Match one set of features and corresponding descriptors to another
   /**
-   * \param [in] feat1 the first set of features to match
-   * \param [in] desc1 the descriptors corresponding to \a feat1
-   * \param [in] feat2 the second set fof features to match
-   * \param [in] desc2 the descriptors corresponding to \a feat2
+   * \param feat1 the first set of features to match
+   * \param desc1 the descriptors corresponding to \a feat1
+   * \param feat2 the second set fof features to match
+   * \param desc2 the descriptors corresponding to \a feat2
    * \returns a set of matching indices from \a feat1 to \a feat2
    */
   virtual vital::match_set_sptr
@@ -91,4 +86,4 @@ protected:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_OCV_MATCH_FEATURES_H_
+#endif

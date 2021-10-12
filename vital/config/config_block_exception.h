@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2014 by Kitware, Inc.
+ * Copyright 2013-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,10 +38,10 @@
 
 #include <vital/config/vital_config_export.h>
 #include <vital/vital_config.h>
+#include <vital/exceptions/base.h>
 
 #include "config_block_types.h"
 
-#include <exception>
 #include <string>
 
 namespace kwiver {
@@ -53,25 +53,13 @@ namespace vital {
  * \ingroup exceptions
  */
 class VITAL_CONFIG_EXPORT config_block_exception
-  : public std::exception
+  : public vital_exception
 {
 public:
   /// Constructor.
-  config_block_exception() VITAL_NOTHROW;
+  config_block_exception() noexcept;
   /// Destructor.
-  virtual ~config_block_exception() VITAL_NOTHROW;
-
-  /// Description of the exception
-  /**
-   * \returns A string describing what went wrong.
-   */
-  char const* what() const VITAL_NOTHROW;
-
-
-protected:
-  /// descriptive string as to what happened to cause the exception.
-  std::string m_what;
-
+  virtual ~config_block_exception() noexcept;
 };
 
 // ------------------------------------------------------------------
@@ -87,9 +75,9 @@ public:
    * \brief Constructor.
    * \param reason The reason for the bad cast.
    */
-  bad_config_block_cast( std::string const& reason ) VITAL_NOTHROW;
+  bad_config_block_cast( std::string const& reason ) noexcept;
   /// Destructor.
-  virtual ~bad_config_block_cast() VITAL_NOTHROW;
+  virtual ~bad_config_block_cast() noexcept;
 };
 
 // ------------------------------------------------------------------
@@ -112,9 +100,9 @@ public:
   bad_config_block_cast_exception( config_block_key_t const&    key,
                                    config_block_value_t const&  value,
                                    std::string const&           type,
-                                   std::string const&           reason ) VITAL_NOTHROW;
+                                   std::string const&           reason ) noexcept;
   /// Destructor.
-  virtual ~bad_config_block_cast_exception() VITAL_NOTHROW;
+  virtual ~bad_config_block_cast_exception() noexcept;
 
   /// The requested key name.
   config_block_key_t const m_key;
@@ -139,9 +127,9 @@ public:
    * \brief Constructor.
    * \param key The key that was requested from the configuration.
    */
-  no_such_configuration_value_exception( config_block_key_t const& key ) VITAL_NOTHROW;
+  no_such_configuration_value_exception( config_block_key_t const& key ) noexcept;
   /// Destructor.
-  virtual ~no_such_configuration_value_exception() VITAL_NOTHROW;
+  virtual ~no_such_configuration_value_exception() noexcept;
 
   /// The requested key name.
   config_block_key_t const m_key;
@@ -165,11 +153,11 @@ public:
    */
   set_on_read_only_value_exception( config_block_key_t const&   key,
                                     config_block_value_t const& value,
-                                    config_block_value_t const& new_value ) VITAL_NOTHROW;
+                                    config_block_value_t const& new_value ) noexcept;
   /**
    * \brief Destructor.
    */
-  virtual ~set_on_read_only_value_exception() VITAL_NOTHROW;
+  virtual ~set_on_read_only_value_exception() noexcept;
 
   /// The requested key name.
   config_block_key_t const m_key;
@@ -195,11 +183,11 @@ public:
    * \param value The current value for \p key.
    */
   unset_on_read_only_value_exception( config_block_key_t const&   key,
-                                      config_block_value_t const& value ) VITAL_NOTHROW;
+                                      config_block_value_t const& value ) noexcept;
   /**
    * \brief Destructor.
    */
-  virtual ~unset_on_read_only_value_exception() VITAL_NOTHROW;
+  virtual ~unset_on_read_only_value_exception() noexcept;
 
   /// The requested key name.
   config_block_key_t const m_key;
@@ -223,11 +211,11 @@ class VITAL_CONFIG_EXPORT bad_configuration_cast
      *
      * \param reason The reason for the bad cast.
      */
-  bad_configuration_cast(std::string const& reason) VITAL_NOTHROW;
+  bad_configuration_cast(std::string const& reason) noexcept;
     /**
      * \brief Destructor.
      */
-    ~bad_configuration_cast() VITAL_NOTHROW;
+    ~bad_configuration_cast() noexcept;
 };
 
 
@@ -252,11 +240,11 @@ class VITAL_CONFIG_EXPORT bad_configuration_cast_exception
     bad_configuration_cast_exception(kwiver::vital::config_block_key_t const& key,
                                      kwiver::vital::config_block_value_t const& value,
                                      char const* type,
-                                     char const* reason) VITAL_NOTHROW;
+                                     char const* reason) noexcept;
     /**
      * \brief Destructor.
      */
-    ~bad_configuration_cast_exception() VITAL_NOTHROW;
+    ~bad_configuration_cast_exception() noexcept;
 
     /// The requested key name.
     kwiver::vital::config_block_key_t const m_key;
@@ -281,9 +269,9 @@ public:
    * \param reason    Reason for the exception.
    */
   config_block_io_exception( config_path_t const& file_path,
-                             std::string const&   reason ) VITAL_NOTHROW;
+                             std::string const&   reason ) noexcept;
   /// Deconstructor
-  virtual ~config_block_io_exception() VITAL_NOTHROW;
+  virtual ~config_block_io_exception() noexcept;
 
   /// Path to file this exception revolves around.
   config_path_t m_file_path;
@@ -304,9 +292,9 @@ public:
    * \param reason    The reason the file wasn't found.
    */
   config_file_not_found_exception( config_path_t const&  file_path,
-                                   std::string const&    reason ) VITAL_NOTHROW;
+                                   std::string const&    reason ) noexcept;
   /// Deconstructor
-  virtual ~config_file_not_found_exception() VITAL_NOTHROW;
+  virtual ~config_file_not_found_exception() noexcept;
 };
 
 
@@ -322,9 +310,9 @@ public:
    * \param reason    The reason for the read exception.
    */
   config_file_not_read_exception( config_path_t const& file_path,
-                                  std::string const&   reason ) VITAL_NOTHROW;
+                                  std::string const&   reason ) noexcept;
   /// Deconstructor
-  virtual ~config_file_not_read_exception() VITAL_NOTHROW;
+  virtual ~config_file_not_read_exception() noexcept;
 };
 
 
@@ -340,9 +328,9 @@ public:
    * \param reason    The reason for the parsing exception.
    */
   config_file_not_parsed_exception( config_path_t const& file_path,
-                                    std::string const&   reason ) VITAL_NOTHROW;
+                                    std::string const&   reason ) noexcept;
   /// Deconstructor
-  virtual ~config_file_not_parsed_exception() VITAL_NOTHROW;
+  virtual ~config_file_not_parsed_exception() noexcept;
 };
 
 
@@ -358,9 +346,9 @@ public:
    * \param reason    The reason for the write exception
    */
   config_file_write_exception( config_path_t const&  file_path,
-                               std::string const&    reason ) VITAL_NOTHROW;
+                               std::string const&    reason ) noexcept;
   /// Deconstructor
-  virtual ~config_file_write_exception() VITAL_NOTHROW;
+  virtual ~config_file_write_exception() noexcept;
 };
 
 

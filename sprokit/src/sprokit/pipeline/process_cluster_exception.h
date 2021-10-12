@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013 by Kitware, Inc.
+ * Copyright 2013-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 #ifndef SPROKIT_PIPELINE_PROCESS_CLUSTER_EXCEPTION_H
 #define SPROKIT_PIPELINE_PROCESS_CLUSTER_EXCEPTION_H
 
-#include "pipeline-config.h"
+#include <sprokit/pipeline/sprokit_pipeline_export.h>
 
 #include "process_exception.h"
 #include "types.h"
@@ -61,11 +61,11 @@ class SPROKIT_PIPELINE_EXPORT process_cluster_exception
     /**
      * \brief Constructor.
      */
-    process_cluster_exception() throw();
+    process_cluster_exception() noexcept;
     /**
      * \brief Destructor.
      */
-    virtual ~process_cluster_exception() throw();
+    virtual ~process_cluster_exception() noexcept;
 };
 
 /**
@@ -90,11 +90,11 @@ class SPROKIT_PIPELINE_EXPORT mapping_after_process_exception
     mapping_after_process_exception(process::name_t const& name,
                                     kwiver::vital::config_block_key_t const& key,
                                     process::name_t const& mapped_name,
-                                    kwiver::vital::config_block_key_t const& mapped_key) throw();
+                                    kwiver::vital::config_block_key_t const& mapped_key) noexcept;
     /**
      * \brief Destructor.
      */
-    ~mapping_after_process_exception() throw();
+    ~mapping_after_process_exception() noexcept;
 
     /// The name of the \ref process_cluster the mapping occurred in.
     process::name_t const m_name;
@@ -130,11 +130,11 @@ class SPROKIT_PIPELINE_EXPORT mapping_to_read_only_value_exception
                                          kwiver::vital::config_block_value_t const& value,
                                          process::name_t const& mapped_name,
                                          kwiver::vital::config_block_key_t const& mapped_key,
-                                         kwiver::vital::config_block_value_t const& ro_value) throw();
+                                         kwiver::vital::config_block_value_t const& ro_value) noexcept;
     /**
      * \brief Destructor.
      */
-    ~mapping_to_read_only_value_exception() throw();
+    ~mapping_to_read_only_value_exception() noexcept;
 
     /// The name of the \ref process_cluster the mapping occurred in.
     process::name_t const m_name;

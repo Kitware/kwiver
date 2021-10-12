@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2015 by Kitware, Inc.
+ * Copyright 2013-2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,9 +36,10 @@
 #ifndef VITAL_IMAGE_CONTAINER_H_
 #define VITAL_IMAGE_CONTAINER_H_
 
-#include "image.h"
-
 #include <vital/vital_config.h>
+
+#include <vital/types/image.h>
+#include <vital/types/metadata.h>
 
 #include <vector>
 
@@ -58,7 +59,7 @@ class image_container
 public:
 
   /// Destructor
-  virtual ~image_container() VITAL_DEFAULT_DTOR
+  virtual ~image_container() = default;
 
   /// The size of the image data in bytes
   /**
@@ -76,17 +77,35 @@ public:
   /// The depth (or number of channels) of the image
   virtual size_t depth() const = 0;
 
-  /// Get and in-memory image class to access the data
+  /// Get an in-memory image class to access the data
   virtual image get_image() const = 0;
 
+  /// Get an in-memory image class to access a sub-image of the data
+  virtual image get_image(unsigned x_offset, unsigned y_offset,
+                          unsigned width, unsigned height) const
+  {
+    return get_image().crop(x_offset, y_offset, width, height);
+  };
+
+  /// Get metadata associated with this image
+  virtual metadata_sptr get_metadata() const { return md_; }
+
+  /// Set metadata associated with this image
+  virtual void set_metadata(metadata_sptr md) { md_ = md; }
+
+protected:
+  /// optional metadata
+  metadata_sptr md_;
 };
 
 
 /// Shared pointer for base image_container type
-typedef std::shared_ptr<image_container> image_container_sptr;
-
+using image_container_sptr = std::shared_ptr< image_container >;
+using image_container_scptr = std::shared_ptr< image_container const >;
 
 /// List of image_container shared pointers
+// NOTE(paul.tunison): This should be deprecated in favor of
+//                     vital::image_container_set_sptr.
 typedef std::vector<image_container_sptr> image_container_sptr_list;
 
 
@@ -98,8 +117,11 @@ class simple_image_container
 public:
 
   /// Constructor
-  explicit simple_image_container(const image& d)
-  : data(d) {}
+  explicit simple_image_container(const image& d, metadata_sptr m = nullptr)
+  : data(d)
+  {
+    this->set_metadata(m);
+  }
 
   /// The size of the image data in bytes
   /**
@@ -117,8 +139,15 @@ public:
   /// The depth (or number of channels) of the image
   virtual size_t depth() const { return data.depth(); }
 
-  /// Get and in-memory image class to access the data
+  /// Get an in-memory image class to access the data
   virtual image get_image() const { return data; };
+
+  /// Get an in-memory image class to access the data cropped
+  virtual image get_image(unsigned x_offset, unsigned y_offset,
+                          unsigned width, unsigned height) const
+  {
+    return data.crop(x_offset, y_offset, width, height);
+  };
 
 protected:
   /// data for this image container

@@ -84,6 +84,9 @@ public:
    */
   sprokit::process::ports_t port_list() const;
 
+  virtual adapter::ports_info_t get_ports() = 0;
+
+
 protected:
 
   std::set< sprokit::process::port_t > m_active_ports;
@@ -93,7 +96,7 @@ protected:
   // must remain active until the last user gets deleted.
   interface_ref_t  m_interface_queue;
 
-}; // end class frame_list_process
+}; // end class
 
 } }  // end namespace
 

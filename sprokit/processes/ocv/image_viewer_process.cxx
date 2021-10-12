@@ -86,7 +86,7 @@ namespace kwiver {
 create_config_trait( pause_time, float, "0", "Interval to pause between frames. 0 means wait for keystroke, "
                      "Otherwise interval is in seconds (float)" );
 create_config_trait( annotate_image, bool, "false", "Add frame number and other text to display." );
-create_config_trait( title, std::string, "Display window", "Display window title text.." );
+create_config_trait( title, std::string, "Display window", "Display window title text." );
 create_config_trait( header, std::string, "", "Header text for image display." );
 create_config_trait( footer, std::string, "", "Footer text for image display. Displayed centered at bottom of image." );
 
@@ -106,10 +106,9 @@ public:
   std::string m_header;
   std::string m_footer;
 
-
   // ------------------------------------------------------------------
   cv::Mat
-  annotate_image( cv::Mat cv_img, kwiver::vital::timestamp::frame_t frame)
+  annotate_image( cv::Mat cv_img, kwiver::vital::frame_id_t frame)
   {
     static const int font_face = cv::FONT_HERSHEY_SIMPLEX;
     static const double font_scale( 1.0 );
@@ -203,7 +202,6 @@ image_viewer_process
   : process( config ),
     d( new image_viewer_process::priv )
 {
-  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
   make_ports();
   make_config();
 }
@@ -220,6 +218,10 @@ void
 image_viewer_process
 ::_configure()
 {
+  // check for extra config keys
+  auto cd = this->config_diff();
+  cd.warn_extra_keys( logger() );
+
   d->m_pause_ms = static_cast< int >( config_value_using_trait( pause_time ) * 1000.0 ); // convert to msec
   d->m_annotate_image = config_value_using_trait( annotate_image );
   d->m_title          = config_value_using_trait( title );
@@ -245,7 +247,7 @@ image_viewer_process
 
   LOG_DEBUG( logger(), "Processing frame " << frame_time );
 
-  cv::Mat image = arrows::ocv::image_container::vital_to_ocv( img->get_image() );
+  cv::Mat image = arrows::ocv::image_container::vital_to_ocv( img->get_image(), arrows::ocv::image_container::BGR_COLOR );
 
   if ( d->m_annotate_image )
   {

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2016 by Kitware, Inc.
+ * Copyright 2013-2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,6 @@
 #ifndef KWIVER_ARROWS_OCV_DETECT_FEATURES_H_
 #define KWIVER_ARROWS_OCV_DETECT_FEATURES_H_
 
-
-#include <vital/vital_config.h>
 #include <vital/algo/detect_features.h>
 
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
@@ -82,4 +80,4 @@ protected:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_OCV_DETECT_FEATURES_H_
+#endif

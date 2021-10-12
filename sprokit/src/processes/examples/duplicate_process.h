@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2013-2017, 2020 by Kitware, Inc. All Rights Reserved. Please refer to
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,9 @@
 #ifndef SPROKIT_PROCESSES_EXAMPLES_DUPLICATE_PROCESS_H
 #define SPROKIT_PROCESSES_EXAMPLES_DUPLICATE_PROCESS_H
 
-#include "examples-config.h"
+#include "processes_examples_export.h"
 
 #include <sprokit/pipeline/process.h>
-
-#include <boost/scoped_ptr.hpp>
 
 /**
  * \file duplicate_process.h
@@ -67,33 +65,38 @@ namespace sprokit
  *
  * \ingroup examples
  */
-class SPROKIT_PROCESSES_EXAMPLES_NO_EXPORT duplicate_process
+class PROCESSES_EXAMPLES_NO_EXPORT duplicate_process
   : public process
 {
-  public:
-    /**
-     * \brief Constructor.
-     *
-     * \param config The configuration for the process.
-     */
-    duplicate_process(kwiver::vital::config_block_sptr const& config);
-    /**
-     * \brief Destructor.
-     */
-    ~duplicate_process();
-  protected:
-    /**
-     * \brief Configure the process.
-     */
-    void _configure();
+public:
+  PLUGIN_INFO( "duplicate",
+               "A process which duplicates input" );
+  /**
+   * \brief Constructor.
+   *
+   * \param config The configuration for the process.
+   */
+  duplicate_process(kwiver::vital::config_block_sptr const& config);
 
-    /**
-     * \brief Step the process.
-     */
-    void _step();
-  private:
-    class priv;
-    boost::scoped_ptr<priv> d;
+  /**
+   * \brief Destructor.
+   */
+  ~duplicate_process();
+
+protected:
+  /**
+   * \brief Configure the process.
+   */
+  void _configure() override;
+
+  /**
+   * \brief Step the process.
+   */
+  void _step() override;
+
+private:
+  class priv;
+  std::unique_ptr<priv> d;
 };
 
 }

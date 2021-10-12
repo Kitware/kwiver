@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2016 by Kitware, Inc.
+ * Copyright 2011-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,13 +31,14 @@
 #ifndef SPROKIT_PIPELINE_UTIL_PIPE_BAKERY_H
 #define SPROKIT_PIPELINE_UTIL_PIPE_BAKERY_H
 
-#include "pipeline_util-config.h"
+#include<sprokit/pipeline_util/sprokit_pipeline_util_export.h>
 
 #include "path.h"
 #include "pipe_declaration_types.h"
 
 #include "cluster_info.h"
 
+#include <vital/vital_types.h>
 #include <sprokit/pipeline/types.h>
 
 #include <iosfwd>
@@ -52,25 +53,6 @@ namespace sprokit
 {
 
 /**
- * \brief Convert a pipeline description file into a pipeline.
- *
- * \param fname The file to load the pipeline from.
- *
- * \returns A new pipeline baked from the given file.
- */
-SPROKIT_PIPELINE_UTIL_EXPORT pipeline_t bake_pipe_from_file(path_t const& fname);
-
-/**
- * \brief Bake a pipeline from a stream.
- *
- * \param istr The stream to load the pipeline from.
- * \param inc_root The root directory to search for includes from.
- *
- * \returns A pipeline baked from the given stream.
- */
-SPROKIT_PIPELINE_UTIL_EXPORT pipeline_t bake_pipe(std::istream& istr, path_t const& inc_root = "");
-
-/**
  * \brief Extract a configuration from a collection of blocks.
  *
  * \param blocks The blocks to use for baking the pipeline.
@@ -80,32 +62,13 @@ SPROKIT_PIPELINE_UTIL_EXPORT pipeline_t bake_pipe(std::istream& istr, path_t con
 SPROKIT_PIPELINE_UTIL_EXPORT pipeline_t bake_pipe_blocks(pipe_blocks const& blocks);
 
 /**
- * \brief Convert a cluster description file into a cluster.
- *
- * \param fname The file to load the cluster from.
- *
- * \returns Information about the cluster in the file.
- */
-cluster_info_t SPROKIT_PIPELINE_UTIL_EXPORT bake_cluster_from_file(path_t const& fname);
-
-/**
- * \brief Bake a cluster from a stream.
- *
- * \param istr The stream to load the cluster from.
- * \param inc_root The root directory to search for includes from.
- *
- * \returns Information about the cluster in the stream.
- */
-cluster_info_t SPROKIT_PIPELINE_UTIL_EXPORT bake_cluster(std::istream& istr, path_t const& inc_root = "");
-
-/**
  * \brief Extract a configuration from a collection of blocks.
  *
  * \param blocks The blocks to use for baking the cluster.
  *
  * \returns Information about the cluster based on \p blocks.
  */
-cluster_info_t SPROKIT_PIPELINE_UTIL_EXPORT bake_cluster_blocks(cluster_blocks const& blocks);
+SPROKIT_PIPELINE_UTIL_EXPORT cluster_info_t bake_cluster_blocks(cluster_blocks const& blocks);
 
 /**
  * \brief Extract a configuration from a collection of blocks.
@@ -114,7 +77,8 @@ cluster_info_t SPROKIT_PIPELINE_UTIL_EXPORT bake_cluster_blocks(cluster_blocks c
  *
  * \returns A configuration extracted from \p blocks.
  */
-SPROKIT_PIPELINE_UTIL_EXPORT kwiver::vital::config_block_sptr extract_configuration(pipe_blocks const& blocks);
+SPROKIT_PIPELINE_UTIL_EXPORT kwiver::vital::config_block_sptr
+  extract_configuration(pipe_blocks const& blocks);
 
 }
 

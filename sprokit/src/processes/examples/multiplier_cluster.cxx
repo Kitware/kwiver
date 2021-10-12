@@ -30,7 +30,7 @@
 
 #include "multiplier_cluster.h"
 
-#include <sprokit/pipeline/process_registry.h>
+#include <sprokit/pipeline/process_factory.h>
 
 /**
  * \file multiplier_cluster.cxx
@@ -85,6 +85,7 @@ multiplier_cluster
     "integer",
     required,
     port_description_t("The factor to multiply."));
+
   declare_output_port(
     priv::port_output,
     "integer",
@@ -93,6 +94,7 @@ multiplier_cluster
 
   kwiver::vital::config_block_key_t const const_key = kwiver::vital::config_block_key_t("value");
 
+  //             "factor"         "const" (process)    "value"
   map_config(priv::config_factor, priv::name_const, const_key);
 
   add_process(priv::name_const, priv::type_const);

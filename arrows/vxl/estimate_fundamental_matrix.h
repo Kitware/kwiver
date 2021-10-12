@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2015-2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,14 +36,11 @@
 #ifndef KWIVER_ARROWS_VXL_ESTIMATE_FUNDAMENTAL_MATRIX_H_
 #define KWIVER_ARROWS_VXL_ESTIMATE_FUNDAMENTAL_MATRIX_H_
 
-#include <vital/vital_config.h>
 #include <arrows/vxl/kwiver_algo_vxl_export.h>
 
 #include <vital/types/camera_intrinsics.h>
 
 #include <vital/algo/estimate_fundamental_matrix.h>
-
-#include <memory>
 
 namespace kwiver {
 namespace arrows {
@@ -54,17 +51,14 @@ class KWIVER_ALGO_VXL_EXPORT estimate_fundamental_matrix
   : public vital::algorithm_impl<estimate_fundamental_matrix, vital::algo::estimate_fundamental_matrix>
 {
 public:
+  PLUGIN_INFO( "vxl",
+               "Use VXL (vpgl) to estimate a fundamental matrix." )
+
   /// Constructor
   estimate_fundamental_matrix();
 
   /// Destructor
   virtual ~estimate_fundamental_matrix();
-
-  /// Copy Constructor
-  estimate_fundamental_matrix(const estimate_fundamental_matrix& other);
-
-  /// Return the name of this implementation
-  std::string impl_name() const { return "vxl"; }
 
   /// Get this algorithm's \link vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -115,4 +109,4 @@ private:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_VXL_ESTIMATE_FUNDAMENTAL_MATRIX_H_
+#endif

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2015, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ namespace logger_ns {
  * execution (i.e. static initializer time), which is before the
  * initialize method is called.
  */
-class kwiver_logger_factory
+class VITAL_LOGGER_EXPORT kwiver_logger_factory
   : private kwiver::vital::noncopyable
 {
 public:
@@ -93,4 +93,4 @@ private:
 } } } // end namespace
 
 
-#endif /* KWIVER_KWIVER_LOGGER_FACTORY_H_ */
+#endif

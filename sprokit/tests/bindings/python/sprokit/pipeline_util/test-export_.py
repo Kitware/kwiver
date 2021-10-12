@@ -1,4 +1,4 @@
-#!@PYTHON_EXECUTABLE@
+#!/usr/bin/env python
 #ckwg +28
 # Copyright 2011-2013 by Kitware, Inc.
 # All rights reserved.
@@ -40,7 +40,7 @@ def test_simple_pipeline(path):
     import os
 
     from sprokit.pipeline import pipeline
-    from sprokit.pipeline import modules
+    from vital.modules import modules
     from sprokit.pipeline_util import bake
     from sprokit.pipeline_util import export_
 

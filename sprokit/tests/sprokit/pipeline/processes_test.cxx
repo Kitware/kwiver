@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2012 by Kitware, Inc.
+ * Copyright 2011-2016 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,16 +29,19 @@
  */
 
 #include <sprokit/pipeline/process.h>
-#include <sprokit/pipeline/process_registry.h>
+#include <sprokit/pipeline/process_factory.h>
 
-#include <sprokit/config.h>
+#include "processes_test_export.h"
 
 using namespace sprokit;
 
-class SPROKIT_NO_EXPORT test_process
+class PROCESSES_TEST_NO_EXPORT test_process
   : public sprokit::process
 {
   public:
+  PLUGIN_INFO( "test",
+               "A test process" );
+
     test_process(kwiver::vital::config_block_sptr const& config);
     ~test_process();
 };
@@ -54,26 +57,20 @@ test_process
 {
 }
 
+// ------------------------------------------------------------------
 extern "C"
-{
-
-SPROKIT_EXPORT void register_processes();
-
-}
-
+PROCESSES_TEST_EXPORT
 void
-register_processes()
+register_factories( kwiver::vital::plugin_loader& vpm )
 {
-  static process_registry::module_t const module_name = process_registry::module_t("test_processes");
+  process_registrar reg( vpm, "test_processes" );
 
-  process_registry_t const registry = process_registry::self();
-
-  if (registry->is_module_loaded(module_name))
+  if ( reg.is_module_loaded() )
   {
     return;
   }
 
-  registry->register_process("test", "A test process", create_process<test_process>);
+  reg.register_process< test_process >();
 
-  registry->mark_module_as_loaded(module_name);
+  reg.mark_module_as_loaded();
 }

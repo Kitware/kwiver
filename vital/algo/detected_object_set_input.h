@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,7 @@ public:
    *
    * \throws kwiver::vital::file_not_found_exception
    */
-  void open( std::string const& filename );
+  virtual void open( std::string const& filename );
 
   /// Read detections from an existing stream
   /**
@@ -98,7 +98,7 @@ public:
    * The currently open detection set file is closed. If there is no
    * currently open file, then this method does nothing.
    */
-  void close();
+  virtual void close();
 
   /// Read next detected object set
   /**
@@ -108,9 +108,10 @@ public:
    * \param[out] set Pointer to the new set of detections. Set may be
    * empty if there are no detections on an image.
    *
-   * \param[out] image_name Name of the image that goes with the
+   * \param[in,out] image_name Name of the image that goes with the
    * detections. This string may be empty depending on the source
-   * format.
+   * format. If the read format also contains filenames, the string
+   * can be used as an input to get all detections on said frame.
    *
    * @return \b true if detections are returned, \b false if end of file.
    */
@@ -128,6 +129,7 @@ protected:
   detected_object_set_input();
 
   std::istream& stream();
+  std::string const& filename();
 
   // Called when a new stream is specified. Allows derived classes to
   // reinitialize.
@@ -136,6 +138,7 @@ protected:
 private:
   std::istream* m_stream;
   bool m_stream_owned;
+  std::string m_filename;
 };
 
 

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,9 @@
 #include "plugin_manager.h"
 
 #include <vital/algorithm_plugin_manager_paths.h> //+ maybe rename later
-
 #include <vital/logger/logger.h>
+#include <vital/plugin_loader/plugin_filter_category.h>
+#include <vital/plugin_loader/plugin_filter_default.h>
 
 #include <kwiversys/SystemTools.hxx>
 
@@ -72,12 +73,26 @@ public:
     : m_all_loaded( false )
     , m_loader( new plugin_loader( register_function_name, shared_library_suffix ) )
     , m_logger( kwiver::vital::get_logger( "vital.plugin_manager" ) )
-  { }
+  {
+    using kvpf = kwiver::vital::plugin_factory;
+
+    // Add the default filter which checks for duplicate plugins
+    plugin_filter_handle_t filt = std::make_shared<kwiver::vital::plugin_filter_default>();
+    m_loader->add_filter( filt );
+
+    // Add filter that excludes applets
+    filt = std::make_shared<kwiver::vital::plugin_filter_category>(
+      plugin_filter_category::condition::NOT_EQUAL, kvpf::APPLET_CATEGORY );
+    m_loader->add_filter( filt );
+  }
 
 
   bool m_all_loaded;            ///< set if modules are loaded
   std::unique_ptr< plugin_loader > m_loader;       ///< the real loader object
   kwiver::vital::logger_handle_t m_logger;
+
+  path_list_t m_search_paths;
+
 };
 
 
@@ -109,33 +124,25 @@ plugin_manager::
 plugin_manager()
   : m_priv( new priv() )
 {
-  plugin_path_list_t search_paths;
 
   // Add search paths
   // Craft default search paths. Order of elements in the path has
   // some effect on how modules are looked up.
 
   // Check env variable for path specification
-  const char * env_ptr = kwiversys::SystemTools::GetEnv( environment_variable_name );
-  if ( 0 != env_ptr )
+  add_path_from_environment( environment_variable_name );
+
+  // Add the built-in search path
+  ST::Split( default_module_paths, m_priv->m_search_paths, PATH_SEPARATOR_CHAR );
+#ifdef CMAKE_INTDIR
+  for ( auto& p : m_priv->m_search_paths )
   {
-    LOG_DEBUG( m_priv->m_logger, "Adding path(s) \"" << env_ptr << "\" from environment" );
-    std::string const extra_module_dirs(env_ptr);
-
-
-    // Split supplied path into separate items using PATH_SEPARATOR_CHAR as delimiter
-    ST::Split( extra_module_dirs, search_paths, PATH_SEPARATOR_CHAR );
+    ST::ReplaceString( p, "$<CONFIGURATION>", CMAKE_INTDIR );
   }
-  else
-  {
-    LOG_DEBUG( m_priv->m_logger,
-              "No additional paths on " << environment_variable_name );
-  }
-
-  ST::Split( default_module_paths, search_paths, PATH_SEPARATOR_CHAR );
+#endif
 
   // Add paths to the real loader
-  m_priv->m_loader->add_search_path( search_paths );
+  m_priv->m_loader->add_search_path( m_priv->m_search_paths );
 }
 
 
@@ -146,7 +153,7 @@ plugin_manager::
 
 // ------------------------------------------------------------------
 void plugin_manager::
-load_plugins()
+load_all_plugins()
 {
   if ( ! m_priv->m_all_loaded )
   {
@@ -158,13 +165,51 @@ load_plugins()
 
 // ------------------------------------------------------------------
 void plugin_manager::
+load_plugins( path_list_t const& dirpath )
+{
+    m_priv->m_loader->load_plugins( dirpath );
+}
+
+
+// ------------------------------------------------------------------
+void plugin_manager::
 add_search_path( path_t const& dirpath )
 {
-  plugin_path_list_t path_list;
+  path_list_t path_list;
 
   ST::Split( dirpath, path_list, PATH_SEPARATOR_CHAR );
 
   m_priv->m_loader->add_search_path( path_list );
+}
+
+
+// ------------------------------------------------------------------
+void plugin_manager::
+add_search_path( path_list_t const& dirpath )
+{
+  m_priv->m_loader->add_search_path( dirpath );
+}
+
+
+// ------------------------------------------------------------------
+void plugin_manager::
+add_path_from_environment( std::string env_var)
+{
+  // Check env variable for path specification
+  const char * env_ptr = kwiversys::SystemTools::GetEnv( env_var );
+  if ( 0 != env_ptr )
+  {
+    LOG_DEBUG( m_priv->m_logger, "Adding path(s) \"" << env_ptr << "\" from environment" );
+    std::string const extra_module_dirs(env_ptr);
+
+    // Split supplied path into separate items using PATH_SEPARATOR_CHAR as delimiter
+    ST::Split( extra_module_dirs, m_priv->m_search_paths, PATH_SEPARATOR_CHAR );
+  }
+  else
+  {
+    LOG_DEBUG( m_priv->m_logger,
+              "No additional paths on " << env_var );
+  }
 }
 
 
@@ -177,10 +222,17 @@ search_path() const
 
 
 // ------------------------------------------------------------------
+plugin_factory_handle_t plugin_manager::
+add_factory( plugin_factory* fact )
+{
+  return m_priv->m_loader->add_factory( fact );
+}
+
+
+// ------------------------------------------------------------------
 plugin_factory_vector_t const& plugin_manager::
 get_factories( std::string const& type_name )
 {
-  load_plugins();
   return m_priv->m_loader->get_factories( type_name );
 }
 
@@ -189,7 +241,6 @@ get_factories( std::string const& type_name )
 plugin_map_t const& plugin_manager::
 plugin_map()
 {
-  load_plugins();
   return m_priv->m_loader->get_plugin_map();
 }
 
@@ -198,7 +249,6 @@ plugin_map()
 std::vector< std::string > plugin_manager::
 file_list()
 {
-  load_plugins();
   return m_priv->m_loader->get_file_list();
 }
 
@@ -209,6 +259,11 @@ reload_plugins()
 {
   m_priv->m_all_loaded = false;
   m_priv->m_loader.reset( new plugin_loader( register_function_name, shared_library_suffix ) );
+
+  // Add paths to the real loader
+  m_priv->m_loader->add_search_path( m_priv->m_search_paths );
+
+  load_all_plugins();
 }
 
 // ------------------------------------------------------------------
@@ -225,7 +280,6 @@ mark_module_as_loaded( std::string const& name )
   m_priv->m_loader->mark_module_as_loaded( name );
 }
 
-
 // ------------------------------------------------------------------
 std::map< std::string, std::string > const& plugin_manager::
 module_map() const
@@ -239,6 +293,15 @@ kwiver::vital::logger_handle_t plugin_manager::
 logger()
 {
   return m_priv->m_logger;
+}
+
+
+// ------------------------------------------------------------------
+kwiver::vital::plugin_loader*
+plugin_manager::
+get_loader()
+{
+  return m_priv->m_loader.get();
 }
 
 } } // end namespace kwiver

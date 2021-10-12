@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@
  */
 
 #include "adapter_data_set.h"
-
 
 namespace kwiver {
 namespace adapter {
@@ -76,7 +75,16 @@ void
 adapter_data_set
 ::add_datum( sprokit::process::port_t const& port, sprokit::datum_t const& datum )
 {
-  m_port_datum_set.insert( std::pair<std::string, sprokit::datum_t> (port, datum ) );
+  m_port_datum_set[port] = datum ;
+}
+
+
+// ------------------------------------------------------------------
+bool
+adapter_data_set
+::empty() const
+{
+  return m_port_datum_set.empty();
 }
 
 
@@ -99,6 +107,15 @@ adapter_data_set
 
 
 // ------------------------------------------------------------------
+kwiver::adapter::adapter_data_set::datum_map_t::const_iterator
+adapter_data_set
+::cbegin() const
+{
+  return m_port_datum_set.begin();
+}
+
+
+// ------------------------------------------------------------------
 kwiver::adapter::adapter_data_set::datum_map_t::iterator
 adapter_data_set
 ::end()
@@ -111,6 +128,15 @@ adapter_data_set
 kwiver::adapter::adapter_data_set::datum_map_t::const_iterator
 adapter_data_set
 ::end() const
+{
+  return m_port_datum_set.end();
+}
+
+
+// ------------------------------------------------------------------
+kwiver::adapter::adapter_data_set::datum_map_t::const_iterator
+adapter_data_set
+::cend() const
 {
   return m_port_datum_set.end();
 }

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,12 +36,9 @@
 #ifndef KWIVER_ARROWS_OCV_ESTIMATE_FUNDAMENTAL_MATRIX_H_
 #define KWIVER_ARROWS_OCV_ESTIMATE_FUNDAMENTAL_MATRIX_H_
 
-
-#include <vital/vital_config.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
 
 #include <vital/algo/estimate_fundamental_matrix.h>
-
 
 namespace kwiver {
 namespace arrows {
@@ -52,17 +49,14 @@ class KWIVER_ALGO_OCV_EXPORT estimate_fundamental_matrix
   : public vital::algorithm_impl<estimate_fundamental_matrix, vital::algo::estimate_fundamental_matrix>
 {
 public:
-    /// Constructor
+  PLUGIN_INFO( "ocv",
+               "Use OpenCV to estimate a fundimental matrix from feature matches." )
+
+   /// Constructor
   estimate_fundamental_matrix();
 
   /// Destructor
   virtual ~estimate_fundamental_matrix();
-
-  /// Copy Constructor
-  estimate_fundamental_matrix(const estimate_fundamental_matrix& other);
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "ocv"; }
 
   /// Get this algorithm's \link vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -102,4 +96,4 @@ private:
 } // end namespace kwiver
 
 
-#endif // KWIVER_ARROWS_OCV_ESTIMATE_FUNDAMENTAL_MATRIX_H_
+#endif

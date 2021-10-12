@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2015, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS [yas] elisp error!AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -116,6 +116,22 @@ kwiver::vital::config_block_description_t const  NAME ## _config_trait::descript
  */
 #define create_config_trait(KEY, TYPE, DEF, DESCR) create_named_config_trait( KEY, # KEY, TYPE, DEF, DESCR )
 
+/**
+ * \brief
+ *
+ * Specialized macro to create a uniform description of the config
+ * block that specifies an algorithm name. Being defined on one place
+ * all processes can have the documentation upgraded right here.
+ */
+#define create_algorithm_name_config_trait( NAME )                      \
+create_config_trait( NAME, std::string , "",                            \
+                     "Algorithm configuration subblock to select and configure desired implementation.\n\n" \
+                     "Configuration example:\n"                         \
+                     "block " #NAME "\n"                                \
+                     "    type = impl # desired implementation\n"       \
+                     "    impl:param = value # implementation specific config item\n" \
+                     "    # etc\n"                                      \
+                     "endblock" );
 
 #define declare_config_using_trait(KEY)                         \
 declare_configuration_key( KEY ## _config_trait::key,           \
@@ -128,11 +144,25 @@ declare_configuration_key( KEY ## _config_trait::key,                   \
                            KEY ## _config_trait::description, true)     \
 //@}
 
-// Get value from process config using trait
+/// Get value from process config using trait
 #define config_value_using_trait(KEY) config_value< KEY ## _config_trait::type >( KEY ## _config_trait::key )
 
-// Get value from config blockusing trait
+/// Get value from a specific config block using trait
 #define reconfig_value_using_trait(CONF,KEY) CONF->get_value< KEY ## _config_trait::type >( KEY ## _config_trait::key )
+
+/// Config block using traits
+#define set_value_using_trait( KEY, VAL ) set_value( KEY, VAL, KEY ## _config_trait::description )
+#define get_value_using_trait( KEY, ... ) get_value<KEY ## _config_trait::type>( KEY, __VA_ARG__ )
+
+/// Algorithm interface using traits
+#define check_nested_algo_configuration_using_trait(KEY, ALGO) \
+  check_nested_algo_configuration( KEY ## _config_trait::key, ALGO )
+
+#define set_nested_algo_configuration_using_trait(KEY, CONFIG, ALGO)     \
+  set_nested_algo_configuration( KEY ## _config_trait::key, CONFIG, ALGO )
+
+#define get_nested_algo_configuration_using_trait(KEY, CONFIG, ALGO)     \
+  get_nested_algo_configuration( KEY ## _config_trait::key, CONFIG, ALGO )
 
 
 /**
@@ -412,15 +442,7 @@ grab_input_as< PN ## _port_trait::type > ( PN ## _port_trait::port_name )
  kwiver::vital::timestamp frame_time = grab_from_port_using_trait( timestamp );
  \endcode
  *
- * Optional ports can be handled as follows:
- *
-\code
-  // See if optional input port has been connected.
-  if ( has_input_port_edge_using_trait( timestamp ) )
-  {
-    frame_time = grab_input_using_trait( timestamp );
-  }
-\endcode
+ * Optional ports can be handled using #try_grab_from_port_using_trait.
  *
  * \sa sprokit::process::grab_from_port_as()
  *
@@ -430,6 +452,25 @@ grab_input_as< PN ## _port_trait::type > ( PN ## _port_trait::port_name )
  */
 #define grab_from_port_using_trait(PN)                                  \
 grab_from_port_as< PN ## _port_trait::type > ( PN ## _port_trait::port_name )
+
+
+/**
+ * \brief Get input from port using port trait name.
+ *
+ * This method grabs an input value directly from the port specified by the
+ * port trait with \b no handling for static ports, iff that port is connected.
+ * This call will block until a datum is available.
+ *
+ * \sa grab_from_port_using_trait, sprokit::process::grab_from_port_as()
+ *
+ * \param PN Port trait name.
+ *
+ * \return Data value from port, or a default-constructed value of the port's
+ *         type if the port is not connected.
+ */
+#define try_grab_from_port_using_trait(PN) \
+  try_grab_from_port_as< PN ## _port_trait::type >( \
+    PN ## _port_trait::port_name )
 
 
 /**
@@ -445,6 +486,35 @@ grab_from_port_as< PN ## _port_trait::type > ( PN ## _port_trait::port_name )
  */
 #define grab_datum_from_port_using_trait(PN)            \
   grab_datum_from_port( PN ## _port_trait::port_name )
+
+
+/**
+ * \brief Get edge datum from port using port trait name.
+ *
+ * Grab a edge datum packet from port specified by the port trait.
+ * The edge datum packet contains the raw data and metadata.  See
+ * \ref sprokit::edge_datum_t for details.
+ *
+ * \param PN Port trait name.
+ *
+ * \return The edge datum available on the port.
+ */
+#define grab_edge_datum_using_trait(PN)            \
+  grab_from_port( PN ## _port_trait::port_name )
+
+
+/**
+ * \brief Peek at a edge packet from a port.
+ *
+ * This macro peeks at the first edge packet available on the port
+ * specified by the port trait.
+ *
+ * \param PN Port trait name.
+ *
+ * \return The edge from the port queue.
+ */
+#define peek_at_port_using_trait(PN)                   \
+  peek_at_port(PN ## _port_trait::port_name)
 
 
 /**

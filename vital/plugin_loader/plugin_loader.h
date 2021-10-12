@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 #ifndef KWIVER_VITAL_PLUGIN_LOADER_H_
 #define KWIVER_VITAL_PLUGIN_LOADER_H_
 
-#include <vital/vital_config.h>
 #include <vital/plugin_loader/vital_vpm_export.h>
 
 #include <vital/vital_types.h>
@@ -50,12 +49,13 @@ namespace vital {
 
 // base class of factory hierarchy
 class plugin_factory;
+class plugin_loader_filter;
 
-typedef std::shared_ptr< plugin_factory >         plugin_factory_handle_t;
-typedef std::vector< plugin_factory_handle_t >    plugin_factory_vector_t;
-typedef std::vector< path_t >                     plugin_path_list_t;
-typedef std::map< std::string, plugin_factory_vector_t > plugin_map_t;
-typedef std::map< std::string, path_t >           plugin_module_map_t;
+using plugin_factory_handle_t = std::shared_ptr< plugin_factory >;
+using plugin_factory_vector_t = std::vector< plugin_factory_handle_t >;
+using plugin_map_t            = std::map< std::string, plugin_factory_vector_t >;
+using plugin_module_map_t     = std::map< std::string, path_t >;
+using plugin_filter_handle_t  = std::shared_ptr< plugin_loader_filter >;
 
 class plugin_loader_impl;
 
@@ -82,6 +82,7 @@ public:
    */
   plugin_loader( std::string const& init_function,
     std::string const& shared_lib_suffix );
+
   virtual ~plugin_loader();
 
   /**
@@ -91,8 +92,33 @@ public:
    * currently active search path. This method is called after all
    * search paths have been added with the add_search_path() method.
    *
+   * @throws plugin_already_exists - if a duplicate plugin is detected
    */
   void load_plugins();
+
+  /**
+   * @brief Load plugins from list of directories.
+   *
+   * Load plugins from the specified list of directories. The
+   * directories are scanned immediately and all recognized plugins
+   * are loaded. The internal accumulated search path is not used for
+   * this method. This is useful for adding plugins after the search
+   * path has been processed.
+   *
+   * @param dirpath List of directories to search.
+   *
+   * @throws plugin_already_exists - if a duplicate plugin is detected
+   */
+  void load_plugins( path_list_t const& dirpath );
+
+  /**
+   * @brief Load a single plugin file.
+   *
+   * This method loads a single plugin file.
+   *
+   * @param file Name of the file to load.
+   */
+  void load_plugin( path_t const& file );
 
   /**
    * @brief Add an additional directories to search for plugins in.
@@ -108,7 +134,7 @@ public:
    *
    * \param dirpath Path to the directories to add to the plugin search path.
    */
-  void add_search_path( plugin_path_list_t const& dirpath );
+  void add_search_path( path_list_t const& dirpath );
 
   /**
    * @brief Get plugin manager search path
@@ -117,7 +143,7 @@ public:
    *
    * @return vector of paths that are searched
    */
-  plugin_path_list_t const& get_search_path() const;
+  path_list_t const& get_search_path() const;
 
   /**
    * @brief Get list of factories for interface type.
@@ -146,6 +172,8 @@ public:
    *
    * @return A pointer is returned to the added factory in case
    * attributes need to be added to the factory.
+   *
+   * @throws plugin_already_exists - if the plugin signature already has a factory.
    *
    * Example:
    \code
@@ -204,64 +232,19 @@ public:
    * @brief Get list of loaded modules.
    *
    * This method returns a map of modules that have been marked as
-   * loaded along with the name of the plugin file where the call was
-   * made.
+   * loaded by the mark_module_as_loaded() method along with the name
+   * of the plugin file where the call was made.
    *
    * @return Map of modules loaded and the source file.
    */
   plugin_module_map_t const& get_module_map() const;
 
+  void clear_filters();
+  void add_filter( plugin_filter_handle_t f );
 
 protected:
   friend class plugin_loader_impl;
 
-  /**
-   * @brief Test if plugin should be loaded.
-   *
-   * This method is a hook that can be implemented by a derived class
-   * to verify that the specified plugin should be loaded. This
-   * provides an application level approach to filter specific plugins
-   * from a directory. The default implementation is to load all
-   * discovered plugins.
-   *
-   * This method is called after the plugin is opened and the
-   * designated initialization method has been located but not yet
-   * called. Returning \b false from this method will result in the
-   * library being closed without further processing.
-   *
-   * The library handle can be used to inspect the contents of the
-   * plugin as needed.
-   *
-   * @param path File path to the plugin being loaded.
-   * @param lib_handle Handle to library.
-   *
-   * @return \b true if the plugin should be loaded, \b false if plugin should not be loaded
-   */
-  virtual bool load_plugin_hook( path_t const& path,
-                                 DL::LibraryHandle lib_handle ) const;
-
-  /**
-   * @brief Test if factory should be registered.
-   *
-   * This method is a hook that can be implemented by a derived class
-   * to verify that the specified factory should be registered. This
-   * provides an application level approach to filtering specific
-   * class factories from a plugin.
-   *
-   * This method is called as the plugin is registering class
-   * factories and can inspect attributes to determine if this factory
-   * should be registered. Returning \b false will prevent this
-   * factory from being registered with the plugin manager.
-   *
-   * A slight misapplication of this hook method could be to add
-   * specific attributes to a set of factories before they are
-   * registered.
-   *
-   * @param fact Pointer to the factory object.
-   *
-   * @return \b true if the plugin should be registered, \b false otherwise.
-   */
-  virtual bool add_factory_hook( plugin_factory_handle_t fact ) const;
 
   kwiver::vital::logger_handle_t m_logger;
 
@@ -272,4 +255,4 @@ private:
 
 } } // end namespace
 
-#endif /* KWIVER_VITAL_PLUGIN_LOADER_H_ */
+#endif

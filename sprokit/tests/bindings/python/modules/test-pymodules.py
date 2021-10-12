@@ -1,4 +1,4 @@
-#!@PYTHON_EXECUTABLE@
+#!/usr/bin/env python
 #ckwg +28
 # Copyright 2012-2013 by Kitware, Inc.
 # All rights reserved.
@@ -31,21 +31,18 @@
 
 def test_import():
     try:
-        import sprokit.modules.modules
+        import vital.modules.modules
     except:
         test_error("Failed to import the modules module")
 
 
 def test_load():
-    from sprokit.pipeline import config
-    from sprokit.pipeline import modules
-    from sprokit.pipeline import process_registry
+    from vital.modules import modules
+    from sprokit.pipeline import process_factory
 
     modules.load_known_modules()
 
-    reg = process_registry.ProcessRegistry.self()
-
-    types = reg.types()
+    types = process_factory.types()
 
     if 'test_python_process' not in types:
         test_error("Failed to load Python processes")
@@ -53,15 +50,12 @@ def test_load():
 
 # TEST_PROPERTY(ENVIRONMENT, SPROKIT_NO_PYTHON_MODULES=)
 def test_masking():
-    from sprokit.pipeline import config
-    from sprokit.pipeline import modules
-    from sprokit.pipeline import process_registry
+    from vital.modules import modules
+    from sprokit.pipeline import process_factory
 
     modules.load_known_modules()
 
-    reg = process_registry.ProcessRegistry.self()
-
-    types = reg.types()
+    types = process_factory.types()
 
     if 'test_python_process' in types:
         test_error("Failed to mask out Python processes")
@@ -69,15 +63,12 @@ def test_masking():
 
 # TEST_PROPERTY(ENVIRONMENT, SPROKIT_PYTHON_MODULES=sprokit.test.python.modules)
 def test_extra_modules():
-    from sprokit.pipeline import config
-    from sprokit.pipeline import modules
-    from sprokit.pipeline import process_registry
+    from vital.modules import modules
+    from sprokit.pipeline import process_factory
 
     modules.load_known_modules()
 
-    reg = process_registry.ProcessRegistry.self()
-
-    types = reg.types()
+    types = process_factory.types()
 
     if 'extra_test_python_process' not in types:
         test_error("Failed to load extra Python processes")
@@ -85,23 +76,18 @@ def test_extra_modules():
 
 # TEST_PROPERTY(ENVIRONMENT, PYTHONPATH=@CMAKE_CURRENT_SOURCE_DIR@)
 def test_pythonpath():
-    from sprokit.pipeline import config
-    from sprokit.pipeline import modules
-    from sprokit.pipeline import process_registry
-    from sprokit.pipeline import scheduler_registry
+    from vital.modules import modules
+    from sprokit.pipeline import process_factory
+    from sprokit.pipeline import scheduler_factory
 
     modules.load_known_modules()
 
-    reg = process_registry.ProcessRegistry.self()
-
-    types = reg.types()
+    types = process_factory.types()
 
     if 'pythonpath_test_process' not in types:
         test_error("Failed to load extra Python processes accessible from PYTHONPATH")
 
-    reg = scheduler_registry.SchedulerRegistry.self()
-
-    types = reg.types()
+    types = scheduler_factory.types()
 
     if 'pythonpath_test_scheduler' not in types:
         test_error("Failed to load extra Python schedulers accessible from PYTHONPATH")

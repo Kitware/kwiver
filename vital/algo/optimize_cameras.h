@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2015 by Kitware, Inc.
+ * Copyright 2014-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,8 +41,10 @@
 
 #include <vital/algo/algorithm.h>
 #include <vital/types/camera_map.h>
+#include <vital/types/camera_perspective.h>
 #include <vital/types/landmark_map.h>
-#include <vital/types/track_set.h>
+#include <vital/types/feature_track_set.h>
+#include <vital/types/sfm_constraints.h>
 
 
 namespace kwiver {
@@ -58,7 +60,7 @@ public:
   /// Return the name of this algorithm definition
   static std::string static_type_name() { return "optimize_cameras"; }
 
-  /// Optimize camera parameters given sets of landmarks and tracks
+  /// Optimize camera parameters given sets of landmarks and feature tracks
   /**
    * We only optimize cameras that have associating tracks and landmarks in
    * the given maps.  The default implementation collects the corresponding
@@ -68,13 +70,16 @@ public:
    * \throws invalid_value When one or more of the given pointer is Null.
    *
    * \param[in,out] cameras   Cameras to optimize.
-   * \param[in]     tracks    The tracks to use as constraints.
+   * \param[in]     tracks    The feature tracks to use as constraints.
    * \param[in]     landmarks The landmarks the cameras are viewing.
+   * \param[in]     metadata  The optional metadata to constrain the
+   *                          optimization.
    */
   virtual void
   optimize(kwiver::vital::camera_map_sptr & cameras,
-           kwiver::vital::track_set_sptr tracks,
-           kwiver::vital::landmark_map_sptr landmarks) const;
+           kwiver::vital::feature_track_set_sptr tracks,
+           kwiver::vital::landmark_map_sptr landmarks,
+           kwiver::vital::sfm_constraints_sptr constraints = nullptr) const;
 
 
   /// Optimize a single camera given corresponding features and landmarks
@@ -88,11 +93,14 @@ public:
    *                          to use as constraints.
    * \param[in]     landmarks The vector of landmarks corresponding to
    *                          \p features.
+   * \param[in]     metadata  The optional metadata to constrain the
+   *                          optimization.
    */
   virtual void
-  optimize(kwiver::vital::camera_sptr& camera,
+  optimize(kwiver::vital::camera_perspective_sptr& camera,
            const std::vector<kwiver::vital::feature_sptr>& features,
-           const std::vector<kwiver::vital::landmark_sptr>& landmarks) const = 0;
+           const std::vector<kwiver::vital::landmark_sptr>& landmarks,
+           kwiver::vital::sfm_constraints_sptr constraints = nullptr) const = 0;
 
 protected:
   optimize_cameras();

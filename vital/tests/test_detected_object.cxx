@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2017, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,110 +33,125 @@
  * \brief test detected_object class
  */
 
-#include <test_common.h>
-
 #include <vital/types/detected_object.h>
+#include <vital/types/geodesy.h>
 
-#define TEST_ARGS       ()
+#include <gtest/gtest.h>
 
-DECLARE_TEST_MAP();
+static auto const loc = kwiver::vital::vector_3d{ -73.759291, 42.849631, 50 };
+static auto constexpr crs = kwiver::vital::SRID::lat_lon_WGS84;
 
-int
-main(int argc, char* argv[])
+// ----------------------------------------------------------------------------
+int main(int argc, char** argv)
 {
-  CHECK_ARGS(1);
-
-  testname_t const testname = argv[1];
-
-  RUN_TEST(testname);
+  ::testing::InitGoogleTest( &argc, argv );
+  return RUN_ALL_TESTS();
 }
 
-
-// ------------------------------------------------------------------
-IMPLEMENT_TEST(detected_object_creation)
+// ----------------------------------------------------------------------------
+TEST(detected_object, creation)
 {
-  kwiver::vital::bounding_box_d::vector_type tl( 12, 23 );
-  kwiver::vital::bounding_box_d bb1( tl, 100, 100 );
+  kwiver::vital::bounding_box_d::vector_type tl{ 12, 23 };
+  kwiver::vital::bounding_box_d bb{ tl, 100, 100 };
 
-  kwiver::vital::detected_object dobj( bb1 ); // using defaults
+  kwiver::vital::detected_object dobj{ bb };
 
-  TEST_EQUAL( "Expected confidence", dobj.confidence(), 1 );
+  // Test expected values passed to constructor
+  EXPECT_EQ( 1.0, dobj.confidence() );
+  EXPECT_EQ( bb.upper_left(), dobj.bounding_box().upper_left() );
+  EXPECT_EQ( bb.lower_right(), dobj.bounding_box().lower_right() );
+  EXPECT_EQ( nullptr, dobj.type() );
 
-  kwiver::vital::bounding_box_d bb2 = dobj.bounding_box();
+  // Test expected default values
+  EXPECT_EQ( 0, dobj.index() );
+  EXPECT_EQ( "", dobj.detector_name() );
 
-  auto ul1 = bb1.upper_left();
-  auto lr1 = bb1.lower_right();
+  kwiver::vital::geo_point gp{ loc, crs };
+  kwiver::vital::detected_object dobj2{ gp };
 
-  auto ul2 = bb2.upper_left();
-  auto lr2 = bb2.lower_right();
+  // Test expected values passed to constructor
+  EXPECT_EQ( loc, dobj2.geo_point().location( crs ) );
+}
 
-  if ( ul1 != ul2 || lr1 != lr2 )
-  {
-    TEST_ERROR( "Bounding box returned incorrectly" );
-  }
+// ----------------------------------------------------------------------------
+TEST(detected_object, modification)
+{
+  kwiver::vital::bounding_box_d::vector_type tl{ 12, 23 };
+  kwiver::vital::bounding_box_d bb{ tl, 100, 100 };
 
-  auto dot = dobj.type();
+  kwiver::vital::detected_object dobj{ bb };
 
-  if ( dot )
-  {
-    TEST_ERROR( "detected object type returned incorrectly" );
-  }
-
-  // Test associated API
-  auto idx = dobj.index();
-  TEST_EQUAL( "Default index value", idx, 0 );
-
-  dobj.set_index(1234);
-  idx = dobj.index();
-  TEST_EQUAL( "Explicit index value", idx, 1234 );
-
-  std::string dname = dobj.detector_name();
-  TEST_EQUAL( "Default detector name", dname, "" );
+  dobj.set_index( 1234 );
+  EXPECT_EQ( 1234, dobj.index() );
 
   dobj.set_detector_name( "foo detector" );
-  dname = dobj.detector_name();
-  TEST_EQUAL( "Explicit detector name", dname, "foo detector" );
+  EXPECT_EQ( "foo detector", dobj.detector_name() );
+
+  dobj.set_confidence( 0.5546 );
+  EXPECT_EQ( 0.5546, dobj.confidence() );
+
+  auto const names = std::vector< std::string >{
+    "person",
+    "vehicle",
+    "other",
+    "clam",
+    "barnacle",
+  };
+
+  auto const scores = std::vector< double >{
+    0.65,
+    0.6,
+    0.07,
+    0.0055,
+    0.005,
+  };
+
+  auto const dot =
+    std::make_shared< kwiver::vital::detected_object_type >( names, scores );
+  dobj.set_type( dot );
+  EXPECT_EQ( dot, dobj.type() );
+
+  kwiver::vital::bounding_box_d::vector_type offset{ 20, 10 };
+  kwiver::vital::translate( bb, offset );
+  dobj.set_bounding_box( bb );
+  EXPECT_EQ( bb.upper_left(), dobj.bounding_box().upper_left() );
+  EXPECT_EQ( bb.lower_right(), dobj.bounding_box().lower_right() );
+
+  dobj.set_geo_point( { loc, crs } );
+  EXPECT_EQ( loc, dobj.geo_point().location( crs ) );
 }
 
-
-// ------------------------------------------------------------------
-IMPLEMENT_TEST(detected_object_modification)
+// ----------------------------------------------------------------------------
+TEST(detected_object, keypoints)
 {
-  kwiver::vital::bounding_box_d::vector_type tl( 12, 23 );
-  kwiver::vital::bounding_box_d bb1( tl, 100, 100 );
+  kwiver::vital::detected_object dobj;
 
-  kwiver::vital::detected_object doby( bb1 ); // start with defaults
+  dobj.add_keypoint( "head", { 11.2, 13.1 } );
+  dobj.add_keypoint( "head", { 4.2, 9.5 } );
 
-  doby.set_confidence( .5546 );
+  auto const& keypoints = dobj.keypoints();
+  EXPECT_EQ( 1, keypoints.size() );
+  ASSERT_EQ( 1, keypoints.count( "head" ) );
 
-  TEST_EQUAL( "Expected confidence", doby.confidence(), .5546 );
+  EXPECT_EQ( 4.2, keypoints.find( "head" )->second.value()[ 0 ] );
+  EXPECT_EQ( 9.5, keypoints.find( "head" )->second.value()[ 1 ] );
+}
 
-  std::vector< std::string > names;
-  names.push_back( "person" );
-  names.push_back( "vehicle" );
-  names.push_back( "other" );
-  names.push_back( "clam" );
-  names.push_back( "barnacle" );
+// ----------------------------------------------------------------------------
+TEST(detected_object, notes)
+{
+  kwiver::vital::detected_object dobj;
 
-  std::vector< double > score;
-  score.push_back( .65 );
-  score.push_back( .6 );
-  score.push_back( .07 );
-  score.push_back( .0055 );
-  score.push_back( .005 );
+  EXPECT_EQ( dobj.notes().size(), 0 );
 
-  auto dot = std::make_shared< kwiver::vital::detected_object_type >( names, score );
-  doby.set_type( dot );
+  dobj.add_note( "Dogs have owners." );
+  dobj.add_note( "Cats have staff." );
 
-  dot = doby.type();
+  auto const& notes = dobj.notes();
+  ASSERT_EQ( notes.size(), 2 );
+  EXPECT_EQ( "Dogs have owners.", notes[ 0 ] );
+  EXPECT_EQ( "Cats have staff.", notes[ 1 ] );
 
-  if ( !dot )
-  {
-    TEST_ERROR( "detected object type returned incorrectly" );
-  }
-
-  kwiver::vital::bounding_box_d::vector_type tr( 20, 10 );
-  kwiver::vital::translate( bb1, tr );
-
-  doby.set_bounding_box( bb1 );
+  dobj.clear_notes();
+  EXPECT_EQ( dobj.notes().size(), 0 );
 }

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,13 +50,13 @@ namespace matlab {
  *
  */
 class KWIVER_ALGO_MATLAB_EXPORT matlab_exception
-  : public kwiver::vital::vital_core_base_exception
+  : public vital::vital_exception
 {
 public:
   // -- CONSTRUCTORS --
-  matlab_exception( const std::string& msg ) VITAL_NOTHROW;
+  matlab_exception( const std::string& msg ) noexcept;
 
-  virtual ~matlab_exception() VITAL_NOTHROW;
+  virtual ~matlab_exception() noexcept;
 
 }; // end class matlab_exception
 

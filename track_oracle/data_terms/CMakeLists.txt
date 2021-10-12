@@ -20,8 +20,7 @@ kwiver_install_headers(
 
 kwiver_install_headers(
   ${CMAKE_CURRENT_BINARY_DIR}/data_terms_export.h
-  SUBDIR        track_oracle/data_terms
-  NOPATH
+  NOPATH SUBDIR        track_oracle/data_terms
 )
 
 kwiver_add_library( data_terms
@@ -36,7 +35,6 @@ target_link_libraries( data_terms
   PRIVATE              scoring_aries_interface
                        vital_logger
                        vital
-                       ${Boost_SYSTEM_LIBRARY}
   INTERFACE            vgl
 )
 set_target_properties( data_terms PROPERTIES CXX_VISIBILITY_PRESET default)

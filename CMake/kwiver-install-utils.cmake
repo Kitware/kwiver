@@ -16,6 +16,15 @@ install(
         "${utils_dir}/kwiver-flags-msvc.cmake"
         "${utils_dir}/kwiver-flags-clang.cmake"
         "${utils_dir}/kwiver-configcheck.cmake"
+        "${utils_dir}/kwiver-cmake-future.cmake"
+        "${utils_dir}/kwiver-setup-python.cmake"
+        "${utils_dir}/CommonFindMacros.cmake"
+        "${utils_dir}/FindEigen3.cmake"
+        "${utils_dir}/FindFFMPEG.cmake"
+        "${utils_dir}/FindLog4cxx.cmake"
+        "${utils_dir}/FindPROJ.cmake"
+        "${utils_dir}/FindSphinx.cmake"
+        "${utils_dir}/FindTinyXML.cmake"
   DESTINATION "${kwiver_cmake_install_dir}"
   )
 
@@ -24,5 +33,6 @@ install(
             "${utils_dir}/tools"
             "${utils_dir}/configcheck"
             "${utils_dir}/templates"
+            "${utils_dir}/future"
   DESTINATION "${kwiver_cmake_install_dir}"
   )

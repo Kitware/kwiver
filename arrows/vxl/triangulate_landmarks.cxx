@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@
 
 #include <set>
 
-#include <vital/vital_foreach.h>
 
 #include <arrows/vxl/camera_map.h>
 
@@ -49,51 +48,38 @@ namespace kwiver {
 namespace arrows {
 namespace vxl {
 
-/// Private implementation class
+// Private implementation class
 class triangulate_landmarks::priv
 {
 public:
-  /// Constructor
+  // Constructor
   priv()
-  : m_logger( vital::get_logger( "arrows.vxl.triangulate_landmarks" ))
   {
   }
 
-  priv(const priv& other)
-  : m_logger( vital::get_logger( "arrows.vxl.triangulate_landmarks" ))
-  {
-  }
-
-  /// parameters - none yet
-  /// Logger handle
-  vital::logger_handle_t m_logger;
+  // parameters - none yet
 };
 
 
-/// Constructor
+// ----------------------------------------------------------------------------
+// Constructor
 triangulate_landmarks
 ::triangulate_landmarks()
 : d_(new priv)
 {
+  attach_logger( "arrows.vxl.triangulate_landmarks" );
 }
 
 
-/// Copy Constructor
-triangulate_landmarks
-::triangulate_landmarks(const triangulate_landmarks& other)
-: d_(new priv(*other.d_))
-{
-}
-
-
-/// Destructor
+// Destructor
 triangulate_landmarks
 ::~triangulate_landmarks()
 {
 }
 
 
-/// Get this algorithm's \link vital::config_block configuration block \endlink
+// ----------------------------------------------------------------------------
+// Get this algorithm's \link vital::config_block configuration block \endlink
 vital::config_block_sptr
 triangulate_landmarks
 ::get_configuration() const
@@ -104,7 +90,8 @@ triangulate_landmarks
 }
 
 
-/// Set this algorithm's properties via a config block
+// ----------------------------------------------------------------------------
+// Set this algorithm's properties via a config block
 void
 triangulate_landmarks
 ::set_configuration(vital::config_block_sptr in_config)
@@ -112,7 +99,8 @@ triangulate_landmarks
 }
 
 
-/// Check that the algorithm's currently configuration is valid
+// ----------------------------------------------------------------------------
+// Check that the algorithm's currently configuration is valid
 bool
 triangulate_landmarks
 ::check_configuration(vital::config_block_sptr config) const
@@ -121,11 +109,12 @@ triangulate_landmarks
 }
 
 
-/// Triangulate the landmark locations given sets of cameras and tracks
+// ----------------------------------------------------------------------------
+// Triangulate the landmark locations given sets of cameras and feature tracks
 void
 triangulate_landmarks
 ::triangulate(vital::camera_map_sptr cameras,
-              vital::track_set_sptr tracks,
+              vital::feature_track_set_sptr tracks,
               vital::landmark_map_sptr& landmarks) const
 {
   if( !cameras || !landmarks || !tracks )
@@ -144,7 +133,7 @@ triangulate_landmarks
   // build a track map by id
   typedef std::map<track_id_t, track_sptr> track_map_t;
   track_map_t track_map;
-  VITAL_FOREACH(const track_sptr& t, trks)
+  for(const track_sptr& t : trks)
   {
     track_map[t->id()] = t;
   }
@@ -153,7 +142,7 @@ triangulate_landmarks
   std::set<landmark_id_t> failed_landmarks;
 
   map_landmark_t triangulated_lms;
-  VITAL_FOREACH(const map_landmark_t::value_type& p, lms)
+  for(const map_landmark_t::value_type& p : lms)
   {
     // get the corresponding track
     track_map_t::const_iterator t_itr = track_map.find(p.first);
@@ -167,23 +156,26 @@ triangulate_landmarks
     // extract the cameras and image points for this landmarks
     std::vector<vpgl_perspective_camera<double> > lm_cams;
     std::vector<vgl_point_2d<double> > lm_image_pts;
+    std::vector<feature_track_state_sptr> feats;
 
     for (track::history_const_itr tsi = t.begin(); tsi != t.end(); ++tsi)
     {
-      if (!tsi->feat)
+      auto fts = std::dynamic_pointer_cast<feature_track_state>(*tsi);
+      if (!fts || !fts->feature)
       {
         // there is no valid feature for this track state
         continue;
       }
-      map_vcam_t::const_iterator c_itr = vcams.find(tsi->frame_id);
+      map_vcam_t::const_iterator c_itr = vcams.find((*tsi)->frame());
       if (c_itr == vcams.end())
       {
         // there is no camera for this track state.
         continue;
       }
       lm_cams.push_back(c_itr->second);
-      vital::vector_2d pt = tsi->feat->loc();
+      vital::vector_2d pt = fts->feature->loc();
       lm_image_pts.push_back(vgl_point_2d<double>(pt.x(), pt.y()));
+      feats.push_back(fts);
     }
 
     // if we found at least two views of this landmark, triangulate
@@ -195,7 +187,7 @@ triangulate_landmarks
                                                           lm_cams, pt3d);
       bool bad_triangulation = false;
       vgl_homg_point_3d<double> hpt3d(pt3d);
-      VITAL_FOREACH(vpgl_perspective_camera<double> const& cam, lm_cams)
+      for(vpgl_perspective_camera<double> const& cam : lm_cams)
       {
         if(cam.is_behind_camera(hpt3d))
         {
@@ -211,12 +203,16 @@ triangulate_landmarks
         lm->set_covar(covariance_3d(error));
         lm->set_observations(static_cast<unsigned int>(lm_cams.size()));
         triangulated_lms[p.first] = lm;
+        for (auto fts : feats)
+        {
+          fts->inlier = true;
+        }
       }
     }
   }
   if( !failed_landmarks.empty() )
   {
-    LOG_ERROR(d_->m_logger, "failed to triangulate " << failed_landmarks.size()
+    LOG_ERROR(logger(), "failed to triangulate " << failed_landmarks.size()
                             << " of " << lms.size() << " landmarks");
   }
   landmarks = landmark_map_sptr(new simple_landmark_map(triangulated_lms));

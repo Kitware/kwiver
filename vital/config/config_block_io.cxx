@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2015 by Kitware, Inc.
+ * Copyright 2013-2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,17 +38,14 @@
 #include "config_parser.h"
 
 #include <vital/logger/logger.h>
-
-#include <vital/util/tokenize.h>
-
-#include <vital/vital_foreach.h>
+#include <vital/util/wrap_text_block.h>
+#include <vital/version.h>
 
 #include <kwiversys/SystemTools.hxx>
 
 #include <algorithm>
 #include <fstream>
 #include <iostream>
-#include <list>
 
 #if defined(_WIN32)
 #include <shlobj.h>
@@ -83,7 +80,7 @@ application_paths( config_path_list_t const& paths,
                    std::string const& application_version )
 {
   auto result = config_path_list_t{};
-  VITAL_FOREACH ( auto const& path, paths )
+  for ( auto const& path : paths )
   {
     auto const& app_path = path + "/" + application_name;
 
@@ -97,77 +94,6 @@ application_paths( config_path_list_t const& paths,
   return result;
 }
 
-
-// ------------------------------------------------------------------
-// Helper method to write out a comment to a configuration file ostream
-/**
- * Makes sure there is no trailing white-space printed to file.
- */
-void
-write_cb_comment( std::ostream& ofile, config_block_description_t const& comment )
-{
-  typedef config_block_description_t cbd_t;
-  size_t line_width = 80;
-  cbd_t comment_token = cbd_t( "#" );
-
-  // Add a leading new-line to separate comment block from previous config
-  // entry.
-  ofile << "\n";
-
-  // preserve manually specified new-lines in the comment string, adding a
-  // trailing new-line
-  std::list< cbd_t > blocks;
-  tokenize( comment, blocks, "\n" );
-  while ( blocks.size() > 0 )
-  {
-    cbd_t cur_block = blocks.front();
-    blocks.pop_front();
-
-    // Comment lines always start with the comment token
-    cbd_t line_buffer = comment_token;
-
-    // Counter of additional spaces to place in front of the next non-empty
-    // word added to the line buffer. There is always at least one space
-    // between words.
-    size_t spaces = 1;
-
-    std::list< cbd_t > words;
-    // Not using token-compress in case there is purposeful use of multiple
-    // adjacent spaces, like in bullited lists. This, however, leaves open
-    // the appearance of empty-string words in the loop, which are handled.
-    tokenize( cur_block, words );
-    while ( words.size() > 0 )
-    {
-      cbd_t cur_word = words.front();
-      words.pop_front();
-
-      // word is an empty string, meaning an intentional space was encountered.
-      if ( cur_word.size() == 0 )
-      {
-        ++spaces;
-      }
-      else
-      {
-        if ( ( line_buffer.size() + spaces + cur_word.size() ) > line_width )
-        {
-          ofile << line_buffer << "\n";
-          line_buffer = comment_token;
-          // On a line split, it makes sense to me that leading spaces are
-          // treated as trailing white-space, which should not be output.
-          spaces = 1;
-        }
-        line_buffer += std::string( spaces, ' ' ) + cur_word;
-        spaces = 1;
-      }
-    }
-
-    // flush remaining contents of line buffer if there is anything
-    if ( line_buffer.size() > 0 )
-    {
-      ofile << line_buffer << "\n";
-    }
-  }
-} // write_cb_comment
 
 // ------------------------------------------------------------------
 /// Add paths in the KWIVER_CONFIG_PATH env variable to the given path vector
@@ -191,15 +117,13 @@ void append_kwiver_config_paths( config_path_list_t &path_vector )
 // ------------------------------------------------------------------
 // Helper method to get all possible locations of application config files
 config_path_list_t
-application_config_file_paths(std::string const& application_name,
-                              std::string const& application_version,
-                              config_path_t const& install_prefix)
+application_config_file_paths_helper(std::string const& application_name,
+                                     std::string const& application_version,
+                                     config_path_t const& install_prefix)
 {
-  // First, add any paths specified by our local environment variable
   auto paths = config_path_list_t{};
-  append_kwiver_config_paths( paths );
 
-  // Now add platform specific directories
+  // Platform specific directories
   auto data_paths = config_path_list_t{};
 
 #if defined(_WIN32)
@@ -258,7 +182,7 @@ application_config_file_paths(std::string const& application_name,
                  data_paths, application_name, application_version );
 
   // ...then into config paths and add to final list
-  VITAL_FOREACH ( auto const& path, data_paths )
+  for ( auto const& path : data_paths )
   {
     paths.push_back( path + "/config" );
   }
@@ -276,6 +200,69 @@ application_config_file_paths(std::string const& application_name,
   return paths;
 }
 
+// ------------------------------------------------------------------
+/// Get additional application configuration file paths
+config_path_list_t
+application_config_file_paths(std::string const& application_name,
+                              std::string const& application_version,
+                              config_path_t const& install_prefix)
+{
+  return application_config_file_paths(application_name, application_version,
+                                       install_prefix, install_prefix);
+}
+
+// ------------------------------------------------------------------
+/// Get additional application configuration file paths
+config_path_list_t
+application_config_file_paths(std::string const& application_name,
+                              std::string const& application_version,
+                              config_path_t const& app_install_prefix,
+                              config_path_t const& kwiver_install_prefix)
+{
+  // First, add any paths specified by our local environment variable
+  auto paths = config_path_list_t{};
+  append_kwiver_config_paths(paths);
+
+  auto app_paths = application_config_file_paths_helper(application_name,
+                                                        application_version,
+                                                        app_install_prefix);
+  for (auto const& path : app_paths)
+  {
+    paths.push_back(path);
+  }
+
+  auto kwiver_paths = application_config_file_paths_helper("kwiver",
+                                                           KWIVER_VERSION,
+                                                           kwiver_install_prefix);
+  for (auto const& path : kwiver_paths)
+  {
+    paths.push_back(path);
+  }
+
+  return paths;
+}
+
+// ------------------------------------------------------------------
+/// Get KWIVER configuration file paths
+config_path_list_t
+kwiver_config_file_paths(config_path_t const& install_prefix)
+{
+  // First, add any paths specified by our local environment variable
+  auto paths = config_path_list_t{};
+  append_kwiver_config_paths(paths);
+
+  auto kwiver_paths = application_config_file_paths_helper("kwiver",
+                                                           KWIVER_VERSION,
+                                                           install_prefix);
+
+  for (auto const& path : kwiver_paths)
+  {
+    paths.push_back(path);
+  }
+
+  return paths;
+}
+
 
 // ------------------------------------------------------------------
 config_block_sptr
@@ -286,13 +273,13 @@ read_config_file( config_path_t const&     file_path,
   // The file specified really must be a file.
   if ( ! kwiversys::SystemTools::FileExists( file_path ) )
   {
-    throw config_file_not_found_exception( file_path,
+    VITAL_THROW( config_file_not_found_exception, file_path,
           "File does not exist." );
   }
 
   if ( kwiversys::SystemTools::FileIsDirectory( file_path ) )
   {
-    throw config_file_not_found_exception( file_path,
+    VITAL_THROW( config_file_not_found_exception, file_path,
           "Path given doesn't point to a regular file." );
   }
 
@@ -322,7 +309,7 @@ read_config_file( std::string const& file_name,
 
   auto result = config_block_sptr{};
 
-  auto const& search_paths =
+  auto const search_paths =
     application_config_file_paths( application_name, application_version,
                                    install_prefix );
 
@@ -338,7 +325,7 @@ read_config_file( std::string const& file_name,
   config_path_list_t local_search_paths( search_paths );
 
   // File name is relative, so go through the search process.
-  VITAL_FOREACH( auto const& search_path, local_search_paths )
+  for( auto const& search_path : local_search_paths )
   {
     auto const& config_path = search_path + "/" + file_name;
 
@@ -376,7 +363,7 @@ read_config_file( std::string const& file_name,
   // Throw file-not-found if we ran out of paths without finding anything
   if ( ! result )
   {
-    throw config_file_not_found_exception(
+    VITAL_THROW( config_file_not_found_exception,
       file_name, "No matching file found in the search paths." );
   }
 
@@ -396,7 +383,7 @@ write_config_file( config_block_sptr const& config,
   // If the given path is a directory, we obviously can't write to it.
   if ( kwiversys::SystemTools::FileIsDirectory( file_path ) )
   {
-    throw config_file_write_exception( file_path,
+    VITAL_THROW( config_file_write_exception, file_path,
           "Path given is a directory, to which we clearly can't write." );
   }
 
@@ -406,16 +393,21 @@ write_config_file( config_block_sptr const& config,
     kwiversys::SystemTools::CollapseFullPath( file_path ) );
   if ( ! kwiversys::SystemTools::FileIsDirectory( parent_dir ) )
   {
-    //std::cerr << "at least one containing directory not found, creating them..." << std::endl;
     if ( ! kwiversys::SystemTools::MakeDirectory( parent_dir ) )
     {
-      throw config_file_write_exception( parent_dir,
+      VITAL_THROW( config_file_write_exception, parent_dir,
             "Attempted directory creation, but no directory created! No idea what happened here..." );
     }
   }
 
   // open output file and write each key/value to a line.
   std::ofstream ofile( file_path.c_str() );
+
+  if ( ! ofile )
+  {
+    VITAL_THROW( config_file_write_exception, file_path,
+                 "Could not open config file for writing" );
+  }
 
   write_config( config, ofile );
   ofile.close();
@@ -429,7 +421,7 @@ void write_config( config_block_sptr const& config,
   // If there are no config parameters in the given config_block, throw
   if ( ! config->available_values().size() )
   {
-    throw config_file_write_exception( "<stream>",
+    VITAL_THROW( config_file_write_exception, "<stream>",
           "No parameters in the given config_block!" );
   }
 
@@ -438,9 +430,12 @@ void write_config( config_block_sptr const& config,
   config_block_keys_t avail_keys = config->available_values();
   std::sort( avail_keys.begin(), avail_keys.end() );
 
+  kwiver::vital::wrap_text_block wtb;
+  wtb.set_indent_string( "# " );
+  wtb.set_line_length( 80 );
 
   bool prev_had_descr = false;  // for additional spacing
-  VITAL_FOREACH( config_block_key_t key, avail_keys )
+  for( config_block_key_t key : avail_keys )
   {
     // Each key may or may not have an associated description string. If there
     // is one, write that out as a comment.
@@ -452,8 +447,10 @@ void write_config( config_block_sptr const& config,
 
     if ( descr != config_block_description_t() )
     {
-      //std::cerr << "[write_config_file] Writing comment for '" << key << "'." << std::endl;
-      write_cb_comment( ofile, descr );
+      // Add a leading new-line to separate comment block from previous config
+      // entry.
+      ofile << "\n" << wtb.wrap_text( descr );
+
       prev_had_descr = true;
     }
     else if ( prev_had_descr )
@@ -463,15 +460,16 @@ void write_config( config_block_sptr const& config,
       prev_had_descr = false;
     }
 
-    ofile << key << " = " << config->get_value< config_block_value_t > ( key ) << "\n";
-
-    std::string file;
-    int line;
-    if ( config->get_location( key, file, line ) )
+    std::string ro;
+    if ( config->is_read_only( key ) )
     {
-      ofile << "# defined - " << file << ":" << line << "\n";
+      ro = "[RO]";
     }
-  }
+
+    ofile << key << ro << " = " << config->get_value< config_block_value_t > ( key ) << "\n";
+
+  } // end for
+
   ofile.flush();
 } // write_config_file
 

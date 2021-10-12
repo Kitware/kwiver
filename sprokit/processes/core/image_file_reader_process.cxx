@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015 by Kitware, Inc.
+ * Copyright 2015-2017, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *    to endorse or promote products derived from this software without specific
  *    prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS [yas] elisp error!AS IS''
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
@@ -35,7 +35,6 @@
 
 #include "image_file_reader_process.h"
 
-#include <vital/algorithm_plugin_manager.h>
 #include <vital/vital_types.h>
 #include <vital/types/timestamp.h>
 #include <vital/types/image_container.h>
@@ -44,6 +43,7 @@
 #include <vital/exceptions.h>
 #include <vital/util/data_stream_reader.h>
 #include <vital/util/tokenize.h>
+#include <vital/util/enum_converter.h>
 
 #include <kwiver_type_traits.h>
 
@@ -56,6 +56,7 @@
 #include <stdint.h>
 #include <fstream>
 #include <string>
+#include <exception>
 
 // -- DEBUG
 #if defined DEBUG
@@ -69,24 +70,26 @@ namespace algo = kwiver::vital::algo;
 namespace kwiver {
 
 // (config-key, value-type, default-value, description )
-create_config_trait( error_mode, std::string, "fail",
-                     "How to handle file not found errors. Options are 'abort' and 'skip'. "
-                     "Specifying 'fail' will cause an exception to be thrown. "
-                     "The 'pass' option will only log a warning and wait for the next file name." );
+create_config_trait( error_mode, std::string, "abort",
+  "How to handle file not found errors. Options are 'abort' and 'skip'. "
+  "The 'pass' option will only log a warning and wait for the next file name." );
 
 create_config_trait( path, std::string, "",
-                     "Path to search for image file. The format is the same as the standard "
-                     "path specification, a set of directories separated by a colon (':')" );
+  "Path to search for image file. The format is the same as the standard "
+  "path specification, a set of directories separated by a colon (':')" );
 
 create_config_trait( frame_time, double, "0.3333333", "Inter frame time in seconds. "
-                     "The generated timestamps will have the specified number of seconds in the generated "
-                     "timestamps for sequential frames. This can be used to simulate a frame rate in a "
-                     "video stream application.");
+  "The generated timestamps will have the specified number of seconds in the generated "
+  "timestamps for sequential frames. This can be used to simulate a frame rate in a "
+  "video stream application." );
 
-create_config_trait( image_reader, std::string, "", "Algorithm configuration subblock." )
+create_config_trait( no_path_in_name, bool, "true",
+  "Set to true if the output image file path should not contain a full path to"
+  "the image file and just contain the file name for the image." );
 
+create_algorithm_name_config_trait( image_reader );
 
-//----------------------------------------------------------------
+// ---------------------------------------------------------------------------------------
 // Private implementation class
 class image_file_reader_process::priv
 {
@@ -94,19 +97,26 @@ public:
   priv();
   ~priv();
 
-  enum {                        // Error handling modes
+  enum error_mode_t {           // Error handling modes
     ERROR_ABORT = 1,
     ERROR_SKIP
   };
 
+  // Define the enum converter
+  ENUM_CONVERTER( mode_converter, error_mode_t,
+                  { "abort",   ERROR_ABORT },
+                  { "skip",    ERROR_SKIP }
+    )
+
   // Configuration values
   int m_config_error_mode; // error mode
   std::vector< std::string > m_config_path;
-  kwiver::vital::timestamp::time_t m_config_frame_time;
+  kwiver::vital::time_usec_t m_config_frame_time;
+  bool m_no_path_in_name;
 
   // local state
-  kwiver::vital::timestamp::frame_t m_frame_number;
-  kwiver::vital::timestamp::time_t m_frame_time;
+  kwiver::vital::frame_id_t m_frame_number;
+  kwiver::vital::time_usec_t m_frame_time;
 
   // processing classes
   algo::image_io_sptr m_image_reader;
@@ -114,16 +124,13 @@ public:
 }; // end priv class
 
 
-// ================================================================
+// =======================================================================================
 
 image_file_reader_process
 ::image_file_reader_process( kwiver::vital::config_block_sptr const& config )
   : process( config ),
     d( new image_file_reader_process::priv )
 {
-  // Attach our logger name to process logger
-  attach_logger( kwiver::vital::get_logger( name() ) ); // could use a better approach
-  kwiver::vital::algorithm_plugin_manager::load_plugins_once();
   make_ports();
   make_config();
 }
@@ -135,52 +142,52 @@ image_file_reader_process
 }
 
 
-// ----------------------------------------------------------------
+// ---------------------------------------------------------------------------------------
 void image_file_reader_process
 ::_configure()
 {
+  scoped_configure_instrumentation();
+
   // Examine the configuration
   std::string mode = config_value_using_trait( error_mode );
   std::string path = config_value_using_trait( path );
   d->m_config_frame_time = config_value_using_trait( frame_time ) * 1e6; // in usec
+  d->m_no_path_in_name = config_value_using_trait( no_path_in_name );
 
-  kwiver::vital::tokenize( path, d->m_config_path, ":", true );
+  kwiver::vital::tokenize( path, d->m_config_path, ":", kwiver::vital::TokenizeTrimEmpty );
   d->m_config_path.push_back( "." ); // add current directory
 
-  if ( mode == "abort" )
-  {
-    d->m_config_error_mode = priv::ERROR_ABORT;
-  }
-  else if (mode == "skip" )
-  {
-    d->m_config_error_mode = priv::ERROR_SKIP;
-  }
-  else
-  {
-    throw sprokit::invalid_configuration_exception( name(),
-             "Invalid specification for \"error_mode\" config parameter." );
-  }
+  d->m_config_error_mode = priv::mode_converter().from_string( mode );
 
   kwiver::vital::config_block_sptr algo_config = get_config(); // config for process
 
-  algo::image_io::set_nested_algo_configuration( "image_reader", algo_config, d->m_image_reader);
+  algo::image_io::set_nested_algo_configuration_using_trait(
+    image_reader,
+    algo_config,
+    d->m_image_reader);
+
   if ( ! d->m_image_reader )
   {
-    throw sprokit::invalid_configuration_exception( name(),
-             "Unable to create image_reader." );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(),
+                 "Unable to create image_reader." );
   }
 
-  algo::image_io::get_nested_algo_configuration( "image_reader", algo_config, d->m_image_reader);
+  algo::image_io::get_nested_algo_configuration_using_trait(
+    image_reader,
+    algo_config,
+    d->m_image_reader);
 
   // instantiate image reader and converter based on config type
-  if ( ! algo::image_io::check_nested_algo_configuration( "image_reader", algo_config ) )
+  if ( ! algo::image_io::check_nested_algo_configuration_using_trait(
+         image_reader,
+         algo_config ) )
   {
-    throw sprokit::invalid_configuration_exception( name(), "Configuration check failed." );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 }
 
 
-// ----------------------------------------------------------------
+// ---------------------------------------------------------------------------------------
 void image_file_reader_process
 ::_step()
 {
@@ -201,35 +208,76 @@ void image_file_reader_process
 
       case priv::ERROR_ABORT:
       default:
-        throw kwiver::vital::file_not_found_exception( file, "could not locate file in path" );
+        VITAL_THROW( kwiver::vital::file_not_found_exception, file, "could not locate file in path" );
       } // end switch
     }
   }
 
-  LOG_DEBUG( logger(), "reading image from file \"" << resolved_file << "\"." );
-
-  // read image file
-  //
-  // This call returns a *new* image container. This is good since
-  // we are going to pass it downstream using the sptr.
   kwiver::vital::image_container_sptr img_c;
-  img_c = d->m_image_reader->load( resolved_file );
+  kwiver::vital::timestamp frame_ts;
 
-  // --- debug
+  {
+    scoped_step_instrumentation();
+
+    LOG_DEBUG( logger(), "reading image from file \"" << resolved_file << "\"." );
+
+    // read image file
+    //
+    // This call returns a *new* image container. This is good since
+    // we are going to pass it downstream using the sptr.
+    try
+    {
+      img_c = d->m_image_reader->load( resolved_file );
+    }
+    catch (std::exception e)
+    {
+      if ( d->m_config_error_mode == priv::ERROR_SKIP )
+      {
+        img_c = kwiver::vital::image_container_sptr();
+      }
+      else
+      {
+        throw e;
+      }
+    }
+    catch (...)
+    {
+      if ( d->m_config_error_mode == priv::ERROR_SKIP )
+      {
+        img_c = kwiver::vital::image_container_sptr();
+      }
+      else
+      {
+        throw std::runtime_error( "Invalid exception thrown" );
+      }
+    }
+
+    // --- debug
 #if defined DEBUG
-  cv::Mat image = algorithms::ocv::image_container::vital_to_ocv( img_c->get_image() );
-  namedWindow( "Display window", cv::WINDOW_NORMAL );// Create a window for display.
-  imshow( "Display window", image );                   // Show our image inside it.
+    cv::Mat image = algorithms::ocv::image_container::vital_to_ocv( img_c->get_image() );
+    namedWindow( "Display window", cv::WINDOW_NORMAL );// Create a window for display.
+    imshow( "Display window", image );                   // Show our image inside it.
 
-  waitKey(0);                 // Wait for a keystroke in the window
+    waitKey(0);                 // Wait for a keystroke in the window
 #endif
-  // -- end debug
+    // -- end debug
 
-  kwiver::vital::timestamp frame_ts( d->m_frame_time, d->m_frame_number );
+    frame_ts = kwiver::vital::timestamp( d->m_frame_time, d->m_frame_number );
 
-  // update timestamp
-  ++d->m_frame_number;
-  d->m_frame_time += d->m_config_frame_time;
+    // update timestamp
+    ++d->m_frame_number;
+    d->m_frame_time += d->m_config_frame_time;
+  }
+
+  if ( d->m_no_path_in_name )
+  {
+    const size_t last_slash_idx = resolved_file.find_last_of("\\/");
+
+    if ( std::string::npos != last_slash_idx )
+    {
+      resolved_file.erase( 0, last_slash_idx + 1 );
+    }
+  }
 
   push_to_port_using_trait( timestamp, frame_ts );
   push_to_port_using_trait( image, img_c );
@@ -237,39 +285,43 @@ void image_file_reader_process
 }
 
 
-// ----------------------------------------------------------------
+// ---------------------------------------------------------------------------------------
 void image_file_reader_process
 ::make_ports()
 {
   // Set up for required ports
   sprokit::process::port_flags_t optional;
+  sprokit::process::port_flags_t shared;
+  shared.insert( flag_output_shared );
+
   sprokit::process::port_flags_t required;
   required.insert( flag_required );
 
   // -- inputs --
-  declare_input_port_using_trait( image_file_name, required, "Name of the image file to read. "
-                                  "The file is searched for using the specified path in addition to the "
-                                  "local directory.");
+  declare_input_port_using_trait( image_file_name, required,
+    "Name of the image file to read. The file is searched for using the specified path "
+    "in addition to the local directory.");
 
   // -- outputs --
   declare_output_port_using_trait( timestamp, optional );
-  declare_output_port_using_trait( image, optional );
+  declare_output_port_using_trait( image, shared );
   declare_output_port_using_trait( image_file_name, optional );
-
 }
 
 
-// ----------------------------------------------------------------
+// ---------------------------------------------------------------------------------------
 void image_file_reader_process
 ::make_config()
 {
+  declare_config_using_trait( frame_time );
   declare_config_using_trait( error_mode );
   declare_config_using_trait( path );
   declare_config_using_trait( image_reader );
+  declare_config_using_trait( no_path_in_name );
 }
 
 
-// ================================================================
+// =======================================================================================
 image_file_reader_process::priv
 ::priv()
   : m_frame_number( 1 )

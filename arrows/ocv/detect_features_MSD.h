@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,13 +40,10 @@
 #include <opencv2/opencv_modules.hpp>
 #ifdef HAVE_OPENCV_XFEATURES2D
 
-#include <memory>
-#include <string>
-
-#include <vital/vital_config.h>
-
 #include <arrows/ocv/detect_features.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
+
+#include <string>
 
 namespace kwiver {
 namespace arrows {
@@ -59,21 +56,14 @@ class KWIVER_ALGO_OCV_EXPORT detect_features_MSD
                                   vital::algo::detect_features >
 {
 public:
+  PLUGIN_INFO( "ocv_MSD",
+               "OpenCV feature detection via the MSD algorithm" )
+
   /// Constructor
   detect_features_MSD();
 
-  /// Copy constructor
-  detect_features_MSD(const detect_features_MSD &other);
-
   /// Destructor
   virtual ~detect_features_MSD();
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "ocv_MSD"; }
-  /// Returns a descriptive string for this implementation
-  virtual std::string description() const {
-    return "OpenCV feature detection via the MSD algorithm";
-  }
 
   /// Get this algorithm's \link kwiver::vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;

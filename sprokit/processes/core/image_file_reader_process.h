@@ -50,11 +50,22 @@ namespace kwiver
  *
  * \oport{frame}
  * \oport{time}
+ *
+ * \configs
+ *
+ * \config{error_mode}  (string)
+ * \config{path}  (string)
+ * \config{frame_time} (double)
+ * \config{image_reader}  (string)
+ *
  */
 class KWIVER_PROCESSES_NO_EXPORT image_file_reader_process
   : public sprokit::process
 {
 public:
+  PLUGIN_INFO( "image_file_reader",
+               "Reads an image file given the file name." )
+
   image_file_reader_process( kwiver::vital::config_block_sptr const& config );
   virtual ~image_file_reader_process();
 

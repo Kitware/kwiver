@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2013 by Kitware, Inc.
+ * Copyright 2011-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,15 +32,13 @@
 
 #include <vital/config/config_block.h>
 #include <sprokit/pipeline/pipeline.h>
-#include <sprokit/pipeline/modules.h>
-#include <sprokit/pipeline/pipeline.h>
 #include <sprokit/pipeline/pipeline_exception.h>
-#include <sprokit/pipeline/process_registry.h>
+#include <sprokit/pipeline/process_factory.h>
 #include <sprokit/pipeline/scheduler.h>
 #include <sprokit/pipeline/scheduler_exception.h>
-#include <sprokit/pipeline/scheduler_registry.h>
+#include <sprokit/pipeline/scheduler_factory.h>
 
-#include <boost/make_shared.hpp>
+#include <memory>
 
 #define TEST_ARGS ()
 
@@ -88,28 +86,35 @@ class null_pipeline_scheduler
     ~null_pipeline_scheduler();
 };
 
-static sprokit::scheduler_t create_scheduler(sprokit::scheduler_registry::type_t const& type);
+static sprokit::scheduler_t create_scheduler(sprokit::scheduler::type_t const& type);
 
+
+// ------------------------------------------------------------------
 IMPLEMENT_TEST(null_config)
 {
-  sprokit::scheduler_registry_t const reg = sprokit::scheduler_registry::self();
+  const auto sched_type = sprokit::scheduler::type_t("null_config");
+  kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
 
-  sprokit::scheduler_registry::type_t const sched_type = sprokit::scheduler_registry::type_t("null_config");
-
-  reg->register_scheduler(sched_type, sprokit::scheduler_registry::description_t(), sprokit::create_scheduler<null_config_scheduler>);
+  auto fact = vpm.ADD_SCHEDULER( null_config_scheduler );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, sched_type )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "" );
 
   EXPECT_EXCEPTION(sprokit::null_scheduler_config_exception,
                    create_scheduler(sched_type),
                    "passing NULL as the configuration for a scheduler");
 }
 
+
+// ------------------------------------------------------------------
 IMPLEMENT_TEST(null_pipeline)
 {
-  sprokit::scheduler_registry_t const reg = sprokit::scheduler_registry::self();
+  const auto sched_type = sprokit::scheduler::type_t("null_pipeline");
 
-  sprokit::scheduler_registry::type_t const sched_type = sprokit::scheduler_registry::type_t("null_pipeline");
+  kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
 
-  reg->register_scheduler(sched_type, sprokit::scheduler_registry::description_t(), sprokit::create_scheduler<null_pipeline_scheduler>);
+  auto fact = vpm.ADD_SCHEDULER( null_pipeline_scheduler );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, sched_type )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "" );
 
   EXPECT_EXCEPTION(sprokit::null_scheduler_pipeline_exception,
                    create_scheduler(sched_type),
@@ -118,6 +123,7 @@ IMPLEMENT_TEST(null_pipeline)
 
 static sprokit::scheduler_t create_minimal_scheduler();
 
+// ------------------------------------------------------------------
 IMPLEMENT_TEST(start_scheduler)
 {
   sprokit::scheduler_t const sched = create_minimal_scheduler();
@@ -125,6 +131,7 @@ IMPLEMENT_TEST(start_scheduler)
   sched->start();
 }
 
+// ------------------------------------------------------------------
 IMPLEMENT_TEST(pause_scheduler)
 {
   sprokit::scheduler_t const sched = create_minimal_scheduler();
@@ -133,6 +140,7 @@ IMPLEMENT_TEST(pause_scheduler)
   sched->pause();
 }
 
+// ------------------------------------------------------------------
 IMPLEMENT_TEST(resume_scheduler)
 {
   sprokit::scheduler_t const sched = create_minimal_scheduler();
@@ -142,6 +150,7 @@ IMPLEMENT_TEST(resume_scheduler)
   sched->resume();
 }
 
+// ------------------------------------------------------------------
 IMPLEMENT_TEST(stop_scheduler)
 {
   sprokit::scheduler_t const sched = create_minimal_scheduler();
@@ -150,6 +159,7 @@ IMPLEMENT_TEST(stop_scheduler)
   sched->stop();
 }
 
+// ------------------------------------------------------------------
 IMPLEMENT_TEST(stop_paused_scheduler)
 {
   sprokit::scheduler_t const sched = create_minimal_scheduler();
@@ -159,6 +169,7 @@ IMPLEMENT_TEST(stop_paused_scheduler)
   sched->stop();
 }
 
+// ------------------------------------------------------------------
 IMPLEMENT_TEST(restart_scheduler)
 {
   sprokit::scheduler_t const sched = create_minimal_scheduler();
@@ -170,6 +181,7 @@ IMPLEMENT_TEST(restart_scheduler)
                    "calling start on a scheduler a second time");
 }
 
+// ------------------------------------------------------------------
 IMPLEMENT_TEST(repause_scheduler)
 {
   sprokit::scheduler_t const sched = create_minimal_scheduler();
@@ -182,6 +194,7 @@ IMPLEMENT_TEST(repause_scheduler)
                    "pausing a scheduler a second time");
 }
 
+// ------------------------------------------------------------------
 IMPLEMENT_TEST(pause_before_start_scheduler)
 {
   sprokit::scheduler_t const sched = create_minimal_scheduler();
@@ -191,6 +204,7 @@ IMPLEMENT_TEST(pause_before_start_scheduler)
                    "pausing a scheduler before it is started");
 }
 
+// ------------------------------------------------------------------
 IMPLEMENT_TEST(wait_before_start_scheduler)
 {
   sprokit::scheduler_t const sched = create_minimal_scheduler();
@@ -200,6 +214,7 @@ IMPLEMENT_TEST(wait_before_start_scheduler)
                    "waiting on a scheduler before it is started");
 }
 
+// ------------------------------------------------------------------
 IMPLEMENT_TEST(stop_before_start_scheduler)
 {
   sprokit::scheduler_t const sched = create_minimal_scheduler();
@@ -209,6 +224,7 @@ IMPLEMENT_TEST(stop_before_start_scheduler)
                    "stopping a scheduler before it is started");
 }
 
+// ------------------------------------------------------------------
 IMPLEMENT_TEST(resume_before_start_scheduler)
 {
   sprokit::scheduler_t const sched = create_minimal_scheduler();
@@ -218,6 +234,7 @@ IMPLEMENT_TEST(resume_before_start_scheduler)
                    "resuming an unstarted scheduler");
 }
 
+// ------------------------------------------------------------------
 IMPLEMENT_TEST(resume_unpaused_scheduler)
 {
   sprokit::scheduler_t const sched = create_minimal_scheduler();
@@ -229,6 +246,7 @@ IMPLEMENT_TEST(resume_unpaused_scheduler)
                    "resuming an unpaused scheduler");
 }
 
+// ------------------------------------------------------------------
 IMPLEMENT_TEST(restart)
 {
   sprokit::scheduler_t const sched = create_minimal_scheduler();
@@ -236,58 +254,61 @@ IMPLEMENT_TEST(restart)
   sched->start();
   sched->stop();
 
-  boost::shared_ptr<null_scheduler> const null_sched = boost::dynamic_pointer_cast<null_scheduler>(sched);
+  std::shared_ptr<null_scheduler> const null_sched = std::dynamic_pointer_cast<null_scheduler>(sched);
 
   null_sched->reset_pipeline();
 
   sched->start();
 }
 
+// ------------------------------------------------------------------
 sprokit::scheduler_t
-create_scheduler(sprokit::scheduler_registry::type_t const& type)
+create_scheduler(sprokit::scheduler::type_t const& type)
 {
-  static sprokit::scheduler_registry_t const reg = sprokit::scheduler_registry::self();
+  sprokit::pipeline_t const pipeline = std::make_shared<sprokit::pipeline>();
 
-  sprokit::pipeline_t const pipeline = boost::make_shared<sprokit::pipeline>();
-
-  return reg->create_scheduler(type, pipeline);
+  return sprokit::create_scheduler(type, pipeline);
 }
 
+// ------------------------------------------------------------------
 sprokit::scheduler_t
 create_minimal_scheduler()
 {
-  sprokit::load_known_modules();
+  kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
+  vpm.load_all_plugins();
 
-  static sprokit::process::type_t const type = sprokit::process::type_t("orphan");
-  static sprokit::process::name_t const name = sprokit::process::name_t("name");
+  static const auto type = sprokit::process::type_t("orphan");
+  static const auto name = sprokit::process::name_t("name");
 
-  sprokit::process_registry_t const reg = sprokit::process_registry::self();
-  sprokit::process_t const proc = reg->create_process(type, name);
+  sprokit::process_t const proc = sprokit::create_process(type, name);
 
-  sprokit::pipeline_t const pipe = boost::make_shared<sprokit::pipeline>();
+  sprokit::pipeline_t const pipe = std::make_shared<sprokit::pipeline>();
 
   pipe->add_process(proc);
   pipe->setup_pipeline();
 
   kwiver::vital::config_block_sptr const conf = kwiver::vital::config_block::empty_config();
 
-  sprokit::scheduler_t const sched = boost::make_shared<null_scheduler>(pipe, conf);
+  sprokit::scheduler_t const sched = std::make_shared<null_scheduler>(pipe, conf);
 
   return sched;
 }
 
+// ------------------------------------------------------------------
 null_scheduler
 ::null_scheduler(sprokit::pipeline_t const& pipe, kwiver::vital::config_block_sptr const& config)
   : sprokit::scheduler(pipe, config)
 {
 }
 
+// ------------------------------------------------------------------
 null_scheduler
 ::~null_scheduler()
 {
   shutdown();
 }
 
+// ------------------------------------------------------------------
 void
 null_scheduler
 ::reset_pipeline() const
@@ -296,6 +317,7 @@ null_scheduler
   pipeline()->setup_pipeline();
 }
 
+// ------------------------------------------------------------------
 void
 null_scheduler
 ::_start()

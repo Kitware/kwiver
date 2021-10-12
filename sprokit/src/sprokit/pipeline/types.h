@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2012 by Kitware, Inc.
+ * Copyright 2011-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,21 +28,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SPROKIT_PIPELINE_TYPES_H
-#define SPROKIT_PIPELINE_TYPES_H
-
-#include "pipeline-config.h"
-
-#include <boost/shared_ptr.hpp>
-
-#include <exception>
-#include <string>
-
 /**
  * \file types.h
  *
  * \brief Common types used in the pipeline library.
  */
+
+#ifndef SPROKIT_PIPELINE_TYPES_H
+#define SPROKIT_PIPELINE_TYPES_H
+
+#include <sprokit/pipeline/sprokit_pipeline_export.h>
+
+#include <vital/vital_config.h>
+#include <vital/exceptions/base.h>
+#include <memory>
 
 /**
  * \brief The namespace for all sprokit-related symbols.
@@ -52,53 +51,38 @@ namespace sprokit
 
 /**
  * \defgroup base_classes Base classes for the pipeline.
- * \defgroup registries Registries of different types of pipeline objects.
  * \defgroup exceptions Exceptions thrown within the pipeline.
  */
-//class config_block;
-
-/// Shared pointer for the \c config_block class
-//typedef boost::shared_ptr< config_block > config_T;
-
-
-class config;
-//typedef boost::shared_ptr<config> config_t;
+/// The type of a module name.
+typedef std::string module_t;
 
 class datum;
 /// A typedef used to handle \link datum edge data\endlink.
-typedef boost::shared_ptr<datum const> datum_t;
+typedef std::shared_ptr<datum const> datum_t;
 
 class edge;
 /// A typedef used to handle \link edge edges\endlink.
-typedef boost::shared_ptr<edge> edge_t;
+typedef std::shared_ptr<edge> edge_t;
 
 class pipeline;
 /// A typedef used to handle \link pipeline pipelines\endlink.
-typedef boost::shared_ptr<pipeline> pipeline_t;
+typedef std::shared_ptr<pipeline> pipeline_t;
 
 class process;
 /// A typedef used to handle \link process processes\endlink.
-typedef boost::shared_ptr<process> process_t;
+typedef std::shared_ptr<process> process_t;
 
 class process_cluster;
 /// A typedef used to handle \link process_cluster process clusters\endlink.
-typedef boost::shared_ptr<process_cluster> process_cluster_t;
-
-class process_registry;
-/// A typedef used to handle \link process_registry process registries\endlink.
-typedef boost::shared_ptr<process_registry> process_registry_t;
+typedef std::shared_ptr<process_cluster> process_cluster_t;
 
 class scheduler;
 /// A typedef used to handle \link scheduler schedulers\endlink.
-typedef boost::shared_ptr<scheduler> scheduler_t;
-
-class scheduler_registry;
-/// A typedef used to handle \link scheduler_registry scheduler registries\endlink.
-typedef boost::shared_ptr<scheduler_registry> scheduler_registry_t;
+typedef std::shared_ptr<scheduler> scheduler_t;
 
 class stamp;
 /// A typedef used to handle \link stamp stamps\endlink.
-typedef boost::shared_ptr<stamp const> stamp_t;
+typedef std::shared_ptr<stamp const> stamp_t;
 
 /**
  * \class pipeline_exception types.h <sprokit/pipeline/types.h>
@@ -108,27 +92,17 @@ typedef boost::shared_ptr<stamp const> stamp_t;
  * \ingroup exceptions
  */
 class SPROKIT_PIPELINE_EXPORT pipeline_exception
-  : public std::exception
+  : public kwiver::vital::vital_exception
 {
   public:
     /**
      * \brief Constructor.
      */
-    pipeline_exception() throw();
+    pipeline_exception() noexcept;
     /**
      * \brief Destructor.
      */
-    virtual ~pipeline_exception() throw();
-
-    /**
-     * \brief A description of the exception.
-     *
-     * \returns A string describing what went wrong.
-     */
-    char const* what() const throw();
-  protected:
-    /// The text of the exception.
-    std::string m_what;
+    virtual ~pipeline_exception() noexcept;
 };
 
 }

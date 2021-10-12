@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2015-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@
 namespace kwiver
 {
 
-// ----------------------------------------------------------------
+// -------------------------------------------------------------------------------
 /**
  * @brief Display images
  *
@@ -53,6 +53,9 @@ class KWIVER_PROCESSES_NO_EXPORT read_descriptor_process
   : public sprokit::process
 {
 public:
+  PLUGIN_INFO( "read_d_vector",
+               "Read vector of doubles," )
+
   // -- CONSTRUCTORS --
   read_descriptor_process( kwiver::vital::config_block_sptr const& config );
   virtual ~read_descriptor_process();

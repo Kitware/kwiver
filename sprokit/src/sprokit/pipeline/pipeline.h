@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2011-2013 by Kitware, Inc.
+ * Copyright 2011-2017 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,13 +31,12 @@
 #ifndef SPROKIT_PIPELINE_PIPELINE_H
 #define SPROKIT_PIPELINE_PIPELINE_H
 
-#include "pipeline-config.h"
+#include <sprokit/pipeline/sprokit_pipeline_export.h>
 
 #include "process.h"
 #include "types.h"
 
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
+#include <vital/noncopyable.h>
 
 /**
  * \file pipeline.h
@@ -45,8 +44,7 @@
  * \brief Header for \link sprokit::pipeline pipelines\endlink.
  */
 
-namespace sprokit
-{
+namespace sprokit {
 
 /**
  * \class pipeline pipeline.h <sprokit/pipeline/pipeline.h>
@@ -56,7 +54,7 @@ namespace sprokit
  * \ingroup base_classes
  */
 class SPROKIT_PIPELINE_EXPORT pipeline
-  : boost::noncopyable
+  : private kwiver::vital::noncopyable
 {
   public:
     /**
@@ -225,6 +223,7 @@ class SPROKIT_PIPELINE_EXPORT pipeline
      * \returns True if the pipeline has been setup, false otherwise.
      */
     bool is_setup() const;
+
     /**
      * \brief Query whether the pipeline has been setup successfully.
      *
@@ -240,6 +239,9 @@ class SPROKIT_PIPELINE_EXPORT pipeline
      * connections/edges are cleared. Then all connections are
      * reestablished.
      *
+     * Note that setup_pipeline() must be called after reset to get
+     * the pipeline in running condition.
+     *
      * \throws reset_running_pipeline_exception Thrown when the
      * pipeline is running.
      */
@@ -247,6 +249,13 @@ class SPROKIT_PIPELINE_EXPORT pipeline
 
     /**
      * \brief Reconfigure processes within the pipeline.
+     *
+     * This method causes the pipeline to reconfigure all processes by
+     * calling their reconfigure() method. The supplied config block
+     * is used to supply an updated configuration to each process and
+     * cluster in the pipeline.
+     *
+     * This method can be called anytime after the pipeline has been set up.
      *
      * \warning This does not ensure that every process gets reconfigured at the
      * same time; any synchronization is best handled at the cluster level if
@@ -484,13 +493,24 @@ class SPROKIT_PIPELINE_EXPORT pipeline
      */
     edges_t output_edges_for_port(process::name_t const& name, process::port_t const& port) const;
 
+    /**
+     * \brief Check to see if the pipeline has any python processes.
+     *
+     * This method returns a list python processes from the
+     * pipeline. An empty list is returned if there are no python
+     * processes.
+     *
+     * \returns Return a list of python processes
+     */
+    processes_t get_python_processes() const;
+
   private:
     friend class scheduler;
     SPROKIT_PIPELINE_NO_EXPORT void start();
     SPROKIT_PIPELINE_NO_EXPORT void stop();
 
     class SPROKIT_PIPELINE_NO_EXPORT priv;
-    boost::scoped_ptr<priv> d;
+    std::unique_ptr<priv> d;
 };
 
 }

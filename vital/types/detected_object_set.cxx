@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,8 @@
  */
 
 #include "detected_object_set.h"
+#include "bounding_box.h"
 
-#include <vital/vital_foreach.h>
 
 #include <algorithm>
 #include <stdexcept>
@@ -45,6 +45,14 @@ struct descending_confidence
 {
   bool operator()( detected_object_sptr const& a, detected_object_sptr const& b ) const
   {
+    if( a && !b )
+    {
+      return true;
+    }
+    else if( !a )
+    {
+      return false;
+    }
     return a->confidence() > b->confidence();
   }
 };
@@ -70,12 +78,9 @@ detected_object_set()
 
 // ------------------------------------------------------------------
 detected_object_set::
-detected_object_set( detected_object::vector_t const& objs )
+detected_object_set( std::vector< detected_object_sptr > const& objs )
   : m_detected_objects( objs )
 {
-  // sort objects based on confidence
-  std::sort( m_detected_objects.begin(), m_detected_objects.end(),
-             descending_confidence() );
 }
 
 
@@ -86,15 +91,18 @@ clone() const
 {
   auto new_obj = std::make_shared<detected_object_set>();
 
-  const auto det_list = const_cast< detected_object_set* >(this)->select();
-  VITAL_FOREACH( const auto det, det_list)
+  auto ie = cend();
+  for ( auto ix = cbegin(); ix != ie; ++ix )
   {
     // copy detection
-    new_obj->add( det->clone() );
+    new_obj->add( (*ix)->clone() );
   }
 
   // duplicate attributes
-  new_obj->m_attrs = this->m_attrs->clone();
+  if ( this->m_attrs )
+  {
+    new_obj->m_attrs = this->m_attrs->clone();
+  }
 
   return new_obj;
 }
@@ -105,12 +113,24 @@ void
 detected_object_set::
 add( detected_object_sptr object )
 {
-  // keep list ordered
-  m_detected_objects.insert (
-      std::upper_bound( m_detected_objects.begin(), m_detected_objects.end(),
-                        object, descending_confidence() ),
-      object
-    );
+  if ( ! object )
+  {
+    throw std::runtime_error( "Passing null pointer to detected_object_set::add()" );
+  }
+
+  m_detected_objects.push_back( object );
+}
+
+
+// ------------------------------------------------------------------
+void
+detected_object_set::
+add( detected_object_set_sptr detections )
+{
+  for ( auto dptr : *detections )
+  {
+    this->add( dptr );
+  }
 }
 
 
@@ -124,44 +144,50 @@ size() const
 
 
 // ------------------------------------------------------------------
-detected_object::vector_t
+bool
 detected_object_set::
-select( double threshold )
+empty() const
 {
-  // The main list can get out of order if somebody updates the
-  // confidence value of a detection directly
-
-  ///@todo Find a way of determining if the list needs sorting or is
-  ///already sorted.
-  std::sort( m_detected_objects.begin(), m_detected_objects.end(),
-             descending_confidence() );
-
-  detected_object::vector_t vect;
-
-  VITAL_FOREACH( auto i, m_detected_objects )
-  {
-    if ( i->confidence() >= threshold )
-    {
-      vect.push_back( i );
-    }
-  }
-
-  return vect;
+  return m_detected_objects.empty();
 }
 
 
 // ------------------------------------------------------------------
-detected_object::vector_t
+detected_object_set_sptr
 detected_object_set::
-select( const std::string& class_name, double threshold )
+select( double threshold ) const
+{
+  // The main list can get out of order if somebody updates the
+  // confidence value of a detection directly
+  std::vector< detected_object_sptr> vect;
+
+  auto ie =  cend();
+  for ( auto ix = cbegin(); ix != ie; ++ix )
+  {
+    if ( (*ix)->confidence() >= threshold )
+    {
+      vect.push_back( *ix );
+    }
+  }
+
+  std::sort( vect.begin(), vect.end(), descending_confidence() );
+  return std::make_shared< detected_object_set > (vect);
+}
+
+
+// ------------------------------------------------------------------
+detected_object_set_sptr
+detected_object_set::
+select( const std::string& class_name, double threshold )const
 {
   // Intermediate sortable data structure
   std::vector< std::pair< double, detected_object_sptr > > data;
 
   // Create a sortable list by selecting
-  VITAL_FOREACH( auto i, m_detected_objects )
+  auto ie = cend();
+  for ( auto ix = cbegin(); ix != ie; ++ix )
   {
-    auto obj_type = i->type();
+    auto obj_type = (*ix)->type();
     if ( ! obj_type )
     {
       continue;  // Must have a type assigned
@@ -185,7 +211,7 @@ select( const std::string& class_name, double threshold )
     // Select those not below threshold
     if ( score >= threshold )
     {
-      data.push_back( std::pair< double, detected_object_sptr >( score, i ) );
+      data.push_back( std::pair< double, detected_object_sptr >( score, *ix ) );
     }
   } // end foreach
 
@@ -193,14 +219,121 @@ select( const std::string& class_name, double threshold )
   std::sort( data.begin(), data.end(), more_first< double,  detected_object_sptr >() );
 
   // Create new vector for return
-  detected_object::vector_t vect;
+  std::vector< detected_object_sptr > vect;
 
-  VITAL_FOREACH( auto i, data )
+  for( auto i : data )
   {
     vect.push_back( i.second );
   }
 
-  return vect;
+  return std::make_shared< detected_object_set > (vect);
+}
+
+// ------------------------------------------------------------------
+void
+detected_object_set::
+scale( double scale_factor )
+{
+  if( scale_factor == 1.0 )
+  {
+    return;
+  }
+
+  for( auto detection : m_detected_objects )
+  {
+    auto bbox = detection->bounding_box();
+    bbox = kwiver::vital::scale( bbox, scale_factor );
+    detection->set_bounding_box( bbox );
+  }
+}
+
+// ------------------------------------------------------------------
+void
+detected_object_set::
+shift( double col_shift, double row_shift )
+{
+  if( col_shift == 0.0 && row_shift == 0.0 )
+  {
+    return;
+  }
+
+  for( auto detection : m_detected_objects )
+  {
+    auto bbox = detection->bounding_box();
+    bbox = kwiver::vital::translate( bbox,
+      bounding_box_d::vector_type( col_shift, row_shift ) );
+    detection->set_bounding_box( bbox );
+  }
+}
+
+// ------------------------------------------------------------------
+kwiver::vital::attribute_set_sptr
+detected_object_set::
+attributes() const
+{
+  return m_attrs;
+}
+
+
+// ------------------------------------------------------------------
+void
+detected_object_set::
+set_attributes( attribute_set_sptr attrs )
+{
+  m_attrs = attrs;
+}
+
+
+// ----------------------------------------------------------------------------
+detected_object_sptr
+detected_object_set::
+at( size_t pos )
+{
+  return m_detected_objects.at( pos );
+}
+
+
+// ----------------------------------------------------------------------------
+const detected_object_sptr
+detected_object_set::
+at( size_t pos ) const
+{
+  return m_detected_objects.at( pos );
+}
+
+
+using vec_t = std::vector< detected_object_sptr >;
+
+// ----------------------------------------------------------------------------
+// Next value function for non-const iteration.
+detected_object_set::iterator::next_value_func_t
+detected_object_set
+::get_iter_next_func()
+{
+  vec_t::iterator it = m_detected_objects.begin();
+  return [=] () mutable ->iterator::reference {
+    if( it == m_detected_objects.end() )
+    {
+      VITAL_THROW( stop_iteration_exception, "detected_object_set" );
+    }
+    return *(it++);
+  };
+}
+
+// ----------------------------------------------------------------------------
+// Next value function for const iteration.
+detected_object_set::const_iterator::next_value_func_t
+detected_object_set
+::get_const_iter_next_func() const
+{
+  vec_t::const_iterator cit = m_detected_objects.begin();
+  return [=] () mutable ->const_iterator::reference {
+    if( cit == m_detected_objects.end() )
+    {
+      VITAL_THROW( stop_iteration_exception, "detected_object_set" );
+    }
+    return *(cit++);
+  };
 }
 
 } } // end namespace

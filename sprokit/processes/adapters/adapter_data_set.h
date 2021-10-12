@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2017, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,7 @@ namespace adapter{
  * process. Each element in the set is labeled with the port name as
  * specified in the pipeline configuration file.
  */
-class KWIVER_ADAPTER_EXPORT adapter_data_set VITAL_FINAL
+class KWIVER_ADAPTER_EXPORT adapter_data_set
 {
 public:
   typedef std::map< sprokit::process::port_t, sprokit::datum_t > datum_map_t;
@@ -146,7 +146,8 @@ public:
    * @brief Add typed value to data set.
    *
    * This method adds the specified value to the adapter data set. The
-   * value is copied into the data set.
+   * value is copied into the data set. This will overwrite the value
+   * at the port
    *
    * @param port Name of the port where data is sent.
    * @param val Value to be wrapped in datum for port.
@@ -154,9 +155,18 @@ public:
   template <typename T>
   void add_value( sprokit::process::port_t const& port, T const& val )
   {
-    m_port_datum_set.insert(
-      std::pair<std::string, sprokit::datum_t> (port, sprokit::datum::new_datum<T>( val ) ) );
+    m_port_datum_set[port] = sprokit::datum::new_datum<T>( val );
   }
+
+  /**
+   * @brief Query if data set is empty.
+   *
+   * This method tests if the data set is empty.
+   *
+   * @return \c true if the data set is empty (contains no values), otherwise
+   * \c false.
+   */
+  bool empty() const;
 
   //@{
   /**
@@ -168,6 +178,7 @@ public:
    */
   datum_map_t::iterator begin();
   datum_map_t::const_iterator begin() const;
+  datum_map_t::const_iterator cbegin() const;
   //@}
 
 
@@ -181,6 +192,7 @@ public:
    */
   datum_map_t::iterator end();
   datum_map_t::const_iterator end() const;
+  datum_map_t::const_iterator cend() const;
   //@}
 
   /**

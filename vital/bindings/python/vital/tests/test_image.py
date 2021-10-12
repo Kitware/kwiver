@@ -37,11 +37,8 @@ Test Python interface to vital::image
 import nose.tools
 
 from vital.types import Image
-import ctypes
-
-
-__author__ = 'paul.tunison@kitware.com'
-
+import numpy as np
+from vital.tests.helpers import create_numpy_image, map_dtype_name_to_pixel_type
 
 class TestVitalImage (object):
 
@@ -54,11 +51,6 @@ class TestVitalImage (object):
     def test_new_type(self):
         # allocated a uint32_t image
         img = Image(720, 480, 3, True, Image.PIXEL_UNSIGNED, 4)
-
-    def test_copy_from(self):
-        img = Image(720, 480, 3, True, Image.PIXEL_FLOAT, 4)
-        img2 = Image().copy_from(img)
-        nose.tools.assert_equal(img.equal_content(img2), True)
 
     def test_size(self):
         img = Image()
@@ -102,45 +94,51 @@ class TestVitalImage (object):
         val2 = img[0,0,0]
         nose.tools.assert_equal(val1, val2)
 
+    def test_numpy_conversion(self):
+        # TODO: do pytest parametarize once we move to pytest
+        dtype_names = ['bool',
+                       'int8', 'int16', 'int32',
+                       'uint8', 'uint16', 'uint32',
+                       # 'float16',  # currently not supported
+                       'float32',
+                       'float64']
 
-    def test_pil_L(self):
-        # test uint8 image
-        img = Image(720, 480)
-        pil_img = img.get_pil_image()
-        img2 = Image.from_pil(pil_img)
-        nose.tools.assert_equal(img.equal_content(img2), True)
+        def _test_numpy(dtype_name, nchannels, order='c'):
+            np_img = create_numpy_image(dtype_name, nchannels, order)
+            vital_img = Image(np_img)
+            recast = vital_img.asarray()
+            # asarray always returns 3 channels
+            np_img = np.atleast_3d(np_img)
+            pixel_type_name = vital_img.pixel_type_name()
+            want = map_dtype_name_to_pixel_type(dtype_name)
 
-    def test_pil_F(self):
-        # test float image
-        img = Image(720, 480, 1, True, Image.PIXEL_FLOAT, 4)
-        pil_img = img.get_pil_image()
-        img2 = Image.from_pil(pil_img)
-        nose.tools.assert_equal(img.equal_content(img2), True)
+            assert pixel_type_name == want, 'want={} but got={}'.format(
+                want, pixel_type_name)
 
-    def test_pil_RGB(self):
-        # test RGB image
-        img = Image(720, 480, 3, True)
-        pil_img = img.get_pil_image()
-        img2 = Image.from_pil(pil_img)
-        nose.tools.assert_equal(img.equal_content(img2), True)
+            if not np.all(np_img == recast):
+                raise AssertionError(
+                    'Failed dtype={}, nchannels={}, order={}'.format(
+                        dtype_name, nchannels, order))
 
-    def test_pil_RGBA(self):
-        # test RGBA image
-        img = Image(720, 480, 4, True)
-        pil_img = img.get_pil_image()
-        img2 = Image.from_pil(pil_img)
-        nose.tools.assert_equal(img.equal_content(img2), True)
+        n_pass = 0
+        for order in ['c', 'fortran', 'c-reverse', 'fortran-reverse']:
+            for nchannels in [None, 1, 3, 4]:
+                for dtype_name in dtype_names:
+                    _test_numpy(dtype_name, nchannels)
+                    n_pass += 1
+        # print('n_pass = {!r}'.format(n_pass))
+        # vital_img = Image(np.asfortranarray(np_img))
+        # assert vital_img.pixel_type_name() == 'float'
 
-    def test_pil_I(self):
-        # test int image
-        img = Image(720, 480, 1, True, Image.PIXEL_SIGNED, 4)
-        pil_img = img.get_pil_image()
-        img2 = Image.from_pil(pil_img)
-        nose.tools.assert_equal(img.equal_content(img2), True)
+    def test_numpy_share_memory(self):
+        # TODO: do pytest parametarize once we move to pytest
 
-    def test_pil_1(self):
-        # test bool image
-        img = Image(720, 480, 1, True, Image.PIXEL_BOOL, 1)
-        pil_img = img.get_pil_image()
-        img2 = Image.from_pil(pil_img)
-        nose.tools.assert_equal(img.equal_content(img2), True)
+        np_img = np.arange(4 * 5 * 3, dtype=np.uint8).reshape(4, 5, 3)
+        vital_img = Image(np_img)
+
+        assert np.all(np_img == vital_img.asarray()), (
+            'must be initially the same')
+
+        np_img += 1
+        assert np.all(np_img != vital_img.asarray()), (
+            'we do not share memory yet')

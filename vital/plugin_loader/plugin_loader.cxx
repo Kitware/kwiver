@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2016 by Kitware, Inc.
+ * Copyright 2016-2018, 2020 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,11 +28,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "plugin_loader.h"
 #include "plugin_factory.h"
+#include "plugin_loader.h"
+#include "plugin_loader_filter.h"
 
+#include <vital/exceptions/plugin.h>
 #include <vital/logger/logger.h>
+#include <vital/util/demangle.h>
+#include <vital/util/string.h>
 
+#include <algorithm>
+#include <vector>
 #include <sstream>
 
 #include <kwiversys/SystemTools.hxx>
@@ -43,10 +49,10 @@ namespace vital {
 
 namespace {
 
-typedef kwiversys::SystemTools     ST;
-typedef kwiversys::DynamicLoader   DL;
-typedef DL::LibraryHandle          library_t;
-typedef DL::SymbolPointer          function_t;
+using ST =  kwiversys::SystemTools;
+using DL =  kwiversys::DynamicLoader;
+using library_t =  DL::LibraryHandle;
+using function_t = DL::SymbolPointer;
 
 } // end anon namespace
 
@@ -67,7 +73,8 @@ public:
     , m_shared_lib_suffix( shared_lib_suffix )
   { }
 
-  ~plugin_loader_impl() { }
+  ~plugin_loader_impl()
+  { }
 
   void load_known_modules();
   void look_in_directory( std::string const& directory);
@@ -80,7 +87,7 @@ public:
   const std::string m_shared_lib_suffix;
 
   /// Paths in which to search for module libraries
-  plugin_path_list_t m_search_paths;
+  path_list_t m_search_paths;
 
   // Map from interface type name to vector of class loaders
   plugin_map_t m_plugin_map;
@@ -100,6 +107,9 @@ public:
 
   // Name of current module file we are processing
   std::string m_current_filename;
+
+  std::vector< plugin_filter_handle_t > m_filters;
+
 }; // end class plugin_loader_impl
 
 
@@ -109,18 +119,12 @@ plugin_loader
                  std::string const& shared_lib_suffix )
   : m_logger( kwiver::vital::get_logger( "vital.plugin_loader" ) )
   , m_impl( new plugin_loader_impl( this, init_function, shared_lib_suffix ) )
-
 { }
 
 
 plugin_loader
 ::~plugin_loader()
-{
-  VITAL_FOREACH( auto entry, m_impl->m_library_map )
-  {
-    DL::CloseLibrary( entry.second );
-  }
-}
+{ }
 
 
 // ------------------------------------------------------------------
@@ -157,46 +161,26 @@ plugin_loader
   fact->get_attribute( plugin_factory::CONCRETE_TYPE, concrete_type );
 
   // If the hook has declined to register the factory, just return.
-  if ( ! this->add_factory_hook( fact_handle ) )
+  for ( auto filt : m_impl->m_filters )
   {
-    LOG_TRACE( m_logger, "add_factory_hook() declined to have this factory registered"
-               << " from file \"" << m_impl->m_current_filename << "\""
-               << " for interface: \"" << interface_type
-               << "\" for derived type: \"" << concrete_type << "\""
-      );
-    return fact_handle;
-  }
-
-  // Make sure factory is not already in the list.
-  // Check the two types as a signature.
-  if ( m_impl->m_plugin_map.count( interface_type ) != 0)
-  {
-    VITAL_FOREACH( auto const fact, m_impl->m_plugin_map[interface_type] )
+    if ( ! filt->add_factory( fact_handle ) )
     {
-      std::string interf;
-      fact->get_attribute( plugin_factory::INTERFACE_TYPE, interf );
-
-      std::string inst;
-      fact->get_attribute( plugin_factory::CONCRETE_TYPE, inst );
-
-      if ( (interface_type == interf) && (concrete_type == inst) )
-      {
-        LOG_WARN( m_logger, "Factory for \"" << interface_type << "\" : \""
-                  << concrete_type << "\" already has been registered.  This factory from "
-                  << m_impl->m_current_filename << " will not be registered."
-          );
-        return fact_handle;
-      }
-    } // end foreach
+      LOG_TRACE( m_logger, "Factory filter() declined to have this factory registered"
+                 << " from file \"" << m_impl->m_current_filename << "\""
+                 << "\"" << demangle( interface_type )
+                 << "\" for derived type: \"" << demangle( concrete_type ) << "\""
+        );
+      return fact_handle;
+    }
   }
 
   // Add factory to rest of its family
   m_impl->m_plugin_map[interface_type].push_back( fact_handle );
 
   LOG_TRACE( m_logger,
-             "Adding plugin to create interface: " << interface_type
-             << " from derived type: " << concrete_type
-             << " from file: " << m_impl->m_current_filename );
+             "Adding plugin to create interface: \"" << demangle( interface_type )
+             << "\" from derived type: \"" << demangle( concrete_type )
+             << "\" from file: " << m_impl->m_current_filename );
 
   return fact_handle;
 }
@@ -214,14 +198,16 @@ plugin_loader
 // ------------------------------------------------------------------
 void
 plugin_loader
-::add_search_path( plugin_path_list_t const& path)
+::add_search_path( path_list_t const& path)
 {
   m_impl->m_search_paths.insert(m_impl->m_search_paths.end(), path.begin(), path.end() );
+  // remove any duplicate paths that were added
+  erase_duplicates(m_impl->m_search_paths);
 }
 
 
 // ------------------------------------------------------------------
-plugin_path_list_t const&
+path_list_t const&
 plugin_loader
 ::get_search_path() const
 {
@@ -237,7 +223,7 @@ plugin_loader
 {
   std::vector< std::string > retval;
 
-  VITAL_FOREACH( auto const it, m_impl->m_library_map )
+  for( auto const it : m_impl->m_library_map )
   {
     retval.push_back( it.first );
   } // end foreach
@@ -281,6 +267,28 @@ plugin_loader
 }
 
 
+// ------------------------------------------------------------------
+void
+plugin_loader
+::load_plugins( path_list_t const& dirpath )
+{
+  // Iterate over path and load modules
+  for( auto const & module_dir : dirpath )
+  {
+    m_impl->look_in_directory( module_dir );
+  }
+}
+
+
+// ------------------------------------------------------------------
+void
+plugin_loader
+::load_plugin( path_t const& file )
+{
+  m_impl->load_from_module( file );
+}
+
+
 // ==================================================================
 /**
  * @brief Load all known modules.
@@ -291,7 +299,7 @@ plugin_loader_impl
 ::load_known_modules()
 {
   // Iterate over path and load modules
-  VITAL_FOREACH( auto const & module_dir, m_search_paths )
+  for( auto const & module_dir : m_search_paths )
   {
     look_in_directory( module_dir );
   }
@@ -325,16 +333,25 @@ plugin_loader_impl
 
   // Iterate over search-path directories, attempting module load on elements
   // that end in the configured library suffix.
-  LOG_DEBUG( m_parent->m_logger, "Loading modules from directory: " << dir_path );
+  LOG_DEBUG( m_parent->m_logger, "Loading plugins from directory: " << dir_path );
 
   kwiversys::Directory dir;
   dir.Load( dir_path );
   unsigned long num_files = dir.GetNumberOfFiles();
 
-  for (unsigned long i = 0; i < num_files; ++i )
+  std::vector< std::string > file_list;
+
+  for ( unsigned long i = 0; i < num_files; ++i )
+  {
+    file_list.push_back( std::string( dir.GetFile( i ) ) );
+  }
+
+  std::sort( file_list.begin(), file_list.end() );
+
+  for ( auto file_no_path : file_list )
   {
     std::string file = dir.GetPath();
-    file += "/" + std::string( dir.GetFile( i ) );
+    file += "/" + file_no_path;
 
     // Accept this file as a module to check if it has the correct library
     // suffix and matches a provided module name if one was provided.
@@ -392,7 +409,7 @@ plugin_loader_impl
     }
 
     LOG_INFO( m_parent->m_logger, "plugin_loader:: Unable to bind to function \"" << m_init_function << "()\" : "
-              << last_error );
+              << str );
 
     DL::CloseLibrary( lib_handle );
     return;
@@ -400,10 +417,13 @@ plugin_loader_impl
 
   // Check with the load hook to see if there are any last minute
   // objections to loading this plugin.
-  if ( ! m_parent->load_plugin_hook( path, lib_handle ) )
+  for ( auto filter : m_filters )
   {
-    DL::CloseLibrary( lib_handle );
-    return;
+    if ( ! filter->load_plugin( path, lib_handle ) )
+    {
+      DL::CloseLibrary( lib_handle );
+      return;
+    }
   }
 
   // Save currently opened library in map
@@ -416,22 +436,20 @@ plugin_loader_impl
   ( *reg_fp )( m_parent ); // register plugins
 }
 
-
-// ------------------------------------------------------------------
-bool
-plugin_loader
-::load_plugin_hook( path_t const& path, DL::LibraryHandle lib_handle ) const
+// ----------------------------------------------------------------------------
+void plugin_loader
+::clear_filters()
 {
-  return true; // default is to always load
+  m_impl->m_filters.clear();
 }
 
-
-// ------------------------------------------------------------------
-bool
-plugin_loader
-::add_factory_hook( plugin_factory_handle_t fact ) const
+// ----------------------------------------------------------------------------
+void plugin_loader
+::add_filter( plugin_filter_handle_t f )
 {
-  return true; // default is to always register factory
+  f->m_loader = this;
+  m_impl->m_filters.push_back( f );
 }
+
 
 } } // end namespace

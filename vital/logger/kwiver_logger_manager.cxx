@@ -76,8 +76,8 @@ kwiver_logger_manager* kwiver_logger_manager::s_instance = 0;
 class kwiver_logger_manager::impl
 {
 public:
-  impl() VITAL_DEFAULT_CTOR
-  ~impl() VITAL_DEFAULT_DTOR
+  impl() = default;
+  ~impl() = default;
 
   std::unique_ptr< logger_ns::kwiver_logger_factory > m_logFactory;
 
@@ -101,24 +101,28 @@ kwiver_logger_manager
   // we provide a method for creating these loggers.
 
   bool try_default(false);
+  std::string factory_name;
   char const* factory = std::getenv( PLUGIN_ENV_VAR );
-  if ( 0 == factory )
+  if ( factory == 0 )
   {
-    try_default = true;
     // If no special factory is specified, try default name
-#if defined(WIN32)
-    factory = "vital_logger_plugin.dll";
-#elif defined(__APPLE__)
-    factory = "vital_logger_plugin.so";
-#else
-    factory = "vital_logger_plugin.so";
-#endif
+    try_default = true;
+    factory_name = "vital_logger_plugin";
   }
+  else
+  {
+    factory_name = factory;
+    if (*factory_name.rbegin() == ';')
+    {
+      factory_name = factory_name.substr(0, factory_name.size() - 1);
+    }
+  }
+  factory_name += DL::LibExtension();
 
   try
   {
     // Dynamically load logger factory.
-    load_factory( factory );
+    load_factory( factory_name );
     return;
   }
   catch( std::runtime_error &e )
@@ -126,7 +130,8 @@ kwiver_logger_manager
     // Only give error if the environment specified logger could not be found
     if ( ! try_default )
     {
-      std::cerr << "ERROR: Could not load logger factory as specified in environment variable \""
+      std::cerr << "WARNING: Could not load logger factory \"" << factory_name
+                << "\" as specified in environment variable \""
                 << PLUGIN_ENV_VAR "\"\n"
                 << "Defaulting to built-in logger.\n"
                 << e.what() << std::endl;
@@ -241,7 +246,6 @@ kwiver_logger_manager
         << DL::LastError();
     throw std::runtime_error( str.str() );
   }
-
   // Get pointer to new logger factory object
   m_impl->m_logFactory.reset( fp() );
 }

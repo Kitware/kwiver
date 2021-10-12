@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2014-2016 by Kitware, Inc.
+ * Copyright 2014-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,6 @@
 #include <iostream>
 #include <set>
 
-#include <vital/vital_foreach.h>
 #include <vital/util/cpu_timer.h>
 
 #include <arrows/vxl/camera_map.h>
@@ -65,21 +64,7 @@ public:
     normalize_data(true),
     max_iterations(1000),
     x_tolerance(1e-8),
-    g_tolerance(1e-8),
-    m_logger( vital::get_logger( "arrows.vxl.bundle_adjust" ))
-  {
-  }
-
-  priv(const priv& other)
-  : verbose(other.verbose),
-    use_m_estimator(other.use_m_estimator),
-    m_estimator_scale(other.m_estimator_scale),
-    estimate_focal_length(other.estimate_focal_length),
-    normalize_data(other.normalize_data),
-    max_iterations(other.max_iterations),
-    x_tolerance(other.x_tolerance),
-    g_tolerance(other.g_tolerance),
-    m_logger( vital::get_logger( "arrows.vxl.bundle_adjust" ))
+    g_tolerance(1e-8)
   {
   }
 
@@ -95,8 +80,6 @@ public:
   unsigned max_iterations;
   double x_tolerance;
   double g_tolerance;
-  /// Logger handle
-  vital::logger_handle_t m_logger;
 };
 
 
@@ -105,14 +88,7 @@ bundle_adjust
 ::bundle_adjust()
 : d_(new priv)
 {
-}
-
-
-/// Copy Constructor
-bundle_adjust
-::bundle_adjust(const bundle_adjust& other)
-: d_(new priv(*other.d_))
-{
+  attach_logger( "arrows.vxl.bundle_adjust" );
 }
 
 
@@ -213,35 +189,41 @@ bundle_adjust
 }
 
 
-/// Optimize the camera and landmark parameters given a set of tracks
+/// Optimize the camera and landmark parameters given a set of feature tracks
 void
 bundle_adjust
 ::optimize(camera_map_sptr& cameras,
            landmark_map_sptr& landmarks,
-           track_set_sptr tracks) const
+           feature_track_set_sptr tracks,
+           sfm_constraints_sptr constraints) const
 {
   if( !cameras || !landmarks || !tracks )
   {
     // TODO throw an exception for missing input data
     return;
   }
+  if(constraints && constraints->get_metadata()->size() > 0)
+  {
+    LOG_WARN( logger(), "constraints provided but will be ignored "
+                            "by this algorithm");
+  }
   typedef vxl::camera_map::map_vcam_t map_vcam_t;
   typedef vital::landmark_map::map_landmark_t map_landmark_t;
 
-#define SBA_TIMED(msg, code)                                      \
+#define SBA_TIMED(msg, code)                                            \
   do                                                                    \
   {                                                                     \
     kwiver::vital::cpu_timer t;                                         \
     if (d_->verbose)                                                    \
     {                                                                   \
       t.start();                                                        \
-      LOG_DEBUG(d_->m_logger, msg << " ... ");                          \
+      LOG_DEBUG(logger(), msg << " ... ");                              \
     }                                                                   \
     code                                                                \
     if (d_->verbose)                                                    \
     {                                                                   \
       t.stop();                                                         \
-      LOG_DEBUG(d_->m_logger, " --> " << t.elapsed() << "s CPU");       \
+      LOG_DEBUG(logger(), " --> " << t.elapsed() << "s CPU");           \
     }                                                                   \
   } while(false)
 
@@ -264,25 +246,30 @@ bundle_adjust
   super_map_t frame2track2feature_map;
 
   SBA_TIMED("Constructing id-map and super-map",
-    VITAL_FOREACH(const map_vcam_t::value_type& p, vcams)
+    for(const map_vcam_t::value_type& p : vcams)
     {
       const frame_id_t& frame = p.first;
-      track_set_sptr ftracks = tracks->active_tracks(static_cast<int>(frame));
-      if (! ftracks || ftracks->size() == 0)
+      auto ftracks = tracks->active_tracks(static_cast<int>(frame));
+      if( ftracks.empty() )
       {
         continue;
       }
       super_map_inner_t frame_lm2feature_map;
 
-      VITAL_FOREACH(const track_sptr& t, ftracks->tracks())
+      for(const track_sptr& t : ftracks)
       {
         const track_id_t id = t->id();
         // make sure the track id has an associated landmark
 
         if( lms.find(id) != lms.end() )
         {
-          frame_lm2feature_map[id] = t->find(frame)->feat;
-          lm_ids.insert(id);
+          auto fts = std::dynamic_pointer_cast<feature_track_state>(
+                          *t->find(frame) );
+          if( fts && fts->feature )
+          {
+            frame_lm2feature_map[id] = fts->feature;
+            lm_ids.insert(id);
+          }
         }
       }
 
@@ -308,14 +295,14 @@ bundle_adjust
   std::vector<vpgl_perspective_camera<double> > active_vcams;
 
   SBA_TIMED("Creating index mappings",
-    VITAL_FOREACH(const track_id_t& id, lm_ids)
+    for(const track_id_t& id : lm_ids)
     {
       lm_id_reverse_map[id] = static_cast<track_id_t>(lm_id_index.size());
       lm_id_index.push_back(id);
       vector_3d pt = lms[id]->loc();
       active_world_pts.push_back(vgl_point_3d<double>(pt.x(), pt.y(), pt.z()));
     }
-    VITAL_FOREACH(const super_map_t::value_type& p, frame2track2feature_map)
+    for(const super_map_t::value_type& p : frame2track2feature_map)
     {
       cam_id_reverse_map[p.first] = static_cast<frame_id_t>(cam_id_index.size());
       cam_id_index.push_back(p.first);
@@ -336,14 +323,14 @@ bundle_adjust
   std::vector<vgl_point_2d<double> > image_pts;
 
   SBA_TIMED("Creating masks and point vector",
-    VITAL_FOREACH(const super_map_t::value_type& p, frame2track2feature_map)
+    for(const super_map_t::value_type& p : frame2track2feature_map)
     {
       // p.first  -> frame ID
       // p.second -> super_map_inner_t
       const frame_id_t c_idx = cam_id_reverse_map[p.first];
       std::vector<bool>& mask_row = mask[c_idx];
       std::vector<feature_sptr>& fmask_row = feature_mask[c_idx];
-      VITAL_FOREACH(const super_map_inner_t::value_type& q, p.second)
+      for(const super_map_inner_t::value_type& q : p.second)
       {
         // q.first  -> lm ID
         // q.second -> feature_sptr

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2015-2016 by Kitware, Inc.
+ * Copyright 2015-2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,14 +36,9 @@
 #ifndef KWIVER_ARROWS_VXL_MATCH_FEATURES_CONSTRAINED_H_
 #define KWIVER_ARROWS_VXL_MATCH_FEATURES_CONSTRAINED_H_
 
-
-#include <vital/vital_config.h>
 #include <arrows/vxl/kwiver_algo_vxl_export.h>
 
 #include <vital/algo/match_features.h>
-
-#include <memory>
-
 
 namespace kwiver {
 namespace arrows {
@@ -66,17 +61,15 @@ class KWIVER_ALGO_VXL_EXPORT match_features_constrained
   : public vital::algorithm_impl<match_features_constrained, vital::algo::match_features>
 {
 public:
+  PLUGIN_INFO( "vxl_constrained",
+               "Use VXL to match descriptors under the constraints of similar geometry "
+               "(rotation, scale, position)." )
+
   /// Constructor
   match_features_constrained();
 
   /// Destructor
   virtual ~match_features_constrained();
-
-  /// Copy Constructor
-  match_features_constrained(const match_features_constrained& other);
-
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "vxl_constrained"; }
 
   /// Get this algorithm's \link vital::config_block configuration block \endlink
   virtual vital::config_block_sptr get_configuration() const;
@@ -107,4 +100,4 @@ private:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_VXL_MATCH_FEATURES_CONSTRAINED_H_
+#endif

@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2013-2016 by Kitware, Inc.
+ * Copyright 2013-2016, 2019 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,12 +36,9 @@
 #ifndef KWIVER_ARROWS_OCV_ESTIMATE_HOMOGRAPHY_H_
 #define KWIVER_ARROWS_OCV_ESTIMATE_HOMOGRAPHY_H_
 
-
-#include <vital/vital_config.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
 
 #include <vital/algo/estimate_homography.h>
-
 
 namespace kwiver {
 namespace arrows {
@@ -52,8 +49,8 @@ class KWIVER_ALGO_OCV_EXPORT estimate_homography
   : public vital::algorithm_impl<estimate_homography, vital::algo::estimate_homography>
 {
 public:
-  /// Return the name of this implementation
-  virtual std::string impl_name() const { return "ocv"; }
+  PLUGIN_INFO( "ocv",
+               "Use OpenCV to estimate a homography from feature matches." )
 
   // No configuration yet for this class
   /// \cond DoxygenSuppress
@@ -84,4 +81,4 @@ public:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_OCV_ESTIMATE_HOMOGRAPHY_H_
+#endif
