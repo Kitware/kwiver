@@ -7,11 +7,26 @@
 
 #include "klv_data_format.h"
 
+#include <iomanip>
+
+#include <cfloat>
+
 namespace kwiver {
 
 namespace arrows {
 
 namespace klv {
+
+namespace {
+
+size_t
+bits_to_decimal_digits( size_t bits )
+{
+  static auto const factor = std::log10( 2.0 );
+  return static_cast< size_t >( std::ceil( bits * factor ) );
+}
+
+} // namespace
 
 // ----------------------------------------------------------------------------
 klv_data_format
@@ -301,6 +316,214 @@ klv_ber_oid_format
 {
   std::stringstream ss;
   ss << "BER-OID-encoded unsigned integer of " << length_description();
+  return ss.str();
+}
+
+// ----------------------------------------------------------------------------
+klv_float_format
+::klv_float_format( size_t fixed_length )
+  : klv_data_format_< data_type >{ fixed_length }
+{}
+
+// ----------------------------------------------------------------------------
+double
+klv_float_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  return klv_read_float( data, length );
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_float_format
+::write_typed( double const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  klv_write_float( value, data, length );
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+klv_float_format
+::print_typed( std::ostream& os, double const& value,
+               size_t length_hint ) const
+{
+  auto const flags = os.flags();
+
+  // Print the number of digits corresponding to the precision of the format
+  auto const length = m_fixed_length ? m_fixed_length : length_hint;
+  auto const digits = ( length == 4 ) ? ( FLT_DIG + 1 ) : ( DBL_DIG + 1 );
+  os << std::setprecision( digits ) << value;
+
+  os.flags( flags );
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_float_format
+::description() const
+{
+  std::stringstream ss;
+  ss << "IEEE-754 floating-point number of " << length_description();
+  return ss.str();
+}
+
+// ----------------------------------------------------------------------------
+klv_sflint_format
+::klv_sflint_format( double minimum, double maximum, size_t fixed_length )
+  : klv_data_format_< data_type >{ fixed_length }, m_minimum{ minimum },
+    m_maximum{ maximum }
+{}
+
+// ----------------------------------------------------------------------------
+double
+klv_sflint_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  return klv_read_flint< int64_t >( m_minimum, m_maximum, data, length );
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_sflint_format
+::write_typed( double const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  klv_write_flint< int64_t >( value, m_minimum, m_maximum, data, length );
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+klv_sflint_format
+::print_typed( std::ostream& os, double const& value,
+               size_t length_hint ) const
+{
+  auto const flags = os.flags();
+
+  // Print the number of digits corresponding to the precision of the format
+  auto const length = m_fixed_length ? m_fixed_length : length_hint;
+  auto const digits = length ? bits_to_decimal_digits( length * 8 )
+                             : ( DBL_DIG + 1 );
+  os << std::setprecision( digits ) << value;
+
+  os.flags( flags );
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_sflint_format
+::description() const
+{
+  std::stringstream ss;
+  ss    << "signed integer of " << length_description() << " mapped to range "
+        << "( " << m_minimum << ", " << m_maximum << " )";
+  return ss.str();
+}
+
+// ----------------------------------------------------------------------------
+klv_uflint_format
+::klv_uflint_format( double minimum, double maximum, size_t fixed_length )
+  : klv_data_format_< data_type >{ fixed_length }, m_minimum{ minimum },
+    m_maximum{ maximum }
+{}
+
+// ----------------------------------------------------------------------------
+double
+klv_uflint_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  return klv_read_flint< uint64_t >( m_minimum, m_maximum, data, length );
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_uflint_format
+::write_typed( double const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  klv_write_flint< uint64_t >( value, m_minimum, m_maximum, data, length );
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+klv_uflint_format
+::print_typed( std::ostream& os, double const& value,
+               size_t length_hint ) const
+{
+  auto const flags = os.flags();
+
+  // Print the number of digits corresponding to the precision of the format
+  auto const length = m_fixed_length ? m_fixed_length : length_hint;
+  auto const digits = length ? bits_to_decimal_digits( length * 8 )
+                             : ( DBL_DIG + 1 );
+  os << std::setprecision( digits ) << value;
+
+  os.flags( flags );
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_uflint_format
+::description() const
+{
+  std::stringstream ss;
+  ss  << "unsigned integer of " << length_description() << " mapped to range "
+      << "( " << m_minimum << ", " << m_maximum << " )";
+  return ss.str();
+}
+
+// ----------------------------------------------------------------------------
+klv_imap_format
+::klv_imap_format( double minimum, double maximum )
+  : klv_data_format_< data_type >{ 0 }, m_minimum{ minimum },
+    m_maximum{ maximum } {}
+
+// ----------------------------------------------------------------------------
+double
+klv_imap_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  return klv_read_imap( m_minimum, m_maximum, data, length );
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_imap_format
+::write_typed( double const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  klv_write_imap( value, m_minimum, m_maximum, data, length );
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+klv_imap_format
+::print_typed( std::ostream& os, double const& value,
+               size_t length_hint ) const
+{
+  auto const flags = os.flags();
+
+  // Print the number of digits corresponding to the precision of the format
+  auto const length = m_fixed_length ? m_fixed_length : length_hint;
+  auto const digits = length ? bits_to_decimal_digits( length * 8 - 1 )
+                             : ( DBL_DIG + 1 );
+  os << std::setprecision( digits ) << value;
+
+  os.flags( flags );
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_imap_format
+::description() const
+{
+  std::stringstream ss;
+  ss    << "IMAP-encoded range ( " << m_minimum << ", " << m_maximum << " ), "
+        << "of " << length_description();
   return ss.str();
 }
 
