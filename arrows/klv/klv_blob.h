@@ -10,6 +10,7 @@
 
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
+#include <ostream>
 #include <vector>
 
 #include <cstdint>
@@ -48,6 +49,21 @@ public:
 private:
   klv_bytes_t bytes;
 };
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_blob const& blob );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator==( klv_blob const& lhs, klv_blob const& rhs );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator<( klv_blob const& lhs, klv_blob const& rhs );
 
 // While simple in implementation, these utility functions are included for
 // consistency with the rest of the KLV read / write API.
