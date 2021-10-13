@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief estimate_pnp algorithm definition
- */
+/// \file
+/// \brief estimate_pnp algorithm definition
 
 #ifndef VITAL_ALGO_ESTIMATE_PNP_H_
 #define VITAL_ALGO_ESTIMATE_PNP_H_
@@ -39,14 +37,12 @@ public:
   /// Estimate the camera's pose from the 3D points and their corresponding
   /// projections
 
-  /**
-   * \param [in]  pts2d 2d projections of pts3d in the same order as pts3d
-   * \param [in]  pts3d 3d landmarks in the same order as pts2d.  Both must be
-   * same size.
-   * \param [in]  cal the intrinsic parameters of the camera
-   * \param [out] inliers for each point, the value is true if
-   *                      this pair is an inlier to the estimate
-   */
+  /// \param [in]  pts2d 2d projections of pts3d in the same order as pts3d
+  /// \param [in]  pts3d 3d landmarks in the same order as pts2d.  Both must be
+  /// same size.
+  /// \param [in]  cal the intrinsic parameters of the camera
+  /// \param [out] inliers for each point, the value is true if
+  ///                     this pair is an inlier to the estimate
   virtual
   kwiver::vital::camera_perspective_sptr
   estimate( const std::vector< vector_2d >& pts2d,

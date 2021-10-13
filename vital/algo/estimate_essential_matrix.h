@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief estimate_essential_matrix algorithm definition
- */
+/// \file
+/// \brief estimate_essential_matrix algorithm definition
 
 #ifndef VITAL_ALGO_ESTIMATE_ESSENTIAL_MATRIX_H_
 #define VITAL_ALGO_ESTIMATE_ESSENTIAL_MATRIX_H_
@@ -38,18 +36,16 @@ public:
 
   /// Estimate an essential matrix from corresponding features
 
-  /**
-   * \param [in]  feat1 the set of all features from the first image
-   * \param [in]  feat2 the set of all features from the second image
-   * \param [in]  matches the set of correspondences between \a feat1 and \a
-   * feat2
-   * \param [in]  cal1 the intrinsic parameters of the first camera
-   * \param [in]  cal2 the intrinsic parameters of the second camera
-   * \param [out] inliers for each point pair, the value is true if
-   *                      this pair is an inlier to the estimate
-   * \param [in]  inlier_scale error distance tolerated for matches to be
-   * inliers
-   */
+  /// \param [in]  feat1 the set of all features from the first image
+  /// \param [in]  feat2 the set of all features from the second image
+  /// \param [in]  matches the set of correspondences between \a feat1 and \a
+  /// feat2
+  /// \param [in]  cal1 the intrinsic parameters of the first camera
+  /// \param [in]  cal2 the intrinsic parameters of the second camera
+  /// \param [out] inliers for each point pair, the value is true if
+  ///                     this pair is an inlier to the estimate
+  /// \param [in]  inlier_scale error distance tolerated for matches to be
+  /// inliers
   virtual
   kwiver::vital::essential_matrix_sptr
   estimate( const kwiver::vital::feature_set_sptr feat1,
@@ -62,17 +58,15 @@ public:
 
   /// Estimate an essential matrix from corresponding features
 
-  /**
-   * \param [in]  feat1 the set of all features from the first image
-   * \param [in]  feat2 the set of all features from the second image
-   * \param [in]  matches the set of correspondences between \a feat1 and \a
-   * feat2
-   * \param [in]  cal the intrinsic parameters, same for both cameras
-   * \param [out] inliers for each point pair, the value is true if
-   *                      this pair is an inlier to the estimate
-   * \param [in]  inlier_scale error distance tolerated for matches to be
-   * inliers
-   */
+  /// \param [in]  feat1 the set of all features from the first image
+  /// \param [in]  feat2 the set of all features from the second image
+  /// \param [in]  matches the set of correspondences between \a feat1 and \a
+  /// feat2
+  /// \param [in]  cal the intrinsic parameters, same for both cameras
+  /// \param [out] inliers for each point pair, the value is true if
+  ///                     this pair is an inlier to the estimate
+  /// \param [in]  inlier_scale error distance tolerated for matches to be
+  /// inliers
   virtual
   kwiver::vital::essential_matrix_sptr
   estimate( const kwiver::vital::feature_set_sptr feat1,
@@ -84,15 +78,13 @@ public:
 
   /// Estimate an essential matrix from corresponding points
 
-  /**
-   * \param [in]  pts1 the vector or corresponding points from the first image
-   * \param [in]  pts2 the vector of corresponding points from the second image
-   * \param [in]  cal the intrinsic parameters, same for both cameras
-   * \param [out] inliers for each point pair, the value is true if
-   *                      this pair is an inlier to the estimate
-   * \param [in]  inlier_scale error distance tolerated for matches to be
-   * inliers
-   */
+  /// \param [in]  pts1 the vector or corresponding points from the first image
+  /// \param [in]  pts2 the vector of corresponding points from the second image
+  /// \param [in]  cal the intrinsic parameters, same for both cameras
+  /// \param [out] inliers for each point pair, the value is true if
+  ///                     this pair is an inlier to the estimate
+  /// \param [in]  inlier_scale error distance tolerated for matches to be
+  /// inliers
   virtual
   kwiver::vital::essential_matrix_sptr
   estimate( const std::vector< kwiver::vital::vector_2d >& pts1,
@@ -103,16 +95,14 @@ public:
 
   /// Estimate an essential matrix from corresponding points
 
-  /**
-   * \param [in]  pts1 the vector or corresponding points from the first image
-   * \param [in]  pts2 the vector of corresponding points from the second image
-   * \param [in]  cal1 the intrinsic parameters of the first camera
-   * \param [in]  cal2 the intrinsic parameters of the second camera
-   * \param [out] inliers for each point pa:wir, the value is true if
-   *                      this pair is an inlier to the estimate
-   * \param [in]  inlier_scale error distance tolerated for matches to be
-   * inliers
-   */
+  /// \param [in]  pts1 the vector or corresponding points from the first image
+  /// \param [in]  pts2 the vector of corresponding points from the second image
+  /// \param [in]  cal1 the intrinsic parameters of the first camera
+  /// \param [in]  cal2 the intrinsic parameters of the second camera
+  /// \param [out] inliers for each point pa:wir, the value is true if
+  ///                     this pair is an inlier to the estimate
+  /// \param [in]  inlier_scale error distance tolerated for matches to be
+  /// inliers
   virtual
   kwiver::vital::essential_matrix_sptr
   estimate( const std::vector< kwiver::vital::vector_2d >& pts1,

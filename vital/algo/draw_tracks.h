@@ -13,12 +13,10 @@
 
 #include <ostream>
 
-/**
- * \file
- * \brief Header defining an abstract \link kwiver::vital::algo::draw_tracks
- * track
- *        drawing \endlink algorithm
- */
+/// \file
+/// \brief Header defining an abstract \link kwiver::vital::algo::draw_tracks
+/// track
+///       drawing \endlink algorithm
 
 namespace kwiver {
 
@@ -37,19 +35,17 @@ public:
 
   /// Draw features tracks on top of the input images.
 
-  /**
-   * This process can either be called in an offline fashion, where all
-   * tracks and images are provided to the function on the first call,
-   * or in an online fashion where only new images are provided on
-   * sequential calls. This function can additionally consume a second
-   * track set, which can optionally be used to display additional
-   * information to provide a comparison between the two track sets.
-   *
-   * \param display_set the main track set to draw
-   * \param image_data a list of images the tracks were computed over
-   * \param comparison_set optional comparison track set
-   * \returns a pointer to the last image generated
-   */
+  /// This process can either be called in an offline fashion, where all
+  /// tracks and images are provided to the function on the first call,
+  /// or in an online fashion where only new images are provided on
+  /// sequential calls. This function can additionally consume a second
+  /// track set, which can optionally be used to display additional
+  /// information to provide a comparison between the two track sets.
+  ///
+  /// \param display_set the main track set to draw
+  /// \param image_data a list of images the tracks were computed over
+  /// \param comparison_set optional comparison track set
+  /// \returns a pointer to the last image generated
   virtual kwiver::vital::image_container_sptr
   draw( kwiver::vital::track_set_sptr display_set,
         kwiver::vital::image_container_sptr_list image_data,

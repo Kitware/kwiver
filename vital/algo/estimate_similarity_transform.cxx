@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of wrapper functions in similarity transform
- *        estimation algorithm definition.
- */
+/// \file
+/// \brief Implementation of wrapper functions in similarity transform
+///       estimation algorithm definition.
 
 #include <vital/algo/algorithm.txx>
 #include <vital/algo/estimate_similarity_transform.h>
@@ -70,18 +68,16 @@ namespace
 
 // ------------------------------------------------------------------
 /// Helper function for assigning camera/landmark map contents to point vectors
-/**
- * \tparam M      Map type whose value_type::second_type is a std::shared_ptr
- * \tparam afunc  Pointer to the accessor function in the object that is
- *                contained in the std::shared_ptr.
- *
- * \param from_map      map of type M of objects at \c from position
- * \param to_map        map of type M of objects at \c to position
- * \param from_pts      vector in which to store \c from points that have
- *                      a corresponding \c to point.
- * \param to_pts        vector in which to store \c to points that have
- *                      a corresponding \c from point.
- */
+/// \tparam M      Map type whose value_type::second_type is a std::shared_ptr
+/// \tparam afunc  Pointer to the accessor function in the object that is
+///               contained in the std::shared_ptr.
+///
+/// \param from_map      map of type M of objects at \c from position
+/// \param to_map        map of type M of objects at \c to position
+/// \param from_pts      vector in which to store \c from points that have
+///                     a corresponding \c to point.
+/// \param to_pts        vector in which to store \c to points that have
+///                     a corresponding \c from point.
 template< typename M,
           vector_3d (M::value_type::second_type::element_type::*afunc)() const >
 void map_to_pts(M const& from_map, M const& to_map,

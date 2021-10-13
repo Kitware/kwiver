@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief match_features algorithm definition interface
- */
+/// \file
+/// \brief match_features algorithm definition interface
 
 #ifndef VITAL_ALGO_MATCH_FEATURES_H_
 #define VITAL_ALGO_MATCH_FEATURES_H_
@@ -33,13 +31,11 @@ public:
 
   /// Match one set of features and corresponding descriptors to another
 
-  /**
-   * \param feat1 the first set of features to match
-   * \param desc1 the descriptors corresponding to \a feat1
-   * \param feat2 the second set fof features to match
-   * \param desc2 the descriptors corresponding to \a feat2
-   * \returns a set of matching indices from \a feat1 to \a feat2
-   */
+  /// \param feat1 the first set of features to match
+  /// \param desc1 the descriptors corresponding to \a feat1
+  /// \param feat2 the second set fof features to match
+  /// \param desc2 the descriptors corresponding to \a feat2
+  /// \returns a set of matching indices from \a feat1 to \a feat2
   virtual kwiver::vital::match_set_sptr
   match( kwiver::vital::feature_set_sptr feat1,
          kwiver::vital::descriptor_set_sptr desc1,

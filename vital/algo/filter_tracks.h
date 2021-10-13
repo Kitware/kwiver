@@ -14,11 +14,9 @@
 #include <vital/algo/algorithm.h>
 #include <vital/types/track_set.h>
 
-/**
- * \file
- * \brief Header defining abstract \link kwiver::vital::algo::filter_tracks
- *        filter tracks \endlink algorithm
- */
+/// \file
+/// \brief Header defining abstract \link kwiver::vital::algo::filter_tracks
+///       filter tracks \endlink algorithm
 
 namespace kwiver {
 
@@ -36,10 +34,8 @@ public:
 
   /// Filter a track set and return a subset of the tracks
 
-  /**
-   * \param [in] input The track set to filter
-   * \returns a filtered version of the track set (simple_track_set)
-   */
+  /// \param [in] input The track set to filter
+  /// \returns a filtered version of the track set (simple_track_set)
   virtual kwiver::vital::track_set_sptr
   filter( kwiver::vital::track_set_sptr input ) const = 0;
 

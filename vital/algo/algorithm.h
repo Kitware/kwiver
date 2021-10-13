@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief base algorithm/_def/_impl class interfaces
- */
+/// \file
+/// \brief base algorithm/_def/_impl class interfaces
 
 #ifndef VITAL_ALGO_ALGORITHM_H_
 #define VITAL_ALGO_ALGORITHM_H_
@@ -33,12 +31,10 @@ typedef std::shared_ptr< algorithm > algorithm_sptr;
 
 // ----------------------------------------------------------------
 
-/**
- * @brief An abstract base class for all algorithms
- *
- * This class is an abstract base class for all algorithm
- * implementations.
- */
+/// @brief An abstract base class for all algorithms
+///
+/// This class is an abstract base class for all algorithm
+/// implementations.
 class VITAL_ALGO_EXPORT algorithm
 {
 public:
@@ -53,69 +49,61 @@ public:
   /// Get this algorithm's \link kwiver::vital::config_block configuration
   /// block \endlink
 
-  /**
-   * This method returns the required configuration for the
-   * algorithm. The implementation of this method should be
-   * light-weight and only create and fill in the config
-   * block.
-   *
-   * This base virtual function implementation returns an empty configuration.
-   *
-   * \returns \c config_block containing the configuration for this algorithm
-   *          and any nested components.
-   */
+  /// This method returns the required configuration for the
+  /// algorithm. The implementation of this method should be
+  /// light-weight and only create and fill in the config
+  /// block.
+  ///
+  /// This base virtual function implementation returns an empty configuration.
+  ///
+  /// \returns \c config_block containing the configuration for this algorithm
+  ///         and any nested components.
   virtual config_block_sptr get_configuration() const;
 
   /// Set this algorithm's properties via a config block
 
-  /**
-   * This method is called to pass a configuration to the
-   * algorithm. The implementation of this method should be
-   * light-weight and only save the necessary config values. Defer
-   * any substantial processing in another method.
-   *
-   * \throws no_such_configuration_value_exception
-   *    Thrown if an expected configuration value is not present.
-   *
-   * \throws algorithm_configuration_exception
-   *    Thrown when the algorithm is given an invalid \c config_block or is
-   *    otherwise unable to configure itself.
-   *
-   * \param config  The \c config_block instance containing the configuration
-   *                parameters for this algorithm
-   */
+  /// This method is called to pass a configuration to the
+  /// algorithm. The implementation of this method should be
+  /// light-weight and only save the necessary config values. Defer
+  /// any substantial processing in another method.
+  ///
+  /// \throws no_such_configuration_value_exception
+  ///   Thrown if an expected configuration value is not present.
+  ///
+  /// \throws algorithm_configuration_exception
+  ///   Thrown when the algorithm is given an invalid \c config_block or is
+  ///   otherwise unable to configure itself.
+  ///
+  /// \param config  The \c config_block instance containing the configuration
+  ///               parameters for this algorithm
   virtual void set_configuration( config_block_sptr config ) = 0;
 
   /// Check that the algorithm's configuration config_block is valid
 
-  /**
-   * This checks solely within the provided \c config_block and not against
-   * the current state of the instance. This isn't static for inheritance
-   * reasons.
-   *
-   * \param config  The config block to check configuration of.
-   *
-   * \returns true if the configuration check passed and false if it didn't.
-   */
+  /// This checks solely within the provided \c config_block and not against
+  /// the current state of the instance. This isn't static for inheritance
+  /// reasons.
+  ///
+  /// \param config  The config block to check configuration of.
+  ///
+  /// \returns true if the configuration check passed and false if it didn't.
   virtual bool check_configuration( config_block_sptr config ) const = 0;
 
   /// Helper function for properly getting a nested algorithm's configuration
 
-  /**
-   * Adds a configurable algorithm implementation switch for this algorithm.
-   * If the variable pointed to by \c nested_algo is a defined sptr to an
-   * implementation, its \link kwiver::vital::config_block configuration
-   * \endlink
-   * parameters are merged with the given
-   * \link kwiver::vital::config_block config_block \endlink.
-   *
-   * \param[in]       type_name   The type name of the nested algorithm.
-   * \param[in]       name        An identifying name for the nested algorithm
-   * \param[in,out]   config      The \c config_block instance in which to put
-   * the
-   *                              nested algorithm's configuration.
-   * \param[in]       nested_algo The nested algorithm's sptr variable.
-   */
+  /// Adds a configurable algorithm implementation switch for this algorithm.
+  /// If the variable pointed to by \c nested_algo is a defined sptr to an
+  /// implementation, its \link kwiver::vital::config_block configuration
+  /// \endlink
+  /// parameters are merged with the given
+  /// \link kwiver::vital::config_block config_block \endlink.
+  ///
+  /// \param[in]       type_name   The type name of the nested algorithm.
+  /// \param[in]       name        An identifying name for the nested algorithm
+  /// \param[in,out]   config      The \c config_block instance in which to put
+  /// the
+  ///                             nested algorithm's configuration.
+  /// \param[in]       nested_algo The nested algorithm's sptr variable.
   static void get_nested_algo_configuration( std::string const& type_name,
                                              std::string const& name,
                                              config_block_sptr config,
@@ -123,25 +111,23 @@ public:
 
   /// Helper function for properly setting a nested algorithm's configuration
 
-  /**
-   * If the value for the config parameter "type" is supported by the
-   * concrete algorithm class, then a new algorithm object is created,
-   * configured using the set_configuration() method and returned via
-   * the \c nested_algo pointer.
-   *
-   * The nested algorithm will not be set if the implementation type (as
-   * defined in the \c get_nested_algo_configuration) is not present or set to
-   * an invalid value relative to the registered names for this
-   * \c type_name
-   *
-   * \param[in] type_name           The type name of the nested algorithm.
-   * \param[in] name                Config block name for the nested algorithm.
-   * \param[in] config              The \c config_block instance from which we
-   * will
-   *                                draw configuration needed for the nested
-   *                                algorithm instance.
-   * \param[out] nested_algo The nested algorithm's sptr variable.
-   */
+  /// If the value for the config parameter "type" is supported by the
+  /// concrete algorithm class, then a new algorithm object is created,
+  /// configured using the set_configuration() method and returned via
+  /// the \c nested_algo pointer.
+  ///
+  /// The nested algorithm will not be set if the implementation type (as
+  /// defined in the \c get_nested_algo_configuration) is not present or set to
+  /// an invalid value relative to the registered names for this
+  /// \c type_name
+  ///
+  /// \param[in] type_name           The type name of the nested algorithm.
+  /// \param[in] name                Config block name for the nested algorithm.
+  /// \param[in] config              The \c config_block instance from which we
+  /// will
+  ///                               draw configuration needed for the nested
+  ///                               algorithm instance.
+  /// \param[out] nested_algo The nested algorithm's sptr variable.
   static void set_nested_algo_configuration( std::string const& type_name,
                                              std::string const& name,
                                              config_block_sptr config,
@@ -150,19 +136,17 @@ public:
   /// Helper function for checking that basic nested algorithm configuration is
   /// valid
 
-  /**
-   * Check that the expected implementation switch exists and that its value is
-   * registered implementation name.
-   *
-   * If the name is valid, we also recursively call check_configuration() on
-   * theset implementation. This is done with a fresh create so we don't have
-   * to rely on the implementation being defined in the instance this is
-   * called from.
-   *
-   * \param     type_name   The type name of the nested algorithm.
-   * \param     name        An identifying name for the nested algorithm.
-   * \param     config  The \c config_block to check.
-   */
+  /// Check that the expected implementation switch exists and that its value is
+  /// registered implementation name.
+  ///
+  /// If the name is valid, we also recursively call check_configuration() on
+  /// theset implementation. This is done with a fresh create so we don't have
+  /// to rely on the implementation being defined in the instance this is
+  /// called from.
+  ///
+  /// \param     type_name   The type name of the nested algorithm.
+  /// \param     name        An identifying name for the nested algorithm.
+  /// \param     config  The \c config_block to check.
   static bool check_nested_algo_configuration( std::string const& type_name,
                                                std::string const& name,
                                                config_block_sptr config );
@@ -173,27 +157,23 @@ public:
 protected:
   algorithm(); // CTOR
 
-  /**
-   * \brief Attach logger to this object.
-   *
-   * This method attaches a logger to this object. The name supplied
-   * is used to name the logger. Since this is a fundamental base
-   * class, derived classes will want to have the logger named
-   * something relevant to the concrete algorithm.
-   *
-   * A logger is attached by the base class, but it is expected that
-   * one of the derived classes will attach a more meaningful logger.
-   *
-   * \param name Name of the logger to attach.
-   */
+  /// \brief Attach logger to this object.
+  ///
+  /// This method attaches a logger to this object. The name supplied
+  /// is used to name the logger. Since this is a fundamental base
+  /// class, derived classes will want to have the logger named
+  /// something relevant to the concrete algorithm.
+  ///
+  /// A logger is attached by the base class, but it is expected that
+  /// one of the derived classes will attach a more meaningful logger.
+  ///
+  /// \param name Name of the logger to attach.
   void attach_logger( std::string const& name );
 
 private:
-  /**
-   * \brief Logger handle.
-   *
-   * This handle supplies a logger for all derived classes.
-   */
+  /// \brief Logger handle.
+  ///
+  /// This handle supplies a logger for all derived classes.
   kwiver::vital::logger_handle_t m_logger;
 
   std::string m_impl_name;
@@ -202,20 +182,18 @@ private:
 // ------------------------------------------------------------------
 /// An intermediate templated base class for algorithm definition
 
-/**
- *  Uses the curiously recurring template pattern (CRTP) to declare the
- *  clone function and automatically provide functions to register
- *  algorithm, and create new instance by name.
- *  Each algorithm definition should be declared as shown below
- *  \code
-    class my_algo_def
-    : public algorithm_def<my_algo_def>
-    {
-      ...
-    };
-    \endcode
- *  \sa algorithm_impl
- */
+/// Uses the curiously recurring template pattern (CRTP) to declare the
+/// clone function and automatically provide functions to register
+/// algorithm, and create new instance by name.
+/// Each algorithm definition should be declared as shown below
+/// \code
+/// class my_algo_def
+/// : public algorithm_def<my_algo_def>
+/// {
+///   ...
+/// };
+/// \endcode
+/// \sa algorithm_impl
 template < typename Self >
 class VITAL_ALGO_EXPORT algorithm_def
   : public algorithm
@@ -238,43 +216,39 @@ public:
 
   /// Helper function for properly getting a nested algorithm's configuration
 
-  /**
-   * Adds a configurable algorithm implementation switch for this
-   * algorithm_def.
-   * If the variable pointed to by \c nested_algo is a defined sptr to an
-   * implementation, its \link kwiver::vital::config_block configuration
-   * \endlink parameters are merged with the given
-   * \link kwiver::vital::config_block config_block \endlink.
-   *
-   * \param     name        An identifying name for the nested algorithm
-   * \param     config      The \c config_block instance in which to put the
-   *                          nested algorithm's configuration.
-   * \param     nested_algo The nested algorithm's sptr variable.
-   */
+  /// Adds a configurable algorithm implementation switch for this
+  /// algorithm_def.
+  /// If the variable pointed to by \c nested_algo is a defined sptr to an
+  /// implementation, its \link kwiver::vital::config_block configuration
+  /// \endlink parameters are merged with the given
+  /// \link kwiver::vital::config_block config_block \endlink.
+  ///
+  /// \param     name        An identifying name for the nested algorithm
+  /// \param     config      The \c config_block instance in which to put the
+  ///                         nested algorithm's configuration.
+  /// \param     nested_algo The nested algorithm's sptr variable.
   static void get_nested_algo_configuration( std::string const& name,
                                              config_block_sptr config,
                                              base_sptr nested_algo );
 
   /// Instantiate nested algorithm.
 
-  /**
-   * A new concrete algorithm object is created if the value for the
-   * config parameter "type" is supported. The new object is returned
-   * through the nested_algo parameter.
-   *
-   * The nested algorithm will not be set if the implementation switch (as
-   * defined in the \c get_nested_algo_configuration) is not present or set to
-   * an invalid value relative to the registered names for this
-   * \c algorithm_def.
-   *
-   * \param[in] name              Config block name for the nested algorithm.
-   * \param[in] config            The \c config_block instance from which we
-   * will
-   *                              draw configuration needed for the nested
-   *                              algorithm instance.
-   * \param[out] nested_algo      Pointer to the algorithm object is returned
-   * here.
-   */
+  /// A new concrete algorithm object is created if the value for the
+  /// config parameter "type" is supported. The new object is returned
+  /// through the nested_algo parameter.
+  ///
+  /// The nested algorithm will not be set if the implementation switch (as
+  /// defined in the \c get_nested_algo_configuration) is not present or set to
+  /// an invalid value relative to the registered names for this
+  /// \c algorithm_def.
+  ///
+  /// \param[in] name              Config block name for the nested algorithm.
+  /// \param[in] config            The \c config_block instance from which we
+  /// will
+  ///                             draw configuration needed for the nested
+  ///                             algorithm instance.
+  /// \param[out] nested_algo      Pointer to the algorithm object is returned
+  /// here.
   static void set_nested_algo_configuration( std::string const& name,
                                              config_block_sptr config,
                                              base_sptr& nested_algo );
@@ -282,18 +256,16 @@ public:
   /// Helper function for checking that basic nested algorithm configuration is
   /// valid
 
-  /**
-   * Check that the expected implementation switch exists and that its value is
-   * registered implementation name.
-   *
-   * If the name is valid, we also recursively call check_configuration() on
-   * the set implementation. This is done with a fresh create so we don't
-   * have to rely on the implementation being defined in the instance this
-   * is called from.
-   *
-   * \param     name        An identifying name for the nested algorithm.
-   * \param     config      The \c config_block to check.
-   */
+  /// Check that the expected implementation switch exists and that its value is
+  /// registered implementation name.
+  ///
+  /// If the name is valid, we also recursively call check_configuration() on
+  /// the set implementation. This is done with a fresh create so we don't
+  /// have to rely on the implementation being defined in the instance this
+  /// is called from.
+  ///
+  /// \param     name        An identifying name for the nested algorithm.
+  /// \param     config      The \c config_block to check.
   static bool check_nested_algo_configuration( std::string const& name,
                                                config_block_sptr config );
 };

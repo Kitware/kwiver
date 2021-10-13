@@ -14,12 +14,10 @@ namespace vital {
 
 // ----------------------------------------------------------------
 
-/**
- * @brief Plugin to provide detailed dsplay of algorithm plugins.
- *
- * This class implements a plugin category formatter for the plugin_explorer
- * tool.
- */
+/// @brief Plugin to provide detailed dsplay of algorithm plugins.
+///
+/// This class implements a plugin category formatter for the plugin_explorer
+/// tool.
 class algo_explorer
   : public category_explorer
 {
@@ -147,12 +145,10 @@ algo_explorer
 
 // ==================================================================
 
-/**
- * @brief Plugin to provide detailed dsplay of algorithm plugins.
- *
- * This class implements a plugin category formatter for the plugin_explorer
- * tool generating output in pipeline file format.
- */
+/// @brief Plugin to provide detailed dsplay of algorithm plugins.
+///
+/// This class implements a plugin category formatter for the plugin_explorer
+/// tool generating output in pipeline file format.
 class algo_explorer_pipe
   : public category_explorer
 {

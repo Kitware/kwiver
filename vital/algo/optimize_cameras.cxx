@@ -2,13 +2,11 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Instantiation of \link kwiver::vital::algo::algorithm_def
- *        algorithm_def<T> \endlink for \link
- *        kwiver::vital::algo::optimize_cameras optimize_cameras
- *        \endlink
- */
+/// \file
+/// \brief Instantiation of \link kwiver::vital::algo::algorithm_def
+///       algorithm_def<T> \endlink for \link
+///       kwiver::vital::algo::optimize_cameras optimize_cameras
+///       \endlink
 
 #include <vital/algo/algorithm.txx>
 #include <vital/algo/optimize_cameras.h>
