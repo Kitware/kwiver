@@ -1,3 +1,5 @@
+-c ../requirements.txt
+
 # Building
 scikit-build
 # Documentation

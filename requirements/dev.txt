@@ -39,8 +39,9 @@ idna==3.3
     # via requests
 imagesize==1.2.0
     # via sphinx
-importlib-metadata==4.8.1
+importlib-metadata==4.8.1 ; python_version < "3.8"
     # via
+    #   -c requirements/../requirements.txt
     #   click
     #   pep517
 ipython==7.16.1
@@ -126,6 +127,7 @@ typed-ast==1.4.3
     # via black
 typing-extensions==3.10.0.2
     # via
+    #   -c requirements/../requirements.txt
     #   black
     #   importlib-metadata
 urllib3==1.26.7
@@ -136,8 +138,9 @@ wheel==0.37.0
     # via
     #   pip-tools
     #   scikit-build
-zipp==3.5.0
+zipp==3.6.0
     # via
+    #   -c requirements/../requirements.txt
     #   importlib-metadata
     #   pep517
 
