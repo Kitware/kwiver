@@ -29,8 +29,8 @@ namespace algo {
 
 write_track_descriptor_set
 ::write_track_descriptor_set()
-  : m_stream( 0 )
-    , m_stream_owned( false )
+  : m_stream( 0 ),
+    m_stream_owned( false )
 {
   attach_logger( "algo.write_track_descriptor_set" );
 }
