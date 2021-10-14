@@ -7,8 +7,9 @@
  * \brief video_input algorithm definition instantiation
  */
 
-#include <vital/algo/algorithm.txx>
 #include <vital/algo/video_input.h>
+
+#include <vital/algo/algorithm.txx>
 
 namespace kwiver {
 
