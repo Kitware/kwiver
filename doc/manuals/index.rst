@@ -14,12 +14,15 @@ Contents:
    :maxdepth: 2
 
    introduction
-   vital/architecture
+   developer/index
+
+.. vital/architecture
    arrows/architecture
    sprokit/sprokit
    tools
    tutorials
    extentions
+
 
 Indices and tables
 ==================
