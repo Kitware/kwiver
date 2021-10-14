@@ -110,7 +110,7 @@ public:
                                              location.get_line_number() );
 
     this->m_loggerImpl->fatal( msg, cxx_location );
-    do_callback(LEVEL_FATAL, msg, location));
+    do_callback(LEVEL_FATAL, msg, location);
   }
 
   // ------------------------------------------------------------------
