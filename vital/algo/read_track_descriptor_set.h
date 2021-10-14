@@ -53,10 +53,11 @@ public:
    * \param filename Name of file to open
    *
    * \throws kwiver::vital::path_not_exists Thrown when the given path does not
-   * exist.
+   *                                        exist.
    *
    * \throws kwiver::vital::path_not_a_file Thrown when the given path does
-   *    not point to a file (i.e. it points to a directory).
+   *                                        not point to a file (i.e. it points
+   *                                        to a directory).
    *
    * \throws kwiver::vital::file_not_found_exception
    */
@@ -88,7 +89,7 @@ public:
    * file. \b False is returned when the end of file is reached.
    *
    * \param[out] set Pointer to the new set of track descriptors. Set may be
-   * empty if there are no track descriptors on an image.
+   *                 empty if there are no track descriptors on an image.
    *
    * @return \b true if track descriptors are returned, \b false if end of
    * file.
