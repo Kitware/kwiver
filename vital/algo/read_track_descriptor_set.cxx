@@ -29,8 +29,8 @@ namespace algo {
 
 read_track_descriptor_set
 ::read_track_descriptor_set()
-  : m_stream( 0 )
-    , m_stream_owned( false )
+  : m_stream( 0 ),
+    m_stream_owned( false )
 {
   attach_logger( "algo.read_track_descriptor_set" );
 }
