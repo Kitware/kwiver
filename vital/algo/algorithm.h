@@ -313,8 +313,8 @@ public:
 
 #endif
 
-} // end namespace vital
+} // namespace vital
 
-} // end namespace kwiver
+} // namespace kwiver
 
 #endif // VITAL_ALGO_ALGORITHM_H_

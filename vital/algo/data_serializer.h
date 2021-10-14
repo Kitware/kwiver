@@ -121,7 +121,7 @@ protected:
 /// Shared pointer for detect_features algorithm definition class
 typedef std::shared_ptr< data_serializer > data_serializer_sptr;
 
-} // end namespaces
+} // namespace algo
 
 } // namespace vital
 

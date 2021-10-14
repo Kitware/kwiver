@@ -95,6 +95,6 @@ typedef std::shared_ptr< initialize_cameras_landmarks >
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_INITIALIZE_CAMERAS_LANDMARKS_H_

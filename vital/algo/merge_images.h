@@ -40,4 +40,4 @@ typedef std::shared_ptr< merge_images > merge_images_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver

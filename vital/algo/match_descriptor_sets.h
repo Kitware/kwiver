@@ -99,6 +99,6 @@ typedef std::shared_ptr< match_descriptor_sets > match_descriptor_sets_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_MATCH_DESCRIPTOR_SETS_H_

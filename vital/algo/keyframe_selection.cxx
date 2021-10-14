@@ -22,7 +22,7 @@ keyframe_selection
 
 } // namespace vital
 
-}   // end namespace
+} // namespace kwiver
 
 /// \cond DoxygenSuppress
 INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::keyframe_selection );

@@ -96,6 +96,6 @@ protected:
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif /* VITAL_ALGO_INTERPOLATE_TRACK_H */

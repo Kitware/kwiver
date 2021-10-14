@@ -126,6 +126,6 @@ typedef std::shared_ptr< read_track_descriptor_set >
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_READ_TRACK_DESCRIPTOR_SET_H

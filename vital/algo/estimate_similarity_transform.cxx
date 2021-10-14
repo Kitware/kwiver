@@ -187,4 +187,4 @@ estimate_similarity_transform
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver

@@ -40,7 +40,7 @@ match_descriptor_sets
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 /// \cond DoxygenSuppress
 INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::match_descriptor_sets );

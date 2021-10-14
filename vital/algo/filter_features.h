@@ -86,6 +86,6 @@ typedef std::shared_ptr< filter_features > filter_features_sptr;
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_FILTER_FEATURES_H_

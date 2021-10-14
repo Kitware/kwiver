@@ -52,6 +52,6 @@ typedef std::shared_ptr< handle_descriptor_request >
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 #endif // VITAL_ALGO_CONVERT_IMAGE_H_

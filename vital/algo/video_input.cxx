@@ -76,7 +76,7 @@ video_input
 
 } // namespace vital
 
-}     // end namespace
+} // namespace kwiver
 
 /// \cond DoxygenSuppress
 INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::video_input );

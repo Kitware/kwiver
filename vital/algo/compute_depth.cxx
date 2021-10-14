@@ -41,11 +41,11 @@ const
                   reference_frame, roi, depth_uncertainty, masks );
 }
 
-}  // end namespace algo
+}  // namespace algo
 
-}  // end namespace vital
+}  // namespace vital
 
-}  // end namespace kwiver
+}  // namespace kwiver
 
 /// \cond DoxygenSuppress
 INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::compute_depth );
