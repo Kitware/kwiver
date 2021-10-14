@@ -9,16 +9,16 @@
 
 #include <vital/util/string_editor.h>
 
+#include <istream>
 #include <string>
 #include <vector>
-#include <istream>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 class string_editor;
 
 // ----------------------------------------------------------------
+
 /**
  * @brief Stream reader class
  *
@@ -32,34 +32,33 @@ class string_editor;
  * processing.
  *
  * Example:
-\code
-  std::ifstream ifs( filename.c_str() );
-  if ( ! ifs )
-  {
-    LOG_ERROR( logger, "Could not open file \"" << filename << "\"" );
-    return;
-  }
-
-  // use data stream reader to allow for comments and blank lines
-  kwiver::vital::data_stream_reader dsr( ifs );
-
-  std::string line;
-  while ( dsr.getline( line ) ) // fails on EOF
-  {
-    // process line
-
-     if (error_found)
-     {
-       LOG_ERROR( logger, "Error in file at line: " << dsr.line_number() );
-     }
-
-  }
-\endcode
+ *  \code
+ *  std::ifstream ifs( filename.c_str() );
+ *  if ( ! ifs )
+ *  {
+ *   LOG_ERROR( logger, "Could not open file \"" << filename << "\"" );
+ *   return;
+ *  }
+ *
+ *  // use data stream reader to allow for comments and blank lines
+ *  kwiver::vital::data_stream_reader dsr( ifs );
+ *
+ *  std::string line;
+ *  while ( dsr.getline( line ) ) // fails on EOF
+ *  {
+ *   // process line
+ *
+ *    if (error_found)
+ *    {
+ *      LOG_ERROR( logger, "Error in file at line: " << dsr.line_number() );
+ *    }
+ *
+ *  }
+ *  \endcode
  */
 class VITAL_UTIL_EXPORT data_stream_reader
 {
 public:
-
   /**
    * @brief Create new reader on input stream.
    *
@@ -134,6 +133,6 @@ private:
   string_editor m_string_editor;
 }; // end class file_reader
 
-} } // end namespace
+} // namespace kwiver::vital
 
 #endif // VITAL_UTIL_STREAM_DATA_READER_H

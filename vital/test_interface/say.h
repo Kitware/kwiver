@@ -9,7 +9,6 @@
 
 namespace kwiver::vital {
 
-
 class say : public pluggable
 {
 public:
@@ -24,9 +23,8 @@ public:
   virtual std::string says() = 0;
 };
 
-typedef std::shared_ptr<say> say_sptr;
+typedef std::shared_ptr< say > say_sptr;
 
-
-}
+} // namespace kwiver::vital
 
 #endif //VITAL_TEST_INTERFACE_INTERFACE_H

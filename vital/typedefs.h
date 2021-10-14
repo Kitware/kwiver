@@ -12,13 +12,12 @@
 #ifndef KWIVER_CORE_TYPES_H
 #define KWIVER_CORE_TYPES_H
 
-#include <string>
-#include <vector>
 #include <cstdint>
 #include <memory>
+#include <string>
+#include <vector>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 /// The type to be used for general strings
 typedef std::string string_t;
@@ -36,6 +35,6 @@ enum class clone_type
   DEEP,
 };
 
-} } // end namespace
+} // namespace kwiver::vital
 
 #endif // KWIVER_CORE_TYPES_H

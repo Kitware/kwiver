@@ -10,18 +10,20 @@
 #ifndef VITAL_TYPES_POLYGON_H
 #define VITAL_TYPES_POLYGON_H
 
+#include <vital/types/vector.h>
 #include <vital/vital_config.h>
 #include <vital/vital_export.h>
-#include <vital/types/vector.h>
 
 #include <initializer_list>
 #include <memory>
 #include <vector>
 
 namespace kwiver {
+
 namespace vital {
 
 // ----------------------------------------------------------------
+
 /**
  * @brief Abstract base polygon class.
  *
@@ -137,6 +139,8 @@ private:
 typedef std::shared_ptr< polygon > polygon_sptr;
 typedef std::vector< polygon_sptr >  polygon_sptr_list;
 
-} } // end namespace
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // VITAL_TYPES_POLYGON_H

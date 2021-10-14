@@ -9,8 +9,7 @@
 
 #include "math.h"
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 math_exception
 ::math_exception() noexcept
@@ -46,7 +45,7 @@ point_maps_to_infinity
 }
 
 invalid_matrix_operation
-::invalid_matrix_operation(std::string reason) noexcept
+::invalid_matrix_operation( std::string reason ) noexcept
 {
   m_what = "Invalid operation: " + reason;
 }
@@ -56,4 +55,4 @@ invalid_matrix_operation
 {
 }
 
-} } // end vital namespace
+} // namespace kwiver::vital

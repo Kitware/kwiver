@@ -7,16 +7,17 @@
  * \brief test util string_editor class
  */
 #include <vital/util/token_expander.h>
+#include <vital/util/token_type_env.h>
 #include <vital/util/token_type_symtab.h>
 #include <vital/util/token_type_sysenv.h>
-#include <vital/util/token_type_env.h>
 
 #include <gtest/gtest.h>
 
 using namespace kwiver::vital;
 
 // ----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int
+main( int argc, char** argv )
 {
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
@@ -25,7 +26,8 @@ int main(int argc, char** argv)
 namespace {
 
 // ----------------------------------------------------------------------------
-void initialize( token_expander& expander )
+void
+initialize( token_expander& expander )
 {
   auto* symtab = new token_type_symtab{ "LOCAL" };
   expander.add_token_type( symtab );
@@ -38,19 +40,21 @@ void initialize( token_expander& expander )
 class expander_no_fill : public token_expander
 {
 protected:
-  virtual bool handle_missing_entry(
+  virtual bool
+  handle_missing_entry(
     const std::string& provider, const std::string& entry ) override
   { std::cerr << provider << ':' << entry << std::endl; return false; }
 
-  virtual bool handle_missing_provider(
+  virtual bool
+  handle_missing_provider(
     const std::string& provider, const std::string& entry ) override
   { std::cerr << provider << ':' << entry << std::endl; return false; }
 };
 
-}
+} // namespace
 
 // ----------------------------------------------------------------------------
-TEST(token_expander, basic)
+TEST ( token_expander, basic )
 {
   token_expander expander;
   initialize( expander );
@@ -81,7 +85,7 @@ TEST(token_expander, basic)
 }
 
 // ----------------------------------------------------------------------------
-TEST(token_expander, missing_default)
+TEST ( token_expander, missing_default )
 {
   token_expander expander;
   initialize( expander );
@@ -96,7 +100,7 @@ TEST(token_expander, missing_default)
 }
 
 // ----------------------------------------------------------------------------
-TEST(token_expander, missing_override)
+TEST ( token_expander, missing_override )
 {
   expander_no_fill expander;
   initialize( expander );

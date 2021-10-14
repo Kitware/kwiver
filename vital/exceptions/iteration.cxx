@@ -11,19 +11,18 @@
 
 #include <sstream>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // ----------------------------------------------------------------------------
-stop_iteration_exception::
-stop_iteration_exception( std::string const& container ) noexcept
+stop_iteration_exception
+::stop_iteration_exception( std::string const& container ) noexcept
 {
   std::ostringstream ss;
 
-  ss << "Attempt to iterate past the end of a "
-     << container << " container.";
+  ss    << "Attempt to iterate past the end of a "
+        << container << " container.";
 
   m_what = ss.str();
 }
 
-} } // end namespaces
+} // namespace kwiver::vital

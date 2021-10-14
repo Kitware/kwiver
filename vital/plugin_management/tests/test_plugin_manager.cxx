@@ -9,7 +9,8 @@
 using namespace kwiver::vital;
 
 // ----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int
+main( int argc, char** argv )
 {
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
@@ -17,24 +18,13 @@ int main(int argc, char** argv)
 
 // ----------------------------------------------------------------------------
 // By default the plugin manager should have at least one search path.
-TEST(plugin_manager, default_search_paths)
+TEST ( plugin_manager, default_search_paths )
 {
   plugin_manager& vpm = plugin_manager::instance();
   EXPECT_GT( vpm.search_path().size(), 0 );
 }
 
 //// ----------------------------------------------------------------------------
-//TEST(plugin_manager, module_marking)
-//{
-//  const auto module = plugin_manager::module_t{ "module" };
-//  plugin_manager& vpm = plugin_manager::instance();
-//
-//  EXPECT_FALSE( vpm.is_module_loaded( module ) );
-//
-//  vpm.mark_module_as_loaded( module );
-//
-//  EXPECT_TRUE( vpm.is_module_loaded( module ) );
-//}
 
 // Tests to add
 //

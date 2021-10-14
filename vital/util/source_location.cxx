@@ -10,39 +10,40 @@
 #include "source_location.h"
 
 namespace kwiver {
+
 namespace vital {
 
 // ------------------------------------------------------------------
-source_location::
-source_location()
-  : m_line_num(0)
-{ }
+source_location
+::source_location()
+  : m_line_num( 0 )
+{}
 
 // ------------------------------------------------------------------
-source_location::
-source_location( std::shared_ptr< std::string > f, int l)
-  : m_file_name(f)
-  , m_line_num(l)
-{ }
+source_location
+::source_location( std::shared_ptr< std::string > f, int l )
+  : m_file_name( f ),
+    m_line_num( l )
+{}
 
 // ------------------------------------------------------------------
-source_location::
-source_location( const source_location& other )
-  : m_file_name(other.m_file_name)
-  , m_line_num( other.m_line_num )
-{ }
+source_location
+::source_location( const source_location& other )
+  : m_file_name( other.m_file_name ),
+    m_line_num( other.m_line_num )
+{}
 
 // ------------------------------------------------------------------
 source_location::
 ~source_location()
-{ }
+{}
 
 // ------------------------------------------------------------------
-std::ostream &
-source_location::
-format (std::ostream & str) const
+std::ostream&
+source_location
+::format( std::ostream& str ) const
 {
-  if (m_line_num > 0)
+  if( m_line_num > 0 )
   {
     str << *m_file_name << ":" << m_line_num;
   }
@@ -52,12 +53,14 @@ format (std::ostream & str) const
 
 // ------------------------------------------------------------------
 bool
-source_location::
-valid() const
+source_location
+::valid() const
 {
-  return (  m_line_num > 0) &&
-    ( m_file_name ) &&
-    ( ! m_file_name->empty() );
+  return (  m_line_num > 0 ) &&
+         ( m_file_name ) &&
+         ( !m_file_name->empty() );
 }
 
-} } // end namespace
+} // namespace vital
+
+}   // end namespace

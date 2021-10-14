@@ -5,35 +5,36 @@
 #include "string_editor.h"
 
 namespace kwiver {
+
 namespace vital {
 
 // ------------------------------------------------------------------
-string_editor::
-string_editor()
-{ }
+string_editor
+::string_editor()
+{}
 
 string_editor::
 ~string_editor()
-{ }
+{}
 
 // ------------------------------------------------------------------
 void
-string_editor::
-add( string_edit_operation* op )
+string_editor
+::add( string_edit_operation* op )
 {
   m_editor_list.push_back( std::shared_ptr< string_edit_operation >( op ) );
 }
 
 // ------------------------------------------------------------------
 bool
-string_editor::
-edit( std::string& str )
+string_editor
+::edit( std::string& str )
 {
   bool result( true );
 
   for( auto op : m_editor_list )
   {
-    if ( ! op->process( str ) )
+    if( !op->process( str ) )
     {
       result = false;
       break;
@@ -43,4 +44,6 @@ edit( std::string& str )
   return result;
 }
 
-} }   // end namespace
+} // namespace vital
+
+} // namespace kwiver

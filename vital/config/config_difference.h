@@ -9,16 +9,17 @@
 #ifndef CONFIG_CONFIG_DIFFERENCE_H
 #define CONFIG_CONFIG_DIFFERENCE_H
 
-#include <vital/config/vital_config_export.h>
 #include <vital/config/config_block.h>
+#include <vital/config/vital_config_export.h>
 #include <vital/logger/kwiver_logger.h>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // -----------------------------------------------------------------
-/// Config difference class for validating provided config.
+
 /**
+ * \brief Config difference class for validating provided config.
+ *
  * This class performs differencing between a reference set of config
  * entries, such as your expected config block, and a config block
  * that is passed to the class. These two config blocks are diff'd two
@@ -39,31 +40,36 @@ namespace vital {
  * The following example shows how the config difference might be used
  * to detect config errors.
  *
- \code
-  //                                    ref-config                received-config
-  kwiver::vital::config_difference cd( this->get_configuration(), config );
-  const auto key_list = cd.extra_keys();
-  if ( ! key_list.empty() )
-  {
-    // This may be considered an error in some cases
-    LOG_WARN( logger(), "Additional parameters found in config block that are not required or desired: "
-              << kwiver::vital::join( key_list, ", " ) );
-  }
-
-  key_list = cd.unspecified_keys();
-  if ( ! key_list.empty() )
-  {
-    LOG_WARN( logger(), "Parameters that were not supplied in the config, using default values: "
-              << kwiver::vital::join( key_list, ", " ) );
-  }
- \endcode
+ *  \code
+ *  //                                    ref-config
+ *                received-config
+ *  kwiver::vital::config_difference cd( this->get_configuration(), config );
+ *  const auto key_list = cd.extra_keys();
+ *  if ( ! key_list.empty() )
+ *  {
+ *   // This may be considered an error in some cases
+ *   LOG_WARN( logger(), "Additional parameters found in config block that are
+ * not required or desired: "
+ *             << kwiver::vital::join( key_list, ", " ) );
+ *  }
+ *
+ *  key_list = cd.unspecified_keys();
+ *  if ( ! key_list.empty() )
+ *  {
+ *   LOG_WARN( logger(), "Parameters that were not supplied in the config,
+ * using default values: "
+ *             << kwiver::vital::join( key_list, ", " ) );
+ *  }
+ *  \endcode
  *
  */
 class VITAL_CONFIG_EXPORT config_difference
 {
 public:
-  config_difference( const config_block_sptr reference, const config_block_sptr other );
-  config_difference( config_block_keys_t const& reference, const config_block_sptr other );
+  config_difference( const config_block_sptr reference,
+                     const config_block_sptr other );
+  config_difference( config_block_keys_t const& reference,
+                     const config_block_sptr other );
   virtual ~config_difference();
 
   /**
@@ -113,7 +119,7 @@ public:
    *
    * @return True if warning was generated
    */
-  bool warn_extra_keys(kwiver::vital::logger_handle_t logger) const;
+  bool warn_extra_keys( kwiver::vital::logger_handle_t logger ) const;
 
   /**
    * @brief Issue log warning for unspecified keys
@@ -125,14 +131,13 @@ public:
    *
    * @return True if warning was generated
    */
-  bool warn_unspecified_keys(kwiver::vital::logger_handle_t logger) const;
+  bool warn_unspecified_keys( kwiver::vital::logger_handle_t logger ) const;
 
 private:
   config_block_keys_t m_extra_keys;
   config_block_keys_t m_missing_keys;
-
 }; // end class config_difference
 
-} } // end namespace
+} // namespace kwiver::vital
 
 #endif // CONFIG_CONFIG_DIFFERENCE_H

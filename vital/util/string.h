@@ -7,12 +7,13 @@
 
 #include <vital/util/vital_util_export.h>
 
+#include <set>
 #include <stdarg.h>  // For va_start, etc.
 #include <string>
 #include <vector>
-#include <set>
 
 namespace kwiver {
+
 namespace vital {
 
 /**
@@ -40,12 +41,13 @@ string_format( const std::string fmt_str, ... );
  * @return \b true if string starts with pattern
  */
 inline bool
-starts_with( const std::string& input, const std::string& pattern)
+starts_with( const std::string& input, const std::string& pattern )
 {
-  return (0 == input.compare( 0, pattern.size(), pattern ) );
+  return ( 0 == input.compare( 0, pattern.size(), pattern ) );
 }
 
 //@}
+
 /**
  * @brief Join a set of strings with specified separator.
  *
@@ -59,10 +61,12 @@ starts_with( const std::string& input, const std::string& pattern)
  * @return Single string with all elements joined with separator.
  */
 VITAL_UTIL_EXPORT std::string
-join( const std::vector<std::string>& elements, const std::string& str_separator);
+join( const std::vector< std::string >& elements,
+      const std::string& str_separator );
 
 VITAL_UTIL_EXPORT std::string
-join( const std::set<std::string>& elements, const std::string& str_separator);
+join( const std::set< std::string >& elements,
+      const std::string& str_separator );
 //@}
 
 /**
@@ -75,7 +79,7 @@ join( const std::set<std::string>& elements, const std::string& str_separator);
  * @param[in,out] items Vector of strings to modify inplace
  */
 VITAL_UTIL_EXPORT void
-erase_duplicates(std::vector<std::string>& items);
+erase_duplicates( std::vector< std::string >& items );
 
 /**
  * @brief Removes whitespace from left side of string.
@@ -112,11 +116,13 @@ right_trim( std::string& s )
 inline std::string&
 string_trim( std::string& s )
 {
-  right_trim(s);
-  left_trim(s);
+  right_trim( s );
+  left_trim( s );
   return s;
 }
 
-} } // end namespace
+} // namespace vital
+
+} // namespace kwiver
 
 #endif /* KWIVER_VITAL_UTIL_STRING_FORMAT_H */

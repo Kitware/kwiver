@@ -13,8 +13,7 @@
 #include "base.h"
 #include <string>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // ------------------------------------------------------------------
 /// VITAL Generic IO exception
@@ -34,11 +33,11 @@ class VITAL_EXCEPTIONS_EXPORT path_not_exists
   : public io_exception
 {
 public:
-  /// Constructor
   /**
+   * @brief Constructor
    * \param path The path that doesn't point to an existing file or directory
    */
-  path_not_exists(std::string const& path) noexcept;
+  path_not_exists( std::string const& path ) noexcept;
   /// Destructor
   virtual ~path_not_exists() noexcept;
 };
@@ -49,11 +48,11 @@ class VITAL_EXCEPTIONS_EXPORT path_not_a_file
   : public io_exception
 {
 public:
-  /// Constructor
   /**
+   * @brief Constructor
    * \param path The path that doesn't point to a file.
    */
-  path_not_a_file(std::string const& path) noexcept;
+  path_not_a_file( std::string const& path ) noexcept;
   /// Destructor
   virtual ~path_not_a_file() noexcept;
 };
@@ -64,11 +63,11 @@ class VITAL_EXCEPTIONS_EXPORT path_not_a_directory
   : public io_exception
 {
 public:
-  /// Constructor
   /**
+   * @brief Constructor
    * \param path The path that doesn't point to a directory.
    */
-  path_not_a_directory(std::string const& path) noexcept;
+  path_not_a_directory( std::string const& path ) noexcept;
   /// Destructor
   virtual ~path_not_a_directory() noexcept;
 };
@@ -79,12 +78,12 @@ class VITAL_EXCEPTIONS_EXPORT invalid_file
   : public io_exception
 {
 public:
-  /// Constructor
-  /*
+  /**
+   * @brief Constructor
    * \param file    The file that has been deemed invalid
    * \param reason  The reason for invalidity.
    */
-  invalid_file(std::string const& file, std::string const& reason) noexcept;
+  invalid_file( std::string const& file, std::string const& reason ) noexcept;
   /// Destructor
   virtual ~invalid_file() noexcept;
 };
@@ -96,7 +95,7 @@ class VITAL_EXCEPTIONS_EXPORT invalid_data
 {
 public:
   /// Constructor
-  invalid_data(std::string const& reason) noexcept;
+  invalid_data( std::string const& reason ) noexcept;
   /// Destructor
   virtual ~invalid_data() noexcept;
 };
@@ -107,12 +106,13 @@ class VITAL_EXCEPTIONS_EXPORT file_not_found_exception
   : public io_exception
 {
 public:
-  /// Constructor
   /**
+   * @brief Constructor
    * \param file_path The file path that was looked for.
    * \param reason    The reason the file wasn't found.
    */
-  file_not_found_exception( std::string const& file_path, std::string const& reason ) noexcept;
+  file_not_found_exception( std::string const& file_path,
+                            std::string const& reason ) noexcept;
   /// Deconstructor
   virtual ~file_not_found_exception() noexcept;
 };
@@ -123,12 +123,13 @@ class VITAL_EXCEPTIONS_EXPORT file_not_read_exception
   : public io_exception
 {
 public:
-  ///Constructor
   /**
+   * @brief Constructor
    * \param file_path The file path on which the read was attempted.
    * \param reason    The reason for the read exception.
    */
-  file_not_read_exception( std::string const& file_path, std::string const& reason ) noexcept;
+  file_not_read_exception( std::string const& file_path,
+                           std::string const& reason ) noexcept;
   /// Deconstructor
   virtual ~file_not_read_exception() noexcept;
 };
@@ -139,16 +140,17 @@ class VITAL_EXCEPTIONS_EXPORT file_write_exception
   : public io_exception
 {
 public:
-  /// Constructor
   /**
+   * @brief Constructor
    * \param file_path The file path to which the write was attempted.
    * \param reason    The reason for the exception
    */
-  file_write_exception( std::string const& file_path, std::string const& reason ) noexcept;
+  file_write_exception( std::string const& file_path,
+                        std::string const& reason ) noexcept;
   /// Deconstructor
   virtual ~file_write_exception() noexcept;
 };
 
-} } // end vital namespace
+} // namespace kwiver::vital
 
 #endif // VITAL_CORE_EXCEPTIONS_IO_H

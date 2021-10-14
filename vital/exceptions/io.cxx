@@ -10,8 +10,7 @@
 #include "io.h"
 #include <sstream>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // ------------------------------------------------------------------
 io_exception
@@ -93,7 +92,8 @@ invalid_data
 
 // ------------------------------------------------------------------
 file_not_found_exception
-::file_not_found_exception( std::string const& file_path, std::string const& reason ) noexcept
+::file_not_found_exception( std::string const& file_path,
+                            std::string const& reason ) noexcept
 {
   std::ostringstream sstr;
 
@@ -109,7 +109,8 @@ file_not_found_exception
 
 // ------------------------------------------------------------------
 file_not_read_exception
-::file_not_read_exception( std::string const& file_path, std::string const& reason ) noexcept
+::file_not_read_exception( std::string const& file_path,
+                           std::string const& reason ) noexcept
 {
   std::ostringstream sstr;
 
@@ -125,7 +126,8 @@ file_not_read_exception
 
 // ------------------------------------------------------------------
 file_write_exception
-::file_write_exception( std::string const& file_path, std::string const& reason ) noexcept
+::file_write_exception( std::string const& file_path,
+                        std::string const& reason ) noexcept
 {
   std::ostringstream sstr;
 
@@ -139,4 +141,4 @@ file_write_exception
 {
 }
 
-} }   // end vital namespace
+} // namespace kwiver::vital

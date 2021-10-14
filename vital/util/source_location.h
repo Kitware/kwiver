@@ -12,14 +12,16 @@
 
 #include <vital/util/vital_util_export.h>
 
+#include <memory>
 #include <ostream>
 #include <string>
-#include <memory>
 
 namespace kwiver {
+
 namespace vital {
 
 // ----------------------------------------------------------------
+
 /**
  * @brief Location in a source file.
  *
@@ -63,7 +65,8 @@ public:
    *
    * @return File name string.
    */
-  std::string const& file() const { return *m_file_name; }
+  std::string const&
+  file() const { return *m_file_name; }
 
   /**
    * @brief Get line number.
@@ -72,7 +75,8 @@ public:
    *
    * @return Line number of definition.
    */
-  int line() const { return m_line_num; }
+  int
+  line() const { return m_line_num; }
 
   /**
    * @brief Determine of object has valid data.
@@ -95,6 +99,8 @@ inline std::ostream&
 operator<<( std::ostream& str, source_location const& obj )
 { return obj.format( str ); }
 
-} } // end namespace
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // KWIVER_VITAL_UTIL_SOURCE_LOCATION_H

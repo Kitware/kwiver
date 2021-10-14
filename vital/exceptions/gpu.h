@@ -14,11 +14,10 @@
 
 #include <vital/exceptions/base.h>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // ------------------------------------------------------------------
-/// Generic GPU exception
+/// @brief Generic GPU exception
 class VITAL_EXCEPTIONS_EXPORT gpu_exception
   : public vital_exception
 {
@@ -31,8 +30,8 @@ public:
 };
 
 // ------------------------------------------------------------------
-/// Video runtime error.
-/*
+
+/**
  * This exception is thrown when the GPU is unable to allocate memory
  */
 class VITAL_EXCEPTIONS_EXPORT gpu_memory_exception
@@ -46,6 +45,6 @@ public:
   virtual ~gpu_memory_exception() noexcept;
 };
 
-} } // end namespace
+} // namespace kwiver::vital
 
 #endif /* VITAL_CORE_EXCEPTIONS_GPU_H */

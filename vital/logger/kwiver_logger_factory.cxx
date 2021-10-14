@@ -5,29 +5,37 @@
 #include "kwiver_logger_factory.h"
 
 namespace kwiver {
+
 namespace vital {
+
 namespace logger_ns {
 
 // ----------------------------------------------------------------
+
 /**
  *
  *
  */
 kwiver_logger_factory
 ::kwiver_logger_factory( std::string const& name )
-  :m_name(name)
-{ }
+  : m_name( name )
+{}
 
 kwiver_logger_factory
 ::~kwiver_logger_factory()
-{ }
+{}
 
 // ------------------------------------------------------------------
 // Get location strings
-std::string const & kwiver_logger_factory
+std::string const&
+kwiver_logger_factory
 ::get_factory_name() const
 {
   return m_name;
 }
 
-} } } // end namespace
+} // namespace logger_ns
+
+} // namespace vital
+
+} // namespace kwiver

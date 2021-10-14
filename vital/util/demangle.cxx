@@ -7,35 +7,33 @@
 #include <vital/vital_config.h>
 
 #if VITAL_USE_ABI_DEMANGLE
-
-#include <cxxabi.h>
-#include <cstdlib>
-
+# include <cstdlib>
+# include <cxxabi.h>
 #endif
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // ------------------------------------------------------------------
-std::string demangle( std::string const& sym )
+std::string
+demangle( std::string const& sym )
 {
   return demangle( sym.c_str() );
 }
 
 // ------------------------------------------------------------------
-std::string demangle( char const* sym )
+std::string
+demangle( char const* sym )
 {
-
 #if VITAL_USE_ABI_DEMANGLE
 
   std::string tname( sym );
   int status;
-  char* demangled_name = abi::__cxa_demangle(sym, NULL, NULL, &status);
+  char* demangled_name = abi::__cxa_demangle( sym, NULL, NULL, &status );
 
   if( 0 == status )
   {
     tname = demangled_name;
-    std::free(demangled_name);
+    std::free( demangled_name );
   }
 
   return tname;
@@ -47,4 +45,4 @@ std::string demangle( char const* sym )
 #endif
 }
 
-} } // end namespace
+} // namespace kwiver::vital

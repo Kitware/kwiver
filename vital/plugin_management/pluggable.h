@@ -8,16 +8,13 @@
 #include <memory>
 #include <vital/plugin_management/vital_vpm_export.h>
 
-
-namespace kwiver::vital
-{
+namespace kwiver::vital {
 
 // ----------------------------------------------------------------------------
 // Pluggable base-class
 
 class pluggable;
-typedef std::shared_ptr<pluggable> pluggable_sptr;
-
+typedef std::shared_ptr< pluggable > pluggable_sptr;
 
 /**
  * Base-class for pluggable classes.
@@ -40,7 +37,8 @@ public:
    * Provide the human-readable string name of the interface.
    *
    * This is to be defined by the derived classes the define abstract
-   * interfaces. Concrete classes may define this, but it makes less sense to do
+   * interfaces. Concrete classes may define this, but it makes less sense to
+   * do
    */
   // static std::string interface_name() { return "pluggable"; };
 
@@ -50,7 +48,8 @@ public:
   // static std::set<std::string> interface_names();
 
   /**
-   * Curry construction of this concrete class from an input config_block instance.
+   * Curry construction of this concrete class from an input config_block
+   * instance.
    * This must be defined on concrete implementations as this is what will
    * return a real instance pointer.
    */
@@ -62,6 +61,7 @@ public:
   // static void get_default_config( config_block & cb );
 
   // TODO: Is this even really needed?
+
   /**
    * @brief Set into the given config_block the configuration of this instance
    *
@@ -77,25 +77,25 @@ protected:
   pluggable() = default;
 };
 
-
 // ----------------------------------------------------------------------------
 // Static-method Existence Helpers
 
 #define CREATE_HAS_CHECK( funcname ) \
-  template< typename T > \
+  template < typename T > \
   class has_##funcname final \
   { \
   private: \
-    typedef char r1[1]; \
-    typedef char r2[2]; \
-    template <typename C> static r1& test( decltype( &C::funcname ) ); \
-    template <typename C> static r2& test( ... ); \
+    typedef char r1 [ 1 ]; \
+    typedef char r2 [ 2 ]; \
+    template < typename C > static r1& test( decltype( &C::funcname ) ); \
+    template < typename C > static r2& test( ... ); \
   public: \
-    enum { value = sizeof(test<T>(nullptr)) == sizeof(r1) }; \
+    enum { value = sizeof( test< T >( nullptr ) ) == sizeof( r1 ), }; \
   }
 
 /**
- * Use SFINAE To check if the templated type has "interface_name" static method.
+ * Use SFINAE To check if the templated type has "interface_name" static
+ * method.
  *
  * Usage example:
  * @code
@@ -122,13 +122,12 @@ CREATE_HAS_CHECK( from_config );
  * @code
  *   static_assert( has_get_default_config<T>::value );
  * @endcode
-*/
+ */
 CREATE_HAS_CHECK( get_default_config );
 
 // Clean up our macro.
 #undef CREATE_HAS_CHECK
 
-
-}
+}// namespace kwiver::vital
 
 #endif //KWIVER_VITAL_PLUGGABLE_H_

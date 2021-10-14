@@ -9,8 +9,7 @@
 
 #include "plugin.h"
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // ------------------------------------------------------------------
 plugin_exception
@@ -25,7 +24,7 @@ plugin_exception
 
 // ------------------------------------------------------------------
 plugin_factory_not_found
-::plugin_factory_not_found( std::string const& msg) noexcept
+::plugin_factory_not_found( std::string const& msg ) noexcept
 {
   m_what = msg;
 }
@@ -37,7 +36,7 @@ plugin_factory_not_found
 
 // ------------------------------------------------------------------
 plugin_factory_type_creation_error
-::plugin_factory_type_creation_error( std::string const& msg) noexcept
+::plugin_factory_type_creation_error( std::string const& msg ) noexcept
 {
   m_what = msg;
 }
@@ -49,7 +48,7 @@ plugin_factory_type_creation_error
 
 // ------------------------------------------------------------------
 plugin_already_exists
-::plugin_already_exists( std::string const& msg) noexcept
+::plugin_already_exists( std::string const& msg ) noexcept
 {
   m_what = msg;
 }
@@ -59,4 +58,4 @@ plugin_already_exists
 {
 }
 
-} } // end namespace
+} // namespace kwiver::vital

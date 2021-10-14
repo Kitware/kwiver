@@ -11,8 +11,7 @@
 
 #include <sstream>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // ----------------------------------------------------------------------------
 image_exception
@@ -59,9 +58,9 @@ image_size_mismatch_exception
     m_given_h{ given_h }
 {
   std::ostringstream ss;
-  ss << message
-     << " (given: [" << given_w << ", " << given_h << "],"
-     << " should be: [" << correct_w << ", " << correct_h << "])";
+  ss    << message
+        << " (given: [" << given_w << ", " << given_h << "],"
+        << " should be: [" << correct_w << ", " << correct_h << "])";
   m_what = ss.str();
 }
 
@@ -71,5 +70,4 @@ image_size_mismatch_exception
 {
 }
 
-} // end namespace vital
-} // end namespace kwiver
+} // namespace kwiver::vital

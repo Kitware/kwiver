@@ -7,20 +7,21 @@
 
 #include "kwiver_logger.h"
 #include <vital/logger/vital_logger_export.h>
-
-#include <string>
-#include <memory>
 #include <vital/noncopyable.h>
 
-namespace kwiver {
-namespace vital {
+#include <memory>
+#include <string>
+
+namespace kwiver::vital {
+
 namespace logger_ns {
 
-  class kwiver_logger_factory;
+class kwiver_logger_factory;
 
-}
+} // namespace logger_ns
 
 // ----------------------------------------------------------------
+
 /** Logger manager.
  *
  * This class represents the main top level logic for the KWIVER
@@ -28,13 +29,13 @@ namespace logger_ns {
  * singleton created by the static instance() method.
  */
 class VITAL_LOGGER_EXPORT kwiver_logger_manager
-  :private kwiver::vital::noncopyable
+  : private kwiver::vital::noncopyable
 {
 public:
   ~kwiver_logger_manager();
 
   /** Get the single instance of this class. */
-  static kwiver_logger_manager * instance();
+  static kwiver_logger_manager* instance();
 
   /**
    * @brief Get name of current logger factory.
@@ -55,21 +56,23 @@ public:
    *
    * @param fact Pointer to new factory.
    */
-  void set_logger_factory( std::unique_ptr< logger_ns::kwiver_logger_factory >&& fact );
+  void set_logger_factory(
+    std::unique_ptr< logger_ns::kwiver_logger_factory >&& fact );
 
 private:
   friend VITAL_LOGGER_EXPORT logger_handle_t
-    get_logger( const char * const name );
+  get_logger( const char* const name );
 
   kwiver_logger_manager();
   void load_factory( std::string const& lib_name );
 
   class impl;
+
   const std::unique_ptr< impl > m_impl;
 
-  static kwiver_logger_manager * s_instance;
+  static kwiver_logger_manager* s_instance;
 }; // end class kwiver_logger_manager
 
-} } // end namespace kwiver
+} // namespace kwiver::vital
 
 #endif

@@ -18,56 +18,61 @@
 #include <stdexcept>
 
 namespace kwiver {
+
 namespace vital {
 
 using geo_raw_polygon_t = geo_polygon::geo_raw_polygon_t;
 
 // ----------------------------------------------------------------------------
-geo_polygon::
-geo_polygon()
+geo_polygon
+::geo_polygon()
   : m_original_crs{ -1 }
-{ }
+{}
 
 // ----------------------------------------------------------------------------
-geo_polygon::
-geo_polygon( geo_raw_polygon_t const& polygon, int crs )
+geo_polygon
+::geo_polygon( geo_raw_polygon_t const& polygon, int crs )
   : m_original_crs( crs )
 {
   m_poly.insert( std::make_pair( crs, polygon ) );
 }
 
 // ----------------------------------------------------------------------------
-bool geo_polygon
+bool
+geo_polygon
 ::is_empty() const
 {
   return m_poly.empty();
 }
 
 // ----------------------------------------------------------------------------
-geo_raw_polygon_t geo_polygon
+geo_raw_polygon_t
+geo_polygon
 ::polygon() const
 {
   return m_poly.at( m_original_crs );
 }
 
 // ----------------------------------------------------------------------------
-int geo_polygon
+int
+geo_polygon
 ::crs() const
 {
   return m_original_crs;
 }
 
 // ----------------------------------------------------------------------------
-geo_raw_polygon_t geo_polygon
+geo_raw_polygon_t
+geo_polygon
 ::polygon( int crs ) const
 {
   auto const i = m_poly.find( crs );
-  if ( i == m_poly.end() )
+  if( i == m_poly.end() )
   {
     auto new_poly = geo_raw_polygon_t{};
     auto const verts = polygon().get_vertices();
 
-    for ( auto& v : verts )
+    for( auto& v : verts )
     {
       new_poly.push_back( geo_conv( v, m_original_crs, crs ) );
     }
@@ -79,7 +84,8 @@ geo_raw_polygon_t geo_polygon
 }
 
 // ----------------------------------------------------------------------------
-void geo_polygon
+void
+geo_polygon
 ::set_polygon( geo_raw_polygon_t const& poly, int crs )
 {
   m_original_crs = crs;
@@ -88,27 +94,31 @@ void geo_polygon
 }
 
 // ----------------------------------------------------------------------------
-template<>
+template <>
 geo_polygon
 config_block_get_value_cast( config_block_value_t const& value )
 {
   // Remove trailing spaces so we can reliably test when we run out of content
   auto i = std::find_if( value.rbegin(), value.rend(),
-                         []( char c ) { return !std::isspace( c ); } );
+                         []( char c ){ return !std::isspace( c ); } );
   std::stringstream s( std::string{ value.begin(), i.base() } );
 
   // Check for empty value
-  if ( s.peek(), s.eof() ) {
+  if( s.peek(), s.eof() )
+  {
     return {};
   }
 
   // Set up helper lambda to check for errors
-  auto try_or_die = [&value]( std::istream& in ) {
-    if ( in.fail() ) {
-      VITAL_THROW( bad_config_block_cast,
-                   "failed to convert from string representation \"" + value + "\"" );
-    }
-  };
+  auto try_or_die =
+    [ &value ]( std::istream& in ){
+      if( in.fail() )
+      {
+        VITAL_THROW( bad_config_block_cast,
+                     "failed to convert from string representation \"" + value +
+                     "\"" );
+      }
+    };
 
   int crs;
   try_or_die( s >> crs );
@@ -121,19 +131,19 @@ config_block_get_value_cast( config_block_value_t const& value )
     try_or_die( s >> x );
     try_or_die( s >> y );
     verts.push_back( { x, y } );
-  } while ( !s.eof() );
+  } while( !s.eof() );
 
   // Return geodetic polygon
   return { verts, crs };
 }
 
 // ----------------------------------------------------------------------------
-template<>
+template <>
 config_block_value_t
 config_block_set_value_cast( geo_polygon const& value )
 {
   // Handle empty polygon
-  if ( value.is_empty() )
+  if( value.is_empty() )
   {
     return {};
   }
@@ -146,21 +156,21 @@ config_block_set_value_cast( geo_polygon const& value )
   auto const& verts = value.polygon().get_vertices();
   auto const magnitude = std::accumulate(
     verts.begin(), verts.end(), 0.0,
-    []( double cur, vector_2d const& p ) {
-      return std::max( { cur, std::fabs( p[0] ), std::fabs( p[1] ) } );
-    });
+    []( double cur, vector_2d const& p ){
+      return std::max( { cur, std::fabs( p[ 0 ] ), std::fabs( p[ 1 ] ) } );
+    } );
   auto const integer_digits =
-    static_cast<int>( std::floor( std::log10( magnitude ) ) ) + 1;
+    static_cast< int >( std::floor( std::log10( magnitude ) ) ) + 1;
   auto const total_digits =
-    std::numeric_limits<double>::digits10 + 2;
+    std::numeric_limits< double >::digits10 + 2;
 
   str_result.precision( std::max( 0, total_digits - integer_digits ) );
   str_result.setf( std::ios::fixed );
 
   // Write vertex coordinates
-  for ( auto const& v : verts )
+  for( auto const& v : verts )
   {
-    str_result << " " << v[0] << " " << v[1];
+    str_result << " " << v[ 0 ] << " " << v[ 1 ];
   }
 
   // Return result
@@ -171,7 +181,7 @@ config_block_set_value_cast( geo_polygon const& value )
 std::ostream&
 operator<<( std::ostream& str, vital::geo_polygon const& obj )
 {
-  if ( obj.is_empty() )
+  if( obj.is_empty() )
   {
     str << "{ empty }";
   }
@@ -180,15 +190,17 @@ operator<<( std::ostream& str, vital::geo_polygon const& obj )
     auto const old_prec = str.precision();
     auto const verts = obj.polygon();
 
-    str.precision( std::numeric_limits<double>::digits10 + 2 );
+    str.precision( std::numeric_limits< double >::digits10 + 2 );
     str << "{";
-    for ( size_t n = 0; n < verts.num_vertices(); ++n )
+    for( size_t n = 0; n < verts.num_vertices(); ++n )
     {
-      if ( n ) {
+      if( n )
+      {
         str << ",";
       }
+
       auto const& v = verts.at( n );
-      str << " " << v[0] << " / " << v[1];
+      str << " " << v[ 0 ] << " / " << v[ 1 ];
     }
     str << " } @ " << obj.crs();
 
@@ -198,4 +210,6 @@ operator<<( std::ostream& str, vital::geo_polygon const& obj )
   return str;
 }
 
-} } // end namespace
+} // namespace vital
+
+} // namespace kwiver

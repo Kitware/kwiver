@@ -16,9 +16,11 @@
 #include <string>
 
 namespace kwiver {
+
 namespace vital {
 
 // ----------------------------------------------------------------
+
 /**
  * @brief Abstract base class for timers.
  *
@@ -28,8 +30,8 @@ class timer
 {
 public:
   timer()
-    : m_active(false)
-  { }
+    : m_active( false )
+  {}
 
   virtual ~timer()
   {
@@ -83,18 +85,18 @@ public:
    *
    * @return \b true if timer is currently active, \b false if not.
    */
-  bool is_active() const
+  bool
+  is_active() const
   {
     return m_active;
   }
 
 protected:
-
   bool m_active;
-
 }; // end class timer
 
 // -----------------------------------------------------------------
+
 /**
  * @brief Scoped timer.
  *
@@ -131,9 +133,10 @@ protected:
    *
    * @param interval Number of seconds in interval
    */
-  void format_interval( double interval )
+  void
+  format_interval( double interval )
   {
-    if ( ! m_title.empty() )
+    if( !m_title.empty() )
     {
       std::cerr << m_title << " - ";
     }
@@ -141,14 +144,14 @@ protected:
     std::cerr << "elapsed time: " << interval << " sec\n";
   }
 
-  std::string m_title; //< optional measurement title string
+  std::string m_title; // < optional measurement title string
 
 private:
-
   timer_t m_timer;
-
 }; // end class scoped timer
 
-} } // end namespace
+} // namespace vital
+
+} // namespace kwiver
 
 #endif /* KWIVER_VITAL_TIMER_H */

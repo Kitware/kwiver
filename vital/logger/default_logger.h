@@ -5,17 +5,20 @@
 #ifndef KWIVER_DEFAULT_LOGGER_H_
 #define KWIVER_DEFAULT_LOGGER_H_
 
-#include <vital/vital_config.h>
 #include "kwiver_logger_factory.h"
+#include <vital/vital_config.h>
 
 #include <map>
 #include <string>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace logger_ns {
 
 // ----------------------------------------------------------------
+
 /**
  * @brief Factory for default underlying logger.
  *
@@ -57,9 +60,12 @@ public:
 
 private:
   std::map< std::string, logger_handle_t > m_active_loggers;
-
 }; // end class logger_factory
 
-} } } // end namespace
+} // namespace logger_ns
+
+} // namespace vital
+
+} // namespace kwiver
 
 #endif

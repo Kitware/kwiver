@@ -5,13 +5,13 @@
 #ifndef KWIVER_VITAL_PLUGIN_FACTORY_H
 #define KWIVER_VITAL_PLUGIN_FACTORY_H
 
-#include <string>
-#include <sstream>
 #include <map>
-#include <vector>
-#include <stdexcept>
-#include <typeinfo>
 #include <memory>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <typeinfo>
+#include <vector>
 
 #include <vital/plugin_management/vital_vpm_export.h>
 
@@ -20,7 +20,6 @@
 #include <vital/noncopyable.h>
 #include <vital/plugin_management/pluggable.h>
 #include <vital/util/demangle.h>
-
 
 namespace kwiver::vital {
 
@@ -34,7 +33,7 @@ typedef std::vector< plugin_factory_handle_t >    plugin_factory_vector_t;
  * @tparam T Interface type.
  * @return String name of the interface type.
  */
-template< typename T >
+template < typename T >
 std::string
 get_interface_name()
 {
@@ -42,7 +41,7 @@ get_interface_name()
   // This is intentionally using an accessor vs. typeid(T).name() in order to
   // allow being able to get this information from a python object.
   // (of course, not through this function in that case...)
-  static_assert( has_interface_name<T>::value,
+  static_assert( has_interface_name< T >::value,
                  "The given interface type must define the static method "
                  "`interface_name` in order to know how to get at, or set, "
                  "it's factories." );
@@ -50,7 +49,7 @@ get_interface_name()
 }
 
 /// Common accessor to get a concrete type's name.
-template< typename T >
+template < typename T >
 std::string
 get_concrete_name()
 {
@@ -58,17 +57,19 @@ get_concrete_name()
 }
 
 // ==================================================================
+
 /**
  * @brief Abstract base class for plugin factory.
  *
- * NOTE: Previous implementation formed its creation methods NOT as pure-virtual
+ * NOTE: Previous implementation formed its creation methods NOT as
+ * pure-virtual
  * but with a return-null implementation. It seems that other "categories" of
  * factories hard-overwrite the "creation" function (`from_config` here) with
  * different parameterizations.
  */
 class VITAL_VPM_EXPORT plugin_factory
-  : public std::enable_shared_from_this< plugin_factory >
-  , private kwiver::vital::noncopyable
+  : public std::enable_shared_from_this< plugin_factory >,
+    private kwiver::vital::noncopyable
 {
 public:
   /// Default destructor
@@ -80,11 +81,16 @@ public:
   // specific to the application in the application wrapper for this
   // plugin factory/manager. Do not add local scope attributes to this
   // list.
-  static const std::string INTERFACE_TYPE;  // typeid name of the interface type
+  static const std::string INTERFACE_TYPE;  // typeid name of the interface
+                                            // type
   static const std::string CONCRETE_TYPE;  // typeid name of the concrete type
-  static const std::string PLUGIN_FILE_NAME;  // filesystem path from which this factory was registered from.
-  static const std::string PLUGIN_NAME;  // Human-readable name for plugin implementation.
-  static const std::string PLUGIN_CATEGORY;  // like if this is an algo, process, etc.
+  static const std::string PLUGIN_FILE_NAME;  // filesystem path from which
+                                              // this factory was registered
+                                              // from.
+  static const std::string PLUGIN_NAME;  // Human-readable name for plugin
+                                         // implementation.
+  static const std::string PLUGIN_CATEGORY;  // like if this is an algo,
+                                             // process, etc.
   static const std::string PLUGIN_PROCESS_PROPERTIES;
 
   // User settable
@@ -118,13 +124,14 @@ public:
    * @return Object instance of the registered type.
    * @throws kwiver::vital::plugin_factory_type_creation_error
    */
-  virtual pluggable_sptr from_config(config_block const& cb) const = 0;
+  virtual pluggable_sptr from_config( config_block const& cb ) const = 0;
 
   /**
    * @brief Populate a config block instance with the default configuration for
    *    the encapsulated type.
    *
-   * This requires that the concrete implementation class define a static method
+   * This requires that the concrete implementation class define a static
+   * method
    * `T::get_default_config(config_block & cb)` that assigns into the config
    * block appropriate parameters to, when set property by an outside agent,
    * successfully construct an instance via a call to
@@ -132,7 +139,7 @@ public:
    *
    * @param cb config block instance to write to.
    */
-  virtual void get_default_config( config_block & cb ) const = 0;
+  virtual void get_default_config( config_block& cb ) const = 0;
 
   /**
    * @brief Get attribute from factory
@@ -152,16 +159,20 @@ public:
    * @param attr Attribute name.
    * @param val Attribute value.
    */
-  plugin_factory& add_attribute( std::string const& attr, std::string const& val );
+  plugin_factory& add_attribute( std::string const& attr,
+                                 std::string const& val );
 
   //@{
+
   /**
    * @brief Iterate over all attributes some invokable `f`.
    *
    * @param f Some invokable type that takes two string parameters. These
    *    parameters will be the attribute key and value, respectively.
    */
-  template < class T > void for_each_attr( T& f )
+  template < class T >
+  void
+  for_each_attr( T& f )
   {
     for( auto val : m_attribute_map )
     {
@@ -175,43 +186,49 @@ public:
    * @param f Some invokable type that takes two string parameters. These
    *    parameters will be the attribute key and value, respectively.
    */
-  template < class T > void for_each_attr( T const& f ) const
+  template < class T >
+  void
+  for_each_attr( T const& f ) const
   {
     for( auto const val : m_attribute_map )
     {
       f( val.first, val.second );
     }
   }
+
   //@}
 
 private:
   typedef std::map< std::string, std::string > attribute_map_t;
+
   attribute_map_t m_attribute_map;
 };
 
 // ----------------------------------------------------------------
+
 /**
- * @brief Basic concrete factory templated on the concrete type to be created at
+ * @brief Basic concrete factory templated on the concrete type to be created
+ * at
  * runtime.
  *
- * This should be used to create a real factory that can create instances of the
- * templated 
+ * This should be used to create a real factory that can create instances of
+ * the
+ * templated
  *
  * @tparam INTERFACE Type of the interface the concrete class is based on.
  * @tparam CONCRETE Type of the concrete class created.
  */
-template< class INTERFACE, class CONCRETE >
+template < class INTERFACE, class CONCRETE >
 class concrete_plugin_factory
   : public plugin_factory
 {
 public:
-  static_assert( std::is_base_of<pluggable, INTERFACE>::value,
+  static_assert( std::is_base_of< pluggable, INTERFACE >::value,
                  "The given interface type did not descend from the pluggable "
                  "type." );
-  static_assert( std::is_base_of<INTERFACE, CONCRETE>::value,
+  static_assert( std::is_base_of< INTERFACE, CONCRETE >::value,
                  "The given concrete type is not based on the given "
                  "interface type." );
-
 
   /**
    * @brief Create concrete factory instance.
@@ -224,23 +241,25 @@ public:
   explicit concrete_plugin_factory( std::string const& plugin_name )
   {
     // Set some standard attributes
-    this->add_attribute( INTERFACE_TYPE, get_interface_name<INTERFACE>() )
-         .add_attribute( CONCRETE_TYPE, get_concrete_name<CONCRETE>() )
-         .add_attribute( PLUGIN_NAME, plugin_name );
+    this->add_attribute( INTERFACE_TYPE, get_interface_name< INTERFACE >() )
+      .add_attribute( CONCRETE_TYPE, get_concrete_name< CONCRETE >() )
+      .add_attribute( PLUGIN_NAME, plugin_name );
   }
 
-  pluggable_sptr from_config(config_block const& cb) const override
+  pluggable_sptr
+  from_config( config_block const& cb ) const override
   {
-    static_assert( has_from_config<CONCRETE>::value,
+    static_assert( has_from_config< CONCRETE >::value,
                    "The given concrete type does not implement the "
                    "`from_config` static method. See pluggable.h for more "
-                   "details.");
+                   "details." );
     return CONCRETE::from_config( cb );
   }
 
-  void get_default_config( config_block & cb ) const override
+  void
+  get_default_config( config_block& cb ) const override
   {
-    static_assert( has_get_default_config<CONCRETE>::value,
+    static_assert( has_get_default_config< CONCRETE >::value,
                    "The given concrete type does not implement the "
                    "`get_default_config` static method. See pluggable.h for "
                    "more details." );
@@ -248,9 +267,8 @@ public:
   }
 
   ~concrete_plugin_factory() override = default;
-
 };
 
-} // end namespace
+} // namespace kwiver::vital
 
 #endif /* KWIVER_VITAL_PLUGIN_FACTORY_H */

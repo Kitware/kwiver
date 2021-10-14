@@ -5,27 +5,25 @@
 #include <python/kwiver/vital/config/module_config_helpers.h>
 #include <vital/types/geo_polygon.h>
 
-
 #include <pybind11/pybind11.h>
 #include <pybind11/stl_bind.h>
 
 #include <sstream>
 
-namespace kv=kwiver::vital;
+namespace kv = kwiver::vital;
+
 /**
  * \file config.cxx
  *
  * \brief Python bindings for \link kwiver::vital::config \endlink.
  */
 
-namespace kwiver {
-namespace vital {
-namespace python {
+namespace kwiver::vital::python {
 
 kwiver::vital::config_block_value_t
 config_block_set_value_cast( py::object const& value )
 {
-  return value.cast<std::string>();
+  return value.cast< std::string >();
 }
 
 void
@@ -33,14 +31,14 @@ config_set_value( kwiver::vital::config_block_sptr self,
                   kwiver::vital::config_block_key_t const&  key,
                   kwiver::vital::config_block_key_t const&  value )
 {
-  self->set_value< kwiver::vital::config_block_value_t > ( key, value );
+  self->set_value< kwiver::vital::config_block_value_t >( key, value );
 }
 
 kwiver::vital::config_block_value_t
 config_get_value( kwiver::vital::config_block_sptr self,
                   kwiver::vital::config_block_key_t const&  key )
 {
-  return self->get_value< kwiver::vital::config_block_value_t > ( key );
+  return self->get_value< kwiver::vital::config_block_value_t >( key );
 }
 
 kwiver::vital::config_block_value_t
@@ -48,7 +46,7 @@ config_get_value_with_default( kwiver::vital::config_block_sptr self,
                                kwiver::vital::config_block_key_t const&   key,
                                kwiver::vital::config_block_value_t const& def )
 {
-  return self->get_value< kwiver::vital::config_block_value_t > ( key, def );
+  return self->get_value< kwiver::vital::config_block_value_t >( key, def );
 }
 
 pybind11::size_t
@@ -56,7 +54,6 @@ config_len( kv::config_block_sptr self )
 {
   return self->available_values().size();
 }
-
 
 kv::config_block_value_t
 config_getitem( kv::config_block_sptr self,
@@ -66,7 +63,7 @@ config_getitem( kv::config_block_sptr self,
 
   try
   {
-    val = self->get_value< kv::config_block_value_t > ( key );
+    val = self->get_value< kv::config_block_value_t >( key );
   }
   catch ( kv::no_such_configuration_value_exception const& )
   {
@@ -86,7 +83,7 @@ config_setitem( kv::config_block_sptr self,
                 kv::config_block_key_t const& key,
                 py::object const& value )
 {
-  kv::config_block_key_t const& str_value = py::str(value);
+  kv::config_block_key_t const& str_value = py::str( value );
 
   self->set_value( key, str_value );
 }
@@ -110,7 +107,4 @@ config_delitem( kv::config_block_sptr self,
   }
 }
 
-
-}
-}
-}
+} // namespace kwiver::vital::python
