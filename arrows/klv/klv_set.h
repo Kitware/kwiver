@@ -13,7 +13,7 @@
 #include <arrows/klv/klv_value.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
-#include <boost/range.hpp>
+#include <vital/range/iterator_range.h>
 
 #include <map>
 
@@ -41,8 +41,8 @@ public:
   using iterator = typename container::iterator;
   using const_iterator = typename container::const_iterator;
   using value_type = typename container::value_type;
-  using range = boost::iterator_range< iterator >;
-  using const_range = boost::iterator_range< const_iterator >;
+  using range = kwiver::vital::range::iterator_range< iterator >;
+  using const_range = kwiver::vital::range::iterator_range< const_iterator >;
 
   klv_set() {}
 
