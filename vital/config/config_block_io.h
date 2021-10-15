@@ -13,17 +13,18 @@
 #ifndef KWIVER_CONFIG_BLOCK_IO_H_
 #define KWIVER_CONFIG_BLOCK_IO_H_
 
-#include <vital/config/vital_config_export.h>
 #include "config_block.h"
+#include <vital/config/vital_config_export.h>
 
 #include <ostream>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // ------------------------------------------------------------------
-/// Read in a configuration file, producing a \c config_block object
+
 /**
+ * \brief Read in a configuration file, producing a \c config_block object
+ *
  * This method reads the specified config file and returns the
  * resulting config block. Any files included by config files that are not in
  * absolute form are resolved using search paths supplied in the environment
@@ -43,7 +44,8 @@ namespace vital {
  *   An optional list of directories to use in locating included files.
  * \param use_system_paths
  *   If false, we do not use paths in the KWIVER_CONFIG_PATH environment
- *   variable or current working directory for searching, otherwise those paths are
+ *   variable or current working directory for searching, otherwise those paths
+ * are
  *   searched first.
  *
  * \return A \c config_block object representing the contents of the read-in
@@ -52,11 +54,13 @@ namespace vital {
 config_block_sptr VITAL_CONFIG_EXPORT read_config_file(
   config_path_t const&      file_path,
   config_path_list_t const& search_paths = config_path_list_t(),
-  bool                      use_system_paths = true );
+  bool use_system_paths = true );
 
 // ------------------------------------------------------------------
-/// Read in (a) configuration file(s), producing a \c config_block object
+
 /**
+ * \brief Read in (a) configuration file(s), producing a \c config_block object
+ *
  * This function reads one or more configuration files from a search
  * path. The search path is based on environment variables, system
  * defaults, and application defaults. More on this later.
@@ -86,11 +90,13 @@ config_block_sptr VITAL_CONFIG_EXPORT read_config_file(
  * ## OS/X Apple Platform
  * - .  (the current working directory
  * - ${KWIVER_CONFIG_PATH}                                    (if set)
- * - ${XDG_CONFIG_HOME}/<app-name>[/<app-version>]/config     (if $XDG_CONFIG_HOME set)
+ * - ${XDG_CONFIG_HOME}/<app-name>[/<app-version>]/config     (if
+ * $XDG_CONFIG_HOME set)
  * - ${HOME}/.config/<app-name>[/<app-version>]/config        (if $HOME set)
  * - /etc/xdg/<app-name>[/<app-version>]/config
  * - /etc/<app-name>[/<app-version>]/config
- * - ${HOME}/Library/Application Support/<app-name>[/<app-version>]/config (if $HOME set)
+ * - ${HOME}/Library/Application Support/<app-name>[/<app-version>]/config (if
+ * $HOME set)
  * - /Library/Application Support/<app-name>[/<app-version>]/config
  * - /usr/local/share/<app-name>[/<app-version>]/config
  * - /usr/share/<app-name>[/<app-version>]/config
@@ -105,7 +111,8 @@ config_block_sptr VITAL_CONFIG_EXPORT read_config_file(
  * ## Other Posix Platforms (e.g. Linux)
  * - .  (the current working directory
  * - ${KWIVER_CONFIG_PATH}                                    (if set)
- * - ${XDG_CONFIG_HOME}/<app-name>[/<app-version>]/config     (if $XDG_CONFIG_HOME set)
+ * - ${XDG_CONFIG_HOME}/<app-name>[/<app-version>]/config     (if
+ * $XDG_CONFIG_HOME set)
  * - ${HOME}/.config/<app-name>[/<app-version>]/config        (if $HOME set)
  * - /etc/xdg/<app-name>[/<app-version>]/config
  * - /etc/<app-name>[/<app-version>]/config
@@ -158,7 +165,7 @@ VITAL_CONFIG_EXPORT read_config_file(
   bool merge = true );
 
 // ----------------------------------------------------------------------------
-/// Locate (a) configuration file(s).
+/// \brief Locate (a) configuration file(s).
 ///
 /// This function attempts to find configuration files from a search path. The
 /// search paths used are the same as in read_config_file(). The parameters
@@ -175,8 +182,11 @@ std::vector< config_path_t > VITAL_CONFIG_EXPORT find_config_file(
   bool find_all = false );
 
 // ------------------------------------------------------------------
-/// Output to file the given \c config_block object to the specified file path
+
 /**
+ * \brief Output to file the given \c config_block object to the specified file
+ * path
+ *
  * This function writes the specified config block to the specified
  * file.  If a key has an associated description, it will be written
  * as a comment.  The key and value strings are written in a format
@@ -196,8 +206,11 @@ void VITAL_CONFIG_EXPORT write_config_file( config_block_sptr const&  config,
                                             config_path_t const&      file_path );
 
 // ------------------------------------------------------------------
-/// Output to file the given \c config_block object to the specified stream.
+
 /**
+ * \brief Output to file the given \c config_block object to the specified
+ * stream.
+ *
  * This function writes the specified config block to the specified
  * stream.  If a key has an associated description, it will be written
  * as a comment.  The key and value strings are written in a format
@@ -214,8 +227,10 @@ void VITAL_CONFIG_EXPORT write_config( config_block_sptr const& config,
                                        std::ostream&            str );
 
 // ------------------------------------------------------------------
-/// Get additional application configuration file paths
+
 /**
+ * \brief Get additional application configuration file paths
+ *
  * This includes the KWIVER_CONFIG_PATH contents at the head of the returned
  * list.  The paths returned include application config paths followed by
  * KWIVER config paths for the current version of KWIVER and assuming
@@ -237,13 +252,15 @@ void VITAL_CONFIG_EXPORT write_config( config_block_sptr const& config,
  *   List of additional application configuration search paths.
  */
 config_path_list_t VITAL_CONFIG_EXPORT
-application_config_file_paths(std::string const& application_name,
-                              std::string const& application_version,
-                              config_path_t const& install_prefix);
+application_config_file_paths( std::string const& application_name,
+                               std::string const& application_version,
+                               config_path_t const& install_prefix );
 
 // ------------------------------------------------------------------
-/// Get additional application configuration file paths
+
 /**
+ * \brief Get additional application configuration file paths
+ *
  * This includes the KWIVER_CONFIG_PATH contents at the head of the returned
  * list.  The paths returned include application config paths followed by
  * KWIVER config paths for the current version of KWIVER.
@@ -267,14 +284,16 @@ application_config_file_paths(std::string const& application_name,
  *       an empty prefix is specified.
  */
 config_path_list_t VITAL_CONFIG_EXPORT
-application_config_file_paths(std::string const& application_name,
-                              std::string const& application_version,
-                              config_path_t const& app_install_prefix,
-                              config_path_t const& kwiver_install_prefix);
+application_config_file_paths( std::string const& application_name,
+                               std::string const& application_version,
+                               config_path_t const& app_install_prefix,
+                               config_path_t const& kwiver_install_prefix );
 
 // ------------------------------------------------------------------
-/// Get KWIVER configuration file paths
+
 /**
+ * \brief Get KWIVER configuration file paths
+ *
  * This includes the KWIVER_CONFIG_PATH contents at the head of the returned
  * list.  The remainder of the list provides config paths for KWIVER
  * installed configuration files for the current version of KWIVER
@@ -288,8 +307,8 @@ application_config_file_paths(std::string const& application_name,
  *   List of KWIVER configuration search paths.
  */
 config_path_list_t VITAL_CONFIG_EXPORT
-kwiver_config_file_paths(config_path_t const& install_prefix);
+kwiver_config_file_paths( config_path_t const& install_prefix );
 
-} }
+} // namespace kwiver::vital
 
 #endif

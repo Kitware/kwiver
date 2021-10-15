@@ -9,11 +9,10 @@
 
 #include <string>
 
-namespace kwiver {
-namespace vital {
-namespace logger_ns {
+namespace kwiver::vital::logger_ns {
 
 // ----------------------------------------------------------------
+
 /** Location of logging call.
  *
  * This class represents the location of the logging call.
@@ -30,8 +29,8 @@ public:
 
   //@{
   /** Default values for unknown locations */
-  static const char * const NA;
-  static const char * const NA_METHOD;
+  static const char* const NA;
+  static const char* const NA_METHOD;
   //@}
 
   /**
@@ -43,7 +42,8 @@ public:
    * @return file name, may be null.
    */
   std::string get_file_name() const;
-  char const * get_file_name_ptr() const { return m_fileName; }
+  char const*
+  get_file_name_ptr() const { return m_fileName; }
 
   /**
    * @brief Get path part of file spec.
@@ -72,7 +72,8 @@ public:
    * @return method name, may be null.
    */
   std::string get_method_name() const;
-  char const * get_method_name_ptr() const { return m_methodName; }
+  char const*
+  get_method_name_ptr() const { return m_methodName; }
 
   /**
    * @brief Get class name.
@@ -93,29 +94,28 @@ public:
   int get_line_number() const;
 
 private:
-  const char * const m_fileName;
-  const char * const m_methodName;
+  const char* const m_fileName;
+  const char* const m_methodName;
   int m_lineNumber;
-
 }; // end class location_info
 
-} } } // end namespace
+} // namespace kwiver::vital::logger_ns
 
-#if defined(_MSC_VER)
-#if _MSC_VER >= 1300
-      #define __KWIVER_LOGGER_FUNC__ __FUNCSIG__
-#endif
+#if defined( _MSC_VER )
+# if _MSC_VER >= 1300
+#  define __KWIVER_LOGGER_FUNC__ __FUNCSIG__
+# endif
 #else
-#if defined(__GNUC__)
-      #define __KWIVER_LOGGER_FUNC__ __PRETTY_FUNCTION__
+# if defined( __GNUC__ )
+#  define __KWIVER_LOGGER_FUNC__ __PRETTY_FUNCTION__
+# endif
 #endif
-#endif
-#if !defined(__KWIVER_LOGGER_FUNC__)
-#define __KWIVER_LOGGER_FUNC__ ""
+#if !defined( __KWIVER_LOGGER_FUNC__ )
+# define __KWIVER_LOGGER_FUNC__ ""
 #endif
 
-#define KWIVER_LOGGER_SITE ::kwiver::vital::logger_ns::location_info(__FILE__, \
-           __KWIVER_LOGGER_FUNC__,                                       \
-           __LINE__)
+#define KWIVER_LOGGER_SITE ::kwiver::vital::logger_ns::location_info( __FILE__, \
+                                                                      __KWIVER_LOGGER_FUNC__,                                       \
+                                                                      __LINE__ )
 
 #endif

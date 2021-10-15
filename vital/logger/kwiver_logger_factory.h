@@ -8,11 +8,10 @@
 #include "kwiver_logger.h"
 #include <vital/noncopyable.h>
 
-namespace kwiver {
-namespace vital {
-namespace logger_ns {
+namespace kwiver::vital::logger_ns {
 
 // ----------------------------------------------------------------
+
 /** Factory for underlying logger.
  *
  * This class is the abstract base class that adapts the KWIVER logger
@@ -64,6 +63,6 @@ private:
   std::string m_name; // factory name
 }; // end class kwiver_logger_factory
 
-} } } // end namespace
+} // namespace kwiver::vital::logger_ns
 
 #endif

@@ -16,20 +16,24 @@
  * These actions include:
  *   - get at the singleton instance
  *   - add to the search path
- *   - (re)load some or all plugins based on a standard suite of module locations
- *   - get the plugin names of available implementations for some interface type
+ *   - (re)load some or all plugins based on a standard suite of module
+ * locations
+ *   - get the plugin names of available implementations for some interface
+ * type
  *   - get factories for some interface type
  *
  * Also provided here are some structures to facilitate the instantiation of
  * registered plugin types.
  *
  * The broad, general helper is `implementation_factory` structure.
- * This base structure is flexible in what interface type to base on, as well as
+ * This base structure is flexible in what interface type to base on, as well
+ * as
  * what attribute field to base implementation selection on.
  * @code{.cxx}
- *  implementation_factory<MyInterface> impl_fact( plugin_factory::PLUGIN_NAME );
+ *  implementation_factory<MyInterface> impl_fact(
+ *    plugin_factory::PLUGIN_NAME );
  *  std::shared_ptr<MyInterface> inst_sptr = impl_fact.create( "my_impl" );
- *  assert inst_sptr != nullptr
+ *  assert inst_sptr != nullptr;
  *  inst_sptr->interface_api_method();
  * @endcode
  *
@@ -38,7 +42,7 @@
  * @code{.cxx}
  *  implementation_factory_by_name<MyInterface> impl_fact;
  *  std::shared_ptr<MyInterface> inst_sptr = impl_fact.create( "my_impl" );
- *  assert inst_sptr != nullptr
+ *  assert inst_sptr != nullptr;
  *  inst_sptr->interface_api_method();
  * @endcode
  * This helper is likely the version to used the vast majority of the time as
@@ -56,18 +60,19 @@
 #include <vital/exceptions/plugin.h>
 #include <vital/logger/logger.h>
 #include <vital/noncopyable.h>
-#include <vital/plugin_management/plugin_loader.h>
 #include <vital/plugin_management/plugin_factory.h>
+#include <vital/plugin_management/plugin_loader.h>
 #include <vital/util/demangle.h>
 
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <utility>
-#include <iostream>
 
 namespace kwiver::vital {
 
 // ----------------------------------------------------------------------------
+
 /**
  * @brief Vital plugin manager.
  *
@@ -91,154 +96,161 @@ public:
     OTHERS     = 0x0020,
     LEGACY     = 0x0040,
     DEFAULT    = 0x00f7,  // sum of the above.
-    ALL        = 0xffff
+    ALL        = 0xffff,
   };
+
   KWIVER_DECLARE_BITFLAGS( plugin_types, plugin_type );
 
   static plugin_manager& instance();  // singleton interface
 
-  // Search path stuff --------------------------------------------------------
-  /**
-   * @brief Add an additional directories to search for plugins in.
-   *
-   * This method adds the specified directory list to the end of the
-   * internal path used when loading plugins. This method can be
-   * called multiple times to add multiple sets of directories. Each
-   * directory is separated from the next by the standard system path
-   * separator character.
-   *
-   * Single directories can be added with this method.
-   *
-   * Call the load_plugins() method to load plugins after you have
-   * added all additional directories.
-   *
-   * Directory paths that don't exist will simply be ignored.
-   *
-   * \param dirpath Path to the directories to add to the plugin search path.
-   */
-  void add_search_path(path_t const& dirpath);
+// Search path stuff --------------------------------------------------------
 
-  /**
-   * @brief Add an additional directories to search for plugins in.
-   *
-   * This method adds the specified directory list to the end of the
-   * internal path used when loading plugins. This method can be
-   * called multiple times to add multiple sets of directories.
-   *
-   * Call the load_plugins() method to load plugins after you have
-   * added all additional directories.
-   *
-   * Directory paths that don't exist will simply be ignored.
-   *
-   * \param dirpath Path to the directories to add to the plugin search path.
-   */
+/**
+ * @brief Add an additional directories to search for plugins in.
+ *
+ * This method adds the specified directory list to the end of the
+ * internal path used when loading plugins. This method can be
+ * called multiple times to add multiple sets of directories. Each
+ * directory is separated from the next by the standard system path
+ * separator character.
+ *
+ * Single directories can be added with this method.
+ *
+ * Call the load_plugins() method to load plugins after you have
+ * added all additional directories.
+ *
+ * Directory paths that don't exist will simply be ignored.
+ *
+ * \param dirpath Path to the directories to add to the plugin search path.
+ */
+  void add_search_path( path_t const& dirpath );
+
+/**
+ * @brief Add an additional directories to search for plugins in.
+ *
+ * This method adds the specified directory list to the end of the
+ * internal path used when loading plugins. This method can be
+ * called multiple times to add multiple sets of directories.
+ *
+ * Call the load_plugins() method to load plugins after you have
+ * added all additional directories.
+ *
+ * Directory paths that don't exist will simply be ignored.
+ *
+ * \param dirpath Path to the directories to add to the plugin search path.
+ */
   void add_search_path( path_list_t const& dirpath );
 
-  /**
-   * @brief Add path from environment variable name.
-   *
-   * This method adds the path from the environment variable to the end
-   * of the current search path.
-   *
-   * @param env_var Name of environment variable.
-   */
-  void add_path_from_environment( std::string env_var);
+/**
+ * @brief Add path from environment variable name.
+ *
+ * This method adds the path from the environment variable to the end
+ * of the current search path.
+ *
+ * @param env_var Name of environment variable.
+ */
+  void add_path_from_environment( std::string env_var );
 
-  /**
-   * @brief Get plugin manager search path
-   *
-   *  This method returns the search path used to load algorithms.
-   *
-   * @return vector of paths that are searched
-   */
+/**
+ * @brief Get plugin manager search path
+ *
+ *  This method returns the search path used to load algorithms.
+ *
+ * @return vector of paths that are searched
+ */
   [[nodiscard]]
   path_list_t const& search_path() const;
 
-  // Loading Plugins -----------------------------------------------------------
-  /**
-   * @brief Load all reachable plugins.
-   *
-   * This method loads all plugins that can be discovered on the
-   * currently active search path. This method is called after all
-   * search paths have been added with the add_search_path() method.
-   *
-   * The first call to this method will load all known
-   * plugins. Subsequent calls will not load anything. If the plugins
-   * need to be reloaded, call the reload_all_plugins() method. if an
-   * additional directory list must be scanned after plugins are
-   * loaded, call load_plugins() with a list of directories to add
-   * more plugins to the manager.
-   *
-   * @throws plugin_already_exists - if a duplicate plugin is detected
-   */
+// Loading Plugins -----------------------------------------------------------
+
+/**
+ * @brief Load all reachable plugins.
+ *
+ * This method loads all plugins that can be discovered on the
+ * currently active search path. This method is called after all
+ * search paths have been added with the add_search_path() method.
+ *
+ * The first call to this method will load all known
+ * plugins. Subsequent calls will not load anything. If the plugins
+ * need to be reloaded, call the reload_all_plugins() method. if an
+ * additional directory list must be scanned after plugins are
+ * loaded, call load_plugins() with a list of directories to add
+ * more plugins to the manager.
+ *
+ * @throws plugin_already_exists - if a duplicate plugin is detected
+ */
   void load_all_plugins( plugin_types types = plugin_type::DEFAULT );
 
-  /**
-   * @brief Load plugins from list of directories.
-   *
-   * Load plugins from the specified list of directories. The
-   * directories are scanned immediately and all recognized plugins
-   * are loaded.
-   *
-   * @param dirpath List of directories to search.
-   *
-   * @throws plugin_already_exists - if a duplicate plugin is detected
-   */
+/**
+ * @brief Load plugins from list of directories.
+ *
+ * Load plugins from the specified list of directories. The
+ * directories are scanned immediately and all recognized plugins
+ * are loaded.
+ *
+ * @param dirpath List of directories to search.
+ *
+ * @throws plugin_already_exists - if a duplicate plugin is detected
+ */
   void load_plugins( path_list_t const& dirpath );
 
-  /**
-   * @brief Reload all plugins.
-   *
-   * The current list of factories is deleted, all currently open
-   * files are closed, and storage released. The module loading
-   * process is performed using the current state of this manager.
-   *
-   * This effectively resets the singleton.
-   */
+/**
+ * @brief Reload all plugins.
+ *
+ * The current list of factories is deleted, all currently open
+ * files are closed, and storage released. The module loading
+ * process is performed using the current state of this manager.
+ *
+ * This effectively resets the singleton.
+ */
   void reload_all_plugins();
 
-  // Getting at Factories ------------------------------------------------------
+// Getting at Factories ------------------------------------------------------
 
-  /**
-   * @brief Get list of factories for interface type.
-   *
-   * This method returns a list of pointer to factory methods that
-   * create objects of the desired interface type.
-   *
-   * @tparam T Type of the interface required
-   *
-   * @return Vector of factories. (vector may be empty)
-   */
-  template <class INTERFACE>
+/**
+ * @brief Get list of factories for interface type.
+ *
+ * This method returns a list of pointer to factory methods that
+ * create objects of the desired interface type.
+ *
+ * @tparam T Type of the interface required
+ *
+ * @return Vector of factories. (vector may be empty)
+ */
+  template < class INTERFACE >
   [[nodiscard]]
-  plugin_factory_vector_t const& get_factories()
+
+  plugin_factory_vector_t const&
+  get_factories()
   {
-    return get_factories( get_interface_name<INTERFACE>() );
+    return get_factories( get_interface_name< INTERFACE >() );
   }
 
-  /**
-   * @brief Get the vector of plugin implementation names registered for a given
-   * interface type.
-   *
-   * If a registered plugin does not have a non-empty PLUGIN_NAME, we will
-   * represent those here as "<UNNAMED>" entries.
-   *
-   * The returned vector may be empty if there are no implementations currently
-   * registered for the given interface.
-   *
-   * @tparam INTERFACE Type of the interface to check for plugin implementations
-   * of.
-   *
-   * @return Vector of plugin implementation names.
-   */
-  template< typename INTERFACE >
+/**
+ * @brief Get the vector of plugin implementation names registered for a given
+ * interface type.
+ *
+ * If a registered plugin does not have a non-empty PLUGIN_NAME, we will
+ * represent those here as "<UNNAMED>" entries.
+ *
+ * The returned vector may be empty if there are no implementations currently
+ * registered for the given interface.
+ *
+ * @tparam INTERFACE Type of the interface to check for plugin implementations
+ * of.
+ *
+ * @return Vector of plugin implementation names.
+ */
+  template < typename INTERFACE >
   [[nodiscard]]
-  std::vector<std::string> impl_names() const
+
+  std::vector< std::string >
+  impl_names() const
   {
-    return _impl_names( get_interface_name<INTERFACE>() );
+    return _impl_names( get_interface_name< INTERFACE >() );
   }
 
-  // Deprecated? ---------------------------------------------------------------
+// Deprecated? ---------------------------------------------------------------
 
 //  /**
 //   * @brief Add factory to manager.
@@ -293,55 +305,56 @@ public:
 //  void mark_module_as_loaded( module_t const& name );
 
 protected:
-
-  // Protected constructor/destructor to enforce use of singleton instance.
+// Protected constructor/destructor to enforce use of singleton instance.
   plugin_manager();
   ~plugin_manager();
 
-  // Factory Stuff -------------------------------------------------------------
-  /**
-   * @brief Get list of factories for some interface type name.
-   *
-   * This method returns a vector of shared pointers to factory instances that
-   * can create instances of the desired interface type.
-   *
-   * The input here is expected to be the interface name of a type T as returned
-   * from `get_interface_name<T>()`, which should be a human-readable string that
-   * has defined.
-   * For clarity, we consider a class an "interface type" as a class type that
-   * defines one or more pure-virtual functions for derived classes to
-   * implement.
-   *
-   * This method is private so as to not expose this for arbitrary use, but only
-   * for the public, templated method defined above to call this appropriately.
-   *
-   * @param type_name Type name of the interface required
-   *
-   * @return Vector of factories. (vector may be empty)
-   */
+// Factory Stuff -------------------------------------------------------------
+
+/**
+ * @brief Get list of factories for some interface type name.
+ *
+ * This method returns a vector of shared pointers to factory instances that
+ * can create instances of the desired interface type.
+ *
+ * The input here is expected to be the interface name of a type T as returned
+ * from `get_interface_name<T>()`, which should be a human-readable string that
+ * has defined.
+ * For clarity, we consider a class an "interface type" as a class type that
+ * defines one or more pure-virtual functions for derived classes to
+ * implement.
+ *
+ * This method is private so as to not expose this for arbitrary use, but only
+ * for the public, templated method defined above to call this appropriately.
+ *
+ * @param type_name Type name of the interface required
+ *
+ * @return Vector of factories. (vector may be empty)
+ */
   plugin_factory_vector_t const& get_factories( std::string const& type_name );
 
-  /**
-   * @brief Protected accessor of interface implementation names given the
-   * interface type name.
-   *
-   * The returned vector may be empty if there are no implementations currently
-   * registered for the given interface.
-   *
-   * @param interface_type_name String type name of the interface to check for
-   * plugin implementations of.
-   *
-   * @return Vector of plugin implementation names.
-   */
+/**
+ * @brief Protected accessor of interface implementation names given the
+ * interface type name.
+ *
+ * The returned vector may be empty if there are no implementations currently
+ * registered for the given interface.
+ *
+ * @param interface_type_name String type name of the interface to check for
+ * plugin implementations of.
+ *
+ * @return Vector of plugin implementation names.
+ */
   [[nodiscard]]
-  std::vector<std::string> _impl_names( std::string const& interface_type_name) const;
+  std::vector< std::string > _impl_names(
+    std::string const& interface_type_name ) const;
 
-  // Deprecated? ---------------------------------------------------------------
-  // Some of these are used by the explorer via the "internal" subclass.
-  // Maybe reinstate or maybe determine alternative to having an "internal"
-  // subclass impl to expose what is needed.
-  // Some of it seemed to be access to things registered under certain
-  // categories?
+// Deprecated? ---------------------------------------------------------------
+// Some of these are used by the explorer via the "internal" subclass.
+// Maybe reinstate or maybe determine alternative to having an "internal"
+// subclass impl to expose what is needed.
+// Some of it seemed to be access to things registered under certain
+// categories?
 
 //  plugin_loader* get_loader();
 //
@@ -375,7 +388,6 @@ protected:
 //  std::map< std::string, std::string > const& module_map() const;
 
 private:
-
   /**
    * @brief Get logger handle.
    *
@@ -388,15 +400,16 @@ private:
   logger_handle_t logger();
 
   class priv;
+
   const std::unique_ptr< priv > m_priv;
 
   static plugin_manager* s_instance;
-
 }; // end class plugin_manager
 
 KWIVER_DECLARE_OPERATORS_FOR_BITFLAGS( plugin_manager::plugin_types )
 
 // ----------------------------------------------------------------------------
+
 /**
  * \brief Typed implementation factory.
  *
@@ -416,7 +429,7 @@ KWIVER_DECLARE_OPERATORS_FOR_BITFLAGS( plugin_manager::plugin_types )
  *
  * \tparam I Interface type that is created
  */
-template <typename I>
+template < typename I >
 class implementation_factory
 {
 public:
@@ -432,8 +445,8 @@ public:
    * @param attr Name of attribute to use as key field.
    */
   explicit implementation_factory( std::string attr )
-    : m_attr(std::move( attr ))
-  { }
+    : m_attr( std::move( attr ) )
+  {}
 
   /**
    * @brief Find object factory based on attribute value.\
@@ -449,26 +462,27 @@ public:
    *
    * @throws kwiver::vital::plugin_factory_not_found
    */
-  plugin_factory_handle_t find_factory( const std::string& value )
+  plugin_factory_handle_t
+  find_factory( const std::string& value )
   {
     // Get singleton plugin manager
-    kwiver::vital::plugin_manager& pm = kwiver::vital::plugin_manager::instance();
+    kwiver::vital::plugin_manager& pm =
+      kwiver::vital::plugin_manager::instance();
 
-    auto fact_list = pm.get_factories<I>();
+    auto fact_list = pm.get_factories< I >();
     // Scan fact_list for factory to instantiate from.
     for( kwiver::vital::plugin_factory_handle_t a_fact : fact_list )
     {
       std::string attr_val;
-      if ( a_fact->get_attribute( m_attr, attr_val ) && ( attr_val == value ) )
+      if( a_fact->get_attribute( m_attr, attr_val ) && ( attr_val == value ) )
       {
         return a_fact;
       }
     } // end foreach
 
     std::stringstream str;
-    str << "Could not find factory where attr \"" << m_attr << "\" is \"" << value
-        << "\" for interface type \"" << get_interface_name<I>()
-        << "\"";
+    str << "Could not find factory where attr \"" << m_attr << "\" is \"" <<
+      value << "\" for interface type \"" << get_interface_name< I >() << "\"";
 
     VITAL_THROW( kwiver::vital::plugin_factory_not_found, str.str() );
   }
@@ -488,10 +502,11 @@ public:
    *
    * @throws kwiver::vital::plugin_factory_not_found
    */
-  std::shared_ptr<I> create( const std::string& value, config_block const& cb )
+  std::shared_ptr< I >
+  create( const std::string& value, config_block const& cb )
   {
     plugin_factory_handle_t a_fact = this->find_factory( value );
-    return std::dynamic_pointer_cast<I>( a_fact->from_config( cb ) );
+    return std::dynamic_pointer_cast< I >( a_fact->from_config( cb ) );
   }
 
 private:
@@ -500,6 +515,7 @@ private:
 };
 
 // ----------------------------------------------------------------------------
+
 /**
  * @brief Implementation factory that uses name attribute.
  *
@@ -508,26 +524,27 @@ private:
  *
  * Example usage:
  * \code
-// create name for factory to create specific interface object.
-typedef kwiver::vital::implementation_factory_by_name< sprokit::process_instrumentation > instrumentation_factory;
-
-// instantiate factory class when needed.
-instrumentation_factory ifact;
-auto instr = ifact.create( provider );
-\endcode
+ *  // create name for factory to create specific interface object.
+ *  typedef kwiver::vital::implementation_factory_by_name<
+ * sprokit::process_instrumentation > instrumentation_factory;
+ *
+ *  // instantiate factory class when needed.
+ *  instrumentation_factory ifact;
+ *  auto instr = ifact.create( provider );
+ *  \endcode
  *
  * \throws plugin_factory_not_found
  */
-template <typename T>
+template < typename T >
 class implementation_factory_by_name
   : public implementation_factory< T >
 {
 public:
   implementation_factory_by_name()
-    : implementation_factory<T>( kwiver::vital::plugin_factory::PLUGIN_NAME )
-  { }
+    : implementation_factory< T >( kwiver::vital::plugin_factory::PLUGIN_NAME )
+  {}
 };
 
-} // end namespace
+} // namespace kwiver::vital
 
 #endif /* KWIVER_VITAL_PLUGIN_MANAGER_H */

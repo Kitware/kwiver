@@ -5,26 +5,28 @@
 #ifndef KWIVER_KWIVER_LOGGER_H_
 #define KWIVER_KWIVER_LOGGER_H_
 
-#include <vital/logger/vital_logger_export.h>
 #include "location_info.h"
+#include <vital/logger/vital_logger_export.h>
 
-#include <sstream>
 #include <cstdlib>
 #include <functional>
 #include <memory>
+#include <sstream>
 
 #include <vital/noncopyable.h>
 
 namespace kwiver {
-namespace vital{
+
+namespace vital {
 
 namespace logger_ns {
 
-  class kwiver_logger_factory;
+class kwiver_logger_factory;
 
-}
+} // namespace logger_ns
 
 // ----------------------------------------------------------------
+
 /**
  * @brief kwiver logger interface definition
  *
@@ -36,21 +38,23 @@ namespace logger_ns {
  */
 class VITAL_LOGGER_EXPORT kwiver_logger
   : public std::enable_shared_from_this< kwiver_logger >,
-  private kwiver::vital::noncopyable
+    private kwiver::vital::noncopyable
 {
 public:
-  enum log_level_t {
+  enum log_level_t
+  {
     LEVEL_NONE = 1,
     LEVEL_TRACE,
     LEVEL_DEBUG,
     LEVEL_INFO,
     LEVEL_WARN,
     LEVEL_ERROR,
-    LEVEL_FATAL };
+    LEVEL_FATAL,
+  };
 
   virtual ~kwiver_logger();
 
-  // Check to see if level is enabled
+// Check to see if level is enabled
   virtual bool is_fatal_enabled() const = 0;
   virtual bool is_error_enabled() const = 0;
   virtual bool is_warn_enabled()  const = 0;
@@ -58,37 +62,37 @@ public:
   virtual bool is_debug_enabled() const = 0;
   virtual bool is_trace_enabled() const = 0;
 
-  virtual void set_level( log_level_t lev) = 0;
+  virtual void set_level( log_level_t lev ) = 0;
   virtual log_level_t get_level() const = 0;
 
   /// Type alias for the callback function signature
   using callback_t =
-    std::function<void(log_level_t, std::string const& name,
-                       std::string const& msg,
-                       logger_ns::location_info const& loc)>;
+    std::function< void ( log_level_t, std::string const& name,
+                          std::string const& msg,
+                          logger_ns::location_info const& loc ) >;
 
   /// Set a callback to be called on logging events for this logger instance
-  void set_local_callback(callback_t cb);
+  void set_local_callback( callback_t cb );
 
   /// Set a callback to be called on logging events for all logger instances
-  static void set_global_callback(callback_t cb);
+  static void set_global_callback( callback_t cb );
 
   /**
    * @brief Get logger name.
    */
   std::string get_name() const;
 
-  /**
-   * @brief Log a message string with the FATAL level.
-   *
-   * This method first checks if this logger has <code>FATAL</code>
-   * enabled by comparing the level of this logger with the FATAL
-   * level. If this logger has <code>FATAL</code> enabled, it proceeds
-   * to format and create a log message using the specified message.
-   *
-   * @param msg the message string to log.
-   */
-  virtual void log_fatal (std::string const & msg) = 0;
+/**
+ * @brief Log a message string with the FATAL level.
+ *
+ * This method first checks if this logger has <code>FATAL</code>
+ * enabled by comparing the level of this logger with the FATAL
+ * level. If this logger has <code>FATAL</code> enabled, it proceeds
+ * to format and create a log message using the specified message.
+ *
+ * @param msg the message string to log.
+ */
+  virtual void log_fatal( std::string const& msg ) = 0;
 
   /**
    * @brief Log a message string with the FATAL level.
@@ -102,8 +106,8 @@ public:
    * @param msg the message string to log.
    * @param location location of source of logging request.
    */
-  virtual void log_fatal (std::string const & msg,
-                          logger_ns::location_info const & location) = 0;
+  virtual void log_fatal( std::string const& msg,
+                          logger_ns::location_info const& location ) = 0;
 
   /**
    * @brief Log a message string with the ERROR level.
@@ -115,7 +119,7 @@ public:
    *
    * @param msg the message string to log.
    */
-  virtual void log_error (std::string const & msg) = 0;
+  virtual void log_error( std::string const& msg ) = 0;
 
   /**
    * @brief Log a message string with the ERROR level.
@@ -129,8 +133,8 @@ public:
    * @param msg the message string to log.
    * @param location location of source of logging request.
    */
-  virtual void log_error (std::string const & msg,
-                          logger_ns::location_info const & location) = 0;
+  virtual void log_error( std::string const& msg,
+                          logger_ns::location_info const& location ) = 0;
 
   /**
    * @brief Log a message string with the WARN level.
@@ -142,7 +146,7 @@ public:
    *
    *@param msg the message string to log.
    */
-  virtual void log_warn (std::string const & msg) = 0;
+  virtual void log_warn( std::string const& msg ) = 0;
 
   /**
    * @brief Log a message string with the WARN level.
@@ -156,8 +160,8 @@ public:
    * @param msg the message string to log.
    * @param location location of source of logging request.
    */
-  virtual void log_warn (std::string const & msg,
-                         logger_ns::location_info const & location) = 0;
+  virtual void log_warn( std::string const& msg,
+                         logger_ns::location_info const& location ) = 0;
 
   /**
    * @brief Log a message string with the INFO level.
@@ -169,7 +173,7 @@ public:
    *
    * @param msg the message string to log.
    */
-  virtual void log_info (std::string const & msg) = 0;
+  virtual void log_info( std::string const& msg ) = 0;
 
   /**
    * @brief Log a message string with the INFO level.
@@ -183,8 +187,8 @@ public:
    * @param msg the message string to log.
    * @param location location of source of logging request.
    */
-  virtual void log_info (std::string const & msg,
-                         logger_ns::location_info const & location) = 0;
+  virtual void log_info( std::string const& msg,
+                         logger_ns::location_info const& location ) = 0;
 
   /**
    * @brief Log a message string with the DEBUG level.
@@ -196,7 +200,7 @@ public:
    *
    * @param msg the message string to log.
    */
-  virtual void log_debug (std::string const & msg) = 0;
+  virtual void log_debug( std::string const& msg ) = 0;
 
   /**
    * @brief Log a message string with the DEBUG level.
@@ -210,8 +214,8 @@ public:
    * @param msg the message string to log.
    * @param location location of source of logging request.
    */
-  virtual void log_debug (std::string const & msg,
-                          logger_ns::location_info const & location) = 0;
+  virtual void log_debug( std::string const& msg,
+                          logger_ns::location_info const& location ) = 0;
 
   /**
    * @brief Log a message string with the TRACE level.
@@ -223,7 +227,7 @@ public:
    *
    * @param msg the message string to log.
    */
-  virtual void log_trace (std::string const & msg) = 0;
+  virtual void log_trace( std::string const& msg ) = 0;
 
   /**
    * @brief Log a message string with the TRACE level.
@@ -237,8 +241,8 @@ public:
    * @param msg the message string to log.
    * @param location location of source of logging request.
    */
-  virtual void log_trace (std::string const & msg,
-                          logger_ns::location_info const & location) = 0;
+  virtual void log_trace( std::string const& msg,
+                          logger_ns::location_info const& location ) = 0;
 
   /**
    * @brief Log a message string with specified level.
@@ -250,7 +254,7 @@ public:
    *
    * @param msg the message string to log.
    */
-  virtual void log_message (log_level_t level, std::string const& msg) = 0;
+  virtual void log_message( log_level_t level, std::string const& msg ) = 0;
 
   /**
    * @brief Log a message string with specified level.
@@ -264,15 +268,15 @@ public:
    * @param msg the message string to log.
    * @param location location of source of logging request.
    */
-  virtual void log_message (log_level_t level, std::string const& msg,
-                            logger_ns::location_info const & location) = 0;
+  virtual void log_message( log_level_t level, std::string const& msg,
+                            logger_ns::location_info const& location ) = 0;
 
   /**
    * @brief Convert level code to string.
    *
    * @param lev level value to convert
-  */
-  static char const* get_level_string(kwiver_logger::log_level_t lev);
+   */
+  static char const* get_level_string( kwiver_logger::log_level_t lev );
 
   /**
    * @brief Get name of logger factory / back-end provider
@@ -285,7 +289,7 @@ public:
   std::string const& get_factory_name() const;
 
 protected:
-    /**
+  /**
    * @brief Constructor for logger object
    *
    * A new logger object is constructed for the specified category.
@@ -293,19 +297,19 @@ protected:
    * @param fact Pointer to logger factory
    * @param name Name of logger to create
    */
-  kwiver_logger( logger_ns::kwiver_logger_factory* fact, std::string const& name );
+  kwiver_logger( logger_ns::kwiver_logger_factory* fact,
+                 std::string const& name );
 
- /**
-  * @brief Call the registered callback functions, if any
-  */
-  void do_callback(log_level_t level, std::string const& msg,
-                   logger_ns::location_info const & location) const;
+/**
+ * @brief Call the registered callback functions, if any
+ */
+  void do_callback( log_level_t level, std::string const& msg,
+                    logger_ns::location_info const& location ) const;
 
 private:
-
   class impl;
-  const std::unique_ptr< impl > m_impl;
 
+  const std::unique_ptr< impl > m_impl;
 }; // end class logger
 
 /**
@@ -313,6 +317,8 @@ private:
  */
 typedef std::shared_ptr< kwiver_logger > logger_handle_t;
 
-} } // end namespace
+}// namespace vital
+
+} // namespace kwiver
 
 #endif

@@ -13,6 +13,7 @@
 #include <vital/util/thread_pool.h>
 
 namespace kwiver {
+
 namespace vital {
 
 /// A thread pool backend that runs jobs synchronously (e.g. no threads)
@@ -24,24 +25,29 @@ public:
   static constexpr const char* static_name = "Sync";
 
   /// Enqueue a void() task
-  void enqueue_task(std::function<void()> func)
+  void
+  enqueue_task( std::function< void() > func )
   {
     func();
   }
 
   /// Returns the number of worker threads
-  size_t num_threads() const
+  size_t
+  num_threads() const
   {
     return 0;
   }
 
   /// Returns the name of this backend
-  virtual const char* name() const
+  virtual const char*
+  name() const
   {
     return static_name;
   }
 };
 
-} }   // end namespace
+} // namespace vital
+
+} // namespace kwiver
 
 #endif

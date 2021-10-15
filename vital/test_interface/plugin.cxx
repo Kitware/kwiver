@@ -6,10 +6,8 @@
 #include <vital/test_interface/say.h>
 #include <vital/test_interface/say_cpp_export.h>
 
-
 // ----------------------------------------------------------------------------
-namespace kwiver::vital
-{
+namespace kwiver::vital {
 
 class cpp_say_impl : public say
 {
@@ -17,25 +15,27 @@ public:
   cpp_say_impl() = default;
   ~cpp_say_impl() override = default;
 
-  std::string says() override
+  std::string
+  says() override
   {
     return "I am the C++ plugin";
   }
 
-  static pluggable_sptr from_config( config_block const& /* cb */ )
+  static pluggable_sptr
+  from_config( config_block const& /* cb */ )
   {
     // No parameter constructor, just return new instance
-    return std::make_shared<cpp_say_impl>();
+    return std::make_shared< cpp_say_impl >();
   }
 
-  static void get_default_config( config_block & /* cb */ )
+  static void
+  get_default_config( config_block& /* cb */ )
   {
     // No constructor parameters, so nothing to set in the config block.
   }
 };
 
-}
-
+} // namespace kwiver::vital
 
 // ----------------------------------------------------------------------------
 namespace kv = kwiver::vital;
@@ -45,5 +45,5 @@ SAY_CPP_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpl )
 {
-  vpl.add_factory<kv::say, kv::cpp_say_impl>( "cpp" );
+  vpl.add_factory< kv::say, kv::cpp_say_impl >( "cpp" );
 }

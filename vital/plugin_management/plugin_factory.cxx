@@ -18,7 +18,8 @@ const std::string plugin_factory::PLUGIN_AUTHOR( "plugin-author" );
 const std::string plugin_factory::PLUGIN_ORGANIZATION( "plugin-organization" );
 const std::string plugin_factory::PLUGIN_LICENSE( "plugin-license" );
 const std::string plugin_factory::PLUGIN_CATEGORY( "plugin-category" );
-const std::string plugin_factory::PLUGIN_PROCESS_PROPERTIES( "plugin-process-properties" );
+const std::string plugin_factory::PLUGIN_PROCESS_PROPERTIES(
+  "plugin-process-properties" );
 
 const std::string plugin_factory::APPLET_CATEGORY( "kwiver-applet" );
 const std::string plugin_factory::PROCESS_CATEGORY( "process" );
@@ -26,11 +27,12 @@ const std::string plugin_factory::ALGORITHM_CATEGORY( "algorithm" );
 const std::string plugin_factory::CLUSTER_CATEGORY( "cluster" );
 
 // ------------------------------------------------------------------
-bool plugin_factory::
-get_attribute( std::string const& attr, std::string& val ) const
+bool
+plugin_factory
+::get_attribute( std::string const& attr, std::string& val ) const
 {
   auto const it = m_attribute_map.find( attr );
-  if ( it != m_attribute_map.end() )
+  if( it != m_attribute_map.end() )
   {
     val = it->second;
     return true;
@@ -41,13 +43,13 @@ get_attribute( std::string const& attr, std::string& val ) const
 
 // ------------------------------------------------------------------
 plugin_factory&
-plugin_factory::
-add_attribute( std::string const& attr, std::string const& val )
+plugin_factory
+::add_attribute( std::string const& attr, std::string const& val )
 {
   // Create if not there. Overwrite if already there.
-  m_attribute_map[attr] = val;
+  m_attribute_map[ attr ] = val;
 
   return *this;
 }
 
-} // end namespace
+} // namespace kwiver::vital

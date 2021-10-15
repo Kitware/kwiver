@@ -9,26 +9,30 @@
 #include <vital/util/vital_util_export.h>
 
 namespace kwiver {
+
 namespace vital {
 
 // ----------------------------------------------------------------
-/** Virtual base class for token types.
- *
- *
+
+/**
+ * Virtual base class for token types.
  */
 class VITAL_UTIL_EXPORT token_type_env
   : public token_type
 {
 public:
   token_type_env();
+
   virtual ~token_type_env();
 
   /** Lookup name in token type resolver.
    */
-  virtual bool lookup_entry (std::string const& name, std::string& result) const;
-
+  virtual bool lookup_entry( std::string const& name,
+                             std::string& result ) const;
 }; // end class token_type_env
 
-} } // end namespace
+} // namespace vital
+
+} // namespace kwiver
 
 #endif /* _TOKEN_TYPE_ENV_H_ */

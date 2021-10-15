@@ -38,10 +38,10 @@ setup(
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: BSD License",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Operating System :: Unix",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
@@ -57,7 +57,10 @@ setup(
     package_dir={"": PACKAGE_SRC},
     packages=find_packages(where=PACKAGE_SRC, include=[f"{PACKAGE_NAME}*"]),
     # Requirements #############################################################
-    install_requires=["numpy"],
+    install_requires=[
+        "numpy",
+        "importlib-metadata>=3.7.0; python_version < '3.8'"
+    ],
     # extras_require=[],
     # tests_require=[],
     # Entry-Points #############################################################

@@ -10,9 +10,11 @@
 #include <string>
 
 namespace kwiver {
+
 namespace vital {
 
 // ----------------------------------------------------------------
+
 /**
  * @brief Format long text into wrapped text block.
  *
@@ -62,9 +64,10 @@ public:
 private:
   std::string m_indent;
   size_t m_line_length;
-
 }; // end class wrap_text_block
 
-} } // end namespace
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // VITAL_UTIL_WRAP_TEXT_BLOCK_H

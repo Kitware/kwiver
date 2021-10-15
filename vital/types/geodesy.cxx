@@ -13,6 +13,7 @@
 #include <cmath>
 
 namespace kwiver {
+
 namespace vital {
 
 namespace {
@@ -20,7 +21,8 @@ namespace {
 static std::atomic< geo_conversion* > s_geo_conv;
 
 // ----------------------------------------------------------------------------
-double fmod( double n, double d )
+double
+fmod( double n, double d )
 {
   // Return the actual modulo `n % d`; std::fmod does the wrong thing for
   // negative numbers (rounds to zero, rather than rounding down)
@@ -48,7 +50,7 @@ geo_crs_description_t
 geo_crs_description( int crs )
 {
   auto const c = s_geo_conv.load();
-  if ( !c )
+  if( !c )
   {
     throw std::runtime_error( "No geo-conversion functor is registered" );
   }
@@ -61,7 +63,7 @@ vector_2d
 geo_conv( vector_2d const& point, int from, int to )
 {
   auto const c = s_geo_conv.load();
-  if ( !c )
+  if( !c )
   {
     throw std::runtime_error( "No geo-conversion functor is registered" );
   }
@@ -74,7 +76,7 @@ vector_3d
 geo_conv( vector_3d const& point, int from, int to )
 {
   auto const c = s_geo_conv.load();
-  if ( !c )
+  if( !c )
   {
     throw std::runtime_error( "No geo-conversion functor is registered" );
   }
@@ -87,39 +89,42 @@ utm_ups_zone_t
 utm_ups_zone( double lon, double lat )
 {
   // Check latitude for range error
-  if ( lat > 90.0 || lat < -90.0 )
+  if( lat > 90.0 || lat < -90.0 )
   {
     throw std::range_error( "Input latitude is out of range" );
   }
 
   // Check for UPS zones
-  if ( lat > 84.0 )
+  if( lat > 84.0 )
   {
     return { 0, true }; // UPS north
   }
-  if ( lat < -80.0 )
+  if( lat < -80.0 )
   {
     return { 0, false }; // UPS south
   }
 
   // Get normalized longitude and return UTM zone
   lon = fmod( lon, 360.0 );
-  auto const zone = 1 + ( ( 30 + static_cast<int>( lon / 6.0 ) ) % 60 );
+
+  auto const zone = 1 + ( ( 30 + static_cast< int >( lon / 6.0 ) ) % 60 );
   return { zone, lat >= 0.0 };
 }
 
 // ----------------------------------------------------------------------------
 utm_ups_zone_t
-utm_ups_zone( vector_2d const& lon_lat)
+utm_ups_zone( vector_2d const& lon_lat )
 {
-  return utm_ups_zone(lon_lat[0], lon_lat[1]);
+  return utm_ups_zone( lon_lat[ 0 ], lon_lat[ 1 ] );
 }
 
 // ----------------------------------------------------------------------------
 utm_ups_zone_t
-utm_ups_zone( vector_3d const& lon_lat_alt)
+utm_ups_zone( vector_3d const& lon_lat_alt )
 {
-  return utm_ups_zone(lon_lat_alt[0], lon_lat_alt[1]);
+  return utm_ups_zone( lon_lat_alt[ 0 ], lon_lat_alt[ 1 ] );
 }
 
-} } // end namespace
+} // namespace vital
+
+} // namespace kwiver

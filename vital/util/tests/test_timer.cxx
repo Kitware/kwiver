@@ -7,16 +7,17 @@
  * \brief test util timer class
  */
 
+#include <kwiversys/SystemTools.hxx>
 #include <vital/util/cpu_timer.h>
 #include <vital/util/wall_timer.h>
-#include <kwiversys/SystemTools.hxx>
 
 #include <gtest/gtest.h>
 
 #include <iostream>
 
 // ----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int
+main( int argc, char** argv )
 {
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
@@ -36,16 +37,17 @@ constexpr unsigned sleep_duration = 100;
 
 // ----------------------------------------------------------------------------
 // Classic bad Fibonacci implementation
-long fibonacci( unsigned n )
+long
+fibonacci( unsigned n )
 {
-    if ( n < 2 ) return n;
-    return fibonacci( n - 1 ) + fibonacci( n - 2 );
+  if( n < 2 ) { return n; }
+  return fibonacci( n - 1 ) + fibonacci( n - 2 );
 }
 
 } // end namespace
 
 // ----------------------------------------------------------------------------
-TEST(timer, cpu_timer)
+TEST ( timer, cpu_timer )
 {
   kwiver::vital::cpu_timer timer;
   double t1, t2;
@@ -85,7 +87,7 @@ TEST(timer, cpu_timer)
 }
 
 // ----------------------------------------------------------------------------
-TEST(timer, wall_timer)
+TEST ( timer, wall_timer )
 {
   kwiver::vital::wall_timer timer;
   double t1, t2;
@@ -114,7 +116,7 @@ TEST(timer, wall_timer)
 }
 
 // ----------------------------------------------------------------------------
-TEST(timer, scoped_cpu_timer)
+TEST ( timer, scoped_cpu_timer )
 {
   // As of the current implementation, CPU timers should always be available
   ASSERT_TRUE( kwiver::vital::cpu_timer{}.timer_available() );
@@ -124,7 +126,7 @@ TEST(timer, scoped_cpu_timer)
 }
 
 // ----------------------------------------------------------------------------
-TEST(timer, scoped_wall_timer)
+TEST ( timer, scoped_wall_timer )
 {
   // As of the current implementation, wall timers should always be available
   ASSERT_TRUE( kwiver::vital::wall_timer{}.timer_available() );

@@ -14,8 +14,7 @@
 
 #include <vital/exceptions/base.h>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // ------------------------------------------------------------------
 /// Generic video exception
@@ -31,8 +30,10 @@ public:
 };
 
 // ------------------------------------------------------------------
-/// Timeout getting next video frame.
-/*
+
+/**
+ * @brief Timeout getting next video frame.
+ *
  * This exception is thrown when the video_input::next_frame() method
  * timeout expires.
  */
@@ -48,8 +49,10 @@ public:
 };
 
 // ------------------------------------------------------------------
-/// Video stream error.
-/*
+
+/**
+ * @brief Video stream error.
+ *
  * This exception is thrown when there is exceptional condition while
  * streaming video.
  */
@@ -65,8 +68,9 @@ public:
 };
 
 // ------------------------------------------------------------------
-/// Video config error.
-/*
+
+/**
+ * @brief Video config error.
  * This exception is thrown when there is exceptional condition is
  * found in the configuration.
  */
@@ -82,8 +86,10 @@ public:
 };
 
 // ------------------------------------------------------------------
-/// Video runtime error.
-/*
+
+/**
+ * @brief Video runtime error.
+ *
  * This exception is thrown when there is exceptional condition while
  * processing the a video.
  */
@@ -98,6 +104,6 @@ public:
   virtual ~video_runtime_exception() noexcept;
 };
 
-} } // end namespace
+} // namespace kwiver::vital
 
 #endif /* VITAL_CORE_EXCEPTIONS_VIDEO_H */

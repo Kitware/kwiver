@@ -12,9 +12,11 @@
 #include <map>
 
 namespace kwiver {
+
 namespace vital {
 
 // ----------------------------------------------------------------
+
 /** Symbol table token expander.
  *
  * This token expander replaces one string with another.
@@ -31,24 +33,26 @@ class VITAL_UTIL_EXPORT token_type_symtab
   : public token_type
 {
 public:
-  token_type_symtab(std::string const& name = "SYMTAB");
+  token_type_symtab( std::string const& name = "SYMTAB" );
   virtual ~token_type_symtab();
 
   /** Lookup name in token type resolver.
    */
-  virtual bool lookup_entry (std::string const& name, std::string& result) const;
+  virtual bool lookup_entry( std::string const& name,
+                             std::string& result ) const;
 
   /** Add entry to table.
    */
-  virtual void add_entry (std::string const& name, std::string const& value);
+  virtual void add_entry( std::string const& name, std::string const& value );
 
-  virtual void remove_entry (std::string const& name);
+  virtual void remove_entry( std::string const& name );
 
 private:
-  std::map < std::string, std::string > m_table;
-
+  std::map< std::string, std::string > m_table;
 }; // end class token_type_symtab
 
-} } // end namespace
+} // namespace vital
+
+} // namespace kwiver
 
 #endif /* _TOKEN_TYPE_SYMTAB_H_ */

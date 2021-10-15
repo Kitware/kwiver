@@ -12,10 +12,10 @@
 #include <memory>
 #include <ostream>
 
-namespace kwiver {
-namespace tools {
+namespace kwiver::tools {
 
 // ----------------------------------------------------------------
+
 /**
  * @brief Applet context provided by the tool runner.
  *
@@ -31,20 +31,19 @@ public:
   // name of the applet. as in kwiver <applet> <args..>
   std::string m_applet_name;
 
-    /**
+  /**
    * Results from parsing the command options. Note that you do not
    * own this storage.
    */
   cxxopts::ParseResult*  m_result { nullptr };
 
   // Original args for plugin for alternate command line processing.
-  std::vector< std::string >m_argv;
+  std::vector< std::string > m_argv;
 
   // Flag for skipping command line parsing
   bool m_skip_command_args_parsing { false };
-
 }; // end class applet_context
 
-} } // end namespace
+} // namespace kwiver::tools
 
 #endif /* KWIVER_TOOLS_APP_CONTEXT_H */

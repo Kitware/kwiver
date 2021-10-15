@@ -17,13 +17,13 @@
 #include <cstdlib>
 
 #ifdef _WIN32
-#define tempnam(d, p) _tempnam(d, p)
+# define tempnam( d, p ) _tempnam( d, p )
 #endif
 
-namespace kwiver {
-namespace testing {
+namespace kwiver::testing {
 
 // ----------------------------------------------------------------------------
+
 /** @brief Generate a unique file name in the current working directory.
  *
  * @param prefix Prefix for generated file name.
@@ -32,14 +32,13 @@ namespace testing {
 std::string
 temp_file_name( char const* prefix, char const* suffix )
 {
-  auto const n = tempnam(".", prefix);
-  auto const s = std::string(n);
-  free(n);
+  auto const n = tempnam( ".", prefix );
+  auto const s = std::string( n );
+  free( n );
 
   return s + suffix;
 }
 
-} // end namespace testing
-} // end namespace kwiver
+} // namespace kwiver::testing
 
 #endif

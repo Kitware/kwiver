@@ -12,14 +12,15 @@
 #include <gtest/gtest.h>
 
 // ----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int
+main( int argc, char** argv )
 {
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
 }
 
 // ----------------------------------------------------------------------------
-TEST(string_editor, test)
+TEST ( string_editor, test )
 {
   kwiver::vital::string_editor se;
 
@@ -34,20 +35,20 @@ TEST(string_editor, test)
   se.add( new kwiver::vital::edit_operation::right_trim() );
   se.add( new kwiver::vital::edit_operation::remove_blank_string() );
 
-  EXPECT_TRUE( se.edit(str) );
+  EXPECT_TRUE( se.edit( str ) );
   EXPECT_EQ( "first line", str );
 
   str = "  \n";
   EXPECT_FALSE( se.edit( str ) ) << "Blank line should be absorbed";
 
   str = "trailing spaces        \n";
-  EXPECT_TRUE( se.edit(str) );
+  EXPECT_TRUE( se.edit( str ) );
   EXPECT_EQ( "trailing spaces", str );
 
   str = "# comment  \n";
   EXPECT_FALSE( se.edit( str ) ) << "Comment should be absorbed";
 
   str = "foo bar  # trailing comment  \n";
-  EXPECT_TRUE( se.edit(str) );
+  EXPECT_TRUE( se.edit( str ) );
   EXPECT_EQ( "foo bar", str );
 }

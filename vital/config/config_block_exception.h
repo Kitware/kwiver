@@ -11,19 +11,20 @@
 #define KWIVER_CONFIG_EXCEPTIONS_CONFIG_H
 
 #include <vital/config/vital_config_export.h>
-#include <vital/vital_config.h>
 #include <vital/exceptions/base.h>
+#include <vital/vital_config.h>
 
 #include "config_block_types.h"
 
 #include <string>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // ------------------------------------------------------------------
+
 /**
- * \brief The base class for all exceptions thrown from \ref kwiver::vital::config_block
+ * \brief The base class for all exceptions thrown from \ref
+ * kwiver::vital::config_block
  * \ingroup exceptions
  */
 class VITAL_CONFIG_EXPORT config_block_exception
@@ -37,6 +38,7 @@ public:
 };
 
 // ------------------------------------------------------------------
+
 /**
  * \brief The inner exception thrown when casting fails.
  * \ingroup exceptions
@@ -55,6 +57,7 @@ public:
 };
 
 // ------------------------------------------------------------------
+
 /**
  * \brief Thrown when a value cannot be converted to the requested type.
  * \ingroup exceptions
@@ -74,7 +77,8 @@ public:
   bad_config_block_cast_exception( config_block_key_t const&    key,
                                    config_block_value_t const&  value,
                                    std::string const&           type,
-                                   std::string const&           reason ) noexcept;
+                                   std::string const&           reason )
+  noexcept;
   /// Destructor.
   virtual ~bad_config_block_cast_exception() noexcept;
 
@@ -89,6 +93,7 @@ public:
 };
 
 // ------------------------------------------------------------------
+
 /**
  * \brief Thrown when a value is requested for a value which does not exist.
  * \ingroup exceptions
@@ -101,7 +106,8 @@ public:
    * \brief Constructor.
    * \param key The key that was requested from the configuration.
    */
-  no_such_configuration_value_exception( config_block_key_t const& key ) noexcept;
+  no_such_configuration_value_exception( config_block_key_t const& key )
+  noexcept;
   /// Destructor.
   virtual ~no_such_configuration_value_exception() noexcept;
 
@@ -110,6 +116,7 @@ public:
 };
 
 // ------------------------------------------------------------------
+
 /**
  * \brief Thrown when a value is set but is marked as read-only.
  * \ingroup exceptions
@@ -127,7 +134,9 @@ public:
    */
   set_on_read_only_value_exception( config_block_key_t const&   key,
                                     config_block_value_t const& value,
-                                    config_block_value_t const& new_value ) noexcept;
+                                    config_block_value_t const& new_value )
+  noexcept;
+
   /**
    * \brief Destructor.
    */
@@ -142,6 +151,7 @@ public:
 };
 
 // ------------------------------------------------------------------
+
 /**
  * \brief Thrown when a value is unset but is marked as read-only.
  * \ingroup exceptions
@@ -157,7 +167,9 @@ public:
    * \param value The current value for \p key.
    */
   unset_on_read_only_value_exception( config_block_key_t const&   key,
-                                      config_block_value_t const& value ) noexcept;
+                                      config_block_value_t const& value )
+  noexcept;
+
   /**
    * \brief Destructor.
    */
@@ -170,6 +182,7 @@ public:
 };
 
 // ------------------------------------------------------------------
+
 /**
  * \brief The inner exception thrown when casting fails.
  *
@@ -178,54 +191,57 @@ public:
 class VITAL_CONFIG_EXPORT bad_configuration_cast
   : public config_block_exception
 {
-  public:
-    /**
-     * \brief Constructor.
-     *
-     * \param reason The reason for the bad cast.
-     */
-  bad_configuration_cast(std::string const& reason) noexcept;
-    /**
-     * \brief Destructor.
-     */
-    ~bad_configuration_cast() noexcept;
+public:
+  /**
+   * \brief Constructor.
+   *
+   * \param reason The reason for the bad cast.
+   */
+  bad_configuration_cast( std::string const& reason ) noexcept;
+
+  /**
+   * \brief Destructor.
+   */
+  ~bad_configuration_cast() noexcept;
 };
 
 // ------------------------------------------------------------------
-/// Thrown when a value cannot be converted to the requested type.
+
 /**
- *
+ * \brief Thrown when a value cannot be converted to the requested type.
  * \ingroup exceptions
  */
 class VITAL_CONFIG_EXPORT bad_configuration_cast_exception
   : public config_block_exception
 {
-  public:
-    /**
-     * \brief Constructor.
-     *
-     * \param key The key that was requested.
-     * \param value The value that was failed to cast.
-     * \param type The type that was requested.
-     * \param reason The reason for the bad cast.
-     */
-    bad_configuration_cast_exception(kwiver::vital::config_block_key_t const& key,
-                                     kwiver::vital::config_block_value_t const& value,
-                                     char const* type,
-                                     char const* reason) noexcept;
-    /**
-     * \brief Destructor.
-     */
-    ~bad_configuration_cast_exception() noexcept;
+public:
+  /**
+   * \brief Constructor.
+   *
+   * \param key The key that was requested.
+   * \param value The value that was failed to cast.
+   * \param type The type that was requested.
+   * \param reason The reason for the bad cast.
+   */
+  bad_configuration_cast_exception(
+    kwiver::vital::config_block_key_t const& key,
+    kwiver::vital::config_block_value_t const& value,
+    char const* type,
+    char const* reason ) noexcept;
 
-    /// The requested key name.
-    kwiver::vital::config_block_key_t const m_key;
-    /// The value of the requested key.
-    kwiver::vital::config_block_value_t const m_value;
-    /// The type requested for the cast.
-    std::string const m_type;
-    /// The reason for the failed cast.
-    std::string const m_reason;
+  /**
+   * \brief Destructor.
+   */
+  ~bad_configuration_cast_exception() noexcept;
+
+  /// The requested key name.
+  kwiver::vital::config_block_key_t const m_key;
+  /// The value of the requested key.
+  kwiver::vital::config_block_value_t const m_value;
+  /// The type requested for the cast.
+  std::string const m_type;
+  /// The reason for the failed cast.
+  std::string const m_reason;
 };
 
 // ------------------------------------------------------------------
@@ -234,8 +250,8 @@ class VITAL_CONFIG_EXPORT config_block_io_exception
   : public config_block_exception
 {
 public:
-  ///Constructor
   /**
+   * \brief Constructor
    * \param file_path The path to the file related to this error.
    * \param reason    Reason for the exception.
    */
@@ -256,8 +272,8 @@ class VITAL_CONFIG_EXPORT config_file_not_found_exception
   : public config_block_io_exception
 {
 public:
-  /// Constructor
   /**
+   * \brief Constructor
    * \param file_path The file path that was looked for.
    * \param reason    The reason the file wasn't found.
    */
@@ -273,8 +289,8 @@ class VITAL_CONFIG_EXPORT config_file_not_read_exception
   : public config_block_io_exception
 {
 public:
-  ///Constructor
   /**
+   * \brief Constructor
    * \param file_path The file path on which the read was attempted.
    * \param reason    The reason for the read exception.
    */
@@ -290,8 +306,8 @@ class VITAL_CONFIG_EXPORT config_file_not_parsed_exception
   : public config_block_io_exception
 {
 public:
-  /// Constructor
   /**
+   * \brief Constructor
    * \param file_path The file path to which the parsing exception occurred.
    * \param reason    The reason for the parsing exception.
    */
@@ -307,8 +323,8 @@ class VITAL_CONFIG_EXPORT config_file_write_exception
   : public config_block_io_exception
 {
 public:
-  /// Constructor
   /**
+   * \brief Constructor
    * \param file_path The file path to which the write was attempted.
    * \param reason    The reason for the write exception
    */
@@ -318,6 +334,6 @@ public:
   virtual ~config_file_write_exception() noexcept;
 };
 
-} } // end namespace
+} // namespace kwiver::vital
 
 #endif

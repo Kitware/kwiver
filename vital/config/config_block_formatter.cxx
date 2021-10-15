@@ -8,34 +8,36 @@
 
 #include <iostream>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // ----------------------------------------------------------------------------
-config_block_formatter::
-config_block_formatter( const config_block_sptr config )
+config_block_formatter
+::config_block_formatter( const config_block_sptr config )
   : m_config( config )
-  , m_gen_source_loc( true )
-{ }
+    , m_gen_source_loc( true )
+{}
 
 // ----------------------------------------------------------------------------
-void config_block_formatter::
-set_prefix( const std::string& pfx )
+void
+config_block_formatter
+::set_prefix( const std::string& pfx )
 {
   m_prefix = pfx;
 }
 
 // ----------------------------------------------------------------------------
-void config_block_formatter::
-generate_source_loc( bool opt )
+void
+config_block_formatter
+::generate_source_loc( bool opt )
 {
   m_gen_source_loc = opt;
 }
 
 // ------------------------------------------------------------------
 
-void config_block_formatter::
-print( std::ostream& str )
+void
+config_block_formatter
+::print( std::ostream& str )
 {
   kwiver::vital::config_block_keys_t all_keys = m_config->available_values();
 
@@ -43,21 +45,22 @@ print( std::ostream& str )
   {
     std::string ro;
 
-    auto const val = m_config->get_value< kwiver::vital::config_block_value_t > ( key );
+    auto const val =
+      m_config->get_value< kwiver::vital::config_block_value_t >( key );
 
-    if ( m_config->is_read_only( key ) )
+    if( m_config->is_read_only( key ) )
     {
       ro = "[RO]";
     }
 
     str << m_prefix << key << ro << " = " << val;
 
-    if ( m_gen_source_loc )
+    if( m_gen_source_loc )
     {
       // Add location information if available
       std::string file;
-      int line(0);
-      if ( m_config->get_location( key, file, line ) )
+      int line( 0 );
+      if( m_config->get_location( key, file, line ) )
       {
         str << m_prefix << "  (" << file << ":" << line << ")";
       }
@@ -65,5 +68,5 @@ print( std::ostream& str )
     str << std::endl;
   }
 }
-}
-}   // end namespace
+
+} // namespace kwiver::vital

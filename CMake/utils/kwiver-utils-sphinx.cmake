@@ -14,5 +14,8 @@ function(kwiver_create_sphinx)
      COMMAND ${SPHINX_EXECUTABLE} -D breathe_projects.kwiver="${CMAKE_BINARY_DIR}/doc/kwiver/xml" ${CMAKE_SOURCE_DIR}/doc/manuals ${CMAKE_BINARY_DIR}/doc/sphinx
   )
   set_target_properties(sphinx-kwiver PROPERTIES FOLDER "Documentation")
+  # Our sphinx documentation uses the products of doxygen generation, so let's
+  # depend on that.
+  add_dependencies( sphinx-kwiver doxygen-kwiver )
 
 endfunction(kwiver_create_sphinx)

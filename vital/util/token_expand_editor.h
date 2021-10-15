@@ -10,11 +10,13 @@
 #include <vital/util/token_expander.h>
 
 namespace kwiver {
+
 namespace vital {
 
 namespace edit_operation {
 
 // ----------------------------------------------------------------
+
 /**
  * @brief String editor that does token/macro expansion.
  *
@@ -25,6 +27,7 @@ public:
   // -- CONSTRUCTORS --
   token_expand_editor();
   virtual ~token_expand_editor();
+
   virtual bool process( std::string& line );
 
   /**
@@ -36,13 +39,16 @@ public:
    *
    * @param tt New expander object.
    */
-  void add_expander( kwiver::vital::token_type * tt );
+  void add_expander( kwiver::vital::token_type* tt );
 
 private:
-    token_expander m_token_expander;
-
+  token_expander m_token_expander;
 }; // end class token_expand_editor
 
-} } } // end namespace
+} // namespace edit_operation
+
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // VITAL_UTIL_TOKEN_EXPAND_EDITOR_H

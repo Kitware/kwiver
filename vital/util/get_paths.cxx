@@ -9,16 +9,18 @@
 
 #include <vital/util/get_paths.h>
 
-namespace kwiver {
-namespace vital{
+namespace kwiver::vital {
 
 // Code originally from https://github.com/gpakosz/whereami.git
 // and used unmodified
 
 // make support functions static
 #define WAI_FUNCSPEC static
+// This import order is intentional
+// UNCRUST-OFF
 #include <vital/util/whereami.h>
 #include "whereami.c"
+// UNCRUST-ON
 
 // ------------------------------------------------------------------
 std::string
@@ -26,12 +28,12 @@ get_executable_path()
 {
   static std::string path; // cached path
 
-  if ( path.empty() )
+  if( path.empty() )
   {
-    char ppath[4096];
-    int length(0);
+    char ppath[ 4096 ];
+    int length( 0 );
     wai_getExecutablePath( ppath, sizeof ppath, &length );
-    ppath[length] = '\0';
+    ppath[ length ] = '\0';
 
     // convert to string
     path = ppath;
@@ -46,12 +48,12 @@ get_module_path()
 {
   static std::string path; // cached path
 
-  if ( path.empty() )
+  if( path.empty() )
   {
-    char ppath[4096];
-    int length(0);
+    char ppath[ 4096 ];
+    int length( 0 );
     wai_getModulePath( ppath, sizeof ppath, &length );
-    path[length] = '\0';
+    path[ length ] = '\0';
 
     // convert to string
     path = ppath;
@@ -60,4 +62,4 @@ get_module_path()
   return path;
 }
 
-} }
+} // namespace kwiver::vital
