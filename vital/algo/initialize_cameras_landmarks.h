@@ -65,11 +65,11 @@ public:
    * \param [in] metadata the frame metadata to use as constraints
    */
   virtual void
-  initialize( kwiver::vital::camera_map_sptr& cameras,
-              kwiver::vital::landmark_map_sptr& landmarks,
-              kwiver::vital::feature_track_set_sptr tracks,
-              kwiver::vital::sfm_constraints_sptr constraints = nullptr ) const
-  = 0;
+  initialize(
+    kwiver::vital::camera_map_sptr& cameras,
+    kwiver::vital::landmark_map_sptr& landmarks,
+    kwiver::vital::feature_track_set_sptr tracks,
+    kwiver::vital::sfm_constraints_sptr constraints = nullptr ) const = 0;
 
   /// Typedef for the callback function signature
   typedef std::function< bool ( kwiver::vital::camera_map_sptr,
