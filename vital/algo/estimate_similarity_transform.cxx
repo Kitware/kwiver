@@ -118,7 +118,7 @@ map_to_pts( M const& from_map, M const& to_map,
   }
 }
 
-} // namespace
+} // namespace <anonymous>
 
 // ------------------------------------------------------------------
 /// Estimate the similarity transform between two corresponding camera maps
@@ -175,9 +175,8 @@ estimate_similarity_transform
   std::vector< vector_3d > from_pts, to_pts;
   landmark_map::map_landmark_t from_map = from->landmarks(),
                                to_map = to->landmarks();
-  map_to_pts< landmark_map::map_landmark_t, &landmark::loc >( from_map, to_map,
-                                                              from_pts,
-                                                              to_pts );
+  map_to_pts< landmark_map::map_landmark_t, &landmark::loc >(
+    from_map, to_map, from_pts, to_pts );
   return this->estimate_transform( from_pts, to_pts );
 }
 
