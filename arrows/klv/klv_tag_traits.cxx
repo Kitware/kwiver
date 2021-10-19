@@ -252,7 +252,7 @@ klv_tag_traits_lookup
       throw std::logic_error( ss.str() );
     }
     if( !trait.enum_name().empty() &&
-        !m_name_to_traits.emplace( trait.enum_name(), &trait ).second )
+        !m_enum_name_to_traits.emplace( trait.enum_name(), &trait ).second )
     {
       std::stringstream ss;
       ss << "duplicate enum name in traits: '" << trait.enum_name() << "'";

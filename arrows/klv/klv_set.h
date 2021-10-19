@@ -394,7 +394,7 @@ class KWIVER_ALGO_KLV_EXPORT klv_set_format
 public:
   explicit
   klv_set_format( klv_tag_traits_lookup const& traits )
-    : klv_data_format_< klv_set< Key > >{ 0 }, m_traits{ traits } {}
+    : klv_data_format_< klv_set< Key > >{ 0 }, m_traits( traits ) {}
 
   virtual
   ~klv_set_format() = default;
