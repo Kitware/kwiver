@@ -54,6 +54,64 @@ PYBIND11_MODULE(mesh, m)
     {
         return self.faces().normals();
     })
+    .def("faces", [](kv::mesh& self)
+    {
+        const kv::mesh_face_array_base& faces = self.faces();
+
+        auto face_dim = faces.regularity();
+
+        py::list retVal;
+        for (unsigned int i = 0; i < faces.size(); ++i)
+        {
+            py::list verts;
+            if (face_dim == 0)
+            {
+                auto curr_face =
+                    static_cast<const kv::mesh_face_array&>(faces)[i];
+                for ( unsigned int j = 0; j < curr_face.size(); ++j )
+                {
+                    verts.append(curr_face[j]);
+                }
+            }
+            else if (face_dim == 3)
+            {
+                auto curr_face =
+                    static_cast<const kv::mesh_regular_face_array<3>&>(faces)[i];
+                for ( unsigned int j = 0; j < curr_face.num_verts(); ++j )
+                {
+                    verts.append(curr_face[j]);
+                }
+            }
+            else if (face_dim == 4)
+            {
+                auto curr_face =
+                    static_cast<const kv::mesh_regular_face_array<4>&>(faces)[i];
+                for ( unsigned int j = 0; j < curr_face.num_verts(); ++j )
+                {
+                    verts.append(curr_face[j]);
+                }
+            }
+            retVal.append(verts);
+        }
+
+        return retVal;
+    })
+    .def("vertices", [](kv::mesh& self)
+    {
+        const kv::mesh_vertex_array_base& raw_verts = self.vertices();
+
+        py::list retVal;
+        for ( unsigned int i = 0; i < raw_verts.size(); ++i )
+        {
+            py::list vert;
+            for ( unsigned int j = 0; j < raw_verts.dim(); ++j )
+            {
+                vert.append(raw_verts(i, j));
+            }
+            retVal.append(vert);
+        }
+        return retVal;
+    })
     .def_static("from_ply_file", [](std::string path)
     {
       return kv::read_ply(path);
