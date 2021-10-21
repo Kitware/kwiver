@@ -201,11 +201,11 @@ private:
 /// algorithm, and create new instance by name.
 /// Each algorithm definition should be declared as shown below
 /// \code
-/// class my_algo_def
-/// : public algorithm_def<my_algo_def>
-/// {
-///   ...
-/// };
+    class my_algo_def
+    : public algorithm_def<my_algo_def>
+    {
+      ...
+    };
 /// \endcode
 /// \sa algorithm_impl
 ///
