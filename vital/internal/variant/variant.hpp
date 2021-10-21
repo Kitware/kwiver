@@ -202,6 +202,13 @@ namespace std {
 #include <type_traits>
 #include <utility>
 
+// Empty namespace, so it is guaranteed to exist before aliasing it as mpark
+namespace kwiver {
+
+namespace vital {}
+
+} // namespace kwiver
+
 namespace mpark = kwiver::vital;
 
 #include "config.hpp"
