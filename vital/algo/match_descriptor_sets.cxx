@@ -2,10 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of bag of words matching
- */
+///
+/// \file
+/// \brief Implementation of bag of words matching
+///
 
 #include <vital/algo/match_descriptor_sets.h>
 #include <vital/algo/algorithm.txx>

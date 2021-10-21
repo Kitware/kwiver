@@ -2,10 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief detect_motion algorithm instantiation
- */
+///
+/// \file
+/// \brief detect_motion algorithm instantiation
+///
 
 #include <vital/algo/detect_motion.h>
 

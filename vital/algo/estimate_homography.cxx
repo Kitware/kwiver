@@ -2,11 +2,11 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief estimate_homography algorithm definition instantiation +
- * implementation
- */
+///
+/// \file
+/// \brief estimate_homography algorithm definition instantiation +
+/// implementation
+///
 
 #include <vital/algo/algorithm.txx>
 #include <vital/algo/estimate_homography.h>

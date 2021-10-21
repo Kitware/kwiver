@@ -2,10 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of save wrapping functionality.
- */
+///
+/// \file
+/// \brief Implementation of save wrapping functionality.
+///
 
 #include "write_object_track_set.h"
 

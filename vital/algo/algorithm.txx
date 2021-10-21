@@ -2,10 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief implementation of algorithm/_def/_impl templated methods
- */
+///
+/// \file
+/// \brief implementation of algorithm/_def/_impl templated methods
+///
 
 #ifndef VITAL_ALGO_ALGORITHM_TXX_
 #define VITAL_ALGO_ALGORITHM_TXX_

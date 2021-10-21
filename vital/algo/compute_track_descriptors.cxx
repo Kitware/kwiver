@@ -2,10 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief compute_track_descriptors algorithm instantiation
- */
+///
+/// \file
+/// \brief compute_track_descriptors algorithm instantiation
+///
 
 #include <vital/algo/algorithm.txx>
 #include <vital/algo/compute_track_descriptors.h>

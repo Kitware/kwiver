@@ -2,10 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief extract_descriptors algorithm definition
- */
+///
+/// \file
+/// \brief extract_descriptors algorithm definition
+///
 
 #ifndef VITAL_ALGO_EXTRACT_DESCRIPTORS_H_
 #define VITAL_ALGO_EXTRACT_DESCRIPTORS_H_
@@ -32,21 +32,20 @@ public:
   static std::string static_type_name() { return "extract_descriptors"; }
 
   /// Extract from the image a descriptor corresoponding to each feature
-
-  /**
-   * \param [in]     image_data contains the image data to process
-   * \param [in,out] features the feature locations at which descriptors
-   *                 are extracted (may be modified).
-   * \param [in]     image_mask Mask image of the same dimensions as
-   *                            \p image_data where positive values indicate
-   *                            regions of \p image_data to consider.
-   * \returns a set of feature descriptors
-   *
-   * \note The feature_set passed into this function may modified to
-   *       reorder, remove, or duplicate some features to align with the
-   *       set of descriptors detected.  If the feature_set needs to change,
-   *       a new feature_set is created and returned by reference.
-   */
+  ///
+  /// \param [in]     image_data contains the image data to process
+  /// \param [in,out] features the feature locations at which descriptors
+  ///                are extracted (may be modified).
+  /// \param [in]     image_mask Mask image of the same dimensions as
+  ///                           \p image_data where positive values indicate
+  ///                           regions of \p image_data to consider.
+  /// \returns a set of feature descriptors
+  ///
+  /// \note The feature_set passed into this function may modified to
+  ///      reorder, remove, or duplicate some features to align with the
+  ///      set of descriptors detected.  If the feature_set needs to change,
+  ///      a new feature_set is created and returned by reference.
+  ///
 
   virtual kwiver::vital::descriptor_set_sptr
   extract( kwiver::vital::image_container_sptr image_data,

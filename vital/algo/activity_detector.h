@@ -2,10 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header defining abstract activity detector
- */
+///
+/// \file
+/// \brief Header defining abstract activity detector
+///
 
 #ifndef VITAL_ALGO_ACTIVITY_DETECTOR_H_
 #define VITAL_ALGO_ACTIVITY_DETECTOR_H_
@@ -24,10 +24,10 @@ namespace algo {
 
 // ----------------------------------------------------------------
 
-/**
- * @brief activity detector base class/
- *
- */
+///
+/// @brief activity detector base class/
+///
+///
 class VITAL_ALGO_EXPORT activity_detector
   : public algorithm_def< activity_detector >
 {

@@ -2,10 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief associate_detections_to_tracks algorithm definition
- */
+///
+/// \file
+/// \brief associate_detections_to_tracks algorithm definition
+///
 
 #ifndef VITAL_ALGO_ASSOCIATE_DETECTIONS_TO_TRACKS_H_
 #define VITAL_ALGO_ASSOCIATE_DETECTIONS_TO_TRACKS_H_
@@ -36,17 +36,16 @@ public:
   static_type_name() { return "associate_detections_to_tracks"; }
 
   /// Use cost matrices to assign detections to existing tracks
-
-  /**
-   * \param ts frame ID
-   * \param image contains the input image for the current frame
-   * \param tracks active track set from the last frame
-   * \param detections detected object sets from the current frame
-   * \param matrix matrix containing detection to track association scores
-   * \param output the output updated detection set
-   * \param unused output detection set for any detections not associated
-   * \returns whether or not any tracks were updated
-   */
+  ///
+  /// \param ts frame ID
+  /// \param image contains the input image for the current frame
+  /// \param tracks active track set from the last frame
+  /// \param detections detected object sets from the current frame
+  /// \param matrix matrix containing detection to track association scores
+  /// \param output the output updated detection set
+  /// \param unused output detection set for any detections not associated
+  /// \returns whether or not any tracks were updated
+  ///
   virtual bool
   associate( kwiver::vital::timestamp ts,
              kwiver::vital::image_container_sptr image,

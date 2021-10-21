@@ -2,11 +2,11 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header defining abstract \link kwiver::vital::algo::compute_depth
- *        compute depth \endlink algorithm
- */
+///
+/// \file
+/// \brief Header defining abstract \link kwiver::vital::algo::compute_depth
+///       compute depth \endlink algorithm
+///
 
 #ifndef VITAL_ALGO_COMPUTE_DEPTH_H_
 #define VITAL_ALGO_COMPUTE_DEPTH_H_
@@ -35,22 +35,21 @@ public:
   static std::string static_type_name() { return "compute_depth"; }
 
   /// Compute a depth map from an image sequence
-
-  /**
-   * Implementations of this function should not modify the underlying objects
-   * contained in the input structures. Output references should either be new
-   * instances or the same as input.
-   *
-   * \param [in] frames image sequence to compute depth with
-   * \param [in] cameras corresponding to the image sequence
-   * \param [in] depth_min minimum depth expected
-   * \param [in] depth_max maximum depth expected
-   * \param [in] reference_frame index into image sequence denoting the frame
-   * that depth is computed on
-   * \param [in] roi region of interest within reference image (can be entire
-   * image)
-   * \param [in] masks optional masks corresponding to the image sequence
-   */
+  ///
+  /// Implementations of this function should not modify the underlying objects
+  /// contained in the input structures. Output references should either be new
+  /// instances or the same as input.
+  ///
+  /// \param [in] frames image sequence to compute depth with
+  /// \param [in] cameras corresponding to the image sequence
+  /// \param [in] depth_min minimum depth expected
+  /// \param [in] depth_max maximum depth expected
+  /// \param [in] reference_frame index into image sequence denoting the frame
+  /// that depth is computed on
+  /// \param [in] roi region of interest within reference image (can be entire
+  /// image)
+  /// \param [in] masks optional masks corresponding to the image sequence
+  ///
   virtual kwiver::vital::image_container_sptr
   compute( std::vector< kwiver::vital::image_container_sptr > const& frames,
            std::vector< kwiver::vital::camera_perspective_sptr > const& cameras,
@@ -61,23 +60,22 @@ public:
            std::vector< kwiver::vital::image_container_sptr >( ) ) const;
 
   /// Compute a depth map and depth uncertainty from an image sequence
-
-  /**
-   * Implementations of this function should not modify the underlying objects
-   * contained in the input structures. Output references should either be new
-   * instances or the same as input.
-   *
-   * \param [in] frames image sequence to compute depth with
-   * \param [in] cameras corresponding to the image sequence
-   * \param [in] depth_min minimum depth expected
-   * \param [in] depth_max maximum depth expected
-   * \param [in] reference_frame index into image sequence denoting the frame
-   * that depth is computed on
-   * \param [in] roi region of interest within reference image (can be entire
-   * image)
-   * \param [out] depth_uncertainty returns pixel-wise uncertainty
-   * \param [in] masks optional masks corresponding to the image sequence
-   */
+  ///
+  /// Implementations of this function should not modify the underlying objects
+  /// contained in the input structures. Output references should either be new
+  /// instances or the same as input.
+  ///
+  /// \param [in] frames image sequence to compute depth with
+  /// \param [in] cameras corresponding to the image sequence
+  /// \param [in] depth_min minimum depth expected
+  /// \param [in] depth_max maximum depth expected
+  /// \param [in] reference_frame index into image sequence denoting the frame
+  /// that depth is computed on
+  /// \param [in] roi region of interest within reference image (can be entire
+  /// image)
+  /// \param [out] depth_uncertainty returns pixel-wise uncertainty
+  /// \param [in] masks optional masks corresponding to the image sequence
+  ///
   virtual kwiver::vital::image_container_sptr
   compute( std::vector< kwiver::vital::image_container_sptr > const& frames,
            std::vector< kwiver::vital::camera_perspective_sptr > const& cameras,

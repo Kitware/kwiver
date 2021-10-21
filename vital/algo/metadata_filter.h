@@ -2,10 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Interface to abstract filter metadata algorithm
- */
+///
+/// \file
+/// \brief Interface to abstract filter metadata algorithm
+///
 
 #ifndef VITAL_ALGO_METADATA_FILTER_H
 #define VITAL_ALGO_METADATA_FILTER_H

@@ -14,12 +14,12 @@
 #include <memory>
 #include <ostream>
 
-/**
- * \file
- * \brief Header defining abstract \link kwiver::vital::algo::analyze_tracks
- * track
- *        analyzer \endlink algorithm
- */
+///
+/// \file
+/// \brief Header defining abstract \link kwiver::vital::algo::analyze_tracks
+/// track
+///       analyzer \endlink algorithm
+///
 
 namespace kwiver {
 
@@ -38,11 +38,10 @@ public:
   static std::string static_type_name() { return "analyze_tracks"; }
 
   /// Output various information about the tracks stored in the input set.
-
-  /**
-   * \param [in] track_set the tracks to analyze
-   * \param [in] stream an output stream to write data onto
-   */
+  ///
+  /// \param [in] track_set the tracks to analyze
+  /// \param [in] stream an output stream to write data onto
+  ///
   virtual void
   print_info( kwiver::vital::track_set_sptr track_set,
               stream_t& stream = std::cout ) const = 0;
