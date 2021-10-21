@@ -11,6 +11,7 @@ set( sources
   klv_data.cxx
   klv_data_format.cxx
   klv_key.cxx
+  klv_packet.cxx
   klv_parse.cxx
   klv_read_write.cxx
   klv_set.cxx
