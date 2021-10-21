@@ -18,6 +18,7 @@ set( sources
   klv_value.cxx
   klv_0601.cxx
   klv_0104.cxx
+  klv_1108.cxx
   klv_1108_metric_set.cxx
   misp_time.cxx
   )

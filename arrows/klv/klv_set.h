@@ -403,7 +403,7 @@ protected:
   using key_traits = klv_detail::key_traits< Key >;
 
   klv_set< Key >
-  read_typed( klv_read_iter_t& data, size_t length ) const override final
+  read_typed( klv_read_iter_t& data, size_t length ) const override
   {
     // These help us keep track of how many bytes we have read
     auto const begin = data;
@@ -435,7 +435,7 @@ protected:
 
   void
   write_typed( klv_set< Key > const& klv,
-               klv_write_iter_t& data, size_t length ) const override final
+               klv_write_iter_t& data, size_t length ) const override
   {
     // These help us keep track of how many bytes we have written
     auto const begin = data;
@@ -465,7 +465,7 @@ protected:
 
   size_t
   length_of_typed( klv_set< Key > const& value,
-                   VITAL_UNUSED size_t length_hint ) const override final
+                   VITAL_UNUSED size_t length_hint ) const override
   {
     constexpr size_t initializer = 0;
     auto accumulator =
