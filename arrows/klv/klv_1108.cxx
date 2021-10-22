@@ -160,7 +160,7 @@ bool
 operator==( klv_1108_window_corners_pack const& lhs,
             klv_1108_window_corners_pack const& rhs )
 {
-  return std::equal( &lhs.top_row, &lhs.top_row + 4, &rhs.top_row );
+  return lhs.bbox == rhs.bbox;
 }
 
 // ----------------------------------------------------------------------------
@@ -168,8 +168,11 @@ bool
 operator<( klv_1108_window_corners_pack const& lhs,
            klv_1108_window_corners_pack const& rhs )
 {
-  return std::lexicographical_compare( &lhs.top_row, &lhs.top_row + 4,
-                                       &rhs.top_row, &rhs.top_row + 4 );
+  // Use std::tuple's built-in lexicographical compare for brevity
+  return std::make_tuple( lhs.bbox.min_x(), lhs.bbox.min_y(),
+                          lhs.bbox.max_x(), lhs.bbox.max_y() ) <
+         std::make_tuple( rhs.bbox.min_x(), rhs.bbox.min_y(),
+                          rhs.bbox.max_x(), rhs.bbox.max_y() );
 }
 
 // ----------------------------------------------------------------------------
@@ -177,9 +180,9 @@ std::ostream&
 operator<<( std::ostream& os, klv_1108_window_corners_pack const& rhs )
 {
   return os << "{ Upper Left: ( "
-            << rhs.left_column << ", " << rhs.top_row << " ), "
+            << rhs.bbox.min_x() << ", " << rhs.bbox.min_y() << " ), "
             << "Lower Right: ( "
-            << rhs.right_column << ", " << rhs.bottom_row << " ) }";
+            << rhs.bbox.max_x() << ", " << rhs.bbox.max_y() << " ) }";
 }
 
 // ----------------------------------------------------------------------------
@@ -195,16 +198,12 @@ klv_1108_window_corners_pack_format
   auto const begin = data;
   auto const remaining_length =
     [ & ]() -> size_t { return length - std::distance( begin, data ); };
-  klv_1108_window_corners_pack result;
-  result.top_row =
-    klv_read_ber_oid< uint16_t >( data, remaining_length() );
-  result.left_column =
-    klv_read_ber_oid< uint16_t >( data, remaining_length() );
-  result.bottom_row =
-    klv_read_ber_oid< uint16_t >( data, remaining_length() );
-  result.right_column =
-    klv_read_ber_oid< uint16_t >( data, remaining_length() );
-  return result;
+
+  auto const y_min = klv_read_ber_oid< uint16_t >( data, remaining_length() );
+  auto const x_min = klv_read_ber_oid< uint16_t >( data, remaining_length() );
+  auto const y_max = klv_read_ber_oid< uint16_t >( data, remaining_length() );
+  auto const x_max = klv_read_ber_oid< uint16_t >( data, remaining_length() );
+  return { { x_min, y_min, x_max, y_max } };
 }
 
 // ----------------------------------------------------------------------------
@@ -216,10 +215,10 @@ klv_1108_window_corners_pack_format
   auto const begin = data;
   auto const remaining_length =
     [ & ]() -> size_t { return length - std::distance( begin, data ); };
-  klv_write_ber_oid( value.top_row,      data, remaining_length() );
-  klv_write_ber_oid( value.left_column,  data, remaining_length() );
-  klv_write_ber_oid( value.bottom_row,   data, remaining_length() );
-  klv_write_ber_oid( value.right_column, data, remaining_length() );
+  klv_write_ber_oid( value.bbox.min_y(), data, remaining_length() );
+  klv_write_ber_oid( value.bbox.min_x(), data, remaining_length() );
+  klv_write_ber_oid( value.bbox.max_y(), data, remaining_length() );
+  klv_write_ber_oid( value.bbox.max_x(), data, remaining_length() );
 }
 
 // ----------------------------------------------------------------------------
@@ -228,10 +227,10 @@ klv_1108_window_corners_pack_format
 ::length_of_typed( klv_1108_window_corners_pack const& value,
                    VITAL_UNUSED size_t length_hint ) const
 {
-  return klv_ber_oid_length( value.top_row ) +
-         klv_ber_oid_length( value.left_column ) +
-         klv_ber_oid_length( value.bottom_row ) +
-         klv_ber_oid_length( value.right_column );
+  return klv_ber_oid_length( value.bbox.min_y() ) +
+         klv_ber_oid_length( value.bbox.min_x() ) +
+         klv_ber_oid_length( value.bbox.max_y() ) +
+         klv_ber_oid_length( value.bbox.max_x() );
 }
 
 // ----------------------------------------------------------------------------

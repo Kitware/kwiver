@@ -11,6 +11,8 @@
 #include <arrows/klv/klv_set.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
+#include <vital/types/bounding_box.h>
+
 #include <ostream>
 
 namespace kwiver {
@@ -161,10 +163,7 @@ public:
 /// Indicates the bounding box for which the metrics were calculated.
 struct KWIVER_ALGO_KLV_EXPORT klv_1108_window_corners_pack
 {
-  uint16_t top_row;
-  uint16_t left_column;
-  uint16_t bottom_row;
-  uint16_t right_column;
+  kwiver::vital::bounding_box< uint16_t > bbox;
 };
 
 // ----------------------------------------------------------------------------
