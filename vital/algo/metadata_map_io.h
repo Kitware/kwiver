@@ -2,12 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Interface for serialize_metadata \link
- * kwiver::vital::algo::algorithm_def algorithm
- *        definition \endlink.
- */
+/// \file
+/// \brief Interface for serialize_metadata \link
+/// kwiver::vital::algo::algorithm_def algorithm
+///        definition \endlink.
 
 #ifndef VITAL_ALGO_METADATA_MAP_IO_H_
 #define VITAL_ALGO_METADATA_MAP_IO_H_

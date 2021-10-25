@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header defining abstract \link kwiver::vital::algo::initialize_cameras_landmarks
- *        bundle adjustment \endlink algorithm
- */
+/// \file
+/// \brief Header defining abstract \link kwiver::vital::algo::initialize_cameras_landmarks
+///        bundle adjustment \endlink algorithm
 
 #ifndef VITAL_ALGO_INITIALIZE_CAMERAS_LANDMARKS_H_
 #define VITAL_ALGO_INITIALIZE_CAMERAS_LANDMARKS_H_
@@ -34,26 +32,24 @@ public:
   static std::string static_type_name() { return "initialize_cameras_landmarks"; }
 
   /// Initialize the camera and landmark parameters given a set of feature tracks
-  /**
-   * The algorithm creates an initial estimate of any missing cameras and
-   * landmarks using the available cameras, landmarks, and feature tracks.
-   * If the input cameras map is a NULL pointer then the algorithm should try
-   * to initialize all cameras covered by the track set.  If the input camera
-   * map exists then the algorithm should only initialize cameras on frames for
-   * which the camera is set to NULL.  Frames not in the map will not be
-   * initialized.  This allows the caller to control which subset of cameras to
-   * initialize without needing to manipulate the feature tracks.
-   * The analogous behavior is also applied to the input landmarks map to
-   * select which track IDs should be used to initialize landmarks.
-   *
-   * \note This algorithm may optionally revise the estimates of existing
-   * cameras and landmarks passed as input.
-   *
-   * \param [in,out] cameras the cameras to initialize
-   * \param [in,out] landmarks the landmarks to initialize
-   * \param [in] tracks the feature tracks to use as constraints
-   * \param [in] metadata the frame metadata to use as constraints
-   */
+  /// The algorithm creates an initial estimate of any missing cameras and
+  /// landmarks using the available cameras, landmarks, and feature tracks.
+  /// If the input cameras map is a NULL pointer then the algorithm should try
+  /// to initialize all cameras covered by the track set.  If the input camera
+  /// map exists then the algorithm should only initialize cameras on frames for
+  /// which the camera is set to NULL.  Frames not in the map will not be
+  /// initialized.  This allows the caller to control which subset of cameras to
+  /// initialize without needing to manipulate the feature tracks.
+  /// The analogous behavior is also applied to the input landmarks map to
+  /// select which track IDs should be used to initialize landmarks.
+  ///
+  /// \note This algorithm may optionally revise the estimates of existing
+  /// cameras and landmarks passed as input.
+  ///
+  /// \param [in,out] cameras the cameras to initialize
+  /// \param [in,out] landmarks the landmarks to initialize
+  /// \param [in] tracks the feature tracks to use as constraints
+  /// \param [in] metadata the frame metadata to use as constraints
   virtual void
   initialize(kwiver::vital::camera_map_sptr& cameras,
              kwiver::vital::landmark_map_sptr& landmarks,
