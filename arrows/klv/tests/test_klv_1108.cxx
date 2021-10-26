@@ -44,7 +44,7 @@ TEST ( klv, read_write_1108 )
     { KLV_1108_METRIC_PERIOD_PACK,
       klv_1108_metric_period_pack{ 1630000000000000, 7000000 } },
     { KLV_1108_WINDOW_CORNERS_PACK,
-      klv_1108_window_corners_pack{ 0, 0, 1280, 720 } },
+      klv_1108_window_corners_pack{ { 0, 0, 1280, 720 } } },
     { KLV_1108_METRIC_LOCAL_SET,    expected_metric_set },
     { KLV_1108_COMPRESSION_TYPE,    KLV_1108_COMPRESSION_TYPE_H264 },
     { KLV_1108_COMPRESSION_PROFILE, KLV_1108_COMPRESSION_PROFILE_HIGH },
@@ -57,7 +57,7 @@ TEST ( klv, read_write_1108 )
     KLV_1108_ASSESSMENT_POINT,       1,  KLV_1108_ASSESSMENT_POINT_ARCHIVE,
     KLV_1108_METRIC_PERIOD_PACK,     12,
     0x00, 0x05, 0xCA, 0x79, 0xF2, 0xFB, 0xe0, 0x00, 0x00, 0x6A, 0xCF, 0xC0,
-    KLV_1108_WINDOW_CORNERS_PACK,    6,  0x00, 0x00, 0x8A, 0x00, 0x85, 0x50,
+    KLV_1108_WINDOW_CORNERS_PACK,    6,  0x00, 0x00, 0x85, 0x50, 0x8A, 0x00,
     KLV_1108_METRIC_LOCAL_SET,       47,
     KLV_1108_METRIC_SET_NAME,        6,  'V', 'N', 'I', 'I', 'R', 'S',
     KLV_1108_METRIC_SET_VERSION,     3,  '3', '.', '0',
@@ -73,7 +73,7 @@ TEST ( klv, read_write_1108 )
     KLV_1108_COMPRESSION_RATIO,      4,  0x41, 0xC9, 0x99, 0x9A,
     KLV_1108_STREAM_BITRATE,         2,  0x04, 0x00,
     KLV_1108_DOCUMENT_VERSION,       1,  0x03,
-    KLV_1108_CHECKSUM,               2,  0x6D, 0x88 };
+    KLV_1108_CHECKSUM,               2,  0xC1, 0xE4 };
 
   CALL_TEST( test_read_write, {}, {} );
   CALL_TEST( test_read_write, expected_result, input_bytes );
