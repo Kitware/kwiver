@@ -18,6 +18,7 @@ set( sources
   klv_tag_traits.cxx
   klv_value.cxx
   klv_0601.cxx
+  klv_0601_new.cxx
   klv_0104.cxx
   klv_0104_new.cxx
   klv_1108.cxx
