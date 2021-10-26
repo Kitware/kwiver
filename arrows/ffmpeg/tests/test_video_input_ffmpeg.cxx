@@ -16,8 +16,6 @@
 #include <vital/exceptions/video.h>
 #include <vital/plugin_loader/plugin_manager.h>
 
-#include <arrows/vxl/vidl_ffmpeg_video_input.h>
-
 #include <memory>
 #include <string>
 #include <iostream>
