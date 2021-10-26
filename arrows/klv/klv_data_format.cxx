@@ -69,6 +69,40 @@ klv_data_format
 }
 
 // ----------------------------------------------------------------------------
+uint16_t
+klv_data_format
+::calculate_checksum( VITAL_UNUSED klv_read_iter_t data,
+                      VITAL_UNUSED size_t length ) const
+{
+  return 0;
+}
+
+// ----------------------------------------------------------------------------
+uint16_t
+klv_data_format
+::read_checksum( VITAL_UNUSED klv_read_iter_t data,
+                 VITAL_UNUSED size_t length ) const
+{
+  return 0;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_data_format
+::write_checksum( VITAL_UNUSED uint16_t checksum,
+                  VITAL_UNUSED klv_write_iter_t& data,
+                  VITAL_UNUSED size_t max_length ) const
+{}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_data_format
+::checksum_length() const
+{
+  return 0;
+}
+
+// ----------------------------------------------------------------------------
 klv_blob_format
 ::klv_blob_format( size_t fixed_length )
   : klv_data_format_< data_type >{ fixed_length }

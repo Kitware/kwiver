@@ -7,6 +7,12 @@
 
 #include "klv_packet.h"
 
+#include <arrows/klv/klv_0104_new.h>
+#include <arrows/klv/klv_0601_new.h>
+#include <arrows/klv/klv_1108.h>
+
+#include <iomanip>
+
 namespace kv = kwiver::vital;
 
 namespace kwiver {
@@ -14,6 +20,20 @@ namespace kwiver {
 namespace arrows {
 
 namespace klv {
+
+// ----------------------------------------------------------------------------
+bool
+operator==( klv_packet const& lhs, klv_packet const& rhs )
+{
+  return lhs.key == rhs.key && lhs.value == rhs.value;
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator!=( klv_packet const& lhs, klv_packet const& rhs )
+{
+  return !( lhs == rhs );
+}
 
 // ----------------------------------------------------------------------------
 std::ostream&
@@ -72,10 +92,34 @@ klv_read_packet( klv_read_iter_t& data, size_t max_length )
                  "reading klv packet value overflows buffer" );
   }
 
+  // Verify checksum
+  auto const& format = klv_lookup_packet_traits().by_uds_key( key ).format();
+
+  auto const packet_length =
+    static_cast< size_t >( std::distance( begin, data ) ) + length_of_value;
+  auto const checksum_length = format.checksum_length();
+
+  auto const expected_checksum =
+    format.read_checksum( begin, packet_length );
+  auto const actual_checksum =
+    format.calculate_checksum( begin, packet_length - checksum_length );
+  if( expected_checksum != actual_checksum )
+  {
+    std::stringstream ss;
+    ss  << std::hex << std::setfill( '0' )
+        << "calculated checksum "
+        << "(0x" << std::setw( 4 ) << actual_checksum << ") "
+        << "does not equal checksum contained in packet "
+        << "(0x" << std::setw( 4 ) << expected_checksum << ")";
+    VITAL_THROW( kv::metadata_exception, ss.str() );
+  }
+
   // Read value
   auto const value =
-    klv_lookup_packet_traits().by_uds_key( key )
-    .format().read( data, length_of_value );
+    format.read( data, length_of_value - checksum_length );
+
+  // Ensure iterator ends correctly
+  data += format.checksum_length();
 
   return { key, value };
 }
@@ -85,23 +129,44 @@ void
 klv_write_packet( klv_packet const& packet, klv_write_iter_t& data,
                   size_t max_length )
 {
+  auto const begin = data;
+  auto const remaining_length =
+    [ & ]() -> size_t {
+      return max_length - std::distance( begin, data );
+    };
+
   auto const& format =
     klv_lookup_packet_traits().by_uds_key( packet.key ).format();
   auto const length = format.length_of( packet.value );
-  if( max_length < length )
+  auto const packet_length = klv_packet_length( packet );
+  auto const checksum_length = format.checksum_length();
+  if( max_length < length + checksum_length )
   {
     VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
                  "writing klv packet overflows buffer" );
   }
+
+  klv_write_uds_key( packet.key, data, remaining_length() );
+  klv_write_ber( length + checksum_length, data, remaining_length() );
   format.write( packet.value, data, length );
+
+  auto const checksum =
+    format.calculate_checksum( begin, packet_length - checksum_length );
+  format.write_checksum( checksum, data, checksum_length );
 }
 
 // ----------------------------------------------------------------------------
 size_t
 klv_packet_length( klv_packet const& packet )
 {
-  return klv_lookup_packet_traits().by_uds_key( packet.key )
-    .format().length_of( packet.value );
+  auto const& format =
+    klv_lookup_packet_traits().by_uds_key( packet.key ).format();
+  auto const length_of_key = packet.key.length;
+  auto const length_of_value = format.length_of( packet.value );
+  auto const length_of_length = klv_ber_length( length_of_value );
+  auto const length_of_checksum = format.checksum_length();
+  return length_of_key + length_of_length + length_of_value +
+         length_of_checksum;
 }
 
 // ----------------------------------------------------------------------------
@@ -117,23 +182,23 @@ klv_lookup_packet_traits()
       "Unknown Packet",
       "Packet of unknown type.",
       0 },
-    { {},
+    { klv_1108_key(),
       ENUM_AND_NAME( KLV_PACKET_MISB_1108_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_1108_local_set_format >(),
       "MISB ST 1108 Local Set",
       "Interpretability and Quality Local Set. Contains image quality metrics "
       "and compression characteristics for a video stream or file.",
       0 },
-    { {},
+    { klv_0601_key(),
       ENUM_AND_NAME( KLV_PACKET_MISB_0601_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_local_set_format >(),
       "MISB ST 0601 Local Set",
       "UAS Datalink Local Set. Contains a wide variety of metadata describing "
       "an unmanned aerial system producing FMV footage.",
       0 },
-    { {},
+    { klv_0104_key(),
       ENUM_AND_NAME( KLV_PACKET_MISB_0104_UNIVERSAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0104_universal_set_format >(),
       "MISB ST 0104 Universal Set",
       "Predator UAV Basic Universal Set. Contains basic metadata describing a "
       "Predator unmanned aerial system producing FMV footage. Predecessor to "
