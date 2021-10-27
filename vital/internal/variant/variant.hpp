@@ -314,7 +314,7 @@ namespace vital{
 
   constexpr std::size_t variant_npos = static_cast<std::size_t>(-1);
 
-  namespace detail {
+  namespace mpark_detail {
 
     constexpr std::size_t not_found = static_cast<std::size_t>(-1);
     constexpr std::size_t ambiguous = static_cast<std::size_t>(-2);
@@ -1324,7 +1324,7 @@ namespace vital{
     template <typename T>
     struct is_in_place_type<in_place_type_t<T>> : std::true_type {};
 
-  }  // detail
+  }  // mpark_detail
 
   template <typename... Ts>
   class variant {
@@ -1355,9 +1355,9 @@ namespace vital{
         typename Arg,
         typename Decayed = lib::decay_t<Arg>,
         lib::enable_if_t<!std::is_same<Decayed, variant>::value, int> = 0,
-        lib::enable_if_t<!detail::is_in_place_index<Decayed>::value, int> = 0,
-        lib::enable_if_t<!detail::is_in_place_type<Decayed>::value, int> = 0,
-        std::size_t I = detail::best_match<Arg, Ts...>::value,
+        lib::enable_if_t<!mpark_detail::is_in_place_index<Decayed>::value, int> = 0,
+        lib::enable_if_t<!mpark_detail::is_in_place_type<Decayed>::value, int> = 0,
+        std::size_t I = mpark_detail::best_match<Arg, Ts...>::value,
         typename T = lib::type_pack_element_t<I, Ts...>,
         lib::enable_if_t<std::is_constructible<T, Arg>::value, int> = 0>
     inline constexpr variant(Arg &&arg) noexcept(
@@ -1397,7 +1397,7 @@ namespace vital{
     template <
         typename T,
         typename... Args,
-        std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
+        std::size_t I = mpark_detail::find_index_sfinae<T, Ts...>::value,
         lib::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
     inline explicit constexpr variant(
         in_place_type_t<T>,
@@ -1409,7 +1409,7 @@ namespace vital{
         typename T,
         typename Up,
         typename... Args,
-        std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
+        std::size_t I = mpark_detail::find_index_sfinae<T, Ts...>::value,
         lib::enable_if_t<std::is_constructible<T,
                                                std::initializer_list<Up> &,
                                                Args...>::value,
@@ -1432,7 +1432,7 @@ namespace vital{
     template <typename Arg,
               lib::enable_if_t<!std::is_same<lib::decay_t<Arg>, variant>::value,
                                int> = 0,
-              std::size_t I = detail::best_match<Arg, Ts...>::value,
+              std::size_t I = mpark_detail::best_match<Arg, Ts...>::value,
               typename T = lib::type_pack_element_t<I, Ts...>,
               lib::enable_if_t<(std::is_assignable<T &, Arg>::value &&
                                 std::is_constructible<T, Arg>::value),
@@ -1469,7 +1469,7 @@ namespace vital{
     template <
         typename T,
         typename... Args,
-        std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
+        std::size_t I = mpark_detail::find_index_sfinae<T, Ts...>::value,
         lib::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
     inline T &emplace(Args &&... args) {
       return impl_.template emplace<I>(lib::forward<Args>(args)...);
@@ -1479,7 +1479,7 @@ namespace vital{
         typename T,
         typename Up,
         typename... Args,
-        std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
+        std::size_t I = mpark_detail::find_index_sfinae<T, Ts...>::value,
         lib::enable_if_t<std::is_constructible<T,
                                                std::initializer_list<Up> &,
                                                Args...>::value,
@@ -1511,10 +1511,10 @@ namespace vital{
     }
 
     private:
-    detail::impl<Ts...> impl_;
+    mpark_detail::impl<Ts...> impl_;
 
-    friend struct detail::access::variant;
-    friend struct detail::visitation::variant;
+    friend struct mpark_detail::access::variant;
+    friend struct mpark_detail::visitation::variant;
   };
 
   template <std::size_t I, typename... Ts>
@@ -1524,10 +1524,10 @@ namespace vital{
 
   template <typename T, typename... Ts>
   inline constexpr bool holds_alternative(const variant<Ts...> &v) noexcept {
-    return holds_alternative<detail::find_index_checked<T, Ts...>::value>(v);
+    return holds_alternative<mpark_detail::find_index_checked<T, Ts...>::value>(v);
   }
 
-  namespace detail {
+  namespace mpark_detail {
     template <std::size_t I, typename V>
     struct generic_get_impl {
       constexpr generic_get_impl(int) noexcept {}
@@ -1542,53 +1542,53 @@ namespace vital{
       AUTO_REFREF_RETURN(generic_get_impl<I, V>(
           holds_alternative<I>(v) ? 0 : (throw_bad_variant_access(), 0))(
           lib::forward<V>(v)))
-  }  // namespace detail
+  }  // namespace mpark_detail
 
   template <std::size_t I, typename... Ts>
   inline constexpr variant_alternative_t<I, variant<Ts...>> &get(
       variant<Ts...> &v) {
-    return detail::generic_get<I>(v);
+    return mpark_detail::generic_get<I>(v);
   }
 
   template <std::size_t I, typename... Ts>
   inline constexpr variant_alternative_t<I, variant<Ts...>> &&get(
       variant<Ts...> &&v) {
-    return detail::generic_get<I>(lib::move(v));
+    return mpark_detail::generic_get<I>(lib::move(v));
   }
 
   template <std::size_t I, typename... Ts>
   inline constexpr const variant_alternative_t<I, variant<Ts...>> &get(
       const variant<Ts...> &v) {
-    return detail::generic_get<I>(v);
+    return mpark_detail::generic_get<I>(v);
   }
 
   template <std::size_t I, typename... Ts>
   inline constexpr const variant_alternative_t<I, variant<Ts...>> &&get(
       const variant<Ts...> &&v) {
-    return detail::generic_get<I>(lib::move(v));
+    return mpark_detail::generic_get<I>(lib::move(v));
   }
 
   template <typename T, typename... Ts>
   inline constexpr T &get(variant<Ts...> &v) {
-    return get<detail::find_index_checked<T, Ts...>::value>(v);
+    return get<mpark_detail::find_index_checked<T, Ts...>::value>(v);
   }
 
   template <typename T, typename... Ts>
   inline constexpr T &&get(variant<Ts...> &&v) {
-    return get<detail::find_index_checked<T, Ts...>::value>(lib::move(v));
+    return get<mpark_detail::find_index_checked<T, Ts...>::value>(lib::move(v));
   }
 
   template <typename T, typename... Ts>
   inline constexpr const T &get(const variant<Ts...> &v) {
-    return get<detail::find_index_checked<T, Ts...>::value>(v);
+    return get<mpark_detail::find_index_checked<T, Ts...>::value>(v);
   }
 
   template <typename T, typename... Ts>
   inline constexpr const T &&get(const variant<Ts...> &&v) {
-    return get<detail::find_index_checked<T, Ts...>::value>(lib::move(v));
+    return get<mpark_detail::find_index_checked<T, Ts...>::value>(lib::move(v));
   }
 
-  namespace detail {
+  namespace mpark_detail {
 
     template <std::size_t I, typename V>
     inline constexpr /* auto * */ AUTO generic_get_if(V *v) noexcept
@@ -1596,37 +1596,37 @@ namespace vital{
                       ? lib::addressof(access::variant::get_alt<I>(*v).value)
                       : nullptr)
 
-  }  // namespace detail
+  }  // namespace mpark_detail
 
   template <std::size_t I, typename... Ts>
   inline constexpr lib::add_pointer_t<variant_alternative_t<I, variant<Ts...>>>
   get_if(variant<Ts...> *v) noexcept {
-    return detail::generic_get_if<I>(v);
+    return mpark_detail::generic_get_if<I>(v);
   }
 
   template <std::size_t I, typename... Ts>
   inline constexpr lib::add_pointer_t<
       const variant_alternative_t<I, variant<Ts...>>>
   get_if(const variant<Ts...> *v) noexcept {
-    return detail::generic_get_if<I>(v);
+    return mpark_detail::generic_get_if<I>(v);
   }
 
   template <typename T, typename... Ts>
   inline constexpr lib::add_pointer_t<T>
   get_if(variant<Ts...> *v) noexcept {
-    return get_if<detail::find_index_checked<T, Ts...>::value>(v);
+    return get_if<mpark_detail::find_index_checked<T, Ts...>::value>(v);
   }
 
   template <typename T, typename... Ts>
   inline constexpr lib::add_pointer_t<const T>
   get_if(const variant<Ts...> *v) noexcept {
-    return get_if<detail::find_index_checked<T, Ts...>::value>(v);
+    return get_if<mpark_detail::find_index_checked<T, Ts...>::value>(v);
   }
 
   template <typename... Ts>
   inline constexpr bool operator==(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
-    using detail::visitation::variant;
+    using mpark_detail::visitation::variant;
     using lib::equal_to;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.index() != rhs.index()) return false;
@@ -1642,7 +1642,7 @@ namespace vital{
   template <typename... Ts>
   inline constexpr bool operator!=(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
-    using detail::visitation::variant;
+    using mpark_detail::visitation::variant;
     using lib::not_equal_to;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.index() != rhs.index()) return true;
@@ -1658,7 +1658,7 @@ namespace vital{
   template <typename... Ts>
   inline constexpr bool operator<(const variant<Ts...> &lhs,
                                   const variant<Ts...> &rhs) {
-    using detail::visitation::variant;
+    using mpark_detail::visitation::variant;
     using lib::less;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (rhs.valueless_by_exception()) return false;
@@ -1677,7 +1677,7 @@ namespace vital{
   template <typename... Ts>
   inline constexpr bool operator>(const variant<Ts...> &lhs,
                                   const variant<Ts...> &rhs) {
-    using detail::visitation::variant;
+    using mpark_detail::visitation::variant;
     using lib::greater;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.valueless_by_exception()) return false;
@@ -1696,7 +1696,7 @@ namespace vital{
   template <typename... Ts>
   inline constexpr bool operator<=(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
-    using detail::visitation::variant;
+    using mpark_detail::visitation::variant;
     using lib::less_equal;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.valueless_by_exception()) return true;
@@ -1716,7 +1716,7 @@ namespace vital{
   template <typename... Ts>
   inline constexpr bool operator>=(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
-    using detail::visitation::variant;
+    using mpark_detail::visitation::variant;
     using lib::greater_equal;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (rhs.valueless_by_exception()) return true;
@@ -1761,7 +1761,7 @@ namespace vital{
   }
 
 #ifdef MPARK_CPP14_CONSTEXPR
-  namespace detail {
+  namespace mpark_detail {
 
     inline constexpr bool all(std::initializer_list<bool> bs) {
       for (bool b : bs) {
@@ -1772,18 +1772,18 @@ namespace vital{
       return true;
     }
 
-  }  // namespace detail
+  }  // namespace mpark_detail
 
   template <typename Visitor, typename... Vs>
   inline constexpr decltype(auto) visit(Visitor &&visitor, Vs &&... vs) {
-    return (detail::all({!vs.valueless_by_exception()...})
+    return (mpark_detail::all({!vs.valueless_by_exception()...})
                 ? (void)0
                 : throw_bad_variant_access()),
-           detail::visitation::variant::visit_value(
+           mpark_detail::visitation::variant::visit_value(
                lib::forward<Visitor>(visitor), lib::forward<Vs>(vs)...);
   }
 #else
-  namespace detail {
+  namespace mpark_detail {
 
     template <std::size_t N>
     inline constexpr bool all_impl(const lib::array<bool, N> &bs,
@@ -1796,16 +1796,16 @@ namespace vital{
       return all_impl(bs, 0);
     }
 
-  }  // namespace detail
+  }  // namespace mpark_detail
 
   template <typename Visitor, typename... Vs>
   inline constexpr DECLTYPE_AUTO visit(Visitor &&visitor, Vs &&... vs)
     DECLTYPE_AUTO_RETURN(
-        (detail::all(
+        (mpark_detail::all(
              lib::array<bool, sizeof...(Vs)>{{!vs.valueless_by_exception()...}})
              ? (void)0
              : throw_bad_variant_access()),
-        detail::visitation::variant::visit_value(lib::forward<Visitor>(visitor),
+        mpark_detail::visitation::variant::visit_value(lib::forward<Visitor>(visitor),
                                                  lib::forward<Vs>(vs)...))
 #endif
 
@@ -1823,7 +1823,7 @@ namespace vital{
 #pragma GCC diagnostic pop
 #endif
 
-  namespace detail {
+  namespace mpark_detail {
 
     template <typename T, typename...>
     using enabled_type = T;
@@ -1848,7 +1848,7 @@ namespace vital{
 
     }  // namespace hash
 
-  }  // namespace detail
+  }  // namespace mpark_detail
 
 #undef AUTO
 #undef AUTO_RETURN
@@ -1864,15 +1864,15 @@ namespace vital{
 namespace std {
 
   template <typename... Ts>
-  struct hash<mpark::detail::enabled_type<
+  struct hash<mpark::mpark_detail::enabled_type<
       mpark::variant<Ts...>,
-      mpark::lib::enable_if_t<mpark::lib::all<mpark::detail::hash::is_enabled<
+      mpark::lib::enable_if_t<mpark::lib::all<mpark::mpark_detail::hash::is_enabled<
           mpark::lib::remove_const_t<Ts>>()...>::value>>> {
     using argument_type = mpark::variant<Ts...>;
     using result_type = std::size_t;
 
     inline result_type operator()(const argument_type &v) const {
-      using mpark::detail::visitation::variant;
+      using mpark::mpark_detail::visitation::variant;
       std::size_t result =
           v.valueless_by_exception()
               ? 299792458  // Random value chosen by the universe upon creation
