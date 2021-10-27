@@ -52,34 +52,34 @@ class TestVitalMetaTraits(unittest.TestCase):
         self.check_are_valid_traits(tag_traits_by_tag( mt.tags.VITAL_META_UNKNOWN ),
                                     mt.tags.VITAL_META_UNKNOWN,
                                     "Unknown / Undefined Entry",
-                                    "VITAL_META_UNKNOWN",
+                                    "UNKNOWN",
                                     "int",
                                     "Unknown or undefined entry.")
 
         self.check_are_valid_traits(tag_traits_by_tag( mt.tags.VITAL_META_METADATA_ORIGIN ),
                                     mt.tags.VITAL_META_METADATA_ORIGIN,
                                     "Origin of Metadata",
-                                    "VITAL_META_METADATA_ORIGIN",
+                                    "METADATA_ORIGIN",
                                     "string",
                                     "Name of the metadata standard used to decode these metadata values from a video stream.")
         self.check_are_valid_traits(tag_traits_by_tag( mt.tags.VITAL_META_UNIX_TIMESTAMP ),
                                     mt.tags.VITAL_META_UNIX_TIMESTAMP,
                                     "Unix Timestamp (microseconds)",
-                                    "VITAL_META_UNIX_TIMESTAMP",
+                                    "UNIX_TIMESTAMP",
                                     tc.get_uint64_rep(),
                                     "Number of microseconds since the Unix epoch, not counting leap seconds.")
 
         self.check_are_valid_traits(tag_traits_by_tag( mt.tags.VITAL_META_SLANT_RANGE ),
                                     mt.tags.VITAL_META_SLANT_RANGE,
                                     "Slant Range (meters)",
-                                    "VITAL_META_SLANT_RANGE",
+                                    "SLANT_RANGE",
                                     "double",
                                     "Distance to target.")
 
         self.check_are_valid_traits(tag_traits_by_tag( mt.tags.VITAL_META_VIDEO_KEY_FRAME ),
                                     mt.tags.VITAL_META_VIDEO_KEY_FRAME,
                                     "Is Key Frame",
-                                    "VITAL_META_VIDEO_KEY_FRAME",
+                                    "VIDEO_KEY_FRAME",
                                     "bool",
                                     "True if the current frame is a key frame.")
 
@@ -98,4 +98,4 @@ class TestMetadataTraits(unittest.TestCase):
         self.assertEqual(tag_traits_by_name( "Origin of Metadata" ).tag(), mt.tags.VITAL_META_METADATA_ORIGIN)
 
     def test_traits_by_enum_name(self):
-        self.assertEqual(tag_traits_by_enum_name( "VITAL_META_METADATA_ORIGIN" ).tag(), mt.tags.VITAL_META_METADATA_ORIGIN)
+        self.assertEqual(tag_traits_by_enum_name( "METADATA_ORIGIN" ).tag(), mt.tags.VITAL_META_METADATA_ORIGIN)
