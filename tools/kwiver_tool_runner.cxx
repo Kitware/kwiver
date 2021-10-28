@@ -247,6 +247,13 @@ int main(int argc, char *argv[])
     // Make results available in the context,
     tool_context->m_result = &local_result; // in this case the address of a stack variable is o.k.
 
+    // Common handle if -h/--help is provided.
+    if ( local_result["help"].as<bool>() )
+    {
+      std::cout << applet->m_cmd_options->help();
+      return EXIT_SUCCESS;
+    }
+
     // Run the specified tool
     return applet->run();
   }
