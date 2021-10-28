@@ -44,6 +44,12 @@ RUN cd /kwiver \
   && make -j$(nproc) -k \
   && make install \
   && chmod +x setup_KWIVER.sh
+# Optionally install python build requirements if it was generated.
+RUN PYTHON_REQS="python/requirements.txt" \
+ && cd /kwiver/build \
+ && ( ( [ ! -f "$PYTHON_REQS" ] \
+        && echo "!!! No build requirements generated, nothing to install." ) \
+      || pip3 install -r "$PYTHON_REQS" )
 
 # Configure entrypoint
 RUN echo 'source /kwiver/build/setup_KWIVER.sh' >> entrypoint.sh \
