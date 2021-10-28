@@ -17,7 +17,9 @@ PYBIND11_MODULE( metadata_tags, m )
        tag = static_cast< kv::vital_metadata_tag >(
          static_cast< size_t >( tag ) + 1 ) )
   {
-    tags_enum.value( kv::tag_traits_by_tag( tag ).enum_name().c_str(), tag );
+    auto const enum_name =
+      std::string( "VITAL_META_" ) + kv::tag_traits_by_tag( tag ).enum_name();
+    tags_enum.value( enum_name.c_str(), tag );
   }
 
   tags_enum.value( "VITAL_META_LAST_TAG", kv::VITAL_META_LAST_TAG );
