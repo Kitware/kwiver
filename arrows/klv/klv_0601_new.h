@@ -11,6 +11,7 @@
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
 #include "klv_set.h"
+#include "klv_packet.h"
 
 #include <ostream>
 
@@ -434,13 +435,19 @@ private:
   klv_local_set
   read_typed( klv_read_iter_t& data, size_t length ) const override;
 
+
+  uint16_t
+  calculate_checksum( klv_read_iter_t data, size_t length ) const override;
+
+  uint16_t
+  read_checksum( klv_read_iter_t data, size_t length ) const override;
+
   void
-  write_typed( klv_local_set const& value,
-               klv_write_iter_t& data, size_t length ) const override;
+  write_checksum( uint16_t checksum,
+                  klv_write_iter_t& data, size_t max_length ) const override;
 
   size_t
-  length_of_typed( klv_local_set const& value,
-                   size_t length_hint ) const override;
+  checksum_length() const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -450,7 +457,7 @@ klv_uds_key
 klv_0601_key();
 
 // ----------------------------------------------------------------------------
-/// Returns a lookup objects for the traits of the ST0601 tags.
+/// Returns a lookup object for the traits of the ST0601 tags.
 KWIVER_ALGO_KLV_EXPORT
 klv_tag_traits_lookup const&
 klv_0601_traits_lookup();

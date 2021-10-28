@@ -59,6 +59,8 @@ public:
          size_t length ) const = 0;
 
   /// Return number of bytes required to write \p value.
+  ///
+  /// \note The return value does not account for a checksum, if present.
   virtual size_t
   length_of( klv_value const& value ) const = 0;
 
@@ -81,6 +83,23 @@ public:
   /// Return a textual description of this data format.
   virtual std::string
   description() const = 0;
+
+  /// Return the checksum value of the given bytes.
+  virtual uint16_t
+  calculate_checksum( klv_read_iter_t data, size_t length ) const;
+
+  /// Extract the written checksum value from the end of the given bytes.
+  virtual uint16_t
+  read_checksum( klv_read_iter_t data, size_t length ) const;
+
+  /// Write the given checksum packet.
+  virtual void
+  write_checksum( uint16_t checksum,
+                  klv_write_iter_t& data, size_t max_length ) const;
+
+  /// Return the length of the checksum packet.
+  virtual size_t
+  checksum_length() const;
 
 protected:
   /// Describe the length of this data format.

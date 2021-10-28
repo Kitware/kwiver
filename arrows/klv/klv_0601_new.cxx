@@ -21,6 +21,13 @@ namespace arrows {
 
 namespace klv {
 
+namespace {
+
+constexpr size_t checksum_packet_length = 4;
+std::vector< uint8_t > const checksum_header = { KLV_0601_CHECKSUM, 2 };
+
+} // namespace <anonymous>
+
 // ----------------------------------------------------------------------------
 klv_tag_traits_lookup const&
 klv_0601_traits_lookup()
@@ -1312,13 +1319,11 @@ klv_0601_local_set_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
   constexpr size_t timestamp_packet_length = 10;
-  constexpr size_t checksum_packet_length  = 4;
 
-  if( length < timestamp_packet_length + checksum_packet_length )
+  if( length < timestamp_packet_length  )
   {
     VITAL_THROW( kv::metadata_exception,
-                 "packet too small; "
-                 "checksum and/or timestamp are not present" );
+                 "packet too small; timestamp is not present" );
   }
 
   // Ensure timestamp tag and length are present
@@ -1331,72 +1336,65 @@ klv_0601_local_set_format
                  "timestamp not present at beginning of packet" );
   }
 
-  // Read checksum tag and length
-  auto checksum_it = data + ( length - checksum_packet_length );
-  auto const checksum_tag = klv_read_int< uint8_t >( checksum_it, 1 );
-  auto const checksum_length = klv_read_int< uint8_t >( checksum_it, 1 );
-  if( checksum_tag != KLV_0601_CHECKSUM || checksum_length != 2 )
-  {
-    VITAL_THROW( kv::metadata_exception,
-                 "checksum not present at end of packet" );
-  }
-
-  // Read checksum value
-  auto const checksum_value_begin = checksum_it;
-  auto const checksum_value =
-    klv_read_int< uint16_t >( checksum_it, checksum_length );
-
-  // Ensure checksum matches calculated checksum of rest of packet
-  auto const calculated_checksum =
-    klv_running_sum_16( data, checksum_value_begin );
-  if( calculated_checksum != checksum_value )
-  {
-    std::stringstream ss;
-    ss  << std::hex << std::setfill( '0' )
-        << "calculated checksum "
-        << "(0x" << std::setw( 4 ) << calculated_checksum << ") "
-        << "does not equal checksum at end of packet "
-        << "(0x" << std::setw( 4 ) << checksum_value << ")";
-    VITAL_THROW( kv::metadata_exception, ss.str() );
-  }
-
   // Read rest of packet as normal
   auto const result =
-    klv_local_set_format::read_typed( data, length - checksum_packet_length );
-
-  // Ensure iterator ends up after checksum
-  data += checksum_packet_length;
+    klv_local_set_format::read_typed( data, length );
 
   return result;
 }
 
 // ----------------------------------------------------------------------------
+uint16_t
+klv_0601_local_set_format
+::calculate_checksum( klv_read_iter_t data, size_t length ) const
+{
+  return klv_running_sum_16( checksum_header.begin(), checksum_header.end(),
+                             klv_running_sum_16( data, data + length ) );
+}
+
+// ----------------------------------------------------------------------------
+uint16_t
+klv_0601_local_set_format
+::read_checksum( klv_read_iter_t data, size_t length ) const
+{
+  if( length < checksum_packet_length )
+  {
+    VITAL_THROW( kv::metadata_buffer_overflow,
+                 "packet too small; checksum is not present" );
+  }
+  data += length - checksum_packet_length;
+
+  if( !std::equal( checksum_header.cbegin(), checksum_header.cend(), data ) )
+  {
+    VITAL_THROW( kv::metadata_exception,
+                 "checksum header not present" );
+  }
+  data += checksum_header.size();
+
+  return klv_read_int< uint16_t >( data, 2 );
+}
+
+// ----------------------------------------------------------------------------
 void
 klv_0601_local_set_format
-::write_typed( klv_local_set const& value,
-               klv_write_iter_t& data, size_t length ) const
+::write_checksum( uint16_t checksum,
+                  klv_write_iter_t& data, size_t max_length ) const
 {
-  // Write rest of packet as normal
-  auto const begin = data;
-  auto const internal_length = length - 4;
-  klv_local_set_format::write_typed( value, data, internal_length );
-
-  // Write checksum key and length, which will be included in the checksum
-  // calculation
-  klv_write_int< uint8_t >( KLV_0601_CHECKSUM, data, 1 );
-  klv_write_int< uint8_t >( 2, data, 1 );
-
-  // Write checksum value
-  auto const checksum = klv_running_sum_16( begin, data );
+  if( max_length < checksum_packet_length )
+  {
+    VITAL_THROW( kv::metadata_buffer_overflow,
+                 "writing checksum packet overflows data buffer" );
+  }
+  data = std::copy( checksum_header.cbegin(), checksum_header.cend(), data );
   klv_write_int( checksum, data, 2 );
 }
 
 // ----------------------------------------------------------------------------
 size_t
 klv_0601_local_set_format
-::length_of_typed( klv_local_set const& value, size_t length_hint ) const
+::checksum_length() const
 {
-  return klv_local_set_format::length_of_typed( value, length_hint - 4 ) + 4;
+  return checksum_packet_length;
 }
 
 // ----------------------------------------------------------------------------

@@ -44,6 +44,16 @@ struct KWIVER_ALGO_KLV_EXPORT klv_packet
 
 // ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
+bool
+operator==( klv_packet const& lhs, klv_packet const& rhs );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator!=( klv_packet const& lhs, klv_packet const& rhs );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
 std::ostream&
 operator<<( std::ostream& os, klv_packet const& packet );
 

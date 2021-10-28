@@ -21,10 +21,9 @@ namespace klv {
 // ----------------------------------------------------------------------------
 template < class Iterator >
 uint16_t
-klv_running_sum_16( Iterator data_begin, Iterator data_end )
+klv_running_sum_16( Iterator data_begin, Iterator data_end,
+                    uint16_t initial_value )
 {
-  constexpr uint16_t initializer = 0x0000;
-
   // Counter to check even / odd byte
   size_t i = 0;
   auto accumulator =
@@ -33,16 +32,15 @@ klv_running_sum_16( Iterator data_begin, Iterator data_end )
       return sum + new_value;
     };
 
-  return std::accumulate( data_begin, data_end, initializer, accumulator );
+  return std::accumulate( data_begin, data_end, initial_value, accumulator );
 }
 
 // ----------------------------------------------------------------------------
 template < class Iterator >
 uint16_t
-klv_crc_16_ccitt( Iterator data_begin, Iterator data_end )
+klv_crc_16_ccitt( Iterator data_begin, Iterator data_end,
+                  uint16_t initial_value )
 {
-  constexpr uint16_t initializer = 0xFFFF;
-
   // Based on http://srecord.sourceforge.net/crc16-ccitt.html
   auto accumulator =
     []( uint16_t crc, uint8_t byte ) -> uint16_t {
@@ -61,7 +59,8 @@ klv_crc_16_ccitt( Iterator data_begin, Iterator data_end )
     };
 
   // CRC of given data
-  auto crc = std::accumulate( data_begin, data_end, initializer, accumulator );
+  auto crc =
+    std::accumulate( data_begin, data_end, initial_value, accumulator );
 
   // Proper CRC-16 pads input with 16 bits of zeros at the end
   std::vector< uint8_t > const padding = { 0x00, 0x00 };
@@ -71,7 +70,7 @@ klv_crc_16_ccitt( Iterator data_begin, Iterator data_end )
 // ----------------------------------------------------------------------------
 // Instantiate templates for common iterators
 #define KLV_INSTANTIATE( FN, T ) \
-  template KWIVER_ALGO_KLV_EXPORT FN< T >( T, T )
+  template KWIVER_ALGO_KLV_EXPORT FN< T >( T, T, uint16_t )
 #define KLV_INSTANTIATE_ALL( FN ) \
   KLV_INSTANTIATE( FN, uint8_t const* ); \
   KLV_INSTANTIATE( FN, typename std::vector< uint8_t >::iterator ); \
