@@ -49,7 +49,6 @@ add_command_options()
   m_cmd_options->positional_help( "\n  video-file  - name of video file." );
 
   m_cmd_options->add_options()
-    ( "h,help", "Display applet usage" )
     ( "c,config", "Configuration file for tool", cxxopts::value< std::string >() )
     ( "o,output", "Dump configuration to file and exit", cxxopts::value< std::string >() )
     ( "l,log", "Log metadata to a file. This requires the JSON serialization plugin. "
@@ -83,12 +82,6 @@ dump_klv
   std::string video_file;
 
   auto& cmd_args = command_args();
-
-  if ( cmd_args["help"].as<bool>() )
-  {
-    std::cout << m_cmd_options->help();
-    return EXIT_SUCCESS;
-  }
 
   if ( cmd_args.count("video-file") )
   {

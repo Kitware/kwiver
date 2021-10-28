@@ -49,8 +49,6 @@ pipe_to_dot
                )
     );
 
-  m_cmd_options->add_options()( "h,help", "Display applet usage" );
-
   m_cmd_options->add_options( "pipe" )(
     "c,config",
     "File containing supplemental configuration entries. Can occur multiple times.",
@@ -91,12 +89,6 @@ pipe_to_dot
   const std::string opt_app_name = applet_name();
 
   auto& cmd_args = command_args();
-
-  if( cmd_args[ "help" ].as< bool >() )
-  {
-    std::cout << m_cmd_options->help();
-    return EXIT_SUCCESS;
-  }
 
   if( cmd_args.count( "pipe-file" ) == 0 )
   {

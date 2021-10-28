@@ -99,7 +99,7 @@ public:
   int frame_sampling_ = 1;
   bool all_frames_ = false;
 
-  enum commandline_mode { SUCCESS, HELP, WRITE, FAIL };
+  enum commandline_mode { SUCCESS, WRITE, FAIL };
 
   commandline_mode process_command_line(cxxopts::ParseResult& cmd_args)
   {
@@ -107,10 +107,6 @@ public:
     std::string opt_config;
     std::string opt_out_config;
 
-    if (cmd_args["help"].as<bool>())
-    {
-      return HELP;
-    }
     if (cmd_args.count("config"))
     {
       opt_config = cmd_args["config"].as<std::string>();
@@ -468,9 +464,6 @@ run()
   {
     switch (d->process_command_line(command_args()))
     {
-    case priv::HELP:
-      std::cout << m_cmd_options->help();
-      return EXIT_SUCCESS;
     case priv::WRITE:
       return EXIT_SUCCESS;
     case priv::FAIL:
@@ -534,7 +527,6 @@ add_command_options()
       "Frame index to use for coloring. "
       "If -1 use an average color for all frames.",
       cxxopts::value<int>()->default_value( "-1"))
-    ( "h,help",     "Display applet usage" )
     ( "m,mask-file",
       "An input mask video or list of mask images to indicate "
       "which pixels to ignore.",
