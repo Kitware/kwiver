@@ -145,8 +145,8 @@ TEST_F(image_io, load_geotiff)
   ASSERT_TRUE( md->has( kwiver::vital::VITAL_META_CORNER_POINTS ) )
     << "Metadata should include corner points.";
 
-  kwiver::vital::geo_polygon corner_pts;
-  md->find( kwiver::vital::VITAL_META_CORNER_POINTS ).data( corner_pts );
+  auto corner_pts = md->find( kwiver::vital::VITAL_META_CORNER_POINTS )
+                      .get< kwiver::vital::geo_polygon >();
   EXPECT_EQ( corner_pts.crs(), 4326);
   EXPECT_TRUE( corner_pts.polygon( 4326 ).contains( -16.0, 0.0) );
   EXPECT_TRUE( corner_pts.polygon( 4326 ).contains( 0.0, 32.0) );

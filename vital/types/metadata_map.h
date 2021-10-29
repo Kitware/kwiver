@@ -89,9 +89,7 @@ public:
   type_of_tag<tag>
   get(frame_id_t fid) const
   {
-    type_of_tag<tag> val {};
-    this->get_item(tag, fid).data(val);
-    return val;
+    return this->get_item( tag, fid ).get< type_of_tag< tag > >();
   }
 
   /// Returns the frame ids that have associated metadata

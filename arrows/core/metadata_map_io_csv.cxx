@@ -58,21 +58,60 @@ public:
   uint64_t every_n_frames;
 };
 
+namespace {
 // ----------------------------------------------------------------------------
+struct write_visitor {
+  static constexpr auto crs = kwiver::vital::SRID::lat_lon_WGS84;
+
+  template< class T >
+  void
+  operator()( T const& data ) const
+  {
+    os << data << ",";
+  }
+
+  std::ostream& os;
+};
+
+// ----------------------------------------------------------------------------
+template<>
 void
-metadata_map_io_csv::priv
-::write_csv_item( std::string const& csv_field,
-                  std::ostream& fout )
+write_visitor::operator()< bool >( bool const& data ) const
 {
-  // TODO handle other pathalogical characters such as quotes or newlines
-  if( csv_field.find( ',' ) != std::string::npos )
+  os << ( data ? "true," : "false," );
+}
+
+// ----------------------------------------------------------------------------
+template<>
+void
+write_visitor::operator()< std::string >( std::string const& data ) const
+{
+  // TODO: handle other pathalogical characters such as quotes or newlines
+  os << "\"" << data << "\",";
+}
+
+// ----------------------------------------------------------------------------
+template<>
+void
+write_visitor::operator()< kv::geo_point >( kv::geo_point const& data ) const
+{
+  auto const loc = data.location( crs );
+  os << loc( 0 ) << "," << loc( 1 ) << "," << loc( 2 ) << ",";
+}
+
+// ----------------------------------------------------------------------------
+template<>
+void
+write_visitor::operator()< kv::geo_polygon >(
+  kv::geo_polygon const& data ) const
+{
+  auto const verts = data.polygon( crs );
+  for( size_t n = 0; n < verts.num_vertices(); ++n )
   {
-    fout << '"' << csv_field << "\",";
+    auto const& v = verts.at( n );
+    os << v[ 0 ] << "," << v[ 1 ] << ",";
   }
-  else
-  {
-    fout << csv_field << ",";
-  }
+}
 }
 
 // ----------------------------------------------------------------------------
@@ -81,44 +120,7 @@ metadata_map_io_csv::priv
 ::write_csv_item( kv::metadata_item const& metadata,
                   std::ostream& fout )
 {
-  constexpr auto crs = kwiver::vital::SRID::lat_lon_WGS84;
-  if( metadata.type() == typeid( kv::geo_point ) )
-  {
-    auto const& data = metadata.data();
-    kv::geo_point point = kv::any_cast< kv::geo_point >( data );
-    kv::geo_point::geo_3d_point_t loc = point.location( crs );
-
-    fout << loc( 0 ) << "," << loc( 1 ) << "," << loc( 2 ) << ",";
-  }
-  else if( metadata.type() == typeid( kv::geo_polygon ) )
-  {
-    auto const& data = metadata.data();
-    kv::geo_polygon poly = kv::any_cast< kv::geo_polygon >( data );
-    kv::polygon verts = poly.polygon( crs );
-
-    for( size_t n = 0; n < verts.num_vertices(); ++n )
-    {
-      auto const& v = verts.at( n );
-      fout << v[ 0 ] << "," << v[ 1 ] << ",";
-    }
-  }
-  else if( metadata.type() == typeid( bool ) )
-  {
-    auto const& data = metadata.data();
-    auto const truth = kv::any_cast< bool >( data );
-    fout << ( truth ? "true," : "false," );
-  }
-  else if( metadata.type() == typeid( std::string ) )
-  {
-    auto const& data = metadata.data();
-    auto const string = kv::any_cast< std::string >( data );
-    fout << '"' << string << "\",";
-  }
-  else
-  {
-    write_csv_item( kv::metadata::format_string( metadata.as_string() ),
-                    fout );
-  }
+  kv::visit( write_visitor{ fout }, metadata.data() );
 }
 
 // ----------------------------------------------------------------------------

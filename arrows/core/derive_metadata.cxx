@@ -161,7 +161,7 @@ get_sensor_location( kwiver::vital::metadata_sptr const& metadata )
                  "metadata does not contain sensor location" );
   }
 
-  return kv::any_cast< kv::geo_point >( item.data() );
+  return item.get< kv::geo_point >();
 }
 
 // ----------------------------------------------------------------------------
@@ -177,7 +177,7 @@ get_frame_center( kwiver::vital::metadata_sptr const& metadata )
                  "metadata does not contain frame center" );
   }
 
-  return kv::any_cast< kv::geo_point >( item.data() );
+  return item.get< kv::geo_point >();
 }
 
 // ----------------------------------------------------------------------------
