@@ -95,6 +95,12 @@ template<> VITAL_EXPORT config_block_value_t config_block_set_value_cast( geo_po
 
 VITAL_EXPORT ::std::ostream& operator<< ( ::std::ostream& str, geo_polygon const& obj );
 
+VITAL_EXPORT
+bool operator==( geo_polygon const& lhs, geo_polygon const& rhs );
+
+VITAL_EXPORT
+bool operator!=( geo_polygon const& lhs, geo_polygon const& rhs );
+
 } } // end namespace
 
 #endif

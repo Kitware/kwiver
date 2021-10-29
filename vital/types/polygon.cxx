@@ -128,4 +128,16 @@ get_vertices() const
   return m_polygon;
 }
 
+// ------------------------------------------------------------------
+bool operator==( polygon const& lhs, polygon const& rhs )
+{
+  return lhs.get_vertices() == rhs.get_vertices();
+}
+
+// ------------------------------------------------------------------
+bool operator!=( polygon const& lhs, polygon const& rhs )
+{
+  return !( lhs == rhs );
+}
+
 } }    // end namespace
