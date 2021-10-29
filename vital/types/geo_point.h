@@ -106,6 +106,12 @@ protected:
 
 VITAL_EXPORT ::std::ostream& operator<< ( ::std::ostream& str, geo_point const& obj );
 
+VITAL_EXPORT
+bool operator==( geo_point const& lhs, geo_point const& rhs );
+
+VITAL_EXPORT
+bool operator!=( geo_point const& lhs, geo_point const& rhs );
+
 } } // end namespace
 
 #endif
