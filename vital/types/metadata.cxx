@@ -45,6 +45,7 @@ struct convert_from_any_visitor {
 } // namespace <anonymous>
 
 namespace metadata_detail {
+
 // ----------------------------------------------------------------------------
 template<>
 metadata_value

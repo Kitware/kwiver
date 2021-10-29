@@ -59,15 +59,24 @@ public:
 };
 
 namespace {
+
 // ----------------------------------------------------------------------------
 struct write_visitor {
-  static constexpr auto crs = kwiver::vital::SRID::lat_lon_WGS84;
+  static constexpr auto lat_lon_WGS84 = kwiver::vital::SRID::lat_lon_WGS84;
 
   template< class T >
   void
   operator()( T const& data ) const
   {
-    os << data << ",";
+    if( std::is_arithmetic< T >::value )
+    {
+      os << data << ',';
+    }
+    else
+    {
+      // TODO: handle pathalogical characters such as quotes or newlines
+      os << "\"" << data << "\",";
+    }
   }
 
   std::ostream& os;
@@ -84,18 +93,9 @@ write_visitor::operator()< bool >( bool const& data ) const
 // ----------------------------------------------------------------------------
 template<>
 void
-write_visitor::operator()< std::string >( std::string const& data ) const
-{
-  // TODO: handle other pathalogical characters such as quotes or newlines
-  os << "\"" << data << "\",";
-}
-
-// ----------------------------------------------------------------------------
-template<>
-void
 write_visitor::operator()< kv::geo_point >( kv::geo_point const& data ) const
 {
-  auto const loc = data.location( crs );
+  auto const loc = data.location( lat_lon_WGS84 );
   os << loc( 0 ) << "," << loc( 1 ) << "," << loc( 2 ) << ",";
 }
 
@@ -105,14 +105,15 @@ void
 write_visitor::operator()< kv::geo_polygon >(
   kv::geo_polygon const& data ) const
 {
-  auto const verts = data.polygon( crs );
+  auto const verts = data.polygon( lat_lon_WGS84 );
   for( size_t n = 0; n < verts.num_vertices(); ++n )
   {
     auto const& v = verts.at( n );
     os << v[ 0 ] << "," << v[ 1 ] << ",";
   }
 }
-}
+
+} // namespace <anonymous>
 
 // ----------------------------------------------------------------------------
 void
