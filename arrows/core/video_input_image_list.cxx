@@ -7,6 +7,7 @@
 #include <vital/algo/image_io.h>
 
 #include <vital/util/data_stream_reader.h>
+#include <vital/util/string.h>
 #include <vital/util/tokenize.h>
 
 #include <vital/types/image.h>
@@ -43,6 +44,13 @@ namespace arrows {
 
 namespace core {
 
+namespace {
+
+std::string const SEP_PATH{ ":" };
+std::string const SEP_EXTS{ ";" };
+
+} // namespace anonymous
+
 // ----------------------------------------------------------------------------
 class video_input_image_list::priv
 {
@@ -55,6 +63,7 @@ public:
   video_input_image_list* const m_parent;
 
   // Configuration values
+  unsigned short c_path_retain_n = 0;
   std::vector< std::string > c_search_path;
   std::vector< std::string > c_allowed_extensions;
   bool c_sort_by_time = false;
@@ -112,8 +121,17 @@ video_input_image_list
   // Get base configuration from base class
   auto const& config = video_input::get_configuration();
 
+  // Construct path/allowed_extensions strings from the current vectors.
+  // Only keeping a certain first N entries in the path vector which corresponds
+  std::vector< kv::path_t > reconstruct_path_vec(
+      d->c_search_path.begin(), d->c_search_path.begin() + d->c_path_retain_n
+      );
+  std::string reconstruct_path = kv::join( reconstruct_path_vec, SEP_PATH );
+  std::string reconstruct_allowed_exts =
+      kv::join( d->c_allowed_extensions, SEP_EXTS );
+
   config->set_value(
-    "path", "",
+    "path", reconstruct_path,
     "Path to search for image file. "
     "If a file name is not absolute, this list of directories is scanned "
     "to find the file. The current directory '.' is automatically appended "
@@ -121,11 +139,11 @@ video_input_image_list
     "The format of this path is the same as the standard path specification, "
     "a set of directories separated by a colon (':')" );
   config->set_value(
-    "allowed_extensions", "",
+    "allowed_extensions", reconstruct_allowed_exts,
     "Semicolon-separated list of allowed file extensions. "
     "Leave empty to allow all file extensions." );
   config->set_value(
-    "sort_by_time", "false",
+    "sort_by_time", d->c_sort_by_time,
     "Instead of accepting the input list as-is, sort the input file list "
     "based on the timestamp metadata provided for the file." );
 
@@ -145,13 +163,15 @@ video_input_image_list
 
   // Extract string and create vector of directories
   auto const& path = config->get_value< std::string >( "path", {} );
-  kv::tokenize( path, d->c_search_path, ":", kv::TokenizeTrimEmpty );
+  d->c_search_path.clear();  // make sure vec is empty before populating it
+  kv::tokenize( path, d->c_search_path, SEP_PATH, kv::TokenizeTrimEmpty );
+  d->c_path_retain_n = d->c_search_path.size();
   d->c_search_path.push_back( "." ); // Add current directory
 
   // Create vector of allowed file extensions
   auto const& extensions =
     config->get_value< std::string >( "allowed_extensions", {} );
-  kv::tokenize( extensions, d->c_allowed_extensions, ";",
+  kv::tokenize( extensions, d->c_allowed_extensions, SEP_EXTS,
                 kv::TokenizeTrimEmpty );
 
   // Read standalone variables
