@@ -43,10 +43,7 @@
 #define MPARK_CPP14_CONSTEXPR
 #endif
 
-// #if __has_feature(cxx_exceptions) || defined(__cpp_exceptions) || \
-//     (defined(_MSC_VER) && defined(_CPPUNWIND))
 #define MPARK_EXCEPTIONS
-// #endif
 
 #if defined(__cpp_generic_lambdas) || defined(_MSC_VER)
 #define MPARK_GENERIC_LAMBDAS

@@ -577,6 +577,7 @@ void convert_protobuf( const ::kwiver::protobuf::metadata&  proto,
 }
 
 namespace {
+
 // ----------------------------------------------------------------------------
 struct convert_visitor {
   template< class T >
@@ -636,7 +637,7 @@ convert_visitor::operator()< kwiver::vital::geo_polygon >(
 
 // ----------------------------------------------------------------------------
 void convert_protobuf( const ::kwiver::vital::metadata& metadata,
-                       ::kwiver::protobuf::metadata&  proto_meta )
+                       ::kwiver::protobuf::metadata& proto_meta )
 {
   // Serialize one metadata collection
   for ( const auto& mi : metadata )
