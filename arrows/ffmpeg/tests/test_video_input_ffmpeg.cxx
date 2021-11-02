@@ -514,6 +514,11 @@ TEST_F ( ffmpeg_video_input, no_sync_metadata )
             " was not found in metadata for frame " << frame_num;
         }
       }
+
+      EXPECT_EQ( 720, md->find( kwiver::vital::VITAL_META_IMAGE_WIDTH )
+                        .as_uint64() );
+      EXPECT_EQ( 480, md->find( kwiver::vital::VITAL_META_IMAGE_HEIGHT )
+                        .as_uint64() );
     }
 
     frame_num++;

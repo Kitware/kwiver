@@ -700,6 +700,9 @@ public:
     {
       md->add< vital::VITAL_META_VIDEO_KEY_FRAME >( false );
     }
+
+    md->add< vital::VITAL_META_IMAGE_WIDTH >( f_frame->width );
+    md->add< vital::VITAL_META_IMAGE_HEIGHT >( f_frame->height );
   }
 
   kwiver::vital::metadata_vector
