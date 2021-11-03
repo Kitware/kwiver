@@ -182,10 +182,13 @@ video_input_image_list
     "image_reader", config, d->m_image_reader );
 
   // Check capabilities of image reader
-  auto const& reader_capabilities =
-    d->m_image_reader->get_implementation_capabilities();
-  set_capability( HAS_FRAME_TIME,
-                  reader_capabilities.capability( image_io::HAS_TIME ) );
+  if( d->m_image_reader != nullptr )
+  {
+    auto const& reader_capabilities =
+      d->m_image_reader->get_implementation_capabilities();
+    set_capability( HAS_FRAME_TIME,
+                    reader_capabilities.capability( image_io::HAS_TIME ) );
+  }
 }
 
 // ----------------------------------------------------------------------------
