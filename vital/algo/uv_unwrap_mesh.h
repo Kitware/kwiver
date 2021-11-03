@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief uv_unwrap_mesh algorithm definition
- */
+/// \file
+/// \brief uv_unwrap_mesh algorithm definition
 
 #ifndef VITAL_ALGO_UV_UNWRAP_MESH_H
 #define VITAL_ALGO_UV_UNWRAP_MESH_H
@@ -30,10 +28,8 @@ public:
   static std::string static_type_name() { return "uv_unwrap_mesh"; }
 
   /// Unwrap a mesh and generate texture coordinates
-
-  /**
-   * \param mesh [in/out] mesh to unwrap
-   */
+  ///
+  /// \param mesh [in/out] mesh to unwrap
   virtual void unwrap( kwiver::vital::mesh_sptr mesh ) const = 0;
 
 protected:

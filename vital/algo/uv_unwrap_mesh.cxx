@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief uv_unwrap_mesh algorithm instantiation
- */
+/// \file
+/// \brief uv_unwrap_mesh algorithm instantiation
 
 #include "uv_unwrap_mesh.h"
 #include <vital/algo/algorithm.txx>

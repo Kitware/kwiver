@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of canonical similarity transform
- *        estimation algorithm definition.
- */
+/// \file
+/// \brief Implementation of canonical similarity transform
+///        estimation algorithm definition.
 
 #include <vital/algo/algorithm.txx>
 #include <vital/algo/estimate_canonical_transform.h>
