@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief data_serializer algorithm definition instantiation
- */
+/// \file
+/// \brief data_serializer algorithm definition instantiation
 
 #include <vital/algo/algorithm.txx>
 #include <vital/algo/data_serializer.h>
