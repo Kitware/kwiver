@@ -385,6 +385,24 @@ test_ba_intrinsic_sharing( camera_map_sptr cameras,
 }
 
 // ----------------------------------------------------------------------------
+// Make sure each camera has unique (not shared) intrinsics
+camera_map_sptr make_intrinsics_unique(camera_map_sptr cameras)
+{
+  camera_map::map_camera_t new_cams;
+  for (auto ci : cameras->cameras())
+  {
+    auto cam = std::dynamic_pointer_cast<camera_perspective>(ci.second);
+    if (cam)
+    {
+      auto new_cam = std::make_shared<simple_camera_perspective>(
+        cam->center(), cam->rotation(), cam->intrinsics()->clone());
+      new_cams[ci.first] = new_cam;
+    }
+  }
+  return std::make_shared<simple_camera_map>(new_cams);
+}
+
+// ----------------------------------------------------------------------------
 // Test bundle adjustment with forcing unique intrinsics
 TEST(bundle_adjust, unique_intrinsics)
 {
@@ -416,8 +434,12 @@ TEST(bundle_adjust, common_intrinsics)
 
   // create a camera sequence (elliptical path)
   camera_map_sptr cameras = kwiver::testing::camera_seq(20, K);
+
+  // ensure that some cameras are not shared to start
+  cameras = make_intrinsics_unique(cameras);
+
   EXPECT_EQ( 1, test_ba_intrinsic_sharing( cameras, cfg ) )
-    << "Resulting camera intrinsics should be unique";
+    << "Resulting camera intrinsics should be shared";
 }
 
 // ----------------------------------------------------------------------------
