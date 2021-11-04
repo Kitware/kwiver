@@ -21,6 +21,7 @@ set( public_headers
   source_location.h
   data_stream_reader.h
   hex_dump.h
+  interval.h
   string.h
   string_editor.h
   simple_stats.h
