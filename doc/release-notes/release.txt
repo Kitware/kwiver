@@ -7,6 +7,12 @@ v1.6.0 release.
 Bug Fixes since v1.6.0
 ----------------------
 
+Arrows: Ceres
+
+ * Fixed a bug in which the FORCE_COMMON_INTRINSICS option in bundle
+   adjustment was not actually forcing intrinsics to be common.
+   
+
 Arrows: MVG
 
  * Fixed a typo in the command line argument name for camera path in the
