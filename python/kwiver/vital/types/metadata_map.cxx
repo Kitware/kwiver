@@ -24,7 +24,7 @@ public:
   bool has_item( kv::vital_metadata_tag tag, kv::frame_id_t fid ) const override;
   kv::metadata_item const& get_item( kv::vital_metadata_tag tag, kv::frame_id_t fid ) const override;
   kv::metadata_vector get_vector( kv::frame_id_t fid ) const override;
-  std::set< kv::frame_id_t > frames() override;
+  std::set< kv::frame_id_t > frames() const override;
 };
 
 PYBIND11_MODULE( metadata_map, m )
@@ -114,7 +114,7 @@ metadata_map_trampoline
 
 std::set< kv::frame_id_t >
 metadata_map_trampoline
-::frames()
+::frames() const
 {
   VITAL_PYBIND11_OVERLOAD_PURE(
     std::set< kv::frame_id_t >,
