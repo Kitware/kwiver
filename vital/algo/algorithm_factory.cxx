@@ -8,7 +8,7 @@ namespace kwiver {
 
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 has_algorithm_impl_name( std::string const& type_name,
                          std::string const& impl_name )
@@ -32,7 +32,7 @@ has_algorithm_impl_name( std::string const& type_name,
   return false;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::algorithm_sptr
 create_algorithm( std::string const& algo_name,
                   std::string const& impl_name )
