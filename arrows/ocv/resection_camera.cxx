@@ -25,6 +25,8 @@ namespace arrows {
 namespace ocv {
 
 // ----------------------------------------------------------------------------
+using vectorf = std::vector< float >;
+
 struct resection_camera::priv : public mvg::camera_options
 {
 
@@ -38,8 +40,29 @@ struct resection_camera::priv : public mvg::camera_options
   // maximum number of iterations for camera calibration
   int max_iterations = 32;
   // focal length scales to optimize f*scale over
-  std::vector< float > focal_scales = { 0.5, 1.0, 2.0 };
+  vectorf focal_scales { 1 };
 };
+
+std::ostream & operator<<(std::ostream & s, vectorf const & v)
+{
+  for (unsigned i=0, n=v.size(); i<n; ++i)
+  {
+    if (i>0) s << ' ';
+    s << v[i];
+  }
+  return s;
+}
+
+std::istream & operator>>(std::istream & s, vectorf & v)
+{
+  while (!s.eof())
+  {
+    float a = 0;
+	s >> a;
+	v.push_back(a);
+  }
+  return s;
+}
 
 // ----------------------------------------------------------------------------
 resection_camera
@@ -65,7 +88,10 @@ resection_camera
                      "desired re-projection positive accuracy for inlier points" );
   config->set_value( "max_iterations", d_->max_iterations,
                      "maximum number of iterations to run optimization [1, INT_MAX]" );
-  // TODO: focal_scales
+  std::stringstream ss;
+  ss << d_->focal_scales;
+  config->set_value( "focal_scales", ss.str(),
+                     "focal length scales to optimize f*scale over" );
   return config;
 }
 
@@ -79,7 +105,8 @@ resection_camera
                                                      d_->reproj_accuracy );
   d_->max_iterations = config->get_value< int >( "max_iterations",
                                                  d_->max_iterations );
-  // TODO: focal_scales
+  std::stringstream ss(config->get_value< std::string > ( "focal_scales", "1" ));
+  ss >> d_->focal_scales;
 }
 
 // ----------------------------------------------------------------------------
