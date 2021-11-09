@@ -385,7 +385,7 @@ camera_options
       ( this->camera_intrinsic_share_type == FORCE_COMMON_INTRINSICS &&
         int_params.empty() ) ||
       ( this->camera_intrinsic_share_type == AUTO_SHARE_INTRINSICS &&
-        camera_intr_map.count( K ) == 0 ) )
+        camera_intr_map.find( K ) == camera_intr_map.end() ) )
     {
       this->extract_camera_intrinsics( K, &intrinsic_params[ 0 ] );
       // update the maps with the index of this new parameter vector
