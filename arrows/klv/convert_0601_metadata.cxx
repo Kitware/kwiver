@@ -90,6 +90,17 @@ convert_metadata
                            kwiver::vital::vital_metadata_tag vital_tag,
                            kwiver::vital::any const& data )
 {
+  auto const& type = convert_metadata::typeid_for_tag( vital_tag );
+  if( type == typeid( double ) )
+  {
+    return klv_0601_value_double( tag, data );
+  }
+
+  if( type == typeid( uint64_t ) )
+  {
+    return convert_to_int.convert( data );
+  }
+
   if( convert_metadata::typeid_for_tag( vital_tag ) != data.type() )
   {
     throw kwiver::vital::bad_any_cast(

@@ -8,13 +8,13 @@
 #ifndef KWIVER_ARROWS_KLV_KLV_TAG_TRAITS_H_
 #define KWIVER_ARROWS_KLV_KLV_TAG_TRAITS_H_
 
-
 #include <arrows/klv/klv_data_format.h>
 #include <arrows/klv/klv_key.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
 #include <vital/types/metadata.h>
 
+#include <initializer_list>
 #include <string>
 
 namespace kwiver {
@@ -111,6 +111,63 @@ private:
   klv_uds_key m_uds_key;
   klv_data_format_sptr m_format;
   klv_tag_count_range m_tag_count_range;
+};
+
+// ----------------------------------------------------------------------------
+/// Provides access to tag traits via several lookup alternatives.
+class KWIVER_ALGO_KLV_EXPORT klv_tag_traits_lookup
+{
+public:
+  using iterator = typename std::vector< klv_tag_traits >::const_iterator;
+
+  /// Create lookup tables for the tag, uds_key, name, and enum name of
+  /// \p traits.
+  ///
+  /// Elements with empty or invalid lookup keys will silently not be included
+  /// in the corresponding lookup tables. For example, if an element has the
+  /// empty string as its name, it will not be included in the \c name lookup
+  /// table. The first element of \p traits will be returned whenever a lookup
+  /// fails.
+  ///
+  /// \throws logic_error If \p traits is empty, or if it contains two elements
+  /// with identical valid lookup keys.
+  klv_tag_traits_lookup(
+    std::initializer_list< klv_tag_traits > const& traits );
+
+  /// \copydoc
+  /// klv_tag_traits_lookup( std::initializer_list< klv_tag_traits > const& )
+  klv_tag_traits_lookup( std::vector< klv_tag_traits > const& traits );
+
+  iterator
+  begin() const;
+
+  iterator
+  end() const;
+
+  /// Return the traits object with \p tag as its tag.
+  klv_tag_traits const&
+  by_tag( klv_lds_key tag ) const;
+
+  /// Return the traits object with \p key as its UDS key.
+  klv_tag_traits const&
+  by_uds_key( klv_uds_key const& key ) const;
+
+  /// Return the traits object with \p name as its name.
+  klv_tag_traits const&
+  by_name( std::string const& name ) const;
+
+  /// Return the traits object with \p enum_name as its enum name.
+  klv_tag_traits const&
+  by_enum_name( std::string const& enum_name ) const;
+
+private:
+  void initialize();
+
+  std::vector< klv_tag_traits > m_traits;
+  std::map< klv_lds_key, klv_tag_traits const* > m_tag_to_traits;
+  std::map< klv_uds_key, klv_tag_traits const* > m_uds_key_to_traits;
+  std::map< std::string, klv_tag_traits const* > m_name_to_traits;
+  std::map< std::string, klv_tag_traits const* > m_enum_name_to_traits;
 };
 
 } // namespace klv

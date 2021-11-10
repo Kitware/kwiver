@@ -88,10 +88,7 @@ void compare_tag( kwiver::vital::metadata_item const& expected,
   }
   else if ( expected.type() == typeid(int) )
   {
-    int v1 = 0, v2 = 0;
-    expected.data(v1);
-    actual.data(v2);
-    EXPECT_EQ( v1, v2 );
+    EXPECT_EQ( expected.get< int >(), actual.get< int >() );
   }
   else if ( expected.type() == typeid(std::string) )
   {
@@ -99,9 +96,8 @@ void compare_tag( kwiver::vital::metadata_item const& expected,
   }
   else if ( expected.type() == typeid(kwiver::vital::geo_point) )
   {
-    kwiver::vital::geo_point v1, v2;
-    expected.data(v1);
-    actual.data(v2);
+    auto const v1 = expected.get< kwiver::vital::geo_point >();
+    auto const v2 = actual.get< kwiver::vital::geo_point >();
     auto const& rv1 = v1.location( kwiver::vital::SRID::lat_lon_WGS84 );
     auto const& rv2 = v2.location( kwiver::vital::SRID::lat_lon_WGS84 );
     EXPECT_NEAR( rv1[1], rv2[1], epsilon ) << " (lat)";

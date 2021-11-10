@@ -8,7 +8,6 @@
  */
 
 #include "metadata.h"
-#include "metadata_traits.h"
 
 #include <vital/types/metadata_traits.h>
 #include <vital/util/demangle.h>
@@ -16,35 +15,47 @@
 #include <typeindex>
 
 namespace kwiver {
+
 namespace vital {
 
-// ----------------------------------------------------------------------------
-metadata_item
-::metadata_item( vital_metadata_tag p_tag,
-                 kwiver::vital::any const& p_data )
-    : m_data{ p_data },
-      m_tag{ p_tag }
-{
-  if( tag_traits_by_tag( m_tag ).type() != m_data.type() )
-  {
-    throw bad_any_cast( m_data.type_name(),
-                        tag_traits_by_tag( m_tag ).type_name() );
-  }
-}
+namespace {
 
 // ----------------------------------------------------------------------------
-metadata_item
-::metadata_item( vital_metadata_tag p_tag,
-                 kwiver::vital::any&& p_data )
-    : m_data{ std::move( p_data ) },
-      m_tag{ p_tag }
-{
-  if( tag_traits_by_tag( m_tag ).type() != m_data.type() )
+struct print_visitor {
+  template< class T >
+  std::ostream& operator()( T const& value ) const
   {
-    throw bad_any_cast( m_data.type_name(),
-                        tag_traits_by_tag( m_tag ).type_name() );
+    return os << value;
   }
+
+  std::ostream& os;
+};
+
+// ----------------------------------------------------------------------------
+struct convert_from_any_visitor {
+  template< class T >
+  metadata_value operator()() const
+  {
+    return any_cast< T >( data );
+  }
+
+  any const& data;
+};
+
+} // namespace <anonymous>
+
+namespace metadata_detail {
+
+// ----------------------------------------------------------------------------
+template<>
+metadata_value
+convert_data< any >( vital_metadata_tag tag, any const& data ) {
+  auto const& type = tag_traits_by_tag( tag ).type();
+  auto const visitor = convert_from_any_visitor{ data };
+  return visit_metadata_types_return< metadata_value >( visitor, type );
 }
+
+} // namespace metadata_detail
 
 // ----------------------------------------------------------------------------
 bool
@@ -71,7 +82,15 @@ metadata_item
 }
 
 // ----------------------------------------------------------------------------
-kwiver::vital::any
+std::string
+metadata_item
+::type_name() const
+{
+  return tag_traits_by_tag( m_tag ).type_name();
+}
+
+// ----------------------------------------------------------------------------
+metadata_value const&
 metadata_item
 ::data() const
 {
@@ -83,7 +102,7 @@ double
 metadata_item
 ::as_double() const
 {
-  return kwiver::vital::any_cast< double > ( this->m_data );
+  return kwiver::vital::get< double >( this->m_data );
 }
 
 // ----------------------------------------------------------------------------
@@ -91,7 +110,7 @@ bool
 metadata_item
 ::has_double() const
 {
-  return m_data.type() == typeid( double );
+  return this->type() == typeid( double );
 }
 
 // ----------------------------------------------------------------------------
@@ -99,7 +118,7 @@ uint64_t
 metadata_item
 ::as_uint64() const
 {
-  return kwiver::vital::any_cast< uint64_t > ( this->m_data );
+  return kwiver::vital::get< uint64_t >( this->m_data );
 }
 
 // ----------------------------------------------------------------------------
@@ -107,7 +126,7 @@ bool
 metadata_item
 ::has_uint64() const
 {
-  return m_data.type() == typeid( uint64_t );
+  return this->type() == typeid( uint64_t );
 }
 
 // ----------------------------------------------------------------------------
@@ -117,7 +136,7 @@ metadata_item
 {
   if( this->has_string() )
   {
-    return any_cast< string_t >( m_data );
+    return kwiver::vital::get< std::string >( m_data );
   }
 
   std::stringstream ss;
@@ -130,7 +149,7 @@ bool
 metadata_item
 ::has_string() const
 {
-  return m_data.type() == typeid( std::string );
+  return this->type() == typeid( std::string );
 }
 
 // ----------------------------------------------------------------------------
@@ -138,39 +157,7 @@ std::ostream&
 metadata_item
 ::print_value( std::ostream& os ) const
 {
-  if( m_data.is_type< bool >() )
-  {
-    os << any_cast< bool >( m_data );
-  }
-  else if( m_data.is_type< uint64_t >() )
-  {
-    os << any_cast< uint64_t >( m_data );
-  }
-  else if ( m_data.is_type< int >() )
-  {
-    os << any_cast< int >( m_data );
-  }
-  else if( m_data.is_type< double >() )
-  {
-    os << any_cast< double >( m_data );
-  }
-  else if( m_data.is_type< string_t >() )
-  {
-    os << any_cast< string_t >( m_data );
-  }
-  else if( m_data.is_type< geo_point >() )
-  {
-    os << any_cast< geo_point >( m_data );
-  }
-  else if ( m_data.is_type< geo_polygon >() )
-  {
-    os << any_cast< geo_polygon >( m_data );
-  }
-  else
-  {
-    throw std::logic_error( "unsupported type" );
-  }
-  return os;
+  return visit( print_visitor{ os }, m_data );
 }
 
 // ---------------------------------------------------------------------
@@ -463,4 +450,6 @@ bool test_equal_content( const kwiver::vital::metadata& one,
   return true;
 }
 
-} } // end namespace
+} // namespace vital
+
+} // namespace kwiver

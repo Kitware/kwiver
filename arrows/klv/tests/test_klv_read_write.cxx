@@ -7,7 +7,7 @@
 
 #include <arrows/klv/klv_read_write.txx>
 
-#include <gtest/gtest.h>
+#include <tests/test_gtest.h>
 
 // ----------------------------------------------------------------------------
 int
@@ -16,10 +16,6 @@ main( int argc, char** argv )
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
 }
-
-// ----------------------------------------------------------------------------
-#define CALL_TEST( func, ... ) \
-  do { SCOPED_TRACE( #func ); func( __VA_ARGS__ ); } while( 0 )
 
 using namespace kwiver::arrows::klv;
 namespace kv = kwiver::vital;

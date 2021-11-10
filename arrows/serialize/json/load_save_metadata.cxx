@@ -24,151 +24,71 @@ namespace {
 // ----------------------------------------------------------------------------
 struct meta_item
 {
+  meta_item() : m_tag{ kv::VITAL_META_UNKNOWN }, m_value{ 0 } {}
 
-  meta_item( kwiver::vital::vital_metadata_tag  t,
-             kwiver::vital::any                 a )
-    : tag( t )
-    , item_value( a )
-  { }
+  meta_item( kv::metadata_item const& item )
+    : m_tag{ item.tag() }, m_value{ item.data() } {}
 
-  meta_item() {}
+  template< class Archive >
+  struct save_visitor {
+    template< class T >
+    void operator()( T const& value ) const
+    {
+      archive( CEREAL_NVP( value ) );
+    }
 
-  // ---- member data ----
-  kwiver::vital::vital_metadata_tag tag; // numeric tag value
-  kwiver::vital::any item_value; // corresponding data item
+    Archive& archive;
+  };
+
+  template< class Archive >
+  struct load_visitor {
+    template< class T >
+    void operator()() const {
+      T value;
+      archive( CEREAL_NVP( value ) );
+      data = value;
+    }
+
+    Archive& archive;
+    kv::metadata_value& data;
+  };
 
   // ---------------------------------------------
-  /*
-   * Save a single metadata item
-   */
+  /// Save a single metadata item
   template < class Archive >
   void save( Archive& archive ) const
   {
-    const auto& trait = kwiver::vital::tag_traits_by_tag( tag );
+    auto const& trait = kwiver::vital::tag_traits_by_tag( m_tag );
 
-    archive( CEREAL_NVP( tag ) );
+    archive( ::cereal::make_nvp( "tag", m_tag ) );
 
-    std::string type;
-    // This is a switch on the item data type
-    if ( trait.type() == typeid( double ) )
-    {
-      const double value = kv::any_cast< double > ( this->item_value );
-      archive( CEREAL_NVP( value ) );
-      type = "float";
-    }
-    else if ( trait.type() == typeid( bool ) )
-    {
-      const bool value = kv::any_cast< bool > ( this->item_value );
-      archive( CEREAL_NVP( value ) );
-      type = "boolean";
-    }
-    else if ( trait.type() == typeid( int ) )
-    {
-      const int value = kv::any_cast< int > ( this->item_value );
-      archive( CEREAL_NVP( value ) );
-      type = "integer";
-    }
-    else if ( trait.type() == typeid( uint64_t ) )
-    {
-      const uint64_t value = kv::any_cast< uint64_t > ( this->item_value );
-      archive( CEREAL_NVP( value ) );
-      type = "unsigned integer";
-    }
-    else if ( trait.type() == typeid( std::string ) )
-    {
-      const std::string value =
-        kv::any_cast< std::string > ( this->item_value );
-      archive( CEREAL_NVP( value ) );
-      type = "string";
-    }
-    else if ( trait.type() == typeid( kv::geo_point ) )
-    {
-      const kv::geo_point value =
-        kv::any_cast< kv::geo_point > ( this->item_value );
-      archive( CEREAL_NVP( value ) );
-      type = "geo-point";
-    }
-    else if ( trait.type() == typeid( kv::geo_polygon ) )
-    {
-      const kv::geo_polygon value =
-        kv::any_cast< kv::geo_polygon > ( this->item_value );
-      archive( CEREAL_NVP( value ) );
-      type = "geo-polygon";
-    }
-    else
-    {
-      //+ throw something
-    }
+    kv::visit( save_visitor< Archive >{ archive }, m_value );
 
     // These two items are included to increase readability of the
     // serialized form and are not used when deserializing.
     archive( ::cereal::make_nvp( "name", trait.name() ) );
-    archive( ::cereal::make_nvp( "type", type ) );
-  } // end save
+    archive( ::cereal::make_nvp( "type", trait.type_name() ) );
+  }
 
   // -------------------------------------------------
   /*
    * Load a single metadata element
    */
-  template<class Archive>
+  template< class Archive >
   void load( Archive& archive )
   {
     // Get the tag value
-    archive( CEREAL_NVP( tag ) );
+    archive( ::cereal::make_nvp( "tag", m_tag ) );
 
     // Get associated traits to assist with decoding the data portion
-    const auto& trait = kwiver::vital::tag_traits_by_tag( tag );
+    auto const& trait = kv::tag_traits_by_tag( m_tag );
 
-    // this is a switch on the element data type
-    if ( trait.type() == typeid( double ) )
-    {
-      double value;
-      archive( CEREAL_NVP( value ) );
-      this->item_value = kv::any( value );
-    }
-    else if ( trait.type() == typeid( bool ) )
-    {
-      bool value;
-      archive( CEREAL_NVP( value ) );
-      this->item_value = kv::any( value );
-    }
-    else if( trait.type() == typeid( int ) )
-    {
-      int value;
-      archive( CEREAL_NVP( value ) );
-      this->item_value = kv::any( value );
-    }
-    else if( trait.type() == typeid( uint64_t ) )
-    {
-      uint64_t value;
-      archive( CEREAL_NVP( value ) );
-      this->item_value = kv::any( value );
-    }
-    else if ( trait.type() == typeid( std::string ) )
-    {
-      std::string value;
-      archive( CEREAL_NVP( value ) );
-      this->item_value = kv::any( value );
-    }
-    else if ( trait.type() == typeid( kv::geo_point ) )
-    {
-      kv::geo_point value;
-      archive( CEREAL_NVP( value ) );
-      this->item_value = kv::any( value );
-    }
-    else if ( trait.type() == typeid( kv::geo_polygon ) )
-    {
-      kv::geo_polygon value;
-      archive( CEREAL_NVP( value ) );
-      this->item_value = kv::any( value );
-    }
-    else
-    {
-      //+ throw something
-    }
+    kv::visit_metadata_types( load_visitor< Archive >{ archive, m_value },
+                              trait.type() );
+  }
 
-  } // end load
-
+  kv::vital_metadata_tag m_tag;
+  kv::metadata_value m_value;
 };
 
 using meta_vect_t = std::vector< meta_item >;
@@ -212,10 +132,7 @@ void save( ::cereal::JSONOutputArchive& archive,
   // Serialize one metadata collection
   for( auto const& item : packet_map )
   {
-    // element is <tag, any>
-    const auto tag = item.first;
-    const auto metap = item.second;
-    packet_vec.emplace_back( tag, metap->data() );
+    packet_vec.emplace_back( *item.second );
   }
 
   save( archive, packet_vec );
@@ -233,7 +150,7 @@ void load( ::cereal::JSONInputArchive& archive,
   // Convert the intermediate form back to a real metadata collection
   for( auto const& it : meta_vect )
   {
-    packet_map.add_any( it.tag, it.item_value );
+    packet_map.add( it.m_tag, it.m_value );
   }
 }
 

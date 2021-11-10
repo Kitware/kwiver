@@ -18,93 +18,55 @@
 namespace py = pybind11;
 using namespace kwiver::vital;
 
-kwiver::vital::any
-py_object_to_any( vital_metadata_tag tag, py::object data )
-{
-  auto const& type = tag_traits_by_tag( tag ).type();
-  if( type == typeid( bool ) )
-  {
-    return data.cast< bool >();
+namespace {
+// ----------------------------------------------------------------------------
+struct to_py_visitor{
+  template< class T>
+  py::object
+  operator()( T const& value ) const {
+    return py::cast( value );
   }
-  else if ( type == typeid( uint64_t ) )
-  {
-    return data.cast< uint64_t >();
+};
+
+// ----------------------------------------------------------------------------
+struct from_py_visitor {
+  template< class T >
+  metadata_value
+  operator()() const {
+    return object.cast< T >();
   }
-  else if ( type == typeid( int ) )
-  {
-    return data.cast< int >();
-  }
-  else if ( type == typeid( double ) )
-  {
-    return data.cast< double >();
-  }
-  else if ( type == typeid( string_t ) )
-  {
-    return data.cast< string_t >();
-  }
-  else if ( type == typeid( geo_point ) )
-  {
-    return data.cast< geo_point >();
-  }
-  else if ( type == typeid( geo_polygon ) )
-  {
-    return data.cast< geo_polygon >();
-  }
-  else
-  {
-    throw std::logic_error( "unsupported type" );
-  }
+
+  py::object const& object;
+};
+
+// ----------------------------------------------------------------------------
+metadata_value
+from_py( vital_metadata_tag tag, py::object data ) {
+  return visit_metadata_types_return< metadata_value >(
+    from_py_visitor{ data }, tag_traits_by_tag( tag ).type() );
 }
 
+// ----------------------------------------------------------------------------
 py::object
-any_to_py_object( kwiver::vital::any data )
-{
-  auto const& type = data.type();
-  if( type == typeid( bool ) )
-  {
-    return py::cast( kwiver::vital::any_cast< bool >( data ) );
-  }
-  else if ( type == typeid( uint64_t ) )
-  {
-    return py::cast( kwiver::vital::any_cast< uint64_t >( data ) );
-  }
-  else if ( type == typeid( int ) )
-  {
-    return py::cast( kwiver::vital::any_cast< int >( data ) );
-  }
-  else if ( type == typeid( double ) )
-  {
-    return py::cast( kwiver::vital::any_cast< double >( data ) );
-  }
-  else if ( type == typeid( string_t ) )
-  {
-    return py::cast( kwiver::vital::any_cast< string_t >( data ) );
-  }
-  else if ( type == typeid( geo_point ) )
-  {
-    return py::cast( kwiver::vital::any_cast< geo_point >( data ) );
-  }
-  else if ( type == typeid( geo_polygon ) )
-  {
-    return py::cast( kwiver::vital::any_cast< geo_polygon >( data ) );
-  }
-  else
-  {
-    throw std::logic_error( "unsupported type" );
-  }
+to_py( metadata_value const& data ) {
+  return visit( to_py_visitor{}, data );
 }
 
+// ----------------------------------------------------------------------------
 void adder(metadata &self, py::object data, vital_metadata_tag tag )
 {
-  self.add_any( tag, py_object_to_any( tag, data ) );
+  self.add( tag, from_py( tag, data ) );
 }
 
+} // namespace <anonymous>
+
+// ----------------------------------------------------------------------------
 PYBIND11_MODULE( metadata, m )
 {
   py::class_< metadata_item,
               std::shared_ptr< metadata_item > >( m, "MetadataItem" )
   .def( py::init([]( vital_metadata_tag tag, py::object data ){
-    return new metadata_item{ tag, py_object_to_any( tag, data ) };
+    return new metadata_item{ tag, from_py( tag, data ) };
   }) )
   .def( "is_valid",    &metadata_item::is_valid )
   .def( "__nonzero__", &metadata_item::is_valid )
@@ -122,7 +84,7 @@ PYBIND11_MODULE( metadata, m )
     return demangle( self.type().name() );
   })
   .def_property_readonly( "data", []( metadata_item const& self ){
-    return any_to_py_object( self.data() );
+    return visit( to_py_visitor{}, self.data() );
   } )
   .def( "as_double",  &metadata_item::as_double )
   .def( "has_double", &metadata_item::has_double )
@@ -131,7 +93,7 @@ PYBIND11_MODULE( metadata, m )
   .def( "as_string",  []( metadata_item const& self ) -> string_t {
     if( self.type() == typeid( bool ) )
     {
-      return kwiver::vital::any_cast< bool >( self.data() ) ? "True" : "False";
+      return self.get< bool >() ? "True" : "False";
     }
     return self.as_string();
    } )

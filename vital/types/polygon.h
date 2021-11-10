@@ -137,6 +137,12 @@ private:
 typedef std::shared_ptr< polygon > polygon_sptr;
 typedef std::vector< polygon_sptr >  polygon_sptr_list;
 
+VITAL_EXPORT
+bool operator==( polygon const& lhs, polygon const& rhs );
+
+VITAL_EXPORT
+bool operator!=( polygon const& lhs, polygon const& rhs );
+
 } } // end namespace
 
 #endif // VITAL_TYPES_POLYGON_H

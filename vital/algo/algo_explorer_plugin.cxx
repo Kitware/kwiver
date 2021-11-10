@@ -12,7 +12,7 @@ namespace kwiver {
 
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /**
  * @brief Plugin to provide detailed dsplay of algorithm plugins.
@@ -47,7 +47,7 @@ algo_explorer::
 ~algo_explorer()
 {}
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 algo_explorer
 ::initialize( explorer_context* context )
@@ -56,7 +56,7 @@ algo_explorer
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 algo_explorer
 ::explore( const kwiver::vital::plugin_factory_handle_t fact )
@@ -76,7 +76,7 @@ algo_explorer
   display_algo( pf );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 algo_explorer
 ::display_algo( std::shared_ptr< kwiver::vital::algorithm_factory > fact )
@@ -182,7 +182,7 @@ algo_explorer_pipe::
 ~algo_explorer_pipe()
 {}
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 algo_explorer_pipe
 ::initialize( explorer_context* context )
@@ -191,7 +191,7 @@ algo_explorer_pipe
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 algo_explorer_pipe
 ::explore( const kwiver::vital::plugin_factory_handle_t pf )

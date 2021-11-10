@@ -123,4 +123,19 @@ operator<<( std::ostream& str, vital::geo_point const& obj )
   return str;
 }
 
+// ----------------------------------------------------------------------------
+bool
+operator==( geo_point const& lhs, geo_point const& rhs )
+{
+  return ( lhs.is_empty() && rhs.is_empty() ) ||
+         ( lhs.crs() == rhs.crs() && lhs.location() == rhs.location() );
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator!=( geo_point const& lhs, geo_point const& rhs )
+{
+  return !( lhs == rhs );
+}
+
 } } // end namespace

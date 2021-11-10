@@ -24,7 +24,7 @@ namespace kwiver {
 
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Factory method to make an instance of this algorithm by impl_name
 template < typename Self >
 std::shared_ptr< Self >
@@ -34,7 +34,7 @@ algorithm_def< Self >
   return std::dynamic_pointer_cast< Self > ( create_algorithm( Self::static_type_name(), impl_name ) );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Return a vector of the impl_name of each registered implementation
 template < typename Self >
 std::vector< std::string >
@@ -57,7 +57,7 @@ algorithm_def< Self >
   return names;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Helper function for properly getting a nested algorithm's configuration
 template < typename Self >
 void
@@ -70,7 +70,7 @@ algorithm_def< Self >
                                             name, config, nested_algo );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Helper macro for properly setting a nested algorithm's configuration
 template < typename Self >
 void
@@ -87,7 +87,7 @@ algorithm_def< Self >
   nested_algo = std::dynamic_pointer_cast< Self > ( base_nested_algo );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Helper macro for checking that basic nested algorithm configuration is valid
 template < typename Self >
 bool

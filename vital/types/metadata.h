@@ -10,12 +10,16 @@
 #ifndef KWIVER_VITAL_METADATA_H_
 #define KWIVER_VITAL_METADATA_H_
 
-#include <vital/vital_export.h>
-
 #include <vital/any.h>
 #include <vital/exceptions/metadata.h>
+#include <vital/internal/variant/variant.hpp>
+#include <vital/types/geo_point.h>
+#include <vital/types/geo_polygon.h>
 #include <vital/types/metadata_tags.h>
+#include <vital/types/metadata_traits.h>
 #include <vital/types/timestamp.h>
+#include <vital/util/visit.h>
+#include <vital/vital_export.h>
 
 #include <iostream>
 #include <map>
@@ -24,21 +28,96 @@
 #include <sstream>
 #include <string>
 #include <type_traits>
+#include <typeindex>
 #include <typeinfo>
 #include <vector>
 
 namespace kwiver {
 namespace vital {
 
+// ----------------------------------------------------------------------------
+using metadata_value =
+  variant< bool, int, uint64_t, double, std::string, geo_point, geo_polygon >;
+
+// ----------------------------------------------------------------------------
+/// Call \p visitor with template type parameter corresponding to \p type.
+///
+/// Simple wrapper around \c visit_variant_types specialized for the types of
+/// \c metadata_value.
+template< class Visitor >
+VITAL_EXPORT
+void visit_metadata_types( Visitor&& visitor, std::type_info const& type );
+
+// ----------------------------------------------------------------------------
+/// Call \p visitor with template type parameter corresponding to \p type.
+///
+/// Simple wrapper around \c visit_variant_types_return specialized for the
+/// types of \c metadata_value.
+template< class ReturnT, class Visitor >
+VITAL_EXPORT
+ReturnT visit_metadata_types_return( Visitor&& visitor,
+                                     std::type_info const& type );
+
+// ----------------------------------------------------------------------------
+template< class Visitor >
+void visit_metadata_types( Visitor&& visitor, std::type_info const& type )
+{
+  visit_variant_types< metadata_value, Visitor >(
+    std::forward< Visitor >( visitor ), type );
+}
+
+// ----------------------------------------------------------------------------
+template< class ReturnT, class Visitor >
+ReturnT visit_metadata_types_return( Visitor&& visitor,
+                                     std::type_info const& type )
+{
+  return visit_variant_types_return< ReturnT, metadata_value, Visitor >(
+    std::forward< Visitor >( visitor ), type );
+}
+
+namespace metadata_detail {
+// ----------------------------------------------------------------------------
+template< class T >
+VITAL_EXPORT
+metadata_value
+convert_data( VITAL_UNUSED vital_metadata_tag tag, T const& data );
+
+// ----------------------------------------------------------------------------
+template< class T >
+metadata_value
+convert_data( VITAL_UNUSED vital_metadata_tag tag, T const& data )
+{
+  return data;
+}
+
+// ----------------------------------------------------------------------------
+template<>
+VITAL_EXPORT
+metadata_value
+convert_data< any >( vital_metadata_tag tag, any const& data );
+
+} // namespace metadata_detail
+
 // -----------------------------------------------------------------
 class VITAL_EXPORT metadata_item
 {
 public:
   /// \throws logic_error If \p data's type does not match \p tag.
-  metadata_item( vital_metadata_tag tag, kwiver::vital::any const& data );
-
-  /// \throws logic_error If \p data's type does not match \p tag.
-  metadata_item( vital_metadata_tag tag, kwiver::vital::any&& data );
+  template< class T >
+  metadata_item( vital_metadata_tag tag, T&& data )
+    : m_tag{ tag },
+      m_data{ metadata_detail::convert_data( tag, std::forward< T >( data ) ) }
+  {
+    auto const& trait = tag_traits_by_tag( m_tag );
+    if( trait.type() != this->type() )
+    {
+      std::stringstream ss;
+      ss << "metadata_item constructed with tag " << trait.enum_name()
+         << "expects type `" << trait.type_name() << "`; "
+         << "received type `" << this->type_name() << "`";
+      throw std::invalid_argument( ss.str() );
+    }
+  }
 
   /// Test if the metadata item is valid.
   bool is_valid() const;
@@ -52,24 +131,25 @@ public:
   /// Get the metadata item's tag.
   vital_metadata_tag tag() const { return m_tag; };
 
+  /// Test if the metadata item has type \c T.
+  template< class T >
+  bool has() const
+  {
+    return this->type() == typeid( T );
+  }
+
   /// Get the type of the metadata item's value.
   std::type_info const& type() const;
 
-  /// Get the value of the metadata item.
-  kwiver::vital::any data() const;
+  /// Get the type name of the metadata item's value.
+  std::string type_name() const;
 
-  /// Get the value of the metadata item.
-  ///
-  /// \return \c true on success, \c false on error.
-  template< typename T >
-  bool data( T& val ) const
-  {
-    if ( typeid( T ) == m_data.type() )
-    {
-      val = kwiver::vital::any_cast< T >( data() );
-      return true;
-    }
-    return false;
+  /// Get the value of this metadata item.
+  metadata_value const& data() const;
+
+  template< class T >
+  T const& get() const {
+    return kwiver::vital::get< T >( m_data );
   }
 
   /// Get the value of the metadata item as a \c double.
@@ -103,8 +183,8 @@ public:
   metadata_item* clone() const;
 
 private:
-  kwiver::vital::any const m_data;
-  vital_metadata_tag const m_tag;
+  vital_metadata_tag m_tag;
+  metadata_value m_data;
 };
 
 // -----------------------------------------------------------------
@@ -216,6 +296,13 @@ public:
   }
   //@}
 
+  template< class T >
+  void add( vital_metadata_tag tag, T&& data )
+  {
+    this->add( std::unique_ptr< metadata_item >(
+                 new metadata_item{ tag, std::forward< T >( data ) } ) );
+  }
+
   void add_any( vital_metadata_tag tag, any const& data );
 
   /**
@@ -231,11 +318,7 @@ public:
   template < vital_metadata_tag Tag >
   void add_any( any const& data )
   {
-    if( !data.is_type< type_of_tag< Tag > >() )
-    {
-      throw bad_any_cast{ data.type_name(), demangle( typeid( type_of_tag< Tag > ).name() ) };
-    }
-    this->add( std::unique_ptr< metadata_item >( new metadata_item{ Tag, data } ) );
+    this->add_any( Tag, data );
   }
 
   /**

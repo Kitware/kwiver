@@ -143,6 +143,124 @@ klv_tag_count_range
 klv_tag_traits
 ::tag_count_range() const { return m_tag_count_range; }
 
+// ----------------------------------------------------------------------------
+klv_tag_traits_lookup
+::klv_tag_traits_lookup( std::initializer_list< klv_tag_traits > const& traits )
+  : m_traits{ traits.begin(), traits.end() }
+{
+  initialize();
+}
+
+// ----------------------------------------------------------------------------
+klv_tag_traits_lookup
+::klv_tag_traits_lookup( std::vector< klv_tag_traits > const& traits )
+  : m_traits{ traits.begin(), traits.end() }
+{
+  initialize();
+}
+
+// ----------------------------------------------------------------------------
+typename klv_tag_traits_lookup::iterator
+klv_tag_traits_lookup
+::begin() const
+{
+  return m_traits.begin();
+}
+
+// ----------------------------------------------------------------------------
+typename klv_tag_traits_lookup::iterator
+klv_tag_traits_lookup
+::end() const
+{
+  return m_traits.end();
+}
+
+// ----------------------------------------------------------------------------
+klv_tag_traits const&
+klv_tag_traits_lookup
+::by_tag( klv_lds_key tag ) const
+{
+  auto const result = m_tag_to_traits.find( tag );
+  return ( result == m_tag_to_traits.end() )
+         ? m_traits.at( 0 )
+         : *result->second;
+}
+
+// ----------------------------------------------------------------------------
+klv_tag_traits const&
+klv_tag_traits_lookup
+::by_uds_key( klv_uds_key const& key ) const
+{
+  auto const result = m_uds_key_to_traits.find( key );
+  return ( result == m_uds_key_to_traits.end() )
+         ? m_traits.at( 0 )
+         : *result->second;
+}
+
+// ----------------------------------------------------------------------------
+klv_tag_traits const&
+klv_tag_traits_lookup
+::by_name( std::string const& name ) const
+{
+  auto const result = m_name_to_traits.find( name );
+  return ( result == m_name_to_traits.end() )
+         ? m_traits.at( 0 )
+         : *result->second;
+}
+
+// ----------------------------------------------------------------------------
+klv_tag_traits const&
+klv_tag_traits_lookup
+::by_enum_name( std::string const& enum_name ) const
+{
+  auto const result = m_enum_name_to_traits.find( enum_name );
+  return ( result == m_enum_name_to_traits.end() )
+         ? m_traits.at( 0 )
+         : *result->second;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_tag_traits_lookup
+::initialize()
+{
+  if( m_traits.empty() )
+  {
+    throw std::logic_error( "tag traits cannot be empty" );
+  }
+
+  for( auto const& trait : m_traits )
+  {
+    if( trait.tag() && !m_tag_to_traits.emplace( trait.tag(), &trait ).second )
+    {
+      std::stringstream ss;
+      ss << "duplicate tag in traits: " << trait.tag();
+      throw std::logic_error( ss.str() );
+    }
+    if( trait.uds_key().is_valid() &&
+        !m_uds_key_to_traits.emplace( trait.uds_key(), &trait ).second )
+    {
+      std::stringstream ss;
+      ss << "duplicate UDS key in traits: " << trait.uds_key();
+      throw std::logic_error( ss.str() );
+    }
+    if( !trait.name().empty() &&
+        !m_name_to_traits.emplace( trait.name(), &trait ).second )
+    {
+      std::stringstream ss;
+      ss << "duplicate name in traits: '" << trait.name() << "'";
+      throw std::logic_error( ss.str() );
+    }
+    if( !trait.enum_name().empty() &&
+        !m_enum_name_to_traits.emplace( trait.enum_name(), &trait ).second )
+    {
+      std::stringstream ss;
+      ss << "duplicate enum name in traits: '" << trait.enum_name() << "'";
+      throw std::logic_error( ss.str() );
+    }
+  }
+}
+
 } // namespace klv
 
 } // namespace arrows

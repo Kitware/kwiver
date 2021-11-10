@@ -8,7 +8,7 @@
  */
 
 #ifndef VITAL_CAMERA_PERSPECTIVE_MAP_H_
-#define VITAL_CAMERA_PERSPECTVIE_MAP_H_
+#define VITAL_CAMERA_PERSPECTIVE_MAP_H_
 
 #include "camera_map.h"
 #include "camera_perspective.h"

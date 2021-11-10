@@ -19,14 +19,14 @@ namespace kwiver {
 
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 algorithm
 ::algorithm()
   : m_logger( kwiver::vital::get_logger( "vital.algorithm" ) )
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 algorithm
 ::attach_logger( std::string const& name )
@@ -34,7 +34,7 @@ algorithm
   m_logger = kwiver::vital::get_logger( name );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 algorithm
 ::set_impl_name( const std::string& name )
@@ -42,7 +42,7 @@ algorithm
   m_impl_name = name;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::logger_handle_t
 algorithm
 ::logger() const
@@ -50,7 +50,7 @@ algorithm
   return m_logger;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string
 algorithm
 ::impl_name() const
@@ -58,7 +58,7 @@ algorithm
   return m_impl_name;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Get this alg's \link kwiver::vital::config_block configuration block
 /// \endlink
 config_block_sptr
@@ -68,7 +68,7 @@ algorithm
   return config_block::empty_config( this->type_name() );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Helper function for properly getting a nested algorithm's configuration
 void
 algorithm
@@ -123,7 +123,7 @@ algorithm
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Helper method for properly setting a nested algorithm's configuration
 void
 algorithm
@@ -172,7 +172,7 @@ algorithm
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Helper method for checking that basic nested algorithm configuration is
 /// valid
 bool

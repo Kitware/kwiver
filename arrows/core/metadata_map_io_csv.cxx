@@ -18,7 +18,9 @@
 
 #include <vital/range/iota.h>
 
+#include <iomanip>
 #include <iterator>
+#include <stdexcept>
 #include <string>
 #include <typeinfo>
 #include <vector>
@@ -36,17 +38,9 @@ namespace core {
 class metadata_map_io_csv::priv
 {
 public:
-  // Quote csv field if needed
-  void write_csv_item( std::string const& csv_field,
+  void write_csv_item( kv::vital_metadata_tag tag,
+                       kv::metadata_value const& value,
                        std::ostream& fout );
-  // Correctly write a metadata item as one or more fields
-  void write_csv_item( kv::metadata_item const& metadata,
-                       std::ostream& fout );
-  // Quote csv header item as needed, and explode types as needed
-  void write_csv_header( kv::vital_metadata_tag const& csv_field,
-                         std::ostream& fout,
-                         std::string const& field_name,
-                         std::string const& field_override );
 
   bool write_remaining_columns{ true };
   bool write_enum_names{ false };
@@ -58,125 +52,257 @@ public:
   uint64_t every_n_frames;
 };
 
-// ----------------------------------------------------------------------------
-void
-metadata_map_io_csv::priv
-::write_csv_item( std::string const& csv_field,
-                  std::ostream& fout )
-{
-  // TODO handle other pathalogical characters such as quotes or newlines
-  if( csv_field.find( ',' ) != std::string::npos )
-  {
-    fout << '"' << csv_field << "\",";
-  }
-  else
-  {
-    fout << csv_field << ",";
-  }
-}
+namespace {
 
 // ----------------------------------------------------------------------------
-void
-metadata_map_io_csv::priv
-::write_csv_item( kv::metadata_item const& metadata,
-                  std::ostream& fout )
-{
-  constexpr auto crs = kwiver::vital::SRID::lat_lon_WGS84;
-  if( metadata.type() == typeid( kv::geo_point ) )
+struct write_visitor {
+  template< class T >
+  void
+  operator()( T const& data ) const
   {
-    auto const& data = metadata.data();
-    kv::geo_point point = kv::any_cast< kv::geo_point >( data );
-    kv::geo_point::geo_3d_point_t loc = point.location( crs );
-
-    fout << loc( 0 ) << "," << loc( 1 ) << "," << loc( 2 ) << ",";
-  }
-  else if( metadata.type() == typeid( kv::geo_polygon ) )
-  {
-    auto const& data = metadata.data();
-    kv::geo_polygon poly = kv::any_cast< kv::geo_polygon >( data );
-    kv::polygon verts = poly.polygon( crs );
-
-    for( size_t n = 0; n < verts.num_vertices(); ++n )
+    if( std::is_arithmetic< T >::value )
     {
-      auto const& v = verts.at( n );
-      fout << v[ 0 ] << "," << v[ 1 ] << ",";
-    }
-  }
-  else if( metadata.type() == typeid( bool ) )
-  {
-    auto const& data = metadata.data();
-    auto const truth = kv::any_cast< bool >( data );
-    fout << ( truth ? "true," : "false," );
-  }
-  else if( metadata.type() == typeid( std::string ) )
-  {
-    auto const& data = metadata.data();
-    auto const string = kv::any_cast< std::string >( data );
-    fout << '"' << string << "\",";
-  }
-  else
-  {
-    write_csv_item( kv::metadata::format_string( metadata.as_string() ),
-                    fout );
-  }
-}
-
-// ----------------------------------------------------------------------------
-void
-metadata_map_io_csv::priv
-::write_csv_header( kv::vital_metadata_tag const& csv_field,
-                    std::ostream& fout,
-                    std::string const& field_name,
-                    std::string const& field_override )
-{
-  if( !field_override.empty() )
-  {
-    fout << "\"" << field_override << "\",";
-  }
-  else if( csv_field == kv::VITAL_META_UNKNOWN )
-  {
-    fout << "\"" << field_name << "\",";
-  }
-  else if( csv_field == kv::VITAL_META_SENSOR_LOCATION )
-  {
-    fout << "\"Sensor Geodetic Longitude (EPSG:4326)\","
-            "\"Sensor Geodetic Latitude (EPSG:4326)\","
-            "\"Sensor Geodetic Altitude (meters)\",";
-  }
-  else if( csv_field == kv::VITAL_META_FRAME_CENTER )
-  {
-    fout << "\"Geodetic Frame Center Longitude (EPSG:4326)\","
-            "\"Geodetic Frame Center Latitude (EPSG:4326)\","
-            "\"Geodetic Frame Center Elevation (meters)\",";
-  }
-  else if( csv_field == kv::VITAL_META_TARGET_LOCATION )
-  {
-    fout << "\"Target Geodetic Location Longitude (EPSG:4326)\","
-            "\"Target Geodetic Location Latitude (EPSG:4326)\","
-            "\"Target Geodetic Location Elevation (meters)\",";
-  }
-  else if( csv_field == kv::VITAL_META_CORNER_POINTS )
-  {
-    fout << "\"Upper Left Corner Longitude (EPSG:4326)\","
-            "\"Upper Left Corner Latitude (EPSG:4326)\","
-            "\"Upper Right Corner Longitude (EPSG:4326)\","
-            "\"Upper Right Corner Latitude (EPSG:4326)\","
-            "\"Lower Right Corner Longitude (EPSG:4326)\","
-            "\"Lower Right Corner Latitude (EPSG:4326)\","
-            "\"Lower Left Corner Longitude (EPSG:4326)\","
-            "\"Lower Left Corner Latitude (EPSG:4326)\",";
-  }
-  else
-  {
-    // Quote all other data either as the enum name or description
-    if( write_enum_names )
-    {
-      fout << '"' << kv::tag_traits_by_tag( csv_field ).enum_name() << "\",";
+      os << data << ',';
     }
     else
     {
-      fout << '"' << kv::tag_traits_by_tag( csv_field ).name() << "\",";
+      // TODO: handle pathalogical characters such as quotes or newlines
+      os << "\"" << data << "\",";
     }
+  }
+
+  std::ostream& os;
+};
+
+// ----------------------------------------------------------------------------
+template<>
+void
+write_visitor::operator()< bool >( bool const& data ) const
+{
+  os << ( data ? "true," : "false," );
+}
+
+// ----------------------------------------------------------------------------
+template<>
+void
+write_visitor::operator()< std::string >( std::string const& data ) const
+{
+  // TODO: handle other pathalogical characters such as quotes or newlines
+  os << "\"" << data << "\",";
+}
+
+// ----------------------------------------------------------------------------
+template<>
+void
+write_visitor::operator()< kv::geo_point >( kv::geo_point const& ) const
+{
+  throw std::logic_error( "geo_point should have been split" );
+}
+
+// ----------------------------------------------------------------------------
+template<>
+void
+write_visitor::operator()< kv::geo_polygon >( kv::geo_polygon const& ) const
+{
+  throw std::logic_error( "geo_polygon should have been split" );
+}
+
+// ----------------------------------------------------------------------------
+// Get the number of simple values (e.g. numbers) required to express the given
+// type
+size_t
+get_column_count( std::type_info const& type )
+{
+  static std::map< std::type_index, size_t > const map = {
+    { typeid( kv::geo_point ), 3 },   // (lon, lat, alt)
+    { typeid( kv::geo_polygon ), 8 }, // 4x(lon, lat)
+  };
+
+  auto const it = map.find( type );
+  return ( it != map.end() ) ? it->second : 1;
+}
+
+// ----------------------------------------------------------------------------
+// Get the special name for a particular subvalue, if it exists
+std::string const*
+get_special_column_name( kv::vital_metadata_tag tag, size_t index )
+{
+  static std::map< kv::vital_metadata_tag,
+                   std::vector< std::string > > const map = {
+    { kv::VITAL_META_SENSOR_LOCATION,
+      { "Sensor Geodetic Longitude (EPSG:4326)",
+        "Sensor Geodetic Latitude (EPSG:4326)",
+        "Sensor Geodetic Altitude (meters)", } },
+    { kv::VITAL_META_FRAME_CENTER,
+      { "Geodetic Frame Center Longitude (EPSG:4326)",
+        "Geodetic Frame Center Latitude (EPSG:4326)",
+        "Geodetic Frame Center Elevation (meters)", } },
+    { kv::VITAL_META_TARGET_LOCATION,
+      { "Target Geodetic Location Longitude (EPSG:4326)",
+        "Target Geodetic Location Latitude (EPSG:4326)",
+        "Target Geodetic Location Elevation (meters)", } },
+    { kv::VITAL_META_CORNER_POINTS,
+      { "Upper Left Corner Longitude (EPSG:4326)",
+        "Upper Left Corner Latitude (EPSG:4326)",
+        "Upper Right Corner Longitude (EPSG:4326)",
+        "Upper Right Corner Latitude (EPSG:4326)",
+        "Lower Right Corner Longitude (EPSG:4326)",
+        "Lower Right Corner Latitude (EPSG:4326)",
+        "Lower Left Corner Longitude (EPSG:4326)",
+        "Lower Left Corner Latitude (EPSG:4326)", } },
+  };
+
+  auto const it = map.find( tag );
+  return ( it != map.end() ) ? &it->second.at( index ) : nullptr;
+}
+
+// ----------------------------------------------------------------------------
+// Get the name to be used as the header title for the given subvalue.
+std::string
+get_column_name( kv::vital_metadata_tag tag, size_t index, bool use_enum_name )
+{
+  auto const& traits = kv::tag_traits_by_tag( tag );
+  auto const column_count = get_column_count( traits.type() );
+  std::stringstream ss;
+  if( use_enum_name )
+  {
+    ss << traits.enum_name();
+    if( column_count > 1 )
+    {
+      ss << '.' << index;
+    }
+  }
+  else
+  {
+    auto const special_name = get_special_column_name( tag, index );
+    if( special_name )
+    {
+      ss << *special_name;
+    }
+    else
+    {
+      ss << traits.name();
+      if( column_count > 1 )
+      {
+        ss << '.' << index;
+      }
+    }
+  }
+
+  return ss.str();
+}
+
+// ----------------------------------------------------------------------------
+struct subvalue_visitor
+{
+  template< class T >
+  kv::metadata_value
+  operator()( T const& value ) const
+  {
+    return value;
+  }
+
+  size_t index;
+};
+
+// ----------------------------------------------------------------------------
+template<>
+kv::metadata_value
+subvalue_visitor
+::operator()< kv::geo_point >( kv::geo_point const& value ) const
+{
+  return value.location( kv::SRID::lat_lon_WGS84 )( index );
+}
+
+// ----------------------------------------------------------------------------
+template<>
+kv::metadata_value
+subvalue_visitor
+::operator()< kv::geo_polygon >( kv::geo_polygon const& value ) const
+{
+  return value.polygon( kv::SRID::lat_lon_WGS84 ).at( index / 2 )( index % 2 );
+}
+
+// ----------------------------------------------------------------------------
+// Retreive the indexed subvalue from the given value.
+kv::metadata_value
+get_subvalue( kv::metadata_value const& value, size_t index )
+{
+  return kv::visit( subvalue_visitor{ index }, value );
+}
+
+// ----------------------------------------------------------------------------
+struct column_id
+{
+  kv::vital_metadata_tag tag;
+  size_t index;
+
+  bool
+  operator<( column_id const& other ) const
+  {
+    if( tag < other.tag ) { return true; }
+    if( tag > other.tag ) { return false; }
+    return index < other.index;
+  }
+};
+
+// ----------------------------------------------------------------------------
+// Determine what subvalue is being requested via the given string.
+column_id
+parse_column_id( std::string const& s )
+{
+  // Format of s will be: NAME.INDEX or just NAME (index defaults to 0)
+  // NAME will be either enum_name or regular name of a vital tag
+  column_id result = { kv::VITAL_META_UNKNOWN, 0 };
+  auto const separator_pos = s.rfind( '.' );
+  auto name = s;
+  if( separator_pos != s.npos )
+  {
+    try
+    {
+      result.index = std::stoi( s.substr( separator_pos + 1 ) );
+      name = s.substr( 0, separator_pos );
+    }
+    catch( std::invalid_argument const& e )
+    {
+      // Maybe there was a period in the name?
+    }
+  }
+  if( ( result.tag = kv::tag_traits_by_enum_name( name ).tag() ) ==
+      kv::VITAL_META_UNKNOWN )
+  {
+    result.tag = kv::tag_traits_by_name( name ).tag();
+  }
+  return result;
+}
+
+}
+
+// ----------------------------------------------------------------------------
+void
+metadata_map_io_csv::priv
+::write_csv_item( kv::vital_metadata_tag tag,
+                  kv::metadata_value const& value,
+                  std::ostream& fout )
+{
+  if( tag == kv::VITAL_META_VIDEO_MICROSECONDS )
+  {
+    // Print as hh:mm:ss.ssssss
+    auto const microseconds = kv::get< uint64_t >( value );
+    auto const seconds = ( microseconds / 1000000 );
+    auto const minutes = ( seconds / 60 );
+    auto const hours = ( minutes / 60 );
+    auto const flags = fout.flags();
+    fout << std::setfill( '0' );
+    fout << std::setw( 2 ) << hours << ':';
+    fout << std::setw( 2 ) << ( minutes % 60 ) << ':';
+    fout << std::setw( 2 ) << ( seconds % 60 ) << '.';
+    fout << std::setw( 6 ) << ( microseconds % 1000000 ) << ',';
+    fout.flags( flags );
+  }
+  else
+  {
+    kv::visit( write_visitor{ fout }, value );
   }
 }
 
@@ -245,7 +371,9 @@ metadata_map_io_csv
   config->set_value( "column_names", d_->names_string,
                      "Comma-separated values specifying column order. Can "
                      "either be the enum names, e.g. VIDEO_KEY_FRAME or the "
-                     "description, e.g. 'Is frame a key frame'" );
+                     "description, e.g. 'Is frame a key frame'. For composite "
+                     "data types, index using '.', e.g. 'SENSOR_LOCATION.2' "
+                     "for sensor altitude." );
   config->set_value( "column_overrides", d_->overrides_string,
                      "Comma-separated values overriding the final column names"
                      "as they appear in the output file. Order matches up with"
@@ -289,7 +417,7 @@ metadata_map_io_csv
   }
 
   // Accumulate the unique metadata IDs
-  std::set< kv::vital_metadata_tag > present_metadata_ids;
+  std::set< column_id > remaining_ids;
 
   for( auto const& frame_data : data->metadata() )
   {
@@ -297,47 +425,55 @@ metadata_map_io_csv
     {
       for( auto const& metadata_item : *metadata_packet )
       {
-        auto const type_id = metadata_item.first;
-        if( type_id != kv::VITAL_META_VIDEO_URI )
+        auto const tag = metadata_item.first;
+        auto const& type = metadata_item.second->type();
+        if( tag != kv::VITAL_META_VIDEO_URI )
         {
-          present_metadata_ids.insert( type_id );
+          for( auto const i : kvr::iota( get_column_count( type ) ) )
+          {
+            remaining_ids.insert( { tag, i } );
+          }
         }
       }
     }
   }
 
-  struct metadata_info
+  struct column_info
   {
-    kv::vital_metadata_tag id;
+    column_id id;
     std::string name;
-    std::string str;
   };
 
-  std::vector< metadata_info > infos;
+  std::vector< column_info > infos;
   for( auto const i : kvr::iota( d_->column_names.size() ) )
   {
     auto const& name = d_->column_names[ i ];
-    auto const& str = d_->column_overrides[ i ];
-    kv::vital_metadata_tag trait_id;
-    if( ( trait_id = kv::tag_traits_by_enum_name( name ).tag() ) !=
-        kv::VITAL_META_UNKNOWN ||
-        ( trait_id = kv::tag_traits_by_name( name ).tag() ) !=
-        kv::VITAL_META_UNKNOWN )
+    auto const& name_override = d_->column_overrides[ i ];
+
+    column_info info;
+    info.id = parse_column_id( name );
+    info.name =
+      name_override.empty()
+        ? get_column_name( info.id.tag, info.id.index, d_->write_enum_names )
+        : name_override;
+
+    if( info.id.tag != kv::VITAL_META_UNKNOWN )
     {
-      // Avoid duplicating present columns
-      present_metadata_ids.erase( trait_id );
+      remaining_ids.erase( info.id );
     }
 
-    infos.push_back( { trait_id, name, str } );
+    infos.push_back( info );
   }
 
   // Determine whether to write columns present in the metadata but not
   // explicitly provided
   if( d_->write_remaining_columns )
   {
-    for( auto const& id : present_metadata_ids )
+    for( auto const& id : remaining_ids )
     {
-      infos.push_back( { id, "", "" } );
+      auto const name =
+        get_column_name( id.tag, id.index, d_->write_enum_names );
+      infos.push_back( { id, name } );
     }
   }
 
@@ -345,9 +481,8 @@ metadata_map_io_csv
   fout << "\"Frame ID\",";
   for( auto const& info : infos )
   {
-    d_->write_csv_header( info.id, fout, info.name, info.str );
+    fout << "\"" << info.name << "\",";
   }
-
   fout << std::endl;
 
   if( d_->every_n_microseconds && d_->every_n_frames )
@@ -392,14 +527,19 @@ metadata_map_io_csv
       fout << frame_data.first << ",";
       for( auto const& info : infos )
       {
-        if( metadata_packet->has( info.id ) )
+        if( metadata_packet->has( info.id.tag ) )
+        // Write field data
         {
-          d_->write_csv_item( metadata_packet->find( info.id ), fout );
+          auto const& item = metadata_packet->find( info.id.tag );
+          d_->write_csv_item( item.tag(),
+                              get_subvalue( item.data(), info.id.index ),
+                              fout );
         }
-        // Write an empty field
         else
+        // Write empty fields
         {
-          fout << ",";
+          auto const& trait = kv::tag_traits_by_tag( info.id.tag );
+          fout << std::string( get_column_count( trait.type() ), ',' );
         }
       }
       fout << "\n";

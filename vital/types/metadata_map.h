@@ -89,13 +89,11 @@ public:
   type_of_tag<tag>
   get(frame_id_t fid) const
   {
-    type_of_tag<tag> val {};
-    this->get_item(tag, fid).data(val);
-    return val;
+    return this->get_item( tag, fid ).get< type_of_tag< tag > >();
   }
 
   /// Returns the frame ids that have associated metadata
-  virtual std::set<frame_id_t> frames() = 0;
+  virtual std::set<frame_id_t> frames() const = 0;
 
 };
 
@@ -121,7 +119,7 @@ public:
   virtual map_metadata_t metadata() const { return data_; }
 
   /// Returns the frame ids that have associated metadata
-  virtual std::set<frame_id_t> frames()
+  virtual std::set<frame_id_t> frames() const
   {
     std::set<frame_id_t> fids;
     for (auto &m : data_)

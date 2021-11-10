@@ -10,8 +10,8 @@
 
 #include <vital/types/geo_point.h>
 #include <vital/types/geo_polygon.h>
-#include <vital/types/metadata.h>
-#include <vital/types/metadata_types.h>
+#include <vital/types/metadata_tags.h>
+#include <vital/vital_types.h>
 #include <vital/vital_export.h>
 
 #include <typeinfo>
@@ -42,6 +42,8 @@ TAG_TYPE( VITAL_META_PLATFORM_DESIGNATION, string_t );
 TAG_TYPE( VITAL_META_IMAGE_SOURCE_SENSOR, string_t );
 TAG_TYPE( VITAL_META_IMAGE_COORDINATE_SYSTEM, string_t );
 TAG_TYPE( VITAL_META_IMAGE_URI, string_t );
+TAG_TYPE( VITAL_META_IMAGE_WIDTH, uint64_t );
+TAG_TYPE( VITAL_META_IMAGE_HEIGHT, uint64_t );
 TAG_TYPE( VITAL_META_VIDEO_DATA_STREAM_INDEX, int );
 TAG_TYPE( VITAL_META_VIDEO_URI, string_t );
 TAG_TYPE( VITAL_META_VIDEO_KEY_FRAME, bool );

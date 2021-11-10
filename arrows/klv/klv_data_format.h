@@ -59,6 +59,8 @@ public:
          size_t length ) const = 0;
 
   /// Return number of bytes required to write \p value.
+  ///
+  /// \note The return value does not account for a checksum, if present.
   virtual size_t
   length_of( klv_value const& value ) const = 0;
 
@@ -81,6 +83,23 @@ public:
   /// Return a textual description of this data format.
   virtual std::string
   description() const = 0;
+
+  /// Return the checksum value of the given bytes.
+  virtual uint16_t
+  calculate_checksum( klv_read_iter_t data, size_t length ) const;
+
+  /// Extract the written checksum value from the end of the given bytes.
+  virtual uint16_t
+  read_checksum( klv_read_iter_t data, size_t length ) const;
+
+  /// Write the given checksum packet.
+  virtual void
+  write_checksum( uint16_t checksum,
+                  klv_write_iter_t& data, size_t max_length ) const;
+
+  /// Return the length of the checksum packet.
+  virtual size_t
+  checksum_length() const;
 
 protected:
   /// Describe the length of this data format.
@@ -217,7 +236,7 @@ public:
   {
     return !value.valid()
            ? ( os << value )
-           : print_typed( os, value.get< T >() );
+           : print_typed( os, value.get< T >(), value.length_hint() );
   }
 
 protected:
@@ -247,7 +266,8 @@ protected:
   }
 
   virtual std::ostream&
-  print_typed( std::ostream& os, T const& value ) const
+  print_typed( std::ostream& os, T const& value,
+               VITAL_UNUSED size_t length_hint ) const
   {
     if( std::is_same< T, std::string >::value )
     {
@@ -365,11 +385,14 @@ protected:
 // ----------------------------------------------------------------------------
 /// Interprets data as an enum type.
 template < class T >
-class KWIVER_ALGO_KLV_EXPORT klv_enum_format : public klv_data_format_< T >
+class KWIVER_ALGO_KLV_EXPORT klv_enum_format
+  : public klv_data_format_< typename std::decay< T >::type >
 {
 public:
+  using data_type = typename std::decay< T >::type;
+
   klv_enum_format( size_t fixed_length = 1 )
-    : klv_data_format_< T >{ fixed_length }
+    : klv_data_format_< data_type >{ fixed_length }
   {}
 
   virtual
@@ -385,21 +408,22 @@ public:
   }
 
 protected:
-  T
+  data_type
   read_typed( klv_read_iter_t& data, size_t length ) const override
   {
-    return static_cast< T >( klv_read_int< uint64_t >( data, length ) );
+    return static_cast< data_type >(
+      klv_read_int< uint64_t >( data, length ) );
   }
 
   void
-  write_typed( T const& value,
+  write_typed( data_type const& value,
                klv_write_iter_t& data, size_t length ) const override
   {
     klv_write_int( static_cast< uint64_t >( value ), data, length );
   }
 
   size_t
-  length_of_typed( T const& value,
+  length_of_typed( data_type const& value,
                    VITAL_UNUSED size_t length_hint ) const override
   {
     return klv_int_length( static_cast< uint64_t >( value ) );
@@ -458,6 +482,122 @@ protected:
 
   size_t
   length_of_typed( uint64_t const& value, size_t length_hint ) const override;
+};
+
+// ----------------------------------------------------------------------------
+/// Interprets data as IEEE-754 floating point value.
+class KWIVER_ALGO_KLV_EXPORT klv_float_format
+  : public klv_data_format_< double >
+{
+public:
+  klv_float_format( size_t fixed_length = 0 );
+
+  virtual
+  ~klv_float_format() = default;
+
+  std::string
+  description() const override;
+
+protected:
+  double
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( double const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  std::ostream&
+  print_typed( std::ostream& os, double const& value,
+               size_t length_hint ) const override;
+};
+
+// ----------------------------------------------------------------------------
+/// Interprets data as an unsigned integer mapped to a known floating-point
+/// range.
+class KWIVER_ALGO_KLV_EXPORT klv_sflint_format
+  : public klv_data_format_< double >
+{
+public:
+  klv_sflint_format( double minimum, double maximum, size_t fixed_length = 0 );
+
+  virtual
+  ~klv_sflint_format() = default;
+
+  std::string
+  description() const override;
+
+protected:
+  double
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( double const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  std::ostream&
+  print_typed( std::ostream& os, double const& value,
+               size_t length_hint ) const override;
+
+  double m_minimum;
+  double m_maximum;
+};
+
+// ----------------------------------------------------------------------------
+/// Interprets data as an signed integer mapped to a known floating-point
+/// range.
+class KWIVER_ALGO_KLV_EXPORT klv_uflint_format
+  : public klv_data_format_< double >
+{
+public:
+  klv_uflint_format( double minimum, double maximum, size_t fixed_length = 0 );
+
+  virtual
+  ~klv_uflint_format() = default;
+
+  std::string
+  description() const override;
+
+protected:
+  double
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( double const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  std::ostream&
+  print_typed( std::ostream& os, double const& value,
+               size_t length_hint ) const override;
+
+  double m_minimum;
+  double m_maximum;
+};
+
+// ----------------------------------------------------------------------------
+/// Interprets data as a floating point value encoded in IMAP format.
+class KWIVER_ALGO_KLV_EXPORT klv_imap_format
+  : public klv_data_format_< double >
+{
+public:
+  klv_imap_format( double minimum, double maximum );
+
+  std::string
+  description() const override;
+
+protected:
+  double
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( double const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  std::ostream&
+  print_typed( std::ostream& os, double const& value,
+               size_t length_hint ) const override;
+
+  double m_minimum;
+  double m_maximum;
 };
 
 } // namespace klv

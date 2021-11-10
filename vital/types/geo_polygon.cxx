@@ -198,4 +198,19 @@ operator<<( std::ostream& str, vital::geo_polygon const& obj )
   return str;
 }
 
+// ----------------------------------------------------------------------------
+bool
+operator==( geo_polygon const& lhs, geo_polygon const& rhs )
+{
+  return ( lhs.is_empty() && rhs.is_empty() ) ||
+         ( lhs.crs() == rhs.crs() && lhs.polygon() == rhs.polygon() );
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator!=( geo_polygon const& lhs, geo_polygon const& rhs )
+{
+  return !( lhs == rhs );
+}
+
 } } // end namespace

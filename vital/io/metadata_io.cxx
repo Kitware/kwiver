@@ -207,8 +207,7 @@ write_pos_file( metadata const& md,
 
   if ( auto& mdi = md.find( VITAL_META_SENSOR_LOCATION ) )
   {
-    kwiver::vital::geo_point geo_pt;
-    mdi.data( geo_pt );
+    auto const geo_pt = mdi.get< kwiver::vital::geo_point >();
     auto const& raw_loc = geo_pt.location( SRID::lat_lon_WGS84 );
     // altitude is in feet in a POS file and needs to be converted to feet
     constexpr double feet2meters = 0.3048;
