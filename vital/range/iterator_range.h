@@ -7,6 +7,7 @@
 
 /// \file Class to wrap two iterators in a range-friendly way.
 
+#include <iterator>
 #include <utility>
 
 namespace kwiver {
@@ -28,6 +29,11 @@ public:
 
   Iterator begin() const { return m_begin; }
   Iterator end() const { return m_end; }
+
+  bool empty() const { return m_begin == m_end; }
+
+  typename std::iterator_traits< Iterator >::difference_type
+  size() const { return std::distance( m_begin, m_end ); }
 
 protected:
   Iterator m_begin;
