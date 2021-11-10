@@ -38,7 +38,7 @@ public:
   explorer_context* m_context;
 }; // end class algo_explorer
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 algo_explorer
 ::algo_explorer()
 {}
@@ -145,7 +145,7 @@ algo_explorer
   }
 } // algo_explorer::explore
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 
 /**
  * @brief Plugin to provide detailed dsplay of algorithm plugins.
@@ -171,7 +171,7 @@ public:
   kwiver::vital::wrap_text_block m_wtb;
 }; // end class algo_explorer_pipe
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 algo_explorer_pipe
 ::algo_explorer_pipe()
 {
@@ -247,7 +247,7 @@ algo_explorer_pipe
 
 } // namespace kwiver
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 extern "C"
 ALGO_EXPLORER_PLUGIN_EXPORT
 void
