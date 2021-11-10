@@ -107,10 +107,10 @@ protected:
 /// type definition for shared pointer to a compute depth algorithm
 typedef std::shared_ptr< compute_depth > compute_depth_sptr;
 
-} // end namespace algo
+} // namespace algo
 
-} // end namespace vital
+} // namespace vital
 
-} // end namespace kwiver
+} // namespace kwiver
 
 #endif // VITAL_ALGO_COMPUTE_DEPTH_H_

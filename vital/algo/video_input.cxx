@@ -8,10 +8,13 @@
  */
 
 #include <vital/algo/video_input.h>
+
 #include <vital/algo/algorithm.txx>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 // ----------------------------------------------------------------------------
@@ -56,13 +59,18 @@ video_input
 // ----------------------------------------------------------------------------
 void
 video_input
-::set_capability( algorithm_capabilities::capability_name_t const& name, bool val )
+::set_capability( algorithm_capabilities::capability_name_t const& name,
+                  bool val )
 {
   m_capabilities.set_capability( name, val );
 }
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 /// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::video_input);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::video_input );
 /// \endcond

@@ -4,7 +4,8 @@
 
 /**
  * \file
- * \brief Header defining abstract \link kwiver::vital::algo::initialize_cameras_landmarks
+ * \brief Header defining abstract \link
+ * kwiver::vital::algo::initialize_cameras_landmarks
  *        bundle adjustment \endlink algorithm
  */
 
@@ -14,26 +15,35 @@
 #include <vital/vital_config.h>
 
 #include <vital/algo/algorithm.h>
-#include <vital/types/feature_track_set.h>
 #include <vital/types/camera_map.h>
+#include <vital/types/feature_track_set.h>
 #include <vital/types/landmark_map.h>
 #include <vital/types/sfm_constraints.h>
 
 #include <functional>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// An abstract base class for initialization of cameras and landmarks
 class VITAL_ALGO_EXPORT initialize_cameras_landmarks
-: public kwiver::vital::algorithm_def<initialize_cameras_landmarks>
+  : public kwiver::vital::algorithm_def< initialize_cameras_landmarks >
 {
 public:
-  /// Return the name of this algorithm
-  static std::string static_type_name() { return "initialize_cameras_landmarks"; }
 
-  /// Initialize the camera and landmark parameters given a set of feature tracks
+  /// Return the name of this algorithm
+  static std::string
+  static_type_name()
+  {
+    return "initialize_cameras_landmarks";
+  }
+
+  /// Initialize the camera and landmark parameters given a set of feature
+  /// tracks
+
   /**
    * The algorithm creates an initial estimate of any missing cameras and
    * landmarks using the available cameras, landmarks, and feature tracks.
@@ -55,18 +65,20 @@ public:
    * \param [in] metadata the frame metadata to use as constraints
    */
   virtual void
-  initialize(kwiver::vital::camera_map_sptr& cameras,
-             kwiver::vital::landmark_map_sptr& landmarks,
-             kwiver::vital::feature_track_set_sptr tracks,
-             kwiver::vital::sfm_constraints_sptr constraints = nullptr) const = 0;
+  initialize(
+    kwiver::vital::camera_map_sptr& cameras,
+    kwiver::vital::landmark_map_sptr& landmarks,
+    kwiver::vital::feature_track_set_sptr tracks,
+    kwiver::vital::sfm_constraints_sptr constraints = nullptr ) const = 0;
 
   /// Typedef for the callback function signature
-  typedef std::function<bool(kwiver::vital::camera_map_sptr,
-                             kwiver::vital::landmark_map_sptr,
-                             kwiver::vital::feature_track_set_changes_sptr)> callback_t;
+  typedef std::function< bool ( kwiver::vital::camera_map_sptr,
+                                kwiver::vital::landmark_map_sptr,
+                                kwiver::vital::feature_track_set_changes_sptr ) >
+    callback_t;
 
   /// Set a callback function to report intermediate progress
-  virtual void set_callback(callback_t cb);
+  virtual void set_callback( callback_t cb );
 
 protected:
   initialize_cameras_landmarks();
@@ -76,9 +88,13 @@ protected:
 };
 
 /// type definition for shared pointer to an initialization algorithm
-typedef std::shared_ptr<initialize_cameras_landmarks>
-            initialize_cameras_landmarks_sptr;
+typedef std::shared_ptr< initialize_cameras_landmarks >
+  initialize_cameras_landmarks_sptr;
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // VITAL_ALGO_INITIALIZE_CAMERAS_LANDMARKS_H_

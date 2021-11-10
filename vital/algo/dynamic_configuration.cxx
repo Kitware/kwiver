@@ -3,10 +3,13 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include <vital/algo/dynamic_configuration.h>
+
 #include <vital/algo/algorithm.txx>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 dynamic_configuration
@@ -15,8 +18,12 @@ dynamic_configuration
   attach_logger( "algo.dynamic_configuration" );
 }
 
-} } }
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 /// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::dynamic_configuration);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::dynamic_configuration );
 /// \endcond

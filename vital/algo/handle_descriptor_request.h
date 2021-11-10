@@ -7,21 +7,23 @@
 
 #include <vital/vital_config.h>
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include <vital/algo/algorithm.h>
+#include <vital/types/descriptor_request.h>
 #include <vital/types/image_container.h>
 #include <vital/types/track_descriptor_set.h>
-#include <vital/types/descriptor_request.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// An abstract base class for formulating descriptors for queries
 class VITAL_ALGO_EXPORT handle_descriptor_request
-  : public kwiver::vital::algorithm_def<handle_descriptor_request>
+  : public kwiver::vital::algorithm_def< handle_descriptor_request >
 {
 public:
   /// Return the name of this algorithm
@@ -30,7 +32,8 @@ public:
   /// Set this algorithm's properties via a config block
   virtual void set_configuration( kwiver::vital::config_block_sptr config );
   /// Check that the algorithm's currently configuration is valid
-  virtual bool check_configuration( kwiver::vital::config_block_sptr config ) const;
+  virtual bool check_configuration(
+    kwiver::vital::config_block_sptr config ) const;
 
   /// Formulate query
   virtual bool handle(
@@ -40,11 +43,15 @@ public:
 
 protected:
   handle_descriptor_request();
-
 };
 
-typedef std::shared_ptr<handle_descriptor_request> handle_descriptor_request_sptr;
+typedef std::shared_ptr< handle_descriptor_request >
+  handle_descriptor_request_sptr;
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 #endif // VITAL_ALGO_CONVERT_IMAGE_H_

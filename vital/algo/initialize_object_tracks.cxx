@@ -6,7 +6,9 @@
 #include <vital/algo/initialize_object_tracks.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 initialize_object_tracks
@@ -15,6 +17,10 @@ initialize_object_tracks
   attach_logger( "algo.initialize_object_tracks" );
 }
 
-} } }
+} // namespace algo
 
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::initialize_object_tracks);
+} // namespace vital
+
+} // namespace kwiver
+
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::initialize_object_tracks );

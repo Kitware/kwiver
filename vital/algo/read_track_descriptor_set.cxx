@@ -18,17 +18,19 @@
 #include <kwiversys/SystemTools.hxx>
 
 /// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::read_track_descriptor_set);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::read_track_descriptor_set );
 /// \endcond
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 read_track_descriptor_set
 ::read_track_descriptor_set()
-  : m_stream( 0 )
-  , m_stream_owned( false )
+  : m_stream( 0 ),
+    m_stream_owned( false )
 {
   attach_logger( "algo.read_track_descriptor_set" );
 }
@@ -36,7 +38,7 @@ read_track_descriptor_set
 read_track_descriptor_set
 ::~read_track_descriptor_set()
 {
-  if ( m_stream && m_stream_owned )
+  if( m_stream && m_stream_owned )
   {
     delete m_stream;
   }
@@ -57,19 +59,19 @@ read_track_descriptor_set
   m_stream = 0;
 
   // Make sure that the given file path exists and is a file.
-  if( ! kwiversys::SystemTools::FileExists( filename ) )
+  if( !kwiversys::SystemTools::FileExists( filename ) )
   {
-    VITAL_THROW( path_not_exists, filename);
+    VITAL_THROW( path_not_exists, filename );
   }
 
   if( kwiversys::SystemTools::FileIsDirectory( filename ) )
   {
-    VITAL_THROW( path_not_a_file, filename);
+    VITAL_THROW( path_not_a_file, filename );
   }
 
   // try to open the file
   std::unique_ptr< std::istream > file( new std::ifstream( filename ) );
-  if( ! *file )
+  if( !*file )
   {
     VITAL_THROW( file_not_found_exception, filename, "open failed" );
   }
@@ -134,4 +136,8 @@ read_track_descriptor_set
 {
 }
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
