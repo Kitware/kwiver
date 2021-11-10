@@ -31,7 +31,7 @@ class algorithm;
 /// Shared pointer to an algorithm
 typedef std::shared_ptr< algorithm > algorithm_sptr;
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /**
  * @brief An abstract base class for all algorithms
@@ -199,7 +199,7 @@ private:
   std::string m_impl_name;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// An intermediate templated base class for algorithm definition
 
 /**

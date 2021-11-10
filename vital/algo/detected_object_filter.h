@@ -23,7 +23,7 @@ namespace vital {
 namespace algo {
 
 /// An abstract base class for filtering sets of detected objects
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /**
  * A detected object filter accepts a set of detections and produces

@@ -39,7 +39,7 @@ detected_object_set_output
   close();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_output
 ::open( std::string const& filename )
@@ -56,7 +56,7 @@ detected_object_set_output
   m_filename = filename;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_output
 ::use_stream( std::ostream* strm )
@@ -65,7 +65,7 @@ detected_object_set_output
   m_stream_owned = false;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_output
 ::close()
@@ -78,7 +78,7 @@ detected_object_set_output
   m_stream = 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::ostream&
 detected_object_set_output
 ::stream()
@@ -86,7 +86,7 @@ detected_object_set_output
   return *m_stream;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string const&
 detected_object_set_output
 ::filename()

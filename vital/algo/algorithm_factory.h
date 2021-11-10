@@ -61,7 +61,7 @@ private:
 
 typedef std::shared_ptr< algorithm_factory >         algorithm_factory_handle_t;
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class IMPL >
 class algorithm_factory_0
   : public algorithm_factory
@@ -87,7 +87,7 @@ protected:
   }
 }; // end class algorithm_factory_0
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /**
  * \brief Create algorithm from interface name and implementation name.

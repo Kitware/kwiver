@@ -22,7 +22,7 @@ namespace kwiver {
 namespace vital {
 namespace algo {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /**
  * @brief Read and write detected object sets
  *

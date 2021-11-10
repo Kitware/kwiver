@@ -25,7 +25,7 @@ estimate_similarity_transform
   attach_logger( "algo.estimate_similarity_transform" );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Estimate the similarity transform between two corresponding sets of cameras
 similarity_d
 estimate_similarity_transform
@@ -45,7 +45,7 @@ estimate_similarity_transform
   return this->estimate_transform(from_pts, to_pts);
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Estimate the similarity transform between two corresponding sets of landmarks.
 similarity_d
 estimate_similarity_transform
@@ -68,7 +68,7 @@ estimate_similarity_transform
 namespace
 {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Helper function for assigning camera/landmark map contents to point vectors
 /**
  * \tparam M      Map type whose value_type::second_type is a std::shared_ptr
@@ -113,7 +113,7 @@ void map_to_pts(M const& from_map, M const& to_map,
 
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Estimate the similarity transform between two corresponding camera maps
 similarity_d
 estimate_similarity_transform
@@ -156,7 +156,7 @@ estimate_similarity_transform
   return this->estimate_transform(from_pts, to_pts);
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Estimate the similarity transform between two corresponding landmark maps
 similarity_d
 estimate_similarity_transform
