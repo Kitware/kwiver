@@ -23,6 +23,21 @@ namespace klv {
 
 // ----------------------------------------------------------------------------
 bool
+operator<( klv_packet const& lhs, klv_packet const& rhs )
+{
+  if( lhs.key < rhs.key )
+  {
+    return true;
+  }
+  if( rhs.key < lhs.key )
+  {
+    return false;
+  }
+  return lhs.value < rhs.value;
+}
+
+// ----------------------------------------------------------------------------
+bool
 operator==( klv_packet const& lhs, klv_packet const& rhs )
 {
   return lhs.key == rhs.key && lhs.value == rhs.value;

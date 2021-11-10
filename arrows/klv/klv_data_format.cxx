@@ -7,6 +7,13 @@
 
 #include "klv_data_format.h"
 
+#include "klv_0104_new.h"
+#include "klv_0601_new.h"
+#include "klv_1108.h"
+#include "klv_1108_metric_set.h"
+#include "klv_blob.h"
+#include "klv_packet.h"
+
 #include <iomanip>
 
 #include <cfloat>
@@ -100,6 +107,175 @@ klv_data_format
 ::checksum_length() const
 {
   return 0;
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+klv_data_format_< T >
+
+::klv_data_format_( size_t fixed_length ) : klv_data_format{ fixed_length }
+{}
+
+// ----------------------------------------------------------------------------
+template < class T >
+klv_data_format_< T >
+
+::~klv_data_format_() {}
+
+// ----------------------------------------------------------------------------
+template < class T >
+klv_value
+klv_data_format_< T >
+::read( klv_read_iter_t& data, size_t length ) const
+{
+  if( !length )
+  {
+    // Zero length: null / unknown value
+    return klv_value{};
+  }
+  else if( m_fixed_length && length != m_fixed_length )
+  {
+    // Invalid length
+    std::stringstream ss;
+    ss  << "fixed-length format `" << description()
+        << "` received wrong number of bytes ( " << length << " )";
+    VITAL_THROW( kwiver::vital::metadata_exception, ss.str() );
+  }
+
+  try
+  {
+    // Try to parse using this data format
+    return klv_value{ read_typed( data, length ), length };
+  }
+  catch ( std::exception const& e )
+  {
+    // Return blob if parsing failed
+    LOG_ERROR( kwiver::vital::get_logger( "klv.read" ),
+               "error occurred during parsing: " << e.what() );
+    return klv_value{ klv_read_blob( data, length ), length };
+  }
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+void
+klv_data_format_< T >
+::write( klv_value const& value, klv_write_iter_t& data,
+         size_t max_length ) const
+{
+  if( value.empty() )
+  {
+    // Null / unknown value: write nothing
+    return;
+  }
+  else if( !value.valid() )
+  {
+    // Unparsed value: write raw bytes
+    klv_write_blob( value.get< klv_blob >(), data, max_length );
+  }
+  else
+  {
+    // Ensure we have enough bytes
+    auto const value_length = length_of( value );
+    if( value_length > max_length )
+    {
+      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+                   "write will overflow buffer" );
+    }
+
+    // Write the value
+    auto const begin = data;
+    write_typed( value.get< T >(), data, value_length );
+
+    // Ensure the number of bytes we wrote was how many we said we were going
+    // to write
+    auto const written_length =
+      static_cast< size_t >( std::distance( begin, data ) );
+    if( written_length != value_length )
+    {
+      std::stringstream ss;
+      ss        << "format `" << description() << "`: "
+                << "written length (" << written_length << ") and "
+                << "calculated length (" << value_length <<  ") not equal";
+      throw std::logic_error( ss.str() );
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+size_t
+klv_data_format_< T >
+::length_of( klv_value const& value ) const
+{
+  if( value.empty() )
+  {
+    return 0;
+  }
+  else if( !value.valid() )
+  {
+    return value.get< klv_blob >()->size();
+  }
+  else
+  {
+    return m_fixed_length
+           ? m_fixed_length
+           : length_of_typed( value.get< T >(), value.length_hint() );
+  }
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+std::type_info const&
+klv_data_format_< T >
+::type() const
+{
+  return typeid( T );
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+std::ostream&
+klv_data_format_< T >
+::print( std::ostream& os, klv_value const& value ) const
+{
+  return !value.valid()
+         ? ( os << value )
+         : print_typed( os, value.get< T >(), value.length_hint() );
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+size_t
+klv_data_format_< T >
+::length_of_typed( VITAL_UNUSED T const& value, size_t length_hint ) const
+{
+  if( length_hint )
+  {
+    return length_hint;
+  }
+
+  std::stringstream ss;
+  ss    << "application must provide length of variable-length format `"
+        << description() << "`";
+  throw std::logic_error( ss.str() );
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+std::ostream&
+klv_data_format_< T >
+::print_typed( std::ostream& os, T const& value,
+               VITAL_UNUSED size_t length_hint ) const
+{
+  if( std::is_same< T, std::string >::value )
+  {
+    return os << '"' << value << '"';
+  }
+  else
+  {
+    return os << value;
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -268,6 +444,63 @@ klv_sint_format
   std::stringstream ss;
   ss << "signed integer of " << length_description();
   return ss.str();
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+klv_enum_format< T >
+
+::klv_enum_format( size_t fixed_length )
+  : klv_data_format_< data_type >{ fixed_length }
+{}
+
+// ----------------------------------------------------------------------------
+template < class T >
+klv_enum_format< T >
+
+::~klv_enum_format() {}
+
+// ----------------------------------------------------------------------------
+template < class T >
+std::string
+klv_enum_format< T >
+::description() const
+{
+  std::stringstream ss;
+  ss    << this->type_name() << " enumeration of "
+        << this->length_description();
+  return ss.str();
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+typename klv_enum_format< T >::data_type
+
+klv_enum_format< T >
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  return static_cast< data_type >(
+    klv_read_int< uint64_t >( data, length ) );
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+void
+klv_enum_format< T >
+::write_typed( data_type const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  klv_write_int( static_cast< uint64_t >( value ), data, length );
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+size_t
+klv_enum_format< T >
+::length_of_typed( data_type const& value,
+                   VITAL_UNUSED size_t length_hint ) const
+{
+  return klv_int_length( static_cast< uint64_t >( value ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -504,8 +737,9 @@ klv_uflint_format
 ::description() const
 {
   std::stringstream ss;
-  ss  << "unsigned integer of " << length_description() << " mapped to range "
-      << "( " << m_minimum << ", " << m_maximum << " )";
+  ss    << "unsigned integer of " << length_description() <<
+        " mapped to range "
+        << "( " << m_minimum << ", " << m_maximum << " )";
   return ss.str();
 }
 
@@ -560,6 +794,34 @@ klv_imap_format
         << "of " << length_description();
   return ss.str();
 }
+
+#define KLV_INSTANTIATE( T ) \
+  template class klv_data_format_< T >;
+
+KLV_INSTANTIATE( double );
+KLV_INSTANTIATE( int64_t );
+KLV_INSTANTIATE( klv_0601_control_command );
+KLV_INSTANTIATE( klv_0601_frame_rate );
+KLV_INSTANTIATE( klv_1108_metric_implementer );
+KLV_INSTANTIATE( klv_1108_metric_period_pack );
+KLV_INSTANTIATE( klv_1108_window_corners_pack );
+KLV_INSTANTIATE( klv_blob );
+KLV_INSTANTIATE( klv_local_set );
+KLV_INSTANTIATE( klv_universal_set );
+KLV_INSTANTIATE( std::string );
+KLV_INSTANTIATE( uint64_t );
+
+#define KLV_INSTANTIATE_ENUM( T ) \
+  template class klv_enum_format< T >;
+
+KLV_INSTANTIATE_ENUM( klv_0601_icing_detected );
+KLV_INSTANTIATE_ENUM( klv_0601_operational_mode );
+KLV_INSTANTIATE_ENUM( klv_0601_platform_status );
+KLV_INSTANTIATE_ENUM( klv_0601_sensor_control_mode );
+KLV_INSTANTIATE_ENUM( klv_0601_sensor_fov_name );
+KLV_INSTANTIATE_ENUM( klv_1108_assessment_point );
+KLV_INSTANTIATE_ENUM( klv_1108_compression_profile );
+KLV_INSTANTIATE_ENUM( klv_1108_compression_type );
 
 } // namespace klv
 
