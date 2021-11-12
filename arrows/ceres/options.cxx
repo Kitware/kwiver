@@ -382,9 +382,10 @@ camera_options
     // - we are forcing common intrinsics and this is the first frame
     // - we are auto detecting shared intrinsics and this is a new sptr
     if( this->camera_intrinsic_share_type == FORCE_UNIQUE_INTRINSICS ||
-        ( this->camera_intrinsic_share_type == FORCE_COMMON_INTRINSICS &&
-          int_params.empty() ) ||
-        camera_intr_map.count( K ) == 0 )
+      ( this->camera_intrinsic_share_type == FORCE_COMMON_INTRINSICS &&
+        int_params.empty() ) ||
+      ( this->camera_intrinsic_share_type == AUTO_SHARE_INTRINSICS &&
+        camera_intr_map.find( K ) == camera_intr_map.end() ) )
     {
       this->extract_camera_intrinsics( K, &intrinsic_params[ 0 ] );
       // update the maps with the index of this new parameter vector
