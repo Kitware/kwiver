@@ -325,15 +325,14 @@ void
 metadata_map_io_csv
 ::set_configuration( vital::config_block_sptr config )
 {
-  d_->write_remaining_columns = config->get_value< bool >(
-    "write_remaining_columns" );
-  d_->write_enum_names = config->get_value< bool >( "write_enum_names" );
+  d_->write_remaining_columns =
+    config->get_value< bool >( "write_remaining_columns", true );
+  d_->write_enum_names =
+    config->get_value< bool >( "write_enum_names", false );
   d_->every_n_microseconds =
-    config->has_value( "every_n_microseconds" )
-    ? config->get_value< uint64_t >( "every_n_microseconds" ) : 0;
+    config->get_value< uint64_t >( "every_n_microseconds", 0 );
   d_->every_n_frames =
-    config->has_value( "every_n_frames" )
-    ? config->get_value< uint64_t >( "every_n_frames" ) : 0;
+    config->get_value< uint64_t >( "every_n_frames", 0 );
 
   auto const split_and_trim =
     []( std::string const& s ) -> std::vector< std::string > {
@@ -344,9 +343,10 @@ metadata_map_io_csv
       return result;
     };
 
-  d_->names_string = config->get_value< std::string >( "column_names" );
+  d_->names_string = config->get_value< std::string >( "column_names", "" );
   d_->column_names = split_and_trim( d_->names_string );
-  d_->overrides_string = config->get_value< std::string >( "column_overrides" );
+  d_->overrides_string =
+    config->get_value< std::string >( "column_overrides", "" );
   d_->column_overrides = split_and_trim( d_->overrides_string );
   d_->column_overrides.resize( d_->column_names.size() );
 }
@@ -356,8 +356,8 @@ bool
 metadata_map_io_csv
 ::check_configuration( vital::config_block_sptr config ) const
 {
-  return !( config->has_value( "every_n_microseconds" ) &&
-            config->has_value( "every_n_frames" ) );
+  return !( config->get_value< uint64_t >( "every_n_microseconds", 0 ) &&
+            config->get_value< uint64_t >( "every_n_frames", 0 ) );
 }
 
 // ----------------------------------------------------------------------------
