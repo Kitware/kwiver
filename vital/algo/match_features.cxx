@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief match_features algorithm instantiation
- */
+/// \file
+/// \brief match_features algorithm instantiation
 
 #include <vital/algo/algorithm.txx>
 #include <vital/algo/match_features.h>
