@@ -14,12 +14,10 @@
 #include <vital/algo/algorithm.h>
 #include <vital/types/track_set.h>
 
-/**
- * \file
- * \brief Header defining abstract \link
- * kwiver::vital::algo::keyframe_selection
- *        keyframe selection \endlink algorithm
- */
+/// \file
+/// \brief Header defining abstract \link
+/// kwiver::vital::algo::keyframe_selection
+///        keyframe selection \endlink algorithm
 
 namespace kwiver {
 
@@ -36,17 +34,15 @@ public:
   static std::string static_type_name() { return "keyframe_selection"; }
 
   /// Select keyframes from a set of tracks.
-
-  /** Different implementations can select key-frames in different ways.
-   *   For example, one method could only add key-frames for frames that are
-   * new.  Another could increase the
-   * density of key-frames near existing frames so dense processing can be
-   * done.
-   */
-  /**
-   * \param [in] tracks The tracks over which to select key-frames
-   * \returns a track set that includes the selected keyframe data structure
-   */
+  ///
+  /// Different implementations can select key-frames in different ways.
+  ///   For example, one method could only add key-frames for frames that are
+  /// new.  Another could increase the
+  /// density of key-frames near existing frames so dense processing can be
+  /// done.
+  ///
+  /// \param [in] tracks The tracks over which to select key-frames
+  /// \returns a track set that includes the selected keyframe data structure
   virtual kwiver::vital::track_set_sptr
   select( kwiver::vital::track_set_sptr tracks ) const = 0;
 

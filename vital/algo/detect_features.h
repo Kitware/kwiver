@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief detect_features algorithm definition
- */
+/// \file
+/// \brief detect_features algorithm definition
 
 #ifndef VITAL_ALGO_DETECT_FEATURES_H_
 #define VITAL_ALGO_DETECT_FEATURES_H_
@@ -30,22 +28,20 @@ public:
   static std::string static_type_name() { return "detect_features"; }
 
   /// Extract a set of image features from the provided image
-
-  /**
-   * A given mask image should be one-channel (mask->depth() == 1). If the
-   * given mask image has more than one channel, only the first will be
-   * considered.
-   *
-   * \throws image_size_mismatch_exception
-   *    When the given non-zero mask image does not match the size of the
-   *    dimensions of the given image data.
-   *
-   * \param image_data contains the image data to process
-   * \param mask Mask image where regions of positive values (boolean true)
-   *             indicate regions to consider. Only the first channel will be
-   *             considered.
-   * \returns a set of image features
-   */
+  ///
+  /// A given mask image should be one-channel (mask->depth() == 1). If the
+  /// given mask image has more than one channel, only the first will be
+  /// considered.
+  ///
+  /// \throws image_size_mismatch_exception
+  ///    When the given non-zero mask image does not match the size of the
+  ///    dimensions of the given image data.
+  ///
+  /// \param image_data contains the image data to process
+  /// \param mask Mask image where regions of positive values (boolean true)
+  ///             indicate regions to consider. Only the first channel will be
+  ///             considered.
+  /// \returns a set of image features
   virtual kwiver::vital::feature_set_sptr
   detect( kwiver::vital::image_container_sptr image_data,
           kwiver::vital::image_container_sptr mask = kwiver::vital::image_container_sptr() )

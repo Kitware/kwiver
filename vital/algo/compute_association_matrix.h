@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief compute_association_matrix algorithm definition
- */
+/// \file
+/// \brief compute_association_matrix algorithm definition
 
 #ifndef VITAL_ALGO_COMPUTE_ASSOCIATION_MATRIX_H_
 #define VITAL_ALGO_COMPUTE_ASSOCIATION_MATRIX_H_
@@ -39,16 +37,14 @@ public:
   }
 
   /// Compute an association matrix given detections and tracks
-
-  /**
-   * \param ts frame ID
-   * \param image contains the input image for the current frame
-   * \param tracks active track set from the last frame
-   * \param detections input detected object sets from the current frame
-   * \param matrix output matrix
-   * \param considered output detections used in matrix
-   * \return returns whether a matrix was successfully computed
-   */
+  ///
+  /// \param ts frame ID
+  /// \param image contains the input image for the current frame
+  /// \param tracks active track set from the last frame
+  /// \param detections input detected object sets from the current frame
+  /// \param matrix output matrix
+  /// \param considered output detections used in matrix
+  /// \return returns whether a matrix was successfully computed
   virtual bool
   compute( kwiver::vital::timestamp ts,
            kwiver::vital::image_container_sptr image,
