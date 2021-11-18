@@ -14,12 +14,10 @@ namespace vital {
 
 // ----------------------------------------------------------------------------
 
-/**
- * @brief Plugin to provide detailed dsplay of algorithm plugins.
- *
- * This class implements a plugin category formatter for the plugin_explorer
- * tool.
- */
+/// @brief Plugin to provide detailed dsplay of algorithm plugins.
+///
+/// This class implements a plugin category formatter for the plugin_explorer
+/// tool.
 class algo_explorer
   : public category_explorer
 {
@@ -38,7 +36,7 @@ public:
   explorer_context* m_context;
 }; // end class algo_explorer
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 algo_explorer
 ::algo_explorer()
 {}
@@ -145,14 +143,12 @@ algo_explorer
   }
 } // algo_explorer::explore
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 
-/**
- * @brief Plugin to provide detailed dsplay of algorithm plugins.
- *
- * This class implements a plugin category formatter for the plugin_explorer
- * tool generating output in pipeline file format.
- */
+/// @brief Plugin to provide detailed dsplay of algorithm plugins.
+///
+/// This class implements a plugin category formatter for the plugin_explorer
+/// tool generating output in pipeline file format.
 class algo_explorer_pipe
   : public category_explorer
 {
@@ -171,7 +167,7 @@ public:
   kwiver::vital::wrap_text_block m_wtb;
 }; // end class algo_explorer_pipe
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 algo_explorer_pipe
 ::algo_explorer_pipe()
 {
@@ -247,7 +243,7 @@ algo_explorer_pipe
 
 } // namespace kwiver
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 extern "C"
 ALGO_EXPLORER_PLUGIN_EXPORT
 void

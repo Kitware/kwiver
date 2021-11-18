@@ -17,25 +17,21 @@ namespace kwiver {
 
 namespace vital {
 
-/**
- * \brief Factory class for algorithms.
- *
- * \tparam T Type of the object to be created.
- */
+/// \brief Factory class for algorithms.
+///
+/// \tparam T Type of the object to be created.
 class VITAL_ALGO_EXPORT algorithm_factory
   : public kwiver::vital::plugin_factory
 {
 public:
 
-  /**
-   * \brief CTOR for factory object
-   *
-   * This CTOR also takes a factory function so it can support
-   * creating processes and clusters.
-   *
-   * \param algo Name of the algorithm
-   * \param impl Name of the implementation
-   */
+  /// \brief CTOR for factory object
+  ///
+  /// This CTOR also takes a factory function so it can support
+  /// creating processes and clusters.
+  ///
+  /// \param algo Name of the algorithm
+  /// \param impl Name of the implementation
   algorithm_factory( const std::string& algo,
                      const std::string& impl )
     : plugin_factory( algo ) // interface type
@@ -89,52 +85,44 @@ protected:
 
 // ----------------------------------------------------------------------------
 
-/**
- * \brief Create algorithm from interface name and implementation name.
- *
- * \param algo_name Name of the interface
- * \param impl_name Name if the implementation
- *
- * \return New algorithm object or
- */
+/// \brief Create algorithm from interface name and implementation name.
+///
+/// \param algo_name Name of the interface
+/// \param impl_name Name if the implementation
+///
+/// \return New algorithm object or
 VITAL_ALGO_EXPORT
 algorithm_sptr  create_algorithm( std::string const& algo_name,
                                   std::string const& impl_name );
 
-/**
- * \brief Check the given type and implementation names against registered
- * algorithms.
- *
- * \param type_name Type name of algorithm to validate
- * \param impl_name Implementation name of algorithm to validate
- * \returns true if the given \c type_name and \c impl_name describe a valid
- *          registered algorithm, or false if not.
- */
+/// \brief Check the given type and implementation names against registered
+/// algorithms.
+///
+/// \param type_name Type name of algorithm to validate
+/// \param impl_name Implementation name of algorithm to validate
+/// \returns true if the given \c type_name and \c impl_name describe a valid
+///          registered algorithm, or false if not.
 VITAL_ALGO_EXPORT
 bool has_algorithm_impl_name( std::string const& type_name,
                               std::string const& impl_name );
 
-/**
- * \brief Add an algorithm factory
- *
- * \param algo_name Algorithm name or interface type name
- * \param impl_name Implementation name or just name of plugin
- * \param conc_T Type of object to create
- *
- * \return
- */
+/// \brief Add an algorithm factory
+///
+/// \param algo_name Algorithm name or interface type name
+/// \param impl_name Implementation name or just name of plugin
+/// \param conc_T Type of object to create
+///
+/// \return
 #define ADD_ALGORITHM( impl_name, conc_T )                    \
   add_factory( new ::kwiver::vital::algorithm_factory_0< conc_T >( conc_T:: \
                                                                    static_type_name(), \
                                                                    impl_name ) )
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 /// Derived class to register algorithms.
-
-/**
- * This class contains the specific procedure for registering
- * algorithms with the plugin loader.
- */
+///
+/// This class contains the specific procedure for registering
+/// algorithms with the plugin loader.
 class algorithm_registrar
   : public kwiver::plugin_registrar
 {
@@ -146,18 +134,16 @@ public:
   {
   }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
 
   /// Register an algorithm plugin.
-
-  /**
-   * An algorithm of the specified type is registered with the plugin
-   * manager.
-   *
-   * \tparam tool_t Type of the algorithm being registered.
-   *
-   * \return The plugin loader reference is returned.
-   */
+  ///
+  /// An algorithm of the specified type is registered with the plugin
+  /// manager.
+  ///
+  /// \tparam tool_t Type of the algorithm being registered.
+  ///
+  /// \return The plugin loader reference is returned.
   template < typename algorithm_t >
   kwiver::vital::plugin_factory_handle_t
   register_algorithm()
@@ -178,28 +164,24 @@ public:
   }
 };
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 /// Derived class to register serializer algorithms.
-
-/**
- * This class contains the specific procedure for registering
- * serializer algorithms with the plugin loader. Serializers are
- * different in that they use the interface name to specify the
- * serialization method.
- */
+///
+/// This class contains the specific procedure for registering
+/// serializer algorithms with the plugin loader. Serializers are
+/// different in that they use the interface name to specify the
+/// serialization method.
 class serializer_registrar
   : public kwiver::plugin_registrar
 {
 public:
-  /**
-   * \brief Constructor for serializer registrar
-   *
-   * \param vpl Plugin loader reference.
-   * \param module_name  name of module to register.
-   * \param ser_method short serialization method. This specifies the
-   * string that is used in the pipe config file to select the
-   * serializer method. Typical entries could be "protobuf" or "json".
-   */
+  /// \brief Constructor for serializer registrar
+  ///
+  /// \param vpl Plugin loader reference.
+  /// \param module_name  name of module to register.
+  /// \param ser_method short serialization method. This specifies the
+  /// string that is used in the pipe config file to select the
+  /// serializer method. Typical entries could be "protobuf" or "json".
   serializer_registrar( kwiver::vital::plugin_loader& vpl,
                         const std::string& module_name,
                         const std::string& ser_method )
@@ -211,19 +193,17 @@ private:
   std::string m_serialize_method;
 
 public:
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
 
   /// Register a serializer algorithm plugin.
-
-  /**
-   * An algorithm of the specified type is registered with the plugin
-   * manager.
-   *
-   * \tparam tool_t Type of the algorithm being registered.
-   * \param name Override type static name with this name if specified.
-   *
-   * \return The plugin loader reference is returned.
-   */
+  ///
+  /// An algorithm of the specified type is registered with the plugin
+  /// manager.
+  ///
+  /// \tparam tool_t Type of the algorithm being registered.
+  /// \param name Override type static name with this name if specified.
+  ///
+  /// \return The plugin loader reference is returned.
   template < typename algorithm_t >
   kwiver::vital::plugin_factory_handle_t
   register_algorithm( const std::string& name )
@@ -255,18 +235,16 @@ public:
     return plugin_loader().add_factory( fact );
   }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
 
   /// Register an algorithm plugin.
-
-  /**
-   * An algorithm of the specified type is registered with the plugin
-   * manager.
-   *
-   * \tparam tool_t Type of the algorithm being registered.
-   *
-   * \return The plugin loader reference is returned.
-   */
+  ///
+  /// An algorithm of the specified type is registered with the plugin
+  /// manager.
+  ///
+  /// \tparam tool_t Type of the algorithm being registered.
+  ///
+  /// \return The plugin loader reference is returned.
   template < typename algorithm_t >
   kwiver::vital::plugin_factory_handle_t
   register_algorithm()

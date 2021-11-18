@@ -16,6 +16,7 @@ set( sources
   klv_read_write.cxx
   klv_set.cxx
   klv_tag_traits.cxx
+  klv_timeline.cxx
   klv_value.cxx
   klv_0601.cxx
   klv_0601_new.cxx

@@ -2,12 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header defining abstract \link
- * kwiver::vital::algo::triangulate_landmarks
- *        triangulate landmarks \endlink algorithm
- */
+/// \file
+/// \brief Header defining abstract \link
+/// kwiver::vital::algo::triangulate_landmarks
+///        triangulate landmarks \endlink algorithm
 
 #ifndef VITAL_ALGO_TRIANGULATE_LANDMARKS_H_
 #define VITAL_ALGO_TRIANGULATE_LANDMARKS_H_
@@ -37,15 +35,13 @@ public:
 
   /// Triangulate the landmark locations given sets of cameras and feature
   /// tracks
-
-  /**
-   * \param [in] cameras the cameras viewing the landmarks
-   * \param [in] tracks the feature tracks to use as constraints
-   * \param [in,out] landmarks the landmarks to triangulate
-   *
-   * This function only triangulates the landmarks with indices in the
-   * landmark map and which have support in the feature tracks and cameras
-   */
+  ///
+  /// \param [in] cameras the cameras viewing the landmarks
+  /// \param [in] tracks the feature tracks to use as constraints
+  /// \param [in,out] landmarks the landmarks to triangulate
+  ///
+  /// This function only triangulates the landmarks with indices in the
+  /// landmark map and which have support in the feature tracks and cameras
   virtual void
   triangulate( kwiver::vital::camera_map_sptr cameras,
                kwiver::vital::feature_track_set_sptr tracks,
@@ -53,16 +49,14 @@ public:
 
   /// Triangulate the landmark locations given sets of cameras and feature
   /// tracks
-
-  /**
-   * \param [in] cameras the cameras viewing the landmarks
-   * \param [in] tracks the feature tracks to use as constraints stored in a
-   * track map
-   * \param [in,out] landmarks the landmarks to triangulate
-   *
-   * This function only triangulates the landmarks with indices in the
-   * landmark map and which have support in the feature tracks and cameras.
-   */
+  ///
+  /// \param [in] cameras the cameras viewing the landmarks
+  /// \param [in] tracks the feature tracks to use as constraints stored in a
+  /// track map
+  /// \param [in,out] landmarks the landmarks to triangulate
+  ///
+  /// This function only triangulates the landmarks with indices in the
+  /// landmark map and which have support in the feature tracks and cameras.
   virtual void
   triangulate( vital::camera_map_sptr cameras,
                vital::track_map_t tracks,

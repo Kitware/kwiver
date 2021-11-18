@@ -123,6 +123,28 @@ dump_klv
     config->merge_config( kv::read_config_file( cmd_args["config"].as<std::string>() ) );
   }
 
+  // Output file extension configures exporter
+  if ( cmd_args.count( "log" ) &&
+       !cmd_args.count( "metadata_serializer:type" ) )
+  {
+    const std::string filename = cmd_args[ "log" ].as< std::string >();
+    auto const extension_pos = filename.rfind( '.' );
+    if( extension_pos != filename.npos )
+    {
+      static std::map< std::string, std::string > const extension_map = {
+        { ".JSON", "json" },
+        { ".json", "json" },
+        { ".CSV", "csv" },
+        { ".csv", "csv" },
+      };
+      auto const extension = filename.substr( extension_pos );
+      auto const it = extension_map.find( extension );
+      auto const serializer_type =
+        ( it != extension_map.end() ) ? it->second : std::string{ "csv" };
+      config->set_value( "metadata_serializer:type", serializer_type );
+    }
+  }
+
   kva::video_input::set_nested_algo_configuration(
     "video_reader", config, video_reader );
   kva::video_input::get_nested_algo_configuration(
