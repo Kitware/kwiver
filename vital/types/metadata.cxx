@@ -11,6 +11,7 @@
 
 #include <vital/types/metadata_traits.h>
 #include <vital/util/demangle.h>
+#include <vital/internal/variant/variant.hpp>
 
 #include <typeindex>
 
