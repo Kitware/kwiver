@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief C Interface implementation to \p vital::camera_intrinsics class
- */
+/// \file
+/// \brief C Interface implementation to \p vital::camera_intrinsics class
 
 #include "camera_intrinsics.h"
 
@@ -38,10 +36,8 @@ vital_camera_intrinsics_new_default( vital_error_handle_t *eh )
   return 0;
 }
 
-/**
- * Create a new simple camera intrinsics object with specified focal length and
- * principle point.
- */
+/// Create a new simple camera intrinsics object with specified focal length and
+/// principle point.
 vital_camera_intrinsics_t*
 vital_camera_intrinsics_new_partial( double focal_length,
                                      vital_eigen_matrix2x1d_t *principle_point,

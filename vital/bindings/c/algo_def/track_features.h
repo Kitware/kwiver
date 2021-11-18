@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief C Interface to track_features algorithm definition
- */
+/// \file
+/// \brief C Interface to track_features algorithm definition
 
 #ifndef VITAL_C_ALGO_DEF_TRACK_FEATURES_H_
 #define VITAL_C_ALGO_DEF_TRACK_FEATURES_H_

@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for \link kwiver::vital::camera camera \endlink and
- *        \link kwiver::vital::camera_ camera_<T> \endlink classes
- */
+/// \file
+/// \brief Header for \link kwiver::vital::camera camera \endlink and
+///        \link kwiver::vital::camera_ camera_<T> \endlink classes
 
 #ifndef VITAL_CAMERA_H_
 #define VITAL_CAMERA_H_
@@ -29,11 +27,10 @@ typedef std::shared_ptr< camera > camera_sptr;
 /// typedef for a vector of cameras
 typedef std::vector< camera_sptr > camera_sptr_list;
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// An abstract representation of camera
-/**
- * The base class of cameras.
- */
+///
+/// The base class of cameras.
 class VITAL_EXPORT camera
 {
 public:

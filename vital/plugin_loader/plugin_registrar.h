@@ -12,7 +12,7 @@
 #define KWIVER_DEFAULT_PLUGIN_ORGANIZATION "undefined"
 #endif
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 // Support for adding factories for the plugin loader
 
 namespace kwiver {
@@ -25,12 +25,11 @@ class plugin_registrar
 {
 public:
   /// Create registrar
-  /**
-   * This class contains the common data used for registering tools.
-   *
-   * \param vpl Reference to the plugin loader
-   * \param name Name of this loadable module.
-   */
+  ///
+  /// This class contains the common data used for registering tools.
+  ///
+  /// \param vpl Reference to the plugin loader
+  /// \param name Name of this loadable module.
   plugin_registrar( vital::plugin_loader& vpl,
                     const std::string& name )
     : mod_name( name )

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief C interface to vital::image classes
- */
+/// \file
+/// \brief C interface to vital::image classes
 
 #ifndef VITAL_C_IMAGE_H_
 #define VITAL_C_IMAGE_H_
@@ -38,16 +36,15 @@ VITAL_C_EXPORT
 vital_image_t* vital_image_new();
 
 /// Create a new image with dimensions and type, allocating memory
-/**
- * @param width Width of image in pixels
- * @param height Height of image in pixels
- * @param depth Number of planes in image
- * @param interleave If true change the memory layout to interleave the channels (depth)
- * @param pixel_type The class of data type used for the pixels
- * @param pixel_num_bytes The number of bytes use to reperesent a pixel
- *
- * @return Opaque pointer to new image
- */
+///
+/// @param width Width of image in pixels
+/// @param height Height of image in pixels
+/// @param depth Number of planes in image
+/// @param interleave If true change the memory layout to interleave the channels (depth)
+/// @param pixel_type The class of data type used for the pixels
+/// @param pixel_num_bytes The number of bytes use to reperesent a pixel
+///
+/// @return Opaque pointer to new image
 VITAL_C_EXPORT
 vital_image_t* vital_image_new_with_dim( size_t width, size_t height,
                                          size_t depth, bool interleave,
@@ -55,22 +52,21 @@ vital_image_t* vital_image_new_with_dim( size_t width, size_t height,
                                          size_t pixel_num_bytes);
 
 /// Create a new image wrapping existing data
-/**
- * This function creates an image object from raw memory owned by the
- * caller.  The constructed image does not take ownership of the memory.
- *
- * @param first_pixel Address of first pixel (0, 0, 0)
- * @param width Width of image in pixels
- * @param height Height of image in pixels
- * @param depth Number of planes in image
- * @param w_step Increment to get to next column pixel (x)
- * @param h_step Increment to get to next row pixel (y)
- * @param d_step Increment to get to pixel in next plane
- * @param pixel_type The class of data type used for the pixels
- * @param pixel_num_bytes The number of bytes use to reperesent a pixel
- *
- * @return Opaque pointer to new image
- */
+///
+/// This function creates an image object from raw memory owned by the
+/// caller.  The constructed image does not take ownership of the memory.
+///
+/// @param first_pixel Address of first pixel (0, 0, 0)
+/// @param width Width of image in pixels
+/// @param height Height of image in pixels
+/// @param depth Number of planes in image
+/// @param w_step Increment to get to next column pixel (x)
+/// @param h_step Increment to get to next row pixel (y)
+/// @param d_step Increment to get to pixel in next plane
+/// @param pixel_type The class of data type used for the pixels
+/// @param pixel_num_bytes The number of bytes use to reperesent a pixel
+///
+/// @return Opaque pointer to new image
 VITAL_C_EXPORT
 vital_image_t* vital_image_new_from_data( void const* first_pixel,
                                           size_t width, size_t height, size_t depth,
@@ -79,9 +75,8 @@ vital_image_t* vital_image_new_from_data( void const* first_pixel,
                                           size_t pixel_num_bytes);
 
 /// Create a new image from an existing image, sharing the same memory
-/**
- * The new image will share the same memory as the old image
- */
+///
+/// The new image will share the same memory as the old image
 VITAL_C_EXPORT
 vital_image_t* vital_image_new_from_image( vital_image_t *other_image );
 
@@ -90,13 +85,12 @@ VITAL_C_EXPORT
 void vital_image_destroy( vital_image_t* image );
 
 /// Copy the data from \p image_src into \p image_dest
-/**
- * The if destination image does not match the source image in size
- * or pixel type, the destination image will be reallocated to match
- *
- * @param image_dest The destination of the image copy
- * @param image_src  The source image to copy
- */
+///
+/// The if destination image does not match the source image in size
+/// or pixel type, the destination image will be reallocated to match
+///
+/// @param image_dest The destination of the image copy
+/// @param image_src  The source image to copy
 VITAL_C_EXPORT
 void vital_image_copy_from_image(vital_image_t *image_dest,
                                  vital_image_t *image_src );

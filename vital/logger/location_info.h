@@ -13,83 +13,70 @@ namespace kwiver {
 namespace vital {
 namespace logger_ns {
 
-// ----------------------------------------------------------------
-/** Location of logging call.
- *
- * This class represents the location of the logging call.
- *
- */
+// ----------------------------------------------------------------------------
+/// Location of logging call.
+///
+/// This class represents the location of the logging call.
+///
 class VITAL_LOGGER_EXPORT location_info
 {
 public:
-  /** Constructor. Create a default of unknown location */
+  /// Constructor. Create a default of unknown location
   location_info();
 
-  /** Constructor. Create a location object for the current site */
+  /// Constructor. Create a location object for the current site
   location_info( char const* filename, char const* method, int line );
 
   //@{
-  /** Default values for unknown locations */
+  /// Default values for unknown locations
   static const char * const NA;
   static const char * const NA_METHOD;
   //@}
 
-  /**
-   * @brief Get file name.
-   *
-   * The file name for the current location is returned without
-   * leading path components and with file extension.
-   *
-   * @return file name, may be null.
-   */
+  /// @brief Get file name.
+  ///
+  /// The file name for the current location is returned without
+  /// leading path components and with file extension.
+  ///
+  /// @return file name, may be null.
   std::string get_file_name() const;
   char const * get_file_name_ptr() const { return m_fileName; }
 
-  /**
-   * @brief Get path part of file spec.
-   *
-   * The path or base name portion of the file path is returned
-   * without the file name.
-   *
-   * @return file name base. May be null.
-   */
+  /// @brief Get path part of file spec.
+  ///
+  /// The path or base name portion of the file path is returned
+  /// without the file name.
+  ///
+  /// @return file name base. May be null.
   std::string get_file_path() const;
 
-  /**
-   * @brief Get full function/method signature.
-   *
-   * The whole signature, as captured by the macro, is returned.
-   *
-   * @return function/method signature
-   */
+  /// @brief Get full function/method signature.
+  ///
+  /// The whole signature, as captured by the macro, is returned.
+  ///
+  /// @return function/method signature
   std::string get_signature() const;
 
-  /**
-   * @brief Get method name.
-   *
-   * The method name for the current location is returned.
-   *
-   * @return method name, may be null.
-   */
+  /// @brief Get method name.
+  ///
+  /// The method name for the current location is returned.
+  ///
+  /// @return method name, may be null.
   std::string get_method_name() const;
   char const * get_method_name_ptr() const { return m_methodName; }
 
-  /**
-   * @brief Get class name.
-   *
-   * This method returns the method name for the current location.
-   *
-   * @return class name.
-   */
+  /// @brief Get class name.
+  ///
+  /// This method returns the method name for the current location.
+  ///
+  /// @return class name.
   std::string get_class_name() const;
 
-  /**
-   * @brief Get line number.
-   *
-   * The line number for the current location is returned.
-   *
-   * @return line number, -1 indicates unknown line.
-   */
+  /// @brief Get line number.
+  ///
+  /// The line number for the current location is returned.
+  ///
+  /// @return line number, -1 indicates unknown line.
   int get_line_number() const;
 
 private:

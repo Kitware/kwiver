@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
- /**
-  * \file
-  * \brief This file contains the interface to a geo point.
-  */
+ /// \file
+ /// \brief This file contains the interface to a geo point.
 
 #ifndef KWIVER_VITAL_GEO_COVARIANCE_H_
 #define KWIVER_VITAL_GEO_COVARIANCE_H_
@@ -18,8 +16,7 @@ namespace kwiver {
 namespace vital {
 
 // ----------------------------------------------------------------------------
-/** A geo_point with covariance
- */
+/// A geo_point with covariance
 class VITAL_EXPORT geo_covariance : public geo_point
 {
 public:

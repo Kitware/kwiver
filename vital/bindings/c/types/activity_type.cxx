@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief vital::activity_type C interface implementation
- */
+/// \file
+/// \brief vital::activity_type C interface implementation
 
 #include "activity_type.h"
 
@@ -24,7 +22,7 @@ AT_SPTR_CACHE( "activity_type" );
 
 } }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital_activity_type_t* vital_activity_type_new()
 {
   STANDARD_CATCH(
@@ -37,7 +35,7 @@ vital_activity_type_t* vital_activity_type_new()
   return 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vital_activity_type_destroy(vital_activity_type_t* obj)
 {
   STANDARD_CATCH(
@@ -47,7 +45,7 @@ void vital_activity_type_destroy(vital_activity_type_t* obj)
     );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital_activity_type_t*
 vital_activity_type_new_from_list( VITAL_UNUSED vital_activity_type_t* obj,
                                    size_t count,
@@ -70,7 +68,7 @@ vital_activity_type_new_from_list( VITAL_UNUSED vital_activity_type_t* obj,
   return 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 vital_activity_type_has_class_name( vital_activity_type_t* obj, char* class_name )
 {
@@ -81,7 +79,7 @@ vital_activity_type_has_class_name( vital_activity_type_t* obj, char* class_name
   return false;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 double vital_activity_type_score( vital_activity_type_t* obj, char* class_name )
 {
   STANDARD_CATCH(
@@ -91,7 +89,7 @@ double vital_activity_type_score( vital_activity_type_t* obj, char* class_name )
   return 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 char* vital_activity_type_get_most_likely_class( vital_activity_type_t* obj )
 {
   STANDARD_CATCH(
@@ -106,7 +104,7 @@ char* vital_activity_type_get_most_likely_class( vital_activity_type_t* obj )
   return 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 double vital_activity_type_get_most_likely_score( vital_activity_type_t* obj )
 {
   STANDARD_CATCH(
@@ -121,7 +119,7 @@ double vital_activity_type_get_most_likely_score( vital_activity_type_t* obj )
   return 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vital_activity_type_set_score( vital_activity_type_t* obj,
                                     char* class_name,
                                     double score )
@@ -132,7 +130,7 @@ void vital_activity_type_set_score( vital_activity_type_t* obj,
     );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vital_activity_type_delete_score( vital_activity_type_t* obj,
                                        char* class_name)
 {
@@ -142,7 +140,7 @@ void vital_activity_type_delete_score( vital_activity_type_t* obj,
     );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 char** vital_activity_type_class_names( vital_activity_type_t* obj,
                                         VITAL_UNUSED double thresh )
 {
@@ -162,7 +160,7 @@ char** vital_activity_type_class_names( vital_activity_type_t* obj,
   return 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 char** vital_activity_type_all_class_names( VITAL_UNUSED vital_activity_type_t* obj )
 {
   STANDARD_CATCH(

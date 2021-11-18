@@ -7,7 +7,7 @@
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 scale_detections( detected_object_set_sptr dos,
        double scale_factor )
@@ -25,7 +25,7 @@ scale_detections( detected_object_set_sptr dos,
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 shift_detections( detected_object_set_sptr dos,
        double col_shift, double row_shift )

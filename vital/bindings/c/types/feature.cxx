@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of C interface to vital::feature
- */
+/// \file
+/// \brief Implementation of C interface to vital::feature
 
 #include "feature.h"
 
@@ -123,13 +121,13 @@ vital_feature_type_name( vital_feature_t const *f,
 }
 
 /// Define type-specific feature functions
-/**
- * \param T data type
- * \param S standard data type character symbol
- */
+///
+/// \param T data type
+/// \param S standard data type character symbol
 #define DEFINE_FEATURE_OPERATIONS( T, S ) \
 \
-/** Create a new typed feature instance. */ \
+/// Create a new typed feature instance. 
+ \
 vital_feature_t* \
 vital_feature_##S##_new( vital_eigen_matrix2x1##S##_t *loc, T mag, T scale, \
                          T angle, vital_rgb_color_t *color, \
@@ -149,7 +147,8 @@ vital_feature_##S##_new( vital_eigen_matrix2x1##S##_t *loc, T mag, T scale, \
   return 0; \
 } \
 \
-/** Create a new typed feature instance with default parameters */ \
+/// Create a new typed feature instance with default parameters 
+ \
 vital_feature_t* \
 vital_faeture_##S##_new_default( vital_error_handle_t *eh ) \
 { \
@@ -162,7 +161,8 @@ vital_faeture_##S##_new_default( vital_error_handle_t *eh ) \
   return 0; \
 } \
 \
-/** Set feature location vector */ \
+/// Set feature location vector 
+ \
 void \
 vital_feature_##S##_set_loc( vital_feature_t *f, \
                              vital_eigen_matrix2x1##S##_t *l, \
@@ -183,7 +183,8 @@ vital_feature_##S##_set_loc( vital_feature_t *f, \
   ); \
 } \
 \
-/** Set feature magnitude */ \
+/// Set feature magnitude 
+ \
 void \
 vital_feature_##S##_set_magnitude( vital_feature_t *f, \
                                    T mag, \
@@ -202,7 +203,8 @@ vital_feature_##S##_set_magnitude( vital_feature_t *f, \
   ); \
 } \
 \
-/** Set feature scale */ \
+/// Set feature scale 
+ \
 void \
 vital_feature_##S##_set_scale( vital_feature_t *f, \
                                T scale, \
@@ -221,7 +223,8 @@ vital_feature_##S##_set_scale( vital_feature_t *f, \
   ); \
 } \
 \
-/** Set feature angle */ \
+/// Set feature angle 
+ \
 void \
 vital_feature_##S##_set_angle( vital_feature_t *f, \
                                T angle, \
@@ -240,7 +243,8 @@ vital_feature_##S##_set_angle( vital_feature_t *f, \
   ); \
 } \
 \
-/** Set feature covariance matrix */ \
+/// Set feature covariance matrix 
+ \
 void \
 vital_feature_##S##_set_covar( vital_feature_t *f, \
                                vital_covariance_2##S##_t *covar, \
@@ -261,7 +265,8 @@ vital_feature_##S##_set_covar( vital_feature_t *f, \
   ); \
 } \
 \
-/** Set feature color */ \
+/// Set feature color 
+ \
 void \
 vital_feature_##S##_set_color( vital_feature_t *f, \
                                vital_rgb_color_t *c, \

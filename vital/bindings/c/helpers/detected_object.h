@@ -2,12 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief C++ Helper utilities for C interface of vital::detected_object
- *
- * Private header for use in cxx implementation files.
- */
+/// \file
+/// \brief C++ Helper utilities for C interface of vital::detected_object
+///
+/// Private header for use in cxx implementation files.
 
 #ifndef VITAL_C_HELPERS_DETECTED_OBJECT_H_
 #define VITAL_C_HELPERS_DETECTED_OBJECT_H_

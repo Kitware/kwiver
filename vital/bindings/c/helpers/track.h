@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief C Interface vital::track helpers
- */
+/// \file
+/// \brief C Interface vital::track helpers
 
 #ifndef VITAL_C_HELPERS_TRACK_H_
 #define VITAL_C_HELPERS_TRACK_H_

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief core covariance interface
- */
+/// \file
+/// \brief core covariance interface
 
 #ifndef VITAL_COVARIANCE_H_
 #define VITAL_COVARIANCE_H_
@@ -77,10 +75,9 @@ public:
   }
 
   /// Constructor - from a matrix
-  /**
-   * Averages off diagonal elements to enforce symmetry
-   * \param mat matrix to construct from.
-   */
+  ///
+  /// Averages off diagonal elements to enforce symmetry
+  /// \param mat matrix to construct from.
   explicit covariance_< N, T > ( const matrix_type &mat )
   {
     unsigned int n = 0;

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief vital::algo::initialize_cameras_landmarks interface
- */
+/// \file
+/// \brief vital::algo::initialize_cameras_landmarks interface
 
 #ifndef VITAL_C_ALGO_INITIALIZE_CAMERAS_LANDMARKS_H_
 #define VITAL_C_ALGO_INITIALIZE_CAMERAS_LANDMARKS_H_
@@ -25,13 +23,12 @@ extern "C"
 DECLARE_COMMON_ALGO_API( initialize_cameras_landmarks )
 
 /// Initialize the camera and landmark parameters given a set of tracks
-/**
- * \param[in] algo initialize cameras landmarks algorithm instance
- * \param[in,out] cameras Cameras to initialize
- * \param[in,out] landmarks Landmarks to initialize
- * \param[in] tracks Tracks to use as constraints
- * \param[in] eh Vital error handle instance
- */
+///
+/// \param[in] algo initialize cameras landmarks algorithm instance
+/// \param[in,out] cameras Cameras to initialize
+/// \param[in,out] landmarks Landmarks to initialize
+/// \param[in] tracks Tracks to use as constraints
+/// \param[in] eh Vital error handle instance
 VITAL_C_EXPORT
 void
 vital_algorithm_initialize_cameras_landmarks_initialize( vital_algorithm_t *algo,

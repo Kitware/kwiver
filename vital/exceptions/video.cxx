@@ -2,17 +2,15 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation for image exceptions
- */
+/// \file
+/// \brief Implementation for image exceptions
 
 #include "video.h"
 
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_exception
 ::video_exception() noexcept
 {
@@ -24,7 +22,7 @@ video_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_input_timeout_exception
 ::video_input_timeout_exception() noexcept
 {
@@ -36,7 +34,7 @@ video_input_timeout_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_stream_exception
 ::video_stream_exception( std::string const& msg) noexcept
 {
@@ -48,7 +46,7 @@ video_stream_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_config_exception
 ::video_config_exception( std::string const& msg) noexcept
 {
@@ -60,7 +58,7 @@ video_config_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_runtime_exception
 ::video_runtime_exception( std::string const& msg) noexcept
 {

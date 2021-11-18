@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief C Interface to convert_image algorithm implementation
- */
+/// \file
+/// \brief C Interface to convert_image algorithm implementation
 
 #include "convert_image.h"
 

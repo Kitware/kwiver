@@ -20,41 +20,36 @@ namespace logger_ns {
 
 }
 
-// ----------------------------------------------------------------
-/** Logger manager.
- *
- * This class represents the main top level logic for the KWIVER
- * logger. Only one object of this type is required, so this is a
- * singleton created by the static instance() method.
- */
+// ----------------------------------------------------------------------------
+/// Logger manager.
+///
+/// This class represents the main top level logic for the KWIVER
+/// logger. Only one object of this type is required, so this is a
+/// singleton created by the static instance() method.
 class VITAL_LOGGER_EXPORT kwiver_logger_manager
   :private kwiver::vital::noncopyable
 {
 public:
   ~kwiver_logger_manager();
 
-  /** Get the single instance of this class. */
+  /// Get the single instance of this class.
   static kwiver_logger_manager * instance();
 
-  /**
-   * @brief Get name of current logger factory.
-   *
-   * This method returns the name of the currently active logger
-   * factory.
-   *
-   * @return Name of logger factory.
-   */
+  /// @brief Get name of current logger factory.
+  ///
+  /// This method returns the name of the currently active logger
+  /// factory.
+  ///
+  /// @return Name of logger factory.
   std::string const&  get_factory_name() const;
 
-  /**
-   * @brief Establish a new logger factory.
-   *
-   * The specified logger factory object is installed as the current
-   * factory and the old factory is returned. This is useful for
-   * setting up loggers that are tightly coupled with the application.
-   *
-   * @param fact Pointer to new factory.
-   */
+  /// @brief Establish a new logger factory.
+  ///
+  /// The specified logger factory object is installed as the current
+  /// factory and the old factory is returned. This is useful for
+  /// setting up loggers that are tightly coupled with the application.
+  ///
+  /// @param fact Pointer to new factory.
   void set_logger_factory( std::unique_ptr< logger_ns::kwiver_logger_factory >&& fact );
 
 private:

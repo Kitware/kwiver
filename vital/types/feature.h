@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief core feature interface
- */
+/// \file
+/// \brief core feature interface
 
 #ifndef VITAL_FEATURE_H_
 #define VITAL_FEATURE_H_
@@ -26,11 +24,10 @@ namespace kwiver {
 namespace vital {
 
 /// A representation of a 2D image feature point.
-/**
- * The base class of features is abstract and provides a
- * double precision interface.  The templated derived class
- * can store values in either single or double precision.
- */
+///
+/// The base class of features is abstract and provides a
+/// double precision interface.  The templated derived class
+/// can store values in either single or double precision.
 
 class feature;
 /// Shared pointer for base feature type
@@ -90,17 +87,15 @@ public:
 };
 
 /// output stream operator for base class feature
-/**
- * \param s output stream
- * \param f feature to stream
- */
+///
+/// \param s output stream
+/// \param f feature to stream
 VITAL_EXPORT std::ostream& operator<<( std::ostream& s, feature const& f );
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// A concrete 2D image feature point.
-/**
- * Templated over real number type (double or float).
- */
+///
+/// Templated over real number type (double or float).
 template < typename T >
 class VITAL_EXPORT feature_ :
   public feature
@@ -201,7 +196,7 @@ protected:
   rgb_color color_;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Double-precision feature_ type
 typedef feature_< double > feature_d;
 /// Single-precision feature_ type

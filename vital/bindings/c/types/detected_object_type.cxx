@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief vital::detected_object_type C interface implementation
- */
+/// \file
+/// \brief vital::detected_object_type C interface implementation
 
 #include "detected_object_type.h"
 
@@ -25,7 +23,7 @@ DOT_SPTR_CACHE( "detected_object_type" );
 
 } }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital_detected_object_type_t* vital_detected_object_type_new()
 {
   STANDARD_CATCH(
@@ -38,7 +36,7 @@ vital_detected_object_type_t* vital_detected_object_type_new()
   return 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vital_detected_object_type_destroy(vital_detected_object_type_t* obj)
 {
   STANDARD_CATCH(
@@ -48,7 +46,7 @@ void vital_detected_object_type_destroy(vital_detected_object_type_t* obj)
   );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital_detected_object_type_t*
 vital_detected_object_type_new_from_list( VITAL_UNUSED vital_detected_object_type_t* obj,
                                           size_t count,
@@ -71,7 +69,7 @@ vital_detected_object_type_new_from_list( VITAL_UNUSED vital_detected_object_typ
   return 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 vital_detected_object_type_has_class_name( vital_detected_object_type_t* obj, char* class_name )
 {
@@ -82,7 +80,7 @@ vital_detected_object_type_has_class_name( vital_detected_object_type_t* obj, ch
   return false;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 double vital_detected_object_type_score( vital_detected_object_type_t* obj, char* class_name )
 {
   STANDARD_CATCH(
@@ -92,7 +90,7 @@ double vital_detected_object_type_score( vital_detected_object_type_t* obj, char
   return 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 char* vital_detected_object_type_get_most_likely_class( vital_detected_object_type_t* obj )
 {
   STANDARD_CATCH(
@@ -107,7 +105,7 @@ char* vital_detected_object_type_get_most_likely_class( vital_detected_object_ty
   return 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 double vital_detected_object_type_get_most_likely_score( vital_detected_object_type_t* obj )
 {
   STANDARD_CATCH(
@@ -122,7 +120,7 @@ double vital_detected_object_type_get_most_likely_score( vital_detected_object_t
   return 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vital_detected_object_type_set_score( vital_detected_object_type_t* obj,
                                            char* class_name,
                                            double score)
@@ -133,7 +131,7 @@ void vital_detected_object_type_set_score( vital_detected_object_type_t* obj,
     );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vital_detected_object_type_delete_score( vital_detected_object_type_t* obj,
                                               char* class_name)
 {
@@ -143,7 +141,7 @@ void vital_detected_object_type_delete_score( vital_detected_object_type_t* obj,
     );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 char** vital_detected_object_type_class_names( vital_detected_object_type_t* obj,
                                                VITAL_UNUSED double thresh )
 {
@@ -162,7 +160,7 @@ char** vital_detected_object_type_class_names( vital_detected_object_type_t* obj
   return 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 char** vital_detected_object_type_all_class_names(
   VITAL_UNUSED vital_detected_object_type_t* obj )
 {

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of vital::descriptor interface
- */
+/// \file
+/// \brief Implementation of vital::descriptor interface
 
 #include "descriptor.h"
 
@@ -114,7 +112,8 @@ vital_descriptor_type_name( vital_descriptor_t const *d,
 
 #define DEFINE_TYPED_OPERATIONS( T, S ) \
 \
-/* Create a new descriptor of a the given size (vital::descriptor_dynamic<T>) */ \
+// Create a new descriptor of a the given size (vital::descriptor_dynamic<T>) 
+ \
 vital_descriptor_t* \
 vital_descriptor_new_##S( size_t size, \
                           vital_error_handle_t *eh ) \
@@ -128,7 +127,8 @@ vital_descriptor_new_##S( size_t size, \
   return 0; \
 } \
 \
-/* Get the pointer to the descriptor's data array */ \
+// Get the pointer to the descriptor's data array 
+ \
 T* \
 vital_descriptor_get_##S##_raw_data( vital_descriptor_t *d, \
                                      vital_error_handle_t *eh ) \
@@ -142,7 +142,8 @@ vital_descriptor_get_##S##_raw_data( vital_descriptor_t *d, \
                           "for data access" ); \
       return 0; \
     } \
-    /* Succeeded cast at this point */ \
+    // Succeeded cast at this point 
+ \
     return d_dyn->raw_data(); \
   ); \
   return 0; \

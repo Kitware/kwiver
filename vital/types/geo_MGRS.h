@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief This file contains the interface for the geo MGRS coordinate.
- */
+/// \file
+/// \brief This file contains the interface for the geo MGRS coordinate.
 
 #ifndef KWIVER_VITAL_GEO_MGRS_H_
 #define KWIVER_VITAL_GEO_MGRS_H_
@@ -18,18 +16,16 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
-/**
- * \brief Geographic point in MGRS.
- *
- * This class represents a geographic location in MGRS coordinates. MGRS is
- * defined in Chapter 3 of:
- *
- * - J. W. Hager, L. L. Fry, S. S. Jacks, D. R. Hill,
- *   <a href="http://earth-info.nga.mil/GandG/publications/tm8358.1/pdf/TM8358_1.pdf">
- *   Datums, Ellipsoids, Grids, and Grid Reference Systems</a>,
- *   Defense Mapping Agency, Technical Manual TM8358.1 (1990).
- */
+// ----------------------------------------------------------------------------
+/// \brief Geographic point in MGRS.
+///
+/// This class represents a geographic location in MGRS coordinates. MGRS is
+/// defined in Chapter 3 of:
+///
+/// - J. W. Hager, L. L. Fry, S. S. Jacks, D. R. Hill,
+///   <a href="http://earth-info.nga.mil/GandG/publications/tm8358.1/pdf/TM8358_1.pdf">
+///   Datums, Ellipsoids, Grids, and Grid Reference Systems</a>,
+///   Defense Mapping Agency, Technical Manual TM8358.1 (1990).
 class VITAL_EXPORT geo_MGRS
 {
 public:

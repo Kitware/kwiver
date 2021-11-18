@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief C interface implementation to vital::covariance_ template classes
- */
+/// \file
+/// \brief C interface implementation to vital::covariance_ template classes
 
 #include "covariance.h"
 
@@ -15,11 +13,10 @@
 #include <vital/types/covariance.h>
 
 /// Define Vital Covariance type functions (templates class)
-/**
- * \tparam N Size of the covariance matrix
- * \tparam T Covariance data type
- * \tparam S Character suffix for naming convection
- */
+///
+/// \tparam N Size of the covariance matrix
+/// \tparam T Covariance data type
+/// \tparam S Character suffix for naming convection
 #define DEFINE_VITAL_COVARIANCE_FUNCTIONS( N, T, S )                                 \
                                                                                      \
 vital_covariance_##N##S##_t*                                                         \
@@ -33,7 +30,8 @@ vital_covariance_##N##S##_new( vital_error_handle_t *eh )                       
   return 0;                                                                          \
 }                                                                                    \
                                                                                      \
-/** Create a new covariance matrix - initialize to identity matrix times a scalar */ \
+/// Create a new covariance matrix - initialize to identity matrix times a scalar 
+ \
 vital_covariance_##N##S##_t*                                                         \
 vital_covariance_##N##S##_new_from_scalar( T value,                                  \
                                            vital_error_handle_t *eh )                \
@@ -46,7 +44,8 @@ vital_covariance_##N##S##_new_from_scalar( T value,                             
   return 0;                                                                          \
 }                                                                                    \
                                                                                      \
-/** Create new covariance matrix - from existing matrix of appropriate size */       \
+/// Create new covariance matrix - from existing matrix of appropriate size 
+       \
 vital_covariance_##N##S##_t*                                                         \
 vital_covariance_##N##S##_new_from_matrix( vital_eigen_matrix##N##x##N##S##_t *m,    \
                                            vital_error_handle_t *eh )                \
@@ -55,10 +54,11 @@ vital_covariance_##N##S##_new_from_matrix( vital_eigen_matrix##N##x##N##S##_t *m
   typedef Eigen::Matrix< T, N, N > matrix_t;                                         \
   STANDARD_CATCH(                                                                    \
     "vital_covariance_" #N #S ".new_from_matrix", eh,                                \
-    /* Make sure matrix is the correct shape after cast. Could have been
-     * given a mis-masted opaque pointer to instance (e.g. python ctypes
-     * trickery)
-     */                                                                              \
+    // Make sure matrix is the correct shape after cast. Could have been
+    //  given a mis-masted opaque pointer to instance (e.g. python ctypes
+    //  trickery)
+    // 
+                                                                              \
     REINTERP_TYPE( matrix_t, m, mat );                                               \
     if ( ! ( mat->rows() == N && mat->cols() == N ) ) {                              \
       std::stringstream ss;                                                          \
@@ -71,7 +71,8 @@ vital_covariance_##N##S##_new_from_matrix( vital_eigen_matrix##N##x##N##S##_t *m
   return 0;                                                                          \
 }                                                                                    \
                                                                                      \
-/** Create a new covariance matrix - from another covariance instance */             \
+/// Create a new covariance matrix - from another covariance instance 
+             \
 vital_covariance_##N##S##_t*                                                         \
 vital_covariance_##N##S##_new_copy( vital_covariance_##N##S##_t *other,              \
                                     vital_error_handle_t *eh )                       \
@@ -85,7 +86,8 @@ vital_covariance_##N##S##_new_copy( vital_covariance_##N##S##_t *other,         
   return 0;                                                                          \
 }                                                                                    \
                                                                                      \
-/** Destroy covariance matrix instance */                                            \
+/// Destroy covariance matrix instance 
+                                            \
 void                                                                                 \
 vital_covariance_##N##S##_destroy( vital_covariance_##N##S##_t *cov,                 \
                                    vital_error_handle_t *eh )                        \
@@ -98,7 +100,8 @@ vital_covariance_##N##S##_destroy( vital_covariance_##N##S##_t *cov,            
   );                                                                                 \
 }                                                                                    \
                                                                                      \
-/** Set the covariance data to that of another covariance instance (copy) */         \
+/// Set the covariance data to that of another covariance instance (copy) 
+         \
 void                                                                                 \
 vital_covariance_##N##S##_set_covariance( vital_covariance_##N##S##_t *cov,          \
                                           vital_covariance_##N##S##_t *other,        \
@@ -113,7 +116,8 @@ vital_covariance_##N##S##_set_covariance( vital_covariance_##N##S##_t *cov,     
   );                                                                                 \
 }                                                                                    \
                                                                                      \
-/** Convert this covariance into a new Eigen matrix instance. */                     \
+/// Convert this covariance into a new Eigen matrix instance. 
+                     \
 vital_eigen_matrix##N##x##N##S##_t*                                                  \
 vital_covariance_##N##S##_to_matrix( vital_covariance_##N##S##_t *cov,               \
                                      vital_error_handle_t *eh )                      \
@@ -129,7 +133,8 @@ vital_covariance_##N##S##_to_matrix( vital_covariance_##N##S##_t *cov,          
   return 0;                                                                          \
 }                                                                                    \
                                                                                      \
-/** Get the i-th row, j-th column */                                                 \
+/// Get the i-th row, j-th column 
+                                                 \
 T                                                                                    \
 vital_covariance_##N##S##_get( vital_covariance_##N##S##_t *cov,                     \
                                unsigned int i, unsigned int j,                       \
@@ -144,7 +149,8 @@ vital_covariance_##N##S##_get( vital_covariance_##N##S##_t *cov,                
   return 0.;                                                                         \
 }                                                                                    \
                                                                                      \
-/** Set the i-th row, j-th column */                                                 \
+/// Set the i-th row, j-th column 
+                                                 \
 void                                                                                 \
 vital_covariance_##N##S##_set( vital_covariance_##N##S##_t *cov,                     \
                                unsigned int i, unsigned int j, T value,              \

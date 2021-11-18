@@ -2,12 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief vital::camera C interface shared pointer cache declaration
- *
- * Private header for use in cxx implementation files.
- */
+/// \file
+/// \brief vital::camera C interface shared pointer cache declaration
+///
+/// Private header for use in cxx implementation files.
 
 #ifndef VITAL_C_HELPERS_CAMERA_H_
 #define VITAL_C_HELPERS_CAMERA_H_

@@ -13,22 +13,21 @@ namespace range {
 
 // ----------------------------------------------------------------------------
 /// Validity-checking range adapter.
-/**
- * This range adapter applies a validity filter to the elements of a range.
- * When iterating over the range, only elements for which \c !!item is \c true
- * will be seen.
- *
- * \par Example:
- \code
- namespace r = kwiver::vital::range;
-
- std::vector<std::shared_ptr<int>> values = get_values();
-
- // Won't crash, even if some items are null pointers
- for ( auto const& p : values | r::valid )
-   std::cout << *p << std::endl;
- \endcode
- */
+///
+/// This range adapter applies a validity filter to the elements of a range.
+/// When iterating over the range, only elements for which \c !!item is \c true
+/// will be seen.
+///
+/// \par Example:
+/// \code
+/// namespace r = kwiver::vital::range;
+///
+/// std::vector<std::shared_ptr<int>> values = get_values();
+///
+/// // Won't crash, even if some items are null pointers
+/// for ( auto const& p : values | r::valid )
+/// std::cout << *p << std::endl;
+/// \endcode
 template < typename Range >
 class valid_view : public generic_view
 {

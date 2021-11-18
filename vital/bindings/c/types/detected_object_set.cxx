@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Interface for detected_object_set class
- */
+/// \file
+/// \brief Interface for detected_object_set class
 
 #include "detected_object_set.h"
 #include "detected_object_set.hxx"
@@ -28,20 +26,18 @@ SharedPointerCache< kwiver::vital::detected_object_set, vital_detected_object_se
 
 typedef std::vector< kwiver::vital::detected_object_sptr > vector_t;
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 // These two functions support C++ access to the SPTR_CACHE.
 
-/**
- * @brief Accept shared pointer to detected object set.
- *
- * This function takes a pointer to a shared_pointer and adds it to
- * the SPTR_CACHE in the same way as a constructor (above). This
- * allows us to manage an already existing object.
- *
- * @param sptr Pointer to shared pointer
- *
- * @return Opaque object pointer/handle
- */
+/// @brief Accept shared pointer to detected object set.
+///
+/// This function takes a pointer to a shared_pointer and adds it to
+/// the SPTR_CACHE in the same way as a constructor (above). This
+/// allows us to manage an already existing object.
+///
+/// @param sptr Pointer to shared pointer
+///
+/// @return Opaque object pointer/handle
 vital_detected_object_set_t* vital_detected_object_set_from_sptr( kwiver::vital::detected_object_set_sptr sptr )
 {
   STANDARD_CATCH(
@@ -74,7 +70,7 @@ kwiver::vital::detected_object_set_sptr vital_detected_object_set_to_sptr( vital
   return kwiver::vital::detected_object_set_sptr();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital_detected_object_set_t* vital_detected_object_set_new()
 {
   STANDARD_CATCH(
@@ -89,7 +85,7 @@ vital_detected_object_set_t* vital_detected_object_set_new()
 
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital_detected_object_set_t*
 vital_detected_object_set_new_from_list( vital_detected_object_t**  dobj,
                                          size_t                     n )
@@ -111,7 +107,7 @@ vital_detected_object_set_new_from_list( vital_detected_object_t**  dobj,
   return 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vital_detected_object_set_destroy( vital_detected_object_set_t* obj)
 {
   STANDARD_CATCH(
@@ -122,7 +118,7 @@ void vital_detected_object_set_destroy( vital_detected_object_set_t* obj)
 
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vital_detected_object_set_add( vital_detected_object_set_t* set,
                                     vital_detected_object_t* obj )
 {
@@ -133,7 +129,7 @@ void vital_detected_object_set_add( vital_detected_object_set_t* set,
     );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 size_t vital_detected_object_set_size( vital_detected_object_set_t* obj)
 {
   STANDARD_CATCH(
@@ -144,7 +140,7 @@ size_t vital_detected_object_set_size( vital_detected_object_set_t* obj)
   return 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vital_detected_object_set_select_threshold( vital_detected_object_set_t* obj,
                                                  double thresh,
                                                  vital_detected_object_t*** output,
@@ -169,7 +165,7 @@ void vital_detected_object_set_select_threshold( vital_detected_object_set_t* ob
     );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vital_detected_object_set_select_class_threshold( vital_detected_object_set_t* obj,
                                                        const char* class_name,
                                                        double thresh,

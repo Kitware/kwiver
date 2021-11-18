@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of \link kwiver::vital::mesh mesh \endlink class
- */
+/// \file
+/// \brief Implementation of \link kwiver::vital::mesh mesh \endlink class
 
 #include <vital/types/mesh.h>
 #include <vital/logger/logger.h>
@@ -27,7 +25,7 @@ mesh_tri_normal(const vector_3d& a,
   return ab.cross(ac);
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Mesh faces
 
 /// Return the group name for a given face index
@@ -181,7 +179,7 @@ merge_face_arrays(const mesh_face_array_base& f1,
   return f;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Mesh edges
 
 /// Construct from a face index list
@@ -319,7 +317,7 @@ mesh_half_edge_set
   return count;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Mesh
 
 /// Copy Constructor

@@ -17,7 +17,7 @@ namespace kwiver {
 
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Generic metadata exception
 class VITAL_EXCEPTIONS_EXPORT metadata_exception
   : public vital_exception
@@ -29,7 +29,7 @@ public:
   virtual ~metadata_exception() noexcept;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Data buffer is too small to complete read or write operation.
 class VITAL_EXCEPTIONS_EXPORT metadata_buffer_overflow
   : public metadata_exception
@@ -40,7 +40,7 @@ public:
   virtual ~metadata_buffer_overflow() noexcept;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Size of value is greater than data type or format allows.
 class VITAL_EXCEPTIONS_EXPORT metadata_type_overflow
   : public metadata_exception

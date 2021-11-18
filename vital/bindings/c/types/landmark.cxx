@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief File description here.
- */
+/// \file
+/// \brief File description here.
 
 #include "landmark.h"
 
@@ -141,7 +139,8 @@ vital_landmark_observations( vital_landmark_t const *l, vital_error_handle_t *eh
 
 #define DEFINE_TYPED_OPERATIONS( T, S ) \
 \
-/** Create a new instance of a landmark from a 3D coordinate */ \
+/// Create a new instance of a landmark from a 3D coordinate 
+ \
 vital_landmark_t* \
 vital_landmark_##S##_new( vital_eigen_matrix3x1##S##_t const *loc, \
                           vital_error_handle_t *eh ) \
@@ -157,7 +156,8 @@ vital_landmark_##S##_new( vital_eigen_matrix3x1##S##_t const *loc, \
   return 0; \
 } \
 \
-/** Create a new instance of a landmark from a coordinate with a scale */ \
+/// Create a new instance of a landmark from a coordinate with a scale 
+ \
 vital_landmark_t* \
 vital_landmark_##S##_new_scale( vital_eigen_matrix3x1##S##_t const *loc, \
                                 T const scale, vital_error_handle_t *eh ) \
@@ -173,7 +173,8 @@ vital_landmark_##S##_new_scale( vital_eigen_matrix3x1##S##_t const *loc, \
   return 0; \
 } \
 \
-/** Create a new default instance of a landmark */ \
+/// Create a new default instance of a landmark 
+ \
 vital_landmark_t* \
 vital_landmark_##S##_new_default( vital_error_handle_t *eh ) \
 { \
@@ -185,7 +186,8 @@ vital_landmark_##S##_new_default( vital_error_handle_t *eh ) \
   return 0;\
 } \
 \
-/** Set 3D location of a landmark instance */ \
+/// Set 3D location of a landmark instance 
+ \
 void \
 vital_landmark_##S##_set_loc( vital_landmark_t *l, \
                               vital_eigen_matrix3x1##S##_t const *loc, \
@@ -207,7 +209,8 @@ vital_landmark_##S##_set_loc( vital_landmark_t *l, \
   ); \
 } \
 \
-/** Set the scale of the landmark */ \
+/// Set the scale of the landmark 
+ \
 void \
 vital_landmark_##S##_set_scale( vital_landmark_t *l, T scale, \
                                 vital_error_handle_t *eh ) \
@@ -226,7 +229,8 @@ vital_landmark_##S##_set_scale( vital_landmark_t *l, T scale, \
   ); \
 } \
 \
-/** Set the normal vector of the landmark */ \
+/// Set the normal vector of the landmark 
+ \
 void \
 vital_landmark_##S##_set_normal( vital_landmark_t *l, \
                                  vital_eigen_matrix3x1##S##_t const *normal, \
@@ -248,7 +252,8 @@ vital_landmark_##S##_set_normal( vital_landmark_t *l, \
   ); \
 } \
 \
-/** Set the covariance of the landmark */ \
+/// Set the covariance of the landmark 
+ \
 void \
 vital_landmark_##S##_set_covar( vital_landmark_t *l, \
                                 vital_covariance_3##S##_t const *covar, \
@@ -270,7 +275,8 @@ vital_landmark_##S##_set_covar( vital_landmark_t *l, \
   ); \
 } \
 \
-/** Set the color of the landmark */ \
+/// Set the color of the landmark 
+ \
 void \
 vital_landmark_##S##_set_color( vital_landmark_t *l, \
                                 vital_rgb_color_t const *c, \
@@ -291,7 +297,8 @@ vital_landmark_##S##_set_color( vital_landmark_t *l, \
   ); \
 } \
 \
-/** Set the observations of the landmark */ \
+/// Set the observations of the landmark 
+ \
 void \
 vital_landmark_##S##_set_observations( vital_landmark_t *l, \
                                        unsigned observations, \

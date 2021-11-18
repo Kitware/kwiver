@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Interface for bounding box class
- */
+/// \file
+/// \brief Interface for bounding box class
 
 #ifndef VITAL_C_BOUNDING_BOX_H_
 #define VITAL_C_BOUNDING_BOX_H_
@@ -73,4 +71,4 @@ double vital_bounding_box_area( vital_bounding_box_t* bbox );
 }
 #endif
 
-#endif /* VITAL_C_BOUNDING_BOX_H_ */
+#endif // VITAL_C_BOUNDING_BOX_H_

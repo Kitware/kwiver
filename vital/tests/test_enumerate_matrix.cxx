@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test core enumerate matrix utility
- */
+/// \file
+/// \brief test core enumerate matrix utility
 
 #include <test_eigen.h>
 #include <test_gtest.h>

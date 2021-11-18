@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief File description here.
- */
+/// \file
+/// \brief File description here.
 
 #include "similarity.h"
 
@@ -20,7 +18,8 @@ using namespace kwiver;
 
 #define DEFINE_TYPED_OPERATIONS( T, S ) \
 \
-/* Create a new similarity instance */ \
+// Create a new similarity instance 
+ \
 vital_similarity_##S##_t* \
 vital_similarity_##S##_new( T s, vital_rotation_##S##_t const *r, \
                             vital_eigen_matrix3x1##S##_t const *t, \
@@ -39,7 +38,8 @@ vital_similarity_##S##_new( T s, vital_rotation_##S##_t const *r, \
   return NULL; \
 } \
 \
-/* Create a new similarity instance with default initial value */ \
+// Create a new similarity instance with default initial value 
+ \
 vital_similarity_##S##_t* \
 vital_similarity_##S##_new_default( vital_error_handle_t *eh ) \
 { \
@@ -52,7 +52,8 @@ vital_similarity_##S##_new_default( vital_error_handle_t *eh ) \
   return NULL; \
 } \
 \
-/* Destroy a similarity instance */ \
+// Destroy a similarity instance 
+ \
 void \
 vital_similarity_##S##_destroy( vital_similarity_##S##_t *s, \
                                 vital_error_handle_t *eh ) \
@@ -64,7 +65,8 @@ vital_similarity_##S##_destroy( vital_similarity_##S##_t *s, \
   ); \
 } \
 \
-/* Get the scale factor of a similarity instance */ \
+// Get the scale factor of a similarity instance 
+ \
 T \
 vital_similarity_##S##_scale( vital_similarity_##S##_t const *sim, \
                               vital_error_handle_t *eh ) \
@@ -77,7 +79,8 @@ vital_similarity_##S##_scale( vital_similarity_##S##_t const *sim, \
   return 0; \
 } \
 \
-/* Get the rotation of a similarity instance */ \
+// Get the rotation of a similarity instance 
+ \
 vital_rotation_##S##_t* \
 vital_similarity_##S##_rotation( vital_similarity_##S##_t const *sim, \
                                  vital_error_handle_t *eh ) \
@@ -92,7 +95,8 @@ vital_similarity_##S##_rotation( vital_similarity_##S##_t const *sim, \
   return NULL; \
 } \
 \
-/* Get the translation of a similarity instance */ \
+// Get the translation of a similarity instance 
+ \
 vital_eigen_matrix3x1##S##_t* \
 vital_similarity_##S##_translation( vital_similarity_##S##_t const *sim, \
                                     vital_error_handle_t *eh ) \
@@ -108,7 +112,8 @@ vital_similarity_##S##_translation( vital_similarity_##S##_t const *sim, \
   return NULL; \
 } \
 \
-/* Compute the inverse of a similarity, returning a new similarity instance */ \
+// Compute the inverse of a similarity, returning a new similarity instance 
+ \
 vital_similarity_##S##_t* \
 vital_similarity_##S##_inverse( vital_similarity_##S##_t const *sim, \
                                 vital_error_handle_t *eh ) \
@@ -124,7 +129,8 @@ vital_similarity_##S##_inverse( vital_similarity_##S##_t const *sim, \
   return NULL; \
 } \
 \
-/* Compose two similarities */ \
+// Compose two similarities 
+ \
 vital_similarity_##S##_t* \
 vital_similarity_##S##_compose( vital_similarity_##S##_t const *s_lhs, \
                                 vital_similarity_##S##_t const *s_rhs, \
@@ -141,7 +147,8 @@ vital_similarity_##S##_compose( vital_similarity_##S##_t const *s_lhs, \
   return NULL; \
 } \
  \
-/* Transform a vector */ \
+// Transform a vector 
+ \
 vital_eigen_matrix3x1##S##_t* \
 vital_similarity_##S##_vector_transform( vital_similarity_##S##_t const *s, \
                                          vital_eigen_matrix3x1##S##_t const *rhs, \
@@ -159,7 +166,8 @@ vital_similarity_##S##_vector_transform( vital_similarity_##S##_t const *s, \
   return NULL; \
 } \
 \
-/* Test equality between two similarities */ \
+// Test equality between two similarities 
+ \
 bool \
 vital_similarity_##S##_are_equal( vital_similarity_##S##_t const *s_lhs, \
                                   vital_similarity_##S##_t const *s_rhs, \
@@ -175,7 +183,8 @@ vital_similarity_##S##_are_equal( vital_similarity_##S##_t const *s_lhs, \
   return false; \
 } \
 \
-/* Convert a similarity into a 4x4 matrix */ \
+// Convert a similarity into a 4x4 matrix 
+ \
 vital_eigen_matrix4x4##S##_t* \
 vital_similarity_##S##_to_matrix4x4( vital_similarity_##S##_t const *s, \
                                      vital_error_handle_t *eh ) \
@@ -191,7 +200,8 @@ vital_similarity_##S##_to_matrix4x4( vital_similarity_##S##_t const *s, \
   return NULL; \
 } \
 \
-/* Create a similarity from a 4x4 matrix */ \
+// Create a similarity from a 4x4 matrix 
+ \
 vital_similarity_##S##_t* \
 vital_similarity_##S##_from_matrix4x4( vital_eigen_matrix4x4##S##_t const *m, \
                                        vital_error_handle_t *eh ) \

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief File description here.
- */
+/// \file
+/// \brief File description here.
 
 #include "homography.h"
 
@@ -97,7 +95,8 @@ vital_homography_inverse( vital_homography_t const *h,
 
 #define DEFINE_TYPED_OPERATIONS( T, S ) \
 \
-/* New identity homography */ \
+// New identity homography 
+ \
 vital_homography_t* \
 vital_homography_##S##_new_identity( vital_error_handle_t *eh ) \
 { \
@@ -111,7 +110,8 @@ vital_homography_##S##_new_identity( vital_error_handle_t *eh ) \
   return 0; \
 } \
 \
-/* New homography from a provided transformation matrix */ \
+// New homography from a provided transformation matrix 
+ \
 vital_homography_t* \
 vital_homography_##S##_new_from_matrix( vital_eigen_matrix3x3##S##_t const *m, \
                                         vital_error_handle_t *eh ) \
@@ -127,7 +127,8 @@ vital_homography_##S##_new_from_matrix( vital_eigen_matrix3x3##S##_t const *m, \
   return 0; \
 } \
 \
-/* Get a homography's transformation matrix */ \
+// Get a homography's transformation matrix 
+ \
 vital_eigen_matrix3x3##S##_t* \
 vital_homography_##S##_as_matrix( vital_homography_t const *h, \
                                   vital_error_handle_t *eh ) \
@@ -146,7 +147,8 @@ vital_homography_##S##_as_matrix( vital_homography_t const *h, \
   return 0; \
 } \
 \
-/* Map a 2D point using this homography */ \
+// Map a 2D point using this homography 
+ \
 vital_eigen_matrix2x1##S##_t* \
 vital_homography_##S##_map_point( vital_homography_t const *h, \
                                   vital_eigen_matrix2x1##S##_t const *p, \
@@ -176,7 +178,8 @@ vital_homography_##S##_map_point( vital_homography_t const *h, \
   return 0; \
 } \
 \
-/* Multiply one homography against another, returning a new product homography */ \
+// Multiply one homography against another, returning a new product homography 
+ \
 vital_homography_t* \
 vital_homography_##S##_multiply( vital_homography_t const *lhs, \
                                  vital_homography_t const *rhs, \

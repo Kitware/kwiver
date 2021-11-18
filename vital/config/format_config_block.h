@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file This header defines the interface for a plugin that formats a
- * config block.
- */
+/// \file This header defines the interface for a plugin that formats a
+/// config block.
 
 #ifndef VITAL_CONFIG_FORMAT_CONFIG_BLOCK_H
 #define VITAL_CONFIG_FORMAT_CONFIG_BLOCK_H
@@ -19,12 +17,10 @@ namespace kwiver {
 namespace vital {
 
 /// Config block printer plugin interface.
-// ----------------------------------------------------------------
-/**
- * This class defines the abstract interface for all implementations
- * of the config block formatting plugin.
- *
- */
+// ----------------------------------------------------------------------------
+/// This class defines the abstract interface for all implementations
+/// of the config block formatting plugin.
+///
 class format_config_block
 {
 public:
@@ -50,4 +46,4 @@ using format_config_block_sptr = std::shared_ptr< format_config_block >;
 
 } } // end namespace
 
-#endif /* VITAL_CONFIG_FORMAT_CONFIG_BLOCK_H */
+#endif // VITAL_CONFIG_FORMAT_CONFIG_BLOCK_H

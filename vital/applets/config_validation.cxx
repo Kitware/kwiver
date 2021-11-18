@@ -14,7 +14,7 @@ namespace tools {
 namespace kv = ::kwiver::vital;
 typedef kwiversys::SystemTools ST;
 
-//=============================================================================
+// ----------------------------------------------------------------------------
 bool
 validate_required_input_file(std::string const& name,
                              kv::config_block const& config,
@@ -31,7 +31,7 @@ validate_required_input_file(std::string const& name,
   return validate_optional_input_file(name, config, logger);
 }
 
-//=============================================================================
+// ----------------------------------------------------------------------------
 bool
 validate_optional_input_file(std::string const& name,
                              kv::config_block const& config,
@@ -51,7 +51,7 @@ validate_optional_input_file(std::string const& name,
   return true;
 }
 
-//=============================================================================
+// ----------------------------------------------------------------------------
 bool
 validate_required_output_file(std::string const& name,
                               kv::config_block const& config,
@@ -71,7 +71,7 @@ validate_required_output_file(std::string const& name,
                                        make_directory, test_write);
 }
 
-//=============================================================================
+// ----------------------------------------------------------------------------
 bool
 validate_optional_output_file(std::string const& name,
                               kv::config_block const& config,
@@ -117,7 +117,7 @@ validate_optional_output_file(std::string const& name,
   return true;
 }
 
-//=============================================================================
+// ----------------------------------------------------------------------------
 bool
 validate_required_input_dir(std::string const& name,
                             kv::config_block const& config,
@@ -128,7 +128,7 @@ validate_required_input_dir(std::string const& name,
   return validate_required_output_dir(name, config, logger, false);
 }
 
-//=============================================================================
+// ----------------------------------------------------------------------------
 bool
 validate_optional_input_dir(std::string const& name,
                             kv::config_block const& config,
@@ -139,7 +139,7 @@ validate_optional_input_dir(std::string const& name,
   return validate_optional_output_dir(name, config, logger, false);
 }
 
-//=============================================================================
+// ----------------------------------------------------------------------------
 bool
 validate_required_output_dir(std::string const& name,
                              kv::config_block const& config,
@@ -156,7 +156,7 @@ validate_required_output_dir(std::string const& name,
   return validate_optional_output_dir(name, config, logger, make_directory);
 }
 
-//=============================================================================
+// ----------------------------------------------------------------------------
 bool
 validate_optional_output_dir(std::string const& name,
                              kv::config_block const& config,
