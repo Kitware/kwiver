@@ -7,7 +7,7 @@
 
 #include "data_format.h"
 
-#include <arrows/klv/klv_0601_new.h>
+#include <arrows/klv/klv_0601.h>
 
 // ----------------------------------------------------------------------------
 int

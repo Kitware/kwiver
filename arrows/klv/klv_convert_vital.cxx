@@ -7,8 +7,8 @@
 
 #include "klv_convert_vital.h"
 
-#include "klv_0104_new.h"
-#include "klv_0601_new.h"
+#include "klv_0104.h"
+#include "klv_0601.h"
 #include "klv_1108.h"
 #include "klv_1108_metric_set.h"
 
