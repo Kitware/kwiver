@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief File description here.
+/**
+ * \file
+ * \brief File description here.
+ */
 
 #ifndef VITAL_C_HELPERS_LANDMARK_MAP_H_
 #define VITAL_C_HELPERS_LANDMARK_MAP_H_

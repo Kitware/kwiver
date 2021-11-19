@@ -14,9 +14,11 @@ namespace vital {
 
 namespace edit_operation {
 
-// ----------------------------------------------------------------------------
-/// @brief String editor that does token/macro expansion.
-///
+// ----------------------------------------------------------------
+/**
+ * @brief String editor that does token/macro expansion.
+ *
+ */
 class VITAL_UTIL_EXPORT token_expand_editor
 {
 public:
@@ -25,13 +27,15 @@ public:
   virtual ~token_expand_editor();
   virtual bool process( std::string& line );
 
-  /// @brief Add additional token type expander.
-  ///
-  /// Add an additional token expander to the collection. This editor
-  /// takes ownership of the specified object and will delete it when
-  /// being destroyed.
-  ///
-  /// @param tt New expander object.
+  /**
+   * @brief Add additional token type expander.
+   *
+   * Add an additional token expander to the collection. This editor
+   * takes ownership of the specified object and will delete it when
+   * being destroyed.
+   *
+   * @param tt New expander object.
+   */
   void add_expander( kwiver::vital::token_type * tt );
 
 private:

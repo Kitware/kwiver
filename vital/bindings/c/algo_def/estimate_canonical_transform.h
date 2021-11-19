@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief File description here.
+/**
+ * \file
+ * \brief File description here.
+ */
 
 #ifndef VITAL_C_ALGO_ESTIMATE_CANONICAL_TRANSFORM_H_
 #define VITAL_C_ALGO_ESTIMATE_CANONICAL_TRANSFORM_H_
@@ -23,17 +25,20 @@ extern "C"
 DECLARE_COMMON_ALGO_API( estimate_canonical_transform )
 
 /// Estimate a canonical similarity transform for cameras and points
-///
-/// \note This algorithm does not apply the transformation, it only estimates it.
-///
-/// This function can fail when the is insufficient or degenerate, setting an
-/// error code of 1.
-///
-/// \param algo Algorithm instance
-/// \param cam_map The camera map containing all the cameras
-/// \param lm_map The landmark map containing all the 3D landmarks
-/// \returns New estimated similarity transformation mapping the data to the
-///          canonical space.
+/**
+ *
+ *
+ * \note This algorithm does not apply the transformation, it only estimates it.
+ *
+ * This function can fail when the is insufficient or degenerate, setting an
+ * error code of 1.
+ *
+ * \param algo Algorithm instance
+ * \param cam_map The camera map containing all the cameras
+ * \param lm_map The landmark map containing all the 3D landmarks
+ * \returns New estimated similarity transformation mapping the data to the
+ *          canonical space.
+ */
 VITAL_C_EXPORT
 vital_similarity_d_t*
 vital_algorithm_estimate_canonical_transform_estimate( vital_algorithm_t *algo,

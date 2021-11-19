@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief core homography template implementations
+/**
+ * \file
+ * \brief core homography template implementations
+ */
 
 #include "homography.h"
 
@@ -220,9 +222,9 @@ homography_< T >
   return homography_< T > ( h_ * rhs.h_ );
 }
 
-// ----------------------------------------------------------------------------
+// ===========================================================================
 // Other Functions
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
 /// homography_<T> output stream operator
 template < typename T >
@@ -241,9 +243,9 @@ operator<<( std::ostream& s, homography const& h )
   return s;
 }
 
-// ----------------------------------------------------------------------------
+// ===========================================================================
 // Template class instantiation
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 /// \cond DoxygenSuppress
 #define INSTANTIATE_HOMOGRAPHY( T )              \
   template class homography_< T >;               \

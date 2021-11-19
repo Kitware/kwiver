@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief vital::bounding_box C interface implementation
+/**
+ * \file
+ * \brief vital::bounding_box C interface implementation
+ */
 
 #include "bounding_box.h"
 
@@ -13,7 +15,7 @@
 
 typedef kwiver::vital::bounding_box_d::vector_type point_t;
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 vital_bounding_box_t* vital_bounding_box_new_from_vectors( double* ul, double* lr)
 {
   // Convert arrays to local vector tytpe
@@ -28,7 +30,7 @@ vital_bounding_box_t* vital_bounding_box_new_from_vectors( double* ul, double* l
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 vital_bounding_box_t* vital_bounding_box_new_from_point_width_height( double* ul,
                                                                       double  width,
                                                                       double height)
@@ -42,7 +44,7 @@ vital_bounding_box_t* vital_bounding_box_new_from_point_width_height( double* ul
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 vital_bounding_box_t* vital_bounding_box_new_from_coordinates( double xmin,
                                                                double ymin,
                                                                double xmax,
@@ -56,7 +58,7 @@ vital_bounding_box_t* vital_bounding_box_new_from_coordinates( double xmin,
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 vital_bounding_box_t* vital_bounding_box_copy( vital_bounding_box_t* bbox )
 {
   STANDARD_CATCH(
@@ -69,7 +71,7 @@ vital_bounding_box_t* vital_bounding_box_copy( vital_bounding_box_t* bbox )
   return 0;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 void vital_bounding_box_destroy( vital_bounding_box_t* bbox )
 {
   STANDARD_CATCH(
@@ -79,7 +81,7 @@ void vital_bounding_box_destroy( vital_bounding_box_t* bbox )
   );
 };
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 //
 // A little shortcut for defining accessors
 //

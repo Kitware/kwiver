@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief C interface to vital::image classes
+/**
+ * \file
+ * \brief C interface to vital::image classes
+ */
 
 #ifndef VITAL_C_DETECTED_OBJECT_H_
 #define VITAL_C_DETECTED_OBJECT_H_
@@ -82,4 +84,4 @@ void vital_detected_object_set_mask(vital_detected_object_t * obj,
 }
 #endif
 
-#endif // VITAL_C_DETECTED_OBJECT_H_
+#endif /* VITAL_C_DETECTED_OBJECT_H_ */

@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Tests for simple_descriptor_set.
+/**
+ * \file
+ * \brief Tests for simple_descriptor_set.
+ */
 
 #include <gtest/gtest.h>
 

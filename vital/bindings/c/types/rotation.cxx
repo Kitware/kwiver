@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Implementation of C Interface to \p vital::rotation_<T> class
+/**
+ * \file
+ * \brief Implementation of C Interface to \p vital::rotation_<T> class
+ */
 
 #include "rotation.h"
 
@@ -11,13 +13,13 @@
 #include <vital/types/rotation.h>
 
 /// Define C rotation functions for a given data type and type character suffix
-///
-/// \param T The data storage type like double or float
-/// \param S The character suffix to use for naming of functions.
+/**
+ * \param T The data storage type like double or float
+ * \param S The character suffix to use for naming of functions.
+ */
 #define DEFINE_FUNCTIONS( T, S )                                        \
                                                                         \
-// Destroy rotation instance 
-                                         \
+/* Destroy rotation instance */                                         \
 void                                                                    \
 vital_rotation_##S##_destroy( vital_rotation_##S##_t *rot,              \
                               vital_error_handle_t *eh )                \
@@ -30,8 +32,7 @@ vital_rotation_##S##_destroy( vital_rotation_##S##_t *rot,              \
   );                                                                    \
 }                                                                       \
                                                                         \
-// Create new default rotation 
-                                       \
+/* Create new default rotation */                                       \
 vital_rotation_##S##_t*                                                 \
 vital_rotation_##S##_new_default( vital_error_handle_t *eh )            \
 {                                                                       \
@@ -43,8 +44,7 @@ vital_rotation_##S##_new_default( vital_error_handle_t *eh )            \
   return 0;                                                             \
 }                                                                       \
                                                                         \
-// Create new rotation from a 4D vector 
-                              \
+/* Create new rotation from a 4D vector */                              \
 vital_rotation_##S##_t*                                                 \
 vital_rotation_##S##_new_from_quaternion( vital_eigen_matrix4x1##S##_t *q, \
                                           vital_error_handle_t *eh )    \
@@ -61,8 +61,7 @@ vital_rotation_##S##_new_from_quaternion( vital_eigen_matrix4x1##S##_t *q, \
   return 0;                                                             \
 }                                                                       \
                                                                         \
-// Create rotation for Rodrigues vector 
-                              \
+/* Create rotation for Rodrigues vector */                              \
 vital_rotation_##S##_t*                                                 \
 vital_rotation_##S##_new_from_rodrigues( vital_eigen_matrix3x1##S##_t *r, \
                                          vital_error_handle_t *eh )     \
@@ -79,8 +78,7 @@ vital_rotation_##S##_new_from_rodrigues( vital_eigen_matrix3x1##S##_t *r, \
   return 0;                                                             \
 }                                                                       \
                                                                         \
-// Create rotation from angle and axis 
-                               \
+/* Create rotation from angle and axis */                               \
 vital_rotation_##S##_t*                                                 \
 vital_rotation_##S##_new_from_axis_angle( T angle,                      \
                                           vital_eigen_matrix3x1##S##_t *axis, \
@@ -98,8 +96,7 @@ vital_rotation_##S##_new_from_axis_angle( T angle,                      \
   return 0;                                                             \
 }                                                                       \
                                                                         \
-// Create rotation from yaw, pitch and roll 
-                          \
+/* Create rotation from yaw, pitch and roll */                          \
 vital_rotation_##S##_t*                                                 \
 vital_rotation_##S##_new_from_ypr( T yaw, T pitch, T roll,              \
                                    vital_error_handle_t *eh )           \
@@ -114,8 +111,7 @@ vital_rotation_##S##_new_from_ypr( T yaw, T pitch, T roll,              \
   return 0;                                                             \
 }                                                                       \
                                                                         \
-// Create rotation from a 3x3 orthonormal matrix 
-                     \
+/* Create rotation from a 3x3 orthonormal matrix */                     \
 vital_rotation_##S##_t*                                                 \
 vital_rotation_##S##_new_from_matrix( vital_eigen_matrix3x3##S##_t *m,  \
                                       vital_error_handle_t *eh )        \
@@ -132,8 +128,7 @@ vital_rotation_##S##_new_from_matrix( vital_eigen_matrix3x3##S##_t *m,  \
   return 0;                                                             \
 }                                                                       \
                                                                         \
-// Convert a rotation into a new 3x3 matrix instance 
-                 \
+/* Convert a rotation into a new 3x3 matrix instance */                 \
 vital_eigen_matrix3x3##S##_t*                                           \
 vital_rotation_##S##_to_matrix( vital_rotation_##S##_t *rot,            \
                                 vital_error_handle_t *eh )              \
@@ -151,8 +146,7 @@ vital_rotation_##S##_to_matrix( vital_rotation_##S##_t *rot,            \
   return 0;                                                             \
 }                                                                       \
                                                                         \
-// Get the axis of a rotation as a new matrix instance 
-               \
+/* Get the axis of a rotation as a new matrix instance */               \
 vital_eigen_matrix3x1##S##_t*                                           \
 vital_rotation_##S##_axis( vital_rotation_##S##_t *rot,                 \
                            vital_error_handle_t *eh )                   \
@@ -169,8 +163,7 @@ vital_rotation_##S##_axis( vital_rotation_##S##_t *rot,                 \
   return 0;                                                             \
 }                                                                       \
                                                                         \
-// Get the angle of the rotation in radians about the axis 
-           \
+/* Get the angle of the rotation in radians about the axis */           \
 T                                                                       \
 vital_rotation_##S##_angle( vital_rotation_##S##_t *rot,                \
                             vital_error_handle_t *eh )                  \
@@ -184,8 +177,7 @@ vital_rotation_##S##_angle( vital_rotation_##S##_t *rot,                \
   return 0;                                                             \
 }                                                                       \
                                                                         \
-// Get the quaternion vector from the rotation as a new 4x1 matrix 
-   \
+/* Get the quaternion vector from the rotation as a new 4x1 matrix */   \
 vital_eigen_matrix4x1##S##_t*                                           \
 vital_rotation_##S##_quaternion( vital_rotation_##S##_t *rot,           \
                                  vital_error_handle_t *eh )             \
@@ -201,8 +193,7 @@ vital_rotation_##S##_quaternion( vital_rotation_##S##_t *rot,           \
   return 0;                                                             \
 }                                                                       \
                                                                         \
-// Get the Rodrigues vector from the rotation as a new 3x1 matrix 
-    \
+/* Get the Rodrigues vector from the rotation as a new 3x1 matrix */    \
 vital_eigen_matrix3x1d_t*                                               \
 vital_rotation_##S##_rodrigues( vital_rotation_##S##_t *rot,            \
                                 vital_error_handle_t *eh )              \
@@ -218,8 +209,7 @@ vital_rotation_##S##_rodrigues( vital_rotation_##S##_t *rot,            \
   return 0;                                                             \
 }                                                                       \
                                                                         \
-// Get the rotation in its yaw, pitch and roll components. 
-           \
+/* Get the rotation in its yaw, pitch and roll components. */           \
 void                                                                    \
 vital_rotation_##S##_ypr( vital_rotation_##S##_t *rot,                  \
                           T *yaw, T *pitch, T *roll,                    \
@@ -233,8 +223,7 @@ vital_rotation_##S##_ypr( vital_rotation_##S##_t *rot,                  \
   );                                                                    \
 }                                                                       \
                                                                         \
-// Get the inverse of a rotation as a new rotation instance 
-          \
+/* Get the inverse of a rotation as a new rotation instance */          \
 vital_rotation_##S##_t*                                                 \
 vital_rotation_##S##_inverse( vital_rotation_##S##_t *rot,              \
                               vital_error_handle_t *eh )                \
@@ -250,8 +239,7 @@ vital_rotation_##S##_inverse( vital_rotation_##S##_t *rot,              \
   return 0;                                                             \
 }                                                                       \
                                                                         \
-// Compose two rotations, returning a new rotation instance of the composition 
- \
+/* Compose two rotations, returning a new rotation instance of the composition */ \
 vital_rotation_##S##_t*                                                 \
 vital_rotation_##S##_compose( vital_rotation_##S##_t *lhs,              \
                               vital_rotation_##S##_t *rhs,              \
@@ -268,8 +256,7 @@ vital_rotation_##S##_compose( vital_rotation_##S##_t *lhs,              \
   return 0;                                                             \
 }                                                                       \
                                                                         \
-// Rotate a vector using the given rotation, returning a new vector instance 
- \
+/* Rotate a vector using the given rotation, returning a new vector instance */ \
 vital_eigen_matrix3x1##S##_t*                                           \
 vital_rotation_##S##_rotate_vector( vital_rotation_##S##_t *rot,        \
                                     vital_eigen_matrix3x1##S##_t *v,    \
@@ -287,8 +274,7 @@ vital_rotation_##S##_rotate_vector( vital_rotation_##S##_t *rot,        \
   return 0;                                                             \
 }                                                                       \
                                                                         \
-// Check rotation instance equality 
-                                  \
+/* Check rotation instance equality */                                  \
 bool                                                                    \
 vital_rotation_##S##_are_equal( vital_rotation_##S##_t *A,              \
                                 vital_rotation_##S##_t *B,              \
@@ -304,8 +290,7 @@ vital_rotation_##S##_are_equal( vital_rotation_##S##_t *A,              \
   return false;                                                         \
 }                                                                       \
                                                                         \
-// Generate an interpolated rotation between A and B by a given fraction 
- \
+/* Generate an interpolated rotation between A and B by a given fraction */ \
 vital_rotation_##S##_t*                                                 \
 vital_rotation_##S##_interpolate( vital_rotation_##S##_t *A,            \
                                   vital_rotation_##S##_t *B,            \
@@ -325,8 +310,7 @@ vital_rotation_##S##_interpolate( vital_rotation_##S##_t *A,            \
   return 0;                                                             \
 }                                                                       \
                                                                         \
-// Generate N evenly interpolated rotations in between \c A and \c B 
- \
+/* Generate N evenly interpolated rotations in between \c A and \c B */ \
 vital_rotation_##S##_t**                                                \
 vital_rotation_##S##_interpolated_rotations( vital_rotation_##S##_t *A, \
                                              vital_rotation_##S##_t *B, \
@@ -338,12 +322,10 @@ vital_rotation_##S##_interpolated_rotations( vital_rotation_##S##_t *A, \
     "vital_rotation_" #S ".interpolateD_rotations", eh,                 \
     REINTERP_TYPE( rotation_t, A, A_ptr );                              \
     REINTERP_TYPE( rotation_t, B, B_ptr );                              \
-    // Generate vector of interpolated rotations 
-                     \
+    /* Generate vector of interpolated rotations */                     \
     std::vector< rotation_t > i_rotations;                              \
     kwiver::vital::interpolated_rotations( *A_ptr, *B_ptr, n, i_rotations ); \
-    // Convert into pointer array 
-                                    \
+    /* Convert into pointer array */                                    \
     vital_rotation_##S##_t **rots =                                     \
       (vital_rotation_##S##_t**)malloc(sizeof(vital_rotation_##S##_t*) * n); \
     for (size_t i = 0; i < i_rotations.size(); ++i )                    \

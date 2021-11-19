@@ -15,11 +15,13 @@
 namespace kwiver {
 namespace tools {
 
-// ----------------------------------------------------------------------------
-/// @brief Applet context provided by the tool runner.
-///
-/// This class contains data that are shared between the tool runner
-/// and the applet.
+// ----------------------------------------------------------------
+/**
+ * @brief Applet context provided by the tool runner.
+ *
+ * This class contains data that are shared between the tool runner
+ * and the applet.
+ */
 class applet_context
 {
 public:
@@ -29,8 +31,10 @@ public:
   // name of the applet. as in kwiver <applet> <args..>
   std::string m_applet_name;
 
-   /// Results from parsing the command options. Note that you do not
-   /// own this storage.
+    /**
+   * Results from parsing the command options. Note that you do not
+   * own this storage.
+   */
   cxxopts::ParseResult*  m_result { nullptr };
 
   // Original args for plugin for alternate command line processing.
@@ -43,4 +47,4 @@ public:
 
 } } // end namespace
 
-#endif // KWIVER_TOOLS_APP_CONTEXT_H
+#endif /* KWIVER_TOOLS_APP_CONTEXT_H */

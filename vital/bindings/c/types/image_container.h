@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief C interface to vital::image_container class
+/**
+ * \file
+ * \brief C interface to vital::image_container class
+ */
 
 #ifndef VITAL_C_IMAGE_CONTAINER_H_
 #define VITAL_C_IMAGE_CONTAINER_H_
@@ -32,9 +34,10 @@ void vital_image_container_destroy( vital_image_container_t *img_container,
                                     vital_error_handle_t *eh );
 
 /// Get the size in bytes of an image container
-///
-/// Size includes all allocated image memory, which could be larger than
-/// the product of width, height and depth.
+/**
+ * Size includes all allocated image memory, which could be larger than
+ * the product of width, height and depth.
+ */
 VITAL_C_EXPORT
 size_t vital_image_container_size( vital_image_container_t *img_c );
 

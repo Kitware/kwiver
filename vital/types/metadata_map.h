@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Header file for a map from frame IDs to metadata vectors
+/**
+ * \file
+ * \brief Header file for a map from frame IDs to metadata vectors
+ */
 
 #ifndef KWIVER_VITAL_METADATA_MAP_H_
 #define KWIVER_VITAL_METADATA_MAP_H_
@@ -23,10 +25,12 @@ namespace kwiver {
 namespace vital {
 
 /// An abstract mapping between frame IDs and metadata vectors
-//  \note a vector of metadata objects is used because each frame could
-//  have multiple metadata blocks.  For example, metadata may come from
-//  multiple sources on a given frame or a metadata may be provided at
-//  a higher sampling rate than the video sampling rate.
+/*
+ * \note a vector of metadata objects is used because each frame could
+ * have multiple metadata blocks.  For example, metadata may come from
+ * multiple sources on a given frame or a metadata may be provided at
+ * a higher sampling rate than the video sampling rate.
+ */
 class metadata_map
 {
 public:
@@ -43,17 +47,19 @@ public:
   virtual map_metadata_t metadata() const = 0;
 
   /// Check if metadata is present in the map for given tag and frame id
-  ///
-  /// \param tag the metadata tag
-  /// \param fid the frame id
-  /// \returns true if the metadata item is present for the given tag and frame id
+  /**
+   * \param tag the metadata tag
+   * \param fid the frame id
+   * \returns true if the metadata item is present for the given tag and frame id
+   */
   virtual bool has_item(vital_metadata_tag tag, frame_id_t fid) const = 0;
 
   /// Get a metadata item from the map according to its tag and the frame
-  ///
-  /// \param tag the metadata tag
-  /// \parma fid the frame id
-  /// \returns the metadata item for the requested tag and frame id
+  /**
+   * \param tag the metadata tag
+   * \parma fid the frame id
+   * \returns the metadata item for the requested tag and frame id
+   */
   virtual metadata_item const&
   get_item(vital_metadata_tag tag, frame_id_t fid) const = 0;
 
@@ -62,10 +68,11 @@ public:
   get_vector(frame_id_t fid) const = 0;
 
   /// Templated version of has_item to match get method.
-  ///
-  /// \param tag the metadata tag
-  /// \param fid the frame id
-  /// \returns true if the metadata item is present for the given tag and frame id
+  /**
+   * \param tag the metadata tag
+   * \param fid the frame id
+   * \returns true if the metadata item is present for the given tag and frame id
+   */
   template <vital_metadata_tag tag>
   bool has(frame_id_t fid)
   {
@@ -73,10 +80,11 @@ public:
   }
 
   /// Get value for a metadata item from the map for given tag and frame id
-  ///
-  /// \param tag the metadata tag
-  /// \param fid the frame id
-  /// \returns the metadata value
+  /**
+   * \param tag the metadata tag
+   * \param fid the frame id
+   * \returns the metadata value
+   */
   template <vital_metadata_tag tag>
   type_of_tag<tag>
   get(frame_id_t fid) const

@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Interface for context class
+/**
+ * \file
+ * \brief Interface for context class
+ */
 
 #ifndef VITAL_CONTEXT_H_
 #define VITAL_CONTEXT_H_
@@ -23,16 +25,18 @@ class signal_base;
 template < typename... Args > class signal;
 
 // ----------------------------------------------------------------------------
-/// \brief Slot execution context.
-///
-/// This class represents a context for a slot connected to a ::signal. The
-/// context is used to manage resources that may be required by slots. When the
-/// context is destroyed, any connections associated with the context will be
-/// disconnected.
-///
-/// \warning
-/// Destroying a context from within a connected slot is a logic error and will
-/// likely cause the program to deadlock or exhibit undefined behavior.
+/**
+ * \brief Slot execution context.
+ *
+ * This class represents a context for a slot connected to a ::signal. The
+ * context is used to manage resources that may be required by slots. When the
+ * context is destroyed, any connections associated with the context will be
+ * disconnected.
+ *
+ * \warning
+ * Destroying a context from within a connected slot is a logic error and will
+ * likely cause the program to deadlock or exhibit undefined behavior.
+ */
 class VITAL_EXPORT context
 {
 public:

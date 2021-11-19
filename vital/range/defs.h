@@ -12,8 +12,10 @@ namespace kwiver {
 namespace vital {
 namespace range {
 
-/// \file
-/// \brief core types and macros for implementing range utilities.
+/**
+ * \file
+ * \brief core types and macros for implementing range utilities.
+ */
 
 /// \cond Internal
 
@@ -206,7 +208,9 @@ protected:
 #ifdef DOXYGEN
 
 // ----------------------------------------------------------------------------
-/// Apply a range adapter to a range.
+/**
+ * Apply a range adapter to a range.
+ */
 template < typename Range, typename Adapter >
 auto
 operator|( Range, Adapter );

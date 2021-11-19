@@ -12,25 +12,27 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------------------
-/// @brief Detault add_factory filter
-///
-/// This is the default implementation for the add_factory hook. This
-/// checks to see if the plugin is already registered. If it is, then
-/// an exception is thrown.
-///
-/// The signature of a plugin consists of interface-type,
-/// concrete-type, and plugin-name.
-///
-/// Note that derived classes can override this hook to give different
-/// behaviour.
-///
-/// @param fact Factory object handle
-///
-/// @return \b true if factory is to be added; \b false if factory
-/// should not be added.
-///
-/// @throws plugin_already_exists if plugin is already registered
+// ------------------------------------------------------------------
+/**
+ * @brief Detault add_factory filter
+ *
+ * This is the default implementation for the add_factory hook. This
+ * checks to see if the plugin is already registered. If it is, then
+ * an exception is thrown.
+ *
+ * The signature of a plugin consists of interface-type,
+ * concrete-type, and plugin-name.
+ *
+ * Note that derived classes can override this hook to give different
+ * behaviour.
+ *
+ * @param fact Factory object handle
+ *
+ * @return \b true if factory is to be added; \b false if factory
+ * should not be added.
+ *
+ * @throws plugin_already_exists if plugin is already registered
+ */
 bool
 plugin_filter_default
 ::add_factory( plugin_factory_handle_t fact ) const

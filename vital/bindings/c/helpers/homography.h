@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief vital::homography shared pointer cache definition
+/**
+ * \file
+ * \brief vital::homography shared pointer cache definition
+ */
 
 #ifndef VITAL_C_HELPERS_HOMOGRAPHY_H_
 #define VITAL_C_HELPERS_HOMOGRAPHY_H_

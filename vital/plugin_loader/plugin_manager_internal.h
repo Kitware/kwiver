@@ -10,9 +10,10 @@ namespace kwiver {
 namespace vital {
 
 // ----------------------------------------------------------------------------
-//  This class just exposes the protected members of the base class.
-// ----------------------------------------------------------------------------
- For internal use only ----
+/*
+ * This class just exposes the protected members of the base class.
+ * ---- For internal use only ----
+ */
 class plugin_manager_internal
   : public plugin_manager
 {

@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Interface for activity_type class
+/**
+ * \file
+ * \brief Interface for activity_type class
+ */
 
 #ifndef VITAL_C_ACTIVITY_TYPE_H_
 #define VITAL_C_ACTIVITY_TYPE_H_

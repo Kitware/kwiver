@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief core essential matrix template implementations
+/**
+ * \file
+ * \brief core essential matrix template implementations
+ */
 
 #include "essential_matrix.h"
 
@@ -194,9 +196,9 @@ essential_matrix_<T>
   return trans_;
 }
 
-// ----------------------------------------------------------------------------
+// ===========================================================================
 // Other Functions
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
 /// essential_matrix_<T> output stream operator
 template <typename T>
@@ -215,9 +217,9 @@ operator<<( std::ostream &s, essential_matrix const &e )
   return s;
 }
 
-// ----------------------------------------------------------------------------
+// ===========================================================================
 // Template class instantiation
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 /// \cond DoxygenSuppress
 #define INSTANTIATE_ESSENTIAL_MATRIX(T)                                 \
   template class essential_matrix_<T>;                                  \

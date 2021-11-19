@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief C interface for vital::camera_map
+/**
+ * \file
+ * \brief C interface for vital::camera_map
+ */
 
 #ifndef VITAL_C_CAMERA_MAP_H_
 #define VITAL_C_CAMERA_MAP_H_
@@ -23,23 +25,24 @@ extern "C"
 typedef struct vital_camera_map_s vital_camera_map_t;
 
 /// New, simple camera map
-///
-/// Given a two parallel arrays of frame number and cameras, create a new
-/// camera map.
-///
-/// If either array is NULL or if length is zero, the returned camera_map will
-/// be empty.
-///
-/// \param length The size of the parallel pointer arrays given that constitute
-///               the map.
-/// \param frame_numbers[in] Pointer array of frame numbers of size \c length.
-///                          This should be parallel in association with the
-///                          \c cameras array.
-/// \param cameras[in] Pointer array of camera instances. This should be parallel
-///                    in association with the \c frame_numbers array.
-/// \param eh[in] Vital error handle instance.
-/// \returns New instance of a camera map, storing the input relationship between
-///          frame numbers and cameras.
+/**
+ * Given a two parallel arrays of frame number and cameras, create a new
+ * camera map.
+ *
+ * If either array is NULL or if length is zero, the returned camera_map will
+ * be empty.
+ *
+ * \param length The size of the parallel pointer arrays given that constitute
+ *               the map.
+ * \param frame_numbers[in] Pointer array of frame numbers of size \c length.
+ *                          This should be parallel in association with the
+ *                          \c cameras array.
+ * \param cameras[in] Pointer array of camera instances. This should be parallel
+ *                    in association with the \c frame_numbers array.
+ * \param eh[in] Vital error handle instance.
+ * \returns New instance of a camera map, storing the input relationship between
+ *          frame numbers and cameras.
+ */
 VITAL_C_EXPORT
 vital_camera_map_t* vital_camera_map_new( size_t length,
                                           int64_t *frame_numbers,

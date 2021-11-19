@@ -2,10 +2,12 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// @file
-/// @brief Shared type declarations for the VITAL module.
-///
-/// This file contains the canonical type names for KWIVER-VITAL types.
+/**
+ * @file
+ * @brief Shared type declarations for the VITAL module.
+ *
+ * This file contains the canonical type names for KWIVER-VITAL types.
+ */
 
 #ifndef KWIVER_CORE_TYPES_H
 #define KWIVER_CORE_TYPES_H

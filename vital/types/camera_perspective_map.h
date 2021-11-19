@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Typedefs for camera_perspective camera_maps
+/**
+ * \file
+ * \brief Typedefs for camera_perspective camera_maps
+ */
 
 #ifndef VITAL_CAMERA_PERSPECTIVE_MAP_H_
 #define VITAL_CAMERA_PERSPECTIVE_MAP_H_

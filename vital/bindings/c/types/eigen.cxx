@@ -2,11 +2,13 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief C Interface implementation to Vital use of Eigen vector and matrix
-///        classes
-///
-/// Eigen is Column-major by default, i.e. (rows, cols) indexing
+/**
+ * \file
+ * \brief C Interface implementation to Vital use of Eigen vector and matrix
+ *        classes
+ *
+ * Eigen is Column-major by default, i.e. (rows, cols) indexing
+ */
 
 #include "eigen.h"
 
@@ -14,16 +16,16 @@
 #include <vital/bindings/c/helpers/c_utils.h>
 
 /// Define Eigen matrix interface functions for use with Vital
-///
-/// \param T The data storage type like double or float
-/// \param S The character suffix to use for naming of functions.
-/// \param R Number of rows in the matrix. "Vector" types use this as the size
-///          parameter.
-/// \param C Number of columns in the matrix. "Vector" types have a value of 1
-///          here.
+/**
+ * \param T The data storage type like double or float
+ * \param S The character suffix to use for naming of functions.
+ * \param R Number of rows in the matrix. "Vector" types use this as the size
+ *          parameter.
+ * \param C Number of columns in the matrix. "Vector" types have a value of 1
+ *          here.
+ */
 #define DEFINE_EIGEN_OPERATIONS( T, S, R, C ) \
-/// Create a new Eigen type-based Matrix of the given shape 
- \
+/** Create a new Eigen type-based Matrix of the given shape */ \
 vital_eigen_matrix##R##x##C##S##_t* \
 vital_eigen_matrix##R##x##C##S##_new() \
 { \
@@ -35,8 +37,7 @@ vital_eigen_matrix##R##x##C##S##_new() \
   ); \
   return 0; \
 } \
-/// Create a new Eigen type-based Matrix of the given shape 
- \
+/** Create a new Eigen type-based Matrix of the given shape */ \
 vital_eigen_matrix##R##x##C##S##_t* \
 vital_eigen_matrix##R##x##C##S##_new_sized( ptrdiff_t rows, ptrdiff_t cols ) \
 { \
@@ -49,8 +50,7 @@ vital_eigen_matrix##R##x##C##S##_new_sized( ptrdiff_t rows, ptrdiff_t cols ) \
   return 0; \
 } \
 \
-/// Destroy a given Eigen matrix instance 
- \
+/** Destroy a given Eigen matrix instance */ \
 void \
 vital_eigen_matrix##R##x##C##S##_destroy( vital_eigen_matrix##R##x##C##S##_t *m, \
                                           vital_error_handle_t *eh ) \
@@ -66,8 +66,7 @@ vital_eigen_matrix##R##x##C##S##_destroy( vital_eigen_matrix##R##x##C##S##_t *m,
   ); \
 } \
 \
-/// Get the value at a location 
- \
+/** Get the value at a location */ \
 T \
 vital_eigen_matrix##R##x##C##S##_get( vital_eigen_matrix##R##x##C##S##_t *m, \
                                       ptrdiff_t row, ptrdiff_t col, \
@@ -82,8 +81,7 @@ vital_eigen_matrix##R##x##C##S##_get( vital_eigen_matrix##R##x##C##S##_t *m, \
   return 0; \
 } \
 \
-/// Set the value at a location 
- \
+/** Set the value at a location */ \
 void \
 vital_eigen_matrix##R##x##C##S##_set( vital_eigen_matrix##R##x##C##S##_t *m, \
                                       ptrdiff_t row, ptrdiff_t col, \
@@ -98,8 +96,7 @@ vital_eigen_matrix##R##x##C##S##_set( vital_eigen_matrix##R##x##C##S##_t *m, \
   ); \
 } \
 \
-/// Get the number of rows in the matrix 
- \
+/** Get the number of rows in the matrix */ \
 ptrdiff_t \
 vital_eigen_matrix##R##x##C##S##_rows( vital_eigen_matrix##R##x##C##S##_t *m, \
                                        vital_error_handle_t *eh ) \
@@ -113,8 +110,7 @@ vital_eigen_matrix##R##x##C##S##_rows( vital_eigen_matrix##R##x##C##S##_t *m, \
   return 0; \
 } \
 \
-/// Get the number of columns in the matrix 
- \
+/** Get the number of columns in the matrix */ \
 ptrdiff_t \
 vital_eigen_matrix##R##x##C##S##_cols( vital_eigen_matrix##R##x##C##S##_t *m, \
                                        vital_error_handle_t *eh ) \
@@ -128,8 +124,7 @@ vital_eigen_matrix##R##x##C##S##_cols( vital_eigen_matrix##R##x##C##S##_t *m, \
   return 0; \
 } \
 \
-/// Get the pointer increment betweentwo consecutive rows. 
- \
+/** Get the pointer increment betweentwo consecutive rows. */ \
 ptrdiff_t \
 vital_eigen_matrix##R##x##C##S##_row_stride( vital_eigen_matrix##R##x##C##S##_t *m, \
                                              vital_error_handle_t *eh ) \
@@ -143,8 +138,7 @@ vital_eigen_matrix##R##x##C##S##_row_stride( vital_eigen_matrix##R##x##C##S##_t 
   return 0; \
 } \
 \
-/// Get the pointer increment betweentwo consecutive columns 
- \
+/** Get the pointer increment betweentwo consecutive columns */ \
 ptrdiff_t \
 vital_eigen_matrix##R##x##C##S##_col_stride( vital_eigen_matrix##R##x##C##S##_t *m, \
                                              vital_error_handle_t *eh ) \
@@ -158,8 +152,7 @@ vital_eigen_matrix##R##x##C##S##_col_stride( vital_eigen_matrix##R##x##C##S##_t 
   return 0; \
 } \
 \
-/// Get the pointer to the vector's data array 
- \
+/** Get the pointer to the vector's data array */ \
 T* \
 vital_eigen_matrix##R##x##C##S##_data( vital_eigen_matrix##R##x##C##S##_t *m, \
                                        vital_error_handle_t *eh ) \
@@ -179,24 +172,22 @@ DEFINE_EIGEN_OPERATIONS( T, S, X, Y ) \
 DEFINE_EIGEN_OPERATIONS( T, S, Y, X )
 
 /// DEFINE operations for all shapes
-///
-/// \param T Data type
-/// \param S Type suffix
+/**
+ * \param T Data type
+ * \param S Type suffix
+ */
 #define DEFINE_EIGEN_ALL_SHAPES( T, S ) \
-// Vector shapes 
-                      \
+/* Vector shapes */                      \
 DEFINE_EIGEN_RECTANGLES( T, S, 2, 1 )   \
 DEFINE_EIGEN_RECTANGLES( T, S, 3, 1 )   \
 DEFINE_EIGEN_RECTANGLES( T, S, 4, 1 )   \
 DEFINE_EIGEN_RECTANGLES( T, S, X, 1 )   \
-// Square shapes 
-                      \
+/* Square shapes */                      \
 DEFINE_EIGEN_OPERATIONS( T, S, 2, 2 )   \
 DEFINE_EIGEN_OPERATIONS( T, S, 3, 3 )   \
 DEFINE_EIGEN_OPERATIONS( T, S, 4, 4 )   \
 DEFINE_EIGEN_OPERATIONS( T, S, X, X )   \
-// Other Rectangular shapes 
-           \
+/* Other Rectangular shapes */           \
 DEFINE_EIGEN_RECTANGLES( T, S, 3, 2 )   \
 DEFINE_EIGEN_RECTANGLES( T, S, 4, 2 )   \
 DEFINE_EIGEN_RECTANGLES( T, S, 4, 3 )

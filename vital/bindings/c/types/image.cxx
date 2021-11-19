@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief vital::image C interface implementation
+/**
+ * \file
+ * \brief vital::image C interface implementation
+ */
 
 #include "image.h"
 

@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Header file for a map from IDs to landmarks
+/**
+ * \file
+ * \brief Header file for a map from IDs to landmarks
+ */
 
 #ifndef VITAL_LANDMARK_MAP_H_
 #define VITAL_LANDMARK_MAP_H_
@@ -18,7 +20,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 /// An abstract mapping between track IDs and landmarks
 class landmark_map
 {
@@ -39,7 +41,7 @@ public:
 /// typedef for a landmark shared pointer
 typedef std::shared_ptr< landmark_map > landmark_map_sptr;
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 /// A concrete landmark_map that simply wraps a std::map.
 class simple_landmark_map :
   public landmark_map

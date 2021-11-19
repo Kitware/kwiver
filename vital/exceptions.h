@@ -2,10 +2,12 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Base include file for all vital exceptions
-///
-/// All exception types for vital::core are included through this file.
+/**
+ * \file
+ * \brief Base include file for all vital exceptions
+ *
+ * All exception types for vital::core are included through this file.
+ */
 
 #ifndef VITAL_EXCEPTIONS_H_
 #define VITAL_EXCEPTIONS_H_

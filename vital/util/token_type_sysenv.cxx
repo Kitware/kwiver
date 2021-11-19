@@ -23,7 +23,7 @@ namespace vital {
 
 typedef kwiversys::SystemTools ST;
 
-// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------
 token_type_sysenv::
 token_type_sysenv()
   : token_type ("SYSENV")
@@ -33,12 +33,12 @@ token_type_sysenv()
   m_sysinfo.RunMemoryCheck();
 }
 
-// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------
 token_type_sysenv::
  ~token_type_sysenv()
 { }
 
-// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------
 bool
 token_type_sysenv::
 lookup_entry (std::string const& name, std::string& result) const
@@ -51,7 +51,7 @@ lookup_entry (std::string const& name, std::string& result) const
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------
   if ("numproc" == name)   // number of processors/cores
   {
     std::stringstream sval;
@@ -62,7 +62,7 @@ lookup_entry (std::string const& name, std::string& result) const
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------
   if ("totalvirtualmemory" == name)
   {
     std::stringstream sval;
@@ -71,7 +71,7 @@ lookup_entry (std::string const& name, std::string& result) const
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------
   if ("availablevirtualmemory" == name)
   {
     std::stringstream sval;
@@ -80,7 +80,7 @@ lookup_entry (std::string const& name, std::string& result) const
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------
   if ("totalphysicalmemory" == name)
   {
     std::stringstream sval;
@@ -89,7 +89,7 @@ lookup_entry (std::string const& name, std::string& result) const
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------
   if ("availablephysicalmemory" == name)
   {
     std::stringstream sval;
@@ -98,49 +98,49 @@ lookup_entry (std::string const& name, std::string& result) const
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------
   if ("hostname" == name)   // network name of system
   {
     result = SI->GetHostname();
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------
   if ("domainname" == name)
   {
     result = SI->GetFullyQualifiedDomainName();
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------
   if ("osname" == name)
   {
     result = SI->GetOSName();
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------
   if ("osdescription" == name)
   {
     result = SI->GetOSDescription();
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------
   if ("osplatform" == name)
   {
     result = SI->GetOSPlatform();
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------
   if ("osversion" == name)
   {
     result = SI->GetOSVersion();
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------
   if ("is64bits" == name)
   {
     if ( 1 == SI->Is64Bits())
@@ -155,7 +155,7 @@ lookup_entry (std::string const& name, std::string& result) const
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------
   if ("iswindows" == name)
   {
     if ( 1 == SI->GetOSIsWindows())
@@ -170,7 +170,7 @@ lookup_entry (std::string const& name, std::string& result) const
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------
   if ("islinux" == name)
   {
     if ( 1 == SI->GetOSIsLinux())
@@ -185,7 +185,7 @@ lookup_entry (std::string const& name, std::string& result) const
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------
   if ("isapple" == name)
   {
     if ( 1 == SI->GetOSIsApple())
@@ -200,7 +200,7 @@ lookup_entry (std::string const& name, std::string& result) const
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ------------------------------------------------------------------
   if ("homedir" == name)
   {
     std::string home;
@@ -214,14 +214,14 @@ lookup_entry (std::string const& name, std::string& result) const
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ------------------------------------------------------------------
   if ("curdir" == name)
   {
     result = ST::GetCurrentWorkingDirectory();
     return true;
   }
 
-  // --------------------------------------------------------------------------
+  // ------------------------------------------------------------------
   if ("pid" == name)
   {
     const auto pid = GETPID();

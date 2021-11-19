@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Structs for representing color
+/**
+ * \file
+ * \brief Structs for representing color
+ */
 
 #ifndef VITAL_COLOR_H_
 #define VITAL_COLOR_H_

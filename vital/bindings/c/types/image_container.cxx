@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief vital::image_container C interface implementation
+/**
+ * \file
+ * \brief vital::image_container C interface implementation
+ */
 
 #include "image_container.h"
 #include "image_container.hxx"
@@ -25,18 +27,20 @@ SharedPointerCache< kwiver::vital::image_container, vital_image_container_t >
 //+ really need a way to display SPTR_CACHE.
 // need to verify that pointers are released as needed and cache does not grow without bound
 
-// ----------------------------------------------------------------------------
+// ==================================================================
 // These two functions support C++ access to the SPTR_CACHE.
 
-/// @brief Accept shared pointer to image container.
-///
-/// This function takes a pointer to a shared_pointer and adds it to
-/// the SPTR_CACHE in the same way as a constructor (above). This
-/// allows us to manage an already existing object.
-///
-/// @param sptr Pointer to shared pointer
-///
-/// @return Opaque object pointer/handle
+/**
+ * @brief Accept shared pointer to image container.
+ *
+ * This function takes a pointer to a shared_pointer and adds it to
+ * the SPTR_CACHE in the same way as a constructor (above). This
+ * allows us to manage an already existing object.
+ *
+ * @param sptr Pointer to shared pointer
+ *
+ * @return Opaque object pointer/handle
+ */
 vital_image_container_t* vital_image_container_from_sptr( kwiver::vital::image_container_sptr sptr )
 {
   STANDARD_CATCH(
@@ -69,10 +73,10 @@ kwiver::vital::image_container_sptr vital_image_container_to_sptr( vital_image_c
   return kwiver::vital::image_container_sptr();
 }
 
-// ----------------------------------------------------------------------------
+// ==================================================================
 // These following functions support C access to the image container
 // and associated SPTR_CACHE
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 // / Create a new, simple image container around an image
 vital_image_container_t* vital_image_container_new_simple( vital_image_t *img )
 {

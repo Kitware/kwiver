@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief This file contains the implementation for vital metadata.
+/**
+ * \file
+ * \brief This file contains the implementation for vital metadata.
+ */
 
 #include "metadata.h"
 
@@ -158,7 +160,7 @@ metadata_item
   return visit( print_visitor{ os }, m_data );
 }
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------
 metadata_item*
 metadata_item
 ::clone() const
@@ -167,12 +169,12 @@ metadata_item
 }
 
 
-// ----------------------------------------------------------------------------
+// ==================================================================
 metadata
 ::metadata()
 { }
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------
 metadata
 ::metadata( metadata const& other )
 {
@@ -183,7 +185,7 @@ metadata
   }
 }
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------
 metadata&
 metadata::operator=( metadata const& other )
 {
@@ -192,7 +194,7 @@ metadata::operator=( metadata const& other )
   return *this;
 }
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------
 void
 metadata
 ::add( std::unique_ptr< metadata_item >&& item )
@@ -210,7 +212,7 @@ metadata
 #endif
 }
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------
 void
 metadata
 ::add_copy( std::shared_ptr<metadata_item const> const& item )
@@ -226,7 +228,7 @@ metadata
   this->m_metadata_map[ item->tag() ] = item_ptr{ item->clone() };
 }
 
-// ----------------------------------------------------------------------------
+// -------------------------------------------------------------------
 void
 metadata
 ::add_any( vital_metadata_tag tag, any const& data )
@@ -238,7 +240,7 @@ metadata
   this->add( std::unique_ptr< metadata_item >( new metadata_item{ tag, data } ) );
 }
 
-// ----------------------------------------------------------------------------
+// -------------------------------------------------------------------
 bool
 metadata
 ::has( vital_metadata_tag tag ) const
@@ -246,7 +248,7 @@ metadata
   return m_metadata_map.find( tag ) != m_metadata_map.end();
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 metadata_item const&
 metadata
 ::find( vital_metadata_tag tag ) const
@@ -262,7 +264,7 @@ metadata
   return *(it->second);
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 bool
 metadata
 ::erase( vital_metadata_tag tag )
@@ -270,7 +272,7 @@ metadata
   return m_metadata_map.erase( tag ) > 0;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 metadata::const_iterator_t
 metadata
 ::begin() const
@@ -299,7 +301,7 @@ metadata
   return m_metadata_map.cend();
 }
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------
 size_t
 metadata
 ::size() const
@@ -307,7 +309,7 @@ metadata
   return m_metadata_map.size();
 }
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------
 bool
 metadata
 ::empty() const
@@ -315,7 +317,7 @@ metadata
   return m_metadata_map.empty();
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 void
 metadata
 ::set_timestamp( kwiver::vital::timestamp const& ts )
@@ -340,7 +342,7 @@ metadata
   }
 }
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------
 kwiver::vital::timestamp
 metadata
 ::timestamp() const
@@ -359,7 +361,7 @@ metadata
   return timestamp_;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 std::string
 metadata
 ::format_string( std::string const& val )
@@ -403,7 +405,7 @@ metadata
   return ascii;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 std::ostream& print_metadata( std::ostream& str, metadata const& metadata )
 {
   auto eix = metadata.end();

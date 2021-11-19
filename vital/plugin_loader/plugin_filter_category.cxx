@@ -19,18 +19,20 @@ plugin_filter_category
     m_category( cat )
 { }
 
-// ----------------------------------------------------------------------------
-/// @brief Filter select or reject plugins by category.
-///
-/// This method compares the factory against the supplied category and,
-/// depending on whether the category is included or excluded, returns
-/// that indication.
-///
-/// @param fact Factory object handle
-///
-/// @return \b true if factory is to be added; \b false if factory
-/// should not be added.
-///
+// ------------------------------------------------------------------
+/**
+ * @brief Filter select or reject plugins by category.
+ *
+ * This method compares the factory against the supplied category and,
+ * depending on whether the category is included or excluded, returns
+ * that indication.
+ *
+ * @param fact Factory object handle
+ *
+ * @return \b true if factory is to be added; \b false if factory
+ * should not be added.
+ *
+ */
 bool
 plugin_filter_category
 ::add_factory( plugin_factory_handle_t fact ) const

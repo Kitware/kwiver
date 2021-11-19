@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief core descriptor_set interface implementation
+/**
+ * \file
+ * \brief core descriptor_set interface implementation
+ */
 
 #include "descriptor_set.h"
 #include <vital/exceptions.h>
@@ -13,7 +15,7 @@
 namespace kwiver {
 namespace vital {
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------
 descriptor_set
 ::descriptor_set()
   : m_logger( kwiver::vital::get_logger( "vital.descriptor_set" ) )
@@ -32,7 +34,7 @@ logger()
   return m_logger;
 }
 
-// ----------------------------------------------------------------------------
+// ============================================================================
 // Constructor from a vector of descriptors
 simple_descriptor_set
 ::simple_descriptor_set( const std::vector< descriptor_sptr > & descriptors )

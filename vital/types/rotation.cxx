@@ -2,9 +2,11 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Implementation of \link kwiver::vital::rotation_ rotation_<T> \endlink
-///        for \c T = { \c float, \c double }
+/**
+ * \file
+ * \brief Implementation of \link kwiver::vital::rotation_ rotation_<T> \endlink
+ *        for \c T = { \c float, \c double }
+ */
 
 #include "rotation.h"
 
@@ -66,8 +68,9 @@ rotation_< T >
 }
 
 /// Constructor - from a matrix
-///
-/// requires orthonormal matrix with +1 determinant
+/**
+ * requires orthonormal matrix with +1 determinant
+ */
 template < typename T >
 rotation_< T >
 ::rotation_( const Eigen::Matrix< T, 3, 3 >& rot )
@@ -167,9 +170,10 @@ rotation_< T >
 }
 
 /// Rotate a vector
-///
-/// \note for a large number of vectors, it is more efficient to
-/// create a rotation matrix and use matrix multiplcation
+/**
+ * \note for a large number of vectors, it is more efficient to
+ * create a rotation matrix and use matrix multiplcation
+ */
 template < typename T >
 Eigen::Matrix< T, 3, 1 >
 rotation_< T >

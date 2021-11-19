@@ -14,19 +14,19 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 std::string
 string_format( const std::string fmt_str, ... )
 {
   int final_n;
-  int n = static_cast<int>(fmt_str.size()) * 2; // Reserve two times as much as the length of the fmt_str
+  int n = static_cast<int>(fmt_str.size()) * 2; /* Reserve two times as much as the length of the fmt_str */
   std::string str;
   std::unique_ptr< char[] > formatted;
   va_list ap;
 
   while ( 1 )
   {
-    formatted.reset( new char[n] );   // Wrap the plain char array into the unique_ptr
+    formatted.reset( new char[n] );   /* Wrap the plain char array into the unique_ptr */
     strcpy( &formatted[0], fmt_str.c_str() );
     va_start( ap, fmt_str );
     final_n = vsnprintf( &formatted[0], n, fmt_str.c_str(), ap );
@@ -44,7 +44,7 @@ string_format( const std::string fmt_str, ... )
   return std::string( formatted.get() );
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 std::string
 join( const std::vector< std::string >& elements,
       const std::string&                str_separator )
@@ -70,7 +70,7 @@ join( const std::vector< std::string >& elements,
   } // end switch
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 std::string
 join( const std::set< std::string >&  elements,
       const std::string&              str_separator )
@@ -81,8 +81,10 @@ join( const std::set< std::string >&  elements,
   return join( vec_elem, str_separator );
 }
 
-// ----------------------------------------------------------------------------
-/// Removes duplicate strings in a vector while preserving original order
+//----------------------------------------------------------------------------
+/**
+ * Removes duplicate strings in a vector while preserving original order
+ */
 void
 erase_duplicates(std::vector<std::string>& items)
 {

@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief vital config_block tests
+/**
+ * \file
+ * \brief vital config_block tests
+ */
 
 #include <vital/config/config_block.h>
 #include <vital/util/enum_converter.h>
@@ -123,9 +125,11 @@ TEST(config_block, value_conversion)
   config->set_value( key, 1234567 );
   EXPECT_EQ( 1234567, config->get_value<int>( key ) );
 
-  // config->set_value( key, vector_2d{ 2.34, 0.0567 } );
-  // EXPECT_EQ( ( vector_2d{ 2.34, 0.0567 } ),
-  //          config->get_value<vector_2d>( key ) );
+  /*
+  config->set_value( key, vector_2d{ 2.34, 0.0567 } );
+  EXPECT_EQ( ( vector_2d{ 2.34, 0.0567 } ),
+             config->get_value<vector_2d>( key ) );
+  */
 
   config->set_value( key, "some string" );
   EXPECT_EQ( "some string", config->get_value<std::string>( key ) );
@@ -517,7 +521,7 @@ TEST(config_block, enum_conversion)
   EXPECT_EQ(2, config->get_enum_value < my_ec >(keyb, 2));
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 TEST(config_block, as_vector)
 {
   config_block_sptr const config = config_block::empty_config();

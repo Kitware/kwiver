@@ -12,17 +12,19 @@ namespace logger_ns {
 
 typedef kwiversys::SystemTools ST;
 
-/// When location information is not available the constant
-/// <code>NA</code> is returned. Current value of this string
-/// constant is <b>?</b>.
+/**
+   When location information is not available the constant
+   <code>NA</code> is returned. Current value of this string
+   constant is <b>?</b>.  */
 const char* const location_info::NA = "?";
 const char* const location_info::NA_METHOD = "?::?";
 
-// ----------------------------------------------------------------------------
-/// Constructor.
-///
-/// The default constructor creates a location with all fields set to
-/// the "unknown" state.
+// ----------------------------------------------------------------
+/** Constructor.
+ *
+ * The default constructor creates a location with all fields set to
+ * the "unknown" state.
+ */
 location_info
 ::location_info()
   : m_fileName(location_info::NA),
@@ -30,11 +32,12 @@ location_info
     m_lineNumber(-1)
 { }
 
-// ----------------------------------------------------------------------------
-/// Constructor.
-///
-/// This constructor creates a location object with a fully described
-/// location.
+// ----------------------------------------------------------------
+/** Constructor.
+ *
+ * This constructor creates a location object with a fully described
+ * location.
+ */
 location_info
 ::location_info (char const* filename, char const* method, int line )
   : m_fileName(filename),
@@ -42,28 +45,28 @@ location_info
     m_lineNumber(line)
 { }
 
-// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------
 std::string location_info
 ::get_file_name() const
 {
   return ST::GetFilenameName( m_fileName );
 }
 
-// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------
 std::string location_info
 ::get_file_path() const
 {
   return ST::GetFilenamePath( m_fileName );
 }
 
-// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------
 std::string location_info
 ::get_signature() const
 {
   return m_methodName;
 }
 
-// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------
 std::string location_info
 ::get_method_name() const
 {
@@ -91,7 +94,7 @@ std::string location_info
   return ( tmp );
 }
 
-// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------
 std::string location_info
 ::get_class_name() const
 {
@@ -126,7 +129,7 @@ std::string location_info
   return ( tmp );
 }
 
-// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------
 int location_info
 ::get_line_number() const
 {

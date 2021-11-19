@@ -13,17 +13,19 @@
 namespace kwiver {
 namespace vital {
 
-/// @brief Convert string to timestamp for config block.
-///
-/// This function is a specialization of the config type converter. It
-/// converts a string to a native timestamp object.
-///
-/// This is primarily used to supply *default* behaviour for a
-/// timestamp when getting data from the confiug.
-///
-/// @param value String representation of timestamp.
-///
-/// @return Native timestamp.
+/**
+ * @brief Convert string to timestamp for config block.
+ *
+ * This function is a specialization of the config type converter. It
+ * converts a string to a native timestamp object.
+ *
+ * This is primarily used to supply *default* behaviour for a
+ * timestamp when getting data from the confiug.
+ *
+ * @param value String representation of timestamp.
+ *
+ * @return Native timestamp.
+ */
 template<>
 inline
 timestamp
@@ -45,15 +47,17 @@ config_block_get_value_cast( config_block_value_t const& value )
   return obj;
 }
 
-/// @brief Convert timestamp to string for config block.
-///
-/// This function is a specialization of the config type converter. It
-/// converts a timestamp to a string representation for use in a config
-/// block.
-///
-/// @param value Timestamp to be converted to a string.
-///
-/// @return String representation of timestamp.
+/**
+ * @brief Convert timestamp to string for config block.
+ *
+ * This function is a specialization of the config type converter. It
+ * converts a timestamp to a string representation for use in a config
+ * block.
+ *
+ * @param value Timestamp to be converted to a string.
+ *
+ * @return String representation of timestamp.
+ */
 template<>
 inline
 config_block_value_t
@@ -68,4 +72,4 @@ config_block_set_value_cast( timestamp const& value )
 
 } } // end namespace
 
-#endif // _VITAL_TYPES_TIMESTAMP_CONFIG_H
+#endif /* _VITAL_TYPES_TIMESTAMP_CONFIG_H */

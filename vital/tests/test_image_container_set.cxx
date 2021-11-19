@@ -27,12 +27,14 @@ namespace {
 
 using ic_vec_t = std::vector< kwiver::vital::image_container_sptr >;
 
-/// Create simple vector of image_container_sptr instances.
-///
-/// Output will consist of 3 image container sptrs of slightly increasing size:
-/// - 1x1
-/// - 2x2
-/// - 3x3
+/**
+ * Create simple vector of image_container_sptr instances.
+ *
+ * Output will consist of 3 image container sptrs of slightly increasing size:
+ * - 1x1
+ * - 2x2
+ * - 3x3
+ */
 ic_vec_t make_simple_ic_vec()
 {
   using namespace kwiver::vital;

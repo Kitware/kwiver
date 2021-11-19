@@ -2,10 +2,12 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief C++ Helper utilities for C interface of VITAL algorithms
-///
-/// Private header for use in cxx implementation files.
+/**
+ * \file
+ * \brief C++ Helper utilities for C interface of VITAL algorithms
+ *
+ * Private header for use in cxx implementation files.
+ */
 
 #ifndef VITAL_C_HELPERS_ALGORITHM_H_
 #define VITAL_C_HELPERS_ALGORITHM_H_
@@ -44,8 +46,7 @@ public:
 
 /// Macro companion to DECLARE_COMMON_ALGO_API, providing type implementations
 #define DEFINE_COMMON_ALGO_API( type )                                  \
-  // Make sptr cache for specific type 
-                               \
+  /* Make sptr cache for specific type */                               \
   namespace kwiver {                                                    \
     namespace vital_c {                                                 \
       SharedPointerCache< kwiver::vital::algo::type, vital_algorithm_t > \
@@ -53,17 +54,11 @@ public:
   }                                                                     \
   }                                                                     \
                                                                         \
-  // --------------------------------------------------------------------------
- 
- \
-  // Functions on types (static methods)                                  
- \
-  // --------------------------------------------------------------------------
- 
- \
+  /* ==================================================================== */ \
+  /* Functions on types (static methods)                                  */ \
+  /* -------------------------------------------------------------------- */ \
                                                                         \
-  // Create new instance of a specific algorithm implementation 
-      \
+  /* Create new instance of a specific algorithm implementation */      \
   vital_algorithm_t* vital_algorithm_##type##_create( char const *impl_name ) \
   {                                                                     \
     STANDARD_CATCH(                                                     \
@@ -80,8 +75,7 @@ public:
     return 0;                                                           \
   }                                                                     \
                                                                         \
-  // Destroy an algorithm instance of this type 
-                      \
+  /* Destroy an algorithm instance of this type */                      \
   void vital_algorithm_##type##_destroy( vital_algorithm_t *algo,       \
                                          vital_error_handle_t *eh )     \
   {                                                                     \
@@ -92,8 +86,7 @@ public:
     );                                                                  \
   }                                                                     \
                                                                         \
-  // Get a list of registered implementation names for this algorithm type 
- \
+  /* Get a list of registered implementation names for this algorithm type */ \
   void vital_algorithm_##type##_registered_names( unsigned int *length, \
                                                   char ***names )       \
   {                                                                     \
@@ -105,8 +98,7 @@ public:
     );                                                                  \
   }                                                                     \
                                                                         \
-  /// Get the configuration for a named algorithm in the given config 
- \
+  /** Get the configuration for a named algorithm in the given config */ \
   void                                                                  \
   vital_algorithm_##type##_get_type_config( char const *name,           \
                                             vital_algorithm_t const *algo, \
@@ -115,10 +107,9 @@ public:
   {                                                                     \
     STANDARD_CATCH(                                                     \
       "C::algorithm::" #type "::get_type_config", eh,                   \
-      // Checking algo ptr in order to allow getting a raw config when given \
-      //  NULL                                                           \
-      // 
-                                                               \
+      /* Checking algo ptr in order to allow getting a raw config when given \
+       * NULL                                                           \
+       */                                                               \
       kwiver::vital::algo::type##_sptr algo_sptr;                       \
       if( algo )                                                        \
       {                                                                 \
@@ -136,8 +127,7 @@ public:
     );                                                                  \
   }                                                                     \
                                                                         \
-  /// Set algorithm properties based on a named configuration in the config 
- \
+  /** Set algorithm properties based on a named configuration in the config */ \
   void                                                                  \
   vital_algorithm_##type##_set_type_config( char const *name,           \
                                             vital_config_block_t const *cb, \
@@ -157,10 +147,8 @@ public:
         kwiver::vital_c::CONFIG_BLOCK_SPTR_CACHE.get( cb ),             \
         algo_sptr                                                       \
       );                                                                \
-      // If underlying pointer changed, destroy the old instance and register 
- \
-      // the new one.  
-                                               \
+      /* If underlying pointer changed, destroy the old instance and register */ \
+      /* the new one.  */                                               \
       if( orig_ptr != algo_sptr.get() )                                 \
       {                                                                 \
         if( orig_ptr )                                                  \
@@ -174,8 +162,7 @@ public:
       }                                                                 \
     );                                                                  \
   }                                                                     \
-  /// Check the configuration with respect to this algorithm type 
-    \
+  /** Check the configuration with respect to this algorithm type */    \
   bool                                                                  \
   vital_algorithm_##type##_check_type_config( char const *name,         \
                                               vital_config_block_t const *cb, \

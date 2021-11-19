@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief algorithm exceptions interfaces
+/**
+ * \file
+ * \brief algorithm exceptions interfaces
+ */
 
 #ifndef VITAL_CORE_EXCEPTIONS_ALGORITHM_H
 #define VITAL_CORE_EXCEPTIONS_ALGORITHM_H
@@ -14,10 +16,11 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 /// Base class for all algorithm related exceptions
-///
-/// \ingroup exceptions
+/**
+ * \ingroup exceptions
+ */
 class VITAL_EXCEPTIONS_EXPORT algorithm_exception
   : public vital_exception
 {
@@ -39,10 +42,11 @@ class VITAL_EXCEPTIONS_EXPORT algorithm_exception
     std::string m_reason;
 };
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 /// Exception for when an algorithm receives an invalid configuration
-///
-/// \ingroup exceptions
+/**
+ * \ingroup exceptions
+ */
 class VITAL_EXCEPTIONS_EXPORT algorithm_configuration_exception
   : public algorithm_exception
 {
@@ -55,10 +59,11 @@ class VITAL_EXCEPTIONS_EXPORT algorithm_configuration_exception
     virtual ~algorithm_configuration_exception() noexcept;
 };
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 /// Exception for when checking an invalid impl name against an algo def
-///
-/// \ingroup exceptions
+/**
+ * \ingroup exceptions
+ */
 class VITAL_EXCEPTIONS_EXPORT invalid_name_exception
   : public algorithm_exception
 {

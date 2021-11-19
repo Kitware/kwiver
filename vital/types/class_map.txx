@@ -285,18 +285,20 @@ class_map< T >
 }
 
 // ----------------------------------------------------------------------------
-/// @brief Resolve string to pointer.
-///
-/// This method resolves the supplied string to a pointer to the
-/// canonical version in the master set. This is needed because the
-/// class_names in this class refer to these strings by address, so we
-/// need an address to look up in the map.
-///
-/// @param str String to resolve
-///
-/// @return Address of string in master list.
-///
-/// @throws std::runtime_error if the string is not in the global set.
+/**
+ * @brief Resolve string to pointer.
+ *
+ * This method resolves the supplied string to a pointer to the
+ * canonical version in the master set. This is needed because the
+ * class_names in this class refer to these strings by address, so we
+ * need an address to look up in the map.
+ *
+ * @param str String to resolve
+ *
+ * @return Address of string in master list.
+ *
+ * @throws std::runtime_error if the string is not in the global set.
+ */
 template < typename T >
 const std::string*
 class_map< T >

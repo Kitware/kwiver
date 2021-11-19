@@ -26,7 +26,7 @@ const std::string plugin_factory::PROCESS_CATEGORY( "process" );
 const std::string plugin_factory::ALGORITHM_CATEGORY( "algorithm" );
 const std::string plugin_factory::CLUSTER_CATEGORY( "cluster" );
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 plugin_factory::
 plugin_factory( std::string const& itype )
 {
@@ -38,7 +38,7 @@ plugin_factory::
 ~plugin_factory()
 { }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 bool plugin_factory::
 get_attribute( std::string const& attr, std::string& val ) const
 {
@@ -52,7 +52,7 @@ get_attribute( std::string const& attr, std::string& val ) const
   return false;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 plugin_factory&
 plugin_factory::
 add_attribute( std::string const& attr, std::string const& val )

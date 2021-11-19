@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Frame to World Homography definition
+/**
+ * \file
+ * \brief Frame to World Homography definition
+ */
 
 #ifndef VITAL_HOMOGRAPHY_F2W_H
 #define VITAL_HOMOGRAPHY_F2W_H
@@ -20,9 +22,10 @@ public:
   explicit f2w_homography( frame_id_t const frame_id );
 
   /// Construct given an existing homography
-  ///
-  /// The given homography sptr is cloned into this object so we retain a unique
-  /// copy.
+  /**
+   * The given homography sptr is cloned into this object so we retain a unique
+   * copy.
+   */
   f2w_homography( homography_sptr const &h, frame_id_t const frame_id );
 
   /// Copy Constructor

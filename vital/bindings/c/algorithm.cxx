@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief C interface implementation of base algorithm/_def/_impl classes
+/**
+ * \file
+ * \brief C interface implementation of base algorithm/_def/_impl classes
+ */
 
 #include "algorithm.h"
 
@@ -12,9 +14,9 @@
 #include <vital/bindings/c/helpers/algorithm.h>
 #include <vital/bindings/c/helpers/c_utils.h>
 
-// ----------------------------------------------------------------------------
+// ===========================================================================
 // Helper stuff
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
 namespace kwiver {
 namespace vital_c {
@@ -26,9 +28,9 @@ SharedPointerCache< kwiver::vital::algorithm,
 } // end namespace vital_c
 } // end namespace kwiver
 
-// ----------------------------------------------------------------------------
+// ===========================================================================
 // Functions on general algorithm pointer
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
 char const*
 vital_algorithm_type_name( vital_algorithm_t *algo,

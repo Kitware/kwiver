@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief VITAL base exception implementation
+/**
+ * \file
+ * \brief VITAL base exception implementation
+ */
 
 #include "base.h"
 #include <sstream>
@@ -23,7 +25,7 @@ vital_exception
 {
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 void
 vital_exception
 ::set_location( std::string const& file, int line )
@@ -32,7 +34,7 @@ vital_exception
   m_line_number = line;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 char const*
 vital_exception
 ::what() const noexcept
@@ -50,7 +52,7 @@ vital_exception
   return this->m_what_loc.c_str();
 }
 
-// ----------------------------------------------------------------------------
+// ==================================================================
 invalid_value
 ::invalid_value( std::string reason ) noexcept
 {

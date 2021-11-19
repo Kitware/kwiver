@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Header for \link kwiver::vital::track_interval type
+/**
+ * \file
+ * \brief Header for \link kwiver::vital::track_interval type
+ */
 
 #ifndef VITAL_TRACK_INTERVAL_H_
 #define VITAL_TRACK_INTERVAL_H_

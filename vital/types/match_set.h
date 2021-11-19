@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief core match_set interface
+/**
+ * \file
+ * \brief core match_set interface
+ */
 
 #ifndef VITAL_MATCH_SET_H_
 #define VITAL_MATCH_SET_H_
@@ -16,7 +18,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 /// Index pair indicating matching features between two arrays
 typedef std::pair< unsigned, unsigned > match;
 
@@ -37,7 +39,7 @@ public:
 /// Shared pointer of base match_set type
 typedef std::shared_ptr< match_set > match_set_sptr;
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 /// A concrete match set that simply wraps a vector of matches.
 class simple_match_set :
   public match_set

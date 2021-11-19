@@ -222,7 +222,7 @@ track_descriptor
   return this->history_;
 }
 
-// ----------------------------------------------------------------------------
+// ================================================================
 track_descriptor::history_entry::
 history_entry( const vital::timestamp& ts,
                const image_bbox_t& img_loc,

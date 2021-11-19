@@ -11,22 +11,26 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------------------
-/// Abstract base class for token types.
-///
+// ----------------------------------------------------------------
+/** Abstract base class for token types.
+ *
+ *
+ */
 class VITAL_UTIL_EXPORT token_type
 {
 public:
   virtual ~token_type();
 
-  /// Return our token type name. This is used to retrieve the name of
-  /// this token type when it is added to the token expander.
+  /** Return our token type name. This is used to retrieve the name of
+   * this token type when it is added to the token expander.
+   */
   std::string const& token_type_name() const;
 
-  /// Lookup name in token type resolver.
-  /// @param[in] name Name to look up
-  /// @param[out] result Translated string
-  /// @return TRUE if name found in table; false otherwise
+  /** Lookup name in token type resolver.
+   * @param[in] name Name to look up
+   * @param[out] result Translated string
+   * @return TRUE if name found in table; false otherwise
+   */
   virtual bool lookup_entry (std::string const& name, std::string& result) const = 0;
 
 protected:
@@ -39,4 +43,4 @@ private:
 
 } } // end namespace
 
-#endif // _TOKEN_TYPE_H_
+#endif /* _TOKEN_TYPE_H_ */

@@ -2,9 +2,11 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Implementation of \link kwiver::vital::similarity_ similarity_<T> \endlink
-///        for \c T = { \c float, \c double }
+/**
+ * \file
+ * \brief Implementation of \link kwiver::vital::similarity_ similarity_<T> \endlink
+ *        for \c T = { \c float, \c double }
+ */
 
 #include "similarity.h"
 #include <vital/io/eigen_io.h>

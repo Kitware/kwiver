@@ -11,11 +11,12 @@
 namespace kwiver {
 
 /// Registrar class for applets
-///
-/// This class implements the specific process for registering
-/// applets. The plugin name and description is taken from the plugin
-/// definition.
-///
+/**
+ * This class implements the specific process for registering
+ * applets. The plugin name and description is taken from the plugin
+ * definition.
+ *
+ */
 class applet_registrar
   : public plugin_registrar
 {
@@ -26,16 +27,17 @@ public:
   {
   }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------
   /// Register a tool plugin.
-  ///
-  /// A tool applet of the specified type is registered with the plugin
-  /// manager. All plugins of this type are marked with the applet
-  /// category.
-  ///
-  /// @tparam tool_t Type of the tool being registered.
-  ///
-  /// @return The plugin loader reference is returned.
+  /**
+   * A tool applet of the specified type is registered with the plugin
+   * manager. All plugins of this type are marked with the applet
+   * category.
+   *
+   * @tparam tool_t Type of the tool being registered.
+   *
+   * @return The plugin loader reference is returned.
+   */
   template <typename tool_t>
   kwiver::vital::plugin_factory_handle_t register_tool()
   {
@@ -57,4 +59,4 @@ public:
 
 } // end namespace
 
-#endif // KWIVER_TOOLS_KWIVER_APPLET_REGISTER_H
+#endif /* KWIVER_TOOLS_KWIVER_APPLET_REGISTER_H */

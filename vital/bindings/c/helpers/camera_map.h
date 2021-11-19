@@ -2,10 +2,12 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Internal helpers for C interface of vital::camera_map
-///
-/// This is intended for use only in C++ implementation files.
+/**
+ * \file
+ * \brief Internal helpers for C interface of vital::camera_map
+ *
+ * This is intended for use only in C++ implementation files.
+ */
 
 #ifndef VITAL_C_HELPERS_CAMERA_MAP_H_
 #define VITAL_C_HELPERS_CAMERA_MAP_H_

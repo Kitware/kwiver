@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief test util timer class
+/**
+ * \file
+ * \brief test util timer class
+ */
 
 #include <vital/util/cpu_timer.h>
 #include <vital/util/wall_timer.h>

@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
- /// \file
- /// \brief This file contains the implementation of a geo covariant point.
+ /**
+  * \file
+  * \brief This file contains the implementation of a geo covariant point.
+  */
 
 #include "geo_covariance.h"
 
@@ -35,7 +37,7 @@ geo_covariance( geo_3d_point_t const& point, int crs )
 
 }
 
-  // --------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------
 std::ostream&
 operator<<( std::ostream& str, vital::geo_covariance const& obj )
 {

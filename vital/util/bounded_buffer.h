@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Interface and implementation for bounded buffer
+/**
+ * \file
+ * \brief Interface and implementation for bounded buffer
+ */
 
 #ifndef KWIVER_VITAL_UTIL_BOUNDED_BUFFER_H_
 #define KWIVER_VITAL_UTIL_BOUNDED_BUFFER_H_
@@ -18,11 +20,13 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------------------
-/// @brief Simple bounded buffer.
-///
-/// This class represents a fixed size bounded buffer designed for
-/// communication between threads.
+// ----------------------------------------------------------------
+/**
+ * @brief Simple bounded buffer.
+ *
+ * This class represents a fixed size bounded buffer designed for
+ * communication between threads.
+ */
 template <class T>
 class bounded_buffer : private vital::noncopyable
 {
@@ -41,10 +45,12 @@ public:
     }
   }
 
-  /// @brief Reset the contents of the buffer to empty.
-  ///
-  /// This is a little abrupt, so the caller must ensure that there is
-  /// nothing of value in the buffer.
+  /**
+   * @brief Reset the contents of the buffer to empty.
+   *
+   * This is a little abrupt, so the caller must ensure that there is
+   * nothing of value in the buffer.
+   */
   void Reset()
   {
     lock lk(monitor);
@@ -56,13 +62,15 @@ public:
     buffer_not_full.notify_one();
   }
 
-  /// @brief Send element to buffer.
-  ///
-  /// The specified element is added (copied) to the end of the bounded
-  /// buffer. The calling process will wait if there is no available
-  /// space.
-  ///
-  /// @param[in] m Element to add to buffer.
+  /**
+   * @brief Send element to buffer.
+   *
+   * The specified element is added (copied) to the end of the bounded
+   * buffer. The calling process will wait if there is no available
+   * space.
+   *
+   * @param[in] m Element to add to buffer.
+   */
   void Send (T const& m)
   {
     lock lk(monitor);
@@ -78,12 +86,14 @@ public:
     buffer_not_empty.notify_one();
   }
 
-  /// @brief Receive element from buffer.
-  ///
-  /// The oldest element in the buffer is returned to the caller. The
-  /// calling thread will wait if the buffer is empty.
-  ///
-  /// @return The oldest
+  /**
+   * @brief Receive element from buffer.
+   *
+   * The oldest element in the buffer is returned to the caller. The
+   * calling thread will wait if the buffer is empty.
+   *
+   * @return The oldest
+   */
   T Receive()
   {
     lock lk(monitor);
@@ -100,23 +110,27 @@ public:
     return i;
   }
 
-  /// @brief Test if buffer is empty.
-  ///
-  /// This method indicates if the buffer is empty.  A polling approach
-  /// can be implemented using this method.
-  ///
-  /// @return \b true if buffer is empty. \b false if not empty.
+  /**
+   * @brief Test if buffer is empty.
+   *
+   * This method indicates if the buffer is empty.  A polling approach
+   * can be implemented using this method.
+   *
+   * @return \b true if buffer is empty. \b false if not empty.
+   */
   bool Empty() const
   {
     return (buffered == 0);
   }
 
-  /// @brief Test if buffer is full.
-  ///
-  /// This method indicates if the buffer is full. A polling approach
-  /// can be implemented using this method.
-  ///
-  /// @return
+  /**
+   * @brief Test if buffer is full.
+   *
+   * This method indicates if the buffer is full. A polling approach
+   * can be implemented using this method.
+   *
+   * @return
+   */
   bool Full() const
   {
     return  (buffered == circular_buf.size());

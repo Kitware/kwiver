@@ -5,15 +5,17 @@
 #include "config_difference.h"
 #include <vital/util/string.h>
 #include <vital/logger/logger.h>
-// Possible enhancements
-//
-// - Methods to help iterate through a config block given a list of keys.
-// - Easy way to drill down to get source_loc for some entries.
+/*
+  Possible enhancements
+
+  - Methods to help iterate through a config block given a list of keys.
+  - Easy way to drill down to get source_loc for some entries.
+ */
 
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 config_difference
 ::config_difference( const config_block_sptr reference, const config_block_sptr other )
 {
@@ -50,7 +52,7 @@ config_difference::
 ~config_difference()
 { }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 config_block_keys_t
 config_difference::
 extra_keys() const
@@ -58,7 +60,7 @@ extra_keys() const
   return m_extra_keys;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 config_block_keys_t
 config_difference::
 unspecified_keys() const
@@ -66,7 +68,7 @@ unspecified_keys() const
   return m_missing_keys;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 bool
 config_difference
 ::warn_extra_keys( logger_handle_t logger ) const
@@ -83,7 +85,7 @@ config_difference
   return false;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 bool
 config_difference
 ::warn_unspecified_keys( logger_handle_t logger ) const

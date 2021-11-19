@@ -18,10 +18,12 @@ namespace kwiver {
 
 namespace vital {
 
-// ----------------------------------------------------------------------------
-/// @brief Class that contains *any* data type.
-///
-/// This class represents a single data item of indeterminate type.
+// ============================================================================
+/**
+ * @brief Class that contains *any* data type.
+ *
+ * This class represents a single data item of indeterminate type.
+ */
 class any
 {
   template < typename T >
@@ -31,18 +33,22 @@ class any
   using non_self = typename std::enable_if< !is_self< T >::value >::type*;
 
 public:
-  /// @brief Create empty object.
-  ///
+  /**
+   * @brief Create empty object.
+   *
+   */
   any() noexcept
   {
   }
 
-  /// @brief Create new object containing typed value.
-  ///
-  /// This constructor creates a new object that holds the specified type and
-  /// value.
-  ///
-  /// @param value Data item (value and type) to be held in new object.
+  /**
+   * @brief Create new object containing typed value.
+   *
+   * This constructor creates a new object that holds the specified type and
+   * value.
+   *
+   * @param value Data item (value and type) to be held in new object.
+   */
   template < typename T, non_self< T > = nullptr >
   any( T&& value )
   {
@@ -51,24 +57,28 @@ public:
       new internal_typed< value_t >{ std::forward< T >( value ) } );
   }
 
-  /// @brief Create new object from existing object.
-  ///
-  /// This copy constructor creates a new object that contains the data value
-  /// and type of another any object.
-  ///
-  /// @param other Object to copy type and value from.
+  /**
+   * @brief Create new object from existing object.
+   *
+   * This copy constructor creates a new object that contains the data value
+   * and type of another any object.
+   *
+   * @param other Object to copy type and value from.
+   */
   any( any const& other )
     : m_content{ other.m_content ? other.m_content->clone() : nullptr }
   {
   }
 
-  /// @brief Create new object from an existing object.
-  ///
-  /// This move constructor creates a new object that contains the data value
-  /// and type of another any object. Afterwords, the other object is left in a
-  /// valid but unspecified state.
-  ///
-  /// @param other Object to move type and value from.
+  /**
+   * @brief Create new object from an existing object.
+   *
+   * This move constructor creates a new object that contains the data value
+   * and type of another any object. Afterwords, the other object is left in a
+   * valid but unspecified state.
+   *
+   * @param other Object to move type and value from.
+   */
   any( any&& other ) noexcept
   {
     this->swap( other );
@@ -78,27 +88,31 @@ public:
   {
   }
 
-  /// @brief Swap value and type.
-  ///
-  /// This method swaps the value and type of the specified any object with this
-  /// item.
-  ///
-  /// @param rhs Item to swap into this.
-  ///
-  /// @return Modified current (this) object.
+  /**
+   * @brief Swap value and type.
+   *
+   * This method swaps the value and type of the specified any object with this
+   * item.
+   *
+   * @param rhs Item to swap into this.
+   *
+   * @return Modified current (this) object.
+   */
   any& swap( any& rhs ) noexcept
   {
     this->m_content.swap( rhs.m_content );
     return *this;
   }
 
-  /// @brief Assignment operator.
-  ///
-  /// This operator assigns the specified type and value to this object.
-  ///
-  /// @param rhs New value to assign to this object.
-  ///
-  /// @return Reference to this object.
+  /**
+   * @brief Assignment operator.
+   *
+   * This operator assigns the specified type and value to this object.
+   *
+   * @param rhs New value to assign to this object.
+   *
+   * @return Reference to this object.
+   */
   template < typename T >
   any& operator=( T&& rhs )
   {
@@ -106,50 +120,58 @@ public:
     return *this;
   }
 
-  /// @brief Determine if this object has a value.
-  ///
-  /// This method returns \c true if this object has not been assigned a value.
-  ///
-  /// @return \c true if no value in object, \c false if there is a
-  /// value.
+  /**
+   * @brief Determine if this object has a value.
+   *
+   * This method returns \c true if this object has not been assigned a value.
+   *
+   * @return \c true if no value in object, \c false if there is a
+   * value.
+   */
   bool empty() const noexcept
   {
     return !m_content;
   }
 
-  /// @brief Remove value from object.
-  ///
-  /// This method removes the current type and value from this
-  /// object. The empty() method will return /b true after this call.
-  ///
+  /**
+   * @brief Remove value from object.
+   *
+   * This method removes the current type and value from this
+   * object. The empty() method will return /b true after this call.
+   *
+   */
   void clear() noexcept
   {
     m_content.reset();
   }
 
-  /// @brief Get typeid for current value.
-  ///
-  /// This method returns the std::type_info for the item contained in this
-  /// object. If this object is empty(), the type info for \c void is returned.
-  ///
-  /// You can get the type name string from the following, but the name string
-  /// may not be all that helpful.
-  ///
-  /// \code
-  /// kwiver::vital::any any_double(3.14159);
-  /// std::cout << "Type name: " << any_double.type().name() << std::endl;
-  /// \endcode
-  ///
-  /// @return The type info for the datum in this object is returned.
+  /**
+   * @brief Get typeid for current value.
+   *
+   * This method returns the std::type_info for the item contained in this
+   * object. If this object is empty(), the type info for \c void is returned.
+   *
+   * You can get the type name string from the following, but the name string
+   * may not be all that helpful.
+   *
+   \code
+   kwiver::vital::any any_double(3.14159);
+   std::cout << "Type name: " << any_double.type().name() << std::endl;
+   \endcode
+   *
+   * @return The type info for the datum in this object is returned.
+   */
   std::type_info const& type() const noexcept
   {
     return m_content ? m_content->type() : typeid(void);
   }
 
-  /// @brief Test type of current value.
-  ///
-  /// This method returns \c true if this object's value is of the type
-  /// specified by the template parameter.
+  /**
+   * @brief Test type of current value.
+   *
+   * This method returns \c true if this object's value is of the type
+   * specified by the template parameter.
+   */
   template < typename T >
   bool is_type() const
   {
@@ -161,11 +183,13 @@ public:
     return std::is_same< T, void >::value;
   }
 
-  /// @brief Return demangled name of type contained in this object.
-  ///
-  /// This method returns the demangled name of type contained in this object.
-  ///
-  /// @return Demangled type name string.
+  /**
+   * @brief Return demangled name of type contained in this object.
+   *
+   * This method returns the demangled name of type contained in this object.
+   *
+   * @return Demangled type name string.
+   */
   std::string type_name() const noexcept
   {
     return demangle( this->type().name() );
@@ -231,18 +255,20 @@ private:
   std::unique_ptr< internal > m_content;
 };
 
-// ----------------------------------------------------------------------------
+// ============================================================================
 class bad_any_cast : public std::bad_cast
 {
 public:
 
-  /// @brief Create bad cast exception;
-  ///
-  /// This is the constructor for the bad any cast exception. A message is
-  /// created from the supplied mangled type names.
-  ///
-  /// @param from_type Mangled type name.
-  /// @param to_type Mangled type name.
+  /**
+   * @brief Create bad cast exception;
+   *
+   * This is the constructor for the bad any cast exception. A message is
+   * created from the supplied mangled type names.
+   *
+   * @param from_type Mangled type name.
+   * @param to_type Mangled type name.
+   */
   bad_any_cast( std::string const& from_type,
                 std::string const& to_type )
   {
@@ -273,15 +299,17 @@ private:
 //BEGIN Casting functions
 
 // ----------------------------------------------------------------------------
-/// @brief Get value pointer from a container.
-///
-/// This method returns a typed pointer to the value from the ::any container.
-/// If the types are incompatible, \c nullptr is returned.
-///
-/// @param aval Object that has the value.
-///
-/// @return Pointer to the value from the object as specified type,
-///         or \c nullptr if the conversion failed.
+/**
+ * @brief Get value pointer from a container.
+ *
+ * This method returns a typed pointer to the value from the ::any container.
+ * If the types are incompatible, \c nullptr is returned.
+ *
+ * @param aval Object that has the value.
+ *
+ * @return Pointer to the value from the object as specified type,
+ *         or \c nullptr if the conversion failed.
+ */
 template < typename T >
 inline T*
 any_cast( any* operand ) noexcept
@@ -294,15 +322,17 @@ any_cast( any* operand ) noexcept
 }
 
 // ----------------------------------------------------------------------------
-/// @brief Get value pointer from a container.
-///
-/// This method returns a typed pointer to the value from the ::any container.
-/// If the types are incompatible, \c nullptr is returned.
-///
-/// @param aval Object that has the value.
-///
-/// @return Pointer to the value from the object as specified type,
-///         or \c nullptr if the conversion failed.
+/**
+ * @brief Get value pointer from a container.
+ *
+ * This method returns a typed pointer to the value from the ::any container.
+ * If the types are incompatible, \c nullptr is returned.
+ *
+ * @param aval Object that has the value.
+ *
+ * @return Pointer to the value from the object as specified type,
+ *         or \c nullptr if the conversion failed.
+ */
 template < typename T >
 inline T const*
 any_cast( any const* operand ) noexcept
@@ -315,14 +345,16 @@ any_cast( any const* operand ) noexcept
 }
 
 // ----------------------------------------------------------------------------
-/// @brief Get value from a container.
-///
-/// This method returns a typed value from the any container. If the types are
-/// incompatible, an exception is thrown.
-///
-/// @param aval Object that has the value.
-///
-/// @return Value from object as specified type.
+/**
+ * @brief Get value from a container.
+ *
+ * This method returns a typed value from the any container. If the types are
+ * incompatible, an exception is thrown.
+ *
+ * @param aval Object that has the value.
+ *
+ * @return Value from object as specified type.
+ */
 template < typename T >
 inline T
 any_cast( any const& aval )

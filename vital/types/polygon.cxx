@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief core polygon implementation
+/**
+ * \file
+ * \brief core polygon implementation
+ */
 
 #include "polygon.h"
 
@@ -13,7 +15,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 polygon::
 polygon()
 { }
@@ -32,12 +34,12 @@ polygon( std::initializer_list< point_t > dat )
 
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 polygon::
 ~polygon()
 { }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 void
 polygon::
 push_back( double x, double y )
@@ -45,7 +47,7 @@ push_back( double x, double y )
   m_polygon.push_back( point_t( x, y ) );
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 void
 polygon::
 push_back( const kwiver::vital::polygon::point_t& pt )
@@ -53,7 +55,7 @@ push_back( const kwiver::vital::polygon::point_t& pt )
   m_polygon.push_back( pt );
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 size_t
 polygon::
 num_vertices() const
@@ -61,7 +63,7 @@ num_vertices() const
   return m_polygon.size();
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 bool
 polygon::
 contains( double x, double y )
@@ -93,7 +95,7 @@ contains( double x, double y )
   return c;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 bool
 polygon::
 contains( const kwiver::vital::polygon::point_t& pt )
@@ -101,7 +103,7 @@ contains( const kwiver::vital::polygon::point_t& pt )
   return contains( pt[0], pt[1] );
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 kwiver::vital::polygon::point_t
 polygon::
 at( size_t idx ) const
@@ -118,7 +120,7 @@ at( size_t idx ) const
   return m_polygon[idx];
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 std::vector< kwiver::vital::polygon::point_t >
 polygon::
 get_vertices() const
@@ -126,13 +128,13 @@ get_vertices() const
   return m_polygon;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 bool operator==( polygon const& lhs, polygon const& rhs )
 {
   return lhs.get_vertices() == rhs.get_vertices();
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 bool operator!=( polygon const& lhs, polygon const& rhs )
 {
   return !( lhs == rhs );

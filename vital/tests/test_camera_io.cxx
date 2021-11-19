@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief core camera_io tests
+/**
+ * \file
+ * \brief core camera_io tests
+ */
 
 #include <tests/test_eigen.h>
 #include <tests/test_gtest.h>

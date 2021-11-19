@@ -2,9 +2,11 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Implementation of \link kwiver::vital::track_set track_set \endlink
-///        member functions
+/**
+ * \file
+ * \brief Implementation of \link kwiver::vital::track_set track_set \endlink
+ *        member functions
+ */
 
 #include "feature_track_set.h"
 

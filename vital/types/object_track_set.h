@@ -2,10 +2,12 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Header file for \link kwiver::vital::object_track_set object_track_set
-///        \endlink and a concrete \link kwiver::vital::simple_object_track_set
-///        simple_object_track_set \endlink
+/**
+ * \file
+ * \brief Header file for \link kwiver::vital::object_track_set object_track_set
+ *        \endlink and a concrete \link kwiver::vital::simple_object_track_set
+ *        simple_object_track_set \endlink
+ */
 
 #ifndef VITAL_OBJECT_TRACK_SET_H_
 #define VITAL_OBJECT_TRACK_SET_H_
@@ -27,7 +29,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------------------
+// ============================================================================
 /// A derived track_state for object tracks
 class VITAL_EXPORT object_track_state : public track_state
 {
@@ -139,22 +141,24 @@ private:
   time_usec_t time_ = 0;
 };
 
-// ----------------------------------------------------------------------------
+// ============================================================================
 /// A collection of object tracks
 class VITAL_EXPORT object_track_set : public track_set
 {
 public:
   /// Default Constructor
-  ///
-  /// \note implementation defaults to simple_track_set_implementation
+  /**
+   * \note implementation defaults to simple_track_set_implementation
+   */
   object_track_set();
 
   /// Constructor specifying the implementation
   object_track_set( std::unique_ptr< track_set_implementation > impl );
 
   /// Constructor from a vector of tracks
-  ///
-  /// \note implementation defaults to simple_track_set_implementation
+  /**
+   * \note implementation defaults to simple_track_set_implementation
+   */
   object_track_set( std::vector< track_sptr > const& tracks );
 
   /// Destructor
@@ -165,22 +169,23 @@ public:
 typedef std::shared_ptr< object_track_set > object_track_set_sptr;
 
 /// Helper to iterate over the states of a track as object track states
-///
-/// This object is an instance of a range transform adapter that can be applied
-/// to a track_sptr in order to directly iterate over the underlying
-/// object_track_state instances.
-///
-/// \par Example:
-/// \code
-/// namespace kv = kwiver::vital;
-/// namespace r = kwiver::vital::range;
-///
-/// kv::track_sptr ot = get_the_object_track();
-/// for ( auto s : ot | kv::as_object_track )
-///   std::cout << s->time() << std::endl;
-/// \endcode
-///
-/// \sa kwiver::vital::range::transform_view
+/**
+ * This object is an instance of a range transform adapter that can be applied
+ * to a track_sptr in order to directly iterate over the underlying
+ * object_track_state instances.
+ *
+ * \par Example:
+ * \code
+ * namespace kv = kwiver::vital;
+ * namespace r = kwiver::vital::range;
+ *
+ * kv::track_sptr ot = get_the_object_track();
+ * for ( auto s : ot | kv::as_object_track )
+ *   std::cout << s->time() << std::endl;
+ * \endcode
+ *
+ * \sa kwiver::vital::range::transform_view
+ */
 static constexpr auto as_object_track = object_track_state::downcast_transform;
 
 } } // end namespace vital

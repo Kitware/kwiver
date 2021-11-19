@@ -2,10 +2,12 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief File IO functions for a \ref kwiver::vital::mesh
-///
-/// Functions provide IO in multiple formats including OBJ, PLY, KML
+/**
+ * \file
+ * \brief File IO functions for a \ref kwiver::vital::mesh
+ *
+ * Functions provide IO in multiple formats including OBJ, PLY, KML
+ */
 
 #ifndef VITAL_MESH_IO_H_
 #define VITAL_MESH_IO_H_

@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief C Interface to vital::track implementation
+/**
+ * \file
+ * \brief C Interface to vital::track implementation
+ */
 
 #include "track.h"
 

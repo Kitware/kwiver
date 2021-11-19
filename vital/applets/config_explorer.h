@@ -31,4 +31,4 @@ public:
 
 } } // end namespace
 
-#endif // KWIVER_TOOL_CONFIG_EXPLORER_H
+#endif /* KWIVER_TOOL_CONFIG_EXPLORER_H */

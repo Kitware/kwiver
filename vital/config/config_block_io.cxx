@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief config_block IO operations implementation
+/**
+ * \file
+ * \brief config_block IO operations implementation
+ */
 
 #include "config_block_io.h"
 #include "config_block_exception.h"
@@ -79,12 +81,13 @@ application_paths( config_path_list_t const& paths,
 
 // ----------------------------------------------------------------------------
 /// Add paths in the KWIVER_CONFIG_PATH env variable to the given path vector
-///
-/// Appends the current working directory (".") and then the contents of the
-/// \c KWIVER_CONFIG_PATH environment variable, in order, to the back of the
-/// given vector.
-///
-/// \param path_vector The vector to append to
+/**
+ * Appends the current working directory (".") and then the contents of the
+ * \c KWIVER_CONFIG_PATH environment variable, in order, to the back of the
+ * given vector.
+ *
+ * \param path_vector The vector to append to
+ */
 void append_kwiver_config_paths( config_path_list_t &path_vector )
 {
   // Current working directory always takes precedence

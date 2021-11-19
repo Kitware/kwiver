@@ -2,8 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/// \file
-/// \brief Header for \link kwiver::vital::landmark landmark \endlink objects
+/**
+ * \file
+ * \brief Header for \link kwiver::vital::landmark landmark \endlink objects
+ */
 
 #ifndef VITAL_LANDMARK_H_
 #define VITAL_LANDMARK_H_
@@ -27,10 +29,11 @@ class landmark;
 typedef std::shared_ptr< landmark > landmark_sptr;
 
 /// An abstract representation of a 3D world point.
-///
-/// The base class landmark is abstract and provides a
-/// double precision interface.  The templated derived class
-/// can store values in either single or double precision.
+/**
+ * The base class landmark is abstract and provides a
+ * double precision interface.  The templated derived class
+ * can store values in either single or double precision.
+ */
 class landmark
 {
 public:
@@ -61,9 +64,10 @@ public:
 };
 
 /// output stream operator for a base class landmark
-///
-/// \param s output stream
-/// \param m landmark to stream
+/**
+ * \param s output stream
+ * \param m landmark to stream
+ */
 VITAL_EXPORT std::ostream& operator<<( std::ostream& s, landmark const& m );
 
 /// A representation of a 3D world point
@@ -76,9 +80,10 @@ public:
   landmark_< T >();
 
   /// Constructor for a landmark
-  ///
-  /// \param loc 3D location of the landmark
-  /// \param scale optional scale of the landmark (default of 1)
+  /**
+   * \param loc 3D location of the landmark
+   * \param scale optional scale of the landmark (default of 1)
+   */
   landmark_< T >(Eigen::Matrix< T, 3, 1 > const& loc, T scale = 1);
 
   /// Constructor for a landmark_ from a base class landmark

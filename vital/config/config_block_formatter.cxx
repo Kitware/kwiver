@@ -35,7 +35,7 @@ generate_source_loc( bool opt )
   m_gen_source_loc = opt;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------
 
 void config_block_formatter::
 print( std::ostream& str )
