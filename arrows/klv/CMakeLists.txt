@@ -24,7 +24,6 @@ set( sources
   klv_0104_new.cxx
   klv_1108.cxx
   klv_1108_metric_set.cxx
-  misp_time.cxx
   )
 
 set( public_headers
