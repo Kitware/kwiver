@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Missing istream operator for Eigen fixed sized matrices
- */
+/// \file
+/// \brief Missing istream operator for Eigen fixed sized matrices
 
 #ifndef VITAL_EIGEN_IO_H_
 #define VITAL_EIGEN_IO_H_
@@ -20,15 +18,14 @@
 namespace Eigen {
 
 /// input stream operator for an Eigen matrix
-/**
- * \throws vital::invalid_data
- *    Throws an invalid data exception when the data being read is either not
- *    in the valid form or format, e.g. read a character where a double should
- *    be..
- *
- * \param s an input stream
- * \param m a matrix to stream into
- */
+///
+/// \throws vital::invalid_data
+///    Throws an invalid data exception when the data being read is either not
+///    in the valid form or format, e.g. read a character where a double should
+///    be..
+///
+/// \param s an input stream
+/// \param m a matrix to stream into
 template < typename T, int M, int N >
 std::istream&
 operator>>( std::istream& s, Matrix< T, M, N >& m )

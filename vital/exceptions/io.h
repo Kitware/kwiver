@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief VITAL Exceptions pertaining to IO operations
- */
+/// \file
+/// \brief VITAL Exceptions pertaining to IO operations
 
 #ifndef VITAL_CORE_EXCEPTIONS_IO_H
 #define VITAL_CORE_EXCEPTIONS_IO_H
@@ -36,9 +34,8 @@ class VITAL_EXCEPTIONS_EXPORT path_not_exists
 {
 public:
   /// Constructor
-  /**
-   * \param path The path that doesn't point to an existing file or directory
-   */
+  ///
+  /// \param path The path that doesn't point to an existing file or directory
   path_not_exists(path_t const& path) noexcept;
   /// Destructor
   virtual ~path_not_exists() noexcept;
@@ -51,9 +48,8 @@ class VITAL_EXCEPTIONS_EXPORT path_not_a_file
 {
 public:
   /// Constructor
-  /**
-   * \param path The path that doesn't point to a file.
-   */
+  ///
+  /// \param path The path that doesn't point to a file.
   path_not_a_file(path_t const& path) noexcept;
   /// Destructor
   virtual ~path_not_a_file() noexcept;
@@ -66,9 +62,8 @@ class VITAL_EXCEPTIONS_EXPORT path_not_a_directory
 {
 public:
   /// Constructor
-  /**
-   * \param path The path that doesn't point to a directory.
-   */
+  ///
+  /// \param path The path that doesn't point to a directory.
   path_not_a_directory(path_t const& path) noexcept;
   /// Destructor
   virtual ~path_not_a_directory() noexcept;
@@ -81,10 +76,8 @@ class VITAL_EXCEPTIONS_EXPORT invalid_file
 {
 public:
   /// Constructor
-  /*
-   * \param file    The file that has been deemed invalid
-   * \param reason  The reason for invalidity.
-   */
+  //  \param file    The file that has been deemed invalid
+  //  \param reason  The reason for invalidity.
   invalid_file(path_t const& file, std::string const& reason) noexcept;
   /// Destructor
   virtual ~invalid_file() noexcept;
@@ -109,10 +102,9 @@ class VITAL_EXCEPTIONS_EXPORT file_not_found_exception
 {
 public:
   /// Constructor
-  /**
-   * \param file_path The file path that was looked for.
-   * \param reason    The reason the file wasn't found.
-   */
+  ///
+  /// \param file_path The file path that was looked for.
+  /// \param reason    The reason the file wasn't found.
   file_not_found_exception( path_t const& file_path, std::string const& reason ) noexcept;
   /// Deconstructor
   virtual ~file_not_found_exception() noexcept;
@@ -125,10 +117,9 @@ class VITAL_EXCEPTIONS_EXPORT file_not_read_exception
 {
 public:
   ///Constructor
-  /**
-   * \param file_path The file path on which the read was attempted.
-   * \param reason    The reason for the read exception.
-   */
+  ///
+  /// \param file_path The file path on which the read was attempted.
+  /// \param reason    The reason for the read exception.
   file_not_read_exception( path_t const& file_path, std::string const& reason ) noexcept;
   /// Deconstructor
   virtual ~file_not_read_exception() noexcept;
@@ -141,10 +132,9 @@ class VITAL_EXCEPTIONS_EXPORT file_write_exception
 {
 public:
   /// Constructor
-  /**
-   * \param file_path The file path to which the write was attempted.
-   * \param reason    The reason for the exception
-   */
+  ///
+  /// \param file_path The file path to which the write was attempted.
+  /// \param reason    The reason for the exception
   file_write_exception( path_t const& file_path, std::string const& reason ) noexcept;
   /// Deconstructor
   virtual ~file_write_exception() noexcept;

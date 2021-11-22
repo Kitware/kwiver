@@ -18,12 +18,10 @@ namespace vital {
 namespace logger_ns {
 
 // ----------------------------------------------------------------
-/**
- * @brief loc4cplus logger implementation
- *
- * This class is an adapter that bridges from our standard logging API
- * to the log4cplus API.
- */
+/// @brief loc4cplus logger implementation
+///
+/// This class is an adapter that bridges from our standard logging API
+/// to the log4cplus API.
 class log4cplus_logger
   : public kwiver_logger
 {
@@ -45,10 +43,9 @@ virtual bool is_debug_enabled() const { return m_logger.isEnabledFor(::log4cplus
 virtual bool is_trace_enabled() const { return m_logger.isEnabledFor(::log4cplus::TRACE_LOG_LEVEL); }
 
 // ----------------------------------------------------------------
-/* get / set log level
- *
- *
- */
+// get / set log level
+//
+//
 virtual void set_level( log_level_t level )
 {
   switch (level)
@@ -309,11 +306,10 @@ virtual void log_message ( log_level_t level, std::string const& msg,
 };
 
 // ==================================================================
-/** Factory for underlying log4cxx logger.
- *
- * This class represents the factory for the log4cxx logging service.
- * A logger object is created or reused for the specified name.
- */
+/// Factory for underlying log4cxx logger.
+///
+/// This class represents the factory for the log4cxx logging service.
+/// A logger object is created or reused for the specified name.
 class log4cplus_factory
   : public kwiver_logger_factory
 {
@@ -365,9 +361,7 @@ public:
 } } } // end namespace
 
 // ==================================================================
-/*
- * Shared object bootstrap function
- */
+//  Shared object bootstrap function
 extern "C" VITAL_LOG4CPLUS_LOGGER_EXPORT void* kwiver_logger_factory();
 
 void* kwiver_logger_factory()

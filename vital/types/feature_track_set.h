@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header file for \link kwiver::vital::feature_track_set feature_track_set
- *        \endlink
- */
+/// \file
+/// \brief Header file for \link kwiver::vital::feature_track_set feature_track_set
+///        \endlink
 
 #ifndef VITAL_FEATURE_TRACK_SET_H_
 #define VITAL_FEATURE_TRACK_SET_H_
@@ -130,26 +128,22 @@ class VITAL_EXPORT feature_track_set : public track_set
 {
 public:
   /// Default Constructor
-  /**
-   * \note implementation defaults to simple_track_set_implementation
-   */
+  ///
+  /// \note implementation defaults to simple_track_set_implementation
   feature_track_set();
 
   /// Constructor specifying the implementation
   feature_track_set(std::unique_ptr<track_set_implementation> impl);
 
   /// Constructor from a vector of tracks
-  /**
-   * \note implementation defaults to simple_track_set_implementation
-   */
+  ///
+  /// \note implementation defaults to simple_track_set_implementation
   feature_track_set(std::vector< track_sptr > const& tracks);
 
   /// Destructor
   virtual ~feature_track_set() = default;
 
-  /**
-  * \note returns a deep copy of the feature_track_set
-  */
+  /// \note returns a deep copy of the feature_track_set
   track_set_sptr clone( clone_type = clone_type::DEEP ) const override;
 
   /// Return the set of features in tracks on the last frame
@@ -159,57 +153,52 @@ public:
   virtual descriptor_set_sptr last_frame_descriptors() const;
 
   /// Return the set of features in all tracks for the given frame.
-  /**
-   * \param [in] offset the frame offset for selecting the target frame.
-   *                    Positive number are absolute frame numbers while
-   *                    negative numbers are relative to the last frame.  For
-   *                    example, offset of -1 refers to the last frame and is
-   *                    the default.
-   *
-   * \returns a feature_set_sptr for all features on the give frame.
-   */
+  ///
+  /// \param [in] offset the frame offset for selecting the target frame.
+  ///                    Positive number are absolute frame numbers while
+  ///                    negative numbers are relative to the last frame.  For
+  ///                    example, offset of -1 refers to the last frame and is
+  ///                    the default.
+  ///
+  /// \returns a feature_set_sptr for all features on the give frame.
   virtual feature_set_sptr frame_features( frame_id_t offset = -1 ) const;
 
   /// Return the set of descriptors in all tracks for the given frame.
-  /**
-   * \param [in] offset the frame offset for selecting the target frame.
-   *                    Positive number are absolute frame numbers while
-   *                    negative numbers are relative to the last frame.  For
-   *                    example, offset of -1 refers to the last frame and is
-   *                    the default.
-   *
-   * \returns a descriptor_set_sptr for all features on the give frame.
-   */
+  ///
+  /// \param [in] offset the frame offset for selecting the target frame.
+  ///                    Positive number are absolute frame numbers while
+  ///                    negative numbers are relative to the last frame.  For
+  ///                    example, offset of -1 refers to the last frame and is
+  ///                    the default.
+  ///
+  /// \returns a descriptor_set_sptr for all features on the give frame.
   virtual descriptor_set_sptr frame_descriptors( frame_id_t offset = -1 ) const;
 
   /// Return a vector of feature track states corresponding to the tracks on the given frame.
-  /**
-  * \param [in] offset the frame offset for selecting the target frame.
-  *                    Positive number are absolute frame numbers while
-  *                    negative numbers are relative to the last frame.  For
-  *                    example, offset of -1 refers to the last frame and is
-  *                    the default.
-  *
-  * \returns a vector for all feature tracks states on the given frame.
-  */
+  ///
+  /// \param [in] offset the frame offset for selecting the target frame.
+  ///                   Positive number are absolute frame numbers while
+  ///                   negative numbers are relative to the last frame.  For
+  ///                   example, offset of -1 refers to the last frame and is
+  ///                   the default.
+  ///
+  /// \returns a vector for all feature tracks states on the given frame.
   virtual std::vector<feature_track_state_sptr>
     frame_feature_track_states(frame_id_t offset = -1) const;
 
   /// Return a map of all feature_track_set_frame_data
-  /**
-   * This function is similar to \c all_frame_data() except that it checks
-   * the type of the frame data and dynamically casts it to the specialized
-   * frame data for feature_track_set.  Any frame data of a different type
-   * is not included in this ouput.
-   */
+  ///
+  /// This function is similar to \c all_frame_data() except that it checks
+  /// the type of the frame data and dynamically casts it to the specialized
+  /// frame data for feature_track_set.  Any frame data of a different type
+  /// is not included in this ouput.
   virtual std::map<frame_id_t, feature_track_set_frame_data_sptr>
     all_feature_frame_data() const;
 
   /// Return the set of all keyframes in the track set
-  /**
-   * Keyframes are designated as frames which have an associated
-   * feature_track_set_frame_data marked with is_keyframe == true
-   */
+  ///
+  /// Keyframes are designated as frames which have an associated
+  /// feature_track_set_frame_data marked with is_keyframe == true
   virtual std::set<frame_id_t> keyframes() const;
 
   virtual feature_info_sptr frame_feature_info(frame_id_t offset = -1,
@@ -223,23 +212,22 @@ public:
 using feature_track_set_sptr = std::shared_ptr< feature_track_set >;
 
 /// Helper to iterate over the states of a track as object track states
-/**
- * This object is an instance of a range transform adapter that can be applied
- * to a track_sptr in order to directly iterate over the underlying
- * feature_track_state instances.
- *
- * \par Example:
- * \code
- * namespace kv = kwiver::vital;
- * namespace r = kwiver::vital::range;
- *
- * kv::track_sptr ft = get_the_feature_track();
- * for ( auto s : ft | kv::as_feature_track )
- *   std::cout << s->inlier << std::endl;
- * \endcode
- *
- * \sa kwiver::vital::range::transform_view
- */
+///
+/// This object is an instance of a range transform adapter that can be applied
+/// to a track_sptr in order to directly iterate over the underlying
+/// feature_track_state instances.
+///
+/// \par Example:
+/// \code
+/// namespace kv = kwiver::vital;
+/// namespace r = kwiver::vital::range;
+///
+/// kv::track_sptr ft = get_the_feature_track();
+/// for ( auto s : ft | kv::as_feature_track )
+///   std::cout << s->inlier << std::endl;
+/// \endcode
+///
+/// \sa kwiver::vital::range::transform_view
 static constexpr auto as_feature_track =
   feature_track_state::downcast_transform;
 

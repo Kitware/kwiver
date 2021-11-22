@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for \link kwiver::vital::rotation_ rotation_<T> \endlink class
- */
+/// \file
+/// \brief Header for \link kwiver::vital::rotation_ rotation_<T> \endlink class
 
 #ifndef VITAL_ROTATION_H_
 #define VITAL_ROTATION_H_
@@ -23,9 +21,8 @@ namespace kwiver {
 namespace vital {
 
 /// A representation of 3D rotation.
-/**
- * Internally, rotation is stored in quaternion form
- */
+///
+/// Internally, rotation is stored in quaternion form
 template < typename T >
 class VITAL_EXPORT rotation_
 {
@@ -43,12 +40,11 @@ public:
   : q_( static_cast< Eigen::Quaternion< T > > ( other.quaternion() ) ) { }
 
   /// Constructor - from a 4D quaternion vector (x,y,z,w)
-  /**
-   * Note that the constructor for an Eigen:Quaternion from four scalars assumes
-   * the order (w,x,y,z). However, internally it is stored in the following
-   * order (x,y,z,w). Likewise, the constructor for an Eigen:Quaternion from an
-   * array assumes the order (x,y,z,w).
-   */
+  ///
+  /// Note that the constructor for an Eigen:Quaternion from four scalars assumes
+  /// the order (w,x,y,z). However, internally it is stored in the following
+  /// order (x,y,z,w). Likewise, the constructor for an Eigen:Quaternion from an
+  /// array assumes the order (x,y,z,w).
   //TODO: normalize quaternion. If the user provides a non-normalized quaterion,
   //It will remain so. This can cause problems when converting to other types.
   //Might want to consider using the actual Eigen::Quaternion constructor. This
@@ -57,14 +53,13 @@ public:
   : q_( quaternion ) { }
 
   /// Constructor - from a Rodrigues vector
-  /**
-   * A Rodrigues vector is a minimal parameterization of rotation where
-   * the direction of the vector is the axis of rotation and the
-   * magnitude of the vector is the angle of rotation (in radians).
-   * This representation is closely related to the tangent space on
-   * the manifold of the group of rotations.
-   * \param rvec Rodrigues vector to construct from.
-   */
+  ///
+  /// A Rodrigues vector is a minimal parameterization of rotation where
+  /// the direction of the vector is the axis of rotation and the
+  /// magnitude of the vector is the angle of rotation (in radians).
+  /// This representation is closely related to the tangent space on
+  /// the manifold of the group of rotations.
+  /// \param rvec Rodrigues vector to construct from.
   explicit rotation_< T > ( const Eigen::Matrix< T, 3, 1 > &rvec );
 
   /// Constructor - from rotation angle and axis
@@ -83,33 +78,29 @@ public:
   rotation_< T > ( const T &yaw, const T &pitch, const T &roll );
 
   /// Constructor - from a matrix
-  /**
-   * requires orthonormal matrix with +1 determinant
-   * \param rot orthonormal matrix to construct from
-   */
+  ///
+  /// requires orthonormal matrix with +1 determinant
+  /// \param rot orthonormal matrix to construct from
   explicit rotation_< T > ( const Eigen::Matrix< T, 3, 3 > &rot );
 
   /// Convert to a 3x3 matrix
   Eigen::Matrix< T, 3, 3 > matrix() const;
 
   /// Returns the axis of rotation
-  /**
-   * \note axis is undefined for the identity rotation,
-   *       returns (0,0,1) in this case.
-   * \sa angle()
-   */
+  ///
+  /// \note axis is undefined for the identity rotation,
+  ///       returns (0,0,1) in this case.
+  /// \sa angle()
   Eigen::Matrix< T, 3, 1 > axis() const;
 
   /// Returns the angle of the rotation in radians about the axis
-  /**
-   * \sa axis()
-   */
+  ///
+  /// \sa axis()
   T angle() const;
 
   /// Access the quaternion as a 4-vector
-  /**
-   * The first component is real, the last 3 are imaginary (i,j,k)
-   */
+  ///
+  /// The first component is real, the last 3 are imaginary (i,j,k)
   Eigen::Quaternion< T > quaternion() const { return q_; }
 
   /// Return the rotation as a Rodrigues vector
@@ -134,21 +125,19 @@ public:
   rotation_< T > operator*( const rotation_< T >& rhs ) const;
 
   /// Rotate a vector
-  /**
-   * \note for a large number of vectors, it is more efficient to
-   *       create a rotation matrix and use matrix multiplication
-   * \param rhs right-hand side vector to operate against
-   */
+  ///
+  /// \note for a large number of vectors, it is more efficient to
+  ///       create a rotation matrix and use matrix multiplication
+  /// \param rhs right-hand side vector to operate against
   Eigen::Matrix< T, 3, 1 > operator*( const Eigen::Matrix< T, 3, 1 >& rhs ) const;
 
   /// Equality operator
-  /**
-   * TODO: two quaternions can represent the same rotation but have different
-   * components. The test is to calculate the product of the first rotation with
-   * the inverse of the second to calculate the difference rotation. Convert the
-   * difference rotation to axis and angle form, and if the angle is greater
-   * than some threshold, they should not be considered equal.
-   */
+  ///
+  /// TODO: two quaternions can represent the same rotation but have different
+  /// components. The test is to calculate the product of the first rotation with
+  /// the inverse of the second to calculate the difference rotation. Convert the
+  /// difference rotation to axis and angle form, and if the angle is greater
+  /// than some threshold, they should not be considered equal.
   inline bool operator==( const rotation_< T >& rhs ) const
   {
     return this->q_.coeffs() == rhs.q_.coeffs();
@@ -179,35 +168,32 @@ template < typename T >
 VITAL_EXPORT std::istream&  operator>>( std::istream& s, rotation_< T >& r );
 
 // Generate an interpolated rotation between \c A and \c B by a given fraction
-/**
- * \c f must be 0 < \c f < 1
- *
- * TODO: Have this raise an exception when f is not within the valid range.
- *
- * \param A Rotation we are interpolating from.
- * \param B Rotation we are interpolating towards.
- * \param f Fractional value describing the interpolation point between A and B.
- * \returns A rotation in between A and B to a degree proportional to the given
- *          fraction.
- */
+/// \c f must be 0 < \c f < 1
+///
+/// TODO: Have this raise an exception when f is not within the valid range.
+///
+/// \param A Rotation we are interpolating from.
+/// \param B Rotation we are interpolating towards.
+/// \param f Fractional value describing the interpolation point between A and B.
+/// \returns A rotation in between A and B to a degree proportional to the given
+///          fraction.
 template < typename T >
 VITAL_EXPORT
 rotation_< T >
 interpolate_rotation( rotation_< T > const& A, rotation_< T > const& B, T f );
 
 /// Generate N evenly interpolated rotations in between \c A and \c B.
-/**
- * \c n must be >= 1.
- *
- * \param[in]   A           Rotation we are interpolating from.
- * \param[in]   B           Rotation we are interpolating towards,
- * \param[in]   n           Number of even interpolations in between A and B to generate.
- * \param[out]  interp_rots Interpolated rotations are added to this vector in
- *                          in order of generation in the A -> B direction.
- *
- * \returns A vector of \c n evenly interpolated rotations in order between A
- *          and B.
- */
+///
+/// \c n must be >= 1.
+///
+/// \param[in]   A           Rotation we are interpolating from.
+/// \param[in]   B           Rotation we are interpolating towards,
+/// \param[in]   n           Number of even interpolations in between A and B to generate.
+/// \param[out]  interp_rots Interpolated rotations are added to this vector in
+///                          in order of generation in the A -> B direction.
+///
+/// \returns A vector of \c n evenly interpolated rotations in order between A
+///          and B.
 template < typename T >
 VITAL_EXPORT
 void interpolated_rotations( rotation_< T > const& A, rotation_< T > const& B,

@@ -2,13 +2,11 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for \link kwiver::vital::mesh mesh \endlink and
- *        related classes.
- *
- * This indexed mesh implementation is based on imesh from VXL.
- */
+/// \file
+/// \brief Header for \link kwiver::vital::mesh mesh \endlink and
+///        related classes.
+///
+/// This indexed mesh implementation is based on imesh from VXL.
 
 #ifndef VITAL_MESH_H_
 #define VITAL_MESH_H_
@@ -84,10 +82,9 @@ template <unsigned int d>
 class mesh_vertex_array : public mesh_vertex_array_base
 {
   /// typedef for d-dimensional point
-  /**
-   * \note Eigen::Matrix<double,2,1> == vector_2d
-   *   and Eigen::Matrix<double,3,1> == vector_3d
-   */
+  ///
+  /// \note Eigen::Matrix<double,2,1> == vector_2d
+  ///   and Eigen::Matrix<double,3,1> == vector_3d
   typedef Eigen::Matrix<double,3,1> vert_t;
 
   /// vector of d-dimensional points
@@ -262,9 +259,8 @@ public:
   virtual mesh_face_array_base* clone() const = 0;
 
   /// Append this array of faces (must be the same type)
-  /**
-   * Optionally shift the indices in \param other by \param ind_shift
-   */
+  ///
+  /// Optionally shift the indices in \param other by \param ind_shift
   virtual void append(const mesh_face_array_base& other,
                       unsigned int ind_shift=0);
 
@@ -292,9 +288,8 @@ public:
   std::string group_name(unsigned int f) const;
 
   /// Assign a group name to all faces currently unnamed
-  /**
-   * Return the number of faces in the new group
-   */
+  ///
+  /// Return the number of faces in the new group
   unsigned int make_group(const std::string& name);
 
   /// Return a set of all faces in a group
@@ -305,9 +300,8 @@ public:
 
 protected:
   /// named groups of adjacent faces (a partition of the face array)
-  /**
-   * Integers mark the group's ending vertex + 1
-   */
+  ///
+  /// Integers mark the group's ending vertex + 1
   std::vector<std::pair<std::string,unsigned int> > groups_;
 
   /// vectors that are normal to each face
@@ -377,9 +371,8 @@ public:
   }
 
   /// Append this array of faces
-  /**
-   * Optionally shift the indices in \param other by \param ind_shift
-   */
+  ///
+  /// Optionally shift the indices in \param other by \param ind_shift
   virtual void append(const mesh_face_array_base& other,
                       unsigned int ind_shift=0);
 
@@ -424,16 +417,16 @@ public:
     : faces_(faces) {}
 
   /// returns the number of vertices per face if the same for all faces
-  /**
-   * Returns zero if the number of vertices may vary from face to face.
-   */
+  ///
+  /// Returns zero if the number of vertices may vary from face to face.
   virtual unsigned int regularity() const { return s; }
 
   /// returns the number of faces
   virtual unsigned int size() const { return static_cast<unsigned int>(faces_.size()); }
 
   /// returns the number of vertices in face \param f
-  virtual unsigned int num_verts(unsigned int /*f*/) const { return s; }
+  virtual unsigned int num_verts(unsigned int //f
+) const { return s; }
 
   /// Access a vertex index by face index and within-face index
   virtual unsigned int operator() (unsigned int f, unsigned int i) const { return faces_[f][i]; }
@@ -452,9 +445,8 @@ public:
   }
 
   /// Append this array of faces (must be the same type)
-  /**
-   * Optionally shift the indices in \param other by \param ind_shift
-   */
+  ///
+  /// Optionally shift the indices in \param other by \param ind_shift
   virtual void append(const mesh_face_array_base& other,
                       unsigned int ind_shift=0)
   {
@@ -497,9 +489,8 @@ public:
 };
 
 /// Merge the two face arrays
-/**
- * Shift the mesh indices in \param f2 by \param ind_shift
- */
+///
+/// Shift the mesh indices in \param f2 by \param ind_shift
 VITAL_EXPORT
 std::unique_ptr<mesh_face_array_base>
 merge_face_arrays(const mesh_face_array_base& f1,
@@ -868,9 +859,8 @@ public:
   mesh() : tex_coord_status_(TEX_COORD_NONE) {}
 
   /// Constructor from vertex and face arrays
-  /**
-   * Takes ownership of these arrays
-   */
+  ///
+  /// Takes ownership of these arrays
   mesh(std::unique_ptr<mesh_vertex_array_base> verts,
              std::unique_ptr<mesh_face_array_base> faces)
   : verts_(std::move(verts)),
@@ -893,9 +883,8 @@ public:
   unsigned int num_edges() const {return half_edges_.size()/2;}
 
   /// Merge the data from another mesh into this one
-  /**
-   * Duplicates are not removed
-   */
+  ///
+  /// Duplicates are not removed
   void merge(const mesh& other);
 
   /// Return true if the mesh has been initialized
@@ -948,16 +937,14 @@ public:
   void compute_vertex_normals_from_faces();
 
   /// Compute face normals
-  /**
-   * If norm == false the vector lengths are twice the area of the face
-   */
+  ///
+  /// If norm == false the vector lengths are twice the area of the face
   void compute_face_normals(bool norm = true);
 
   /// This type indicates how texture coordinates are indexed
-  /**
-   * ON_VERT is one coordinate per vertex
-   * ON_CORNER is one coordinate per half edge (i.e. corner)
-   */
+  ///
+  /// ON_VERT is one coordinate per vertex
+  /// ON_CORNER is one coordinate per half edge (i.e. corner)
   enum tex_coord_type { TEX_COORD_NONE = 0,
                         TEX_COORD_ON_VERT = 1,
                         TEX_COORD_ON_CORNER = 2 };
@@ -982,9 +969,8 @@ public:
   void set_valid_tex_faces(const std::vector<bool>& valid);
 
   /// Label all faces with positive (counter clockwise orientation) area as valid
-  /**
-   * This requirement refers to the texture map coordinates
-   */
+  ///
+  /// This requirement refers to the texture map coordinates
   void label_ccw_tex_faces_valid();
 
   /// Map a barycentric coordinate (u,v) on triangle \param tri into texture space

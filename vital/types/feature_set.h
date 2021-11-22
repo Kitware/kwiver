@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief core feature_set class interface
- */
+/// \file
+/// \brief core feature_set class interface
 
 #ifndef VITAL_FEATURE_SET_H_
 #define VITAL_FEATURE_SET_H_
@@ -20,12 +18,11 @@ namespace kwiver {
 namespace vital {
 
 /// An abstract ordered collection of 2D image feature points.
-/**
- * The base class feature_set is abstract and provides an interface for
- * returning a vector of features.  There is a simple derived class that
- * stores the data as a vector of features and returns it.  Other derived
- * classes can store the data in other formats and convert on demand.
- */
+///
+/// The base class feature_set is abstract and provides an interface for
+/// returning a vector of features.  There is a simple derived class that
+/// stores the data as a vector of features and returns it.  Other derived
+/// classes can store the data in other formats and convert on demand.
 class feature_set
 {
 public:

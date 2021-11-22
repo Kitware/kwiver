@@ -2,12 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of file IO functions for a \ref kwiver::vital::track_set
- *
- * \todo Describe format here.
- */
+/// \file
+/// \brief Implementation of file IO functions for a \ref kwiver::vital::track_set
+///
+/// \todo Describe format here.
 
 #include "track_set_io.h"
 

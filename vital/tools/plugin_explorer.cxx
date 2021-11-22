@@ -73,9 +73,7 @@ inline std::ostream& pe_out()
 }
 
 // ------------------------------------------------------------------
-/*
- * Functor to print an attribute
- */
+//  Functor to print an attribute
 struct print_functor
 {
   print_functor( std::ostream& str)
@@ -296,13 +294,11 @@ get_category_handler( const std::string& cat )
 }
 
 // ------------------------------------------------------------------
-/**
- * @brief Load plugin explorer plugins
- *
- * Since these plugins are part of the tool, they are loaded separately.
- *
- * @param path Directory of where to look for these plugins.
- */
+/// @brief Load plugin explorer plugins
+///
+/// Since these plugins are part of the tool, they are loaded separately.
+///
+/// @param path Directory of where to look for these plugins.
 void load_explorer_plugins()
 {
   // need a dedicated loader to just load the explorer_context files.
@@ -366,13 +362,12 @@ void load_explorer_plugins()
 }
 
 // ==================================================================
-/*                   _
- *   _ __ ___   __ _(_)_ __
- *  | '_ ` _ \ / _` | | '_ \
- *  | | | | | | (_| | | | | |
- *  |_| |_| |_|\__,_|_|_| |_|
- *
- */
+//                   _
+//    _ __ ___   __ _(_)_ __
+//   | '_ ` _ \ / _` | | '_ \
+//   | | | | | | (_| | | | | |
+//   |_| |_| |_|\__,_|_|_| |_|
+//
 int
 main( int argc, char* argv[] )
 {

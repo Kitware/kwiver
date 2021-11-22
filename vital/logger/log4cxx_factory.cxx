@@ -13,22 +13,19 @@ namespace vital {
 namespace logger_ns {
 
 // ----------------------------------------------------------------
-/** @class log4cxx_logger
- * @brief Log4cxx logger implementation.
- *
- * This class is an adapter that bridges from our standard logging API
- * to the log4cxx API.
- */
+/// @class log4cxx_logger
+/// @brief Log4cxx logger implementation.
+///
+/// This class is an adapter that bridges from our standard logging API
+/// to the log4cxx API.
 class log4cxx_logger
   : public kwiver_logger
 {
 public:
-  /**
-   * @brief Create a new log4cxx logger object
-   *
-   * @param fact Pointer to logger factory class.
-   * @param name Name of logging category.
-   */
+  /// @brief Create a new log4cxx logger object
+  ///
+  /// @param fact Pointer to logger factory class.
+  /// @param name Name of logging category.
   log4cxx_logger( kwiver_logger_factory* fact, std::string const& name )
     : kwiver_logger( fact, name ),
     m_loggerImpl( ::log4cxx::Logger::getLogger( name ) )
@@ -258,11 +255,10 @@ protected:
 }; // end class
 
 // ==================================================================
-/** Factory for underlying log4cxx logger.
- *
- * This class represents the factory for the log4cxx logging service.
- * A logger object is created or reused for the specified name.
- */
+/// Factory for underlying log4cxx logger.
+///
+/// This class represents the factory for the log4cxx logging service.
+/// A logger object is created or reused for the specified name.
 class log4cxx_factory
   : public kwiver_logger_factory
 {
@@ -286,9 +282,7 @@ public:
 } } } // end namespace
 
 // ==================================================================
-/*
- * Shared object bootstrap function
- */
+//  Shared object bootstrap function
 extern "C" VITAL_LOG4CXX_LOGGER_EXPORT void* kwiver_logger_factory();
 
 void* kwiver_logger_factory()

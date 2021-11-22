@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Core fundamental matrix class definition
- */
+/// \file
+/// \brief Core fundamental matrix class definition
 
 #ifndef VITAL_FUNDAMENTAL_MATRIX_H_
 #define VITAL_FUNDAMENTAL_MATRIX_H_
@@ -42,15 +40,13 @@ public:
   virtual ~fundamental_matrix() = default;
 
   /// Create a clone of this fundamental_matrix object, returning as smart pointer
-  /**
-   * \return A new deep clone of this fundamental_matrix
-   */
+  ///
+  /// \return A new deep clone of this fundamental_matrix
   virtual fundamental_matrix_sptr clone() const = 0;
 
   /// Get a double-typed copy of the underlying matrix
-  /**
-   * \return A copy of the matrix represented in the double type.
-   */
+  ///
+  /// \return A copy of the matrix represented in the double type.
   virtual matrix_3x3d matrix() const = 0;
 };
 
@@ -69,16 +65,15 @@ public:
   typedef Eigen::Matrix<T,3,1> vector_t;
 
   /// Construct from a provided matrix by projection.
-  /** Decompose and find closest fundamental matrix to the input \p mat.
-   * \param mat The 3x3 matrix to use.
-   */
+  ///
+  /// Decompose and find closest fundamental matrix to the input \p mat.
+  /// \param mat The 3x3 matrix to use.
   explicit
   fundamental_matrix_<T>( matrix_t const &mat );
 
   /// Conversion Copy constructor
-  /**
-   * \param other The other fundamental_matrix to be copied.
-   */
+  ///
+  /// \param other The other fundamental_matrix to be copied.
   template <typename U>
   explicit
   fundamental_matrix_<T>( fundamental_matrix_<U> const &other )
@@ -93,15 +88,13 @@ public:
   // Abstract method definitions ---------------------------------------------
 
   /// Create a clone of ourself as a shared pointer
-  /**
-   * \return A new clone of this fundamental_matrix.
-   */
+  ///
+  /// \return A new clone of this fundamental_matrix.
   virtual fundamental_matrix_sptr clone() const;
 
   /// Get a double-typed copy of the underlying matrix
-  /**
-   * \return A copy of the matrix represented in the double type.
-   */
+  ///
+  /// \return A copy of the matrix represented in the double type.
   virtual Eigen::Matrix<double,3,3> matrix() const;
 
   // Member Functions --------------------------------------------------------

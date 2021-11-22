@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for Eigen fixed size column vector typedefs
- */
+/// \file
+/// \brief Header for Eigen fixed size column vector typedefs
 
 #ifndef VITAL_VECTOR_H_
 #define VITAL_VECTOR_H_

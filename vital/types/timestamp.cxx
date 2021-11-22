@@ -84,40 +84,38 @@ double timestamp
 }
 
 // ------------------------------------------------------------------
-/**
-Generic truth table for compares
-
-There are some cases where the tow objects are incomparable. in these
-cases the results are always false.
-
-\code
-
-times-valid | frames_valid | same_domain | time_condition | frame_condition | result
-------------------------------------------------------------------------------------
-     -      |       -      |     F       |       -        |       -         |   F (incomparable)
-     F      |       F      |     T       |       -        |       -         |   F (incomparable)
-            |              |             |                |                 |
-     T      |       T      |     T       |       T        |       T         |   T (meets condition)
-            |              |             |                |                 |
-     T      |       T      |     T       |       F        |       -         |   F
-     T      |       T      |     T       |       -        |       F         |   F
-            |              |             |                |                 |
-     T      |       F      |     T       |       F        |       -         |   F (time only compare)
-     T      |       F      |     T       |       T        |       -         |   T (time only compare)
-     F      |       T      |     T       |       -        |       F         |   F (frame only compare)
-     F      |       T      |     T       |       -        |       T         |   T (frame only compare)
-
-\endcode
-
-General implementation
-
-( ! same_domain ) -> F
-( ! time_valid ) & ( ! frame_valid ) -> F
-( time_valid & ( ! time_condition ) -> F
-( frame_valid & ( ! frame_condition ) -> F
-                             -> T
-
- */
+/// Generic truth table for compares
+///
+/// There are some cases where the tow objects are incomparable. in these
+/// cases the results are always false.
+///
+/// \code
+///
+/// times-valid | frames_valid | same_domain | time_condition | frame_condition | result
+/// ------------------------------------------------------------------------------------
+///   -      |       -      |     F       |       -        |       -         |   F (incomparable)
+///   F      |       F      |     T       |       -        |       -         |   F (incomparable)
+///          |              |             |                |                 |
+///   T      |       T      |     T       |       T        |       T         |   T (meets condition)
+///          |              |             |                |                 |
+///   T      |       T      |     T       |       F        |       -         |   F
+///   T      |       T      |     T       |       -        |       F         |   F
+///          |              |             |                |                 |
+///   T      |       F      |     T       |       F        |       -         |   F (time only compare)
+///   T      |       F      |     T       |       T        |       -         |   T (time only compare)
+///   F      |       T      |     T       |       -        |       F         |   F (frame only compare)
+///   F      |       T      |     T       |       -        |       T         |   T (frame only compare)
+///
+/// \endcode
+///
+/// General implementation
+///
+/// ( ! same_domain ) -> F
+/// ( ! time_valid ) & ( ! frame_valid ) -> F
+/// ( time_valid & ( ! time_condition ) -> F
+/// ( frame_valid & ( ! frame_condition ) -> F
+///                           -> T
+///
 
 #define COMPARE(OP)                                                     \
 bool timestamp                                                          \

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief VITAL Exceptions pertaining to serialization operations
- */
+/// \file
+/// \brief VITAL Exceptions pertaining to serialization operations
 
 #ifndef VITAL_CORE_EXCEPTIONS_SERIALIZATION_H_
 #define VITAL_CORE_EXCEPTIONS_SERIALIZATION_H_
