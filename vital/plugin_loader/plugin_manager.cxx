@@ -33,7 +33,7 @@ static std::string const shared_library_suffix = std::string( SHARED_LIB_SUFFIX 
 } // end anonymous namespace
 
 // ----------------------------------------------------------------------------
- Static ----
+// ---- Static ----
 plugin_manager* plugin_manager::s_instance( 0 );
 
 // ----------------------------------------------------------------------------
