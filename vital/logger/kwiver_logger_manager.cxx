@@ -13,14 +13,12 @@
 #include <iostream>
 #include <mutex>
 
-/*
- * Note: This must be thread safe.
- *
- * Also: In order to make this work, it must be possible to create
- * loggers before the manager has been initialized. This means that
- * the initialization is flexible, adaptive and has a reasonable
- * default.
- */
+//  Note: This must be thread safe.
+//
+//  Also: In order to make this work, it must be possible to create
+//  loggers before the manager has been initialized. This means that
+//  the initialization is flexible, adaptive and has a reasonable
+//  default.
 
 typedef kwiversys::DynamicLoader DL;
 
@@ -41,10 +39,8 @@ kwiver_logger_manager* kwiver_logger_manager::s_instance = 0;
 #define PLUGIN_ENV_VAR "VITAL_LOGGER_FACTORY"
 
 // ------------------------------------------------------------------
-/*
- * Private implememtation
- *
- */
+//  Private implememtation
+//
 class kwiver_logger_manager::impl
 {
 public:
@@ -59,10 +55,8 @@ public:
 };
 
 // ----------------------------------------------------------------
-/** Constructor.
- *
- *
- */
+/// Constructor.
+///
 kwiver_logger_manager
 ::kwiver_logger_manager()
   : m_impl( new impl )
@@ -122,10 +116,8 @@ kwiver_logger_manager
 { }
 
 // ----------------------------------------------------------------
-/** Get singleton instance.
- *
- *
- */
+/// Get singleton instance.
+///
 kwiver_logger_manager * kwiver_logger_manager
 ::instance()
 {
@@ -147,10 +139,9 @@ kwiver_logger_manager * kwiver_logger_manager
 }
 
 // ----------------------------------------------------------------
-/* Get address of logger object.
- *
- * These are unbound functions
- */
+// Get address of logger object.
+//
+//  These are unbound functions
 VITAL_LOGGER_EXPORT
 logger_handle_t
 get_logger( char const* name )

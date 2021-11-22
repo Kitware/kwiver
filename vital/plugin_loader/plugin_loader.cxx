@@ -30,10 +30,8 @@ using function_t = DL::SymbolPointer;
 } // end anon namespace
 
 // ==================================================================
-/**
- * @brief Plugin manager private implementation.
- *
- */
+/// @brief Plugin manager private implementation.
+///
 class plugin_loader_impl
 {
 public:
@@ -68,13 +66,11 @@ public:
   typedef std::map< std::string, DL::LibraryHandle > library_map_t;
   library_map_t m_library_map;
 
-  /**
-   * \brief Maps module name to source file.
-   *
-   * This map is used to keep track of whch modules have been
-   * loaded. For diagnostic purposes, we also record the file that
-   * registered the module.
-   */
+  /// \brief Maps module name to source file.
+  ///
+  /// This map is used to keep track of whch modules have been
+  /// loaded. For diagnostic purposes, we also record the file that
+  /// registered the module.
   plugin_module_map_t m_module_map;
 
   // Name of current module file we are processing
@@ -248,10 +244,8 @@ plugin_loader
 }
 
 // ==================================================================
-/**
- * @brief Load all known modules.
- *
- */
+/// @brief Load all known modules.
+///
 void
 plugin_loader_impl
 ::load_known_modules()
@@ -321,11 +315,9 @@ plugin_loader_impl
 } // plugin_loader_impl::look_in_directory
 
 // ----------------------------------------------------------------
-/**
- * \brief Load single module from shared object / DLL
- *
- * @param path Name of module to load.
- */
+/// \brief Load single module from shared object / DLL
+///
+/// @param path Name of module to load.
 void
 plugin_loader_impl
 ::load_from_module( path_t const& path )

@@ -11,10 +11,8 @@ namespace vital {
 
 namespace range {
 
-/**
- * \file
- * \brief Utility to produce a half-open range of integers.
- */
+/// \file
+/// \brief Utility to produce a half-open range of integers.
 
 // ----------------------------------------------------------------------------
 template < typename T > class iota_range

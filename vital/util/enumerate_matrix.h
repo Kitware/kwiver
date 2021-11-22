@@ -13,9 +13,8 @@ namespace kwiver {
 namespace vital {
 
 /// Adaptor to iterate over non-zero cells in a sparse matrix
-/**
- *  \sa enumerate
- */
+///
+///  \sa enumerate
 template < typename ValueT, int Options, typename IndexT >
 class sparse_matrix_enumerator
 {
@@ -167,11 +166,10 @@ sparse_matrix_enumerator< ValueT, Options, IndexT >::iterator
 
 // ----------------------------------------------------------------------------
 /// Create adaptor to iterate over non-zero cells in a sparse matrix
-/**
- *  This creates an adaptor () on an Eigen::SparseMatrix that can be iterated
- *  over with e.g. a range-based for loop in order to visit each non-zero cell
- *  in the matrix.
- */
+///
+///  This creates an adaptor () on an Eigen::SparseMatrix that can be iterated
+///  over with e.g. a range-based for loop in order to visit each non-zero cell
+///  in the matrix.
 template < typename ValueT, int Options, typename IndexT >
 sparse_matrix_enumerator< ValueT, Options, IndexT > enumerate(
   Eigen::SparseMatrix< ValueT, Options, IndexT > const& mat)

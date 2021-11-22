@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief VITAL Exceptions pertaining to math operations.
- */
+/// \file
+/// \brief VITAL Exceptions pertaining to math operations.
 
 #ifndef VITAL_CORE_EXCEPTIONS_MATH_H
 #define VITAL_CORE_EXCEPTIONS_MATH_H
@@ -57,9 +55,7 @@ class VITAL_EXCEPTIONS_EXPORT invalid_matrix_operation
 {
 public:
   /// Constructor
-  /*
-   * \param reason  The reason for invalidity.
-   */
+  //  \param reason  The reason for invalidity.
   invalid_matrix_operation(std::string reason) noexcept;
   /// Destructor
   virtual ~invalid_matrix_operation() noexcept;

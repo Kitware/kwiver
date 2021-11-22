@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Wrapper over C functions to get executable path and module path.
- */
+/// \file
+/// \brief Wrapper over C functions to get executable path and module path.
 
 #include <vital/util/get_paths.h>
 

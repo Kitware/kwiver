@@ -13,12 +13,11 @@ namespace range {
 
 //-----------------------------------------------------------------------------
 /// Indirection range adapter.
-/**
- * This range adapter applies a level of indirection. This is typically used
- * to suppress the dereferencing of a container iterator in a range-based
- * \c for loop in order to allow iteration over the container's iterators,
- * rather than the values.
- */
+///
+/// This range adapter applies a level of indirection. This is typically used
+/// to suppress the dereferencing of a container iterator in a range-based
+/// \c for loop in order to allow iteration over the container's iterators,
+/// rather than the values.
 template < typename Range >
 class indirect_view : public generic_view
 {

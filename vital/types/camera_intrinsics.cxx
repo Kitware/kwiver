@@ -2,12 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of \link kwiver::vital::camera_intrinsics_
- *        camera_intrinsics_<T> \endlink class
- *        for \c T = { \c float, \c double }
- */
+/// \file
+/// \brief Implementation of \link kwiver::vital::camera_intrinsics_
+///        camera_intrinsics_<T> \endlink class
+///        for \c T = { \c float, \c double }
 
 #include <vital/types/camera_intrinsics.h>
 #include <vital/io/eigen_io.h>
@@ -83,9 +81,9 @@ namespace // anonymous namespace
 {
 
 /// Compute the radial distortion scaling
-/** Distortion scaling is a function of the squared radius \p r2
- *  and the distortion parameters \p d
- */
+///
+/// Distortion scaling is a function of the squared radius \p r2
+///  and the distortion parameters \p d
 template < typename T >
 T
 radial_distortion_scale( const T                r2,
@@ -115,12 +113,12 @@ radial_distortion_scale( const T                r2,
 }
 
 /// Compute radial distortion as a scaling and offset
-/** For a point \p pt and distortion coefficients \p d compute
- *  a scale and offset such that distortion can be applied as
- *  \code
- *    distorted_pt = pt * scale + offset;
- *  \endcode
- */
+///
+/// For a point \p pt and distortion coefficients \p d compute
+///  a scale and offset such that distortion can be applied as
+///  \code
+///    distorted_pt = pt * scale + offset;
+///  \endcode
 template < typename T >
 void
 distortion_scale_offset( const Eigen::Matrix< T, 2, 1 >& pt,

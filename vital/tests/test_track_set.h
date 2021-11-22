@@ -2,14 +2,12 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- *
- * \brief Common tests for all track set implementations
- *
- * These test functions are in a header rather than a source file so that
- * anyone who writes a new track_set_implementation can run the same tests.
- */
+/// \file
+///
+/// \brief Common tests for all track set implementations
+///
+/// These test functions are in a header rather than a source file so that
+/// anyone who writes a new track_set_implementation can run the same tests.
 
 #ifndef KWIVER_VITAL_TEST_TEST_TRACK_SET_H_
 #define KWIVER_VITAL_TEST_TEST_TRACK_SET_H_

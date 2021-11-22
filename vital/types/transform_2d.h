@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Core transform class definition
- */
+/// \file
+/// \brief Core transform class definition
 
 #ifndef VITAL_TRANSFORM_2D_H_
 #define VITAL_TRANSFORM_2D_H_
@@ -35,24 +33,21 @@ public:
   virtual ~transform_2d() = default;
 
   /// Create a clone of this transform object, returning as smart pointer
-  /**
-   * \return A new deep clone of this transformation.
-   */
+  ///
+  /// \return A new deep clone of this transformation.
   virtual transform_2d_sptr clone() const = 0;
 
   /// Map a 2D double-type point using this transform
-  /**
-   * \param p Point to map against this transform
-   * \return New point in the projected coordinate system.
-   */
+  ///
+  /// \param p Point to map against this transform
+  /// \return New point in the projected coordinate system.
   virtual vector_2d map( vector_2d const& p ) const = 0;
 
   /// Return an inverse of this transform object
-  /**
-   * \throws non_invertible
-   *   When the transformation is non-invertible.
-   * \return A new transform object that is the inverse of this transformation.
-   */
+  ///
+  /// \throws non_invertible
+  ///   When the transformation is non-invertible.
+  /// \return A new transform object that is the inverse of this transformation.
   transform_2d_sptr inverse() const { return this->inverse_(); }
 
 protected:

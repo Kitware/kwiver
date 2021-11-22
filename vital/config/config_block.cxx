@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- *
- * \brief Implementation of \link kwiver::vital::config_block configuration \endlink object
- */
+/// \file
+///
+/// \brief Implementation of \link kwiver::vital::config_block configuration \endlink object
 
 #include "config_block.h"
 
@@ -507,13 +505,11 @@ config_block_get_value_cast( config_block_value_t const& value )
 
 // ------------------------------------------------------------------
 // private helper method for determining key path prefixes
-/**
- * \param key   The key string to check.
- * \param name  The prefix string to check for. Should not include a trailing
- *              block separator.
- * \returns True if the given key does not begin with the given name and is
- *          not a global variable.
- */
+/// \param key   The key string to check.
+/// \param name  The prefix string to check for. Should not include a trailing
+///              block separator.
+/// \returns True if the given key does not begin with the given name and is
+///          not a global variable.
 bool
 does_not_begin_with( config_block_key_t const& key, config_block_key_t const& name )
 {
@@ -526,15 +522,13 @@ does_not_begin_with( config_block_key_t const& key, config_block_key_t const& na
 
 // ------------------------------------------------------------------
 // private helper method to strip a block name from a key path
-/**
- * Conditionally strip the given subblock name from the given key path. If the
- * given key doesn't start with the given subblock, the given key is returned
- * as is.
- *
- * \param subblock  The subblock string to strip if present.
- * \param key       The key to conditionally strip from.
- * \returns The stripped key name.
- */
+/// Conditionally strip the given subblock name from the given key path. If the
+/// given key doesn't start with the given subblock, the given key is returned
+/// as is.
+///
+/// \param subblock  The subblock string to strip if present.
+/// \param key       The key to conditionally strip from.
+/// \returns The stripped key name.
 config_block_key_t
 strip_block_name( config_block_key_t const& subblock, config_block_key_t const& key )
 {

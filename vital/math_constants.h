@@ -2,12 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * @file
- * @brief Mathematical constants.
- *
- * This file contains definitions for standard mathematical constants.
- */
+/// @file
+/// @brief Mathematical constants.
+///
+/// This file contains definitions for standard mathematical constants.
 
 #ifndef KWIVER_VITAL_MATH_CONSTANTS_H
 #define KWIVER_VITAL_MATH_CONSTANTS_H
