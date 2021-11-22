@@ -18,7 +18,7 @@ namespace vital {
 
 class string_editor;
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Stream reader class
 ///
 /// This class represents a line based input stream, that removes shell

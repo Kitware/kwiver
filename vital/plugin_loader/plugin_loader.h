@@ -30,7 +30,7 @@ using plugin_filter_handle_t  = std::shared_ptr< plugin_loader_filter >;
 
 class plugin_loader_impl;
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Manages a set of plugins.
 ///
 /// The plugin manager keeps track of all factories from plugins that

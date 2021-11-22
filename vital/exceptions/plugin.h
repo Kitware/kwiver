@@ -13,7 +13,7 @@
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Generic plugin exception
 class VITAL_EXCEPTIONS_EXPORT plugin_exception
   : public vital_exception
@@ -26,7 +26,7 @@ public:
   virtual ~plugin_exception() noexcept;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Requested factory not found.
 class VITAL_EXCEPTIONS_EXPORT plugin_factory_not_found
   : public plugin_exception
@@ -39,7 +39,7 @@ public:
   virtual ~plugin_factory_not_found() noexcept;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Unable to create desired type.
 class VITAL_EXCEPTIONS_EXPORT plugin_factory_type_creation_error
   : public plugin_exception
@@ -52,7 +52,7 @@ public:
   virtual ~plugin_factory_type_creation_error() noexcept;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Plugin already registered
 class VITAL_EXCEPTIONS_EXPORT plugin_already_exists
   : public plugin_exception

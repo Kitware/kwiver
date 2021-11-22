@@ -12,7 +12,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Format long text into wrapped text block.
 ///
 /// This class formats a long text string into a more compact text block.

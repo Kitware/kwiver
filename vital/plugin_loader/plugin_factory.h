@@ -26,7 +26,7 @@ class plugin_factory;
 typedef std::shared_ptr< plugin_factory >         plugin_factory_handle_t;
 typedef std::vector< plugin_factory_handle_t >    plugin_factory_vector_t;
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 /// @brief Abstract base class for plugin factory.
 ///
 class VITAL_VPM_EXPORT plugin_factory
@@ -149,7 +149,7 @@ private:
   attribute_map_t m_attribute_map;
 };
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Factory for concrete class objects.
 ///
 /// @tparam T Type of the concrete class created.
@@ -180,7 +180,7 @@ protected:
 
 } } // end namespace
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 // Support for adding factories
 
 #define ADD_FACTORY( interface_T, conc_T)                               \

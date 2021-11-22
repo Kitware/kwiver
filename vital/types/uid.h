@@ -17,7 +17,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Container for global uid value
 ///
 /// This class represents a global UID. The content and other

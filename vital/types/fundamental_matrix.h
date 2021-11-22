@@ -28,9 +28,9 @@ class fundamental_matrix;
 // typedef for a fundamental_matrix shared pointer
 typedef std::shared_ptr< fundamental_matrix > fundamental_matrix_sptr;
 
-// ===========================================================================
+// ----------------------------------------------------------------------------
 // Fundmental Matrix Base-class
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /// Abstract base fundamental matrix representation class
 class VITAL_EXPORT fundamental_matrix
@@ -50,9 +50,9 @@ public:
   virtual matrix_3x3d matrix() const = 0;
 };
 
-// ===========================================================================
+// ----------------------------------------------------------------------------
 // Typed Fundmental Matrix
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /// Representation of a templated Eigen-based fundamental matrix
 template <typename T>
@@ -109,9 +109,9 @@ typedef fundamental_matrix_<double> fundamental_matrix_d;
 /// Single-precision camera type
 typedef fundamental_matrix_<float> fundamental_matrix_f;
 
-// ===========================================================================
+// ----------------------------------------------------------------------------
 // Utility Functions
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /// Output stream operator for \p fundamental_matrix base-class
 VITAL_EXPORT std::ostream& operator<<( std::ostream &s,

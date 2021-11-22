@@ -14,7 +14,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// System attributes resolver.
 ///
 class VITAL_UTIL_EXPORT token_type_sysenv

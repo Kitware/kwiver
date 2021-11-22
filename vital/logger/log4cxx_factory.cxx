@@ -12,7 +12,7 @@ namespace kwiver {
 namespace vital {
 namespace logger_ns {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @class log4cxx_logger
 /// @brief Log4cxx logger implementation.
 ///
@@ -39,7 +39,7 @@ public:
   virtual bool is_debug_enabled() const { return this->m_loggerImpl->isDebugEnabled(); }
   virtual bool is_trace_enabled() const { return this->m_loggerImpl->isTraceEnabled(); }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   virtual void set_level( log_level_t level )
   {
     log4cxx::LevelPtr lvl;
@@ -78,7 +78,7 @@ public:
     this->m_loggerImpl->setLevel( lvl );
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   virtual log_level_t get_level() const
   {
     log4cxx::LevelPtr lvl = this->m_loggerImpl->getLevel();
@@ -92,7 +92,7 @@ public:
     return LEVEL_NONE;
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   virtual void log_fatal( std::string const& msg )
   {
     this->m_loggerImpl->fatal( msg );
@@ -110,7 +110,7 @@ public:
     do_callback(LEVEL_FATAL, msg, location));
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   virtual void log_error( std::string const& msg )
   {
     this->m_loggerImpl->error( msg );
@@ -128,7 +128,7 @@ public:
     do_callback(LEVEL_ERROR, msg, location);
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   virtual void log_warn( std::string const& msg )
   {
     this->m_loggerImpl->warn( msg );
@@ -146,7 +146,7 @@ public:
     do_callback(LEVEL_WARN, msg, location);
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   virtual void log_info( std::string const& msg )
   {
     this->m_loggerImpl->info( msg );
@@ -164,7 +164,7 @@ public:
     do_callback(LEVEL_INFO, msg, location);
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   virtual void log_debug( std::string const& msg )
   {
     this->m_loggerImpl->debug( msg );
@@ -182,7 +182,7 @@ public:
     do_callback(LEVEL_DEBUG, msg, location);
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   virtual void log_trace( std::string const& msg )
   {
     this->m_loggerImpl->trace( msg );
@@ -200,7 +200,7 @@ public:
     do_callback(LEVEL_TRACE, msg, location);
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   virtual void log_message( log_level_t level, std::string const& msg )
   {
     log4cxx::LevelPtr lvl;
@@ -254,7 +254,7 @@ protected:
   log4cxx::LoggerPtr m_loggerImpl;
 }; // end class
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 /// Factory for underlying log4cxx logger.
 ///
 /// This class represents the factory for the log4cxx logging service.
@@ -281,7 +281,7 @@ public:
 
 } } } // end namespace
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 //  Shared object bootstrap function
 extern "C" VITAL_LOG4CXX_LOGGER_EXPORT void* kwiver_logger_factory();
 

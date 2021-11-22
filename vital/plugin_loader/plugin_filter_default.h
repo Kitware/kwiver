@@ -12,7 +12,7 @@
 namespace kwiver {
 namespace vital {
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Default plugin loader filter.
 ///
 /// This filter excludes duplicate plugins. An exception is thrown if a

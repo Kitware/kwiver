@@ -30,7 +30,7 @@ class feature_track_set_frame_data;
 using feature_track_set_frame_data_sptr =
   std::shared_ptr< feature_track_set_frame_data >;
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 /// A derived track_state for feature tracks
 class VITAL_EXPORT feature_track_state : public track_state
 {
@@ -99,7 +99,7 @@ public:
 /// Shared pointer for feature_track_state type
 using feature_track_state_sptr = std::shared_ptr< feature_track_state >;
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 /// A derived track_state_frame_data for feature tracks
 class VITAL_EXPORT feature_track_set_frame_data
  : public track_set_frame_data

@@ -17,7 +17,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Location in a source file.
 ///
 /// This class represents a location in a source file.

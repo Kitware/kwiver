@@ -10,7 +10,7 @@
 /// @file
 /// This file defines the main user interface to the kwiver logger.
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @page Logger Logger Documentation
 ///
 /// <P>The kwiver logger (class kwiver_logger) provides a interface to an

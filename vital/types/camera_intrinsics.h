@@ -26,7 +26,7 @@ class camera_intrinsics;
 /// typedef for a camera intrinsics shared pointer
 typedef std::shared_ptr< camera_intrinsics > camera_intrinsics_sptr;
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// An abstract representation of camera intrinsics
 class VITAL_EXPORT camera_intrinsics
 {

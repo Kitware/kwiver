@@ -11,7 +11,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Constructor.
 ///
 token_expander::
@@ -23,7 +23,7 @@ token_expander::
 ~token_expander()
 {  }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Add token type to expander.
 //
 //
@@ -37,7 +37,7 @@ add_token_type (kwiver::vital::token_type * tt)
   return true;
 }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Look for tokens to expand.
 //
 //  The syntax of the token is "$TYPE{name}".  The \c TYPE string is
@@ -121,7 +121,7 @@ expand_token( std::string const& initial_string )
   return new_value;
 } // expand_token
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 token_expander::
 handle_missing_entry( VITAL_UNUSED std::string const& provider,
@@ -131,7 +131,7 @@ handle_missing_entry( VITAL_UNUSED std::string const& provider,
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 token_expander::
 handle_missing_provider( VITAL_UNUSED std::string const& provider,

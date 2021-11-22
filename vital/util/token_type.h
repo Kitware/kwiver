@@ -11,7 +11,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Abstract base class for token types.
 ///
 class VITAL_UTIL_EXPORT token_type

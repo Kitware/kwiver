@@ -115,7 +115,7 @@ make_simple_track_set(frame_id_t starting_frame_id)
   return std::make_shared<track_set>( test_tracks );
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Run the uint test for track merging
 
 // This test assumes the tracks in the two sets correspond to those

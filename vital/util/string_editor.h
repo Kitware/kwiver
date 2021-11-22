@@ -15,7 +15,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Editing operations on string.
 ///
 /// This class is the abstract interface for a string edit operation.
@@ -40,7 +40,7 @@ public:
   virtual bool process( std::string& line ) = 0;
 };
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Apply editing operations to a string.
 ///
 /// This class represents a generic set of string editing operations
@@ -79,7 +79,7 @@ private:
 
 namespace edit_operation {
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 // Some commonly used editing operations.
 //
 /// @brief Remove shell comments
@@ -104,7 +104,7 @@ public:
   }
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Absorb blank lines.
 ///
 /// This class removes strings that are all blank. If the string is all
@@ -124,7 +124,7 @@ public:
   }
 };
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Remove leading whitespace.
 ///
 /// This class removes whitespace from the left or leading end of the
@@ -139,7 +139,7 @@ public:
   }
 };   // end class left_trim
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Remove trailing whitespace.
 ///
 /// This class removes trailing whitespace from the right side of the

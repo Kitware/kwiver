@@ -96,7 +96,7 @@ convert_data< any >( vital_metadata_tag tag, any const& data );
 
 } // namespace metadata_detail
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class VITAL_EXPORT metadata_item
 {
 public:
@@ -185,7 +185,7 @@ private:
   metadata_value m_data;
 };
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// \brief Collection of metadata.
 ///
 /// This class represents a set of metadata items.

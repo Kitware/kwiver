@@ -32,7 +32,7 @@ class camera_perspective;
 /// typedef for a camera_perspective shared pointer
 typedef std::shared_ptr< camera_perspective > camera_perspective_sptr;
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// An abstract representation of perspective camera
 ///
 /// The base class of camera_perspectives is abstract and provides a

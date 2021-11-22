@@ -15,7 +15,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// \brief Frame time.
 ///
 /// This class represents a timestamp for a single video frame.  The

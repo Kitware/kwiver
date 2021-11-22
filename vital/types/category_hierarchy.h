@@ -18,7 +18,7 @@
 namespace kwiver {
 namespace vital {
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Category Hierarchy.
 ///
 /// A relatively simple class used for representing semantic hierarchies

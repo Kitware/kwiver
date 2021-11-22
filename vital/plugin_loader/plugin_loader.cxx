@@ -29,7 +29,7 @@ using function_t = DL::SymbolPointer;
 
 } // end anon namespace
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 /// @brief Plugin manager private implementation.
 ///
 class plugin_loader_impl
@@ -80,7 +80,7 @@ public:
 
 }; // end class plugin_loader_impl
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 plugin_loader
 ::plugin_loader( std::string const& init_function,
                  std::string const& shared_lib_suffix )
@@ -92,7 +92,7 @@ plugin_loader
 ::~plugin_loader()
 { }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 plugin_factory_vector_t const&
 plugin_loader
 ::get_factories( std::string const& type_name ) const
@@ -108,7 +108,7 @@ plugin_loader
   return it->second;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 plugin_factory_handle_t
 plugin_loader
 ::add_factory( plugin_factory* fact )
@@ -149,7 +149,7 @@ plugin_loader
   return fact_handle;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 plugin_map_t const&
 plugin_loader
 ::get_plugin_map() const
@@ -157,7 +157,7 @@ plugin_loader
   return m_impl->m_plugin_map;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 plugin_loader
 ::add_search_path( path_list_t const& path)
@@ -167,7 +167,7 @@ plugin_loader
   erase_duplicates(m_impl->m_search_paths);
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 path_list_t const&
 plugin_loader
 ::get_search_path() const
@@ -176,7 +176,7 @@ plugin_loader
   return this->m_impl->m_search_paths;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::vector< std::string >
 plugin_loader
 ::get_file_list() const
@@ -191,7 +191,7 @@ plugin_loader
   return retval;
 }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
 bool
 plugin_loader
 ::is_module_loaded( std::string const& name) const
@@ -199,7 +199,7 @@ plugin_loader
   return (0 != m_impl->m_module_map.count( name ));
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 plugin_loader
 ::mark_module_as_loaded( std::string const& name )
@@ -207,7 +207,7 @@ plugin_loader
   m_impl->m_module_map.insert( std::pair< std::string, std::string >(name, m_impl->m_current_filename ) );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 plugin_module_map_t const&
 plugin_loader
 ::get_module_map() const
@@ -215,7 +215,7 @@ plugin_loader
   return m_impl->m_module_map;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 plugin_loader
 ::load_plugins()
@@ -223,7 +223,7 @@ plugin_loader
   m_impl->load_known_modules();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 plugin_loader
 ::load_plugins( path_list_t const& dirpath )
@@ -235,7 +235,7 @@ plugin_loader
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 plugin_loader
 ::load_plugin( path_t const& file )
@@ -243,7 +243,7 @@ plugin_loader
   m_impl->load_from_module( file );
 }
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 /// @brief Load all known modules.
 ///
 void
@@ -257,7 +257,7 @@ plugin_loader_impl
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 plugin_loader_impl
 ::look_in_directory( path_t const& dir_path )
@@ -314,7 +314,7 @@ plugin_loader_impl
   } // end for
 } // plugin_loader_impl::look_in_directory
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// \brief Load single module from shared object / DLL
 ///
 /// @param path Name of module to load.

@@ -24,7 +24,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Vital plugin manager.
 ///
 /// This class is the main plugin manager for all kwiver components.
@@ -252,7 +252,7 @@ private:
 
 }; // end class plugin_manager
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 /// \brief Typed implementation factory.
 ///
 /// This struct implements a typed implementation factory. It uses the
@@ -342,7 +342,7 @@ private:
   std::string m_attr; // Name of the attribute
 };
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Implementation factory that uses name attribute.
 ///
 /// This struct provides a common implementation for creating objects

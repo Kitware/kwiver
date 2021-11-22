@@ -17,7 +17,7 @@ namespace vital {
 
 class token_type;
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Replace tokens with text.
 ///
 /// This class represents a token expander or a macro expander.

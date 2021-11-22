@@ -16,7 +16,7 @@
 namespace kwiver {
 namespace vital {
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 /// Internal base class for vital iterator types, fulfilling the input-iterator
 /// concept.
 ///
@@ -228,7 +228,7 @@ protected:
   }
 };
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 // Forward declare const_iterator class for friending within iterator.
 template< typename T >
 class const_iterator;
@@ -292,7 +292,7 @@ public:
   friend class const_iterator<T>;
 };
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 /// Vital templated const iterator class.
 ///
 /// This class is similar to the vital::iterator except that returned references
@@ -397,7 +397,7 @@ public:
   }
 };
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 /// Pure-virtual mixin class to add iteration support to a class.
 ///
 /// \tparam Type to iterate over.

@@ -16,7 +16,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// \brief Geographic point in MGRS.
 ///
 /// This class represents a geographic location in MGRS coordinates. MGRS is

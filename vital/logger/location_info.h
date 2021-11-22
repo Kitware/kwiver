@@ -13,7 +13,7 @@ namespace kwiver {
 namespace vital {
 namespace logger_ns {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Location of logging call.
 ///
 /// This class represents the location of the logging call.

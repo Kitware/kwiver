@@ -14,7 +14,7 @@ namespace vital {
 
 namespace edit_operation {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief String editor that does token/macro expansion.
 ///
 class VITAL_UTIL_EXPORT token_expand_editor

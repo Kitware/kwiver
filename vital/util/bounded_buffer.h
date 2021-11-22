@@ -18,7 +18,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Simple bounded buffer.
 ///
 /// This class represents a fixed size bounded buffer designed for

@@ -18,7 +18,7 @@ namespace kwiver {
 
 namespace vital {
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 /// @brief Class that contains *any* data type.
 ///
 /// This class represents a single data item of indeterminate type.
@@ -231,7 +231,7 @@ private:
   std::unique_ptr< internal > m_content;
 };
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 class bad_any_cast : public std::bad_cast
 {
 public:

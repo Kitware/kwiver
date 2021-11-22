@@ -15,7 +15,7 @@
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Generic GPU exception
 class VITAL_EXCEPTIONS_EXPORT gpu_exception
   : public vital_exception
@@ -28,7 +28,7 @@ public:
   virtual ~gpu_exception() noexcept;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Video runtime error.
 //  This exception is thrown when the GPU is unable to allocate memory
 class VITAL_EXCEPTIONS_EXPORT gpu_memory_exception

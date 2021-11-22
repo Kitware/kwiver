@@ -11,7 +11,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Coordinate aligned bounding box.
 ///
 /// This class represents a coordinate aligned box. The coordinate

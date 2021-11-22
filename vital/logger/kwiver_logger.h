@@ -24,7 +24,7 @@ namespace logger_ns {
 
 }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief kwiver logger interface definition
 ///
 /// This class is the abstract base class for all loggers. It provides

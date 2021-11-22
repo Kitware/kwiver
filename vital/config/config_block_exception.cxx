@@ -12,7 +12,7 @@
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_block_exception
 ::config_block_exception() noexcept
 {
@@ -23,7 +23,7 @@ config_block_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bad_config_block_cast
 ::bad_config_block_cast( std::string const& reason ) noexcept
   : config_block_exception()
@@ -36,7 +36,7 @@ bad_config_block_cast
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bad_config_block_cast_exception
 ::bad_config_block_cast_exception( config_block_key_t const&    key,
                                    config_block_value_t const&  value,
@@ -60,7 +60,7 @@ bad_config_block_cast_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 no_such_configuration_value_exception
 ::no_such_configuration_value_exception( config_block_key_t const& key ) noexcept
   : config_block_exception(),
@@ -78,7 +78,7 @@ no_such_configuration_value_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 set_on_read_only_value_exception
 ::set_on_read_only_value_exception( config_block_key_t const&   key,
                                       config_block_value_t const& value,
@@ -102,7 +102,7 @@ set_on_read_only_value_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 unset_on_read_only_value_exception
 ::unset_on_read_only_value_exception( config_block_key_t const&   key,
                                         config_block_value_t const& value ) noexcept
@@ -124,7 +124,7 @@ unset_on_read_only_value_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_block_io_exception
 ::config_block_io_exception( config_path_t const& file_path,
                              std::string const& reason ) noexcept
@@ -139,7 +139,7 @@ config_block_io_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bad_configuration_cast
 ::bad_configuration_cast(std::string const& reason) noexcept
   : config_block_exception()
@@ -152,7 +152,7 @@ bad_configuration_cast
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bad_configuration_cast_exception
 ::bad_configuration_cast_exception(kwiver::vital::config_block_key_t const& key,
                                    kwiver::vital::config_block_value_t const& value,
@@ -178,7 +178,7 @@ bad_configuration_cast_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_file_not_found_exception
 ::config_file_not_found_exception( config_path_t const& file_path, std::string const& reason ) noexcept
   : config_block_io_exception( file_path, reason )
@@ -195,7 +195,7 @@ config_file_not_found_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_file_not_read_exception
 ::config_file_not_read_exception( config_path_t const& file_path, std::string const& reason ) noexcept
   : config_block_io_exception( file_path, reason )
@@ -212,7 +212,7 @@ config_file_not_read_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_file_not_parsed_exception
 ::config_file_not_parsed_exception( config_path_t const& file_path, std::string const& reason ) noexcept
   : config_block_io_exception( file_path, reason )
@@ -229,7 +229,7 @@ config_file_not_parsed_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_file_write_exception
 ::config_file_write_exception( config_path_t const& file_path, std::string const& reason ) noexcept
   : config_block_io_exception( file_path, reason )

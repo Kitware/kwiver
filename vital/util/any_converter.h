@@ -19,7 +19,7 @@ namespace vital {
 
 namespace any_convert {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Base class needed so converters can be stored in a collection.
 template < typename DEST >
 struct convert_base
@@ -31,7 +31,7 @@ struct convert_base
   virtual DEST convert( kwiver::vital::any const& data ) const = 0;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Converter class that uses default static cast for conversion of
 //  data types. This class can be specialized to create custom type
 //  converters where it is not as simple as a static cast.
@@ -53,7 +53,7 @@ struct converter
   }
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < typename SRC >
 struct converter<std::string, SRC>
   : public convert_base< std::string >
@@ -71,7 +71,7 @@ struct converter<std::string, SRC>
   }
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// This specialization is not strictly needed, but resolves compiler
 /// warning C4800 (forcing value to bool) in Visual Studio.
 template < typename SRC >
@@ -91,7 +91,7 @@ struct converter<bool, SRC>
 
 } // end namespace convert
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 /// Generic converter for any value to specific type.
 ///
 /// This class represents a list of converters that can convert from an

@@ -15,7 +15,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Convert enum to string or string to value.
 ///
 /// This class converts between a string representation of an enum

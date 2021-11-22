@@ -35,7 +35,7 @@ geo_covariance( geo_3d_point_t const& point, int crs )
 
 }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
 std::ostream&
 operator<<( std::ostream& str, vital::geo_covariance const& obj )
 {

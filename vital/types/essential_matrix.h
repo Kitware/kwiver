@@ -29,9 +29,9 @@ class essential_matrix;
 // typedef for a essential_matrix shared pointer
 typedef std::shared_ptr< essential_matrix > essential_matrix_sptr;
 
-// ===========================================================================
+// ----------------------------------------------------------------------------
 // Essential Matrix Base-class
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /// Abstract base essential matrix representation class
 class VITAL_EXPORT essential_matrix
@@ -63,9 +63,9 @@ public:
   virtual vector_3d translation() const = 0;
 };
 
-// ===========================================================================
+// ----------------------------------------------------------------------------
 // Typed Essential Matrix
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /// Representation of a templated Eigen-based essential matrix
 template <typename T>
@@ -156,9 +156,9 @@ typedef essential_matrix_<double> essential_matrix_d;
 /// Single-precision camera type
 typedef essential_matrix_<float> essential_matrix_f;
 
-// ===========================================================================
+// ----------------------------------------------------------------------------
 // Utility Functions
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /// Output stream operator for \p essential_matrix base-class
 VITAL_EXPORT std::ostream& operator<<( std::ostream &s,

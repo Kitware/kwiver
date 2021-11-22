@@ -12,7 +12,7 @@ namespace kwiver {
 namespace vital {
 namespace logger_ns {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Factory for underlying logger.
 ///
 /// This class is the abstract base class that adapts the KWIVER logger

@@ -117,7 +117,7 @@ struct image_pixel_traits_of<bool> : public image_pixel_traits
   : image_pixel_traits(static_type, sizeof(bool)) {}
 };
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 /// Provide compile-time look-up of data type from pixel_type enum and size
 //  This struct and its specializations provide compile-time mapping from
 //  image_pixel_traits properties (pixel_type and num_bytes) to a concrete type
@@ -143,7 +143,7 @@ image_pixel_from_traits_macro( bool );
 
 #undef image_pixel_from_traits_macro
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 /// Basic in memory image.
 ///
 /// This class represents an image with byte wide pixels in a block of
@@ -197,7 +197,7 @@ protected:
 /// Shared pointer for base image_memory type
 typedef std::shared_ptr< image_memory > image_memory_sptr;
 
-// ===========================================================================
+// ----------------------------------------------------------------------------
 /// The representation of an in-memory image.
 ///
 /// This base image class represents an image with a dynamic data type.  The
@@ -209,7 +209,7 @@ typedef std::shared_ptr< image_memory > image_memory_sptr;
 /// in APIs that may operate on images of various types.
 ///
 /// Memory Management
-/// -----------------
+/// ----------------------------------------------------------------------------
 ///
 /// This image class supports two modes of memory management.  Either the image
 /// owns its memory or it does not.  If the image owns its memory the
@@ -504,7 +504,7 @@ protected:
   ptrdiff_t d_step_;
 };
 
-// ===========================================================================
+// ----------------------------------------------------------------------------
 /// The representation of a type-specific in-memory image.
 ///
 /// This class is derived from the image() class to provide convenience
@@ -547,7 +547,7 @@ public:
   image_of()
   : image(image_pixel_traits_of<T>()) {}
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// Constructor that allocates image memory
   ///
   /// Create a new blank (empty) image of specified size.
@@ -559,7 +559,7 @@ public:
   image_of( size_t width, size_t height, size_t depth = 1, bool interleave = false )
   : image( width, height, depth, interleave, image_pixel_traits_of<T>() ) {}
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// Constructor that points at existing memory
   ///
   /// Create a new image from supplied memory.
@@ -579,7 +579,7 @@ public:
   : image( first_pixel, width, height, depth,
            w_step, h_step, d_step, image_pixel_traits_of<T>() ) {}
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// Constructor that shares memory with another image
   ///
   /// Create a new image from existing image.
@@ -600,7 +600,7 @@ public:
   : image( mem, first_pixel, width, height, depth,
            w_step, h_step, d_step, image_pixel_traits_of<T>() ) {}
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// Constructor from base class
   ///
   /// The new image will share the same memory as the old image
@@ -615,7 +615,7 @@ public:
     }
   }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// Assignment operator
   const image_of<T>& operator=( const image& other )
   {
@@ -628,21 +628,21 @@ public:
     return *this;
   }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// Const access to the pointer to first image pixel
   ///
   /// This may differ from \a data() if the image is a
   /// window into a large image memory chunk.
   const T* first_pixel() const { return reinterpret_cast<const T*>(first_pixel_); }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// Access to the pointer to first image pixel
   ///
   /// This may differ from \a data() if the image is a
   /// window into a larger image memory chunk.
   T* first_pixel() { return reinterpret_cast<T*>(first_pixel_); }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// Const access pixels in the image
   ///
   /// This returns the specified pixel in the image as an rgb_color. This
@@ -674,7 +674,7 @@ public:
     return { r, g, b };
   }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// Access pixels in the first channel of the image
   ///
   /// \param i width position (x)
@@ -684,21 +684,21 @@ public:
     return image::at<T>(i,j);
   }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// Const access pixels in the first channel of the image
   inline const T& operator()( size_t i, size_t j ) const
   {
     return image::at<T>(i,j);
   }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// Access pixels in the image (width, height, channel)
   inline T& operator()( size_t i, size_t j, size_t k )
   {
     return image::at<T>(i,j,k);
   }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// Const access pixels in the image (width, height, channel)
   inline const T& operator()( size_t i, size_t j, size_t k ) const
   {

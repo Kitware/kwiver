@@ -36,7 +36,7 @@ class track_set_frame_data;
 typedef std::shared_ptr<track_set_frame_data> track_set_frame_data_sptr;
 typedef std::map<frame_id_t, track_set_frame_data_sptr> track_set_frame_data_map_t;
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Empty base class for data associated a frame in the track_set
 class VITAL_EXPORT track_set_frame_data
 {
@@ -48,7 +48,7 @@ protected:
   virtual ~track_set_frame_data() = default;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Abstract interface for a collection of tracks
 class VITAL_EXPORT track_set_interface
 {
@@ -305,7 +305,7 @@ public:
   virtual frame_id_t offset_to_frame( frame_id_t offset ) const = 0;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// A base class for the implementation of track sets
 ///
 /// This class provides default implementations of most functions which are
@@ -387,7 +387,7 @@ public:
     clone_type = clone_type::DEEP ) const = 0;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// A collection of tracks
 ///
 /// This class dispatches everything to an implementation class as in the
@@ -624,7 +624,7 @@ protected:
   std::unique_ptr<track_set_implementation> impl_;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// A concrete track set that simply wraps a vector of tracks.
 class simple_track_set_implementation
   : public track_set_implementation

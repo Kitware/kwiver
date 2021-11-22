@@ -19,7 +19,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Abstract base polygon class.
 ///
 /// This class represents a polygon with a limited number of

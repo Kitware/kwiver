@@ -19,7 +19,7 @@ plugin_filter_category
     m_category( cat )
 { }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Filter select or reject plugins by category.
 ///
 /// This method compares the factory against the supplied category and,

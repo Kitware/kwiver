@@ -31,7 +31,7 @@ class camera_rpc;
 /// typedef for a camera_rpc shared pointer
 typedef std::shared_ptr< camera_rpc > camera_rpc_sptr;
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// An abstract representation of rpc camera
 ///
 /// The base class of camera_rpcs is abstract and provides a

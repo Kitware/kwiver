@@ -22,7 +22,7 @@
 namespace kwiver {
 namespace vital {
 
-// ------------------------
+// ----------------------------------------------------------------------------
 class VITAL_EXPORT attribute_set_exception
   : public vital_exception
 {
@@ -35,7 +35,7 @@ public:
 class attribute_set;
 typedef std::shared_ptr< attribute_set > attribute_set_sptr;
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// General purpose attribute set.
 ///
 /// This class represents a set of general purpose attributes. The main

@@ -17,7 +17,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Interval wall clock timer class.
 ///
 /// This class represents an interval timer that measures wall clock time.

@@ -19,7 +19,7 @@ namespace vital {
 class category_explorer;
 using category_explorer_sptr = std::shared_ptr<category_explorer>;
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Context for category_explorer.
 ///
 /// This class provides the interface to the plugin explorer that is
@@ -114,7 +114,7 @@ private:
 
 }; // end class explorer_context
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Abstract base class for plugin category explorer.
 ///
 /// This class represents an extensible way of providing detailed

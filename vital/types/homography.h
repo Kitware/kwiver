@@ -21,9 +21,9 @@ class homography;
 // typedef for a homography shared pointer
 typedef std::shared_ptr< homography > homography_sptr;
 
-// ===========================================================================
+// ----------------------------------------------------------------------------
 // Homography Base-class
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /// Abstract base homography transformation representation class
 class VITAL_EXPORT homography : public transform_2d
@@ -58,9 +58,9 @@ public:
   { return std::static_pointer_cast< homography >( this->inverse_() ); }
 };
 
-// ===========================================================================
+// ----------------------------------------------------------------------------
 // Typed Homography
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /// Representation of a matrix-based homography transformation
 ///
@@ -99,6 +99,7 @@ public:
   explicit
   homography_< T > ( homography const & base );
 
+  // --------------------------------------------------------------------------
   // ---- Abstract method definitions ----
 
   /// Access the type info of the underlying data
@@ -138,6 +139,7 @@ public:
   /// \return New point in the projected coordinate system.
   vector_2d map( vector_2d const& p ) const override;
 
+  // --------------------------------------------------------------------------
   // ---- Member Functions ----
 
   /// Get the underlying matrix transformation
@@ -170,9 +172,9 @@ protected:
   matrix_t h_;
 };
 
-// ===========================================================================
+// ----------------------------------------------------------------------------
 // Utility Functions
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /// Output stream operator for \p homography base-class
 VITAL_EXPORT std::ostream& operator<<( std::ostream& s, homography const& h );

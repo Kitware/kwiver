@@ -13,7 +13,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Config token type.
 ///
 /// This class implements token_expander access to a config block. The
