@@ -100,7 +100,7 @@ public:
   homography_< T > ( homography const & base );
 
   // --------------------------------------------------------------------------
- Abstract method definitions ----
+  // ---- Abstract method definitions ----
 
   /// Access the type info of the underlying data
   std::type_info const& data_type() const override { return typeid( T ); }
@@ -140,7 +140,7 @@ public:
   vector_2d map( vector_2d const& p ) const override;
 
   // --------------------------------------------------------------------------
- Member Functions ----
+  // ---- Member Functions ----
 
   /// Get the underlying matrix transformation
   ///
