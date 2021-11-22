@@ -8,6 +8,7 @@ set( sources
   convert_0104_metadata.cxx
   klv_blob.cxx
   klv_checksum.cxx
+  klv_convert_vital.cxx
   klv_data.cxx
   klv_data_format.cxx
   klv_key.cxx
