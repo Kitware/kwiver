@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief VITAL Exceptions pertaining to image operations and manipulation
- */
+/// \file
+/// \brief VITAL Exceptions pertaining to image operations and manipulation
 
 #ifndef VITAL_CORE_EXCEPTIONS_IMAGE_H
 #define VITAL_CORE_EXCEPTIONS_IMAGE_H
@@ -24,9 +22,8 @@ class VITAL_EXCEPTIONS_EXPORT image_exception
 {
 public:
   /// Constructor
-  /**
-   * \param message     Description of circumstances surrounding error.
-   */
+  ///
+  /// \param message     Description of circumstances surrounding error.
   image_exception(
     std::string const& message = "unspecified image exception" ) noexcept;
 
@@ -40,17 +37,15 @@ protected:
 
 // ------------------------------------------------------------------
 /// Exception for image type mismatch
-/**
- * For when image type equality must be asserted.
- */
+///
+/// For when image type equality must be asserted.
 class VITAL_EXCEPTIONS_EXPORT image_type_mismatch_exception
   : public image_exception
 {
 public:
   /// Constructor
-  /**
-   * \param message     Description of circumstances surrounding error.
-   */
+  ///
+  /// \param message     Description of circumstances surrounding error.
   image_type_mismatch_exception( std::string const& message ) noexcept;
 
   /// Destructor
@@ -59,21 +54,19 @@ public:
 
 // ------------------------------------------------------------------
 /// Exception for image sizing mismatch
-/**
- * For when image shape/size equality must be asserted.
- */
+///
+/// For when image shape/size equality must be asserted.
 class VITAL_EXCEPTIONS_EXPORT image_size_mismatch_exception
   : public image_exception
 {
 public:
   /// Constructor
-  /**
-   * \param message     Description of circumstances surrounding error.
-   * \param correct_w   Correct image width
-   * \param correct_h   Correct image height
-   * \param given_w     Actual image width
-   * \param given_h     Actual image height
-   */
+  ///
+  /// \param message     Description of circumstances surrounding error.
+  /// \param correct_w   Correct image width
+  /// \param correct_h   Correct image height
+  /// \param given_w     Actual image width
+  /// \param given_h     Actual image height
   image_size_mismatch_exception( std::string const& message,
                                  size_t correct_w, size_t correct_h,
                                  size_t given_w, size_t given_h ) noexcept;

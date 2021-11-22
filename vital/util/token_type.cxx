@@ -8,10 +8,8 @@ namespace kwiver {
 namespace vital {
 
 // ----------------------------------------------------------------
-/** Constructor
- *
- *
- */
+/// Constructor
+///
 token_type::
 token_type(std::string const& name)
   : m_typeName(name)
@@ -22,10 +20,8 @@ token_type::
 { }
 
 // ----------------------------------------------------------------
-/** Return token type name.
- *
- *
- */
+/// Return token type name.
+///
 std::string const&
 token_type::
 token_type_name() const

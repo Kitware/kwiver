@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief config_parser implementation
- */
+/// \file
+/// \brief config_parser implementation
 
 #include "config_parser.h"
 #include <vital/util/token_expander.h>
@@ -55,13 +53,11 @@ struct token_t
 };
 
 // ------------------------------------------------------------------
-/**
- * \brief Block context structure.
- *
- * This structure holds information about the block being
- * processed. An object of this type is allocated when a "block"
- * directive is encountered. Nested blocks are managed on a stack.
- */
+/// \brief Block context structure.
+///
+/// This structure holds information about the block being
+/// processed. An object of this type is allocated when a "block"
+/// directive is encountered. Nested blocks are managed on a stack.
 struct block_context_t
 {
   std::string m_block_name;     // block name taken from 'block' keyword.
@@ -92,16 +88,14 @@ public:
   }
 
   // ------------------------------------------------------------------
-  /**
-   * \brief Process a single input file.
-   *
-   * This method is called to start processing a new file.
-   *
-   * \param file_path Path to the file
-   *
-   * \throws config_file_not_found_exception if file could not be opened
-   * \throw config_file_not_parsed_exception if there is a parse error
-   */
+  /// \brief Process a single input file.
+  ///
+  /// This method is called to start processing a new file.
+  ///
+  /// \param file_path Path to the file
+  ///
+  /// \throws config_file_not_found_exception if file could not be opened
+  /// \throw config_file_not_parsed_exception if there is a parse error
   void process_file( config_path_t const&  file_path)
   {
     auto file_path_sptr( std::make_shared< std::string >( ST::GetRealPath(file_path) ) );
@@ -179,9 +173,7 @@ public:
       // ------------------------------------------------------------------
       if ( token.value == "include" )
       {
-        /*
-         * Handle "include" <file-path>
-         */
+        //  Handle "include" <file-path>
         const int current_line( m_line_number ); // save current line number
 
         // Do a macro expansion of the file name
@@ -234,9 +226,7 @@ public:
       // ------------------------------------------------------------------
       if ( token.value == "block" )
       {
-        /*
-         * Handle "block" <block-name>
-         */
+        //  Handle "block" <block-name>
         get_token( in_stream, token ); // get block name
         if ( token.type != token_t::TK_WORD )
         {
@@ -272,9 +262,7 @@ public:
       // ------------------------------------------------------------------
       if ( token.value == "endblock" )
       {
-        /*
-         * Handled "endblock" keyword
-         */
+        //  Handled "endblock" keyword
         flush_line(); // force starting a new line
 
         if ( m_block_stack.empty() )
@@ -297,10 +285,8 @@ public:
       bool rel_path(false);
       if ( token.value == "relativepath" )
       {
-        /*
-         * Handle "relatiepath" <key> = <filepath>
-         * This is a modifier for a config entry
-         */
+        //  Handle "relatiepath" <key> = <filepath>
+        //  This is a modifier for a config entry
         rel_path = true;
         get_token( in_stream, token ); // get next token
       }
@@ -362,10 +348,8 @@ public:
       // This is supposed to be an assignment operator
       if ( token.type == token_t::TK_ASSIGN )
       {
-        /*
-         * Handle config entry definition
-         * <key> = <value>
-         */
+        //  Handle config entry definition
+        //  <key> = <value>
         kwiver::vital::config_block_key_t key = m_current_context + lhs;
         std::string val;
         val = m_token_expander.expand_token( token.value );
@@ -390,10 +374,8 @@ public:
       // This is supposed to be an assignment operator
       else if ( token.type == token_t::TK_LOCAL_ASSIGN )
       {
-        /*
-         * Handle local symbol definition
-         * <lhs> := <rhs>
-         */
+        //  Handle local symbol definition
+        //  <lhs> := <rhs>
         std::string val;
         val = m_token_expander.expand_token( token.value );
         m_symtab->add_entry( lhs, val );
@@ -414,18 +396,16 @@ public:
   }
 
   // ----------------------------------------------------------------
-  /**
-   * @brief Read a line from the stream.
-   *
-   * This method reads a line from the stream, removes comments and
-   * trailing spaces. It also suppresses blank lines.  The line count
-   * for the current file is updated.
-   *
-   * @param str[in]    Stream to read from
-   * @param line[out]  Next non-blank line in the file or an empty string for eof.
-   *
-   * @return \b true if line returned, \b false if end of file.
-   */
+  /// @brief Read a line from the stream.
+  ///
+  /// This method reads a line from the stream, removes comments and
+  /// trailing spaces. It also suppresses blank lines.  The line count
+  /// for the current file is updated.
+  ///
+  /// @param str[in]    Stream to read from
+  /// @param line[out]  Next non-blank line in the file or an empty string for eof.
+  ///
+  /// @return \b true if line returned, \b false if end of file.
   bool get_line( std::istream& str, std::string& line )
   {
     while ( true )
@@ -471,19 +451,17 @@ public:
   }
 
   // ------------------------------------------------------------------
-  /**
-   * @brief Get next token from the input stream.
-   *
-   * This is a state machine driven token extractor.
-   *
-   * "[a-zA-Z0-9.-_]+"  =>   TK_WORD, value = match
-   * "\[[A-Z,]+\]"      =>   TK_FLAGS, value = match
-   * ":="               =>   TK_LOCAL_ASSIGN, value = rest of line
-   * "="                =>   TK_ASSIGN, value = rest of line
-   *
-   * @param[in] str Stream to read from
-   * @param token[out] next token from line
-   */
+  /// @brief Get next token from the input stream.
+  ///
+  /// This is a state machine driven token extractor.
+  ///
+  /// "[a-zA-Z0-9.-_]+"  =>   TK_WORD, value = match
+  /// "\[[A-Z,]+\]"      =>   TK_FLAGS, value = match
+  /// ":="               =>   TK_LOCAL_ASSIGN, value = rest of line
+  /// "="                =>   TK_ASSIGN, value = rest of line
+  ///
+  /// @param[in] str Stream to read from
+  /// @param token[out] next token from line
   void get_token( std::istream& str, token_t & token )
   {
     // Words are LHS tokens, which start with a letter, and can not end with a ':'
@@ -547,40 +525,33 @@ public:
   }
 
   // ------------------------------------------------------------------
-  /**
-   * @brief Flush remaining line in parser.
-   *
-   * This method skips to the next character after the next new-line.
-   */
+  /// @brief Flush remaining line in parser.
+  ///
+  /// This method skips to the next character after the next new-line.
   void flush_line()
   {
     m_token_line.clear();
   }
 
   // ------------------------------------------------------------------
-  /**
-   * @brief Get name of current file being processed
-   *
-   *
-   * @return Name of current file.
-   */
+  /// @brief Get name of current file being processed
+  ///
+  /// @return Name of current file.
   std::string current_file() const
   {
     return m_current_file;
   }
 
   // ------------------------------------------------------------------
-  /**
-   * @brief Resolve file name against search path.
-   *
-   * This method returns a valid file path, including name, for the
-   * supplied file_name using the currently active file search path. A
-   * null string is returned if the file can not be found anywhere.
-   *
-   * @param file File name to resolve.
-   *
-   * @return Full file path, or empty string on failure.
-   */
+  /// @brief Resolve file name against search path.
+  ///
+  /// This method returns a valid file path, including name, for the
+  /// supplied file_name using the currently active file search path. A
+  /// null string is returned if the file can not be found anywhere.
+  ///
+  /// @param file File name to resolve.
+  ///
+  /// @return Full file path, or empty string on failure.
   config_path_t resolve_file_name( config_path_t const& file_name )
   {
     // Test for absolute file name

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Interface for plugin exceptions
- */
+/// \file
+/// \brief Interface for plugin exceptions
 
 #ifndef VITAL_CORE_EXCEPTION_PLUGIN_H
 #define VITAL_CORE_EXCEPTION_PLUGIN_H
@@ -69,4 +67,4 @@ public:
 
 } } // end namespace
 
-#endif /* VITAL_CORE_EXCEPTION_PLUGIN_H */
+#endif // VITAL_CORE_EXCEPTION_PLUGIN_H

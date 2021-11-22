@@ -27,12 +27,10 @@ logger_factory_default
 }
 
 // ==================================================================
-/**
- * @brief Default kwiver logger implementation.
- *
- * This class implements a default minimal logger that is instantiated
- * if there is no other logger back end.
- */
+/// @brief Default kwiver logger implementation.
+///
+/// This class implements a default minimal logger that is instantiated
+/// if there is no other logger back end.
 class default_logger :
   public kwiver_logger
 {

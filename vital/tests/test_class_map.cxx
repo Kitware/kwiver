@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test class_map class
- */
+/// \file
+/// \brief test class_map class
 
 #include <vital/types/class_map.txx>
 

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Interface for GPU exceptions
- */
+/// \file
+/// \brief Interface for GPU exceptions
 
 #ifndef VITAL_CORE_EXCEPTIONS_GPU_H
 #define VITAL_CORE_EXCEPTIONS_GPU_H
@@ -32,9 +30,7 @@ public:
 
 // ------------------------------------------------------------------
 /// Video runtime error.
-/*
- * This exception is thrown when the GPU is unable to allocate memory
- */
+//  This exception is thrown when the GPU is unable to allocate memory
 class VITAL_EXCEPTIONS_EXPORT gpu_memory_exception
   : public gpu_exception
 {
@@ -48,4 +44,4 @@ public:
 
 } } // end namespace
 
-#endif /* VITAL_CORE_EXCEPTIONS_GPU_H */
+#endif // VITAL_CORE_EXCEPTIONS_GPU_H

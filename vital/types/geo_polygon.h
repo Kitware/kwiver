@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief This file contains the interface to a geo polygon.
- */
+/// \file
+/// \brief This file contains the interface to a geo polygon.
 
 #ifndef KWIVER_VITAL_GEO_POLYGON_H_
 #define KWIVER_VITAL_GEO_POLYGON_H_
@@ -21,14 +19,13 @@ namespace kwiver {
 namespace vital {
 
 // ----------------------------------------------------------------------------
-/** Geo-polygon.
- *
- * This class represents a geolocated polygon. The polygon is created by
- * specifying a raw polygon and a CRS. The original polygon and original CRS
- * may be directly accessed, or the polygon in a specific CRS may be requested.
- * Requests for a specific CRS are cached, so that CRS conversion does not need
- * to be performed every time.
- */
+/// Geo-polygon.
+///
+/// This class represents a geolocated polygon. The polygon is created by
+/// specifying a raw polygon and a CRS. The original polygon and original CRS
+/// may be directly accessed, or the polygon in a specific CRS may be requested.
+/// Requests for a specific CRS are cached, so that CRS conversion does not need
+/// to be performed every time.
 class VITAL_EXPORT geo_polygon
 {
 public:
@@ -39,48 +36,38 @@ public:
 
   virtual ~geo_polygon() = default;
 
-  /**
-   * \brief Accessor for polygon in original CRS.
-   *
-   * \returns The polygon in the CRS that was used to set the polygon.
-   * \throws std::out_of_range Thrown if no polygon has been set.
-   *
-   * \see crs()
-   */
+  /// \brief Accessor for polygon in original CRS.
+  ///
+  /// \returns The polygon in the CRS that was used to set the polygon.
+  /// \throws std::out_of_range Thrown if no polygon has been set.
+  ///
+  /// \see crs()
   geo_raw_polygon_t polygon() const;
 
-  /**
-   * \brief Accessor for original CRS.
-   *
-   * \returns The CRS used to set the polygon.
-   *
-   * \see polygon()
-   */
+  /// \brief Accessor for original CRS.
+  ///
+  /// \returns The CRS used to set the polygon.
+  ///
+  /// \see polygon()
   int crs() const;
 
-  /**
-   * \brief Accessor for the polygon.
-   *
-   * \returns The polygon in the requested CRS.
-   * \throws std::runtime_error if the conversion fails.
-   */
+  /// \brief Accessor for the polygon.
+  ///
+  /// \returns The polygon in the requested CRS.
+  /// \throws std::runtime_error if the conversion fails.
   geo_raw_polygon_t polygon( int crs ) const;
 
-  /**
-   * \brief Set polygon.
-   *
-   * This sets the geolocated polygon to the specified polygon, which is
-   * defined by the raw polygon and specified CRS.
-   */
+  /// \brief Set polygon.
+  ///
+  /// This sets the geolocated polygon to the specified polygon, which is
+  /// defined by the raw polygon and specified CRS.
   void set_polygon( geo_raw_polygon_t const&, int crs );
 
-  /**
-   * @brief Does polygon have a specified location.
-   *
-   * This method checks the object to see if any location data has been set.
-   *
-   * @return \b true if object is default constructed.
-   */
+  /// @brief Does polygon have a specified location.
+  ///
+  /// This method checks the object to see if any location data has been set.
+  ///
+  /// @return \b true if object is default constructed.
   bool is_empty() const;
 
 protected:

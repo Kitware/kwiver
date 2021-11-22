@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief core match_set interface
- */
+/// \file
+/// \brief core match_set interface
 
 #ifndef VITAL_MATCH_SET_H_
 #define VITAL_MATCH_SET_H_

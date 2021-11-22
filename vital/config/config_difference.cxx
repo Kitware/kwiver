@@ -5,12 +5,10 @@
 #include "config_difference.h"
 #include <vital/util/string.h>
 #include <vital/logger/logger.h>
-/*
-  Possible enhancements
-
-  - Methods to help iterate through a config block given a list of keys.
-  - Easy way to drill down to get source_loc for some entries.
- */
+// Possible enhancements
+//
+// - Methods to help iterate through a config block given a list of keys.
+// - Easy way to drill down to get source_loc for some entries.
 
 namespace kwiver {
 namespace vital {

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief core image class tests
- */
+/// \file
+/// \brief core image class tests
 
 #include <arrows/tests/test_image.h>
 
@@ -44,7 +42,8 @@ value_at( unsigned int i, unsigned int j, unsigned int k )
 // ----------------------------------------------------------------------------
 struct val_zero_op
 {
-  byte operator()( byte const & /*b*/ )
+  byte operator()( byte const & //b
+ )
   {
     return 0;
   }
