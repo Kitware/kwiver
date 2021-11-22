@@ -48,7 +48,7 @@ private:
 /// Shared pointer for base descriptor_set type
 typedef std::shared_ptr< descriptor_set > descriptor_set_sptr;
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 /// A concrete descriptor set that simply wraps a vector of descriptors.
 class VITAL_EXPORT simple_descriptor_set :
   public descriptor_set

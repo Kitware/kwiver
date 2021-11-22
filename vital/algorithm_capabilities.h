@@ -14,7 +14,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// \brief Algorithm capability set.
 ///
 /// This class represents a collection of capability for a concrete

@@ -26,7 +26,7 @@ class track_descriptor;
 
 typedef std::shared_ptr< track_descriptor > track_descriptor_sptr;
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// \brief Track descriptor.
 ///
 /// A raw descriptor typically represents some measurements taken
@@ -43,7 +43,7 @@ class VITAL_EXPORT track_descriptor
 {
 public:
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   //  \brief Descriptor history entry.
   //
   //  If the full history of some descriptor is recorded, one of these

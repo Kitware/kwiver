@@ -517,7 +517,7 @@ TEST(config_block, enum_conversion)
   EXPECT_EQ(2, config->get_enum_value < my_ec >(keyb, 2));
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST(config_block, as_vector)
 {
   config_block_sptr const config = config_block::empty_config();

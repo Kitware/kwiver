@@ -17,7 +17,7 @@ namespace kwiver {
 namespace vital {
 
 /// Config block printer plugin interface.
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// This class defines the abstract interface for all implementations
 /// of the config block formatting plugin.
 ///

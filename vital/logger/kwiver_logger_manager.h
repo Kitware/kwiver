@@ -20,7 +20,7 @@ namespace logger_ns {
 
 }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Logger manager.
 ///
 /// This class represents the main top level logic for the KWIVER

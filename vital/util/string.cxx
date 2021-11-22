@@ -14,7 +14,7 @@
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string
 string_format( const std::string fmt_str, ... )
 {
@@ -44,7 +44,7 @@ string_format( const std::string fmt_str, ... )
   return std::string( formatted.get() );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string
 join( const std::vector< std::string >& elements,
       const std::string&                str_separator )
@@ -70,7 +70,7 @@ join( const std::vector< std::string >& elements,
   } // end switch
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string
 join( const std::set< std::string >&  elements,
       const std::string&              str_separator )
@@ -81,7 +81,7 @@ join( const std::set< std::string >&  elements,
   return join( vec_elem, str_separator );
 }
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Removes duplicate strings in a vector while preserving original order
 void
 erase_duplicates(std::vector<std::string>& items)

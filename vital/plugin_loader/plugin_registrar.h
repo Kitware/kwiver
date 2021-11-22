@@ -12,7 +12,7 @@
 #define KWIVER_DEFAULT_PLUGIN_ORGANIZATION "undefined"
 #endif
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 // Support for adding factories for the plugin loader
 
 namespace kwiver {

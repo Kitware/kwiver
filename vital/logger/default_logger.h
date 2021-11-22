@@ -15,7 +15,7 @@ namespace kwiver {
 namespace vital {
 namespace logger_ns {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Factory for default underlying logger.
 ///
 /// This class represents the factory for the default logging service.

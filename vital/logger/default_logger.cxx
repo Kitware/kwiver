@@ -19,14 +19,14 @@ namespace kwiver {
 namespace vital {
 namespace logger_ns {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 logger_factory_default
 ::logger_factory_default()
   : kwiver_logger_factory( "default_logger factory" )
 {
 }
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 /// @brief Default kwiver logger implementation.
 ///
 /// This class implements a default minimal logger that is instantiated
@@ -166,7 +166,7 @@ public:
   }
 
 private:
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   virtual void log_message( log_level_t         level,
                             std::string const&  msg )
   {
@@ -174,7 +174,7 @@ private:
     do_callback(level, msg, location_info());
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   void log_message_i(  log_level_t         level,
                        std::string const&  msg,
                        std::string const& location )
@@ -216,7 +216,7 @@ private:
     }
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   virtual void log_message( log_level_t                     level,
                             std::string const&              msg,
                             logger_ns::location_info const& location )
@@ -229,7 +229,7 @@ private:
     do_callback(level, msg, location);
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   std::ostream& get_stream()
   {
     return *s_output_stream;
@@ -248,7 +248,7 @@ private:
 // Set up default logging stream
 std::ostream* default_logger::s_output_stream = &std::cerr;
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 logger_handle_t
 logger_factory_default
 ::get_logger( std::string const& name )

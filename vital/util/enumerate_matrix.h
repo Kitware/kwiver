@@ -118,7 +118,7 @@ sparse_matrix_enumerator< ValueT, Options, IndexT >::iterator
 {
 }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
 template < typename ValueT, int Options, typename IndexT >
 bool
 sparse_matrix_enumerator< ValueT, Options, IndexT >::iterator
@@ -138,7 +138,7 @@ sparse_matrix_enumerator< ValueT, Options, IndexT >::iterator
           this->m_inner->index() == other.m_inner->index());
 }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
 template < typename ValueT, int Options, typename IndexT >
 typename
 sparse_matrix_enumerator< ValueT, Options, IndexT >::iterator&

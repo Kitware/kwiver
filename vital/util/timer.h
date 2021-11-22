@@ -17,7 +17,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Abstract base class for timers.
 ///
 /// This class represents an interval timer.
@@ -81,7 +81,7 @@ protected:
 
 }; // end class timer
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Scoped timer.
 ///
 /// This class represents a timer that measures the lifetime of

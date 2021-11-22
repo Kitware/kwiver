@@ -13,7 +13,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// \brief Config file parser.
 ///
 /// This class converts config file contents into a single config

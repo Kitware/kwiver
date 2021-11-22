@@ -11,7 +11,7 @@
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 io_exception
 ::io_exception() noexcept
 {
@@ -23,7 +23,7 @@ io_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 path_not_exists
 ::path_not_exists( path_t const& path ) noexcept
 {
@@ -38,7 +38,7 @@ path_not_exists
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 path_not_a_file
 ::path_not_a_file( path_t const& path ) noexcept
 {
@@ -50,7 +50,7 @@ path_not_a_file
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 path_not_a_directory
 ::path_not_a_directory( path_t const& path ) noexcept
 {
@@ -62,7 +62,7 @@ path_not_a_directory
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 invalid_file
 ::invalid_file( path_t const& path, std::string const& reason ) noexcept
 {
@@ -77,7 +77,7 @@ invalid_file
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 invalid_data
 ::invalid_data( std::string const& reason ) noexcept
 {
@@ -89,7 +89,7 @@ invalid_data
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 file_not_found_exception
 ::file_not_found_exception( path_t const& file_path, std::string const& reason ) noexcept
 {
@@ -105,7 +105,7 @@ file_not_found_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 file_not_read_exception
 ::file_not_read_exception( path_t const& file_path, std::string const& reason ) noexcept
 {
@@ -121,7 +121,7 @@ file_not_read_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 file_write_exception
 ::file_write_exception( path_t const& file_path, std::string const& reason ) noexcept
 {

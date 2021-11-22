@@ -26,7 +26,7 @@ public:
   {
   }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// Register a tool plugin.
   ///
   /// A tool applet of the specified type is registered with the plugin

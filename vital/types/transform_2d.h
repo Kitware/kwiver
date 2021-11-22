@@ -24,7 +24,7 @@ class transform_2d;
 // typedef for a transform shared pointer
 typedef std::shared_ptr< transform_2d > transform_2d_sptr;
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 /// Abstract base transformation representation class
 class VITAL_EXPORT transform_2d
 {

@@ -12,7 +12,7 @@
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Detault add_factory filter
 ///
 /// This is the default implementation for the add_factory hook. This

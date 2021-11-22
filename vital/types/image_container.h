@@ -77,7 +77,7 @@ using image_container_scptr = std::shared_ptr< image_container const >;
 //                     vital::image_container_set_sptr.
 typedef std::vector<image_container_sptr> image_container_sptr_list;
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 /// This concrete image container is simply a wrapper around an image
 class simple_image_container
 : public image_container

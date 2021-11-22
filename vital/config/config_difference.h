@@ -14,7 +14,7 @@
 namespace kwiver {
 namespace vital {
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Config difference class for validating provided config.
 ///
 /// This class performs differencing between a reference set of config

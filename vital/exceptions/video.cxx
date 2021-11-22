@@ -10,7 +10,7 @@
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_exception
 ::video_exception() noexcept
 {
@@ -22,7 +22,7 @@ video_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_input_timeout_exception
 ::video_input_timeout_exception() noexcept
 {
@@ -34,7 +34,7 @@ video_input_timeout_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_stream_exception
 ::video_stream_exception( std::string const& msg) noexcept
 {
@@ -46,7 +46,7 @@ video_stream_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_config_exception
 ::video_config_exception( std::string const& msg) noexcept
 {
@@ -58,7 +58,7 @@ video_config_exception
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_runtime_exception
 ::video_runtime_exception( std::string const& msg) noexcept
 {

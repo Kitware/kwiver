@@ -15,7 +15,7 @@
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Generic image exception
 class VITAL_EXCEPTIONS_EXPORT image_exception
   : public vital_exception
@@ -35,7 +35,7 @@ protected:
   image_exception( std::nullptr_t ) noexcept;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Exception for image type mismatch
 ///
 /// For when image type equality must be asserted.
@@ -52,7 +52,7 @@ public:
   virtual ~image_type_mismatch_exception() noexcept;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Exception for image sizing mismatch
 ///
 /// For when image shape/size equality must be asserted.

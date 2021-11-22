@@ -7,18 +7,18 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 token_type_symtab::
 token_type_symtab(std::string const& name)
   : token_type( name )
 { }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 token_type_symtab::
  ~token_type_symtab()
 { }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 token_type_symtab::
 add_entry (std::string const& name, std::string const& value)
@@ -26,7 +26,7 @@ add_entry (std::string const& name, std::string const& value)
   m_table[name] = value;
 }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 token_type_symtab::
 remove_entry (std::string const& name)
@@ -34,7 +34,7 @@ remove_entry (std::string const& name)
   m_table.erase (name);
 }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 token_type_symtab::
 lookup_entry (std::string const& name, std::string& result) const

@@ -27,7 +27,7 @@ typedef std::shared_ptr< camera > camera_sptr;
 /// typedef for a vector of cameras
 typedef std::vector< camera_sptr > camera_sptr_list;
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// An abstract representation of camera
 ///
 /// The base class of cameras.

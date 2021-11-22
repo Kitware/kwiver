@@ -19,7 +19,7 @@
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Read in a configuration file, producing a \c config_block object
 ///
 /// This method reads the specified config file and returns the
@@ -51,7 +51,7 @@ config_block_sptr VITAL_CONFIG_EXPORT read_config_file(
   config_path_list_t const& search_paths = config_path_list_t(),
   bool                      use_system_paths = true );
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Read in (a) configuration file(s), producing a \c config_block object
 ///
 /// This function reads one or more configuration files from a search
@@ -170,7 +170,7 @@ std::vector< config_path_t > VITAL_CONFIG_EXPORT find_config_file(
   config_path_t const& install_prefix = {},
   bool find_all = false );
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Output to file the given \c config_block object to the specified file path
 ///
 /// This function writes the specified config block to the specified
@@ -190,7 +190,7 @@ std::vector< config_path_t > VITAL_CONFIG_EXPORT find_config_file(
 void VITAL_CONFIG_EXPORT write_config_file( config_block_sptr const&  config,
                                             config_path_t const&      file_path );
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Output to file the given \c config_block object to the specified stream.
 ///
 /// This function writes the specified config block to the specified
@@ -207,7 +207,7 @@ void VITAL_CONFIG_EXPORT write_config_file( config_block_sptr const&  config,
 void VITAL_CONFIG_EXPORT write_config( config_block_sptr const& config,
                                        std::ostream&            str );
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Get additional application configuration file paths
 ///
 /// This includes the KWIVER_CONFIG_PATH contents at the head of the returned
@@ -234,7 +234,7 @@ application_config_file_paths(std::string const& application_name,
                               std::string const& application_version,
                               config_path_t const& install_prefix);
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Get additional application configuration file paths
 ///
 /// This includes the KWIVER_CONFIG_PATH contents at the head of the returned
@@ -264,7 +264,7 @@ application_config_file_paths(std::string const& application_name,
                               config_path_t const& app_install_prefix,
                               config_path_t const& kwiver_install_prefix);
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Get KWIVER configuration file paths
 ///
 /// This includes the KWIVER_CONFIG_PATH contents at the head of the returned

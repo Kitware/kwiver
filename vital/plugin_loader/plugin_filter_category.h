@@ -12,7 +12,7 @@
 namespace kwiver {
 namespace vital {
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Select plugin based on category name.
 ///
 /// This filter class selects a plugin based on the specified category

@@ -92,7 +92,7 @@ public:
 /// \param f feature to stream
 VITAL_EXPORT std::ostream& operator<<( std::ostream& s, feature const& f );
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// A concrete 2D image feature point.
 ///
 /// Templated over real number type (double or float).
@@ -196,7 +196,7 @@ protected:
   rgb_color color_;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Double-precision feature_ type
 typedef feature_< double > feature_d;
 /// Single-precision feature_ type

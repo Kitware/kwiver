@@ -27,7 +27,7 @@ namespace vital {
 class descriptor;
 typedef std::shared_ptr< descriptor > descriptor_sptr;
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// A representation of a feature descriptor used in matching.
 class descriptor
 {
@@ -99,7 +99,7 @@ public:
 
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Abstract base class of a descriptor containing an array of type T
 template < typename T >
 class descriptor_array_of :
@@ -159,7 +159,7 @@ public:
 
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// A representation of a descriptor of fixed type and size
 template < typename T, unsigned N >
 class descriptor_fixed :
@@ -201,7 +201,7 @@ protected:
   unsigned int node_id_;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// A representation of a descriptor of fixed type and variable size
 template < typename T >
 class descriptor_dynamic :
@@ -261,7 +261,7 @@ protected:
 VITAL_EXPORT
 int hamming_distance(vital::descriptor_sptr d1, vital::descriptor_sptr d2);
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// output stream operator for a feature
 VITAL_EXPORT std::ostream& operator<<( std::ostream& s, const descriptor& d );
 

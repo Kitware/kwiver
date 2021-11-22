@@ -20,7 +20,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Map of classifications to confidence scores for an object.
 ///
 /// This class represents a set of possible types for an object.

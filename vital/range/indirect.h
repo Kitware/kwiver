@@ -11,7 +11,7 @@ namespace kwiver {
 namespace vital {
 namespace range {
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Indirection range adapter.
 ///
 /// This range adapter applies a level of indirection. This is typically used

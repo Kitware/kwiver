@@ -21,7 +21,7 @@
 namespace kwiver {
 namespace vital {
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Mesh vertices
 
 /// Abstract base class for a collection of vertices
@@ -137,7 +137,7 @@ public:
   vert_t& operator[] (unsigned int v) { return verts_[v]; }
   const vert_t& operator[] (unsigned int v) const { return verts_[v]; }
 
-  //=====================================================
+  // --------------------------------------------------------------------------
   // Vertex Iterators
   typedef typename std::vector<vert_t>::iterator iterator;
   typedef typename std::vector<vert_t>::const_iterator const_iterator;
@@ -155,7 +155,7 @@ vector_3d mesh_tri_normal(const vector_3d& a,
                           const vector_3d& b,
                           const vector_3d& c);
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Mesh faces
 
 /// The special value used to indicate and invalid index
@@ -476,7 +476,7 @@ public:
   mesh_regular_face<s>& operator[] (unsigned int f) { return faces_[f]; }
   const mesh_regular_face<s>& operator[] (unsigned int f) const { return faces_[f]; }
 
-  //=====================================================
+  // --------------------------------------------------------------------------
   // Face Iterators
   typedef typename std::vector<mesh_regular_face<s> >::iterator iterator;
   typedef typename std::vector<mesh_regular_face<s> >::const_iterator const_iterator;
@@ -497,7 +497,7 @@ merge_face_arrays(const mesh_face_array_base& f1,
                   const mesh_face_array_base& f2,
                   unsigned int ind_shift=0);
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Mesh edges
 
 class VITAL_EXPORT mesh_half_edge
@@ -566,7 +566,7 @@ public:
   class v_iterator;
   class v_const_iterator;
 
-  //=====================================================
+  // --------------------------------------------------------------------------
   // Mesh Face Iterators - each half edge touches the same face
 
   /// An iterator of half edges adjacent to a face
@@ -696,7 +696,7 @@ public:
     const mesh_half_edge_set& edge_set_;
   };
 
-  //=====================================================
+  // --------------------------------------------------------------------------
   // Mesh Vertex Iterators - each half edge touches the same vertex
 
   /// An iterator of half edges adjacent to a vertex
@@ -848,7 +848,7 @@ private:
   std::vector<unsigned int> face_to_he_;
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Mesh
 
 /// A simple indexed mesh

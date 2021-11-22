@@ -34,7 +34,7 @@ namespace vital {
 
 namespace {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 typedef kwiversys::SystemTools ST;
 
 struct token_t
@@ -52,7 +52,7 @@ struct token_t
   std::string value;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// \brief Block context structure.
 ///
 /// This structure holds information about the block being
@@ -69,7 +69,7 @@ struct block_context_t
 
 } // end namespace
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class config_parser::priv
 {
 public:
@@ -87,7 +87,7 @@ public:
     m_token_expander.add_token_type( m_symtab );
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// \brief Process a single input file.
   ///
   /// This method is called to start processing a new file.
@@ -170,7 +170,7 @@ public:
         return;
       } // end EOF
 
-      // ------------------------------------------------------------------
+      // ----------------------------------------------------------------------
       if ( token.value == "include" )
       {
         //  Handle "include" <file-path>
@@ -223,7 +223,7 @@ public:
         continue;
       }
 
-      // ------------------------------------------------------------------
+      // ----------------------------------------------------------------------
       if ( token.value == "block" )
       {
         //  Handle "block" <block-name>
@@ -259,7 +259,7 @@ public:
         continue;
       }
 
-      // ------------------------------------------------------------------
+      // ----------------------------------------------------------------------
       if ( token.value == "endblock" )
       {
         //  Handled "endblock" keyword
@@ -281,7 +281,7 @@ public:
         continue;
       }
 
-      // ------------------------------------------------------------------
+      // ----------------------------------------------------------------------
       bool rel_path(false);
       if ( token.value == "relativepath" )
       {
@@ -303,7 +303,7 @@ public:
         continue;
       }
 
-      // ------------------------------------------------------------------
+      // ----------------------------------------------------------------------
       const std::string lhs( token.value ); // save LHS symbol
 
       get_token( in_stream, token ); // get next token
@@ -344,7 +344,7 @@ public:
         get_token( in_stream, token ); // get next token
       } // end while
 
-      // ------------------------------------------------------------------
+      // ----------------------------------------------------------------------
       // This is supposed to be an assignment operator
       if ( token.type == token_t::TK_ASSIGN )
       {
@@ -395,7 +395,7 @@ public:
     } // end while
   }
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// @brief Read a line from the stream.
   ///
   /// This method reads a line from the stream, removes comments and
@@ -450,7 +450,7 @@ public:
     return true;
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// @brief Get next token from the input stream.
   ///
   /// This is a state machine driven token extractor.
@@ -524,7 +524,7 @@ public:
     //+ std::cout << "--- type: " << token.type << "   returning token: \"" << token.value << "\"\n";
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// @brief Flush remaining line in parser.
   ///
   /// This method skips to the next character after the next new-line.
@@ -533,7 +533,7 @@ public:
     m_token_line.clear();
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// @brief Get name of current file being processed
   ///
   /// @return Name of current file.
@@ -542,7 +542,7 @@ public:
     return m_current_file;
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// @brief Resolve file name against search path.
   ///
   /// This method returns a valid file path, including name, for the
@@ -590,7 +590,7 @@ public:
     return kwiversys::SystemTools::FindFile( file_name, include_paths, true );
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   // -- member data --
 
   // nested block stack
@@ -636,7 +636,7 @@ public:
   std::string m_token_line;
 };
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 
 config_parser
 ::config_parser()
@@ -649,7 +649,7 @@ config_parser
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 config_parser
 ::add_search_path( config_path_t const& file_path )
@@ -657,7 +657,7 @@ config_parser
   m_priv->m_search_path.push_back( file_path );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 config_parser
 ::add_search_path( config_path_list_t const& file_path )
@@ -666,7 +666,7 @@ config_parser
                                 file_path.begin(), file_path.end() );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_path_list_t const&
 config_parser
 ::get_search_path() const
@@ -674,7 +674,7 @@ config_parser
   return m_priv->m_search_path;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 config_parser
 ::parse_config( config_path_t const& file_path )
@@ -683,7 +683,7 @@ config_parser
   m_priv->process_file( m_config_file );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::config_block_sptr
 config_parser
 ::get_config() const

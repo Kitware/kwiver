@@ -15,7 +15,7 @@
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Generic video exception
 class VITAL_EXCEPTIONS_EXPORT video_exception
   : public vital_exception
@@ -28,7 +28,7 @@ public:
   virtual ~video_exception() noexcept;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Timeout getting next video frame.
 //  This exception is thrown when the video_input::next_frame() method
 //  timeout expires.
@@ -43,7 +43,7 @@ public:
   virtual ~video_input_timeout_exception() noexcept;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Video stream error.
 //  This exception is thrown when there is exceptional condition while
 //  streaming video.
@@ -58,7 +58,7 @@ public:
   virtual ~video_stream_exception() noexcept;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Video config error.
 //  This exception is thrown when there is exceptional condition is
 //  found in the configuration.
@@ -73,7 +73,7 @@ public:
   virtual ~video_config_exception() noexcept;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Video runtime error.
 //  This exception is thrown when there is exceptional condition while
 //  processing the a video.

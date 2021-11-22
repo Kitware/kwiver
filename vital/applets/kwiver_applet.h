@@ -132,7 +132,7 @@ typedef std::shared_ptr<kwiver_applet> kwiver_applet_sptr;
 
 } } // end namespace
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 // Support for adding factories
 
 #define ADD_APPLET( applet_T)                               \

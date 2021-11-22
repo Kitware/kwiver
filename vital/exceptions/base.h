@@ -17,7 +17,7 @@
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// The base class for all vital exceptions
 ///
 /// \ingroup exceptions
@@ -67,7 +67,7 @@ private:
   mutable std::string m_what_loc;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Exception for incorrect input values
 ///
 /// \ingroup exceptions
@@ -83,7 +83,7 @@ public:
 
 } } // end namespace vital
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 ///Exception helper macro.
 ///
 /// Macro to simplify creating exceptions. The source

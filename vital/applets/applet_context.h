@@ -15,7 +15,7 @@
 namespace kwiver {
 namespace tools {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Applet context provided by the tool runner.
 ///
 /// This class contains data that are shared between the tool runner

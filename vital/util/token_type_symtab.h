@@ -14,7 +14,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Symbol table token expander.
 ///
 /// This token expander replaces one string with another.

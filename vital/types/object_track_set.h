@@ -27,7 +27,7 @@
 namespace kwiver {
 namespace vital {
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 /// A derived track_state for object tracks
 class VITAL_EXPORT object_track_state : public track_state
 {
@@ -139,7 +139,7 @@ private:
   time_usec_t time_ = 0;
 };
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 /// A collection of object tracks
 class VITAL_EXPORT object_track_set : public track_set
 {

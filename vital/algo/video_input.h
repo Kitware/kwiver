@@ -35,7 +35,7 @@ namespace algo {
 /// videos. Once the video is opened, the frames are returned in order.
 ///
 /// Use cases:
-/// ----------
+/// ----------------------------------------------------------------------------
 ///
 /// 1) Reading video from a directory of images.
 ///

@@ -33,7 +33,7 @@ namespace vital {
 template < typename R >
 R config_block_get_value_cast_default( config_block_value_t const& value );
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// \brief Configuration value storage structure.
 ///
 /// A config block represents a hierarchical key/value space, with
@@ -445,9 +445,10 @@ private:
   location_t m_def_store;
 };
 
-// ==================================================================
-// ---- get value group ----
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+ get value group ----
+// ----------------------------------------------------------------------------
 /// \defgroup get_value_group Get Config Value Group
 /// Functions to get typed values from a config entry.
 /// @{
@@ -494,7 +495,7 @@ config_block_get_value_cast_default( config_block_value_t const& value )
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Cast a configuration value to the requested type.
 ///
 /// This method converts the config block value from its native string
@@ -537,7 +538,7 @@ config_block_get_value_cast( config_block_value_t const& value )
   return config_block_get_value_cast_default< R > ( value );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Type-specific casting handling for config_block_value_t->bool specialization
 ///
 /// This is the \c bool to \c config_block_value_t specialization to handle
@@ -550,7 +551,7 @@ template < >
 VITAL_CONFIG_EXPORT
 bool config_block_get_value_cast( config_block_value_t const& value );
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Type-specific cast handling for config_block_value_t->string specialization
 ///
 /// This function converts from a string to a string.
@@ -562,7 +563,7 @@ template < >
 VITAL_CONFIG_EXPORT
 std::string config_block_get_value_cast( config_block_value_t const& value );
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Internally cast the value.
 template < typename T >
 T
@@ -588,7 +589,7 @@ config_block
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < typename C >
 typename C::enum_type
 config_block
@@ -597,7 +598,7 @@ config_block
   return C().from_string( get_value < std::string >( key ) );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template< typename T >
 std::vector< T >
 config_block
@@ -622,7 +623,7 @@ config_block
   return val_vector;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Cast the value, returning a default value in case of an error.
 template < typename T >
 T
@@ -639,7 +640,7 @@ config_block
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Cast the value as an enum, returning a default value in case of an error.
 template < typename C >
 typename C::enum_type
@@ -658,9 +659,10 @@ config_block
 }
 //@}
 
-// ==================================================================
-//  ---- set value group ----
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+ set value group ----
+// ----------------------------------------------------------------------------
   /// \defgroup set_value_group Set Config Value Group
  /// Functions to set typed values in a config entry.
  /// @{
@@ -706,7 +708,7 @@ config_block_set_value_cast_default( T const& value )
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Cast a configuration value to the requested type.
 ///
 /// This method converts the user supplied value from its native form
@@ -742,7 +744,7 @@ config_block_set_value_cast( T const& value )
   return config_block_set_value_cast_default< T > ( value );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Set a value within the configuration.
 template < typename T >
 inline
@@ -757,7 +759,7 @@ config_block
   this->i_set_value( key,  val_str, config_block_description_t() ); // we know that the value is a string
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Set a value within the configuration.
 template < typename T >
 inline
@@ -773,7 +775,7 @@ config_block
   this->i_set_value( key,  val_str, descr ); // we know that the value is a string
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Type-specific handling, bool->config_block_value_t specialization
 ///
 /// This is the \c config_block_value_t to \c bool specialization that outputs
@@ -793,7 +795,7 @@ config_block
   this->i_set_value( key, (value ? "true" : "false"), descr );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Type-specific handling, string->config_block_value_t specialization
 ///
 /// This is the \c config_block_value_t to \c string specialization that outputs

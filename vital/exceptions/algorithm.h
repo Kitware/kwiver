@@ -14,7 +14,7 @@
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Base class for all algorithm related exceptions
 ///
 /// \ingroup exceptions
@@ -39,7 +39,7 @@ class VITAL_EXCEPTIONS_EXPORT algorithm_exception
     std::string m_reason;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Exception for when an algorithm receives an invalid configuration
 ///
 /// \ingroup exceptions
@@ -55,7 +55,7 @@ class VITAL_EXCEPTIONS_EXPORT algorithm_configuration_exception
     virtual ~algorithm_configuration_exception() noexcept;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Exception for when checking an invalid impl name against an algo def
 ///
 /// \ingroup exceptions

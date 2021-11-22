@@ -17,7 +17,7 @@
 namespace kwiver {
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Interval timer class.
 ///
 /// This class represents an interval timer that measures CPU time. The

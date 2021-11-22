@@ -18,7 +18,7 @@ typedef kwiversys::SystemTools ST;
 const char* const location_info::NA = "?";
 const char* const location_info::NA_METHOD = "?::?";
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Constructor.
 ///
 /// The default constructor creates a location with all fields set to
@@ -30,7 +30,7 @@ location_info
     m_lineNumber(-1)
 { }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Constructor.
 ///
 /// This constructor creates a location object with a fully described
@@ -42,28 +42,28 @@ location_info
     m_lineNumber(line)
 { }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string location_info
 ::get_file_name() const
 {
   return ST::GetFilenameName( m_fileName );
 }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string location_info
 ::get_file_path() const
 {
   return ST::GetFilenamePath( m_fileName );
 }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string location_info
 ::get_signature() const
 {
   return m_methodName;
 }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string location_info
 ::get_method_name() const
 {
@@ -91,7 +91,7 @@ std::string location_info
   return ( tmp );
 }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string location_info
 ::get_class_name() const
 {
@@ -126,7 +126,7 @@ std::string location_info
   return ( tmp );
 }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 int location_info
 ::get_line_number() const
 {

@@ -21,7 +21,7 @@ class plugin_loader;
 
 using plugin_factory_handle_t = std::shared_ptr< plugin_factory >;
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Interface to plugin loader filters.
 ///
 class plugin_loader_filter
