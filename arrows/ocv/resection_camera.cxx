@@ -40,26 +40,28 @@ struct resection_camera::priv : public mvg::camera_options
   // maximum number of iterations for camera calibration
   int max_iterations = 32;
   // focal length scales to optimize f*scale over
-  vectorf focal_scales { 1 };
+  vectorf focal_scales{ 1 };
 };
 
-std::ostream & operator<<(std::ostream & s, vectorf const & v)
+std::ostream&
+operator<<( std::ostream& s, vectorf const& v )
 {
-  for (unsigned i=0, n=v.size(); i<n; ++i)
+  for( unsigned i = 0, n = v.size(); i < n; ++i )
   {
-    if (i>0) s << ' ';
-    s << v[i];
+    if( i > 0 ) { s << ' '; }
+    s << v[ i ];
   }
   return s;
 }
 
-std::istream & operator>>(std::istream & s, vectorf & v)
+std::istream&
+operator>>( std::istream& s, vectorf& v )
 {
-  while (!s.eof())
+  while( !s.eof() )
   {
     float a = 0;
-	s >> a;
-	v.push_back(a);
+    s >> a;
+    v.push_back( a );
   }
   return s;
 }
@@ -88,6 +90,7 @@ resection_camera
                      "desired re-projection positive accuracy for inlier points" );
   config->set_value( "max_iterations", d_->max_iterations,
                      "maximum number of iterations to run optimization [1, INT_MAX]" );
+
   std::stringstream ss;
   ss << d_->focal_scales;
   config->set_value( "focal_scales", ss.str(),
@@ -105,7 +108,9 @@ resection_camera
                                                      d_->reproj_accuracy );
   d_->max_iterations = config->get_value< int >( "max_iterations",
                                                  d_->max_iterations );
-  std::stringstream ss( config->get_value< std::string > ( "focal_scales", "1" ) );
+
+  std::stringstream ss( config->get_value< std::string >( "focal_scales",
+                                                          "1" ) );
   d_->focal_scales.clear();
   ss >> d_->focal_scales;
 }
@@ -115,6 +120,7 @@ bool
 resection_camera
 ::check_configuration( vital::config_block_sptr config ) const
 {
+  auto good_conf = true;
   auto const reproj_accuracy =
     config->get_value< double >( "reproj_accuracy", d_->reproj_accuracy );
   if( reproj_accuracy <= 0.0 )
@@ -122,7 +128,7 @@ resection_camera
     LOG_ERROR( d_->m_logger,
                "reproj_accuracy parameter is " << reproj_accuracy <<
                ", but needs to be positive." );
-    return false;
+    good_conf = false;
   }
 
   auto const max_iterations =
@@ -132,22 +138,24 @@ resection_camera
     LOG_ERROR( d_->m_logger,
                "max iterations is " << max_iterations <<
                ", needs to be greater than zero." );
-    return false;
+    good_conf = false;
   }
 
-  std::stringstream ss( config->get_value< std::string > ( "focal_scales", "1" ) );
+  std::stringstream ss( config->get_value< std::string >( "focal_scales",
+                                                          "1" ) );
   vectorf focal_scales;
   ss >> focal_scales;
+
   auto m = std::min_element( focal_scales.begin(), focal_scales.end() );
-  if( m == focal_scales.end() || *m <= 0 )
+  if( *m <= 0 )
   {
     LOG_ERROR( d_->m_logger,
                "focal_scales: " << focal_scales <<
-               ", needs to be greater than zero." );
-    return false;
+               ", minimal value needs to be positive." );
+    good_conf = false;
   }
 
-  return true;
+  return good_conf;
 }
 
 // ----------------------------------------------------------------------------
@@ -274,7 +282,7 @@ resection_camera
       world_points_vec, image_points_vec,
       image_size, cvK, dc, rv, tv,
       flags, term_criteria );
-    if( e < err && fabs(e-err) > DBL_EPSILON )
+    if( e < err && fabs( e - err ) > DBL_EPSILON )
     {
       cv_K = cvK;
       dist_coeffs = dc;
