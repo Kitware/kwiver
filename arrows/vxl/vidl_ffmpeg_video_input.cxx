@@ -315,15 +315,16 @@ public:
   {
     int frame_count( c_time_scan_frame_limit );
     bool retval(false);
-    int64_t ts = 0;
 
     do
     {
-      std::vector< unsigned char > pkt_data = d_video_stream.current_packet_data();
-
-      if ( kwiver::arrows::klv::find_MISP_microsec_time(  pkt_data, ts ) )
+      auto const packet_data = d_video_stream.current_packet_data();
+      auto const it =
+        kwiver::arrows::klv::find_misp_timestamp( packet_data.cbegin(),
+                                                  packet_data.cend() );
+      if ( it != packet_data.cend() )
       {
-        meta_ts = ts; // in usec
+        meta_ts = kwiver::arrows::klv::read_misp_timestamp( it );
         LOG_DEBUG( this->d_logger, "Found MISP frame time:" << meta_ts );
 
         d_have_abs_frame_time = true;
