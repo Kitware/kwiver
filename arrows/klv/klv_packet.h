@@ -104,6 +104,16 @@ size_t
 klv_packet_length( klv_packet const& packet );
 
 // ----------------------------------------------------------------------------
+/// Return the time \p packet takes effect.
+///
+/// \param packet KLV packet being queried.
+///
+/// \returns Packet timestamp in microseconds, or \c 0 on failure.
+KWIVER_ALGO_KLV_EXPORT
+uint64_t
+klv_packet_timestamp( klv_packet const& packet );
+
+// ----------------------------------------------------------------------------
 /// Return a traits lookup object for top-level keys.
 KWIVER_ALGO_KLV_EXPORT
 klv_tag_traits_lookup const&
