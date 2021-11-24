@@ -105,13 +105,11 @@ klv_read_packet( klv_read_iter_t& data, size_t max_length )
     format.calculate_checksum( begin, packet_length - checksum_length );
   if( expected_checksum != actual_checksum )
   {
-    std::stringstream ss;
-    ss  << std::hex << std::setfill( '0' )
-        << "calculated checksum "
-        << "(0x" << std::setw( 4 ) << actual_checksum << ") "
-        << "does not equal checksum contained in packet "
-        << "(0x" << std::setw( 4 ) << expected_checksum << ")";
-    VITAL_THROW( kv::metadata_exception, ss.str() );
+    LOG_ERROR( kv::get_logger( "klv" ), std::hex << std::setfill( '0' )
+               << "calculated checksum "
+               << "(0x" << std::setw( 4 ) << actual_checksum << ") "
+               << "does not equal checksum contained in packet "
+               << "(0x" << std::setw( 4 ) << expected_checksum << ")" );
   }
 
   // Read value
