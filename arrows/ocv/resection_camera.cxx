@@ -147,7 +147,13 @@ resection_camera
   ss >> focal_scales;
 
   auto m = std::min_element( focal_scales.begin(), focal_scales.end() );
-  if( *m <= 0 )
+  if( m == focal_scales.end() )
+  {
+    LOG_ERROR( d_->m_logger,
+               "expected non-empty focal_scales array" );
+    good_conf = false;
+  }
+  else if( *m <= 0 )
   {
     LOG_ERROR( d_->m_logger,
                "focal_scales: " << focal_scales <<
