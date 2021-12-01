@@ -7,6 +7,7 @@
 
 #include "klv_value.h"
 
+#include "klv_0102.h"
 #include "klv_0104.h"
 #include "klv_0601.h"
 #include "klv_1108.h"
@@ -403,6 +404,8 @@ operator<<( std::ostream& os, klv_value const& rhs )
 
 KLV_INSTANTIATE( double );
 KLV_INSTANTIATE( int64_t );
+KLV_INSTANTIATE( klv_0102_country_coding_method );
+KLV_INSTANTIATE( klv_0102_security_classification );
 KLV_INSTANTIATE( klv_0601_control_command );
 KLV_INSTANTIATE( klv_0601_frame_rate );
 KLV_INSTANTIATE( klv_0601_icing_detected );

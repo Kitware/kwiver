@@ -4,6 +4,7 @@
 
 #include "klv_0601.h"
 
+#include "klv_0102.h"
 #include "klv_checksum.h"
 
 #include <vital/logger/logger.h>
@@ -355,7 +356,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SECURITY_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0102_local_set_format >(),
       "Security Local Set",
       "MISB ST 0102 local set for security metadata.",
       { 0, 1 } },

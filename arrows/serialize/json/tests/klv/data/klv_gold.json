@@ -1,6 +1,64 @@
 {
-    "size": 3,
+    "size": 4,
     "data": [
+        {
+            "time": 0,
+            "frame": 0,
+            "data": {
+                "type": "packet",
+                "key": {
+                    "type": "universal key",
+                    "name": "MISB ST 0102 Local Set",
+                    "hex": "060e2b34 02030101 0e010303 02000000",
+                    "value": [
+                        6,
+                        14,
+                        43,
+                        52,
+                        2,
+                        3,
+                        1,
+                        1,
+                        14,
+                        1,
+                        3,
+                        3,
+                        2,
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "value": {
+                    "type": "local set",
+                    "size": 2,
+                    "value": [
+                        {
+                            "key": {
+                                "type": "local tag",
+                                "value": 1
+                            },
+                            "value": {
+                                "type": "security classification enumeration",
+                                "name": "Unclassified",
+                                "value": 1
+                            }
+                        },
+                        {
+                            "key": {
+                                "type": "local tag",
+                                "value": 2
+                            },
+                            "value": {
+                                "type": "country coding method enumeration",
+                                "name": "GENC Two Letter",
+                                "value": 13
+                            }
+                        }
+                    ]
+                }
+            }
+        },
         {
             "time": null,
             "frame": null,

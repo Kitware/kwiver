@@ -6,6 +6,7 @@
 
 #include <arrows/serialize/json/load_save.h>
 
+#include <arrows/klv/klv_0102.h>
 #include <arrows/klv/klv_0104.h>
 #include <arrows/klv/klv_0601.h>
 #include <arrows/klv/klv_1108.h>
@@ -101,7 +102,11 @@ type_traits()
     { typeid( klv_1108_metric_period_pack ),
       "metric period pack" },
     { typeid( klv_1108_window_corners_pack ),
-      "window corners pack" }, };
+      "window corners pack" },
+    { typeid( klv_0102_security_classification ),
+      "security classification enumeration" },
+    { typeid( klv_0102_country_coding_method ),
+      "country coding method enumeration" } };
 
   return traits;
 }
@@ -434,7 +439,9 @@ save_value( save_archive& archive, klv_value const& value,
     klv_1108_window_corners_pack,
     klv_1108_compression_type,
     klv_1108_compression_profile,
-    klv_1108_metric_implementer
+    klv_1108_metric_implementer,
+    klv_0102_country_coding_method,
+    klv_0102_security_classification
     >( { archive, value, context }, value.type() );
 
   archive.finishNode();
@@ -645,7 +652,9 @@ load_value( load_archive& archive, load_context& context )
     klv_1108_window_corners_pack,
     klv_1108_compression_type,
     klv_1108_compression_profile,
-    klv_1108_metric_implementer
+    klv_1108_metric_implementer,
+    klv_0102_country_coding_method,
+    klv_0102_security_classification
     >( { archive, value, context }, trait.type );
 
   archive.finishNode();

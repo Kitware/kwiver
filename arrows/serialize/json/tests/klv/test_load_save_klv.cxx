@@ -2,6 +2,7 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
+#include <arrows/klv/klv_0102.h>
 #include <arrows/klv/klv_0104.h>
 #include <arrows/klv/klv_0601.h>
 #include <arrows/klv/klv_1108.h>
@@ -45,6 +46,12 @@ key_0104( klv_0104_tag tag )
 
 // ---------------------------------------------------------------------------
 std::vector< klv_timed_packet > const test_packets = {
+  { { klv_0102_key(), klv_local_set{
+    { KLV_0102_SECURITY_CLASSIFICATION,
+      KLV_0102_SECURITY_CLASSIFICATION_UNCLASSIFIED },
+    { KLV_0102_COUNTRY_CODING_METHOD,
+      KLV_0102_COUNTRY_CODING_METHOD_GENC_TWO_LETTER },
+  } }, kv::timestamp{ 0, 0 } },
   { { klv_0104_key(), klv_universal_set{
       { key_0104( KLV_0104_USER_DEFINED_TIMESTAMP ),
         uint64_t{ 4321 } },

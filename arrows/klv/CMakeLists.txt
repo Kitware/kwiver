@@ -15,6 +15,7 @@ set( sources
   klv_tag_traits.cxx
   klv_timeline.cxx
   klv_value.cxx
+  klv_0102.cxx
   klv_0104.cxx
   klv_0601.cxx
   klv_1108.cxx
@@ -29,6 +30,7 @@ set( public_headers
   klv_set.h
   klv_timeline.h
   klv_value.h
+  klv_0102.h
   klv_0104.h
   klv_0601.h
   klv_1108.h
