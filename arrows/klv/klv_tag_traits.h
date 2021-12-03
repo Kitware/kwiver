@@ -24,6 +24,9 @@ namespace arrows {
 namespace klv {
 
 // ----------------------------------------------------------------------------
+class klv_tag_traits_lookup;
+
+// ----------------------------------------------------------------------------
 /// Inclusive numerical range describing how many times a tag is allowed to
 /// appear in the same metadata set.
 class KWIVER_ALGO_KLV_EXPORT klv_tag_count_range
@@ -64,7 +67,8 @@ public:
                   klv_data_format_sptr format,
                   std::string const& name,
                   std::string const& description,
-                  klv_tag_count_range const& tag_count_range );
+                  klv_tag_count_range const& tag_count_range,
+                  klv_tag_traits_lookup const* subtag_lookup = nullptr );
 
   /// Return the LDS tag.
   klv_lds_key
@@ -103,6 +107,11 @@ public:
   klv_tag_count_range
   tag_count_range() const;
 
+  // If this tag corresponds to a local set, return that set's tag lookup
+  // object.
+  klv_tag_traits_lookup const*
+  subtag_lookup() const;
+
 private:
   std::string m_name;
   std::string m_enum_name;
@@ -111,6 +120,7 @@ private:
   klv_uds_key m_uds_key;
   klv_data_format_sptr m_format;
   klv_tag_count_range m_tag_count_range;
+  klv_tag_traits_lookup const* m_subtag_lookup;
 };
 
 // ----------------------------------------------------------------------------

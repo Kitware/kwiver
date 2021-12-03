@@ -5,11 +5,17 @@
 /// \file
 /// \brief Utility methods for visiting types at runtime.
 
+#ifndef KWIVER_VITAL_UTIL_VISIT_H_
+#define KWIVER_VITAL_UTIL_VISIT_H_
+
 // TODO(C++17): replace with std::variant
 #include <vital/internal/variant/variant.hpp>
 #include <vital/vital_config.h>
+#include <vital/util/demangle.h>
+#include <vital/exceptions.h>
 
 #include <map>
+#include <stdexcept>
 #include <typeindex>
 
 namespace kwiver {
@@ -98,7 +104,14 @@ visit_types( Visitor&& visitor, std::type_info const& type )
   static std::map< std::type_index, invoke_fn_t > const map = {
     { typeid( Types ),
       &visit_detail::invoke_visitor< Visitor, Types > } ... };
-  map.at( type )( std::forward< Visitor >( visitor ) );
+  auto const it = map.find( type );
+  if( it == map.cend() )
+  {
+    throw std::out_of_range( "`" + kwiver::vital::demangle( type.name() ) +
+                             "` not found in types provided to "
+                             "visit_types()" );
+  }
+  it->second( std::forward< Visitor >( visitor ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -111,7 +124,14 @@ visit_types_return( Visitor&& visitor, std::type_info const& type )
   static std::map< std::type_index, invoke_fn_t > const map = {
     { typeid( Types ),
       &visit_detail::invoke_visitor_return< ReturnT, Visitor, Types > } ... };
-  return map.at( type )( std::forward< Visitor >( visitor ) );
+  auto const it = map.find( type );
+  if( it == map.cend() )
+  {
+    throw std::out_of_range( "`" + kwiver::vital::demangle( type.name() ) +
+                             "` not found in types provided to "
+                             "visit_types_return()" );
+  }
+  return it->second( std::forward< Visitor >( visitor ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -162,3 +182,5 @@ visit_variant_types_return( Visitor&& visitor,
 } // namespace vital
 
 } // namespace kwiver
+
+#endif

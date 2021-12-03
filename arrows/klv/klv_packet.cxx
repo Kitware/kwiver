@@ -240,14 +240,16 @@ klv_lookup_packet_traits()
       "MISB ST 1108 Local Set",
       "Interpretability and Quality Local Set. Contains image quality metrics "
       "and compression characteristics for a video stream or file.",
-      0 },
+      0,
+      &klv_1108_traits_lookup() },
     { klv_0601_key(),
       ENUM_AND_NAME( KLV_PACKET_MISB_0601_LOCAL_SET ),
       std::make_shared< klv_0601_local_set_format >(),
       "MISB ST 0601 Local Set",
       "UAS Datalink Local Set. Contains a wide variety of metadata describing "
       "an unmanned aerial system producing FMV footage.",
-      0 },
+      0,
+      &klv_0601_traits_lookup() },
     { klv_0104_key(),
       ENUM_AND_NAME( KLV_PACKET_MISB_0104_UNIVERSAL_SET ),
       std::make_shared< klv_0104_universal_set_format >(),
@@ -255,7 +257,8 @@ klv_lookup_packet_traits()
       "Predator UAV Basic Universal Set. Contains basic metadata describing a "
       "Predator unmanned aerial system producing FMV footage. Predecessor to "
       "MISB ST 0601. Deprecated as of 2008.",
-      0 } };
+      0,
+      &klv_0104_traits_lookup() } };
 #undef ENUM_AND_NAME
 
   return lookup;
