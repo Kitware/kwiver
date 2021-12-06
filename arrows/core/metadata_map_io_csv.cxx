@@ -427,7 +427,8 @@ metadata_map_io_csv
       {
         auto const tag = metadata_item.first;
         auto const& type = metadata_item.second->type();
-        if( tag != kv::VITAL_META_VIDEO_URI )
+        if( tag != kv::VITAL_META_VIDEO_URI &&
+            tag != kv::VITAL_META_VIDEO_FRAME_NUMBER )
         {
           for( auto const i : kvr::iota( get_column_count( type ) ) )
           {
