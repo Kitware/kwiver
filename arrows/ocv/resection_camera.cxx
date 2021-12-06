@@ -25,17 +25,46 @@ namespace arrows {
 namespace ocv {
 
 // ----------------------------------------------------------------------------
+using vectorf = std::vector< float >;
+
 struct resection_camera::priv : public mvg::camera_options
 {
+
   priv() : m_logger{ vital::get_logger( "arrows.ocv.resection_camera" ) }
   {
   }
 
   vital::logger_handle_t m_logger;
-
-  double reproj_accuracy = 4.;
-  int max_iterations = 64;
+  // leave enogh of margin for inliers
+  double reproj_accuracy = 16.0;
+  // maximum number of iterations for camera calibration
+  int max_iterations = 32;
+  // focal length scales to optimize f*scale over
+  vectorf focal_scales{ 1 };
 };
+
+std::ostream&
+operator<<( std::ostream& s, vectorf const& v )
+{
+  for( unsigned i = 0, n = v.size(); i < n; ++i )
+  {
+    if( i > 0 ) { s << ' '; }
+    s << v[ i ];
+  }
+  return s;
+}
+
+std::istream&
+operator>>( std::istream& s, vectorf& v )
+{
+  while( !s.eof() )
+  {
+    float a = 0;
+    s >> a;
+    v.push_back( a );
+  }
+  return s;
+}
 
 // ----------------------------------------------------------------------------
 resection_camera
@@ -58,9 +87,14 @@ resection_camera
     vital::algo::resection_camera::get_configuration();
   d_->get_configuration( config );
   config->set_value( "reproj_accuracy", d_->reproj_accuracy,
-                     "desired re-projection positive accuracy" );
+                     "desired re-projection positive accuracy for inlier points" );
   config->set_value( "max_iterations", d_->max_iterations,
                      "maximum number of iterations to run optimization [1, INT_MAX]" );
+
+  std::stringstream ss;
+  ss << d_->focal_scales;
+  config->set_value( "focal_scales", ss.str(),
+                     "focal length scales to optimize f*scale over" );
   return config;
 }
 
@@ -74,6 +108,11 @@ resection_camera
                                                      d_->reproj_accuracy );
   d_->max_iterations = config->get_value< int >( "max_iterations",
                                                  d_->max_iterations );
+
+  std::stringstream ss( config->get_value< std::string >( "focal_scales",
+                                                          "1" ) );
+  d_->focal_scales.clear();
+  ss >> d_->focal_scales;
 }
 
 // ----------------------------------------------------------------------------
@@ -101,6 +140,27 @@ resection_camera
                ", needs to be greater than zero." );
     good_conf = false;
   }
+
+  std::stringstream ss( config->get_value< std::string >( "focal_scales",
+                                                          "1" ) );
+  vectorf focal_scales;
+  ss >> focal_scales;
+
+  auto m = std::min_element( focal_scales.begin(), focal_scales.end() );
+  if( m == focal_scales.end() )
+  {
+    LOG_ERROR( d_->m_logger,
+               "expected non-empty focal_scales array" );
+    good_conf = false;
+  }
+  else if( *m <= 0 )
+  {
+    LOG_ERROR( d_->m_logger,
+               "focal_scales: " << focal_scales <<
+               ", minimal value needs to be positive." );
+    good_conf = false;
+  }
+
   return good_conf;
 }
 
@@ -151,12 +211,10 @@ resection_camera
     cv_world_points.emplace_back( p.x(), p.y(), p.z() );
   }
 
-  vital::matrix_3x3d K = cal->as_matrix();
-  cv::Mat cv_K;
-  eigen2cv( K, cv_K );
-
   cv::Mat inliers_mat;
-  std::vector< cv::Mat > vrvec, vtvec;
+  using vmat = std::vector< cv::Mat >;
+
+  vmat vrvec, vtvec;
   auto const world_points_vec =
     std::vector< std::vector< cv::Point3f > >{ cv_world_points };
   auto const image_points_vec =
@@ -203,17 +261,47 @@ resection_camera
     flags |= cv::CALIB_FIX_K4 | cv::CALIB_FIX_K5 | cv::CALIB_FIX_K6;
   }
 
-  auto const reproj_error = d_->reproj_accuracy;
+  vital::matrix_3x3d K = cal->as_matrix();
+  cv::TermCriteria term_criteria{
+    cv::TermCriteria::COUNT + cv::TermCriteria::EPS,
+    d_->max_iterations, DBL_EPSILON };
+  using MatD = cv::Mat_< double >;
 
-  auto const err =
-    cv::calibrateCamera(
+  MatD cv_K;
+  eigen2cv( K, cv_K );
+
+  auto const dc0 = dist_coeffs;
+  // focal scale search parameter for optimization
+  auto focal_scale = 1.0;
+  // minimize re-projection error over multiple focal scales
+  auto err = std::numeric_limits< double >::infinity();
+  for( auto const scale : d_->focal_scales )
+  {
+    auto dc = dc0;
+    vmat rv, tv;
+    MatD cvK;
+    eigen2cv( K, cvK );
+    cvK( 0, 0 ) *= scale;
+    cvK( 1, 1 ) *= scale;
+
+    auto const e = cv::calibrateCamera(
       world_points_vec, image_points_vec,
-      image_size, cv_K, dist_coeffs,
-      vrvec, vtvec, flags,
-      cv::TermCriteria{
-        cv::TermCriteria::COUNT + cv::TermCriteria::EPS,
-        d_->max_iterations, reproj_error } );
+      image_size, cvK, dc, rv, tv,
+      flags, term_criteria );
+    if( e < err && fabs( e - err ) > DBL_EPSILON )
+    {
+      cv_K = cvK;
+      dist_coeffs = dc;
+      vrvec = rv;
+      vtvec = tv;
+      focal_scale = scale;
+      err = e;
+    }
+  }
+  LOG_DEBUG( d_->m_logger, "re-projection error=" << err <<
+             ", focal scale=" << focal_scale );
 
+  auto const reproj_error = d_->reproj_accuracy;
   if( err > reproj_error )
   {
     LOG_WARN( d_->m_logger, "estimated re-projection error " <<
