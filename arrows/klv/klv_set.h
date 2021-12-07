@@ -44,258 +44,100 @@ public:
   using range = kwiver::vital::range::iterator_range< iterator >;
   using const_range = kwiver::vital::range::iterator_range< const_iterator >;
 
-  klv_set() {}
+  klv_set();
 
-  klv_set( container const& items ) : m_items{ items } {}
+  klv_set( container const& items );
 
-  klv_set( std::initializer_list< value_type > const& items )
-    : m_items{ items } {}
-
-  iterator
-  begin()
-  {
-    return m_items.begin();
-  }
-
-  const_iterator
-  begin() const
-  {
-    return m_items.cbegin();
-  }
-
-  const_iterator
-  cbegin() const
-  {
-    return m_items.cbegin();
-  }
+  klv_set( std::initializer_list< value_type > const& items );
 
   iterator
-  end()
-  {
-    return m_items.end();
-  }
+  begin();
 
   const_iterator
-  end() const
-  {
-    return m_items.cend();
-  }
+  begin() const;
 
   const_iterator
-  cend() const
-  {
-    return m_items.cend();
-  }
+  cbegin() const;
+
+  iterator
+  end();
+
+  const_iterator
+  end() const;
+
+  const_iterator
+  cend() const;
 
   size_t
-  size() const
-  {
-    return m_items.size();
-  }
+  size() const;
 
   size_t
-  count( Key const& key ) const
-  {
-    return m_items.count( key );
-  }
+  count( Key const& key ) const;
 
   bool
-  has( Key const& key ) const
-  {
-    return m_items.count( key );
-  }
+  has( Key const& key ) const;
 
   void
-  add( Key const& key, klv_value const& datum )
-  {
-    m_items.emplace( key, datum );
-  }
+  add( Key const& key, klv_value const& datum );
 
   void
-  erase( const_iterator it )
-  {
-    m_items.erase( it );
-  }
+  erase( const_iterator it );
 
   void
-  erase( Key const& key )
-  {
-    m_items.erase( key );
-  }
+  erase( Key const& key );
 
   void
-  clear()
-  {
-    m_items.clear();
-  }
+  clear();
 
   /// Return single entry corresponding to \p key, or end iterator on failure.
   iterator
-  find( Key const& key )
-  {
-    auto const it = m_items.lower_bound( key );
-    if( it != m_items.end() )
-    {
-      auto const next_it = std::next( it );
-      if( next_it == m_items.end() || next_it->first != key )
-      {
-        return it;
-      }
-    }
-    return m_items.end();
-  }
+  find( Key const& key );
 
   /// \copydoc iterator find( Key const& key )
   const_iterator
-  find( Key const& key ) const
-  {
-    auto const it = m_items.lower_bound( key );
-    if( it != m_items.end() )
-    {
-      auto const next_it = std::next( it );
-      if( next_it == m_items.end() || next_it->first != key )
-      {
-        return it;
-      }
-    }
-    return m_items.cend();
-  }
+  find( Key const& key ) const;
 
   /// Return single value corresponding to \p key.
   ///
   /// \throws out_of_range If no \p key entry is present.
   /// \throws logic_error If more than one \p key entry is present.
   klv_value&
-  at( Key const& key )
-  {
-    auto const it = m_items.lower_bound( key );
-    if( it != m_items.end() )
-    {
-      auto const next_it = std::next( it );
-      if( next_it == m_items.end() || next_it->first != key )
-      {
-        return it->second;
-      }
-      throw std::logic_error( "more than one instance of key found" );
-    }
-    throw std::out_of_range( "key not found" );
-  }
+  at( Key const& key );
 
   /// \copydoc klv_value& at( Key const& key )
   klv_value const&
-  at( Key const& key ) const
-  {
-    auto const it = m_items.lower_bound( key );
-    if( it != m_items.cend() )
-    {
-      auto const next_it = std::next( it );
-      if( next_it == m_items.cend() || next_it->first != key )
-      {
-        return it->second;
-      }
-      throw std::runtime_error( "more than one instance of key found" );
-    }
-    throw std::out_of_range( "key not found" );
-  }
+  at( Key const& key ) const;
 
   /// Return the range of entries corresponding to \p key.
   ///
   /// \note Order of entries returned is not defined.
   range
-  all_at( Key const& key )
-  {
-    auto const equal_range = m_items.equal_range( key );
-    return { equal_range.first, equal_range.second };
-  }
+  all_at( Key const& key );
 
   /// \copydoc range all_at( Key const& key )
   const_range
-  all_at( Key const& key ) const
-  {
-    auto const equal_range = m_items.equal_range( key );
-    return { equal_range.first, equal_range.second };
-  }
+  all_at( Key const& key ) const;
 
   /// Returns iterators to all entries, sorted by key, then by value.
   std::vector< const_iterator >
-  fully_sorted() const
-  {
-    std::vector< const_iterator > result;
-    for( auto it = cbegin(); it != cend(); ++it )
-    {
-      result.push_back( it );
-    }
-    std::sort( result.begin(), result.end(), value_compare );
-    return result;
-  }
+  fully_sorted() const;
 
+  template < class K >
   friend bool
-  operator==( klv_set< Key > const& lhs, klv_set< Key > const& rhs )
-  {
-    if( lhs.size() != rhs.size() )
-    {
-      return false;
-    }
+  operator==( klv_set< K > const& lhs, klv_set< K > const& rhs );
 
-    auto const lhs_values = lhs.fully_sorted();
-    auto const rhs_values = rhs.fully_sorted();
-
-    return std::equal( lhs_values.cbegin(), lhs_values.cend(),
-                       rhs_values.cbegin(),
-                       []( const_iterator lhs_value, const_iterator rhs_value ){
-                         return *lhs_value == *rhs_value;
-                       } );
-  }
-
+  template < class K >
   friend bool
-  operator<( klv_set< Key > const& lhs, klv_set< Key > const& rhs )
-  {
-    if( lhs.size() < rhs.size() )
-    {
-      return true;
-    }
-    else if( lhs.size() == rhs.size() )
-    {
-      auto const lhs_values = lhs.fully_sorted();
-      auto const rhs_values = rhs.fully_sorted();
-      return std::lexicographical_compare(
-        lhs_values.cbegin(), lhs_values.cend(),
-        rhs_values.cbegin(), rhs_values.cend(), value_compare );
-    }
-    return false;
-  }
+  operator<( klv_set< K > const& lhs, klv_set< K > const& rhs );
 
+  template < class K >
   friend std::ostream&
-  operator<<( std::ostream& os, klv_set< Key > const& rhs )
-  {
-    auto const values = rhs.fully_sorted();
-    os << "{ ";
-
-    bool first = true;
-    for( auto const pair : values )
-    {
-      first = first ? false : ( os << ", ", false );
-      os << pair->first << ": " << pair->second;
-    }
-    os << " }";
-    return os;
-  }
+  operator<<( std::ostream& os, klv_set< K > const& rhs );
 
 private:
   // Sort by key, then value.
   static bool
-  value_compare( const_iterator lhs, const_iterator rhs )
-  {
-    if( lhs->first < rhs->first )
-    {
-      return true;
-    }
-    else if( lhs->first == rhs->first )
-    {
-      return lhs->second < rhs->second;
-    }
-    return false;
-  }
+  value_compare( const_iterator lhs, const_iterator rhs );
 
   std::multimap< Key, klv_value > m_items;
 };

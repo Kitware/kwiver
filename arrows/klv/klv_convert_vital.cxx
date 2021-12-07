@@ -33,11 +33,26 @@ namespace {
 // ----------------------------------------------------------------------------
 struct klv_to_vital_visitor
 {
-  template < class T >
+  template < class T,
+             typename std::enable_if< std::is_same< T, uint64_t >::value ||
+                                      std::is_same< T, double >::value ||
+                                      std::is_same< T, std::string >::value,
+                                      bool >::type = true >
   kv::metadata_value
   operator()() const
   {
     return value.get< T >();
+  }
+
+  template < class T,
+             typename std::enable_if< !std::is_same< T, uint64_t >::value &&
+                                      !std::is_same< T, double >::value &&
+                                      !std::is_same< T, std::string >::value,
+                                      bool >::type = true >
+  kv::metadata_value
+  operator()() const
+  {
+    throw std::logic_error( "type does not exist in klv_value" );
   }
 
   klv_value const& value;
@@ -174,7 +189,7 @@ klv_0104_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
     klv_data.at( standard, KLV_0104_EPISODE_NUMBER, timestamp );
   if( episode_number.valid() )
   {
-    auto const value = episode_number.get< float >();
+    auto const value = episode_number.get< double >();
     std::stringstream ss;
     ss << std::fixed << value;
     vital_data.add< kv::VITAL_META_MISSION_NUMBER >( ss.str() );

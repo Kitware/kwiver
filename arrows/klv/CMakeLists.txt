@@ -11,6 +11,7 @@ set( sources
   klv_convert_vital.cxx
   klv_data.cxx
   klv_data_format.cxx
+  klv_demuxer.cxx
   klv_key.cxx
   klv_packet.cxx
   klv_parse.cxx
@@ -19,25 +20,38 @@ set( sources
   klv_tag_traits.cxx
   klv_timeline.cxx
   klv_value.cxx
-  klv_0601.cxx
-  klv_0601_new.cxx
   klv_0104.cxx
   klv_0104_new.cxx
+  klv_0601.cxx
+  klv_0601_new.cxx
   klv_1108.cxx
   klv_1108_metric_set.cxx
   )
 
 set( public_headers
   convert_metadata.h
+  klv_blob.h
   klv_data.h
+  klv_demuxer.h
   klv_key.h
+  klv_packet.h
   klv_parse.h
-  klv_0601.h
+  klv_set.h
+  klv_timeline.h
+  klv_value.h
   klv_0104.h
+  klv_0104_new.h
+  klv_0601.h
+  klv_0601_new.h
+  klv_1108.h
+  klv_1108_metric_set.h
   misp_time.h
   )
 
 set( private_headers
+  klv_data_format.h
+  klv_read_write.h
+  klv_tag_traits.h
   klv_0601_traits.h
 )
 

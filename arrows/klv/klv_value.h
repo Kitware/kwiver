@@ -13,7 +13,7 @@
 #include <sstream>
 
 #ifndef KWIVER_ARROWS_KLV_KLV_VALUE_H_
-#define KWIVER_ARROWS_KLV_KLV_VALUE_H_
+# define KWIVER_ARROWS_KLV_KLV_VALUE_H_
 
 namespace kwiver {
 
@@ -52,39 +52,32 @@ class KWIVER_ALGO_KLV_EXPORT klv_value
 public:
   klv_value();
 
-  template < class T, typename std::enable_if<
+  template < class T,
+             typename = typename std::enable_if<
                !std::is_same< typename std::decay< T >::type,
-                              kwiver::vital::any >::value &&
+                              klv_value >::value &&
                !std::is_same< typename std::decay< T >::type,
-                              klv_value >::value, bool >::type = true >
-  klv_value( T&& value ) : m_length_hint{ 0 }
-  {
-    m_item.reset( new internal_< typename std::decay< T >::type >{ value } );
-  }
+                              kwiver::vital::any >::value >::type >
+  klv_value( T&& value );
 
   template < class T > explicit
-  klv_value( T&& value, size_t length_hint )
-  {
-    klv_value{ value }.swap( *this );
-    m_length_hint = length_hint;
-  }
+  klv_value( T&& value, size_t length_hint );
 
   klv_value( klv_value const& other );
 
   klv_value( klv_value&& other );
 
-  ~klv_value() = default;
+  ~klv_value();
 
   klv_value&
-  operator=( klv_value const& ) = default;
+  operator=( klv_value const& other );
+
+  klv_value&
+  operator=( klv_value&& other );
 
   template < class T >
   klv_value&
-  operator=( T&& rhs )
-  {
-    klv_value{ rhs }.swap( *this );
-    return *this;
-  }
+  operator=( T&& rhs );
 
   /// Swap the contents of this \c klv_value with another.
   klv_value&
@@ -130,15 +123,7 @@ public:
   /// \c T.
   template < class T >
   T&
-  get()
-  {
-    auto const ptr = get_ptr< T >();
-    if( !ptr )
-    {
-      throw klv_bad_value_cast( typeid( T ), type() );
-    }
-    return *ptr;
-  }
+  get();
 
   /// Return a reference to the contained value of type \c T.
   ///
@@ -146,45 +131,19 @@ public:
   /// \c T.
   template < class T >
   T const&
-  get() const
-  {
-    auto const ptr = get_ptr< T >();
-    if( !ptr )
-    {
-      throw klv_bad_value_cast( typeid( T ), type() );
-    }
-    return *ptr;
-  }
+  get() const;
 
   /// Return a pointer to the contained value of type \c T, or \c nullptr on
   /// failure.
   template < class T >
   T*
-  get_ptr() noexcept
-  {
-    if( !m_item )
-    {
-      return nullptr;
-    }
-
-    auto const ptr = dynamic_cast< internal_< T >* >( m_item.get() );
-    return ptr ? &ptr->m_item : nullptr;
-  }
+  get_ptr() noexcept;
 
   /// Return a pointer to the contained value of type \c T, or \c nullptr on
   /// failure.
   template < class T >
   T const*
-  get_ptr() const noexcept
-  {
-    if( !m_item )
-    {
-      return nullptr;
-    }
-
-    auto const ptr = dynamic_cast< internal_< T > const* >( m_item.get() );
-    return ptr ? &ptr->m_item : nullptr;
-  }
+  get_ptr() const noexcept;
 
   friend KWIVER_ALGO_KLV_EXPORT bool
   operator<( klv_value const& lhs, klv_value const& rhs );
@@ -196,94 +155,11 @@ public:
   operator<<( std::ostream& os, klv_value const& rhs );
 
 private:
-
   // Abstract base class interfacing with the contained data type.
-  class KWIVER_ALGO_KLV_EXPORT internal_base
-  {
-  public:
-    virtual ~internal_base() = default;
-
-    virtual std::type_info const& type() const noexcept = 0;
-    virtual bool less_than( internal_base const& rhs ) const = 0;
-    virtual bool equal_to( internal_base const& rhs ) const = 0;
-    virtual std::ostream& print( std::ostream& os ) const = 0;
-    virtual internal_base* clone() const = 0;
-    virtual kwiver::vital::any to_any() const = 0;
-  };
+  class internal_base;
 
   // Type-specific implementation of the internal_base interface.
-  template < class T >
-  class KWIVER_ALGO_KLV_EXPORT internal_ : public internal_base
-  {
-  public:
-    explicit
-    internal_( T const& value ) : m_item( value ) {}
-
-    explicit
-    internal_( T&& value ) : m_item( value ) {}
-
-    std::type_info const&
-    type() const noexcept override final
-    {
-      return typeid( T );
-    }
-
-    bool
-    less_than( internal_base const& rhs ) const override final
-    {
-      auto const& lhs = *this;
-      // First, compare types
-      if( lhs.type().before( rhs.type() ) )
-      {
-        return true;
-      }
-      else if( lhs.type() == rhs.type() )
-      {
-        auto const& rhs_item =
-          dynamic_cast< internal_< T > const& >( rhs ).m_item;
-        // Second, compare values
-        return lhs.m_item < rhs_item;
-      }
-      return false;
-    }
-
-    bool
-    equal_to( internal_base const& rhs ) const override final
-    {
-      auto const& lhs = *this;
-
-      // First, compare types
-      if( lhs.type() != rhs.type() )
-      {
-        return false;
-      }
-
-      auto const& rhs_item =
-        dynamic_cast< internal_< T > const& >( rhs ).m_item;
-      // Second, compare values
-      return lhs.m_item == rhs_item;
-    }
-
-    std::ostream&
-    print( std::ostream& os ) const override final
-    {
-      return os << m_item;
-    }
-
-    internal_base*
-    clone() const override final
-    {
-      return new internal_< T >{ m_item };
-    }
-
-    kwiver::vital::any
-    to_any() const override final
-    {
-      return m_item;
-    }
-
-    T m_item;
-  };
+  template < class T > class internal_;
 
   std::unique_ptr< internal_base > m_item;
   size_t m_length_hint;
