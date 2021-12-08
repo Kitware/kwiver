@@ -195,7 +195,15 @@ public:
     }
 
     // Erase the bytes we just used
+#if defined( __GNUC__ ) && __GNUC__ < 5
+    // Old GCC bug means we have to convert from const_iterator to iterator
+    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54577
+    md_buffer.erase( md_buffer.begin(),
+                     std::next( md_buffer.begin(),
+                                std::distance( md_buffer.cbegin(), it ) ) );
+#else
     md_buffer.erase( md_buffer.cbegin(), it );
+#endif
 
     // Get the vital metadata structure for the current frame
     auto result =
