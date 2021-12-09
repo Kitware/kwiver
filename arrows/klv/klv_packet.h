@@ -14,6 +14,8 @@
 #include <arrows/klv/klv_value.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
+#include <vital/types/timestamp.h>
+
 namespace kwiver {
 
 namespace arrows {
@@ -123,6 +125,33 @@ klv_packet_timestamp( klv_packet const& packet );
 KWIVER_ALGO_KLV_EXPORT
 klv_tag_traits_lookup const&
 klv_lookup_packet_traits();
+
+// ----------------------------------------------------------------------------
+struct KWIVER_ALGO_KLV_EXPORT klv_timed_packet
+{
+  klv_packet packet;
+  kwiver::vital::timestamp timestamp;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator<( klv_timed_packet const& lhs, klv_timed_packet const& rhs );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator==( klv_timed_packet const& lhs, klv_timed_packet const& rhs );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator!=( klv_timed_packet const& lhs, klv_timed_packet const& rhs );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_timed_packet const& timed_packet );
 
 } // namespace klv
 
