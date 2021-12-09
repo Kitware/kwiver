@@ -13,12 +13,10 @@ namespace kwiver {
 namespace arrows {
 namespace burnout {
 
-/**
- * @brief Burnout Image Filtering
- *
- * This method contains basic methods for image filtering on top of input
- * images via automatic white balancing and smoothing.
- */
+/// @brief Burnout Image Filtering
+///
+/// This method contains basic methods for image filtering on top of input
+/// images via automatic white balancing and smoothing.
 class KWIVER_ALGO_BURNOUT_EXPORT burnout_image_enhancer
   : public vital::algo::image_filter
 {
@@ -45,4 +43,4 @@ private:
 
 } } }
 
-#endif /* KWIVER_ARROWS_BURNOUT_IMAGE_ENHANCER */
+#endif // KWIVER_ARROWS_BURNOUT_IMAGE_ENHANCER
