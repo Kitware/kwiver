@@ -4,13 +4,7 @@
 
 #include "moving_burnin_detector_opencv.h"
 
-#include <arrows/vxl/image_container.h>
 #include <arrows/ocv/image_container.h>
-
-#include <vil/vil_convert.h>
-#include <vil/vil_fill.h>
-
-#include <vul/vul_sprintf.h>
 
 #include <opencv/cxcore.h>
 #include <opencv/cvaux.h>
@@ -39,10 +33,10 @@ public:
   {}
 
   /// Check if the input image is valid
-  bool set_input_image( vil_image_view< vxl_byte > const& img);
+  bool set_input_image( cv::Mat const& img);
   /// Scale the given input parameters if the target resolution is different
   /// from the input resolution
-  void scale_params_for_image( vil_image_view< vxl_byte > const & img );
+  void scale_params_for_image( cv::Mat const & img );
 
   moving_burnin_detector_opencv* p;
 
@@ -65,7 +59,7 @@ public:
   kwiver::vital::image_container_sptr filter( kwiver::vital::image_container_sptr image );
 
   bool invalid_image;
-  vil_image_view<vxl_byte> byte_mask;
+  cv::Mat byte_mask;
   int w;
   int h;
 
@@ -225,18 +219,15 @@ moving_burnin_detector_opencv
 // ----------------------------------------------------------------------------------
 bool
 moving_burnin_detector_opencv::priv
-::set_input_image( vil_image_view<vxl_byte> const& img )
+::set_input_image( cv::Mat const& img )
 {
   //bool invalid_image = true;
-  if( img.nplanes() != 1 && img.nplanes() != 3)
+  if( img.channels() != 1 && img.channels() != 3)
   {
     LOG_ERROR( p->logger(), "Input image does not have either 1 or 3 channels" );
     invalid_image = true;
     return invalid_image;
   }
-
-  vil_image_view<vxl_byte> input_image = vil_image_view<vxl_byte>( img.ni(), 1, img.nplanes() );
-  vil_copy_reformat( img, input_image );
 
   //if( ( input_image.nplanes() != 1 && input_image.planestep() != 1 ) ||
   //    input_image.istep() != input_image.nplanes() ||
@@ -253,19 +244,19 @@ moving_burnin_detector_opencv::priv
 // ----------------------------------------------------------------------------------
 void
 moving_burnin_detector_opencv::priv
-::scale_params_for_image( vil_image_view< vxl_byte > const& img )
+::scale_params_for_image( cv::Mat const& img )
 {
   if( target_resolution_x == 0 ||
       target_resolution_y == 0 ||
-      ( target_resolution_x == img.ni() &&
-        target_resolution_y == img.nj() ) )
+      ( target_resolution_x == img.cols &&
+        target_resolution_y == img.rows ) )
   {
     //nothing to do here
     return;
   }
 
-  double scale_factor_x = static_cast<double>( img.ni() ) / target_resolution_x;
-  double scale_factor_y = static_cast<double>( img.nj() ) / target_resolution_y;
+  double scale_factor_x = static_cast<double>( img.cols ) / target_resolution_x;
+  double scale_factor_y = static_cast<double>( img.rows ) / target_resolution_y;
 
   // TODO: add template images for text templates
 
@@ -284,8 +275,8 @@ moving_burnin_detector_opencv::priv
   cross_length_y = static_cast<int>( cross_length_y * scale_factor_y + 0.5 );
   // TODO: add brackets
 
-  target_resolution_x = img.ni();
-  target_resolution_y = img.nj();
+  target_resolution_x = img.cols;
+  target_resolution_y = img.rows;
 }
 
 // ----------------------------------------------------------------------------------
@@ -414,43 +405,39 @@ kwiver::vital::image_container_sptr
 moving_burnin_detector_opencv::priv
 ::filter( kwiver::vital::image_container_sptr input_image )
 {
-  // convert image to vxl type
-  vil_image_view<vxl_byte> vxl_image;
-  vxl_image = vil_convert_cast(
-    vxl_byte(),
-    vxl::image_container::vital_to_vxl( input_image->get_image() )
-  );
   // convert image to cv
   cv::Mat cv_image = ocv::image_container::vital_to_ocv(
     input_image->get_image(),
-    ocv::image_container::BGR_COLOR );
+    ocv::image_container::RGB_COLOR );
 
   //bool invalid_image;
-  invalid_image = set_input_image( vxl_image );
+  invalid_image = set_input_image( cv_image );
   if( invalid_image ){
     LOG_ERROR( p->logger(), "Invalid image" );
     return kwiver::vital::image_container_sptr();
   }
 
-  scale_params_for_image( vxl_image );
+  scale_params_for_image( cv_image );
 
-  w = vxl_image.ni();
-  h = vxl_image.nj();
+  w = cv_image.cols;
+  h = cv_image.rows;
   //roi_aspect = roi_aspect ? roi_aspect : ( double(h) / double(w) );
   const int nw = w * roi_ratio;
   const int nh = roi_aspect ? ( nw * roi_aspect ) : ( h * roi_ratio );
 
-  if( byte_mask.size() != vxl_image.size() )
+  /*if( byte_mask.size() != cv_image.size() )
   {
-    byte_mask = vil_image_view<vxl_byte>( w, h);
+    byte_mask = cv::Mat( h, w );
   }
-  vil_fill( byte_mask, vxl_byte(0) );
+  byte_mask = cv::Mat::zeros( cv_image.rows, cv_image.cols, cv_image.type() )
+  */
 
   cv::Mat input( h, w,
-                 ( vxl_image.nplanes() == 1 ) ? CV_8UC1 : CV_8UC3,
-                 vxl_image.top_left_ptr() );
-  cv::Mat end_mask( byte_mask.nj(), byte_mask.ni(),
-                    CV_8UC1, byte_mask.top_left_ptr() );
+                 ( cv_image.channels() == 1 ) ? CV_8UC1 : CV_8UC3,
+                 cv_image.ptr(0, 0) );
+  //cv::cvtColor(input, input, BGR2RGB);
+  cv::Mat end_mask( cv_image.rows, cv_image.cols,
+                    CV_8UC1, cv_image.ptr(0, 0) );
 
   moving_burnin_detector_opencv::priv::metadata md;
   cv::Rect roi = cv::Rect( (w - nw) / 2, (h - nh) / 2, nw, nh ) + cv::Point( off_center_x, off_center_y );
@@ -462,8 +449,7 @@ moving_burnin_detector_opencv::priv
   std::vector< cv::Mat > bands;
   cv::split( input_view, bands );
 
-//#ifdef HAVE_COLOR_IMAGE
-  if ( vxl_image.nplanes() == 3 )
+  if ( cv_image.channels() == 3 )
   {
     for ( size_t i = 0; i < bands.size(); ++i )
     {
@@ -471,27 +457,24 @@ moving_burnin_detector_opencv::priv
       cv::threshold(bands[i], tmp, 128, 255, cv::THRESH_BINARY);
       bitwise_or( edge_view, tmp, edge_view );
     }
-  } else
+  }
+  else
   {
-//#else
   cv::add( edge_view, bands[0], edge_view );
   }
-//#endif
 
   // detect burnin objects
-  std::cout << "Cross threshold: " << cross_threshold << std::endl;
   if ( 0.0 <= cross_threshold && cross_threshold <= 1.0)
   {
+    std::cout << "Cross threshold: " << cross_threshold << std::endl;
     detect_cross( edges, md.center );
-    //cv::imshow("Edges", edges);
-    //cv::waitKey(0);
   }
 
   draw_metadata_mask( cv_image, md );
 
   vital::image overlay = ocv::image_container::ocv_to_vital(
     cv_image,
-    ocv::image_container::RGB_COLOR);
+    ocv::image_container::BGR_COLOR);
 
   // logging
   if ( verbose )
@@ -502,7 +485,7 @@ moving_burnin_detector_opencv::priv
     log_detection_stats( md );
   }
 
-  return std::make_shared< vxl::image_container >( overlay );
+  return std::make_shared< ocv::image_container >( overlay );
 }
 
 // ----------------------------------------------------------------------------
