@@ -18,7 +18,7 @@ namespace kwiver {
 
 namespace arrows {
 
-namespace burnout {
+namespace ocv {
 
 // ----------------------------------------------------------------------------
 // private implementation class
@@ -92,7 +92,7 @@ moving_burnin_detector_opencv
 ::moving_burnin_detector_opencv()
   : d{ new priv{ this } }
 {
-  attach_logger( "arrows.burnout.moving_burnin_detector_opencv" );
+  attach_logger( "arrows.ocv.moving_burnin_detector_opencv" );
 }
 
 moving_burnin_detector_opencv
@@ -506,7 +506,7 @@ moving_burnin_detector_opencv
   return mask;
 }
 
-} // end namespace burnout
+} // end namespace ocv
 
 } // end namespace arrows
 

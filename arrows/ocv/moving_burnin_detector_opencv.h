@@ -5,7 +5,7 @@
 #ifndef KWIVER_ARROWS_BURNOUT_MOVING_BURNIN_DETECTOR_OPENCV_
 #define KWIVER_ARROWS_BURNOUT_MOVING_BURNIN_DETECTOR_OPENCV_
 
-#include <arrows/burnout/kwiver_algo_burnout_export.h>
+#include <arrows/ocv/kwiver_algo_ocv_export.h>
 
 #include <vital/algo/image_filter.h>
 
@@ -18,9 +18,9 @@ namespace kwiver {
 
 namespace arrows {
 
-namespace burnout {
+namespace ocv {
 
-class KWIVER_ALGO_BURNOUT_EXPORT moving_burnin_detector_opencv
+class KWIVER_ALGO_OCV_EXPORT moving_burnin_detector_opencv
   : public vital::algo::image_filter
 {
   public:
@@ -48,7 +48,7 @@ class KWIVER_ALGO_BURNOUT_EXPORT moving_burnin_detector_opencv
     std::unique_ptr< priv > const d;
 };
 
-} // namespace burnout
+} // namespace ocv
 
 } // namespace arrows
 
