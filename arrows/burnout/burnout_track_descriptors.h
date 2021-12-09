@@ -13,7 +13,7 @@ namespace kwiver {
 namespace arrows {
 namespace burnout {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief burnout_track_descriptors
 ///
 class KWIVER_ALGO_BURNOUT_EXPORT burnout_track_descriptors
