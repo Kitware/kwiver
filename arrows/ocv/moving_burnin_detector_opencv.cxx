@@ -54,7 +54,7 @@ public:
   /// Detect cross hairs in an image
   void detect_cross( const cv::Mat& edges, cv::Point& center );
   /// Draw cross hair template
-  void draw_cross( cv::Mat& img, const cv::Point & center, double clr, int width );
+  void draw_cross( cv::Mat& img, const cv::Point & center, cv::Scalar color, int width );
 
   kwiver::vital::image_container_sptr filter( kwiver::vital::image_container_sptr image );
 
@@ -62,6 +62,7 @@ public:
   cv::Mat byte_mask;
   int w;
   int h;
+  cv::Scalar cross_output_color;
 
   // config default values
   bool disabled{ false };
@@ -74,6 +75,9 @@ public:
   int off_center_x{ 0 };
   int off_center_y{ 0 };
 
+  double cross_output_color_R{ 255 }; // red
+  double cross_output_color_G{ 0 };
+  double cross_output_color_B{ 0 };
   double cross_threshold{ 0.2 };
   int cross_gap_x{ 6 };
   int cross_gap_y{ 6 };
@@ -132,9 +136,18 @@ moving_burnin_detector_opencv
                      d->off_center_y,
                      "Vertical offset of the center of the brackets from the center of the frame" );
   // crosshair
+  config->set_value("cross_output_color_R",
+                     d->cross_output_color_R,
+                     "Red value of the color the detected crosshair is drawn" );
+  config->set_value("cross_output_color_G",
+                     d->cross_output_color_G,
+                     "Green value of the color the detected crosshair is drawn" );
+  config->set_value("cross_output_color_B",
+                     d->cross_output_color_B,
+                     "Blue value of the color the detected crosshair is drawn" );
   config->set_value( "cross_threshold",
-                      d->cross_threshold,
-                      "Minimum coverage of the cross with edge detection (negative to disable)" );
+                     d->cross_threshold,
+                     "Minimum coverage of the cross with edge detection (negative to disable)" );
   config->set_value( "cross_gap_x",
                      d->cross_gap_x,
                     "Horizontal gap between cross segments" );
@@ -193,6 +206,9 @@ moving_burnin_detector_opencv
   d->off_center_y = config->get_value< int >("off_center_y");
 
   // crosshair
+  d->cross_output_color_R = config->get_value< double >("cross_output_color_R");
+  d->cross_output_color_G = config->get_value< double >("cross_output_color_G");
+  d->cross_output_color_B = config->get_value< double >("cross_output_color_B");
   d->cross_threshold = config->get_value< double >("cross_threshold");
   d->cross_gap_x = config->get_value< int >("cross_gap_x");
   d->cross_gap_y = config->get_value< int >("cross_gap_y");
@@ -286,7 +302,7 @@ moving_burnin_detector_opencv::priv
 {
   if ( md.center.x != 0 && md.center.y != 0 )
   {
-  draw_cross( img, md.center, 255, draw_line_width );
+  draw_cross( img, md.center, cross_output_color, draw_line_width );
   }
   // TODO: add brackets and text
 }
@@ -317,9 +333,9 @@ moving_burnin_detector_opencv::priv
   cv::Mat buffer;
   cv::Point cntr = cv::Point( w / 2, h / 2) + cv::Point( off_center_x, off_center_y );
 
-  draw_cross( cross, cntr, 255, line_width );
+  draw_cross( cross, cntr, cv::Scalar(255, 255, 255, 255), line_width );
   const int cross_count = cv::countNonZero( cross );
-  draw_cross( cross, cntr, 0, line_width );
+  draw_cross( cross, cntr, cv::Scalar(0, 0, 0, 0), line_width );
 
   for ( int i = -off_center_jitter; i <= off_center_jitter; ++i )
   {
@@ -331,11 +347,11 @@ moving_burnin_detector_opencv::priv
                                          cross_length_y + cross_gap_y ),
                          cv::Size( 2 * ( cross_length_x + cross_gap_x ),
                                    2 * ( cross_length_y + cross_gap_y ) ) );
-     draw_cross( cross, ct, 255, line_width );
+     draw_cross( cross, ct, cv::Scalar(255, 255, 255, 255), line_width );
      cv::Mat edgev = edge_image(bb);
      cv::Mat crossv = cross(bb);
      cv::bitwise_and( edgev, crossv, buffer );
-     draw_cross( cross, ct, 0, line_width );
+     draw_cross( cross, ct, cv::Scalar(0, 0, 0, 0), line_width );
 
      const int edge_count = cv::countNonZero( buffer );
 
@@ -359,10 +375,8 @@ moving_burnin_detector_opencv::priv
 // ----------------------------------------------------------------------------------
 void
 moving_burnin_detector_opencv::priv
-::draw_cross( cv::Mat& img, const cv::Point& center, double clr, int width )
+::draw_cross( cv::Mat& img, const cv::Point& center, cv::Scalar color, int width )
 {
-  const cv::Scalar color = cv::Scalar( clr );
-
   // Middle cross
   cv::line( img, center + cv::Point( cross_gap_x, 0 ), center +
                           cv::Point( cross_gap_x + cross_length_x, 0), color, width );
@@ -410,6 +424,10 @@ moving_burnin_detector_opencv::priv
     input_image->get_image(),
     ocv::image_container::RGB_COLOR );
 
+  // set detection output colors
+  cross_output_color = cv::Scalar(cross_output_color_R, cross_output_color_G, cross_output_color_B);
+  std::cout << "Cross color (RGB): " << cross_output_color << std::endl;
+
   //bool invalid_image;
   invalid_image = set_input_image( cv_image );
   if( invalid_image ){
@@ -425,17 +443,9 @@ moving_burnin_detector_opencv::priv
   const int nw = w * roi_ratio;
   const int nh = roi_aspect ? ( nw * roi_aspect ) : ( h * roi_ratio );
 
-  /*if( byte_mask.size() != cv_image.size() )
-  {
-    byte_mask = cv::Mat( h, w );
-  }
-  byte_mask = cv::Mat::zeros( cv_image.rows, cv_image.cols, cv_image.type() )
-  */
-
   cv::Mat input( h, w,
                  ( cv_image.channels() == 1 ) ? CV_8UC1 : CV_8UC3,
                  cv_image.ptr(0, 0) );
-  //cv::cvtColor(input, input, BGR2RGB);
   cv::Mat end_mask( cv_image.rows, cv_image.cols,
                     CV_8UC1, cv_image.ptr(0, 0) );
 

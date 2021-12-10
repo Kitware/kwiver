@@ -2,8 +2,6 @@
 #process input
 #  :: video_input
 #  #video_filename   	= /home/local/KHQ/hannah.defazio/kwiver-fork/src/examples/videos/drone-video.mp4
-#  video_filename     = /media/hannah.defazio/Padlock_DT/Data/fouo/Burnout/mq9_data/sample-20210809/20200714_Hwy58_Night1.mp4
-#  #video_filename      = /media/hannah.defazio/Padlock_DT/Data/fouo/Burnout/mq9_data/FMV Scenarios/14 Jul 2020 Collect/Progeny/20200714 DirtRdNight.ts
 #  frame_time        	= .3333
 
  # video_reader:type	= ffmpeg
@@ -23,9 +21,9 @@ process input
 # =============================================================================
 process detect_moving_burnin
   :: image_filter
-  filter:type = burnout_moving_burnin_detector_opencv
+  filter:type = moving_burnin_detector_opencv
 
-  block filter:burnout_moving_burnin_detector_opencv
+  block filter:moving_burnin_detector_opencv
     disabled                            = false
     cross_threshold                     = 0.2
     highest_score_only                  = false
@@ -36,10 +34,13 @@ process detect_moving_burnin
     off_center_x                        = 0
     off_center_y                        = 0
 
+    cross_output_color_R                = 255
+    cross_output_color_G                = 0
+    cross_output_color_B                = 0
     cross_gap_x                         = 10
     cross_gap_y                         = 10
-    cross_length_x                      = 26
-    cross_length_y                      = 26
+    cross_length_x                      = 20
+    cross_length_y                      = 20
     cross_ends_ratio                    = -1.0
 
     off_center_jitter                   = 1

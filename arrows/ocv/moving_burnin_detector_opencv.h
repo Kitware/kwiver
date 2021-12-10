@@ -24,7 +24,7 @@ class KWIVER_ALGO_OCV_EXPORT moving_burnin_detector_opencv
   : public vital::algo::image_filter
 {
   public:
-    PLUGIN_INFO( "burnout_moving_burnin_detector_opencv",
+    PLUGIN_INFO( "moving_burnin_detector_opencv",
                "Detect burnin items from an image." )
 
     moving_burnin_detector_opencv();
