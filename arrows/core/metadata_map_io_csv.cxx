@@ -540,7 +540,7 @@ metadata_map_io_csv
         // Write empty fields
         {
           auto const& trait = kv::tag_traits_by_tag( info.id.tag );
-          fout << std::string( get_column_count( trait.type() ), ',' );
+          fout << ',';
         }
       }
       fout << "\n";
