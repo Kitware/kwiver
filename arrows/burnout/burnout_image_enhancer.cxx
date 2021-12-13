@@ -21,7 +21,7 @@ namespace burnout {
 typedef vidtk::video_enhancement_process< vxl_byte > process_8bit;
 typedef vidtk::video_enhancement_process< vxl_uint_16 > process_16bit;
 
-// ==================================================================================
+// ----------------------------------------------------------------------------
 class burnout_image_enhancer::priv
 {
 public:
@@ -49,7 +49,7 @@ public:
   vital::logger_handle_t m_logger;
 };
 
-// ==================================================================================
+// ----------------------------------------------------------------------------
 burnout_image_enhancer
 ::burnout_image_enhancer()
   : d( new priv() )
@@ -61,7 +61,7 @@ burnout_image_enhancer
 {
 }
 
-// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 void
 burnout_image_enhancer::priv
@@ -106,7 +106,7 @@ burnout_image_enhancer::priv
   }
 }
 
-// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 burnout_image_enhancer
 ::get_configuration() const
@@ -119,7 +119,7 @@ burnout_image_enhancer
   return config;
 }
 
-// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 burnout_image_enhancer
 ::set_configuration( vital::config_block_sptr config_in )
@@ -134,7 +134,7 @@ burnout_image_enhancer
   d->configure_process();
 }
 
-// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 burnout_image_enhancer
 ::check_configuration( vital::config_block_sptr config ) const
@@ -149,7 +149,7 @@ burnout_image_enhancer
   return true;
 }
 
-// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::image_container_sptr
 burnout_image_enhancer
 ::filter( vital::image_container_sptr image_data )
