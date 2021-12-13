@@ -231,7 +231,8 @@ double
 compute_horizontal_gsd( double slant_range, double sensor_horizontal_fov,
                         double frame_width )
 {
-  return 2.0 * slant_range * tan( sensor_horizontal_fov / 2.0 ) / frame_width;
+  return 2.0 * slant_range *
+         std::tan( sensor_horizontal_fov / frame_width / 2.0 );
 }
 
 // ----------------------------------------------------------------------------
@@ -243,11 +244,9 @@ compute_vertical_gsd( double slant_range, double sensor_vertical_fov,
   {
     VITAL_THROW( kv::invalid_value, "pitch must be negative" );
   }
-  double const interior_angle = kv::pi_over_2 + pitch;
-  double const altitude = slant_range * std::cos( interior_angle );
-  double const vertical_gsd = 2.0 * altitude * std::sin( sensor_vertical_fov ) /
-    ( frame_height * ( 1.0 + std::cos( 2.0 * interior_angle ) ) );
-  return vertical_gsd;
+  return 2.0 * slant_range *
+         std::tan( sensor_vertical_fov / frame_height / 2.0 ) /
+         std::sin( -pitch );
 }
 
 // ----------------------------------------------------------------------------
