@@ -11,7 +11,10 @@ Arrows: Ceres
 
  * Fixed a bug in which the FORCE_COMMON_INTRINSICS option in bundle
    adjustment was not actually forcing intrinsics to be common.
-   
+
+Arrows: FFMPEG
+ * Fixed a bug in which slight variations in presentation timestamps would
+   sometimes cause frames to be skipped while decoding.
 
 Arrows: MVG
 

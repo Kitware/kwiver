@@ -599,7 +599,7 @@ public:
 
     return static_cast<unsigned int>(
       (this->f_pts - this->f_start_time) / this->stream_time_base_to_frame()
-      - static_cast<int>(this->f_frame_number_offset));
+      - static_cast<int>(this->f_frame_number_offset) + 0.5);
   }
 
   void set_default_metadata(kwiver::vital::metadata_sptr md)
