@@ -64,12 +64,19 @@ operator<<( std::ostream& os, klv_blob const& blob )
   auto const flags = os.flags();
 
   os << std::hex << std::setfill( '0' );
-  os << "< ";
+  auto first = true;
   for( auto const c : *blob )
   {
-    os << std::setw( 2 ) << static_cast< unsigned int >( c ) << ' ';
+    if( first )
+    {
+      first = false;
+    }
+    else
+    {
+      os << ' ';
+    }
+    os << std::setw( 2 ) << static_cast< unsigned int >( c );
   }
-  os << ">";
 
   os.flags( flags );
   return os;
