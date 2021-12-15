@@ -41,8 +41,7 @@ struct klv_0601_traits<KLV_0601_##TAG>                                  \
 }
 
 //          tag                          string name                        type
-// ----------------------------------------------------------------------------
-                          -----------                        ----
+//          ___                          -----------                        ----
 KLV_TRAITS( CHECKSUM,                    "Checksum",                        uint16_t);
 KLV_TRAITS( UNIX_TIMESTAMP,              "Unix Time Stamp",                 uint64_t);
 KLV_TRAITS( MISSION_ID,                  "Mission ID",                      std::string);
@@ -178,9 +177,8 @@ struct klv_0601_convert<KLV_0601_##TAG>                                 \
   }                                                                     \
 }
 
-//                 tag                            scale  offset
-// ----------------------------------------------------------------------------
-                            -----  ------
+//                 tag                           scale  offset
+//                 ---                           -----  ------
 KLV_SCALE(         PLATFORM_HEADING_ANGLE,       360);
 KLV_SCALE_INVALID( PLATFORM_PITCH_ANGLE,         20);
 KLV_SCALE_INVALID( PLATFORM_ROLL_ANGLE,          50);
