@@ -53,7 +53,7 @@ struct meta_item
     kv::metadata_value& data;
   };
 
-  // ---------------------------------------------
+  // --------------------------------------------------------------------------
   /// Save a single metadata item
   template < class Archive >
   void save( Archive& archive ) const
@@ -70,7 +70,7 @@ struct meta_item
     archive( ::cereal::make_nvp( "type", trait.type_name() ) );
   }
 
-  // -------------------------------------------------
+  // --------------------------------------------------------------------------
   //  Load a single metadata element
   template< class Archive >
   void load( Archive& archive )

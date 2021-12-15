@@ -32,7 +32,7 @@
 #include <iostream>
 
 namespace cereal {
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::activity_type& at )
 {
 
@@ -58,7 +58,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::activity_type& 
   }
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::bounding_box_d& bbox )
 {
   archive( ::cereal::make_nvp( "min_x", bbox.min_x() ),
@@ -80,7 +80,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::bounding_box_d&
   bbox = ::kwiver::vital::bounding_box_d( min_x, min_y, max_x, max_y );
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::detected_object& obj )
 {
   // serialize bounding box
@@ -154,7 +154,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::detected_object
   obj.set_type( new_dot );
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive&                archive,
            const ::kwiver::vital::detected_object_set& obj )
 {
@@ -194,7 +194,7 @@ void load( ::cereal::JSONInputArchive&           archive,
   //+ TBD
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::detected_object_type& dot )
 {
 
@@ -250,7 +250,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::detected_object
 //  Note that this is only a problem with images where the pixels are
 //  multi-byte.
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::image_container_sptr ctr )
 {
   ::kwiver::vital::image vital_image = ctr->get_image();
@@ -403,7 +403,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::image_container
   ctr = std::make_shared< ::kwiver::vital::simple_image_container >( vital_image );
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive&       archive,
            const ::kwiver::vital::timestamp&  tstamp )
 {
@@ -424,7 +424,7 @@ void load( ::cereal::JSONInputArchive&  archive,
                                        frame ) );
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::geo_polygon& poly )
 {
   archive( ::cereal::make_nvp( "crs", poly.crs() ) );
@@ -442,7 +442,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::geo_polygon& po
   poly.set_polygon( raw_poly, crs );
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::geo_point& point )
 {
   if ( point.is_empty() )
@@ -482,7 +482,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::geo_point& poin
   }
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::polygon& poly )
 {
   auto vert = poly.get_vertices();
@@ -501,7 +501,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::polygon& poly )
   }
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::track_state& trk_state )
 {
   ::kwiver::vital::frame_id_t frame = trk_state.frame();
@@ -516,7 +516,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::track_state& tr
   trk_state.set_frame( track_frame );
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive,
            const ::kwiver::vital::object_track_state& obj_trk_state )
 {
@@ -554,7 +554,7 @@ void load( ::cereal::JSONInputArchive& archive,
   obj_trk_state.set_detection(detection);
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::track_set& trk_set )
 {
   std::vector<::kwiver::arrows::serialize::json::track_item> track_items;
@@ -578,7 +578,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::track_set& trk_
   trk_set.set_tracks(tracks);
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive,
           const ::kwiver::vital::object_track_set& obj_trk_set )
 {

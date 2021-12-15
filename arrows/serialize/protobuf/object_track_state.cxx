@@ -26,7 +26,7 @@ namespace protobuf {
   { }
 
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   std::shared_ptr< std::string >
   object_track_state::
   serialize( const vital::any& element )
@@ -49,7 +49,7 @@ namespace protobuf {
     return std::make_shared< std::string >( msg.str() );
   }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   vital::any object_track_state::
   deserialize( const std::string& message )
   {

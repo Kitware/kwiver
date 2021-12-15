@@ -14,7 +14,7 @@ namespace arrows {
 namespace serialize {
 namespace protobuf {
 
-// --------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 image::image()
 {
   // Verify that the version of the library that we linked against is
