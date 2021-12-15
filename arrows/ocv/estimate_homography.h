@@ -26,10 +26,8 @@ public:
 
   // No configuration yet for this class
   /// \cond DoxygenSuppress
-  virtual void set_configuration(vital::config_block_sptr //config
-) { }
-  virtual bool check_configuration(vital::config_block_sptr //config
-) const { return true; }
+  virtual void set_configuration(vital::config_block_sptr /*config*/) { }
+  virtual bool check_configuration(vital::config_block_sptr /*config*/) const { return true; }
   /// \endcond
 
   /// Estimate a homography matrix from corresponding points
