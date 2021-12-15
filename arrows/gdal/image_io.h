@@ -23,10 +23,8 @@ class KWIVER_ALGO_GDAL_EXPORT image_io
 public:
   // No configuration for this class yet
   /// \cond DoxygenSuppress
-  virtual void set_configuration(vital::config_block_sptr //config
-) { }
-  virtual bool check_configuration(vital::config_block_sptr //config
-) const { return true; }
+  virtual void set_configuration(vital::config_block_sptr /*config*/) { }
+  virtual bool check_configuration(vital::config_block_sptr /*config*/) const { return true; }
   /// \endcond
 
 private:
