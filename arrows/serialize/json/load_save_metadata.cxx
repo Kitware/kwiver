@@ -71,9 +71,7 @@ struct meta_item
   }
 
   // -------------------------------------------------
-  /*
-   * Load a single metadata element
-   */
+  //  Load a single metadata element
   template< class Archive >
   void load( Archive& archive )
   {

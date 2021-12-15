@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
-* \file
-* \brief Header file for world space defines how the volumes slices the world
-*/
+/// \file
+/// \brief Header file for world space defines how the volumes slices the world
 
 #ifndef KWIVER_ARROWS_SUPER3D_WORLD_SPACE_H_
 #define KWIVER_ARROWS_SUPER3D_WORLD_SPACE_H_

@@ -25,7 +25,7 @@ namespace protobuf {
   track_state::~track_state()
   { }
 
-  
+
   // ----------------------------------------------------------------------------
   std::shared_ptr< std::string >
   track_state::
@@ -54,7 +54,7 @@ namespace protobuf {
   deserialize( const std::string& message )
   {
     std::istringstream msg( message );
-    kwiver::vital::track_state trk_state( 0 ); 
+    kwiver::vital::track_state trk_state( 0 );
     std::string tag;
     msg >> tag;
     msg.get();  // Eat delimiter
