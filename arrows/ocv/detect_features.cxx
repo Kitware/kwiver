@@ -51,8 +51,7 @@ detect_features
     // object to consider the first channel. See vital::image documentation.
     vital::image i(s.memory(),
                    s.first_pixel(),
-                   s.width(),  s.height(), 1 //depth
-,
+                   s.width(),  s.height(), 1 /*depth*/,
                    s.w_step(), s.h_step(), s.d_step(), s.pixel_traits());
     cv_mask = ocv::image_container::vital_to_ocv(i, ocv::image_container::BGR_COLOR);
     cv::threshold(cv_mask, cv_mask, 128, 255, cv::THRESH_BINARY);
