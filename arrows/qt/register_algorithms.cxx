@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Register Qt algorithms implementation
- */
+/// \file
+/// \brief Register Qt algorithms implementation
 
 #include <arrows/qt/kwiver_algo_qt_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV estimate_fundamental_matrix algorithm implementation
- */
+/// \file
+/// \brief OCV estimate_fundamental_matrix algorithm implementation
 
 #include "estimate_fundamental_matrix.h"
 

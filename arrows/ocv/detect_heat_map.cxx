@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of ocv::detect_heat_map
- */
+/// \file
+/// \brief Implementation of ocv::detect_heat_map
 
 #include "detect_heat_map.h"
 
@@ -73,28 +71,26 @@ linspace(T a, T b, int n)
 
 //-----------------------------------------------------------------------------
   ///
-  /**
-  * @brief Applies threshold and finds bounding boxes for above-zero pixels.
-  *
-  * @param image Image
-  * @param threshold Threshold used to turn image into a binary max.
-  * @param first_row First row from which to start checking for the start of the
-  *   bounding box.
-  * @param last_row One greater than the index for the last row from which to
-  *   start checking for a viable bounding box (default -1 uses image height).
-  * @param first_row First column from which to start checking for the start of
-  *   the bounding box.
-  * @param last_row One greater than the index for the last column from which to
-  *   start checking for a viable bounding box (default -1 uses image width).
-  *
-  * @return Tuple of integers (first row, last row, first col, last col)
-  *   indicating the bounding rows/columns where at least one above-threshold
-  *   element exists. last_row is one greater than the index for the last above-
-  *   threshold row, and last_col is one greater than the index for the last
-  *   above-threshold column. If image is entirely below threshold, then
-  *   first_row = last_row = image.rows and first_colum = last_column =
-  *   image.cols.
-  */
+  /// @brief Applies threshold and finds bounding boxes for above-zero pixels.
+  ///
+  /// @param image Image
+  /// @param threshold Threshold used to turn image into a binary max.
+  /// @param first_row First row from which to start checking for the start of the
+  ///  bounding box.
+  /// @param last_row One greater than the index for the last row from which to
+  ///  start checking for a viable bounding box (default -1 uses image height).
+  /// @param first_row First column from which to start checking for the start of
+  ///  the bounding box.
+  /// @param last_row One greater than the index for the last column from which to
+  ///  start checking for a viable bounding box (default -1 uses image width).
+  ///
+  /// @return Tuple of integers (first row, last row, first col, last col)
+  ///  indicating the bounding rows/columns where at least one above-threshold
+  ///  element exists. last_row is one greater than the index for the last above-
+  ///  threshold row, and last_col is one greater than the index for the last
+  ///  above-threshold column. If image is entirely below threshold, then
+  ///  first_row = last_row = image.rows and first_colum = last_column =
+  ///  image.cols.
 template <class T>
 std::tuple<int,int,int,int>
 static

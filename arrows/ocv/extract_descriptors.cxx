@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of OCV DescriptorExtractor wrapping.
- */
+/// \file
+/// \brief Implementation of OCV DescriptorExtractor wrapping.
 
 #include "extract_descriptors.h"
 
@@ -24,7 +22,8 @@ descriptor_set_sptr
 extract_descriptors
 ::extract(image_container_sptr image_data,
           feature_set_sptr &features,
-          image_container_sptr /* image_mask */) const
+          image_container_sptr // image_mask 
+) const
 {
   if( !image_data || !features )
   {

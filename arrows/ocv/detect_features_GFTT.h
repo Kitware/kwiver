@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV GFTT feature detector wrapper
- */
+/// \file
+/// \brief OCV GFTT feature detector wrapper
 
 #ifndef KWIVER_ARROWS_DETECT_FEATURES_GFTT_H_
 #define KWIVER_ARROWS_DETECT_FEATURES_GFTT_H_

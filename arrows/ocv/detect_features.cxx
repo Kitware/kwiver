@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV detect_features algorithm implementation
- */
+/// \file
+/// \brief OCV detect_features algorithm implementation
 
 #include "detect_features.h"
 
@@ -53,7 +51,8 @@ detect_features
     // object to consider the first channel. See vital::image documentation.
     vital::image i(s.memory(),
                    s.first_pixel(),
-                   s.width(),  s.height(), 1 /*depth*/,
+                   s.width(),  s.height(), 1 //depth
+,
                    s.w_step(), s.h_step(), s.d_step(), s.pixel_traits());
     cv_mask = ocv::image_container::vital_to_ocv(i, ocv::image_container::BGR_COLOR);
     cv::threshold(cv_mask, cv_mask, 128, 255, cv::THRESH_BINARY);

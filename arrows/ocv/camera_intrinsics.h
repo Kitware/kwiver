@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV camera intrinsics.  Converts kwiver intrinsics to OpenCV intrinsics.
- */
+/// \file
+/// \brief OCV camera intrinsics.  Converts kwiver intrinsics to OpenCV intrinsics.
 
 #ifndef KWIVER_ARROWS_OCV_CAMERA_INTRINSICS_H_
 #define KWIVER_ARROWS_OCV_CAMERA_INTRINSICS_H_

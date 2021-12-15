@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of ocv::detect_motion_MOG2
- */
+/// \file
+/// \brief Implementation of ocv::detect_motion_MOG2
 
 #include "detect_motion_mog2.h"
 
