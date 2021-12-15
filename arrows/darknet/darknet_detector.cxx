@@ -83,11 +83,11 @@ public:
   int m_chip_step;
 
   // Needed to operate the model
-  char **m_names;                 /* list of classes/labels */
+  char **m_names;                 // list of classes/labels
   network m_net;
 
-  box *m_boxes;                   /* detection boxes */
-  float **m_probs;                /*  */
+  box *m_boxes;                   // detection boxes
+  float **m_probs;                //
 
   // Helper functions
   image cvmat_to_image( const cv::Mat& src );
@@ -171,8 +171,8 @@ set_configuration( vital::config_block_sptr config_in )
   this->d->m_resize_j    = config->get_value< int >( "resize_nj" );
   this->d->m_chip_step   = config->get_value< int >( "chip_step" );
 
-  /* the size of this array is a mystery - probably has to match some
-   * constant in net description */
+  // the size of this array is a mystery - probably has to match some
+  //  constant in net description
 
 #ifdef DARKNET_USE_GPU
   if( d->m_gpu_index >= 0 )
@@ -342,7 +342,7 @@ process_image( const cv::Mat& cv_image )
   image sized = resize_image( im, m_net.w, m_net.h );
   // show_image( sized, "sized version" );
 
-  layer l = m_net.layers[m_net.n - 1];     /* last network layer (output?) */
+  layer l = m_net.layers[m_net.n - 1];     // last network layer (output?)
   const size_t l_size = l.w * l.h * l.n;
 
   m_boxes = (box*) calloc( l_size, sizeof( box ) );
@@ -352,23 +352,23 @@ process_image( const cv::Mat& cv_image )
     m_probs[j] = (float*) calloc( l.classes + 1, sizeof( float*) );
   }
 
-  /* pointer the image data */
+  // pointer the image data
   float* X = sized.data;
 
-  /* run image through network */
+  // run image through network
   network_predict( m_net, X );
 
-  /* get boxes around detected objects */
-  get_region_boxes( l,        /* i: network output layer */
-                    1, 1,     /* i: w, h -  */
+  // get boxes around detected objects
+  get_region_boxes( l,        // i: network output layer
+                    1, 1,     // i: w, h -
                     m_net.w, m_net.h,
-                    m_thresh, /* i: caller supplied threshold */
-                    m_probs,  /* o: probability vector */
-                    m_boxes,  /* o: list of boxes */
-                    0,        /** masks */
-                    0,        /* i: only objectness (false) */
-                    0,        /* i: map */
-                    m_hier_thresh, 1); /* i: caller supplied value */
+                    m_thresh, // i: caller supplied threshold
+                    m_probs,  // o: probability vector
+                    m_boxes,  // o: list of boxes
+                    0,        /// masks
+                    0,        // i: only objectness (false)
+                    0,        // i: map
+                    m_hier_thresh, 1); // i: caller supplied value
 
   const float nms( 0.4 );       // don't know what this is
 
@@ -397,7 +397,7 @@ process_image( const cv::Mat& cv_image )
     int top   = ( b.y - b.h / 2. ) * im.h;
     int bot   = ( b.y + b.h / 2. ) * im.h;
 
-    /* clip box to image bounds */
+    // clip box to image bounds
     if( left < 0 )
     {
       left = 0;

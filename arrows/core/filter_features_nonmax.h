@@ -9,10 +9,8 @@
 
 #include <vital/algo/filter_features.h>
 
-/**
- * \file
- * \brief Header for filtering features with non-max suppression
- */
+/// \file
+/// \brief Header for filtering features with non-max suppression
 
 namespace kwiver {
 namespace arrows {
@@ -42,11 +40,10 @@ public:
 protected:
 
   /// filter a feature set
-  /**
-   * \param [in] feature set to filter
-   * \param [out] indices of the kept features to the original feature set
-   * \returns a filtered version of the feature set
-   */
+  ///
+  /// \param [in] feature set to filter
+  /// \param [out] indices of the kept features to the original feature set
+  /// \returns a filtered version of the feature set
   virtual vital::feature_set_sptr
   filter(vital::feature_set_sptr input, std::vector<unsigned int> &indices) const;
   using filter_features::filter;

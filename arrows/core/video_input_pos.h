@@ -15,13 +15,11 @@ namespace core {
 
 /// Metadata reader using the AFRL POS file format.
 // ----------------------------------------------------------------
-/**
- * This class implements a video input algorithm that returns only metadata.
- *
- * The algorithm takes configuration for a directory full of images
- * and an associated directory name for the metadata files. These
- * metadata files have the same base name as the image files.
- */
+/// This class implements a video input algorithm that returns only metadata.
+///
+/// The algorithm takes configuration for a directory full of images
+/// and an associated directory name for the metadata files. These
+/// metadata files have the same base name as the image files.
 class KWIVER_ALGO_CORE_EXPORT video_input_pos
   : public  vital::algo::video_input
 {
@@ -47,15 +45,13 @@ public:
   /// Check that the algorithm's currently configuration is valid
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
-  /**
-   * @brief Open a list of images.
-   *
-   * This method opens the file that contains the list of images. The
-   * individual image names are used to find the associated metadata
-   * file in the directory supplied via the configuration.
-   *
-   * @param list_name Name of file that contains list of images.
-   */
+  /// @brief Open a list of images.
+  ///
+  /// This method opens the file that contains the list of images. The
+  /// individual image names are used to find the associated metadata
+  /// file in the directory supplied via the configuration.
+  ///
+  /// @param list_name Name of file that contains list of images.
   virtual void open( std::string list_name );
   virtual void close();
 

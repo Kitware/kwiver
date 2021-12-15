@@ -273,7 +273,8 @@ video_input_image_list
 // ----------------------------------------------------------------------------
 bool
 video_input_image_list
-::next_frame( kv::timestamp& ts, uint32_t /*timeout*/ )
+::next_frame( kv::timestamp& ts, uint32_t //timeout
+ )
 {
   if ( this->end_of_video() )
   {
@@ -304,7 +305,8 @@ bool
 video_input_image_list
 ::seek_frame( kv::timestamp& ts,
               kv::timestamp::frame_t frame_number,
-              uint32_t /*timeout*/ )
+              uint32_t //timeout
+ )
 {
   // Check if requested frame exists
   auto const max_frame_number =

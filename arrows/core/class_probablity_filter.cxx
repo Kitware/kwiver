@@ -7,13 +7,11 @@
 #include <vital/config/config_difference.h>
 #include <vital/util/string.h>
 
-/**
- * \todo The interactions between the list of classes and keep_all_classes
- * is confusing and awkward.  Maybe keep_all_classes should be
- * disabled if there are any items in the list of classes.  Possibly
- * add '-all-' as a meta-class name that specifies all classes and
- * remove the keep_all_classes option.
- */
+/// \todo The interactions between the list of classes and keep_all_classes
+/// is confusing and awkward.  Maybe keep_all_classes should be
+/// disabled if there are any items in the list of classes.  Possibly
+/// add '-all-' as a meta-class name that specifies all classes and
+/// remove the keep_all_classes option.
 
 namespace kwiver {
 namespace arrows {

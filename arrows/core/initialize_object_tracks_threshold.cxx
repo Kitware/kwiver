@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of initialize_object_tracks_threshold
- */
+/// \file
+/// \brief Implementation of initialize_object_tracks_threshold
 
 #include "initialize_object_tracks_threshold.h"
 
@@ -111,7 +109,8 @@ initialize_object_tracks_threshold
 kwiver::vital::object_track_set_sptr
 initialize_object_tracks_threshold
 ::initialize( kwiver::vital::timestamp ts,
-              kwiver::vital::image_container_sptr /*image*/,
+              kwiver::vital::image_container_sptr //image
+,
               kwiver::vital::detected_object_set_sptr detections ) const
 {
   auto filtered = d_->filter->filter( detections );

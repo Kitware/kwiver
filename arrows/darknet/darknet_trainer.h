@@ -14,9 +14,7 @@ namespace arrows {
 namespace darknet {
 
 // ----------------------------------------------------------------
-/**
- * @brief Darknet Training Utility Class
- */
+/// @brief Darknet Training Utility Class
 class KWIVER_ALGO_DARKNET_EXPORT darknet_trainer
   : public vital::algo::train_detector
 {
@@ -46,4 +44,4 @@ private:
 
 } } }
 
-#endif /* KWIVER_ARROWS_DARKNET_TRAINER */
+#endif // KWIVER_ARROWS_DARKNET_TRAINER

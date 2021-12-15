@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of detected object set csv output
- */
+/// \file
+/// \brief Implementation of detected object set csv output
 
 #include "track_descriptor_set_output_csv.h"
 

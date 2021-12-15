@@ -14,10 +14,8 @@ namespace arrows {
 namespace darknet {
 
 // -----------------------------------------------------------------------------
-/**
- * @brief
- *
- */
+/// @brief
+///
 class KWIVER_ALGO_DARKNET_EXPORT darknet_detector
   : public vital::algo::image_object_detector
 {
@@ -43,4 +41,4 @@ private:
 
 } } }
 
-#endif /* KWIVER_ARROWS_DARKENT_DETECTOR */
+#endif // KWIVER_ARROWS_DARKENT_DETECTOR

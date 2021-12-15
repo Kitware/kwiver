@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of read_object_track_set_kw18
- */
+/// \file
+/// \brief Implementation of read_object_track_set_kw18
 
 #include "read_object_track_set_kw18.h"
 
@@ -188,15 +186,13 @@ read_object_track_set_kw18::priv
       VITAL_THROW( vital::invalid_data, str.str() );
     }
 
-    /*
-     * Check to see if we have seen this frame before. If we have,
-     * then retrieve the frame's index into our output map. If not
-     * seen before, add frame -> detection set index to our map and
-     * press on.
-     *
-     * This allows for track states to be written in a non-contiguous
-     * manner as may be done by streaming writers.
-     */
+    //  Check to see if we have seen this frame before. If we have,
+    //  then retrieve the frame's index into our output map. If not
+    //  seen before, add frame -> detection set index to our map and
+    //  press on.
+    //
+    //  This allows for track states to be written in a non-contiguous
+    //  manner as may be done by streaming writers.
     vital::frame_id_t frame_index = atoi( col[COL_FRAME].c_str() );
     vital::time_usec_t frame_time = atof( col[COL_TIME].c_str() );
     int track_index = atoi( col[COL_ID].c_str() );

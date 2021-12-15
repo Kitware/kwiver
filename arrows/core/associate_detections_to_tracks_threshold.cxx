@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of associate_detections_to_tracks_threshold
- */
+/// \file
+/// \brief Implementation of associate_detections_to_tracks_threshold
 
 #include "associate_detections_to_tracks_threshold.h"
 
@@ -102,7 +100,8 @@ associate_detections_to_tracks_threshold
 bool
 associate_detections_to_tracks_threshold
 ::associate( kwiver::vital::timestamp ts,
-             kwiver::vital::image_container_sptr /*image*/,
+             kwiver::vital::image_container_sptr //image
+,
              kwiver::vital::object_track_set_sptr tracks,
              kwiver::vital::detected_object_set_sptr detections,
              kwiver::vital::matrix_d matrix,

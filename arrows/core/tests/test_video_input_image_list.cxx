@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test reading video from a list of images.
- */
+/// \file
+/// \brief test reading video from a list of images.
 
 #include <test_gtest.h>
 

@@ -17,21 +17,19 @@ namespace arrows {
 namespace core {
 
 // ----------------------------------------------------------------
-/**
- * @brief Filters detections based on class probability.
- *
- * This algorithm filters out items that are less than the threshold.
- * The following steps are applied to each input detected object set.
- *
- * 1) Select all class names with scores greater than threshold.
- *
- * 2) Create a new detected_object_type object with all selected class
- *    names from step 1. The class name can be selected individually
- *    or with the keep_all_classes option.
- *
- * 3) The input detection_set is cloned and the detected_object_type
- *    from step 2 is attached.
- */
+/// @brief Filters detections based on class probability.
+///
+/// This algorithm filters out items that are less than the threshold.
+/// The following steps are applied to each input detected object set.
+///
+/// 1) Select all class names with scores greater than threshold.
+///
+/// 2) Create a new detected_object_type object with all selected class
+///    names from step 1. The class name can be selected individually
+///    or with the keep_all_classes option.
+///
+/// 3) The input detection_set is cloned and the detected_object_type
+///    from step 2 is attached.
 
 class KWIVER_ALGO_CORE_EXPORT class_probablity_filter
   : public vital::algo::detected_object_filter

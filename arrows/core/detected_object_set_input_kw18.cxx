@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation for detected_object_set_input_kw18
- */
+/// \file
+/// \brief Implementation for detected_object_set_input_kw18
 
 #include "detected_object_set_input_kw18.h"
 
@@ -168,15 +166,13 @@ read_all()
       VITAL_THROW( kwiver::vital::invalid_data, str.str() );
     }
 
-    /*
-     * Check to see if we have seen this frame before. If we have,
-     * then retrieve the frame's index into our output map. If not
-     * seen before, add frame -> detection set index to our map and
-     * press on.
-     *
-     * This allows for track states to be written in a non-contiguous
-     * manner as may be done by streaming writers.
-     */
+    //  Check to see if we have seen this frame before. If we have,
+    //  then retrieve the frame's index into our output map. If not
+    //  seen before, add frame -> detection set index to our map and
+    //  press on.
+    //
+    //  This allows for track states to be written in a non-contiguous
+    //  manner as may be done by streaming writers.
     int index = atoi( col[COL_FRAME].c_str() );
     if ( 0 == m_detected_sets.count( index ) )
     {

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of kwiver::arrows::render_mesh_depth_map function
- */
+/// \file
+/// \brief Implementation of kwiver::arrows::render_mesh_depth_map function
 
 #ifndef KWIVER_ARROWS_CORE_RENDER_MESH_DEPTH_MAP_H
 #define KWIVER_ARROWS_CORE_RENDER_MESH_DEPTH_MAP_H
@@ -22,62 +20,57 @@ namespace arrows {
 namespace core {
 
 /// This function renders a depth map of a triangular mesh seen by a camera
-/**
- * \param mesh [in]
- * \param camera [in]
- * \return a depth map
- */
+///
+/// \param mesh [in]
+/// \param camera [in]
+/// \return a depth map
 KWIVER_ALGO_CORE_EXPORT
 vital::image_container_sptr render_mesh_depth_map(kwiver::vital::mesh_sptr mesh,
                                                   kwiver::vital::camera_perspective_sptr camera);
 
 /// This function renders a height map of a triangular mesh
-/**
- * \param mesh [in]
- * \param camera [in]
- * \return height map
- */
+///
+/// \param mesh [in]
+/// \param camera [in]
+/// \return height map
 KWIVER_ALGO_CORE_EXPORT
 vital::image_container_sptr render_mesh_height_map(kwiver::vital::mesh_sptr mesh,
                                                    kwiver::vital::camera_sptr camera);
 
 /// This function converts a depth map into a height map obtained with a perspective camera
-/**
- * \param camera [in]
- * \param depth_map [in]
- * \param height_map [out]
- */
+///
+/// \param camera [in]
+/// \param depth_map [in]
+/// \param height_map [out]
 KWIVER_ALGO_CORE_EXPORT
 void depth_map_to_height_map(vital::camera_perspective_sptr const& camera,
                              vital::image_of<double>& depth_map,
                              vital::image_of<double>& height_map);
 
 /// This functions renders a triangle and fills it with depth
-/**
- * \param v1 [in] 2D triangle point
- * \param v2 [in] 2D triangle point
- * \param v3 [in] 2D triangle point
- * \param depth_v1 [in] corresponding depth
- * \param depth_v2 [in] corresponding depth
- * \param depth_v3 [in] corresponding depth
- * \param depth_img [in/out] depth map used and updated
- */
+///
+/// \param v1 [in] 2D triangle point
+/// \param v2 [in] 2D triangle point
+/// \param v3 [in] 2D triangle point
+/// \param depth_v1 [in] corresponding depth
+/// \param depth_v2 [in] corresponding depth
+/// \param depth_v3 [in] corresponding depth
+/// \param depth_img [in/out] depth map used and updated
 KWIVER_ALGO_CORE_EXPORT
 void render_triangle(const vital::vector_2d& v1, const vital::vector_2d& v2, const vital::vector_2d& v3,
                      double depth_v1, double depth_v2, double depth_v3,
                      vital::image_of<double>& depth_img);
 
 /// Compute a triangle attribute linear interpolation vector
-/**
-  * \param v1 [in]  2D triangle vertex
-  * \param v2 [in]  2D triangle vertex
-  * \param v3 [in]  2D triangle vertex
-  * \param a1 [in]  attribute value associated with v1
-  * \param a2 [in]  attribute value associated with v2
-  * \param a3 [in]  attribute value associated with v3
-  * \returns a 3D vector V such that the dot product of V and (x,y,1) is the
-  *          interpolated attribute value at location (x,y)
-  */
+///
+///  \param v1 [in]  2D triangle vertex
+///  \param v2 [in]  2D triangle vertex
+///  \param v3 [in]  2D triangle vertex
+///  \param a1 [in]  attribute value associated with v1
+///  \param a2 [in]  attribute value associated with v2
+///  \param a3 [in]  attribute value associated with v3
+///  \returns a 3D vector V such that the dot product of V and (x,y,1) is the
+///           interpolated attribute value at location (x,y)
 vital::vector_3d
 triangle_attribute_vector(vital::vector_2d const& v1,
                           vital::vector_2d const& v2,
@@ -85,19 +78,18 @@ triangle_attribute_vector(vital::vector_2d const& v1,
                           double a1, double a2, double a3);
 
 /// This function renders a triangle and linearly interpolating attributes
-/**
- * \param v1 [in] 2D triangle point
- * \param v2 [in] 2D triangle point
- * \param v3 [in] 2D triangle point
- * \param depth_v1 [in] corresponding depth
- * \param depth_v2 [in] corresponding depth
- * \param depth_v3 [in] corresponding depth
- * \param attrib_v1 [in] attribute which is interpolated
- * \param attrib_v2 [in] attribute which is interpolated
- * \param attrib_v3 [in] attribute which is interpolated
- * \param depth_img [in/out] depth map used and updated during depth test
- * \param img [out] image on which the triangle is rendered
- */
+///
+/// \param v1 [in] 2D triangle point
+/// \param v2 [in] 2D triangle point
+/// \param v3 [in] 2D triangle point
+/// \param depth_v1 [in] corresponding depth
+/// \param depth_v2 [in] corresponding depth
+/// \param depth_v3 [in] corresponding depth
+/// \param attrib_v1 [in] attribute which is interpolated
+/// \param attrib_v2 [in] attribute which is interpolated
+/// \param attrib_v3 [in] attribute which is interpolated
+/// \param depth_img [in/out] depth map used and updated during depth test
+/// \param img [out] image on which the triangle is rendered
 template<class T>
 void render_triangle(const vital::vector_2d& v1, const vital::vector_2d& v2, const vital::vector_2d& v3,
                      double depth_v1, double depth_v2, double depth_v3,
@@ -139,16 +131,15 @@ void render_triangle(const vital::vector_2d& v1, const vital::vector_2d& v2, con
 }
 
 /// This functions renders a triangle and fills every pixel with value where depth_img is updated
-/**
- * \param v1 [in] 2D triangle point
- * \param v2 [in] 2D triangle point
- * \param v3 [in] 2D triangle point
- * \param depth_v1 [in] corresponding depth
- * \param depth_v2 [in] corresponding depth
- * \param depth_v3 [in] corresponding depth
- * \param value [in] value used to fill the triangle
- * \param depth_img [in/out] depth map used and updated during depth test
- */
+///
+/// \param v1 [in] 2D triangle point
+/// \param v2 [in] 2D triangle point
+/// \param v3 [in] 2D triangle point
+/// \param depth_v1 [in] corresponding depth
+/// \param depth_v2 [in] corresponding depth
+/// \param depth_v3 [in] corresponding depth
+/// \param value [in] value used to fill the triangle
+/// \param depth_img [in/out] depth map used and updated during depth test
 template<class T>
 void render_triangle(const vital::vector_2d& v1, const vital::vector_2d& v2, const vital::vector_2d& v3,
                      double depth_v1, double depth_v2, double depth_v3,

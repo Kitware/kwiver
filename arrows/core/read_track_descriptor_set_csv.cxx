@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of read_track_descriptor_set_csv
- */
+/// \file
+/// \brief Implementation of read_track_descriptor_set_csv
 
 #include "read_track_descriptor_set_csv.h"
 
