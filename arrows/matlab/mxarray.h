@@ -916,8 +916,9 @@ private:
 
   //*************************************************************
   ///
-  ///             Templated mxArray importers                 ***
+  ///***           Templated mxArray importers                ***
   ///
+  //*************************************************************
 
 
   /// Fundamental numerics.
@@ -968,8 +969,9 @@ private:
 
   //*************************************************************
   ///
-  ///             Templated mxArray exporters                 ***
+  ///***          Templated mxArray exporters                 ***
   ///
+  //*************************************************************
 
 
   /// Singleton types.
@@ -1008,9 +1010,9 @@ private:
 
   //*************************************************************
   ///
-  ///             Templated mxArray getters                   ***
+  ///***          Templated mxArray getters                   ***
   ///
-
+  //*************************************************************
 
   /// Fundamental numeric types.
   template < typename T >
@@ -1036,9 +1038,9 @@ private:
 
   //*************************************************************
   ///
-  ///           Templated mxArray element setters             ***
+  ///***        Templated mxArray element setters             ***
   ///
-
+  //*************************************************************
 
   /// Fundamental numeric and complex types.
   template < typename T >
@@ -1062,9 +1064,9 @@ private:
 
   //*************************************************************
   ///
-  ///    Assignment helpers (for MxArray.to<type>(value))     ***
+  ///*** Assignment helpers (for MxArray.to<type>(value))     ***
   ///
-
+  //*************************************************************
 
   /// Explicit integer element assignment.
   template < typename T, typename R >
@@ -1271,9 +1273,9 @@ private:
 
   //*************************************************************
   ///
-  ///  Assignment helpers (for MxArray.set<type>(i, value))  ***
+  ///*** Assignment helpers (for MxArray.set<type>(i, value)) ***
   ///
-
+  //*************************************************************
 
   /// Explicit numeric element assignment.
   template < typename R, typename T >
@@ -1376,9 +1378,9 @@ private:
 
 //*************************************************************
 ///
-///             Templated mxArray importers                 ***
+///***          Templated mxArray importers                 ***
 ///
-
+//*************************************************************
 
 /// Fundamental numeric type.
 template < typename T >
@@ -1559,9 +1561,9 @@ MxArray::fromInternal( const typename std::enable_if<
 
 //*************************************************************
 ///
-///             Templated mxArray exporters                 ***
+///***          Templated mxArray exporters                 ***
 ///
-
+//*************************************************************
 
 /// Converter from numeric matrix to container.
 template < typename T >
@@ -1646,9 +1648,9 @@ MxArray::toInternal( const mxArray*                   array,
 
 //*************************************************************
 ///
-///             Templated mxArray getters                   ***
+///***          Templated mxArray getters                   ***
 ///
-
+//*************************************************************
 
 /// Converter from fundamental numeric or complex types.
 template < typename T >
@@ -1751,9 +1753,9 @@ MxArray::atInternal( const mxArray*     array,
 
 //*************************************************************
 ///
-///             Templated mxArray setters                   ***
+///***          Templated mxArray setters                   ***
 ///
-
+//*************************************************************
 
 /// Converter from fundamental numeric or complex types.
 template < typename T >

@@ -44,6 +44,7 @@ namespace matlab {
 /// Don't use with function templates due to type promotion!
 /// (Ignore it and get PITA!)
 ///
+//************************************************************
 
 
 /// Traits for mxLogical-convertibles.
@@ -95,6 +96,7 @@ struct MxArithmeticTy<T, typename std::enable_if<
 ///
 /// Introducing traits for MATLAB array types.
 ///
+//**********************************************
 
 
 typedef struct mxNumeric_tag {} mxNumeric;
@@ -251,6 +253,7 @@ struct MxTypes<T, typename std::enable_if<
 ///
 /// Type traits for function template usage.
 ///
+//********************************************
 
 
 // Traits for logical types.
