@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Matlab algorithm registration implementation
- */
+/// \file
+/// \brief Matlab algorithm registration implementation
 
 #include <arrows/matlab/kwiver_algo_matlab_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>

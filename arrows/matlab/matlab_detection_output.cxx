@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of matlab image object output
- */
+/// \file
+/// \brief Implementation of matlab image object output
 
 #include "matlab_detection_output.h"
 #include "matlab_engine.h"

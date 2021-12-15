@@ -1,79 +1,76 @@
-/*
+//
+// Copyright (c) 2014 Kota Yamaguchi
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//  notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//  notice, this list of conditions and the following disclaimer in the
+//  documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote products
+//  derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
 
-Copyright (c) 2014 Kota Yamaguchi
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
-
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
-3. The name of the author may not be used to endorse or promote products
-   derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
- */
-
-/** MxArray data conversion library.
- *
- * The library provides mexplus::MxArray class for data conversion between
- * mxArray* and C++ types. The static API's are the core of the high-level
- * conversions.
- *
- *    int value = MxArray::to<int>(prhs[0]);
- *    string value = MxArray::to<string>(prhs[0]);
- *    vector<double> value = MxArray::to<vector<double> >(prhs[0]);
- *
- *    plhs[0] = MxArray::from(20);
- *    plhs[0] = MxArray::from("text value.");
- *    plhs[0] = MxArray::from(vector<double>(20, 0));
- *
- * Additionally, object API's are there to wrap around a complicated data
- * access.
- *
- * ### Read access
- *
- *    MxArray cell(prhs[0]);   // Assumes cell array in prhs[0].
- *    int x = cell.at<int>(0);
- *    vector<double> y = cell.at<vector<double> >(1);
- *
- *    MxArray numeric(prhs[0]);   // Assumes numeric array in prhs[0].
- *    double x = numeric.at<double>(0);
- *    int y = numeric.at<int>(1);
- *
- * ### Write access
- *
- *    MxArray cell(MxArray::Cell(1, 3));
- *    cell.set(0, 12);
- *    cell.set(1, "text value.");
- *    cell.set(2, vector<double>(4, 0));
- *    plhs[0] = cell.release();
- *
- *    MxArray numeric(MxArray::Numeric<double>(2, 2));
- *    numeric.set(0, 0, 1);
- *    numeric.set(0, 1, 2);
- *    numeric.set(1, 0, 3);
- *    numeric.set(1, 1, 4);
- *    plhs[0] = numeric.release();
- *
- * To add your own data conversion, define in namespace mexplus a template
- * specialization of MxArray::from() and MxArray::to().
- *
- */
+/// MxArray data conversion library.
+///
+/// The library provides mexplus::MxArray class for data conversion between
+/// mxArray* and C++ types. The static API's are the core of the high-level
+/// conversions.
+///
+///    int value = MxArray::to<int>(prhs[0]);
+///    string value = MxArray::to<string>(prhs[0]);
+///    vector<double> value = MxArray::to<vector<double> >(prhs[0]);
+///
+///    plhs[0] = MxArray::from(20);
+///    plhs[0] = MxArray::from("text value.");
+///    plhs[0] = MxArray::from(vector<double>(20, 0));
+///
+/// Additionally, object API's are there to wrap around a complicated data
+/// access.
+///
+/// ### Read access
+///
+///    MxArray cell(prhs[0]);   // Assumes cell array in prhs[0].
+///    int x = cell.at<int>(0);
+///    vector<double> y = cell.at<vector<double> >(1);
+///
+///    MxArray numeric(prhs[0]);   // Assumes numeric array in prhs[0].
+///    double x = numeric.at<double>(0);
+///    int y = numeric.at<int>(1);
+///
+/// ### Write access
+///
+///    MxArray cell(MxArray::Cell(1, 3));
+///    cell.set(0, 12);
+///    cell.set(1, "text value.");
+///    cell.set(2, vector<double>(4, 0));
+///    plhs[0] = cell.release();
+///
+///    MxArray numeric(MxArray::Numeric<double>(2, 2));
+///    numeric.set(0, 0, 1);
+///    numeric.set(0, 1, 2);
+///    numeric.set(1, 0, 3);
+///    numeric.set(1, 1, 4);
+///    plhs[0] = numeric.release();
+///
+/// To add your own data conversion, define in namespace mexplus a template
+/// specialization of MxArray::from() and MxArray::to().
+///
 
 #ifndef INCLUDE_MEXPLUS_MXARRAY_H_
 #define INCLUDE_MEXPLUS_MXARRAY_H_
@@ -92,8 +89,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "mxtypes.h"
 
-/** Macro definitions.
- */
+/// Macro definitions.
 #define MEXPLUS_CHECK_NOTNULL(pointer) \
     if (!(pointer)) \
       mexErrMsgIdAndTxt("mexplus:error", \
@@ -112,34 +108,30 @@ namespace kwiver {
 namespace arrows {
 namespace matlab {
 
-/** mxArray object wrapper for data conversion and manipulation.
- *
- * The class is similar to a combination of unique_ptr and wrapper around
- * Matlab's matrix API. An MxArray object created from a mutable mxArray*
- * pointer automatically frees its internal memory unless explicitly
- * released. When MxArray is created from a const mxArray*, the object does not
- * manage memory but still provides the same matrix API.
- */
+/// mxArray object wrapper for data conversion and manipulation.
+///
+/// The class is similar to a combination of unique_ptr and wrapper around
+/// Matlab's matrix API. An MxArray object created from a mutable mxArray*
+/// pointer automatically frees its internal memory unless explicitly
+/// released. When MxArray is created from a const mxArray*, the object does not
+/// manage memory but still provides the same matrix API.
 class MxArray
 {
 public:
-  /** Empty MxArray constructor. Use reset() to set a pointer.
-   */
+  /// Empty MxArray constructor. Use reset() to set a pointer.
   MxArray()
     : m_array( NULL )
     , m_owner( false )
   { }
 
-  /** NULL assignment.
-   */
+  /// NULL assignment.
   MxArray& operator=( std::nullptr_t )
   {
     reset();
     return *this;
   }
 
-  /** Move constructor.
-   */
+  /// Move constructor.
   MxArray( MxArray&& array )
     : m_array( NULL )
     , m_owner( false )
@@ -148,8 +140,7 @@ public:
   }
 
 
-  /** Move assignment.
-   */
+  /// Move assignment.
   MxArray& operator=( MxArray&& rhs )
   {
     if ( this != &rhs )
@@ -163,26 +154,23 @@ public:
   }
 
 
-  /** MxArray constructor from const mxArray*. MxArray will not manage memory.
-   * @param array mxArray pointer given by mexFunction.
-   */
+  /// MxArray constructor from const mxArray*. MxArray will not manage memory.
+  /// @param array mxArray pointer given by mexFunction.
   explicit MxArray( const mxArray* array )
     : m_array( const_cast< mxArray* > ( array ) )
     , m_owner( false )
   { }
 
 
-  /** MxArray constructor from mutable mxArray*. MxArray will manage memory.
-   * @param array mxArray pointer.
-   */
+  /// MxArray constructor from mutable mxArray*. MxArray will manage memory.
+  /// @param array mxArray pointer.
   explicit MxArray( mxArray* array )
     : m_array( array )
     , m_owner( array )
   { }
 
 
-  /** Assignment from const mxArray*. MxArray will not manage memory.
-   */
+  /// Assignment from const mxArray*. MxArray will not manage memory.
   MxArray& operator=( const mxArray* rhs )
   {
     reset( rhs );
@@ -190,8 +178,7 @@ public:
   }
 
 
-  /** Assignment from mutable mxArray*. MxArray will manage memory.
-   */
+  /// Assignment from mutable mxArray*. MxArray will manage memory.
   MxArray& operator=( mxArray* rhs )
   {
     reset( rhs );
@@ -199,8 +186,7 @@ public:
   }
 
 
-  /** MxArray constructor from scalar.
-   */
+  /// MxArray constructor from scalar.
   template < typename T >
   explicit MxArray( const T& value )
     : m_array( from( value ) )
@@ -208,8 +194,7 @@ public:
   { }
 
 
-  /** Destructor. Unreleased pointers will be destroyed.
-   */
+  /// Destructor. Unreleased pointers will be destroyed.
   virtual ~MxArray()
   {
     if ( m_array && m_owner )
@@ -219,8 +204,7 @@ public:
   }
 
 
-  /** Swap operation.
-   */
+  /// Swap operation.
   void swap( MxArray& rhs )
   {
     if ( this != &rhs )
@@ -235,19 +219,18 @@ public:
   }
 
 
-  /** Reset an mxArray to a const mxArray*.
-   *
-   * Caller must be VERY careful with this, as the behavior is undefined when
-   * the original mxArray* is destroyed. For example, the following will crash.
-   * @code
-   *     MxArray foo;
-   *     {
-   *       MxArray bar(1);
-   *       foo.reset(bar.get());
-   *     }
-   *     foo.toInt(); // Error!
-   * @endcode
-   */
+  /// Reset an mxArray to a const mxArray*.
+  ///
+  /// Caller must be VERY careful with this, as the behavior is undefined when
+  /// the original mxArray* is destroyed. For example, the following will crash.
+  /// @code
+  ///     MxArray foo;
+  ///     {
+  ///       MxArray bar(1);
+  ///       foo.reset(bar.get());
+  ///     }
+  ///     foo.toInt(); // Error!
+  /// @endcode
   void reset( const mxArray* array = NULL )
   {
     if ( m_array && m_owner )
@@ -259,8 +242,7 @@ public:
   }
 
 
-  /** Reset an mxArray.
-   */
+  /// Reset an mxArray.
   void reset( mxArray* array )
   {
     if ( m_array && m_owner )
@@ -272,9 +254,8 @@ public:
   }
 
 
-  /** Release managed mxArray* pointer, or clone if not owner.
-   * @return Unmanaged mxArray*. Always caller must destroy.
-   */
+  /// Release managed mxArray* pointer, or clone if not owner.
+  /// @return Unmanaged mxArray*. Always caller must destroy.
   mxArray* release()
   {
     MEXPLUS_CHECK_NOTNULL( m_array );
@@ -285,9 +266,8 @@ public:
   }
 
 
-  /** Clone mxArray. This always allocates new mxArray*.
-   * @return Unmanaged mxArray*. Always caller must destroy.
-   */
+  /// Clone mxArray. This always allocates new mxArray*.
+  /// @return Unmanaged mxArray*. Always caller must destroy.
   mxArray* clone() const
   {
     MEXPLUS_CHECK_NOTNULL( m_array );
@@ -297,34 +277,29 @@ public:
   }
 
 
-  /** Conversion to const mxArray*.
-   * @return const mxArray* pointer.
-   */
+  /// Conversion to const mxArray*.
+  /// @return const mxArray* pointer.
   inline const mxArray* get() const { return m_array; }
 
 
-  /** Return true if the array is not NULL.
-   */
+  /// Return true if the array is not NULL.
   operator bool() const { return m_array != NULL; }
 
 
-  /** Return true if owner.
-   */
+  /// Return true if owner.
   inline bool isOwner() const { return m_owner; }
 
 
-  /** Create a new numeric (real or complex) matrix.
-   * @param rows Number of rows.
-   * @param columns Number of cols.
-   */
+  /// Create a new numeric (real or complex) matrix.
+  /// @param rows Number of rows.
+  /// @param columns Number of cols.
   template < typename T >
   static mxArray* Numeric( int rows = 1, int columns = 1 );
 
 
-  /** Create a new logical matrix.
-   * @param rows Number of rows.
-   * @param columns Number of cols.
-   */
+  /// Create a new logical matrix.
+  /// @param rows Number of rows.
+  /// @param columns Number of cols.
   static mxArray* Logical( int rows = 1, int columns = 1 )
   {
     mxArray* logical_array = mxCreateLogicalMatrix( rows, columns );
@@ -334,18 +309,17 @@ public:
   }
 
 
-  /** Create a new cell matrix.
-   * @param rows Number of rows.
-   * @param columns Number of cols.
-   *
-   * Example:
-   * @code
-   *     MxArray cell_array = MxArray::Cell(1, 2);
-   *     cell_array.set(0, 1);
-   *     cell_array.set(1, "another value");
-   *     plhs[0] = cell_array.release();
-   * @endcode
-   */
+  /// Create a new cell matrix.
+  /// @param rows Number of rows.
+  /// @param columns Number of cols.
+  ///
+  /// Example:
+  /// @code
+  ///     MxArray cell_array = MxArray::Cell(1, 2);
+  ///     cell_array.set(0, 1);
+  ///     cell_array.set(1, "another value");
+  ///     plhs[0] = cell_array.release();
+  /// @endcode
   static mxArray* Cell( int rows = 1, int columns = 1 )
   {
     mxArray* cell_array = mxCreateCellMatrix( rows, columns );
@@ -355,21 +329,20 @@ public:
   }
 
 
-  /** Generic constructor for a struct matrix.
-   * @param fields field names.
-   * @param nfields number of field names.
-   * @param rows size of the first dimension.
-   * @param columns size of the second dimension.
-   *
-   * Example:
-   * @code
-   *     const char* fields[] = {"field1", "field2"};
-   *     MxArray struct_array(MxArray::Struct(2, fields));
-   *     struct_array.set("field1", 1);
-   *     struct_array.set("field2", "field2 value");
-   *     plhs[0] = struct_array.release();
-   * @endcode
-   */
+  /// Generic constructor for a struct matrix.
+  /// @param fields field names.
+  /// @param nfields number of field names.
+  /// @param rows size of the first dimension.
+  /// @param columns size of the second dimension.
+  ///
+  /// Example:
+  /// @code
+  ///     const char* fields[] = {"field1", "field2"};
+  ///     MxArray struct_array(MxArray::Struct(2, fields));
+  ///     struct_array.set("field1", 1);
+  ///     struct_array.set("field2", "field2 value");
+  ///     plhs[0] = struct_array.release();
+  /// @endcode
   static mxArray* Struct( int           nfields = 0,
                           const char**  fields = NULL,
                           int           rows = 1,
@@ -385,8 +358,7 @@ public:
   }
 
 
-  /** mxArray* importer methods.
-   */
+  /// mxArray* importer methods.
   template < typename T >
   static mxArray* from( const T& value ) { return fromInternal< T > ( value ); }
 
@@ -409,8 +381,7 @@ public:
   }
 
 
-  /** mxArray* exporter methods.
-   */
+  /// mxArray* exporter methods.
   template < typename T >
   static void to( const mxArray* array, T* value )
   {
@@ -428,8 +399,7 @@ public:
   }
 
 
-  /** mxArray* element reader methods.
-   */
+  /// mxArray* element reader methods.
   template < typename T >
   static T at( const mxArray* array, mwIndex index )
   {
@@ -475,8 +445,7 @@ public:
   }
 
 
-  /** mxArray* element writer methods.
-   */
+  /// mxArray* element writer methods.
   template < typename T >
   static void set( mxArray* array, mwIndex index, const T& value )
   {
@@ -531,8 +500,7 @@ public:
   }
 
 
-  /** Convert MxArray to a specified type.
-   */
+  /// Convert MxArray to a specified type.
   template < typename T >
   T to() const
   {
@@ -547,16 +515,15 @@ public:
   void to( T* value ) const { toInternal< T > ( m_array, value ); }
 
 
-  /** Template for element accessor.
-   * @param index index of the array element.
-   * @return value of the element at index.
-   *
-   * Example:
-   * @code
-   *     MxArray array(prhs[0]);
-   *     double value = array.at<double>(0);
-   * @endcode
-   */
+  /// Template for element accessor.
+  /// @param index index of the array element.
+  /// @return value of the element at index.
+  ///
+  /// Example:
+  /// @code
+  ///     MxArray array(prhs[0]);
+  ///     double value = array.at<double>(0);
+  /// @endcode
   template < typename T >
   T at( mwIndex index ) const
   {
@@ -580,28 +547,25 @@ public:
   }
 
 
-  /** Template for element accessor.
-   * @param row index of the first dimension.
-   * @param column index of the second dimension.
-   * @return value of the element at (row, column).
-   */
+  /// Template for element accessor.
+  /// @param row index of the first dimension.
+  /// @param column index of the second dimension.
+  /// @return value of the element at (row, column).
   template < typename T >
   T at( mwIndex row, mwIndex column ) const;
 
 
-  /** Template for element accessor.
-   * @param subscripts subscript indexes of elements.
-   * @return value of the element at subscript index.
-   */
+  /// Template for element accessor.
+  /// @param subscripts subscript indexes of elements.
+  /// @return value of the element at subscript index.
   template < typename T >
   T at( const std::vector< mwIndex >& subscripts ) const;
 
 
-  /** Struct element accessor.
-   * @param field field name of the struct array.
-   * @param index index of the struct array.
-   * @return value of the element at the specified field.
-   */
+  /// Struct element accessor.
+  /// @param field field name of the struct array.
+  /// @param index index of the struct array.
+  /// @return value of the element at the specified field.
   template < typename T >
   T at( const std::string& field, mwIndex index = 0 ) const
   {
@@ -625,10 +589,9 @@ public:
   }
 
 
-  /** Template for element write accessor.
-   * @param index offset of the array element.
-   * @param value value of the field.
-   */
+  /// Template for element write accessor.
+  /// @param index offset of the array element.
+  /// @param value value of the field.
   template < typename T >
   void set( mwIndex index, const T& value )
   {
@@ -636,27 +599,24 @@ public:
   }
 
 
-  /** Template for element write accessor.
-   * @param row index of the first dimension of the array element.
-   * @param column index of the first dimension of the array element.
-   * @param value value of the field.
-   */
+  /// Template for element write accessor.
+  /// @param row index of the first dimension of the array element.
+  /// @param column index of the first dimension of the array element.
+  /// @param value value of the field.
   template < typename T >
   void set( mwIndex row, mwIndex column, const T& value );
 
 
-  /** Template for element write accessor.
-   * @param subscripts subscript index of the element.
-   * @param value value of the field.
-   */
+  /// Template for element write accessor.
+  /// @param subscripts subscript index of the element.
+  /// @param value value of the field.
   template < typename T >
   void set( const std::vector< mwIndex >& subscripts, const T& value );
 
 
-  /** Cell element write accessor.
-   * @param index index of the element.
-   * @param value cell element to be inserted.
-   */
+  /// Cell element write accessor.
+  /// @param index index of the element.
+  /// @param value cell element to be inserted.
   void set( mwIndex index, mxArray* value )
   {
     MEXPLUS_ASSERT( isOwner(), "Must be an owner to set." );
@@ -664,11 +624,10 @@ public:
   }
 
 
-  /** Struct element write accessor.
-   * @param field field name of the struct array.
-   * @param value value of the field.
-   * @param index linear index of the struct array element.
-   */
+  /// Struct element write accessor.
+  /// @param field field name of the struct array.
+  /// @param value value of the field.
+  /// @param index linear index of the struct array element.
   template < typename T >
   void set( const std::string& field, const T& value, mwIndex index = 0 )
   {
@@ -677,11 +636,10 @@ public:
   }
 
 
-  /** Struct element write accessor.
-   * @param field field name of the struct array.
-   * @param value value of the field to be inserted.
-   * @param index linear index of the struct array element.
-   */
+  /// Struct element write accessor.
+  /// @param field field name of the struct array.
+  /// @param value value of the field to be inserted.
+  /// @param index linear index of the struct array element.
   void set( const std::string& field, mxArray* value, mwIndex index = 0 )
   {
     MEXPLUS_ASSERT( isOwner(), "Must be an owner to set." );
@@ -689,14 +647,12 @@ public:
   }
 
 
-  /** Get raw data pointer.
-   * @return pointer T*. If MxArray is not compatible, return NULL.
-   */
+  /// Get raw data pointer.
+  /// @return pointer T*. If MxArray is not compatible, return NULL.
   template < typename T >
   T* getData() const;
-  /** Get raw data pointer to imaginary part.
-   * @return pointer T*. If MxArray is not compatible, return NULL.
-   */
+  /// Get raw data pointer to imaginary part.
+  /// @return pointer T*. If MxArray is not compatible, return NULL.
   template < typename T >
   T* getImagData() const;
   mxLogical* getLogicals() const
@@ -719,10 +675,8 @@ public:
   }
 
 
-  /**
-   * @brief Get array contents as std::string.
-   * @return String
-   */
+  /// @brief Get array contents as std::string.
+  /// @return String
   std::string getString() const
   {
     MEXPLUS_CHECK_NOTNULL( m_array );
@@ -736,32 +690,27 @@ public:
   }
 
 
-  /** Class ID of mxArray.
-   */
+  /// Class ID of mxArray.
   inline mxClassID classID() const { return mxGetClassID( m_array ); }
 
-  /** Class name of mxArray.
-   */
+  /// Class name of mxArray.
   inline const std::string className() const
   {
     return std::string( mxGetClassName( m_array ) );
   }
 
 
-  /** Number of elements in an array.
-   */
+  /// Number of elements in an array.
   inline mwSize size() const { return mxGetNumberOfElements( m_array ); }
 
-  /** Number of dimensions.
-   */
+  /// Number of dimensions.
   inline mwSize dimensionSize() const
   {
     return mxGetNumberOfDimensions( m_array );
   }
 
 
-  /** Array of each dimension.
-   */
+  /// Array of each dimension.
   inline std::vector< mwSize > dimensions() const
   {
     const mwSize* dimensions = mxGetDimensions( m_array );
@@ -770,25 +719,21 @@ public:
   }
 
 
-  /** Number of rows in an array.
-   */
+  /// Number of rows in an array.
   inline mwSize rows() const { return mxGetM( m_array ); }
 
 
-  /** Number of columns in an array.
-   */
+  /// Number of columns in an array.
   inline mwSize cols() const { return mxGetN( m_array ); }
 
 
-  /** Number of fields in a struct array.
-   */
+  /// Number of fields in a struct array.
   inline int fieldSize() const { return mxGetNumberOfFields( m_array ); }
 
 
-  /** Get field name of a struct array.
-   * @param index index of the struct array.
-   * @return std::string.
-   */
+  /// Get field name of a struct array.
+  /// @param index index of the struct array.
+  /// @return std::string.
   std::string fieldName( int index ) const
   {
     const char* field = mxGetFieldNameByNumber( m_array, index );
@@ -798,9 +743,8 @@ public:
   }
 
 
-  /** Get field names of a struct array.
-   * @return std::vector<std::string> of struct field names.
-   */
+  /// Get field names of a struct array.
+  /// @return std::vector<std::string> of struct field names.
   std::vector< std::string > fieldNames() const
   {
     MEXPLUS_ASSERT( isStruct(), "Expected a struct array." );
@@ -813,15 +757,13 @@ public:
   }
 
 
-  /** Number of elements in IR, PR, and PI arrays.
-   */
+  /// Number of elements in IR, PR, and PI arrays.
   inline mwSize nonZeroMax() const { return mxGetNzmax( m_array ); }
 
-  /** Offset from first element to desired element.
-   * @param row index of the first dimension of the array.
-   * @param column index of the second dimension of the array.
-   * @return linear offset of the specified subscript index.
-   */
+  /// Offset from first element to desired element.
+  /// @param row index of the first dimension of the array.
+  /// @param column index of the second dimension of the array.
+  /// @return linear offset of the specified subscript index.
   mwIndex subscriptIndex( mwIndex row, mwIndex column ) const
   {
     MEXPLUS_ASSERT( row < rows() && column < cols(),
@@ -831,28 +773,24 @@ public:
   }
 
 
-  /** Offset from first element to desired element.
-   * @param subscripts subscript indexes of the array.
-   * @return linear offset of the specified subscript index.
-   */
+  /// Offset from first element to desired element.
+  /// @param subscripts subscript indexes of the array.
+  /// @return linear offset of the specified subscript index.
   mwIndex subscriptIndex( const std::vector< mwIndex >& subscripts ) const
   {
     return mxCalcSingleSubscript( m_array, subscripts.size(), &subscripts[0] );
   }
 
 
-  /** Determine whether input is cell array.
-   */
+  /// Determine whether input is cell array.
   inline bool isCell() const { return mxIsCell( m_array ); }
 
 
-  /** Determine whether input is string array.
-   */
+  /// Determine whether input is string array.
   inline bool isChar() const { return mxIsChar( m_array ); }
 
 
-  /** Determine whether input is vector array.
-   */
+  /// Determine whether input is vector array.
   inline bool isVector() const
   {
     return mxGetNumberOfDimensions( m_array ) == 2 &&
@@ -860,114 +798,90 @@ public:
   }
 
 
-  /** Determine whether array is integral type.
-   */
+  /// Determine whether array is integral type.
   inline bool isIntegral( const char* name ) const
   {
     return mxIsNumeric( m_array ) && ! mxIsDouble( m_array );
   }
 
 
-  /** Determine whether array is member of specified class.
-   */
+  /// Determine whether array is member of specified class.
   inline bool isClass( const char* name ) const
   {
     return mxIsClass( m_array, name );
   }
 
 
-  /** Determine whether data is complex.
-   */
+  /// Determine whether data is complex.
   inline bool isComplex() const { return mxIsComplex( m_array ); }
 
-  /** Determine whether mxArray represents data as double-precision,
-   * floating-point numbers.
-   */
+  /// Determine whether mxArray represents data as double-precision,
+  /// floating-point numbers.
   inline bool isDouble() const { return mxIsDouble( m_array ); }
 
-  /** Determine whether array is empty.
-   */
+  /// Determine whether array is empty.
   inline bool isEmpty() const { return mxIsEmpty( m_array ); }
 
-  /** Determine whether input is finite.
-   */
+  /// Determine whether input is finite.
   static inline bool IsFinite( double value ) { return mxIsFinite( value ); }
 
-  /** Determine whether array was copied from MATLAB global workspace.
-   */
+  /// Determine whether array was copied from MATLAB global workspace.
   inline bool isFromGlobalWS() const { return mxIsFromGlobalWS( m_array ); }
 
-  /** Determine whether input is infinite.
-   */
+  /// Determine whether input is infinite.
   static inline bool IsInf( double value ) { return mxIsInf( value ); }
 
-  /** Determine whether array represents data as signed 8-bit integers.
-   */
+  /// Determine whether array represents data as signed 8-bit integers.
   inline bool isInt8() const { return mxIsInt8( m_array ); }
 
-  /** Determine whether array represents data as signed 16-bit integers.
-   */
+  /// Determine whether array represents data as signed 16-bit integers.
   inline bool isInt16() const { return mxIsInt16( m_array ); }
 
-  /** Determine whether array represents data as signed 32-bit integers.
-   */
+  /// Determine whether array represents data as signed 32-bit integers.
   inline bool isInt32() const { return mxIsInt32( m_array ); }
 
-  /** Determine whether array represents data as signed 64-bit integers.
-   */
+  /// Determine whether array represents data as signed 64-bit integers.
   inline bool isInt64() const { return mxIsInt64( m_array ); }
 
-  /** Determine whether array is of type mxLogical.
-   */
+  /// Determine whether array is of type mxLogical.
   inline bool isLogical() const { return mxIsLogical( m_array ); }
 
-  /** Determine whether scalar array is of type mxLogical.
-   */
+  /// Determine whether scalar array is of type mxLogical.
   inline bool isLogicalScalar() const { return mxIsLogicalScalar( m_array ); }
 
-  /** Determine whether scalar array of type mxLogical is true.
-   */
+  /// Determine whether scalar array of type mxLogical is true.
   inline bool isLogicalScalarTrue() const
   {
     return mxIsLogicalScalarTrue( m_array );
   }
 
 
-  /** Determine whether array is numeric.
-   */
+  /// Determine whether array is numeric.
   inline bool isNumeric() const { return mxIsNumeric( m_array ); }
 
-  /** Determine whether array represents data as single-precision,
-   * floating-point numbers.
-   */
+  /// Determine whether array represents data as single-precision,
+  /// floating-point numbers.
   inline bool isSingle() const { return mxIsSingle( m_array ); }
 
-  /** Determine whether input is sparse array.
-   */
+  /// Determine whether input is sparse array.
   inline bool isSparse() const { return mxIsSparse( m_array ); }
 
-  /** Determine whether input is structure array.
-   */
+  /// Determine whether input is structure array.
   inline bool isStruct() const { return mxIsStruct( m_array ); }
 
-  /** Determine whether array represents data as unsigned 8-bit integers.
-   */
+  /// Determine whether array represents data as unsigned 8-bit integers.
   inline bool isUint8() const { return mxIsUint8( m_array ); }
 
-  /** Determine whether array represents data as unsigned 16-bit integers.
-   */
+  /// Determine whether array represents data as unsigned 16-bit integers.
   inline bool isUint16() const { return mxIsUint16( m_array ); }
 
-  /** Determine whether array represents data as unsigned 32-bit integers.
-   */
+  /// Determine whether array represents data as unsigned 32-bit integers.
   inline bool isUint32() const { return mxIsUint32( m_array ); }
 
-  /** Determine whether array represents data as unsigned 64-bit integers.
-   */
+  /// Determine whether array represents data as unsigned 64-bit integers.
   inline bool isUint64() const { return mxIsUint64( m_array ); }
 
-  /** Determine whether a struct array has a specified field.
-   */
+  /// Determine whether a struct array has a specified field.
   bool hasField( const std::string& field_name, mwIndex index = 0 ) const
   {
     return isStruct() &&
@@ -975,103 +889,90 @@ public:
   }
 
 
-  /** Element size.
-   */
+  /// Element size.
   int elementSize() const { return mxGetElementSize( m_array ); }
 
-  /** Determine whether input is NaN (Not-a-Number).
-   */
+  /// Determine whether input is NaN (Not-a-Number).
   static inline bool IsNaN( double value ) { return mxIsNaN( value ); }
 
-  /** Value of infinity.
-   */
+  /// Value of infinity.
   static inline double Inf() { return mxGetInf(); }
 
-  /** Value of NaN (Not-a-Number).
-   */
+  /// Value of NaN (Not-a-Number).
   static inline double NaN() { return mxGetNaN(); }
 
-  /** Value of EPS.
-   */
+  /// Value of EPS.
   static inline double Eps() { return mxGetEps(); }
 
 
 private:
-  /** Copy constructor is prohibited except internally.
-   */
+  /// Copy constructor is prohibited except internally.
   MxArray( const MxArray& array );
 
   // MxArray(const MxArray& array) = delete;
-  /** Copy assignment operator is prohibited.
-   */
+  /// Copy assignment operator is prohibited.
   MxArray& operator=( const MxArray& rhs );
   // MxArray& operator=(const MxArray& rhs) = delete;
 
-  /*************************************************************/
-  /**             Templated mxArray importers                 **/
-  /*************************************************************/
+  //*************************************************************
+  ///
+  ///             Templated mxArray importers                 ***
+  ///
 
-  /** Fundamental numerics.
-   */
+
+  /// Fundamental numerics.
   template < typename T >
   static mxArray* fromInternal( const typename std::enable_if<
                                   MxArithmeticType< T >::value, T >::type& value );
-  /** Complex types, complex<float> or complex<double>.
-   */
+  /// Complex types, complex<float> or complex<double>.
   template < typename T >
   static mxArray* fromInternal( const typename std::enable_if<
                                   MxComplexType< T >::value, T >::type& value );
-  /** Container with fundamental numerics, i.e. vector<double>.
-   */
+  /// Container with fundamental numerics, i.e. vector<double>.
   template < typename Container >
   static mxArray* fromInternal( const typename std::enable_if<
                                   MxArithmeticCompound< Container >::value,
                                   Container >::type& value );
-  /** Container with complex numbers, i.e. vector<complex<double>>.
-   */
+  /// Container with complex numbers, i.e. vector<complex<double>>.
   template < typename Container >
   static mxArray* fromInternal( const typename std::enable_if<
                                   MxComplexCompound< Container >::value, Container >::type& value );
-  /** Char type */
+  /// Char type
   template < typename T >
   static mxArray* fromInternal( const typename std::enable_if<
                                   MxCharType< T >::value, T >::type& value );
-  /** Containter with signed char.
-   */
+  /// Containter with signed char.
   template < typename Container >
   static mxArray* fromInternal( const typename std::enable_if<
                                   ( MxCharCompound< Container >::value ) &&
                                   ( std::is_signed< typename Container::value_type >::value ),
                                   Container >::type& value );
-  /** Container with unsigned char.
-   */
+  /// Container with unsigned char.
   template < typename Container >
   static mxArray* fromInternal( const typename std::enable_if<
                                   ( MxCharCompound< Container >::value ) &&
                                   ! ( std::is_signed< typename Container::value_type >::value ),
                                   Container >::type& value );
-  /** Logicals.
-   */
+  /// Logicals.
   template < typename T >
   static mxArray* fromInternal( const typename std::enable_if<
                                   MxLogicalType< T >::value, T >::type& value );
-  /** Container with logicals.
-   */
+  /// Container with logicals.
   template < typename Container >
   static mxArray* fromInternal( const typename std::enable_if<
                                   MxLogicalCompound< Container >::value, Container >::type& value );
-  /** Container with cell type content.
-   */
+  /// Container with cell type content.
   template < typename Container >
   static mxArray* fromInternal( const typename std::enable_if<
                                   MxCellCompound< Container >::value, Container >::type& value );
 
-  /*************************************************************/
-  /**             Templated mxArray exporters                 **/
-  /*************************************************************/
+  //*************************************************************
+  ///
+  ///             Templated mxArray exporters                 ***
+  ///
 
-  /** Singleton types.
-   */
+
+  /// Singleton types.
   template < typename T >
   static void toInternal( const mxArray*                  array,
                           typename std::enable_if<
@@ -1086,8 +987,7 @@ private:
   }
 
 
-  /** Vector types.
-   */
+  /// Vector types.
   template < typename T >
   static void toInternal( const mxArray*                  array,
                           typename std::enable_if<
@@ -1096,8 +996,7 @@ private:
                             MxCharCompound< T >::value,
                             T
                                                  >::type* value );
-  /** Nested types (leads into recursive deduction).
-   */
+  /// Nested types (leads into recursive deduction).
   template < typename T >
   static void toInternal( const mxArray*                  array,
                           typename std::enable_if<
@@ -1107,12 +1006,13 @@ private:
                             T
                                                  >::type* value );
 
-  /*************************************************************/
-  /**             Templated mxArray getters                   **/
-  /*************************************************************/
+  //*************************************************************
+  ///
+  ///             Templated mxArray getters                   ***
+  ///
 
-  /** Fundamental numeric types.
-   */
+
+  /// Fundamental numeric types.
   template < typename T >
   static void atInternal( const mxArray* array, mwIndex index,
                           typename std::enable_if<
@@ -1120,8 +1020,7 @@ private:
                             MxLogicalType< T >::value ||
                             MxCharType< T >::value,
                             T >::type* value );
-  /** Converter for nested types.
-   */
+  /// Converter for nested types.
   template < typename T >
   static void atInternal( const mxArray* array, mwIndex index,
                           typename std::enable_if<
@@ -1129,19 +1028,19 @@ private:
                             ! MxComplexType< T >::value,
                             T
                                                  >::type* value );
-  /** Structure access.
-   */
+  /// Structure access.
   template < typename T >
   static void atInternal( const mxArray* array,
                           const std::string& field,
                           mwIndex index, T* value );
 
-  /*************************************************************/
-  /**           Templated mxArray element setters             **/
-  /*************************************************************/
+  //*************************************************************
+  ///
+  ///           Templated mxArray element setters             ***
+  ///
 
-  /** Fundamental numeric and complex types.
-   */
+
+  /// Fundamental numeric and complex types.
   template < typename T >
   static void setInternal( mxArray* array, mwIndex index,
                            const typename std::enable_if<
@@ -1149,26 +1048,25 @@ private:
                              MxComplexType< T >::value,
                              T
                                                         >::type& value );
-  /** Container types.
-   */
+  /// Container types.
   template < typename T >
   static void setInternal( mxArray* array,  mwIndex index,
                            const typename std::enable_if<
                              MxCellType< T >::value,
                              T
                                                         >::type& value );
-  /** Structure access.
-   */
+  /// Structure access.
   template < typename T >
   static void setInternal( mxArray* array, const std::string& field,
                            mwIndex index, const T& value );
 
-  /*************************************************************/
-  /**    Assignment helpers (for MxArray.to<type>(value))     **/
-  /*************************************************************/
+  //*************************************************************
+  ///
+  ///    Assignment helpers (for MxArray.to<type>(value))     ***
+  ///
 
-  /** Explicit integer element assignment.
-   */
+
+  /// Explicit integer element assignment.
   template < typename T, typename R >
   static void assignTo( const mxArray* array,
                         mwIndex index, typename std::enable_if<
@@ -1181,8 +1079,7 @@ private:
   }
 
 
-  /** Explicit floating point element assignment.
-   */
+  /// Explicit floating point element assignment.
   template < typename T, typename R >
   static void assignTo( const mxArray*                  array,
                         mwIndex                         index,
@@ -1204,8 +1101,7 @@ private:
   }
 
 
-  /** Explicit complex element assignment.
-   */
+  /// Explicit complex element assignment.
   template < typename T, typename R >
   static void assignTo( const mxArray*                  array,
                         mwIndex                         index,
@@ -1229,8 +1125,7 @@ private:
   }
 
 
-  /** Explicit char (signed) element assignment.
-   */
+  /// Explicit char (signed) element assignment.
   template < typename R >
   static void assignCharTo( const mxArray*                  array,
                             mwIndex                         index,
@@ -1244,8 +1139,7 @@ private:
   }
 
 
-  /** Explicit char (unsigned) element assignment.
-   */
+  /// Explicit char (unsigned) element assignment.
   template < typename R >
   static void assignCharTo( const mxArray*                  array,
                             mwIndex                         index,
@@ -1258,8 +1152,7 @@ private:
   }
 
 
-  /** Explicit cell element assignment.
-   */
+  /// Explicit cell element assignment.
   template < typename T >
   static void assignCellTo( const mxArray* array, mwIndex index, T* value )
   {
@@ -1270,8 +1163,7 @@ private:
   }
 
 
-  /** Explicit numeric array assignment.
-   */
+  /// Explicit numeric array assignment.
   template < typename T, typename R >
   static void assignTo( const mxArray*                  array,
                         typename std::enable_if<
@@ -1302,8 +1194,7 @@ private:
   }
 
 
-  /** Explicit complex array assigment.
-   */
+  /// Explicit complex array assigment.
   template < typename T, typename R >
   static void assignTo( const mxArray*                  array,
                         typename std::enable_if<
@@ -1334,8 +1225,7 @@ private:
   }
 
 
-  /** Explicit char (signed) array assignment.
-   */
+  /// Explicit char (signed) array assignment.
   template < typename R >
   static void assignStringTo( const mxArray*                  array,
                               typename std::enable_if<
@@ -1350,8 +1240,7 @@ private:
   }
 
 
-  /** Explicit char (unsigned) array assignment.
-   */
+  /// Explicit char (unsigned) array assignment.
   template < typename R >
   static void assignStringTo( const mxArray*  array,
                               typename std::enable_if<
@@ -1364,8 +1253,7 @@ private:
   }
 
 
-  /** Explicit cell array assignment.
-   */
+  /// Explicit cell array assignment.
   template < typename T >
   static void assignCellTo( const mxArray* array, T* value )
   {
@@ -1381,12 +1269,13 @@ private:
   }
 
 
-  /*************************************************************/
-  /**  Assignment helpers (for MxArray.set<type>(i, value))  **/
-  /*************************************************************/
+  //*************************************************************
+  ///
+  ///  Assignment helpers (for MxArray.set<type>(i, value))  ***
+  ///
 
-  /** Explicit numeric element assignment.
-   */
+
+  /// Explicit numeric element assignment.
   template < typename R, typename T >
   static void assignFrom( mxArray*                              array,
                           mwIndex                               index,
@@ -1407,8 +1296,7 @@ private:
   }
 
 
-  /** Explicit complex element assignment.
-   */
+  /// Explicit complex element assignment.
   template < typename R, typename T >
   static void assignFrom( mxArray*                              array,
                           mwIndex                               index,
@@ -1480,20 +1368,19 @@ private:
   }
 
 
-  /** Pointer to the mxArray C object.
-   */
+  /// Pointer to the mxArray C object.
   mxArray* m_array;
-  /** Flag to enable resource management.
-   */
+  /// Flag to enable resource management.
   bool m_owner;
 };
 
-/*************************************************************/
-/**             Templated mxArray importers                 **/
-/*************************************************************/
+//*************************************************************
+///
+///             Templated mxArray importers                 ***
+///
 
-/** Fundamental numeric type.
- */
+
+/// Fundamental numeric type.
 template < typename T >
 mxArray*
 MxArray::fromInternal( const typename std::enable_if<
@@ -1510,8 +1397,7 @@ MxArray::fromInternal( const typename std::enable_if<
 }
 
 
-/** Complex type, complex<float> or complex<double>.
- */
+/// Complex type, complex<float> or complex<double>.
 template < typename T >
 mxArray*
 MxArray::fromInternal( const typename std::enable_if<
@@ -1529,8 +1415,7 @@ MxArray::fromInternal( const typename std::enable_if<
 }
 
 
-/** Container with fundamental numerics, i.e. vector<double>.
- */
+/// Container with fundamental numerics, i.e. vector<double>.
 template < typename Container >
 mxArray*
 MxArray::fromInternal( const typename std::enable_if<
@@ -1549,8 +1434,7 @@ MxArray::fromInternal( const typename std::enable_if<
 }
 
 
-/** Container with complex numbers, i.e. vector<complex<double>>.
- */
+/// Container with complex numbers, i.e. vector<complex<double>>.
 template < typename Container >
 mxArray*
 MxArray::fromInternal( const typename std::enable_if<
@@ -1673,12 +1557,13 @@ MxArray::fromInternal( const typename std::enable_if<
 }
 
 
-/*************************************************************/
-/**             Templated mxArray exporters                 **/
-/*************************************************************/
+//*************************************************************
+///
+///             Templated mxArray exporters                 ***
+///
 
-/** Converter from numeric matrix to container.
- */
+
+/// Converter from numeric matrix to container.
 template < typename T >
 void
 MxArray::toInternal( const mxArray* array, typename std::enable_if<
@@ -1736,8 +1621,7 @@ MxArray::toInternal( const mxArray* array, typename std::enable_if<
 } // MxArray::toInternal
 
 
-/** Converter from nested types to container.
- */
+/// Converter from nested types to container.
 template < typename T >
 void
 MxArray::toInternal( const mxArray*                   array,
@@ -1760,12 +1644,13 @@ MxArray::toInternal( const mxArray*                   array,
 }
 
 
-/*************************************************************/
-/**             Templated mxArray getters                   **/
-/*************************************************************/
+//*************************************************************
+///
+///             Templated mxArray getters                   ***
+///
 
-/** Converter from fundamental numeric or complex types.
- */
+
+/// Converter from fundamental numeric or complex types.
 template < typename T >
 void
 MxArray::atInternal( const mxArray* array, mwIndex index,
@@ -1864,12 +1749,13 @@ MxArray::atInternal( const mxArray*     array,
 }
 
 
-/*************************************************************/
-/**             Templated mxArray setters                   **/
-/*************************************************************/
+//*************************************************************
+///
+///             Templated mxArray setters                   ***
+///
 
-/** Converter from fundamental numeric or complex types.
- */
+
+/// Converter from fundamental numeric or complex types.
 template < typename T >
 void
 MxArray::setInternal( mxArray* array,
@@ -1934,8 +1820,7 @@ MxArray::setInternal( mxArray* array,
 } // MxArray::setInternal
 
 
-/** Converter from fundamental numeric or complex types.
- */
+/// Converter from fundamental numeric or complex types.
 template < typename T >
 void
 MxArray::setInternal( mxArray* array,
@@ -2051,10 +1936,8 @@ MxArray::set( const std::vector< mwIndex >& subscripts, const T& value )
 }
 
 
-/**
- * Typedef for managed MxArray object
- *
- */
+/// Typedef for managed MxArray object
+///
 typedef std::shared_ptr< MxArray > MxArraySptr;
 
 } } }      // end namespace

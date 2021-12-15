@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header file for functions relating to generating projected
- * tracks from a sequence of landmarks and camera parameters.
- */
+/// \file
+/// \brief Header file for functions relating to generating projected
+/// tracks from a sequence of landmarks and camera parameters.
 
 #ifndef KWIVER_ARROWS_MVG_PROJECTED_TRACK_SET_H_
 #define KWIVER_ARROWS_MVG_PROJECTED_TRACK_SET_H_
@@ -23,11 +21,10 @@ namespace arrows {
 namespace mvg {
 
 /// Use the cameras to project the landmarks back into their images.
-/**
- * \param landmarks input landmark locations
- * \param cameras input camera map
- * \return feature track set generated via the projection
- */
+///
+/// \param landmarks input landmark locations
+/// \param cameras input camera map
+/// \return feature track set generated via the projection
 vital::feature_track_set_sptr
 KWIVER_ALGO_MVG_EXPORT
 projected_tracks(vital::landmark_map_sptr landmarks,

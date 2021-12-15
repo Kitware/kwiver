@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of matlab image object detector
- */
+/// \file
+/// \brief Implementation of matlab image object detector
 
 #include "matlab_image_object_detector.h"
 #include "matlab_engine.h"
@@ -26,44 +24,40 @@ namespace arrows {
 namespace matlab {
 
 // ----------------------------------------------------------------
-/**
- * @class matlab_image_object_detector
- *
- * @brief Wrapper for matlab image detectors.
- *
- * This class represents a wrapper for image object detectors written
- * in MatLab.
- *
- * Image object detectors written in MatLab must support the following
- * interface, at a minimum.
- *
- * Functions:
- *   - impl_name() - returns the implementation name for the matlab algorithm
- *
- *   - get_configuration() - returns the required configuration (format to be determined)
- *     May just punt and pass a filename to the algorithm and let it decode the config.
- *
- *   - set_configuration() - accepts a new configuration into the detector. (?)
- *
- *   - check_configuration() - returns error if there is a configuration problem
- *
- *   - detect() - performs detection operation using input variables as input and
- *     produces output on output variables.
- *
- * Input variables:
- *  - in_image - contains the input image. Shape of the array is the size of the image.
- *
- * Output variables:
- *  - detected_object_set - array containing detections; boxes and confidence
- *  - detected_object_classification - array of structs containing the classification
- *    labels and scores.
- */
+/// @class matlab_image_object_detector
+///
+/// @brief Wrapper for matlab image detectors.
+///
+/// This class represents a wrapper for image object detectors written
+/// in MatLab.
+///
+/// Image object detectors written in MatLab must support the following
+/// interface, at a minimum.
+///
+/// Functions:
+///   - impl_name() - returns the implementation name for the matlab algorithm
+///
+///   - get_configuration() - returns the required configuration (format to be determined)
+///     May just punt and pass a filename to the algorithm and let it decode the config.
+///
+///   - set_configuration() - accepts a new configuration into the detector. (?)
+///
+///   - check_configuration() - returns error if there is a configuration problem
+///
+///   - detect() - performs detection operation using input variables as input and
+///     produces output on output variables.
+///
+/// Input variables:
+///  - in_image - contains the input image. Shape of the array is the size of the image.
+///
+/// Output variables:
+///  - detected_object_set - array containing detections; boxes and confidence
+///  - detected_object_classification - array of structs containing the classification
+///    labels and scores.
 
 // ----------------------------------------------------------------
-/**
- * @brief
- *
- */
+/// @brief
+///
 class matlab_image_object_detector::priv
 {
 public:

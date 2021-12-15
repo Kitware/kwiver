@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Interface to matlab exceptions
- */
+/// \file
+/// \brief Interface to matlab exceptions
 
 #ifndef KWIVER_VITAL_MATLAB_EXCEPTION_H
 #define KWIVER_VITAL_MATLAB_EXCEPTION_H
@@ -19,10 +17,7 @@ namespace arrows {
 namespace matlab {
 
 // -----------------------------------------------------------------
-/**
- *
- *
- */
+///
 class KWIVER_ALGO_MATLAB_EXPORT matlab_exception
   : public vital::vital_exception
 {
@@ -36,4 +31,4 @@ public:
 
 } } } // end namespace
 
-#endif /* KWIVER_VITAL_MATLAB_EXCEPTION_H */
+#endif // KWIVER_VITAL_MATLAB_EXCEPTION_H

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of matlab image object filter
- */
+/// \file
+/// \brief Implementation of matlab image object filter
 
 #include "matlab_image_filter.h"
 #include "matlab_engine.h"
@@ -26,37 +24,33 @@ namespace arrows {
 namespace matlab {
 
 // ----------------------------------------------------------------
-/**
- * @class matlab_image_filter
- *
- * @brief Wrapper for matlab image filters.
- *
- * This class represents a wrapper for image object filters written
- * in MatLab.
- *
- * Image object filters written in MatLab must support the following
- * interface, at a minimum.
- *
- * Functions:
- *   - impl_name() - returns the implementation name for the matlab algorithm
- *
- *   - get_configuration() - returns the required configuration (format to be determined)
- *     May just punt and pass a filename to the algorithm and let it decode the config.
- *
- *   - set_configuration() - accepts a new configuration into the filter. (?)
- *
- *   - check_configuration() - returns error if there is a configuration problem
- *
- *   - filter() - performs detection operation using input variables as input and
- *     produces output on output variables.
- *
- */
+/// @class matlab_image_filter
+///
+/// @brief Wrapper for matlab image filters.
+///
+/// This class represents a wrapper for image object filters written
+/// in MatLab.
+///
+/// Image object filters written in MatLab must support the following
+/// interface, at a minimum.
+///
+/// Functions:
+///   - impl_name() - returns the implementation name for the matlab algorithm
+///
+///   - get_configuration() - returns the required configuration (format to be determined)
+///     May just punt and pass a filename to the algorithm and let it decode the config.
+///
+///   - set_configuration() - accepts a new configuration into the filter. (?)
+///
+///   - check_configuration() - returns error if there is a configuration problem
+///
+///   - filter() - performs detection operation using input variables as input and
+///     produces output on output variables.
+///
 
 // ----------------------------------------------------------------
-/**
- * @brief
- *
- */
+/// @brief
+///
 class matlab_image_filter::priv
 {
 public:

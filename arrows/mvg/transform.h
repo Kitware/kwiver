@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for 3D transformation functions
- */
+/// \file
+/// \brief Header for 3D transformation functions
 
 #ifndef KWIVER_ARROWS_MVG_TRANSFORM_H_
 #define KWIVER_ARROWS_MVG_TRANSFORM_H_
@@ -24,18 +22,17 @@ namespace arrows {
 namespace mvg {
 
 /// Transform a 3D covariance matrix with a similarity transformation
-/**
- *  This function applies the scale and rotation of a similarity transformation
- *  to a covariance matrix such that the Mahalanobis distance measure between
- *  two points remains unchanged after applying the same transformation to the
- *  points.  That is,
- *       (x1-m1)'*C1*(x1-m1) == (x2-m2)'*C2*(x2-m2)
- *       for x2 = xform*x1 and m2 = xform*m1 and C2 = transform(C1, xform)
- *
- *  \param [in] covar the 3D covariance to transform
- *  \param [in] xform the 3D similarity transformation to apply
- *  \return a 3D covariance transformed by the similarity transformation
- */
+///
+///  This function applies the scale and rotation of a similarity transformation
+///  to a covariance matrix such that the Mahalanobis distance measure between
+///  two points remains unchanged after applying the same transformation to the
+///  points.  That is,
+///       (x1-m1)'*C1*(x1-m1) == (x2-m2)'*C2*(x2-m2)
+///       for x2 = xform*x1 and m2 = xform*m1 and C2 = transform(C1, xform)
+///
+///  \param [in] covar the 3D covariance to transform
+///  \param [in] xform the 3D similarity transformation to apply
+///  \return a 3D covariance transformed by the similarity transformation
 template <typename T>
 KWIVER_ALGO_MVG_EXPORT
 vital::covariance_<3,T> transform(const vital::covariance_<3,T>& covar,
@@ -104,10 +101,9 @@ void translate_inplace(vital::simple_camera_perspective_map& cameras,
                        vital::vector_3d const& offset);
 
 /// translate cameras in place by the provided offset vector
-/**
- * \note only translates cameras which are perspective and have a
- * defined center
- */
+///
+/// \note only translates cameras which are perspective and have a
+/// defined center
 KWIVER_ALGO_MVG_EXPORT
 void translate_inplace(vital::camera_map& cameras,
                        vital::vector_3d const& offset);

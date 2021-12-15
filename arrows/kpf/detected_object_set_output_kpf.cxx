@@ -129,29 +129,27 @@ write_set( const kwiver::vital::detected_object_set_sptr set,
 
     // I do not think the vital detection has poly data....
     //<< KPF::writer< KPFC::poly_t>(poly_adapter(det), KPFC::poly_t::IMAGE_COORDS)
-    /*
-    This is how kw18 writes out data, Delete when we are happy with the above code
-    stream() << id                  // 1: track id
-             << " 1 "               // 2: track length
-             << d->m_frame_number-1 // 3: frame number / set number
-             << " 0 "               // 4: tracking plane x
-             << " 0 "               // 5: tracking plane y
-             << "0 "                // 6: velocity x
-             << "0 "                // 7: velocity y
-             << ilx << " "          // 8: image location x
-             << ily << " "          // 9: image location y
-             << bbox.min_x() << " " // 10: TL-x
-             << bbox.min_y() << " " // 11: TL-y
-             << bbox.max_x() << " " // 12: BR-x
-             << bbox.max_y() << " " // 13: BR-y
-             << bbox.area() << " "  // 14: area
-             << "0 "                // 15: world-loc x
-             << "0 "                // 16: world-loc y
-             << "0 "                // 17: world-loc z
-             << "-1 "                // 18: timestamp
-             << (*det)->confidence()   // 19: confidence
-             << std::endl;
-    */
+    // This is how kw18 writes out data, Delete when we are happy with the above code
+    // stream() << id                  // 1: track id
+    //        << " 1 "               // 2: track length
+    //        << d->m_frame_number-1 // 3: frame number / set number
+    //        << " 0 "               // 4: tracking plane x
+    //        << " 0 "               // 5: tracking plane y
+    //        << "0 "                // 6: velocity x
+    //        << "0 "                // 7: velocity y
+    //        << ilx << " "          // 8: image location x
+    //        << ily << " "          // 9: image location y
+    //        << bbox.min_x() << " " // 10: TL-x
+    //        << bbox.min_y() << " " // 11: TL-y
+    //        << bbox.max_x() << " " // 12: BR-x
+    //        << bbox.max_y() << " " // 13: BR-y
+    //        << bbox.area() << " "  // 14: area
+    //        << "0 "                // 15: world-loc x
+    //        << "0 "                // 16: world-loc y
+    //        << "0 "                // 17: world-loc z
+    //        << "-1 "                // 18: timestamp
+    //        << (*det)->confidence()   // 19: confidence
+    //        << std::endl;
   } // end foreach
 
   // Put each set on a new frame
