@@ -5,6 +5,9 @@
 /// \file
 /// \brief Definition of interval template class.
 
+#ifndef KWIVER_VITAL_UTIL_INTERVAL_H_
+#define KWIVER_VITAL_UTIL_INTERVAL_H_
+
 #include <vital/util/numeric.h>
 #include <vital/util/vital_util_export.h>
 
@@ -142,3 +145,5 @@ operator!=( interval< T > const& lhs, interval< T > const& rhs )
 } // namespace vital
 
 } // namespace kwiver
+
+#endif

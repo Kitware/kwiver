@@ -7,8 +7,8 @@
 
 #include "klv_packet.h"
 
-#include <arrows/klv/klv_0104_new.h>
-#include <arrows/klv/klv_0601_new.h>
+#include <arrows/klv/klv_0104.h>
+#include <arrows/klv/klv_0601.h>
 #include <arrows/klv/klv_1108.h>
 
 #include <iomanip>

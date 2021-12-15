@@ -336,6 +336,11 @@ metadata_map_io_csv
 
   auto const split_and_trim =
     []( std::string const& s ) -> std::vector< std::string > {
+      if( s.empty() )
+      {
+        return {};
+      }
+
       std::vector< std::string > result;
       kwiver::vital::tokenize( s, result, "," );
       std::for_each( result.begin(), result.end(),
