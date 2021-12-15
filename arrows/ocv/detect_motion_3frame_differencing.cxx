@@ -26,7 +26,7 @@ namespace ocv {
 
 using namespace kwiver::vital;
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
   ///
   /// @brief Converts a multi-channel image into a single channel image
   ///

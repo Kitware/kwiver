@@ -31,7 +31,7 @@ kwiver::vital::bounding_box<T> convert( const cv::Rect& vbox )
   return kwiver::vital::bounding_box<T>( bb_tl, vbox.width, vbox.height );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Convert bounding box to CvRect
 ///
 /// @param bbox Bounding box to convert

@@ -30,7 +30,7 @@ static const int MULTI_LABEL_OFFSET(15);
 
 typedef  Eigen::Matrix< unsigned int, 3, 1 > ColorVector;
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 /// @brief
 ///
 class draw_detected_object_set::priv
@@ -84,7 +84,7 @@ public:
 
   draw_detected_object_set* m_parent;
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// @brief Draw a box on an image.
   ///
   /// This method draws a box on an image for the bounding box from a
@@ -169,7 +169,7 @@ public:
     cv::addWeighted( overlay, alpha_wight, image, 1 - alpha_wight, 0, image );
   } // draw_box
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   /// @brief Draw detected object on image.
   ///
   /// This method draws the detections on a copy of the supplied
@@ -203,7 +203,7 @@ public:
         continue;
       }
 
-      // -----------------------------
+      // ----------------------------------------------------------------------
       // Since there is a type assigned, select on specified class_names
       auto names = det_type->class_names(); // get all class_names
 
@@ -228,7 +228,7 @@ public:
     return vital::image_container_sptr( new arrows::ocv::image_container( image, arrows::ocv::image_container::BGR_COLOR ) );
   } // end draw_detections
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
   /// @brief See if name has been selected for display.
   ///
   /// @param name Name to check.
@@ -244,7 +244,7 @@ public:
     return (std::find( m_select_classes.begin(), m_select_classes.end(), name ) != m_select_classes.end() );
   }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 process_config()
 {
@@ -314,7 +314,7 @@ process_config()
 
 }; // end priv class
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 draw_detected_object_set::
 draw_detected_object_set()
   : d( new priv )
@@ -326,7 +326,7 @@ draw_detected_object_set::
 ~draw_detected_object_set()
 { }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 draw_detected_object_set::
 get_configuration() const
@@ -361,7 +361,7 @@ get_configuration() const
   return config;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 draw_detected_object_set::
 set_configuration(vital::config_block_sptr config_in)
@@ -389,7 +389,7 @@ set_configuration(vital::config_block_sptr config_in)
   d->process_config();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 draw_detected_object_set::
 check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
@@ -399,7 +399,7 @@ check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
   return ! d->m_config_error;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::image_container_sptr
 draw_detected_object_set::
 draw( kwiver::vital::detected_object_set_sptr detected_set,
