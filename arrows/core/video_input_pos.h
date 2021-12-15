@@ -14,7 +14,7 @@ namespace arrows {
 namespace core {
 
 /// Metadata reader using the AFRL POS file format.
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// This class implements a video input algorithm that returns only metadata.
 ///
 /// The algorithm takes configuration for a directory full of images

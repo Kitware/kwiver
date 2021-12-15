@@ -13,7 +13,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class detected_object_set_output_csv::priv
 {
 public:
@@ -32,7 +32,7 @@ public:
   std::string m_delim;
 };
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 detected_object_set_output_csv::
 detected_object_set_output_csv()
   : d( new detected_object_set_output_csv::priv( this ) )
@@ -45,7 +45,7 @@ detected_object_set_output_csv::
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_output_csv::
 set_configuration(vital::config_block_sptr config)
@@ -53,7 +53,7 @@ set_configuration(vital::config_block_sptr config)
   d->m_delim = config->get_value<std::string>( "delimiter", d->m_delim );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set_output_csv::
 check_configuration( VITAL_UNUSED vital::config_block_sptr config) const
@@ -61,7 +61,7 @@ check_configuration( VITAL_UNUSED vital::config_block_sptr config) const
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_output_csv::
 write_set( const kwiver::vital::detected_object_set_sptr set, std::string const& image_name )

@@ -16,7 +16,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Filters detections based on class probability.
 ///
 /// This algorithm filters out items that are less than the threshold.

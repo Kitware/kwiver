@@ -44,7 +44,7 @@ namespace kwiver {
 namespace arrows {
 namespace darknet {
 
-// =============================================================================
+// ----------------------------------------------------------------------------
 class darknet_detector::priv
 {
 public:
@@ -96,7 +96,7 @@ public:
   kwiver::vital::logger_handle_t m_logger;
 };
 
-// =============================================================================
+// ----------------------------------------------------------------------------
 darknet_detector::
 darknet_detector()
   : d( new priv() )
@@ -112,7 +112,7 @@ darknet_detector::
 ~darknet_detector()
 {}
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 darknet_detector::
 get_configuration() const
@@ -147,7 +147,7 @@ get_configuration() const
   return config;
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 darknet_detector::
 set_configuration( vital::config_block_sptr config_in )
@@ -197,7 +197,7 @@ set_configuration( vital::config_block_sptr config_in )
   srand( 2222222 );
 } // darknet_detector::set_configuration
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 darknet_detector::
 check_configuration( vital::config_block_sptr config ) const
@@ -248,7 +248,7 @@ check_configuration( vital::config_block_sptr config ) const
   return success;
 } // darknet_detector::check_configuration
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::detected_object_set_sptr
 darknet_detector::
 detect( vital::image_container_sptr image_data ) const
@@ -330,7 +330,7 @@ detect( vital::image_container_sptr image_data ) const
   return detections;
 } // darknet_detector::detect
 
-// =============================================================================
+// ----------------------------------------------------------------------------
 vital::detected_object_set_sptr
 darknet_detector::priv::
 process_image( const cv::Mat& cv_image )

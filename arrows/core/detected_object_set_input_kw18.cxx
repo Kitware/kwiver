@@ -43,7 +43,7 @@ enum{
   COL_CONFIDENCE// 18
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class detected_object_set_input_kw18::priv
 {
 public:
@@ -67,7 +67,7 @@ public:
   std::map< int, kwiver::vital::detected_object_set_sptr > m_detected_sets;
 };
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 detected_object_set_input_kw18::
 detected_object_set_input_kw18()
   : d( new detected_object_set_input_kw18::priv( this ) )
@@ -80,14 +80,14 @@ detected_object_set_input_kw18::
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_input_kw18::
 set_configuration( VITAL_UNUSED vital::config_block_sptr config )
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set_input_kw18::
 check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
@@ -95,7 +95,7 @@ check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set_input_kw18::
 read_set( kwiver::vital::detected_object_set_sptr & set,
@@ -135,7 +135,7 @@ read_set( kwiver::vital::detected_object_set_sptr & set,
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_input_kw18::
 new_stream()
@@ -143,7 +143,7 @@ new_stream()
   d->m_first = true;
 }
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 void
 detected_object_set_input_kw18::priv::
 read_all()

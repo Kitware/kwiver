@@ -14,7 +14,7 @@ namespace arrows {
 namespace core {
 
 /// Video input that pulls image and metadata inputs from different sources.
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// This class implements a video input algorithm that holds two other video
 /// input algorithms and pulls imagery from one and metadata from the other.
 class KWIVER_ALGO_CORE_EXPORT video_input_split

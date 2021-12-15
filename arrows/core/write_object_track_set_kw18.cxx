@@ -29,7 +29,7 @@ namespace core {
 /// \li Column(s) 18: Timesetamp(-1 if not available)
 /// \li Column(s) 19: Track-confidence(-1_when_not_available)
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class write_object_track_set_kw18::priv
 {
 public:
@@ -51,7 +51,7 @@ public:
   std::map< unsigned, vital::track_sptr > m_tracks;
 };
 
-// ===============================================================================
+// ----------------------------------------------------------------------------
 write_object_track_set_kw18
 ::write_object_track_set_kw18()
   : d( new write_object_track_set_kw18::priv( this ) )
@@ -111,7 +111,7 @@ void write_object_track_set_kw18
   write_object_track_set::close();
 }
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 write_object_track_set_kw18
 ::set_configuration(vital::config_block_sptr config)
@@ -119,7 +119,7 @@ write_object_track_set_kw18
   d->m_delim = config->get_value<std::string>( "delimiter", d->m_delim );
 }
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 write_object_track_set_kw18
 ::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
@@ -127,7 +127,7 @@ write_object_track_set_kw18
   return true;
 }
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 write_object_track_set_kw18
 ::write_set(

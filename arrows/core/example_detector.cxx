@@ -39,7 +39,7 @@ public:
   int m_frame_ct;
 }; // end class example_detector::priv
 
-// =============================================================================
+// ----------------------------------------------------------------------------
 example_detector::
 example_detector()
         : d( new priv )
@@ -49,7 +49,7 @@ example_detector::
 ~example_detector()
 { }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 example_detector::
 get_configuration() const
@@ -67,7 +67,7 @@ get_configuration() const
   return config;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 example_detector::
 set_configuration(vital::config_block_sptr config_in)
@@ -83,7 +83,7 @@ set_configuration(vital::config_block_sptr config_in)
   d->m_dy           = config->get_value<double>( "dy" );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 example_detector::
 check_configuration( VITAL_UNUSED vital::config_block_sptr config) const
@@ -91,7 +91,7 @@ check_configuration( VITAL_UNUSED vital::config_block_sptr config) const
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::detected_object_set_sptr
 example_detector::
 detect( VITAL_UNUSED vital::image_container_sptr image_data) const

@@ -17,7 +17,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class read_track_descriptor_set_csv::priv
 {
 public:
@@ -59,7 +59,7 @@ public:
   std::vector< vital::track_descriptor_sptr > m_all_descs;
 };
 
-// ===============================================================================
+// ----------------------------------------------------------------------------
 read_track_descriptor_set_csv
 ::read_track_descriptor_set_csv()
   : d( new read_track_descriptor_set_csv::priv( this ) )
@@ -71,7 +71,7 @@ read_track_descriptor_set_csv
 {
 }
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 read_track_descriptor_set_csv
 ::set_configuration(vital::config_block_sptr config)
@@ -82,7 +82,7 @@ read_track_descriptor_set_csv
     config->get_value<bool>( "read_raw_descriptor", d->m_batch_load );
 }
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 read_track_descriptor_set_csv
 ::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
@@ -90,7 +90,7 @@ read_track_descriptor_set_csv
   return true;
 }
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 read_track_descriptor_set_csv
 ::read_set( kwiver::vital::track_descriptor_set_sptr& set )
@@ -130,7 +130,7 @@ read_track_descriptor_set_csv
   return this->at_eof();
 }
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 read_track_descriptor_set_csv::priv
 ::read_all()

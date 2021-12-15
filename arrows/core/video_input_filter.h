@@ -14,7 +14,7 @@ namespace arrows {
 namespace core {
 
 /// A video reader that filters the frames and metadata
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// This class implements a video input that down selects frames
 /// ready by another video reader.  It may down sample the framerate,
 /// remove frames before or after indicated frames, etc.

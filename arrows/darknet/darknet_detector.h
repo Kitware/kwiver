@@ -13,7 +13,7 @@ namespace kwiver {
 namespace arrows {
 namespace darknet {
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief
 ///
 class KWIVER_ALGO_DARKNET_EXPORT darknet_detector

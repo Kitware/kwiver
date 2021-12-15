@@ -15,7 +15,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class write_track_descriptor_set_csv::priv
 {
 public:
@@ -40,7 +40,7 @@ public:
   std::string m_sub_delim;
 };
 
-// ===============================================================================
+// ----------------------------------------------------------------------------
 write_track_descriptor_set_csv
 ::write_track_descriptor_set_csv()
   : d( new write_track_descriptor_set_csv::priv( this ) )
@@ -52,7 +52,7 @@ write_track_descriptor_set_csv
 {
 }
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 write_track_descriptor_set_csv
 ::set_configuration( vital::config_block_sptr config )
@@ -62,7 +62,7 @@ write_track_descriptor_set_csv
     config->get_value<bool>( "write_world_loc", d->m_write_world_loc);
 }
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 write_track_descriptor_set_csv
 ::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
@@ -70,7 +70,7 @@ write_track_descriptor_set_csv
   return true;
 }
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 write_track_descriptor_set_csv
 ::write_set( const kwiver::vital::track_descriptor_set_sptr set )

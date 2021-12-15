@@ -13,7 +13,7 @@ namespace kwiver {
 namespace arrows {
 namespace darknet {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Darknet Training Utility Class
 class KWIVER_ALGO_DARKNET_EXPORT darknet_trainer
   : public vital::algo::train_detector

@@ -38,7 +38,7 @@ public:
   vital::algo::video_input_sptr d_video_input;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_input_filter
 ::video_input_filter()
   : d( new video_input_filter::priv )
@@ -46,13 +46,13 @@ video_input_filter
   attach_logger( "arrows.core.video_input_filter" );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_input_filter
 ::~video_input_filter()
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 video_input_filter
 ::get_configuration() const
@@ -85,7 +85,7 @@ video_input_filter
   return config;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 video_input_filter
 ::set_configuration( vital::config_block_sptr in_config )
@@ -111,7 +111,7 @@ video_input_filter
     set_nested_algo_configuration( "video_input", config, d->d_video_input);
  }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_filter
 ::check_configuration( vital::config_block_sptr config ) const
@@ -170,7 +170,7 @@ video_input_filter
          vital::algo::video_input::check_nested_algo_configuration( "video_input", config );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 video_input_filter
 ::open( std::string name )
@@ -209,7 +209,7 @@ video_input_filter
 
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 video_input_filter
 ::close()
@@ -220,7 +220,7 @@ video_input_filter
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_filter
 ::end_of_video() const
@@ -228,7 +228,7 @@ video_input_filter
   return d->d_at_eov;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_filter
 ::good() const
@@ -240,7 +240,7 @@ video_input_filter
   return d->d_video_input->good();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_filter
 ::seekable() const
@@ -252,7 +252,7 @@ video_input_filter
   return d->d_video_input->seekable();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 size_t
 video_input_filter
 ::num_frames() const
@@ -273,7 +273,7 @@ video_input_filter
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_filter
 ::next_frame( kwiver::vital::timestamp& ts,   // returns timestamp
@@ -316,7 +316,7 @@ video_input_filter
   return status;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_filter
 ::seek_frame( kwiver::vital::timestamp& ts,   // returns timestamp
@@ -342,7 +342,7 @@ video_input_filter
   return status;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::timestamp
 video_input_filter
 ::frame_timestamp() const
@@ -364,7 +364,7 @@ video_input_filter
   return ts;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::image_container_sptr
 video_input_filter
 ::frame_image()
@@ -376,7 +376,7 @@ video_input_filter
   return nullptr;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::metadata_vector
 video_input_filter
 ::frame_metadata()
