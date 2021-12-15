@@ -22,8 +22,7 @@ descriptor_set_sptr
 extract_descriptors
 ::extract(image_container_sptr image_data,
           feature_set_sptr &features,
-          image_container_sptr // image_mask 
-) const
+          image_container_sptr /* image_mask */) const
 {
   if( !image_data || !features )
   {
