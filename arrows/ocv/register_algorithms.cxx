@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OpenCV algorithm registration implementation
- */
+/// \file
+/// \brief OpenCV algorithm registration implementation
 
 #include <arrows/ocv/kwiver_algo_ocv_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>

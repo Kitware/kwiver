@@ -37,4 +37,4 @@ private:
 
 } } } // end namespace
 
-#endif /* ARROWS_OCV_HOUGH_CIRCLE_DETECTOR_H */
+#endif // ARROWS_OCV_HOUGH_CIRCLE_DETECTOR_H

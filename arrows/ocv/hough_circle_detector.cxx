@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation for hough_circle_detector
- */
+/// \file
+/// \brief Implementation for hough_circle_detector
 
 #include "hough_circle_detector.h"
 
@@ -23,10 +21,8 @@ namespace arrows {
 namespace ocv {
 
 // ----------------------------------------------------------------
-/**
- * @brief
- *
- */
+/// @brief
+///
 class hough_circle_detector::priv
 {
 public:

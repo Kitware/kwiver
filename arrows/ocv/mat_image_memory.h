@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV mat_image_memory interface
- */
+/// \file
+/// \brief OCV mat_image_memory interface
 
 #ifndef KWIVER_ARROWS_OCV_MAT_IMAGE_MEMORY_H_
 #define KWIVER_ARROWS_OCV_MAT_IMAGE_MEMORY_H_

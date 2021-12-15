@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation for draw_detected_object_set
- */
+/// \file
+/// \brief Implementation for draw_detected_object_set
 
 #include "draw_detected_object_set.h"
 
@@ -33,10 +31,8 @@ static const int MULTI_LABEL_OFFSET(15);
 typedef  Eigen::Matrix< unsigned int, 3, 1 > ColorVector;
 
 // ==================================================================
-/**
- * @brief
- *
- */
+/// @brief
+///
 class draw_detected_object_set::priv
 {
 public:
@@ -89,28 +85,26 @@ public:
   draw_detected_object_set* m_parent;
 
   // ------------------------------------------------------------------
-  /**
-   * @brief Draw a box on an image.
-   *
-   * This method draws a box on an image for the bounding box from a
-   * detected object.
-   *
-   * When drawing a box with multiple class names, draw the first
-   * class_name with the \c just_text parameter \b false and all
-   * subsequent calls with it set to \b true. Also the \c offset
-   * parameter must be incremented so the labels do not overwrite.
-   *
-   * @param[in,out] image Input image updated with drawn box
-   * @param[in] dos detected object with bounding box
-   * @param[in] label Text label to use for box
-   * @param[in] prob Probability value to add to label text
-   * @param[in] just_text Set to true if only draw text, not the
-   *            bounding box. This is used when there are multiple
-   *            labels for the same detection.
-   * @param[in] offset How much to offset text fill box from text
-   *            baseline. This is used to offset labels when there are
-   *            more than one label for a detection.
-   */
+  /// @brief Draw a box on an image.
+  ///
+  /// This method draws a box on an image for the bounding box from a
+  /// detected object.
+  ///
+  /// When drawing a box with multiple class names, draw the first
+  /// class_name with the \c just_text parameter \b false and all
+  /// subsequent calls with it set to \b true. Also the \c offset
+  /// parameter must be incremented so the labels do not overwrite.
+  ///
+  /// @param[in,out] image Input image updated with drawn box
+  /// @param[in] dos detected object with bounding box
+  /// @param[in] label Text label to use for box
+  /// @param[in] prob Probability value to add to label text
+  /// @param[in] just_text Set to true if only draw text, not the
+  ///            bounding box. This is used when there are multiple
+  ///            labels for the same detection.
+  /// @param[in] offset How much to offset text fill box from text
+  ///            baseline. This is used to offset labels when there are
+  ///            more than one label for a detection.
   void draw_box( cv::Mat&                     image,
                  const vital::detected_object_sptr  dos,
                  std::string                  label,
@@ -176,19 +170,17 @@ public:
   } // draw_box
 
   // ------------------------------------------------------------------
-  /**
-   * @brief Draw detected object on image.
-   *
-   * This method draws the detections on a copy of the supplied
-   * image. The detections are drawn in confidence order up to the
-   * threshold. For each detection, the most likely class_name is
-   * optionally displayed below the box.
-   *
-   * @param image_data The image to draw on.
-   * @param input_set List of detections to draw.
-   *
-   * @return New image with boxes drawn.
-   */
+  /// @brief Draw detected object on image.
+  ///
+  /// This method draws the detections on a copy of the supplied
+  /// image. The detections are drawn in confidence order up to the
+  /// threshold. For each detection, the most likely class_name is
+  /// optionally displayed below the box.
+  ///
+  /// @param image_data The image to draw on.
+  /// @param input_set List of detections to draw.
+  ///
+  /// @return New image with boxes drawn.
   vital::image_container_sptr draw_detections( vital::image_container_sptr      image_data,
                                                vital::detected_object_set_sptr  in_set ) const
   {
@@ -237,13 +229,11 @@ public:
   } // end draw_detections
 
 // ------------------------------------------------------------------
-  /**
-   * @brief See if name has been selected for display.
-   *
-   * @param name Name to check.
-   *
-   * @return \b true if name should be rendered
-   */
+  /// @brief See if name has been selected for display.
+  ///
+  /// @param name Name to check.
+  ///
+  /// @return \b true if name should be rendered
   bool name_selected( std::string const& name ) const
   {
     if ( m_select_classes[0] == "*ALL*" )
