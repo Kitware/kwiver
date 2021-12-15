@@ -19,7 +19,7 @@ namespace arrows {
 namespace ffmpeg {
 
 /// Video input using ffmpeg services.
-// --------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /// This class implements a video input algorithm using ffmpeg video services.
 ///

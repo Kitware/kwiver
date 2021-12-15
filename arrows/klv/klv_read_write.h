@@ -54,7 +54,7 @@ namespace arrows {
 
 namespace klv {
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Read an integer from a sequence of bytes (big-endian).
 ///
 /// This function handles signed and unsigned integers as well as values of \p
@@ -74,7 +74,7 @@ KWIVER_ALGO_KLV_EXPORT
 T
 klv_read_int( Iterator& data, size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Write an integer to a sequence of bytes (big-endian).
 ///
 /// This function handles signed and unsigned integers as well as values of \p
@@ -95,7 +95,7 @@ KWIVER_ALGO_KLV_EXPORT
 void
 klv_write_int( T value, Iterator& data, size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Return the number of bytes required to store the given signed or unsigned
 /// integer.
 ///
@@ -107,7 +107,7 @@ KWIVER_ALGO_KLV_EXPORT
 size_t
 klv_int_length( T value );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Read an integer from a sequence of bytes, decoding it from BER format.
 ///
 /// For an explanation of BER, see the MISB Motion Imagery Handbook, Section
@@ -130,7 +130,7 @@ KWIVER_ALGO_KLV_EXPORT
 T
 klv_read_ber( Iterator& data, size_t max_length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Write an integer to a sequence of bytes, encoding it into BER format.
 ///
 /// For an explanation of BER, see the MISB Motion Imagery Handbook, Section
@@ -149,7 +149,7 @@ KWIVER_ALGO_KLV_EXPORT
 void
 klv_write_ber( T value, Iterator& data, size_t max_length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Return the number of bytes required to store the given integer in BER
 /// format.
 ///
@@ -161,7 +161,7 @@ KWIVER_ALGO_KLV_EXPORT
 size_t
 klv_ber_length( T value );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Read an integer from a sequence of bytes, decoding it from BER-OID format.
 ///
 /// For an explanation of BER-OID, see the MISB Motion Imagery Handbook,
@@ -184,7 +184,7 @@ KWIVER_ALGO_KLV_EXPORT
 T
 klv_read_ber_oid( Iterator& data, size_t max_length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Write an integer to a sequence of bytes, encoding it into BER-OID format.
 ///
 /// For an explanation of BER-OID, see the MISB Motion Imagery Handbook,
@@ -203,7 +203,7 @@ KWIVER_ALGO_KLV_EXPORT
 void
 klv_write_ber_oid( T value, Iterator& data, size_t max_length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Return the number of bytes required to store the given integer in BER-OID
 /// format.
 ///
@@ -220,7 +220,7 @@ KWIVER_ALGO_KLV_EXPORT
 size_t
 klv_ber_oid_length( T value );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Read an integer from a sequence of bytes and map it to a defined
 /// floating-point range.
 ///
@@ -245,7 +245,7 @@ double
 klv_read_flint( double minimum, double maximum,
                 Iterator& data, size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Map a floating-point number within a range to an integer and write it to a
 /// sequence of bytes.
 ///
@@ -271,7 +271,7 @@ void
 klv_write_flint( double value, double minimum, double maximum,
                  Iterator& data, size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Return the number of bytes required for the given flint specification.
 ///
 /// Precision here is the distance between successive discrete mapped values.
@@ -290,7 +290,7 @@ KWIVER_ALGO_KLV_EXPORT
 size_t
 klv_flint_length( double minimum, double maximum, double precision );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Return the precision offered by the given flint specification.
 ///
 /// Precision here is the distance between successive discrete mapped values.
@@ -309,7 +309,7 @@ KWIVER_ALGO_KLV_EXPORT
 double
 klv_flint_precision( double minimum, double maximum, size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Read an IEEE-754 floating-point number from a sequence of bytes
 /// (big-endian).
 ///
@@ -327,7 +327,7 @@ KWIVER_ALGO_KLV_EXPORT
 double
 klv_read_float( Iterator& data, size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Write an IEEE-754 floating-point number to a sequence of bytes
 /// (big-endian).
 ///
@@ -343,7 +343,7 @@ KWIVER_ALGO_KLV_EXPORT
 void
 klv_write_float( double value, Iterator& data, size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Read an IMAP-encoded floating-point value from a sequence of bytes.
 ///
 /// For an explanation of IMAP, see the MISB ST1201 document.
@@ -367,7 +367,7 @@ KWIVER_ALGO_KLV_EXPORT
 double
 klv_read_imap( double minimum, double maximum, Iterator& data, size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Write a floating-point value into the IMAP format.
 ///
 /// For an explanation of IMAP, see the MISB ST1201 document.
@@ -391,7 +391,7 @@ void
 klv_write_imap( double value, double minimum, double maximum, Iterator& data,
                 size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Return the number of bytes required for the given IMAP specification.
 ///
 /// Precision here is the distance between successive discrete mapped values.
@@ -413,7 +413,7 @@ KWIVER_ALGO_KLV_EXPORT
 size_t
 klv_imap_length( double minimum, double maximum, double precision );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Return the precision offered by the given IMAP specification.
 ///
 /// Precision here is the distance between successive discrete mapped values.
@@ -434,7 +434,7 @@ KWIVER_ALGO_KLV_EXPORT
 double
 klv_imap_precision( double minimum, double maximum, size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Read a string from a sequence of bytes.
 ///
 /// This function performs a straightforward copy, except a single null
@@ -447,7 +447,7 @@ KWIVER_ALGO_KLV_EXPORT
 std::string
 klv_read_string( Iterator& data, size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Write a string to a sequence of bytes.
 ///
 /// This function performs a straightforward copy, except the empty string is
@@ -468,7 +468,7 @@ void
 klv_write_string( std::string const& value, Iterator& data,
                   size_t max_length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Return the number of bytes required to store the given string.
 ///
 /// \param value String whose byte length is being queried.

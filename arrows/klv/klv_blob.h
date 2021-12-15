@@ -95,7 +95,7 @@ KWIVER_ALGO_KLV_EXPORT
 void
 klv_write_blob( klv_blob const& value, Iterator& data, size_t max_length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Return the number of bytes required to write the given blob.
 ///
 /// \param value Blob whose byte length is being queried.

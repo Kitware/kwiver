@@ -37,7 +37,7 @@ constexpr ptrdiff_t packet_length =
 
 } // namespace misp_detail
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Locate a MISP timestamp packet in a sequence of bytes.
 ///
 /// \param begin Iterator to beginning of byte sequence.
@@ -53,7 +53,7 @@ find_misp_timestamp( Iterator begin, Iterator end )
   return ( std::distance( it, end ) < misp_detail::packet_length ) ? end : it;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Read a MISP timestamp from a sequence of bytes.
 ///
 /// \param begin Iterator to beginning of MISP packet.
