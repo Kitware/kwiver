@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation file for video input using VXL methods.
- */
+/// \file
+/// \brief Implementation file for video input using VXL methods.
 
 #include "vidl_ffmpeg_video_input.h"
 
@@ -79,9 +77,7 @@ public:
   std::vector< std::string >  c_time_source_list;
   int c_time_scan_frame_limit; // number of frames to scan looking for time
 
-  /**
-   * If this is set then we ignore any metadata included in the video stream.
-   */
+  /// If this is set then we ignore any metadata included in the video stream.
   bool c_use_metadata;
 
   // local state
@@ -89,48 +85,34 @@ public:
   bool d_at_eov;
   bool d_frame_advanced;
 
-  /**
-   * This holds the number of frames in the video. If it is set to -2 it means
-   * this number still needs to be calculated.
-   */
+  /// This holds the number of frames in the video. If it is set to -2 it means
+  /// this number still needs to be calculated.
   size_t d_num_frames;
 
-  /**
-   * Storage for the metadata map.
-   */
+  /// Storage for the metadata map.
   vital::metadata_map::map_metadata_t d_metadata_map;
 
-  /**
-   * This is set to indicate that we can supply a frame time of some
-   * form. If this is false, the output timestamp will not have a time
-   * set. This also is used to report the HAS_FRAME_TIME capability.
-   */
+  /// This is set to indicate that we can supply a frame time of some
+  /// form. If this is false, the output timestamp will not have a time
+  /// set. This also is used to report the HAS_FRAME_TIME capability.
   bool d_have_frame_time;
 
-  /**
-   * This is set to indicate that we can supply an absolute frame time
-   * rather than a relative frame time. This value is used to report
-   * the HAS_ABSOLUTE_FRAME_TIME capability.
-   */
+  /// This is set to indicate that we can supply an absolute frame time
+  /// rather than a relative frame time. This value is used to report
+  /// the HAS_ABSOLUTE_FRAME_TIME capability.
   bool d_have_abs_frame_time;
 
-  /**
-   * This is set to indicate we can supply video metadata and is used
-   * to report the HAS_METADATA capability.
-   */
+  /// This is set to indicate we can supply video metadata and is used
+  /// to report the HAS_METADATA capability.
   bool d_have_metadata;
 
-  /**
-   * This is set to indicate the video stream is seekable by frame and is used
-   * to report the IS_SEEKABLE capability.
-   */
+  /// This is set to indicate the video stream is seekable by frame and is used
+  /// to report the IS_SEEKABLE capability.
   bool d_is_seekable;
 
-  /**
-   * This is set to indicate that any variables that require a pass through the
-   * video like the number of frames or the metadata map have already been
-   * determined.
-   */
+  /// This is set to indicate that any variables that require a pass through the
+  /// video like the number of frames or the metadata map have already been
+  /// determined.
   bool d_have_loop_vars;
 
   double pts_of_meta_ts;            // probably seconds
@@ -151,23 +133,21 @@ public:
   static std::mutex s_open_mutex;
 
   // =====================================================================================
-  /*
-   * @brief Process metadata byte stream.
-   *
-   * This method adds the supplied bytes to the metadata buffer and
-   * then tests to see if we have collected enough bytes to make a
-   * full metadata packet. If not, then we just return, leaving any
-   * current metadata as it was.
-   *
-   * If a complete klv packet has been received, it is processed and
-   * the existing metadata collection is added to the current list of
-   * metadata packets.
-   *
-   * @param curr_md Stream of metadata bytes.
-   *
-   * @return the processed metadata. If there is no metadata it returns an
-   *         empty metadata vector.
-   */
+  //  @brief Process metadata byte stream.
+  //
+  //  This method adds the supplied bytes to the metadata buffer and
+  //  then tests to see if we have collected enough bytes to make a
+  //  full metadata packet. If not, then we just return, leaving any
+  //  current metadata as it was.
+  //
+  //  If a complete klv packet has been received, it is processed and
+  //  the existing metadata collection is added to the current list of
+  //  metadata packets.
+  //
+  //  @param curr_md Stream of metadata bytes.
+  //
+  //  @return the processed metadata. If there is no metadata it returns an
+  //          empty metadata vector.
   kwiver::vital::metadata_vector process_metadata( std::vector< uint8_t > const& curr_md )
   {
     // Add new metadata to the end of current metadata stream
@@ -224,16 +204,14 @@ public:
   }
 
   // -------------------------------------------------------------------------------------
-  /*
-   * @brief Initialize timestamp for video.
-   *
-   * This method initializes the timestamp at the start of a video,
-   * since we need a timestamp for the first frame. It scans ahead in
-   * the input stream until it gets a time marker of the specified
-   * type.
-   *
-   * @return \b true if timestamp has been determined.
-   */
+  //  @brief Initialize timestamp for video.
+  //
+  //  This method initializes the timestamp at the start of a video,
+  //  since we need a timestamp for the first frame. It scans ahead in
+  //  the input stream until it gets a time marker of the specified
+  //  type.
+  //
+  //  @return \b true if timestamp has been determined.
   bool init_timestamp( std::string time_source )
   {
     bool retval( true );

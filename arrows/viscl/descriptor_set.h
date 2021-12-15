@@ -33,9 +33,8 @@ public:
   virtual size_t size() const { return data_.len(); }
 
   /// Return a vector of descriptor shared pointers
-  /**
-    * Warning: These descriptors must be matched by hamming distance
-    */
+  ///
+  ///  Warning: These descriptors must be matched by hamming distance
   virtual std::vector<vital::descriptor_sptr> descriptors() const;
 
   /// Return the native VisCL descriptors structure

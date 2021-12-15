@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief VXL image memory interface
- */
+/// \file
+/// \brief VXL image memory interface
 
 #ifndef KWIVER_ARROWS_VXL_VIL_IMAGE_MEMORY_H_
 #define KWIVER_ARROWS_VXL_VIL_IMAGE_MEMORY_H_
@@ -75,21 +73,17 @@ protected:
 };
 
 /// Convert a VXL vil_memory_chunk_sptr to a VITAL image_memory_sptr
-/*
- * This conversion function typically calls the vil_image_memory constructor.
- * However, it also detects when the incoming chunk is already a wrapper around
- * vital::image_memory.  In the later case it extracts the underlying
- * vital::image_memory instead of adding another layer of wrapping.
- */
+//  This conversion function typically calls the vil_image_memory constructor.
+//  However, it also detects when the incoming chunk is already a wrapper around
+//  vital::image_memory.  In the later case it extracts the underlying
+//  vital::image_memory instead of adding another layer of wrapping.
 vital::image_memory_sptr vxl_to_vital(const vil_memory_chunk_sptr chunk);
 
 /// Convert a VITAL image_memory_sptr to a VXL vil_memory_chunk_sptr
-/*
- * This conversion function typically calls the image_memory_chunk constructor.
- * However, it also detects when the incoming memory is already a wrapper around
- * vil_memory_chunk.  In the later case it extracts the underlying
- * vil_memory_chunk instead of adding another layer of wrapping.
- */
+//  This conversion function typically calls the image_memory_chunk constructor.
+//  However, it also detects when the incoming memory is already a wrapper around
+//  vil_memory_chunk.  In the later case it extracts the underlying
+//  vil_memory_chunk instead of adding another layer of wrapping.
 vil_memory_chunk_sptr vital_to_vxl(const vital::image_memory_sptr mem);
 
 } // end namespace vxl

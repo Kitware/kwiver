@@ -103,12 +103,10 @@ bool vtkKwiverCamera::ProjectPoint(kwiver::vital::vector_3d const& in,
   out[1] = ppos[1];
   return true;
 }
-/**
-  *
-  * WARNING: The convention here is that depth is NOT the distance between the
-  * camera center and the 3D point but the distance between the projection of
-  * the 3D point on the optical axis and the optical center.
-*/
+///
+///  WARNING: The convention here is that depth is NOT the distance between the
+///  camera center and the 3D point but the distance between the projection of
+///  the 3D point on the optical axis and the optical center.
 
 //-----------------------------------------------------------------------------
 kwiver::vital::vector_3d vtkKwiverCamera::UnprojectPoint(

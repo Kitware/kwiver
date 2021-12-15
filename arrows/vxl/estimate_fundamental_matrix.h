@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief VXL fundamental matrix estimation algorithm (5 point alg)
- */
+/// \file
+/// \brief VXL fundamental matrix estimation algorithm (5 point alg)
 
 #ifndef KWIVER_ARROWS_VXL_ESTIMATE_FUNDAMENTAL_MATRIX_H_
 #define KWIVER_ARROWS_VXL_ESTIMATE_FUNDAMENTAL_MATRIX_H_
@@ -42,13 +40,12 @@ public:
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
   /// Estimate an fundamental matrix from corresponding points
-  /**
-   * \param [in]  pts1 the vector or corresponding points from the first image
-   * \param [in]  pts2 the vector of corresponding points from the second image
-   * \param [out] inliers for each point pair, the value is true if
-   *                      this pair is an inlier to the estimate
-   * \param [in]  inlier_scale error distance tolerated for matches to be inliers
-   */
+  ///
+  /// \param [in]  pts1 the vector or corresponding points from the first image
+  /// \param [in]  pts2 the vector of corresponding points from the second image
+  /// \param [out] inliers for each point pair, the value is true if
+  ///                      this pair is an inlier to the estimate
+  /// \param [in]  inlier_scale error distance tolerated for matches to be inliers
   virtual
   vital::fundamental_matrix_sptr
   estimate(const std::vector<vital::vector_2d>& pts1,
@@ -58,14 +55,13 @@ public:
   using vital::algo::estimate_fundamental_matrix::estimate;
 
   /// Test corresponding points against a fundamental matrix and mark inliers
-  /**
-   * \param [in]  fm   the fundamental matrix
-   * \param [in]  pts1 the vector or corresponding points from the first image
-   * \param [in]  pts2 the vector of corresponding points from the second image
-   * \param [out] inliers for each point pair, the value is true if
-   *                      this pair is an inlier to the estimate
-   * \param [in]  inlier_scale error distance tolerated for matches to be inliers
-   */
+  ///
+  /// \param [in]  fm   the fundamental matrix
+  /// \param [in]  pts1 the vector or corresponding points from the first image
+  /// \param [in]  pts2 the vector of corresponding points from the second image
+  /// \param [out] inliers for each point pair, the value is true if
+  ///                      this pair is an inlier to the estimate
+  /// \param [in]  inlier_scale error distance tolerated for matches to be inliers
   static void
   mark_inliers(vital::fundamental_matrix_sptr const& fm,
                std::vector<vital::vector_2d> const& pts1,

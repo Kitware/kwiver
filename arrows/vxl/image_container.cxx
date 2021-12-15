@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief VXL image container implementation
- */
+/// \file
+/// \brief VXL image container implementation
 
 #include "image_container.h"
 
@@ -42,10 +40,9 @@ image_container
 }
 
 /// The size of the image data in bytes
-/**
- * This size includes all allocated image memory,
- * which could be larger than width*height*depth.
- */
+///
+/// This size includes all allocated image memory,
+/// which could be larger than width*height*depth.
 size_t
 image_container
 ::size() const

@@ -34,13 +34,12 @@ public:
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
   /// Match one set of features and corresponding descriptors to another
-  /**
-   * \param [in] feat1 the first set of features to match
-   * \param [in] desc1 the descriptors corresponding to \a feat1
-   * \param [in] feat2 the second set fof features to match
-   * \param [in] desc2 the descriptors corresponding to \a feat2
-   * \returns a set of matching indices from \a feat1 to \a feat2
-   */
+  ///
+  /// \param [in] feat1 the first set of features to match
+  /// \param [in] desc1 the descriptors corresponding to \a feat1
+  /// \param [in] feat2 the second set fof features to match
+  /// \param [in] desc2 the descriptors corresponding to \a feat2
+  /// \returns a set of matching indices from \a feat1 to \a feat2
   virtual vital::match_set_sptr
   match(vital::feature_set_sptr feat1, vital::descriptor_set_sptr desc1,
         vital::feature_set_sptr feat2, vital::descriptor_set_sptr desc2) const;
