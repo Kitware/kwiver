@@ -23,7 +23,7 @@ namespace kwiver {
 namespace arrows {
 namespace ocv {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Generate bounding boxes from a heat map.
 ///
 /// This object detector algorithm implementation extracts a detected object set

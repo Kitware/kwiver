@@ -23,7 +23,7 @@ namespace ocv {
 
 using namespace kwiver::vital;
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /// Private implementation class
 class detect_motion_mog2::priv

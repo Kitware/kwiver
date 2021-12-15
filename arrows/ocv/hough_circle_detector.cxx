@@ -20,7 +20,7 @@ namespace kwiver {
 namespace arrows {
 namespace ocv {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief
 ///
 class hough_circle_detector::priv
@@ -49,7 +49,7 @@ public:
 
 }; // end class hough_circle_detector::priv
 
-  // ==================================================================
+  // --------------------------------------------------------------------------
 hough_circle_detector::
 hough_circle_detector()
   : d( new priv )
@@ -59,7 +59,7 @@ hough_circle_detector()
 ~hough_circle_detector()
 { }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 hough_circle_detector::
 get_configuration() const
@@ -95,7 +95,7 @@ get_configuration() const
   return config;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 hough_circle_detector::
 set_configuration(vital::config_block_sptr config_in)
@@ -117,7 +117,7 @@ set_configuration(vital::config_block_sptr config_in)
   d->m_max_radius = config->get_value<int>( "max_radius" );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 hough_circle_detector::
 check_configuration(vital::config_block_sptr config_in) const
@@ -128,7 +128,7 @@ check_configuration(vital::config_block_sptr config_in) const
   return ! cd.warn_extra_keys( logger() );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::detected_object_set_sptr
 hough_circle_detector::
 detect( vital::image_container_sptr image_data) const

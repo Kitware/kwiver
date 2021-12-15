@@ -69,7 +69,7 @@ linspace(T a, T b, int n)
   return array;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
   ///
   /// @brief Applies threshold and finds bounding boxes for above-zero pixels.
   ///
@@ -191,8 +191,9 @@ mask_bounding_box( const cv::Mat image, double threshold = 0, int first_row = 0,
   return std::make_tuple( first_row, last_row+1, first_col, last_col+1 );
 }
 
-// ---------------------------------------------------------------------------
-// ------------------------------ Sprokit ------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+ Sprokit ------------------------------------
 
 /// Private implementation class
 class detect_heat_map::priv
