@@ -21,7 +21,7 @@ int main(int argc, char** argv)
   return RUN_ALL_TESTS();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST(uuid, test_api)
 {
   kac::uuid_factory_uuid algo;
@@ -34,7 +34,7 @@ TEST(uuid, test_api)
   EXPECT_TRUE( id.is_valid() );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST(uuid, test_loading)
 {
   kwiver::vital::plugin_manager::instance().load_all_plugins();

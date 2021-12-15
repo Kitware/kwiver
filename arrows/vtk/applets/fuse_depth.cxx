@@ -63,7 +63,7 @@ typedef kwiversys::SystemTools ST;
 kv::logger_handle_t main_logger( kv::get_logger( "fuse_depth" ) );
 
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool check_config(kv::config_block_sptr config)
 {
   using namespace kwiver::tools;
@@ -554,7 +554,7 @@ add_command_options()
                                       "input-depths-dir"});
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 fuse_depth::
 fuse_depth()
  : d(new priv())

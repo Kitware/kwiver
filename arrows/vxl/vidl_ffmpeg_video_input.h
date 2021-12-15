@@ -17,7 +17,7 @@ namespace arrows {
 namespace vxl {
 
 /// Video input using VXL vidl ffmpeg services.
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// This class implements a video input algorithm using the VXL vidl
 /// ffmpeg video services.
 ///

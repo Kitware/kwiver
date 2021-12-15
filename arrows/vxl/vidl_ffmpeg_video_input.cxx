@@ -36,7 +36,7 @@ namespace kwiver {
 namespace arrows {
 namespace vxl {
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Private implementation class
 class vidl_ffmpeg_video_input::priv
 {
@@ -132,7 +132,7 @@ public:
 
   static std::mutex s_open_mutex;
 
-  // =====================================================================================
+  // --------------------------------------------------------------------------
   //  @brief Process metadata byte stream.
   //
   //  This method adds the supplied bytes to the metadata buffer and
@@ -203,7 +203,7 @@ public:
     return { std::make_shared< kwiver::vital::metadata >( result ) };
   }
 
-  // -------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   //  @brief Initialize timestamp for video.
   //
   //  This method initializes the timestamp at the start of a video,
@@ -280,7 +280,7 @@ public:
     return retval;
   } // init_timestamp
 
-  // -------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   bool misp_time()
   {
     int frame_count( c_time_scan_frame_limit );
@@ -308,7 +308,7 @@ public:
     return retval;
   } // misp_time
 
-  // -------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   bool start_at_0_time()
   {
     meta_ts = 0;
@@ -317,7 +317,7 @@ public:
     return true;
   } // start_at_0_time
 
-  // -------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   bool current_time()
   {
     using namespace std::chrono;
@@ -331,7 +331,7 @@ public:
     return true;
   } // current_time
 
-  // -------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   bool klv_time()
   {
     using namespace kwiver::vital;
@@ -378,7 +378,7 @@ public:
     return retval;
   } // klv_time
 
-  // -------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   void push_metadata_to_map(vital::timestamp::frame_t fn)
   {
     if (fn >= c_start_at_frame &&
@@ -396,7 +396,7 @@ public:
     }
   }
 
-  // -------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   void process_loop_dependencies()
   {
     // is stream open?
@@ -451,7 +451,7 @@ public:
 // static open interlocking mutex
 std::mutex vidl_ffmpeg_video_input::priv::s_open_mutex;
 
-// =======================================================================================
+// ----------------------------------------------------------------------------
 vidl_ffmpeg_video_input
 ::vidl_ffmpeg_video_input()
   : d( new priv() )
@@ -466,7 +466,7 @@ vidl_ffmpeg_video_input
   d->d_video_stream.close( );
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Get this algorithm's \link vital::config_block configuration block \endlink
 vital::config_block_sptr
 vidl_ffmpeg_video_input
@@ -522,7 +522,7 @@ vidl_ffmpeg_video_input
   return config;
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Set this algorithm's properties via a config block
 void
 vidl_ffmpeg_video_input
@@ -547,7 +547,7 @@ vidl_ffmpeg_video_input
             d->c_time_source_list, " ,", kwiver::vital::TokenizeTrimEmpty );
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 vidl_ffmpeg_video_input
 ::check_configuration(vital::config_block_sptr config) const
@@ -597,7 +597,7 @@ vidl_ffmpeg_video_input
   return retcode;
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 vidl_ffmpeg_video_input
 ::open( std::string video_name )
@@ -693,7 +693,7 @@ vidl_ffmpeg_video_input
   set_capability(vital::algo::video_input::IS_SEEKABLE, d->d_is_seekable );
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 vidl_ffmpeg_video_input
 ::close()
@@ -713,7 +713,7 @@ vidl_ffmpeg_video_input
   d->d_frame_number = 1;
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 vidl_ffmpeg_video_input
 ::next_frame( kwiver::vital::timestamp& ts,
@@ -767,7 +767,7 @@ vidl_ffmpeg_video_input
   return true;
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 vidl_ffmpeg_video_input
 ::seek_frame( kwiver::vital::timestamp& ts,   // returns timestamp
@@ -849,7 +849,7 @@ vidl_ffmpeg_video_input
   return true;
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::timestamp
 vidl_ffmpeg_video_input
 ::frame_timestamp() const
@@ -866,7 +866,7 @@ vidl_ffmpeg_video_input
   return ts;
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::image_container_sptr
 vidl_ffmpeg_video_input
 ::frame_image( )
@@ -899,7 +899,7 @@ vidl_ffmpeg_video_input
   return img_cont;
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::metadata_vector
 vidl_ffmpeg_video_input
 ::frame_metadata()
@@ -924,7 +924,7 @@ vidl_ffmpeg_video_input
   return std::make_shared<kwiver::vital::simple_metadata_map>(d->d_metadata_map);
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 double
 vidl_ffmpeg_video_input
 ::frame_rate()
@@ -932,7 +932,7 @@ vidl_ffmpeg_video_input
   return d->d_video_stream.frame_rate();
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 vidl_ffmpeg_video_input
 ::end_of_video() const
@@ -940,7 +940,7 @@ vidl_ffmpeg_video_input
   return d->d_at_eov;
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 vidl_ffmpeg_video_input
 ::good() const
@@ -948,7 +948,7 @@ vidl_ffmpeg_video_input
   return d->d_video_stream.is_valid() && d->d_frame_advanced;
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 vidl_ffmpeg_video_input
 ::seekable() const
@@ -956,7 +956,7 @@ vidl_ffmpeg_video_input
   return d->d_video_stream.is_seekable();
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 size_t
 vidl_ffmpeg_video_input
 ::num_frames() const

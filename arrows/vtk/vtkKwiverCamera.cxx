@@ -14,7 +14,7 @@
 namespace // anonymous
 {
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
   void BuildCamera(kwiver::arrows::vtk::vtkKwiverCamera* out,
                    kwiver::vital::camera_perspective_sptr const& in,
                    kwiver::vital::camera_intrinsics_sptr const& ci)
@@ -55,26 +55,26 @@ namespace vtk {
 
 vtkStandardNewMacro(vtkKwiverCamera);
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vtkKwiverCamera::vtkKwiverCamera()
 {
   this->ImageDimensions[0] = this->ImageDimensions[1] = -1;
   this->AspectRatio = 1;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::camera_perspective_sptr vtkKwiverCamera::GetCamera() const
 {
   return this->KwiverCamera;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vtkKwiverCamera::SetCamera(kwiver::vital::camera_perspective_sptr const& camera)
 {
   this->KwiverCamera = camera;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool vtkKwiverCamera::ProjectPoint(kwiver::vital::vector_3d const& in,
                                   double (&out)[2])
 {
@@ -108,7 +108,7 @@ bool vtkKwiverCamera::ProjectPoint(kwiver::vital::vector_3d const& in,
 ///  camera center and the 3D point but the distance between the projection of
 ///  the 3D point on the optical axis and the optical center.
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::vector_3d vtkKwiverCamera::UnprojectPoint(
   double pixel[2], double depth)
 {
@@ -126,20 +126,20 @@ kwiver::vital::vector_3d vtkKwiverCamera::UnprojectPoint(
   return kwiver::vital::vector_3d(R.transpose() * (homogenousPoint - T));
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::vector_3d vtkKwiverCamera::UnprojectPoint(double pixel[2])
 {
   auto const depth = this->KwiverCamera->depth(kwiver::vital::vector_3d(0, 0, 0));
   return this->UnprojectPoint(pixel, depth);
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 double vtkKwiverCamera::Depth(kwiver::vital::vector_3d const& point) const
 {
   return this->KwiverCamera->depth(point);
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vtkKwiverCamera::ScaleK(double factor)
 {
   auto K = this->KwiverCamera->intrinsics()->as_matrix();
@@ -160,7 +160,7 @@ void vtkKwiverCamera::ScaleK(double factor)
   SetCamera(cam_ptr);
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vtkSmartPointer<vtkKwiverCamera> vtkKwiverCamera::ScaledK(double factor)
 {
   auto newCam = vtkSmartPointer<vtkKwiverCamera>::New();
@@ -171,7 +171,7 @@ vtkSmartPointer<vtkKwiverCamera> vtkKwiverCamera::ScaledK(double factor)
   return newCam;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vtkSmartPointer<vtkKwiverCamera> vtkKwiverCamera::CropCamera(int i0, int ni, int j0, int nj)
 {
   kwiver::vital::simple_camera_intrinsics newIntrinsics(*this->KwiverCamera->intrinsics());
@@ -197,7 +197,7 @@ vtkSmartPointer<vtkKwiverCamera> vtkKwiverCamera::CropCamera(int i0, int ni, int
   return newCam;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool vtkKwiverCamera::Update()
 {
   auto const& ci = this->KwiverCamera->intrinsics();
@@ -220,14 +220,14 @@ bool vtkKwiverCamera::Update()
   return true;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vtkKwiverCamera::GetFrustumPlanes(double planes[24])
 {
   // Need to add timing (modfied time) logic to determine if need to Update()
   this->Superclass::GetFrustumPlanes(this->AspectRatio, planes);
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vtkKwiverCamera::GetTransform(vtkMatrix4x4* out, double const plane[4])
 {
   // Build camera matrix
@@ -262,7 +262,7 @@ void vtkKwiverCamera::GetTransform(vtkMatrix4x4* out, double const plane[4])
   out->Invert();
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vtkKwiverCamera::DeepCopy(vtkKwiverCamera* source)
 {
   this->Superclass::DeepCopy(source);
@@ -273,7 +273,7 @@ void vtkKwiverCamera::DeepCopy(vtkKwiverCamera* source)
   this->KwiverCamera = source->KwiverCamera;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vtkKwiverCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

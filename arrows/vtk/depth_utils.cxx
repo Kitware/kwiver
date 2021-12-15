@@ -105,7 +105,7 @@ depth_to_vtk(kwiver::vital::image_of<double> const& depth_img,
   return imageData;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template <typename T>
 kwiver::vital::image_container_sptr
 to_kwiver(vtkDataArray const* data, int const dims[3])
@@ -140,7 +140,7 @@ to_kwiver(vtkDataArray const* data, int const dims[3])
   return output_img_ptr;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::image_container_sptr
 extract_image(vtkImageData* img,
               std::string const& array_name)
@@ -182,7 +182,7 @@ extract_image(vtkImageData* img,
   return nullptr;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 load_depth_map(const std::string& filename,
                kwiver::vital::bounding_box<int>& crop,
@@ -221,7 +221,7 @@ load_depth_map(const std::string& filename,
   color_out = extract_image(img, "Color");
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vtkSmartPointer<vtkImageData>
 volume_to_vtk(kwiver::vital::image_container_sptr volume,
               kwiver::vital::vector_3d const& origin,

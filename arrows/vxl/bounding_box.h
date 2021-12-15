@@ -33,7 +33,7 @@ kwiver::vital::bounding_box<T> convert( const vgl_box_2d<T>& vbox )
                                          vbox.max_y() );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief Convert bounding box to vgl_box_2d
 ///
 /// @param bbox Bounding box to convert

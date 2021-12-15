@@ -36,7 +36,7 @@ public:
   {
   }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   // Compute the minimum angle between two angles in degrees
   inline static
   double angle_dist(double a1, double a2)

@@ -46,7 +46,7 @@ public:
   {
   }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   // Helper function to estimate a ground plane from the data points
   vector_4d estimate_plane(std::vector<vector_3d> const& points) const
   {

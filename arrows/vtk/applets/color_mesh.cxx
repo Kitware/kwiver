@@ -50,7 +50,7 @@ typedef kwiversys::CommandLineArguments argT;
 
 kv::logger_handle_t main_logger( kv::get_logger( "color_mesh_applet" ) );
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool check_config(kv::config_block_sptr config)
 {
   using namespace kwiver::tools;
@@ -210,7 +210,7 @@ public:
     return SUCCESS;
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   kv::config_block_sptr default_config()
   {
     using kwiver::tools::load_default_video_input_config;
@@ -564,7 +564,7 @@ add_command_options()
       "input-mesh", "video-file", "cameras-dir", "output-mesh" });
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 color_mesh::
 color_mesh()
   : d(new priv())
