@@ -41,7 +41,7 @@ struct klv_0601_traits<KLV_0601_##TAG>                                  \
 }
 
 //          tag                          string name                        type
-//          ___                          -----------                        ----
+//          ---                          -----------                        ----
 KLV_TRAITS( CHECKSUM,                    "Checksum",                        uint16_t);
 KLV_TRAITS( UNIX_TIMESTAMP,              "Unix Time Stamp",                 uint64_t);
 KLV_TRAITS( MISSION_ID,                  "Mission ID",                      std::string);
