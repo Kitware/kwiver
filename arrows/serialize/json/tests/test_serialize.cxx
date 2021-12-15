@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test json serializers
- */
+/// \file
+/// \brief test json serializers
 
 #include <gtest/gtest.h>
 
@@ -238,12 +236,11 @@ TEST( serialize, bounding_box )
   kwiver::vital::bounding_box_d bbox_dser =
     kwiver::vital::any_cast< kwiver::vital::bounding_box_d >( dser );
 
-  /* useful for debugging
-  std::cout << "bbox_dser { " << bbox_dser.min_x() << ", "
-            << bbox_dser.min_y() << ", "
-            << bbox_dser.max_x() << ", "
-            << bbox_dser.max_y() << "}\n";
-  */
+  // useful for debugging
+  // std::cout << "bbox_dser { " << bbox_dser.min_x() << ", "
+  //         << bbox_dser.min_y() << ", "
+  //         << bbox_dser.max_x() << ", "
+  //         << bbox_dser.max_y() << "}\n";
 
   EXPECT_EQ( bbox, bbox_dser );
 }
@@ -705,7 +702,7 @@ TEST(serialize , track )
   }
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 TEST( serialize, track_set )
 {
   auto trk_set_sptr = std::make_shared< kwiver::vital::track_set >();
@@ -745,7 +742,7 @@ TEST( serialize, track_set )
     }
   }
 }
-// ============================================================================
+// ----------------------------------------------------------------------------
 TEST( serialize, object_track_set )
 {
   auto obj_trk_set_sptr = std::make_shared< kwiver::vital::object_track_set >();
