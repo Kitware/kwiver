@@ -2,8 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include <arrows/klv/klv_0104_new.h>
-#include <arrows/klv/klv_0601_new.h>
+#include <arrows/klv/klv_0104.h>
+#include <arrows/klv/klv_0601.h>
 #include <arrows/klv/klv_1108.h>
 #include <arrows/klv/klv_1108_metric_set.h>
 #include <arrows/serialize/json/klv/load_save_klv.h>
