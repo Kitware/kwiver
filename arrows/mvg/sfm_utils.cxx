@@ -19,7 +19,7 @@ namespace kwiver {
 namespace arrows {
 namespace mvg {
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::camera_perspective_sptr
 crop_camera(const kwiver::vital::camera_perspective_sptr& cam,
             vital::bounding_box<int> crop)

@@ -23,7 +23,7 @@ namespace kwiver {
 namespace arrows {
 namespace matlab {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @class matlab_image_filter
 ///
 /// @brief Wrapper for matlab image filters.
@@ -48,7 +48,7 @@ namespace matlab {
 ///     produces output on output variables.
 ///
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief
 ///
 class matlab_image_filter::priv
@@ -82,7 +82,7 @@ public:
     return m_matlab_engine.get();
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   void check_result()
   {
     const std::string& results( engine()->output() );
@@ -92,7 +92,7 @@ public:
     }
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   void eval( const std::string& expr )
   {
     LOG_DEBUG( m_logger, engine() << " Matlab eval: " << expr );
@@ -100,7 +100,7 @@ public:
     check_result();
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   void initialize_once()
   {
     if ( ! m_first)
@@ -137,7 +137,8 @@ public:
     eval( "filter_initialize()" );
   }
 
-  // ------- instance data -------
+  // --------------------------------------------------------------------------
+ instance data -------
   kwiver::vital::logger_handle_t m_logger;
   bool m_first;
 
@@ -151,7 +152,7 @@ private:
 
 }; // end class matlab_image_filter::priv
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 
 matlab_image_filter::
 matlab_image_filter()
@@ -165,7 +166,7 @@ matlab_image_filter()
 ~matlab_image_filter()
 { }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 matlab_image_filter::
 get_configuration() const
@@ -179,7 +180,7 @@ get_configuration() const
   return config;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 matlab_image_filter::
 set_configuration(vital::config_block_sptr config)
@@ -190,7 +191,7 @@ set_configuration(vital::config_block_sptr config)
   d->m_matlab_program = config->get_value<std::string>( "program_file" );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 matlab_image_filter::
 check_configuration(vital::config_block_sptr config) const
@@ -206,7 +207,7 @@ check_configuration(vital::config_block_sptr config) const
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::image_container_sptr
 matlab_image_filter::
 filter( kwiver::vital::image_container_sptr image_data)

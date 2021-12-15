@@ -28,7 +28,7 @@ namespace kwiver {
 namespace arrows {
 namespace kpf {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class detected_object_set_output_kpf::priv
 {
 public:
@@ -45,7 +45,7 @@ public:
   int m_frame_number;
 };
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 detected_object_set_output_kpf::
 detected_object_set_output_kpf()
   : d( new detected_object_set_output_kpf::priv( this ) )
@@ -59,7 +59,7 @@ detected_object_set_output_kpf::
 
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_output_kpf::
 set_configuration( vital::config_block_sptr config_in )
@@ -68,7 +68,7 @@ set_configuration( vital::config_block_sptr config_in )
   config->merge_config( config_in );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 detected_object_set_output_kpf::
 get_configuration() const
@@ -79,7 +79,7 @@ get_configuration() const
   return config;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set_output_kpf::
 check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
@@ -87,7 +87,7 @@ check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_output_kpf::
 write_set( const kwiver::vital::detected_object_set_sptr set,

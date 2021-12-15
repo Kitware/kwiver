@@ -21,7 +21,7 @@ namespace matlab {
 #define IDX_COLUMN_MAJOR( c, r, p, nrows, ncols ) ( ( c ) + ( ( r ) + ( p ) * ( ncols ) ) * ( nrows ) )
 #define IDX_OPENCV( c, r, p, nrows, ncols, nchannels ) ( ( ( ( c ) * ( ncols ) + ( r ) ) * ( nchannels ) ) + ( p ) )
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 MxArraySptr
 convert_mx_image( const kwiver::vital::image_container_sptr image )
 {
@@ -55,7 +55,7 @@ convert_mx_image( const kwiver::vital::image_container_sptr image )
   return MxArraySptr( mx_image );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::image_container_sptr convert_mx_image( const MxArraySptr mx_image )
 {
   std::vector< mwSize > dims = mx_image->dimensions();
@@ -89,20 +89,20 @@ kwiver::vital::image_container_sptr convert_mx_image( const MxArraySptr mx_image
   return retval;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 MxArraySptr create_mxByteArray( size_t r, size_t c )
 {
   return std::make_shared< MxArray >( mxCreateNumericMatrix( r, c,  mxUINT8_CLASS, mxREAL ) );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 MxArraySptr create_mxIntArray( size_t r, size_t c )
 {
   MxArray* mxa = new MxArray( mxCreateNumericMatrix( r, c, mxINT32_CLASS, mxREAL ) );
   return MxArraySptr( mxa );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 MxArraySptr create_mxDoubleArray( size_t r, size_t c )
 {
   MxArray* mxa = new MxArray( mxCreateNumericMatrix( r, c, mxDOUBLE_CLASS, mxREAL ) );

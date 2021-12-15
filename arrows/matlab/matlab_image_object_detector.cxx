@@ -23,7 +23,7 @@ namespace kwiver {
 namespace arrows {
 namespace matlab {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @class matlab_image_object_detector
 ///
 /// @brief Wrapper for matlab image detectors.
@@ -55,7 +55,7 @@ namespace matlab {
 ///  - detected_object_classification - array of structs containing the classification
 ///    labels and scores.
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief
 ///
 class matlab_image_object_detector::priv
@@ -89,7 +89,7 @@ public:
     return m_matlab_engine.get();
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   void check_result()
   {
     const std::string& results( engine()->output() );
@@ -99,7 +99,7 @@ public:
     }
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   void eval( const std::string& expr )
   {
     LOG_DEBUG( m_logger, engine() << " Matlab eval: " << expr );
@@ -107,7 +107,7 @@ public:
     check_result();
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   void initialize_once()
   {
     if ( ! m_first)
@@ -144,7 +144,8 @@ public:
     eval( "detector_initialize()" );
   }
 
-  // --- instance data -----
+  // --------------------------------------------------------------------------
+ instance data -----
   kwiver::vital::logger_handle_t m_logger;
   bool m_first;
 
@@ -158,7 +159,7 @@ private:
 
 }; // end class matlab_image_object_detector::priv
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 
 matlab_image_object_detector::
 matlab_image_object_detector()
@@ -172,7 +173,7 @@ matlab_image_object_detector()
 ~matlab_image_object_detector()
 { }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 matlab_image_object_detector::
 get_configuration() const
@@ -186,7 +187,7 @@ get_configuration() const
   return config;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 matlab_image_object_detector::
 set_configuration(vital::config_block_sptr config)
@@ -197,7 +198,7 @@ set_configuration(vital::config_block_sptr config)
   d->m_matlab_program = config->get_value<std::string>( "program_file" );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 matlab_image_object_detector::
 check_configuration(vital::config_block_sptr config) const
@@ -213,7 +214,7 @@ check_configuration(vital::config_block_sptr config) const
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::detected_object_set_sptr
 matlab_image_object_detector::
 detect( kwiver::vital::image_container_sptr image_data) const

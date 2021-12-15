@@ -31,7 +31,7 @@ main(int argc, char** argv)
   RUN_TEST(testname, data_dir);
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 IMPLEMENT_TEST(image_conversion)
 {
   kwiver::vital::path_t test_read_file = data_dir + "/test_kitware_logo.jpg";

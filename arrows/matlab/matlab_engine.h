@@ -23,7 +23,7 @@ namespace kwiver {
 namespace arrows {
 namespace matlab {
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// @brief MatLab engine interface.
 ///
 /// This class represents a single user Matlab engine instance.

@@ -16,7 +16,7 @@ namespace kwiver {
 namespace arrows {
 namespace matlab {
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 ///
 class KWIVER_ALGO_MATLAB_EXPORT matlab_exception
   : public vital::vital_exception
