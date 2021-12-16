@@ -221,34 +221,34 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::detected_object
 }
 
 // ----------------------------------------------------------------------------
-///  We still may have a problem in this serialization approach if the
-///  two end point have different byte ordering.
+/// We still may have a problem in this serialization approach if the
+/// two end point have different byte ordering.
 ///
-///  Since the image is compressed as a byte string, all notion of
-///  multi-byte pixels is lost when the image is saved. When the image
-///  is loaded, there is no indication of byte ordering from the
-///  source. The sender may have the same byte ordering or it may be
-///  different. There is no way of telling.
+/// Since the image is compressed as a byte string, all notion of
+/// multi-byte pixels is lost when the image is saved. When the image
+/// is loaded, there is no indication of byte ordering from the
+/// source. The sender may have the same byte ordering or it may be
+/// different. There is no way of telling.
 ///
-///  Options:
+/// Options:
 ///
-///  1) Save image as a vector of correct pixel data types. This
-///     approach would preclude compression.
+/// 1) Save image as a vector of correct pixel data types. This
+///    approach would preclude compression.
 ///
-///  2) Write an uncompressed integer or other indicator into the
-///     stream which the receiver can use to determine the senders
-///     byte ordering and decode appropriately.
+/// 2) Write an uncompressed integer or other indicator into the
+///    stream which the receiver can use to determine the senders
+///    byte ordering and decode appropriately.
 ///
-///  3) Refuse to serialize images with multi-byte pixels or say it
-///     does not work between systems with different byte ordering.
+/// 3) Refuse to serialize images with multi-byte pixels or say it
+///    does not work between systems with different byte ordering.
 ///
-///  4) Use network byte ordering. ( htonl(), ntohl() )
+/// 4) Use network byte ordering. ( htonl(), ntohl() )
 ///
-///  You can argue that endianess is a message property, but we can't
-///  access message level attributes way down here in the serializer.
+/// You can argue that endianess is a message property, but we can't
+/// access message level attributes way down here in the serializer.
 ///
-///  Note that this is only a problem with images where the pixels are
-///  multi-byte.
+/// Note that this is only a problem with images where the pixels are
+/// multi-byte.
 
 // ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::image_container_sptr ctr )
