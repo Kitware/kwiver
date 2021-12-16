@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for Ceres camera intrinsic prior cost functions
- */
+/// \file
+/// \brief Header for Ceres camera intrinsic prior cost functions
 
 #ifndef KWIVER_ARROWS_CERES_CAMERA_INTRINSIC_PRIOR_H_
 #define KWIVER_ARROWS_CERES_CAMERA_INTRINSIC_PRIOR_H_
@@ -29,10 +27,9 @@ public:
       : max_focal_len_(max_focal_len) {}
 
   /// Intrinsic prior error functor for use in Ceres
-  /**
-   * \param [in] int_parms: Camera intrinisics parameter block
-   * \param [out] residuals
-   */
+  ///
+  /// \param [in] int_parms: Camera intrinisics parameter block
+  /// \param [out] residuals
   template <typename T> bool operator()(const T* const int_param,
                                         T* residuals) const
   {
