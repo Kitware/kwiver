@@ -5,6 +5,9 @@
 /// \file
 /// \brief Definition of interval_map template class.
 
+#ifndef KWIVER_VITAL_UTIL_INTERVAL_MAP_H_
+#define KWIVER_VITAL_UTIL_INTERVAL_MAP_H_
+
 #include <vital/optional.h>
 #include <vital/range/iterator_range.h>
 #include <vital/util/interval.h>
@@ -534,3 +537,5 @@ operator!=( interval_map< KeyT, ValueT > const& lhs,
 } // namespace vital
 
 } // namespace kwiver
+
+#endif

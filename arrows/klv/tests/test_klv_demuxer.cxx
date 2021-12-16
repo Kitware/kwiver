@@ -5,7 +5,7 @@
 /// \file
 /// \brief Test KLV demuxer.
 
-#include <arrows/klv/klv_0601_new.h>
+#include <arrows/klv/klv_0601.h>
 #include <arrows/klv/klv_1108.h>
 #include <arrows/klv/klv_1108_metric_set.h>
 #include <arrows/klv/klv_demuxer.h>

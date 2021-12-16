@@ -5,6 +5,9 @@
 /// \file
 /// \brief Declaration of KLV timeline class.
 
+#ifndef KWIVER_ARROWS_KLV_KLV_TIMELINE_H_
+#define KWIVER_ARROWS_KLV_KLV_TIMELINE_H_
+
 #include <arrows/klv/klv_packet.h>
 #include <arrows/klv/klv_set.h>
 
@@ -127,3 +130,5 @@ private:
 } // namespace arrows
 
 } // namespace kwiver
+
+#endif

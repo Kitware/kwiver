@@ -5,8 +5,8 @@
 /// \file
 /// \brief Implementation of KLV demuxer.
 
-#include "klv_0104_new.h"
-#include "klv_0601_new.h"
+#include "klv_0104.h"
+#include "klv_0601.h"
 #include "klv_1108.h"
 #include "klv_1108_metric_set.h"
 #include "klv_demuxer.h"
@@ -419,7 +419,7 @@ klv_demuxer
   if( !result )
   {
     LOG_ERROR( kv::get_logger( "klv" ),
-               "demuxer: dropping out-of-order packet" );
+               "demuxer: dropping out-of-order packet ( " << timestamp << " less than " << m_last_timestamp << " )" );
   }
   return result;
 }

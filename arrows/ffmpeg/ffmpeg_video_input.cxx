@@ -10,9 +10,9 @@
 #include "ffmpeg_init.h"
 #include "ffmpeg_video_input.h"
 
-#include <arrows/klv/convert_metadata.h>
+#include <arrows/klv/klv_convert_vital.h>
+#include <arrows/klv/klv_demuxer.h>
 #include <arrows/klv/misp_time.h>
-#include <arrows/klv/klv_data.h>
 
 #include <vital/exceptions/io.h>
 #include <vital/exceptions/video.h>
@@ -37,7 +37,6 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
-#include <deque>
 #include <memory>
 #include <mutex>
 #include <sstream>
@@ -76,6 +75,10 @@ public:
   // Presentation timestamp (in stream time base)
   int64_t f_pts;
 
+  // MISP timestamp (microseconds)
+  std::map< uint64_t, uint64_t > m_pts_to_misp;
+  uint64_t m_last_klv_timestamp = 0;
+
   // Number of frames to back step when seek fails to land on frame before
   // request
   int64_t f_backstep_size = -1;
@@ -93,13 +96,13 @@ public:
 
   // The buffers of raw metadata from the data streams tagged with the
   // timestamp
-  std::map< int, std::multimap< int64_t, std::deque< uint8_t > > > metadata;
+  std::map< int, std::multimap< int64_t, std::vector< uint8_t > > > metadata;
 
   // Storage for current frame's raw metadata
-  std::map< int, std::deque< uint8_t > > curr_metadata;
+  std::map< int, std::vector< uint8_t > > curr_metadata;
 
-  // metadata converter object
-  kwiver::arrows::klv::convert_metadata converter;
+  klv::klv_timeline m_klv_timeline;
+  klv::klv_demuxer m_klv_demuxer;
 
   /**
    * Storage for the metadata map.
@@ -122,7 +125,11 @@ public:
   bool collected_all_metadata = false;
   bool estimated_num_frames = false;
   bool sync_metadata = true;
+  bool use_misp_timestamps = false;
   size_t max_seek_back_attempts = 10;
+
+  // --------------------------------------------------------------------------
+  priv() : m_klv_demuxer( m_klv_timeline ) {}
 
   // ==================================================================
 
@@ -180,8 +187,8 @@ public:
       else if( params->codec_type == AVMEDIA_TYPE_DATA )
       {
         this->metadata.emplace(
-            i, std::multimap< int64_t, std::deque< uint8_t > >() );
-        this->curr_metadata.emplace( i, std::deque< uint8_t >() );
+            i, std::multimap< int64_t, std::vector< uint8_t > >() );
+        this->curr_metadata.emplace( i, std::vector< uint8_t >() );
       }
     }
 
@@ -204,8 +211,8 @@ public:
         if( params->codec_type == AVMEDIA_TYPE_UNKNOWN )
         {
           this->metadata.emplace(
-              i, std::multimap< int64_t, std::deque< uint8_t > >() );
-          this->curr_metadata.emplace( i, std::deque< uint8_t >() );
+              i, std::multimap< int64_t, std::vector< uint8_t > >() );
+          this->curr_metadata.emplace( i, std::vector< uint8_t >() );
           LOG_INFO( this->logger,
                     "Using AVMEDIA_TYPE_UNKNOWN stream as a data stream" );
         }
@@ -313,6 +320,8 @@ public:
     this->f_video_index = -1;
     this->metadata.clear();
     this->f_start_time = -1;
+    this->m_last_klv_timestamp = 0;
+    this->m_klv_demuxer.seek( 0 );
 
     if( this->f_video_stream )
     {
@@ -467,6 +476,19 @@ public:
       // Make sure that the packet is from the actual video stream.
       if( this->f_packet->stream_index == this->f_video_index )
       {
+        auto const packet_begin = f_packet->data;
+        auto const packet_end = f_packet->data + f_packet->size;
+        auto const misp_it =
+          klv::find_misp_timestamp( packet_begin, packet_end );
+        if( misp_it != packet_end )
+        {
+          auto const timestamp = klv::read_misp_timestamp( misp_it );
+          if( timestamp )
+          {
+            m_pts_to_misp.emplace( f_packet->pts, timestamp );
+          }
+        }
+
         int err =
           avcodec_send_packet( this->f_video_encoding, this->f_packet );
         if( err < 0 )
@@ -505,9 +527,9 @@ public:
       {
         md_iter->second.emplace(
             this->f_packet->pts,
-            std::deque< uint8_t >( this->f_packet->data,
-                                   this->f_packet->data +
-                                   this->f_packet->size ) );
+            std::vector< uint8_t >( this->f_packet->data,
+                                    this->f_packet->data +
+                                    this->f_packet->size ) );
       }
 
       // De-reference previous packet
@@ -527,10 +549,8 @@ public:
     {
       for( auto md_it = md.second.begin(); md_it != md.second.end();)
       {
-        // Skip if timestamp is too large while in sync mode, or timestamp is
-        // to small
-        if( ( md_it->first <= this->f_pts || !this->sync_metadata ) &&
-            md_it->first >= this->f_start_time )
+        // Skip if timestamp is too large while in sync mode
+        if( md_it->first <= this->f_pts || !this->sync_metadata )
         {
           this->curr_metadata[ md.first ].insert(
               curr_metadata[ md.first ].end(),
@@ -547,6 +567,8 @@ public:
         }
       }
     }
+
+    advance_metadata();
 
     return this->frame_advanced;
   }
@@ -572,6 +594,9 @@ public:
     size_t num_of_attempts = 0;
     do
     {
+      m_last_klv_timestamp = 0;
+      m_klv_demuxer.seek( 0 );
+
       auto seek_rslt = av_seek_frame( this->f_format_context,
                                       this->f_video_index, frame_ts,
                                       AVSEEK_FLAG_BACKWARD );
@@ -674,7 +699,46 @@ public:
     return static_cast< unsigned int >(
       ( this->f_pts - this->f_start_time ) /
       this->stream_time_base_to_frame() -
-      static_cast< int >( this->f_frame_number_offset ) );
+      static_cast< int >( this->f_frame_number_offset ) + 0.5 );
+  }
+
+  void
+  advance_metadata()
+  {
+    for( auto md : this->curr_metadata )
+    {
+      auto& md_buffer = md.second;
+
+      auto it = md_buffer.cbegin();
+      while( it != md_buffer.cend() )
+      {
+        klv::klv_packet packet;
+        try
+        {
+          packet =
+            klv::klv_read_packet( it, std::distance( it, md_buffer.cend() ) );
+        }
+        catch( kwiver::vital::metadata_buffer_overflow const& e )
+        {
+          // We only have part of a packet; quit until we have more data
+          break;
+        }
+        catch( kwiver::vital::metadata_exception const& e )
+        {
+          LOG_ERROR( kwiver::vital::get_logger( "klv" ),
+                     "error while parsing KLV packet: " << e.what() );
+        }
+
+        if( klv::klv_lookup_packet_traits().by_uds_key( packet.key ).tag() !=
+            klv::KLV_PACKET_MISB_1108_LOCAL_SET )
+        {
+          auto const timestamp = klv::klv_packet_timestamp( packet );
+          m_last_klv_timestamp = std::max( m_last_klv_timestamp, timestamp );
+        }
+
+        m_klv_demuxer.demux_packet( packet );
+      }
+    }
   }
 
   void
@@ -708,53 +772,28 @@ public:
   kwiver::vital::metadata_vector
   current_metadata()
   {
-    kwiver::vital::metadata_vector retval;
-
-    for( auto md : this->curr_metadata )
+    uint64_t frame_timestamp = 0;
+    if( use_misp_timestamps )
     {
-      // Copy the current raw metadata
-      std::deque< uint8_t > md_buffer = md.second;
-
-      kwiver::arrows::klv::klv_data klv_packet;
-
-      // If we have collected enough of the stream to make a KLV packet
-      while( klv_pop_next_packet( md_buffer, klv_packet ) )
+      auto const it = m_pts_to_misp.find( f_frame->pts );
+      if( it != m_pts_to_misp.end() )
       {
-        auto meta = std::make_shared< kwiver::vital::metadata >();
-
-        try
-        {
-          converter.convert( klv_packet, *( meta ) );
-        }
-        catch ( kwiver::vital::metadata_exception const& e )
-        {
-          LOG_WARN( this->logger, "Metadata exception: " << e.what() );
-          continue;
-        }
-
-        // If the metadata was even partially decided, then add to the list.
-        if( !meta->empty() )
-        {
-          // Add the data stream index
-          meta->add< vital::VITAL_META_VIDEO_DATA_STREAM_INDEX >( md.first );
-
-          set_default_metadata( meta );
-
-          retval.push_back( meta );
-        } // end valid metadata packet.
-      } // end while
+        frame_timestamp = it->second;
+      }
     }
-
-    // if no metadata from the stream, add a basic metadata item
-    if( retval.empty() )
+    else
     {
-      auto meta = std::make_shared< kwiver::vital::metadata >();
-      set_default_metadata( meta );
-
-      retval.push_back( meta );
+      frame_timestamp = m_last_klv_timestamp;
     }
 
-    return retval;
+    auto result =
+      klv::klv_to_vital_metadata( m_klv_timeline, frame_timestamp );
+
+    auto result_sptr = std::make_shared< kwiver::vital::metadata >( result );
+
+    set_default_metadata( result_sptr );
+
+    return { result_sptr };
   }
 
   // ==================================================================
@@ -845,6 +884,8 @@ public:
       int64_t frame_ts = this->f_video_stream->duration + this->f_start_time;
       do
       {
+        m_klv_demuxer.seek( 0 );
+
         auto seek_rslt = av_seek_frame( this->f_format_context,
                                         this->f_video_index,
                                         frame_ts,
@@ -951,6 +992,16 @@ ffmpeg_video_input
     "current frame's timestamp until a frame is reached with timestamp "
     "that is equal or greater than the metadata's timestamp." );
 
+  config->set_value(
+    "use_misp_timestamps", d->use_misp_timestamps,
+    "When set to true, will attempt to use correlate KLV packet data to "
+    "frames using the MISP timestamps embedding in the frame packets. This is "
+    "technically the correct way to decode KLV, but the frame timestamps are "
+    "wrongly encoded so often in real-world data that it is turned off by "
+    "default. When turned off, the frame timestamps are emulated by looking "
+    "at the KLV packets near each frame."
+  );
+
   return config;
 }
 
@@ -970,6 +1021,9 @@ ffmpeg_video_input
 
   d->filter_desc = config->get_value< std::string >( "filter_desc",
                                                      d->filter_desc );
+
+  d->use_misp_timestamps = config->get_value< bool >( "use_misp_timestamps",
+                                                      d->use_misp_timestamps );
 
   d->sync_metadata = config->get_value< bool >( "sync_metadata",
                                                 d->sync_metadata );
