@@ -22,6 +22,15 @@ KWIVER_SERIALIZE_JSON_EXPORT
 void load( ::cereal::JSONInputArchive& archive,
            std::vector< ::kwiver::arrows::klv::klv_packet >& packets );
 
+KWIVER_SERIALIZE_JSON_EXPORT
+void save( ::cereal::JSONOutputArchive& archive,
+           std::vector< ::kwiver::arrows::klv::klv_timed_packet > const&
+             timed_packets );
+KWIVER_SERIALIZE_JSON_EXPORT
+void load( ::cereal::JSONInputArchive& archive,
+           std::vector< ::kwiver::arrows::klv::klv_timed_packet >&
+             timed_packets );
+
 } // namespace cereal
 
 #endif

@@ -264,6 +264,75 @@ klv_lookup_packet_traits()
   return lookup;
 }
 
+// ----------------------------------------------------------------------------
+bool
+operator<( klv_timed_packet const& lhs, klv_timed_packet const& rhs )
+{
+  if( lhs.timestamp.has_valid_time() && !rhs.timestamp.has_valid_time() )
+  {
+    return true;
+  }
+  if( !lhs.timestamp.has_valid_time() )
+  {
+    return false;
+  }
+  if( lhs.timestamp.get_time_usec() < rhs.timestamp.get_time_usec() )
+  {
+    return true;
+  }
+  if( lhs.timestamp.get_time_usec() > rhs.timestamp.get_time_usec() )
+  {
+    return false;
+  }
+
+  if( lhs.timestamp.has_valid_frame() && !rhs.timestamp.has_valid_frame() )
+  {
+    return true;
+  }
+  if( !lhs.timestamp.has_valid_frame() )
+  {
+    return false;
+  }
+  if( lhs.timestamp.get_frame() < rhs.timestamp.get_frame() )
+  {
+    return true;
+  }
+  if( lhs.timestamp.get_frame() > rhs.timestamp.get_frame() )
+  {
+    return false;
+  }
+
+  return lhs.packet < rhs.packet;
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator==( klv_timed_packet const& lhs, klv_timed_packet const& rhs )
+{
+  return lhs.timestamp.has_valid_time() == rhs.timestamp.has_valid_time() &&
+         lhs.timestamp.has_valid_frame() == rhs.timestamp.has_valid_frame() &&
+         ( !lhs.timestamp.has_valid_time() ||
+           lhs.timestamp.get_time_usec() == rhs.timestamp.get_time_usec() ) &&
+         ( !lhs.timestamp.has_valid_frame() ||
+           lhs.timestamp.get_frame() == rhs.timestamp.get_frame() ) &&
+         lhs.packet == rhs.packet;
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator!=( klv_timed_packet const& lhs, klv_timed_packet const& rhs )
+{
+  return !( lhs == rhs );
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_timed_packet const& timed_packet )
+{
+  return os << "{ timestamp: " << timed_packet.timestamp << ", "
+            << "packet: " << timed_packet.packet << " }";
+}
+
 } // namespace klv
 
 } // namespace arrows

@@ -409,21 +409,48 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::image_container
 void save( ::cereal::JSONOutputArchive&       archive,
            const ::kwiver::vital::timestamp&  tstamp )
 {
-  archive( ::cereal::make_nvp( "time", tstamp.get_time_usec() ),
-           ::cereal::make_nvp( "frame", tstamp.get_frame() ) );
+  if( tstamp.has_valid_time() )
+  {
+    archive( ::cereal::make_nvp( "time", tstamp.get_time_usec() ) );
+  }
+  else
+  {
+    archive( ::cereal::make_nvp( "time", nullptr ) );
+  }
+
+  if( tstamp.has_valid_frame() )
+  {
+    archive( ::cereal::make_nvp( "frame", tstamp.get_frame() ) );
+  }
+  else
+  {
+    archive( ::cereal::make_nvp( "frame", nullptr ) );
+  }
 }
 
 // ----------------------------------------------------------------------------
 void load( ::cereal::JSONInputArchive&  archive,
            ::kwiver::vital::timestamp&  tstamp )
 {
-  int64_t time, frame;
+  tstamp.set_invalid();
 
-  archive( CEREAL_NVP( time ),
-           CEREAL_NVP( frame ) );
-  tstamp = ::kwiver::vital::timestamp( static_cast< ::kwiver::vital::time_usec_t > ( time ),
-                                     static_cast< ::kwiver::vital::frame_id_t > (
-                                       frame ) );
+  try
+  {
+    ::kwiver::vital::time_usec_t time;
+    archive( CEREAL_NVP( time ) );
+    tstamp.set_time_usec( time );
+  }
+  catch( cereal::Exception const& e )
+  {}
+
+  try
+  {
+    ::kwiver::vital::frame_id_t frame;
+    archive( CEREAL_NVP( frame ) );
+    tstamp.set_frame( frame );
+  }
+  catch( cereal::Exception const& e )
+  {}
 }
 
 // ============================================================================

@@ -4,6 +4,8 @@
 
 #include <arrows/serialize/json/klv/load_save_klv.h>
 
+#include <arrows/serialize/json/load_save.h>
+
 #include <arrows/klv/klv_0104.h>
 #include <arrows/klv/klv_0601.h>
 #include <arrows/klv/klv_1108.h>
@@ -186,7 +188,7 @@ save_uds_key( save_archive& archive, klv_uds_key const& key,
 
 // ----------------------------------------------------------------------------
 klv_uds_key
-load_uds_key( load_archive& archive, load_context& context )
+load_uds_key( load_archive& archive, load_context& )
 {
   archive.startNode();
 
@@ -218,7 +220,7 @@ save_lds_key( save_archive& archive, klv_lds_key const& key,
 
 // ----------------------------------------------------------------------------
 klv_lds_key
-load_lds_key( load_archive& archive, load_context& context )
+load_lds_key( load_archive& archive, load_context& )
 {
   archive.startNode();
 
@@ -697,6 +699,30 @@ load_packet( load_archive& archive )
   return { key, value };
 }
 
+// ----------------------------------------------------------------------------
+void
+save_timed_packet( save_archive& archive, klv_timed_packet const& timed_packet )
+{
+  archive.startNode();
+  save( archive, timed_packet.timestamp );
+  archive.setNextName( "data" );
+  save_packet( archive, timed_packet.packet );
+  archive.finishNode();
+}
+
+// ----------------------------------------------------------------------------
+klv_timed_packet
+load_timed_packet( load_archive& archive )
+{
+  klv_timed_packet timed_packet;
+  archive.startNode();
+  load( archive, timed_packet.timestamp );
+  archive.setNextName( "data" );
+  timed_packet.packet = load_packet( archive );
+  archive.finishNode();
+  return timed_packet;
+}
+
 } // namespace
 
 // ----------------------------------------------------------------------------
@@ -728,6 +754,39 @@ load( load_archive& archive,
   for( auto& packet : packets )
   {
     packet = load_packet( archive );
+  }
+  archive.finishNode();
+}
+
+// ----------------------------------------------------------------------------
+void save( ::cereal::JSONOutputArchive& archive,
+           std::vector< ::kwiver::arrows::klv::klv_timed_packet > const&
+             timed_packets )
+{
+  archive( make_nvp( "size", timed_packets.size() ) );
+  archive.setNextName( "data" );
+  archive.startNode();
+  archive.makeArray();
+  for( auto const& packet : timed_packets )
+  {
+    save_timed_packet( archive, packet );
+  }
+  archive.finishNode();
+}
+
+// ----------------------------------------------------------------------------
+void load( ::cereal::JSONInputArchive& archive,
+           std::vector< ::kwiver::arrows::klv::klv_timed_packet >&
+             timed_packets )
+{
+  size_t size;
+  archive( make_nvp( "size", size ) );
+  timed_packets.resize( size );
+  archive.setNextName( "data" );
+  archive.startNode();
+  for( auto& packet : timed_packets )
+  {
+    packet = load_timed_packet( archive );
   }
   archive.finishNode();
 }
