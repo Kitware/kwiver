@@ -129,9 +129,9 @@ public:
 
   // --------------------------------------------------------------------------
 
-  //  @brief Whether the video was opened.
-  //
-  //  @return \b true if video was opened.
+  ///  @brief Whether the video was opened.
+  ///
+  ///  @return \b true if video was opened.
   bool
   is_opened()
   {
@@ -140,9 +140,9 @@ public:
 
   // --------------------------------------------------------------------------
 
-  //  @brief Open the given video.
-  //
-  //  @return \b true if video was opened.
+  ///  @brief Open the given video.
+  ///
+  ///  @return \b true if video was opened.
   bool
   open( std::string video_name )
   {
@@ -303,7 +303,7 @@ public:
 
   // --------------------------------------------------------------------------
 
-  //  @brief Close the current video.
+  ///  @brief Close the current video.
   void
   close()
   {
@@ -329,7 +329,7 @@ public:
 
   // --------------------------------------------------------------------------
 
-  //  @brief Initialize the filter graph
+  ///  @brief Initialize the filter graph
   bool
   init_filters( std::string const& filters_desc )
   {
@@ -435,9 +435,9 @@ public:
 
   // --------------------------------------------------------------------------
 
-  //  @brief Advance to the next frame (but don't acquire an image).
-  //
-  //  @return \b true if video was valid and we found a frame.
+  ///  @brief Advance to the next frame (but don't acquire an image).
+  ///
+  ///  @return \b true if video was valid and we found a frame.
   bool
   advance()
   {
@@ -561,9 +561,9 @@ public:
 
   // --------------------------------------------------------------------------
 
-  //  @brief Seek to a specific frame
-  //
-  //  @return \b true if video was valid and we found a frame.
+  ///  @brief Seek to a specific frame
+  ///
+  ///  @return \b true if video was valid and we found a frame.
   bool
   seek( uint64_t frame )
   {
@@ -624,9 +624,9 @@ public:
 
   // --------------------------------------------------------------------------
 
-  //  @brief Get the current timestamp
-  //
-  //  @return \b Current timestamp.
+  ///  @brief Get the current timestamp
+  ///
+  ///  @return \b Current timestamp.
   double
   current_pts() const
   {
@@ -635,8 +635,8 @@ public:
 
   // --------------------------------------------------------------------------
 
-  //  @brief Returns the double value to convert from a stream time base to
-  //   a frame number
+  ///  @brief Returns the double value to convert from a stream time base to
+  ///   a frame number
   double
   stream_time_base_to_frame() const
   {
@@ -661,9 +661,9 @@ public:
 
   // --------------------------------------------------------------------------
 
-  //  @brief Return the current frame number
-  //
-  //  @return \b Current frame number.
+  ///  @brief Return the current frame number
+  ///
+  ///  @return \b Current frame number.
   unsigned int
   frame_number() const
   {
@@ -776,7 +776,7 @@ public:
 
   // --------------------------------------------------------------------------
 
-  //  @brief Loop over all frames to collect metadata
+  ///  @brief Loop over all frames to collect metadata
   void
   collect_all_metadata()
   {
@@ -831,7 +831,7 @@ public:
 
   // --------------------------------------------------------------------------
 
-  //  @brief Seek to the end of the video to estimate number of frames
+  ///  @brief Seek to the end of the video to estimate number of frames
   void
   estimate_num_frames()
   {
