@@ -241,7 +241,7 @@ TEST( serialize, bounding_box )
             << bbox_dser.min_y() << ", "
             << bbox_dser.max_x() << ", "
             << bbox_dser.max_y() << "}\n";
-  /*
+  */
 
   EXPECT_EQ( bbox, bbox_dser );
 }
