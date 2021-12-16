@@ -13,7 +13,7 @@ namespace cereal {
   class JSONOutputArchive;
   class JSONInputArchive;
 
-// --- points
+// ---- points
 KWIVER_SERIALIZE_JSON_EXPORT
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::point_2i& pt );
 KWIVER_SERIALIZE_JSON_EXPORT

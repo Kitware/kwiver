@@ -57,7 +57,7 @@ namespace arrows {
 namespace serialize {
 namespace protobuf {
 
-// ----  activity
+// ---- activity
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const ::kwiver::protobuf::activity& proto_act,
                        ::kwiver::vital::activity&          act );
@@ -66,7 +66,7 @@ KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const ::kwiver::vital::activity& act,
                        ::kwiver::protobuf::activity&    proto_act );
 
-// ----  activity_type
+// ---- activity_type
 KWIVER_SERIALIZE_PROTOBUF_EXPORT
 void convert_protobuf( const ::kwiver::vital::activity_type& at,
                        ::kwiver::protobuf::activity_type&  proto_at );

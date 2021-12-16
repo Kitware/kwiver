@@ -236,11 +236,12 @@ TEST( serialize, bounding_box )
   kwiver::vital::bounding_box_d bbox_dser =
     kwiver::vital::any_cast< kwiver::vital::bounding_box_d >( dser );
 
-  // useful for debugging
-  // std::cout << "bbox_dser { " << bbox_dser.min_x() << ", "
-  //         << bbox_dser.min_y() << ", "
-  //         << bbox_dser.max_x() << ", "
-  //         << bbox_dser.max_y() << "}\n";
+  /* useful for debugging
+  std::cout << "bbox_dser { " << bbox_dser.min_x() << ", "
+            << bbox_dser.min_y() << ", "
+            << bbox_dser.max_x() << ", "
+            << bbox_dser.max_y() << "}\n";
+  /*
 
   EXPECT_EQ( bbox, bbox_dser );
 }
