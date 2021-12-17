@@ -10,8 +10,11 @@
 
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
+#include "klv_0102.h"
 #include "klv_set.h"
 #include "klv_packet.h"
+
+#include "vital/optional.h"
 
 #include <ostream>
 
@@ -417,6 +420,57 @@ private:
 
   size_t
   length_of_typed( klv_0601_frame_rate const& value,
+                   size_t length_hint ) const override;
+};
+
+// ----------------------------------------------------------------------------
+/// Record of involvement of various countries in production of the FMV.
+struct klv_0601_country_codes
+{
+  klv_0102_country_coding_method coding_method;
+  kwiver::vital::optional< std::string > overflight_country;
+  kwiver::vital::optional< std::string > operator_country;
+  kwiver::vital::optional< std::string > country_of_manufacture;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_country_codes const& value );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator==( klv_0601_country_codes const& lhs,
+            klv_0601_country_codes const& rhs );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator<( klv_0601_country_codes const& lhs,
+           klv_0601_country_codes const& rhs );
+
+// ----------------------------------------------------------------------------
+/// Interprets data as country codes.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_country_codes_format
+  : public klv_data_format_< klv_0601_country_codes >
+{
+public:
+  klv_0601_country_codes_format();
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_country_codes
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_country_codes const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_0601_country_codes const& value,
                    size_t length_hint ) const override;
 };
 
