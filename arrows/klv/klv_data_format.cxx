@@ -7,6 +7,7 @@
 
 #include "klv_data_format.h"
 
+#include "klv_0102.h"
 #include "klv_0104.h"
 #include "klv_0601.h"
 #include "klv_1108.h"
@@ -814,6 +815,8 @@ KLV_INSTANTIATE( uint64_t );
 #define KLV_INSTANTIATE_ENUM( T ) \
   template class klv_enum_format< T >;
 
+KLV_INSTANTIATE_ENUM( klv_0102_country_coding_method );
+KLV_INSTANTIATE_ENUM( klv_0102_security_classification );
 KLV_INSTANTIATE_ENUM( klv_0601_icing_detected );
 KLV_INSTANTIATE_ENUM( klv_0601_operational_mode );
 KLV_INSTANTIATE_ENUM( klv_0601_platform_status );

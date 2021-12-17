@@ -7,6 +7,7 @@
 
 #include "klv_convert_vital.h"
 
+#include "klv_0102.h"
 #include "klv_0104.h"
 #include "klv_0601.h"
 #include "klv_1108.h"
@@ -133,6 +134,44 @@ parse_geo_point( klv_timeline const& klv_data,
   }
 
   return assemble_geo_point( latitude, longitude, elevation );
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0102_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
+                            kv::metadata& vital_data )
+{
+  constexpr auto standard = KLV_PACKET_MISB_0102_LOCAL_SET;
+
+  // Add the timestamp
+  vital_data.add< kv::VITAL_META_UNIX_TIMESTAMP >( timestamp );
+
+  // Check if there is a ST0102 embedded in ST0601
+  auto const st0601 =
+    klv_data.at( KLV_PACKET_MISB_0601_LOCAL_SET,
+                 KLV_0601_SECURITY_LOCAL_SET, timestamp );
+
+  // Get the tag from any ST0102 source
+  auto const get_tag_value =
+    [ & ]( klv_0102_tag tag ){
+      auto result = klv_data.at( standard, tag, timestamp );
+      if( !result.valid() && st0601.valid() )
+      {
+        result = st0601.get< klv_local_set >().at( tag );
+      }
+      return result;
+    };
+
+  // Convert the security classification to a string
+  {
+    auto const value = get_tag_value( KLV_0102_SECURITY_CLASSIFICATION );
+    if( value.valid() )
+    {
+      std::stringstream ss;
+      ss << value.get< klv_0102_security_classification >();
+      vital_data.add< kv::VITAL_META_SECURITY_CLASSIFICATION >( ss.str() );
+    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -586,6 +625,7 @@ kv::metadata
 klv_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp )
 {
   kv::metadata result;
+  klv_0102_to_vital_metadata( klv_data, timestamp, result );
   klv_0104_to_vital_metadata( klv_data, timestamp, result );
   klv_0601_to_vital_metadata( klv_data, timestamp, result );
   klv_1108_to_vital_metadata( klv_data, timestamp, result );

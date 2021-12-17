@@ -7,6 +7,7 @@
 
 #include "klv_packet.h"
 
+#include <arrows/klv/klv_0102.h>
 #include <arrows/klv/klv_0104.h>
 #include <arrows/klv/klv_0601.h>
 #include <arrows/klv/klv_1108.h>
@@ -233,6 +234,13 @@ klv_lookup_packet_traits()
       std::make_shared< klv_blob_format >(),
       "Unknown Packet",
       "Packet of unknown type.",
+      0 },
+    { klv_0102_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_0102_LOCAL_SET ),
+      std::make_shared< klv_0102_local_set_format >(),
+      "MISB ST 0102 Local Set",
+      "Security Local Set. Used for marking Motion Imagery with security "
+      "classification information.",
       0 },
     { klv_1108_key(),
       ENUM_AND_NAME( KLV_PACKET_MISB_1108_LOCAL_SET ),
