@@ -374,6 +374,7 @@ moving_burnin_detector_opencv::priv
 ::draw_metadata_mask( cv::Mat& img, const metadata& md )
 {
   // crosshair
+  std::cout << "center: " << md.center << std::endl;
   if ( md.center.x != 0 && md.center.y != 0 )
   {
   draw_cross( img, md.center, cross_output_color, draw_line_width );
@@ -509,7 +510,9 @@ moving_burnin_detector_opencv::priv
   for ( std::set< cv::Point >::iterator i = points.begin(); i != points.end(); i++ )
   {
     cv::Point p = *i;
-    if ( edge_image.at< int >( p ) != 0 )
+    int val = (int) edge_image.at< unsigned char >( p );
+    //std::cout << val << std::endl;
+    if ( val != 0 )
     {
       hits++;
     }
@@ -550,6 +553,7 @@ moving_burnin_detector_opencv::priv
           int bracket_count = 0;
 
           const cv::Point tl = rt.tl();
+          //std::cout << "TL: " << tl << std::endl;
           const cv::Point tr = tl + cv::Point( rt.width, 0 );
           const cv::Point br = rt.br();
           const cv::Point bl = tl + cv::Point( 0, rt.height );
@@ -560,8 +564,8 @@ moving_burnin_detector_opencv::priv
 
             draw_bracket_tl( points, rt, line_width );
 
-            //int hits = count_hits(edge_image, points);
-            const int hits = std::count_if( points.begin(), points.end(), std::bind( is_non_zero, edge_image, std::placeholders::_1 ) );
+            const int hits = count_hits(edge_image, points);
+            //const int hits = std::count_if( points.begin(), points.end(), std::bind( is_non_zero, edge_image, std::placeholders::_1 ) );
             count_tl[ tl ] = std::make_pair( hits, points.size() );
 
             edge_count += hits;
@@ -580,8 +584,8 @@ moving_burnin_detector_opencv::priv
 
             draw_bracket_tr( points, rt, line_width );
 
-            // const int hits = count_hits( edge_image, points );
-            const int hits = std::count_if( points.begin(), points.end(), std::bind( is_non_zero, edge_image, std::placeholders::_1 ) );
+            const int hits = count_hits( edge_image, points );
+            //const int hits = std::count_if( points.begin(), points.end(), std::bind( is_non_zero, edge_image, std::placeholders::_1 ) );
             count_tr[ tr ] = std::make_pair( hits, points.size() );
 
             edge_count += hits;
@@ -600,8 +604,8 @@ moving_burnin_detector_opencv::priv
 
             draw_bracket_bl( points, rt, line_width );
 
-            //const int hits = count_hits(edge_image, points);
-            const int hits = std::count_if( points.begin(), points.end(), std::bind( is_non_zero, edge_image, std::placeholders::_1 ) );
+            const int hits = count_hits(edge_image, points);
+            //const int hits = std::count_if( points.begin(), points.end(), std::bind( is_non_zero, edge_image, std::placeholders::_1 ) );
             count_bl[ bl ] = std::make_pair( hits, points.size() );
 
             edge_count += hits;
@@ -620,8 +624,8 @@ moving_burnin_detector_opencv::priv
 
             draw_bracket_br( points, rt, line_width );
 
-            //const int hits = count_hits(edge_image, points);
-            const int hits = std::count_if( points.begin(), points.end(), std::bind( is_non_zero, edge_image, std::placeholders::_1 ) );
+            const int hits = count_hits(edge_image, points);
+            //const int hits = std::count_if( points.begin(), points.end(), std::bind( is_non_zero, edge_image, std::placeholders::_1 ) );
             count_br[ br ] = std::make_pair( hits, points.size() );
 
             edge_count += hits;
@@ -636,7 +640,7 @@ moving_burnin_detector_opencv::priv
           }
 
           const double s = double(edge_count) / double(bracket_count);
-
+          //std::cout << "score: " << s << std::endl;
           if ( s > best )
           {
             best = s;
@@ -816,6 +820,8 @@ moving_burnin_detector_opencv::priv
   //std::set< cv::Point >::iterator pt = points.begin();
   //std::set< cv::Point >::iterator end = points.end();
 
+  std::cout << "TL: " << rect.tl() << std::endl;
+  std::cout << "BR: " << rect.br() << std::endl;
   // Top left
   cv::line( img, rect.tl(), rect.tl() + cv::Point(bracket_length_x, 0), cv::Scalar(0, 255, 0, 0), width);
   cv::line( img, rect.tl(), rect.tl() + cv::Point(0, bracket_length_y), cv::Scalar(0, 255, 0, 0), width);
@@ -844,7 +850,7 @@ moving_burnin_detector_opencv::priv
 
   for ( ; pt != end; ++pt )
   {
-    img.at< int >( *pt ) = clr;
+    img.at< unsigned char >( *pt ) = clr;
   }
 
 }
@@ -942,8 +948,10 @@ moving_burnin_detector_opencv::priv
   // convert image to cv
   cv::Mat cv_image = ocv::image_container::vital_to_ocv(
     input_image->get_image(),
-    ocv::image_container::RGB_COLOR );
+    ocv::image_container::BGR_COLOR );
 
+  //cv::imshow("Original image", cv_image);
+  //cv::waitKey(0);
   // set detection output colors
   cross_output_color = cv::Scalar(cross_output_color_R, cross_output_color_G, cross_output_color_B);
   std::cout << "Cross color (RGB): " << cross_output_color << std::endl;
@@ -957,9 +965,15 @@ moving_burnin_detector_opencv::priv
 
   scale_params_for_image( cv_image );
 
+  if( byte_mask.cols != cv_image.cols || byte_mask.rows != cv_image.rows )
+  {
+    byte_mask = cv::Mat(cv_image.rows, cv_image.cols, CV_8UC1);
+  }
+  byte_mask.setTo(cv::Scalar::all(0));
+
   w = cv_image.cols;
   h = cv_image.rows;
-  roi_aspect = roi_aspect ? roi_aspect : ( double(h) / double(w) );
+  //roi_aspect = roi_aspect ? roi_aspect : ( double(h) / double(w) );
   const int nw = w * roi_ratio;
   const int nh = roi_aspect ? ( nw * roi_aspect ) : ( h * roi_ratio );
 
@@ -967,7 +981,7 @@ moving_burnin_detector_opencv::priv
                  ( cv_image.channels() == 1 ) ? CV_8UC1 : CV_8UC3,
                  cv_image.ptr(0, 0) );
   cv::Mat end_mask( cv_image.rows, cv_image.cols,
-                    CV_8UC1, cv_image.ptr(0, 0) );
+                    CV_8UC1, byte_mask.ptr(0, 0) );
 
   moving_burnin_detector_opencv::priv::metadata md;
   cv::Rect roi = cv::Rect( (w - nw) / 2, (h - nh) / 2, nw, nh ) + cv::Point( off_center_x, off_center_y );
@@ -993,8 +1007,7 @@ moving_burnin_detector_opencv::priv
   cv::add( edge_view, bands[0], edge_view );
   }
 
-  std::cout << "Image: " << cv_image.rows << cv_image.cols << std::endl;
-  std::cout << "Edge: " << edges.rows << edges.cols << std::endl;
+  std::cout << "Image: " << cv_image.rows << " " << cv_image.cols << std::endl;
   // detect burnin objects
   if ( 0.0 <= cross_threshold && cross_threshold <= 1.0)
   {
@@ -1003,6 +1016,7 @@ moving_burnin_detector_opencv::priv
   }
   if ( 0.0 <= bracket_threshold && bracket_threshold <= 1.0 )
   {
+    cv::imwrite("bracket_in.jpg", edges);
     std::cout << "Bracket threshold: " << bracket_threshold << std::endl;
     detect_bracket( edges, roi, md.brackets );
     if ( 0.0 <= rectangle_threshold && rectangle_threshold <= 1.0 )
@@ -1012,7 +1026,6 @@ moving_burnin_detector_opencv::priv
     }
   }
   // TODO: add text detection
-
 
   cv::Mat final_mask =  cv::Mat::zeros( cv_image.rows, cv_image.cols, CV_8UC3 );
   draw_metadata_mask( final_mask, md );
@@ -1031,7 +1044,7 @@ moving_burnin_detector_opencv::priv
 
   vital::image overlay = ocv::image_container::ocv_to_vital(
     cv_image,
-    ocv::image_container::BGR_COLOR);
+    ocv::image_container::RGB_COLOR);
 
   // logging
   if ( verbose )

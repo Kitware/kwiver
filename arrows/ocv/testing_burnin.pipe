@@ -26,15 +26,15 @@ process detect_moving_burnin
   block filter:moving_burnin_detector_opencv
     disabled                            = false
     highest_score_only                  = true
-    line_width                          = 3
+    line_width                          = 2
     draw_line_width                     = 3
-    roi_ratio                           = 0.5
+    roi_ratio                           = 0.9
     min_roi_ratio                       = 0.1
     roi_aspect                          = 0
     off_center_x                        = -1
     off_center_y                        = -1
 
-    cross_threshold                     = 0.2
+    cross_threshold                     = -1
     cross_output_color_R                = 255
     cross_output_color_G                = 0
     cross_output_color_B                = 0
@@ -51,7 +51,7 @@ process detect_moving_burnin
 
     rectangle_threshold                 = -1
 
-    off_center_jitter                   = 1
+    off_center_jitter                   = 10
     target_resolution_x                 = 0
     target_resolution_y                 = 0
     verbose                             = true
