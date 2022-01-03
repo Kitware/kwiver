@@ -407,6 +407,7 @@ KLV_INSTANTIATE( int64_t );
 KLV_INSTANTIATE( klv_0102_country_coding_method );
 KLV_INSTANTIATE( klv_0102_security_classification );
 KLV_INSTANTIATE( klv_0601_control_command );
+KLV_INSTANTIATE( klv_0601_country_codes );
 KLV_INSTANTIATE( klv_0601_frame_rate );
 KLV_INSTANTIATE( klv_0601_icing_detected );
 KLV_INSTANTIATE( klv_0601_operational_mode );

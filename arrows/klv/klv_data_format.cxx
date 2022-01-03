@@ -802,6 +802,7 @@ klv_imap_format
 KLV_INSTANTIATE( double );
 KLV_INSTANTIATE( int64_t );
 KLV_INSTANTIATE( klv_0601_control_command );
+KLV_INSTANTIATE( klv_0601_country_codes );
 KLV_INSTANTIATE( klv_0601_frame_rate );
 KLV_INSTANTIATE( klv_1108_metric_implementer );
 KLV_INSTANTIATE( klv_1108_metric_period_pack );

@@ -164,8 +164,9 @@ auto const expected_result = klv_local_set{
   { KLV_0601_ONBOARD_MI_STORAGE_PERCENT_FULL,   72.000000000000000 },
   { KLV_0601_ACTIVE_WAVELENGTH_LIST,           klv_blob{ { 0x01, 0x03 } } },
   { KLV_0601_COUNTRY_CODES,
-    klv_blob{ {
-      0x01, 0x0E, 0x03, 0x43, 0x41, 0x4E, 0x00, 0x03, 0x46, 0x52, 0x41 } } },
+    klv_0601_country_codes{
+      KLV_0102_COUNTRY_CODING_METHOD_GENC_THREE_LETTER,
+      std::string{ "CAN" }, kv::nullopt, std::string{ "FRA" } } },
   { KLV_0601_NUMBER_OF_NAVSATS_IN_VIEW,        uint64_t{ 7 } },
   { KLV_0601_POSITIONING_METHOD_SOURCE,        klv_blob{ { 0x03 } } },
   { KLV_0601_PLATFORM_STATUS,

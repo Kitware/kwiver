@@ -4,7 +4,6 @@
 
 #include "klv_0601.h"
 
-#include "klv_0102.h"
 #include "klv_checksum.h"
 
 #include <vital/logger/logger.h>
@@ -837,7 +836,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_COUNTRY_CODES ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_country_codes_format >(),
       "Country Codes",
       "Countries which are associated with the platform and its operation.",
       { 0, 1 } },
@@ -1312,6 +1311,258 @@ klv_0601_frame_rate_format
 ::description() const
 {
   return "frame rate of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_0601_country_codes const& value )
+{
+  return
+    os << "{ "
+       << "coding method: "
+       << value.coding_method
+       << ", "
+       << "overflight country: "
+       << ( value.overflight_country
+            ? *value.overflight_country
+            : "(empty)" )
+       << ", "
+       << "operator country: "
+       << ( value.operator_country
+            ? *value.operator_country
+            : "(empty)" )
+       << ", "
+       << "country of manufacture: "
+       << ( value.country_of_manufacture
+            ? *value.country_of_manufacture
+            : "(empty)" )
+       << " }";
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator==( klv_0601_country_codes const& lhs,
+            klv_0601_country_codes const& rhs )
+{
+  return lhs.coding_method == rhs.coding_method &&
+         lhs.country_of_manufacture == rhs.country_of_manufacture &&
+         lhs.operator_country == rhs.operator_country &&
+         lhs.overflight_country == rhs.overflight_country;
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator<( klv_0601_country_codes const& lhs,
+           klv_0601_country_codes const& rhs )
+{
+  if( lhs.coding_method < rhs.coding_method )
+  {
+    return true;
+  }
+  if( lhs.coding_method > rhs.coding_method )
+  {
+    return false;
+  }
+  if( lhs.overflight_country < rhs.overflight_country )
+  {
+    return true;
+  }
+  if( lhs.overflight_country > rhs.overflight_country )
+  {
+    return false;
+  }
+  if( lhs.operator_country < rhs.operator_country )
+  {
+    return true;
+  }
+  if( lhs.operator_country > rhs.operator_country )
+  {
+    return false;
+  }
+  return lhs.country_of_manufacture < rhs.country_of_manufacture;
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_country_codes_format
+::klv_0601_country_codes_format()
+  : klv_data_format_< klv_0601_country_codes >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_country_codes_format
+::description() const
+{
+  return "country codes pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_country_codes
+klv_0601_country_codes_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  klv_0601_country_codes result = {};
+  auto const begin = data;
+  auto const remaining_length = [ & ]() -> size_t {
+                                  return length - std::distance( begin, data );
+                                };
+
+  // Read coding method
+  auto const length_of_coding_method =
+    klv_read_ber< size_t >( data, remaining_length() );
+  result.coding_method =
+    static_cast< klv_0102_country_coding_method >(
+      klv_read_int< uint64_t >( data, std::min( length_of_coding_method,
+                                                remaining_length() ) ) );
+
+  // Read overflight country
+  auto const length_of_overflight_country =
+    klv_read_ber< size_t >( data, remaining_length() );
+  if( length_of_overflight_country )
+  {
+    result.overflight_country =
+      klv_read_string( data, std::min( length_of_overflight_country,
+                                       remaining_length() ) );
+  }
+
+  // Read operator country
+  if( !remaining_length() )
+  {
+    // The last two country codes have been omitted
+    return result;
+  }
+  auto const length_of_operator_country =
+    klv_read_ber< size_t >( data, remaining_length() );
+  if( length_of_operator_country )
+  {
+    result.operator_country =
+      klv_read_string( data, std::min( length_of_operator_country,
+                                       remaining_length() ) );
+  }
+
+  // Read country of manufacture
+  if( !remaining_length() )
+  {
+    // The last country code has been omitted
+    return result;
+  }
+  auto const length_of_country_of_manufacture =
+    klv_read_ber< size_t >( data, remaining_length() );
+  if( length_of_country_of_manufacture )
+  {
+    result.country_of_manufacture =
+      klv_read_string( data, std::min( length_of_country_of_manufacture,
+                                       remaining_length() ) );
+  }
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_country_codes_format
+::write_typed( klv_0601_country_codes const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const begin = data;
+  auto const remaining_length = [ & ]() -> size_t {
+                                  return length - std::distance( begin, data );
+                                };
+
+  // Write coding method
+  size_t const length_of_coding_method = 1;
+  klv_write_ber( length_of_coding_method, data, remaining_length() );
+  klv_write_int( static_cast< size_t >( value.coding_method ), data,
+                 std::min( length_of_coding_method, remaining_length() ) );
+
+  // Write overflight country
+  if( value.overflight_country )
+  {
+    auto const field_length = klv_string_length( *value.overflight_country );
+    klv_write_ber< size_t >( field_length, data, remaining_length() );
+    klv_write_string( *value.overflight_country, data, remaining_length() );
+  }
+  else
+  {
+    klv_write_ber< size_t >( 0, data, remaining_length() );
+  }
+
+  // Write operator country
+  if( value.operator_country )
+  {
+    auto const field_length = klv_string_length( *value.operator_country );
+    klv_write_ber< size_t >( field_length, data, remaining_length() );
+    klv_write_string( *value.operator_country, data, remaining_length() );
+  }
+  else if( value.country_of_manufacture )
+  {
+    // Cannot omit if the next field is not omitted
+    klv_write_ber< size_t >( 0, data, remaining_length() );
+  }
+  else
+  {
+    // Omit this and the next field
+    return;
+  }
+
+  // Write country of manufacture
+  if( value.country_of_manufacture )
+  {
+    auto const field_length =
+      klv_string_length( *value.country_of_manufacture );
+    klv_write_ber< size_t >( field_length, data, remaining_length() );
+    klv_write_string( *value.country_of_manufacture, data,
+                      remaining_length() );
+  }
+  // Omit (write nothing) for final field if no value is present
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_country_codes_format
+::length_of_typed( klv_0601_country_codes const& value,
+                  size_t length_hint ) const
+{
+  // Cannot be omitted
+  size_t const length_of_coding_method = 1;
+  size_t const length_of_length_of_coding_method = 1;
+
+  // Cannot be omitted
+  auto const length_of_overflight_country =
+    value.overflight_country
+    ? klv_string_length( *value.overflight_country )
+    : 0;
+  auto const length_of_length_of_overflight_country =
+    klv_ber_length( length_of_overflight_country );
+
+  // Can be omitted if this field has no value
+  auto const length_of_country_of_manufacture =
+    value.country_of_manufacture
+    ? klv_string_length( *value.country_of_manufacture )
+    : 0;
+  auto const length_of_length_of_country_of_manufacture =
+    length_of_country_of_manufacture
+    ? klv_ber_length( length_of_country_of_manufacture )
+    : 0;
+
+  // Can be omitted if this field and country of manufacture each have no value
+  auto const length_of_operator_country =
+    value.operator_country
+    ? klv_string_length( *value.operator_country )
+    : 0;
+  auto const length_of_length_of_operator_country =
+    ( length_of_country_of_manufacture || length_of_operator_country )
+    ? klv_ber_length( length_of_operator_country )
+    : 0;
+
+  return length_of_length_of_coding_method +
+         length_of_coding_method +
+         length_of_length_of_overflight_country +
+         length_of_overflight_country +
+         length_of_length_of_operator_country +
+         length_of_operator_country +
+         length_of_length_of_country_of_manufacture +
+         length_of_country_of_manufacture;
 }
 
 // ----------------------------------------------------------------------------
