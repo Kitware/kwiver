@@ -100,8 +100,7 @@ associate_detections_to_tracks_threshold
 bool
 associate_detections_to_tracks_threshold
 ::associate( kwiver::vital::timestamp ts,
-             kwiver::vital::image_container_sptr //image
-,
+             kwiver::vital::image_container_sptr, // image
              kwiver::vital::object_track_set_sptr tracks,
              kwiver::vital::detected_object_set_sptr detections,
              kwiver::vital::matrix_d matrix,
