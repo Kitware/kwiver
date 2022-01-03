@@ -109,8 +109,7 @@ initialize_object_tracks_threshold
 kwiver::vital::object_track_set_sptr
 initialize_object_tracks_threshold
 ::initialize( kwiver::vital::timestamp ts,
-              kwiver::vital::image_container_sptr //image
-,
+              kwiver::vital::image_container_sptr /*image*/,
               kwiver::vital::detected_object_set_sptr detections ) const
 {
   auto filtered = d_->filter->filter( detections );

@@ -132,10 +132,8 @@ void
 write_object_track_set_kw18
 ::write_set(
   kwiver::vital::object_track_set_sptr const& set,
-  kwiver::vital::timestamp const& //ts
-,
-  std::string const& //frame_identifier
- )
+  kwiver::vital::timestamp const& /*ts*/,
+  std::string const& /*frame_identifier*/ )
 {
   if( d->m_first )
   {
