@@ -27,12 +27,12 @@ process detect_moving_burnin
     disabled                            = false
     highest_score_only                  = true
     line_width                          = 2
-    draw_line_width                     = 2
+    draw_line_width                     = 3
     roi_ratio                           = 0.9
     min_roi_ratio                       = 0.1
     roi_aspect                          = 0
-    off_center_x                        = -1
-    off_center_y                        = -1
+    off_center_x                        = 0
+    off_center_y                        = 0
 
     cross_threshold                     = 0.2
     cross_output_color_R                = 255

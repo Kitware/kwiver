@@ -815,7 +815,7 @@ moving_burnin_detector_opencv::priv
 
     for ( int j = p1.y; j != p2.y + dy; j += dy )
     {
-      for ( int i = ( p1.x  ); i <= ( p1.x + line_width  ); ++i )
+      for ( int i = ( p1.x - ( line_width - ( dy > 0 ) ) / 2 ); i <= ( p1.x + ( line_width - ( dy < 0 ) ) / 2 ); ++i )
       {
         pts.insert( cv::Point( i, j ) );
       }
@@ -827,7 +827,7 @@ moving_burnin_detector_opencv::priv
 
     for ( int i = p1.x; i != p2.x + dx; i += dx )
     {
-      for ( int j = ( p1.y ); j <= ( p1.y + ( line_width )  ); ++j )
+      for ( int j = ( p1.y - ( line_width - ( dx > 0 ) ) / 2 ); j <= ( p1.y + ( line_width - ( dx < 0 ) ) / 2 ); ++j )
       {
         pts.insert( cv::Point( i, j ) );
       }
