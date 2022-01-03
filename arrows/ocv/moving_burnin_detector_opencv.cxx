@@ -79,7 +79,7 @@ public:
   int count_hits( cv::Mat edge_image, std::set< cv::Point > points);
   void detect_bracket( const cv::Mat& edge_image, const cv::Rect& roi, std::vector< cv::Rect >& brackets );
   static void draw_line( std::set< cv::Point >& pts, const cv::Point& p1, const cv::Point& p2, int line_width );
-  void draw_bracket( cv::Mat& img, const cv::Rect& rect, int clr, int width );
+  void draw_bracket( cv::Mat& img, const cv::Rect& rect, cv::Scalar clr, int width );
   void draw_bracket_tl( std::set< cv::Point >& pts, const cv::Rect& rect, int width );
   void draw_bracket_tr( std::set< cv::Point >& pts, const cv::Rect& rect, int width );
   void draw_bracket_bl( std::set< cv::Point >& pts, const cv::Rect& rect, int width );
@@ -87,7 +87,7 @@ public:
 
   // Rectangle
   void detect_rectangle( const cv::Mat& edge_image, const std::vector< cv::Rect >& brackets, cv::Rect& rect );
-  void draw_rectangle( cv::Mat& img, const cv::Rect& rect, cv::Vec4b clr, int width );
+  void draw_rectangle( cv::Mat& img, const cv::Rect& rect, cv::Scalar clr, int width );
   void draw_rectangle( std::set< cv::Point >& pts, const cv::Rect& rect, int width );
 
   kwiver::vital::image_container_sptr filter( kwiver::vital::image_container_sptr image );
@@ -97,6 +97,8 @@ public:
   int w;
   int h;
   cv::Scalar cross_output_color;
+  cv::Scalar bracket_output_color;
+  cv::Scalar rectangle_output_color;
   std::vector<unsigned> target_widths;
 
   // config default values
@@ -122,11 +124,18 @@ public:
   float cross_ends_ratio{ -1.0 };
 
   double bracket_threshold{ -1 };
-  int bracket_length_x{ 18 };
-  int bracket_length_y{ 18 };
+  double bracket_output_color_R{ 0 };
+  double bracket_output_color_G{ 255 }; // green
+  double bracket_output_color_B{ 0 };
+  int bracket_length_x{ 10 };
+  int bracket_length_y{ 6 };
   int bracket_aspect_jitter{ 5 };
 
   double rectangle_threshold{ -1 };
+  double rectangle_output_color_R{ 0 };
+  double rectangle_output_color_G{ 0 };
+  double rectangle_output_color_B{ 255 }; // blue
+
   int off_center_jitter{ 1 };
   unsigned target_resolution_x{ 0 };
   unsigned target_resolution_y{ 0 };
@@ -212,9 +221,19 @@ moving_burnin_detector_opencv
                      " of the cross-hair. This is a ratio between the length of this end to the inner"
                      " segment" );
 
+  // brackets
   config->set_value( "bracket_threshold",
                      d->bracket_threshold,
                     "Minimum coverage of the bracket with edge detection (negative to disable)" );
+  config->set_value( "bracket_output_color_R",
+                     d->bracket_output_color_R,
+                     "Red value of the color the detected brackets are drawn" );
+  config->set_value( "bracket_output_color_G",
+                     d->bracket_output_color_G,
+                     "Green value of the color the detected brackets are drawn" );
+  config->set_value( "bracket_output_color_B",
+                     d->bracket_output_color_B,
+                     "Blue value of the color the detected brackets are drawn" );
   config->set_value( "bracket_length_x",
                      d->bracket_length_x,
                      "Horizontal length of bracket corners" );
@@ -225,9 +244,19 @@ moving_burnin_detector_opencv
                      d->bracket_aspect_jitter,
                      "Offset from 1:1 aspect with the frame to search for bracket corners (in pixels)" );
 
+  //rectangle
   config->set_value( "rectangle_threshold",
                       d->rectangle_threshold,
                      "Minimum coverage of the rectangle with edge detection (negative to disable)" );
+  config->set_value( "rectangle_output_color_R",
+                      d->rectangle_output_color_R,
+                     "Red value of the color the detected rectangle is drawn" );
+  config->set_value( "rectangle_output_color_G",
+                      d->rectangle_output_color_G,
+                     "Green value of the color the detected rectangle is drawn" );
+  config->set_value( "rectangle_output_color_B",
+                      d->rectangle_output_color_B,
+                     "Blue value of the color the detected rectangle is drawn" );
 
   // TODO: add text
 
@@ -281,12 +310,18 @@ moving_burnin_detector_opencv
 
   // brackets
   d->bracket_threshold = config->get_value< double >("bracket_threshold");
+  d->bracket_output_color_R = config->get_value< double >("bracket_output_color_R");
+  d->bracket_output_color_G = config->get_value< double >("bracket_output_color_G");
+  d->bracket_output_color_B = config->get_value< double >("bracket_output_color_B");
   d->bracket_length_x = config->get_value< int >("bracket_length_x");
   d->bracket_length_y = config->get_value< int >("bracket_length_y");
   d->bracket_aspect_jitter = config->get_value< int >("bracket_aspect_jitter");
 
   // rectangle
   d->rectangle_threshold = config->get_value< double >("rectangle_threshold");
+  d->rectangle_output_color_R = config->get_value< double >("rectangle_output_color_R");
+  d->rectangle_output_color_G = config->get_value< double >("rectangle_output_color_G");
+  d->rectangle_output_color_B = config->get_value< double >("rectangle_output_color_B");
 
   // TODO: add text
 
@@ -374,10 +409,15 @@ moving_burnin_detector_opencv::priv
 ::draw_metadata_mask( cv::Mat& img, const metadata& md )
 {
   // crosshair
-  std::cout << "center: " << md.center << std::endl;
   if ( md.center.x != 0 && md.center.y != 0 )
   {
   draw_cross( img, md.center, cross_output_color, draw_line_width );
+  }
+
+  // rectangle
+  if ( md.rectangle.x != 0 && md.rectangle.y != 0 )
+  {
+    draw_rectangle( img, md.rectangle, rectangle_output_color, draw_line_width );
   }
 
   // brackets
@@ -389,14 +429,8 @@ moving_burnin_detector_opencv::priv
       this,
       img,
       std::placeholders::_1,
-      255, //cv::Vec4b(0, 255, 0, 0),
+      bracket_output_color,
       draw_line_width ) );
-
-  // rectangle
-  if ( md.rectangle.x != 0 && md.rectangle.y != 0 )
-  {
-    draw_rectangle( img, md.rectangle, cv::Vec4b(0, 0, 255, 0), draw_line_width );
-  }
 
   // TODO: add text
 }
@@ -482,7 +516,7 @@ moving_burnin_detector_opencv::priv
 
      if ( s > score )
      {
-       std::cout << "score: " << s << std::endl;
+       //std::cout << "score: " << s << std::endl;
        center = ct;
        score = s;
      }
@@ -511,7 +545,6 @@ moving_burnin_detector_opencv::priv
   {
     cv::Point p = *i;
     int val = (int) edge_image.at< unsigned char >( p );
-    //std::cout << val << std::endl;
     if ( val != 0 )
     {
       hits++;
@@ -553,7 +586,6 @@ moving_burnin_detector_opencv::priv
           int bracket_count = 0;
 
           const cv::Point tl = rt.tl();
-          //std::cout << "TL: " << tl << std::endl;
           const cv::Point tr = tl + cv::Point( rt.width, 0 );
           const cv::Point br = rt.br();
           const cv::Point bl = tl + cv::Point( 0, rt.height );
@@ -707,13 +739,11 @@ moving_burnin_detector_opencv::priv
     draw_rectangle( points, brackets[i], line_width );
 
     const int rectangle_count = points.size();
-    //const int edge_count = std::count_if( points.begin(), points.end(), std::bind( is_non_zero, edge_image, std::placeholders::_1 ) );
     const int edge_count = count_hits(edge_image, points);
     const double s = double(edge_count) / double(rectangle_count);
 
     if ( s > score )
     {
-      std::cout << "score: " << score << std::endl;
       rect = brackets[i];
       score = s;
     }
@@ -785,7 +815,7 @@ moving_burnin_detector_opencv::priv
 
     for ( int j = p1.y; j != p2.y + dy; j += dy )
     {
-      for ( int i = ( p1.x - ( line_width - ( dy > 0 ) ) / 2 ); i <= ( p1.x + ( line_width - ( dy < 0 ) ) / 2 ); ++i )
+      for ( int i = ( p1.x  ); i <= ( p1.x + line_width  ); ++i )
       {
         pts.insert( cv::Point( i, j ) );
       }
@@ -797,7 +827,7 @@ moving_burnin_detector_opencv::priv
 
     for ( int i = p1.x; i != p2.x + dx; i += dx )
     {
-      for ( int j = ( p1.y - ( line_width - ( dx > 0 ) ) / 2 ); j <= ( p1.y + ( line_width - ( dx < 0 ) ) / 2 ); ++j )
+      for ( int j = ( p1.y ); j <= ( p1.y + ( line_width )  ); ++j )
       {
         pts.insert( cv::Point( i, j ) );
       }
@@ -808,7 +838,7 @@ moving_burnin_detector_opencv::priv
 // ----------------------------------------------------------------------------------
 void
 moving_burnin_detector_opencv::priv
-::draw_bracket( cv::Mat& img, const cv::Rect& rect, int clr, int width )
+::draw_bracket( cv::Mat& img, const cv::Rect& rect, cv::Scalar clr, int width )
 {
   std::set< cv::Point > points;
 
@@ -817,42 +847,40 @@ moving_burnin_detector_opencv::priv
   draw_bracket_bl( points, rect, width );
   draw_bracket_br( points, rect, width );
 
-  //std::set< cv::Point >::iterator pt = points.begin();
-  //std::set< cv::Point >::iterator end = points.end();
+  const cv::Point dx = cv::Point( bracket_length_x, 0 );
+  const cv::Point dy = cv::Point( 0, bracket_length_y );
 
-  std::cout << "TL: " << rect.tl() << std::endl;
-  std::cout << "BR: " << rect.br() << std::endl;
   // Top left
-  cv::line( img, rect.tl(), rect.tl() + cv::Point(bracket_length_x, 0), cv::Scalar(0, 255, 0, 0), width);
-  cv::line( img, rect.tl(), rect.tl() + cv::Point(0, bracket_length_y), cv::Scalar(0, 255, 0, 0), width);
+  cv::line( img, rect.tl(), rect.tl() + dx, clr, width);
+  cv::line( img, rect.tl(), rect.tl() + dy, clr, width);
 
   // Top Right
   cv::Point tr = rect.tl() + cv::Point(rect.width, 0);
-  cv::line( img, tr, tr - cv::Point(bracket_length_x, 0), cv::Scalar(0, 255, 0, 0), width);
-  cv::line( img, tr, tr + cv::Point(0, bracket_length_y), cv::Scalar(0, 255, 0, 0), width);
+  cv::line( img, tr, tr - dx, clr, width);
+  cv::line( img, tr, tr + dy, clr, width);
 
   // Bottom left
   cv::Point bl = rect.tl() + cv::Point(0, rect.height);
-  cv::line( img, bl, bl + cv::Point(bracket_length_x, 0), cv::Scalar(0, 255, 0, 0), width);
-  cv::line( img, bl, bl - cv::Point(0, bracket_length_y), cv::Scalar(0, 255, 0, 0), width);
+  cv::line( img, bl, bl + dx, clr, width);
+  cv::line( img, bl, bl - dy, clr, width);
 
   // Bottom right
-  cv::line( img, rect.br(), rect.br() - cv::Point(bracket_length_x, 0), cv::Scalar(0, 255, 0, 0), width);
-  cv::line( img, rect.br(), rect.br() - cv::Point(0, bracket_length_y), cv::Scalar(0, 255, 0, 0), width);
+  cv::line( img, rect.br(), rect.br() - dx, clr, width);
+  cv::line( img, rect.br(), rect.br() - dy, clr, width);
 
-  /*for ( std::set< cv::Point >::iterator i = points.begin(); i != points.end(); i++ )
-  {
-    img.at< vxl_uint_8 >( *i ) = clr;
-  }*/
-
+  /*
   std::set< cv::Point >::const_iterator pt = points.begin();
   std::set< cv::Point >::const_iterator end = points.end();
 
   for ( ; pt != end; ++pt )
   {
-    img.at< unsigned char >( *pt ) = clr;
+    cv::Point p = *pt;
+    cv::Vec3b& color = img.at< cv::Vec3b >( p );
+    color[0] = clr[0];
+    color[1] = clr[1];
+    color[2] = clr[2];
   }
-
+  */
 }
 
 // ----------------------------------------------------------------------------------
@@ -910,9 +938,11 @@ moving_burnin_detector_opencv::priv
 // ----------------------------------------------------------------------------------
 void
 moving_burnin_detector_opencv::priv
-::draw_rectangle( cv::Mat& img, const cv::Rect& rect, cv::Vec4b clr, int width )
+::draw_rectangle( cv::Mat& img, const cv::Rect& rect, cv::Scalar clr, int width )
 {
-  std::set< cv::Point > points;
+  cv::rectangle( img, rect, clr, width);
+
+  /*std::set< cv::Point > points;
 
   draw_rectangle( points, rect, width );
 
@@ -921,8 +951,11 @@ moving_burnin_detector_opencv::priv
 
   for ( ; pt != end; ++pt )
   {
-    img.at< cv::Vec4b >( *pt ) = clr;
-  }
+    cv::Vec3b& color = img.at< cv::Vec3b >( *pt );
+    color[0] = clr[0];
+    color[1] = clr[1];
+    color[2] = clr[2];
+  }*/
 }
 
 // ----------------------------------------------------------------------------------
@@ -950,11 +983,9 @@ moving_burnin_detector_opencv::priv
     input_image->get_image(),
     ocv::image_container::BGR_COLOR );
 
-  //cv::imshow("Original image", cv_image);
-  //cv::waitKey(0);
-  // set detection output colors
-  cross_output_color = cv::Scalar(cross_output_color_R, cross_output_color_G, cross_output_color_B);
-  std::cout << "Cross color (RGB): " << cross_output_color << std::endl;
+  cross_output_color = cv::Scalar(cross_output_color_B, cross_output_color_G, cross_output_color_R);
+  bracket_output_color = cv::Scalar(bracket_output_color_B, bracket_output_color_G, bracket_output_color_R);
+  rectangle_output_color = cv::Scalar(rectangle_output_color_B, rectangle_output_color_G, rectangle_output_color_R);
 
   //bool invalid_image;
   invalid_image = set_input_image( cv_image );
@@ -1007,7 +1038,6 @@ moving_burnin_detector_opencv::priv
   cv::add( edge_view, bands[0], edge_view );
   }
 
-  std::cout << "Image: " << cv_image.rows << " " << cv_image.cols << std::endl;
   // detect burnin objects
   if ( 0.0 <= cross_threshold && cross_threshold <= 1.0)
   {
@@ -1016,7 +1046,6 @@ moving_burnin_detector_opencv::priv
   }
   if ( 0.0 <= bracket_threshold && bracket_threshold <= 1.0 )
   {
-    cv::imwrite("bracket_in.jpg", edges);
     std::cout << "Bracket threshold: " << bracket_threshold << std::endl;
     detect_bracket( edges, roi, md.brackets );
     if ( 0.0 <= rectangle_threshold && rectangle_threshold <= 1.0 )
@@ -1028,8 +1057,8 @@ moving_burnin_detector_opencv::priv
   // TODO: add text detection
 
   cv::Mat final_mask =  cv::Mat::zeros( cv_image.rows, cv_image.cols, CV_8UC3 );
-  draw_metadata_mask( final_mask, md );
-  cv::imwrite( "final_mask.jpg", final_mask );
+  //draw_metadata_mask( final_mask, md );
+  //cv::imwrite( "final_mask.jpg", final_mask );
   draw_metadata_mask( cv_image, md );
 
   if( !md.brackets.empty() )
@@ -1042,6 +1071,7 @@ moving_burnin_detector_opencv::priv
     }
   }
 
+  cv::cvtColor( cv_image, cv_image, cv::COLOR_BGR2RGB );
   vital::image overlay = ocv::image_container::ocv_to_vital(
     cv_image,
     ocv::image_container::RGB_COLOR);
