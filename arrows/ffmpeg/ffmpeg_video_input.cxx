@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation file for video input using FFmpeg.
- */
+/// \file
+/// \brief Implementation file for video input using FFmpeg.
 
 #include "ffmpeg_init.h"
 #include "ffmpeg_video_input.h"
@@ -48,7 +46,7 @@ namespace arrows {
 
 namespace ffmpeg {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Private implementation class
 class ffmpeg_video_input::priv
 {
@@ -104,9 +102,7 @@ public:
   klv::klv_timeline m_klv_timeline;
   klv::klv_demuxer m_klv_demuxer;
 
-  /**
-   * Storage for the metadata map.
-   */
+  /// Storage for the metadata map.
   vital::metadata_map::map_metadata_t metadata_map;
 
   static std::mutex open_mutex;
@@ -131,26 +127,22 @@ public:
   // --------------------------------------------------------------------------
   priv() : m_klv_demuxer( m_klv_timeline ) {}
 
-  // ==================================================================
+  // --------------------------------------------------------------------------
 
-  /*
-   * @brief Whether the video was opened.
-   *
-   * @return \b true if video was opened.
-   */
+  ///  @brief Whether the video was opened.
+  ///
+  ///  @return \b true if video was opened.
   bool
   is_opened()
   {
     return this->f_start_time != -1;
   }
 
-  // ==================================================================
+  // --------------------------------------------------------------------------
 
-  /*
-   * @brief Open the given video.
-   *
-   * @return \b true if video was opened.
-   */
+  ///  @brief Open the given video.
+  ///
+  ///  @return \b true if video was opened.
   bool
   open( std::string video_name )
   {
@@ -309,11 +301,9 @@ public:
     return true;
   }
 
-  // ==================================================================
+  // --------------------------------------------------------------------------
 
-  /*
-   * @brief Close the current video.
-   */
+  ///  @brief Close the current video.
   void
   close()
   {
@@ -337,11 +327,9 @@ public:
     avfilter_graph_free( &this->f_filter_graph );
   }
 
-  // ==================================================================
+  // --------------------------------------------------------------------------
 
-  /*
-   * @brief Initialize the filter graph
-   */
+  ///  @brief Initialize the filter graph
   bool
   init_filters( std::string const& filters_desc )
   {
@@ -445,13 +433,11 @@ public:
     return true;
   }
 
-  // ==================================================================
+  // --------------------------------------------------------------------------
 
-  /*
-   * @brief Advance to the next frame (but don't acquire an image).
-   *
-   * @return \b true if video was valid and we found a frame.
-   */
+  ///  @brief Advance to the next frame (but don't acquire an image).
+  ///
+  ///  @return \b true if video was valid and we found a frame.
   bool
   advance()
   {
@@ -573,13 +559,11 @@ public:
     return this->frame_advanced;
   }
 
-  // ==================================================================
+  // --------------------------------------------------------------------------
 
-  /*
-   * @brief Seek to a specific frame
-   *
-   * @return \b true if video was valid and we found a frame.
-   */
+  ///  @brief Seek to a specific frame
+  ///
+  ///  @return \b true if video was valid and we found a frame.
   bool
   seek( uint64_t frame )
   {
@@ -638,25 +622,21 @@ public:
     return true;
   }
 
-  // ==================================================================
+  // --------------------------------------------------------------------------
 
-  /*
-   * @brief Get the current timestamp
-   *
-   * @return \b Current timestamp.
-   */
+  ///  @brief Get the current timestamp
+  ///
+  ///  @return \b Current timestamp.
   double
   current_pts() const
   {
     return this->f_pts * av_q2d( this->f_video_stream->time_base );
   }
 
-  // ==================================================================
+  // --------------------------------------------------------------------------
 
-  /*
-   * @brief Returns the double value to convert from a stream time base to
-   *  a frame number
-   */
+  ///  @brief Returns the double value to convert from a stream time base to
+  ///   a frame number
   double
   stream_time_base_to_frame() const
   {
@@ -679,13 +659,11 @@ public:
     return this->f_frame && this->f_frame->data[ 0 ];
   }
 
-  // ==================================================================
+  // --------------------------------------------------------------------------
 
-  /*
-   * @brief Return the current frame number
-   *
-   * @return \b Current frame number.
-   */
+  ///  @brief Return the current frame number
+  ///
+  ///  @return \b Current frame number.
   unsigned int
   frame_number() const
   {
@@ -796,11 +774,9 @@ public:
     return { result_sptr };
   }
 
-  // ==================================================================
+  // --------------------------------------------------------------------------
 
-  /*
-   * @brief Loop over all frames to collect metadata
-   */
+  ///  @brief Loop over all frames to collect metadata
   void
   collect_all_metadata()
   {
@@ -853,11 +829,9 @@ public:
     }
   }
 
-  // ==================================================================
+  // --------------------------------------------------------------------------
 
-  /*
-   * @brief Seek to the end of the video to estimate number of frames
-   */
+  ///  @brief Seek to the end of the video to estimate number of frames
   void
   estimate_num_frames()
   {
@@ -939,7 +913,7 @@ public:
 // static open interlocking mutex
 std::mutex ffmpeg_video_input::priv::open_mutex;
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 ffmpeg_video_input
 ::ffmpeg_video_input()
   : d( new priv() )
@@ -967,7 +941,7 @@ ffmpeg_video_input
   this->close();
 }
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Get this algorithm's \link vital::config_block configuration block \endlink
 vital::config_block_sptr
 ffmpeg_video_input
@@ -1005,7 +979,7 @@ ffmpeg_video_input
   return config;
 }
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Set this algorithm's properties via a config block
 void
 ffmpeg_video_input
@@ -1029,7 +1003,7 @@ ffmpeg_video_input
                                                 d->sync_metadata );
 }
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input
 ::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
@@ -1039,7 +1013,7 @@ ffmpeg_video_input
   return retcode;
 }
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 ffmpeg_video_input
 ::open( std::string video_name )
@@ -1070,7 +1044,7 @@ ffmpeg_video_input
   }
 }
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 ffmpeg_video_input
 ::close()
@@ -1086,7 +1060,7 @@ ffmpeg_video_input
   d->metadata.clear();
 }
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input
 ::next_frame( kwiver::vital::timestamp& ts,
@@ -1108,7 +1082,7 @@ ffmpeg_video_input
   return ret;
 }
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input
 ::seek_frame( kwiver::vital::timestamp& ts,
@@ -1141,7 +1115,7 @@ ffmpeg_video_input
   return ret;
 }
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::image_container_sptr
 ffmpeg_video_input
 ::frame_image()
@@ -1294,7 +1268,7 @@ ffmpeg_video_input
   return d->current_image;
 }
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::timestamp
 ffmpeg_video_input
 ::frame_timestamp() const
@@ -1312,7 +1286,7 @@ ffmpeg_video_input
   return ts;
 }
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::metadata_vector
 ffmpeg_video_input
 ::frame_metadata()
@@ -1320,7 +1294,7 @@ ffmpeg_video_input
   return d->current_metadata();
 }
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::metadata_map_sptr
 ffmpeg_video_input
 ::metadata_map()
@@ -1331,7 +1305,7 @@ ffmpeg_video_input
     d->metadata_map );
 }
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input
 ::end_of_video() const
@@ -1339,7 +1313,7 @@ ffmpeg_video_input
   return d->end_of_video;
 }
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input
 ::good() const
@@ -1347,7 +1321,7 @@ ffmpeg_video_input
   return d->is_valid() && d->frame_advanced;
 }
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input
 ::seekable() const
@@ -1355,7 +1329,7 @@ ffmpeg_video_input
   return true;
 }
 
-// -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 size_t
 ffmpeg_video_input
 ::num_frames() const

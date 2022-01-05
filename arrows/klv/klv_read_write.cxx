@@ -18,7 +18,7 @@ namespace arrows {
 
 namespace klv {
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 uint64_t
 _imap_infinity( bool sign_bit, size_t length )
 {
@@ -26,7 +26,7 @@ _imap_infinity( bool sign_bit, size_t length )
   return length ? identifier << ( ( length - 1 ) * 8 ) : 0;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 uint64_t
 _imap_quiet_nan( bool sign_bit, size_t length )
 {
@@ -34,7 +34,7 @@ _imap_quiet_nan( bool sign_bit, size_t length )
   return length ? identifier << ( ( length - 1 ) * 8 ) : 0;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 uint64_t
 _imap_signal_nan( bool sign_bit, size_t length )
 {
@@ -42,7 +42,7 @@ _imap_signal_nan( bool sign_bit, size_t length )
   return length ? identifier << ( ( length - 1 ) * 8 ) : 0;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 _imap_terms
 _calculate_imap_terms( double minimum, double maximum, size_t length )
 {
@@ -60,7 +60,7 @@ _calculate_imap_terms( double minimum, double maximum, size_t length )
   return result;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 size_t
 klv_imap_length( double minimum, double maximum, double precision )
 {
@@ -72,7 +72,7 @@ klv_imap_length( double minimum, double maximum, double precision )
   return static_cast< size_t >( std::ceil( length_bits / 8.0 ) );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 double
 klv_imap_precision( double minimum, double maximum, size_t length )
 {
@@ -84,7 +84,7 @@ klv_imap_precision( double minimum, double maximum, size_t length )
 
 namespace {
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 _check_range( double minimum, double maximum )
 {
@@ -112,7 +112,7 @@ _check_range( double minimum, double maximum )
 
 } // namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 _check_range_precision( double minimum, double maximum, double precision )
 {
@@ -129,7 +129,7 @@ _check_range_precision( double minimum, double maximum, double precision )
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 _check_range_length( double minimum, double maximum, size_t length )
 {
@@ -147,7 +147,7 @@ _check_range_length( double minimum, double maximum, size_t length )
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 size_t
 klv_flint_length( double minimum, double maximum, double precision )
 {
@@ -159,7 +159,7 @@ klv_flint_length( double minimum, double maximum, double precision )
   return static_cast< size_t >( std::ceil( length_bits / 8.0 ) );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 double
 klv_flint_precision( double minimum, double maximum, size_t length )
 {
@@ -170,7 +170,7 @@ klv_flint_precision( double minimum, double maximum, size_t length )
   return std::exp2( std::log2( maximum - minimum ) - length_bits );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 size_t
 klv_string_length( std::string const& value )
 {

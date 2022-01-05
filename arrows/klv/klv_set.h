@@ -23,7 +23,7 @@ namespace arrows {
 
 namespace klv {
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Base class for KLV universal and local sets.
 ///
 /// This class is mostly a wrapper around a std::multimap, but with a slightly

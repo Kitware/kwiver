@@ -23,7 +23,7 @@ namespace arrows {
 
 namespace klv {
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Macros for verifying type attributes
 // Message-less static_assert not available in C++11
 
@@ -43,51 +43,51 @@ namespace klv {
     std::is_same< typename std::decay< decltype( *ITER ) >::type,      \
                   uint8_t >::value, "iterator must point to uint8_t" )
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Return number of bits required to store the given signed or unsigned int.
 template < class T >
 KWIVER_ALGO_KLV_EXPORT
 size_t
 _int_bit_length( T value );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Return whether left-shifting by given amount would overflow type T.
 template < int shift_amount, typename T >
 KWIVER_ALGO_KLV_EXPORT
 bool
 _left_shift_overflow( T value );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Minimum integer representable using the given number of bytes
 template < class T >
 KWIVER_ALGO_KLV_EXPORT
 T _int_min( size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Maximum integer representable using the given number of bytes
 template < class T >
 KWIVER_ALGO_KLV_EXPORT
 T _int_max( size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Returns the IMAP representation of positive or negative infinity.
 KWIVER_ALGO_KLV_EXPORT
 uint64_t
 _imap_infinity( bool sign_bit, size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Returns the IMAP representation of positive or negative quiet NaN.
 KWIVER_ALGO_KLV_EXPORT
 uint64_t
 _imap_quiet_nan( bool sign_bit, size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Returns the IMAP representation of positive or negative signaling NaN.
 KWIVER_ALGO_KLV_EXPORT
 uint64_t
 _imap_signal_nan( bool sign_bit, size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Helper struct
 struct KWIVER_ALGO_KLV_EXPORT _imap_terms
 {
@@ -96,25 +96,25 @@ struct KWIVER_ALGO_KLV_EXPORT _imap_terms
   double zero_offset;
 };
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Calculates the derived terms needed for both IMAP reading and writing.
 KWIVER_ALGO_KLV_EXPORT
 _imap_terms
 _calculate_imap_terms( double minimum, double maximum, size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Throws invalid_value if arguments don't make sense
 KWIVER_ALGO_KLV_EXPORT
 void
 _check_range_precision( double minimum, double maximum, double precision );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Throws invalid_value if arguments don't make sense
 KWIVER_ALGO_KLV_EXPORT
 void
 _check_range_length( double minimum, double maximum, size_t length );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class T, class Iterator >
 T
 klv_read_int( Iterator& data, size_t length )
@@ -161,7 +161,7 @@ klv_read_int( Iterator& data, size_t length )
   return result;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class T, class Iterator >
 void
 klv_write_int( T value, Iterator& data, size_t length )
@@ -189,7 +189,7 @@ klv_write_int( T value, Iterator& data, size_t length )
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class T >
 size_t
 klv_int_length( T value )
@@ -197,7 +197,7 @@ klv_int_length( T value )
   return ( _int_bit_length( value ) + 7 ) / 8;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class T, class Iterator >
 T
 klv_read_ber( Iterator& data, size_t max_length )
@@ -243,7 +243,7 @@ klv_read_ber( Iterator& data, size_t max_length )
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class T, class Iterator >
 void
 klv_write_ber( T value, Iterator& data, size_t max_length )
@@ -270,7 +270,7 @@ klv_write_ber( T value, Iterator& data, size_t max_length )
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class T >
 size_t
 klv_ber_length( T value )
@@ -279,7 +279,7 @@ klv_ber_length( T value )
   return ( value > 127 ) ? klv_int_length( value ) + 1 : 1;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class T, class Iterator >
 T
 klv_read_ber_oid( Iterator& data, size_t max_length )
@@ -315,7 +315,7 @@ klv_read_ber_oid( Iterator& data, size_t max_length )
   return value;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class T, class Iterator >
 void
 klv_write_ber_oid( T value, Iterator& data, size_t max_length )
@@ -348,7 +348,7 @@ klv_write_ber_oid( T value, Iterator& data, size_t max_length )
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class T >
 size_t
 klv_ber_oid_length( T value )
@@ -357,7 +357,7 @@ klv_ber_oid_length( T value )
   return ( _int_bit_length( value ) + 6 ) / 7;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class T, class Iterator >
 double
 klv_read_flint( double minimum, double maximum, Iterator& data, size_t length )
@@ -394,7 +394,7 @@ klv_read_flint( double minimum, double maximum, Iterator& data, size_t length )
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class T, class Iterator >
 void
 klv_write_flint( double value, double minimum, double maximum,
@@ -467,7 +467,7 @@ klv_write_flint( double value, double minimum, double maximum,
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class Iterator >
 double
 klv_read_float( Iterator& data, size_t length )
@@ -497,7 +497,7 @@ klv_read_float( Iterator& data, size_t length )
                "length must be sizeof(float) or sizeof(double)" );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class Iterator >
 void
 klv_write_float( double value, Iterator& data, size_t length )
@@ -530,7 +530,7 @@ klv_write_float( double value, Iterator& data, size_t length )
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class Iterator >
 double
 klv_read_imap( double minimum, double maximum, Iterator& data, size_t length )
@@ -588,7 +588,7 @@ klv_read_imap( double minimum, double maximum, Iterator& data, size_t length )
   return ( std::abs( value ) < precision / 2.0 ) ? 0.0 : value;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class Iterator >
 void
 klv_write_imap( double value, double minimum, double maximum, Iterator& data,
@@ -627,7 +627,7 @@ klv_write_imap( double value, double minimum, double maximum, Iterator& data,
   klv_write_int( int_value, data, length );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class Iterator >
 std::string
 klv_read_string( Iterator& data, size_t length )
@@ -642,7 +642,7 @@ klv_read_string( Iterator& data, size_t length )
   return ( s.size() == 1 && s[ 0 ] == '\0' ) ? "" : s;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class Iterator >
 void
 klv_write_string( std::string const& value, Iterator& data, size_t max_length )
@@ -674,7 +674,7 @@ klv_write_string( std::string const& value, Iterator& data, size_t max_length )
   data = std::copy( value.cbegin(), value.cend(), data );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class T >
 size_t
 _int_bit_length( T value )
@@ -704,7 +704,7 @@ _int_bit_length( T value )
   return i;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class T >
 T // TODO(C++14): make this constexpr
 _int_min( size_t length )
@@ -726,7 +726,7 @@ _int_min( size_t length )
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < class T >
 T // TODO(C++14): make this constexpr
 _int_max( size_t length )
@@ -753,7 +753,7 @@ _int_max( size_t length )
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template < int shift_amount, typename T >
 bool
 _left_shift_overflow( T value )

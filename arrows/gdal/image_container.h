@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief GDAL image_container inteface
- */
+/// \file
+/// \brief GDAL image_container inteface
 
 #ifndef KWIVER_ARROWS_GDAL_IMAGE_CONTAINER_H_
 #define KWIVER_ARROWS_GDAL_IMAGE_CONTAINER_H_
@@ -31,10 +29,9 @@ public:
   explicit image_container(const std::string& filename);
 
   /// The size of the image data in bytes
-  /**
-   * This size includes all allocated image memory,
-   * which could be larger than width*height*depth.
-   */
+  ///
+  /// This size includes all allocated image memory,
+  /// which could be larger than width*height*depth.
   virtual size_t size() const;
 
   /// The width of the image in pixels
