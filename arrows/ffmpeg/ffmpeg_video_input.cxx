@@ -467,7 +467,7 @@ public:
   advance()
   {
     this->frame_advanced = false;
-    
+
     // Quick return if the file isn't open.
     if( !this->is_opened() )
     {
@@ -1396,7 +1396,6 @@ ffmpeg_video_input
   result->profile = d->f_video_encoding->profile;
   result->sample_aspect_ratio = d->f_video_encoding->sample_aspect_ratio;
   result->stream_id = d->f_video_stream->id;
-  result->time_base = d->f_video_stream->time_base;
   result->width = d->f_video_encoding->width;
   return kwiver::vital::video_settings_uptr{ result };
 }

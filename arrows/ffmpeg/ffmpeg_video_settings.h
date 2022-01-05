@@ -35,7 +35,6 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
   AVCodecID codec_id;
   AVPixelFormat pixel_format;
   AVRational frame_rate;
-  AVRational time_base;
   AVRational sample_aspect_ratio;
   int64_t bit_rate;
   int bit_rate_tolerance;

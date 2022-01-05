@@ -66,6 +66,7 @@ set( public_headers
   uuid_factory.h
   uv_unwrap_mesh.h
   video_input.h
+  video_output.h
   write_object_track_set.h
   write_track_descriptor_set.h
   )
@@ -130,6 +131,7 @@ set( sources
   uuid_factory.cxx
   uv_unwrap_mesh.cxx
   video_input.cxx
+  video_output.cxx
   write_object_track_set.cxx
   write_track_descriptor_set.cxx
 )
