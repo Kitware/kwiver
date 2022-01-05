@@ -18,6 +18,7 @@
 #include <vital/types/metadata.h>
 #include <vital/types/metadata_map.h>
 #include <vital/types/timestamp.h>
+#include <vital/types/video_settings.h>
 
 #include <string>
 #include <vector>
@@ -340,6 +341,15 @@ public:
   ///
   /// \return Frame rate.
   virtual double frame_rate();
+
+  /// Extract implementation-specific video encoding settings.
+  ///
+  /// The returned structure is intended to be passed to a video encoder of
+  /// similar implementation so that the output video can be encoded using the
+  /// settings of the input video.
+  ///
+  /// \return Implementation video settings, or \c nullptr if none are needed.
+  virtual video_settings_uptr implementation_settings() const;
 
   /// \brief Return capabilities of concrete implementation.
   ///

@@ -64,6 +64,8 @@ public:
   ::kwiver::vital::metadata_vector frame_metadata() override;
   ::kwiver::vital::metadata_map_sptr metadata_map() override;
 
+  ::kwiver::vital::video_settings_uptr implementation_settings() const override;
+
 private:
   /// private implementation class
   class priv;
