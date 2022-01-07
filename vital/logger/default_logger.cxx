@@ -210,7 +210,7 @@ private:
       while ( getline( ss, msg_part ) )
       {
         *str << buf
-             << '.' << fractional_seconds
+             << '.' << std::setfill('0') << std::setw(3) << fractional_seconds
              << ' ' << level_str << ' ' << location << msg_part << '\n';
       }
     }
