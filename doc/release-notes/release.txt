@@ -39,3 +39,8 @@ Build System
    if CUDA is not installed in standard system locations.
 
  * Enable the CUDA arrow in the Docker container.
+
+Vital: Logging
+
+ * Fixed an issue in the default logger where leading zeros of fractional
+   seconds were being stripped leading to the printing of the incorrect time.
