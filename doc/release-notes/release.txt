@@ -16,6 +16,9 @@ Arrows: FFMPEG
  * Fixed a bug in which slight variations in presentation timestamps would
    sometimes cause frames to be skipped while decoding.
 
+ * Fixed a bug in which the video reader would not request any frames at end of
+   video that FFmpeg still had buffered internally.
+
 Arrows: MVG
 
  * Fixed a typo in the command line argument name for camera path in the
