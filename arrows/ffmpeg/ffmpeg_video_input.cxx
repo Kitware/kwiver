@@ -7,6 +7,7 @@
 
 #include "ffmpeg_init.h"
 #include "ffmpeg_video_input.h"
+#include "ffmpeg_video_settings.h"
 
 #include <arrows/klv/klv_convert_vital.h>
 #include <arrows/klv/klv_demuxer.h>
@@ -1338,6 +1339,34 @@ ffmpeg_video_input
 
   return d->number_of_frames;
 }
+
+// ----------------------------------------------------------------------------
+kwiver::vital::video_settings_uptr
+ffmpeg_video_input
+::implementation_settings() const
+{
+  if( !d->is_opened() )
+  {
+    return nullptr;
+  }
+
+  auto const result = new ffmpeg_video_settings{};
+  result->bit_rate = d->f_video_encoding->bit_rate;
+  result->bit_rate_tolerance = d->f_video_encoding->bit_rate_tolerance;
+  result->codec_id = d->f_video_encoding->codec_id;
+  result->frame_rate = d->f_video_stream->avg_frame_rate;
+  result->gop_size = d->f_video_encoding->gop_size;
+  result->height = d->f_video_encoding->height;
+  result->level = d->f_video_encoding->level;
+  result->pixel_format = d->f_video_encoding->pix_fmt;
+  result->profile = d->f_video_encoding->profile;
+  result->sample_aspect_ratio = d->f_video_encoding->sample_aspect_ratio;
+  result->stream_id = d->f_video_stream->id;
+  result->time_base = d->f_video_stream->time_base;
+  result->width = d->f_video_encoding->width;
+  return kwiver::vital::video_settings_uptr{ result };
+}
+
 
 } // namespace ffmpeg
 

@@ -225,6 +225,7 @@ set( vital_sources
   types/track.cxx
   types/track_descriptor.cxx
   types/track_set.cxx
+  types/video_settings.cxx
   types/uid.cxx
 )
 
