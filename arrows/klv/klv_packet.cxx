@@ -23,6 +23,24 @@ namespace arrows {
 namespace klv {
 
 // ----------------------------------------------------------------------------
+klv_packet
+::klv_packet() : key{}, value{} {}
+
+// ----------------------------------------------------------------------------
+klv_packet
+::klv_packet( klv_uds_key const& key, klv_value const& value )
+  : key{ key },
+    value{ value }
+{}
+
+// ----------------------------------------------------------------------------
+klv_packet
+::klv_packet( klv_uds_key const& key, klv_value&& value )
+  : key{ key },
+    value{ std::move( value ) }
+{}
+
+// ----------------------------------------------------------------------------
 bool
 operator<( klv_packet const& lhs, klv_packet const& rhs )
 {

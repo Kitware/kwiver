@@ -94,6 +94,15 @@ klv_set< Key >
 
 // ----------------------------------------------------------------------------
 template < class Key >
+bool
+klv_set< Key >
+::empty() const
+{
+  return m_items.empty();
+}
+
+// ----------------------------------------------------------------------------
+template < class Key >
 size_t
 klv_set< Key >
 ::size() const

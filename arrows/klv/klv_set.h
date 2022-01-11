@@ -68,6 +68,9 @@ public:
   const_iterator
   cend() const;
 
+  bool
+  empty() const;
+
   size_t
   size() const;
 

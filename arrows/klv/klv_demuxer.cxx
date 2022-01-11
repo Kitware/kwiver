@@ -118,18 +118,8 @@ klv_find_or_insert_1108( klv_timeline& timeline,
   // Finding an existing sub-timeline to use failed; insert new one
   auto const index =
     timeline.insert( standard, KLV_1108_ASSESSMENT_POINT )->first.index;
-  for( auto const i :
-       kv::range::iota( static_cast< klv_lds_key >( KLV_1108_ENUM_END ) ) )
-  {
-    auto const tag = static_cast< klv_1108_tag >( i );
-    // We don't track these tags
-    if( tag == KLV_1108_METRIC_PERIOD_PACK || tag == KLV_1108_CHECKSUM )
-    {
-      continue;
-    }
-
-    timeline.insert_or_find( standard, tag, index );
-  }
+  timeline.erase(
+    timeline.find( standard, KLV_1108_ASSESSMENT_POINT, index ) );
 
   return index;
 }
