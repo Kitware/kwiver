@@ -123,6 +123,7 @@ public:
   bool estimated_num_frames = false;
   bool sync_metadata = true;
   bool use_misp_timestamps = false;
+  bool is_draining = false;
   size_t max_seek_back_attempts = 10;
 
   // --------------------------------------------------------------------------
@@ -313,6 +314,7 @@ public:
     this->f_start_time = -1;
     this->m_last_klv_timestamp = 0;
     this->m_klv_demuxer.seek( 0 );
+    this->is_draining = false;
 
     if( this->f_video_stream )
     {
@@ -435,26 +437,52 @@ public:
   }
 
   // --------------------------------------------------------------------------
+  // Try to get a decoded frame from FFmpeg, return FFmpeg error code.
+  int
+  query_frame()
+  {
+    auto const result = avcodec_receive_frame( f_video_encoding, f_frame );
 
+    if( result < 0 )
+    {
+      return result;
+    }
+
+    f_pts = av_frame_get_best_effort_timestamp( f_frame );
+    if( f_pts == AV_NOPTS_VALUE )
+    {
+      f_pts = 0;
+    }
+
+    frame_advanced = true;
+
+    return result;
+  }
+
+  // --------------------------------------------------------------------------
   ///  @brief Advance to the next frame (but don't acquire an image).
   ///
   ///  @return \b true if video was valid and we found a frame.
   bool
   advance()
   {
+    this->frame_advanced = false;
+    
     // Quick return if the file isn't open.
     if( !this->is_opened() )
     {
-      this->frame_advanced = false;
       return false;
     }
-
-    this->frame_advanced = false;
 
     // clear the metadata from the previous frame
     for( auto& md : this->curr_metadata )
     {
       md.second.clear();
+    }
+
+    if( is_draining )
+    {
+      return query_frame() >= 0;
     }
 
     while( !this->frame_advanced &&
@@ -484,7 +512,7 @@ public:
           return false;
         }
 
-        err = avcodec_receive_frame( this->f_video_encoding, this->f_frame );
+        err = query_frame();
 
         // Ignore the frame and move to the next
         if( err == AVERROR_INVALIDDATA || err == AVERROR( EAGAIN ) )
@@ -498,14 +526,6 @@ public:
           av_packet_unref( this->f_packet );
           return false;
         }
-
-        this->f_pts = av_frame_get_best_effort_timestamp( this->f_frame );
-        if( this->f_pts == AV_NOPTS_VALUE )
-        {
-          this->f_pts = 0;
-        }
-
-        this->frame_advanced = true;
       }
 
       // grab the metadata from this packet if from the metadata stream
@@ -521,6 +541,17 @@ public:
 
       // De-reference previous packet
       av_packet_unref( this->f_packet );
+    }
+
+    // End of video? Get all still-buffered frames from decoder
+    if( !frame_advanced && !is_draining )
+    {
+      is_draining = true;
+      avcodec_send_packet( f_video_encoding, nullptr );
+      if( query_frame() < 0 )
+      {
+        return false;
+      }
     }
 
     // The cached frame is out of date, whether we managed to get a new
@@ -568,6 +599,8 @@ public:
   bool
   seek( uint64_t frame )
   {
+    is_draining = false;
+
     // Time for frame before requested frame. The frame before is requested so
     // advance will called at least once in case the request lands on a
     // keyframe.
@@ -866,6 +899,7 @@ public:
                                         frame_ts,
                                         AVSEEK_FLAG_BACKWARD );
         avcodec_flush_buffers( this->f_video_encoding );
+        is_draining = false;
 
         if( seek_rslt < 0 )
         {
