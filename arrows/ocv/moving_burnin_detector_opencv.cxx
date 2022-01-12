@@ -411,7 +411,7 @@ moving_burnin_detector_opencv::priv
   // crosshair
   if ( md.center.x != 0 && md.center.y != 0 )
   {
-  draw_cross( img, md.center, cross_output_color, draw_line_width );
+    draw_cross( img, md.center, cross_output_color, draw_line_width );
   }
 
   // rectangle
@@ -529,18 +529,12 @@ moving_burnin_detector_opencv::priv
   }
 }
 
-
-bool is_non_zero( const cv::Mat& img, const cv::Point& pt )
-{
-  return ( img.at< int >( pt ) != 0 );
-}
-
 // ----------------------------------------------------------------------------------
 int
 moving_burnin_detector_opencv::priv
 ::count_hits( cv::Mat edge_image, std::set< cv::Point > points)
 {
-  int hits = 0; //std::count_if( points[0], points[-1], std::bind( is_non_zero, edge_image, std::placeholders::_1 ) );
+  int hits = 0;
   for ( std::set< cv::Point >::iterator i = points.begin(); i != points.end(); i++ )
   {
     cv::Point p = *i;

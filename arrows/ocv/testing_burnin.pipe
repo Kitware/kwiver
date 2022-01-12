@@ -13,12 +13,6 @@ process input
     image_reader:type   = ocv
 
 # =============================================================================
-#process detect_burnin__in_image
-#  :: image_filter
-#  filter:type                           = vxl_convert_image
-#  filter:vxl_convert_image:type         = copy
-
-# =============================================================================
 process detect_moving_burnin
   :: image_filter
   filter:type = moving_burnin_detector_opencv
