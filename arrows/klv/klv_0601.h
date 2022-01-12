@@ -226,6 +226,26 @@ std::ostream&
 operator<<( std::ostream& os, klv_0601_sensor_fov_name value );
 
 // ----------------------------------------------------------------------------
+/// Source of the navigation positioning information.
+enum KWIVER_ALGO_KLV_EXPORT klv_0601_positioning_method_source_bits
+{
+  KLV_0601_POSITIONING_METHOD_SOURCE_BIT_ON_BOARD_INS,
+  KLV_0601_POSITIONING_METHOD_SOURCE_BIT_GPS,
+  KLV_0601_POSITIONING_METHOD_SOURCE_BIT_GALILEO,
+  KLV_0601_POSITIONING_METHOD_SOURCE_BIT_QZSS,
+  KLV_0601_POSITIONING_METHOD_SOURCE_BIT_NAVIC,
+  KLV_0601_POSITIONING_METHOD_SOURCE_BIT_GLONASS,
+  KLV_0601_POSITIONING_METHOD_SOURCE_BIT_BEIDOU_1,
+  KLV_0601_POSITIONING_METHOD_SOURCE_BIT_BEIDOU_2,
+  KLV_0601_POSITIONING_METHOD_SOURCE_BIT_ENUM_END,
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_positioning_method_source_bits value );
+
+// ----------------------------------------------------------------------------
 /// Miscellaneous boolean values
 enum KWIVER_ALGO_KLV_EXPORT klv_0601_generic_flag_data_bits
 {

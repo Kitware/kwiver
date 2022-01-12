@@ -848,7 +848,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_POSITIONING_METHOD_SOURCE ),
-      std::make_shared< klv_blob_format >( 1 ),
+      std::make_shared< klv_uint_format >( 1 ),
       "Positioning Method Source",
       "Source of the navigation positioning information.",
       { 0, 1 } },
@@ -1000,6 +1000,24 @@ operator<<( std::ostream& os, klv_0601_sensor_fov_name value )
 
   os << strings[ std::min( value, KLV_0601_SENSOR_FOV_NAME_ENUM_END ) ];
   return os;
+}
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_0601_positioning_method_source_bits value)
+{
+  static std::string strings[ KLV_0601_POSITIONING_METHOD_SOURCE_BIT_ENUM_END + 1 ] = {
+    "On-board INS",
+    "GPS",
+    "Galileo",
+    "QZSS",
+    "NAVIC",
+    "GLONASS",
+    "BeiDou-1",
+    "BeiDou-2",
+    "Unknown Positioning Method Source Bit" };
+
+    os << strings[ std::min( value, KLV_0601_POSITIONING_METHOD_SOURCE_BIT_ENUM_END ) ];
+    return os;
 }
 
 // ----------------------------------------------------------------------------
