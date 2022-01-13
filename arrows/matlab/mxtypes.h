@@ -38,14 +38,9 @@ namespace kwiver {
 namespace arrows {
 namespace matlab {
 
-//************************************************************
-///
 /// Traits for fundamental datatypes.
 /// Don't use with function templates due to type promotion!
 /// (Ignore it and get PITA!)
-///
-//************************************************************
-
 
 /// Traits for mxLogical-convertibles.
 template <typename T, typename U = T>
@@ -92,12 +87,7 @@ struct MxArithmeticTy<T, typename std::enable_if<
     (std::is_floating_point<T>::value) || (MxIntTy<T>::value),
     T>::type> : std::true_type {};
 
-//**********************************************
-///
 /// Introducing traits for MATLAB array types.
-///
-//**********************************************
-
 
 typedef struct mxNumeric_tag {} mxNumeric;
 typedef struct mxCell_tag    {} mxCell;
@@ -249,12 +239,7 @@ struct MxTypes<T, typename std::enable_if<
   static const mxComplexity complexity = mxCOMPLEX;
 };
 
-//********************************************
-///
 /// Type traits for function template usage.
-///
-//********************************************
-
 
 // Traits for logical types.
 template <typename T, typename U = T>

@@ -103,8 +103,7 @@ public:
     eval( "detector_initialize()" );
   }
 
-  // --------------------------------------------------------------------------
- instance data -----
+  // --- instance data -----
   matlab_detection_output* m_parent;
   kwiver::vital::logger_handle_t m_logger;
   bool m_first;

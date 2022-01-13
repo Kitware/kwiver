@@ -920,7 +920,6 @@ private:
   ///
   //*************************************************************
 
-
   /// Fundamental numerics.
   template < typename T >
   static mxArray* fromInternal( const typename std::enable_if<
@@ -972,7 +971,6 @@ private:
   ///***          Templated mxArray exporters                 ***
   ///
   //*************************************************************
-
 
   /// Singleton types.
   template < typename T >
