@@ -168,7 +168,9 @@ auto const expected_result = klv_local_set{
       KLV_0102_COUNTRY_CODING_METHOD_GENC_THREE_LETTER,
       std::string{ "CAN" }, kv::nullopt, std::string{ "FRA" } } },
   { KLV_0601_NUMBER_OF_NAVSATS_IN_VIEW,        uint64_t{ 7 } },
-  { KLV_0601_POSITIONING_METHOD_SOURCE,        klv_blob{ { 0x03 } } },
+  { KLV_0601_POSITIONING_METHOD_SOURCE,
+    uint64_t{ 1 << KLV_0601_POSITIONING_METHOD_SOURCE_BIT_ON_BOARD_INS |
+              1 << KLV_0601_POSITIONING_METHOD_SOURCE_BIT_GPS }},
   { KLV_0601_PLATFORM_STATUS,
     KLV_0601_PLATFORM_STATUS_EGRESS },
   { KLV_0601_SENSOR_CONTROL_MODE,
