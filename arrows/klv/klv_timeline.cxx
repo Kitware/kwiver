@@ -38,6 +38,16 @@ klv_timeline::key_t
 }
 
 // ----------------------------------------------------------------------------
+bool
+klv_timeline::key_t
+::operator==( key_t const& other ) const
+{
+  return standard == other.standard &&
+         tag == other.tag &&
+         index == other.index;
+}
+
+// ----------------------------------------------------------------------------
 klv_timeline::iterator
 klv_timeline
 ::begin()
@@ -86,6 +96,14 @@ klv_timeline
 }
 
 // ----------------------------------------------------------------------------
+size_t
+klv_timeline
+::size() const
+{
+  return m_map.size();
+}
+
+// ----------------------------------------------------------------------------
 klv_value
 klv_timeline
 ::at( klv_top_level_tag standard, klv_lds_key tag, uint64_t time ) const
@@ -125,6 +143,7 @@ klv_timeline
   {
     return {};
   }
+
   auto const inner_it = it->second.find( time );
   return ( inner_it != it->second.end() ) ? inner_it->value : klv_value{};
 }
@@ -291,6 +310,97 @@ klv_timeline
 {
   return m_map.emplace( key_t{ standard, tag, index },
                         interval_map_t{} ).first;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_timeline
+::erase( const_iterator it )
+{
+  m_map.erase( it );
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_timeline
+::erase( const_range range )
+{
+  m_map.erase( range.begin(), range.end() );
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator==( klv_timeline const& lhs, klv_timeline const& rhs )
+{
+  return lhs.size() == rhs.size() &&
+         std::equal( lhs.begin(), lhs.end(), rhs.begin() );
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator!=( klv_timeline const& lhs, klv_timeline const& rhs )
+{
+  return !( lhs == rhs );
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os,
+            typename klv_timeline::key_t const& rhs )
+{
+  auto const& trait = klv_lookup_packet_traits().by_tag( rhs.standard );
+  auto const lookup = trait.subtag_lookup();
+  auto const& standard_name = trait.name();
+  auto const tag_name = lookup
+                        ? lookup->by_tag( rhs.tag ).name()
+                        : std::to_string( rhs.tag );
+  os << "{ " << "key: { " << "standard: " << standard_name << ", "
+     << "tag: " << tag_name << ", index: " << rhs.index << " }";
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_timeline const& rhs )
+{
+  os << "{ ";
+
+  auto first_outer = true;
+  for( auto const& entry : rhs )
+  {
+    if( first_outer )
+    {
+      first_outer = false;
+    }
+    else
+    {
+      os << ", ";
+    }
+    os << entry.first << ", value: { ";
+
+    auto first_inner = true;
+    for( auto const& subentry : entry.second )
+    {
+      if( first_inner )
+      {
+        first_inner = false;
+      }
+      else
+      {
+        os << ", ";
+      }
+      os << "{ "
+         << "interval: { "
+         << subentry.key_interval.lower() << ", "
+         << subentry.key_interval.upper() << " }, "
+         << "value: " << subentry.value
+         << " }";
+    }
+    os << " } }";
+  }
+  os << " }";
+
+  return os;
 }
 
 } // namespace klv
