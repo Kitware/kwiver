@@ -8,7 +8,7 @@ Pull Requests
 Integration Branches
 --------------------
 
-There a two primary integration branches named ``release`` and ``master``.
+There are two primary integration branches named ``release`` and ``master``.
 Generally, the ``release`` branch contains that last versioned stable release
 plus a few patches in preparation for the next patch release.  The ``master``
 branch contains new features and API changes since the last release and is
