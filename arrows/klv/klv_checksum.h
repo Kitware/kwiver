@@ -51,6 +51,23 @@ uint16_t
 klv_crc_16_ccitt( Iterator data_begin, Iterator data_end,
                   uint16_t initial_value = 0xFFFF );
 
+// ----------------------------------------------------------------------------
+/// Calculate the CRC-32-MPEG checksum of the given bytes.
+///
+/// The CRC-32-MPEG specification is a 32-bit CRC with the polynomial \c
+/// 0x04C11DB7 and an initial value of \c 0xFFFFFFFF. No special modification
+/// is made to the input data or output CRC.
+///
+/// \param data_begin Iterator to the beginning of a buffer of \c uint8_t.
+/// \param data_end Iterator to the end of a buffer of \c uint8_t.
+///
+/// \return Checksum of the data buffer.
+template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
+uint32_t
+klv_crc_32_mpeg( Iterator data_begin, Iterator data_end,
+                  uint32_t initial_value = 0xFFFFFFFF );
+
 } // namespace klv
 
 } // namespace arrows

@@ -85,16 +85,16 @@ public:
   description() const = 0;
 
   /// Return the checksum value of the given bytes.
-  virtual uint16_t
+  virtual uint32_t
   calculate_checksum( klv_read_iter_t data, size_t length ) const;
 
   /// Extract the written checksum value from the end of the given bytes.
-  virtual uint16_t
+  virtual uint32_t
   read_checksum( klv_read_iter_t data, size_t length ) const;
 
   /// Write the given checksum packet.
   virtual void
-  write_checksum( uint16_t checksum,
+  write_checksum( uint32_t checksum,
                   klv_write_iter_t& data, size_t max_length ) const;
 
   /// Return the length of the checksum packet.

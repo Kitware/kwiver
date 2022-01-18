@@ -1614,7 +1614,7 @@ klv_0601_local_set_format
 }
 
 // ----------------------------------------------------------------------------
-uint16_t
+uint32_t
 klv_0601_local_set_format
 ::calculate_checksum( klv_read_iter_t data, size_t length ) const
 {
@@ -1623,7 +1623,7 @@ klv_0601_local_set_format
 }
 
 // ----------------------------------------------------------------------------
-uint16_t
+uint32_t
 klv_0601_local_set_format
 ::read_checksum( klv_read_iter_t data, size_t length ) const
 {
@@ -1647,7 +1647,7 @@ klv_0601_local_set_format
 // ----------------------------------------------------------------------------
 void
 klv_0601_local_set_format
-::write_checksum( uint16_t checksum,
+::write_checksum( uint32_t checksum,
                   klv_write_iter_t& data, size_t max_length ) const
 {
   if( max_length < checksum_packet_length )
@@ -1656,7 +1656,7 @@ klv_0601_local_set_format
                  "writing checksum packet overflows data buffer" );
   }
   data = std::copy( checksum_header.cbegin(), checksum_header.cend(), data );
-  klv_write_int( checksum, data, 2 );
+  klv_write_int( static_cast< uint16_t >( checksum ), data, 2 );
 }
 
 // ----------------------------------------------------------------------------
