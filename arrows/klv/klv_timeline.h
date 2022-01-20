@@ -36,6 +36,8 @@ public:
     uint64_t index;
 
     bool operator<( key_t const& other ) const;
+
+    bool operator==( key_t const& other ) const;
   };
 
   using interval_t = kwiver::vital::interval< uint64_t >;
@@ -54,6 +56,8 @@ public:
 
   const_iterator cbegin() const;
   const_iterator cend() const;
+
+  size_t size() const;
 
   /// Return the value at the given location, or an empty \c klv_value if no
   /// value exists.
@@ -121,9 +125,32 @@ public:
   iterator insert_or_find( klv_top_level_tag standard, klv_lds_key tag,
                            uint64_t index );
 
+  /// Erase an existing timeline.
+  void erase( const_iterator it );
+
+  /// Erase a range of existing timelines.
+  void erase( const_range range );
+
 private:
   container_t m_map;
 };
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool operator==( klv_timeline const& lhs, klv_timeline const& rhs );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool operator!=( klv_timeline const& lhs, klv_timeline const& rhs );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream& operator<<( std::ostream& os,
+                          typename klv_timeline::key_t const& rhs );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream& operator<<( std::ostream& os, klv_timeline const& rhs );
 
 } // namespace klv
 
