@@ -63,3 +63,20 @@ TEST ( klv, klv_crc_16_ccitt )
   CALL_TEST( test_crc_16_ccitt, 0xE5CC,
              { '1', '2', '3', '4', '5', '6', '7', '8', '9' } );
 }
+
+// ----------------------------------------------------------------------------
+void
+test_crc_32_mpeg( uint32_t checksum, vec_t const& data )
+{
+  EXPECT_EQ( checksum, klv_crc_32_mpeg( data.cbegin(), data.cend() ) );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( klv, klv_crc_32_mpeg )
+{
+  // Verified via https://crccalc.com/
+  CALL_TEST( test_crc_32_mpeg, 0xFFFFFFFF, {} );
+  CALL_TEST( test_crc_32_mpeg, 0x7E4FD274, { 'A' } );
+  CALL_TEST( test_crc_32_mpeg, 0x0376E6E7,
+             { '1', '2', '3', '4', '5', '6', '7', '8', '9' } );
+}

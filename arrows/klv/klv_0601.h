@@ -510,14 +510,14 @@ private:
   read_typed( klv_read_iter_t& data, size_t length ) const override;
 
 
-  uint16_t
+  uint32_t
   calculate_checksum( klv_read_iter_t data, size_t length ) const override;
 
-  uint16_t
+  uint32_t
   read_checksum( klv_read_iter_t data, size_t length ) const override;
 
   void
-  write_checksum( uint16_t checksum,
+  write_checksum( uint32_t checksum,
                   klv_write_iter_t& data, size_t max_length ) const override;
 
   size_t

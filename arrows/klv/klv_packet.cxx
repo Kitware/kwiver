@@ -123,9 +123,9 @@ klv_read_packet( klv_read_iter_t& data, size_t max_length )
   {
     LOG_ERROR( kv::get_logger( "klv" ), std::hex << std::setfill( '0' )
                << "calculated checksum "
-               << "(0x" << std::setw( 4 ) << actual_checksum << ") "
+               << "(0x" << std::setw( 8 ) << actual_checksum << ") "
                << "does not equal checksum contained in packet "
-               << "(0x" << std::setw( 4 ) << expected_checksum << ")" );
+               << "(0x" << std::setw( 8 ) << expected_checksum << ")" );
   }
 
   // Read value

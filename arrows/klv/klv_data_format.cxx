@@ -77,7 +77,7 @@ klv_data_format
 }
 
 // ----------------------------------------------------------------------------
-uint16_t
+uint32_t
 klv_data_format
 ::calculate_checksum( VITAL_UNUSED klv_read_iter_t data,
                       VITAL_UNUSED size_t length ) const
@@ -86,7 +86,7 @@ klv_data_format
 }
 
 // ----------------------------------------------------------------------------
-uint16_t
+uint32_t
 klv_data_format
 ::read_checksum( VITAL_UNUSED klv_read_iter_t data,
                  VITAL_UNUSED size_t length ) const
@@ -97,7 +97,7 @@ klv_data_format
 // ----------------------------------------------------------------------------
 void
 klv_data_format
-::write_checksum( VITAL_UNUSED uint16_t checksum,
+::write_checksum( VITAL_UNUSED uint32_t checksum,
                   VITAL_UNUSED klv_write_iter_t& data,
                   VITAL_UNUSED size_t max_length ) const
 {}
