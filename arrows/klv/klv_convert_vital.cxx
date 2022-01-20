@@ -621,14 +621,14 @@ klv_1108_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
 } // namespace <anonymous>
 
 // ----------------------------------------------------------------------------
-kv::metadata
+kv::metadata_sptr
 klv_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp )
 {
-  kv::metadata result;
-  klv_0102_to_vital_metadata( klv_data, timestamp, result );
-  klv_0104_to_vital_metadata( klv_data, timestamp, result );
-  klv_0601_to_vital_metadata( klv_data, timestamp, result );
-  klv_1108_to_vital_metadata( klv_data, timestamp, result );
+  auto const result = std::make_shared< kv::metadata >();
+  klv_0102_to_vital_metadata( klv_data, timestamp, *result );
+  klv_0104_to_vital_metadata( klv_data, timestamp, *result );
+  klv_0601_to_vital_metadata( klv_data, timestamp, *result );
+  klv_1108_to_vital_metadata( klv_data, timestamp, *result );
   return result;
 }
 

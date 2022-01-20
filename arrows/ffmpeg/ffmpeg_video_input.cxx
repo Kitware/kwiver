@@ -801,11 +801,9 @@ public:
     auto result =
       klv::klv_to_vital_metadata( m_klv_timeline, frame_timestamp );
 
-    auto result_sptr = std::make_shared< kwiver::vital::metadata >( result );
+    set_default_metadata( result );
 
-    set_default_metadata( result_sptr );
-
-    return { result_sptr };
+    return { result };
   }
 
   // --------------------------------------------------------------------------

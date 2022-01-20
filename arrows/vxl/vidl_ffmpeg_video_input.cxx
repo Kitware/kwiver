@@ -216,11 +216,11 @@ public:
     {
       frame_timestamp.set_time_usec( d_frame_time );
     }
-    result.set_timestamp( frame_timestamp );
+    result->set_timestamp( frame_timestamp );
 
-    result.add< kwiver::vital::VITAL_META_VIDEO_URI >( video_path );
+    result->add< kwiver::vital::VITAL_META_VIDEO_URI >( video_path );
 
-    return { std::make_shared< kwiver::vital::metadata >( result ) };
+    return { result };
   }
 
   // -------------------------------------------------------------------------------------
