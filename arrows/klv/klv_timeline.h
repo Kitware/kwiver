@@ -131,6 +131,9 @@ public:
   /// Erase a range of existing timelines.
   void erase( const_range range );
 
+  /// Remove all data from this object.
+  void clear();
+
 private:
   container_t m_map;
 };

@@ -329,6 +329,14 @@ klv_timeline
 }
 
 // ----------------------------------------------------------------------------
+void
+klv_timeline
+::clear()
+{
+  m_map.clear();
+}
+
+// ----------------------------------------------------------------------------
 bool
 operator==( klv_timeline const& lhs, klv_timeline const& rhs )
 {

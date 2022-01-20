@@ -172,6 +172,17 @@ klv_muxer
 // ----------------------------------------------------------------------------
 void
 klv_muxer
+::reset()
+{
+  m_packets.clear();
+  m_frames.clear();
+  m_prev_frame = 0;
+  m_cached_1108.clear();
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_muxer
 ::flush_frame()
 {
   flush_frame_unknown();

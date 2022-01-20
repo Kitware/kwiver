@@ -182,6 +182,15 @@ klv_demuxer
 // ----------------------------------------------------------------------------
 void
 klv_demuxer
+::reset()
+{
+  m_last_timestamp = 0;
+  m_unknown_key_indices.clear();
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_demuxer
 ::demux_unknown( klv_packet const& packet )
 {
   // Keep track of which unknown keys map to which timelines

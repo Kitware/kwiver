@@ -38,6 +38,10 @@ public:
   klv_timeline&
   timeline() const;
 
+  /// Reset the object to a state equivalent to if it had just been constructed.
+  void
+  reset();
+
 private:
   using key_t = typename klv_timeline::key_t;
 
