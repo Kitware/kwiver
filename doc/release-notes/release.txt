@@ -11,7 +11,13 @@ Arrows: Ceres
 
  * Fixed a bug in which the FORCE_COMMON_INTRINSICS option in bundle
    adjustment was not actually forcing intrinsics to be common.
-   
+
+Arrows: FFMPEG
+ * Fixed a bug in which slight variations in presentation timestamps would
+   sometimes cause frames to be skipped while decoding.
+
+ * Fixed a bug in which the video reader would not request any frames at end of
+   video that FFmpeg still had buffered internally.
 
 Arrows: MVG
 
@@ -41,3 +47,8 @@ Vital Algorithms
 
 * Fix potential leak of stream pointers in the base functionality of
   ``write_object_track_set``.
+
+Vital: Logging
+
+ * Fixed an issue in the default logger where leading zeros of fractional
+   seconds were being stripped leading to the printing of the incorrect time.
