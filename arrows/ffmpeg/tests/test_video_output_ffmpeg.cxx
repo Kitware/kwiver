@@ -29,13 +29,13 @@ main( int argc, char** argv )
   return RUN_ALL_TESTS();
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class ffmpeg_video_output : public ::testing::Test
 {
   TEST_ARG( data_dir );
 };
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_output, round_trip )
 {
   auto const src_path = data_dir + "/aphill_short.ts";
@@ -48,6 +48,15 @@ TEST_F ( ffmpeg_video_output, round_trip )
 
   ffmpeg::ffmpeg_video_output os;
   os.open( tmp_path, is.implementation_settings().get() );
+
+  // This will delete the temporary file even if an exception is thrown
+  struct _tmp_file_deleter {
+    ~_tmp_file_deleter() {
+      std::remove( tmp_path.c_str() );
+    }
+
+    std::string tmp_path;
+  } tmp_file_deleter{ tmp_path };
 
   std::map< int64_t, kv::image_container_sptr > src_images;
   std::map< int64_t, kv::image_container_sptr > tmp_images;
