@@ -112,8 +112,8 @@ TEST_F ( ffmpeg_video_output, round_trip )
     }
     error /= src_image.width() * src_image.height() * src_image.depth();
 
-    // Determined experimentally. 6 / 256 is non-negligable compression, but
+    // Determined experimentally. 6.5 / 256 is non-negligable compression, but
     // you can still see what the image is supposed to be
-    EXPECT_LT( error, 6.0 );
+    EXPECT_LT( error, 6.5 );
   }
 }

@@ -36,6 +36,8 @@ public:
 
   void write_remaining_packets();
 
+  int64_t next_video_pts() const;
+
 private:
   friend class ffmpeg_video_output;
 
@@ -115,6 +117,17 @@ ffmpeg_video_output::impl
   avcodec_send_frame( codec_context, nullptr );
 
   while( write_next_packet() ) {}
+}
+
+// ----------------------------------------------------------------------------
+int64_t
+ffmpeg_video_output::impl
+::next_video_pts() const
+{
+  return static_cast< int64_t >(
+    static_cast< double >( frame_count ) *
+    video_stream->time_base.den / video_stream->time_base.num /
+    frame_rate.num * frame_rate.den + 0.5 );
 }
 
 // ----------------------------------------------------------------------------
@@ -313,8 +326,6 @@ void
 ffmpeg_video_output
 ::close()
 {
-  d->codec = nullptr;
-
   if( d->format_context )
   {
     d->write_remaining_packets();
@@ -349,6 +360,8 @@ ffmpeg_video_output
     sws_freeContext( d->image_conversion_context );
     d->image_conversion_context = nullptr;
   }
+
+  d->codec = nullptr;
 
   d->frame_count = 0;
   d->frame_rate = { 0, 1 };
@@ -473,11 +486,7 @@ ffmpeg_video_output
   }
 
   // Try to send image to video encoder
-  converted_frame->pts =
-    static_cast< int64_t >(
-      static_cast< double >( d->frame_count ) *
-      d->video_stream->time_base.den / d->video_stream->time_base.num /
-      d->frame_rate.num * d->frame_rate.den + 0.5 );
+  converted_frame->pts = d->next_video_pts();
 
   if( avcodec_send_frame( d->codec_context, converted_frame ) < 0 )
   {
