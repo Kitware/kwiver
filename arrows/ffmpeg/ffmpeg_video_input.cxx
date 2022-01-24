@@ -75,7 +75,7 @@ public:
   int64_t f_pts;
 
   // MISP timestamp (microseconds)
-  std::map< uint64_t, uint64_t > m_pts_to_misp;
+  std::map< uint64_t, klv::misp_timestamp > m_pts_to_misp;
   uint64_t m_last_klv_timestamp = 0;
 
   // Number of frames to back step when seek fails to land on frame before
@@ -493,15 +493,11 @@ public:
       {
         auto const packet_begin = f_packet->data;
         auto const packet_end = f_packet->data + f_packet->size;
-        auto const misp_it =
-          klv::find_misp_timestamp( packet_begin, packet_end );
+        auto misp_it = klv::find_misp_timestamp( packet_begin, packet_end );
         if( misp_it != packet_end )
         {
           auto const timestamp = klv::read_misp_timestamp( misp_it );
-          if( timestamp )
-          {
-            m_pts_to_misp.emplace( f_packet->pts, timestamp );
-          }
+          m_pts_to_misp.emplace( f_packet->pts, timestamp );
         }
 
         int err =
@@ -790,7 +786,7 @@ public:
       auto const it = m_pts_to_misp.find( f_frame->pts );
       if( it != m_pts_to_misp.end() )
       {
-        frame_timestamp = it->second;
+        frame_timestamp = it->second.timestamp;
       }
     }
     else
