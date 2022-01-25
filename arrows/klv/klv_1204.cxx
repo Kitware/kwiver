@@ -20,46 +20,6 @@ namespace arrows {
 
 namespace klv {
 
-namespace {
-
-// ----------------------------------------------------------------------------
-klv_1204_uuid
-klv_read_uuid( klv_read_iter_t& data, size_t max_length )
-{
-  if( max_length < 16 )
-  {
-    VITAL_THROW( kv::metadata_buffer_overflow,
-                 "reading UUID overflows buffer" );
-  }
-
-  klv_1204_uuid result;
-  std::copy_n( data, 16, result.bytes.begin() );
-  data += 16;
-  return result;
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_write_uuid( klv_1204_uuid const& value, klv_write_iter_t& data,
-                size_t max_length )
-{
-  if( max_length < 16 )
-  {
-    VITAL_THROW( kv::metadata_buffer_overflow,
-                 "writing UUID overflows buffer" );
-  }
-  data = std::copy( value.bytes.begin(), value.bytes.end(), data );
-}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_uuid_length()
-{
-  return 16;
-}
-
-} // namespace
-
 // ----------------------------------------------------------------------------
 std::ostream&
 operator<<( std::ostream& os, klv_1204_device_id_type value )
@@ -76,34 +36,6 @@ operator<<( std::ostream& os, klv_1204_device_id_type value )
 }
 
 // ----------------------------------------------------------------------------
-// Prints like 0123-4567-89AB-CDEF-0123-4567-89AB-CDEF
-std::ostream&
-operator<<( std::ostream& os, klv_1204_uuid const& value )
-{
-  auto const flags = os.flags();
-
-  for( size_t i = 0; i < value.bytes.size(); ++i )
-  {
-    os << std::hex << std::setfill( '0' ) << std::setw( 2 );
-    if( i != 0 && i % 2 == 0 )
-    {
-      os << '-';
-    }
-    os << static_cast< unsigned int >( value.bytes[ i ] );
-  }
-
-  os.flags( flags );
-  return os;
-}
-
-// ----------------------------------------------------------------------------
-DEFINE_STRUCT_CMP(
-  klv_1204_uuid,
-  &klv_1204_uuid::bytes
-)
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
 std::ostream&
 operator<<( std::ostream& os, klv_1204_miis_id const& value )
 {

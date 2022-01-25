@@ -10,15 +10,26 @@
 #include "klv_0102.h"
 #include "klv_0104.h"
 #include "klv_0601.h"
-#include "klv_0806.h"
 #include "klv_0806_aoi_set.h"
 #include "klv_0806_poi_set.h"
 #include "klv_0806_user_defined_set.h"
-#include "klv_1108.h"
+#include "klv_0806.h"
+#include "klv_0903_algorithm_set.h"
+#include "klv_0903_location_pack.h"
+#include "klv_0903_ontology_set.h"
+#include "klv_0903_vchip_set.h"
+#include "klv_0903_vmask_set.h"
+#include "klv_0903_vobject_set.h"
+#include "klv_0903_vtarget_pack.h"
+#include "klv_0903_vtracker_set.h"
+#include "klv_0903_vtrackitem_pack.h"
+#include "klv_0903.h"
 #include "klv_1108_metric_set.h"
+#include "klv_1108.h"
 #include "klv_1204.h"
 #include "klv_blob.h"
 #include "klv_packet.h"
+#include "klv_series.hpp"
 #include "klv_set.h"
 
 #include <vital/util/demangle.h>
@@ -450,6 +461,21 @@ KLV_INSTANTIATE( klv_0806_aoi_type );
 KLV_INSTANTIATE( klv_0806_user_defined_data );
 KLV_INSTANTIATE( klv_0806_user_defined_data_type );
 KLV_INSTANTIATE( klv_0806_user_defined_data_type_id );
+KLV_INSTANTIATE( klv_0903_algorithm_series )
+KLV_INSTANTIATE( klv_0903_detection_status );
+KLV_INSTANTIATE( klv_0903_fpa_index );
+KLV_INSTANTIATE( klv_0903_location_pack );
+KLV_INSTANTIATE( klv_0903_location_series );
+KLV_INSTANTIATE( klv_0903_ontology_series );
+KLV_INSTANTIATE( klv_0903_pixel_run );
+KLV_INSTANTIATE( klv_0903_pixel_run_series );
+KLV_INSTANTIATE( klv_0903_vchip_series );
+KLV_INSTANTIATE( klv_0903_velocity_pack );
+KLV_INSTANTIATE( klv_0903_vobject_series );
+KLV_INSTANTIATE( klv_0903_vtarget_pack );
+KLV_INSTANTIATE( klv_0903_vtarget_series );
+KLV_INSTANTIATE( klv_0903_vtrackitem_pack );
+KLV_INSTANTIATE( klv_0903_vtrackitem_series );
 KLV_INSTANTIATE( klv_1108_assessment_point );
 KLV_INSTANTIATE( klv_1108_compression_profile );
 KLV_INSTANTIATE( klv_1108_compression_type );
@@ -459,7 +485,9 @@ KLV_INSTANTIATE( klv_1108_window_corners_pack );
 KLV_INSTANTIATE( klv_1204_miis_id );
 KLV_INSTANTIATE( klv_blob );
 KLV_INSTANTIATE( klv_local_set );
+KLV_INSTANTIATE( klv_uint_series );
 KLV_INSTANTIATE( klv_universal_set );
+KLV_INSTANTIATE( klv_uuid );
 KLV_INSTANTIATE( std::string );
 KLV_INSTANTIATE( std::vector< klv_packet > );
 KLV_INSTANTIATE( uint64_t );

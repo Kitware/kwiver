@@ -16,6 +16,7 @@ set( sources
   klv_set.cxx
   klv_tag_traits.cxx
   klv_timeline.cxx
+  klv_uuid.cxx
   klv_value.cxx
   klv_0102.cxx
   klv_0104.cxx
@@ -24,6 +25,18 @@ set( sources
   klv_0806_aoi_set.cxx
   klv_0806_poi_set.cxx
   klv_0806_user_defined_set.cxx
+  klv_0903.cxx
+  klv_0903_algorithm_set.cxx
+  klv_0903_location_pack.cxx
+  klv_0903_ontology_set.cxx
+  klv_0903_vchip_set.cxx
+  klv_0903_vfeature_set.cxx
+  klv_0903_vmask_set.cxx
+  klv_0903_vobject_set.cxx
+  klv_0903_vtarget_pack.cxx
+  klv_0903_vtrackitem_pack.cxx
+  klv_0903_vtrack_set.cxx
+  klv_0903_vtracker_set.cxx
   klv_1108.cxx
   klv_1108_metric_set.cxx
   klv_1204.cxx
@@ -37,6 +50,7 @@ set( public_headers
   klv_metadata.h
   klv_muxer.h
   klv_packet.h
+  klv_series.h
   klv_set.h
   klv_timeline.h
   klv_value.h
@@ -47,6 +61,18 @@ set( public_headers
   klv_0806_aoi_set.h
   klv_0806_poi_set.h
   klv_0806_user_defined_set.h
+  klv_0903.h
+  klv_0903_algorithm_set.h
+  klv_0903_location_pack.h
+  klv_0903_ontology_set.h
+  klv_0903_vchip_set.h
+  klv_0903_vfeature_set.h
+  klv_0903_vmask_set.h
+  klv_0903_vobject_set.cxx
+  klv_0903_vtarget_pack.h
+  klv_0903_vtrackitem_pack.cxx
+  klv_0903_vtrack_set.h
+  klv_0903_vtracker_set.h
   klv_1108.h
   klv_1108_metric_set.h
   klv_1204.h

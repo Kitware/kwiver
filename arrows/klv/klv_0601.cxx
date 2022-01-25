@@ -5,6 +5,7 @@
 #include "klv_0601.h"
 
 #include "klv_0806.h"
+#include "klv_0903.h"
 #include "klv_1204.h"
 #include "klv_checksum.h"
 
@@ -527,7 +528,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_VMTI_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0903_local_set_format >(),
       "VMTI Local Set",
       "MISB ST 0903 local set for the video moving target indicator.",
       { 0, 1 } },

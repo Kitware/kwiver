@@ -10,7 +10,7 @@
 
 #include <arrows/klv/kwiver_algo_klv_export.h>
 #include <arrows/klv/klv_packet.h>
-#include <arrows/klv/klv_util.h>
+#include <arrows/klv/klv_uuid.h>
 
 #include <vital/optional.h>
 
@@ -39,29 +39,15 @@ std::ostream&
 operator<<( std::ostream& os, klv_1204_device_id_type value );
 
 // ----------------------------------------------------------------------------
-struct klv_1204_uuid
-{
-  std::array< uint8_t, 16 > bytes;
-};
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-std::ostream&
-operator<<( std::ostream& os, klv_1204_uuid const& value );
-
-// ----------------------------------------------------------------------------
-DECLARE_CMP( klv_1204_uuid )
-
-// ----------------------------------------------------------------------------
 struct KWIVER_ALGO_KLV_EXPORT klv_1204_miis_id
 {
   uint8_t version;
   klv_1204_device_id_type sensor_id_type;
   klv_1204_device_id_type platform_id_type;
-  kwiver::vital::optional< klv_1204_uuid > sensor_id;
-  kwiver::vital::optional< klv_1204_uuid > platform_id;
-  kwiver::vital::optional< klv_1204_uuid > window_id;
-  kwiver::vital::optional< klv_1204_uuid > minor_id;
+  kwiver::vital::optional< klv_uuid > sensor_id;
+  kwiver::vital::optional< klv_uuid > platform_id;
+  kwiver::vital::optional< klv_uuid > window_id;
+  kwiver::vital::optional< klv_uuid > minor_id;
 };
 
 // ----------------------------------------------------------------------------

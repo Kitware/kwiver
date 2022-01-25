@@ -11,6 +11,7 @@
 #include "klv_blob.txx"
 #include "klv_key.h"
 #include "klv_read_write.txx"
+#include "klv_uuid.hpp"
 #include "klv_value.h"
 
 #include <arrows/klv/kwiver_algo_klv_export.h>
@@ -190,6 +191,29 @@ protected:
 
   size_t
   length_of_typed( klv_blob const& value, size_t length_hint ) const override;
+};
+
+// ----------------------------------------------------------------------------
+/// Treats data as a 16-byte UUID
+class KWIVER_ALGO_KLV_EXPORT klv_uuid_format
+  : public klv_data_format_< klv_uuid >
+{
+public:
+  klv_uuid_format();
+
+  std::string
+  description() const override;
+
+protected:
+  klv_uuid
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_uuid const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_uuid const& value, size_t length_hint ) const override;
 };
 
 // ----------------------------------------------------------------------------

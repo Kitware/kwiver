@@ -8,15 +8,22 @@
 #ifndef KWIVER_ARROWS_KLV_KLV_UTIL_H_
 #define KWIVER_ARROWS_KLV_KLV_UTIL_H_
 
+#include <vital/exceptions.h>
 #include <vital/optional.h>
 
+#include <ostream>
 #include <tuple>
+
+#include <cstddef>
 
 namespace kwiver {
 
 namespace arrows {
 
 namespace klv {
+
+// ----------------------------------------------------------------------------
+#define ENUM_AND_NAME( X ) X, #X
 
 // ----------------------------------------------------------------------------
 template < class T >
@@ -108,6 +115,47 @@ bool operator<=( T const& lhs, T const& rhs ) { return tuplize( lhs ) <= tuplize
 bool operator>=( T const& lhs, T const& rhs ) { return tuplize( lhs ) >= tuplize( rhs ); } \
 bool operator==( T const& lhs, T const& rhs ) { return tuplize( lhs ) == tuplize( rhs ); } \
 bool operator!=( T const& lhs, T const& rhs ) { return tuplize( lhs ) != tuplize( rhs ); }
+
+// ----------------------------------------------------------------------------
+template< class T >
+class iterator_tracker {
+public:
+  iterator_tracker( T& it, size_t length )
+    : m_begin( it ), m_length{ length }, m_it( it )
+  {
+    static_assert(
+      std::is_same< typename std::decay< decltype( *it ) >::type,
+                    uint8_t >::value, "iterator must point to uint8_t" );
+  }
+
+  size_t verify( size_t count ) const
+  {
+    if( count > remaining() )
+    {
+      m_it = m_begin;
+      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+                   "tried to read or write past end of data buffer" );
+    }
+    return count;
+  }
+
+  size_t remaining() const
+  {
+    return m_length - std::distance( m_begin, m_it );
+  }
+
+private:
+  T m_begin;
+  size_t m_length;
+  T& m_it;
+};
+
+// ----------------------------------------------------------------------------
+template< class T >
+iterator_tracker< T > track_it( T& it, size_t length )
+{
+  return { it, length };
+}
 
 } // namespace klv
 
