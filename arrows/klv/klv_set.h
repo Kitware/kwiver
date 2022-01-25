@@ -326,6 +326,26 @@ protected:
                             initializer, accumulator );
   }
 
+  std::ostream&
+  print_typed( std::ostream& os, klv_set< Key > const& value,
+               VITAL_UNUSED size_t length_hint ) const override
+  {
+    auto const values = value.fully_sorted();
+    os << "{ ";
+
+    bool first = true;
+    for( auto const pair : values )
+    {
+      auto const& trait =
+        key_traits::tag_traits_from_key( m_traits, pair->first );
+      first = first ? false : ( os << ", ", false );
+      os << trait.name() << ": ";
+      trait.format().print( os, pair->second );
+    }
+    os << " }";
+    return os;
+  }
+
   // Print warnings if tags appear too few or too many times in the given set.
   void
   check_tag_counts( klv_set< Key > const& klv ) const
