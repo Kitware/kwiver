@@ -8,6 +8,7 @@
 #include "data_format.h"
 
 #include <arrows/klv/klv_0601.h>
+#include <arrows/klv/klv_1204.h>
 
 // ----------------------------------------------------------------------------
 int
@@ -130,10 +131,12 @@ auto const expected_result = klv_local_set{
   { KLV_0601_FULL_PLATFORM_ANGLE_OF_ATTACK,    -8.6701769841230370 },
   { KLV_0601_FULL_PLATFORM_SIDESLIP_ANGLE,     -47.683000037299003 },
   { KLV_0601_MIIS_CORE_IDENTIFIER,
-    klv_blob{ {
-      0x01, 0x70, 0xF5, 0x92, 0xF0, 0x23, 0x73, 0x36, 0x4A, 0xF8, 0xAA, 0x91,
-      0x62, 0xC0, 0x0F, 0x2E, 0xB2, 0xDA, 0x16, 0xB7, 0x43, 0x41, 0x00, 0x08,
-      0x41, 0xA0, 0xBE, 0x36, 0x5B, 0x5A, 0xB9, 0x6A, 0x36, 0x45 } } },
+    klv_1204_miis_id{
+      1, KLV_1204_DEVICE_ID_TYPE_PHYSICAL, KLV_1204_DEVICE_ID_TYPE_VIRTUAL,
+      { { 0xF5, 0x92, 0xF0, 0x23, 0x73, 0x36, 0x4A, 0xF8, 0xAA, 0x91, 0x62,
+        0xC0, 0x0F, 0x2E, 0xB2, 0xDA } },
+      { { 0x16, 0xB7, 0x43, 0x41, 0x00, 0x08, 0x41, 0xA0, 0xBE, 0x36, 0x5B,
+        0x5A, 0xB9, 0x6A, 0x36, 0x45 } } } },
   { KLV_0601_SAR_MOTION_IMAGERY_LOCAL_SET,     {} },
   { KLV_0601_TARGET_WIDTH_EXTENDED,             13898.5000000000000 },
   { KLV_0601_RANGE_IMAGE_LOCAL_SET,            {} },
@@ -170,7 +173,7 @@ auto const expected_result = klv_local_set{
   { KLV_0601_NUMBER_OF_NAVSATS_IN_VIEW,        uint64_t{ 7 } },
   { KLV_0601_POSITIONING_METHOD_SOURCE,
     uint64_t{ 1 << KLV_0601_POSITIONING_METHOD_SOURCE_BIT_ON_BOARD_INS |
-              1 << KLV_0601_POSITIONING_METHOD_SOURCE_BIT_GPS }},
+              1 << KLV_0601_POSITIONING_METHOD_SOURCE_BIT_GPS } },
   { KLV_0601_PLATFORM_STATUS,
     KLV_0601_PLATFORM_STATUS_EGRESS },
   { KLV_0601_SENSOR_CONTROL_MODE,
@@ -183,9 +186,10 @@ auto const expected_result = klv_local_set{
   { KLV_0601_TARGET_ID,                        std::string{ "A123" } },
   { KLV_0601_AIRBASE_LOCATIONS,
     klv_0601_airbase_locations{
-      klv_0601_location_dlp{ 38.8418589830398559, -77.0367841720581054, 3.0 },
-      klv_0601_location_dlp{ 38.9393529891967773, -77.4598112106323242, 95.0 }
-      } },
+      klv_0601_location_dlp{
+        38.8418589830398559, -77.0367841720581054, 3.0 },
+      klv_0601_location_dlp{
+        38.9393529891967773, -77.4598112106323242, 95.0 } } },
   { KLV_0601_TAKEOFF_TIME,
     uint64_t{ 1529588637122999 } },
   { KLV_0601_TRANSMISSION_FREQUENCY,            2400.0000000000000 },

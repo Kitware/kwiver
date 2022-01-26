@@ -16,6 +16,7 @@
 #include "klv_0806_user_defined_set.h"
 #include "klv_1108.h"
 #include "klv_1108_metric_set.h"
+#include "klv_1204.h"
 #include "klv_blob.h"
 #include "klv_packet.h"
 
@@ -815,6 +816,7 @@ KLV_INSTANTIATE( klv_0806_user_defined_data_type_id );
 KLV_INSTANTIATE( klv_1108_metric_implementer );
 KLV_INSTANTIATE( klv_1108_metric_period_pack );
 KLV_INSTANTIATE( klv_1108_window_corners_pack );
+KLV_INSTANTIATE( klv_1204_miis_id );
 KLV_INSTANTIATE( klv_blob );
 KLV_INSTANTIATE( klv_local_set );
 KLV_INSTANTIATE( klv_universal_set );
