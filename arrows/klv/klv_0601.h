@@ -495,6 +495,81 @@ private:
 };
 
 // ----------------------------------------------------------------------------
+/// Geographic location
+struct klv_0601_location_dlp
+{
+  double latitude;
+  double longitude;
+  kwiver::vital::optional< double > altitude;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_location_dlp const& value );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator==( klv_0601_location_dlp const& lhs,
+            klv_0601_location_dlp const& rhs );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator<( klv_0601_location_dlp const& lhs,
+           klv_0601_location_dlp const& rhs );
+
+// ----------------------------------------------------------------------------
+/// Geographic location of the take-off site and recovery site.
+struct klv_0601_airbase_locations
+{
+  kwiver::vital::optional< klv_0601_location_dlp > take_off_location;
+  kwiver::vital::optional< klv_0601_location_dlp > recovery_location;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_airbase_locations const& value );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator==( klv_0601_airbase_locations const& lhs,
+            klv_0601_airbase_locations const& rhs );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator<( klv_0601_airbase_locations const& lhs,
+           klv_0601_airbase_locations const& rhs );
+
+// ----------------------------------------------------------------------------
+/// Interprets data as airbase locations.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_airbase_locations_format
+  : public klv_data_format_< klv_0601_airbase_locations >
+{
+public:
+  klv_0601_airbase_locations_format();
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_airbase_locations
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_airbase_locations const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_0601_airbase_locations const& value,
+                   size_t length_hint ) const override;
+};
+
+// ----------------------------------------------------------------------------
 /// Interprets data as a MISB ST0601 local set.
 class KWIVER_ALGO_KLV_EXPORT klv_0601_local_set_format
   : public klv_local_set_format

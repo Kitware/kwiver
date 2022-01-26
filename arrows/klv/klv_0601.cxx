@@ -884,7 +884,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_AIRBASE_LOCATIONS ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_airbase_locations_format >(),
       "Airbase Locations",
       "Geographic location of take-off and recovery site.",
       { 0, 1 } },
@@ -1581,6 +1581,339 @@ klv_0601_country_codes_format
          length_of_operator_country +
          length_of_length_of_country_of_manufacture +
          length_of_country_of_manufacture;
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_0601_location_dlp const& value )
+{
+  return
+    os << "{ "
+       << "latitude: "
+       << value.latitude
+       << ", "
+       << "longitude: "
+       << value.longitude
+       << ", "
+       << "altitude: "
+       << ( value.altitude
+            ? std::to_string( *value.altitude )
+            : std::string( "(empty)" ) )
+       << " }";
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator==( klv_0601_location_dlp const& lhs,
+            klv_0601_location_dlp const& rhs )
+{
+  return ( lhs.latitude == rhs.latitude &&
+           lhs.longitude == rhs.longitude &&
+           lhs.altitude == rhs.altitude );
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator<( klv_0601_location_dlp const& lhs,
+           klv_0601_location_dlp const& rhs )
+{
+  if( lhs.latitude < rhs.latitude )
+  {
+    return true;
+  }
+  else if( lhs.latitude > rhs.latitude )
+  {
+    return false;
+  }
+
+  if( lhs.longitude < rhs.longitude )
+  {
+    return true;
+  }
+  else if( lhs.longitude > rhs.longitude )
+  {
+    return false;
+  }
+
+  if( lhs.altitude < rhs.altitude )
+  {
+    return true;
+  }
+  else if( lhs.altitude > rhs.altitude )
+  {
+    return false;
+  }
+
+  return false;
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_0601_airbase_locations const& value )
+{
+  os << "{ "
+     << "take-off: "
+     << *value.take_off_location
+     << ", "
+     << "recovery: ";
+  if( value.recovery_location )
+  {
+    os << *value.recovery_location;
+  }
+  else
+  {
+    os << "(empty)";
+  }
+  os << " }";
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator==( klv_0601_airbase_locations const& lhs,
+            klv_0601_airbase_locations const& rhs )
+{
+  return ( lhs.take_off_location == rhs.take_off_location &&
+           lhs.recovery_location == rhs.recovery_location );
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator<( klv_0601_airbase_locations const& lhs,
+           klv_0601_airbase_locations const& rhs )
+{
+  // Take off location
+  if( lhs.take_off_location < rhs.take_off_location )
+  {
+    return true;
+  }
+  else if( lhs.take_off_location > rhs.take_off_location )
+  {
+    return false;
+  }
+
+  // Recovery location
+  if( lhs.recovery_location < rhs.recovery_location )
+  {
+    return true;
+  }
+  else if( lhs.recovery_location > rhs.recovery_location )
+  {
+    return false;
+  }
+
+  return false;
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_airbase_locations_format
+::klv_0601_airbase_locations_format()
+  : klv_data_format_< klv_0601_airbase_locations >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_airbase_locations_format
+::description() const
+{
+  return "airbase locations pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_airbase_locations
+klv_0601_airbase_locations_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  klv_0601_airbase_locations result = { };
+  auto const begin = data;
+  auto const remaining_length = [ & ]() -> size_t {
+                                  return length - std::distance( begin, data );
+                                };
+
+  // Read take-off location
+  auto const length_of_take_off_location =
+    klv_read_ber< size_t >( data, remaining_length() );
+  if( length_of_take_off_location )
+  {
+    // Take-off location is set
+    result.take_off_location = klv_0601_location_dlp{};
+
+    result.take_off_location->latitude =
+      klv_read_imap( -90.0, 90.0, data, 4 );
+    result.take_off_location->longitude =
+      klv_read_imap( -180.0, 180.0, data, 4 );
+    // Altitude is not required
+    if( length_of_take_off_location > 8 )
+    {
+      // Altitude is set
+      result.take_off_location->altitude =
+        klv_read_imap( -900.0, 9000.0, data, length_of_take_off_location - 8 );
+    }
+  }
+
+  if( !remaining_length() )
+  {
+    // Recovery location is not included, set equal to take-off location
+    result.recovery_location = result.take_off_location;
+    return result;
+  }
+
+  // Read recovery location
+  auto const length_of_recovery_location =
+    klv_read_ber< size_t >( data, remaining_length() );
+  // Recovery location is included
+  if( length_of_recovery_location )
+  {
+    // Recovery location is set
+    result.recovery_location = klv_0601_location_dlp{};
+
+    result.recovery_location->latitude =
+      klv_read_imap( -90.0, 90.0, data, 4 );
+    result.recovery_location->longitude =
+      klv_read_imap( -180.0, 180.0, data, 4 );
+    // Altitude is not required
+    if( length_of_recovery_location > 8 )
+    {
+      // Altitude is set
+      result.recovery_location->altitude =
+        klv_read_imap( -900.0, 9000.0, data, length_of_take_off_location - 8 );
+    }
+  }
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_airbase_locations_format
+::write_typed( klv_0601_airbase_locations const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const begin = data;
+  auto const remaining_length = [ & ]() -> size_t {
+                                  return length - std::distance( begin, data );
+                                };
+
+  // Write take-off location
+  if( value.take_off_location )
+  {
+    // Take-off location is set
+    // Latitude (4) and longitude (4) are required, altitude (3) is optional
+    size_t const length_of_take_off_location =
+      8 + ( ( value.take_off_location->altitude ) ? 3 : 0 );
+
+    if( length_of_take_off_location <= remaining_length() )
+    {
+      klv_write_ber( length_of_take_off_location, data, remaining_length() );
+      klv_write_imap( value.take_off_location->latitude,
+                      -90.0, 90.0,
+                      data, 4 );
+      klv_write_imap( value.take_off_location->longitude,
+                      -180.0, 180.0,
+                      data, 4 );
+      if( value.take_off_location->altitude )
+      {
+        klv_write_imap( *value.take_off_location->altitude,
+                        -900.0, 9000.0,
+                        data, 3 );
+      }
+    }
+  }
+  else
+  {
+    // Take-off location is not set
+    klv_write_ber< size_t >( 0, data, remaining_length() );
+  }
+
+  // Write recovery location
+  if( !remaining_length() )
+  {
+    // Recovery location is not included
+    return;
+  }
+
+  if( value.recovery_location )
+  {
+    // Recovery location is set
+    if( value.recovery_location == value.take_off_location )
+    {
+      // Locations are the same, truncate the recovery location
+      return;
+    }
+
+    // Latitude (4) and longitude (4) are required, altitude (3) is optional
+    size_t const length_of_recovery_location =
+      8 + ( ( value.recovery_location->altitude ) ? 3 : 0 );
+
+    if( length_of_recovery_location <= remaining_length() )
+    {
+      klv_write_ber( length_of_recovery_location, data, remaining_length() );
+      klv_write_imap( value.recovery_location->latitude,
+                      -90.0, 90.0,
+                      data, 4 );
+      klv_write_imap( value.recovery_location->longitude,
+                      -180.0, 180.0,
+                      data, 4 );
+      if( value.recovery_location->altitude )
+      {
+        klv_write_imap( *value.recovery_location->altitude,
+                        -900.0, 9000.0,
+                        data, 3 );
+      }
+    }
+  }
+  else
+  {
+    // Recovery location is not set
+    klv_write_ber< size_t >( 0, data, remaining_length() );
+  }
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_airbase_locations_format
+::length_of_typed( klv_0601_airbase_locations const& value,
+                   size_t length_hint ) const
+{
+  // Take-off location
+  size_t length_of_take_off_location = 0;
+  if( value.take_off_location )
+  {
+    // Latitude and longitude are required, altitude is not
+    length_of_take_off_location =
+      value.take_off_location->altitude
+      ? ( 4 + 4 + 3 ) // Latitude + longitude + altitude
+      : ( 4 + 4 ); // Latitude + longitude;
+  }
+
+  auto length_of_length_of_take_off_location =
+    klv_ber_length( length_of_take_off_location );
+
+  // Recovery location
+  size_t length_of_recovery_location = 0;
+  if( value.recovery_location  )
+  {
+    // Latitude and longitude are required, altitude is not
+    length_of_recovery_location =
+      value.recovery_location->altitude
+      ? ( 4 + 4 + 3 ) // Latitude + longitude + altitude
+      : ( 4 + 4 ); // Latitude + longitude
+  }
+
+  auto length_of_length_of_recovery_location =
+    klv_ber_length( length_of_recovery_location );
+
+  if( value.recovery_location == value.take_off_location )
+  {
+    // Recovery is truncated
+    length_of_length_of_recovery_location = 0;
+    length_of_recovery_location = 0;
+  }
+
+  return length_of_length_of_take_off_location +
+         length_of_take_off_location +
+         length_of_length_of_recovery_location +
+         length_of_take_off_location;
 }
 
 // ----------------------------------------------------------------------------

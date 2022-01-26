@@ -182,10 +182,10 @@ auto const expected_result = klv_local_set{
       0x4E, 0x4E, 0x49, 0x52 } } },
   { KLV_0601_TARGET_ID,                        std::string{ "A123" } },
   { KLV_0601_AIRBASE_LOCATIONS,
-    klv_blob{ {
-      0x0B, 0x40, 0x6B, 0xC2, 0x09, 0x19, 0xBD, 0xA5, 0x54, 0x07, 0x0E, 0x00,
-      0x0B, 0x40, 0x78, 0x3C, 0xB8, 0x19, 0xA2, 0x92, 0x74, 0x07, 0xC6, 0x00,
-    } } },
+    klv_0601_airbase_locations{
+      klv_0601_location_dlp{ 38.8418589830398559, -77.0367841720581054, 3.0 },
+      klv_0601_location_dlp{ 38.9393529891967773, -77.4598112106323242, 95.0 }
+      } },
   { KLV_0601_TAKEOFF_TIME,
     uint64_t{ 1529588637122999 } },
   { KLV_0601_TRANSMISSION_FREQUENCY,            2400.0000000000000 },
