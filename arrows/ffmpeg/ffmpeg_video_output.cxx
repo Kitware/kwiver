@@ -24,6 +24,7 @@ namespace arrows {
 
 namespace ffmpeg {
 
+// ----------------------------------------------------------------------------
 class ffmpeg_video_output::impl
 {
 public:
@@ -52,6 +53,7 @@ private:
   AVRational frame_rate;
 };
 
+// ----------------------------------------------------------------------------
 ffmpeg_video_output::impl
 ::impl()
   : format_context{ nullptr },
@@ -68,8 +70,10 @@ ffmpeg_video_output::impl
   ffmpeg_init();
 }
 
+// ----------------------------------------------------------------------------
 ffmpeg_video_output::impl::~impl() {}
 
+// ----------------------------------------------------------------------------
 bool
 ffmpeg_video_output::impl
 ::write_next_packet()
@@ -103,6 +107,7 @@ ffmpeg_video_output::impl
   return true;
 }
 
+// ----------------------------------------------------------------------------
 void
 ffmpeg_video_output::impl
 ::write_remaining_packets()
@@ -113,6 +118,7 @@ ffmpeg_video_output::impl
   while( write_next_packet() ) {}
 }
 
+// ----------------------------------------------------------------------------
 ffmpeg_video_output
 ::ffmpeg_video_output() : d{ new impl{} }
 {
@@ -124,11 +130,13 @@ ffmpeg_video_output
   set_capability( kv::algo::video_output::SUPPORTS_METADATA, true );
 }
 
+// ----------------------------------------------------------------------------
 ffmpeg_video_output::~ffmpeg_video_output()
 {
   close();
 }
 
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 ffmpeg_video_output
 ::get_configuration() const
@@ -138,6 +146,7 @@ ffmpeg_video_output
   return config;
 }
 
+// ----------------------------------------------------------------------------
 void
 ffmpeg_video_output
 ::set_configuration( kv::config_block_sptr config )
@@ -147,6 +156,7 @@ ffmpeg_video_output
   existing_config->merge_config( config );
 }
 
+// ----------------------------------------------------------------------------
 bool
 ffmpeg_video_output
 ::check_configuration( kv::config_block_sptr config ) const
@@ -155,6 +165,7 @@ ffmpeg_video_output
   return true;
 }
 
+// ----------------------------------------------------------------------------
 void
 ffmpeg_video_output
 ::open(
@@ -249,7 +260,7 @@ ffmpeg_video_output
                  d->output_format->long_name + "` does not support video" );
   }
 
-  d->video_stream = avformat_new_stream( d->format_context, nullptr );
+  d->video_stream = avformat_new_stream( d->format_context, d->codec );
   if( !d->video_stream )
   {
     VITAL_THROW( kv::video_runtime_exception,
@@ -297,10 +308,13 @@ ffmpeg_video_output
   d->frame_rate = settings->frame_rate;
 }
 
+// ----------------------------------------------------------------------------
 void
 ffmpeg_video_output
 ::close()
 {
+  d->codec = nullptr;
+
   if( d->format_context )
   {
     d->write_remaining_packets();
@@ -340,6 +354,7 @@ ffmpeg_video_output
   d->frame_rate = { 0, 1 };
 }
 
+// ----------------------------------------------------------------------------
 bool
 ffmpeg_video_output
 ::good() const
@@ -347,6 +362,7 @@ ffmpeg_video_output
   return d->format_context;
 }
 
+// ----------------------------------------------------------------------------
 void
 ffmpeg_video_output
 ::add_image( kv::image_container_sptr const& image,
@@ -485,6 +501,7 @@ ffmpeg_video_output
   ++d->frame_count;
 }
 
+// ----------------------------------------------------------------------------
 void
 ffmpeg_video_output
 ::add_metadata( kwiver::vital::metadata_sptr const& md )
