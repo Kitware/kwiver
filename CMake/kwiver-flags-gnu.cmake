@@ -108,12 +108,13 @@ endif ()
 ## only in debug mode/config
 OPTION(KWIVER_CPP_COVERAGE "Build with coverage testing" OFF)
 mark_as_advanced(KWIVER_CPP_COVERAGE)
-if (KWIVER_CPP_COVERAGE   AND   CMAKE_BUILD_TYPE EQUAL "DEBUG")
+if (KWIVER_CPP_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
   kwiver_check_compiler_flag(-O0)
   kwiver_check_compiler_flag(-pg)
   kwiver_check_compiler_flag(-ftest-coverage)
-  # It seems as though the flag isn't detected alone.
-  kwiver_check_compiler_flag(-fprofile-arcs)
+  # -fprofile-arcs doesn't work with the cmake compiler flag check macro
+  add_compile_options(-fprofile-arcs)
+  add_link_options(-lgcov --coverage)
 endif ()
 
 # GCC Flag used for stripping binaries of any unused symbols
