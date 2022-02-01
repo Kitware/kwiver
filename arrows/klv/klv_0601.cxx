@@ -4,6 +4,7 @@
 
 #include "klv_0601.h"
 
+#include "klv_0806.h"
 #include "klv_checksum.h"
 
 #include <vital/logger/logger.h>
@@ -519,7 +520,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_RVT_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0806_local_set_format >(),
       "RVT Local Set",
       "MISB ST 0806 local set for remote video terminals.",
       { 0, 1 } },

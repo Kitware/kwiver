@@ -20,6 +20,10 @@ set( sources
   klv_0102.cxx
   klv_0104.cxx
   klv_0601.cxx
+  klv_0806.cxx
+  klv_0806_aoi_set.cxx
+  klv_0806_poi_set.cxx
+  klv_0806_user_defined_set.cxx
   klv_1108.cxx
   klv_1108_metric_set.cxx
   misp_time.cxx
@@ -38,6 +42,10 @@ set( public_headers
   klv_0102.h
   klv_0104.h
   klv_0601.h
+  klv_0806.h
+  klv_0806_aoi_set.h
+  klv_0806_poi_set.h
+  klv_0806_user_defined_set.h
   klv_1108.h
   klv_1108_metric_set.h
   misp_time.h

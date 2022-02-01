@@ -10,6 +10,10 @@
 #include "klv_0102.h"
 #include "klv_0104.h"
 #include "klv_0601.h"
+#include "klv_0806.h"
+#include "klv_0806_aoi_set.h"
+#include "klv_0806_poi_set.h"
+#include "klv_0806_user_defined_set.h"
 #include "klv_1108.h"
 #include "klv_1108_metric_set.h"
 #include "klv_blob.h"
@@ -440,6 +444,10 @@ KLV_INSTANTIATE( klv_0601_operational_mode );
 KLV_INSTANTIATE( klv_0601_platform_status );
 KLV_INSTANTIATE( klv_0601_sensor_control_mode );
 KLV_INSTANTIATE( klv_0601_sensor_fov_name );
+KLV_INSTANTIATE( klv_0806_aoi_type );
+KLV_INSTANTIATE( klv_0806_user_defined_data );
+KLV_INSTANTIATE( klv_0806_user_defined_data_type );
+KLV_INSTANTIATE( klv_0806_user_defined_data_type_id );
 KLV_INSTANTIATE( klv_1108_assessment_point );
 KLV_INSTANTIATE( klv_1108_compression_profile );
 KLV_INSTANTIATE( klv_1108_compression_type );
