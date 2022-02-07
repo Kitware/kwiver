@@ -11,8 +11,8 @@
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
 #include "klv_0102.h"
-#include "klv_set.h"
 #include "klv_packet.h"
+#include "klv_set.h"
 
 #include "vital/optional.h"
 
@@ -570,6 +570,60 @@ private:
 };
 
 // ----------------------------------------------------------------------------
+/// Specifies the domain of values for
+/// Relative Sensor Azimuth, Elevation and Roll Angles
+struct klv_0601_view_domain
+{
+  klv_value azimuth_start;
+  klv_value azimuth_range;
+  klv_value elevation_start;
+  klv_value elevation_range;
+  klv_value roll_start;
+  klv_value roll_range;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_view_domain const& value );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator==( klv_0601_view_domain const& lhs,
+            klv_0601_view_domain const& rhs );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator<( klv_0601_view_domain const& lhs,
+           klv_0601_view_domain const& rhs );
+
+// ---------------------------------------------------------------------------
+/// Interprets data as view domain
+class KWIVER_ALGO_KLV_EXPORT klv_0601_view_domain_format
+  : public klv_data_format_< klv_0601_view_domain >
+{
+public:
+  klv_0601_view_domain_format();
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_view_domain
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_view_domain const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_0601_view_domain const& value,
+                   size_t length_hint ) const override;
+};
+
+// ----------------------------------------------------------------------------
 /// Interprets data as a MISB ST0601 local set.
 class KWIVER_ALGO_KLV_EXPORT klv_0601_local_set_format
   : public klv_local_set_format
@@ -583,7 +637,6 @@ public:
 private:
   klv_local_set
   read_typed( klv_read_iter_t& data, size_t length ) const override;
-
 
   uint32_t
   calculate_checksum( klv_read_iter_t data, size_t length ) const override;

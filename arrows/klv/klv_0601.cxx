@@ -961,7 +961,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_VIEW_DOMAIN ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_view_domain_format >(),
       "View Domain",
       "Specifies range of possible sensor relative azimuth, elevation, and "
       "roll values.",
@@ -1003,11 +1003,13 @@ operator<<( std::ostream& os, klv_0601_sensor_fov_name value )
   os << strings[ std::min( value, KLV_0601_SENSOR_FOV_NAME_ENUM_END ) ];
   return os;
 }
+
 // ----------------------------------------------------------------------------
 std::ostream&
-operator<<( std::ostream& os, klv_0601_positioning_method_source_bits value)
+operator<<( std::ostream& os, klv_0601_positioning_method_source_bits value )
 {
-  static std::string strings[ KLV_0601_POSITIONING_METHOD_SOURCE_BIT_ENUM_END + 1 ] = {
+  static std::string strings[ KLV_0601_POSITIONING_METHOD_SOURCE_BIT_ENUM_END +
+                              1 ] = {
     "On-board INS",
     "GPS",
     "Galileo",
@@ -1018,8 +1020,10 @@ operator<<( std::ostream& os, klv_0601_positioning_method_source_bits value)
     "BeiDou-2",
     "Unknown Positioning Method Source Bit" };
 
-    os << strings[ std::min( value, KLV_0601_POSITIONING_METHOD_SOURCE_BIT_ENUM_END ) ];
-    return os;
+  os <<
+    strings[ std::min( value,
+                       KLV_0601_POSITIONING_METHOD_SOURCE_BIT_ENUM_END ) ];
+  return os;
 }
 
 // ----------------------------------------------------------------------------
@@ -1107,8 +1111,8 @@ operator<<( std::ostream& os, klv_0601_control_command const& value )
   return os << "{ " << "ID: " << value.id
             << ", String: \"" << value.string
             << "\", Timestamp: " << ( value.timestamp
-                                      ? std::to_string( value.timestamp )
-                                      : "(empty)" )
+                                  ? std::to_string( value.timestamp )
+                                  : "(empty)" )
             << " }";
 }
 
@@ -1161,8 +1165,8 @@ klv_0601_control_command_format
   klv_0601_control_command result;
   auto const begin = data;
   auto const remaining_length = [ & ]() -> size_t {
-                                  return length - std::distance( begin, data );
-                                };
+                            return length - std::distance( begin, data );
+                          };
   result.id = klv_read_ber_oid< uint16_t >( data, remaining_length() );
 
   auto const length_of_string =
@@ -1200,8 +1204,8 @@ klv_0601_control_command_format
 {
   auto const begin = data;
   auto const remaining_length = [ & ]() -> size_t {
-                                  return length - std::distance( begin, data );
-                                };
+                            return length - std::distance( begin, data );
+                          };
   klv_write_ber_oid( value.id, data, remaining_length() );
 
   auto const length_of_string = klv_string_length( value.string );
@@ -1246,7 +1250,8 @@ operator<<( std::ostream& os, klv_0601_frame_rate const& value )
   {
     return os << value.numerator;
   }
-  if( value.denominator == 0 ) {
+  if( value.denominator == 0 )
+  {
     return os << "(invalid)";
   }
   return os << std::fixed << std::setprecision( 3 )
@@ -1288,8 +1293,8 @@ klv_0601_frame_rate_format
   klv_0601_frame_rate result;
   auto const begin = data;
   auto const remaining_length = [ & ]() -> size_t {
-                                  return length - std::distance( begin, data );
-                                };
+                            return length - std::distance( begin, data );
+                          };
   result.numerator = klv_read_ber_oid< uint32_t >( data, remaining_length() );
   result.denominator =
     remaining_length()
@@ -1305,8 +1310,8 @@ klv_0601_frame_rate_format
 {
   auto const begin = data;
   auto const remaining_length = [ & ]() -> size_t {
-                                  return length - std::distance( begin, data );
-                                };
+                            return length - std::distance( begin, data );
+                          };
   klv_write_ber_oid( value.numerator, data, remaining_length() );
   if( value.denominator != 1 )
   {
@@ -1344,18 +1349,18 @@ operator<<( std::ostream& os, klv_0601_country_codes const& value )
        << ", "
        << "overflight country: "
        << ( value.overflight_country
-            ? *value.overflight_country
-            : "(empty)" )
+        ? *value.overflight_country
+        : "(empty)" )
        << ", "
        << "operator country: "
        << ( value.operator_country
-            ? *value.operator_country
-            : "(empty)" )
+        ? *value.operator_country
+        : "(empty)" )
        << ", "
        << "country of manufacture: "
        << ( value.country_of_manufacture
-            ? *value.country_of_manufacture
-            : "(empty)" )
+        ? *value.country_of_manufacture
+        : "(empty)" )
        << " }";
 }
 
@@ -1424,8 +1429,8 @@ klv_0601_country_codes_format
   klv_0601_country_codes result = {};
   auto const begin = data;
   auto const remaining_length = [ & ]() -> size_t {
-                                  return length - std::distance( begin, data );
-                                };
+                            return length - std::distance( begin, data );
+                          };
 
   // Read coding method
   auto const length_of_coding_method =
@@ -1451,6 +1456,7 @@ klv_0601_country_codes_format
     // The last two country codes have been omitted
     return result;
   }
+
   auto const length_of_operator_country =
     klv_read_ber< size_t >( data, remaining_length() );
   if( length_of_operator_country )
@@ -1466,6 +1472,7 @@ klv_0601_country_codes_format
     // The last country code has been omitted
     return result;
   }
+
   auto const length_of_country_of_manufacture =
     klv_read_ber< size_t >( data, remaining_length() );
   if( length_of_country_of_manufacture )
@@ -1486,8 +1493,8 @@ klv_0601_country_codes_format
 {
   auto const begin = data;
   auto const remaining_length = [ & ]() -> size_t {
-                                  return length - std::distance( begin, data );
-                                };
+                            return length - std::distance( begin, data );
+                          };
 
   // Write coding method
   size_t const length_of_coding_method = 1;
@@ -1541,7 +1548,7 @@ klv_0601_country_codes_format
 size_t
 klv_0601_country_codes_format
 ::length_of_typed( klv_0601_country_codes const& value,
-                  size_t length_hint ) const
+                   size_t length_hint ) const
 {
   // Cannot be omitted
   size_t const length_of_coding_method = 1;
@@ -1599,8 +1606,8 @@ operator<<( std::ostream& os, klv_0601_location_dlp const& value )
        << ", "
        << "altitude: "
        << ( value.altitude
-            ? std::to_string( *value.altitude )
-            : std::string( "(empty)" ) )
+        ? std::to_string( *value.altitude )
+        : std::string( "(empty)" ) )
        << " }";
 }
 
@@ -1726,11 +1733,11 @@ klv_0601_airbase_locations
 klv_0601_airbase_locations_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
-  klv_0601_airbase_locations result = { };
+  klv_0601_airbase_locations result = {};
   auto const begin = data;
   auto const remaining_length = [ & ]() -> size_t {
-                                  return length - std::distance( begin, data );
-                                };
+                            return length - std::distance( begin, data );
+                          };
 
   // Read take-off location
   auto const length_of_take_off_location =
@@ -1793,8 +1800,8 @@ klv_0601_airbase_locations_format
 {
   auto const begin = data;
   auto const remaining_length = [ & ]() -> size_t {
-                                  return length - std::distance( begin, data );
-                                };
+                            return length - std::distance( begin, data );
+                          };
 
   // Write take-off location
   if( value.take_off_location )
@@ -1893,7 +1900,7 @@ klv_0601_airbase_locations_format
 
   // Recovery location
   size_t length_of_recovery_location = 0;
-  if( value.recovery_location  )
+  if( value.recovery_location )
   {
     // Latitude and longitude are required, altitude is not
     length_of_recovery_location =
@@ -1919,13 +1926,319 @@ klv_0601_airbase_locations_format
 }
 
 // ----------------------------------------------------------------------------
+/// Specifies the domain of values for
+/// Relative Sensor Azimuth, Elevation and Roll Angles
+std::ostream&
+operator<<( std::ostream& os, klv_0601_view_domain const& value )
+{
+  return
+    os << "{ "
+       << "azimuth start: "
+       << value.azimuth_start
+       << ", "
+       << "azimuth range: "
+       << value.azimuth_range
+       << ", "
+       << "elevation start: "
+       << value.elevation_start
+       << ", "
+       << "elevation range: "
+       << value.elevation_range
+       << ", "
+       << "roll start: "
+       << value.roll_start
+       << ", "
+       << "roll range: "
+       << value.roll_range
+       << " }";
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator==( klv_0601_view_domain const& lhs,
+            klv_0601_view_domain const& rhs )
+{
+  return ( lhs.azimuth_start == rhs.azimuth_start &&
+           lhs.azimuth_range == rhs.azimuth_range &&
+           lhs.elevation_start == rhs.elevation_start &&
+           lhs.elevation_range == rhs.elevation_range &&
+           lhs.roll_start == rhs.roll_start &&
+           lhs.roll_range == rhs.roll_range );
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator<( klv_0601_view_domain const& lhs,
+           klv_0601_view_domain const& rhs )
+{
+  // Azimuth
+  if( lhs.azimuth_start < rhs.azimuth_start )
+  {
+    return true;
+  }
+  else if( rhs.azimuth_start < lhs.azimuth_start )
+  {
+    return false;
+  }
+
+  if( lhs.azimuth_range < rhs.azimuth_range )
+  {
+    return true;
+  }
+  else if( rhs.azimuth_range < lhs.azimuth_range )
+  {
+    return false;
+  }
+
+  // Elevation
+  if( lhs.elevation_start < rhs.elevation_start )
+  {
+    return true;
+  }
+  else if( rhs.elevation_start < lhs.elevation_start )
+  {
+    return false;
+  }
+
+  if( lhs.elevation_range < rhs.elevation_range )
+  {
+    return true;
+  }
+  else if( rhs.elevation_range < lhs.elevation_range )
+  {
+    return false;
+  }
+
+  // Roll
+  if( lhs.roll_start < rhs.roll_start )
+  {
+    return true;
+  }
+  else if( rhs.roll_start < lhs.roll_start )
+  {
+    return false;
+  }
+
+  if( lhs.roll_range < rhs.roll_range )
+  {
+    return true;
+  }
+  else if( rhs.roll_range < lhs.roll_range )
+  {
+    return false;
+  }
+
+  return false;
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_view_domain_format
+::klv_0601_view_domain_format()
+  : klv_data_format_< klv_0601_view_domain >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_view_domain_format
+::description() const
+{
+  return "view domain pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_view_domain
+klv_0601_view_domain_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  klv_0601_view_domain result = {};
+  auto const begin = data;
+  auto const remaining_length = [ & ]() -> size_t {
+                            return length - std::distance( begin, data );
+                          };
+
+  // Read azimuth
+  auto const length_of_azimuth =
+    klv_read_ber< size_t >( data, remaining_length() );
+
+  if( length_of_azimuth )
+  {
+    auto const azimuth_value_length = length_of_azimuth / 2;
+    result.azimuth_start = klv_value{
+      klv_read_imap( 0.0, 360.0, data, azimuth_value_length ),
+      azimuth_value_length };
+    result.azimuth_range = klv_value{
+      klv_read_imap( 0.0, 360.0, data, azimuth_value_length ),
+      azimuth_value_length };
+  }
+
+  // Read elevation
+  if( !remaining_length() )
+  {
+    return result;
+  }
+
+  auto const length_of_elevation =
+    klv_read_ber< size_t >( data, remaining_length() );
+
+  if( length_of_elevation )
+  {
+    auto const elevation_value_length = length_of_elevation / 2;
+    result.elevation_start = klv_value{
+      klv_read_imap( -180.0, 180.0, data, elevation_value_length ),
+      elevation_value_length };
+    result.elevation_range = klv_value{
+      klv_read_imap( 0.0, 360.0, data, elevation_value_length ),
+      elevation_value_length };
+  }
+
+  // Read roll
+  if( !remaining_length() )
+  {
+    return result;
+  }
+
+  auto const length_of_roll =
+    klv_read_ber< size_t >( data, remaining_length() );
+
+  if( length_of_roll )
+  {
+    auto const roll_value_length = length_of_roll / 2;
+    result.roll_start = klv_value{
+      klv_read_imap( 0.0, 360.0, data, roll_value_length ),
+      roll_value_length };
+    result.roll_range = klv_value{
+      klv_read_imap( 0.0, 360.0, data, roll_value_length ),
+      roll_value_length };
+  }
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_view_domain_format
+::write_typed( klv_0601_view_domain const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const begin = data;
+  auto const remaining_length = [ & ]() -> size_t {
+                            return length - std::distance( begin, data );
+                          };
+  auto const write_elements =
+    [ & ]( klv_value const& element_start, klv_value const& element_range,
+           double min, double max ){
+    size_t const length_of_elements =
+      element_start.length_hint()
+      ? ( element_start.length_hint() * 2 )
+      : ( 4 * 2 );
+    if( length_of_elements <= remaining_length() )
+    {
+      size_t const element_length = length_of_elements / 2;
+      klv_write_ber( length_of_elements, data, remaining_length() );
+      klv_write_imap( element_start.get< double >(),
+                      min, max, data, element_length );
+      klv_write_imap( element_range.get< double >(),
+                      0.0, 360.0, data, element_length );
+    }
+    else
+    {
+      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+                   "writing view domain overflows buffer" );
+    }
+  };
+
+  // Write azimuth
+  if( !value.azimuth_start.empty() && !value.azimuth_range.empty() )
+  {
+    write_elements( value.azimuth_start, value.azimuth_range, 0.0, 360.0 );
+  }
+  else
+  {
+    klv_write_ber< size_t >( 0, data, remaining_length() );
+  }
+
+  // Write elevation
+  if( !value.elevation_start.empty() && !value.elevation_range.empty() )
+  {
+    write_elements( value.elevation_start, value.elevation_range,
+                    -180.0, 180.0 );
+  }
+  else if( !value.roll_start.empty() && !value.roll_range.empty() )
+  {
+    klv_write_ber< size_t >( 0, data, remaining_length() );
+  }
+  // Value is truncated if roll is also empty
+
+  // Write Roll
+  if( !value.roll_start.empty() && !value.roll_range.empty() )
+  {
+    write_elements( value.roll_start, value.roll_range, 0.0, 360.0 );
+  }
+  // Value is truncated if empty
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_view_domain_format
+::length_of_typed( klv_0601_view_domain const& value,
+                   size_t length_hint ) const
+{
+  // Azimuth
+  size_t const azimuth_length_hint =
+    value.azimuth_start.length_hint()
+    ? value.azimuth_start.length_hint()
+    : 4;
+  size_t const length_of_azimuth =
+    ( !value.azimuth_start.empty() && !value.azimuth_range.empty() )
+    ? ( azimuth_length_hint * 2 )
+    : 0;
+  size_t const length_of_length_of_azimuth =
+    klv_ber_length( length_of_azimuth );
+
+  // Elevation
+  size_t const elevation_length_hint =
+    value.elevation_start.length_hint()
+    ? value.elevation_start.length_hint()
+    : 4;
+  size_t const length_of_elevation =
+    ( !value.elevation_start.empty() && !value.elevation_range.empty() )
+    ? ( elevation_length_hint * 2 )
+    : 0;
+  size_t const length_of_length_of_elevation =
+    ( length_of_elevation ||
+      ( !value.roll_start.empty() && !value.roll_range.empty() ) )
+    ? klv_ber_length( length_of_elevation )
+    : 0;
+
+  // Roll
+  size_t const roll_length_hint =
+    value.roll_start.length_hint()
+    ? value.roll_start.length_hint()
+    : 4;
+  size_t const length_of_roll =
+    ( !value.roll_start.empty() && !value.roll_range.empty() )
+    ? ( roll_length_hint * 2 )
+    : 0;
+  size_t const length_of_length_of_roll =
+    length_of_roll
+    ? klv_ber_length( length_of_roll )
+    : 0;
+
+  return length_of_length_of_azimuth +
+         length_of_azimuth +
+         length_of_length_of_elevation +
+         length_of_elevation +
+         length_of_length_of_roll +
+         length_of_roll;
+}
+
+// ----------------------------------------------------------------------------
 klv_local_set
 klv_0601_local_set_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
   constexpr size_t timestamp_packet_length = 10;
 
-  if( length < timestamp_packet_length  )
+  if( length < timestamp_packet_length )
   {
     VITAL_THROW( kv::metadata_exception,
                  "packet too small; timestamp is not present" );

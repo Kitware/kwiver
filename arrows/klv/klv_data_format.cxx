@@ -811,6 +811,7 @@ KLV_INSTANTIATE( klv_0601_control_command );
 KLV_INSTANTIATE( klv_0601_country_codes );
 KLV_INSTANTIATE( klv_0601_frame_rate );
 KLV_INSTANTIATE( klv_0601_location_dlp );
+KLV_INSTANTIATE( klv_0601_view_domain );
 KLV_INSTANTIATE( klv_0806_user_defined_data );
 KLV_INSTANTIATE( klv_0806_user_defined_data_type_id );
 KLV_INSTANTIATE( klv_1108_metric_implementer );
