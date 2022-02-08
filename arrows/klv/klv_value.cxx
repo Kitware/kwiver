@@ -24,6 +24,7 @@
 #include "klv_0903_vtracker_set.h"
 #include "klv_0903_vtrackitem_pack.h"
 #include "klv_0903.h"
+#include "klv_1010.h"
 #include "klv_1108_metric_set.h"
 #include "klv_1108.h"
 #include "klv_1204.h"
@@ -478,6 +479,7 @@ KLV_INSTANTIATE( klv_0903_vtarget_pack );
 KLV_INSTANTIATE( klv_0903_vtarget_series );
 KLV_INSTANTIATE( klv_0903_vtrackitem_pack );
 KLV_INSTANTIATE( klv_0903_vtrackitem_series );
+KLV_INSTANTIATE( klv_1010_sdcc_flp );
 KLV_INSTANTIATE( klv_1108_assessment_point );
 KLV_INSTANTIATE( klv_1108_compression_profile );
 KLV_INSTANTIATE( klv_1108_compression_type );

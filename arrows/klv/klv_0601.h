@@ -689,6 +689,10 @@ private:
   klv_local_set
   read_typed( klv_read_iter_t& data, size_t length ) const override;
 
+  void
+  write_typed( klv_local_set const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
   uint32_t
   calculate_checksum( klv_read_iter_t data, size_t length ) const override;
 

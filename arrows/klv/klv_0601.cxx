@@ -6,8 +6,10 @@
 
 #include "klv_0806.h"
 #include "klv_0903.h"
+#include "klv_1010.h"
 #include "klv_1204.h"
 #include "klv_checksum.h"
+#include "klv_util.h"
 
 #include <vital/logger/logger.h>
 
@@ -703,7 +705,7 @@ klv_0601_traits_lookup()
       { 0, SIZE_MAX } },
     { {},
       ENUM_AND_NAME( KLV_0601_SDCC_FLP ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_1010_sdcc_flp_format >(),
       "SDCC-FLP",
       "MISB ST 101 floating length pack for standard deviation and "
       "cross-correlation metadata.",
@@ -1932,7 +1934,7 @@ klv_0601_view_domain_format
     else
     {
       VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
-                   "writing view domain overflows buffer" );
+                  "writing view domain overflows buffer" );
     }
   };
 
@@ -2310,29 +2312,114 @@ klv_local_set
 klv_0601_local_set_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
-  constexpr size_t timestamp_packet_length = 10;
+  auto const tracker = track_it( data, length );
 
-  if( length < timestamp_packet_length )
+  klv_local_set result;
+  std::vector< klv_lds_key > history;
+  while( tracker.remaining() )
   {
-    VITAL_THROW( kv::metadata_exception,
-                 "packet too small; timestamp is not present" );
-  }
+    // Key
+    auto const key = klv_read_lds_key( data, tracker.remaining() );
 
-  // Ensure timestamp tag and length are present
-  auto timestamp_it = data;
-  auto const timestamp_tag = klv_read_int< uint8_t >( timestamp_it, 1 );
-  auto const timestamp_length = klv_read_int< uint8_t >( timestamp_it, 1 );
-  if( timestamp_tag != KLV_0601_PRECISION_TIMESTAMP || timestamp_length != 8 )
-  {
-    VITAL_THROW( kv::metadata_exception,
-                 "timestamp not present at beginning of packet" );
-  }
+    // Length
+    auto const length_of_value =
+      klv_read_ber< size_t >( data, tracker.remaining() );
 
-  // Read rest of packet as normal
-  auto const result =
-    klv_local_set_format::read_typed( data, length );
+    // Value
+    auto const& traits = m_traits.by_tag( key );
+    auto value =
+      traits.format().read( data, tracker.verify( length_of_value ) );
+
+    // Record entries before this one in the SDCC-FLP
+    if( value.type() == typeid( klv_1010_sdcc_flp ) )
+    {
+      auto& sdcc = value.get< klv_1010_sdcc_flp >();
+      auto const matrix_size = std::min( history.size(), sdcc.members.size() );
+      std::copy( history.end() - matrix_size,
+                 history.end(),
+                 sdcc.members.begin() );
+    }
+
+    result.add( key, std::move( value ) );
+
+    history.push_back( key );
+  }
+  check_tag_counts( result );
 
   return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_local_set_format
+::write_typed( klv_local_set const& klv,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+
+  check_tag_counts( klv );
+
+  // Identify which entries need to be before other entries
+  std::set< klv_lds_key > held_keys;
+  for( auto const& entry : klv )
+  {
+    if( entry.second.type() == typeid( klv_1010_sdcc_flp ) )
+    {
+      auto const& sdcc = entry.second.get< klv_1010_sdcc_flp >();
+      for( auto const key : sdcc.members )
+      {
+        if( held_keys.count( key ) )
+        {
+          VITAL_THROW( kv::metadata_exception,
+                       "Two SDCC-FLPs concern the same item" );
+        }
+        held_keys.emplace( key );
+      }
+    }
+  }
+
+  // Assemble the proper order of entries
+  std::vector< klv_local_set::const_iterator > entries;
+  for( auto it = klv.cbegin(); it != klv.cend(); ++it )
+  {
+    if( held_keys.count( it->first ) )
+    {
+      continue;
+    }
+    if( it->second.type() == typeid( klv_1010_sdcc_flp ) )
+    {
+      auto const& sdcc = it->second.get< klv_1010_sdcc_flp >();
+      for( auto const key : sdcc.members )
+      {
+        auto const kt = klv.find( key );
+        if( kt == klv.end() || kt->first == KLV_0601_UNKNOWN )
+        {
+          VITAL_THROW( kv::metadata_exception,
+                       "SDCC-FLP concerns non-existent item" );
+        }
+        entries.emplace_back( kt );
+      }
+    }
+    entries.emplace_back( it );
+  }
+
+  // Actually write each entry
+  for( auto const& entry : entries )
+  {
+    auto const& key = entry->first;
+    auto const& value = entry->second;
+    auto const& traits = m_traits.by_tag( key );
+
+    // Key
+    klv_write_lds_key( key, data, tracker.remaining() );
+
+    // Length
+    auto const length_of_value = traits.format().length_of( value );
+    klv_write_ber( length_of_value, data, tracker.remaining() );
+
+    // Value
+    traits.format().write( value, data, tracker.remaining() );
+  }
 }
 
 // ----------------------------------------------------------------------------

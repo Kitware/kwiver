@@ -102,6 +102,14 @@ public:
   virtual size_t
   checksum_length() const;
 
+  /// Return the fixed length of this format, or 0 if length is variable.
+  size_t
+  fixed_length() const;
+
+  /// Set the fixed length of this format.
+  void
+  set_fixed_length( size_t fixed_length );
+
 protected:
   /// Describe the length of this data format.
   std::string
@@ -418,6 +426,12 @@ public:
   std::string
   description() const override;
 
+  double
+  minimum() const;
+
+  double
+  maximum() const;
+
 protected:
   double
   read_typed( klv_read_iter_t& data, size_t length ) const override;
@@ -449,6 +463,12 @@ public:
   std::string
   description() const override;
 
+  double
+  minimum() const;
+
+  double
+  maximum() const;
+
 protected:
   double
   read_typed( klv_read_iter_t& data, size_t length ) const override;
@@ -471,10 +491,16 @@ class KWIVER_ALGO_KLV_EXPORT klv_imap_format
   : public klv_data_format_< double >
 {
 public:
-  klv_imap_format( double minimum, double maximum );
+  klv_imap_format( double minimum, double maximum, size_t fixed_length = 0 );
 
   std::string
   description() const override;
+
+  double
+  minimum() const;
+
+  double
+  maximum() const;
 
 protected:
   double

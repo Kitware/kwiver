@@ -37,6 +37,7 @@ set( sources
   klv_0903_vtrackitem_pack.cxx
   klv_0903_vtrack_set.cxx
   klv_0903_vtracker_set.cxx
+  klv_1010.cxx
   klv_1108.cxx
   klv_1108_metric_set.cxx
   klv_1204.cxx
@@ -73,6 +74,7 @@ set( public_headers
   klv_0903_vtrackitem_pack.cxx
   klv_0903_vtrack_set.h
   klv_0903_vtracker_set.h
+  klv_1010.h
   klv_1108.h
   klv_1108_metric_set.h
   klv_1204.h

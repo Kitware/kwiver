@@ -24,6 +24,7 @@
 #include "klv_0903_vtracker_set.h"
 #include "klv_0903_vtrackitem_pack.h"
 #include "klv_0903.h"
+#include "klv_1010.h"
 #include "klv_1108_metric_set.h"
 #include "klv_1108.h"
 #include "klv_1204.h"
@@ -293,6 +294,22 @@ klv_data_format_< T >
   {
     return os << value;
   }
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_data_format
+::fixed_length() const
+{
+  return m_fixed_length;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_data_format
+::set_fixed_length( size_t fixed_length )
+{
+  m_fixed_length = fixed_length;
 }
 
 // ----------------------------------------------------------------------------
@@ -746,6 +763,22 @@ klv_sflint_format
 }
 
 // ----------------------------------------------------------------------------
+double
+klv_sflint_format
+::minimum() const
+{
+  return m_minimum;
+}
+
+// ----------------------------------------------------------------------------
+double
+klv_sflint_format
+::maximum() const
+{
+  return m_maximum;
+}
+
+// ----------------------------------------------------------------------------
 klv_uflint_format
 ::klv_uflint_format( double minimum, double maximum, size_t fixed_length )
   : klv_data_format_< data_type >{ fixed_length }, m_minimum{ minimum },
@@ -800,9 +833,25 @@ klv_uflint_format
 }
 
 // ----------------------------------------------------------------------------
+double
+klv_uflint_format
+::minimum() const
+{
+  return m_minimum;
+}
+
+// ----------------------------------------------------------------------------
+double
+klv_uflint_format
+::maximum() const
+{
+  return m_maximum;
+}
+
+// ----------------------------------------------------------------------------
 klv_imap_format
-::klv_imap_format( double minimum, double maximum )
-  : klv_data_format_< data_type >{ 0 }, m_minimum{ minimum },
+::klv_imap_format( double minimum, double maximum, size_t fixed_length )
+  : klv_data_format_< data_type >{ fixed_length }, m_minimum{ minimum },
     m_maximum{ maximum } {}
 
 // ----------------------------------------------------------------------------
@@ -851,6 +900,22 @@ klv_imap_format
   return ss.str();
 }
 
+// ----------------------------------------------------------------------------
+double
+klv_imap_format
+::minimum() const
+{
+  return m_minimum;
+}
+
+// ----------------------------------------------------------------------------
+double
+klv_imap_format
+::maximum() const
+{
+  return m_maximum;
+}
+
 #define KLV_INSTANTIATE( T ) \
   template class klv_data_format_< T >;
 
@@ -880,6 +945,7 @@ KLV_INSTANTIATE( klv_0903_vtarget_pack );
 KLV_INSTANTIATE( klv_0903_vtarget_series );
 KLV_INSTANTIATE( klv_0903_vtrackitem_pack );
 KLV_INSTANTIATE( klv_0903_vtrackitem_series );
+KLV_INSTANTIATE( klv_1010_sdcc_flp );
 KLV_INSTANTIATE( klv_1108_metric_implementer );
 KLV_INSTANTIATE( klv_1108_metric_period_pack );
 KLV_INSTANTIATE( klv_1108_window_corners_pack );
