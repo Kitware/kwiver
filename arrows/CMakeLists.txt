@@ -21,7 +21,10 @@ endif()
 
 # Add OpenCV plugin if enabled
 if( KWIVER_ENABLE_OPENCV )
-  add_subdirectory( dbow2 )
+  if( KWIVER_ENABLE_DBOW2 )
+    add_subdirectory( dbow2 )
+  endif()
+
   add_subdirectory( ocv )
 endif()
 
