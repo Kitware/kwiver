@@ -28,6 +28,7 @@
 #include "klv_1108_metric_set.h"
 #include "klv_1108.h"
 #include "klv_1204.h"
+#include "klv_1206.h"
 #include "klv_1303.h"
 #include "klv_blob.h"
 #include "klv_packet.h"
@@ -1036,6 +1037,8 @@ KLV_INSTANTIATE_ENUM( klv_0903_detection_status );
 KLV_INSTANTIATE_ENUM( klv_1108_assessment_point );
 KLV_INSTANTIATE_ENUM( klv_1108_compression_profile );
 KLV_INSTANTIATE_ENUM( klv_1108_compression_type );
+KLV_INSTANTIATE_ENUM( klv_1206_look_direction );
+KLV_INSTANTIATE_ENUM( klv_1206_image_plane );
 KLV_INSTANTIATE_ENUM( klv_1303_apa );
 
 } // namespace klv

@@ -8,6 +8,7 @@
 #include "klv_0903.h"
 #include "klv_1010.h"
 #include "klv_1204.h"
+#include "klv_1206.h"
 #include "klv_1602.h"
 #include "klv_1607.h"
 #include "klv_checksum.h"
@@ -665,7 +666,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SAR_MOTION_IMAGERY_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_1206_local_set_format >(),
       "SAR Motion Imagery Local Set",
       "MISB ST 1206 local set for synthetic aperture radar Motion Imagery.",
       { 0, 1 } },
