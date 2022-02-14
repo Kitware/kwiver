@@ -28,6 +28,7 @@
 #include "klv_1108_metric_set.h"
 #include "klv_1108.h"
 #include "klv_1204.h"
+#include "klv_1303.hpp"
 #include "klv_blob.h"
 #include "klv_packet.h"
 #include "klv_series.hpp"
@@ -452,6 +453,8 @@ KLV_INSTANTIATE( klv_1108_metric_implementer );
 KLV_INSTANTIATE( klv_1108_metric_period_pack );
 KLV_INSTANTIATE( klv_1108_window_corners_pack );
 KLV_INSTANTIATE( klv_1204_miis_id );
+KLV_INSTANTIATE( klv_1303_apa );
+KLV_INSTANTIATE( klv_1303_mdap< double > );
 KLV_INSTANTIATE( klv_blob );
 KLV_INSTANTIATE( klv_lengthy< double > );
 KLV_INSTANTIATE( klv_local_set );

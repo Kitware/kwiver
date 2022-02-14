@@ -117,6 +117,15 @@ KWIVER_ALGO_KLV_EXPORT bool operator==( T const&, T const& ); \
 KWIVER_ALGO_KLV_EXPORT bool operator!=( T const&, T const& );
 
 // ----------------------------------------------------------------------------
+#define DECLARE_TEMPLATE_CMP( TYPE )                                                    \
+template< class T > KWIVER_ALGO_KLV_EXPORT bool operator< ( TYPE const&, TYPE const& ); \
+template< class T > KWIVER_ALGO_KLV_EXPORT bool operator> ( TYPE const&, TYPE const& ); \
+template< class T > KWIVER_ALGO_KLV_EXPORT bool operator<=( TYPE const&, TYPE const& ); \
+template< class T > KWIVER_ALGO_KLV_EXPORT bool operator>=( TYPE const&, TYPE const& ); \
+template< class T > KWIVER_ALGO_KLV_EXPORT bool operator==( TYPE const&, TYPE const& ); \
+template< class T > KWIVER_ALGO_KLV_EXPORT bool operator!=( TYPE const&, TYPE const& );
+
+// ----------------------------------------------------------------------------
 #define DEFINE_STRUCT_CMP( T, ... )                                                          \
 bool operator< ( T const& lhs, T const& rhs ) { return struct_lt( lhs, rhs, __VA_ARGS__ ); } \
 bool operator> ( T const& lhs, T const& rhs ) { return struct_gt( lhs, rhs, __VA_ARGS__ ); } \
@@ -124,6 +133,15 @@ bool operator<=( T const& lhs, T const& rhs ) { return struct_le( lhs, rhs, __VA
 bool operator>=( T const& lhs, T const& rhs ) { return struct_ge( lhs, rhs, __VA_ARGS__ ); } \
 bool operator==( T const& lhs, T const& rhs ) { return struct_eq( lhs, rhs, __VA_ARGS__ ); } \
 bool operator!=( T const& lhs, T const& rhs ) { return struct_ne( lhs, rhs, __VA_ARGS__ ); }
+
+// ----------------------------------------------------------------------------
+#define DEFINE_TEMPLATE_CMP( TYPE, ... )                                                                               \
+template< class T > bool operator< ( TYPE const& lhs, TYPE const& rhs ) { return struct_lt( lhs, rhs, __VA_ARGS__ ); } \
+template< class T > bool operator> ( TYPE const& lhs, TYPE const& rhs ) { return struct_gt( lhs, rhs, __VA_ARGS__ ); } \
+template< class T > bool operator<=( TYPE const& lhs, TYPE const& rhs ) { return struct_le( lhs, rhs, __VA_ARGS__ ); } \
+template< class T > bool operator>=( TYPE const& lhs, TYPE const& rhs ) { return struct_ge( lhs, rhs, __VA_ARGS__ ); } \
+template< class T > bool operator==( TYPE const& lhs, TYPE const& rhs ) { return struct_eq( lhs, rhs, __VA_ARGS__ ); } \
+template< class T > bool operator!=( TYPE const& lhs, TYPE const& rhs ) { return struct_ne( lhs, rhs, __VA_ARGS__ ); }
 
 // ----------------------------------------------------------------------------
 #define DEFINE_STRUCT_CMP_TUPLIZE( T )                                                     \

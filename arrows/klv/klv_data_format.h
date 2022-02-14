@@ -541,6 +541,59 @@ protected:
   double m_maximum;
 };
 
+// ----------------------------------------------------------------------------
+template< class Format >
+class KWIVER_ALGO_KLV_EXPORT klv_lengthless_format
+  : public klv_data_format_< typename Format::data_type::value_type >
+{
+public:
+  using data_type = typename Format::data_type::value_type;
+
+  template< class... Args >
+  klv_lengthless_format( Args&&... args )
+    : klv_data_format_< data_type >{ 0 }, m_format{ args... } {
+    if( !( this->m_fixed_length = m_format.fixed_length() ) )
+    {
+      throw std::logic_error( "klv_lengthless_format requires fixed length" );
+    }
+    m_format.set_fixed_length( 0 );
+  }
+
+  std::string
+  description() const
+  {
+    return m_format.description();
+  }
+
+protected:
+  data_type
+  read_typed( klv_read_iter_t& data, size_t length ) const
+  {
+    return m_format.read_( data, length ).value;
+  }
+
+  void
+  write_typed( data_type const& value,
+               klv_write_iter_t& data, size_t length ) const
+  {
+    m_format.write_( { value, this->m_fixed_length }, data, length );
+  }
+
+  size_t
+  length_of_typed( VITAL_UNUSED data_type const& value ) const
+  {
+    return this->m_fixed_length;
+  }
+
+  std::ostream&
+  print_typed( std::ostream& os, data_type const& value ) const
+  {
+    return m_format.print_( os, { value, this->m_fixed_length } );
+  }
+
+  Format m_format;
+};
+
 } // namespace klv
 
 } // namespace arrows

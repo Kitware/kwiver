@@ -25,6 +25,8 @@ namespace klv {
 template < class T >
 struct KWIVER_ALGO_KLV_EXPORT klv_lengthy
 {
+  using value_type = T;
+
   klv_lengthy( T const& value );
   klv_lengthy( T&& value );
   klv_lengthy( T const& value, size_t length );
