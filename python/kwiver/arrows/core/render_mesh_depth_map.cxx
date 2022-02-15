@@ -5,9 +5,34 @@
 #include "render_mesh_depth_map.h"
 
 #include <arrows/core/render_mesh_depth_map.h>
+#include <arrows/core/mesh_intersect.h>
 #include <arrows/core/mesh_operations.h>
 #include <vital/types/mesh.h>
 #include <vital/types/camera.h>
+
+py::tuple
+run_mesh_closest_point(
+  kwiver::vital::point_3d const& p,
+  std::shared_ptr<kwiver::vital::mesh> const mesh,
+  kwiver::vital::point_3d& closest_point)
+{
+  double u, v;
+  auto triangle_idx = kwiver::arrows::core::mesh_closest_point(
+    p, *mesh, closest_point, u, v);
+  return py::make_tuple(triangle_idx, u, v);
+}
+
+py::tuple
+run_mesh_intersect(
+  kwiver::vital::point_3d const& p,
+  kwiver::vital::vector_3d const& direction,
+  std::shared_ptr<kwiver::vital::mesh> const mesh)
+{
+  double dist, u, v;
+  auto triangle_idx = kwiver::arrows::core::mesh_intersect(
+    p, direction, *mesh, dist, u, v);
+  return py::make_tuple(triangle_idx, dist, u, v);
+}
 
 void render_mesh_depth_map(py::module &m)
 {
@@ -29,4 +54,6 @@ void render_mesh_depth_map(py::module &m)
         {
           return kwiver::arrows::core::clip_mesh(*mesh, *cam);
         });
+  m.def("mesh_closest_point", &run_mesh_closest_point);
+  m.def("mesh_intersect", &run_mesh_intersect);
 }
