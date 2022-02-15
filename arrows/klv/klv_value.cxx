@@ -24,6 +24,30 @@ namespace arrows {
 
 namespace klv {
 
+namespace {
+
+// ----------------------------------------------------------------------------
+template < class T,
+           typename std::enable_if< !std::is_floating_point< T >::value,
+                                    bool >::type = true >
+bool
+equal_or_nan( T const& lhs, T const& rhs )
+{
+  return lhs == rhs;
+}
+
+// ----------------------------------------------------------------------------
+template < class T,
+           typename std::enable_if< std::is_floating_point< T >::value,
+                                    bool >::type = true >
+bool
+equal_or_nan( T const& lhs, T const& rhs )
+{
+  return lhs == rhs || ( std::isnan( lhs ) && std::isnan( rhs ) );
+}
+
+} // namespace
+
 // ----------------------------------------------------------------------------
 klv_bad_value_cast
 ::klv_bad_value_cast( std::type_info const& requested_type,
@@ -109,7 +133,7 @@ public:
     auto const& rhs_item =
       dynamic_cast< internal_< T > const& >( rhs ).m_item;
     // Second, compare values
-    return lhs.m_item == rhs_item;
+    return equal_or_nan( lhs.m_item, rhs_item );
   }
 
   std::ostream&
