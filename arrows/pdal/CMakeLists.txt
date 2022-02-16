@@ -41,11 +41,6 @@ target_include_directories( kwiver_algo_pdal SYSTEM
                             ${PDAL_INCLUDE_DIRS}/pdal
   )
 
-algorithms_create_plugin( kwiver_algo_pdal
-  register_algorithms.cxx
-  )
-
-message( STATUS "DIRS ${CMAKE_CURRENT_BINARY_DIR}" )
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/pdal_config.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/pdal_config.h
@@ -53,4 +48,4 @@ configure_file(
 
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory(tests)
-endif()
+endif(KWIVER_ENABLE_TESTS)
