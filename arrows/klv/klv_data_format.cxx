@@ -24,6 +24,7 @@
 #include "klv_0903_vtracker_set.h"
 #include "klv_0903_vtrackitem_pack.h"
 #include "klv_0903.h"
+#include "klv_1002.h"
 #include "klv_1010.h"
 #include "klv_1108_metric_set.h"
 #include "klv_1108.h"
@@ -221,7 +222,7 @@ klv_data_format_< T >
 ::write_( T const& value, klv_write_iter_t& data, size_t max_length ) const
 {
   // Ensure we have enough bytes
-  auto const value_length = length_of( value );
+  auto const value_length = length_of_( value );
   if( value_length > max_length )
   {
     VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
@@ -999,6 +1000,8 @@ KLV_INSTANTIATE( klv_0903_pixel_run );
 KLV_INSTANTIATE( klv_0903_velocity_pack );
 KLV_INSTANTIATE( klv_0903_vtarget_pack );
 KLV_INSTANTIATE( klv_0903_vtrackitem_pack );
+KLV_INSTANTIATE( klv_1002_enumerations );
+KLV_INSTANTIATE( klv_1002_section_data_pack );
 KLV_INSTANTIATE( klv_1010_sdcc_flp );
 KLV_INSTANTIATE( klv_1108_metric_implementer );
 KLV_INSTANTIATE( klv_1108_metric_period_pack );

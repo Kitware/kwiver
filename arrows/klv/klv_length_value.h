@@ -29,12 +29,17 @@ namespace lv_detail {
 template < size_t n, class... Ts >
 struct pop_tuple_helper
 {
-  template < class... S >
-  std::tuple< typename std::tuple_element< n >::type, S... >
-  operator()( std::tuple< S... > const& value ) const
+  using tuple_t = std::tuple< Ts... >;
+  using element_t = typename std::tuple_element< n, tuple_t >::type;
+  decltype( std::tuple_cat(
+    std::declval< pop_tuple_helper< n - 1, Ts... > >()(),
+    std::declval< std::tuple< element_t > >() ) )
+  operator()() const
   {
-    return pop_tuple_helper< n - 1, Ts... >{ source }(
-      std::tuple_cat( std::make_tuple( std::get< n >( source ) ), value ) );
+    auto const element = std::tuple< element_t >( std::get< n >( source ) );
+    auto const helper = pop_tuple_helper< n - 1, Ts... >{ source };
+    auto const remaining = helper();
+    return std::tuple_cat( remaining, element );
   }
 
   std::tuple< Ts... > const& source;
@@ -45,11 +50,10 @@ struct pop_tuple_helper
 template < class... Ts >
 struct pop_tuple_helper< 0, Ts... >
 {
-  template < class... S >
-  std::tuple< S... >
-  operator()( std::tuple< S... > const& value ) const
+  std::tuple< >
+  operator()() const
   {
-    return value;
+    return std::make_tuple();
   }
 
   std::tuple< Ts... > const& source;
@@ -61,7 +65,8 @@ template < class T, class... Ts >
 std::tuple< Ts... >
 pop_tuple( std::tuple< T, Ts... > const& value )
 {
-  return pop_tuple_helper< sizeof...( Ts ) + 1, T, Ts... >( value );
+  auto const helper = pop_tuple_helper< sizeof...( Ts ), T, Ts... >{ value };
+  return helper();
 }
 
 // ----------------------------------------------------------------------------
@@ -70,7 +75,7 @@ template < class Format >
 void
 write_trunc_lv_impl(
   std::tuple<
-    kwiver::vital::optional< typename Format::data_type const& >
+    kwiver::vital::optional< typename Format::data_type >
     > const& value,
   klv_write_iter_t& data, size_t length,
   Format const& format )
@@ -78,14 +83,16 @@ write_trunc_lv_impl(
   auto const& item = std::get< 0 >( value );
   if( item )
   {
-    format.write( *item, length );
+    format.write_( *item, data, length );
   }
 }
 
 // ----------------------------------------------------------------------------
 // Internal version of write_trunc_lv where we have a guarantee that `length`
 // is the exact length, and not just a maximum length.
-template < class Format, class... Formats >
+template < class Format, class... Formats,
+           typename std::enable_if< ( sizeof...( Formats ) > 0 ),
+                                    bool >::type = true >
 void
 write_trunc_lv_impl(
   std::tuple< kwiver::vital::optional< typename Format::data_type > const&,
@@ -116,10 +123,8 @@ klv_read_lv(
   Format const& format )
 {
   auto const tracker = track_it( data, max_length );
-  auto const length = klv_read_ber( data, tracker.remaining() );
-  auto const value =
-    format.read( data, tracker.verify( length ) )
-    .template get< typename Format::data_type >();
+  auto const length = klv_read_ber< size_t >( data, tracker.remaining() );
+  auto const value = format.read_( data, tracker.verify( length ) );
   return value;
 }
 
@@ -134,15 +139,13 @@ klv_read_opt_lv(
   Format const& format )
 {
   auto const tracker = track_it( data, max_length );
-  auto const length = klv_read_ber( data, tracker.remaining() );
+  auto const length = klv_read_ber< size_t >( data, tracker.remaining() );
   if( !length )
   {
     return kwiver::vital::nullopt;
   }
 
-  auto const value =
-    format.read( data, tracker.verify( length ) )
-    .template get< typename Format::data_type >();
+  auto const value = format.read_( data, tracker.verify( length ) );
   return value;
 }
 
@@ -164,16 +167,16 @@ klv_read_trunc_lv(
 // Write a value, defined by `format`, preceded by its BER-encoded length.
 // `max_length` should be greater than 0.
 template < class Format >
-typename Format::data_type
+void
 klv_write_lv(
   typename Format::data_type const& value,
-  klv_read_iter_t& data, size_t max_length,
+  klv_write_iter_t& data, size_t max_length,
   Format const& format )
 {
   auto const tracker = track_it( data, max_length );
-  auto const length = format.length_of( value, 0 );
+  auto const length = format.length_of_( value );
   klv_write_ber( length, data, tracker.remaining() );
-  format.write( value, tracker.verify( length ) );
+  format.write_( value, data, tracker.verify( length ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -181,18 +184,18 @@ klv_write_lv(
 // `max_length` should be greater than 0. A `nullopt` `value` will write only
 // the length field, with a value of 0.
 template < class Format >
-typename Format::data_type
+void
 klv_write_opt_lv(
   kwiver::vital::optional< typename Format::data_type > const& value,
-  klv_read_iter_t& data, size_t max_length,
+  klv_write_iter_t& data, size_t max_length,
   Format const& format )
 {
   auto const tracker = track_it( data, max_length );
-  auto const length = value ? format.length_of( *value ) : 0;
+  auto const length = value ? format.length_of_( *value ) : 0;
   klv_write_ber( length, data, tracker.remaining() );
   if( value )
   {
-    format.write( *value, tracker.verify( length ) );
+    format.write_( *value, data, tracker.verify( length ) );
   }
 }
 
@@ -215,7 +218,9 @@ klv_write_trunc_lv(
 // formats. All `nullopt` items at the end will be truncated/omitted entirely,
 // including their length fields. Any `nullopt` items which have valid items
 // following them will be written as just the lengths fields with values of 0.
-template < class Format, class... Formats >
+template < class Format, class... Formats,
+          typename std::enable_if< ( sizeof...( Formats ) > 0 ),
+                                   bool >::type = true >
 void
 klv_write_trunc_lv(
   std::tuple<
@@ -242,7 +247,7 @@ size_t
 klv_length_of_lv( typename Format::data_type const& value,
                   Format const& format )
 {
-  auto const length = format.length_of( value );
+  auto const length = format.length_of_( value );
   return klv_ber_length( length ) + length;
 }
 
@@ -254,7 +259,7 @@ klv_length_of_opt_lv(
   kwiver::vital::optional< typename Format::data_type > const& value,
   Format const& format )
 {
-  auto const length = value ? format.length_of( *value ) : 0;
+  auto const length = value ? format.length_of_( *value ) : 0;
   return klv_ber_length( length ) + length;
 }
 
@@ -263,18 +268,21 @@ klv_length_of_opt_lv(
 template < class Format >
 size_t
 klv_length_of_trunc_lv(
-  std::tuple< kwiver::vital::optional< typename Format::data_type const& >
+  std::tuple< kwiver::vital::optional< typename Format::data_type > const&
               > const& value,
   Format const& format )
 {
-  auto const length = value ? format.length_of( *value ) : 0;
+  auto const& item = std::get< 0 >( value );
+  auto const length = item ? format.length_of_( *item ) : 0;
   return length ? ( klv_ber_length( length ) + length ) : 0;
 }
 
 // ----------------------------------------------------------------------------
 // Return the length of `value` plus the length of its BER-encoded length,
 // or 0 if the length is 0.
-template < class Format, class... Formats >
+template < class Format, class... Formats,
+           typename std::enable_if< ( sizeof...( Formats ) > 0 ),
+                                    bool >::type = true >
 size_t
 klv_length_of_trunc_lv(
   std::tuple< kwiver::vital::optional< typename Format::data_type > const&,
@@ -287,9 +295,9 @@ klv_length_of_trunc_lv(
   auto const length_of_remaining =
     klv_length_of_trunc_lv( remaining, formats... );
   return length_of_remaining +
-         length_of_remaining
-         ? klv_length_of_opt_lv( item, format )
-         : klv_length_of_trunc_lv( item, format );
+         ( length_of_remaining
+           ? klv_length_of_opt_lv( item, format )
+           : klv_length_of_trunc_lv( item, format ) );
 }
 
 } // namespace klv

@@ -6,6 +6,7 @@
 
 #include "klv_0806.h"
 #include "klv_0903.h"
+#include "klv_1002.h"
 #include "klv_1010.h"
 #include "klv_1204.h"
 #include "klv_1206.h"
@@ -679,7 +680,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_RANGE_IMAGE_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_1002_local_set_format >(),
       "Range Image Local Set",
       "MISB ST 1002 local set for range images.",
       { 0, 1 } },
