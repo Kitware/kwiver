@@ -20,6 +20,8 @@
 #include <arrows/klv/klv_packet.h>
 #include <arrows/klv/klv_series.hpp>
 
+using kld = klv_lengthy< double >;
+
 // ----------------------------------------------------------------------------
 int
 main( int argc, char** argv )
@@ -48,8 +50,8 @@ auto const expected_result = klv_local_set{
   { KLV_0903_FRAME_WIDTH, uint64_t{ 1920 } },
   { KLV_0903_FRAME_HEIGHT, uint64_t{ 1080 } },
   { KLV_0903_SOURCE_SENSOR, std::string{ "EO Nose" } },
-  { KLV_0903_HORIZONTAL_FOV, 12.5 },
-  { KLV_0903_VERTICAL_FOV, 10.0 },
+  { KLV_0903_HORIZONTAL_FOV, kld{ 12.5 } },
+  { KLV_0903_VERTICAL_FOV, kld{ 10.0 } },
   { KLV_0903_MIIS_ID, klv_value{} },
   { KLV_0903_VTARGET_SERIES,
     klv_0903_vtarget_series{ {
@@ -66,13 +68,15 @@ auto const expected_result = klv_local_set{
           { KLV_0903_VTARGET_PERCENT_PIXELS, uint64_t{ 50 } },
           { KLV_0903_VTARGET_COLOR, uint64_t{ 0xDAA520 } },
           { KLV_0903_VTARGET_INTENSITY, uint64_t{ 13140 } },
-          { KLV_0903_VTARGET_LOCATION_OFFSET_LATITUDE, 10.0 },
-          { KLV_0903_VTARGET_LOCATION_OFFSET_LONGITUDE, 12.0 },
-          { KLV_0903_VTARGET_LOCATION_ELLIPSOID_HEIGHT, 10000.0 },
-          { KLV_0903_VTARGET_BOUNDARY_TOP_LEFT_LATITUDE_OFFSET, 10.0 },
-          { KLV_0903_VTARGET_BOUNDARY_TOP_LEFT_LONGITUDE_OFFSET, 10.0 },
-          { KLV_0903_VTARGET_BOUNDARY_BOTTOM_RIGHT_LATITUDE_OFFSET, 10.0 },
-          { KLV_0903_VTARGET_BOUNDARY_BOTTOM_RIGHT_LONGITUDE_OFFSET, 10.0 },
+          { KLV_0903_VTARGET_LOCATION_OFFSET_LATITUDE, kld{ 10.0 } },
+          { KLV_0903_VTARGET_LOCATION_OFFSET_LONGITUDE, kld{ 12.0 } },
+          { KLV_0903_VTARGET_LOCATION_ELLIPSOID_HEIGHT, kld{ 10000.0 } },
+          { KLV_0903_VTARGET_BOUNDARY_TOP_LEFT_LATITUDE_OFFSET, kld{ 10.0 } },
+          { KLV_0903_VTARGET_BOUNDARY_TOP_LEFT_LONGITUDE_OFFSET, kld{ 10.0 } },
+          { KLV_0903_VTARGET_BOUNDARY_BOTTOM_RIGHT_LATITUDE_OFFSET,
+            kld{ 10.0 } },
+          { KLV_0903_VTARGET_BOUNDARY_BOTTOM_RIGHT_LONGITUDE_OFFSET,
+            kld{ 10.0 } },
           { KLV_0903_VTARGET_LOCATION, {} },
           { KLV_0903_VTARGET_BOUNDARY_SERIES, {} },
           { KLV_0903_VTARGET_CENTROID_ROW, uint64_t{ 872 } },
@@ -305,7 +309,7 @@ TEST ( klv, read_write_0903_vobject )
     { KLV_0903_VOBJECT_ONTOLOGY, std::string{ "URI" } },
     { KLV_0903_VOBJECT_ONTOLOGY_CLASS, std::string{ "class" } },
     { KLV_0903_VOBJECT_ONTOLOGY_ID, uint64_t{ 7 } },
-    { KLV_0903_VOBJECT_CONFIDENCE, 32.0 }, };
+    { KLV_0903_VOBJECT_CONFIDENCE, kld{ 32.0 } }, };
 
   auto const input_bytes = klv_bytes_t{
     0x01, 0x03,

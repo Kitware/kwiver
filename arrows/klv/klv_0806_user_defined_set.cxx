@@ -171,8 +171,7 @@ klv_0806_user_defined_data_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0806_user_defined_data_format
-::length_of_typed( klv_0806_user_defined_data const& value,
-                   size_t length_hint ) const
+::length_of_typed( klv_0806_user_defined_data const& value ) const
 {
   return value.bytes.size();
 }

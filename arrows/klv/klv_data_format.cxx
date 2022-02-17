@@ -162,14 +162,14 @@ klv_data_format_< T >
   try
   {
     // Try to parse using this data format
-    return klv_value{ read_typed( data, length ), length };
+    return read_typed( data, length );
   }
   catch ( std::exception const& e )
   {
     // Return blob if parsing failed
     LOG_ERROR( kwiver::vital::get_logger( "klv" ),
                "error occurred during parsing: " << e.what() );
-    return klv_value{ klv_read_blob( data, length ), length };
+    return klv_read_blob( data, length );
   }
 }
 
@@ -237,8 +237,19 @@ klv_data_format_< T >
   {
     return m_fixed_length
            ? m_fixed_length
-           : length_of_typed( value.get< T >(), value.length_hint() );
+           : length_of_typed( value.get< T >() );
   }
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+size_t
+klv_data_format_< T >
+::length_of_typed( VITAL_UNUSED T const& value ) const
+{
+  throw std::logic_error(
+    std::string{} + "data format of type `" + type_name() +
+    "` must either provide a fixed size or override length_of_typed()" );
 }
 
 // ----------------------------------------------------------------------------
@@ -258,32 +269,14 @@ klv_data_format_< T >
 {
   return !value.valid()
          ? ( os << value )
-         : print_typed( os, value.get< T >(), value.length_hint() );
-}
-
-// ----------------------------------------------------------------------------
-template < class T >
-size_t
-klv_data_format_< T >
-::length_of_typed( VITAL_UNUSED T const& value, size_t length_hint ) const
-{
-  if( length_hint )
-  {
-    return length_hint;
-  }
-
-  std::stringstream ss;
-  ss    << "application must provide length of variable-length format `"
-        << description() << "`";
-  throw std::logic_error( ss.str() );
+         : print_typed( os, value.get< T >() );
 }
 
 // ----------------------------------------------------------------------------
 template < class T >
 std::ostream&
 klv_data_format_< T >
-::print_typed( std::ostream& os, T const& value,
-               VITAL_UNUSED size_t length_hint ) const
+::print_typed( std::ostream& os, T const& value ) const
 {
   if( std::is_same< T, std::string >::value )
   {
@@ -337,8 +330,7 @@ klv_blob_format
 // ----------------------------------------------------------------------------
 size_t
 klv_blob_format
-::length_of_typed( klv_blob const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( klv_blob const& value ) const
 {
   return klv_blob_length( value );
 }
@@ -386,8 +378,7 @@ klv_uuid_format
 // ----------------------------------------------------------------------------
 size_t
 klv_uuid_format
-::length_of_typed( VITAL_UNUSED klv_uuid const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( VITAL_UNUSED klv_uuid const& value ) const
 {
   return klv_uuid_length();
 }
@@ -418,8 +409,7 @@ klv_string_format
 // ----------------------------------------------------------------------------
 size_t
 klv_string_format
-::length_of_typed( std::string const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( std::string const& value ) const
 {
   return klv_string_length( value );
 }
@@ -460,8 +450,7 @@ klv_uint_format
 // ----------------------------------------------------------------------------
 size_t
 klv_uint_format
-::length_of_typed( uint64_t const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( uint64_t const& value ) const
 {
   return klv_int_length( value );
 }
@@ -502,8 +491,7 @@ klv_sint_format
 // ----------------------------------------------------------------------------
 size_t
 klv_sint_format
-::length_of_typed( int64_t const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( int64_t const& value ) const
 {
   return klv_int_length( value );
 }
@@ -569,8 +557,7 @@ klv_enum_format< T >
 template < class T >
 size_t
 klv_enum_format< T >
-::length_of_typed( data_type const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( data_type const& value ) const
 {
   return klv_int_length( static_cast< uint64_t >( value ) );
 }
@@ -600,8 +587,7 @@ klv_ber_format
 // ----------------------------------------------------------------------------
 size_t
 klv_ber_format
-::length_of_typed( uint64_t const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( uint64_t const& value ) const
 {
   return klv_ber_length( value );
 }
@@ -642,8 +628,7 @@ klv_ber_oid_format
 // ----------------------------------------------------------------------------
 size_t
 klv_ber_oid_format
-::length_of_typed( uint64_t const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( uint64_t const& value ) const
 {
   return klv_ber_oid_length( value );
 }
@@ -665,34 +650,41 @@ klv_float_format
 {}
 
 // ----------------------------------------------------------------------------
-double
+klv_lengthy< double >
 klv_float_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
-  return klv_read_float( data, length );
+  return { klv_read_float( data, length ), length };
 }
 
 // ----------------------------------------------------------------------------
 void
 klv_float_format
-::write_typed( double const& value,
+::write_typed( klv_lengthy< double > const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  klv_write_float( value, data, length );
+  klv_write_float( value.value, data, length );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_float_format
+::length_of_typed( klv_lengthy< double > const& value ) const
+{
+  return value.length;
 }
 
 // ----------------------------------------------------------------------------
 std::ostream&
 klv_float_format
-::print_typed( std::ostream& os, double const& value,
-               size_t length_hint ) const
+::print_typed( std::ostream& os, klv_lengthy< double > const& value ) const
 {
   auto const flags = os.flags();
 
   // Print the number of digits corresponding to the precision of the format
-  auto const length = m_fixed_length ? m_fixed_length : length_hint;
+  auto const length = m_fixed_length ? m_fixed_length : value.length;
   auto const digits = ( length == 4 ) ? ( FLT_DIG + 1 ) : ( DBL_DIG + 1 );
-  os << std::setprecision( digits ) << value;
+  os << std::setprecision( digits ) << value.value;
 
   os.flags( flags );
   return os;
@@ -716,35 +708,44 @@ klv_sflint_format
 {}
 
 // ----------------------------------------------------------------------------
-double
+klv_lengthy< double >
 klv_sflint_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
-  return klv_read_flint< int64_t >( m_minimum, m_maximum, data, length );
+  return { klv_read_flint< int64_t >( m_minimum, m_maximum, data, length ),
+           length };
 }
 
 // ----------------------------------------------------------------------------
 void
 klv_sflint_format
-::write_typed( double const& value,
+::write_typed( klv_lengthy< double > const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  klv_write_flint< int64_t >( value, m_minimum, m_maximum, data, length );
+  klv_write_flint< int64_t >( value.value, m_minimum, m_maximum,
+                              data, length );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_sflint_format
+::length_of_typed( klv_lengthy< double > const& value ) const
+{
+  return value.length;
 }
 
 // ----------------------------------------------------------------------------
 std::ostream&
 klv_sflint_format
-::print_typed( std::ostream& os, double const& value,
-               size_t length_hint ) const
+::print_typed( std::ostream& os, klv_lengthy< double > const& value ) const
 {
   auto const flags = os.flags();
 
   // Print the number of digits corresponding to the precision of the format
-  auto const length = m_fixed_length ? m_fixed_length : length_hint;
+  auto const length = m_fixed_length ? m_fixed_length : value.length;
   auto const digits = length ? bits_to_decimal_digits( length * 8 )
                              : ( DBL_DIG + 1 );
-  os << std::setprecision( digits ) << value;
+  os << std::setprecision( digits ) << value.value;
 
   os.flags( flags );
   return os;
@@ -785,35 +786,44 @@ klv_uflint_format
 {}
 
 // ----------------------------------------------------------------------------
-double
+klv_lengthy< double >
 klv_uflint_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
-  return klv_read_flint< uint64_t >( m_minimum, m_maximum, data, length );
+  return { klv_read_flint< uint64_t >( m_minimum, m_maximum, data, length ),
+           length };
 }
 
 // ----------------------------------------------------------------------------
 void
 klv_uflint_format
-::write_typed( double const& value,
+::write_typed( klv_lengthy< double > const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  klv_write_flint< uint64_t >( value, m_minimum, m_maximum, data, length );
+  klv_write_flint< uint64_t >( value.value, m_minimum, m_maximum,
+                               data, length );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_uflint_format
+::length_of_typed( klv_lengthy< double > const& value ) const
+{
+  return value.length;
 }
 
 // ----------------------------------------------------------------------------
 std::ostream&
 klv_uflint_format
-::print_typed( std::ostream& os, double const& value,
-               size_t length_hint ) const
+::print_typed( std::ostream& os, klv_lengthy< double > const& value ) const
 {
   auto const flags = os.flags();
 
   // Print the number of digits corresponding to the precision of the format
-  auto const length = m_fixed_length ? m_fixed_length : length_hint;
+  auto const length = m_fixed_length ? m_fixed_length : value.length;
   auto const digits = length ? bits_to_decimal_digits( length * 8 )
                              : ( DBL_DIG + 1 );
-  os << std::setprecision( digits ) << value;
+  os << std::setprecision( digits ) << value.value;
 
   os.flags( flags );
   return os;
@@ -854,35 +864,42 @@ klv_imap_format
     m_maximum{ maximum } {}
 
 // ----------------------------------------------------------------------------
-double
+klv_lengthy< double >
 klv_imap_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
-  return klv_read_imap( m_minimum, m_maximum, data, length );
+  return { klv_read_imap( m_minimum, m_maximum, data, length ), length };
 }
 
 // ----------------------------------------------------------------------------
 void
 klv_imap_format
-::write_typed( double const& value,
+::write_typed( klv_lengthy< double > const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  klv_write_imap( value, m_minimum, m_maximum, data, length );
+  klv_write_imap( value.value, m_minimum, m_maximum, data, length );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_imap_format
+::length_of_typed( klv_lengthy< double > const& value ) const
+{
+  return value.length;
 }
 
 // ----------------------------------------------------------------------------
 std::ostream&
 klv_imap_format
-::print_typed( std::ostream& os, double const& value,
-               size_t length_hint ) const
+::print_typed( std::ostream& os, klv_lengthy< double > const& value ) const
 {
   auto const flags = os.flags();
 
   // Print the number of digits corresponding to the precision of the format
-  auto const length = m_fixed_length ? m_fixed_length : length_hint;
+  auto const length = m_fixed_length ? m_fixed_length : value.length;
   auto const digits = length ? bits_to_decimal_digits( length * 8 - 1 )
                              : ( DBL_DIG + 1 );
-  os << std::setprecision( digits ) << value;
+  os << std::setprecision( digits ) << value.value;
 
   os.flags( flags );
   return os;

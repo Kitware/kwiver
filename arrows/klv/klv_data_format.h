@@ -10,6 +10,7 @@
 
 #include "klv_blob.txx"
 #include "klv_key.h"
+#include "klv_lengthy.h"
 #include "klv_read_write.txx"
 #include "klv_uuid.hpp"
 #include "klv_value.h"
@@ -169,10 +170,10 @@ protected:
                size_t length ) const = 0;
 
   virtual size_t
-  length_of_typed( T const& value, size_t length_hint ) const;
+  length_of_typed( T const& value ) const;
 
   virtual std::ostream&
-  print_typed( std::ostream& os, T const& value, size_t length_hint ) const;
+  print_typed( std::ostream& os, T const& value ) const;
 };
 
 // ----------------------------------------------------------------------------
@@ -198,7 +199,7 @@ protected:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_blob const& value, size_t length_hint ) const override;
+  length_of_typed( klv_blob const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -221,7 +222,7 @@ protected:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_uuid const& value, size_t length_hint ) const override;
+  length_of_typed( klv_uuid const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -244,8 +245,7 @@ protected:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( std::string const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( std::string const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -271,7 +271,7 @@ protected:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( uint64_t const& value, size_t length_hint ) const override;
+  length_of_typed( uint64_t const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -297,7 +297,7 @@ protected:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( int64_t const& value, size_t length_hint ) const override;
+  length_of_typed( int64_t const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -326,8 +326,7 @@ protected:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( data_type const& value,
-                   VITAL_UNUSED size_t length_hint ) const override;
+  length_of_typed( data_type const& value ) const override;
 
   size_t m_length;
 };
@@ -355,7 +354,7 @@ protected:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( uint64_t const& value, size_t length_hint ) const override;
+  length_of_typed( uint64_t const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -381,13 +380,13 @@ protected:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( uint64_t const& value, size_t length_hint ) const override;
+  length_of_typed( uint64_t const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
 /// Interprets data as IEEE-754 floating point value.
 class KWIVER_ALGO_KLV_EXPORT klv_float_format
-  : public klv_data_format_< double >
+  : public klv_data_format_< klv_lengthy< double > >
 {
 public:
   klv_float_format( size_t fixed_length = 0 );
@@ -399,23 +398,26 @@ public:
   description() const override;
 
 protected:
-  double
+  klv_lengthy< double >
   read_typed( klv_read_iter_t& data, size_t length ) const override;
 
   void
-  write_typed( double const& value,
+  write_typed( klv_lengthy< double > const& value,
                klv_write_iter_t& data, size_t length ) const override;
 
+  size_t
+  length_of_typed( klv_lengthy< double > const& value ) const override;
+
   std::ostream&
-  print_typed( std::ostream& os, double const& value,
-               size_t length_hint ) const override;
+  print_typed( std::ostream& os,
+               klv_lengthy< double > const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
 /// Interprets data as an unsigned integer mapped to a known floating-point
 /// range.
 class KWIVER_ALGO_KLV_EXPORT klv_sflint_format
-  : public klv_data_format_< double >
+  : public klv_data_format_< klv_lengthy< double > >
 {
 public:
   klv_sflint_format( double minimum, double maximum, size_t fixed_length = 0 );
@@ -433,16 +435,19 @@ public:
   maximum() const;
 
 protected:
-  double
+  klv_lengthy< double >
   read_typed( klv_read_iter_t& data, size_t length ) const override;
 
   void
-  write_typed( double const& value,
+  write_typed( klv_lengthy< double > const& value,
                klv_write_iter_t& data, size_t length ) const override;
 
+  size_t
+  length_of_typed( klv_lengthy< double > const& value ) const override;
+
   std::ostream&
-  print_typed( std::ostream& os, double const& value,
-               size_t length_hint ) const override;
+  print_typed( std::ostream& os,
+               klv_lengthy< double > const& value ) const override;
 
   double m_minimum;
   double m_maximum;
@@ -452,7 +457,7 @@ protected:
 /// Interprets data as an signed integer mapped to a known floating-point
 /// range.
 class KWIVER_ALGO_KLV_EXPORT klv_uflint_format
-  : public klv_data_format_< double >
+  : public klv_data_format_< klv_lengthy< double > >
 {
 public:
   klv_uflint_format( double minimum, double maximum, size_t fixed_length = 0 );
@@ -470,16 +475,19 @@ public:
   maximum() const;
 
 protected:
-  double
+  klv_lengthy< double >
   read_typed( klv_read_iter_t& data, size_t length ) const override;
 
   void
-  write_typed( double const& value,
+  write_typed( klv_lengthy< double > const& value,
                klv_write_iter_t& data, size_t length ) const override;
 
+  size_t
+  length_of_typed( klv_lengthy< double > const& value ) const override;
+
   std::ostream&
-  print_typed( std::ostream& os, double const& value,
-               size_t length_hint ) const override;
+  print_typed( std::ostream& os,
+               klv_lengthy< double > const& value ) const override;
 
   double m_minimum;
   double m_maximum;
@@ -488,7 +496,7 @@ protected:
 // ----------------------------------------------------------------------------
 /// Interprets data as a floating point value encoded in IMAP format.
 class KWIVER_ALGO_KLV_EXPORT klv_imap_format
-  : public klv_data_format_< double >
+  : public klv_data_format_< klv_lengthy< double > >
 {
 public:
   klv_imap_format( double minimum, double maximum, size_t fixed_length = 0 );
@@ -503,16 +511,19 @@ public:
   maximum() const;
 
 protected:
-  double
+  klv_lengthy< double >
   read_typed( klv_read_iter_t& data, size_t length ) const override;
 
   void
-  write_typed( double const& value,
+  write_typed( klv_lengthy< double > const& value,
                klv_write_iter_t& data, size_t length ) const override;
 
+  size_t
+  length_of_typed( klv_lengthy< double > const& value ) const override;
+
   std::ostream&
-  print_typed( std::ostream& os, double const& value,
-               size_t length_hint ) const override;
+  print_typed( std::ostream& os,
+               klv_lengthy< double > const& value ) const override;
 
   double m_minimum;
   double m_maximum;

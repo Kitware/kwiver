@@ -90,8 +90,7 @@ klv_0903_vtrackitem_pack_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0903_vtrackitem_pack_format
-::length_of_typed( klv_0903_vtrackitem_pack const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( klv_0903_vtrackitem_pack const& value ) const
 {
   return klv_ber_oid_length( value.id ) +
          klv_0903_vtrackitem_local_set_format().length_of( value.set );

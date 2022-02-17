@@ -1201,8 +1201,7 @@ klv_0601_control_command_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0601_control_command_format
-::length_of_typed( klv_0601_control_command const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( klv_0601_control_command const& value ) const
 {
   return klv_ber_oid_length( value.id ) +
          klv_ber_length( klv_string_length( value.string ) ) +
@@ -1266,8 +1265,7 @@ klv_0601_control_command_verify_list_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0601_control_command_verify_list_format
-::length_of_typed( std::vector< uint16_t > const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( std::vector< uint16_t > const& value ) const
 {
   size_t total_length = 0;
 
@@ -1344,8 +1342,7 @@ klv_0601_frame_rate_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0601_frame_rate_format
-::length_of_typed( klv_0601_frame_rate const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( klv_0601_frame_rate const& value ) const
 {
   return klv_ber_oid_length( value.numerator ) +
          ( ( value.denominator == 1 )
@@ -1535,8 +1532,7 @@ klv_0601_country_codes_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0601_country_codes_format
-::length_of_typed( klv_0601_country_codes const& value,
-                   size_t length_hint ) const
+::length_of_typed( klv_0601_country_codes const& value ) const
 {
   // Cannot be omitted
   size_t const length_of_coding_method = 1;
@@ -1802,8 +1798,7 @@ klv_0601_airbase_locations_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0601_airbase_locations_format
-::length_of_typed( klv_0601_airbase_locations const& value,
-                   size_t length_hint ) const
+::length_of_typed( klv_0601_airbase_locations const& value ) const
 {
   // Take-off location
   size_t length_of_take_off_location = 0;
@@ -1917,10 +1912,10 @@ klv_0601_view_domain_format
   if( length_of_azimuth )
   {
     auto const azimuth_value_length = length_of_azimuth / 2;
-    result.azimuth_start = klv_value{
+    result.azimuth_start = klv_lengthy< double >{
       klv_read_imap( 0.0, 360.0, data, azimuth_value_length ),
       azimuth_value_length };
-    result.azimuth_range = klv_value{
+    result.azimuth_range = klv_lengthy< double >{
       klv_read_imap( 0.0, 360.0, data, azimuth_value_length ),
       azimuth_value_length };
   }
@@ -1937,10 +1932,10 @@ klv_0601_view_domain_format
   if( length_of_elevation )
   {
     auto const elevation_value_length = length_of_elevation / 2;
-    result.elevation_start = klv_value{
+    result.elevation_start = klv_lengthy< double >{
       klv_read_imap( -180.0, 180.0, data, elevation_value_length ),
       elevation_value_length };
-    result.elevation_range = klv_value{
+    result.elevation_range = klv_lengthy< double >{
       klv_read_imap( 0.0, 360.0, data, elevation_value_length ),
       elevation_value_length };
   }
@@ -1957,10 +1952,10 @@ klv_0601_view_domain_format
   if( length_of_roll )
   {
     auto const roll_value_length = length_of_roll / 2;
-    result.roll_start = klv_value{
+    result.roll_start = klv_lengthy< double >{
       klv_read_imap( 0.0, 360.0, data, roll_value_length ),
       roll_value_length };
-    result.roll_range = klv_value{
+    result.roll_range = klv_lengthy< double >{
       klv_read_imap( 0.0, 360.0, data, roll_value_length ),
       roll_value_length };
   }
@@ -1978,19 +1973,17 @@ klv_0601_view_domain_format
                             return length - std::distance( begin, data );
                           };
   auto const write_elements =
-    [ & ]( klv_value const& element_start, klv_value const& element_range,
+    [ & ]( klv_lengthy< double > const& element_start,
+           klv_lengthy< double > const& element_range,
            double min, double max ){
-    size_t const length_of_elements =
-      element_start.length_hint()
-      ? ( element_start.length_hint() * 2 )
-      : ( 4 * 2 );
+    size_t const length_of_elements = element_start.length * 2;
     if( length_of_elements <= remaining_length() )
     {
       size_t const element_length = length_of_elements / 2;
       klv_write_ber( length_of_elements, data, remaining_length() );
-      klv_write_imap( element_start.get< double >(),
+      klv_write_imap( element_start.value,
                       min, max, data, element_length );
-      klv_write_imap( element_range.get< double >(),
+      klv_write_imap( element_range.value,
                       0.0, 360.0, data, element_length );
     }
     else
@@ -2001,9 +1994,9 @@ klv_0601_view_domain_format
   };
 
   // Write azimuth
-  if( !value.azimuth_start.empty() && !value.azimuth_range.empty() )
+  if( value.azimuth_start && value.azimuth_range )
   {
-    write_elements( value.azimuth_start, value.azimuth_range, 0.0, 360.0 );
+    write_elements( *value.azimuth_start, *value.azimuth_range, 0.0, 360.0 );
   }
   else
   {
@@ -2011,21 +2004,21 @@ klv_0601_view_domain_format
   }
 
   // Write elevation
-  if( !value.elevation_start.empty() && !value.elevation_range.empty() )
+  if( value.elevation_start && value.elevation_range )
   {
-    write_elements( value.elevation_start, value.elevation_range,
+    write_elements( *value.elevation_start, *value.elevation_range,
                     -180.0, 180.0 );
   }
-  else if( !value.roll_start.empty() && !value.roll_range.empty() )
+  else if( value.roll_start && value.roll_range )
   {
     klv_write_ber< size_t >( 0, data, remaining_length() );
   }
   // Value is truncated if roll is also empty
 
   // Write Roll
-  if( !value.roll_start.empty() && !value.roll_range.empty() )
+  if( value.roll_start && value.roll_range )
   {
-    write_elements( value.roll_start, value.roll_range, 0.0, 360.0 );
+    write_elements( *value.roll_start, *value.roll_range, 0.0, 360.0 );
   }
   // Value is truncated if empty
 }
@@ -2033,44 +2026,31 @@ klv_0601_view_domain_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0601_view_domain_format
-::length_of_typed( klv_0601_view_domain const& value,
-                   size_t length_hint ) const
+::length_of_typed( klv_0601_view_domain const& value ) const
 {
   // Azimuth
-  size_t const azimuth_length_hint =
-    value.azimuth_start.length_hint()
-    ? value.azimuth_start.length_hint()
-    : 4;
   size_t const length_of_azimuth =
-    ( !value.azimuth_start.empty() && !value.azimuth_range.empty() )
-    ? ( azimuth_length_hint * 2 )
+    ( value.azimuth_start && value.azimuth_range )
+    ? ( value.azimuth_start->length * 2 )
     : 0;
   size_t const length_of_length_of_azimuth =
     klv_ber_length( length_of_azimuth );
 
   // Elevation
-  size_t const elevation_length_hint =
-    value.elevation_start.length_hint()
-    ? value.elevation_start.length_hint()
-    : 4;
   size_t const length_of_elevation =
-    ( !value.elevation_start.empty() && !value.elevation_range.empty() )
-    ? ( elevation_length_hint * 2 )
+    ( value.elevation_start && value.elevation_range )
+    ? ( value.elevation_start->length * 2 )
     : 0;
   size_t const length_of_length_of_elevation =
     ( length_of_elevation ||
-      ( !value.roll_start.empty() && !value.roll_range.empty() ) )
+      ( value.roll_start && value.roll_range ) )
     ? klv_ber_length( length_of_elevation )
     : 0;
 
   // Roll
-  size_t const roll_length_hint =
-    value.roll_start.length_hint()
-    ? value.roll_start.length_hint()
-    : 4;
   size_t const length_of_roll =
-    ( !value.roll_start.empty() && !value.roll_range.empty() )
-    ? ( roll_length_hint * 2 )
+    ( value.roll_start && value.roll_range )
+    ? ( value.roll_start->length * 2 )
     : 0;
   size_t const length_of_length_of_roll =
     length_of_roll
@@ -2336,8 +2316,7 @@ klv_0601_weapons_store_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0601_weapons_store_format
-::length_of_typed( std::vector< klv_0601_weapons_store > const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( std::vector< klv_0601_weapons_store > const& value ) const
 {
   size_t total_length = 0;
   for( klv_0601_weapons_store const item : value )
@@ -2505,8 +2484,7 @@ klv_0601_payload_list_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0601_payload_list_format
-::length_of_typed( std::vector< klv_0601_payload_record > const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( std::vector< klv_0601_payload_record > const& value ) const
 {
   size_t total_length = 0;
 

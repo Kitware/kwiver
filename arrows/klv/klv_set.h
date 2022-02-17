@@ -167,12 +167,10 @@ protected:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_set< Key > const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_set< Key > const& value ) const override;
 
   std::ostream&
-  print_typed( std::ostream& os, klv_set< Key > const& value,
-               size_t length_hint ) const;
+  print_typed( std::ostream& os, klv_set< Key > const& value ) const;
 
   // Print warnings if tags appear too few or too many times in the given set.
   void

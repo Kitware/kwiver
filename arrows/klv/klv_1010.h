@@ -68,8 +68,7 @@ private:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_1010_sdcc_flp const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_1010_sdcc_flp const& value ) const override;
 
   bool m_sigma_uses_imap;
   double m_sigma_minimum;

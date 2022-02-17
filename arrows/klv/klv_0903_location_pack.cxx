@@ -247,8 +247,7 @@ klv_0903_location_pack_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0903_location_pack_format
-::length_of_typed( klv_0903_location_pack const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( klv_0903_location_pack const& value ) const
 {
   return 4 + 4 + 2 +
          ( value.sigma ? klv_0903_rho_pack_length() : 0 ) +
@@ -324,8 +323,7 @@ klv_0903_velocity_pack_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0903_velocity_pack_format
-::length_of_typed( klv_0903_velocity_pack const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( klv_0903_velocity_pack const& value ) const
 {
   return 2 + 2 + 2 +
          ( value.sigma ? klv_0903_rho_pack_length() : 0 ) +

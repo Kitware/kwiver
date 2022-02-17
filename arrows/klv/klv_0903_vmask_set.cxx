@@ -85,8 +85,7 @@ klv_0903_pixel_run_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0903_pixel_run_format
-::length_of_typed( klv_0903_pixel_run const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( klv_0903_pixel_run const& value ) const
 {
   auto const length_of_index = klv_int_length( value.index );
   auto const length_of_length_of_index = klv_ber_length( length_of_index );

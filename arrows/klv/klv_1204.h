@@ -78,8 +78,7 @@ private:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_1204_miis_id const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_1204_miis_id const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------

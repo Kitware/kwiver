@@ -117,8 +117,7 @@ private:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_0903_location_pack const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_0903_location_pack const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -151,8 +150,7 @@ private:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_0903_velocity_pack const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_0903_velocity_pack const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------

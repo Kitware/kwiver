@@ -176,27 +176,20 @@ public:
 
 // ----------------------------------------------------------------------------
 klv_value
-::klv_value() : m_length_hint{ 0 } {}
+::klv_value()
+{}
 
 // ----------------------------------------------------------------------------
 template < class T, typename > klv_value
-::klv_value( T&& value ) : m_length_hint{ 0 }
+::klv_value( T&& value )
 {
   m_item.reset( new internal_< typename std::decay< T >::type >{
                   std::forward< T >( value ) } );
 }
 
 // ----------------------------------------------------------------------------
-template < class T > klv_value
-::klv_value( T&& value, size_t length_hint )
-{
-  klv_value{ std::forward< T >( value ) }.swap( *this );
-  m_length_hint = length_hint;
-}
-
-// ----------------------------------------------------------------------------
 klv_value
-::klv_value( klv_value const& other ) : m_length_hint{ other.m_length_hint }
+::klv_value( klv_value const& other )
 {
   m_item.reset( other.m_item ? other.m_item->clone() : nullptr );
 }
@@ -218,7 +211,6 @@ klv_value
 ::operator=( klv_value const& other )
 {
   m_item.reset( other.m_item ? other.m_item->clone() : nullptr );
-  m_length_hint = other.m_length_hint;
   return *this;
 }
 
@@ -249,28 +241,11 @@ klv_value
 }
 
 // ----------------------------------------------------------------------------
-void
-klv_value
-::set_length_hint( size_t length_hint )
-{
-  m_length_hint = length_hint;
-}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_value
-::length_hint() const
-{
-  return m_length_hint;
-}
-
-// ----------------------------------------------------------------------------
 klv_value&
 klv_value
 ::swap( klv_value& rhs ) noexcept
 {
   m_item.swap( rhs.m_item );
-  std::swap( m_length_hint, rhs.m_length_hint );
   return *this;
 }
 
@@ -429,8 +404,6 @@ operator<<( std::ostream& os, klv_value const& rhs )
   template KWIVER_ALGO_KLV_EXPORT                    \
   klv_value::klv_value( T const& );                  \
   template KWIVER_ALGO_KLV_EXPORT                    \
-  klv_value::klv_value( T&&, size_t );               \
-  template KWIVER_ALGO_KLV_EXPORT                    \
   klv_value & klv_value::operator= < T >( T && );    \
   template KWIVER_ALGO_KLV_EXPORT                    \
   T & klv_value::get< T >();                         \
@@ -444,6 +417,7 @@ operator<<( std::ostream& os, klv_value const& rhs )
   klv_value::internal_< T >;
 
 KLV_INSTANTIATE( double );
+KLV_INSTANTIATE( klv_lengthy< double > );
 KLV_INSTANTIATE( int64_t );
 KLV_INSTANTIATE( klv_0102_country_coding_method );
 KLV_INSTANTIATE( klv_0102_security_classification );

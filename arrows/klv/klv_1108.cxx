@@ -192,8 +192,7 @@ klv_1108_window_corners_pack_format
 // ----------------------------------------------------------------------------
 size_t
 klv_1108_window_corners_pack_format
-::length_of_typed( klv_1108_window_corners_pack const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( klv_1108_window_corners_pack const& value ) const
 {
   return klv_ber_oid_length( value.bbox.min_y() ) +
          klv_ber_oid_length( value.bbox.min_x() ) +

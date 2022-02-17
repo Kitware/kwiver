@@ -8,6 +8,7 @@ set( sources
   klv_convert_vital.cxx
   klv_data_format.cxx
   klv_demuxer.cxx
+  klv_lengthy.cxx
   klv_key.cxx
   klv_metadata.cxx
   klv_muxer.cxx
@@ -48,6 +49,7 @@ set( sources
 set( public_headers
   klv_blob.h
   klv_demuxer.h
+  klv_lengthy.h
   klv_key.h
   klv_metadata.h
   klv_muxer.h

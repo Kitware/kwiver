@@ -71,8 +71,7 @@ private:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_0903_pixel_run const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_0903_pixel_run const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------

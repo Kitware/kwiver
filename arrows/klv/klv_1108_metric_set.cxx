@@ -79,8 +79,7 @@ klv_1108_metric_implementer_format
 // ----------------------------------------------------------------------------
 size_t
 klv_1108_metric_implementer_format
-::length_of_typed( klv_1108_metric_implementer const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( klv_1108_metric_implementer const& value ) const
 {
   // Add one byte for separator character
   return value.organization.size() + 1 + value.subgroup.size();

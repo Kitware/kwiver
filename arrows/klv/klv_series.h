@@ -89,8 +89,7 @@ protected:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_series_t const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_series_t const& value ) const override;
 
   Format m_format;
 };

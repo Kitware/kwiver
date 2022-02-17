@@ -161,8 +161,7 @@ klv_series_format< Format >
 template < class Format >
 size_t
 klv_series_format< Format >
-::length_of_typed( klv_series_t const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( klv_series_t const& value ) const
 {
   size_t result = 0;
   for( auto const& entry : *value )

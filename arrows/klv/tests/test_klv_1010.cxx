@@ -10,6 +10,8 @@
 #include <arrows/klv/klv_0601.h>
 #include <arrows/klv/klv_1010.h>
 
+using kld = klv_lengthy< double >;
+
 // ----------------------------------------------------------------------------
 int
 main( int argc, char** argv )
@@ -29,10 +31,10 @@ test_read_write_0601( klv_value const& expected_result,
 
 // ----------------------------------------------------------------------------
 auto const expected_result = klv_local_set{
-  { KLV_0601_VERSION_NUMBER, uint64_t{ 13 } },
-  { KLV_0601_SENSOR_LATITUDE, 60.176822966978335 },
-  { KLV_0601_SENSOR_LONGITUDE, 128.42675904204452 },
-  { KLV_0601_PLATFORM_HEADING_ANGLE, 159.97436484321355 },
+  { KLV_0601_VERSION_NUMBER,         uint64_t{ 13 } },
+  { KLV_0601_SENSOR_LATITUDE,        kld{ 60.176822966978335 } },
+  { KLV_0601_SENSOR_LONGITUDE,       kld{ 128.42675904204452 } },
+  { KLV_0601_PLATFORM_HEADING_ANGLE, kld{ 159.97436484321355 } },
   { KLV_0601_SDCC_FLP,
     klv_1010_sdcc_flp{
       { KLV_0601_SENSOR_LATITUDE,

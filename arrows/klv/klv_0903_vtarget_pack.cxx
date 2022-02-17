@@ -116,8 +116,7 @@ klv_0903_fpa_index_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0903_fpa_index_format
-::length_of_typed( VITAL_UNUSED klv_0903_fpa_index const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( VITAL_UNUSED klv_0903_fpa_index const& value ) const
 {
   return 2;
 }
@@ -164,8 +163,7 @@ klv_0903_vtarget_pack_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0903_vtarget_pack_format
-::length_of_typed( klv_0903_vtarget_pack const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( klv_0903_vtarget_pack const& value ) const
 {
   return klv_ber_oid_length( value.id ) +
          klv_0903_vtarget_local_set_format().length_of( value.set );

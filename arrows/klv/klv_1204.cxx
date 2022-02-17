@@ -191,7 +191,7 @@ klv_1204_miis_id_format
 // ----------------------------------------------------------------------------
 size_t
 klv_1204_miis_id_format
-::length_of_typed( klv_1204_miis_id const& value, size_t length_hint ) const
+::length_of_typed( klv_1204_miis_id const& value ) const
 {
   // Version number byte + usage byte + 16 bytes for each UUID present
   return

@@ -169,7 +169,7 @@ klv_1010_sdcc_flp_format
     {
       result.sigma.push_back(
           result.sigma_format->read( data, tracker.verify( sigma_length ) )
-          .get< double >() );
+          .get< klv_lengthy< double > >().value );
     }
   }
 
@@ -186,7 +186,7 @@ klv_1010_sdcc_flp_format
       {
         result.rho.push_back(
             result.rho_format->read( data, tracker.verify( rho_length ) )
-            .get< double >() );
+            .get< klv_lengthy< double > >().value );
       }
     }
   }
@@ -263,8 +263,9 @@ klv_1010_sdcc_flp_format
   {
     for( auto const sigma_value : value.sigma )
     {
-      value.sigma_format->write( sigma_value, data,
-                                 tracker.verify( sigma_length ) );
+      value.sigma_format->write(
+        klv_lengthy< double >{ sigma_value, sigma_length },
+        data, tracker.verify( sigma_length ) );
     }
   }
 
@@ -277,7 +278,9 @@ klv_1010_sdcc_flp_format
       {
         continue;
       }
-      value.rho_format->write( rho_value, data, tracker.verify( rho_length ) );
+      value.rho_format->write(
+        klv_lengthy< double >{ rho_value, rho_length },
+        data, tracker.verify( rho_length ) );
     }
   }
 }
@@ -285,8 +288,7 @@ klv_1010_sdcc_flp_format
 // ----------------------------------------------------------------------------
 size_t
 klv_1010_sdcc_flp_format
-::length_of_typed( klv_1010_sdcc_flp const& value,
-                   size_t length_hint ) const
+::length_of_typed( klv_1010_sdcc_flp const& value ) const
 {
   auto const matrix_size = value.members.size();
   auto const sigma_length =

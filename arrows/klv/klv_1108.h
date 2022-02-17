@@ -186,8 +186,7 @@ private:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_1108_window_corners_pack const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_1108_window_corners_pack const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------

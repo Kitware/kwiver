@@ -585,8 +585,7 @@ klv_set_format< Key >
 template < class Key >
 size_t
 klv_set_format< Key >
-::length_of_typed( klv_set< Key > const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( klv_set< Key > const& value ) const
 {
   using kt = key_traits< Key >;
 
@@ -609,8 +608,7 @@ klv_set_format< Key >
 template < class Key >
 std::ostream&
 klv_set_format< Key >
-::print_typed( std::ostream& os, klv_set< Key > const& value,
-               VITAL_UNUSED size_t length_hint ) const
+::print_typed( std::ostream& os, klv_set< Key > const& value ) const
 {
   using kt = key_traits< Key >;
 

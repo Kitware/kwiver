@@ -384,8 +384,7 @@ private:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_0601_control_command const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_0601_control_command const& value ) const override;
 };
 
 // ---------------------------------------------------------------------------
@@ -408,8 +407,7 @@ private:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( std::vector< uint16_t > const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( std::vector< uint16_t > const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -448,8 +446,7 @@ private:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_0601_frame_rate const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_0601_frame_rate const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -490,8 +487,7 @@ private:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_0601_country_codes const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_0601_country_codes const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -547,8 +543,7 @@ private:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_0601_airbase_locations const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_0601_airbase_locations const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -556,12 +551,12 @@ private:
 /// Relative Sensor Azimuth, Elevation and Roll Angles.
 struct klv_0601_view_domain
 {
-  klv_value azimuth_start;
-  klv_value azimuth_range;
-  klv_value elevation_start;
-  klv_value elevation_range;
-  klv_value roll_start;
-  klv_value roll_range;
+  kwiver::vital::optional< klv_lengthy< double > > azimuth_start;
+  kwiver::vital::optional< klv_lengthy< double > > azimuth_range;
+  kwiver::vital::optional< klv_lengthy< double > > elevation_start;
+  kwiver::vital::optional< klv_lengthy< double > > elevation_range;
+  kwiver::vital::optional< klv_lengthy< double > > roll_start;
+  kwiver::vital::optional< klv_lengthy< double > > roll_range;
 };
 
 // ----------------------------------------------------------------------------
@@ -592,8 +587,7 @@ private:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_0601_view_domain const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_0601_view_domain const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -688,8 +682,8 @@ private:
   size_t
   length_of_typed( klv_0601_weapons_store const& value ) const;
   size_t
-  length_of_typed( std::vector< klv_0601_weapons_store > const& value,
-                   size_t length_hint ) const override;
+  length_of_typed(
+    std::vector< klv_0601_weapons_store > const& value ) const override;
 };
 
 // ---------------------------------------------------------------------------
@@ -753,8 +747,8 @@ class KWIVER_ALGO_KLV_EXPORT klv_0601_payload_list_format
     length_of_typed( klv_0601_payload_record const& value ) const;
 
     size_t
-    length_of_typed( std::vector< klv_0601_payload_record > const& value,
-                     size_t length_hint ) const override;
+    length_of_typed(
+      std::vector< klv_0601_payload_record > const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
