@@ -29,7 +29,18 @@ namespace pdal {
 
 /// Write landmarks to a file with PDAL
 void
-  write_pdal::write_pdal_file(vital::path_t const& filename,
+write_pdal::write_pdal_file(vital::path_t const& filename,
+             vital::path_t const& input_geo_origin_file,
+             vital::landmark_map_sptr const& landmarks)
+{
+  auto lgcs = vital::local_geo_cs();
+  read_local_geo_cs_from_file(lgcs, input_geo_origin_file);
+  write_pdal::write_pdal_file(filename, lgcs, landmarks);
+}
+
+/// Write landmarks to a file with PDAL
+void
+write_pdal::write_pdal_file(vital::path_t const& filename,
              vital::local_geo_cs const& lgcs,
              vital::landmark_map_sptr const& landmarks)
 {

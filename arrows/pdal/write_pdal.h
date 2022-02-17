@@ -22,6 +22,12 @@ namespace pdal {
 class KWIVER_ALGO_PDAL_EXPORT write_pdal
 {
 public:
+    /// Write landmarks to a file with PDAL provided a geo
+    void
+    write_pdal_file(vital::path_t const& filename,
+            vital::path_t const& input_geo_origin_file,
+            vital::landmark_map_sptr const& landmarks);
+
     /// Write landmarks to a file with PDAL
     void
     write_pdal_file(vital::path_t const& filename,
