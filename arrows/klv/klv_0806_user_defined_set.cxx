@@ -60,21 +60,11 @@ operator<<( std::ostream& os, klv_0806_user_defined_data_type_id value )
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator<( klv_0806_user_defined_data_type_id lhs,
-           klv_0806_user_defined_data_type_id rhs )
-{
-  return std::make_tuple( lhs.type, lhs.id ) <
-         std::make_tuple( rhs.type, rhs.id );
-}
-
-// ----------------------------------------------------------------------------
-bool
-operator==( klv_0806_user_defined_data_type_id lhs,
-            klv_0806_user_defined_data_type_id rhs )
-{
-  return lhs.type == rhs.type && lhs.id == rhs.id;
-}
+DEFINE_STRUCT_CMP(
+  klv_0806_user_defined_data_type_id,
+  &klv_0806_user_defined_data_type_id::type,
+  &klv_0806_user_defined_data_type_id::id
+)
 
 // ----------------------------------------------------------------------------
 klv_0806_user_defined_data_type_id_format
@@ -122,20 +112,10 @@ operator<<( std::ostream& os, klv_0806_user_defined_data const& value )
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator<( klv_0806_user_defined_data const& lhs,
-           klv_0806_user_defined_data const& rhs )
-{
-  return lhs.bytes < rhs.bytes;
-}
-
-// ----------------------------------------------------------------------------
-bool
-operator==( klv_0806_user_defined_data const& lhs,
-            klv_0806_user_defined_data const& rhs )
-{
-  return lhs.bytes == rhs.bytes;
-}
+DEFINE_STRUCT_CMP(
+  klv_0806_user_defined_data,
+  &klv_0806_user_defined_data::bytes
+)
 
 // ----------------------------------------------------------------------------
 std::ostream&

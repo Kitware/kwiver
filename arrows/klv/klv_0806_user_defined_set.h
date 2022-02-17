@@ -9,6 +9,7 @@
 
 #include "klv_packet.h"
 #include "klv_set.h"
+#include "klv_util.h"
 
 #include <vital/util/variant/variant.hpp>
 
@@ -64,16 +65,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_0806_user_defined_data_type_id value );
 
 // ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_0806_user_defined_data_type_id lhs,
-           klv_0806_user_defined_data_type_id rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_0806_user_defined_data_type_id lhs,
-            klv_0806_user_defined_data_type_id rhs );
+DECLARE_CMP( klv_0806_user_defined_data_type_id )
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a ST0806 user-defined data type/id.
@@ -108,16 +100,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_0806_user_defined_data const& value );
 
 // ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_0806_user_defined_data const& lhs,
-           klv_0806_user_defined_data const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_0806_user_defined_data const& lhs,
-            klv_0806_user_defined_data const& rhs );
+DECLARE_CMP( klv_0806_user_defined_data )
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a ST0806 user-defined data entry.

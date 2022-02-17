@@ -13,6 +13,7 @@
 #include "klv_0102.h"
 #include "klv_packet.h"
 #include "klv_set.h"
+#include "klv_util.h"
 
 #include "vital/optional.h"
 
@@ -361,16 +362,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_0601_control_command const& value );
 
 // ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_0601_control_command const& lhs,
-            klv_0601_control_command const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_0601_control_command const& lhs,
-           klv_0601_control_command const& rhs );
+DECLARE_CMP( klv_0601_control_command )
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a ST0601 control command.
@@ -410,14 +402,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_0601_frame_rate const& value );
 
 // ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_0601_frame_rate const& lhs, klv_0601_frame_rate const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_0601_frame_rate const& lhs, klv_0601_frame_rate const& rhs );
+DECLARE_CMP( klv_0601_frame_rate )
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a frame rate.
@@ -459,16 +444,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_0601_country_codes const& value );
 
 // ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_0601_country_codes const& lhs,
-            klv_0601_country_codes const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_0601_country_codes const& lhs,
-           klv_0601_country_codes const& rhs );
+DECLARE_CMP( klv_0601_country_codes )
 
 // ----------------------------------------------------------------------------
 /// Interprets data as country codes.
@@ -509,16 +485,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_0601_location_dlp const& value );
 
 // ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_0601_location_dlp const& lhs,
-            klv_0601_location_dlp const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_0601_location_dlp const& lhs,
-           klv_0601_location_dlp const& rhs );
+DECLARE_CMP( klv_0601_location_dlp )
 
 // ----------------------------------------------------------------------------
 /// Geographic location of the take-off site and recovery site.
@@ -534,16 +501,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_0601_airbase_locations const& value );
 
 // ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_0601_airbase_locations const& lhs,
-            klv_0601_airbase_locations const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_0601_airbase_locations const& lhs,
-           klv_0601_airbase_locations const& rhs );
+DECLARE_CMP( klv_0601_airbase_locations )
 
 // ----------------------------------------------------------------------------
 /// Interprets data as airbase locations.
@@ -588,16 +546,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_0601_view_domain const& value );
 
 // ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_0601_view_domain const& lhs,
-            klv_0601_view_domain const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_0601_view_domain const& lhs,
-           klv_0601_view_domain const& rhs );
+DECLARE_CMP( klv_0601_view_domain )
 
 // ---------------------------------------------------------------------------
 /// Interprets data as view domain

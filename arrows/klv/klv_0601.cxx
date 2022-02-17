@@ -1117,40 +1117,12 @@ operator<<( std::ostream& os, klv_0601_control_command const& value )
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator==( klv_0601_control_command const& lhs,
-            klv_0601_control_command const& rhs )
-{
-  return lhs.id == rhs.id &&
-         lhs.string == rhs.string &&
-         lhs.timestamp == rhs.timestamp;
-}
-
-// ----------------------------------------------------------------------------
-bool
-operator<( klv_0601_control_command const& lhs,
-           klv_0601_control_command const& rhs )
-{
-  if( lhs.id < rhs.id )
-  {
-    return true;
-  }
-  if( lhs.id > rhs.id )
-  {
-    return false;
-  }
-
-  if( lhs.string < rhs.string )
-  {
-    return true;
-  }
-  if( lhs.string > rhs.string )
-  {
-    return false;
-  }
-
-  return lhs.timestamp < rhs.timestamp;
-}
+DEFINE_STRUCT_CMP(
+  klv_0601_control_command,
+  &klv_0601_control_command::id,
+  &klv_0601_control_command::string,
+  &klv_0601_control_command::timestamp
+)
 
 // ----------------------------------------------------------------------------
 klv_0601_control_command_format
@@ -1260,26 +1232,11 @@ operator<<( std::ostream& os, klv_0601_frame_rate const& value )
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator==( klv_0601_frame_rate const& lhs, klv_0601_frame_rate const& rhs )
-{
-  return lhs.numerator == rhs.numerator && lhs.denominator == rhs.denominator;
-}
-
-// ----------------------------------------------------------------------------
-bool
-operator<( klv_0601_frame_rate const& lhs, klv_0601_frame_rate const& rhs )
-{
-  if( lhs.numerator < rhs.numerator )
-  {
-    return true;
-  }
-  if( lhs.numerator == rhs.numerator )
-  {
-    return lhs.denominator < rhs.denominator;
-  }
-  return false;
-}
+DEFINE_STRUCT_CMP(
+  klv_0601_frame_rate,
+  &klv_0601_frame_rate::numerator,
+  &klv_0601_frame_rate::denominator
+)
 
 // ----------------------------------------------------------------------------
 klv_0601_frame_rate_format
@@ -1365,47 +1322,13 @@ operator<<( std::ostream& os, klv_0601_country_codes const& value )
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator==( klv_0601_country_codes const& lhs,
-            klv_0601_country_codes const& rhs )
-{
-  return lhs.coding_method == rhs.coding_method &&
-         lhs.country_of_manufacture == rhs.country_of_manufacture &&
-         lhs.operator_country == rhs.operator_country &&
-         lhs.overflight_country == rhs.overflight_country;
-}
-
-// ----------------------------------------------------------------------------
-bool
-operator<( klv_0601_country_codes const& lhs,
-           klv_0601_country_codes const& rhs )
-{
-  if( lhs.coding_method < rhs.coding_method )
-  {
-    return true;
-  }
-  if( lhs.coding_method > rhs.coding_method )
-  {
-    return false;
-  }
-  if( lhs.overflight_country < rhs.overflight_country )
-  {
-    return true;
-  }
-  if( lhs.overflight_country > rhs.overflight_country )
-  {
-    return false;
-  }
-  if( lhs.operator_country < rhs.operator_country )
-  {
-    return true;
-  }
-  if( lhs.operator_country > rhs.operator_country )
-  {
-    return false;
-  }
-  return lhs.country_of_manufacture < rhs.country_of_manufacture;
-}
+DEFINE_STRUCT_CMP(
+  klv_0601_country_codes,
+  &klv_0601_country_codes::coding_method,
+  &klv_0601_country_codes::overflight_country,
+  &klv_0601_country_codes::operator_country,
+  &klv_0601_country_codes::country_of_manufacture
+)
 
 // ----------------------------------------------------------------------------
 klv_0601_country_codes_format
@@ -1612,49 +1535,12 @@ operator<<( std::ostream& os, klv_0601_location_dlp const& value )
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator==( klv_0601_location_dlp const& lhs,
-            klv_0601_location_dlp const& rhs )
-{
-  return ( lhs.latitude == rhs.latitude &&
-           lhs.longitude == rhs.longitude &&
-           lhs.altitude == rhs.altitude );
-}
-
-// ----------------------------------------------------------------------------
-bool
-operator<( klv_0601_location_dlp const& lhs,
-           klv_0601_location_dlp const& rhs )
-{
-  if( lhs.latitude < rhs.latitude )
-  {
-    return true;
-  }
-  else if( lhs.latitude > rhs.latitude )
-  {
-    return false;
-  }
-
-  if( lhs.longitude < rhs.longitude )
-  {
-    return true;
-  }
-  else if( lhs.longitude > rhs.longitude )
-  {
-    return false;
-  }
-
-  if( lhs.altitude < rhs.altitude )
-  {
-    return true;
-  }
-  else if( lhs.altitude > rhs.altitude )
-  {
-    return false;
-  }
-
-  return false;
-}
+DEFINE_STRUCT_CMP(
+  klv_0601_location_dlp,
+  &klv_0601_location_dlp::latitude,
+  &klv_0601_location_dlp::longitude,
+  &klv_0601_location_dlp::altitude
+)
 
 // ----------------------------------------------------------------------------
 std::ostream&
@@ -1678,41 +1564,11 @@ operator<<( std::ostream& os, klv_0601_airbase_locations const& value )
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator==( klv_0601_airbase_locations const& lhs,
-            klv_0601_airbase_locations const& rhs )
-{
-  return ( lhs.take_off_location == rhs.take_off_location &&
-           lhs.recovery_location == rhs.recovery_location );
-}
-
-// ----------------------------------------------------------------------------
-bool
-operator<( klv_0601_airbase_locations const& lhs,
-           klv_0601_airbase_locations const& rhs )
-{
-  // Take off location
-  if( lhs.take_off_location < rhs.take_off_location )
-  {
-    return true;
-  }
-  else if( lhs.take_off_location > rhs.take_off_location )
-  {
-    return false;
-  }
-
-  // Recovery location
-  if( lhs.recovery_location < rhs.recovery_location )
-  {
-    return true;
-  }
-  else if( lhs.recovery_location > rhs.recovery_location )
-  {
-    return false;
-  }
-
-  return false;
-}
+DEFINE_STRUCT_CMP(
+  klv_0601_airbase_locations,
+  &klv_0601_airbase_locations::take_off_location,
+  &klv_0601_airbase_locations::recovery_location
+)
 
 // ----------------------------------------------------------------------------
 klv_0601_airbase_locations_format
@@ -1954,82 +1810,15 @@ operator<<( std::ostream& os, klv_0601_view_domain const& value )
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator==( klv_0601_view_domain const& lhs,
-            klv_0601_view_domain const& rhs )
-{
-  return ( lhs.azimuth_start == rhs.azimuth_start &&
-           lhs.azimuth_range == rhs.azimuth_range &&
-           lhs.elevation_start == rhs.elevation_start &&
-           lhs.elevation_range == rhs.elevation_range &&
-           lhs.roll_start == rhs.roll_start &&
-           lhs.roll_range == rhs.roll_range );
-}
-
-// ----------------------------------------------------------------------------
-bool
-operator<( klv_0601_view_domain const& lhs,
-           klv_0601_view_domain const& rhs )
-{
-  // Azimuth
-  if( lhs.azimuth_start < rhs.azimuth_start )
-  {
-    return true;
-  }
-  else if( rhs.azimuth_start < lhs.azimuth_start )
-  {
-    return false;
-  }
-
-  if( lhs.azimuth_range < rhs.azimuth_range )
-  {
-    return true;
-  }
-  else if( rhs.azimuth_range < lhs.azimuth_range )
-  {
-    return false;
-  }
-
-  // Elevation
-  if( lhs.elevation_start < rhs.elevation_start )
-  {
-    return true;
-  }
-  else if( rhs.elevation_start < lhs.elevation_start )
-  {
-    return false;
-  }
-
-  if( lhs.elevation_range < rhs.elevation_range )
-  {
-    return true;
-  }
-  else if( rhs.elevation_range < lhs.elevation_range )
-  {
-    return false;
-  }
-
-  // Roll
-  if( lhs.roll_start < rhs.roll_start )
-  {
-    return true;
-  }
-  else if( rhs.roll_start < lhs.roll_start )
-  {
-    return false;
-  }
-
-  if( lhs.roll_range < rhs.roll_range )
-  {
-    return true;
-  }
-  else if( rhs.roll_range < lhs.roll_range )
-  {
-    return false;
-  }
-
-  return false;
-}
+DEFINE_STRUCT_CMP(
+  klv_0601_view_domain,
+  &klv_0601_view_domain::azimuth_start,
+  &klv_0601_view_domain::azimuth_range,
+  &klv_0601_view_domain::elevation_start,
+  &klv_0601_view_domain::elevation_range,
+  &klv_0601_view_domain::roll_start,
+  &klv_0601_view_domain::roll_range
+)
 
 // ----------------------------------------------------------------------------
 klv_0601_view_domain_format

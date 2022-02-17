@@ -81,46 +81,19 @@ operator<<( std::ostream& os, klv_1108_compression_profile value )
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator==( klv_1108_metric_period_pack const& lhs,
-            klv_1108_metric_period_pack const& rhs )
-{
-  return lhs.timestamp == rhs.timestamp && lhs.offset == rhs.offset;
-}
-
-// ----------------------------------------------------------------------------
-bool
-operator<( klv_1108_metric_period_pack const& lhs,
-           klv_1108_metric_period_pack const& rhs )
-{
-  if( lhs.timestamp < rhs.timestamp )
-  {
-    return true;
-  }
-  else if( rhs.timestamp < lhs.timestamp )
-  {
-    return false;
-  }
-
-  if( lhs.offset < rhs.offset )
-  {
-    return true;
-  }
-  else if( rhs.offset < lhs.offset )
-  {
-    return false;
-  }
-
-  return false;
-}
-
-// ----------------------------------------------------------------------------
 std::ostream&
 operator<<( std::ostream& os, klv_1108_metric_period_pack const& rhs )
 {
   return os << "{ Timestamp: " << rhs.timestamp << ", "
             << "Offset: " << rhs.offset << " }";
 }
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_1108_metric_period_pack,
+  &klv_1108_metric_period_pack::timestamp,
+  &klv_1108_metric_period_pack::offset
+)
 
 // ----------------------------------------------------------------------------
 klv_1108_metric_period_pack_format
@@ -156,24 +129,19 @@ klv_1108_metric_period_pack_format
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator==( klv_1108_window_corners_pack const& lhs,
-            klv_1108_window_corners_pack const& rhs )
+namespace {
+
+std::tuple< uint16_t, uint16_t, uint16_t, uint16_t >
+tuplize( klv_1108_window_corners_pack const& value )
 {
-  return lhs.bbox == rhs.bbox;
+  return std::make_tuple( value.bbox.min_x(), value.bbox.min_y(),
+                          value.bbox.max_x(), value.bbox.max_y() );
 }
 
+} // namespace
+
 // ----------------------------------------------------------------------------
-bool
-operator<( klv_1108_window_corners_pack const& lhs,
-           klv_1108_window_corners_pack const& rhs )
-{
-  // Use std::tuple's built-in lexicographical compare for brevity
-  return std::make_tuple( lhs.bbox.min_x(), lhs.bbox.min_y(),
-                          lhs.bbox.max_x(), lhs.bbox.max_y() ) <
-         std::make_tuple( rhs.bbox.min_x(), rhs.bbox.min_y(),
-                          rhs.bbox.max_x(), rhs.bbox.max_y() );
-}
+#define DEFINE_STRUCT_CMP_TUPLIZE( klv_1108_window_corners_pack )
 
 // ----------------------------------------------------------------------------
 std::ostream&

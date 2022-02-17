@@ -9,6 +9,7 @@
 #define KWIVER_ARROWS_KLV_KLV_1108_H_
 
 #include <arrows/klv/klv_set.h>
+#include <arrows/klv/klv_util.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
 #include <vital/types/bounding_box.h>
@@ -125,20 +126,11 @@ struct KWIVER_ALGO_KLV_EXPORT klv_1108_metric_period_pack
 
 // ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_1108_metric_period_pack const& lhs,
-            klv_1108_metric_period_pack const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_1108_metric_period_pack const& lhs,
-           klv_1108_metric_period_pack const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
 std::ostream&
 operator<<( std::ostream& os, klv_1108_metric_period_pack const& rhs );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_1108_metric_period_pack )
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a KLV 1108 metric period pack.
@@ -168,20 +160,11 @@ struct KWIVER_ALGO_KLV_EXPORT klv_1108_window_corners_pack
 
 // ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_1108_window_corners_pack const& lhs,
-            klv_1108_window_corners_pack const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_1108_window_corners_pack const& lhs,
-           klv_1108_window_corners_pack const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
 std::ostream&
 operator<<( std::ostream& os, klv_1108_window_corners_pack const& rhs );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_1108_metric_period_pack )
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a KLV 1108 window corners pack.

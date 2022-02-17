@@ -12,6 +12,7 @@
 
 #include "klv_key.h"
 #include "klv_set.h"
+#include "klv_util.h"
 
 #include <ostream>
 
@@ -48,20 +49,11 @@ struct KWIVER_ALGO_KLV_EXPORT klv_1108_metric_implementer {
 
 // ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_1108_metric_implementer const& lhs,
-            klv_1108_metric_implementer const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_1108_metric_implementer const& lhs,
-           klv_1108_metric_implementer const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
 std::ostream&
 operator<<( std::ostream& os, klv_1108_metric_implementer const& rhs );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_1108_metric_implementer )
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a KLV 1108 metric local set implementer.

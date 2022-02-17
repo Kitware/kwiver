@@ -27,28 +27,11 @@ operator<<( std::ostream& os, klv_1108_metric_set_tag tag )
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator==( klv_1108_metric_implementer const& lhs,
-            klv_1108_metric_implementer const& rhs )
-{
-  return lhs.organization == rhs.organization && lhs.subgroup == rhs.subgroup;
-}
-
-// ----------------------------------------------------------------------------
-bool
-operator<( klv_1108_metric_implementer const& lhs,
-           klv_1108_metric_implementer const& rhs )
-{
-  if( lhs.organization < rhs.organization )
-  {
-    return true;
-  }
-  if( lhs.organization > rhs.organization )
-  {
-    return false;
-  }
-  return lhs.subgroup < rhs.subgroup;
-}
+DEFINE_STRUCT_CMP(
+  klv_1108_metric_implementer,
+  &klv_1108_metric_implementer::organization,
+  &klv_1108_metric_implementer::subgroup
+)
 
 // ----------------------------------------------------------------------------
 std::ostream&

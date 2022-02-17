@@ -9,8 +9,8 @@
 #define KWIVER_ARROWS_KLV_KLV_1204_H_
 
 #include <arrows/klv/kwiver_algo_klv_export.h>
-
 #include <arrows/klv/klv_packet.h>
+#include <arrows/klv/klv_util.h>
 
 #include <vital/optional.h>
 
@@ -50,14 +50,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_1204_uuid const& value );
 
 // ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_1204_uuid const& lhs, klv_1204_uuid const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_1204_uuid const& lhs, klv_1204_uuid const& rhs );
+DECLARE_CMP( klv_1204_uuid )
 
 // ----------------------------------------------------------------------------
 struct KWIVER_ALGO_KLV_EXPORT klv_1204_miis_id
@@ -77,14 +70,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_1204_miis_id const& value );
 
 // ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_1204_miis_id const& lhs, klv_1204_miis_id const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_1204_miis_id const& lhs, klv_1204_miis_id const& rhs );
+DECLARE_CMP( klv_1204_miis_id )
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a ST1204 MIIS ID.

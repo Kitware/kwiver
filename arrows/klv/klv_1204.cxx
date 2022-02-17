@@ -97,18 +97,10 @@ operator<<( std::ostream& os, klv_1204_uuid const& value )
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator==( klv_1204_uuid const& lhs, klv_1204_uuid const& rhs )
-{
-  return lhs.bytes == rhs.bytes;
-}
-
-// ----------------------------------------------------------------------------
-bool
-operator<( klv_1204_uuid const& lhs, klv_1204_uuid const& rhs )
-{
-  return lhs.bytes < rhs.bytes;
-}
+DEFINE_STRUCT_CMP(
+  klv_1204_uuid,
+  &klv_1204_uuid::bytes
+)
 
 // ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
@@ -136,81 +128,16 @@ operator<<( std::ostream& os, klv_1204_miis_id const& value )
 }
 
 // ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_1204_miis_id const& lhs, klv_1204_miis_id const& rhs )
-{
-  return
-    lhs.version == rhs.version &&
-    lhs.sensor_id_type == rhs.sensor_id_type &&
-    lhs.platform_id_type == rhs.platform_id_type &&
-    lhs.sensor_id == rhs.sensor_id &&
-    lhs.platform_id == rhs.platform_id &&
-    lhs.window_id == rhs.window_id &&
-    lhs.minor_id == rhs.minor_id;
-}
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_1204_miis_id const& lhs, klv_1204_miis_id const& rhs )
-{
-  if( lhs.version < rhs.version )
-  {
-    return true;
-  }
-  if( lhs.version > rhs.version )
-  {
-    return false;
-  }
-
-  if( lhs.sensor_id_type < rhs.sensor_id_type )
-  {
-    return true;
-  }
-  if( lhs.sensor_id_type > rhs.sensor_id_type )
-  {
-    return false;
-  }
-
-  if( lhs.platform_id_type < rhs.platform_id_type )
-  {
-    return true;
-  }
-  if( lhs.platform_id_type > rhs.platform_id_type )
-  {
-    return false;
-  }
-
-  if( lhs.sensor_id < rhs.sensor_id )
-  {
-    return true;
-  }
-  if( lhs.sensor_id > rhs.sensor_id )
-  {
-    return false;
-  }
-
-  if( lhs.platform_id < rhs.platform_id )
-  {
-    return true;
-  }
-  if( lhs.platform_id > rhs.platform_id )
-  {
-    return false;
-  }
-
-  if( lhs.window_id < rhs.window_id )
-  {
-    return true;
-  }
-  if( lhs.window_id > rhs.window_id )
-  {
-    return false;
-  }
-
-  return lhs.minor_id < rhs.minor_id;
-}
+DEFINE_STRUCT_CMP(
+  klv_1204_miis_id,
+  &klv_1204_miis_id::version,
+  &klv_1204_miis_id::sensor_id_type,
+  &klv_1204_miis_id::platform_id_type,
+  &klv_1204_miis_id::sensor_id,
+  &klv_1204_miis_id::platform_id,
+  &klv_1204_miis_id::window_id,
+  &klv_1204_miis_id::minor_id
+)
 
 // ----------------------------------------------------------------------------
 klv_1204_miis_id_format
