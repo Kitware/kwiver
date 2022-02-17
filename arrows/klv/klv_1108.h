@@ -164,7 +164,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_1108_window_corners_pack const& rhs );
 
 // ----------------------------------------------------------------------------
-DECLARE_CMP( klv_1108_metric_period_pack )
+DECLARE_CMP( klv_1108_window_corners_pack )
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a KLV 1108 window corners pack.

@@ -141,7 +141,7 @@ tuplize( klv_1108_window_corners_pack const& value )
 } // namespace
 
 // ----------------------------------------------------------------------------
-#define DEFINE_STRUCT_CMP_TUPLIZE( klv_1108_window_corners_pack )
+DEFINE_STRUCT_CMP_TUPLIZE( klv_1108_window_corners_pack )
 
 // ----------------------------------------------------------------------------
 std::ostream&

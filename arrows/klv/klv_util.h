@@ -89,7 +89,7 @@ KWIVER_ALGO_KLV_EXPORT bool operator> ( T const&, T const& ); \
 KWIVER_ALGO_KLV_EXPORT bool operator<=( T const&, T const& ); \
 KWIVER_ALGO_KLV_EXPORT bool operator>=( T const&, T const& ); \
 KWIVER_ALGO_KLV_EXPORT bool operator==( T const&, T const& ); \
-KWIVER_ALGO_KLV_EXPORT bool operator!=( T const&, T const& ); \
+KWIVER_ALGO_KLV_EXPORT bool operator!=( T const&, T const& );
 
 // ----------------------------------------------------------------------------
 #define DEFINE_STRUCT_CMP( T, ... )                                                          \
@@ -98,16 +98,16 @@ bool operator> ( T const& lhs, T const& rhs ) { return struct_gt( lhs, rhs, __VA
 bool operator<=( T const& lhs, T const& rhs ) { return struct_le( lhs, rhs, __VA_ARGS__ ); } \
 bool operator>=( T const& lhs, T const& rhs ) { return struct_ge( lhs, rhs, __VA_ARGS__ ); } \
 bool operator==( T const& lhs, T const& rhs ) { return struct_eq( lhs, rhs, __VA_ARGS__ ); } \
-bool operator!=( T const& lhs, T const& rhs ) { return struct_ne( lhs, rhs, __VA_ARGS__ ); } \
+bool operator!=( T const& lhs, T const& rhs ) { return struct_ne( lhs, rhs, __VA_ARGS__ ); }
 
 // ----------------------------------------------------------------------------
-#define DEFINE_STRUCT_CMP_TUPLIZE( T )                                                    \
-bool operator< ( T const& lhs, T const& rhs ) { return tuplize( lhs ) <  tuplize( rhs ) } \
-bool operator> ( T const& lhs, T const& rhs ) { return tuplize( lhs ) >  tuplize( rhs ) } \
-bool operator<=( T const& lhs, T const& rhs ) { return tuplize( lhs ) <= tuplize( rhs ) } \
-bool operator<=( T const& lhs, T const& rhs ) { return tuplize( lhs ) >= tuplize( rhs ) } \
-bool operator==( T const& lhs, T const& rhs ) { return tuplize( lhs ) == tuplize( rhs ) } \
-bool operator!=( T const& lhs, T const& rhs ) { return tuplize( lhs ) != tuplize( rhs ) } \
+#define DEFINE_STRUCT_CMP_TUPLIZE( T )                                                     \
+bool operator< ( T const& lhs, T const& rhs ) { return tuplize( lhs ) <  tuplize( rhs ); } \
+bool operator> ( T const& lhs, T const& rhs ) { return tuplize( lhs ) >  tuplize( rhs ); } \
+bool operator<=( T const& lhs, T const& rhs ) { return tuplize( lhs ) <= tuplize( rhs ); } \
+bool operator>=( T const& lhs, T const& rhs ) { return tuplize( lhs ) >= tuplize( rhs ); } \
+bool operator==( T const& lhs, T const& rhs ) { return tuplize( lhs ) == tuplize( rhs ); } \
+bool operator!=( T const& lhs, T const& rhs ) { return tuplize( lhs ) != tuplize( rhs ); }
 
 } // namespace klv
 
