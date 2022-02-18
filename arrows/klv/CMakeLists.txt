@@ -91,7 +91,9 @@ set( public_headers
 
 set( private_headers
   klv_data_format.h
+  klv_length_value.h
   klv_read_write.h
+  klv_util.h
 )
 
 kwiver_install_headers(
