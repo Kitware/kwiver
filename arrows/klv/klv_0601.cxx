@@ -8,6 +8,7 @@
 #include "klv_0903.h"
 #include "klv_1010.h"
 #include "klv_1204.h"
+#include "klv_1602.h"
 #include "klv_checksum.h"
 #include "klv_util.h"
 
@@ -686,7 +687,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_COMPOSITE_IMAGING_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_1602_local_set_format >(),
       "Composite Imaging Local Set",
       "MISB ST 1602 local set for composite imaging.",
       { 0, 1 } },

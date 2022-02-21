@@ -41,6 +41,7 @@ set( sources
   klv_1108.cxx
   klv_1108_metric_set.cxx
   klv_1204.cxx
+  klv_1602.cxx
   misp_time.cxx
   )
 
@@ -78,6 +79,7 @@ set( public_headers
   klv_1108.h
   klv_1108_metric_set.h
   klv_1204.h
+  klv_1602.h
   misp_time.h
   )
 
