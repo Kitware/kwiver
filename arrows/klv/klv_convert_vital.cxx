@@ -138,6 +138,31 @@ parse_geo_point( klv_timeline const& klv_data,
 
 // ----------------------------------------------------------------------------
 void
+klv_0104_parse_datetime_to_unix(
+  klv_timeline const& klv_data, uint64_t timestamp, kv::metadata& vital_data,
+  klv_lds_key klv_tag, kv::vital_metadata_tag vital_tag )
+{
+  constexpr auto standard = KLV_PACKET_MISB_0104_UNIVERSAL_SET;
+
+  auto const datetime = klv_data.at( standard, klv_tag, timestamp );
+  if( datetime.valid() )
+  {
+    try
+    {
+      auto const value = datetime.get< std::string >();
+      vital_data.add(
+        vital_tag, kv::std_0104_datetime_to_unix_timestamp( value ) );
+    }
+    catch( kv::metadata_exception const& e )
+    {
+      LOG_ERROR( kv::get_logger( "klv" ), e.what() );
+    }
+  }
+
+}
+
+// ----------------------------------------------------------------------------
+void
 klv_0102_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
                             kv::metadata& vital_data )
 {
@@ -236,25 +261,13 @@ klv_0104_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
     vital_data.add< kv::VITAL_META_MISSION_NUMBER >( ss.str() );
   }
 
-  // Parse the datetime string into a UNIX microsecond timestamp
-  auto const start_datetime =
-    klv_data.at( standard, KLV_0104_START_DATETIME, timestamp );
-  if( start_datetime.valid() )
-  {
-    auto const value = start_datetime.get< std::string >();
-    vital_data.add< kv::VITAL_META_START_TIMESTAMP >(
-        kv::std_0104_datetime_to_unix_timestamp( value ) );
-  }
-
-  // Parse the datetime string into a UNIX microsecond timestamp
-  auto const event_start_datetime =
-    klv_data.at( standard, KLV_0104_START_DATETIME, timestamp );
-  if( start_datetime.valid() )
-  {
-    auto const value = event_start_datetime.get< std::string >();
-    vital_data.add< kv::VITAL_META_EVENT_START_TIMESTAMP >(
-        kv::std_0104_datetime_to_unix_timestamp( value ) );
-  }
+  // Parse the datetime strings into UNIX microsecond timestamps
+  klv_0104_parse_datetime_to_unix(
+    klv_data, timestamp, vital_data,
+    KLV_0104_START_DATETIME, kv::VITAL_META_START_TIMESTAMP );
+  klv_0104_parse_datetime_to_unix(
+    klv_data, timestamp, vital_data,
+    KLV_0104_EVENT_START_DATETIME, kv::VITAL_META_EVENT_START_TIMESTAMP );
 
   // Sensor location
   auto const sensor_location =
