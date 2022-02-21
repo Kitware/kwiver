@@ -273,7 +273,7 @@ protected:
 
       result.add( key, std::move( value ) );
     }
-    check_tag_counts( result );
+    check_set( result );
 
     return result;
   }
@@ -289,7 +289,7 @@ protected:
         return length - std::distance( begin, data );
       };
 
-    check_tag_counts( klv );
+    check_set( klv );
     for( auto const& entry : klv )
     {
       auto const& key = entry.first;
@@ -359,10 +359,20 @@ protected:
       auto const range = trait.tag_count_range();
       if( !range.is_count_allowed( count ) )
       {
-        LOG_WARN( kwiver::vital::get_logger( "klv" ),
-                  range.error_message( count ) );
+        LOG_WARN(
+          kwiver::vital::get_logger( "klv" ),
+          this->description() << ": "
+          << "tag `" << trait.name() << "` "
+          << "appears " << count << " times; "
+          << "expected " << range.description() );
       }
     }
+  }
+
+  virtual void
+  check_set( klv_set< Key > const& klv ) const
+  {
+    check_tag_counts( klv );
   }
 
   klv_tag_traits_lookup const& m_traits;

@@ -75,16 +75,6 @@ klv_tag_count_range
 }
 
 // ----------------------------------------------------------------------------
-std::string
-klv_tag_count_range
-::error_message( size_t count ) const
-{
-  std::stringstream ss;
-  ss << "tag appears " << count << " times; expected " << description();
-  return ss.str();
-}
-
-// ----------------------------------------------------------------------------
 klv_tag_traits
 ::klv_tag_traits( klv_uds_key uds_key,
                   klv_lds_key tag,

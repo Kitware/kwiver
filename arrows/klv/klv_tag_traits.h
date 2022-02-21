@@ -48,9 +48,6 @@ public:
   std::string
   description() const;
 
-  std::string
-  error_message( size_t count ) const;
-
 private:
   size_t m_lower;
   size_t m_upper;
