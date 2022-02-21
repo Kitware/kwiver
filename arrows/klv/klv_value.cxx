@@ -27,6 +27,7 @@
 #include "klv_1010.h"
 #include "klv_1108_metric_set.h"
 #include "klv_1108.h"
+#include "klv_1202.h"
 #include "klv_1204.h"
 #include "klv_1206.h"
 #include "klv_1303.hpp"
@@ -457,6 +458,7 @@ KLV_INSTANTIATE( klv_1108_compression_type );
 KLV_INSTANTIATE( klv_1108_metric_implementer );
 KLV_INSTANTIATE( klv_1108_metric_period_pack );
 KLV_INSTANTIATE( klv_1108_window_corners_pack );
+KLV_INSTANTIATE( klv_1202_transformation_type );
 KLV_INSTANTIATE( klv_1204_miis_id );
 KLV_INSTANTIATE( klv_1206_look_direction );
 KLV_INSTANTIATE( klv_1206_image_plane );

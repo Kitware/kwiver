@@ -41,6 +41,7 @@ set( sources
   klv_1010.cxx
   klv_1108.cxx
   klv_1108_metric_set.cxx
+  klv_1202.cxx
   klv_1204.cxx
   klv_1206.cxx
   klv_1303.cxx
@@ -85,6 +86,7 @@ set( public_headers
   klv_1010.h
   klv_1108.h
   klv_1108_metric_set.h
+  klv_1202.h
   klv_1204.h
   klv_1206.h
   klv_1303.h
