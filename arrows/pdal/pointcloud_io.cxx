@@ -7,7 +7,7 @@
  * \brief Implementation of PDAL point cloud writer
  */
 
-#include "write_pdal.h"
+#include "pointcloud_io.h"
 #include <arrows/pdal/pdal_config.h>
 #include <vital/logger/logger.h>
 #include <vital/exceptions/base.h>
@@ -27,20 +27,20 @@ namespace kwiver {
 namespace arrows {
 namespace pdal {
 
-/// Write landmarks to a file with PDAL
+/// Write landmarks to a file with PDAL provided a geo origin file
 void
-write_pdal::write_pdal_file(vital::path_t const& filename,
+pointcloud_io::save_(vital::path_t const& filename,
              vital::path_t const& input_geo_origin_file,
              vital::landmark_map_sptr const& landmarks)
 {
   auto lgcs = vital::local_geo_cs();
   read_local_geo_cs_from_file(lgcs, input_geo_origin_file);
-  write_pdal::write_pdal_file(filename, lgcs, landmarks);
+  pointcloud_io::save_(filename, lgcs, landmarks);
 }
 
 /// Write landmarks to a file with PDAL
 void
-write_pdal::write_pdal_file(vital::path_t const& filename,
+pointcloud_io::save_(vital::path_t const& filename,
              vital::local_geo_cs const& lgcs,
              vital::landmark_map_sptr const& landmarks)
 {
@@ -53,24 +53,24 @@ write_pdal::write_pdal_file(vital::path_t const& filename,
     points.push_back(lm.second->loc());
     colors.push_back(lm.second->color());
   }
-  write_pdal::write_pdal_file(filename, lgcs, points, colors);
+  pointcloud_io::save_(filename, lgcs, points, colors);
 }
 
 /// Write point cloud to a file with PDAL
 void
-write_pdal::write_pdal_file(vital::path_t const& filename,
+pointcloud_io::save_(vital::path_t const& filename,
            vital::local_geo_cs const& lgcs,
            std::vector<vital::vector_3d> const& points,
            std::vector<vital::rgb_color> const& colors)
 {
   namespace kv = kwiver::vital;
-  kv::logger_handle_t logger( kv::get_logger( "write_pdal_file" ) );
+  kv::logger_handle_t logger( kv::get_logger( "save_" ) );
 
 #ifdef KWIVER_ENABLE_PDAL
 
   if( !colors.empty() && colors.size() != points.size() )
   {
-    throw vital::invalid_value("write_pdal_file: number of colors provided does "
+    throw vital::invalid_value("save_: number of colors provided does "
                                "not match the number of points");
   }
 

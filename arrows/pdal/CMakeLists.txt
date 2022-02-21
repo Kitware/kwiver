@@ -4,7 +4,7 @@
 set(CMAKE_FOLDER "Arrows/PDAL")
 
 set( pdal_headers_public
-  write_pdal.h
+  pointcloud_io.h
   )
 
 set( pdal_headers_private
@@ -22,10 +22,10 @@ kwiver_install_headers(
   )
 
 set( pdal_sources
-  write_pdal.cxx
+  pointcloud_io.cxx
   )
 
-kwiver_add_library( kwiver_algo_pdal
+kwiver_add_library( kwiver_algo_pdal SHARED
   ${pdal_headers_public}
   ${pdal_headers_private}
   ${pdal_sources}

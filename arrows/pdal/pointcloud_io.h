@@ -7,8 +7,8 @@
  * \brief Definition for PDAL point cloud writer
  */
 
-#ifndef KWIVER_ARROWS_PDAL_WRITE_PDAL_H_
-#define KWIVER_ARROWS_PDAL_WRITE_PDAL_H_
+#ifndef KWIVER_ARROWS_PDAL_POINTCLOUD_IO_H_
+#define KWIVER_ARROWS_PDAL_POINTCLOUD_IO_H_
 
 #include <arrows/pdal/kwiver_algo_pdal_export.h>
 
@@ -19,24 +19,24 @@ namespace kwiver {
 namespace arrows {
 namespace pdal {
 
-class KWIVER_ALGO_PDAL_EXPORT write_pdal
+class KWIVER_ALGO_PDAL_EXPORT pointcloud_io
 {
 public:
-    /// Write landmarks to a file with PDAL provided a geo
+    /// Write landmarks to a file with PDAL provided a geo origin file
     void
-    write_pdal_file(vital::path_t const& filename,
+    save_(vital::path_t const& filename,
             vital::path_t const& input_geo_origin_file,
             vital::landmark_map_sptr const& landmarks);
 
     /// Write landmarks to a file with PDAL
     void
-    write_pdal_file(vital::path_t const& filename,
+    save_(vital::path_t const& filename,
             vital::local_geo_cs const& lgcs,
             vital::landmark_map_sptr const& landmarks);
 
     /// Write point cloud to a file with PDAL
     void
-    write_pdal_file(vital::path_t const& filename,
+    save_(vital::path_t const& filename,
             vital::local_geo_cs const& lgcs,
             std::vector<vital::vector_3d> const& points,
             std::vector<vital::rgb_color> const& colors = {});
@@ -46,4 +46,4 @@ public:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_PDAL_WRITE_PDAL_H_
+#endif // KWIVER_ARROWS_PDAL_POINTCLOUD_IO_H_
