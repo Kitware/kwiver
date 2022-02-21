@@ -1005,6 +1005,7 @@ KLV_INSTANTIATE( klv_1108_metric_period_pack );
 KLV_INSTANTIATE( klv_1108_window_corners_pack );
 KLV_INSTANTIATE( klv_1204_miis_id );
 KLV_INSTANTIATE( klv_1303_mdap< double > );
+KLV_INSTANTIATE( klv_1303_mdap< uint64_t > );
 KLV_INSTANTIATE( klv_blob );
 KLV_INSTANTIATE( klv_lengthy< double > );
 KLV_INSTANTIATE( klv_local_set );

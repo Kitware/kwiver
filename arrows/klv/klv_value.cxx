@@ -464,6 +464,7 @@ KLV_INSTANTIATE( klv_1206_look_direction );
 KLV_INSTANTIATE( klv_1206_image_plane );
 KLV_INSTANTIATE( klv_1303_apa );
 KLV_INSTANTIATE( klv_1303_mdap< double > );
+KLV_INSTANTIATE( klv_1303_mdap< uint64_t > );
 KLV_INSTANTIATE( klv_blob );
 KLV_INSTANTIATE( klv_lengthy< double > );
 KLV_INSTANTIATE( klv_local_set );

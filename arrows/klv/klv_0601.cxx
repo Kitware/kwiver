@@ -9,6 +9,7 @@
 #include "klv_1010.h"
 #include "klv_1204.h"
 #include "klv_1206.h"
+#include "klv_1601.h"
 #include "klv_1602.h"
 #include "klv_1607.h"
 #include "klv_checksum.h"
@@ -684,7 +685,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_GEOREGISTRATION_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_1601_local_set_format >(),
       "Geo-Registration Local Set",
       "MISB ST 1601 local set for geo-registration.",
       { 0, 1 } },

@@ -24,11 +24,11 @@ operator<<( std::ostream& os, klv_uuid const& value )
 
   for( size_t i = 0; i < value.bytes.size(); ++i )
   {
-    os << std::hex << std::setfill( '0' ) << std::setw( 2 );
     if( i != 0 && i % 2 == 0 )
     {
       os << '-';
     }
+    os << std::hex << std::setfill( '0' ) << std::setw( 2 );
     os << static_cast< unsigned int >( value.bytes[ i ] );
   }
 

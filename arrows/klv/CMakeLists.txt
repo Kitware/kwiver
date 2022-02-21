@@ -45,6 +45,7 @@ set( sources
   klv_1204.cxx
   klv_1206.cxx
   klv_1303.cxx
+  klv_1601.cxx
   klv_1602.cxx
   klv_1607.cxx
   misp_time.cxx
@@ -91,6 +92,7 @@ set( public_headers
   klv_1206.h
   klv_1303.h
   klv_1303.hpp
+  klv_1601.h
   klv_1602.h
   klv_1607.h
   misp_time.h
