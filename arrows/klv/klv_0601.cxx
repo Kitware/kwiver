@@ -9,6 +9,7 @@
 #include "klv_1010.h"
 #include "klv_1204.h"
 #include "klv_1602.h"
+#include "klv_1607.h"
 #include "klv_checksum.h"
 #include "klv_util.h"
 
@@ -692,14 +693,14 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SEGMENT_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_1607_child_set_format >( lookup ),
       "Segment Local Set",
       "MISB ST 1607 Segment local set for metadata sharing across parent and "
       "child sets.",
       { 0, SIZE_MAX } },
     { {},
       ENUM_AND_NAME( KLV_0601_AMEND_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_1607_child_set_format >( lookup ),
       "Amend Local Set",
       "MISB ST 1607 Amend local set for metadata corrections.",
       { 0, SIZE_MAX } },

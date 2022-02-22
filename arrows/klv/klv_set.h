@@ -146,6 +146,24 @@ private:
 };
 
 // ----------------------------------------------------------------------------
+template < class Key >
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator==( klv_set< Key > const& lhs, klv_set< Key > const& rhs );
+
+// ----------------------------------------------------------------------------
+template < class Key >
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator<( klv_set< Key > const& lhs, klv_set< Key > const& rhs );
+
+// ----------------------------------------------------------------------------
+template < class Key >
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_set< Key > const& rhs );
+
+// ----------------------------------------------------------------------------
 /// Interprets data as a local or universal set.
 template < class Key >
 class KWIVER_ALGO_KLV_EXPORT klv_set_format
