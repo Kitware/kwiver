@@ -104,7 +104,6 @@ add_command_options()
                                   "   output - Output image file name");
 
   m_cmd_options->add_options()
-    ( "h,help",        "Display usage information" )
     ( "c",             "Configuration file for tool" )
     ( "output-config", "Dump configuration for tool", cxxopts::value<std::string>() )
     ( "x",             "Output image width", cxxopts::value<int>()->default_value( "1920" ) )
@@ -129,12 +128,6 @@ run()
 {
   auto& cmd_args = command_args();
 
-  if ( cmd_args["help"].as<bool>() )
-  {
-    std::cout << m_cmd_options->help();
-    return EXIT_SUCCESS;
-  }
-
   // If we are not writing out the config, then all positional file
   // names are required.
   if ( cmd_args.count("output-config") == 0 )
@@ -144,9 +137,7 @@ run()
          ( cmd_args.count("output-image") == 0 ) )
     {
       std::cout << "Missing file name.\n"
-                << "Usage: " << applet_name()
-                << " mesh-file camera-file output-image\n"
-                << std::endl;
+                << m_cmd_options->help();
 
       return EXIT_FAILURE;
     }

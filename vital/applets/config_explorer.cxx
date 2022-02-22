@@ -44,7 +44,6 @@ add_command_options()
  m_cmd_options->positional_help( "\n  config-file  - name of configuration file." );
 
   m_cmd_options->add_options()
-    ( "h,help", "Display applet usage" )
     ( "ds", "Display detailed application search path" )
     ( "dc", "Display detailed config contents" )
     ( "I,path", "Add directory to config search path", cxxopts::value<std::vector<std::string>>() )
@@ -71,12 +70,6 @@ run()
 {
   std::string opt_app_name = applet_name();
   auto& cmd_args = command_args();
-
-  if ( cmd_args["help"].as<bool>() )
-  {
-    std::cout << m_cmd_options->help();
-    return EXIT_SUCCESS;
-  }
 
   bool opt_detail_ds = cmd_args["ds"].as<bool>();
   bool opt_detail_dc = cmd_args["dc"].as<bool>();

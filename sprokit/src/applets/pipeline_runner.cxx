@@ -43,9 +43,6 @@ pipeline_runner
 
   m_cmd_options->positional_help( "\n  pipe-file  - name of pipeline file." );
 
-  m_cmd_options->add_options()
-    ( "h,help", "Display applet usage" );
-
   m_cmd_options->add_options("pipe")
     ( "c,config", "File name containing supplemental configuration entries. Can occur multiple times.",
       cxxopts::value<std::vector<std::string>>() )
@@ -75,12 +72,6 @@ pipeline_runner
   const std::string opt_app_name = applet_name();
 
   auto& cmd_args = command_args();
-
-  if( cmd_args[ "help" ].as< bool >() )
-  {
-    std::cout << m_cmd_options->help();
-    return EXIT_SUCCESS;
-  }
 
   // Load all known modules
   kwiver::vital::plugin_manager& vpm =

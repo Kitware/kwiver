@@ -143,17 +143,13 @@ public:
   kv::path_t  output_volume_file = "results/volume.vti";
   kv::path_t  output_mesh_file = "results/mesh.vtp";
 
-  enum commandline_mode {SUCCESS, HELP, WRITE, FAIL};
+  enum commandline_mode {SUCCESS, WRITE, FAIL};
 
   commandline_mode process_command_line(cxxopts::ParseResult& cmd_args)
   {
     static std::string opt_config;
     static std::string opt_out_config;
 
-    if ( cmd_args["help"].as<bool>() )
-    {
-      return HELP;
-    }
     if ( cmd_args.count("config") > 0 )
     {
       opt_config = cmd_args["config"].as<std::string>();
@@ -456,9 +452,6 @@ run()
   {
     switch(d->process_command_line(command_args()))
     {
-      case priv::HELP:
-        std::cout << m_cmd_options->help();
-        return EXIT_SUCCESS;
       case priv::WRITE:
         return EXIT_SUCCESS;
       case priv::FAIL:
@@ -526,7 +519,6 @@ add_command_options()
     "(default: " + d->input_depths_directory + ")");
 
   m_cmd_options->add_options()
-    ( "h,help",     "Display applet usage" )
     ( "c,config",   "Configuration file for tool", cxxopts::value<std::string>() )
     ( "o,output-config",
       "Output a configuration. This may be seeded with a "

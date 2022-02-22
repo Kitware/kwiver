@@ -75,6 +75,8 @@ initialize( kwiver::tools::applet_context* ctxt)
 {
   m_context = ctxt;
   m_cmd_options.reset( new cxxopts::Options( applet_name(), "" ) );
+  // Standard option to add the --help option for applets.
+  m_cmd_options->add_options()("help", "Prints this message.");
 }
 
 // ----------------------------------------------------------------------------
