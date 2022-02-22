@@ -64,17 +64,7 @@ endfunction ()
 #
 #
 function (kwiver_add_python_test group instance)
-  string(TOLOWER "${CMAKE_PROJECT_NAME}" project_name)
-  set(python_module_path    "${kwiver_python_output_path}/${python_sitename}")
-  set(python_chdir          ".")
-
-  if (CMAKE_CONFIGURATION_TYPES)
-    set(python_module_path      "${kwiver_python_output_path}/$<CONFIGURATION>/${python_sitename}")
-    set(python_chdir           "$<CONFIGURATION>")
-  endif ()
-
-  kwiver_add_test(python-${group} ${instance}
-    "${python_chdir}" "${python_module_path}" ${ARGN})
+  kwiver_add_test(python-${group} ${instance} ${ARGN})
 endfunction ()
 
 
@@ -138,3 +128,64 @@ function (kwiver_discover_python_tests group file)
     endif ()
   endforeach ()
 endfunction ()
+
+###
+# Adds a python module testing suite run by pytest
+#
+function (kwiver_add_pytest name targ)
+  if (WIN32)
+    add_test(
+      NAME    test-python-${name}
+      COMMAND cmd /C "${kwiver_pytest_runner}${name}.py"
+              ${ARGN})
+  else()
+    add_test(
+      NAME    test-python-${name}
+      COMMAND bash -c "${kwiver_pytest_runner}${name}.py"
+              ${ARGN})
+  endif()
+
+  set_tests_properties(test-python-${name}
+    PROPERTIES
+      FAIL_REGULAR_EXPRESSION "^Error: ;\nError: ")
+  if (kwiver_test_working_path)
+    set_tests_properties(test-python-${name}
+      PROPERTIES
+      WORKING_DIRECTORY "${kwiver_test_working_path}")
+  endif ()
+  if (kwiver_test_environment)
+    set_tests_properties(test-python-${name}
+      PROPERTIES
+      ENVIRONMENT "${kwiver_test_environment}")
+  endif ()
+  if (KWIVER_TEST_ADD_TARGETS)
+    add_custom_target(test-python-${name})
+    add_custom_command(
+      TARGET  test-python-${name}
+      COMMAND ${kwiver_test_environment}
+              ${kwiver_test_runner}
+              "${kwiver_test_output_path}"
+              ${ARGN}
+      WORKING_DIRECTORY
+              "${kwiver_test_working_path}"
+      COMMENT "Running test \"${name}\"")
+      add_dependencies(${targ}
+                      test-python-${name})
+  endif ()
+endfunction()
+
+
+###
+# Add test data to nosetest directory
+#
+function (kwiver_python_add_test_data file_name file_dst)
+
+  if(SKBUILD)
+    set ( install_path "${file_dst}/tests/data")
+  else()
+    set ( install_path "${file_dst}/tests/data")
+  endif()
+
+  file(COPY ${file_name} DESTINATION ${install_path})
+
+endfunction()

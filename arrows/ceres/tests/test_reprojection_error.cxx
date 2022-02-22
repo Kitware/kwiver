@@ -1,52 +1,27 @@
-/*ckwg +29
- * Copyright 2015-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test Ceres reprojection error functors
- */
+/// \file
+/// \brief test Ceres reprojection error functors
 
 #include <test_scene.h>
 
 #include <arrows/ceres/reprojection_error.h>
-#include <arrows/ceres/types.h>
+#include <arrows/ceres/options.h>
 
-#include <arrows/core/metrics.h>
-#include <arrows/core/projected_track_set.h>
+#include <arrows/mvg/metrics.h>
+#include <arrows/mvg/projected_track_set.h>
 
 #include <gtest/gtest.h>
 
 using namespace kwiver::vital;
 
-using kwiver::arrows::reprojection_rmse;
-using kwiver::arrows::projected_tracks;
+using kwiver::arrows::mvg::LensDistortionType;
+using kwiver::arrows::mvg::projected_tracks;
+using kwiver::arrows::mvg::reprojection_rmse;
+using kwiver::arrows::ceres::create_cost_func;
+using kwiver::arrows::ceres::num_distortion_params;
 
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
@@ -60,7 +35,7 @@ int main(int argc, char** argv)
 static void
 test_reprojection_error(
   camera_perspective const& cam, landmark const& lm, feature const& f,
-  kwiver::arrows::ceres::LensDistortionType dist_type )
+  LensDistortionType dist_type )
 {
   ::ceres::CostFunction* cost_func =
       create_cost_func(dist_type, f.loc().x(), f.loc().y());
@@ -95,7 +70,7 @@ test_reprojection_error(
   cost_func->Evaluate(parameters, residuals.data(), NULL);
   delete cost_func;
 
-  EXPECT_NEAR( 0.0, residuals.norm(), 1e-12 );
+  EXPECT_NEAR( 0.0, residuals.norm(), 1e-11 );
 }
 
 // ----------------------------------------------------------------------------
@@ -111,7 +86,7 @@ static Eigen::VectorXd distortion_coefficients( int dim )
 struct reprojection_test
 {
   char const* const distortion_model;
-  kwiver::arrows::ceres::LensDistortionType const distortion_type;
+  LensDistortionType const distortion_type;
   int const distortion_coefficients_dimension;
 };
 
@@ -196,7 +171,7 @@ TEST_P(reprojection_error, compare_projections)
 
 // ----------------------------------------------------------------------------
 #define DISTORTION( t, k ) \
-  reprojection_test{ #t, kwiver::arrows::ceres::t, k }
+  reprojection_test{ #t, kwiver::arrows::mvg::t, k }
 
 INSTANTIATE_TEST_CASE_P(
   ,
@@ -217,4 +192,4 @@ INSTANTIATE_TEST_CASE_P(
     DISTORTION( RATIONAL_RADIAL_TANGENTIAL_DISTORTION, 4 ),
     DISTORTION( RATIONAL_RADIAL_TANGENTIAL_DISTORTION, 5 ),
     DISTORTION( RATIONAL_RADIAL_TANGENTIAL_DISTORTION, 8 )
-  ) );
+));

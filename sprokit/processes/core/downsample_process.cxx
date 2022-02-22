@@ -1,38 +1,13 @@
-/*ckwg +29
- * Copyright 2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include "downsample_process.h"
 
 #include <kwiver_type_traits.h>
 
 #include <vital/types/timestamp.h>
+#include <vital/vital_config.h>
 
 namespace kwiver
 {
@@ -50,7 +25,7 @@ public:
   explicit priv( downsample_process* p );
   ~priv();
 
-  bool skip_frame( vital::timestamp const& ts, double frame_rate );
+  bool skip_frame( VITAL_UNUSED vital::timestamp const& ts, double frame_rate );
 
   downsample_process* parent;
 
@@ -59,17 +34,22 @@ public:
   unsigned burst_frame_break_;
   bool renumber_frames_;
 
-  double ds_factor_;
-  double ds_counter_;
+  // Time of the current frame (seconds)
+  double ds_frame_time_;
+  // Time of the last sent frame (ignoring burst filtering)
+  double last_sent_frame_time_;
   unsigned burst_counter_;
-  bool burst_skip_mode_;
   unsigned output_counter_;
   bool is_first_;
 
   static port_t const port_inputs[5];
   static port_t const port_outputs[5];
-};
 
+private:
+  // Compute the frame number corresponding to time_seconds assuming a
+  // frame rate of target_frame_rate_
+  int target_frame_count( double time_seconds );
+};
 
 process::port_t const downsample_process::priv::port_inputs[5] = {
   process::port_t( "input_1" ),
@@ -87,7 +67,6 @@ process::port_t const downsample_process::priv::port_outputs[5] = {
   process::port_t( "output_5" ),
 };
 
-
 downsample_process
 ::downsample_process( vital::config_block_sptr const& config )
   : process( config ),
@@ -97,12 +76,10 @@ downsample_process
   make_config();
 }
 
-
 downsample_process
 ::~downsample_process()
 {
 }
-
 
 void downsample_process
 ::_configure()
@@ -113,17 +90,15 @@ void downsample_process
   d->renumber_frames_ = config_value_using_trait( renumber_frames );
 }
 
-
 void downsample_process
 ::_init()
 {
-  d->ds_counter_ = 0.0;
+  d->ds_frame_time_ = 0.0;
+  d->last_sent_frame_time_ = 0.0;
   d->burst_counter_ = 0;
-  d->burst_skip_mode_ = false;
   d->output_counter_ = 0;
   d->is_first_ = true;
 }
-
 
 void downsample_process
 ::_step()
@@ -156,7 +131,6 @@ void downsample_process
   }
 }
 
-
 void downsample_process
 ::make_ports()
 {
@@ -185,7 +159,6 @@ void downsample_process
   }
 }
 
-
 void downsample_process
 ::make_config()
 {
@@ -195,63 +168,58 @@ void downsample_process
   declare_config_using_trait( renumber_frames );
 }
 
+int downsample_process::priv
+::target_frame_count( double time_seconds )
+{
+  return static_cast< int >( std::floor( time_seconds * target_frame_rate_ ) );
+}
 
 bool downsample_process::priv
-::skip_frame( vital::timestamp const& ts, double frame_rate )
+::skip_frame( VITAL_UNUSED vital::timestamp const& ts,
+              double frame_rate )
 {
-  ds_factor_ = frame_rate / target_frame_rate_;
+  ds_frame_time_ = ts.has_valid_time() ?
+    ts.get_time_seconds() : ds_frame_time_ + 1 / frame_rate;
 
   if( is_first_ )
   {
     // Triggers always sending the first frame
-    ds_counter_ = ds_factor_;
+    last_sent_frame_time_ = ( target_frame_count( ds_frame_time_ ) - 0.5 ) / target_frame_rate_;
     is_first_ = false;
   }
-  else
-  {
-    ds_counter_ += 1.0;
-  }
 
-  if( ds_counter_ < ds_factor_ )
+  int elapsed_frames = target_frame_count( ds_frame_time_ )
+    - target_frame_count( last_sent_frame_time_ );
+  if( elapsed_frames <= 0 )
   {
     return true;
   }
   else
   {
-    ds_counter_ = std::fmod( ds_counter_, ds_factor_ );
+    last_sent_frame_time_ = ds_frame_time_;
   }
 
   if( burst_frame_count_ != 0 && burst_frame_break_ != 0 )
   {
-    burst_counter_++;
+    burst_counter_ += elapsed_frames;
+    burst_counter_ %= burst_frame_count_ + burst_frame_break_;
 
-    if( burst_skip_mode_ )
+    // If burst_counter_ is in [1..burst_frame_count_], we're in
+    // pass-through mode; otherwise we're in skip mode.
+    if( burst_counter_ > burst_frame_count_ || burst_counter_ == 0)
     {
-      if( burst_counter_ >= burst_frame_break_ )
-      {
-        burst_counter_ = 0;
-        burst_skip_mode_ = false;
-      }
-
       return true;
-    }
-    else if( burst_counter_ >= burst_frame_count_ )
-    {
-      burst_counter_ = 0;
-      burst_skip_mode_ = true;
     }
   }
 
   return false;
 }
 
-
 downsample_process::priv
 ::priv( downsample_process* p )
   : parent( p )
 {
 }
-
 
 downsample_process::priv
 ::~priv()

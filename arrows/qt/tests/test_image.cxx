@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2013-2019 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -81,9 +55,9 @@ template <>
 void
 populate_qt_image< bool, 1 >( QImage& img )
 {
-  for ( auto const j : range::iota( img.height() ) )
+  for( auto const j : range::iota( img.height() ) )
   {
-    for ( auto const i : range::iota( img.width() ) )
+    for( auto const i : range::iota( img.width() ) )
     {
       auto const y = value_at( i, j, 0 );
       img.setPixel( i, j, y >= 0.5 ? 1 : 0 );
@@ -97,9 +71,9 @@ template <>
 void
 populate_qt_image< byte, 1 >( QImage& img )
 {
-  for ( auto const j : range::iota( img.height() ) )
+  for( auto const j : range::iota( img.height() ) )
   {
-    for ( auto const i : range::iota( img.width() ) )
+    for( auto const i : range::iota( img.width() ) )
     {
       auto const y = value_at( i, j, 0 );
       img.setPixelColor( i, j, QColor::fromRgbF( y, y, y ) );
@@ -113,9 +87,9 @@ template <>
 void
 populate_qt_image< byte, 3 >( QImage& img )
 {
-  for ( auto j : range::iota( img.height() ) )
+  for( auto j : range::iota( img.height() ) )
   {
-    for ( auto i : range::iota( img.width() ) )
+    for( auto i : range::iota( img.width() ) )
     {
       auto const r = value_at( i, j, 0 );
       auto const g = value_at( i, j, 1 );
@@ -131,9 +105,9 @@ template <>
 void
 populate_qt_image< byte, 4 >( QImage& img )
 {
-  for ( auto j : range::iota( img.height() ) )
+  for( auto j : range::iota( img.height() ) )
   {
-    for ( auto i : range::iota( img.width() ) )
+    for( auto i : range::iota( img.width() ) )
     {
       auto const r = value_at( i, j, 0 );
       auto const g = value_at( i, j, 1 );
@@ -148,7 +122,7 @@ populate_qt_image< byte, 4 >( QImage& img )
 QImage::Format
 native_format( QImage::Format format )
 {
-  switch ( format )
+  switch( format )
   {
     case QImage::Format_RGB888:
       return QImage::Format_RGB32;
@@ -358,9 +332,9 @@ run_qt_conversion_tests( QImage const& img )
   ASSERT_FALSE( ::testing::Test::HasNonfatalFailure() );
 
   [ & ]{
-    for ( auto const j : range::iota( img.height() ) )
+    for( auto const j : range::iota( img.height() ) )
     {
-      for ( auto const i : range::iota( img.width() ) )
+      for( auto const i : range::iota( img.width() ) )
       {
         compare_pixels< pix_t, T::depth >( img, vimg, i, j );
         ASSERT_FALSE( ::testing::Test::HasNonfatalFailure() )
@@ -398,9 +372,9 @@ run_vital_conversion_tests( image_of< typename T::pixel_type > const& img )
   ASSERT_FALSE( ::testing::Test::HasNonfatalFailure() );
 
   [ & ]{
-    for ( auto const j : range::iota( img.height() ) )
+    for( auto const j : range::iota( img.height() ) )
     {
-      for ( auto const i : range::iota( img.width() ) )
+      for( auto const i : range::iota( img.width() ) )
       {
         compare_pixels< pix_t, T::depth >( img, qimg, i, j );
         ASSERT_FALSE( ::testing::Test::HasNonfatalFailure() )

@@ -1,37 +1,9 @@
-/*ckwg +29
- * Copyright 2019 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief This file contains the implementation of a local geographical offset coordinate system.
- */
+/// \file
+/// \brief This file contains the implementation of a local geographical offset coordinate system.
 
 #include <vital/math_constants.h>
 #include <vital/types/local_cartesian.h>
@@ -43,15 +15,13 @@
 namespace kwiver {
 namespace vital {
 
-/**
- * @Brief Local Cartesian Conversion Math Utility
- *
- * Base on the NGA GeoTrans library
- * https://earth-info.nga.mil/GandG/update/index.php?action=home
- *
- * This class is a cleaned up version of the LocalCartesian and Geocentric classes provided in GeoTrans
- * This allows a user to define a local cartesian coordinate system with any origin (expressed in WGS84)
- */
+/// @Brief Local Cartesian Conversion Math Utility
+///
+/// Base on the NGA GeoTrans library
+/// https://earth-info.nga.mil/GandG/update/index.php?action=home
+///
+/// This class is a cleaned up version of the LocalCartesian and Geocentric classes provided in GeoTrans
+/// This allows a user to define a local cartesian coordinate system with any origin (expressed in WGS84)
 class local_cartesian::geotrans
 {
 public:
@@ -70,17 +40,15 @@ public:
   }
    ~geotrans() = default;
 
-  /**
-   * @brief Set origin of the cartesian system as a geo_point
-   *
-   * Set local origin parameters as inputs and sets the corresponding state variables.
-   * NOTE : If the origin changes, this method needs to be called again to recompute
-   *        variables needed in the conversion math.
-   *
-   * @param [in] geo_point       : Geograpical origin of the cartesian system
-   * @param [in] orientation     : Orientation angle of the local cartesian coordinate system,
-   *                               in radians along the Z axis, normal to the earth surface
-   */
+  /// @brief Set origin of the cartesian system as a geo_point
+  ///
+  /// Set local origin parameters as inputs and sets the corresponding state variables.
+  /// NOTE : If the origin changes, this method needs to be called again to recompute
+  ///        variables needed in the conversion math.
+  ///
+  /// @param [in] geo_point       : Geograpical origin of the cartesian system
+  /// @param [in] orientation     : Orientation angle of the local cartesian coordinate system,
+  ///                               in radians along the Z axis, normal to the earth surface
   void set_origin( geo_point const& origin, double orientation )
   {
     if (origin.is_empty())
@@ -122,26 +90,24 @@ public:
     w0 = ((N0 * (1 - Geocent_e2)) + LocalCart_Origin_Height) * Sin_LocalCart_Origin_Lat;
   }
 
-  /**
-   * @brief Converts geodetic coordinates to local cartesian coordinates
-   *
-   * The function convertFromGeodetic converts geodetic coordinates
-   * (latitude, longitude, and height) to local cartesian coordinates (X, Y, Z),
-   * according to the WGS84 ellipsoid and local origin parameters.
-   *
-   * @param [in]     geodetic_coordinate : WGS84 longitude/latitude in degrees and hight in meters
-   * @param [in,out] cartesian_coordinate : The location in the local coordinate system, in meters
-   */
+  /// @brief Converts geodetic coordinates to local cartesian coordinates
+  ///
+  /// The function convertFromGeodetic converts geodetic coordinates
+  /// (latitude, longitude, and height) to local cartesian coordinates (X, Y, Z),
+  /// according to the WGS84 ellipsoid and local origin parameters.
+  ///
+  /// @param [in]     geodetic_coordinate : WGS84 longitude/latitude in degrees and hight in meters
+  /// @param [in,out] cartesian_coordinate : The location in the local coordinate system, in meters
   void convert_from_geodetic( vector_3d const& geodetic_coordinate, vector_3d& cartesian_coordinate ) const
   {
     double longitude = geodetic_coordinate.x() * deg_to_rad;
     double latitude = geodetic_coordinate.y() * deg_to_rad;
     double height = geodetic_coordinate.z();
 
-    double Rn;            /*  Earth radius at location  */
-    double Sin_Lat;       /*  sin(Latitude)  */
-    double Sin2_Lat;      /*  Square of sin(Latitude)  */
-    double Cos_Lat;       /*  cos(Latitude)  */
+    double Rn;            //  Earth radius at location
+    double Sin_Lat;       //  sin(Latitude)
+    double Sin2_Lat;      //  Square of sin(Latitude)
+    double Cos_Lat;       //  cos(Latitude)
 
     if (longitude > pi)
     {
@@ -161,16 +127,14 @@ public:
     convert_from_geocentric(geocentric_coordinate, cartesian_coordinate);
   }
 
-  /**
-   * @brief Converts local cartesian coordinates to geodetic coordinates
-   *
-   * The function convertToGeodetic converts local cartesian
-   * coordinates (X, Y, Z) to geodetic coordinates (latitude, longitude,
-   * and height), according to the WGS84 ellipsoid and local origin parameters.
-   *
-   * @param [in]     cartesian_coordinate : The location in the local coordinate system, in meters
-   * @param [in,out] geodetic_coordinate  : WGS84 longitude/latitude in degrees and hight, in meters
-   */
+  /// @brief Converts local cartesian coordinates to geodetic coordinates
+  ///
+  /// The function convertToGeodetic converts local cartesian
+  /// coordinates (X, Y, Z) to geodetic coordinates (latitude, longitude,
+  /// and height), according to the WGS84 ellipsoid and local origin parameters.
+  ///
+  /// @param [in]     cartesian_coordinate : The location in the local coordinate system, in meters
+  /// @param [in,out] geodetic_coordinate  : WGS84 longitude/latitude in degrees and hight, in meters
   void convert_to_geodetic( vector_3d const& cartesian_coordinate, vector_3d& geodetic_coordinate ) const
   {
     vector_3d geocentric_coordinate;
@@ -248,15 +212,13 @@ public:
     geodetic_coordinate << (longitude*rad_to_deg), (latitude*rad_to_deg), height;
   }
 
-  /**
-   * @brief Converts geocentric coordinates to cartesian coordinates
-   *
-   * The function convertFromGeocentric converts geocentric
-   * coordinates according to the WGS84 ellipsoid and local origin parameters.
-   *
-   * @param [in]     geocentric_coordinate : The geocentric location, in meters
-   * @param [in,out] cartesian_coordinate  : Calculated local cartesian coordinate, in meters
-   */
+  /// @brief Converts geocentric coordinates to cartesian coordinates
+  ///
+  /// The function convertFromGeocentric converts geocentric
+  /// coordinates according to the WGS84 ellipsoid and local origin parameters.
+  ///
+  /// @param [in]     geocentric_coordinate : The geocentric location, in meters
+  /// @param [in,out] cartesian_coordinate  : Calculated local cartesian coordinate, in meters
   void convert_from_geocentric( vector_3d const& geocentric_coordinate, vector_3d& cartesian_coordinate ) const
   {
     double X, Y, Z;
@@ -299,16 +261,14 @@ public:
     cartesian_coordinate << X, Y, Z;
   }
 
-  /**
-   * @brief Converts cartesian coordinates to geocentric coordinates
-   *
-   * The function Convert_Local_Cartesian_To_Geocentric converts local cartesian
-   * coordinates (x, y, z) to geocentric coordinates (X, Y, Z) according to the
-   * current ellipsoid and local origin parameters.
-   *
-   * @param [in,out] cartesian_coordinate  : Local cartesian coordinate, in meters
-   * @param [in]     geocentric_coordinate : The geocentric location, in meters
-   */
+  /// @brief Converts cartesian coordinates to geocentric coordinates
+  ///
+  /// The function Convert_Local_Cartesian_To_Geocentric converts local cartesian
+  /// coordinates (x, y, z) to geocentric coordinates (X, Y, Z) according to the
+  /// current ellipsoid and local origin parameters.
+  ///
+  /// @param [in,out] cartesian_coordinate  : Local cartesian coordinate, in meters
+  /// @param [in]     geocentric_coordinate : The geocentric location, in meters
   void convert_to_geocentric( vector_3d const& cartesian_coordinate, vector_3d& geocentric_coordinate ) const
   {
     double U, V, W;
@@ -354,28 +314,28 @@ private:
   double Geocent_ep2;
   double Cos_67p5;
 
-  double es2;                       /* Eccentricity (0.08181919084262188000) squared */
-  double u0;                        /* Geocentric origin coordinates in */
-  double v0;                        /* terms of Local Cartesian origin  */
-  double w0;                        /* parameters                       */
+  double es2;                       // Eccentricity (0.08181919084262188000) squared
+  double u0;                        // Geocentric origin coordinates in
+  double v0;                        // terms of Local Cartesian origin
+  double w0;                        // parameters
 
-  /* Local Cartesian Projection Parameters */
-  double LocalCart_Origin_Lat;      /* Latitude of origin in radians     */
-  double LocalCart_Origin_Long;     /* Longitude of origin in radians    */
-  double LocalCart_Origin_Height;   /* Height of origin in meters        */
-  double LocalCart_Orientation;     /* Orientation of Y axis in radians  */
+  // Local Cartesian Projection Parameters
+  double LocalCart_Origin_Lat;      // Latitude of origin in radians
+  double LocalCart_Origin_Long;     // Longitude of origin in radians
+  double LocalCart_Origin_Height;   // Height of origin in meters
+  double LocalCart_Orientation;     // Orientation of Y axis in radians
 
-  double Sin_LocalCart_Origin_Lat;  /* sin(LocalCart_Origin_Lat)         */
-  double Cos_LocalCart_Origin_Lat;  /* cos(LocalCart_Origin_Lat)         */
-  double Sin_LocalCart_Origin_Lon;  /* sin(LocalCart_Origin_Lon)         */
-  double Cos_LocalCart_Origin_Lon;  /* cos(LocalCart_Origin_Lon)         */
-  double Sin_LocalCart_Orientation; /* sin(LocalCart_Orientation)        */
-  double Cos_LocalCart_Orientation; /* cos(LocalCart_Orientation)        */
+  double Sin_LocalCart_Origin_Lat;  // sin(LocalCart_Origin_Lat)
+  double Cos_LocalCart_Origin_Lat;  // cos(LocalCart_Origin_Lat)
+  double Sin_LocalCart_Origin_Lon;  // sin(LocalCart_Origin_Lon)
+  double Cos_LocalCart_Origin_Lon;  // cos(LocalCart_Origin_Lon)
+  double Sin_LocalCart_Orientation; // sin(LocalCart_Orientation)
+  double Cos_LocalCart_Orientation; // cos(LocalCart_Orientation)
 
-  double Sin_Lat_Sin_Orient; /* sin(LocalCart_Origin_Lat) * sin(LocalCart_Orientation) */
-  double Sin_Lat_Cos_Orient; /* sin(LocalCart_Origin_Lat) * cos(LocalCart_Orientation) */
-  double Cos_Lat_Cos_Orient; /* cos(LocalCart_Origin_Lat) * cos(LocalCart_Orientation) */
-  double Cos_Lat_Sin_Orient; /* cos(LocalCart_Origin_Lat) * sin(LocalCart_Orientation) */
+  double Sin_Lat_Sin_Orient; // sin(LocalCart_Origin_Lat) * sin(LocalCart_Orientation)
+  double Sin_Lat_Cos_Orient; // sin(LocalCart_Origin_Lat) * cos(LocalCart_Orientation)
+  double Cos_Lat_Cos_Orient; // cos(LocalCart_Origin_Lat) * cos(LocalCart_Orientation)
+  double Cos_Lat_Sin_Orient; // cos(LocalCart_Origin_Lat) * sin(LocalCart_Orientation)
 };
 
 local_cartesian::local_cartesian( geo_point const& origin, double orientation )
@@ -384,7 +344,6 @@ local_cartesian::local_cartesian( geo_point const& origin, double orientation )
   orientation_ = orientation;
   geotrans_ = new geotrans(origin, orientation);
 }
-
 
 void local_cartesian::set_origin( geo_point const& origin, double orientation )
 {

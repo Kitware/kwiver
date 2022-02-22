@@ -2,6 +2,7 @@
 # Top level build for VITAL
 #
 project( vital )
+set(CMAKE_FOLDER "Vital")
 
 ###
 # KWSys
@@ -72,6 +73,7 @@ set( vital_public_headers
   algorithm_capabilities.h
   any.h
   attribute_set.h
+  bitflags.h
   context.h
   exceptions.h
   iterator.h
@@ -91,6 +93,7 @@ set( vital_public_headers
   io/track_set_io.h
 
   types/activity.h
+  types/activity_type.h
   types/bounding_box.h
   types/camera.h
   types/camera_intrinsics.h
@@ -109,6 +112,7 @@ set( vital_public_headers
   types/detected_object.h
   types/detected_object_set.h
   types/detected_object_set_util.h
+  types/detected_object_type.h
   types/essential_matrix.h
   types/feature.h
   types/feature_set.h
@@ -138,6 +142,7 @@ set( vital_public_headers
   types/metadata_map.h
   types/metadata_tags.h
   types/metadata_traits.h
+  types/metadata_types.h
   types/object_track_set.h
   types/point.h
   types/polygon.h
@@ -156,6 +161,7 @@ set( vital_public_headers
   types/transform_2d.h
   types/uid.h
   types/vector.h
+  types/video_settings.h
 )
 
 # ----------------------
@@ -173,12 +179,12 @@ set( vital_sources
   io/track_set_io.cxx
 
   types/activity.cxx
+  types/activity_type.cxx
   types/bounding_box.cxx
   types/camera_intrinsics.cxx
   types/camera_perspective.cxx
   types/camera_rpc.cxx
   types/category_hierarchy.cxx
-  types/class_map.cxx
   types/database_query.cxx
   types/descriptor.cxx
   types/descriptor_request.cxx
@@ -186,6 +192,7 @@ set( vital_sources
   types/detected_object.cxx
   types/detected_object_set.cxx
   types/detected_object_set_util.cxx
+  types/detected_object_type.cxx
   types/essential_matrix.cxx
   types/feature.cxx
   types/feature_track_set.cxx
@@ -207,6 +214,7 @@ set( vital_sources
   types/mesh.cxx
   types/metadata.cxx
   types/metadata_traits.cxx
+  types/metadata_types.cxx
   types/object_track_set.cxx
   types/point.cxx
   types/polygon.cxx
@@ -218,6 +226,7 @@ set( vital_sources
   types/track.cxx
   types/track_descriptor.cxx
   types/track_set.cxx
+  types/video_settings.cxx
   types/uid.cxx
 )
 
@@ -248,6 +257,7 @@ target_link_libraries( vital
                   vital_exceptions
                   vital_logger
                   vital_util
+                  Eigen3::Eigen
   )
 
 ###
@@ -263,41 +273,6 @@ endif ()
 option(KWIVER_USE_CONFIGURATION_SUBDIRECTORY
   "Look in the configuration's subdirectory for each module path (e.g. debug, release, ...)" ${default})
 
-if (WIN32)
-  set(path_sep "\\073")
-else()  # Other Unix systems
-  set(path_sep "\\072")
-endif()
-
-# Build a default set of plugin path dirs
-# Provide that list as the default value for the path option.
-if( NOT SKBUILD )
-kwiver_make_module_path( ${CMAKE_INSTALL_PREFIX} ${kwiver_plugin_module_subdir} )
-set( vital_default_module_path ${kwiver_module_path_result} )
-
-if (KWIVER_USE_BUILD_TREE)
-  kwiver_make_module_path( ${KWIVER_BINARY_DIR} ${kwiver_plugin_module_subdir} )
-  set( vital_default_module_path ${kwiver_module_path_result} ${vital_default_module_path} )
-endif()
-
-set(KWIVER_DEFAULT_MODULE_PATHS "${vital_default_module_path}"
-  CACHE STRING "The default paths for module scanning. Separate paths with ';' character." FORCE)
-mark_as_advanced( KWIVER_DEFAULT_MODULE_PATHS )
-
-# add all paths to the property
-foreach( p IN LISTS KWIVER_DEFAULT_MODULE_PATHS )
-  kwiver_add_module_path( ${p} )
-endforeach(p)
-endif()
-# need to retrieve the GLOBAL PROPERTY kwiver_plugin_path and
-# formulate the default module path
-get_property(plugin_path GLOBAL PROPERTY kwiver_plugin_path)
-
-# convert list to path string using the system specific path separator
-foreach( p IN LISTS plugin_path )
-  set( VITAL_MODULE_PATH "${VITAL_MODULE_PATH}${path_sep}${p}" )
-endforeach(p)
-
 ###
 # configure our compiler options
 configure_file(
@@ -312,7 +287,6 @@ add_subdirectory( util )
 add_subdirectory( range )
 add_subdirectory( bindings )
 add_subdirectory( config )
-add_subdirectory( klv )
 add_subdirectory( logger )
 add_subdirectory( plugin_loader )
 

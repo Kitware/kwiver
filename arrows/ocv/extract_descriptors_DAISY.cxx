@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2016 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -44,7 +18,6 @@ using namespace kwiver::vital;
 namespace kwiver {
 namespace arrows {
 namespace ocv {
-
 
 namespace {
 
@@ -73,7 +46,6 @@ bool check_norm_type( int norm )
 }
 
 } //end namespace anonymous
-
 
 class extract_descriptors_DAISY::priv
 {
@@ -107,7 +79,7 @@ public:
                        "amount of angular range division quantity" );
     config->set_value( "q_hist", q_hist,
                        "amount of gradient orientations range division quantity" );
-    config->set_value( "norm", norm,
+    config->set_value( "norm", static_cast< int >( norm ),
                        "descriptor normalization type. valid choices:\n"
                        + list_norm_options() );
     config->set_value( "interpolation", interpolation,
@@ -122,7 +94,7 @@ public:
     q_radius = config->get_value<int>( "q_radius" );
     q_theta = config->get_value<int>( "q_theta" );
     q_hist = config->get_value<int>( "q_hist" );
-    norm = config->get_value<int>( "norm" );
+    norm = static_cast< decltype( norm ) >( config->get_value<int>( "norm" ) );
     interpolation = config->get_value<bool>( "interpolation" );
     use_orientation = config->get_value<bool>( "use_orientation" );
   }
@@ -131,10 +103,10 @@ public:
   {
     bool valid = true;
 
-    int norm = config->get_value<int>( "norm" );
-    if( ! check_norm_type( norm ) )
+    int n = config->get_value<int>( "norm" );
+    if( ! check_norm_type( n ) )
     {
-      LOG_ERROR( log, "Invalid norm option '" << norm << "'. Valid choices "
+      LOG_ERROR( log, "Invalid norm option '" << n << "'. Valid choices "
                       "are: " << list_norm_options() );
       valid = false;
     }
@@ -147,11 +119,14 @@ public:
   int q_radius;
   int q_theta;
   int q_hist;
+#if KWIVER_OPENCV_VERSION_MAJOR >= 4
+  cv::xfeatures2d::DAISY::NormalizationType norm;
+#else
   int norm;
+#endif
   bool interpolation;
   bool use_orientation;
 };
-
 
 extract_descriptors_DAISY
 ::extract_descriptors_DAISY()
@@ -160,7 +135,6 @@ extract_descriptors_DAISY
   attach_logger( "arrows.ocv.DAISY" );
   extractor = p_->create();
 }
-
 
 extract_descriptors_DAISY
 ::~extract_descriptors_DAISY()
@@ -176,7 +150,6 @@ extract_descriptors_DAISY
   return config;
 }
 
-
 void extract_descriptors_DAISY
 ::set_configuration(vital::config_block_sptr config)
 {
@@ -186,7 +159,6 @@ void extract_descriptors_DAISY
   extractor = p_->create();
 }
 
-
 bool
 extract_descriptors_DAISY
 ::check_configuration(vital::config_block_sptr config) const
@@ -195,7 +167,6 @@ extract_descriptors_DAISY
   c->merge_config( config );
   return p_->check_config( c, logger() );
 }
-
 
 } // end namespace ocv
 } // end namespace arrows

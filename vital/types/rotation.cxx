@@ -1,38 +1,10 @@
-/*ckwg +29
- * Copyright 2013-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of \link kwiver::vital::rotation_ rotation_<T> \endlink
- *        for \c T = { \c float, \c double }
- */
+/// \file
+/// \brief Implementation of \link kwiver::vital::rotation_ rotation_<T> \endlink
+///        for \c T = { \c float, \c double }
 
 #include "rotation.h"
 
@@ -63,7 +35,6 @@ rotation_< T >
   }
 }
 
-
 /// Constructor - from rotation angle (radians) and axis
 template < typename T >
 rotation_< T >
@@ -72,42 +43,37 @@ rotation_< T >
 {
 }
 
-
 /// Constructor - from yaw, pitch, and roll (radians)
 template < typename T >
 rotation_< T >
 ::rotation_( const T& yaw, const T& pitch, const T& roll )
 {
-  using std::cos;
-  using std::sin;
-  static const double root_two = std::sqrt( static_cast<double>(2.0) );
-  static const T inv_root_two = static_cast< T > ( 1.0 / root_two );
-
-  // compute the rotation from North-East-Down (NED) coordinates to
-  // East-North-Up coordinates (ENU). It is a 180 degree rotation about
-  // the axis [1/sqrt(2), 1/sqrt(2), 0]
-  const rotation_< T > Rned2enu( Eigen::Quaternion< T > ( 0, inv_root_two, inv_root_two, 0 ) );
-  const double half_x = 0.5 * static_cast< double > ( -roll );
-  const double half_y = 0.5 * static_cast< double > ( -pitch );
-  const double half_z = 0.5 * static_cast< double > ( -yaw );
-  rotation_< T > Rx( Eigen::Quaternion< T > ( T( cos( half_x ) ), T( sin( half_x ) ), 0, 0 ) );
-  rotation_< T > Ry( Eigen::Quaternion< T > ( T( cos( half_y ) ), 0, T( sin( half_y ) ), 0 ) );
-  rotation_< T > Rz( Eigen::Quaternion< T > ( T( cos( half_z ) ), 0, 0, T( sin( half_z ) ) ) );
-  *this = Rx * Ry * Rz * Rned2enu;
+  // See https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Euler_angles_to_quaternion_conversion
+  T const half_x = static_cast< T >( 0.5 ) * roll;
+  T const half_y = static_cast< T >( 0.5 ) * pitch;
+  T const half_z = static_cast< T >( 0.5 ) * yaw;
+  T const sin_x = std::sin( half_x );
+  T const cos_x = std::cos( half_x );
+  T const sin_y = std::sin( half_y );
+  T const cos_y = std::cos( half_y );
+  T const sin_z = std::sin( half_z );
+  T const cos_z = std::cos( half_z );
+  *this = Eigen::Quaternion< T >{
+    cos_x * cos_y * cos_z + sin_x * sin_y * sin_z,
+    sin_x * cos_y * cos_z - cos_x * sin_y * sin_z,
+    cos_x * sin_y * cos_z + sin_x * cos_y * sin_z,
+    cos_x * cos_y * sin_z - sin_x * sin_y * cos_z };
 }
 
-
 /// Constructor - from a matrix
-/**
- * requires orthonormal matrix with +1 determinant
- */
+///
+/// requires orthonormal matrix with +1 determinant
 template < typename T >
 rotation_< T >
 ::rotation_( const Eigen::Matrix< T, 3, 3 >& rot )
 {
   q_ = Eigen::Quaternion< T > ( rot );
 }
-
 
 /// Convert to a 3x3 matrix
 template < typename T >
@@ -117,8 +83,6 @@ rotation_< T >
 {
   return q_.toRotationMatrix();
 }
-
-
 
 /// Returns the axis of rotation
 template < typename T >
@@ -136,7 +100,6 @@ rotation_< T >
   return dir / mag;
 }
 
-
 /// Returns the angle of the rotation in radians about the axis
 template < typename T >
 T
@@ -144,7 +107,7 @@ rotation_< T >
 ::angle() const
 {
   static const T _pi = static_cast< T > ( pi );
-  static const T two_pi = static_cast< T > ( 2.0 * pi );
+  static const T _two_pi = static_cast< T > ( 2.0 * pi );
 
   const double i = Eigen::Matrix< T, 3, 1 > ( q_.x(), q_.y(), q_.z() ).norm();
   const double r = q_.w();
@@ -154,15 +117,14 @@ rotation_< T >
   // i.e. -pi/2 < a < pi/2
   if ( a >= _pi )
   {
-    a -= two_pi;
+    a -= _two_pi;
   }
   if ( a <= -_pi )
   {
-    a += two_pi;
+    a += _two_pi;
   }
   return a;
 }
-
 
 /// Return the rotation as a Rodrigues vector
 template < typename T >
@@ -179,21 +141,21 @@ rotation_< T >
   return this->axis() * angle;
 }
 
-
 /// Convert to yaw, pitch, and roll (radians)
 template < typename T >
 void
 rotation_< T >
 ::get_yaw_pitch_roll( T& yaw, T& pitch, T& roll ) const
 {
-  Eigen::Matrix< T, 3, 3 > rotM( this->matrix() );
-  T cos_p = T( std::sqrt( double( rotM( 1, 2 ) * rotM( 1, 2 ) ) + rotM( 2, 2 ) * rotM( 2, 2 ) ) );
-
-  yaw   = T( std::atan2( double( rotM( 0, 0 ) ), double( rotM( 0, 1 ) ) ) );
-  pitch = T( std::atan2( double( rotM( 0, 2 ) ), double(cos_p) ) );
-  roll  = T( std::atan2( double( -rotM( 1, 2 ) ), double( -rotM( 2, 2 ) ) ) );
+  // See https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Quaternion_to_Euler_angles_conversion
+  constexpr auto _1 = static_cast< T >( 1.0 );
+  constexpr auto _2 = static_cast< T >( 2.0 );
+  roll = std::atan2( _2 * ( q_.w() * q_.x() + q_.y() * q_.z() ),
+                     _1 - _2 * ( q_.x() * q_.x() + q_.y() * q_.y() ) );
+  pitch = std::asin( _2 * ( q_.w() * q_.y() - q_.x() * q_.z() ) );
+  yaw = std::atan2( _2 * ( q_.w() * q_.z() + q_.x() * q_.y() ),
+                    _1 - _2 * ( q_.y() * q_.y() + q_.z() * q_.z() ) );
 }
-
 
 /// Compose two rotations
 template < typename T >
@@ -204,12 +166,10 @@ rotation_< T >
   return q_ * rhs.q_;
 }
 
-
 /// Rotate a vector
-/**
- * \note for a large number of vectors, it is more efficient to
- * create a rotation matrix and use matrix multiplcation
- */
+///
+/// \note for a large number of vectors, it is more efficient to
+/// create a rotation matrix and use matrix multiplcation
 template < typename T >
 Eigen::Matrix< T, 3, 1 >
 rotation_< T >
@@ -217,7 +177,6 @@ rotation_< T >
 {
   return q_ * rhs;
 }
-
 
 /// output stream operator for a rotation
 template < typename T >
@@ -227,7 +186,6 @@ operator<<( std::ostream& s, const rotation_< T >& r )
   s << r.quaternion().coeffs();
   return s;
 }
-
 
 /// input stream operator for a rotation
 template < typename T >
@@ -241,7 +199,6 @@ operator>>( std::istream& s, rotation_< T >& r )
   return s;
 }
 
-
 /// Generate a rotation vector that, when applied to A N times, produces B.
 template < typename T >
 rotation_< T >
@@ -252,7 +209,6 @@ interpolate_rotation( rotation_< T > const& A, rotation_< T > const& B, T f )
   // Reduce the angle of rotation by the fraction provided
   return A * rotation_< T > ( C.angle() * f, C.axis() );
 }
-
 
 /// Generate N evenly interpolated rotations inbetween \c A and \c B.
 template < typename T >
@@ -267,75 +223,38 @@ interpolated_rotations( rotation_< T > const& A, rotation_< T > const& B, size_t
   }
 }
 
-
 template < typename T >
-Eigen::Matrix< T, 3, 3> rotation_zyx(T yaw, T pitch, T roll)
+rotation_< T >
+ned_to_enu( rotation_< T > const& r )
 {
-  typedef Eigen::Matrix< T, 3, 3> matrix_3x3;
-
-  matrix_3x3 Rr;
-  matrix_3x3 Rp;
-  matrix_3x3 Ry;
-
-  auto cos_roll = static_cast<T>( cos( static_cast<double>(roll) ) );
-  auto sin_roll = static_cast<T>( sin( static_cast<double>(roll) ) );
-  auto cos_pitch = static_cast<T>( cos( static_cast<double>(pitch) ) );
-  auto sin_pitch = static_cast<T>( sin( static_cast<double>(pitch) ) );
-  auto cos_yaw = static_cast<T>( cos( static_cast<double>(yaw) ) );
-  auto sin_yaw = static_cast<T>( sin( static_cast<double>(yaw) ) );
-
-  // about x
-  Rr << 1, 0, 0,
-    0, cos_roll, -sin_roll,
-    0, sin_roll, cos_roll;
-
-  // about y
-  Rp << cos_pitch, 0, sin_pitch,
-    0, 1, 0,
-    -sin_pitch, 0, cos_pitch;
-
-  // about z
-  Ry << cos_yaw, -sin_yaw, 0,
-    sin_yaw, cos_yaw, 0,
-    0, 0, 1;
-  return Ry*Rp*Rr;
+  auto axis = Eigen::Matrix< T, 3, 1 >{ 1, 1, 0 };
+  auto angle = T{ -pi };
+  auto adjustment = rotation_< T >{ angle, axis };
+  return adjustment * r;
 }
 
 template < typename T >
 rotation_< T >
-compose_rotations(
-  T platform_yaw, T platform_pitch, T platform_roll,
-  T sensor_yaw,   T sensor_pitch,   T sensor_roll)
+enu_to_ned( rotation_< T > const& r )
 {
-  typedef Eigen::Matrix< T, 3, 3> matrix_3x3;
-
-  auto deg_to_rad_ = static_cast<T>(deg_to_rad);
-
-  matrix_3x3 R;
-  // rotation from east north up to platform
-  // platform has x out nose, y out left wing, z up
-  matrix_3x3 Rp = rotation_zyx<T>(deg_to_rad_*(-platform_yaw + 90.0),
-                                  deg_to_rad_*(-platform_pitch),
-                                  deg_to_rad_*platform_roll);
-
-  // rotation from platform to gimbal
-  // gimbal x is camera viewing direction
-  // gimbal y is left in image (-x in standard computer vision image coordinates)
-  matrix_3x3 Rs = rotation_zyx<T>(deg_to_rad_*(-sensor_yaw),
-                                  deg_to_rad_*(-sensor_pitch),
-                                  deg_to_rad_*sensor_roll);
-
-  // rotation from gimbal frame to camera frame
-  // camera frame has x right in image, y down, z along optical axis
-  matrix_3x3 R_c;
-  R_c << 0, -1, 0,
-         0, 0, -1,
-         1, 0, 0;
-
-  R = R_c*Rs.transpose()*Rp.transpose();
-  return kwiver::vital::rotation_< T >(R);
+  auto axis = Eigen::Matrix< T, 3, 1 >{ 1, 1, 0 };
+  auto angle = T{ pi };
+  auto adjustment = rotation_< T >{ angle, axis };
+  return adjustment * r;
 }
 
+template < typename T >
+rotation_< T >
+uas_ypr_to_rotation( T platform_yaw, T platform_pitch, T platform_roll,
+                     T sensor_yaw,   T sensor_pitch,   T sensor_roll )
+{
+  auto const platform_rotation =
+    rotation_< T >{ platform_yaw, platform_pitch, platform_roll };
+  auto const sensor_rotation =
+    rotation_< T >{ sensor_yaw, sensor_pitch, sensor_roll };
+
+  return ned_to_enu( platform_rotation * sensor_rotation );
+}
 
 /// \cond DoxygenSuppress
 #define INSTANTIATE_ROTATION( T )                                       \
@@ -347,7 +266,11 @@ compose_rotations(
   template VITAL_EXPORT rotation_< T > interpolate_rotation( rotation_< T > const & A, rotation_< T > const & B, T f ); \
   template VITAL_EXPORT void                                            \
   interpolated_rotations( rotation_< T > const & A, rotation_< T > const & B, size_t n, std::vector< rotation_< T > > &interp_rots ); \
-  template VITAL_EXPORT rotation_< T > compose_rotations( T p_y, T p_p, T p_r, T s_y, T s_p, T s_r )
+  template VITAL_EXPORT rotation_< T > ned_to_enu( rotation_< T > const& r ); \
+  template VITAL_EXPORT rotation_< T > enu_to_ned( rotation_< T > const& r ); \
+  template VITAL_EXPORT rotation_< T > uas_ypr_to_rotation(             \
+    T platform_yaw, T platform_pitch, T platform_roll,                  \
+    T sensor_yaw,   T sensor_pitch,   T sensor_roll )
 
 INSTANTIATE_ROTATION( double );
 INSTANTIATE_ROTATION( float );

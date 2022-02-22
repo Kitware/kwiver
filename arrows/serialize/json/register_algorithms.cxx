@@ -1,58 +1,36 @@
-/*ckwg +29
- * Copyright 2018-2020 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Defaults plugin algorithm registration interface impl
- */
+/// \file
+/// \brief Default plugin algorithm registration interface implementation.
 
 #include <arrows/serialize/json/kwiver_serialize_json_plugin_export.h>
+
 #include <vital/algo/algorithm_factory.h>
 
 #include "activity.h"
+#include "activity_type.h"
 #include "bounding_box.h"
-#include "class_map.h"
 #include "detected_object.h"
 #include "detected_object_set.h"
-#include "timestamp.h"
+#include "detected_object_type.h"
 #include "image.h"
-#include "string.h"
-#include "track_state.h"
+#include "metadata_map_io.h"
+#include "object_track_set.h"
 #include "object_track_state.h"
+#include "string.h"
+#include "timestamp.h"
 #include "track.h"
 #include "track_set.h"
-#include "object_track_set.h"
+#include "track_state.h"
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace serialize {
+
 namespace json {
 
 // ----------------------------------------------------------------------------
@@ -61,38 +39,45 @@ KWIVER_SERIALIZE_JSON_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {
-  kwiver::vital::serializer_registrar reg( vpm, "arrows.serialize.json",
-                                           "json" );
+  auto const module_name = std::string{ "arrows.serialize.json" };
+  kwiver::vital::serializer_registrar sreg( vpm, module_name, "json" );
+  kwiver::vital::algorithm_registrar areg( vpm, module_name );
 
-  if (reg.is_module_loaded())
+  if( sreg.is_module_loaded() )
   {
     return;
   }
 
   using namespace kwiver::arrows::serialize::json;
 
-  reg.register_algorithm< activity >();
-  reg.register_algorithm< bounding_box >();
-  reg.register_algorithm< class_map >();
-  reg.register_algorithm< detected_object >();
-  reg.register_algorithm< detected_object_set >();
-  reg.register_algorithm< timestamp >();
-  reg.register_algorithm< image >();
-  reg.register_algorithm< image >( "kwiver:mask" );
-  reg.register_algorithm< string >();
-  reg.register_algorithm< track_state >();
-  reg.register_algorithm< object_track_state >();
-  reg.register_algorithm< track >();
-  reg.register_algorithm< track_set >();
-  reg.register_algorithm< object_track_set >();
-  reg.register_algorithm< string >( "kwiver:file_name" );
-  reg.register_algorithm< string >( "kwiver:image_name" );
-  reg.register_algorithm< string >( "kwiver:video_name" );
+  sreg.register_algorithm< activity >();
+  sreg.register_algorithm< activity_type >();
+  sreg.register_algorithm< bounding_box >();
+  sreg.register_algorithm< detected_object >();
+  sreg.register_algorithm< detected_object_set >();
+  sreg.register_algorithm< detected_object_type >();
+  sreg.register_algorithm< timestamp >();
+  sreg.register_algorithm< image >();
+  sreg.register_algorithm< image >( "kwiver:mask" );
+  sreg.register_algorithm< string >();
+  sreg.register_algorithm< track_state >();
+  sreg.register_algorithm< object_track_state >();
+  sreg.register_algorithm< track >();
+  sreg.register_algorithm< track_set >();
+  sreg.register_algorithm< object_track_set >();
+  sreg.register_algorithm< string >( "kwiver:file_name" );
+  sreg.register_algorithm< string >( "kwiver:image_name" );
+  sreg.register_algorithm< string >( "kwiver:video_name" );
 
-  reg.mark_module_as_loaded();
+  areg.register_algorithm< metadata_map_io >();
+
+  sreg.mark_module_as_loaded();
 }
 
 } // end namespace json
+
 } // end namespace serialize
+
 } // end namespace arrows
+
 } // end namespace kwiver

@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2016-2017 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file   process_factory.h
@@ -49,6 +23,9 @@
 #include <memory>
 
 namespace sprokit {
+
+class cluster_info;
+using cluster_info_t =  std::shared_ptr<cluster_info>;
 
 // returns: process_t - shared_ptr<process>
 typedef std::function< process_t( kwiver::vital::config_block_sptr const& config ) > process_factory_func_t;
@@ -73,7 +50,6 @@ create_new_process(kwiver::vital::config_block_sptr const& conf)
   return std::make_shared<T>(conf);
 }
 
-
 // ----------------------------------------------------------------
 /**
  * \brief Factory class for sprokit processes
@@ -92,9 +68,9 @@ class SPROKIT_PIPELINE_EXPORT process_factory
 {
 public:
   /**
-   * \brief CTOR for factory object
+   * \brief constructor for factory object
    *
-   * This CTOR also takes a factory function so it can support
+   * This constructor also takes a factory function so it can support
    * creating processes and clusters.
    *
    * \param type Type name of the process
@@ -110,10 +86,14 @@ public:
   void copy_attributes( sprokit::process_t proc );
 };
 
-
 // ----------------------------------------------------------------------------
+/**
+ * \brief factory for CPP processes.
+ *
+ * This class represents the factory for a CPP process.
+ */
 class SPROKIT_PIPELINE_EXPORT cpp_process_factory
-: public sprokit::process_factory
+: public process_factory
 {
 public:
   /**
@@ -122,8 +102,8 @@ public:
    * This CTOR also takes a factory function so it can support
    * creating processes and clusters.
    *
-   * \param type Type name of the process
-   * \param itype Type name of interface type.
+   * \param type Type name of the process class.
+   * \param itype Type name of interface type (usually "process").
    * \param factory The Factory function
    */
   cpp_process_factory( const std::string& type,
@@ -132,13 +112,33 @@ public:
 
   virtual ~cpp_process_factory() = default;
 
-  virtual sprokit::process_t create_object(kwiver::vital::config_block_sptr const& config);
+  sprokit::process_t create_object(kwiver::vital::config_block_sptr const& config) override;
 
 private:
   process_factory_func_t m_factory;
 };
 
+// ----------------------------------------------------------------------------
+/**
+ * \brief Factory class for clusters
+ *
+ * This class represents a factory for clusters of processes.
+ * The description for the cluster is in the cluster info element.
+ */
+class SPROKIT_PIPELINE_EXPORT cluster_process_factory
+: public process_factory
+{
+public:
+  cluster_process_factory( cluster_info_t info );
 
+  virtual ~cluster_process_factory() = default;
+
+  sprokit::process_t create_object(kwiver::vital::config_block_sptr const& config) override;
+
+  cluster_info_t m_cluster_info;
+};
+
+// ----------------------------------------------------------------------------
 /**
  * \brief Create process of a specific type.
  *
@@ -164,7 +164,6 @@ sprokit::process_t create_process(const sprokit::process::type_t&        type,
 SPROKIT_PIPELINE_EXPORT
   void mark_process_module_as_loaded( kwiver::vital::plugin_loader& vpl,
                                       const module_t& module );
-
 
 /**
  * \brief Query if a process has already been loaded.
@@ -210,8 +209,8 @@ public:
   };
 
   process_registrar( kwiver::vital::plugin_loader& vpl,
-                       const std::string& mod_name )
-    : plugin_registrar( vpl, mod_name )
+                       const std::string& mod_name_ )
+    : plugin_registrar( vpl, mod_name_ )
   {
   }
 
@@ -225,7 +224,6 @@ public:
   {
     plugin_loader().mark_module_as_loaded( "process." + module_name() );
   }
-
 
   // ----------------------------------------------------------------------------
   /// Register a process plugin.

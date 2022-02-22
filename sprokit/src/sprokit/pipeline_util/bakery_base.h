@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2016 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * @file   bakery_base.h
@@ -64,16 +38,15 @@ public:
   void operator()( process_pipe_block const& process_block );
   void operator()( connect_pipe_block const& connect_block );
 
-
   /**
    * @brief Intermediate representation of a contfig entry.
    */
   class config_info_t
   {
   public:
-    config_info_t( const kwiver::vital::config_block_value_t&           val,
-                   bool                                  ro,
-                   bool                                  relative_path,
+    config_info_t( const kwiver::vital::config_block_value_t& val,
+                   bool ro,
+                   bool relative_path,
                    const kwiver::vital::source_location& loc );
     ~config_info_t();
 
@@ -83,12 +56,13 @@ public:
     kwiver::vital::source_location defined_loc;
   };
 
-  typedef std::pair< kwiver::vital::config_block_key_t, config_info_t > config_decl_t;
-  typedef std::vector< config_decl_t > config_decls_t;
+  using config_decl_t = std::pair< kwiver::vital::config_block_key_t, config_info_t >;
+  using config_decls_t = std::vector< config_decl_t >;
 
-  typedef std::pair< process::name_t, process::type_t > process_decl_t;
-  typedef std::vector< process_decl_t > process_decls_t;
+  using process_decl_t = std::pair< process::name_t, process::type_t >;
+  using process_decls_t =  std::vector< process_decl_t >;
 
+  // The pipeline definition data items.
   config_decls_t m_configs;
   process_decls_t m_processes;
   process::connections_t m_connections;

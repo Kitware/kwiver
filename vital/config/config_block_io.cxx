@@ -1,44 +1,19 @@
-/*ckwg +29
- * Copyright 2013-2020 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief config_block IO operations implementation
- */
+/// \file
+/// \brief config_block IO operations implementation
 
 #include "config_block_io.h"
 #include "config_block_exception.h"
 #include "config_parser.h"
 
 #include <vital/logger/logger.h>
+
+#include <vital/util/get_paths.h>
 #include <vital/util/wrap_text_block.h>
+
 #include <vital/version.h>
 
 #include <kwiversys/SystemTools.hxx>
@@ -56,8 +31,17 @@ namespace vital {
 
 namespace {
 
+// ----------------------------------------------------------------------------
+std::string guess_install_prefix()
+{
+  auto const& exe_path = get_executable_path();
+  auto const& last = kwiversys::SystemTools::GetFilenameName(exe_path);
+
+  return (last == "bin" ? exe_path + "/.." : exe_path);
+}
+
 #if defined(_WIN32)
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Helper method to add known special paths to a path list
 void add_windows_path( config_path_list_t & paths, int which )
 {
@@ -71,8 +55,7 @@ void add_windows_path( config_path_list_t & paths, int which )
 }
 #endif
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Helper method to get application specific paths from generic paths
 config_path_list_t
 application_paths( config_path_list_t const& paths,
@@ -94,16 +77,14 @@ application_paths( config_path_list_t const& paths,
   return result;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Add paths in the KWIVER_CONFIG_PATH env variable to the given path vector
-/**
- * Appends the current working directory (".") and then the contents of the
- * \c KWIVER_CONFIG_PATH environment variable, in order, to the back of the
- * given vector.
- *
- * \param path_vector The vector to append to
- */
+///
+/// Appends the current working directory (".") and then the contents of the
+/// \c KWIVER_CONFIG_PATH environment variable, in order, to the back of the
+/// given vector.
+///
+/// \param path_vector The vector to append to
 void append_kwiver_config_paths( config_path_list_t &path_vector )
 {
   // Current working directory always takes precedence
@@ -111,10 +92,7 @@ void append_kwiver_config_paths( config_path_list_t &path_vector )
   kwiversys::SystemTools::GetPath( path_vector, "KWIVER_CONFIG_PATH" );
 }
 
-} //end anonymous namespace
-
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Helper method to get all possible locations of application config files
 config_path_list_t
 application_config_file_paths_helper(std::string const& application_name,
@@ -200,18 +178,23 @@ application_config_file_paths_helper(std::string const& application_name,
   return paths;
 }
 
-// ------------------------------------------------------------------
+} //end anonymous namespace
+
+// ----------------------------------------------------------------------------
 /// Get additional application configuration file paths
 config_path_list_t
 application_config_file_paths(std::string const& application_name,
                               std::string const& application_version,
                               config_path_t const& install_prefix)
 {
+  auto const& guessed_prefix =
+    (install_prefix.empty() ? guess_install_prefix() : install_prefix);
+
   return application_config_file_paths(application_name, application_version,
-                                       install_prefix, install_prefix);
+                                       guessed_prefix, guessed_prefix);
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Get additional application configuration file paths
 config_path_list_t
 application_config_file_paths(std::string const& application_name,
@@ -221,28 +204,41 @@ application_config_file_paths(std::string const& application_name,
 {
   // First, add any paths specified by our local environment variable
   auto paths = config_path_list_t{};
-  append_kwiver_config_paths(paths);
+  append_kwiver_config_paths( paths );
 
-  auto app_paths = application_config_file_paths_helper(application_name,
-                                                        application_version,
-                                                        app_install_prefix);
-  for (auto const& path : app_paths)
+  if( !application_name.empty() )
   {
-    paths.push_back(path);
+    auto const& app_paths =
+      application_config_file_paths_helper(
+        application_name, application_version, app_install_prefix );
+
+    std::copy( app_paths.begin(), app_paths.end(),
+               std::back_inserter( paths ) );
   }
 
-  auto kwiver_paths = application_config_file_paths_helper("kwiver",
-                                                           KWIVER_VERSION,
-                                                           kwiver_install_prefix);
-  for (auto const& path : kwiver_paths)
+  auto* const env =
+    kwiversys::SystemTools::GetEnv( "KWIVER_CONFIG_PREFIX" );
+  if( env && *env )
   {
-    paths.push_back(path);
+    auto const& kwiver_env_paths =
+      application_config_file_paths_helper(
+        "kwiver", KWIVER_VERSION, env );
+
+    std::copy( kwiver_env_paths.begin(), kwiver_env_paths.end(),
+               std::back_inserter( paths ) );
   }
+
+  auto const& kwiver_paths =
+    application_config_file_paths_helper(
+      "kwiver", KWIVER_VERSION, kwiver_install_prefix );
+
+  std::copy( kwiver_paths.begin(), kwiver_paths.end(),
+             std::back_inserter( paths ) );
 
   return paths;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Get KWIVER configuration file paths
 config_path_list_t
 kwiver_config_file_paths(config_path_t const& install_prefix)
@@ -251,9 +247,10 @@ kwiver_config_file_paths(config_path_t const& install_prefix)
   auto paths = config_path_list_t{};
   append_kwiver_config_paths(paths);
 
-  auto kwiver_paths = application_config_file_paths_helper("kwiver",
-                                                           KWIVER_VERSION,
-                                                           install_prefix);
+  auto kwiver_paths =
+    application_config_file_paths_helper(
+      "kwiver", KWIVER_VERSION,
+      (install_prefix.empty() ? guess_install_prefix() : install_prefix));
 
   for (auto const& path : kwiver_paths)
   {
@@ -263,8 +260,7 @@ kwiver_config_file_paths(config_path_t const& install_prefix)
   return paths;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_block_sptr
 read_config_file( config_path_t const&     file_path,
                   config_path_list_t const& search_paths,
@@ -296,8 +292,7 @@ read_config_file( config_path_t const&     file_path,
   return the_parser.get_config();
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_block_sptr
 read_config_file( std::string const& file_name,
                   std::string const& application_name,
@@ -370,8 +365,45 @@ read_config_file( std::string const& file_name,
   return result;
 }
 
+// ----------------------------------------------------------------------------
+std::vector< config_path_t > find_config_file(
+  std::string const& file_name,
+  std::string const& application_name,
+  std::string const& application_version,
+  config_path_t const& install_prefix,
+  bool find_all )
+{
+  // If the file name is an absolute path, just return it
+  if ( kwiversys::SystemTools::FileIsFullPath( file_name ) )
+  {
+    return { file_name };
+  }
 
-// ------------------------------------------------------------------
+  auto const search_paths =
+    application_config_file_paths( application_name, application_version,
+                                   install_prefix );
+
+  // File name is relative, so go through the search process
+  auto out = std::vector< config_path_t >{};
+  for( auto const& search_path : search_paths )
+  {
+    auto const& config_path = search_path + "/" + file_name;
+
+    if( kwiversys::SystemTools::FileExists( config_path ) &&
+        !kwiversys::SystemTools::FileIsDirectory( config_path ) )
+    {
+      if( !find_all )
+      {
+        return { config_path };
+      }
+      out.push_back( config_path );
+    }
+  }
+
+  return out;
+}
+
+// ----------------------------------------------------------------------------
 // Output to file the given \c config_block object to the specified file path
 void
 write_config_file( config_block_sptr const& config,
@@ -413,8 +445,7 @@ write_config_file( config_block_sptr const& config,
   ofile.close();
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void write_config( config_block_sptr const& config,
                    std::ostream&            ofile )
 {

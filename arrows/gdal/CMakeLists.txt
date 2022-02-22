@@ -1,6 +1,8 @@
 # Build / Install plugin containing GDAL algorithm implementations + support
 # structures
 
+set(CMAKE_FOLDER "Arrows/GDAL")
+
 set( gdal_headers_public
   image_container.h
   image_io.h
@@ -26,7 +28,7 @@ kwiver_add_library( kwiver_algo_gdal
   ${gdal_sources}
   )
 target_link_libraries( kwiver_algo_gdal
-  PUBLIC               kwiver_algo_core
+  PUBLIC               vital_algo
   PRIVATE              ${GDAL_LIBRARY}
   )
 

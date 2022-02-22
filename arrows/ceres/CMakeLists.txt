@@ -1,9 +1,10 @@
 # Build / Install plugin containing Ceres algorithm implementations + support
 # structures
 
+set(CMAKE_FOLDER "Arrows/Ceres")
+
 set( ceres_headers_public
   bundle_adjust.h
-  lens_distortion.h
   optimize_cameras.h
   reprojection_error.h
   camera_intrinsic_prior.h
@@ -11,6 +12,7 @@ set( ceres_headers_public
   camera_smoothness.h
   )
 set( ceres_headers_private
+  lens_distortion.h
   options.h
   types.h
   )
@@ -39,8 +41,9 @@ kwiver_add_library( kwiver_algo_ceres
   ${ceres_sources}
   )
 target_link_libraries( kwiver_algo_ceres
-  PUBLIC               kwiver_algo_core
+  PUBLIC               vital_algo
   PRIVATE              ceres
+                       kwiver_algo_mvg
   )
 if(NOT CERES_USES_MINIGLOG)
   target_link_libraries( kwiver_algo_ceres

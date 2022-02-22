@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2013-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -66,7 +40,6 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-
 /// Private implementation class
 class track_features_core::priv
 {
@@ -95,7 +68,6 @@ public:
   vital::algo::close_loops_sptr closer;
 };
 
-
 /// Default Constructor
 track_features_core
 ::track_features_core()
@@ -103,13 +75,11 @@ track_features_core
 {
 }
 
-
 /// Destructor
 track_features_core
 ::~track_features_core() noexcept
 {
 }
-
 
 /// Get this alg's \link vital::config_block configuration block \endlink
 vital::config_block_sptr
@@ -148,7 +118,6 @@ track_features_core
   return config;
 }
 
-
 /// Set this algo's properties via a config block
 void
 track_features_core
@@ -184,7 +153,6 @@ track_features_core
   algo::close_loops::set_nested_algo_configuration("loop_closer", config, cl);
   d_->closer = cl;
 }
-
 
 bool
 track_features_core
@@ -229,12 +197,11 @@ track_features_core
   );
 }
 
-
 /// Extend a previous set of tracks using the current frame
 feature_track_set_sptr
 track_features_core
 ::track(feature_track_set_sptr prev_tracks,
-        unsigned int frame_number,
+        frame_id_t frame_number,
         image_container_sptr image_data,
         image_container_sptr mask) const
 {
@@ -375,9 +342,9 @@ track_features_core
     typedef std::vector<feature_sptr>::const_iterator feat_itr;
     typedef descriptor_set::const_iterator desc_itr;
     feat_itr fit = vf.begin();
-    desc_itr dit = curr_desc->begin();
+    desc_itr dit = curr_desc->cbegin();
     std::vector<vital::track_sptr> new_tracks;
-    for(; fit != vf.end() && dit != curr_desc->end(); ++fit, ++dit)
+    for(; fit != vf.end() && dit != curr_desc->cend(); ++fit, ++dit)
     {
       auto fts = std::make_shared<feature_track_state>(frame_number);
       fts->feature = *fit;

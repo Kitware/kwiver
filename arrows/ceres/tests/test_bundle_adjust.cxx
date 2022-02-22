@@ -1,50 +1,24 @@
-/*ckwg +29
- * Copyright 2015-2017 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test Ceres bundle adjustment functionality
- */
+/// \file
+/// \brief test Ceres bundle adjustment functionality
 
 #include <test_eigen.h>
 #include <test_scene.h>
 
-#include <arrows/core/metrics.h>
 #include <arrows/ceres/bundle_adjust.h>
-#include <arrows/core/projected_track_set.h>
+
+#include <arrows/mvg/metrics.h>
+#include <arrows/mvg/projected_track_set.h>
 
 #include <vital/plugin_loader/plugin_manager.h>
 #include <vital/math_constants.h>
 
 using namespace kwiver::vital;
 using namespace kwiver::arrows;
+using namespace kwiver::arrows::mvg;
 
 using kwiver::arrows::ceres::bundle_adjust;
 
@@ -103,7 +77,6 @@ TEST(bundle_adjust, outlier_tracks)
   feature_track_set_sptr tracks0 =
     kwiver::testing::noisy_tracks(
       kwiver::testing::subset_tracks(tracks_w_outliers, 0.5), track_stdev);
-
 
   double init_rmse = reprojection_rmse(cameras0->cameras(),
                                        landmarks0->landmarks(),
@@ -385,7 +358,6 @@ test_ba_intrinsic_sharing( camera_map_sptr cameras,
   // add Gaussian noise to the camera positions and orientations
   camera_map_sptr cameras0 = kwiver::testing::noisy_cameras(cameras, 0.1, 0.1);
 
-
   double init_rmse = reprojection_rmse(cameras0->cameras(),
                                        landmarks0->landmarks(),
                                        tracks->tracks());
@@ -408,6 +380,24 @@ test_ba_intrinsic_sharing( camera_map_sptr cameras,
   }
 
   return static_cast<unsigned int>(intrin_set.size());
+}
+
+// ----------------------------------------------------------------------------
+// Make sure each camera has unique (not shared) intrinsics
+camera_map_sptr make_intrinsics_unique(camera_map_sptr cameras)
+{
+  camera_map::map_camera_t new_cams;
+  for (auto ci : cameras->cameras())
+  {
+    auto cam = std::dynamic_pointer_cast<camera_perspective>(ci.second);
+    if (cam)
+    {
+      auto new_cam = std::make_shared<simple_camera_perspective>(
+        cam->center(), cam->rotation(), cam->intrinsics()->clone());
+      new_cams[ci.first] = new_cam;
+    }
+  }
+  return std::make_shared<simple_camera_map>(new_cams);
 }
 
 // ----------------------------------------------------------------------------
@@ -442,8 +432,12 @@ TEST(bundle_adjust, common_intrinsics)
 
   // create a camera sequence (elliptical path)
   camera_map_sptr cameras = kwiver::testing::camera_seq(20, K);
+
+  // ensure that some cameras are not shared to start
+  cameras = make_intrinsics_unique(cameras);
+
   EXPECT_EQ( 1, test_ba_intrinsic_sharing( cameras, cfg ) )
-    << "Resulting camera intrinsics should be unique";
+    << "Resulting camera intrinsics should be shared";
 }
 
 // ----------------------------------------------------------------------------
@@ -502,7 +496,6 @@ test_ba_data_scales(kwiver::vital::config_block_sptr cfg,
   // add Gaussian noise to the camera positions and orientations
   camera_map_sptr cameras0 = kwiver::testing::noisy_cameras(cameras, 0.1*scale, 0.1);
 
-
   double init_rmse = reprojection_rmse(cameras0->cameras(),
     landmarks0->landmarks(),
     tracks->tracks());
@@ -556,7 +549,6 @@ test_ba_camera_smoothing(camera_map_sptr cameras,
 
   // add Gaussian noise to the camera positions and orientations
   camera_map_sptr cameras0 = kwiver::testing::noisy_cameras(cameras, 0.1*scale, 0.1);
-
 
   double init_rmse = reprojection_rmse(cameras0->cameras(),
                                        landmarks0->landmarks(),
@@ -669,7 +661,6 @@ test_ba_min_hfov(camera_map_sptr cameras,
   // add Gaussian noise to the camera positions and orientations
   camera_map_sptr cameras0 = kwiver::testing::noisy_cameras(cameras, 0.1*scale, 0.1);
 
-
   double init_rmse = reprojection_rmse(cameras0->cameras(),
     landmarks0->landmarks(),
     tracks->tracks());
@@ -710,17 +701,15 @@ TEST(bundle_adjust, minimum_hfov)
   simple_camera_intrinsics K(1000, vector_2d(640, 480));
 
   // create a camera sequence (elliptical path)
-  camera_map_sptr cameras = kwiver::testing::camera_seq(20, K);
+  camera_map_sptr cameras = kwiver::testing::camera_seq(20, K, 1.0, 90.0);
   test_ba_min_hfov(cameras, cfg);
 
-
   // create a camera sequence (elliptical path)
-  cameras = kwiver::testing::camera_seq(100, K);
+  cameras = kwiver::testing::camera_seq(100, K, 1.0, 90.0);
   test_ba_min_hfov(cameras, cfg);
 
-
   // create a camera sequence (elliptical path)
-  cameras = kwiver::testing::camera_seq(100, K, 1000.0);
+  cameras = kwiver::testing::camera_seq(100, K, 1000.0, 90.0);
   test_ba_min_hfov(cameras, cfg, 1000.0);
 
   // test with non-sequential cameras

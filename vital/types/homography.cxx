@@ -1,37 +1,9 @@
-/*ckwg +29
- * Copyright 2015, 2019-2020 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief core homography template implementations
- */
+/// \file
+/// \brief core homography template implementations
 
 #include "homography.h"
 
@@ -63,7 +35,6 @@ h_map_point( Eigen::Matrix< T, 3, 3 > const& h, Eigen::Matrix< T, 2, 1 > const& 
 
 } // end anonymous namespace
 
-
 /// Construct an identity homography
 template < typename T >
 homography_< T >
@@ -72,7 +43,6 @@ homography_< T >
 {
 }
 
-
 /// Construct from a provided transformation matrix
 template < typename T >
 homography_< T >
@@ -80,7 +50,6 @@ homography_< T >
   : h_( mat )
 {
 }
-
 
 /// Conversion Copy constructor -- float specialization
 template < >
@@ -91,7 +60,6 @@ homography_< float >
 {
 }
 
-
 /// Conversion Copy constructor -- double specialization
 template < >
 template < >
@@ -101,7 +69,6 @@ homography_< double >
 {
 }
 
-
 /// Construct from a generic homography
 template < typename T >
 homography_< T >
@@ -110,7 +77,6 @@ homography_< T >
 {
 }
 
-
 /// Construct from a generic homography -- double specialization
 template < >
 homography_< double >
@@ -118,7 +84,6 @@ homography_< double >
   : h_( base.matrix() )
 {
 }
-
 
 /// Create a clone of outself as a shared pointer
 template < typename T >
@@ -129,7 +94,6 @@ homography_< T >
   return std::make_shared< homography_< T > >( *this );
 }
 
-
 /// Get a double-typed copy of the underlying matrix transformation
 template < typename T >
 Eigen::Matrix< double, 3, 3 >
@@ -139,7 +103,6 @@ homography_< T >
   return this->h_.template cast< double > ();
 }
 
-
 /// Specialization for homographies with native double type
 template < >
 Eigen::Matrix< double, 3, 3 >
@@ -148,7 +111,6 @@ homography_< double >
 {
   return this->h_;
 }
-
 
 /// Normalize homography transformation in-place
 template < typename T >
@@ -164,7 +126,6 @@ homography_< T >
   }
   return std::make_shared< homography_< T > >( norm );
 }
-
 
 /// Inverse the homography transformation returning a new transformation
 template < typename T >
@@ -183,7 +144,6 @@ homography_< T >
   return std::make_shared< homography_< T > >( inv );
 }
 
-
 /// Map a 2D double-type point using this homography
 template < typename T >
 Eigen::Matrix< double, 2, 1 >
@@ -197,7 +157,6 @@ homography_< T >
   return h_map_point( m, p );
 }
 
-
 /// Map a 2D double-type point using this homography -- double specialization
 template < >
 Eigen::Matrix< double, 2, 1 >
@@ -206,7 +165,6 @@ homography_< double >
 {
   return h_map_point( h_, p );
 }
-
 
 /// Get the underlying matrix transformation
 template < typename T >
@@ -217,7 +175,6 @@ homography_< T >
   return this->h_;
 }
 
-
 /// Get a const new copy of the underlying matrix transformation.
 template < typename T >
 typename homography_< T >::matrix_t const &
@@ -226,7 +183,6 @@ homography_< T >
 {
   return this->h_;
 }
-
 
 /// Map a 2D point using this homography -- generic version
 template < typename T >
@@ -237,7 +193,6 @@ homography_< T >
   return h_map_point< T > ( h_.template cast< T > (), p );
 }
 
-
 /// Map a 2D point using this homography -- float specialization
 template < >
 Eigen::Matrix< float, 2, 1 >
@@ -246,7 +201,6 @@ homography_< float >
 {
   return h_map_point( h_, p );
 }
-
 
 /// Map a 2D point using this homography -- double specialization
 template < >
@@ -257,7 +211,6 @@ homography_< double >
   return h_map_point( h_, p );
 }
 
-
 /// Custom f2f_homography multiplication operator.
 template < typename T >
 homography_< T >
@@ -267,10 +220,9 @@ homography_< T >
   return homography_< T > ( h_ * rhs.h_ );
 }
 
-
-// ===========================================================================
+// ----------------------------------------------------------------------------
 // Other Functions
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /// homography_<T> output stream operator
 template < typename T >
@@ -281,7 +233,6 @@ operator<<( std::ostream& s, homography_< T > const& h )
   return s;
 }
 
-
 /// Output stream operator for \p homography instances
 std::ostream&
 operator<<( std::ostream& s, homography const& h )
@@ -290,10 +241,9 @@ operator<<( std::ostream& s, homography const& h )
   return s;
 }
 
-
-// ===========================================================================
+// ----------------------------------------------------------------------------
 // Template class instantiation
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// \cond DoxygenSuppress
 #define INSTANTIATE_HOMOGRAPHY( T )              \
   template class homography_< T >;               \

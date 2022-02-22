@@ -1,7 +1,5 @@
 project(vital_python_modules)
 
-include_directories(${pybind11_INCLUDE_DIR})
-
 set(modules_python_srcs
     module_helpers.h
     module_helpers.cxx

@@ -1,37 +1,9 @@
-/*ckwg +29
- * Copyright 2013-2017 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test core rotation class
- */
+/// \file
+/// \brief test core rotation class
 
 #include <test_eigen.h>
 
@@ -39,7 +11,6 @@
 
 #include <iostream>
 #include <vector>
-
 
 static constexpr double pi = 3.14159265358979323846;
 
@@ -125,6 +96,22 @@ TEST_P(rotation_yaw_pitch_roll, convert)
 }
 
 // ----------------------------------------------------------------------------
+TEST_P( rotation_yaw_pitch_roll, ned_enu_round_trip )
+{
+  auto const& p = GetParam();
+  rotation_d rot{ p.yaw, p.pitch, p.roll };
+  rot = ned_to_enu( rot );
+  rot = enu_to_ned( rot );
+
+  double yaw, pitch, roll;
+  rot.get_yaw_pitch_roll( yaw, pitch, roll );
+
+  EXPECT_NEAR( p.yaw,   yaw,   1e-14 );
+  EXPECT_NEAR( p.pitch, pitch, 1e-14 );
+  EXPECT_NEAR( p.roll,  roll,  1e-14 );
+}
+
+// ----------------------------------------------------------------------------
 INSTANTIATE_TEST_CASE_P(
   ,
   rotation_yaw_pitch_roll,
@@ -138,6 +125,20 @@ INSTANTIATE_TEST_CASE_P(
       ( ypr_test{ +1.2, +0.3,  0.0 } ),
       ( ypr_test{ +1.2, +0.3, -1.7 } )
   ) );
+
+// ----------------------------------------------------------------------------
+TEST( rotation, ypr_identity )
+{
+  rotation_d rot{ pi / 2.0, 0.0, pi };
+  rot = ned_to_enu( rot );
+
+  double yaw, pitch, roll;
+  rot.get_yaw_pitch_roll( yaw, pitch, roll );
+
+  EXPECT_NEAR( 0.0, yaw,   1e-14 );
+  EXPECT_NEAR( 0.0, pitch, 1e-14 );
+  EXPECT_NEAR( 0.0, roll,  1e-14 );
+}
 
 // ----------------------------------------------------------------------------
 TEST(rotation, compose)

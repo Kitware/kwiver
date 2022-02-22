@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2013-2017 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -409,7 +383,7 @@ public:
   image_pyramid prev_pyramid;
   image_pyramid_map det_pyramids;
   detection_data_map det_data_map;
-  int prev_frame_num;
+  frame_id_t prev_frame_num;
   size_t last_detect_num_features;
   float redetect_threshold;
   cv::Mat tracked_feature_location_mask;
@@ -427,7 +401,6 @@ public:
   float l1_err_thresh;
 };
 
-
 /// Default Constructor
 track_features_klt
 ::track_features_klt()
@@ -437,13 +410,11 @@ track_features_klt
   d_->m_logger = this->logger();
 }
 
-
 /// Destructor
 track_features_klt
 ::~track_features_klt() noexcept
 {
 }
-
 
 /// Get this alg's \link vital::config_block configuration block \endlink
 vital::config_block_sptr
@@ -462,7 +433,6 @@ track_features_klt
 
   return config;
 }
-
 
 /// Set this algo's properties via a config block
 void
@@ -484,7 +454,6 @@ track_features_klt
   d_->set_config(config);
 }
 
-
 bool
 track_features_klt
 ::check_configuration(vital::config_block_sptr config) const
@@ -505,7 +474,7 @@ bool feat_stren_less(feature_sptr a, feature_sptr b)
 feature_track_set_sptr
 track_features_klt
 ::track(feature_track_set_sptr prev_tracks,
-        unsigned int frame_number,
+        frame_id_t frame_number,
         image_container_sptr image_data,
         image_container_sptr mask) const
 {

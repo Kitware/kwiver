@@ -1,36 +1,9 @@
-/*ckwg +29
- * Copyright 2016-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include "detected_object_set.h"
 #include "bounding_box.h"
-
 
 #include <algorithm>
 #include <stdexcept>
@@ -38,7 +11,7 @@
 namespace kwiver {
 namespace vital {
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 namespace {
 
 struct descending_confidence
@@ -69,22 +42,19 @@ struct more_first
 
 } // end namespace
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 detected_object_set::
 detected_object_set()
 { }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 detected_object_set::
 detected_object_set( std::vector< detected_object_sptr > const& objs )
   : m_detected_objects( objs )
 {
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 detected_object_set_sptr
 detected_object_set::
 clone() const
@@ -107,8 +77,7 @@ clone() const
   return new_obj;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set::
 add( detected_object_sptr object )
@@ -121,8 +90,7 @@ add( detected_object_sptr object )
   m_detected_objects.push_back( object );
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set::
 add( detected_object_set_sptr detections )
@@ -133,8 +101,7 @@ add( detected_object_set_sptr detections )
   }
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 size_t
 detected_object_set::
 size() const
@@ -142,8 +109,7 @@ size() const
   return m_detected_objects.size();
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set::
 empty() const
@@ -151,8 +117,7 @@ empty() const
   return m_detected_objects.empty();
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 detected_object_set_sptr
 detected_object_set::
 select( double threshold ) const
@@ -174,8 +139,7 @@ select( double threshold ) const
   return std::make_shared< detected_object_set > (vect);
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 detected_object_set_sptr
 detected_object_set::
 select( const std::string& class_name, double threshold )const
@@ -229,7 +193,7 @@ select( const std::string& class_name, double threshold )const
   return std::make_shared< detected_object_set > (vect);
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set::
 scale( double scale_factor )
@@ -247,7 +211,7 @@ scale( double scale_factor )
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set::
 shift( double col_shift, double row_shift )
@@ -266,7 +230,7 @@ shift( double col_shift, double row_shift )
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::attribute_set_sptr
 detected_object_set::
 attributes() const
@@ -274,15 +238,13 @@ attributes() const
   return m_attrs;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set::
 set_attributes( attribute_set_sptr attrs )
 {
   m_attrs = attrs;
 }
-
 
 // ----------------------------------------------------------------------------
 detected_object_sptr
@@ -292,7 +254,6 @@ at( size_t pos )
   return m_detected_objects.at( pos );
 }
 
-
 // ----------------------------------------------------------------------------
 const detected_object_sptr
 detected_object_set::
@@ -300,7 +261,6 @@ at( size_t pos ) const
 {
   return m_detected_objects.at( pos );
 }
-
 
 using vec_t = std::vector< detected_object_sptr >;
 

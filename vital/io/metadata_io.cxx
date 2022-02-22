@@ -1,38 +1,10 @@
-/*ckwg +29
- * Copyright 2017-2020 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of file IO functions for metadata
- *
- */
+/// \file
+/// \brief Implementation of file IO functions for metadata
+///
 
 #include "metadata_io.h"
 
@@ -46,7 +18,6 @@
 
 namespace kwiver {
 namespace vital {
-
 
 /// Extract an image file basename from metadata and (if needed) frame number
 std::string
@@ -77,6 +48,21 @@ basename_from_metadata(metadata_sptr md,
   basename += "-" + std::string(frame_str);
 
   return basename;
+}
+
+std::string
+basename_from_metadata(kwiver::vital::metadata_vector const& mdv,
+                       frame_id_t frame)
+{
+  for (auto const& md : mdv)
+  {
+    if (md->has(kwiver::vital::VITAL_META_IMAGE_URI) ||
+        md->has(kwiver::vital::VITAL_META_VIDEO_URI))
+    {
+      return basename_from_metadata(md, frame);
+    }
+  }
+  return basename_from_metadata(nullptr, frame);
 }
 
 // ----------------------------------------------------------------------------
@@ -219,8 +205,7 @@ write_pos_file( metadata const& md,
 
   if ( auto& mdi = md.find( VITAL_META_SENSOR_LOCATION ) )
   {
-    kwiver::vital::geo_point geo_pt;
-    mdi.data( geo_pt );
+    auto const geo_pt = mdi.get< kwiver::vital::geo_point >();
     auto const& raw_loc = geo_pt.location( SRID::lat_lon_WGS84 );
     // altitude is in feet in a POS file and needs to be converted to feet
     constexpr double feet2meters = 0.3048;
@@ -244,6 +229,5 @@ write_pos_file( metadata const& md,
 
   ofile.close();
 }
-
 
 } } // end of namespace

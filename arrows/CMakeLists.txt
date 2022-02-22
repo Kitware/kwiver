@@ -2,11 +2,17 @@
 # Arrows Algorithms CMake file
 #
 
+set(CMAKE_FOLDER "Arrows")
 set(ARROWS_SOURCE_DIR           "${CMAKE_CURRENT_SOURCE_DIR}")
 set(ARROWS_BINARY_DIR           "${CMAKE_CURRENT_BINARY_DIR}")
 
 # Base plug-in with default implementations
 add_subdirectory( core )
+
+# Add MVG plugin if enabled
+if( KWIVER_ENABLE_MVG )
+  add_subdirectory( mvg )
+endif()
 
 # Add Ceres plugin if enabled
 if( KWIVER_ENABLE_CERES )
@@ -75,6 +81,11 @@ if( KWIVER_ENABLE_KPF )
   add_subdirectory( kpf )
 endif()
 
+# if klv is enabled
+if( KWIVER_ENABLE_KLV )
+  add_subdirectory( klv )
+endif()
+
 # if GDAL is enabled
 if ( KWIVER_ENABLE_GDAL )
   add_subdirectory( gdal )
@@ -85,10 +96,19 @@ if( KWIVER_ENABLE_UUID )
   add_subdirectory( uuid )
 endif()
 
-
-# if FFMPEG is enabled
+# if FFmpeg is enabled
 if( KWIVER_ENABLE_FFMPEG)
   add_subdirectory( ffmpeg )
 endif()
 
+# if VTK is enabled
+if( KWIVER_ENABLE_VTK)
+  add_subdirectory( vtk )
+endif()
+
 add_subdirectory( serialize )
+
+# Register the colmap arrow with CMake.
+if( KWIVER_ENABLE_COLMAP )
+  add_subdirectory( colmap )
+endif()

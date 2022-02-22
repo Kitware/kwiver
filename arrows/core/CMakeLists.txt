@@ -1,5 +1,7 @@
 # Build / Install Plugin containing core algorithm implementations
 
+set(CMAKE_FOLDER "Arrows/Core")
+
 set( plugin_core_headers
   associate_detections_to_tracks_threshold.h
   class_probablity_filter.h
@@ -14,6 +16,7 @@ set( plugin_core_headers
   convert_image_bypass.h
   create_detection_grid.h
   depth_utils.h
+  derive_metadata.h
   detect_features_filtered.h
   detected_object_set_input_kw18.h
   detected_object_set_output_kw18.h
@@ -29,48 +32,37 @@ set( plugin_core_headers
   filter_features_scale.h
   filter_tracks.h
   handle_descriptor_request_core.h
-  hierarchical_bundle_adjust.h
-  initialize_cameras_landmarks.h
-  initialize_cameras_landmarks_keyframe.h
   initialize_object_tracks_threshold.h
   keyframe_selector_basic.h
   match_features_fundamental_matrix.h
   match_features_homography.h
   match_tracks.h
+  mesh_intersect.h
   mesh_operations.h
-  necker_reverse.h
+  metadata_map_io_csv.h
   read_object_track_set_kw18.h
   read_track_descriptor_set_csv.h
   render_mesh_depth_map.h
   track_features_augment_keyframes.h
   track_features_core.h
   transfer_bbox_with_depth_map.h
-  transform.h
   transform_detected_object_set.h
   triangle_scan_iterator.h
-  triangulate_landmarks.h
   uv_unwrap_mesh.h
   video_input_filter.h
   video_input_image_list.h
+  video_input_metadata_filter.h
   video_input_pos.h
   video_input_splice.h
   video_input_split.h
   write_object_track_set_kw18.h
   write_track_descriptor_set_csv.h
 
-  epipolar_geometry.h
-  interpolate_camera.h
   interpolate_track_spline.h
   match_features_homography.h
   match_matrix.h
-  metrics.h
-  projected_track_set.h
-  sfm_utils.h
   track_features_core.h
   track_set_impl.h
-  transform.h
-  triangulate.h
-  triangulate_landmarks.h
   )
 
 kwiver_install_headers(
@@ -97,6 +89,7 @@ set( plugin_core_sources
   convert_image_bypass.cxx
   create_detection_grid.cxx
   depth_utils.cxx
+  derive_metadata.cxx
   detect_features_filtered.cxx
   detected_object_set_input_kw18.cxx
   detected_object_set_output_kw18.cxx
@@ -112,58 +105,38 @@ set( plugin_core_sources
   filter_features_scale.cxx
   filter_tracks.cxx
   handle_descriptor_request_core.cxx
-  hierarchical_bundle_adjust.cxx
-  initialize_cameras_landmarks.cxx
-  initialize_cameras_landmarks_keyframe.cxx
   initialize_object_tracks_threshold.cxx
   keyframe_selector_basic.cxx
   match_features_fundamental_matrix.cxx
   match_features_homography.cxx
   match_tracks.cxx
-  necker_reverse.cxx
+  mesh_intersect.cxx
   mesh_operations.cxx
+  metadata_map_io_csv.cxx
   read_object_track_set_kw18.cxx
   read_track_descriptor_set_csv.cxx
   render_mesh_depth_map.cxx
   track_features_augment_keyframes.cxx
   track_features_core.cxx
   transfer_bbox_with_depth_map.cxx
-  transform.cxx
   transform_detected_object_set.cxx
   triangle_scan_iterator.cxx
-  triangulate_landmarks.cxx
   uv_unwrap_mesh.cxx
   video_input_filter.cxx
   video_input_image_list.cxx
+  video_input_metadata_filter.cxx
   video_input_pos.cxx
   video_input_splice.cxx
   video_input_split.cxx
   write_object_track_set_kw18.cxx
   write_track_descriptor_set_csv.cxx
 
-  epipolar_geometry.cxx
-  interpolate_camera.cxx
   interpolate_track_spline.cxx
   match_features_homography.cxx
   match_matrix.cxx
-  metrics.cxx
-  projected_track_set.cxx
-  sfm_utils.cxx
   track_features_core.cxx
   track_set_impl.cxx
-  transform.cxx
-  triangulate.cxx
-  triangulate_landmarks.cxx
   )
-
-# Address MSVC fatal error C1128:
-# number of sections exceeded object file format limit
-if(MSVC)
-  set_source_files_properties(
-    triangulate.cxx
-    PROPERTIES COMPILE_FLAGS "/bigobj"
-    )
-endif()
 
 kwiver_add_library( kwiver_algo_core
   ${plugin_core_headers}

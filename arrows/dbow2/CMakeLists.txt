@@ -1,6 +1,8 @@
 # Build / Install plugin containing DBoW2 algorithm implementations + support
 # structures
 
+set(CMAKE_FOLDER "Arrows/DBoW2")
+
 set( dbow2_headers_public
   match_descriptor_sets.h
   )
@@ -39,17 +41,13 @@ set( dbow2_sources
   Timestamp.cxx
   )
 
-if( KWIVER_HAS_OPENCV_VER_3 )
-  add_definitions(-DKWIVER_HAS_OPENCV_VER_3)
-endif()
-
 kwiver_add_library( kwiver_algo_dbow2
   ${dbow2_headers_public}
   ${dbow2_headers_private}
   ${dbow2_sources}
   )
 target_link_libraries( kwiver_algo_dbow2
-  PUBLIC               kwiver_algo_core
+  PUBLIC               vital_algo
                        ${OpenCV_LIBS}
   PRIVATE              kwiversys
   )

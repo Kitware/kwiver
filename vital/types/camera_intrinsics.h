@@ -1,38 +1,10 @@
-/*ckwg +29
- * Copyright 2013-2015 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for \link kwiver::vital::camera_intrinsics camera_intrinsics
- *        \endlink class
- */
+/// \file
+/// \brief Header for \link kwiver::vital::camera_intrinsics camera_intrinsics
+///        \endlink class
 
 #ifndef VITAL_CAMERA_INTRINSICS_H_
 #define VITAL_CAMERA_INTRINSICS_H_
@@ -46,7 +18,6 @@
 #include <vital/types/matrix.h>
 #include <vital/types/vector.h>
 
-
 namespace kwiver {
 namespace vital {
 
@@ -55,8 +26,7 @@ class camera_intrinsics;
 /// typedef for a camera intrinsics shared pointer
 typedef std::shared_ptr< camera_intrinsics > camera_intrinsics_sptr;
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// An abstract representation of camera intrinsics
 class VITAL_EXPORT camera_intrinsics
 {
@@ -84,61 +54,52 @@ public:
   { return std::vector<double>(); }
 
   /// Access the intrinsics as an upper triangular matrix
-  /**
-   *  \note This matrix includes the focal length, principal point,
-   *  aspect ratio, and skew, but does not model distortion
-   */
+  ///
+  ///  \note This matrix includes the focal length, principal point,
+  ///  aspect ratio, and skew, but does not model distortion
   virtual matrix_3x3d as_matrix() const;
 
   /// Map normalized image coordinates into actual image coordinates
-  /**
-   *  This function applies both distortion and application of the
-   *  calibration matrix to map into actual image coordinates
-   */
+  ///
+  ///  This function applies both distortion and application of the
+  ///  calibration matrix to map into actual image coordinates
   virtual vector_2d map(const vector_2d& norm_pt) const;
 
   /// Map a 3D point in camera coordinates into actual image coordinates
   virtual vector_2d map(const vector_3d& norm_hpt) const;
 
   /// Unmap actual image coordinates back into normalized image coordinates
-  /**
-   *  This function applies both application of the inverse calibration matrix
-   *  and undistortion of the normalized coordinates.
-   */
+  ///
+  ///  This function applies both application of the inverse calibration matrix
+  ///  and undistortion of the normalized coordinates.
   virtual vector_2d unmap(const vector_2d& norm_pt) const;
 
   /// Map normalized image coordinates into distorted coordinates
-  /**
-   *  The default implementation is the identity transformation (no distortion)
-   */
+  ///
+  ///  The default implementation is the identity transformation (no distortion)
   virtual vector_2d distort(const vector_2d& norm_pt) const { return norm_pt; };
 
   /// Unmap distorted normalized coordinates into normalized coordinates
-  /**
-   *  The default implementation is the identity transformation (no distortion)
-   */
+  ///
+  ///  The default implementation is the identity transformation (no distortion)
   virtual vector_2d undistort(const vector_2d& dist_pt) const { return dist_pt; };
 
   /// Check if a normalized image coordinate can map into image coordinates
-  /**
-  *  Some points may lie outside the domain of the mapping function and produce
-  *  invalid results.  This function tests if the point lies in the valid domain
-  */
+  ///
+  /// Some points may lie outside the domain of the mapping function and produce
+  /// invalid results.  This function tests if the point lies in the valid domain
   virtual bool is_map_valid(const vector_2d& norm_pt) const { return true; }
 
   /// Check if a 3D point in camera coordinates can map into image coordinates
-  /**
-  *  Some points may lie outside the domain of the mapping function and produce
-  *  invalid results.  This function tests if the point lies in the valid domain
-  */
+  ///
+  /// Some points may lie outside the domain of the mapping function and produce
+  /// invalid results.  This function tests if the point lies in the valid domain
   virtual bool is_map_valid(const vector_3d& norm_hpt) const;
 };
 
 /// output stream operator for a base class camera_intrinsics
 VITAL_EXPORT
 std::ostream& operator<<( std::ostream& s, const camera_intrinsics& c );
-
-
 
 /// A representation of camera intrinsic parameters
 class VITAL_EXPORT simple_camera_intrinsics :
@@ -198,10 +159,9 @@ public:
   { return camera_intrinsics_sptr( new simple_camera_intrinsics( *this ) ); }
 
   /// Constructor - from a calibration matrix
-  /**
-   * \note ignores values below the diagonal
-   * \param K calibration matrix to construct from
-   */
+  ///
+  /// \note ignores values below the diagonal
+  /// \param K calibration matrix to construct from
   explicit simple_camera_intrinsics(const matrix_3x3d& K,
                                     const vector_t& d=vector_t());
 
@@ -265,28 +225,27 @@ public:
   virtual vector_2d distort(const vector_2d& norm_pt) const;
 
   /// Unnap distorted normalized coordinates into normalized coordinates
-  /** \note applying inverse distortion is not closed form, so this function
-   *  uses an iterative solver.
-   */
+  ///
+  /// \note applying inverse distortion is not closed form, so this function
+  ///  uses an iterative solver.
   virtual vector_2d undistort(const vector_2d& dist_pt) const;
 
   /// Check if a normalized image coordinate can map into image coordinates
-  /**
-  *  Tests if a point lies beyond the maximum distortion radius
-  */
+  ///
+  /// Tests if a point lies beyond the maximum distortion radius
   virtual bool is_map_valid(const vector_2d& norm_pt) const;
 
   using camera_intrinsics::is_map_valid;
 
   /// Compute maximum squared radius for radial distortion given coefficients
-  /** A point at radius r is distorted to \f$(1 + a r^2 + b r^4 + c r^6) r\f$.
-   *  This function computes the maximum value of r before the function
-   *  curves back on itself (i.e. the slope is negative).  In many cases
-   *  the maximum radius is infinity.  Beyond this maximum radius the
-   *  distortion function is no longer injective.  Points beyond this radius
-   *  can project into the image bounds even if they are far outside the
-   *  field of view.
-   */
+  ///
+  /// A point at radius r is distorted to \f$(1 + a r^2 + b r^4 + c r^6) r\f$.
+  ///  This function computes the maximum value of r before the function
+  ///  curves back on itself (i.e. the slope is negative).  In many cases
+  ///  the maximum radius is infinity.  Beyond this maximum radius the
+  ///  distortion function is no longer injective.  Points beyond this radius
+  ///  can project into the image bounds even if they are far outside the
+  ///  field of view.
   static double max_distort_radius_sq(double a, double b, double c);
 
 protected:
@@ -308,22 +267,19 @@ protected:
   /// Image height
   unsigned int image_height_;
   /// maximum distortion radius (squared)
-  /** Do not trust the radial distortion of points beyond this radius.
-   *  The value is stored as radius squared because we mostly work
-   *  with squared values for efficiency (avoids many square roots)
-   */
+  ///
+  /// Do not trust the radial distortion of points beyond this radius.
+  ///  The value is stored as radius squared because we mostly work
+  ///  with squared values for efficiency (avoids many square roots)
   double max_distort_radius_sq_;
 };
 
-
 /// input stream operator for camera intrinsics
-/**
- * \param s input stream
- * \param k simple_camera_intrinsics to stream into
- */
+///
+/// \param s input stream
+/// \param k simple_camera_intrinsics to stream into
 VITAL_EXPORT std::istream&
 operator>>(std::istream& s, simple_camera_intrinsics& k);
-
 
 } } // end namespace
 

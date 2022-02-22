@@ -63,18 +63,53 @@ a PR until it conforms to the requirements described here (e.g.
 coding style, release notes, etc.) and it is confirmed that the code
 has sufficient unit tests and does not break any existing unit tests.
 
+Commits
+-------
+
+While not a strict requirement, it is beneficial for commits to record a set of
+separate, logical changes.  Ideally, each commit should compile and have
+correct code style (this is partly enforced by our workflow tools, and such
+enforcement may be expanded in the future).  "Fixup" commits only serve to
+clutter the history and make it harder to understand what changed.  Judicious
+use of amend and rebase is encouraged.
+
+Additionally, commits should follow the accepted conventions for git commit
+messages.  In short:
+
+- Use proper spelling and grammar; avoid "twitter speak".
+- Use complete sentences (including the first line) and appropriate
+  capitalization.  Use imperative mood.
+- Try to limit the subject line to 50 characters.  *Don't* end with a period.
+- Limit body lines (when necessary; occasionally just a subject is enough) to
+  72 characters (unless this is impossible e.g. due to a long URL).
+
+For further reading, see:
+
+- https://chris.beams.io/posts/git-commit/
+- https://www.freecodecamp.org/news/writing-good-commit-messages-a-practical-guide/
+- https://medium.com/@steveamaza/how-to-write-a-proper-git-commit-message-e028865e5791
+
 
 Coding Style
 ============
 
-When developing KWIVER, please keep to the prevailing style of the code. KWIVER
-uses ``uncrustify`` to assist with style consistency.
+When developing KWIVER, please keep to the prevailing style of the code.
 
 CMake, C++
 ----------
 
 Please refer to the `style guide <doc/code-style.rst>`_ for a detailed
 description and explanation of the coding style we follow.
+
+KWIVER uses ``uncrustify`` to assist with style consistency.
+A `configuration <.uncrustify.cfg>`_ is provided, however, please note that it
+is considered experimental as of uncrustify 0.71, which is known to mis-handle
+some edge cases and is not currently able to enforce all aspects of our desired
+style. It is strongly recommended that you build uncrustify from from sources
+(it requires only a C++ compiler and CMake, both of which you should already
+have if you are doing KWIVER development), as feature additions and bug fixes
+are frequent and older versions, especially those packaged by LTS
+distributionsm, are often prone to misformatting.
 
 Python
 ------

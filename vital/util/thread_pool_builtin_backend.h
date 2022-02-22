@@ -1,42 +1,14 @@
-/*ckwg +29
- * Copyright 2017, 2019 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *  this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  this list of conditions and the following disclaimer in the documentation
- *  and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *  to endorse or promote products derived from this software without specific
- *  prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of a simple built-in thread pool
- *
- * This design is modeled after an implementation by Jakob Progsch and
- * Vaclav Zeman found here:
- *
- * https://github.com/progschj/ThreadPool
- */
+/// \file
+/// \brief Implementation of a simple built-in thread pool
+///
+/// This design is modeled after an implementation by Jakob Progsch and
+/// Vaclav Zeman found here:
+///
+/// https://github.com/progschj/ThreadPool
 
 #ifndef KWIVER_VITAL_THREAD_POOL_BUILTIN_BACKEND_H_
 #define KWIVER_VITAL_THREAD_POOL_BUILTIN_BACKEND_H_
@@ -49,7 +21,6 @@
 #include <stdexcept>
 #include <thread>
 #include <vector>
-
 
 namespace kwiver {
 namespace vital {
@@ -114,7 +85,6 @@ public:
   bool stop;
 };
 
-
 /// This function is executed in each thread to endlessly process tasks
 void thread_pool_builtin_backend::thread_worker_loop()
 {
@@ -137,7 +107,6 @@ void thread_pool_builtin_backend::thread_worker_loop()
   }
 }
 
-
 /// Enqueue a void function in the thread pool
 void thread_pool_builtin_backend::enqueue_task(std::function<void()> func)
 {
@@ -156,7 +125,6 @@ void thread_pool_builtin_backend::enqueue_task(std::function<void()> func)
   // notify one worker to start processing
   condition.notify_one();
 }
-
 
 } }   // end namespace
 

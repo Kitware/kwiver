@@ -1,84 +1,52 @@
-/*ckwg +29
- * Copyright 2013-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief templated image transformation functions
- */
+/// \file
+/// \brief templated image transformation functions
 
 #ifndef VITAL_TRANSFORM_IMAGE_H_
 #define VITAL_TRANSFORM_IMAGE_H_
 
-
 #include <vital/types/image.h>
 #include <cstdlib>
-
 
 namespace kwiver {
 namespace vital {
 
-
 /// Transform a given image in place given a unary function
-/**
- * Apply a given unary function to all pixels in the image. This is guarateed
- * to traverse the pixels in an optimal order, i.e. in-memory-order traversal.
- *
- * Example:
-\code
-static kwiver::vital::image::byte invert_mask_pixel( kwiver::vital::image::byte const &b )
-{ return !b; }
-
-kwiver::vital::image   mask_img( mask->get_image() );
-kwiver::vital::transform_image( mask_img, invert_mask_pixel );
-
-// or as a functor
-class multiply_by {
-private:
-    int factor;
-
-public:
-    multiply_by(int x) : factor(x) { }
-
-    kwiver::vital::image::byte   operator () (kwiver::vital::image::byte const& other) const
-    {
-        return factor * other;
-    }
-};
-
-kwiver::vital::transform_image( mask_img, multiply_by( 5 ) );
-
-\endcode
- *
- * \param img Input image reference to transform the data of
- * \param op Unary function which takes a const byte& and returns a byte
- */
+///
+/// Apply a given unary function to all pixels in the image. This is guarateed
+/// to traverse the pixels in an optimal order, i.e. in-memory-order traversal.
+///
+/// Example:
+/// \code
+/// static kwiver::vital::image::byte invert_mask_pixel( kwiver::vital::image::byte const &b )
+/// { return !b; }
+///
+/// kwiver::vital::image   mask_img( mask->get_image() );
+/// kwiver::vital::transform_image( mask_img, invert_mask_pixel );
+///
+/// // or as a functor
+/// class multiply_by {
+/// private:
+///  int factor;
+///
+/// public:
+///  multiply_by(int x) : factor(x) { }
+///
+///  kwiver::vital::image::byte   operator () (kwiver::vital::image::byte const& other) const
+///  {
+///      return factor * other;
+///  }
+/// };
+///
+/// kwiver::vital::transform_image( mask_img, multiply_by( 5 ) );
+///
+/// \endcode
+///
+/// \param img Input image reference to transform the data of
+/// \param op Unary function which takes a const byte& and returns a byte
 template <typename T, typename OP>
 void transform_image( image_of<T>& img, OP op )
 {
@@ -90,9 +58,9 @@ void transform_image( image_of<T>& img, OP op )
   bool wBh = std::abs(img.w_step()) < std::abs(img.h_step()),
        dBh = std::abs(img.d_step()) < std::abs(img.h_step()),
        dBw = std::abs(img.d_step()) < std::abs(img.w_step());
-  size_t w_idx = ( ! wBh ) + dBw,
-         h_idx = wBh + dBh,
-         d_idx = ( ! dBw ) + ( ! dBh );
+  size_t w_idx = static_cast<size_t>( ! wBh ) + static_cast<size_t>(dBw),
+         h_idx = static_cast<size_t>(wBh) + static_cast<size_t>(dBh),
+         d_idx = static_cast<size_t>( ! dBw ) + static_cast<size_t>( ! dBh );
 
   side_len[w_idx] = img.width();
   side_len[h_idx] = img.height();
@@ -121,14 +89,12 @@ void transform_image( image_of<T>& img, OP op )
   }
 }
 
-
 /// Transform an input image to an output image given a unary function
-/**
- * This function is similar to the inplace variant except it copies the transformed data
- * from one const image to another.  The input and ouput images must have the same dimensions
- * but can have different types and memory layouts.  If the output image does not have the
- * correct dimensions its memory will be reallocated to match the dimensions of the input image.
- */
+///
+/// This function is similar to the inplace variant except it copies the transformed data
+/// from one const image to another.  The input and ouput images must have the same dimensions
+/// but can have different types and memory layouts.  If the output image does not have the
+/// correct dimensions its memory will be reallocated to match the dimensions of the input image.
 template <typename T1, typename T2, typename OP>
 void transform_image( image_of<T1> const& img_in, image_of<T2>& img_out, OP op )
 {
@@ -160,14 +126,12 @@ void transform_image( image_of<T1> const& img_in, image_of<T2>& img_out, OP op )
   }
 }
 
-
 /// Functor for casting pixel values for use in the cast_image function
 template <typename T1, typename T2>
 struct cast_pixel
 {
   T2 operator () (T1 const& v) const { return static_cast<T2>(v); }
 };
-
 
 /// Specialization of cast_pixel for bool to avoid compiler warnings
 template <typename T1>
@@ -176,14 +140,12 @@ struct cast_pixel<T1, bool>
   bool operator () (T1 const& v) const { return v != T1(0); }
 };
 
-
 /// Static cast an image of one type to that of another type
 template <typename T1, typename T2>
 void cast_image( image_of<T1> const& img_in, image_of<T2>& img_out )
 {
   transform_image(img_in, img_out, cast_pixel<T1,T2>());
 }
-
 
 /// Static cast an image of unknown type to a known type
 template <typename T>
@@ -220,27 +182,25 @@ void cast_image( image const& img_in, image_of<T>& img_out )
                "kwiver::vital::cast_image() cannot cast unknown type");
 }
 
-
 /// Call a unary function on every pixel in a const image
-/**
- * Apply a given unary function to all pixels in the image. This is guarateed
- * to traverse the pixels in an optimal order, i.e. in-memory-order traversal.
- *
- * Example:
-\code
-kwiver::vital::image_of<uint_8>my_image( img->get_image() );
-uint8_t max_v = 0;
-// using a lambda function to get the maximum pixel value
-kwiver::vital::foreach_pixel( my_image, [&max_v](uint8_t p)
-{
-  max_v = std::max(max_v, p)
-});
-
-\endcode
- *
- * \param img Input image reference
- * \param op Unary function which takes the pixel type
- */
+///
+/// Apply a given unary function to all pixels in the image. This is guarateed
+/// to traverse the pixels in an optimal order, i.e. in-memory-order traversal.
+///
+/// Example:
+/// \code
+/// kwiver::vital::image_of<uint_8>my_image( img->get_image() );
+/// uint8_t max_v = 0;
+/// // using a lambda function to get the maximum pixel value
+/// kwiver::vital::foreach_pixel( my_image, [&max_v](uint8_t p)
+/// {
+/// max_v = std::max(max_v, p)
+/// });
+///
+/// \endcode
+///
+/// \param img Input image reference
+/// \param op Unary function which takes the pixel type
 template <typename T, typename OP>
 void foreach_pixel( image_of<T> const& img, OP op )
 {
@@ -252,9 +212,9 @@ void foreach_pixel( image_of<T> const& img, OP op )
   bool wBh = std::abs(img.w_step()) < std::abs(img.h_step()),
        dBh = std::abs(img.d_step()) < std::abs(img.h_step()),
        dBw = std::abs(img.d_step()) < std::abs(img.w_step());
-  size_t w_idx = ( ! wBh ) + dBw,
-         h_idx = wBh + dBh,
-         d_idx = ( ! dBw ) + ( ! dBh );
+  size_t w_idx = static_cast<size_t>( ! wBh ) + static_cast<size_t>(dBw),
+         h_idx = static_cast<size_t>(wBh) + static_cast<size_t>(dBh),
+         d_idx = static_cast<size_t>( ! dBw ) + static_cast<size_t>( ! dBh );
 
   side_len[w_idx] = img.width();
   side_len[h_idx] = img.height();

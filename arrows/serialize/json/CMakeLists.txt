@@ -5,12 +5,14 @@ include_directories( ${ZLIB_INCLUDE_DIRS} )
 
 set( headers_public
   activity.h
+  activity_type.h
   bounding_box.h
-  class_map.h
   detected_object.h
   detected_object_set.h
+  detected_object_type.h
   image.h
   metadata.h
+  metadata_map_io.h
   object_track_set.h
   object_track_state.h
   string.h
@@ -30,15 +32,17 @@ set( private_headers
 
 set( sources
   activity.cxx
+  activity_type.cxx
   bounding_box.cxx
-  class_map.cxx
   detected_object.cxx
   detected_object_set.cxx
+  detected_object_type.cxx
   image.cxx
   load_save.cxx
   load_save_point.cxx
   load_save_metadata.cxx
   metadata.cxx
+  metadata_map_io.cxx
   object_track_set.cxx
   object_track_state.cxx
   string.cxx
@@ -47,6 +51,11 @@ set( sources
   track_set.cxx
   track_state.cxx
   )
+
+if( KWIVER_ENABLE_KLV )
+  list( APPEND headers_public klv/load_save_klv.h )
+  list( APPEND sources klv/load_save_klv.cxx )
+endif()
 
 kwiver_install_headers(
   SUBDIR     arrows/serialize/json
@@ -67,6 +76,10 @@ target_link_libraries( kwiver_serialize_json
   PUBLIC               vital_algo
   PRIVATE              ${ZLIB_LIBRARIES}
   )
+
+if( KWIVER_ENABLE_KLV )
+  target_link_libraries( kwiver_serialize_json PRIVATE kwiver_algo_klv )
+endif()
 
 
 algorithms_create_plugin( kwiver_serialize_json

@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2016 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #ifndef KWIVER_VITAL_PLUGIN_FACTORY_H
 #define KWIVER_VITAL_PLUGIN_FACTORY_H
@@ -52,11 +26,9 @@ class plugin_factory;
 typedef std::shared_ptr< plugin_factory >         plugin_factory_handle_t;
 typedef std::vector< plugin_factory_handle_t >    plugin_factory_vector_t;
 
-// ==================================================================
-/**
- * @brief Abstract base class for plugin factory.
- *
- */
+// ----------------------------------------------------------------------------
+/// @brief Abstract base class for plugin factory.
+///
 class VITAL_VPM_EXPORT plugin_factory
   : public std::enable_shared_from_this< plugin_factory >
   , private kwiver::vital::noncopyable
@@ -90,37 +62,32 @@ public:
   static const std::string APPLET_CATEGORY;
   static const std::string PROCESS_CATEGORY;
   static const std::string ALGORITHM_CATEGORY;
+  static const std::string CLUSTER_CATEGORY;
 
-  /**
-   * @brief Get attribute from factory
-   *
-   * @param[in] attr Attribute code
-   * @param[out] val Value of attribute if present
-   *
-   * @return \b true if attribute is found; \b false otherwise.
-   */
+  /// @brief Get attribute from factory
+  ///
+  /// @param[in] attr Attribute code
+  /// @param[out] val Value of attribute if present
+  ///
+  /// @return \b true if attribute is found; \b false otherwise.
   bool get_attribute( std::string const& attr, std::string& val ) const;
 
-  /**
-   * @brief Add attribute to factory
-   *
-   * This method sets the specified attribute
-   *
-   * @param attr Attribute name.
-   * @param val Attribute value.
-   */
+  /// @brief Add attribute to factory
+  ///
+  /// This method sets the specified attribute
+  ///
+  /// @param attr Attribute name.
+  /// @param val Attribute value.
   plugin_factory& add_attribute( std::string const& attr, std::string const& val );
 
-  /**
-   * @brief Returns object of registered type.
-   *
-   * This method returns an object of the template type if
-   * possible. The type of the requested object must match the
-   * interface type for this factory. If not, an exception is thrown.
-   *
-   * @return Object of registered type.
-   * @throws kwiver::vital::plugin_factory_type_creation_error
-   */
+  /// @brief Returns object of registered type.
+  ///
+  /// This method returns an object of the template type if
+  /// possible. The type of the requested object must match the
+  /// interface type for this factory. If not, an exception is thrown.
+  ///
+  /// @return Object of registered type.
+  /// @throws kwiver::vital::plugin_factory_type_creation_error
   template <class T>
   T* create_object()
   {
@@ -148,11 +115,9 @@ public:
   }
 
   //@{
-  /**
-   * @brief Iterate over all attributes
-   *
-   * @param f Factory object
-   */
+  /// @brief Iterate over all attributes
+  ///
+  /// @param f Factory object
   template < class T > void for_each_attr( T& f )
   {
     for( auto val : m_attribute_map )
@@ -176,7 +141,6 @@ protected:
 
   std::string m_interface_type;
 
-
 private:
   // Method to create concrete object
   virtual void* create_object_i() { return 0; }
@@ -185,23 +149,18 @@ private:
   attribute_map_t m_attribute_map;
 };
 
-
-// ----------------------------------------------------------------
-/**
- * @brief Factory for concrete class objects.
- *
- * @tparam T Type of the concrete class created.
- */
+// ----------------------------------------------------------------------------
+/// @brief Factory for concrete class objects.
+///
+/// @tparam T Type of the concrete class created.
 template< class T >
 class plugin_factory_0
   : public plugin_factory
 {
 public:
-  /**
-   * @brief Create concrete factory object
-   *
-   * @param itype Name of the interface type
-   */
+  /// @brief Create concrete factory object
+  ///
+  /// @param itype Name of the interface type
   plugin_factory_0( std::string const& itype )
     : plugin_factory( itype )
   {
@@ -221,11 +180,10 @@ protected:
 
 } } // end namespace
 
-
-// ==================================================================
+// ----------------------------------------------------------------------------
 // Support for adding factories
 
 #define ADD_FACTORY( interface_T, conc_T)                               \
   add_factory( new kwiver::vital::plugin_factory_0< conc_T >( typeid( interface_T ).name() ) )
 
-#endif /* KWIVER_VITAL_PLUGIN_FACTORY_H */
+#endif // KWIVER_VITAL_PLUGIN_FACTORY_H

@@ -1,38 +1,10 @@
-/*ckwg +29
- * Copyright 2013-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for \link kwiver::vital::camera_perspective camera_perspective \endlink and
- *        \link kwiver::vital::camera_perspective_ camera_perspective_<T> \endlink classes
- */
+/// \file
+/// \brief Header for \link kwiver::vital::camera_perspective camera_perspective \endlink and
+///        \link kwiver::vital::camera_perspective_ camera_perspective_<T> \endlink classes
 
 #ifndef VITAL_CAMERA_PERSPECTIVE_H_
 #define VITAL_CAMERA_PERSPECTIVE_H_
@@ -52,7 +24,6 @@
 #include <vital/types/similarity.h>
 #include <vital/logger/logger.h>
 
-
 namespace kwiver {
 namespace vital {
 
@@ -61,14 +32,12 @@ class camera_perspective;
 /// typedef for a camera_perspective shared pointer
 typedef std::shared_ptr< camera_perspective > camera_perspective_sptr;
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// An abstract representation of perspective camera
-/**
- * The base class of camera_perspectives is abstract and provides a
- * double precision interface.  The templated derived class
- * can store values in either single or double precision.
- */
+///
+/// The base class of camera_perspectives is abstract and provides a
+/// double precision interface.  The templated derived class
+/// can store values in either single or double precision.
 class VITAL_EXPORT camera_perspective : public camera
 {
 public:
@@ -94,36 +63,32 @@ public:
   virtual unsigned int image_height() const { return intrinsics()->image_height(); }
 
   /// Create a clone of this camera that is rotated to look at the given point
-  /**
-   * \param stare_point the location at which the camera is oriented to point
-   * \param up_direction the vector which is "up" in the world (defaults to Z-axis)
-   * \returns New clone, but set to look at the given point.
-   */
+  ///
+  /// \param stare_point the location at which the camera is oriented to point
+  /// \param up_direction the vector which is "up" in the world (defaults to Z-axis)
+  /// \returns New clone, but set to look at the given point.
   virtual camera_perspective_sptr clone_look_at(
     const vector_3d &stare_point,
     const vector_3d &up_direction = vector_3d::UnitZ() ) const = 0;
 
   /// Convert to a 3x4 homogeneous projection matrix
-  /**
-   *  \note This matrix representation does not account for lens distortion
-   *  models that may be used in the camera_intrinsics
-   */
+  ///
+  ///  \note This matrix representation does not account for lens distortion
+  ///  models that may be used in the camera_intrinsics
   virtual matrix_3x4d as_matrix() const;
 
   /// Convert to a 3x4 pose matrix (no intrinsics)
-  /**
-  *  \note This matrix representation does not account for camera intrisics
-  *  and only models the extinsic pose of the camera.
-  */
+  ///
+  /// \note This matrix representation does not account for camera intrisics
+  /// and only models the extinsic pose of the camera.
   matrix_3x4d pose_matrix() const;
 
   /// Project a 3D point into a 2D image point
   virtual vector_2d project( const vector_3d& pt ) const;
 
   /// Compute the distance of the 3D point to the image plane
-  /**
-   *  Points with negative depth are behind the camera
-   */
+  ///
+  ///  Points with negative depth are behind the camera
   virtual double depth(const vector_3d& pt) const;
 
 protected:
@@ -143,9 +108,8 @@ class simple_camera_perspective;
 typedef std::shared_ptr< simple_camera_perspective > simple_camera_perspective_sptr;
 
 /// A representation of a camera
-/**
- * Contains camera location, orientation, and intrinsics
- */
+///
+/// Contains camera location, orientation, and intrinsics
 class VITAL_EXPORT simple_camera_perspective :
   public camera_perspective
 {
@@ -158,10 +122,9 @@ public:
   { }
 
   /// Constructor - from camera center, rotation, and intrinsics
-  /**
-   *  This constructor keeps a shared pointer to the camera intrinsics object
-   *  passed in, unless it is null.  If null it creates a new simple_camera_intrinsics
-   */
+  ///
+  ///  This constructor keeps a shared pointer to the camera intrinsics object
+  ///  passed in, unless it is null.  If null it creates a new simple_camera_intrinsics
   simple_camera_perspective (
                   const vector_3d &center,
                   const rotation_d &rotation,
@@ -174,9 +137,8 @@ public:
   { }
 
   /// Constructor - from camera_perspective center, rotation, and intrinsics
-  /**
-   *  This constructor make a clone of the camera_perspective intrinsics object passed in
-   */
+  ///
+  ///  This constructor make a clone of the camera_perspective intrinsics object passed in
   simple_camera_perspective ( const vector_3d &center,
                               const rotation_d &rotation,
                               const camera_intrinsics& intrinsics )
@@ -218,13 +180,12 @@ public:
   { return intrinsics_; }
 
   /// Create a clone of this camera that is rotated to look at the given point
-  /**
-   * This implementation creates a clone and call look_at on it.
-   *
-   * \param stare_point the location at which the camera is oriented to point
-   * \param up_direction the vector which is "up" in the world (defaults to Z-axis)
-   * \returns New clone, but set to look at the given point.
-   */
+  ///
+  /// This implementation creates a clone and call look_at on it.
+  ///
+  /// \param stare_point the location at which the camera is oriented to point
+  /// \param up_direction the vector which is "up" in the world (defaults to Z-axis)
+  /// \returns New clone, but set to look at the given point.
   virtual camera_perspective_sptr clone_look_at(
     const vector_3d &stare_point,
     const vector_3d &up_direction = vector_3d::UnitZ() ) const override;
@@ -260,21 +221,28 @@ public:
   void set_rotation( const rotation_d& rotation ) { orientation_ = rotation; }
 
   /// Set the intrinsics
+  //@{
   void set_intrinsics( const camera_intrinsics_sptr& intrinsics )
   {
     intrinsics_ = ! intrinsics
                   ? camera_intrinsics_sptr(new simple_camera_intrinsics())
                   : intrinsics;
   }
+  void set_intrinsics( camera_intrinsics_sptr&& intrinsics )
+  {
+    intrinsics_ = ! intrinsics
+                  ? std::make_shared< simple_camera_intrinsics >()
+                  : std::move( intrinsics );
+  }
+  //@}
 
   /// Rotate the camera about its center such that it looks at the given point.
-  /**
-   * The camera should also be rotated about its principal axis such that
-   * the vertical image direction is closest to \c up_direction in the world.
-   *
-   * \param stare_point the location at which the camera is oriented to point
-   * \param up_direction the vector which is "up" in the world (defaults to Z-axis)
-   */
+  ///
+  /// The camera should also be rotated about its principal axis such that
+  /// the vertical image direction is closest to \c up_direction in the world.
+  ///
+  /// \param stare_point the location at which the camera is oriented to point
+  /// \param up_direction the vector which is "up" in the world (defaults to Z-axis)
   void look_at( const vector_3d &stare_point,
                 const vector_3d &up_direction = vector_3d::UnitZ() );
 
@@ -289,18 +257,14 @@ protected:
   camera_intrinsics_sptr intrinsics_;
 };
 
-
 /// input stream operator for a camera_perspective
-/**
- * \param s input stream
- * \param c camera_perspective to stream into
- */
+///
+/// \param s input stream
+/// \param c camera_perspective to stream into
 VITAL_EXPORT std::istream& operator>>( std::istream& s,
                                        simple_camera_perspective& c );
 
-
 }
 }   // end namespace vital
-
 
 #endif // VITAL_CAMERA_PERSPECTIVE_H_

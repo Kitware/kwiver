@@ -1,6 +1,8 @@
 # Build / Install plugin containing OpenCV algorithm implementations + support
 # structures
 
+set(CMAKE_FOLDER "Arrows/OCV")
+
 set( ocv_headers_public
   analyze_tracks.h
   camera_intrinsics.h
@@ -35,6 +37,7 @@ set( ocv_headers_public
   hough_circle_detector.h
   image_container.h
   image_io.h
+  inpaint.h
   mat_image_memory.h
   match_features.h
   match_features_bruteforce.h
@@ -42,6 +45,7 @@ set( ocv_headers_public
   match_set.h
   merge_images.h
   refine_detections_write_to_disk.h
+  resection_camera.h
   split_image.h
   track_features_klt.h
   )
@@ -88,6 +92,7 @@ set( ocv_sources
   feature_detect_extract_SURF.cxx
   image_container.cxx
   image_io.cxx
+  inpaint.cxx
   mat_image_memory.cxx
   match_features.cxx
   match_features_bruteforce.cxx
@@ -95,22 +100,24 @@ set( ocv_sources
   match_set.cxx
   merge_images.cxx
   refine_detections_write_to_disk.cxx
+  resection_camera.cxx
   split_image.cxx
   track_features_klt.cxx
   )
-
-if( KWIVER_HAS_OPENCV_VER_3 )
-  add_definitions(-DKWIVER_HAS_OPENCV_VER_3)
-endif()
 
 kwiver_add_library( kwiver_algo_ocv
   ${ocv_headers_public}
   ${ocv_sources}
   )
+target_compile_definitions( kwiver_algo_ocv
+  PUBLIC KWIVER_OPENCV_VERSION_MAJOR=${KWIVER_OPENCV_VERSION_MAJOR}
+  )
 target_link_libraries( kwiver_algo_ocv
-  PUBLIC               kwiver_algo_core
+  PUBLIC               vital_algo
                        ${OpenCV_LIBS}
   PRIVATE              kwiversys
+                       kwiver_algo_core
+                       kwiver_algo_mvg
   )
 
 algorithms_create_plugin( kwiver_algo_ocv

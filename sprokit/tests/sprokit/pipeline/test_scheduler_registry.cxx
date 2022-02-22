@@ -1,37 +1,12 @@
-/*ckwg +29
- * Copyright 2011-2017 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include <test_common.h>
 
 #include <vital/config/config_block.h>
 #include <vital/plugin_loader/plugin_manager.h>
+#include <vital/vital_config.h>
 
 #include <sprokit/pipeline/pipeline.h>
 #include <sprokit/pipeline/scheduler.h>
@@ -55,7 +30,6 @@ main(int argc, char* argv[])
   RUN_TEST(testname);
 }
 
-
 // ------------------------------------------------------------------
 IMPLEMENT_TEST(null_config)
 {
@@ -66,7 +40,6 @@ IMPLEMENT_TEST(null_config)
                    sprokit::create_scheduler(sprokit::scheduler::type_t(), pipe, config),
                    "requesting a NULL config to a scheduler");
 }
-
 
 // ------------------------------------------------------------------
 IMPLEMENT_TEST(null_pipeline)
@@ -82,7 +55,6 @@ IMPLEMENT_TEST(null_pipeline)
                    sprokit::create_scheduler(sprokit::scheduler::type_t(), pipe, config),
                    "requesting a NULL pipeline to a scheduler");
 }
-
 
 // ------------------------------------------------------------------
 IMPLEMENT_TEST(load_schedulers)
@@ -133,7 +105,6 @@ IMPLEMENT_TEST(load_schedulers)
   }
 }
 
-
 class null_scheduler
   : public sprokit::scheduler
 {
@@ -151,7 +122,6 @@ public:
   virtual void _stop() {}
 };
 
-
 // ------------------------------------------------------------------
 IMPLEMENT_TEST(duplicate_types)
 {
@@ -165,7 +135,6 @@ IMPLEMENT_TEST(duplicate_types)
                     "adding duplicate scheduler type");
 }
 
-
 // ------------------------------------------------------------------
 IMPLEMENT_TEST(unknown_types)
 {
@@ -178,10 +147,10 @@ IMPLEMENT_TEST(unknown_types)
                    "requesting an non-existent scheduler type");
 }
 
-
 // ------------------------------------------------------------------
 sprokit::scheduler_t
-null_scheduler(sprokit::pipeline_t const& /*pipeline*/, kwiver::vital::config_block_sptr const& /*config*/)
+null_scheduler_ptr( VITAL_UNUSED sprokit::pipeline_t const& pipeline,
+                    VITAL_UNUSED kwiver::vital::config_block_sptr const& config )
 {
   return sprokit::scheduler_t();
 }

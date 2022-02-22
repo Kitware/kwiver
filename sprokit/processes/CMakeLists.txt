@@ -2,6 +2,8 @@
 # Kwiver processes
 #
 
+set(CMAKE_FOLDER "Sprokit/Processes")
+
 # This policy is new in CMake 3.12. The NEW behavior uses the <PackageName>_ROOT variable in
 # find_package(<PackageName>) calls.
 # See: https://cmake.org/cmake/help/git-stage/policy/CMP0074.html
@@ -15,7 +17,6 @@ include_directories( ${sprokit_source_dir}/src
                      )
 
 add_subdirectory( adapters )
-add_subdirectory( bindings )
 add_subdirectory( core )
 add_subdirectory( examples )
 add_subdirectory( flow )
@@ -62,6 +63,19 @@ kwiver_add_plugin( process_explorer_plugin
            kwiversys
            sprokit_pipeline
            explorer_plugin )
+
+kwiver_add_plugin( cluster_explorer_plugin
+  SUBDIR   ${kwiver_plugin_plugin_explorer_subdir}
+  SOURCES  cluster_explorer_plugin.cxx
+  PRIVATE  vital
+           vital_vpm
+           vital_config
+           vital_algo
+           kwiversys
+           sprokit_pipeline
+           sprokit_pipeline_util
+           explorer_plugin )
+
 endif()
 
 if (KWIVER_ENABLE_TESTS)

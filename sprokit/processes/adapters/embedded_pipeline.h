@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2016 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -149,20 +123,34 @@ public:
   virtual ~embedded_pipeline();
 
   /**
+   * @brief Set application information
+   *
+   * This method sets the application information that will be used when
+   * searching for pipeline files. See kwiver::vital::read_config_file for a
+   * detailed explanation of the parameters and how search paths work.
+   *
+   * \sa build_pipeline
+   */
+  void set_application_information( std::string const& app_name,
+                                    std::string const& app_version,
+                                    std::string const& app_prefix = {} );
+
+  /**
    * @brief Build the embedded pipeline.
    *
-   * This method creates the pipeline based on the contents of the
-   * supplied stream.
+   * This method creates the pipeline based on the contents of the supplied
+   * stream. Inclusions will be resolved using the search paths in the same
+   * manner as kwiver::vital::read_config_file.
    *
    * @param istr Input stream containing the pipeline description.
    *
-   * @param def_dir The directory name used to report errors in the
-   * input stream and is used as the current directory to locate
-   * includes and to resolve relpath. Since the input stream being
-   * processed has no file name, the name "in-stream" is appended to
-   * the directory supplied so that errors in the stream can be
-   * differentiated from errors from other files. If this parameter is
-   * not supplied, the current directory is used.
+   * @param def_dir The directory name used to report errors in the input
+   * stream and as the location of the pipeline file when resolving include
+   * directives (if not resolved via the search paths) and relpath specifiers.
+   * Since the input stream being processed has no file name, the name
+   * "in-stream" is appended to the directory supplied so that errors in the
+   * stream can be differentiated from errors from other files. If this
+   * parameter is not supplied, the current directory is used.
    *
    * @throws std::runtime_error when there is a problem
    * constructing the pipeline or if there is a problem connecting

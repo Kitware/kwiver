@@ -13,12 +13,14 @@ Directory Structure and Provided Functionality
                       dependencies beyond what Vital uses (Eigen).
 `<arrows/super3d>`_   Depth estimation from video, uses VXL
 `<arrows/darknet>`_   [*Experimental*] Object detection with the Darknet_ YOLO CNN.
-`<arrows/ffmpeg>`_    Video support through the FFMPEG library.
+`<arrows/ffmpeg>`_    Video support through the FFmpeg library.
 `<arrows/matlab>`_    An interface for running Matlab code KWIVER 
+`<arrows/mvg>`_       Multi-View Geometry algorithms with no additional
+                      dependencies.
 `<arrows/ocv>`_       Algorithms implemented using OpenCV_.
                       Includes feature detectors and descriptor, homography
                       and fundamental matrix estimation, image IO, and more.
-`<arrows/proj>`_      Geographic conversion functions implemented with PROJ4_.
+`<arrows/proj>`_      Geographic conversion functions implemented with PROJ_.
 `<arrows/uuid>`_      [*Experimental*] Implementation of unique IDs using libuuid
 `<arrows/viscl>`_     [*Experimental*] Algorithms using VisCL to implement
                       algorithms in OpenCL 

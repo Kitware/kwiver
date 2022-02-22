@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include "serializer_base.h"
 
@@ -97,10 +71,12 @@ serializer_base
 
       algo_config->set_value( ser_type, elem_spec.m_algo_name );
 
-      std::stringstream str;
-      vital::config_block_formatter fmt( algo_config );
-      fmt.print( str );
-      LOG_TRACE( m_logger, "Creating algorithm for (config block):\n" << str.str() << std::endl );
+      {
+        std::stringstream ss;
+        vital::config_block_formatter fmt( algo_config );
+        fmt.print( ss );
+        LOG_TRACE( m_logger, "Creating algorithm for (config block):\n" << ss.str() << std::endl );
+      }
 
       vital::algorithm_sptr base_nested_algo;
 
@@ -113,11 +89,11 @@ serializer_base
       elem_spec.m_serializer = std::dynamic_pointer_cast< vital::algo::data_serializer > ( base_nested_algo );
       if ( ! elem_spec.m_serializer )
       {
-        std::stringstream str;
-        str << "Unable to create serializer for type \""
+        std::stringstream ss;
+        ss << "Unable to create serializer for type \""
             << elem_spec.m_algo_name << "\" for " << m_serialization_type;
 
-        VITAL_THROW( sprokit::invalid_configuration_exception, m_proc.name(), str.str() );
+        VITAL_THROW( sprokit::invalid_configuration_exception, m_proc.name(), ss.str() );
       }
 
       if ( ! vital::algorithm::check_nested_algo_configuration( ser_algo_type,
@@ -298,7 +274,6 @@ decode_message( const std::string& message )
       return;
     }
 
-
     std::string elem_buffer( elem_size, 0 );
     raw_stream.read( &elem_buffer[0], elem_size );
 
@@ -319,7 +294,7 @@ decode_message( const std::string& message )
 void serializer_base::
 dump_msg_spec()
 {
-  for ( const auto it : m_message_spec_list )
+  for ( auto const& it : m_message_spec_list )
   {
     std::cout << "Message tag: " << it.first << std::endl;
 
@@ -327,7 +302,7 @@ dump_msg_spec()
 
     std::cout << "   Serialized port name: " << msg_spec.m_serialized_port_name << std::endl;
 
-    for ( const auto elem_it : msg_spec.m_elements )
+    for ( auto const& elem_it : msg_spec.m_elements )
     {
       const auto& msg_elem = elem_it.second;
 
@@ -343,7 +318,5 @@ dump_msg_spec()
   } // end for
 
 }
-
-
 
 } // end namespace kwiver

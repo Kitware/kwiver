@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2017 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -52,7 +26,7 @@ namespace sprokit {
 
 // ----------------------------------------------------------------
 /**
- * @brief Pipe and cluster parser.
+ * \brief Pipe and cluster parser.
  *
  */
 class SPROKIT_PIPELINE_UTIL_EXPORT pipe_parser final
@@ -70,34 +44,33 @@ public:
    * path. This search path is used to locate all referenced included
    * files only.
    *
-   * @param file_path Directory or list to add to end of search path.
+   * \param file_path Directory or list to add to end of search path.
    */
   void add_search_path( kwiver::vital::config_path_t const& file_path );
   void add_search_path( kwiver::vital::config_path_list_t const& file_path );
   //@}
 
-
   /**
-   * @brief Parse a pipeline definition.
+   * \brief Parse a pipeline definition.
    *
    * Parse a pipeline definition file into pipe_blocks.
    *
-   * @param input Stream to read pipeline definition from.
-   * @param name Input file name
+   * \param input Stream to read pipeline definition from.
+   * \param name Input file name
    *
-   * @return A vector of pipe blocks representing the pipeline.
+   * \return A vector of pipe blocks representing the pipeline.
    */
   sprokit::pipe_blocks parse_pipeline( std::istream& input, const std::string& name = "" );
 
   /**
-   * @brief Parse cluster definitions.
+   * \brief Parse cluster definitions.
    *
    * Parse a cluster definition into the internal representation.
    *
-   * @param input Stream to read cluster definitions.
-   * @param name Input file name
+   * \param input Stream to read cluster definitions.
+   * \param name Input file name
    *
-   * @return A vector of cluster blocks representing the cluster definition.
+   * \return A vector of cluster blocks representing the cluster definition.
    */
   sprokit::cluster_blocks parse_cluster( std::istream& input, const std::string& name = "" );
 
@@ -122,18 +95,16 @@ public:
     COMPATIBILITY_ERROR };
 
   /**
-   * @brief Set compatibility mode.
+   * \brief Set compatibility mode.
    *
    * This method sets the compatibility mode to use when encountering
    * old style pipeline constructs.
    *
-   * @param mode Compatibility mode to use.
+   * \param mode Compatibility mode to use.
    */
   void set_compatibility_mode( compatibility_mode_t mode );
 
-
 private:
-
   // production methods
   void process_definition( process_pipe_block& ppb );
   void process_config_block( config_pipe_block& pcb );

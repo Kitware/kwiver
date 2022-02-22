@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2017 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include "kwiver_logger_factory.h"
 #include <kwiversys/SystemTools.hxx>
@@ -43,13 +17,11 @@ namespace kwiver {
 namespace vital {
 namespace logger_ns {
 
-// ----------------------------------------------------------------
-/**
- * @brief loc4cplus logger implementation
- *
- * This class is an adapter that bridges from our standard logging API
- * to the log4cplus API.
- */
+// ----------------------------------------------------------------------------
+/// @brief loc4cplus logger implementation
+///
+/// This class is an adapter that bridges from our standard logging API
+/// to the log4cplus API.
 class log4cplus_logger
   : public kwiver_logger
 {
@@ -60,10 +32,8 @@ log4cplus_logger( kwiver_logger_factory* fact, std::string const& name )
   , m_logger( ::log4cplus::Logger::getInstance( name ) )
 { }
 
-
 ~log4cplus_logger()
 { }
-
 
 virtual bool is_fatal_enabled() const { return m_logger.isEnabledFor(::log4cplus::FATAL_LOG_LEVEL); }
 virtual bool is_error_enabled() const { return m_logger.isEnabledFor(::log4cplus::ERROR_LOG_LEVEL); }
@@ -72,12 +42,10 @@ virtual bool is_info_enabled() const { return m_logger.isEnabledFor(::log4cplus:
 virtual bool is_debug_enabled() const { return m_logger.isEnabledFor(::log4cplus::DEBUG_LOG_LEVEL); }
 virtual bool is_trace_enabled() const { return m_logger.isEnabledFor(::log4cplus::TRACE_LOG_LEVEL); }
 
-
-// ----------------------------------------------------------------
-/* get / set log level
- *
- *
- */
+// ----------------------------------------------------------------------------
+// get / set log level
+//
+//
 virtual void set_level( log_level_t level )
 {
   switch (level)
@@ -107,13 +75,13 @@ virtual void set_level( log_level_t level )
     break;
 
   default:
+  case LEVEL_NONE:
     // log or throw
     break;
   } // end switch
 }
 
-
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 virtual log_level_t get_level() const
 {
   ::log4cplus::LogLevel lvl = this->m_logger.getLogLevel();
@@ -128,8 +96,7 @@ virtual log_level_t get_level() const
   return LEVEL_NONE;
 }
 
-
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 virtual void log_fatal (std::string const & msg)
 {
   ::log4cplus::detail::macro_forced_log(m_logger,
@@ -139,8 +106,7 @@ virtual void log_fatal (std::string const & msg)
   do_callback(LEVEL_FATAL, msg, location_info());
 }
 
-
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
   virtual void log_fatal (std::string const & msg,
                           kwiver::vital::logger_ns::location_info const & location)
 {
@@ -152,8 +118,7 @@ virtual void log_fatal (std::string const & msg)
   do_callback(LEVEL_FATAL, msg, location);
 }
 
-
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 virtual void log_error (std::string const & msg)
 {
   ::log4cplus::detail::macro_forced_log(m_logger,
@@ -163,8 +128,7 @@ virtual void log_error (std::string const & msg)
   do_callback(LEVEL_ERROR, msg, location_info());
 }
 
-
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 virtual void log_error (std::string const & msg,
                         kwiver::vital::logger_ns::location_info const & location)
 {
@@ -176,8 +140,7 @@ virtual void log_error (std::string const & msg,
   do_callback(LEVEL_ERROR, msg, location);
 }
 
-
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 virtual void log_warn (std::string const & msg)
 {
   ::log4cplus::detail::macro_forced_log(m_logger,
@@ -187,8 +150,7 @@ virtual void log_warn (std::string const & msg)
   do_callback(LEVEL_WARN, msg, location_info());
 }
 
-
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 virtual void log_warn (std::string const & msg,
                        kwiver::vital::logger_ns::location_info const & location)
 {
@@ -200,8 +162,7 @@ virtual void log_warn (std::string const & msg,
   do_callback(LEVEL_WARN, msg, location);
 }
 
-
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 virtual void log_info (std::string const & msg)
 {
   ::log4cplus::detail::macro_forced_log(m_logger,
@@ -211,8 +172,7 @@ virtual void log_info (std::string const & msg)
   do_callback(LEVEL_INFO, msg, location_info());
 }
 
-
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 virtual void log_info (std::string const & msg,
                        kwiver::vital::logger_ns::location_info const & location)
 {
@@ -224,8 +184,7 @@ virtual void log_info (std::string const & msg,
   do_callback(LEVEL_INFO, msg, location);
 }
 
-
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 virtual void log_debug (std::string const & msg)
 {
   ::log4cplus::detail::macro_forced_log(m_logger,
@@ -235,8 +194,7 @@ virtual void log_debug (std::string const & msg)
   do_callback(LEVEL_DEBUG, msg, location_info());
 }
 
-
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 virtual void log_debug (std::string const & msg,
                        kwiver::vital::logger_ns::location_info const & location)
 {
@@ -248,8 +206,7 @@ virtual void log_debug (std::string const & msg,
   do_callback(LEVEL_DEBUG, msg, location);
 }
 
-
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 virtual void log_trace (std::string const & msg)
 {
   ::log4cplus::detail::macro_forced_log(m_logger,
@@ -259,8 +216,7 @@ virtual void log_trace (std::string const & msg)
   do_callback(LEVEL_TRACE, msg, location_info());
 }
 
-
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 virtual void log_trace (std::string const & msg,
                        kwiver::vital::logger_ns::location_info const & location)
 {
@@ -272,8 +228,7 @@ virtual void log_trace (std::string const & msg,
   do_callback(LEVEL_TRACE, msg, location);
 }
 
-
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 virtual void log_message ( log_level_t level, std::string const& msg)
 {
   switch (level)
@@ -281,28 +236,34 @@ virtual void log_message ( log_level_t level, std::string const& msg)
   case LEVEL_TRACE:
     log_trace(msg);
     break;
+
   case LEVEL_DEBUG:
     log_debug(msg);
     break;
+
   case LEVEL_INFO:
     log_info(msg);
     break;
+
   case LEVEL_WARN:
     log_warn(msg);
     break;
+
   case LEVEL_ERROR:
     log_error(msg);
     break;
+
   case LEVEL_FATAL:
     log_fatal(msg);
     break;
+
   default:
+  case LEVEL_NONE:
     break;
   } // end switch
 }
 
-
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 virtual void log_message ( log_level_t level, std::string const& msg,
                            kwiver::vital::logger_ns::location_info const & location)
 {
@@ -333,6 +294,7 @@ virtual void log_message ( log_level_t level, std::string const& msg,
     break;
 
   default:
+  case LEVEL_NONE:
     break;
   } // end switch
 }
@@ -343,13 +305,11 @@ virtual void log_message ( log_level_t level, std::string const& msg,
 
 };
 
-
-// ==================================================================
-/** Factory for underlying log4cxx logger.
- *
- * This class represents the factory for the log4cxx logging service.
- * A logger object is created or reused for the specified name.
- */
+// ----------------------------------------------------------------------------
+/// Factory for underlying log4cxx logger.
+///
+/// This class represents the factory for the log4cxx logging service.
+/// A logger object is created or reused for the specified name.
 class log4cplus_factory
   : public kwiver_logger_factory
 {
@@ -389,7 +349,6 @@ public:
     }
   }
 
-
   virtual ~log4cplus_factory() = default;
 
   virtual logger_handle_t get_logger( std::string const& name )
@@ -401,11 +360,8 @@ public:
 
 } } } // end namespace
 
-
-// ==================================================================
-/*
- * Shared object bootstrap function
- */
+// ----------------------------------------------------------------------------
+//  Shared object bootstrap function
 extern "C" VITAL_LOG4CPLUS_LOGGER_EXPORT void* kwiver_logger_factory();
 
 void* kwiver_logger_factory()

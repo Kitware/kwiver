@@ -1,37 +1,9 @@
-/*ckwg +29
- * Copyright 2013-2015 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for \link kwiver::vital::landmark landmark \endlink objects
- */
+/// \file
+/// \brief Header for \link kwiver::vital::landmark landmark \endlink objects
 
 #ifndef VITAL_LANDMARK_H_
 #define VITAL_LANDMARK_H_
@@ -49,18 +21,16 @@
 namespace kwiver {
 namespace vital {
 
-
 /// forward declaration of landmark class
 class landmark;
 /// typedef for a landmark shared pointer
 typedef std::shared_ptr< landmark > landmark_sptr;
 
 /// An abstract representation of a 3D world point.
-/**
- * The base class landmark is abstract and provides a
- * double precision interface.  The templated derived class
- * can store values in either single or double precision.
- */
+///
+/// The base class landmark is abstract and provides a
+/// double precision interface.  The templated derived class
+/// can store values in either single or double precision.
 class landmark
 {
 public:
@@ -91,12 +61,10 @@ public:
 };
 
 /// output stream operator for a base class landmark
-/**
- * \param s output stream
- * \param m landmark to stream
- */
+///
+/// \param s output stream
+/// \param m landmark to stream
 VITAL_EXPORT std::ostream& operator<<( std::ostream& s, landmark const& m );
-
 
 /// A representation of a 3D world point
 template < typename T >
@@ -108,10 +76,9 @@ public:
   landmark_< T >();
 
   /// Constructor for a landmark
-  /**
-   * \param loc 3D location of the landmark
-   * \param scale optional scale of the landmark (default of 1)
-   */
+  ///
+  /// \param loc 3D location of the landmark
+  /// \param scale optional scale of the landmark (default of 1)
   landmark_< T >(Eigen::Matrix< T, 3, 1 > const& loc, T scale = 1);
 
   /// Constructor for a landmark_ from a base class landmark
@@ -208,7 +175,6 @@ protected:
   T cos_obs_angle_;
 
 };
-
 
 /// A double precision landmark
 typedef landmark_< double > landmark_d;

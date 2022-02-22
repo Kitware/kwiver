@@ -1,92 +1,23 @@
-KWIVER v1.6.0 Release Notes
+KWIVER v1.7.0 Release Notes
 ===========================
 
 This is a minor release of KWIVER that provides both new functionality and fixes
-over the previous v1.5.0 release.
+over the previous v1.6.0 release.
 
-Updates since v1.5.0
---------------------
+
+Updates
+-------
 
 Vital
 
-Vital Algo
-
 Vital Types
 
- * Add new method to metadata class to add a metadata item being
-   passed by shared_ptr
+* Modified rotation_ constructor from yaw-pitch-roll to keep the given
+  North-East-Down coordinate system as-is instead of automatically converting to
+  East-North-Up. Added utility functions which perform conversion between NED
+  and ENU coordinates.
 
-Vital Plugin-loader
+Build System
 
- * Added support for filtering plugins when they are loaded. Filter
-   objects can be added to the plugin loader at run time to select or
-   exclude specific plugins.
-
- * Added optional bit mask to load_all_plugins() which allows selected
-   groups of plugins to be loaded. In addition the build/install
-   directory structure for the plugins was reorganized.
-
-Vital Util
-
-Vital Logger
-
-Vital Tools
-
-Vital Types
-
-Vital Bindings
-
- * Remove ctypes python bindings
-
- * Moved python bindings associated with config from sprokit.pipeline to
-   vital.config.
-
-Arrows
-
-Arrows: Core
-
-Arrows: Ceres
-
-Arrows: CUDA
-
-Arrows: FFmpeg
-
- * Added a libavfilter pipeline into the ffmpeg_video_input reader. This
-   allows users to inject filters in the video reader, much the same as
-   is possible in the ffmpeg command line with the -vf option.  The default
-   filter applies deinterlacing to any interlaced frames.
-
- * Fixed the memory leak that occurred when a video was opened and closed.
-
-Arrows: GDAL
-
-Arrows: KPF
-
-Arrows: OpenCV
-
-Arrows: Serialization
-
-Arrows: Super3d
-
-Arrows: VXL
-
-Arrows: Python
-
-Sprokit
-
-Sprokit: Processes
-
-Tools
-
-Unit Tests
-
-General Documentation
-
-Bug Fixes
----------
-
-Arrows: Core
-
-Arrows: Ceres
-
-Arrows: Super3D
+* Removed some CMake statements and support for old CMake version predating the
+  current minimum version specification.

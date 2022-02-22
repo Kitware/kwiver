@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2016-2017, 2019 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -153,10 +127,7 @@ public:
    * @param val Value to be wrapped in datum for port.
    */
   template <typename T>
-  void add_value( sprokit::process::port_t const& port, T const& val )
-  {
-    m_port_datum_set[port] = sprokit::datum::new_datum<T>( val );
-  }
+  void add_value( ::sprokit::process::port_t const& port, T const& val );
 
   /**
    * @brief Query if data set is empty.
@@ -180,7 +151,6 @@ public:
   datum_map_t::const_iterator begin() const;
   datum_map_t::const_iterator cbegin() const;
   //@}
-
 
   //@{
   /**
@@ -221,19 +191,49 @@ public:
    *
    * @throws std::runtime_error if the specified port name is not in this set.
    *
-   * @throws sprokit::bad_datum_cast_exception if the requested data
-   * type does not match the actual type of the data from the port.
+   * @throws sprokit::bad_datum_cast_exception if the requested data type does
+   *         not match the actual type of the data from the port.
    */
   template<typename T>
-  T get_port_data( sprokit::process::port_t const& port )
-  {
-    auto it = this->find( port );
-    if ( it == this->end() )
-    {
-      throw std::runtime_error( "Data for port \"" + port + "\" is not in the adapter_data_set." );
-    }
-    return it->second->get_datum<T>();
-  }
+  T value( ::sprokit::process::port_t const& port );
+
+
+  /**
+   * @brief Get data value for specific port, or default value if not found.
+   *
+   * This method returns the data value for the specified port.
+   *
+   * @param port Name of port
+   *
+   * @return Data value corresponding to the port, or \p value_if_missing if
+   *         no such element is found.
+   *
+   * @throws sprokit::bad_datum_cast_exception if the requested data type does
+   *         not match the actual type of the data from the port.
+   */
+  template< typename T >
+  T value_or( ::sprokit::process::port_t const& port,
+              T const& value_if_missing = {} );
+
+  /**
+   * @copydoc value
+   *
+   * @deprecated This method exists for historic reasons. Use #value instead.
+   */
+  template< typename T >
+  [[ deprecated( "use value() instead" ) ]]
+  T get_port_data( ::sprokit::process::port_t const& port )
+  { return this->value< T >( port ); }
+
+  /**
+   * @brief Return the number of elements in the adapter_data_set.
+   *
+   * This method returns the number of elements stored in the adapter_data_set.
+   * Similar to std::map::size()
+   *
+   * @return Number of elements in the adapter_data_set.
+   */
+  size_t size() const;
 
 protected:
   KWIVER_ADAPTER_NO_EXPORT adapter_data_set( data_set_type type ); // private CTOR - use factory method

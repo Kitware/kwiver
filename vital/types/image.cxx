@@ -1,37 +1,9 @@
-/*ckwg +29
- * Copyright 2013-2019 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief core image class implementation
- */
+/// \file
+/// \brief core image class implementation
 
 #include "image.h"
 #include <cstring>
@@ -89,14 +61,12 @@ std::ostream& operator<<(std::ostream& os, image_pixel_traits::pixel_type pt)
   return os;
 }
 
-
 /// Output stream operator for image_pixel_traits
 std::ostream& operator<<(std::ostream& os, image_pixel_traits const& pt)
 {
   os << pt.type <<"_"<<pt.num_bytes;
   return os;
 }
-
 
 /// Default Constructor
 image_memory
@@ -106,7 +76,6 @@ image_memory
 {
 }
 
-
 /// Constructor - allocated n bytes
 image_memory
 ::image_memory( size_t n )
@@ -114,7 +83,6 @@ image_memory
     size_( n )
 {
 }
-
 
 /// Copy Constructor
 image_memory
@@ -125,14 +93,12 @@ image_memory
   std::memcpy( data_, other.data_, size_ );
 }
 
-
 /// Destructor
 image_memory
 ::~image_memory()
 {
   delete [] reinterpret_cast< char* > ( data_ );
 }
-
 
 /// Assignment operator
 image_memory&
@@ -159,7 +125,6 @@ image_memory
   return *this;
 }
 
-
 /// Return a pointer to the allocated memory
 void*
 image_memory
@@ -168,9 +133,7 @@ image_memory
   return data_;
 }
 
-
-//======================================================================
-
+// ----------------------------------------------------------------------------
 
 /// Default Constructor
 image
@@ -186,7 +149,6 @@ image
     d_step_( 0 )
 {
 }
-
 
 /// Constructor that allocates image memory
 image
@@ -210,7 +172,6 @@ image
   }
 }
 
-
 /// Constructor that points at existing memory
 image
 ::image( const void* first_pixel,
@@ -228,7 +189,6 @@ image
     d_step_( d_step )
 {
 }
-
 
 /// Constructor that shares memory with another image
 image
@@ -249,7 +209,6 @@ image
 {
 }
 
-
 /// Copy Constructor
 image
 ::image( const image& other )
@@ -264,7 +223,6 @@ image
     d_step_( other.d_step_ )
 {
 }
-
 
 /// Assignment operator
 const image&
@@ -314,7 +272,6 @@ image
   return data_->size();
 }
 
-
 /// Return true if the pixels accessible in this image form a contiguous memory block
 bool
 image
@@ -338,7 +295,6 @@ image
          sizes[1].first == static_cast<ptrdiff_t>(sizes[0].second) &&
          sizes[2].first == static_cast<ptrdiff_t>(sizes[0].second * sizes[1].second);
 }
-
 
 /// Deep copy the image data from another image into this one
 void
@@ -395,7 +351,6 @@ image
   }
 }
 
-
 /// Set the size of the image.
 void
 image
@@ -421,7 +376,6 @@ image
   d_step_ = ( w_step_ == 1 ) ? width * height : 1;
 }
 
-
 /// Get a cropped view of the image.
 image
 image
@@ -437,7 +391,6 @@ image
                 this->w_step(), this->h_step(), this->d_step(),
                 this->pixel_traits() );
 }
-
 
 /// Compare to images to see if the pixels have the same values.
 bool
@@ -489,7 +442,6 @@ equal_content( const image& img1, const image& img2 )
   }
   return true;
 }
-
 
 }
 }   // end namespace vital

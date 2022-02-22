@@ -54,11 +54,11 @@ The Dockerfile used to build the image can be found `here <dockerfile>`_.
 
 Pull the image from Dockerhub::
 
- "docker pull kitware/kwiver:master" (latest master)
+ "docker pull kitware/kwiver:latest" (latest master)
 
  "docker pull kitware/kwiver:release" (latest release)
 
- "docker pull kitware/kwiver:1.5.0" (static release)
+ "docker pull kitware/kwiver:1.6.0" (static release)
 
 (`https://hub.docker.com/r/kitware/kwiver <https://hub.docker.com/r/kitware/kwiver>`_)
 
@@ -325,7 +325,7 @@ NOAA Fisheries Strategic Initiative on Automated Image Analysis.
 .. _Kitware: http://www.kitware.com/
 .. _MAP-Tk: https://github.com/Kitware/maptk
 .. _OpenCV: http://opencv.org/
-.. _PROJ4: http://proj4.org/
+.. _PROJ: http://proj.org/
 .. _Travis CI: https://travis-ci.org/
 .. _VIAME: https://github.com/Kitware/VIAME
 .. _Vibrant: https://github.com/Kitware/vibrant

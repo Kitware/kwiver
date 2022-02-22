@@ -1,37 +1,9 @@
-/*ckwg +29
- * Copyright 2016-2020 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test detected_object class
- */
+/// \file
+/// \brief test detected_object class
 
 #include <vital/types/detected_object_set.h>
 
@@ -67,22 +39,22 @@ detected_object_set_sptr make_do_set()
 
   bounding_box_d bb{ 10, 20, 30, 40 };
 
-  auto cm = std::make_shared<class_map>( names, scores );
+  auto dot = std::make_shared<detected_object_type>( names, scores );
 
   do_set->add( std::make_shared<detected_object>( bb ) ); // using defaults
 
   EXPECT_EQ( 1, do_set->size() );
 
-  do_set->add( std::make_shared<detected_object>( bb, 0.65, cm ) );
+  do_set->add( std::make_shared<detected_object>( bb, 0.65, dot ) );
 
-  auto cm1 = std::make_shared<class_map>( names, scores1 );
-  do_set->add( std::make_shared<detected_object>( bb, 0.75, cm1 ) );
+  auto dot1 = std::make_shared<detected_object_type>( names, scores1 );
+  do_set->add( std::make_shared<detected_object>( bb, 0.75, dot1 ) );
 
-  auto cm2 = std::make_shared<class_map>( names, scores2 );
-  do_set->add( std::make_shared<detected_object>( bb, 0.78, cm2 ) );
+  auto dot2 = std::make_shared<detected_object_type>( names, scores2 );
+  do_set->add( std::make_shared<detected_object>( bb, 0.78, dot2 ) );
 
-  auto cm3 = std::make_shared<class_map>( names, scores3 );
-  do_set->add( std::make_shared<detected_object>( bb, 0.70, cm3 ) );
+  auto dot3 = std::make_shared<detected_object_type>( names, scores3 );
+  do_set->add( std::make_shared<detected_object>( bb, 0.70, dot3 ) );
 
   EXPECT_EQ( 5, do_set->size() );
 
@@ -163,7 +135,7 @@ TEST(detected_object_set, clone_2)
 
   bounding_box_d bb{ 10, 20, 30, 40 };
 
-  auto cm = std::make_shared<class_map>( names, scores );
+  auto dot = std::make_shared<detected_object_type>( names, scores );
 
   auto detection = std::make_shared<detected_object>( bb ); // using defaults
   do_set.add( detection );

@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2015 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include "kwiver_logger_manager.h"
 
@@ -39,15 +13,12 @@
 #include <iostream>
 #include <mutex>
 
-
-/*
- * Note: This must be thread safe.
- *
- * Also: In order to make this work, it must be possible to create
- * loggers before the manager has been initialized. This means that
- * the initialization is flexible, adaptive and has a reasonable
- * default.
- */
+//  Note: This must be thread safe.
+//
+//  Also: In order to make this work, it must be possible to create
+//  loggers before the manager has been initialized. This means that
+//  the initialization is flexible, adaptive and has a reasonable
+//  default.
 
 typedef kwiversys::DynamicLoader DL;
 
@@ -60,7 +31,6 @@ namespace logger_ns {
 
 }
 
-
 //
 // Pointer to our single instance.
 //
@@ -68,11 +38,9 @@ kwiver_logger_manager* kwiver_logger_manager::s_instance = 0;
 
 #define PLUGIN_ENV_VAR "VITAL_LOGGER_FACTORY"
 
-// ------------------------------------------------------------------
-/*
- * Private implememtation
- *
- */
+// ----------------------------------------------------------------------------
+//  Private implememtation
+//
 class kwiver_logger_manager::impl
 {
 public:
@@ -86,12 +54,9 @@ public:
 
 };
 
-
-// ----------------------------------------------------------------
-/** Constructor.
- *
- *
- */
+// ----------------------------------------------------------------------------
+/// Constructor.
+///
 kwiver_logger_manager
 ::kwiver_logger_manager()
   : m_impl( new impl )
@@ -146,17 +111,13 @@ kwiver_logger_manager
   m_impl->m_logFactory.reset( new logger_ns::logger_factory_default() );
 }
 
-
 kwiver_logger_manager
 ::~kwiver_logger_manager()
 { }
 
-
-// ----------------------------------------------------------------
-/** Get singleton instance.
- *
- *
- */
+// ----------------------------------------------------------------------------
+/// Get singleton instance.
+///
 kwiver_logger_manager * kwiver_logger_manager
 ::instance()
 {
@@ -177,12 +138,10 @@ kwiver_logger_manager * kwiver_logger_manager
   return s_instance;
 }
 
-
-// ----------------------------------------------------------------
-/* Get address of logger object.
- *
- * These are unbound functions
- */
+// ----------------------------------------------------------------------------
+// Get address of logger object.
+//
+//  These are unbound functions
 VITAL_LOGGER_EXPORT
 logger_handle_t
 get_logger( char const* name )
@@ -190,8 +149,7 @@ get_logger( char const* name )
   return kwiver_logger_manager::instance()->m_impl->m_logFactory->get_logger(name);
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 VITAL_LOGGER_EXPORT
 logger_handle_t
 get_logger( std::string const& name )
@@ -199,8 +157,7 @@ get_logger( std::string const& name )
   return get_logger( name.c_str() );
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 VITAL_LOGGER_EXPORT
 void
 kwiver_logger_manager
@@ -209,8 +166,7 @@ kwiver_logger_manager
   m_impl->m_logFactory.swap( fact );
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string const&
 kwiver_logger_manager
 ::get_factory_name() const
@@ -218,8 +174,7 @@ kwiver_logger_manager
   return m_impl->m_logFactory->get_factory_name();
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 kwiver_logger_manager
 ::load_factory( std::string const& lib_name )

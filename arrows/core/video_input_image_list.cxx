@@ -1,39 +1,13 @@
-/*ckwg +30
- * Copyright 2017-2018, 2020 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be
- *    used to endorse or promote products derived from this software without
- *    specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include "video_input_image_list.h"
 
 #include <vital/algo/image_io.h>
 
 #include <vital/util/data_stream_reader.h>
+#include <vital/util/string.h>
 #include <vital/util/tokenize.h>
 
 #include <vital/types/image.h>
@@ -70,6 +44,13 @@ namespace arrows {
 
 namespace core {
 
+namespace {
+
+std::string const SEP_PATH{ ":" };
+std::string const SEP_EXTS{ ";" };
+
+} // namespace anonymous
+
 // ----------------------------------------------------------------------------
 class video_input_image_list::priv
 {
@@ -82,6 +63,7 @@ public:
   video_input_image_list* const m_parent;
 
   // Configuration values
+  unsigned short c_path_retain_n = 0;
   std::vector< std::string > c_search_path;
   std::vector< std::string > c_allowed_extensions;
   bool c_sort_by_time = false;
@@ -139,8 +121,17 @@ video_input_image_list
   // Get base configuration from base class
   auto const& config = video_input::get_configuration();
 
+  // Construct path/allowed_extensions strings from the current vectors.
+  // Only keeping a certain first N entries in the path vector which corresponds
+  std::vector< kv::path_t > reconstruct_path_vec(
+      d->c_search_path.begin(), d->c_search_path.begin() + d->c_path_retain_n
+      );
+  std::string reconstruct_path = kv::join( reconstruct_path_vec, SEP_PATH );
+  std::string reconstruct_allowed_exts =
+      kv::join( d->c_allowed_extensions, SEP_EXTS );
+
   config->set_value(
-    "path", "",
+    "path", reconstruct_path,
     "Path to search for image file. "
     "If a file name is not absolute, this list of directories is scanned "
     "to find the file. The current directory '.' is automatically appended "
@@ -148,11 +139,11 @@ video_input_image_list
     "The format of this path is the same as the standard path specification, "
     "a set of directories separated by a colon (':')" );
   config->set_value(
-    "allowed_extensions", "",
+    "allowed_extensions", reconstruct_allowed_exts,
     "Semicolon-separated list of allowed file extensions. "
     "Leave empty to allow all file extensions." );
   config->set_value(
-    "sort_by_time", "false",
+    "sort_by_time", d->c_sort_by_time,
     "Instead of accepting the input list as-is, sort the input file list "
     "based on the timestamp metadata provided for the file." );
 
@@ -172,13 +163,15 @@ video_input_image_list
 
   // Extract string and create vector of directories
   auto const& path = config->get_value< std::string >( "path", {} );
-  kv::tokenize( path, d->c_search_path, ":", kv::TokenizeTrimEmpty );
+  d->c_search_path.clear();  // make sure vec is empty before populating it
+  kv::tokenize( path, d->c_search_path, SEP_PATH, kv::TokenizeTrimEmpty );
+  d->c_path_retain_n = d->c_search_path.size();
   d->c_search_path.push_back( "." ); // Add current directory
 
   // Create vector of allowed file extensions
   auto const& extensions =
     config->get_value< std::string >( "allowed_extensions", {} );
-  kv::tokenize( extensions, d->c_allowed_extensions, ";",
+  kv::tokenize( extensions, d->c_allowed_extensions, SEP_EXTS,
                 kv::TokenizeTrimEmpty );
 
   // Read standalone variables
@@ -189,10 +182,13 @@ video_input_image_list
     "image_reader", config, d->m_image_reader );
 
   // Check capabilities of image reader
-  auto const& reader_capabilities =
-    d->m_image_reader->get_implementation_capabilities();
-  set_capability( HAS_FRAME_TIME,
-                  reader_capabilities.capability( image_io::HAS_TIME ) );
+  if( d->m_image_reader != nullptr )
+  {
+    auto const& reader_capabilities =
+      d->m_image_reader->get_implementation_capabilities();
+    set_capability( HAS_FRAME_TIME,
+                    reader_capabilities.capability( image_io::HAS_TIME ) );
+  }
 }
 
 // ----------------------------------------------------------------------------

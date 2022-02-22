@@ -1,5 +1,7 @@
 project(kwiver_core_tests)
 
+set(CMAKE_FOLDER "Vital/Tests")
+
 include(kwiver-test-setup)
 
 set( test_libraries vital vital_vpm vital_algo )
@@ -43,6 +45,7 @@ kwiver_discover_gtests(vital iterator                       LIBRARIES ${test_lib
 kwiver_discover_gtests(vital local_cartesian                LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital metadata                       LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital metadata_io                    LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
+kwiver_discover_gtests(vital metadata_types                 LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital polygon                        LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital rotation                       LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital signal                         LIBRARIES ${test_libraries})

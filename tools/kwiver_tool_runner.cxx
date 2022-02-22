@@ -1,33 +1,6 @@
-/*ckwg +29
- * Copyright 2018-2019 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include <vital/applets/kwiver_applet.h>
 #include <vital/applets/applet_context.h>
@@ -40,11 +13,14 @@
 #include <vital/plugin_loader/plugin_manager_internal.h>
 #include <vital/util/get_paths.h>
 
+#include <algorithm>
 #include <cstdlib>
-#include <iostream>
-#include <fstream>
+#include <cstring>
 #include <exception>
+#include <fstream>
+#include <iostream>
 #include <memory>
+#include <utility>
 
 using applet_factory = kwiver::vital::implementation_factory_by_name< kwiver::tools::kwiver_applet >;
 using applet_context_t = std::shared_ptr< kwiver::tools::applet_context >;
@@ -104,43 +80,59 @@ public:
   std::string m_applet_name;
 };
 
-
 // ----------------------------------------------------------------------------
 /**
  * Generate list of all applets that have been discovered.
  */
-void tool_runner_usage( applet_context_t ctxt,
+void tool_runner_usage( VITAL_UNUSED applet_context_t ctxt,
                         kwiver::vital::plugin_manager& vpm )
 {
   // display help message
   std::cout << "Usage: kwiver  <applet>  [args]" << std::endl
             << "<applet> can be one of the following:" << std::endl
-            << "help - prints this message" << std::endl;
+            << "help - prints this message." << std::endl
+            << "Available tools are listed below:" << std::endl;
 
   // Get list of factories for implementations of the applet
   const auto fact_list = vpm.get_factories( typeid( kwiver::tools::kwiver_applet ).name() );
 
   // Loop over all factories in the list and display name and description
+  using help_pair = std::pair< std::string, std::string >;
+  std::vector< help_pair > help_text;
+  size_t tab_stop(0);
+
   for( auto fact : fact_list )
   {
     std::string buf = "-- Not Set --";
     fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, buf );
-    std::cout << "    " << buf << " - ";
 
-    fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, buf );
+    std::string descr = "-- Not Set --";
+    fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, descr );
 
     // All we want is the first line of the description.
-    size_t pos = buf.find_first_of('\n');
+    size_t pos = descr.find_first_of('\n');
     if ( pos != 0 )
     {
       // Take all but the ending newline
-      buf = buf.substr( 0, pos );
+      descr = descr.substr( 0, pos );
     }
 
-    std::cout << ctxt->m_wtb.wrap_text( buf );
+    help_text.push_back( help_pair({ buf, descr }) );
+    tab_stop = std::max( tab_stop, buf.size() );
+  } // end for
+
+  // add some space after the longest applet name
+  tab_stop += 2;
+
+  // sort the applet names
+  sort( help_text.begin(), help_text.end() );
+
+  for ( auto const& elem : help_text )
+  {
+    const size_t filler = tab_stop - elem.first.size();
+    std::cout << elem.first << std::string( filler, ' ') << elem.second << std::endl;
   }
 }
-
 
 // ----------------------------------------------------------------------------
 /**
@@ -175,7 +167,6 @@ void help_applet( const command_line_parser& options,
   // display help text
   std::cout << applet->m_cmd_options->help();
 }
-
 
 // ============================================================================
 int main(int argc, char *argv[])

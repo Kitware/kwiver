@@ -1,38 +1,10 @@
-/*ckwg +29
- * Copyright 2013-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for \link kwiver::vital::camera_rpc camera_rpc \endlink and
- *        \link kwiver::vital::camera_rpc_ camera_rpc_<T> \endlink classes
- */
+/// \file
+/// \brief Header for \link kwiver::vital::camera_rpc camera_rpc \endlink and
+///        \link kwiver::vital::camera_rpc_ camera_rpc_<T> \endlink classes
 
 #ifndef VITAL_CAMERA_RPC_H_
 #define VITAL_CAMERA_RPC_H_
@@ -48,7 +20,6 @@
 #include <vital/types/vector.h>
 #include <vital/logger/logger.h>
 
-
 namespace kwiver {
 namespace vital {
 
@@ -60,14 +31,12 @@ class camera_rpc;
 /// typedef for a camera_rpc shared pointer
 typedef std::shared_ptr< camera_rpc > camera_rpc_sptr;
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// An abstract representation of rpc camera
-/**
- * The base class of camera_rpcs is abstract and provides a
- * double precision interface.  The templated derived class
- * can store values in either single or double precision.
- */
+///
+/// The base class of camera_rpcs is abstract and provides a
+/// double precision interface.  The templated derived class
+/// can store values in either single or double precision.
 class VITAL_EXPORT camera_rpc : public camera
 {
 public:
@@ -75,13 +44,12 @@ public:
   virtual ~camera_rpc() = default;
 
   /// Vector of the powers of the 3D positions
-  /**
-   * Produces a vector whose components are the various powers (up to cubic)
-   * of the components of a 3D position. This vector is used to construct
-   * the various polynomials used in the RPC model. The order of the terms is
-   *
-   * {1, x, y, z, xy, xz, yz, xx, yy, zz, xyz, xxx, xyy, xzz, xxy, yyy, yzz, xxz, yyz, zzz}
-   */
+  ///
+  /// Produces a vector whose components are the various powers (up to cubic)
+  /// of the components of a 3D position. This vector is used to construct
+  /// the various polynomials used in the RPC model. The order of the terms is
+  ///
+  /// {1, x, y, z, xy, xz, yz, xx, yy, zz, xyz, xxx, xyy, xzz, xxy, yyy, yzz, xxz, yyz, zzz}
   static Eigen::Matrix<double, 20, 1> power_vector( const vector_3d& pt );
 
   /// Create a clone of this camera_rpc object
@@ -114,11 +82,9 @@ protected:
 
 };
 
-
 /// A representation of a camera
-/**
- * Contains camera rpc coefficients, offsets, and scales
- */
+///
+/// Contains camera rpc coefficients, offsets, and scales
 class VITAL_EXPORT simple_camera_rpc :
   public camera_rpc
 {
@@ -142,9 +108,8 @@ public:
   }
 
   /// Constructor - direct from coeffs, scales, and offset
-  /**
-   *  This constructor constructs a camera directly from the RPC parameters
-   */
+  ///
+  ///  This constructor constructs a camera directly from the RPC parameters
   simple_camera_rpc ( vector_3d &world_scale, vector_3d &world_offset,
                       vector_2d &image_scale, vector_2d &image_offset,
                       rpc_matrix &rpc_coeffs, unsigned int image_width=0,
@@ -223,9 +188,7 @@ protected:
   unsigned int image_height_;
 };
 
-
 }
 }   // end namespace vital
-
 
 #endif // VITAL_CAMERA_RPC_H_

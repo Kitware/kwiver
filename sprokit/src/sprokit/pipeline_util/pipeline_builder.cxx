@@ -1,38 +1,8 @@
-/*ckwg +29
- * Copyright 2011-2018, 2020 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include "pipeline_builder.h"
-
-#if defined(_WIN32) || defined(_WIN64)
-#include <sprokit/pipeline_util/include-paths.h>
-#endif
 
 #include <sprokit/pipeline_util/pipe_declaration_types.h>
 #include <sprokit/pipeline_util/pipe_parser.h>
@@ -42,8 +12,7 @@
 #include <vital/config/config_block.h>
 #include <vital/util/tokenize.h>
 #include <vital/util/string.h>
-
-#include <vital/algorithm_plugin_manager_paths.h> //+ maybe rename later
+#include <vital/kwiver-include-paths.h>
 
 #include <kwiversys/SystemTools.hxx>
 
@@ -62,9 +31,9 @@ namespace {
 static std::string const default_include_dirs = std::string( DEFAULT_PIPE_INCLUDE_PATHS );
 static std::string const sprokit_include_envvar = std::string( "SPROKIT_PIPE_INCLUDE_PATH" );
 static std::string const split_str = "=";
+static std::string const path_separator( 1, PATH_SEPARATOR_CHAR );
 
 }
-
 
 // ==================================================================
 pipeline_builder
@@ -75,7 +44,6 @@ pipeline_builder
   // extract search paths from env and default
   process_env();
 }
-
 
 // ------------------------------------------------------------------
 void
@@ -88,7 +56,6 @@ pipeline_builder
   // process the input stream
   m_blocks = the_parser.parse_pipeline( istr, def_file );
 }
-
 
 // ------------------------------------------------------------------
 void
@@ -120,7 +87,6 @@ pipeline_builder
   m_cluster_blocks = the_parser.parse_cluster( istr, def_file );
 }
 
-
 // ----------------------------------------------------------------------------
 void
 pipeline_builder
@@ -138,7 +104,6 @@ pipeline_builder
   // process the input stream
   m_cluster_blocks = the_parser.parse_cluster( input, def_file );
 }
-
 
 // ------------------------------------------------------------------
 void
@@ -159,7 +124,6 @@ pipeline_builder
 
   m_blocks.insert(m_blocks.end(), supplement.begin(), supplement.end());
 }
-
 
 // ------------------------------------------------------------------
 void
@@ -209,7 +173,6 @@ pipeline_builder
   m_blocks.push_back(block);
 }
 
-
 // ------------------------------------------------------------------
 void
 pipeline_builder
@@ -218,7 +181,6 @@ pipeline_builder
   m_search_path.push_back( file_path );
   LOG_DEBUG( m_logger, "Adding \"" << file_path << "\" to search path" );
 }
-
 
 // ------------------------------------------------------------------
 void
@@ -235,7 +197,6 @@ pipeline_builder
   }
 }
 
-
 // ------------------------------------------------------------------
 sprokit::pipeline_t
 pipeline_builder
@@ -243,7 +204,6 @@ pipeline_builder
 {
   return sprokit::bake_pipe_blocks(m_blocks);
 }
-
 
 // ----------------------------------------------------------------------------
 sprokit::cluster_info_t
@@ -253,7 +213,6 @@ pipeline_builder
   return sprokit::bake_cluster_blocks( m_cluster_blocks );
 }
 
-
 // ------------------------------------------------------------------
 kwiver::vital::config_block_sptr
 pipeline_builder
@@ -261,7 +220,6 @@ pipeline_builder
 {
   return sprokit::extract_configuration(m_blocks);
 }
-
 
 // ------------------------------------------------------------------
 sprokit::pipe_blocks
@@ -271,7 +229,6 @@ pipeline_builder
   return m_blocks;
 }
 
-
 // ------------------------------------------------------------------
 sprokit::cluster_blocks
 pipeline_builder
@@ -279,7 +236,6 @@ pipeline_builder
 {
   return m_cluster_blocks;
 }
-
 
 // ----------------------------------------------------------------------------
 void
@@ -291,13 +247,12 @@ pipeline_builder
   kwiversys::SystemTools::GetPath( path_list, sprokit_include_envvar.c_str() );
 
   // Add the default search path
-  ST::Split( default_include_dirs, path_list, PATH_SEPARATOR_CHAR );
-
+  ::kwiver::vital::tokenize( default_include_dirs, path_list, path_separator,
+                             kwiver::vital::TokenizeTrimEmpty );
   if ( ! path_list.empty() )
   {
     add_search_path( path_list );
   }
 }
-
 
 } // end namespace

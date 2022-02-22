@@ -1,38 +1,10 @@
-/*ckwg +29
- * Copyright 2011-2020 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- *
- * \brief Implementation of \link kwiver::vital::config_block configuration \endlink object
- */
+/// \file
+///
+/// \brief Implementation of \link kwiver::vital::config_block configuration \endlink object
 
 #include "config_block.h"
 
@@ -72,8 +44,7 @@ config_block
 {
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Get the name of this \c config_block instance.
 config_block_key_t
 config_block
@@ -82,8 +53,7 @@ config_block
   return this->m_name;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Get a subblock from the configuration.
 config_block_sptr
 config_block
@@ -121,8 +91,7 @@ config_block
   return conf;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Get a subblock view into the configuration.
 config_block_sptr
 config_block
@@ -131,8 +100,7 @@ config_block
   return config_block_sptr( new config_block( key, shared_from_this() ) );
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_block_description_t
 config_block
 ::get_description( config_block_key_t const& key ) const
@@ -151,8 +119,7 @@ config_block
   return i->second;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Remove a value from the configuration.
 void
 config_block
@@ -192,8 +159,7 @@ config_block
   }
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Query if a value is read-only.
 bool
 config_block
@@ -202,8 +168,7 @@ config_block
   return 0 != m_ro_list.count( key );
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Set the value within the configuration as read-only.
 void
 config_block
@@ -212,8 +177,7 @@ config_block
   m_ro_list.insert( key );
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Merge the values in \p config_block into the current config.
 void
 config_block
@@ -227,8 +191,7 @@ config_block
   } // end for
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_block_sptr
 config_block
 ::difference_config( const config_block_sptr other ) const
@@ -250,9 +213,7 @@ config_block
   return ret_block;
 }
 
-
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Return the values available in the configuration.
 config_block_keys_t
 config_block
@@ -286,8 +247,7 @@ config_block
   return keys;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Check if a value exists for \p key.
 bool
 config_block
@@ -301,8 +261,7 @@ config_block
   return ( 0 != m_store.count( key ) );
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Internal constructor
 config_block
 ::config_block( config_block_key_t const& name, config_block_sptr parent )
@@ -315,8 +274,7 @@ config_block
 {
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // private helper method to extract a value for a key
 bool
 config_block
@@ -331,8 +289,7 @@ config_block
   return true;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // private value getter function
 config_block_value_t
 config_block
@@ -353,8 +310,7 @@ config_block
   return i->second;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // private key/value setter
 void
 config_block
@@ -387,8 +343,7 @@ config_block
   }
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 config_block
 ::copy_entry( const config_block_key_t& key,
@@ -397,8 +352,7 @@ config_block
   copy_entry( key, from.get() );
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 config_block
 ::copy_entry( const config_block_key_t& key,
@@ -423,8 +377,7 @@ config_block
   }
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 config_block
 ::set_location( config_block_key_t const& key, std::shared_ptr< std::string > file, int line )
@@ -432,8 +385,7 @@ config_block
   m_def_store[key] = source_location( file, line );
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 config_block
 ::set_location( config_block_key_t const& key, const kwiver::vital::source_location& sl )
@@ -441,8 +393,7 @@ config_block
   m_def_store[key] = sl;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 config_block
 ::get_location( config_block_key_t const& key,
@@ -473,8 +424,7 @@ config_block
   return false;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 config_block
 ::get_location( config_block_key_t const& key, kwiver::vital::source_location& loc ) const
@@ -501,8 +451,7 @@ config_block
   return false;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Type-specific casting handling, bool specialization
 // cast value to bool
 template < >
@@ -544,8 +493,7 @@ config_block_get_value_cast( config_block_value_t const& value )
                + value + "\" to boolean" );
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //   Type specific get_value for string
 template < >
 std::string
@@ -555,16 +503,13 @@ config_block_get_value_cast( config_block_value_t const& value )
   return value;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // private helper method for determining key path prefixes
-/**
- * \param key   The key string to check.
- * \param name  The prefix string to check for. Should not include a trailing
- *              block separator.
- * \returns True if the given key does not begin with the given name and is
- *          not a global variable.
- */
+/// \param key   The key string to check.
+/// \param name  The prefix string to check for. Should not include a trailing
+///              block separator.
+/// \returns True if the given key does not begin with the given name and is
+///          not a global variable.
 bool
 does_not_begin_with( config_block_key_t const& key, config_block_key_t const& name )
 {
@@ -575,18 +520,15 @@ does_not_begin_with( config_block_key_t const& key, config_block_key_t const& na
          ! starts_with( key, global_start );
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // private helper method to strip a block name from a key path
-/**
- * Conditionally strip the given subblock name from the given key path. If the
- * given key doesn't start with the given subblock, the given key is returned
- * as is.
- *
- * \param subblock  The subblock string to strip if present.
- * \param key       The key to conditionally strip from.
- * \returns The stripped key name.
- */
+/// Conditionally strip the given subblock name from the given key path. If the
+/// given key doesn't start with the given subblock, the given key is returned
+/// as is.
+///
+/// \param subblock  The subblock string to strip if present.
+/// \param key       The key to conditionally strip from.
+/// \returns The stripped key name.
 config_block_key_t
 strip_block_name( config_block_key_t const& subblock, config_block_key_t const& key )
 {

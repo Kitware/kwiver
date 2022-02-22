@@ -1,18 +1,27 @@
 # Build / Install plugin containing ffmpeg algorithm implementations + support
 # structures
 
+set(CMAKE_FOLDER "Arrows/FFmpeg")
+
+if(NOT KWIVER_ENABLE_KLV)
+  message(FATAL_ERROR
+          "The FFmpeg arrow requires the KLV arrow (KWIVER_ENABLE_KLV)")
+endif()
+
 include_directories(${FFMPEG_INCLUDE_DIR})
 
 if (NOT FFMPEG_FOUND_SEVERAL)
-  message( FATAL_ERROR "FFMPEG headers all in the same directories, "
+  message( FATAL_ERROR "FFmpeg headers all in the same directories, "
 "this is not supported by this Arrow."
-"\nThis likely indicates that you are building against an old FFMPEG ! "
+"\nThis likely indicates that you are building against an old FFmpeg ! "
 )
 endif()
 
 set(ffmpeg_headers_public
   ffmpeg_init.h
   ffmpeg_video_input.h
+  ffmpeg_video_output.h
+  ffmpeg_video_settings.h
   )
 
 kwiver_install_headers(
@@ -28,6 +37,8 @@ kwiver_install_headers(
 set(ffmpeg_sources
   ffmpeg_init.cxx
   ffmpeg_video_input.cxx
+  ffmpeg_video_output.cxx
+  ffmpeg_video_settings.cxx
   )
 
 kwiver_add_library( kwiver_algo_ffmpeg
@@ -50,8 +61,8 @@ if(fletch_ENABLED_ZLib)
 endif()
 
 target_link_libraries( kwiver_algo_ffmpeg
-  PUBLIC               kwiver_algo_core
-  PRIVATE              vital_klv kwiversys
+  PUBLIC               vital_algo
+  PRIVATE              kwiver_algo_klv kwiversys
                        ${FFMPEG_LIBRARIES}
                        ${ZLIB_LIBRARIES}
   )

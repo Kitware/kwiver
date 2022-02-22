@@ -1,37 +1,9 @@
-/*ckwg +29
- * Copyright 2013-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief core descriptor interface and template implementations
- */
+/// \file
+/// \brief core descriptor interface and template implementations
 
 #ifndef VITAL_DESCRIPTOR_H_
 #define VITAL_DESCRIPTOR_H_
@@ -55,7 +27,7 @@ namespace vital {
 class descriptor;
 typedef std::shared_ptr< descriptor > descriptor_sptr;
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// A representation of a feature descriptor used in matching.
 class descriptor
 {
@@ -75,22 +47,20 @@ public:
   virtual std::size_t num_bytes() const = 0;
 
   /// Return the descriptor as pointer to bytes
-  /**
-   * Subclasses should ensure this always works by storing the data
-   * as a continuous byte array.
-   * Note that as_bytes returns a pointer to the underlying data while
-   * as_double returns a vector of doubles which will be copied from
-   * the underlying data if possible.  As_bytes is written this way
-   * for speed (no copying) at the cost of being restrictive on sub-classes
-   * in terms of the way they lay out their descriptors in memory.
-   */
+  ///
+  /// Subclasses should ensure this always works by storing the data
+  /// as a continuous byte array.
+  /// Note that as_bytes returns a pointer to the underlying data while
+  /// as_double returns a vector of doubles which will be copied from
+  /// the underlying data if possible.  As_bytes is written this way
+  /// for speed (no copying) at the cost of being restrictive on sub-classes
+  /// in terms of the way they lay out their descriptors in memory.
   virtual const byte* as_bytes() const = 0;
 
   /// Return the descriptor as a vector of doubles
-  /**
-   * Return an empty vector if this makes no sense
-   * for the underlying type.
-   */
+  ///
+  /// Return an empty vector if this makes no sense
+  /// for the underlying type.
   virtual std::vector< double > as_double() const = 0;
 
   /// Equality operator
@@ -114,25 +84,22 @@ public:
   }
 
   /// Returns the node_id for the descriptor.
-  /**
-   * The node_id is generally the vocabulary tree leaf index computed when
-   * the descriptor is quantized in the tree.  Two features with the same
-   * node_id are expected to have similar visual appearance.
-  */
+  ///
+  /// The node_id is generally the vocabulary tree leaf index computed when
+  /// the descriptor is quantized in the tree.  Two features with the same
+  /// node_id are expected to have similar visual appearance.
   virtual unsigned int node_id() const { return 0; }
 
   /// Sets the node_id for the descriptor.
-  /**
-   * By default this returns false because this base class has nowhere
-   * to store the node_id.  Derived classes that do store the node_id
-   * should return true if it successfully stored.
-  */
-  virtual bool set_node_id(unsigned int node_id) { return false; }
+  ///
+  /// By default this returns false because this base class has nowhere
+  /// to store the node_id.  Derived classes that do store the node_id
+  /// should return true if it successfully stored.
+  virtual bool set_node_id( VITAL_UNUSED unsigned int node_id ) { return false; }
 
 };
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Abstract base class of a descriptor containing an array of type T
 template < typename T >
 class descriptor_array_of :
@@ -144,7 +111,6 @@ public:
 
   /// The number of bytes used to represent the data
   std::size_t num_bytes() const { return this->size() * sizeof( T ); }
-
 
   /// Return the descriptor as a vector of doubles
   std::vector< double > as_double() const
@@ -174,7 +140,6 @@ public:
   T const* begin() const { return this->raw_data(); }
   T const* end() const { return this->raw_data() + this->size(); }
 
-
   /// Equality operator
   bool operator==( descriptor_array_of<T> const& other ) const
   {
@@ -194,8 +159,7 @@ public:
 
 };
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// A representation of a descriptor of fixed type and size
 template < typename T, unsigned N >
 class descriptor_fixed :
@@ -237,8 +201,7 @@ protected:
   unsigned int node_id_;
 };
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// A representation of a descriptor of fixed type and variable size
 template < typename T >
 class descriptor_dynamic :
@@ -298,7 +261,7 @@ protected:
 VITAL_EXPORT
 int hamming_distance(vital::descriptor_sptr d1, vital::descriptor_sptr d2);
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// output stream operator for a feature
 VITAL_EXPORT std::ostream& operator<<( std::ostream& s, const descriptor& d );
 

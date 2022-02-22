@@ -1,37 +1,9 @@
-/*ckwg +29
- * Copyright 2013-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief config_block related exceptions implementation
- */
+/// \file
+/// \brief config_block related exceptions implementation
 
 #include "config_block.h"
 
@@ -40,20 +12,18 @@
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_block_exception
 ::config_block_exception() noexcept
 {
 }
-
 
 config_block_exception
 ::~config_block_exception() noexcept
 {
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bad_config_block_cast
 ::bad_config_block_cast( std::string const& reason ) noexcept
   : config_block_exception()
@@ -61,14 +31,12 @@ bad_config_block_cast
   this->m_what = reason;
 }
 
-
 bad_config_block_cast
 ::~bad_config_block_cast() noexcept
 {
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bad_config_block_cast_exception
 ::bad_config_block_cast_exception( config_block_key_t const&    key,
                                    config_block_value_t const&  value,
@@ -87,14 +55,12 @@ bad_config_block_cast_exception
   m_what = sstr.str();
 }
 
-
 bad_config_block_cast_exception
 ::~bad_config_block_cast_exception() noexcept
 {
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 no_such_configuration_value_exception
 ::no_such_configuration_value_exception( config_block_key_t const& key ) noexcept
   : config_block_exception(),
@@ -107,14 +73,12 @@ no_such_configuration_value_exception
   m_what = sstr.str();
 }
 
-
 no_such_configuration_value_exception
 ::~no_such_configuration_value_exception() noexcept
 {
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 set_on_read_only_value_exception
 ::set_on_read_only_value_exception( config_block_key_t const&   key,
                                       config_block_value_t const& value,
@@ -133,14 +97,12 @@ set_on_read_only_value_exception
   m_what = sstr.str();
 }
 
-
 set_on_read_only_value_exception
 ::~set_on_read_only_value_exception() noexcept
 {
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 unset_on_read_only_value_exception
 ::unset_on_read_only_value_exception( config_block_key_t const&   key,
                                         config_block_value_t const& value ) noexcept
@@ -157,14 +119,12 @@ unset_on_read_only_value_exception
   m_what = sstr.str();
 }
 
-
 unset_on_read_only_value_exception
 ::~unset_on_read_only_value_exception() noexcept
 {
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_block_io_exception
 ::config_block_io_exception( config_path_t const& file_path,
                              std::string const& reason ) noexcept
@@ -174,14 +134,12 @@ config_block_io_exception
 {
 }
 
-
 config_block_io_exception
 ::~config_block_io_exception() noexcept
 {
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bad_configuration_cast
 ::bad_configuration_cast(std::string const& reason) noexcept
   : config_block_exception()
@@ -194,8 +152,7 @@ bad_configuration_cast
 {
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bad_configuration_cast_exception
 ::bad_configuration_cast_exception(kwiver::vital::config_block_key_t const& key,
                                    kwiver::vital::config_block_value_t const& value,
@@ -221,8 +178,7 @@ bad_configuration_cast_exception
 {
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_file_not_found_exception
 ::config_file_not_found_exception( config_path_t const& file_path, std::string const& reason ) noexcept
   : config_block_io_exception( file_path, reason )
@@ -234,14 +190,12 @@ config_file_not_found_exception
   m_what = sstr.str();
 }
 
-
 config_file_not_found_exception
 ::~config_file_not_found_exception() noexcept
 {
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_file_not_read_exception
 ::config_file_not_read_exception( config_path_t const& file_path, std::string const& reason ) noexcept
   : config_block_io_exception( file_path, reason )
@@ -253,14 +207,12 @@ config_file_not_read_exception
   m_what = sstr.str();
 }
 
-
 config_file_not_read_exception
 ::~config_file_not_read_exception() noexcept
 {
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_file_not_parsed_exception
 ::config_file_not_parsed_exception( config_path_t const& file_path, std::string const& reason ) noexcept
   : config_block_io_exception( file_path, reason )
@@ -272,14 +224,12 @@ config_file_not_parsed_exception
   m_what = sstr.str();
 }
 
-
 config_file_not_parsed_exception
 ::~config_file_not_parsed_exception() noexcept
 {
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_file_write_exception
 ::config_file_write_exception( config_path_t const& file_path, std::string const& reason ) noexcept
   : config_block_io_exception( file_path, reason )
@@ -291,12 +241,9 @@ config_file_write_exception
   m_what = sstr.str();
 }
 
-
 config_file_write_exception
 ::~config_file_write_exception() noexcept
 {
 }
-
-
 
 } } // end namespace

@@ -3,3 +3,7 @@ _build
 *~
 .ipynb_checkpoints
 .emacs*
+*.swp
+*.swo
+*.swn
+compile_commands.json

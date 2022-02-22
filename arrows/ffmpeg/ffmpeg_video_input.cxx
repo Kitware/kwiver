@@ -1,152 +1,109 @@
-/*ckwg +29
- * Copyright 2018-2020 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation file for video input using FFMPEG.
- */
+/// \file
+/// \brief Implementation file for video input using FFmpeg.
 
 #include "ffmpeg_init.h"
 #include "ffmpeg_video_input.h"
+#include "ffmpeg_video_settings.h"
 
-#include <vital/types/timestamp.h>
+#include <arrows/klv/klv_convert_vital.h>
+#include <arrows/klv/klv_demuxer.h>
+#include <arrows/klv/misp_time.h>
+
 #include <vital/exceptions/io.h>
 #include <vital/exceptions/video.h>
-#include <vital/klv/convert_metadata.h>
-#include <vital/klv/misp_time.h>
-#include <vital/klv/klv_data.h>
-#include <vital/util/tokenize.h>
+
 #include <vital/types/image_container.h>
+#include <vital/types/timestamp.h>
+
+#include <vital/util/tokenize.h>
+
+#include <vital/vital_config.h>
 
 #include <kwiversys/SystemTools.hxx>
 
-#include <deque>
-#include <mutex>
-#include <memory>
-#include <vector>
-#include <sstream>
-
 extern "C" {
 #include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
-#include <libavfilter/avfiltergraph.h>
+#include <libavfilter/avfilter.h>
 #include <libavfilter/buffersink.h>
 #include <libavfilter/buffersrc.h>
-#include <libavutil/opt.h>
+#include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/opt.h>
+#include <libswscale/swscale.h>
 }
 
+#include <memory>
+#include <mutex>
+#include <sstream>
+#include <vector>
+
 namespace kwiver {
+
 namespace arrows {
+
 namespace ffmpeg {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Private implementation class
 class ffmpeg_video_input::priv
 {
 public:
-  /// Constructor
-  priv() :
-    f_format_context(nullptr),
-    f_video_index(-1),
-    f_data_index(-1),
-    f_video_encoding(nullptr),
-    f_video_stream(nullptr),
-    f_frame(nullptr),
-    f_filtered_frame(nullptr),
-    f_software_context(nullptr),
-    f_filter_graph(nullptr),
-    f_filter_sink_context(nullptr),
-    f_filter_src_context(nullptr),
-    f_start_time(-1),
-    f_backstep_size(-1),
-    f_frame_number_offset(0),
-    video_path(""),
-    filter_desc("yadif=deint=1"),
-    metadata(0),
-    frame_advanced(0),
-    end_of_video(true),
-    number_of_frames(0),
-    collected_all_metadata(false),
-    estimated_num_frames(false)
-  {
-    f_packet.data = nullptr;
-  }
+  // f_* variables are FFmpeg specific
 
-  // f_* variables are FFMPEG specific
+  AVFormatContext* f_format_context = avformat_alloc_context();
+  int f_video_index = -1;
+  AVCodecContext* f_video_encoding = nullptr;
+  AVStream* f_video_stream = nullptr;
+  AVFrame* f_frame = nullptr;
+  AVFrame* f_filtered_frame = nullptr;
+  AVPacket* f_packet = nullptr;
+  SwsContext* f_software_context = nullptr;
+  AVFilterGraph* f_filter_graph = nullptr;
+  AVFilterContext* f_filter_sink_context = nullptr;
+  AVFilterContext* f_filter_src_context = nullptr;
 
-  AVFormatContext* f_format_context;
-  int f_video_index;
-  int f_data_index;
-  AVCodecContext* f_video_encoding;
-  AVStream* f_video_stream;
-  AVFrame* f_frame;
-  AVFrame* f_filtered_frame;
-  AVPacket f_packet;
-  SwsContext* f_software_context;
-  AVFilterGraph* f_filter_graph;
-  AVFilterContext *f_filter_sink_context;
-  AVFilterContext *f_filter_src_context;
-
-
-  // Start time of the stream, to offset the pts when computing the frame number.
+  // Start time of the stream, to offset the pts when computing the frame
+  // number
   // (in stream time base)
-  int64_t f_start_time;
+  int64_t f_start_time = -1;
 
   // Presentation timestamp (in stream time base)
   int64_t f_pts;
 
-  // Number of frames to back step when seek fails to land on frame before request
-  int64_t f_backstep_size;
+  // MISP timestamp (microseconds)
+  std::map< uint64_t, klv::misp_timestamp > m_pts_to_misp;
+  uint64_t m_last_klv_timestamp = 0;
+
+  // Number of frames to back step when seek fails to land on frame before
+  // request
+  int64_t f_backstep_size = -1;
 
   // Some codec/file format combinations need a frame number offset.
   // These codecs have a delay between reading packets and generating frames.
-  unsigned f_frame_number_offset;
+  unsigned f_frame_number_offset = 0;
 
   // Name of video we opened
-  std::string video_path;
+  std::string video_path = "";
 
   // FFMPEG filter description string
   // What you put after -vf in the ffmpeg command line tool
-  std::string filter_desc;
+  std::string filter_desc = "yadif=deint=1";
 
-  // the buffer of metadata from the data stream
-  std::deque<uint8_t> metadata;
+  // The buffers of raw metadata from the data streams tagged with the
+  // timestamp
+  std::map< int, std::multimap< int64_t, std::vector< uint8_t > > > metadata;
 
-  // metadata converter object
-  kwiver::vital::convert_metadata converter;
+  // Storage for current frame's raw metadata
+  std::map< int, std::vector< uint8_t > > curr_metadata;
 
-  /**
-   * Storage for the metadata map.
-   */
+  klv::klv_timeline m_klv_timeline;
+  klv::klv_demuxer m_klv_demuxer;
+
+  /// Storage for the metadata map.
   vital::metadata_map::map_metadata_t metadata_map;
 
   static std::mutex open_mutex;
@@ -159,41 +116,50 @@ public:
   kwiver::vital::image_container_sptr current_image;
 
   // local state
-  int frame_advanced; // This is a boolean check value really
-  bool end_of_video;
-  size_t number_of_frames;
-  bool collected_all_metadata;
-  bool estimated_num_frames;
+  bool frame_advanced = false;
+  bool end_of_video = true;
+  size_t number_of_frames = 0;
+  bool collected_all_metadata = false;
+  bool estimated_num_frames = false;
+  bool sync_metadata = true;
+  bool use_misp_timestamps = false;
+  bool is_draining = false;
+  size_t max_seek_back_attempts = 10;
 
-  // ==================================================================
-  /*
-  * @brief Whether the video was opened.
-  *
-  * @return \b true if video was opened.
-  */
-  bool is_opened()
+  // --------------------------------------------------------------------------
+  priv() : m_klv_demuxer( m_klv_timeline ) {}
+
+  // --------------------------------------------------------------------------
+
+  ///  @brief Whether the video was opened.
+  ///
+  ///  @return \b true if video was opened.
+  bool
+  is_opened()
   {
     return this->f_start_time != -1;
   }
 
-  // ==================================================================
-  /*
-  * @brief Open the given video.
-  *
-  * @return \b true if video was opened.
-  */
-  bool open(std::string video_name)
+  // --------------------------------------------------------------------------
+
+  ///  @brief Open the given video.
+  ///
+  ///  @return \b true if video was opened.
+  bool
+  open( std::string video_name )
   {
     // Open the file
-    int err = avformat_open_input(&this->f_format_context, this->video_path.c_str(), NULL, NULL);
-    if (err != 0)
+    int err = avformat_open_input( &this->f_format_context,
+                                   this->video_path.c_str(), NULL, NULL );
+    if( err != 0 )
     {
-      LOG_ERROR(this->logger, "Error " << err << " trying to open " << video_name);
+      LOG_ERROR( this->logger,
+                 "Error " << err << " trying to open " << video_name );
       return false;
     }
 
     // Get the stream information by reading a bit of the file
-    if (avformat_find_stream_info(this->f_format_context, NULL) < 0)
+    if( avformat_find_stream_info( this->f_format_context, NULL ) < 0 )
     {
       return false;
     }
@@ -201,80 +167,95 @@ public:
     // Find a video stream, and optionally a data stream.
     // Use the first ones we find.
     this->f_video_index = -1;
-    this->f_data_index = -1;
-    AVCodecContext* codec_context_origin = NULL;
-    for (unsigned i = 0; i < this->f_format_context->nb_streams; ++i)
+
+    AVCodecParameters* codec_param_origin = NULL;
+    for( unsigned i = 0; i < this->f_format_context->nb_streams; ++i )
     {
-      AVCodecContext *const enc = this->f_format_context->streams[i]->codec;
-      if (enc->codec_type == AVMEDIA_TYPE_VIDEO && this->f_video_index < 0)
+      AVCodecParameters* params =
+        this->f_format_context->streams[ i ]->codecpar;
+      if( params->codec_type == AVMEDIA_TYPE_VIDEO && this->f_video_index < 0 )
       {
         this->f_video_index = i;
-        codec_context_origin = enc;
+        codec_param_origin = params;
       }
-      else if (enc->codec_type == AVMEDIA_TYPE_DATA && this->f_data_index < 0)
+      else if( params->codec_type == AVMEDIA_TYPE_DATA )
       {
-        this->f_data_index = i;
+        this->metadata.emplace(
+            i, std::multimap< int64_t, std::vector< uint8_t > >() );
+        this->curr_metadata.emplace( i, std::vector< uint8_t >() );
       }
     }
 
-    if (this->f_video_index < 0)
+    if( this->f_video_index < 0 )
     {
-      LOG_ERROR(this->logger, "Error: could not find a video stream in " << this->video_path);
+      LOG_ERROR( this->logger,
+                 "Error: could not find a video stream in " <<
+                 this->video_path );
       return false;
     }
 
-    if (this->f_data_index < 0)
+    if( this->metadata.empty() )
     {
-      LOG_INFO(this->logger, "No data stream available");
+      LOG_INFO( this->logger, "No data stream available" );
       // Fallback for the DATA stream if incorrectly coded as UNKNOWN.
-      for (unsigned i = 0; i < this->f_format_context->nb_streams; ++i)
+      for( unsigned i = 0; i < this->f_format_context->nb_streams; ++i )
       {
-        AVCodecContext *enc = this->f_format_context->streams[i]->codec;
-        if (enc->codec_type == AVMEDIA_TYPE_UNKNOWN)
+        AVCodecParameters* params =
+          this->f_format_context->streams[ i ]->codecpar;
+        if( params->codec_type == AVMEDIA_TYPE_UNKNOWN )
         {
-          this->f_data_index = i;
-          LOG_INFO(this->logger, "Using AVMEDIA_TYPE_UNKNOWN stream as a data stream");
+          this->metadata.emplace(
+              i, std::multimap< int64_t, std::vector< uint8_t > >() );
+          this->curr_metadata.emplace( i, std::vector< uint8_t >() );
+          LOG_INFO( this->logger,
+                    "Using AVMEDIA_TYPE_UNKNOWN stream as a data stream" );
         }
       }
     }
 
-    av_dump_format(this->f_format_context, 0, this->video_path.c_str(), 0);
+    av_dump_format( this->f_format_context, 0, this->video_path.c_str(), 0 );
 
     // Open the stream
-    AVCodec* codec = avcodec_find_decoder(codec_context_origin->codec_id);
-    if (!codec)
+    AVCodec* codec = avcodec_find_decoder( codec_param_origin->codec_id );
+    if( !codec )
     {
-      LOG_ERROR(this->logger,
-        "Error: Codec " << codec_context_origin->codec_descriptor
-        << " (" << codec_context_origin->codec_id << ") not found");
+      LOG_ERROR( this->logger,
+                 "Error: Codec " <<
+                 avcodec_descriptor_get( codec_param_origin->codec_id ) <<
+                 " (" << codec_param_origin->codec_id << ") not found" );
       return false;
     }
 
     // Copy context
-    this->f_video_encoding = avcodec_alloc_context3(codec);
-    if (avcodec_copy_context(this->f_video_encoding, codec_context_origin) != 0)
+    this->f_video_encoding = avcodec_alloc_context3( codec );
+    if( avcodec_parameters_to_context( this->f_video_encoding,
+                                       codec_param_origin ) > 0 )
     {
-      LOG_ERROR(this->logger, "Error: Could not copy codec " << this->f_video_encoding->codec_id);
+      LOG_ERROR( this->logger,
+                 "Error: Could not fill codec context " <<
+                 this->f_video_encoding->codec_id );
       return false;
     }
 
     // Open codec
-    if (avcodec_open2(this->f_video_encoding, codec, NULL) < 0)
+    if( avcodec_open2( this->f_video_encoding, codec, NULL ) < 0 )
     {
-      LOG_ERROR(this->logger, "Error: Could not open codec " << this->f_video_encoding->codec_id);
+      LOG_ERROR( this->logger,
+                 "Error: Could not open codec " <<
+                 this->f_video_encoding->codec_id );
       return false;
     }
 
     bool empty_filter = filter_desc.empty() ||
-                        std::all_of(filter_desc.begin(),
-                                    filter_desc.end(), isspace);
-    if (!empty_filter && !this->init_filters(filter_desc))
+                        std::all_of( filter_desc.begin(),
+                                     filter_desc.end(), isspace );
+    if( !empty_filter && !this->init_filters( filter_desc ) )
     {
       return false;
     }
 
     // Use group of picture (GOP) size for seek back step if avaiable
-    if ( this->f_video_encoding->gop_size > 0 )
+    if( this->f_video_encoding->gop_size > 0 )
     {
       this->f_backstep_size = this->f_video_encoding->gop_size;
     }
@@ -284,168 +265,137 @@ public:
       this->f_backstep_size = 12;
     }
 
-    this->f_video_stream = this->f_format_context->streams[this->f_video_index];
+    this->f_video_stream =
+      this->f_format_context->streams[ this->f_video_index ];
     this->f_frame = av_frame_alloc();
     this->f_filtered_frame = av_frame_alloc();
+    this->f_packet = av_packet_alloc();
 
     // The MPEG 2 codec has a latency of 1 frame when encoded in an AVI
     // stream, so the pts of the last packet (stored in pts) is
     // actually the next frame's pts.
-    if (this->f_video_stream->codec->codec_id == AV_CODEC_ID_MPEG2VIDEO &&
-      std::string("avi") == this->f_format_context->iformat->name)
+    if( this->f_video_stream->codecpar->codec_id == AV_CODEC_ID_MPEG2VIDEO &&
+        std::string( "avi" ) == this->f_format_context->iformat->name )
     {
       this->f_frame_number_offset = 1;
     }
 
-    // Not sure if this does anything, but no harm either
-    av_init_packet(&this->f_packet);
-    this->f_packet.data = nullptr;
-    this->f_packet.size = 0;
-
-    // Advance to first valid frame to get start time
-    this->f_start_time = 0;
-    if ( this->advance() )
-    {
-        this->f_start_time = this->f_pts;
-    }
-    else
-    {
-        LOG_ERROR(this->logger, "Error: failed to find valid frame to set start time");
-        this->f_start_time = -1;
-        return false;
-    }
-
-    // Now seek back to the start of the video
-    auto seek_rslt = av_seek_frame( this->f_format_context,
-                                    this->f_video_index,
-                                    0,
-                                    AVSEEK_FLAG_BACKWARD );
+    // Start time taken from the first decodable frame
+    av_seek_frame( this->f_format_context, this->f_video_index, 0,
+                   AVSEEK_FLAG_FRAME );
+    int send_err;
+    int recv_err;
+    do {
+      // Read frames until we can successfully decode one
+      av_read_frame( this->f_format_context, this->f_packet );
+      send_err = avcodec_send_packet( this->f_video_encoding, this->f_packet );
+      recv_err = avcodec_receive_frame( this->f_video_encoding, this->f_frame );
+      av_packet_unref( this->f_packet );
+    } while( send_err || recv_err );
+    this->f_start_time = av_frame_get_best_effort_timestamp( this->f_frame );
+    // Seek back to start
+    av_seek_frame( this->f_format_context, this->f_video_index, 0,
+                   AVSEEK_FLAG_FRAME );
     avcodec_flush_buffers( this->f_video_encoding );
-    if (seek_rslt < 0 )
-    {
-        LOG_ERROR(this->logger,
-                  "Error: failed to return to start after setting start time");
-        return false;
-    }
-    this->frame_advanced = 0;
-    this->f_frame->data[0] = NULL;
+
+    this->frame_advanced = false;
+    this->f_frame->data[ 0 ] = NULL;
     return true;
   }
 
-  // ==================================================================
-  /*
-  * @brief Close the current video.
-  */
-  void close()
+  // --------------------------------------------------------------------------
+
+  ///  @brief Close the current video.
+  void
+  close()
   {
-    if (this->f_packet.data) {
-      av_free_packet(&this->f_packet);  // free last packet
-    }
-
-    if (this->f_frame)
-    {
-      av_frame_free(&this->f_frame);
-    }
-    this->f_frame = nullptr;
-    if (this->f_filtered_frame)
-    {
-      av_frame_free(&this->f_filtered_frame);
-    }
-    this->f_filtered_frame = nullptr;
-
-    if (this->f_video_encoding && this->f_video_encoding->opaque)
-    {
-      av_freep(&this->f_video_encoding->opaque);
-    }
-
     this->f_video_index = -1;
-    this->f_data_index = -1;
+    this->metadata.clear();
     this->f_start_time = -1;
+    this->m_last_klv_timestamp = 0;
+    this->m_klv_demuxer.seek( 0 );
+    this->is_draining = false;
 
-    if (this->f_video_stream)
+    if( this->f_video_stream )
     {
-      avcodec_close(this->f_video_stream->codec);
       this->f_video_stream = nullptr;
     }
-    if (this->f_format_context)
-    {
-      avformat_close_input(&this->f_format_context);
-      this->f_format_context = nullptr;
-    }
-    if (this->f_video_encoding)
-    {
-      avcodec_close(this->f_video_encoding);
-      avcodec_free_context(&this->f_video_encoding);
-      this->f_video_encoding = nullptr;
-    }
-    if (this->f_filter_graph)
-    {
-      avfilter_graph_free(&this->f_filter_graph);
-      this->f_filter_graph = nullptr;
-    }
+
+    av_frame_free( &this->f_frame );
+    av_frame_free( &this->f_filtered_frame );
+    av_packet_free( &this->f_packet );
+    avformat_close_input( &this->f_format_context );
+    avformat_free_context( this->f_format_context );
+    avcodec_free_context( &this->f_video_encoding );
+    avfilter_graph_free( &this->f_filter_graph );
   }
 
-  // ==================================================================
-  /*
-  * @brief Initialize the filter graph
-  */
-  bool init_filters(std::string const& filters_desc)
+  // --------------------------------------------------------------------------
+
+  ///  @brief Initialize the filter graph
+  bool
+  init_filters( std::string const& filters_desc )
   {
-    auto deleter = [](AVFilterInOut** ptr)
-    {
-      avfilter_inout_free(ptr);
-      delete[] ptr;
-    };
-    using AVFilterInOut_ptr = std::unique_ptr<AVFilterInOut*, decltype(deleter)>;
-    char args[512];
+    auto deleter =
+      []( AVFilterInOut** ptr ){
+        avfilter_inout_free( ptr );
+        delete[] ptr;
+      };
+
+    using AVFilterInOut_ptr =
+      std::unique_ptr< AVFilterInOut*, decltype( deleter ) >;
+
+    char args[ 512 ];
     int ret = 0;
-    AVFilter *buffersrc = avfilter_get_by_name("buffer");
-    AVFilter *buffersink = avfilter_get_by_name("buffersink");
-    AVFilterInOut_ptr outputs(new AVFilterInOut*[1], deleter);
+    auto* const buffersrc = avfilter_get_by_name( "buffer" );
+    auto* const buffersink = avfilter_get_by_name( "buffersink" );
+    AVFilterInOut_ptr outputs( new AVFilterInOut*[ 1 ], deleter );
     *outputs.get() = avfilter_inout_alloc();
-    AVFilterInOut_ptr inputs(new AVFilterInOut*[1], deleter);
+
+    AVFilterInOut_ptr inputs( new AVFilterInOut*[ 1 ], deleter );
     *inputs.get() = avfilter_inout_alloc();
 
-    AVRational time_base = f_format_context->streams[f_video_index]->time_base;
+    AVRational time_base =
+      f_format_context->streams[ f_video_index ]->time_base;
     enum AVPixelFormat pix_fmts[] = { AV_PIX_FMT_RGB24, AV_PIX_FMT_GRAY8,
                                       AV_PIX_FMT_NONE };
     this->f_filter_graph = avfilter_graph_alloc();
-    if (!outputs || !inputs || !f_filter_graph)
+    if( !outputs || !inputs || !f_filter_graph )
     {
-      LOG_ERROR(this->logger, "Failed to alloation filter graph");
+      LOG_ERROR( this->logger, "Failed to alloation filter graph" );
       return false;
     }
     // Buffer video source
     // The decoded frames from the decoder will be inserted here.
-    snprintf(args, sizeof(args),
-      "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
-      f_video_encoding->width, f_video_encoding->height,
-      f_video_encoding->pix_fmt,
-      time_base.num, time_base.den,
-      f_video_encoding->sample_aspect_ratio.num,
-      f_video_encoding->sample_aspect_ratio.den);
-    ret = avfilter_graph_create_filter(&f_filter_src_context, buffersrc, "in",
-                                       args, NULL, f_filter_graph);
-    if (ret < 0)
+    snprintf( args, sizeof( args ),
+              "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
+              f_video_encoding->width, f_video_encoding->height,
+              f_video_encoding->pix_fmt,
+              time_base.num, time_base.den,
+              f_video_encoding->sample_aspect_ratio.num,
+              f_video_encoding->sample_aspect_ratio.den );
+    ret = avfilter_graph_create_filter( &f_filter_src_context, buffersrc, "in",
+                                        args, NULL, f_filter_graph );
+    if( ret < 0 )
     {
-      LOG_ERROR(this->logger, "Cannot create buffer source");
+      LOG_ERROR( this->logger, "Cannot create buffer source" );
       return false;
     }
     // Buffer video sink
     // To terminate the filter chain.
-    ret = avfilter_graph_create_filter(&f_filter_sink_context,
-                                       buffersink, "out",
-                                       NULL, NULL, f_filter_graph);
-    if (ret < 0)
+    ret = avfilter_graph_create_filter( &f_filter_sink_context,
+                                        buffersink, "out",
+                                        NULL, NULL, f_filter_graph );
+    if( ret < 0 )
     {
-      LOG_ERROR(this->logger, "Cannot create buffer sink");
+      LOG_ERROR( this->logger, "Cannot create buffer sink" );
       return false;
     }
-    ret = av_opt_set_int_list(f_filter_sink_context, "pix_fmts", pix_fmts,
-                              AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);
-    if (ret < 0)
+    ret = av_opt_set_int_list( f_filter_sink_context, "pix_fmts", pix_fmts,
+                               AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN );
+    if( ret < 0 )
     {
-      LOG_ERROR(this->logger, "Cannot set output pixel format");
+      LOG_ERROR( this->logger, "Cannot set output pixel format" );
       return false;
     }
 
@@ -456,115 +406,147 @@ public:
     // the first filter described by filters_desc; since the first
     // filter input label is not specified, it is set to "in" by
     // default.
-    (*outputs)->name = av_strdup("in");
-    (*outputs)->filter_ctx = f_filter_src_context;
-    (*outputs)->pad_idx = 0;
-    (*outputs)->next = NULL;
+    ( *outputs )->name = av_strdup( "in" );
+    ( *outputs )->filter_ctx = f_filter_src_context;
+    ( *outputs )->pad_idx = 0;
+    ( *outputs )->next = NULL;
 
     // The buffer sink input must be connected to the output pad of
     // the last filter described by filters_desc; since the last
     // filter output label is not specified, it is set to "out" by
     // default.
-    (*inputs)->name = av_strdup("out");
-    (*inputs)->filter_ctx = f_filter_sink_context;
-    (*inputs)->pad_idx = 0;
-    (*inputs)->next = NULL;
+    ( *inputs )->name = av_strdup( "out" );
+    ( *inputs )->filter_ctx = f_filter_sink_context;
+    ( *inputs )->pad_idx = 0;
+    ( *inputs )->next = NULL;
 
-    if (avfilter_graph_parse_ptr(f_filter_graph, filters_desc.c_str(),
-                                 inputs.get(), outputs.get(), NULL) < 0)
+    if( avfilter_graph_parse_ptr( f_filter_graph, filters_desc.c_str(),
+                                  inputs.get(), outputs.get(), NULL ) < 0 )
     {
-      LOG_ERROR(this->logger, "Failed to parse AV filter graph");
+      LOG_ERROR( this->logger, "Failed to parse AV filter graph" );
       return false;
     }
 
-    if (avfilter_graph_config(f_filter_graph, NULL) < 0)
+    if( avfilter_graph_config( f_filter_graph, NULL ) < 0 )
     {
-      LOG_ERROR(this->logger, "Failed to configure AV filter graph");
+      LOG_ERROR( this->logger, "Failed to configure AV filter graph" );
       return false;
     }
 
     return true;
   }
 
-  // ==================================================================
-  /*
-  * @brief Advance to the next frame (but don't acquire an image).
-  *
-  * @return \b true if video was valid and we found a frame.
-  */
-  bool advance()
+  // --------------------------------------------------------------------------
+  // Try to get a decoded frame from FFmpeg, return FFmpeg error code.
+  int
+  query_frame()
   {
-    // Quick return if the file isn't open.
-    if (!this->is_opened())
+    auto const result = avcodec_receive_frame( f_video_encoding, f_frame );
+
+    if( result < 0 )
     {
-      this->frame_advanced = 0;
+      return result;
+    }
+
+    f_pts = av_frame_get_best_effort_timestamp( f_frame );
+    if( f_pts == AV_NOPTS_VALUE )
+    {
+      f_pts = 0;
+    }
+
+    frame_advanced = true;
+
+    return result;
+  }
+
+  // --------------------------------------------------------------------------
+  ///  @brief Advance to the next frame (but don't acquire an image).
+  ///
+  ///  @return \b true if video was valid and we found a frame.
+  bool
+  advance()
+  {
+    this->frame_advanced = false;
+
+    // Quick return if the file isn't open.
+    if( !this->is_opened() )
+    {
       return false;
     }
 
-    if (this->f_packet.data)
-    {
-      av_free_packet(&this->f_packet);  // free previous packet
-    }
-    this->frame_advanced = 0;
-
     // clear the metadata from the previous frame
-    this->metadata.clear();
+    for( auto& md : this->curr_metadata )
+    {
+      md.second.clear();
+    }
 
-    while (this->frame_advanced == 0 && av_read_frame(this->f_format_context, &this->f_packet) >= 0)
+    if( is_draining )
+    {
+      return query_frame() >= 0;
+    }
+
+    while( !this->frame_advanced &&
+           av_read_frame( this->f_format_context, this->f_packet ) >= 0 )
     {
       // Make sure that the packet is from the actual video stream.
-      if (this->f_packet.stream_index == this->f_video_index)
+      if( this->f_packet->stream_index == this->f_video_index )
       {
-        int err = avcodec_decode_video2(this->f_video_encoding,
-          this->f_frame, &this->frame_advanced,
-          &this->f_packet);
-        if (err == AVERROR_INVALIDDATA)
-        {// Ignore the frame and move to the next
-          av_free_packet(&this->f_packet);
-          continue;
-        }
-        if (err < 0)
+        auto const packet_begin = f_packet->data;
+        auto const packet_end = f_packet->data + f_packet->size;
+        auto misp_it = klv::find_misp_timestamp( packet_begin, packet_end );
+        if( misp_it != packet_end )
         {
-          LOG_ERROR(this->logger, "Error decoding packet");
-          av_free_packet(&this->f_packet);
+          auto const timestamp = klv::read_misp_timestamp( misp_it );
+          m_pts_to_misp.emplace( f_packet->pts, timestamp );
+        }
+
+        int err =
+          avcodec_send_packet( this->f_video_encoding, this->f_packet );
+        if( err < 0 )
+        {
+          LOG_ERROR( this->logger, "Error sending packet to decoder" );
           return false;
         }
 
-        this->f_pts = av_frame_get_best_effort_timestamp(this->f_frame);
-        if (this->f_pts == AV_NOPTS_VALUE)
+        err = query_frame();
+
+        // Ignore the frame and move to the next
+        if( err == AVERROR_INVALIDDATA || err == AVERROR( EAGAIN ) )
         {
-          this->f_pts = 0;
+          av_packet_unref( this->f_packet );
+          continue;
+        }
+        if( err < 0 )
+        {
+          LOG_ERROR( this->logger, "Error decoding packet" );
+          av_packet_unref( this->f_packet );
+          return false;
         }
       }
 
       // grab the metadata from this packet if from the metadata stream
-      else if (this->f_packet.stream_index == this->f_data_index)
+      auto md_iter = this->metadata.find( this->f_packet->stream_index );
+      if( md_iter != this->metadata.end() )
       {
-        this->metadata.insert(this->metadata.end(), this->f_packet.data,
-          this->f_packet.data + this->f_packet.size);
+        md_iter->second.emplace(
+            this->f_packet->pts,
+            std::vector< uint8_t >( this->f_packet->data,
+                                    this->f_packet->data +
+                                    this->f_packet->size ) );
       }
 
-      if (!this->frame_advanced)
-      {
-        av_free_packet(&this->f_packet);
-      }
+      // De-reference previous packet
+      av_packet_unref( this->f_packet );
     }
 
-    // From ffmpeg apiexample.c: some codecs, such as MPEG, transmit the
-    // I and P frame with a latency of one frame. You must do the
-    // following to have a chance to get the last frame of the video.
-    if (!this->frame_advanced)
+    // End of video? Get all still-buffered frames from decoder
+    if( !frame_advanced && !is_draining )
     {
-      av_init_packet(&this->f_packet);
-      this->f_packet.data = nullptr;
-      this->f_packet.size = 0;
-
-      int err = avcodec_decode_video2(this->f_video_encoding,
-        this->f_frame, &this->frame_advanced,
-        &this->f_packet);
-      if (err >= 0)
+      is_draining = true;
+      avcodec_send_packet( f_video_encoding, nullptr );
+      if( query_frame() < 0 )
       {
-        this->f_pts += static_cast<int64_t>(this->stream_time_base_to_frame());
+        return false;
       }
     }
 
@@ -572,36 +554,69 @@ public:
     // frame or not.
     this->current_image_memory = nullptr;
 
-    if (!this->frame_advanced)
+    if( !this->frame_advanced )
     {
-      this->f_frame->data[0] = NULL;
+      this->f_frame->data[ 0 ] = NULL;
     }
 
-    return static_cast<bool>(this->frame_advanced);
+    for( auto& md : this->metadata )
+    {
+      for( auto md_it = md.second.begin(); md_it != md.second.end();)
+      {
+        // Skip if timestamp is too large while in sync mode
+        if( md_it->first <= this->f_pts || !this->sync_metadata )
+        {
+          this->curr_metadata[ md.first ].insert(
+              curr_metadata[ md.first ].end(),
+              md_it->second.begin(),
+              md_it->second.end() );
+
+          // Remove packet from cache since it was used
+          md_it = md.second.erase( md_it );
+        }
+        else
+        {
+          // Skip to the next metadata packet if not used
+          ++md_it;
+        }
+      }
+    }
+
+    advance_metadata();
+
+    return this->frame_advanced;
   }
 
-  // ==================================================================
-  /*
-  * @brief Seek to a specific frame
-  *
-  * @return \b true if video was valid and we found a frame.
-  */
-  bool seek( uint64_t frame )
+  // --------------------------------------------------------------------------
+
+  ///  @brief Seek to a specific frame
+  ///
+  ///  @return \b true if video was valid and we found a frame.
+  bool
+  seek( uint64_t frame )
   {
+    is_draining = false;
+
     // Time for frame before requested frame. The frame before is requested so
-    // advance will called at least once in case the request lands on a keyframe.
-    int64_t frame_ts = (static_cast<int>(f_frame_number_offset) + frame - 1) *
+    // advance will called at least once in case the request lands on a
+    // keyframe.
+    int64_t frame_ts =
+      ( static_cast< int >( f_frame_number_offset ) + frame - 1 ) *
       this->stream_time_base_to_frame() + this->f_start_time;
 
     bool advance_successful = false;
+    size_t num_of_attempts = 0;
     do
     {
+      m_last_klv_timestamp = 0;
+      m_klv_demuxer.seek( 0 );
+
       auto seek_rslt = av_seek_frame( this->f_format_context,
                                       this->f_video_index, frame_ts,
                                       AVSEEK_FLAG_BACKWARD );
       avcodec_flush_buffers( this->f_video_encoding );
 
-      if ( seek_rslt < 0 )
+      if( seek_rslt < 0 )
       {
         return false;
       }
@@ -611,18 +626,23 @@ public:
       // Continue to make seek request further back until we land at a frame
       // that is before the requested frame.
       frame_ts -= this->f_backstep_size * this->stream_time_base_to_frame();
-    }
-    while( this->frame_number() > frame - 1 || !advance_successful );
+      if( ++num_of_attempts > this->max_seek_back_attempts )
+      {
+        LOG_ERROR( this->logger,
+                   "Seek failed: unable to seek back to early timestamp" );
+        return false;
+      }
+    } while( this->frame_number() > frame - 1 || !advance_successful );
 
     // Now advance forward until we reach the requested frame.
     while( this->frame_number() < frame - 1 )
     {
-      if ( !this->advance() )
+      if( !this->advance() )
       {
         return false;
       }
 
-      if ( this->frame_number() > frame -1 )
+      if( this->frame_number() > frame - 1 )
       {
         LOG_ERROR( this->logger, "seek went past requested frame." );
         return false;
@@ -632,70 +652,119 @@ public:
     return true;
   }
 
-  // ==================================================================
-  /*
-  * @brief Get the current timestamp
-  *
-  * @return \b Current timestamp.
-  */
-  double current_pts() const
+  // --------------------------------------------------------------------------
+
+  ///  @brief Get the current timestamp
+  ///
+  ///  @return \b Current timestamp.
+  double
+  current_pts() const
   {
-    return this->f_pts * av_q2d(this->f_video_stream->time_base);
+    return this->f_pts * av_q2d( this->f_video_stream->time_base );
   }
 
-  // ==================================================================
-  /*
-  * @brief Returns the double value to convert from a stream time base to
-  *  a frame number
-  */
-  double stream_time_base_to_frame() const
+  // --------------------------------------------------------------------------
+
+  ///  @brief Returns the double value to convert from a stream time base to
+  ///   a frame number
+  double
+  stream_time_base_to_frame() const
   {
-    if (this->f_video_stream->avg_frame_rate.num == 0.0)
+    if( this->f_video_stream->avg_frame_rate.num == 0.0 )
     {
-      return av_q2d(av_inv_q(av_mul_q(this->f_video_stream->time_base,
-        this->f_video_stream->r_frame_rate)));
+      return av_q2d(
+        av_inv_q(
+          av_mul_q( this->f_video_stream->time_base,
+                    this->f_video_stream->r_frame_rate ) ) );
     }
     return av_q2d(
       av_inv_q(
-        av_mul_q(this->f_video_stream->time_base, this->f_video_stream->avg_frame_rate)));
+        av_mul_q( this->f_video_stream->time_base,
+                  this->f_video_stream->avg_frame_rate ) ) );
   }
 
-  bool is_valid() const
+  bool
+  is_valid() const
   {
-    return this->f_frame && this->f_frame->data[0];
+    return this->f_frame && this->f_frame->data[ 0 ];
   }
 
-  // ==================================================================
-  /*
-  * @brief Return the current frame number
-  *
-  * @return \b Current frame number.
-  */
-  unsigned int frame_number() const
+  // --------------------------------------------------------------------------
+
+  ///  @brief Return the current frame number
+  ///
+  ///  @return \b Current frame number.
+  unsigned int
+  frame_number() const
   {
-    // Quick return if the stream isn't open.
-    if (!this->is_valid())
+    // Quick return if the stream isn't open or we're before the first
+    // decodable frame.
+    if( !this->is_valid() || this->f_pts < this->f_start_time )
     {
-      return static_cast<unsigned int>(-1);
+      return static_cast< unsigned int >( -1 );
     }
 
-    return static_cast<unsigned int>(
-      (this->f_pts - this->f_start_time) / this->stream_time_base_to_frame()
-      - static_cast<int>(this->f_frame_number_offset));
+    return static_cast< unsigned int >(
+      ( this->f_pts - this->f_start_time ) /
+      this->stream_time_base_to_frame() -
+      static_cast< int >( this->f_frame_number_offset ) + 0.5 );
   }
 
-  void set_default_metadata(kwiver::vital::metadata_sptr md)
+  void
+  advance_metadata()
+  {
+    for( auto md : this->curr_metadata )
+    {
+      auto& md_buffer = md.second;
+
+      auto it = md_buffer.cbegin();
+      while( it != md_buffer.cend() )
+      {
+        klv::klv_packet packet;
+        try
+        {
+          packet =
+            klv::klv_read_packet( it, std::distance( it, md_buffer.cend() ) );
+        }
+        catch( kwiver::vital::metadata_buffer_overflow const& e )
+        {
+          // We only have part of a packet; quit until we have more data
+          break;
+        }
+        catch( kwiver::vital::metadata_exception const& e )
+        {
+          LOG_ERROR( kwiver::vital::get_logger( "klv" ),
+                     "error while parsing KLV packet: " << e.what() );
+        }
+
+        if( klv::klv_lookup_packet_traits().by_uds_key( packet.key ).tag() !=
+            klv::KLV_PACKET_MISB_1108_LOCAL_SET )
+        {
+          auto const timestamp = klv::klv_packet_timestamp( packet );
+          m_last_klv_timestamp = std::max( m_last_klv_timestamp, timestamp );
+        }
+
+        m_klv_demuxer.demux_packet( packet );
+      }
+    }
+  }
+
+  void
+  set_default_metadata( kwiver::vital::metadata_sptr md )
   {
     // Add frame number to timestamp
     kwiver::vital::timestamp ts;
-    ts.set_frame( this->frame_number() );
+    ts.set_frame( this->frame_number() + 1 );
+    auto const time_seconds =
+      ( f_pts - f_start_time ) * av_q2d( this->f_video_stream->time_base );
+    ts.set_time_usec( static_cast< uint64_t >( time_seconds * 1000000.0 ) ) ;
     md->set_timestamp( ts );
 
     // Add file name/uri
     md->add< vital::VITAL_META_VIDEO_URI >( video_path );
 
     // Mark whether the frame is a key frame
-    if ( this->f_frame->key_frame > 0 )
+    if( this->f_frame->key_frame > 0 )
     {
       md->add< vital::VITAL_META_VIDEO_KEY_FRAME >( true );
     }
@@ -703,88 +772,72 @@ public:
     {
       md->add< vital::VITAL_META_VIDEO_KEY_FRAME >( false );
     }
+
+    md->add< vital::VITAL_META_IMAGE_WIDTH >( f_frame->width );
+    md->add< vital::VITAL_META_IMAGE_HEIGHT >( f_frame->height );
   }
 
-  kwiver::vital::metadata_vector current_metadata()
+  kwiver::vital::metadata_vector
+  current_metadata()
   {
-    kwiver::vital::metadata_vector retval;
-
-    // Copy the current raw metadata
-    std::deque<uint8_t> md_buffer = this->metadata;
-
-    kwiver::vital::klv_data klv_packet;
-
-    // If we have collected enough of the stream to make a KLV packet
-    while ( klv_pop_next_packet( md_buffer, klv_packet ) )
+    uint64_t frame_timestamp = 0;
+    if( use_misp_timestamps )
     {
-      auto meta = std::make_shared<kwiver::vital::metadata>();
-
-      try
+      auto const it = m_pts_to_misp.find( f_frame->pts );
+      if( it != m_pts_to_misp.end() )
       {
-        converter.convert( klv_packet, *(meta) );
+        frame_timestamp = it->second.timestamp;
       }
-      catch ( kwiver::vital::metadata_exception const& e )
-      {
-        LOG_WARN( this->logger, "Metadata exception: " << e.what() );
-        continue;
-      }
-
-      // If the metadata was even partially decided, then add to the list.
-      if ( ! meta->empty() )
-      {
-        set_default_metadata( meta );
-
-        retval.push_back( meta );
-      } // end valid metadata packet.
-    } // end while
-
-    // if no metadata from the stream, add a basic metadata item
-    if ( retval.empty() )
+    }
+    else
     {
-      auto meta = std::make_shared<kwiver::vital::metadata>();
-      set_default_metadata( meta );
-
-      retval.push_back(meta);
+      frame_timestamp = m_last_klv_timestamp;
     }
 
-    return retval;
+    auto result =
+      klv::klv_to_vital_metadata( m_klv_timeline, frame_timestamp );
+
+    set_default_metadata( result );
+
+    return { result };
   }
 
-  // ==================================================================
-  /*
-  * @brief Loop over all frames to collect metadata
-  */
-  void collect_all_metadata()
+  // --------------------------------------------------------------------------
+
+  ///  @brief Loop over all frames to collect metadata
+  void
+  collect_all_metadata()
   {
     // is stream open?
-    if ( ! this->is_opened() )
+    if( !this->is_opened() )
     {
-      VITAL_THROW( vital::file_not_read_exception, video_path, "Video not open" );
+      VITAL_THROW( vital::file_not_read_exception, video_path,
+                   "Video not open" );
     }
 
-    if ( !collected_all_metadata )
+    if( !collected_all_metadata )
     {
       std::lock_guard< std::mutex > lock( open_mutex );
 
       auto initial_frame_number = this->frame_number();
 
-      if ( !frame_advanced && !end_of_video )
+      if( !frame_advanced && !end_of_video )
       {
         initial_frame_number = 0;
       }
 
       // Add metadata for current frame
-      if ( frame_advanced )
+      if( frame_advanced )
       {
-        this->metadata_map.insert(
-          std::make_pair( this->frame_number(), this->current_metadata() ) );
+        this->metadata_map.emplace(
+            this->frame_number(), this->current_metadata() );
       }
 
       // Advance video stream to end
-      while ( this->advance() )
+      while( this->advance() )
       {
-        this->metadata_map.insert(
-          std::make_pair( this->frame_number(), this->current_metadata() ) );
+        this->metadata_map.emplace(
+            this->frame_number(), this->current_metadata() );
       }
 
       // Close and reopen to reset
@@ -793,37 +846,37 @@ public:
 
       // Advance back to original frame number
       unsigned int frame_num = 0;
-      while ( frame_num < initial_frame_number && this->advance() )
+      while( frame_num < initial_frame_number && this->advance() )
       {
         ++frame_num;
-        this->metadata_map.insert(
-          std::make_pair( this->frame_number(), this->current_metadata() ) );
+        this->metadata_map.emplace(
+            this->frame_number(), this->current_metadata() );
       }
 
       collected_all_metadata = true;
     }
   }
 
+  // --------------------------------------------------------------------------
 
-  // ==================================================================
-  /*
-  * @brief Seek to the end of the video to estimate number of frames
-  */
-  void estimate_num_frames()
+  ///  @brief Seek to the end of the video to estimate number of frames
+  void
+  estimate_num_frames()
   {
     // is stream open?
-    if (!this->is_opened())
+    if( !this->is_opened() )
     {
-      VITAL_THROW(vital::file_not_read_exception, video_path, "Video not open");
+      VITAL_THROW( vital::file_not_read_exception, video_path,
+                   "Video not open" );
     }
 
-    if ( !estimated_num_frames )
+    if( !estimated_num_frames )
     {
-      std::lock_guard< std::mutex > lock(open_mutex);
+      std::lock_guard< std::mutex > lock( open_mutex );
 
       auto initial_frame_number = this->frame_number();
 
-      if (!frame_advanced && !end_of_video)
+      if( !frame_advanced && !end_of_video )
       {
         initial_frame_number = 0;
       }
@@ -833,60 +886,63 @@ public:
       int64_t frame_ts = this->f_video_stream->duration + this->f_start_time;
       do
       {
-        auto seek_rslt = av_seek_frame(this->f_format_context,
-                                       this->f_video_index,
-                                       frame_ts,
-                                       AVSEEK_FLAG_BACKWARD);
-        avcodec_flush_buffers(this->f_video_encoding);
+        m_klv_demuxer.seek( 0 );
 
-        if (seek_rslt < 0)
+        auto seek_rslt = av_seek_frame( this->f_format_context,
+                                        this->f_video_index,
+                                        frame_ts,
+                                        AVSEEK_FLAG_BACKWARD );
+        avcodec_flush_buffers( this->f_video_encoding );
+        is_draining = false;
+
+        if( seek_rslt < 0 )
         {
           break;
         }
 
         advance_successful = this->advance();
 
-        // Continue to make seek request further back until we land at a valid frame
+        // Continue to make seek request further back until we land at a valid
+        // frame
         frame_ts -= this->f_backstep_size * this->stream_time_base_to_frame();
-      } while (!advance_successful);
+      } while( !advance_successful );
 
-      LOG_DEBUG(this->logger, "Seeked to near end frame: " << this->frame_number());
+      LOG_DEBUG( this->logger,
+                 "Seeked to near end frame: " << this->frame_number() );
 
       // Step through the end of the video to find the last valid frame number
       do
       {
         number_of_frames = this->frame_number();
-      }
-      while (this->advance());
+      } while( this->advance() );
       // The number of frames is one greater than the last valid frame number
       ++number_of_frames;
 
-      LOG_DEBUG(this->logger, "Found " << number_of_frames << " video frames");
+      LOG_DEBUG( this->logger,
+                 "Found " << number_of_frames << " video frames" );
 
       // Set this flag so we do not have a count frames next time
       estimated_num_frames = true;
 
       // Return the video to its state before seeking to the end
-      if (initial_frame_number == 0)
+      if( initial_frame_number == 0 )
       {
         // Close and reopen to reset
         this->close();
-        this->open(video_path);
+        this->open( video_path );
       }
       else
       {
-        this->seek(initial_frame_number);
+        this->seek( initial_frame_number );
       }
     }
   }
-
 }; // end of internal class.
 
 // static open interlocking mutex
 std::mutex ffmpeg_video_input::priv::open_mutex;
 
-
-// ==================================================================
+// ----------------------------------------------------------------------------
 ffmpeg_video_input
 ::ffmpeg_video_input()
   : d( new priv() )
@@ -894,19 +950,19 @@ ffmpeg_video_input
   attach_logger( "ffmpeg_video_input" ); // get appropriate logger
   d->logger = this->logger();
 
-  this->set_capability(vital::algo::video_input::HAS_EOV, true);
-  this->set_capability(vital::algo::video_input::HAS_FRAME_NUMBERS, true);
-  this->set_capability(vital::algo::video_input::HAS_FRAME_DATA, true);
-  this->set_capability(vital::algo::video_input::HAS_METADATA, false);
+  this->set_capability( vital::algo::video_input::HAS_EOV, true );
+  this->set_capability( vital::algo::video_input::HAS_FRAME_NUMBERS, true );
+  this->set_capability( vital::algo::video_input::HAS_FRAME_DATA, true );
+  this->set_capability( vital::algo::video_input::HAS_METADATA, false );
 
-  this->set_capability(vital::algo::video_input::HAS_FRAME_TIME, false);
-  this->set_capability(vital::algo::video_input::HAS_ABSOLUTE_FRAME_TIME, false);
-  this->set_capability(vital::algo::video_input::HAS_TIMEOUT, false);
-  this->set_capability(vital::algo::video_input::IS_SEEKABLE, true);
+  this->set_capability( vital::algo::video_input::HAS_FRAME_TIME, false );
+  this->set_capability( vital::algo::video_input::HAS_ABSOLUTE_FRAME_TIME,
+                        false );
+  this->set_capability( vital::algo::video_input::HAS_TIMEOUT, false );
+  this->set_capability( vital::algo::video_input::IS_SEEKABLE, true );
 
   ffmpeg_init();
 }
-
 
 ffmpeg_video_input
 ::~ffmpeg_video_input()
@@ -914,56 +970,79 @@ ffmpeg_video_input
   this->close();
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Get this algorithm's \link vital::config_block configuration block \endlink
 vital::config_block_sptr
 ffmpeg_video_input
 ::get_configuration() const
 {
   // get base config from base class
-  vital::config_block_sptr config = vital::algo::video_input::get_configuration();
+  vital::config_block_sptr config =
+    vital::algo::video_input::get_configuration();
 
-
-  config->set_value("filter_desc", d->filter_desc,
+  config->set_value(
+    "filter_desc", d->filter_desc,
     "A string describing the libavfilter pipeline to apply when reading "
     "the video.  Only filters that operate on each frame independently "
     "will currently work.  The default \"yadif=deint=1\" filter applies "
     "deinterlacing only to frames which are interlaced.  "
-    "See details at https://ffmpeg.org/ffmpeg-filters.html");
+    "See details at https://ffmpeg.org/ffmpeg-filters.html" );
+
+  config->set_value(
+    "sync_metadata", d->sync_metadata,
+    "When set to true will attempt to synchronize the metadata by "
+    "caching metadata packets whose timestamp is greater than the "
+    "current frame's timestamp until a frame is reached with timestamp "
+    "that is equal or greater than the metadata's timestamp." );
+
+  config->set_value(
+    "use_misp_timestamps", d->use_misp_timestamps,
+    "When set to true, will attempt to use correlate KLV packet data to "
+    "frames using the MISP timestamps embedding in the frame packets. This is "
+    "technically the correct way to decode KLV, but the frame timestamps are "
+    "wrongly encoded so often in real-world data that it is turned off by "
+    "default. When turned off, the frame timestamps are emulated by looking "
+    "at the KLV packets near each frame."
+  );
 
   return config;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Set this algorithm's properties via a config block
 void
 ffmpeg_video_input
-::set_configuration(vital::config_block_sptr in_config)
+::set_configuration( vital::config_block_sptr in_config )
 {
-  // Starting with our generated vital::config_block to ensure that assumed values are present
-  // An alternative is to check for key presence before performing a get_value() call.
+  // Starting with our generated vital::config_block to ensure that assumed
+  // values are present
+  // An alternative is to check for key presence before performing a
+  // get_value() call.
 
   vital::config_block_sptr config = this->get_configuration();
-  config->merge_config(in_config);
+  config->merge_config( in_config );
 
-  d->filter_desc = config->get_value<std::string>("filter_desc", d->filter_desc);
+  d->filter_desc = config->get_value< std::string >( "filter_desc",
+                                                     d->filter_desc );
+
+  d->use_misp_timestamps = config->get_value< bool >( "use_misp_timestamps",
+                                                      d->use_misp_timestamps );
+
+  d->sync_metadata = config->get_value< bool >( "sync_metadata",
+                                                d->sync_metadata );
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input
-::check_configuration(vital::config_block_sptr config) const
+::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
 {
-  bool retcode(true); // assume success
+  bool retcode( true ); // assume success
 
   return retcode;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 ffmpeg_video_input
 ::open( std::string video_name )
@@ -974,26 +1053,27 @@ ffmpeg_video_input
   d->video_path = video_name;
 
   {
-    std::lock_guard< std::mutex > lock(d->open_mutex);
+    std::lock_guard< std::mutex > lock( d->open_mutex );
 
-    if (!kwiversys::SystemTools::FileExists(d->video_path))
+    if( !kwiversys::SystemTools::FileExists( d->video_path ) )
     {
       // Throw exception
-      VITAL_THROW( kwiver::vital::file_not_found_exception, video_name, "File not found");
+      VITAL_THROW( kwiver::vital::file_not_found_exception, video_name,
+                   "File not found" );
     }
 
-    if (!d->open(video_name))
+    if( !d->open( video_name ) )
     {
-      VITAL_THROW( kwiver::vital::video_runtime_exception, "Video stream open failed for unknown reasons");
+      VITAL_THROW( kwiver::vital::video_runtime_exception,
+                   "Video stream open failed for unknown reasons" );
     }
-    this->set_capability(vital::algo::video_input::HAS_METADATA,
-                         d->f_data_index >= 0);
+    this->set_capability( vital::algo::video_input::HAS_METADATA,
+                          !d->metadata.empty() );
     d->end_of_video = false;
   }
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 ffmpeg_video_input
 ::close()
@@ -1001,7 +1081,7 @@ ffmpeg_video_input
   d->close();
 
   d->video_path = "";
-  d->frame_advanced = 0;
+  d->frame_advanced = false;
   d->end_of_video = true;
   d->number_of_frames = 0;
   d->collected_all_metadata = false;
@@ -1009,111 +1089,122 @@ ffmpeg_video_input
   d->metadata.clear();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input
 ::next_frame( kwiver::vital::timestamp& ts,
-              uint32_t timeout )
+              VITAL_UNUSED uint32_t timeout )
 {
-  if (!d->is_opened())
+  if( !d->is_opened() )
   {
-    VITAL_THROW( vital::file_not_read_exception, d->video_path, "Video not open");
+    VITAL_THROW( vital::file_not_read_exception, d->video_path,
+                 "Video not open" );
   }
 
   bool ret = d->advance();
 
   d->end_of_video = !ret;
-  if (ret)
+  if( ret )
   {
     ts = this->frame_timestamp();
-  };
+  }
   return ret;
 }
 
-// ------------------------------------------------------------------
-bool ffmpeg_video_input::seek_frame(kwiver::vital::timestamp& ts,
-  kwiver::vital::timestamp::frame_t frame_number,
-  uint32_t timeout)
+// ----------------------------------------------------------------------------
+bool
+ffmpeg_video_input
+::seek_frame( kwiver::vital::timestamp& ts,
+              kwiver::vital::timestamp::frame_t frame_number,
+              uint32_t timeout )
 {
   // Quick return if the stream isn't open.
-  if (!d->is_opened())
+  if( !d->is_opened() )
   {
-    VITAL_THROW( vital::file_not_read_exception, d->video_path, "Video not open");
+    VITAL_THROW( vital::file_not_read_exception, d->video_path,
+                 "Video not open" );
     return false;
   }
-  if (frame_number <= 0)
+  if( frame_number <= 0 )
   {
     return false;
   }
 
-  if (timeout != 0)
+  if( timeout != 0 )
   {
-    LOG_WARN(this->logger(), "Timeout argument is not supported.");
+    LOG_WARN( this->logger(), "Timeout argument is not supported." );
   }
 
   bool ret = d->seek( frame_number );
   d->end_of_video = !ret;
-  if (ret)
+  if( ret )
   {
     ts = this->frame_timestamp();
-  };
+  }
   return ret;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::image_container_sptr
 ffmpeg_video_input
-::frame_image( )
+::frame_image()
 {
   // Quick return if the stream isn't valid
-  if (!d->is_valid())
+  if( !d->is_valid() )
   {
     return nullptr;
   }
 
-  AVCodecContext* enc = d->f_format_context->streams[d->f_video_index]->codec;
+  AVCodecParameters* params =
+    d->f_format_context->streams[ d->f_video_index ]->codecpar;
 
   // If we have not already converted this frame, try to convert it
-  if (!d->current_image_memory && d->f_frame->data[0] != 0)
+  if( !d->current_image_memory && d->f_frame->data[ 0 ] != 0 )
   {
-    int width = enc->width;
-    int height = enc->height;
+    int width = params->width;
+    int height = params->height;
     int depth = 3;
-    vital::image_pixel_traits pixel_trait = vital::image_pixel_traits_of<unsigned char>();
+    vital::image_pixel_traits pixel_trait =
+      vital::image_pixel_traits_of< unsigned char >();
     bool direct_copy;
     AVFrame* frame = d->f_frame;
+    auto filtered_frame_ref =
+      std::unique_ptr< AVFrame, void ( * )( AVFrame* ) >{ nullptr, nullptr };
 
-    if (d->f_filter_src_context && d->f_filter_sink_context)
+    if( d->f_filter_src_context && d->f_filter_sink_context )
     {
-      // We are not yet using the more modern FFMPEG streaming API.
       // Since we are only reading one frame at a time we need to push this
       // frame into the filter pipeline repeatedly until the same frame comes
       // out the other side.
-      int ret = AVERROR(EAGAIN);
-      while (ret == AVERROR(EAGAIN) ||
-        d->f_frame->best_effort_timestamp != d->f_filtered_frame->best_effort_timestamp)
+      do
       {
         // Push the decoded frame into the filter graph
-        if (av_buffersrc_add_frame_flags(d->f_filter_src_context, d->f_frame,
-          AV_BUFFERSRC_FLAG_PUSH) < 0)
+        if( av_buffersrc_add_frame_flags( d->f_filter_src_context, d->f_frame,
+                                          AV_BUFFERSRC_FLAG_KEEP_REF ) < 0 )
         {
-          LOG_ERROR(this->logger(), "Error while feeding the filter graph");
+          LOG_ERROR( this->logger(), "Error while feeding the filter graph" );
           return nullptr;
         }
         // Pull a filtered frame from the filter graph
-        ret = av_buffersink_get_frame(d->f_filter_sink_context, d->f_filtered_frame);
-        if (ret == AVERROR_EOF)
+        filtered_frame_ref = { d->f_filtered_frame, &av_frame_unref };
+
+        auto const ret = av_buffersink_get_frame( d->f_filter_sink_context,
+                                                  d->f_filtered_frame );
+        if( ret == AVERROR_EOF )
         {
           return nullptr;
         }
-      }
+        if( ret == AVERROR( EAGAIN ) )
+        {
+          continue;
+        }
+      } while( d->f_frame->best_effort_timestamp !=
+               d->f_filtered_frame->best_effort_timestamp );
       frame = d->f_filtered_frame;
     }
 
-    AVPixelFormat pix_fmt = static_cast<AVPixelFormat>(frame->format);
-    // If the pixel format is not recognized by then convert the data into RGB_24
-    switch (pix_fmt)
+    AVPixelFormat pix_fmt = static_cast< AVPixelFormat >( frame->format );
+    switch( pix_fmt )
     {
       case AV_PIX_FMT_GRAY8:
       {
@@ -1137,7 +1228,7 @@ ffmpeg_video_input
       case AV_PIX_FMT_MONOBLACK:
       {
         depth = 1;
-        pixel_trait = vital::image_pixel_traits_of<bool>();
+        pixel_trait = vital::image_pixel_traits_of< bool >();
         direct_copy = true;
         break;
       }
@@ -1147,68 +1238,71 @@ ffmpeg_video_input
       }
     }
 
-    if (direct_copy)
+    if( direct_copy )
     {
-      int size = av_image_get_buffer_size(pix_fmt, width, height, 1);
-      d->current_image_memory = vital::image_memory_sptr(new vital::image_memory(size));
+      int size = av_image_get_buffer_size( pix_fmt, width, height, 1 );
+      d->current_image_memory =
+        std::make_shared< vital::image_memory >( size );
 
       AVFrame picture;
-      av_image_fill_arrays(picture.data, picture.linesize,
-                           (uint8_t*)d->current_image_memory->data(),
-                           pix_fmt, width, height, 1);
-      auto framedata = const_cast<const uint8_t **>(frame->data);
-      av_image_copy(picture.data, picture.linesize,
-                    framedata, frame->linesize,
-                    pix_fmt, width, height);
+      av_image_fill_arrays(
+        picture.data, picture.linesize,
+        static_cast< uint8_t* >( d->current_image_memory->data() ),
+        pix_fmt, width, height, 1 );
+
+      auto framedata = const_cast< const uint8_t** >( frame->data );
+      av_image_copy( picture.data, picture.linesize,
+                     framedata, frame->linesize,
+                     pix_fmt, width, height );
     }
     else
+    // If the pixel format is not recognized, convert the data into RGB_24
     {
       int size = width * height * depth;
-      d->current_image_memory = std::make_shared<vital::image_memory>(size);
+      d->current_image_memory =
+        std::make_shared< vital::image_memory >( size );
 
       d->f_software_context = sws_getCachedContext(
         d->f_software_context,
         width, height, pix_fmt,
         width, height, AV_PIX_FMT_RGB24,
         SWS_BILINEAR,
-        NULL, NULL, NULL);
+        NULL, NULL, NULL );
 
-      if (!d->f_software_context)
+      if( !d->f_software_context )
       {
-        LOG_ERROR(this->logger(), "Couldn't create conversion context");
+        LOG_ERROR( this->logger(), "Couldn't create conversion context" );
         return nullptr;
       }
 
       AVFrame rgb_frame;
-      av_image_fill_arrays(rgb_frame.data, rgb_frame.linesize,
-                           (uint8_t*)d->current_image_memory->data(),
-                           AV_PIX_FMT_RGB24, width, height, 1);
+      av_image_fill_arrays(
+        rgb_frame.data, rgb_frame.linesize,
+        static_cast< uint8_t* >( d->current_image_memory->data() ),
+        AV_PIX_FMT_RGB24, width, height, 1 );
 
-      sws_scale(d->f_software_context,
-        frame->data, frame->linesize,
-        0, height,
-        rgb_frame.data, rgb_frame.linesize);
+      sws_scale( d->f_software_context, frame->data, frame->linesize,
+                 0, height, rgb_frame.data, rgb_frame.linesize );
     }
 
     vital::image image(
       d->current_image_memory,
       d->current_image_memory->data(),
       width, height, depth,
-      depth, depth * width, 1
-    );
-    d->current_image = std::make_shared<vital::simple_image_container>(vital::simple_image_container(image));
+      depth, depth * width, 1 );
+    d->current_image =
+      std::make_shared< vital::simple_image_container >( image );
   }
 
   return d->current_image;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::timestamp
 ffmpeg_video_input
 ::frame_timestamp() const
 {
-  if (!this->good())
+  if( !this->good() || d->frame_number() == static_cast< unsigned int >( -1 ) )
   {
     return {};
   }
@@ -1216,13 +1310,12 @@ ffmpeg_video_input
   // We don't always have all components of a timestamp, so start with
   // an invalid TS and add the data we have.
   kwiver::vital::timestamp ts;
-  ts.set_frame(d->frame_number() + d->f_frame_number_offset + 1);
+  ts.set_frame( d->frame_number() + d->f_frame_number_offset + 1 );
 
   return ts;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::metadata_vector
 ffmpeg_video_input
 ::frame_metadata()
@@ -1230,19 +1323,18 @@ ffmpeg_video_input
   return d->current_metadata();
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::metadata_map_sptr
 ffmpeg_video_input
 ::metadata_map()
 {
   d->collect_all_metadata();
 
-  return std::make_shared<kwiver::vital::simple_metadata_map>(d->metadata_map);
+  return std::make_shared< kwiver::vital::simple_metadata_map >(
+    d->metadata_map );
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input
 ::end_of_video() const
@@ -1250,8 +1342,7 @@ ffmpeg_video_input
   return d->end_of_video;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input
 ::good() const
@@ -1259,8 +1350,7 @@ ffmpeg_video_input
   return d->is_valid() && d->frame_advanced;
 }
 
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input
 ::seekable() const
@@ -1268,7 +1358,7 @@ ffmpeg_video_input
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 size_t
 ffmpeg_video_input
 ::num_frames() const
@@ -1278,4 +1368,35 @@ ffmpeg_video_input
   return d->number_of_frames;
 }
 
-} } } // end namespaces
+// ----------------------------------------------------------------------------
+kwiver::vital::video_settings_uptr
+ffmpeg_video_input
+::implementation_settings() const
+{
+  if( !d->is_opened() )
+  {
+    return nullptr;
+  }
+
+  auto const result = new ffmpeg_video_settings{};
+  result->bit_rate = d->f_video_encoding->bit_rate;
+  result->bit_rate_tolerance = d->f_video_encoding->bit_rate_tolerance;
+  result->codec_id = d->f_video_encoding->codec_id;
+  result->frame_rate = d->f_video_stream->avg_frame_rate;
+  result->gop_size = d->f_video_encoding->gop_size;
+  result->height = d->f_video_encoding->height;
+  result->level = d->f_video_encoding->level;
+  result->pixel_format = d->f_video_encoding->pix_fmt;
+  result->profile = d->f_video_encoding->profile;
+  result->sample_aspect_ratio = d->f_video_encoding->sample_aspect_ratio;
+  result->stream_id = d->f_video_stream->id;
+  result->width = d->f_video_encoding->width;
+  return kwiver::vital::video_settings_uptr{ result };
+}
+
+
+} // namespace ffmpeg
+
+} // namespace arrows
+
+} // end namespaces

@@ -1,36 +1,11 @@
-/*ckwg +29
- * Copyright 2016-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include "process_factory.h"
 #include "process_registry_exception.h"
 
+#include <sprokit/pipeline_util/cluster_info.h>
 #include <vital/util/tokenize.h>
 #include <vital/logger/logger.h>
 
@@ -48,7 +23,6 @@ process_factory( const std::string& type,
     .add_attribute( PLUGIN_FACTORY_TYPE, typeid(* this ).name() )
     .add_attribute( PLUGIN_CATEGORY, PROCESS_CATEGORY );
 }
-
 
 // ----------------------------------------------------------------------------
 void
@@ -69,7 +43,6 @@ copy_attributes( sprokit::process_t proc )
   }
 }
 
-
 // ============================================================================
 cpp_process_factory::
 cpp_process_factory( const std::string& type,
@@ -78,11 +51,9 @@ cpp_process_factory( const std::string& type,
   : process_factory( type, itype )
   , m_factory( factory )
 {
-  this->add_attribute( CONCRETE_TYPE, type)
-    .add_attribute( PLUGIN_FACTORY_TYPE, typeid(* this ).name() )
+  this->add_attribute( PLUGIN_FACTORY_TYPE, typeid(* this ).name() )
     .add_attribute( PLUGIN_CATEGORY, PROCESS_CATEGORY );
 }
-
 
 // ------------------------------------------------------------------
 sprokit::process_t
@@ -99,8 +70,35 @@ create_object(kwiver::vital::config_block_sptr const& config)
   return proc;
 }
 
+// ============================================================================
+cluster_process_factory::
+cluster_process_factory( cluster_info_t info )
+  : process_factory( info->type, typeid( sprokit::process ).name() )
+  , m_cluster_info( info )
+{
+  this->add_attribute( PLUGIN_FACTORY_TYPE, typeid(* this ).name() ) // our factory class type
+    .add_attribute( PLUGIN_CATEGORY, CLUSTER_CATEGORY )
+    .add_attribute( PLUGIN_NAME, info->type )
+    .add_attribute( PLUGIN_DESCRIPTION, info->description )
+    ;
+}
 
 // ------------------------------------------------------------------
+sprokit::process_t
+cluster_process_factory::
+create_object(kwiver::vital::config_block_sptr const& config)
+{
+  // Call sprokit factory function. Need to use this factory
+  // function approach to handle clusters transparently.
+  sprokit::process_t proc = m_cluster_info->ctor( config );
+
+  // Copy attributes from factory to process.
+  copy_attributes( proc );
+
+  return proc;
+}
+
+// ============================================================================
 sprokit::process_t
 create_process( const sprokit::process::type_t&         type,
                 const sprokit::process::name_t&         name,
@@ -153,7 +151,6 @@ create_process( const sprokit::process::type_t&         type,
   return proc;
 }
 
-
 // ------------------------------------------------------------------
 void
 mark_process_module_as_loaded( kwiver::vital::plugin_loader& vpl,
@@ -165,7 +162,6 @@ mark_process_module_as_loaded( kwiver::vital::plugin_loader& vpl,
   vpl.mark_module_as_loaded( mod );
 }
 
-
 // ------------------------------------------------------------------
 bool
 is_process_module_loaded( kwiver::vital::plugin_loader& vpl,
@@ -176,7 +172,6 @@ is_process_module_loaded( kwiver::vital::plugin_loader& vpl,
 
   return vpl.is_module_loaded( mod );
 }
-
 
 // ------------------------------------------------------------------
 kwiver::vital::plugin_factory_vector_t const& get_process_list()

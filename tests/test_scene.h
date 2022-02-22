@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2011-2019 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -41,10 +15,12 @@
 
 #include "test_random_point.h"
 
+#include <vital/math_constants.h>
 #include <vital/types/camera_map.h>
 #include <vital/types/camera_perspective.h>
-#include <vital/types/landmark_map.h>
 #include <vital/types/feature_track_set.h>
+#include <vital/types/landmark_map.h>
+#include <vital/types/mesh.h>
 
 namespace kwiver {
 namespace testing {
@@ -71,6 +47,64 @@ cube_corners( double s, const kwiver::vital::vector_3d& c = kwiver::vital::vecto
   return landmark_map_sptr( new simple_landmark_map( landmarks ) );
 }
 
+// construct a cube mesh centered at c with a side length of s
+kwiver::vital::mesh_sptr
+cube_mesh(double s, const kwiver::vital::vector_3d& c = { 0.0, 0.0, 0.0 })
+{
+  using namespace kwiver::vital;
+  s /= 2.0;
+  auto verts = new mesh_vertex_array<3> { {-s, -s, -s},
+                                          {-s, -s,  s},
+                                          {-s,  s, -s},
+                                          {-s,  s,  s},
+                                          { s, -s, -s},
+                                          { s, -s,  s},
+                                          { s,  s, -s},
+                                          { s,  s,  s} };
+  for (auto & vert : *verts)
+  {
+    vert += c;
+  }
+  auto faces = new mesh_regular_face_array<4> { {0, 1, 3, 2},
+                                                {4, 6, 7, 5},
+                                                {5, 7, 3, 1},
+                                                {6, 4, 0, 2},
+                                                {7, 6, 2, 3},
+                                                {1, 0, 4, 5} };
+  return std::make_shared<mesh>(std::unique_ptr<mesh_vertex_array_base>(verts),
+                                std::unique_ptr<mesh_face_array_base>(faces));
+}
+
+// construct a square mesh in XY centered at c with a side length of s
+kwiver::vital::mesh_sptr
+grid_mesh(unsigned width, unsigned height, double scale = 1.0,
+          const kwiver::vital::vector_3d& origin = { 0.0, 0.0, 0.0 })
+{
+  using namespace kwiver::vital;
+  auto verts = new mesh_vertex_array<3>;
+  auto faces = new mesh_regular_face_array<3>;
+  unsigned index = 0;
+  for (unsigned h = 0; h <= height; ++h)
+  {
+    for (unsigned w = 0; w <= width; ++w)
+    {
+      vector_3d vert{ scale * w, scale * h, 0.0 };
+      verts->push_back(origin + vert);
+      if (w > 0 && h > 0)
+      {
+        unsigned prev_x = index - 1;
+        unsigned prev_y = index - width - 1;
+        unsigned prev_xy = prev_y - 1;
+        faces->push_back({index, prev_xy, prev_y});
+        faces->push_back({index, prev_x, prev_xy});
+      }
+      ++index;
+    }
+  }
+
+  return std::make_shared<mesh>(std::unique_ptr<mesh_vertex_array_base>(verts),
+                                std::unique_ptr<mesh_face_array_base>(faces));
+}
 
 // construct map of landmarks will all locations at c
 kwiver::vital::landmark_map_sptr
@@ -86,7 +120,6 @@ init_landmarks( kwiver::vital::landmark_id_t num_lm,
   }
   return landmark_map_sptr( new simple_landmark_map( lm_map ) );
 }
-
 
 // add Gaussian noise to the landmark positions
 kwiver::vital::landmark_map_sptr
@@ -107,23 +140,24 @@ noisy_landmarks( kwiver::vital::landmark_map_sptr  landmarks,
   return landmark_map_sptr( new simple_landmark_map( lm_map ) );
 }
 
-
 // create a camera sequence (elliptical path)
 kwiver::vital::camera_map_sptr
 camera_seq(kwiver::vital::frame_id_t num_cams,
            kwiver::vital::camera_intrinsics_sptr K,
-           double scale = 1.0)
+           double scale = 1.0,
+           double degree_span = 115)
 {
   using namespace kwiver::vital;
   camera_map::map_camera_t cameras;
+  const double angle = degree_span * deg_to_rad;
 
   // create a camera sequence (elliptical path)
   rotation_d R; // identity
   for ( frame_id_t i = 0; i < num_cams; ++i )
   {
     double frac = static_cast< double > ( i ) / num_cams;
-    double x = 4 * std::cos( 2 * frac );
-    double y = 3 * std::sin( 2 * frac );
+    double x = 4 * std::cos( angle * frac );
+    double y = 3 * std::sin( angle * frac );
     simple_camera_perspective* cam =
       new simple_camera_perspective(scale * vector_3d(x,y,2+frac), R, K);
     // look at the origin
@@ -133,17 +167,17 @@ camera_seq(kwiver::vital::frame_id_t num_cams,
   return camera_map_sptr( new simple_camera_map( cameras ) );
 }
 
-
 // create a camera sequence (elliptical path)
 kwiver::vital::camera_map_sptr
 camera_seq(kwiver::vital::frame_id_t num_cams = 20,
            kwiver::vital::simple_camera_intrinsics K =
-               kwiver::vital::simple_camera_intrinsics(1000, kwiver::vital::vector_2d(640, 480)),
-           double scale = 1.0)
+           kwiver::vital::simple_camera_intrinsics(
+             1000, { 640, 480 }, 1.0, 0.0, {}, 1280, 960),
+           double scale = 1.0,
+           double degree_span = 115)
 {
-  return camera_seq(num_cams, K.clone(), scale);
+  return camera_seq(num_cams, K.clone(), scale, degree_span);
 }
-
 
 // create an initial camera sequence with all cameras at the same location
 kwiver::vital::camera_map_sptr
@@ -167,7 +201,6 @@ init_cameras(kwiver::vital::frame_id_t num_cams,
   return camera_map_sptr( new simple_camera_map( cameras ) );
 }
 
-
 // create an initial camera sequence with all cameras at the same location
 kwiver::vital::camera_map_sptr
 init_cameras(kwiver::vital::frame_id_t num_cams = 20,
@@ -176,7 +209,6 @@ init_cameras(kwiver::vital::frame_id_t num_cams = 20,
 {
   return init_cameras(num_cams, K.clone());
 }
-
 
 // add positional and rotational Gaussian noise to cameras
 kwiver::vital::camera_map_sptr
@@ -202,7 +234,6 @@ noisy_cameras( kwiver::vital::camera_map_sptr cameras,
   }
   return camera_map_sptr( new simple_camera_map( cam_map ) );
 }
-
 
 // randomly drop a fraction of the track states
 kwiver::vital::feature_track_set_sptr
@@ -238,7 +269,6 @@ subset_tracks( kwiver::vital::feature_track_set_sptr in_tracks, double keep_frac
   return std::make_shared<feature_track_set>( new_tracks );
 }
 
-
 // add Gaussian noise to track feature locations
 kwiver::vital::feature_track_set_sptr
 noisy_tracks( kwiver::vital::feature_track_set_sptr in_tracks, double stdev = 1.0 )
@@ -267,7 +297,6 @@ noisy_tracks( kwiver::vital::feature_track_set_sptr in_tracks, double stdev = 1.
   }
   return std::make_shared<feature_track_set>( new_tracks );
 }
-
 
 // randomly select a fraction of the track states to make outliers
 // outliers are created by adding random noise with large standard deviation
@@ -314,7 +343,6 @@ add_outliers_to_tracks(kwiver::vital::feature_track_set_sptr in_tracks,
   return std::make_shared<feature_track_set>( new_tracks );
 }
 
-
 // set inlier state on all track states
 void
 reset_inlier_flag( kwiver::vital::feature_track_set_sptr tracks,
@@ -334,8 +362,6 @@ reset_inlier_flag( kwiver::vital::feature_track_set_sptr tracks,
     }
   }
 }
-
-
 
 } // end namespace testing
 } // end namespace kwiver

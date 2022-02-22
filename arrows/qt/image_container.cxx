@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2019 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -58,7 +32,7 @@ public:
 size_t
 depth( QImage::Format format )
 {
-  switch ( format )
+  switch( format )
   {
     case QImage::Format_Mono:
     case QImage::Format_MonoLSB:
@@ -89,8 +63,8 @@ depth( QImage::Format format )
       return 4;
     default:
       VITAL_THROW( kwiver::vital::image_type_mismatch_exception,
-              "depth: unsupported image format " +
-              std::to_string( format ) );
+                   "depth: unsupported image format " +
+                   std::to_string( format ) );
   }
 }
 
@@ -135,13 +109,13 @@ vital_to_qt( kwiver::vital::image const& img, QImage::Format format,
   auto out = QImage{ w, h, format };
 
   // Iterate over scanlines
-  for ( auto const j : iota( h ) )
+  for( auto const j : iota( h ) )
   {
     auto* const inl = in + ( j * img.h_step() );
     auto* const outl = reinterpret_cast< T* >( out.scanLine( j ) );
 
     // Iterate over pixels in scanline
-    for ( auto const i : iota( w ) )
+    for( auto const i : iota( w ) )
     {
       auto* const inp = inl + ( i * img.w_step() );
       *( outl + i ) = get_pixel( inp, pstep );
@@ -168,10 +142,10 @@ qt_to_vital_mono( QImage const& in )
   kwiver::vital::image_of< bool > out{ w, h };
 
   auto* const outp = out.first_pixel();
-  for ( auto const j : iota( in.height() ) )
+  for( auto const j : iota( in.height() ) )
   {
     auto* const outs = outp + ( j * static_cast< ptrdiff_t >( w ) );
-    for ( auto const i : iota( in.width() ) )
+    for( auto const i : iota( in.width() ) )
     {
       outs[ i ] = !!( in.pixel( i, j ) & 0xffffff );
     }
@@ -194,7 +168,7 @@ image_container
 {
   const qt::image_container* qic =
     dynamic_cast< qt::image_container const* >( &container );
-  if ( qic )
+  if( qic )
   {
     this->data_ = qic->data_;
   }
@@ -217,13 +191,13 @@ vital::image
 image_container
 ::qt_to_vital( QImage const& img )
 {
-  if ( img.isNull() )
+  if( img.isNull() )
   {
     return {};
   }
 
   auto const f = img.format();
-  switch ( f )
+  switch( f )
   {
     case QImage::Format_RGB888:
     case QImage::Format_RGBX8888:
@@ -259,7 +233,7 @@ image_container
     case QImage::Format_MonoLSB:
       return ::qt_to_vital_mono( img );
     default:
-      switch ( ::depth( f ) )
+      switch( ::depth( f ) )
       {
         case 1:
           return ::qt_to_vital( img, QImage::Format_Grayscale8 );
@@ -286,23 +260,23 @@ image_container
   constexpr auto MAX_DIM =
     static_cast< size_t >( std::numeric_limits< int >::max() );
 
-  if ( img.width() > MAX_DIM ||
-       img.height() > MAX_DIM )
+  if( img.width() > MAX_DIM ||
+      img.height() > MAX_DIM )
   {
     VITAL_THROW( kwiver::vital::image_exception,
-            "vital_to_qt: input image dimensions "
-            "(width = " + std::to_string( img.width() ) +
-            ", height = " + std::to_string( img.height() ) +
-            ") exceed maximum output dimension (" +
+                 "vital_to_qt: input image dimensions "
+                 "(width = " + std::to_string( img.width() ) +
+                 ", height = " + std::to_string( img.height() ) +
+                 ") exceed maximum output dimension (" +
                  std::to_string( MAX_DIM ) + ")" );
   }
 
   auto const& pt = img.pixel_traits();
-  if ( pt.num_bytes == 1 )
+  if( pt.num_bytes == 1 )
   {
-    if ( pt.type == vital::image_pixel_traits::BOOL )
+    if( pt.type == vital::image_pixel_traits::BOOL )
     {
-      if ( img.depth() != 1 )
+      if( img.depth() != 1 )
       {
         VITAL_THROW( kwiver::vital::image_type_mismatch_exception,
                      "vital_to_qt: unsupported image format "
@@ -316,7 +290,7 @@ image_container
       auto out = QImage{ w, h, QImage::Format_Mono };
 
       // Iterate over scanlines
-      for ( auto const j : iota( h ) )
+      for( auto const j : iota( h ) )
       {
         auto* const inl = in + ( j * img.h_step() );
         auto* const outl = out.scanLine( j );
@@ -325,7 +299,7 @@ image_container
         uint8_t mask = 1 << 7;
 
         // Iterate over pixels in scanline
-        for ( auto const i : iota( w ) )
+        for( auto const i : iota( w ) )
         {
           // "Blend" bit into current byte
           auto* const inp = inl + ( i * img.w_step() );
@@ -333,7 +307,7 @@ image_container
           mask >>= 1;
 
           // When byte is full, write to output image
-          if ( !mask )
+          if( !mask )
           {
             *( outl + ( i / 8 ) ) = bits;
             bits = 0;
@@ -341,7 +315,7 @@ image_container
           }
         }
 
-        if ( mask != 1 << 7 )
+        if( mask != 1 << 7 )
         {
           // Write last bits
           *( outl + ( w / 8 ) ) = bits;
@@ -351,9 +325,9 @@ image_container
       return out;
     }
 
-    if ( pt.type == vital::image_pixel_traits::UNSIGNED )
+    if( pt.type == vital::image_pixel_traits::UNSIGNED )
     {
-      switch ( img.depth() )
+      switch( img.depth() )
       {
         case 1:
           return ::vital_to_qt< uint8_t >(

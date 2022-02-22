@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2017-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -54,6 +28,7 @@
 #include <arrows/ocv/estimate_fundamental_matrix.h>
 #include <arrows/ocv/estimate_homography.h>
 #include <arrows/ocv/estimate_pnp.h>
+#include <arrows/ocv/resection_camera.h>
 #include <arrows/ocv/extract_descriptors_BRIEF.h>
 #include <arrows/ocv/extract_descriptors_DAISY.h>
 #include <arrows/ocv/extract_descriptors_FREAK.h>
@@ -64,6 +39,7 @@
 #include <arrows/ocv/feature_detect_extract_SIFT.h>
 #include <arrows/ocv/feature_detect_extract_SURF.h>
 #include <arrows/ocv/image_io.h>
+#include <arrows/ocv/inpaint.h>
 #include <arrows/ocv/match_features_bruteforce.h>
 #include <arrows/ocv/match_features_flannbased.h>
 #include <arrows/ocv/merge_images.h>
@@ -100,6 +76,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_algorithm< estimate_fundamental_matrix >();
   reg.register_algorithm< estimate_homography >();
   reg.register_algorithm< image_io >();
+  reg.register_algorithm< inpaint >();
   reg.register_algorithm< draw_detected_object_set >();
 
   reg.register_algorithm< detect_features_BRISK >();
@@ -171,6 +148,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_algorithm< merge_images >();
   reg.register_algorithm< track_features_klt >();
   reg.register_algorithm< estimate_pnp >();
+  reg.register_algorithm< resection_camera >();
 
   reg.mark_module_as_loaded();
 }

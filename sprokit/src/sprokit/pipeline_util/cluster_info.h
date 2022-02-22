@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2016-2017 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * @file   cluster_info.h
@@ -41,7 +15,7 @@
 #include "pipe_declaration_types.h"
 #include <sprokit/pipeline/types.h>
 #include <sprokit/pipeline/process_factory.h>
-
+#include <sprokit/pipeline_util/cluster_bakery.h>
 
 namespace sprokit {
 
@@ -57,17 +31,17 @@ class SPROKIT_PIPELINE_UTIL_EXPORT cluster_info
     /**
      * \brief Constructor.
      *
-     * \param type_ The type of the cluster.
-     * \param description_ A description of the cluster.
-     * \param ctor_ A function to create an instance of the cluster.
+     * \param type The type of the cluster.
+     * \param description A description of the cluster.
+     * \param ctor A function to create an instance of the cluster.
      */
-    cluster_info(process::type_t const& type_,
-                 process::description_t const& description_,
-                 process_factory_func_t const& ctor_);
+    cluster_info(process::type_t const& type,
+                 process::description_t const& description,
+                 process_factory_func_t const& ctor );
     /**
      * \brief Destructor.
      */
-    ~cluster_info();
+    ~cluster_info() = default;
 
     /// The type of the cluster.
     process::type_t const type;
@@ -76,11 +50,13 @@ class SPROKIT_PIPELINE_UTIL_EXPORT cluster_info
     process::description_t const description;
 
     /// A factory function to create an instance of the cluster.
-    process_factory_func_t const ctor;
+    sprokit::process_factory_func_t const ctor;
+
+    sprokit::cluster_bakery_sptr m_bakery;
 };
 
 /// A handle to information about a cluster.
-typedef std::shared_ptr<cluster_info> cluster_info_t;
+using cluster_info_t =  std::shared_ptr<cluster_info>;
 
 } // end namespace sprokit
 

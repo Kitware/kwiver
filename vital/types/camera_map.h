@@ -1,37 +1,9 @@
-/*ckwg +29
- * Copyright 2014-2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header file for a map from frame IDs to cameras
- */
+/// \file
+/// \brief Header file for a map from frame IDs to cameras
 
 #ifndef VITAL_CAMERA_MAP_H_
 #define VITAL_CAMERA_MAP_H_
@@ -68,7 +40,6 @@ public:
 /// typedef for a camera shared pointer
 typedef std::shared_ptr< camera_map > camera_map_sptr;
 
-
 /// A concrete camera_map that simply wraps a std::map.
 class simple_camera_map :
   public camera_map
@@ -87,12 +58,10 @@ public:
   /// Return a map from integer IDs to camera shared pointers
   virtual map_camera_t cameras() const { return data_; }
 
-
 protected:
   /// The map from integer IDs to camera shared pointers
   map_camera_t data_;
 };
-
 
 template<class T>
 class camera_map_of_;
@@ -141,10 +110,9 @@ public:
   }
 
   /// Find a camera in the map
-  /**
-  * \param [in] fid the frame id of the camera to return
-  * \return     the camera if found or a null camera if it is not found
-  */
+  ///
+  /// \param [in] fid the frame id of the camera to return
+  /// \return     the camera if found or a null camera if it is not found
   std::shared_ptr<T> find(frame_id_t fid) const
   {
     auto it = data_.find(fid);
@@ -159,23 +127,28 @@ public:
   }
 
   /// Erase a camera from the map
-  /**
-  * \param [in] fid the frame id of the camera to erase
-  */
+  ///
+  /// \param [in] fid the frame id of the camera to erase
   void erase(frame_id_t fid)
   {
     data_.erase(fid);
   }
 
   /// Insert a camera into the map
-  /**
-  * \param [in] fid the frame id of the camera to insert
-  * \param [in] cam the camera to insert
-  */
-  void insert(frame_id_t fid, std::shared_ptr<T> cam)
+  ///
+  /// \param [in] fid the frame id of the camera to insert
+  /// \param [in] cam the camera to insert
+  //@{
+  void insert(frame_id_t fid, std::shared_ptr<T> const& cam)
   {
     data_[fid] = cam;
   }
+
+  void insert(frame_id_t fid, std::shared_ptr<T>&& cam)
+  {
+    data_[fid] = std::move(cam);
+  }
+  //@}
 
   /// Clear the map of all cameras
   void clear()
@@ -184,11 +157,10 @@ public:
   }
 
   /// Set the map from a map of base cameras.
-  /**
-  * Only simple perspective cameras will be added to the map.  All
-  * others are ignored.  The map is emptied before the cameras are added.
-  * \param [in] base_cams the cams to add
-  */
+  ///
+  /// Only simple perspective cameras will be added to the map.  All
+  /// others are ignored.  The map is emptied before the cameras are added.
+  /// \param [in] base_cams the cams to add
   void set_from_base_cams(camera_map_sptr base_cams)
   {
     auto base_cams_map = base_cams->cameras();
@@ -196,11 +168,10 @@ public:
   }
 
   /// Set the map from a map of base cameras.
-  /**
-  * Only simple perspective cameras will be added to the map.  All
-  * others are ignored.
-  * \param [in] base_cams_map the map of cams to add
-  */
+  ///
+  /// Only simple perspective cameras will be added to the map.  All
+  /// others are ignored.
+  /// \param [in] base_cams_map the map of cams to add
   void set_from_base_camera_map(const camera_map::map_camera_t &base_cams_map)
   {
     clear();

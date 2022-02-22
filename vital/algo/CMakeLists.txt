@@ -7,7 +7,6 @@
 # These headers are installed
 #
 set( public_headers
-
   activity_detector.h
   algorithm.h
   algorithm_factory.h
@@ -49,6 +48,8 @@ set( public_headers
   integrate_depth_maps.h
   interpolate_track.h
   keyframe_selection.h
+  metadata_filter.h
+  metadata_map_io.h
   match_descriptor_sets.h
   match_features.h
   merge_images.h
@@ -56,6 +57,7 @@ set( public_headers
   read_object_track_set.h
   read_track_descriptor_set.h
   refine_detections.h
+  resection_camera.h
   split_image.h
   track_features.h
   train_detector.h
@@ -64,12 +66,12 @@ set( public_headers
   uuid_factory.h
   uv_unwrap_mesh.h
   video_input.h
+  video_output.h
   write_object_track_set.h
   write_track_descriptor_set.h
   )
 
 set( sources
-
   activity_detector.cxx
   algorithm.cxx
   algorithm_factory.cxx
@@ -111,6 +113,8 @@ set( sources
   integrate_depth_maps.cxx
   interpolate_track.cxx
   keyframe_selection.cxx
+  metadata_filter.cxx
+  metadata_map_io.cxx
   match_descriptor_sets.cxx
   match_features.cxx
   merge_images.cxx
@@ -118,6 +122,7 @@ set( sources
   read_object_track_set.cxx
   read_track_descriptor_set.cxx
   refine_detections.cxx
+  resection_camera.cxx
   split_image.cxx
   track_features.cxx
   train_detector.cxx
@@ -126,6 +131,7 @@ set( sources
   uuid_factory.cxx
   uv_unwrap_mesh.cxx
   video_input.cxx
+  video_output.cxx
   write_object_track_set.cxx
   write_track_descriptor_set.cxx
 )

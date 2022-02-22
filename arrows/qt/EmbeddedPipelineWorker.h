@@ -1,32 +1,6 @@
-/*ckwg +29
- * Copyright 2018 by Kitware, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- *  * Neither name of Kitware, Inc. nor the names of any contributors may be used
- *    to endorse or promote products derived from this software without specific
- *    prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /**
  * \file
@@ -82,6 +56,7 @@ public:
     RequiresOutput = 1 << 1,
     RequiresInputAndOutput = RequiresInput | RequiresOutput,
   };
+
   Q_DECLARE_FLAGS( RequiredEndcaps, RequiredEndcap )
 
   EmbeddedPipelineWorker( RequiredEndcaps = RequiresInputAndOutput,
@@ -98,6 +73,13 @@ public:
   /// \return \c true if the pipeline was successfully created,
   ///         otherwise \c false.
   virtual bool initialize( QString const& pipelineFile );
+
+signals:
+  /// Signal when the pipeline is finished.
+  ///
+  /// This signal is emitted when the pipeline is finished; that is, when the
+  /// output endcap has received an end-of-input notification.
+  void finished();
 
 public slots:
   /// Execute the pipeline.
@@ -158,6 +140,10 @@ protected:
   /// pipeline endcap, so that users may act on the output produced by the
   /// pipeline. As the default implementation does nothing, most users will
   /// want to override this method.
+  ///
+  /// Note that this does \em not receive the end-of-input notification. Users
+  /// that need to handle termination of output processing should connect to
+  /// finished().
   ///
   /// This method executes on the pipeline worker thread.
   virtual void processOutput(

@@ -4,9 +4,7 @@
 
 include( CMakeDependentOption )
 
-kwiver_check_compiler_flag( -std=c++11 -std=c++0x )
 kwiver_check_compiler_flag( -pthread )
-kwiver_check_compiler_flag( -fvisibility=hidden )
 kwiver_check_compiler_flag( -Wall )
 kwiver_check_compiler_flag( -Werror=return-type )
 kwiver_check_compiler_flag( -Werror=non-virtual-dtor )
@@ -16,6 +14,8 @@ kwiver_check_compiler_flag( -Werror=reorder )
 kwiver_check_compiler_flag( -Werror=overloaded-virtual )
 kwiver_check_compiler_flag( -Werror=cast-qual )
 kwiver_check_compiler_flag( -Werror=vla )
+kwiver_check_compiler_flag( -Wunused-parameter )
+kwiver_check_compiler_flag( -Wshadow=local )
 
 # to slience this warning
 kwiver_check_compiler_flag( -Wno-unknown-pragmas )
@@ -54,8 +54,6 @@ if (KWIVER_CPP_EXTRA)
 
   # TODO: Python triggers warnings with this
   kwiver_check_compiler_flag(-Wold-style-cast)
-  # Variable naming warnings
-  kwiver_check_compiler_flag(-Wshadow)
   # Exception warnings
   kwiver_check_compiler_flag(-Wnoexcept)
   # Miscellaneous warnings
@@ -65,6 +63,7 @@ if (KWIVER_CPP_EXTRA)
   kwiver_check_compiler_flag(-Wdocumentation)
   kwiver_check_compiler_flag(-Wundef)
   kwiver_check_compiler_flag(-Wunused-macros)
+  kwiver_check_compiler_flag( -Wshadow )
 endif()
 
 OPTION(KWIVER_CPP_NITPICK "Generate warnings about nitpicky things" OFF)
@@ -109,12 +108,13 @@ endif ()
 ## only in debug mode/config
 OPTION(KWIVER_CPP_COVERAGE "Build with coverage testing" OFF)
 mark_as_advanced(KWIVER_CPP_COVERAGE)
-if (KWIVER_CPP_COVERAGE   AND   CMAKE_BUILD_TYPE EQUAL "DEBUG")
+if (KWIVER_CPP_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
   kwiver_check_compiler_flag(-O0)
   kwiver_check_compiler_flag(-pg)
   kwiver_check_compiler_flag(-ftest-coverage)
-  # It seems as though the flag isn't detected alone.
-  kwiver_check_compiler_flag(-fprofile-arcs)
+  # -fprofile-arcs doesn't work with the cmake compiler flag check macro
+  add_compile_options(-fprofile-arcs)
+  add_link_options(-lgcov --coverage)
 endif ()
 
 # GCC Flag used for stripping binaries of any unused symbols

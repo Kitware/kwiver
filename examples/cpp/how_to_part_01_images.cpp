@@ -1,32 +1,6 @@
-/*ckwg +29
-* Copyright 2017-2018 by Kitware, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*  * Redistributions of source code must retain the above copyright notice,
-*    this list of conditions and the following disclaimer.
-*
-*  * Redistributions in binary form must reproduce the above copyright notice,
-*    this list of conditions and the following disclaimer in the documentation
-*    and/or other materials provided with the distribution.
-*
-*  * Neither name of Kitware, Inc. nor the names of any contributors may be used
-*    to endorse or promote products derived from this software without specific
-*    prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-* ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
-* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include "vital/types/image.h"
 #include "vital/types/image_container.h"
@@ -103,7 +77,7 @@ void how_to_part_01_images()
   cv::imshow("Image loaded by OpenCV", mat);                     // Show our image inside it.
   cv::waitKey(5);
   kwiversys::SystemTools::Delay(2000);                                                   // Wait for 2s
-  cvDestroyWindow("Image loaded by OpenCV");
+  cv::destroyWindow("Image loaded by OpenCV");
 
   // We can do the same, even if the image was originally loaded with VXL
   mat = kwiver::arrows::ocv::image_container::vital_to_ocv(vxl_img->get_image(), kwiver::arrows::ocv::image_container::RGB_COLOR);
@@ -111,7 +85,7 @@ void how_to_part_01_images()
   cv::imshow("Image loaded by VXL", mat);                     // Show our image inside it.
   cv::waitKey(5);
   kwiversys::SystemTools::Delay(2000);                                                // Wait for 2s
-  cvDestroyWindow("Image loaded by VXL");
+  cv::destroyWindow("Image loaded by VXL");
 
   //////////////////
   // Image Filter //
@@ -136,7 +110,7 @@ void how_to_part_01_images()
     cv::imshow("OpenCV Split Image", mat);                     // Show our image inside it.
     cv::waitKey(5);
     kwiversys::SystemTools::Delay(2000);                                               // Wait for 2s
-    cvDestroyWindow("OpenCV Split Image");
+    cv::destroyWindow("OpenCV Split Image");
   }
 
   std::vector<kwiver::vital::image_container_sptr> vxl_imgs = ocv_split->split(ocv_img);
@@ -147,7 +121,7 @@ void how_to_part_01_images()
     cv::imshow("VXL Split Image", mat);                     // Show our image inside it.
     cv::waitKey(5);
     kwiversys::SystemTools::Delay(2000);                                            // Wait for 2s
-    cvDestroyWindow("VXL Split Image");
+    cv::destroyWindow("VXL Split Image");
   }
 
 }
