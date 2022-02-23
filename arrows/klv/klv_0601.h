@@ -573,6 +573,108 @@ private:
 };
 
 // ----------------------------------------------------------------------------
+/// Weapon/Store state ( General Status )
+enum KWIVER_ALGO_KLV_EXPORT klv_0601_weapons_general_status
+{
+  KLV_0601_WEAPONS_GENERAL_STATUS_OFF,
+  KLV_0601_WEAPONS_GENERAL_STATUS_INITIALIZATION,
+  KLV_0601_WEAPONS_GENERAL_STATUS_DEGRADED,
+  KLV_0601_WEAPONS_GENERAL_STATUS_ALL_UP_ROUND,
+  KLV_0601_WEAPONS_GENERAL_STATUS_LAUNCH,
+  KLV_0601_WEAPONS_GENERAL_STATUS_FREE_FLIGHT,
+  KLV_0601_WEAPONS_GENERAL_STATUS_ABORT,
+  KLV_0601_WEAPONS_GENERAL_STATUS_MISS_FIRE,
+  KLV_0601_WEAPONS_GENERAL_STATUS_HANG_FIRE,
+  KLV_0601_WEAPONS_GENERAL_STATUS_JETTISONED,
+  KLV_0601_WEAPONS_GENERAL_STATUS_STEPPED_OVER,
+  KLV_0601_WEAPONS_GENERAL_STATUS_NO_STATUS,
+  KLV_0601_WEAPONS_GENERAL_STATUS_ENUM_END,
+};
+
+// ----------------------------------------------------------------------------
+/// Interprets data as a weapons store state
+using klv_0601_weapons_general_status_format =
+  klv_enum_format< klv_0601_weapons_general_status >;
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_weapons_general_status value );
+
+// ----------------------------------------------------------------------------
+/// A set of bit values to report the status of a weapon before it’s launched
+enum KWIVER_ALGO_KLV_EXPORT klv_0601_weapon_engagement_status_bits
+{
+  // 0 = fuse functions not set, 1 = fuse functions set
+  KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_FUSE_ENABLED,
+  // 0 = laser functions not set, 1 = laser functions set
+  KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_LASER_ENABLED,
+  // 0 = target functions not set, 1 = target functions set
+  KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_TARGET_ENABLED,
+  // 0 = master arm not set, 1 = master arm set
+  KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_WEAPON_ARMED,
+  KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_ENUM_END,
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_weapon_engagement_status_bits value );
+
+// ----------------------------------------------------------------------------
+/// List of weapon stores and status
+struct klv_0601_weapons_store
+{
+  uint16_t station_id;
+  uint16_t hardpoint_id;
+  uint16_t carriage_id;
+  uint16_t store_id;
+  klv_0601_weapons_general_status general_status;
+  uint8_t engagement_status;
+  std::string weapon_type;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_weapons_store const& value );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_weapons_store )
+
+// ---------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os,
+            std::vector< klv_0601_weapons_store > const& value );
+
+// ---------------------------------------------------------------------------
+/// Interprets data as a weapons record
+class KWIVER_ALGO_KLV_EXPORT klv_0601_weapons_store_format
+  : public klv_data_format_< std::vector< klv_0601_weapons_store > >
+{
+public:
+  klv_0601_weapons_store_format();
+
+  std::string
+  description() const override;
+
+private:
+  std::vector< klv_0601_weapons_store >
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( std::vector< klv_0601_weapons_store > const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_0601_weapons_store const& value ) const;
+  size_t
+  length_of_typed( std::vector< klv_0601_weapons_store > const& value,
+                   size_t length_hint ) const override;
+};
+
+// ----------------------------------------------------------------------------
 /// Interprets data as a MISB ST0601 local set.
 class KWIVER_ALGO_KLV_EXPORT klv_0601_local_set_format
   : public klv_local_set_format

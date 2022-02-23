@@ -209,11 +209,25 @@ auto const expected_result = klv_local_set{
       0x34, 0x35, 0x36 } } },
   { KLV_0601_ACTIVE_PAYLOADS,                  klv_blob{ { 0x0B } } },
   { KLV_0601_WEAPONS_STORES,
-    klv_blob{ {
-      0x0E, 0x01, 0x01, 0x01, 0x03, 0x82, 0x03, 0x07, 0x48, 0x61, 0x72, 0x70,
-      0x6F, 0x6F, 0x6E, 0x0F, 0x01, 0x01, 0x02, 0x02, 0x9E, 0x04, 0x08, 0x48,
-      0x65, 0x6C, 0x6C, 0x66, 0x69, 0x72, 0x65, 0x0C, 0x01, 0x02, 0x01, 0x01,
-      0x03, 0x06, 0x47, 0x42, 0x55, 0x2D, 0x31, 0x35 } } },
+    std::vector< klv_0601_weapons_store >{
+      { 1, 1, 1, 3,
+        KLV_0601_WEAPONS_GENERAL_STATUS_ALL_UP_ROUND,
+        uint8_t{ 1 << KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_FUSE_ENABLED },
+        "Harpoon" },
+      { 1, 1, 2, 2,
+        KLV_0601_WEAPONS_GENERAL_STATUS_LAUNCH,
+        uint8_t{
+          1 << KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_FUSE_ENABLED |
+          1 << KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_LASER_ENABLED |
+          1 << KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_TARGET_ENABLED |
+          1 << KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_WEAPON_ARMED },
+        "Hellfire" },
+      { 1, 2, 1, 1,
+        KLV_0601_WEAPONS_GENERAL_STATUS_ALL_UP_ROUND,
+        uint8_t{ 0 },
+        "GBU-15" }
+    }
+  },
   { KLV_0601_WAYPOINT_LIST,
     klv_blob{ {
       0x0F, 0x00, 0x00, 0x01, 0x03, 0x40, 0x71, 0xD8, 0x94, 0x19, 0xBD, 0xBF,

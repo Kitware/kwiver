@@ -457,6 +457,8 @@ KLV_INSTANTIATE( klv_0601_platform_status );
 KLV_INSTANTIATE( klv_0601_sensor_control_mode );
 KLV_INSTANTIATE( klv_0601_sensor_fov_name );
 KLV_INSTANTIATE( klv_0601_view_domain );
+KLV_INSTANTIATE( klv_0601_weapons_general_status );
+KLV_INSTANTIATE( klv_0601_weapons_store );
 KLV_INSTANTIATE( klv_0806_aoi_type );
 KLV_INSTANTIATE( klv_0806_user_defined_data );
 KLV_INSTANTIATE( klv_0806_user_defined_data_type );
@@ -490,6 +492,7 @@ KLV_INSTANTIATE( klv_universal_set );
 KLV_INSTANTIATE( klv_uuid );
 KLV_INSTANTIATE( std::string );
 KLV_INSTANTIATE( std::vector< klv_packet > );
+KLV_INSTANTIATE( std::vector< klv_0601_weapons_store > );
 KLV_INSTANTIATE( uint64_t );
 
 } // namespace klv

@@ -862,6 +862,8 @@ KLV_INSTANTIATE( klv_0601_country_codes );
 KLV_INSTANTIATE( klv_0601_frame_rate );
 KLV_INSTANTIATE( klv_0601_location_dlp );
 KLV_INSTANTIATE( klv_0601_view_domain );
+KLV_INSTANTIATE( klv_0601_weapons_general_status );
+KLV_INSTANTIATE( klv_0601_weapons_store );
 KLV_INSTANTIATE( klv_0806_user_defined_data );
 KLV_INSTANTIATE( klv_0806_user_defined_data_type_id );
 KLV_INSTANTIATE( klv_0903_algorithm_series );
@@ -888,6 +890,7 @@ KLV_INSTANTIATE( klv_uint_series );
 KLV_INSTANTIATE( klv_universal_set );
 KLV_INSTANTIATE( klv_uuid );
 KLV_INSTANTIATE( std::string );
+KLV_INSTANTIATE( std::vector< klv_0601_weapons_store > );
 KLV_INSTANTIATE( uint64_t );
 
 #define KLV_INSTANTIATE_ENUM( T ) \

@@ -950,7 +950,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_WEAPONS_STORES ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_weapons_store_format >(),
       "Weapons Stores",
       "List of weapon stores and statuses.",
       { 0, 1 } },
@@ -2019,6 +2019,290 @@ klv_0601_view_domain_format
          length_of_elevation +
          length_of_length_of_roll +
          length_of_roll;
+}
+
+// ----------------------------------------------------------------------------
+/// Weapon/Store state ( General Status )
+std::ostream&
+operator<<( std::ostream& os, klv_0601_weapons_general_status value )
+{
+  static std::string strings[ KLV_0601_WEAPONS_GENERAL_STATUS_ENUM_END + 1 ] =
+  {
+    "Off",
+    "Initialization",
+    "Ready/Degraded",
+    "Ready/All Up Round",
+    "Launch",
+    "Free Flight",
+    "Abort",
+    "Miss Fire",
+    "Hang Fire",
+    "Jettisoned",
+    "Stepped Over",
+    "No Status Available",
+    "Unknown Weapons Store State" };
+
+  os << strings[ std::min( value, KLV_0601_WEAPONS_GENERAL_STATUS_ENUM_END ) ];
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+/// A set of bit values to report the status of a weapon before it’s launched
+std::ostream&
+operator<<( std::ostream& os, klv_0601_weapon_engagement_status_bits value )
+{
+  static std::string strings[ KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_ENUM_END +
+                              1 ] = {
+    "Fuze Enabled",
+    "Laser Enabled",
+    "Target Enabled",
+    "Weapon Armed",
+    "Unknown Engagement Status Bit" };
+
+  os << strings[ std::min( value,
+                           KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_ENUM_END ) ];
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+/// List of weapon stores and status
+std::ostream&
+operator<<( std::ostream& os, klv_0601_weapons_store const& value )
+{
+  os << "{ "
+     << "station ID: "
+     << value.station_id
+     << ", "
+     << "hardpoint ID: "
+     << value.hardpoint_id
+     << ", "
+     << "carriage ID: "
+     << value.carriage_id
+     << ", "
+     << "store ID: "
+     << value.store_id
+     << ", "
+     << "status: "
+     << " { "
+     << "general status: { "
+     << value.general_status
+     << " }, "
+     << "engagement status: { ";
+  for( int i = 0; i < 4 ; ++i )
+  {
+    if( value.engagement_status & ( 1 << i ) )
+    {
+      os << static_cast< klv_0601_weapon_engagement_status_bits >( i );
+      if( value.engagement_status >> ( i + 1 ) )
+      {
+        os << ", ";
+      }
+    }
+  }
+  os << " } }"
+     << ", "
+     << "weapon type: "
+     << value.weapon_type
+     << " }";
+
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_weapons_store,
+  &klv_0601_weapons_store::station_id,
+  &klv_0601_weapons_store::hardpoint_id,
+  &klv_0601_weapons_store::carriage_id,
+  &klv_0601_weapons_store::store_id,
+  &klv_0601_weapons_store::general_status,
+  &klv_0601_weapons_store::engagement_status,
+  &klv_0601_weapons_store::weapon_type
+)
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os,
+            std::vector< klv_0601_weapons_store > const& value )
+{
+  os << "{ ";
+  for( klv_0601_weapons_store const& item : value )
+  {
+    os << item;
+    if( !( &item == &value.back() ) )
+    {
+      os << ", ";
+    }
+  }
+  os << " }";
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_weapons_store_format
+::klv_0601_weapons_store_format()
+  : klv_data_format_<  std::vector< klv_0601_weapons_store > >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_weapons_store_format
+::description() const
+{
+  return "weapons store pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+std::vector< klv_0601_weapons_store >
+klv_0601_weapons_store_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  std::vector< klv_0601_weapons_store > result = {};
+  auto const begin = data;
+  auto const remaining_length = [ & ]() -> size_t {
+                            return length - std::distance( begin, data );
+                          };
+
+  while( remaining_length() )
+  {
+    // Read length of weapons record
+    auto const length_of_weapons_record =
+      klv_read_ber< size_t >( data, remaining_length() );
+
+    if( length_of_weapons_record <= remaining_length() )
+    {
+      klv_0601_weapons_store item = {};
+
+      // Read weapon location
+      item.station_id =
+        klv_read_ber_oid< uint16_t >( data, remaining_length() );
+      item.hardpoint_id =
+        klv_read_ber_oid< uint16_t >( data, remaining_length() );
+      item.carriage_id =
+        klv_read_ber_oid< uint16_t >( data, remaining_length() );
+      item.store_id =
+        klv_read_ber_oid< uint16_t >( data, remaining_length() );
+
+      // Read weapons status
+      // Sets status = 0 0 engagement-status general-status
+      auto status =
+        klv_read_ber_oid< uint16_t >( data, remaining_length() );
+      // General status = least significant 8 bits
+      item.general_status =
+        static_cast< klv_0601_weapons_general_status >( status & 0xFF );
+      // Engagement status = next 4 bits
+      item.engagement_status = ( status >> 8 ) & 0x0F;
+
+      // Read weapons type
+      auto const length_of_weapon_type =
+        klv_read_ber< size_t >( data, remaining_length() );
+      item.weapon_type =
+        klv_read_string( data, length_of_weapon_type );
+
+      // Append to list
+      result.emplace_back( item );
+    }
+    else
+    {
+      VITAL_THROW( kwiver::vital::metadata_exception,
+                   "buffer is too small to complete reading weapons stores" );
+    }
+  }
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_weapons_store_format
+::write_typed( std::vector< klv_0601_weapons_store > const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const begin = data;
+  auto const remaining_length = [ & ]() -> size_t {
+                            return length - std::distance( begin, data );
+                          };
+
+  for( klv_0601_weapons_store const& item : value )
+  {
+    // Write size
+    size_t const length_of_weapons_record = length_of_typed( item );
+
+    if( length_of_weapons_record <= remaining_length() )
+    {
+      klv_write_ber( length_of_weapons_record, data, remaining_length() );
+
+      // Write weapon location
+      klv_write_ber_oid( item.station_id, data, remaining_length() );
+      klv_write_ber_oid( item.hardpoint_id, data, remaining_length() );
+      klv_write_ber_oid( item.carriage_id, data, remaining_length() );
+      klv_write_ber_oid( item.store_id, data, remaining_length() );
+
+      // Write weapons status
+      // When the low order 7 bits of the MSB are zero, the MSB is eliminated
+      uint16_t status = ( item.engagement_status << 8 ) + item.general_status;
+      klv_write_ber_oid( status, data, remaining_length() );
+
+      // Write weapons type
+      size_t const length_of_weapon_type =
+        klv_string_length( item.weapon_type );
+      klv_write_ber< size_t >( length_of_weapon_type, data,
+                               remaining_length() );
+      klv_write_string( item.weapon_type, data, remaining_length() );
+    }
+    else
+    {
+      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+                   "writing weapons store overflows buffer" );
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_weapons_store_format
+::length_of_typed( klv_0601_weapons_store const& item ) const
+{
+  // Length of weapon location
+  size_t const length_of_weapon_location =
+    klv_ber_oid_length( item.station_id ) +
+    klv_ber_oid_length( item.hardpoint_id ) +
+    klv_ber_oid_length( item.carriage_id ) +
+    klv_ber_oid_length( item.store_id );
+
+  // Length of weapon status
+  uint16_t status = ( item.engagement_status << 8 ) + item.general_status;
+  size_t const length_of_status = klv_ber_oid_length( status );
+
+  // Length of weapon type
+  size_t const length_of_weapon_type =
+    klv_string_length( item.weapon_type );
+  size_t const length_of_length_of_weapon_type =
+    klv_ber_length( length_of_weapon_type );
+
+  // Total length for record
+  return ( length_of_weapon_location +
+           length_of_status +
+           length_of_weapon_type +
+           length_of_length_of_weapon_type );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_weapons_store_format
+::length_of_typed( std::vector< klv_0601_weapons_store > const& value,
+                   VITAL_UNUSED size_t length_hint ) const
+{
+  size_t total_length = 0;
+  for( klv_0601_weapons_store const item : value )
+  {
+    size_t const length_of_weapons_record = length_of_typed( item );
+    size_t const length_of_length_of_weapons_record =
+      klv_ber_length( length_of_weapons_record );
+    total_length += length_of_length_of_weapons_record +
+                    length_of_weapons_record;
+  }
+  return total_length;
 }
 
 // ----------------------------------------------------------------------------
