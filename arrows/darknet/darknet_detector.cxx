@@ -21,6 +21,7 @@
 #include <sstream>
 #include <exception>
 #include <limits>
+#include <fstream>
 
 #include "darknet/yolo_v2_class.hpp"
 
