@@ -14,7 +14,7 @@ set( sources
   darknet_trainer.cxx )
 
 set( darknet_linked_libs
-  darknet
+  Darknet::dark
   kwiversys
   kwiver_algo_ocv
   ${OpenCV_LIBS} )
