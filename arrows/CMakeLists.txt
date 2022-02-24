@@ -91,6 +91,11 @@ if ( KWIVER_ENABLE_GDAL )
   add_subdirectory( gdal )
 endif()
 
+# if PDAL is enabled
+if ( KWIVER_ENABLE_PDAL )
+  add_subdirectory( pdal )
+endif()
+
 # if uuid is enabled
 if( KWIVER_ENABLE_UUID )
   add_subdirectory( uuid )
