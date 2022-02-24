@@ -76,7 +76,7 @@ pointcloud_io::save_(vital::path_t const& filename,
 
   ::pdal::Options options;
   options.add("filename", filename);
-  options.add("system_id", "TeleSculptor");
+  options.add("system_id", "KWIVER");
   options.add("offset_x", "auto");
   options.add("offset_y", "auto");
   options.add("offset_z", "auto");
@@ -141,7 +141,7 @@ pointcloud_io::save_(vital::path_t const& filename,
 #else
 
   throw vital::file_write_exception(filename,
-                                    "TeleSculptor was not compiled with PDAL, "
+                                    "KWIVER was not compiled with PDAL, "
                                     "cannot write LAS.");
 #endif
 }
