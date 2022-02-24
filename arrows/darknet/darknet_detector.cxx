@@ -23,7 +23,8 @@
 #include <limits>
 #include <fstream>
 
-#include "darknet/yolo_v2_class.hpp"
+// Using DarknetConfig.cmake provides the exact directory to the header
+#include "yolo_v2_class.hpp"
 
 namespace kwiver {
 namespace arrows {
