@@ -141,7 +141,13 @@ public:
 
   size_t remaining() const
   {
-    return m_length - std::distance( m_begin, m_it );
+    auto const distance = std::distance( m_begin, m_it );
+    if( distance > m_length )
+    {
+      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+                   "read or written past end of data buffer" );
+    }
+    return m_length - distance;
   }
 
 private:
