@@ -65,9 +65,30 @@ bool check_config(kv::config_block_sptr config)
     validate_required_input_file("video_source", *config, main_logger)
     && config_valid;
 
-  config_valid =
-    validate_required_input_file("input_geo_origin_filename", *config, main_logger)
-    && config_valid;
+  if (config->has_value("output_mesh"))
+  {
+    std::string output_mesh_ =
+      config->get_value<std::string>("output_mesh");
+    std::string extension = ST::GetFilenameLastExtension( output_mesh_ );
+    if (extension == ".las")
+    {
+      config_valid =
+        validate_required_input_file("input_geo_origin_filename", *config,
+                                     main_logger) && config_valid;
+    }
+    else
+    {
+      config_valid =
+        validate_optional_input_file("input_geo_origin_filename", *config,
+                                     main_logger) && config_valid;
+    }
+  }
+  else
+  {
+    config_valid =
+        validate_optional_input_file("input_geo_origin_filename", *config,
+                                     main_logger) && config_valid;
+  }
 
   if (!kv::algo::video_input::check_nested_algo_configuration("video_reader", config))
   {

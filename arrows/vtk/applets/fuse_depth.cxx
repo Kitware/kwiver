@@ -83,10 +83,6 @@ bool check_config(kv::config_block_sptr config)
                                  main_logger) && config_valid;
 
   config_valid =
-    validate_required_input_file("input_geo_origin_filename", *config,
-                                 main_logger) && config_valid;
-
-  config_valid =
     validate_required_input_dir("input_depths_directory", *config,
                                  main_logger) && config_valid;
 
@@ -105,6 +101,24 @@ bool check_config(kv::config_block_sptr config)
       KWIVER_CONFIG_FAIL(
         "The output_mesh_file must have a .vtp, .ply, .obj, or .las extension" );
     }
+    if (extension == ".las")
+    {
+      config_valid =
+        validate_required_input_file("input_geo_origin_filename", *config,
+                                     main_logger) && config_valid;
+    }
+    else
+    {
+      config_valid =
+        validate_optional_input_file("input_geo_origin_filename", *config,
+                                     main_logger) && config_valid;
+    }
+  }
+  else
+  {
+    config_valid =
+        validate_optional_input_file("input_geo_origin_filename", *config,
+                                     main_logger) && config_valid;
   }
 
   if ( (!config->has_value("output_mesh_file") ||
