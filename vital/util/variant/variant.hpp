@@ -213,7 +213,7 @@ namespace mpark = kwiver::vital;
 
 #include "config.hpp"
 #include "lib.hpp"
-#include "../in_place.hpp"
+#include "in_place.hpp"
 
 namespace kwiver {
 namespace vital{
