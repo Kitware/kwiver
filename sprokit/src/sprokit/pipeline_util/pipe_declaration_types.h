@@ -7,7 +7,7 @@
 
 #include <vital/config/config_block.h>
 #include <vital/util/source_location.h>
-#include <vital/internal/variant/variant.hpp>
+#include <vital/util/variant/variant.hpp>
 
 #include <sprokit/pipeline/process.h>
 
