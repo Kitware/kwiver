@@ -2482,7 +2482,7 @@ std::string
 klv_0601_local_set_format
 ::description() const
 {
-  return "ST 0601 local set" + length_description();
+  return "UAS datalink local set of " + length_description();
 }
 
 // ----------------------------------------------------------------------------

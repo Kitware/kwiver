@@ -51,7 +51,7 @@ operator<<( std::ostream& os, klv_1010_sdcc_flp const& value )
     first = first ? false : ( os << ", ", false );
     os << rho_value;
   }
-  os << " }";
+  os << " } }";
   return os;
 }
 
