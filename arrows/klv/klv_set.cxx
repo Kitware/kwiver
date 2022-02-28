@@ -7,6 +7,11 @@
 
 #include "klv_set.h"
 
+#include <arrows/klv/klv_1010.h>
+#include <arrows/klv/klv_util.h>
+
+namespace kv = kwiver::vital;
+
 namespace kwiver {
 
 namespace arrows {
@@ -354,16 +359,318 @@ klv_set< Key >
   return false;
 }
 
+namespace {
+
 // ----------------------------------------------------------------------------
-#define KLV_INSTANTIATE( Key )                                 \
-  template class KWIVER_ALGO_KLV_EXPORT klv_set< Key >;        \
-  template class KWIVER_ALGO_KLV_EXPORT klv_set_format< Key >; \
-  template bool operator== < Key >( klv_set< Key > const&,     \
-                                    klv_set< Key > const& );   \
-  template bool operator< < Key >( klv_set< Key > const&,      \
-                                   klv_set< Key > const& );    \
-  template std::ostream& operator<< < Key >( std::ostream&,    \
-                                             klv_set< Key > const& )
+// Helper class for klv_set_format allowing compile-time lookup of functions
+// pertaining to a KLV key type.
+template < class Key > class key_traits;
+
+// ----------------------------------------------------------------------------
+template <>
+class key_traits< klv_lds_key >
+{
+public:
+  static klv_lds_key
+  read_key( klv_read_iter_t& data, size_t max_length )
+  {
+    return klv_read_lds_key( data, max_length );
+  }
+
+  static void
+  write_key( klv_lds_key const& key,
+             klv_write_iter_t& data, size_t max_length )
+  {
+    klv_write_lds_key( key, data, max_length );
+  }
+
+  static size_t
+  length_of_key( klv_lds_key const& key )
+  {
+    return klv_lds_key_length( key );
+  }
+
+  static klv_tag_traits const&
+  tag_traits_from_key( klv_tag_traits_lookup const& lookup,
+                       klv_lds_key const& key )
+  {
+    return lookup.by_tag( key );
+  }
+
+  static klv_lds_key
+  key_from_tag_traits( klv_tag_traits const& trait )
+  {
+    return trait.tag();
+  }
+};
+
+// ----------------------------------------------------------------------------
+template <>
+class key_traits< klv_uds_key >
+{
+public:
+  static klv_uds_key
+  read_key( klv_read_iter_t& data, size_t max_length )
+  {
+    return klv_read_uds_key( data, max_length );
+  }
+
+  static void
+  write_key( klv_uds_key const& key,
+             klv_write_iter_t& data, size_t max_length )
+  {
+    klv_write_uds_key( key, data, max_length );
+  }
+
+  static size_t
+  length_of_key( klv_uds_key const& key )
+  {
+    return klv_uds_key_length( key );
+  }
+
+  static klv_tag_traits const&
+  tag_traits_from_key( klv_tag_traits_lookup const& lookup,
+                       klv_uds_key const& key )
+  {
+    return lookup.by_uds_key( key );
+  }
+
+  static klv_uds_key
+  key_from_tag_traits( klv_tag_traits const& trait )
+  {
+    return trait.uds_key();
+  }
+};
+
+} // namespace
+
+// ----------------------------------------------------------------------------
+template < class Key >
+klv_set_format< Key >
+::klv_set_format( klv_tag_traits_lookup const& traits )
+  : klv_data_format_< klv_set< Key > >{ 0 }, m_traits( traits )
+{}
+
+// ----------------------------------------------------------------------------
+template < class Key >
+klv_set_format< Key >
+::~klv_set_format()
+{}
+
+// ----------------------------------------------------------------------------
+template < class Key >
+klv_set< Key >
+klv_set_format< Key >
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  using kt = key_traits< Key >;
+
+  auto const tracker = track_it( data, length );
+
+  klv_set< Key > result;
+  std::vector< klv_lds_key > history;
+  while( tracker.remaining() )
+  {
+    // Key
+    auto const key = kt::read_key( data, tracker.remaining() );
+
+    // Length
+    auto const length_of_value =
+      klv_read_ber< size_t >( data, tracker.remaining() );
+
+    // Value
+    auto const& traits = kt::tag_traits_from_key( m_traits, key );
+    auto value =
+      traits.format().read( data, tracker.verify( length_of_value ) );
+
+    // Record entries before this one in the SDCC-FLP
+    if( value.type() == typeid( klv_1010_sdcc_flp ) )
+    {
+      auto& sdcc = value.template get< klv_1010_sdcc_flp >();
+      auto const matrix_size = std::min( history.size(), sdcc.members.size() );
+      std::copy( history.end() - matrix_size,
+                 history.end(),
+                 sdcc.members.begin() );
+    }
+
+    result.add( key, std::move( value ) );
+
+    history.push_back( traits.tag() );
+  }
+  check_tag_counts( result );
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+template < class Key >
+void
+klv_set_format< Key >
+::write_typed( klv_set< Key > const& klv,
+               klv_write_iter_t& data, size_t length ) const
+{
+  using kt = key_traits< Key >;
+
+  auto const tracker = track_it( data, length );
+
+  check_tag_counts( klv );
+
+  // Identify which entries need to be before other entries
+  std::set< klv_lds_key > held_keys;
+  for( auto const& entry : klv )
+  {
+    if( entry.second.type() == typeid( klv_1010_sdcc_flp ) )
+    {
+      auto const& sdcc = entry.second.template get< klv_1010_sdcc_flp >();
+      for( auto const key : sdcc.members )
+      {
+        if( held_keys.count( key ) )
+        {
+          VITAL_THROW( kv::metadata_exception,
+                       "Two SDCC-FLPs concern the same item" );
+        }
+        held_keys.emplace( key );
+      }
+    }
+  }
+
+  // Assemble the proper order of entries
+  std::vector< typename klv_set< Key >::const_iterator > entries;
+  for( auto it = klv.cbegin(); it != klv.cend(); ++it )
+  {
+    auto const& trait = kt::tag_traits_from_key( m_traits, it->first );
+    if( held_keys.count( trait.tag() ) )
+    {
+      continue;
+    }
+    if( it->second.type() == typeid( klv_1010_sdcc_flp ) )
+    {
+      auto const& sdcc = it->second.template get< klv_1010_sdcc_flp >();
+      for( auto const key : sdcc.members )
+      {
+        auto const jt =
+          klv.find( kt::key_from_tag_traits( m_traits.by_tag( key ) ) );
+        if( jt == klv.end() ||
+            !kt::tag_traits_from_key( m_traits, jt->first ).tag() )
+        {
+          VITAL_THROW( kv::metadata_exception,
+                       "SDCC-FLP concerns non-existent item" );
+        }
+        entries.emplace_back( jt );
+      }
+    }
+    entries.emplace_back( it );
+  }
+
+  // Actually write each entry
+  for( auto const& entry : entries )
+  {
+    auto const& key = entry->first;
+    auto const& value = entry->second;
+    auto const& traits = kt::tag_traits_from_key( m_traits, key );
+
+    // Key
+    kt::write_key( key, data, tracker.remaining() );
+
+    // Length
+    auto const length_of_value = traits.format().length_of( value );
+    klv_write_ber( length_of_value, data, tracker.remaining() );
+
+    // Value
+    traits.format().write( value, data, tracker.remaining() );
+  }
+}
+
+// ----------------------------------------------------------------------------
+template < class Key >
+size_t
+klv_set_format< Key >
+::length_of_typed( klv_set< Key > const& value,
+                   VITAL_UNUSED size_t length_hint ) const
+{
+  using kt = key_traits< Key >;
+
+  constexpr size_t initializer = 0;
+  auto accumulator =
+    [ this ]( size_t total, typename klv_set< Key >::value_type const& entry ){
+      auto const& key = entry.first;
+      auto const& traits = kt::tag_traits_from_key( m_traits, key );
+
+      auto const length_of_key = kt::length_of_key( key );
+      auto const length_of_value = traits.format().length_of( entry.second );
+      auto const length_of_length = klv_ber_length( length_of_value );
+      return total + length_of_key + length_of_length + length_of_value;
+    };
+  return std::accumulate( value.cbegin(), value.cend(),
+                          initializer, accumulator );
+}
+
+// ----------------------------------------------------------------------------
+template < class Key >
+std::ostream&
+klv_set_format< Key >
+::print_typed( std::ostream& os, klv_set< Key > const& value,
+               VITAL_UNUSED size_t length_hint ) const
+{
+  using kt = key_traits< Key >;
+
+  auto const values = value.fully_sorted();
+  os << "{ ";
+
+  bool first = true;
+  for( auto const pair : values )
+  {
+    auto const& trait = kt::tag_traits_from_key( m_traits, pair->first );
+    first = first ? false : ( os << ", ", false );
+    os << trait.name() << ": ";
+    trait.format().print( os, pair->second );
+  }
+  os << " }";
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+template < class Key >
+void
+klv_set_format< Key >
+::check_tag_counts( klv_set< Key > const& klv ) const
+{
+  using kt = key_traits< Key >;
+  for( auto const& trait : m_traits )
+  {
+    auto const count = klv.count( kt::key_from_tag_traits( trait ) );
+    auto const range = trait.tag_count_range();
+    if( !range.is_count_allowed( count ) )
+    {
+      LOG_WARN(
+        kv::get_logger( "klv" ),
+        this->description() << ": "
+        << "tag `" << trait.name() << "` "
+        << "appears " << count << " times; "
+        << "expected " << range.description() );
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+template < class Key >
+void
+klv_set_format< Key >
+::check_set( klv_set< Key > const& klv ) const
+{
+  check_tag_counts( klv );
+}
+
+// ----------------------------------------------------------------------------
+#define KLV_INSTANTIATE( Key )                              \
+  template class klv_set< Key >;                            \
+  template class klv_set_format< Key >;                     \
+  template bool operator==< Key >( klv_set< Key > const&,   \
+                                   klv_set< Key > const& ); \
+  template bool operator< < Key >( klv_set< Key > const&,   \
+                                   klv_set< Key > const& ); \
+  template std::ostream& operator<<< Key >( std::ostream&,  \
+                                            klv_set< Key > const& )
 
 KLV_INSTANTIATE( klv_lds_key );
 KLV_INSTANTIATE( klv_uds_key );
