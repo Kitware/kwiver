@@ -494,6 +494,7 @@ KLV_INSTANTIATE( klv_universal_set );
 KLV_INSTANTIATE( klv_uuid );
 KLV_INSTANTIATE( std::string );
 KLV_INSTANTIATE( std::vector< klv_packet > );
+KLV_INSTANTIATE( std::vector< klv_0601_payload_record >)
 KLV_INSTANTIATE( std::vector< klv_0601_weapons_store > );
 KLV_INSTANTIATE( uint64_t );
 

@@ -471,7 +471,7 @@ private:
 };
 
 // ----------------------------------------------------------------------------
-/// Geographic location
+/// Geographic location.
 struct klv_0601_location_dlp
 {
   double latitude;
@@ -529,7 +529,7 @@ private:
 
 // ----------------------------------------------------------------------------
 /// Specifies the domain of values for
-/// Relative Sensor Azimuth, Elevation and Roll Angles
+/// Relative Sensor Azimuth, Elevation and Roll Angles.
 struct klv_0601_view_domain
 {
   klv_value azimuth_start;
@@ -549,7 +549,7 @@ operator<<( std::ostream& os, klv_0601_view_domain const& value );
 DECLARE_CMP( klv_0601_view_domain )
 
 // ---------------------------------------------------------------------------
-/// Interprets data as view domain
+/// Interprets data as view domain.
 class KWIVER_ALGO_KLV_EXPORT klv_0601_view_domain_format
   : public klv_data_format_< klv_0601_view_domain >
 {
@@ -573,7 +573,7 @@ private:
 };
 
 // ----------------------------------------------------------------------------
-/// Weapon/Store state ( General Status )
+/// Weapon/Store state ( General Status ).
 enum KWIVER_ALGO_KLV_EXPORT klv_0601_weapons_general_status
 {
   KLV_0601_WEAPONS_GENERAL_STATUS_OFF,
@@ -602,7 +602,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_0601_weapons_general_status value );
 
 // ----------------------------------------------------------------------------
-/// A set of bit values to report the status of a weapon before it’s launched
+/// A set of bit values to report the status of a weapon before it’s launched.
 enum KWIVER_ALGO_KLV_EXPORT klv_0601_weapon_engagement_status_bits
 {
   // 0 = fuse functions not set, 1 = fuse functions set
@@ -622,7 +622,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_0601_weapon_engagement_status_bits value );
 
 // ----------------------------------------------------------------------------
-/// List of weapon stores and status
+/// List of weapon stores and status.
 struct klv_0601_weapons_store
 {
   uint16_t station_id;
@@ -649,7 +649,7 @@ operator<<( std::ostream& os,
             std::vector< klv_0601_weapons_store > const& value );
 
 // ---------------------------------------------------------------------------
-/// Interprets data as a weapons record
+/// Interprets data as a weapons record.
 class KWIVER_ALGO_KLV_EXPORT klv_0601_weapons_store_format
   : public klv_data_format_< std::vector< klv_0601_weapons_store > >
 {
@@ -672,6 +672,78 @@ private:
   size_t
   length_of_typed( std::vector< klv_0601_weapons_store > const& value,
                    size_t length_hint ) const override;
+};
+
+// ---------------------------------------------------------------------------
+/// Optical sensors and non-optical payload package types.
+enum KWIVER_ALGO_KLV_EXPORT klv_0601_payload_type
+{
+  KLV_0601_PAYLOAD_TYPE_ELECTRO_OPTICAL,
+  KLV_0601_PAYLOAD_TYPE_LIDAR,
+  KLV_0601_PAYLOAD_TYPE_RADAR,
+  KLV_0601_PAYLOAD_TYPE_SIGINT,
+  KLV_0601_PAYLOAD_TYPE_ENUM_END
+};
+
+// ---------------------------------------------------------------------------
+/// Interprets data as a payload type.
+using klv_0601_payload_type_format =
+  klv_enum_format< klv_0601_payload_type >;
+
+// ---------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_payload_type const& value );
+
+// ---------------------------------------------------------------------------
+/// Type, name, and id of a payload.
+struct klv_0601_payload_record
+{
+  uint16_t id;
+  klv_0601_payload_type type;
+  std::string name;
+};
+
+// ---------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_payload_record const& value );
+
+// ---------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_payload_record )
+
+// ---------------------------------------------------------------------------
+/// List of payloads available on the platform.
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os,
+            std::vector< klv_0601_payload_record > const& value );
+
+// ---------------------------------------------------------------------------
+/// Interprets data as a payload list.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_payload_list_format
+  : public klv_data_format_< std::vector< klv_0601_payload_record > >
+{
+  public:
+    klv_0601_payload_list_format();
+
+    std::string
+    description() const override;
+
+  private:
+    std::vector< klv_0601_payload_record >
+    read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+    void
+    write_typed( std::vector< klv_0601_payload_record > const& value,
+                 klv_write_iter_t& data, size_t length ) const override;
+
+    size_t
+    length_of_typed( klv_0601_payload_record const& value ) const;
+
+    size_t
+    length_of_typed( std::vector< klv_0601_payload_record > const& value,
+                     size_t length_hint ) const override;
 };
 
 // ----------------------------------------------------------------------------

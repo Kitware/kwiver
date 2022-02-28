@@ -940,7 +940,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PAYLOAD_LIST ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_payload_list_format >(),
       "Payload List",
       "List of payloads available on platform.",
       { 0, 1 } },
@@ -1786,7 +1786,7 @@ klv_0601_airbase_locations_format
 
 // ----------------------------------------------------------------------------
 /// Specifies the domain of values for
-/// Relative Sensor Azimuth, Elevation and Roll Angles
+/// Relative Sensor Azimuth, Elevation and Roll Angles.
 std::ostream&
 operator<<( std::ostream& os, klv_0601_view_domain const& value )
 {
@@ -2024,7 +2024,7 @@ klv_0601_view_domain_format
 }
 
 // ----------------------------------------------------------------------------
-/// Weapon/Store state ( General Status )
+/// Weapon/Store state ( General Status ).
 std::ostream&
 operator<<( std::ostream& os, klv_0601_weapons_general_status value )
 {
@@ -2049,7 +2049,7 @@ operator<<( std::ostream& os, klv_0601_weapons_general_status value )
 }
 
 // ----------------------------------------------------------------------------
-/// A set of bit values to report the status of a weapon before it’s launched
+/// A set of bit values to report the status of a weapon before it’s launched.
 std::ostream&
 operator<<( std::ostream& os, klv_0601_weapon_engagement_status_bits value )
 {
@@ -2067,7 +2067,7 @@ operator<<( std::ostream& os, klv_0601_weapon_engagement_status_bits value )
 }
 
 // ----------------------------------------------------------------------------
-/// List of weapon stores and status
+/// List of weapon stores and status.
 std::ostream&
 operator<<( std::ostream& os, klv_0601_weapons_store const& value )
 {
@@ -2303,6 +2303,197 @@ klv_0601_weapons_store_format
       klv_ber_length( length_of_weapons_record );
     total_length += length_of_length_of_weapons_record +
                     length_of_weapons_record;
+  }
+  return total_length;
+}
+
+// ----------------------------------------------------------------------------
+/// Optical sensors and non-optical payload package types.
+std::ostream&
+operator<<( std::ostream& os, klv_0601_payload_type const& value )
+{
+  static std::string strings[ KLV_0601_PAYLOAD_TYPE_ENUM_END + 1 ] =
+  {
+    "Electro Optical MI Sensor",
+    "LIDAR",
+    "RADAR",
+    "SIGINT",
+    "Unknown Payload Type"
+  };
+
+  os << strings[ std::min( value, KLV_0601_PAYLOAD_TYPE_ENUM_END ) ];
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+/// Type, name, and id of a payload.
+std::ostream&
+operator<<( std::ostream& os, klv_0601_payload_record const& value )
+{
+  return os << "{ "
+            << "ID: "
+            << value.id
+            << ", "
+            << "type: "
+            << value.type
+            << ", "
+            << "name: "
+            << value.name
+            << " }";
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_payload_record,
+  &klv_0601_payload_record::id,
+  &klv_0601_payload_record::type,
+  &klv_0601_payload_record::name
+)
+
+// ----------------------------------------------------------------------------
+/// List of payloads available on the platform.
+std::ostream&
+operator<<( std::ostream& os,
+            std::vector< klv_0601_payload_record > const& value )
+{
+  os << "{ ";
+  for( klv_0601_payload_record const& item : value )
+  {
+    os << item;
+    if( &item != &value.back() )
+    {
+      os << ", ";
+    }
+  }
+  os << " }";
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_payload_list_format
+::klv_0601_payload_list_format()
+  : klv_data_format_< std::vector< klv_0601_payload_record > >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_payload_list_format
+::description() const
+{
+  return "payload list pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+std::vector< klv_0601_payload_record >
+klv_0601_payload_list_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  std::vector< klv_0601_payload_record > result = {};
+  auto const tracker = track_it( data, length );
+
+  // Read payload count
+  klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+
+  // Read payload list
+  while( tracker.remaining() )
+  {
+    // Read length of payload record
+    klv_read_ber< size_t >( data, tracker.remaining() );
+
+    klv_0601_payload_record item = {};
+
+    // Read payload id
+    item.id = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+
+    // Read payload type
+    item.type = static_cast< klv_0601_payload_type >(
+      klv_read_ber_oid< uint16_t >( data, tracker.remaining() ) );
+
+    // Read payload name
+    auto const length_of_payload_name =
+      klv_read_ber< size_t >( data, tracker.remaining() );
+    item.name =
+      klv_read_string( data, tracker.verify( length_of_payload_name ) );
+
+    // Append to list
+    result.emplace_back( item );
+  }
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_payload_list_format
+::write_typed( std::vector< klv_0601_payload_record > const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+
+  // Write payload count
+  klv_write_ber_oid( value.size(), data, tracker.remaining() );
+
+  for( klv_0601_payload_record const& item : value )
+  {
+    // Write size
+    size_t const length_of_payload_record = length_of_typed( item );
+
+    klv_write_ber( length_of_payload_record, data, tracker.remaining() );
+
+    // Write payload id
+    klv_write_ber_oid( item.id, data, tracker.remaining() );
+
+    // Write payload type
+    klv_write_ber_oid( static_cast< uint16_t >( item.type ),
+                       data, tracker.remaining() );
+
+    // Write payload name
+    size_t const length_of_payload_name = klv_string_length( item.name );
+    klv_write_ber< size_t >( length_of_payload_name, data,
+                             tracker.remaining() );
+    klv_write_string( item.name, data, tracker.remaining() );
+  }
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_payload_list_format
+::length_of_typed( klv_0601_payload_record const& item ) const
+{
+  // Length of payload id
+  size_t const length_of_payload_id = klv_ber_oid_length( item.id );
+
+  // Length of payload type
+  size_t const length_of_payload_type =
+    klv_ber_oid_length( static_cast< uint16_t >( item.type ) );
+
+  // Length of payload name
+  size_t const length_of_payload_name = klv_string_length( item.name );
+  size_t const length_of_length_of_payload_name =
+    klv_ber_length( length_of_payload_name );
+
+  return ( length_of_payload_id +
+           length_of_payload_type +
+           length_of_payload_name +
+           length_of_length_of_payload_name );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_payload_list_format
+::length_of_typed( std::vector< klv_0601_payload_record > const& value,
+                   VITAL_UNUSED size_t length_hint ) const
+{
+  size_t total_length = 0;
+
+  // Length of payload count
+  total_length += klv_ber_oid_length( value.size() );
+
+  // Length of payload list
+  for( klv_0601_payload_record const& item : value )
+  {
+    size_t const length_of_payload_record = length_of_typed( item );
+    total_length += klv_ber_length( length_of_payload_record ) +
+                    length_of_payload_record;
   }
   return total_length;
 }
