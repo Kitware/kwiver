@@ -154,10 +154,9 @@ klv_data_format_< T >
   else if( m_fixed_length && length != m_fixed_length )
   {
     // Invalid length
-    std::stringstream ss;
-    ss  << "fixed-length format `" << description()
-        << "` received wrong number of bytes ( " << length << " )";
-    VITAL_THROW( kwiver::vital::metadata_exception, ss.str() );
+    LOG_WARN( kwiver::vital::get_logger( "klv" ),
+              "fixed-length format `" << description() <<
+              "` received wrong number of bytes ( " << length << " )" );
   }
 
   try
@@ -168,7 +167,7 @@ klv_data_format_< T >
   catch ( std::exception const& e )
   {
     // Return blob if parsing failed
-    LOG_ERROR( kwiver::vital::get_logger( "klv.read" ),
+    LOG_ERROR( kwiver::vital::get_logger( "klv" ),
                "error occurred during parsing: " << e.what() );
     return klv_value{ klv_read_blob( data, length ), length };
   }
