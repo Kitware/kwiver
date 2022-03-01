@@ -340,13 +340,13 @@ mesh_coloration
     }
   }
   auto const progress_step = nbMeshPoint / 100;
-  for( auto const id : kvr::iota( nbMeshPoint ) )
+  for( auto const pointId : kvr::iota( nbMeshPoint ) )
   {
-    if( id % progress_step == 0 )
+    if( pointId % progress_step == 0 )
     {
       report_progress_changed(
         "Coloring Mesh Points",
-        static_cast< int >( ( 100 * id ) / nbMeshPoint ) );
+        static_cast< int >( ( 100 * pointId ) / nbMeshPoint ) );
     }
     if( !all_frames_ )
     {
@@ -357,15 +357,15 @@ mesh_coloration
 
     // Get mesh position from id
     kwiver::vital::vector_3d position;
-    meshPointList->GetPoint( id, position.data() );
+    meshPointList->GetPoint( pointId, position.data() );
 
     kwiver::vital::vector_3d pointNormal;
-    normals->GetTuple( id, pointNormal.data() );
+    normals->GetTuple( pointId, pointNormal.data() );
 
-    for( auto const idData : kvr::iota( numFrames ) )
+    for( auto const frameId : kvr::iota( numFrames ) )
     {
       kwiver::vital::camera_perspective_sptr camera =
-        data_list_[ idData ].camera_;
+        data_list_[ frameId ].camera_;
       // Check if the 3D point is in front of the camera
       double depth = camera->depth( position );
 
@@ -384,7 +384,7 @@ mesh_coloration
 
       // project 3D point to pixel coordinates
       auto pixelPosition = camera->project( position );
-      auto const& colorImage = data_list_[ idData ].image_;
+      auto const& colorImage = data_list_[ frameId ].image_;
       auto const width = colorImage.width();
       auto const height = colorImage.height();
 
@@ -397,7 +397,7 @@ mesh_coloration
       }
 
       bool has_mask = true;
-      auto const& maskImage = data_list_[ idData ].mask_image_;
+      auto const& maskImage = data_list_[ frameId ].mask_image_;
       auto const maskWidth = static_cast< double >( maskImage.width() );
       auto const maskHeight = static_cast< double >( maskImage.height() );
 
@@ -424,9 +424,9 @@ mesh_coloration
         double depthBufferValue = 0;
         if( remove_occluded_ )
         {
-          double* range = depthBuffer[ idData ].Range;
+          double* range = depthBuffer[ frameId ].Range;
           float depthBufferValueNorm =
-            depthBuffer[ idData ].Buffer->GetValue(
+            depthBuffer[ frameId ].Buffer->GetValue(
               static_cast< vtkIdType >( x + width * ( height - y - 1 ) ) );
           depthBufferValue =
             2 * range[1] * range[0] / (range[1] + range[0] - (2 * depthBufferValueNorm - 1) * (range[1] - range[0]));
@@ -445,7 +445,7 @@ mesh_coloration
           else
           {
             unsigned char rgba[] = { rgb.r, rgb.g, rgb.b, 255 };
-            perFrameColor[ idData ]->SetTypedTuple( id, rgba );
+            perFrameColor[ frameId ]->SetTypedTuple( pointId, rgba );
           }
         }
       }
@@ -465,14 +465,14 @@ mesh_coloration
         double const sum2 = std::accumulate( list2.begin(), list2.end(), 0 );
         double const nb_val = static_cast< double >( list0.size() );
         meanValues->SetTuple3(
-          id, sum0 / nb_val, sum1 / nb_val, sum2 / nb_val );
+          pointId, sum0 / nb_val, sum1 / nb_val, sum2 / nb_val );
 
         double median0, median1, median2;
         ComputeMedian< double >( list0, median0 );
         ComputeMedian< double >( list1, median1 );
         ComputeMedian< double >( list2, median2 );
-        medianValues->SetTuple3( id, median0, median1, median2 );
-        countValues->SetTuple1( id, nb_val );
+        medianValues->SetTuple3( pointId, median0, median1, median2 );
+        countValues->SetTuple1( pointId, nb_val );
       }
 
       list0.clear();
