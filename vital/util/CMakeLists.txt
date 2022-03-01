@@ -39,6 +39,7 @@ set( public_headers
   variant/in_place.hpp
   variant/lib.hpp
   variant/variant.hpp
+  visit.h
   wrap_text_block.h
   file_md5.h
   )
