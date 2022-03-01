@@ -63,7 +63,7 @@ klv_0903_traits_lookup()
       0 },
     { {},
       ENUM_AND_NAME( KLV_0903_PRECISION_TIMESTAMP ),
-      std::make_shared< klv_uint_format >( 8 ),
+      std::make_shared< klv_uint_format >(),
       "Precision Timestamp",
       "Microseconds since January 1st, 1970.",
       { 0, 1 } },
