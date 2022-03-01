@@ -20,7 +20,6 @@ namespace klv {
 klv_tag_traits_lookup const&
 klv_0806_user_defined_set_traits_lookup()
 {
-#define ENUM_AND_NAME( X ) X, #X
   static klv_tag_traits_lookup const lookup = {
     { {},
       ENUM_AND_NAME( KLV_0806_USER_DEFINED_SET_UNKNOWN ),
@@ -40,7 +39,6 @@ klv_0806_user_defined_set_traits_lookup()
       "User Data",
       "User-defined data. Data type defined in tag 1.",
       1 } };
-#undef ENUM_AND_NAME
 
   return lookup;
 }

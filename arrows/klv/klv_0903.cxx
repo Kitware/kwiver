@@ -48,7 +48,6 @@ klv_tag_traits_lookup const&
 klv_0903_traits_lookup()
 {
   static klv_tag_traits_lookup const lookup = {
-#define ENUM_AND_NAME( X ) X, #X
     { {},
       ENUM_AND_NAME( KLV_0903_UNKNOWN ),
       std::make_shared< klv_blob_format >(),
@@ -153,8 +152,6 @@ klv_0903_traits_lookup()
       "Ontology Series",
       "A series of ontology local sets.",
       { 0, 1 } },
-
-#undef ENUM_AND_NAME
   };
 
   return lookup;

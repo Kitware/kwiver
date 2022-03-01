@@ -298,7 +298,6 @@ klv_1108_traits_lookup()
   // From Table 1 of https://gwg.nga.mil/misb/docs/standards/ST1108.3.pdf
   // Descriptions are edited for clarity, brevity, consistency, etc.
   static klv_tag_traits_lookup const lookup = {
-#define ENUM_AND_NAME( X ) X, #X
     { {},
       ENUM_AND_NAME( KLV_1108_UNKNOWN ),
       std::make_shared< klv_blob_format >(),
@@ -378,7 +377,7 @@ klv_1108_traits_lookup()
       "Checksum",
       "CRC-16-CCITT checksum.",
       0 } };
-#undef ENUM_AND_NAME
+
   return lookup;
 }
 

@@ -121,7 +121,6 @@ klv_1108_metric_set_key()
 klv_tag_traits_lookup const&
 klv_1108_metric_set_traits_lookup()
 {
-#define ENUM_AND_NAME( X ) X, #X
   // Constants here are taken from Table 5 of
   // https://gwg.nga.mil/misb/docs/standards/ST1108.3.pdf
   // Descriptions are edited for clarity, brevity, consistency, etc.
@@ -168,7 +167,7 @@ klv_1108_metric_set_traits_lookup()
       "Metric Value",
       "Numeric value of calculation.",
       1 } };
-#undef ENUM_AND_NAME
+
   return lookup;
 }
 

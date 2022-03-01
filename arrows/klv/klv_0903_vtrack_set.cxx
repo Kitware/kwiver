@@ -31,7 +31,6 @@ operator<<( std::ostream& os, klv_0903_vtrack_set_tag tag )
 klv_tag_traits_lookup const&
 klv_0903_vtrack_set_traits_lookup()
 {
-#define ENUM_AND_NAME( X ) X, #X
   static klv_tag_traits_lookup const lookup = {
     { {},
       ENUM_AND_NAME( KLV_0903_VTRACK_UNKNOWN ),
@@ -136,7 +135,7 @@ klv_0903_vtrack_set_traits_lookup()
       "Ontology Series",
       "A series of ontology local sets.",
       { 0, 1 } }, };
-#undef ENUM_AND_NAME
+
   return lookup;
 }
 

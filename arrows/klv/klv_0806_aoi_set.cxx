@@ -19,7 +19,6 @@ namespace klv {
 klv_tag_traits_lookup const&
 klv_0806_aoi_set_traits_lookup()
 {
-#define ENUM_AND_NAME( X ) X, #X
   static klv_tag_traits_lookup const lookup = {
     { {},
       ENUM_AND_NAME( KLV_0806_AOI_SET_UNKNOWN ),
@@ -94,7 +93,6 @@ klv_0806_aoi_set_traits_lookup()
       "mission designation.",
       { 0, 1 } }, };
 
-#undef ENUM_AND_NAME
   return lookup;
 }
 

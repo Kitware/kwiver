@@ -31,7 +31,6 @@ std::vector< uint8_t > const checksum_header = { KLV_0806_CHECKSUM, 4 };
 klv_tag_traits_lookup const&
 klv_0806_traits_lookup()
 {
-#define ENUM_AND_NAME( X ) X, #X
   static klv_tag_traits_lookup const lookup = {
     { {},
       ENUM_AND_NAME( KLV_0806_UNKNOWN ),
@@ -173,7 +172,6 @@ klv_0806_traits_lookup()
       "Frame Center MGRS Northing",
       "Five-digit northing value in meters.",
       1 }, };
-#undef ENUM_AND_NAME
 
   return lookup;
 }

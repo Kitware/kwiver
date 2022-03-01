@@ -24,7 +24,6 @@ operator<<( std::ostream& os, klv_0903_algorithm_set_tag tag )
 klv_tag_traits_lookup const&
 klv_0903_algorithm_set_traits_lookup()
 {
-#define ENUM_AND_NAME( X ) X, #X
   static klv_tag_traits_lookup const lookup = {
     { {},
       ENUM_AND_NAME( KLV_0903_ALGORITHM_UNKNOWN ),
@@ -61,9 +60,9 @@ klv_0903_algorithm_set_traits_lookup()
       ENUM_AND_NAME( KLV_0903_ALGORITHM_NUM_FRAMES ),
       std::make_shared< klv_uint_format >(),
       "Frame Count",
-      "Number of frames the algorith operates over.",
+      "Number of frames the algorithm operates over.",
       { 0, 1 } } };
-#undef ENUM_AND_NAME
+
   return lookup;
 }
 

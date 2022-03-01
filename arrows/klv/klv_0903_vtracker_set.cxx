@@ -44,7 +44,6 @@ operator<<( std::ostream& os, klv_0903_detection_status value )
 klv_tag_traits_lookup const&
 klv_0903_vtracker_set_traits_lookup()
 {
-#define ENUM_AND_NAME( X ) X, #X
   static klv_tag_traits_lookup const lookup = {
     { {},
       ENUM_AND_NAME( KLV_0903_VTRACKER_UNKNOWN ),
@@ -132,7 +131,6 @@ klv_0903_vtracker_set_traits_lookup()
       "this target.",
       { 0, 1 } } };
 
-#undef ENUM_AND_NAME
   return lookup;
 }
 

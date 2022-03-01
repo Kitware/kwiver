@@ -28,7 +28,6 @@ klv_0102_traits_lookup()
   // https://gwg.nga.mil/misb/docs/standards/ST0102.12.pdf
   // Descriptions are edited for clarity, brevity, consistency, etc.
   static klv_tag_traits_lookup const lookup = {
-#define ENUM_AND_NAME( X ) X, #X
     { {},
       ENUM_AND_NAME( KLV_0102_UNKNOWN ),
       std::make_shared< klv_blob_format >(),
@@ -197,9 +196,7 @@ klv_0102_traits_lookup()
       "Country Coding Method for 'Object Country Codes' Version Date",
       "Effective date of the source standard defining the country coding "
       "method used for the 'Object Country Codes' field.",
-      { 0, 1 } },
-#undef ENUM_AND_NAME
-  };
+      { 0, 1 } } };
 
   return lookup;
 }

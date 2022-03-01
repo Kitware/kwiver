@@ -245,7 +245,6 @@ klv_tag_traits_lookup const&
 klv_lookup_packet_traits()
 {
   // TODO: Edit these once parsers are finalized
-#define ENUM_AND_NAME( X ) X, #X
   static klv_tag_traits_lookup const lookup = {
     { {},
       ENUM_AND_NAME( KLV_PACKET_UNKNOWN ),
@@ -285,7 +284,6 @@ klv_lookup_packet_traits()
       "MISB ST 0601. Deprecated as of 2008.",
       0,
       &klv_0104_traits_lookup() } };
-#undef ENUM_AND_NAME
 
   return lookup;
 }

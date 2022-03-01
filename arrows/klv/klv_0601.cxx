@@ -42,7 +42,6 @@ klv_0601_traits_lookup()
   // https://gwg.nga.mil/misb/docs/standards/ST0601.17.pdf
   // Descriptions are edited for clarity, brevity, consistency, etc.
   static klv_tag_traits_lookup const lookup = {
-#define ENUM_AND_NAME( X ) X, #X
     { {},
       ENUM_AND_NAME( KLV_0601_UNKNOWN ),
       std::make_shared< klv_blob_format >(),
@@ -970,7 +969,6 @@ klv_0601_traits_lookup()
       "Specifies range of possible sensor relative azimuth, elevation, and "
       "roll values.",
       { 0, 1 } }, };
-#undef ENUM_AND_NAME
 
   return lookup;
 }

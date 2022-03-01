@@ -24,7 +24,6 @@ operator<<( std::ostream& os, klv_0903_ontology_set_tag tag )
 klv_tag_traits_lookup const&
 klv_0903_ontology_set_traits_lookup()
 {
-#define ENUM_AND_NAME( X ) X, #X
   static klv_tag_traits_lookup const lookup = {
     { {},
       ENUM_AND_NAME( KLV_0903_ONTOLOGY_UNKNOWN ),
@@ -57,7 +56,6 @@ klv_0903_ontology_set_traits_lookup()
       "Class",
       "Target class or type, as defined by the ontology.",
       1 } };
-#undef ENUM_AND_NAME
 
   return lookup;
 }
