@@ -14,6 +14,7 @@
 extern "C" {
 #include <libavfilter/avfilter.h>
 #include <libavformat/avformat.h>
+#include <libavutil/version.h>
 }
 
 #include <vital/logger/logger.h>
@@ -64,8 +65,11 @@ ffmpeg_init()
   static bool initialized = false;
   if( !initialized )
   {
+#if LIBAVFORMAT_VERSION_MAJOR < 58
+    // Unnecessary and deprecated in FFmpeg >= 4.0
     av_register_all();
     avfilter_register_all();
+#endif
     av_log_set_callback( ffmpeg_kwiver_log_callback );
     initialized = true;
   }

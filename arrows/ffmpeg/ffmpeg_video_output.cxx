@@ -78,28 +78,27 @@ bool
 ffmpeg_video_output::impl
 ::write_next_packet()
 {
-  AVPacket packet = {};
-  av_init_packet( &packet );
+  auto packet = av_packet_alloc();
 
   // Attempt to read next encoded packet
   auto const success =
-    avcodec_receive_packet( codec_context, &packet );
+    avcodec_receive_packet( codec_context, packet );
 
   if( success == AVERROR( EAGAIN ) || success == AVERROR_EOF )
   {
     // Failed expectedly: no packet to read
-    av_packet_unref( &packet );
+    av_packet_free( &packet );
     return false;
   }
   if( success < 0 )
   {
     // Failed unexpectedly
-    av_packet_unref( &packet );
+    av_packet_free( &packet );
     VITAL_THROW( kv::video_runtime_exception, "Failed to receive packet" );
   }
 
   // Succeeded; write to file
-  if( av_interleaved_write_frame( format_context, &packet ) < 0 )
+  if( av_interleaved_write_frame( format_context, packet ) < 0 )
   {
     VITAL_THROW( kv::video_runtime_exception, "Failed to write packet" );
   }
