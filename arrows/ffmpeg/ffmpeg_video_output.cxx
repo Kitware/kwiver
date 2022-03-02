@@ -478,24 +478,14 @@ ffmpeg_video_output
       d->video_stream->time_base.den / d->video_stream->time_base.num /
       d->frame_rate.num * d->frame_rate.den + 0.5 );
 
-  auto frame_success = avcodec_send_frame( d->codec_context, converted_frame );
-
-  // If the video encoder's buffers are full, we have to process some output
-  // packets before we can send a new image
-  while( frame_success == AVERROR( EAGAIN ) )
-  {
-    if( !d->write_next_packet() )
-    {
-      throw std::logic_error{ "Frame provided after EOF" };
-    }
-    frame_success = avcodec_send_frame( d->codec_context, converted_frame );
-  }
-
-  if( frame_success < 0 )
+  if( avcodec_send_frame( d->codec_context, converted_frame ) < 0 )
   {
     VITAL_THROW( kv::video_runtime_exception,
                  "Failed to send frame to encoder" );
   }
+
+  // Write encoded packets out
+  while( d->write_next_packet() );
 
   ++d->frame_count;
 }
