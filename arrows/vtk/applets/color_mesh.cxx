@@ -65,29 +65,24 @@ bool check_config(kv::config_block_sptr config)
     validate_required_input_file("video_source", *config, main_logger)
     && config_valid;
 
+  std::string extension = "";
   if (config->has_value("output_mesh"))
   {
-    std::string output_mesh_ =
+    std::string output_mesh =
       config->get_value<std::string>("output_mesh");
-    std::string extension = ST::GetFilenameLastExtension( output_mesh_ );
-    if (extension == ".las")
-    {
-      config_valid =
-        validate_required_input_file("input_geo_origin_filename", *config,
-                                     main_logger) && config_valid;
-    }
-    else
-    {
-      config_valid =
-        validate_optional_input_file("input_geo_origin_filename", *config,
-                                     main_logger) && config_valid;
-    }
+    extension = ST::GetFilenameLastExtension( output_mesh );
+  }
+  if (extension == ".las")
+  {
+    config_valid =
+      validate_required_input_file("input_geo_origin_filename", *config,
+                                    main_logger) && config_valid;
   }
   else
   {
     config_valid =
-        validate_optional_input_file("input_geo_origin_filename", *config,
-                                     main_logger) && config_valid;
+      validate_optional_input_file("input_geo_origin_filename", *config,
+                                    main_logger) && config_valid;
   }
 
   if (!kv::algo::video_input::check_nested_algo_configuration("video_reader", config))
@@ -434,38 +429,7 @@ public:
     }
     else if (ext == ".las")
     {
-      auto lgcs = vital::local_geo_cs();
-      read_local_geo_cs_from_file(lgcs, input_geo_origin_file_);
-
-      vtkSmartPointer<vtkPoints> inPts = mesh->GetPoints();
-      vtkIdType numPts = inPts->GetNumberOfPoints();
-      vtkSmartPointer<vtkDataArray> da = mesh->GetPointData()->GetArray("Color");
-      vtkUnsignedCharArray* rgbArray = nullptr;
-
-      std::vector<vital::vector_3d> points(numPts);
-      std::vector<vital::rgb_color> colors;
-
-      if (da->GetNumberOfComponents() == 3)
-      {
-        rgbArray = vtkArrayDownCast<vtkUnsignedCharArray>(da);
-        colors.resize(numPts);
-      }
-
-      for (vtkIdType i = 0; i < numPts; ++i)
-      {
-        inPts->GetPoint(i, points[i].data());
-
-        if (rgbArray)
-        {
-          vtkIdType idx = 3 * i;
-          colors[i] = vital::rgb_color(rgbArray->GetValue(idx),
-                                       rgbArray->GetValue(idx + 1),
-                                       rgbArray->GetValue(idx + 2));
-        }
-      }
-
-      auto pointcloud_writer = new kwiver::arrows::pdal::pointcloud_io();
-      pointcloud_writer->save_(output_path, lgcs, points, colors);
+      save_mesh_las(mesh, output_path);
       return true;
     }
     else
@@ -473,6 +437,43 @@ public:
       LOG_ERROR(main_logger, "Invalid file format: " << ext);
       return false;
     }
+  }
+
+  void save_mesh_las(vtkSmartPointer<vtkPolyData> mesh,
+                     char const * output_path)
+  {
+    auto lgcs = vital::local_geo_cs();
+    read_local_geo_cs_from_file(lgcs, input_geo_origin_file_);
+
+    vtkSmartPointer<vtkPoints> inPts = mesh->GetPoints();
+    vtkIdType numPts = inPts->GetNumberOfPoints();
+    vtkSmartPointer<vtkDataArray> da = mesh->GetPointData()->GetArray("Color");
+    vtkUnsignedCharArray* rgbArray = nullptr;
+
+    std::vector<vital::vector_3d> points(numPts);
+    std::vector<vital::rgb_color> colors;
+
+    if (da->GetNumberOfComponents() == 3)
+    {
+      rgbArray = vtkArrayDownCast<vtkUnsignedCharArray>(da);
+      colors.resize(numPts);
+    }
+
+    for (vtkIdType i = 0; i < numPts; ++i)
+    {
+      inPts->GetPoint(i, points[i].data());
+
+      if (rgbArray)
+      {
+        vtkIdType idx = 3 * i;
+        colors[i] = vital::rgb_color(rgbArray->GetValue(idx),
+                                     rgbArray->GetValue(idx + 1),
+                                     rgbArray->GetValue(idx + 2));
+      }
+    }
+
+    auto pointcloud_writer = new kwiver::arrows::pdal::pointcloud_io();
+    pointcloud_writer->save_(output_path, lgcs, points, colors);
   }
 
   bool run_algorithm()
