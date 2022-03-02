@@ -43,3 +43,7 @@ kwiver_add_plugin( kwiver_algo_vtk_applets
                kwiversys
                ${VTK_targets}
   )
+
+target_link_libraries( kwiver_algo_vtk_applets
+  PRIVATE              kwiver_algo_pdal
+  )
