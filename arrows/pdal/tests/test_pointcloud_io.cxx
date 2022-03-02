@@ -50,6 +50,9 @@ TEST_F(pointcloud_io, save_geo_origin) {
     kv::landmark_map_sptr landmark_map =
         kv::read_ply_file(landmarks_path);
 
+    auto lgcs = kwiver::vital::local_geo_cs();
+    read_local_geo_cs_from_file(lgcs, geo_origin_path);
+
     auto io = new kwiver::arrows::pdal::pointcloud_io();
-    io->save_(tmp_path, geo_origin_path, landmark_map);
+    io->save_(tmp_path, lgcs, landmark_map);
 }

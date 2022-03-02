@@ -27,17 +27,6 @@ namespace kwiver {
 namespace arrows {
 namespace pdal {
 
-/// Write landmarks to a file with PDAL provided a geo origin file
-void
-pointcloud_io::save_(vital::path_t const& filename,
-             vital::path_t const& input_geo_origin_file,
-             vital::landmark_map_sptr const& landmarks)
-{
-  auto lgcs = vital::local_geo_cs();
-  read_local_geo_cs_from_file(lgcs, input_geo_origin_file);
-  pointcloud_io::save_(filename, lgcs, landmarks);
-}
-
 /// Write landmarks to a file with PDAL
 void
 pointcloud_io::save_(vital::path_t const& filename,

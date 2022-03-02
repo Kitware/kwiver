@@ -22,12 +22,6 @@ namespace pdal {
 class KWIVER_ALGO_PDAL_EXPORT pointcloud_io
 {
 public:
-    /// Write landmarks to a file with PDAL provided a geo origin file
-    void
-    save_(vital::path_t const& filename,
-            vital::path_t const& input_geo_origin_file,
-            vital::landmark_map_sptr const& landmarks);
-
     /// Write landmarks to a file with PDAL
     void
     save_(vital::path_t const& filename,
