@@ -42,6 +42,24 @@ operator<<( std::ostream& os, kwiver::vital::optional< T > const& value )
 }
 
 // ----------------------------------------------------------------------------
+template < class T >
+std::ostream&
+operator<<( std::ostream& os, std::vector< T > const& value )
+{
+  os << "{ ";
+  for( T const& item : value )
+  {
+    os << item;
+    if( &item != &value.back() )
+    {
+      os << ", ";
+    }
+  }
+  os << " }";
+  return os;
+}
+
+// ----------------------------------------------------------------------------
 template< class T, class... Args >
 bool
 struct_lt( T const& lhs, T const& rhs, Args T::*... args )

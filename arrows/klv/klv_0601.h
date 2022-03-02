@@ -389,11 +389,6 @@ private:
 };
 
 // ---------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-std::ostream&
-operator<<( std::ostream& os, std::vector< uint16_t > const& value );
-
-// ---------------------------------------------------------------------------
 /// Interprets data as a ST0601 control command verification list.
 class KWIVER_ALGO_KLV_EXPORT klv_0601_control_command_verify_list_format
   : public klv_data_format_< std::vector< uint16_t > >
@@ -672,12 +667,6 @@ operator<<( std::ostream& os, klv_0601_weapons_store const& value );
 DECLARE_CMP( klv_0601_weapons_store )
 
 // ---------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-std::ostream&
-operator<<( std::ostream& os,
-            std::vector< klv_0601_weapons_store > const& value );
-
-// ---------------------------------------------------------------------------
 /// Interprets data as a weapons record.
 class KWIVER_ALGO_KLV_EXPORT klv_0601_weapons_store_format
   : public klv_data_format_< std::vector< klv_0601_weapons_store > >
@@ -740,13 +729,6 @@ operator<<( std::ostream& os, klv_0601_payload_record const& value );
 
 // ---------------------------------------------------------------------------
 DECLARE_CMP( klv_0601_payload_record )
-
-// ---------------------------------------------------------------------------
-/// List of payloads available on the platform.
-KWIVER_ALGO_KLV_EXPORT
-std::ostream&
-operator<<( std::ostream& os,
-            std::vector< klv_0601_payload_record > const& value );
 
 // ---------------------------------------------------------------------------
 /// Interprets data as a payload list.

@@ -1218,23 +1218,6 @@ klv_0601_control_command_format
   return "control command of " + length_description();
 }
 
-// ---------------------------------------------------------------------------
-std::ostream&
-operator<<( std::ostream& os, std::vector< uint16_t > const& value )
-{
-  os << "{ ";
-  for( uint16_t const& item : value )
-  {
-    os << item;
-    if( &item != &value.back() )
-    {
-      os << ", ";
-    }
-  }
-  os << " }";
-  return os;
-}
-
 // ----------------------------------------------------------------------------
 klv_0601_control_command_verify_list_format
 ::klv_0601_control_command_verify_list_format()
@@ -2202,24 +2185,6 @@ DEFINE_STRUCT_CMP(
 )
 
 // ----------------------------------------------------------------------------
-std::ostream&
-operator<<( std::ostream& os,
-            std::vector< klv_0601_weapons_store > const& value )
-{
-  os << "{ ";
-  for( klv_0601_weapons_store const& item : value )
-  {
-    os << item;
-    if( !( &item == &value.back() ) )
-    {
-      os << ", ";
-    }
-  }
-  os << " }";
-  return os;
-}
-
-// ----------------------------------------------------------------------------
 klv_0601_weapons_store_format
 ::klv_0601_weapons_store_format()
   : klv_data_format_<  std::vector< klv_0601_weapons_store > >{ 0 }
@@ -2428,25 +2393,6 @@ DEFINE_STRUCT_CMP(
   &klv_0601_payload_record::type,
   &klv_0601_payload_record::name
 )
-
-// ----------------------------------------------------------------------------
-/// List of payloads available on the platform.
-std::ostream&
-operator<<( std::ostream& os,
-            std::vector< klv_0601_payload_record > const& value )
-{
-  os << "{ ";
-  for( klv_0601_payload_record const& item : value )
-  {
-    os << item;
-    if( &item != &value.back() )
-    {
-      os << ", ";
-    }
-  }
-  os << " }";
-  return os;
-}
 
 // ----------------------------------------------------------------------------
 klv_0601_payload_list_format
