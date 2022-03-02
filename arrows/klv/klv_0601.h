@@ -388,6 +388,35 @@ private:
                    size_t length_hint ) const override;
 };
 
+// ---------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, std::vector< uint16_t > const& value );
+
+// ---------------------------------------------------------------------------
+/// Interprets data as a ST0601 control command verification list.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_control_command_verify_list_format
+  : public klv_data_format_< std::vector< uint16_t > >
+{
+public:
+  klv_0601_control_command_verify_list_format();
+
+  std::string
+  description() const override;
+
+private:
+  std::vector< uint16_t >
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( std::vector< uint16_t > const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( std::vector< uint16_t > const& value,
+                   size_t length_hint ) const override;
+};
+
 // ----------------------------------------------------------------------------
 /// Frame rate expressed as a ratio of integers.
 struct KWIVER_ALGO_KLV_EXPORT klv_0601_frame_rate

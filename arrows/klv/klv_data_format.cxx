@@ -955,8 +955,9 @@ KLV_INSTANTIATE( klv_uint_series );
 KLV_INSTANTIATE( klv_universal_set );
 KLV_INSTANTIATE( klv_uuid );
 KLV_INSTANTIATE( std::string );
-KLV_INSTANTIATE( std::vector< klv_0601_payload_record >)
+KLV_INSTANTIATE( std::vector< klv_0601_payload_record > );
 KLV_INSTANTIATE( std::vector< klv_0601_weapons_store > );
+KLV_INSTANTIATE( std::vector< uint16_t > );
 KLV_INSTANTIATE( uint64_t );
 
 #define KLV_INSTANTIATE_ENUM( T ) \
