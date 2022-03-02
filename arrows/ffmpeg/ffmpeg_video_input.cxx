@@ -292,7 +292,7 @@ public:
       recv_err = avcodec_receive_frame( this->f_video_encoding, this->f_frame );
       av_packet_unref( this->f_packet );
     } while( send_err || recv_err );
-    this->f_start_time = av_frame_get_best_effort_timestamp( this->f_frame );
+    this->f_start_time = this->f_frame->best_effort_timestamp;
     // Seek back to start
     av_seek_frame( this->f_format_context, this->f_video_index, 0,
                    AVSEEK_FLAG_FRAME );
@@ -448,7 +448,7 @@ public:
       return result;
     }
 
-    f_pts = av_frame_get_best_effort_timestamp( f_frame );
+    f_pts = f_frame->best_effort_timestamp;
     if( f_pts == AV_NOPTS_VALUE )
     {
       f_pts = 0;
