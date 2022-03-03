@@ -51,6 +51,8 @@ set( public_headers
   klv_blob.h
   klv_demuxer.h
   klv_lengthy.h
+  klv_list.h
+  klv_list.hpp
   klv_key.h
   klv_metadata.h
   klv_muxer.h
@@ -73,9 +75,9 @@ set( public_headers
   klv_0903_vchip_set.h
   klv_0903_vfeature_set.h
   klv_0903_vmask_set.h
-  klv_0903_vobject_set.cxx
+  klv_0903_vobject_set.h
   klv_0903_vtarget_pack.h
-  klv_0903_vtrackitem_pack.cxx
+  klv_0903_vtrackitem_pack.h
   klv_0903_vtrack_set.h
   klv_0903_vtracker_set.h
   klv_1010.h

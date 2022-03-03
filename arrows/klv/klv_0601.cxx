@@ -11,6 +11,7 @@
 #include "klv_1602.h"
 #include "klv_1607.h"
 #include "klv_checksum.h"
+#include "klv_list.hpp"
 #include "klv_util.h"
 
 #include <vital/logger/logger.h>
@@ -1214,66 +1215,6 @@ klv_0601_control_command_format
 ::description() const
 {
   return "control command of " + length_description();
-}
-
-// ----------------------------------------------------------------------------
-klv_0601_control_command_verify_list_format
-::klv_0601_control_command_verify_list_format()
-  : klv_data_format_< std::vector< uint16_t > >{ 0 }
-{}
-
-// ---------------------------------------------------------------------------
-std::string
-klv_0601_control_command_verify_list_format
-::description() const
-{
-  return "control command verification list of" + length_description();
-}
-
-// ----------------------------------------------------------------------------
-std::vector< uint16_t >
-klv_0601_control_command_verify_list_format
-::read_typed( klv_read_iter_t& data, size_t length ) const
-{
-  std::vector< uint16_t > result = {};
-  auto const tracker = track_it( data, length );
-
-  while( tracker.remaining() )
-  {
-    // Read command ID
-    auto command_id = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
-    result.emplace_back( command_id );
-  }
-  return result;
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_0601_control_command_verify_list_format
-::write_typed( std::vector< uint16_t > const& value,
-               klv_write_iter_t& data, size_t length ) const
-{
-  auto const tracker = track_it( data, length );
-
-  for( uint16_t const& item : value )
-  {
-    klv_write_ber_oid( item, data, tracker.remaining() );
-  }
-}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_0601_control_command_verify_list_format
-::length_of_typed( std::vector< uint16_t > const& value ) const
-{
-  size_t total_length = 0;
-
-  for( uint16_t const& item : value )
-  {
-    total_length += klv_ber_oid_length( item );
-  }
-
-  return total_length;
 }
 
 // ----------------------------------------------------------------------------

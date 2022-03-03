@@ -162,7 +162,7 @@ auto const expected_result = klv_local_set{
   { KLV_0601_CONTROL_COMMAND,
     klv_0601_control_command{ 5, "Fly to Waypoint 1", 0 } },
   { KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST,
-    std::vector< uint16_t >{ 3, 7 } },
+    std::vector< uint64_t >{ 3, 7 } },
   { KLV_0601_SENSOR_AZIMUTH_RATE,              kld{  1.0 } },
   { KLV_0601_SENSOR_ELEVATION_RATE,            kld{  0.004150390625000000 } },
   { KLV_0601_SENSOR_ROLL_RATE,                 kld{ -50.000000000000000 } },
