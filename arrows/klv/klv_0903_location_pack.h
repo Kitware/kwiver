@@ -121,11 +121,6 @@ private:
 };
 
 // ----------------------------------------------------------------------------
-/// Series of ST0903 location packs.
-using klv_0903_location_series =
-  klv_series< klv_0903_location_pack_format >;
-
-// ----------------------------------------------------------------------------
 /// Interprets data as a ST0903 location series.
 using klv_0903_location_series_format =
   klv_series_format< klv_0903_location_pack_format >;

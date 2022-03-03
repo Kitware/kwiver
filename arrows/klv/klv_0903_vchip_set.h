@@ -54,11 +54,6 @@ public:
 };
 
 // ----------------------------------------------------------------------------
-/// Series of ST0903 vChip local sets.
-using klv_0903_vchip_series =
-  klv_series< klv_0903_vchip_local_set_format >;
-
-// ----------------------------------------------------------------------------
 /// Interprets data as a ST0903 vChip series.
 using klv_0903_vchip_series_format =
   klv_series_format< klv_0903_vchip_local_set_format >;

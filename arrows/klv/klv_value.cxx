@@ -417,7 +417,6 @@ operator<<( std::ostream& os, klv_value const& rhs )
   klv_value::internal_< T >;
 
 KLV_INSTANTIATE( double );
-KLV_INSTANTIATE( klv_lengthy< double > );
 KLV_INSTANTIATE( int64_t );
 KLV_INSTANTIATE( klv_0102_country_coding_method );
 KLV_INSTANTIATE( klv_0102_security_classification );
@@ -438,21 +437,13 @@ KLV_INSTANTIATE( klv_0806_aoi_type );
 KLV_INSTANTIATE( klv_0806_user_defined_data );
 KLV_INSTANTIATE( klv_0806_user_defined_data_type );
 KLV_INSTANTIATE( klv_0806_user_defined_data_type_id );
-KLV_INSTANTIATE( klv_0903_algorithm_series )
 KLV_INSTANTIATE( klv_0903_detection_status );
 KLV_INSTANTIATE( klv_0903_fpa_index );
 KLV_INSTANTIATE( klv_0903_location_pack );
-KLV_INSTANTIATE( klv_0903_location_series );
-KLV_INSTANTIATE( klv_0903_ontology_series );
 KLV_INSTANTIATE( klv_0903_pixel_run );
-KLV_INSTANTIATE( klv_0903_pixel_run_series );
-KLV_INSTANTIATE( klv_0903_vchip_series );
 KLV_INSTANTIATE( klv_0903_velocity_pack );
-KLV_INSTANTIATE( klv_0903_vobject_series );
 KLV_INSTANTIATE( klv_0903_vtarget_pack );
-KLV_INSTANTIATE( klv_0903_vtarget_series );
 KLV_INSTANTIATE( klv_0903_vtrackitem_pack );
-KLV_INSTANTIATE( klv_0903_vtrackitem_series );
 KLV_INSTANTIATE( klv_1010_sdcc_flp );
 KLV_INSTANTIATE( klv_1108_assessment_point );
 KLV_INSTANTIATE( klv_1108_compression_profile );
@@ -462,15 +453,20 @@ KLV_INSTANTIATE( klv_1108_metric_period_pack );
 KLV_INSTANTIATE( klv_1108_window_corners_pack );
 KLV_INSTANTIATE( klv_1204_miis_id );
 KLV_INSTANTIATE( klv_blob );
+KLV_INSTANTIATE( klv_lengthy< double > );
 KLV_INSTANTIATE( klv_local_set );
-KLV_INSTANTIATE( klv_uint_series );
 KLV_INSTANTIATE( klv_universal_set );
 KLV_INSTANTIATE( klv_uuid );
 KLV_INSTANTIATE( std::string );
-KLV_INSTANTIATE( std::vector< klv_packet > );
 KLV_INSTANTIATE( std::vector< klv_0601_payload_record > );
 KLV_INSTANTIATE( std::vector< klv_0601_weapons_store > );
+KLV_INSTANTIATE( std::vector< klv_0903_location_pack > );
+KLV_INSTANTIATE( std::vector< klv_0903_pixel_run > );
+KLV_INSTANTIATE( std::vector< klv_0903_vtarget_pack > );
+KLV_INSTANTIATE( std::vector< klv_local_set > );
+KLV_INSTANTIATE( std::vector< klv_packet > );
 KLV_INSTANTIATE( std::vector< uint16_t > );
+KLV_INSTANTIATE( std::vector< uint64_t > );
 KLV_INSTANTIATE( uint64_t );
 
 } // namespace klv

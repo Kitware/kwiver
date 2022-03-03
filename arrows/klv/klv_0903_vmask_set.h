@@ -75,11 +75,6 @@ private:
 };
 
 // ----------------------------------------------------------------------------
-/// Series of ST0903 pixel runs.
-using klv_0903_pixel_run_series =
-  klv_series< klv_0903_pixel_run_format >;
-
-// ----------------------------------------------------------------------------
 /// Interprets data as a ST0903 pixel run series.
 using klv_0903_pixel_run_series_format =
   klv_series_format< klv_0903_pixel_run_format >;

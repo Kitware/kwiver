@@ -56,11 +56,6 @@ public:
 };
 
 // ----------------------------------------------------------------------------
-/// A series of ST0903 algorithms local sets.
-using klv_0903_algorithm_series =
-  klv_series< klv_0903_algorithm_local_set_format >;
-
-// ----------------------------------------------------------------------------
 /// Interprets data as a ST0903 algorithm series.
 using klv_0903_algorithm_series_format =
   klv_series_format< klv_0903_algorithm_local_set_format >;

@@ -55,11 +55,6 @@ klv_tag_traits_lookup const&
 klv_0903_vobject_set_traits_lookup();
 
 // ----------------------------------------------------------------------------
-/// Series of ST0903 vObject local sets.
-using klv_0903_vobject_series =
-  klv_series< klv_0903_vobject_local_set_format >;
-
-// ----------------------------------------------------------------------------
 /// Interprets data as a ST0903 vObject series.
 using klv_0903_vobject_series_format =
   klv_series_format< klv_0903_vobject_local_set_format >;

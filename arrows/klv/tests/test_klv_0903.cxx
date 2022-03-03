@@ -54,12 +54,10 @@ auto const expected_result = klv_local_set{
   { KLV_0903_VERTICAL_FOV, kld{ 10.0 } },
   { KLV_0903_MIIS_ID, klv_value{} },
   { KLV_0903_VTARGET_SERIES,
-    klv_0903_vtarget_series{ {
-      klv_0903_vtarget_pack{
-        1, klv_local_set{
+    std::vector< klv_0903_vtarget_pack >{
+      { 1, klv_local_set{
           { KLV_0903_VTARGET_CENTROID, uint64_t{ 409600 } } } },
-      klv_0903_vtarget_pack{
-        1234, klv_local_set{
+      { 1234, klv_local_set{
           { KLV_0903_VTARGET_BOUNDARY_TOP_LEFT, uint64_t{ 409600 } },
           { KLV_0903_VTARGET_BOUNDARY_BOTTOM_RIGHT, uint64_t{ 409600 } },
           { KLV_0903_VTARGET_PRIORITY, uint64_t{ 27 } },
@@ -89,20 +87,20 @@ auto const expected_result = klv_local_set{
           { KLV_0903_VTARGET_VTRACKER, {} },
           { KLV_0903_VTARGET_VCHIP, {} },
           { KLV_0903_VTARGET_VCHIP_SERIES, {} },
-          { KLV_0903_VTARGET_VOBJECT_SERIES, {} }, } } } } },
-  { KLV_0903_ALGORITHM_SERIES, klv_0903_algorithm_series{ {
-      klv_local_set{
-        { KLV_0903_ALGORITHM_ID, uint64_t{ 9 } },
+          { KLV_0903_VTARGET_VOBJECT_SERIES, {} }, } } } },
+  { KLV_0903_ALGORITHM_SERIES,
+    std::vector< klv_local_set >{
+      { { KLV_0903_ALGORITHM_ID, uint64_t{ 9 } },
         { KLV_0903_ALGORITHM_NAME, std::string{ "k6_yolo_9000_tracker" } },
         { KLV_0903_ALGORITHM_VERSION, std::string{ "2.6a" } },
         { KLV_0903_ALGORITHM_CLASS, std::string{ "kalmann" } },
-        { KLV_0903_ALGORITHM_NUM_FRAMES, uint64_t{ 10 } }, } } } },
-  { KLV_0903_ONTOLOGY_SERIES, klv_0903_ontology_series{ {
-      klv_local_set{
-        { KLV_0903_ONTOLOGY_ID, uint64_t{ 17 } },
+        { KLV_0903_ALGORITHM_NUM_FRAMES, uint64_t{ 10 } }, } } },
+  { KLV_0903_ONTOLOGY_SERIES,
+    std::vector< klv_local_set >{
+      { { KLV_0903_ONTOLOGY_ID, uint64_t{ 17 } },
         { KLV_0903_ONTOLOGY_PARENT_ID, uint64_t{ 12 } },
         { KLV_0903_ONTOLOGY_URI, std::string{ "URI" } },
-        { KLV_0903_ONTOLOGY_CLASS, std::string{ "class" } }, } } } }, };
+        { KLV_0903_ONTOLOGY_CLASS, std::string{ "class" } } } } } };
 
 // ----------------------------------------------------------------------------
 auto const input_bytes = klv_bytes_t{
@@ -247,13 +245,12 @@ TEST ( klv, read_write_0903_vtarget_location )
 TEST ( klv, read_write_0903_boundary_series )
 {
   auto const expected_result =
-    klv_0903_location_series{ {
-    klv_0903_location_pack{
-      -87.984282970428467,
+    std::vector< klv_0903_location_pack >{
+    { -87.984282970428467,
       -115.49705505371094,
       1671.0,
       klv_0903_sigma_pack{ 8.0625, 24.125, 40.1875 },
-      klv_0903_rho_pack{ -0.748046875, -0.24609375, 0.255859375 }, } } };
+      klv_0903_rho_pack{ -0.748046875, -0.24609375, 0.255859375 } } };
 
   auto const input_bytes = klv_bytes_t{
     22,
@@ -275,15 +272,12 @@ TEST ( klv, read_write_0903_vmask )
 {
   auto const expected_result = klv_local_set{
     { KLV_0903_VMASK_POLYGON,
-      klv_uint_series{ {
-        uint64_t{ 14762 },
-        uint64_t{ 14783 },
-        uint64_t{ 15115 } } } },
+      std::vector< uint64_t >{ 14762, 14783, 15115 } },
     { KLV_0903_VMASK_BITMASK_SERIES,
-      klv_0903_pixel_run_series{ {
-        klv_0903_pixel_run{ 74, 2 },
-        klv_0903_pixel_run{ 89, 4 },
-        klv_0903_pixel_run{ 106, 2 } } } } };
+      std::vector< klv_0903_pixel_run >{
+        { 74, 2 },
+        { 89, 4 },
+        { 106, 2 } } } };
 
   auto const input_bytes = klv_bytes_t{
     0x01, 0x09,

@@ -55,11 +55,6 @@ public:
 };
 
 // ----------------------------------------------------------------------------
-/// Series of ST0903 ontology local sets.
-using klv_0903_ontology_series =
-  klv_series< klv_0903_ontology_local_set_format >;
-
-// ----------------------------------------------------------------------------
 /// Interprets data as a ST0903 ontology series.
 using klv_0903_ontology_series_format =
   klv_series_format< klv_0903_ontology_local_set_format >;

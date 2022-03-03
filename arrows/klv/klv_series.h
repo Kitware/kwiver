@@ -12,7 +12,6 @@
 #include <arrows/klv/klv_util.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
-#include <initializer_list>
 #include <ostream>
 #include <vector>
 
@@ -22,57 +21,13 @@ namespace arrows {
 
 namespace klv {
 
-template < class Format >
-class KWIVER_ALGO_KLV_EXPORT klv_series
-{
-public:
-  using data_type = typename Format::data_type;
-  using container_t = std::vector< klv_value >;
-
-  template < class... Args >
-  klv_series( container_t const& elements, Args&&... args );
-
-  container_t& operator*();
-
-  container_t const& operator*() const;
-
-  container_t* operator->();
-
-  container_t const* operator->() const;
-
-  Format const&
-  format() const;
-
-private:
-  Format m_format;
-  container_t m_elements;
-};
-
-// ----------------------------------------------------------------------------
-template < class Format >
-KWIVER_ALGO_KLV_EXPORT
-std::ostream&
-operator<<( std::ostream& os, klv_series< Format > const& value );
-
-// ----------------------------------------------------------------------------
-template < class Format >
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_series< Format > const& lhs, klv_series< Format > const& rhs );
-
-// ----------------------------------------------------------------------------
-template < class Format >
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_series< Format > const& lhs, klv_series< Format > const& rhs );
-
 // ----------------------------------------------------------------------------
 template < class Format >
 class KWIVER_ALGO_KLV_EXPORT klv_series_format
-  : public klv_data_format_< klv_series< Format > >
+  : public klv_data_format_< std::vector< typename Format::data_type > >
 {
 public:
-  using klv_series_t = klv_series< Format >;
+  using element_t = typename Format::data_type;
 
   template < class... Args >
   klv_series_format( Args&&... args );
@@ -81,21 +36,22 @@ public:
   description() const override;
 
 protected:
-  klv_series_t
+  std::vector< element_t >
   read_typed( klv_read_iter_t& data, size_t length ) const override;
 
   void
-  write_typed( klv_series_t const& value,
+  write_typed( std::vector< element_t > const& value,
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_series_t const& value ) const override;
+  length_of_typed( std::vector< element_t > const& value ) const override;
+
+  std::ostream&
+  print_typed( std::ostream& os,
+               std::vector< element_t > const& value ) const override;
 
   Format m_format;
 };
-
-// ----------------------------------------------------------------------------
-using klv_uint_series = klv_series< klv_uint_format >;
 
 // ----------------------------------------------------------------------------
 using klv_uint_series_format = klv_series_format< klv_uint_format >;

@@ -160,11 +160,6 @@ public:
 };
 
 // ----------------------------------------------------------------------------
-/// Series of ST0903 vTarget packs.
-using klv_0903_vtarget_series =
-  klv_series< klv_0903_vtarget_pack_format >;
-
-// ----------------------------------------------------------------------------
 /// Interprets data as a ST0903 vTarget series.
 using klv_0903_vtarget_series_format =
   klv_series_format< klv_0903_vtarget_pack_format >;
