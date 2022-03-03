@@ -151,18 +151,11 @@ klv_data_format_< T >
     // Zero length: null / unknown value
     return klv_value{};
   }
-  else if( m_fixed_length && length != m_fixed_length )
-  {
-    // Invalid length
-    LOG_WARN( kwiver::vital::get_logger( "klv" ),
-              "fixed-length format `" << description() <<
-              "` received wrong number of bytes ( " << length << " )" );
-  }
 
   try
   {
     // Try to parse using this data format
-    return read_typed( data, length );
+    return read_( data, length );
   }
   catch ( std::exception const& e )
   {
@@ -171,6 +164,28 @@ klv_data_format_< T >
                "error occurred during parsing: " << e.what() );
     return klv_read_blob( data, length );
   }
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+T
+klv_data_format_< T >
+::read_( klv_read_iter_t& data, size_t length ) const
+{
+  if( !length )
+  {
+    VITAL_THROW( kwiver::vital::metadata_exception,
+                 "zero length given to read_()" );
+  }
+  else if( m_fixed_length && length != m_fixed_length )
+  {
+    // Invalid length
+    LOG_WARN( kwiver::vital::get_logger( "klv" ),
+              "fixed-length format `" << description() <<
+              "` received wrong number of bytes ( " << length << " )" );
+  }
+
+  return read_typed( data, length );
 }
 
 // ----------------------------------------------------------------------------
@@ -192,30 +207,38 @@ klv_data_format_< T >
   }
   else
   {
-    // Ensure we have enough bytes
-    auto const value_length = length_of( value );
-    if( value_length > max_length )
-    {
-      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
-                   "write will overflow buffer" );
-    }
+    write_( value.get< T >(), data, max_length );
+  }
+}
 
-    // Write the value
-    auto const begin = data;
-    write_typed( value.get< T >(), data, value_length );
+// ----------------------------------------------------------------------------
+template < class T >
+void
+klv_data_format_< T >
+::write_( T const& value, klv_write_iter_t& data, size_t max_length ) const
+{
+  // Ensure we have enough bytes
+  auto const value_length = length_of( value );
+  if( value_length > max_length )
+  {
+    VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+                 "write will overflow buffer" );
+  }
 
-    // Ensure the number of bytes we wrote was how many we said we were going
-    // to write
-    auto const written_length =
-      static_cast< size_t >( std::distance( begin, data ) );
-    if( written_length != value_length )
-    {
-      std::stringstream ss;
-      ss        << "format `" << description() << "`: "
-                << "written length (" << written_length << ") and "
-                << "calculated length (" << value_length <<  ") not equal";
-      throw std::logic_error( ss.str() );
-    }
+  // Write the value
+  auto const begin = data;
+  write_typed( value, data, value_length );
+
+  // Ensure the number of bytes we wrote was how many planned to write
+  auto const written_length =
+    static_cast< size_t >( std::distance( begin, data ) );
+  if( written_length != value_length )
+  {
+    std::stringstream ss;
+    ss << "format `" << description() << "`: "
+       << "written length (" << written_length << ") and "
+       << "calculated length (" << value_length <<  ") not equal";
+    throw std::logic_error( ss.str() );
   }
 }
 
@@ -235,10 +258,17 @@ klv_data_format_< T >
   }
   else
   {
-    return m_fixed_length
-           ? m_fixed_length
-           : length_of_typed( value.get< T >() );
+    return length_of_( value.get< T >() );
   }
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+size_t
+klv_data_format_< T >
+::length_of_( T const& value ) const
+{
+  return m_fixed_length ? m_fixed_length : length_of_typed( value );
 }
 
 // ----------------------------------------------------------------------------
@@ -269,7 +299,16 @@ klv_data_format_< T >
 {
   return !value.valid()
          ? ( os << value )
-         : print_typed( os, value.get< T >() );
+         : print_( os, value.get< T >() );
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+std::ostream&
+klv_data_format_< T >
+::print_( std::ostream& os, T const& value ) const
+{
+  return print_typed( os, value );
 }
 
 // ----------------------------------------------------------------------------

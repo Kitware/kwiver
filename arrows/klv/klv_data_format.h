@@ -144,18 +144,30 @@ public:
   klv_value
   read( klv_read_iter_t& data, size_t length ) const override final;
 
+  T
+  read_( klv_read_iter_t& data, size_t length ) const;
+
   void
   write( klv_value const& value, klv_write_iter_t& data,
          size_t max_length ) const override final;
 
+  void
+  write_( T const& value, klv_write_iter_t& data, size_t max_length ) const;
+
   size_t
   length_of( klv_value const& value ) const override final;
+
+  size_t
+  length_of_( T const& value ) const;
 
   std::type_info const&
   type() const override final;
 
   std::ostream&
   print( std::ostream& os, klv_value const& value ) const override final;
+
+  std::ostream&
+  print_( std::ostream& os, T const& value ) const;
 
 protected:
   // These functions are overridden by the specific data format classes.
