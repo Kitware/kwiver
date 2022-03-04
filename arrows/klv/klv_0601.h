@@ -735,6 +735,51 @@ class KWIVER_ALGO_KLV_EXPORT klv_0601_payload_list_format
 };
 
 // ----------------------------------------------------------------------------
+/// A sensor wavelength record.
+struct klv_0601_wavelength_record
+{
+  uint16_t id;
+  double min;
+  double max;
+  std::string name;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_wavelength_record const& value );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_wavelength_record )
+
+// ----------------------------------------------------------------------------
+/// Interprets data as a list of wavelengths.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_wavelengths_list_format
+  : public klv_data_format_< std::vector< klv_0601_wavelength_record > >
+{
+public:
+  klv_0601_wavelengths_list_format();
+
+  std::string
+  description() const override;
+
+private:
+  std::vector< klv_0601_wavelength_record >
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( std::vector< klv_0601_wavelength_record > const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_0601_wavelength_record const& value ) const;
+
+  size_t
+  length_of_typed(
+    std::vector< klv_0601_wavelength_record > const& value) const override;
+};
+
+// ----------------------------------------------------------------------------
 /// Interprets data as a MISB ST0601 local set.
 class KWIVER_ALGO_KLV_EXPORT klv_0601_local_set_format
   : public klv_local_set_format

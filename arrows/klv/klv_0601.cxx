@@ -879,7 +879,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_WAVELENGTHS_LIST ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_wavelengths_list_format >(),
       "Wavelengths List",
       "List of wavelength bands provided by all available sensors.",
       { 0, 1 } },
@@ -2449,6 +2449,139 @@ klv_0601_local_set_format
   return klv_running_sum_16( checksum_header.begin(), checksum_header.end(),
                              klv_running_sum_16( data, data + length ),
                              length % 2 );
+}
+
+// ----------------------------------------------------------------------------
+/// A sensor wavelength record.
+std::ostream&
+operator<<( std::ostream& os, klv_0601_wavelength_record const& value )
+{
+  return os << "{ "
+            << "ID: "
+            << value.id
+            << ", "
+            << "minimum: "
+            << value.min
+            << ", "
+            << "maximum: "
+            << value.max
+            << ", "
+            << "name: "
+            << value.name
+            << " }";
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_wavelength_record,
+  &klv_0601_wavelength_record::id,
+  &klv_0601_wavelength_record::min,
+  &klv_0601_wavelength_record::max,
+  &klv_0601_wavelength_record::name
+)
+
+// ----------------------------------------------------------------------------
+klv_0601_wavelengths_list_format
+::klv_0601_wavelengths_list_format()
+  : klv_data_format_< std::vector< klv_0601_wavelength_record > >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_wavelengths_list_format
+::description() const
+{
+  return "wavelengths list of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+std::vector< klv_0601_wavelength_record >
+klv_0601_wavelengths_list_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  std::vector< klv_0601_wavelength_record > result = {};
+  auto const tracker = track_it( data, length );
+
+  while( tracker.remaining() )
+  {
+    // Read length of wavelength record
+    klv_read_ber< size_t >( data, tracker.remaining() );
+
+    klv_0601_wavelength_record item = {};
+
+    // Read wavelength id
+    item.id = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+
+    // Read min wavelength
+    item.min = klv_read_imap( 0.0, 1.0e9, data, 4 );
+
+    // Read max wavelength
+    item.max = klv_read_imap( 0.0, 1.0e9, data, 4 );
+
+    // Read wavelength name
+    item.name = klv_read_string( data, tracker.remaining() );
+
+    result.emplace_back( item );
+  }
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_wavelengths_list_format
+::write_typed( std::vector< klv_0601_wavelength_record > const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+
+  for( klv_0601_wavelength_record const& item : value )
+  {
+    // Write size
+    klv_write_ber( length_of_typed( item ), data, tracker.remaining() );
+
+    // Write wavelength id
+    klv_write_ber_oid( item.id, data, tracker.remaining() );
+
+    // Write min wavelength
+    klv_write_imap( item.min, 0.0, 1.0e9, data, 4 );
+
+    // Write max wavelength
+    klv_write_imap( item.max, 0.0, 1.0e9, data, 4 );
+
+    // Write wavelength name
+    klv_write_string( item.name, data, tracker.remaining() );
+  }
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_wavelengths_list_format
+::length_of_typed( klv_0601_wavelength_record const& item ) const
+{
+  // Length of wavelength id
+  size_t const length_of_wavelength_id = klv_ber_oid_length( item.id );
+
+  // Length of wavelength name
+  size_t const length_of_wavelength_name = klv_string_length( item.name );
+
+  return ( length_of_wavelength_id + 8 + length_of_wavelength_name );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_wavelengths_list_format
+::length_of_typed( std::vector< klv_0601_wavelength_record > const& value) const
+{
+  size_t total_length = 0;
+
+  // Length of wavelength list
+  for( klv_0601_wavelength_record const& item : value )
+  {
+    size_t const length_of_wavelength_record = length_of_typed( item );
+    total_length += klv_ber_length( length_of_wavelength_record ) +
+                                    length_of_wavelength_record;
+  }
+  return total_length;
 }
 
 // ----------------------------------------------------------------------------

@@ -183,8 +183,9 @@ auto const expected_result = klv_local_set{
   { KLV_0601_SENSOR_FRAME_RATE_PACK,
     klv_0601_frame_rate{ 60000, 1001 } },
   { KLV_0601_WAVELENGTHS_LIST,
-    klv_blob{ { 0x0D, 0x15, 0x00, 0x00, 0x07, 0xD0, 0x00, 0x00, 0x0F, 0xA0,
-      0x4E, 0x4E, 0x49, 0x52 } } },
+    std::vector< klv_0601_wavelength_record >{
+     { 21, 1000.0, 2000.0, "NNIR" }
+    } },
   { KLV_0601_TARGET_ID,                        std::string{ "A123" } },
   { KLV_0601_AIRBASE_LOCATIONS,
     klv_0601_airbase_locations{

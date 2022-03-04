@@ -1004,6 +1004,7 @@ KLV_INSTANTIATE( klv_universal_set );
 KLV_INSTANTIATE( klv_uuid );
 KLV_INSTANTIATE( std::string );
 KLV_INSTANTIATE( std::vector< klv_0601_payload_record > );
+KLV_INSTANTIATE( std::vector< klv_0601_wavelength_record > );
 KLV_INSTANTIATE( std::vector< klv_0601_weapons_store > );
 KLV_INSTANTIATE( std::vector< klv_0903_location_pack > );
 KLV_INSTANTIATE( std::vector< klv_0903_pixel_run > );
