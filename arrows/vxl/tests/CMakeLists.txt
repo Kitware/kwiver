@@ -25,8 +25,10 @@ kwiver_discover_gtests(vxl image_io                       LIBRARIES ${test_libra
 kwiver_discover_gtests(vxl morphology                     LIBRARIES ${test_libraries}  ARGUMENTS "${kwiver_test_data_directory}")
 kwiver_discover_gtests(vxl pixel_feature_extractor        LIBRARIES ${test_libraries}  ARGUMENTS "${kwiver_test_data_directory}")
 kwiver_discover_gtests(vxl polygon                        LIBRARIES ${test_libraries})
-kwiver_discover_gtests(vxl vidl_ffmpeg_video_input        LIBRARIES ${test_libraries}  ARGUMENTS "${kwiver_test_data_directory}")
 
+if( fletch_ENABLE_FFmpeg AND _FFmpeg_version VERSION_LESS 4 )
+kwiver_discover_gtests(vxl vidl_ffmpeg_video_input        LIBRARIES ${test_libraries}  ARGUMENTS "${kwiver_test_data_directory}")
+endif()
 
 # Additional tests that depend on the MVG arrow
 list(APPEND test_libraries kwiver_algo_mvg)
