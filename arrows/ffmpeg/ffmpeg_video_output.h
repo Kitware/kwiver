@@ -50,7 +50,7 @@ public:
     kwiver::vital::image_container_sptr const& image,
     kwiver::vital::timestamp const& ts ) override;
 
-  void add_metadata( kwiver::vital::metadata_sptr const& md ) override;
+  void add_metadata( kwiver::vital::metadata const& md ) override;
 
 private:
   class impl;

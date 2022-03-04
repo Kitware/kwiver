@@ -116,7 +116,7 @@ public:
   ///
   /// \throws video_stream_exception
   ///   Thrown if is an error in the video stream.
-  virtual void add_metadata( kwiver::vital::metadata_sptr const& md ) = 0;
+  virtual void add_metadata( kwiver::vital::metadata const& md ) = 0;
 
   /// Return capabilities of concrete implementation.
   ///
