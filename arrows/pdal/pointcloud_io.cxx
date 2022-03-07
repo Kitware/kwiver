@@ -8,7 +8,6 @@
  */
 
 #include "pointcloud_io.h"
-#include <arrows/pdal/pdal_config.h>
 #include <vital/logger/logger.h>
 #include <vital/exceptions/base.h>
 #include <vital/exceptions/io.h>

@@ -4,8 +4,8 @@
 
 #include "color_mesh.h"
 
+#include <kwiver_config.h>
 #include <arrows/core/colorize.h>
-#include <arrows/pdal/pdal_config.h>
 #include <arrows/vtk/mesh_coloration.h>
 #include <vital/types/camera_map.h>
 #include <vital/algo/video_input.h>

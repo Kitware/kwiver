@@ -4,9 +4,9 @@
 
 #include "fuse_depth.h"
 
+#include <kwiver_config.h>
 #include <arrows/core/depth_utils.h>
 #include <arrows/mvg/sfm_utils.h>
-#include <arrows/pdal/pdal_config.h>
 #include <arrows/vtk/depth_utils.h>
 
 #ifdef KWIVER_ENABLE_PDAL
