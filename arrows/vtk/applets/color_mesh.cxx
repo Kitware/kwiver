@@ -454,7 +454,8 @@ public:
     vtkSmartPointer<vtkPoints> inPts = mesh->GetPoints();
     vtkIdType numPts = inPts->GetNumberOfPoints();
     std::string colorArrayName = mesh->GetPointData()->GetScalars()->GetName();
-    vtkSmartPointer<vtkDataArray> da = mesh->GetPointData()->GetArray(colorArrayName.c_str());
+    vtkSmartPointer<vtkDataArray> da = mesh->GetPointData()->GetArray(
+      colorArrayName.c_str());
     vtkUnsignedCharArray* rgbArray = nullptr;
 
     std::vector<vital::vector_3d> points(numPts);

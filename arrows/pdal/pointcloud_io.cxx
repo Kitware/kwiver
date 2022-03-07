@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of PDAL point cloud writer
- */
+/// \file
+/// \brief Implementation of PDAL point cloud writer
 
 #include "pointcloud_io.h"
 #include <vital/logger/logger.h>
@@ -27,8 +25,8 @@ namespace pdal {
 /// Write landmarks to a file with PDAL
 void
 save_point_cloud_las(vital::path_t const& filename,
-             vital::local_geo_cs const& lgcs,
-             vital::landmark_map_sptr const& landmarks)
+                     vital::local_geo_cs const& lgcs,
+                     vital::landmark_map_sptr const& landmarks)
 {
   std::vector<vital::vector_3d> points;
   std::vector<vital::rgb_color> colors;
@@ -45,9 +43,9 @@ save_point_cloud_las(vital::path_t const& filename,
 /// Write point cloud to a file with PDAL
 void
 save_point_cloud_las(vital::path_t const& filename,
-           vital::local_geo_cs const& lgcs,
-           std::vector<vital::vector_3d> const& points,
-           std::vector<vital::rgb_color> const& colors)
+                     vital::local_geo_cs const& lgcs,
+                     std::vector<vital::vector_3d> const& points,
+                     std::vector<vital::rgb_color> const& colors)
 {
   namespace kv = kwiver::vital;
   kv::logger_handle_t logger( kv::get_logger( "save_point_cloud_las" ) );
