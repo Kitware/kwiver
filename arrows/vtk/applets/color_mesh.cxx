@@ -5,7 +5,7 @@
 #include "color_mesh.h"
 
 #include <arrows/core/colorize.h>
-#include <arrows/pdal/pointcloud_io.h>
+#include <arrows/pdal/pdal_config.h>
 #include <arrows/vtk/mesh_coloration.h>
 #include <vital/types/camera_map.h>
 #include <vital/algo/video_input.h>
@@ -19,6 +19,10 @@
 #include <vital/config/config_parser.h>
 #include <vital/util/get_paths.h>
 #include <vital/util/transform_image.h>
+
+#ifdef KWIVER_ENABLE_PDAL
+#include <arrows/pdal/pointcloud_io.h>
+#endif
 
 #include <kwiversys/SystemTools.hxx>
 #include <kwiversys/CommandLineArguments.hxx>
@@ -442,6 +446,8 @@ public:
   void save_mesh_las(vtkSmartPointer<vtkPolyData> mesh,
                      char const * output_path)
   {
+#ifdef KWIVER_ENABLE_PDAL
+
     auto lgcs = vital::local_geo_cs();
     read_local_geo_cs_from_file(lgcs, input_geo_origin_file_);
 
@@ -474,6 +480,11 @@ public:
     }
 
     kwiver::arrows::pdal::save_point_cloud_las(output_path, lgcs, points, colors);
+#else
+    throw vital::file_write_exception(output_path,
+                                      "KWIVER was not compiled with PDAL, "
+                                      "cannot write LAS.");
+#endif
   }
 
   bool run_algorithm()

@@ -6,8 +6,12 @@
 
 #include <arrows/core/depth_utils.h>
 #include <arrows/mvg/sfm_utils.h>
-#include <arrows/pdal/pointcloud_io.h>
+#include <arrows/pdal/pdal_config.h>
 #include <arrows/vtk/depth_utils.h>
+
+#ifdef KWIVER_ENABLE_PDAL
+#include <arrows/pdal/pointcloud_io.h>
+#endif
 
 #include <kwiversys/Directory.hxx>
 #include <kwiversys/SystemTools.hxx>
@@ -398,6 +402,8 @@ public:
       }
       else if ( extension == ".las" )
       {
+#ifdef KWIVER_ENABLE_PDAL
+
         auto lgcs = vital::local_geo_cs();
         read_local_geo_cs_from_file(lgcs, input_geo_origin_file);
 
@@ -413,6 +419,11 @@ public:
         }
 
         kwiver::arrows::pdal::save_point_cloud_las(output_mesh_file, lgcs, points, colors);
+#else
+        throw vital::file_write_exception(output_mesh_file,
+                                          "KWIVER was not compiled with PDAL, "
+                                          "cannot write LAS.");
+#endif
       }
       else
       {

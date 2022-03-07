@@ -13,7 +13,6 @@
 #include <vital/exceptions/base.h>
 #include <vital/exceptions/io.h>
 
-#ifdef KWIVER_ENABLE_PDAL
 #include <pdal/PointView.hpp>
 #include <pdal/PointTable.hpp>
 #include <pdal/Dimension.hpp>
@@ -21,7 +20,6 @@
 #include <pdal/StageFactory.hpp>
 
 #include <io/BufferReader.hpp>
-#endif
 
 namespace kwiver {
 namespace arrows {
@@ -54,8 +52,6 @@ save_point_cloud_las(vital::path_t const& filename,
 {
   namespace kv = kwiver::vital;
   kv::logger_handle_t logger( kv::get_logger( "save_point_cloud_las" ) );
-
-#ifdef KWIVER_ENABLE_PDAL
 
   if( !colors.empty() && colors.size() != points.size() )
   {
@@ -126,13 +122,6 @@ save_point_cloud_las(vital::path_t const& filename,
   writer->setOptions(options);
   writer->prepare(table);
   writer->execute(table);
-
-#else
-
-  throw vital::file_write_exception(filename,
-                                    "KWIVER was not compiled with PDAL, "
-                                    "cannot write LAS.");
-#endif
 }
 
 } // end namespace pdal
