@@ -113,6 +113,13 @@ public:
     remove_masked_ = remove_masked;
   }
 
+  /// Set whether to remove (\c false) points not colored
+  void
+  set_remove_not_colored( bool remove_not_colored )
+  {
+    remove_not_colored_ = remove_not_colored;
+  }
+
   /// Color the mesh.
   ///
   /// Adds mean and median colors to \c output_ if \c all_frames is \c false,
@@ -144,6 +151,7 @@ protected:
   float occlusion_threshold_;
   bool remove_occluded_;
   bool remove_masked_;
+  bool remove_not_colored_;
 
   kwiver::vital::logger_handle_t logger_;
 
