@@ -473,8 +473,7 @@ public:
       }
     }
 
-    auto pointcloud_writer = new kwiver::arrows::pdal::pointcloud_io();
-    pointcloud_writer->save_(output_path, lgcs, points, colors);
+    kwiver::arrows::pdal::save_point_cloud_las(output_path, lgcs, points, colors);
   }
 
   bool run_algorithm()

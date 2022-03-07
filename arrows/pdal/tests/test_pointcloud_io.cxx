@@ -34,11 +34,6 @@ class pointcloud_io : public ::testing::Test
 };
 
 // ----------------------------------------------------------------------------
-TEST_F(pointcloud_io, create) {
-  auto pcio_ptr = new kwiver::arrows::pdal::pointcloud_io();
-  ASSERT_NE(pcio_ptr, nullptr);
-}
-
 TEST_F(pointcloud_io, save_geo_origin) {
     auto const geo_origin_path = data_dir + "/geo_origin.txt";
     auto const landmarks_path = data_dir + "/landmarks.ply";
@@ -53,6 +48,5 @@ TEST_F(pointcloud_io, save_geo_origin) {
     auto lgcs = kwiver::vital::local_geo_cs();
     read_local_geo_cs_from_file(lgcs, geo_origin_path);
 
-    auto io = new kwiver::arrows::pdal::pointcloud_io();
-    io->save_(tmp_path, lgcs, landmark_map);
+    kwiver::arrows::pdal::save_point_cloud_las(tmp_path, lgcs, landmark_map);
 }

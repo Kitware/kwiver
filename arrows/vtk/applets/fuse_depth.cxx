@@ -412,8 +412,7 @@ public:
           inPts->GetPoint(i, points[i].data());
         }
 
-        auto pointcloud_writer = new kwiver::arrows::pdal::pointcloud_io();
-        pointcloud_writer->save_(output_mesh_file, lgcs, points, colors);
+        kwiver::arrows::pdal::save_point_cloud_las(output_mesh_file, lgcs, points, colors);
       }
       else
       {

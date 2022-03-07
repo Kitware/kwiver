@@ -29,7 +29,7 @@ namespace pdal {
 
 /// Write landmarks to a file with PDAL
 void
-pointcloud_io::save_(vital::path_t const& filename,
+save_point_cloud_las(vital::path_t const& filename,
              vital::local_geo_cs const& lgcs,
              vital::landmark_map_sptr const& landmarks)
 {
@@ -42,24 +42,24 @@ pointcloud_io::save_(vital::path_t const& filename,
     points.push_back(lm.second->loc());
     colors.push_back(lm.second->color());
   }
-  pointcloud_io::save_(filename, lgcs, points, colors);
+  save_point_cloud_las(filename, lgcs, points, colors);
 }
 
 /// Write point cloud to a file with PDAL
 void
-pointcloud_io::save_(vital::path_t const& filename,
+save_point_cloud_las(vital::path_t const& filename,
            vital::local_geo_cs const& lgcs,
            std::vector<vital::vector_3d> const& points,
            std::vector<vital::rgb_color> const& colors)
 {
   namespace kv = kwiver::vital;
-  kv::logger_handle_t logger( kv::get_logger( "save_" ) );
+  kv::logger_handle_t logger( kv::get_logger( "save_point_cloud_las" ) );
 
 #ifdef KWIVER_ENABLE_PDAL
 
   if( !colors.empty() && colors.size() != points.size() )
   {
-    throw vital::invalid_value("save_: number of colors provided does "
+    throw vital::invalid_value("save_point_cloud_las: number of colors provided does "
                                "not match the number of points");
   }
 

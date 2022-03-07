@@ -19,22 +19,20 @@ namespace kwiver {
 namespace arrows {
 namespace pdal {
 
-class KWIVER_ALGO_PDAL_EXPORT pointcloud_io
-{
-public:
-    /// Write landmarks to a file with PDAL
-    void
-    save_(vital::path_t const& filename,
-            vital::local_geo_cs const& lgcs,
-            vital::landmark_map_sptr const& landmarks);
+/// Write landmarks to a file with PDAL
+KWIVER_ALGO_PDAL_EXPORT
+void
+save_point_cloud_las(vital::path_t const& filename,
+        vital::local_geo_cs const& lgcs,
+        vital::landmark_map_sptr const& landmarks);
 
-    /// Write point cloud to a file with PDAL
-    void
-    save_(vital::path_t const& filename,
-            vital::local_geo_cs const& lgcs,
-            std::vector<vital::vector_3d> const& points,
-            std::vector<vital::rgb_color> const& colors = {});
-};
+/// Write point cloud to a file with PDAL
+KWIVER_ALGO_PDAL_EXPORT
+void
+save_point_cloud_las(vital::path_t const& filename,
+        vital::local_geo_cs const& lgcs,
+        std::vector<vital::vector_3d> const& points,
+        std::vector<vital::rgb_color> const& colors = {});
 
 } // end namespace pdal
 } // end namespace arrows
