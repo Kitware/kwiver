@@ -47,6 +47,9 @@ else()
       VTK::CommonDataModel
       VTK::IOImage
       VTK::IOXML)
+  vtk_module_autoinit(
+    TARGETS kwiver_algo_vtk
+    MODULES ${VTK_public_targets} ${VTK_private_targets})
 endif()
 
 target_link_libraries( kwiver_algo_vtk

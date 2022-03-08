@@ -26,7 +26,7 @@ image and video processing projects and integrate them into highly
 modular, run-time configurable systems.
 
 For more information on how KWIVER achieves this goal,
-and how to use KWIVER visit our `documentation site <http://kwiver.readthedocs.io/en/latest/>`_
+and how to use KWIVER visit our `documentation site <http://kwiver.readthedocs.io/en/latest/>`_.
 
 Directory Structure and Provided Functionality
 ==============================================
@@ -97,14 +97,14 @@ For building Fletch_, refer to the README file in that repository.
 Running CMake
 -------------
 
-You may run cmake directly from a shell or cmd window.
+You may run CMake directly from a shell or cmd window.
 On unix systems, the ccmake tool allows for interactive selection of CMake options.
 Available for all platforms, the CMake GUI can set the source and build directories, options,
-"Configure" and "Generate" the build files all with the click of a few button.
+"Configure" and "Generate" the build files all with the click of a few buttons.
 
 We recommend building KWIVER out of the source directory to prevent mixing
 source files with compiled products.  Create a build directory in parallel
-with the KWIVER source directory for each desired configuration. For example :
+with the KWIVER source directory for each desired configuration. For example:
 
 ========================== ===================================================================
 ``\kwiver\src``             contains the code from the git repository
@@ -112,7 +112,7 @@ with the KWIVER source directory for each desired configuration. For example :
 ``\kwiver\build\debug``     contains the built files for the debug configuration
 ========================== ===================================================================
 
-The following are the most important CMake configuration options for KWIVER.
+The following are the most important CMake configuration options for KWIVER:
 
 ============================= ====================================================================
 ``CMAKE_BUILD_TYPE``          The compiler mode, usually Debug or Release
@@ -135,12 +135,12 @@ with the support of Fletch_ (set ``fletch_DIR``) the enable options for
 packages built by Fletch should be turned on by default.
 The fletch_DIR is the fletch build directory root, which contains the fletchConfig.cmake file.
 
-The following sections will walk you through the basic options for a minimal kwiver build.
+The following sections will walk you through the basic options for a minimal KWIVER build.
 
 Basic CMake generation via command line
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Note, This assumes your fletch was built with python support (Turn OFF if not)
+Note, This assumes your fletch was built with python support (Turn OFF if not).
 
 You will also need to replace the fletch path with your own::
 
@@ -155,13 +155,13 @@ You will also need to replace the fletch path with your own::
 Basic CMake generation using ccmake
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When first configuring a kwiver build with ccmake it is preferable to set the build
+When first configuring a KWIVER build with ccmake it is preferable to set the build
 configuration and ``fletch_DIR`` on the command line like this::
 
   $ ccmake /path/to/kwiver/source -DCMAKE_BUILD_TYPE=Release -Dfletch_DIR=/path/to/fletch/install
 
 Other CMake options can also be passed on the command line in this way if desired.
-Follow the recommended option setup using the cmake GUI.
+Follow the recommended options setup using the CMake GUI.
 
 Basic CMake generation using the CMake GUI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -171,7 +171,7 @@ options to better organize the options available. Note, after clicking the
 configuration button, new options will be highlighted in the red sections.
 
 1. Once the source code and build directories are set, press the 'Configuration'
-   button and select your compiler.
+   button and select your compiler
 
    a. Configuration will fail, but now we can set option values
 
@@ -185,8 +185,8 @@ configuration button, new options will be highlighted in the red sections.
 
 3. Select these new options, and click 'Generate'
 
-   a. This assumes your fletch was build with python support,
-      if not, do not check that option
+   a. This assumes your fletch was built with python support.
+      If not, do not check this option
 
 .. image:: doc/manuals/_images/cmake/cmake_step_3.png
    :alt: KWIVER CMake Configuration Step 3
@@ -201,7 +201,7 @@ this is typically running ``make``.
 There is also a build target, INSTALL. This target will build all code,
 then create an install directory inside the build directory.  This install
 folder will be populated with all binaries, libraries, headers, and other files
-you will need to develop your application with kwiver. MSVC users, note that
+you will need to develop your application with KWIVER. MSVC users, note that
 this install directory is for a single build configuration; there will not be
 configuration named directories in this directory structure
 (i.e. no ``/bin/release``, only ``/bin``).
@@ -248,21 +248,21 @@ You can run this simple pipeline to ensure your system is configured properly::
 
 This will generate a 'numbers.txt' file in the </path/to/kwiver/build>/examples/pipelines/output directory.
 
-More examples can be found in our `tutorials <http://kwiver.readthedocs.io/en/latest/tutorials.html>`_
+More examples can be found in our `tutorials <http://kwiver.readthedocs.io/en/latest/tutorials.html>`_.
 
 KWIVER Users
 ============
 
-Here are some applications using kwiver that serve as an example of how to
-leverage kwiver for a specific application
+Here are some applications using KWIVER that serve as an example of how to
+leverage KWIVER for a specific application:
 
 ========== ================================================================
-MAP-Tk_    A collection tools for structure-from-motion and dense 3D
+MAP-Tk_    A collection of tools for structure-from-motion and dense 3D
            reconstruction from imagery with an emphasis on aerial video.
            The primary component is a GUI application named TeleSculptor.
 VIAME_     A computer vision library designed to integrate several image and
            video processing algorithms together in a common distributed
-           processing framework, majorly targeting marine species analytics
+           processing framework, majorly targeting marine species analytics.
 ========== ================================================================
 
 Testing
