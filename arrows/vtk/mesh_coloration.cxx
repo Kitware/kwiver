@@ -348,22 +348,6 @@ mesh_coloration
   removedPoints->SetNumberOfTuples(nbMeshPoint);
   vtkIdType removedPointsIndex = 0;
 
-  vtkNew<vtkIntArray> dot;
-  dot->SetName("dot");
-  dot->SetNumberOfTuples(nbMeshPoint);
-  dot->FillComponent(0, 0);
-
-  auto const width = static_cast< int >( data_list_[0].image_.width() );
-  auto const height = static_cast< int >( data_list_[0].image_.height() );
-  vtkNew<vtkDoubleArray> depthBufferArray;
-  depthBufferArray->SetNumberOfTuples(width * height);
-  depthBufferArray->SetName("depthBufferArray");
-  depthBufferArray->FillComponent(0, 0);
-  vtkNew<vtkDoubleArray> depthArray;
-  depthArray->SetNumberOfTuples(width * height);
-  depthArray->SetName("depthArray");
-  depthArray->FillComponent(0, 0);
-
   for( auto const pointId : kvr::iota( nbMeshPoint ) )
   {
     if( pointId % progress_step == 0 )
@@ -395,7 +379,6 @@ mesh_coloration
 
       if( depth <= 0.0 )
       {
-        dot->SetValue(pointId, 1);
         continue;
       }
 
@@ -404,7 +387,6 @@ mesh_coloration
 
       if( cameraPointVec.dot( pointNormal ) > 0.0 )
       {
-        dot->SetValue(pointId, 2);
         continue;
       }
 
@@ -419,7 +401,6 @@ mesh_coloration
           pixelPosition[ 0 ] >= static_cast< double >( width ) ||
           pixelPosition[ 1 ] >= static_cast< double >( height ) )
       {
-        dot->SetValue(pointId, 3);
         continue;
       }
 
@@ -440,7 +421,6 @@ mesh_coloration
       {
         auto const x = static_cast< size_t >( pixelPosition[ 0 ] );
         auto const y = static_cast< size_t >( pixelPosition[ 1 ] );
-        depthArray->SetValue( x + width * ( height - y - 1 ), depth);
         kwiver::vital::rgb_color rgb = colorImage.at( x, y );
         bool showPoint = true;
 
@@ -458,7 +438,6 @@ mesh_coloration
               static_cast< vtkIdType >( x + width * ( height - y - 1 ) ) );
           depthBufferValue =
             2 * range[1] * range[0] / (range[1] + range[0] - (2 * depthBufferValueNorm - 1) * (range[1] - range[0]));
-          depthBufferArray->SetValue( x + width * ( height - y - 1 ), depthBufferValueNorm);
         }
         if( ( !remove_occluded_ ||
               depthBufferValue + occlusion_threshold_ > depth ) &&
@@ -476,14 +455,9 @@ mesh_coloration
             perFrameColor[ frameId ]->SetTypedTuple( pointId, rgba );
           }
         }
-        else
-        {
-          dot->SetValue(pointId, 4);
-        }
       }
       catch ( std::out_of_range const& )
       {
-        dot->SetValue(pointId, 5);
         continue;
       }
       ++coloredCount;
@@ -518,26 +492,6 @@ mesh_coloration
       list2.clear();
     }
   }
-
-  vtkNew<vtkImageData> image;
-  image->SetOrigin(0, 0, 0);
-  image->SetSpacing(1, 1, 1);
-  image->SetDimensions(data_list_[0].image_.width(), data_list_[0].image_.height(), 1);
-  image->GetPointData()->AddArray(depthBuffer[0].Buffer);
-  image->GetPointData()->AddArray(depthBufferArray);
-  image->GetPointData()->AddArray(depthArray);
-
-  vtkNew<vtkXMLImageDataWriter> writer;
-  writer->SetInputDataObject(image);
-  writer->SetFileName("depth.vti");
-  writer->Write();
-
-  input_->GetPointData()->AddArray(dot);
-
-  vtkNew<vtkXMLPolyDataWriter> pwriter;
-  pwriter->SetInputDataObject(input_);
-  pwriter->SetFileName("test.vtp");
-  pwriter->Write();
 
   removedPoints->SetNumberOfTuples(removedPointsIndex);
   if( !all_frames_ )
