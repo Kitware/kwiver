@@ -7,11 +7,13 @@ set( sources
 
   dump_klv.cxx
   render_mesh.cxx
+  transcode.cxx
   )
 
 set( headers
   dump_klv.h
   render_mesh.h
+  transcode.h
   )
 
 ###

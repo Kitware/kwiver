@@ -201,6 +201,7 @@ ffmpeg_video_output
     VITAL_THROW( kv::video_runtime_exception,
                  "Failed to allocate format context" );
   }
+  d->output_format = d->format_context->oformat;
 
   // Configure video codec
   d->codec = avcodec_find_encoder( d->output_format->video_codec );
@@ -298,7 +299,7 @@ ffmpeg_video_output
                    "Failed to write video header" );
     }
   }
-  if( output_status != AVSTREAM_INIT_IN_INIT_OUTPUT )
+  else if( output_status != AVSTREAM_INIT_IN_INIT_OUTPUT )
   {
     VITAL_THROW( kv::video_runtime_exception,
                  "Failed to initialize output stream" );
@@ -493,7 +494,7 @@ ffmpeg_video_output
 // ----------------------------------------------------------------------------
 void
 ffmpeg_video_output
-::add_metadata( kwiver::vital::metadata_sptr const& md )
+::add_metadata( kwiver::vital::metadata const& md )
 {
   // TODO
 }

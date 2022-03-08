@@ -1,10 +1,11 @@
 set(config_files
+  color_mesh.conf
   dump_klv.conf
   estimate_depth.conf
   fuse_depth.conf
   init_cameras_landmarks.conf
   track_features.conf
-  color_mesh.conf
+  transcode.conf
   )
 
 # Ensure target directory exists
