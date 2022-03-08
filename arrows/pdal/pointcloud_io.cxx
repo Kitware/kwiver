@@ -2,18 +2,14 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of PDAL point cloud writer
- */
+/// \file
+/// \brief Implementation of PDAL point cloud writer
 
 #include "pointcloud_io.h"
-#include <arrows/pdal/pdal_config.h>
 #include <vital/logger/logger.h>
 #include <vital/exceptions/base.h>
 #include <vital/exceptions/io.h>
 
-#ifdef KWIVER_ENABLE_PDAL
 #include <pdal/PointView.hpp>
 #include <pdal/PointTable.hpp>
 #include <pdal/Dimension.hpp>
@@ -21,28 +17,16 @@
 #include <pdal/StageFactory.hpp>
 
 #include <io/BufferReader.hpp>
-#endif
 
 namespace kwiver {
 namespace arrows {
 namespace pdal {
 
-/// Write landmarks to a file with PDAL provided a geo origin file
-void
-pointcloud_io::save_(vital::path_t const& filename,
-             vital::path_t const& input_geo_origin_file,
-             vital::landmark_map_sptr const& landmarks)
-{
-  auto lgcs = vital::local_geo_cs();
-  read_local_geo_cs_from_file(lgcs, input_geo_origin_file);
-  pointcloud_io::save_(filename, lgcs, landmarks);
-}
-
 /// Write landmarks to a file with PDAL
 void
-pointcloud_io::save_(vital::path_t const& filename,
-             vital::local_geo_cs const& lgcs,
-             vital::landmark_map_sptr const& landmarks)
+save_point_cloud_las(vital::path_t const& filename,
+                     vital::local_geo_cs const& lgcs,
+                     vital::landmark_map_sptr const& landmarks)
 {
   std::vector<vital::vector_3d> points;
   std::vector<vital::rgb_color> colors;
@@ -53,24 +37,22 @@ pointcloud_io::save_(vital::path_t const& filename,
     points.push_back(lm.second->loc());
     colors.push_back(lm.second->color());
   }
-  pointcloud_io::save_(filename, lgcs, points, colors);
+  save_point_cloud_las(filename, lgcs, points, colors);
 }
 
 /// Write point cloud to a file with PDAL
 void
-pointcloud_io::save_(vital::path_t const& filename,
-           vital::local_geo_cs const& lgcs,
-           std::vector<vital::vector_3d> const& points,
-           std::vector<vital::rgb_color> const& colors)
+save_point_cloud_las(vital::path_t const& filename,
+                     vital::local_geo_cs const& lgcs,
+                     std::vector<vital::vector_3d> const& points,
+                     std::vector<vital::rgb_color> const& colors)
 {
   namespace kv = kwiver::vital;
-  kv::logger_handle_t logger( kv::get_logger( "save_" ) );
-
-#ifdef KWIVER_ENABLE_PDAL
+  kv::logger_handle_t logger( kv::get_logger( "save_point_cloud_las" ) );
 
   if( !colors.empty() && colors.size() != points.size() )
   {
-    throw vital::invalid_value("save_: number of colors provided does "
+    throw vital::invalid_value("save_point_cloud_las: number of colors provided does "
                                "not match the number of points");
   }
 
@@ -137,13 +119,6 @@ pointcloud_io::save_(vital::path_t const& filename,
   writer->setOptions(options);
   writer->prepare(table);
   writer->execute(table);
-
-#else
-
-  throw vital::file_write_exception(filename,
-                                    "KWIVER was not compiled with PDAL, "
-                                    "cannot write LAS.");
-#endif
 }
 
 } // end namespace pdal

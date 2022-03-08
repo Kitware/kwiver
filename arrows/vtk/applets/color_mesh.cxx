@@ -4,6 +4,7 @@
 
 #include "color_mesh.h"
 
+#include <kwiver_config.h>
 #include <arrows/core/colorize.h>
 #include <arrows/vtk/mesh_coloration.h>
 #include <vital/types/camera_map.h>
@@ -18,6 +19,10 @@
 #include <vital/config/config_parser.h>
 #include <vital/util/get_paths.h>
 #include <vital/util/transform_image.h>
+
+#ifdef KWIVER_ENABLE_PDAL
+#include <arrows/pdal/pointcloud_io.h>
+#endif
 
 #include <kwiversys/SystemTools.hxx>
 #include <kwiversys/CommandLineArguments.hxx>
@@ -64,6 +69,26 @@ bool check_config(kv::config_block_sptr config)
     validate_required_input_file("video_source", *config, main_logger)
     && config_valid;
 
+  std::string extension = "";
+  if (config->has_value("output_mesh"))
+  {
+    std::string output_mesh =
+      config->get_value<std::string>("output_mesh");
+    extension = ST::GetFilenameLastExtension( output_mesh );
+  }
+  if (extension == ".las")
+  {
+    config_valid =
+      validate_required_input_file("input_geo_origin_filename", *config,
+                                    main_logger) && config_valid;
+  }
+  else
+  {
+    config_valid =
+      validate_optional_input_file("input_geo_origin_filename", *config,
+                                    main_logger) && config_valid;
+  }
+
   if (!kv::algo::video_input::check_nested_algo_configuration("video_reader", config))
   {
     KWIVER_CONFIG_FAIL("video_reader configuration check failed");
@@ -90,6 +115,7 @@ public:
   kva::video_input_sptr mask_reader_ = nullptr;
   kv::config_block_sptr config_ = nullptr;
   std::string input_mesh_;
+  std::string input_geo_origin_file_;
   std::string video_source_;
   std::string cameras_dir_;
   std::string mask_file_;
@@ -134,6 +160,11 @@ public:
     {
       input_mesh_ = cmd_args["input-mesh"].as<std::string>();
       config_->set_value("input_mesh", input_mesh_);
+    }
+    if (cmd_args.count("input-geo-origin-file"))
+    {
+      input_geo_origin_file_ = cmd_args["input-geo-origin-file"].as<std::string>();
+      config_->set_value("input_geo_origin_filename", input_geo_origin_file_);
     }
     if (cmd_args.count("video-file"))
     {
@@ -226,6 +257,8 @@ public:
 
     config->set_value("input_mesh", input_mesh_,
       "Path to an input mesh file in PLY, OBJ or VTP formats.");
+    config->set_value("input_geo_origin_filename", "results/geo_origin.txt",
+      "Path to a file to read the geographic origin from.");
     config->set_value("video_source", video_source_,
       "Path to an input file to be opened as a video. "
       "This could be either a video file or a text file "
@@ -398,11 +431,61 @@ public:
       writer->Write();
       return true;
     }
+    else if (ext == ".las")
+    {
+      save_mesh_las(mesh, output_path);
+      return true;
+    }
     else
     {
       LOG_ERROR(main_logger, "Invalid file format: " << ext);
       return false;
     }
+  }
+
+  void save_mesh_las(vtkSmartPointer<vtkPolyData> mesh,
+                     char const * output_path)
+  {
+#ifdef KWIVER_ENABLE_PDAL
+
+    auto lgcs = vital::local_geo_cs();
+    read_local_geo_cs_from_file(lgcs, input_geo_origin_file_);
+
+    vtkSmartPointer<vtkPoints> inPts = mesh->GetPoints();
+    vtkIdType numPts = inPts->GetNumberOfPoints();
+    std::string colorArrayName = mesh->GetPointData()->GetScalars()->GetName();
+    vtkSmartPointer<vtkDataArray> da = mesh->GetPointData()->GetArray(
+      colorArrayName.c_str());
+    vtkUnsignedCharArray* rgbArray = nullptr;
+
+    std::vector<vital::vector_3d> points(numPts);
+    std::vector<vital::rgb_color> colors;
+
+    if (da->GetNumberOfComponents() == 3)
+    {
+      rgbArray = vtkArrayDownCast<vtkUnsignedCharArray>(da);
+      colors.resize(numPts);
+    }
+
+    for (vtkIdType i = 0; i < numPts; ++i)
+    {
+      inPts->GetPoint(i, points[i].data());
+
+      if (rgbArray)
+      {
+        vtkIdType idx = 3 * i;
+        colors[i] = vital::rgb_color(rgbArray->GetValue(idx),
+                                     rgbArray->GetValue(idx + 1),
+                                     rgbArray->GetValue(idx + 2));
+      }
+    }
+
+    kwiver::arrows::pdal::save_point_cloud_las(output_path, lgcs, points, colors);
+#else
+    throw vital::file_write_exception(output_path,
+                                      "KWIVER was not compiled with PDAL, "
+                                      "cannot write LAS.");
+#endif
   }
 
   bool run_algorithm()
@@ -534,6 +617,8 @@ add_command_options()
       "Frame index to use for coloring. "
       "If -1 use an average color for all frames.",
       cxxopts::value<int>()->default_value( "-1"))
+    ( "g,input-geo-origin-file", "Input geographic origin file.",
+      cxxopts::value<std::string>() )
     ( "h,help",     "Display applet usage" )
     ( "m,mask-file",
       "An input mask video or list of mask images to indicate "
