@@ -300,6 +300,14 @@ video_input_metadata_filter
 }
 
 // ----------------------------------------------------------------------------
+kwiver::vital::video_settings_uptr
+video_input_metadata_filter
+::implementation_settings() const
+{
+  return m_d->video_input->implementation_settings();
+}
+
+// ----------------------------------------------------------------------------
 #define FORWARD_OR( name, fallback ) \
   auto video_input_metadata_filter::name() const \
     -> decltype( m_d->video_input->name() ) \

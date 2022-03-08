@@ -344,6 +344,14 @@ video_input_split
   return std::make_shared<kwiver::vital::simple_metadata_map>(md_map1);
 }
 
+// ----------------------------------------------------------------------------
+kwiver::vital::video_settings_uptr
+video_input_split
+::implementation_settings() const
+{
+  return d->d_image_source->implementation_settings();
+}
+
 // ------------------------------------------------------------------
 kwiver::vital::timestamp
 video_input_split
