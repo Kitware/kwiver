@@ -32,7 +32,7 @@ template < class Iterator >
 KWIVER_ALGO_KLV_EXPORT
 uint16_t
 klv_running_sum_16( Iterator data_begin, Iterator data_end,
-                    uint16_t initial_value = 0x0000 );
+                    uint16_t initial_value = 0x0000, bool parity = false );
 
 // ----------------------------------------------------------------------------
 /// Calculate the CRC-16-CCITT checksum of the given bytes.
