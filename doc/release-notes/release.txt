@@ -32,6 +32,10 @@ Arrows: VTK
    an issue when the near plane was much closer to the camera than to the
    far plane.
 
+ * Fix an error that always caused a segmentation fault in the
+   color_mesh applet for VTK version greater than 9.0.1. The issue was
+   that rendering was not properly initialized at build time.
+
 Build System
 
  * Fix missing `ZeroMQ_INCLUDE_DIR` set when building statically.
