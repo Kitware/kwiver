@@ -121,9 +121,6 @@ public:
   std::string mask_file_;
   std::string output_mesh_;
   std::string active_attribute_ = "mean";
-  int frame_ = -1;
-  int frame_sampling_ = 1;
-  bool all_frames_ = false;
 
   enum commandline_mode { SUCCESS, HELP, WRITE, FAIL };
 
@@ -199,8 +196,8 @@ public:
     }
     if (cmd_args.count("frame-sampling"))
     {
-      frame_sampling_ = cmd_args["frame-sampling"].as<int>();
-      config_->set_value("frame_sampling", frame_sampling_);
+      sampling_ = cmd_args["frame-sampling"].as<int>();
+      config_->set_value("frame_sampling", sampling_);
     }
     if (cmd_args.count("all-frames"))
     {
@@ -237,6 +234,15 @@ public:
       config_ = nullptr;
       return FAIL;
     }
+
+    // set variables from the config
+    sampling_ = config_->get_value("frame_sampling", 1);
+    frame_ = config_->get_value("frame", -1);
+    all_frames_ = config_->get_value("all_frames", false);
+    occlusion_threshold_ = config_->get_value("occlusion_threshold", 0.0);
+    remove_occluded_ = config_->get_value("remove_occluded", true);
+    remove_masked_ = config_->get_value("remove_masked", true);
+    remove_not_colored_ = config_->get_value("remove_not_colored", true);
 
     return SUCCESS;
   }
@@ -517,9 +523,6 @@ public:
     }
     set_input(mesh);
     set_output(mesh);
-    set_frame(frame_);
-    set_frame_sampling(frame_sampling_);
-    set_all_frames(all_frames_);
     colorize();
     LOG_INFO(main_logger, "Save mesh file...");
     if (! all_frames_)
