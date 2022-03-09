@@ -196,8 +196,8 @@ public:
     }
     if (cmd_args.count("frame-sampling"))
     {
-      sampling_ = cmd_args["frame-sampling"].as<int>();
-      config_->set_value("frame_sampling", sampling_);
+      frame_sampling_ = cmd_args["frame-sampling"].as<int>();
+      config_->set_value("frame_sampling", frame_sampling_);
     }
     if (cmd_args.count("all-frames"))
     {
@@ -236,7 +236,7 @@ public:
     }
 
     // set variables from the config
-    sampling_ = config_->get_value("frame_sampling", 1);
+    frame_sampling_ = config_->get_value("frame_sampling", 1);
     frame_ = config_->get_value("frame", -1);
     all_frames_ = config_->get_value("all_frames", false);
     occlusion_threshold_ = config_->get_value("occlusion_threshold", 0.0);

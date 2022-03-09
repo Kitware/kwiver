@@ -143,7 +143,7 @@ protected:
 protected:
   vtkSmartPointer< vtkPolyData > input_;
   vtkSmartPointer< vtkPolyData > output_;
-  int sampling_;
+  int frame_sampling_;
   int frame_;
   bool all_frames_;
   float occlusion_threshold_;

@@ -82,7 +82,7 @@ mesh_coloration
 {
   input_ = nullptr;
   output_ = vtkSmartPointer<vtkPolyData>::New();
-  sampling_ = 1;
+  frame_sampling_ = 1;
   frame_ = -1;
   all_frames_ = false;
   occlusion_threshold_ = 0.0;
@@ -184,7 +184,7 @@ mesh_coloration
 {
   if( sample > 0 )
   {
-    sampling_ = sample;
+    frame_sampling_ = sample;
   }
 }
 
@@ -579,7 +579,7 @@ mesh_coloration
 
     for( auto const& cam_itr : cam_map )
     {
-      if( ( counter++ ) % sampling_ != 0 )
+      if( ( counter++ ) % frame_sampling_ != 0 )
       {
         continue;
       }
