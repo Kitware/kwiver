@@ -20,7 +20,6 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory(tests)
-  list(APPEND kwiver_plugin_applets_subdir tests)
 endif()
 
 # Add applet plugin
