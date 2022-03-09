@@ -118,7 +118,7 @@ auto const expected_result = klv_local_set{
   { KLV_0601_SENSOR_NORTH_VELOCITY,            kld{  25.497756889553518 } },
   { KLV_0601_SENSOR_EAST_VELOCITY,             kld{  12.095217749565112 } },
   { KLV_0601_IMAGE_HORIZON_PIXEL_PACK,
-    klv_blob{ { 0x00, 0x24, 0x38, 0x00 } } },
+    klv_0601_image_horizon_pixel_pack{ 0, 36, 56, 0 } },
   { KLV_0601_FULL_CORNER_LATITUDE_POINT_1,     kld{ -10.528728394084018 } },
   { KLV_0601_FULL_CORNER_LONGITUDE_POINT_1,    kld{  29.161550416220702 } },
   { KLV_0601_FULL_CORNER_LATITUDE_POINT_2,     kld{ -10.546048884534299 } },

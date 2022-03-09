@@ -426,6 +426,8 @@ KLV_INSTANTIATE( klv_0601_control_command );
 KLV_INSTANTIATE( klv_0601_country_codes );
 KLV_INSTANTIATE( klv_0601_frame_rate );
 KLV_INSTANTIATE( klv_0601_icing_detected );
+KLV_INSTANTIATE( klv_0601_image_horizon_locations );
+KLV_INSTANTIATE( klv_0601_image_horizon_pixel_pack );
 KLV_INSTANTIATE( klv_0601_location_dlp );
 KLV_INSTANTIATE( klv_0601_operational_mode );
 KLV_INSTANTIATE( klv_0601_payload_record );

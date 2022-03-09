@@ -296,6 +296,87 @@ std::ostream&
 operator<<( std::ostream& os, klv_0601_operational_mode value );
 
 // ----------------------------------------------------------------------------
+struct KWIVER_ALGO_KLV_EXPORT klv_0601_image_horizon_locations
+{
+  double latitude0;
+  double longitude0;
+  double latitude1;
+  double longitude1;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_image_horizon_locations const& value );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_image_horizon_locations )
+
+// ----------------------------------------------------------------------------
+class KWIVER_ALGO_KLV_EXPORT klv_0601_image_horizon_locations_format
+  : public klv_data_format_< klv_0601_image_horizon_locations >
+{
+public:
+  klv_0601_image_horizon_locations_format();
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_image_horizon_locations
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_image_horizon_locations const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed(
+    klv_0601_image_horizon_locations const& value ) const override;
+};
+
+// ----------------------------------------------------------------------------
+struct KWIVER_ALGO_KLV_EXPORT klv_0601_image_horizon_pixel_pack
+{
+  uint8_t x0;
+  uint8_t y0;
+  uint8_t x1;
+  uint8_t y1;
+  kwiver::vital::optional< klv_0601_image_horizon_locations > locations;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_image_horizon_pixel_pack const& value );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_image_horizon_pixel_pack )
+
+// ----------------------------------------------------------------------------
+class KWIVER_ALGO_KLV_EXPORT klv_0601_image_horizon_pixel_pack_format
+  : public klv_data_format_< klv_0601_image_horizon_pixel_pack >
+{
+public:
+  klv_0601_image_horizon_pixel_pack_format();
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_image_horizon_pixel_pack
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_image_horizon_pixel_pack const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed(
+    klv_0601_image_horizon_pixel_pack const& value ) const override;
+};
+
+// ----------------------------------------------------------------------------
 /// Indicates the general status of the aircraft.
 enum KWIVER_ALGO_KLV_EXPORT klv_0601_platform_status
 {

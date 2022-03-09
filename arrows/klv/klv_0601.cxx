@@ -577,7 +577,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_IMAGE_HORIZON_PIXEL_PACK ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_image_horizon_pixel_pack_format >(),
       "Image Horizon Pixel Pack",
       "Location of earth-sky horizon in the image.",
       { 0, 1 } },
@@ -1107,6 +1107,169 @@ operator<<( std::ostream& os, klv_0601_sensor_control_mode value )
 
   os << strings[ std::min( value, KLV_0601_SENSOR_CONTROL_MODE_ENUM_END ) ];
   return os;
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_0601_image_horizon_locations const& value )
+{
+  os << "{ "
+     << "location0: { "
+     << "latitude: " << value.latitude0 << ", "
+     << "longitude: " << value.longitude0 << " }, "
+     << "location1: { "
+     << "latitude: " << value.latitude1 << ", "
+     << "longitude: " << value.longitude1 << " } }";
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_image_horizon_locations,
+  &klv_0601_image_horizon_locations::latitude0,
+  &klv_0601_image_horizon_locations::longitude0,
+  &klv_0601_image_horizon_locations::latitude1,
+  &klv_0601_image_horizon_locations::longitude1
+)
+
+// ----------------------------------------------------------------------------
+klv_0601_image_horizon_locations_format
+::klv_0601_image_horizon_locations_format()
+  : klv_data_format_< klv_0601_image_horizon_locations >{ 16 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_image_horizon_locations_format
+::description() const
+{
+  return "image horizon locations of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_image_horizon_locations
+klv_0601_image_horizon_locations_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+  klv_0601_image_horizon_locations result;
+  result.latitude0 =
+    klv_read_flint< uint32_t >( -90.0, 90.0, data, tracker.verify( 4 ) );
+  result.longitude0 =
+    klv_read_flint< uint32_t >( -180.0, 180.0, data, tracker.verify( 4 ) );
+  result.latitude1 =
+    klv_read_flint< uint32_t >( -90.0, 90.0, data, tracker.verify( 4 ) );
+  result.longitude1 =
+    klv_read_flint< uint32_t >( -180.0, 180.0, data, tracker.verify( 4 ) );
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_image_horizon_locations_format
+::write_typed( klv_0601_image_horizon_locations const& value,
+              klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+  klv_write_flint< uint32_t >( value.latitude0, -90.0, 90.0,
+                               data, tracker.verify( 4 ) );
+  klv_write_flint< uint32_t >( value.longitude0, -180.0, 180.0,
+                               data, tracker.verify( 4 ) );
+  klv_write_flint< uint32_t >( value.latitude1, -90.0, 90.0,
+                               data, tracker.verify( 4 ) );
+  klv_write_flint< uint32_t >( value.longitude1, -180.0, 180.0,
+                               data, tracker.verify( 4 ) );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_image_horizon_locations_format
+::length_of_typed( klv_0601_image_horizon_locations const& value ) const
+{
+  return 16;
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_0601_image_horizon_pixel_pack const& value )
+{
+  os << "{ "
+     << "point0: { "
+     << static_cast< unsigned int >( value.x0 ) << ", "
+     << static_cast< unsigned int >( value.y0 ) << " }, "
+     << "point1: { "
+     << static_cast< unsigned int >( value.x1 ) << ", "
+     << static_cast< unsigned int >( value.y1 ) << " } }";
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_image_horizon_pixel_pack,
+  &klv_0601_image_horizon_pixel_pack::x0,
+  &klv_0601_image_horizon_pixel_pack::y0,
+  &klv_0601_image_horizon_pixel_pack::x1,
+  &klv_0601_image_horizon_pixel_pack::y1,
+  &klv_0601_image_horizon_pixel_pack::locations
+)
+
+// ----------------------------------------------------------------------------
+klv_0601_image_horizon_pixel_pack_format
+::klv_0601_image_horizon_pixel_pack_format()
+  : klv_data_format_< klv_0601_image_horizon_pixel_pack >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_image_horizon_pixel_pack_format
+::description() const
+{
+  return "image horizon pixel pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_image_horizon_pixel_pack
+klv_0601_image_horizon_pixel_pack_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+  klv_0601_image_horizon_pixel_pack result;
+  result.x0 = klv_read_int< uint8_t >( data, tracker.verify( 1 ) );
+  result.y0 = klv_read_int< uint8_t >( data, tracker.verify( 1 ) );
+  result.x1 = klv_read_int< uint8_t >( data, tracker.verify( 1 ) );
+  result.y1 = klv_read_int< uint8_t >( data, tracker.verify( 1 ) );
+  if( tracker.remaining() )
+  {
+    klv_0601_image_horizon_locations_format format;
+    result.locations = format.read_( data, tracker.verify( 16 ) );
+  }
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_image_horizon_pixel_pack_format
+::write_typed( klv_0601_image_horizon_pixel_pack const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+  klv_write_int( value.x0, data, tracker.verify( 1 ) );
+  klv_write_int( value.y0, data, tracker.verify( 1 ) );
+  klv_write_int( value.x1, data, tracker.verify( 1 ) );
+  klv_write_int( value.y1, data, tracker.verify( 1 ) );
+  if( value.locations )
+  {
+    klv_0601_image_horizon_locations_format format;
+    format.write_( *value.locations, data, tracker.verify( 16 ) );
+  }
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_image_horizon_pixel_pack_format
+::length_of_typed( klv_0601_image_horizon_pixel_pack const& value ) const
+{
+  return 4 + ( value.locations ? 16 : 0 );
 }
 
 // ----------------------------------------------------------------------------
