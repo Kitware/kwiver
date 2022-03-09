@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iomanip>
 
+#include <vital/exceptions/io.h>
 #include <vital/types/geodesy.h>
 
 using namespace kwiver::vital;
@@ -37,18 +38,23 @@ local_geo_cs
 }
 
 /// Read a local_geo_cs from a text file
-void
+bool
 read_local_geo_cs_from_file(local_geo_cs& lgcs,
                             vital::path_t const& file_path)
 {
   std::ifstream ifs(file_path);
-  double lat, lon, alt;
+  double lat = 0, lon = 0, alt = 0;
   ifs >> lat >> lon >> alt;
-  lgcs.set_origin( geo_point( vector_3d(lon, lat, alt), SRID::lat_lon_WGS84) );
+  if (ifs.good())
+  {
+    lgcs.set_origin( geo_point( vector_3d(lon, lat, alt), SRID::lat_lon_WGS84) );
+    return true;
+  }
+  return false;
 }
 
 /// Write a local_geo_cs to a text file
-void
+bool
 write_local_geo_cs_to_file(local_geo_cs const& lgcs,
                            vital::path_t const& file_path)
 {
@@ -59,8 +65,16 @@ write_local_geo_cs_to_file(local_geo_cs const& lgcs,
   {
     ofs << std::setprecision(12) << lon_lat_alt[1]
                                  << " " << lon_lat_alt[0]
-                                 << " " << lon_lat_alt[2];
+                                 << " " << lon_lat_alt[2]
+                                 << std::endl;
+    return ofs.good();
   }
+  else
+  {
+    throw vital::file_write_exception(file_path,
+                                      "Unable to open file for writing.");
+  }
+  return false;
 }
 
 } // end namespace vital
