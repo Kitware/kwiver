@@ -1619,7 +1619,8 @@ klv_0601_local_set_format
 ::calculate_checksum( klv_read_iter_t data, size_t length ) const
 {
   return klv_running_sum_16( checksum_header.begin(), checksum_header.end(),
-                             klv_running_sum_16( data, data + length ) );
+                             klv_running_sum_16( data, data + length ),
+                             length % 2 );
 }
 
 // ----------------------------------------------------------------------------
