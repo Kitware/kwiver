@@ -11,6 +11,7 @@
 #include <iomanip>
 
 #include <vital/exceptions/io.h>
+#include <vital/logger/logger.h>
 #include <vital/types/geodesy.h>
 
 using namespace kwiver::vital;
@@ -58,6 +59,8 @@ bool
 write_local_geo_cs_to_file(local_geo_cs const& lgcs,
                            vital::path_t const& file_path)
 {
+  kwiver::vital::logger_handle_t logger(kwiver::vital::get_logger(
+    "write_local_geo_cs_to_file"));
   // write out the origin of the local coordinate system
   auto lon_lat_alt = lgcs.origin().location( SRID::lat_lon_WGS84 );
   std::ofstream ofs(file_path);
@@ -69,11 +72,7 @@ write_local_geo_cs_to_file(local_geo_cs const& lgcs,
                                  << std::endl;
     return ofs.good();
   }
-  else
-  {
-    throw vital::file_write_exception(file_path,
-                                      "Unable to open file for writing.");
-  }
+  LOG_ERROR(logger, "Failed to open file '" << file_path << "' for writing.");
   return false;
 }
 
