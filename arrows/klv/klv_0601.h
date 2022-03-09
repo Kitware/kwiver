@@ -15,6 +15,7 @@
 #include "klv_packet.h"
 #include "klv_set.h"
 #include "klv_util.h"
+#include "klv_series.h"
 
 #include "vital/optional.h"
 
@@ -593,7 +594,7 @@ enum KWIVER_ALGO_KLV_EXPORT klv_0601_weapons_general_status
 };
 
 // ----------------------------------------------------------------------------
-/// Interprets data as a weapons store state
+/// Interprets data as a weapons store state.
 using klv_0601_weapons_general_status_format =
   klv_enum_format< klv_0601_weapons_general_status >;
 
@@ -644,9 +645,9 @@ operator<<( std::ostream& os, klv_0601_weapons_store const& value );
 DECLARE_CMP( klv_0601_weapons_store )
 
 // ---------------------------------------------------------------------------
-/// Interprets data as a weapons record.
+/// Interprets data as a weapons store.
 class KWIVER_ALGO_KLV_EXPORT klv_0601_weapons_store_format
-  : public klv_data_format_< std::vector< klv_0601_weapons_store > >
+  : public klv_data_format_< klv_0601_weapons_store >
 {
 public:
   klv_0601_weapons_store_format();
@@ -655,19 +656,20 @@ public:
   description() const override;
 
 private:
-  std::vector< klv_0601_weapons_store >
+  klv_0601_weapons_store
   read_typed( klv_read_iter_t& data, size_t length ) const override;
 
   void
-  write_typed( std::vector< klv_0601_weapons_store > const& value,
-               klv_write_iter_t& data, size_t length ) const override;
+  write_typed( klv_0601_weapons_store const& value,
+               klv_write_iter_t&data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_0601_weapons_store const& value ) const;
-  size_t
-  length_of_typed(
-    std::vector< klv_0601_weapons_store > const& value ) const override;
+  length_of_typed( klv_0601_weapons_store const& vaue ) const override;
 };
+
+// ---------------------------------------------------------------------------
+using klv_0601_weapons_store_list_format =
+  klv_series_format< klv_0601_weapons_store_format >;
 
 // ---------------------------------------------------------------------------
 /// Optical sensors and non-optical payload package types.
@@ -708,6 +710,29 @@ operator<<( std::ostream& os, klv_0601_payload_record const& value );
 DECLARE_CMP( klv_0601_payload_record )
 
 // ---------------------------------------------------------------------------
+/// Interprets data as a payload record.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_payload_record_format
+  : public klv_data_format_< klv_0601_payload_record >
+{
+  public:
+    klv_0601_payload_record_format();
+
+    std::string
+    description() const override;
+
+  private:
+     klv_0601_payload_record
+    read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+    void
+    write_typed( klv_0601_payload_record const& value,
+                 klv_write_iter_t& data, size_t length ) const override;
+
+    size_t
+    length_of_typed( klv_0601_payload_record const& value ) const;
+};
+
+// ---------------------------------------------------------------------------
 /// Interprets data as a payload list.
 class KWIVER_ALGO_KLV_EXPORT klv_0601_payload_list_format
   : public klv_data_format_< std::vector< klv_0601_payload_record > >
@@ -725,9 +750,6 @@ class KWIVER_ALGO_KLV_EXPORT klv_0601_payload_list_format
     void
     write_typed( std::vector< klv_0601_payload_record > const& value,
                  klv_write_iter_t& data, size_t length ) const override;
-
-    size_t
-    length_of_typed( klv_0601_payload_record const& value ) const;
 
     size_t
     length_of_typed(
@@ -753,31 +775,31 @@ operator<<( std::ostream& os, klv_0601_wavelength_record const& value );
 DECLARE_CMP( klv_0601_wavelength_record )
 
 // ----------------------------------------------------------------------------
-/// Interprets data as a list of wavelengths.
-class KWIVER_ALGO_KLV_EXPORT klv_0601_wavelengths_list_format
-  : public klv_data_format_< std::vector< klv_0601_wavelength_record > >
+/// Interprets data as a wavelength.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_wavelength_record_format
+  : public klv_data_format_< klv_0601_wavelength_record >
 {
 public:
-  klv_0601_wavelengths_list_format();
+  klv_0601_wavelength_record_format();
 
   std::string
   description() const override;
 
 private:
-  std::vector< klv_0601_wavelength_record >
+  klv_0601_wavelength_record
   read_typed( klv_read_iter_t& data, size_t length ) const override;
 
   void
-  write_typed( std::vector< klv_0601_wavelength_record > const& value,
+  write_typed( klv_0601_wavelength_record const& value,
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_0601_wavelength_record const& value ) const;
-
-  size_t
-  length_of_typed(
-    std::vector< klv_0601_wavelength_record > const& value) const override;
+  length_of_typed( klv_0601_wavelength_record const& value ) const override;
 };
+
+// ----------------------------------------------------------------------------
+using klv_0601_wavelengths_list_format =
+  klv_series_format< klv_0601_wavelength_record_format >;
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a MISB ST0601 local set.

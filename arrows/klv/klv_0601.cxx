@@ -11,6 +11,7 @@
 #include "klv_1602.h"
 #include "klv_1607.h"
 #include "klv_checksum.h"
+#include "klv_series.hpp"
 #include "klv_list.hpp"
 #include "klv_util.h"
 
@@ -954,7 +955,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_WEAPONS_STORES ),
-      std::make_shared< klv_0601_weapons_store_format >(),
+      std::make_shared< klv_0601_weapons_store_list_format >(),
       "Weapons Stores",
       "List of weapon stores and statuses.",
       { 0, 1 } },
@@ -2107,7 +2108,7 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0601_weapons_store_format
 ::klv_0601_weapons_store_format()
-  : klv_data_format_<  std::vector< klv_0601_weapons_store > >{ 0 }
+  : klv_data_format_< klv_0601_weapons_store >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -2119,61 +2120,38 @@ klv_0601_weapons_store_format
 }
 
 // ----------------------------------------------------------------------------
-std::vector< klv_0601_weapons_store >
+klv_0601_weapons_store
 klv_0601_weapons_store_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
-  std::vector< klv_0601_weapons_store > result = {};
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                            return length - std::distance( begin, data );
-                          };
+  klv_0601_weapons_store result = {};
+  auto const tracker = track_it( data, length );
 
-  while( remaining_length() )
-  {
-    // Read length of weapons record
-    auto const length_of_weapons_record =
-      klv_read_ber< size_t >( data, remaining_length() );
+  // Read weapon location
+  result.station_id =
+    klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+  result.hardpoint_id =
+    klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+  result.carriage_id =
+    klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+  result.store_id =
+    klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
 
-    if( length_of_weapons_record <= remaining_length() )
-    {
-      klv_0601_weapons_store item = {};
+  // Read weapons status
+  // Sets status = 0 0 engagement-status general-status
+  auto status =
+    klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+  // General status = least significant 8 bits
+  result.general_status =
+    static_cast< klv_0601_weapons_general_status >( status & 0xFF );
+  // Engagement status = next 4 bits
+  result.engagement_status = ( status >> 8 ) & 0x0F;
 
-      // Read weapon location
-      item.station_id =
-        klv_read_ber_oid< uint16_t >( data, remaining_length() );
-      item.hardpoint_id =
-        klv_read_ber_oid< uint16_t >( data, remaining_length() );
-      item.carriage_id =
-        klv_read_ber_oid< uint16_t >( data, remaining_length() );
-      item.store_id =
-        klv_read_ber_oid< uint16_t >( data, remaining_length() );
-
-      // Read weapons status
-      // Sets status = 0 0 engagement-status general-status
-      auto status =
-        klv_read_ber_oid< uint16_t >( data, remaining_length() );
-      // General status = least significant 8 bits
-      item.general_status =
-        static_cast< klv_0601_weapons_general_status >( status & 0xFF );
-      // Engagement status = next 4 bits
-      item.engagement_status = ( status >> 8 ) & 0x0F;
-
-      // Read weapons type
-      auto const length_of_weapon_type =
-        klv_read_ber< size_t >( data, remaining_length() );
-      item.weapon_type =
-        klv_read_string( data, length_of_weapon_type );
-
-      // Append to list
-      result.emplace_back( item );
-    }
-    else
-    {
-      VITAL_THROW( kwiver::vital::metadata_exception,
-                   "buffer is too small to complete reading weapons stores" );
-    }
-  }
+  // Read weapons type
+  auto const length_of_weapon_type =
+    klv_read_ber< size_t >( data, tracker.remaining() );
+  result.weapon_type =
+    klv_read_string( data, length_of_weapon_type );
 
   return result;
 }
@@ -2181,68 +2159,49 @@ klv_0601_weapons_store_format
 // ----------------------------------------------------------------------------
 void
 klv_0601_weapons_store_format
-::write_typed( std::vector< klv_0601_weapons_store > const& value,
+::write_typed( klv_0601_weapons_store const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                            return length - std::distance( begin, data );
-                          };
+  auto const tracker = track_it( data, length );
 
-  for( klv_0601_weapons_store const& item : value )
-  {
-    // Write size
-    size_t const length_of_weapons_record = length_of_typed( item );
+  // Write weapon location
+  klv_write_ber_oid( value.station_id, data, tracker.remaining() );
+  klv_write_ber_oid( value.hardpoint_id, data, tracker.remaining() );
+  klv_write_ber_oid( value.carriage_id, data, tracker.remaining() );
+  klv_write_ber_oid( value.store_id, data, tracker.remaining() );
 
-    if( length_of_weapons_record <= remaining_length() )
-    {
-      klv_write_ber( length_of_weapons_record, data, remaining_length() );
+  // Write weapons status
+  // When the low order 7 bits of the MSB are zero, the MSB is eliminated
+  uint16_t status = ( value.engagement_status << 8 ) + value.general_status;
+  klv_write_ber_oid( status, data, tracker.remaining() );
 
-      // Write weapon location
-      klv_write_ber_oid( item.station_id, data, remaining_length() );
-      klv_write_ber_oid( item.hardpoint_id, data, remaining_length() );
-      klv_write_ber_oid( item.carriage_id, data, remaining_length() );
-      klv_write_ber_oid( item.store_id, data, remaining_length() );
-
-      // Write weapons status
-      // When the low order 7 bits of the MSB are zero, the MSB is eliminated
-      uint16_t status = ( item.engagement_status << 8 ) + item.general_status;
-      klv_write_ber_oid( status, data, remaining_length() );
-
-      // Write weapons type
-      size_t const length_of_weapon_type =
-        klv_string_length( item.weapon_type );
-      klv_write_ber< size_t >( length_of_weapon_type, data,
-                               remaining_length() );
-      klv_write_string( item.weapon_type, data, remaining_length() );
-    }
-    else
-    {
-      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
-                   "writing weapons store overflows buffer" );
-    }
-  }
+  // Write weapons type
+  size_t const length_of_weapon_type =
+  klv_string_length( value.weapon_type );
+  klv_write_ber< size_t >( length_of_weapon_type, data,
+                               tracker.remaining() );
+  klv_write_string( value.weapon_type, data, tracker.remaining() );
 }
 
 // ----------------------------------------------------------------------------
 size_t
 klv_0601_weapons_store_format
-::length_of_typed( klv_0601_weapons_store const& item ) const
+::length_of_typed( klv_0601_weapons_store const& value ) const
 {
   // Length of weapon location
   size_t const length_of_weapon_location =
-    klv_ber_oid_length( item.station_id ) +
-    klv_ber_oid_length( item.hardpoint_id ) +
-    klv_ber_oid_length( item.carriage_id ) +
-    klv_ber_oid_length( item.store_id );
+    klv_ber_oid_length( value.station_id ) +
+    klv_ber_oid_length( value.hardpoint_id ) +
+    klv_ber_oid_length( value.carriage_id ) +
+    klv_ber_oid_length( value.store_id );
 
   // Length of weapon status
-  uint16_t status = ( item.engagement_status << 8 ) + item.general_status;
+  uint16_t status = ( value.engagement_status << 8 ) + value.general_status;
   size_t const length_of_status = klv_ber_oid_length( status );
 
   // Length of weapon type
   size_t const length_of_weapon_type =
-    klv_string_length( item.weapon_type );
+    klv_string_length( value.weapon_type );
   size_t const length_of_length_of_weapon_type =
     klv_ber_length( length_of_weapon_type );
 
@@ -2251,23 +2210,6 @@ klv_0601_weapons_store_format
            length_of_status +
            length_of_weapon_type +
            length_of_length_of_weapon_type );
-}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_0601_weapons_store_format
-::length_of_typed( std::vector< klv_0601_weapons_store > const& value ) const
-{
-  size_t total_length = 0;
-  for( klv_0601_weapons_store const item : value )
-  {
-    size_t const length_of_weapons_record = length_of_typed( item );
-    size_t const length_of_length_of_weapons_record =
-      klv_ber_length( length_of_weapons_record );
-    total_length += length_of_length_of_weapons_record +
-                    length_of_weapons_record;
-  }
-  return total_length;
 }
 
 // ----------------------------------------------------------------------------
@@ -2314,6 +2256,91 @@ DEFINE_STRUCT_CMP(
 )
 
 // ----------------------------------------------------------------------------
+/// Interprets data as a payload record.
+klv_0601_payload_record_format
+::klv_0601_payload_record_format()
+  : klv_data_format_< klv_0601_payload_record >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_payload_record_format
+::description() const
+{
+  return "payload pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_payload_record
+klv_0601_payload_record_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  klv_0601_payload_record result = {};
+  auto const tracker = track_it( data, length );
+
+  // Read payload id
+  result.id = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+
+  // Read payload type
+  result.type = static_cast< klv_0601_payload_type >(
+    klv_read_ber_oid< uint16_t >( data, tracker.remaining() ) );
+
+  // Read payload name
+  auto const length_of_payload_name =
+    klv_read_ber< size_t >( data, tracker.remaining() );
+  result.name =
+    klv_read_string( data, tracker.verify( length_of_payload_name ) );
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_payload_record_format
+::write_typed( klv_0601_payload_record const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+
+  // Write payload id
+  klv_write_ber_oid( value.id, data, tracker.remaining() );
+
+  // Write payload type
+  klv_write_ber_oid( static_cast< uint16_t >( value.type ),
+                     data, tracker.remaining() );
+
+  // Write payload name
+  size_t const length_of_payload_name = klv_string_length( value.name );
+  klv_write_ber< size_t >( length_of_payload_name, data,
+                           tracker.remaining() );
+  klv_write_string( value.name, data, tracker.remaining() );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_payload_record_format
+::length_of_typed( klv_0601_payload_record const& value ) const
+{
+  // Length of payload id
+  size_t const length_of_payload_id = klv_ber_oid_length( value.id );
+
+  // Length of payload type
+  size_t const length_of_payload_type =
+    klv_ber_oid_length( static_cast< uint16_t >( value.type ) );
+
+  // Length of payload name
+  size_t const length_of_payload_name = klv_string_length( value.name );
+  size_t const length_of_length_of_payload_name =
+    klv_ber_length( length_of_payload_name );
+
+  return ( length_of_payload_id +
+           length_of_payload_type +
+           length_of_payload_name +
+           length_of_length_of_payload_name );
+}
+
+// ----------------------------------------------------------------------------
+/// Interprets data as a payload list.
 klv_0601_payload_list_format
 ::klv_0601_payload_list_format()
   : klv_data_format_< std::vector< klv_0601_payload_record > >{ 0 }
@@ -2336,32 +2363,12 @@ klv_0601_payload_list_format
   auto const tracker = track_it( data, length );
 
   // Read payload count
-  klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+  auto count = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
 
   // Read payload list
-  while( tracker.remaining() )
-  {
-    // Read length of payload record
-    klv_read_ber< size_t >( data, tracker.remaining() );
+  klv_series_format< klv_0601_payload_record_format > item;
+  result = item.read_( data, length - klv_ber_oid_length( count ) );
 
-    klv_0601_payload_record item = {};
-
-    // Read payload id
-    item.id = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
-
-    // Read payload type
-    item.type = static_cast< klv_0601_payload_type >(
-      klv_read_ber_oid< uint16_t >( data, tracker.remaining() ) );
-
-    // Read payload name
-    auto const length_of_payload_name =
-      klv_read_ber< size_t >( data, tracker.remaining() );
-    item.name =
-      klv_read_string( data, tracker.verify( length_of_payload_name ) );
-
-    // Append to list
-    result.emplace_back( item );
-  }
   return result;
 }
 
@@ -2376,49 +2383,9 @@ klv_0601_payload_list_format
   // Write payload count
   klv_write_ber_oid( value.size(), data, tracker.remaining() );
 
-  for( klv_0601_payload_record const& item : value )
-  {
-    // Write size
-    size_t const length_of_payload_record = length_of_typed( item );
-
-    klv_write_ber( length_of_payload_record, data, tracker.remaining() );
-
-    // Write payload id
-    klv_write_ber_oid( item.id, data, tracker.remaining() );
-
-    // Write payload type
-    klv_write_ber_oid( static_cast< uint16_t >( item.type ),
-                       data, tracker.remaining() );
-
-    // Write payload name
-    size_t const length_of_payload_name = klv_string_length( item.name );
-    klv_write_ber< size_t >( length_of_payload_name, data,
-                             tracker.remaining() );
-    klv_write_string( item.name, data, tracker.remaining() );
-  }
-}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_0601_payload_list_format
-::length_of_typed( klv_0601_payload_record const& item ) const
-{
-  // Length of payload id
-  size_t const length_of_payload_id = klv_ber_oid_length( item.id );
-
-  // Length of payload type
-  size_t const length_of_payload_type =
-    klv_ber_oid_length( static_cast< uint16_t >( item.type ) );
-
-  // Length of payload name
-  size_t const length_of_payload_name = klv_string_length( item.name );
-  size_t const length_of_length_of_payload_name =
-    klv_ber_length( length_of_payload_name );
-
-  return ( length_of_payload_id +
-           length_of_payload_type +
-           length_of_payload_name +
-           length_of_length_of_payload_name );
+  // Write payload list
+  klv_series_format< klv_0601_payload_record_format > item;
+  item.write_( value, data, length - klv_ber_oid_length( value.size() ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -2432,12 +2399,8 @@ klv_0601_payload_list_format
   total_length += klv_ber_oid_length( value.size() );
 
   // Length of payload list
-  for( klv_0601_payload_record const& item : value )
-  {
-    size_t const length_of_payload_record = length_of_typed( item );
-    total_length += klv_ber_length( length_of_payload_record ) +
-                    length_of_payload_record;
-  }
+  klv_series_format< klv_0601_payload_record_format > item;
+  total_length += item.length_of_( value );
   return total_length;
 }
 
@@ -2481,81 +2444,66 @@ DEFINE_STRUCT_CMP(
 )
 
 // ----------------------------------------------------------------------------
-klv_0601_wavelengths_list_format
-::klv_0601_wavelengths_list_format()
-  : klv_data_format_< std::vector< klv_0601_wavelength_record > >{ 0 }
+klv_0601_wavelength_record_format
+::klv_0601_wavelength_record_format()
+  : klv_data_format_< klv_0601_wavelength_record >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
 std::string
-klv_0601_wavelengths_list_format
+klv_0601_wavelength_record_format
 ::description() const
 {
-  return "wavelengths list of " + length_description();
+  return "wavelength pack of " + length_description();
 }
 
 // ----------------------------------------------------------------------------
-std::vector< klv_0601_wavelength_record >
-klv_0601_wavelengths_list_format
+klv_0601_wavelength_record
+klv_0601_wavelength_record_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
-  std::vector< klv_0601_wavelength_record > result = {};
+  klv_0601_wavelength_record result = {};
   auto const tracker = track_it( data, length );
 
-  while( tracker.remaining() )
-  {
-    // Read length of wavelength record
-    klv_read_ber< size_t >( data, tracker.remaining() );
+  // Read wavelength id
+  result.id = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
 
-    klv_0601_wavelength_record item = {};
+  // Read min wavelength
+  result.min = klv_read_imap( 0.0, 1.0e9, data, 4 );
 
-    // Read wavelength id
-    item.id = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+  // Read max wavelength
+  result.max = klv_read_imap( 0.0, 1.0e9, data, 4 );
 
-    // Read min wavelength
-    item.min = klv_read_imap( 0.0, 1.0e9, data, 4 );
+  // Read wavelength name
+  result.name = klv_read_string( data, tracker.remaining() );
 
-    // Read max wavelength
-    item.max = klv_read_imap( 0.0, 1.0e9, data, 4 );
-
-    // Read wavelength name
-    item.name = klv_read_string( data, tracker.remaining() );
-
-    result.emplace_back( item );
-  }
   return result;
 }
 
 // ----------------------------------------------------------------------------
 void
-klv_0601_wavelengths_list_format
-::write_typed( std::vector< klv_0601_wavelength_record > const& value,
+klv_0601_wavelength_record_format
+::write_typed( klv_0601_wavelength_record const& value,
                klv_write_iter_t& data, size_t length ) const
 {
   auto const tracker = track_it( data, length );
 
-  for( klv_0601_wavelength_record const& item : value )
-  {
-    // Write size
-    klv_write_ber( length_of_typed( item ), data, tracker.remaining() );
+  // Write wavelength id
+  klv_write_ber_oid( value.id, data, tracker.remaining() );
 
-    // Write wavelength id
-    klv_write_ber_oid( item.id, data, tracker.remaining() );
+  // Write min wavelength
+  klv_write_imap( value.min, 0.0, 1.0e9, data, 4 );
 
-    // Write min wavelength
-    klv_write_imap( item.min, 0.0, 1.0e9, data, 4 );
+  // Write max wavelength
+  klv_write_imap( value.max, 0.0, 1.0e9, data, 4 );
 
-    // Write max wavelength
-    klv_write_imap( item.max, 0.0, 1.0e9, data, 4 );
-
-    // Write wavelength name
-    klv_write_string( item.name, data, tracker.remaining() );
-  }
+  // Write wavelength name
+  klv_write_string( value.name, data, tracker.remaining() );
 }
 
 // ----------------------------------------------------------------------------
 size_t
-klv_0601_wavelengths_list_format
+klv_0601_wavelength_record_format
 ::length_of_typed( klv_0601_wavelength_record const& item ) const
 {
   // Length of wavelength id
@@ -2565,23 +2513,6 @@ klv_0601_wavelengths_list_format
   size_t const length_of_wavelength_name = klv_string_length( item.name );
 
   return ( length_of_wavelength_id + 8 + length_of_wavelength_name );
-}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_0601_wavelengths_list_format
-::length_of_typed( std::vector< klv_0601_wavelength_record > const& value) const
-{
-  size_t total_length = 0;
-
-  // Length of wavelength list
-  for( klv_0601_wavelength_record const& item : value )
-  {
-    size_t const length_of_wavelength_record = length_of_typed( item );
-    total_length += klv_ber_length( length_of_wavelength_record ) +
-                                    length_of_wavelength_record;
-  }
-  return total_length;
 }
 
 // ----------------------------------------------------------------------------
