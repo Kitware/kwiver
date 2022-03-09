@@ -81,7 +81,7 @@ mesh_coloration
 ::mesh_coloration()
 {
   input_ = nullptr;
-  output_ = nullptr;
+  output_ = vtkSmartPointer<vtkPolyData>::New();
   sampling_ = 1;
   frame_ = -1;
   all_frames_ = false;
@@ -170,14 +170,6 @@ mesh_coloration
 }
 
 // ----------------------------------------------------------------------------
-void
-mesh_coloration
-::set_output( vtkSmartPointer< vtkPolyData > mesh )
-{
-  output_ = mesh;
-}
-
-// ----------------------------------------------------------------------------
 vtkSmartPointer< vtkPolyData >
 mesh_coloration
 ::get_output()
@@ -219,19 +211,22 @@ mesh_coloration
     LOG_INFO( logger_, "Done: frame " << frame_ );
     return false;
   }
-  vtkDataArray* normals = input_->GetPointData()->GetNormals();
+  output_->ShallowCopy(input_);
+
+
+  vtkDataArray* normals = output_->GetPointData()->GetNormals();
 
   if( !normals )
   {
     LOG_INFO( logger_, "Generating normals ..." );
 
     vtkNew< vtkPolyDataNormals > compute_normals;
-    compute_normals->SetInputDataObject( input_ );
+    compute_normals->SetInputDataObject( output_ );
     compute_normals->Update();
-    input_ = compute_normals->GetOutput();
-    normals = input_->GetPointData()->GetNormals();
+    output_ = compute_normals->GetOutput();
+    normals = output_->GetPointData()->GetNormals();
   }
-  vtkPoints* meshPointList = input_->GetPoints();
+  vtkPoints* meshPointList = output_->GetPoints();
 
   if( meshPointList == 0 )
   {
@@ -454,13 +449,13 @@ mesh_coloration
             unsigned char rgba[] = { rgb.r, rgb.g, rgb.b, 255 };
             perFrameColor[ frameId ]->SetTypedTuple( pointId, rgba );
           }
+          ++coloredCount;
         }
       }
       catch ( std::out_of_range const& )
       {
         continue;
       }
-      ++coloredCount;
     }
     if (coloredCount == 0)
     {
@@ -492,8 +487,7 @@ mesh_coloration
       list2.clear();
     }
   }
-
-  removedPoints->SetNumberOfTuples(removedPointsIndex);
+  removedPoints->Resize(removedPointsIndex);
   if( !all_frames_ )
   {
     output_->GetPointData()->AddArray( meanValues );
@@ -623,7 +617,7 @@ mesh_coloration
     ren_win->AddRenderer( ren );
 
     vtkNew< vtkPolyDataMapper > mapper;
-    mapper->SetInputDataObject( input_ );
+    mapper->SetInputDataObject( output_ );
 
     vtkNew< vtkActor > actor;
     actor->SetMapper( mapper );
@@ -642,7 +636,7 @@ mesh_coloration
 {
   ren_win->SetSize( width, height );
 
-  double* bounds = input_->GetBounds();
+  double* bounds = output_->GetBounds();
   double const bb[ 8 ][ 3 ] = {
     { bounds[ 0 ], bounds[ 2 ], bounds[ 4 ] },
     { bounds[ 1 ], bounds[ 2 ], bounds[ 4 ] },

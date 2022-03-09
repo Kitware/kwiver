@@ -58,13 +58,11 @@ public:
                  std::string const& mask_path );
   /// Set cameras (and frames) to be used for coloring.
   void set_cameras( kwiver::vital::camera_map_sptr const& cameras );
-  /// Input mesh to be colored.
+  /// Input mesh to be colored. This is not modified.
   void set_input( vtkSmartPointer< vtkPolyData > input );
   /// Input mesh to be colored.
   vtkSmartPointer< vtkPolyData > get_input();
-  /// Output mesh. Can be the same as the input.
-  void set_output( vtkSmartPointer< vtkPolyData > mesh );
-  /// Output mesh. Can be the same as the input.
+  /// Output mesh.
   vtkSmartPointer< vtkPolyData > get_output();
 
   /// Set which frames to choose for coloring.

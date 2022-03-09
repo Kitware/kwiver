@@ -515,26 +515,26 @@ public:
     auto cameras = load_camera_map(video_reader_, video_source_, cameras_dir_);
     set_cameras(cameras);
     LOG_INFO(main_logger, "Load mesh file...");
-    auto mesh = load_mesh(input_mesh_);
-    if (! mesh)
+    auto input = load_mesh(input_mesh_);
+    if (! input)
     {
       LOG_ERROR(main_logger, "Error loading the mesh");
       return false;
     }
-    set_input(mesh);
-    set_output(mesh);
+    set_input(input);
     colorize();
+    auto output = get_output();
     LOG_INFO(main_logger, "Save mesh file...");
     if (! all_frames_)
     {
-      vtkDataArray* active = mesh->GetPointData()->GetArray(active_attribute_.c_str());
+      vtkDataArray* active = output->GetPointData()->GetArray(active_attribute_.c_str());
       if (! active)
       {
-        active = mesh->GetPointData()->GetArray("mean");
+        active = output->GetPointData()->GetArray("mean");
       }
-      mesh->GetPointData()->SetScalars(active);
+      output->GetPointData()->SetScalars(active);
     }
-    if (! save_mesh(mesh, output_mesh_.c_str()))
+    if (! save_mesh(output, output_mesh_.c_str()))
     {
       return false;
     }
