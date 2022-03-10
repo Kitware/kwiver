@@ -11,6 +11,7 @@
 #include <vital/range/iota.h>
 
 #include "vtkCellData.h"
+#include "vtkCleanPolyData.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
@@ -501,8 +502,12 @@ mesh_coloration
     vtkNew<vtkRemovePolyData> removeNotColored;
     removeNotColored->SetInputData(output_);
     removeNotColored->SetPointIds(removedPoints);
-    removeNotColored->Update();
-    output_ = vtkPolyData::SafeDownCast(removeNotColored->GetOutput());
+
+    vtkNew<vtkCleanPolyData> cleanPoly;
+    cleanPoly->SetInputConnection(removeNotColored->GetOutputPort());
+    cleanPoly->PointMergingOff();
+    cleanPoly->Update();
+    output_ = vtkPolyData::SafeDownCast(cleanPoly->GetOutput());
   }
 
   report_progress_changed( "Done", 100 );
