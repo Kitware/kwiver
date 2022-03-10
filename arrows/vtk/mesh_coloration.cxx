@@ -87,8 +87,8 @@ mesh_coloration
   frame_ = -1;
   all_frames_ = false;
   occlusion_threshold_ = 0.0;
-  remove_occluded_ = true;
-  remove_masked_ = true;
+  color_occluded_ = false;
+  color_masked_ = false;
   remove_not_colored_ = false;
   video_reader_ = nullptr;
   mask_reader_ = nullptr;
@@ -260,7 +260,7 @@ mesh_coloration
 
   std::vector< DepthBuffer > depthBuffer( numFrames );
 
-  if( remove_occluded_ )
+  if( !color_occluded_ )
   {
     report_progress_changed( "Creating depth buffers", 0 );
 
@@ -426,7 +426,7 @@ mesh_coloration
         }
 
         double depthBufferValue = 0;
-        if( remove_occluded_ )
+        if( !color_occluded_ )
         {
           double* range = depthBuffer[ frameId ].Range;
           float depthBufferValueNorm =
@@ -435,9 +435,9 @@ mesh_coloration
           depthBufferValue =
             2 * range[1] * range[0] / (range[1] + range[0] - (2 * depthBufferValueNorm - 1) * (range[1] - range[0]));
         }
-        if( ( !remove_occluded_ ||
+        if( ( color_occluded_ ||
               depthBufferValue + occlusion_threshold_ > depth ) &&
-            ( !remove_masked_ || showPoint ) )
+            ( color_masked_ || showPoint ) )
         {
           if( !all_frames_ )
           {

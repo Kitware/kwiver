@@ -99,16 +99,16 @@ public:
 
   /// Set whether to remove occluded points.
   void
-  set_remove_occluded( bool remove_occluded )
+  set_color_occluded( bool color_occluded )
   {
-    remove_occluded_ = remove_occluded;
+    color_occluded_ = color_occluded;
   }
 
   /// Set whether to remove masked points.
   void
-  set_remove_masked( bool remove_masked )
+  set_color_masked( bool color_masked )
   {
-    remove_masked_ = remove_masked;
+    color_masked_ = color_masked;
   }
 
   /// Set whether to remove (\c false) points not colored
@@ -147,8 +147,8 @@ protected:
   int frame_;
   bool all_frames_;
   float occlusion_threshold_;
-  bool remove_occluded_;
-  bool remove_masked_;
+  bool color_occluded_;
+  bool color_masked_;
   bool remove_not_colored_;
 
   kwiver::vital::logger_handle_t logger_;

@@ -240,8 +240,8 @@ public:
     frame_ = config_->get_value("frame", -1);
     all_frames_ = config_->get_value("all_frames", false);
     occlusion_threshold_ = config_->get_value("occlusion_threshold", 0.0);
-    remove_occluded_ = config_->get_value("remove_occluded", true);
-    remove_masked_ = config_->get_value("remove_masked", true);
+    color_occluded_ = config_->get_value("color_occluded", false);
+    color_masked_ = config_->get_value("color_masked", false);
     remove_not_colored_ = config_->get_value("remove_not_colored", true);
 
     return SUCCESS;
@@ -305,7 +305,7 @@ public:
       "We use threshold >= 0 to fix floating point inaccuracies "
       "Default value is 0, bigger values will remove more points.");
     config->set_value(
-      "remove_occluded", true,
+      "color_occluded", false,
       "Remove occluded points if parameter is true.");
     config->set_value(
       "active_attribute", active_attribute_,
@@ -314,8 +314,8 @@ public:
       "For the VTP format, all attributes are saved, for PLY only the "
       "active attribute is saved.");
     config->set_value(
-      "remove_masked", true,
-      "Remove masked points if parameter is true.");
+      "color_masked", false,
+      "Color masked points if parameter is true.");
 
     kva::video_input::get_nested_algo_configuration("video_reader", config,
       kva::video_input_sptr());
