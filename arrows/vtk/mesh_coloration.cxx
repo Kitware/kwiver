@@ -89,7 +89,7 @@ mesh_coloration
   occlusion_threshold_ = 0.0;
   color_occluded_ = false;
   color_masked_ = false;
-  remove_not_colored_ = false;
+  remove_color_count_less_equal_ = 0;
   video_reader_ = nullptr;
   mask_reader_ = nullptr;
   cameras_ = nullptr;
@@ -365,7 +365,7 @@ mesh_coloration
 
     kwiver::vital::vector_3d pointNormal;
     normals->GetTuple( pointId, pointNormal.data() );
-    size_t coloredCount = 0;
+    int colorCount = 0;
     for( auto const frameId : kvr::iota( numFrames ) )
     {
       kwiver::vital::camera_perspective_sptr camera =
@@ -450,7 +450,7 @@ mesh_coloration
             unsigned char rgba[] = { rgb.r, rgb.g, rgb.b, 255 };
             perFrameColor[ frameId ]->SetTypedTuple( pointId, rgba );
           }
-          ++coloredCount;
+          ++colorCount;
         }
       }
       catch ( std::out_of_range const& )
@@ -458,7 +458,7 @@ mesh_coloration
         continue;
       }
     }
-    if (coloredCount == 0)
+    if (colorCount <= remove_color_count_less_equal_)
     {
       removedPoints->SetValue(removedPointsIndex++, pointId);
     }
@@ -496,7 +496,7 @@ mesh_coloration
     output_->GetPointData()->AddArray( countValues );
   }
 
-  if (remove_not_colored_ && removedPoints->GetNumberOfTuples() > 1)
+  if (remove_color_count_less_equal_ >= 0 && removedPoints->GetNumberOfTuples() > 1)
   {
     // remove points and cells not colored
     vtkNew<vtkRemovePolyData> removeNotColored;
@@ -590,6 +590,7 @@ mesh_coloration
       }
       push_data( cam_itr, ts, has_mask );
     }
+    LOG_INFO( logger_, "Camera and image list size: " << data_list_.size() );
   }
   // Take the current image
   else

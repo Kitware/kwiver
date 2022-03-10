@@ -111,11 +111,13 @@ public:
     color_masked_ = color_masked;
   }
 
-  /// Set whether to remove (\c false) points not colored
+  /// Set whether to remove points colored with fewer or equal the number of
+  /// frames passed as a parameter. Default is 0, so we remove points not
+  /// colored at all.
   void
-  set_remove_not_colored( bool remove_not_colored )
+  set_remove_color_count_less_equal( int value )
   {
-    remove_not_colored_ = remove_not_colored;
+    remove_color_count_less_equal_ = value;
   }
 
   /// Color the mesh.
@@ -149,7 +151,7 @@ protected:
   float occlusion_threshold_;
   bool color_occluded_;
   bool color_masked_;
-  bool remove_not_colored_;
+  int remove_color_count_less_equal_;
 
   kwiver::vital::logger_handle_t logger_;
 

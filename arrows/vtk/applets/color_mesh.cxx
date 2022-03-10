@@ -242,7 +242,7 @@ public:
     occlusion_threshold_ = config_->get_value("occlusion_threshold", 0.0);
     color_occluded_ = config_->get_value("color_occluded", false);
     color_masked_ = config_->get_value("color_masked", false);
-    remove_not_colored_ = config_->get_value("remove_not_colored", true);
+    remove_color_count_less_equal_ = config_->get_value("remove_color_count_less_equal", true);
 
     return SUCCESS;
   }
