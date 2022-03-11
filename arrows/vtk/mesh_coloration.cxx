@@ -89,7 +89,7 @@ mesh_coloration
   occlusion_threshold_ = 0.0;
   color_occluded_ = false;
   color_masked_ = false;
-  remove_color_count_less_equal_ = 0;
+  remove_color_count_less_equal_ = -1;
   video_reader_ = nullptr;
   mask_reader_ = nullptr;
   cameras_ = nullptr;

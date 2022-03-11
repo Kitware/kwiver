@@ -112,8 +112,7 @@ public:
   }
 
   /// Set whether to remove points colored with fewer or equal the number of
-  /// frames passed as a parameter. Default is 0, so we remove points not
-  /// colored at all.
+  /// frames passed as a parameter. Default is -1, so we doing remove any cells.
   void
   set_remove_color_count_less_equal( int value )
   {
