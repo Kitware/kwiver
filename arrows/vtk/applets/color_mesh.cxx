@@ -449,7 +449,12 @@ public:
 #ifdef KWIVER_ENABLE_PDAL
 
     auto lgcs = vital::local_geo_cs();
-    read_local_geo_cs_from_file(lgcs, input_geo_origin_file_);
+    if (! read_local_geo_cs_from_file(lgcs, input_geo_origin_file_))
+    {
+      LOG_ERROR(main_logger, "Failed to read local geo cs from file: "
+                << input_geo_origin_file_);
+      return;
+    }
 
     vtkSmartPointer<vtkPoints> inPts = mesh->GetPoints();
     vtkIdType numPts = inPts->GetNumberOfPoints();
