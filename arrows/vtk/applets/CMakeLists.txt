@@ -32,6 +32,10 @@ else()
                   VTK::IOXML)
 endif()
 
+if (KWIVER_ENABLE_TESTS)
+  add_subdirectory(tests)
+endif()
+
 # Add applet plugin
 kwiver_add_plugin( kwiver_algo_vtk_applets
   SUBDIR       ${kwiver_plugin_applets_subdir}
