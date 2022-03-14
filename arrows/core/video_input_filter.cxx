@@ -427,4 +427,12 @@ video_input_filter
   return std::make_shared<kwiver::vital::simple_metadata_map>(output_map);
 }
 
+// ----------------------------------------------------------------------------
+kwiver::vital::video_settings_uptr
+video_input_filter
+::implementation_settings() const
+{
+  return d->d_video_input->implementation_settings();
+}
+
 } } }     // end namespace
