@@ -50,7 +50,7 @@ TEST_F(local_geo_cs, read_local_geo_cs_from_file)
   valid = read_local_geo_cs_from_file(lgcs, geo_origin_valid);
   EXPECT_TRUE(valid);
   // Expect the local geo cs to be valid
-  kv::vector_3d origin = lgcs.origin().location(crs);
+  kv::vector_3d origin = lgcs.origin().location();
   EXPECT_NEAR(origin[0], -77.3578172263, 1e-8);
   EXPECT_NEAR(origin[1], 38.1903504278, 1e-8);
   EXPECT_NEAR(origin[2], -68.0169758322, 1e-8);
@@ -60,7 +60,7 @@ TEST_F(local_geo_cs, read_local_geo_cs_from_file)
   valid = kv::read_local_geo_cs_from_file(lgcs, geo_origin_invalid);
   EXPECT_FALSE(valid);
   // Expect the origin to be unchanged
-  origin = lgcs.origin().location(crs);
+  origin = lgcs.origin().location();
   EXPECT_NEAR(origin[0], 0.0, 1e-8);
   EXPECT_NEAR(origin[1], 0.0, 1e-8);
   EXPECT_NEAR(origin[2], 0.0, 1e-8);

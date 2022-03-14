@@ -35,7 +35,7 @@ local_geo_cs
   vector_3d lon_lat_alt = origin.location( SRID::lat_lon_WGS84 );
   auto zone = utm_ups_zone( lon_lat_alt );
   int crs = (zone.north ? SRID::UTM_WGS84_north : SRID::UTM_WGS84_south) + zone.number;
-  geo_origin_ = geo_point(origin.location(crs), crs);
+  geo_origin_ = geo_point(origin.location(), crs);
 }
 
 /// Read a local_geo_cs from a text file
@@ -62,7 +62,7 @@ write_local_geo_cs_to_file(local_geo_cs const& lgcs,
   kwiver::vital::logger_handle_t logger(kwiver::vital::get_logger(
     "write_local_geo_cs_to_file"));
   // write out the origin of the local coordinate system
-  auto lon_lat_alt = lgcs.origin().location( SRID::lat_lon_WGS84 );
+  auto lon_lat_alt = lgcs.origin().location();
   std::ofstream ofs(file_path);
   if (ofs)
   {
