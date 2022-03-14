@@ -839,7 +839,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_ACTIVE_WAVELENGTH_LIST ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_active_wavelength_list_format >(),
       "Active Wavelength List",
       "List of wavelengths used by the sensor to generate the Motion Imagery.",
       { 0, 1 } },

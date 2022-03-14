@@ -882,6 +882,11 @@ private:
 using klv_0601_wavelengths_list_format =
   klv_series_format< klv_0601_wavelength_record_format >;
 
+// ---------------------------------------------------------------------------
+/// Interprets data as a list of active ST0601 wavelengths.
+using klv_0601_active_wavelength_list_format =
+  klv_list_format< klv_ber_oid_format >;
+
 // ----------------------------------------------------------------------------
 /// Interprets data as a MISB ST0601 local set.
 class KWIVER_ALGO_KLV_EXPORT klv_0601_local_set_format

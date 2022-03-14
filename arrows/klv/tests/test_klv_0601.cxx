@@ -167,7 +167,8 @@ auto const expected_result = klv_local_set{
   { KLV_0601_SENSOR_ELEVATION_RATE,            kld{  0.004150390625000000 } },
   { KLV_0601_SENSOR_ROLL_RATE,                 kld{ -50.000000000000000 } },
   { KLV_0601_ONBOARD_MI_STORAGE_PERCENT_FULL,  kld{  72.000000000000000 } },
-  { KLV_0601_ACTIVE_WAVELENGTH_LIST,           klv_blob{ { 0x01, 0x03 } } },
+  { KLV_0601_ACTIVE_WAVELENGTH_LIST,
+    std::vector< uint64_t >{ 1, 3 } },
   { KLV_0601_COUNTRY_CODES,
     klv_0601_country_codes{
       KLV_0102_COUNTRY_CODING_METHOD_GENC_THREE_LETTER,
