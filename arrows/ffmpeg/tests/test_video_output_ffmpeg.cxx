@@ -17,6 +17,8 @@ namespace kvr = kwiver::vital::range;
 
 kv::path_t g_data_dir;
 
+static std::string short_video_name = "videos/aphill_short.ts";
+
 // ----------------------------------------------------------------------------
 int
 main( int argc, char** argv )
@@ -38,7 +40,7 @@ class ffmpeg_video_output : public ::testing::Test
 // ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_output, round_trip )
 {
-  auto const src_path = data_dir + "/aphill_short.ts";
+  auto const src_path = data_dir + "/" + short_video_name;
   auto const tmp_path =
     kwiver::testing::temp_file_name( "test-ffmpeg-output-", ".ts" );
 

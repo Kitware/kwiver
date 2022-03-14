@@ -20,15 +20,15 @@ namespace ka = kwiver::arrows;
 namespace kav = kwiver::arrows::vxl;
 
 kv::path_t g_data_dir;
-static std::string test_color_image_name = "images/small_color_logo.png";
+static std::string test_color_image_name = "images/kitware_logos/small_color_logo.png";
 static std::string expected_morphology_erode =
-  "images/morphology_erode.png";
+  "images/kitware_logos/morphology_erode.png";
 static std::string expected_morphology_dilate =
-  "images/morphology_dilate.png";
+  "images/kitware_logos/morphology_dilate.png";
 static std::string expected_morphology_union =
-  "images/morphology_union.png";
+  "images/kitware_logos/morphology_union.png";
 static std::string expected_morphology_intersection =
-  "images/morphology_intersection.png";
+  "images/kitware_logos/morphology_intersection.png";
 
 // ----------------------------------------------------------------------------
 int

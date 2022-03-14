@@ -24,7 +24,8 @@ kwiver::vital::path_t g_data_dir;
 
 namespace algo = kwiver::vital::algo;
 namespace kac = kwiver::arrows::core;
-static std::string list_file_name = "frame_list.txt";
+static std::string list_file_name = "video_as_images/frame_list.txt";
+static std::string pos_folder_location = "video_as_images/pos";
 
 // ----------------------------------------------------------------------------
 int
@@ -72,7 +73,7 @@ set_config(kwiver::vital::config_block_sptr config, std::string const& data_dir)
   }
 
   config->set_value( "video_input:split:metadata_source:type", "pos" );
-  config->set_value( "video_input:split:metadata_source:pos:metadata_directory", data_dir + "/pos");
+  config->set_value( "video_input:split:metadata_source:pos:metadata_directory", data_dir + "/" + pos_folder_location );
 
   return true;
 }
@@ -324,7 +325,7 @@ TEST_F(video_input_filter, metadata_map)
   std::string file_name;
   while ( std::getline( list_file_stream, file_name ) )
   {
-    file_name.replace(0, 6, "pos");
+    file_name.replace(0, 6, pos_folder_location);
     file_name.replace(file_name.length() - 3, 3, "pos");
 
     auto md_test = kwiver::vital::read_pos_file( data_dir + "/" + file_name );
@@ -416,7 +417,7 @@ TEST_F(video_input_filter, metadata_map_sublist)
   {
     if (frame_number >= start_at_frame && frame_number <= stop_after_frame)
     {
-      file_name.replace(0, 6, "pos");
+      file_name.replace(0, 6, pos_folder_location);
       file_name.replace(file_name.length() - 3, 3, "pos");
 
       auto md_test = kwiver::vital::read_pos_file( data_dir + "/" + file_name );

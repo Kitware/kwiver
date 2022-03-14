@@ -26,8 +26,8 @@ namespace ka = kwiver::arrows;
 using ST = kwiversys::SystemTools;
 
 kv::path_t g_data_dir;
-static std::string test_color_image_name = "images/small_color_logo.png";
-static std::string test_plane_image_name = "images/planes_logo.png";
+static std::string test_color_image_name = "images/kitware_logos/small_color_logo.png";
+static std::string test_plane_image_name = "images/kitware_logos/planes_logo.png";
 
 // ----------------------------------------------------------------------------
 int

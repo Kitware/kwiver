@@ -8,4 +8,4 @@ set(test_libraries      vital kwiver_algo_core kwiver_algo_matlab kwiver_algo_oc
 ##############################
 # Algorithms Matlab tests
 ##############################
-kwiver_discover_tests(matlab_util                test_libraries test_matlab_util.cxx "${kwiver_test_data_directory}" )
+kwiver_discover_tests(matlab_util                test_libraries test_matlab_util.cxx "${kwiver_test_data_directory}")
