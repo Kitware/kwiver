@@ -21,7 +21,7 @@
 #include <vital/util/transform_image.h>
 
 #ifdef KWIVER_ENABLE_PDAL
-#include <arrows/pdal/pointcloud_io.h>
+#include <arrows/pdal/algo/pointcloud_io.h>
 #endif
 
 #include <kwiversys/SystemTools.hxx>
@@ -480,7 +480,9 @@ public:
       }
     }
 
-    kwiver::arrows::pdal::save_point_cloud_las(output_path, lgcs, points, colors);
+    kwiver::arrows::pdal::pointcloud_io pc_io;
+    pc_io.set_local_geo_cs(lgcs);
+    pc_io.save(output_path, points, colors);
 #else
     throw vital::file_write_exception(output_path,
                                       "KWIVER was not compiled with PDAL, "
