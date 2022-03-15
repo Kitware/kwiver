@@ -257,7 +257,7 @@ klv_muxer
 ::send_frame_0601( uint64_t timestamp )
 {
   constexpr auto standard = KLV_PACKET_MISB_0601_LOCAL_SET;
-  auto const& lookup = klv_0104_traits_lookup();
+  auto const& lookup = klv_0601_traits_lookup();
 
   // We may in the future want to do more fancy Report-On-Change things here to
   // save on bandwidth. For right now we just dump all data at each frame
