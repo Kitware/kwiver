@@ -10,6 +10,7 @@
 
 #include <arrows/klv/klv_packet.h>
 #include <arrows/klv/klv_set.h>
+#include <arrows/klv/klv_util.h>
 
 #include <vital/util/interval_map.h>
 
@@ -33,11 +34,7 @@ public:
   {
     klv_top_level_tag standard;
     klv_lds_key tag;
-    uint64_t index;
-
-    bool operator<( key_t const& other ) const;
-
-    bool operator==( key_t const& other ) const;
+    klv_value index;
   };
 
   using interval_t = kwiver::vital::interval< uint64_t >;
@@ -69,7 +66,7 @@ public:
   /// Return the value at the given location, or an empty \c klv_value if no
   /// value exists.
   klv_value at( klv_top_level_tag standard, klv_lds_key tag,
-                uint64_t index, uint64_t time ) const;
+                klv_value const& index, uint64_t time ) const;
 
   /// Return all values at the given location.
   std::vector< klv_value > all_at( klv_top_level_tag standard, klv_lds_key tag,
@@ -99,31 +96,17 @@ public:
 
   /// Return an iterator to the given location, or the end iterator if none
   /// exists.
-  iterator find( klv_top_level_tag standard, klv_lds_key tag, uint64_t index );
+  iterator find( klv_top_level_tag standard, klv_lds_key tag,
+                 klv_value const& index );
 
   /// \copydoc iterator find( klv_top_level_tag, klv_lds_key )
   const_iterator find( klv_top_level_tag standard, klv_lds_key tag,
-                       uint64_t index ) const;
-
-  /// Insert a new timeline, even if one already exists.
-  ///
-  /// \note The index of the inserted timeline is not guaranteed to be any
-  /// particular number.
-  ///
-  /// \returns An iterator to the new timeline.
-  iterator insert( klv_top_level_tag standard, klv_lds_key tag );
-
-  /// Return an iterator to the given location, creating a new timeline if none
-  /// exists.
-  ///
-  /// \throws logic_error If more than one entry is present at the given
-  /// location.
-  iterator insert_or_find( klv_top_level_tag standard, klv_lds_key tag );
+                       klv_value const& index ) const;
 
   /// Return an iterator to the given location, creating a new timeline if none
   /// exists.
   iterator insert_or_find( klv_top_level_tag standard, klv_lds_key tag,
-                           uint64_t index );
+                           klv_value const& index );
 
   /// Erase an existing timeline.
   void erase( const_iterator it );
@@ -137,6 +120,9 @@ public:
 private:
   container_t m_map;
 };
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_timeline::key_t );
 
 // ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT

@@ -177,7 +177,7 @@ klv_set< Key >
 ::find( Key const& key )
 {
   auto const it = m_items.lower_bound( key );
-  if( it != m_items.end() )
+  if( it != m_items.end() && it->first == key )
   {
     auto const next_it = std::next( it );
     if( next_it == m_items.end() || next_it->first != key )
@@ -196,7 +196,7 @@ klv_set< Key >
 ::find( Key const& key ) const
 {
   auto const it = m_items.lower_bound( key );
-  if( it != m_items.end() )
+  if( it != m_items.end() && it->first == key )
   {
     auto const next_it = std::next( it );
     if( next_it == m_items.end() || next_it->first != key )

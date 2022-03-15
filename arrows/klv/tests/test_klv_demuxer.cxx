@@ -6,11 +6,14 @@
 /// \brief Test KLV demuxer.
 
 #include <arrows/klv/klv_0601.h>
+#include <arrows/klv/klv_1010.h>
 #include <arrows/klv/klv_1108.h>
 #include <arrows/klv/klv_1108_metric_set.h>
 #include <arrows/klv/klv_demuxer.h>
 
 #include <tests/test_gtest.h>
+
+namespace kv = kwiver::vital;
 
 // ----------------------------------------------------------------------------
 int
@@ -48,11 +51,11 @@ TEST ( klv, demuxer_invalid )
     }
     auto const result_range = timeline.find_all( KLV_PACKET_UNKNOWN, 0 );
     ASSERT_EQ( 3, std::distance( result_range.begin(), result_range.end() ) );
-    EXPECT_EQ( packet_vector( { packets[ 0 ], packets[ 1 ] } ),
+    EXPECT_EQ( packet_vector( { packets[ 3 ] } ),
                std::next( result_range.begin(), 0 )->second.at( 123 )->get< packet_vector >() );
     EXPECT_EQ( packet_vector( { packets[ 2 ] } ),
                std::next( result_range.begin(), 1 )->second.at( 123 )->get< packet_vector >() );
-    EXPECT_EQ( packet_vector( { packets[ 3 ] } ),
+    EXPECT_EQ( packet_vector( { packets[ 0 ], packets[ 1 ] } ),
                std::next( result_range.begin(), 2 )->second.at( 123 )->get< packet_vector >() ); }
 }
 
@@ -176,6 +179,202 @@ TEST ( klv, demuxer_0601 )
 }
 
 // ----------------------------------------------------------------------------
+TEST ( klv, demuxer_0601_special )
+{
+  auto const packets = std::vector< klv_packet >{
+    { klv_0601_key(),
+      klv_local_set{
+        { KLV_0601_PRECISION_TIMESTAMP, uint64_t{ 15 } },
+        { KLV_0601_WAVELENGTHS_LIST,
+          std::vector< klv_0601_wavelength_record >{
+            { 1, 380.0, 750.0, "VIS" },
+            { 2, 750.0, 100000.0, "IR" } } },
+        { KLV_0601_PAYLOAD_LIST,
+          std::vector< klv_0601_payload_record >{
+            { 0, KLV_0601_PAYLOAD_TYPE_ELECTRO_OPTICAL, "VIS Nose Camera" },
+            { 1, KLV_0601_PAYLOAD_TYPE_ELECTRO_OPTICAL, "ACME VIS" } } },
+        { KLV_0601_WAYPOINT_LIST,
+          std::vector< klv_0601_waypoint_record >{
+            { 0, 1, kv::nullopt, kv::nullopt },
+            { 1, 2, kv::nullopt, kv::nullopt } } },
+        { KLV_0601_WEAPON_FIRED, uint64_t{ 0xBA } },
+        { KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST,
+          std::vector< uint64_t >{ 0 } },
+        { KLV_0601_SEGMENT_LOCAL_SET,
+          klv_local_set{
+            { KLV_0601_MISSION_ID, std::string{ "MISSION01" } } } },
+        { KLV_0601_SEGMENT_LOCAL_SET,
+          klv_local_set{
+            { KLV_0601_MISSION_ID, std::string{ "MISSION02" } } } },
+        { KLV_0601_AMEND_LOCAL_SET,
+          klv_local_set{
+            { KLV_0601_WEAPON_FIRED, uint64_t{ 0xBB } } } },
+        { KLV_0601_AMEND_LOCAL_SET,
+          klv_local_set{
+            { KLV_0601_LASER_PRF_CODE, uint64_t{ 1111 } } } },
+        { KLV_0601_SDCC_FLP,
+          klv_1010_sdcc_flp{
+            { KLV_0601_SENSOR_LATITUDE, KLV_0601_SENSOR_LONGITUDE },
+            { 1.0, 2.0 },
+            {} } },
+        { KLV_0601_SDCC_FLP,
+          klv_1010_sdcc_flp{
+            { KLV_0601_ALTERNATE_PLATFORM_LATITUDE,
+              KLV_0601_ALTERNATE_PLATFORM_LONGITUDE },
+            { 2.0, 3.0 },
+            {} } },
+        { KLV_0601_CONTROL_COMMAND,
+          klv_0601_control_command{ 0, "CMD0", 12 } },
+        { KLV_0601_CONTROL_COMMAND,
+          klv_0601_control_command{ 1, "CMD1", 13 } } } },
+    { klv_0601_key(),
+      klv_local_set{
+        { KLV_0601_PRECISION_TIMESTAMP, uint64_t{ 30 } },
+        { KLV_0601_WAVELENGTHS_LIST,
+          std::vector< klv_0601_wavelength_record >{
+            { 1, 380.0, 750.0, "VIS" },
+            { 3, 380.0, 750.0, "VIS2" },
+            { 4, 750.0, 100000.0, "IR2" } } },
+        { KLV_0601_PAYLOAD_LIST,
+          std::vector< klv_0601_payload_record >{
+            { 0, KLV_0601_PAYLOAD_TYPE_ELECTRO_OPTICAL, "VIS Nose Camera" },
+            { 2, KLV_0601_PAYLOAD_TYPE_ELECTRO_OPTICAL, "VIS Nose Camera 2" },
+            { 3, KLV_0601_PAYLOAD_TYPE_ELECTRO_OPTICAL, "ACME VIS 2" } } },
+        { KLV_0601_WAYPOINT_LIST,
+          std::vector< klv_0601_waypoint_record >{
+            { 0, 1, kv::nullopt, kv::nullopt },
+            { 2, 3, kv::nullopt, kv::nullopt },
+            { 3, 4, kv::nullopt, kv::nullopt } } },
+        { KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST,
+          std::vector< uint64_t >{ 1 } },
+        { KLV_0601_SDCC_FLP,
+          klv_1010_sdcc_flp{
+            { KLV_0601_ALTERNATE_PLATFORM_LATITUDE,
+              KLV_0601_ALTERNATE_PLATFORM_LONGITUDE },
+            { 12.0, 13.0 },
+            {} } },
+        { KLV_0601_CONTROL_COMMAND,
+          klv_0601_control_command{ 1, "CMD1", 13 } } } } };
+
+  klv_timeline timeline;
+  klv_demuxer demuxer( timeline );
+  for( auto const& packet : packets )
+  {
+    demuxer.demux_packet( packet );
+  }
+
+  auto const standard = KLV_PACKET_MISB_0601_LOCAL_SET;
+
+  // Lists
+  {
+    auto const tag = KLV_0601_WAVELENGTHS_LIST;
+    auto const slice = timeline.all_at( standard, tag, 15 );
+    ASSERT_EQ( slice.size(), 2 );
+    EXPECT_EQ( 1, slice.at( 0 ).get< klv_0601_wavelength_record >().id );
+    EXPECT_EQ( 2, slice.at( 1 ).get< klv_0601_wavelength_record >().id );
+    EXPECT_EQ( 2, timeline.all_at( standard, tag, 16 ).size() );
+    EXPECT_EQ( 4, timeline.all_at( standard, tag, 30 ).size() );
+  }
+
+  {
+    auto const tag = KLV_0601_PAYLOAD_LIST;
+    auto const slice = timeline.all_at( standard, tag, 15 );
+    ASSERT_EQ( slice.size(), 2 );
+    EXPECT_EQ( 0, slice.at( 0 ).get< klv_0601_payload_record >().id );
+    EXPECT_EQ( 1, slice.at( 1 ).get< klv_0601_payload_record >().id );
+    EXPECT_EQ( 2, timeline.all_at( standard, tag, 16 ).size() );
+    EXPECT_EQ( 4, timeline.all_at( standard, tag, 30 ).size() );
+  }
+
+  {
+    auto const tag = KLV_0601_WAYPOINT_LIST;
+    auto const slice = timeline.all_at( standard, tag, 15 );
+    ASSERT_EQ( 2, slice.size() );
+    EXPECT_EQ( 0, slice.at( 0 ).get< klv_0601_waypoint_record >().id );
+    EXPECT_EQ( 1, slice.at( 1 ).get< klv_0601_waypoint_record >().id );
+    EXPECT_EQ( 2, timeline.all_at( standard, tag, 16 ).size() );
+    EXPECT_EQ( 4, timeline.all_at( standard, tag, 30 ).size() );
+  }
+
+  // Points with single entries
+  {
+    auto const tag = KLV_0601_WEAPON_FIRED;
+    EXPECT_EQ( uint64_t{ 0xBA }, timeline.at( standard, tag, 15 ) );
+    EXPECT_TRUE( timeline.at( standard, tag, 16 ).empty() );
+  }
+
+  {
+    auto const tag = KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST;
+    EXPECT_EQ( std::vector< uint64_t >{ 0 },
+               timeline.at( standard, tag, 15 ) );
+    EXPECT_TRUE( timeline.at( standard, tag, 16 ).empty() );
+    EXPECT_EQ( std::vector< uint64_t >{ 1 },
+               timeline.at( standard, tag, 30 ) );
+    EXPECT_TRUE( timeline.at( standard, tag, 31 ).empty() );
+  }
+
+  // Points with multiple entries
+  {
+    auto const tag = KLV_0601_SEGMENT_LOCAL_SET;
+    auto const slice = timeline.all_at( standard, tag, 15 );
+    ASSERT_EQ( 2, slice.size() );
+    EXPECT_EQ(
+      std::string{ "MISSION01" },
+      slice.at( 0 ).get< klv_local_set >().at( KLV_0601_MISSION_ID ) );
+    EXPECT_EQ(
+      std::string{ "MISSION02" },
+      slice.at( 1 ).get< klv_local_set >().at( KLV_0601_MISSION_ID ) );
+    EXPECT_TRUE( timeline.at( standard, tag, 16 ).empty() );
+  }
+
+  {
+    auto const tag = KLV_0601_AMEND_LOCAL_SET;
+    auto const slice = timeline.all_at( standard, tag, 15 );
+    ASSERT_EQ( 2, slice.size() );
+    EXPECT_EQ(
+      uint64_t{ 0xBB },
+      slice.at( 0 ).get< klv_local_set >().at( KLV_0601_WEAPON_FIRED ) );
+    EXPECT_EQ(
+      uint64_t{ 1111 },
+      slice.at( 1 ).get< klv_local_set >().at( KLV_0601_LASER_PRF_CODE ) );
+    EXPECT_TRUE( timeline.at( standard, tag, 16 ).empty() );
+  }
+
+  // Standard multi-entries
+  {
+    auto const tag = KLV_0601_SDCC_FLP;
+    auto const slice1 = timeline.all_at( standard, tag, 15 );
+    ASSERT_EQ( 2, slice1.size() );
+    EXPECT_EQ( std::vector< double >( { 1.0, 2.0 } ),
+               slice1.at( 0 ).get< klv_1010_sdcc_flp >().sigma );
+    EXPECT_EQ( std::vector< double >( { 2.0, 3.0 } ),
+               slice1.at( 1 ).get< klv_1010_sdcc_flp >().sigma );
+    EXPECT_EQ( 2, timeline.all_at( standard, tag, 16 ).size() );
+    ASSERT_EQ( 2, timeline.all_at( standard, tag, 30 ).size() );
+
+    auto const slice2 = timeline.all_at( standard, tag, 30 );
+    ASSERT_EQ( 2, slice2.size() );
+    EXPECT_EQ( std::vector< double >( { 1.0, 2.0 } ),
+               slice2.at( 0 ).get< klv_1010_sdcc_flp >().sigma );
+    EXPECT_EQ( std::vector< double >( { 12.0, 13.0 } ),
+               slice2.at( 1 ).get< klv_1010_sdcc_flp >().sigma );
+    EXPECT_EQ( 2, timeline.all_at( standard, tag, 31 ).size() );
+  }
+
+  {
+    auto const tag = KLV_0601_CONTROL_COMMAND;
+    auto const slice = timeline.all_at( standard, tag, 15 );
+    ASSERT_EQ( 2, slice.size() );
+    EXPECT_EQ( uint64_t{ 0 },
+               slice.at( 0 ).get< klv_0601_control_command >().id );
+    EXPECT_EQ( uint64_t{ 1 },
+               slice.at( 1 ).get< klv_0601_control_command >().id );
+    EXPECT_EQ( 2, timeline.all_at( standard, tag, 16 ).size() );
+    ASSERT_EQ( 2, timeline.all_at( standard, tag, 30 ).size() );
+  }
+}
+
+// ----------------------------------------------------------------------------
 TEST ( klv, demuxer_1108 )
 {
   auto const metric_sets = std::vector< klv_local_set >{
@@ -264,8 +463,8 @@ TEST ( klv, demuxer_1108 )
 
   EXPECT_TRUE( timeline.all_at( standard, KLV_1108_METRIC_PERIOD_PACK, 180 )
                .empty() );
-  EXPECT_EQ( std::vector< klv_value >( { std::string{ "5.1" },
+  EXPECT_EQ( std::vector< klv_value >( { std::string{ "5.2" },
                                          std::string{ "5.1" },
-                                         std::string{ "5.2" } } ),
+                                         std::string{ "5.1" } } ),
              timeline.all_at( standard, KLV_1108_COMPRESSION_LEVEL, 155 ) );
 }

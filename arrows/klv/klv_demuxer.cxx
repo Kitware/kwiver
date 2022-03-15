@@ -7,6 +7,7 @@
 
 #include "klv_0104.h"
 #include "klv_0601.h"
+#include "klv_1010.h"
 #include "klv_1108.h"
 #include "klv_1108_metric_set.h"
 #include "klv_demuxer.h"
@@ -31,97 +32,40 @@ constexpr uint64_t klv_0104_default_duration = klv_packet_default_duration;
 constexpr uint64_t klv_0601_default_duration = klv_packet_default_duration;
 
 // ----------------------------------------------------------------------------
-uint64_t
-klv_find_or_insert_1108( klv_timeline& timeline,
-                         klv_local_set const& parent_set,
-                         klv_value const& metric_set_value )
+klv_local_set
+indexify_1108( klv_local_set const& parent_set,
+               klv_value const& metric_set_value )
 {
-  constexpr auto standard = KLV_PACKET_MISB_1108_LOCAL_SET;
-
-  // Invalid metric sets are all treated as unique and therefore an equivalent
-  // sub-timeline cannot be found
-  if( metric_set_value.valid() )
+  klv_local_set result;
+  for( auto const tag : { KLV_1108_ASSESSMENT_POINT,
+                          KLV_1108_WINDOW_CORNERS_PACK } )
   {
-    auto const& metric_set = metric_set_value.get< klv_local_set >();
-
-    // The METRIC_LOCAL_SET tag is used to get all the unique metrics being
-    // tracked.
-    auto const candidates =
-      timeline.find_all( standard, KLV_1108_METRIC_LOCAL_SET );
-    for( auto candidate : candidates )
+    auto const it = parent_set.find( tag );
+    if( it != parent_set.cend() )
     {
-      // We are trying to find out if this candidate set of sub-timelines is
-      // tracking the same metric as the new one we want to insert
-      auto is_match = true;
-      auto const index = candidate.first.index;
-
-      // Either of these tags in the parent set being different would mean the
-      // new metric should be tracked separately
-      for( auto const tag : { KLV_1108_ASSESSMENT_POINT,
-                              KLV_1108_WINDOW_CORNERS_PACK } )
-      {
-        auto const it = timeline.find( standard, tag, index );
-
-        // All this to check whether the values are different, the complexity
-        // coming from the fact that we don't assume either value exists in the
-        // first place, since WINDOWS_CORNER_PACK is optional
-        if( it != timeline.end() && !it->second.empty() &&
-            ( it->second.begin()->value.empty() != !parent_set.has( tag ) ||
-              ( parent_set.has( tag ) &&
-                it->second.begin()->value != parent_set.at( tag ) ) ) )
-        {
-          is_match = false;
-          break;
-        }
-      }
-
-      // Early exit
-      if( !is_match )
-      {
-        continue;
-      }
-
-      // Find the embedded metric set for this candidate, ensuring it exists
-      auto const metric_set_it =
-        timeline.find( standard, KLV_1108_METRIC_LOCAL_SET, index );
-      if( metric_set_it == timeline.end() || metric_set_it->second.empty() )
-      {
-        continue;
-      }
-
-      auto const& candidate_metric_set =
-        metric_set_it->second.begin()->value.get< klv_local_set >();
-
-      // Any of these tags being different would mean the new metric should be
-      // tracked separately
-      for( auto const tag : { KLV_1108_METRIC_SET_NAME,
-                              KLV_1108_METRIC_SET_VERSION,
-                              KLV_1108_METRIC_SET_IMPLEMENTER,
-                              KLV_1108_METRIC_SET_PARAMETERS } )
-      {
-        // These are all mandatory tags, so we assume they exist
-        if( candidate_metric_set.at( tag ) != metric_set.at( tag ) )
-        {
-          is_match = false;
-          break;
-        }
-      }
-
-      // Return the index found if successful
-      if( is_match )
-      {
-        return index;
-      }
+      result.add( tag, it->second );
     }
   }
 
-  // Finding an existing sub-timeline to use failed; insert new one
-  auto const index =
-    timeline.insert( standard, KLV_1108_ASSESSMENT_POINT )->first.index;
-  timeline.erase(
-    timeline.find( standard, KLV_1108_ASSESSMENT_POINT, index ) );
+  if( metric_set_value.valid() )
+  {
+    auto const& metric_set = metric_set_value.get< klv_local_set >();
+    klv_local_set result_metric_set;
+    for( auto const tag : { KLV_1108_METRIC_SET_NAME,
+                            KLV_1108_METRIC_SET_VERSION,
+                            KLV_1108_METRIC_SET_IMPLEMENTER,
+                            KLV_1108_METRIC_SET_PARAMETERS } )
+    {
+      auto const it = metric_set.find( tag );
+      if( it != metric_set.cend() )
+      {
+        result_metric_set.add( tag, it->second );
+      }
+    }
+    result.add( KLV_1108_METRIC_LOCAL_SET, std::move( result_metric_set ) );
+  }
 
-  return index;
+  return result;
 }
 
 } // namespace <anonymous>
@@ -129,7 +73,7 @@ klv_find_or_insert_1108( klv_timeline& timeline,
 // ----------------------------------------------------------------------------
 klv_demuxer
 ::klv_demuxer( klv_timeline& timeline )
-  : m_last_timestamp{ 0 }, m_unknown_key_indices{}, m_timeline( timeline ) {}
+  : m_last_timestamp{ 0 }, m_timeline( timeline ) {}
 
 // ----------------------------------------------------------------------------
 void
@@ -185,7 +129,22 @@ klv_demuxer
 ::reset()
 {
   m_last_timestamp = 0;
-  m_unknown_key_indices.clear();
+}
+
+// ----------------------------------------------------------------------------
+template< class T >
+void
+klv_demuxer
+::demux_list( klv_top_level_tag standard,
+              klv_lds_key tag,
+              interval_t const& time_interval,
+              std::vector< T > const& value )
+{
+  for( auto const& item : value )
+  {
+    demux_single_entry( standard, tag, uint64_t{ item.id },
+                        time_interval, item );
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -193,18 +152,8 @@ void
 klv_demuxer
 ::demux_unknown( klv_packet const& packet )
 {
-  // Keep track of which unknown keys map to which timelines
-  auto index_it = m_unknown_key_indices.find( packet.key );
-
-  // Create new timeline for this key if it's new
-  if( index_it == m_unknown_key_indices.end() )
-  {
-    auto const index = m_timeline.insert( KLV_PACKET_UNKNOWN, 0 )->first.index;
-    index_it = m_unknown_key_indices.emplace( packet.key, index ).first;
-  }
-
   auto& unknown_timeline =
-    m_timeline.find( KLV_PACKET_UNKNOWN, 0, index_it->second )->second;
+    m_timeline.insert_or_find( KLV_PACKET_UNKNOWN, 0, packet.key )->second;
 
   // Add this packet to a list (created here if necessary) of unknown packets
   // at this timestamp.
@@ -254,7 +203,7 @@ klv_demuxer
 
     // No duplicate entries allowed, so this is relatively straightforward
     auto const& trait = lookup.by_uds_key( entry.first );
-    demux_single_entry( standard, trait.tag(), 0, time_interval,
+    demux_single_entry( standard, trait.tag(), {}, time_interval,
                         entry.second );
   }
 
@@ -265,13 +214,13 @@ klv_demuxer
 // ----------------------------------------------------------------------------
 void
 klv_demuxer
-::demux_0601( klv_local_set const& value )
+::demux_0601( klv_local_set const& local_set )
 {
   auto const standard = KLV_PACKET_MISB_0601_LOCAL_SET;
 
   // Extract timestamp
   auto const timestamp =
-    value.at( KLV_0601_PRECISION_TIMESTAMP ).get< uint64_t >();
+    local_set.at( KLV_0601_PRECISION_TIMESTAMP ).get< uint64_t >();
   if( !check_timestamp( timestamp ) )
   {
     return;
@@ -280,42 +229,67 @@ klv_demuxer
   // By default, valid for 30 seconds
   auto const time_interval =
     interval_t{ timestamp, timestamp + klv_0601_default_duration };
+  auto const point_time_interval =
+    interval_t{ timestamp, timestamp + 1 };
 
-  for( auto const& entry : value )
+  for( auto const& entry : local_set )
   {
     auto const tag = entry.first;
-
-    // Timestamp already implicitly encoded
-    if( tag == KLV_0601_PRECISION_TIMESTAMP )
+    auto const& value = entry.second;
+    switch( tag )
     {
-      continue;
-    }
+      // Timestamp already implicitly encoded
+      case KLV_0601_PRECISION_TIMESTAMP:
+        continue;
 
-    // TODO: Add special list accumulation logic for tags:
-    // KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST
-    // KLV_0601_ACTIVE_WAVELENGTH_LIST
-    // KLV_0601_WAVELENGTHS_LIST
-    // KLV_0601_PAYLOAD_LIST
-    // KLV_0601_WAYPOINT_LIST
+      // List tags
+      case KLV_0601_WAVELENGTHS_LIST:
+        demux_list( standard, tag, time_interval,
+                    value.get< std::vector< klv_0601_wavelength_record > >() );
+        break;
+      case KLV_0601_PAYLOAD_LIST:
+        demux_list( standard, tag, time_interval,
+                    value.get< std::vector< klv_0601_payload_record > >() );
+        break;
+      case KLV_0601_WAYPOINT_LIST:
+        demux_list( standard, tag, time_interval,
+                    value.get< std::vector< klv_0601_waypoint_record > >() );
+        break;
 
-    // TODO: Deal with tags which can have multiple entries:
-    // KLV_0601_SEGMENT_LOCAL_SET
-    // KLV_0601_AMEND_LOCAL_SET
-    // KLV_0601_SDCC_FLP
+      // Tags which only make sense as point occurences
+      case KLV_0601_WEAPON_FIRED:
+        demux_single_entry(
+          standard, tag, value.get< uint64_t >(), point_time_interval, value );
+        break;
+      case KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST:
+        demux_single_entry(
+          standard, tag, {}, point_time_interval, value );
+        break;
+      case KLV_0601_SEGMENT_LOCAL_SET:
+      case KLV_0601_AMEND_LOCAL_SET:
+        demux_single_entry(
+          standard, tag, value.get< klv_local_set >(),
+          point_time_interval, value );
+        break;
 
-    // CONTROL_COMMAND is a special case. It supports multiple entries, but is
-    // nonetheless easy to implement, since it gives us a unique id that we can
-    // use to track each entry over time, allowing it to be treated similarly
-    // to a single-entry tag
-    auto index = 0;
-    if( entry.first == KLV_0601_CONTROL_COMMAND )
-    {
-      index = entry.second.get< klv_0601_control_command >().id;
-    }
+      // Tags which can have multiples
+      case KLV_0601_SDCC_FLP:
+        demux_single_entry(
+          standard, tag, value.get< klv_1010_sdcc_flp >().members,
+          time_interval, value );
+        break;
+      case KLV_0601_CONTROL_COMMAND:
+        demux_single_entry(
+          standard, tag,
+          uint64_t{ value.get< klv_0601_control_command >().id },
+          time_interval, value );
+        break;
 
-    // Single-entry tags passed off here
-    demux_single_entry( standard, entry.first, index, time_interval,
-                        entry.second );
+      // Standard single-entry tags
+      default:
+        demux_single_entry( standard, tag, {}, time_interval, value );
+        break;
+    };
   }
 
   // Update timestamp
@@ -350,8 +324,7 @@ klv_demuxer
        value.all_at( KLV_1108_METRIC_LOCAL_SET ) )
   {
     // Create the and fill the index for this metric set
-    auto const index =
-      klv_find_or_insert_1108( m_timeline, value, metric_set_entry.second );
+    auto const index = indexify_1108( value, metric_set_entry.second );
     demux_single_entry( standard, KLV_1108_METRIC_LOCAL_SET, index,
                         time_interval, metric_set_entry.second );
 
@@ -379,7 +352,7 @@ klv_demuxer
 void
 klv_demuxer
 ::demux_single_entry( klv_top_level_tag standard, klv_lds_key tag,
-                      uint64_t index, interval_t const& time_interval,
+                      klv_value const& index, interval_t const& time_interval,
                       klv_value const& value )
 {
   if( value.empty() )

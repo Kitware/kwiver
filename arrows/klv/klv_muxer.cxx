@@ -262,12 +262,71 @@ klv_muxer
   // We may in the future want to do more fancy Report-On-Change things here to
   // save on bandwidth. For right now we just dump all data at each frame
   klv_local_set set;
+  std::vector< klv_0601_wavelength_record > wavelength_list;
+  std::vector< klv_0601_payload_record > payload_list;
+  std::vector< klv_0601_waypoint_record > waypoint_list;
+  std::vector< uint64_t > control_command_verify_list;
   for( auto const& entry : m_timeline.find_all( standard ) )
   {
+    auto const tag = entry.first.tag;
+
+    // Tags which only make sense as point occurences
+    if( tag == KLV_0601_WEAPON_FIRED ||
+        tag == KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST ||
+        tag == KLV_0601_SEGMENT_LOCAL_SET ||
+        tag == KLV_0601_AMEND_LOCAL_SET )
+    {
+      for( auto const& subentry :
+           entry.second.find( { m_prev_frame, timestamp } ) )
+      {
+        if( tag == KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST )
+        {
+          auto const& typed_value =
+            subentry.value.get< std::vector< uint64_t > >();
+          control_command_verify_list.insert(
+            control_command_verify_list.cend(),
+            typed_value.cbegin(), typed_value.cend() );
+        }
+        else
+        {
+          if( tag == KLV_0601_WEAPON_FIRED )
+          {
+            // Multiples not allowed, so just use the most recent one
+            set.erase( tag );
+          }
+          set.add( tag, subentry.value );
+        }
+      }
+      continue;
+    }
+
+    // Tags which hold a value over time
     auto const it = entry.second.find( timestamp );
     if( it != entry.second.end() )
     {
-      set.add( entry.first.tag, it->value );
+      switch( tag )
+      {
+        // List tags
+        case KLV_0601_WAVELENGTHS_LIST:
+          wavelength_list.emplace_back(
+            it->value.get< klv_0601_wavelength_record >() );
+          break;
+        case KLV_0601_PAYLOAD_LIST:
+          payload_list.emplace_back(
+            it->value.get< klv_0601_payload_record >() );
+          break;
+        case KLV_0601_WAYPOINT_LIST:
+          waypoint_list.emplace_back(
+            it->value.get< klv_0601_waypoint_record >() );
+          break;
+
+        // Non-list tags
+        case KLV_0601_SDCC_FLP:
+        case KLV_0601_CONTROL_COMMAND:
+        default:
+          set.add( tag, it->value );
+          break;
+      }
     }
     else if( lookup.by_tag( entry.first.tag ).tag_count_range().upper() == 1 )
     {
@@ -281,6 +340,25 @@ klv_muxer
         set.add( entry.first.tag, {} );
       }
     }
+  }
+
+  // Put any assembled lists into the packet
+  if( !wavelength_list.empty() )
+  {
+    set.add( KLV_0601_WAVELENGTHS_LIST, wavelength_list );
+  }
+  if( !payload_list.empty() )
+  {
+    set.add( KLV_0601_PAYLOAD_LIST, payload_list );
+  }
+  if( !waypoint_list.empty() )
+  {
+    set.add( KLV_0601_WAYPOINT_LIST, waypoint_list );
+  }
+  if( !control_command_verify_list.empty() )
+  {
+    set.add( KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST,
+             control_command_verify_list );
   }
 
   // If any tags were present, put the set into a packet and ship it

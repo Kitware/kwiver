@@ -27,7 +27,7 @@ namespace kv = kwiver::vital;
 // ----------------------------------------------------------------------------
 class klv_muxer_test : public ::testing::Test {
 protected:
-  klv_muxer_test() : src_timeline{}, dst_timeline{}, standard{ KLV_PACKET_UNKNOWN }, index{ 0 }, timestamps{
+  klv_muxer_test() : src_timeline{}, dst_timeline{}, standard{ KLV_PACKET_UNKNOWN }, index{}, timestamps{
     kv::timestamp{ 100, 1 },
     kv::timestamp{ 110, 2 },
     kv::timestamp{ 120, 3 },
@@ -36,7 +36,7 @@ protected:
 
   void SetUp() {
     standard = KLV_PACKET_MISB_0601_LOCAL_SET;
-    index = 0;
+    index = klv_value{};
     add_src( KLV_0601_PLATFORM_HEADING_ANGLE, { 90, 115 }, 30.0 );
     add_src( KLV_0601_PLATFORM_HEADING_ANGLE, { 125, 145 }, 40.0 );
     add_src( KLV_0601_PLATFORM_PITCH_ANGLE, { 101, 140 }, -11.0 );
@@ -48,7 +48,13 @@ protected:
     add_dst( KLV_0601_PLATFORM_PITCH_ANGLE, { 110, 140 }, -11.0 );
 
     standard = KLV_PACKET_MISB_1108_LOCAL_SET;
-    index = 0;
+    index = klv_local_set{
+      { KLV_1108_ASSESSMENT_POINT, KLV_1108_ASSESSMENT_POINT_ARCHIVE },
+      { KLV_1108_METRIC_LOCAL_SET,
+        klv_local_set{
+          { KLV_1108_METRIC_SET_NAME, std::string{ "GSD" } },
+          { KLV_1108_METRIC_SET_VERSION, std::string{""} },
+          { KLV_1108_METRIC_SET_IMPLEMENTER, std::string{"KWIVER"} } } } };
     add_src( KLV_1108_ASSESSMENT_POINT, { 110, 135 }, KLV_1108_ASSESSMENT_POINT_ARCHIVE );
     add_src( KLV_1108_METRIC_LOCAL_SET, { 110, 135 }, klv_local_set{
     { KLV_1108_METRIC_SET_NAME, std::string{ "GSD" } },
@@ -78,7 +84,13 @@ protected:
     add_dst( KLV_1108_DOCUMENT_VERSION, { 110, 135 }, uint64_t{ 3 } );
 
     standard = KLV_PACKET_MISB_1108_LOCAL_SET;
-    index = 1;
+    index = klv_local_set{
+      { KLV_1108_ASSESSMENT_POINT, KLV_1108_ASSESSMENT_POINT_ARCHIVE },
+      { KLV_1108_METRIC_LOCAL_SET,
+        klv_local_set{
+          { KLV_1108_METRIC_SET_NAME, std::string{"VNIIRS"} },
+          { KLV_1108_METRIC_SET_VERSION, std::string{"1.0"} },
+          { KLV_1108_METRIC_SET_IMPLEMENTER, std::string{"KWIVER"} } } } };
     add_src( KLV_1108_ASSESSMENT_POINT, { 110, 135 }, KLV_1108_ASSESSMENT_POINT_ARCHIVE );
     add_src( KLV_1108_METRIC_LOCAL_SET, { 110, 135 },  klv_local_set{
     { KLV_1108_METRIC_SET_NAME, std::string{ "VNIIRS" } },
@@ -121,7 +133,7 @@ protected:
   klv_timeline src_timeline;
   klv_timeline dst_timeline;
   klv_top_level_tag standard;
-  uint64_t index;
+  klv_value index;
   std::vector< kv::timestamp > timestamps;
 };
 

@@ -473,6 +473,7 @@ KLV_INSTANTIATE( klv_1303_mdap< uint64_t > );
 KLV_INSTANTIATE( klv_blob );
 KLV_INSTANTIATE( klv_lengthy< double > );
 KLV_INSTANTIATE( klv_local_set );
+KLV_INSTANTIATE( klv_uds_key );
 KLV_INSTANTIATE( klv_universal_set );
 KLV_INSTANTIATE( klv_uuid );
 KLV_INSTANTIATE( std::set< klv_0601_generic_flag_data_bit > );
