@@ -10,7 +10,7 @@
 #include <arrows/vtk/depth_utils.h>
 
 #ifdef KWIVER_ENABLE_PDAL
-#include <arrows/pdal/pointcloud_io.h>
+#include <arrows/pdal/algo/pointcloud_io.h>
 #endif
 
 #include <kwiversys/Directory.hxx>
@@ -422,7 +422,9 @@ public:
           inPts->GetPoint(i, points[i].data());
         }
 
-        kwiver::arrows::pdal::save_point_cloud_las(output_mesh_file, lgcs, points, colors);
+        kwiver::arrows::pdal::pointcloud_io pc_io;
+        pc_io.set_local_geo_cs(lgcs);
+        pc_io.save(output_mesh_file, points);
 #else
         throw vital::file_write_exception(output_mesh_file,
                                           "KWIVER was not compiled with PDAL, "

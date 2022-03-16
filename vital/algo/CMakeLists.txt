@@ -54,6 +54,7 @@ set( public_headers
   match_features.h
   merge_images.h
   optimize_cameras.h
+  pointcloud_io.h
   read_object_track_set.h
   read_track_descriptor_set.h
   refine_detections.h
@@ -119,6 +120,7 @@ set( sources
   match_features.cxx
   merge_images.cxx
   optimize_cameras.cxx
+  pointcloud_io.cxx
   read_object_track_set.cxx
   read_track_descriptor_set.cxx
   refine_detections.cxx
