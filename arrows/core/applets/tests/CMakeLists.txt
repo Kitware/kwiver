@@ -7,6 +7,6 @@ add_test(NAME core:applets:dump_klv
 add_test(NAME core:applets:render_mesh
   COMMAND kwiver render-mesh
             -c "${kwiver_test_data_directory}/render_mesh_testing.conf"
-            --mesh "${kwiver_test_data_directory}/"
-            --camera "${kwiver_test_data_directory}/"
-            --output "${kwiver_test_data_directory}/")
+            "${kwiver_test_data_directory}/"
+            "${kwiver_test_data_directory}/"
+            output_image)

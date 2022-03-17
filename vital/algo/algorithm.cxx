@@ -134,7 +134,6 @@ algorithm
     "vital.algorithm" );
   const std::string type_key = name + config_block::block_sep() + "type";
 
-      LOG_WARN( logger, type_key );
   if( config->has_value( type_key ) )
   {
     const std::string iname = config->get_value< std::string >( type_key );
