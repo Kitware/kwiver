@@ -590,7 +590,7 @@ mesh_coloration
       }
       push_data( cam_itr, ts, has_mask );
     }
-    LOG_INFO( logger_, "Camera and image list size: " << data_list_.size() );
+    LOG_DEBUG( logger_, "Camera and image list size: " << data_list_.size() );
   }
   // Take the current image
   else

@@ -236,13 +236,13 @@ public:
     }
 
     // set variables from the config
-    frame_sampling_ = config_->get_value("frame_sampling", 1);
-    frame_ = config_->get_value("frame", -1);
-    all_frames_ = config_->get_value("all_frames", false);
-    occlusion_threshold_ = config_->get_value("occlusion_threshold", 0.0);
-    color_occluded_ = config_->get_value("color_occluded", false);
-    color_masked_ = config_->get_value("color_masked", false);
-    remove_color_count_less_equal_ = config_->get_value("remove_color_count_less_equal", true);
+    frame_sampling_ = config_->get_value("frame_sampling", frame_sampling_);
+    frame_ = config_->get_value("frame", frame_);
+    all_frames_ = config_->get_value("all_frames", all_frames_);
+    occlusion_threshold_ = config_->get_value("occlusion_threshold", occlusion_threshold_);
+    color_occluded_ = config_->get_value("color_occluded", color_occluded_);
+    color_masked_ = config_->get_value("color_masked", color_masked_);
+    remove_color_count_less_equal_ = config_->get_value("remove_color_count_less_equal", remove_color_count_less_equal_);
 
     return SUCCESS;
   }
@@ -306,7 +306,7 @@ public:
       "Default value is 0, bigger values will remove more points.");
     config->set_value(
       "color_occluded", false,
-      "Remove occluded points if parameter is true.");
+      "Color occluded points if parameter is true.");
     config->set_value(
       "active_attribute", active_attribute_,
       "Choose the active attribute between mean, median and count when saving "
