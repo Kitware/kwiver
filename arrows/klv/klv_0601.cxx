@@ -1306,22 +1306,19 @@ klv_0601_control_command_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
   klv_0601_control_command result;
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                            return length - std::distance( begin, data );
-                          };
-  result.id = klv_read_ber_oid< uint16_t >( data, remaining_length() );
+  auto const tracker = track_it( data, length );
+  result.id = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
 
   auto const length_of_string =
-    klv_read_ber< size_t >( data, remaining_length() );
-  if( length_of_string > remaining_length() )
+    klv_read_ber< size_t >( data, tracker.remaining() );
+  if( length_of_string > tracker.remaining() )
   {
     VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
                  "reading command string overruns data buffer" );
   }
 
   result.string = klv_read_string( data, length_of_string );
-  switch( remaining_length() )
+  switch( tracker.remaining() )
   {
     case 0:
       result.timestamp = 0;
@@ -1331,7 +1328,7 @@ klv_0601_control_command_format
       break;
     default:
       VITAL_THROW( kwiver::vital::metadata_exception,
-                   std::to_string( remaining_length() ) +
+                   std::to_string( tracker.remaining() ) +
                    " bytes left over for timestamp while parsing "
                    "command pack; expected 0 or 8" );
       break;
@@ -1345,18 +1342,15 @@ klv_0601_control_command_format
 ::write_typed( klv_0601_control_command const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                            return length - std::distance( begin, data );
-                          };
-  klv_write_ber_oid( value.id, data, remaining_length() );
+  auto const tracker = track_it( data, length );
+  klv_write_ber_oid( value.id, data, tracker.remaining() );
 
   auto const length_of_string = klv_string_length( value.string );
-  klv_write_ber( length_of_string, data, remaining_length() );
-  klv_write_string( value.string, data, remaining_length() );
+  klv_write_ber( length_of_string, data, tracker.remaining() );
+  klv_write_string( value.string, data, tracker.remaining() );
   if( value.timestamp )
   {
-    if( remaining_length() < 8 )
+    if( tracker.remaining() < 8 )
     {
       VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
                    "writing control command timestamp overflows buffer" );
@@ -1418,14 +1412,11 @@ klv_0601_frame_rate_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
   klv_0601_frame_rate result;
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                            return length - std::distance( begin, data );
-                          };
-  result.numerator = klv_read_ber_oid< uint32_t >( data, remaining_length() );
+  auto const tracker = track_it( data, length );
+  result.numerator = klv_read_ber_oid< uint32_t >( data, tracker.remaining() );
   result.denominator =
-    remaining_length()
-    ? klv_read_ber_oid< uint32_t >( data, remaining_length() ) : 1;
+    tracker.remaining()
+    ? klv_read_ber_oid< uint32_t >( data, tracker.remaining() ) : 1;
   return result;
 }
 
@@ -1435,14 +1426,11 @@ klv_0601_frame_rate_format
 ::write_typed( klv_0601_frame_rate const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                            return length - std::distance( begin, data );
-                          };
-  klv_write_ber_oid( value.numerator, data, remaining_length() );
+  auto const tracker = track_it( data, length );
+  klv_write_ber_oid( value.numerator, data, tracker.remaining() );
   if( value.denominator != 1 )
   {
-    klv_write_ber_oid( value.denominator, data, remaining_length() );
+    klv_write_ber_oid( value.denominator, data, tracker.remaining() );
   }
 }
 
@@ -1519,59 +1507,54 @@ klv_0601_country_codes_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
   klv_0601_country_codes result = {};
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                            return length - std::distance( begin, data );
-                          };
+  auto const tracker = track_it( data, length );
 
   // Read coding method
   auto const length_of_coding_method =
-    klv_read_ber< size_t >( data, remaining_length() );
+    klv_read_ber< size_t >( data, tracker.remaining() );
   result.coding_method =
     static_cast< klv_0102_country_coding_method >(
-      klv_read_int< uint64_t >( data, std::min( length_of_coding_method,
-                                                remaining_length() ) ) );
+      klv_read_int< uint64_t >(
+        data, tracker.verify( length_of_coding_method ) ) );
 
   // Read overflight country
   auto const length_of_overflight_country =
-    klv_read_ber< size_t >( data, remaining_length() );
+    klv_read_ber< size_t >( data, tracker.remaining() );
   if( length_of_overflight_country )
   {
     result.overflight_country =
-      klv_read_string( data, std::min( length_of_overflight_country,
-                                       remaining_length() ) );
+      klv_read_string( data, tracker.verify( length_of_overflight_country ) );
   }
 
   // Read operator country
-  if( !remaining_length() )
+  if( !tracker.remaining() )
   {
     // The last two country codes have been omitted
     return result;
   }
 
   auto const length_of_operator_country =
-    klv_read_ber< size_t >( data, remaining_length() );
+    klv_read_ber< size_t >( data, tracker.remaining() );
   if( length_of_operator_country )
   {
     result.operator_country =
-      klv_read_string( data, std::min( length_of_operator_country,
-                                       remaining_length() ) );
+      klv_read_string( data, tracker.verify( length_of_operator_country ) );
   }
 
   // Read country of manufacture
-  if( !remaining_length() )
+  if( !tracker.remaining() )
   {
     // The last country code has been omitted
     return result;
   }
 
   auto const length_of_country_of_manufacture =
-    klv_read_ber< size_t >( data, remaining_length() );
+    klv_read_ber< size_t >( data, tracker.remaining() );
   if( length_of_country_of_manufacture )
   {
     result.country_of_manufacture =
-      klv_read_string( data, std::min( length_of_country_of_manufacture,
-                                       remaining_length() ) );
+      klv_read_string(
+        data, tracker.verify( length_of_country_of_manufacture ) );
   }
 
   return result;
@@ -1583,40 +1566,37 @@ klv_0601_country_codes_format
 ::write_typed( klv_0601_country_codes const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                            return length - std::distance( begin, data );
-                          };
+  auto const tracker = track_it( data, length );
 
   // Write coding method
   size_t const length_of_coding_method = 1;
-  klv_write_ber( length_of_coding_method, data, remaining_length() );
+  klv_write_ber( length_of_coding_method, data, tracker.remaining() );
   klv_write_int( static_cast< size_t >( value.coding_method ), data,
-                 std::min( length_of_coding_method, remaining_length() ) );
+                 tracker.verify( length_of_coding_method ) );
 
   // Write overflight country
   if( value.overflight_country )
   {
     auto const field_length = klv_string_length( *value.overflight_country );
-    klv_write_ber< size_t >( field_length, data, remaining_length() );
-    klv_write_string( *value.overflight_country, data, remaining_length() );
+    klv_write_ber< size_t >( field_length, data, tracker.remaining() );
+    klv_write_string( *value.overflight_country, data, tracker.remaining() );
   }
   else
   {
-    klv_write_ber< size_t >( 0, data, remaining_length() );
+    klv_write_ber< size_t >( 0, data, tracker.remaining() );
   }
 
   // Write operator country
   if( value.operator_country )
   {
     auto const field_length = klv_string_length( *value.operator_country );
-    klv_write_ber< size_t >( field_length, data, remaining_length() );
-    klv_write_string( *value.operator_country, data, remaining_length() );
+    klv_write_ber< size_t >( field_length, data, tracker.remaining() );
+    klv_write_string( *value.operator_country, data, tracker.remaining() );
   }
   else if( value.country_of_manufacture )
   {
     // Cannot omit if the next field is not omitted
-    klv_write_ber< size_t >( 0, data, remaining_length() );
+    klv_write_ber< size_t >( 0, data, tracker.remaining() );
   }
   else
   {
@@ -1629,9 +1609,9 @@ klv_0601_country_codes_format
   {
     auto const field_length =
       klv_string_length( *value.country_of_manufacture );
-    klv_write_ber< size_t >( field_length, data, remaining_length() );
+    klv_write_ber< size_t >( field_length, data, tracker.remaining() );
     klv_write_string( *value.country_of_manufacture, data,
-                      remaining_length() );
+                      tracker.remaining() );
   }
   // Omit (write nothing) for final field if no value is present
 }
@@ -1758,14 +1738,11 @@ klv_0601_airbase_locations_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
   klv_0601_airbase_locations result = {};
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                            return length - std::distance( begin, data );
-                          };
+  auto const tracker = track_it( data, length );
 
   // Read take-off location
   auto const length_of_take_off_location =
-    klv_read_ber< size_t >( data, remaining_length() );
+    klv_read_ber< size_t >( data, tracker.remaining() );
   if( length_of_take_off_location )
   {
     // Take-off location is set
@@ -1784,7 +1761,7 @@ klv_0601_airbase_locations_format
     }
   }
 
-  if( !remaining_length() )
+  if( !tracker.remaining() )
   {
     // Recovery location is not included, set equal to take-off location
     result.recovery_location = result.take_off_location;
@@ -1793,7 +1770,7 @@ klv_0601_airbase_locations_format
 
   // Read recovery location
   auto const length_of_recovery_location =
-    klv_read_ber< size_t >( data, remaining_length() );
+    klv_read_ber< size_t >( data, tracker.remaining() );
   // Recovery location is included
   if( length_of_recovery_location )
   {
@@ -1822,10 +1799,7 @@ klv_0601_airbase_locations_format
 ::write_typed( klv_0601_airbase_locations const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                            return length - std::distance( begin, data );
-                          };
+  auto const tracker = track_it( data, length );
 
   // Write take-off location
   if( value.take_off_location )
@@ -1835,9 +1809,9 @@ klv_0601_airbase_locations_format
     size_t const length_of_take_off_location =
       8 + ( ( value.take_off_location->altitude ) ? 3 : 0 );
 
-    if( length_of_take_off_location <= remaining_length() )
+    if( length_of_take_off_location <= tracker.remaining() )
     {
-      klv_write_ber( length_of_take_off_location, data, remaining_length() );
+      klv_write_ber( length_of_take_off_location, data, tracker.remaining() );
       klv_write_imap( value.take_off_location->latitude,
                       -90.0, 90.0,
                       data, 4 );
@@ -1855,11 +1829,11 @@ klv_0601_airbase_locations_format
   else
   {
     // Take-off location is not set
-    klv_write_ber< size_t >( 0, data, remaining_length() );
+    klv_write_ber< size_t >( 0, data, tracker.remaining() );
   }
 
   // Write recovery location
-  if( !remaining_length() )
+  if( !tracker.remaining() )
   {
     // Recovery location is not included
     return;
@@ -1878,9 +1852,9 @@ klv_0601_airbase_locations_format
     size_t const length_of_recovery_location =
       8 + ( ( value.recovery_location->altitude ) ? 3 : 0 );
 
-    if( length_of_recovery_location <= remaining_length() )
+    if( length_of_recovery_location <= tracker.remaining() )
     {
-      klv_write_ber( length_of_recovery_location, data, remaining_length() );
+      klv_write_ber( length_of_recovery_location, data, tracker.remaining() );
       klv_write_imap( value.recovery_location->latitude,
                       -90.0, 90.0,
                       data, 4 );
@@ -1898,7 +1872,7 @@ klv_0601_airbase_locations_format
   else
   {
     // Recovery location is not set
-    klv_write_ber< size_t >( 0, data, remaining_length() );
+    klv_write_ber< size_t >( 0, data, tracker.remaining() );
   }
 }
 
@@ -2007,14 +1981,11 @@ klv_0601_view_domain_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
   klv_0601_view_domain result = {};
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                            return length - std::distance( begin, data );
-                          };
+  auto const tracker = track_it( data, length );
 
   // Read azimuth
   auto const length_of_azimuth =
-    klv_read_ber< size_t >( data, remaining_length() );
+    klv_read_ber< size_t >( data, tracker.remaining() );
 
   if( length_of_azimuth )
   {
@@ -2028,13 +1999,13 @@ klv_0601_view_domain_format
   }
 
   // Read elevation
-  if( !remaining_length() )
+  if( !tracker.remaining() )
   {
     return result;
   }
 
   auto const length_of_elevation =
-    klv_read_ber< size_t >( data, remaining_length() );
+    klv_read_ber< size_t >( data, tracker.remaining() );
 
   if( length_of_elevation )
   {
@@ -2048,13 +2019,13 @@ klv_0601_view_domain_format
   }
 
   // Read roll
-  if( !remaining_length() )
+  if( !tracker.remaining() )
   {
     return result;
   }
 
   auto const length_of_roll =
-    klv_read_ber< size_t >( data, remaining_length() );
+    klv_read_ber< size_t >( data, tracker.remaining() );
 
   if( length_of_roll )
   {
@@ -2075,19 +2046,16 @@ klv_0601_view_domain_format
 ::write_typed( klv_0601_view_domain const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                            return length - std::distance( begin, data );
-                          };
+  auto const tracker = track_it( data, length );
   auto const write_elements =
     [ & ]( klv_lengthy< double > const& element_start,
            klv_lengthy< double > const& element_range,
            double min, double max ){
     size_t const length_of_elements = element_start.length * 2;
-    if( length_of_elements <= remaining_length() )
+    if( length_of_elements <= tracker.remaining() )
     {
       size_t const element_length = length_of_elements / 2;
-      klv_write_ber( length_of_elements, data, remaining_length() );
+      klv_write_ber( length_of_elements, data, tracker.remaining() );
       klv_write_imap( element_start.value,
                       min, max, data, element_length );
       klv_write_imap( element_range.value,
@@ -2107,7 +2075,7 @@ klv_0601_view_domain_format
   }
   else
   {
-    klv_write_ber< size_t >( 0, data, remaining_length() );
+    klv_write_ber< size_t >( 0, data, tracker.remaining() );
   }
 
   // Write elevation
@@ -2118,7 +2086,7 @@ klv_0601_view_domain_format
   }
   else if( value.roll_start && value.roll_range )
   {
-    klv_write_ber< size_t >( 0, data, remaining_length() );
+    klv_write_ber< size_t >( 0, data, tracker.remaining() );
   }
   // Value is truncated if roll is also empty
 

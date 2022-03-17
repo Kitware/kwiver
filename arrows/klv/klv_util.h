@@ -175,7 +175,7 @@ public:
     return count;
   }
 
-  size_t remaining() const
+  size_t traversed() const
   {
     auto const distance = std::distance( m_begin, m_it );
     if( distance > m_length )
@@ -183,7 +183,28 @@ public:
       VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
                    "read or written past end of data buffer" );
     }
-    return m_length - distance;
+
+    return distance;
+  }
+
+  size_t remaining() const
+  {
+    return m_length - traversed();
+  }
+
+  T begin() const
+  {
+    return m_begin;
+  }
+
+  T end() const
+  {
+    return m_begin + m_length;
+  }
+
+  T& it() const
+  {
+    return m_it;
   }
 
 private:

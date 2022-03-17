@@ -163,14 +163,12 @@ klv_1108_window_corners_pack
 klv_1108_window_corners_pack_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
-  auto const begin = data;
-  auto const remaining_length =
-    [ & ]() -> size_t { return length - std::distance( begin, data ); };
+  auto const tracker = track_it( data, length );
 
-  auto const y_min = klv_read_ber_oid< uint16_t >( data, remaining_length() );
-  auto const x_min = klv_read_ber_oid< uint16_t >( data, remaining_length() );
-  auto const y_max = klv_read_ber_oid< uint16_t >( data, remaining_length() );
-  auto const x_max = klv_read_ber_oid< uint16_t >( data, remaining_length() );
+  auto const y_min = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+  auto const x_min = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+  auto const y_max = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+  auto const x_max = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
   return { { x_min, y_min, x_max, y_max } };
 }
 
@@ -180,13 +178,11 @@ klv_1108_window_corners_pack_format
 ::write_typed( klv_1108_window_corners_pack const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  auto const begin = data;
-  auto const remaining_length =
-    [ & ]() -> size_t { return length - std::distance( begin, data ); };
-  klv_write_ber_oid( value.bbox.min_y(), data, remaining_length() );
-  klv_write_ber_oid( value.bbox.min_x(), data, remaining_length() );
-  klv_write_ber_oid( value.bbox.max_y(), data, remaining_length() );
-  klv_write_ber_oid( value.bbox.max_x(), data, remaining_length() );
+  auto const tracker = track_it( data, length );
+  klv_write_ber_oid( value.bbox.min_y(), data, tracker.remaining() );
+  klv_write_ber_oid( value.bbox.min_x(), data, tracker.remaining() );
+  klv_write_ber_oid( value.bbox.max_y(), data, tracker.remaining() );
+  klv_write_ber_oid( value.bbox.max_x(), data, tracker.remaining() );
 }
 
 // ----------------------------------------------------------------------------

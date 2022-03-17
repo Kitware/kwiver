@@ -91,20 +91,15 @@ klv_1204_miis_id_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
   klv_1204_miis_id result;
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                                  return length - std::distance( begin, data );
-                                };
+  auto const tracker = track_it( data, length );
 
   // Single byte version number
   result.version =
-    klv_read_int< uint8_t >( data,
-                             std::min< size_t >( remaining_length(), 1 ) );
+    klv_read_int< uint8_t >( data, tracker.verify( 1 ) );
 
   // Single usage byte
   auto const usage =
-    klv_read_int< uint8_t >( data,
-                             std::min< size_t >( remaining_length(), 1 ) );
+    klv_read_int< uint8_t >( data, tracker.verify( 1 ) );
 
   // Extract bit fields from usage byte
   result.sensor_id_type =
@@ -122,22 +117,22 @@ klv_1204_miis_id_format
   // Read UUIDs based on usage
   if( sensor_id_present )
   {
-    result.sensor_id = klv_read_uuid( data, remaining_length() );
+    result.sensor_id = klv_read_uuid( data, tracker.remaining() );
   }
 
   if( platform_id_present )
   {
-    result.platform_id = klv_read_uuid( data, remaining_length() );
+    result.platform_id = klv_read_uuid( data, tracker.remaining() );
   }
 
   if( window_id_present )
   {
-    result.window_id = klv_read_uuid( data, remaining_length() );
+    result.window_id = klv_read_uuid( data, tracker.remaining() );
   }
 
   if( minor_id_present )
   {
-    result.minor_id = klv_read_uuid( data, remaining_length() );
+    result.minor_id = klv_read_uuid( data, tracker.remaining() );
   }
 
   return result;
@@ -149,14 +144,11 @@ klv_1204_miis_id_format
 ::write_typed( klv_1204_miis_id const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                                  return length - std::distance( begin, data );
-                                };
+  auto const tracker = track_it( data, length );
 
   // Single byte version number
   klv_write_int( value.version, data, std::min< size_t >(
-                   remaining_length(), 1 ) );
+                   tracker.remaining(), 1 ) );
 
   // Combine bit fields into single usage byte
   auto const usage = static_cast< uint8_t >(
@@ -164,27 +156,27 @@ klv_1204_miis_id_format
     ( static_cast< uint8_t >( value.platform_id_type ) << 3 ) |
     ( static_cast< uint8_t >( value.window_id.has_value() ) << 2 ) |
     ( static_cast< uint8_t >( value.minor_id.has_value() ) << 1 ) );
-  klv_write_int( usage, data, std::min< size_t >( remaining_length(), 1 ) );
+  klv_write_int( usage, data, std::min< size_t >( tracker.remaining(), 1 ) );
 
   // Write UUIDs that are present
   if( value.sensor_id )
   {
-    klv_write_uuid( *value.sensor_id, data, remaining_length() );
+    klv_write_uuid( *value.sensor_id, data, tracker.remaining() );
   }
 
   if( value.platform_id )
   {
-    klv_write_uuid( *value.platform_id, data, remaining_length() );
+    klv_write_uuid( *value.platform_id, data, tracker.remaining() );
   }
 
   if( value.window_id )
   {
-    klv_write_uuid( *value.window_id, data, remaining_length() );
+    klv_write_uuid( *value.window_id, data, tracker.remaining() );
   }
 
   if( value.minor_id )
   {
-    klv_write_uuid( *value.minor_id, data, remaining_length() );
+    klv_write_uuid( *value.minor_id, data, tracker.remaining() );
   }
 }
 
