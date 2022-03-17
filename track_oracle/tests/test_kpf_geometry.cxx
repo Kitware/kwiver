@@ -55,8 +55,8 @@ map_frame_num_to_handles( const to::frame_handle_list_type& frames )
 } // ...anon
 
 static std::string geom_file = "track_oracle_data/test-large-IDs.geom.yml";
-static std::string kw18_tracks = "track_oracle_data/generic_tracks.kw18";
-static std::string kpf_tracks = "track_oracle_data/generic_tracks.geom.yml";
+static std::string kw18_tracks_file = "track_oracle_data/generic_tracks.kw18";
+static std::string kpf_tracks_file = "track_oracle_data/generic_tracks.geom.yml";
 
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
@@ -89,14 +89,14 @@ TEST(track_oracle, kpf_geometry)
 
   // load the kw18 reference tracks
   {
-    string fn = g_data_dir + "/" + kw18_tracks;
+    string fn = g_data_dir + "/" + kw18_tracks_file;
     bool rc = to::file_format_manager::read( fn, kw18_tracks );
     EXPECT_TRUE( rc ) << " reading from '" << fn << "'";
   }
 
   // load the KPF tracks (should have the same content)
   {
-    string fn = g_data_dir + "/" + kpf_tracks;
+    string fn = g_data_dir + "/" + kpf_tracks_file;
     bool rc = to::file_format_manager::read( fn, kpf_tracks );
     EXPECT_TRUE( rc ) << " reading from '" << fn << "'";
   }
