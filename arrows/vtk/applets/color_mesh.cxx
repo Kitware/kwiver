@@ -4,11 +4,11 @@
 
 #include "color_mesh.h"
 
-#include <kwiver_config.h>
 #include <arrows/core/colorize.h>
 #include <arrows/vtk/mesh_coloration.h>
 #include <vital/types/camera_map.h>
 #include <vital/algo/video_input.h>
+#include <vital/algo/pointcloud_io.h>
 #include <vital/applets/applet_config.h>
 #include <vital/applets/config_validation.h>
 #include <vital/io/camera_io.h>
@@ -19,10 +19,6 @@
 #include <vital/config/config_parser.h>
 #include <vital/util/get_paths.h>
 #include <vital/util/transform_image.h>
-
-#ifdef KWIVER_ENABLE_PDAL
-#include <arrows/pdal/algo/pointcloud_io.h>
-#endif
 
 #include <kwiversys/SystemTools.hxx>
 #include <kwiversys/CommandLineArguments.hxx>
@@ -446,8 +442,6 @@ public:
   void save_mesh_las(vtkSmartPointer<vtkPolyData> mesh,
                      char const * output_path)
   {
-#ifdef KWIVER_ENABLE_PDAL
-
     auto lgcs = vital::local_geo_cs();
     read_local_geo_cs_from_file(lgcs, input_geo_origin_file_);
 
@@ -480,14 +474,14 @@ public:
       }
     }
 
-    kwiver::arrows::pdal::pointcloud_io pc_io;
-    pc_io.set_local_geo_cs(lgcs);
-    pc_io.save(output_path, points, colors);
-#else
-    throw vital::file_write_exception(output_path,
-                                      "KWIVER was not compiled with PDAL, "
-                                      "cannot write LAS.");
-#endif
+    auto pc_io = vital::algo::pointcloud_io::create("pdal");
+    if (! pc_io)
+    {
+      LOG_ERROR(main_logger, "Could not find pointcloud_io algorithm pdal");
+      return;
+    }
+    pc_io->set_local_geo_cs(lgcs);
+    pc_io->save(output_path, points, colors);
   }
 
   bool run_algorithm()

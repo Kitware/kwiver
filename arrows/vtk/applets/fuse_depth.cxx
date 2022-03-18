@@ -4,19 +4,15 @@
 
 #include "fuse_depth.h"
 
-#include <kwiver_config.h>
 #include <arrows/core/depth_utils.h>
 #include <arrows/mvg/sfm_utils.h>
 #include <arrows/vtk/depth_utils.h>
-
-#ifdef KWIVER_ENABLE_PDAL
-#include <arrows/pdal/algo/pointcloud_io.h>
-#endif
 
 #include <kwiversys/Directory.hxx>
 #include <kwiversys/SystemTools.hxx>
 
 #include <vital/algo/integrate_depth_maps.h>
+#include <vital/algo/pointcloud_io.h>
 #include <vital/applets/applet_config.h>
 #include <vital/applets/config_validation.h>
 #include <vital/config/config_block_io.h>
@@ -402,8 +398,6 @@ public:
       }
       else if ( extension == ".las" )
       {
-#ifdef KWIVER_ENABLE_PDAL
-
         auto lgcs = vital::local_geo_cs();
         read_local_geo_cs_from_file(lgcs, input_geo_origin_file);
 
@@ -418,14 +412,14 @@ public:
           inPts->GetPoint(i, points[i].data());
         }
 
-        kwiver::arrows::pdal::pointcloud_io pc_io;
-        pc_io.set_local_geo_cs(lgcs);
-        pc_io.save(output_mesh_file, points);
-#else
-        throw vital::file_write_exception(output_mesh_file,
-                                          "KWIVER was not compiled with PDAL, "
-                                          "cannot write LAS.");
-#endif
+        auto pc_io = vital::algo::pointcloud_io::create("pdal");
+        if (! pc_io)
+        {
+          LOG_ERROR(main_logger, "Could not find pointcloud_io algorithm pdal");
+          return false;
+        }
+        pc_io->set_local_geo_cs(lgcs);
+        pc_io->save(output_mesh_file, points);
       }
       else
       {
