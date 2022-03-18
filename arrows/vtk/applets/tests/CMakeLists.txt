@@ -1,0 +1,8 @@
+include(kwiver-test-setup)
+
+add_test(NAME vtk:applets:estimate_depth
+  COMMAND kwiver estimate-depth
+            --config "${kwiver_test_data_directory}/config_files/estimate_depth_testing.conf"
+            --video-source "${kwiver_test_data_directory}/videos/aphill_240_1fps_crf32.mp4"
+            --input-cameras-dir "${kwiver_test_data_directory}/pipeline_data/krtd"
+            --input-landmarks-file "${kwiver_test_data_directory}/pipeline_data/landmarks.ply")
