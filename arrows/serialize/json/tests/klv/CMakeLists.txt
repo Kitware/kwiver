@@ -10,4 +10,4 @@ set( test_libraries vital vital_vpm vital_algo kwiver_serialize_json kwiver_algo
 # JSON KLV tests
 ##############################
 
-kwiver_discover_gtests(serialize-json load_save_klv LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}" )
+kwiver_discover_gtests(serialize-json load_save_klv LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")

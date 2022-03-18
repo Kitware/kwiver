@@ -22,6 +22,9 @@
 
 DECLARE_TEST_MAP();
 
+static std::string image_name = "images/kitware_logos/basic.jpg";
+
+// ------------------------------------------------------------------
 int
 main(int argc, char** argv)
 {
@@ -36,7 +39,7 @@ main(int argc, char** argv)
 // ------------------------------------------------------------------
 IMPLEMENT_TEST(image_conversion)
 {
-  kwiver::vital::path_t test_read_file = data_dir + "/test_kitware_logo.jpg";
+  kwiver::vital::path_t test_read_file = data_dir + "/" + image_name;
 
   cv::Mat ocv_image;
   ocv_image = cv::imread(test_read_file, CV_LOAD_IMAGE_COLOR);   // Read the file

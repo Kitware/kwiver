@@ -12,8 +12,8 @@ using namespace kwiver::vital;
 
 path_t g_data_dir;
 
-static std::string src_cam_file_name = "src_camera.krtd";
-static std::string dest_cam_file_name = "dest_camera.krtd";
+static std::string src_cam_file_name = "video_as_images/src_camera.krtd";
+static std::string dest_cam_file_name = "video_as_images/dest_camera.krtd";
 
 // ----------------------------------------------------------------------------
 int main( int argc, char* argv[] )

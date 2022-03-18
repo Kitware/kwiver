@@ -19,6 +19,10 @@ namespace kv = kwiver::vital;
 
 kv::path_t g_data_dir;
 
+static std::string geo_origin_file = "pointcloud_data/geo_origin.txt";
+static std::string landmarks_file = "pointcloud_data/landmarks.ply";
+static std::string tmp_file = "pointcloud_data/pointcloud.las";
+
 // ----------------------------------------------------------------------------
 int
 main(int argc, char** argv)
@@ -46,9 +50,9 @@ TEST_F(pointcloud_io, create)
 }
 
 TEST_F(pointcloud_io, save) {
-    auto const geo_origin_path = data_dir + "/geo_origin.txt";
-    auto const landmarks_path = data_dir + "/landmarks.ply";
-    auto const tmp_path = data_dir + "/pointcloud.las";
+    auto const geo_origin_path = data_dir + "/" + geo_origin_file;
+    auto const landmarks_path = data_dir + "/" + landmarks_file;
+    auto const tmp_path = data_dir + "/" + tmp_file;
     std::ofstream ofs(tmp_path);
     ofs.close();
 
@@ -86,9 +90,9 @@ TEST_F(pointcloud_io, save) {
 }
 
 TEST_F(pointcloud_io, save_landmarks) {
-    auto const geo_origin_path = data_dir + "/geo_origin.txt";
-    auto const landmarks_path = data_dir + "/landmarks.ply";
-    auto const tmp_path = data_dir + "/pointcloud.las";
+    auto const geo_origin_path = data_dir + "/" + geo_origin_file;
+    auto const landmarks_path = data_dir + "/" + landmarks_file;
+    auto const tmp_path = data_dir + "/" + tmp_file;
     std::ofstream ofs(tmp_path);
     ofs.close();
 
