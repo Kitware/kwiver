@@ -23,6 +23,17 @@ kwiver::vital::config_path_t g_data_dir;
 using namespace kwiver::vital;
 typedef kwiversys::SystemTools ST;
 
+static std::string valid_config = "config_files/vital/test_config-valid_file.txt";
+static std::string include_a_config = "config_files/vital/test_config-include-a.txt";
+static std::string include_files_in_path_config = "config_files/vital/test_config-include_files_in_path.txt";
+static std::string invalid_config = "config_files/vital/test_config-invalid_file.txt";
+static std::string invalid_keypath_config = "config_files/vital/test_config-invalid_keypath.txt";
+static std::string comments_config = "config_files/vital/test_config-comments.txt";
+static std::string standard_config = "config_files/vital/test_config-standard.txt";
+static std::string standard_config_name = "test_config-standard.txt";
+static std::string first_directory = "config_files/vital/test_config-standard-dir-first";
+static std::string second_directory = "config_files/vital/test_config-standard-dir-second";
+
 // ----------------------------------------------------------------------------
 int
 main( int argc, char* argv[] )
@@ -93,7 +104,7 @@ print_config( config_block_sptr const& config, bool include_location = false,
 // ----------------------------------------------------------------------------
 TEST_F( config_block_io, successful_config_read )
 {
-  config_block_sptr config = kwiver::vital::read_config_file( data_dir + "/test_config-valid_file.txt" );
+  config_block_sptr config = kwiver::vital::read_config_file( data_dir + "/" + valid_config );
 
   print_config( config, true );
 
@@ -142,7 +153,7 @@ TEST_F( config_block_io, successful_config_read )
 // ----------------------------------------------------------------------------
 TEST_F( config_block_io, successful_config_read_named_block )
 {
-  config_block_sptr config = kwiver::vital::read_config_file( data_dir + "/test_config-valid_file.txt" );
+  config_block_sptr config = kwiver::vital::read_config_file( data_dir + "/" + valid_config );
 
   print_config( config );
 
@@ -171,7 +182,7 @@ TEST_F( config_block_io, successful_config_read_named_block )
 // ----------------------------------------------------------------------------
 TEST_F( config_block_io, include_files )
 {
-  config_block_sptr config = kwiver::vital::read_config_file( data_dir + "/test_config-include-a.txt" );
+  config_block_sptr config = kwiver::vital::read_config_file( data_dir + "/" + include_a_config );
 
   print_config( config );
 
@@ -196,10 +207,10 @@ TEST_F( config_block_io, include_files_in_path )
 
   // Should pick up file in the first directory in the path list.
   kwiversys::SystemTools::PutEnv(
-    "KWIVER_CONFIG_PATH=" + data_dir + "/test_config-standard-dir-first"
-                + pathSep + data_dir + "/test_config-standard-dir-second" );
+    "KWIVER_CONFIG_PATH=" + data_dir + "/" + first_directory
+                + pathSep + data_dir + "/" + second_directory );
   auto config_a =
-    kwiver::vital::read_config_file( data_dir + "/test_config-include_files_in_path.txt" );
+    kwiver::vital::read_config_file( data_dir + "/" + include_files_in_path_config );
   EXPECT_EQ( 1,
              config_a->available_values().size() );
   EXPECT_EQ( "a",
@@ -207,10 +218,10 @@ TEST_F( config_block_io, include_files_in_path )
 
   // If we set the KCP in reverse order, we should see
   kwiversys::SystemTools::PutEnv(
-    "KWIVER_CONFIG_PATH=" + data_dir + "/test_config-standard-dir-second"
-                + pathSep + data_dir + "/test_config-standard-dir-first");
+    "KWIVER_CONFIG_PATH=" + data_dir + "/" + second_directory
+                + pathSep + data_dir + "/" + first_directory);
   auto config_b =
-    kwiver::vital::read_config_file( data_dir + "/test_config-include_files_in_path.txt" );
+    kwiver::vital::read_config_file( data_dir + "/" + include_files_in_path_config );
   EXPECT_EQ( 2,
              config_b->available_values().size() );
   EXPECT_EQ( "b",
@@ -227,7 +238,7 @@ TEST_F( config_block_io, include_files_failure )
   // Should pick up file with the same name in the first directory in the
   // path list: test_config-standard-dir-first/test_config-standard.txt
   EXPECT_THROW(
-    kwiver::vital::read_config_file( data_dir + "/test_config-include_files_in_path.txt" ),
+    kwiver::vital::read_config_file( data_dir + "/" + include_files_in_path_config ),
     config_file_not_found_exception )
     << "Included file not in search path dirs";
 }
@@ -236,7 +247,7 @@ TEST_F( config_block_io, include_files_failure )
 TEST_F( config_block_io, invalid_config_file )
 {
   EXPECT_THROW(
-    kwiver::vital::read_config_file( data_dir + "/test_config-invalid_file.txt" ),
+    kwiver::vital::read_config_file( data_dir + "/" + invalid_config ),
     kwiver::vital::config_file_not_parsed_exception )
     << "Calling config_block read on badly formatted file";
 }
@@ -245,7 +256,7 @@ TEST_F( config_block_io, invalid_config_file )
 TEST_F( config_block_io, invalid_keypath )
 {
   EXPECT_THROW(
-    kwiver::vital::read_config_file( data_dir + "/test_config-invalid_keypath.txt" ),
+    kwiver::vital::read_config_file( data_dir + "/" + invalid_keypath_config ),
     kwiver::vital::config_file_not_parsed_exception )
     << "Read attempt on file with invalid key path";
 }
@@ -253,7 +264,7 @@ TEST_F( config_block_io, invalid_keypath )
 // ----------------------------------------------------------------------------
 TEST_F( config_block_io, config_with_comments )
 {
-  config_block_sptr config = kwiver::vital::read_config_file( data_dir + "/test_config-comments.txt" );
+  config_block_sptr config = kwiver::vital::read_config_file( data_dir + "/" + comments_config );
 
   using std::string;
 
@@ -421,8 +432,8 @@ test_standard_paths( kwiver::vital::config_path_t const& data_dir )
   char const *pathSep = ":";
 #endif
 
-  return data_dir + "/test_config-standard-dir-first" + pathSep +
-         data_dir + "/test_config-standard-dir-second";
+  return data_dir + "/" + first_directory + pathSep +
+         data_dir + "/" + second_directory;
 }
 
 // ----------------------------------------------------------------------------
@@ -435,7 +446,7 @@ TEST_F( config_block_io, standard_config_read_without_merge )
             << kwiversys::SystemTools::GetCurrentWorkingDirectory()
             << std::endl;
   auto const config =
-    kwiver::vital::read_config_file( "test_config-standard.txt",
+    kwiver::vital::read_config_file( standard_config_name,
                                      "vital", {}, {}, false );
 
   EXPECT_EQ( 2,
@@ -460,7 +471,7 @@ TEST_F( config_block_io, standard_config_read_without_merge_with_cwd )
             << std::endl;
 
   auto const config =
-    kwiver::vital::read_config_file( "test_config-standard.txt",
+    kwiver::vital::read_config_file( standard_config,
                                      "vital", {}, {}, false );
 
   EXPECT_EQ( 1,
@@ -480,7 +491,7 @@ TEST_F( config_block_io, standard_config_read_with_merge )
             << kwiversys::SystemTools::GetCurrentWorkingDirectory()
             << std::endl;
   auto const config =
-    kwiver::vital::read_config_file( "test_config-standard.txt",
+    kwiver::vital::read_config_file( standard_config_name,
                                      "vital", {}, {}, true );
   EXPECT_EQ( 3,
              config->available_values().size() );
@@ -495,7 +506,7 @@ TEST_F( config_block_io, standard_config_read_with_merge )
 // ----------------------------------------------------------------------------
 TEST_F( config_block_io, standard_config_read_with_merge_with_cwd )
 {
-  kwiversys::SystemTools::ChangeDirectory( data_dir );
+  kwiversys::SystemTools::ChangeDirectory( data_dir + "/config_files/vital" );
   kwiversys::SystemTools::PutEnv(
     "KWIVER_CONFIG_PATH=" + test_standard_paths( data_dir ) );
 
@@ -504,7 +515,7 @@ TEST_F( config_block_io, standard_config_read_with_merge_with_cwd )
             << std::endl;
 
   auto const config =
-    kwiver::vital::read_config_file( "test_config-standard.txt",
+    kwiver::vital::read_config_file( standard_config_name,
                                      "vital", {}, {}, true );
 
   EXPECT_EQ( 3,
@@ -524,8 +535,8 @@ TEST_F( config_block_io, standard_config_read_with_merge_with_cwd )
 TEST_F( config_block_io, standard_config_read_from_prefix )
 {
   auto const config =
-    kwiver::vital::read_config_file( "test_config-standard.txt",
-                                     "vital", "test", data_dir );
+    kwiver::vital::read_config_file( standard_config_name,
+                                     "vital", "test", data_dir + "/config_files/vital" );
   std::cerr << "Current working directory: "
             << kwiversys::SystemTools::GetCurrentWorkingDirectory()
             << std::endl;

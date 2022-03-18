@@ -399,7 +399,11 @@ public:
       else if ( extension == ".las" )
       {
         auto lgcs = vital::local_geo_cs();
-        read_local_geo_cs_from_file(lgcs, input_geo_origin_file);
+        if (! read_local_geo_cs_from_file(lgcs, input_geo_origin_file))
+        {
+          LOG_ERROR(main_logger, "Failed to read local geo cs from file");
+          return false;
+        }
 
         vtkSmartPointer<vtkPoints> inPts = isosurface_mesh->GetPoints();
         vtkIdType numPts = inPts->GetNumberOfPoints();

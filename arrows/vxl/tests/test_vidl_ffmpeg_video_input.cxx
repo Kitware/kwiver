@@ -20,7 +20,7 @@
 kwiver::vital::path_t g_data_dir;
 
 namespace algo = kwiver::vital::algo;
-static std::string video_file_name = "video.mp4";
+static std::string video_file_name = "videos/vxl_video.mp4";
 
 // ----------------------------------------------------------------------------
 int

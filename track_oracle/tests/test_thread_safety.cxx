@@ -99,6 +99,8 @@ load_test_tracks( const string& tag, const string& fn, const track_stats& refere
 
 }; // ...anon
 
+static std::string kw18_tracks = "track_oracle_data/generic_tracks.kw18";
+
 // ----------------------------------------------------------------------------
 int
 main( int argc, char* argv[] )
@@ -124,7 +126,7 @@ TEST( track_oracle, gtest_threadsafe )
 TEST( track_oracle, track_oracle_threadsafe )
 {
 
-  string track_file = g_data_dir+"/generic_tracks.kw18";
+  string track_file = g_data_dir + "/" + kw18_tracks;
   track_stats reference;
   {
     to::track_handle_list_type tracks;

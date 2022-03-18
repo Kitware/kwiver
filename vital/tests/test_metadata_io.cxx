@@ -17,6 +17,10 @@
 
 kwiver::vital::path_t g_data_dir;
 
+static std::string sample_pos = "vital_data/sample_pos.pos";
+static std::string sample_pos_no_name = "vital_data/sample_pos_no_name.pos";
+static std::string invalid_pos = "vital_data/invalid_pos.pos";
+
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
@@ -36,11 +40,11 @@ class metadata_pos_io : public ::testing::Test
 // ----------------------------------------------------------------------------
 TEST_F(metadata_pos_io, pos_format_read)
 {
-  kwiver::vital::path_t test_read_file = data_dir + "/sample_pos.pos";
+  kwiver::vital::path_t test_read_file = data_dir + "/" + sample_pos;
   auto input_md = kwiver::vital::read_pos_file( test_read_file );
   print_metadata(std::cout, *input_md);
 
-  test_read_file = data_dir + "/sample_pos_no_name.pos";
+  test_read_file = data_dir + "/" + sample_pos_no_name;
   input_md = kwiver::vital::read_pos_file( test_read_file );
   print_metadata(std::cout, *input_md);
 }
@@ -57,7 +61,7 @@ TEST_F(metadata_pos_io, invalid_file_path)
 // ----------------------------------------------------------------------------
 TEST_F(metadata_pos_io, invalid_file_content)
 {
-  kwiver::vital::path_t invalid_content_file = data_dir + "/invalid_pos.pos";
+  kwiver::vital::path_t invalid_content_file = data_dir + "/" + invalid_pos;
   EXPECT_THROW(
     auto md = kwiver::vital::read_pos_file( invalid_content_file ),
     kwiver::vital::invalid_data )
@@ -112,7 +116,7 @@ void compare_tag( kwiver::vital::metadata_item const& expected,
 // ----------------------------------------------------------------------------
 TEST_F(metadata_pos_io, output_format)
 {
-  kwiver::vital::path_t test_read_file = data_dir + "/sample_pos.pos";
+  kwiver::vital::path_t test_read_file = data_dir + "/" + sample_pos;
   auto input_md = kwiver::vital::read_pos_file( test_read_file );
   print_metadata(std::cout, *input_md);
 
