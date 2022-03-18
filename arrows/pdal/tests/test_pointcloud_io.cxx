@@ -43,78 +43,81 @@ class pointcloud_io : public ::testing::Test
 // ----------------------------------------------------------------------------
 TEST_F(pointcloud_io, create)
 {
-  using namespace kwiver::vital;
-  plugin_manager::instance().load_all_plugins();
+  kv::plugin_manager::instance().load_all_plugins();
 
-  EXPECT_NE(nullptr, algo::pointcloud_io::create("pdal"));
+  EXPECT_NE(nullptr, kv::algo::pointcloud_io::create("pdal"));
 }
 
 TEST_F(pointcloud_io, save) {
-    auto const geo_origin_path = data_dir + "/" + geo_origin_file;
-    auto const landmarks_path = data_dir + "/" + landmarks_file;
-    auto const tmp_path = data_dir + "/" + tmp_file;
-    std::ofstream ofs(tmp_path);
-    ofs.close();
+  auto const geo_origin_path = data_dir + "/" + geo_origin_file;
+  auto const landmarks_path = data_dir + "/" + landmarks_file;
+  auto const tmp_path = data_dir + "/" + tmp_file;
+  std::ofstream ofs(tmp_path);
+  ofs.close();
 
-    // This will delete the temporary file even if an exception is thrown
-    struct _tmp_file_deleter {
-      ~_tmp_file_deleter() {
-        std::remove( tmp_path.c_str() );
-      }
-
-      std::string tmp_path;
-    } tmp_file_deleter{ tmp_path };
-
-    kv::landmark_map_sptr landmark_map =
-      kv::read_ply_file(landmarks_path);
-
-    std::vector<kv::vector_3d> points;
-    std::vector<kv::rgb_color> colors;
-    points.reserve(landmark_map->size());
-    colors.reserve(landmark_map->size());
-    for (auto lm : landmark_map->landmarks())
+  // This will delete the temporary file even if an exception is thrown
+  struct _tmp_file_deleter
+  {
+    ~_tmp_file_deleter()
     {
-      points.push_back(lm.second->loc());
-      colors.push_back(lm.second->color());
+      std::remove( tmp_path.c_str() );
     }
+    std::string tmp_path;
+  }
+  tmp_file_deleter{ tmp_path };
 
-    static auto geo_conv = kwiver::arrows::proj::geo_conversion{};
-    kv::set_geo_conv(&geo_conv);
+  kv::landmark_map_sptr landmark_map =
+    kv::read_ply_file(landmarks_path);
 
-    auto lgcs = kv::local_geo_cs();
-    read_local_geo_cs_from_file(lgcs, geo_origin_path);
+  std::vector<kv::vector_3d> points;
+  std::vector<kv::rgb_color> colors;
+  points.reserve(landmark_map->size());
+  colors.reserve(landmark_map->size());
+  for (auto lm : landmark_map->landmarks())
+  {
+    points.push_back(lm.second->loc());
+    colors.push_back(lm.second->color());
+  }
 
-    kwiver::arrows::pdal::pointcloud_io pc_io;
-    pc_io.set_local_geo_cs(lgcs);
-    pc_io.save(tmp_path, points, colors);
+  static auto geo_conv = kwiver::arrows::proj::geo_conversion{};
+  kv::set_geo_conv(&geo_conv);
+
+  auto lgcs = kv::local_geo_cs();
+  read_local_geo_cs_from_file(lgcs, geo_origin_path);
+
+  auto pc_io = kwiver::arrows::pdal::pointcloud_io();
+  pc_io.set_local_geo_cs(lgcs);
+  pc_io.save(tmp_path, points, colors);
 }
 
 TEST_F(pointcloud_io, save_landmarks) {
-    auto const geo_origin_path = data_dir + "/" + geo_origin_file;
-    auto const landmarks_path = data_dir + "/" + landmarks_file;
-    auto const tmp_path = data_dir + "/" + tmp_file;
-    std::ofstream ofs(tmp_path);
-    ofs.close();
+  auto const geo_origin_path = data_dir + "/" + geo_origin_file;
+  auto const landmarks_path = data_dir + "/" + landmarks_file;
+  auto const tmp_path = data_dir + "/" + tmp_file;
+  std::ofstream ofs(tmp_path);
+  ofs.close();
 
-    // This will delete the temporary file even if an exception is thrown
-    struct _tmp_file_deleter {
-      ~_tmp_file_deleter() {
-        std::remove( tmp_path.c_str() );
-      }
+  // This will delete the temporary file even if an exception is thrown
+  struct _tmp_file_deleter
+  {
+    ~_tmp_file_deleter()
+    {
+      std::remove( tmp_path.c_str() );
+    }
+    std::string tmp_path;
+  }
+  tmp_file_deleter{ tmp_path };
 
-      std::string tmp_path;
-    } tmp_file_deleter{ tmp_path };
+  kv::landmark_map_sptr landmark_map =
+    kv::read_ply_file(landmarks_path);
 
-    kv::landmark_map_sptr landmark_map =
-      kv::read_ply_file(landmarks_path);
+  static auto geo_conv = kwiver::arrows::proj::geo_conversion{};
+  kv::set_geo_conv(&geo_conv);
 
-    static auto geo_conv = kwiver::arrows::proj::geo_conversion{};
-    kv::set_geo_conv(&geo_conv);
+  auto lgcs = kv::local_geo_cs();
+  read_local_geo_cs_from_file(lgcs, geo_origin_path);
 
-    auto lgcs = kv::local_geo_cs();
-    read_local_geo_cs_from_file(lgcs, geo_origin_path);
-
-    kwiver::arrows::pdal::pointcloud_io pc_io;
-    pc_io.set_local_geo_cs(lgcs);
-    pc_io.save(tmp_path, landmark_map);
+  auto pc_io = kwiver::arrows::pdal::pointcloud_io();
+  pc_io.set_local_geo_cs(lgcs);
+  pc_io.save(tmp_path, landmark_map);
 }

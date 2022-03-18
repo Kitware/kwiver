@@ -30,8 +30,11 @@ public:
 
   /// Save pointcloud to a file
   ///
-  /// \throws kwiver::vital::path_not_exists Thrown when the given path does not
-  ///    exist.
+  /// \throws kwiver::vital::path_not_exists Thrown when the given path's
+  ///    containing directory does not exist.
+  ///
+  /// \throws kwiver::vital::path_not_a_directory Thrown when the given
+  ///    path's containing directory is not a directory.
   ///
   /// \throws kwiver::vital::path_not_a_file Thrown when the given path does
   ///    not point to a file (i.e. it points to a directory).
