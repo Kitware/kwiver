@@ -18,6 +18,10 @@
 namespace kv = kwiver::vital;
 kv::path_t g_data_dir;
 
+static std::string geo_origin_valid_file = "vital_data/geo_origin_aphill.txt";
+static std::string geo_origin_invalid_file = "vital_data/geo_origin_empty.txt";
+static std::string tmp_file = "vital_data/geo_origin_write.txt";
+
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
@@ -37,8 +41,8 @@ class local_geo_cs : public ::testing::Test
 // ----------------------------------------------------------------------------
 TEST_F(local_geo_cs, read_local_geo_cs_from_file)
 {
-  auto const geo_origin_valid = data_dir + "/geo_origin_aphill.txt";
-  auto const geo_origin_invalid = data_dir + "/geo_origin_empty.txt";
+  auto const geo_origin_valid = data_dir + "/" + geo_origin_valid_file;
+  auto const geo_origin_invalid = data_dir + "/" + geo_origin_invalid_file;
 
   static auto geo_conv = kwiver::arrows::proj::geo_conversion{};
   kv::set_geo_conv(&geo_conv);
@@ -68,7 +72,7 @@ TEST_F(local_geo_cs, read_local_geo_cs_from_file)
 
 TEST_F(local_geo_cs, write_local_geo_cs_to_file)
 {
-  auto const tmp_path_valid = data_dir + "/geo_origin_write.txt";
+  auto const tmp_path_valid = data_dir + "/" + tmp_file;
 
   // This will delete the temporary file even if an exception is thrown
   struct _tmp_file_deleter {

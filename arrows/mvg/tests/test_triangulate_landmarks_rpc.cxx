@@ -47,7 +47,7 @@ class triangulate_landmarks_rpc : public ::testing::Test
 
     for ( size_t i = 0; i < 8; ++i )
     {
-      path_t filepath = data_dir + "/rpc_data" + std::to_string(i) + ".dat";
+      path_t filepath = data_dir + "/rpc_data/rpc_data" + std::to_string(i) + ".dat";
       auto cam_ptr =
         std::make_shared< simple_camera_rpc >( read_rpc( filepath ) );
       camera_map.insert( std::pair< frame_id_t, camera_sptr >( i, cam_ptr ) );

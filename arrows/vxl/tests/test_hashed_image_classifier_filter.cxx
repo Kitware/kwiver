@@ -19,9 +19,9 @@ namespace kv = kwiver::vital;
 namespace ka = kwiver::arrows;
 
 kv::path_t g_data_dir;
-static std::string feature_images = "images/features_expected.png";
+static std::string feature_images = "images/kitware_logos/features_expected.png";
 static std::string expected_classified_image =
-  "images/classified_expected.png";
+  "images/kitware_logos/classified_expected.png";
 static std::string model_file = "default_burnout_600_iters";
 
 // ----------------------------------------------------------------------------

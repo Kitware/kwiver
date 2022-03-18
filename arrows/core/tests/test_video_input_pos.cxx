@@ -23,7 +23,8 @@ kwiver::vital::path_t g_data_dir;
 namespace algo = kwiver::vital::algo;
 namespace kac = kwiver::arrows::core;
 static int num_expected_frames = 50;
-static std::string list_file_name = "frame_list.txt";
+static std::string list_file_name = "video_as_images/frame_list.txt";
+static std::string pos_folder_location = "video_as_images/pos";
 
 // ----------------------------------------------------------------------------
 int
@@ -54,7 +55,7 @@ TEST_F(video_input_pos, read_list)
 {
   // make config block
   auto config = kwiver::vital::config_block::empty_config();
-  config->set_value( "metadata_directory", data_dir + "/pos" );
+  config->set_value( "metadata_directory", data_dir + "/" + pos_folder_location );
 
   kwiver::arrows::core::video_input_pos vip;
 
@@ -92,7 +93,7 @@ TEST_F(video_input_pos, is_good)
 {
   // make config block
   auto config = kwiver::vital::config_block::empty_config();
-  config->set_value( "metadata_directory", data_dir + "/pos" );
+  config->set_value( "metadata_directory", data_dir + "/" + pos_folder_location );
 
   kwiver::arrows::core::video_input_pos vip;
 
@@ -137,7 +138,7 @@ TEST_F(video_input_pos, seek_frame)
 {
   // make config block
   auto config = kwiver::vital::config_block::empty_config();
-  config->set_value( "metadata_directory", data_dir + "/pos" );
+  config->set_value( "metadata_directory", data_dir + "/" + pos_folder_location );
 
   kwiver::arrows::core::video_input_pos vip;
 
@@ -178,7 +179,7 @@ TEST_F(video_input_pos, metadata_map)
 {
   // make config block
   auto config = kwiver::vital::config_block::empty_config();
-  config->set_value( "metadata_directory", data_dir + "/pos" );
+  config->set_value( "metadata_directory", data_dir + "/" + pos_folder_location );
 
   kwiver::arrows::core::video_input_pos vip;
 
@@ -203,7 +204,7 @@ TEST_F(video_input_pos, metadata_map)
   std::string file_name;
   while ( std::getline( list_file_stream, file_name ) )
   {
-    file_name.replace(0, 6, "pos");
+    file_name.replace(0, 6, pos_folder_location);
     file_name.replace(file_name.length() - 3, 3, "pos");
 
     auto md_test = kwiver::vital::read_pos_file( data_dir + "/" + file_name );

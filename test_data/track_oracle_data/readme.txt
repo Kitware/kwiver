@@ -12,4 +12,3 @@ Update 20 Sept 2019
 
 The test-large-IDs.* files contain the new
 long int IDs which break the current reader.
-
