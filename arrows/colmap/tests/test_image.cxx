@@ -10,7 +10,7 @@
 #include <vital/types/image_container.h>
 
 std::string g_data_dir;
-std::string test_image_name = "/test_kitware_logo.jpg";
+static std::string test_image_name = "images/kitware_logos/basic.jpg";
 
 TEST ( colmap, vital_to_colmap )
 {
@@ -19,7 +19,7 @@ TEST ( colmap, vital_to_colmap )
 
 TEST ( colmap, vital_to_bitmap )
 {
-  std::string data_dir = g_data_dir + test_image_name;
+  std::string data_dir = g_data_dir + "/" + test_image_name;
 
   // load test image in colmap
   colmap::Bitmap expected_img;

@@ -9,6 +9,7 @@
 #include <vital/logger/logger.h>
 #include <vital/exceptions/base.h>
 #include <vital/exceptions/io.h>
+#include <vital/types/geodesy.h>
 
 #include <pdal/PointView.hpp>
 #include <pdal/PointTable.hpp>
@@ -22,38 +23,20 @@ namespace kwiver {
 namespace arrows {
 namespace pdal {
 
-/// Write landmarks to a file with PDAL
-void
-save_point_cloud_las(vital::path_t const& filename,
-                     vital::local_geo_cs const& lgcs,
-                     vital::landmark_map_sptr const& landmarks)
-{
-  std::vector<vital::vector_3d> points;
-  std::vector<vital::rgb_color> colors;
-  points.reserve(landmarks->size());
-  colors.reserve(landmarks->size());
-  for (auto lm : landmarks->landmarks())
-  {
-    points.push_back(lm.second->loc());
-    colors.push_back(lm.second->color());
-  }
-  save_point_cloud_las(filename, lgcs, points, colors);
-}
-
 /// Write point cloud to a file with PDAL
 void
-save_point_cloud_las(vital::path_t const& filename,
-                     vital::local_geo_cs const& lgcs,
-                     std::vector<vital::vector_3d> const& points,
-                     std::vector<vital::rgb_color> const& colors)
+pointcloud_io::
+save_(vital::path_t const& filename,
+      std::vector<vital::vector_3d> const& points,
+      std::vector<vital::rgb_color> const& colors) const
 {
   namespace kv = kwiver::vital;
-  kv::logger_handle_t logger( kv::get_logger( "save_point_cloud_las" ) );
+  kv::logger_handle_t logger( kv::get_logger( "arrows.pdal.pointcloud_io" ) );
 
   if( !colors.empty() && colors.size() != points.size() )
   {
-    throw vital::invalid_value("save_point_cloud_las: number of colors provided does "
-                               "not match the number of points");
+    throw vital::invalid_value("pdal::pointcloud_io::save_: number of colors "
+                               "provided does not match the number of points");
   }
 
   ::pdal::Options options;
@@ -74,7 +57,7 @@ save_point_cloud_las(vital::path_t const& filename,
     table.layout()->registerDim(::pdal::Dimension::Id::Blue);
   }
 
-  int crs = lgcs.origin().crs();
+  int crs = m_lgcs.origin().crs();
   kv::vector_3d offset(0.0, 0.0, 0.0);
   ::pdal::PointViewPtr view;
   // handle special cases of non-geographic coordinates
@@ -87,7 +70,7 @@ save_point_cloud_las(vital::path_t const& filename,
   }
   else
   {
-    offset = lgcs.origin().location();
+    offset = m_lgcs.origin().location(vital::SRID::lat_lon_WGS84);
     std::string srs_name = "EPSG:" + std::to_string(crs);
     ::pdal::SpatialReference srs;
     srs = ::pdal::SpatialReference(srs_name);

@@ -16,6 +16,9 @@
 
 kwiver::vital::path_t g_data_dir;
 
+static std::string valid_krtd = "vital_data/test_camera_io-valid_format.krtd";
+static std::string invalid_krtd = "vital_data/test_camera_io-invalid_file.krtd";
+
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
@@ -35,7 +38,7 @@ class camera_io : public ::testing::Test
 // ----------------------------------------------------------------------------
 TEST_F(camera_io, KRTD_format_read)
 {
-  kwiver::vital::path_t test_read_file = data_dir + "/test_camera_io-valid_format.krtd";
+  kwiver::vital::path_t test_read_file = data_dir + "/" + valid_krtd;
   kwiver::vital::camera_perspective_sptr read_camera =
     kwiver::vital::read_krtd_file( test_read_file );
 
@@ -74,7 +77,7 @@ TEST_F(camera_io, invalid_file_path)
 // ----------------------------------------------------------------------------
 TEST_F(camera_io, invalid_file_content)
 {
-  kwiver::vital::path_t invalid_content_file = data_dir + "/test_camera_io-invalid_file.krtd";
+  kwiver::vital::path_t invalid_content_file = data_dir + "/" + invalid_krtd;
   EXPECT_THROW(
     kwiver::vital::camera_perspective_sptr cam =
       kwiver::vital::read_krtd_file( invalid_content_file ),

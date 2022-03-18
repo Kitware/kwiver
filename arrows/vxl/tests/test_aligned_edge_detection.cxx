@@ -21,12 +21,12 @@ namespace kv = kwiver::vital;
 namespace ka = kwiver::arrows;
 
 kv::path_t g_data_dir;
-static std::string test_image = "images/small_grey_logo.png";
+static std::string test_image = "images/kitware_logos/small_grey_logo.png";
 
 static std::string expected_seperate_edges =
-  "images/expected_edge_seperate.png";
+  "images/kitware_logos/expected_edge_seperate.png";
 static std::string expected_combined_edges =
-  "images/expected_edge_combined.png";
+  "images/kitware_logos/expected_edge_combined.png";
 
 // ----------------------------------------------------------------------------
 int

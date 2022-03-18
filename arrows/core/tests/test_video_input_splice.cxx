@@ -26,7 +26,8 @@ kwiver::vital::path_t g_data_dir;
 
 namespace algo = kwiver::vital::algo;
 namespace kac = kwiver::arrows::core;
-static std::string list_file_name = "source_list.txt";
+static std::string source_list_file_name = "video_as_images/source_list.txt";
+static std::string frame_list_file_name = "video_as_images/frame_list.txt";
 
 // ----------------------------------------------------------------------------
 int
@@ -97,7 +98,7 @@ TEST_F(video_input_splice, is_good)
   EXPECT_TRUE( vis.check_configuration( config ) );
   vis.set_configuration( config );
 
-  kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
+  kwiver::vital::path_t list_file = data_dir + "/" + source_list_file_name;
   vis.open( list_file );
 
   kwiver::vital::timestamp ts;
@@ -147,7 +148,7 @@ TEST_F(video_input_splice, next_frame)
   EXPECT_TRUE( vis.check_configuration( config ) );
   vis.set_configuration( config );
 
-  kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
+  kwiver::vital::path_t list_file = data_dir + "/" + source_list_file_name;
   vis.open( list_file );
 
   kwiver::vital::timestamp ts;
@@ -193,7 +194,7 @@ TEST_F(video_input_splice, seek_frame)
   EXPECT_TRUE( vis.check_configuration( config ) );
   vis.set_configuration( config );
 
-  kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
+  kwiver::vital::path_t list_file = data_dir + "/" + source_list_file_name;
 
   // Open the video
   vis.open( list_file );
@@ -219,7 +220,7 @@ TEST_F(video_input_splice, seek_then_next_frame)
   EXPECT_TRUE( vis.check_configuration( config ) );
   vis.set_configuration( config );
 
-  kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
+  kwiver::vital::path_t list_file = data_dir + "/" + source_list_file_name;
 
   // Open the video
   vis.open( list_file );
@@ -245,7 +246,7 @@ TEST_F(video_input_splice, next_then_seek_frame)
   EXPECT_TRUE( vis.check_configuration( config ) );
   vis.set_configuration( config );
 
-  kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
+  kwiver::vital::path_t list_file = data_dir + "/" + source_list_file_name;
 
   // Open the video
   vis.open( list_file );
@@ -271,7 +272,7 @@ TEST_F(video_input_splice, next_then_seek_then_next)
   EXPECT_TRUE( vis.check_configuration( config ) );
   vis.set_configuration( config );
 
-  kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
+  kwiver::vital::path_t list_file = data_dir + "/" + source_list_file_name;
 
   // Open the video
   vis.open( list_file );
@@ -297,7 +298,7 @@ TEST_F(video_input_splice, metadata_map)
   EXPECT_TRUE( vis.check_configuration( config ) );
   vis.set_configuration( config );
 
-  kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
+  kwiver::vital::path_t list_file = data_dir + "/" + source_list_file_name;
 
   // Open the video
   vis.open( list_file );
@@ -309,7 +310,7 @@ TEST_F(video_input_splice, metadata_map)
     << "There should be metadata for every frame";
 
   // Open the frame list file directly and compare name to metadata
-  std::ifstream list_file_stream( data_dir + "/frame_list.txt" );
+  std::ifstream list_file_stream( data_dir + "/" + frame_list_file_name );
   int frame_number = 1;
   std::string file_name;
   while ( std::getline( list_file_stream, file_name ) )
@@ -343,7 +344,7 @@ TEST_F(video_input_splice, next_frame_nth_frame_output)
   EXPECT_TRUE( vis.check_configuration( config ) );
   vis.set_configuration( config );
 
-  kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
+  kwiver::vital::path_t list_file = data_dir + "/" + source_list_file_name;
   vis.open( list_file );
 
   test_read_video_nth_frame( vis );
@@ -369,7 +370,7 @@ TEST_F(video_input_splice, seek_frame_nth_frame_output)
   EXPECT_TRUE( vis.check_configuration( config ) );
   vis.set_configuration( config );
 
-  kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
+  kwiver::vital::path_t list_file = data_dir + "/" + source_list_file_name;
   vis.open( list_file );
 
   test_seek_nth_frame( vis );
@@ -393,7 +394,7 @@ TEST_F(video_input_splice, test_capabilities)
   EXPECT_TRUE( vis.check_configuration( config ) );
   vis.set_configuration( config );
 
-  kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
+  kwiver::vital::path_t list_file = data_dir + "/" + source_list_file_name;
   vis.open( list_file );
 
   auto cap = vis.get_implementation_capabilities();
