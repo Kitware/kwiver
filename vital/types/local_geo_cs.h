@@ -49,7 +49,7 @@ private:
 ///                           updated with the origin in the file.
 /// \param [in]     file_path The path to the file to read.
 VITAL_EXPORT
-void
+bool
 read_local_geo_cs_from_file(local_geo_cs& lgcs,
                             vital::path_t const& file_path);
 
@@ -62,7 +62,7 @@ read_local_geo_cs_from_file(local_geo_cs& lgcs,
 /// \param [in] lgcs      The local geographic coordinate system to write.
 /// \param [in] file_path The path to the file to write.
 VITAL_EXPORT
-void
+bool
 write_local_geo_cs_to_file(local_geo_cs const& lgcs,
                            vital::path_t const& file_path);
 

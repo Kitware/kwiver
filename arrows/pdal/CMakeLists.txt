@@ -4,7 +4,7 @@
 set(CMAKE_FOLDER "Arrows/PDAL")
 
 set( pdal_headers_public
-  pointcloud_io.h
+  algo/pointcloud_io.h
   )
 
 kwiver_install_headers(
@@ -18,7 +18,7 @@ kwiver_install_headers(
   )
 
 set( pdal_sources
-  pointcloud_io.cxx
+  algo/pointcloud_io.cxx
   )
 
 kwiver_add_library( kwiver_algo_pdal SHARED
@@ -34,6 +34,10 @@ target_link_libraries( kwiver_algo_pdal
 target_include_directories( kwiver_algo_pdal SYSTEM
   PRIVATE                   ${PDAL_INCLUDE_DIRS}
                             ${PDAL_INCLUDE_DIRS}/pdal
+  )
+
+algorithms_create_plugin( kwiver_algo_pdal
+  register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)
