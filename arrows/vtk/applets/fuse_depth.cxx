@@ -11,6 +11,7 @@
 #include <kwiversys/Directory.hxx>
 #include <kwiversys/SystemTools.hxx>
 
+#include <vital/algo/algorithm_factory.h>
 #include <vital/algo/integrate_depth_maps.h>
 #include <vital/algo/pointcloud_io.h>
 #include <vital/applets/applet_config.h>
@@ -262,7 +263,19 @@ public:
   kv::config_block_sptr default_config()
   {
     typedef kwiver::tools::kwiver_applet kvt;
-    auto config = kvt::find_configuration("applets/fuse_depth.conf");
+
+    bool has_cuda =
+      kwiver::vital::has_algorithm_impl_name("integrate_depth_maps", "cuda");
+
+    auto main_config = kvt::find_configuration("applets/fuse_depth.conf");
+
+    std::string config_name = "integrate_depth_maps.conf";
+    if(has_cuda && main_config->get_value<bool>("use_gpu",true))
+    {
+      config_name = "integrate_depth_maps_gpu.conf";
+    }
+
+    auto config = kvt::find_configuration(config_name);
 
     config->set_value("input_cameras_directory", input_cameras_directory,
       "Directory to read cameras from.");
