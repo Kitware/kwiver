@@ -203,7 +203,7 @@ klv_muxer
          entry.second.find( { m_prev_frame, timestamp } ) )
     {
       for( auto const& packet :
-           inner_entry.value.get< std::vector< klv_packet > >() )
+           inner_entry.value.get< std::set< klv_packet > >() )
       {
         m_packets.emplace( timestamp, packet );
       }

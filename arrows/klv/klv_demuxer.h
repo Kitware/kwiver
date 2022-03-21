@@ -65,9 +65,10 @@ private:
                    interval_t const& time_interval,
                    std::vector< T > const& value );
 
-  bool check_timestamp( uint64_t timestamp ) const;
+  void check_timestamp( uint64_t timestamp ) const;
 
   uint64_t m_last_timestamp;
+  std::multimap< klv_timeline::key_t, uint64_t > m_cancel_points;
   klv_timeline& m_timeline;
 };
 
