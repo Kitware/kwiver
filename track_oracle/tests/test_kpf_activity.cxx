@@ -25,6 +25,9 @@ using std::string;
 
 string g_data_dir;
 
+static std::string geom_file = "track_oracle_data/test-large-IDs.geom.yml";
+static std::string activities_file = "track_oracle_data/test-large-IDs.activities.yml";
+
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
@@ -39,7 +42,7 @@ TEST(track_oracle, kpf_activities)
 
   to::track_handle_list_type kpf_tracks, kpf_activities;
   {
-    string fn = g_data_dir+"/test-large-IDs.geom.yml";
+    string fn = g_data_dir + "/" + geom_file;
     bool rc = to::file_format_manager::read( fn, kpf_tracks );
     EXPECT_TRUE( rc ) << " reading tracks from '" << fn << "'";
     size_t n_read = kpf_tracks.size();
@@ -48,7 +51,7 @@ TEST(track_oracle, kpf_activities)
 
   {
     const int domain=2;
-    string fn = g_data_dir+"/test-large-IDs.activities.yml";
+    string fn = g_data_dir + "/" + activities_file;
     bool rc = to::track_filter_kpf_activity::read( fn,
                                                    kpf_tracks,
                                                    domain,

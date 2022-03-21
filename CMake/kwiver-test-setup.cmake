@@ -20,7 +20,7 @@ else ()
 endif ()
 
 # This sets the data directory relative to the current "tests" directory
-set(kwiver_test_data_directory  "${CMAKE_CURRENT_SOURCE_DIR}/data")
+set(kwiver_test_data_directory  "${KWIVER_SOURCE_DIR}/test_data")
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 include_directories("${KWIVER_SOURCE_DIR}")

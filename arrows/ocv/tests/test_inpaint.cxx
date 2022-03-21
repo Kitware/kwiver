@@ -18,13 +18,13 @@ namespace kv = kwiver::vital;
 namespace ka = kwiver::arrows;
 
 kv::path_t g_data_dir;
-static std::string test_image_name = "images/small_logo_color.png";
-static std::string test_mask_name = "images/small_logo_mask.png";
+static std::string test_image_name = "images/kitware_logos/small_color_logo.png";
+static std::string test_mask_name = "images/kitware_logos/small_logo_mask.png";
 
-static std::string expected_telea_result_file = "images/inpaint_telea.png";
+static std::string expected_telea_result_file = "images/kitware_logos/inpaint_telea.png";
 static std::string expected_navier_stokes_result_file =
-  "images/inpaint_navier_stokes.png";
-static std::string expected_mask_result_file = "images/inpaint_mask.png";
+  "images/kitware_logos/inpaint_navier_stokes.png";
+static std::string expected_mask_result_file = "images/kitware_logos/inpaint_mask.png";
 
 // ----------------------------------------------------------------------------
 int

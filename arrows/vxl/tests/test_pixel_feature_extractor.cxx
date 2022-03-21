@@ -20,8 +20,8 @@ namespace kv = kwiver::vital;
 namespace ka = kwiver::arrows;
 
 kv::path_t g_data_dir;
-static std::string test_color_image_name = "images/small_color_logo.png";
-static std::string expected_name = "images/features_expected.png";
+static std::string test_color_image_name = "images/kitware_logos/small_color_logo.png";
+static std::string expected_name = "images/kitware_logos/features_expected.png";
 
 // ----------------------------------------------------------------------------
 int

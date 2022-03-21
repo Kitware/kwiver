@@ -338,12 +338,6 @@ configure_file(
   @ONLY
   )
 
-# Configure kwiver_config.h.in's cmakedefine variables to C defines
-configure_file(
-  "${KWIVER_SOURCE_DIR}/CMake/kwiver_config.h.in"
-  "${KWIVER_BINARY_DIR}/kwiver_config.h"
-  )
-
 kwiver_export_targets("${KWIVER_BINARY_DIR}/kwiver-config-targets.cmake")
 
 if(NOT SKBUILD)

@@ -21,13 +21,13 @@ namespace kv = kwiver::vital;
 namespace ka = kwiver::arrows;
 
 kv::path_t g_data_dir;
-static std::string test_image_name = "images/small_grey_logo.png";
-static std::string test_color_image_name = "images/small_color_logo.png";
-static std::string expected_box = "images/box.png";
-static std::string expected_box_wide = "images/box_wide.png";
-static std::string expected_bidir = "images/bidir.png";
-static std::string expected_bidir_wide = "images/bidir_wide.png";
-static std::string expected_bidir_color = "images/bidir_color.png";
+static std::string test_image_name = "images/kitware_logos/small_grey_logo.png";
+static std::string test_color_image_name = "images/kitware_logos/small_color_logo.png";
+static std::string expected_box = "images/kitware_logos/box.png";
+static std::string expected_box_wide = "images/kitware_logos/box_wide.png";
+static std::string expected_bidir = "images/kitware_logos/bidir.png";
+static std::string expected_bidir_wide = "images/kitware_logos/bidir_wide.png";
+static std::string expected_bidir_color = "images/kitware_logos/bidir_color.png";
 
 // ----------------------------------------------------------------------------
 int
