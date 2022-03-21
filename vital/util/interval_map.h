@@ -15,6 +15,7 @@
 #include <initializer_list>
 #include <iterator>
 #include <map>
+#include <vector>
 
 namespace kwiver {
 
@@ -265,7 +266,7 @@ public:
     set( { key_interval, value } );
   }
 
-  /// \copydoc void set_interval( interval_t const&, ValueT )
+  /// \copydoc void set( interval_t const&, ValueT const& )
   void
   set( entry_t const& entry )
   {
@@ -297,6 +298,66 @@ public:
 
     // Insert possibly-merged superentry
     insert( { key_interval, entry.value } );
+  }
+
+  /// Set the value of the given interval to the given value, but do not
+  /// override any existing values.
+  ///
+  /// \see void set( interval_t const&, ValueT const& )
+  void
+  weak_set( interval_t const& key_interval, ValueT const& value )
+  {
+    weak_set( { key_interval, value } );
+  }
+
+  /// \copydoc void weak_set( interval_t const&, ValueT const& )
+  void
+  weak_set( entry_t const& entry )
+  {
+    // Identify the existing entries we have to weave between
+    auto const existing_entries = find( entry.key_interval );
+
+    // Simple case - nothing to weave between
+    if( existing_entries.empty() )
+    {
+      set( entry );
+      return;
+    }
+
+    // We want to collect all the intervals we need, in order to avoid dealing
+    // with invalidating iterators during the actual value-setting phase. This
+    // is a small sacrifice of performance for the sake of cleanliness, since
+    // it possible to being the complexity down from O( k log n ) to O( k + log
+    // n ) if we're willing to write a bit messier code - just a note in the
+    // very unlikely event this becomes a bottleneck in the future.
+    std::vector< interval_t > intervals;
+
+    // Find the first interval
+    intervals.emplace_back(
+        entry.key_interval.lower(),
+        std::max( existing_entries.begin()->key_interval.lower(),
+                  entry.key_interval.lower() ) );
+
+    // Find the rest of the intervals
+    for( auto it = existing_entries.begin();
+         it != existing_entries.end(); ++it )
+    {
+      auto next_key = entry.key_interval.upper();
+      if( std::next( it ) != m_map.end() )
+      {
+        next_key =
+          std::min( next_key, std::next( it )->key_interval.lower() );
+      }
+
+      auto const curr_key = std::min( next_key, it->key_interval.upper() );
+      intervals.emplace_back( curr_key, next_key );
+    }
+
+    // Actually set all the intervals to the given value
+    for( auto const& interval : intervals )
+    {
+      set( interval, entry.value );
+    }
   }
 
   /// Remove the entry pointed to by \p it.
