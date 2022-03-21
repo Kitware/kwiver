@@ -377,6 +377,157 @@ TEST ( interval_map, set )
 }
 
 // ----------------------------------------------------------------------------
+TEST ( interval_map, weak_set )
+{
+  using map_type = interval_map< int, int >;
+  auto const basis_map = map_type{
+    { { 0, 5 }, 0 },
+    { { 5, 10 }, 1 },
+    { { 10, 12 }, 2 },
+    { { 15, 20 }, 3 },
+    { { 50, 100 }, 4 } };
+
+  // Point interval - inside
+  {
+    auto test_map = basis_map;
+    test_map.weak_set( { 11, 11 }, 20 );
+    EXPECT_EQ( basis_map, test_map );
+  }
+
+  // Point interval - outside
+  {
+    auto test_map = basis_map;
+    test_map.weak_set( { -1, -1 }, 20 );
+    EXPECT_EQ( basis_map, test_map );
+  }
+
+  // No effect across one entry
+  {
+    auto test_map = basis_map;
+    test_map.weak_set( { 10, 12 }, 10 );
+    EXPECT_EQ( basis_map, test_map );
+  }
+
+  // No effect across multiple entries
+  {
+    auto test_map = basis_map;
+    test_map.weak_set( { 0, 12 }, 10 );
+    test_map.weak_set( { 3, 11 }, 10 );
+    EXPECT_EQ( basis_map, test_map );
+  }
+
+  // No existing entries inside
+  {
+    auto test_map = basis_map;
+    test_map.weak_set( { 30, 40 }, 10 );
+    EXPECT_EQ(
+      map_type( {
+        { { 0, 5 }, 0 },
+        { { 5, 10 }, 1 },
+        { { 10, 12 }, 2 },
+        { { 15, 20 }, 3 },
+        { { 30, 40 }, 10 },
+        { { 50, 100 }, 4 } } ),
+      test_map );
+  }
+
+  // Merge left
+  {
+    auto test_map = basis_map;
+    test_map.weak_set( { 20, 50 }, 3 );
+    EXPECT_EQ(
+      map_type( {
+        { { 0, 5 }, 0 },
+        { { 5, 10 }, 1 },
+        { { 10, 12 }, 2 },
+        { { 15, 50 }, 3 },
+        { { 50, 100 }, 4 } } ),
+      test_map );
+  }
+
+  // Merge right
+  {
+    auto test_map = basis_map;
+    test_map.weak_set( { 20, 50 }, 4 );
+    EXPECT_EQ(
+      map_type( {
+        { { 0, 5 }, 0 },
+        { { 5, 10 }, 1 },
+        { { 10, 12 }, 2 },
+        { { 15, 20 }, 3 },
+        { { 20, 100 }, 4 } } ),
+      test_map );
+  }
+
+  // Exact match
+  {
+    auto test_map = basis_map;
+    test_map.weak_set( { 50, 100 }, 10 );
+    EXPECT_EQ( basis_map, test_map );
+  }
+
+  // Around one existing entry
+  {
+    auto test_map = basis_map;
+    test_map.weak_set( { 40, 150 }, 10 );
+    EXPECT_EQ(
+      map_type( {
+        { { 0, 5 }, 0 },
+        { { 5, 10 }, 1 },
+        { { 10, 12 }, 2 },
+        { { 15, 20 }, 3 },
+        { { 40, 50 }, 10 },
+        { { 50, 100 }, 4 },
+        { { 100, 150 }, 10 } } ),
+      test_map );
+  }
+
+  // Full span - ends touching inside edges
+  {
+    auto test_map = basis_map;
+    test_map.weak_set( { 5, 50 }, 3 );
+    EXPECT_EQ(
+      map_type( {
+        { { 0, 5 }, 0 },
+        { { 5, 10 }, 1 },
+        { { 10, 12 }, 2 },
+        { { 12, 50 }, 3 },
+        { { 50, 100 }, 4 } } ),
+      test_map );
+  }
+
+  // Full span - ends touching outside edges
+  {
+    auto test_map = basis_map;
+    test_map.weak_set( { 0, 100 }, 3 );
+    EXPECT_EQ(
+      map_type( {
+        { { 0, 5 }, 0 },
+        { { 5, 10 }, 1 },
+        { { 10, 12 }, 2 },
+        { { 12, 50 }, 3 },
+        { { 50, 100 }, 4 } } ),
+      test_map );
+  }
+
+  // Full span - ends outside
+  {
+    auto test_map = basis_map;
+    test_map.weak_set( { -200, 200 }, 3 );
+    EXPECT_EQ(
+      map_type( {
+        { { -200, 0 }, 3 },
+        { { 0, 5 }, 0 },
+        { { 5, 10 }, 1 },
+        { { 10, 12 }, 2 },
+        { { 12, 50 }, 3 },
+        { { 50, 100 }, 4 },
+        { { 100, 200 }, 3 } } ),
+      test_map );
+  }
+}
+
+// ----------------------------------------------------------------------------
 TEST ( interval_map, erase )
 {
   using map_type = interval_map< int, int >;

@@ -38,12 +38,22 @@ save(vital::path_t const& filename,
      std::vector<vital::vector_3d> const& points,
      std::vector<vital::rgb_color> const& colors)
 {
-  // Make sure that the given file path exists and is a file
-  if( !kwiversys::SystemTools::FileExists( filename ) )
+  // Make sure that the given file path's containing directory exists and is
+  // actually a directory.
+  std::string containing_dir = kwiversys::SystemTools::GetFilenamePath(
+    kwiversys::SystemTools::CollapseFullPath( filename ) );
+
+  if( !kwiversys::SystemTools::FileExists( containing_dir ) )
   {
-    VITAL_THROW( path_not_exists, filename );
+    VITAL_THROW( path_not_exists, containing_dir );
   }
-  else if( kwiversys::SystemTools::FileIsDirectory( filename ) )
+  else if( !kwiversys::SystemTools::FileIsDirectory( containing_dir ) )
+  {
+    VITAL_THROW( path_not_a_directory, containing_dir );
+  }
+
+  // Make sure that the given path is a file.
+  if( kwiversys::SystemTools::FileIsDirectory( filename ) )
   {
     VITAL_THROW( path_not_a_file, filename );
   }
