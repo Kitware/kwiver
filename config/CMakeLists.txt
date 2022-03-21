@@ -13,9 +13,11 @@ set(config_files
   core_track_filter.conf
   core_video_input_image_list.conf
   core_video_input_image_pos_list.conf
-  cuda_integrate_depth_maps.conf
   default_camera_intrinsics.conf
   ffmpeg_video_input.conf
+  integrate_depth_maps.conf
+  integrate_depth_maps_common.conf
+  integrate_depth_maps_gpu.conf
   loop_closer_bad_frames.conf
   loop_closer_homography.conf
   loop_closer_keyframe.conf
