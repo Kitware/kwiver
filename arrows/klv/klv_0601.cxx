@@ -964,7 +964,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_WAYPOINT_LIST ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_waypoint_list_format >(),
       "Waypoint List",
       "List of navigational waypoints and their statuses.",
       { 0, 1 } },
@@ -1691,6 +1691,74 @@ DEFINE_STRUCT_CMP(
 )
 
 // ----------------------------------------------------------------------------
+klv_0601_location_dlp_format
+::klv_0601_location_dlp_format()
+  : klv_data_format_< klv_0601_location_dlp >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_location_dlp_format
+::description() const
+{
+  return "location pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_location_dlp
+klv_0601_location_dlp_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  klv_0601_location_dlp result = {};
+  auto const tracker = track_it( data, length );
+
+  result.latitude =
+    klv_read_imap( -90.0, 90.0, data, tracker.verify( 4 ) );
+  result.longitude =
+    klv_read_imap( -180.0, 180.0, data, tracker.verify( 4 ) );
+  // Altitude is not required
+  if( tracker.remaining() )
+  {
+    // Altitude is set
+    result.altitude =
+      klv_read_imap( -900.0, 9000.0, data, tracker.verify( 3 ) );
+  }
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_location_dlp_format
+::write_typed( klv_0601_location_dlp const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+
+  klv_write_imap( value.latitude,
+                  -90.0, 90.0,
+                  data, tracker.verify( 4 ) );
+  klv_write_imap( value.longitude,
+                  -180.0, 180.0,
+                  data, tracker.verify( 4 ) );
+  if( value.altitude )
+  {
+    klv_write_imap( *value.altitude,
+                    -900.0, 9000.0,
+                    data, tracker.verify( 3 ) );
+  }
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_location_dlp_format
+::length_of_typed( klv_0601_location_dlp const& value ) const
+{
+  // Latitude (4) and longitude (4) are required, altitude (3) is optional
+  return 8 + ( value.altitude ? 3 : 0 );
+}
+
+// ----------------------------------------------------------------------------
 std::ostream&
 operator<<( std::ostream& os, klv_0601_airbase_locations const& value )
 {
@@ -1746,19 +1814,9 @@ klv_0601_airbase_locations_format
   if( length_of_take_off_location )
   {
     // Take-off location is set
-    result.take_off_location = klv_0601_location_dlp{};
-
-    result.take_off_location->latitude =
-      klv_read_imap( -90.0, 90.0, data, 4 );
-    result.take_off_location->longitude =
-      klv_read_imap( -180.0, 180.0, data, 4 );
-    // Altitude is not required
-    if( length_of_take_off_location > 8 )
-    {
-      // Altitude is set
-      result.take_off_location->altitude =
-        klv_read_imap( -900.0, 9000.0, data, length_of_take_off_location - 8 );
-    }
+    result.take_off_location =
+      klv_0601_location_dlp_format{}
+        .read_( data, tracker.verify( length_of_take_off_location ) );
   }
 
   if( !tracker.remaining() )
@@ -1775,19 +1833,9 @@ klv_0601_airbase_locations_format
   if( length_of_recovery_location )
   {
     // Recovery location is set
-    result.recovery_location = klv_0601_location_dlp{};
-
-    result.recovery_location->latitude =
-      klv_read_imap( -90.0, 90.0, data, 4 );
-    result.recovery_location->longitude =
-      klv_read_imap( -180.0, 180.0, data, 4 );
-    // Altitude is not required
-    if( length_of_recovery_location > 8 )
-    {
-      // Altitude is set
-      result.recovery_location->altitude =
-        klv_read_imap( -900.0, 9000.0, data, length_of_take_off_location - 8 );
-    }
+    result.recovery_location =
+      klv_0601_location_dlp_format{}
+        .read_( data, tracker.verify( length_of_recovery_location ) );
   }
 
   return result;
@@ -1805,25 +1853,16 @@ klv_0601_airbase_locations_format
   if( value.take_off_location )
   {
     // Take-off location is set
-    // Latitude (4) and longitude (4) are required, altitude (3) is optional
     size_t const length_of_take_off_location =
-      8 + ( ( value.take_off_location->altitude ) ? 3 : 0 );
+      klv_0601_location_dlp_format{}.length_of_( *value.take_off_location );
 
     if( length_of_take_off_location <= tracker.remaining() )
     {
       klv_write_ber( length_of_take_off_location, data, tracker.remaining() );
-      klv_write_imap( value.take_off_location->latitude,
-                      -90.0, 90.0,
-                      data, 4 );
-      klv_write_imap( value.take_off_location->longitude,
-                      -180.0, 180.0,
-                      data, 4 );
-      if( value.take_off_location->altitude )
-      {
-        klv_write_imap( *value.take_off_location->altitude,
-                        -900.0, 9000.0,
-                        data, 3 );
-      }
+
+      klv_0601_location_dlp_format{}
+        .write_( *value.take_off_location, data,
+                 tracker.verify( length_of_take_off_location ) );
     }
   }
   else
@@ -1848,25 +1887,16 @@ klv_0601_airbase_locations_format
       return;
     }
 
-    // Latitude (4) and longitude (4) are required, altitude (3) is optional
     size_t const length_of_recovery_location =
-      8 + ( ( value.recovery_location->altitude ) ? 3 : 0 );
+      klv_0601_location_dlp_format{}.length_of_( *value.recovery_location );
 
     if( length_of_recovery_location <= tracker.remaining() )
     {
       klv_write_ber( length_of_recovery_location, data, tracker.remaining() );
-      klv_write_imap( value.recovery_location->latitude,
-                      -90.0, 90.0,
-                      data, 4 );
-      klv_write_imap( value.recovery_location->longitude,
-                      -180.0, 180.0,
-                      data, 4 );
-      if( value.recovery_location->altitude )
-      {
-        klv_write_imap( *value.recovery_location->altitude,
-                        -900.0, 9000.0,
-                        data, 3 );
-      }
+
+      klv_0601_location_dlp_format{}
+        .write_( *value.recovery_location, data,
+                 tracker.verify( length_of_recovery_location ) );
     }
   }
   else
@@ -1887,9 +1917,7 @@ klv_0601_airbase_locations_format
   {
     // Latitude and longitude are required, altitude is not
     length_of_take_off_location =
-      value.take_off_location->altitude
-      ? ( 4 + 4 + 3 ) // Latitude + longitude + altitude
-      : ( 4 + 4 ); // Latitude + longitude;
+      klv_0601_location_dlp_format{}.length_of_( *value.take_off_location );
   }
 
   auto length_of_length_of_take_off_location =
@@ -1899,11 +1927,8 @@ klv_0601_airbase_locations_format
   size_t length_of_recovery_location = 0;
   if( value.recovery_location )
   {
-    // Latitude and longitude are required, altitude is not
     length_of_recovery_location =
-      value.recovery_location->altitude
-      ? ( 4 + 4 + 3 ) // Latitude + longitude + altitude
-      : ( 4 + 4 ); // Latitude + longitude
+      klv_0601_location_dlp_format{}.length_of_( *value.recovery_location );
   }
 
   auto length_of_length_of_recovery_location =
@@ -2138,6 +2163,134 @@ klv_0601_view_domain_format
          length_of_elevation +
          length_of_length_of_roll +
          length_of_roll;
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_0601_waypoint_record const& value )
+{
+  os << "{ "
+     << "ID: "
+     << value.id
+     << ", "
+     << "prosecution order: "
+     << value.order
+     << ", "
+     << "info: { "
+     << "mode: ";
+  auto const mode = *value.info & 1;
+  os << ( mode
+      ? "manual"
+      : "automated" )
+     << ", "
+     << "source: ";
+  auto const source = ( *value.info >> 1 ) & 1;
+  os << ( source
+      ? "ad hoc"
+      : "pre-planned" )
+     << " }"
+     << ", "
+     << "location: "
+     << value.location
+     << " } }";
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_waypoint_record,
+  &klv_0601_waypoint_record::id,
+  &klv_0601_waypoint_record::order,
+  &klv_0601_waypoint_record::info,
+  &klv_0601_waypoint_record::location
+)
+
+// ----------------------------------------------------------------------------
+klv_0601_waypoint_record_format
+::klv_0601_waypoint_record_format()
+  : klv_data_format_< klv_0601_waypoint_record >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_waypoint_record_format
+::description() const
+{
+  return "waypoint pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_waypoint_record
+klv_0601_waypoint_record_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  klv_0601_waypoint_record result = {};
+  auto const tracker = track_it( data, length );
+
+  // Read waypoint id
+  result.id = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+
+  // Read waypoint order
+  result.order = klv_read_int< int16_t >( data, tracker.verify( 2 ) );
+
+  if( tracker.remaining() )
+  {
+    // Read waypoint info value
+    result.info = klv_read_ber_oid< uint8_t >( data, tracker.verify( 1 ) );
+  }
+
+  if( tracker.remaining() )
+  {
+    // Read waypoint location
+    result.location =
+      klv_0601_location_dlp_format{}.read_( data, tracker.remaining() );
+  }
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_waypoint_record_format
+::write_typed( klv_0601_waypoint_record const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+
+  // Write waypoint id
+  klv_write_ber_oid( value.id, data, tracker.remaining() );
+
+  // Write waypoint order
+  klv_write_int( value.order, data, tracker.verify( 2 ) );
+
+  if( value.info )
+  {
+    // Write waypoint info value
+    klv_write_ber_oid( *value.info, data, tracker.verify( 1 ) );
+  }
+
+  if( value.location && value.info )
+  {
+    // Write waypoint location
+    klv_0601_location_dlp_format{}
+      .write_( *value.location, data, tracker.remaining() );
+  }
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_waypoint_record_format
+::length_of_typed( klv_0601_waypoint_record const& value ) const
+{
+  size_t const length_of_waypoint_id = klv_ber_oid_length( value.id );
+
+  size_t const length_of_waypoint_location =
+    ( value.location && value.info )
+    ? klv_0601_location_dlp_format{}.length_of_( *value.location )
+    : 0;
+
+  return ( length_of_waypoint_id + 2 + ( value.info ? 1 : 0 ) +
+           length_of_waypoint_location );
 }
 
 // ----------------------------------------------------------------------------

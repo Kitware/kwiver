@@ -573,6 +573,28 @@ operator<<( std::ostream& os, klv_0601_location_dlp const& value );
 DECLARE_CMP( klv_0601_location_dlp )
 
 // ----------------------------------------------------------------------------
+class KWIVER_ALGO_KLV_EXPORT klv_0601_location_dlp_format
+  : public klv_data_format_< klv_0601_location_dlp >
+{
+public:
+  klv_0601_location_dlp_format();
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_location_dlp
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_location_dlp const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_0601_location_dlp const& value ) const override;
+};
+
+// ----------------------------------------------------------------------------
 /// Geographic location of the take-off site and recovery site.
 struct klv_0601_airbase_locations
 {
@@ -654,6 +676,51 @@ private:
   size_t
   length_of_typed( klv_0601_view_domain const& value ) const override;
 };
+
+// ----------------------------------------------------------------------------
+/// Aircraft destinations used to navigate the aircraft to certain locations.
+struct klv_0601_waypoint_record
+{
+  uint16_t id;
+  int16_t order;
+  kwiver::vital::optional< uint8_t > info;
+  kwiver::vital::optional< klv_0601_location_dlp > location;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_waypoint_record const& value );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_waypoint_record )
+
+// ----------------------------------------------------------------------------
+/// Interprets data as a waypoint record.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_waypoint_record_format
+  : public klv_data_format_< klv_0601_waypoint_record >
+{
+public:
+  klv_0601_waypoint_record_format();
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_waypoint_record
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_waypoint_record const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_0601_waypoint_record const& value ) const override;
+};
+
+// ----------------------------------------------------------------------------
+using klv_0601_waypoint_list_format =
+  klv_series_format< klv_0601_waypoint_record_format >;
 
 // ----------------------------------------------------------------------------
 /// Weapon/Store state ( General Status ).
