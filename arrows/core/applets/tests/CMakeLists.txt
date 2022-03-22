@@ -12,6 +12,7 @@ add_test(NAME core:applets:render_mesh
             output_image)
 add_test(NAME core:applets:transcode
   COMMAND kwiver transcode
+            -c "${kwiver_test_data_directory}/config_files/transcode_testing.conf"
             --input "${kwiver_test_data_directory}/videos/aphill_klv_10s.ts"
             --output transcode_out.ts)
 
