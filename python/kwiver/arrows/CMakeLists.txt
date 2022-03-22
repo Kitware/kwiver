@@ -1,7 +1,7 @@
 add_subdirectory(serialize)
 add_subdirectory(core)
 
-if(KWIVER_ENABLE_TESTS)
+if(PYTHON_TEST AND NOT WIN32)
   add_subdirectory( tests )
 endif()
 

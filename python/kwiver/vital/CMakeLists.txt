@@ -17,7 +17,7 @@ add_subdirectory( algo )
 add_subdirectory( exceptions )
 add_subdirectory( types )
 
-if(KWIVER_ENABLE_TESTS)
+if(PYTHON_TEST)
   add_subdirectory( tests )
 endif()
 
