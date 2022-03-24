@@ -27,6 +27,8 @@ template < class T >
 class interval
 {
 public:
+  using value_type = T;
+
   interval( T lower, T upper )
     : m_lower{ std::min( lower, upper ) },
       m_upper{ std::max( lower, upper ) }

@@ -49,6 +49,8 @@ using klv_1303_apa_format = klv_enum_format< klv_1303_apa >;
 template < class T >
 struct KWIVER_ALGO_KLV_EXPORT klv_1303_mdap
 {
+  using value_type = T;
+
   // Actual data
   std::vector< size_t > sizes;
   std::vector< T > elements;

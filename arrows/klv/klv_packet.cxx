@@ -251,7 +251,8 @@ klv_lookup_packet_traits()
       "MISB ST 0102 Local Set",
       "Security Local Set. Used for marking Motion Imagery with security "
       "classification information.",
-      0 },
+      0,
+      &klv_0102_traits_lookup() },
     { klv_1108_key(),
       ENUM_AND_NAME( KLV_PACKET_MISB_1108_LOCAL_SET ),
       std::make_shared< klv_1108_local_set_format >(),

@@ -117,7 +117,7 @@ klv_0903_vtrack_set_traits_lookup()
       "Name of VMTI source sensor. Examples: 'EO Nose', 'EO Zoom (DLTV)'.",
       { 0, 1 } },
     { {},
-      ENUM_AND_NAME( KLV_0903_VTRACKER_NUM_TRACK_POINTS ),
+      ENUM_AND_NAME( KLV_0903_VTRACK_NUM_TRACK_POINTS ),
       std::make_shared< klv_uint_format >(),
       "Number of Track Points",
       "Number of coordinates which describe the history of VMTI detections "
@@ -128,13 +128,15 @@ klv_0903_vtrack_set_traits_lookup()
       std::make_shared< klv_0903_vtrackitem_series_format >(),
       "Track Item Series",
       "Series of track item metadata values.",
-      { 0, 1 } },
+      { 0, 1 },
+      &klv_0903_vtrackitem_pack_traits_lookup() },
     { {},
       ENUM_AND_NAME( KLV_0903_VTRACK_ONTOLOGY_SERIES ),
       std::make_shared< klv_0903_ontology_series_format >(),
       "Ontology Series",
       "A series of ontology local sets.",
-      { 0, 1 } }, };
+      { 0, 1 },
+      &klv_0903_ontology_set_traits_lookup() } };
 
   return lookup;
 }

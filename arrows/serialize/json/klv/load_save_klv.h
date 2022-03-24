@@ -16,20 +16,18 @@ class JSONOutputArchive;
 class JSONInputArchive;
 
 KWIVER_SERIALIZE_JSON_EXPORT
-void save( ::cereal::JSONOutputArchive& archive,
-           std::vector< ::kwiver::arrows::klv::klv_packet > const& packets );
+void save( JSONOutputArchive& archive,
+           kwiver::arrows::klv::klv_packet const& packet );
 KWIVER_SERIALIZE_JSON_EXPORT
-void load( ::cereal::JSONInputArchive& archive,
-           std::vector< ::kwiver::arrows::klv::klv_packet >& packets );
+void load( JSONInputArchive& archive,
+           kwiver::arrows::klv::klv_packet& packet );
 
 KWIVER_SERIALIZE_JSON_EXPORT
-void save( ::cereal::JSONOutputArchive& archive,
-           std::vector< ::kwiver::arrows::klv::klv_timed_packet > const&
-             timed_packets );
+void save( JSONOutputArchive& archive,
+           kwiver::arrows::klv::klv_timed_packet const& packet );
 KWIVER_SERIALIZE_JSON_EXPORT
-void load( ::cereal::JSONInputArchive& archive,
-           std::vector< ::kwiver::arrows::klv::klv_timed_packet >&
-             timed_packets );
+void load( JSONInputArchive& archive,
+           kwiver::arrows::klv::klv_timed_packet& packet );
 
 } // namespace cereal
 
