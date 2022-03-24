@@ -361,7 +361,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_GENERIC_FLAG_DATA ),
-      std::make_shared< klv_uint_format >( 1 ),
+      std::make_shared< klv_0601_generic_flag_data_format >( 1 ),
       "Generic Flag Data",
       "Bits representing miscellaneous boolean values.",
       { 0, 1 } },
@@ -860,7 +860,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_POSITIONING_METHOD_SOURCE ),
-      std::make_shared< klv_uint_format >( 1 ),
+      std::make_shared< klv_0601_positioning_method_source_format >( 1 ),
       "Positioning Method Source",
       "Source of the navigation positioning information.",
       { 0, 1 } },
@@ -1015,7 +1015,7 @@ operator<<( std::ostream& os, klv_0601_sensor_fov_name value )
 
 // ----------------------------------------------------------------------------
 std::ostream&
-operator<<( std::ostream& os, klv_0601_positioning_method_source_bits value )
+operator<<( std::ostream& os, klv_0601_positioning_method_source_bit value )
 {
   static std::string strings[ KLV_0601_POSITIONING_METHOD_SOURCE_BIT_ENUM_END +
                               1 ] = {
@@ -1037,7 +1037,7 @@ operator<<( std::ostream& os, klv_0601_positioning_method_source_bits value )
 
 // ----------------------------------------------------------------------------
 std::ostream&
-operator<<( std::ostream& os, klv_0601_generic_flag_data_bits value )
+operator<<( std::ostream& os, klv_0601_generic_flag_data_bit value )
 {
   static std::string strings[ KLV_0601_GENERIC_FLAG_DATA_BIT_ENUM_END + 1 ] = {
     "Laser Range",
@@ -2243,9 +2243,9 @@ klv_0601_waypoint_record_format
 // ----------------------------------------------------------------------------
 /// Weapon/Store state ( General Status ).
 std::ostream&
-operator<<( std::ostream& os, klv_0601_weapons_general_status value )
+operator<<( std::ostream& os, klv_0601_weapon_general_status value )
 {
-  static std::string strings[ KLV_0601_WEAPONS_GENERAL_STATUS_ENUM_END + 1 ] =
+  static std::string strings[ KLV_0601_WEAPON_GENERAL_STATUS_ENUM_END + 1 ] =
   {
     "Off",
     "Initialization",
@@ -2261,14 +2261,14 @@ operator<<( std::ostream& os, klv_0601_weapons_general_status value )
     "No Status Available",
     "Unknown Weapons Store State" };
 
-  os << strings[ std::min( value, KLV_0601_WEAPONS_GENERAL_STATUS_ENUM_END ) ];
+  os << strings[ std::min( value, KLV_0601_WEAPON_GENERAL_STATUS_ENUM_END ) ];
   return os;
 }
 
 // ----------------------------------------------------------------------------
 /// A set of bit values to report the status of a weapon before it’s launched.
 std::ostream&
-operator<<( std::ostream& os, klv_0601_weapon_engagement_status_bits value )
+operator<<( std::ostream& os, klv_0601_weapon_engagement_status_bit value )
 {
   static std::string strings[ KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_ENUM_END +
                               1 ] = {
@@ -2301,24 +2301,11 @@ operator<<( std::ostream& os, klv_0601_weapons_store const& value )
      << "store ID: "
      << value.store_id
      << ", "
-     << "status: "
-     << " { "
-     << "general status: { "
+     << "general status: "
      << value.general_status
-     << " }, "
-     << "engagement status: { ";
-  for( int i = 0; i < 4 ; ++i )
-  {
-    if( value.engagement_status & ( 1 << i ) )
-    {
-      os << static_cast< klv_0601_weapon_engagement_status_bits >( i );
-      if( value.engagement_status >> ( i + 1 ) )
-      {
-        os << ", ";
-      }
-    }
-  }
-  os << " } }"
+     << ", "
+     << "engagement status: "
+     << value.engagement_status
      << ", "
      << "weapon type: "
      << value.weapon_type
@@ -2377,9 +2364,11 @@ klv_0601_weapons_store_format
     klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
   // General status = least significant 8 bits
   result.general_status =
-    static_cast< klv_0601_weapons_general_status >( status & 0xFF );
+    static_cast< klv_0601_weapon_general_status >( status & 0xFF );
   // Engagement status = next 4 bits
-  result.engagement_status = ( status >> 8 ) & 0x0F;
+  result.engagement_status =
+    bitfield_to_enums< klv_0601_weapon_engagement_status_bit, uint8_t >(
+      ( status >> 8 ) & 0x0F );
 
   // Read weapons type
   auto const length_of_weapon_type =
@@ -2406,7 +2395,10 @@ klv_0601_weapons_store_format
 
   // Write weapons status
   // When the low order 7 bits of the MSB are zero, the MSB is eliminated
-  uint16_t status = ( value.engagement_status << 8 ) + value.general_status;
+  auto const engagement_status_int =
+    enums_to_bitfield< klv_0601_weapon_engagement_status_bit >(
+      value.engagement_status );
+  uint16_t status = ( engagement_status_int << 8 ) + value.general_status;
   klv_write_ber_oid( status, data, tracker.remaining() );
 
   // Write weapons type
@@ -2430,7 +2422,10 @@ klv_0601_weapons_store_format
     klv_ber_oid_length( value.store_id );
 
   // Length of weapon status
-  uint16_t status = ( value.engagement_status << 8 ) + value.general_status;
+  auto const engagement_status_int =
+    enums_to_bitfield< klv_0601_weapon_engagement_status_bit >(
+      value.engagement_status );
+  uint16_t status = ( engagement_status_int << 8 ) + value.general_status;
   size_t const length_of_status = klv_ber_oid_length( status );
 
   // Length of weapon type

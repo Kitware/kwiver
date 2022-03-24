@@ -230,7 +230,7 @@ operator<<( std::ostream& os, klv_0601_sensor_fov_name value );
 
 // ----------------------------------------------------------------------------
 /// Source of the navigation positioning information.
-enum KWIVER_ALGO_KLV_EXPORT klv_0601_positioning_method_source_bits
+enum KWIVER_ALGO_KLV_EXPORT klv_0601_positioning_method_source_bit
 {
   KLV_0601_POSITIONING_METHOD_SOURCE_BIT_ON_BOARD_INS,
   KLV_0601_POSITIONING_METHOD_SOURCE_BIT_GPS,
@@ -246,11 +246,15 @@ enum KWIVER_ALGO_KLV_EXPORT klv_0601_positioning_method_source_bits
 // ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
 std::ostream&
-operator<<( std::ostream& os, klv_0601_positioning_method_source_bits value );
+operator<<( std::ostream& os, klv_0601_positioning_method_source_bit value );
 
 // ----------------------------------------------------------------------------
-/// Miscellaneous boolean values
-enum KWIVER_ALGO_KLV_EXPORT klv_0601_generic_flag_data_bits
+using klv_0601_positioning_method_source_format =
+  klv_enum_bitfield_format< klv_0601_positioning_method_source_bit >;
+
+// ----------------------------------------------------------------------------
+/// Miscellaneous boolean values.
+enum KWIVER_ALGO_KLV_EXPORT klv_0601_generic_flag_data_bit
 {
   // 0 = laser off, 1 = laser on
   KLV_0601_GENERIC_FLAG_DATA_BIT_LASER_RANGE,
@@ -270,7 +274,11 @@ enum KWIVER_ALGO_KLV_EXPORT klv_0601_generic_flag_data_bits
 // ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
 std::ostream&
-operator<<( std::ostream& os, klv_0601_generic_flag_data_bits value );
+operator<<( std::ostream& os, klv_0601_generic_flag_data_bit value );
+
+// ----------------------------------------------------------------------------
+using klv_0601_generic_flag_data_format =
+  klv_enum_bitfield_format< klv_0601_generic_flag_data_bit >;
 
 // ----------------------------------------------------------------------------
 /// Indicates the operational mode of the FMV-producing platform.
@@ -768,36 +776,36 @@ using klv_0601_waypoint_list_format =
 
 // ----------------------------------------------------------------------------
 /// Weapon/Store state ( General Status ).
-enum KWIVER_ALGO_KLV_EXPORT klv_0601_weapons_general_status
+enum KWIVER_ALGO_KLV_EXPORT klv_0601_weapon_general_status
 {
-  KLV_0601_WEAPONS_GENERAL_STATUS_OFF,
-  KLV_0601_WEAPONS_GENERAL_STATUS_INITIALIZATION,
-  KLV_0601_WEAPONS_GENERAL_STATUS_DEGRADED,
-  KLV_0601_WEAPONS_GENERAL_STATUS_ALL_UP_ROUND,
-  KLV_0601_WEAPONS_GENERAL_STATUS_LAUNCH,
-  KLV_0601_WEAPONS_GENERAL_STATUS_FREE_FLIGHT,
-  KLV_0601_WEAPONS_GENERAL_STATUS_ABORT,
-  KLV_0601_WEAPONS_GENERAL_STATUS_MISS_FIRE,
-  KLV_0601_WEAPONS_GENERAL_STATUS_HANG_FIRE,
-  KLV_0601_WEAPONS_GENERAL_STATUS_JETTISONED,
-  KLV_0601_WEAPONS_GENERAL_STATUS_STEPPED_OVER,
-  KLV_0601_WEAPONS_GENERAL_STATUS_NO_STATUS,
-  KLV_0601_WEAPONS_GENERAL_STATUS_ENUM_END,
+  KLV_0601_WEAPON_GENERAL_STATUS_OFF,
+  KLV_0601_WEAPON_GENERAL_STATUS_INITIALIZATION,
+  KLV_0601_WEAPON_GENERAL_STATUS_DEGRADED,
+  KLV_0601_WEAPON_GENERAL_STATUS_ALL_UP_ROUND,
+  KLV_0601_WEAPON_GENERAL_STATUS_LAUNCH,
+  KLV_0601_WEAPON_GENERAL_STATUS_FREE_FLIGHT,
+  KLV_0601_WEAPON_GENERAL_STATUS_ABORT,
+  KLV_0601_WEAPON_GENERAL_STATUS_MISS_FIRE,
+  KLV_0601_WEAPON_GENERAL_STATUS_HANG_FIRE,
+  KLV_0601_WEAPON_GENERAL_STATUS_JETTISONED,
+  KLV_0601_WEAPON_GENERAL_STATUS_STEPPED_OVER,
+  KLV_0601_WEAPON_GENERAL_STATUS_NO_STATUS,
+  KLV_0601_WEAPON_GENERAL_STATUS_ENUM_END,
 };
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a weapons store state.
 using klv_0601_weapons_general_status_format =
-  klv_enum_format< klv_0601_weapons_general_status >;
+  klv_enum_format< klv_0601_weapon_general_status >;
 
 // ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
 std::ostream&
-operator<<( std::ostream& os, klv_0601_weapons_general_status value );
+operator<<( std::ostream& os, klv_0601_weapon_general_status value );
 
 // ----------------------------------------------------------------------------
 /// A set of bit values to report the status of a weapon before it’s launched.
-enum KWIVER_ALGO_KLV_EXPORT klv_0601_weapon_engagement_status_bits
+enum KWIVER_ALGO_KLV_EXPORT klv_0601_weapon_engagement_status_bit
 {
   // 0 = fuse functions not set, 1 = fuse functions set
   KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_FUSE_ENABLED,
@@ -813,7 +821,7 @@ enum KWIVER_ALGO_KLV_EXPORT klv_0601_weapon_engagement_status_bits
 // ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
 std::ostream&
-operator<<( std::ostream& os, klv_0601_weapon_engagement_status_bits value );
+operator<<( std::ostream& os, klv_0601_weapon_engagement_status_bit value );
 
 // ----------------------------------------------------------------------------
 /// List of weapon stores and status.
@@ -823,8 +831,8 @@ struct klv_0601_weapons_store
   uint16_t hardpoint_id;
   uint16_t carriage_id;
   uint16_t store_id;
-  klv_0601_weapons_general_status general_status;
-  uint8_t engagement_status;
+  klv_0601_weapon_general_status general_status;
+  std::set< klv_0601_weapon_engagement_status_bit > engagement_status;
   std::string weapon_type;
 };
 

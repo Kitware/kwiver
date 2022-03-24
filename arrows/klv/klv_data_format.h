@@ -594,6 +594,79 @@ protected:
   Format m_format;
 };
 
+// ----------------------------------------------------------------------------
+template< class Enum, class Int >
+std::set< Enum >
+bitfield_to_enums( Int bitfield )
+{
+  static_assert( std::is_unsigned< Int >::value, "bitfield must be unsigned" );
+  std::set< Enum > result;
+  for( size_t i = 0; bitfield; ++i, bitfield >>= 1 )
+  {
+    if( bitfield & 1 )
+    {
+      result.emplace( static_cast< Enum >( i ) );
+    }
+  }
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+template< class Enum, class Int = uint64_t >
+Int
+enums_to_bitfield( std::set< Enum > const& enums )
+{
+  static_assert( std::is_unsigned< Int >::value, "bitfield must be unsigned" );
+  Int result = 0;
+  for( auto const& element : enums )
+  {
+    result |= static_cast< Int >( 1 ) << static_cast< Int >( element );
+  }
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+template< class Enum, class Format = klv_uint_format >
+class KWIVER_ALGO_KLV_EXPORT klv_enum_bitfield_format
+  : public klv_data_format_< std::set< Enum > >
+{
+public:
+  template< class... Args >
+  klv_enum_bitfield_format( Args&&... args )
+    : klv_data_format_< std::set< Enum > >{ 0 }, m_format{ args... } {
+    this->m_fixed_length = m_format.fixed_length();
+    m_format.set_fixed_length( 0 );
+  }
+
+  std::string
+  description() const
+  {
+    return "bitfield of " + this->length_description();
+  }
+
+protected:
+  std::set< Enum >
+  read_typed( klv_read_iter_t& data, size_t length ) const
+  {
+    return bitfield_to_enums< Enum >( m_format.read_( data, length ) );
+  }
+
+  void
+  write_typed( std::set< Enum > const& value,
+               klv_write_iter_t& data, size_t length ) const
+  {
+    m_format.write_( enums_to_bitfield( value ), data, length );
+  }
+
+  size_t
+  length_of_typed( std::set< Enum > const& value ) const
+  {
+    return m_format.length_of_( enums_to_bitfield( value ) );
+  }
+
+  Format m_format;
+};
+
 } // namespace klv
 
 } // namespace arrows

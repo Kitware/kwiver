@@ -12,6 +12,7 @@
 #include <vital/optional.h>
 
 #include <ostream>
+#include <set>
 #include <tuple>
 
 #include <cstddef>
@@ -51,6 +52,24 @@ operator<<( std::ostream& os, std::vector< T > const& value )
   {
     os << item;
     if( &item != &value.back() )
+    {
+      os << ", ";
+    }
+  }
+  os << " }";
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+template < class T >
+std::ostream&
+operator<<( std::ostream& os, std::set< T > const& value )
+{
+  os << "{ ";
+  for( T const& item : value )
+  {
+    os << item;
+    if( &item != &*value.cend() )
     {
       os << ", ";
     }
