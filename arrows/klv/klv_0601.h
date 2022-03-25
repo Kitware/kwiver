@@ -634,16 +634,56 @@ private:
 };
 
 // ----------------------------------------------------------------------------
+struct klv_0601_view_domain_interval
+{
+  double start;
+  double range;
+  size_t semi_length;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_view_domain_interval const& value );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_view_domain_interval )
+
+// ---------------------------------------------------------------------------
+/// Interprets data as a view domain interval.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_view_domain_interval_format
+  : public klv_data_format_< klv_0601_view_domain_interval >
+{
+public:
+  klv_0601_view_domain_interval_format( double start_mininum,
+                                        double start_maximum );
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_view_domain_interval
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_view_domain_interval const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_0601_view_domain_interval const& value ) const override;
+
+  klv_imap_format const m_start_format;
+  static klv_imap_format const range_format;
+};
+
+// ----------------------------------------------------------------------------
 /// Specifies the domain of values for
 /// Relative Sensor Azimuth, Elevation and Roll Angles.
 struct klv_0601_view_domain
 {
-  kwiver::vital::optional< klv_lengthy< double > > azimuth_start;
-  kwiver::vital::optional< klv_lengthy< double > > azimuth_range;
-  kwiver::vital::optional< klv_lengthy< double > > elevation_start;
-  kwiver::vital::optional< klv_lengthy< double > > elevation_range;
-  kwiver::vital::optional< klv_lengthy< double > > roll_start;
-  kwiver::vital::optional< klv_lengthy< double > > roll_range;
+  kwiver::vital::optional< klv_0601_view_domain_interval > azimuth;
+  kwiver::vital::optional< klv_0601_view_domain_interval > elevation;
+  kwiver::vital::optional< klv_0601_view_domain_interval > roll;
 };
 
 // ----------------------------------------------------------------------------
@@ -675,6 +715,10 @@ private:
 
   size_t
   length_of_typed( klv_0601_view_domain const& value ) const override;
+
+  static klv_0601_view_domain_interval_format const azimuth_format;
+  static klv_0601_view_domain_interval_format const elevation_format;
+  static klv_0601_view_domain_interval_format const roll_format;
 };
 
 // ----------------------------------------------------------------------------

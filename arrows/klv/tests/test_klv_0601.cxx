@@ -248,8 +248,10 @@ auto const expected_result = klv_local_set{
     } },
   { KLV_0601_VIEW_DOMAIN,
     klv_0601_view_domain{
-      kld{ 210.00000000000000 }, kld{ 300.00000000000000 },
-      kld{ -75.000000000000000 }, kld{ 50.000000000000000 } } } };
+      klv_0601_view_domain_interval{ 210.00000000000000,
+                                     300.00000000000000 },
+      klv_0601_view_domain_interval{ -75.000000000000000,
+                                     50.000000000000000 } } } };
 
 auto const input_bytes = klv_bytes_t{
   0x02, 0x08, // KLV_0601_PRECISION_TIMESTAMP

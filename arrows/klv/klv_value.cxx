@@ -438,6 +438,7 @@ KLV_INSTANTIATE( klv_0601_platform_status );
 KLV_INSTANTIATE( klv_0601_sensor_control_mode );
 KLV_INSTANTIATE( klv_0601_sensor_fov_name );
 KLV_INSTANTIATE( klv_0601_view_domain );
+KLV_INSTANTIATE( klv_0601_view_domain_interval );
 KLV_INSTANTIATE( klv_0601_wavelength_record );
 KLV_INSTANTIATE( klv_0601_waypoint_record );
 KLV_INSTANTIATE( klv_0601_weapons_general_status );

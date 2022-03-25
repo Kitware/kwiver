@@ -15,6 +15,7 @@
 #include "klv_1607.h"
 #include "klv_checksum.h"
 #include "klv_series.hpp"
+#include "klv_length_value.h"
 #include "klv_list.hpp"
 #include "klv_util.h"
 
@@ -1948,43 +1949,115 @@ klv_0601_airbase_locations_format
 }
 
 // ----------------------------------------------------------------------------
-/// Specifies the domain of values for
-/// Relative Sensor Azimuth, Elevation and Roll Angles.
+std::ostream&
+operator<<( std::ostream& os, klv_0601_view_domain_interval const& value )
+{
+  return os << "{ "
+            << "start: " << value.start << ", "
+            << "range: " << value.range << " }";
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_view_domain_interval,
+  &klv_0601_view_domain_interval::start,
+  &klv_0601_view_domain_interval::range
+)
+
+// ----------------------------------------------------------------------------
+klv_imap_format const
+klv_0601_view_domain_interval_format
+::range_format{ 0.0, 360.0 };
+
+// ----------------------------------------------------------------------------
+klv_0601_view_domain_interval_format
+::klv_0601_view_domain_interval_format( double start_minimum,
+                                        double start_maximum )
+  : klv_data_format_< klv_0601_view_domain_interval >{ 0 },
+    m_start_format{ start_minimum, start_maximum }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_view_domain_interval_format
+::description() const
+{
+  return "view domain interval of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_view_domain_interval
+klv_0601_view_domain_interval_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  klv_0601_view_domain_interval result;
+  if( length % 2 )
+  {
+    VITAL_THROW( kv::metadata_exception,
+                 "odd length given for view domain interval" );
+  }
+  result.semi_length = length / 2;
+  result.start = m_start_format.read_( data, result.semi_length ).value;
+  result.range = range_format.read_( data, result.semi_length ).value;
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_view_domain_interval_format
+::write_typed( klv_0601_view_domain_interval const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  if( length % 2 )
+  {
+    VITAL_THROW( kv::metadata_exception,
+                 "odd length given for view domain interval" );
+  }
+  auto const semi_length = length / 2;
+  m_start_format.write_( { value.start, semi_length }, data, semi_length );
+  range_format.write_( { value.range, semi_length }, data, semi_length );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_view_domain_interval_format
+::length_of_typed( klv_0601_view_domain_interval const& value ) const
+{
+  return value.semi_length * 2;
+}
+
+// ----------------------------------------------------------------------------
 std::ostream&
 operator<<( std::ostream& os, klv_0601_view_domain const& value )
 {
-  return
-    os << "{ "
-       << "azimuth start: "
-       << value.azimuth_start
-       << ", "
-       << "azimuth range: "
-       << value.azimuth_range
-       << ", "
-       << "elevation start: "
-       << value.elevation_start
-       << ", "
-       << "elevation range: "
-       << value.elevation_range
-       << ", "
-       << "roll start: "
-       << value.roll_start
-       << ", "
-       << "roll range: "
-       << value.roll_range
-       << " }";
+  return os << "{ "
+            << "azimuth: " << value.azimuth << ", "
+            << "elevation: " << value.elevation << ", "
+            << "roll: " << value.roll << " }";
 }
 
 // ----------------------------------------------------------------------------
 DEFINE_STRUCT_CMP(
   klv_0601_view_domain,
-  &klv_0601_view_domain::azimuth_start,
-  &klv_0601_view_domain::azimuth_range,
-  &klv_0601_view_domain::elevation_start,
-  &klv_0601_view_domain::elevation_range,
-  &klv_0601_view_domain::roll_start,
-  &klv_0601_view_domain::roll_range
+  &klv_0601_view_domain::azimuth,
+  &klv_0601_view_domain::elevation,
+  &klv_0601_view_domain::roll
 )
+
+// ----------------------------------------------------------------------------
+klv_0601_view_domain_interval_format const
+klv_0601_view_domain_format
+::azimuth_format{ 0.0, 360.0 };
+
+// ----------------------------------------------------------------------------
+klv_0601_view_domain_interval_format const
+klv_0601_view_domain_format
+::elevation_format{ -180.0, 180.0 };
+
+// ----------------------------------------------------------------------------
+klv_0601_view_domain_interval_format const
+klv_0601_view_domain_format
+::roll_format{ 0.0, 360.0 };
 
 // ----------------------------------------------------------------------------
 klv_0601_view_domain_format
@@ -2005,63 +2078,14 @@ klv_0601_view_domain
 klv_0601_view_domain_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
-  klv_0601_view_domain result = {};
   auto const tracker = track_it( data, length );
-
-  // Read azimuth
-  auto const length_of_azimuth =
-    klv_read_ber< size_t >( data, tracker.remaining() );
-
-  if( length_of_azimuth )
-  {
-    auto const azimuth_value_length = length_of_azimuth / 2;
-    result.azimuth_start = klv_lengthy< double >{
-      klv_read_imap( 0.0, 360.0, data, azimuth_value_length ),
-      azimuth_value_length };
-    result.azimuth_range = klv_lengthy< double >{
-      klv_read_imap( 0.0, 360.0, data, azimuth_value_length ),
-      azimuth_value_length };
-  }
-
-  // Read elevation
-  if( !tracker.remaining() )
-  {
-    return result;
-  }
-
-  auto const length_of_elevation =
-    klv_read_ber< size_t >( data, tracker.remaining() );
-
-  if( length_of_elevation )
-  {
-    auto const elevation_value_length = length_of_elevation / 2;
-    result.elevation_start = klv_lengthy< double >{
-      klv_read_imap( -180.0, 180.0, data, elevation_value_length ),
-      elevation_value_length };
-    result.elevation_range = klv_lengthy< double >{
-      klv_read_imap( 0.0, 360.0, data, elevation_value_length ),
-      elevation_value_length };
-  }
-
-  // Read roll
-  if( !tracker.remaining() )
-  {
-    return result;
-  }
-
-  auto const length_of_roll =
-    klv_read_ber< size_t >( data, tracker.remaining() );
-
-  if( length_of_roll )
-  {
-    auto const roll_value_length = length_of_roll / 2;
-    result.roll_start = klv_lengthy< double >{
-      klv_read_imap( 0.0, 360.0, data, roll_value_length ),
-      roll_value_length };
-    result.roll_range = klv_lengthy< double >{
-      klv_read_imap( 0.0, 360.0, data, roll_value_length ),
-      roll_value_length };
-  }
+  klv_0601_view_domain result;
+  result.azimuth =
+    klv_read_trunc_lv( data, tracker.remaining(), azimuth_format );
+  result.elevation =
+    klv_read_trunc_lv( data, tracker.remaining(), elevation_format );
+  result.roll =
+    klv_read_trunc_lv( data, tracker.remaining(), roll_format );
   return result;
 }
 
@@ -2071,56 +2095,10 @@ klv_0601_view_domain_format
 ::write_typed( klv_0601_view_domain const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  auto const tracker = track_it( data, length );
-  auto const write_elements =
-    [ & ]( klv_lengthy< double > const& element_start,
-           klv_lengthy< double > const& element_range,
-           double min, double max ){
-    size_t const length_of_elements = element_start.length * 2;
-    if( length_of_elements <= tracker.remaining() )
-    {
-      size_t const element_length = length_of_elements / 2;
-      klv_write_ber( length_of_elements, data, tracker.remaining() );
-      klv_write_imap( element_start.value,
-                      min, max, data, element_length );
-      klv_write_imap( element_range.value,
-                      0.0, 360.0, data, element_length );
-    }
-    else
-    {
-      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
-                  "writing view domain overflows buffer" );
-    }
-  };
-
-  // Write azimuth
-  if( value.azimuth_start && value.azimuth_range )
-  {
-    write_elements( *value.azimuth_start, *value.azimuth_range, 0.0, 360.0 );
-  }
-  else
-  {
-    klv_write_ber< size_t >( 0, data, tracker.remaining() );
-  }
-
-  // Write elevation
-  if( value.elevation_start && value.elevation_range )
-  {
-    write_elements( *value.elevation_start, *value.elevation_range,
-                    -180.0, 180.0 );
-  }
-  else if( value.roll_start && value.roll_range )
-  {
-    klv_write_ber< size_t >( 0, data, tracker.remaining() );
-  }
-  // Value is truncated if roll is also empty
-
-  // Write Roll
-  if( value.roll_start && value.roll_range )
-  {
-    write_elements( *value.roll_start, *value.roll_range, 0.0, 360.0 );
-  }
-  // Value is truncated if empty
+  klv_write_trunc_lv(
+    std::tie( value.azimuth, value.elevation, value.roll ),
+    data, length,
+    azimuth_format, elevation_format, roll_format );
 }
 
 // ----------------------------------------------------------------------------
@@ -2128,41 +2106,10 @@ size_t
 klv_0601_view_domain_format
 ::length_of_typed( klv_0601_view_domain const& value ) const
 {
-  // Azimuth
-  size_t const length_of_azimuth =
-    ( value.azimuth_start && value.azimuth_range )
-    ? ( value.azimuth_start->length * 2 )
-    : 0;
-  size_t const length_of_length_of_azimuth =
-    klv_ber_length( length_of_azimuth );
-
-  // Elevation
-  size_t const length_of_elevation =
-    ( value.elevation_start && value.elevation_range )
-    ? ( value.elevation_start->length * 2 )
-    : 0;
-  size_t const length_of_length_of_elevation =
-    ( length_of_elevation ||
-      ( value.roll_start && value.roll_range ) )
-    ? klv_ber_length( length_of_elevation )
-    : 0;
-
-  // Roll
-  size_t const length_of_roll =
-    ( value.roll_start && value.roll_range )
-    ? ( value.roll_start->length * 2 )
-    : 0;
-  size_t const length_of_length_of_roll =
-    length_of_roll
-    ? klv_ber_length( length_of_roll )
-    : 0;
-
-  return length_of_length_of_azimuth +
-         length_of_azimuth +
-         length_of_length_of_elevation +
-         length_of_elevation +
-         length_of_length_of_roll +
-         length_of_roll;
+  return
+    klv_length_of_trunc_lv(
+      std::tie( value.azimuth, value.elevation, value.roll ),
+      azimuth_format, elevation_format, roll_format );
 }
 
 // ----------------------------------------------------------------------------

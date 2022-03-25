@@ -989,6 +989,7 @@ KLV_INSTANTIATE( klv_0601_image_horizon_pixel_pack );
 KLV_INSTANTIATE( klv_0601_location_dlp );
 KLV_INSTANTIATE( klv_0601_payload_record );
 KLV_INSTANTIATE( klv_0601_view_domain );
+KLV_INSTANTIATE( klv_0601_view_domain_interval );
 KLV_INSTANTIATE( klv_0601_wavelength_record );
 KLV_INSTANTIATE( klv_0601_waypoint_record );
 KLV_INSTANTIATE( klv_0601_weapons_general_status );
