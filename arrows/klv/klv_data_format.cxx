@@ -31,7 +31,7 @@
 #include "klv_1202.h"
 #include "klv_1204.h"
 #include "klv_1206.h"
-#include "klv_1303.h"
+#include "klv_1303.hpp"
 #include "klv_blob.h"
 #include "klv_packet.h"
 #include "klv_series.hpp"
