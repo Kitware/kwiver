@@ -44,6 +44,7 @@ kwiver_discover_gtests(vital iterable                       LIBRARIES ${test_lib
 kwiver_discover_gtests(vital iterator                       LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital local_geo_cs                   LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
 kwiver_discover_gtests(vital local_cartesian                LIBRARIES ${test_libraries})
+kwiver_discover_gtests(vital mesh_io                        LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
 kwiver_discover_gtests(vital metadata                       LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital metadata_io                    LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
 kwiver_discover_gtests(vital metadata_types                 LIBRARIES ${test_libraries})
