@@ -5,6 +5,8 @@
 /// \file
 /// \brief test core mesh functionality
 
+#include <kwiversys/SystemTools.hxx>
+#include <fstream>
 #include <tests/test_gtest.h>
 #include <vital/exceptions.h>
 
@@ -138,4 +140,37 @@ TEST_F(mesh, half_edges)
   kwiver::vital::mesh_half_edge_set edges( list );
   EXPECT_EQ( edges.num_verts(), list_size );
   EXPECT_EQ( edges.num_faces(), list.size() );
+}
+
+// ----------------------------------------------------------------------------
+TEST_F(mesh, copy_constructor)
+{
+  std::string original_path =
+    data_dir + "/pipeline_data/aphill_240_1fps_crf32_sm_fused_mesh.obj";
+  std::string copy_path = "temp/aphill_240_1fps_crf32_sm_fused_mesh2.obj";
+
+  kwiver::vital::mesh_sptr original =
+    kwiver::vital::read_mesh( original_path );
+  kwiver::vital::mesh copy( *original );
+
+
+  EXPECT_TRUE( original->is_init() );
+  EXPECT_TRUE( copy.is_init() );
+  *original = kwiver::vital::mesh();
+  EXPECT_FALSE( original->is_init() );
+  EXPECT_TRUE( copy.is_init() );
+
+  kwiver::vital::write_obj( copy_path, copy );
+  std::ifstream original_stream( original_path.c_str() );
+  std::ifstream copy_stream( copy_path.c_str() );
+
+  EXPECT_EQ( original_stream.gcount(), copy_stream.gcount() );
+
+  std::string original_str = "";
+  std::string copy_str = "";
+  while( original_stream >> original_str && copy_stream >> copy_str ){
+    EXPECT_EQ( original_str, copy_str );
+  }
+
+  kwiversys::SystemTools::RemoveADirectory( "temp" );
 }
