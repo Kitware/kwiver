@@ -32,11 +32,10 @@ class mesh : public ::testing::Test
 // ----------------------------------------------------------------------------
 TEST_F(mesh, group_names)
 {
-  kwiver::vital::mesh_sptr mesh_ply = kwiver::vital::read_mesh(
-    data_dir + "/pipeline_data/aphill_240_1fps_crf32_sm_fused_mesh.ply");
-
+  kwiver::vital::mesh_sptr mesh_ply2 = kwiver::vital::read_mesh(
+    data_dir + "/pipeline_data/aphill_240_1fps_crf32_sm_fused_mesh.ply2");
   std::shared_ptr<kwiver::vital::mesh_face_array> faces =
-    std::make_shared<kwiver::vital::mesh_face_array>(mesh_ply->faces());
+    std::make_shared<kwiver::vital::mesh_face_array>(mesh_ply2->faces());
 
   for(unsigned int i=0; i<faces->size(); i++){
     EXPECT_EQ( faces->group_name(i), "" );
@@ -54,5 +53,70 @@ TEST_F(mesh, group_names)
   std::set<unsigned int> faces_set = faces->group_face_set( "testing name" );
   for(unsigned int i=0; i<faces->size(); i++){
     EXPECT_NE( faces_set.find( i ), faces_set.end() );
+  }
+}
+
+// ----------------------------------------------------------------------------
+TEST_F(mesh, append)
+{
+  unsigned int first_size = 10;
+  unsigned int second_size = 5;
+  unsigned int third_size = 15;
+
+  kwiver::vital::mesh_face_array first_faces( first_size );
+  first_faces.make_group( "first name" );
+  std::vector<kwiver::vital::vector_3d> first_normals;
+  for(unsigned int i=0; i<first_size; i++){
+    first_normals.push_back( kwiver::vital::vector_3d( 10 ) );
+  }
+  first_faces.set_normals( first_normals );
+
+  kwiver::vital::mesh_face_array second_faces( second_size );
+  second_faces.make_group( "second name" );
+  std::vector<kwiver::vital::vector_3d> second_normals;
+  for(unsigned int i=0; i<second_size; i++){
+    second_normals.push_back( kwiver::vital::vector_3d( 20 ) );
+  }
+  second_faces.set_normals( second_normals );
+
+  kwiver::vital::mesh_face_array third_faces( third_size );
+  third_faces.make_group( "third name" );
+
+  first_faces.append( second_faces );
+  EXPECT_EQ( first_faces.size(), first_size + second_size );
+  EXPECT_TRUE( first_faces.has_normals() );
+  first_faces.append( third_faces );
+  EXPECT_EQ( first_faces.size(), first_size + second_size + third_size );
+  EXPECT_FALSE( first_faces.has_normals() );
+}
+
+// ----------------------------------------------------------------------------
+TEST_F(mesh, append_with_shift)
+{
+  // unsigned int first_size = 10;
+  std::vector<std::vector<unsigned int>> first_list = { { 0, 1, 2 } };
+  std::vector<std::vector<unsigned int>> second_list = { { 0, 1, 2, 3, 4 },
+                                                         { 5, 6, 7, 8, 9 } };
+  unsigned int shift = 10;
+
+  kwiver::vital::mesh_face_array first_faces( first_list );
+  kwiver::vital::mesh_face_array second_faces( second_list );
+
+  first_faces.append( second_faces, shift );
+
+  for(unsigned int i=0; i<first_list.size(); i++)
+  {
+    for(unsigned int j=0; j<first_list[i].size(); j++)
+    {
+      EXPECT_EQ( first_list[i][j], first_faces[i][j] );
+    }
+  }
+
+  for(unsigned int i=0; i<second_list.size(); i++)
+  {
+    for(unsigned int j=0; j<second_list[i].size(); j++)
+    {
+      EXPECT_EQ( second_list[i][j] + shift, first_faces[i + first_list.size()][j] );
+    }
   }
 }
