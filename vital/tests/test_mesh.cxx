@@ -5,7 +5,6 @@
 /// \file
 /// \brief test core mesh functionality
 
-#include <kwiversys/SystemTools.hxx>
 #include <tests/test_gtest.h>
 #include <vital/exceptions.h>
 
@@ -119,4 +118,18 @@ TEST_F(mesh, append_with_shift)
       EXPECT_EQ( second_list[i][j] + shift, first_faces[i + first_list.size()][j] );
     }
   }
+}
+
+// ----------------------------------------------------------------------------
+TEST_F(mesh, half_edges)
+{
+  std::vector<std::vector<unsigned int>> list = { { 9, 8, 7, 6, 5 },
+                                                  { 4, 3, 2, 1, 0 },
+                                                  { 9, 8, 7, 6, 5 } };
+  unsigned int unique_numbers = 10;
+  kwiver::vital::mesh_face_array first_faces( list );
+
+  kwiver::vital::mesh_half_edge_set edges( list );
+  EXPECT_EQ( edges.num_verts(), unique_numbers );
+  EXPECT_EQ( edges.num_faces(), list.size() );
 }
