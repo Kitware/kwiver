@@ -182,7 +182,12 @@ klv_0102_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
       auto result = klv_data.at( standard, tag, timestamp );
       if( !result.valid() && st0601.valid() )
       {
-        result = st0601.get< klv_local_set >().at( tag );
+        auto const& st0601_set = st0601.get< klv_local_set >();
+        auto const it = st0601_set.find( tag );
+        if( it != st0601_set.end() )
+        {
+          result = it->second;
+        }
       }
       return result;
     };
