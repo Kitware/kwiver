@@ -66,7 +66,7 @@ TEST_F(mesh, append)
   first_faces.make_group( "first name" );
   std::vector<kwiver::vital::vector_3d> first_normals;
   for(unsigned int i=0; i<first_size; i++){
-    first_normals.push_back( kwiver::vital::vector_3d( 10 ) );
+    first_normals.push_back( kwiver::vital::vector_3d{ 1, 2, 3 } );
   }
   first_faces.set_normals( first_normals );
 
@@ -74,7 +74,7 @@ TEST_F(mesh, append)
   second_faces.make_group( "second name" );
   std::vector<kwiver::vital::vector_3d> second_normals;
   for(unsigned int i=0; i<second_size; i++){
-    second_normals.push_back( kwiver::vital::vector_3d( 20 ) );
+    second_normals.push_back( kwiver::vital::vector_3d{ 4, 5, 6 } );
   }
   second_faces.set_normals( second_normals );
 
@@ -111,11 +111,12 @@ TEST_F(mesh, append_with_shift)
     }
   }
 
+  unsigned int offset = first_list.size();
   for(unsigned int i=0; i<second_list.size(); i++)
   {
     for(unsigned int j=0; j<second_list[i].size(); j++)
     {
-      EXPECT_EQ( second_list[i][j] + shift, first_faces[i + first_list.size()][j] );
+      EXPECT_EQ( second_list[i][j] + shift, first_faces[i + offset][j] );
     }
   }
 }
@@ -133,8 +134,6 @@ TEST_F(mesh, half_edges)
       list_size++;
     }
   }
-
-  kwiver::vital::mesh_face_array first_faces( list );
 
   kwiver::vital::mesh_half_edge_set edges( list );
   EXPECT_EQ( edges.num_verts(), list_size );
