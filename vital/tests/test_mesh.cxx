@@ -124,12 +124,19 @@ TEST_F(mesh, append_with_shift)
 TEST_F(mesh, half_edges)
 {
   std::vector<std::vector<unsigned int>> list = { { 9, 8, 7, 6, 5 },
-                                                  { 4, 3, 2, 1, 0 },
-                                                  { 9, 8, 7, 6, 5 } };
-  unsigned int unique_numbers = 10;
+                                                  { 4, 3, 2, 1, 0 } };
+  unsigned int list_size = 0;
+  for(unsigned int i=0; i<list.size(); i++)
+  {
+    for(unsigned int j=0; j<list[i].size(); j++)
+    {
+      list_size++;
+    }
+  }
+
   kwiver::vital::mesh_face_array first_faces( list );
 
   kwiver::vital::mesh_half_edge_set edges( list );
-  EXPECT_EQ( edges.num_verts(), unique_numbers );
+  EXPECT_EQ( edges.num_verts(), list_size );
   EXPECT_EQ( edges.num_faces(), list.size() );
 }
