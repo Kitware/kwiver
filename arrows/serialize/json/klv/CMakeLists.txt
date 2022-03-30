@@ -1,6 +1,8 @@
 # Build / Install plugin for KLV serialization
 
-set( public_headers )
+set( public_headers
+  metadata_map_io.h
+ )
 
 set( private_headers
   load_save_klv.h
@@ -8,6 +10,7 @@ set( private_headers
 
 set( sources
   load_save_klv.cxx
+  metadata_map_io.cxx
   )
 
 kwiver_install_headers(
@@ -28,6 +31,10 @@ kwiver_add_library( kwiver_serialize_json_klv
 target_link_libraries( kwiver_serialize_json_klv
   PUBLIC vital_algo
   PRIVATE kwiver_algo_klv kwiver_serialize_json
+  )
+
+algorithms_create_plugin( kwiver_serialize_json_klv
+  register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)
