@@ -174,3 +174,77 @@ TEST_F(mesh, copy_constructor)
 
   kwiversys::SystemTools::RemoveADirectory( "temp" );
 }
+
+// ----------------------------------------------------------------------------
+TEST_F(mesh, assignment_operator)
+{
+  std::string original_path =
+    data_dir + "/pipeline_data/aphill_240_1fps_crf32_sm_fused_mesh.obj";
+  std::string copy_path = "temp/aphill_240_1fps_crf32_sm_fused_mesh2.obj";
+
+  kwiver::vital::mesh_sptr original =
+    kwiver::vital::read_mesh( original_path );
+  kwiver::vital::mesh copy;
+
+  EXPECT_TRUE( original->is_init() );
+  EXPECT_FALSE( copy.is_init() );
+  copy = *original;
+  EXPECT_TRUE( original->is_init() );
+  EXPECT_TRUE( copy.is_init() );
+  *original = kwiver::vital::mesh();
+  EXPECT_FALSE( original->is_init() );
+  EXPECT_TRUE( copy.is_init() );
+
+  kwiver::vital::write_obj( copy_path, copy );
+  std::ifstream original_stream( original_path.c_str() );
+  std::ifstream copy_stream( copy_path.c_str() );
+
+  EXPECT_EQ( original_stream.gcount(), copy_stream.gcount() );
+
+  std::string original_str = "";
+  std::string copy_str = "";
+  while( original_stream >> original_str && copy_stream >> copy_str ){
+    EXPECT_EQ( original_str, copy_str );
+  }
+
+  kwiversys::SystemTools::RemoveADirectory( "temp" );
+}
+
+// ----------------------------------------------------------------------------
+TEST_F(mesh, build_edge_graph)
+{
+  kwiver::vital::mesh_sptr mesh_ply = kwiver::vital::read_ply(
+    data_dir + "/pipeline_data/aphill_240_1fps_crf32_sm_fused_mesh.ply");
+
+  EXPECT_FALSE( mesh_ply->has_half_edges() );
+  mesh_ply->build_edge_graph();
+  EXPECT_TRUE( mesh_ply->has_half_edges() );
+}
+
+// ----------------------------------------------------------------------------
+TEST_F(mesh, compute_vertex_normals)
+{
+  kwiver::vital::mesh_sptr mesh_ply2 = kwiver::vital::read_mesh(
+    data_dir + "/pipeline_data/aphill_240_1fps_crf32_sm_fused_mesh.ply2");
+
+  EXPECT_FALSE( mesh_ply2->vertices().has_normals() );
+  EXPECT_FALSE( mesh_ply2->has_half_edges() );
+  mesh_ply2->compute_vertex_normals();
+  EXPECT_TRUE( mesh_ply2->vertices().has_normals() );
+  EXPECT_TRUE( mesh_ply2->has_half_edges() );
+}
+
+// ----------------------------------------------------------------------------
+TEST_F(mesh, compute_vertex_normals_from_faces)
+{
+  kwiver::vital::mesh_sptr mesh_ply2 = kwiver::vital::read_mesh(
+    data_dir + "/pipeline_data/aphill_240_1fps_crf32_sm_fused_mesh.ply2");
+
+  EXPECT_FALSE( mesh_ply2->vertices().has_normals() );
+  EXPECT_FALSE( mesh_ply2->faces().has_normals() );
+  EXPECT_FALSE( mesh_ply2->has_half_edges() );
+  mesh_ply2->compute_vertex_normals_from_faces();
+  EXPECT_TRUE( mesh_ply2->vertices().has_normals() );
+  EXPECT_TRUE( mesh_ply2->faces().has_normals() );
+  EXPECT_TRUE( mesh_ply2->has_half_edges() );
+}
