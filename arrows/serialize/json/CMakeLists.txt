@@ -52,11 +52,6 @@ set( sources
   track_state.cxx
   )
 
-if( KWIVER_ENABLE_KLV )
-  list( APPEND headers_public klv/load_save_klv.h )
-  list( APPEND sources klv/load_save_klv.cxx )
-endif()
-
 kwiver_install_headers(
   SUBDIR     arrows/serialize/json
   ${headers_public}
@@ -77,15 +72,14 @@ target_link_libraries( kwiver_serialize_json
   PRIVATE              ${ZLIB_LIBRARIES}
   )
 
-if( KWIVER_ENABLE_KLV )
-  target_link_libraries( kwiver_serialize_json PRIVATE kwiver_algo_klv )
-endif()
-
-
 algorithms_create_plugin( kwiver_serialize_json
   register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory(tests)
+endif()
+
+if (KWIVER_ENABLE_KLV)
+  add_subdirectory(klv)
 endif()
