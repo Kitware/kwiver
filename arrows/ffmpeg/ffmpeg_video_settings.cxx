@@ -16,32 +16,18 @@ namespace ffmpeg {
 // ----------------------------------------------------------------------------
 ffmpeg_video_settings
 ::ffmpeg_video_settings()
-  : width{ 0 },
-    height{ 0 },
-    codec_id{ AV_CODEC_ID_H264 },
-    pixel_format{ AV_PIX_FMT_RGB24 },
-    frame_rate{ 0, 1 },
-    sample_aspect_ratio{ 1, 1 },
-    bit_rate{ 0 },
-    gop_size{ 0 },
-    profile{ 0 },
-    level{ 0 },
-    stream_id{ 0 } {}
+  : frame_rate{ 0, 1 },
+    parameters{ avcodec_parameters_alloc() } {}
 
 // ----------------------------------------------------------------------------
 ffmpeg_video_settings
 ::ffmpeg_video_settings( size_t width, size_t height, AVRational frame_rate )
-  : width{ width },
-    height{ height },
-    codec_id{ AV_CODEC_ID_H264 },
-    pixel_format{ AV_PIX_FMT_RGB24 },
-    frame_rate( frame_rate ),
-    sample_aspect_ratio{ 1, 1 },
-    bit_rate{ 0 },
-    gop_size{ 0 },
-    profile{ 0 },
-    level{ 0 },
-    stream_id{ 0 } {}
+  : frame_rate( frame_rate ),
+    parameters{ avcodec_parameters_alloc() }
+{
+  parameters->width = width;
+  parameters->height = height;
+}
 
 } // namespace ffmpeg
 

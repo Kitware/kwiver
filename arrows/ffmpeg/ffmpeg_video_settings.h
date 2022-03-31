@@ -22,6 +22,22 @@ namespace arrows {
 
 namespace ffmpeg {
 
+namespace ffmpeg_detail {
+
+struct avcodec_parameters_deleter
+{
+  void
+  operator()( AVCodecParameters* ptr ) const
+  {
+    avcodec_parameters_free( &ptr );
+  }
+};
+
+using avcodec_parameters_uptr =
+  std::unique_ptr< AVCodecParameters, avcodec_parameters_deleter >;
+
+} // namespace ffmpeg_detail
+
 // ----------------------------------------------------------------------------
 struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
   : public vital::video_settings
@@ -30,18 +46,8 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
 
   ffmpeg_video_settings( size_t width, size_t height, AVRational frame_rate );
 
-  size_t width;
-  size_t height;
-  AVCodecID codec_id;
-  AVPixelFormat pixel_format;
   AVRational frame_rate;
-  AVRational sample_aspect_ratio;
-  int64_t bit_rate;
-  int bit_rate_tolerance;
-  int gop_size;
-  int profile;
-  int level;
-  int stream_id;
+  ffmpeg_detail::avcodec_parameters_uptr parameters;
 };
 
 } // namespace ffmpeg

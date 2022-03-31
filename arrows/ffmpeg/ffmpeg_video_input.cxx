@@ -1385,18 +1385,9 @@ ffmpeg_video_input
   }
 
   auto const result = new ffmpeg_video_settings{};
-  result->bit_rate = d->f_video_encoding->bit_rate;
-  result->bit_rate_tolerance = d->f_video_encoding->bit_rate_tolerance;
-  result->codec_id = d->f_video_encoding->codec_id;
   result->frame_rate = d->f_video_stream->avg_frame_rate;
-  result->gop_size = d->f_video_encoding->gop_size;
-  result->height = (size_t) d->f_video_encoding->height;
-  result->level = d->f_video_encoding->level;
-  result->pixel_format = d->f_video_encoding->pix_fmt;
-  result->profile = d->f_video_encoding->profile;
-  result->sample_aspect_ratio = d->f_video_encoding->sample_aspect_ratio;
-  result->stream_id = d->f_video_stream->id;
-  result->width = (size_t) d->f_video_encoding->width;
+  result->parameters.reset( avcodec_parameters_alloc() );
+  avcodec_parameters_from_context( result->parameters.get(), d->f_video_encoding );
   return kwiver::vital::video_settings_uptr{ result };
 }
 
