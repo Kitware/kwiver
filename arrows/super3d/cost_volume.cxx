@@ -257,6 +257,7 @@ load_cost_volume(vil_image_view<double> &cost_volume,
       fread(&np, sizeof(unsigned int), 1, file) != 1 )
   {
     LOG_ERROR(logger, "Error loading cost volume");
+    fclose(file);
     return;
   }
 
@@ -272,6 +273,7 @@ load_cost_volume(vil_image_view<double> &cost_volume,
         if (fread(&cost_volume(i,j,s), sizeof(double), 1, file) != 1)
         {
           LOG_ERROR(logger, "Error loading cost volume");
+          fclose(file);
           return;
         }
       }
@@ -283,6 +285,7 @@ load_cost_volume(vil_image_view<double> &cost_volume,
       if (fread(&g_weight(i,j), sizeof(double), 1, file) != 1)
       {
         LOG_ERROR(logger, "Error loading cost volume");
+        fclose(file);
         return;
       }
 
