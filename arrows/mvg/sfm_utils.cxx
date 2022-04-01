@@ -499,7 +499,7 @@ detect_bad_landmarks(
   size_t num_lm_found_from_tracks = 0;
   size_t num_unconstrained_landmarks_found = 0;
 
-  size_t observing_cams_thresh = std::max(2, min_landmark_inliers);
+  size_t observing_cams_thresh = (size_t) std::max(2, min_landmark_inliers);
 
   std::vector<double> depths;
   for (auto const &lm_it: lms)
