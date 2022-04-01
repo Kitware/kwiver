@@ -660,15 +660,15 @@ klv_set_format< Key >
 }
 
 // ----------------------------------------------------------------------------
-#define KLV_INSTANTIATE( Key )                              \
-  template class klv_set< Key >;                            \
-  template class klv_set_format< Key >;                     \
-  template bool operator==< Key >( klv_set< Key > const&,   \
-                                   klv_set< Key > const& ); \
-  template bool operator< < Key >( klv_set< Key > const&,   \
-                                   klv_set< Key > const& ); \
-  template std::ostream& operator<<< Key >( std::ostream&,  \
-                                            klv_set< Key > const& )
+#define KLV_INSTANTIATE( Key )                                       \
+  template class KWIVER_ALGO_KLV_EXPORT klv_set< Key >;              \
+  template class KWIVER_ALGO_KLV_EXPORT klv_set_format< Key >;       \
+  template KWIVER_ALGO_KLV_EXPORT bool                               \
+  operator==< Key >( klv_set< Key > const&, klv_set< Key > const& ); \
+  template KWIVER_ALGO_KLV_EXPORT bool                               \
+  operator< < Key >( klv_set< Key > const&, klv_set< Key > const& ); \
+  template KWIVER_ALGO_KLV_EXPORT std::ostream&                      \
+  operator<< < Key >( std::ostream&, klv_set< Key > const& )
 
 KLV_INSTANTIATE( klv_lds_key );
 KLV_INSTANTIATE( klv_uds_key );

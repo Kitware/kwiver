@@ -125,23 +125,11 @@ public:
   std::vector< const_iterator >
   fully_sorted() const;
 
-  template < class K >
-  friend bool
-  operator==( klv_set< K > const& lhs, klv_set< K > const& rhs );
-
-  template < class K >
-  friend bool
-  operator<( klv_set< K > const& lhs, klv_set< K > const& rhs );
-
-  template < class K >
-  friend std::ostream&
-  operator<<( std::ostream& os, klv_set< K > const& rhs );
-
-private:
   // Sort by key, then value.
   static bool
   value_compare( const_iterator lhs, const_iterator rhs );
 
+private:
   std::multimap< Key, klv_value > m_items;
 };
 

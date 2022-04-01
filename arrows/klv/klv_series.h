@@ -23,7 +23,7 @@ namespace klv {
 
 // ----------------------------------------------------------------------------
 template < class Format >
-class KWIVER_ALGO_KLV_EXPORT klv_series_format
+class klv_series_format
   : public klv_data_format_< std::vector< typename Format::data_type > >
 {
 public:

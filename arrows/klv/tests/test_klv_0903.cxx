@@ -235,9 +235,6 @@ TEST ( klv, read_write_0903_vtarget_location )
     0x10, 0x20, 0x30, 0x40, 0x50, 0x60, };
 
   using format_t = klv_0903_location_pack_format;
-  ASSERT_EQ( typeid( format_t ),
-             typeid( klv_0903_vtarget_pack_traits_lookup()
-                     .by_tag( KLV_0903_VTARGET_LOCATION ).format() ) );
   test_read_write_format< format_t >( expected_result, input_bytes );
 }
 
@@ -261,9 +258,6 @@ TEST ( klv, read_write_0903_boundary_series )
     0x10, 0x20, 0x30, 0x40, 0x50, 0x60, };
 
   using format_t = klv_0903_location_series_format;
-  ASSERT_EQ( typeid( format_t ),
-             typeid( klv_0903_vtarget_pack_traits_lookup()
-                     .by_tag( KLV_0903_VTARGET_BOUNDARY_SERIES ).format() ) );
   test_read_write_format< format_t >( expected_result, input_bytes );
 }
 
@@ -290,9 +284,6 @@ TEST ( klv, read_write_0903_vmask )
     0x03, 0x01, 0x6A, 0x02, };
 
   using format_t = klv_0903_vmask_local_set_format;
-  ASSERT_EQ( typeid( format_t ),
-             typeid( klv_0903_vtarget_pack_traits_lookup()
-                     .by_tag( KLV_0903_VTARGET_VMASK ).format() ) );
   test_read_write_format< format_t >( expected_result, input_bytes );
 }
 
@@ -316,9 +307,6 @@ TEST ( klv, read_write_0903_vobject )
     32, };
 
   using format_t = klv_0903_vobject_local_set_format;
-  ASSERT_EQ( typeid( format_t ),
-             typeid( klv_0903_vtarget_pack_traits_lookup()
-                     .by_tag( KLV_0903_VTARGET_VOBJECT ).format() ) );
   test_read_write_format< format_t >( expected_result, input_bytes );
 }
 
@@ -336,9 +324,6 @@ TEST ( klv, read_write_0903_vfeature )
     'B', };
 
   using format_t = klv_0903_vfeature_local_set_format;
-  ASSERT_EQ( typeid( format_t ),
-             typeid( klv_0903_vtarget_pack_traits_lookup()
-                     .by_tag( KLV_0903_VTARGET_VFEATURE ).format() ) );
   test_read_write_format< format_t >( expected_result, input_bytes );
 }
 
@@ -393,9 +378,6 @@ TEST ( klv, read_write_0903_vtracker )
     0x03, };
 
   using format_t = klv_0903_vtracker_local_set_format;
-  ASSERT_EQ( typeid( format_t ),
-             typeid( klv_0903_vtarget_pack_traits_lookup()
-                     .by_tag( KLV_0903_VTARGET_VTRACKER ).format() ) );
   test_read_write_format< format_t >( expected_result, input_bytes );
 }
 
@@ -417,8 +399,5 @@ TEST ( klv, read_write_0903_vchip )
     0x01, 0x02, 0x03, 0x04, };
 
   using format_t = klv_0903_vchip_local_set_format;
-  ASSERT_EQ( typeid( format_t ),
-             typeid( klv_0903_vtarget_pack_traits_lookup()
-                     .by_tag( KLV_0903_VTARGET_VCHIP ).format() ) );
   test_read_write_format< format_t >( expected_result, input_bytes );
 }

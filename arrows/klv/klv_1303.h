@@ -72,7 +72,7 @@ DECLARE_TEMPLATE_CMP( klv_1303_mdap< T > )
 // ----------------------------------------------------------------------------
 /// Interprets data as a ST1303 MDAP/MDARRAY.
 template < class Format >
-class KWIVER_ALGO_KLV_EXPORT klv_1303_mdap_format
+class klv_1303_mdap_format
   : public klv_data_format_< klv_1303_mdap< typename Format::data_type > >
 {
 public:

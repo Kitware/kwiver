@@ -75,7 +75,7 @@ template < class Format >
 void
 write_trunc_lv_impl(
   std::tuple<
-    kwiver::vital::optional< typename Format::data_type >
+    kwiver::vital::optional< typename Format::data_type > const&
     > const& value,
   klv_write_iter_t& data, size_t length,
   Format const& format )
@@ -297,7 +297,7 @@ klv_length_of_trunc_lv(
   return length_of_remaining +
          ( length_of_remaining
            ? klv_length_of_opt_lv( item, format )
-           : klv_length_of_trunc_lv( item, format ) );
+           : klv_length_of_trunc_lv( std::tie( item ), format ) );
 }
 
 } // namespace klv

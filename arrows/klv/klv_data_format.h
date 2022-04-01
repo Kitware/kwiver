@@ -136,38 +136,144 @@ public:
   using data_type = T;
 
   explicit
-  klv_data_format_( size_t fixed_length );
+  klv_data_format_( size_t fixed_length ) : klv_data_format{ fixed_length }
+  {}
 
   virtual
-  ~klv_data_format_();
+  ~klv_data_format_() {}
 
   klv_value
-  read( klv_read_iter_t& data, size_t length ) const override final;
+  read( klv_read_iter_t& data, size_t length ) const override final
+  {
+    if( !length )
+    {
+      // Zero length: null / unknown value
+      return klv_value{};
+    }
+
+    try
+    {
+      // Try to parse using this data format
+      return read_( data, length );
+    }
+    catch ( std::exception const& e )
+    {
+      // Return blob if parsing failed
+      LOG_ERROR( kwiver::vital::get_logger( "klv" ),
+                "error occurred during parsing: " << e.what() );
+      return klv_read_blob( data, length );
+    }
+  }
 
   T
-  read_( klv_read_iter_t& data, size_t length ) const;
+  read_( klv_read_iter_t& data, size_t length ) const
+  {
+    if( !length )
+    {
+      VITAL_THROW( kwiver::vital::metadata_exception,
+                  "zero length given to read_()" );
+    }
+    else if( m_fixed_length && length != m_fixed_length )
+    {
+      // Invalid length
+      LOG_WARN( kwiver::vital::get_logger( "klv" ),
+                "fixed-length format `" << description() <<
+                "` received wrong number of bytes ( " << length << " )" );
+    }
+
+    return read_typed( data, length );
+  }
 
   void
   write( klv_value const& value, klv_write_iter_t& data,
-         size_t max_length ) const override final;
+         size_t max_length ) const override final
+  {
+    if( value.empty() )
+    {
+      // Null / unknown value: write nothing
+      return;
+    }
+    else if( !value.valid() )
+    {
+      // Unparsed value: write raw bytes
+      klv_write_blob( value.get< klv_blob >(), data, max_length );
+    }
+    else
+    {
+      write_( value.get< T >(), data, max_length );
+    }
+  }
 
   void
-  write_( T const& value, klv_write_iter_t& data, size_t max_length ) const;
+  write_( T const& value, klv_write_iter_t& data, size_t max_length ) const
+  {
+    // Ensure we have enough bytes
+    auto const value_length = length_of_( value );
+    if( value_length > max_length )
+    {
+      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+                  "write will overflow buffer" );
+    }
+
+    // Write the value
+    auto const begin = data;
+    write_typed( value, data, value_length );
+
+    // Ensure the number of bytes we wrote was how many planned to write
+    auto const written_length =
+      static_cast< size_t >( std::distance( begin, data ) );
+    if( written_length != value_length )
+    {
+      std::stringstream ss;
+      ss << "format `" << description() << "`: "
+        << "written length (" << written_length << ") and "
+        << "calculated length (" << value_length <<  ") not equal";
+      throw std::logic_error( ss.str() );
+    }
+  }
 
   size_t
-  length_of( klv_value const& value ) const override final;
+  length_of( klv_value const& value ) const override final
+  {
+    if( value.empty() )
+    {
+      return 0;
+    }
+    else if( !value.valid() )
+    {
+      return value.get< klv_blob >()->size();
+    }
+    else
+    {
+      return length_of_( value.get< T >() );
+    }
+  }
 
   size_t
-  length_of_( T const& value ) const;
+  length_of_( T const& value ) const
+  {
+    return m_fixed_length ? m_fixed_length : length_of_typed( value );
+  }
 
   std::type_info const&
-  type() const override final;
+  type() const override final
+  {
+    return typeid( T );
+  }
 
   std::ostream&
-  print( std::ostream& os, klv_value const& value ) const override final;
+  print( std::ostream& os, klv_value const& value ) const override final
+  {
+    return !value.valid()
+          ? ( os << value )
+          : print_( os, value.get< T >() );
+  }
 
   std::ostream&
-  print_( std::ostream& os, T const& value ) const;
+  print_( std::ostream& os, T const& value ) const
+  {
+    return print_typed( os, value );
+  }
 
 protected:
   // These functions are overridden by the specific data format classes.
@@ -182,10 +288,25 @@ protected:
                size_t length ) const = 0;
 
   virtual size_t
-  length_of_typed( T const& value ) const;
+  length_of_typed( T const& value ) const
+  {
+    throw std::logic_error(
+      std::string{} + "data format of type `" + type_name() +
+      "` must either provide a fixed size or override length_of_typed()" );
+  }
 
   virtual std::ostream&
-  print_typed( std::ostream& os, T const& value ) const;
+  print_typed( std::ostream& os, T const& value ) const
+  {
+    if( std::is_same< T, std::string >::value )
+    {
+      return os << '"' << value << '"';
+    }
+    else
+    {
+      return os << value;
+    }
+  }
 };
 
 // ----------------------------------------------------------------------------
@@ -321,24 +442,43 @@ class KWIVER_ALGO_KLV_EXPORT klv_enum_format
 public:
   using data_type = typename std::decay< T >::type;
 
-  klv_enum_format( size_t fixed_length = 1 );
+  klv_enum_format( size_t fixed_length = 1 )
+    : klv_data_format_< data_type >{ fixed_length }
+  {}
 
   virtual
-  ~klv_enum_format();
+  ~klv_enum_format()
+  {}
 
   std::string
-  description() const override;
+  description() const override
+  {
+    std::stringstream ss;
+    ss << this->type_name() << " enumeration of "
+       << this->length_description();
+    return ss.str();
+  }
 
 protected:
   data_type
-  read_typed( klv_read_iter_t& data, size_t length ) const override;
+  read_typed( klv_read_iter_t& data, size_t length ) const override
+  {
+    return static_cast< data_type >(
+      klv_read_int< uint64_t >( data, length ) );
+  }
 
   void
   write_typed( data_type const& value,
-               klv_write_iter_t& data, size_t length ) const override;
+               klv_write_iter_t& data, size_t length ) const override
+  {
+    klv_write_int( static_cast< uint64_t >( value ), data, length );
+  }
 
   size_t
-  length_of_typed( data_type const& value ) const override;
+  length_of_typed( data_type const& value ) const override
+  {
+    return klv_int_length( static_cast< uint64_t >( value ) );
+  }
 
   size_t m_length;
 };

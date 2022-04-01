@@ -284,7 +284,7 @@ klv_muxer
           auto const& typed_value =
             subentry.value.get< std::vector< uint64_t > >();
           control_command_verify_list.insert(
-            control_command_verify_list.cend(),
+            control_command_verify_list.end(),
             typed_value.cbegin(), typed_value.cend() );
         }
         else
