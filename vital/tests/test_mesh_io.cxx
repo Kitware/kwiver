@@ -8,6 +8,7 @@
 #include <kwiversys/SystemTools.hxx>
 #include <tests/test_gtest.h>
 #include <tests/test_scene.h>
+#include <arrows/core/mesh_operations.cxx>
 #include <vital/exceptions.h>
 
 #include <vital/io/mesh_io.cxx>
@@ -32,8 +33,6 @@ class mesh_io : public ::testing::Test
   void compare_meshes(const kwiver::vital::mesh_sptr& first,
                       const kwiver::vital::mesh_sptr& second)
   {
-    EXPECT_EQ( first->num_edges(), second->num_edges() );
-
     kwiver::vital::mesh_vertex_array<3>& first_vertices = dynamic_cast
       <kwiver::vital::mesh_vertex_array<3>&>( first->vertices() );
     kwiver::vital::mesh_vertex_array<3>& second_vertices = dynamic_cast
@@ -63,7 +62,6 @@ class mesh_io : public ::testing::Test
         EXPECT_EQ( first_faces[i][j], second_faces[i][j] );
       }
     }
-
   }
 };
 
@@ -122,6 +120,7 @@ TEST_F(mesh_io, read_ply)
 TEST_F(mesh_io, read_write_obj)
 {
   kwiver::vital::mesh_sptr original = kwiver::testing::cube_mesh( 1.0 );
+  original->compute_vertex_normals();
 
   std::string path = "temp/cube_mesh.obj";
   kwiver::vital::write_obj( path, *original );
@@ -142,19 +141,44 @@ TEST_F(mesh_io, write_kml)
 }
 
 // ----------------------------------------------------------------------------
-TEST_F(mesh_io, write_kml_collada)
+TEST_F(mesh_io, write_kml_collada_not_triangular)
 {
+  std::string output_file_name = "temp/cube_mesh.kml_collada";
+
   kwiver::vital::mesh_sptr cube_mesh = kwiver::testing::cube_mesh( 1.0 );
   EXPECT_NO_THROW( kwiver::vital::write_kml_collada(
-    "temp/cube_mesh.kml_collada", *cube_mesh ) );
+    output_file_name, *cube_mesh ) );
+  std::ifstream stream( output_file_name.c_str() );
+  EXPECT_EQ( stream.peek(), std::ifstream::traits_type::eof() );
+
   kwiversys::SystemTools::RemoveADirectory( "temp" );
 }
 
 // ----------------------------------------------------------------------------
-TEST_F(mesh_io, write_vrml)
+TEST_F(mesh_io, write_vrml_not_triangular)
 {
+  std::string output_file_name = "temp/cube_mesh.vrml";
+
   kwiver::vital::mesh_sptr cube_mesh = kwiver::testing::cube_mesh( 1.0 );
   EXPECT_NO_THROW( kwiver::vital::write_vrml(
-    "temp/cube_mesh.vrml", *cube_mesh ) );
+    output_file_name, *cube_mesh ) );
+  std::ifstream stream( output_file_name.c_str() );
+  EXPECT_EQ( stream.peek(), std::ifstream::traits_type::eof() );
+
+  kwiversys::SystemTools::RemoveADirectory( "temp" );
+}
+
+// ----------------------------------------------------------------------------
+TEST_F(mesh_io, write_vrml_triangular)
+{
+  std::string output_file_name = "temp/cube_mesh.vrml";
+
+  kwiver::vital::mesh_sptr cube_mesh = kwiver::testing::cube_mesh( 1.0 );
+  kwiver::arrows::core::mesh_triangulate( *cube_mesh );
+  EXPECT_NO_THROW( kwiver::vital::write_vrml(
+    output_file_name, *cube_mesh ) );
+  std::ifstream stream( "temp/cube_mesh.vrml" );
+  EXPECT_NE( stream.peek(), std::ifstream::traits_type::eof() );
+
   kwiversys::SystemTools::RemoveADirectory( "temp" );
 }
