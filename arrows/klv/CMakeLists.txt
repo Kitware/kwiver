@@ -9,6 +9,7 @@ set( sources
   klv_data_format.cxx
   klv_demuxer.cxx
   klv_key.cxx
+  klv_metadata.cxx
   klv_muxer.cxx
   klv_packet.cxx
   klv_read_write.cxx
@@ -28,6 +29,7 @@ set( public_headers
   klv_blob.h
   klv_demuxer.h
   klv_key.h
+  klv_metadata.h
   klv_muxer.h
   klv_packet.h
   klv_set.h

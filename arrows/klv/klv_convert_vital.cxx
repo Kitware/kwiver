@@ -12,6 +12,8 @@
 #include "klv_0601.h"
 #include "klv_1108.h"
 #include "klv_1108_metric_set.h"
+#include "klv_metadata.h"
+#include "klv_muxer.h"
 
 #include <vital/range/iota.h>
 #include <vital/types/geodesy.h>
@@ -642,7 +644,12 @@ klv_1108_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
 kv::metadata_sptr
 klv_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp )
 {
-  auto const result = std::make_shared< kv::metadata >();
+  auto const result = std::make_shared< klv_metadata >();
+  {
+    klv_muxer muxer( klv_data );
+    muxer.send_frame( timestamp );
+    result->set_klv( muxer.receive_frame() );
+  }
   klv_0102_to_vital_metadata( klv_data, timestamp, *result );
   klv_0104_to_vital_metadata( klv_data, timestamp, *result );
   klv_0601_to_vital_metadata( klv_data, timestamp, *result );
