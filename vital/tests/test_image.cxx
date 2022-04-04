@@ -63,6 +63,42 @@ struct val_incr_op
 }
 
 // ----------------------------------------------------------------------------
+TEST(image, print_pixel_traits)
+{
+  image_pixel_traits traits;
+  std::stringstream output;
+
+  traits.type = image_pixel_traits::UNKNOWN;
+  traits.num_bytes = 1;
+  output << traits;
+  EXPECT_EQ( output.str(), "Unknown_1" );
+
+  output.str(std::string());
+  traits.type = image_pixel_traits::UNSIGNED;
+  traits.num_bytes = 2;
+  output << traits;
+  EXPECT_EQ( output.str(), "Unsigned_2" );
+
+  output.str(std::string());
+  traits.type = image_pixel_traits::SIGNED;
+  traits.num_bytes = 3;
+  output << traits;
+  EXPECT_EQ( output.str(), "Signed_3" );
+
+  output.str(std::string());
+  traits.type = image_pixel_traits::FLOAT;
+  traits.num_bytes = 4;
+  output << traits;
+  EXPECT_EQ( output.str(), "Float_4" );
+
+  output.str(std::string());
+  traits.type = image_pixel_traits::BOOL;
+  traits.num_bytes = 5;
+  output << traits;
+  EXPECT_EQ( output.str(), "Bool_5" );
+}
+
+// ----------------------------------------------------------------------------
 TEST(image, default_constructor)
 {
   image img;
