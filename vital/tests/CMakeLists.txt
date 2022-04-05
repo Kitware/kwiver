@@ -49,6 +49,7 @@ kwiver_discover_gtests(vital metadata_io                    LIBRARIES ${test_lib
 kwiver_discover_gtests(vital metadata_types                 LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital polygon                        LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital rotation                       LIBRARIES ${test_libraries})
+kwiver_discover_gtests(vital sfm_constraints                LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital signal                         LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital similarity                     LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital timestamp                      LIBRARIES ${test_libraries})
