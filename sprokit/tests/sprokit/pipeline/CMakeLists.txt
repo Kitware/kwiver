@@ -70,7 +70,9 @@ sprokit_add_test_plugin(schedulers_test multiple_load
 sprokit_add_test_plugin(not_a_plugin not_a_plugin
   not_a_plugin.cxx)
 
-sprokit_discover_tests(modules test_libraries test_modules.cxx)
+if (KWIVER_ENABLE_PYTHON_TESTS)
+  sprokit_discover_tests(modules test_libraries test_modules.cxx)
+endif()
 
 ##############################
 # Process tests
