@@ -26,6 +26,7 @@ int main(int argc, char** argv)
 namespace // anonymous
 {
 
+// ----------------------------------------------------------------------------
 template <unsigned int W, unsigned int H> byte
 value_at( unsigned int i, unsigned int j, unsigned int k )
 {
@@ -34,6 +35,33 @@ value_at( unsigned int i, unsigned int j, unsigned int k )
   constexpr static unsigned int ks = W * H;
 
   return static_cast<byte>( ( ( ks * k ) + ( js * j ) + ( is * i ) ) % 255 );
+}
+
+// ----------------------------------------------------------------------------
+void check_equal( image_memory mem_1, image_memory mem_2 )
+{
+  char* mem_1_data = (char*) mem_1.data();
+  char* mem_2_data = (char*) mem_2.data();
+
+  EXPECT_EQ( mem_1.size(), mem_2.size() );
+  for(unsigned int i=0; mem_1_data[i]!='\0'; i++)
+  {
+    EXPECT_EQ( mem_1_data[i], mem_2_data[i] );
+  }
+}
+
+// ----------------------------------------------------------------------------
+void check_equal( image img_1, image img_2 )
+{
+  EXPECT_EQ( img_1.width(),   img_2.width()  );
+  EXPECT_EQ( img_1.height(),  img_2.height() );
+  EXPECT_EQ( img_1.depth(),   img_2.depth()  );
+  EXPECT_EQ( img_1.w_step(),  img_2.w_step() );
+  EXPECT_EQ( img_1.h_step(),  img_2.h_step() );
+  EXPECT_EQ( img_1.d_step(),  img_2.d_step() );
+  EXPECT_EQ( img_1.memory(),  img_2.memory() );
+  EXPECT_EQ( img_1.first_pixel(),   img_2.first_pixel() );
+  EXPECT_EQ( img_1.pixel_traits(),  img_2.pixel_traits() );
 }
 
 // Helper methods for tests in this file; for use in the transform_image
@@ -63,7 +91,7 @@ struct val_incr_op
 }
 
 // ----------------------------------------------------------------------------
-TEST(image, print_pixel_traits)
+TEST(image_pixel_traits, print)
 {
   image_pixel_traits traits;
   std::stringstream output;
@@ -96,6 +124,43 @@ TEST(image, print_pixel_traits)
   traits.num_bytes = 5;
   output << traits;
   EXPECT_EQ( output.str(), "Bool_5" );
+}
+
+// ----------------------------------------------------------------------------
+TEST(image_memory, copy_constructor)
+{
+  std::string set_data = "test";
+  image_memory mem{ set_data.size()*sizeof( char ) };
+
+  char* data = (char*) mem.data();
+  for(unsigned int i=0; i<set_data.size(); i++)
+  {
+    data[i] = set_data[i];
+  }
+
+  image_memory mem_copy{ mem };
+  check_equal( mem, mem_copy );
+}
+
+// ----------------------------------------------------------------------------
+TEST(image_memory, assignment_operator)
+{
+  std::string set_data = "test";
+  image_memory mem{ set_data.size()*sizeof( char ) };
+
+  char* data = (char*) mem.data();
+  for(unsigned int i=0; i<set_data.size(); i++)
+  {
+    data[i] = set_data[i];
+  }
+
+  image_memory mem_assigned;
+  mem_assigned = mem;
+  check_equal( mem, mem_assigned );
+
+  // copy of an image_memory from itself
+  mem_assigned = mem_assigned;
+  check_equal( mem, mem_assigned );
 }
 
 // ----------------------------------------------------------------------------
@@ -141,27 +206,11 @@ TEST(image, copy_constructor)
 {
   image_of<int> img{ 100, 75, 2 };
   image img_copy{ img };
-  EXPECT_EQ( img.width(),   img_copy.width()  );
-  EXPECT_EQ( img.height(),  img_copy.height() );
-  EXPECT_EQ( img.depth(),   img_copy.depth()  );
-  EXPECT_EQ( img.w_step(),  img_copy.w_step() );
-  EXPECT_EQ( img.h_step(),  img_copy.h_step() );
-  EXPECT_EQ( img.d_step(),  img_copy.d_step() );
-  EXPECT_EQ( img.memory(),  img_copy.memory() );
-  EXPECT_EQ( img.first_pixel(),   img_copy.first_pixel() );
-  EXPECT_EQ( img.pixel_traits(),  img_copy.pixel_traits() );
+  check_equal( img, img_copy );
 
   // copy an image_of from a base image
   image_of<int> img_copy_of_copy{ img_copy };
-  EXPECT_EQ( img.width(),   img_copy_of_copy.width()  );
-  EXPECT_EQ( img.height(),  img_copy_of_copy.height() );
-  EXPECT_EQ( img.depth(),   img_copy_of_copy.depth()  );
-  EXPECT_EQ( img.w_step(),  img_copy_of_copy.w_step() );
-  EXPECT_EQ( img.h_step(),  img_copy_of_copy.h_step() );
-  EXPECT_EQ( img.d_step(),  img_copy_of_copy.d_step() );
-  EXPECT_EQ( img.memory(),  img_copy_of_copy.memory() );
-  EXPECT_EQ( img.first_pixel(),   img_copy_of_copy.first_pixel() );
-  EXPECT_EQ( img.pixel_traits(),  img_copy_of_copy.pixel_traits() );
+  check_equal( img, img_copy_of_copy );
 
   EXPECT_THROW( image_of<float> img_bad_copy{ img_copy },
                 image_type_mismatch_exception );
@@ -173,28 +222,16 @@ TEST(image, assignment_operator)
   image_of<float> img{ 100, 75, 2 };
   image img_assigned;
   img_assigned = img;
-  EXPECT_EQ( img.width(),   img_assigned.width()  );
-  EXPECT_EQ( img.height(),  img_assigned.height() );
-  EXPECT_EQ( img.depth(),   img_assigned.depth()  );
-  EXPECT_EQ( img.w_step(),  img_assigned.w_step() );
-  EXPECT_EQ( img.h_step(),  img_assigned.h_step() );
-  EXPECT_EQ( img.d_step(),  img_assigned.d_step() );
-  EXPECT_EQ( img.memory(),  img_assigned.memory() );
-  EXPECT_EQ( img.first_pixel(),   img_assigned.first_pixel() );
-  EXPECT_EQ( img.pixel_traits(),  img_assigned.pixel_traits() );
+  check_equal( img, img_assigned );
+
+  // copy an image from itself
+  img_assigned = img_assigned;
+  check_equal( img, img_assigned );
 
   // copy an image_of from a base image
   image_of<float> img_assigned_again;
   img_assigned_again = img_assigned;
-  EXPECT_EQ( img.width(),   img_assigned_again.width()  );
-  EXPECT_EQ( img.height(),  img_assigned_again.height() );
-  EXPECT_EQ( img.depth(),   img_assigned_again.depth()  );
-  EXPECT_EQ( img.w_step(),  img_assigned_again.w_step() );
-  EXPECT_EQ( img.h_step(),  img_assigned_again.h_step() );
-  EXPECT_EQ( img.d_step(),  img_assigned_again.d_step() );
-  EXPECT_EQ( img.memory(),  img_assigned_again.memory() );
-  EXPECT_EQ( img.first_pixel(),   img_assigned_again.first_pixel() );
-  EXPECT_EQ( img.pixel_traits(),  img_assigned_again.pixel_traits() );
+  check_equal( img, img_assigned_again );
 
   image_of<int> img_bad_assign;
   EXPECT_THROW( img_bad_assign = img_assigned,
@@ -291,7 +328,7 @@ TEST(image, copy_from)
     }
   }
 
-  image img2;
+  image img2{ image_pixel_traits{ image_pixel_traits::BOOL } };
   img2.copy_from( img1 );
   EXPECT_NE( img1.first_pixel(), img2.first_pixel() )
     << "Deep copied images should not share the same memory";
@@ -333,6 +370,12 @@ TEST(image, equal_content)
     }
   }
   EXPECT_TRUE( equal_content( img1, img2 ) );
+
+  image img3( w, h, d, false, image_pixel_traits{ image_pixel_traits::BOOL } );
+  EXPECT_FALSE( equal_content( img1, img3 ) );
+
+  *img2.first_pixel()=1;
+  EXPECT_FALSE( equal_content( img1, img2 ) );
 }
 
 // ----------------------------------------------------------------------------
