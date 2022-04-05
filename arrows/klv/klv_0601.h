@@ -957,6 +957,10 @@ class KWIVER_ALGO_KLV_EXPORT klv_0601_payload_list_format
 };
 
 // ----------------------------------------------------------------------------
+/// List of currently active payloads from the payload list (Item 138).
+using klv_0601_active_payloads_format = klv_enum_bitfield_format< uint16_t >;
+
+// ----------------------------------------------------------------------------
 /// A sensor wavelength record.
 struct klv_0601_wavelength_record
 {
