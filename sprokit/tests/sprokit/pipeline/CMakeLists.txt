@@ -139,7 +139,7 @@ set(schedulers
   sync
   thread_per_process)
 
-if (PYTHON_TEST AND NOT WIN32)
+if (KWIVER_ENABLE_PYTHON_TESTS)
   list(APPEND schedulers
     pythread_per_process)
 endif ()
@@ -165,7 +165,7 @@ endfunction ()
 
 sprokit_add_tooled_run_test(run simple_pipeline)
 
-if (PYTHON_TEST AND NOT WIN32)
+if (KWIVER_ENABLE_PYTHON_TESTS)
   sprokit_add_tooled_run_test(run pysimple_pipeline)
 endif ()
 
