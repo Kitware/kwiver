@@ -26,7 +26,7 @@ typedef std::unordered_map< std::string, camera_sptr > camera_collection;
 // ----------------------------------------------------------------------------
 /// An abstract representation of camera rig
 ///
-/// The base class of camera rigs.
+/// The base class for camera rigs
 class VITAL_EXPORT camera_rig
 {
 public:
@@ -79,7 +79,7 @@ protected:
 // ----------------------------------------------------------------------------
 /// A representation of camera stereo rig
 ///
-/// A camera stereo rig class.
+/// A camera stereo rig class
 class VITAL_EXPORT camera_rig_stereo: public camera_rig
 {
 public:
