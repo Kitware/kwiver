@@ -11,6 +11,7 @@
 #include <camera.h>
 #include <rotation.h>
 
+#include <vector>
 #include <unordered_map>
 
 namespace kwiver {
@@ -19,9 +20,9 @@ namespace vital {
 /// forward declaration of camera_rig class
 class camera_rig;
 /// camera_rig shared pointer
-typedef std::shared_ptr< camera_rig > camera_rig_sptr;
+using camera_rig_sptr = std::shared_ptr< camera_rig >;
 /// collection of cameras keyed by string tags
-typedef std::unordered_map< std::string, camera_sptr > camera_collection;
+using camera_collection = std::unordered_map< std::string, camera_sptr >;
 
 // ----------------------------------------------------------------------------
 /// An abstract representation of camera rig
@@ -58,6 +59,7 @@ public:
   }
 
   /// Access a particular camera.
+  /// \return camera at tag, or nullptr, if none found
   virtual camera_sptr camera(std::string const & tag)
   {
     auto it = cameras_.find(tag);
@@ -65,6 +67,7 @@ public:
   }
 
   /// Access a particular camera.
+  /// \return camera at tag, or nullptr, if none found
   virtual camera_sptr const camera(std::string const & tag) const
   {
     auto it = cameras_.find(tag);
@@ -83,6 +86,7 @@ protected:
 class VITAL_EXPORT camera_rig_stereo: public camera_rig
 {
 public:
+  /// Construct a stereo rig using left and right cameras.
   camera_rig_stereo(camera_sptr left, camera_sptr right)
   {
     add("left", left);
@@ -93,16 +97,9 @@ public:
   camera_sptr right(){ return camera("right"); }
   camera_sptr const left()const { return camera("left"); }
   camera_sptr const right()const { return camera("right"); }
-  /// Calibrate the stereo rig using 3D world points and corresponding left and right image points.
-  /// \return was calibraiton successful?
-  bool calibrate(
-      std::vector< kwiver::vital::vector_2d > const& image_points_left,
-      std::vector< kwiver::vital::vector_2d > const& image_points_right,
-      std::vector< kwiver::vital::vector_3d > const& world_points
-      )=0;
 };
 
-}
-}   // vital
+} // vital
+} // kwiver
 
 #endif // VITAL_CAMERA_RIG_H_
