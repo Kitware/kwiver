@@ -5,12 +5,13 @@
 /// \file
 /// \brief core camera_rig_io tests
 
-#include <tests/test_eigen.h>
-#include <tests/test_gtest.h>
-
 #include <vital/io/camera_rig_io.h>
 #include <vital/vital_types.h>
 #include <vital/exceptions.h>
+#include <vital/types/camera_perspective.h>
+
+#include <tests/test_eigen.h>
+#include <tests/test_gtest.h>
 
 #include <iostream>
 #include <sstream>
@@ -41,12 +42,12 @@ class camera_rig_io : public ::testing::Test
 TEST_F(camera_rig_io, KRTD_format_read)
 {
   kv::path_t const test_read_file = data_dir + krtd;
-  unsigned short const N = 3;
+  auto const N = 3;
   kv::path_list_t cam_files;
-  for (unsigned short i=1; i<=N; ++i)
+  for ( auto i=1; i<=N; ++i )
   {
     std::stringstream ss;
-    ss<<test_read_file<<i<<".krtd";
+    ss << test_read_file << i << ".krtd";
     cam_files.push_back(ss.str());
   }
   kv::camera_rig_sptr rig = kv::read_camera_rig( cam_files );
@@ -55,33 +56,35 @@ TEST_F(camera_rig_io, KRTD_format_read)
   auto const & cams = rig->cameras();
   auto cnt = cams.size();
   EXPECT_EQ( cnt, N );
-
-/* TODO: remove
-  kv::camera_perspective_sptr read_camera =
-    kv::read_krtd_file( test_read_file );
-
   Eigen::Matrix<double,3,3> expected_intrinsics;
   expected_intrinsics << 1, 2, 3,
                          0, 5, 6,
                          0, 0, 1;
-  Eigen::Matrix<double,3,3> K( read_camera->intrinsics()->as_matrix() );
-  EXPECT_MATRIX_EQ( expected_intrinsics, K );
-
   Eigen::Matrix<double,3,3> expected_rotation;
   expected_rotation << 1, 0, 0,
                        0, 1, 0,
                        0, 0, 1;
-  Eigen::Matrix<double,3,3> R( read_camera->rotation().matrix() );
-  EXPECT_MATRIX_EQ( expected_rotation, R );
-
-  Eigen::Matrix<double,3,1> expected_translation;
-  expected_translation << 1, 2, 3;
-  Eigen::Matrix<double,3,1> T( read_camera->translation() );
-  EXPECT_MATRIX_EQ( expected_translation, T );
-  std::vector<double> expected_distortion = {1, 2, 3, 4, 5};
-  std::vector<double> D = read_camera->intrinsics()->dist_coeffs() ;
-  EXPECT_EQ( expected_distortion, D );
-*/
+  for (auto const & kvp: cams)
+  {
+    auto const & cam = dynamic_cast<kv::camera_perspective const *>(kvp.second.get());
+    Eigen::Matrix<double,3,3> K( cam->intrinsics()->as_matrix() );
+    EXPECT_MATRIX_EQ( expected_intrinsics, K );
+    Eigen::Matrix<double,3,3> R( cam->rotation().matrix() );
+    EXPECT_MATRIX_EQ( expected_rotation, R );
+    Eigen::Matrix<double,3,1> T( cam->translation() );
+    auto n = kvp.first[kvp.first.length()-6]-'0';
+    Eigen::Matrix<double,3,1> expected_translation;
+    expected_translation << 1, 2, 3;
+    for ( auto i=0; i<3; ++i )
+    {
+      auto & e = expected_translation[i];
+      e = 10*e + n;
+    }
+    EXPECT_MATRIX_EQ( expected_translation, T );
+    std::vector<double> expected_distortion = {1, 2, 3, 4, 5};
+    std::vector<double> D = cam->intrinsics()->dist_coeffs() ;
+    EXPECT_EQ( expected_distortion, D );
+  }
 }
 
 // ----------------------------------------------------------------------------
