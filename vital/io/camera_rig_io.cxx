@@ -15,6 +15,8 @@
 namespace kwiver {
 namespace vital {
 
+static auto logger = get_logger( "vital.camera_rig_io" );
+
 camera_rig_sptr
 read_camera_rig( path_list_t const & cam_files )
 {
@@ -27,15 +29,40 @@ read_camera_rig( path_list_t const & cam_files )
     }
     catch ( const file_not_found_exception& )
     {
-      std::clog << "warning: unable to find " << cf << std::endl;
+      LOG_ERROR(logger, "error: unable to find " << cf);
       continue;
     }
   }
   if ( rig->empty() )
   {
-    VITAL_THROW( invalid_data, "no cameras initialized from the given list of krtd files" ) ;
+    VITAL_THROW( invalid_data,
+                 "no cameras initialized from the given list of krtd files" ) ;
   }
   return rig;
+}
+
+void
+write_camera_rig( camera_rig_sptr rig )
+{
+  if (rig==nullptr)
+  {
+    LOG_ERROR( logger,
+     "unable to write null camera rig pointer" );
+    return;
+  }
+  for (auto const & c: rig->cameras())
+  {
+    try
+    {
+      auto const & cam = dynamic_cast<camera_perspective const&>(*c.second);
+      write_krtd_file(cam, c.first);
+    }
+    catch( std::exception const & e )
+    {
+      LOG_ERROR(logger, "unable to write " << c.first
+          << ": " << e.what() );
+    }
+  }
 }
 
 } // vital

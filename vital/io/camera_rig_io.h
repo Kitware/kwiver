@@ -29,6 +29,17 @@ namespace vital {
 camera_rig_sptr
 VITAL_EXPORT read_camera_rig( path_list_t const& cam_files );
 
+/// Save a camera rig to krtd files.
+///
+/// \throws invalid_data
+///   Unable to find any camera krtd files in the given directory
+/// \throw path_not_exists
+///   The specified directory does not exist
+///
+/// \param rig camera rig
+void
+VITAL_EXPORT write_camera_rig( camera_rig_sptr rig );
+
 } // vital
 } // kwiver
 

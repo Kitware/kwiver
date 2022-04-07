@@ -39,81 +39,56 @@ class camera_rig_io : public ::testing::Test
 };
 
 // ----------------------------------------------------------------------------
-TEST_F(camera_rig_io, KRTD_format_read)
+TEST_F(camera_rig_io, output_format_test)
 {
-  kv::path_t const test_read_file = data_dir + krtd;
+  kv::camera_rig_sptr rig0( new kv::camera_rig );
   auto const N = 3;
+  kv::path_t const DN = "/tmp/"; // TODO removable temp dir
+  kv::path_t const FNBase = DN + "cam-";
   kv::path_list_t cam_files;
   for ( auto i=1; i<=N; ++i )
   {
     std::stringstream ss;
-    ss << test_read_file << i << ".krtd";
-    cam_files.push_back(ss.str());
+    ss << FNBase << i << ".krtd";
+    kv::vector_3d center;
+    kv::rotation_d rotation;
+    kv::simple_camera_perspective_sptr cam(
+        new kv::simple_camera_perspective(center, rotation));
+    auto const & FN = ss.str();
+    rig0->add(FN, cam);
+    cam_files.push_back(FN);
   }
-  kv::camera_rig_sptr rig = kv::read_camera_rig( cam_files );
+  kv::write_camera_rig( rig0 );
+// read camera rig and check against the original
+  auto rig = kv::read_camera_rig( cam_files );
   EXPECT_NE( rig.get(), nullptr );
-
   auto const & cams = rig->cameras();
   auto cnt = cams.size();
   EXPECT_EQ( cnt, N );
-  Eigen::Matrix<double,3,3> expected_intrinsics;
-  expected_intrinsics << 1, 2, 3,
-                         0, 5, 6,
-                         0, 0, 1;
-  Eigen::Matrix<double,3,3> expected_rotation;
-  expected_rotation << 1, 0, 0,
-                       0, 1, 0,
-                       0, 0, 1;
-  for (auto const & kvp: cams)
+// make sure the cameras are the same in both rigs
+  for ( auto const & c: cams )
   {
-    auto const & cam = dynamic_cast<kv::camera_perspective const *>(kvp.second.get());
+    auto const & FN = c.first;
+    auto const cam0 =
+        dynamic_cast<kv::camera_perspective const *>(rig0->camera(FN).get());
+    auto const cam =
+        dynamic_cast<kv::camera_perspective const *>(c.second.get());
+
+    Eigen::Matrix<double,3,3> K0( cam0->intrinsics()->as_matrix() );
     Eigen::Matrix<double,3,3> K( cam->intrinsics()->as_matrix() );
-    EXPECT_MATRIX_EQ( expected_intrinsics, K );
+    EXPECT_MATRIX_EQ( K0, K );
+
+    Eigen::Matrix<double,3,3> R0( cam0->rotation().matrix() );
     Eigen::Matrix<double,3,3> R( cam->rotation().matrix() );
-    EXPECT_MATRIX_EQ( expected_rotation, R );
+    EXPECT_MATRIX_EQ( R0, R );
+
+    Eigen::Matrix<double,3,1> T0( cam0->translation() );
     Eigen::Matrix<double,3,1> T( cam->translation() );
-    auto n = kvp.first[kvp.first.length()-6]-'0';
-    Eigen::Matrix<double,3,1> expected_translation;
-    expected_translation << 1, 2, 3;
-    for ( auto i=0; i<3; ++i )
-    {
-      auto & e = expected_translation[i];
-      e = 10*e + n;
-    }
-    EXPECT_MATRIX_EQ( expected_translation, T );
-    std::vector<double> expected_distortion = {1, 2, 3, 4, 5};
-    std::vector<double> D = cam->intrinsics()->dist_coeffs() ;
-    EXPECT_EQ( expected_distortion, D );
+    EXPECT_MATRIX_EQ( T0, T );
+
+    std::vector<double> D0 = cam0->intrinsics()->dist_coeffs();
+    std::vector<double> D = cam->intrinsics()->dist_coeffs();
+    EXPECT_EQ( D0, D );
   }
-}
-
-// ----------------------------------------------------------------------------
-TEST_F(camera_rig_io, output_format_test)
-{
-/* TODO: remove/modify
-  kv::simple_camera_perspective cam;
-  std::cerr << "Default constructed camera\n" << cam << std::endl;
-  std::cerr << "cam.get_center()     : " << kv::vector_3d(cam.get_center()).transpose() << std::endl;
-  std::cerr << "cam.get_rotation()   : " << cam.get_rotation() << std::endl;
-  std::cerr << "cam.get_translation(): " << cam.translation() << std::endl;
-
-  // We're expecting -0's as this is what Eigen likes to output when a zero
-  // vector is negated.
-  std::stringstream ss;
-  ss << cam;
-  EXPECT_EQ(
-    "1 0 0\n"
-    "0 1 0\n"
-    "0 0 1\n"
-    "\n"
-    "1 0 0\n"
-    "0 1 0\n"
-    "0 0 1\n"
-    "\n"
-    "-0 -0 -0\n"
-    "\n"
-    "0\n",
-    ss.str() )
-    << "Camera output string test";
-*/
+  // TODO remove temp dir DN
 }
