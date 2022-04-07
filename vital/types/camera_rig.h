@@ -8,10 +8,8 @@
 #ifndef VITAL_CAMERA_RIG_H_
 #define VITAL_CAMERA_RIG_H_
 
-#include <camera.h>
-#include <rotation.h>
+#include "camera.h"
 
-#include <vector>
 #include <unordered_map>
 
 namespace kwiver {
@@ -28,13 +26,10 @@ using camera_collection = std::unordered_map< std::string, camera_sptr >;
 /// An abstract representation of camera rig
 ///
 /// The base class for camera rigs
-class VITAL_EXPORT camera_rig
+class camera_rig
 {
 public:
   virtual ~camera_rig() = default;
-
-  /// Apply a rigid transform [rotation|translation] to the whole rig
-  virtual void transform( const rotation_d & R, const vector_3d & t ) const = 0;
 
   /// Access cameras of the rig.
   /// \return camera collection
@@ -77,6 +72,12 @@ public:
 protected:
   camera_rig() = default;
   camera_collection cameras_;
+};
+
+/// A concrete camera rig that wraps a std::unordered_map.
+class simple_camera_rig : public camera_rig
+{
+public:
 };
 
 // ----------------------------------------------------------------------------
