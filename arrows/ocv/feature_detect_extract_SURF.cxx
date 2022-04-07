@@ -11,7 +11,7 @@
 
 #include <vital/vital_config.h>
 
-#if defined(HAVE_OPENCV_NONFREE) || defined(HAVE_OPENCV_XFEATURES2D)
+#ifdef KWIVER_OCV_HAS_SURF
 
 // Include the correct file and unify different namespace locations of SURF type
 // across versions
@@ -220,4 +220,4 @@ extract_descriptors_SURF
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif //defined(HAVE_OPENCV_NONFREE) || defined(HAVE_OPENCV_XFEATURES2D)
+#endif
