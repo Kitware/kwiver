@@ -23,12 +23,13 @@ using camera_rig_sptr = std::shared_ptr< camera_rig >;
 using camera_collection = std::unordered_map< std::string, camera_sptr >;
 
 // ----------------------------------------------------------------------------
-/// An abstract representation of camera rig
+/// A representation of camera rig
 ///
 /// The base class for camera rigs
 class camera_rig
 {
 public:
+  camera_rig() = default;
   virtual ~camera_rig() = default;
 
   /// Access cameras of the rig.
@@ -69,15 +70,10 @@ public:
     return it==cameras_.end() ? nullptr : it->second;
   }
 
+  size_t size() const { return cameras_.size(); }
+  bool empty() const { return !size(); }
 protected:
-  camera_rig() = default;
   camera_collection cameras_;
-};
-
-/// A concrete camera rig that wraps a std::unordered_map.
-class simple_camera_rig : public camera_rig
-{
-public:
 };
 
 // ----------------------------------------------------------------------------
