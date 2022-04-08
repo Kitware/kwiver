@@ -4,7 +4,6 @@ set(CMAKE_FOLDER "Arrows/VTK")
 
 set( plugin_vtk_headers
   depth_utils.h
-  mesh_coloration.h
   vtkKwiverCamera.h
   )
 
@@ -20,9 +19,15 @@ kwiver_install_headers(
 
 set( plugin_vtk_sources
   depth_utils.cxx
-  mesh_coloration.cxx
   vtkKwiverCamera.cxx
   )
+
+if (VTK_VERSION VERSION_GREATER_EQUAL 9.1)
+  list(APPEND plugin_vtk_headers mesh_coloration.h)
+  list(APPEND plugin_vtk_sources mesh_coloration.cxx)
+endif()
+
+
 
 kwiver_add_library( kwiver_algo_vtk
   ${plugin_vtk_headers}

@@ -58,13 +58,11 @@ public:
                  std::string const& mask_path );
   /// Set cameras (and frames) to be used for coloring.
   void set_cameras( kwiver::vital::camera_map_sptr const& cameras );
-  /// Input mesh to be colored.
+  /// Input mesh to be colored. This is not modified.
   void set_input( vtkSmartPointer< vtkPolyData > input );
   /// Input mesh to be colored.
   vtkSmartPointer< vtkPolyData > get_input();
-  /// Output mesh. Can be the same as the input.
-  void set_output( vtkSmartPointer< vtkPolyData > mesh );
-  /// Output mesh. Can be the same as the input.
+  /// Output mesh.
   vtkSmartPointer< vtkPolyData > get_output();
 
   /// Set which frames to choose for coloring.
@@ -101,16 +99,24 @@ public:
 
   /// Set whether to remove occluded points.
   void
-  set_remove_occluded( bool remove_occluded )
+  set_color_occluded( bool color_occluded )
   {
-    remove_occluded_ = remove_occluded;
+    color_occluded_ = color_occluded;
   }
 
   /// Set whether to remove masked points.
   void
-  set_remove_masked( bool remove_masked )
+  set_color_masked( bool color_masked )
   {
-    remove_masked_ = remove_masked;
+    color_masked_ = color_masked;
+  }
+
+  /// Set whether to remove points colored with fewer or equal the number of
+  /// frames passed as a parameter. Default is -1, so we doing remove any cells.
+  void
+  set_remove_color_count_less_equal( int value )
+  {
+    remove_color_count_less_equal_ = value;
   }
 
   /// Color the mesh.
@@ -138,12 +144,13 @@ protected:
 protected:
   vtkSmartPointer< vtkPolyData > input_;
   vtkSmartPointer< vtkPolyData > output_;
-  int sampling_;
+  int frame_sampling_;
   int frame_;
   bool all_frames_;
   float occlusion_threshold_;
-  bool remove_occluded_;
-  bool remove_masked_;
+  bool color_occluded_;
+  bool color_masked_;
+  int remove_color_count_less_equal_;
 
   kwiver::vital::logger_handle_t logger_;
 

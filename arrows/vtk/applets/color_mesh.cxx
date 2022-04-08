@@ -117,9 +117,6 @@ public:
   std::string mask_file_;
   std::string output_mesh_;
   std::string active_attribute_ = "mean";
-  int frame_ = -1;
-  int frame_sampling_ = 1;
-  bool all_frames_ = false;
 
   enum commandline_mode { SUCCESS, HELP, WRITE, FAIL };
 
@@ -234,6 +231,15 @@ public:
       return FAIL;
     }
 
+    // set variables from the config
+    frame_sampling_ = config_->get_value("frame_sampling", frame_sampling_);
+    frame_ = config_->get_value("frame", frame_);
+    all_frames_ = config_->get_value("all_frames", all_frames_);
+    occlusion_threshold_ = config_->get_value("occlusion_threshold", occlusion_threshold_);
+    color_occluded_ = config_->get_value("color_occluded", color_occluded_);
+    color_masked_ = config_->get_value("color_masked", color_masked_);
+    remove_color_count_less_equal_ = config_->get_value("remove_color_count_less_equal", remove_color_count_less_equal_);
+
     return SUCCESS;
   }
 
@@ -295,8 +301,8 @@ public:
       "We use threshold >= 0 to fix floating point inaccuracies "
       "Default value is 0, bigger values will remove more points.");
     config->set_value(
-      "remove_occluded", true,
-      "Remove occluded points if parameter is true.");
+      "color_occluded", false,
+      "Color occluded points if parameter is true.");
     config->set_value(
       "active_attribute", active_attribute_,
       "Choose the active attribute between mean, median and count when saving "
@@ -304,8 +310,8 @@ public:
       "For the VTP format, all attributes are saved, for PLY only the "
       "active attribute is saved.");
     config->set_value(
-      "remove_masked", true,
-      "Remove masked points if parameter is true.");
+      "color_masked", false,
+      "Color masked points if parameter is true.");
 
     kva::video_input::get_nested_algo_configuration("video_reader", config,
       kva::video_input_sptr());
@@ -505,29 +511,26 @@ public:
     auto cameras = load_camera_map(video_reader_, video_source_, cameras_dir_);
     set_cameras(cameras);
     LOG_INFO(main_logger, "Load mesh file...");
-    auto mesh = load_mesh(input_mesh_);
-    if (! mesh)
+    auto input = load_mesh(input_mesh_);
+    if (! input)
     {
       LOG_ERROR(main_logger, "Error loading the mesh");
       return false;
     }
-    set_input(mesh);
-    set_output(mesh);
-    set_frame(frame_);
-    set_frame_sampling(frame_sampling_);
-    set_all_frames(all_frames_);
+    set_input(input);
     colorize();
+    auto output = get_output();
     LOG_INFO(main_logger, "Save mesh file...");
     if (! all_frames_)
     {
-      vtkDataArray* active = mesh->GetPointData()->GetArray(active_attribute_.c_str());
+      vtkDataArray* active = output->GetPointData()->GetArray(active_attribute_.c_str());
       if (! active)
       {
-        active = mesh->GetPointData()->GetArray("mean");
+        active = output->GetPointData()->GetArray("mean");
       }
-      mesh->GetPointData()->SetScalars(active);
+      output->GetPointData()->SetScalars(active);
     }
-    if (! save_mesh(mesh, output_mesh_.c_str()))
+    if (! save_mesh(output, output_mesh_.c_str()))
     {
       return false;
     }
