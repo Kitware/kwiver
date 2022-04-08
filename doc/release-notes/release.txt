@@ -49,6 +49,11 @@ Build System
 
  * Enable the CUDA arrow in the Docker container.
 
+Vital Algorithms
+
+* Fix potential leak of stream pointers in the base functionality of
+  ``write_object_track_set``.
+
 Vital: Logging
 
  * Fixed an issue in the default logger where leading zeros of fractional
