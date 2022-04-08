@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for OCV split_image algorithm
- */
+/// \file
+/// \brief Header for OCV split_image algorithm
 
 #ifndef KWIVER_ARROWS_OCV_SPLIT_IMAGE_H_
 #define KWIVER_ARROWS_OCV_SPLIT_IMAGE_H_

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for draw_detected_object_set
- */
+/// \file
+/// \brief Header for draw_detected_object_set
 
 #ifndef ARROWS_OCV_DRAW_DETECTED_OBJECT_SET_H
 #define ARROWS_OCV_DRAW_DETECTED_OBJECT_SET_H
@@ -35,13 +33,11 @@ public:
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
   /// Draw detected object boxes om image.
-  /**
-   *
-   * @param detected_set Set of detected objects
-   * @param image Boxes are drawn in this image
-   *
-   * @return Image with boxes and other annotations added.
-   */
+  ///
+  /// @param detected_set Set of detected objects
+  /// @param image Boxes are drawn in this image
+  ///
+  /// @return Image with boxes and other annotations added.
   virtual kwiver::vital::image_container_sptr
     draw( kwiver::vital::detected_object_set_sptr detected_set,
           kwiver::vital::image_container_sptr image );

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of ocv::detect_moiion_3frame_differencing
- */
+/// \file
+/// \brief Implementation of ocv::detect_moiion_3frame_differencing
 
 #include <deque>
 
@@ -28,17 +26,15 @@ namespace ocv {
 
 using namespace kwiver::vital;
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
   ///
-  /**
-  * @brief Converts a multi-channel image into a single channel image
-  *
-  * Replace multi-channel image with a single channel image equal to the root
-  * mean square over the channels.
-  *
-  * @param src first image
-  * @param dst second image
-  */
+  /// @brief Converts a multi-channel image into a single channel image
+  ///
+  /// Replace multi-channel image with a single channel image equal to the root
+  /// mean square over the channels.
+  ///
+  /// @param src first image
+  /// @param dst second image
 static
 void
 rms_over_channels( const cv::Mat &src, cv::Mat &dst)
@@ -96,17 +92,15 @@ public:
   }
 
   ///
-  /**
-  * @brief Calculates a jittered difference img1 and img2
-  *
-  * For each pixel in img1, the minimum absolute difference ||img1-b|| is
-  * calculated, where b is drawn from a neighborhood (defined by
-  * m_jitter_radius) around the equivalent pixel in img2.
-  *
-  * @param img1 first image
-  * @param img2 second image
-  * @param img_diff difference image
-  */
+  /// @brief Calculates a jittered difference img1 and img2
+  ///
+  /// For each pixel in img1, the minimum absolute difference ||img1-b|| is
+  /// calculated, where b is drawn from a neighborhood (defined by
+  /// m_jitter_radius) around the equivalent pixel in img2.
+  ///
+  /// @param img1 first image
+  /// @param img2 second image
+  /// @param img_diff difference image
   void
   image_difference( const cv::Mat &img1, const cv::Mat &img2, cv::Mat &img_diff )
   {

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV brute-force feature matcher wrapper implementation
- */
+/// \file
+/// \brief OCV brute-force feature matcher wrapper implementation
 
 #include "match_features_bruteforce.h"
 

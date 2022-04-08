@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV DAISY descriptor extractor wrapper
- */
+/// \file
+/// \brief OCV DAISY descriptor extractor wrapper
 
 #ifndef KWIVER_ARROWS_EXTRACT_DESCRIPTORS_DAISY_H_
 #define KWIVER_ARROWS_EXTRACT_DESCRIPTORS_DAISY_H_

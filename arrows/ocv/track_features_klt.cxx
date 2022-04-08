@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of ocv::track_features_klt
- */
+/// \file
+/// \brief Implementation of ocv::track_features_klt
 
 #include "track_features_klt.h"
 //#include <arrows/core/merge_tracks.h>
