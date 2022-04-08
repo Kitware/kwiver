@@ -25,8 +25,8 @@ namespace protobuf {
   object_track_state::~object_track_state()
   { }
 
-  
-  // ----------------------------------------------------------------------------
+
+  // --------------------------------------------------------------------------
   std::shared_ptr< std::string >
   object_track_state::
   serialize( const vital::any& element )
@@ -49,12 +49,12 @@ namespace protobuf {
     return std::make_shared< std::string >( msg.str() );
   }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   vital::any object_track_state::
   deserialize( const std::string& message )
   {
     std::istringstream msg( message );
-    kwiver::vital::object_track_state obj_trk_state; 
+    kwiver::vital::object_track_state obj_trk_state;
     std::string tag;
     msg >> tag;
     msg.get();  // Eat delimiter

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
- /**
- * \file
- * \brief Header file for util, various helper functions for depth estimation
- */
+ /// \file
+ /// \brief Header file for util, various helper functions for depth estimation
 
 #ifndef KWIVER_ARROWS_SUPER3D_UTIL_H_
 #define KWIVER_ARROWS_SUPER3D_UTIL_H_
@@ -52,12 +50,11 @@ void height_map_to_depth_map(const vpgl_perspective_camera<double>& camera,
                              vil_image_view<double>& depth_map);
 
 /// Convert a height map into a depth map and scale uncertainty
-/**
- * \param [in]  camera         the camera corresponding to the height map
- * \param [in]  height_map     input height map
- * \param [out] depth_map      output depth map
- * \param [in,out] uncertainty uncertainty map to scale in place
- */
+///
+/// \param [in]  camera         the camera corresponding to the height map
+/// \param [in]  height_map     input height map
+/// \param [out] depth_map      output depth map
+/// \param [in,out] uncertainty uncertainty map to scale in place
 void height_map_to_depth_map(vpgl_perspective_camera<double> const& camera,
                              vil_image_view<double> const& height_map,
                              vil_image_view<double>& depth_map,

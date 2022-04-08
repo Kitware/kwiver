@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
- /**
- * \file
- * \brief Source file for cost_volume, computes costs in the world space
- */
+ /// \file
+ /// \brief Source file for cost_volume, computes costs in the world space
 #include "cost_volume.h"
 
 #include <cstdio>

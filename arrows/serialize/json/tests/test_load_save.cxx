@@ -650,7 +650,7 @@ TEST( load_save, object_track_state)
   EXPECT_EQ( obj_trk_state.image_point().value(), obj_dser.image_point().value() );
   EXPECT_EQ( obj_trk_state.track_point().value(), obj_dser.track_point().value() );
 }
-// ============================================================================
+// ----------------------------------------------------------------------------
 TEST( load_save, track_set )
 {
   auto trk_set_sptr = std::make_shared< kwiver::vital::track_set >();
@@ -707,7 +707,7 @@ TEST( load_save, track_set )
 
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST( load_save, object_track_set )
 {
   auto obj_trk_set_sptr = std::make_shared< kwiver::vital::object_track_set >();
@@ -804,7 +804,7 @@ TEST( load_save, object_track_set )
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST( load_save, covariance )
 {
 
@@ -844,7 +844,7 @@ TEST_COV( covariance_4f, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 )
 
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST( load_save, points )
 {
 

@@ -16,7 +16,7 @@ namespace arrows {
 namespace serialize {
 namespace protobuf {
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 // ---- point converter template
   template < class PROTO_POINT, class POINT, int N >
 void
@@ -85,7 +85,7 @@ CONVERT( ::kwiver::protobuf::point_d, ::kwiver::vital::point_4f, 4 )
 
 #undef CONVERT
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 // -- covariance converter template
 template <class COV>
 void
@@ -115,7 +115,7 @@ convert_to_protobuf( const COV& covariance,
   }
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 #define CONVERT( VT )                                                   \
 void convert_protobuf( const ::kwiver::protobuf::covariance& proto_covariance, \
                        VT& covariance )                                 \
