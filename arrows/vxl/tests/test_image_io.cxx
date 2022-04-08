@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test VXL image class functionality
- */
+/// \file
+/// \brief test VXL image class functionality
 
 #include <test_gtest.h>
 #include <test_tmpfn.h>
@@ -26,8 +24,8 @@ namespace ka = kwiver::arrows;
 using ST = kwiversys::SystemTools;
 
 kv::path_t g_data_dir;
-static std::string test_color_image_name = "images/small_color_logo.png";
-static std::string test_plane_image_name = "images/planes_logo.png";
+static std::string test_color_image_name = "images/kitware_logos/small_color_logo.png";
+static std::string test_plane_image_name = "images/kitware_logos/planes_logo.png";
 
 // ----------------------------------------------------------------------------
 int

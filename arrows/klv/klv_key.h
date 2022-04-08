@@ -26,7 +26,7 @@ namespace arrows {
 
 namespace klv {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Universal Data Set 16-byte key.
 class KWIVER_ALGO_KLV_EXPORT klv_uds_key
 {

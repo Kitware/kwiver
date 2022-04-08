@@ -21,7 +21,7 @@ operator<<( std::ostream& s, landmark const& m )
     << m.scale() << " "
     << m.normal() << " "
     << m.color() << " "
-    << m.observations() << ""
+    << m.observations() << " "
     << m.cos_obs_angle();
   return s;
 }

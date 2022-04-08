@@ -14,6 +14,8 @@
 #include <arrows/klv/klv_value.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
+#include <vital/types/timestamp.h>
+
 namespace kwiver {
 
 namespace arrows {
@@ -26,6 +28,7 @@ namespace klv {
 enum klv_top_level_tag : klv_lds_key
 {
   KLV_PACKET_UNKNOWN,
+  KLV_PACKET_MISB_0102_LOCAL_SET,
   KLV_PACKET_MISB_0601_LOCAL_SET,
   KLV_PACKET_MISB_1108_LOCAL_SET,
   KLV_PACKET_MISB_0104_UNIVERSAL_SET,
@@ -38,6 +41,12 @@ enum klv_top_level_tag : klv_lds_key
 /// A KLV metadata stream consists of a sequence of these.
 struct KWIVER_ALGO_KLV_EXPORT klv_packet
 {
+  klv_packet();
+
+  klv_packet( klv_uds_key const& key, klv_value const& value );
+
+  klv_packet( klv_uds_key const& key, klv_value&& value );
+
   klv_uds_key key;
   klv_value value;
 };
@@ -123,6 +132,33 @@ klv_packet_timestamp( klv_packet const& packet );
 KWIVER_ALGO_KLV_EXPORT
 klv_tag_traits_lookup const&
 klv_lookup_packet_traits();
+
+// ----------------------------------------------------------------------------
+struct KWIVER_ALGO_KLV_EXPORT klv_timed_packet
+{
+  klv_packet packet;
+  kwiver::vital::timestamp timestamp;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator<( klv_timed_packet const& lhs, klv_timed_packet const& rhs );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator==( klv_timed_packet const& lhs, klv_timed_packet const& rhs );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator!=( klv_timed_packet const& lhs, klv_timed_packet const& rhs );
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_timed_packet const& timed_packet );
 
 } // namespace klv
 

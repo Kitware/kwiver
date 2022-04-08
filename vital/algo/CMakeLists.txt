@@ -54,6 +54,7 @@ set( public_headers
   match_features.h
   merge_images.h
   optimize_cameras.h
+  pointcloud_io.h
   read_object_track_set.h
   read_track_descriptor_set.h
   refine_detections.h
@@ -66,6 +67,7 @@ set( public_headers
   uuid_factory.h
   uv_unwrap_mesh.h
   video_input.h
+  video_output.h
   write_object_track_set.h
   write_track_descriptor_set.h
   )
@@ -118,6 +120,7 @@ set( sources
   match_features.cxx
   merge_images.cxx
   optimize_cameras.cxx
+  pointcloud_io.cxx
   read_object_track_set.cxx
   read_track_descriptor_set.cxx
   refine_detections.cxx
@@ -130,6 +133,7 @@ set( sources
   uuid_factory.cxx
   uv_unwrap_mesh.cxx
   video_input.cxx
+  video_output.cxx
   write_object_track_set.cxx
   write_track_descriptor_set.cxx
 )

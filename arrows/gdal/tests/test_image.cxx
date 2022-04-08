@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test GDAL image class
- */
+/// \file
+/// \brief test GDAL image class
 
 #include <test_gtest.h>
 
@@ -20,10 +18,10 @@ kwiver::vital::path_t g_data_dir;
 namespace algo = kwiver::vital::algo;
 namespace gdal = kwiver::arrows::gdal;
 static int expected_size = 32;
-static std::string geotiff_file_name = "test.tif";
-static std::string nitf_file_name = "test.ntf";
-static std::string jpeg_file_name = "test.jpg";
-static std::string png_file_name = "test.png";
+static std::string geotiff_file_name = "images/test.tif";
+static std::string nitf_file_name = "images/test.ntf";
+static std::string jpeg_file_name = "images/test.jpg";
+static std::string png_file_name = "images/test.png";
 static std::vector<int> test_x_pixels = {0, 3, 11, 21, 31};
 static std::vector<int> test_y_pixels = {0, 5, 8, 13, 31};
 

@@ -4,8 +4,11 @@
 
 #include <arrows/serialize/json/klv/load_save_klv.h>
 
-#include <arrows/klv/klv_0104_new.h>
-#include <arrows/klv/klv_0601_new.h>
+#include <arrows/serialize/json/load_save.h>
+
+#include <arrows/klv/klv_0102.h>
+#include <arrows/klv/klv_0104.h>
+#include <arrows/klv/klv_0601.h>
 #include <arrows/klv/klv_1108.h>
 #include <arrows/klv/klv_1108_metric_set.h>
 
@@ -99,7 +102,11 @@ type_traits()
     { typeid( klv_1108_metric_period_pack ),
       "metric period pack" },
     { typeid( klv_1108_window_corners_pack ),
-      "window corners pack" }, };
+      "window corners pack" },
+    { typeid( klv_0102_security_classification ),
+      "security classification enumeration" },
+    { typeid( klv_0102_country_coding_method ),
+      "country coding method enumeration" } };
 
   return traits;
 }
@@ -186,7 +193,7 @@ save_uds_key( save_archive& archive, klv_uds_key const& key,
 
 // ----------------------------------------------------------------------------
 klv_uds_key
-load_uds_key( load_archive& archive, load_context& context )
+load_uds_key( load_archive& archive, load_context& )
 {
   archive.startNode();
 
@@ -218,7 +225,7 @@ save_lds_key( save_archive& archive, klv_lds_key const& key,
 
 // ----------------------------------------------------------------------------
 klv_lds_key
-load_lds_key( load_archive& archive, load_context& context )
+load_lds_key( load_archive& archive, load_context& )
 {
   archive.startNode();
 
@@ -407,10 +414,6 @@ save_value( save_archive& archive, klv_value const& value,
     archive.finishNode();
     return;
   }
-  if( value.length_hint() )
-  {
-    archive( make_nvp( "length", value.length_hint() ) );
-  }
   kv::visit_types<
     save_value_visitor,
     int64_t,
@@ -432,7 +435,9 @@ save_value( save_archive& archive, klv_value const& value,
     klv_1108_window_corners_pack,
     klv_1108_compression_type,
     klv_1108_compression_profile,
-    klv_1108_metric_implementer
+    klv_1108_metric_implementer,
+    klv_0102_country_coding_method,
+    klv_0102_security_classification
     >( { archive, value, context }, value.type() );
 
   archive.finishNode();
@@ -604,15 +609,6 @@ load_value( load_archive& archive, load_context& context )
   std::string type_name;
   archive( make_nvp( "type", type_name ) );
 
-  size_t length_hint = 0;
-  try
-  {
-    archive( make_nvp( "length", length_hint ) );
-  }
-  catch ( std::runtime_error const& )
-  {
-  }
-
   auto const& trait = type_traits_of( type_name );
   if( trait.type == typeid( void ) )
   {
@@ -643,11 +639,12 @@ load_value( load_archive& archive, load_context& context )
     klv_1108_window_corners_pack,
     klv_1108_compression_type,
     klv_1108_compression_profile,
-    klv_1108_metric_implementer
+    klv_1108_metric_implementer,
+    klv_0102_country_coding_method,
+    klv_0102_security_classification
     >( { archive, value, context }, trait.type );
 
   archive.finishNode();
-  value.set_length_hint( length_hint );
   return value;
 }
 
@@ -697,6 +694,30 @@ load_packet( load_archive& archive )
   return { key, value };
 }
 
+// ----------------------------------------------------------------------------
+void
+save_timed_packet( save_archive& archive, klv_timed_packet const& timed_packet )
+{
+  archive.startNode();
+  save( archive, timed_packet.timestamp );
+  archive.setNextName( "data" );
+  save_packet( archive, timed_packet.packet );
+  archive.finishNode();
+}
+
+// ----------------------------------------------------------------------------
+klv_timed_packet
+load_timed_packet( load_archive& archive )
+{
+  klv_timed_packet timed_packet;
+  archive.startNode();
+  load( archive, timed_packet.timestamp );
+  archive.setNextName( "data" );
+  timed_packet.packet = load_packet( archive );
+  archive.finishNode();
+  return timed_packet;
+}
+
 } // namespace
 
 // ----------------------------------------------------------------------------
@@ -728,6 +749,39 @@ load( load_archive& archive,
   for( auto& packet : packets )
   {
     packet = load_packet( archive );
+  }
+  archive.finishNode();
+}
+
+// ----------------------------------------------------------------------------
+void save( ::cereal::JSONOutputArchive& archive,
+           std::vector< ::kwiver::arrows::klv::klv_timed_packet > const&
+             timed_packets )
+{
+  archive( make_nvp( "size", timed_packets.size() ) );
+  archive.setNextName( "data" );
+  archive.startNode();
+  archive.makeArray();
+  for( auto const& packet : timed_packets )
+  {
+    save_timed_packet( archive, packet );
+  }
+  archive.finishNode();
+}
+
+// ----------------------------------------------------------------------------
+void load( ::cereal::JSONInputArchive& archive,
+           std::vector< ::kwiver::arrows::klv::klv_timed_packet >&
+             timed_packets )
+{
+  size_t size;
+  archive( make_nvp( "size", size ) );
+  timed_packets.resize( size );
+  archive.setNextName( "data" );
+  archive.startNode();
+  for( auto& packet : timed_packets )
+  {
+    packet = load_timed_packet( archive );
   }
   archive.finishNode();
 }

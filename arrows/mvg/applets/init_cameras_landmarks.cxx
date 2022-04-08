@@ -424,8 +424,7 @@ public:
     auto lgcs = sfm_constraint_ptr->get_local_geo_cs();
     if (!lgcs.origin().is_empty())
     {
-      kv::write_local_geo_cs_to_file(lgcs, geo_origin_file);
-      return true;
+      return kv::write_local_geo_cs_to_file(lgcs, geo_origin_file);
     }
     return false;
   }

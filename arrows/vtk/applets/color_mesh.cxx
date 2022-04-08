@@ -8,6 +8,7 @@
 #include <arrows/vtk/mesh_coloration.h>
 #include <vital/types/camera_map.h>
 #include <vital/algo/video_input.h>
+#include <vital/algo/pointcloud_io.h>
 #include <vital/applets/applet_config.h>
 #include <vital/applets/config_validation.h>
 #include <vital/io/camera_io.h>
@@ -50,7 +51,7 @@ typedef kwiversys::CommandLineArguments argT;
 
 kv::logger_handle_t main_logger( kv::get_logger( "color_mesh_applet" ) );
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool check_config(kv::config_block_sptr config)
 {
   using namespace kwiver::tools;
@@ -63,6 +64,26 @@ bool check_config(kv::config_block_sptr config)
   config_valid =
     validate_required_input_file("video_source", *config, main_logger)
     && config_valid;
+
+  std::string extension = "";
+  if (config->has_value("output_mesh"))
+  {
+    std::string output_mesh =
+      config->get_value<std::string>("output_mesh");
+    extension = ST::GetFilenameLastExtension( output_mesh );
+  }
+  if (extension == ".las")
+  {
+    config_valid =
+      validate_required_input_file("input_geo_origin_filename", *config,
+                                    main_logger) && config_valid;
+  }
+  else
+  {
+    config_valid =
+      validate_optional_input_file("input_geo_origin_filename", *config,
+                                    main_logger) && config_valid;
+  }
 
   if (!kv::algo::video_input::check_nested_algo_configuration("video_reader", config))
   {
@@ -90,14 +111,12 @@ public:
   kva::video_input_sptr mask_reader_ = nullptr;
   kv::config_block_sptr config_ = nullptr;
   std::string input_mesh_;
+  std::string input_geo_origin_file_;
   std::string video_source_;
   std::string cameras_dir_;
   std::string mask_file_;
   std::string output_mesh_;
   std::string active_attribute_ = "mean";
-  int frame_ = -1;
-  int frame_sampling_ = 1;
-  bool all_frames_ = false;
 
   enum commandline_mode { SUCCESS, HELP, WRITE, FAIL };
 
@@ -134,6 +153,11 @@ public:
     {
       input_mesh_ = cmd_args["input-mesh"].as<std::string>();
       config_->set_value("input_mesh", input_mesh_);
+    }
+    if (cmd_args.count("input-geo-origin-file"))
+    {
+      input_geo_origin_file_ = cmd_args["input-geo-origin-file"].as<std::string>();
+      config_->set_value("input_geo_origin_filename", input_geo_origin_file_);
     }
     if (cmd_args.count("video-file"))
     {
@@ -207,10 +231,19 @@ public:
       return FAIL;
     }
 
+    // set variables from the config
+    frame_sampling_ = config_->get_value("frame_sampling", frame_sampling_);
+    frame_ = config_->get_value("frame", frame_);
+    all_frames_ = config_->get_value("all_frames", all_frames_);
+    occlusion_threshold_ = config_->get_value("occlusion_threshold", occlusion_threshold_);
+    color_occluded_ = config_->get_value("color_occluded", color_occluded_);
+    color_masked_ = config_->get_value("color_masked", color_masked_);
+    remove_color_count_less_equal_ = config_->get_value("remove_color_count_less_equal", remove_color_count_less_equal_);
+
     return SUCCESS;
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   kv::config_block_sptr default_config()
   {
     using kwiver::tools::load_default_video_input_config;
@@ -226,6 +259,8 @@ public:
 
     config->set_value("input_mesh", input_mesh_,
       "Path to an input mesh file in PLY, OBJ or VTP formats.");
+    config->set_value("input_geo_origin_filename", "results/geo_origin.txt",
+      "Path to a file to read the geographic origin from.");
     config->set_value("video_source", video_source_,
       "Path to an input file to be opened as a video. "
       "This could be either a video file or a text file "
@@ -266,8 +301,8 @@ public:
       "We use threshold >= 0 to fix floating point inaccuracies "
       "Default value is 0, bigger values will remove more points.");
     config->set_value(
-      "remove_occluded", true,
-      "Remove occluded points if parameter is true.");
+      "color_occluded", false,
+      "Color occluded points if parameter is true.");
     config->set_value(
       "active_attribute", active_attribute_,
       "Choose the active attribute between mean, median and count when saving "
@@ -275,8 +310,8 @@ public:
       "For the VTP format, all attributes are saved, for PLY only the "
       "active attribute is saved.");
     config->set_value(
-      "remove_masked", true,
-      "Remove masked points if parameter is true.");
+      "color_masked", false,
+      "Color masked points if parameter is true.");
 
     kva::video_input::get_nested_algo_configuration("video_reader", config,
       kva::video_input_sptr());
@@ -398,11 +433,66 @@ public:
       writer->Write();
       return true;
     }
+    else if (ext == ".las")
+    {
+      save_mesh_las(mesh, output_path);
+      return true;
+    }
     else
     {
       LOG_ERROR(main_logger, "Invalid file format: " << ext);
       return false;
     }
+  }
+
+  void save_mesh_las(vtkSmartPointer<vtkPolyData> mesh,
+                     char const * output_path)
+  {
+    auto lgcs = vital::local_geo_cs();
+    if (! read_local_geo_cs_from_file(lgcs, input_geo_origin_file_))
+    {
+      LOG_ERROR(main_logger, "Failed to read local geo cs from file: "
+                << input_geo_origin_file_);
+      return;
+    }
+
+    vtkSmartPointer<vtkPoints> inPts = mesh->GetPoints();
+    vtkIdType numPts = inPts->GetNumberOfPoints();
+    std::string colorArrayName = mesh->GetPointData()->GetScalars()->GetName();
+    vtkSmartPointer<vtkDataArray> da = mesh->GetPointData()->GetArray(
+      colorArrayName.c_str());
+    vtkUnsignedCharArray* rgbArray = nullptr;
+
+    std::vector<vital::vector_3d> points(numPts);
+    std::vector<vital::rgb_color> colors;
+
+    if (da->GetNumberOfComponents() == 3)
+    {
+      rgbArray = vtkArrayDownCast<vtkUnsignedCharArray>(da);
+      colors.resize(numPts);
+    }
+
+    for (vtkIdType i = 0; i < numPts; ++i)
+    {
+      inPts->GetPoint(i, points[i].data());
+
+      if (rgbArray)
+      {
+        vtkIdType idx = 3 * i;
+        colors[i] = vital::rgb_color(rgbArray->GetValue(idx),
+                                     rgbArray->GetValue(idx + 1),
+                                     rgbArray->GetValue(idx + 2));
+      }
+    }
+
+    auto pc_io = vital::algo::pointcloud_io::create("pdal");
+    if (! pc_io)
+    {
+      LOG_ERROR(main_logger, "Could not find pointcloud_io algorithm pdal");
+      return;
+    }
+    pc_io->set_local_geo_cs(lgcs);
+    pc_io->save(output_path, points, colors);
   }
 
   bool run_algorithm()
@@ -421,29 +511,26 @@ public:
     auto cameras = load_camera_map(video_reader_, video_source_, cameras_dir_);
     set_cameras(cameras);
     LOG_INFO(main_logger, "Load mesh file...");
-    auto mesh = load_mesh(input_mesh_);
-    if (! mesh)
+    auto input = load_mesh(input_mesh_);
+    if (! input)
     {
       LOG_ERROR(main_logger, "Error loading the mesh");
       return false;
     }
-    set_input(mesh);
-    set_output(mesh);
-    set_frame(frame_);
-    set_frame_sampling(frame_sampling_);
-    set_all_frames(all_frames_);
+    set_input(input);
     colorize();
+    auto output = get_output();
     LOG_INFO(main_logger, "Save mesh file...");
     if (! all_frames_)
     {
-      vtkDataArray* active = mesh->GetPointData()->GetArray(active_attribute_.c_str());
+      vtkDataArray* active = output->GetPointData()->GetArray(active_attribute_.c_str());
       if (! active)
       {
-        active = mesh->GetPointData()->GetArray("mean");
+        active = output->GetPointData()->GetArray("mean");
       }
-      mesh->GetPointData()->SetScalars(active);
+      output->GetPointData()->SetScalars(active);
     }
-    if (! save_mesh(mesh, output_mesh_.c_str()))
+    if (! save_mesh(output, output_mesh_.c_str()))
     {
       return false;
     }
@@ -534,6 +621,8 @@ add_command_options()
       "Frame index to use for coloring. "
       "If -1 use an average color for all frames.",
       cxxopts::value<int>()->default_value( "-1"))
+    ( "g,input-geo-origin-file", "Input geographic origin file.",
+      cxxopts::value<std::string>() )
     ( "h,help",     "Display applet usage" )
     ( "m,mask-file",
       "An input mask video or list of mask images to indicate "
@@ -564,7 +653,7 @@ add_command_options()
       "input-mesh", "video-file", "cameras-dir", "output-mesh" });
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 color_mesh::
 color_mesh()
   : d(new priv())

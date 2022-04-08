@@ -60,9 +60,6 @@ public:
                               kwiver::vital::any >::value >::type >
   klv_value( T&& value );
 
-  template < class T > explicit
-  klv_value( T&& value, size_t length_hint );
-
   klv_value( klv_value const& other );
 
   klv_value( klv_value&& other );
@@ -86,14 +83,6 @@ public:
   /// Create an \c any object with a copy of this value.
   kwiver::vital::any
   to_any() const;
-
-  /// Set the number of bytes this value should be written with.
-  void
-  set_length_hint( size_t length_hint );
-
-  /// Get the number of bytes this value should be written with.
-  size_t
-  length_hint() const;
 
   /// Check if the object contains no value.
   bool
@@ -162,25 +151,24 @@ private:
   template < class T > class internal_;
 
   std::unique_ptr< internal_base > m_item;
-  size_t m_length_hint;
 };
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
 bool
 operator<( klv_value const& lhs, klv_value const& rhs );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
 bool
 operator==( klv_value const& lhs, klv_value const& rhs );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
 bool
 operator!=( klv_value const& lhs, klv_value const& rhs );
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
 std::ostream&
 operator<<( std::ostream& os, klv_value const& rhs );

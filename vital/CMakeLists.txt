@@ -161,6 +161,7 @@ set( vital_public_headers
   types/transform_2d.h
   types/uid.h
   types/vector.h
+  types/video_settings.h
 )
 
 # ----------------------
@@ -225,6 +226,7 @@ set( vital_sources
   types/track.cxx
   types/track_descriptor.cxx
   types/track_set.cxx
+  types/video_settings.cxx
   types/uid.cxx
 )
 

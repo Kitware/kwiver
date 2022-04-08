@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test opening/closing a video file
- */
+/// \file
+/// \brief test opening/closing a video file
 
 #include <test_gtest.h>
 
@@ -25,8 +23,10 @@ kwiver::vital::path_t g_data_dir;
 namespace algo = kwiver::vital::algo;
 
 static int TOTAL_NUMBER_OF_FRAMES = 50;
+static std::string video_name = "videos/ffmpeg_video.mp4";
+static std::string short_video_name = "videos/aphill_short.ts";
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 int
 main( int argc, char* argv[] )
 {
@@ -38,23 +38,23 @@ main( int argc, char* argv[] )
   return RUN_ALL_TESTS();
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class ffmpeg_video_input : public ::testing::Test
 {
   TEST_ARG( data_dir );
 };
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, create )
 {
   EXPECT_NE( nullptr, algo::video_input::create( "ffmpeg" ) );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, is_good_correct_file_path )
 {
   kwiver::arrows::ffmpeg::ffmpeg_video_input input;
-  kwiver::vital::path_t correct_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t correct_file = data_dir + "/" + video_name;
 
   EXPECT_FALSE( input.good() )
     << "Video state before open";
@@ -78,7 +78,7 @@ TEST_F ( ffmpeg_video_input, is_good_correct_file_path )
     "Video state after close";
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, is_good_invalid_file_path )
 {
   kwiver::arrows::ffmpeg::ffmpeg_video_input input;
@@ -108,11 +108,11 @@ TEST_F ( ffmpeg_video_input, is_good_invalid_file_path )
     "Video state after close";
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, frame_image )
 {
   kwiver::arrows::ffmpeg::ffmpeg_video_input input;
-  kwiver::vital::path_t correct_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t correct_file = data_dir + "/" + video_name;
 
   EXPECT_FALSE( input.good() ) <<
     "Video state before open";
@@ -141,12 +141,12 @@ TEST_F ( ffmpeg_video_input, frame_image )
   EXPECT_EQ( decode_barcode( *frame ), 1 );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, seek_frame )
 {
   kwiver::arrows::ffmpeg::ffmpeg_video_input input;
 
-  kwiver::vital::path_t correct_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t correct_file = data_dir + "/" + video_name;
 
   // open the video
   input.open( correct_file );
@@ -156,12 +156,12 @@ TEST_F ( ffmpeg_video_input, seek_frame )
   input.close();
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, seek_then_next_frame )
 {
   kwiver::arrows::ffmpeg::ffmpeg_video_input input;
 
-  kwiver::vital::path_t correct_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t correct_file = data_dir + "/" + video_name;
 
   // open the video
   input.open( correct_file );
@@ -171,12 +171,12 @@ TEST_F ( ffmpeg_video_input, seek_then_next_frame )
   input.close();
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, next_then_seek_frame )
 {
   kwiver::arrows::ffmpeg::ffmpeg_video_input input;
 
-  kwiver::vital::path_t correct_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t correct_file = data_dir + "/" + video_name;
 
   // open the video
   input.open( correct_file );
@@ -186,12 +186,12 @@ TEST_F ( ffmpeg_video_input, next_then_seek_frame )
   input.close();
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, next_then_seek_then_next )
 {
   kwiver::arrows::ffmpeg::ffmpeg_video_input input;
 
-  kwiver::vital::path_t correct_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t correct_file = data_dir + "/" + video_name;
 
   // open the video
   input.open( correct_file );
@@ -201,12 +201,12 @@ TEST_F ( ffmpeg_video_input, next_then_seek_then_next )
   input.close();
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, end_of_video )
 {
   kwiver::arrows::ffmpeg::ffmpeg_video_input input;
 
-  kwiver::vital::path_t correct_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t correct_file = data_dir + "/" + video_name;
 
   EXPECT_TRUE( input.end_of_video() ) <<
     "End of video before open";
@@ -226,12 +226,12 @@ TEST_F ( ffmpeg_video_input, end_of_video )
   EXPECT_TRUE( input.end_of_video() ) << "End of video after last frame";
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, read_video_aphill )
 {
   kwiver::arrows::ffmpeg::ffmpeg_video_input input;
 
-  kwiver::vital::path_t correct_file = data_dir + "/aphill_short.ts";
+  kwiver::vital::path_t correct_file = data_dir + "/" + short_video_name;
 
   input.open( correct_file );
 
@@ -248,13 +248,13 @@ TEST_F ( ffmpeg_video_input, read_video_aphill )
   input.close();
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, read_video )
 {
   // make config block
   kwiver::arrows::ffmpeg::ffmpeg_video_input input;
 
-  kwiver::vital::path_t correct_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t correct_file = data_dir + "/" + video_name;
 
   input.open( correct_file );
 
@@ -294,7 +294,7 @@ TEST_F ( ffmpeg_video_input, read_video )
     TOTAL_NUMBER_OF_FRAMES;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, read_video_nth_frame_output )
 {
   // Make config block
@@ -308,7 +308,7 @@ TEST_F ( ffmpeg_video_input, read_video_nth_frame_output )
   EXPECT_TRUE( vif.check_configuration( config ) );
   vif.set_configuration( config );
 
-  kwiver::vital::path_t correct_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t correct_file = data_dir + "/" + video_name;
 
   // Open the video
   vif.open( correct_file );
@@ -318,7 +318,7 @@ TEST_F ( ffmpeg_video_input, read_video_nth_frame_output )
   vif.close();
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, seek_nth_frame_output )
 {
   // Make config block
@@ -332,7 +332,7 @@ TEST_F ( ffmpeg_video_input, seek_nth_frame_output )
   EXPECT_TRUE( vif.check_configuration( config ) );
   vif.set_configuration( config );
 
-  kwiver::vital::path_t correct_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t correct_file = data_dir + "/" + video_name;
 
   // Open the video
   vif.open( correct_file );
@@ -342,7 +342,7 @@ TEST_F ( ffmpeg_video_input, seek_nth_frame_output )
   vif.close();
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, read_video_sublist )
 {
   // Make config block
@@ -357,7 +357,7 @@ TEST_F ( ffmpeg_video_input, read_video_sublist )
   EXPECT_TRUE( vif.check_configuration( config ) );
   vif.set_configuration( config );
 
-  kwiver::vital::path_t correct_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t correct_file = data_dir + "/" + video_name;
 
   // Open the video
   vif.open( correct_file );
@@ -367,7 +367,7 @@ TEST_F ( ffmpeg_video_input, read_video_sublist )
   vif.close();
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, read_video_sublist_nth_frame )
 {
   // Make config block
@@ -383,7 +383,7 @@ TEST_F ( ffmpeg_video_input, read_video_sublist_nth_frame )
   EXPECT_TRUE( vif.check_configuration( config ) );
   vif.set_configuration( config );
 
-  kwiver::vital::path_t correct_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t correct_file = data_dir + "/" + video_name;
 
   // Open the video
   vif.open( correct_file );
@@ -393,7 +393,7 @@ TEST_F ( ffmpeg_video_input, read_video_sublist_nth_frame )
   vif.close();
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, seek_frame_sublist_nth_frame )
 {
   // Make config block
@@ -409,7 +409,7 @@ TEST_F ( ffmpeg_video_input, seek_frame_sublist_nth_frame )
   EXPECT_TRUE( vif.check_configuration( config ) );
   vif.set_configuration( config );
 
-  kwiver::vital::path_t correct_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t correct_file = data_dir + "/" + video_name;
 
   // Open the video
   vif.open( correct_file );
@@ -419,13 +419,13 @@ TEST_F ( ffmpeg_video_input, seek_frame_sublist_nth_frame )
   vif.close();
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, metadata_map )
 {
   // make config block
   kwiver::arrows::ffmpeg::ffmpeg_video_input input;
 
-  kwiver::vital::path_t correct_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t correct_file = data_dir + "/" + video_name;
 
   input.open( correct_file );
 
@@ -459,7 +459,7 @@ TEST_F ( ffmpeg_video_input, metadata_map )
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, no_sync_metadata )
 {
   std::map< int, std::set< uint64_t > > expected_md =
@@ -477,8 +477,7 @@ TEST_F ( ffmpeg_video_input, no_sync_metadata )
   config->set_value( "sync_metadata", "False" );
   vif.set_configuration( config );
 
-  kwiver::vital::path_t video_base_name = "aphill_short";
-  kwiver::vital::path_t video_path = data_dir + "/" + video_base_name + ".ts";
+  kwiver::vital::path_t video_path = data_dir + "/" + short_video_name;
 
   // Open the video
   vif.open( video_path );
@@ -532,7 +531,7 @@ TEST_F ( ffmpeg_video_input, no_sync_metadata )
   vif.close();
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, sync_metadata )
 {
   std::map< int, std::set< uint64_t > > expected_md =
@@ -547,8 +546,7 @@ TEST_F ( ffmpeg_video_input, sync_metadata )
   auto config = vif.get_configuration();
   vif.set_configuration( config );
 
-  kwiver::vital::path_t video_base_name = "aphill_short";
-  kwiver::vital::path_t video_path = data_dir + "/" + video_base_name + ".ts";
+  kwiver::vital::path_t video_path = data_dir + "/" + short_video_name;
 
   // Open the video
   vif.open( video_path );
@@ -597,7 +595,7 @@ TEST_F ( ffmpeg_video_input, sync_metadata )
   vif.close();
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, empty_filter_desc )
 {
   kwiver::arrows::ffmpeg::ffmpeg_video_input vif;
@@ -606,7 +604,7 @@ TEST_F ( ffmpeg_video_input, empty_filter_desc )
   config->set_value( "filter_desc", "" );
   vif.set_configuration( config );
 
-  kwiver::vital::path_t video_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t video_file = data_dir + "/" + video_name;
 
   // Open the video
   vif.open( video_file );
@@ -633,7 +631,7 @@ TEST_F ( ffmpeg_video_input, empty_filter_desc )
   EXPECT_EQ( decode_barcode( *frame ), 2 );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, invalid_filter_desc )
 {
   kwiver::arrows::ffmpeg::ffmpeg_video_input vif;
@@ -642,7 +640,7 @@ TEST_F ( ffmpeg_video_input, invalid_filter_desc )
   config->set_value( "filter_desc", "_invalid_filter_" );
   vif.set_configuration( config );
 
-  kwiver::vital::path_t video_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t video_file = data_dir + "/" + video_name;
 
   // Open the video
   EXPECT_THROW(
@@ -650,7 +648,7 @@ TEST_F ( ffmpeg_video_input, invalid_filter_desc )
     kwiver::vital::video_runtime_exception );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // helper function to make a horizontally flipped image view
 // TODO: make this a more general function within KWIVER
 kwiver::vital::image
@@ -668,7 +666,7 @@ hflip_image( kwiver::vital::image const& image )
     w, h, d, -ws, hs + ws * w, ds, image.pixel_traits() );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, hflip_filter_desc )
 {
   kwiver::arrows::ffmpeg::ffmpeg_video_input vif;
@@ -677,7 +675,7 @@ TEST_F ( ffmpeg_video_input, hflip_filter_desc )
   config->set_value( "filter_desc", "hflip" );
   vif.set_configuration( config );
 
-  kwiver::vital::path_t video_file = data_dir + "/video.mp4";
+  kwiver::vital::path_t video_file = data_dir + "/" + video_name;
 
   // Open the video
   vif.open( video_file );

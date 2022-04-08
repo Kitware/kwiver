@@ -13,6 +13,7 @@
 
 #include <arrows/core/applets/dump_klv.h>
 #include <arrows/core/applets/render_mesh.h>
+#include <arrows/core/applets/transcode.h>
 
 namespace kwiver {
 namespace arrows {
@@ -34,6 +35,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   // -- register applets --
   reg.register_tool< dump_klv >();
   reg.register_tool< render_mesh >();
+  reg.register_tool< transcode_applet >();
 
   reg.mark_module_as_loaded();
 }

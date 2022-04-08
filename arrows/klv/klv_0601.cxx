@@ -4,7 +4,20 @@
 
 #include "klv_0601.h"
 
+#include "klv_0806.h"
+#include "klv_0903.h"
+#include "klv_1002.h"
+#include "klv_1010.h"
+#include "klv_1204.h"
+#include "klv_1206.h"
+#include "klv_1601.h"
+#include "klv_1602.h"
+#include "klv_1607.h"
 #include "klv_checksum.h"
+#include "klv_series.hpp"
+#include "klv_length_value.h"
+#include "klv_list.hpp"
+#include "klv_util.h"
 
 #include <vital/logger/logger.h>
 
@@ -36,7 +49,6 @@ klv_0601_traits_lookup()
   // https://gwg.nga.mil/misb/docs/standards/ST0601.17.pdf
   // Descriptions are edited for clarity, brevity, consistency, etc.
   static klv_tag_traits_lookup const lookup = {
-#define ENUM_AND_NAME( X ) X, #X
     { {},
       ENUM_AND_NAME( KLV_0601_UNKNOWN ),
       std::make_shared< klv_blob_format >(),
@@ -349,13 +361,13 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_GENERIC_FLAG_DATA ),
-      std::make_shared< klv_uint_format >( 1 ),
+      std::make_shared< klv_0601_generic_flag_data_format >( 1 ),
       "Generic Flag Data",
       "Bits representing miscellaneous boolean values.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SECURITY_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0102_local_set_format >(),
       "Security Local Set",
       "MISB ST 0102 local set for security metadata.",
       { 0, 1 } },
@@ -519,13 +531,13 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_RVT_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0806_local_set_format >(),
       "RVT Local Set",
       "MISB ST 0806 local set for remote video terminals.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_VMTI_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0903_local_set_format >(),
       "VMTI Local Set",
       "MISB ST 0903 local set for the video moving target indicator.",
       { 0, 1 } },
@@ -569,7 +581,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_IMAGE_HORIZON_PIXEL_PACK ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_image_horizon_pixel_pack_format >(),
       "Image Horizon Pixel Pack",
       "Location of earth-sky horizon in the image.",
       { 0, 1 } },
@@ -651,13 +663,13 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_MIIS_CORE_IDENTIFIER ),
-      std::make_shared< klv_blob_format >( 34 ),
+      std::make_shared< klv_1204_miis_id_format >(),
       "MIIS Core Identifier",
       "Binary value of MISB ST 1201 core identifier.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SAR_MOTION_IMAGERY_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_1206_local_set_format >(),
       "SAR Motion Imagery Local Set",
       "MISB ST 1206 local set for synthetic aperture radar Motion Imagery.",
       { 0, 1 } },
@@ -669,38 +681,38 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_RANGE_IMAGE_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_1002_local_set_format >(),
       "Range Image Local Set",
       "MISB ST 1002 local set for range images.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_GEOREGISTRATION_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_1601_local_set_format >(),
       "Geo-Registration Local Set",
       "MISB ST 1601 local set for geo-registration.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_COMPOSITE_IMAGING_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_1602_local_set_format >(),
       "Composite Imaging Local Set",
       "MISB ST 1602 local set for composite imaging.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SEGMENT_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_1607_child_set_format >( lookup ),
       "Segment Local Set",
       "MISB ST 1607 Segment local set for metadata sharing across parent and "
       "child sets.",
       { 0, SIZE_MAX } },
     { {},
       ENUM_AND_NAME( KLV_0601_AMEND_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_1607_child_set_format >( lookup ),
       "Amend Local Set",
       "MISB ST 1607 Amend local set for metadata corrections.",
       { 0, SIZE_MAX } },
     { {},
       ENUM_AND_NAME( KLV_0601_SDCC_FLP ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_1010_sdcc_flp_format >(),
       "SDCC-FLP",
       "MISB ST 101 floating length pack for standard deviation and "
       "cross-correlation metadata.",
@@ -794,7 +806,7 @@ klv_0601_traits_lookup()
       { 0, SIZE_MAX } },
     { {},
       ENUM_AND_NAME( KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_control_command_verify_list_format >(),
       "Control Command Verification List",
       "Acknowledgement from the platform that one or more control commands "
       "were received.",
@@ -830,13 +842,13 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_ACTIVE_WAVELENGTH_LIST ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_active_wavelength_list_format >(),
       "Active Wavelength List",
       "List of wavelengths used by the sensor to generate the Motion Imagery.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_COUNTRY_CODES ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_country_codes_format >(),
       "Country Codes",
       "Countries which are associated with the platform and its operation.",
       { 0, 1 } },
@@ -848,7 +860,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_POSITIONING_METHOD_SOURCE ),
-      std::make_shared< klv_blob_format >( 1 ),
+      std::make_shared< klv_0601_positioning_method_source_format >( 1 ),
       "Positioning Method Source",
       "Source of the navigation positioning information.",
       { 0, 1 } },
@@ -872,7 +884,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_WAVELENGTHS_LIST ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_wavelengths_list_format >(),
       "Wavelengths List",
       "List of wavelength bands provided by all available sensors.",
       { 0, 1 } },
@@ -884,7 +896,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_AIRBASE_LOCATIONS ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_airbase_locations_format >(),
       "Airbase Locations",
       "Geographic location of take-off and recovery site.",
       { 0, 1 } },
@@ -935,7 +947,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PAYLOAD_LIST ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_payload_list_format >(),
       "Payload List",
       "List of payloads available on platform.",
       { 0, 1 } },
@@ -947,24 +959,23 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_WEAPONS_STORES ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_weapons_store_list_format >(),
       "Weapons Stores",
       "List of weapon stores and statuses.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_WAYPOINT_LIST ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_waypoint_list_format >(),
       "Waypoint List",
       "List of navigational waypoints and their statuses.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_VIEW_DOMAIN ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_view_domain_format >(),
       "View Domain",
       "Specifies range of possible sensor relative azimuth, elevation, and "
       "roll values.",
       { 0, 1 } }, };
-#undef ENUM_AND_NAME
 
   return lookup;
 }
@@ -1004,7 +1015,29 @@ operator<<( std::ostream& os, klv_0601_sensor_fov_name value )
 
 // ----------------------------------------------------------------------------
 std::ostream&
-operator<<( std::ostream& os, klv_0601_generic_flag_data_bits value )
+operator<<( std::ostream& os, klv_0601_positioning_method_source_bit value )
+{
+  static std::string strings[ KLV_0601_POSITIONING_METHOD_SOURCE_BIT_ENUM_END +
+                              1 ] = {
+    "On-board INS",
+    "GPS",
+    "Galileo",
+    "QZSS",
+    "NAVIC",
+    "GLONASS",
+    "BeiDou-1",
+    "BeiDou-2",
+    "Unknown Positioning Method Source Bit" };
+
+  os <<
+    strings[ std::min( value,
+                       KLV_0601_POSITIONING_METHOD_SOURCE_BIT_ENUM_END ) ];
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_0601_generic_flag_data_bit value )
 {
   static std::string strings[ KLV_0601_GENERIC_FLAG_DATA_BIT_ENUM_END + 1 ] = {
     "Laser Range",
@@ -1082,51 +1115,186 @@ operator<<( std::ostream& os, klv_0601_sensor_control_mode value )
 
 // ----------------------------------------------------------------------------
 std::ostream&
+operator<<( std::ostream& os, klv_0601_image_horizon_locations const& value )
+{
+  os << "{ "
+     << "location0: { "
+     << "latitude: " << value.latitude0 << ", "
+     << "longitude: " << value.longitude0 << " }, "
+     << "location1: { "
+     << "latitude: " << value.latitude1 << ", "
+     << "longitude: " << value.longitude1 << " } }";
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_image_horizon_locations,
+  &klv_0601_image_horizon_locations::latitude0,
+  &klv_0601_image_horizon_locations::longitude0,
+  &klv_0601_image_horizon_locations::latitude1,
+  &klv_0601_image_horizon_locations::longitude1
+)
+
+// ----------------------------------------------------------------------------
+klv_0601_image_horizon_locations_format
+::klv_0601_image_horizon_locations_format()
+  : klv_data_format_< klv_0601_image_horizon_locations >{ 16 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_image_horizon_locations_format
+::description() const
+{
+  return "image horizon locations of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_image_horizon_locations
+klv_0601_image_horizon_locations_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+  klv_0601_image_horizon_locations result;
+  result.latitude0 =
+    klv_read_flint< uint32_t >( -90.0, 90.0, data, tracker.verify( 4 ) );
+  result.longitude0 =
+    klv_read_flint< uint32_t >( -180.0, 180.0, data, tracker.verify( 4 ) );
+  result.latitude1 =
+    klv_read_flint< uint32_t >( -90.0, 90.0, data, tracker.verify( 4 ) );
+  result.longitude1 =
+    klv_read_flint< uint32_t >( -180.0, 180.0, data, tracker.verify( 4 ) );
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_image_horizon_locations_format
+::write_typed( klv_0601_image_horizon_locations const& value,
+              klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+  klv_write_flint< uint32_t >( value.latitude0, -90.0, 90.0,
+                               data, tracker.verify( 4 ) );
+  klv_write_flint< uint32_t >( value.longitude0, -180.0, 180.0,
+                               data, tracker.verify( 4 ) );
+  klv_write_flint< uint32_t >( value.latitude1, -90.0, 90.0,
+                               data, tracker.verify( 4 ) );
+  klv_write_flint< uint32_t >( value.longitude1, -180.0, 180.0,
+                               data, tracker.verify( 4 ) );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_image_horizon_locations_format
+::length_of_typed( klv_0601_image_horizon_locations const& value ) const
+{
+  return 16;
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_0601_image_horizon_pixel_pack const& value )
+{
+  os << "{ "
+     << "point0: { "
+     << static_cast< unsigned int >( value.x0 ) << ", "
+     << static_cast< unsigned int >( value.y0 ) << " }, "
+     << "point1: { "
+     << static_cast< unsigned int >( value.x1 ) << ", "
+     << static_cast< unsigned int >( value.y1 ) << " } }";
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_image_horizon_pixel_pack,
+  &klv_0601_image_horizon_pixel_pack::x0,
+  &klv_0601_image_horizon_pixel_pack::y0,
+  &klv_0601_image_horizon_pixel_pack::x1,
+  &klv_0601_image_horizon_pixel_pack::y1,
+  &klv_0601_image_horizon_pixel_pack::locations
+)
+
+// ----------------------------------------------------------------------------
+klv_0601_image_horizon_pixel_pack_format
+::klv_0601_image_horizon_pixel_pack_format()
+  : klv_data_format_< klv_0601_image_horizon_pixel_pack >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_image_horizon_pixel_pack_format
+::description() const
+{
+  return "image horizon pixel pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_image_horizon_pixel_pack
+klv_0601_image_horizon_pixel_pack_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+  klv_0601_image_horizon_pixel_pack result;
+  result.x0 = klv_read_int< uint8_t >( data, tracker.verify( 1 ) );
+  result.y0 = klv_read_int< uint8_t >( data, tracker.verify( 1 ) );
+  result.x1 = klv_read_int< uint8_t >( data, tracker.verify( 1 ) );
+  result.y1 = klv_read_int< uint8_t >( data, tracker.verify( 1 ) );
+  if( tracker.remaining() )
+  {
+    klv_0601_image_horizon_locations_format format;
+    result.locations = format.read_( data, tracker.verify( 16 ) );
+  }
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_image_horizon_pixel_pack_format
+::write_typed( klv_0601_image_horizon_pixel_pack const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+  klv_write_int( value.x0, data, tracker.verify( 1 ) );
+  klv_write_int( value.y0, data, tracker.verify( 1 ) );
+  klv_write_int( value.x1, data, tracker.verify( 1 ) );
+  klv_write_int( value.y1, data, tracker.verify( 1 ) );
+  if( value.locations )
+  {
+    klv_0601_image_horizon_locations_format format;
+    format.write_( *value.locations, data, tracker.verify( 16 ) );
+  }
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_image_horizon_pixel_pack_format
+::length_of_typed( klv_0601_image_horizon_pixel_pack const& value ) const
+{
+  return 4 + ( value.locations ? 16 : 0 );
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
 operator<<( std::ostream& os, klv_0601_control_command const& value )
 {
   return os << "{ " << "ID: " << value.id
             << ", String: \"" << value.string
             << "\", Timestamp: " << ( value.timestamp
-                                      ? std::to_string( value.timestamp )
-                                      : "(empty)" )
+                                  ? std::to_string( value.timestamp )
+                                  : "(empty)" )
             << " }";
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator==( klv_0601_control_command const& lhs,
-            klv_0601_control_command const& rhs )
-{
-  return lhs.id == rhs.id &&
-         lhs.string == rhs.string &&
-         lhs.timestamp == rhs.timestamp;
-}
-
-// ----------------------------------------------------------------------------
-bool
-operator<( klv_0601_control_command const& lhs,
-           klv_0601_control_command const& rhs )
-{
-  if( lhs.id < rhs.id )
-  {
-    return true;
-  }
-  if( lhs.id > rhs.id )
-  {
-    return false;
-  }
-
-  if( lhs.string < rhs.string )
-  {
-    return true;
-  }
-  if( lhs.string > rhs.string )
-  {
-    return false;
-  }
-
-  return lhs.timestamp < rhs.timestamp;
-}
+DEFINE_STRUCT_CMP(
+  klv_0601_control_command,
+  &klv_0601_control_command::id,
+  &klv_0601_control_command::string,
+  &klv_0601_control_command::timestamp
+)
 
 // ----------------------------------------------------------------------------
 klv_0601_control_command_format
@@ -1139,22 +1307,19 @@ klv_0601_control_command_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
   klv_0601_control_command result;
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                                  return length - std::distance( begin, data );
-                                };
-  result.id = klv_read_ber_oid< uint16_t >( data, remaining_length() );
+  auto const tracker = track_it( data, length );
+  result.id = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
 
   auto const length_of_string =
-    klv_read_ber< size_t >( data, remaining_length() );
-  if( length_of_string > remaining_length() )
+    klv_read_ber< size_t >( data, tracker.remaining() );
+  if( length_of_string > tracker.remaining() )
   {
     VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
                  "reading command string overruns data buffer" );
   }
 
   result.string = klv_read_string( data, length_of_string );
-  switch( remaining_length() )
+  switch( tracker.remaining() )
   {
     case 0:
       result.timestamp = 0;
@@ -1164,7 +1329,7 @@ klv_0601_control_command_format
       break;
     default:
       VITAL_THROW( kwiver::vital::metadata_exception,
-                   std::to_string( remaining_length() ) +
+                   std::to_string( tracker.remaining() ) +
                    " bytes left over for timestamp while parsing "
                    "command pack; expected 0 or 8" );
       break;
@@ -1178,18 +1343,15 @@ klv_0601_control_command_format
 ::write_typed( klv_0601_control_command const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                                  return length - std::distance( begin, data );
-                                };
-  klv_write_ber_oid( value.id, data, remaining_length() );
+  auto const tracker = track_it( data, length );
+  klv_write_ber_oid( value.id, data, tracker.remaining() );
 
   auto const length_of_string = klv_string_length( value.string );
-  klv_write_ber( length_of_string, data, remaining_length() );
-  klv_write_string( value.string, data, remaining_length() );
+  klv_write_ber( length_of_string, data, tracker.remaining() );
+  klv_write_string( value.string, data, tracker.remaining() );
   if( value.timestamp )
   {
-    if( remaining_length() < 8 )
+    if( tracker.remaining() < 8 )
     {
       VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
                    "writing control command timestamp overflows buffer" );
@@ -1201,8 +1363,7 @@ klv_0601_control_command_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0601_control_command_format
-::length_of_typed( klv_0601_control_command const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( klv_0601_control_command const& value ) const
 {
   return klv_ber_oid_length( value.id ) +
          klv_ber_length( klv_string_length( value.string ) ) +
@@ -1226,7 +1387,8 @@ operator<<( std::ostream& os, klv_0601_frame_rate const& value )
   {
     return os << value.numerator;
   }
-  if( value.denominator == 0 ) {
+  if( value.denominator == 0 )
+  {
     return os << "(invalid)";
   }
   return os << std::fixed << std::setprecision( 3 )
@@ -1235,26 +1397,11 @@ operator<<( std::ostream& os, klv_0601_frame_rate const& value )
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator==( klv_0601_frame_rate const& lhs, klv_0601_frame_rate const& rhs )
-{
-  return lhs.numerator == rhs.numerator && lhs.denominator == rhs.denominator;
-}
-
-// ----------------------------------------------------------------------------
-bool
-operator<( klv_0601_frame_rate const& lhs, klv_0601_frame_rate const& rhs )
-{
-  if( lhs.numerator < rhs.numerator )
-  {
-    return true;
-  }
-  if( lhs.numerator == rhs.numerator )
-  {
-    return lhs.denominator < rhs.denominator;
-  }
-  return false;
-}
+DEFINE_STRUCT_CMP(
+  klv_0601_frame_rate,
+  &klv_0601_frame_rate::numerator,
+  &klv_0601_frame_rate::denominator
+)
 
 // ----------------------------------------------------------------------------
 klv_0601_frame_rate_format
@@ -1266,14 +1413,11 @@ klv_0601_frame_rate_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
   klv_0601_frame_rate result;
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                                  return length - std::distance( begin, data );
-                                };
-  result.numerator = klv_read_ber_oid< uint32_t >( data, remaining_length() );
+  auto const tracker = track_it( data, length );
+  result.numerator = klv_read_ber_oid< uint32_t >( data, tracker.remaining() );
   result.denominator =
-    remaining_length()
-    ? klv_read_ber_oid< uint32_t >( data, remaining_length() ) : 1;
+    tracker.remaining()
+    ? klv_read_ber_oid< uint32_t >( data, tracker.remaining() ) : 1;
   return result;
 }
 
@@ -1283,22 +1427,18 @@ klv_0601_frame_rate_format
 ::write_typed( klv_0601_frame_rate const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  auto const begin = data;
-  auto const remaining_length = [ & ]() -> size_t {
-                                  return length - std::distance( begin, data );
-                                };
-  klv_write_ber_oid( value.numerator, data, remaining_length() );
+  auto const tracker = track_it( data, length );
+  klv_write_ber_oid( value.numerator, data, tracker.remaining() );
   if( value.denominator != 1 )
   {
-    klv_write_ber_oid( value.denominator, data, remaining_length() );
+    klv_write_ber_oid( value.denominator, data, tracker.remaining() );
   }
 }
 
 // ----------------------------------------------------------------------------
 size_t
 klv_0601_frame_rate_format
-::length_of_typed( klv_0601_frame_rate const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( klv_0601_frame_rate const& value ) const
 {
   return klv_ber_oid_length( value.numerator ) +
          ( ( value.denominator == 1 )
@@ -1314,46 +1454,1298 @@ klv_0601_frame_rate_format
 }
 
 // ----------------------------------------------------------------------------
-klv_local_set
-klv_0601_local_set_format
+std::ostream&
+operator<<( std::ostream& os, klv_0601_country_codes const& value )
+{
+  return
+    os << "{ "
+       << "coding method: "
+       << value.coding_method
+       << ", "
+       << "overflight country: "
+       << ( value.overflight_country
+        ? *value.overflight_country
+        : "(empty)" )
+       << ", "
+       << "operator country: "
+       << ( value.operator_country
+        ? *value.operator_country
+        : "(empty)" )
+       << ", "
+       << "country of manufacture: "
+       << ( value.country_of_manufacture
+        ? *value.country_of_manufacture
+        : "(empty)" )
+       << " }";
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_country_codes,
+  &klv_0601_country_codes::coding_method,
+  &klv_0601_country_codes::overflight_country,
+  &klv_0601_country_codes::operator_country,
+  &klv_0601_country_codes::country_of_manufacture
+)
+
+// ----------------------------------------------------------------------------
+klv_0601_country_codes_format
+::klv_0601_country_codes_format()
+  : klv_data_format_< klv_0601_country_codes >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_country_codes_format
+::description() const
+{
+  return "country codes pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_country_codes
+klv_0601_country_codes_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
-  constexpr size_t timestamp_packet_length = 10;
+  klv_0601_country_codes result = {};
+  auto const tracker = track_it( data, length );
 
-  if( length < timestamp_packet_length  )
+  // Read coding method
+  auto const length_of_coding_method =
+    klv_read_ber< size_t >( data, tracker.remaining() );
+  result.coding_method =
+    static_cast< klv_0102_country_coding_method >(
+      klv_read_int< uint64_t >(
+        data, tracker.verify( length_of_coding_method ) ) );
+
+  // Read overflight country
+  auto const length_of_overflight_country =
+    klv_read_ber< size_t >( data, tracker.remaining() );
+  if( length_of_overflight_country )
   {
-    VITAL_THROW( kv::metadata_exception,
-                 "packet too small; timestamp is not present" );
+    result.overflight_country =
+      klv_read_string( data, tracker.verify( length_of_overflight_country ) );
   }
 
-  // Ensure timestamp tag and length are present
-  auto timestamp_it = data;
-  auto const timestamp_tag = klv_read_int< uint8_t >( timestamp_it, 1 );
-  auto const timestamp_length = klv_read_int< uint8_t >( timestamp_it, 1 );
-  if( timestamp_tag != KLV_0601_PRECISION_TIMESTAMP || timestamp_length != 8 )
+  // Read operator country
+  if( !tracker.remaining() )
   {
-    VITAL_THROW( kv::metadata_exception,
-                 "timestamp not present at beginning of packet" );
+    // The last two country codes have been omitted
+    return result;
   }
 
-  // Read rest of packet as normal
-  auto const result =
-    klv_local_set_format::read_typed( data, length );
+  auto const length_of_operator_country =
+    klv_read_ber< size_t >( data, tracker.remaining() );
+  if( length_of_operator_country )
+  {
+    result.operator_country =
+      klv_read_string( data, tracker.verify( length_of_operator_country ) );
+  }
+
+  // Read country of manufacture
+  if( !tracker.remaining() )
+  {
+    // The last country code has been omitted
+    return result;
+  }
+
+  auto const length_of_country_of_manufacture =
+    klv_read_ber< size_t >( data, tracker.remaining() );
+  if( length_of_country_of_manufacture )
+  {
+    result.country_of_manufacture =
+      klv_read_string(
+        data, tracker.verify( length_of_country_of_manufacture ) );
+  }
 
   return result;
 }
 
 // ----------------------------------------------------------------------------
-uint16_t
+void
+klv_0601_country_codes_format
+::write_typed( klv_0601_country_codes const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+
+  // Write coding method
+  size_t const length_of_coding_method = 1;
+  klv_write_ber( length_of_coding_method, data, tracker.remaining() );
+  klv_write_int( static_cast< size_t >( value.coding_method ), data,
+                 tracker.verify( length_of_coding_method ) );
+
+  // Write overflight country
+  if( value.overflight_country )
+  {
+    auto const field_length = klv_string_length( *value.overflight_country );
+    klv_write_ber< size_t >( field_length, data, tracker.remaining() );
+    klv_write_string( *value.overflight_country, data, tracker.remaining() );
+  }
+  else
+  {
+    klv_write_ber< size_t >( 0, data, tracker.remaining() );
+  }
+
+  // Write operator country
+  if( value.operator_country )
+  {
+    auto const field_length = klv_string_length( *value.operator_country );
+    klv_write_ber< size_t >( field_length, data, tracker.remaining() );
+    klv_write_string( *value.operator_country, data, tracker.remaining() );
+  }
+  else if( value.country_of_manufacture )
+  {
+    // Cannot omit if the next field is not omitted
+    klv_write_ber< size_t >( 0, data, tracker.remaining() );
+  }
+  else
+  {
+    // Omit this and the next field
+    return;
+  }
+
+  // Write country of manufacture
+  if( value.country_of_manufacture )
+  {
+    auto const field_length =
+      klv_string_length( *value.country_of_manufacture );
+    klv_write_ber< size_t >( field_length, data, tracker.remaining() );
+    klv_write_string( *value.country_of_manufacture, data,
+                      tracker.remaining() );
+  }
+  // Omit (write nothing) for final field if no value is present
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_country_codes_format
+::length_of_typed( klv_0601_country_codes const& value ) const
+{
+  // Cannot be omitted
+  size_t const length_of_coding_method = 1;
+  size_t const length_of_length_of_coding_method = 1;
+
+  // Cannot be omitted
+  auto const length_of_overflight_country =
+    value.overflight_country
+    ? klv_string_length( *value.overflight_country )
+    : 0;
+  auto const length_of_length_of_overflight_country =
+    klv_ber_length( length_of_overflight_country );
+
+  // Can be omitted if this field has no value
+  auto const length_of_country_of_manufacture =
+    value.country_of_manufacture
+    ? klv_string_length( *value.country_of_manufacture )
+    : 0;
+  auto const length_of_length_of_country_of_manufacture =
+    length_of_country_of_manufacture
+    ? klv_ber_length( length_of_country_of_manufacture )
+    : 0;
+
+  // Can be omitted if this field and country of manufacture each have no value
+  auto const length_of_operator_country =
+    value.operator_country
+    ? klv_string_length( *value.operator_country )
+    : 0;
+  auto const length_of_length_of_operator_country =
+    ( length_of_country_of_manufacture || length_of_operator_country )
+    ? klv_ber_length( length_of_operator_country )
+    : 0;
+
+  return length_of_length_of_coding_method +
+         length_of_coding_method +
+         length_of_length_of_overflight_country +
+         length_of_overflight_country +
+         length_of_length_of_operator_country +
+         length_of_operator_country +
+         length_of_length_of_country_of_manufacture +
+         length_of_country_of_manufacture;
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_0601_location_dlp const& value )
+{
+  return
+    os << "{ "
+       << "latitude: "
+       << value.latitude
+       << ", "
+       << "longitude: "
+       << value.longitude
+       << ", "
+       << "altitude: "
+       << ( value.altitude
+        ? std::to_string( *value.altitude )
+        : std::string( "(empty)" ) )
+       << " }";
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_location_dlp,
+  &klv_0601_location_dlp::latitude,
+  &klv_0601_location_dlp::longitude,
+  &klv_0601_location_dlp::altitude
+)
+
+// ----------------------------------------------------------------------------
+klv_0601_location_dlp_format
+::klv_0601_location_dlp_format()
+  : klv_data_format_< klv_0601_location_dlp >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_location_dlp_format
+::description() const
+{
+  return "location pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_location_dlp
+klv_0601_location_dlp_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  klv_0601_location_dlp result = {};
+  auto const tracker = track_it( data, length );
+
+  result.latitude =
+    klv_read_imap( -90.0, 90.0, data, tracker.verify( 4 ) );
+  result.longitude =
+    klv_read_imap( -180.0, 180.0, data, tracker.verify( 4 ) );
+  // Altitude is not required
+  if( tracker.remaining() )
+  {
+    // Altitude is set
+    result.altitude =
+      klv_read_imap( -900.0, 9000.0, data, tracker.verify( 3 ) );
+  }
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_location_dlp_format
+::write_typed( klv_0601_location_dlp const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+
+  klv_write_imap( value.latitude,
+                  -90.0, 90.0,
+                  data, tracker.verify( 4 ) );
+  klv_write_imap( value.longitude,
+                  -180.0, 180.0,
+                  data, tracker.verify( 4 ) );
+  if( value.altitude )
+  {
+    klv_write_imap( *value.altitude,
+                    -900.0, 9000.0,
+                    data, tracker.verify( 3 ) );
+  }
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_location_dlp_format
+::length_of_typed( klv_0601_location_dlp const& value ) const
+{
+  // Latitude (4) and longitude (4) are required, altitude (3) is optional
+  return 8 + ( value.altitude ? 3 : 0 );
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_0601_airbase_locations const& value )
+{
+  os << "{ "
+     << "take-off: "
+     << *value.take_off_location
+     << ", "
+     << "recovery: ";
+  if( value.recovery_location )
+  {
+    os << *value.recovery_location;
+  }
+  else
+  {
+    os << "(empty)";
+  }
+  os << " }";
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_airbase_locations,
+  &klv_0601_airbase_locations::take_off_location,
+  &klv_0601_airbase_locations::recovery_location
+)
+
+// ----------------------------------------------------------------------------
+klv_0601_airbase_locations_format
+::klv_0601_airbase_locations_format()
+  : klv_data_format_< klv_0601_airbase_locations >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_airbase_locations_format
+::description() const
+{
+  return "airbase locations pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_airbase_locations
+klv_0601_airbase_locations_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  klv_0601_airbase_locations result = {};
+  auto const tracker = track_it( data, length );
+
+  // Read take-off location
+  auto const length_of_take_off_location =
+    klv_read_ber< size_t >( data, tracker.remaining() );
+  if( length_of_take_off_location )
+  {
+    // Take-off location is set
+    result.take_off_location =
+      klv_0601_location_dlp_format{}
+        .read_( data, tracker.verify( length_of_take_off_location ) );
+  }
+
+  if( !tracker.remaining() )
+  {
+    // Recovery location is not included, set equal to take-off location
+    result.recovery_location = result.take_off_location;
+    return result;
+  }
+
+  // Read recovery location
+  auto const length_of_recovery_location =
+    klv_read_ber< size_t >( data, tracker.remaining() );
+  // Recovery location is included
+  if( length_of_recovery_location )
+  {
+    // Recovery location is set
+    result.recovery_location =
+      klv_0601_location_dlp_format{}
+        .read_( data, tracker.verify( length_of_recovery_location ) );
+  }
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_airbase_locations_format
+::write_typed( klv_0601_airbase_locations const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+
+  // Write take-off location
+  if( value.take_off_location )
+  {
+    // Take-off location is set
+    size_t const length_of_take_off_location =
+      klv_0601_location_dlp_format{}.length_of_( *value.take_off_location );
+
+    if( length_of_take_off_location <= tracker.remaining() )
+    {
+      klv_write_ber( length_of_take_off_location, data, tracker.remaining() );
+
+      klv_0601_location_dlp_format{}
+        .write_( *value.take_off_location, data,
+                 tracker.verify( length_of_take_off_location ) );
+    }
+  }
+  else
+  {
+    // Take-off location is not set
+    klv_write_ber< size_t >( 0, data, tracker.remaining() );
+  }
+
+  // Write recovery location
+  if( !tracker.remaining() )
+  {
+    // Recovery location is not included
+    return;
+  }
+
+  if( value.recovery_location )
+  {
+    // Recovery location is set
+    if( value.recovery_location == value.take_off_location )
+    {
+      // Locations are the same, truncate the recovery location
+      return;
+    }
+
+    size_t const length_of_recovery_location =
+      klv_0601_location_dlp_format{}.length_of_( *value.recovery_location );
+
+    if( length_of_recovery_location <= tracker.remaining() )
+    {
+      klv_write_ber( length_of_recovery_location, data, tracker.remaining() );
+
+      klv_0601_location_dlp_format{}
+        .write_( *value.recovery_location, data,
+                 tracker.verify( length_of_recovery_location ) );
+    }
+  }
+  else
+  {
+    // Recovery location is not set
+    klv_write_ber< size_t >( 0, data, tracker.remaining() );
+  }
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_airbase_locations_format
+::length_of_typed( klv_0601_airbase_locations const& value ) const
+{
+  // Take-off location
+  size_t length_of_take_off_location = 0;
+  if( value.take_off_location )
+  {
+    // Latitude and longitude are required, altitude is not
+    length_of_take_off_location =
+      klv_0601_location_dlp_format{}.length_of_( *value.take_off_location );
+  }
+
+  auto length_of_length_of_take_off_location =
+    klv_ber_length( length_of_take_off_location );
+
+  // Recovery location
+  size_t length_of_recovery_location = 0;
+  if( value.recovery_location )
+  {
+    length_of_recovery_location =
+      klv_0601_location_dlp_format{}.length_of_( *value.recovery_location );
+  }
+
+  auto length_of_length_of_recovery_location =
+    klv_ber_length( length_of_recovery_location );
+
+  if( value.recovery_location == value.take_off_location )
+  {
+    // Recovery is truncated
+    length_of_length_of_recovery_location = 0;
+    length_of_recovery_location = 0;
+  }
+
+  return length_of_length_of_take_off_location +
+         length_of_take_off_location +
+         length_of_length_of_recovery_location +
+         length_of_take_off_location;
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_0601_view_domain_interval const& value )
+{
+  return os << "{ "
+            << "start: " << value.start << ", "
+            << "range: " << value.range << " }";
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_view_domain_interval,
+  &klv_0601_view_domain_interval::start,
+  &klv_0601_view_domain_interval::range
+)
+
+// ----------------------------------------------------------------------------
+klv_imap_format const
+klv_0601_view_domain_interval_format
+::range_format{ 0.0, 360.0 };
+
+// ----------------------------------------------------------------------------
+klv_0601_view_domain_interval_format
+::klv_0601_view_domain_interval_format( double start_minimum,
+                                        double start_maximum )
+  : klv_data_format_< klv_0601_view_domain_interval >{ 0 },
+    m_start_format{ start_minimum, start_maximum }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_view_domain_interval_format
+::description() const
+{
+  return "view domain interval of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_view_domain_interval
+klv_0601_view_domain_interval_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  klv_0601_view_domain_interval result;
+  if( length % 2 )
+  {
+    VITAL_THROW( kv::metadata_exception,
+                 "odd length given for view domain interval" );
+  }
+  result.semi_length = length / 2;
+  result.start = m_start_format.read_( data, result.semi_length ).value;
+  result.range = range_format.read_( data, result.semi_length ).value;
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_view_domain_interval_format
+::write_typed( klv_0601_view_domain_interval const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  if( length % 2 )
+  {
+    VITAL_THROW( kv::metadata_exception,
+                 "odd length given for view domain interval" );
+  }
+  auto const semi_length = length / 2;
+  m_start_format.write_( { value.start, semi_length }, data, semi_length );
+  range_format.write_( { value.range, semi_length }, data, semi_length );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_view_domain_interval_format
+::length_of_typed( klv_0601_view_domain_interval const& value ) const
+{
+  return value.semi_length * 2;
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_0601_view_domain const& value )
+{
+  return os << "{ "
+            << "azimuth: " << value.azimuth << ", "
+            << "elevation: " << value.elevation << ", "
+            << "roll: " << value.roll << " }";
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_view_domain,
+  &klv_0601_view_domain::azimuth,
+  &klv_0601_view_domain::elevation,
+  &klv_0601_view_domain::roll
+)
+
+// ----------------------------------------------------------------------------
+klv_0601_view_domain_interval_format const
+klv_0601_view_domain_format
+::azimuth_format{ 0.0, 360.0 };
+
+// ----------------------------------------------------------------------------
+klv_0601_view_domain_interval_format const
+klv_0601_view_domain_format
+::elevation_format{ -180.0, 180.0 };
+
+// ----------------------------------------------------------------------------
+klv_0601_view_domain_interval_format const
+klv_0601_view_domain_format
+::roll_format{ 0.0, 360.0 };
+
+// ----------------------------------------------------------------------------
+klv_0601_view_domain_format
+::klv_0601_view_domain_format()
+  : klv_data_format_< klv_0601_view_domain >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_view_domain_format
+::description() const
+{
+  return "view domain pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_view_domain
+klv_0601_view_domain_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+  klv_0601_view_domain result;
+  result.azimuth =
+    klv_read_trunc_lv( data, tracker.remaining(), azimuth_format );
+  result.elevation =
+    klv_read_trunc_lv( data, tracker.remaining(), elevation_format );
+  result.roll =
+    klv_read_trunc_lv( data, tracker.remaining(), roll_format );
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_view_domain_format
+::write_typed( klv_0601_view_domain const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  klv_write_trunc_lv(
+    std::tie( value.azimuth, value.elevation, value.roll ),
+    data, length,
+    azimuth_format, elevation_format, roll_format );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_view_domain_format
+::length_of_typed( klv_0601_view_domain const& value ) const
+{
+  return
+    klv_length_of_trunc_lv(
+      std::tie( value.azimuth, value.elevation, value.roll ),
+      azimuth_format, elevation_format, roll_format );
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_0601_waypoint_record const& value )
+{
+  os << "{ "
+     << "ID: "
+     << value.id
+     << ", "
+     << "prosecution order: "
+     << value.order
+     << ", "
+     << "info: { "
+     << "mode: ";
+  auto const mode = *value.info & 1;
+  os << ( mode
+      ? "manual"
+      : "automated" )
+     << ", "
+     << "source: ";
+  auto const source = ( *value.info >> 1 ) & 1;
+  os << ( source
+      ? "ad hoc"
+      : "pre-planned" )
+     << " }"
+     << ", "
+     << "location: "
+     << value.location
+     << " } }";
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_waypoint_record,
+  &klv_0601_waypoint_record::id,
+  &klv_0601_waypoint_record::order,
+  &klv_0601_waypoint_record::info,
+  &klv_0601_waypoint_record::location
+)
+
+// ----------------------------------------------------------------------------
+klv_0601_waypoint_record_format
+::klv_0601_waypoint_record_format()
+  : klv_data_format_< klv_0601_waypoint_record >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_waypoint_record_format
+::description() const
+{
+  return "waypoint pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_waypoint_record
+klv_0601_waypoint_record_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  klv_0601_waypoint_record result = {};
+  auto const tracker = track_it( data, length );
+
+  // Read waypoint id
+  result.id = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+
+  // Read waypoint order
+  result.order = klv_read_int< int16_t >( data, tracker.verify( 2 ) );
+
+  if( tracker.remaining() )
+  {
+    // Read waypoint info value
+    result.info = klv_read_ber_oid< uint8_t >( data, tracker.verify( 1 ) );
+  }
+
+  if( tracker.remaining() )
+  {
+    // Read waypoint location
+    result.location =
+      klv_0601_location_dlp_format{}.read_( data, tracker.remaining() );
+  }
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_waypoint_record_format
+::write_typed( klv_0601_waypoint_record const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+
+  // Write waypoint id
+  klv_write_ber_oid( value.id, data, tracker.remaining() );
+
+  // Write waypoint order
+  klv_write_int( value.order, data, tracker.verify( 2 ) );
+
+  if( value.info )
+  {
+    // Write waypoint info value
+    klv_write_ber_oid( *value.info, data, tracker.verify( 1 ) );
+  }
+
+  if( value.location && value.info )
+  {
+    // Write waypoint location
+    klv_0601_location_dlp_format{}
+      .write_( *value.location, data, tracker.remaining() );
+  }
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_waypoint_record_format
+::length_of_typed( klv_0601_waypoint_record const& value ) const
+{
+  size_t const length_of_waypoint_id = klv_ber_oid_length( value.id );
+
+  size_t const length_of_waypoint_location =
+    ( value.location && value.info )
+    ? klv_0601_location_dlp_format{}.length_of_( *value.location )
+    : 0;
+
+  return ( length_of_waypoint_id + 2 + ( value.info ? 1 : 0 ) +
+           length_of_waypoint_location );
+}
+
+// ----------------------------------------------------------------------------
+/// Weapon/Store state ( General Status ).
+std::ostream&
+operator<<( std::ostream& os, klv_0601_weapon_general_status value )
+{
+  static std::string strings[ KLV_0601_WEAPON_GENERAL_STATUS_ENUM_END + 1 ] =
+  {
+    "Off",
+    "Initialization",
+    "Ready/Degraded",
+    "Ready/All Up Round",
+    "Launch",
+    "Free Flight",
+    "Abort",
+    "Miss Fire",
+    "Hang Fire",
+    "Jettisoned",
+    "Stepped Over",
+    "No Status Available",
+    "Unknown Weapons Store State" };
+
+  os << strings[ std::min( value, KLV_0601_WEAPON_GENERAL_STATUS_ENUM_END ) ];
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+/// A set of bit values to report the status of a weapon before it’s launched.
+std::ostream&
+operator<<( std::ostream& os, klv_0601_weapon_engagement_status_bit value )
+{
+  static std::string strings[ KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_ENUM_END +
+                              1 ] = {
+    "Fuze Enabled",
+    "Laser Enabled",
+    "Target Enabled",
+    "Weapon Armed",
+    "Unknown Engagement Status Bit" };
+
+  os << strings[ std::min( value,
+                           KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_ENUM_END ) ];
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+/// List of weapon stores and status.
+std::ostream&
+operator<<( std::ostream& os, klv_0601_weapons_store const& value )
+{
+  os << "{ "
+     << "station ID: "
+     << value.station_id
+     << ", "
+     << "hardpoint ID: "
+     << value.hardpoint_id
+     << ", "
+     << "carriage ID: "
+     << value.carriage_id
+     << ", "
+     << "store ID: "
+     << value.store_id
+     << ", "
+     << "general status: "
+     << value.general_status
+     << ", "
+     << "engagement status: "
+     << value.engagement_status
+     << ", "
+     << "weapon type: "
+     << value.weapon_type
+     << " }";
+
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_weapons_store,
+  &klv_0601_weapons_store::station_id,
+  &klv_0601_weapons_store::hardpoint_id,
+  &klv_0601_weapons_store::carriage_id,
+  &klv_0601_weapons_store::store_id,
+  &klv_0601_weapons_store::general_status,
+  &klv_0601_weapons_store::engagement_status,
+  &klv_0601_weapons_store::weapon_type
+)
+
+// ----------------------------------------------------------------------------
+klv_0601_weapons_store_format
+::klv_0601_weapons_store_format()
+  : klv_data_format_< klv_0601_weapons_store >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_weapons_store_format
+::description() const
+{
+  return "weapons store pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_weapons_store
+klv_0601_weapons_store_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  klv_0601_weapons_store result = {};
+  auto const tracker = track_it( data, length );
+
+  // Read weapon location
+  result.station_id =
+    klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+  result.hardpoint_id =
+    klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+  result.carriage_id =
+    klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+  result.store_id =
+    klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+
+  // Read weapons status
+  // Sets status = 0 0 engagement-status general-status
+  auto status =
+    klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+  // General status = least significant 8 bits
+  result.general_status =
+    static_cast< klv_0601_weapon_general_status >( status & 0xFF );
+  // Engagement status = next 4 bits
+  result.engagement_status =
+    bitfield_to_enums< klv_0601_weapon_engagement_status_bit, uint8_t >(
+      ( status >> 8 ) & 0x0F );
+
+  // Read weapons type
+  auto const length_of_weapon_type =
+    klv_read_ber< size_t >( data, tracker.remaining() );
+  result.weapon_type =
+    klv_read_string( data, length_of_weapon_type );
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_weapons_store_format
+::write_typed( klv_0601_weapons_store const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+
+  // Write weapon location
+  klv_write_ber_oid( value.station_id, data, tracker.remaining() );
+  klv_write_ber_oid( value.hardpoint_id, data, tracker.remaining() );
+  klv_write_ber_oid( value.carriage_id, data, tracker.remaining() );
+  klv_write_ber_oid( value.store_id, data, tracker.remaining() );
+
+  // Write weapons status
+  // When the low order 7 bits of the MSB are zero, the MSB is eliminated
+  auto const engagement_status_int =
+    enums_to_bitfield< klv_0601_weapon_engagement_status_bit >(
+      value.engagement_status );
+  uint16_t status = ( engagement_status_int << 8 ) + value.general_status;
+  klv_write_ber_oid( status, data, tracker.remaining() );
+
+  // Write weapons type
+  size_t const length_of_weapon_type =
+  klv_string_length( value.weapon_type );
+  klv_write_ber< size_t >( length_of_weapon_type, data,
+                               tracker.remaining() );
+  klv_write_string( value.weapon_type, data, tracker.remaining() );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_weapons_store_format
+::length_of_typed( klv_0601_weapons_store const& value ) const
+{
+  // Length of weapon location
+  size_t const length_of_weapon_location =
+    klv_ber_oid_length( value.station_id ) +
+    klv_ber_oid_length( value.hardpoint_id ) +
+    klv_ber_oid_length( value.carriage_id ) +
+    klv_ber_oid_length( value.store_id );
+
+  // Length of weapon status
+  auto const engagement_status_int =
+    enums_to_bitfield< klv_0601_weapon_engagement_status_bit >(
+      value.engagement_status );
+  uint16_t status = ( engagement_status_int << 8 ) + value.general_status;
+  size_t const length_of_status = klv_ber_oid_length( status );
+
+  // Length of weapon type
+  size_t const length_of_weapon_type =
+    klv_string_length( value.weapon_type );
+  size_t const length_of_length_of_weapon_type =
+    klv_ber_length( length_of_weapon_type );
+
+  // Total length for record
+  return ( length_of_weapon_location +
+           length_of_status +
+           length_of_weapon_type +
+           length_of_length_of_weapon_type );
+}
+
+// ----------------------------------------------------------------------------
+/// Optical sensors and non-optical payload package types.
+std::ostream&
+operator<<( std::ostream& os, klv_0601_payload_type const& value )
+{
+  static std::string strings[ KLV_0601_PAYLOAD_TYPE_ENUM_END + 1 ] =
+  {
+    "Electro Optical MI Sensor",
+    "LIDAR",
+    "RADAR",
+    "SIGINT",
+    "Unknown Payload Type"
+  };
+
+  os << strings[ std::min( value, KLV_0601_PAYLOAD_TYPE_ENUM_END ) ];
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+/// Type, name, and id of a payload.
+std::ostream&
+operator<<( std::ostream& os, klv_0601_payload_record const& value )
+{
+  return os << "{ "
+            << "ID: "
+            << value.id
+            << ", "
+            << "type: "
+            << value.type
+            << ", "
+            << "name: "
+            << value.name
+            << " }";
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_payload_record,
+  &klv_0601_payload_record::id,
+  &klv_0601_payload_record::type,
+  &klv_0601_payload_record::name
+)
+
+// ----------------------------------------------------------------------------
+/// Interprets data as a payload record.
+klv_0601_payload_record_format
+::klv_0601_payload_record_format()
+  : klv_data_format_< klv_0601_payload_record >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_payload_record_format
+::description() const
+{
+  return "payload pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_payload_record
+klv_0601_payload_record_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  klv_0601_payload_record result = {};
+  auto const tracker = track_it( data, length );
+
+  // Read payload id
+  result.id = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+
+  // Read payload type
+  result.type = static_cast< klv_0601_payload_type >(
+    klv_read_ber_oid< uint16_t >( data, tracker.remaining() ) );
+
+  // Read payload name
+  auto const length_of_payload_name =
+    klv_read_ber< size_t >( data, tracker.remaining() );
+  result.name =
+    klv_read_string( data, tracker.verify( length_of_payload_name ) );
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_payload_record_format
+::write_typed( klv_0601_payload_record const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+
+  // Write payload id
+  klv_write_ber_oid( value.id, data, tracker.remaining() );
+
+  // Write payload type
+  klv_write_ber_oid( static_cast< uint16_t >( value.type ),
+                     data, tracker.remaining() );
+
+  // Write payload name
+  size_t const length_of_payload_name = klv_string_length( value.name );
+  klv_write_ber< size_t >( length_of_payload_name, data,
+                           tracker.remaining() );
+  klv_write_string( value.name, data, tracker.remaining() );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_payload_record_format
+::length_of_typed( klv_0601_payload_record const& value ) const
+{
+  // Length of payload id
+  size_t const length_of_payload_id = klv_ber_oid_length( value.id );
+
+  // Length of payload type
+  size_t const length_of_payload_type =
+    klv_ber_oid_length( static_cast< uint16_t >( value.type ) );
+
+  // Length of payload name
+  size_t const length_of_payload_name = klv_string_length( value.name );
+  size_t const length_of_length_of_payload_name =
+    klv_ber_length( length_of_payload_name );
+
+  return ( length_of_payload_id +
+           length_of_payload_type +
+           length_of_payload_name +
+           length_of_length_of_payload_name );
+}
+
+// ----------------------------------------------------------------------------
+/// Interprets data as a payload list.
+klv_0601_payload_list_format
+::klv_0601_payload_list_format()
+  : klv_data_format_< std::vector< klv_0601_payload_record > >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_payload_list_format
+::description() const
+{
+  return "payload list pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+std::vector< klv_0601_payload_record >
+klv_0601_payload_list_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  std::vector< klv_0601_payload_record > result = {};
+  auto const tracker = track_it( data, length );
+
+  // Read payload count
+  auto count = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+
+  // Read payload list
+  klv_series_format< klv_0601_payload_record_format > item;
+  result = item.read_( data, length - klv_ber_oid_length( count ) );
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_payload_list_format
+::write_typed( std::vector< klv_0601_payload_record > const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+
+  // Write payload count
+  klv_write_ber_oid( value.size(), data, tracker.remaining() );
+
+  // Write payload list
+  klv_series_format< klv_0601_payload_record_format > item;
+  item.write_( value, data, length - klv_ber_oid_length( value.size() ) );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_payload_list_format
+::length_of_typed( std::vector< klv_0601_payload_record > const& value ) const
+{
+  size_t total_length = 0;
+
+  // Length of payload count
+  total_length += klv_ber_oid_length( value.size() );
+
+  // Length of payload list
+  klv_series_format< klv_0601_payload_record_format > item;
+  total_length += item.length_of_( value );
+  return total_length;
+}
+
+// ----------------------------------------------------------------------------
+uint32_t
 klv_0601_local_set_format
 ::calculate_checksum( klv_read_iter_t data, size_t length ) const
 {
   return klv_running_sum_16( checksum_header.begin(), checksum_header.end(),
-                             klv_running_sum_16( data, data + length ) );
+                             klv_running_sum_16( data, data + length ),
+                             length % 2 );
 }
 
 // ----------------------------------------------------------------------------
-uint16_t
+/// A sensor wavelength record.
+std::ostream&
+operator<<( std::ostream& os, klv_0601_wavelength_record const& value )
+{
+  return os << "{ "
+            << "ID: "
+            << value.id
+            << ", "
+            << "minimum: "
+            << value.min
+            << ", "
+            << "maximum: "
+            << value.max
+            << ", "
+            << "name: "
+            << value.name
+            << " }";
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_wavelength_record,
+  &klv_0601_wavelength_record::id,
+  &klv_0601_wavelength_record::min,
+  &klv_0601_wavelength_record::max,
+  &klv_0601_wavelength_record::name
+)
+
+// ----------------------------------------------------------------------------
+klv_0601_wavelength_record_format
+::klv_0601_wavelength_record_format()
+  : klv_data_format_< klv_0601_wavelength_record >{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_wavelength_record_format
+::description() const
+{
+  return "wavelength pack of " + length_description();
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_wavelength_record
+klv_0601_wavelength_record_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  klv_0601_wavelength_record result = {};
+  auto const tracker = track_it( data, length );
+
+  // Read wavelength id
+  result.id = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+
+  // Read min wavelength
+  result.min = klv_read_imap( 0.0, 1.0e9, data, 4 );
+
+  // Read max wavelength
+  result.max = klv_read_imap( 0.0, 1.0e9, data, 4 );
+
+  // Read wavelength name
+  result.name = klv_read_string( data, tracker.remaining() );
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_wavelength_record_format
+::write_typed( klv_0601_wavelength_record const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+
+  // Write wavelength id
+  klv_write_ber_oid( value.id, data, tracker.remaining() );
+
+  // Write min wavelength
+  klv_write_imap( value.min, 0.0, 1.0e9, data, 4 );
+
+  // Write max wavelength
+  klv_write_imap( value.max, 0.0, 1.0e9, data, 4 );
+
+  // Write wavelength name
+  klv_write_string( value.name, data, tracker.remaining() );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_wavelength_record_format
+::length_of_typed( klv_0601_wavelength_record const& item ) const
+{
+  // Length of wavelength id
+  size_t const length_of_wavelength_id = klv_ber_oid_length( item.id );
+
+  // Length of wavelength name
+  size_t const length_of_wavelength_name = klv_string_length( item.name );
+
+  return ( length_of_wavelength_id + 8 + length_of_wavelength_name );
+}
+
+// ----------------------------------------------------------------------------
+uint32_t
 klv_0601_local_set_format
 ::read_checksum( klv_read_iter_t data, size_t length ) const
 {
@@ -1377,7 +2769,7 @@ klv_0601_local_set_format
 // ----------------------------------------------------------------------------
 void
 klv_0601_local_set_format
-::write_checksum( uint16_t checksum,
+::write_checksum( uint32_t checksum,
                   klv_write_iter_t& data, size_t max_length ) const
 {
   if( max_length < checksum_packet_length )
@@ -1386,7 +2778,7 @@ klv_0601_local_set_format
                  "writing checksum packet overflows data buffer" );
   }
   data = std::copy( checksum_header.cbegin(), checksum_header.cend(), data );
-  klv_write_int( checksum, data, 2 );
+  klv_write_int( static_cast< uint16_t >( checksum ), data, 2 );
 }
 
 // ----------------------------------------------------------------------------
@@ -1402,7 +2794,7 @@ std::string
 klv_0601_local_set_format
 ::description() const
 {
-  return "ST 0601 local set" + length_description();
+  return "UAS datalink local set of " + length_description();
 }
 
 // ----------------------------------------------------------------------------

@@ -29,11 +29,10 @@ public:
    : data_(viscl_matches) {}
 
   /// Return the number of matches in the set
-  /**
-    * Warning: this function is slow, it downloads all of the matches
-    * to count them it is recommended to use matches() if you need both
-    * the size and the matches.
-    */
+  ///
+  ///  Warning: this function is slow, it downloads all of the matches
+  ///  to count them it is recommended to use matches() if you need both
+  ///  the size and the matches.
   virtual size_t size() const;
 
   /// Return a vector of matching indices
@@ -48,9 +47,8 @@ private:
 };
 
 /// Convert any match set to VisCL match data
-/**
-  * Will remove duplicate matches to a kpt from 2nd set
-  */
+///
+///  Will remove duplicate matches to a kpt from 2nd set
 KWIVER_ALGO_VISCL_EXPORT viscl::buffer
 matches_to_viscl(const vital::match_set& match_set);
 

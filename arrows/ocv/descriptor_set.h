@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV descriptor_set interface
- */
+/// \file
+/// \brief OCV descriptor_set interface
 
 #ifndef KWIVER_ARROWS_OCV_DESCRIPTOR_SET_H_
 #define KWIVER_ARROWS_OCV_DESCRIPTOR_SET_H_
@@ -55,9 +53,8 @@ protected:
 };
 
 /// Convert any descriptor set to an OpenCV cv::Mat
-/**
- * \param desc_set descriptors to convert to cv::mat
- */
+///
+/// \param desc_set descriptors to convert to cv::mat
 KWIVER_ALGO_OCV_EXPORT cv::Mat
 descriptors_to_ocv_matrix(const vital::descriptor_set& desc_set);
 

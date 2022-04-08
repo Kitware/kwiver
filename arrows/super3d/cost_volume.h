@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
- /**
- * \file
- * \brief Header file for cost_volume
- */
+ /// \file
+ /// \brief Header file for cost_volume
 
 #ifndef KWIVER_ARROWS_SUPER3D_COST_VOLUME_H_
 #define KWIVER_ARROWS_SUPER3D_COST_VOLUME_H_
@@ -22,12 +20,11 @@ namespace arrows {
 namespace super3d {
 
 /// Typedef for the callback function signature
-/**
- * The cost volume callback is called with current depth slice
- * to report progress on computing the cost volume.
- * If the callback returns false, the cost volume computation
- * will abort early.  If true it will continue.
- */
+///
+/// The cost volume callback is called with current depth slice
+/// to report progress on computing the cost volume.
+/// If the callback returns false, the cost volume computation
+/// will abort early.  If true it will continue.
 typedef std::function<bool(unsigned int)> cost_volume_callback_t;
 
 bool

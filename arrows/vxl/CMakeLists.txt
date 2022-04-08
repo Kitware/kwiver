@@ -36,17 +36,6 @@ set(vxl_headers_public
   threshold.h
   triangulate_landmarks.h
   vil_image_memory.h
-  vidl_ffmpeg_video_input.h
-  )
-
-kwiver_install_headers(
-  SUBDIR     arrows/vxl
-  ${vxl_headers_public}
-  )
-
-kwiver_install_headers(
-  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_vxl_export.h
-  NOPATH   SUBDIR     arrows/vxl
   )
 
 set(vxl_sources
@@ -78,7 +67,26 @@ set(vxl_sources
   threshold.cxx
   triangulate_landmarks.cxx
   vil_image_memory.cxx
-  vidl_ffmpeg_video_input.cxx
+  )
+
+if( fletch_ENABLE_FFmpeg AND _FFmpeg_version VERSION_LESS 4 )
+  list(APPEND vxl_headers_public
+    vidl_ffmpeg_video_input.h
+  )
+  list(APPEND vxl_sources
+    vidl_ffmpeg_video_input.cxx
+  )
+  add_definitions( -DVXL_ENABLE_FFMPEG )
+endif()
+
+kwiver_install_headers(
+  SUBDIR     arrows/vxl
+  ${vxl_headers_public}
+  )
+
+kwiver_install_headers(
+  ${CMAKE_CURRENT_BINARY_DIR}/kwiver_algo_vxl_export.h
+  NOPATH   SUBDIR     arrows/vxl
   )
 
 kwiver_add_library( kwiver_algo_vxl

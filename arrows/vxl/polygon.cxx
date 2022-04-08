@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief vxl polygon conversion functions
- */
+/// \file
+/// \brief vxl polygon conversion functions
 
 #include "polygon.h"
 
@@ -15,7 +13,7 @@ namespace kwiver {
 namespace arrows {
 namespace vxl {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::polygon_sptr
 vxl_to_vital( const vgl_polygon< double >& poly )
 {
@@ -38,7 +36,7 @@ vxl_to_vital( const vgl_polygon< double >& poly )
   return local_poly;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::shared_ptr< vgl_polygon< double > >
 vital_to_vxl( kwiver::vital::polygon_sptr poly )
 {

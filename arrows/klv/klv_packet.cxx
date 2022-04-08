@@ -7,6 +7,7 @@
 
 #include "klv_packet.h"
 
+#include <arrows/klv/klv_0102.h>
 #include <arrows/klv/klv_0104.h>
 #include <arrows/klv/klv_0601.h>
 #include <arrows/klv/klv_1108.h>
@@ -20,6 +21,24 @@ namespace kwiver {
 namespace arrows {
 
 namespace klv {
+
+// ----------------------------------------------------------------------------
+klv_packet
+::klv_packet() : key{}, value{} {}
+
+// ----------------------------------------------------------------------------
+klv_packet
+::klv_packet( klv_uds_key const& key, klv_value const& value )
+  : key{ key },
+    value{ value }
+{}
+
+// ----------------------------------------------------------------------------
+klv_packet
+::klv_packet( klv_uds_key const& key, klv_value&& value )
+  : key{ key },
+    value{ std::move( value ) }
+{}
 
 // ----------------------------------------------------------------------------
 bool
@@ -63,11 +82,7 @@ operator<<( std::ostream& os, klv_packet const& packet )
 klv_packet
 klv_read_packet( klv_read_iter_t& data, size_t max_length )
 {
-  auto const begin = data;
-  auto const remaining_length =
-    [ & ]() -> size_t {
-      return max_length - std::distance( begin, data );
-    };
+  auto const tracker = track_it( data, max_length );
 
   // Find the prefix which begins all UDS keys
   auto const search_result =
@@ -90,7 +105,7 @@ klv_read_packet( klv_read_iter_t& data, size_t max_length )
   }
 
   // Read key
-  auto const key = klv_read_uds_key( data, remaining_length() );
+  auto const key = klv_read_uds_key( data, tracker.remaining() );
   if( !key.is_valid() )
   {
     // This might be an encoding error, or maybe we falsely detected a prefix
@@ -100,8 +115,8 @@ klv_read_packet( klv_read_iter_t& data, size_t max_length )
 
   // Read length
   auto const length_of_value =
-    klv_read_ber< size_t >( data, remaining_length() );
-  if( max_length < remaining_length() )
+    klv_read_ber< size_t >( data, tracker.remaining() );
+  if( max_length < tracker.remaining() )
   {
     VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
                  "reading klv packet value overflows buffer" );
@@ -110,21 +125,21 @@ klv_read_packet( klv_read_iter_t& data, size_t max_length )
   // Verify checksum
   auto const& format = klv_lookup_packet_traits().by_uds_key( key ).format();
 
-  auto const packet_length =
-    static_cast< size_t >( std::distance( begin, data ) ) + length_of_value;
+  auto const packet_length = tracker.traversed() + length_of_value;
   auto const checksum_length = format.checksum_length();
 
   auto const expected_checksum =
-    format.read_checksum( begin, packet_length );
+    format.read_checksum( tracker.begin(), packet_length );
   auto const actual_checksum =
-    format.calculate_checksum( begin, packet_length - checksum_length );
+    format.calculate_checksum( tracker.begin(),
+                               packet_length - checksum_length );
   if( expected_checksum != actual_checksum )
   {
     LOG_ERROR( kv::get_logger( "klv" ), std::hex << std::setfill( '0' )
                << "calculated checksum "
-               << "(0x" << std::setw( 4 ) << actual_checksum << ") "
+               << "(0x" << std::setw( 8 ) << actual_checksum << ") "
                << "does not equal checksum contained in packet "
-               << "(0x" << std::setw( 4 ) << expected_checksum << ")" );
+               << "(0x" << std::setw( 8 ) << expected_checksum << ")" );
   }
 
   // Read value
@@ -142,11 +157,7 @@ void
 klv_write_packet( klv_packet const& packet, klv_write_iter_t& data,
                   size_t max_length )
 {
-  auto const begin = data;
-  auto const remaining_length =
-    [ & ]() -> size_t {
-      return max_length - std::distance( begin, data );
-    };
+  auto const tracker = track_it( data, max_length );
 
   auto const& format =
     klv_lookup_packet_traits().by_uds_key( packet.key ).format();
@@ -159,12 +170,13 @@ klv_write_packet( klv_packet const& packet, klv_write_iter_t& data,
                  "writing klv packet overflows buffer" );
   }
 
-  klv_write_uds_key( packet.key, data, remaining_length() );
-  klv_write_ber( length + checksum_length, data, remaining_length() );
+  klv_write_uds_key( packet.key, data, tracker.remaining() );
+  klv_write_ber( length + checksum_length, data, tracker.remaining() );
   format.write( packet.value, data, length );
 
   auto const checksum =
-    format.calculate_checksum( begin, packet_length - checksum_length );
+    format.calculate_checksum( tracker.begin(),
+                               packet_length - checksum_length );
   format.write_checksum( checksum, data, checksum_length );
 }
 
@@ -226,13 +238,19 @@ klv_tag_traits_lookup const&
 klv_lookup_packet_traits()
 {
   // TODO: Edit these once parsers are finalized
-#define ENUM_AND_NAME( X ) X, #X
   static klv_tag_traits_lookup const lookup = {
     { {},
       ENUM_AND_NAME( KLV_PACKET_UNKNOWN ),
       std::make_shared< klv_blob_format >(),
       "Unknown Packet",
       "Packet of unknown type.",
+      0 },
+    { klv_0102_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_0102_LOCAL_SET ),
+      std::make_shared< klv_0102_local_set_format >(),
+      "MISB ST 0102 Local Set",
+      "Security Local Set. Used for marking Motion Imagery with security "
+      "classification information.",
       0 },
     { klv_1108_key(),
       ENUM_AND_NAME( KLV_PACKET_MISB_1108_LOCAL_SET ),
@@ -259,9 +277,77 @@ klv_lookup_packet_traits()
       "MISB ST 0601. Deprecated as of 2008.",
       0,
       &klv_0104_traits_lookup() } };
-#undef ENUM_AND_NAME
 
   return lookup;
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator<( klv_timed_packet const& lhs, klv_timed_packet const& rhs )
+{
+  if( lhs.timestamp.has_valid_time() && !rhs.timestamp.has_valid_time() )
+  {
+    return true;
+  }
+  if( !lhs.timestamp.has_valid_time() )
+  {
+    return false;
+  }
+  if( lhs.timestamp.get_time_usec() < rhs.timestamp.get_time_usec() )
+  {
+    return true;
+  }
+  if( lhs.timestamp.get_time_usec() > rhs.timestamp.get_time_usec() )
+  {
+    return false;
+  }
+
+  if( lhs.timestamp.has_valid_frame() && !rhs.timestamp.has_valid_frame() )
+  {
+    return true;
+  }
+  if( !lhs.timestamp.has_valid_frame() )
+  {
+    return false;
+  }
+  if( lhs.timestamp.get_frame() < rhs.timestamp.get_frame() )
+  {
+    return true;
+  }
+  if( lhs.timestamp.get_frame() > rhs.timestamp.get_frame() )
+  {
+    return false;
+  }
+
+  return lhs.packet < rhs.packet;
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator==( klv_timed_packet const& lhs, klv_timed_packet const& rhs )
+{
+  return lhs.timestamp.has_valid_time() == rhs.timestamp.has_valid_time() &&
+         lhs.timestamp.has_valid_frame() == rhs.timestamp.has_valid_frame() &&
+         ( !lhs.timestamp.has_valid_time() ||
+           lhs.timestamp.get_time_usec() == rhs.timestamp.get_time_usec() ) &&
+         ( !lhs.timestamp.has_valid_frame() ||
+           lhs.timestamp.get_frame() == rhs.timestamp.get_frame() ) &&
+         lhs.packet == rhs.packet;
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator!=( klv_timed_packet const& lhs, klv_timed_packet const& rhs )
+{
+  return !( lhs == rhs );
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_timed_packet const& timed_packet )
+{
+  return os << "{ timestamp: " << timed_packet.timestamp << ", "
+            << "packet: " << timed_packet.packet << " }";
 }
 
 } // namespace klv

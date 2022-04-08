@@ -9,6 +9,7 @@
 #define KWIVER_ARROWS_KLV_KLV_1108_H_
 
 #include <arrows/klv/klv_set.h>
+#include <arrows/klv/klv_util.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
 #include <vital/types/bounding_box.h>
@@ -125,20 +126,11 @@ struct KWIVER_ALGO_KLV_EXPORT klv_1108_metric_period_pack
 
 // ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_1108_metric_period_pack const& lhs,
-            klv_1108_metric_period_pack const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_1108_metric_period_pack const& lhs,
-           klv_1108_metric_period_pack const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
 std::ostream&
 operator<<( std::ostream& os, klv_1108_metric_period_pack const& rhs );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_1108_metric_period_pack )
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a KLV 1108 metric period pack.
@@ -168,20 +160,11 @@ struct KWIVER_ALGO_KLV_EXPORT klv_1108_window_corners_pack
 
 // ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_1108_window_corners_pack const& lhs,
-            klv_1108_window_corners_pack const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_1108_window_corners_pack const& lhs,
-           klv_1108_window_corners_pack const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
 std::ostream&
 operator<<( std::ostream& os, klv_1108_window_corners_pack const& rhs );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_1108_window_corners_pack )
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a KLV 1108 window corners pack.
@@ -203,8 +186,7 @@ private:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_1108_window_corners_pack const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_1108_window_corners_pack const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -218,14 +200,14 @@ public:
   description() const override;
 
 private:
-  uint16_t
+  uint32_t
   calculate_checksum( klv_read_iter_t data, size_t length ) const override;
 
-  uint16_t
+  uint32_t
   read_checksum( klv_read_iter_t data, size_t length ) const override;
 
   void
-  write_checksum( uint16_t checksum,
+  write_checksum( uint32_t checksum,
                   klv_write_iter_t& data, size_t max_length ) const override;
 
   size_t

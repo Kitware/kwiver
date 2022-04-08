@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Register VXL algorithms implementation
- */
+/// \file
+/// \brief Register VXL algorithms implementation
 
 #include <arrows/vxl/kwiver_algo_vxl_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
@@ -30,7 +28,10 @@
 #include <arrows/vxl/triangulate_landmarks.h>
 #include <arrows/vxl/match_features_constrained.h>
 #include <arrows/vxl/morphology.h>
+
+#ifdef VXL_ENABLE_FFMPEG
 #include <arrows/vxl/vidl_ffmpeg_video_input.h>
+#endif
 
 namespace kwiver {
 namespace arrows {
@@ -70,7 +71,10 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_algorithm< triangulate_landmarks >();
   reg.register_algorithm< match_features_constrained >();
   reg.register_algorithm< morphology >();
+
+#ifdef VXL_ENABLE_FFMPEG
   reg.register_algorithm< vidl_ffmpeg_video_input >();
+#endif
 
   reg.mark_module_as_loaded();
 }

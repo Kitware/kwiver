@@ -2,12 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- *
- * \brief share tests for triangulate_landmarks implementations
- *
- */
+/// \file
+///
+/// \brief share tests for triangulate_landmarks implementations
+///
 
 #ifndef ALGORITHMS_TEST_ALGO_TEST_TRIANGULATE_LANDMARKS_H_
 #define ALGORITHMS_TEST_ALGO_TEST_TRIANGULATE_LANDMARKS_H_

@@ -7,10 +7,13 @@
 
 #include "klv_convert_vital.h"
 
+#include "klv_0102.h"
 #include "klv_0104.h"
 #include "klv_0601.h"
 #include "klv_1108.h"
 #include "klv_1108_metric_set.h"
+#include "klv_metadata.h"
+#include "klv_muxer.h"
 
 #include <vital/range/iota.h>
 #include <vital/types/geodesy.h>
@@ -31,6 +34,7 @@ namespace klv {
 namespace {
 
 // ----------------------------------------------------------------------------
+using kld = klv_lengthy< double >;
 struct klv_to_vital_visitor
 {
   template < class T,
@@ -45,14 +49,12 @@ struct klv_to_vital_visitor
   }
 
   template < class T,
-             typename std::enable_if< !std::is_same< T, uint64_t >::value &&
-                                      !std::is_same< T, double >::value &&
-                                      !std::is_same< T, std::string >::value,
+             typename std::enable_if< std::is_same< T, kld >::value,
                                       bool >::type = true >
   kv::metadata_value
   operator()() const
   {
-    throw std::logic_error( "type does not exist in klv_value" );
+    return value.get< T >().value;
   }
 
   klv_value const& value;
@@ -62,8 +64,13 @@ struct klv_to_vital_visitor
 kv::metadata_value
 klv_to_vital_value( klv_value const& value )
 {
-  return kv::visit_metadata_types_return< kv::metadata_value >(
-    klv_to_vital_visitor{ value }, value.type() );
+  return kv::visit_types_return<
+    kv::metadata_value,
+    klv_to_vital_visitor,
+    uint64_t,
+    double,
+    kld,
+    std::string >( { value }, value.type() );
 }
 
 // ----------------------------------------------------------------------------
@@ -76,9 +83,9 @@ assemble_geo_point( klv_value const& latitude,
   constexpr auto qnan = std::numeric_limits< double >::quiet_NaN();
   return {
     kv::vector_3d{
-      longitude.valid() ? longitude.get< double >() : qnan,
-      latitude.valid() ? latitude.get< double >() : qnan,
-      elevation.valid() ? elevation.get< double >() : qnan, },
+      longitude.valid() ? longitude.get< kld >().value : qnan,
+      latitude.valid() ? latitude.get< kld >().value : qnan,
+      elevation.valid() ? elevation.get< kld >().value : qnan, },
     kv::SRID::lat_lon_WGS84 };
 }
 
@@ -133,6 +140,74 @@ parse_geo_point( klv_timeline const& klv_data,
   }
 
   return assemble_geo_point( latitude, longitude, elevation );
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0104_parse_datetime_to_unix(
+  klv_timeline const& klv_data, uint64_t timestamp, kv::metadata& vital_data,
+  klv_lds_key klv_tag, kv::vital_metadata_tag vital_tag )
+{
+  constexpr auto standard = KLV_PACKET_MISB_0104_UNIVERSAL_SET;
+
+  auto const datetime = klv_data.at( standard, klv_tag, timestamp );
+  if( datetime.valid() )
+  {
+    try
+    {
+      auto const value = datetime.get< std::string >();
+      vital_data.add(
+        vital_tag, kv::std_0104_datetime_to_unix_timestamp( value ) );
+    }
+    catch( kv::metadata_exception const& e )
+    {
+      LOG_ERROR( kv::get_logger( "klv" ), e.what() );
+    }
+  }
+
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0102_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
+                            kv::metadata& vital_data )
+{
+  constexpr auto standard = KLV_PACKET_MISB_0102_LOCAL_SET;
+
+  // Add the timestamp
+  vital_data.add< kv::VITAL_META_UNIX_TIMESTAMP >( timestamp );
+
+  // Check if there is a ST0102 embedded in ST0601
+  auto const st0601 =
+    klv_data.at( KLV_PACKET_MISB_0601_LOCAL_SET,
+                 KLV_0601_SECURITY_LOCAL_SET, timestamp );
+
+  // Get the tag from any ST0102 source
+  auto const get_tag_value =
+    [ & ]( klv_0102_tag tag ){
+      auto result = klv_data.at( standard, tag, timestamp );
+      if( !result.valid() && st0601.valid() )
+      {
+        auto const& st0601_set = st0601.get< klv_local_set >();
+        auto const it = st0601_set.find( tag );
+        if( it != st0601_set.end() )
+        {
+          result = it->second;
+        }
+      }
+      return result;
+    };
+
+  // Convert the security classification to a string
+  {
+    auto const value = get_tag_value( KLV_0102_SECURITY_CLASSIFICATION );
+    if( value.valid() )
+    {
+      std::stringstream ss;
+      ss << value.get< klv_0102_security_classification >();
+      vital_data.add< kv::VITAL_META_SECURITY_CLASSIFICATION >( ss.str() );
+    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -197,25 +272,13 @@ klv_0104_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
     vital_data.add< kv::VITAL_META_MISSION_NUMBER >( ss.str() );
   }
 
-  // Parse the datetime string into a UNIX microsecond timestamp
-  auto const start_datetime =
-    klv_data.at( standard, KLV_0104_START_DATETIME, timestamp );
-  if( start_datetime.valid() )
-  {
-    auto const value = start_datetime.get< std::string >();
-    vital_data.add< kv::VITAL_META_START_TIMESTAMP >(
-        kv::std_0104_datetime_to_unix_timestamp( value ) );
-  }
-
-  // Parse the datetime string into a UNIX microsecond timestamp
-  auto const event_start_datetime =
-    klv_data.at( standard, KLV_0104_START_DATETIME, timestamp );
-  if( start_datetime.valid() )
-  {
-    auto const value = event_start_datetime.get< std::string >();
-    vital_data.add< kv::VITAL_META_EVENT_START_TIMESTAMP >(
-        kv::std_0104_datetime_to_unix_timestamp( value ) );
-  }
+  // Parse the datetime strings into UNIX microsecond timestamps
+  klv_0104_parse_datetime_to_unix(
+    klv_data, timestamp, vital_data,
+    KLV_0104_START_DATETIME, kv::VITAL_META_START_TIMESTAMP );
+  klv_0104_parse_datetime_to_unix(
+    klv_data, timestamp, vital_data,
+    KLV_0104_EVENT_START_DATETIME, kv::VITAL_META_EVENT_START_TIMESTAMP );
 
   // Sensor location
   auto const sensor_location =
@@ -582,13 +645,22 @@ klv_1108_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
 } // namespace <anonymous>
 
 // ----------------------------------------------------------------------------
-kv::metadata
-klv_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp )
+kv::metadata_sptr
+klv_to_vital_metadata( klv_timeline const& klv_data,
+                       kv::interval< uint64_t > const& time_interval )
 {
-  kv::metadata result;
-  klv_0104_to_vital_metadata( klv_data, timestamp, result );
-  klv_0601_to_vital_metadata( klv_data, timestamp, result );
-  klv_1108_to_vital_metadata( klv_data, timestamp, result );
+  auto const result = std::make_shared< klv_metadata >();
+  {
+    klv_muxer muxer( klv_data );
+    muxer.send_frame( time_interval.lower() );
+    muxer.receive_frame();
+    muxer.send_frame( time_interval.upper() );
+    result->set_klv( muxer.receive_frame() );
+  }
+  klv_0102_to_vital_metadata( klv_data, time_interval.upper(), *result );
+  klv_0104_to_vital_metadata( klv_data, time_interval.upper(), *result );
+  klv_0601_to_vital_metadata( klv_data, time_interval.upper(), *result );
+  klv_1108_to_vital_metadata( klv_data, time_interval.upper(), *result );
   return result;
 }
 

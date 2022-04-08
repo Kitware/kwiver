@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test json serializers
- */
+/// \file
+/// \brief test json serializers
 
 #include <gtest/gtest.h>
 
@@ -705,7 +703,7 @@ TEST(serialize , track )
   }
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 TEST( serialize, track_set )
 {
   auto trk_set_sptr = std::make_shared< kwiver::vital::track_set >();
@@ -745,7 +743,7 @@ TEST( serialize, track_set )
     }
   }
 }
-// ============================================================================
+// ----------------------------------------------------------------------------
 TEST( serialize, object_track_set )
 {
   auto obj_trk_set_sptr = std::make_shared< kwiver::vital::object_track_set >();

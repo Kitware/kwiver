@@ -2,8 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include <arrows/klv/klv_0104_new.h>
-#include <arrows/klv/klv_0601_new.h>
+#include <arrows/klv/klv_0102.h>
+#include <arrows/klv/klv_0104.h>
+#include <arrows/klv/klv_0601.h>
 #include <arrows/klv/klv_1108.h>
 #include <arrows/klv/klv_1108_metric_set.h>
 #include <arrows/serialize/json/klv/load_save_klv.h>
@@ -15,6 +16,7 @@
 #include <sstream>
 
 using namespace kwiver::arrows::klv;
+namespace kv = kwiver::vital;
 
 kwiver::vital::path_t g_data_dir;
 
@@ -43,15 +45,21 @@ key_0104( klv_0104_tag tag )
 }
 
 // ---------------------------------------------------------------------------
-std::vector< klv_packet > const test_packets = {
-  { klv_0104_key(), klv_universal_set{
+std::vector< klv_timed_packet > const test_packets = {
+  { { klv_0102_key(), klv_local_set{
+    { KLV_0102_SECURITY_CLASSIFICATION,
+      KLV_0102_SECURITY_CLASSIFICATION_UNCLASSIFIED },
+    { KLV_0102_COUNTRY_CODING_METHOD,
+      KLV_0102_COUNTRY_CODING_METHOD_GENC_TWO_LETTER },
+  } }, kv::timestamp{ 0, 0 } },
+  { { klv_0104_key(), klv_universal_set{
       { key_0104( KLV_0104_USER_DEFINED_TIMESTAMP ),
         uint64_t{ 4321 } },
       { key_0104( KLV_0104_EPISODE_NUMBER ),
         4.2 },
       { key_0104( KLV_0104_DEVICE_DESIGNATION ),
-        std::string{ "Bob" } } } },
-  { klv_0601_key(),
+        std::string{ "Bob" } } } }, kv::timestamp{} },
+  { { klv_0601_key(),
     klv_local_set{
       { KLV_0601_PRECISION_TIMESTAMP,
         uint64_t{ 1234 } },
@@ -74,8 +82,8 @@ std::vector< klv_packet > const test_packets = {
       { KLV_0601_SENSOR_CONTROL_MODE,
         KLV_0601_SENSOR_CONTROL_MODE_OFF },
       { KLV_0601_SENSOR_FOV_NAME,
-        KLV_0601_SENSOR_FOV_NAME_MEDIUM }, } },
-  { klv_1108_key(), klv_local_set{
+        KLV_0601_SENSOR_FOV_NAME_MEDIUM } } }, kv::timestamp{ 1024, 7 } },
+  { { klv_1108_key(), klv_local_set{
       { KLV_1108_ASSESSMENT_POINT,
         KLV_1108_ASSESSMENT_POINT_ARCHIVE },
       { KLV_1108_METRIC_PERIOD_PACK,
@@ -98,7 +106,7 @@ std::vector< klv_packet > const test_packets = {
       { KLV_1108_COMPRESSION_PROFILE,
         KLV_1108_COMPRESSION_PROFILE_HIGH },
       { KLV_1108_COMPRESSION_LEVEL,
-        klv_value{} } } }, };
+        klv_value{} } } }, kv::timestamp{ 2048, 8 } } };
 
 // ----------------------------------------------------------------------------
 TEST_F ( load_save_klv, round_trip )
@@ -109,7 +117,7 @@ TEST_F ( load_save_klv, round_trip )
     cereal::save( archive, test_packets );
   }
 
-  std::vector< klv_packet > result_packets;
+  std::vector< klv_timed_packet > result_packets;
   {
     cereal::JSONInputArchive archive( ss );
     cereal::load( archive, result_packets );

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief VXL image_io interface
- */
+/// \file
+/// \brief VXL image_io interface
 
 #ifndef KWIVER_ARROWS_VXL_IMAGE_IO_H_
 #define KWIVER_ARROWS_VXL_IMAGE_IO_H_
@@ -43,28 +41,24 @@ public:
 
 private:
   /// Implementation specific load functionality.
-  /*
-   * NOTE: When loading boolean images (ppm, pbm, etc.), true-value regions are
-   * represented in the returned image as regions of 1's.
-   *
-   * \param filename the path to the file to load
-   * \returns an image container refering to the loaded image
-   */
+  //  NOTE: When loading boolean images (ppm, pbm, etc.), true-value regions are
+  //  represented in the returned image as regions of 1's.
+  //
+  //  \param filename the path to the file to load
+  //  \returns an image container refering to the loaded image
   virtual vital::image_container_sptr load_(const std::string& filename) const;
 
   /// Implementation specific save functionality.
-  /**
-   * \param filename the path to the file to save
-   * \param data the image container refering to the image to write
-   */
+  ///
+  /// \param filename the path to the file to save
+  /// \param data the image container refering to the image to write
   virtual void save_(const std::string& filename,
                      vital::image_container_sptr data) const;
 
   /// Implementation specific metadata functionality.
-  /**
-   * \param filename the path to the file to read
-   * \returns pointer to the loaded metadata
-   */
+  ///
+  /// \param filename the path to the file to read
+  /// \returns pointer to the loaded metadata
   virtual kwiver::vital::metadata_sptr load_metadata_(std::string const& filename) const;
 
   /// private implementation class

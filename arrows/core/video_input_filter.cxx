@@ -263,7 +263,7 @@ video_input_filter
   }
   if (d->c_stop_after_frame > 0 )
   {
-    return std::min(
+    return (size_t) std::min(
       static_cast<vital::timestamp::frame_t>(d->d_video_input->num_frames()),
       d->c_stop_after_frame) - (d->c_start_at_frame - 1);
   }
@@ -425,6 +425,14 @@ video_input_filter
   }
 
   return std::make_shared<kwiver::vital::simple_metadata_map>(output_map);
+}
+
+// ----------------------------------------------------------------------------
+kwiver::vital::video_settings_uptr
+video_input_filter
+::implementation_settings() const
+{
+  return d->d_video_input->implementation_settings();
 }
 
 } } }     // end namespace

@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief This file contains the internal definitions needed to
- * make KLV 0601 traits.
- */
+/// \file
+/// \brief This file contains the internal definitions needed to
+/// make KLV 0601 traits.
 
 #ifndef KWIVER_ARROWS_KLV_KLV_0601_TRAITS_H_
 #define KWIVER_ARROWS_KLV_KLV_0601_TRAITS_H_
@@ -179,8 +177,8 @@ struct klv_0601_convert<KLV_0601_##TAG>                                 \
   }                                                                     \
 }
 
-//                 tag                            scale  offset
-//                 ---                            -----  ------
+//                 tag                           scale  offset
+//                 ---                           -----  ------
 KLV_SCALE(         PLATFORM_HEADING_ANGLE,       360);
 KLV_SCALE_INVALID( PLATFORM_PITCH_ANGLE,         20);
 KLV_SCALE_INVALID( PLATFORM_ROLL_ANGLE,          50);

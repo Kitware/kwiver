@@ -46,4 +46,3 @@ TEST(track_set, merge_functions)
   EXPECT_FALSE( test_set_3->empty() );
   ASSERT_EQ( 4, test_set_3->size() );
 }
-

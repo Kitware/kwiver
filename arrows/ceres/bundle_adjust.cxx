@@ -30,7 +30,7 @@ namespace arrows {
 
 namespace ceres {
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 // Private implementation class
 class bundle_adjust::priv
   : public solver_options,
@@ -76,7 +76,7 @@ public:
   // camera_intr_params
   std::unordered_map< frame_id_t, unsigned int > frame_to_intr_map;
 
-  // ==========================================================================
+  // --------------------------------------------------------------------------
   // A class to register callbacks with Ceres
   class StateCallback
     : public ::ceres::IterationCallback

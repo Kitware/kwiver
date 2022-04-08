@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV SURF feature detector and extractor wrapper implementation
- */
+/// \file
+/// \brief OCV SURF feature detector and extractor wrapper implementation
 
 #include "feature_detect_extract_SURF.h"
 

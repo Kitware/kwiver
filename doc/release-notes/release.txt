@@ -16,6 +16,9 @@ Arrows: FFMPEG
  * Fixed a bug in which slight variations in presentation timestamps would
    sometimes cause frames to be skipped while decoding.
 
+ * Fixed a bug in which the video reader would not request any frames at end of
+   video that FFmpeg still had buffered internally.
+
 Arrows: MVG
 
  * Fixed a typo in the command line argument name for camera path in the
@@ -29,6 +32,10 @@ Arrows: VTK
    an issue when the near plane was much closer to the camera than to the
    far plane.
 
+ * Fix an error that always caused a segmentation fault in the
+   color_mesh applet for VTK version greater than 9.0.1. The issue was
+   that rendering was not properly initialized at build time.
+
 Build System
 
  * Fix missing `ZeroMQ_INCLUDE_DIR` set when building statically.
@@ -39,3 +46,8 @@ Build System
    if CUDA is not installed in standard system locations.
 
  * Enable the CUDA arrow in the Docker container.
+
+Vital: Logging
+
+ * Fixed an issue in the default logger where leading zeros of fractional
+   seconds were being stripped leading to the printing of the incorrect time.

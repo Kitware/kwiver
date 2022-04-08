@@ -54,7 +54,6 @@ klv_0104_traits_lookup()
   // the most up-to-date information on 0104's fields are found in this version
   // of 0601, the last one to include backwards-compatible information.
   static klv_tag_traits_lookup const lookup = {
-#define ENUM_AND_NAME( X ) X, #X
     { {},
       ENUM_AND_NAME( KLV_0104_UNKNOWN ),
       std::make_shared< klv_blob_format >(),
@@ -275,9 +274,8 @@ klv_0104_traits_lookup()
       "Obliquity Angle",
       "Inverse of sensor elevation angle. Measured in degrees. Examples: "
       "0 degrees is backward, 180 degrees is forward, 270 degrees is down.",
-      { 0, 1 } },
-#undef ENUM_AND_NAME
-  };
+      { 0, 1 } } };
+
   return lookup;
 }
 

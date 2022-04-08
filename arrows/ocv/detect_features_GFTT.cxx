@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV GFTT feature detector wrapper implementation
- */
+/// \file
+/// \brief OCV GFTT feature detector wrapper implementation
 
 #include "detect_features_GFTT.h"
 
@@ -47,9 +45,8 @@ public:
 
 #if KWIVER_OPENCV_VERSION_MAJOR >= 3
   /// Update the parameters of the given detector with the currently set values
-  /**
-   * Returns false if the algo could not be updating, requiring recreation.
-   */
+  ///
+  /// Returns false if the algo could not be updating, requiring recreation.
   bool update(cv::Ptr<cv::GFTTDetector> a) const
   {
     a->setMaxFeatures( max_corners );

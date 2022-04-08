@@ -345,6 +345,14 @@ video_input_split
 }
 
 // ----------------------------------------------------------------------------
+kwiver::vital::video_settings_uptr
+video_input_split
+::implementation_settings() const
+{
+  return d->d_image_source->implementation_settings();
+}
+
+// ----------------------------------------------------------------------------
 kwiver::vital::timestamp
 video_input_split
 ::merge_timestamps(

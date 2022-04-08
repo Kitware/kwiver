@@ -10,7 +10,7 @@
 
 #include <vital/any.h>
 #include <vital/exceptions/metadata.h>
-#include <vital/internal/variant/variant.hpp>
+#include <vital/util/variant/variant.hpp>
 #include <vital/types/geo_point.h>
 #include <vital/types/geo_polygon.h>
 #include <vital/types/metadata_tags.h>
@@ -246,7 +246,7 @@ public:
   metadata();
   metadata( metadata const& other );
   metadata( metadata&& other ) = default;
-  ~metadata() = default;
+  virtual ~metadata() = default;
   metadata& operator=( metadata&& other ) = default;
   metadata& operator=( metadata const& other );
 

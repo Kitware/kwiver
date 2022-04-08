@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV flann-based feature matcher wrapper implementation
- */
+/// \file
+/// \brief OCV flann-based feature matcher wrapper implementation
 
 #include "match_features_flannbased.h"
 
@@ -44,11 +42,10 @@ public:
   }
 
   /// Compute descriptor matching from 1 to 2 and from 2 to 1.
-  /**
-   * Only return descriptor matches if the one of the top N
-   * matches from 1 to 2 is also a top N match from 2 to 1.
-   * Here N is defined by parameter cross_check_knn
-   */
+  ///
+  /// Only return descriptor matches if the one of the top N
+  /// matches from 1 to 2 is also a top N match from 2 to 1.
+  /// Here N is defined by parameter cross_check_knn
   void cross_check_match(const cv::Mat& descriptors1,
                          const cv::Mat& descriptors2,
                          std::vector<cv::DMatch>& filtered_matches12) const

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief VisCL algorithm registration function implementation
- */
+/// \file
+/// \brief VisCL algorithm registration function implementation
 
 #include <arrows/viscl/kwiver_algo_viscl_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>

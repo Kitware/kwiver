@@ -9,7 +9,7 @@
 #define KWIVER_VITAL_UTIL_VISIT_H_
 
 // TODO(C++17): replace with std::variant
-#include <vital/internal/variant/variant.hpp>
+#include <vital/util/variant/variant.hpp>
 #include <vital/vital_config.h>
 #include <vital/util/demangle.h>
 #include <vital/exceptions.h>

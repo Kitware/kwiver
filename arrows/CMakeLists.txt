@@ -21,7 +21,10 @@ endif()
 
 # Add OpenCV plugin if enabled
 if( KWIVER_ENABLE_OPENCV )
-  add_subdirectory( dbow2 )
+  if( KWIVER_ENABLE_DBOW2 )
+    add_subdirectory( dbow2 )
+  endif()
+
   add_subdirectory( ocv )
 endif()
 
@@ -89,6 +92,11 @@ endif()
 # if GDAL is enabled
 if ( KWIVER_ENABLE_GDAL )
   add_subdirectory( gdal )
+endif()
+
+# if PDAL is enabled
+if ( KWIVER_ENABLE_PDAL )
+  add_subdirectory( pdal )
 endif()
 
 # if uuid is enabled

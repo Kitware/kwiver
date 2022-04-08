@@ -322,7 +322,7 @@ TEST( convert_protobuf, detected_object )
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST( convert_protobuf, detected_object_set )
 {
   kwiver::vital::detected_object_set dos;
@@ -554,7 +554,7 @@ TEST( convert_protobuf, metadata )
 
 }
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST( convert_protobuf, track_state )
 {
   kwiver::vital::track_state trk_state{ 1 };
@@ -569,7 +569,7 @@ TEST( convert_protobuf, track_state )
 
 }
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST( convert_protobuf, object_track_state )
 {
   auto dot_sptr = std::make_shared< kwiver::vital::detected_object_type >();
@@ -627,7 +627,7 @@ TEST( convert_protobuf, object_track_state )
   EXPECT_EQ( obj_trk_state.track_point().value(), obj_trk_state_dser.track_point().value() );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST( convert_protobuf, track )
 {
   // test track with object track state
@@ -731,7 +731,7 @@ TEST( convert_protobuf, track )
   }
 
 }
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST( convert_protobuf, track_set )
 {
   kwiver::protobuf::track_set proto_trk_set;
@@ -771,7 +771,7 @@ TEST( convert_protobuf, track_set )
     }
   }
 }
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST( convert_protobuf, object_track_set )
 {
   kwiver::protobuf::object_track_set proto_obj_trk_set;

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV FREAK descriptor extractor wrapper
- */
+/// \file
+/// \brief OCV FREAK descriptor extractor wrapper
 
 #ifndef KWIVER_ARROWS_EXTRACT_DESCRIPTORS_FREAK_H_
 #define KWIVER_ARROWS_EXTRACT_DESCRIPTORS_FREAK_H_
@@ -34,9 +32,8 @@ public:
   extract_descriptors_FREAK();
 
   /// Copy Constructor
-  /**
-   * \param other The other FREAK descriptor extractor to copy
-   */
+  ///
+  /// \param other The other FREAK descriptor extractor to copy
   extract_descriptors_FREAK(extract_descriptors_FREAK const &other);
 
   /// Destructor

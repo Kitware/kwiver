@@ -450,4 +450,12 @@ video_input_splice
   return std::make_shared<kwiver::vital::simple_metadata_map>(d->d_metadata_map);
 }
 
+// ----------------------------------------------------------------------------
+kwiver::vital::video_settings_uptr
+video_input_splice
+::implementation_settings() const
+{
+  return ( *d->d_active_source )->implementation_settings();
+}
+
 } } }     // end namespace

@@ -47,6 +47,15 @@ video_input
 }
 
 // ----------------------------------------------------------------------------
+video_settings_uptr
+video_input
+::implementation_settings() const
+{
+  return nullptr;
+}
+
+
+// ----------------------------------------------------------------------------
 algorithm_capabilities const&
 video_input
 ::get_implementation_capabilities() const

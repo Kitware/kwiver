@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header file for video input using VXL methods.
- */
+/// \file
+/// \brief Header file for video input using VXL methods.
 
 #ifndef KWIVER_ARROWS_VXL_VIDL_FFMPEG_VIDEO_INPUT_H
 #define KWIVER_ARROWS_VXL_VIDL_FFMPEG_VIDEO_INPUT_H
@@ -19,12 +17,10 @@ namespace arrows {
 namespace vxl {
 
 /// Video input using VXL vidl ffmpeg services.
-// ----------------------------------------------------------------
-/**
- * This class implements a video input algorithm using the VXL vidl
- * ffmpeg video services.
- *
- */
+// ----------------------------------------------------------------------------
+/// This class implements a video input algorithm using the VXL vidl
+/// ffmpeg video services.
+///
 class KWIVER_ALGO_VXL_EXPORT vidl_ffmpeg_video_input
   : public vital::algo::video_input
 {

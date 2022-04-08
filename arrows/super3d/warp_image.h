@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
- /**
- * \file
- * \brief Header file for warp_image, warps an image using a homography
- */
+ /// \file
+ /// \brief Header file for warp_image, warps an image using a homography
 #ifndef KWIVER_ARROWS_SUPER3D_WARP_IMAGE_H_
 #define KWIVER_ARROWS_SUPER3D_WARP_IMAGE_H_
 
