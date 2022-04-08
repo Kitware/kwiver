@@ -21,3 +21,60 @@ Build System
 
 * Removed some CMake statements and support for old CMake version predating the
   current minimum version specification.
+
+Vital KLV
+
+* Moved KLV to a new arrow.
+
+Arrows
+
+Arrows: Core
+
+* Added transcode applet.
+
+* Added frame dumping capability to dump-klv.
+
+* Added the option to choose the metadata export format in dump-klv.
+
+* Added the derive_metadata filter.
+
+* Enabled exporting components of composite data types separately in
+  metadata_map_io_csv.
+
+* Added frame decimation to metadata_map_io_csv.
+
+* Allowed the overriding of column names in metadata_map_io_csv.
+
+Arrows: FFmpeg
+
+* Enabled reading MISP timestamps from stream.
+
+* Added additional video metadata reporting.
+
+* Added exporting of encoding settings from input video.
+
+* Added basic video encoder.
+
+Arrows: KLV
+
+* Moved KLV arrow from Vital.
+
+* Ensured proper handling of ST0601 Report-on-Change behavior.
+
+* Rewrote EG0104 and ST0601 to be able to read and write all tags.
+
+* Newly implemented reading and writing for the following standards: ST0102,
+  ST0806, ST0903, ST1102, ST1010, ST1108, ST1202, ST1204, ST1206, ST1303,
+  ST1601, ST1602, and ST1607.
+
+Arrows: Serialize
+
+* Added partial KLV-JSON reader/writer.
+
+Bug Fixes
+---------
+
+Arrows: Core
+
+* Fixed metadata_map_io_csv printing the wrong number of commas for some empty
+  fields.
