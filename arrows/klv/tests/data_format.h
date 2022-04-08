@@ -65,9 +65,9 @@ test_write_format( klv_value const& value )
 template < class Format >
 void
 test_read_write_format( klv_value const& expected_result,
-                        klv_bytes_t const& bytes )
+                        klv_bytes_t const& bytes,
+                        Format const& format = Format{} )
 {
-  Format const format;
   auto it = bytes.cbegin();
   auto result = format.read( it, bytes.size() );
   ASSERT_EQ( bytes.cend(), it );

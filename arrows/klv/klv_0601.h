@@ -11,8 +11,11 @@
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
 #include "klv_0102.h"
-#include "klv_set.h"
+#include "klv_list.h"
 #include "klv_packet.h"
+#include "klv_set.h"
+#include "klv_util.h"
+#include "klv_series.h"
 
 #include "vital/optional.h"
 
@@ -227,7 +230,7 @@ operator<<( std::ostream& os, klv_0601_sensor_fov_name value );
 
 // ----------------------------------------------------------------------------
 /// Source of the navigation positioning information.
-enum KWIVER_ALGO_KLV_EXPORT klv_0601_positioning_method_source_bits
+enum KWIVER_ALGO_KLV_EXPORT klv_0601_positioning_method_source_bit
 {
   KLV_0601_POSITIONING_METHOD_SOURCE_BIT_ON_BOARD_INS,
   KLV_0601_POSITIONING_METHOD_SOURCE_BIT_GPS,
@@ -243,11 +246,15 @@ enum KWIVER_ALGO_KLV_EXPORT klv_0601_positioning_method_source_bits
 // ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
 std::ostream&
-operator<<( std::ostream& os, klv_0601_positioning_method_source_bits value );
+operator<<( std::ostream& os, klv_0601_positioning_method_source_bit value );
 
 // ----------------------------------------------------------------------------
-/// Miscellaneous boolean values
-enum KWIVER_ALGO_KLV_EXPORT klv_0601_generic_flag_data_bits
+using klv_0601_positioning_method_source_format =
+  klv_enum_bitfield_format< klv_0601_positioning_method_source_bit >;
+
+// ----------------------------------------------------------------------------
+/// Miscellaneous boolean values.
+enum KWIVER_ALGO_KLV_EXPORT klv_0601_generic_flag_data_bit
 {
   // 0 = laser off, 1 = laser on
   KLV_0601_GENERIC_FLAG_DATA_BIT_LASER_RANGE,
@@ -267,7 +274,11 @@ enum KWIVER_ALGO_KLV_EXPORT klv_0601_generic_flag_data_bits
 // ----------------------------------------------------------------------------
 KWIVER_ALGO_KLV_EXPORT
 std::ostream&
-operator<<( std::ostream& os, klv_0601_generic_flag_data_bits value );
+operator<<( std::ostream& os, klv_0601_generic_flag_data_bit value );
+
+// ----------------------------------------------------------------------------
+using klv_0601_generic_flag_data_format =
+  klv_enum_bitfield_format< klv_0601_generic_flag_data_bit >;
 
 // ----------------------------------------------------------------------------
 /// Indicates the operational mode of the FMV-producing platform.
@@ -291,6 +302,87 @@ using klv_0601_operational_mode_format =
 KWIVER_ALGO_KLV_EXPORT
 std::ostream&
 operator<<( std::ostream& os, klv_0601_operational_mode value );
+
+// ----------------------------------------------------------------------------
+struct KWIVER_ALGO_KLV_EXPORT klv_0601_image_horizon_locations
+{
+  double latitude0;
+  double longitude0;
+  double latitude1;
+  double longitude1;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_image_horizon_locations const& value );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_image_horizon_locations )
+
+// ----------------------------------------------------------------------------
+class KWIVER_ALGO_KLV_EXPORT klv_0601_image_horizon_locations_format
+  : public klv_data_format_< klv_0601_image_horizon_locations >
+{
+public:
+  klv_0601_image_horizon_locations_format();
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_image_horizon_locations
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_image_horizon_locations const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed(
+    klv_0601_image_horizon_locations const& value ) const override;
+};
+
+// ----------------------------------------------------------------------------
+struct KWIVER_ALGO_KLV_EXPORT klv_0601_image_horizon_pixel_pack
+{
+  uint8_t x0;
+  uint8_t y0;
+  uint8_t x1;
+  uint8_t y1;
+  kwiver::vital::optional< klv_0601_image_horizon_locations > locations;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_image_horizon_pixel_pack const& value );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_image_horizon_pixel_pack )
+
+// ----------------------------------------------------------------------------
+class KWIVER_ALGO_KLV_EXPORT klv_0601_image_horizon_pixel_pack_format
+  : public klv_data_format_< klv_0601_image_horizon_pixel_pack >
+{
+public:
+  klv_0601_image_horizon_pixel_pack_format();
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_image_horizon_pixel_pack
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_image_horizon_pixel_pack const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed(
+    klv_0601_image_horizon_pixel_pack const& value ) const override;
+};
 
 // ----------------------------------------------------------------------------
 /// Indicates the general status of the aircraft.
@@ -361,16 +453,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_0601_control_command const& value );
 
 // ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_0601_control_command const& lhs,
-            klv_0601_control_command const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_0601_control_command const& lhs,
-           klv_0601_control_command const& rhs );
+DECLARE_CMP( klv_0601_control_command )
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a ST0601 control command.
@@ -392,9 +475,13 @@ private:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_0601_control_command const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_0601_control_command const& value ) const override;
 };
+
+// ---------------------------------------------------------------------------
+/// Interprets data as a ST0601 control command verification list.
+using klv_0601_control_command_verify_list_format =
+        klv_list_format< klv_ber_oid_format >;
 
 // ----------------------------------------------------------------------------
 /// Frame rate expressed as a ratio of integers.
@@ -410,14 +497,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_0601_frame_rate const& value );
 
 // ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_0601_frame_rate const& lhs, klv_0601_frame_rate const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_0601_frame_rate const& lhs, klv_0601_frame_rate const& rhs );
+DECLARE_CMP( klv_0601_frame_rate )
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a frame rate.
@@ -439,8 +519,7 @@ private:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_0601_frame_rate const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_0601_frame_rate const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -459,16 +538,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_0601_country_codes const& value );
 
 // ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_0601_country_codes const& lhs,
-            klv_0601_country_codes const& rhs );
-
-// ----------------------------------------------------------------------------
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_0601_country_codes const& lhs,
-           klv_0601_country_codes const& rhs );
+DECLARE_CMP( klv_0601_country_codes )
 
 // ----------------------------------------------------------------------------
 /// Interprets data as country codes.
@@ -490,9 +560,451 @@ private:
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_0601_country_codes const& value,
-                   size_t length_hint ) const override;
+  length_of_typed( klv_0601_country_codes const& value ) const override;
 };
+
+// ----------------------------------------------------------------------------
+/// Geographic location.
+struct klv_0601_location_dlp
+{
+  double latitude;
+  double longitude;
+  kwiver::vital::optional< double > altitude;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_location_dlp const& value );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_location_dlp )
+
+// ----------------------------------------------------------------------------
+class KWIVER_ALGO_KLV_EXPORT klv_0601_location_dlp_format
+  : public klv_data_format_< klv_0601_location_dlp >
+{
+public:
+  klv_0601_location_dlp_format();
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_location_dlp
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_location_dlp const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_0601_location_dlp const& value ) const override;
+};
+
+// ----------------------------------------------------------------------------
+/// Geographic location of the take-off site and recovery site.
+struct klv_0601_airbase_locations
+{
+  kwiver::vital::optional< klv_0601_location_dlp > take_off_location;
+  kwiver::vital::optional< klv_0601_location_dlp > recovery_location;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_airbase_locations const& value );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_airbase_locations )
+
+// ----------------------------------------------------------------------------
+/// Interprets data as airbase locations.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_airbase_locations_format
+  : public klv_data_format_< klv_0601_airbase_locations >
+{
+public:
+  klv_0601_airbase_locations_format();
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_airbase_locations
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_airbase_locations const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_0601_airbase_locations const& value ) const override;
+};
+
+// ----------------------------------------------------------------------------
+struct klv_0601_view_domain_interval
+{
+  double start;
+  double range;
+  size_t semi_length;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_view_domain_interval const& value );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_view_domain_interval )
+
+// ---------------------------------------------------------------------------
+/// Interprets data as a view domain interval.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_view_domain_interval_format
+  : public klv_data_format_< klv_0601_view_domain_interval >
+{
+public:
+  klv_0601_view_domain_interval_format( double start_mininum,
+                                        double start_maximum );
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_view_domain_interval
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_view_domain_interval const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_0601_view_domain_interval const& value ) const override;
+
+  klv_imap_format const m_start_format;
+  static klv_imap_format const range_format;
+};
+
+// ----------------------------------------------------------------------------
+/// Specifies the domain of values for
+/// Relative Sensor Azimuth, Elevation and Roll Angles.
+struct klv_0601_view_domain
+{
+  kwiver::vital::optional< klv_0601_view_domain_interval > azimuth;
+  kwiver::vital::optional< klv_0601_view_domain_interval > elevation;
+  kwiver::vital::optional< klv_0601_view_domain_interval > roll;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_view_domain const& value );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_view_domain )
+
+// ---------------------------------------------------------------------------
+/// Interprets data as view domain.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_view_domain_format
+  : public klv_data_format_< klv_0601_view_domain >
+{
+public:
+  klv_0601_view_domain_format();
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_view_domain
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_view_domain const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_0601_view_domain const& value ) const override;
+
+  static klv_0601_view_domain_interval_format const azimuth_format;
+  static klv_0601_view_domain_interval_format const elevation_format;
+  static klv_0601_view_domain_interval_format const roll_format;
+};
+
+// ----------------------------------------------------------------------------
+/// Aircraft destinations used to navigate the aircraft to certain locations.
+struct klv_0601_waypoint_record
+{
+  uint16_t id;
+  int16_t order;
+  kwiver::vital::optional< uint8_t > info;
+  kwiver::vital::optional< klv_0601_location_dlp > location;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_waypoint_record const& value );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_waypoint_record )
+
+// ----------------------------------------------------------------------------
+/// Interprets data as a waypoint record.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_waypoint_record_format
+  : public klv_data_format_< klv_0601_waypoint_record >
+{
+public:
+  klv_0601_waypoint_record_format();
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_waypoint_record
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_waypoint_record const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_0601_waypoint_record const& value ) const override;
+};
+
+// ----------------------------------------------------------------------------
+using klv_0601_waypoint_list_format =
+  klv_series_format< klv_0601_waypoint_record_format >;
+
+// ----------------------------------------------------------------------------
+/// Weapon/Store state ( General Status ).
+enum KWIVER_ALGO_KLV_EXPORT klv_0601_weapon_general_status
+{
+  KLV_0601_WEAPON_GENERAL_STATUS_OFF,
+  KLV_0601_WEAPON_GENERAL_STATUS_INITIALIZATION,
+  KLV_0601_WEAPON_GENERAL_STATUS_DEGRADED,
+  KLV_0601_WEAPON_GENERAL_STATUS_ALL_UP_ROUND,
+  KLV_0601_WEAPON_GENERAL_STATUS_LAUNCH,
+  KLV_0601_WEAPON_GENERAL_STATUS_FREE_FLIGHT,
+  KLV_0601_WEAPON_GENERAL_STATUS_ABORT,
+  KLV_0601_WEAPON_GENERAL_STATUS_MISS_FIRE,
+  KLV_0601_WEAPON_GENERAL_STATUS_HANG_FIRE,
+  KLV_0601_WEAPON_GENERAL_STATUS_JETTISONED,
+  KLV_0601_WEAPON_GENERAL_STATUS_STEPPED_OVER,
+  KLV_0601_WEAPON_GENERAL_STATUS_NO_STATUS,
+  KLV_0601_WEAPON_GENERAL_STATUS_ENUM_END,
+};
+
+// ----------------------------------------------------------------------------
+/// Interprets data as a weapons store state.
+using klv_0601_weapons_general_status_format =
+  klv_enum_format< klv_0601_weapon_general_status >;
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_weapon_general_status value );
+
+// ----------------------------------------------------------------------------
+/// A set of bit values to report the status of a weapon before it’s launched.
+enum KWIVER_ALGO_KLV_EXPORT klv_0601_weapon_engagement_status_bit
+{
+  // 0 = fuse functions not set, 1 = fuse functions set
+  KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_FUSE_ENABLED,
+  // 0 = laser functions not set, 1 = laser functions set
+  KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_LASER_ENABLED,
+  // 0 = target functions not set, 1 = target functions set
+  KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_TARGET_ENABLED,
+  // 0 = master arm not set, 1 = master arm set
+  KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_WEAPON_ARMED,
+  KLV_0601_WEAPON_ENGAGEMENT_STATUS_BIT_ENUM_END,
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_weapon_engagement_status_bit value );
+
+// ----------------------------------------------------------------------------
+/// List of weapon stores and status.
+struct klv_0601_weapons_store
+{
+  uint16_t station_id;
+  uint16_t hardpoint_id;
+  uint16_t carriage_id;
+  uint16_t store_id;
+  klv_0601_weapon_general_status general_status;
+  std::set< klv_0601_weapon_engagement_status_bit > engagement_status;
+  std::string weapon_type;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_weapons_store const& value );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_weapons_store )
+
+// ---------------------------------------------------------------------------
+/// Interprets data as a weapons store.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_weapons_store_format
+  : public klv_data_format_< klv_0601_weapons_store >
+{
+public:
+  klv_0601_weapons_store_format();
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_weapons_store
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_weapons_store const& value,
+               klv_write_iter_t&data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_0601_weapons_store const& vaue ) const override;
+};
+
+// ---------------------------------------------------------------------------
+using klv_0601_weapons_store_list_format =
+  klv_series_format< klv_0601_weapons_store_format >;
+
+// ---------------------------------------------------------------------------
+/// Optical sensors and non-optical payload package types.
+enum KWIVER_ALGO_KLV_EXPORT klv_0601_payload_type
+{
+  KLV_0601_PAYLOAD_TYPE_ELECTRO_OPTICAL,
+  KLV_0601_PAYLOAD_TYPE_LIDAR,
+  KLV_0601_PAYLOAD_TYPE_RADAR,
+  KLV_0601_PAYLOAD_TYPE_SIGINT,
+  KLV_0601_PAYLOAD_TYPE_ENUM_END
+};
+
+// ---------------------------------------------------------------------------
+/// Interprets data as a payload type.
+using klv_0601_payload_type_format =
+  klv_enum_format< klv_0601_payload_type >;
+
+// ---------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_payload_type const& value );
+
+// ---------------------------------------------------------------------------
+/// Type, name, and id of a payload.
+struct klv_0601_payload_record
+{
+  uint16_t id;
+  klv_0601_payload_type type;
+  std::string name;
+};
+
+// ---------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_payload_record const& value );
+
+// ---------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_payload_record )
+
+// ---------------------------------------------------------------------------
+/// Interprets data as a payload record.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_payload_record_format
+  : public klv_data_format_< klv_0601_payload_record >
+{
+  public:
+    klv_0601_payload_record_format();
+
+    std::string
+    description() const override;
+
+  private:
+     klv_0601_payload_record
+    read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+    void
+    write_typed( klv_0601_payload_record const& value,
+                 klv_write_iter_t& data, size_t length ) const override;
+
+    size_t
+    length_of_typed( klv_0601_payload_record const& value ) const;
+};
+
+// ---------------------------------------------------------------------------
+/// Interprets data as a payload list.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_payload_list_format
+  : public klv_data_format_< std::vector< klv_0601_payload_record > >
+{
+  public:
+    klv_0601_payload_list_format();
+
+    std::string
+    description() const override;
+
+  private:
+    std::vector< klv_0601_payload_record >
+    read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+    void
+    write_typed( std::vector< klv_0601_payload_record > const& value,
+                 klv_write_iter_t& data, size_t length ) const override;
+
+    size_t
+    length_of_typed(
+      std::vector< klv_0601_payload_record > const& value ) const override;
+};
+
+// ----------------------------------------------------------------------------
+/// A sensor wavelength record.
+struct klv_0601_wavelength_record
+{
+  uint16_t id;
+  double min;
+  double max;
+  std::string name;
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_wavelength_record const& value );
+
+// ----------------------------------------------------------------------------
+DECLARE_CMP( klv_0601_wavelength_record )
+
+// ----------------------------------------------------------------------------
+/// Interprets data as a wavelength.
+class KWIVER_ALGO_KLV_EXPORT klv_0601_wavelength_record_format
+  : public klv_data_format_< klv_0601_wavelength_record >
+{
+public:
+  klv_0601_wavelength_record_format();
+
+  std::string
+  description() const override;
+
+private:
+  klv_0601_wavelength_record
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( klv_0601_wavelength_record const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_0601_wavelength_record const& value ) const override;
+};
+
+// ----------------------------------------------------------------------------
+using klv_0601_wavelengths_list_format =
+  klv_series_format< klv_0601_wavelength_record_format >;
+
+// ---------------------------------------------------------------------------
+/// Interprets data as a list of active ST0601 wavelengths.
+using klv_0601_active_wavelength_list_format =
+  klv_list_format< klv_ber_oid_format >;
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a MISB ST0601 local set.
@@ -506,10 +1018,6 @@ public:
   description() const override;
 
 private:
-  klv_local_set
-  read_typed( klv_read_iter_t& data, size_t length ) const override;
-
-
   uint32_t
   calculate_checksum( klv_read_iter_t data, size_t length ) const override;
 

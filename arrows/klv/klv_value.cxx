@@ -10,10 +10,31 @@
 #include "klv_0102.h"
 #include "klv_0104.h"
 #include "klv_0601.h"
-#include "klv_1108.h"
+#include "klv_0806_aoi_set.h"
+#include "klv_0806_poi_set.h"
+#include "klv_0806_user_defined_set.h"
+#include "klv_0806.h"
+#include "klv_0903_algorithm_set.h"
+#include "klv_0903_location_pack.h"
+#include "klv_0903_ontology_set.h"
+#include "klv_0903_vchip_set.h"
+#include "klv_0903_vmask_set.h"
+#include "klv_0903_vobject_set.h"
+#include "klv_0903_vtarget_pack.h"
+#include "klv_0903_vtracker_set.h"
+#include "klv_0903_vtrackitem_pack.h"
+#include "klv_0903.h"
+#include "klv_1002.h"
+#include "klv_1010.h"
 #include "klv_1108_metric_set.h"
+#include "klv_1108.h"
+#include "klv_1202.h"
+#include "klv_1204.h"
+#include "klv_1206.h"
+#include "klv_1303.hpp"
 #include "klv_blob.h"
 #include "klv_packet.h"
+#include "klv_series.hpp"
 #include "klv_set.h"
 
 #include <vital/util/demangle.h>
@@ -159,27 +180,20 @@ public:
 
 // ----------------------------------------------------------------------------
 klv_value
-::klv_value() : m_length_hint{ 0 } {}
+::klv_value()
+{}
 
 // ----------------------------------------------------------------------------
 template < class T, typename > klv_value
-::klv_value( T&& value ) : m_length_hint{ 0 }
+::klv_value( T&& value )
 {
   m_item.reset( new internal_< typename std::decay< T >::type >{
                   std::forward< T >( value ) } );
 }
 
 // ----------------------------------------------------------------------------
-template < class T > klv_value
-::klv_value( T&& value, size_t length_hint )
-{
-  klv_value{ std::forward< T >( value ) }.swap( *this );
-  m_length_hint = length_hint;
-}
-
-// ----------------------------------------------------------------------------
 klv_value
-::klv_value( klv_value const& other ) : m_length_hint{ other.m_length_hint }
+::klv_value( klv_value const& other )
 {
   m_item.reset( other.m_item ? other.m_item->clone() : nullptr );
 }
@@ -201,7 +215,6 @@ klv_value
 ::operator=( klv_value const& other )
 {
   m_item.reset( other.m_item ? other.m_item->clone() : nullptr );
-  m_length_hint = other.m_length_hint;
   return *this;
 }
 
@@ -232,28 +245,11 @@ klv_value
 }
 
 // ----------------------------------------------------------------------------
-void
-klv_value
-::set_length_hint( size_t length_hint )
-{
-  m_length_hint = length_hint;
-}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_value
-::length_hint() const
-{
-  return m_length_hint;
-}
-
-// ----------------------------------------------------------------------------
 klv_value&
 klv_value
 ::swap( klv_value& rhs ) noexcept
 {
   m_item.swap( rhs.m_item );
-  std::swap( m_length_hint, rhs.m_length_hint );
   return *this;
 }
 
@@ -412,8 +408,6 @@ operator<<( std::ostream& os, klv_value const& rhs )
   template KWIVER_ALGO_KLV_EXPORT                    \
   klv_value::klv_value( T const& );                  \
   template KWIVER_ALGO_KLV_EXPORT                    \
-  klv_value::klv_value( T&&, size_t );               \
-  template KWIVER_ALGO_KLV_EXPORT                    \
   klv_value & klv_value::operator= < T >( T && );    \
   template KWIVER_ALGO_KLV_EXPORT                    \
   T & klv_value::get< T >();                         \
@@ -430,25 +424,73 @@ KLV_INSTANTIATE( double );
 KLV_INSTANTIATE( int64_t );
 KLV_INSTANTIATE( klv_0102_country_coding_method );
 KLV_INSTANTIATE( klv_0102_security_classification );
+KLV_INSTANTIATE( klv_0601_airbase_locations );
 KLV_INSTANTIATE( klv_0601_control_command );
 KLV_INSTANTIATE( klv_0601_country_codes );
 KLV_INSTANTIATE( klv_0601_frame_rate );
 KLV_INSTANTIATE( klv_0601_icing_detected );
+KLV_INSTANTIATE( klv_0601_image_horizon_locations );
+KLV_INSTANTIATE( klv_0601_image_horizon_pixel_pack );
+KLV_INSTANTIATE( klv_0601_location_dlp );
 KLV_INSTANTIATE( klv_0601_operational_mode );
+KLV_INSTANTIATE( klv_0601_payload_record );
 KLV_INSTANTIATE( klv_0601_platform_status );
 KLV_INSTANTIATE( klv_0601_sensor_control_mode );
 KLV_INSTANTIATE( klv_0601_sensor_fov_name );
+KLV_INSTANTIATE( klv_0601_view_domain );
+KLV_INSTANTIATE( klv_0601_view_domain_interval );
+KLV_INSTANTIATE( klv_0601_wavelength_record );
+KLV_INSTANTIATE( klv_0601_waypoint_record );
+KLV_INSTANTIATE( klv_0601_weapon_general_status );
+KLV_INSTANTIATE( klv_0601_weapons_store );
+KLV_INSTANTIATE( klv_0806_aoi_type );
+KLV_INSTANTIATE( klv_0806_user_defined_data );
+KLV_INSTANTIATE( klv_0806_user_defined_data_type );
+KLV_INSTANTIATE( klv_0806_user_defined_data_type_id );
+KLV_INSTANTIATE( klv_0903_detection_status );
+KLV_INSTANTIATE( klv_0903_fpa_index );
+KLV_INSTANTIATE( klv_0903_location_pack );
+KLV_INSTANTIATE( klv_0903_pixel_run );
+KLV_INSTANTIATE( klv_0903_velocity_pack );
+KLV_INSTANTIATE( klv_0903_vtarget_pack );
+KLV_INSTANTIATE( klv_0903_vtrackitem_pack );
+KLV_INSTANTIATE( klv_1002_enumerations );
+KLV_INSTANTIATE( klv_1002_section_data_pack );
+KLV_INSTANTIATE( klv_1010_sdcc_flp );
 KLV_INSTANTIATE( klv_1108_assessment_point );
 KLV_INSTANTIATE( klv_1108_compression_profile );
 KLV_INSTANTIATE( klv_1108_compression_type );
 KLV_INSTANTIATE( klv_1108_metric_implementer );
 KLV_INSTANTIATE( klv_1108_metric_period_pack );
 KLV_INSTANTIATE( klv_1108_window_corners_pack );
+KLV_INSTANTIATE( klv_1202_transformation_type );
+KLV_INSTANTIATE( klv_1204_miis_id );
+KLV_INSTANTIATE( klv_1206_look_direction );
+KLV_INSTANTIATE( klv_1206_image_plane );
+KLV_INSTANTIATE( klv_1303_apa );
+KLV_INSTANTIATE( klv_1303_mdap< double > );
+KLV_INSTANTIATE( klv_1303_mdap< uint64_t > );
 KLV_INSTANTIATE( klv_blob );
+KLV_INSTANTIATE( klv_lengthy< double > );
 KLV_INSTANTIATE( klv_local_set );
+KLV_INSTANTIATE( klv_uds_key );
 KLV_INSTANTIATE( klv_universal_set );
+KLV_INSTANTIATE( klv_uuid );
+KLV_INSTANTIATE( std::set< klv_0601_generic_flag_data_bit > );
+KLV_INSTANTIATE( std::set< klv_0601_positioning_method_source_bit > );
+KLV_INSTANTIATE( std::set< klv_0601_weapon_engagement_status_bit > );
 KLV_INSTANTIATE( std::string );
+KLV_INSTANTIATE( std::vector< klv_0601_payload_record > );
+KLV_INSTANTIATE( std::vector< klv_0601_wavelength_record > );
+KLV_INSTANTIATE( std::vector< klv_0601_waypoint_record > );
+KLV_INSTANTIATE( std::vector< klv_0601_weapons_store > );
+KLV_INSTANTIATE( std::vector< klv_0903_location_pack > );
+KLV_INSTANTIATE( std::vector< klv_0903_pixel_run > );
+KLV_INSTANTIATE( std::vector< klv_0903_vtarget_pack > );
+KLV_INSTANTIATE( std::vector< klv_local_set > );
 KLV_INSTANTIATE( std::vector< klv_packet > );
+KLV_INSTANTIATE( std::vector< uint16_t > );
+KLV_INSTANTIATE( std::vector< uint64_t > );
 KLV_INSTANTIATE( uint64_t );
 
 } // namespace klv

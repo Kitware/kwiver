@@ -62,7 +62,8 @@ public:
       d_have_loop_vars( false ),
       pts_of_meta_ts( 0.0 ),
       meta_ts( 0 ),
-      m_last_misp_timestamp( 0 ),
+      m_prev_misp_timestamp( 0 ),
+      m_curr_misp_timestamp( 0 ),
       d_frame_time( 0 ),
       d_frame_number( 1 ),
       m_klv_demuxer( m_klv_timeline )
@@ -135,7 +136,8 @@ public:
 
   double pts_of_meta_ts;            // probably seconds
   vital::time_usec_t meta_ts; // time in usec
-  uint64_t m_last_misp_timestamp;
+  uint64_t m_prev_misp_timestamp;
+  uint64_t m_curr_misp_timestamp;
 
   // used to create timestamp output
   vital::time_usec_t d_frame_time; // usec
@@ -173,6 +175,8 @@ public:
     // Add new metadata to the end of current metadata stream
     md_buffer.insert( md_buffer.end(), curr_md.begin(), curr_md.end() );
 
+    m_prev_misp_timestamp = m_curr_misp_timestamp;
+
     auto it = md_buffer.cbegin();
     while( it != md_buffer.cend() )
     {
@@ -191,6 +195,13 @@ public:
         LOG_ERROR( d_logger, "error while parsing KLV packet: " << e.what() );
       }
 
+      if( klv::klv_lookup_packet_traits().by_uds_key( packet.key ).tag() !=
+          klv::KLV_PACKET_MISB_1108_LOCAL_SET )
+      {
+        auto const timestamp = klv::klv_packet_timestamp( packet );
+        m_curr_misp_timestamp = std::max( m_curr_misp_timestamp, timestamp );
+      }
+
       m_klv_demuxer.demux_packet( packet );
     }
 
@@ -207,7 +218,8 @@ public:
 
     // Get the vital metadata structure for the current frame
     auto result =
-      klv::klv_to_vital_metadata( m_klv_timeline, m_last_misp_timestamp );
+      klv::klv_to_vital_metadata( m_klv_timeline, { m_prev_misp_timestamp,
+                                                    m_curr_misp_timestamp } );
 
     // Add the frame timestamp to the metadata
     kwiver::vital::timestamp frame_timestamp;

@@ -76,7 +76,8 @@ public:
 
   // MISP timestamp (microseconds)
   std::map< uint64_t, klv::misp_timestamp > m_pts_to_misp;
-  uint64_t m_last_klv_timestamp = 0;
+  uint64_t m_prev_klv_timestamp = 0;
+  uint64_t m_curr_klv_timestamp = 0;
 
   // Number of frames to back step when seek fails to land on frame before
   // request
@@ -312,7 +313,8 @@ public:
     this->f_video_index = -1;
     this->metadata.clear();
     this->f_start_time = -1;
-    this->m_last_klv_timestamp = 0;
+    this->m_prev_klv_timestamp = 0;
+    this->m_curr_klv_timestamp = 0;
     this->m_klv_demuxer.seek( 0 );
     this->is_draining = false;
 
@@ -608,7 +610,8 @@ public:
     size_t num_of_attempts = 0;
     do
     {
-      m_last_klv_timestamp = 0;
+      m_prev_klv_timestamp = 0;
+      m_curr_klv_timestamp = 0;
       m_klv_demuxer.seek( 0 );
 
       auto seek_rslt = av_seek_frame( this->f_format_context,
@@ -713,6 +716,7 @@ public:
   void
   advance_metadata()
   {
+    m_prev_klv_timestamp = m_curr_klv_timestamp;
     for( auto md : this->curr_metadata )
     {
       auto& md_buffer = md.second;
@@ -741,7 +745,7 @@ public:
             klv::KLV_PACKET_MISB_1108_LOCAL_SET )
         {
           auto const timestamp = klv::klv_packet_timestamp( packet );
-          m_last_klv_timestamp = std::max( m_last_klv_timestamp, timestamp );
+          m_curr_klv_timestamp = std::max( m_curr_klv_timestamp, timestamp );
         }
 
         m_klv_demuxer.demux_packet( packet );
@@ -780,7 +784,8 @@ public:
   kwiver::vital::metadata_vector
   current_metadata()
   {
-    uint64_t frame_timestamp = 0;
+    auto prev_frame_timestamp = m_prev_klv_timestamp;
+    auto frame_timestamp = m_curr_klv_timestamp;
     if( use_misp_timestamps )
     {
       auto const it = m_pts_to_misp.find( f_frame->pts );
@@ -788,14 +793,15 @@ public:
       {
         frame_timestamp = it->second.timestamp;
       }
-    }
-    else
-    {
-      frame_timestamp = m_last_klv_timestamp;
+      prev_frame_timestamp =
+        ( it == m_pts_to_misp.begin() )
+        ? 0
+        : std::prev( it )->second.timestamp;
     }
 
     auto result =
-      klv::klv_to_vital_metadata( m_klv_timeline, frame_timestamp );
+      klv::klv_to_vital_metadata( m_klv_timeline, { prev_frame_timestamp,
+                                                    frame_timestamp } );
 
     set_default_metadata( result );
 
