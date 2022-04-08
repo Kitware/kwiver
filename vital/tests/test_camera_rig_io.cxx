@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <cstdio>
 
 namespace kv = kwiver::vital;
 
@@ -43,17 +44,30 @@ TEST_F(camera_rig_io, output_format_test)
 {
   kv::camera_rig_sptr rig0( new kv::camera_rig );
   auto const N = 3;
-  kv::path_t const DN = "/tmp/"; // TODO removable temp dir
+  kv::path_t const DN = g_data_dir;
   kv::path_t const FNBase = DN + "cam-";
   kv::path_list_t cam_files;
   for ( auto i=1; i<=N; ++i )
   {
     std::stringstream ss;
     ss << FNBase << i << ".krtd";
-    kv::vector_3d center;
+    kv::vector_3d center( i, .2*i, .2*i );
     kv::rotation_d rotation;
+    kv::vector_4d dist( .01*i, .2, .3, .4 );
+    kv::camera_intrinsics_sptr intrinsics(
+      new kv::simple_camera_intrinsics(
+          i, // focal_length,
+          kv::vector_2d( 256, 256 ), // principal_point,
+          1., // aspect_ratio=1.0,
+          0., // skew=0.0,
+          dist, // vector_t dist_coeffs=vector_t(),
+          512, // image_width=0,
+          512 // image_height=0
+      )
+    );
     kv::simple_camera_perspective_sptr cam(
-        new kv::simple_camera_perspective(center, rotation));
+        new kv::simple_camera_perspective( center, rotation, intrinsics )
+    );
     auto const & FN = ss.str();
     rig0->add(FN, cam);
     cam_files.push_back(FN);
@@ -70,9 +84,9 @@ TEST_F(camera_rig_io, output_format_test)
   {
     auto const & FN = c.first;
     auto const cam0 =
-        dynamic_cast<kv::camera_perspective const *>(rig0->camera(FN).get());
+        dynamic_cast<kv::camera_perspective const *>( rig0->camera(FN).get() );
     auto const cam =
-        dynamic_cast<kv::camera_perspective const *>(c.second.get());
+        dynamic_cast<kv::camera_perspective const *>( c.second.get() );
 
     Eigen::Matrix<double,3,3> K0( cam0->intrinsics()->as_matrix() );
     Eigen::Matrix<double,3,3> K( cam->intrinsics()->as_matrix() );
@@ -90,5 +104,9 @@ TEST_F(camera_rig_io, output_format_test)
     std::vector<double> D = cam->intrinsics()->dist_coeffs();
     EXPECT_EQ( D0, D );
   }
-  // TODO remove temp dir DN
+// cleanup
+  for ( std::string const & FN: cam_files )
+  {
+    EXPECT_EQ( 0, std::remove(FN.c_str()) );
+  }
 }
