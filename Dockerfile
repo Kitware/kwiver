@@ -7,6 +7,7 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends \
                     python3-dev \
                     python3-pip \
+                    xvfb \
  && pip3 install setuptools \
                  scipy \
                  six
@@ -52,8 +53,11 @@ RUN PYTHON_REQS="python/requirements.txt" \
       || pip3 install -r "$PYTHON_REQS" )
 
 # Configure entrypoint
-RUN echo 'source /kwiver/build/setup_KWIVER.sh' >> entrypoint.sh \
- && echo 'kwiver $@' >> entrypoint.sh \
+RUN bash -c 'echo -e "source /kwiver/build/setup_KWIVER.sh\n\
+\n# Set up X virtual framebuffer (Xvfb) to support running VTK headless\n\
+Xvfb :1 -screen 0 1024x768x16 -nolisten tcp > xvfb.log &\n\
+export DISPLAY=:1.0\n\n\
+kwiver \$@" >> entrypoint.sh' \
  && chmod +x entrypoint.sh
 
 ENTRYPOINT [ "bash", "/entrypoint.sh" ]

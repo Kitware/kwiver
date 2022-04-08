@@ -42,6 +42,8 @@ Build System
 
  * Fix missing-closing-bracket typo in `CMake/utils/kwiver-utils-python.cmake`.
 
+ * Use xvfb in Docker image to support running VTK applets in a headless environment.
+
  * Include CUDA include directories when building CUDA arrow.  This is needed
    if CUDA is not installed in standard system locations.
 
