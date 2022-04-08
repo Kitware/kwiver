@@ -365,7 +365,7 @@ process_image( const cv::Mat& cv_image )
                     m_thresh, // i: caller supplied threshold
                     m_probs,  // o: probability vector
                     m_boxes,  // o: list of boxes
-                    0,        /// masks
+                    0,        // masks
                     0,        // i: only objectness (false)
                     0,        // i: map
                     m_hier_thresh, 1); // i: caller supplied value
