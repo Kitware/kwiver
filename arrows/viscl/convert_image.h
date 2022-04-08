@@ -23,11 +23,10 @@ public:
   convert_image();
 
   /// Image convert to viscl underlying type
-  /**
-   * \param [in] img image to be converted
-   * \returns the image container with underlying viscl img
-   * should be used to prevent repeated image uploading to GPU
-   */
+  ///
+  /// \param [in] img image to be converted
+  /// \returns the image container with underlying viscl img
+  /// should be used to prevent repeated image uploading to GPU
   virtual vital::image_container_sptr convert(vital::image_container_sptr img) const;
 };
 

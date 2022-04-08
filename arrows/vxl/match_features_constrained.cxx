@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief VXL match_features_constrained algorithm implementation
- */
+/// \file
+/// \brief VXL match_features_constrained algorithm implementation
 
 #include "match_features_constrained.h"
 
@@ -38,7 +36,7 @@ public:
   {
   }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   // Compute the minimum angle between two angles in degrees
   inline static
   double angle_dist(double a1, double a2)

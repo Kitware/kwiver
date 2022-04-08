@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief VXL image container interface
- */
+/// \file
+/// \brief VXL image container interface
 
 #ifndef KWIVER_ARROWS_VXL_IMAGE_CONTAINER_H_
 #define KWIVER_ARROWS_VXL_IMAGE_CONTAINER_H_
@@ -21,10 +19,9 @@ namespace arrows {
 namespace vxl {
 
 /// This image container wraps a vil_image_view
-/**
- * This class represents an image using vil_image_view format to store
- * the image data by extending the basic image_container.
- */
+///
+/// This class represents an image using vil_image_view format to store
+/// the image data by extending the basic image_container.
 class KWIVER_ALGO_VXL_EXPORT image_container
   : public vital::image_container
 {
@@ -49,10 +46,9 @@ public:
   : data_(other.data_) {}
 
   /// The size of the image data in bytes
-  /**
-   * This size includes all allocated image memory,
-   * which could be larger than width*height*depth.
-   */
+  ///
+  /// This size includes all allocated image memory,
+  /// which could be larger than width*height*depth.
   virtual size_t size() const;
 
   /// The width of the image in pixels

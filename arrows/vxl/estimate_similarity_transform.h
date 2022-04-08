@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief VXL version of similarity transform estimation
- */
+/// \file
+/// \brief VXL version of similarity transform estimation
 
 #ifndef KWIVER_ARROWS_VXL_ESTIMATE_SIMILARITY_TRANSFORM_H_
 #define KWIVER_ARROWS_VXL_ESTIMATE_SIMILARITY_TRANSFORM_H_
@@ -35,15 +33,14 @@ public:
   /// \endcond
 
   /// Estimate the similarity transform between two corresponding point sets
-  /**
-   * \param from List of length N of 3D points in the from space.
-   * \param to   List of length N of 3D points in the to space.
-   * \throws algorithm_exception When the from and to points sets are
-   *                             misaligned, insufficient or degenerate.
-   * \returns An estimated similarity transform mapping 3D points in the
-   *          \c from space to points in the \c to space (i.e. transforms
-   *          \c from into \c to).
-   */
+  ///
+  /// \param from List of length N of 3D points in the from space.
+  /// \param to   List of length N of 3D points in the to space.
+  /// \throws algorithm_exception When the from and to points sets are
+  ///                             misaligned, insufficient or degenerate.
+  /// \returns An estimated similarity transform mapping 3D points in the
+  ///          \c from space to points in the \c to space (i.e. transforms
+  ///          \c from into \c to).
   virtual vital::similarity_d
   estimate_transform(std::vector<vital::vector_3d> const& from,
                      std::vector<vital::vector_3d> const& to) const;
