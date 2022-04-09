@@ -9,7 +9,9 @@
 #include <vital/plugin_loader/plugin_loader.h>
 #include <vital/applets/applet_registrar.h>
 
+#ifdef VTK_ENABLE_COLOR_MESH
 #include <arrows/vtk/applets/color_mesh.h>
+#endif
 #include <arrows/vtk/applets/estimate_depth.h>
 #include <arrows/vtk/applets/fuse_depth.h>
 
@@ -31,7 +33,9 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   }
 
   // -- register applets --
+#ifdef VTK_ENABLE_COLOR_MESH
   reg.register_tool< color_mesh >();
+#endif
   reg.register_tool< estimate_depth >();
   reg.register_tool< fuse_depth >();
 

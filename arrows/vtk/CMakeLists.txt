@@ -25,9 +25,8 @@ set( plugin_vtk_sources
 if (VTK_VERSION VERSION_GREATER_EQUAL 9.1)
   list(APPEND plugin_vtk_headers mesh_coloration.h)
   list(APPEND plugin_vtk_sources mesh_coloration.cxx)
+  add_definitions( -DVTK_ENABLE_COLOR_MESH )
 endif()
-
-
 
 kwiver_add_library( kwiver_algo_vtk
   ${plugin_vtk_headers}
