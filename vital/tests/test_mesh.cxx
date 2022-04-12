@@ -46,6 +46,21 @@ TEST(mesh, group_names)
   for(unsigned int i=0; i<faces->size(); i++){
     EXPECT_NE( faces_set.find( i ), faces_set.end() );
   }
+
+  faces->push_back( std::vector<unsigned int>{1, 2, 3, 4} );
+  faces->push_back( std::vector<unsigned int>{2, 3, 4, 5} );
+  faces->push_back( std::vector<unsigned int>{3, 4, 5, 6} );
+  faces->push_back( std::vector<unsigned int>{4, 5, 6, 7} );
+
+  EXPECT_EQ( faces->make_group( "third testing name" ), 4 );
+  EXPECT_EQ( faces->group_face_set( "third testing name" ).size(), 4 );
+
+  faces->push_back( std::vector<unsigned int>{5, 6, 6, 7} );
+  faces->push_back( std::vector<unsigned int>{6, 6, 7, 8} );
+
+  EXPECT_EQ( faces->make_group( "third testing name" ), 2 );
+  EXPECT_EQ( faces->group_face_set( "third testing name" ).size(), 6 );
+  EXPECT_EQ( faces->group_face_set( "testing name" ).size(), faces->size()-6 );
 }
 
 // ----------------------------------------------------------------------------
@@ -57,7 +72,7 @@ TEST(mesh, append)
     std::make_shared<kwiver::vital::mesh_face_array>(first_mesh->faces());
   first_faces->make_group( "first name" );
 
-  kwiver::vital::mesh_sptr second_mesh = kwiver::testing::grid_mesh( 1, 1 );
+  kwiver::vital::mesh_sptr second_mesh = kwiver::testing::grid_mesh( 2, 3 );
   second_mesh->compute_face_normals();
   std::shared_ptr<kwiver::vital::mesh_face_array> second_faces =
     std::make_shared<kwiver::vital::mesh_face_array>(second_mesh->faces());
@@ -177,7 +192,7 @@ TEST(mesh, assignment_operator)
 // ----------------------------------------------------------------------------
 TEST(mesh, compute_vertex_normals)
 {
-  kwiver::vital::mesh_sptr grid_mesh = kwiver::testing::grid_mesh( 1, 1 );
+  kwiver::vital::mesh_sptr grid_mesh = kwiver::testing::grid_mesh( 2, 3 );
 
   EXPECT_FALSE( grid_mesh->vertices().has_normals() );
   EXPECT_FALSE( grid_mesh->has_half_edges() );
@@ -189,7 +204,7 @@ TEST(mesh, compute_vertex_normals)
 // ----------------------------------------------------------------------------
 TEST(mesh, compute_vertex_normals_from_faces)
 {
-  kwiver::vital::mesh_sptr grid_mesh = kwiver::testing::grid_mesh( 1, 1 );
+  kwiver::vital::mesh_sptr grid_mesh = kwiver::testing::grid_mesh( 2, 3 );
 
   EXPECT_FALSE( grid_mesh->vertices().has_normals() );
   EXPECT_FALSE( grid_mesh->faces().has_normals() );
