@@ -26,7 +26,130 @@ mesh_tri_normal(const vector_3d& a,
 }
 
 // ----------------------------------------------------------------------------
+// Mesh vertices
+
+/// Equality operator
+bool
+mesh_vertex_array_base
+::operator==(mesh_vertex_array_base const& other) const
+{
+  if( dim() != other.dim() || size() != other.size() )
+  {
+    return false;
+  }
+
+  const std::vector<vector_3d> these_normals = normals();
+  const std::vector<vector_3d> other_normals = other.normals();
+  if( these_normals.size() != other_normals.size() )
+  {
+    return false;
+  }
+  for(unsigned int i=0; i<these_normals.size(); i++)
+  {
+    if( these_normals[i][0] != other_normals[i][0] ||
+        these_normals[i][1] != other_normals[i][1] ||
+        these_normals[i][2] != other_normals[i][2] )
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/// Equality operator
+template <unsigned int d>
+bool
+mesh_vertex_array<d>
+::operator==(mesh_vertex_array_base const& other) const
+{
+  if( mesh_vertex_array_base::operator==(other) == false )
+  {
+    return false;
+  }
+
+  const mesh_vertex_array<d> other_actual = other;
+  for(unsigned int i=0; i<size(); i++)
+  {
+    if( this[i] != other_actual[i] )
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// ----------------------------------------------------------------------------
 // Mesh faces
+
+/// Equality operator
+template <unsigned s> template <unsigned U>
+bool
+mesh_regular_face<s>
+::operator==(mesh_regular_face<U> const& other) const
+{
+  if( num_verts() != other.num_verts() )
+  {
+    return false;
+  }
+
+  for(unsigned int i=0; i<s; i++)
+  {
+    if( verts_[i] != other.verts_[i] )
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/// Equality operator
+bool
+mesh_face_array_base
+::operator==(mesh_face_array_base const& other) const
+{
+  if( regularity() != other.regularity() || size() != other.size() )
+  {
+    return false;
+  }
+
+  const std::vector<vector_3d> these_normals = normals();
+  const std::vector<vector_3d> other_normals = other.normals();
+  if( these_normals.size() != other_normals.size() )
+  {
+    return false;
+  }
+  for(unsigned int i=0; i<these_normals.size(); i++)
+  {
+    if( these_normals[i][0] != other_normals[i][0] ||
+        these_normals[i][1] != other_normals[i][1] ||
+        these_normals[i][2] != other_normals[i][2] )
+    {
+      return false;
+    }
+  }
+
+  const std::vector<std::pair<std::string,unsigned int> >
+    these_groups = groups();
+  const std::vector<std::pair<std::string,unsigned int> >
+    other_groups = other.groups();
+  if( these_groups.size() != other_groups.size() )
+  {
+    return false;
+  }
+  for(unsigned int i=0; i<these_groups.size(); i++)
+  {
+    if( these_groups[i].first != other_groups[i].first ||
+        these_groups[i].second != other_groups[i].second )
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 /// Return the group name for a given face index
 std::string
@@ -119,6 +242,35 @@ mesh_face_array_base
   }
 }
 
+/// Equality operator
+bool
+mesh_face_array
+::operator==(mesh_face_array_base const& other) const
+{
+  if( mesh_face_array_base::operator==(other) == false )
+  {
+    return false;
+  }
+
+  const mesh_face_array other_actual = *std::make_shared<mesh_face_array>(other);
+  for(unsigned int i=0; i<size(); i++)
+  {
+    if( this[i].size() != other_actual[i].size() )
+    {
+      return false;
+    }
+    for(unsigned int j=0; j<this[i].size(); j++)
+    {
+      if( faces_[i][j] != other_actual[i][j] )
+      {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 /// Append this array of faces
 void
 mesh_face_array
@@ -157,6 +309,36 @@ mesh_face_array
       faces_.push_back(f);
     }
   }
+}
+
+/// Equality operator
+template <unsigned int s>
+bool
+mesh_regular_face_array<s>
+::operator==(mesh_face_array_base const& other) const
+{
+  if( mesh_face_array_base::operator==(other) == false )
+  {
+    return false;
+  }
+
+  const mesh_regular_face_array<s> other_actual = other;
+  for(unsigned int i=0; i<size(); i++)
+  {
+    if( this[i].size() != other_actual[i].size() )
+    {
+      return false;
+    }
+    for(unsigned int j=0; j<this[i].size(); j++)
+    {
+      if( this[i] != other_actual[i] )
+      {
+        return false;
+      }
+    }
+  }
+
+  return true;
 }
 
 /// Merge the two face arrays
@@ -285,6 +467,50 @@ mesh_half_edge_set
   }
 }
 
+/// Equality operator
+bool
+mesh_half_edge_set
+::operator==(mesh_half_edge_set const& other) const
+{
+  if( half_edges_.size() != other.half_edges_.size() )
+  {
+    return false;
+  }
+  for(unsigned int i=0; i<half_edges_.size(); i++)
+  {
+    if( half_edges_[i] != other.half_edges_[i] )
+    {
+      return false;
+    }
+  }
+
+  if( vert_to_he_.size() != other.vert_to_he_.size() )
+  {
+    return false;
+  }
+  for(unsigned int i=0; i<vert_to_he_.size(); i++)
+  {
+    if( vert_to_he_[i] != other.vert_to_he_[i] )
+    {
+      return false;
+    }
+  }
+
+  if( face_to_he_.size() != other.face_to_he_.size() )
+  {
+    return false;
+  }
+  for(unsigned int i=0; i<face_to_he_.size(); i++)
+  {
+    if( face_to_he_[i] != other.face_to_he_[i] )
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 /// Count the number of vertices pointed to by these edges
 unsigned int
 mesh_half_edge_set
@@ -350,6 +576,70 @@ mesh
     tex_coord_status_ = other.tex_coord_status_;
   }
   return *this;
+}
+
+/// Equality operator
+bool
+mesh
+::operator==(mesh const& other) const
+{
+  if( is_init() != other.is_init() )
+  {
+    return false;
+  }
+  if( is_init() == false )
+  {
+    return true;
+  }
+
+  if( *verts_ != *other.verts_)
+  {
+    return false;
+  }
+  if( *faces_ != *other.faces_)
+  {
+    return false;
+  }
+  if( half_edges_ != other.half_edges_ )
+  {
+    return false;
+  }
+
+  if( tex_coords_.size() != other.tex_coords_.size() )
+  {
+    return false;
+  }
+  for(unsigned int i=0; i<tex_coords_.size(); i++)
+  {
+    if( tex_coords_[i] != other.tex_coords_[i] )
+    {
+      return false;
+    }
+  }
+
+  if( tex_source_ != other.tex_source_ )
+  {
+    return false;
+  }
+
+  if( valid_tex_faces_.size() != other.valid_tex_faces_.size() )
+  {
+    return false;
+  }
+  for(unsigned int i=0; i<valid_tex_faces_.size(); i++)
+  {
+    if( valid_tex_faces_[i] != other.valid_tex_faces_[i] )
+    {
+      return false;
+    }
+  }
+
+  if( tex_coord_status_ != other.tex_coord_status_ )
+  {
+    return false;
+  }
+
+  return true;
 }
 
 /// Merge the data from another mesh into this one

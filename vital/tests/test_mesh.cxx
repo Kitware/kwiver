@@ -23,41 +23,6 @@ int main(int argc, char** argv)
 }
 
 // ----------------------------------------------------------------------------
-void compare_meshes(const kwiver::vital::mesh_sptr& first,
-                    const kwiver::vital::mesh_sptr& second)
-{
-  kwiver::vital::mesh_vertex_array<3>& first_vertices = dynamic_cast
-    <kwiver::vital::mesh_vertex_array<3>&>( first->vertices() );
-  kwiver::vital::mesh_vertex_array<3>& second_vertices = dynamic_cast
-    <kwiver::vital::mesh_vertex_array<3>&>( second->vertices() );
-
-  EXPECT_EQ( first_vertices.size(), second_vertices.size() );
-  for(unsigned int i=0; i<first_vertices.size(); i++)
-  {
-    EXPECT_EQ( first_vertices[i].size(), second_vertices[i].size() );
-    for(unsigned int j=0; j<first_vertices[i].size(); j++)
-    {
-      EXPECT_EQ( first_vertices[i][j], second_vertices[i][j] );
-    }
-  }
-
-  kwiver::vital::mesh_face_array first_faces = *std::make_shared
-    <kwiver::vital::mesh_face_array>(first->faces());
-  kwiver::vital::mesh_face_array second_faces = *std::make_shared
-    <kwiver::vital::mesh_face_array>(second->faces());
-
-  EXPECT_EQ( first_faces.size(), second_faces.size() );
-  for(unsigned int i=0; i<first_faces.size(); i++)
-  {
-    EXPECT_EQ( first_faces[i].size(), second_faces[i].size() );
-    for(unsigned int j=0; j<first_faces[i].size(); j++)
-    {
-      EXPECT_EQ( first_faces[i][j], second_faces[i][j] );
-    }
-  }
-}
-
-// ----------------------------------------------------------------------------
 TEST(mesh, group_names)
 {
   kwiver::vital::mesh_sptr cube_mesh = kwiver::testing::cube_mesh( 1.0 );
@@ -183,7 +148,7 @@ TEST(mesh, copy_constructor)
   kwiver::vital::mesh_sptr copy =
     std::make_shared<kwiver::vital::mesh>( *original );
 
-  compare_meshes( original, copy );
+  EXPECT_EQ( *original, *copy );
 
   EXPECT_TRUE( original->is_init() );
   EXPECT_TRUE( copy->is_init() );
@@ -200,7 +165,7 @@ TEST(mesh, assignment_operator)
     std::make_shared<kwiver::vital::mesh>();
   *copy = kwiver::vital::mesh( *original );
 
-  compare_meshes( original, copy );
+  EXPECT_EQ( *original, *copy );
 
   EXPECT_TRUE( original->is_init() );
   EXPECT_TRUE( copy->is_init() );

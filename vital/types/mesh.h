@@ -31,6 +31,13 @@ public:
   /// Destructor
   virtual ~mesh_vertex_array_base() {}
 
+  /// Equality operator
+  bool operator==(mesh_vertex_array_base const& other) const;
+
+  /// Inequality operator
+  bool operator!=(mesh_vertex_array_base const& other) const
+  { return !(*this == other); }
+
   /// returns the number of vertices
   virtual unsigned int size() const = 0;
 
@@ -112,6 +119,9 @@ public:
     return new mesh_vertex_array<d>(*this);
   }
 
+  /// Equality operator
+  bool operator==(mesh_vertex_array_base const& other) const;
+
   /// returns the number of vertices
   virtual unsigned int size() const { return static_cast<unsigned int>(verts_.size()); }
 
@@ -186,6 +196,15 @@ public:
     std::copy(verts.begin(), verts.end(), verts_);
   }
 
+  /// Equality operator
+  template<unsigned U>
+  bool operator==(mesh_regular_face<U> const& other) const;
+
+  /// Inequality operator
+  template<unsigned U>
+  bool operator!=(mesh_regular_face<U> const& other) const
+  { return !(*this == other); }
+
   /// return the number of vertices
   unsigned int num_verts() const { return s; }
 
@@ -233,6 +252,13 @@ class VITAL_EXPORT mesh_face_array_base
 public:
   /// Destructor
   virtual ~mesh_face_array_base() {}
+
+  /// Equality operator
+  bool operator==(mesh_face_array_base const& other) const;
+
+  /// Inequality operator
+  bool operator!=(mesh_face_array_base const& other) const
+  { return !(*this == other); }
 
   /// returns the number of vertices per face if the same for all faces, zero otherwise
   virtual unsigned int regularity() const = 0;
@@ -345,6 +371,9 @@ public:
     }
   }
 
+  /// Equality operator
+  bool operator==(mesh_face_array_base const& other) const;
+
   /// returns the number of vertices per face if the same for all faces, zero otherwise
   virtual unsigned int regularity() const { return 0; }
 
@@ -415,6 +444,9 @@ public:
   /// Constructor (from an initializer list)
   mesh_regular_face_array<s>(const std::initializer_list<mesh_regular_face<s> >& faces)
     : faces_(faces) {}
+
+  /// Equality operator
+  bool operator==(mesh_face_array_base const& other) const;
 
   /// returns the number of vertices per face if the same for all faces
   ///
@@ -507,6 +539,17 @@ public:
   mesh_half_edge(unsigned int e, unsigned int n, unsigned int v, unsigned int f)
   : next_(n), edge_(e), vert_(v), face_(f) {}
 
+  /// Equality operator
+  bool operator==(mesh_half_edge const& other) const
+  {
+    return ( next_ == other.next_ && edge_ == other.edge_ &&
+             vert_ == other.vert_ && face_ == other.face_ );
+  }
+
+  /// Inequality operator
+  bool operator!=(mesh_half_edge const& other) const
+  { return !(*this == other); }
+
   /// return the next half-edge index
   unsigned int next_index() const { return next_; }
   /// return the pair half-edge index
@@ -543,6 +586,13 @@ public:
 
   /// Build the half edges from an indexed face set
   void build_from_ifs(const std::vector<std::vector<unsigned int> >& face_list);
+
+  /// Equality operator
+  bool operator==(mesh_half_edge_set const& other) const;
+
+  /// Inequality operator
+  bool operator!=(mesh_half_edge_set const& other) const
+  { return !(*this == other); }
 
   /// Access by index
   const mesh_half_edge& operator [] (unsigned int i) const { return half_edges_[i]; }
@@ -872,6 +922,13 @@ public:
 
   /// Assignment operator
   mesh& operator=(mesh const& other);
+
+  /// Equality operator
+  bool operator==(mesh const& other) const;
+
+  /// Inequality operator
+  bool operator!=(mesh const& other) const
+  { return !(*this == other); }
 
   /// Return the number of vertices
   unsigned int num_verts() const {return verts_->size();}
