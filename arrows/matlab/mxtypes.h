@@ -1,31 +1,32 @@
-/// MxTypes and other type traits for template.
-///
-/// Copyright (c) 2014 Kota Yamaguchi
-/// All rights reserved.
-///
-/// Redistribution and use in source and binary forms, with or without
-/// modification, are permitted provided that the following conditions
-/// are met:
-///
-/// 1. Redistributions of source code must retain the above copyright
-/// notice, this list of conditions and the following disclaimer.
-/// 2. Redistributions in binary form must reproduce the above copyright
-/// notice, this list of conditions and the following disclaimer in the
-/// documentation and/or other materials provided with the distribution.
-/// 3. The name of the author may not be used to endorse or promote products
-/// derived from this software without specific prior written permission.
-///
-/// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-/// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-/// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-/// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
-/// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-/// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-/// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-/// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-/// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-/// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-///
+/** MxTypes and other type traits for template.
+
+Copyright (c) 2014 Kota Yamaguchi
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. The name of the author may not be used to endorse or promote products
+   derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ */
 
 #ifndef INCLUDE_MEXPLUS_MXTYPES_H_
 #define INCLUDE_MEXPLUS_MXTYPES_H_
@@ -38,11 +39,14 @@ namespace kwiver {
 namespace arrows {
 namespace matlab {
 
-/// Traits for fundamental datatypes.
-/// Don't use with function templates due to type promotion!
-/// (Ignore it and get PITA!)
+/************************************************************/
+/* Traits for fundamental datatypes.
+   Don't use with function templates due to type promotion!
+   (Ignore it and get PITA!)                                */
+/************************************************************/
 
-/// Traits for mxLogical-convertibles.
+/** Traits for mxLogical-convertibles.
+ */
 template <typename T, typename U = T>
 struct MxLogicalTy : std::false_type {};
 
@@ -52,11 +56,12 @@ struct MxLogicalTy<T, typename std::enable_if<
     std::is_same<typename std::remove_cv<T>::type, mxLogical>::value,
     T>::type> : std::true_type {};
 
-/// Traits for mxChar-convertibles.
-///
-/// Treat them as an integer types when they are specified signed or unsigned,
-/// because uint8_t is exactly unsigned char and there is no way to tell them
-/// apart.
+/** Traits for mxChar-convertibles.
+ *
+ * Treat them as an integer types when they are specified signed or unsigned,
+ * because uint8_t is exactly unsigned char and there is no way to tell them
+ * apart.
+ */
 template <typename T, typename U = T>
 struct MxCharTy : std::false_type {};
 
@@ -70,7 +75,8 @@ struct MxCharTy<T, typename std::enable_if<
     std::is_same<typename std::remove_cv<T>::type, wchar_t>::value,
     T>::type> : std::true_type {};
 
-/// Traits for integer numerics.
+/** Traits for integer numerics.
+ */
 template <typename T, typename U = T>
 struct MxIntTy : std::false_type {};
 template <typename T>
@@ -79,7 +85,8 @@ struct MxIntTy<T, typename std::enable_if<
     !MxLogicalTy<T>::value &&
     !MxCharTy<T>::value,
     T>::type> : std::true_type {};
-/// Traits for arithmetic types.
+/** Traits for arithmetic types.
+ */
 template <typename T, typename U = T>
 struct MxArithmeticTy : std::false_type {};
 template <typename T>
@@ -87,14 +94,17 @@ struct MxArithmeticTy<T, typename std::enable_if<
     (std::is_floating_point<T>::value) || (MxIntTy<T>::value),
     T>::type> : std::true_type {};
 
-/// Introducing traits for MATLAB array types.
+/**********************************************/
+/* Introducing traits for MATLAB array types. */
+/**********************************************/
 
 typedef struct mxNumeric_tag {} mxNumeric;
 typedef struct mxCell_tag    {} mxCell;
 typedef struct mxComplex_tag {} mxComplex;
 // mxLogical already defined in MATLAB (matrix.h).
 
-/// Traits for mxArray.
+/** Traits for mxArray.
+ */
 template <typename T, typename U = T>
 struct MxTypes {
   typedef T type;
@@ -239,9 +249,12 @@ struct MxTypes<T, typename std::enable_if<
   static const mxComplexity complexity = mxCOMPLEX;
 };
 
-/// Type traits for function template usage.
+/********************************************/
+/* Type traits for function template usage. */
+/********************************************/
 
-// Traits for logical types.
+/* Traits for logical types.
+ */
 template <typename T, typename U = T>
 struct MxLogicalType : std::false_type {};
 template<typename T>
@@ -249,7 +262,8 @@ struct MxLogicalType<T, typename std::enable_if<
     std::is_same<typename MxTypes<T>::array_type, mxLogical>::value,
     T>::type> : std::true_type {};
 
-// Traits for char types.
+/* Traits for char types.
+ */
 template <typename T, typename U = T>
 struct MxCharType : std::false_type {};
 template<typename T>
@@ -257,7 +271,8 @@ struct MxCharType<T, typename std::enable_if<
     std::is_same<typename MxTypes<T>::array_type, mxChar>::value,
     T>::type> : std::true_type {};
 
-// Traits for arithmetic types.
+/* Traits for arithmetic types.
+ */
 template <typename T, typename U = T>
 struct MxArithmeticType : std::false_type {};
 template<typename T>
@@ -265,7 +280,8 @@ struct MxArithmeticType<T, typename std::enable_if<
     std::is_same<typename MxTypes<T>::array_type, mxNumeric>::value,
     T>::type> : std::true_type {};
 
-// Traits for complex types.
+/* Traits for complex types.
+ */
 template <typename T, typename U = T>
 struct MxComplexType : std::false_type {};
 template<typename T>
@@ -273,7 +289,8 @@ struct MxComplexType<T, typename std::enable_if<
     std::is_same<typename MxTypes<T>::array_type, mxComplex>::value,
     T>::type> : std::true_type {};
 
-// Traits for complex or arithmetic types.
+/* Traits for complex or arithmetic types.
+ */
 template <typename T, typename U = T>
 struct MxComplexOrArithmeticType : std::false_type {};
 template <typename T>
@@ -285,7 +302,8 @@ struct MxComplexOrArithmeticType<T, typename std::enable_if<
     MxArithmeticTy<T>::value,
     T>::type> : std::true_type {};
 
-// Traits for cell types.
+/* Traits for cell types.
+ */
 template <typename T, typename U = T>
 struct MxCellType : std::false_type {};
 template <typename T>
@@ -293,7 +311,8 @@ struct MxCellType<T, typename std::enable_if<
     std::is_same<typename MxTypes<T>::array_type, mxCell>::value,
     T>::type> : std::true_type {};
 
-// Traits for logical type compounds.
+/* Traits for logical type compounds.
+ */
 template <typename T, typename U = T>
 struct MxLogicalCompound : std::false_type {};
 template <typename T>
@@ -301,7 +320,8 @@ struct MxLogicalCompound<T, typename std::enable_if<
     MxLogicalType<typename T::value_type>::value,
     T>::type> : std::true_type {};
 
-// Traits for char type compounds.
+/* Traits for char type compounds.
+ */
 template <typename T, typename U = T>
 struct MxCharCompound : std::false_type {};
 template <typename T>
@@ -309,7 +329,8 @@ struct MxCharCompound<T, typename std::enable_if<
     MxCharType<typename T::value_type>::value,
     T>::type> : std::true_type {};
 
-// Traits for arithmetic type compounds.
+/* Traits for arithmetic type compounds.
+ */
 template <typename T, typename U = T>
 struct MxArithmeticCompound : std::false_type {};
 template <typename T>
@@ -318,7 +339,8 @@ struct MxArithmeticCompound<T, typename std::enable_if<
     !(MxComplexType<T>::value),
     T>::type> : std::true_type {};
 
-// Traits for complex type compounds.
+/* Traits for complex type compounds.
+ */
 template <typename T, typename U = T>
 struct MxComplexCompound : std::false_type {};
 template <typename T>
@@ -326,7 +348,8 @@ struct MxComplexCompound<T, typename std::enable_if<
     MxComplexType<typename T::value_type>::value,
     T>::type> : std::true_type {};
 
-// Traits for complex or arithmetic type compounds.
+/* Traits for complex or arithmetic type compounds.
+ */
 template <typename T, typename U = T>
 struct MxComplexOrArithmeticCompound : std::false_type {};
 template <typename T>
@@ -335,7 +358,8 @@ struct MxComplexOrArithmeticCompound<T, typename std::enable_if<
     MxArithmeticCompound<T>::value,
     T>::type> : std::true_type {};
 
-// Traits for cell compounds.
+/* Traits for cell compounds.
+ */
 template <typename T, typename U = T>
 struct MxCellCompound : std::false_type {};
 template <typename T>
