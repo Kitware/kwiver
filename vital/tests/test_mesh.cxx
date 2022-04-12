@@ -70,27 +70,29 @@ TEST(mesh, append)
   first_mesh->compute_face_normals();
   std::shared_ptr<kwiver::vital::mesh_face_array> first_faces =
     std::make_shared<kwiver::vital::mesh_face_array>(first_mesh->faces());
-  first_faces->make_group( "first name" );
+  unsigned int first_size = first_faces->size();
+  EXPECT_EQ( first_faces->make_group( "first name" ), first_size );
 
   kwiver::vital::mesh_sptr second_mesh = kwiver::testing::grid_mesh( 2, 3 );
   second_mesh->compute_face_normals();
   std::shared_ptr<kwiver::vital::mesh_face_array> second_faces =
     std::make_shared<kwiver::vital::mesh_face_array>(second_mesh->faces());
-  second_faces->make_group( "second name" );
+  unsigned int second_size = second_faces->size();
+  EXPECT_EQ( second_faces->make_group( "second name" ), second_size );
 
   kwiver::vital::mesh_sptr third_mesh = kwiver::testing::cube_mesh( 1.0 );
   std::shared_ptr<kwiver::vital::mesh_face_array> third_faces =
     std::make_shared<kwiver::vital::mesh_face_array>(third_mesh->faces());
-  third_faces->make_group( "third name" );
-
-  unsigned int first_size = first_faces->size();
-  unsigned int second_size = second_faces->size();
   unsigned int third_size = third_faces->size();
 
   first_faces->append( *second_faces );
+  EXPECT_EQ( first_faces->make_group( "second name" ), 0 );
   EXPECT_EQ( first_faces->size(), first_size + second_size );
+  EXPECT_EQ( first_faces->group_face_set( "second name" ).size(), second_size );
   EXPECT_TRUE( first_faces->has_normals() );
   first_faces->append( *third_faces );
+  EXPECT_EQ( first_faces->make_group( "third name" ), third_size );
+  EXPECT_EQ( first_faces->group_face_set( "third name" ).size(), third_size );
   EXPECT_EQ( first_faces->size(), first_size + second_size + third_size );
   EXPECT_FALSE( first_faces->has_normals() );
 }
