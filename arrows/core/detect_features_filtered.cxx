@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of detect_feature_filtered algorithm
- */
+/// \file
+/// \brief Implementation of detect_feature_filtered algorithm
 #include "detect_features_filtered.h"
 #include <vital/algo/filter_features.h>
 

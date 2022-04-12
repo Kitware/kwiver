@@ -27,7 +27,7 @@ public:
 
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_input_split
 ::video_input_split()
   : d( new video_input_split::priv )
@@ -35,13 +35,13 @@ video_input_split
   attach_logger( "arrows.core.video_input_split" );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 video_input_split
 ::~video_input_split()
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 video_input_split
 ::get_configuration() const
@@ -58,7 +58,7 @@ video_input_split
   return config;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 video_input_split
 ::set_configuration( vital::config_block_sptr config )
@@ -70,7 +70,7 @@ video_input_split
     set_nested_algo_configuration( "metadata_source", config, d->d_metadata_source );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_split
 ::check_configuration( vital::config_block_sptr config ) const
@@ -86,7 +86,7 @@ video_input_split
   return image_stat && meta_stat;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 video_input_split
 ::open( std::string name )
@@ -132,7 +132,7 @@ video_input_split
                   ms_caps.capability( vi::IS_SEEKABLE) );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 video_input_split
 ::close()
@@ -147,7 +147,7 @@ video_input_split
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_split
 ::end_of_video() const
@@ -156,7 +156,7 @@ video_input_split
          (!d->d_metadata_source || d->d_metadata_source->end_of_video());
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_split
 ::good() const
@@ -165,7 +165,7 @@ video_input_split
          (d->d_metadata_source && d->d_metadata_source->good());
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_split
 ::seekable() const
@@ -174,7 +174,7 @@ video_input_split
          (d->d_metadata_source && d->d_metadata_source->seekable());
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 size_t
 video_input_split
 ::num_frames() const
@@ -190,7 +190,7 @@ video_input_split
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_split
 ::next_frame( kwiver::vital::timestamp& ts,   // returns timestamp
@@ -225,7 +225,7 @@ video_input_split
   return true;
 } // video_input_split::next_frame
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 video_input_split
 ::seek_frame( kwiver::vital::timestamp& ts,   // returns timestamp
@@ -275,7 +275,7 @@ video_input_split
   return true;
 } // video_input_split::seek_frame
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::timestamp
 video_input_split
 ::frame_timestamp() const
@@ -292,7 +292,7 @@ video_input_split
   return merge_timestamps( image_ts, metadata_ts );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::image_container_sptr
 video_input_split
 ::frame_image()
@@ -300,7 +300,7 @@ video_input_split
   return d->d_image_source->frame_image();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::metadata_vector
 video_input_split
 ::frame_metadata()
@@ -352,7 +352,7 @@ video_input_split
   return d->d_image_source->implementation_settings();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::timestamp
 video_input_split
 ::merge_timestamps(

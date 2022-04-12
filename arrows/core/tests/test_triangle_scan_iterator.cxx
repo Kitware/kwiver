@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief core triangle_scan_iterator class tests
- */
+/// \file
+/// \brief core triangle_scan_iterator class tests
 
 #include <arrows/core/triangle_scan_iterator.h>
 #include <vital/types/vector.h>

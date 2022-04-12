@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Core feature_descriptor_io interface
- */
+/// \file
+/// \brief Core feature_descriptor_io interface
 
 #ifndef KWIVER_ARROWS_CORE_FEATURE_DESCRIPTOR_IO_H_
 #define KWIVER_ARROWS_CORE_FEATURE_DESCRIPTOR_IO_H_
@@ -42,27 +40,25 @@ public:
 
 private:
   /// Implementation specific load functionality.
-  /**
-   * Concrete implementations of feature_descriptor_io class must provide an
-   * implementation for this method.
-   *
-   * \param filename the path to the file the load
-   * \param feat the set of features to load from the file
-   * \param desc the set of descriptors to load from the file
-   */
+  ///
+  /// Concrete implementations of feature_descriptor_io class must provide an
+  /// implementation for this method.
+  ///
+  /// \param filename the path to the file the load
+  /// \param feat the set of features to load from the file
+  /// \param desc the set of descriptors to load from the file
   virtual void load_(std::string const& filename,
                      vital::feature_set_sptr& feat,
                      vital::descriptor_set_sptr& desc) const;
 
   /// Implementation specific save functionality.
-  /**
-   * Concrete implementations of feature_descriptor_io class must provide an
-   * implementation for this method.
-   *
-   * \param filename the path to the file to save
-   * \param feat the set of features to write to the file
-   * \param desc the set of descriptors to write to the file
-   */
+  ///
+  /// Concrete implementations of feature_descriptor_io class must provide an
+  /// implementation for this method.
+  ///
+  /// \param filename the path to the file to save
+  /// \param feat the set of features to write to the file
+  /// \param desc the set of descriptors to write to the file
   virtual void save_(std::string const& filename,
                      vital::feature_set_sptr feat,
                      vital::descriptor_set_sptr desc) const;

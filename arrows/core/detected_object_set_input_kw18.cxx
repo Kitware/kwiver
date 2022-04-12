@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation for detected_object_set_input_kw18
- */
+/// \file
+/// \brief Implementation for detected_object_set_input_kw18
 
 #include "detected_object_set_input_kw18.h"
 
@@ -45,7 +43,7 @@ enum{
   COL_CONFIDENCE// 18
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class detected_object_set_input_kw18::priv
 {
 public:
@@ -69,7 +67,7 @@ public:
   std::map< int, kwiver::vital::detected_object_set_sptr > m_detected_sets;
 };
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 detected_object_set_input_kw18::
 detected_object_set_input_kw18()
   : d( new detected_object_set_input_kw18::priv( this ) )
@@ -82,14 +80,14 @@ detected_object_set_input_kw18::
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_input_kw18::
 set_configuration( VITAL_UNUSED vital::config_block_sptr config )
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set_input_kw18::
 check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
@@ -97,7 +95,7 @@ check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set_input_kw18::
 read_set( kwiver::vital::detected_object_set_sptr & set,
@@ -137,7 +135,7 @@ read_set( kwiver::vital::detected_object_set_sptr & set,
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_input_kw18::
 new_stream()
@@ -145,7 +143,7 @@ new_stream()
   d->m_first = true;
 }
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 void
 detected_object_set_input_kw18::priv::
 read_all()
@@ -168,15 +166,13 @@ read_all()
       VITAL_THROW( kwiver::vital::invalid_data, str.str() );
     }
 
-    /*
-     * Check to see if we have seen this frame before. If we have,
-     * then retrieve the frame's index into our output map. If not
-     * seen before, add frame -> detection set index to our map and
-     * press on.
-     *
-     * This allows for track states to be written in a non-contiguous
-     * manner as may be done by streaming writers.
-     */
+    //  Check to see if we have seen this frame before. If we have,
+    //  then retrieve the frame's index into our output map. If not
+    //  seen before, add frame -> detection set index to our map and
+    //  press on.
+    //
+    //  This allows for track states to be written in a non-contiguous
+    //  manner as may be done by streaming writers.
     int index = atoi( col[COL_FRAME].c_str() );
     if ( 0 == m_detected_sets.count( index ) )
     {

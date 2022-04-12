@@ -25,7 +25,7 @@ namespace kwiver {
 namespace arrows {
 namespace darknet {
 
-// =============================================================================
+// ----------------------------------------------------------------------------
 class darknet_trainer::priv
 {
 public:
@@ -91,7 +91,7 @@ public:
   kwiver::vital::logger_handle_t m_logger;
 };
 
-// =============================================================================
+// ----------------------------------------------------------------------------
 darknet_trainer::
 darknet_trainer()
   : d( new priv() )
@@ -103,7 +103,7 @@ darknet_trainer::
 {
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 darknet_trainer::
 get_configuration() const
@@ -147,7 +147,7 @@ get_configuration() const
   return config;
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 darknet_trainer::
 set_configuration( vital::config_block_sptr config_in )
@@ -174,7 +174,7 @@ set_configuration( vital::config_block_sptr config_in )
   this->d->m_crop_left   = config->get_value< bool >( "crop_left" );
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 darknet_trainer::
 check_configuration( vital::config_block_sptr config ) const
@@ -190,7 +190,7 @@ check_configuration( vital::config_block_sptr config ) const
   return true;
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 darknet_trainer::
 train_from_disk(
@@ -273,7 +273,7 @@ train_from_disk(
   }
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::vector< std::string >
 darknet_trainer::priv::
 format_images( std::string folder, std::string prefix,

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
-* \file
-* \brief Implementation of keyframe_selector_basic
-*/
+/// \file
+/// \brief Implementation of keyframe_selector_basic
 
 #include "keyframe_selector_basic.h"
 #include <vital/types/feature_track_set.h>

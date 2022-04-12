@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of close_loops_multi_method
- */
+/// \file
+/// \brief Implementation of close_loops_multi_method
 
 #include "close_loops_multi_method.h"
 

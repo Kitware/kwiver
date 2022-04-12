@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of initialize_object_tracks_threshold
- */
+/// \file
+/// \brief Implementation of initialize_object_tracks_threshold
 
 #include "initialize_object_tracks_threshold.h"
 

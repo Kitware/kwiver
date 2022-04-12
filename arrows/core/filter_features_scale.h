@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header defining the filter_features_scale algorithm
- */
+/// \file
+/// \brief Header defining the filter_features_scale algorithm
 
 #ifndef KWIVER_ARROWS_CORE_FILTER_FEATURES_SCALE_H_
 #define KWIVER_ARROWS_CORE_FILTER_FEATURES_SCALE_H_
@@ -42,11 +40,10 @@ public:
 protected:
 
   /// filter a feature set
-  /**
-   * \param [in] feature set to filter
-   * \param [out] indices of the kept features to the original feature set
-   * \returns a filtered version of the feature set
-   */
+  ///
+  /// \param [in] feature set to filter
+  /// \param [out] indices of the kept features to the original feature set
+  /// \returns a filtered version of the feature set
   virtual vital::feature_set_sptr
   filter(vital::feature_set_sptr input, std::vector<unsigned int> &indices) const;
   using filter_features::filter;

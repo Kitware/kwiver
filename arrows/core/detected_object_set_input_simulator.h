@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Interface for detected_object_set_input_simulator
- */
+/// \file
+/// \brief Interface for detected_object_set_input_simulator
 
 #ifndef KWIVER_ARROWS_CORE_DETECTED_OBJECT_SET_INPUT_SIMULATOR_H
 #define KWIVER_ARROWS_CORE_DETECTED_OBJECT_SET_INPUT_SIMULATOR_H
