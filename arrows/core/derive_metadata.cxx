@@ -469,7 +469,7 @@ derive_metadata
   for( auto const& metadata : input_metadata )
   {
     // Deep copy metadata
-    auto updated_metadata = std::make_shared< kv::metadata >( *metadata );
+    auto updated_metadata = kv::metadata_sptr( metadata->clone() );
 
     try
     {

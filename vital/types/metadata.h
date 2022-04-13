@@ -250,6 +250,9 @@ public:
   metadata& operator=( metadata&& other ) = default;
   metadata& operator=( metadata const& other );
 
+  /// Create a deep copy of this object.
+  virtual metadata* clone() const;
+
   /// \brief Add metadata item to collection.
   ///
   /// This method adds a metadata item to the collection. The collection takes
