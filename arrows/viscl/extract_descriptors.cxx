@@ -44,7 +44,7 @@ vital::descriptor_set_sptr
 extract_descriptors
 ::extract(vital::image_container_sptr image_data,
           vital::feature_set_sptr features,
-          vital::image_container_sptr /* image_mask */) const
+          vital::image_container_sptr /*image_mask*/) const
 {
   if( !image_data || !features )
   {

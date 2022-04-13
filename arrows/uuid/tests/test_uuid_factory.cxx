@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test dynamic configuration
- */
+/// \file
+/// \brief test dynamic configuration
 
 #include <arrows/uuid/uuid_factory_uuid.h>
 
@@ -23,7 +21,7 @@ int main(int argc, char** argv)
   return RUN_ALL_TESTS();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST(uuid, test_api)
 {
   kac::uuid_factory_uuid algo;
@@ -36,7 +34,7 @@ TEST(uuid, test_api)
   EXPECT_TRUE( id.is_valid() );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST(uuid, test_loading)
 {
   kwiver::vital::plugin_manager::instance().load_all_plugins();

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
-* \file
-* \brief Header defining VXL algorithm implementation of camera optimization.
-*/
+/// \file
+/// \brief Header defining VXL algorithm implementation of camera optimization.
 
 #include "optimize_cameras.h"
 

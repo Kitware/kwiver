@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test detected_object class
- */
+/// \file
+/// \brief test detected_object class
 
 #include <test_common.h>
 
@@ -36,7 +34,7 @@ main(int argc, char** argv)
   RUN_TEST(testname, data_dir);
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 IMPLEMENT_TEST(image_conversion)
 {
   kwiver::vital::path_t test_read_file = data_dir + "/" + image_name;

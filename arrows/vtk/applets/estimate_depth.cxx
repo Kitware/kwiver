@@ -47,7 +47,7 @@ namespace {
 
 kv::logger_handle_t main_logger( kv::get_logger( "estimate_depth_tool" ) );
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool check_config(kv::config_block_sptr config)
 {
   using namespace kwiver::tools;
@@ -221,7 +221,7 @@ public:
     return SUCCESS;
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   kv::config_block_sptr default_config()
   {
     auto config =
@@ -327,7 +327,7 @@ public:
     camera_map = camera_map_sptr( new simple_camera_map( cameras ) );
   }
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   bool write_depth(vtkSmartPointer<vtkImageData> depth_image,
                    kv::frame_id_t frame)
   {
@@ -661,7 +661,7 @@ add_command_options()
     m_cmd_options->parse_positional({ "video-source", "input-cameras-dir", "output-depths-dir" });
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 estimate_depth::
 estimate_depth()
   : d(new priv())

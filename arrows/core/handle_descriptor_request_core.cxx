@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of handle_descriptor_request_core
- */
+/// \file
+/// \brief Implementation of handle_descriptor_request_core
 
 #include "handle_descriptor_request_core.h"
 

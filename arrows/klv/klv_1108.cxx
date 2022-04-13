@@ -81,46 +81,19 @@ operator<<( std::ostream& os, klv_1108_compression_profile value )
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator==( klv_1108_metric_period_pack const& lhs,
-            klv_1108_metric_period_pack const& rhs )
-{
-  return lhs.timestamp == rhs.timestamp && lhs.offset == rhs.offset;
-}
-
-// ----------------------------------------------------------------------------
-bool
-operator<( klv_1108_metric_period_pack const& lhs,
-           klv_1108_metric_period_pack const& rhs )
-{
-  if( lhs.timestamp < rhs.timestamp )
-  {
-    return true;
-  }
-  else if( rhs.timestamp < lhs.timestamp )
-  {
-    return false;
-  }
-
-  if( lhs.offset < rhs.offset )
-  {
-    return true;
-  }
-  else if( rhs.offset < lhs.offset )
-  {
-    return false;
-  }
-
-  return false;
-}
-
-// ----------------------------------------------------------------------------
 std::ostream&
 operator<<( std::ostream& os, klv_1108_metric_period_pack const& rhs )
 {
   return os << "{ Timestamp: " << rhs.timestamp << ", "
             << "Offset: " << rhs.offset << " }";
 }
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_1108_metric_period_pack,
+  &klv_1108_metric_period_pack::timestamp,
+  &klv_1108_metric_period_pack::offset
+)
 
 // ----------------------------------------------------------------------------
 klv_1108_metric_period_pack_format
@@ -156,24 +129,19 @@ klv_1108_metric_period_pack_format
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator==( klv_1108_window_corners_pack const& lhs,
-            klv_1108_window_corners_pack const& rhs )
+namespace {
+
+std::tuple< uint16_t, uint16_t, uint16_t, uint16_t >
+tuplize( klv_1108_window_corners_pack const& value )
 {
-  return lhs.bbox == rhs.bbox;
+  return std::make_tuple( value.bbox.min_x(), value.bbox.min_y(),
+                          value.bbox.max_x(), value.bbox.max_y() );
 }
 
+} // namespace
+
 // ----------------------------------------------------------------------------
-bool
-operator<( klv_1108_window_corners_pack const& lhs,
-           klv_1108_window_corners_pack const& rhs )
-{
-  // Use std::tuple's built-in lexicographical compare for brevity
-  return std::make_tuple( lhs.bbox.min_x(), lhs.bbox.min_y(),
-                          lhs.bbox.max_x(), lhs.bbox.max_y() ) <
-         std::make_tuple( rhs.bbox.min_x(), rhs.bbox.min_y(),
-                          rhs.bbox.max_x(), rhs.bbox.max_y() );
-}
+DEFINE_STRUCT_CMP_TUPLIZE( klv_1108_window_corners_pack )
 
 // ----------------------------------------------------------------------------
 std::ostream&
@@ -195,14 +163,12 @@ klv_1108_window_corners_pack
 klv_1108_window_corners_pack_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
-  auto const begin = data;
-  auto const remaining_length =
-    [ & ]() -> size_t { return length - std::distance( begin, data ); };
+  auto const tracker = track_it( data, length );
 
-  auto const y_min = klv_read_ber_oid< uint16_t >( data, remaining_length() );
-  auto const x_min = klv_read_ber_oid< uint16_t >( data, remaining_length() );
-  auto const y_max = klv_read_ber_oid< uint16_t >( data, remaining_length() );
-  auto const x_max = klv_read_ber_oid< uint16_t >( data, remaining_length() );
+  auto const y_min = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+  auto const x_min = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+  auto const y_max = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
+  auto const x_max = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
   return { { x_min, y_min, x_max, y_max } };
 }
 
@@ -212,20 +178,17 @@ klv_1108_window_corners_pack_format
 ::write_typed( klv_1108_window_corners_pack const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  auto const begin = data;
-  auto const remaining_length =
-    [ & ]() -> size_t { return length - std::distance( begin, data ); };
-  klv_write_ber_oid( value.bbox.min_y(), data, remaining_length() );
-  klv_write_ber_oid( value.bbox.min_x(), data, remaining_length() );
-  klv_write_ber_oid( value.bbox.max_y(), data, remaining_length() );
-  klv_write_ber_oid( value.bbox.max_x(), data, remaining_length() );
+  auto const tracker = track_it( data, length );
+  klv_write_ber_oid( value.bbox.min_y(), data, tracker.remaining() );
+  klv_write_ber_oid( value.bbox.min_x(), data, tracker.remaining() );
+  klv_write_ber_oid( value.bbox.max_y(), data, tracker.remaining() );
+  klv_write_ber_oid( value.bbox.max_x(), data, tracker.remaining() );
 }
 
 // ----------------------------------------------------------------------------
 size_t
 klv_1108_window_corners_pack_format
-::length_of_typed( klv_1108_window_corners_pack const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( klv_1108_window_corners_pack const& value ) const
 {
   return klv_ber_oid_length( value.bbox.min_y() ) +
          klv_ber_oid_length( value.bbox.min_x() ) +
@@ -331,7 +294,6 @@ klv_1108_traits_lookup()
   // From Table 1 of https://gwg.nga.mil/misb/docs/standards/ST1108.3.pdf
   // Descriptions are edited for clarity, brevity, consistency, etc.
   static klv_tag_traits_lookup const lookup = {
-#define ENUM_AND_NAME( X ) X, #X
     { {},
       ENUM_AND_NAME( KLV_1108_UNKNOWN ),
       std::make_shared< klv_blob_format >(),
@@ -411,7 +373,7 @@ klv_1108_traits_lookup()
       "Checksum",
       "CRC-16-CCITT checksum.",
       0 } };
-#undef ENUM_AND_NAME
+
   return lookup;
 }
 

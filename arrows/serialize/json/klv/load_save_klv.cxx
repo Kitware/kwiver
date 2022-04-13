@@ -414,10 +414,6 @@ save_value( save_archive& archive, klv_value const& value,
     archive.finishNode();
     return;
   }
-  if( value.length_hint() )
-  {
-    archive( make_nvp( "length", value.length_hint() ) );
-  }
   kv::visit_types<
     save_value_visitor,
     int64_t,
@@ -613,15 +609,6 @@ load_value( load_archive& archive, load_context& context )
   std::string type_name;
   archive( make_nvp( "type", type_name ) );
 
-  size_t length_hint = 0;
-  try
-  {
-    archive( make_nvp( "length", length_hint ) );
-  }
-  catch ( std::runtime_error const& )
-  {
-  }
-
   auto const& trait = type_traits_of( type_name );
   if( trait.type == typeid( void ) )
   {
@@ -658,7 +645,6 @@ load_value( load_archive& archive, load_context& context )
     >( { archive, value, context }, trait.type );
 
   archive.finishNode();
-  value.set_length_hint( length_hint );
   return value;
 }
 

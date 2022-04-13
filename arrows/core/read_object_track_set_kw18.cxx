@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of read_object_track_set_kw18
- */
+/// \file
+/// \brief Implementation of read_object_track_set_kw18
 
 #include "read_object_track_set_kw18.h"
 
@@ -40,7 +38,7 @@ enum{
   COL_CONFIDENCE// 18
 };
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class read_object_track_set_kw18::priv
 {
 public:
@@ -75,7 +73,7 @@ public:
   std::map< vital::frame_id_t, vital::track_sptr > m_all_tracks;
 };
 
-// ===============================================================================
+// ----------------------------------------------------------------------------
 read_object_track_set_kw18
 ::read_object_track_set_kw18()
   : d( new read_object_track_set_kw18::priv( this ) )
@@ -87,7 +85,7 @@ read_object_track_set_kw18
 {
 }
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 read_object_track_set_kw18
 ::set_configuration( vital::config_block_sptr config )
@@ -96,7 +94,7 @@ read_object_track_set_kw18
   d->m_batch_load = config->get_value<bool>( "batch_load", d->m_batch_load );
 }
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 read_object_track_set_kw18
 ::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
@@ -104,7 +102,7 @@ read_object_track_set_kw18
   return true;
 }
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 read_object_track_set_kw18
 ::read_set( vital::object_track_set_sptr& set )
@@ -157,7 +155,7 @@ read_object_track_set_kw18
   return this->at_eof();
 }
 
-// -------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 read_object_track_set_kw18::priv
 ::read_all()
@@ -188,15 +186,13 @@ read_object_track_set_kw18::priv
       VITAL_THROW( vital::invalid_data, str.str() );
     }
 
-    /*
-     * Check to see if we have seen this frame before. If we have,
-     * then retrieve the frame's index into our output map. If not
-     * seen before, add frame -> detection set index to our map and
-     * press on.
-     *
-     * This allows for track states to be written in a non-contiguous
-     * manner as may be done by streaming writers.
-     */
+    //  Check to see if we have seen this frame before. If we have,
+    //  then retrieve the frame's index into our output map. If not
+    //  seen before, add frame -> detection set index to our map and
+    //  press on.
+    //
+    //  This allows for track states to be written in a non-contiguous
+    //  manner as may be done by streaming writers.
     vital::frame_id_t frame_index = atoi( col[COL_FRAME].c_str() );
     vital::time_usec_t frame_time = atof( col[COL_TIME].c_str() );
     int track_index = atoi( col[COL_ID].c_str() );

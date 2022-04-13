@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
- /**
- * \file
- * \brief Source file for tv_refine_search
- */
+ /// \file
+ /// \brief Source file for tv_refine_search
 
 #include "tv_refine_search.h"
 

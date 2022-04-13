@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
- /**
- * \file
- * \brief Source file for cost_volume, computes costs in the world space
- */
+ /// \file
+ /// \brief Source file for cost_volume, computes costs in the world space
 #include "cost_volume.h"
 
 #include <cstdio>
@@ -257,6 +255,7 @@ load_cost_volume(vil_image_view<double> &cost_volume,
       fread(&np, sizeof(unsigned int), 1, file) != 1 )
   {
     LOG_ERROR(logger, "Error loading cost volume");
+    fclose(file);
     return;
   }
 
@@ -272,6 +271,7 @@ load_cost_volume(vil_image_view<double> &cost_volume,
         if (fread(&cost_volume(i,j,s), sizeof(double), 1, file) != 1)
         {
           LOG_ERROR(logger, "Error loading cost volume");
+          fclose(file);
           return;
         }
       }
@@ -283,6 +283,7 @@ load_cost_volume(vil_image_view<double> &cost_volume,
       if (fread(&g_weight(i,j), sizeof(double), 1, file) != 1)
       {
         LOG_ERROR(logger, "Error loading cost volume");
+        fclose(file);
         return;
       }
 

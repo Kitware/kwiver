@@ -30,7 +30,7 @@ std::shared_ptr< std::string >
 track::
 serialize( const vital::any& element )
 {
-  kwiver::vital::track_sptr trk_sptr = 
+  kwiver::vital::track_sptr trk_sptr =
     kwiver::vital::any_cast< kwiver::vital::track_sptr > ( element );
 
   std::ostringstream msg;

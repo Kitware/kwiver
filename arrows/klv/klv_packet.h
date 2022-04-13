@@ -41,6 +41,12 @@ enum klv_top_level_tag : klv_lds_key
 /// A KLV metadata stream consists of a sequence of these.
 struct KWIVER_ALGO_KLV_EXPORT klv_packet
 {
+  klv_packet();
+
+  klv_packet( klv_uds_key const& key, klv_value const& value );
+
+  klv_packet( klv_uds_key const& key, klv_value&& value );
+
   klv_uds_key key;
   klv_value value;
 };

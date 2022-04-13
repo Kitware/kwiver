@@ -1079,7 +1079,7 @@ initialize_cameras_landmarks::priv
       rel_pose rp = calc_rel_pose(fid_0, fid_1, tks_01);
 #pragma omp critical
       {
-        if (rp.well_conditioned_landmark_count > 100)
+        if (rp.well_conditioned_landmark_count > m_min_frame_to_frame_matches)
         {
           m_rel_poses.insert(rp);
         }

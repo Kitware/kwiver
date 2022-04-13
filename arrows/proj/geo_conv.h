@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief PROJ geo_conversion functor interface
- */
+/// \file
+/// \brief PROJ geo_conversion functor interface
 
 #ifndef KWIVER_ARROWS_PROJ_GEO_CONV_H_
 #define KWIVER_ARROWS_PROJ_GEO_CONV_H_

@@ -1,8 +1,8 @@
 KWIVER v1.6.1 Release Notes
 ===========================
 
-This is a patch release of KWIVER that provides fixes over the previous
-v1.6.0 release.
+This is a patch release of KWIVER that provides fixes over the previous v1.6.0
+release.
 
 Bug Fixes since v1.6.0
 ----------------------
@@ -42,10 +42,18 @@ Build System
 
  * Fix missing-closing-bracket typo in `CMake/utils/kwiver-utils-python.cmake`.
 
+* Use xvfb in Docker image to support running VTK applets in a headless
+   environment.
+
  * Include CUDA include directories when building CUDA arrow.  This is needed
    if CUDA is not installed in standard system locations.
 
  * Enable the CUDA arrow in the Docker container.
+
+Vital Algorithms
+
+* Fix potential leak of stream pointers in the base functionality of
+  ``write_object_track_set``.
 
 Vital: Logging
 

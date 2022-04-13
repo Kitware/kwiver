@@ -246,7 +246,7 @@ public:
   metadata();
   metadata( metadata const& other );
   metadata( metadata&& other ) = default;
-  ~metadata() = default;
+  virtual ~metadata() = default;
   metadata& operator=( metadata&& other ) = default;
   metadata& operator=( metadata const& other );
 

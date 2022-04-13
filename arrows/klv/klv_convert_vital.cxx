@@ -12,6 +12,8 @@
 #include "klv_0601.h"
 #include "klv_1108.h"
 #include "klv_1108_metric_set.h"
+#include "klv_metadata.h"
+#include "klv_muxer.h"
 
 #include <vital/range/iota.h>
 #include <vital/types/geodesy.h>
@@ -32,6 +34,7 @@ namespace klv {
 namespace {
 
 // ----------------------------------------------------------------------------
+using kld = klv_lengthy< double >;
 struct klv_to_vital_visitor
 {
   template < class T,
@@ -46,14 +49,12 @@ struct klv_to_vital_visitor
   }
 
   template < class T,
-             typename std::enable_if< !std::is_same< T, uint64_t >::value &&
-                                      !std::is_same< T, double >::value &&
-                                      !std::is_same< T, std::string >::value,
+             typename std::enable_if< std::is_same< T, kld >::value,
                                       bool >::type = true >
   kv::metadata_value
   operator()() const
   {
-    throw std::logic_error( "type does not exist in klv_value" );
+    return value.get< T >().value;
   }
 
   klv_value const& value;
@@ -63,8 +64,13 @@ struct klv_to_vital_visitor
 kv::metadata_value
 klv_to_vital_value( klv_value const& value )
 {
-  return kv::visit_metadata_types_return< kv::metadata_value >(
-    klv_to_vital_visitor{ value }, value.type() );
+  return kv::visit_types_return<
+    kv::metadata_value,
+    klv_to_vital_visitor,
+    uint64_t,
+    double,
+    kld,
+    std::string >( { value }, value.type() );
 }
 
 // ----------------------------------------------------------------------------
@@ -77,9 +83,9 @@ assemble_geo_point( klv_value const& latitude,
   constexpr auto qnan = std::numeric_limits< double >::quiet_NaN();
   return {
     kv::vector_3d{
-      longitude.valid() ? longitude.get< double >() : qnan,
-      latitude.valid() ? latitude.get< double >() : qnan,
-      elevation.valid() ? elevation.get< double >() : qnan, },
+      longitude.valid() ? longitude.get< kld >().value : qnan,
+      latitude.valid() ? latitude.get< kld >().value : qnan,
+      elevation.valid() ? elevation.get< kld >().value : qnan, },
     kv::SRID::lat_lon_WGS84 };
 }
 
@@ -182,7 +188,12 @@ klv_0102_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
       auto result = klv_data.at( standard, tag, timestamp );
       if( !result.valid() && st0601.valid() )
       {
-        result = st0601.get< klv_local_set >().at( tag );
+        auto const& st0601_set = st0601.get< klv_local_set >();
+        auto const it = st0601_set.find( tag );
+        if( it != st0601_set.end() )
+        {
+          result = it->second;
+        }
       }
       return result;
     };
@@ -635,13 +646,21 @@ klv_1108_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
 
 // ----------------------------------------------------------------------------
 kv::metadata_sptr
-klv_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp )
+klv_to_vital_metadata( klv_timeline const& klv_data,
+                       kv::interval< uint64_t > const& time_interval )
 {
-  auto const result = std::make_shared< kv::metadata >();
-  klv_0102_to_vital_metadata( klv_data, timestamp, *result );
-  klv_0104_to_vital_metadata( klv_data, timestamp, *result );
-  klv_0601_to_vital_metadata( klv_data, timestamp, *result );
-  klv_1108_to_vital_metadata( klv_data, timestamp, *result );
+  auto const result = std::make_shared< klv_metadata >();
+  {
+    klv_muxer muxer( klv_data );
+    muxer.send_frame( time_interval.lower() );
+    muxer.receive_frame();
+    muxer.send_frame( time_interval.upper() );
+    result->set_klv( muxer.receive_frame() );
+  }
+  klv_0102_to_vital_metadata( klv_data, time_interval.upper(), *result );
+  klv_0104_to_vital_metadata( klv_data, time_interval.upper(), *result );
+  klv_0601_to_vital_metadata( klv_data, time_interval.upper(), *result );
+  klv_1108_to_vital_metadata( klv_data, time_interval.upper(), *result );
   return result;
 }
 

@@ -9,7 +9,7 @@ project(KWIVER)
 # KWIVER version
 set(KWIVER_VERSION_MAJOR 1)
 set(KWIVER_VERSION_MINOR 6)
-set(KWIVER_VERSION_PATCH 0)
+set(KWIVER_VERSION_PATCH 1)
 set(KWIVER_VERSION "${KWIVER_VERSION_MAJOR}.${KWIVER_VERSION_MINOR}.${KWIVER_VERSION_PATCH}")
 
 # Organize target into folders for IDEs that support it
@@ -125,6 +125,18 @@ option( KWIVER_ENABLE_EXTRAS "Enable extras content" OFF )
 OPTION( KWIVER_ENABLE_C_BINDINGS               "Enable C bindings libraries" OFF)
 CMAKE_DEPENDENT_OPTION( KWIVER_ENABLE_PYTHON   "Enable python code" OFF
   KWIVER_ENABLE_C_BINDINGS OFF )
+
+if (WIN32)
+  # Set default for python tests to OFF on windows for now
+  CMAKE_DEPENDENT_OPTION( KWIVER_ENABLE_PYTHON_TESTS "Enable python tests" OFF
+    "KWIVER_ENABLE_PYTHON; KWIVER_ENABLE_TESTS" OFF )
+  if (KWIVER_ENABLE_PYTHON_TESTS)
+    message( WARNING "Python tests are not currently supported for Windows." )
+  endif()
+else()
+  CMAKE_DEPENDENT_OPTION( KWIVER_ENABLE_PYTHON_TESTS "Enable python tests" ON
+    "KWIVER_ENABLE_PYTHON; KWIVER_ENABLE_TESTS" OFF )
+endif()
 
 if (KWIVER_ENABLE_SERIALIZE_PROTOBUF)
   if (WIN32)

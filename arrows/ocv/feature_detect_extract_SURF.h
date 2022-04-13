@@ -2,16 +2,14 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV SURF feature detector and extractor wrapper
- */
+/// \file
+/// \brief OCV SURF feature detector and extractor wrapper
 
 #ifndef KWIVER_ARROWS_FEATURE_DETECT_EXTRACT_SURF_H_
 #define KWIVER_ARROWS_FEATURE_DETECT_EXTRACT_SURF_H_
 
 #include <opencv2/opencv_modules.hpp>
-#if defined(HAVE_OPENCV_NONFREE) || defined(HAVE_OPENCV_XFEATURES2D)
+#if defined(HAVE_OPENCV_NONFREE) && defined(HAVE_OPENCV_XFEATURES2D)
 
 #include <arrows/ocv/detect_features.h>
 #include <arrows/ocv/extract_descriptors.h>
@@ -79,6 +77,6 @@ private:
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif //defined(HAVE_OPENCV_NONFREE) || defined(HAVE_OPENCV_XFEATURES2D)
+#endif
 
 #endif

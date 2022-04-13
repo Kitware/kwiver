@@ -16,7 +16,7 @@
 
 namespace cereal {
 
-// ============================================================================
+// ----------------------------------------------------------------------------
   template <class P, unsigned N>
 void save_point( ::cereal::JSONOutputArchive& archive, const P& pt )
 {
@@ -83,7 +83,7 @@ void load_point( ::cereal::JSONInputArchive& archive, P& pt )
 
 #undef LOAD_SAVE
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 template <class C>
 void save_covariance( ::cereal::JSONOutputArchive& archive, const C& cov )
 {

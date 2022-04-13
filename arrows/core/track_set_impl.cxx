@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of customized track set implementations
- */
+/// \file
+/// \brief Implementation of customized track set implementations
 
 #include "track_set_impl.h"
 

@@ -9,30 +9,27 @@
 
 #include <vital/algo/estimate_canonical_transform.h>
 
-/**
- * \file
- * \brief Header defining the estimate_canonical_transform algorithm
- */
+/// \file
+/// \brief Header defining the estimate_canonical_transform algorithm
 
 namespace kwiver {
 namespace arrows {
 namespace core {
 
 /// Algorithm for estimating a canonical transform for cameras and landmarks
-/**
- *  A canonical transform is a repeatable transformation that can be recovered
- *  from data.  In this case we assume at most a similarity transformation.
- *  If data sets P1 and P2 are equivalent up to a similarity transformation,
- *  then applying a canonical transform to P1 and separately a
- *  canonical transform to P2 should bring the data into the same coordinates.
- *
- *  This implementation centers the data at the mean of the landmarks. It
- *  orients the data using PCA on the landmarks such that the X-axis aligns
- *  with the largest principal direction and the Z-axis aligns with the
- *  smallest.  The data is oriented such that the positive Z axis points
- *  toward the mean of the camera centers.  The scale is set to normalized the
- *  landmarks to unit standard deviation.
- */
+///
+///  A canonical transform is a repeatable transformation that can be recovered
+///  from data.  In this case we assume at most a similarity transformation.
+///  If data sets P1 and P2 are equivalent up to a similarity transformation,
+///  then applying a canonical transform to P1 and separately a
+///  canonical transform to P2 should bring the data into the same coordinates.
+///
+///  This implementation centers the data at the mean of the landmarks. It
+///  orients the data using PCA on the landmarks such that the X-axis aligns
+///  with the largest principal direction and the Z-axis aligns with the
+///  smallest.  The data is oriented such that the positive Z axis points
+///  toward the mean of the camera centers.  The scale is set to normalized the
+///  landmarks to unit standard deviation.
 class KWIVER_ALGO_CORE_EXPORT estimate_canonical_transform
   : public vital::algo::estimate_canonical_transform
 {
@@ -58,14 +55,13 @@ public:
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
   /// Estimate a canonical similarity transform for cameras and points
-  /**
-   * \param cameras The camera map containing all the cameras
-   * \param landmarks The landmark map containing all the 3D landmarks
-   * \throws algorithm_exception When the data is insufficient or degenerate.
-   * \returns An estimated similarity transform mapping the data to the
-   *          canonical space.
-   * \note This algorithm does not apply the transformation, it only estimates it.
-   */
+  ///
+  /// \param cameras The camera map containing all the cameras
+  /// \param landmarks The landmark map containing all the 3D landmarks
+  /// \throws algorithm_exception When the data is insufficient or degenerate.
+  /// \returns An estimated similarity transform mapping the data to the
+  ///          canonical space.
+  /// \note This algorithm does not apply the transformation, it only estimates it.
   virtual kwiver::vital::similarity_d
   estimate_transform(kwiver::vital::camera_map_sptr const cameras,
                      kwiver::vital::landmark_map_sptr const landmarks) const;

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test OCV homography estimation algorithm
- */
+/// \file
+/// \brief test OCV homography estimation algorithm
 
 #include <test_eigen.h>
 #include <test_random_point.h>

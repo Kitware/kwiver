@@ -34,10 +34,9 @@ public:
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
   /// Extract a set of image features from the provided image
-  /**
-    * \param image_data contains the image data to process
-    * \returns a set of image features
-    */
+  ///
+  ///  \param image_data contains the image data to process
+  ///  \returns a set of image features
   virtual vital::feature_set_sptr
   detect(vital::image_container_sptr image_data,
          vital::image_container_sptr mask = vital::image_container_sptr()) const;

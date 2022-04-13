@@ -1,7 +1,7 @@
 add_subdirectory(serialize)
 add_subdirectory(core)
 
-if(KWIVER_ENABLE_TESTS)
+if(KWIVER_ENABLE_PYTHON_TESTS)
   add_subdirectory( tests )
 endif()
 

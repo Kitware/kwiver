@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief close_loops_appearance_indexed algorithm implementation
- */
+/// \file
+/// \brief close_loops_appearance_indexed algorithm implementation
 
 #include <map>
 #include <algorithm>
@@ -105,7 +103,7 @@ public:
   float m_min_loop_inlier_fraction;
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 close_loops_appearance_indexed::priv
 ::priv()
@@ -119,7 +117,7 @@ close_loops_appearance_indexed::priv
 {
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 close_loops_appearance_indexed::priv::node_id_to_feat_map
 close_loops_appearance_indexed::priv
@@ -397,7 +395,7 @@ close_loops_appearance_indexed::priv
   return feat_tracks;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 kwiver::vital::feature_track_set_sptr
 close_loops_appearance_indexed::priv
@@ -468,7 +466,7 @@ close_loops_appearance_indexed::priv
   return feat_tracks;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 match_set_sptr
 close_loops_appearance_indexed::priv
@@ -553,7 +551,7 @@ close_loops_appearance_indexed::priv
 
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 kwiver::vital::feature_track_set_sptr
 close_loops_appearance_indexed::priv
@@ -605,7 +603,7 @@ close_loops_appearance_indexed
   d_->m_logger = this->logger();
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 kwiver::vital::feature_track_set_sptr
 close_loops_appearance_indexed
@@ -617,7 +615,7 @@ close_loops_appearance_indexed
   return d_->detect(input, frame_number);
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /// Get this alg's \link vital::config_block configuration block \endlink
 vital::config_block_sptr
@@ -668,7 +666,7 @@ close_loops_appearance_indexed
   return config;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /// Set this algo's properties via a config block
 void
@@ -723,7 +721,7 @@ close_loops_appearance_indexed
       d_->m_min_loop_inlier_fraction);
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 bool
 close_loops_appearance_indexed
@@ -752,7 +750,7 @@ close_loops_appearance_indexed
   return config_valid;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 } // end namespace core
 } // end namespace arrows

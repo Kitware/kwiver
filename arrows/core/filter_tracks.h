@@ -9,10 +9,8 @@
 
 #include <vital/algo/filter_tracks.h>
 
-/**
- * \file
- * \brief Header defining the core filter_tracks algorithm
- */
+/// \file
+/// \brief Header defining the core filter_tracks algorithm
 
 namespace kwiver {
 namespace arrows {
@@ -40,10 +38,9 @@ public:
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
   /// filter a track set
-  /**
-   * \param track set to filter
-   * \returns a filtered version of the track set
-   */
+  ///
+  /// \param track set to filter
+  /// \returns a filtered version of the track set
   virtual vital::track_set_sptr
   filter(vital::track_set_sptr input) const;
 

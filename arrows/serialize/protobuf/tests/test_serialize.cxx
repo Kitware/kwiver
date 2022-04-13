@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test protobuf serializers
- */
+/// \file
+/// \brief test protobuf serializers
 
 #include <gtest/gtest.h>
 
@@ -206,7 +204,7 @@ TEST( serialize, bounding_box )
   std::cout << "bbox_dser { " << bbox_dser.min_x() << ", "
             << bbox_dser.min_y() << ", "
             << bbox_dser.max_x() << ", "
-            << bbox_dser.max_y() << "}\n";
+           << bbox_dser.max_y() << "}\n";
   */
   EXPECT_EQ( bbox, bbox_dser );
 }
@@ -578,7 +576,7 @@ TEST (serialize, object_track_state)
   EXPECT_EQ( obj_trk_state.time(), obj_trk_state_dser.time() );
   EXPECT_EQ( obj_trk_state.frame(), obj_trk_state_dser.frame() );
 }
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST( serialize, track )
 {
   // test track with object track state
@@ -691,7 +689,7 @@ TEST( serialize, track )
 
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST( serialize, track_set )
 {
   auto trk_set_sptr = std::make_shared< kwiver::vital::track_set >();
@@ -735,7 +733,7 @@ TEST( serialize, track_set )
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST( serialize, object_track_set )
 {
   auto obj_trk_set_sptr = std::make_shared< kwiver::vital::object_track_set >();

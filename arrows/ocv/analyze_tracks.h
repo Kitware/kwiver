@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for OpenCV analyze_tracks algorithm
- */
+/// \file
+/// \brief Header for OpenCV analyze_tracks algorithm
 
 #ifndef KWIVER_ARROWS_OCV_ANALYZE_TRACKS_H_
 #define KWIVER_ARROWS_OCV_ANALYZE_TRACKS_H_
@@ -40,10 +38,9 @@ public:
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
   /// Output various information about the tracks stored in the input set.
-  /**
-   * \param [in] track_set the tracks to analyze
-   * \param [in] stream an output stream to write data onto
-   */
+  ///
+  /// \param [in] track_set the tracks to analyze
+  /// \param [in] stream an output stream to write data onto
   virtual void
   print_info(vital::track_set_sptr track_set,
              stream_t& stream = std::cout) const;

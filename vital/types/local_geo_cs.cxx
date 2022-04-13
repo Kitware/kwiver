@@ -46,7 +46,7 @@ read_local_geo_cs_from_file(local_geo_cs& lgcs,
   std::ifstream ifs(file_path);
   double lat = 0, lon = 0, alt = 0;
   ifs >> lat >> lon >> alt;
-  if (ifs.good())
+  if (ifs)
   {
     lgcs.set_origin( geo_point( vector_3d(lon, lat, alt), SRID::lat_lon_WGS84) );
     return true;

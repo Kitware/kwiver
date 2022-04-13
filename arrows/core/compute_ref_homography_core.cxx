@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of compute_ref_homography_core
- */
+/// \file
+/// \brief Implementation of compute_ref_homography_core
 
 #include "compute_ref_homography_core.h"
 
@@ -168,15 +166,14 @@ public:
   vital::logger_handle_t m_logger;
 
   /// Estimate the homography between two corresponding points sets
-  /**
-   * Check for homography validity.
-   *
-   * Output homography describes transformation from pts_src to pts_dst.
-   *
-   * If estimate homography is deemed bad, true is returned and the
-   * homography passed to \p out_h is not modified. If false is returned, the
-   * computed homography is valid and out_h is set to the estimated homography.
-   */
+  ///
+  /// Check for homography validity.
+  ///
+  /// Output homography describes transformation from pts_src to pts_dst.
+  ///
+  /// If estimate homography is deemed bad, true is returned and the
+  /// homography passed to \p out_h is not modified. If false is returned, the
+  /// computed homography is valid and out_h is set to the estimated homography.
   bool compute_homography(std::vector<vector_2d> const &pts_src,
                           std::vector<vector_2d> const &pts_dst,
                           homography_sptr &out_h) const

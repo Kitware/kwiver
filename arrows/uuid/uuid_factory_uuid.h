@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Interface to uid factory
- */
+/// \file
+/// \brief Interface to uid factory
 
 #ifndef KWIVER_ARROWS_UUID_FACTORY_H
 #define KWIVER_ARROWS_UUID_FACTORY_H
@@ -37,4 +35,4 @@ private:
 
 } } } // end namespace
 
-#endif /* KWIVER_ARROWS_UUID_FACTORY_H */
+#endif // KWIVER_ARROWS_UUID_FACTORY_H

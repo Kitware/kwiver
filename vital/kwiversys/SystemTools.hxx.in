@@ -189,13 +189,6 @@ public:
   static const char* FindLastString(const char* str1, const char* str2);
 
   /**
-   * Make a duplicate of the string similar to the strdup C function
-   * but use new to create the 'new' string, so one can use
-   * 'delete' to remove it. Returns 0 if the input is empty.
-   */
-  static char* DuplicateString(const char* str);
-
-  /**
    * Return the string cropped to a given length by removing chars in the
    * center of the string and replacing them with an ellipsis (...)
    */
@@ -234,17 +227,6 @@ public:
    */
   static std::string AddSpaceBetweenCapitalizedWords(
     const std::string&);
-
-  /**
-   * Append two or more strings and produce new one.
-   * Programmer must 'delete []' the resulting string, which was allocated
-   * with 'new'.
-   * Return 0 if inputs are empty or there was an error
-   */
-  static char* AppendStrings(
-    const char* str1, const char* str2);
-  static char* AppendStrings(
-    const char* str1, const char* str2, const char* str3);
 
   /**
    * Estimate the length of the string that will be produced

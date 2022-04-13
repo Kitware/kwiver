@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of VXL triangulate landmarks algorithm
- */
+/// \file
+/// \brief Implementation of VXL triangulate landmarks algorithm
 
 #include "triangulate_landmarks.h"
 

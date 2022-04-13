@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Interface to bounding box utilities
- */
+/// \file
+/// \brief Interface to bounding box utilities
 
 #ifndef ARROWS_VXL_BOUNDING_BOX_H
 #define ARROWS_VXL_BOUNDING_BOX_H
@@ -19,15 +17,13 @@ namespace kwiver {
 namespace arrows {
 namespace vxl {
 
-/**
- * @brief Convert vgl_box_2d to bounding_box
- *
- * This operator converts a vgl_box_2d to a kwiver bounding box.
- *
- * @param vbox vgl_box_2d to convert
- *
- * @return Equivalent bounding box.
- */
+/// @brief Convert vgl_box_2d to bounding_box
+///
+/// This operator converts a vgl_box_2d to a kwiver bounding box.
+///
+/// @param vbox vgl_box_2d to convert
+///
+/// @return Equivalent bounding box.
 template <typename T>
 kwiver::vital::bounding_box<T> convert( const vgl_box_2d<T>& vbox )
 {
@@ -37,14 +33,12 @@ kwiver::vital::bounding_box<T> convert( const vgl_box_2d<T>& vbox )
                                          vbox.max_y() );
 }
 
-// ------------------------------------------------------------------
-/**
- * @brief Convert bounding box to vgl_box_2d
- *
- * @param bbox Bounding box to convert
- *
- * @return Equivalent vgl_box_2d
- */
+// ----------------------------------------------------------------------------
+/// @brief Convert bounding box to vgl_box_2d
+///
+/// @param bbox Bounding box to convert
+///
+/// @return Equivalent vgl_box_2d
 template <typename T>
 vgl_box_2d<T> convert(const kwiver::vital::bounding_box<T>& bbox )
 {
@@ -54,4 +48,4 @@ vgl_box_2d<T> convert(const kwiver::vital::bounding_box<T>& bbox )
 
 } } } // end namespace
 
-#endif /* ARROWS_VXL_BOUNDING_BOX_H */
+#endif // ARROWS_VXL_BOUNDING_BOX_H

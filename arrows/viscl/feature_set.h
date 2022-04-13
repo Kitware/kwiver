@@ -18,11 +18,10 @@ namespace arrows {
 namespace vcl {
 
 /// A concrete feature set that wraps VisCL features
-/**
-  * A VisCL feature only has the location set
-  * It is possible to get the smoothing scale but that value is not
-  * saved on the GPU so would have to be provided externally
-  */
+///
+///  A VisCL feature only has the location set
+///  It is possible to get the smoothing scale but that value is not
+///  saved on the GPU so would have to be provided externally
 class KWIVER_ALGO_VISCL_EXPORT feature_set
 : public vital::feature_set
 {
@@ -43,9 +42,8 @@ public:
   : data_(viscl_features) {}
 
   /// Return the number of features in the set
-  /**
-    * Downloads the size from the GPU
-    */
+  ///
+  ///  Downloads the size from the GPU
   virtual size_t size() const;
 
   /// Return a vector of feature shared pointers
@@ -61,10 +59,9 @@ protected:
 };
 
 /// Convert any feature set to a VisCL data (upload if needed)
-/**
-  * viscl only cares about integer feature location, therefore will lose
-  * info converting from vital feature set to viscl and back
-  */
+///
+///  viscl only cares about integer feature location, therefore will lose
+///  info converting from vital feature set to viscl and back
 KWIVER_ALGO_VISCL_EXPORT feature_set::type
 features_to_viscl(const vital::feature_set& features);
 

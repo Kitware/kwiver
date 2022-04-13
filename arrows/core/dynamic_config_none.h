@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header defining the interface to dynamic_config_none
- */
+/// \file
+/// \brief Header defining the interface to dynamic_config_none
 
 #ifndef ARROWS_CORE_DYNAMIC_CONFIG_NONE_H
 #define ARROWS_CORE_DYNAMIC_CONFIG_NONE_H
@@ -34,13 +32,12 @@ public:
   virtual bool check_configuration( kwiver::vital::config_block_sptr config ) const;
 
   /// Return dynamic configuration values
-  /**
-   * This method returns dynamic configuration values. A valid config
-   * block is returned even if there are not values being returned.
-   */
+  ///
+  /// This method returns dynamic configuration values. A valid config
+  /// block is returned even if there are not values being returned.
   virtual kwiver::vital::config_block_sptr get_dynamic_configuration();
 };
 
 } } } // end namespace
 
-#endif /* ARROWS_CORE_DYNAMIC_CONFIG_NONE_H */
+#endif // ARROWS_CORE_DYNAMIC_CONFIG_NONE_H

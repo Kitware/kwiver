@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation for detected_object_set_input_simulator
- */
+/// \file
+/// \brief Implementation for detected_object_set_input_simulator
 
 #include "detected_object_set_input_simulator.h"
 
@@ -20,7 +18,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class detected_object_set_input_simulator::priv
 {
 public:
@@ -41,7 +39,7 @@ public:
 
   ~priv() { }
 
-  // -------------------------------------
+  // --------------------------------------------------------------------------
   detected_object_set_input_simulator* m_parent;
 
   double m_center_x;
@@ -57,7 +55,7 @@ public:
   std::string m_image_name;
 };
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 detected_object_set_input_simulator::
 detected_object_set_input_simulator()
   : d( new detected_object_set_input_simulator::priv( this ) )
@@ -70,7 +68,7 @@ detected_object_set_input_simulator::
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 detected_object_set_input_simulator::
 get_configuration() const
@@ -92,7 +90,7 @@ get_configuration() const
   return config;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_input_simulator::
 set_configuration(vital::config_block_sptr config_in)
@@ -112,7 +110,7 @@ set_configuration(vital::config_block_sptr config_in)
   d->m_image_name   = config->get_value<std::string>( "image_name" );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set_input_simulator::
 check_configuration(VITAL_UNUSED vital::config_block_sptr config) const
@@ -127,7 +125,7 @@ open( VITAL_UNUSED std::string const& filename )
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set_input_simulator::
 read_set( kwiver::vital::detected_object_set_sptr & detected_set, std::string& image_name )

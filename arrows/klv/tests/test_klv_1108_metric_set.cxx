@@ -28,6 +28,7 @@ test_read( klv_value const& expected_result, klv_bytes_t const& input_bytes )
 // ----------------------------------------------------------------------------
 TEST ( klv, read_1108_metric_set )
 {
+  using kld = klv_lengthy< double >;
   auto const input_bytes = klv_bytes_t{
     KLV_1108_METRIC_SET_NAME,        3, 'G', 'S', 'D',
     KLV_1108_METRIC_SET_VERSION,     5, 'H', 'u', 'm', 'a', 'n',
@@ -46,7 +47,7 @@ TEST ( klv, read_1108_metric_set )
       klv_1108_metric_implementer{ "KW", "CV" } },
     { KLV_1108_METRIC_SET_PARAMETERS,  std::string{ "x=7" } },
     { KLV_1108_METRIC_SET_TIME,        uint64_t{ 1630000000 } },
-    { KLV_1108_METRIC_SET_VALUE,       1.234567 },
+    { KLV_1108_METRIC_SET_VALUE,       kld{ 1.234567 } },
     { KLV_1108_METRIC_SET_ENUM_END,    klv_blob{ { 0x01, 0x02 } } } };
 
   CALL_TEST( test_read, {}, {} );
@@ -63,6 +64,7 @@ test_write( klv_value const& value )
 // ----------------------------------------------------------------------------
 TEST ( klv, write_1108_metric_set )
 {
+  using kld = klv_lengthy< double >;
   auto const test_data = klv_local_set{
     { KLV_1108_METRIC_SET_NAME,        std::string{ "METRIC" } },
     { KLV_1108_METRIC_SET_VERSION,     std::string{ "13 and a half" } },
@@ -70,7 +72,7 @@ TEST ( klv, write_1108_metric_set )
     { KLV_1108_METRIC_SET_PARAMETERS,  klv_value{} },
     { KLV_1108_METRIC_SET_TIME,        uint64_t{ 1630000001000000 } },
     { KLV_1108_METRIC_SET_VALUE,
-      klv_value{ std::numeric_limits< double >::infinity(), 4 } }, };
+      kld{ std::numeric_limits< double >::infinity(), 4 } }, };
   CALL_TEST( test_write, {} );
   CALL_TEST( test_write, test_data );
 }

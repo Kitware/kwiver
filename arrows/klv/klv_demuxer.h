@@ -38,6 +38,10 @@ public:
   klv_timeline&
   timeline() const;
 
+  /// Reset the object to a state equivalent to if it had just been constructed.
+  void
+  reset();
+
 private:
   using key_t = typename klv_timeline::key_t;
 
@@ -51,14 +55,19 @@ private:
 
   void demux_single_entry( klv_top_level_tag standard,
                            klv_lds_key tag,
-                           uint64_t index,
+                           klv_value const& index,
                            interval_t const& time_interval,
                            klv_value const& value );
+
+  template< class T >
+  void demux_list( klv_top_level_tag standard,
+                   klv_lds_key tag,
+                   interval_t const& time_interval,
+                   std::vector< T > const& value );
 
   bool check_timestamp( uint64_t timestamp ) const;
 
   uint64_t m_last_timestamp;
-  std::map< klv_uds_key, uint64_t > m_unknown_key_indices;
   klv_timeline& m_timeline;
 };
 

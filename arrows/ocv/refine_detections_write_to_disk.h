@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for OCV refine detections write to disk algorithm
- */
+/// \file
+/// \brief Header for OCV refine detections write to disk algorithm
 
 #ifndef KWIVER_ARROWS_OCV_REFINE_DETECTIONS_WRITE_TO_DISK_H_
 #define KWIVER_ARROWS_OCV_REFINE_DETECTIONS_WRITE_TO_DISK_H_
@@ -40,14 +38,13 @@ public:
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
   /// Refine all object detections on the provided image
-  /**
-   * This method analyzes the supplied image and and detections on it,
-   * returning a refined set of detections.
-   *
-   * \param image_data the image pixels
-   * \param detections detected objects
-   * \returns vector of image objects refined
-   */
+  ///
+  /// This method analyzes the supplied image and and detections on it,
+  /// returning a refined set of detections.
+  ///
+  /// \param image_data the image pixels
+  /// \param detections detected objects
+  /// \returns vector of image objects refined
   virtual vital::detected_object_set_sptr
   refine( vital::image_container_sptr image_data,
           vital::detected_object_set_sptr detections ) const;

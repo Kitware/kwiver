@@ -27,28 +27,11 @@ operator<<( std::ostream& os, klv_1108_metric_set_tag tag )
 }
 
 // ----------------------------------------------------------------------------
-bool
-operator==( klv_1108_metric_implementer const& lhs,
-            klv_1108_metric_implementer const& rhs )
-{
-  return lhs.organization == rhs.organization && lhs.subgroup == rhs.subgroup;
-}
-
-// ----------------------------------------------------------------------------
-bool
-operator<( klv_1108_metric_implementer const& lhs,
-           klv_1108_metric_implementer const& rhs )
-{
-  if( lhs.organization < rhs.organization )
-  {
-    return true;
-  }
-  if( lhs.organization > rhs.organization )
-  {
-    return false;
-  }
-  return lhs.subgroup < rhs.subgroup;
-}
+DEFINE_STRUCT_CMP(
+  klv_1108_metric_implementer,
+  &klv_1108_metric_implementer::organization,
+  &klv_1108_metric_implementer::subgroup
+)
 
 // ----------------------------------------------------------------------------
 std::ostream&
@@ -96,8 +79,7 @@ klv_1108_metric_implementer_format
 // ----------------------------------------------------------------------------
 size_t
 klv_1108_metric_implementer_format
-::length_of_typed( klv_1108_metric_implementer const& value,
-                   VITAL_UNUSED size_t length_hint ) const
+::length_of_typed( klv_1108_metric_implementer const& value ) const
 {
   // Add one byte for separator character
   return value.organization.size() + 1 + value.subgroup.size();
@@ -139,7 +121,6 @@ klv_1108_metric_set_key()
 klv_tag_traits_lookup const&
 klv_1108_metric_set_traits_lookup()
 {
-#define ENUM_AND_NAME( X ) X, #X
   // Constants here are taken from Table 5 of
   // https://gwg.nga.mil/misb/docs/standards/ST1108.3.pdf
   // Descriptions are edited for clarity, brevity, consistency, etc.
@@ -186,7 +167,7 @@ klv_1108_metric_set_traits_lookup()
       "Metric Value",
       "Numeric value of calculation.",
       1 } };
-#undef ENUM_AND_NAME
+
   return lookup;
 }
 

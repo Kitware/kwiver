@@ -70,7 +70,9 @@ sprokit_add_test_plugin(schedulers_test multiple_load
 sprokit_add_test_plugin(not_a_plugin not_a_plugin
   not_a_plugin.cxx)
 
-sprokit_discover_tests(modules test_libraries test_modules.cxx)
+if (KWIVER_ENABLE_PYTHON_TESTS)
+  sprokit_discover_tests(modules test_libraries test_modules.cxx)
+endif()
 
 ##############################
 # Process tests
@@ -139,7 +141,7 @@ set(schedulers
   sync
   thread_per_process)
 
-if (KWIVER_ENABLE_PYTHON)
+if (KWIVER_ENABLE_PYTHON_TESTS)
   list(APPEND schedulers
     pythread_per_process)
 endif ()
@@ -165,7 +167,7 @@ endfunction ()
 
 sprokit_add_tooled_run_test(run simple_pipeline)
 
-if (KWIVER_ENABLE_PYTHON)
+if (KWIVER_ENABLE_PYTHON_TESTS)
   sprokit_add_tooled_run_test(run pysimple_pipeline)
 endif ()
 

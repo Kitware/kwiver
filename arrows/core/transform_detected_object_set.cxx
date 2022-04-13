@@ -17,7 +17,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 transform_detected_object_set::
 transform_detected_object_set()
   : src_camera_krtd_file_name( "" )
@@ -25,7 +25,7 @@ transform_detected_object_set()
 {
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 transform_detected_object_set::
 transform_detected_object_set(kwiver::vital::camera_perspective_sptr src_cam,
                               kwiver::vital::camera_perspective_sptr dest_cam)
@@ -34,7 +34,7 @@ transform_detected_object_set(kwiver::vital::camera_perspective_sptr src_cam,
 {
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 transform_detected_object_set::
 get_configuration() const
@@ -51,7 +51,7 @@ get_configuration() const
   return config;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 transform_detected_object_set::
 set_configuration( vital::config_block_sptr config_in )
@@ -70,7 +70,7 @@ set_configuration( vital::config_block_sptr config_in )
     kwiver::vital::read_krtd_file( this->dest_camera_krtd_file_name );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 transform_detected_object_set::
 check_configuration( vital::config_block_sptr config ) const
@@ -88,7 +88,7 @@ check_configuration( vital::config_block_sptr config ) const
   return true;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vector_3d
 transform_detected_object_set::
 backproject_to_ground( kwiver::vital::camera_perspective_sptr const camera,
@@ -98,7 +98,7 @@ backproject_to_ground( kwiver::vital::camera_perspective_sptr const camera,
   return this->backproject_to_plane( camera, img_pt, ground_plane );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vector_3d
 transform_detected_object_set::
 backproject_to_plane( kwiver::vital::camera_perspective_sptr const camera,
@@ -120,7 +120,7 @@ backproject_to_plane( kwiver::vital::camera_perspective_sptr const camera,
   return Mp * (n.dot( Mt ) - d) / n.dot( Mp ) - Mt;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 Eigen::Matrix<double, 8, 3>
 transform_detected_object_set::
 backproject_bbox( kwiver::vital::camera_perspective_sptr const camera,
@@ -170,7 +170,7 @@ backproject_bbox( kwiver::vital::camera_perspective_sptr const camera,
   return box3d;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::bounding_box<double>
 transform_detected_object_set::
 box_around_box3d( kwiver::vital::camera_perspective_sptr const camera,
@@ -189,7 +189,7 @@ box_around_box3d( kwiver::vital::camera_perspective_sptr const camera,
     (vector_2d)projected_points.colwise().maxCoeff());
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::bounding_box<double>
 transform_detected_object_set::
 view_to_view( kwiver::vital::camera_perspective_sptr const src_camera_,
@@ -202,7 +202,7 @@ view_to_view( kwiver::vital::camera_perspective_sptr const src_camera_,
   return this->box_around_box3d( dest_camera_, box3d );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::bounding_box<double>
 transform_detected_object_set::
 transform_bounding_box( vital::bounding_box<double> const& bbox ) const
@@ -212,7 +212,7 @@ transform_bounding_box( vital::bounding_box<double> const& bbox ) const
                              bbox );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::detected_object_set_sptr
 transform_detected_object_set::
 filter( vital::detected_object_set_sptr const input_set ) const

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of 3D tranformation functions
- */
+/// \file
+/// \brief Implementation of 3D tranformation functions
 
 #include "transform.h"
 #include <Eigen/Geometry>

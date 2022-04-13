@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test detected object io
- */
+/// \file
+/// \brief test detected object io
 
 #include <arrows/core/detected_object_set_input_csv.h>
 #include <arrows/core/detected_object_set_output_csv.h>

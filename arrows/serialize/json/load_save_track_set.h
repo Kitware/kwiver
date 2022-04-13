@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file: Contains the private internal implementation interface for
- * serializing track set
- */
+/// \file: Contains the private internal implementation interface for
+/// serializing track set
 
 #ifndef SERIAL_JSON_LOAD_SAVE_TRACK_SET_H
 #define SERIAL_JSON_LOAD_SAVE_TRACK_SET_H
