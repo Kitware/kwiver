@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of matlab image object output
- */
+/// \file
+/// \brief Implementation of matlab image object output
 
 #include "matlab_detection_output.h"
 #include "matlab_engine.h"
@@ -19,7 +17,7 @@ namespace kwiver {
 namespace arrows {
 namespace matlab {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class matlab_detection_output::priv
 {
 public:
@@ -50,7 +48,7 @@ public:
     return m_matlab_engine.get();
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   void check_result()
   {
     const std::string& results( engine()->output() );
@@ -60,7 +58,7 @@ public:
     }
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   void eval( const std::string& expr )
   {
     LOG_DEBUG( m_logger, engine() << " Matlab eval: " << expr );
@@ -68,7 +66,7 @@ public:
     check_result();
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   void initialize_once()
   {
     if ( ! m_first)
@@ -120,7 +118,7 @@ private:
 
 };
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 matlab_detection_output::
 matlab_detection_output()
   : d( new matlab_detection_output::priv( this ) )
@@ -132,7 +130,7 @@ matlab_detection_output::
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 matlab_detection_output::
 get_configuration() const
@@ -146,7 +144,7 @@ get_configuration() const
   return config;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 matlab_detection_output::
 set_configuration( vital::config_block_sptr config )
@@ -157,7 +155,7 @@ set_configuration( vital::config_block_sptr config )
   d->m_matlab_program = config->get_value<std::string>( "program_file" );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 matlab_detection_output::
 check_configuration( vital::config_block_sptr config ) const
@@ -165,7 +163,7 @@ check_configuration( vital::config_block_sptr config ) const
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 matlab_detection_output::
 write_set( const kwiver::vital::detected_object_set_sptr detections,

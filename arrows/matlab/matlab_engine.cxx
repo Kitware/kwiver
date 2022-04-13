@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation for MatLab engine interface class.
- */
+/// \file
+/// \brief Implementation for MatLab engine interface class.
 
 #include "matlab_engine.h"
 #include "matlab_exception.h"
@@ -16,7 +14,7 @@ namespace kwiver {
 namespace arrows {
 namespace matlab {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 matlab_engine::
 matlab_engine()
   : m_logger( kwiver::vital::get_logger( "arrows.matlab.matlab_engine" ) )
@@ -37,7 +35,7 @@ matlab_engine()
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 matlab_engine::
 ~matlab_engine()
 {
@@ -53,7 +51,7 @@ matlab_engine::
   m_output_buffer = 0;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 matlab_engine::
 eval( const std::string& cmd )
@@ -65,7 +63,7 @@ eval( const std::string& cmd )
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 MxArraySptr
 matlab_engine::
 get_variable( const std::string& name )
@@ -81,7 +79,7 @@ get_variable( const std::string& name )
   return MxArraySptr( new MxArray( var ) );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 matlab_engine::
 put_variable( const std::string& name, MxArraySptr val )
@@ -95,7 +93,7 @@ put_variable( const std::string& name, MxArraySptr val )
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 matlab_engine::
 get_visible()
@@ -109,7 +107,7 @@ get_visible()
   return retval;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 matlab_engine::
 set_visible( bool vis )
@@ -121,7 +119,7 @@ set_visible( bool vis )
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string
 matlab_engine::
 output() const

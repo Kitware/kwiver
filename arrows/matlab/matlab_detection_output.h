@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header defining matlab image object set writer
- */
+/// \file
+/// \brief Header defining matlab image object set writer
 
 #ifndef KWIVER_VITAL_BINDINGS_MATLAB_DETECTION_OUTPUT_H_
 #define KWIVER_VITAL_BINDINGS_MATLAB_DETECTION_OUTPUT_H_

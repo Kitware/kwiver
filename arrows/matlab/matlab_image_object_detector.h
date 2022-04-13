@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header defining matlab image object detector
- */
+/// \file
+/// \brief Header defining matlab image object detector
 
 #ifndef VITAL_BINDINGS_MATLAB_IMAGE_OBJECT_DETECTOR_H
 #define VITAL_BINDINGS_MATLAB_IMAGE_OBJECT_DETECTOR_H

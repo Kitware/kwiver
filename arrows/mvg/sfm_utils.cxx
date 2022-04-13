@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of utility functions for structure from motion.
- */
+/// \file
+/// \brief Implementation of utility functions for structure from motion.
 
 #include "sfm_utils.h"
 
@@ -21,7 +19,7 @@ namespace kwiver {
 namespace arrows {
 namespace mvg {
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::camera_perspective_sptr
 crop_camera(const kwiver::vital::camera_perspective_sptr& cam,
             vital::bounding_box<int> crop)
