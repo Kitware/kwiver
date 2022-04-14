@@ -70,7 +70,6 @@ namespace klv {
 /// \throws metadata_type_overflow When \p length is greater than the number of
 ///         bytes in the return type \c T.
 template < class T, class Iterator >
-KWIVER_ALGO_KLV_EXPORT
 T
 klv_read_int( Iterator& data, size_t length );
 
@@ -91,7 +90,6 @@ klv_read_int( Iterator& data, size_t length );
 /// \throws metadata_type_overflow When \p value is too large to fit in \p
 /// length bytes.
 template < class T, class Iterator >
-KWIVER_ALGO_KLV_EXPORT
 void
 klv_write_int( T value, Iterator& data, size_t length );
 
@@ -103,7 +101,6 @@ klv_write_int( T value, Iterator& data, size_t length );
 ///
 /// \returns Bytes required to store \p value.
 template < class T >
-KWIVER_ALGO_KLV_EXPORT
 size_t
 klv_int_length( T value );
 
@@ -126,7 +123,6 @@ klv_int_length( T value );
 /// \throws metadata_type_overflow When the decoded value is too large to fit
 /// in the return type \c T.
 template < class T, class Iterator >
-KWIVER_ALGO_KLV_EXPORT
 T
 klv_read_ber( Iterator& data, size_t max_length );
 
@@ -145,7 +141,6 @@ klv_read_ber( Iterator& data, size_t max_length );
 /// \throws metadata_buffer_overflow When encoding would require writing more
 /// than \p max_length bytes.
 template < class T, class Iterator >
-KWIVER_ALGO_KLV_EXPORT
 void
 klv_write_ber( T value, Iterator& data, size_t max_length );
 
@@ -157,7 +152,6 @@ klv_write_ber( T value, Iterator& data, size_t max_length );
 ///
 /// \returns Bytes required to store \p value in BER format.
 template < class T >
-KWIVER_ALGO_KLV_EXPORT
 size_t
 klv_ber_length( T value );
 
@@ -180,7 +174,6 @@ klv_ber_length( T value );
 /// \throws metadata_type_overflow When the decoded value is too large to fit
 /// in the return type \c T.
 template < class T, class Iterator >
-KWIVER_ALGO_KLV_EXPORT
 T
 klv_read_ber_oid( Iterator& data, size_t max_length );
 
@@ -199,7 +192,6 @@ klv_read_ber_oid( Iterator& data, size_t max_length );
 /// \throws metadata_buffer_overflow When encoding would require writing more
 /// than \p max_length bytes.
 template < class T, class Iterator >
-KWIVER_ALGO_KLV_EXPORT
 void
 klv_write_ber_oid( T value, Iterator& data, size_t max_length );
 
@@ -216,7 +208,6 @@ klv_write_ber_oid( T value, Iterator& data, size_t max_length );
 ///
 /// \returns Bytes required to store \p value in BER format.
 template < class T >
-KWIVER_ALGO_KLV_EXPORT
 size_t
 klv_ber_oid_length( T value );
 
@@ -240,7 +231,6 @@ klv_ber_oid_length( T value );
 /// \throws invalid_value When \p minimum is not less than \p maximum.
 /// \throws metadata_type_overflow When the read value is too large for \c T.
 template < class T, class Iterator >
-KWIVER_ALGO_KLV_EXPORT
 double
 klv_read_flint( double minimum, double maximum,
                 Iterator& data, size_t length );
@@ -266,7 +256,6 @@ klv_read_flint( double minimum, double maximum,
 /// \throws invalid_value When \p minimum is not less than \p maximum, or if
 /// \c T is signed and the range is not symmetrical around zero.
 template < class T, class Iterator >
-KWIVER_ALGO_KLV_EXPORT
 void
 klv_write_flint( double value, double minimum, double maximum,
                  Iterator& data, size_t length );
@@ -323,7 +312,6 @@ klv_flint_precision( double minimum, double maximum, size_t length );
 /// \throws invalid_value When \p length is not \c sizeof(float) or \c
 /// sizeof(double).
 template < class Iterator >
-KWIVER_ALGO_KLV_EXPORT
 double
 klv_read_float( Iterator& data, size_t length );
 
@@ -339,7 +327,6 @@ klv_read_float( Iterator& data, size_t length );
 /// \throws invalid_value When \p length is not \c sizeof(float) or \c
 /// sizeof(double).
 template < class Iterator >
-KWIVER_ALGO_KLV_EXPORT
 void
 klv_write_float( double value, Iterator& data, size_t length );
 
@@ -363,7 +350,6 @@ klv_write_float( double value, Iterator& data, size_t length );
 /// \c uint64_t or the difference between \p minimum and \p maximum is to large
 /// for a \c double to hold.
 template < class Iterator >
-KWIVER_ALGO_KLV_EXPORT
 double
 klv_read_imap( double minimum, double maximum, Iterator& data, size_t length );
 
@@ -386,7 +372,6 @@ klv_read_imap( double minimum, double maximum, Iterator& data, size_t length );
 /// \throws metadata_type_overflow When the difference between \p minimum and
 /// \p maximum is to large for a \c double to hold.
 template < class Iterator >
-KWIVER_ALGO_KLV_EXPORT
 void
 klv_write_imap( double value, double minimum, double maximum, Iterator& data,
                 size_t length );
@@ -443,7 +428,6 @@ klv_imap_precision( double minimum, double maximum, size_t length );
 ///
 /// \returns String read from \p data.
 template < class Iterator >
-KWIVER_ALGO_KLV_EXPORT
 std::string
 klv_read_string( Iterator& data, size_t length );
 
@@ -463,7 +447,6 @@ klv_read_string( Iterator& data, size_t length );
 /// max_length bytes.
 /// \throws metadata_type_overflow When \p value is a single null character.
 template < class Iterator >
-KWIVER_ALGO_KLV_EXPORT
 void
 klv_write_string( std::string const& value, Iterator& data,
                   size_t max_length );
