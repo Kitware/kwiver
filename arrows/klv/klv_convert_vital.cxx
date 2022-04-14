@@ -7,11 +7,7 @@
 
 #include "klv_convert_vital.h"
 
-#include "klv_0102.h"
-#include "klv_0104.h"
-#include "klv_0601.h"
-#include "klv_1108.h"
-#include "klv_1108_metric_set.h"
+#include "klv_all.h"
 #include "klv_metadata.h"
 #include "klv_muxer.h"
 

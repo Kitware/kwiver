@@ -5,14 +5,7 @@
 /// \file
 /// \brief Definition of KLV muxer.
 
-#include "klv_0104.h"
-#include "klv_0601.h"
-#include "klv_0806.h"
-#include "klv_0903.h"
-#include "klv_1002.h"
-#include "klv_1108.h"
-#include "klv_1108_metric_set.h"
-#include "klv_1204.h"
+#include "klv_all.h"
 #include "klv_muxer.h"
 
 #include <vital/range/iterator_range.h>
