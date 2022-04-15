@@ -77,7 +77,6 @@ public:
   // MISP timestamp (microseconds)
   std::map< uint64_t, klv::misp_timestamp > m_pts_to_misp;
   uint64_t m_prev_klv_timestamp = 0;
-  uint64_t m_curr_klv_timestamp = 0;
 
   // Number of frames to back step when seek fails to land on frame before
   // request
@@ -314,8 +313,7 @@ public:
     this->metadata.clear();
     this->f_start_time = -1;
     this->m_prev_klv_timestamp = 0;
-    this->m_curr_klv_timestamp = 0;
-    this->m_klv_demuxer.seek( 0 );
+    this->m_klv_demuxer.reset();
     this->is_draining = false;
 
     if( this->f_video_stream )
@@ -611,8 +609,7 @@ public:
     do
     {
       m_prev_klv_timestamp = 0;
-      m_curr_klv_timestamp = 0;
-      m_klv_demuxer.seek( 0 );
+      m_klv_demuxer.reset();
 
       auto seek_rslt = av_seek_frame( this->f_format_context,
                                       this->f_video_index, frame_ts,
@@ -716,7 +713,8 @@ public:
   void
   advance_metadata()
   {
-    m_prev_klv_timestamp = m_curr_klv_timestamp;
+    m_prev_klv_timestamp = m_klv_demuxer.frame_time();
+    std::vector< klv::klv_packet > packets;
     for( auto md : this->curr_metadata )
     {
       auto& md_buffer = md.second;
@@ -724,11 +722,11 @@ public:
       auto it = md_buffer.cbegin();
       while( it != md_buffer.cend() )
       {
-        klv::klv_packet packet;
         try
         {
-          packet =
-            klv::klv_read_packet( it, std::distance( it, md_buffer.cend() ) );
+          auto const length =
+            static_cast< size_t >( std::distance( it, md_buffer.cend() ) );
+          packets.emplace_back( klv::klv_read_packet( it, length ) );
         }
         catch( kwiver::vital::metadata_buffer_overflow const& e )
         {
@@ -740,17 +738,13 @@ public:
           LOG_ERROR( kwiver::vital::get_logger( "klv" ),
                      "error while parsing KLV packet: " << e.what() );
         }
-
-        if( klv::klv_lookup_packet_traits().by_uds_key( packet.key ).tag() !=
-            klv::KLV_PACKET_MISB_1108_LOCAL_SET )
-        {
-          auto const timestamp = klv::klv_packet_timestamp( packet );
-          m_curr_klv_timestamp = std::max( m_curr_klv_timestamp, timestamp );
-        }
-
-        m_klv_demuxer.demux_packet( packet );
       }
     }
+
+    auto const backup_timestamp =
+      m_klv_demuxer.frame_time() +
+      av_q2d( av_inv_q( f_video_stream->avg_frame_rate ) ) * 1000000.0;
+    m_klv_demuxer.send_frame( packets, backup_timestamp );
   }
 
   void
@@ -785,18 +779,18 @@ public:
   current_metadata()
   {
     auto prev_frame_timestamp = m_prev_klv_timestamp;
-    auto frame_timestamp = m_curr_klv_timestamp;
+    auto frame_timestamp = m_klv_demuxer.frame_time();
     if( use_misp_timestamps )
     {
       auto const it = m_pts_to_misp.find( f_frame->pts );
       if( it != m_pts_to_misp.end() )
       {
         frame_timestamp = it->second.timestamp;
+        prev_frame_timestamp =
+          ( it == m_pts_to_misp.begin() )
+          ? 0
+          : std::prev( it )->second.timestamp;
       }
-      prev_frame_timestamp =
-        ( it == m_pts_to_misp.begin() )
-        ? 0
-        : std::prev( it )->second.timestamp;
     }
 
     auto result =
@@ -892,7 +886,7 @@ public:
       int64_t frame_ts = this->f_video_stream->duration + this->f_start_time;
       do
       {
-        m_klv_demuxer.seek( 0 );
+        m_klv_demuxer.reset();
 
         auto seek_rslt = av_seek_frame( this->f_format_context,
                                         this->f_video_index,
