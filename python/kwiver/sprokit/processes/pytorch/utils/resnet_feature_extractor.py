@@ -104,7 +104,7 @@ class ResnetFeatureExtractor(object):
         self._resnet_model.to(self._device) # move the model to the GPU
 
         self._transform = transforms.Compose([
-            transforms.Scale(img_size),
+            transforms.Resize(img_size),
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ])
