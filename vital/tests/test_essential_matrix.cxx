@@ -33,6 +33,26 @@ static bool is_similar(
 }
 
 // ----------------------------------------------------------------------------
+TEST(essential_matrix, constructors)
+{
+  rotation_d rot_d(vector_3d(1.0, 2.0, 3.0));
+  rotation_f rot_f(vector_3f(1.0, 2.0, 3.0));
+  vector_3d t_d(-1.0, 1.0, 4.0);
+  vector_3f t_f(-1.0, 1.0, 4.0);
+  essential_matrix_d d1(rot_d, t_d);
+  essential_matrix_f f1(rot_f, t_f);
+
+  essential_matrix_d d2(d1);
+  essential_matrix_f f2(f1);
+
+  EXPECT_TRUE(d1.matrix().isApprox(d2.matrix()));
+  EXPECT_TRUE(f1.matrix().isApprox(f2.matrix()));
+
+  // essential_matrix_f f_from_d(d1);
+  // EXPECT_TRUE(f_from_d.matrix().isApprox(f1.matrix()));
+}
+
+// ----------------------------------------------------------------------------
 TEST(essential_matrix, properties)
 {
   rotation_d rot(vector_3d(1.0, 2.0, 3.0));
