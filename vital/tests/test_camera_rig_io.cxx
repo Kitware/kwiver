@@ -39,13 +39,16 @@ class camera_rig_io : public ::testing::Test
 };
 
 // ----------------------------------------------------------------------------
-TEST_F(camera_rig_io, output_format_test)
+TEST_F(camera_rig_io, krtd_test)
 {
   kv::camera_rig_sptr rig0( new kv::camera_rig );
   auto const N = 3;
   kv::path_t const DN = g_data_dir;
   kv::path_t const FNBase = DN + "cam-";
   kv::path_list_t cam_files;
+  auto const dim = 512, dim2 = dim/2;
+  kv::vector_2d const principal_point( dim2, dim2 );
+  auto const aspect_ratio = 1.0, skew = 0.0;
   for ( auto i=1; i<=N; ++i )
   {
     std::stringstream ss;
@@ -53,16 +56,15 @@ TEST_F(camera_rig_io, output_format_test)
     kv::vector_3d center( i, .2*i, .2*i );
     kv::rotation_d rotation;
     kv::vector_4d dist( .01*i, .2, .3, .4 );
-    auto const dim = 512, dim2 = dim/2;
+    auto const focal_length = .1*i;
     kv::camera_intrinsics_sptr intrinsics(
       new kv::simple_camera_intrinsics(
-          .1*i, // focal_length,
-          kv::vector_2d( dim2, dim2 ), // principal_point,
-          1., // aspect_ratio=1.0,
-          0., // skew=0.0,
-          dist, // vector_t dist_coeffs=vector_t(),
-          dim, // image_width=0,
-          dim // image_height=0
+          focal_length,
+          principal_point,
+          aspect_ratio,
+          skew,
+          dist,
+          dim, dim
       )
     );
     kv::simple_camera_perspective_sptr cam(
