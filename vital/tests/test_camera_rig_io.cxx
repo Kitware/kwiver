@@ -39,7 +39,7 @@ class camera_rig_io : public ::testing::Test
 };
 
 // ----------------------------------------------------------------------------
-TEST_F(camera_rig_io, krtd_test)
+void io_test(std::string const & ext)
 {
   kv::camera_rig_sptr rig0( new kv::camera_rig );
   auto const N = 3;
@@ -51,8 +51,6 @@ TEST_F(camera_rig_io, krtd_test)
   auto const aspect_ratio = 1.0, skew = 0.0;
   for ( auto i=1; i<=N; ++i )
   {
-    std::stringstream ss;
-    ss << FNBase << i << ".krtd";
     kv::vector_3d center( i, .2*i, .2*i );
     kv::rotation_d rotation;
     kv::vector_4d dist( .01*i, .2, .3, .4 );
@@ -70,6 +68,9 @@ TEST_F(camera_rig_io, krtd_test)
     kv::simple_camera_perspective_sptr cam(
         new kv::simple_camera_perspective( center, rotation, intrinsics )
     );
+    // file name
+    std::stringstream ss;
+    ss << FNBase << i << ext;
     auto const & FN = ss.str();
     rig0->add(FN, cam);
     cam_files.push_back(FN);
@@ -111,4 +112,22 @@ TEST_F(camera_rig_io, krtd_test)
   {
     EXPECT_EQ( 0, std::remove(FN.c_str()) );
   }
+}
+
+// ----------------------------------------------------------------------------
+TEST_F(camera_rig_io, krtd_test)
+{
+  io_test(".krtd");
+}
+
+// ----------------------------------------------------------------------------
+TEST_F(camera_rig_io, yaml_test)
+{
+  io_test(".yaml");
+}
+
+// ----------------------------------------------------------------------------
+TEST_F(camera_rig_io, json_test)
+{
+  io_test(".json");
 }
