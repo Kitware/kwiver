@@ -224,7 +224,7 @@ protected:
   class scoped_object
   {
   public:
-    scoped_object( Archive& archive ) : m_archive{ archive }
+    scoped_object( Archive& archive ) : m_archive( archive )
     {
       m_archive.startNode();
     }
@@ -241,7 +241,7 @@ protected:
   class scoped_array
   {
   public:
-    scoped_array( Archive& archive ) : m_archive{ archive }
+    scoped_array( Archive& archive ) : m_archive( archive )
     {
       m_archive.startNode();
       m_archive.makeArray();
@@ -256,7 +256,7 @@ protected:
     Archive& m_archive;
   };
 
-  klv_json_base( Archive& archive ) : m_archive{ archive }, m_lookup{ nullptr }
+  klv_json_base( Archive& archive ) : m_archive( archive ), m_lookup{ nullptr }
   {}
 
   // Return internal cereal archive. Avoid excessive use.
@@ -963,9 +963,9 @@ struct klv_json_loader : public klv_json_base< load_archive >
   // Return the size of the array we are in.
   size_t array_size()
   {
-    size_t size;
+    size_type size;
     archive().loadSize( size );
-    return size;
+    return static_cast< size_t >( size );
   }
 
   // Return the KLV tag traits lookup object, throwing an error if none exists.
@@ -1202,11 +1202,11 @@ struct klv_json_loader : public klv_json_base< load_archive >
       {
         auto const lookup_scope =
           push_lookup( assert_lookup().by_tag( key ).subtag_lookup() );
-        value = std::move( load( "value", type ) );
+        value = load( "value", type );
       }
       else
       {
-        value = std::move( load( "value", type ) );
+        value = load( "value", type );
       }
       result.add( key, std::move( value ) );
     }
@@ -1229,11 +1229,11 @@ struct klv_json_loader : public klv_json_base< load_archive >
       {
         auto const lookup_scope =
           push_lookup( assert_lookup().by_uds_key( key ).subtag_lookup() );
-        value = std::move( load( "value", type ) );
+        value = load( "value", type );
       }
       else
       {
-        value = std::move( load( "value", type ) );
+        value = load( "value", type );
       }
       result.add( key, std::move( value ) );
     }
@@ -1726,7 +1726,7 @@ void
 load( load_archive& archive, klv_packet& packet )
 {
   klv_json_loader loader{ archive };
-  packet = std::move( loader.load< klv_packet >() );
+  packet = loader.load< klv_packet >();
 }
 
 // ----------------------------------------------------------------------------
@@ -1742,7 +1742,7 @@ void
 load( load_archive& archive, klv_timed_packet& packet )
 {
   klv_json_loader loader{ archive };
-  packet = std::move( loader.load< klv_timed_packet >() );
+  packet = loader.load< klv_timed_packet >();
 }
 
 } // namespace cereal
