@@ -21,14 +21,13 @@ namespace kv = kwiver::vital;
 
 kv::path_t g_data_dir;
 
-static std::string const krtd = "vital_data/test_camera_io-";
-
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
   ::testing::InitGoogleTest( &argc, argv );
 
   GET_ARG(1, g_data_dir);
+  g_data_dir += "/";
 
   return RUN_ALL_TESTS();
 }
@@ -54,15 +53,16 @@ TEST_F(camera_rig_io, output_format_test)
     kv::vector_3d center( i, .2*i, .2*i );
     kv::rotation_d rotation;
     kv::vector_4d dist( .01*i, .2, .3, .4 );
+    auto const dim = 512, dim2 = dim/2;
     kv::camera_intrinsics_sptr intrinsics(
       new kv::simple_camera_intrinsics(
-          i, // focal_length,
-          kv::vector_2d( 256, 256 ), // principal_point,
+          .1*i, // focal_length,
+          kv::vector_2d( dim2, dim2 ), // principal_point,
           1., // aspect_ratio=1.0,
           0., // skew=0.0,
           dist, // vector_t dist_coeffs=vector_t(),
-          512, // image_width=0,
-          512 // image_height=0
+          dim, // image_width=0,
+          dim // image_height=0
       )
     );
     kv::simple_camera_perspective_sptr cam(
