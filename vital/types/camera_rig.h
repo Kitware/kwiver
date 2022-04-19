@@ -34,7 +34,7 @@ public:
 
   /// Access cameras of the rig.
   /// \return camera collection
-  virtual const camera_collection & cameras() const { return cameras_; }
+  virtual camera_collection const & cameras() const { return cameras_; }
 
   /// Add a camera.
   /// \return inserted camera
@@ -80,7 +80,7 @@ protected:
 /// A representation of camera stereo rig
 ///
 /// A camera stereo rig class
-class VITAL_EXPORT camera_rig_stereo: public camera_rig
+class VITAL_EXPORT camera_rig_stereo: protected camera_rig
 {
 public:
   /// Construct a stereo rig using left and right cameras.
@@ -90,11 +90,15 @@ public:
     add("right", right);
   }
   virtual ~camera_rig_stereo() = default;
+  using camera_rig::cameras;
+  using camera_rig::camera;
   camera_sptr left(){ return camera("left"); }
   camera_sptr right(){ return camera("right"); }
   camera_sptr const left()const { return camera("left"); }
   camera_sptr const right()const { return camera("right"); }
 };
+
+using camera_rig_stereo_sptr = std::shared_ptr< camera_rig_stereo >;
 
 } // vital
 } // kwiver

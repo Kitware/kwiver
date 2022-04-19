@@ -17,28 +17,54 @@
 namespace  kwiver {
 namespace vital {
 
-/// Load a camera rig from krtd files.
+/// Load a camera rig from KRtd file(s).
 ///
 /// \throws invalid_data
-///   Unable to find any camera krtd files in the given directory
+///   Unable to find any camera files in the given directory
 /// \throw path_not_exists
 ///   The specified directory does not exist
 ///
-/// \param cam_files a list of krtd file names
-/// \return a new camera collection created after parsing all krtd files
+/// \param cam_files a list of camera names
+/// \return a new camera rig
 camera_rig_sptr
 VITAL_EXPORT read_camera_rig( path_list_t const& cam_files );
 
-/// Save a camera rig to krtd files.
+/// Load a stereo rig from a file.
 ///
 /// \throws invalid_data
-///   Unable to find any camera krtd files in the given directory
+///   Unable to find any camera files in the given directory
+/// \throw path_not_exists
+///   The specified directory does not exist
+///
+/// \param FN input file name
+/// \return a new stereo rig
+camera_rig_stereo_sptr
+VITAL_EXPORT read_stereo_rig( path_t const& FN );
+
+/// Save a camera rig to KRtd file(s)
+///
+/// \throws invalid_data
+///   Unable to find any camera files in the given directory
 /// \throw path_not_exists
 ///   The specified directory does not exist
 ///
 /// \param rig camera rig
+/// \param ext type of output file(s): .krtd
 void
 VITAL_EXPORT write_camera_rig( camera_rig_sptr rig );
+
+/// Save a stereo rig to a file: .json
+///
+/// \throws invalid_data
+///   Unable to find any camera files in the given directory
+/// \throw path_not_exists
+///   The specified directory does not exist
+///
+/// \param rig stereo rig
+/// \param FN output file name
+void
+VITAL_EXPORT write_stereo_rig( camera_rig_stereo_sptr rig,
+                               std::string const & FN );
 
 } // vital
 } // kwiver

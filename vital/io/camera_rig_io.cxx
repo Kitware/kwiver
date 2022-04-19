@@ -36,9 +36,17 @@ read_camera_rig( path_list_t const & cam_files )
   if ( rig->empty() )
   {
     VITAL_THROW( invalid_data,
-                 "no cameras initialized from the given list of krtd files" ) ;
+                 "no cameras initialized from the given list of files" ) ;
   }
   return rig;
+}
+
+camera_rig_stereo_sptr
+read_stereo_rig( path_t const& FN )
+{
+  camera_rig_stereo_sptr res;
+  // TODO read from FN
+  return res;
 }
 
 void
@@ -63,6 +71,13 @@ write_camera_rig( camera_rig_sptr rig )
           << ": " << e.what() );
     }
   }
+}
+
+void
+write_stereo_rig( camera_rig_stereo_sptr rig,
+                               std::string const & FN )
+{
+  // TODO write rig to FN
 }
 
 } // vital

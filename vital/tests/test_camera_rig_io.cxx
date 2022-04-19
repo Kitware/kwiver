@@ -39,19 +39,24 @@ class camera_rig_io : public ::testing::Test
 };
 
 // ----------------------------------------------------------------------------
-void io_test(std::string const & ext)
+void io_test(std::string const & ext, unsigned const N=3)
 {
-  kv::camera_rig_sptr rig0( new kv::camera_rig );
-  auto const N = 3;
   kv::path_t const DN = g_data_dir;
-  kv::path_t const FNBase = DN + "cam-";
-  kv::path_list_t cam_files;
+  kv::path_t const CNBase = "cam";
+  kv::path_t const FNBase = DN + CNBase;
+  kv::path_list_t cam_names;
+
+// form a camera rig
+  kv::camera_rig_sptr rig0( new kv::camera_rig );
+
   auto const dim = 512, dim2 = dim/2;
   kv::vector_2d const principal_point( dim2, dim2 );
   auto const aspect_ratio = 1.0, skew = 0.0;
-  for ( auto i=1; i<=N; ++i )
+
+  for ( unsigned i=1; i<=N; ++i )
   {
-    kv::vector_3d center( i, .2*i, .2*i );
+    unsigned j=i-1;
+    kv::vector_3d center( j, .2*j, .2*j );
     kv::rotation_d rotation;
     kv::vector_4d dist( .01*i, .2, .3, .4 );
     auto const focal_length = .1*i;
@@ -66,28 +71,30 @@ void io_test(std::string const & ext)
       )
     );
     kv::simple_camera_perspective_sptr cam(
-        new kv::simple_camera_perspective( center, rotation, intrinsics )
+      new kv::simple_camera_perspective( center, rotation, intrinsics )
     );
-    // file name
+  // camera name
     std::stringstream ss;
     ss << FNBase << i << ext;
-    auto const & FN = ss.str();
-    rig0->add(FN, cam);
-    cam_files.push_back(FN);
+    auto const & CN = ss.str();
+    rig0->add( CN, cam );
+    cam_names.push_back( CN );
   }
   kv::write_camera_rig( rig0 );
+
 // read camera rig and check against the original
-  auto rig = kv::read_camera_rig( cam_files );
+  auto rig = kv::read_camera_rig( cam_names );
   EXPECT_NE( rig.get(), nullptr );
   auto const & cams = rig->cameras();
   auto cnt = cams.size();
   EXPECT_EQ( cnt, N );
+
 // make sure the cameras are the same in both rigs
   for ( auto const & c: cams )
   {
-    auto const & FN = c.first;
+    auto const & CN = c.first;
     auto const cam0 =
-        dynamic_cast<kv::camera_perspective const *>( rig0->camera(FN).get() );
+        dynamic_cast<kv::camera_perspective const *>( rig0->camera(CN).get() );
     auto const cam =
         dynamic_cast<kv::camera_perspective const *>( c.second.get() );
 
@@ -107,10 +114,11 @@ void io_test(std::string const & ext)
     std::vector<double> D = cam->intrinsics()->dist_coeffs();
     EXPECT_EQ( D0, D );
   }
+
 // cleanup
-  for ( std::string const & FN: cam_files )
+  for ( std::string const & CN: cam_names )
   {
-    EXPECT_EQ( 0, std::remove(FN.c_str()) );
+    EXPECT_EQ( 0, std::remove(CN.c_str()) );
   }
 }
 
@@ -121,13 +129,91 @@ TEST_F(camera_rig_io, krtd_test)
 }
 
 // ----------------------------------------------------------------------------
-TEST_F(camera_rig_io, yaml_test)
+void io_stereo_test(std::string const & ext)
 {
-  io_test(".yaml");
+  kv::path_t const DN = g_data_dir;
+  kv::path_t const CNBase = "cam";
+  kv::path_t const FNBase = DN + CNBase;
+  kv::path_list_t cam_names;
+
+// form a camera rig
+  unsigned const N=2;
+  auto const dim = 512, dim2 = dim/2;
+  kv::vector_2d const principal_point( dim2, dim2 );
+  auto const aspect_ratio = 1.0, skew = 0.0;
+
+  kv::camera_collection cams0;
+  for ( unsigned i=1; i<=N; ++i )
+  {
+    unsigned j=i-1;
+    kv::vector_3d center( j, .2*j, .2*j );
+    kv::rotation_d rotation;
+    kv::vector_4d dist( .01*i, .2, .3, .4 );
+    auto const focal_length = .1*i;
+    kv::camera_intrinsics_sptr intrinsics(
+      new kv::simple_camera_intrinsics(
+          focal_length,
+          principal_point,
+          aspect_ratio,
+          skew,
+          dist,
+          dim, dim
+      )
+    );
+    kv::simple_camera_perspective_sptr cam(
+      new kv::simple_camera_perspective( center, rotation, intrinsics )
+    );
+    auto const CN = i==1 ? "left" : "right";
+    cams0[CN] = cam;
+    cam_names.push_back( CN );
+  }
+
+  auto rig0 = std::make_shared<kv::camera_rig_stereo>(
+      cams0["left"], cams0["right"]
+  );
+
+  auto const & FN = FNBase+ext;
+  kv::write_stereo_rig( rig0, FN );
+
+// read camera rig and check against the original
+  auto rig = kv::read_stereo_rig( FN );
+  EXPECT_NE( rig.get(), nullptr );
+  auto const & cams = rig->cameras();
+  auto cnt = cams.size();
+  EXPECT_EQ( cnt, N );
+
+// make sure the cameras are the same in both rigs
+  for ( auto const & c: cams )
+  {
+    auto const & CN = c.first;
+    auto const cam0 =
+        dynamic_cast<kv::camera_perspective const *>( rig0->camera(CN).get() );
+    auto const cam =
+        dynamic_cast<kv::camera_perspective const *>( c.second.get() );
+
+    Eigen::Matrix<double,3,3> K0( cam0->intrinsics()->as_matrix() );
+    Eigen::Matrix<double,3,3> K( cam->intrinsics()->as_matrix() );
+    EXPECT_MATRIX_EQ( K0, K );
+
+    Eigen::Matrix<double,3,3> R0( cam0->rotation().matrix() );
+    Eigen::Matrix<double,3,3> R( cam->rotation().matrix() );
+    EXPECT_MATRIX_EQ( R0, R );
+
+    Eigen::Matrix<double,3,1> T0( cam0->translation() );
+    Eigen::Matrix<double,3,1> T( cam->translation() );
+    EXPECT_MATRIX_EQ( T0, T );
+
+    std::vector<double> D0 = cam0->intrinsics()->dist_coeffs();
+    std::vector<double> D = cam->intrinsics()->dist_coeffs();
+    EXPECT_EQ( D0, D );
+  }
+
+// cleanup
+  EXPECT_EQ( 0, std::remove(FN.c_str()) );
 }
 
 // ----------------------------------------------------------------------------
-TEST_F(camera_rig_io, json_test)
+TEST_F(camera_rig_io, stereo_json_test)
 {
-  io_test(".json");
+  io_stereo_test(".json");
 }
