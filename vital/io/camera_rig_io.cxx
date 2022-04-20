@@ -9,8 +9,12 @@
 #include "camera_io.h"
 
 #include <vital/exceptions.h>
+#include <vital/internal/cereal/archives/json.hpp>
+#include <vital/internal/cereal/types/vector.hpp>
 
 #include <kwiversys/SystemTools.hxx>
+
+#include <fstream>
 
 namespace kwiver {
 namespace vital {
@@ -52,10 +56,10 @@ read_stereo_rig( path_t const& FN )
 void
 write_camera_rig( camera_rig_sptr rig )
 {
-  if (rig==nullptr)
+  if (rig == nullptr)
   {
     LOG_ERROR( logger,
-     "unable to write null camera rig pointer" );
+     "unable to write: camera rig pointer is null" );
     return;
   }
   for (auto const & c: rig->cameras())
@@ -73,11 +77,110 @@ write_camera_rig( camera_rig_sptr rig )
   }
 }
 
-void
-write_stereo_rig( camera_rig_stereo_sptr rig,
-                               std::string const & FN )
+std::string
+get_file_ext( path_t const & FN )
 {
-  // TODO write rig to FN
+  std::string ext;
+  auto const
+    len = FN.length(),
+    n = FN.rfind('.', len);
+  if (n != std::string::npos)
+  {
+     ext = FN.substr(n);
+  }
+  return ext;
+}
+
+void
+write_stereo_rig_json( camera_rig_stereo_sptr rig, std::string const & FN )
+{
+  //  {
+  //  "fx_left": 3186.000000,
+  //  "fy_left": 3186.000000,
+  //  "cx_left": 1327.904157,
+  //  "cy_left": 1007.326313,
+  //  "k1_left": 0.000000,
+  //  "k2_left": 0.000000,
+  //  "p1_left": 0.000000,
+  //  "p2_left": 0.000000,
+  //  "fx_right": 3186.000000,
+  //  "fy_right": 3186.000000,
+  //  "cx_right": 1338.701970,
+  //  "cy_right": 1007.326313,
+  //  "k1_right": 0.000000,
+  //  "k2_right": 0.000000,
+  //  "p1_right": 0.000000,
+  //  "p2_right": 0.000000,
+  //  "T": [-0.182099, 0.000000, -0.000000],
+  //  "R": [ 1.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 1.000000 ]
+  //  }
+  if (rig == nullptr)
+  {
+    LOG_ERROR( logger, "unable to write: stereo rig pointer is null" );
+    return;
+  }
+  std::ofstream of(FN);
+  cereal::JSONOutputArchive::Options opt(
+    32, cereal::JSONOutputArchive::Options::IndentChar::space, 2);
+  cereal::JSONOutputArchive ar( of, opt );
+  std::vector< std::string > names = {"left", "right"};
+  for (auto const & name : names)
+  {
+    try
+    {
+      auto const & cam =
+        dynamic_cast<camera_perspective const&>(*rig->camera(name));
+      auto const & intr = *cam.intrinsics();
+      auto const & f = intr.focal_length();
+      auto const & c = intr.principal_point();
+      auto const & d = intr.dist_coeffs();
+      auto const & dlen = d.size();
+      ar( cereal::make_nvp( "fx_" + name,  f) );
+      ar( cereal::make_nvp( "fy_" + name,  f) );
+      ar( cereal::make_nvp( "cx_" + name,  c[0]) );
+      ar( cereal::make_nvp( "cy_" + name,  c[1]) );
+      ar( cereal::make_nvp( "k1_" + name,  dlen > 0 ? d[0] : 0.0 ) );
+      ar( cereal::make_nvp( "k2_" + name,  dlen > 1 ? d[1] : 0.0 ) );
+      ar( cereal::make_nvp( "p1_" + name,  dlen > 2 ? d[2] : 0.0 ) );
+      ar( cereal::make_nvp( "p2_" + name,  dlen > 3 ? d[3] : 0.0 ) );
+      if (name == "right")
+      {
+        auto const & tv = cam.translation();
+        auto n = tv.size();
+        std::vector<double> T(n);
+        for (int i=0; i<n; ++i)
+        {
+          T[i] = tv[i];
+        }
+        ar( CEREAL_NVP(T) );
+        auto const & rm = cam.rotation().matrix();
+        std::vector<double> R;
+        for (int i=0; i<3; ++i)
+        {
+          for (int j=0; j<3; ++j)
+          {
+            R.push_back(rm(i,j));
+          }
+        }
+        ar( CEREAL_NVP(R) );
+      }
+    }
+    catch( std::exception const & e )
+    {
+      LOG_ERROR(logger, "unable to write " << name
+          << ": " << e.what() );
+    }
+  }
+}
+
+void
+write_stereo_rig( camera_rig_stereo_sptr rig, std::string const & FN )
+{
+  auto const & ext = get_file_ext(FN);
+  if (ext == ".json")
+  {
+    write_stereo_rig_json(rig, FN);
+  }
 }
 
 } // vital

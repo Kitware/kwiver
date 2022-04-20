@@ -84,7 +84,7 @@ void io_test(std::string const & ext, unsigned const N=3)
 
 // read camera rig and check against the original
   auto rig = kv::read_camera_rig( cam_names );
-  EXPECT_NE( rig.get(), nullptr );
+  ASSERT_TRUE( rig.get() );
   auto const & cams = rig->cameras();
   auto cnt = cams.size();
   EXPECT_EQ( cnt, N );
@@ -136,7 +136,7 @@ void io_stereo_test(std::string const & ext)
   kv::path_t const FNBase = DN + CNBase;
   kv::path_list_t cam_names;
 
-// form a camera rig
+// form a stereo rig
   unsigned const N=2;
   auto const dim = 512, dim2 = dim/2;
   kv::vector_2d const principal_point( dim2, dim2 );
@@ -177,7 +177,7 @@ void io_stereo_test(std::string const & ext)
 
 // read camera rig and check against the original
   auto rig = kv::read_stereo_rig( FN );
-  EXPECT_NE( rig.get(), nullptr );
+  ASSERT_TRUE( rig.get() );
   auto const & cams = rig->cameras();
   auto cnt = cams.size();
   EXPECT_EQ( cnt, N );
