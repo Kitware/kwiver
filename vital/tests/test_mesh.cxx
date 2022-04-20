@@ -15,8 +15,6 @@
 
 using namespace kwiver::vital;
 
-path_t g_data_dir;
-
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
@@ -192,33 +190,18 @@ TEST(mesh, assignment_operator)
 }
 
 // ----------------------------------------------------------------------------
-TEST(mesh, compute_vertex_normals)
+void check_vertex_normals( const std::vector<vector_3d> grid_vertex_normals,
+                           const std::vector<vector_3d> cube_vertex_normals,
+                           const std::vector<vector_3d> fusion_vertex_normals )
 {
   double threshhold = 0.000001;
 
-  mesh_sptr grid_mesh = kwiver::testing::grid_mesh( 2, 3 );
-  EXPECT_FALSE( grid_mesh->vertices().has_normals() );
-  EXPECT_FALSE( grid_mesh->has_half_edges() );
-  grid_mesh->compute_vertex_normals();
-  EXPECT_TRUE( grid_mesh->vertices().has_normals() );
-  EXPECT_TRUE( grid_mesh->has_half_edges() );
-
-  const std::vector<vector_3d> grid_vertex_normals = grid_mesh->vertices().normals();
   vector_3d expected_grid_vertex_normal {0, 0, 1};
   for(unsigned int i=0; i<grid_vertex_normals.size(); i++)
   {
     EXPECT_EQ( grid_vertex_normals[i], expected_grid_vertex_normal );
   }
 
-  mesh_sptr cube_mesh = kwiver::testing::cube_mesh( 1.0 );
-  EXPECT_FALSE( cube_mesh->vertices().has_normals() );
-  EXPECT_FALSE( cube_mesh->has_half_edges() );
-  cube_mesh->compute_vertex_normals();
-  EXPECT_TRUE( cube_mesh->vertices().has_normals() );
-  EXPECT_TRUE( cube_mesh->has_half_edges() );
-
-  const std::vector<vector_3d> cube_vertex_normals =
-    cube_mesh->vertices().normals();
   std::vector<vector_3d> expected_cube_vertex_normals{
     {-0.57735, -0.57735, -0.57735},
     {-0.57735, -0.57735,  0.57735},
@@ -238,6 +221,57 @@ TEST(mesh, compute_vertex_normals)
     EXPECT_NEAR( cube_vertex_normals[i][2],
       expected_cube_vertex_normals[i][2], threshhold );
   }
+
+  EXPECT_EQ( fusion_vertex_normals.size(),
+    grid_vertex_normals.size() + cube_vertex_normals.size() );
+  unsigned int i=0;
+  for(; i<grid_vertex_normals.size(); i++)
+  {
+    EXPECT_EQ( fusion_vertex_normals[i], expected_grid_vertex_normal );
+  }
+  for(unsigned int j=0; j<cube_vertex_normals.size(); j++, i++)
+  {
+    EXPECT_NEAR( fusion_vertex_normals[i][0],
+      expected_cube_vertex_normals[j][0], threshhold );
+    EXPECT_NEAR( fusion_vertex_normals[i][1],
+      expected_cube_vertex_normals[j][1], threshhold );
+    EXPECT_NEAR( fusion_vertex_normals[i][2],
+      expected_cube_vertex_normals[j][2], threshhold );
+  }
+}
+
+// ----------------------------------------------------------------------------
+TEST(mesh, compute_vertex_normals)
+{
+  mesh_sptr grid_mesh = kwiver::testing::grid_mesh( 2, 3 );
+  EXPECT_FALSE( grid_mesh->vertices().has_normals() );
+  EXPECT_FALSE( grid_mesh->has_half_edges() );
+  grid_mesh->compute_vertex_normals();
+  EXPECT_TRUE( grid_mesh->vertices().has_normals() );
+  EXPECT_TRUE( grid_mesh->has_half_edges() );
+
+  const std::vector<vector_3d> grid_vertex_normals =
+    grid_mesh->vertices().normals();
+
+  mesh_sptr cube_mesh = kwiver::testing::cube_mesh( 1.0 );
+  EXPECT_FALSE( cube_mesh->vertices().has_normals() );
+  EXPECT_FALSE( cube_mesh->has_half_edges() );
+  cube_mesh->compute_vertex_normals();
+  EXPECT_TRUE( cube_mesh->vertices().has_normals() );
+  EXPECT_TRUE( cube_mesh->has_half_edges() );
+
+  const std::vector<vector_3d> cube_vertex_normals =
+    cube_mesh->vertices().normals();
+
+  grid_mesh->merge( *cube_mesh );
+  EXPECT_TRUE( grid_mesh->vertices().has_normals() );
+  EXPECT_TRUE( grid_mesh->has_half_edges() );
+
+  const std::vector<vector_3d> fusion_vertex_normals =
+    grid_mesh->vertices().normals();
+
+  check_vertex_normals( grid_vertex_normals, cube_vertex_normals,
+                        fusion_vertex_normals );
 }
 
 // ----------------------------------------------------------------------------
@@ -254,19 +288,11 @@ TEST(mesh, compute_vertex_normals_from_faces)
   EXPECT_TRUE( grid_mesh->faces().has_normals() );
   EXPECT_TRUE( grid_mesh->has_half_edges() );
 
-  const std::vector<vector_3d> grid_vertex_normals = grid_mesh->vertices().normals();
-  vector_3d expected_grid_vertex_normal {0, 0, 1};
-  for(unsigned int i=0; i<grid_vertex_normals.size(); i++)
-  {
-    EXPECT_EQ( grid_vertex_normals[i], expected_grid_vertex_normal );
-  }
+  const std::vector<vector_3d> grid_vertex_normals =
+    grid_mesh->vertices().normals();
 
-  const std::vector<vector_3d> grid_face_normals = grid_mesh->faces().normals();
-  vector_3d expected_grid_face_normal {0, 0, 1};
-  for(unsigned int i=0; i<grid_face_normals.size(); i++)
-  {
-    EXPECT_EQ( grid_face_normals[i], expected_grid_face_normal );
-  }
+  const std::vector<vector_3d> grid_face_normals =
+    grid_mesh->faces().normals();
 
   mesh_sptr cube_mesh = kwiver::testing::cube_mesh( 1.0 );
   EXPECT_FALSE( cube_mesh->vertices().has_normals() );
@@ -279,28 +305,29 @@ TEST(mesh, compute_vertex_normals_from_faces)
 
   const std::vector<vector_3d> cube_vertex_normals =
     cube_mesh->vertices().normals();
-  std::vector<vector_3d> expected_cube_vertex_normals{
-    {-0.57735, -0.57735, -0.57735},
-    {-0.57735, -0.57735,  0.57735},
-    {-0.57735,  0.57735, -0.57735},
-    {-0.57735,  0.57735,  0.57735},
-    { 0.57735, -0.57735, -0.57735},
-    { 0.57735, -0.57735,  0.57735},
-    { 0.57735,  0.57735, -0.57735},
-    { 0.57735,  0.57735,  0.57735} };
-  EXPECT_EQ( cube_vertex_normals.size(), expected_cube_vertex_normals.size() );
-  for(unsigned int i=0; i<cube_vertex_normals.size(); i++)
-  {
-    EXPECT_NEAR( cube_vertex_normals[i][0],
-      expected_cube_vertex_normals[i][0], threshhold );
-    EXPECT_NEAR( cube_vertex_normals[i][1],
-      expected_cube_vertex_normals[i][1], threshhold );
-    EXPECT_NEAR( cube_vertex_normals[i][2],
-      expected_cube_vertex_normals[i][2], threshhold );
-  }
 
   const std::vector<vector_3d> cube_face_normals =
     cube_mesh->faces().normals();
+
+  grid_mesh->merge( *cube_mesh );
+  EXPECT_TRUE( grid_mesh->vertices().has_normals() );
+  EXPECT_TRUE( grid_mesh->has_half_edges() );
+
+  const std::vector<vector_3d> fusion_vertex_normals =
+    grid_mesh->vertices().normals();
+
+  check_vertex_normals( grid_vertex_normals, cube_vertex_normals,
+                        fusion_vertex_normals );
+
+  const std::vector<vector_3d> fusion_face_normals =
+    grid_mesh->faces().normals();
+
+  vector_3d expected_grid_face_normal {0, 0, 1};
+  for(unsigned int i=0; i<grid_face_normals.size(); i++)
+  {
+    EXPECT_EQ( grid_face_normals[i], expected_grid_face_normal );
+  }
+
   std::vector<vector_3d> expected_cube_face_normals{
     {-1,  0,  0},
     { 1,  0,  0},
@@ -312,5 +339,17 @@ TEST(mesh, compute_vertex_normals_from_faces)
   for(unsigned int i=0; i<cube_face_normals.size(); i++)
   {
     EXPECT_EQ( cube_face_normals[i], expected_cube_face_normals[i] );
+  }
+
+  EXPECT_EQ( fusion_face_normals.size(),
+    grid_face_normals.size() + cube_face_normals.size() );
+  unsigned int i=0;
+  for(; i<grid_face_normals.size(); i++)
+  {
+    EXPECT_EQ( fusion_face_normals[i], expected_grid_face_normal );
+  }
+  for(unsigned int j=0; j<cube_face_normals.size(); j++, i++)
+  {
+    EXPECT_EQ( fusion_face_normals[i], expected_cube_face_normals[j] );
   }
 }
