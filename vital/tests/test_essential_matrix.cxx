@@ -35,21 +35,57 @@ static bool is_similar(
 // ----------------------------------------------------------------------------
 TEST(essential_matrix, constructors)
 {
-  rotation_d rot_d(vector_3d(1.0, 2.0, 3.0));
-  rotation_f rot_f(vector_3f(1.0, 2.0, 3.0));
-  vector_3d t_d(-1.0, 1.0, 4.0);
-  vector_3f t_f(-1.0, 1.0, 4.0);
-  essential_matrix_d d1(rot_d, t_d);
-  essential_matrix_f f1(rot_f, t_f);
+  rotation_d rot_d(vector_3d(0.0, 0.0, 0.0));
+  rotation_f rot_f(vector_3f(0.0, 0.0, 0.0));
+  vector_3d t_d(0.0, 1.0, 0.0);
+  vector_3f t_f(0.0, 1.0, 0.0);
+  essential_matrix_d d1 = essential_matrix_d(rot_d, t_d);
+  essential_matrix_f f1 = essential_matrix_f(rot_f, t_f);
 
-  essential_matrix_d d2(d1);
-  essential_matrix_f f2(f1);
+  essential_matrix_d d2 = essential_matrix_d(d1);
+  essential_matrix_f f2 = essential_matrix_f(f1);
 
   EXPECT_TRUE(d1.matrix().isApprox(d2.matrix()));
   EXPECT_TRUE(f1.matrix().isApprox(f2.matrix()));
 
   // essential_matrix_f f_from_d(d1);
   // EXPECT_TRUE(f_from_d.matrix().isApprox(f1.matrix()));
+
+  // essential_matrix_d d_from_f(f1);
+  // EXPECT_TRUE(d_from_f.matrix().isApprox(d1.matrix()));
+}
+
+// ----------------------------------------------------------------------------
+TEST(essential_matrix, twisted_rotation)
+{
+  rotation_d rot(vector_3d(0.0, 0.0, 0.0));
+  vector_3d t(0.48, 0.6, 0.64);
+  essential_matrix_d m(rot, t);
+  rotation_d twist = m.twisted_rotation();
+  EXPECT_EQ(twist.quaternion().x(), t.x());
+  EXPECT_EQ(twist.quaternion().y(), t.y());
+  EXPECT_EQ(twist.quaternion().z(), t.z());
+  EXPECT_EQ(twist.quaternion().w(), 0.0);
+}
+
+// ----------------------------------------------------------------------------
+TEST(essential_matrix, clone)
+{
+  rotation_d rot(vector_3d(0.0, 0.0, 0.0));
+  vector_3d t(0.48, 0.6, 0.64);
+  essential_matrix_d m(rot, t);
+  essential_matrix_sptr m_clone = m.clone();
+  EXPECT_EQ(m.matrix(), m_clone->matrix());
+}
+
+// ----------------------------------------------------------------------------
+TEST(essential_matrix, get)
+{
+  rotation_d rot(vector_3d(0.0, 0.0, 0.0));
+  vector_3d t(0.48, 0.6, 0.64);
+  essential_matrix_d m(rot, t);
+  EXPECT_EQ(m.get_rotation(), rot);
+  EXPECT_EQ(m.get_translation(), t);
 }
 
 // ----------------------------------------------------------------------------
