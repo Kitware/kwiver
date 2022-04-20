@@ -48,9 +48,100 @@ read_camera_rig( path_list_t const & cam_files )
 camera_rig_stereo_sptr
 read_stereo_rig( path_t const& FN )
 {
-  camera_rig_stereo_sptr res;
-  // TODO read from FN
-  return res;
+  std::ifstream is(FN);
+  cereal::JSONInputArchive ar(is);
+  camera_collection cams;
+
+// left
+  std::string name = "left";
+  double fx=1, fy=1;
+  ar( cereal::make_nvp( "fx_" + name,  fx) );
+  ar( cereal::make_nvp( "fy_" + name,  fy) );
+  double focal_length = .5*(fx+fy);
+
+  double cx=0, cy=0;
+  ar ( cereal::make_nvp( "cx_" + name,  cx) );
+  ar ( cereal::make_nvp( "cy_" + name,  cy) );
+  vector_2d principal_point(cx, cy);
+  unsigned dx = 2*cx, dy = 2*cy;
+
+  auto const aspect_ratio=1.0, skew=0.0;
+
+  vector_4d dist;
+  ar( cereal::make_nvp( "k1_" + name,  dist[0] ) );
+  ar( cereal::make_nvp( "k2_" + name,  dist[1] ) );
+  ar( cereal::make_nvp( "p1_" + name,  dist[2] ) );
+  ar( cereal::make_nvp( "p2_" + name,  dist[3] ) );
+
+  auto intrinsics = std::make_shared<simple_camera_intrinsics>(
+    focal_length,
+    principal_point,
+    aspect_ratio,
+    skew,
+    dist,
+    dx, dy
+  );
+  vector_3d center;
+  rotation_d rotation;
+  cams[name] = std::make_shared<simple_camera_perspective>(
+      center, rotation, intrinsics
+  );
+
+// right
+  name = "right";
+
+  ar( cereal::make_nvp( "fx_" + name,  fx) );
+  ar( cereal::make_nvp( "fy_" + name,  fy) );
+  focal_length = .5*(fx+fy);
+
+  ar ( cereal::make_nvp( "cx_" + name,  cx) );
+  ar ( cereal::make_nvp( "cy_" + name,  cy) );
+  dx = 2*cx, dy = 2*cy;
+
+  principal_point = vector_2d(cx, cy);
+  ar( cereal::make_nvp( "k1_" + name,  dist[0] ) );
+  ar( cereal::make_nvp( "k2_" + name,  dist[1] ) );
+  ar( cereal::make_nvp( "p1_" + name,  dist[2] ) );
+  ar( cereal::make_nvp( "p2_" + name,  dist[3] ) );
+
+  intrinsics = std::make_shared<simple_camera_intrinsics>(
+    focal_length,
+    principal_point,
+    aspect_ratio,
+    skew,
+    dist,
+    dx, dy
+  );
+
+  std::vector<double> T, R;
+  ar( CEREAL_NVP(T) );
+  int const n=3;
+  vector_3d tv;
+  for (int i=0; i<n; ++i)
+  {
+    tv[i]=T[i];
+  }
+
+  ar( CEREAL_NVP(R) );
+  Eigen::Matrix<double,3,3> rm;
+  unsigned k=0;
+  for (int i=0; i<n; ++i)
+  {
+    for (int j=0; j<n; ++j)
+    {
+      rm(i,j) = R[k++];
+    }
+  }
+  rotation = rotation_d(rm);
+  auto camp = std::make_shared<simple_camera_perspective>(
+      center, rotation, intrinsics
+  );
+  camp->set_translation(tv);
+  cams[name] = camp;
+
+  return std::make_shared<camera_rig_stereo>(
+      cams["left"], cams["right"]
+  );
 }
 
 void
