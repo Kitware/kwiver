@@ -21,6 +21,8 @@ set(ffmpeg_headers_public
   ffmpeg_init.h
   ffmpeg_video_input.h
   ffmpeg_video_output.h
+  ffmpeg_video_raw_image.cxx
+  ffmpeg_video_raw_metadata.cxx
   ffmpeg_video_settings.h
   )
 
@@ -38,6 +40,8 @@ set(ffmpeg_sources
   ffmpeg_init.cxx
   ffmpeg_video_input.cxx
   ffmpeg_video_output.cxx
+  ffmpeg_video_raw_image.cxx
+  ffmpeg_video_raw_metadata.cxx
   ffmpeg_video_settings.cxx
   )
 

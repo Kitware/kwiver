@@ -7,6 +7,7 @@
 
 #include <arrows/ffmpeg/ffmpeg_video_input.h>
 #include <arrows/ffmpeg/ffmpeg_video_output.h>
+#include <arrows/klv/klv_metadata.h>
 
 #include <vital/plugin_loader/plugin_manager.h>
 #include <vital/range/iota.h>
@@ -14,6 +15,7 @@
 #include <random>
 
 namespace ffmpeg = kwiver::arrows::ffmpeg;
+namespace klv = kwiver::arrows::klv;
 namespace kv = kwiver::vital;
 namespace kvr = kwiver::vital::range;
 
@@ -136,7 +138,34 @@ expect_eq_images( kv::image const& src_image,
   }
   error /= src_image.width() * src_image.height() * src_image.depth();
 
-  EXPECT_LT( error, epsilon );
+  EXPECT_LE( error, epsilon );
+}
+
+// ----------------------------------------------------------------------------
+void
+expect_eq_videos( std::string const& src_path, std::string const& tmp_path,
+                  double image_epsilon )
+{
+  ffmpeg::ffmpeg_video_input src_is;
+  ffmpeg::ffmpeg_video_input tmp_is;
+  kv::timestamp src_ts;
+  kv::timestamp tmp_ts;
+  src_is.open( src_path );
+  tmp_is.open( tmp_path );
+
+  // Check each pair of frames for equality
+  for( src_is.next_frame( src_ts ), tmp_is.next_frame( tmp_ts );
+       !src_is.end_of_video() && !tmp_is.end_of_video();
+       src_is.next_frame( src_ts ), tmp_is.next_frame( tmp_ts ) )
+  {
+    auto const src_image = src_is.frame_image()->get_image();
+    auto const tmp_image = tmp_is.frame_image()->get_image();
+    expect_eq_images( src_image, tmp_image, image_epsilon );
+  }
+  EXPECT_TRUE( src_is.end_of_video() );
+  EXPECT_TRUE( tmp_is.end_of_video() );
+  src_is.close();
+  tmp_is.close();
 }
 
 namespace {
@@ -169,7 +198,6 @@ TEST_F ( ffmpeg_video_output, round_trip )
 
   ffmpeg::ffmpeg_video_output os;
   os.open( tmp_path, is.implementation_settings().get() );
-
   _tmp_file_deleter tmp_file_deleter{ tmp_path };
 
   // Write to a temporary file
@@ -181,30 +209,63 @@ TEST_F ( ffmpeg_video_output, round_trip )
   os.close();
   is.close();
 
-  // Read the temporary file back in
-  ffmpeg::ffmpeg_video_input src_is;
-  ffmpeg::ffmpeg_video_input tmp_is;
-  kv::timestamp src_ts;
-  kv::timestamp tmp_ts;
-  src_is.open( src_path );
-  tmp_is.open( tmp_path );
+  // Determined experimentally. 6.5 / 256 is non-negligable compression, but
+  // you can still see what the image is supposed to be
+  auto const image_epsilon = 6.5;
 
-  // Check each pair of frames for equality
-  for( src_is.next_frame( src_ts ), tmp_is.next_frame( tmp_ts );
-       !src_is.end_of_video() && !tmp_is.end_of_video();
-       src_is.next_frame( src_ts ), tmp_is.next_frame( tmp_ts ) )
+  // Read the temporary file back in
+  expect_eq_videos( src_path, tmp_path, image_epsilon );
+}
+
+TEST_F ( ffmpeg_video_output, round_trip_direct )
+{
+  auto const src_path = data_dir + "/" + short_video_name;
+  auto const tmp_path =
+    kwiver::testing::temp_file_name( "test-ffmpeg-output-", ".ts" );
+
+  kv::timestamp ts;
+  ffmpeg::ffmpeg_video_input is;
+  is.open( src_path );
+
+  ffmpeg::ffmpeg_video_output os;
+  os.open( tmp_path, is.implementation_settings().get() );
+  _tmp_file_deleter tmp_file_deleter{ tmp_path };
+
+  // Skip this test if we can't write the output video in the same format as
+  // the input video
   {
-    // Determined experimentally. 6.5 / 256 is non-negligable compression, but
-    // you can still see what the image is supposed to be
-    auto const image_epsilon = 6.5;
-    auto const src_image = src_is.frame_image()->get_image();
-    auto const tmp_image = tmp_is.frame_image()->get_image();
-    expect_eq_images( src_image, tmp_image, image_epsilon );
+    auto const src_generic_settings = is.implementation_settings();
+    auto const src_settings =
+      dynamic_cast< ffmpeg::ffmpeg_video_settings const* >(
+        src_generic_settings.get() );
+    auto const tmp_generic_settings = os.implementation_settings();
+    auto const tmp_settings =
+      dynamic_cast< ffmpeg::ffmpeg_video_settings const* >(
+        tmp_generic_settings.get() );
+    if( !src_settings || !tmp_settings ||
+        !src_settings->parameters || !tmp_settings->parameters ||
+        src_settings->parameters->codec_id !=
+        tmp_settings->parameters->codec_id )
+    {
+      return;
+    }
   }
-  EXPECT_TRUE( src_is.end_of_video() );
-  EXPECT_TRUE( tmp_is.end_of_video() );
-  src_is.close();
-  tmp_is.close();
+
+  // Write to a temporary file
+  for( is.next_frame( ts ); !is.end_of_video(); is.next_frame( ts ) )
+  {
+    auto const image = is.raw_frame_image();
+    ASSERT_TRUE( image );
+    os.add_image( *image );
+  }
+  os.close();
+  is.close();
+
+  // Images should be identical
+  auto const image_epsilon = 0.0;
+
+  // Read the temporary file back in
+  expect_eq_videos( src_path, tmp_path, image_epsilon );
 }
 
 // ----------------------------------------------------------------------------
