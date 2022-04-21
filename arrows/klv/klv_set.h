@@ -68,6 +68,9 @@ public:
   const_iterator
   cend() const;
 
+  bool
+  empty() const;
+
   size_t
   size() const;
 
@@ -122,110 +125,31 @@ public:
   std::vector< const_iterator >
   fully_sorted() const;
 
-  template < class K >
-  friend bool
-  operator==( klv_set< K > const& lhs, klv_set< K > const& rhs );
-
-  template < class K >
-  friend bool
-  operator<( klv_set< K > const& lhs, klv_set< K > const& rhs );
-
-  template < class K >
-  friend std::ostream&
-  operator<<( std::ostream& os, klv_set< K > const& rhs );
-
-private:
   // Sort by key, then value.
   static bool
   value_compare( const_iterator lhs, const_iterator rhs );
 
+private:
   std::multimap< Key, klv_value > m_items;
 };
 
-namespace klv_detail {
+// ----------------------------------------------------------------------------
+template < class Key >
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator==( klv_set< Key > const& lhs, klv_set< Key > const& rhs );
 
 // ----------------------------------------------------------------------------
-// Helper class for klv_set_format allowing compile-time lookup of functions
-// pertaining to a KLV key type.
-template < class Key > class KWIVER_ALGO_KLV_EXPORT key_traits;
+template < class Key >
+KWIVER_ALGO_KLV_EXPORT
+bool
+operator<( klv_set< Key > const& lhs, klv_set< Key > const& rhs );
 
 // ----------------------------------------------------------------------------
-template <>
-class KWIVER_ALGO_KLV_EXPORT key_traits< klv_lds_key >
-{
-public:
-  static klv_lds_key
-  read_key( klv_read_iter_t& data, size_t max_length )
-  {
-    return klv_read_lds_key( data, max_length );
-  }
-
-  static void
-  write_key( klv_lds_key const& key,
-             klv_write_iter_t& data, size_t max_length )
-  {
-    klv_write_lds_key( key, data, max_length );
-  }
-
-  static size_t
-  length_of_key( klv_lds_key const& key )
-  {
-    return klv_lds_key_length( key );
-  }
-
-  static klv_tag_traits const&
-  tag_traits_from_key( klv_tag_traits_lookup const& lookup,
-                       klv_lds_key const& key )
-  {
-    return lookup.by_tag( key );
-  }
-
-  static klv_lds_key
-  key_from_tag_traits( klv_tag_traits const& trait )
-  {
-    return trait.tag();
-  }
-};
-
-// ----------------------------------------------------------------------------
-template <>
-class KWIVER_ALGO_KLV_EXPORT key_traits< klv_uds_key >
-{
-public:
-  static klv_uds_key
-  read_key( klv_read_iter_t& data, size_t max_length )
-  {
-    return klv_read_uds_key( data, max_length );
-  }
-
-  static void
-  write_key( klv_uds_key const& key,
-             klv_write_iter_t& data, size_t max_length )
-  {
-    klv_write_uds_key( key, data, max_length );
-  }
-
-  static size_t
-  length_of_key( klv_uds_key const& key )
-  {
-    return klv_uds_key_length( key );
-  }
-
-  static klv_tag_traits const&
-  tag_traits_from_key( klv_tag_traits_lookup const& lookup,
-                       klv_uds_key const& key )
-  {
-    return lookup.by_uds_key( key );
-  }
-
-  static klv_uds_key
-  key_from_tag_traits( klv_tag_traits const& trait )
-  {
-    return trait.uds_key();
-  }
-};
-
-} // namespace klv_detail
+template < class Key >
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_set< Key > const& rhs );
 
 // ----------------------------------------------------------------------------
 /// Interprets data as a local or universal set.
@@ -235,132 +159,31 @@ class KWIVER_ALGO_KLV_EXPORT klv_set_format
 {
 public:
   explicit
-  klv_set_format( klv_tag_traits_lookup const& traits )
-    : klv_data_format_< klv_set< Key > >{ 0 }, m_traits( traits ) {}
+  klv_set_format( klv_tag_traits_lookup const& traits );
 
   virtual
-  ~klv_set_format() = default;
+  ~klv_set_format();
 
 protected:
-  using key_traits = klv_detail::key_traits< Key >;
-
   klv_set< Key >
-  read_typed( klv_read_iter_t& data, size_t length ) const override
-  {
-    // These help us keep track of how many bytes we have read
-    auto const begin = data;
-    auto const remaining_length =
-      [ & ]() -> size_t {
-        return length - std::distance( begin, data );
-      };
-
-    klv_set< Key > result;
-    while( remaining_length() )
-    {
-      // Key
-      auto const key = key_traits::read_key( data, remaining_length() );
-
-      // Length
-      auto const length_of_value =
-        klv_read_ber< size_t >( data, remaining_length() );
-
-      // Value
-      auto const& traits = key_traits::tag_traits_from_key( m_traits, key );
-      auto value = traits.format().read( data, length_of_value );
-
-      result.add( key, std::move( value ) );
-    }
-    check_tag_counts( result );
-
-    return result;
-  }
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
 
   void
   write_typed( klv_set< Key > const& klv,
-               klv_write_iter_t& data, size_t length ) const override
-  {
-    // These help us keep track of how many bytes we have written
-    auto const begin = data;
-    auto const remaining_length =
-      [ & ]() -> size_t {
-        return length - std::distance( begin, data );
-      };
-
-    check_tag_counts( klv );
-    for( auto const& entry : klv )
-    {
-      auto const& key = entry.first;
-      auto const& value = entry.second;
-      auto const& traits = key_traits::tag_traits_from_key( m_traits, key );
-
-      // Key
-      key_traits::write_key( key, data, remaining_length() );
-
-      // Length
-      auto const length_of_value = traits.format().length_of( value );
-      klv_write_ber( length_of_value, data, remaining_length() );
-
-      // Value
-      traits.format().write( value, data, remaining_length() );
-    }
-  }
+               klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_set< Key > const& value,
-                   VITAL_UNUSED size_t length_hint ) const override
-  {
-    constexpr size_t initializer = 0;
-    auto accumulator =
-      [ this ]( size_t total,
-                typename klv_set< Key >::value_type const& entry ){
-        auto const& key = entry.first;
-        auto const& traits = key_traits::tag_traits_from_key( m_traits, key );
-
-        auto const length_of_key = key_traits::length_of_key( key );
-        auto const length_of_value = traits.format().length_of( entry.second );
-        auto const length_of_length = klv_ber_length( length_of_value );
-        return total +
-               length_of_key + length_of_length + length_of_value;
-      };
-    return std::accumulate( value.cbegin(), value.cend(),
-                            initializer, accumulator );
-  }
+  length_of_typed( klv_set< Key > const& value ) const override;
 
   std::ostream&
-  print_typed( std::ostream& os, klv_set< Key > const& value,
-               VITAL_UNUSED size_t length_hint ) const override
-  {
-    auto const values = value.fully_sorted();
-    os << "{ ";
-
-    bool first = true;
-    for( auto const pair : values )
-    {
-      auto const& trait =
-        key_traits::tag_traits_from_key( m_traits, pair->first );
-      first = first ? false : ( os << ", ", false );
-      os << trait.name() << ": ";
-      trait.format().print( os, pair->second );
-    }
-    os << " }";
-    return os;
-  }
+  print_typed( std::ostream& os, klv_set< Key > const& value ) const;
 
   // Print warnings if tags appear too few or too many times in the given set.
   void
-  check_tag_counts( klv_set< Key > const& klv ) const
-  {
-    for( auto const& trait : m_traits )
-    {
-      auto const count = klv.count( key_traits::key_from_tag_traits( trait ) );
-      auto const range = trait.tag_count_range();
-      if( !range.is_count_allowed( count ) )
-      {
-        LOG_WARN( kwiver::vital::get_logger( "klv" ),
-                  range.error_message( count ) );
-      }
-    }
-  }
+  check_tag_counts( klv_set< Key > const& klv ) const;
+
+  virtual void
+  check_set( klv_set< Key > const& klv ) const;
 
   klv_tag_traits_lookup const& m_traits;
 };

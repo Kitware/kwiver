@@ -29,7 +29,7 @@ serialize( const vital::any& element )
   {
     cereal::JSONOutputArchive ar( msg );
     save( ar, data );
-  }  
+  }
 
   return std::make_shared< std::string > ( msg.str() );
 }

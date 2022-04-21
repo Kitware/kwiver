@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of \link arrows::vxl::close_loops_homography_guided
- *        close_loops \endlink
- */
+/// \file
+/// \brief Implementation of \link arrows::vxl::close_loops_homography_guided
+///        close_loops \endlink
 
 #include "close_loops_homography_guided.h"
 

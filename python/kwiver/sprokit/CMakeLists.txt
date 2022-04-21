@@ -14,6 +14,6 @@ if(NOT WIN32)
   add_subdirectory(util)
 endif()
 
-if(KWIVER_ENABLE_TESTS AND NOT SKBUILD)
+if(KWIVER_ENABLE_PYTHON_TESTS AND NOT SKBUILD)
   add_subdirectory(tests)
 endif()

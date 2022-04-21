@@ -263,7 +263,7 @@ video_input_filter
   }
   if (d->c_stop_after_frame > 0 )
   {
-    return std::min(
+    return (size_t) std::min(
       static_cast<vital::timestamp::frame_t>(d->d_video_input->num_frames()),
       d->c_stop_after_frame) - (d->c_start_at_frame - 1);
   }

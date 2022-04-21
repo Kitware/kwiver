@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV FAST feature detector wrapper implementation
- */
+/// \file
+/// \brief OCV FAST feature detector wrapper implementation
 
 #include "detect_features_FAST.h"
 

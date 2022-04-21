@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
- /**
- * \file
- * \brief Header file for tv_refine_search, minimizes a cost volume using total variation and
- *        exhaustive searching.
- */
+ /// \file
+ /// \brief Header file for tv_refine_search, minimizes a cost volume using total variation and
+ ///       exhaustive searching.
 
 #ifndef KWIVER_ARROWS_SUPER3D_TV_REFINE_SEARCH_H_
 #define KWIVER_ARROWS_SUPER3D_TV_REFINE_SEARCH_H_

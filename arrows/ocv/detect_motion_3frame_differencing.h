@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV motion detection 3-frame difference algorithm impl interface
- */
+/// \file
+/// \brief OCV motion detection 3-frame difference algorithm impl interface
 
 #ifndef KWIVER_ARROWS_OCV_THREE_FRAME_DIFFERENCING_H_
 #define KWIVER_ARROWS_OCV_THREE_FRAME_DIFFERENCING_H_
@@ -45,23 +43,22 @@ public:
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
   /// Detect motion from a sequence of images
-  /**
-   * This method detects motion of foreground objects within a
-   * sequence of images in which the background remains stationary.
-   * Sequential images are passed one at a time. Motion estimates
-   * are returned for each image as a heat map with higher values
-   * indicating greater confidence.
-   *
-   * \param ts Timestamp for the input image
-   * \param image Image from a sequence
-   * \param reset_model Indicates that the model should be reset, for example,
-   * due to changes in lighting condition or
-   * camera pose
-   *
-   * \returns A heat map image is returned indicating the confidence
-   * that motion occurred at each pixel. Heat map image is single channel
-   * and has the same width and height dimensions as the input image.
-   */
+  ///
+  /// This method detects motion of foreground objects within a
+  /// sequence of images in which the background remains stationary.
+  /// Sequential images are passed one at a time. Motion estimates
+  /// are returned for each image as a heat map with higher values
+  /// indicating greater confidence.
+  ///
+  /// \param ts Timestamp for the input image
+  /// \param image Image from a sequence
+  /// \param reset_model Indicates that the model should be reset, for example,
+  /// due to changes in lighting condition or
+  /// camera pose
+  ///
+  /// \returns A heat map image is returned indicating the confidence
+  /// that motion occurred at each pixel. Heat map image is single channel
+  /// and has the same width and height dimensions as the input image.
   virtual kwiver::vital::image_container_sptr
     process_image( const kwiver::vital::timestamp& ts,
                    const kwiver::vital::image_container_sptr image,

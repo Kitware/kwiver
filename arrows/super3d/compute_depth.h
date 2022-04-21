@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
-* \file
-* \brief Header file for compute depth
-*/
+/// \file
+/// \brief Header file for compute depth
 
 #ifndef KWIVER_ARROWS_SUPER3D_COMPUTE_DEPTH_H_
 #define KWIVER_ARROWS_SUPER3D_COMPUTE_DEPTH_H_
@@ -39,20 +37,19 @@ public:
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
   /// Compute a depth map from an image sequence and return uncertainty by ref
-  /**
-  * Implementations of this function should not modify the underlying objects
-  * contained in the input structures. Output references should either be new
-  * instances or the same as input.
-  *
-  * \param [in] frames image sequence to compute depth with
-  * \param [in] cameras corresponding to the image sequence
-  * \param [in] depth_min minimum depth expected
-  * \param [in] depth_max maximum depth expected
-  * \param [in] reference_frame index into image sequence denoting the frame that depth is computed on
-  * \param [in] roi region of interest within reference image (can be entire image)
-  * \param [out] depth_uncertainty reference which will contain depth uncertainty
-  * \param [in] masks optional masks corresponding to the image sequence
-  */
+  ///
+  /// Implementations of this function should not modify the underlying objects
+  /// contained in the input structures. Output references should either be new
+  /// instances or the same as input.
+  ///
+  /// \param [in] frames image sequence to compute depth with
+  /// \param [in] cameras corresponding to the image sequence
+  /// \param [in] depth_min minimum depth expected
+  /// \param [in] depth_max maximum depth expected
+  /// \param [in] reference_frame index into image sequence denoting the frame that depth is computed on
+  /// \param [in] roi region of interest within reference image (can be entire image)
+  /// \param [out] depth_uncertainty reference which will contain depth uncertainty
+  /// \param [in] masks optional masks corresponding to the image sequence
   virtual kwiver::vital::image_container_sptr
   compute(std::vector<kwiver::vital::image_container_sptr> const& frames,
           std::vector<kwiver::vital::camera_perspective_sptr> const& cameras,

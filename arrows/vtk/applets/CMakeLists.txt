@@ -4,17 +4,20 @@
 
 set( sources
   register_applets.cxx
-
-  color_mesh.cxx
   estimate_depth.cxx
   fuse_depth.cxx
   )
 
 set( headers
-  color_mesh.h
   estimate_depth.h
   fuse_depth.h
   )
+
+if (VTK_VERSION VERSION_GREATER_EQUAL 9.1)
+  list(APPEND sources color_mesh.cxx)
+  list(APPEND headers color_mesh.h)
+endif()
+
 
 if(NOT KWIVER_ENABLE_MVG)
   message(FATAL_ERROR "-- The MVG arrow must be enabled (KWIVER_ENABLE_MVG)")

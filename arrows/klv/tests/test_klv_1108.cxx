@@ -28,6 +28,7 @@ test_read_write( klv_value const& expected_result,
   test_read_write_format< format_t >( expected_result, input_bytes );
 }
 
+using kld = klv_lengthy< double >;
 auto const expected_metric_set = klv_local_set{
   { KLV_1108_METRIC_SET_NAME,       std::string{ "VNIIRS" } },
   { KLV_1108_METRIC_SET_VERSION,    std::string{ "3.0" } },
@@ -35,7 +36,7 @@ auto const expected_metric_set = klv_local_set{
     klv_1108_metric_implementer{ "KW", "CV" } },
   { KLV_1108_METRIC_SET_PARAMETERS, std::string{ "A0+A1" } },
   { KLV_1108_METRIC_SET_TIME,       uint64_t{ 1630000000000000 } },
-  { KLV_1108_METRIC_SET_VALUE,      7.12345678901234 } };
+  { KLV_1108_METRIC_SET_VALUE,      kld{ 7.12345678901234 } } };
 
 auto const expected_result = klv_local_set{
   { KLV_1108_ASSESSMENT_POINT,    KLV_1108_ASSESSMENT_POINT_ARCHIVE },
@@ -47,7 +48,7 @@ auto const expected_result = klv_local_set{
   { KLV_1108_COMPRESSION_TYPE,    KLV_1108_COMPRESSION_TYPE_H264 },
   { KLV_1108_COMPRESSION_PROFILE, KLV_1108_COMPRESSION_PROFILE_HIGH },
   { KLV_1108_COMPRESSION_LEVEL,   std::string{ "5.2" } },
-  { KLV_1108_COMPRESSION_RATIO,   klv_value{ 25.200000762939453, 4 } },
+  { KLV_1108_COMPRESSION_RATIO,   kld{ 25.200000762939453 } },
   { KLV_1108_STREAM_BITRATE,      uint64_t{ 1024 } },
   { KLV_1108_DOCUMENT_VERSION,    uint64_t{ 3 } } };
 

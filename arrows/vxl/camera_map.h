@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header file for a map from frame IDs to vpgl cameras
- */
+/// \file
+/// \brief Header file for a map from frame IDs to vpgl cameras
 
 #ifndef KWIVER_ARROWS_VXL_CAMERA_MAP_H_
 #define KWIVER_ARROWS_VXL_CAMERA_MAP_H_

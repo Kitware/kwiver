@@ -70,6 +70,9 @@ add_command_options()
       cxxopts::value< std::string >(), "path" )
     ( "d,detail", "Display a detailed description of the metadata" )
     ( "q,quiet", "Do not show metadata. Overrides -d/--detail." )
+    ( "e,exporter", "Choose the format of the exported KLV data. "
+      "Current options are: csv, json.",
+      cxxopts::value< std::string >(), "format" )
 
     // positional parameters
     ( "video-file", "Video input file", cxxopts::value< std::string >() )
@@ -125,7 +128,8 @@ dump_klv
 
   // Output file extension configures exporter
   if ( cmd_args.count( "log" ) &&
-       !cmd_args.count( "metadata_serializer:type" ) )
+       !cmd_args.count( "metadata_serializer:type" ) &&
+       !cmd_args.count( "exporter" ) )
   {
     const std::string filename = cmd_args[ "log" ].as< std::string >();
     auto const extension_pos = filename.rfind( '.' );
@@ -143,6 +147,12 @@ dump_klv
         ( it != extension_map.end() ) ? it->second : std::string{ "csv" };
       config->set_value( "metadata_serializer:type", serializer_type );
     }
+  }
+
+  if( cmd_args.count( "exporter" ) )
+  {
+    auto const serializer_type = cmd_args[ "exporter" ].as< std::string >();
+    config->set_value( "metadata_serializer:type", serializer_type );
   }
 
   kva::video_input::set_nested_algo_configuration(

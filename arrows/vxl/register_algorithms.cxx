@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Register VXL algorithms implementation
- */
+/// \file
+/// \brief Register VXL algorithms implementation
 
 #include <arrows/vxl/kwiver_algo_vxl_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>

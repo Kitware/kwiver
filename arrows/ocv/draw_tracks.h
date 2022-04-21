@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for OCV draw_tracks algorithm
- */
+/// \file
+/// \brief Header for OCV draw_tracks algorithm
 
 #ifndef KWIVER_ARROWS_OCV_DRAW_TRACKS_H_
 #define KWIVER_ARROWS_OCV_DRAW_TRACKS_H_
@@ -40,19 +38,18 @@ public:
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
   /// Draw features tracks on top of the input images.
-  /**
-   * This process can either be called in an offline fashion, where all
-   * tracks and images are provided to the function on the first call,
-   * or in an online fashion where only new images are provided on
-   * sequential calls. This function can additionally consumes a second
-   * track set for which can optionally be used to display additional
-   * information to provide a comparison between the two track sets.
-   *
-   * \param [in] display_set the main track set to draw
-   * \param [in] image_data a list of images the tracks were computed over
-   * \param [in] comparison_set optional comparison track set
-   * \returns a pointer to the last image generated
-   */
+  ///
+  /// This process can either be called in an offline fashion, where all
+  /// tracks and images are provided to the function on the first call,
+  /// or in an online fashion where only new images are provided on
+  /// sequential calls. This function can additionally consumes a second
+  /// track set for which can optionally be used to display additional
+  /// information to provide a comparison between the two track sets.
+  ///
+  /// \param [in] display_set the main track set to draw
+  /// \param [in] image_data a list of images the tracks were computed over
+  /// \param [in] comparison_set optional comparison track set
+  /// \returns a pointer to the last image generated
   virtual vital::image_container_sptr
   draw(vital::track_set_sptr display_set,
        vital::image_container_sptr_list image_data,

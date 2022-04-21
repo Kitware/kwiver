@@ -434,28 +434,6 @@ static bool CheckStringOperations()
     res = false;
     }
 
-  char * cres =
-    kwsys::SystemTools::AppendStrings("Mary Had A"," Little Lamb.");
-  if (strcmp(cres,"Mary Had A Little Lamb."))
-    {
-    std::cerr
-      << "Problem with AppendStrings "
-      << "\"Mary Had A\" \" Little Lamb.\"" << std::endl;
-    res = false;
-    }
-  delete [] cres;
-
-  cres =
-    kwsys::SystemTools::AppendStrings("Mary Had"," A ","Little Lamb.");
-  if (strcmp(cres,"Mary Had A Little Lamb."))
-    {
-    std::cerr
-      << "Problem with AppendStrings "
-      << "\"Mary Had\" \" A \" \"Little Lamb.\"" << std::endl;
-    res = false;
-    }
-  delete [] cres;
-
   if (kwsys::SystemTools::CountChar("Mary Had A Little Lamb.",'a') != 3)
     {
     std::cerr
@@ -515,16 +493,6 @@ static bool CheckStringOperations()
       << "\"Mary Had A Little Lamb.\"" << std::endl;
     res = false;
     }
-
-  cres = kwsys::SystemTools::DuplicateString("Mary Had A Little Lamb.");
-  if (strcmp(cres,"Mary Had A Little Lamb."))
-    {
-    std::cerr
-      << "Problem with DuplicateString "
-      << "\"Mary Had A Little Lamb.\"" << std::endl;
-    res = false;
-    }
-  delete [] cres;
 
   test = "Mary Had A Little Lamb.";
   if (kwsys::SystemTools::CropString(test,13) !=

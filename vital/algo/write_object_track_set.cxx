@@ -36,6 +36,13 @@ write_object_track_set
 write_object_track_set
 ::~write_object_track_set()
 {
+  // If the stream is ours, delete it on destruction.
+  // Otherwise we presume the real owner will correctly free the stream.
+  if( m_stream_owned )
+  {
+    delete m_stream;
+    m_stream = nullptr;
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -61,6 +68,12 @@ void
 write_object_track_set
 ::use_stream( std::ostream* strm )
 {
+  // If we already have a non-null stream assigned and we own it, free that
+  // stream first.
+  if( m_stream != nullptr && m_stream_owned )
+  {
+    delete m_stream;
+  }
   m_stream = strm;
   m_stream_owned = false;
 }

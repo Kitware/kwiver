@@ -28,7 +28,6 @@ klv_0102_traits_lookup()
   // https://gwg.nga.mil/misb/docs/standards/ST0102.12.pdf
   // Descriptions are edited for clarity, brevity, consistency, etc.
   static klv_tag_traits_lookup const lookup = {
-#define ENUM_AND_NAME( X ) X, #X
     { {},
       ENUM_AND_NAME( KLV_0102_UNKNOWN ),
       std::make_shared< klv_blob_format >(),
@@ -133,6 +132,50 @@ klv_0102_traits_lookup()
       "Security related comments and future format changes.",
       { 0, 1 } },
     { {},
+      ENUM_AND_NAME( KLV_0102_UMID_VIDEO ),
+      std::make_shared< klv_blob_format >( 32 ),
+      "UMID Video",
+      "Deprecated. SMPTE RP210 32-byte identifier for the video stream.",
+      0 },
+    { {},
+      ENUM_AND_NAME( KLV_0102_UMID_AUDIO ),
+      std::make_shared< klv_blob_format >( 32 ),
+      "UMID Audio",
+      "Deprecated. SMPTE RP210 32-byte identifier for the audio stream.",
+      0 },
+    { {},
+      ENUM_AND_NAME( KLV_0102_UMID_DATA ),
+      std::make_shared< klv_blob_format >( 32 ),
+      "UMID Data",
+      "Deprecated. SMPTE RP210 32-byte identifier for the data stream.",
+      0 },
+    { {},
+      ENUM_AND_NAME( KLV_0102_UMID_SYSTEM ),
+      std::make_shared< klv_blob_format >( 32 ),
+      "UMID System",
+      "Deprecated. SMPTE RP210 32-byte identifier for the MI system.",
+      0 },
+    { {},
+      ENUM_AND_NAME( KLV_0102_STREAM_ID ),
+      std::make_shared< klv_uint_format >( 1 ),
+      "Stream ID",
+      "Deprecated. Any valid value specifying the Elementary Stream.",
+      0 },
+    { {},
+      ENUM_AND_NAME( KLV_0102_TRANSPORT_STREAM_ID ),
+      std::make_shared< klv_uint_format >( 2 ),
+      "Transport Stream ID",
+      "Deprecated. Value defined by the originator uniquely identifying a "
+      "Transport Stream in a network environment.",
+      0 },
+    { {},
+      ENUM_AND_NAME( KLV_0102_ITEM_DESIGNATOR_ID ),
+      std::make_shared< klv_blob_format >( 16 ),
+      "Item Designator ID",
+      "Deprecated. 16-byte Universal Label Key for the element, set, or pack "
+      "to which this set is linked.",
+      0 },
+    { {},
       ENUM_AND_NAME( KLV_0102_VERSION ),
       std::make_shared< klv_uint_format >( 2 ),
       "Version",
@@ -153,9 +196,7 @@ klv_0102_traits_lookup()
       "Country Coding Method for 'Object Country Codes' Version Date",
       "Effective date of the source standard defining the country coding "
       "method used for the 'Object Country Codes' field.",
-      { 0, 1 } },
-#undef ENUM_AND_NAME
-  };
+      { 0, 1 } } };
 
   return lookup;
 }
@@ -245,7 +286,7 @@ std::string
 klv_0102_local_set_format
 ::description() const
 {
-  return "ST 0102 local set of " + length_description();
+  return "security local set of " + length_description();
 }
 
 } // namespace klv

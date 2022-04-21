@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of OCV refine detections draw debugging algorithm
- */
+/// \file
+/// \brief Implementation of OCV refine detections draw debugging algorithm
 
 #include "refine_detections_write_to_disk.h"
 

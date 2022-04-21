@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV estimate_fundamental_matrix algorithm impl interface
- */
+/// \file
+/// \brief OCV estimate_fundamental_matrix algorithm impl interface
 
 #ifndef KWIVER_ARROWS_OCV_ESTIMATE_FUNDAMENTAL_MATRIX_H_
 #define KWIVER_ARROWS_OCV_ESTIMATE_FUNDAMENTAL_MATRIX_H_
@@ -42,15 +40,14 @@ public:
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
   /// Estimate a fundamental matrix from corresponding points
-  /**
-   * If estimation fails, a NULL-containing sptr is returned
-   *
-   * \param [in]  pts1 the vector or corresponding points from the source image
-   * \param [in]  pts2 the vector of corresponding points from the destination image
-   * \param [out] inliers for each point pair, the value is true if
-   *                      this pair is an inlier to the fundamental matrix estimate
-   * \param [in]  inlier_scale error distance tolerated for matches to be inliers
-   */
+  ///
+  /// If estimation fails, a NULL-containing sptr is returned
+  ///
+  /// \param [in]  pts1 the vector or corresponding points from the source image
+  /// \param [in]  pts2 the vector of corresponding points from the destination image
+  /// \param [out] inliers for each point pair, the value is true if
+  ///                      this pair is an inlier to the fundamental matrix estimate
+  /// \param [in]  inlier_scale error distance tolerated for matches to be inliers
   virtual vital::fundamental_matrix_sptr
   estimate(const std::vector<vital::vector_2d>& pts1,
            const std::vector<vital::vector_2d>& pts2,

@@ -11,9 +11,12 @@
 #include <vital/range/iota.h>
 
 #include "vtkCellData.h"
+#include "vtkCleanPolyData.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
+#include "vtkIntArray.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPointDataToCellData.h"
@@ -25,6 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkSequencePass.h"
 #include "vtkSmartPointer.h"
+#include "vtkRemovePolyData.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
 #include "vtkWindowToImageFilter.h"
@@ -78,13 +82,14 @@ mesh_coloration
 ::mesh_coloration()
 {
   input_ = nullptr;
-  output_ = nullptr;
-  sampling_ = 1;
+  output_ = vtkSmartPointer<vtkPolyData>::New();
+  frame_sampling_ = 1;
   frame_ = -1;
   all_frames_ = false;
   occlusion_threshold_ = 0.0;
-  remove_occluded_ = true;
-  remove_masked_ = true;
+  color_occluded_ = false;
+  color_masked_ = false;
+  remove_color_count_less_equal_ = -1;
   video_reader_ = nullptr;
   mask_reader_ = nullptr;
   cameras_ = nullptr;
@@ -166,14 +171,6 @@ mesh_coloration
 }
 
 // ----------------------------------------------------------------------------
-void
-mesh_coloration
-::set_output( vtkSmartPointer< vtkPolyData > mesh )
-{
-  output_ = mesh;
-}
-
-// ----------------------------------------------------------------------------
 vtkSmartPointer< vtkPolyData >
 mesh_coloration
 ::get_output()
@@ -188,7 +185,7 @@ mesh_coloration
 {
   if( sample > 0 )
   {
-    sampling_ = sample;
+    frame_sampling_ = sample;
   }
 }
 
@@ -215,19 +212,22 @@ mesh_coloration
     LOG_INFO( logger_, "Done: frame " << frame_ );
     return false;
   }
-  vtkDataArray* normals = input_->GetPointData()->GetNormals();
+  output_->ShallowCopy(input_);
+
+
+  vtkDataArray* normals = output_->GetPointData()->GetNormals();
 
   if( !normals )
   {
     LOG_INFO( logger_, "Generating normals ..." );
 
     vtkNew< vtkPolyDataNormals > compute_normals;
-    compute_normals->SetInputDataObject( input_ );
+    compute_normals->SetInputDataObject( output_ );
     compute_normals->Update();
-    input_ = compute_normals->GetOutput();
-    normals = input_->GetPointData()->GetNormals();
+    output_ = compute_normals->GetOutput();
+    normals = output_->GetPointData()->GetNormals();
   }
-  vtkPoints* meshPointList = input_->GetPoints();
+  vtkPoints* meshPointList = output_->GetPoints();
 
   if( meshPointList == 0 )
   {
@@ -260,7 +260,7 @@ mesh_coloration
 
   std::vector< DepthBuffer > depthBuffer( numFrames );
 
-  if( remove_occluded_ )
+  if( !color_occluded_ )
   {
     report_progress_changed( "Creating depth buffers", 0 );
 
@@ -340,13 +340,17 @@ mesh_coloration
     }
   }
   auto const progress_step = nbMeshPoint / 100;
-  for( auto const id : kvr::iota( nbMeshPoint ) )
+  vtkNew<vtkIdTypeArray> removedPoints;
+  removedPoints->SetNumberOfTuples(nbMeshPoint);
+  vtkIdType removedPointsIndex = 0;
+
+  for( auto const pointId : kvr::iota( nbMeshPoint ) )
   {
-    if( id % progress_step == 0 )
+    if( pointId % progress_step == 0 )
     {
       report_progress_changed(
         "Coloring Mesh Points",
-        static_cast< int >( ( 100 * id ) / nbMeshPoint ) );
+        static_cast< int >( ( 100 * pointId ) / nbMeshPoint ) );
     }
     if( !all_frames_ )
     {
@@ -357,15 +361,15 @@ mesh_coloration
 
     // Get mesh position from id
     kwiver::vital::vector_3d position;
-    meshPointList->GetPoint( id, position.data() );
+    meshPointList->GetPoint( pointId, position.data() );
 
     kwiver::vital::vector_3d pointNormal;
-    normals->GetTuple( id, pointNormal.data() );
-
-    for( auto const idData : kvr::iota( numFrames ) )
+    normals->GetTuple( pointId, pointNormal.data() );
+    int colorCount = 0;
+    for( auto const frameId : kvr::iota( numFrames ) )
     {
       kwiver::vital::camera_perspective_sptr camera =
-        data_list_[ idData ].camera_;
+        data_list_[ frameId ].camera_;
       // Check if the 3D point is in front of the camera
       double depth = camera->depth( position );
 
@@ -384,7 +388,7 @@ mesh_coloration
 
       // project 3D point to pixel coordinates
       auto pixelPosition = camera->project( position );
-      auto const& colorImage = data_list_[ idData ].image_;
+      auto const& colorImage = data_list_[ frameId ].image_;
       auto const width = colorImage.width();
       auto const height = colorImage.height();
 
@@ -397,7 +401,7 @@ mesh_coloration
       }
 
       bool has_mask = true;
-      auto const& maskImage = data_list_[ idData ].mask_image_;
+      auto const& maskImage = data_list_[ frameId ].mask_image_;
       auto const maskWidth = static_cast< double >( maskImage.width() );
       auto const maskHeight = static_cast< double >( maskImage.height() );
 
@@ -422,19 +426,18 @@ mesh_coloration
         }
 
         double depthBufferValue = 0;
-        if( remove_occluded_ )
+        if( !color_occluded_ )
         {
-          double* range = depthBuffer[ idData ].Range;
+          double* range = depthBuffer[ frameId ].Range;
           float depthBufferValueNorm =
-            depthBuffer[ idData ].Buffer->GetValue(
+            depthBuffer[ frameId ].Buffer->GetValue(
               static_cast< vtkIdType >( x + width * ( height - y - 1 ) ) );
           depthBufferValue =
             2 * range[1] * range[0] / (range[1] + range[0] - (2 * depthBufferValueNorm - 1) * (range[1] - range[0]));
-
         }
-        if( ( !remove_occluded_ ||
+        if( ( color_occluded_ ||
               depthBufferValue + occlusion_threshold_ > depth ) &&
-            ( !remove_masked_ || showPoint ) )
+            ( color_masked_ || showPoint ) )
         {
           if( !all_frames_ )
           {
@@ -445,14 +448,19 @@ mesh_coloration
           else
           {
             unsigned char rgba[] = { rgb.r, rgb.g, rgb.b, 255 };
-            perFrameColor[ idData ]->SetTypedTuple( id, rgba );
+            perFrameColor[ frameId ]->SetTypedTuple( pointId, rgba );
           }
+          ++colorCount;
         }
       }
       catch ( std::out_of_range const& )
       {
         continue;
       }
+    }
+    if (colorCount <= remove_color_count_less_equal_)
+    {
+      removedPoints->SetValue(removedPointsIndex++, pointId);
     }
 
     if( !all_frames_ )
@@ -465,14 +473,14 @@ mesh_coloration
         double const sum2 = std::accumulate( list2.begin(), list2.end(), 0 );
         double const nb_val = static_cast< double >( list0.size() );
         meanValues->SetTuple3(
-          id, sum0 / nb_val, sum1 / nb_val, sum2 / nb_val );
+          pointId, sum0 / nb_val, sum1 / nb_val, sum2 / nb_val );
 
         double median0, median1, median2;
         ComputeMedian< double >( list0, median0 );
         ComputeMedian< double >( list1, median1 );
         ComputeMedian< double >( list2, median2 );
-        medianValues->SetTuple3( id, median0, median1, median2 );
-        countValues->SetTuple1( id, nb_val );
+        medianValues->SetTuple3( pointId, median0, median1, median2 );
+        countValues->SetTuple1( pointId, nb_val );
       }
 
       list0.clear();
@@ -480,12 +488,28 @@ mesh_coloration
       list2.clear();
     }
   }
+  removedPoints->Resize(removedPointsIndex);
   if( !all_frames_ )
   {
     output_->GetPointData()->AddArray( meanValues );
     output_->GetPointData()->AddArray( medianValues );
     output_->GetPointData()->AddArray( countValues );
   }
+
+  if (remove_color_count_less_equal_ >= 0 && removedPoints->GetNumberOfTuples() > 1)
+  {
+    // remove points and cells not colored
+    vtkNew<vtkRemovePolyData> removeNotColored;
+    removeNotColored->SetInputData(output_);
+    removeNotColored->SetPointIds(removedPoints);
+
+    vtkNew<vtkCleanPolyData> cleanPoly;
+    cleanPoly->SetInputConnection(removeNotColored->GetOutputPort());
+    cleanPoly->PointMergingOff();
+    cleanPoly->Update();
+    output_ = vtkPolyData::SafeDownCast(cleanPoly->GetOutput());
+  }
+
   report_progress_changed( "Done", 100 );
   return true;
 }
@@ -560,12 +584,13 @@ mesh_coloration
 
     for( auto const& cam_itr : cam_map )
     {
-      if( ( counter++ ) % sampling_ != 0 )
+      if( ( counter++ ) % frame_sampling_ != 0 )
       {
         continue;
       }
       push_data( cam_itr, ts, has_mask );
     }
+    LOG_DEBUG( logger_, "Camera and image list size: " << data_list_.size() );
   }
   // Take the current image
   else
@@ -598,7 +623,7 @@ mesh_coloration
     ren_win->AddRenderer( ren );
 
     vtkNew< vtkPolyDataMapper > mapper;
-    mapper->SetInputDataObject( input_ );
+    mapper->SetInputDataObject( output_ );
 
     vtkNew< vtkActor > actor;
     actor->SetMapper( mapper );
@@ -617,7 +642,7 @@ mesh_coloration
 {
   ren_win->SetSize( width, height );
 
-  double* bounds = input_->GetBounds();
+  double* bounds = output_->GetBounds();
   double const bb[ 8 ][ 3 ] = {
     { bounds[ 0 ], bounds[ 2 ], bounds[ 4 ] },
     { bounds[ 1 ], bounds[ 2 ], bounds[ 4 ] },
