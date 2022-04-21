@@ -498,8 +498,8 @@ metadata_map_io_csv
       "options 'every_n_microseconds' and 'every_n_frames' are incompatible" );
   }
 
-  uint64_t next_timestamp = d_->every_n_microseconds;
-  uint64_t next_frame = 1;
+  int64_t next_timestamp = d_->every_n_microseconds;
+  int64_t next_frame = 1;
   for( auto const& frame_data : data->metadata() )
   {
     for( auto const& metadata_packet : frame_data.second )
@@ -544,7 +544,6 @@ metadata_map_io_csv
         else
         // Write empty fields
         {
-          auto const& trait = kv::tag_traits_by_tag( info.id.tag );
           fout << ',';
         }
       }

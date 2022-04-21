@@ -265,7 +265,7 @@ klv_write_ber( T value, Iterator& data, size_t max_length )
   }
   else
   {
-    *data = static_cast< uint8_t >( ( 0x7F & value_length - 1 ) | 0x80 );
+    *data = static_cast< uint8_t >( ( 0x7F & ( value_length - 1 ) ) | 0x80 );
     klv_write_int( value, ++data, value_length - 1 );
   }
 }

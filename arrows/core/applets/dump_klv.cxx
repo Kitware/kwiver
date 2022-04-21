@@ -272,7 +272,6 @@ dump_klv
           {
             // process metada items
             auto const& name = ix.second->name();
-            auto const& data = ix.second->data();
             auto const& tag = ix.second->tag();
             auto const& descrip = kv::tag_traits_by_tag( tag ).description();
 

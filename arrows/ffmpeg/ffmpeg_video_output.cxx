@@ -520,7 +520,7 @@ ffmpeg_video_output
 // ----------------------------------------------------------------------------
 void
 ffmpeg_video_output
-::add_metadata( kwiver::vital::metadata const& md )
+::add_metadata( VITAL_UNUSED kwiver::vital::metadata const& md )
 {
   // TODO
 }
