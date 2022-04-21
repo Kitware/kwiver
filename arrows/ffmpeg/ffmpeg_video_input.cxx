@@ -11,6 +11,7 @@
 
 #include <arrows/klv/klv_convert_vital.h>
 #include <arrows/klv/klv_demuxer.h>
+#include <arrows/klv/klv_metadata.h>
 #include <arrows/klv/misp_time.h>
 
 #include <vital/exceptions/io.h>
@@ -102,6 +103,7 @@ public:
 
   klv::klv_timeline m_klv_timeline;
   klv::klv_demuxer m_klv_demuxer;
+  std::vector< klv::klv_packet > m_klv_packets;
 
   /// Storage for the metadata map.
   vital::metadata_map::map_metadata_t metadata_map;
@@ -123,6 +125,7 @@ public:
   bool estimated_num_frames = false;
   bool sync_metadata = true;
   bool use_misp_timestamps = false;
+  bool smooth_klv_packets = false;
   bool is_draining = false;
   size_t max_seek_back_attempts = 10;
 
@@ -314,6 +317,7 @@ public:
     this->f_start_time = -1;
     this->m_prev_klv_timestamp = 0;
     this->m_klv_demuxer.reset();
+    this->m_klv_packets.clear();
     this->is_draining = false;
 
     if( this->f_video_stream )
@@ -609,6 +613,7 @@ public:
     do
     {
       m_prev_klv_timestamp = 0;
+      m_klv_packets.clear();
       m_klv_demuxer.reset();
 
       auto seek_rslt = av_seek_frame( this->f_format_context,
@@ -714,7 +719,7 @@ public:
   advance_metadata()
   {
     m_prev_klv_timestamp = m_klv_demuxer.frame_time();
-    std::vector< klv::klv_packet > packets;
+    m_klv_packets.clear();
     for( auto md : this->curr_metadata )
     {
       auto& md_buffer = md.second;
@@ -726,7 +731,7 @@ public:
         {
           auto const length =
             static_cast< size_t >( std::distance( it, md_buffer.cend() ) );
-          packets.emplace_back( klv::klv_read_packet( it, length ) );
+          m_klv_packets.emplace_back( klv::klv_read_packet( it, length ) );
         }
         catch( kwiver::vital::metadata_buffer_overflow const& e )
         {
@@ -744,7 +749,7 @@ public:
     auto const backup_timestamp =
       m_klv_demuxer.frame_time() +
       av_q2d( av_inv_q( f_video_stream->avg_frame_rate ) ) * 1000000.0;
-    m_klv_demuxer.send_frame( packets, backup_timestamp );
+    m_klv_demuxer.send_frame( m_klv_packets, backup_timestamp );
   }
 
   void
@@ -796,6 +801,13 @@ public:
     auto result =
       klv::klv_to_vital_metadata( m_klv_timeline, { prev_frame_timestamp,
                                                     frame_timestamp } );
+
+    // Packets are already smoothed; we have to revert them.
+    if( !smooth_klv_packets )
+    {
+      auto& klv_metadata = dynamic_cast< klv::klv_metadata& >( *result );
+      klv_metadata.set_klv( m_klv_packets );
+    }
 
     set_default_metadata( result );
 
@@ -1002,8 +1014,13 @@ ffmpeg_video_input
     "technically the correct way to decode KLV, but the frame timestamps are "
     "wrongly encoded so often in real-world data that it is turned off by "
     "default. When turned off, the frame timestamps are emulated by looking "
-    "at the KLV packets near each frame."
-  );
+    "at the KLV packets near each frame." );
+
+  config->set_value(
+    "smooth_klv_packets", d->smooth_klv_packets,
+    "When set to true, will output 'smoothed' KLV packets: one packet for each "
+    "standard for each frame with the current value of every existing tag. "
+    "Otherwise, will report packets as they appear in the source video." );
 
   return config;
 }
@@ -1030,6 +1047,9 @@ ffmpeg_video_input
 
   d->sync_metadata = config->get_value< bool >( "sync_metadata",
                                                 d->sync_metadata );
+
+  d->smooth_klv_packets = config->get_value< bool >( "smooth_klv_packets",
+                                                     d->smooth_klv_packets );
 }
 
 // ----------------------------------------------------------------------------
