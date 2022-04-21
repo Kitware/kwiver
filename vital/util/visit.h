@@ -101,10 +101,10 @@ visit_types( Visitor&& visitor, std::type_info const& type )
 {
   using invoke_fn_t = void ( * )( Visitor&& );
 
-  static std::map< std::type_index, invoke_fn_t > const map = {
-    { typeid( Types ),
+  static std::map< std::string, invoke_fn_t > const map = {
+    { typeid( Types ).name(),
       &visit_detail::invoke_visitor< Visitor, Types > } ... };
-  auto const it = map.find( type );
+  auto const it = map.find( type.name() );
   if( it == map.cend() )
   {
     throw std::out_of_range( "`" + kwiver::vital::demangle( type.name() ) +
@@ -121,10 +121,10 @@ visit_types_return( Visitor&& visitor, std::type_info const& type )
 {
   using invoke_fn_t = ReturnT ( * )( Visitor&& );
 
-  static std::map< std::type_index, invoke_fn_t > const map = {
-    { typeid( Types ),
+  static std::map< std::string, invoke_fn_t > const map = {
+    { typeid( Types ).name(),
       &visit_detail::invoke_visitor_return< ReturnT, Visitor, Types > } ... };
-  auto const it = map.find( type );
+  auto const it = map.find( type.name() );
   if( it == map.cend() )
   {
     throw std::out_of_range( "`" + kwiver::vital::demangle( type.name() ) +

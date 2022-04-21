@@ -12,7 +12,3 @@ set( test_libraries vital vital_vpm vital_algo kwiver_serialize_json )
 
 kwiver_discover_gtests(serialize-json serialize         LIBRARIES ${test_libraries})
 kwiver_discover_gtests(serialize-json load_save         LIBRARIES ${test_libraries})
-
-if( KWIVER_ENABLE_KLV )
-  add_subdirectory( klv )
-endif()

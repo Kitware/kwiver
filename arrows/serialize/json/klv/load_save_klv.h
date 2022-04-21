@@ -5,7 +5,7 @@
 #ifndef KWIVER_ARROWS_SERIALIZATION_JSON_KLV_LOAD_SAVE_H_
 #define KWIVER_ARROWS_SERIALIZATION_JSON_KLV_LOAD_SAVE_H_
 
-#include <arrows/serialize/json/kwiver_serialize_json_export.h>
+#include <arrows/serialize/json/klv/kwiver_serialize_json_klv_export.h>
 
 #include <arrows/klv/klv_packet.h>
 #include <arrows/klv/klv_set.h>
@@ -15,21 +15,19 @@ namespace cereal {
 class JSONOutputArchive;
 class JSONInputArchive;
 
-KWIVER_SERIALIZE_JSON_EXPORT
-void save( ::cereal::JSONOutputArchive& archive,
-           std::vector< ::kwiver::arrows::klv::klv_packet > const& packets );
-KWIVER_SERIALIZE_JSON_EXPORT
-void load( ::cereal::JSONInputArchive& archive,
-           std::vector< ::kwiver::arrows::klv::klv_packet >& packets );
+KWIVER_SERIALIZE_JSON_KLV_EXPORT
+void save( JSONOutputArchive& archive,
+           kwiver::arrows::klv::klv_packet const& packet );
+KWIVER_SERIALIZE_JSON_KLV_EXPORT
+void load( JSONInputArchive& archive,
+           kwiver::arrows::klv::klv_packet& packet );
 
-KWIVER_SERIALIZE_JSON_EXPORT
-void save( ::cereal::JSONOutputArchive& archive,
-           std::vector< ::kwiver::arrows::klv::klv_timed_packet > const&
-             timed_packets );
-KWIVER_SERIALIZE_JSON_EXPORT
-void load( ::cereal::JSONInputArchive& archive,
-           std::vector< ::kwiver::arrows::klv::klv_timed_packet >&
-             timed_packets );
+KWIVER_SERIALIZE_JSON_KLV_EXPORT
+void save( JSONOutputArchive& archive,
+           kwiver::arrows::klv::klv_timed_packet const& packet );
+KWIVER_SERIALIZE_JSON_KLV_EXPORT
+void load( JSONInputArchive& archive,
+           kwiver::arrows::klv::klv_timed_packet& packet );
 
 } // namespace cereal
 

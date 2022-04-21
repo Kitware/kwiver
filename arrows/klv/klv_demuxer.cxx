@@ -113,6 +113,16 @@ klv_demuxer
 ::seek( uint64_t timestamp )
 {
   m_last_timestamp = timestamp;
+  // TODO (C++20): replace with std::erase_if()
+  for( auto it = m_cancel_points.begin(); it != m_cancel_points.end(); )
+  {
+    auto const next_it = std::next( it );
+    if( it->second > timestamp )
+    {
+      m_cancel_points.erase( it );
+    }
+    it = next_it;
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -163,12 +173,11 @@ klv_demuxer
   if( unknown_it == unknown_timeline.end() )
   {
     unknown_timeline.set( { m_last_timestamp, m_last_timestamp + 1 },
-                          std::vector< klv_packet >{ packet } );
+                          std::set< klv_packet >{ packet } );
   }
   else
   {
-    unknown_it->value.get< std::vector< klv_packet > >()
-      .emplace_back( packet );
+    unknown_it->value.get< std::set< klv_packet > >().emplace( packet );
   }
 }
 
@@ -184,10 +193,7 @@ klv_demuxer
   auto const timestamp_key =
     lookup.by_tag( KLV_0104_USER_DEFINED_TIMESTAMP ).uds_key();
   auto const timestamp = value.at( timestamp_key ).get< uint64_t >();
-  if( !check_timestamp( timestamp ) )
-  {
-    return;
-  }
+  check_timestamp( timestamp );
 
   // By default, valid for 30 seconds
   auto const time_interval =
@@ -221,10 +227,7 @@ klv_demuxer
   // Extract timestamp
   auto const timestamp =
     local_set.at( KLV_0601_PRECISION_TIMESTAMP ).get< uint64_t >();
-  if( !check_timestamp( timestamp ) )
-  {
-    return;
-  }
+  check_timestamp( timestamp );
 
   // By default, valid for 30 seconds
   auto const time_interval =
@@ -306,10 +309,7 @@ klv_demuxer
   // Extract timestamp
   auto const metric_period = value.at( KLV_1108_METRIC_PERIOD_PACK )
     .get< klv_1108_metric_period_pack >();
-  if( !check_timestamp( metric_period.timestamp ) )
-  {
-    return;
-  }
+  check_timestamp( metric_period.timestamp );
 
   // Valid for the period of time specified in METRIC_PERIOD_PACK field
   auto const time_interval =
@@ -355,9 +355,12 @@ klv_demuxer
                       klv_value const& index, interval_t const& time_interval,
                       klv_value const& value )
 {
+  auto const key = klv_timeline::key_t{ standard, tag, index };
   if( value.empty() )
   {
     // Null value: erase timespan instead of adding a null entry
+    m_cancel_points.emplace( key, time_interval.lower() );
+
     auto const it = m_timeline.find( standard, tag );
     if( it == m_timeline.end() )
     {
@@ -376,24 +379,39 @@ klv_demuxer
   {
     // Non-null value: add new entry
     auto const it = m_timeline.insert_or_find( standard, tag, index );
-    it->second.set( time_interval, value );
+    if( time_interval.lower() < m_last_timestamp )
+    {
+      auto adjusted_interval = time_interval;
+      auto const cancel_range = m_cancel_points.equal_range( key );
+      for( auto jt = cancel_range.first; jt != cancel_range.second; ++jt )
+      {
+        auto const cancel_time = jt->second;
+        if( cancel_time >= adjusted_interval.lower() )
+        {
+          adjusted_interval.truncate_upper( cancel_time );
+        }
+      }
+      it->second.weak_set( adjusted_interval, value );
+    }
+    else
+    {
+      it->second.set( time_interval, value );
+    }
   }
 }
 
 // ----------------------------------------------------------------------------
-bool
+void
 klv_demuxer
 ::check_timestamp( uint64_t timestamp ) const
 {
-  // Packets *must* be fed to demuxer in chronological order to prevent older
-  // packets from incorrectly overriding newer packets.
-  auto const result = timestamp >= m_last_timestamp;
-  if( !result )
+  if( timestamp < m_last_timestamp )
   {
-    LOG_ERROR( kv::get_logger( "klv" ),
-               "demuxer: dropping out-of-order packet ( " << timestamp << " less than " << m_last_timestamp << " )" );
+    LOG_DEBUG( kv::get_logger( "klv" ),
+               "demuxer: out-of-order packet "
+               "( packet timestamp " << timestamp << " less than "
+               "most recent timestamp " << m_last_timestamp << " )" );
   }
-  return result;
 }
 
 } // namespace klv

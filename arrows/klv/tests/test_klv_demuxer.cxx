@@ -29,34 +29,49 @@ using namespace kwiver::arrows::klv;
 TEST ( klv, demuxer_invalid )
 {
   // Unknown UDS keys or unparsed data
-  {
-    using packet_vector = std::vector< klv_packet >;
-    klv_uds_key const key1{ 0x060E2B34FFFFFFFF, 0x0A0B0C0D00000000 };
-    klv_uds_key const key2{ 0x060E2B34FFFFFFFF, 0x0000000000000000 };
-    klv_blob const data1{ { 0xAA, 0xBB, 0xCC, 0xDD } };
-    klv_blob const data2{ { 0xAA, 0xBB } };
-    klv_blob const data3{ { 0xAB, 0xCD } };
-    auto const packets = packet_vector{
-      { key1, data1 },
-      { key1, data2 },
-      { key2, data3 },
-      { klv_0601_key(), klv_blob{ { 0x00 } } }, };
+  using packet_set = std::set< klv_packet >;
+  klv_uds_key const key1{ 0x060E2B34FFFFFFFF, 0x0A0B0C0D00000000 };
+  klv_uds_key const key2{ 0x060E2B34FFFFFFFF, 0x0000000000000000 };
+  klv_blob const data1{ { 0xAA, 0xBB, 0xCC, 0xDD } };
+  klv_blob const data2{ { 0xAA, 0xBB } };
+  klv_blob const data3{ { 0xAB, 0xCD } };
+  auto const packets = std::vector< klv_packet >{
+    { key1, data1 },
+    { key1, data2 },
+    { key2, data3 },
+    { klv_0601_key(), klv_blob{ { 0x00 } } }, };
 
-    klv_timeline timeline;
-    klv_demuxer demuxer( timeline );
-    demuxer.seek( 123 );
-    for( auto const& packet : packets )
+  klv_timeline timeline;
+  klv_demuxer demuxer( timeline );
+  demuxer.seek( 123 );
+  for( auto const& packet : packets )
+  {
+    demuxer.demux_packet( packet );
+  }
+
+  {
+    klv_timeline reverse_timeline;
+    klv_demuxer reverse_demuxer( reverse_timeline );
+    reverse_demuxer.seek( 123 );
+    for( auto it = packets.rbegin(); it != packets.rend(); ++it )
     {
-      demuxer.demux_packet( packet );
+      reverse_demuxer.demux_packet( *it );
     }
-    auto const result_range = timeline.find_all( KLV_PACKET_UNKNOWN, 0 );
-    ASSERT_EQ( 3, std::distance( result_range.begin(), result_range.end() ) );
-    EXPECT_EQ( packet_vector( { packets[ 3 ] } ),
-               std::next( result_range.begin(), 0 )->second.at( 123 )->get< packet_vector >() );
-    EXPECT_EQ( packet_vector( { packets[ 2 ] } ),
-               std::next( result_range.begin(), 1 )->second.at( 123 )->get< packet_vector >() );
-    EXPECT_EQ( packet_vector( { packets[ 0 ], packets[ 1 ] } ),
-               std::next( result_range.begin(), 2 )->second.at( 123 )->get< packet_vector >() ); }
+
+    EXPECT_EQ( timeline, reverse_timeline );
+  }
+
+  auto const result_range = timeline.find_all( KLV_PACKET_UNKNOWN, 0 );
+  ASSERT_EQ( 3, std::distance( result_range.begin(), result_range.end() ) );
+  EXPECT_EQ( packet_set( { packets[ 3 ] } ),
+             std::next( result_range.begin(), 0 )->second.at( 123 )
+                                                 ->get< packet_set >() );
+  EXPECT_EQ( packet_set( { packets[ 2 ] } ),
+             std::next( result_range.begin(), 1 )->second.at( 123 )
+                                                 ->get< packet_set >() );
+  EXPECT_EQ( packet_set( { packets[ 0 ], packets[ 1 ] } ),
+             std::next( result_range.begin(), 2 )->second.at( 123 )
+                                                 ->get< packet_set >() );
 }
 
 // ----------------------------------------------------------------------------
@@ -80,8 +95,7 @@ TEST ( klv, demuxer_0601 )
         { KLV_0601_PLATFORM_CALL_SIGN,             // Changed to invalid
           klv_blob{ { 0xAA } } },
         { KLV_0601_PLATFORM_DESIGNATION,           // Repeated but unchanged
-          std::string{ "Bob" } }
-      } },
+          std::string{ "Bob" } } } },
     { klv_0601_key(),
       klv_local_set{
         // All new values
@@ -97,6 +111,17 @@ TEST ( klv, demuxer_0601 )
   for( auto const& packet : packets )
   {
     demuxer.demux_packet( packet );
+  }
+
+  {
+    klv_timeline reverse_timeline;
+    klv_demuxer reverse_demuxer( reverse_timeline );
+    for( auto it = packets.rbegin(); it != packets.rend(); ++it )
+    {
+      reverse_demuxer.demux_packet( *it );
+    }
+
+    EXPECT_EQ( timeline, reverse_timeline );
   }
 
   auto const standard = KLV_PACKET_MISB_0601_LOCAL_SET;
@@ -446,6 +471,17 @@ TEST ( klv, demuxer_1108 )
   for( auto const& packet : packets )
   {
     demuxer.demux_packet( packet );
+  }
+
+  {
+    klv_timeline reverse_timeline;
+    klv_demuxer reverse_demuxer( reverse_timeline );
+    for( auto it = packets.rbegin(); it != packets.rend(); ++it )
+    {
+      reverse_demuxer.demux_packet( *it );
+    }
+
+    EXPECT_EQ( timeline, reverse_timeline );
   }
 
   auto const standard = KLV_PACKET_MISB_1108_LOCAL_SET;
