@@ -15,6 +15,14 @@ namespace arrows {
 namespace klv {
 
 // ----------------------------------------------------------------------------
+vital::metadata*
+klv_metadata
+::clone() const
+{
+  return new klv_metadata{ *this };
+}
+
+// ----------------------------------------------------------------------------
 void
 klv_metadata
 ::set_klv( std::vector< klv_packet > const& packets )

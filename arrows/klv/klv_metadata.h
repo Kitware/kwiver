@@ -25,6 +25,8 @@ class KWIVER_ALGO_KLV_EXPORT klv_metadata : public kwiver::vital::metadata
 public:
   virtual ~klv_metadata() = default;
 
+  vital::metadata* clone() const;
+
   void set_klv( std::vector< klv_packet > const& packets );
 
   std::vector< klv_packet > const& klv() const;
