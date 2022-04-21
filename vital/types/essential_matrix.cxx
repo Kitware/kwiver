@@ -102,7 +102,7 @@ essential_matrix_sptr
 essential_matrix_<T>
 ::clone() const
 {
-  return essential_matrix_sptr( new essential_matrix_<T>( *this ) );
+  return std::make_shared<essential_matrix_<T>>( *this );
 }
 
 /// Get a double-typed copy of the underlying matrix
