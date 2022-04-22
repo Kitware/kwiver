@@ -94,9 +94,9 @@ void io_test(std::string const & ext, unsigned const N=3)
   {
     auto const & CN = c.first;
     auto const cam0 =
-        dynamic_cast<kv::camera_perspective const *>( rig0->camera(CN).get() );
+      dynamic_cast<kv::camera_perspective const *>( rig0->camera(CN).get() );
     auto const cam =
-        dynamic_cast<kv::camera_perspective const *>( c.second.get() );
+      dynamic_cast<kv::camera_perspective const *>( c.second.get() );
 
     Eigen::Matrix<double,3,3> K0( cam0->intrinsics()->as_matrix() );
     Eigen::Matrix<double,3,3> K( cam->intrinsics()->as_matrix() );
@@ -186,11 +186,10 @@ void io_stereo_test(std::string const & ext)
   for ( auto const & c: cams )
   {
     auto const & CN = c.first;
-    std::clog << CN << std::endl;
     auto const cam0 =
-        dynamic_cast<kv::camera_perspective const *>( rig0->camera(CN).get() );
+      dynamic_cast<kv::camera_perspective const *>( rig0->camera(CN).get() );
     auto const cam =
-        dynamic_cast<kv::camera_perspective const *>( c.second.get() );
+      dynamic_cast<kv::camera_perspective const *>( c.second.get() );
 
     Eigen::Matrix<double,3,3> K0( cam0->intrinsics()->as_matrix() );
     Eigen::Matrix<double,3,3> K( cam->intrinsics()->as_matrix() );

@@ -55,23 +55,23 @@ read_stereo_rig( path_t const& FN )
 // left
   std::string name = "left";
   double fx=1, fy=1;
-  ar( cereal::make_nvp( "fx_" + name,  fx) );
-  ar( cereal::make_nvp( "fy_" + name,  fy) );
+  ar( cereal::make_nvp( "fx_" + name, fx) );
+  ar( cereal::make_nvp( "fy_" + name, fy) );
   double focal_length = .5*(fx+fy);
 
   double cx=0, cy=0;
-  ar ( cereal::make_nvp( "cx_" + name,  cx) );
-  ar ( cereal::make_nvp( "cy_" + name,  cy) );
+  ar ( cereal::make_nvp( "cx_" + name, cx) );
+  ar ( cereal::make_nvp( "cy_" + name, cy) );
   vector_2d principal_point(cx, cy);
   unsigned dx = 2*cx, dy = 2*cy;
 
   auto const aspect_ratio = 1.0, skew = 0.0;
 
   vector_4d dist;
-  ar( cereal::make_nvp( "k1_" + name,  dist[0] ) );
-  ar( cereal::make_nvp( "k2_" + name,  dist[1] ) );
-  ar( cereal::make_nvp( "p1_" + name,  dist[2] ) );
-  ar( cereal::make_nvp( "p2_" + name,  dist[3] ) );
+  ar( cereal::make_nvp( "k1_" + name, dist[0] ) );
+  ar( cereal::make_nvp( "k2_" + name, dist[1] ) );
+  ar( cereal::make_nvp( "p1_" + name, dist[2] ) );
+  ar( cereal::make_nvp( "p2_" + name, dist[3] ) );
 
   auto intrinsics = std::make_shared<simple_camera_intrinsics>(
     focal_length,
@@ -89,20 +89,19 @@ read_stereo_rig( path_t const& FN )
 
 // right
   name = "right";
-
-  ar( cereal::make_nvp( "fx_" + name,  fx) );
-  ar( cereal::make_nvp( "fy_" + name,  fy) );
+  ar( cereal::make_nvp( "fx_" + name, fx) );
+  ar( cereal::make_nvp( "fy_" + name, fy) );
   focal_length = .5*(fx+fy);
 
-  ar ( cereal::make_nvp( "cx_" + name,  cx) );
-  ar ( cereal::make_nvp( "cy_" + name,  cy) );
+  ar ( cereal::make_nvp( "cx_" + name, cx) );
+  ar ( cereal::make_nvp( "cy_" + name, cy) );
   dx = 2*cx, dy = 2*cy;
 
   principal_point = vector_2d(cx, cy);
-  ar( cereal::make_nvp( "k1_" + name,  dist[0] ) );
-  ar( cereal::make_nvp( "k2_" + name,  dist[1] ) );
-  ar( cereal::make_nvp( "p1_" + name,  dist[2] ) );
-  ar( cereal::make_nvp( "p2_" + name,  dist[3] ) );
+  ar( cereal::make_nvp( "k1_" + name, dist[0] ) );
+  ar( cereal::make_nvp( "k2_" + name, dist[1] ) );
+  ar( cereal::make_nvp( "p1_" + name, dist[2] ) );
+  ar( cereal::make_nvp( "p2_" + name, dist[3] ) );
 
   intrinsics = std::make_shared<simple_camera_intrinsics>(
     focal_length,
