@@ -23,6 +23,12 @@ namespace klv {
 // ----------------------------------------------------------------------------
 struct KWIVER_ALGO_KLV_EXPORT klv_uuid
 {
+  klv_uuid();
+
+  klv_uuid( std::initializer_list< uint8_t > const& bytes );
+
+  klv_uuid( std::array< uint8_t, 16 > const& bytes );
+
   std::array< uint8_t, 16 > bytes;
 };
 
