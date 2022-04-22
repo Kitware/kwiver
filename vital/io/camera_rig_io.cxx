@@ -21,6 +21,20 @@ namespace vital {
 
 static auto logger = get_logger( "vital.camera_rig_io" );
 
+std::string
+get_file_ext( path_t const & FN )
+{
+  std::string ext;
+  auto const
+    len = FN.length(),
+    n = FN.rfind('.', len);
+  if (n != std::string::npos)
+  {
+     ext = FN.substr(n);
+  }
+  return ext;
+}
+
 camera_rig_sptr
 read_camera_rig( path_list_t const & cam_files )
 {
@@ -46,7 +60,7 @@ read_camera_rig( path_list_t const & cam_files )
 }
 
 camera_rig_stereo_sptr
-read_stereo_rig( path_t const& FN )
+read_stereo_rig_json( path_t const& FN )
 {
   std::ifstream is(FN);
   cereal::JSONInputArchive ar(is);
@@ -143,6 +157,32 @@ read_stereo_rig( path_t const& FN )
   );
 }
 
+camera_rig_stereo_sptr
+read_stereo_rig_yaml( path_t const& FN )
+{
+  // TODO read
+  return camera_rig_stereo_sptr();
+}
+
+camera_rig_stereo_sptr
+read_stereo_rig( path_t const& FN )
+{
+  auto const & ext = get_file_ext(FN);
+  if (ext == ".json")
+  {
+    return read_stereo_rig_json(FN);
+  }
+  else if ( ext == ".yml" || ext == ".yaml")
+  {
+    return read_stereo_rig_yaml(FN);
+  }
+  else
+  {
+    LOG_ERROR( logger, "unable to read stereo rig: unsupported extension "+ext );
+  }
+  return camera_rig_stereo_sptr();
+}
+
 void
 write_camera_rig( camera_rig_sptr rig )
 {
@@ -167,26 +207,12 @@ write_camera_rig( camera_rig_sptr rig )
   }
 }
 
-std::string
-get_file_ext( path_t const & FN )
-{
-  std::string ext;
-  auto const
-    len = FN.length(),
-    n = FN.rfind('.', len);
-  if (n != std::string::npos)
-  {
-     ext = FN.substr(n);
-  }
-  return ext;
-}
-
 void
 write_stereo_rig_json( camera_rig_stereo_sptr rig, std::string const & FN )
 {
   if ( rig == nullptr )
   {
-    LOG_ERROR( logger, "unable to write: stereo rig pointer is null" );
+    LOG_ERROR( logger, "unable to write stereo rig: pointer is null" );
     return;
   }
   //  {
@@ -206,7 +232,7 @@ write_stereo_rig_json( camera_rig_stereo_sptr rig, std::string const & FN )
   //  "k2_right": 0.0,
   //  "p1_right": 0.0,
   //  "p2_right": 0.0,
-  //  "T": [-0.182099, 0.0, -0.0],
+  //  "T": [-0.182099, 0.0, -0.0], // assume right w.r.t. left
   //  "R": [ 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
   //  }
   std::ofstream of( FN );
@@ -274,12 +300,27 @@ write_stereo_rig_json( camera_rig_stereo_sptr rig, std::string const & FN )
 }
 
 void
+write_stereo_rig_yaml( camera_rig_stereo_sptr rig, std::string const & FN )
+{
+  if ( rig == nullptr )
+  {
+    LOG_ERROR( logger, "unable to write stereo rig: pointer is null" );
+    return;
+  }
+  // TODO write
+}
+
+void
 write_stereo_rig( camera_rig_stereo_sptr rig, std::string const & FN )
 {
   auto const & ext = get_file_ext(FN);
   if (ext == ".json")
   {
     write_stereo_rig_json(rig, FN);
+  }
+  else if ( ext == ".yml" || ext == ".yaml")
+  {
+    write_stereo_rig_yaml(rig, FN);
   }
 }
 

@@ -39,13 +39,13 @@ class camera_rig_io : public ::testing::Test
 };
 
 // ----------------------------------------------------------------------------
-void io_test(std::string const & ext, unsigned const N=3)
+TEST_F(camera_rig_io, krtd_test)
 {
   kv::path_t const DN = g_data_dir;
   kv::path_t const CNBase = "cam";
   kv::path_t const FNBase = DN + CNBase;
   kv::path_list_t cam_names;
-
+  unsigned N = 3;
 // form a camera rig
   kv::camera_rig_sptr rig0( new kv::camera_rig );
 
@@ -74,6 +74,7 @@ void io_test(std::string const & ext, unsigned const N=3)
       new kv::simple_camera_perspective( center, rotation, intrinsics )
     );
   // camera name
+    std::string const ext = ".krtd";
     std::stringstream ss;
     ss << FNBase << i << ext;
     auto const & CN = ss.str();
@@ -120,12 +121,6 @@ void io_test(std::string const & ext, unsigned const N=3)
   {
     EXPECT_EQ( 0, std::remove(CN.c_str()) );
   }
-}
-
-// ----------------------------------------------------------------------------
-TEST_F(camera_rig_io, krtd_test)
-{
-  io_test(".krtd");
 }
 
 // ----------------------------------------------------------------------------
@@ -216,4 +211,10 @@ void io_stereo_test(std::string const & ext)
 TEST_F(camera_rig_io, stereo_json_test)
 {
   io_stereo_test(".json");
+}
+
+// ----------------------------------------------------------------------------
+TEST_F(camera_rig_io, stereo_yaml_test)
+{
+  io_stereo_test(".yaml");
 }
