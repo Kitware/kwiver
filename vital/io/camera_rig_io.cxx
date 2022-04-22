@@ -65,7 +65,7 @@ read_stereo_rig( path_t const& FN )
   vector_2d principal_point(cx, cy);
   unsigned dx = 2*cx, dy = 2*cy;
 
-  auto const aspect_ratio=1.0, skew=0.0;
+  auto const aspect_ratio = 1.0, skew = 0.0;
 
   vector_4d dist;
   ar( cereal::make_nvp( "k1_" + name,  dist[0] ) );
@@ -81,7 +81,7 @@ read_stereo_rig( path_t const& FN )
     dist,
     dx, dy
   );
-  vector_3d center;
+  vector_3d center = { 0, 0, 0 };
   rotation_d rotation;
   cams[name] = std::make_shared<simple_camera_perspective>(
       center, rotation, intrinsics
@@ -185,58 +185,69 @@ get_file_ext( path_t const & FN )
 void
 write_stereo_rig_json( camera_rig_stereo_sptr rig, std::string const & FN )
 {
-  //  {
-  //  "fx_left": 3186.000000,
-  //  "fy_left": 3186.000000,
-  //  "cx_left": 1327.904157,
-  //  "cy_left": 1007.326313,
-  //  "k1_left": 0.000000,
-  //  "k2_left": 0.000000,
-  //  "p1_left": 0.000000,
-  //  "p2_left": 0.000000,
-  //  "fx_right": 3186.000000,
-  //  "fy_right": 3186.000000,
-  //  "cx_right": 1338.701970,
-  //  "cy_right": 1007.326313,
-  //  "k1_right": 0.000000,
-  //  "k2_right": 0.000000,
-  //  "p1_right": 0.000000,
-  //  "p2_right": 0.000000,
-  //  "T": [-0.182099, 0.000000, -0.000000],
-  //  "R": [ 1.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 1.000000 ]
-  //  }
-  if (rig == nullptr)
+  if ( rig == nullptr )
   {
     LOG_ERROR( logger, "unable to write: stereo rig pointer is null" );
     return;
   }
-  std::ofstream of(FN);
+  //  {
+  //  "fx_left": 3186.0,
+  //  "fy_left": 3186.0,
+  //  "cx_left": 1327.9,
+  //  "cy_left": 1007.3,
+  //  "k1_left": 0.0,
+  //  "k2_left": 0.0,
+  //  "p1_left": 0.0,
+  //  "p2_left": 0.0,
+  //  "fx_right": 3186.0,
+  //  "fy_right": 3186.0,
+  //  "cx_right": 1338.7,
+  //  "cy_right": 1007.3,
+  //  "k1_right": 0.0,
+  //  "k2_right": 0.0,
+  //  "p1_right": 0.0,
+  //  "p2_right": 0.0,
+  //  "T": [-0.182099, 0.0, -0.0],
+  //  "R": [ 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+  //  }
+  std::ofstream of( FN );
   cereal::JSONOutputArchive::Options opt(
-    32, cereal::JSONOutputArchive::Options::IndentChar::space, 2);
+    32, cereal::JSONOutputArchive::Options::IndentChar::space, 2 );
   cereal::JSONOutputArchive ar( of, opt );
-  std::vector< std::string > names = {"left", "right"};
-  for (auto const & name : names)
+  std::vector< std::string > names = { "left", "right" };
+  Eigen::Matrix<double,3,3> Rl;
+  Eigen::Matrix<double,3,1> cl;
+  for ( auto const & name : names )
   {
     try
     {
       auto const & cam =
-        dynamic_cast<camera_perspective const&>(*rig->camera(name));
+        dynamic_cast<camera_perspective const&>( *rig->camera(name) );
       auto const & intr = *cam.intrinsics();
       auto const & f = intr.focal_length();
       auto const & c = intr.principal_point();
       auto const & d = intr.dist_coeffs();
       auto const & dlen = d.size();
-      ar( cereal::make_nvp( "fx_" + name,  f) );
-      ar( cereal::make_nvp( "fy_" + name,  f) );
-      ar( cereal::make_nvp( "cx_" + name,  c[0]) );
-      ar( cereal::make_nvp( "cy_" + name,  c[1]) );
-      ar( cereal::make_nvp( "k1_" + name,  dlen > 0 ? d[0] : 0.0 ) );
-      ar( cereal::make_nvp( "k2_" + name,  dlen > 1 ? d[1] : 0.0 ) );
-      ar( cereal::make_nvp( "p1_" + name,  dlen > 2 ? d[2] : 0.0 ) );
-      ar( cereal::make_nvp( "p2_" + name,  dlen > 3 ? d[3] : 0.0 ) );
-      if (name == "right")
+      ar( cereal::make_nvp( "fx_" + name, f) );
+      ar( cereal::make_nvp( "fy_" + name, f) );
+      ar( cereal::make_nvp( "cx_" + name, c[0]) );
+      ar( cereal::make_nvp( "cy_" + name, c[1]) );
+      ar( cereal::make_nvp( "k1_" + name, dlen > 0 ? d[0] : 0.0 ) );
+      ar( cereal::make_nvp( "k2_" + name, dlen > 1 ? d[1] : 0.0 ) );
+      ar( cereal::make_nvp( "p1_" + name, dlen > 2 ? d[2] : 0.0 ) );
+      ar( cereal::make_nvp( "p2_" + name, dlen > 3 ? d[3] : 0.0 ) );
+      if ( name == "left" )
       {
-        auto const & tv = cam.translation();
+        Rl = cam.rotation().matrix();
+        cl = cam.center();
+      }
+      else if ( name == "right" )
+      {
+        // form translation & rotation w.r.t. left
+        auto const & Rr = cam.rotation().matrix();
+        auto const & rm = Rr * Rl.transpose();
+        auto const & tr = cam.translation();
+        auto const & tv = tr - Rr * cl;
         auto n = tv.size();
         std::vector<double> T(n);
         for (int i=0; i<n; ++i)
@@ -244,13 +255,12 @@ write_stereo_rig_json( camera_rig_stereo_sptr rig, std::string const & FN )
           T[i] = tv[i];
         }
         ar( CEREAL_NVP(T) );
-        auto const & rm = cam.rotation().matrix();
         std::vector<double> R;
         for (int i=0; i<3; ++i)
         {
           for (int j=0; j<3; ++j)
           {
-            R.push_back(rm(i,j));
+            R.push_back( rm(i,j) );
           }
         }
         ar( CEREAL_NVP(R) );

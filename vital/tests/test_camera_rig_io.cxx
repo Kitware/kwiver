@@ -137,7 +137,7 @@ void io_stereo_test(std::string const & ext)
   kv::path_list_t cam_names;
 
 // form a stereo rig
-  unsigned const N=2;
+  unsigned const N = 2;
   auto const dim = 512, dim2 = dim/2;
   kv::vector_2d const principal_point( dim2, dim2 );
   auto const aspect_ratio = 1.0, skew = 0.0;
@@ -145,7 +145,7 @@ void io_stereo_test(std::string const & ext)
   kv::camera_collection cams0;
   for ( unsigned i=1; i<=N; ++i )
   {
-    unsigned j=i-1;
+    unsigned j = i-1;
     kv::vector_3d center( j, .2*j, .2*j );
     kv::rotation_d rotation;
     kv::vector_4d dist( .01*i, .2, .3, .4 );
@@ -182,10 +182,11 @@ void io_stereo_test(std::string const & ext)
   auto cnt = cams.size();
   EXPECT_EQ( cnt, N );
 
-// make sure the cameras are the same in both rigs
+// make sure the rigs are the same
   for ( auto const & c: cams )
   {
     auto const & CN = c.first;
+    std::clog << CN << std::endl;
     auto const cam0 =
         dynamic_cast<kv::camera_perspective const *>( rig0->camera(CN).get() );
     auto const cam =
