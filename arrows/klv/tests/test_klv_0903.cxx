@@ -387,7 +387,7 @@ TEST ( klv, read_write_0903_vchip )
   auto const expected_result = klv_local_set{
     { KLV_0903_VCHIP_IMAGE_TYPE, std::string{ "jpeg" } },
     { KLV_0903_VCHIP_IMAGE_URI, std::string{ "URI" } },
-    { KLV_0903_VCHIP_EMBEDDED_IMAGE, klv_blob{ { 0x01, 0x02, 0x03, 0x04, } } },
+    { KLV_0903_VCHIP_EMBEDDED_IMAGE, klv_blob{ 0x01, 0x02, 0x03, 0x04 } },
   };
 
   auto const input_bytes = klv_bytes_t{

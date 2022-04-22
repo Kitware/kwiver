@@ -258,7 +258,7 @@ klv_local_set const test_0601_set = {
       std::make_shared< klv_imap_format >( -1.0, 1.0, 3 ),
       true,
       false } },
-  { KLV_0601_MISSION_ID, klv_blob{ { 0x00, 0xFF } } } };
+  { KLV_0601_MISSION_ID, klv_blob{ 0x00, 0xFF } } };
 
 // ---------------------------------------------------------------------------
 klv_local_set const test_1108_metric_set = {

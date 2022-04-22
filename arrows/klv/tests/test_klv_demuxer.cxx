@@ -39,7 +39,7 @@ TEST ( klv, demuxer_invalid )
     { key1, data1 },
     { key1, data2 },
     { key2, data3 },
-    { klv_0601_key(), klv_blob{ { 0x00 } } }, };
+    { klv_0601_key(), klv_blob{ 0x00 } }, };
 
   klv_timeline timeline;
   klv_demuxer demuxer( timeline );
@@ -91,7 +91,7 @@ TEST ( klv, demuxer_0601 )
         { KLV_0601_PLATFORM_HEADING_ANGLE, 14.0 }, // Explicitly changed
         { KLV_0601_LASER_PRF_CODE, klv_value{} },  // Explicitly erased
         { KLV_0601_PLATFORM_CALL_SIGN,             // Changed to invalid
-          klv_blob{ { 0xAA } } },
+          klv_blob{ 0xAA } },
         { KLV_0601_PLATFORM_DESIGNATION,           // Repeated but unchanged
           std::string{ "Bob" } } } },
     { klv_0601_key(),
@@ -155,7 +155,7 @@ TEST ( klv, demuxer_0601 )
              timeline.at( standard, KLV_0601_PLATFORM_HEADING_ANGLE, 20 ) );
   EXPECT_EQ( klv_value{},
              timeline.at( standard, KLV_0601_LASER_PRF_CODE,         20 ) );
-  EXPECT_EQ( klv_blob{ { 0xAA } },
+  EXPECT_EQ( klv_blob{ 0xAA },
              timeline.at( standard, KLV_0601_PLATFORM_CALL_SIGN,     20 ) );
   EXPECT_EQ( std::string{ "Bob" },
              timeline.at( standard, KLV_0601_PLATFORM_DESIGNATION,   20 ) );
@@ -462,7 +462,7 @@ TEST ( klv, demuxer_1108 )
         { KLV_1108_METRIC_PERIOD_PACK,
           klv_1108_metric_period_pack{ 180, 100 } },
         { KLV_1108_METRIC_LOCAL_SET,    metric_sets[ 3 ] },
-        { KLV_1108_METRIC_LOCAL_SET,    klv_blob{ { 0xAA } } } } } };
+        { KLV_1108_METRIC_LOCAL_SET,    klv_blob{ 0xAA } } } } };
 
   klv_timeline timeline;
   klv_demuxer demuxer( timeline );

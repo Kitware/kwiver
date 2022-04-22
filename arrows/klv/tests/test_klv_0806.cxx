@@ -40,7 +40,7 @@ auto const expected_result = klv_local_set{
   { KLV_0806_PLATFORM_INDICATED_AIRSPEED,
     uint64_t{ 400 } },
   { KLV_0806_TELEMETRY_ACCURACY_INDICATOR,
-    klv_blob{ { 0xAB } } },
+    klv_blob{ 0xAB } },
   { KLV_0806_FRAG_CIRCLE_RADIUS,
     uint64_t{ 30 } },
   { KLV_0806_FRAME_CODE,

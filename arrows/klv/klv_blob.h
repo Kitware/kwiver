@@ -10,6 +10,7 @@
 
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
+#include <initializer_list>
 #include <ostream>
 #include <vector>
 
@@ -35,6 +36,8 @@ class KWIVER_ALGO_KLV_EXPORT klv_blob
 {
 public:
   klv_blob();
+
+  klv_blob( std::initializer_list< uint8_t > const& bytes );
 
   klv_blob( klv_bytes_t const& bytes );
 
