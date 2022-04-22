@@ -44,8 +44,8 @@ auto const input_bytes = klv_bytes_t{
   // KLV_0104_EPISODE_NUMBER
   0x06, 0x0E, 0x2B, 0x34, 0x01, 0x01, 0x01, 0x01,
   0x01, 0x05, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x04,
-  0x3F, 0x80, 0x00, 0x00,
+  0x02,
+  '4', '2',
 
   // KLV_0104_IMAGE_SOURCE_DEVICE
   0x06, 0x0E, 0x2B, 0x34, 0x01, 0x01, 0x01, 0x01,
@@ -260,7 +260,7 @@ auto const expected_result = klv_universal_set{
   { to_key( KLV_0104_DEVICE_LATITUDE ),          kld{  60.176822966978335 } },
   { to_key( KLV_0104_DEVICE_LONGITUDE ),         kld{  128.42675904204452 } },
   { to_key( KLV_0104_IMAGE_SOURCE_DEVICE ),      std::string{ "EO" } },
-  { to_key( KLV_0104_EPISODE_NUMBER ),           kld{  1.0f } },
+  { to_key( KLV_0104_EPISODE_NUMBER ),           std::string{ "42" } },
   { to_key( KLV_0104_DEVICE_DESIGNATION ),       std::string{ "MQ1-B" } },
   { to_key( KLV_0104_SECURITY_LOCAL_SET ),       {} }, };
 
@@ -277,7 +277,7 @@ TEST ( klv, read_write_0104_packet )
   auto const packet_header = klv_bytes_t{
     0x06, 0x0E, 0x2B, 0x34, 0x02, 0x01, 0x01, 0x01,
     0x0E, 0x01, 0x01, 0x02, 0x01, 0x01, 0x00, 0x00,
-    0x82, 0x02, 0xE4 };
+    0x82, 0x02, 0xE2 };
   auto const packet_footer = klv_bytes_t{};
 
   // Assemble the target packet's serialized form

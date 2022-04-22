@@ -84,7 +84,7 @@ klv_universal_set const test_0104_set = {
   { key_0104( KLV_0104_USER_DEFINED_TIMESTAMP ),
     uint64_t{ 4321 } },
   { key_0104( KLV_0104_EPISODE_NUMBER ),
-    kld{ 4.2, 4 } },
+    std::string{ "4.2" } },
   { key_0104( KLV_0104_DEVICE_DESIGNATION ),
     std::string{ "Bob" } } };
 
