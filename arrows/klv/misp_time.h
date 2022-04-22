@@ -166,6 +166,14 @@ KWIVER_ALGO_KLV_EXPORT
 size_t
 misp_timestamp_length();
 
+// ----------------------------------------------------------------------------
+/// Returns the current time in microseconds according to the MISP system.
+///
+/// \warning Until C++20, we cannot guarantee the accuracy of the result.
+KWIVER_ALGO_KLV_EXPORT
+uint64_t
+misp_timestamp_now();
+
 } // namespace klv
 
 } // namespace arrows
