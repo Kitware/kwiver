@@ -5,7 +5,9 @@
 /// \file
 /// Declaration of KLV muxer.
 
-#include "klv_timeline.h"
+#include <arrows/klv/klv_timeline.h>
+#include <arrows/klv/klv_update_intervals.h>
+#include <arrows/klv/klv_update_tracker.h>
 
 #include <deque>
 
@@ -52,7 +54,15 @@ public:
 
   /// Reset the object to a state equivalent to if it had just been
   /// constructed.
+  ///
+  /// Does not reset update rate settings.
   void reset();
+
+  /// Return the current update interval settings.
+  klv_update_intervals const& update_intervals() const;
+
+  /// Set the update interval settings to use.
+  void set_update_intervals( klv_update_intervals const& update_intervals );
 
 private:
   using key_t = typename klv_timeline::key_t;
@@ -61,8 +71,6 @@ private:
 
   void send_frame_unknown( uint64_t timestamp );
   void flush_frame_unknown();
-
-  void send_frame_0104( uint64_t timestamp );
 
   void send_frame_0601( uint64_t timestamp );
 
@@ -82,6 +90,9 @@ private:
   bool check_timestamp( uint64_t timestamp ) const;
 
   klv_timeline const& m_timeline;
+  klv_update_intervals m_update_intervals;
+  klv_update_tracker< klv_lds_key > m_lds_update_tracker;
+  klv_update_tracker< klv_uds_key > m_uds_update_tracker;
   std::multimap< uint64_t, klv_packet > m_packets;
   std::deque< uint64_t > m_frames;
   uint64_t m_prev_frame;
