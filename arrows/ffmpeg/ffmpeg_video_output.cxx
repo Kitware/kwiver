@@ -207,8 +207,8 @@ ffmpeg_video_output
   d->output_format = d->format_context->oformat;
 
   // Configure video codec
-  auto const x264_codec = avcodec_find_encoder_by_name( "x264" );
-  auto const x265_codec = avcodec_find_encoder_by_name( "x265" );
+  auto const x264_codec = avcodec_find_encoder_by_name( "libx264" );
+  auto const x265_codec = avcodec_find_encoder_by_name( "libx265" );
   AVCodec* requested_codec = nullptr;
   switch( settings->codec_id )
   {
