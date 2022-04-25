@@ -25,14 +25,14 @@ public:
   /// \param timeline KLV timeline to modify.
   explicit klv_demuxer( klv_timeline& timeline );
 
-  /// Incorporate next \p packet into the timeline.
-  void demux_packet( klv_packet const& packet );
+  /// Incorporate \p packets into the timeline.
+  void send_frame(
+    std::vector< klv_packet > const& packets,
+    kwiver::vital::optional< uint64_t > backup_timestamp =
+      kwiver::vital::nullopt );
 
-  /// Move the current time to \p timestamp.
-  ///
-  /// Data in the timeline ahead of \p timestamp is not deleted, but loses its
-  /// guarantee of correctness: older packets may overwrite newer data.
-  void seek( uint64_t timestamp );
+  /// Return the timestamp of the most recent frame.
+  uint64_t frame_time() const;
 
   /// Return the timeline being modified.
   klv_timeline&
@@ -45,13 +45,15 @@ public:
 private:
   using key_t = typename klv_timeline::key_t;
 
-  void demux_unknown( klv_packet const& packet );
+  void demux_packet( klv_packet const& packet );
 
-  void demux_0104( klv_universal_set const& value );
+  void demux_unknown( klv_packet const& packet, uint64_t timestamp );
 
-  void demux_0601( klv_local_set const& value );
+  void demux_0104( klv_universal_set const& value, uint64_t timestamp );
 
-  void demux_1108( klv_local_set const& value );
+  void demux_0601( klv_local_set const& value, uint64_t timestamp );
+
+  void demux_1108( klv_local_set const& value, uint64_t timestamp );
 
   void demux_single_entry( klv_top_level_tag standard,
                            klv_lds_key tag,
@@ -65,9 +67,8 @@ private:
                    interval_t const& time_interval,
                    std::vector< T > const& value );
 
-  void check_timestamp( uint64_t timestamp ) const;
-
-  uint64_t m_last_timestamp;
+  uint64_t m_frame_timestamp;
+  uint64_t m_prev_frame_timestamp;
   std::multimap< klv_timeline::key_t, uint64_t > m_cancel_points;
   klv_timeline& m_timeline;
 };

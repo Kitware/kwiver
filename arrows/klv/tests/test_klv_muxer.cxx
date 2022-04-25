@@ -160,7 +160,7 @@ TEST_F ( klv_muxer_test, round_trip_buffered )
   klv_demuxer demuxer( new_timeline );
   for( auto const& packet : packets1 )
   {
-    demuxer.demux_packet( packet.packet );
+    demuxer.send_frame( { packet.packet } );
   }
 
   // Compare timelines
@@ -206,7 +206,7 @@ TEST_F ( klv_muxer_test, round_trip_immediate )
   klv_demuxer demuxer( new_timeline );
   for( auto const& packet : packets1 )
   {
-    demuxer.demux_packet( packet.packet );
+    demuxer.send_frame( { packet.packet } );
   }
 
   // Compare timelines

@@ -122,9 +122,9 @@ klv_packet_length( klv_packet const& packet );
 ///
 /// \param packet KLV packet being queried.
 ///
-/// \returns Packet timestamp in microseconds, or \c 0 on failure.
+/// \returns Packet timestamp in microseconds, or \c nullopt on failure.
 KWIVER_ALGO_KLV_EXPORT
-uint64_t
+kwiver::vital::optional< uint64_t >
 klv_packet_timestamp( klv_packet const& packet );
 
 // ----------------------------------------------------------------------------

@@ -195,13 +195,15 @@ klv_packet_length( klv_packet const& packet )
 }
 
 // ----------------------------------------------------------------------------
-uint64_t
+kv::optional< uint64_t >
 klv_packet_timestamp( klv_packet const& packet )
 {
   if( !packet.value.valid() )
   {
-    return 0;
+    return kv::nullopt;
   }
+
+  kv::optional< uint64_t > result;
   switch( klv_lookup_packet_traits().by_uds_key( packet.key ).tag() )
   {
     case KLV_PACKET_MISB_0104_UNIVERSAL_SET:
@@ -210,27 +212,37 @@ klv_packet_timestamp( klv_packet const& packet )
         .by_tag( KLV_0104_USER_DEFINED_TIMESTAMP ).uds_key();
       auto const& set = packet.value.get< klv_universal_set >();
       auto const it = set.find( key );
-      return ( it != set.end() && it->second.valid() )
-             ? it->second.get< uint64_t >() : 0;
+      if ( it != set.end() && it->second.valid() )
+      {
+        result = it->second.get< uint64_t >();
+      }
+      break;
     }
     case KLV_PACKET_MISB_0601_LOCAL_SET:
     {
       auto const& set = packet.value.get< klv_local_set >();
       auto const it = set.find( KLV_0601_PRECISION_TIMESTAMP );
-      return ( it != set.end() && it->second.valid() )
-             ? it->second.get< uint64_t >() : 0;
+      if ( it != set.end() && it->second.valid() )
+      {
+        result = it->second.get< uint64_t >();
+      }
+      break;
     }
     case KLV_PACKET_MISB_1108_LOCAL_SET:
     {
       auto const& set = packet.value.get< klv_local_set >();
       auto const it = set.find( KLV_1108_METRIC_PERIOD_PACK );
-      return ( it != set.end() && it->second.valid() )
-             ? it->second.get< klv_1108_metric_period_pack >().timestamp : 0;
+      if ( it != set.end() && it->second.valid() )
+      {
+        result = it->second.get< klv_1108_metric_period_pack >().timestamp;
+      }
+      break;
     }
     case KLV_PACKET_UNKNOWN:
     default:
-      return 0;
+      break;
   }
+  return result;
 }
 
 // ----------------------------------------------------------------------------

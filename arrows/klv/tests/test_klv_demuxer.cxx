@@ -43,19 +43,17 @@ TEST ( klv, demuxer_invalid )
 
   klv_timeline timeline;
   klv_demuxer demuxer( timeline );
-  demuxer.seek( 123 );
   for( auto const& packet : packets )
   {
-    demuxer.demux_packet( packet );
+    demuxer.send_frame( { packet }, 123 );
   }
 
   {
     klv_timeline reverse_timeline;
     klv_demuxer reverse_demuxer( reverse_timeline );
-    reverse_demuxer.seek( 123 );
     for( auto it = packets.rbegin(); it != packets.rend(); ++it )
     {
-      reverse_demuxer.demux_packet( *it );
+      reverse_demuxer.send_frame( { *it }, 123 );
     }
 
     EXPECT_EQ( timeline, reverse_timeline );
@@ -110,7 +108,7 @@ TEST ( klv, demuxer_0601 )
   klv_demuxer demuxer( timeline );
   for( auto const& packet : packets )
   {
-    demuxer.demux_packet( packet );
+    demuxer.send_frame( { packet } );
   }
 
   {
@@ -118,7 +116,7 @@ TEST ( klv, demuxer_0601 )
     klv_demuxer reverse_demuxer( reverse_timeline );
     for( auto it = packets.rbegin(); it != packets.rend(); ++it )
     {
-      reverse_demuxer.demux_packet( *it );
+      reverse_demuxer.send_frame( { *it } );
     }
 
     EXPECT_EQ( timeline, reverse_timeline );
@@ -285,7 +283,7 @@ TEST ( klv, demuxer_0601_special )
   klv_demuxer demuxer( timeline );
   for( auto const& packet : packets )
   {
-    demuxer.demux_packet( packet );
+    demuxer.send_frame( { packet } );
   }
 
   auto const standard = KLV_PACKET_MISB_0601_LOCAL_SET;
@@ -470,7 +468,7 @@ TEST ( klv, demuxer_1108 )
   klv_demuxer demuxer( timeline );
   for( auto const& packet : packets )
   {
-    demuxer.demux_packet( packet );
+    demuxer.send_frame( { packet } );
   }
 
   {
@@ -478,7 +476,7 @@ TEST ( klv, demuxer_1108 )
     klv_demuxer reverse_demuxer( reverse_timeline );
     for( auto it = packets.rbegin(); it != packets.rend(); ++it )
     {
-      reverse_demuxer.demux_packet( *it );
+      reverse_demuxer.send_frame( { *it } );
     }
 
     EXPECT_EQ( timeline, reverse_timeline );
@@ -503,4 +501,48 @@ TEST ( klv, demuxer_1108 )
                                          std::string{ "5.1" },
                                          std::string{ "5.1" } } ),
              timeline.all_at( standard, KLV_1108_COMPRESSION_LEVEL, 155 ) );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( klv, demuxer_multipacket_frame )
+{
+  auto const packets1 = std::vector< klv_packet >{
+    { { 1, 2 }, klv_blob{ { 0xFF } } },
+    { klv_0601_key(),
+      klv_local_set{
+        { KLV_0601_PRECISION_TIMESTAMP, uint64_t{ 100 } },
+        { KLV_0601_MISSION_ID, std::string{ "TEST1" } } } },
+    { klv_0601_key(),
+      klv_local_set{
+        { KLV_0601_PRECISION_TIMESTAMP, uint64_t{ 200 } },
+        { KLV_0601_MISSION_ID, std::string{ "TEST2" } } } },
+    { { 3, 4 }, klv_blob{ { 0xFF } } },
+  };
+
+  auto const packets2 = std::vector< klv_packet >{
+    { { 5, 6 }, klv_blob{ { 0xFF } } },
+    { klv_0601_key(),
+      klv_local_set{
+        { KLV_0601_PRECISION_TIMESTAMP, uint64_t{ 400 } },
+        { KLV_0601_MISSION_ID, std::string{ "TEST4" } } } },
+    { klv_0601_key(),
+      klv_local_set{
+        { KLV_0601_PRECISION_TIMESTAMP, uint64_t{ 300 } },
+        { KLV_0601_MISSION_ID, std::string{ "TEST3" } } } },
+    { { 7, 8 }, klv_blob{ { 0xFF } } },
+  };
+
+  klv_timeline timeline;
+  klv_demuxer demuxer( timeline );
+  demuxer.send_frame( packets1 );
+  demuxer.send_frame( packets2 );
+
+  {
+    klv_timeline reverse_timeline;
+    klv_demuxer reverse_demuxer( reverse_timeline );
+    reverse_demuxer.send_frame( packets2 );
+    reverse_demuxer.send_frame( packets1 );
+
+    EXPECT_EQ( timeline, reverse_timeline );
+  }
 }
