@@ -48,11 +48,11 @@ TEST(essential_matrix, constructors)
   EXPECT_MATRIX_SIMILAR(d1.matrix(), d2.matrix(), 1e-5);
   EXPECT_MATRIX_SIMILAR(f1.matrix(), f2.matrix(), 1e-5);
 
-  // essential_matrix_f f_from_d(d1);
-  // EXPECT_MATRIX_SIMILAR(f_from_d.matrix(), f1.matrix(), 1e-5);
+  essential_matrix_f f_from_d(d1);
+  EXPECT_MATRIX_SIMILAR(f_from_d.matrix(), f1.matrix(), 1e-5);
 
-  // essential_matrix_d d_from_f(f1);
-  // EXPECT_MATRIX_SIMILAR(d_from_f.matrix(), d1.matrix(), 1e-5);
+  essential_matrix_d d_from_f(f1);
+  EXPECT_MATRIX_SIMILAR(d_from_f.matrix(), d1.matrix(), 1e-5);
 }
 
 // ----------------------------------------------------------------------------
