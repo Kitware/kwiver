@@ -35,6 +35,7 @@
 
 #include <vital/internal/cereal/archives/json.hpp>
 #include <vital/internal/cereal/cereal.hpp>
+#include <vital/internal/cereal/external/base64.hpp>
 
 #include <vital/range/iota.h>
 #include <vital/util/visit.h>
@@ -391,6 +392,18 @@ public:
     }
   }
 
+  void save_base64( std::string const& name,
+                    std::vector< uint8_t > const& value )
+  {
+    set_next_name( name );
+    save_base64( value );
+  }
+
+  void save_base64( std::vector< uint8_t > const& value )
+  {
+    save( base64::encode( value.data(), value.size() ) );
+  }
+
   template< class T >
   void save( std::set< T > const& value )
   {
@@ -460,7 +473,7 @@ public:
   void save( klv_uds_key const& key )
   {
     auto const object_scope = push_object();
-    save( "bytes", std::vector< uint8_t >( key.cbegin(), key.cend() ) );
+    save_base64( "bytes", { key.cbegin(), key.cend() } );
     if( m_verbose )
     {
       std::stringstream ss;
@@ -573,7 +586,7 @@ public:
 
   void save( klv_blob const& value )
   {
-    save( *value );
+    save_base64( *value );
   }
 
   template< class T >
@@ -743,7 +756,7 @@ public:
 
   void save( klv_0806_user_defined_data const& value )
   {
-    save( value.bytes );
+    save_base64( value.bytes );
   }
 
   void save( klv_0903_fpa_index const& value )
@@ -892,8 +905,7 @@ public:
   void save( klv_uuid const& value )
   {
     auto const object_scope = push_object();
-    save( "bytes", std::vector< uint8_t >{ value.bytes.cbegin(),
-                                           value.bytes.cend() } );
+    save_base64( "bytes", { value.bytes.begin(), value.bytes.end() } );
     if( m_verbose )
     {
       std::stringstream ss;
@@ -1011,6 +1023,18 @@ struct klv_json_loader : public klv_json_base< load_archive >
   {
     set_next_name( name );
     return load< T >();
+  }
+
+  std::vector< uint8_t > load_base64( std::string const& name )
+  {
+    set_next_name( name );
+    return load_base64();
+  }
+
+  std::vector< uint8_t > load_base64()
+  {
+    auto const string = base64::decode( load< std::string >() );
+    return { string.begin(), string.end() };
   }
 
   LOAD_CONTAINER_TEMPLATE( std::vector )
@@ -1134,7 +1158,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
   T load()
   {
     auto const object_scope = push_object();
-    LOAD_VALUE( bytes, std::vector< uint8_t > );
+    auto const bytes = load_base64( "bytes" );
     if( bytes.size() != klv_uds_key::length )
     {
       throw std::runtime_error( "uds key has incorrect number of bytes" );
@@ -1183,7 +1207,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
   LOAD_TEMPLATE( klv_blob )
   T load()
   {
-    return load< std::vector< uint8_t > >();
+    return { load_base64() };
   }
 
   LOAD_TEMPLATE( klv_local_set )
@@ -1450,7 +1474,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
   LOAD_TEMPLATE( klv_0806_user_defined_data )
   T load()
   {
-    return { std::move( load< std::vector< uint8_t > >() ) };
+    return { load_base64() };
   }
 
   LOAD_TEMPLATE( klv_0903_fpa_index )
@@ -1678,7 +1702,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
   T load()
   {
     auto const object_scope = push_object();
-    LOAD_VALUE( bytes, std::vector< uint8_t > );
+    auto const bytes = load_base64( "bytes" );
     if( bytes.size() != 16 )
     {
       throw std::runtime_error( "uuid has incorrect number of bytes" );
