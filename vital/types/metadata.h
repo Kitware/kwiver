@@ -43,7 +43,6 @@ using metadata_value =
 /// Simple wrapper around \c visit_variant_types specialized for the types of
 /// \c metadata_value.
 template< class Visitor >
-VITAL_EXPORT
 void visit_metadata_types( Visitor&& visitor, std::type_info const& type );
 
 // ----------------------------------------------------------------------------
@@ -52,7 +51,6 @@ void visit_metadata_types( Visitor&& visitor, std::type_info const& type );
 /// Simple wrapper around \c visit_variant_types_return specialized for the
 /// types of \c metadata_value.
 template< class ReturnT, class Visitor >
-VITAL_EXPORT
 ReturnT visit_metadata_types_return( Visitor&& visitor,
                                      std::type_info const& type );
 
@@ -76,7 +74,6 @@ ReturnT visit_metadata_types_return( Visitor&& visitor,
 namespace metadata_detail {
 // ----------------------------------------------------------------------------
 template< class T >
-VITAL_EXPORT
 metadata_value
 convert_data( VITAL_UNUSED vital_metadata_tag tag, T const& data );
 
@@ -249,6 +246,9 @@ public:
   virtual ~metadata() = default;
   metadata& operator=( metadata&& other ) = default;
   metadata& operator=( metadata const& other );
+
+  /// Create a deep copy of this object.
+  virtual metadata* clone() const;
 
   /// \brief Add metadata item to collection.
   ///

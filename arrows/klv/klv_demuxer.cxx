@@ -73,7 +73,62 @@ indexify_1108( klv_local_set const& parent_set,
 // ----------------------------------------------------------------------------
 klv_demuxer
 ::klv_demuxer( klv_timeline& timeline )
-  : m_last_timestamp{ 0 }, m_timeline( timeline ) {}
+  : m_frame_timestamp{ 0 }, m_prev_frame_timestamp{ 0 }, m_timeline( timeline ) {}
+
+// ----------------------------------------------------------------------------
+void
+klv_demuxer
+::send_frame( std::vector< klv_packet > const& packets,
+              kv::optional< uint64_t > backup_timestamp )
+{
+  m_prev_frame_timestamp = m_frame_timestamp;
+
+  auto found_timestamp = false;
+  for( auto const& packet : packets )
+  {
+    auto const derived_timestamp = klv_packet_timestamp( packet );
+    if( derived_timestamp )
+    {
+      if( found_timestamp )
+      {
+        m_frame_timestamp = std::min( m_frame_timestamp, *derived_timestamp );
+      }
+      else
+      {
+        m_frame_timestamp = *derived_timestamp;
+        found_timestamp = true;
+      }
+    }
+  }
+
+  if( !found_timestamp )
+  {
+    if( backup_timestamp )
+    {
+      LOG_DEBUG( kv::get_logger( "klv" ),
+                 "demuxer: using backup timestamping method" );
+      m_frame_timestamp = *backup_timestamp;
+    }
+    else
+    {
+      LOG_WARN( kv::get_logger( "klv" ),
+                "demuxer: unable to update timestamp for new frame" );
+    }
+  }
+
+  for( auto const& packet : packets )
+  {
+    demux_packet( packet );
+  }
+}
+
+// ----------------------------------------------------------------------------
+uint64_t
+klv_demuxer
+::frame_time() const
+{
+  return m_frame_timestamp;
+}
 
 // ----------------------------------------------------------------------------
 void
@@ -82,10 +137,13 @@ klv_demuxer
 {
   auto const& trait = klv_lookup_packet_traits().by_uds_key( packet.key );
 
+  auto const derived_timestamp = klv_packet_timestamp( packet );
+  auto const timestamp = derived_timestamp ? *derived_timestamp : m_frame_timestamp;
+
   // Invalid or unrecognized packets are still saved in raw byte form
   if( !packet.value.valid() )
   {
-    demux_unknown( packet );
+    demux_unknown( packet, timestamp );
     return;
   }
 
@@ -93,26 +151,19 @@ klv_demuxer
   switch( trait.tag() )
   {
     case KLV_PACKET_MISB_0601_LOCAL_SET:
-      demux_0601( packet.value.get< klv_local_set >() );
+      demux_0601( packet.value.get< klv_local_set >(), timestamp );
       break;
     case KLV_PACKET_MISB_0104_UNIVERSAL_SET:
-      demux_0104( packet.value.get< klv_universal_set >() );
+      demux_0104( packet.value.get< klv_universal_set >(), timestamp );
       break;
     case KLV_PACKET_MISB_1108_LOCAL_SET:
-      demux_1108( packet.value.get< klv_local_set >() );
+      demux_1108( packet.value.get< klv_local_set >(), timestamp );
       break;
     case KLV_PACKET_UNKNOWN:
     default:
-      throw std::logic_error( "klv packet with unknown key but valid value" );
+      throw std::logic_error(
+        "klv_demuxer: packet with unknown key but valid value" );
   }
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_demuxer
-::seek( uint64_t timestamp )
-{
-  m_last_timestamp = timestamp;
 }
 
 // ----------------------------------------------------------------------------
@@ -128,7 +179,10 @@ void
 klv_demuxer
 ::reset()
 {
-  m_last_timestamp = 0;
+  m_prev_frame_timestamp = 0;
+  m_frame_timestamp = 0;
+  m_cancel_points.clear();
+  m_timeline.clear();
 }
 
 // ----------------------------------------------------------------------------
@@ -150,53 +204,42 @@ klv_demuxer
 // ----------------------------------------------------------------------------
 void
 klv_demuxer
-::demux_unknown( klv_packet const& packet )
+::demux_unknown( klv_packet const& packet, uint64_t timestamp )
 {
   auto& unknown_timeline =
     m_timeline.insert_or_find( KLV_PACKET_UNKNOWN, 0, packet.key )->second;
 
   // Add this packet to a list (created here if necessary) of unknown packets
   // at this timestamp.
-  // m_last_timestamp used here because we can't extract a timestamp from a
-  // packet of unknown format
-  auto const unknown_it = unknown_timeline.find( m_last_timestamp );
+  auto const unknown_it = unknown_timeline.find( timestamp );
   if( unknown_it == unknown_timeline.end() )
   {
-    unknown_timeline.set( { m_last_timestamp, m_last_timestamp + 1 },
-                          std::vector< klv_packet >{ packet } );
+    unknown_timeline.set( { timestamp, timestamp + 1 },
+                          std::set< klv_packet >{ packet } );
   }
   else
   {
-    unknown_it->value.get< std::vector< klv_packet > >()
-      .emplace_back( packet );
+    unknown_it->value.get< std::set< klv_packet > >().emplace( packet );
   }
 }
 
 // ----------------------------------------------------------------------------
 void
 klv_demuxer
-::demux_0104( klv_universal_set const& value )
+::demux_0104( klv_universal_set const& value, uint64_t timestamp )
 {
   constexpr auto standard = KLV_PACKET_MISB_0104_UNIVERSAL_SET;
-
-  // Extract timestamp
-  auto const& lookup = klv_0104_traits_lookup();
-  auto const timestamp_key =
-    lookup.by_tag( KLV_0104_USER_DEFINED_TIMESTAMP ).uds_key();
-  auto const timestamp = value.at( timestamp_key ).get< uint64_t >();
-  if( !check_timestamp( timestamp ) )
-  {
-    return;
-  }
 
   // By default, valid for 30 seconds
   auto const time_interval =
     interval_t{ timestamp, timestamp + klv_0104_default_duration };
 
+  auto const& lookup = klv_0104_traits_lookup();
   for( auto const& entry : value )
   {
     // Timestamp already implicitly encoded
-    if( entry.first == timestamp_key )
+    if( entry.first ==
+        lookup.by_tag( KLV_0104_USER_DEFINED_TIMESTAMP ).uds_key() )
     {
       continue;
     }
@@ -206,25 +249,14 @@ klv_demuxer
     demux_single_entry( standard, trait.tag(), {}, time_interval,
                         entry.second );
   }
-
-  // Update timestamp
-  m_last_timestamp = timestamp;
 }
 
 // ----------------------------------------------------------------------------
 void
 klv_demuxer
-::demux_0601( klv_local_set const& local_set )
+::demux_0601( klv_local_set const& local_set, uint64_t timestamp )
 {
   auto const standard = KLV_PACKET_MISB_0601_LOCAL_SET;
-
-  // Extract timestamp
-  auto const timestamp =
-    local_set.at( KLV_0601_PRECISION_TIMESTAMP ).get< uint64_t >();
-  if( !check_timestamp( timestamp ) )
-  {
-    return;
-  }
 
   // By default, valid for 30 seconds
   auto const time_interval =
@@ -291,30 +323,22 @@ klv_demuxer
         break;
     };
   }
-
-  // Update timestamp
-  m_last_timestamp = timestamp;
 }
 
 // ----------------------------------------------------------------------------
 void
 klv_demuxer
-::demux_1108( klv_local_set const& value )
+::demux_1108( klv_local_set const& value, uint64_t timestamp )
 {
   constexpr auto standard = KLV_PACKET_MISB_1108_LOCAL_SET;
 
   // Extract timestamp
   auto const metric_period = value.at( KLV_1108_METRIC_PERIOD_PACK )
     .get< klv_1108_metric_period_pack >();
-  if( !check_timestamp( metric_period.timestamp ) )
-  {
-    return;
-  }
 
   // Valid for the period of time specified in METRIC_PERIOD_PACK field
   auto const time_interval =
-    interval_t{ metric_period.timestamp,
-                metric_period.timestamp + metric_period.offset };
+    interval_t{ timestamp, timestamp + metric_period.offset };
 
   // Each 1108 local set can have multiple metrics, each contained in its own
   // metric local set. Items in the parent set are shared among the metric
@@ -343,9 +367,6 @@ klv_demuxer
       demux_single_entry( standard, tag, index, time_interval, entry.second );
     }
   }
-
-  // Update timestamp
-  m_last_timestamp = metric_period.timestamp;
 }
 
 // ----------------------------------------------------------------------------
@@ -355,9 +376,12 @@ klv_demuxer
                       klv_value const& index, interval_t const& time_interval,
                       klv_value const& value )
 {
+  auto const key = klv_timeline::key_t{ standard, tag, index };
   if( value.empty() )
   {
     // Null value: erase timespan instead of adding a null entry
+    m_cancel_points.emplace( key, time_interval.lower() );
+
     auto const it = m_timeline.find( standard, tag );
     if( it == m_timeline.end() )
     {
@@ -375,25 +399,25 @@ klv_demuxer
   else
   {
     // Non-null value: add new entry
+    auto adjusted_interval = time_interval;
+    auto const cancel_range = m_cancel_points.equal_range( key );
+    for( auto it = cancel_range.first; it != cancel_range.second; ++it )
+    {
+      auto const cancel_time = it->second;
+      if( cancel_time >= adjusted_interval.lower() )
+      {
+        adjusted_interval.truncate_upper( cancel_time );
+      }
+    }
     auto const it = m_timeline.insert_or_find( standard, tag, index );
-    it->second.set( time_interval, value );
+    it->second.weak_set( adjusted_interval, value );
+    auto const jt = it->second.find( adjusted_interval.lower() );
+    if( jt != it->second.end() )
+    {
+      it->second.set( { adjusted_interval.lower(), jt->key_interval.upper() },
+                      value );
+    }
   }
-}
-
-// ----------------------------------------------------------------------------
-bool
-klv_demuxer
-::check_timestamp( uint64_t timestamp ) const
-{
-  // Packets *must* be fed to demuxer in chronological order to prevent older
-  // packets from incorrectly overriding newer packets.
-  auto const result = timestamp >= m_last_timestamp;
-  if( !result )
-  {
-    LOG_ERROR( kv::get_logger( "klv" ),
-               "demuxer: dropping out-of-order packet ( " << timestamp << " less than " << m_last_timestamp << " )" );
-  }
-  return result;
 }
 
 } // namespace klv

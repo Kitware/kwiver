@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header defining the core interpolate_track_spline algorithm
- */
+/// \file
+/// \brief Header defining the core interpolate_track_spline algorithm
 
 #ifndef KWIVER_ARROWS_CORE_INTERPOLATE_TRACK_SPLINE_H_
 #define KWIVER_ARROWS_CORE_INTERPOLATE_TRACK_SPLINE_H_
@@ -19,11 +17,10 @@ namespace arrows {
 namespace core {
 
 /// Fills in missing track segments using spline interpolation
-/**
- * This class generates additional track states in between known states using
- * a configurable variety of spline-based interpolation techniques that do not
- * depend on imagery.
- */
+///
+/// This class generates additional track states in between known states using
+/// a configurable variety of spline-based interpolation techniques that do not
+/// depend on imagery.
 class KWIVER_ALGO_CORE_EXPORT interpolate_track_spline
   : public vital::algo::interpolate_track
 {

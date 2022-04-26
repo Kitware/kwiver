@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Interface for read_object_track_set_kw18
- */
+/// \file
+/// \brief Interface for read_object_track_set_kw18
 
 #ifndef KWIVER_ARROWS_READ_OBJECT_TRACK_SET_KW18_H
 #define KWIVER_ARROWS_READ_OBJECT_TRACK_SET_KW18_H

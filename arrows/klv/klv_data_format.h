@@ -288,7 +288,7 @@ protected:
                size_t length ) const = 0;
 
   virtual size_t
-  length_of_typed( T const& value ) const
+  length_of_typed( VITAL_UNUSED T const& value ) const
   {
     throw std::logic_error(
       std::string{} + "data format of type `" + type_name() +

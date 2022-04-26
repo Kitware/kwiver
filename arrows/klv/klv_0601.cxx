@@ -370,7 +370,8 @@ klv_0601_traits_lookup()
       std::make_shared< klv_0102_local_set_format >(),
       "Security Local Set",
       "MISB ST 0102 local set for security metadata.",
-      { 0, 1 } },
+      { 0, 1 },
+      &klv_0102_traits_lookup() },
     { {},
       ENUM_AND_NAME( KLV_0601_DIFFERENTIAL_PRESSURE ),
       std::make_shared< klv_uflint_format >( 0.0, 5000.0, 2 ),
@@ -534,13 +535,15 @@ klv_0601_traits_lookup()
       std::make_shared< klv_0806_local_set_format >(),
       "RVT Local Set",
       "MISB ST 0806 local set for remote video terminals.",
-      { 0, 1 } },
+      { 0, 1 },
+      &klv_0806_traits_lookup() },
     { {},
       ENUM_AND_NAME( KLV_0601_VMTI_LOCAL_SET ),
       std::make_shared< klv_0903_local_set_format >(),
       "VMTI Local Set",
       "MISB ST 0903 local set for the video moving target indicator.",
-      { 0, 1 } },
+      { 0, 1 },
+      &klv_0903_traits_lookup() },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_ELLIPSOID_HEIGHT ),
       std::make_shared< klv_uflint_format >( -900.0, 19000.0, 2 ),
@@ -672,7 +675,8 @@ klv_0601_traits_lookup()
       std::make_shared< klv_1206_local_set_format >(),
       "SAR Motion Imagery Local Set",
       "MISB ST 1206 local set for synthetic aperture radar Motion Imagery.",
-      { 0, 1 } },
+      { 0, 1 },
+      &klv_1206_traits_lookup() },
     { {},
       ENUM_AND_NAME( KLV_0601_TARGET_WIDTH_EXTENDED ),
       std::make_shared< klv_imap_format >( 0.0, 1.5e6 ),
@@ -684,19 +688,22 @@ klv_0601_traits_lookup()
       std::make_shared< klv_1002_local_set_format >(),
       "Range Image Local Set",
       "MISB ST 1002 local set for range images.",
-      { 0, 1 } },
+      { 0, 1 },
+      &klv_1002_traits_lookup() },
     { {},
       ENUM_AND_NAME( KLV_0601_GEOREGISTRATION_LOCAL_SET ),
       std::make_shared< klv_1601_local_set_format >(),
       "Geo-Registration Local Set",
       "MISB ST 1601 local set for geo-registration.",
-      { 0, 1 } },
+      { 0, 1 },
+      &klv_1601_traits_lookup() },
     { {},
       ENUM_AND_NAME( KLV_0601_COMPOSITE_IMAGING_LOCAL_SET ),
       std::make_shared< klv_1602_local_set_format >(),
       "Composite Imaging Local Set",
       "MISB ST 1602 local set for composite imaging.",
-      { 0, 1 } },
+      { 0, 1 },
+      &klv_1602_traits_lookup() },
     { {},
       ENUM_AND_NAME( KLV_0601_SEGMENT_LOCAL_SET ),
       std::make_shared< klv_1607_child_set_format >( lookup ),
@@ -1188,7 +1195,8 @@ klv_0601_image_horizon_locations_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0601_image_horizon_locations_format
-::length_of_typed( klv_0601_image_horizon_locations const& value ) const
+::length_of_typed(
+  VITAL_UNUSED klv_0601_image_horizon_locations const& value ) const
 {
   return 16;
 }

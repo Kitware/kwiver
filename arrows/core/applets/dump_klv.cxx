@@ -71,7 +71,7 @@ add_command_options()
     ( "d,detail", "Display a detailed description of the metadata" )
     ( "q,quiet", "Do not show metadata. Overrides -d/--detail." )
     ( "e,exporter", "Choose the format of the exported KLV data. "
-      "Current options are: csv, json.",
+      "Current options are: csv, json, klv-json.",
       cxxopts::value< std::string >(), "format" )
 
     // positional parameters
@@ -272,7 +272,6 @@ dump_klv
           {
             // process metada items
             auto const& name = ix.second->name();
-            auto const& data = ix.second->data();
             auto const& tag = ix.second->tag();
             auto const& descrip = kv::tag_traits_by_tag( tag ).description();
 

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of close_loops_bad_frames_only
- */
+/// \file
+/// \brief Implementation of close_loops_bad_frames_only
 
 #include "close_loops_bad_frames_only.h"
 

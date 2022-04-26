@@ -196,19 +196,9 @@ ffmpeg_video_output
                  "Must provide ffmpeg_video_settings to open()" );
   }
 
-  d->output_format = av_guess_format( nullptr, video_name.c_str(), nullptr );
-
   // Allocate output format context
   avformat_alloc_output_context2(
-    &d->format_context, d->output_format, nullptr, nullptr );
-  if( !d->format_context )
-  {
-    LOG_DEBUG( logger(),
-               "Could not deduce output format for filename `"
-               << video_name << "`; defaulting to MPEG" );
-    avformat_alloc_output_context2(
-      &d->format_context, nullptr, "mpeg", nullptr );
-  }
+    &d->format_context, nullptr, nullptr, video_name.c_str() );
   if( !d->format_context )
   {
     VITAL_THROW( kv::video_runtime_exception,
@@ -217,7 +207,34 @@ ffmpeg_video_output
   d->output_format = d->format_context->oformat;
 
   // Configure video codec
+  auto const x264_codec = avcodec_find_encoder_by_name( "libx264" );
+  auto const x265_codec = avcodec_find_encoder_by_name( "libx265" );
+  AVCodec* requested_codec = nullptr;
+  switch( settings->codec_id )
+  {
+    case AV_CODEC_ID_H264:
+      requested_codec = x264_codec;
+      break;
+    case AV_CODEC_ID_H265:
+      requested_codec = x265_codec;
+      break;
+    default:
+      requested_codec = avcodec_find_encoder( settings->codec_id );
+  }
+
   d->codec = avcodec_find_encoder( d->output_format->video_codec );
+  for( auto const encoder : { requested_codec, x265_codec, x264_codec } )
+  {
+    // Ensure codec exists and is compatible with the output file format
+    if( encoder && avformat_query_codec( d->output_format,
+                                         encoder->id,
+                                         FF_COMPLIANCE_STRICT ) )
+    {
+      d->codec = encoder;
+      break;
+    }
+  }
+
   if( !d->codec )
   {
     VITAL_THROW( kv::video_runtime_exception, "Failed to find codec" );
@@ -281,7 +298,7 @@ ffmpeg_video_output
   }
   d->video_stream->time_base = d->codec_context->time_base;
   d->video_stream->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
-  d->video_stream->codecpar->codec_id = d->output_format->video_codec;
+  d->video_stream->codecpar->codec_id = d->codec->id;
   d->video_stream->codecpar->width = d->codec_context->width;
   d->video_stream->codecpar->height = d->codec_context->height;
   d->video_stream->codecpar->format = d->codec_context->pix_fmt;
@@ -503,7 +520,7 @@ ffmpeg_video_output
 // ----------------------------------------------------------------------------
 void
 ffmpeg_video_output
-::add_metadata( kwiver::vital::metadata const& md )
+::add_metadata( VITAL_UNUSED kwiver::vital::metadata const& md )
 {
   // TODO
 }

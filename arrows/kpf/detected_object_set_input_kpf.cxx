@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation for detected_object_set_input_kpf
- */
+/// \file
+/// \brief Implementation for detected_object_set_input_kpf
 
 #include "detected_object_set_input_kpf.h"
 
@@ -27,7 +25,7 @@ namespace kwiver {
 namespace arrows {
 namespace kpf {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class detected_object_set_input_kpf::priv
 {
 public:
@@ -51,7 +49,7 @@ public:
   std::map< int, kwiver::vital::detected_object_set_sptr > m_detected_sets;
 };
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 detected_object_set_input_kpf::
 detected_object_set_input_kpf()
   : d( new detected_object_set_input_kpf::priv( this ) )
@@ -64,13 +62,13 @@ detected_object_set_input_kpf::
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_input_kpf::
 set_configuration( VITAL_UNUSED vital::config_block_sptr config)
 { }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set_input_kpf::
 check_configuration( VITAL_UNUSED vital::config_block_sptr config) const
@@ -78,7 +76,7 @@ check_configuration( VITAL_UNUSED vital::config_block_sptr config) const
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set_input_kpf::
 read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name )
@@ -113,7 +111,7 @@ read_set( kwiver::vital::detected_object_set_sptr & set, std::string& image_name
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_input_kpf::
 new_stream()
@@ -121,7 +119,7 @@ new_stream()
   d->m_first = true;
 }
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 void
 detected_object_set_input_kpf::priv::
 read_all()

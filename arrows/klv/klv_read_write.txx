@@ -46,27 +46,23 @@ namespace klv {
 // ----------------------------------------------------------------------------
 // Return number of bits required to store the given signed or unsigned int.
 template < class T >
-KWIVER_ALGO_KLV_EXPORT
 size_t
 _int_bit_length( T value );
 
 // ----------------------------------------------------------------------------
 // Return whether left-shifting by given amount would overflow type T.
 template < int shift_amount, typename T >
-KWIVER_ALGO_KLV_EXPORT
 bool
 _left_shift_overflow( T value );
 
 // ----------------------------------------------------------------------------
 // Minimum integer representable using the given number of bytes
 template < class T >
-KWIVER_ALGO_KLV_EXPORT
 T _int_min( size_t length );
 
 // ----------------------------------------------------------------------------
 // Maximum integer representable using the given number of bytes
 template < class T >
-KWIVER_ALGO_KLV_EXPORT
 T _int_max( size_t length );
 
 // ----------------------------------------------------------------------------
@@ -265,7 +261,7 @@ klv_write_ber( T value, Iterator& data, size_t max_length )
   }
   else
   {
-    *data = static_cast< uint8_t >( ( 0x7F & value_length - 1 ) | 0x80 );
+    *data = static_cast< uint8_t >( ( 0x7F & ( value_length - 1 ) ) | 0x80 );
     klv_write_int( value, ++data, value_length - 1 );
   }
 }

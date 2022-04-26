@@ -36,13 +36,11 @@ DECLARE_CMP( klv_uuid )
 
 // ----------------------------------------------------------------------------
 template < class Iterator >
-KWIVER_ALGO_KLV_EXPORT
 klv_uuid
 klv_read_uuid( Iterator& data, size_t max_length );
 
 // ----------------------------------------------------------------------------
 template < class Iterator >
-KWIVER_ALGO_KLV_EXPORT
 void
 klv_write_uuid( klv_uuid const& value, Iterator& data,
                 size_t max_length );

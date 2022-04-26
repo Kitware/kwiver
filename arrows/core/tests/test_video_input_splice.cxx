@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test reading images and metadata with video_input_splice
- */
+/// \file
+/// \brief test reading images and metadata with video_input_splice
 
 #include <test_gtest.h>
 

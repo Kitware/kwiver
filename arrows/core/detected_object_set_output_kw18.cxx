@@ -36,7 +36,7 @@ namespace core {
 /// \li Column(s) 18: Timesetamp(-1 if not available)
 /// \li Column(s) 19: Track-confidence(-1_when_not_available)
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class detected_object_set_output_kw18::priv
 {
 public:
@@ -60,7 +60,7 @@ public:
   std::vector< std::string > m_parsed_tot_ids1, m_parsed_tot_ids2;
 };
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 detected_object_set_output_kw18::
 detected_object_set_output_kw18()
   : d( new detected_object_set_output_kw18::priv( this ) )
@@ -77,7 +77,7 @@ detected_object_set_output_kw18::
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_output_kw18::
 set_configuration( vital::config_block_sptr config_in )
@@ -94,7 +94,7 @@ set_configuration( vital::config_block_sptr config_in )
   vital::tokenize( d->m_tot_field2_ids, d->m_parsed_tot_ids2, ",;", kwiver::vital::TokenizeTrimEmpty );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 detected_object_set_output_kw18::
 get_configuration() const
@@ -114,7 +114,7 @@ get_configuration() const
   return config;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set_output_kw18::
 check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
@@ -132,7 +132,7 @@ check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_output_kw18::
 write_set( const kwiver::vital::detected_object_set_sptr set,

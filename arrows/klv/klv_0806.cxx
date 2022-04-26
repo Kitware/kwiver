@@ -107,21 +107,24 @@ klv_0806_traits_lookup()
     { { 0x060E2B34020B0101, 0x0E0103010F000000 },
       ENUM_AND_NAME( KLV_0806_USER_DEFINED_LOCAL_SET ),
       std::make_shared< klv_0806_user_defined_set_format >(),
-      "User Defined LS",
+      "User Defined Local Set",
       "Local set of user-defined data items.",
-      { 0, SIZE_MAX } },
+      { 0, SIZE_MAX },
+      &klv_0806_user_defined_set_traits_lookup() },
     { { 0x060E2B34020B0101, 0x0E0103010C000000 },
       ENUM_AND_NAME( KLV_0806_POI_LOCAL_SET ),
       std::make_shared< klv_0806_poi_set_format >(),
-      "Point of Interest LS",
+      "Point of Interest Local Set",
       "Local set with point-of-interest information.",
-      { 0, SIZE_MAX } },
+      { 0, SIZE_MAX },
+      &klv_0806_poi_set_traits_lookup() },
     { { 0x060E2B34020B0101, 0x0E0103010D000000 },
       ENUM_AND_NAME( KLV_0806_AOI_LOCAL_SET ),
       std::make_shared< klv_0806_aoi_set_format >(),
-      "Area of Interest LS",
+      "Area of Interest Local Set",
       "Local set with area-of-interest information.",
-      { 0, SIZE_MAX } },
+      { 0, SIZE_MAX },
+      &klv_0806_aoi_set_traits_lookup() },
     { { 0x060E2B3401010101, 0x0E0101030A000000 },
       ENUM_AND_NAME( KLV_0806_MGRS_ZONE ),
       std::make_shared< klv_uint_format >( 1 ),
@@ -267,7 +270,7 @@ operator<<( std::ostream& os, klv_0806_poi_type tag )
     "Unknown" };
 
   auto index = static_cast< size_t >( tag ) - 1u;
-  if( !index || index >= KLV_0806_POI_AOI_TYPE_ENUM_END - 1 )
+  if( index >= KLV_0806_POI_AOI_TYPE_ENUM_END - 1 )
   {
     index = KLV_0806_POI_AOI_TYPE_UNKNOWN;
   }

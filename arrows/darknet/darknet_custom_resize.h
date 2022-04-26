@@ -25,4 +25,4 @@ format_image( const cv::Mat& src, cv::Mat& dst, std::string option,
 
 } } }
 
-#endif /* KWIVER_ARROWS_DARKENT_DETECTOR */
+#endif // KWIVER_ARROWS_DARKENT_DETECTOR

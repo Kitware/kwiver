@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
-* \file
-* \brief Header file for CUDA error checking helpers
-*/
+/// \file
+/// \brief Header file for CUDA error checking helpers
 
 #ifndef KWIVER_ARROWS_CUDA_CUDA_ERROR_CHECK_H_
 #define KWIVER_ARROWS_CUDA_CUDA_ERROR_CHECK_H_

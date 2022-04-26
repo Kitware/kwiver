@@ -62,13 +62,6 @@ klv_1108_cmp( klv_local_set const& lhs, klv_local_set const& rhs )
 }
 
 // ----------------------------------------------------------------------------
-bool
-klv_1108_eq( klv_local_set const& lhs, klv_local_set const& rhs )
-{
-  return !klv_1108_cmp( lhs, rhs ) && !klv_1108_cmp( rhs, lhs );
-}
-
-// ----------------------------------------------------------------------------
 // Similar to klv_1108_cmp, except checks time ranges as well
 bool
 klv_1108_timed_cmp( klv_local_set const& lhs, klv_local_set const& rhs )
@@ -203,7 +196,7 @@ klv_muxer
          entry.second.find( { m_prev_frame, timestamp } ) )
     {
       for( auto const& packet :
-           inner_entry.value.get< std::vector< klv_packet > >() )
+           inner_entry.value.get< std::set< klv_packet > >() )
       {
         m_packets.emplace( timestamp, packet );
       }

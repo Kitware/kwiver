@@ -84,7 +84,7 @@ PYBIND11_MODULE( metadata, m )
     return demangle( self.type().name() );
   })
   .def_property_readonly( "data", []( metadata_item const& self ){
-    return visit( to_py_visitor{}, self.data() );
+    return to_py( self.data() );
   } )
   .def( "as_double",  &metadata_item::as_double )
   .def( "has_double", &metadata_item::has_double )

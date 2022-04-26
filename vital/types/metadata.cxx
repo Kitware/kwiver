@@ -193,6 +193,14 @@ metadata::operator=( metadata const& other )
 }
 
 // ----------------------------------------------------------------------------
+metadata*
+metadata
+::clone() const
+{
+  return new metadata{ *this };
+}
+
+// ----------------------------------------------------------------------------
 void
 metadata
 ::add( std::unique_ptr< metadata_item >&& item )

@@ -410,7 +410,8 @@ klv_1002_traits_lookup()
       "Generalized Transformation Local Set",
       "Mathematical transformation mapping the child range image to the "
       "parent collaborative sensors image.",
-      { 0, 1 } },
+      { 0, 1 },
+      &klv_1202_traits_lookup() },
     { { 0x060E2B3402040101, 0x0E01030301000000 },
       ENUM_AND_NAME( KLV_1002_SECTION_DATA_PACK ),
       std::make_shared< klv_1002_section_data_pack_format >(),

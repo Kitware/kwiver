@@ -94,8 +94,8 @@ public:
   template <typename U>
   explicit
   essential_matrix_<T>( essential_matrix_<U> const &other )
-    : rot_( static_cast<rotation_<T> >(other.rot_) ),
-      trans_( other.trans_.template cast<T>() )
+    : rot_( static_cast<rotation_<T> >(other.rotation() ) ),
+      trans_( other.translation().template cast<T>() )
   {
   }
 

@@ -7,26 +7,24 @@
 #include <vital/config/config_difference.h>
 #include <vital/util/string.h>
 
-/**
- * \todo The interactions between the list of classes and keep_all_classes
- * is confusing and awkward.  Maybe keep_all_classes should be
- * disabled if there are any items in the list of classes.  Possibly
- * add '-all-' as a meta-class name that specifies all classes and
- * remove the keep_all_classes option.
- */
+/// \todo The interactions between the list of classes and keep_all_classes
+/// is confusing and awkward.  Maybe keep_all_classes should be
+/// disabled if there are any items in the list of classes.  Possibly
+/// add '-all-' as a meta-class name that specifies all classes and
+/// remove the keep_all_classes option.
 
 namespace kwiver {
 namespace arrows {
 namespace core {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class_probablity_filter::class_probablity_filter()
   : m_keep_all_classes( true )
   , m_threshold( 0.0 )
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 class_probablity_filter::get_configuration() const
 {
@@ -57,7 +55,7 @@ class_probablity_filter::get_configuration() const
   return config;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 class_probablity_filter::
 set_configuration( vital::config_block_sptr config_in )
@@ -81,7 +79,7 @@ set_configuration( vital::config_block_sptr config_in )
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 class_probablity_filter::
 check_configuration( vital::config_block_sptr config ) const
@@ -98,7 +96,7 @@ check_configuration( vital::config_block_sptr config ) const
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::detected_object_set_sptr
 class_probablity_filter::
 filter( const vital::detected_object_set_sptr input_set ) const

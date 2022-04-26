@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of camera interpolation functions
- */
+/// \file
+/// \brief Implementation of camera interpolation functions
 
 #include "interpolate_camera.h"
 

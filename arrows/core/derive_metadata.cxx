@@ -358,7 +358,7 @@ compute_vniirs( double gsd, double rer, double snr )
 
 // ----------------------------------------------------------------------------
 double
-compute_rer( kwiver::vital::image_container_scptr const& image )
+compute_rer( VITAL_UNUSED kwiver::vital::image_container_scptr const& image )
 {
   // TODO: Implement
   return 0.3; // Dummy value within reasonable range
@@ -366,7 +366,7 @@ compute_rer( kwiver::vital::image_container_scptr const& image )
 
 // ----------------------------------------------------------------------------
 double
-compute_snr( kwiver::vital::image_container_scptr const& image )
+compute_snr( VITAL_UNUSED kwiver::vital::image_container_scptr const& image )
 {
   // TODO: Implement
   return 15.0; // Dummy value within reasonable range
@@ -469,7 +469,7 @@ derive_metadata
   for( auto const& metadata : input_metadata )
   {
     // Deep copy metadata
-    auto updated_metadata = std::make_shared< kv::metadata >( *metadata );
+    auto updated_metadata = kv::metadata_sptr( metadata->clone() );
 
     try
     {
