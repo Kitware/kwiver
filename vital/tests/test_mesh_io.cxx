@@ -10,7 +10,6 @@
 #include <kwiversys/SystemTools.hxx>
 #include <tests/test_gtest.h>
 #include <tests/test_scene.h>
-#include <arrows/core/mesh_operations.cxx>
 #include <vital/exceptions.h>
 
 #include <vital/io/mesh_io.h>
@@ -178,20 +177,6 @@ TEST_F(mesh_io, write_vrml_not_triangular)
   EXPECT_NO_THROW( write_vrml( output_file_name, *cube_mesh ) );
   std::ifstream stream( output_file_name.c_str() );
   EXPECT_EQ( stream.peek(), std::ifstream::traits_type::eof() );
-
-  kwiversys::SystemTools::RemoveADirectory( "temp" );
-}
-
-// ----------------------------------------------------------------------------
-TEST_F(mesh_io, write_vrml_triangular)
-{
-  std::string output_file_name = "temp/cube_mesh.vrml";
-
-  mesh_sptr cube_mesh = kwiver::testing::cube_mesh( 1.0 );
-  kwiver::arrows::core::mesh_triangulate( *cube_mesh );
-  EXPECT_NO_THROW( write_vrml( output_file_name, *cube_mesh ) );
-  std::ifstream stream( output_file_name );
-  EXPECT_NE( stream.peek(), std::ifstream::traits_type::eof() );
 
   kwiversys::SystemTools::RemoveADirectory( "temp" );
 }
