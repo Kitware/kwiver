@@ -101,6 +101,7 @@ void
 klv_muxer
 ::send_frame( uint64_t timestamp )
 {
+  m_frames.emplace_back( timestamp );
   if( !check_timestamp( timestamp ) )
   {
     return;
@@ -111,7 +112,6 @@ klv_muxer
   send_frame_0601( timestamp );
   send_frame_1108( timestamp );
 
-  m_frames.emplace_back( timestamp );
   m_prev_frame = timestamp;
 }
 
@@ -550,10 +550,10 @@ klv_muxer
   auto const result = timestamp >= m_prev_frame;
   if( !result )
   {
-    LOG_ERROR( kv::get_logger( "klv" ),
-               "muxer: refusing to emit packets out-of-order "
-                << "( " << timestamp << " less than "
-                << m_prev_frame << " )" );
+    LOG_WARN( kv::get_logger( "klv" ),
+              "muxer: refusing to emit packets out-of-order "
+               << "( " << timestamp << " less than "
+               << m_prev_frame << " )" );
   }
   return result;
 }
