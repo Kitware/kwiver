@@ -41,15 +41,16 @@ mesh_vertex_array_base
 
   const std::vector< vector_3d > these_normals = normals();
   const std::vector< vector_3d > other_normals = other.normals();
+  const double limit = 0.000001;
   if( these_normals.size() != other_normals.size() )
   {
     return false;
   }
   for( unsigned int i = 0; i < these_normals.size(); i++ )
   {
-    if( these_normals[ i ][ 0 ] != other_normals[ i ][ 0 ] ||
-        these_normals[ i ][ 1 ] != other_normals[ i ][ 1 ] ||
-        these_normals[ i ][ 2 ] != other_normals[ i ][ 2 ] )
+    if( abs( these_normals[ i ][ 0 ] - other_normals[ i ][ 0 ] ) > limit ||
+        abs( these_normals[ i ][ 1 ] - other_normals[ i ][ 1 ] ) > limit ||
+        abs( these_normals[ i ][ 2 ] - other_normals[ i ][ 2 ] ) > limit )
     {
       return false;
     }
@@ -111,22 +112,27 @@ bool
 mesh_face_array_base
 ::operator==( mesh_face_array_base const& other ) const
 {
-  if( regularity() != other.regularity() || size() != other.size() )
+  if( size() != other.size() )
+  {
+    return false;
+  }
+  if( regularity() != other.regularity() )
   {
     return false;
   }
 
   const std::vector< vector_3d > these_normals = normals();
   const std::vector< vector_3d > other_normals = other.normals();
+  const double limit = 0.000001;
   if( these_normals.size() != other_normals.size() )
   {
     return false;
   }
   for( unsigned int i = 0; i < these_normals.size(); i++ )
   {
-    if( these_normals[ i ][ 0 ] != other_normals[ i ][ 0 ] ||
-        these_normals[ i ][ 1 ] != other_normals[ i ][ 1 ] ||
-        these_normals[ i ][ 2 ] != other_normals[ i ][ 2 ] )
+    if( abs( these_normals[ i ][ 0 ] - other_normals[ i ][ 0 ] ) > limit ||
+        abs( these_normals[ i ][ 1 ] - other_normals[ i ][ 1 ] ) > limit ||
+        abs( these_normals[ i ][ 2 ] - other_normals[ i ][ 2 ] ) > limit )
     {
       return false;
     }
