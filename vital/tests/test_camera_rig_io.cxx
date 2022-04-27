@@ -129,7 +129,6 @@ void io_stereo_test(std::string const & ext)
   kv::path_t const DN = g_data_dir;
   kv::path_t const CNBase = "cam";
   kv::path_t const FNBase = DN + CNBase;
-  kv::path_list_t cam_names;
 
 // form a stereo rig
   unsigned const N = 2;
@@ -160,7 +159,6 @@ void io_stereo_test(std::string const & ext)
     );
     auto const CN = i==1 ? "left" : "right";
     cams0[CN] = cam;
-    cam_names.push_back( CN );
   }
 
   auto rig0 = std::make_shared<kv::camera_rig_stereo>(
