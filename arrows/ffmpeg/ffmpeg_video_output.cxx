@@ -210,7 +210,7 @@ ffmpeg_video_output
   auto const x264_codec = avcodec_find_encoder_by_name( "libx264" );
   auto const x265_codec = avcodec_find_encoder_by_name( "libx265" );
   AVCodec* requested_codec = nullptr;
-  switch( settings->codec_id )
+  switch( settings->parameters->codec_id )
   {
     case AV_CODEC_ID_H264:
       requested_codec = x264_codec;
@@ -219,7 +219,7 @@ ffmpeg_video_output
       requested_codec = x265_codec;
       break;
     default:
-      requested_codec = avcodec_find_encoder( settings->codec_id );
+      requested_codec = avcodec_find_encoder( settings->parameters->codec_id );
   }
 
   d->codec = avcodec_find_encoder( d->output_format->video_codec );
@@ -241,21 +241,8 @@ ffmpeg_video_output
   }
 
   // Find best pixel format
-  auto pixel_format = static_cast< AVPixelFormat >( -1 );
-  for( auto ptr = d->codec->pix_fmts; ptr && *ptr != -1; ++ptr )
-  {
-    if( *ptr == settings->pixel_format )
-    {
-      pixel_format = settings->pixel_format;
-      break;
-    }
-  }
-  if( pixel_format == -1 )
-  {
-    pixel_format =
-      avcodec_find_best_pix_fmt_of_list(
-        d->codec->pix_fmts, AV_PIX_FMT_RGB24, false, nullptr );
-  }
+  auto pixel_format = avcodec_find_best_pix_fmt_of_list(
+    d->codec->pix_fmts, AV_PIX_FMT_RGB24, false, nullptr );
 
   // Create and configure codec context
   d->codec_context = avcodec_alloc_context3( d->codec );
@@ -265,21 +252,17 @@ ffmpeg_video_output
                  "Failed to allocate codec context" );
   }
   d->codec_context->time_base = av_inv_q( settings->frame_rate );
-  d->codec_context->pix_fmt = pixel_format;
-  d->codec_context->width = settings->width;
-  d->codec_context->height = settings->height;
   d->codec_context->framerate = settings->frame_rate;
-  d->codec_context->sample_aspect_ratio = settings->sample_aspect_ratio;
-  if( d->codec_context->bit_rate > 0 )
+  d->codec_context->pix_fmt = pixel_format;
+  if( d->codec->id == settings->parameters->codec_id )
   {
-    d->codec_context->bit_rate = settings->bit_rate;
-    d->codec_context->bit_rate_tolerance = settings->bit_rate_tolerance;
+    avcodec_parameters_to_context( d->codec_context,
+                                   settings->parameters.get() );
   }
-  if( d->codec->id == settings->codec_id )
+  else
   {
-    d->codec_context->gop_size = settings->gop_size;
-    d->codec_context->level = settings->level;
-    d->codec_context->profile = settings->profile;
+    d->codec_context->width = settings->parameters->width;
+    d->codec_context->height = settings->parameters->height;
   }
 
   // Create video stream
