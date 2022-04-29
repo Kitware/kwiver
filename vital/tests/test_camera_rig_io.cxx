@@ -212,7 +212,7 @@ TEST_F(camera_rig_io, stereo_json_test)
 }
 
 // ----------------------------------------------------------------------------
-TEST_F(camera_rig_io, stereo_yaml_test)
-{
-  io_stereo_test(".yaml");
-}
+//TEST_F(camera_rig_io, stereo_yaml_test) // TODO un-comment when implemented
+//{
+//  io_stereo_test(".yaml");
+//}

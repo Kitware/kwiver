@@ -215,26 +215,6 @@ write_stereo_rig_json( camera_rig_stereo_sptr rig, std::string const & FN )
     LOG_ERROR( logger, "unable to write stereo rig: pointer is null" );
     return;
   }
-  //  {
-  //  "fx_left": 3186.0,
-  //  "fy_left": 3186.0,
-  //  "cx_left": 1327.9,
-  //  "cy_left": 1007.3,
-  //  "k1_left": 0.0,
-  //  "k2_left": 0.0,
-  //  "p1_left": 0.0,
-  //  "p2_left": 0.0,
-  //  "fx_right": 3186.0,
-  //  "fy_right": 3186.0,
-  //  "cx_right": 1338.7,
-  //  "cy_right": 1007.3,
-  //  "k1_right": 0.0,
-  //  "k2_right": 0.0,
-  //  "p1_right": 0.0,
-  //  "p2_right": 0.0,
-  //  "T": [-0.182099, 0.0, -0.0], // assume right w.r.t. left
-  //  "R": [ 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
-  //  }
   std::ofstream of( FN );
   cereal::JSONOutputArchive::Options opt(
     32, cereal::JSONOutputArchive::Options::IndentChar::space, 2 );
@@ -307,7 +287,10 @@ write_stereo_rig_yaml( camera_rig_stereo_sptr rig, std::string const & FN )
     LOG_ERROR( logger, "unable to write stereo rig: pointer is null" );
     return;
   }
-  // TODO write
+  // TODO write intrinsics and extrinsics using OpenCV FileStorage facility,
+  // which likely requires declaring an abstract markup serialization class
+  // e.g. in vital/io or vital/algo and its specialization in arrows/ocv
+  // that wraps FileStorage functionality for YAML/JSON/XML serialization.
 }
 
 void
