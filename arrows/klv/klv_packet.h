@@ -145,6 +145,7 @@ struct KWIVER_ALGO_KLV_EXPORT klv_timed_packet
 {
   klv_packet packet;
   kwiver::vital::timestamp timestamp;
+  uint64_t stream_index;
 };
 
 // ----------------------------------------------------------------------------

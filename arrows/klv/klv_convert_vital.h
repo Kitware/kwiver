@@ -36,9 +36,7 @@ namespace klv {
 ///         \p klv_data.
 KWIVER_ALGO_KLV_EXPORT
 kwiver::vital::metadata_sptr
-klv_to_vital_metadata(
-  klv_timeline const& klv_data,
-  kwiver::vital::interval< uint64_t > const& time_interval );
+klv_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp );
 
 } // namespace klv
 

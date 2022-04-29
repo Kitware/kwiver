@@ -44,10 +44,14 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
 {
   ffmpeg_video_settings();
 
-  ffmpeg_video_settings( size_t width, size_t height, AVRational frame_rate );
+  ffmpeg_video_settings(
+    size_t width, size_t height,
+    AVRational frame_rate,
+    size_t klv_stream_count );
 
   AVRational frame_rate;
   ffmpeg_detail::avcodec_parameters_uptr parameters;
+  size_t klv_stream_count;
 };
 
 } // namespace ffmpeg
