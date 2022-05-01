@@ -82,7 +82,9 @@ register_factories(kwiver::vital::plugin_loader& vpm)
   }
   if (!python_library_loaded)
   {
+#ifndef WIN32
       LOG_ERROR(logger, "Cannot load python library from interpretor or env");
+#endif
   }
   // Load python modules
   {
