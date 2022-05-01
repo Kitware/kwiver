@@ -138,7 +138,7 @@ load_additional_cpp_modules(kwiver::vital::plugin_loader& vpm)
   auto new_search_paths = std::vector<std::string>();
   for(auto& current_search_path : current_search_paths)
   {
-      LOG_INFO(logger, "Current search path" + current_search_path);
+      LOG_INFO(logger, "Current search path: " + current_search_path);
   }
 
   for(auto& additional_path: additional_paths)
@@ -148,7 +148,7 @@ load_additional_cpp_modules(kwiver::vital::plugin_loader& vpm)
                  additional_path) == current_search_paths.end())
     {
       new_search_paths.push_back(additional_path);
-      LOG_INFO(logger, "new search path" + additional_path);
+      LOG_INFO(logger, "new search path: " + additional_path);
     }
   }
   vpm.load_plugins(new_search_paths);
