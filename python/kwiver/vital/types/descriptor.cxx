@@ -2,6 +2,7 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
+#include <pybind11/cast.h>
 #include <pybind11/stl.h>
 
 #include <vital/types/descriptor.h>
@@ -17,12 +18,12 @@ new_descriptor(size_t len, char ctype)
   if(ctype == 'd')
   {
     auto obj = std::shared_ptr<kwiver::vital::descriptor_dynamic<double>>(new kwiver::vital::descriptor_dynamic<double>(len));
-    retVal = py::cast<std::shared_ptr<kwiver::vital::descriptor_dynamic<double>>>(obj);
+    retVal = py::cast(obj);
   }
   else if(ctype == 'f')
   {
     auto obj = std::shared_ptr<kwiver::vital::descriptor_dynamic<float>>(new kwiver::vital::descriptor_dynamic<float>(len));
-    retVal = py::cast<std::shared_ptr<kwiver::vital::descriptor_dynamic<float>>>(obj);
+    retVal = py::cast(obj);
   }
   return retVal;
 }

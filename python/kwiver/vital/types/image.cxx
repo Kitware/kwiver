@@ -5,6 +5,7 @@
 #include <vital/types/image.h>
 #include <python/kwiver/vital/types/image.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/cast.h>
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
 
@@ -65,7 +66,7 @@ kwiver::vital::python::image::get_pixel2(std::shared_ptr<image_t> &img,
   #define QUOTE(X) #X
   #define GET_PIXEL(TYPE, NAME) \
   if(type == QUOTE(NAME)) \
-  return py::cast<TYPE>(img->at<TYPE>(i,j));
+  return py::cast(img->at<TYPE>(i,j));
 
   GET_PIXEL(uint8_t, uint8)
   GET_PIXEL(int8_t, int8)
@@ -96,7 +97,7 @@ kwiver::vital::python::image::get_pixel3(std::shared_ptr<image_t> &img,
   #define QUOTE(X) #X
   #define GET_PIXEL(TYPE, NAME) \
   if(type == QUOTE(NAME)) \
-  return py::cast<TYPE>(img->at<TYPE>(i,j,k));
+  return py::cast(img->at<TYPE>(i,j,k));
 
   GET_PIXEL(uint8_t, uint8)
   GET_PIXEL(int8_t, int8)
