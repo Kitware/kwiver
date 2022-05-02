@@ -12,12 +12,11 @@
 namespace kwiver {
 namespace vital {
 
-// -----------------------------------------------------------------
-/** Default plugin loader filter.
- *
- * This filter excludes duplicate plugins. An exception is thrown if a
- * duplicate is found.
- */
+// ----------------------------------------------------------------------------
+/// Default plugin loader filter.
+///
+/// This filter excludes duplicate plugins. An exception is thrown if a
+/// duplicate is found.
 class VITAL_VPM_EXPORT plugin_filter_default
   : public plugin_loader_filter
 {

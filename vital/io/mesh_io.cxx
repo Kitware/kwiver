@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of file IO functions for a \ref kwiver::vital::mesh
- */
+/// \file
+/// \brief Implementation of file IO functions for a \ref kwiver::vital::mesh
 
 #include "mesh_io.h"
 
@@ -408,6 +406,12 @@ write_obj(const std::string& filename, const mesh& mesh)
 void
 write_obj(std::ostream& os, const mesh& mesh)
 {
+  auto mtl_file = mesh.tex_source();
+  if (!mtl_file.empty())
+  {
+    os << "mtllib " << mtl_file << '\n';
+  }
+
   const mesh_vertex_array_base& verts = mesh.vertices();
   for (unsigned int v=0; v<verts.size(); ++v)
   {

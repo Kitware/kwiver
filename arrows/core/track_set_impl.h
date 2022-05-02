@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header file for customized track set definitions
- */
+/// \file
+/// \brief Header file for customized track set definitions
 
 #ifndef KWIVER_ARROWS_CORE_TRACK_SET_IMPL_H_
 #define KWIVER_ARROWS_CORE_TRACK_SET_IMPL_H_
@@ -22,13 +20,12 @@ namespace arrows {
 namespace core {
 
 /// A custom track set implementation that provides fast indexing by frame id
-/**
- * This track_set_implementation is designed to make querying tracks by frame
- * id more efficient.  The simple track set must scan every track state of
- * every track to find tracks on a given frame for each request.  This
- * implementation caches the mapping from frames to track states for faster
- * retrieval.
- */
+///
+/// This track_set_implementation is designed to make querying tracks by frame
+/// id more efficient.  The simple track set must scan every track state of
+/// every track to find tracks on a given frame for each request.  This
+/// implementation caches the mapping from frames to track states for faster
+/// retrieval.
 class KWIVER_ALGO_CORE_EXPORT frame_index_track_set_impl
   : public vital::track_set_implementation
 {
@@ -55,7 +52,10 @@ public:
   virtual void set_tracks( std::vector< vital::track_sptr > const& tracks );
 
   /// Insert a track shared pointer into this container
-  virtual void insert( vital::track_sptr t );
+  //@{
+  virtual void insert( vital::track_sptr const& t );
+  virtual void insert( vital::track_sptr&& t );
+  //@}
 
   /// Notify the container that a new state has been added to an existing track
   virtual void notify_new_state( vital::track_state_sptr ts );

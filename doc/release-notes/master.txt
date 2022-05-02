@@ -1,205 +1,80 @@
-KWIVER v1.6.0 Release Notes
+KWIVER v1.7.0 Release Notes
 ===========================
 
 This is a minor release of KWIVER that provides both new functionality and fixes
-over the previous v1.5.0 release.
+over the previous v1.6.0 release.
 
-Updates since v1.5.0
---------------------
 
- * Renamed symbols or other approaches to reduce "shadowing" warnings.
+Updates
+-------
 
 Vital
 
-Vital Algo
-
- * Extended the API for compute_depth to also return an uncertainty image.
-
-Vital Applets
-
- * Added utility functions to help validate config file entries for input
-   and output files and directories.
-
 Vital Types
 
- * Add new method to metadata class to add a metadata item being
-   passed by shared_ptr
-
-Vital Plugin-loader
-
- * Added support for filtering plugins when they are loaded. Filter
-   objects can be added to the plugin loader at run time to select or
-   exclude specific plugins.
-
- * Added optional bit mask to load_all_plugins() which allows selected
-   groups of plugins to be loaded. In addition the build/install
-   directory structure for the plugins was reorganized.
-
- * Internal change to consolidate determining and configuring the
-   build-time plugin search paths.
-
-Vital Util
-
-Vital Logger
-
-Vital Tools
-
-Vital Types
-
-Vital Bindings
-
- * Remove ctypes python bindings
-
- * Moved python bindings associated with config from sprokit.pipeline to
-   vital.config.
-
- * Force logging level of TRACE to be DEBUG in bindings because Python logging
-   does not support the TRACE level.
-
-Arrows
-
- * Cleaned up arrows library links.  Many arrows linked to the core arrow
-   when really only needed to link directly to vital libraries.
-
-Arrows: Core
-
- * Updated dump-klv applet to load default configuration from a file.
-
- * Added a utility function to depth_utils.h to find similar cameras by view
-   angle.
-
- * Added a utility funciton to depth_utils.h to gather corresponding cameras,
-   images, and masks from video sources for use in depth map estimation.
-
-Arrows: Ceres
-
- * Improve logging in bundle_adjust to allow logging per-iteration summaries
-   and independently control logging fully summaries after optimization
-   completes.
-
-Arrows: CUDA
-
-Arrows: FFmpeg
-
- * Now checks the timestamps of the metadata packets to catch packets
-   that are arriving early. Packets that arrive early are cached until the
-   timestamp of the current frame is larger than the timestamp of the
-   metadata packet. This synchronization can be disabled if desired.
-
- * Fixed an issue where only metadata packets from the first data stream
-   are saved.
-
- * Added a libavfilter pipeline into the ffmpeg_video_input reader. This
-   allows users to inject filters in the video reader, much the same as
-   is possible in the ffmpeg command line with the -vf option.  The default
-   filter applies deinterlacing to any interlaced frames.
-
- * Fixed the memory leak that occurred when a video was opened and closed.
-
-Arrows: GDAL
-
-Arrows: KPF
-
-Arrows: MVG
-
- * Created new MVG arrow to make a new home for Multi-View Geometry and
-   other 3D vision code.  Much of this code will move from the "core" arrow
-   which had grown too large.
-
- * Moved track_features applet from core into mvg.
-
- * Moved the following algorithms from core into mvg:
-   - hierarchical_bundle_adjust
-   - initialize_cameras_landmarks_keyframe (renamed to initialize_cameras_landmarks)
-   - initialize_cameras_landmarks (renamed to initialize_cameras_landmarks_basic)
-   - triangulate_landmarks
-
- * Moved the following utility headers from core into mvg:
-   - epipolar_geometry.h
-   - interpolate_camera.h
-   - necker_reverse.h
-   - metrics.h
-   - projected_track_set.h
-   - sfm_utils.h
-   - transform.h
-   - triangulate.h
-
- * Added a new applet, init_cameras_landmarks, to run the estimate cameras
-   and landmarks from feature tracks produced by the track_features applet.
-
- * Added an implementation of integrate_depth_maps. This works exactly the same
-   as the implementation in the CUDA arrow, but does not require a GPU.
-
-Arrows: OpenCV
-
-Arrows: Serialization
-
-Arrows: Super3d
-
- * Changed the compute_depth parameters to take a sampling rate, in pixels,
-   instead of an absolute number of depth slices.  This allows the algorithm
-   the scale the number of slices appropriatlely ensuring at least a minimum
-   sampling rate when projecting into support images.
-
- * Updated the Super3D compute_depth algorithm to compute uncertainty.
-
-Arrows: VTK
-
- * Created new VTK arrow.
-
- * Added utility function to convert depth images to vtkImageData.
-   This function was ported from TeleSculptor.
-
- * Added an applet to estimate depth maps from multple views.
-
- * Added a new applet for fusing depth maps in volume and extracting a
-   surface mesh.
-
-Arrows: VXL
-
-Arrows: Python
-
-Sprokit
-
-Sprokit: Processes
-
- * Added four new PyTorch-using Python Sprokit processes for tracking
-   (srnn_tracker), descriptor computation (alexnet_descriptors and
-   resnet_descriptors), and augmentation (resnet_augmentation).
-
-Sprokit: Bindings
-
- * Removed redundant logger support sprokit.sprokit_logging module.
-
-Tools
+* Modified rotation_ constructor from yaw-pitch-roll to keep the given
+  North-East-Down coordinate system as-is instead of automatically converting to
+  East-North-Up. Added utility functions which perform conversion between NED
+  and ENU coordinates.
 
 Build System
 
- * Added a new build flag, KWIVER_ENABLE_PYTORCH, to include
-   PyTorch-dependent code in the build.
+* Removed some CMake statements and support for old CMake version predating the
+  current minimum version specification.
 
- * Enabled the use of folders for CMake targets to provided better
-   organization in IDEs that support folders, like Visual Studio.
+Vital KLV
 
-Unit Tests
+* Moved KLV to a new arrow.
 
-General Documentation
+Arrows
+
+Arrows: Core
+
+* Added transcode applet.
+
+* Added frame dumping capability to dump-klv.
+
+* Added the option to choose the metadata export format in dump-klv.
+
+* Added the derive_metadata filter.
+
+* Enabled exporting components of composite data types separately in
+  metadata_map_io_csv.
+
+* Added frame decimation to metadata_map_io_csv.
+
+* Allowed the overriding of column names in metadata_map_io_csv.
+
+Arrows: FFmpeg
+
+* Enabled reading MISP timestamps from stream.
+
+* Added additional video metadata reporting.
+
+* Added exporting of encoding settings from input video.
+
+* Added basic video encoder.
+
+Arrows: KLV
+
+* Moved KLV arrow from Vital.
+
+* Ensured proper handling of ST0601 Report-on-Change behavior.
+
+* Rewrote EG0104 and ST0601 to be able to read and write all tags.
+
+* Newly implemented reading and writing for the following standards: ST0102,
+  ST0806, ST0903, ST1102, ST1010, ST1108, ST1202, ST1204, ST1206, ST1303,
+  ST1601, ST1602, and ST1607.
+
+Arrows: Serialize
+
+* Added partial KLV-JSON reader/writer.
 
 Bug Fixes
 ---------
 
 Arrows: Core
 
-Arrows: Ceres
-
-Arrows: CUDA
-
- * Fixed an issue in which depth imagery was loaded transposed and flipped
-   and then later flipped and transposed back during CUDA processing.
-
-Arrows: Super3D
-
-Sprokit: Processes
-
- * Fixed the compute_track_descriptors process's handling of null
-   output from its nested algorithm.
+* Fixed metadata_map_io_csv printing the wrong number of commas for some empty
+  fields.

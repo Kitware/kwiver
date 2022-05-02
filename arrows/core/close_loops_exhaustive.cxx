@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of close_loops_exhaustive
- */
+/// \file
+/// \brief Implementation of close_loops_exhaustive
 
 #include "close_loops_exhaustive.h"
 #include "match_tracks.h"

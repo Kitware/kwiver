@@ -15,6 +15,7 @@ kwiver_discover_gtests(ocv descriptor_set              LIBRARIES ${test_librarie
 kwiver_discover_gtests(ocv distortion                  LIBRARIES ${test_libraries})
 kwiver_discover_gtests(ocv feature_set                 LIBRARIES ${test_libraries})
 kwiver_discover_gtests(ocv image                       LIBRARIES ${test_libraries})
+kwiver_discover_gtests(ocv inpaint                     LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
 kwiver_discover_gtests(ocv match_set                   LIBRARIES ${test_libraries})
 
 

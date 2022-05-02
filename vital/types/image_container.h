@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief core image_container interface
- */
+/// \file
+/// \brief core image_container interface
 
 #ifndef VITAL_IMAGE_CONTAINER_H_
 #define VITAL_IMAGE_CONTAINER_H_
@@ -21,13 +19,12 @@ namespace kwiver {
 namespace vital {
 
 /// An abstract representation of an image container.
-/**
- * This class provides an interface for passing image data
- * between algorithms.  It is intended to be a wrapper for image
- * classes in third-party libraries and facilitate conversion between
- * various representations.  It provides limited access to the underlying
- * data and is not intended for direct use in image processing algorithms.
- */
+///
+/// This class provides an interface for passing image data
+/// between algorithms.  It is intended to be a wrapper for image
+/// classes in third-party libraries and facilitate conversion between
+/// various representations.  It provides limited access to the underlying
+/// data and is not intended for direct use in image processing algorithms.
 class image_container
 {
 public:
@@ -36,10 +33,9 @@ public:
   virtual ~image_container() = default;
 
   /// The size of the image data in bytes
-  /**
-   * This size includes all allocated image memory,
-   * which could be larger than width*height*depth.
-   */
+  ///
+  /// This size includes all allocated image memory,
+  /// which could be larger than width*height*depth.
   virtual size_t size() const = 0;
 
   /// The width of the image in pixels
@@ -81,7 +77,7 @@ using image_container_scptr = std::shared_ptr< image_container const >;
 //                     vital::image_container_set_sptr.
 typedef std::vector<image_container_sptr> image_container_sptr_list;
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 /// This concrete image container is simply a wrapper around an image
 class simple_image_container
 : public image_container
@@ -96,10 +92,9 @@ public:
   }
 
   /// The size of the image data in bytes
-  /**
-   * This size includes all allocated image memory,
-   * which could be larger than width*height*depth.
-   */
+  ///
+  /// This size includes all allocated image memory,
+  /// which could be larger than width*height*depth.
   virtual size_t size() const { return data.size(); }
 
   /// The width of the image in pixels

@@ -8,16 +8,9 @@ project(KWIVER)
 ###
 # KWIVER version
 set(KWIVER_VERSION_MAJOR 1)
-set(KWIVER_VERSION_MINOR 5)
+set(KWIVER_VERSION_MINOR 6)
 set(KWIVER_VERSION_PATCH 1)
 set(KWIVER_VERSION "${KWIVER_VERSION_MAJOR}.${KWIVER_VERSION_MINOR}.${KWIVER_VERSION_PATCH}")
-
-# This policy is new in CMake 3.12. The NEW behavior uses the <PackageName>_ROOT variable in
-# find_package(<PackageName>) calls.
-# See: https://cmake.org/cmake/help/git-stage/policy/CMP0074.html
-if(POLICY CMP0074)
-  cmake_policy(SET CMP0074 NEW)
-endif()
 
 # Organize target into folders for IDEs that support it
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -116,6 +109,7 @@ OPTION(KWIVER_ENABLE_SPROKIT              "Enable building sprokit" OFF )
 
 if(KWIVER_ENABLE_ARROWS)
   OPTION(KWIVER_ENABLE_MVG                "Enable Multi-View Geometry Arrow" ON )
+  OPTION(KWIVER_ENABLE_KLV                "Enable Key-Length-Value Metadata Arrow" ON)
 endif()
 
 CMAKE_DEPENDENT_OPTION(KWIVER_ENABLE_PROCESSES
@@ -131,6 +125,18 @@ option( KWIVER_ENABLE_EXTRAS "Enable extras content" OFF )
 OPTION( KWIVER_ENABLE_C_BINDINGS               "Enable C bindings libraries" OFF)
 CMAKE_DEPENDENT_OPTION( KWIVER_ENABLE_PYTHON   "Enable python code" OFF
   KWIVER_ENABLE_C_BINDINGS OFF )
+
+if (WIN32)
+  # Set default for python tests to OFF on windows for now
+  CMAKE_DEPENDENT_OPTION( KWIVER_ENABLE_PYTHON_TESTS "Enable python tests" OFF
+    "KWIVER_ENABLE_PYTHON; KWIVER_ENABLE_TESTS" OFF )
+  if (KWIVER_ENABLE_PYTHON_TESTS)
+    message( WARNING "Python tests are not currently supported for Windows." )
+  endif()
+else()
+  CMAKE_DEPENDENT_OPTION( KWIVER_ENABLE_PYTHON_TESTS "Enable python tests" ON
+    "KWIVER_ENABLE_PYTHON; KWIVER_ENABLE_TESTS" OFF )
+endif()
 
 if (KWIVER_ENABLE_SERIALIZE_PROTOBUF)
   if (WIN32)

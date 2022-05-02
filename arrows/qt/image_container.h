@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Qt image container interface
- */
+/// \file
+/// \brief Qt image container interface
 
 #ifndef KWIVER_ARROWS_QT_IMAGE_CONTAINER_H_
 #define KWIVER_ARROWS_QT_IMAGE_CONTAINER_H_

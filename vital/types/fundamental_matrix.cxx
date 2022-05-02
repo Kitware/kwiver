@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief core fundamental matrix template implementations
- */
+/// \file
+/// \brief core fundamental matrix template implementations
 
 #include "fundamental_matrix.h"
 
@@ -96,9 +94,9 @@ fundamental_matrix_<double>
   return this->mat_;
 }
 
-// ===========================================================================
+// ----------------------------------------------------------------------------
 // Other Functions
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /// Output stream operator for \p fundamental_matrix instances
 std::ostream&
@@ -108,9 +106,9 @@ operator<<( std::ostream &s, fundamental_matrix const &f )
   return s;
 }
 
-// ===========================================================================
+// ----------------------------------------------------------------------------
 // Template class instantiation
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// \cond DoxygenSuppress
 #define INSTANTIATE_FUNDAMENTAL_MATRIX(T) \
   template class fundamental_matrix_<T>;

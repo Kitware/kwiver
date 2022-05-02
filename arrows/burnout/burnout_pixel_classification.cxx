@@ -18,7 +18,7 @@ namespace kwiver {
 namespace arrows {
 namespace burnout {
 
-// ==================================================================================
+// ----------------------------------------------------------------------------
 class burnout_pixel_classification::priv
 {
 public:
@@ -39,7 +39,7 @@ public:
   vital::logger_handle_t m_logger;
 };
 
-// ==================================================================================
+// ----------------------------------------------------------------------------
 burnout_pixel_classification
 ::burnout_pixel_classification()
   : d( new priv() )
@@ -50,7 +50,7 @@ burnout_pixel_classification
 ::~burnout_pixel_classification()
 {}
 
-// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 burnout_pixel_classification
 ::get_configuration() const
@@ -68,7 +68,7 @@ burnout_pixel_classification
   return config;
 }
 
-// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 burnout_pixel_classification
 ::set_configuration( vital::config_block_sptr config_in )
@@ -95,7 +95,7 @@ burnout_pixel_classification
   }
 }
 
-// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 burnout_pixel_classification
 ::check_configuration( vital::config_block_sptr config ) const
@@ -117,7 +117,7 @@ burnout_pixel_classification
   return true;
 }
 
-// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::image_container_sptr
 burnout_pixel_classification
 ::filter( vital::image_container_sptr image_data )

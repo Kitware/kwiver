@@ -13,11 +13,9 @@ namespace kwiver {
 namespace arrows {
 namespace burnout {
 
-// ----------------------------------------------------------------
-/**
- * @brief burnout_track_descriptors
- *
- */
+// ----------------------------------------------------------------------------
+/// @brief burnout_track_descriptors
+///
 class KWIVER_ALGO_BURNOUT_EXPORT burnout_track_descriptors
   : public vital::algo::compute_track_descriptors
 {
@@ -48,4 +46,4 @@ private:
 
 } } }
 
-#endif /* KWIVER_ARROWS_BURNOUT_TRACK_DESCRIPTORS */
+#endif // KWIVER_ARROWS_BURNOUT_TRACK_DESCRIPTORS

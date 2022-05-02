@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test reading video from a list of images.
- */
+/// \file
+/// \brief test reading video from a list of images.
 
 #include <test_gtest.h>
 
@@ -24,7 +22,8 @@ kwiver::vital::path_t g_data_dir;
 
 namespace algo = kwiver::vital::algo;
 namespace kac = kwiver::arrows::core;
-static std::string list_file_name = "frame_list.txt";
+static std::string list_file_name = "video_as_images/frame_list.txt";
+static std::string images_folder_name = "video_as_images/images";
 
 // ----------------------------------------------------------------------------
 int
@@ -134,7 +133,7 @@ TEST_F(video_input_image_list, read_directory)
   EXPECT_TRUE( viil.check_configuration( config ) );
   viil.set_configuration( config );
 
-  kwiver::vital::path_t list_file = data_dir + "/images";
+  kwiver::vital::path_t list_file = data_dir + "/" + images_folder_name;
   viil.open( list_file );
 
   kwiver::vital::timestamp ts;

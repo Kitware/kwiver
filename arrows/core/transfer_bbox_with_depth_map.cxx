@@ -21,7 +21,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 int
 nearest_index(int max, double value)
 {
@@ -39,7 +39,7 @@ nearest_index(int max, double value)
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vector_3d
 backproject_to_depth_map
 (kwiver::vital::camera_perspective_sptr const camera,
@@ -76,7 +76,7 @@ backproject_to_depth_map
   return world_pos;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::tuple<vector_3d, vector_3d>
 backproject_wrt_height
 (kwiver::vital::camera_perspective_sptr const camera,
@@ -129,7 +129,7 @@ backproject_wrt_height
   return std::tuple<vector_3d, vector_3d> (world_pos_bottom, world_pos_top);
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::bounding_box<double>
 transfer_bbox_with_depth_map_stationary_camera
 (kwiver::vital::camera_perspective_sptr const src_camera,
@@ -180,13 +180,13 @@ transfer_bbox_with_depth_map_stationary_camera
     (dest_bbox_min_x, dest_bbox_min_y, dest_bbox_max_x, dest_bbox_max_y);
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 transfer_bbox_with_depth_map::
 transfer_bbox_with_depth_map()
 {
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 transfer_bbox_with_depth_map::
 transfer_bbox_with_depth_map
 (kwiver::vital::camera_perspective_sptr src_cam,
@@ -198,7 +198,7 @@ transfer_bbox_with_depth_map
 {
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 transfer_bbox_with_depth_map::
 get_configuration() const
@@ -222,7 +222,7 @@ get_configuration() const
   return config;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 transfer_bbox_with_depth_map::
 set_configuration( vital::config_block_sptr config_in )
@@ -249,7 +249,7 @@ set_configuration( vital::config_block_sptr config_in )
   this->depth_map = image_reader->load( this->src_camera_depth_map_file_name );
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 transfer_bbox_with_depth_map::
 check_configuration( vital::config_block_sptr config ) const
@@ -267,7 +267,7 @@ check_configuration( vital::config_block_sptr config ) const
   return true;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::detected_object_set_sptr
 transfer_bbox_with_depth_map::
 filter( vital::detected_object_set_sptr const input_set ) const

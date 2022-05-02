@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of customized track set implementations
- */
+/// \file
+/// \brief Implementation of customized track set implementations
 
 #include "track_set_impl.h"
 
@@ -113,13 +111,12 @@ frame_index_track_set_impl
 /// Insert a track shared pointer into this container
 void
 frame_index_track_set_impl
-::insert( vital::track_sptr t )
+::insert( vital::track_sptr const& t )
 {
   if (!t)
   {
     return;
   }
-  all_tracks_.insert(std::make_pair(t->id(), t));
 
   if (!frame_map_.empty())
   {
@@ -129,6 +126,30 @@ frame_index_track_set_impl
       frame_map_[ts->frame()].insert(ts);
     }
   }
+
+  all_tracks_.emplace(t->id(), t);
+}
+
+/// Insert a track shared pointer into this container
+void
+frame_index_track_set_impl
+::insert( vital::track_sptr&& t )
+{
+  if (!t)
+  {
+    return;
+  }
+
+  if (!frame_map_.empty())
+  {
+    // update the frame map with the new track
+    for (auto const& ts : *t)
+    {
+      frame_map_[ts->frame()].insert(ts);
+    }
+  }
+
+  all_tracks_.emplace(t->id(), std::move(t));
 }
 
 /// Notify the container that a new state has been added to an existing track

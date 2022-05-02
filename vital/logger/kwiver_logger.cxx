@@ -32,7 +32,7 @@ public:
 
 kwiver_logger::callback_t kwiver_logger::impl::m_global_callback = nullptr;
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver_logger
 ::kwiver_logger( logger_ns::kwiver_logger_factory* p, std::string const& node )
   : m_impl( new kwiver_logger::impl( p, node ) )
@@ -42,7 +42,7 @@ kwiver_logger
 ::~kwiver_logger()
 { }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 char const* kwiver_logger
 ::get_level_string(kwiver_logger::log_level_t lev)
 {
@@ -62,35 +62,35 @@ char const* kwiver_logger
   return "<unknown>";
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string kwiver_logger
 ::get_name() const
 {
   return m_impl->m_loggingNode;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string const& kwiver_logger
 ::get_factory_name() const
 {
   return m_impl->m_factory->get_factory_name();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void kwiver_logger
 ::set_local_callback(callback_t cb)
 {
   m_impl->m_local_callback = cb;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void kwiver_logger
 ::set_global_callback(callback_t cb)
 {
   kwiver_logger::impl::m_global_callback = cb;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void kwiver_logger
 ::do_callback(log_level_t level, std::string const& msg,
               logger_ns::location_info const & location) const

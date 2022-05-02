@@ -13,14 +13,12 @@
 #include <iostream>
 #include <mutex>
 
-/*
- * Note: This must be thread safe.
- *
- * Also: In order to make this work, it must be possible to create
- * loggers before the manager has been initialized. This means that
- * the initialization is flexible, adaptive and has a reasonable
- * default.
- */
+//  Note: This must be thread safe.
+//
+//  Also: In order to make this work, it must be possible to create
+//  loggers before the manager has been initialized. This means that
+//  the initialization is flexible, adaptive and has a reasonable
+//  default.
 
 typedef kwiversys::DynamicLoader DL;
 
@@ -40,11 +38,9 @@ kwiver_logger_manager* kwiver_logger_manager::s_instance = 0;
 
 #define PLUGIN_ENV_VAR "VITAL_LOGGER_FACTORY"
 
-// ------------------------------------------------------------------
-/*
- * Private implememtation
- *
- */
+// ----------------------------------------------------------------------------
+//  Private implememtation
+//
 class kwiver_logger_manager::impl
 {
 public:
@@ -58,11 +54,9 @@ public:
 
 };
 
-// ----------------------------------------------------------------
-/** Constructor.
- *
- *
- */
+// ----------------------------------------------------------------------------
+/// Constructor.
+///
 kwiver_logger_manager
 ::kwiver_logger_manager()
   : m_impl( new impl )
@@ -121,11 +115,9 @@ kwiver_logger_manager
 ::~kwiver_logger_manager()
 { }
 
-// ----------------------------------------------------------------
-/** Get singleton instance.
- *
- *
- */
+// ----------------------------------------------------------------------------
+/// Get singleton instance.
+///
 kwiver_logger_manager * kwiver_logger_manager
 ::instance()
 {
@@ -146,11 +138,10 @@ kwiver_logger_manager * kwiver_logger_manager
   return s_instance;
 }
 
-// ----------------------------------------------------------------
-/* Get address of logger object.
- *
- * These are unbound functions
- */
+// ----------------------------------------------------------------------------
+// Get address of logger object.
+//
+//  These are unbound functions
 VITAL_LOGGER_EXPORT
 logger_handle_t
 get_logger( char const* name )
@@ -158,7 +149,7 @@ get_logger( char const* name )
   return kwiver_logger_manager::instance()->m_impl->m_logFactory->get_logger(name);
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 VITAL_LOGGER_EXPORT
 logger_handle_t
 get_logger( std::string const& name )
@@ -166,7 +157,7 @@ get_logger( std::string const& name )
   return get_logger( name.c_str() );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 VITAL_LOGGER_EXPORT
 void
 kwiver_logger_manager
@@ -175,7 +166,7 @@ kwiver_logger_manager
   m_impl->m_logFactory.swap( fact );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string const&
 kwiver_logger_manager
 ::get_factory_name() const
@@ -183,7 +174,7 @@ kwiver_logger_manager
   return m_impl->m_logFactory->get_factory_name();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 kwiver_logger_manager
 ::load_factory( std::string const& lib_name )

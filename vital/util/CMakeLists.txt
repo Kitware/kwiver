@@ -21,6 +21,8 @@ set( public_headers
   source_location.h
   data_stream_reader.h
   hex_dump.h
+  interval.h
+  interval_map.h
   string.h
   string_editor.h
   simple_stats.h
@@ -33,6 +35,11 @@ set( public_headers
   token_type_sysenv.h
   tokenize.h
   transform_image.h
+  variant/config.hpp
+  variant/in_place.hpp
+  variant/lib.hpp
+  variant/variant.hpp
+  visit.h
   wrap_text_block.h
   file_md5.h
   )

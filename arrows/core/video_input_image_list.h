@@ -16,17 +16,15 @@ namespace arrows {
 namespace core {
 
 // ----------------------------------------------------------------------------
-/**
- * \brief Video input using list of images.
- *
- * This class implements a video input algorithm using a list of images
- * to simulate a video. Only the images are returned.
- * This algorithm produces no metadata.
- *
- * Example config:
- *   # select reader type
- *   image_reader:type = vxl
- */
+/// \brief Video input using list of images.
+///
+/// This class implements a video input algorithm using a list of images
+/// to simulate a video. Only the images are returned.
+/// This algorithm produces no metadata.
+///
+/// Example config:
+///   # select reader type
+///   image_reader:type = vxl
 class KWIVER_ALGO_CORE_EXPORT video_input_image_list
   : public vital::algo::video_input
 {
@@ -41,29 +39,23 @@ public:
   video_input_image_list();
   virtual ~video_input_image_list();
 
-  /**
-   * \brief Get this algorithm's
-   * \link vital::config_block configuration block \endlink.
-   */
+  /// \brief Get this algorithm's
+  /// \link vital::config_block configuration block \endlink.
   vital::config_block_sptr get_configuration() const override;
 
-  /**
-   * \brief Set this algorithm's properties via a
-   * \link vital::config_block configuration block \endlink.
-   */
+  /// \brief Set this algorithm's properties via a
+  /// \link vital::config_block configuration block \endlink.
   void set_configuration( vital::config_block_sptr config ) override;
 
   /// Check that the algorithm's currently configuration is valid.
   bool check_configuration( vital::config_block_sptr config ) const override;
 
-  /**
-   * \brief Open a list of images
-   *
-   * This method opens the file that contains the list of images. Each
-   * image verified to exist at this time.
-   *
-   * \param list_name Name of file that contains list of images
-   */
+  /// \brief Open a list of images.
+  ///
+  /// This method opens the file that contains the list of images. Each
+  /// image verified to exist at this time.
+  ///
+  /// \param list_name Name of file that contains list of images.
   void open( std::string list_name ) override;
   void close() override;
 
@@ -86,9 +78,7 @@ public:
   kwiver::vital::metadata_map_sptr metadata_map() override;
 
 private:
-  /**
-   * \brief Private implementation class.
-   */
+  /// \brief Private implementation class.
   class priv;
 
   std::unique_ptr< priv > const d;

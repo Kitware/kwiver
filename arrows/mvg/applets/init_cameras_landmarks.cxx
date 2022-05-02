@@ -161,9 +161,9 @@ public:
       config->subblock_view("video_reader")->merge_config(
         load_default_video_input_config(video_file));
     }
-    if ( cmd_args.count("carmera") > 0 )
+    if ( cmd_args.count("camera") > 0 )
     {
-      camera_directory = cmd_args["carmera"].as<std::string>();
+      camera_directory = cmd_args["camera"].as<std::string>();
       config->set_value("output_cameras_directory", camera_directory);
     }
     if ( cmd_args.count("landmarks") > 0 )
@@ -424,8 +424,7 @@ public:
     auto lgcs = sfm_constraint_ptr->get_local_geo_cs();
     if (!lgcs.origin().is_empty())
     {
-      kv::write_local_geo_cs_to_file(lgcs, geo_origin_file);
-      return true;
+      return kv::write_local_geo_cs_to_file(lgcs, geo_origin_file);
     }
     return false;
   }

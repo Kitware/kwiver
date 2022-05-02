@@ -39,10 +39,8 @@
  // Please contact the author of this library if you have any questions.
  // Author: Chris Sweeney (cmsweeney@cs.ucsb.edu)
 
-/**
- * \file
- * \brief Implementation of triangulation function
- */
+/// \file
+/// \brief Implementation of triangulation function
 
 #include "triangulate.h"
 #include <Eigen/SVD>

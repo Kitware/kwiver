@@ -2,16 +2,14 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV SURF feature detector and extractor wrapper implementation
- */
+/// \file
+/// \brief OCV SURF feature detector and extractor wrapper implementation
 
 #include "feature_detect_extract_SURF.h"
 
 #include <vital/vital_config.h>
 
-#if defined(HAVE_OPENCV_NONFREE) || defined(HAVE_OPENCV_XFEATURES2D)
+#ifdef KWIVER_OCV_HAS_SURF
 
 // Include the correct file and unify different namespace locations of SURF type
 // across versions
@@ -220,4 +218,4 @@ extract_descriptors_SURF
 } // end namespace arrows
 } // end namespace kwiver
 
-#endif //defined(HAVE_OPENCV_NONFREE) || defined(HAVE_OPENCV_XFEATURES2D)
+#endif

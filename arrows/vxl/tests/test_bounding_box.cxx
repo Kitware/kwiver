@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test VXL bouding_box functionality
- */
+/// \file
+/// \brief test VXL bundle adjustment functionality
 
 #include <arrows/vxl/bounding_box.h>
 

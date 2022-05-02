@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Register depth algorithms implementation
- */
+/// \file
+/// \brief Register depth algorithms implementation
 
 #include <arrows/super3d/kwiver_algo_super3d_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>

@@ -21,7 +21,10 @@ endif()
 
 # Add OpenCV plugin if enabled
 if( KWIVER_ENABLE_OPENCV )
-  #add_subdirectory( dbow2 )
+  if( KWIVER_ENABLE_DBOW2 )
+    add_subdirectory( dbow2 )
+  endif()
+
   add_subdirectory( ocv )
 endif()
 
@@ -91,9 +94,19 @@ if( KWIVER_ENABLE_KPF )
   add_subdirectory( kpf )
 endif()
 
+# if klv is enabled
+if( KWIVER_ENABLE_KLV )
+  add_subdirectory( klv )
+endif()
+
 # if GDAL is enabled
 if ( KWIVER_ENABLE_GDAL )
   add_subdirectory( gdal )
+endif()
+
+# if PDAL is enabled
+if ( KWIVER_ENABLE_PDAL )
+  add_subdirectory( pdal )
 endif()
 
 # if uuid is enabled
@@ -112,3 +125,8 @@ if( KWIVER_ENABLE_VTK)
 endif()
 
 add_subdirectory( serialize )
+
+# Register the colmap arrow with CMake.
+if( KWIVER_ENABLE_COLMAP )
+  add_subdirectory( colmap )
+endif()

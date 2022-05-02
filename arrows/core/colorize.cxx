@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of kwiver::arrows::core::colorize functions to extract/compute colors
- */
+/// \file
+/// \brief Implementation of kwiver::arrows::core::colorize functions to extract/compute colors
 
 #include "colorize.h"
 
@@ -76,7 +74,7 @@ vital::landmark_map_sptr compute_landmark_colors(
   auto colored_landmarks = landmarks.landmarks();
   auto const no_such_landmark = colored_landmarks.end();
 
-  for (auto const track : tracks.tracks())
+  for (auto const& track : tracks.tracks())
   {
     auto const lmid = static_cast<vital::landmark_id_t>(track->id());
     auto lmi = colored_landmarks.find(lmid);

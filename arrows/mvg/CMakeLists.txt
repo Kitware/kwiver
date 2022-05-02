@@ -9,6 +9,7 @@ set( plugin_mvg_headers
   algo/initialize_cameras_landmarks_basic.h
   algo/triangulate_landmarks.h
 
+  camera_options.h
   epipolar_geometry.h
   interpolate_camera.h
   necker_reverse.h
@@ -36,6 +37,7 @@ set( plugin_mvg_sources
   algo/initialize_cameras_landmarks_basic.cxx
   algo/triangulate_landmarks.cxx
 
+  camera_options.cxx
   epipolar_geometry.cxx
   interpolate_camera.cxx
   necker_reverse.cxx

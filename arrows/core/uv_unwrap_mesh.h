@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for mesh uv unwrapping
- */
+/// \file
+/// \brief Header for mesh uv unwrapping
 
 #ifndef KWIVER_ARROWS_CORE_UV_UNWRAP_MESH_H
 #define KWIVER_ARROWS_CORE_UV_UNWRAP_MESH_H
@@ -44,9 +42,8 @@ public:
   virtual ~uv_unwrap_mesh();
 
   /// Unwrap a mesh and generate texture coordinate
-  /**
-   * \param mesh [in/out]
-   */
+  ///
+  /// \param mesh [in/out]
   void unwrap(kwiver::vital::mesh_sptr mesh) const override;
 
 private:

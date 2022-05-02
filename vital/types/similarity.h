@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for \link kwiver::vital::similarity_ similarity_<T> \endlink class
- *        for similarity transformations
- */
+/// \file
+/// \brief Header for \link kwiver::vital::similarity_ similarity_<T> \endlink class
+///        for similarity transformations
 
 #ifndef VITAL_SIMILARITY_H_
 #define VITAL_SIMILARITY_H_
@@ -22,10 +20,9 @@ namespace kwiver {
 namespace vital {
 
 /// A representation of a 3D similarity transformation.
-/**
- * A similarity transformation is one that includes a scaling, rotation,
- * and translation
- */
+///
+/// A similarity transformation is one that includes a scaling, rotation,
+/// and translation
 template < typename T >
 class VITAL_EXPORT similarity_
 {
@@ -46,11 +43,10 @@ public:
   {}
 
   /// Constructor - from scale, rotatation, and translation
-  /**
-   * \param s the scale factor
-   * \param r the rotation
-   * \param t the translation vector
-   */
+  ///
+  /// \param s the scale factor
+  /// \param r the rotation
+  /// \param t the translation vector
   similarity_< T > ( const T &s, const rotation_< T > &r,
                      const Eigen::Matrix< T, 3, 1 > &t )
   : scale_( s ),
@@ -59,11 +55,10 @@ public:
   {}
 
   /// Constructor - from a matrix
-  /**
-   * requires a matrix which represents a similarity tranformation
-   * in homogeneous coordinates
-   * \param mat Transform in matrix form to initialize from.
-   */
+  ///
+  /// requires a matrix which represents a similarity tranformation
+  /// in homogeneous coordinates
+  /// \param mat Transform in matrix form to initialize from.
   explicit similarity_< T >( const Eigen::Matrix< T, 4, 4 > &mat );
 
   /// Convert to a 4x4 matrix
@@ -88,17 +83,15 @@ public:
   }
 
   /// Compose two similarities
-  /**
-   * \param rhs other similarity to compose with.
-   */
+  ///
+  /// \param rhs other similarity to compose with.
   similarity_< T > operator*( const similarity_< T >& rhs ) const;
 
   /// Transform a vector
-  /**
-   * \note for a large number of vectors, it is more efficient to
-   *       create a transform matrix and use matrix multiplication
-   * \param rhs vector to transform.
-   */
+  ///
+  /// \note for a large number of vectors, it is more efficient to
+  ///       create a transform matrix and use matrix multiplication
+  /// \param rhs vector to transform.
   Eigen::Matrix< T, 3, 1 > operator*( const Eigen::Matrix< T, 3, 1 >& rhs ) const;
 
   /// Equality operator

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of \link kwiver::vital::track track \endlink.
- */
+/// \file
+/// \brief Implementation of \link kwiver::vital::track track \endlink.
 
 #include "track.h"
 
@@ -269,7 +267,7 @@ track
 {
   std::set< frame_id_t > ids;
 
-  for( track_state_sptr const ts : this->history_ )
+  for( auto const& ts : this->history_ )
   {
     ids.insert( ts->frame() );
   }

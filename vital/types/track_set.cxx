@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of \link kwiver::vital::track_set track_set \endlink
- *        member functions
- */
+/// \file
+/// \brief Implementation of \link kwiver::vital::track_set track_set \endlink
+///        member functions
 
 #include "track_set.h"
 
@@ -261,7 +259,7 @@ track_set_implementation
 {
   std::set<track_id_t> track_ids;
   std::vector<track_state_sptr> ts = this->frame_states(offset);
-  for (auto const data : ts)
+  for (auto const& data : ts)
   {
     track_ids.insert(data->track()->id());
   }
@@ -415,7 +413,7 @@ track_set_implementation
   return frame_number;
 }
 
-//=============================================================================
+// ----------------------------------------------------------------------------
 
 /// Default Constructor
 track_set
@@ -450,7 +448,7 @@ track_set
   return ts;
 }
 
-//===================================================================
+// ----------------------------------------------------------------------------
 
 /// Constructor from a vector of tracks
 simple_track_set_implementation

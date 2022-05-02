@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of map from frame IDs to vpgl cameras
- */
+/// \file
+/// \brief Implementation of map from frame IDs to vpgl cameras
 
 #include "camera_map.h"
 

@@ -23,4 +23,4 @@ protected:
 
 } }
 
-#endif /* VITAL_NONCOPYABLE_H */
+#endif // VITAL_NONCOPYABLE_H

@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for \link kwiver::vital::camera_rpc camera_rpc \endlink and
- *        \link kwiver::vital::camera_rpc_ camera_rpc_<T> \endlink classes
- */
+/// \file
+/// \brief Header for \link kwiver::vital::camera_rpc camera_rpc \endlink and
+///        \link kwiver::vital::camera_rpc_ camera_rpc_<T> \endlink classes
 
 #ifndef VITAL_CAMERA_RPC_H_
 #define VITAL_CAMERA_RPC_H_
@@ -33,13 +31,12 @@ class camera_rpc;
 /// typedef for a camera_rpc shared pointer
 typedef std::shared_ptr< camera_rpc > camera_rpc_sptr;
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// An abstract representation of rpc camera
-/**
- * The base class of camera_rpcs is abstract and provides a
- * double precision interface.  The templated derived class
- * can store values in either single or double precision.
- */
+///
+/// The base class of camera_rpcs is abstract and provides a
+/// double precision interface.  The templated derived class
+/// can store values in either single or double precision.
 class VITAL_EXPORT camera_rpc : public camera
 {
 public:
@@ -47,13 +44,12 @@ public:
   virtual ~camera_rpc() = default;
 
   /// Vector of the powers of the 3D positions
-  /**
-   * Produces a vector whose components are the various powers (up to cubic)
-   * of the components of a 3D position. This vector is used to construct
-   * the various polynomials used in the RPC model. The order of the terms is
-   *
-   * {1, x, y, z, xy, xz, yz, xx, yy, zz, xyz, xxx, xyy, xzz, xxy, yyy, yzz, xxz, yyz, zzz}
-   */
+  ///
+  /// Produces a vector whose components are the various powers (up to cubic)
+  /// of the components of a 3D position. This vector is used to construct
+  /// the various polynomials used in the RPC model. The order of the terms is
+  ///
+  /// {1, x, y, z, xy, xz, yz, xx, yy, zz, xyz, xxx, xyy, xzz, xxy, yyy, yzz, xxz, yyz, zzz}
   static Eigen::Matrix<double, 20, 1> power_vector( const vector_3d& pt );
 
   /// Create a clone of this camera_rpc object
@@ -87,9 +83,8 @@ protected:
 };
 
 /// A representation of a camera
-/**
- * Contains camera rpc coefficients, offsets, and scales
- */
+///
+/// Contains camera rpc coefficients, offsets, and scales
 class VITAL_EXPORT simple_camera_rpc :
   public camera_rpc
 {
@@ -113,9 +108,8 @@ public:
   }
 
   /// Constructor - direct from coeffs, scales, and offset
-  /**
-   *  This constructor constructs a camera directly from the RPC parameters
-   */
+  ///
+  ///  This constructor constructs a camera directly from the RPC parameters
   simple_camera_rpc ( vector_3d &world_scale, vector_3d &world_offset,
                       vector_2d &image_scale, vector_2d &image_offset,
                       rpc_matrix &rpc_coeffs, unsigned int image_width=0,

@@ -43,7 +43,7 @@ static kwiver::vital::category_explorer_sptr get_category_handler( const std::st
 // Cluster default path.
 static std::string const cluster_default_include_dirs = std::string(DEFAULT_CLUSTER_PATHS);
 
-//==================================================================
+// ----------------------------------------------------------------------------
 // Define global program data
 static kwiver::vital::explorer_context::priv G_context;
 static kwiver::vital::explorer_context* G_explorer_context;
@@ -63,7 +63,7 @@ static std::string version_string( PLUGIN_EXPLORER_VERSION );
 
 static std::map< const std::string, kwiver::vital::category_explorer_sptr> category_map;
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 
 static std::string const hidden_prefix = "_";
 
@@ -73,10 +73,8 @@ inline std::ostream& pe_out()
   return *G_context.m_out_stream;
 }
 
-// ------------------------------------------------------------------
-/*
- * Functor to print an attribute
- */
+// ----------------------------------------------------------------------------
+//  Functor to print an attribute
 struct print_functor
 {
   print_functor( std::ostream& str)
@@ -111,7 +109,7 @@ struct print_functor
   std::ostream& m_str;
 };
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 display_attributes( kwiver::vital::plugin_factory_handle_t const fact )
 {
@@ -189,7 +187,7 @@ display_attributes( kwiver::vital::plugin_factory_handle_t const fact )
   pe_out() << std::endl;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 // display full factory
 //
@@ -217,11 +215,11 @@ display_factory( kwiver::vital::plugin_factory_handle_t const fact )
   display_attributes( fact );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void display_by_category( const kwiver::vital::plugin_map_t& plugin_map,
                           const std::string& category )
 {
-  for( const auto it : plugin_map )
+  for( auto const& it : plugin_map )
   {
     std::string ds = kwiver::vital::demangle( it.first );
 
@@ -238,7 +236,7 @@ void display_by_category( const kwiver::vital::plugin_map_t& plugin_map,
     }
 
     // Get vector of factories
-    for( kwiver::vital::plugin_factory_handle_t const fact : facts )
+    for( auto const& fact : facts )
     {
       std::string cat;
       if ( ! fact->get_attribute( kvpf::PLUGIN_CATEGORY, cat )
@@ -274,7 +272,7 @@ void display_by_category( const kwiver::vital::plugin_map_t& plugin_map,
   pe_out() << std::endl;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::category_explorer_sptr
 get_category_handler( const std::string& cat )
 {
@@ -296,14 +294,12 @@ get_category_handler( const std::string& cat )
   return nullptr;
 }
 
-// ------------------------------------------------------------------
-/**
- * @brief Load plugin explorer plugins
- *
- * Since these plugins are part of the tool, they are loaded separately.
- *
- * @param path Directory of where to look for these plugins.
- */
+// ----------------------------------------------------------------------------
+/// @brief Load plugin explorer plugins
+///
+/// Since these plugins are part of the tool, they are loaded separately.
+///
+/// @param path Directory of where to look for these plugins.
 void load_explorer_plugins()
 {
   // need a dedicated loader to just load the explorer_context files.
@@ -370,14 +366,13 @@ void load_explorer_plugins()
   }
 }
 
-// ==================================================================
-/*                   _
- *   _ __ ___   __ _(_)_ __
- *  | '_ ` _ \ / _` | | '_ \
- *  | | | | | | (_| | | | | |
- *  |_| |_| |_|\__,_|_|_| |_|
- *
- */
+// ----------------------------------------------------------------------------
+//                   _
+//    _ __ ___   __ _(_)_ __
+//   | '_ ` _ \ / _` | | '_ \
+//   | | | | | | (_| | | | | |
+//   |_| |_| |_|\__,_|_|_| |_|
+//
 int
 main( int argc, char* argv[] )
 {
@@ -648,7 +643,7 @@ main( int argc, char* argv[] )
     }
   }
 
-  // ========
+  // --------------------------------------------------------------------------
   // Test for incompatible option sets.
   if ( G_context.opt_fact_filt && G_context.opt_attr_filter )
   {
@@ -663,7 +658,7 @@ main( int argc, char* argv[] )
     return 1;
   }
 
-  // ========
+  // --------------------------------------------------------------------------
   kwiver::vital::plugin_manager_internal& vpm = kwiver::vital::plugin_manager_internal::instance();
 
   if ( ! G_context.opt_skip_relative)
@@ -719,14 +714,14 @@ main( int argc, char* argv[] )
   {
     pe_out() << "---- Registered module names:\n";
     auto module_list = vpm.module_map();
-    for( auto const name : module_list )
+    for( auto const& name : module_list )
     {
       pe_out() << "   " << name.first << "  loaded from: " << name.second << std::endl;
     }
     pe_out() << std::endl;
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   // See if specific category is selected
   if ( G_context.opt_algo )
   {
@@ -752,7 +747,7 @@ main( int argc, char* argv[] )
     display_by_category( plugin_map, "scheduler" );
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   // Generate list of factories of any of these options are selected
   else if ( G_context.opt_all
             || G_context.opt_fact_filt
@@ -779,7 +774,7 @@ main( int argc, char* argv[] )
 
       // Get vector of factories
       kwiver::vital::plugin_factory_vector_t const& facts = it.second;
-      for( kwiver::vital::plugin_factory_handle_t const fact : facts )
+      for( auto const& fact : facts )
       {
         // If regexp matching is enabled, and this does not match, skip it
         if ( G_context.opt_type_filt )

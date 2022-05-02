@@ -23,7 +23,7 @@ namespace json {
 struct track_item
 {
   kwiver::vital::track_sptr trk_sptr;
-  
+
   track_item()
   {
     trk_sptr = kwiver::vital::track::create();
@@ -75,7 +75,7 @@ struct track_item
     }
   }
 };
-  
+
 } } } }       // end namespace kwiver
 
 #endif // ARROWS_SERIALIZATION_JSON_TRACK_ITEM_H

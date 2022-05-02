@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
-* \file
-* \brief Implementation for kwiver::vital::sfm_constraints class storing
-*        constraints to be used in SfM.
-*/
+/// \file
+/// \brief Implementation for kwiver::vital::sfm_constraints class storing
+///       constraints to be used in SfM.
 
 #include <vital/types/sfm_constraints.h>
 
@@ -230,8 +228,9 @@ sfm_constraints
       return false;
     }
 
-    R_loc = compose_rotations<double>(platform_heading, platform_pitch, platform_roll,
-                                      sensor_rel_az, sensor_rel_el, sensor_rel_roll);
+    R_loc =
+      uas_ypr_to_rotation( platform_heading, platform_pitch, platform_roll,
+                           sensor_rel_az,    sensor_rel_el,  sensor_rel_roll );
 
     return true;
   }

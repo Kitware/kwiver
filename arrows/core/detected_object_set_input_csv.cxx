@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation for detected_object_set_input_csv
- */
+/// \file
+/// \brief Implementation for detected_object_set_input_csv
 
 #include "detected_object_set_input_csv.h"
 
@@ -32,7 +30,7 @@ namespace core {
 /// - 8,9  : class-name   score  (this pair may be omitted or may repeat any number of times)
 ///
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class detected_object_set_input_csv::priv
 {
 public:
@@ -49,7 +47,7 @@ public:
   bool get_input();
   void add_detection();
 
-  // -------------------------------------
+  // --------------------------------------------------------------------------
   detected_object_set_input_csv* m_parent;
   bool m_first;
   int m_frame_number;
@@ -61,7 +59,7 @@ public:
   std::string m_image_name;
 };
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 detected_object_set_input_csv::
 detected_object_set_input_csv()
   : d( new detected_object_set_input_csv::priv( this ) )
@@ -74,7 +72,7 @@ detected_object_set_input_csv::
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_input_csv::
 set_configuration(vital::config_block_sptr config)
@@ -88,7 +86,7 @@ set_configuration(vital::config_block_sptr config)
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set_input_csv::
 check_configuration( VITAL_UNUSED vital::config_block_sptr config) const
@@ -96,7 +94,7 @@ check_configuration( VITAL_UNUSED vital::config_block_sptr config) const
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set_input_csv::
 read_set( kwiver::vital::detected_object_set_sptr& set, std::string& image_name )
@@ -154,7 +152,7 @@ read_set( kwiver::vital::detected_object_set_sptr& set, std::string& image_name 
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_input_csv::
 new_stream()
@@ -163,7 +161,7 @@ new_stream()
   d->m_stream_reader = std::make_shared< kwiver::vital::data_stream_reader>( stream() );
 }
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 bool
 detected_object_set_input_csv::priv::
 get_input()
@@ -197,7 +195,7 @@ get_input()
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set_input_csv::priv::
 add_detection()

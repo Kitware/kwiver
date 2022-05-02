@@ -38,6 +38,7 @@ set( ocv_headers_public
   hough_circle_detector.h
   image_container.h
   image_io.h
+  inpaint.h
   mat_image_memory.h
   match_features.h
   match_features_bruteforce.h
@@ -99,6 +100,7 @@ set( ocv_sources
   feature_detect_extract_SURF.cxx
   image_container.cxx
   image_io.cxx
+  inpaint.cxx
   mat_image_memory.cxx
   match_features.cxx
   match_features_bruteforce.cxx
@@ -131,9 +133,7 @@ target_link_libraries( kwiver_algo_ocv
                        ${OpenCV_LIBS}
   PRIVATE              kwiversys
                        kwiver_algo_core
-                       ${Boost_SYSTEM_LIBRARY}
-                       ${Boost_FILESYSTEM_LIBRARY}
-                       ${Boost_REGEX_LIBRARY}
+                       kwiver_algo_mvg
   )
 
 algorithms_create_plugin( kwiver_algo_ocv

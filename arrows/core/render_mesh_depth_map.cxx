@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for core render_mesh_depth_map function
- */
+/// \file
+/// \brief Header for core render_mesh_depth_map function
 
 #include "render_mesh_depth_map.h"
 

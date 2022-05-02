@@ -2,12 +2,10 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of file IO functions for a \ref kwiver::vital::camera
- *
- * File format is the KRTD file.
- */
+/// \file
+/// \brief Implementation of file IO functions for a \ref kwiver::vital::camera
+///
+/// File format is the KRTD file.
 
 #include "camera_io.h"
 

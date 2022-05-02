@@ -17,7 +17,7 @@
 namespace kwiver {
 namespace vital {
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 category_hierarchy
 ::category_hierarchy()
 {
@@ -78,7 +78,7 @@ category_hierarchy
 {
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 category_hierarchy
 ::add_class( const label_t& class_name,
@@ -103,7 +103,7 @@ category_hierarchy
   }
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 category_hierarchy
 ::has_class_name( const std::string& class_name ) const
@@ -115,7 +115,7 @@ category_hierarchy
   return false;
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 category_hierarchy::label_t
 category_hierarchy
 ::get_class_name( const label_t& class_name ) const
@@ -125,7 +125,7 @@ category_hierarchy
   return itr->second->category_name;
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 category_hierarchy::label_id_t
 category_hierarchy
 ::get_class_id( const label_t& class_name ) const
@@ -135,7 +135,7 @@ category_hierarchy
   return itr->second->category_id;
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 category_hierarchy::label_vec_t
 category_hierarchy
 ::get_class_parents( const label_t& class_name ) const
@@ -152,7 +152,7 @@ category_hierarchy
   return output;
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 category_hierarchy
 ::add_relationship( const label_t& child_name, const label_t& parent_name )
@@ -164,7 +164,7 @@ category_hierarchy
   itr2->second->children.push_back( itr1->second.get() );
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 category_hierarchy
 ::add_synonym( const label_t& class_name, const label_t& synonym_name )
@@ -185,7 +185,7 @@ category_hierarchy
   m_hierarchy[ synonym_name ] = itr->second;
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 category_hierarchy::label_vec_t
 category_hierarchy
 ::all_class_names() const
@@ -202,7 +202,7 @@ category_hierarchy
   return names;
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 category_hierarchy::label_vec_t
 category_hierarchy
 ::child_class_names() const
@@ -222,7 +222,7 @@ category_hierarchy
   return names;
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 size_t
 category_hierarchy
 ::size() const
@@ -230,7 +230,7 @@ category_hierarchy
   return m_hierarchy.size();
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 category_hierarchy
 ::load_from_file( const std::string& filename )
@@ -287,7 +287,7 @@ category_hierarchy
   }
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 category_hierarchy::hierarchy_const_itr_t
 category_hierarchy
 ::find( const label_t& lbl ) const
@@ -302,7 +302,7 @@ category_hierarchy
   return itr;
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::vector< category_hierarchy::category_sptr >
 category_hierarchy
 ::sorted_categories() const

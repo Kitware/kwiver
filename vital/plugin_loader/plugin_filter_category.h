@@ -12,16 +12,15 @@
 namespace kwiver {
 namespace vital {
 
-// -----------------------------------------------------------------
-/** Select plugin based on category name.
- *
- * This filter class selects a plugin based on the specified category
- * name and condition. Plugins of a specific category can be included
- * or excluded from loading.
- *
- * EQUAL selects or includes plugins of specified category.
- * NOT_EQUAL excludes plugins of specified category.
- */
+// ----------------------------------------------------------------------------
+/// Select plugin based on category name.
+///
+/// This filter class selects a plugin based on the specified category
+/// name and condition. Plugins of a specific category can be included
+/// or excluded from loading.
+///
+/// EQUAL selects or includes plugins of specified category.
+/// NOT_EQUAL excludes plugins of specified category.
 class VITAL_VPM_EXPORT plugin_filter_category
   : public plugin_loader_filter
 {

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of detected object set csv output
- */
+/// \file
+/// \brief Implementation of detected object set csv output
 
 #include "track_descriptor_set_output_csv.h"
 
@@ -15,7 +13,7 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class track_descriptor_set_output_csv::priv
 {
 public:
@@ -34,7 +32,7 @@ public:
   std::string m_delim;
 };
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 track_descriptor_set_output_csv::
 track_descriptor_set_output_csv()
   : d( new track_descriptor_set_output_csv::priv( this ) )
@@ -47,7 +45,7 @@ track_descriptor_set_output_csv::
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 track_descriptor_set_output_csv::
 set_configuration(vital::config_block_sptr config)
@@ -55,7 +53,7 @@ set_configuration(vital::config_block_sptr config)
   d->m_delim = config->get_value<std::string>( "delimiter", d->m_delim );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 track_descriptor_set_output_csv::
 check_configuration(vital::config_block_sptr config) const
@@ -63,7 +61,7 @@ check_configuration(vital::config_block_sptr config) const
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 track_descriptor_set_output_csv::
 write_set( const kwiver::vital::track_descriptor_set_sptr set,

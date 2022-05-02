@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
-* \file
-* \brief Header defining VXL algorithm implementation of camera optimization.
-*/
+/// \file
+/// \brief Header defining VXL algorithm implementation of camera optimization.
 
 #ifndef KWIVER_ARROWS_VXL_OPTIMIZE_CAMERAS_H_
 #define KWIVER_ARROWS_VXL_OPTIMIZE_CAMERAS_H_
@@ -38,19 +36,18 @@ public:
   using vital::algo::optimize_cameras::optimize;
 
   /// Optimize a single camera given corresponding features and landmarks
-  /**
-   * This function assumes that 2D features viewed by this camera have
-   * already been put into correspondence with 3D landmarks by aligning
-   * them into two parallel vectors
-   *
-   * \param[in,out] camera    The camera to optimize.
-   * \param[in]     features  The vector of features observed by \p camera
-   *                          to use as constraints.
-   * \param[in]     landmarks The vector of landmarks corresponding to
-   *                          \p features.
-   * \param[in]     metadata  The optional metadata to constrain the
-   *                          optimization.
-   */
+  ///
+  /// This function assumes that 2D features viewed by this camera have
+  /// already been put into correspondence with 3D landmarks by aligning
+  /// them into two parallel vectors
+  ///
+  /// \param[in,out] camera    The camera to optimize.
+  /// \param[in]     features  The vector of features observed by \p camera
+  ///                          to use as constraints.
+  /// \param[in]     landmarks The vector of landmarks corresponding to
+  ///                          \p features.
+  /// \param[in]     metadata  The optional metadata to constrain the
+  ///                          optimization.
   virtual void
   optimize(kwiver::vital::camera_perspective_sptr & camera,
            const std::vector<vital::feature_sptr>& features,

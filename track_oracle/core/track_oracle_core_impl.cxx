@@ -147,7 +147,7 @@ track_oracle_core_impl
 {
  std::lock_guard< std::mutex > lock( this->api_lock );
  vector< field_handle_type > ret;
- for (const auto p: this->name_pool)
+ for (auto const& p: this->name_pool)
  {
    ret.push_back( p.second );
  }

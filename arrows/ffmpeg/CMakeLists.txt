@@ -3,6 +3,11 @@
 
 set(CMAKE_FOLDER "Arrows/FFmpeg")
 
+if(NOT KWIVER_ENABLE_KLV)
+  message(FATAL_ERROR
+          "The FFmpeg arrow requires the KLV arrow (KWIVER_ENABLE_KLV)")
+endif()
+
 include_directories(${FFMPEG_INCLUDE_DIR})
 
 if (NOT FFMPEG_FOUND_SEVERAL)
@@ -15,6 +20,8 @@ endif()
 set(ffmpeg_headers_public
   ffmpeg_init.h
   ffmpeg_video_input.h
+  ffmpeg_video_output.h
+  ffmpeg_video_settings.h
   )
 
 kwiver_install_headers(
@@ -30,6 +37,8 @@ kwiver_install_headers(
 set(ffmpeg_sources
   ffmpeg_init.cxx
   ffmpeg_video_input.cxx
+  ffmpeg_video_output.cxx
+  ffmpeg_video_settings.cxx
   )
 
 kwiver_add_library( kwiver_algo_ffmpeg
@@ -53,7 +62,7 @@ endif()
 
 target_link_libraries( kwiver_algo_ffmpeg
   PUBLIC               vital_algo
-  PRIVATE              vital_klv kwiversys
+  PRIVATE              kwiver_algo_klv kwiversys
                        ${FFMPEG_LIBRARIES}
                        ${ZLIB_LIBRARIES}
   )

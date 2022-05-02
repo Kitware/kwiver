@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Function to generate \ref kwiver::vital::camera_rpc from metadata
- */
+/// \file
+/// \brief Function to generate \ref kwiver::vital::camera_rpc from metadata
 
 #include "camera_from_metadata.h"
 
@@ -21,7 +19,6 @@ Eigen::VectorXd
 tags_to_vector( metadata_sptr const& md,
                 std::vector<vital_metadata_tag> tags )
 {
-  metadata_traits md_traits;
   auto vec_length = tags.size();
 
   Eigen::VectorXd rslt(vec_length);
@@ -35,7 +32,7 @@ tags_to_vector( metadata_sptr const& md,
     else
     {
       VITAL_THROW(metadata_exception, "Missing RPC metadata: " +
-                                      md_traits.tag_to_name(tags[i]));
+                                      tag_traits_by_tag(tags[i]).name());
     }
   }
 
@@ -47,7 +44,6 @@ rpc_matrix
 tags_to_matrix( metadata_sptr const& md,
                 std::vector<vital_metadata_tag> tags )
 {
-  metadata_traits md_traits;
   if (tags.size() != 4)
   {
     VITAL_THROW(metadata_exception,
@@ -65,7 +61,7 @@ tags_to_matrix( metadata_sptr const& md,
     else
     {
       VITAL_THROW(metadata_exception, "Missing RPC metadata: " +
-                                      md_traits.tag_to_name(tags[i]));
+                                      tag_traits_by_tag(tags[i]).name());
     }
   }
 
@@ -100,8 +96,6 @@ VITAL_EXPORT camera_from_metadata( metadata_sptr const& md )
   vector_3d world_scale, world_offset;
   vector_2d image_scale, image_offset;
   rpc_matrix rpc_coeffs;
-
-  metadata_traits md_traits;
 
   std::vector<vital_metadata_tag> world_scale_tags = {
     VITAL_META_RPC_LONG_SCALE,
@@ -208,8 +202,7 @@ initialize_cameras_with_metadata(std::map<frame_id_t,
       }
       if(auto& mdi = m.second->find(VITAL_META_SENSOR_LOCATION))
       {
-        geo_point gloc;
-        mdi.data(gloc);
+        auto gloc = mdi.get< geo_point >();
 
         // set the origin to the ground
         vital::vector_3d loc = gloc.location();
@@ -288,33 +281,33 @@ update_camera_from_metadata(metadata const& md,
   double platform_yaw = 0.0, platform_pitch = 0.0, platform_roll = 0.0;
   if (auto& mdi = md.find(VITAL_META_PLATFORM_HEADING_ANGLE))
   {
-    mdi.data(platform_yaw);
+    platform_yaw = mdi.get< double >();
     has_platform_yaw = true;
   }
   if (auto& mdi = md.find(VITAL_META_PLATFORM_PITCH_ANGLE))
   {
-    mdi.data(platform_pitch);
+    platform_pitch = mdi.get< double >();
     has_platform_pitch = true;
   }
   if (auto& mdi = md.find(VITAL_META_PLATFORM_ROLL_ANGLE))
   {
-    mdi.data(platform_roll);
+    platform_roll = mdi.get< double >();
     has_platform_roll = true;
   }
   double sensor_yaw = 0.0, sensor_pitch = 0.0, sensor_roll = 0.0;
   if (auto& mdi = md.find(VITAL_META_SENSOR_REL_AZ_ANGLE))
   {
-    mdi.data(sensor_yaw);
+    sensor_yaw = mdi.get< double >();
     has_sensor_yaw = true;
   }
   if (auto& mdi = md.find(VITAL_META_SENSOR_REL_EL_ANGLE))
   {
-    mdi.data(sensor_pitch);
+    sensor_pitch = mdi.get< double >();
     has_sensor_pitch = true;
   }
   if (auto& mdi = md.find(VITAL_META_SENSOR_REL_ROLL_ANGLE))
   {
-    mdi.data(sensor_roll);
+    sensor_roll = mdi.get< double >();
   }
 
   if (has_platform_yaw && has_platform_pitch && has_platform_roll &&
@@ -325,21 +318,19 @@ update_camera_from_metadata(metadata const& md,
         std::isnan(platform_roll) || std::isnan(sensor_yaw) ||
         std::isnan(sensor_pitch) || std::isnan(sensor_roll)))
   {
-    //only set the camera's rotation if all metadata angles are present
+    // Only set the camera's rotation if all metadata angles are present
 
-    auto R = compose_rotations<double>(
-      platform_yaw, platform_pitch, platform_roll,
-      sensor_yaw, sensor_pitch, sensor_roll);
-
-    cam.set_rotation(R);
+    auto const rotation =
+      uas_ypr_to_rotation( platform_yaw, platform_pitch, platform_roll,
+                           sensor_yaw,   sensor_pitch,   sensor_roll );
+    cam.set_rotation( rotation );
 
     rotation_set = true;
   }
 
   if (auto& mdi = md.find(VITAL_META_SENSOR_LOCATION))
   {
-    geo_point gloc;
-    mdi.data(gloc);
+    auto const gloc = mdi.get< geo_point >();
 
     // get the location in the same UTM zone as the origin
     vector_3d loc = gloc.location(lgcs.origin().crs())
@@ -396,13 +387,11 @@ update_metadata_from_camera(simple_camera_perspective const& cam,
     // We have a complete metadata rotation.
     // Note that sensor roll is ignored here on purpose.
     double yaw, pitch, roll;
-    cam.rotation().get_yaw_pitch_roll(yaw, pitch, roll);
-    yaw *= rad_to_deg;
-    pitch *= rad_to_deg;
-    roll *= rad_to_deg;
-    md.add<VITAL_META_SENSOR_YAW_ANGLE>(yaw);
-    md.add<VITAL_META_SENSOR_PITCH_ANGLE>(pitch);
-    md.add<VITAL_META_SENSOR_ROLL_ANGLE>(roll);
+    auto rotation = enu_to_ned( cam.rotation() );
+    rotation.get_yaw_pitch_roll( yaw, pitch, roll );
+    md.add< VITAL_META_SENSOR_YAW_ANGLE >( yaw * rad_to_deg );
+    md.add< VITAL_META_SENSOR_PITCH_ANGLE >( pitch * rad_to_deg );
+    md.add< VITAL_META_SENSOR_ROLL_ANGLE >( roll * rad_to_deg );
   }
 
   if (md.has(VITAL_META_SENSOR_LOCATION))

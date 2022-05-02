@@ -13,12 +13,11 @@ namespace kwiver {
 namespace arrows {
 namespace core {
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Video input that splices frames together from multiple video input sources.
-/**
- * This class implements a video input algorithm that splices multiple video
- * input sources together into a single source.
- */
+///
+/// This class implements a video input algorithm that splices multiple video
+/// input sources together into a single source.
 class KWIVER_ALGO_CORE_EXPORT video_input_splice
   : public  vital::algo::video_input
 {
@@ -58,6 +57,8 @@ public:
   virtual kwiver::vital::image_container_sptr frame_image();
   virtual kwiver::vital::metadata_vector frame_metadata();
   virtual kwiver::vital::metadata_map_sptr metadata_map();
+
+  kwiver::vital::video_settings_uptr implementation_settings() const override;
 
 private:
   /// private implementation class

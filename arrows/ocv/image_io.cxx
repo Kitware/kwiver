@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OpenCV image_io implementation
- */
+/// \file
+/// \brief OpenCV image_io implementation
 
 #include "image_io.h"
 
@@ -22,10 +20,9 @@ namespace arrows {
 namespace ocv {
 
 /// Load image image from the file
-/**
- * \param filename the path to the file to load
- * \returns an image container refering to the loaded image
- */
+///
+/// \param filename the path to the file to load
+/// \returns an image container refering to the loaded image
 vital::image_container_sptr
 image_io
 ::load_(const std::string& filename) const
@@ -40,10 +37,9 @@ image_io
 }
 
 /// Save image image to a file
-/**
- * \param filename the path to the file to save.
- * \param data The image container refering to the image to write.
- */
+///
+/// \param filename the path to the file to save.
+/// \param data The image container refering to the image to write.
 void
 image_io
 ::save_(const std::string& filename,
@@ -58,10 +54,9 @@ image_io
 }
 
 /// Load image metadata from the file
-/**
- * \param filename the path to the file to read
- * \returns pointer to the loaded metadata
- */
+///
+/// \param filename the path to the file to read
+/// \returns pointer to the loaded metadata
 kwiver::vital::metadata_sptr
 image_io
 ::load_metadata_(const std::string& filename) const

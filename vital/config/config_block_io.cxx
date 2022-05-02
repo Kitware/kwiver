@@ -2,17 +2,18 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief config_block IO operations implementation
- */
+/// \file
+/// \brief config_block IO operations implementation
 
 #include "config_block_io.h"
 #include "config_block_exception.h"
 #include "config_parser.h"
 
 #include <vital/logger/logger.h>
+
+#include <vital/util/get_paths.h>
 #include <vital/util/wrap_text_block.h>
+
 #include <vital/version.h>
 
 #include <kwiversys/SystemTools.hxx>
@@ -30,8 +31,17 @@ namespace vital {
 
 namespace {
 
+// ----------------------------------------------------------------------------
+std::string guess_install_prefix()
+{
+  auto const& exe_path = get_executable_path();
+  auto const& last = kwiversys::SystemTools::GetFilenameName(exe_path);
+
+  return (last == "bin" ? exe_path + "/.." : exe_path);
+}
+
 #if defined(_WIN32)
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Helper method to add known special paths to a path list
 void add_windows_path( config_path_list_t & paths, int which )
 {
@@ -45,7 +55,7 @@ void add_windows_path( config_path_list_t & paths, int which )
 }
 #endif
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Helper method to get application specific paths from generic paths
 config_path_list_t
 application_paths( config_path_list_t const& paths,
@@ -67,15 +77,14 @@ application_paths( config_path_list_t const& paths,
   return result;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Add paths in the KWIVER_CONFIG_PATH env variable to the given path vector
-/**
- * Appends the current working directory (".") and then the contents of the
- * \c KWIVER_CONFIG_PATH environment variable, in order, to the back of the
- * given vector.
- *
- * \param path_vector The vector to append to
- */
+///
+/// Appends the current working directory (".") and then the contents of the
+/// \c KWIVER_CONFIG_PATH environment variable, in order, to the back of the
+/// given vector.
+///
+/// \param path_vector The vector to append to
 void append_kwiver_config_paths( config_path_list_t &path_vector )
 {
   // Current working directory always takes precedence
@@ -83,9 +92,7 @@ void append_kwiver_config_paths( config_path_list_t &path_vector )
   kwiversys::SystemTools::GetPath( path_vector, "KWIVER_CONFIG_PATH" );
 }
 
-} //end anonymous namespace
-
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Helper method to get all possible locations of application config files
 config_path_list_t
 application_config_file_paths_helper(std::string const& application_name,
@@ -171,18 +178,23 @@ application_config_file_paths_helper(std::string const& application_name,
   return paths;
 }
 
-// ------------------------------------------------------------------
+} //end anonymous namespace
+
+// ----------------------------------------------------------------------------
 /// Get additional application configuration file paths
 config_path_list_t
 application_config_file_paths(std::string const& application_name,
                               std::string const& application_version,
                               config_path_t const& install_prefix)
 {
+  auto const& guessed_prefix =
+    (install_prefix.empty() ? guess_install_prefix() : install_prefix);
+
   return application_config_file_paths(application_name, application_version,
-                                       install_prefix, install_prefix);
+                                       guessed_prefix, guessed_prefix);
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Get additional application configuration file paths
 config_path_list_t
 application_config_file_paths(std::string const& application_name,
@@ -226,7 +238,7 @@ application_config_file_paths(std::string const& application_name,
   return paths;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /// Get KWIVER configuration file paths
 config_path_list_t
 kwiver_config_file_paths(config_path_t const& install_prefix)
@@ -235,9 +247,10 @@ kwiver_config_file_paths(config_path_t const& install_prefix)
   auto paths = config_path_list_t{};
   append_kwiver_config_paths(paths);
 
-  auto kwiver_paths = application_config_file_paths_helper("kwiver",
-                                                           KWIVER_VERSION,
-                                                           install_prefix);
+  auto kwiver_paths =
+    application_config_file_paths_helper(
+      "kwiver", KWIVER_VERSION,
+      (install_prefix.empty() ? guess_install_prefix() : install_prefix));
 
   for (auto const& path : kwiver_paths)
   {
@@ -247,7 +260,7 @@ kwiver_config_file_paths(config_path_t const& install_prefix)
   return paths;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_block_sptr
 read_config_file( config_path_t const&     file_path,
                   config_path_list_t const& search_paths,
@@ -279,7 +292,7 @@ read_config_file( config_path_t const&     file_path,
   return the_parser.get_config();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 config_block_sptr
 read_config_file( std::string const& file_name,
                   std::string const& application_name,
@@ -390,7 +403,7 @@ std::vector< config_path_t > find_config_file(
   return out;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Output to file the given \c config_block object to the specified file path
 void
 write_config_file( config_block_sptr const& config,
@@ -432,7 +445,7 @@ write_config_file( config_block_sptr const& config,
   ofile.close();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void write_config( config_block_sptr const& config,
                    std::ostream&            ofile )
 {

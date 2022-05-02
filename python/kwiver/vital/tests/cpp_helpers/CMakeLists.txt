@@ -1,5 +1,3 @@
-include_directories(${pybind11_INCLUDE_DIR})
-
 set(__helper_modnames
   camera_helpers
   camera_intrinsics_helpers
@@ -19,7 +17,7 @@ foreach (modname IN LISTS __helper_modnames)
     ${modname}.cxx)
 
   target_link_libraries(python-vital.tests.cpp_helpers-${modname}
-    PRIVATE ${PYTHON_LIBRARIES}
+    PRIVATE ${PYTHON_LIBRARIES} pybind11::pybind11
            vital)
 
 endforeach()

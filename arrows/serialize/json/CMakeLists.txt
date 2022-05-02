@@ -72,11 +72,14 @@ target_link_libraries( kwiver_serialize_json
   PRIVATE              ${ZLIB_LIBRARIES}
   )
 
-
 algorithms_create_plugin( kwiver_serialize_json
   register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory(tests)
+endif()
+
+if (KWIVER_ENABLE_KLV)
+  add_subdirectory(klv)
 endif()

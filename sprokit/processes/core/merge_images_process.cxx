@@ -86,7 +86,7 @@ merge_images_process
 {
   std::vector<kwiver::vital::image_container_sptr> image_list;
 
-  for( const auto port_name : d->p_port_list )
+  for ( auto const& port_name : d->p_port_list )
   {
     kwiver::vital::image_container_sptr image_sptr =
       grab_from_port_as< kwiver::vital::image_container_sptr >( port_name );

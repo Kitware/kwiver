@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Defaults plugin algorithm registration interface impl
- */
+/// \file
+/// \brief Defaults plugin algorithm registration interface impl
 
 #include <arrows/core/kwiver_algo_core_plugin_export.h>
 
@@ -23,6 +21,7 @@
 #include <arrows/core/compute_ref_homography_core.h>
 #include <arrows/core/convert_image_bypass.h>
 #include <arrows/core/create_detection_grid.h>
+#include <arrows/core/derive_metadata.h>
 #include <arrows/core/detect_features_filtered.h>
 #include <arrows/core/detected_object_set_input_csv.h>
 #include <arrows/core/detected_object_set_input_kw18.h>
@@ -56,6 +55,7 @@
 #include <arrows/core/uv_unwrap_mesh.h>
 #include <arrows/core/video_input_filter.h>
 #include <arrows/core/video_input_image_list.h>
+#include <arrows/core/video_input_metadata_filter.h>
 #include <arrows/core/video_input_pos.h>
 #include <arrows/core/video_input_splice.h>
 #include <arrows/core/video_input_split.h>
@@ -91,6 +91,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_algorithm< compute_ref_homography_core >();
   reg.register_algorithm< convert_image_bypass >();
   reg.register_algorithm< create_detection_grid >();
+  reg.register_algorithm< derive_metadata >();
   reg.register_algorithm< detect_features_filtered >();
   reg.register_algorithm< detected_object_set_input_csv >();
   reg.register_algorithm< detected_object_set_input_kw18 >();
@@ -124,6 +125,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_algorithm< uv_unwrap_mesh >();
   reg.register_algorithm< video_input_filter >();
   reg.register_algorithm< video_input_image_list >();
+  reg.register_algorithm< video_input_metadata_filter >();
   reg.register_algorithm< video_input_pos >();
   reg.register_algorithm< video_input_splice >();
   reg.register_algorithm< video_input_split >();

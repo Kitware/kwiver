@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of load wrapping functionality.
- */
+/// \file
+/// \brief Implementation of load wrapping functionality.
 
 #include "read_object_track_set.h"
 
@@ -22,13 +20,15 @@ INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::read_object_track_set );
 /// \endcond
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 read_object_track_set
 ::read_object_track_set()
-  : m_stream( 0 )
-  , m_stream_owned( false )
+  : m_stream( 0 ),
+    m_stream_owned( false )
 {
   attach_logger( "algo.read_object_track_set" );
 }
@@ -44,7 +44,7 @@ read_object_track_set
   m_stream = 0;
 }
 
-// ------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 read_object_track_set
 ::open( std::string const& filename )
@@ -57,7 +57,7 @@ read_object_track_set
   m_stream = 0;
 
   // Make sure that the given file path exists and is a file.
-  if( ! kwiversys::SystemTools::FileExists( filename ) )
+  if( !kwiversys::SystemTools::FileExists( filename ) )
   {
     VITAL_THROW( path_not_exists, filename );
   }
@@ -70,7 +70,7 @@ read_object_track_set
   // try to open the file
   std::unique_ptr< std::istream > file( new std::ifstream( filename ) );
 
-  if( ! *file )
+  if( !*file )
   {
     VITAL_THROW( file_not_found_exception, filename, "open failed" );
   }
@@ -82,7 +82,7 @@ read_object_track_set
   new_stream();
 }
 
-// ------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 read_object_track_set
 ::use_stream( std::istream* strm )
@@ -93,12 +93,12 @@ read_object_track_set
   new_stream();
 }
 
-// ------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 read_object_track_set
 ::close()
 {
-  if ( m_stream_owned )
+  if( m_stream_owned )
   {
     delete m_stream;
   }
@@ -106,12 +106,12 @@ read_object_track_set
   m_stream = 0;
 }
 
-// ------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 read_object_track_set
 ::at_eof() const
 {
-  if ( m_stream )
+  if( m_stream )
   {
     return m_stream->eof();
   }
@@ -121,7 +121,7 @@ read_object_track_set
   }
 }
 
-// ------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::istream&
 read_object_track_set
 ::stream()
@@ -129,7 +129,7 @@ read_object_track_set
   return *m_stream;
 }
 
-// ------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string const&
 read_object_track_set
 ::filename()
@@ -137,12 +137,15 @@ read_object_track_set
   return m_filename;
 }
 
-
-// ------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 read_object_track_set
 ::new_stream()
 {
 }
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver

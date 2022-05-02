@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV AGAST feature detector wrapper
- */
+/// \file
+/// \brief OCV AGAST feature detector wrapper
 
 #include "detect_features_AGAST.h"
 
@@ -20,9 +18,7 @@ namespace ocv {
 
 namespace {
 
-/**
- * Return multi-line, tabbed list string of available enum types and their values
- */
+/// Return multi-line, tabbed list string of available enum types and their values
 std::string list_agast_types()
 {
   std::stringstream ss;
@@ -33,9 +29,7 @@ std::string list_agast_types()
   return ss.str();
 }
 
-/**
- * Check that the given integer is one of the valid enum values
- */
+/// Check that the given integer is one of the valid enum values
 bool check_agast_type( int const &type )
 {
   switch( type )

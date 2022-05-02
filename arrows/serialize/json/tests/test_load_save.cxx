@@ -361,60 +361,32 @@ TEST( load_save, geo_polygon )
 // ----------------------------------------------------------------------------
 kwiver::vital::metadata create_meta_collection()
 {
-  static kwiver::vital::metadata_traits traits;
   kwiver::vital::metadata meta;
+  meta.add< kwiver::vital::VITAL_META_METADATA_ORIGIN >( "test-source" );
+  meta.add< kwiver::vital::VITAL_META_UNIX_TIMESTAMP >( 12345678 );
+  meta.add< kwiver::vital::VITAL_META_SENSOR_VERTICAL_FOV >( 12345.678 );
 
   {
-    const auto& info = traits.find( kwiver::vital::VITAL_META_METADATA_ORIGIN );
-    auto item = info.create_metadata_item( kwiver::vital::any(std::string ("test-source")) );
-    meta.add( std::move( item ) );
+    kwiver::vital::geo_point::geo_2d_point_t geo_2d{ 42.50, 73.54 };
+    kwiver::vital::geo_point pt{ geo_2d, kwiver::vital::SRID::lat_lon_WGS84 };
+    meta.add< kwiver::vital::VITAL_META_FRAME_CENTER >( pt );
   }
 
   {
-    const auto& info = traits.find( kwiver::vital::VITAL_META_VIDEO_KEY_FRAME );
-    auto item = info.create_metadata_item( kwiver::vital::any(true ) );
-    meta.add( std::move( item ) );
+    kwiver::vital::geo_point::geo_3d_point_t geo{ 42.50, 73.54, 16.33 };
+    kwiver::vital::geo_point pt{ geo, kwiver::vital::SRID::lat_lon_WGS84 };
+    meta.add< kwiver::vital::VITAL_META_FRAME_CENTER >( pt );
   }
 
   {
-    const auto& info = traits.find( kwiver::vital::VITAL_META_UNIX_TIMESTAMP );
-    auto item = info.create_metadata_item( kwiver::vital::any((uint64_t)12345678) );
-    meta.add( std::move( item ) );
-  }
-
-  {
-    const auto& info = traits.find( kwiver::vital::VITAL_META_SENSOR_VERTICAL_FOV );
-    auto item = info.create_metadata_item( kwiver::vital::any((double)12345.678) );
-    meta.add( std::move( item ) );
-  }
-
-  {
-    const auto& info = traits.find( kwiver::vital::VITAL_META_FRAME_CENTER );
-    kwiver::vital::geo_point::geo_2d_point_t geo( 42.50, 73.54 );
-    kwiver::vital::geo_point pt ( geo, kwiver::vital::SRID::lat_lon_WGS84 );
-    auto item = info.create_metadata_item( kwiver::vital::any(pt) );
-    meta.add( std::move( item ) );
-  }
-
-  {
-    const auto& info = traits.find( kwiver::vital::VITAL_META_FRAME_CENTER );
-    kwiver::vital::geo_point::geo_3d_point_t geo( 42.50, 73.54, 16.33 );
-    kwiver::vital::geo_point pt ( geo, kwiver::vital::SRID::lat_lon_WGS84 );
-    auto item = info.create_metadata_item( kwiver::vital::any(pt) );
-    meta.add( std::move( item ) );
-  }
-
-  {
-    const auto& info = traits.find( kwiver::vital::VITAL_META_CORNER_POINTS );
     kwiver::vital::polygon raw_obj;
     raw_obj.push_back( 100, 100 );
     raw_obj.push_back( 400, 100 );
     raw_obj.push_back( 400, 400 );
     raw_obj.push_back( 100, 400 );
-
-    kwiver::vital::geo_polygon poly( raw_obj, kwiver::vital::SRID::lat_lon_WGS84 );
-    auto item = info.create_metadata_item( kwiver::vital::any(poly) );
-    meta.add( std::move( item ) );
+    kwiver::vital::geo_polygon poly( raw_obj,
+                                     kwiver::vital::SRID::lat_lon_WGS84 );
+    meta.add< kwiver::vital::VITAL_META_CORNER_POINTS >( poly );
   }
 
   return meta;
@@ -434,7 +406,7 @@ void compare_meta_collection( const kwiver::vital::metadata& lhs,
     const auto& rhs_item = rhs.find( lhs_item->tag() );
 
     // test for data being the same
-    EXPECT_EQ( lhs_item->data().type(), rhs_item.data().type() );
+    EXPECT_EQ( lhs_item->type(), rhs_item.type() );
 
     //+ TBD check data values for equal
   } // end for
@@ -678,7 +650,7 @@ TEST( load_save, object_track_state)
   EXPECT_EQ( obj_trk_state.image_point().value(), obj_dser.image_point().value() );
   EXPECT_EQ( obj_trk_state.track_point().value(), obj_dser.track_point().value() );
 }
-// ============================================================================
+// ----------------------------------------------------------------------------
 TEST( load_save, track_set )
 {
   auto trk_set_sptr = std::make_shared< kwiver::vital::track_set >();
@@ -735,7 +707,7 @@ TEST( load_save, track_set )
 
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST( load_save, object_track_set )
 {
   auto obj_trk_set_sptr = std::make_shared< kwiver::vital::object_track_set >();
@@ -832,7 +804,7 @@ TEST( load_save, object_track_set )
   }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST( load_save, covariance )
 {
 
@@ -872,7 +844,7 @@ TEST_COV( covariance_4f, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 )
 
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 TEST( load_save, points )
 {
 

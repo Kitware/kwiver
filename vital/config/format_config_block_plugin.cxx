@@ -13,11 +13,9 @@
 namespace kwiver {
 namespace vital {
 
-// ============================================================================
-/**
- * @brief Formats config block using markdown
- *
- */
+// ----------------------------------------------------------------------------
+/// @brief Formats config block using markdown
+///
 class FORMAT_CONFIG_NO_EXPORT format_config_block_markdown
   : public format_config_block
 {
@@ -75,11 +73,9 @@ print( std::ostream& str )
   }
 }
 
-// ============================================================================
-/**
- * @brief Formats config block in a tree structure
- *
- */
+// ----------------------------------------------------------------------------
+/// @brief Formats config block in a tree structure
+///
 class FORMAT_CONFIG_NO_EXPORT format_config_block_tree
   : public format_config_block
 {
@@ -191,7 +187,7 @@ format_block( std::ostream& str,
   } // end for
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
   extern "C"
 FORMAT_CONFIG_EXPORT
 void

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Interface for detected_object_set_output_kw18
- */
+/// \file
+/// \brief Interface for detected_object_set_output_kw18
 
 #ifndef KWIVER_ARROWS_DETECTED_OBJECT_SET_OUTPUT_KW18_H
 #define KWIVER_ARROWS_DETECTED_OBJECT_SET_OUTPUT_KW18_H

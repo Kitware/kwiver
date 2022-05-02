@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
-* \file
-* \brief Header defining CERES algorithm implementation of camera optimization.
-*/
+/// \file
+/// \brief Header defining CERES algorithm implementation of camera optimization.
 
 #include "optimize_cameras.h"
 #include <arrows/ceres/options.h>
@@ -25,7 +23,6 @@ class optimize_cameras::priv
     public camera_options
 {
 public:
-  // Constructor
   priv()
   : camera_options(),
     verbose(false),
@@ -312,7 +309,7 @@ optimize_cameras
 
   // extract the landmark parameters
   std::vector<std::vector<double> > landmark_params;
-  for(const landmark_sptr lm : landmarks)
+  for(auto const& lm : landmarks)
   {
     vector_3d loc = lm->loc();
     landmark_params.push_back(std::vector<double>(loc.data(), loc.data()+3));

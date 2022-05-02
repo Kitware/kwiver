@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief This file contains the interface for iterative query refinement feedback.
- */
+/// \file
+/// \brief This file contains the interface for iterative query refinement feedback.
 
 #ifndef VITAL_IQR_FEEDBACK_H_
 #define VITAL_IQR_FEEDBACK_H_

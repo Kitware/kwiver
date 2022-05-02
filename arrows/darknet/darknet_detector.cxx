@@ -28,7 +28,7 @@ namespace kwiver {
 namespace arrows {
 namespace darknet {
 
-// =============================================================================
+// ----------------------------------------------------------------------------
 class darknet_detector::priv
 {
 public:
@@ -102,7 +102,7 @@ public:
   kwiver::vital::logger_handle_t m_logger;
 };
 
-// =============================================================================
+// ----------------------------------------------------------------------------
 darknet_detector
 ::darknet_detector()
   : d( new priv() )
@@ -115,7 +115,7 @@ darknet_detector
 ::~darknet_detector()
 {}
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 darknet_detector
 ::get_configuration() const
@@ -154,7 +154,7 @@ darknet_detector
   return config;
 }
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 darknet_detector
 ::set_configuration( vital::config_block_sptr config_in )
@@ -204,7 +204,7 @@ darknet_detector
   srand( 2222222 );
 } // darknet_detector::set_configuration
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 darknet_detector
 ::check_configuration( vital::config_block_sptr config ) const
@@ -247,7 +247,7 @@ darknet_detector
   return success;
 } // darknet_detector::check_configuration
 
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::detected_object_set_sptr
 darknet_detector
 ::detect( vital::image_container_sptr image_data ) const
@@ -406,7 +406,7 @@ darknet_detector
   return detections;
 } // darknet_detector::detect
 
-// =============================================================================
+// ----------------------------------------------------------------------------
 std::vector< vital::detected_object_set_sptr >
 darknet_detector::priv
 ::process_images( const std::vector< cv::Mat >& cv_images )

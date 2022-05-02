@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for VXL triangulate_landmarks algorithm
- */
+/// \file
+/// \brief Header for VXL triangulate_landmarks algorithm
 
 #ifndef KWIVER_ARROWS_VXL_TRIANGULATE_LANDMARKS_H_
 #define KWIVER_ARROWS_VXL_TRIANGULATE_LANDMARKS_H_
@@ -40,14 +38,13 @@ public:
   virtual bool check_configuration(vital::config_block_sptr config) const;
 
   /// Triangulate the landmark locations given sets of cameras and feature tracks
-  /**
-   * \param [in] cameras the cameras viewing the landmarks
-   * \param [in] tracks the feature tracks to use as constraints
-   * \param [in,out] landmarks the landmarks to triangulate
-   *
-   * This function only triangulates the landmarks with indicies in the
-   * landmark map and which have support in the tracks and cameras
-   */
+  ///
+  /// \param [in] cameras the cameras viewing the landmarks
+  /// \param [in] tracks the feature tracks to use as constraints
+  /// \param [in,out] landmarks the landmarks to triangulate
+  ///
+  /// This function only triangulates the landmarks with indicies in the
+  /// landmark map and which have support in the tracks and cameras
   virtual void
   triangulate(vital::camera_map_sptr cameras,
               vital::feature_track_set_sptr tracks,

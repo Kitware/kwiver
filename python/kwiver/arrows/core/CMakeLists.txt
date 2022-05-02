@@ -16,7 +16,7 @@ kwiver_add_python_library( core
 )
 
 target_link_libraries( python-arrows.core-core
-  PRIVATE ${PYTHON_LIBRARIES}
+  PRIVATE ${PYTHON_LIBRARIES} pybind11::pybind11
          vital
          kwiver_algo_core
 )

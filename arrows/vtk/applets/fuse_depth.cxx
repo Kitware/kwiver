@@ -11,7 +11,9 @@
 #include <kwiversys/Directory.hxx>
 #include <kwiversys/SystemTools.hxx>
 
+#include <vital/algo/algorithm_factory.h>
 #include <vital/algo/integrate_depth_maps.h>
+#include <vital/algo/pointcloud_io.h>
 #include <vital/applets/applet_config.h>
 #include <vital/applets/config_validation.h>
 #include <vital/config/config_block_io.h>
@@ -63,7 +65,7 @@ typedef kwiversys::SystemTools ST;
 kv::logger_handle_t main_logger( kv::get_logger( "fuse_depth" ) );
 
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool check_config(kv::config_block_sptr config)
 {
   using namespace kwiver::tools;
@@ -94,10 +96,30 @@ bool check_config(kv::config_block_sptr config)
     std::string output_mesh_file =
       config->get_value<std::string>("output_mesh_file");
     std::string extension = ST::GetFilenameLastExtension( output_mesh_file );
-    if (!( extension == ".vtp" || extension == ".obj" || extension == ".ply" ))
+    if (!( extension == ".vtp" || extension == ".obj" || extension == ".ply" ||
+           extension == ".las" ))
     {
-      KWIVER_CONFIG_FAIL("The output_mesh_file must have a .vtp, .ply, or .obj extension");
+      KWIVER_CONFIG_FAIL(
+        "The output_mesh_file must have a .vtp, .ply, .obj, or .las extension" );
     }
+    if (extension == ".las")
+    {
+      config_valid =
+        validate_required_input_file("input_geo_origin_filename", *config,
+                                     main_logger) && config_valid;
+    }
+    else
+    {
+      config_valid =
+        validate_optional_input_file("input_geo_origin_filename", *config,
+                                     main_logger) && config_valid;
+    }
+  }
+  else
+  {
+    config_valid =
+        validate_optional_input_file("input_geo_origin_filename", *config,
+                                     main_logger) && config_valid;
   }
 
   if ( (!config->has_value("output_mesh_file") ||
@@ -140,6 +162,7 @@ public:
   kv::path_t  input_cameras_directory = "results/krtd";
   kv::path_t  input_depths_directory = "results/depths";
   kv::path_t  input_landmarks_file = "results/landmarks.ply";
+  kv::path_t  input_geo_origin_file = "results/geo_origin.txt";
   kv::path_t  output_volume_file = "results/volume.vti";
   kv::path_t  output_mesh_file = "results/mesh.vtp";
 
@@ -188,6 +211,11 @@ public:
       input_landmarks_file = cmd_args["input-landmarks-file"].as<std::string>();
       config->set_value("input_landmarks_file", input_landmarks_file);
     }
+    if ( cmd_args.count("input-geo-origin-file") > 0 )
+    {
+      input_geo_origin_file = cmd_args["input-geo-origin-file"].as<std::string>();
+      config->set_value("input_geo_origin_filename", input_geo_origin_file);
+    }
     if ( cmd_args.count("output-volume-file") > 0 )
     {
       output_volume_file = cmd_args["output-volume-file"].as<std::string>();
@@ -235,13 +263,28 @@ public:
   kv::config_block_sptr default_config()
   {
     typedef kwiver::tools::kwiver_applet kvt;
-    auto config = kvt::find_configuration("applets/fuse_depth.conf");
+
+    bool has_cuda =
+      kwiver::vital::has_algorithm_impl_name("integrate_depth_maps", "cuda");
+
+    auto main_config = kvt::find_configuration("applets/fuse_depth.conf");
+
+    std::string config_name = "integrate_depth_maps.conf";
+    if(has_cuda && main_config->get_value<bool>("use_gpu",true))
+    {
+      config_name = "integrate_depth_maps_gpu.conf";
+    }
+
+    auto config = kvt::find_configuration(config_name);
 
     config->set_value("input_cameras_directory", input_cameras_directory,
       "Directory to read cameras from.");
 
     config->set_value("input_landmarks_file", input_landmarks_file,
       "Path to a file to read the landmarks from.");
+
+    config->set_value("input_geo_origin_filename", input_geo_origin_file,
+      "Path to a file to read the geographic origin from. ");
 
     config->set_value("input_depths_directory", input_depths_directory,
       "Directory to read the depth maps from.");
@@ -366,10 +409,39 @@ public:
         mesh_writer->AddInputDataObject(isosurface_mesh);
         mesh_writer->Write();
       }
+      else if ( extension == ".las" )
+      {
+        auto lgcs = vital::local_geo_cs();
+        if (! read_local_geo_cs_from_file(lgcs, input_geo_origin_file))
+        {
+          LOG_ERROR(main_logger, "Failed to read local geo cs from file");
+          return false;
+        }
+
+        vtkSmartPointer<vtkPoints> inPts = isosurface_mesh->GetPoints();
+        vtkIdType numPts = inPts->GetNumberOfPoints();
+
+        std::vector<vital::vector_3d> points(numPts);
+        std::vector<vital::rgb_color> colors;
+
+        for (vtkIdType i = 0; i < numPts; ++i)
+        {
+          inPts->GetPoint(i, points[i].data());
+        }
+
+        auto pc_io = vital::algo::pointcloud_io::create("pdal");
+        if (! pc_io)
+        {
+          LOG_ERROR(main_logger, "Could not find pointcloud_io algorithm pdal");
+          return false;
+        }
+        pc_io->set_local_geo_cs(lgcs);
+        pc_io->save(output_mesh_file, points);
+      }
       else
       {
           LOG_WARN(main_logger, "output_mesh_file " << output_mesh_file
-                                << " was not a .ply, .obj, or .vtp file");
+                                << " was not a .ply, .obj, .vtp, or .las file");
           return false;
       }
       return true;
@@ -534,6 +606,8 @@ add_command_options()
       cxxopts::value<std::string>() )
     ( "l,input-landmarks-file", "3D sparse features (default: " +
       d->input_landmarks_file + ")", cxxopts::value<std::string>() )
+    ( "g,input-geo-origin-file", "Input geographic origin file (default: " +
+      d->input_geo_origin_file + ")", cxxopts::value<std::string>() )
     ( "m,output-mesh-file", "Write out isocontour mesh to file (default: " +
       d->output_mesh_file + ")",
       cxxopts::value<std::string>())
@@ -554,7 +628,7 @@ add_command_options()
                                       "input-depths-dir"});
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 fuse_depth::
 fuse_depth()
  : d(new priv())

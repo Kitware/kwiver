@@ -2,15 +2,13 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test Ceres reprojection error functors
- */
+/// \file
+/// \brief test Ceres reprojection error functors
 
 #include <test_scene.h>
 
 #include <arrows/ceres/reprojection_error.h>
-#include <arrows/ceres/types.h>
+#include <arrows/ceres/options.h>
 
 #include <arrows/mvg/metrics.h>
 #include <arrows/mvg/projected_track_set.h>
@@ -19,8 +17,11 @@
 
 using namespace kwiver::vital;
 
-using kwiver::arrows::mvg::reprojection_rmse;
+using kwiver::arrows::mvg::LensDistortionType;
 using kwiver::arrows::mvg::projected_tracks;
+using kwiver::arrows::mvg::reprojection_rmse;
+using kwiver::arrows::ceres::create_cost_func;
+using kwiver::arrows::ceres::num_distortion_params;
 
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
@@ -34,7 +35,7 @@ int main(int argc, char** argv)
 static void
 test_reprojection_error(
   camera_perspective const& cam, landmark const& lm, feature const& f,
-  kwiver::arrows::ceres::LensDistortionType dist_type )
+  LensDistortionType dist_type )
 {
   ::ceres::CostFunction* cost_func =
       create_cost_func(dist_type, f.loc().x(), f.loc().y());
@@ -85,7 +86,7 @@ static Eigen::VectorXd distortion_coefficients( int dim )
 struct reprojection_test
 {
   char const* const distortion_model;
-  kwiver::arrows::ceres::LensDistortionType const distortion_type;
+  LensDistortionType const distortion_type;
   int const distortion_coefficients_dimension;
 };
 
@@ -170,7 +171,7 @@ TEST_P(reprojection_error, compare_projections)
 
 // ----------------------------------------------------------------------------
 #define DISTORTION( t, k ) \
-  reprojection_test{ #t, kwiver::arrows::ceres::t, k }
+  reprojection_test{ #t, kwiver::arrows::mvg::t, k }
 
 INSTANTIATE_TEST_CASE_P(
   ,
@@ -191,4 +192,4 @@ INSTANTIATE_TEST_CASE_P(
     DISTORTION( RATIONAL_RADIAL_TANGENTIAL_DISTORTION, 4 ),
     DISTORTION( RATIONAL_RADIAL_TANGENTIAL_DISTORTION, 5 ),
     DISTORTION( RATIONAL_RADIAL_TANGENTIAL_DISTORTION, 8 )
-  ) );
+));

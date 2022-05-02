@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Interface for write_track_descriptor_set_csv
- */
+/// \file
+/// \brief Interface for write_track_descriptor_set_csv
 
 #ifndef KWIVER_ARROWS_WRITE_TRACK_DESCRIPTOR_SET_CSV_H
 #define KWIVER_ARROWS_WRITE_TRACK_DESCRIPTOR_SET_CSV_H

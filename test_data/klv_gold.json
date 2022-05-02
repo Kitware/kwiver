@@ -1,0 +1,861 @@
+[
+	{
+		"frame": 0,
+		"microseconds": 0,
+		"key": {
+			"bytes": "Bg4rNAIDAQEOAQMDAgAAAA==",
+			"hex": "060e2b34 02030101 0e010303 02000000",
+			"string": "MISB ST 0102 Local Set"
+		},
+		"value": [
+			{
+				"key": {
+					"integer": 1,
+					"string": "Security Classification"
+				},
+				"value": {
+					"integer": 1,
+					"string": "Unclassified"
+				}
+			},
+			{
+				"key": {
+					"integer": 2,
+					"string": "Country Coding Method for 'Classifying Country' and 'Releasing Instructions'"
+				},
+				"value": {
+					"integer": 13,
+					"string": "GENC Two Letter"
+				}
+			}
+		]
+	},
+	{
+		"frame": null,
+		"microseconds": null,
+		"key": {
+			"bytes": "Bg4rNAIBAQEOAQECAQEAAA==",
+			"hex": "060e2b34 02010101 0e010102 01010000",
+			"string": "MISB ST 0104 Universal Set"
+		},
+		"value": [
+			{
+				"key": {
+					"bytes": "Bg4rNAEBAQEBASABAAAAAA==",
+					"hex": "060e2b34 01010101 01012001 00000000",
+					"string": "Device Designation"
+				},
+				"value": "Bob"
+			},
+			{
+				"key": {
+					"bytes": "Bg4rNAEBAQEBBQUAAAAAAA==",
+					"hex": "060e2b34 01010101 01050500 00000000",
+					"string": "Episode Number"
+				},
+				"value": {
+					"length": 4,
+					"value": 4.2
+				}
+			},
+			{
+				"key": {
+					"bytes": "Bg4rNAEBAQEHAgEBAQUAAA==",
+					"hex": "060e2b34 01010101 07020101 01050000",
+					"string": "User Defined Timestamp"
+				},
+				"value": 4321
+			}
+		]
+	},
+	{
+		"frame": 7,
+		"microseconds": 1024,
+		"key": {
+			"bytes": "Bg4rNAILAQEOAQMBAQAAAA==",
+			"hex": "060e2b34 020b0101 0e010301 01000000",
+			"string": "MISB ST 0601 Local Set"
+		},
+		"value": [
+			{
+				"key": {
+					"integer": 2,
+					"string": "Precision Timestamp"
+				},
+				"value": 1234
+			},
+			{
+				"key": {
+					"integer": 3,
+					"string": "Mission ID"
+				},
+				"value": "TEST STRING"
+			},
+			{
+				"key": {
+					"integer": 3,
+					"string": "Mission ID"
+				},
+				"value": null,
+				"value-unparsed-bytes": "AP8="
+			},
+			{
+				"key": {
+					"integer": 8,
+					"string": "Platform True Airspeed"
+				},
+				"value": {
+					"length": 1,
+					"value": 2.345
+				}
+			},
+			{
+				"key": {
+					"integer": 34,
+					"string": "Icing Detected"
+				},
+				"value": {
+					"integer": 1,
+					"string": "No Icing Detected"
+				}
+			},
+			{
+				"key": {
+					"integer": 47,
+					"string": "Generic Flag Data"
+				},
+				"value": [
+					{
+						"integer": 1,
+						"string": "Auto-Track"
+					},
+					{
+						"integer": 3,
+						"string": "Icing Status"
+					}
+				]
+			},
+			{
+				"key": {
+					"integer": 63,
+					"string": "Sensor Field of View Name"
+				},
+				"value": {
+					"integer": 2,
+					"string": "Medium"
+				}
+			},
+			{
+				"key": {
+					"integer": 73,
+					"string": "RVT Local Set"
+				},
+				"value": [
+					{
+						"key": {
+							"integer": 11,
+							"string": "User Defined Local Set"
+						},
+						"value": [
+							{
+								"key": {
+									"integer": 1,
+									"string": "Numeric ID and Data Type"
+								},
+								"value": {
+									"type": {
+										"integer": 2,
+										"string": "Unsigned Integer"
+									},
+									"id": 7
+								}
+							},
+							{
+								"key": {
+									"integer": 2,
+									"string": "User Data"
+								},
+								"value": "qw=="
+							}
+						]
+					},
+					{
+						"key": {
+							"integer": 12,
+							"string": "Point of Interest Local Set"
+						},
+						"value": [
+							{
+								"key": {
+									"integer": 5,
+									"string": "POI Type"
+								},
+								"value": {
+									"integer": 1,
+									"string": "Friendly"
+								}
+							}
+						]
+					},
+					{
+						"key": {
+							"integer": 13,
+							"string": "Area of Interest Local Set"
+						},
+						"value": [
+							{
+								"key": {
+									"integer": 6,
+									"string": "AOI Type"
+								},
+								"value": {
+									"integer": 1,
+									"string": "Friendly"
+								}
+							}
+						]
+					}
+				]
+			},
+			{
+				"key": {
+					"integer": 74,
+					"string": "VMTI Local Set"
+				},
+				"value": [
+					{
+						"key": {
+							"integer": 101,
+							"string": "VTarget Series"
+						},
+						"value": [
+							{
+								"id": 1,
+								"set": [
+									{
+										"key": {
+											"integer": 17,
+											"string": "Target Location"
+										},
+										"value": {
+											"latitude": 60.0,
+											"longitude": 30.0,
+											"altitude": 1000.0,
+											"sigma": {
+												"east": 1.0,
+												"north": 2.0,
+												"up": 3.0
+											},
+											"rho": {
+												"east-north": -1.0,
+												"east-up": 0.0,
+												"north-up": 1.0
+											}
+										}
+									},
+									{
+										"key": {
+											"integer": 21,
+											"string": "FPA Index Pack"
+										},
+										"value": {
+											"row": 1,
+											"column": 2
+										}
+									},
+									{
+										"key": {
+											"integer": 101,
+											"string": "Target Mask"
+										},
+										"value": [
+											{
+												"key": {
+													"integer": 1,
+													"string": "Polygon"
+												},
+												"value": [
+													1,
+													2,
+													3,
+													4
+												]
+											},
+											{
+												"key": {
+													"integer": 2,
+													"string": "Bitmask Series"
+												},
+												"value": [
+													{
+														"index": 1,
+														"length": 2
+													},
+													{
+														"index": 3,
+														"length": 4
+													}
+												]
+											}
+										]
+									},
+									{
+										"key": {
+											"integer": 102,
+											"string": "Target Object"
+										},
+										"value": []
+									},
+									{
+										"key": {
+											"integer": 103,
+											"string": "Target Features"
+										},
+										"value": []
+									},
+									{
+										"key": {
+											"integer": 104,
+											"string": "Target Tracker"
+										},
+										"value": [
+											{
+												"key": {
+													"integer": 10,
+													"string": "Velocity"
+												},
+												"value": {
+													"east": 1.0,
+													"north": 2.0,
+													"up": 3.0,
+													"sigma": null,
+													"rho": null
+												}
+											},
+											{
+												"key": {
+													"integer": 11,
+													"string": "Acceleration"
+												},
+												"value": {
+													"east": 1.0,
+													"north": 2.0,
+													"up": 3.0,
+													"sigma": null,
+													"rho": null
+												}
+											}
+										]
+									},
+									{
+										"key": {
+											"integer": 105,
+											"string": "Target Chip"
+										},
+										"value": []
+									},
+									{
+										"key": {
+											"integer": 106,
+											"string": "Chip Series"
+										},
+										"value": []
+									},
+									{
+										"key": {
+											"integer": 107,
+											"string": "Object Series"
+										},
+										"value": []
+									}
+								]
+							}
+						]
+					},
+					{
+						"key": {
+							"integer": 102,
+							"string": "Algorithm Series"
+						},
+						"value": []
+					},
+					{
+						"key": {
+							"integer": 103,
+							"string": "Ontology Series"
+						},
+						"value": []
+					}
+				]
+			},
+			{
+				"key": {
+					"integer": 77,
+					"string": "Operational Mode"
+				},
+				"value": {
+					"integer": 5,
+					"string": "Test"
+				}
+			},
+			{
+				"key": {
+					"integer": 81,
+					"string": "Image Horizon Pixel Pack"
+				},
+				"value": {
+					"x0": 1,
+					"y0": 2,
+					"x1": 3,
+					"y1": 4,
+					"latitude0": 1.0,
+					"longitude0": 2.0,
+					"latitude1": 3.0,
+					"longitude1": 4.0
+				}
+			},
+			{
+				"key": {
+					"integer": 94,
+					"string": "MIIS Core Identifier"
+				},
+				"value": {
+					"version": 2,
+					"sensor-id-type": {
+						"integer": 3,
+						"string": "Physical"
+					},
+					"platform-id-type": {
+						"integer": 0,
+						"string": "None"
+					},
+					"sensor-id": {
+						"bytes": "AAECAwQFBgcICQoLDA0ODw==",
+						"hex": "0001-0203-0405-0607-0809-0a0b-0c0d-0e0f"
+					},
+					"platform-id": null,
+					"window-id": null,
+					"minor-id": null
+				}
+			},
+			{
+				"key": {
+					"integer": 97,
+					"string": "Range Image Local Set"
+				},
+				"value": [
+					{
+						"key": {
+							"integer": 12,
+							"string": "Range Image Enumerations"
+						},
+						"value": {
+							"compression-method": {
+								"integer": 0,
+								"string": "None"
+							},
+							"data-type": {
+								"integer": 1,
+								"string": "Depth Range Image"
+							},
+							"source": {
+								"integer": 1,
+								"string": "Range Sensor"
+							}
+						}
+					},
+					{
+						"key": {
+							"integer": 19,
+							"string": "Generalized Transformation Local Set"
+						},
+						"value": [
+							{
+								"key": {
+									"integer": 11,
+									"string": "Transformation Type"
+								},
+								"value": {
+									"integer": 4,
+									"string": "Optical"
+								}
+							}
+						]
+					},
+					{
+						"key": {
+							"integer": 20,
+							"string": "Section Data Pack"
+						},
+						"value": {
+							"section-x": 2,
+							"section-y": 0,
+							"measurements": {
+								"sizes": [
+									2,
+									2
+								],
+								"elements": [
+									100.0,
+									105.0,
+									95.0,
+									100.0
+								],
+								"element-size": 0,
+								"apa": {
+									"integer": 0,
+									"string": "Unknown APA"
+								},
+								"apa-params-length": 0,
+								"imap-params": null
+							},
+							"uncertainty": null,
+							"plane-x-scale": {
+								"length": 0,
+								"value": 1.0
+							},
+							"plane-y-scale": {
+								"length": 0,
+								"value": 2.0
+							},
+							"plane-constant": null
+						}
+					}
+				]
+			},
+			{
+				"key": {
+					"integer": 102,
+					"string": "SDCC-FLP"
+				},
+				"value": {
+					"members": [
+						13,
+						14
+					],
+					"sigma": [
+						4.0,
+						2.0
+					],
+					"rho": [
+						0.5
+					],
+					"sigma-format": {
+						"type": "float",
+						"length": 4
+					},
+					"rho-format": {
+						"type": "imap",
+						"lower-bound": -1.0,
+						"upper-bound": 1.0,
+						"length": 3
+					},
+					"long-parse-control": true,
+					"sparse": false
+				}
+			},
+			{
+				"key": {
+					"integer": 115,
+					"string": "Control Command"
+				},
+				"value": {
+					"id": 0,
+					"string": "command!",
+					"timestamp": 0
+				}
+			},
+			{
+				"key": {
+					"integer": 122,
+					"string": "Country Codes"
+				},
+				"value": {
+					"coding-method": {
+						"integer": 14,
+						"string": "GENC Three Letter"
+					},
+					"overflight-country": "USA",
+					"operator-country": null,
+					"country-of-manufacture": null
+				}
+			},
+			{
+				"key": {
+					"integer": 124,
+					"string": "Positioning Method Source"
+				},
+				"value": [
+					{
+						"integer": 0,
+						"string": "On-board INS"
+					},
+					{
+						"integer": 1,
+						"string": "GPS"
+					}
+				]
+			},
+			{
+				"key": {
+					"integer": 125,
+					"string": "Platform Status"
+				},
+				"value": {
+					"integer": 0,
+					"string": "Active"
+				}
+			},
+			{
+				"key": {
+					"integer": 126,
+					"string": "Sensor Control Mode"
+				},
+				"value": {
+					"integer": 0,
+					"string": "Off"
+				}
+			},
+			{
+				"key": {
+					"integer": 127,
+					"string": "Sensor Frame Rate Pack"
+				},
+				"value": {
+					"numerator": 30,
+					"denominator": 1
+				}
+			},
+			{
+				"key": {
+					"integer": 128,
+					"string": "Wavelengths List"
+				},
+				"value": [
+					{
+						"id": 7,
+						"min": 13.0,
+						"max": 14.0,
+						"name": "Wavelength"
+					}
+				]
+			},
+			{
+				"key": {
+					"integer": 130,
+					"string": "Airbase Locations"
+				},
+				"value": {
+					"take-off-location": {
+						"latitude": 1.0,
+						"longitude": 2.0,
+						"altitude": 3.0
+					},
+					"recovery-location": {
+						"latitude": 4.0,
+						"longitude": 5.0,
+						"altitude": null
+					}
+				}
+			},
+			{
+				"key": {
+					"integer": 138,
+					"string": "Payload List"
+				},
+				"value": [
+					{
+						"id": 2,
+						"type": {
+							"integer": 0,
+							"string": "Electro Optical MI Sensor"
+						},
+						"name": "Camera"
+					}
+				]
+			},
+			{
+				"key": {
+					"integer": 140,
+					"string": "Weapons Stores"
+				},
+				"value": [
+					{
+						"station-id": 0,
+						"hardpoint-id": 1,
+						"carriage-id": 2,
+						"store-id": 3,
+						"general-status": {
+							"integer": 11,
+							"string": "No Status Available"
+						},
+						"engagement-status": [
+							{
+								"integer": 0,
+								"string": "Fuze Enabled"
+							},
+							{
+								"integer": 1,
+								"string": "Laser Enabled"
+							}
+						],
+						"weapon-type": "Water Balloon"
+					},
+					{
+						"station-id": 4,
+						"hardpoint-id": 5,
+						"carriage-id": 6,
+						"store-id": 7,
+						"general-status": {
+							"integer": 0,
+							"string": "Off"
+						},
+						"engagement-status": [],
+						"weapon-type": "Squirt Gun"
+					}
+				]
+			},
+			{
+				"key": {
+					"integer": 141,
+					"string": "Waypoint List"
+				},
+				"value": [
+					{
+						"id": 1,
+						"order": -3,
+						"info": 1,
+						"location": null
+					}
+				]
+			},
+			{
+				"key": {
+					"integer": 142,
+					"string": "View Domain"
+				},
+				"value": {
+					"azimuth": {
+						"start": 30.0,
+						"range": 60.0,
+						"semi-length": 0
+					},
+					"elevation": null,
+					"roll": null
+				}
+			}
+		]
+	},
+	{
+		"frame": 8,
+		"microseconds": 2048,
+		"key": {
+			"bytes": "Bg4rNAIDAQEOAQMDHAAAAA==",
+			"hex": "060e2b34 02030101 0e010303 1c000000",
+			"string": "MISB ST 1108 Local Set"
+		},
+		"value": [
+			{
+				"key": {
+					"integer": 1,
+					"string": "Assessment Point"
+				},
+				"value": {
+					"integer": 5,
+					"string": "Library / Archive"
+				}
+			},
+			{
+				"key": {
+					"integer": 2,
+					"string": "Metric Period Pack"
+				},
+				"value": {
+					"timestamp": 100,
+					"offset": 100
+				}
+			},
+			{
+				"key": {
+					"integer": 3,
+					"string": "Window Corners Pack"
+				},
+				"value": {
+					"min-x": 64,
+					"min-y": 128,
+					"max-x": 256,
+					"max-y": 512
+				}
+			},
+			{
+				"key": {
+					"integer": 4,
+					"string": "Metric Local Set"
+				},
+				"value": [
+					{
+						"key": {
+							"integer": 1,
+							"string": "Metric Name"
+						},
+						"value": "VNIIRS"
+					},
+					{
+						"key": {
+							"integer": 3,
+							"string": "Metric Implementer"
+						},
+						"value": {
+							"organization": "Kitware, Inc.",
+							"subgroup": "Computer Vision"
+						}
+					},
+					{
+						"key": {
+							"integer": 5,
+							"string": "Metric Time"
+						},
+						"value": 1357924680
+					},
+					{
+						"key": {
+							"integer": 6,
+							"string": "Metric Value"
+						},
+						"value": {
+							"length": 8,
+							"value": -Infinity
+						}
+					}
+				]
+			},
+			{
+				"key": {
+					"integer": 5,
+					"string": "Compression Type"
+				},
+				"value": {
+					"integer": 1,
+					"string": "H.262"
+				}
+			},
+			{
+				"key": {
+					"integer": 6,
+					"string": "Compression Profile"
+				},
+				"value": {
+					"integer": 4,
+					"string": "High (H.264)"
+				}
+			},
+			{
+				"key": {
+					"integer": 7,
+					"string": "Compression Level"
+				},
+				"value": null
+			}
+		]
+	}
+]

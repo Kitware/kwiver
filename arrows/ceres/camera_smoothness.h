@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for Ceres camera smoothness error functions for regularization
- */
+/// \file
+/// \brief Header for Ceres camera smoothness error functions for regularization
 
 #ifndef KWIVER_ARROWS_CERES_CAMERA_SMOOTHNESS_H_
 #define KWIVER_ARROWS_CERES_CAMERA_SMOOTHNESS_H_
@@ -34,18 +32,17 @@ public:
   {}
 
   /// Position smoothness error functor for use in Ceres
-  /**
-   * \param [in] prev_pos: Camera pose data block at previous time
-   * \param [in] curr_pos: Camera pose data block at current time
-   * \param [in] next_pos: Camera pose data block at next time
-   * \param [out] residuals
-   *
-   * Camera pose blocks contain 6 parameters:
-   *   3 for rotation(angle axis), 3 for center
-   * Only the camera centers are used in this function to penalize
-   * the difference between current position and the average between
-   * previous and next positions.
-   */
+  ///
+  /// \param [in] prev_pos: Camera pose data block at previous time
+  /// \param [in] curr_pos: Camera pose data block at current time
+  /// \param [in] next_pos: Camera pose data block at next time
+  /// \param [out] residuals
+  ///
+  /// Camera pose blocks contain 6 parameters:
+  ///   3 for rotation(angle axis), 3 for center
+  /// Only the camera centers are used in this function to penalize
+  /// the difference between current position and the average between
+  /// previous and next positions.
   template <typename T> bool operator()(const T* const prev_pose,
                                         const T* const curr_pose,
                                         const T* const next_pose,
@@ -74,13 +71,12 @@ public:
 };
 
 /// Ceres camera limit forward motion functor
-/**
- *  This class is to reglarize camera motion to minimize the amount of motion
- *  in the camera looking direction.  This is useful with zoom lenses at long
- *  focal lengths where distance and zoom are ambiguous.  Adding this
- *  constraint allows the optimization to prefer fast zoom changes over fast
- *  position change.
- */
+///
+///  This class is to reglarize camera motion to minimize the amount of motion
+///  in the camera looking direction.  This is useful with zoom lenses at long
+///  focal lengths where distance and zoom are ambiguous.  Adding this
+///  constraint allows the optimization to prefer fast zoom changes over fast
+///  position change.
 class camera_limit_forward_motion
 {
 public:
@@ -89,14 +85,13 @@ public:
       : scale_(scale) {}
 
   /// Camera forward motion error functor for use in Ceres
-  /**
-   * \param [in] pose1: Camera pose data block at time 1
-   * \param [in] pose2: Camera pose data block at time 2
-   * \param [out] residuals
-   *
-   * Camera pose blocks contain 6 parameters:
-   *   3 for rotation(angle axis), 3 for center
-   */
+  ///
+  /// \param [in] pose1: Camera pose data block at time 1
+  /// \param [in] pose2: Camera pose data block at time 2
+  /// \param [out] residuals
+  ///
+  /// Camera pose blocks contain 6 parameters:
+  ///   3 for rotation(angle axis), 3 for center
   template <typename T> bool operator()(const T* const pose1,
                                         const T* const pose2,
                                         T* residuals) const

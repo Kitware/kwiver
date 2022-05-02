@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test core camera class
- */
+/// \file
+/// \brief test core camera class
 
 #include <test_eigen.h>
 #include <tests/test_gtest.h>
@@ -16,8 +14,10 @@
 
 #include <iostream>
 
-static double epsilon = 1e-8;
 kwiver::vital::path_t g_data_dir;
+static double epsilon = 1e-8;
+static std::string good_rpc_file = "rpc_data/rpc_data.dat";
+static std::string flawed_rpc_file = "rpc_data/rpc_data_missing_image_dimension.dat";
 
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
@@ -78,7 +78,7 @@ TEST_F(camera_rpc, identity)
 // ----------------------------------------------------------------------------
 TEST_F(camera_rpc, clone)
 {
-  kwiver::vital::path_t test_rpc_file = data_dir + "/rpc_data.dat";
+  kwiver::vital::path_t test_rpc_file = data_dir + "/" + good_rpc_file;
   auto cam = read_rpc( test_rpc_file );
   auto cam_clone =
     std::dynamic_pointer_cast<kwiver::vital::camera_rpc>( cam.clone() );
@@ -95,7 +95,7 @@ TEST_F(camera_rpc, clone)
 // ----------------------------------------------------------------------------
 TEST_F(camera_rpc, projection)
 {
-  kwiver::vital::path_t test_rpc_file = data_dir + "/rpc_data.dat";
+  kwiver::vital::path_t test_rpc_file = data_dir + "/" + good_rpc_file;
   auto cam = read_rpc( test_rpc_file );
 
   for (size_t i = 0; i < test_points.size(); ++i)
@@ -109,7 +109,7 @@ TEST_F(camera_rpc, projection)
 // ----------------------------------------------------------------------------
 TEST_F(camera_rpc, back_projection)
 {
-  kwiver::vital::path_t test_rpc_file = data_dir + "/rpc_data.dat";
+  kwiver::vital::path_t test_rpc_file = data_dir + "/" + good_rpc_file;
   auto cam = read_rpc( test_rpc_file );
 
   for (size_t i = 0; i < test_points.size(); ++i)
@@ -124,7 +124,7 @@ TEST_F(camera_rpc, back_projection)
 // ----------------------------------------------------------------------------
 TEST_F(camera_rpc, read_missing_image_dimension)
 {
-  kwiver::vital::path_t test_rpc_file = data_dir + "/rpc_data_missing_image_dimension.dat";
+  kwiver::vital::path_t test_rpc_file = data_dir + "/" + flawed_rpc_file;
   auto cam = read_rpc( test_rpc_file );
   EXPECT_EQ( cam.image_width(), 0 );
   EXPECT_EQ( cam.image_height(), 0 );

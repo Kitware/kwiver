@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test core rotation class
- */
+/// \file
+/// \brief test core rotation class
 
 #include <test_eigen.h>
 
@@ -98,6 +96,22 @@ TEST_P(rotation_yaw_pitch_roll, convert)
 }
 
 // ----------------------------------------------------------------------------
+TEST_P( rotation_yaw_pitch_roll, ned_enu_round_trip )
+{
+  auto const& p = GetParam();
+  rotation_d rot{ p.yaw, p.pitch, p.roll };
+  rot = ned_to_enu( rot );
+  rot = enu_to_ned( rot );
+
+  double yaw, pitch, roll;
+  rot.get_yaw_pitch_roll( yaw, pitch, roll );
+
+  EXPECT_NEAR( p.yaw,   yaw,   1e-14 );
+  EXPECT_NEAR( p.pitch, pitch, 1e-14 );
+  EXPECT_NEAR( p.roll,  roll,  1e-14 );
+}
+
+// ----------------------------------------------------------------------------
 INSTANTIATE_TEST_CASE_P(
   ,
   rotation_yaw_pitch_roll,
@@ -111,6 +125,20 @@ INSTANTIATE_TEST_CASE_P(
       ( ypr_test{ +1.2, +0.3,  0.0 } ),
       ( ypr_test{ +1.2, +0.3, -1.7 } )
   ) );
+
+// ----------------------------------------------------------------------------
+TEST( rotation, ypr_identity )
+{
+  rotation_d rot{ pi / 2.0, 0.0, pi };
+  rot = ned_to_enu( rot );
+
+  double yaw, pitch, roll;
+  rot.get_yaw_pitch_roll( yaw, pitch, roll );
+
+  EXPECT_NEAR( 0.0, yaw,   1e-14 );
+  EXPECT_NEAR( 0.0, pitch, 1e-14 );
+  EXPECT_NEAR( 0.0, roll,  1e-14 );
+}
 
 // ----------------------------------------------------------------------------
 TEST(rotation, compose)

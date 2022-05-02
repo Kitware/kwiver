@@ -25,12 +25,10 @@ main( int argc, char** argv )
 TEST( metadata, typed_metadata )
 {
   // create item
-  auto tmds = typed_metadata< VITAL_META_METADATA_ORIGIN, std::string >{
-    "item data", std::string{ "origin" } };
-  auto tmdd = typed_metadata< VITAL_META_PLATFORM_HEADING_ANGLE, double >{
-    std::string{ "test double item" }, 3.14159 };
-  auto tmdi = typed_metadata< VITAL_META_UNIX_TIMESTAMP, uint64_t >{
-    std::string{ "test uint item" }, uint64_t{ 314159 } };
+  auto tmds = metadata_item{ VITAL_META_METADATA_ORIGIN,
+                             std::string{ "origin" } };
+  auto tmdd = metadata_item{ VITAL_META_PLATFORM_HEADING_ANGLE, 3.14159 };
+  auto tmdi = metadata_item{ VITAL_META_UNIX_TIMESTAMP, uint64_t{ 314159 } };
 
   // test API
   EXPECT_TRUE( tmds.has_string() );
@@ -55,13 +53,12 @@ TEST( metadata, typed_metadata )
 TEST( metadata, add_metadata )
 {
   // create item
-  using rmdi_t = typed_metadata< VITAL_META_UNIX_TIMESTAMP, uint64_t >;
   auto rmdi =
-    std::make_shared< rmdi_t >( "test uint item", uint64_t{ 314159 } );
-
-  using umdd_t = typed_metadata< VITAL_META_PLATFORM_HEADING_ANGLE, double >;
-  auto umdd = std::unique_ptr< umdd_t >{
-    new umdd_t{ "test double item" , 3.14159 } };
+    std::make_shared< metadata_item >( VITAL_META_UNIX_TIMESTAMP,
+                                       uint64_t{ 314159 } );
+  auto umdd =
+    std::unique_ptr< metadata_item >{
+      new metadata_item{ VITAL_META_PLATFORM_HEADING_ANGLE, 3.14159 } };
 
   metadata meta_collection;
 

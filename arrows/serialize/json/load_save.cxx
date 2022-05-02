@@ -32,7 +32,7 @@
 #include <iostream>
 
 namespace cereal {
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::activity_type& at )
 {
 
@@ -58,7 +58,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::activity_type& 
   }
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::bounding_box_d& bbox )
 {
   archive( ::cereal::make_nvp( "min_x", bbox.min_x() ),
@@ -80,7 +80,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::bounding_box_d&
   bbox = ::kwiver::vital::bounding_box_d( min_x, min_y, max_x, max_y );
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::detected_object& obj )
 {
   // serialize bounding box
@@ -154,7 +154,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::detected_object
   obj.set_type( new_dot );
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive&                archive,
            const ::kwiver::vital::detected_object_set& obj )
 {
@@ -194,7 +194,7 @@ void load( ::cereal::JSONInputArchive&           archive,
   //+ TBD
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::detected_object_type& dot )
 {
 
@@ -221,38 +221,36 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::detected_object
 }
 
 // ----------------------------------------------------------------------------
-/*
- * We still may have a problem in this serialization approach if the
- * two end point have different byte ordering.
- *
- * Since the image is compressed as a byte string, all notion of
- * multi-byte pixels is lost when the image is saved. When the image
- * is loaded, there is no indication of byte ordering from the
- * source. The sender may have the same byte ordering or it may be
- * different. There is no way of telling.
- *
- * Options:
- *
- * 1) Save image as a vector of correct pixel data types. This
- *    approach would preclude compression.
- *
- * 2) Write an uncompressed integer or other indicator into the
- *    stream which the receiver can use to determine the senders
- *    byte ordering and decode appropriately.
- *
- * 3) Refuse to serialize images with multi-byte pixels or say it
- *    does not work between systems with different byte ordering.
- *
- * 4) Use network byte ordering. ( htonl(), ntohl() )
- *
- * You can argue that endianess is a message property, but we can't
- * access message level attributes way down here in the serializer.
- *
- * Note that this is only a problem with images where the pixels are
- * multi-byte.
- */
+// We still may have a problem in this serialization approach if the
+// two end point have different byte ordering.
+//
+// Since the image is compressed as a byte string, all notion of
+// multi-byte pixels is lost when the image is saved. When the image
+// is loaded, there is no indication of byte ordering from the
+// source. The sender may have the same byte ordering or it may be
+// different. There is no way of telling.
+//
+// Options:
+//
+// 1) Save image as a vector of correct pixel data types. This
+//    approach would preclude compression.
+//
+// 2) Write an uncompressed integer or other indicator into the
+//    stream which the receiver can use to determine the senders
+//    byte ordering and decode appropriately.
+//
+// 3) Refuse to serialize images with multi-byte pixels or say it
+//    does not work between systems with different byte ordering.
+//
+// 4) Use network byte ordering. ( htonl(), ntohl() )
+//
+// You can argue that endianess is a message property, but we can't
+// access message level attributes way down here in the serializer.
+//
+// Note that this is only a problem with images where the pixels are
+// multi-byte.
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::image_container_sptr ctr )
 {
   ::kwiver::vital::image vital_image = ctr->get_image();
@@ -405,28 +403,55 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::image_container
   ctr = std::make_shared< ::kwiver::vital::simple_image_container >( vital_image );
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive&       archive,
            const ::kwiver::vital::timestamp&  tstamp )
 {
-  archive( ::cereal::make_nvp( "time", tstamp.get_time_usec() ),
-           ::cereal::make_nvp( "frame", tstamp.get_frame() ) );
+  if( tstamp.has_valid_time() )
+  {
+    archive( ::cereal::make_nvp( "time", tstamp.get_time_usec() ) );
+  }
+  else
+  {
+    archive( ::cereal::make_nvp( "time", nullptr ) );
+  }
+
+  if( tstamp.has_valid_frame() )
+  {
+    archive( ::cereal::make_nvp( "frame", tstamp.get_frame() ) );
+  }
+  else
+  {
+    archive( ::cereal::make_nvp( "frame", nullptr ) );
+  }
 }
 
 // ----------------------------------------------------------------------------
 void load( ::cereal::JSONInputArchive&  archive,
            ::kwiver::vital::timestamp&  tstamp )
 {
-  int64_t time, frame;
+  tstamp.set_invalid();
 
-  archive( CEREAL_NVP( time ),
-           CEREAL_NVP( frame ) );
-  tstamp = ::kwiver::vital::timestamp( static_cast< ::kwiver::vital::time_usec_t > ( time ),
-                                     static_cast< ::kwiver::vital::frame_id_t > (
-                                       frame ) );
+  try
+  {
+    ::kwiver::vital::time_usec_t time;
+    archive( CEREAL_NVP( time ) );
+    tstamp.set_time_usec( time );
+  }
+  catch( cereal::Exception const& e )
+  {}
+
+  try
+  {
+    ::kwiver::vital::frame_id_t frame;
+    archive( CEREAL_NVP( frame ) );
+    tstamp.set_frame( frame );
+  }
+  catch( cereal::Exception const& e )
+  {}
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::geo_polygon& poly )
 {
   archive( ::cereal::make_nvp( "crs", poly.crs() ) );
@@ -444,7 +469,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::geo_polygon& po
   poly.set_polygon( raw_poly, crs );
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::geo_point& point )
 {
   if ( point.is_empty() )
@@ -484,7 +509,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::geo_point& poin
   }
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::polygon& poly )
 {
   auto vert = poly.get_vertices();
@@ -497,13 +522,13 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::polygon& poly )
   std::vector< ::kwiver::vital::polygon::point_t > points;
   archive( CEREAL_NVP( points ) );
 
-  for ( const auto pt : points )
+  for ( auto const& pt : points )
   {
     poly.push_back( pt );
   }
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::track_state& trk_state )
 {
   ::kwiver::vital::frame_id_t frame = trk_state.frame();
@@ -518,7 +543,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::track_state& tr
   trk_state.set_frame( track_frame );
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive,
            const ::kwiver::vital::object_track_state& obj_trk_state )
 {
@@ -556,7 +581,7 @@ void load( ::cereal::JSONInputArchive& archive,
   obj_trk_state.set_detection(detection);
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive, const ::kwiver::vital::track_set& trk_set )
 {
   std::vector<::kwiver::arrows::serialize::json::track_item> track_items;
@@ -580,7 +605,7 @@ void load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::track_set& trk_
   trk_set.set_tracks(tracks);
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 void save( ::cereal::JSONOutputArchive& archive,
           const ::kwiver::vital::object_track_set& obj_trk_set )
 {

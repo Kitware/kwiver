@@ -2,24 +2,23 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation file for video input using VXL methods.
- */
+/// \file
+/// \brief Implementation file for video input using VXL methods.
 
 #include "vidl_ffmpeg_video_input.h"
+
+#include <arrows/vxl/image_container.h>
+
+#include <arrows/klv/klv_convert_vital.h>
+#include <arrows/klv/klv_demuxer.h>
+#include <arrows/klv/misp_time.h>
 
 #include <vital/types/timestamp.h>
 #include <vital/exceptions/io.h>
 #include <vital/exceptions/metadata.h>
 #include <vital/exceptions/video.h>
 #include <vital/util/tokenize.h>
-#include <vital/klv/convert_metadata.h>
-#include <vital/klv/misp_time.h>
-#include <vital/klv/klv_data.h>
 #include <vital/vital_config.h>
-
-#include <arrows/vxl/image_container.h>
 
 #include <vidl/vidl_config.h>
 #include <vidl/vidl_ffmpeg_istream.h>
@@ -27,17 +26,17 @@
 
 #include <kwiversys/SystemTools.hxx>
 
-#include <mutex>
-#include <memory>
-#include <vector>
-#include <sstream>
 #include <chrono>
+#include <memory>
+#include <mutex>
+#include <sstream>
+#include <vector>
 
 namespace kwiver {
 namespace arrows {
 namespace vxl {
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Private implementation class
 class vidl_ffmpeg_video_input::priv
 {
@@ -61,8 +60,11 @@ public:
       d_have_loop_vars( false ),
       pts_of_meta_ts( 0.0 ),
       meta_ts( 0 ),
+      m_prev_misp_timestamp( 0 ),
+      m_curr_misp_timestamp( 0 ),
       d_frame_time( 0 ),
-      d_frame_number( 1 )
+      d_frame_number( 1 ),
+      m_klv_demuxer( m_klv_timeline )
   { }
 
   vidl_ffmpeg_istream d_video_stream;
@@ -76,9 +78,7 @@ public:
   std::vector< std::string >  c_time_source_list;
   int c_time_scan_frame_limit; // number of frames to scan looking for time
 
-  /**
-   * If this is set then we ignore any metadata included in the video stream.
-   */
+  /// If this is set then we ignore any metadata included in the video stream.
   bool c_use_metadata;
 
   // local state
@@ -86,52 +86,40 @@ public:
   bool d_at_eov;
   bool d_frame_advanced;
 
-  /**
-   * This holds the number of frames in the video. If it is set to -2 it means
-   * this number still needs to be calculated.
-   */
+  /// This holds the number of frames in the video. If it is set to -2 it means
+  /// this number still needs to be calculated.
   size_t d_num_frames;
 
-  /**
-   * Storage for the metadata map.
-   */
+  /// Storage for the metadata map.
   vital::metadata_map::map_metadata_t d_metadata_map;
 
-  /**
-   * This is set to indicate that we can supply a frame time of some
-   * form. If this is false, the output timestamp will not have a time
-   * set. This also is used to report the HAS_FRAME_TIME capability.
-   */
+  /// This is set to indicate that we can supply a frame time of some
+  /// form. If this is false, the output timestamp will not have a time
+  /// set. This also is used to report the HAS_FRAME_TIME capability.
   bool d_have_frame_time;
 
-  /**
-   * This is set to indicate that we can supply an absolute frame time
-   * rather than a relative frame time. This value is used to report
-   * the HAS_ABSOLUTE_FRAME_TIME capability.
-   */
+  /// This is set to indicate that we can supply an absolute frame time
+  /// rather than a relative frame time. This value is used to report
+  /// the HAS_ABSOLUTE_FRAME_TIME capability.
   bool d_have_abs_frame_time;
 
-  /**
-   * This is set to indicate we can supply video metadata and is used
-   * to report the HAS_METADATA capability.
-   */
+  /// This is set to indicate we can supply video metadata and is used
+  /// to report the HAS_METADATA capability.
   bool d_have_metadata;
 
-  /**
-   * This is set to indicate the video stream is seekable by frame and is used
-   * to report the IS_SEEKABLE capability.
-   */
+  /// This is set to indicate the video stream is seekable by frame and is used
+  /// to report the IS_SEEKABLE capability.
   bool d_is_seekable;
 
-  /**
-   * This is set to indicate that any variables that require a pass through the
-   * video like the number of frames or the metadata map have already been
-   * determined.
-   */
+  /// This is set to indicate that any variables that require a pass through the
+  /// video like the number of frames or the metadata map have already been
+  /// determined.
   bool d_have_loop_vars;
 
   double pts_of_meta_ts;            // probably seconds
   vital::time_usec_t meta_ts; // time in usec
+  uint64_t m_prev_misp_timestamp;
+  uint64_t m_curr_misp_timestamp;
 
   // used to create timestamp output
   vital::time_usec_t d_frame_time; // usec
@@ -139,105 +127,103 @@ public:
 
   std::string video_path; // name of video we opened
 
-  std::deque<uint8_t> md_buffer; // working buffer for metadata stream
+  std::vector< uint8_t > md_buffer; // working buffer for metadata stream
 
-  kwiver::vital::convert_metadata converter; // metadata converter object
+  klv::klv_demuxer m_klv_demuxer;
+  klv::klv_timeline m_klv_timeline;
 
   static std::mutex s_open_mutex;
 
-  // =====================================================================================
-  /*
-   * @brief Process metadata byte stream.
-   *
-   * This method adds the supplied bytes to the metadata buffer and
-   * then tests to see if we have collected enough bytes to make a
-   * full metadata packet. If not, then we just return, leaving any
-   * current metadata as it was.
-   *
-   * If a complete klv packet has been received, it is processed and
-   * the existing metadata collection is added to the current list of
-   * metadata packets.
-   *
-   * @param curr_md Stream of metadata bytes.
-   *
-   * @return the processed metadata. If there is no metadata it returns an
-   *         empty metadata vector.
-   */
-  kwiver::vital::metadata_vector process_metadata( std::deque<uint8_t> const& curr_md )
+  // --------------------------------------------------------------------------
+  //  @brief Process metadata byte stream.
+  //
+  //  This method adds the supplied bytes to the metadata buffer and
+  //  then tests to see if we have collected enough bytes to make a
+  //  full metadata packet. If not, then we just return, leaving any
+  //  current metadata as it was.
+  //
+  //  If a complete klv packet has been received, it is processed and
+  //  the existing metadata collection is added to the current list of
+  //  metadata packets.
+  //
+  //  @param curr_md Stream of metadata bytes.
+  //
+  //  @return the processed metadata. If there is no metadata it returns an
+  //          empty metadata vector.
+  kwiver::vital::metadata_vector process_metadata( std::vector< uint8_t > const& curr_md )
   {
-    kwiver::vital::metadata_vector retval;
-
     // Add new metadata to the end of current metadata stream
-    md_buffer.insert(md_buffer.end(), curr_md.begin(), curr_md.end());
-    kwiver::vital::klv_data klv_packet;
+    md_buffer.insert( md_buffer.end(), curr_md.begin(), curr_md.end() );
 
-    // If we have collected enough of the stream to make a KLV packet
-    while ( klv_pop_next_packet( md_buffer, klv_packet ) )
+    m_prev_misp_timestamp = m_curr_misp_timestamp;
+
+    auto it = md_buffer.cbegin();
+    while( it != md_buffer.cend() )
     {
-      auto meta = std::make_shared<kwiver::vital::metadata>();
-
+      klv::klv_packet packet;
       try
       {
-        converter.convert( klv_packet, *(meta) );
+        packet = klv::klv_read_packet( it, std::distance( it, md_buffer.cend() ) );
       }
-      catch ( kwiver::vital::metadata_exception const& e )
+      catch( kwiver::vital::metadata_buffer_overflow const& e )
       {
-        LOG_WARN( this->d_logger, "Metadata exception: " << e.what() );
-        continue;
+        // We only have part of a packet; quit until we have more data
+        break;
       }
-
-      // If the metadata was even partially decided, then add to the list.
-      if ( ! meta->empty() )
+      catch( kwiver::vital::metadata_exception const& e )
       {
-        kwiver::vital::timestamp ts;
-        ts.set_frame( this->d_frame_number );
-
-        if ( this->d_have_frame_time )
-        {
-          ts.set_time_usec( this->d_frame_time );
-        }
-
-        meta->set_timestamp( ts );
-
-        meta->add< vital::VITAL_META_VIDEO_URI>( video_path );
-        retval.push_back( meta );
-      } // end valid metadata packet.
-    } // end while
-
-    // if no metadata from the stream, add a basic metadata item
-    // containing video name and timestamp
-    if ( retval.empty() )
-    {
-      auto meta = std::make_shared<kwiver::vital::metadata>();
-      kwiver::vital::timestamp ts;
-      ts.set_frame(this->d_frame_number);
-
-      if (this->d_have_frame_time)
-      {
-        ts.set_time_usec(this->d_frame_time);
+        LOG_ERROR( d_logger, "error while parsing KLV packet: " << e.what() );
       }
 
-      meta->set_timestamp(ts);
+      if( klv::klv_lookup_packet_traits().by_uds_key( packet.key ).tag() !=
+          klv::KLV_PACKET_MISB_1108_LOCAL_SET )
+      {
+        auto const timestamp = klv::klv_packet_timestamp( packet );
+        m_curr_misp_timestamp = std::max( m_curr_misp_timestamp, timestamp );
+      }
 
-      meta->add< vital::VITAL_META_VIDEO_URI >( video_path );
-
-      retval.push_back(meta);
+      m_klv_demuxer.demux_packet( packet );
     }
 
-    return retval;
+    // Erase the bytes we just used
+#if defined( __GNUC__ ) && __GNUC__ < 5
+    // Old GCC bug means we have to convert from const_iterator to iterator
+    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54577
+    md_buffer.erase( md_buffer.begin(),
+                     std::next( md_buffer.begin(),
+                                std::distance( md_buffer.cbegin(), it ) ) );
+#else
+    md_buffer.erase( md_buffer.cbegin(), it );
+#endif
+
+    // Get the vital metadata structure for the current frame
+    auto result =
+      klv::klv_to_vital_metadata( m_klv_timeline, { m_prev_misp_timestamp,
+                                                    m_curr_misp_timestamp } );
+
+    // Add the frame timestamp to the metadata
+    kwiver::vital::timestamp frame_timestamp;
+    frame_timestamp.set_frame( d_frame_number );
+    if( d_have_frame_time )
+    {
+      frame_timestamp.set_time_usec( d_frame_time );
+    }
+    result->set_timestamp( frame_timestamp );
+
+    result->add< kwiver::vital::VITAL_META_VIDEO_URI >( video_path );
+
+    return { result };
   }
 
-  // -------------------------------------------------------------------------------------
-  /*
-   * @brief Initialize timestamp for video.
-   *
-   * This method initializes the timestamp at the start of a video,
-   * since we need a timestamp for the first frame. It scans ahead in
-   * the input stream until it gets a time marker of the specified
-   * type.
-   *
-   * @return \b true if timestamp has been determined.
-   */
+  // --------------------------------------------------------------------------
+  //  @brief Initialize timestamp for video.
+  //
+  //  This method initializes the timestamp at the start of a video,
+  //  since we need a timestamp for the first frame. It scans ahead in
+  //  the input stream until it gets a time marker of the specified
+  //  type.
+  //
+  //  @return \b true if timestamp has been determined.
   bool init_timestamp( std::string time_source )
   {
     bool retval( true );
@@ -255,13 +241,10 @@ public:
     {
       retval = misp_time();
     }
-    else if ( time_source == "klv0601" )
+    else if ( time_source == "klv0601" || time_source == "klv0104" ||
+              time_source == "klv" )
     {
-      retval = klv_time( kwiver::vital::convert_metadata::MISB_0601 );
-    }
-    else if ( time_source == "klv0104" )
-    {
-      retval = klv_time( kwiver::vital::convert_metadata::MISB_0104 );
+      retval = klv_time();
     }
     else if ( time_source == "start_at_0" )
     {
@@ -309,20 +292,20 @@ public:
     return retval;
   } // init_timestamp
 
-  // -------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   bool misp_time()
   {
     int frame_count( c_time_scan_frame_limit );
     bool retval(false);
-    int64_t ts = 0;
 
     do
     {
-      std::vector< unsigned char > pkt_data = d_video_stream.current_packet_data();
-
-      if ( kwiver::vital::find_MISP_microsec_time(  pkt_data, ts ) )
+      auto const packet_data = d_video_stream.current_packet_data();
+      auto it = kwiver::arrows::klv::find_misp_timestamp( packet_data.cbegin(),
+                                                          packet_data.cend() );
+      if ( it != packet_data.cend() )
       {
-        meta_ts = ts; // in usec
+        meta_ts = kwiver::arrows::klv::read_misp_timestamp( it ).timestamp;
         LOG_DEBUG( this->d_logger, "Found MISP frame time:" << meta_ts );
 
         d_have_abs_frame_time = true;
@@ -336,7 +319,7 @@ public:
     return retval;
   } // misp_time
 
-  // -------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   bool start_at_0_time()
   {
     meta_ts = 0;
@@ -345,7 +328,7 @@ public:
     return true;
   } // start_at_0_time
 
-  // -------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   bool current_time()
   {
     using namespace std::chrono;
@@ -359,8 +342,8 @@ public:
     return true;
   } // current_time
 
-  // -------------------------------------------------------------------------------------
-  bool klv_time( std::string type )
+  // --------------------------------------------------------------------------
+  bool klv_time()
   {
     using namespace kwiver::vital;
 
@@ -376,32 +359,26 @@ public:
       }
 
       //It might be more accurate to get the second unique timestamp instead of the first
-      std::deque< vxl_byte > curr_md = d_video_stream.current_metadata();
-      auto klv_metadata = process_metadata( curr_md );
+      auto curr_md = d_video_stream.current_metadata();
+      auto klv_metadata =
+        process_metadata( { curr_md.cbegin(), curr_md.cend() } );
       if ( klv_metadata.size() > 0 )
       {
         // A metadata collection was created
         // check to see if it is of the desired type.
         for( auto meta : klv_metadata )
         {
-          // Test to see if the collection is from the specified standard (0104/0601)
-          if ( auto& origin = meta->find( VITAL_META_METADATA_ORIGIN ) )
+          if ( auto& ts = meta->find( VITAL_META_UNIX_TIMESTAMP ) )
           {
-            if (type == origin.as_string())
-            {
-              if ( auto& ts = meta->find( VITAL_META_UNIX_TIMESTAMP ) )
-              {
-                // Get unix timestamp as usec
-                meta_ts = static_cast< time_usec_t >( ts.as_uint64() );
+            // Get unix timestamp as usec
+            meta_ts = static_cast< time_usec_t >( ts.as_uint64() );
 
-                LOG_DEBUG( this->d_logger, "Found initial " << type <<
-                           " timestamp: " << meta_ts );
+            LOG_DEBUG( this->d_logger,
+                       "Found initial KLV timestamp: " << meta_ts );
 
-                d_have_abs_frame_time = true;
-                retval = true;
-              } // has time element
-            } // correct metadata type
-          } // has metadata origin
+            d_have_abs_frame_time = true;
+            retval = true;
+          } // has time element
         } // foreach over all metadata packets
       } // end if processed metadata collection
     }
@@ -412,7 +389,7 @@ public:
     return retval;
   } // klv_time
 
-  // -------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   void push_metadata_to_map(vital::timestamp::frame_t fn)
   {
     if (fn >= c_start_at_frame &&
@@ -420,7 +397,7 @@ public:
         c_use_metadata)
     {
       auto curr_md = d_video_stream.current_metadata();
-      auto metadata = process_metadata( curr_md );
+      auto metadata = process_metadata( { curr_md.cbegin(), curr_md.cend() } );
       if ( metadata.size() > 0 )
       {
         std::pair<vital::timestamp::frame_t, vital::metadata_vector>
@@ -430,7 +407,7 @@ public:
     }
   }
 
-  // -------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   void process_loop_dependencies()
   {
     // is stream open?
@@ -485,7 +462,7 @@ public:
 // static open interlocking mutex
 std::mutex vidl_ffmpeg_video_input::priv::s_open_mutex;
 
-// =======================================================================================
+// ----------------------------------------------------------------------------
 vidl_ffmpeg_video_input
 ::vidl_ffmpeg_video_input()
   : d( new priv() )
@@ -500,7 +477,7 @@ vidl_ffmpeg_video_input
   d->d_video_stream.close( );
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Get this algorithm's \link vital::config_block configuration block \endlink
 vital::config_block_sptr
 vidl_ffmpeg_video_input
@@ -556,7 +533,7 @@ vidl_ffmpeg_video_input
   return config;
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Set this algorithm's properties via a config block
 void
 vidl_ffmpeg_video_input
@@ -581,7 +558,7 @@ vidl_ffmpeg_video_input
             d->c_time_source_list, " ,", kwiver::vital::TokenizeTrimEmpty );
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 vidl_ffmpeg_video_input
 ::check_configuration(vital::config_block_sptr config) const
@@ -631,7 +608,7 @@ vidl_ffmpeg_video_input
   return retcode;
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 vidl_ffmpeg_video_input
 ::open( std::string video_name )
@@ -727,7 +704,7 @@ vidl_ffmpeg_video_input
   set_capability(vital::algo::video_input::IS_SEEKABLE, d->d_is_seekable );
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 vidl_ffmpeg_video_input
 ::close()
@@ -747,7 +724,7 @@ vidl_ffmpeg_video_input
   d->d_frame_number = 1;
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 vidl_ffmpeg_video_input
 ::next_frame( kwiver::vital::timestamp& ts,
@@ -801,8 +778,7 @@ vidl_ffmpeg_video_input
   return true;
 }
 
-
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 vidl_ffmpeg_video_input
 ::seek_frame( kwiver::vital::timestamp& ts,   // returns timestamp
@@ -884,7 +860,7 @@ vidl_ffmpeg_video_input
   return true;
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::timestamp
 vidl_ffmpeg_video_input
 ::frame_timestamp() const
@@ -901,8 +877,7 @@ vidl_ffmpeg_video_input
   return ts;
 }
 
-
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::image_container_sptr
 vidl_ffmpeg_video_input
 ::frame_image( )
@@ -935,7 +910,7 @@ vidl_ffmpeg_video_input
   return img_cont;
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::metadata_vector
 vidl_ffmpeg_video_input
 ::frame_metadata()
@@ -947,7 +922,8 @@ vidl_ffmpeg_video_input
 
   // TODO: consider getting metadata from metadata map if it is present
   //       caching it there if not.
-  return d->process_metadata( d->d_video_stream.current_metadata() );
+  auto const curr_md = d->d_video_stream.current_metadata();
+  return d->process_metadata( { curr_md.cbegin(), curr_md.cend() } );
 }
 
 kwiver::vital::metadata_map_sptr
@@ -959,7 +935,7 @@ vidl_ffmpeg_video_input
   return std::make_shared<kwiver::vital::simple_metadata_map>(d->d_metadata_map);
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 double
 vidl_ffmpeg_video_input
 ::frame_rate()
@@ -967,7 +943,7 @@ vidl_ffmpeg_video_input
   return d->d_video_stream.frame_rate();
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 vidl_ffmpeg_video_input
 ::end_of_video() const
@@ -975,7 +951,7 @@ vidl_ffmpeg_video_input
   return d->d_at_eov;
 }
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 vidl_ffmpeg_video_input
 ::good() const
@@ -983,8 +959,7 @@ vidl_ffmpeg_video_input
   return d->d_video_stream.is_valid() && d->d_frame_advanced;
 }
 
-
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 vidl_ffmpeg_video_input
 ::seekable() const
@@ -992,8 +967,7 @@ vidl_ffmpeg_video_input
   return d->d_video_stream.is_seekable();
 }
 
-
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 size_t
 vidl_ffmpeg_video_input
 ::num_frames() const

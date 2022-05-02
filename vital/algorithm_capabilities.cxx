@@ -9,7 +9,7 @@
 namespace kwiver {
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class algorithm_capabilities::priv
 {
 public:
@@ -17,7 +17,7 @@ public:
   std::map< std::string, bool > m_capabilities;
 };
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 algorithm_capabilities
 ::algorithm_capabilities()
   : d( new algorithm_capabilities::priv )
@@ -35,7 +35,7 @@ algorithm_capabilities
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 algorithm_capabilities&
 algorithm_capabilities
 ::operator=( algorithm_capabilities const& other )
@@ -48,7 +48,7 @@ algorithm_capabilities
   return *this;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 algorithm_capabilities
 ::has_capability( capability_name_t const& name ) const
@@ -56,7 +56,7 @@ algorithm_capabilities
   return ( d->m_capabilities.count( name ) > 0 );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 algorithm_capabilities::capability_list_t
 algorithm_capabilities
 :: capability_list() const
@@ -71,7 +71,7 @@ algorithm_capabilities
   return list;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 algorithm_capabilities
 ::capability( capability_name_t const& name ) const
@@ -84,7 +84,7 @@ algorithm_capabilities
   return d->m_capabilities[name];
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 algorithm_capabilities
 ::set_capability( capability_name_t const& name, bool val )

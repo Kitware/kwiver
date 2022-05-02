@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief This file contains the implementation of a geo polygon.
- */
+/// \file
+/// \brief This file contains the implementation of a geo polygon.
 
 #include "geo_polygon.h"
 #include "geodesy.h"
@@ -201,6 +199,21 @@ operator<<( std::ostream& str, vital::geo_polygon const& obj )
   }
 
   return str;
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator==( geo_polygon const& lhs, geo_polygon const& rhs )
+{
+  return ( lhs.is_empty() && rhs.is_empty() ) ||
+         ( lhs.crs() == rhs.crs() && lhs.polygon() == rhs.polygon() );
+}
+
+// ----------------------------------------------------------------------------
+bool
+operator!=( geo_polygon const& lhs, geo_polygon const& rhs )
+{
+  return !( lhs == rhs );
 }
 
 } } // end namespace

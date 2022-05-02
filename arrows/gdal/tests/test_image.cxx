@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test GDAL image class
- */
+/// \file
+/// \brief test GDAL image class
 
 #include <test_gtest.h>
 
@@ -20,10 +18,10 @@ kwiver::vital::path_t g_data_dir;
 namespace algo = kwiver::vital::algo;
 namespace gdal = kwiver::arrows::gdal;
 static int expected_size = 32;
-static std::string geotiff_file_name = "test.tif";
-static std::string nitf_file_name = "test.ntf";
-static std::string jpeg_file_name = "test.jpg";
-static std::string png_file_name = "test.png";
+static std::string geotiff_file_name = "images/test.tif";
+static std::string nitf_file_name = "images/test.ntf";
+static std::string jpeg_file_name = "images/test.jpg";
+static std::string png_file_name = "images/test.png";
 static std::vector<int> test_x_pixels = {0, 3, 11, 21, 31};
 static std::vector<int> test_y_pixels = {0, 5, 8, 13, 31};
 
@@ -69,11 +67,11 @@ main(int argc, char* argv[])
 // ----------------------------------------------------------------------------
 void test_rpc_metadata(kwiver::vital::metadata_sptr md)
 {
-  kwiver::vital::metadata_traits md_traits;
   for ( auto const& tag : rpc_tags )
   {
     EXPECT_TRUE( md->has( tag ) )
-      << "Image metadata should include " << md_traits.tag_to_name( tag );
+      << "Image metadata should include "
+      << kwiver::vital::tag_traits_by_tag( tag ).name();
   }
 
   if (md->size() > 0)
@@ -87,11 +85,11 @@ void test_rpc_metadata(kwiver::vital::metadata_sptr md)
 void test_nitf_metadata(kwiver::vital::metadata_sptr md)
 {
 
-  kwiver::vital::metadata_traits md_traits;
   for ( auto const& tag : nitf_tags )
   {
     EXPECT_TRUE( md->has( tag ) )
-      << "Image metadata should include " << md_traits.tag_to_name( tag );
+      << "Image metadata should include "
+      << kwiver::vital::tag_traits_by_tag( tag ).name();
   }
 
   if (md->size() > 0)
@@ -145,8 +143,8 @@ TEST_F(image_io, load_geotiff)
   ASSERT_TRUE( md->has( kwiver::vital::VITAL_META_CORNER_POINTS ) )
     << "Metadata should include corner points.";
 
-  kwiver::vital::geo_polygon corner_pts;
-  md->find( kwiver::vital::VITAL_META_CORNER_POINTS ).data( corner_pts );
+  auto corner_pts = md->find( kwiver::vital::VITAL_META_CORNER_POINTS )
+                      .get< kwiver::vital::geo_polygon >();
   EXPECT_EQ( corner_pts.crs(), 4326);
   EXPECT_TRUE( corner_pts.polygon( 4326 ).contains( -16.0, 0.0) );
   EXPECT_TRUE( corner_pts.polygon( 4326 ).contains( 0.0, 32.0) );

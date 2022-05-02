@@ -88,7 +88,7 @@ merge_detection_sets_process
   std::vector< vital::detected_object_set_sptr > inputs;
   vital::detected_object_set_sptr output;
 
-  for ( const auto port_name : d->p_port_list )
+  for ( auto const& port_name : d->p_port_list )
   {
     inputs.push_back(
       grab_from_port_as< vital::detected_object_set_sptr >( port_name ) );

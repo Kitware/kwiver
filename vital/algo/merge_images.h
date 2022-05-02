@@ -12,12 +12,14 @@
 #include <vital/types/image_container.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 /// An abstract base class for converting base image type
 class VITAL_ALGO_EXPORT merge_images
-  : public kwiver::vital::algorithm_def<merge_images>
+  : public kwiver::vital::algorithm_def< merge_images >
 {
 public:
   /// Return the name of this algorithm
@@ -25,15 +27,17 @@ public:
 
   /// Merge images
   virtual kwiver::vital::image_container_sptr
-    merge(kwiver::vital::image_container_sptr image1,
-          kwiver::vital::image_container_sptr image2) const = 0;
+  merge( kwiver::vital::image_container_sptr image1,
+         kwiver::vital::image_container_sptr image2 ) const = 0;
 
 protected:
   merge_images();
-
 };
 
-typedef std::shared_ptr<merge_images> merge_images_sptr;
+typedef std::shared_ptr< merge_images > merge_images_sptr;
 
-} } } // end namespace
+} // namespace algo
 
+} // namespace vital
+
+} // namespace kwiver

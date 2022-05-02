@@ -14,11 +14,9 @@ namespace arrows {
 namespace core {
 
 /// Video input that pulls image and metadata inputs from different sources.
-// ----------------------------------------------------------------
-/**
- * This class implements a video input algorithm that holds two other video
- * input algorithms and pulls imagery from one and metadata from the other.
- */
+// ----------------------------------------------------------------------------
+/// This class implements a video input algorithm that holds two other video
+/// input algorithms and pulls imagery from one and metadata from the other.
 class KWIVER_ALGO_CORE_EXPORT video_input_split
   : public  vital::algo::video_input
 {
@@ -60,6 +58,8 @@ public:
   virtual kwiver::vital::image_container_sptr frame_image();
   virtual kwiver::vital::metadata_vector frame_metadata();
   virtual kwiver::vital::metadata_map_sptr metadata_map();
+
+  kwiver::vital::video_settings_uptr implementation_settings() const override;
 
 private:
   kwiver::vital::timestamp merge_timestamps(

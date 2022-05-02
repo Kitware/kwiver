@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Interface for detected_object_set
- */
+/// \file
+/// \brief Interface for detected_object_set
 
 #ifndef VITAL_DETECTED_OBJECT_SET_H_
 #define VITAL_DETECTED_OBJECT_SET_H_

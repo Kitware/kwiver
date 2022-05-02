@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief OCV mat_image_memory implementation
- */
+/// \file
+/// \brief OCV mat_image_memory implementation
 
 #include "mat_image_memory.h"
 
@@ -16,12 +14,11 @@ namespace ocv
 {
 
 /// Constructor - allocates n bytes
-/**
- * Base on how the cv::Mat constructor that taked ranges is implemented
- * (sub-matrix construction), data is a pointer with value greater than or equal
- * to datastart. Thus, the start of the global data is datastart and the start
- * of the given matrix's window is data.
- */
+///
+/// Base on how the cv::Mat constructor that taked ranges is implemented
+/// (sub-matrix construction), data is a pointer with value greater than or equal
+/// to datastart. Thus, the start of the global data is datastart and the start
+/// of the given matrix's window is data.
 mat_image_memory
 ::mat_image_memory(const cv::Mat& m)
 : mat_data_( const_cast<unsigned char*>(m.datastart) ),

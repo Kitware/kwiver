@@ -48,12 +48,14 @@ set( public_headers
   integrate_depth_maps.h
   interpolate_track.h
   keyframe_selection.h
+  metadata_filter.h
   metadata_map_io.h
   match_descriptor_sets.h
   match_features.h
   merge_detections.h
   merge_images.h
   optimize_cameras.h
+  pointcloud_io.h
   query_track_descriptor_set.h
   read_object_track_set.h
   read_track_descriptor_set.h
@@ -67,6 +69,7 @@ set( public_headers
   uuid_factory.h
   uv_unwrap_mesh.h
   video_input.h
+  video_output.h
   write_object_track_set.h
   write_track_descriptor_set.h
   )
@@ -113,12 +116,14 @@ set( sources
   integrate_depth_maps.cxx
   interpolate_track.cxx
   keyframe_selection.cxx
+  metadata_filter.cxx
   metadata_map_io.cxx
   match_descriptor_sets.cxx
   match_features.cxx
   merge_detections.cxx
   merge_images.cxx
   optimize_cameras.cxx
+  pointcloud_io.cxx
   query_track_descriptor_set.cxx
   read_object_track_set.cxx
   read_track_descriptor_set.cxx
@@ -132,6 +137,7 @@ set( sources
   uuid_factory.cxx
   uv_unwrap_mesh.cxx
   video_input.cxx
+  video_output.cxx
   write_object_track_set.cxx
   write_track_descriptor_set.cxx
 )

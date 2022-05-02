@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief core geo_polygon class tests
- */
+/// \file
+/// \brief core geo_polygon class tests
 
 #include <test_eigen.h>
 #include <test_gtest.h>

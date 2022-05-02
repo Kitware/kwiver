@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header for kwiver::arrows::triangle_scan_iterator
- */
+/// \file
+/// \brief Header for kwiver::arrows::triangle_scan_iterator
 
 #ifndef KWIVER_ARROWS_CORE_TRIANGLE_SCAN_ITERATOR_H
 #define KWIVER_ARROWS_CORE_TRIANGLE_SCAN_ITERATOR_H

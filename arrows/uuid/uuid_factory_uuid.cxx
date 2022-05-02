@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of uuid factory
- */
+/// \file
+/// \brief Implementation of uuid factory
 
 #include "uuid_factory_uuid.h"
 
@@ -19,14 +17,14 @@ namespace kwiver {
 namespace arrows {
 namespace uuid {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 class uuid_factory_uuid::priv
 {
 public:
 
 };
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 uuid_factory_uuid::
 uuid_factory_uuid()
   : d( new uuid_factory_uuid::priv() )
@@ -38,14 +36,14 @@ uuid_factory_uuid::
 ~uuid_factory_uuid()
 { }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 uuid_factory_uuid::
 set_configuration(vital::config_block_sptr config)
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 uuid_factory_uuid::
 check_configuration(vital::config_block_sptr config) const
@@ -53,7 +51,7 @@ check_configuration(vital::config_block_sptr config) const
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::uid
 uuid_factory_uuid::
 create_uuid()

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief core metadata_io tests
- */
+/// \file
+/// \brief core metadata_io tests
 
 #include <tests/test_gtest.h>
 
@@ -18,6 +16,10 @@
 #include <sstream>
 
 kwiver::vital::path_t g_data_dir;
+
+static std::string sample_pos = "vital_data/sample_pos.pos";
+static std::string sample_pos_no_name = "vital_data/sample_pos_no_name.pos";
+static std::string invalid_pos = "vital_data/invalid_pos.pos";
 
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)
@@ -38,11 +40,11 @@ class metadata_pos_io : public ::testing::Test
 // ----------------------------------------------------------------------------
 TEST_F(metadata_pos_io, pos_format_read)
 {
-  kwiver::vital::path_t test_read_file = data_dir + "/sample_pos.pos";
+  kwiver::vital::path_t test_read_file = data_dir + "/" + sample_pos;
   auto input_md = kwiver::vital::read_pos_file( test_read_file );
   print_metadata(std::cout, *input_md);
 
-  test_read_file = data_dir + "/sample_pos_no_name.pos";
+  test_read_file = data_dir + "/" + sample_pos_no_name;
   input_md = kwiver::vital::read_pos_file( test_read_file );
   print_metadata(std::cout, *input_md);
 }
@@ -59,7 +61,7 @@ TEST_F(metadata_pos_io, invalid_file_path)
 // ----------------------------------------------------------------------------
 TEST_F(metadata_pos_io, invalid_file_content)
 {
-  kwiver::vital::path_t invalid_content_file = data_dir + "/invalid_pos.pos";
+  kwiver::vital::path_t invalid_content_file = data_dir + "/" + invalid_pos;
   EXPECT_THROW(
     auto md = kwiver::vital::read_pos_file( invalid_content_file ),
     kwiver::vital::invalid_data )
@@ -88,10 +90,7 @@ void compare_tag( kwiver::vital::metadata_item const& expected,
   }
   else if ( expected.type() == typeid(int) )
   {
-    int v1 = 0, v2 = 0;
-    expected.data(v1);
-    actual.data(v2);
-    EXPECT_EQ( v1, v2 );
+    EXPECT_EQ( expected.get< int >(), actual.get< int >() );
   }
   else if ( expected.type() == typeid(std::string) )
   {
@@ -99,9 +98,8 @@ void compare_tag( kwiver::vital::metadata_item const& expected,
   }
   else if ( expected.type() == typeid(kwiver::vital::geo_point) )
   {
-    kwiver::vital::geo_point v1, v2;
-    expected.data(v1);
-    actual.data(v2);
+    auto const v1 = expected.get< kwiver::vital::geo_point >();
+    auto const v2 = actual.get< kwiver::vital::geo_point >();
     auto const& rv1 = v1.location( kwiver::vital::SRID::lat_lon_WGS84 );
     auto const& rv2 = v2.location( kwiver::vital::SRID::lat_lon_WGS84 );
     EXPECT_NEAR( rv1[1], rv2[1], epsilon ) << " (lat)";
@@ -118,7 +116,7 @@ void compare_tag( kwiver::vital::metadata_item const& expected,
 // ----------------------------------------------------------------------------
 TEST_F(metadata_pos_io, output_format)
 {
-  kwiver::vital::path_t test_read_file = data_dir + "/sample_pos.pos";
+  kwiver::vital::path_t test_read_file = data_dir + "/" + sample_pos;
   auto input_md = kwiver::vital::read_pos_file( test_read_file );
   print_metadata(std::cout, *input_md);
 

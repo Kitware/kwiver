@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of \link kwiver::vital::camera_perspective
- * camera_perspective \endlink class
- */
+/// \file
+/// \brief Implementation of \link kwiver::vital::camera_perspective
+/// camera_perspective \endlink class
 
 #include <vital/types/camera_perspective.h>
 #include <vital/io/eigen_io.h>

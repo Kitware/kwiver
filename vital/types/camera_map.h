@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header file for a map from frame IDs to cameras
- */
+/// \file
+/// \brief Header file for a map from frame IDs to cameras
 
 #ifndef VITAL_CAMERA_MAP_H_
 #define VITAL_CAMERA_MAP_H_
@@ -112,10 +110,9 @@ public:
   }
 
   /// Find a camera in the map
-  /**
-  * \param [in] fid the frame id of the camera to return
-  * \return     the camera if found or a null camera if it is not found
-  */
+  ///
+  /// \param [in] fid the frame id of the camera to return
+  /// \return     the camera if found or a null camera if it is not found
   std::shared_ptr<T> find(frame_id_t fid) const
   {
     auto it = data_.find(fid);
@@ -130,23 +127,28 @@ public:
   }
 
   /// Erase a camera from the map
-  /**
-  * \param [in] fid the frame id of the camera to erase
-  */
+  ///
+  /// \param [in] fid the frame id of the camera to erase
   void erase(frame_id_t fid)
   {
     data_.erase(fid);
   }
 
   /// Insert a camera into the map
-  /**
-  * \param [in] fid the frame id of the camera to insert
-  * \param [in] cam the camera to insert
-  */
-  void insert(frame_id_t fid, std::shared_ptr<T> cam)
+  ///
+  /// \param [in] fid the frame id of the camera to insert
+  /// \param [in] cam the camera to insert
+  //@{
+  void insert(frame_id_t fid, std::shared_ptr<T> const& cam)
   {
     data_[fid] = cam;
   }
+
+  void insert(frame_id_t fid, std::shared_ptr<T>&& cam)
+  {
+    data_[fid] = std::move(cam);
+  }
+  //@}
 
   /// Clear the map of all cameras
   void clear()
@@ -155,11 +157,10 @@ public:
   }
 
   /// Set the map from a map of base cameras.
-  /**
-  * Only simple perspective cameras will be added to the map.  All
-  * others are ignored.  The map is emptied before the cameras are added.
-  * \param [in] base_cams the cams to add
-  */
+  ///
+  /// Only simple perspective cameras will be added to the map.  All
+  /// others are ignored.  The map is emptied before the cameras are added.
+  /// \param [in] base_cams the cams to add
   void set_from_base_cams(camera_map_sptr base_cams)
   {
     auto base_cams_map = base_cams->cameras();
@@ -167,11 +168,10 @@ public:
   }
 
   /// Set the map from a map of base cameras.
-  /**
-  * Only simple perspective cameras will be added to the map.  All
-  * others are ignored.
-  * \param [in] base_cams_map the map of cams to add
-  */
+  ///
+  /// Only simple perspective cameras will be added to the map.  All
+  /// others are ignored.
+  /// \param [in] base_cams_map the map of cams to add
   void set_from_base_camera_map(const camera_map::map_camera_t &base_cams_map)
   {
     clear();

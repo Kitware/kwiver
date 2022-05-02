@@ -5,6 +5,7 @@
 #include "convert_protobuf.h"
 #include "convert_protobuf_point.h"
 
+#include <vital/logger/logger.h>
 #include <vital/types/activity_type.h>
 #include <vital/types/detected_object.h>
 #include <vital/types/detected_object_set.h>
@@ -529,35 +530,33 @@ void convert_protobuf( const ::kwiver::vital::metadata_vector& mvec,
 void convert_protobuf( const ::kwiver::protobuf::metadata&  proto,
                   ::kwiver::vital::metadata& metadata )
 {
-  static ::kwiver::vital::metadata_traits traits;
-
   // deserialize one metadata collection
   for ( const auto& mi : proto.items() )
   {
     const auto tag = static_cast< ::kwiver::vital::vital_metadata_tag >( mi.metadata_tag() );
-    const auto& trait = traits.find( tag );
+    const auto& trait = ::kwiver::vital::tag_traits_by_tag( tag );
     ::kwiver::vital::any data;
 
-    if ( trait.is_floating_point() )
+    if ( trait.type() == typeid( double ) )
     {
       data = ::kwiver::vital::any( mi.double_value() );
     }
-    else if ( trait.is_integral() )
+    else if ( trait.type() == typeid( uint64_t ) )
     {
       data = ::kwiver::vital::any( static_cast<uint64_t>(mi.int_value()) );
     }
-    else if ( trait.tag_type() == typeid(std::string) )
+    else if ( trait.type() == typeid(std::string) )
     {
       // is natively a string
       data = ::kwiver::vital::any( mi.string_value() );
     }
-    else if ( trait.tag_type() == typeid(::kwiver::vital::geo_point) )
+    else if ( trait.type() == typeid(::kwiver::vital::geo_point) )
     {
       ::kwiver::vital::geo_point pt;
       convert_protobuf( mi.geo_point_value(), pt );
       data = ::kwiver::vital::any( pt );
     }
-    else if ( trait.tag_type() == typeid(::kwiver::vital::geo_polygon) )
+    else if ( trait.type() == typeid(::kwiver::vital::geo_polygon) )
     {
       ::kwiver::vital::geo_polygon poly;
       convert_protobuf( mi.geo_polygon_value(), poly );
@@ -566,23 +565,80 @@ void convert_protobuf( const ::kwiver::protobuf::metadata&  proto,
     else
     {
       std::stringstream str;
-      str << "Found unexpected data type \"" << trait.tag_type().name()
+      str << "Found unexpected data type \"" << trait.type_name()
           << "\" in metadata collection for item name \""
           << trait.name() << "\".";
       VITAL_THROW( ::kwiver::vital::metadata_exception, str.str() );
     }
 
-    metadata.add( trait.create_metadata_item( data ) );
+    metadata.add_any( tag, data );
 
   } // end for
 }
 
+namespace {
+
+// ----------------------------------------------------------------------------
+struct convert_visitor {
+  template< class T >
+  void operator()( T const& data ) const
+  {
+    std::stringstream ss;
+    ss << data;
+    proto_item.set_string_value( ss.str() );
+  }
+
+  ::kwiver::protobuf::metadata_metadata_item& proto_item;
+};
+
+// ----------------------------------------------------------------------------
+template<>
+void
+convert_visitor::operator()< uint64_t >( uint64_t const& data ) const
+{
+  proto_item.set_int_value( data );
+}
+
+// ----------------------------------------------------------------------------
+template<>
+void
+convert_visitor::operator()< std::string >( std::string const& data ) const
+{
+  proto_item.set_string_value( data );
+}
+
+// ----------------------------------------------------------------------------
+template<>
+void
+convert_visitor::operator()< double >( double const& data ) const
+{
+  proto_item.set_double_value( data );
+}
+
+// ----------------------------------------------------------------------------
+template<>
+void
+convert_visitor::operator()< kwiver::vital::geo_point >(
+  kwiver::vital::geo_point const& data ) const
+{
+  convert_protobuf( data, *proto_item.mutable_geo_point_value() );
+}
+
+// ----------------------------------------------------------------------------
+template<>
+void
+convert_visitor::operator()< kwiver::vital::geo_polygon >(
+  kwiver::vital::geo_polygon const& data ) const
+{
+  convert_protobuf( data, *proto_item.mutable_geo_polygon_value() );
+}
+
+} // namespace <anonymous>
+
 // ----------------------------------------------------------------------------
 void convert_protobuf( const ::kwiver::vital::metadata& metadata,
-                  ::kwiver::protobuf::metadata&  proto_meta )
+                       ::kwiver::protobuf::metadata& proto_meta )
 {
-  static ::kwiver::vital::metadata_traits traits;
-
   // Serialize one metadata collection
   for ( const auto& mi : metadata )
   {
@@ -591,58 +647,10 @@ void convert_protobuf( const ::kwiver::vital::metadata& metadata,
     // element is <tag, any>
     const auto tag = mi.first;
     const auto metap = mi.second;
-    const auto& trait = traits.find( tag );
 
     proto_item->set_metadata_tag( tag );
 
-    if ( metap->has_double() )
-    {
-      proto_item->set_double_value( metap->as_double() );
-    }
-    else if ( metap->has_uint64() )
-    {
-      proto_item->set_int_value( metap->as_uint64() );
-    }
-    else if ( metap->has_string() )
-    {
-      proto_item->set_string_value( metap->as_string() );
-    }
-    else if ( trait.tag_type() == typeid(::kwiver::vital::geo_point) )
-    {
-      ::kwiver::vital::geo_point pt;
-      if ( ! metap->data<::kwiver::vital::geo_point>( pt ) )
-      {
-        std::stringstream str;
-        str << "Error extracting data item from metadata. "
-            << "Expected \"::kwiver::vital::geo_point\" but found \""
-            << metap->data().type_name() << "\"." ;
-        VITAL_THROW( ::kwiver::vital::metadata_exception, str.str() );
-      }
-
-      auto* proto_pt = proto_item->mutable_geo_point_value();
-      convert_protobuf( pt, *proto_pt );
-    }
-    else if ( trait.tag_type() == typeid(::kwiver::vital::geo_polygon) )
-    {
-      ::kwiver::vital::geo_polygon poly;
-      if ( ! metap->data<::kwiver::vital::geo_polygon>( poly ) )
-      {
-        std::stringstream str;
-        str << "Error extracting data item from metadata. "
-            << "Expected \"::kwiver::vital::geo_polygon\" but found \""
-            << metap->data().type_name() << "\"." ;
-        VITAL_THROW( ::kwiver::vital::metadata_exception, str.str() );
-
-      }
-
-      auto* proto_poly = proto_item->mutable_geo_polygon_value();
-      convert_protobuf( poly, *proto_poly );
-    }
-    else
-    {
-      // encode as string.
-      proto_item->set_string_value( metap->as_string() );
-    }
+    ::kwiver::vital::visit( convert_visitor{ *proto_item }, metap->data() );
   } //end for
 }
 
@@ -696,7 +704,7 @@ void convert_protobuf( const ::kwiver::vital::geo_point& point,
 void convert_protobuf( const ::kwiver::protobuf::polygon&  proto_poly,
                        ::kwiver::vital::polygon& poly )
 {
-  for ( const auto vert : proto_poly.point_list() )
+  for ( auto const& vert : proto_poly.point_list() )
   {
     poly.push_back( vert.x(), vert.y() );
   }
@@ -707,7 +715,7 @@ void convert_protobuf( const ::kwiver::vital::polygon& poly,
                        ::kwiver::protobuf::polygon&  proto_poly )
 {
   const auto vertices = poly.get_vertices();
-  for ( const auto vert : vertices )
+  for ( auto const& vert : vertices )
   {
     auto* proto_item = proto_poly.add_point_list();
     proto_item->set_x( vert[0] );

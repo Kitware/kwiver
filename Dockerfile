@@ -7,6 +7,7 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends \
                     python3-dev \
                     python3-pip \
+                    xvfb \
  && pip3 install setuptools \
                  scipy \
                  six
@@ -24,14 +25,17 @@ RUN cd /kwiver \
     -DKWIVER_ENABLE_ARROWS=ON \
     -DKWIVER_ENABLE_C_BINDINGS=ON \
     -DKWIVER_ENABLE_CERES=ON \
+    -DKWIVER_ENABLE_CUDA=ON \
     -DKWIVER_ENABLE_EXTRAS=ON \
     -DKWIVER_ENABLE_LOG4CPLUS=ON \
     -DKWIVER_ENABLE_OPENCV=ON \
     -DKWIVER_ENABLE_FFMPEG=ON \
+    -DKWIVER_ENABLE_KLV=ON \
     -DKWIVER_ENABLE_MVG=ON \
     -DKWIVER_ENABLE_PROCESSES=ON \
     -DKWIVER_ENABLE_PROJ=ON \
     -DKWIVER_ENABLE_PYTHON=ON \
+    -DKWIVER_ENABLE_SERIALIZE_JSON=ON \
     -DKWIVER_ENABLE_SPROKIT=ON \
     -DKWIVER_ENABLE_TESTS=ON \
     -DKWIVER_ENABLE_TOOLS=ON \
@@ -43,10 +47,19 @@ RUN cd /kwiver \
   && make -j$(nproc) -k \
   && make install \
   && chmod +x setup_KWIVER.sh
+# Optionally install python build requirements if it was generated.
+RUN PYTHON_REQS="python/requirements.txt" \
+ && cd /kwiver/build \
+ && ( ( [ ! -f "$PYTHON_REQS" ] \
+        && echo "!!! No build requirements generated, nothing to install." ) \
+      || pip3 install -r "$PYTHON_REQS" )
 
 # Configure entrypoint
-RUN echo 'source /kwiver/build/setup_KWIVER.sh' >> entrypoint.sh \
- && echo 'kwiver $@' >> entrypoint.sh \
+RUN bash -c 'echo -e "source /kwiver/build/setup_KWIVER.sh\n\
+\n# Set up X virtual framebuffer (Xvfb) to support running VTK headless\n\
+Xvfb :1 -screen 0 1024x768x16 -nolisten tcp > xvfb.log &\n\
+export DISPLAY=:1.0\n\n\
+kwiver \$@" >> entrypoint.sh' \
  && chmod +x entrypoint.sh
 
 ENTRYPOINT [ "bash", "/entrypoint.sh" ]

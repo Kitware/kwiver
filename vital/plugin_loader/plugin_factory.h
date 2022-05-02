@@ -26,11 +26,9 @@ class plugin_factory;
 typedef std::shared_ptr< plugin_factory >         plugin_factory_handle_t;
 typedef std::vector< plugin_factory_handle_t >    plugin_factory_vector_t;
 
-// ==================================================================
-/**
- * @brief Abstract base class for plugin factory.
- *
- */
+// ----------------------------------------------------------------------------
+/// @brief Abstract base class for plugin factory.
+///
 class VITAL_VPM_EXPORT plugin_factory
   : public std::enable_shared_from_this< plugin_factory >
   , private kwiver::vital::noncopyable
@@ -66,36 +64,30 @@ public:
   static const std::string ALGORITHM_CATEGORY;
   static const std::string CLUSTER_CATEGORY;
 
-  /**
-   * @brief Get attribute from factory
-   *
-   * @param[in] attr Attribute code
-   * @param[out] val Value of attribute if present
-   *
-   * @return \b true if attribute is found; \b false otherwise.
-   */
+  /// @brief Get attribute from factory
+  ///
+  /// @param[in] attr Attribute code
+  /// @param[out] val Value of attribute if present
+  ///
+  /// @return \b true if attribute is found; \b false otherwise.
   bool get_attribute( std::string const& attr, std::string& val ) const;
 
-  /**
-   * @brief Add attribute to factory
-   *
-   * This method sets the specified attribute
-   *
-   * @param attr Attribute name.
-   * @param val Attribute value.
-   */
+  /// @brief Add attribute to factory
+  ///
+  /// This method sets the specified attribute
+  ///
+  /// @param attr Attribute name.
+  /// @param val Attribute value.
   plugin_factory& add_attribute( std::string const& attr, std::string const& val );
 
-  /**
-   * @brief Returns object of registered type.
-   *
-   * This method returns an object of the template type if
-   * possible. The type of the requested object must match the
-   * interface type for this factory. If not, an exception is thrown.
-   *
-   * @return Object of registered type.
-   * @throws kwiver::vital::plugin_factory_type_creation_error
-   */
+  /// @brief Returns object of registered type.
+  ///
+  /// This method returns an object of the template type if
+  /// possible. The type of the requested object must match the
+  /// interface type for this factory. If not, an exception is thrown.
+  ///
+  /// @return Object of registered type.
+  /// @throws kwiver::vital::plugin_factory_type_creation_error
   template <class T>
   T* create_object()
   {
@@ -123,11 +115,9 @@ public:
   }
 
   //@{
-  /**
-   * @brief Iterate over all attributes
-   *
-   * @param f Factory object
-   */
+  /// @brief Iterate over all attributes
+  ///
+  /// @param f Factory object
   template < class T > void for_each_attr( T& f )
   {
     for( auto val : m_attribute_map )
@@ -159,22 +149,18 @@ private:
   attribute_map_t m_attribute_map;
 };
 
-// ----------------------------------------------------------------
-/**
- * @brief Factory for concrete class objects.
- *
- * @tparam T Type of the concrete class created.
- */
+// ----------------------------------------------------------------------------
+/// @brief Factory for concrete class objects.
+///
+/// @tparam T Type of the concrete class created.
 template< class T >
 class plugin_factory_0
   : public plugin_factory
 {
 public:
-  /**
-   * @brief Create concrete factory object
-   *
-   * @param itype Name of the interface type
-   */
+  /// @brief Create concrete factory object
+  ///
+  /// @param itype Name of the interface type
   plugin_factory_0( std::string const& itype )
     : plugin_factory( itype )
   {
@@ -194,10 +180,10 @@ protected:
 
 } } // end namespace
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 // Support for adding factories
 
 #define ADD_FACTORY( interface_T, conc_T)                               \
   add_factory( new kwiver::vital::plugin_factory_0< conc_T >( typeid( interface_T ).name() ) )
 
-#endif /* KWIVER_VITAL_PLUGIN_FACTORY_H */
+#endif // KWIVER_VITAL_PLUGIN_FACTORY_H

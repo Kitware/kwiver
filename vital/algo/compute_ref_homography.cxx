@@ -6,7 +6,9 @@
 #include <vital/algo/compute_ref_homography.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 compute_ref_homography
@@ -15,6 +17,10 @@ compute_ref_homography
   attach_logger( "algo.compute_ref_homography" );
 }
 
-} } }
+} // namespace algo
 
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::compute_ref_homography);
+} // namespace vital
+
+} // namespace kwiver
+
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::compute_ref_homography );

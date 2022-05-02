@@ -18,61 +18,56 @@
 namespace py = pybind11;
 using namespace kwiver::vital;
 
-void adder(metadata &self, py::object data, vital_metadata_tag t )
-{
+namespace {
+// ----------------------------------------------------------------------------
+struct to_py_visitor{
+  template< class T>
+  py::object
+  operator()( T const& value ) const {
+    return py::cast( value );
+  }
+};
 
-  #define TAG_CASE( TAG, NAME, TYPE, ... ) case VITAL_META_##TAG: \
-  { \
-  auto vital_meta_data_ ## TAG = data.cast< typename vital_meta_trait< VITAL_META_ ## TAG >::type >(); \
-  self.add<VITAL_META_ ## TAG>(vital_meta_data_ ## TAG); \
-  break; \
+// ----------------------------------------------------------------------------
+struct from_py_visitor {
+  template< class T >
+  metadata_value
+  operator()() const {
+    return object.cast< T >();
   }
 
-  switch (t)
-  {
+  py::object const& object;
+};
 
-    KWIVER_VITAL_METADATA_TAGS( TAG_CASE )
-
-  default:
-    // default to unknown tag type
-    {
-      auto vital_meta_data_ = data.cast< typename vital_meta_trait< VITAL_META_UNKNOWN >::type >();
-      self.add<VITAL_META_UNKNOWN>(vital_meta_data_ );
-      break;
-    }
-  } // end switch
-
-#undef TAG_CASE
+// ----------------------------------------------------------------------------
+metadata_value
+from_py( vital_metadata_tag tag, py::object data ) {
+  return visit_metadata_types_return< metadata_value >(
+    from_py_visitor{ data }, tag_traits_by_tag( tag ).type() );
 }
 
-#define REGISTER_TYPED_METADATA( TAG, NAME, T, ... ) \
-  py::class_< typed_metadata< VITAL_META_ ## TAG, T >, \
-              std::shared_ptr< typed_metadata< VITAL_META_ ## TAG, T > >, \
-              metadata_item >( m, "TypedMetadata_" #TAG ) \
-  .def( py::init( [] ( std::string name, T const& data ) \
-  { \
-    return typed_metadata< VITAL_META_ ## TAG, T >( name, any( data ) ); \
-  })) \
-  .def_property_readonly( "data", [] ( typed_metadata< VITAL_META_ ## TAG, T > const& self ) \
-  { \
-    any dat = self.data(); \
-    return any_cast< T >( dat ); \
-  }) \
-  .def( "as_string", [] ( typed_metadata< VITAL_META_ ## TAG, T > const& self ) \
-  { \
-    std::string ret = self.as_string(); \
-\
-    if ( typeid( T ) == typeid( bool ) ) \
-    { \
-      return ( ret == std::string( "1" ) ? std::string( "True" ) : std::string( "False" ) ); \
-    } \
-    return ret; \
-  }) \
-  ;
+// ----------------------------------------------------------------------------
+py::object
+to_py( metadata_value const& data ) {
+  return visit( to_py_visitor{}, data );
+}
 
+// ----------------------------------------------------------------------------
+void adder(metadata &self, py::object data, vital_metadata_tag tag )
+{
+  self.add( tag, from_py( tag, data ) );
+}
+
+} // namespace <anonymous>
+
+// ----------------------------------------------------------------------------
 PYBIND11_MODULE( metadata, m )
 {
-  py::class_< metadata_item, std::shared_ptr< metadata_item > >( m, "MetadataItem" )
+  py::class_< metadata_item,
+              std::shared_ptr< metadata_item > >( m, "MetadataItem" )
+  .def( py::init([]( vital_metadata_tag tag, py::object data ){
+    return new metadata_item{ tag, from_py( tag, data ) };
+  }) )
   .def( "is_valid",    &metadata_item::is_valid )
   .def( "__nonzero__", &metadata_item::is_valid )
   .def( "__bool__",    &metadata_item::is_valid )
@@ -88,14 +83,20 @@ PYBIND11_MODULE( metadata, m )
     }
     return demangle( self.type().name() );
   })
-  // NOTE: data() is put into the derived class.
-  // Otherwise, we'd have to create a separate data() function for each type.
-
+  .def_property_readonly( "data", []( metadata_item const& self ){
+    return to_py( self.data() );
+  } )
   .def( "as_double",  &metadata_item::as_double )
   .def( "has_double", &metadata_item::has_double )
   .def( "as_uint64",  &metadata_item::as_uint64 )
   .def( "has_uint64", &metadata_item::has_uint64 )
-  .def( "as_string",  &metadata_item::as_string )
+  .def( "as_string",  []( metadata_item const& self ) -> string_t {
+    if( self.type() == typeid( bool ) )
+    {
+      return self.get< bool >() ? "True" : "False";
+    }
+    return self.as_string();
+   } )
   .def( "has_string", &metadata_item::has_string )
 
   // No print_value() since it is almost the same as as_string,
@@ -104,28 +105,6 @@ PYBIND11_MODULE( metadata, m )
   // so we'll just bind as_string.
   ;
 
-  // Now bind all of metadata_item subclasses
-  // First the "unknown" type
-  py::class_< unknown_metadata_item,
-              std::shared_ptr< unknown_metadata_item >,
-              metadata_item >( m, "UnknownMetadataItem" )
-  .def( py::init<>() )
-  .def( "is_valid",    &unknown_metadata_item::is_valid )
-  .def( "__nonzero__", &unknown_metadata_item::is_valid )
-  .def( "__bool__",    &unknown_metadata_item::is_valid )
-  .def_property_readonly( "tag",  &unknown_metadata_item::tag )
-  .def_property_readonly( "data", [] ( unknown_metadata_item const& self )
-  {
-    any dat = self.data();
-    return any_cast< int >( dat ); //data is int 0
-  })
-  .def( "as_string",  &unknown_metadata_item::as_string )
-  .def( "as_double",  &unknown_metadata_item::as_double )
-  .def( "as_uint64",  &unknown_metadata_item::as_uint64 )
-  ;
-
-  // Now the typed subclasses (around 100 of them)
-  KWIVER_VITAL_METADATA_TAGS( REGISTER_TYPED_METADATA )
   // Now bind the actual metadata class
   py::class_< metadata, std::shared_ptr< metadata > >( m, "Metadata" )
   .def( py::init<>() )

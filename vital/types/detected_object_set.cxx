@@ -11,7 +11,7 @@
 namespace kwiver {
 namespace vital {
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 namespace {
 
 struct descending_confidence
@@ -42,19 +42,19 @@ struct more_first
 
 } // end namespace
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 detected_object_set::
 detected_object_set()
 { }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 detected_object_set::
 detected_object_set( std::vector< detected_object_sptr > const& objs )
   : m_detected_objects( objs )
 {
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 detected_object_set_sptr
 detected_object_set::
 clone() const
@@ -77,7 +77,7 @@ clone() const
   return new_obj;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set::
 add( detected_object_sptr object )
@@ -90,7 +90,7 @@ add( detected_object_sptr object )
   m_detected_objects.push_back( object );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set::
 add( detected_object_set_sptr detections )
@@ -101,7 +101,7 @@ add( detected_object_set_sptr detections )
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 size_t
 detected_object_set::
 size() const
@@ -109,7 +109,7 @@ size() const
   return m_detected_objects.size();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 detected_object_set::
 empty() const
@@ -117,7 +117,7 @@ empty() const
   return m_detected_objects.empty();
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 detected_object_set_sptr
 detected_object_set::
 select( double threshold ) const
@@ -139,7 +139,7 @@ select( double threshold ) const
   return std::make_shared< detected_object_set > (vect);
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 detected_object_set_sptr
 detected_object_set::
 select( const std::string& class_name, double threshold )const
@@ -193,7 +193,7 @@ select( const std::string& class_name, double threshold )const
   return std::make_shared< detected_object_set > (vect);
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set::
 scale( double scale_factor )
@@ -211,7 +211,7 @@ scale( double scale_factor )
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set::
 shift( double col_shift, double row_shift )
@@ -230,7 +230,7 @@ shift( double col_shift, double row_shift )
   }
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 kwiver::vital::attribute_set_sptr
 detected_object_set::
 attributes() const
@@ -238,7 +238,7 @@ attributes() const
   return m_attrs;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 detected_object_set::
 set_attributes( attribute_set_sptr attrs )

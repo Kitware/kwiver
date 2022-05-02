@@ -128,7 +128,7 @@ private:
   unsigned frame_count_;
 };
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // A windowed frame averager
 template < typename PixType >
 class windowed_frame_averager : public online_frame_averager< PixType >

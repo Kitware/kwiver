@@ -14,37 +14,29 @@
 namespace kwiver {
 namespace vital {
 
-/**
- * @brief Generates formatted versions of a config block.
- *
- * This class encapsulates several different formatting options for
- * a config block.
- */
+/// @brief Generates formatted versions of a config block.
+///
+/// This class encapsulates several different formatting options for
+/// a config block.
 class VITAL_CONFIG_EXPORT config_block_formatter
 {
 public:
   config_block_formatter( const config_block_sptr config );
   ~config_block_formatter() = default;
 
-  /**
-   * @brief Format config block in simple text format.
-   *
-   * @param str Stream to format on.
-   */
+  /// @brief Format config block in simple text format.
+  ///
+  /// @param str Stream to format on.
   void print( std::ostream& str );
 
-  /**
-   * @brief Set line prefix for printing.
-   *
-   * @param pfx The prefix string.
-   */
+  /// @brief Set line prefix for printing.
+  ///
+  /// @param pfx The prefix string.
   void set_prefix( const std::string& pfx );
 
-  /**
-   * @brief Set option to generate source location.
-   *
-   * @param opt TRUE will generate the source location, FALSE will not.
-   */
+  /// @brief Set option to generate source location.
+  ///
+  /// @param opt TRUE will generate the source location, FALSE will not.
   void generate_source_loc( bool opt );
 
 private:
@@ -59,4 +51,4 @@ private:
 
 } } // end namespace
 
-#endif /* KWIVER_CONFIG_FORMATTER_H */
+#endif // KWIVER_CONFIG_FORMATTER_H

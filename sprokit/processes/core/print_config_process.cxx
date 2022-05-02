@@ -90,7 +90,7 @@ _step()
   }
 
   // The grab call is blocking, so it will wait until data is there.
-  for( auto const p : d->m_active_ports )
+  for( auto const& p : d->m_active_ports )
   {
     auto dtm = this->grab_datum_from_port( p );
   } // end foreach

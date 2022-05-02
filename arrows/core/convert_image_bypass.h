@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Header defining the convert_image algorithm that acts as a bypass
- */
+/// \file
+/// \brief Header defining the convert_image algorithm that acts as a bypass
 
 #ifndef KWIVER_ARROWS_CORE_CONVERT_IMAGE_BYPASS_H_
 #define KWIVER_ARROWS_CORE_CONVERT_IMAGE_BYPASS_H_
@@ -30,10 +28,9 @@ public:
   convert_image_bypass();
 
   /// Default image converter ( does nothing )
-  /**
-   * \param [in] img image to be converted
-   * \returns the input image
-   */
+  ///
+  /// \param [in] img image to be converted
+  /// \returns the input image
   virtual vital::image_container_sptr convert(vital::image_container_sptr img) const;
 };
 

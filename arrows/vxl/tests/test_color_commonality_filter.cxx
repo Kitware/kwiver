@@ -15,12 +15,12 @@ namespace kv = kwiver::vital;
 namespace ka = kwiver::arrows;
 
 kv::path_t g_data_dir;
-static std::string test_image_name = "images/small_grey_logo.png";
-static std::string test_color_image_name = "images/small_color_logo.png";
+static std::string test_image_name = "images/kitware_logos/small_grey_logo.png";
+static std::string test_color_image_name = "images/kitware_logos/small_color_logo.png";
 static std::string expected_commonality_default_color =
-  "images/commonality_filter_default_color.png";
+  "images/kitware_logos/commonality_filter_default_color.png";
 static std::string expected_commonality_default_gray =
-  "images/commonality_filter_default_gray.png";
+  "images/kitware_logos/commonality_filter_default_gray.png";
 
 // ----------------------------------------------------------------------------
 int

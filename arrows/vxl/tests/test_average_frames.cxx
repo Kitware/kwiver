@@ -20,30 +20,30 @@ namespace kv = kwiver::vital;
 namespace ka = kwiver::arrows;
 
 kv::path_t g_data_dir;
-static std::string test_red_image_name = "images/small_red_logo.png";
-static std::string test_green_image_name = "images/small_green_logo.png";
-static std::string test_blue_image_name = "images/small_blue_logo.png";
+static std::string test_red_image_name = "images/kitware_logos/small_red_logo.png";
+static std::string test_green_image_name = "images/kitware_logos/small_green_logo.png";
+static std::string test_blue_image_name = "images/kitware_logos/small_blue_logo.png";
 
 static std::string window_first_expected_name =
-  "images/window_expected_first_average.png";
+  "images/kitware_logos/window_expected_first_average.png";
 static std::string window_second_expected_name =
-  "images/window_expected_second_average.png";
+  "images/kitware_logos/window_expected_second_average.png";
 static std::string window_third_expected_name =
-  "images/window_expected_third_average.png";
+  "images/kitware_logos/window_expected_third_average.png";
 
 static std::string cumulative_first_expected_name =
-  "images/cumulative_expected_first_average.png";
+  "images/kitware_logos/cumulative_expected_first_average.png";
 static std::string cumulative_second_expected_name =
-  "images/cumulative_expected_second_average.png";
+  "images/kitware_logos/cumulative_expected_second_average.png";
 static std::string cumulative_third_expected_name =
-  "images/cumulative_expected_third_average.png";
+  "images/kitware_logos/cumulative_expected_third_average.png";
 
 static std::string exponential_first_expected_name =
-  "images/exponential_expected_first_average.png";
+  "images/kitware_logos/exponential_expected_first_average.png";
 static std::string exponential_second_expected_name =
-  "images/exponential_expected_second_average.png";
+  "images/kitware_logos/exponential_expected_second_average.png";
 static std::string exponential_third_expected_name =
-  "images/exponential_expected_third_average.png";
+  "images/kitware_logos/exponential_expected_third_average.png";
 
 // ----------------------------------------------------------------------------
 int

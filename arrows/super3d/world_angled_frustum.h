@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
- /**
- * \file
- * \brief Header file for world_angled_frustum, world space with an angled frustum that
- *        aligned with a normal (often the ground plane's)
- */
+ /// \file
+ /// \brief Header file for world_angled_frustum, world space with an angled frustum that
+ ///       aligned with a normal (often the ground plane's)
 #ifndef KWIVER_ARROWS_SUPER3D_WORLD_ANGLED_FRUSTUM_H_
 #define KWIVER_ARROWS_SUPER3D_WORLD_ANGLED_FRUSTUM_H_
 

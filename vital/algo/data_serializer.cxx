@@ -2,13 +2,11 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief data_serializer algorithm definition instantiation
- */
+/// \file
+/// \brief data_serializer algorithm definition instantiation
 
-#include <vital/algo/data_serializer.h>
 #include <vital/algo/algorithm.txx>
+#include <vital/algo/data_serializer.h>
 #include <vital/util/string.h>
 
 #include <sstream>
@@ -16,7 +14,9 @@
 #include <vector>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 // ----------------------------------------------------------------------------
@@ -26,8 +26,12 @@ data_serializer
   attach_logger( "data_serializer" );
 }
 
-} } }
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver
 
 /// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::data_serializer);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::data_serializer );
 /// \endcond

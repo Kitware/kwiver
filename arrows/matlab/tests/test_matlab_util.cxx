@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief test detected_object class
- */
+/// \file
+/// \brief test detected_object class
 
 #include <test_common.h>
 
@@ -22,6 +20,9 @@
 
 DECLARE_TEST_MAP();
 
+static std::string image_name = "images/kitware_logos/basic.jpg";
+
+// ------------------------------------------------------------------
 int
 main(int argc, char** argv)
 {
@@ -33,10 +34,10 @@ main(int argc, char** argv)
   RUN_TEST(testname, data_dir);
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 IMPLEMENT_TEST(image_conversion)
 {
-  kwiver::vital::path_t test_read_file = data_dir + "/test_kitware_logo.jpg";
+  kwiver::vital::path_t test_read_file = data_dir + "/" + image_name;
 
   cv::Mat ocv_image;
   ocv_image = cv::imread(test_read_file, CV_LOAD_IMAGE_COLOR);   // Read the file

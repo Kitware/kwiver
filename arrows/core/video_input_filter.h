@@ -14,12 +14,10 @@ namespace arrows {
 namespace core {
 
 /// A video reader that filters the frames and metadata
-// ----------------------------------------------------------------
-/**
- * This class implements a video input that down selects frames
- * ready by another video reader.  It may down sample the framerate,
- * remove frames before or after indicated frames, etc.
- */
+// ----------------------------------------------------------------------------
+/// This class implements a video input that down selects frames
+/// ready by another video reader.  It may down sample the framerate,
+/// remove frames before or after indicated frames, etc.
 class KWIVER_ALGO_CORE_EXPORT video_input_filter
   : public  vital::algo::video_input
 {
@@ -60,6 +58,8 @@ public:
   virtual kwiver::vital::image_container_sptr frame_image();
   virtual kwiver::vital::metadata_vector frame_metadata();
   virtual kwiver::vital::metadata_map_sptr metadata_map();
+
+  kwiver::vital::video_settings_uptr implementation_settings() const override;
 
 private:
   /// private implementation class

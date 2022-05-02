@@ -2,11 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation and template instantiation for
- * \link kwiver::vital::landmark landmark \endlink objects
- */
+/// \file
+/// \brief Implementation and template instantiation for
+/// \link kwiver::vital::landmark landmark \endlink objects
 
 #include "landmark.h"
 #include <vital/io/eigen_io.h>
@@ -23,7 +21,7 @@ operator<<( std::ostream& s, landmark const& m )
     << m.scale() << " "
     << m.normal() << " "
     << m.color() << " "
-    << m.observations() << ""
+    << m.observations() << " "
     << m.cos_obs_angle();
   return s;
 }

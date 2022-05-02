@@ -1,5 +1,6 @@
 set(config_files
   detect_burnin.pipe
+  inpaint_burnin.pipe
   )
 
 # Ensure target directory exists

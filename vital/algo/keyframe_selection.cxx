@@ -7,17 +7,23 @@
 #include "keyframe_selection.h"
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
-      keyframe_selection
-        ::keyframe_selection()
-      {
-        attach_logger("algo.keyframe_selection");
-      }
+keyframe_selection
+::keyframe_selection()
+{
+  attach_logger( "algo.keyframe_selection" );
+}
 
-}}} // end namespace
+} // namespace algo
 
-  /// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::keyframe_selection);
+} // namespace vital
+
+} // namespace kwiver
+
+/// \cond DoxygenSuppress
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::keyframe_selection );
 /// \endcond

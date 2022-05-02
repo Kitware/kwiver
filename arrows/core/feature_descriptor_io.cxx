@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Core feature_descriptor_io implementation
- */
+/// \file
+/// \brief Core feature_descriptor_io implementation
 
 #include "feature_descriptor_io.h"
 
@@ -95,7 +93,7 @@ template <typename Archive, typename T>
 void
 save_features(Archive & ar, std::vector<feature_sptr> const& features)
 {
-  for( const feature_sptr f : features )
+  for( auto const& f : features )
   {
     if( !f )
     {

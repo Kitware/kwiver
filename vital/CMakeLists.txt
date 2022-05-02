@@ -143,6 +143,7 @@ set( vital_public_headers
   types/metadata_map.h
   types/metadata_tags.h
   types/metadata_traits.h
+  types/metadata_types.h
   types/object_track_set.h
   types/point.h
   types/polygon.h
@@ -161,6 +162,7 @@ set( vital_public_headers
   types/transform_2d.h
   types/uid.h
   types/vector.h
+  types/video_settings.h
 )
 
 # ----------------------
@@ -214,6 +216,7 @@ set( vital_sources
   types/mesh.cxx
   types/metadata.cxx
   types/metadata_traits.cxx
+  types/metadata_types.cxx
   types/object_track_set.cxx
   types/point.cxx
   types/polygon.cxx
@@ -225,6 +228,7 @@ set( vital_sources
   types/track.cxx
   types/track_descriptor.cxx
   types/track_set.cxx
+  types/video_settings.cxx
   types/uid.cxx
 )
 
@@ -285,7 +289,6 @@ add_subdirectory( util )
 add_subdirectory( range )
 add_subdirectory( bindings )
 add_subdirectory( config )
-add_subdirectory( klv )
 add_subdirectory( logger )
 add_subdirectory( plugin_loader )
 

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of load/save wrapping functionality.
- */
+/// \file
+/// \brief Implementation of load/save wrapping functionality.
 
 #include "write_track_descriptor_set.h"
 
@@ -18,17 +16,19 @@
 #include <kwiversys/SystemTools.hxx>
 
 /// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF(kwiver::vital::algo::write_track_descriptor_set);
+INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::write_track_descriptor_set );
 /// \endcond
 
 namespace kwiver {
+
 namespace vital {
+
 namespace algo {
 
 write_track_descriptor_set
 ::write_track_descriptor_set()
-  : m_stream( 0 )
-  , m_stream_owned( false )
+  : m_stream( 0 ),
+    m_stream_owned( false )
 {
   attach_logger( "algo.write_track_descriptor_set" );
 }
@@ -38,7 +38,7 @@ write_track_descriptor_set
 {
 }
 
-// ------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 write_track_descriptor_set
 ::open( std::string const& filename )
@@ -46,7 +46,7 @@ write_track_descriptor_set
   // try to open the file
   std::unique_ptr< std::ostream > file( new std::ofstream( filename ) );
 
-  if( ! *file )
+  if( !*file )
   {
     VITAL_THROW( file_not_found_exception, filename, "open failed" );
   }
@@ -56,7 +56,7 @@ write_track_descriptor_set
   m_filename = filename;
 }
 
-// ------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 write_track_descriptor_set
 ::use_stream( std::ostream* strm )
@@ -65,7 +65,7 @@ write_track_descriptor_set
   m_stream_owned = false;
 }
 
-// ------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 write_track_descriptor_set
 ::close()
@@ -78,7 +78,7 @@ write_track_descriptor_set
   m_stream = 0;
 }
 
-// ------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::ostream&
 write_track_descriptor_set
 ::stream()
@@ -86,7 +86,7 @@ write_track_descriptor_set
   return *m_stream;
 }
 
-// ------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string const&
 write_track_descriptor_set
 ::filename()
@@ -94,4 +94,8 @@ write_track_descriptor_set
   return m_filename;
 }
 
-} } } // end namespace
+} // namespace algo
+
+} // namespace vital
+
+} // namespace kwiver

@@ -18,7 +18,7 @@ namespace kwiver {
 namespace arrows {
 namespace burnout {
 
-// ==================================================================================
+// ----------------------------------------------------------------------------
 class burnout_track_descriptors::priv
 {
 public:
@@ -37,7 +37,7 @@ public:
   vital::logger_handle_t m_logger;
 };
 
-// ==================================================================================
+// ----------------------------------------------------------------------------
 burnout_track_descriptors
 ::burnout_track_descriptors()
   : d( new priv() )
@@ -49,7 +49,7 @@ burnout_track_descriptors
 ::~burnout_track_descriptors()
 {}
 
-// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::config_block_sptr
 burnout_track_descriptors
 ::get_configuration() const
@@ -62,7 +62,7 @@ burnout_track_descriptors
   return config;
 }
 
-// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 burnout_track_descriptors
 ::set_configuration( vital::config_block_sptr config_in )
@@ -93,7 +93,7 @@ burnout_track_descriptors
 #endif
 }
 
-// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 burnout_track_descriptors
 ::check_configuration( vital::config_block_sptr config ) const
@@ -108,7 +108,7 @@ burnout_track_descriptors
   return true;
 }
 
-// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vidtk::timestamp
 vital_to_vidtk( vital::timestamp ts )
 {
@@ -158,7 +158,7 @@ vidtk_to_vital( vidtk::timestamp ts )
   return vital::timestamp( ts.time(), ts.frame_number() );
 }
 
-// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vital::track_descriptor_set_sptr
 burnout_track_descriptors
 ::compute( vital::timestamp ts,

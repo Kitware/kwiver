@@ -2,40 +2,179 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief PROJ geo_conversion functor implementation
- */
+/// \file
+/// \brief PROJ geo_conversion functor implementation
 
 #include "geo_conv.h"
 
-#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
-#include <proj_api.h>
+#include <proj.h>
 
+#include <memory>
 #include <string>
 
 namespace kwiver {
+
 namespace arrows {
+
 namespace proj {
 
 namespace {
 
-// ----------------------------------------------------------------------------
-std::unordered_map< std::string, std::string >
-extract_props( std::string text )
-{
-  std::unordered_map< std::string, std::string > props;
+using props_t = std::unordered_map< std::string, std::string >;
+using proj_key_t = std::pair< int, int >;
 
-  while ( text.size() )
+// ----------------------------------------------------------------------------
+struct proj_cleanup
+{
+  void
+  operator()( PJ_CONTEXT* context ) const
+  {
+    proj_context_destroy( context );
+  }
+
+  void
+  operator()( PJ* p ) const
+  {
+    proj_destroy( p );
+  }
+};
+
+// ----------------------------------------------------------------------------
+using pj_context_uptr_t = std::unique_ptr< PJ_CONTEXT, proj_cleanup >;
+using pj_uptr_t = std::unique_ptr< PJ, proj_cleanup >;
+
+// ----------------------------------------------------------------------------
+struct proj_hash_t
+{
+#if __cplusplus >= 20140000
+  constexpr
+#endif
+  size_t
+  operator()( proj_key_t const& key ) const
+  {
+    constexpr auto hash = std::hash< int64_t >{};
+
+    return hash( static_cast< int64_t >( key.first ) << 32 | key.second );
+  }
+};
+
+// ----------------------------------------------------------------------------
+struct proj_storage
+{
+  using proj_map_t = std::unordered_map< proj_key_t, pj_uptr_t, proj_hash_t >;
+
+  pj_context_uptr_t context;
+  proj_map_t projections;
+};
+
+// ----------------------------------------------------------------------------
+proj_storage*
+storage()
+{
+  static thread_local proj_storage the_storage;
+
+  if( !the_storage.context )
+  {
+    the_storage.context.reset( proj_context_create() );
+    proj_context_use_proj4_init_rules( the_storage.context.get(), 1 );
+  }
+
+  return &the_storage;
+}
+
+// ----------------------------------------------------------------------------
+PJ_CONTEXT*
+context()
+{
+  return storage()->context.get();
+}
+
+// ----------------------------------------------------------------------------
+std::string epsg_to_init( int crs )
+{
+  return "EPSG:" + std::to_string( crs );
+}
+
+// ----------------------------------------------------------------------------
+pj_uptr_t
+projection( int crs )
+{
+  auto const p = proj_create( context(), epsg_to_init( crs ).c_str() );
+
+  if( !p )
+  {
+    auto const msg =
+      "Failed to construct PROJ projection for EPSG:" + std::to_string( crs );
+    throw std::runtime_error( msg );
+  }
+
+  return pj_uptr_t{ p };
+}
+
+// ----------------------------------------------------------------------------
+PJ*
+projection( int crs_from, int crs_to )
+{
+  auto& projections = storage()->projections;
+
+  auto const key = std::make_pair( crs_from, crs_to );
+  auto const i = projections.find( key );
+
+  if( i == projections.end() )
+  {
+    auto const arg_from = epsg_to_init( crs_from );
+    auto const arg_to = epsg_to_init( crs_to );
+    auto const p = proj_create_crs_to_crs( context(), arg_from.c_str(),
+                                           arg_to.c_str(), nullptr );
+
+    if( !p )
+    {
+      auto const msg =
+        "Failed to construct PROJ projection"
+        " from EPSG:" + std::to_string( crs_from );
+        " to EPSG:" + std::to_string( crs_to );
+      throw std::runtime_error( msg );
+    }
+
+    // PROJ 6 sometimes swaps the coordinates from the conventional easting,
+    // northing order; this extra step ensures that the coordinate order is
+    // consistent
+    auto const np = proj_normalize_for_visualization( context(), p );
+    proj_destroy( p );
+
+    if( !np )
+    {
+      auto const msg =
+        "Failed to construct normalized PROJ projection"
+        " from EPSG:" + std::to_string( crs_from );
+        " to EPSG:" + std::to_string( crs_to );
+      throw std::runtime_error( msg );
+    }
+
+    projections[ key ] = pj_uptr_t{ np };
+    return np;
+  }
+
+  return i->second.get();
+}
+
+// ----------------------------------------------------------------------------
+void
+extract_props( props_t& props, PJ* proj )
+{
+  auto text =
+    std::string{ proj_as_proj_string( context(), proj, PJ_PROJ_5, nullptr ) };
+
+  while( text.size() )
   {
     auto const i = text.find( ' ' );
     auto tok = text.substr( 0, i );
     text = ( i == std::string::npos ? std::string{} : text.substr( i + 1 ) );
 
-    if ( tok.size() && tok[0] == '+' )
+    if( tok.size() && tok[ 0 ] == '+' )
     {
       auto const j = tok.find( '=' );
-      if ( j == std::string::npos )
+      if( j == std::string::npos )
       {
         props.emplace( tok.substr( 1 ), std::string{} );
       }
@@ -45,31 +184,21 @@ extract_props( std::string text )
       }
     }
   }
-
-  return props;
 }
 
-}
+} // namespace <anonymous>
 
 // ----------------------------------------------------------------------------
+char const*
 geo_conversion
-::~geo_conversion()
-{
-  for ( auto i : m_projections )
-  {
-    pj_free( i.second );
-  }
-}
-
-// ----------------------------------------------------------------------------
-char const* geo_conversion
 ::id() const
 {
   return "proj";
 }
 
 // ----------------------------------------------------------------------------
-vital::geo_crs_description_t geo_conversion
+vital::geo_crs_description_t
+geo_conversion
 ::describe( int crs )
 {
   static const auto prop_map =
@@ -82,27 +211,29 @@ vital::geo_crs_description_t geo_conversion
 
   // Get CRS init string
   auto const proj = projection( crs );
-  auto const text = std::string{ pj_get_def( proj, 0 ) };
 
   // Parse init string into property key/value pairs
-  auto const props = extract_props( text );
+  auto props = props_t{};
+  extract_props( props, proj.get() );
+  extract_props( props, proj_get_ellipsoid( context(), proj.get() ) );
 
   // Convert to human-readable result
   vital::geo_crs_description_t result;
-  for ( auto const iter : props )
+  for( auto const& item : props )
   {
-    if ( iter.first == "zone" )
+    if( item.first == "zone" )
     {
-      result.emplace( "zone", iter.second );
+      result.emplace( "zone", item.second );
       result.emplace( "hemisphere",
                       props.count( "south" ) ? "south" : "north" );
     }
     else
     {
-      auto const prop_map_iter = prop_map.find( iter.first );
-      if ( prop_map_iter != prop_map.end() )
+      auto const prop_map_iter = prop_map.find( item.first );
+
+      if( prop_map_iter != prop_map.end() )
       {
-        result.emplace( prop_map_iter->second, iter.second );
+        result.emplace( prop_map_iter->second, item.second );
       }
     }
   }
@@ -111,97 +242,73 @@ vital::geo_crs_description_t geo_conversion
 }
 
 // ----------------------------------------------------------------------------
-vital::vector_2d geo_conversion
+vital::vector_2d
+geo_conversion
 ::operator()( vital::vector_2d const& point, int from, int to )
 {
-  auto const proj_from = projection( from );
-  auto const proj_to = projection( to );
+  auto const proj = projection( from, to );
 
-  auto x = point[0];
-  auto y = point[1];
-  auto z = 0.0;
+  auto c = PJ_COORD{ { point[ 0 ], point[ 1 ], 0.0, 0.0 } };
 
-  if ( pj_is_latlong( proj_from ) )
+  if( proj_angular_input( proj, PJ_FWD ) )
   {
-    x *= DEG_TO_RAD;
-    y *= DEG_TO_RAD;
+    c.v[ 0 ] = proj_torad( c.v[ 0 ] );
+    c.v[ 1 ] = proj_torad( c.v[ 1 ] );
   }
 
-  int err = pj_transform( proj_from, proj_to, 1, 1, &x, &y, &z );
-  if ( err )
+  c = proj_trans( proj, PJ_FWD, c );
+  if( auto const err = proj_errno( proj ) )
   {
     auto const msg =
-      std::string{ "PROJ conversion failed: error " } + std::to_string( err );
+      "PROJ conversion failed: error " + std::to_string( err ) +
+      ": " + proj_errno_string( err );
     throw std::runtime_error( msg );
   }
 
-  if ( pj_is_latlong( proj_to ) )
+  if( proj_angular_output( proj, PJ_FWD ) )
   {
-    x *= RAD_TO_DEG;
-    y *= RAD_TO_DEG;
+    c.v[ 0 ] = proj_todeg( c.v[ 0 ] );
+    c.v[ 1 ] = proj_todeg( c.v[ 1 ] );
   }
 
-  return { x, y };
+  return { c.v[ 0 ], c.v[ 1 ] };
 }
 
 // ----------------------------------------------------------------------------
-vital::vector_3d geo_conversion
+vital::vector_3d
+geo_conversion
 ::operator()( vital::vector_3d const& point, int from, int to )
 {
-  auto const proj_from = projection( from );
-  auto const proj_to = projection( to );
+  auto const proj = projection( from, to );
 
-  auto x = point[0];
-  auto y = point[1];
-  auto z = point[2];
+  auto c = PJ_COORD{ { point[ 0 ], point[ 1 ], point[ 2 ], 0.0 } };
 
-  if ( pj_is_latlong( proj_from ) )
+  if( proj_angular_input( proj, PJ_FWD ) )
   {
-    x *= DEG_TO_RAD;
-    y *= DEG_TO_RAD;
+    c.v[ 0 ] = proj_torad( c.v[ 0 ] );
+    c.v[ 1 ] = proj_torad( c.v[ 1 ] );
   }
 
-  int err = pj_transform( proj_from, proj_to, 1, 1, &x, &y, &z );
-  if ( err )
+  c = proj_trans( proj, PJ_FWD, c );
+  if( auto const err = proj_errno( proj ) )
   {
     auto const msg =
-      std::string{ "PROJ conversion failed: error " } + std::to_string( err );
+      "PROJ conversion failed: error " + std::to_string( err ) +
+      ": " + proj_errno_string( err );
     throw std::runtime_error( msg );
   }
 
-  if ( pj_is_latlong( proj_to ) )
+  if( proj_angular_output( proj, PJ_FWD ) )
   {
-    x *= RAD_TO_DEG;
-    y *= RAD_TO_DEG;
+    c.v[ 0 ] = proj_todeg( c.v[ 0 ] );
+    c.v[ 1 ] = proj_todeg( c.v[ 1 ] );
   }
 
-  return { x, y, z };
+  return { c.v[ 0 ], c.v[ 1 ], c.v[ 2 ] };
 }
 
-// ----------------------------------------------------------------------------
-void* geo_conversion
-::projection( int crs )
-{
-  auto const i = m_projections.find( crs );
+} // namespace proj
 
-  if ( i == m_projections.end() )
-  {
-    auto const crs_str = std::to_string( crs );
-    auto const arg = std::string{ "+init=epsg:" } + crs_str;
-    auto const p = pj_init_plus( arg.c_str() );
+} // namespace arrows
 
-    if ( ! p )
-    {
-      auto const msg =
-        "Failed to construct PROJ projection for EPSG:" + crs_str;
-      throw std::runtime_error( msg );
-    }
-
-    m_projections.emplace( crs, p );
-    return p;
-  }
-
-  return i->second;
-}
-
-} } } // end namespace
+} // namespace kwiver
