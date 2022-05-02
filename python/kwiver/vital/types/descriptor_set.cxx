@@ -3,6 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include <pybind11/pybind11.h>
+#include <pybind11/cast.h>
 #include <pybind11/stl.h>
 
 #include <vital/types/descriptor_set.h>
@@ -29,7 +30,7 @@ new_desc_set1(py::list py_list)
   std::vector<std::shared_ptr<kwiver::vital::descriptor>> desc_list;
   for(auto py_desc : py_list)
   {
-    desc_list.push_back(py::cast<std::shared_ptr<kwiver::vital::descriptor>>(py_desc));
+    desc_list.push_back(py_desc.cast<std::shared_ptr<kwiver::vital::descriptor>>());
   }
   return std::make_shared<s_desc_set>(desc_list);
 }

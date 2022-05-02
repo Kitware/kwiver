@@ -7,6 +7,7 @@
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/cast.h>
 
 namespace py=pybind11;
 namespace kv=kwiver::vital;
@@ -23,7 +24,7 @@ track_find_state(kv::track &self, int64_t frame_id)
   {
     throw py::index_error();
   }
-  return py::cast<std::shared_ptr<kv::track_state>>(*frame_itr);
+  return py::cast(*frame_itr);
 }
 }
 }
