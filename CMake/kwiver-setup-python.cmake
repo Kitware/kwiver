@@ -258,7 +258,7 @@ if (KWIVER_ENABLE_TESTS)
 endif()
 
 string(REPLACE ";" "\n" PYTHON_REQS "${PYTHON_REQS}")
-file(WRITE ${KWIVER_BINARY_DIR}/python/requirements.txt "${PYTHON_REQS}")
+#file(WRITE ${KWIVER_BINARY_DIR}/python/requirements.txt "${PYTHON_REQS}")
 ###
 # Python package build locations
 #
