@@ -79,8 +79,9 @@ public:
   /// This method writes the specified detected object to file.
   ///
   /// \param set Detected object set
-  virtual void write_set( const kwiver::vital::track_descriptor_set_sptr set )
-  = 0;
+  /// \param source_id String source ID
+  virtual void write_set( const kwiver::vital::track_descriptor_set_sptr set,
+                          const std::string& source_id ) = 0;
 
 protected:
   write_track_descriptor_set();
