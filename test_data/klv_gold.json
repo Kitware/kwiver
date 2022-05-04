@@ -5,7 +5,7 @@
 		"key": {
 			"bytes": "Bg4rNAIDAQEOAQMDAgAAAA==",
 			"hex": "060e2b34 02030101 0e010303 02000000",
-			"string": "MISB ST 0102 Local Set"
+			"string": "MISB ST0102 Local Set"
 		},
 		"value": [
 			{
@@ -36,7 +36,7 @@
 		"key": {
 			"bytes": "Bg4rNAIBAQEOAQECAQEAAA==",
 			"hex": "060e2b34 02010101 0e010102 01010000",
-			"string": "MISB ST 0104 Universal Set"
+			"string": "MISB ST0104 Universal Set"
 		},
 		"value": [
 			{
@@ -74,7 +74,7 @@
 		"key": {
 			"bytes": "Bg4rNAILAQEOAQMBAQAAAA==",
 			"hex": "060e2b34 020b0101 0e010301 01000000",
-			"string": "MISB ST 0601 Local Set"
+			"string": "MISB ST0601 Local Set"
 		},
 		"value": [
 			{
@@ -752,7 +752,7 @@
 		"key": {
 			"bytes": "Bg4rNAIDAQEOAQMDHAAAAA==",
 			"hex": "060e2b34 02030101 0e010303 1c000000",
-			"string": "MISB ST 1108 Local Set"
+			"string": "MISB ST1108 Local Set"
 		},
 		"value": [
 			{
