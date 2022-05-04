@@ -71,7 +71,7 @@ TEST_F(mesh_io, read_write_ply2)
   write_ply2( path, *original );
   mesh_sptr copy = read_ply2( path );
 
-  EXPECT_EQ( *original, *copy );
+  EXPECT_TRUE( original->approx_equal( *copy ) );
 
   kwiversys::SystemTools::RemoveADirectory( "temp" );
 }
@@ -83,7 +83,7 @@ TEST_F(mesh_io, read_ply)
     data_dir + "/cube_mesh.ply");
   mesh_sptr cube_mesh = kwiver::testing::cube_mesh( 1.0 );
 
-  EXPECT_EQ( *cube_mesh, *ply_mesh );
+  EXPECT_TRUE( cube_mesh->approx_equal( *ply_mesh ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -95,7 +95,7 @@ TEST_F(mesh_io, read_write_obj)
   write_obj( path, *original );
   mesh_sptr copy = read_obj( path );
 
-  EXPECT_EQ( *original, *copy );
+  EXPECT_TRUE( original->approx_equal( *copy ) );
 
   kwiversys::SystemTools::RemoveADirectory( "temp" );
 }
