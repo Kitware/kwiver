@@ -17,7 +17,6 @@
 
 #include <vital/range/iota.h>
 #include <vital/types/geodesy.h>
-#include <vital/types/metadata_types.h>
 
 #include <iomanip>
 
@@ -157,7 +156,7 @@ klv_0104_parse_datetime_to_unix(
     {
       auto const value = datetime.get< std::string >();
       vital_data.add(
-        vital_tag, kv::std_0104_datetime_to_unix_timestamp( value ) );
+        vital_tag, klv_0104_datetime_to_unix_timestamp( value ) );
     }
     catch( kv::metadata_exception const& e )
     {

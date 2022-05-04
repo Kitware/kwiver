@@ -309,3 +309,42 @@ TEST ( klv, read_write_0104_packet )
   EXPECT_EQ( written_bytes.end(), write_it );
   EXPECT_EQ( packet_bytes, written_bytes );
 }
+
+// ----------------------------------------------------------------------------
+TEST( klv, convert_0104_timestamp )
+{
+  auto fn = klv_0104_datetime_to_unix_timestamp;
+
+  // Wrongly formatted dates
+  // YY, not YYYY
+  EXPECT_THROW( fn( "030201T070809" );,   kv::metadata_exception );
+  // Non-numeric
+  EXPECT_THROW( fn( "20030201T07081A" );, kv::metadata_exception );
+  // Non-numeric but tricky
+  EXPECT_THROW( fn( "20030201T07081 " );, kv::metadata_exception );
+
+  // Invalid dates
+  // Out-of-range year
+  EXPECT_THROW( fn( "19690101T070809" );, kv::metadata_exception );
+  // Out-of-range month
+  EXPECT_THROW( fn( "20031301T070809" );, kv::metadata_exception );
+  // Feb. 29 on not-a-leap-year
+  EXPECT_THROW( fn( "20030229T070809" );, kv::metadata_exception );
+
+  // Valid dates (validated by epochconverter.com)
+  // Epoch
+  EXPECT_EQ( 0ull,                 fn( "19700101T000000" ) );
+  EXPECT_EQ( 0ull,                 fn( "19700101000000" ) );
+  // Random date
+  EXPECT_EQ( 1044083289000000ull,  fn( "20030201T070809" ) );
+  EXPECT_EQ( 1044083289000000ull,  fn( "20030201070809" ) );
+  // Feb. 29 on a leap year
+  EXPECT_EQ( 1583014942000000ull,  fn( "20200229T222222" ) );
+  EXPECT_EQ( 1583014942000000ull,  fn( "20200229222222" ) );
+  // Random date
+  EXPECT_EQ( 1600000000000000ull,  fn( "20200913T122640" ) );
+  EXPECT_EQ( 1600000000000000ull,  fn( "20200913122640" ) );
+  // Date far in future
+  EXPECT_EQ( 32503679999000000ull, fn( "29991231T235959" ) );
+  EXPECT_EQ( 32503679999000000ull, fn( "29991231235959" ) );
+}

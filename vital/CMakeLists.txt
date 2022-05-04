@@ -142,7 +142,6 @@ set( vital_public_headers
   types/metadata_map.h
   types/metadata_tags.h
   types/metadata_traits.h
-  types/metadata_types.h
   types/object_track_set.h
   types/point.h
   types/polygon.h
@@ -214,7 +213,6 @@ set( vital_sources
   types/mesh.cxx
   types/metadata.cxx
   types/metadata_traits.cxx
-  types/metadata_types.cxx
   types/object_track_set.cxx
   types/point.cxx
   types/polygon.cxx
