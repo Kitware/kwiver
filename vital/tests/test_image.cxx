@@ -44,14 +44,15 @@ void check_equal( image_memory mem_1, image_memory mem_2 )
   char* mem_2_data = (char*) mem_2.data();
 
   EXPECT_EQ( mem_1.size(), mem_2.size() );
-  for(unsigned int i=0; mem_1_data[i]!='\0'; i++)
+  for(unsigned int i=0; i<mem_1.size(); i++)
   {
     EXPECT_EQ( mem_1_data[i], mem_2_data[i] );
   }
 }
 
 // ----------------------------------------------------------------------------
-void check_equal( image img_1, image img_2 )
+template <typename T>
+void check_equal( image_of<T> const& img_1, image const& img_2 )
 {
   EXPECT_EQ( img_1.width(),   img_2.width()  );
   EXPECT_EQ( img_1.height(),  img_2.height() );
@@ -129,13 +130,13 @@ TEST(image_pixel_traits, print)
 // ----------------------------------------------------------------------------
 TEST(image_memory, copy_constructor)
 {
-  std::string set_data = "test";
-  image_memory mem{ set_data.size()*sizeof( char ) };
+  unsigned int size = 5;
+  image_memory mem{ size*sizeof( char ) };
 
   char* data = (char*) mem.data();
-  for(unsigned int i=0; i<set_data.size(); i++)
+  for(unsigned int i=0; i<size; i++)
   {
-    data[i] = set_data[i];
+    data[i] = static_cast<char>( i );
   }
 
   image_memory mem_copy{ mem };
@@ -145,13 +146,13 @@ TEST(image_memory, copy_constructor)
 // ----------------------------------------------------------------------------
 TEST(image_memory, assignment_operator)
 {
-  std::string set_data = "test";
-  image_memory mem{ set_data.size()*sizeof( char ) };
+  unsigned int size = 5;
+  image_memory mem{ size*sizeof( char ) };
 
   char* data = (char*) mem.data();
-  for(unsigned int i=0; i<set_data.size(); i++)
+  for(unsigned int i=0; i<size; i++)
   {
-    data[i] = set_data[i];
+    data[i] = static_cast<char>( i );
   }
 
   image_memory mem_assigned;
@@ -374,7 +375,7 @@ TEST(image, equal_content)
   image img3( w, h, d, false, image_pixel_traits{ image_pixel_traits::BOOL } );
   EXPECT_FALSE( equal_content( img1, img3 ) );
 
-  *img2.first_pixel()=1;
+  *( img2.first_pixel() ) = 1;
   EXPECT_FALSE( equal_content( img1, img2 ) );
 }
 
