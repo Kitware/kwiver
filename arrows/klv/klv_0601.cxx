@@ -960,7 +960,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_ACTIVE_PAYLOADS ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_0601_active_payloads_format >(),
       "Active Payloads",
       "List of currently active payloads from the payload list (Item 138).",
       { 0, 1 } },
