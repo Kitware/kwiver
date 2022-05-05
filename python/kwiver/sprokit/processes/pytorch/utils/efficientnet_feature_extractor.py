@@ -93,19 +93,21 @@ class EfficientNetFeatureExtractor(object):
 
         # load the efficientnet50 model. Maybe this shouldn't be hardcoded?
         self._efficientnet_model = models.efficientnet_v2_s()
-        print( model_path )
         weights = torch.load( model_path )
 
         self._efficientnet_model.load_state_dict( weights )
-        self._efficientnet_model = nn.Sequential(*list(self._efficientnet_model.children())[:-1])
-
         self._efficientnet_model.train( False )
-        self._efficientnet_model.to(self._device)
+        self._efficientnet_model.to( self._device )
+
+        def get_features( name ):
+            def hook( model, input, output ):
+                features[name] = output.detach()
+            return hook
 
         self._transform = transforms.Compose([
             transforms.Resize(img_size),
             transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            transforms.Normalize( [0.485, 0.456, 0.406], [0.229, 0.224, 0.225] )
         ])
         self._img_size = img_size
         self._b_size = batch_size
@@ -129,10 +131,9 @@ class EfficientNetFeatureExtractor(object):
         for idx, imgs in enumerate(bbox_loader):
             v_imgs = imgs.to(self._device)
             output = self._efficientnet_model(v_imgs)
-
             if idx == 0:
-                app_features = output.data
+                app_features = output
             else:
-                app_features = torch.cat((app_features, output.data), dim=0)
+                app_features = torch.cat((app_features, output), dim=0)
 
         return app_features.cpu()
