@@ -98,10 +98,6 @@ ffmpeg_klv_stream
   {
     throw std::logic_error( "ffmpeg_klv_stream given null stream" );
   }
-  if( stream->codecpar->codec_id != AV_CODEC_ID_SMPTE_KLV )
-  {
-    throw std::logic_error( "ffmpeg_klv_stream given non-KLV stream" );
-  }
 }
 
 // ----------------------------------------------------------------------------
@@ -278,6 +274,7 @@ public:
   bool sync_metadata = true;
   bool use_misp_timestamps = false;
   bool smooth_klv_packets = false;
+  std::string unknown_stream_behavior = "ignore";
   bool is_draining = false;
   size_t max_seek_back_attempts = 10;
 
@@ -331,6 +328,21 @@ public:
       else if( params->codec_id == AV_CODEC_ID_SMPTE_KLV )
       {
         klv_streams.emplace_back( stream );
+      }
+      else if( params->codec_id == AV_CODEC_ID_NONE )
+      {
+        if( ( params->codec_type == AVMEDIA_TYPE_DATA ||
+              params->codec_type == AVMEDIA_TYPE_UNKNOWN ) &&
+            unknown_stream_behavior == "klv" )
+        {
+          LOG_INFO( logger,
+                    "Treating unknown stream " << stream->index << " as KLV" );
+          klv_streams.emplace_back( stream );
+        }
+        else
+        {
+          LOG_INFO( logger, "Ignoring unknown stream " << stream->index );
+        }
       }
     }
 
@@ -1089,6 +1101,12 @@ ffmpeg_video_input
     "standard for each frame with the current value of every existing tag. "
     "Otherwise, will report packets as they appear in the source video." );
 
+  config->set_value(
+    "unknown_stream_behavior", d->unknown_stream_behavior,
+    "Set to 'klv' to treat unknown streams as KLV. "
+    "Set to 'ignore' to ignore unknown streams (default)."
+  );
+
   return config;
 }
 
@@ -1117,6 +1135,10 @@ ffmpeg_video_input
 
   d->smooth_klv_packets = config->get_value< bool >( "smooth_klv_packets",
                                                      d->smooth_klv_packets );
+
+  d->unknown_stream_behavior =
+    config->get_value< std::string >( "unknown_stream_behavior",
+                                       d->unknown_stream_behavior );
 }
 
 // ----------------------------------------------------------------------------
