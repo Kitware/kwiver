@@ -1,5 +1,5 @@
 #ckwg +28
-# Copyright 2019 by Kitware, Inc.
+# Copyright 2017-2022 by Kitware, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -43,38 +43,44 @@ from timeit import default_timer as timer
 
 from kwiver.vital.util.VitalPIL import get_pil_image
 
-from .utils.alexnet_feature_extractor import AlexNetFeatureExtractor
+from .utils.grid import Grid
 from .utils.parse_gpu_list import gpu_list_desc, parse_gpu_list
 
-class AlexNetDescriptors(KwiverProcess):
+class ResnetDescriptors(KwiverProcess):
 
-    # -------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     def __init__(self, conf):
         KwiverProcess.__init__(self, conf)
 
         # GPU list
         self.add_config_trait("gpu_list", "gpu_list", 'all',
-                              gpu_list_desc(use_for='alexnet descriptors'))
+                              gpu_list_desc(use_for='Resnet descriptors'))
         self.declare_config_using_trait('gpu_list')
 
-        # alexnet
-        #----------------------------------------------------------------------------------
-        self.add_config_trait("alexnet_model_path", "alexnet_model_path",
-                              'models/alexnet_default.pt',
+        # Resnet
+        #-----------------------------------------------------------------------
+        self.add_config_trait("model_arch", "model_arch", 'resnet',
+                              'Model architecture (res, alex, or efficientnet)')
+        self.declare_config_using_trait('model_arch')
+
+        self.add_config_trait("model_path", "model_path",
+                              'models/resnet50_default.pt',
                               'Trained PyTorch model.')
-        self.declare_config_using_trait('alexnet_model_path')
+        self.declare_config_using_trait('model_path')
 
-        self.add_config_trait("alexnet_model_input_size", "alexnet_model_input_size", '224',
+        self.add_config_trait("model_input_size", "model_input_size", '224',
                               'Model input image size')
-        self.declare_config_using_trait('alexnet_model_input_size')
+        self.declare_config_using_trait('model_input_size')
 
-        self.add_config_trait("alexnet_batch_size", "alexnet_batch_size", '128',
-                              'alexnet model processing batch size')
-        self.declare_config_using_trait('alexnet_batch_size')
-        #----------------------------------------------------------------------------------
+        self.add_config_trait("batch_size", "batch_size", '128',
+                              'resnet model processing batch size')
+        self.declare_config_using_trait('batch_size')
+        #-----------------------------------------------------------------------
 
         # detection select threshold
-        self.add_config_trait("detection_select_threshold", "detection_select_threshold", '0.0',
+        self.add_config_trait("detection_select_threshold",
+                              "detection_select_threshold",
+                              '0.0',
                               'detection select threshold')
         self.declare_config_using_trait('detection_select_threshold')
 
@@ -87,34 +93,53 @@ class AlexNetDescriptors(KwiverProcess):
         # self.declare_input_port_using_trait('framestamp', optional)
         self.declare_input_port_using_trait('image', required)
         self.declare_input_port_using_trait('detected_object_set', required)
-        self.declare_input_port_using_trait('timestamp', required)
+        self.declare_input_port_using_trait('timestamp', optional)
 
         #  output port ( port-name,flags)
         self.declare_output_port_using_trait('detected_object_set', optional)
 
-    # ----------------------------------------------
+    # --------------------------------------------------------------------------
     def _configure(self):
         self._select_threshold = float(self.config_value('detection_select_threshold'))
 
-        # GPU_list
-        self._GPU_list = parse_gpu_list(self.config_value('gpu_list'))
+        # gpu_list
+        self._gpu_list = parse_gpu_list(self.config_value('gpu_list'))
 
-        # alexnet model config
-        alexnet_img_size = int(self.config_value('alexnet_model_input_size'))
-        alexnet_batch_size = int(self.config_value('alexnet_batch_size'))
-        alexnet_model_path = self.config_value('alexnet_model_path')
-        self._app_feature_extractor = AlexNetFeatureExtractor(alexnet_model_path, alexnet_img_size, alexnet_batch_size, self._GPU_list)
+        # Resnet model config
+        model_arch = self.config_value('model_arch')
+        model_path = self.config_value('model_path')
+        img_size = int(self.config_value('model_input_size'))
+        batch_size = int(self.config_value('batch_size'))
 
+        if model_arch == "resnet":
+            from .utils.resnet_feature_extractor import ResnetFeatureExtractor
+            self._app_feature_extractor = ResnetFeatureExtractor(model_path, 
+                img_size, batch_size, self._gpu_list)
+        elif model_arch == "alexnet":
+            from .utils.resnet_feature_extractor import AlexNetFeatureExtractor
+            self._app_feature_extractor = AlexnetFeatureExtractor(model_path, 
+                img_size, batch_size, self._gpu_list)
+        elif model_arch == "efficientnet":
+            from .utils.efficientnet_feature_extractor import EfficientNetFeatureExtractor
+            self._app_feature_extractor = EfficientNetFeatureExtractor(model_path, 
+                img_size, batch_size, self._gpu_list)
+        else:
+            print( "Invalid model architecture: " + model_arch )
+            return False
+
+        # Init variables
+        self._grid = Grid()
         self._base_configure()
 
-    # ----------------------------------------------
+    # --------------------------------------------------------------------------
     def _step(self):
         try:
             # Grab image container from port using traits
             in_img_c = self.grab_input_using_trait('image')
-            timestamp = self.grab_input_using_trait('timestamp')
             dos_ptr = self.grab_input_using_trait('detected_object_set')
-            print('timestamp = {!r}'.format(timestamp))
+            if self.has_input_port_edge_using_trait('timestamp'):
+                timestamp = self.grab_input_using_trait('timestamp')
+                print('timestamp = {!r}'.format(timestamp))
 
             # Get current frame and give it to app feature extractor
             im = get_pil_image(in_img_c.image())
@@ -125,7 +150,6 @@ class AlexNetDescriptors(KwiverProcess):
             # Get detection bbox
             dos = dos_ptr.select(self._select_threshold)
             bbox_num = dos.size()
-
             det_obj_set = DetectedObjectSet()
 
             if bbox_num == 0:
@@ -140,8 +164,6 @@ class AlexNetDescriptors(KwiverProcess):
                 # get new track state from new frame and detections
                 for idx, item in enumerate(dos):
                     bbox = item.bounding_box
-                    fid = timestamp.get_frame()
-                    ts = timestamp.get_time_usec()
                     d_obj = item
 
                     # store app feature to detectedObject
@@ -163,18 +185,19 @@ class AlexNetDescriptors(KwiverProcess):
             raise
 
     def __del__(self):
-        print('!!!!alexnet tracking Deleting python process!!!!')
+        print('!!!!Resnet tracking Deleting python process!!!!')
 
-# ==================================================================
+# ==============================================================================
 def __sprokit_register__():
     from kwiver.sprokit.pipeline import process_factory
 
-    module_name = 'python:kwiver.alexnet_descriptors'
+    module_name = 'python:kwiver.pytorch.pytorch_descriptors'
 
     if process_factory.is_process_module_loaded(module_name):
         return
 
-    process_factory.add_process('alexnet_descriptors', 'alexnet feature extraction',
-                                AlexNetDescriptors)
+    process_factory.add_process('pytorch_descriptors',
+                                'pytorch feature extraction',
+                                ResnetDescriptors)
 
     process_factory.mark_process_module_as_loaded(module_name)
