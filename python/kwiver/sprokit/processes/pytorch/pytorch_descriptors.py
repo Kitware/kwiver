@@ -120,7 +120,7 @@ class ResnetDescriptors(KwiverProcess):
             self._app_feature_extractor = AlexnetFeatureExtractor(model_path, 
                 img_size, batch_size, self._gpu_list)
         elif model_arch == "efficientnet":
-            from .utils.efficientnet_feature_extractor import EfficientNetFeatureExtractor
+            from .utils.enet_feature_extractor import EfficientNetFeatureExtractor
             self._app_feature_extractor = EfficientNetFeatureExtractor(model_path, 
                 img_size, batch_size, self._gpu_list)
         else:
