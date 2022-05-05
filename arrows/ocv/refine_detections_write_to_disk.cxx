@@ -7,6 +7,8 @@
 
 #include "refine_detections_write_to_disk.h"
 
+#include <string>
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -42,8 +44,10 @@ public:
 
   // Constructor
   priv()
-  : pattern( "detection_%10d.png" ),
-    id( 0 )
+  : pattern( "%s_%s_%f_%f_%fx%f.png" ),
+    unknown_label( "unknown" ),
+    detection_counter( 0 ),
+    frame_counter( 0 )
   {
   }
 
@@ -54,16 +58,18 @@ public:
 
   // Parameters
   std::string pattern;
+  std::string unknown_label;
 
   // Variables
-  unsigned id;
+  unsigned detection_counter;
+  unsigned frame_counter;
 };
 
 // ----------------------------------------------------------------------------
 // Constructor
 refine_detections_write_to_disk
 ::refine_detections_write_to_disk()
-: d_( new priv() )
+: d( new priv() )
 {
 }
 
@@ -81,14 +87,18 @@ refine_detections_write_to_disk
 {
   vital::config_block_sptr config = vital::algo::refine_detections::get_configuration();
 
-  config->set_value( "pattern", d_->pattern,
-                     "The output pattern for writing images to disk. "
-                     "Parameters that may be included in the pattern are (in formatting order)"
-                     "the id (an integer), the source image filename (a string), "
-                     "and four values for the chip coordinate: "
-                     "top left x, top left y, width, height (all floating point numbers). "
-                     "A possible full pattern would be '%d-%s-%f-%f-%f-%f.png'. "
-                     "The pattern must contain the correct file extension." );
+  config->set_value( "pattern", d->pattern,
+    "The output pattern for writing images to disk. "
+    "Parameters that may be included in the pattern are (in formatting order)"
+    "the object category string, the source image filename (a string), "
+    "and four values for the chip coordinate: "
+    "top left x, top left y, width, height (all floating point numbers). "
+    "A possible full pattern would be '%s-%s-%f-%f-%f-%f.png'. "
+    "The pattern must contain the correct file extension." );
+
+  config->set_value( "unknown_label", d->unknown_label,
+    "String to use when the input detections have no valid type." );
+
   return config;
 }
 
@@ -101,14 +111,14 @@ refine_detections_write_to_disk
   vital::config_block_sptr config = this->get_configuration();
   config->merge_config( in_config );
 
-  d_->pattern = config->get_value<std::string>( "pattern" );
+  d->pattern = config->get_value<std::string>( "pattern" );
 }
 
 // ----------------------------------------------------------------------------
 // Check that the algorithm's currently configuration is valid
 bool
 refine_detections_write_to_disk
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config) const
+::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
 {
   return true;
 }
@@ -120,13 +130,17 @@ refine_detections_write_to_disk
 ::refine( vital::image_container_sptr image_data,
           vital::detected_object_set_sptr detections ) const
 {
-  cv::Mat img = ocv::image_container::vital_to_ocv( image_data->get_image(),
-    kwiver::arrows::ocv::image_container::BGR_COLOR );
+
+  // Input validation and formatting
+  d->frame_counter++;
 
   if( !detections )
   {
     return detections;
   }
+
+  cv::Mat img = ocv::image_container::vital_to_ocv( image_data->get_image(),
+    kwiver::arrows::ocv::image_container::BGR_COLOR );
 
   // Get input filename if it's in the vital_metadata
   std::string filename;
@@ -152,13 +166,40 @@ refine_detections_write_to_disk
     bbox = intersection( bounds, bbox );
 
     // Generate output filename
-    std::string ofn = kwiver::vital::string_format( d_->pattern,
-                      d_->id++, filename.c_str(),
+    std::string category_str;
+    std::string frame_str;
+
+    if( !filename.empty() )
+    {
+      frame_str = filename.c_str();
+    }
+    else
+    {
+      std::size_t max_zeros = 6;
+      frame_str = std::to_string( d->frame_counter );
+      frame_str = std::string(
+        max_zeros - std::min( max_zeros, frame_str.length() ), '0' ) + frame_str;
+    }
+
+    if( det->type() )
+    {
+      det->type()->get_most_likely( category_str );
+    }
+    if( !det->type() || category_str.empty() )
+    {
+      category_str = d->unknown_label;
+    }
+
+    std::string ofn = kwiver::vital::string_format( d->pattern,
+                      category_str, frame_str,
                       bbox.upper_left()[0], bbox.upper_left()[1],
                       bbox.width(), bbox.height() );
+
+    d->detection_counter++;
+
     if( ofn.empty() )
     {
-      LOG_ERROR( logger(), "Could not format output file name: \"" << d_->pattern << "\"" );
+      LOG_ERROR( logger(), "Could not format output file name: \"" << d->pattern << "\"" );
       return detections;
     }
 
