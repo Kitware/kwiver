@@ -124,7 +124,14 @@ metadata_map_io_klv
       {
         auto ts = metadata_klv->timestamp();
         ts.set_frame( entry.first );
-        packets.emplace_back( klv::klv_timed_packet{ packet, ts } );
+        klv::klv_timed_packet timed_packet{ packet, ts };
+        auto const stream_index =
+          metadata_klv->find( vital::VITAL_META_VIDEO_DATA_STREAM_INDEX );
+        if( stream_index )
+        {
+          timed_packet.stream_index = stream_index.get< int >();
+        }
+        packets.emplace_back( timed_packet );
       }
     }
   }

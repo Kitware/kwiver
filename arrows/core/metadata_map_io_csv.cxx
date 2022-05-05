@@ -389,14 +389,12 @@ metadata_map_io_csv
                      "Write columns present in the metadata but not in the "
                      "manually-specified list." );
   config->set_value( "every_n_microseconds", d_->every_n_microseconds,
-                     "Minimum time between successive rows of output. Packets "
+                     "Minimum time between successive rows of output. Frames "
                      "more frequent than this will be ignored. If nonzero, "
-                     "packets without a timestamp are also ignored." );
+                     "frames without a timestamp are also ignored." );
   config->set_value( "every_n_frames", d_->every_n_frames,
                      "Number of frames to skip between successive rows of "
-                     "output, plus one. A value of 1 will print one packet for "
-                     "every frame, while a value of 0 will print all packets "
-                     "for every frame." );
+                     "output, plus one. A value of 1 will print every frame." );
   return config;
 }
 
@@ -502,33 +500,36 @@ metadata_map_io_csv
   int64_t next_frame = 1;
   for( auto const& frame_data : data->metadata() )
   {
+    // Write only at the specified frequency
+    auto const timestamp =
+      frame_data.second.size()
+      ? frame_data.second.at( 0 )->timestamp()
+      : kv::timestamp{};
+    if( d_->every_n_microseconds )
+    {
+      if( !timestamp.has_valid_time() ||
+          timestamp.get_time_usec() < next_timestamp )
+      {
+        continue;
+      }
+      next_timestamp +=
+        ( ( timestamp.get_time_usec() - next_timestamp ) /
+          d_->every_n_microseconds + 1 ) * d_->every_n_microseconds;
+    }
+    if( d_->every_n_frames )
+    {
+      if( !timestamp.has_valid_frame() ||
+          timestamp.get_frame() < next_frame )
+      {
+        continue;
+      }
+      next_frame +=
+        ( ( timestamp.get_frame() - next_frame ) /
+          d_->every_n_frames + 1 ) * d_->every_n_frames;
+    }
+
     for( auto const& metadata_packet : frame_data.second )
     {
-      // Write only at the specified frequency
-      auto const timestamp = metadata_packet->timestamp();
-      if( d_->every_n_microseconds )
-      {
-        if( !timestamp.has_valid_time() ||
-            timestamp.get_time_usec() < next_timestamp )
-        {
-          continue;
-        }
-        next_timestamp +=
-          ( ( timestamp.get_time_usec() - next_timestamp ) /
-            d_->every_n_microseconds + 1 ) * d_->every_n_microseconds;
-      }
-      if( d_->every_n_frames )
-      {
-        if( !timestamp.has_valid_frame() ||
-            timestamp.get_frame() < next_frame )
-        {
-          continue;
-        }
-        next_frame +=
-          ( ( timestamp.get_frame() - next_frame ) /
-            d_->every_n_frames + 1 ) * d_->every_n_frames;
-      }
-
       // Write the frame number
       fout << frame_data.first << ",";
       for( auto const& info : infos )

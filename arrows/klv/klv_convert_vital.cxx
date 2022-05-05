@@ -645,21 +645,13 @@ klv_1108_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
 
 // ----------------------------------------------------------------------------
 kv::metadata_sptr
-klv_to_vital_metadata( klv_timeline const& klv_data,
-                       kv::interval< uint64_t > const& time_interval )
+klv_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp )
 {
   auto const result = std::make_shared< klv_metadata >();
-  {
-    klv_muxer muxer( klv_data );
-    muxer.send_frame( time_interval.lower() );
-    muxer.receive_frame();
-    muxer.send_frame( time_interval.upper() );
-    result->set_klv( muxer.receive_frame() );
-  }
-  klv_0102_to_vital_metadata( klv_data, time_interval.upper(), *result );
-  klv_0104_to_vital_metadata( klv_data, time_interval.upper(), *result );
-  klv_0601_to_vital_metadata( klv_data, time_interval.upper(), *result );
-  klv_1108_to_vital_metadata( klv_data, time_interval.upper(), *result );
+  klv_0102_to_vital_metadata( klv_data, timestamp, *result );
+  klv_0104_to_vital_metadata( klv_data, timestamp, *result );
+  klv_0601_to_vital_metadata( klv_data, timestamp, *result );
+  klv_1108_to_vital_metadata( klv_data, timestamp, *result );
   return result;
 }
 

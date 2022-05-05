@@ -2,6 +2,7 @@
 	{
 		"frame": 0,
 		"microseconds": 0,
+		"stream-index": 0,
 		"key": {
 			"bytes": "Bg4rNAIDAQEOAQMDAgAAAA==",
 			"hex": "060e2b34 02030101 0e010303 02000000",
@@ -33,6 +34,7 @@
 	{
 		"frame": null,
 		"microseconds": null,
+		"stream-index": 0,
 		"key": {
 			"bytes": "Bg4rNAIBAQEOAQECAQEAAA==",
 			"hex": "060e2b34 02010101 0e010102 01010000",
@@ -71,6 +73,7 @@
 	{
 		"frame": 7,
 		"microseconds": 1024,
+		"stream-index": 0,
 		"key": {
 			"bytes": "Bg4rNAILAQEOAQMBAQAAAA==",
 			"hex": "060e2b34 020b0101 0e010301 01000000",
@@ -749,6 +752,7 @@
 	{
 		"frame": 8,
 		"microseconds": 2048,
+		"stream-index": 0,
 		"key": {
 			"bytes": "Bg4rNAIDAQEOAQMDHAAAAA==",
 			"hex": "060e2b34 02030101 0e010303 1c000000",

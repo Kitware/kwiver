@@ -440,6 +440,8 @@ public:
       save( "microseconds", nullptr );
     }
 
+    save( "stream-index", packet.stream_index );
+
     save( packet.packet );
   }
 
@@ -1117,6 +1119,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
     LOAD_VALUE( frame, kv::optional< int64_t > );
     LOAD_VALUE( microseconds, kv::optional< int64_t > );
     LOAD_VALUE( packet, klv_packet );
+    LOAD_VALUE( stream_index, uint64_t );
     kv::timestamp ts;
     if( frame )
     {
@@ -1126,7 +1129,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
     {
       ts.set_time_usec( *microseconds );
     }
-    return { std::move( packet ), ts };
+    return { std::move( packet ), ts, stream_index };
   }
 
   LOAD_TEMPLATE( klv_packet )

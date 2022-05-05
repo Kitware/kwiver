@@ -17,13 +17,19 @@ namespace ffmpeg {
 ffmpeg_video_settings
 ::ffmpeg_video_settings()
   : frame_rate{ 0, 1 },
-    parameters{ avcodec_parameters_alloc() } {}
+    parameters{ avcodec_parameters_alloc() },
+    klv_stream_count{ 0 }
+{}
 
 // ----------------------------------------------------------------------------
 ffmpeg_video_settings
-::ffmpeg_video_settings( size_t width, size_t height, AVRational frame_rate )
+::ffmpeg_video_settings(
+  size_t width, size_t height,
+  AVRational frame_rate,
+  size_t klv_stream_count )
   : frame_rate( frame_rate ),
-    parameters{ avcodec_parameters_alloc() }
+    parameters{ avcodec_parameters_alloc() },
+    klv_stream_count{ klv_stream_count }
 {
   parameters->width = width;
   parameters->height = height;
