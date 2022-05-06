@@ -7,7 +7,7 @@ kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
 
 kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/enet_feature_extractor.py
   sprokit/processes/pytorch/utils
-  efficientnet_feature_extractor )
+  enet_feature_extractor )
 
 kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/siamese_feature_extractor.py
   sprokit/processes/pytorch/utils

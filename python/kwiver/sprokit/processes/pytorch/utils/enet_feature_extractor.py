@@ -92,17 +92,19 @@ class EfficientNetFeatureExtractor(object):
         self._device, use_gpu_flag = get_device(gpu_list)
 
         # load the efficientnet50 model. Maybe this shouldn't be hardcoded?
-        self._efficientnet_model = models.efficientnet_v2_s()
+        self._model = models.efficientnet_v2_s()
         weights = torch.load( model_path )
 
-        self._efficientnet_model.load_state_dict( weights )
-        self._efficientnet_model.train( False )
-        self._efficientnet_model.to( self._device )
+        self._model.load_state_dict( weights )
+        self._model.train( False )
+        self._model.to( self._device )
 
-        def get_features( name ):
+        def get_features():
             def hook( model, input, output ):
-                features[name] = output.detach()
+                features = output.detach()
             return hook
+
+        self._model.avgpool.register_forward_hook(get_features())
 
         self._transform = transforms.Compose([
             transforms.Resize(img_size),
@@ -125,15 +127,15 @@ class EfficientNetFeatureExtractor(object):
             raise ValueError("Trying to create ResenetDataLoader without a frame")
 
         bbox_loader = torch.utils.data.DataLoader(bbox_loader_class, 
-                                batch_size=self._b_size, shuffle=False, **kwargs)
+            batch_size=self._b_size, shuffle=False, **kwargs)
 
         torch.set_grad_enabled(False)
         for idx, imgs in enumerate(bbox_loader):
             v_imgs = imgs.to(self._device)
-            output = self._efficientnet_model(v_imgs)
+            output = self._model(v_imgs)
             if idx == 0:
-                app_features = output
+                app_features = features
             else:
-                app_features = torch.cat((app_features, output), dim=0)
+                app_features = torch.cat((app_features, features), dim=0)
 
         return app_features.cpu()
