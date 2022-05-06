@@ -66,6 +66,8 @@ TEST_F(mesh_io, read_invalid_type)
 TEST_F(mesh_io, read_write_ply2)
 {
   mesh_sptr original = kwiver::testing::cube_mesh( 1.0 );
+  original->set_faces( std::unique_ptr<mesh_face_array_base>(
+    new mesh_face_array( original->faces() ) ) );
 
   std::string path = "temp/cube_mesh.ply2";
   write_ply2( path, *original );
@@ -82,6 +84,8 @@ TEST_F(mesh_io, read_ply)
   mesh_sptr ply_mesh = read_ply(
     data_dir + "/cube_mesh.ply");
   mesh_sptr cube_mesh = kwiver::testing::cube_mesh( 1.0 );
+  cube_mesh->set_faces( std::unique_ptr<mesh_face_array_base>(
+    new mesh_face_array( cube_mesh->faces() ) ) );
 
   EXPECT_TRUE( cube_mesh->approx_equal( *ply_mesh ) );
 }
@@ -90,6 +94,8 @@ TEST_F(mesh_io, read_ply)
 TEST_F(mesh_io, read_write_obj)
 {
   mesh_sptr original = kwiver::testing::cube_mesh( 1.0 );
+  original->set_faces( std::unique_ptr<mesh_face_array_base>(
+    new mesh_face_array( original->faces() ) ) );
 
   std::string path = "temp/cube_mesh.obj";
   write_obj( path, *original );
