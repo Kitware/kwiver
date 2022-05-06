@@ -22,6 +22,11 @@ klv_blob
 
 // ----------------------------------------------------------------------------
 klv_blob
+::klv_blob( std::initializer_list< uint8_t > const& bytes ) : bytes{ bytes }
+{}
+
+// ----------------------------------------------------------------------------
+klv_blob
 ::klv_blob( klv_bytes_t const& bytes ) : bytes{ bytes }
 {}
 

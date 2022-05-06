@@ -48,7 +48,7 @@ TEST ( klv, read_1108_metric_set )
     { KLV_1108_METRIC_SET_PARAMETERS,  std::string{ "x=7" } },
     { KLV_1108_METRIC_SET_TIME,        uint64_t{ 1630000000 } },
     { KLV_1108_METRIC_SET_VALUE,       kld{ 1.234567 } },
-    { KLV_1108_METRIC_SET_ENUM_END,    klv_blob{ { 0x01, 0x02 } } } };
+    { KLV_1108_METRIC_SET_ENUM_END,    klv_blob{ 0x01, 0x02 } } };
 
   CALL_TEST( test_read, {}, {} );
   CALL_TEST( test_read, expected_result, input_bytes );
