@@ -602,11 +602,17 @@ public:
       {
         auto const packet_begin = f_packet->data;
         auto const packet_end = f_packet->data + f_packet->size;
-        auto misp_it = klv::find_misp_timestamp( packet_begin, packet_end );
-        if( misp_it != packet_end )
+        for( auto const tag_type : { klv::MISP_TIMESTAMP_TAG_STRING,
+                                     klv::MISP_TIMESTAMP_TAG_UUID } )
         {
-          auto const timestamp = klv::read_misp_timestamp( misp_it );
-          m_pts_to_misp.emplace( f_packet->pts, timestamp );
+          auto misp_it =
+            klv::find_misp_timestamp( packet_begin, packet_end, tag_type );
+          if( misp_it != packet_end )
+          {
+            auto const timestamp = klv::read_misp_timestamp( misp_it );
+            m_pts_to_misp.emplace( f_packet->pts, timestamp );
+            break;
+          }
         }
 
         auto err = avcodec_send_packet( f_video_encoding, f_packet );

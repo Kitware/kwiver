@@ -36,9 +36,30 @@ constexpr std::ptrdiff_t status_length = 1;
 constexpr std::ptrdiff_t timestamp_length = 8 + 3;
 constexpr std::ptrdiff_t packet_length =
   tag_length + status_length + timestamp_length;
-auto const tag_bytes = std::string{ "MISPmicrosectime" };
+
+// Used for MPEG-2 and H.264
+uint8_t const tag_string[] = {
+  'M', 'I', 'S', 'P', 'm', 'i', 'c', 'r',
+  'o', 's', 'e', 'c', 't', 'i', 'm', 'e' };
+
+// Used for H.265
+uint8_t const tag_uuid[] = {
+  0xA8, 0x68, 0x7D, 0xD4, 0xD7, 0x59, 0x37, 0x58,
+  0xA5, 0xCE, 0xF0, 0x33, 0x8B, 0x65, 0x45, 0xF1 };
+
+// Used for H.265
+uint8_t const tag_uuid_nano[] = {
+  0xCF, 0x84, 0x82, 0x78, 0xEE, 0x23, 0x30, 0x6C,
+  0x92, 0x65, 0xE8, 0xFE, 0xF2, 0x2F, 0xB8, 0xB8 };
 
 } // namespace misp_detail
+
+// ----------------------------------------------------------------------------
+enum misp_timestamp_tag_type
+{
+  MISP_TIMESTAMP_TAG_STRING,
+  MISP_TIMESTAMP_TAG_UUID
+};
 
 // ----------------------------------------------------------------------------
 /// Bit indices for the MISP timestamp status.
@@ -81,10 +102,27 @@ struct KWIVER_ALGO_KLV_EXPORT misp_timestamp
 /// \return Iterator to beginning of MISP packet, or \p end on failure.
 template < class Iterator >
 Iterator
-find_misp_timestamp( Iterator begin, Iterator end )
+find_misp_timestamp( Iterator begin, Iterator end,
+                     misp_timestamp_tag_type tag_type )
 {
-  auto const& tag = misp_detail::tag_bytes;
-  auto const it = std::search( begin, end, tag.cbegin(), tag.cend() );
+  auto it = end;
+  if( tag_type == MISP_TIMESTAMP_TAG_STRING )
+  {
+    auto const& tag = misp_detail::tag_string;
+    it = std::search( begin, end, tag, tag + misp_detail::tag_length );
+  }
+  else if( tag_type == MISP_TIMESTAMP_TAG_UUID )
+  {
+    for( auto const& tag : { misp_detail::tag_uuid,
+                             misp_detail::tag_uuid_nano } )
+    {
+      it = std::search( begin, end, tag, tag + misp_detail::tag_length );
+      if( it != end )
+      {
+        break;
+      }
+    }
+  }
   return ( std::distance( it, end ) < misp_detail::packet_length ) ? end : it;
 }
 
@@ -100,6 +138,10 @@ misp_timestamp
 read_misp_timestamp( Iterator& data )
 {
   // Skip tag to get to status and timestamp
+  auto const is_nano =
+    std::equal( misp_detail::tag_uuid_nano,
+                misp_detail::tag_uuid_nano + misp_detail::tag_length,
+                data );
   std::advance( data, misp_detail::tag_length );
 
   auto const status = *data;
@@ -119,6 +161,11 @@ read_misp_timestamp( Iterator& data )
     ++data;
   }
 
+  if( is_nano )
+  {
+    timestamp = ( timestamp + 500 ) / 1000;
+  }
+
   return { timestamp, status };
 }
 
@@ -130,11 +177,15 @@ read_misp_timestamp( Iterator& data )
 //              on success.
 template < class Iterator >
 void
-write_misp_timestamp( misp_timestamp value, Iterator& data )
+write_misp_timestamp( misp_timestamp value, Iterator& data,
+                      misp_timestamp_tag_type tag_type )
 {
   // Write tag
-  auto const& tag = misp_detail::tag_bytes;
-  data = std::copy( tag.begin(), tag.end(), data );
+  auto const& tag =
+    ( tag_type == MISP_TIMESTAMP_TAG_UUID )
+    ? misp_detail::tag_uuid
+    : misp_detail::tag_string;
+  data = std::copy( tag, tag + misp_detail::tag_length, data );
 
   // Write status
   *data = value.status;
