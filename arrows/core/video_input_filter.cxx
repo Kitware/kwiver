@@ -377,6 +377,18 @@ video_input_filter
 }
 
 // ----------------------------------------------------------------------------
+kwiver::vital::video_raw_metadata_sptr
+video_input_filter
+::raw_frame_metadata()
+{
+  if( !d->d_video_input )
+  {
+    return nullptr;
+  }
+  return d->d_video_input->raw_frame_metadata();
+}
+
+// ----------------------------------------------------------------------------
 kwiver::vital::metadata_vector
 video_input_filter
 ::frame_metadata()

@@ -3,15 +3,15 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// Definition of base video settings type.
+/// Definition of base video raw image type.
 
-#include <vital/types/video_settings.h>
+#include <vital/types/video_raw_image.h>
 
 namespace kwiver {
 
 namespace vital {
 
-video_settings::~video_settings() {}
+video_raw_image::~video_raw_image() {}
 
 } // namespace vital
 

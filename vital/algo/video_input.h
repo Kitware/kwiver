@@ -18,6 +18,8 @@
 #include <vital/types/metadata.h>
 #include <vital/types/metadata_map.h>
 #include <vital/types/timestamp.h>
+#include <vital/types/video_raw_image.h>
+#include <vital/types/video_raw_metadata.h>
 #include <vital/types/video_settings.h>
 
 #include <string>
@@ -119,6 +121,8 @@ public:
   static const algorithm_capabilities::capability_name_t HAS_METADATA;
   static const algorithm_capabilities::capability_name_t HAS_TIMEOUT;
   static const algorithm_capabilities::capability_name_t IS_SEEKABLE;
+  static const algorithm_capabilities::capability_name_t HAS_RAW_IMAGE;
+  static const algorithm_capabilities::capability_name_t HAS_RAW_METADATA;
 
   virtual ~video_input();
 
@@ -276,6 +280,17 @@ public:
   /// \throws video_stream_exception when there is an error in the video stream.
   virtual kwiver::vital::image_container_sptr frame_image() = 0;
 
+  /// Return implementation-defined data for efficiently copying this frame's
+  /// image.
+  ///
+  /// Using this method can help avoid the loss of efficiency and fidelity that
+  /// comes with re-encoding an image, if no changes to the image are to be
+  /// performed before writing it back out. May return \c nullptr, indicating
+  /// the reader does not support this operation.
+  ///
+  /// \return Pointer to raw image data.
+  virtual video_raw_image_sptr raw_frame_image();
+
   /// \brief Get metadata collection for current frame.
   ///
   /// This method returns the metadata collection for the current
@@ -317,6 +332,17 @@ public:
   ///
   /// \throws video_stream_exception when there is an error in the video stream.
   virtual kwiver::vital::metadata_vector frame_metadata() = 0;
+
+  /// Return implementation-defined data for efficiently copying this frame's
+  /// metadata.
+  ///
+  /// Using this method can help avoid the loss of efficiency and fidelity that
+  /// comes with re-encoding metadata, if no changes to the metadata are to be
+  /// performed before writing it back out. May return \c nullptr, indicating
+  /// the reader does not support this operation.
+  ///
+  /// \return Pointer to raw metadata.
+  virtual video_raw_metadata_sptr raw_frame_metadata();
 
   /// \brief Get metadata map for video.
   ///
