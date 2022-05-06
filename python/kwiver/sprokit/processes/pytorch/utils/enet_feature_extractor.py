@@ -99,13 +99,6 @@ class EfficientNetFeatureExtractor(object):
         self._model.train( False )
         self._model.to( self._device )
 
-        def get_features():
-            def hook( model, input, output ):
-                features = output.detach()
-            return hook
-
-        self._model.avgpool.register_forward_hook(get_features())
-
         self._transform = transforms.Compose([
             transforms.Resize(img_size),
             transforms.ToTensor(),
@@ -130,12 +123,22 @@ class EfficientNetFeatureExtractor(object):
             batch_size=self._b_size, shuffle=False, **kwargs)
 
         torch.set_grad_enabled(False)
+
+        def get_features( name ):
+            def hook( model, input, output ):
+                features[name] = output.detach()
+            return hook
+
+        features = {}
+        self._model.avgpool.register_forward_hook(get_features('feats'))
+
         for idx, imgs in enumerate(bbox_loader):
             v_imgs = imgs.to(self._device)
-            output = self._model(v_imgs)
+            self._model(v_imgs)
+            output = features['feats']
             if idx == 0:
-                app_features = features
+                app_features = output
             else:
-                app_features = torch.cat((app_features, features), dim=0)
+                app_features = torch.cat((app_features, output), dim=0)
 
         return app_features.cpu()
