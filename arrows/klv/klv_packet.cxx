@@ -18,6 +18,7 @@
 #include <arrows/klv/klv_1204.h>
 #include <arrows/klv/klv_1206.h>
 #include <arrows/klv/klv_1601.h>
+#include <arrows/klv/klv_unimplemented.h>
 
 #include <iomanip>
 
@@ -296,6 +297,14 @@ klv_lookup_packet_traits()
       "an unmanned aerial system producing FMV footage.",
       0,
       &klv_0601_traits_lookup() },
+    { klv_0602_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_0602_UNIVERSAL_SET ),
+      std::make_shared< klv_blob_format >(),
+      "MISB ST0602 Universal Set",
+      "Annotation Metadata Universal Set. Contains decriptions of visual cues "
+      "meant to enhance the exploitation of the associated Motion Imagery.",
+      0,
+      nullptr },
     { klv_0806_key(),
       ENUM_AND_NAME( KLV_PACKET_MISB_0806_LOCAL_SET ),
       std::make_shared< klv_0806_local_set_format >(),
@@ -304,6 +313,14 @@ klv_lookup_packet_traits()
       "of a Remote Video Terminal.",
       0,
       &klv_0806_traits_lookup() },
+    { klv_0809_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_0809_LOCAL_SET ),
+      std::make_shared< klv_blob_format >(),
+      "MISB ST0809 Local Set",
+      "Meteorological Metadata Local Set. Contains a broad range of basic "
+      "information about atmospheric conditions.",
+      0,
+      nullptr },
     { klv_0903_key(),
       ENUM_AND_NAME( KLV_PACKET_MISB_0903_LOCAL_SET ),
       std::make_shared< klv_0903_local_set_format >(),
@@ -320,6 +337,14 @@ klv_lookup_packet_traits()
       "imagery.",
       0,
       &klv_1002_traits_lookup() },
+    { klv_1107_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_1107_LOCAL_SET ),
+      std::make_shared< klv_blob_format >(),
+      "MISB ST1107 Local Set",
+      "Metric Geopositioning Metadata Local Set. Contains metadata relevant "
+      "for photogrammetric applications.",
+      0,
+      nullptr },
     { klv_1108_key(),
       ENUM_AND_NAME( KLV_PACKET_MISB_1108_LOCAL_SET ),
       std::make_shared< klv_1108_local_set_format >(),
@@ -351,6 +376,14 @@ klv_lookup_packet_traits()
       "particular to SAR imagery.",
       0,
       &klv_1206_traits_lookup() },
+    { klv_1507_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_1507_LOCAL_SET ),
+      std::make_shared< klv_blob_format >(),
+      "MISB ST1507 Local Set",
+      "Sensor Timing Local Set. Contains information about the timing of the "
+      "sensor shutter.",
+      0,
+      nullptr },
     { klv_1601_key(),
       ENUM_AND_NAME( KLV_PACKET_MISB_1601_LOCAL_SET ),
       std::make_shared< klv_1601_local_set_format >(),
