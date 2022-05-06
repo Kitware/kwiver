@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Define MISP timestamp utility functions.
+/// Define MISP timestamp utility functions.
 
 #include "misp_time.h"
 

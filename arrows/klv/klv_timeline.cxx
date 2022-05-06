@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Implementation of KLV timeline class.
+/// Implementation of KLV timeline class.
 
 #include "klv_timeline.h"
 

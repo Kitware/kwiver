@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief This file contains the interface for the KLV key classes.
+/// This file contains the interface for the KLV key classes.
 
 #ifndef KWIVER_ARROWS_KLV_KLV_KEY_H_
 #define KWIVER_ARROWS_KLV_KLV_KEY_H_

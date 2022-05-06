@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Test KLV blob functions.
+/// Test KLV blob functions.
 
 #include <arrows/klv/klv_blob.txx>
 

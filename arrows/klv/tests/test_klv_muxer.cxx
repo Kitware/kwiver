@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Test KLV muxer.
+/// Test KLV muxer.
 
 #include <arrows/klv/klv_0601.h>
 #include <arrows/klv/klv_1108.h>

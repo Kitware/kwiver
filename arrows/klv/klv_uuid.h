@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Interface to the KLV UUID parser.
+/// Interface to the KLV UUID parser.
 
 #ifndef KWIVER_ARROWS_KLV_KLV_UUID_H_
 #define KWIVER_ARROWS_KLV_KLV_UUID_H_

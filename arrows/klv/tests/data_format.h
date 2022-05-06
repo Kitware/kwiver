@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Utility function templates for testing read/write for KLV data
+/// Utility function templates for testing read/write for KLV data
 /// formats.
 
 #include <arrows/klv/klv_data_format.h>

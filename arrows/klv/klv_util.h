@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Declaration of internal KLV utility functions.
+/// Declaration of internal KLV utility functions.
 
 #ifndef KWIVER_ARROWS_KLV_KLV_UTIL_H_
 #define KWIVER_ARROWS_KLV_KLV_UTIL_H_

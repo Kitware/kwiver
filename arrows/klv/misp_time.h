@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Declare MISP timestamp utility functions.
+/// Declare MISP timestamp utility functions.
 
 // Code here based on the following standards:
 // https://gwg.nga.mil/misb/docs/standards/ST0603.5.pdf

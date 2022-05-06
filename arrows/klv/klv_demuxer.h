@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Declaration of KLV demuxer.
+/// Declaration of KLV demuxer.
 
 #include "klv_timeline.h"
 

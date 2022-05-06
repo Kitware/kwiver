@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Test KLV 0102 read / write.
+/// Test KLV 0102 read / write.
 
 #include "data_format.h"
 

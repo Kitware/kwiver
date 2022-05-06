@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Declaration of KLV-vital conversion functions.
+/// Declaration of KLV-vital conversion functions.
 
 #include "klv_timeline.h"
 

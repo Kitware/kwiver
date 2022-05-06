@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Definition of KLV muxer.
+/// Definition of KLV muxer.
 
 #include "klv_0104.h"
 #include "klv_0601.h"
