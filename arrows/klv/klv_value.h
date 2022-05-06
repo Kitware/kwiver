@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief This file contains the interface for the \c klv_value class.
+/// This file contains the interface for the \c klv_value class.
 
 #include <arrows/klv/klv_blob.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>

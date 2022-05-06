@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Implementation of the KLV 0806 AOI Set parser.
+/// Implementation of the KLV 0806 AOI Set parser.
 
 #include "klv_0806_aoi_set.h"
 

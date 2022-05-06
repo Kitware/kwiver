@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief This file contains the implementation for the KLV specialization of
+/// This file contains the implementation for the KLV specialization of
 /// the vital::metadata class.
 
 #include "klv_metadata.h"

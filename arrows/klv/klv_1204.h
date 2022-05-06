@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Interface to the KLV 1204 parser.
+/// Interface to the KLV 1204 parser.
 
 #ifndef KWIVER_ARROWS_KLV_KLV_1204_H_
 #define KWIVER_ARROWS_KLV_KLV_1204_H_

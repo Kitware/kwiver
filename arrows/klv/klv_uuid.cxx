@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Implementation of the KLV UUID parser.
+/// Implementation of the KLV UUID parser.
 
 #include "klv_uuid.h"
 

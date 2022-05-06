@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Test basic KLV read / write functions
+/// Test basic KLV read / write functions
 
 #include <arrows/klv/klv_read_write.txx>
 

@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief This file contains the interface for the KLV specialization of the
+/// This file contains the interface for the KLV specialization of the
 /// vital::metadata class.
 
 #ifndef KWIVER_ARROWS_KLV_KLV_METADATA_H_

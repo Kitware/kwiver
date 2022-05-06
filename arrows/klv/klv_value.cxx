@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief This file contains the implementation of the \c klv_value class.
+/// This file contains the implementation of the \c klv_value class.
 
 #include "klv_value.h"
 

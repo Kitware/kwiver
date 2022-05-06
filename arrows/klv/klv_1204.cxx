@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Implementation of the KLV 1204 parser.
+/// Implementation of the KLV 1204 parser.
 
 #include "klv_1204.h"
 

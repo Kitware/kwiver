@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Implementation of KLV-vital conversion functions.
+/// Implementation of KLV-vital conversion functions.
 
 #include "klv_convert_vital.h"
 

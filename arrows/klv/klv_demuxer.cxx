@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Implementation of KLV demuxer.
+/// Implementation of KLV demuxer.
 
 #include "klv_demuxer.h"
 
