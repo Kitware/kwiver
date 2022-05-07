@@ -10,7 +10,7 @@
 
 #include <opencv2/opencv_modules.hpp>
 #ifdef HAVE_OPENCV_NONFREE
-#include <opencv2/nonfree/nonfree.hpp>
+//#include <opencv2/nonfree/nonfree.hpp>
 #endif
 
 #include <arrows/ocv/analyze_tracks.h>
@@ -72,7 +72,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   }
 
 #if defined(HAVE_OPENCV_NONFREE)
-  cv::initModule_nonfree();
+  //cv::initModule_nonfree();
 #endif
 
   reg.register_algorithm< analyze_tracks >();

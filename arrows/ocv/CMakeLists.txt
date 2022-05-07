@@ -121,6 +121,8 @@ set( ocv_sources
   windowed_trainer.cxx
   )
 
+add_definitions( -DHAVE_OPENCV_NONFREE -DHAVE_OPENCV_XFEATURES2D )
+
 kwiver_add_library( kwiver_algo_ocv
   ${ocv_headers_public}
   ${ocv_sources}
