@@ -44,7 +44,7 @@ public:
 
   // Constructor
   priv()
-  : pattern( "%s_%s_%f_%f_%fx%f.png" ),
+  : pattern( "%s-%s+%d_%d_%dx%d.png" ),
     unknown_label( "unknown" ),
     detection_counter( 0 ),
     frame_counter( 0 )
@@ -93,7 +93,7 @@ refine_detections_write_to_disk
     "the object category string, the source image filename (a string), "
     "and four values for the chip coordinate: "
     "top left x, top left y, width, height (all floating point numbers). "
-    "A possible full pattern would be '%s-%s-%f-%f-%f-%f.png'. "
+    "A possible full pattern would be '%s-%s-%d-%d-%d-%d.png'. "
     "The pattern must contain the correct file extension." );
 
   config->set_value( "unknown_label", d->unknown_label,
@@ -173,7 +173,7 @@ refine_detections_write_to_disk
     {
       frame_str = filename.c_str();
     }
-    else
+    if( filename.empty() )
     {
       std::size_t max_zeros = 6;
       frame_str = std::to_string( d->frame_counter );
@@ -191,9 +191,12 @@ refine_detections_write_to_disk
     }
 
     std::string ofn = kwiver::vital::string_format( d->pattern,
-                      category_str, frame_str,
-                      bbox.upper_left()[0], bbox.upper_left()[1],
-                      bbox.width(), bbox.height() );
+      category_str.c_str(),
+      frame_str.c_str(),
+      static_cast< int >( bbox.upper_left()[0] ),
+      static_cast< int >( bbox.upper_left()[1] ),
+      static_cast< int >( bbox.width() ),
+      static_cast< int >( bbox.height() ) );
 
     d->detection_counter++;
 
