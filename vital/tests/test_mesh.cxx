@@ -171,7 +171,7 @@ TEST ( mesh, copy_constructor )
   mesh_sptr original = kwiver::testing::cube_mesh( 1.0 );
   mesh_sptr copy = std::make_shared< mesh >( *original );
 
-  EXPECT_EQ( *original, *copy );
+  EXPECT_TRUE( original->approx_equal( *copy ) );
 
   EXPECT_TRUE( original->is_init() );
   EXPECT_TRUE( copy->is_init() );
@@ -187,7 +187,7 @@ TEST ( mesh, assignment_operator )
   mesh_sptr copy = std::make_shared< mesh >();
   *copy = *original;
 
-  EXPECT_EQ( *original, *copy );
+  EXPECT_TRUE( original->approx_equal( *copy ) );
 
   EXPECT_TRUE( original->is_init() );
   EXPECT_TRUE( copy->is_init() );

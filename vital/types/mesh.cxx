@@ -29,10 +29,10 @@ mesh_tri_normal( const vector_3d& a,
 // ----------------------------------------------------------------------------
 // Mesh vertices
 
-/// Equality operator
+/// Checks approximate equality
 bool
 mesh_vertex_array_base
-::operator==( mesh_vertex_array_base const& other ) const
+::approx_equal( mesh_vertex_array_base const& other, double epsilon ) const
 {
   if( dim() != other.dim() || size() != other.size() )
   {
@@ -47,9 +47,9 @@ mesh_vertex_array_base
   }
   for( unsigned int i = 0; i < these_normals.size(); i++ )
   {
-    if( these_normals[ i ][ 0 ] != other_normals[ i ][ 0 ] ||
-        these_normals[ i ][ 1 ] != other_normals[ i ][ 1 ] ||
-        these_normals[ i ][ 2 ] != other_normals[ i ][ 2 ] )
+    if( abs( these_normals[ i ][ 0 ] - other_normals[ i ][ 0 ] ) > epsilon ||
+        abs( these_normals[ i ][ 1 ] - other_normals[ i ][ 1 ] ) > epsilon ||
+        abs( these_normals[ i ][ 2 ] - other_normals[ i ][ 2 ] ) > epsilon )
     {
       return false;
     }
@@ -58,13 +58,13 @@ mesh_vertex_array_base
   return true;
 }
 
-/// Equality operator
+/// Checks approximate equality
 template < unsigned int d >
 bool
 mesh_vertex_array< d >
-::operator==( mesh_vertex_array_base const& other ) const
+::approx_equal( mesh_vertex_array_base const& other, double epsilon ) const
 {
-  if( mesh_vertex_array_base::operator==( other ) == false )
+  if( mesh_vertex_array_base::approx_equal( other, epsilon ) == false )
   {
     return false;
   }
@@ -106,12 +106,16 @@ mesh_regular_face< s >
   return true;
 }
 
-/// Equality operator
+/// Checks approximate equality
 bool
 mesh_face_array_base
-::operator==( mesh_face_array_base const& other ) const
+::approx_equal( mesh_face_array_base const& other, double epsilon) const
 {
-  if( regularity() != other.regularity() || size() != other.size() )
+  if( size() != other.size() )
+  {
+    return false;
+  }
+  if( regularity() != other.regularity() )
   {
     return false;
   }
@@ -124,9 +128,9 @@ mesh_face_array_base
   }
   for( unsigned int i = 0; i < these_normals.size(); i++ )
   {
-    if( these_normals[ i ][ 0 ] != other_normals[ i ][ 0 ] ||
-        these_normals[ i ][ 1 ] != other_normals[ i ][ 1 ] ||
-        these_normals[ i ][ 2 ] != other_normals[ i ][ 2 ] )
+    if( abs( these_normals[ i ][ 0 ] - other_normals[ i ][ 0 ] ) > epsilon ||
+        abs( these_normals[ i ][ 1 ] - other_normals[ i ][ 1 ] ) > epsilon ||
+        abs( these_normals[ i ][ 2 ] - other_normals[ i ][ 2 ] ) > epsilon )
     {
       return false;
     }
@@ -246,12 +250,12 @@ mesh_face_array_base
   }
 }
 
-/// Equality operator
+/// Checks approximate equality
 bool
 mesh_face_array
-::operator==( mesh_face_array_base const& other ) const
+::approx_equal( mesh_face_array_base const& other, double epsilon ) const
 {
-  if( mesh_face_array_base::operator==( other ) == false )
+  if( mesh_face_array_base::approx_equal( other, epsilon ) == false )
   {
     return false;
   }
@@ -316,13 +320,13 @@ mesh_face_array
   }
 }
 
-/// Equality operator
+/// Checks approximate equality
 template < unsigned int s >
 bool
 mesh_regular_face_array< s >
-::operator==( mesh_face_array_base const& other ) const
+::approx_equal( mesh_face_array_base const& other, double epsilon ) const
 {
-  if( mesh_face_array_base::operator==( other ) == false )
+  if( mesh_face_array_base::approx_equal( other, epsilon ) == false )
   {
     return false;
   }
@@ -591,10 +595,10 @@ mesh
   return *this;
 }
 
-/// Equality operator
+/// Checks approximate equality
 bool
 mesh
-::operator==( mesh const& other ) const
+::approx_equal( mesh const& other, double epsilon ) const
 {
   if( is_init() != other.is_init() )
   {
@@ -605,11 +609,11 @@ mesh
     return true;
   }
 
-  if( *verts_ != *other.verts_ )
+  if( verts_->approx_equal( *other.verts_, epsilon ) == false )
   {
     return false;
   }
-  if( *faces_ != *other.faces_ )
+  if( faces_->approx_equal( *other.faces_, epsilon ) == false )
   {
     return false;
   }
