@@ -61,6 +61,8 @@ Arrows: FFmpeg
 
 * Added support for multiple incoming KLV streams.
 
+* Added unknown_stream_behavior configuration option.
+
 Arrows: KLV
 
 * Moved KLV arrow from Vital.
