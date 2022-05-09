@@ -7,18 +7,7 @@
 
 #include "klv_packet.h"
 
-#include <arrows/klv/klv_0102.h>
-#include <arrows/klv/klv_0104.h>
-#include <arrows/klv/klv_0601.h>
-#include <arrows/klv/klv_0806.h>
-#include <arrows/klv/klv_0903.h>
-#include <arrows/klv/klv_1002.h>
-#include <arrows/klv/klv_1108.h>
-#include <arrows/klv/klv_1202.h>
-#include <arrows/klv/klv_1204.h>
-#include <arrows/klv/klv_1206.h>
-#include <arrows/klv/klv_1601.h>
-#include <arrows/klv/klv_unimplemented.h>
+#include <arrows/klv/klv_all.h>
 
 #include <iomanip>
 

@@ -54,6 +54,7 @@ set( sources
   )
 
 set( public_headers
+  klv_all.h
   klv_blob.h
   klv_demuxer.h
   klv_lengthy.h
