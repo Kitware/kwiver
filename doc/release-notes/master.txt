@@ -17,6 +17,8 @@ Vital Types
   East-North-Up. Added utility functions which perform conversion between NED
   and ENU coordinates.
 
+* Added video_raw_image, video_raw_metadata, and video_settings.
+
 Build System
 
 * Removed some CMake statements and support for old CMake version predating the
