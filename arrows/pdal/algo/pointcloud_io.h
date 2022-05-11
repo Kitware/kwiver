@@ -10,37 +10,41 @@
 
 #include <arrows/pdal/kwiver_algo_pdal_export.h>
 
-#include <vital/types/local_geo_cs.h>
-#include <vital/types/landmark_map.h>
 #include <vital/algo/pointcloud_io.h>
+#include <vital/types/landmark_map.h>
+#include <vital/types/local_geo_cs.h>
 
 namespace kwiver {
 namespace arrows {
 namespace pdal {
-
 class KWIVER_ALGO_PDAL_EXPORT pointcloud_io
   : public vital::algo::pointcloud_io
 {
 public:
   PLUGIN_INFO( "pdal",
-               "Use PDAL to write pointclouds." );
+               "Use PDAL to write and read point clouds." );
 
   /// \cond DoxygenSuppress
-  virtual void set_configuration(vital::config_block_sptr /*config*/) { }
-  virtual bool check_configuration(vital::config_block_sptr /*config*/)
-    const { return true; }
+  virtual void
+  set_configuration( vital::config_block_sptr /*config*/ ) {}
+
+  virtual bool
+  check_configuration( vital::config_block_sptr /*config*/ )
+  const { return true; }
   /// \endcond
 
-  void set_local_geo_cs(vital::local_geo_cs const& lgcs) { m_lgcs = lgcs; }
+  void
+  set_local_geo_cs( vital::local_geo_cs const& lgcs ) { m_lgcs = lgcs; }
 
 private:
   vital::local_geo_cs m_lgcs;
 
-  void save_(vital::path_t const& filename,
-             std::vector<vital::vector_3d> const& points,
-             std::vector<vital::rgb_color> const& colors) const;
-};
+  kwiver::vital::pointcloud_d load_( vital::path_t const& filename ) const;
 
+  void save_( vital::path_t const& filename,
+              std::vector< vital::vector_3d > const& points,
+              std::vector< vital::rgb_color > const& colors ) const;
+};
 } // end namespace pdal
 } // end namespace arrows
 } // end namespace kwiver
