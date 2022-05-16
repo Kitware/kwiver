@@ -2,7 +2,7 @@ KWIVER v1.7.0 Release Notes
 ===========================
 
 This is a minor release of KWIVER that provides both new functionality and fixes
-over the previous v1.6.0 release.
+over the previous v1.6.1 release.
 
 
 Updates

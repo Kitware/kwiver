@@ -246,8 +246,8 @@ image
 }
 
 /// Equality operator
-bool image::
-operator==( image const& other ) const
+bool image
+::operator==( image const& other ) const
 {
   return  data_         == other.data_ &&
           first_pixel_  == other.first_pixel_ &&
