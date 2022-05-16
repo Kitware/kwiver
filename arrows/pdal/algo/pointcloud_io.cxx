@@ -11,6 +11,8 @@
 #include <vital/logger/logger.h>
 #include <vital/types/geodesy.h>
 
+#include <kwiversys/SystemTools.hxx>
+
 #include <pdal/Dimension.hpp>
 #include <pdal/Options.hpp>
 #include <pdal/PointTable.hpp>
@@ -18,6 +20,7 @@
 #include <pdal/StageFactory.hpp>
 
 #include <io/BufferReader.hpp>
+#include <io/BpfReader.hpp>
 #include <io/LasReader.hpp>
 
 namespace kwiver {
@@ -32,14 +35,38 @@ pointcloud_io
   ::pdal::Options options;
   options.add( "filename", filename );
 
+  ::pdal::PointViewPtr point_view;
   ::pdal::PointTable table;
-  ::pdal::LasReader las_reader;
-  las_reader.setOptions( options );
-  las_reader.prepare( table );
 
-  ::pdal::PointViewSet point_view_set = las_reader.execute( table );
-  ::pdal::PointViewPtr point_view = *point_view_set.begin();
-  ::pdal::LasHeader las_header = las_reader.header();
+  auto ext = kwiversys::SystemTools::GetFilenameExtension(filename);
+
+  if ( ext == ".las" )
+  {
+    ::pdal::LasReader las_reader;
+    las_reader.setOptions(options);
+    las_reader.prepare(table);
+
+    ::pdal::PointViewSet point_view_set = las_reader.execute(table);
+    point_view = *point_view_set.begin();
+  }
+  else if ( ext == ".bpf" )
+  {
+    ::pdal::BpfReader bpf_reader;
+    bpf_reader.setOptions(options);
+    bpf_reader.prepare(table);
+
+    ::pdal::PointViewSet point_view_set = bpf_reader.execute(table);
+    point_view = *point_view_set.begin();
+  }
+  else
+  {
+    throw vital::invalid_file( filename,
+                               "file is not a las or bpf file.");
+  }
+
+  bool hasColor = point_view->hasDim(::pdal::Dimension::Id::Red) &&
+                  point_view->hasDim(::pdal::Dimension::Id::Green) &&
+                  point_view->hasDim(::pdal::Dimension::Id::Blue);
 
   std::vector< kwiver::vital::vector_3d > positions;
   std::vector< kwiver::vital::rgb_color > colors;
@@ -52,7 +79,7 @@ pointcloud_io
 
     positions.push_back( kwiver::vital::vector_3d( x, y, z ) );
 
-    if( las_header.hasColor() )
+    if ( hasColor )
     {
       uint8_t red = point_view->getFieldAs< uint8_t >(
         ::pdal::Dimension::Id::Red, idx );
@@ -67,7 +94,7 @@ pointcloud_io
 
   kwiver::vital::pointcloud_d retval( positions );
 
-  if( las_header.hasColor() )
+  if ( hasColor )
   {
     retval.set_color( colors );
   }
