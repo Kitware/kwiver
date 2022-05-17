@@ -26,6 +26,7 @@
 
 #include <kwiversys/SystemTools.hxx>
 
+#include <algorithm>
 #include <chrono>
 #include <memory>
 #include <mutex>
@@ -179,7 +180,7 @@ public:
           klv::KLV_PACKET_MISB_1108_LOCAL_SET )
       {
         auto const timestamp = klv::klv_packet_timestamp( packet );
-        m_curr_misp_timestamp = std::max( m_curr_misp_timestamp, timestamp );
+        m_curr_misp_timestamp = std::max( m_curr_misp_timestamp, timestamp.value() );
       }
 
       m_klv_demuxer.demux_packet( packet );
