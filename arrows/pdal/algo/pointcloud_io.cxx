@@ -22,6 +22,7 @@
 #include <io/BufferReader.hpp>
 #include <io/BpfReader.hpp>
 #include <io/LasReader.hpp>
+#include <io/PlyReader.hpp>
 
 namespace kwiver {
 namespace arrows {
@@ -58,10 +59,19 @@ pointcloud_io
     ::pdal::PointViewSet point_view_set = bpf_reader.execute(table);
     point_view = *point_view_set.begin();
   }
+  else if ( ext == ".ply" )
+  {
+    ::pdal::PlyReader ply_reader;
+    ply_reader.setOptions(options);
+    ply_reader.prepare(table);
+
+    ::pdal::PointViewSet point_view_set = ply_reader.execute(table);
+    point_view = *point_view_set.begin();
+  }
   else
   {
     throw vital::invalid_file( filename,
-                               "file is not a las or bpf file.");
+                               "file is not a bpf, las, or ply file.");
   }
 
   bool hasColor = point_view->hasDim(::pdal::Dimension::Id::Red) &&

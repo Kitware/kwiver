@@ -71,7 +71,7 @@ TEST_F ( pointcloud_io, load )
 
   auto pc_io = kwiver::arrows::pdal::pointcloud_io();
 
-  for( std::string ext : { ".las", ".bpf" } )
+  for( std::string ext : { ".bpf", ".las", ".ply" } )
   {
     auto const octahedron_path = data_dir + "/" + octahedron_base + ext;
 
