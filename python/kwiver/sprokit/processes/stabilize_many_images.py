@@ -16,7 +16,7 @@ from .simple_homog_tracker import add_declare_config, Transformer
 def stabilize_many_images(
         compute_features_and_descriptors,
         match_features, estimate_single_homography,
-        compute_ref_homography,
+        compute_ref_homography, close_loops=None,
 ):
     """Create a Transformer that performs stabilization on multiple
     images captured by a multi-camera system.  Arguments:
@@ -30,6 +30,8 @@ def stabilize_many_images(
     - compute_ref_homography should be
       kwiver.vital.algo.ComputeRefHomography.estimate (bound) or a
       similar callable
+    - close_loops should be kwiver.vital.algo.CloseLoops.stitch
+      (bound) or a similar callable if supplied
 
     The .step call expects one argument:
     - a list of kvt.BaseImageContainer objects
@@ -42,7 +44,9 @@ def stabilize_many_images(
     ris = register_image_set(SingleHomographyEstimator(
         match_features, estimate_single_homography,
     ))
-    eh = estimate_homography(match_features, compute_ref_homography)
+    eh = estimate_homography(
+        match_features, compute_ref_homography, close_loops,
+    )
     output = None
     while True:
         images, = yield output
@@ -139,7 +143,9 @@ def combine_matches(match_sets):
     return result
 
 @Transformer.decorate
-def estimate_homography(match_features, compute_ref_homography):
+def estimate_homography(
+        match_features, compute_ref_homography, close_loops=None,
+):
     """Create a Transformer that estimates homographies using features and
     descriptors.  Arguments:
     - match_features should be kwiver.vital.algo.MatchFeatures.match
@@ -147,6 +153,8 @@ def estimate_homography(match_features, compute_ref_homography):
     - compute_ref_homography should be
       kwiver.vital.algo.ComputeRefHomography.estimate (bound) or a
       similar callable
+    - close_loops should be kwiver.vital.algo.CloseLoops.stitch
+      (bound) or a similar callable if supplied
 
     The .step call expects two arguments:
     - a kvt.FeatureSet
@@ -164,7 +172,7 @@ def estimate_homography(match_features, compute_ref_homography):
         descriptors
 
         """
-        nonlocal track_id
+        nonlocal fts, track_id
         atl = [] if frame_id == 0 else fts.active_tracks(frame_id - 1)
         atsl = [t[frame_id - 1] for t in atl]
         afs = kvt.SimpleFeatureSet([ts.feature for ts in atsl])
@@ -185,6 +193,16 @@ def estimate_homography(match_features, compute_ref_homography):
                 track_id += 1
                 t.append(ts)
                 fts.insert(t)
+        if close_loops is not None:
+            # CloseLoops.stitch technically requires the image data
+            # for its third argument, but none of the currently
+            # available implementations actually use it, so we don't
+            # bother trying to pass it here.
+            #
+            # Also, at least some implementations mutate the
+            # FeatureTrackSet, though fortunately this is irrelevant
+            # to us since fts doesn't escape and is used linearly.
+            fts = close_loops(frame_id, fts, None)
 
     output = None
     while True:
@@ -369,7 +387,9 @@ def add_declare_output_port(process, name, type, flag, desc):
     process.declare_output_port_using_trait(name, flag)
 
 class ManyImageStabilizer(KwiverProcess):
-    _ALGOS = dict(
+    # Required algos.  There's also an optional
+    # loop_closer=kva.CloseLoops that's handled specially.
+    _REQUIRED_ALGOS = dict(
         feature_detector=kva.DetectFeatures,
         descriptor_extractor=kva.ExtractDescriptors,
         feature_matcher=kva.MatchFeatures,
@@ -381,9 +401,11 @@ class ManyImageStabilizer(KwiverProcess):
         KwiverProcess.__init__(self, config)
 
         add_declare_config(self, 'n_input', '2', 'Number of inputs')
-        for k, v in self._ALGOS.items():
+        for k, v in self._REQUIRED_ALGOS.items():
             add_declare_config(self, k, '',
                                'Configuration for a nested ' + v.static_type_name())
+        add_declare_config(self, 'loop_closer', '',
+                           'Configuration for a nested close_loops (optional)')
 
         # XXX work around insufficient wrapping
         self._n_input = int(self.config_value('n_input'))
@@ -398,9 +420,10 @@ class ManyImageStabilizer(KwiverProcess):
 
     def _configure(self):
         config = self.get_config()
-        algos = {k: v.set_nested_algo_configuration(k, config)
-                 for k, v in self._ALGOS.items()}
+        def snac(a, k): return a.set_nested_algo_configuration(k, config)
+        algos = {k: snac(v, k) for k, v in self._REQUIRED_ALGOS.items()}
         assert None not in algos.values()
+        loop_closer = snac(kva.CloseLoops, 'loop_closer')
 
         self._n_input = int(self.config_value('n_input'))
         self._stabilizer = stabilize_many_images(
@@ -410,6 +433,7 @@ class ManyImageStabilizer(KwiverProcess):
             algos['feature_matcher'].match,
             algos['homography_estimator'].estimate,
             algos['ref_homography_computer'].estimate,
+            None if loop_closer is None else loop_closer.stitch,
         )
 
         self._base_configure()
