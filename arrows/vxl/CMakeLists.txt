@@ -71,7 +71,8 @@ set(vxl_sources
   vil_image_memory.cxx
   )
 
-if( fletch_ENABLE_FFmpeg AND _FFmpeg_version VERSION_LESS 4 )
+
+if(KWIVER_ENABLE_FFMPEG)
   list(APPEND vxl_headers_public
     vidl_ffmpeg_video_input.h
   )
