@@ -197,12 +197,14 @@ def estimate_homography(
             # CloseLoops.stitch technically requires the image data
             # for its third argument, but none of the currently
             # available implementations actually use it, so we don't
-            # bother trying to pass it here.
+            # bother trying to pass it here.  Also, the fourth
+            # argument, a mask, is supposed to be optional but the
+            # wrapping is imperfect.
             #
             # Also, at least some implementations mutate the
             # FeatureTrackSet, though fortunately this is irrelevant
             # to us since fts doesn't escape and is used linearly.
-            fts = close_loops(frame_id, fts, None)
+            fts = close_loops(frame_id, fts, None, None)
 
     output = None
     while True:
