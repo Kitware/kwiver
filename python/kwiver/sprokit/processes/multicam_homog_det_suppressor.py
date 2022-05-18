@@ -201,8 +201,13 @@ def find_all_suppression_homogs_and_sizes():
         frames_by_ref[multihomog.to_id] = prev_homogs, prev_sizes
 
 @Transformer.decorate
-def suppress(suppression_poly_class=None):
-    fpshs = find_prev_suppression_homogs_and_sizes()
+def suppress(suppression_poly_class=None, *, past_frames):
+    if past_frames == 'prev_neighbors':
+        fshs = find_prev_suppression_homogs_and_sizes()
+    elif past_frames == 'all':
+        fshs = find_all_suppression_homogs_and_sizes()
+    else:
+        raise ValueError("Invalid value for past_frames")
     output = None
     while True:
         dhss, = yield output
@@ -211,7 +216,7 @@ def suppress(suppression_poly_class=None):
         multihomog = MultiHomographyF2F.from_homographyf2fs(map(wrap_F2FHomography, homogs))
         do_lists = list(map(to_DetectedObject_list, do_sets))
         boxes = (map(get_DetectedObject_bbox, dos) for dos in do_lists)
-        prev_shs = fpshs.step(multihomog, sizes)
+        prev_shs = fshs.step(multihomog, sizes)
         curr_shs = get_self_suppression_homogs_and_sizes(multihomog, sizes)
         shs = concat_suppression_homogs_and_sizes(prev_shs, curr_shs)
         keep_its = arg_suppress_boxes(boxes, shs)
@@ -238,6 +243,12 @@ class MulticamHomogDetSuppressor(KwiverProcess):
         add_declare_config(self, 'suppression_poly_class', '',
                            'If not empty, include polygons indicating the'
                            ' suppressed area with this class')
+        add_declare_config(self, 'past_frames', 'prev_neighbors', (
+            'Which past frames to use for suppression.  Valid values are'
+            ' "prev_neighbors" (previous frame and same and neighboring'
+            ' cameras only; this is the default) and "all" (all past frames'
+            ' and cameras)'
+        ))
 
         optional = process.PortFlags()
         required = process.PortFlags()
@@ -259,7 +270,8 @@ class MulticamHomogDetSuppressor(KwiverProcess):
         # XXX actually use this
         self._n_input = int(self.config_value('n_input'))
         spc = self.config_value('suppression_poly_class') or None
-        self._suppressor = suppress(spc)
+        pf = self.config_value('past_frames')
+        self._suppressor = suppress(spc, past_frames=pf)
         self._base_configure()
 
     def _step(self):
