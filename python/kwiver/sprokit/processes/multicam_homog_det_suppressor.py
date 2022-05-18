@@ -23,6 +23,66 @@ from .stabilize_many_images import (
 
 logger = logging.getLogger(__name__)
 
+zero_homog_and_size = (np.empty((0, 3, 3)), np.empty((0, 2), dtype=int))
+
+def get_self_suppression_homogs_and_sizes(multihomog, sizes):
+    """Get suppression homographies and sizes within a single timestep
+
+    Returns a value suitable for supplying as arg_suppress_boxes's
+    suppression_homogs_and_sizes argument.
+
+    """
+    return [
+        zero_homog_and_size if cam == hc else (to_curr[s], sizes[s])
+        for cam, to_curr in enumerate(diff_homogs(
+                multihomog.homogs, multihomog.homogs,
+        ))
+        for hc in [len(multihomog) // 2]
+        # XXX This choice of suppression is very tied to how
+        # stabilize_many_images works
+        for s in [np.s_[min(cam + 1, hc):max(cam, hc + 1)]]
+    ]
+
+def get_prev_suppression_homogs_and_sizes(
+        multihomog, prev_multihomog, prev_sizes):
+    """Get suppression homographies and sizes from the previous
+    timestep
+
+    Only cameras with the same or an adjacent index are used to
+    suppress a given camera.
+
+    Returns a value suitable for supplying as arg_suppress_boxes's
+    suppression_homogs_and_sizes argument.
+
+    """
+    if prev_multihomog is None or multihomog.to_id != prev_multihomog.to_id:
+        return len(multihomog) * [zero_homog_and_size]
+    else:
+        return [
+            (to_prev[s], prev_sizes[s])
+            for cam, to_prev in enumerate(diff_homogs(
+                    multihomog.homogs, prev_multihomog.homogs,
+            ))
+            for s in [np.s_[max(0, cam - 1):min(cam + 2, len(prev_multihomog))]]
+        ]
+
+def concat_suppression_homogs_and_sizes(*args):
+    """Combine multiple values suitable for supplying as
+    arg_suppress_boxes's suppression_homogs_and_sizes argument into
+    one
+
+    """
+    if not args:
+        raise ValueError("At least one argument required")
+    ncam = len(args[0])
+    if any(len(arg) != ncam for arg in args):
+        raise ValueError("Arguments must have a consistent number of cameras")
+    result = []
+    for args_single_cam in zip(*args):
+        homogs, sizes = zip(*args_single_cam)
+        result.append((np.concatenate(homogs), np.concatenate(sizes)))
+    return result
+
 def get_suppression_homogs_and_sizes(
         multihomog, sizes, prev_multihomog, prev_sizes):
     """Compute for each camera transformations to other frames that
@@ -33,30 +93,11 @@ def get_suppression_homogs_and_sizes(
     frames and the second is an ndarray of those frames' sizes.
 
     """
-    zero_homog_and_size = (np.empty((0, 3, 3)), np.empty((0, 2), dtype=int))
-    if prev_multihomog is None or multihomog.to_id != prev_multihomog.to_id:
-        prev_homogs_and_sizes = len(multihomog) * [zero_homog_and_size]
-    else:
-        prev_homogs_and_sizes = [
-            (to_prev[s], prev_sizes[s])
-            for cam, to_prev in enumerate(diff_homogs(
-                    multihomog.homogs, prev_multihomog.homogs,
-            ))
-            for s in [np.s_[max(0, cam - 1):min(cam + 2, len(prev_multihomog))]]
-        ]
-    curr_homogs_and_sizes = [
-        zero_homog_and_size if cam == hc else (to_curr[s], sizes[s])
-        for cam, to_curr in enumerate(diff_homogs(
-                multihomog.homogs, multihomog.homogs,
-        ))
-        for hc in [len(multihomog) // 2]
-        # XXX This choice of suppression is very tied to how
-        # stabilize_many_images works
-        for s in [np.s_[min(cam + 1, hc):max(cam, hc + 1)]]
-    ]
-    return [(np.concatenate([ph, ch]), np.concatenate([ps, cs]))
-            for (ph, ps), (ch, cs)
-            in zip(prev_homogs_and_sizes, curr_homogs_and_sizes)]
+    prev_hs = get_prev_suppression_homogs_and_sizes(
+        multihomog, prev_multihomog, prev_sizes,
+    )
+    curr_hs = get_self_suppression_homogs_and_sizes(multihomog, sizes)
+    return concat_suppression_homogs_and_sizes(prev_hs, curr_hs)
 
 def arg_suppress_boxes(box_lists, suppression_homogs_and_sizes):
     """Compute whether bounding boxes should be kept after suppression
