@@ -182,6 +182,25 @@ def find_prev_suppression_homogs_and_sizes():
         prev_multihomog, prev_sizes = multihomog, sizes
 
 @Transformer.decorate
+def find_all_suppression_homogs_and_sizes():
+    frames_by_ref = {}
+    output = None
+    while True:
+        multihomog, sizes = yield output
+        try:
+            prev_homogs, prev_sizes = frames_by_ref[multihomog.to_id]
+        except KeyError:
+            prev_homogs, prev_sizes = [], zero_homog_and_size[1]
+            output = len(multihomog) * [zero_homog_and_size]
+        else:
+            output = [(
+                to_prev, prev_sizes,
+            ) for to_prev in diff_homogs(multihomog.homogs, prev_homogs)]
+        prev_homogs.extend(multihomog.homogs)
+        prev_sizes = np.concatenate([prev_sizes, sizes])
+        frames_by_ref[multihomog.to_id] = prev_homogs, prev_sizes
+
+@Transformer.decorate
 def suppress(suppression_poly_class=None):
     fpshs = find_prev_suppression_homogs_and_sizes()
     output = None
