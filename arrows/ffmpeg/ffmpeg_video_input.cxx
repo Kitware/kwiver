@@ -40,6 +40,7 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
+#include <iomanip>
 #include <list>
 #include <memory>
 #include <mutex>
@@ -840,17 +841,127 @@ public:
     md->add< vital::VITAL_META_VIDEO_URI >( video_path );
 
     // Mark whether the frame is a key frame
-    if( this->f_frame->key_frame > 0 )
-    {
-      md->add< vital::VITAL_META_VIDEO_KEY_FRAME >( true );
-    }
-    else
-    {
-      md->add< vital::VITAL_META_VIDEO_KEY_FRAME >( false );
-    }
+    md->add< vital::VITAL_META_VIDEO_KEY_FRAME >( f_frame->key_frame > 0 );
 
+    // Add image dimensions
     md->add< vital::VITAL_META_IMAGE_WIDTH >( f_frame->width );
     md->add< vital::VITAL_META_IMAGE_HEIGHT >( f_frame->height );
+
+    // Add frame rate
+    if( f_video_stream->avg_frame_rate.num > 0 )
+    {
+      md->add< vital::VITAL_META_VIDEO_FRAME_RATE >(
+        av_q2d( f_video_stream->avg_frame_rate ) );
+    }
+
+    // Add bitrate
+    auto bitrate = f_video_encoding->bit_rate;
+    if( !bitrate )
+    {
+      bitrate = f_video_encoding->bit_rate_tolerance;
+    }
+    if( bitrate )
+    {
+      md->add< vital::VITAL_META_VIDEO_BITRATE >( bitrate );
+    }
+
+    // Add compression information
+    static std::map< int, std::string > h262_profiles = {
+      { FF_PROFILE_MPEG2_SIMPLE, "Simple" },
+      { FF_PROFILE_MPEG2_MAIN, "Main" },
+      { FF_PROFILE_MPEG2_SNR_SCALABLE, "SNR Scalable" },
+      { FF_PROFILE_MPEG2_SS, "Spatially Scalable" },
+      { FF_PROFILE_MPEG2_HIGH, "High" },
+      { FF_PROFILE_MPEG2_422, "4:2:2" },
+    };
+    static std::map< int, std::string > h262_levels = {
+      { 10, "Low" },
+      { 8, "Main" },
+      { 6, "High-1440" },
+      { 4, "High" },
+    };
+    static std::map< int, std::string > h264_profiles = {
+      { FF_PROFILE_H264_BASELINE, "Baseline" },
+      { FF_PROFILE_H264_CONSTRAINED_BASELINE, "Constrained Baseline" },
+      { FF_PROFILE_H264_MAIN, "Main" },
+      { FF_PROFILE_H264_EXTENDED, "Extended" },
+      { FF_PROFILE_H264_HIGH, "High" },
+      { FF_PROFILE_H264_HIGH_10, "High 10" },
+      { FF_PROFILE_H264_HIGH_422, "High 4:2:2" },
+      { FF_PROFILE_H264_HIGH_444_PREDICTIVE, "High 4:4:4 Predictive" },
+      { FF_PROFILE_H264_HIGH_10_INTRA, "High 10 Intra" },
+      { FF_PROFILE_H264_HIGH_422_INTRA, "High 4:2:2 Intra" },
+      { FF_PROFILE_H264_HIGH_444_INTRA, "High 4:4:4 Intra" },
+      { FF_PROFILE_H264_CAVLC_444, "CAVLC 4:4:4 Intra" },
+    };
+    static std::map< int, std::string > h265_profiles = {
+      { FF_PROFILE_HEVC_MAIN, "Main" },
+      { FF_PROFILE_HEVC_MAIN_10, "Main 10" },
+      { FF_PROFILE_HEVC_MAIN_STILL_PICTURE, "Main Still Picture" },
+    };
+
+    std::string compression_type;
+    std::string compression_profile;
+    std::string compression_level;
+    switch( f_video_encoding->codec_id )
+    {
+      case AV_CODEC_ID_MPEG2VIDEO:
+      {
+        compression_type = "H.262";
+        auto const profile_it =
+          h262_profiles.find( f_video_encoding->profile );
+        compression_profile =
+          ( profile_it == h262_profiles.end() ) ? "Other" : profile_it->second;
+        auto const level_it = h262_levels.find( f_video_encoding->level );
+        compression_level =
+          ( level_it == h262_levels.end() ) ? "Other" : level_it->second;
+        break;
+      }
+      case AV_CODEC_ID_H264:
+      {
+        compression_type = "H.264";
+        auto const profile_it =
+          h264_profiles.find( f_video_encoding->profile );
+        compression_profile =
+          ( profile_it == h264_profiles.end() ) ? "Other" : profile_it->second;
+        std::stringstream ss;
+        ss << std::setprecision( 2 )
+           << ( f_video_encoding->level / 10.0 );
+        compression_level = ss.str();
+        break;
+      }
+      case AV_CODEC_ID_H265:
+      {
+        compression_type = "H.265";
+        auto const profile_it =
+          h265_profiles.find( f_video_encoding->profile );
+        compression_profile =
+          ( profile_it == h265_profiles.end() ) ? "Other" : profile_it->second;
+        std::stringstream ss;
+        ss << std::setprecision( 2 )
+           << ( f_video_encoding->level / 30.0 );
+        compression_level = ss.str();
+        break;
+      }
+      default:
+        break;
+    }
+
+    if( !compression_type.empty() )
+    {
+      md->add< vital::VITAL_META_VIDEO_COMPRESSION_TYPE >( compression_type );
+    }
+
+    if( !compression_profile.empty() )
+    {
+      md->add< vital::VITAL_META_VIDEO_COMPRESSION_PROFILE >(
+        compression_profile );
+    }
+
+    if( !compression_level.empty() )
+    {
+      md->add< vital::VITAL_META_VIDEO_COMPRESSION_LEVEL >( compression_level );
+    }
   }
 
   kwiver::vital::metadata_vector
