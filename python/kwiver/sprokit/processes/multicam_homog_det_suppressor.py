@@ -83,22 +83,6 @@ def concat_suppression_homogs_and_sizes(*args):
         result.append((np.concatenate(homogs), np.concatenate(sizes)))
     return result
 
-def get_suppression_homogs_and_sizes(
-        multihomog, sizes, prev_multihomog, prev_sizes):
-    """Compute for each camera transformations to other frames that
-    suppress its detections and their sizes
-
-    Returns a list of pairs, one per camera, where the first element
-    is an ndarray of homographies from the camera to suppressing
-    frames and the second is an ndarray of those frames' sizes.
-
-    """
-    prev_hs = get_prev_suppression_homogs_and_sizes(
-        multihomog, prev_multihomog, prev_sizes,
-    )
-    curr_hs = get_self_suppression_homogs_and_sizes(multihomog, sizes)
-    return concat_suppression_homogs_and_sizes(prev_hs, curr_hs)
-
 def arg_suppress_boxes(box_lists, suppression_homogs_and_sizes):
     """Compute whether bounding boxes should be kept after suppression
 
@@ -202,8 +186,10 @@ def suppress(suppression_poly_class=None):
         multihomog = MultiHomographyF2F.from_homographyf2fs(map(wrap_F2FHomography, homogs))
         do_lists = list(map(to_DetectedObject_list, do_sets))
         boxes = (map(get_DetectedObject_bbox, dos) for dos in do_lists)
-        shs = get_suppression_homogs_and_sizes(multihomog, sizes,
-                                               prev_multihomog, prev_sizes)
+        prev_shs = get_prev_suppression_homogs_and_sizes(
+            multihomog, prev_multihomog, prev_sizes)
+        curr_shs = get_self_suppression_homogs_and_sizes(multihomog, sizes)
+        shs = concat_suppression_homogs_and_sizes(prev_shs, curr_shs)
         keep_its = arg_suppress_boxes(boxes, shs)
         if suppression_poly_class is None:
             poly_dets = [()] * len(do_lists)
