@@ -55,10 +55,7 @@
 					"hex": "060e2b34 01010101 01050500 00000000",
 					"string": "Episode Number"
 				},
-				"value": {
-					"length": 4,
-					"value": 4.2
-				}
+				"value": "4.2"
 			},
 			{
 				"key": {

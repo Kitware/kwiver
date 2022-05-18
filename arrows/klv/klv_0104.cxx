@@ -82,7 +82,7 @@ klv_0104_traits_lookup()
       1 },
     { { 0x060E2B3401010101, 0x0105050000000000 },
       ENUM_AND_NAME( KLV_0104_EPISODE_NUMBER ),
-      std::make_shared< klv_float_format >(),
+      std::make_shared< klv_string_format >(),
       "Episode Number",
       "Number to distinguish different missions started on a given day.",
       { 0, 1 } },

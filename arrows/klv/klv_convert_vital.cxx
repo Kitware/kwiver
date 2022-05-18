@@ -241,7 +241,9 @@ klv_0104_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
     { KLV_0104_ANGLE_TO_NORTH,
       kv::VITAL_META_ANGLE_TO_NORTH },
     { KLV_0104_OBLIQUITY_ANGLE,
-      kv::VITAL_META_OBLIQUITY_ANGLE }, };
+      kv::VITAL_META_OBLIQUITY_ANGLE },
+    { KLV_0104_EPISODE_NUMBER,
+      kv::VITAL_META_MISSION_NUMBER } };
 
   // Convert all the direct mappings en masse
   for( auto const& entry : direct_map )
@@ -254,17 +256,6 @@ klv_0104_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
       auto const converted_value = klv_to_vital_value( value );
       vital_data.add( vital_tag, converted_value );
     }
-  }
-
-  // Convert the episode/mission number (an actual number here) to a string
-  auto const episode_number =
-    klv_data.at( standard, KLV_0104_EPISODE_NUMBER, timestamp );
-  if( episode_number.valid() )
-  {
-    auto const value = episode_number.get< double >();
-    std::stringstream ss;
-    ss << std::fixed << value;
-    vital_data.add< kv::VITAL_META_MISSION_NUMBER >( ss.str() );
   }
 
   // Parse the datetime strings into UNIX microsecond timestamps
