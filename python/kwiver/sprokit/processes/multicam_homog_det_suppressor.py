@@ -43,29 +43,6 @@ def get_self_suppression_homogs_and_sizes(multihomog, sizes):
         for s in [np.s_[min(cam + 1, hc):max(cam, hc + 1)]]
     ]
 
-def get_prev_suppression_homogs_and_sizes(
-        multihomog, prev_multihomog, prev_sizes):
-    """Get suppression homographies and sizes from the previous
-    timestep
-
-    Only cameras with the same or an adjacent index are used to
-    suppress a given camera.
-
-    Returns a value suitable for supplying as arg_suppress_boxes's
-    suppression_homogs_and_sizes argument.
-
-    """
-    if prev_multihomog is None or multihomog.to_id != prev_multihomog.to_id:
-        return len(multihomog) * [zero_homog_and_size]
-    else:
-        return [
-            (to_prev[s], prev_sizes[s])
-            for cam, to_prev in enumerate(diff_homogs(
-                    multihomog.homogs, prev_multihomog.homogs,
-            ))
-            for s in [np.s_[max(0, cam - 1):min(cam + 2, len(prev_multihomog))]]
-        ]
-
 def concat_suppression_homogs_and_sizes(*args):
     """Combine multiple values suitable for supplying as
     arg_suppress_boxes's suppression_homogs_and_sizes argument into
@@ -176,8 +153,37 @@ def wrap_poly(poly, class_):
     return result
 
 @Transformer.decorate
-def suppress(suppression_poly_class=None):
+def find_prev_suppression_homogs_and_sizes():
+    """Get suppressing frames from the previous timestep
+
+    Only cameras with the same or an adjacent index are used to
+    suppress a given camera.
+
+    The .step call expects parameters two parameters, multihomog and
+    sizes, and returns a value suitable for supplying as
+    arg_suppress_boxes's suppression_homogs_and_sizes argument.
+
+    """
     prev_multihomog = prev_sizes = None
+    output = None
+    while True:
+        multihomog, sizes = yield output
+        if prev_multihomog is None or multihomog.to_id != prev_multihomog.to_id:
+            output = len(multihomog) * [zero_homog_and_size]
+        else:
+            output = [
+                (to_prev[s], prev_sizes[s])
+                for cam, to_prev in enumerate(diff_homogs(
+                        multihomog.homogs, prev_multihomog.homogs,
+                ))
+                for s in [np.s_[max(0, cam - 1)
+                                : min(cam + 2, len(prev_multihomog))]]
+            ]
+        prev_multihomog, prev_sizes = multihomog, sizes
+
+@Transformer.decorate
+def suppress(suppression_poly_class=None):
+    fpshs = find_prev_suppression_homogs_and_sizes()
     output = None
     while True:
         dhss, = yield output
@@ -186,8 +192,7 @@ def suppress(suppression_poly_class=None):
         multihomog = MultiHomographyF2F.from_homographyf2fs(map(wrap_F2FHomography, homogs))
         do_lists = list(map(to_DetectedObject_list, do_sets))
         boxes = (map(get_DetectedObject_bbox, dos) for dos in do_lists)
-        prev_shs = get_prev_suppression_homogs_and_sizes(
-            multihomog, prev_multihomog, prev_sizes)
+        prev_shs = fpshs.step(multihomog, sizes)
         curr_shs = get_self_suppression_homogs_and_sizes(multihomog, sizes)
         shs = concat_suppression_homogs_and_sizes(prev_shs, curr_shs)
         keep_its = arg_suppress_boxes(boxes, shs)
@@ -201,7 +206,6 @@ def suppress(suppression_poly_class=None):
                 return np.where(p, p, 0)  # Replace -0 with 0
             poly_dets = ((wrap_poly(n(p), suppression_poly_class) for p in ps)
                          for ps in suppression_polys(shs, sizes))
-        prev_multihomog, prev_sizes = multihomog, sizes
         output = [
             DetectedObjectSet([*(do for k, do in zip(keep, dos) if k), *pd])
             for keep, dos, pd in zip(keep_its, do_lists, poly_dets)
