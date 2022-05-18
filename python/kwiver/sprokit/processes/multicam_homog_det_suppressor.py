@@ -59,8 +59,24 @@ def get_suppression_homogs_and_sizes(
             in zip(prev_homogs_and_sizes, curr_homogs_and_sizes)]
 
 def arg_suppress_boxes(box_lists, suppression_homogs_and_sizes):
-    """Return a list of iterables of bools, False when the corresponding
-    BBox should have been in the previous frame.
+    """Compute whether bounding boxes should be kept after suppression
+
+    Arguments:
+    - box_lists (list[list[.simple_homog_tracker.BBox]]): bounding
+      boxes, where the elements of the outer list correspond to the
+      different cameras
+    - suppression_homogs_and_sizes (list[tuple[ndarray, ndarray]]):
+      transformations to previous frames and those frames' sizes.  The
+      elements of the list correspond to the different cameras.  Each
+      pair holds:
+      - homogs: Nx3x3 ndarray whose first dimension corresponds to
+        the previous frames that suppress detections for this camera.
+        Each element is a homography that warps camera coordinates to
+        previous-frame coordinates.
+      - sizes: Nx2 ndarray with the image sizes of the previous frames
+
+    Returns list[list[bool]], False when the corresponding BBox's
+    center should have been in a previous frame.
 
     """
     def center_in_bounds(box, homogs, sizes):
