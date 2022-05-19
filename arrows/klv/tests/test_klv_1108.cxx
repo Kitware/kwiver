@@ -83,38 +83,7 @@ TEST ( klv, read_write_1108 )
 // ----------------------------------------------------------------------------
 TEST ( klv, read_write_1108_packet )
 {
-  auto const packet_header = klv_bytes_t{
-    0x06, 0x0E, 0x2B, 0x34, 0x02, 0x03, 0x01, 0x01,
-    0x0E, 0x01, 0x03, 0x03, 0x1C, 0x00, 0x00, 0x00,
-    102, };
   auto const packet_footer = klv_bytes_t{ KLV_1108_CHECKSUM, 2, 0x4A, 0xB4 };
-
-  // Assemble the target packet's serialized form
-  auto packet_bytes =
-    klv_bytes_t( packet_header.size() +
-                 input_bytes.size() +
-                 packet_footer.size() );
-  auto bytes_it = packet_bytes.begin();
-  bytes_it = std::copy( packet_header.cbegin(), packet_header.cend(),
-                        bytes_it );
-  bytes_it = std::copy( input_bytes.cbegin(), input_bytes.cend(),
-                        bytes_it );
-  bytes_it = std::copy( packet_footer.cbegin(), packet_footer.cend(),
-                        bytes_it );
-
-  // Assemble the target packet's unserialized form
-  auto const test_packet = klv_packet{ klv_1108_key(), expected_result };
-
-  // Deserialize
-  auto read_it = packet_bytes.cbegin();
-  auto const read_packet = klv_read_packet( read_it, packet_bytes.size() );
-  EXPECT_EQ( packet_bytes.cend(), read_it );
-  EXPECT_EQ( test_packet, read_packet );
-
-  // Reserialize
-  klv_bytes_t written_bytes( klv_packet_length( read_packet ) );
-  auto write_it = written_bytes.begin();
-  klv_write_packet( read_packet, write_it, written_bytes.size() );
-  EXPECT_EQ( written_bytes.end(), write_it );
-  EXPECT_EQ( packet_bytes, written_bytes );
+  CALL_TEST( test_read_write_packet,
+             expected_result, input_bytes, packet_footer, klv_1108_key() );
 }

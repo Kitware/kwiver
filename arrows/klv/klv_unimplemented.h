@@ -26,12 +26,6 @@ klv_uds_key
 klv_0809_key();
 
 // ----------------------------------------------------------------------------
-/// Return the UDS key for a MISB ST1107 local set.
-KWIVER_ALGO_KLV_EXPORT
-klv_uds_key
-klv_1107_key();
-
-// ----------------------------------------------------------------------------
 /// Return the UDS key for a MISB ST1507 local set.
 KWIVER_ALGO_KLV_EXPORT
 klv_uds_key

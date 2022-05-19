@@ -69,6 +69,7 @@ using klv_type_list =
     klv_1002_enumerations,
     klv_1002_section_data_pack,
     klv_1010_sdcc_flp,
+    klv_1107_slant_range_pedigree,
     klv_1108_assessment_point,
     klv_1108_compression_profile,
     klv_1108_compression_type,

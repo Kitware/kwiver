@@ -741,6 +741,28 @@
 		]
 	},
 	{
+		"frame": null,
+		"microseconds": null,
+		"stream-index": 0,
+		"key": {
+			"bytes": "Bg4rNAILAQEOAQMDIgAAAA==",
+			"hex": "060e2b34 020b0101 0e010303 22000000",
+			"string": "MISB ST1107 Local Set"
+		},
+		"value": [
+			{
+				"key": {
+					"integer": 38,
+					"string": "Slant Range Pedigree"
+				},
+				"value": {
+					"integer": 2,
+					"string": "Calculated"
+				}
+			}
+		]
+	},
+	{
 		"frame": 8,
 		"microseconds": 2048,
 		"stream-index": 0,

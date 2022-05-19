@@ -435,6 +435,7 @@ KLV_INSTANTIATE( klv_0903_vtrackitem_pack );
 KLV_INSTANTIATE( klv_1002_enumerations );
 KLV_INSTANTIATE( klv_1002_section_data_pack );
 KLV_INSTANTIATE( klv_1010_sdcc_flp );
+KLV_INSTANTIATE( klv_1107_slant_range_pedigree );
 KLV_INSTANTIATE( klv_1108_assessment_point );
 KLV_INSTANTIATE( klv_1108_compression_profile );
 KLV_INSTANTIATE( klv_1108_compression_type );
