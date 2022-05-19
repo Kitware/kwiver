@@ -52,6 +52,7 @@
 #include "train_detector_process.h"
 #include "unwrap_detections_process.h"
 #include "video_input_process.h"
+#include "video_output_process.h"
 #include "write_object_track_process.h"
 #include "write_track_descriptor_process.h"
 
@@ -96,6 +97,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_process< detected_object_filter_process >();
   reg.register_process< downsample_process >();
   reg.register_process< video_input_process >();
+  reg.register_process< video_output_process >();
   reg.register_process< draw_detected_object_set_process >();
   reg.register_process< split_image_process >();
   reg.register_process< merge_images_process >( process_registrar::no_test );

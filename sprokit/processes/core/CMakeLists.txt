@@ -51,6 +51,7 @@ set( sources
   train_detector_process.cxx
   unwrap_detections_process.cxx
   video_input_process.cxx
+  video_output_process.cxx
   write_object_track_process.cxx
   write_track_descriptor_process.cxx
 )
@@ -101,6 +102,7 @@ set( private_headers
   train_detector_process.h
   unwrap_detections_process.h
   video_input_process.h
+  video_output_process.h
   write_object_track_process.h
   write_track_descriptor_process.h
 )
