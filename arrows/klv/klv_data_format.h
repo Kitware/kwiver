@@ -733,6 +733,8 @@ protected:
 
   Format m_format;
 };
+using klv_lengthless_float_format = klv_lengthless_format< klv_float_format >;
+using klv_lengthless_imap_format = klv_lengthless_format< klv_imap_format >;
 
 // ----------------------------------------------------------------------------
 template< class Enum, class Int >

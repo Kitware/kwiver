@@ -825,8 +825,10 @@ public:
     SAVE_MEMBER( members );
     SAVE_MEMBER( sigma );
     SAVE_MEMBER( rho );
-    SAVE_MEMBER( sigma_format );
-    SAVE_MEMBER( rho_format );
+    SAVE_MEMBER( sigma_length );
+    SAVE_MEMBER( rho_length );
+    SAVE_MEMBER( sigma_uses_imap );
+    SAVE_MEMBER( rho_uses_imap );
     SAVE_MEMBER( long_parse_control );
     SAVE_MEMBER( sparse );
   }
@@ -1589,15 +1591,19 @@ struct klv_json_loader : public klv_json_base< load_archive >
     LOAD_MEMBER( members );
     LOAD_MEMBER( sigma );
     LOAD_MEMBER( rho );
-    LOAD_MEMBER( sigma_format );
-    LOAD_MEMBER( rho_format );
+    LOAD_MEMBER( sigma_length );
+    LOAD_MEMBER( rho_length );
+    LOAD_MEMBER( sigma_uses_imap );
+    LOAD_MEMBER( rho_uses_imap );
     LOAD_MEMBER( long_parse_control );
     LOAD_MEMBER( sparse );
     return { std::move( members ),
              std::move( sigma ),
              std::move( rho ),
-             std::move( sigma_format ),
-             std::move( rho_format ),
+             std::move( sigma_length ),
+             std::move( rho_length ),
+             std::move( sigma_uses_imap ),
+             std::move( rho_uses_imap ),
              std::move( long_parse_control ),
              std::move( sparse ) };
   }

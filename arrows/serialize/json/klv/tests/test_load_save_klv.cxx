@@ -228,8 +228,8 @@ klv_local_set const test_0601_set = {
       { KLV_0601_SENSOR_LATITUDE, KLV_0601_SENSOR_LONGITUDE },
       { 4.0, 2.0 },
       { 0.5 },
-      std::make_shared< klv_float_format >( 4 ),
-      std::make_shared< klv_imap_format >( -1.0, 1.0, 3 ),
+      4, 3,
+      false, true,
       true,
       false } },
   { KLV_0601_MISSION_ID, klv_blob{ 0x00, 0xFF } } };

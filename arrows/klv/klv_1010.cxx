@@ -67,17 +67,25 @@ DEFINE_STRUCT_CMP(
 klv_1010_sdcc_flp_format
 ::klv_1010_sdcc_flp_format()
   : klv_data_format_< klv_1010_sdcc_flp >{ 0 },
-    m_sigma_uses_imap{ false }
+    m_sigma_imap{},
+    m_preceding_keys{}
 {}
 
 // ----------------------------------------------------------------------------
 klv_1010_sdcc_flp_format
-::klv_1010_sdcc_flp_format( double sigma_minimum, double sigma_maximum )
+::klv_1010_sdcc_flp_format( imap_from_key_fn sigma_imap )
   : klv_data_format_< klv_1010_sdcc_flp >{ 0 },
-    m_sigma_uses_imap{ true },
-    m_sigma_minimum{ sigma_minimum },
-    m_sigma_maximum{ sigma_maximum }
+    m_sigma_imap{ sigma_imap },
+    m_preceding_keys{}
 {}
+
+// ----------------------------------------------------------------------------
+void
+klv_1010_sdcc_flp_format
+::set_preceding( std::vector< klv_lds_key > const& preceding_keys )
+{
+  m_preceding_keys = preceding_keys;
+}
 
 // ----------------------------------------------------------------------------
 std::string
@@ -100,55 +108,42 @@ klv_1010_sdcc_flp_format
     klv_read_ber_oid< size_t >( data, tracker.remaining() );
   result.members.resize( matrix_size, 0 );
 
+  if( m_preceding_keys.size() < matrix_size )
+  {
+    VITAL_THROW( kv::metadata_exception,
+                 "SDCC-FLP: insufficient preceding keys" );
+  }
+  std::copy( m_preceding_keys.end() - matrix_size,
+             m_preceding_keys.end(),
+             result.members.begin() );
+
   // Read parse control bytes
   auto const parse_control_begin = data;
   auto parse_control =
     klv_read_ber_oid< uint16_t >( data, tracker.verify( 2 ) );
-  size_t sigma_length, rho_length;
-  auto sigma_uses_imap = m_sigma_uses_imap;
-  auto rho_uses_imap = true;
   if( ( result.long_parse_control =
           std::distance( parse_control_begin, data ) > 1 ) )
   {
-    sigma_length = parse_control & 0xF;
+    result.sigma_length = parse_control & 0xF;
     parse_control >>= 4;
-    sigma_uses_imap = parse_control & 0x1;
+    result.sigma_uses_imap = parse_control & 0x1;
     parse_control >>= 3;
-    rho_length = parse_control & 0xF;
+    result.rho_length = parse_control & 0xF;
     parse_control >>= 4;
-    rho_uses_imap = parse_control & 0x1;
+    result.rho_uses_imap = parse_control & 0x1;
     parse_control >>= 1;
     result.sparse = parse_control & 0x1;
   }
   else
   {
-    rho_length = parse_control & 0x7;
+    result.sigma_uses_imap = m_sigma_imap;
+    result.rho_uses_imap = true;
+
+    result.rho_length = parse_control & 0x7;
     parse_control >>= 3;
     result.sparse = parse_control & 0x1;
     parse_control >>= 1;
-    sigma_length = parse_control & 0x7;
-  }
-
-  // Report data formats
-  if( sigma_uses_imap )
-  {
-    result.sigma_format =
-      std::make_shared< klv_imap_format >(
-        m_sigma_minimum, m_sigma_maximum, sigma_length );
-  }
-  else
-  {
-    result.sigma_format = std::make_shared< klv_float_format >( sigma_length );
-  }
-
-  if( rho_uses_imap )
-  {
-    result.rho_format =
-      std::make_shared< klv_imap_format >( -1.0, 1.0, rho_length );
-  }
-  else
-  {
-    result.rho_format = std::make_shared< klv_float_format >( rho_length );
+    result.sigma_length = parse_control & 0x7;
   }
 
   // Read sparse bit vector
@@ -163,31 +158,45 @@ klv_1010_sdcc_flp_format
   }
 
   // Read standard deviations
-  if( sigma_length )
+  if( result.sigma_length )
   {
     for( size_t i = 0; i < matrix_size; ++i )
     {
-      result.sigma.push_back(
-          result.sigma_format->read( data, tracker.verify( sigma_length ) )
-          .get< klv_lengthy< double > >().value );
+      double value;
+      if( result.sigma_uses_imap )
+      {
+        auto const format =
+          m_sigma_imap( result.members.at( i ), result.sigma_length );
+        value = format.read_( data, tracker.verify( result.sigma_length ) );
+      }
+      else
+      {
+        value = klv_read_float( data, tracker.verify( result.sigma_length ) );
+      }
+      result.sigma.push_back( value );
     }
   }
 
   // Read correlations
-  if( rho_length )
+  if( result.rho_length )
   {
     for( auto const i : kvr::iota< size_t >( rho_count ) )
     {
+      double value;
       if( result.sparse && !( bitset.at( i / 8 ) & ( 0x80 >> ( i % 8 ) ) ) )
       {
-        result.rho.push_back( 0.0 );
+        value = 0.0;
+      }
+      else if( result.rho_uses_imap )
+      {
+        value = klv_read_imap( -1.0, 1.0, data,
+                               tracker.verify( result.rho_length ) );
       }
       else
       {
-        result.rho.push_back(
-            result.rho_format->read( data, tracker.verify( rho_length ) )
-            .get< klv_lengthy< double > >().value );
+        value = klv_read_float( data, tracker.verify( result.rho_length ) );
       }
+      result.rho.push_back( value );
     }
   }
 
@@ -212,41 +221,32 @@ klv_1010_sdcc_flp_format
   klv_write_ber_oid( matrix_size, data, tracker.remaining() );
 
   // Write parse control bytes
-  auto const sigma_length =
-    value.sigma_format ? value.sigma_format->fixed_length() : 0;
-  auto const rho_length =
-    value.rho_format ? value.rho_format->fixed_length() : 0;
-  auto const sigma_uses_imap =
-    dynamic_cast< klv_imap_format* >( value.sigma_format.get() ) != nullptr;
-  auto const rho_uses_imap =
-    dynamic_cast< klv_imap_format* >( value.rho_format.get() ) != nullptr;
-
   if( value.long_parse_control )
   {
     auto parse_control = static_cast< uint16_t >( value.sparse );
     parse_control <<= 1;
-    parse_control |= rho_uses_imap;
+    parse_control |= value.rho_uses_imap;
     parse_control <<= 4;
-    parse_control |= rho_length;
+    parse_control |= value.rho_length;
     parse_control <<= 3;
-    parse_control |= sigma_uses_imap;
+    parse_control |= value.sigma_uses_imap;
     parse_control <<= 4;
-    parse_control |= sigma_length;
+    parse_control |= value.sigma_length;
     klv_write_ber_oid( parse_control, data, tracker.verify( 2 ) );
   }
   else
   {
-    auto parse_control = static_cast< uint16_t >( sigma_length );
+    auto parse_control = static_cast< uint16_t >( value.sigma_length );
     parse_control <<= 1;
     parse_control |= value.sparse;
     parse_control <<= 3;
-    parse_control |= rho_length;
+    parse_control |= value.rho_length;
     klv_write_ber_oid( parse_control, data, tracker.verify( 1 ) );
   }
 
   // Write sparse bit vector
   auto const rho_count = matrix_size * ( matrix_size - 1 ) / 2;
-  if( value.sparse && rho_length )
+  if( value.sparse && value.rho_length )
   {
     auto const bitset_length = ( rho_count + 7 ) / 8;
     std::vector< uint8_t > bitset( bitset_length );
@@ -259,18 +259,28 @@ klv_1010_sdcc_flp_format
   }
 
   // Write standard deviations
-  if( sigma_length )
+  if( value.sigma_length )
   {
+    auto it = value.members.begin();
     for( auto const sigma_value : value.sigma )
     {
-      value.sigma_format->write(
-        klv_lengthy< double >{ sigma_value, sigma_length },
-        data, tracker.verify( sigma_length ) );
+      if( value.sigma_uses_imap )
+      {
+        auto const format = m_sigma_imap( *it, value.sigma_length );
+        format.write_( sigma_value, data,
+                       tracker.verify( value.sigma_length ) );
+      }
+      else
+      {
+        klv_write_float( sigma_value, data,
+                         tracker.verify( value.sigma_length ) );
+      }
+      ++it;
     }
   }
 
   // Write correlations
-  if( rho_length )
+  if( value.rho_length )
   {
     for( auto const rho_value : value.rho )
     {
@@ -278,9 +288,15 @@ klv_1010_sdcc_flp_format
       {
         continue;
       }
-      value.rho_format->write(
-        klv_lengthy< double >{ rho_value, rho_length },
-        data, tracker.verify( rho_length ) );
+      else if( value.rho_uses_imap )
+      {
+        klv_write_imap( rho_value, -1.0, 1.0, data,
+                        tracker.verify( value.rho_length ) );
+      }
+      else
+      {
+        klv_write_float( rho_value, data, tracker.verify( value.rho_length ) );
+      }
     }
   }
 }
@@ -291,10 +307,6 @@ klv_1010_sdcc_flp_format
 ::length_of_typed( klv_1010_sdcc_flp const& value ) const
 {
   auto const matrix_size = value.members.size();
-  auto const sigma_length =
-    value.sigma_format ? value.sigma_format->fixed_length() : 0;
-  auto const rho_length =
-    value.rho_format ? value.rho_format->fixed_length() : 0;
   auto const rho_count =
     matrix_size * ( matrix_size - 1 ) / 2;
   auto const rho_sparse_count =
@@ -306,9 +318,9 @@ klv_1010_sdcc_flp_format
   auto const length_of_parse_control = size_t{ 1 } + value.long_parse_control;
   auto const length_of_bit_vector =
     value.sparse ? ( rho_count + 7 ) / 8 : 0;
-  auto const length_of_sigma = sigma_length * value.sigma.size();
+  auto const length_of_sigma = value.sigma_length * value.sigma.size();
   auto const length_of_rho =
-    rho_length * ( value.sparse ? rho_sparse_count : rho_count );
+    value.rho_length * ( value.sparse ? rho_sparse_count : rho_count );
   return length_of_matrix_size +
          length_of_parse_control +
          length_of_bit_vector +
