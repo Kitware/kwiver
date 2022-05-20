@@ -18,6 +18,7 @@ create_config_trait( target_frame_rate, double, "1.0", "Target frame rate" );
 create_config_trait( burst_frame_count, unsigned, "0", "Burst frame count" );
 create_config_trait( burst_frame_break, unsigned, "0", "Burst frame break" );
 create_config_trait( renumber_frames, bool, "false", "Renumber output frames" );
+create_config_trait( only_frames_with_dets, bool, "false", "Frames with dets only" );
 
 class downsample_process::priv
 {
@@ -33,6 +34,7 @@ public:
   unsigned burst_frame_count_;
   unsigned burst_frame_break_;
   bool renumber_frames_;
+  bool only_frames_with_dets_;
 
   // Time of the current frame (seconds)
   double ds_frame_time_;
@@ -92,6 +94,7 @@ void downsample_process
   d->burst_frame_count_ = config_value_using_trait( burst_frame_count );
   d->burst_frame_break_ = config_value_using_trait( burst_frame_break );
   d->renumber_frames_ = config_value_using_trait( renumber_frames );
+  d->only_frames_with_dets_ = config_value_using_trait( only_frames_with_dets );
 }
 
 void downsample_process
@@ -102,6 +105,12 @@ void downsample_process
   d->burst_counter_ = 0;
   d->output_counter_ = 0;
   d->is_first_ = true;
+  d->only_frames_with_dets_ = false;
+
+  if( process::count_output_port_edges( "frame_rate" ) > 0)
+  {
+    push_to_port_using_trait( frame_rate, d->target_frame_rate_ );
+  }
 }
 
 void downsample_process
@@ -148,6 +157,29 @@ void downsample_process
     send_frame = !d->skip_frame( ts, frame_rate );
   }
 
+  if( d->only_frames_with_dets_ )
+  {
+    for( size_t i = 0; i < 5; i++ )
+    {
+      if( has_input_port_edge( d->port_inputs[i] ) )
+      {
+        try
+        {
+          if( peek_at_datum_on_port( d->port_inputs[i] )->get_datum<
+            kwiver::vital::detected_object_set_sptr >()->empty() )
+          {
+            send_frame = false;
+            break;
+          }
+        }
+        catch( ... )
+        {
+          continue;
+        }
+      }
+    }
+  }
+
   if( send_frame )
   {
     if( d->renumber_frames_ )
@@ -175,6 +207,11 @@ void downsample_process
       }
       else if( send_frame )
       {
+        if( d->only_frames_with_dets_ )
+        {
+          //adjust track timestamps here
+        }
+
         push_datum_to_port( d->port_outputs[i], datum );
       }
     }
@@ -213,6 +250,7 @@ void downsample_process
   }
 
   declare_output_port_using_trait( timestamp, optional );
+  declare_output_port_using_trait( frame_rate, optional );
   for( size_t i = 0; i < 5; i++ )
   {
     declare_output_port( priv::port_outputs[i],
