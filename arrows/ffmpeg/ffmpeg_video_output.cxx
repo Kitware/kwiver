@@ -52,7 +52,11 @@ private:
   kv::logger_handle_t logger;
 
   size_t frame_count;
+  size_t width;
+  size_t height;
   AVRational frame_rate;
+  std::string codec_name;
+  size_t bitrate;
 };
 
 // ----------------------------------------------------------------------------
@@ -67,7 +71,11 @@ ffmpeg_video_output::impl
     image_conversion_context{ nullptr },
     logger{},
     frame_count{ 0 },
-    frame_rate{ 0, 1 }
+    width{ 0 },
+    height{ 0 },
+    frame_rate{ 0, 1 },
+    codec_name{},
+    bitrate{ 0 }
 {
   ffmpeg_init();
 }
@@ -127,7 +135,7 @@ ffmpeg_video_output::impl
   return static_cast< int64_t >(
     static_cast< double >( frame_count ) *
     video_stream->time_base.den / video_stream->time_base.num /
-    frame_rate.num * frame_rate.den + 0.5 );
+    codec_context->framerate.num * codec_context->framerate.den + 0.5 );
 }
 
 // ----------------------------------------------------------------------------
@@ -153,8 +161,33 @@ vital::config_block_sptr
 ffmpeg_video_output
 ::get_configuration() const
 {
-  // TODO
   auto config = vital::algorithm::get_configuration();
+
+  config->set_value(
+    "width", d->width,
+    "Output width in pixels."
+  );
+  config->set_value(
+    "height", d->height,
+    "Output height in pixels."
+  );
+  config->set_value(
+    "frame_rate_num", d->frame_rate.num,
+    "Integral numerator of the output frame rate."
+  );
+  config->set_value(
+    "frame_rate_den", d->frame_rate.den,
+    "Integral denominator of the output frame rate. Defaults to 1."
+  );
+  config->set_value(
+    "codec_name", d->codec_name,
+    "String identifying the codec to use."
+  );
+  config->set_value(
+    "bitrate", d->bitrate,
+    "Desired bitrate in bits per second."
+  );
+
   return config;
 }
 
@@ -163,9 +196,22 @@ void
 ffmpeg_video_output
 ::set_configuration( kv::config_block_sptr config )
 {
-  // TODO
   auto existing_config = vital::algorithm::get_configuration();
   existing_config->merge_config( config );
+
+  d->width = config->get_value< size_t >( "width", d->width );
+  d->height = config->get_value< size_t >( "height", d->height );
+  d->frame_rate.num =
+    config->get_value< size_t >( "frame_rate_num", d->frame_rate.num );
+  if( config->has_value( "frame_rate_num" ) )
+  {
+    d->frame_rate.den = 1;
+  }
+  d->frame_rate.den =
+    config->get_value< size_t >( "frame_rate_den", d->frame_rate.den );
+  d->codec_name =
+    config->get_value< std::string >( "codec_name", d->codec_name );
+  d->bitrate = config->get_value< size_t >( "bitrate", d->bitrate );
 }
 
 // ----------------------------------------------------------------------------
@@ -173,7 +219,6 @@ bool
 ffmpeg_video_output
 ::check_configuration( kv::config_block_sptr config ) const
 {
-  // TODO
   return true;
 }
 
@@ -186,14 +231,14 @@ ffmpeg_video_output
   // Ensure we start from a blank slate
   close();
 
-  auto const settings =
+  ffmpeg_video_settings const default_settings;
+  auto settings =
     generic_settings
     ? dynamic_cast< ffmpeg_video_settings const* >( generic_settings )
     : nullptr;
   if( !settings )
   {
-    VITAL_THROW( kv::invalid_value,
-                 "Must provide ffmpeg_video_settings to open()" );
+    settings = &default_settings;
   }
 
   // Allocate output format context
@@ -221,9 +266,14 @@ ffmpeg_video_output
     default:
       requested_codec = avcodec_find_encoder( settings->parameters->codec_id );
   }
+  auto const config_codec =
+    avcodec_find_encoder_by_name( d->codec_name.c_str() );
 
   d->codec = avcodec_find_encoder( d->output_format->video_codec );
-  for( auto const encoder : { requested_codec, x265_codec, x264_codec } )
+  for( auto const encoder : { requested_codec,
+                              config_codec,
+                              x265_codec,
+                              x264_codec } )
   {
     // Ensure codec exists and is compatible with the output file format
     if( encoder && avformat_query_codec( d->output_format,
@@ -263,6 +313,34 @@ ffmpeg_video_output
   {
     d->codec_context->width = settings->parameters->width;
     d->codec_context->height = settings->parameters->height;
+  }
+
+  // Fill in backup parameters from config
+  if( d->codec_context->framerate.num <= 0 )
+  {
+    d->codec_context->framerate = d->frame_rate;
+    d->codec_context->time_base = av_inv_q( d->frame_rate );
+  }
+  if( d->codec_context->width <= 0 )
+  {
+    d->codec_context->width = d->width;
+  }
+  if( d->codec_context->height <= 0 )
+  {
+    d->codec_context->height = d->height;
+  }
+  if( d->codec_context->bit_rate <= 0 )
+  {
+    d->codec_context->bit_rate = d->bitrate;
+  }
+
+  // Ensure we have all the required information
+  if( d->codec_context->width <= 0 || d->codec_context->height <= 0 ||
+      d->codec_context->framerate.num <= 0 )
+  {
+    VITAL_THROW( kv::invalid_value,
+                 "ffmpeg_video_output requires width, height, and frame rate "
+                 "to be specified prior to calling open()" );
   }
 
   // Create video stream
@@ -317,8 +395,6 @@ ffmpeg_video_output
     VITAL_THROW( kv::video_runtime_exception,
                  "Failed to initialize output stream" );
   }
-
-  d->frame_rate = settings->frame_rate;
 }
 
 // ----------------------------------------------------------------------------
@@ -364,7 +440,6 @@ ffmpeg_video_output
   d->codec = nullptr;
 
   d->frame_count = 0;
-  d->frame_rate = { 0, 1 };
 }
 
 // ----------------------------------------------------------------------------

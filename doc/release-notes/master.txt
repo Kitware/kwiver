@@ -1,0 +1,15 @@
+KWIVER v1.8.0 Release Notes
+===========================
+
+This is a minor release of KWIVER that provides both new functionality and fixes
+over the previous v1.7.0 release.
+
+
+Updates
+-------
+
+Arrows
+
+Arrows: FFmpeg
+
+* Added basic configuration options to ffmpeg_video_output.

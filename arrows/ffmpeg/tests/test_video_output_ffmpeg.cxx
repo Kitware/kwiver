@@ -69,6 +69,21 @@ expect_eq_images( kv::image const& src_image,
   EXPECT_LT( error, epsilon );
 }
 
+namespace {
+
+// This will delete the temporary file even if an exception is thrown
+struct _tmp_file_deleter
+{
+  ~_tmp_file_deleter()
+  {
+    std::remove( tmp_path.c_str() );
+  }
+
+  std::string tmp_path;
+};
+
+} // namespace
+
 // ----------------------------------------------------------------------------
 // Test that reading, writing, then reading a video produces generally the
 // same result as the first time we read it.
@@ -85,16 +100,7 @@ TEST_F ( ffmpeg_video_output, round_trip )
   ffmpeg::ffmpeg_video_output os;
   os.open( tmp_path, is.implementation_settings().get() );
 
-  // This will delete the temporary file even if an exception is thrown
-  struct _tmp_file_deleter
-  {
-    ~_tmp_file_deleter()
-    {
-      std::remove( tmp_path.c_str() );
-    }
-
-    std::string tmp_path;
-  } tmp_file_deleter{ tmp_path };
+  _tmp_file_deleter tmp_file_deleter{ tmp_path };
 
   // Write to a temporary file
   for( is.next_frame( ts ); !is.end_of_video(); is.next_frame( ts ) )
@@ -129,4 +135,28 @@ TEST_F ( ffmpeg_video_output, round_trip )
   EXPECT_TRUE( tmp_is.end_of_video() );
   src_is.close();
   tmp_is.close();
+}
+
+// ----------------------------------------------------------------------------
+// Ensure we can open a video output without knowing the implementation type.
+TEST_F ( ffmpeg_video_output, generic_open )
+{
+  auto const tmp_path =
+    kwiver::testing::temp_file_name( "test-ffmpeg-output-", ".mp4" );
+
+  // Create
+  ffmpeg::ffmpeg_video_output ff_os;
+  kv::algo::video_output& os = ff_os;
+
+  // Configure
+  auto config = os.get_configuration();
+  config->set_value( "width", 96 );
+  config->set_value( "height", 64 );
+  config->set_value( "frame_rate_num", 15 );
+  os.set_configuration( config );
+
+  // Open / close
+  os.open( tmp_path, nullptr );
+  _tmp_file_deleter tmp_file_deleter{ tmp_path };
+  os.close();
 }
