@@ -106,11 +106,6 @@ void downsample_process
   d->output_counter_ = 0;
   d->is_first_ = true;
   d->only_frames_with_dets_ = false;
-
-  if( process::count_output_port_edges( "frame_rate" ) > 0)
-  {
-    push_to_port_using_trait( frame_rate, d->target_frame_rate_ );
-  }
 }
 
 void downsample_process
@@ -150,6 +145,11 @@ void downsample_process
     {
       frame_rate = grab_from_port_using_trait( frame_rate );
     }
+  }
+
+  if( d->is_first_ && process::count_output_port_edges( "frame_rate" ) > 0 )
+  {
+    push_to_port_using_trait( frame_rate, d->target_frame_rate_ );
   }
 
   if( ts.has_valid_frame() || ts.has_valid_time() )
@@ -267,6 +267,7 @@ void downsample_process
   declare_config_using_trait( burst_frame_count );
   declare_config_using_trait( burst_frame_break );
   declare_config_using_trait( renumber_frames );
+  declare_config_using_trait( only_frames_with_dets );
 }
 
 int downsample_process::priv
