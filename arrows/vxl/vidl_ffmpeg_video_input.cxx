@@ -199,8 +199,7 @@ public:
 
     // Get the vital metadata structure for the current frame
     auto result =
-      klv::klv_to_vital_metadata( m_klv_timeline, { m_prev_misp_timestamp,
-                                                    m_curr_misp_timestamp } );
+      klv::klv_to_vital_metadata( m_klv_timeline, m_curr_misp_timestamp );
 
     // Add the frame timestamp to the metadata
     kwiver::vital::timestamp frame_timestamp;
@@ -303,7 +302,8 @@ public:
     {
       auto const packet_data = d_video_stream.current_packet_data();
       auto it = kwiver::arrows::klv::find_misp_timestamp( packet_data.cbegin(),
-                                                          packet_data.cend() );
+                                                          packet_data.cend(),
+                                                          klv::MISP_TIMESTAMP_TAG_STRING );
       if ( it != packet_data.cend() )
       {
         meta_ts = kwiver::arrows::klv::read_misp_timestamp( it ).timestamp;
