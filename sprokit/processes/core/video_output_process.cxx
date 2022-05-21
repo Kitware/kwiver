@@ -127,27 +127,6 @@ void video_output_process
 void video_output_process
 ::_step()
 {
-  if( d->m_first_frame )
-  {
-    double frame_rate;
-
-    if( has_input_port_edge_using_trait( frame_rate ) )
-    {
-      frame_rate = grab_from_port_using_trait( frame_rate );
-    }
-
-    // instantiate a video reader
-#ifdef WITH_FFMPEG
-    arrows::ffmpeg::ffmpeg_video_settings default_settings;
-    default_settings.frame_rate = av_d2q( frame_rate, 1e9 );
-#else
-    vital::video_settings default_settings;
-#endif
-    d->m_video_writer->open( d->m_video_filename, &default_settings ); // throws
-
-    d->m_first_frame = false;
-  }
-
   vital::image_container_sptr frame = grab_from_port_using_trait( image );
   vital::timestamp ts = grab_from_port_using_trait( timestamp );
 
@@ -166,6 +145,29 @@ void video_output_process
   else
   {
     d->m_last_frame = frame;
+  }
+
+  if( d->m_first_frame )
+  {
+    double frame_rate;
+
+    if( has_input_port_edge_using_trait( frame_rate ) )
+    {
+      frame_rate = grab_from_port_using_trait( frame_rate );
+    }
+
+    // instantiate a video reader
+#ifdef WITH_FFMPEG
+    arrows::ffmpeg::ffmpeg_video_settings default_settings;
+    default_settings.frame_rate = av_d2q( frame_rate, 1e9 );
+    default_settings.parameters->width = frame->width();
+    default_settings.parameters->height = frame->height();
+#else
+    vital::video_settings default_settings;
+#endif
+    d->m_video_writer->open( d->m_video_filename, &default_settings ); // throws
+
+    d->m_first_frame = false;
   }
 
   d->m_video_writer->add_image( frame, ts );
