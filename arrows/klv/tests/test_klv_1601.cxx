@@ -42,9 +42,9 @@ auto const expected_result = klv_local_set {
         48.08388f, 48.08389f, 48.08390f, 48.08391f } } },
   { KLV_1601_SECOND_IMAGE_NAME, std::string{ "test.img" } },
   { KLV_1601_ALGORITHM_CONFIG_ID,
-    klv_uuid{ {
+    klv_uuid{
       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x00, 0x11,
-      0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99 } } },
+      0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99 } },
   { KLV_1601_ELEVATION, klv_1303_mdap< double >{
       { 4 },
       { 1500.0f, 1501.0f, 1500.0f, 1499.0f } } },

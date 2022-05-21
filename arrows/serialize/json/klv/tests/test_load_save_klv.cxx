@@ -2,33 +2,7 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include <arrows/klv/klv_0102.h>
-#include <arrows/klv/klv_0104.h>
-#include <arrows/klv/klv_0601.h>
-#include <arrows/klv/klv_0806.h>
-#include <arrows/klv/klv_0806_aoi_set.h>
-#include <arrows/klv/klv_0806_poi_set.h>
-#include <arrows/klv/klv_0806_user_defined_set.h>
-#include <arrows/klv/klv_0903.h>
-#include <arrows/klv/klv_0903_algorithm_set.h>
-#include <arrows/klv/klv_0903_location_pack.h>
-#include <arrows/klv/klv_0903_ontology_set.h>
-#include <arrows/klv/klv_0903_vchip_set.h>
-#include <arrows/klv/klv_0903_vfeature_set.h>
-#include <arrows/klv/klv_0903_vmask_set.h>
-#include <arrows/klv/klv_0903_vobject_set.h>
-#include <arrows/klv/klv_0903_vtarget_pack.h>
-#include <arrows/klv/klv_0903_vtrack_set.h>
-#include <arrows/klv/klv_0903_vtracker_set.h>
-#include <arrows/klv/klv_0903_vtrackitem_pack.h>
-#include <arrows/klv/klv_1002.h>
-#include <arrows/klv/klv_1010.h>
-#include <arrows/klv/klv_1108.h>
-#include <arrows/klv/klv_1108_metric_set.h>
-#include <arrows/klv/klv_1202.h>
-#include <arrows/klv/klv_1204.h>
-#include <arrows/klv/klv_1206.h>
-#include <arrows/klv/klv_1303.hpp>
+#include <arrows/klv/klv_all.h>
 
 #include <arrows/serialize/json/klv/load_save_klv.h>
 
@@ -84,7 +58,7 @@ klv_universal_set const test_0104_set = {
   { key_0104( KLV_0104_USER_DEFINED_TIMESTAMP ),
     uint64_t{ 4321 } },
   { key_0104( KLV_0104_EPISODE_NUMBER ),
-    kld{ 4.2, 4 } },
+    std::string{ "4.2" } },
   { key_0104( KLV_0104_DEVICE_DESIGNATION ),
     std::string{ "Bob" } } };
 
@@ -239,8 +213,8 @@ klv_local_set const test_0601_set = {
       2,
       KLV_1204_DEVICE_ID_TYPE_PHYSICAL,
       KLV_1204_DEVICE_ID_TYPE_NONE,
-      klv_uuid{ { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-                  0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F } } } },
+      klv_uuid{ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F } } },
   { KLV_0601_VIEW_DOMAIN,
     klv_0601_view_domain{
       klv_0601_view_domain_interval{ 30.0, 60.0 },
@@ -258,7 +232,7 @@ klv_local_set const test_0601_set = {
       std::make_shared< klv_imap_format >( -1.0, 1.0, 3 ),
       true,
       false } },
-  { KLV_0601_MISSION_ID, klv_blob{ { 0x00, 0xFF } } } };
+  { KLV_0601_MISSION_ID, klv_blob{ 0x00, 0xFF } } };
 
 // ---------------------------------------------------------------------------
 klv_local_set const test_1108_metric_set = {

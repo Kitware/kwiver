@@ -11,6 +11,7 @@
 #include <vital/types/geo_point.h>
 #include <vital/types/geodesy.h>
 #include <vital/exceptions.h>
+#include <kwiversys/SystemTools.hxx>
 
 #include <iostream>
 #include <sstream>
@@ -132,4 +133,6 @@ TEST_F(metadata_pos_io, output_format)
   {
     compare_tag( *mdi.second, md );
   }
+
+  kwiversys::SystemTools::RemoveFile( temp_file );
 }

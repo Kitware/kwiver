@@ -99,6 +99,23 @@ VITAL_META_##X, #X, typeid( type_of_tag< VITAL_META_##X > )
     { TRAITS_OF( VIDEO_MICROSECONDS ),
       "Video Relative Timestamp",
       "Microseconds since beginning of video input." },
+    { TRAITS_OF( VIDEO_FRAME_RATE ),
+      "Frame Rate",
+      "Average time in seconds between consecutive frames." },
+    { TRAITS_OF( VIDEO_BITRATE ),
+      "Video Bitrate",
+      "Average bits per second of video." },
+    { TRAITS_OF( VIDEO_COMPRESSION_TYPE ),
+      "Video Compression Type",
+      "Method of video compression used. Examples: 'H.262', 'H.264', "
+      "'N/A' (uncompressed)." },
+    { TRAITS_OF( VIDEO_COMPRESSION_PROFILE ),
+      "Video Compression Profile",
+      "Compression profile used to encode video. Examples: 'Main', "
+      "'High 4:2:2', 'Main 4:2:2 12'." },
+    { TRAITS_OF( VIDEO_COMPRESSION_LEVEL ),
+      "Video Compression Level",
+      "Compression level used to encode video. Exmaples: '4.1', 'ML'." },
     { TRAITS_OF( SENSOR_LOCATION ),
       "Sensor Geodetic Location (lon/lat/alt)",
       "Three-dimensional coordinates of the sensor: longitude, latitude, and "

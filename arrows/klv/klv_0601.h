@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Interface to the KLV 0601 parser.
+/// Interface to the KLV 0601 parser.
 
 #ifndef KWIVER_ARROWS_KLV_KLV_0601_H_
 #define KWIVER_ARROWS_KLV_KLV_0601_H_
@@ -955,6 +955,10 @@ class KWIVER_ALGO_KLV_EXPORT klv_0601_payload_list_format
     length_of_typed(
       std::vector< klv_0601_payload_record > const& value ) const override;
 };
+
+// ----------------------------------------------------------------------------
+/// List of currently active payloads from the payload list (Item 138).
+using klv_0601_active_payloads_format = klv_enum_bitfield_format< uint16_t >;
 
 // ----------------------------------------------------------------------------
 /// A sensor wavelength record.

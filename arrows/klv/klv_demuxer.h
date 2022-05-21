@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Declaration of KLV demuxer.
+/// Declaration of KLV demuxer.
 
 #include "klv_timeline.h"
 
@@ -53,7 +53,13 @@ private:
 
   void demux_unknown( klv_packet const& packet, uint64_t timestamp );
 
-  void demux_0104( klv_universal_set const& value, uint64_t timestamp );
+  void demux_set(
+    klv_top_level_tag standard, klv_local_set const& value,
+    interval_t const& time_interval, klv_lds_key timestamp_tag = 0 );
+
+  void demux_set(
+    klv_top_level_tag standard, klv_universal_set const& value,
+    interval_t const& time_interval, klv_lds_key timestamp_tag = 0 );
 
   void demux_0601( klv_local_set const& value, uint64_t timestamp );
 

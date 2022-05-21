@@ -7,10 +7,7 @@
 
 #include "klv_packet.h"
 
-#include <arrows/klv/klv_0102.h>
-#include <arrows/klv/klv_0104.h>
-#include <arrows/klv/klv_0601.h>
-#include <arrows/klv/klv_1108.h>
+#include <arrows/klv/klv_all.h>
 
 #include <iomanip>
 
@@ -203,6 +200,16 @@ klv_packet_timestamp( klv_packet const& packet )
     return kv::nullopt;
   }
 
+  auto const get_local = [&]( klv_lds_key key ) -> kv::optional< uint64_t > {
+    auto const& set = packet.value.get< klv_local_set >();
+    auto const it = set.find( KLV_0601_PRECISION_TIMESTAMP );
+    if ( it != set.end() && it->second.valid() )
+    {
+      return it->second.get< uint64_t >();
+    }
+    return kv::nullopt;
+  };
+
   kv::optional< uint64_t > result;
   switch( klv_lookup_packet_traits().by_uds_key( packet.key ).tag() )
   {
@@ -219,15 +226,13 @@ klv_packet_timestamp( klv_packet const& packet )
       break;
     }
     case KLV_PACKET_MISB_0601_LOCAL_SET:
-    {
-      auto const& set = packet.value.get< klv_local_set >();
-      auto const it = set.find( KLV_0601_PRECISION_TIMESTAMP );
-      if ( it != set.end() && it->second.valid() )
-      {
-        result = it->second.get< uint64_t >();
-      }
-      break;
-    }
+      return get_local( KLV_0601_PRECISION_TIMESTAMP );
+    case KLV_PACKET_MISB_0806_LOCAL_SET:
+      return get_local( KLV_0806_TIMESTAMP );
+    case KLV_PACKET_MISB_0903_LOCAL_SET:
+      return get_local( KLV_0903_PRECISION_TIMESTAMP );
+    case KLV_PACKET_MISB_1002_LOCAL_SET:
+      return get_local( KLV_1002_PRECISION_TIMESTAMP );
     case KLV_PACKET_MISB_1108_LOCAL_SET:
     {
       auto const& set = packet.value.get< klv_local_set >();
@@ -249,7 +254,6 @@ klv_packet_timestamp( klv_packet const& packet )
 klv_tag_traits_lookup const&
 klv_lookup_packet_traits()
 {
-  // TODO: Edit these once parsers are finalized
   static klv_tag_traits_lookup const lookup = {
     { {},
       ENUM_AND_NAME( KLV_PACKET_UNKNOWN ),
@@ -260,36 +264,124 @@ klv_lookup_packet_traits()
     { klv_0102_key(),
       ENUM_AND_NAME( KLV_PACKET_MISB_0102_LOCAL_SET ),
       std::make_shared< klv_0102_local_set_format >(),
-      "MISB ST 0102 Local Set",
+      "MISB ST0102 Local Set",
       "Security Local Set. Used for marking Motion Imagery with security "
       "classification information.",
       0,
       &klv_0102_traits_lookup() },
-    { klv_1108_key(),
-      ENUM_AND_NAME( KLV_PACKET_MISB_1108_LOCAL_SET ),
-      std::make_shared< klv_1108_local_set_format >(),
-      "MISB ST 1108 Local Set",
-      "Interpretability and Quality Local Set. Contains image quality metrics "
-      "and compression characteristics for a video stream or file.",
-      0,
-      &klv_1108_traits_lookup() },
-    { klv_0601_key(),
-      ENUM_AND_NAME( KLV_PACKET_MISB_0601_LOCAL_SET ),
-      std::make_shared< klv_0601_local_set_format >(),
-      "MISB ST 0601 Local Set",
-      "UAS Datalink Local Set. Contains a wide variety of metadata describing "
-      "an unmanned aerial system producing FMV footage.",
-      0,
-      &klv_0601_traits_lookup() },
     { klv_0104_key(),
       ENUM_AND_NAME( KLV_PACKET_MISB_0104_UNIVERSAL_SET ),
       std::make_shared< klv_0104_universal_set_format >(),
-      "MISB ST 0104 Universal Set",
+      "MISB ST0104 Universal Set",
       "Predator UAV Basic Universal Set. Contains basic metadata describing a "
       "Predator unmanned aerial system producing FMV footage. Predecessor to "
       "MISB ST 0601. Deprecated as of 2008.",
       0,
-      &klv_0104_traits_lookup() } };
+      &klv_0104_traits_lookup() },
+    { klv_0601_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_0601_LOCAL_SET ),
+      std::make_shared< klv_0601_local_set_format >(),
+      "MISB ST0601 Local Set",
+      "UAS Datalink Local Set. Contains a wide variety of metadata describing "
+      "an unmanned aerial system producing FMV footage.",
+      0,
+      &klv_0601_traits_lookup() },
+    { klv_0602_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_0602_UNIVERSAL_SET ),
+      std::make_shared< klv_blob_format >(),
+      "MISB ST0602 Universal Set",
+      "Annotation Metadata Universal Set. Contains decriptions of visual cues "
+      "meant to enhance the exploitation of the associated Motion Imagery.",
+      0,
+      nullptr },
+    { klv_0806_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_0806_LOCAL_SET ),
+      std::make_shared< klv_0806_local_set_format >(),
+      "MISB ST0806 Local Set",
+      "Remote Video Terminal Local Set. Contains metadata relating to the use "
+      "of a Remote Video Terminal.",
+      0,
+      &klv_0806_traits_lookup() },
+    { klv_0809_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_0809_LOCAL_SET ),
+      std::make_shared< klv_blob_format >(),
+      "MISB ST0809 Local Set",
+      "Meteorological Metadata Local Set. Contains a broad range of basic "
+      "information about atmospheric conditions.",
+      0,
+      nullptr },
+    { klv_0903_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_0903_LOCAL_SET ),
+      std::make_shared< klv_0903_local_set_format >(),
+      "MISB ST0903 Local Set",
+      "Video Moving Target Indicator Local Set. Contains information about "
+      "objects detected in a Motion Imagery frame.",
+      0,
+      &klv_0903_traits_lookup() },
+    { klv_1002_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_1002_LOCAL_SET ),
+      std::make_shared< klv_1002_local_set_format >(),
+      "MISB ST1002 Local Set",
+      "Range Motion Imagery Local Set. Contains metadata particular to range "
+      "imagery.",
+      0,
+      &klv_1002_traits_lookup() },
+    { klv_1107_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_1107_LOCAL_SET ),
+      std::make_shared< klv_blob_format >(),
+      "MISB ST1107 Local Set",
+      "Metric Geopositioning Metadata Local Set. Contains metadata relevant "
+      "for photogrammetric applications.",
+      0,
+      nullptr },
+    { klv_1108_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_1108_LOCAL_SET ),
+      std::make_shared< klv_1108_local_set_format >(),
+      "MISB ST1108 Local Set",
+      "Interpretability and Quality Local Set. Contains image quality metrics "
+      "and compression characteristics for a video stream or file.",
+      0,
+      &klv_1108_traits_lookup() },
+    { klv_1202_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_1202_LOCAL_SET ),
+      std::make_shared< klv_1202_local_set_format >(),
+      "MISB ST1202 Local Set",
+      "Generalized Transformation Local Set. Contains parameters describing a "
+      "transformation from one two-dimensional coordinate system to another.",
+      0,
+      &klv_1202_traits_lookup() },
+    { klv_1204_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_1204_MIIS_ID ),
+      std::make_shared< klv_1204_miis_id_format >(),
+      "MISB ST1204 MIIS ID",
+      "Motion Imagery Identification System Core Identifier. Contains a "
+      "unique identifier for the accompanying Motion Imagery.",
+      0 },
+    { klv_1206_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_1206_LOCAL_SET ),
+      std::make_shared< klv_1206_local_set_format >(),
+      "MISB ST1206 Local Set",
+      "Synthetic Aperture Radar Motion Imagery Local Set. Contains metadata "
+      "particular to SAR imagery.",
+      0,
+      &klv_1206_traits_lookup() },
+    { klv_1507_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_1507_LOCAL_SET ),
+      std::make_shared< klv_blob_format >(),
+      "MISB ST1507 Local Set",
+      "Sensor Timing Local Set. Contains information about the timing of the "
+      "sensor shutter.",
+      0,
+      nullptr },
+    { klv_1601_key(),
+      ENUM_AND_NAME( KLV_PACKET_MISB_1601_LOCAL_SET ),
+      std::make_shared< klv_1601_local_set_format >(),
+      "MISB ST1601 Local Set",
+      "Geo-Registration Local Set. Contains metadata concerning the process "
+      "of mathematically revising sensor metadata, often through comparison "
+      "with another image.",
+      0,
+      &klv_1601_traits_lookup() } };
 
   return lookup;
 }

@@ -32,13 +32,9 @@ public:
   /// Destructor
   virtual ~mesh_vertex_array_base() {}
 
-  /// Equality operator
-  bool operator==( mesh_vertex_array_base const& other ) const;
-
-  /// Inequality operator
-  bool
-  operator!=( mesh_vertex_array_base const& other ) const
-  { return !( *this == other ); }
+  /// Checks approximate equality
+  bool approx_equal( mesh_vertex_array_base const& other,
+                     double epsilon = 1e-6 ) const;
 
   /// returns the number of vertices
   virtual unsigned int size() const = 0;
@@ -129,8 +125,9 @@ public:
     return new mesh_vertex_array< d >( *this );
   }
 
-  /// Equality operator
-  bool operator==( mesh_vertex_array_base const& other ) const;
+  /// Checks approximate equality
+  bool approx_equal( mesh_vertex_array_base const& other,
+                     double epsilon = 1e-6 ) const;
 
   /// returns the number of vertices
   virtual unsigned int
@@ -285,13 +282,8 @@ public:
   /// Destructor
   virtual ~mesh_face_array_base() {}
 
-  /// Equality operator
-  bool operator==( mesh_face_array_base const& other ) const;
-
-  /// Inequality operator
-  bool
-  operator!=( mesh_face_array_base const& other ) const
-  { return !( *this == other ); }
+  /// Checks approximate equality
+  bool approx_equal( mesh_face_array_base const& other, double epsilon = 1e-6 ) const;
 
   /// returns the number of vertices per face if the same for all faces, zero
   /// otherwise
@@ -414,8 +406,8 @@ public:
     }
   }
 
-  /// Equality operator
-  bool operator==( mesh_face_array_base const& other ) const;
+  /// Checks approximate equality
+  bool approx_equal( mesh_face_array_base const& other, double epsilon = 1e-6 ) const;
 
   /// returns the number of vertices per face if the same for all faces, zero
   /// otherwise
@@ -509,8 +501,9 @@ public:
     const std::initializer_list< mesh_regular_face< s > >& faces )
     : faces_( faces ) {}
 
-  /// Equality operator
-  bool operator==( mesh_face_array_base const& other ) const;
+  /// Checks approximate equality
+  bool approx_equal( mesh_face_array_base const& other,
+                     double epsilon = 1e-6 ) const;
 
   /// returns the number of vertices per face if the same for all faces
   ///
@@ -1097,13 +1090,8 @@ public:
   /// Assignment operator
   mesh& operator=( mesh const& other );
 
-  /// Equality operator
-  bool operator==( mesh const& other ) const;
-
-  /// Inequality operator
-  bool
-  operator!=( mesh const& other ) const
-  { return !( *this == other ); }
+  /// Checks approximate equality
+  bool approx_equal( mesh const& other, double epsilon = 1e-6 ) const;
 
   /// Return the number of vertices
   unsigned int

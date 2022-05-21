@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Test KLV 0601 read / write.
+/// Test KLV 0601 read / write.
 
 #include "data_format.h"
 
@@ -212,7 +212,7 @@ auto const expected_result = klv_local_set{
       { 2, KLV_0601_PAYLOAD_TYPE_ELECTRO_OPTICAL, "ACME IR Model 456" }
     }
   },
-  { KLV_0601_ACTIVE_PAYLOADS,                  klv_blob{ { 0x0B } } },
+  { KLV_0601_ACTIVE_PAYLOADS, std::set< uint16_t >{ 0, 1, 3 } },
   { KLV_0601_WEAPONS_STORES,
     std::vector< klv_0601_weapons_store >{
       { 1, 1, 1, 3,

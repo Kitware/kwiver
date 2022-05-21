@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Test KLV checksum functions.
+/// Test KLV checksum functions.
 
 #include <arrows/klv/klv_checksum.h>
 

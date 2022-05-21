@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Interface to the KLV UUID parser.
+/// Interface to the KLV UUID parser.
 
 #ifndef KWIVER_ARROWS_KLV_KLV_UUID_H_
 #define KWIVER_ARROWS_KLV_KLV_UUID_H_
@@ -23,6 +23,12 @@ namespace klv {
 // ----------------------------------------------------------------------------
 struct KWIVER_ALGO_KLV_EXPORT klv_uuid
 {
+  klv_uuid();
+
+  klv_uuid( std::initializer_list< uint8_t > const& bytes );
+
+  klv_uuid( std::array< uint8_t, 16 > const& bytes );
+
   std::array< uint8_t, 16 > bytes;
 };
 

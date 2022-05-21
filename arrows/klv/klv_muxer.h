@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Declaration of KLV muxer.
+/// Declaration of KLV muxer.
 
 #include "klv_timeline.h"
 
@@ -63,13 +63,21 @@ private:
   void flush_frame_unknown();
 
   void send_frame_0104( uint64_t timestamp );
-  void flush_frame_0104();
 
   void send_frame_0601( uint64_t timestamp );
-  void flush_frame_0601();
 
   void send_frame_1108( uint64_t timestamp );
   void flush_frame_1108();
+
+  void send_frame_1204( uint64_t timestamp );
+
+  void send_frame_local_set(
+    klv_top_level_tag standard, uint64_t timestamp,
+    klv_lds_key timestamp_tag = 0 );
+
+  void send_frame_universal_set(
+    klv_top_level_tag standard, uint64_t timestamp,
+    klv_lds_key timestamp_tag = 0 );
 
   bool check_timestamp( uint64_t timestamp ) const;
 

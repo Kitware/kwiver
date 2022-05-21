@@ -231,6 +231,18 @@ video_input_metadata_filter
 }
 
 // ----------------------------------------------------------------------------
+kv::video_raw_image_sptr
+video_input_metadata_filter
+::raw_frame_image()
+{
+  if( !m_d->video_input )
+  {
+    return nullptr;
+  }
+  return m_d->video_input->raw_frame_image();
+}
+
+// ----------------------------------------------------------------------------
 kv::metadata_map_sptr
 video_input_metadata_filter
 ::metadata_map()

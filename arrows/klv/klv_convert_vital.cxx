@@ -3,21 +3,16 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Implementation of KLV-vital conversion functions.
+/// Implementation of KLV-vital conversion functions.
 
 #include "klv_convert_vital.h"
 
-#include "klv_0102.h"
-#include "klv_0104.h"
-#include "klv_0601.h"
-#include "klv_1108.h"
-#include "klv_1108_metric_set.h"
+#include "klv_all.h"
 #include "klv_metadata.h"
 #include "klv_muxer.h"
 
 #include <vital/range/iota.h>
 #include <vital/types/geodesy.h>
-#include <vital/types/metadata_types.h>
 
 #include <iomanip>
 
@@ -157,7 +152,7 @@ klv_0104_parse_datetime_to_unix(
     {
       auto const value = datetime.get< std::string >();
       vital_data.add(
-        vital_tag, kv::std_0104_datetime_to_unix_timestamp( value ) );
+        vital_tag, klv_0104_datetime_to_unix_timestamp( value ) );
     }
     catch( kv::metadata_exception const& e )
     {
@@ -246,7 +241,9 @@ klv_0104_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
     { KLV_0104_ANGLE_TO_NORTH,
       kv::VITAL_META_ANGLE_TO_NORTH },
     { KLV_0104_OBLIQUITY_ANGLE,
-      kv::VITAL_META_OBLIQUITY_ANGLE }, };
+      kv::VITAL_META_OBLIQUITY_ANGLE },
+    { KLV_0104_EPISODE_NUMBER,
+      kv::VITAL_META_MISSION_NUMBER } };
 
   // Convert all the direct mappings en masse
   for( auto const& entry : direct_map )
@@ -259,17 +256,6 @@ klv_0104_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
       auto const converted_value = klv_to_vital_value( value );
       vital_data.add( vital_tag, converted_value );
     }
-  }
-
-  // Convert the episode/mission number (an actual number here) to a string
-  auto const episode_number =
-    klv_data.at( standard, KLV_0104_EPISODE_NUMBER, timestamp );
-  if( episode_number.valid() )
-  {
-    auto const value = episode_number.get< double >();
-    std::stringstream ss;
-    ss << std::fixed << value;
-    vital_data.add< kv::VITAL_META_MISSION_NUMBER >( ss.str() );
   }
 
   // Parse the datetime strings into UNIX microsecond timestamps
@@ -646,21 +632,13 @@ klv_1108_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
 
 // ----------------------------------------------------------------------------
 kv::metadata_sptr
-klv_to_vital_metadata( klv_timeline const& klv_data,
-                       kv::interval< uint64_t > const& time_interval )
+klv_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp )
 {
   auto const result = std::make_shared< klv_metadata >();
-  {
-    klv_muxer muxer( klv_data );
-    muxer.send_frame( time_interval.lower() );
-    muxer.receive_frame();
-    muxer.send_frame( time_interval.upper() );
-    result->set_klv( muxer.receive_frame() );
-  }
-  klv_0102_to_vital_metadata( klv_data, time_interval.upper(), *result );
-  klv_0104_to_vital_metadata( klv_data, time_interval.upper(), *result );
-  klv_0601_to_vital_metadata( klv_data, time_interval.upper(), *result );
-  klv_1108_to_vital_metadata( klv_data, time_interval.upper(), *result );
+  klv_0102_to_vital_metadata( klv_data, timestamp, *result );
+  klv_0104_to_vital_metadata( klv_data, timestamp, *result );
+  klv_0601_to_vital_metadata( klv_data, timestamp, *result );
+  klv_1108_to_vital_metadata( klv_data, timestamp, *result );
   return result;
 }
 

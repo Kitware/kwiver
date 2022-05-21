@@ -20,6 +20,53 @@ namespace arrows {
 
 namespace core {
 
+namespace {
+
+// ----------------------------------------------------------------------------
+void
+check_input( kva::video_input_sptr const& input,
+             cxxopts::ParseResult const& cmd_args )
+{
+  // Check initialization
+  if( !input )
+  {
+    std::cerr << "Failed to initialize video input." << std::endl;
+    exit( EXIT_FAILURE );
+  }
+
+  // Check capabilities
+  auto const& capabilities = input->get_implementation_capabilities();
+  if( cmd_args.count( "copy-video" ) &&
+      !capabilities.has_capability( kva::video_input::HAS_RAW_IMAGE ) )
+  {
+    std::cerr << "--copy-video: Video input `" << input->impl_name()
+              << "` does not have this capability." << std::endl;
+    exit( EXIT_FAILURE );
+  }
+  if( cmd_args.count( "copy-metadata" ) &&
+      !capabilities.has_capability( kva::video_input::HAS_RAW_METADATA ) )
+  {
+    std::cerr << "--copy-metadata: Video input `" << input->impl_name()
+              << "` does not have this capability." << std::endl;
+    exit( EXIT_FAILURE );
+  }
+}
+
+// ----------------------------------------------------------------------------
+void
+check_output( kva::video_output_sptr const& output,
+              cxxopts::ParseResult const& cmd_args )
+{
+  // Check initialization
+  if( !output )
+  {
+    std::cerr << "Failed to initialize video output." << std::endl;
+    exit( EXIT_FAILURE );
+  }
+}
+
+} // namespace <anonymous>
+
 // ----------------------------------------------------------------------------
 transcode_applet
 ::transcode_applet()
@@ -38,7 +85,9 @@ transcode_applet
     ( "i,input",  "Specify input video file.",
     ::cxxopts::value< std::string >(), "file" )  //
     ( "o,output", "Specify output video file.",
-    ::cxxopts::value< std::string >(), "file" );
+    ::cxxopts::value< std::string >(), "file" )  //
+    ( "copy-video", "Directly copy raw video without modification." )
+    ( "copy-metadata", "Directly copy raw metadata without modification." );
 }
 
 // ----------------------------------------------------------------------------
@@ -87,6 +136,7 @@ transcode_applet
   ::set_nested_algo_configuration( "video_reader", config, input );
   kva::video_input
   ::get_nested_algo_configuration( "video_reader", config, input );
+  check_input( input, cmd_args );
   input->open( input_filename );
 
   auto const video_settings = input->implementation_settings();
@@ -97,6 +147,7 @@ transcode_applet
   ::set_nested_algo_configuration( "video_writer", config, output );
   kva::video_output
   ::get_nested_algo_configuration( "video_writer", config, output );
+  check_output( output, cmd_args );
   output->open( output_filename, video_settings.get() );
 
   // Transcode frames
@@ -105,12 +156,42 @@ transcode_applet
        !input->end_of_video();
        input->next_frame( timestamp ) )
   {
-    auto const image = input->frame_image();
-    for( auto const& metadata : input->frame_metadata() )
+    // Transcode image
+    if( cmd_args.count( "copy-video" ) )
     {
-      output->add_metadata( *metadata );
+      auto const image = input->raw_frame_image();
+      if( !image )
+      {
+        std::cerr << "No raw image found for frame " << timestamp.get_frame()
+                  << "." << std::endl;
+        exit(-1);
+      }
+      output->add_image( *image );
     }
-    output->add_image( image, timestamp );
+    else
+    {
+      output->add_image( input->frame_image(), timestamp );
+    }
+
+    // Transcode metadata
+    if( cmd_args.count( "copy-metadata" ) )
+    {
+      auto const md = input->raw_frame_metadata();
+      if( !md )
+      {
+        std::cerr << "No raw metadata found for frame " << timestamp.get_frame()
+                  << "." << std::endl;
+        exit(-1);
+      }
+      output->add_metadata( *md );
+    }
+    else
+    {
+      for( auto const& metadata : input->frame_metadata() )
+      {
+        output->add_metadata( *metadata );
+      }
+    }
   }
 
   // Clean up

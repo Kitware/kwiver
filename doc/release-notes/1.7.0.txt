@@ -2,7 +2,7 @@ KWIVER v1.7.0 Release Notes
 ===========================
 
 This is a minor release of KWIVER that provides both new functionality and fixes
-over the previous v1.6.0 release.
+over the previous v1.6.1 release.
 
 
 Updates
@@ -16,6 +16,8 @@ Vital Types
   North-East-Down coordinate system as-is instead of automatically converting to
   East-North-Up. Added utility functions which perform conversion between NED
   and ENU coordinates.
+
+* Added video_raw_image, video_raw_metadata, and video_settings.
 
 Build System
 
@@ -45,6 +47,8 @@ Arrows: Core
 
 * Allowed the overriding of column names in metadata_map_io_csv.
 
+* Added support for multiple metadata streams in metadata_map_io_csv.
+
 Arrows: FFmpeg
 
 * Enabled reading MISP timestamps from stream.
@@ -54,6 +58,10 @@ Arrows: FFmpeg
 * Added exporting of encoding settings from input video.
 
 * Added basic video encoder.
+
+* Added support for multiple incoming KLV streams.
+
+* Added unknown_stream_behavior configuration option.
 
 Arrows: KLV
 
@@ -69,7 +77,7 @@ Arrows: KLV
 
 Arrows: Serialize
 
-* Added partial KLV-JSON reader/writer.
+* Added KLV-JSON reader/writer.
 
 Bug Fixes
 ---------

@@ -18,6 +18,8 @@
 #include <vital/types/metadata.h>
 #include <vital/types/metadata_map.h>
 #include <vital/types/timestamp.h>
+#include <vital/types/video_raw_image.h>
+#include <vital/types/video_raw_metadata.h>
 #include <vital/types/video_settings.h>
 
 #include <vital/vital_config.h>
@@ -104,6 +106,13 @@ public:
     kwiver::vital::image_container_sptr const& image,
     kwiver::vital::timestamp const& ts ) = 0;
 
+  /// Add a raw frame image to the video stream.
+  ///
+  /// This method writes the raw image to the video stream. There is no
+  /// guarantee that this functions correctly when intermixed with non-raw
+  /// images.
+  virtual void add_image( video_raw_image const& image );
+
   /// Add metadata collection to the video stream.
   ///
   /// This method adds metadata to the video stream. Depending on the
@@ -117,6 +126,16 @@ public:
   /// \throws video_stream_exception
   ///   Thrown if is an error in the video stream.
   virtual void add_metadata( kwiver::vital::metadata const& md ) = 0;
+
+  /// Add a frame of raw metadata to the video stream.
+  ///
+  /// This method writes the raw metadata to the video stream. There is no
+  /// guarantee that this functions correctly when intermixed with non-raw
+  /// metadata.
+  ///
+  /// For implementations that do not support metadata, this method does
+  /// nothing.
+  virtual void add_metadata( video_raw_metadata const& md );
 
   /// Return capabilities of concrete implementation.
   ///

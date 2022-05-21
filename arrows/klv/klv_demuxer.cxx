@@ -3,14 +3,23 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Implementation of KLV demuxer.
+/// Implementation of KLV demuxer.
 
-#include "klv_0104.h"
-#include "klv_0601.h"
-#include "klv_1010.h"
-#include "klv_1108.h"
-#include "klv_1108_metric_set.h"
 #include "klv_demuxer.h"
+
+#include <arrows/klv/klv_0102.h>
+#include <arrows/klv/klv_0104.h>
+#include <arrows/klv/klv_0601.h>
+#include <arrows/klv/klv_0806.h>
+#include <arrows/klv/klv_0903.h>
+#include <arrows/klv/klv_1002.h>
+#include <arrows/klv/klv_1010.h>
+#include <arrows/klv/klv_1108.h>
+#include <arrows/klv/klv_1108_metric_set.h>
+#include <arrows/klv/klv_1202.h>
+#include <arrows/klv/klv_1204.h>
+#include <arrows/klv/klv_1206.h>
+#include <arrows/klv/klv_1601.h>
 
 #include <vital/logger/logger.h>
 #include <vital/range/iota.h>
@@ -139,6 +148,7 @@ klv_demuxer
 
   auto const derived_timestamp = klv_packet_timestamp( packet );
   auto const timestamp = derived_timestamp ? *derived_timestamp : m_frame_timestamp;
+  auto const time_interval = interval_t{ timestamp, timestamp + klv_packet_default_duration };
 
   // Invalid or unrecognized packets are still saved in raw byte form
   if( !packet.value.valid() )
@@ -147,17 +157,55 @@ klv_demuxer
     return;
   }
 
-  // Demux based on type of packet
-  switch( trait.tag() )
+  // For brevity
+  auto const tag = static_cast< klv_top_level_tag >( trait.tag() );
+  auto const& value = packet.value;
+
+  // Determine which tag holds the timestamp, if any
+  klv_lds_key timestamp_tag = 0;
+  switch( tag )
   {
-    case KLV_PACKET_MISB_0601_LOCAL_SET:
-      demux_0601( packet.value.get< klv_local_set >(), timestamp );
-      break;
     case KLV_PACKET_MISB_0104_UNIVERSAL_SET:
-      demux_0104( packet.value.get< klv_universal_set >(), timestamp );
+      timestamp_tag = KLV_0104_USER_DEFINED_TIMESTAMP;
+      break;
+    case KLV_PACKET_MISB_0806_LOCAL_SET:
+      timestamp_tag = KLV_0806_TIMESTAMP;
+      break;
+    case KLV_PACKET_MISB_0903_LOCAL_SET:
+      timestamp_tag = KLV_0903_PRECISION_TIMESTAMP;
+      break;
+    case KLV_PACKET_MISB_1002_LOCAL_SET:
+      timestamp_tag = KLV_1002_PRECISION_TIMESTAMP;
+      break;
+    default:
+      break;
+  }
+
+  // Demux based on type of packet
+  switch( tag )
+  {
+    case KLV_PACKET_MISB_0104_UNIVERSAL_SET:
+      demux_set( tag, value.get< klv_universal_set >(), time_interval,
+                 timestamp_tag );
+      break;
+    case KLV_PACKET_MISB_0601_LOCAL_SET:
+      demux_0601( value.get< klv_local_set >(), timestamp );
       break;
     case KLV_PACKET_MISB_1108_LOCAL_SET:
-      demux_1108( packet.value.get< klv_local_set >(), timestamp );
+      demux_1108( value.get< klv_local_set >(), timestamp );
+      break;
+    case KLV_PACKET_MISB_0102_LOCAL_SET:
+    case KLV_PACKET_MISB_0806_LOCAL_SET:
+    case KLV_PACKET_MISB_0903_LOCAL_SET:
+    case KLV_PACKET_MISB_1002_LOCAL_SET:
+    case KLV_PACKET_MISB_1202_LOCAL_SET:
+    case KLV_PACKET_MISB_1206_LOCAL_SET:
+    case KLV_PACKET_MISB_1601_LOCAL_SET:
+      demux_set( tag, value.get< klv_local_set >(), time_interval,
+                 timestamp_tag );
+      break;
+    case KLV_PACKET_MISB_1204_MIIS_ID:
+      demux_single_entry( tag, 0, {}, time_interval, value );
       break;
     case KLV_PACKET_UNKNOWN:
     default:
@@ -204,6 +252,60 @@ klv_demuxer
 // ----------------------------------------------------------------------------
 void
 klv_demuxer
+::demux_set(
+  klv_top_level_tag standard, klv_local_set const& set,
+  interval_t const& time_interval, klv_lds_key timestamp_tag )
+{
+  for( auto const& entry : set )
+  {
+    auto const tag = entry.first;
+    auto const& value = entry.second;
+
+    // Timestamp already implicitly encoded
+    if( timestamp_tag && tag == timestamp_tag )
+    {
+      continue;
+    }
+
+    demux_single_entry( standard, tag, {}, time_interval, value );
+  }
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_demuxer
+::demux_set(
+  klv_top_level_tag standard, klv_universal_set const& set,
+  interval_t const& time_interval, klv_lds_key timestamp_tag )
+{
+  auto const lookup =
+    klv_lookup_packet_traits().by_tag( standard ).subtag_lookup();
+  if( !lookup )
+  {
+    throw std::logic_error(
+      "klv_demuxer: given universal set without any tag trait information" );
+  }
+
+  for( auto const& entry : set )
+  {
+    auto const key = entry.first;
+    auto const& value = entry.second;
+
+    // Timestamp already implicitly encoded
+    if( timestamp_tag && key == lookup->by_tag( timestamp_tag ).uds_key() )
+    {
+      continue;
+    }
+
+    // No duplicate entries allowed, so this is relatively straightforward
+    auto const& trait = lookup->by_uds_key( key );
+    demux_single_entry( standard, trait.tag(), {}, time_interval, value );
+  }
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_demuxer
 ::demux_unknown( klv_packet const& packet, uint64_t timestamp )
 {
   auto& unknown_timeline =
@@ -220,34 +322,6 @@ klv_demuxer
   else
   {
     unknown_it->value.get< std::set< klv_packet > >().emplace( packet );
-  }
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_demuxer
-::demux_0104( klv_universal_set const& value, uint64_t timestamp )
-{
-  constexpr auto standard = KLV_PACKET_MISB_0104_UNIVERSAL_SET;
-
-  // By default, valid for 30 seconds
-  auto const time_interval =
-    interval_t{ timestamp, timestamp + klv_0104_default_duration };
-
-  auto const& lookup = klv_0104_traits_lookup();
-  for( auto const& entry : value )
-  {
-    // Timestamp already implicitly encoded
-    if( entry.first ==
-        lookup.by_tag( KLV_0104_USER_DEFINED_TIMESTAMP ).uds_key() )
-    {
-      continue;
-    }
-
-    // No duplicate entries allowed, so this is relatively straightforward
-    auto const& trait = lookup.by_uds_key( entry.first );
-    demux_single_entry( standard, trait.tag(), {}, time_interval,
-                        entry.second );
   }
 }
 

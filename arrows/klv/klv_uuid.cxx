@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Implementation of the KLV UUID parser.
+/// Implementation of the KLV UUID parser.
 
 #include "klv_uuid.h"
 
@@ -14,6 +14,23 @@ namespace kwiver {
 namespace arrows {
 
 namespace klv {
+
+// ----------------------------------------------------------------------------
+klv_uuid
+::klv_uuid() : bytes{ 0 }
+{}
+
+// ----------------------------------------------------------------------------
+klv_uuid
+::klv_uuid( std::initializer_list< uint8_t > const& bytes ) : bytes{}
+{
+  std::copy( bytes.begin(), bytes.end(), this->bytes.begin() );
+}
+
+// ----------------------------------------------------------------------------
+klv_uuid
+::klv_uuid( std::array< uint8_t, 16 > const& bytes ) : bytes( bytes )
+{}
 
 // ----------------------------------------------------------------------------
 // Prints like 0123-4567-89AB-CDEF-0123-4567-89AB-CDEF

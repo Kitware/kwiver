@@ -43,6 +43,24 @@ video_output
 // ----------------------------------------------------------------------------
 void
 video_output
+::add_image( video_raw_image const& image )
+{
+  throw std::logic_error{
+    "video_output: This implementation does not support raw image data" };
+}
+
+// ----------------------------------------------------------------------------
+void
+video_output
+::add_metadata( video_raw_metadata const& md )
+{
+  throw std::logic_error{
+    "video_output: This implementation does not support raw metadata" };
+}
+
+// ----------------------------------------------------------------------------
+void
+video_output
 ::set_capability( algorithm_capabilities::capability_name_t const& name,
                   bool val )
 {

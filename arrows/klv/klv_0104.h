@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Interface to the KLV 0104 parser.
+/// Interface to the KLV 0104 parser.
 
 #ifndef KWIVER_ARROWS_KLV_KLV_0104_H_
 #define KWIVER_ARROWS_KLV_KLV_0104_H_
@@ -86,6 +86,16 @@ klv_0104_key();
 KWIVER_ALGO_KLV_EXPORT
 klv_tag_traits_lookup const&
 klv_0104_traits_lookup();
+
+// ----------------------------------------------------------------------------
+/// Converts EG0104 datetime string to a UNIX timestamp.
+///
+/// \param value UTC datetime string in \c YYYYMMDDThhmmss format.
+///
+/// \returns Microseconds since Jan. 1, 1970 (UTC).
+VITAL_EXPORT
+uint64_t
+klv_0104_datetime_to_unix_timestamp( std::string const& value );
 
 } // namespace klv
 

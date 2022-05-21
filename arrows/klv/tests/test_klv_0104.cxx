@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Test KLV 0104 read / write.
+/// Test KLV 0104 read / write.
 
 #include "data_format.h"
 
@@ -44,8 +44,8 @@ auto const input_bytes = klv_bytes_t{
   // KLV_0104_EPISODE_NUMBER
   0x06, 0x0E, 0x2B, 0x34, 0x01, 0x01, 0x01, 0x01,
   0x01, 0x05, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x04,
-  0x3F, 0x80, 0x00, 0x00,
+  0x02,
+  '4', '2',
 
   // KLV_0104_IMAGE_SOURCE_DEVICE
   0x06, 0x0E, 0x2B, 0x34, 0x01, 0x01, 0x01, 0x01,
@@ -260,7 +260,7 @@ auto const expected_result = klv_universal_set{
   { to_key( KLV_0104_DEVICE_LATITUDE ),          kld{  60.176822966978335 } },
   { to_key( KLV_0104_DEVICE_LONGITUDE ),         kld{  128.42675904204452 } },
   { to_key( KLV_0104_IMAGE_SOURCE_DEVICE ),      std::string{ "EO" } },
-  { to_key( KLV_0104_EPISODE_NUMBER ),           kld{  1.0f } },
+  { to_key( KLV_0104_EPISODE_NUMBER ),           std::string{ "42" } },
   { to_key( KLV_0104_DEVICE_DESIGNATION ),       std::string{ "MQ1-B" } },
   { to_key( KLV_0104_SECURITY_LOCAL_SET ),       {} }, };
 
@@ -277,7 +277,7 @@ TEST ( klv, read_write_0104_packet )
   auto const packet_header = klv_bytes_t{
     0x06, 0x0E, 0x2B, 0x34, 0x02, 0x01, 0x01, 0x01,
     0x0E, 0x01, 0x01, 0x02, 0x01, 0x01, 0x00, 0x00,
-    0x82, 0x02, 0xE4 };
+    0x82, 0x02, 0xE2 };
   auto const packet_footer = klv_bytes_t{};
 
   // Assemble the target packet's serialized form
@@ -308,4 +308,43 @@ TEST ( klv, read_write_0104_packet )
   klv_write_packet( read_packet, write_it, written_bytes.size() );
   EXPECT_EQ( written_bytes.end(), write_it );
   EXPECT_EQ( packet_bytes, written_bytes );
+}
+
+// ----------------------------------------------------------------------------
+TEST( klv, convert_0104_timestamp )
+{
+  auto fn = klv_0104_datetime_to_unix_timestamp;
+
+  // Wrongly formatted dates
+  // YY, not YYYY
+  EXPECT_THROW( fn( "030201T070809" );,   kv::metadata_exception );
+  // Non-numeric
+  EXPECT_THROW( fn( "20030201T07081A" );, kv::metadata_exception );
+  // Non-numeric but tricky
+  EXPECT_THROW( fn( "20030201T07081 " );, kv::metadata_exception );
+
+  // Invalid dates
+  // Out-of-range year
+  EXPECT_THROW( fn( "19690101T070809" );, kv::metadata_exception );
+  // Out-of-range month
+  EXPECT_THROW( fn( "20031301T070809" );, kv::metadata_exception );
+  // Feb. 29 on not-a-leap-year
+  EXPECT_THROW( fn( "20030229T070809" );, kv::metadata_exception );
+
+  // Valid dates (validated by epochconverter.com)
+  // Epoch
+  EXPECT_EQ( 0ull,                 fn( "19700101T000000" ) );
+  EXPECT_EQ( 0ull,                 fn( "19700101000000" ) );
+  // Random date
+  EXPECT_EQ( 1044083289000000ull,  fn( "20030201T070809" ) );
+  EXPECT_EQ( 1044083289000000ull,  fn( "20030201070809" ) );
+  // Feb. 29 on a leap year
+  EXPECT_EQ( 1583014942000000ull,  fn( "20200229T222222" ) );
+  EXPECT_EQ( 1583014942000000ull,  fn( "20200229222222" ) );
+  // Random date
+  EXPECT_EQ( 1600000000000000ull,  fn( "20200913T122640" ) );
+  EXPECT_EQ( 1600000000000000ull,  fn( "20200913122640" ) );
+  // Date far in future
+  EXPECT_EQ( 32503679999000000ull, fn( "29991231T235959" ) );
+  EXPECT_EQ( 32503679999000000ull, fn( "29991231235959" ) );
 }

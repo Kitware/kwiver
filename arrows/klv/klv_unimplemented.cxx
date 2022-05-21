@@ -3,10 +3,9 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// This file contains the implementation for the KLV specialization of
-/// the vital::metadata class.
+/// Keys for unimplemented KLV structures.
 
-#include "klv_metadata.h"
+#include "klv_unimplemented.h"
 
 namespace kwiver {
 
@@ -15,27 +14,31 @@ namespace arrows {
 namespace klv {
 
 // ----------------------------------------------------------------------------
-vital::metadata*
-klv_metadata
-::clone() const
+klv_uds_key
+klv_0602_key()
 {
-  return new klv_metadata{ *this };
+  return { 0x060E2B3401010101, 0x0E01030301000000 };
 }
 
 // ----------------------------------------------------------------------------
-void
-klv_metadata
-::set_klv( std::vector< klv_packet > const& packets )
+klv_uds_key
+klv_0809_key()
 {
-  m_klv_packets = packets;
+  return { 0x060E2B34022B0101, 0x0E0103010E000000 };
 }
 
 // ----------------------------------------------------------------------------
-std::vector< klv_packet > const&
-klv_metadata
-::klv() const
+klv_uds_key
+klv_1107_key()
 {
-  return m_klv_packets;
+  return { 0x060E2B34020B0101, 0x0E01030322000000 };
+}
+
+// ----------------------------------------------------------------------------
+klv_uds_key
+klv_1507_key()
+{
+  return { 0x060E2B34020B0101, 0x0E01030201000000 };
 }
 
 } // namespace klv

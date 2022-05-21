@@ -3,10 +3,9 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// This file contains the implementation for the KLV specialization of
-/// the vital::metadata class.
+/// Key declarations for unimplemented KLV structures.
 
-#include "klv_metadata.h"
+#include "klv_key.h"
 
 namespace kwiver {
 
@@ -15,28 +14,28 @@ namespace arrows {
 namespace klv {
 
 // ----------------------------------------------------------------------------
-vital::metadata*
-klv_metadata
-::clone() const
-{
-  return new klv_metadata{ *this };
-}
+/// Return the UDS key for a MISB ST0602 universal set.
+KWIVER_ALGO_KLV_EXPORT
+klv_uds_key
+klv_0602_key();
 
 // ----------------------------------------------------------------------------
-void
-klv_metadata
-::set_klv( std::vector< klv_packet > const& packets )
-{
-  m_klv_packets = packets;
-}
+/// Return the UDS key for a MISB ST0809 local set.
+KWIVER_ALGO_KLV_EXPORT
+klv_uds_key
+klv_0809_key();
 
 // ----------------------------------------------------------------------------
-std::vector< klv_packet > const&
-klv_metadata
-::klv() const
-{
-  return m_klv_packets;
-}
+/// Return the UDS key for a MISB ST1107 local set.
+KWIVER_ALGO_KLV_EXPORT
+klv_uds_key
+klv_1107_key();
+
+// ----------------------------------------------------------------------------
+/// Return the UDS key for a MISB ST1507 local set.
+KWIVER_ALGO_KLV_EXPORT
+klv_uds_key
+klv_1507_key();
 
 } // namespace klv
 

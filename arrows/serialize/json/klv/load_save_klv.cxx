@@ -5,33 +5,7 @@
 #include <arrows/serialize/json/klv/load_save_klv.h>
 #include <arrows/serialize/json/load_save.h>
 
-#include <arrows/klv/klv_0102.h>
-#include <arrows/klv/klv_0104.h>
-#include <arrows/klv/klv_0601.h>
-#include <arrows/klv/klv_0806.h>
-#include <arrows/klv/klv_0806_aoi_set.h>
-#include <arrows/klv/klv_0806_poi_set.h>
-#include <arrows/klv/klv_0806_user_defined_set.h>
-#include <arrows/klv/klv_0903.h>
-#include <arrows/klv/klv_0903_algorithm_set.h>
-#include <arrows/klv/klv_0903_location_pack.h>
-#include <arrows/klv/klv_0903_ontology_set.h>
-#include <arrows/klv/klv_0903_vchip_set.h>
-#include <arrows/klv/klv_0903_vfeature_set.h>
-#include <arrows/klv/klv_0903_vmask_set.h>
-#include <arrows/klv/klv_0903_vobject_set.h>
-#include <arrows/klv/klv_0903_vtarget_pack.h>
-#include <arrows/klv/klv_0903_vtrack_set.h>
-#include <arrows/klv/klv_0903_vtracker_set.h>
-#include <arrows/klv/klv_0903_vtrackitem_pack.h>
-#include <arrows/klv/klv_1002.h>
-#include <arrows/klv/klv_1010.h>
-#include <arrows/klv/klv_1108.h>
-#include <arrows/klv/klv_1108_metric_set.h>
-#include <arrows/klv/klv_1202.h>
-#include <arrows/klv/klv_1204.h>
-#include <arrows/klv/klv_1206.h>
-#include <arrows/klv/klv_1303.hpp>
+#include <arrows/klv/klv_all.h>
 
 #include <vital/internal/cereal/archives/json.hpp>
 #include <vital/internal/cereal/cereal.hpp>
@@ -439,6 +413,8 @@ public:
     {
       save( "microseconds", nullptr );
     }
+
+    save( "stream-index", packet.stream_index );
 
     save( packet.packet );
   }
@@ -1117,6 +1093,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
     LOAD_VALUE( frame, kv::optional< int64_t > );
     LOAD_VALUE( microseconds, kv::optional< int64_t > );
     LOAD_VALUE( packet, klv_packet );
+    LOAD_VALUE( stream_index, uint64_t );
     kv::timestamp ts;
     if( frame )
     {
@@ -1126,7 +1103,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
     {
       ts.set_time_usec( *microseconds );
     }
-    return { std::move( packet ), ts };
+    return { std::move( packet ), ts, stream_index };
   }
 
   LOAD_TEMPLATE( klv_packet )

@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Implementation of the KLV 0806 User Defined Set parser.
+/// Implementation of the KLV 0806 User Defined Set parser.
 
 #include "klv_0806_user_defined_set.h"
 

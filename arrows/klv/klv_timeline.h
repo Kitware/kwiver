@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Declaration of KLV timeline class.
+/// Declaration of KLV timeline class.
 
 #ifndef KWIVER_ARROWS_KLV_KLV_TIMELINE_H_
 #define KWIVER_ARROWS_KLV_KLV_TIMELINE_H_

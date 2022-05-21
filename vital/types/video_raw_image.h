@@ -3,10 +3,10 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// Declaration of base video settings type.
+/// Declaration of base video raw image type.
 
-#ifndef VITAL_VIDEO_SETTINGS_H_
-#define VITAL_VIDEO_SETTINGS_H_
+#ifndef VITAL_VIDEO_RAW_IMAGE_H_
+#define VITAL_VIDEO_RAW_IMAGE_H_
 
 #include <vital/vital_export.h>
 
@@ -17,14 +17,14 @@ namespace kwiver {
 namespace vital {
 
 // ----------------------------------------------------------------------------
-/// Base class for holding information about how to encode a video.
-struct VITAL_EXPORT video_settings
+/// Base class for holding a single frame of unprocessed image data.
+struct VITAL_EXPORT video_raw_image
 {
-  virtual ~video_settings();
+  virtual ~video_raw_image();
 };
 
-using video_settings_sptr = std::shared_ptr< video_settings >;
-using video_settings_uptr = std::unique_ptr< video_settings >;
+using video_raw_image_sptr = std::shared_ptr< video_raw_image >;
+using video_raw_image_uptr = std::unique_ptr< video_raw_image >;
 
 } // namespace vital
 

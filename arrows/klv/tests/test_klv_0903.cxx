@@ -331,9 +331,9 @@ TEST ( klv, read_write_0903_vfeature )
 TEST ( klv, read_write_0903_vtracker )
 {
   auto const expected_result = klv_local_set{
-    { KLV_0903_VTRACKER_TRACK_ID, klv_uuid{ {
+    { KLV_0903_VTRACKER_TRACK_ID, klv_uuid{
         0xF8, 0x1D, 0x4F, 0xAE, 0x7D, 0xEC, 0x11, 0xD0,
-        0xA7, 0x65, 0x00, 0xA0, 0xC9, 0x1E, 0x6B, 0xF6 } } },
+        0xA7, 0x65, 0x00, 0xA0, 0xC9, 0x1E, 0x6B, 0xF6 } },
     { KLV_0903_VTRACKER_DETECTION_STATUS, KLV_0903_DETECTION_STATUS_DROPPED },
     { KLV_0903_VTRACKER_START_TIME, uint64_t{ 987654321000000 } },
     { KLV_0903_VTRACKER_END_TIME, uint64_t{ 987654321000000 } },
@@ -387,7 +387,7 @@ TEST ( klv, read_write_0903_vchip )
   auto const expected_result = klv_local_set{
     { KLV_0903_VCHIP_IMAGE_TYPE, std::string{ "jpeg" } },
     { KLV_0903_VCHIP_IMAGE_URI, std::string{ "URI" } },
-    { KLV_0903_VCHIP_EMBEDDED_IMAGE, klv_blob{ { 0x01, 0x02, 0x03, 0x04, } } },
+    { KLV_0903_VCHIP_EMBEDDED_IMAGE, klv_blob{ 0x01, 0x02, 0x03, 0x04 } },
   };
 
   auto const input_bytes = klv_bytes_t{

@@ -3,12 +3,9 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Definition of KLV muxer.
+/// Definition of KLV muxer.
 
-#include "klv_0104.h"
-#include "klv_0601.h"
-#include "klv_1108.h"
-#include "klv_1108_metric_set.h"
+#include "klv_all.h"
 #include "klv_muxer.h"
 
 #include <vital/range/iterator_range.h>
@@ -101,17 +98,29 @@ void
 klv_muxer
 ::send_frame( uint64_t timestamp )
 {
+  m_frames.emplace_back( timestamp );
   if( !check_timestamp( timestamp ) )
   {
     return;
   }
 
   send_frame_unknown( timestamp );
-  send_frame_0104( timestamp );
+  send_frame_local_set( KLV_PACKET_MISB_0102_LOCAL_SET, timestamp );
+  send_frame_universal_set( KLV_PACKET_MISB_0104_UNIVERSAL_SET, timestamp,
+                            KLV_0104_USER_DEFINED_TIMESTAMP );
   send_frame_0601( timestamp );
+  send_frame_local_set( KLV_PACKET_MISB_0806_LOCAL_SET, timestamp,
+                        KLV_0806_TIMESTAMP );
+  send_frame_local_set( KLV_PACKET_MISB_0903_LOCAL_SET, timestamp,
+                        KLV_0903_PRECISION_TIMESTAMP );
+  send_frame_local_set( KLV_PACKET_MISB_1002_LOCAL_SET, timestamp,
+                        KLV_1002_PRECISION_TIMESTAMP );
   send_frame_1108( timestamp );
+  send_frame_local_set( KLV_PACKET_MISB_1202_LOCAL_SET, timestamp );
+  send_frame_1204( timestamp );
+  send_frame_local_set( KLV_PACKET_MISB_1206_LOCAL_SET, timestamp );
+  send_frame_local_set( KLV_PACKET_MISB_1601_LOCAL_SET, timestamp );
 
-  m_frames.emplace_back( timestamp );
   m_prev_frame = timestamp;
 }
 
@@ -178,9 +187,6 @@ void
 klv_muxer
 ::flush_frame()
 {
-  flush_frame_unknown();
-  flush_frame_0104();
-  flush_frame_0601();
   flush_frame_1108();
 }
 
@@ -203,11 +209,6 @@ klv_muxer
     }
   }
 }
-
-// ----------------------------------------------------------------------------
-void
-klv_muxer
-::flush_frame_unknown() {}
 
 // ----------------------------------------------------------------------------
 void
@@ -238,11 +239,6 @@ klv_muxer
         timestamp, klv_packet{ klv_0104_key(), std::move( set ) } );
   }
 }
-
-// ----------------------------------------------------------------------------
-void
-klv_muxer
-::flush_frame_0104() {}
 
 // ----------------------------------------------------------------------------
 void
@@ -362,11 +358,6 @@ klv_muxer
                        klv_packet{ klv_0601_key(), std::move( set ) } );
   }
 }
-
-// ----------------------------------------------------------------------------
-void
-klv_muxer
-::flush_frame_0601() {}
 
 // ----------------------------------------------------------------------------
 void
@@ -542,6 +533,98 @@ klv_muxer
 }
 
 // ----------------------------------------------------------------------------
+void
+klv_muxer
+::send_frame_1204( uint64_t timestamp )
+{
+  constexpr auto standard = KLV_PACKET_MISB_1204_MIIS_ID;
+
+  for( auto const& entry : m_timeline.find_all( standard ) )
+  {
+    auto const it = entry.second.find( timestamp );
+    if( it != entry.second.end() )
+    {
+      m_packets.emplace( timestamp, klv_packet{ klv_1204_key(), it->value } );
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_muxer
+::send_frame_local_set( klv_top_level_tag standard, uint64_t timestamp,
+                        klv_lds_key timestamp_tag )
+{
+  auto const key =
+    klv_lookup_packet_traits().by_tag( standard ).uds_key();
+  auto const lookup =
+    klv_lookup_packet_traits().by_tag( standard ).subtag_lookup();
+  if( !lookup )
+  {
+    throw std::logic_error(
+      "klv_muxer: given local set without any tag trait information" );
+  }
+
+  // Create a set of all tags present at timestamp
+  klv_local_set set;
+  for( auto const& entry : m_timeline.find_all( standard ) )
+  {
+    auto const it = entry.second.find( timestamp );
+    if( it != entry.second.end() )
+    {
+      set.add( entry.first.tag, it->value );
+    }
+  }
+
+  // If any tags were present, put the set into a packet and ship it
+  if( !set.empty() )
+  {
+    if( timestamp_tag )
+    {
+      set.add( timestamp_tag, timestamp );
+    }
+    m_packets.emplace( timestamp, klv_packet{ key, std::move( set ) } );
+  }
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_muxer
+::send_frame_universal_set( klv_top_level_tag standard, uint64_t timestamp,
+                            klv_lds_key timestamp_tag )
+{
+  auto const key = klv_lookup_packet_traits().by_tag( standard ).uds_key();
+  auto const lookup =
+    klv_lookup_packet_traits().by_tag( standard ).subtag_lookup();
+  if( !lookup )
+  {
+    throw std::logic_error(
+      "klv_muxer: given universal set without any tag trait information" );
+  }
+
+  // Create a set of all tags present at timestamp
+  klv_universal_set set;
+  for( auto const& entry : m_timeline.find_all( standard ) )
+  {
+    auto const it = entry.second.find( timestamp );
+    if( it != entry.second.end() )
+    {
+      set.add( lookup->by_tag( entry.first.tag ).uds_key(), it->value );
+    }
+  }
+
+  // If any tags were present, put the set into a packet and ship it
+  if( !set.empty() )
+  {
+    if( timestamp_tag )
+    {
+      set.add( lookup->by_tag( timestamp_tag ).uds_key(), timestamp );
+    }
+    m_packets.emplace( timestamp, klv_packet{ key, std::move( set ) } );
+  }
+}
+
+// ----------------------------------------------------------------------------
 bool
 klv_muxer
 ::check_timestamp( uint64_t timestamp ) const
@@ -550,10 +633,10 @@ klv_muxer
   auto const result = timestamp >= m_prev_frame;
   if( !result )
   {
-    LOG_ERROR( kv::get_logger( "klv" ),
-               "muxer: refusing to emit packets out-of-order "
-                << "( " << timestamp << " less than "
-                << m_prev_frame << " )" );
+    LOG_WARN( kv::get_logger( "klv" ),
+              "muxer: refusing to emit packets out-of-order "
+               << "( " << timestamp << " less than "
+               << m_prev_frame << " )" );
   }
   return result;
 }

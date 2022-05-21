@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Interface to the KLV 0806 POI Set parser.
+/// Interface to the KLV 0806 POI Set parser.
 
 #include <arrows/klv/kwiver_algo_klv_export.h>
 

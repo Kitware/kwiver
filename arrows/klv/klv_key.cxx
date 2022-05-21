@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief This file contains the implementation for the KLV key classes.
+/// This file contains the implementation for the KLV key classes.
 
 #include "klv_key.h"
 #include "klv_read_write.txx"
