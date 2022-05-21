@@ -17,6 +17,10 @@
 #include <sprokit/pipeline/process_exception.h>
 #include <sprokit/pipeline/datum.h>
 
+#ifdef WITH_FFMPEG
+#include <arrows/ffmpeg/ffmpeg_video_settings.h>
+#endif
+
 namespace algo = kwiver::vital::algo;
 
 namespace kwiver {
@@ -115,11 +119,7 @@ void video_output_process
 {
   scoped_init_instrumentation();
 
-  // instantiate a video reader
-  vital::video_settings default_settings;
-  d->m_video_writer->open( d->m_video_filename, &default_settings ); // throws
-
-  //d->m_video_traits = d->m_video_writer->get_implementation_capabilities();
+  d->m_first_frame = true;
 }
 
 
@@ -127,6 +127,27 @@ void video_output_process
 void video_output_process
 ::_step()
 {
+  if( d->m_first_frame )
+  {
+    double frame_rate;
+
+    if( has_input_port_edge_using_trait( frame_rate ) )
+    {
+      frame_rate = grab_from_port_using_trait( frame_rate );
+    }
+
+    // instantiate a video reader
+#ifdef WITH_FFMPEG
+    arrows::ffmpeg::ffmpeg_video_settings default_settings;
+    default_settings.frame_rate = av_d2q( frame_rate, 1e9 );
+#else
+    vital::video_settings default_settings;
+#endif
+    d->m_video_writer->open( d->m_video_filename, &default_settings ); // throws
+
+    d->m_first_frame = false;
+  }
+
   vital::image_container_sptr frame = grab_from_port_using_trait( image );
   vital::timestamp ts = grab_from_port_using_trait( timestamp );
 
@@ -145,7 +166,6 @@ void video_output_process
   else
   {
     d->m_last_frame = frame;
-    d->m_first_frame = false;
   }
 
   d->m_video_writer->add_image( frame, ts );
@@ -178,6 +198,7 @@ void video_output_process
   declare_input_port_using_trait( image, required );
   declare_input_port_using_trait( timestamp, required );
   declare_input_port_using_trait( metadata, optional );
+  declare_input_port_using_trait( frame_rate, optional );
 }
 
 

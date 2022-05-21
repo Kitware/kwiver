@@ -111,6 +111,11 @@ kwiver_private_header_group( ${private_headers} )
 
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
+if( KWIVER_ENABLE_FFMPEG )
+  add_definitions( -DWITH_FFMPEG )
+  set( KWIVER_FFMPEG_ARROW kwiver_algo_ffmpeg )
+endif()
+
 kwiver_add_plugin( kwiver_processes
   SUBDIR           ${kwiver_plugin_process_subdir}
   SOURCES          ${sources}
@@ -122,4 +127,5 @@ kwiver_add_plugin( kwiver_processes
                    vital vital_vpm vital_logger vital_config
                    ${Boost_SYSTEM_LIBRARY}
                    ${Boost_FILESYSTEM_LIBRARY}
+                   ${KWIVER_FFMPEG_ARROW}
 )
