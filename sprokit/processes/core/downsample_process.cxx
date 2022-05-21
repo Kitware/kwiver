@@ -150,6 +150,7 @@ void downsample_process
   if( d->is_first_ && process::count_output_port_edges( "frame_rate" ) > 0 )
   {
     push_to_port_using_trait( frame_rate, d->target_frame_rate_ );
+    push_datum_to_port_using_trait( frame_rate, sprokit::datum::complete_datum() );
   }
 
   if( ts.has_valid_frame() || ts.has_valid_time() )
