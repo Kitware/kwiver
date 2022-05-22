@@ -19,6 +19,8 @@ create_config_trait( burst_frame_count, unsigned, "0", "Burst frame count" );
 create_config_trait( burst_frame_break, unsigned, "0", "Burst frame break" );
 create_config_trait( renumber_frames, bool, "false", "Renumber output frames" );
 create_config_trait( only_frames_with_dets, bool, "false", "Frames with dets only" );
+create_config_trait( start_time, double, "-1", "Start time (seconds) to pass frames" );
+create_config_trait( duration, double, "-1", "Maximum duration time (seconds)" );
 
 class downsample_process::priv
 {
@@ -35,6 +37,8 @@ public:
   unsigned burst_frame_break_;
   bool renumber_frames_;
   bool only_frames_with_dets_;
+  double start_time_;
+  double duration_;
 
   // Time of the current frame (seconds)
   double ds_frame_time_;
@@ -95,6 +99,13 @@ void downsample_process
   d->burst_frame_break_ = config_value_using_trait( burst_frame_break );
   d->renumber_frames_ = config_value_using_trait( renumber_frames );
   d->only_frames_with_dets_ = config_value_using_trait( only_frames_with_dets );
+  d->start_time_ = config_value_using_trait( start_time );
+  d->duration_ = config_value_using_trait( duration );
+
+  if( d->duration_ > 0.0 && d->start_time_ < 0.0 )
+  {
+    d->start_time_ = 0.0;
+  }
 }
 
 void downsample_process
@@ -106,6 +117,8 @@ void downsample_process
   d->output_counter_ = 0;
   d->is_first_ = true;
   d->only_frames_with_dets_ = false;
+  d->start_time_ = -1.0;
+  d->duration_ = -1.0;
 }
 
 void downsample_process
@@ -156,6 +169,14 @@ void downsample_process
   if( ts.has_valid_frame() || ts.has_valid_time() )
   {
     send_frame = !d->skip_frame( ts, frame_rate );
+  }
+
+  if( d->start_time_ >= 0.0 &&
+      ( ts.get_time_seconds() < d->start_time_ ||
+        ( d->duration_ > 0.0 &&
+          ts.get_time_seconds() > d->start_time_ + d->duration_ ) ) )
+  {
+    send_frame = false;
   }
 
   if( d->only_frames_with_dets_ )
