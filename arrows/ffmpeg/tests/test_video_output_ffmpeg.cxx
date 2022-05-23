@@ -11,6 +11,8 @@
 #include <vital/plugin_loader/plugin_manager.h>
 #include <vital/range/iota.h>
 
+#include <random>
+
 namespace ffmpeg = kwiver::arrows::ffmpeg;
 namespace kv = kwiver::vital;
 namespace kvr = kwiver::vital::range;
@@ -31,9 +33,77 @@ main( int argc, char** argv )
   return RUN_ALL_TESTS();
 }
 
+namespace {
+
+constexpr uint64_t random_seed = 54321;
+constexpr size_t random_image_width = 96;
+constexpr size_t random_image_height = 64;
+
+} // namespace
+
 // ----------------------------------------------------------------------------
 class ffmpeg_video_output : public ::testing::Test
 {
+protected:
+  void
+  SetUp() override
+  {
+    auto const width = random_image_width;
+    auto const height = random_image_height;
+    random_image_data.resize( width * height * 3 );
+
+    std::mt19937 generator( random_seed );
+    std::uniform_int_distribution< unsigned int > dist( 96, 144 );
+    for( auto& element : random_image_data )
+    {
+      element = dist( generator );
+    }
+
+    auto const ptr = random_image_data.data();
+    size_t depth = 1;
+    random_image_gray =
+      kv::image( ptr, width, height, depth, depth, depth * width, 1 );
+
+    depth = 3;
+    random_image_rgb_packed =
+      kv::image( ptr, width, height, depth, depth, depth * width, 1 );
+    random_image_bgr_packed =
+      kv::image( ptr + depth - 1, width, height, depth,
+                 depth, depth * width, -1 );
+    random_image_rgb_planar =
+      kv::image( ptr, width, height, depth, 1, width, width * height );
+    random_image_bgr_planar =
+      kv::image( ptr + width * height * ( depth - 1 ), width, height, depth,
+                 1, width, width * height * -1 );
+
+    random_image_container_gray.reset(
+        new kv::simple_image_container{ random_image_gray } );
+    random_image_container_rgb_packed.reset(
+        new kv::simple_image_container{ random_image_rgb_packed } );
+    random_image_container_bgr_packed.reset(
+        new kv::simple_image_container{ random_image_bgr_packed } );
+    random_image_container_rgb_planar.reset(
+        new kv::simple_image_container{ random_image_rgb_planar } );
+    random_image_container_bgr_planar.reset(
+        new kv::simple_image_container{ random_image_bgr_planar } );
+  }
+
+  std::vector< uint8_t > random_image_data;
+
+  kv::image random_image_gray;
+  kv::image random_image_rgb_packed;
+  kv::image random_image_bgr_packed;
+  kv::image random_image_rgb_planar;
+  kv::image random_image_bgr_planar;
+
+  kv::image_container_sptr random_image_container_gray;
+  kv::image_container_sptr random_image_container_rgb_packed;
+  kv::image_container_sptr random_image_container_bgr_packed;
+  kv::image_container_sptr random_image_container_rgb_planar;
+  kv::image_container_sptr random_image_container_bgr_planar;
+
+  std::vector< kv::image_container_sptr > random_image_containers;
+
   TEST_ARG( data_dir );
 };
 
@@ -141,8 +211,10 @@ TEST_F ( ffmpeg_video_output, round_trip )
 // Ensure we can open a video output without knowing the implementation type.
 TEST_F ( ffmpeg_video_output, generic_open )
 {
+  // Constants
   auto const tmp_path =
     kwiver::testing::temp_file_name( "test-ffmpeg-output-", ".mp4" );
+  constexpr size_t frame_rate_num = 15;
 
   // Create
   ffmpeg::ffmpeg_video_output ff_os;
@@ -150,13 +222,22 @@ TEST_F ( ffmpeg_video_output, generic_open )
 
   // Configure
   auto config = os.get_configuration();
-  config->set_value( "width", 96 );
-  config->set_value( "height", 64 );
-  config->set_value( "frame_rate_num", 15 );
+  config->set_value( "width", random_image_width );
+  config->set_value( "height", random_image_height );
+  config->set_value( "frame_rate_num", frame_rate_num );
   os.set_configuration( config );
 
   // Open / close
   os.open( tmp_path, nullptr );
   _tmp_file_deleter tmp_file_deleter{ tmp_path };
+  kv::timestamp ts;
+
+  // Add images of varying formats
+  os.add_image( random_image_container_gray, ts );
+  os.add_image( random_image_container_rgb_packed, ts );
+  os.add_image( random_image_container_bgr_packed, ts );
+  os.add_image( random_image_container_rgb_planar, ts );
+  os.add_image( random_image_container_bgr_planar, ts );
+
   os.close();
 }
