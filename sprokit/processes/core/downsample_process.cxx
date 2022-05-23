@@ -301,6 +301,8 @@ void downsample_process
   declare_config_using_trait( burst_frame_break );
   declare_config_using_trait( renumber_frames );
   declare_config_using_trait( only_frames_with_dets );
+  declare_config_using_trait( start_time );
+  declare_config_using_trait( duration );
 }
 
 int downsample_process::priv
