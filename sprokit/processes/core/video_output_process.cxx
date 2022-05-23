@@ -8,6 +8,7 @@
 #include <vital/types/timestamp.h>
 #include <vital/types/image_container.h>
 #include <vital/types/image.h>
+#include <vital/util/string.h>
 
 #include <vital/algo/video_output.h>
 #include <vital/exceptions.h>
@@ -33,14 +34,13 @@ create_config_trait( video_filename, std::string, "",
   "Name of output video file." );
 
 create_config_trait( exit_on_invalid, bool, "false",
-  "If a frame in the middle of a sequence is invalid, do not "
-  "exit and throw an error, continue processing data. If the "
-  "first frame cannot be read, always exit regardless of this "
-  "setting." );
+  "If a frame in the middle of a sequence is invalid, do not exit and throw "
+  "an error, continue processing data. If the first frame cannot be read, "
+  "always exit regardless of this setting." );
 
-create_config_trait( maximum_length, double, "-1.0",
-  "Maximum output video length (in seconds) if this length is "
-  "exceeded, multiple video files less than this amount will be "
+create_config_trait( maximum_length, std::string, "",
+  "Maximum output video length (in seconds or HH:MM:SS format). If this "
+  "length is exceeded, multiple video files less than this amount will be "
   "output with a timestamp start extension." );
 
 create_algorithm_name_config_trait( video_writer );
@@ -99,7 +99,13 @@ void video_output_process
   // Examine the configuration
   d->m_video_filename = config_value_using_trait( video_filename );
   d->m_exit_on_invalid = config_value_using_trait( exit_on_invalid );
-  d->m_maximum_length = config_value_using_trait( maximum_length );
+
+  std::string maximum_length_str = config_value_using_trait( maximum_length );
+
+  if( !maximum_length_str.empty() )
+  {
+    d->m_maximum_length = vital::time_str_to_seconds( maximum_length_str );
+  }
 
   vital::config_block_sptr algo_config = get_config();
 
