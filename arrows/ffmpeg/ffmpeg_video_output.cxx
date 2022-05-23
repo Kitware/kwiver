@@ -13,6 +13,7 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/opt.h>
 #include <libswscale/swscale.h>
 }
 
@@ -57,6 +58,7 @@ private:
   AVRational frame_rate;
   std::string codec_name;
   size_t bitrate;
+  std::string crf;
 };
 
 // ----------------------------------------------------------------------------
@@ -75,7 +77,8 @@ ffmpeg_video_output::impl
     height{ 0 },
     frame_rate{ 0, 1 },
     codec_name{},
-    bitrate{ 0 }
+    bitrate{ 0 },
+    crf{ "" }
 {
   ffmpeg_init();
 }
@@ -187,6 +190,10 @@ ffmpeg_video_output
     "bitrate", d->bitrate,
     "Desired bitrate in bits per second."
   );
+  config->set_value(
+    "crf", d->crf,
+    "Desired CRF quality setting (empty indicates unused)."
+  );
 
   return config;
 }
@@ -212,6 +219,7 @@ ffmpeg_video_output
   d->codec_name =
     config->get_value< std::string >( "codec_name", d->codec_name );
   d->bitrate = config->get_value< size_t >( "bitrate", d->bitrate );
+  d->crf = config->get_value< std::string >( "crf", d->crf );
 }
 
 // ----------------------------------------------------------------------------
@@ -332,6 +340,12 @@ ffmpeg_video_output
   if( d->codec_context->bit_rate <= 0 )
   {
     d->codec_context->bit_rate = d->bitrate;
+  }
+
+  // Set CRF quality parameter setting if available
+  if( !d->crf.empty() )
+  {
+    av_opt_set( d->codec_context, "crf", d->crf.c_str(), AV_OPT_SEARCH_CHILDREN );
   }
 
   // Ensure we have all the required information
