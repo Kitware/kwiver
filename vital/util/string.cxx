@@ -111,9 +111,12 @@ erase_duplicates(std::vector<std::string>& items)
 // ----------------------------------------------------------------------------
 double time_str_to_seconds( const std::string& str )
 {
+  auto loc = str.find( '.' );
+  auto semis = std::count( str.begin(), str.end(), ':' );
+
   std::tm t = {};
-  std::istringstream ss( str );
-  ss >> std::get_time( &t, "%%H:%M:%S" );
+  std::istringstream ss( loc == std::string::npos ? str : str.substr( 0, loc ) );
+  ss >> std::get_time( &t, ( semis == 2 ? "%H:%M:%S" : "%M:%S" ) );
 
   if( ss.fail() )
   {
@@ -122,7 +125,6 @@ double time_str_to_seconds( const std::string& str )
 
   double output = static_cast< double >( t.tm_hour * 3600 + t.tm_min * 60 + t.tm_sec );
 
-  auto loc = str.find( '.' );
   if( loc != std::string::npos )
   {
     output += std::stof( str.substr( loc ) );
