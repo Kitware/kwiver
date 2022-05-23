@@ -103,7 +103,6 @@ string_trim( std::string& s )
   return s;
 }
 
-
 /**
  * @brief Replace first occurence of substring with another.
  *
@@ -125,6 +124,15 @@ inline bool replace_first( std::string& str,
   str.replace( start_pos, from.length(), to );
   return true;
 }
+
+/**
+ * @brief Convert a time string of HH:MM:SS.MS to seconds
+ *
+ * @param[in] str Input string to convert
+ * @return Total second count of representation
+ */
+VITAL_UTIL_EXPORT double
+time_str_to_seconds( const std::string& str );
 
 } } // end namespace
 

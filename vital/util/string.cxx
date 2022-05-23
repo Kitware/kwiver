@@ -9,7 +9,10 @@
 #include <iterator>
 #include <memory>    // For std::unique_ptr
 #include <cstring>
+#include <ctime>
 #include <sstream>
+#include <iomanip>
+#include <exception>
 
 namespace kwiver {
 namespace vital {
@@ -104,5 +107,29 @@ erase_duplicates(std::vector<std::string>& items)
     }
   }
 }
+
+// ----------------------------------------------------------------------------
+double time_str_to_seconds( const std::string& str )
+{
+  std::tm t = {};
+  std::istringstream ss( str );
+  ss >> std::get_time( &t, "%%H:%M:%S" );
+
+  if( ss.fail() )
+  {
+    throw std::runtime_error( "Unable to parse time string " + str );
+  }
+
+  double output = static_cast< double >( t.tm_hour * 3600 + t.tm_min * 60 + t.tm_sec );
+
+  auto loc = str.find( '.' );
+  if( loc != std::string::npos )
+  {
+    output += std::stof( str.substr( loc ) );
+  }
+
+  return output;
+}
+
 
 }} // end namespace
