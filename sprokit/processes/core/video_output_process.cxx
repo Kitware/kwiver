@@ -262,6 +262,7 @@ void video_output_process
   declare_config_using_trait( video_filename );
   declare_config_using_trait( exit_on_invalid );
   declare_config_using_trait( video_writer );
+  declare_config_using_trait( maximum_length );
 }
 
 
