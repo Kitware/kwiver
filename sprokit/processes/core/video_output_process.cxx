@@ -210,8 +210,8 @@ void video_output_process
       std::string s = std::to_string( seconds_int % 60 );
 
       std::string time_str = "_" +
-        std::string( 2 - std::min( std::size_t( 2 ), h.length() ), '0' ) + h + "h_" +
-        std::string( 2 - std::min( std::size_t( 2 ), m.length() ), '0' ) + m + "m_" +
+        std::string( 2 - std::min( std::size_t( 2 ), h.length() ), '0' ) + h + "h" +
+        std::string( 2 - std::min( std::size_t( 2 ), m.length() ), '0' ) + m + "m" +
         std::string( 2 - std::min( std::size_t( 2 ), s.length() ), '0' ) + s + "s";
 
       filename = stem + time_str + ext;
