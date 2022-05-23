@@ -36,6 +36,9 @@ using klv_read_iter_t = typename klv_bytes_t::const_iterator;
 using klv_write_iter_t = typename klv_bytes_t::iterator;
 
 // ----------------------------------------------------------------------------
+class klv_checksum_packet_format;
+
+// ----------------------------------------------------------------------------
 /// Untyped base for KLV data formats.
 ///
 /// This class provides an interface to the KLV data formats, providing read,
@@ -86,22 +89,9 @@ public:
   virtual std::string
   description() const = 0;
 
-  /// Return the checksum value of the given bytes.
-  virtual uint32_t
-  calculate_checksum( klv_read_iter_t data, size_t length ) const;
-
-  /// Extract the written checksum value from the end of the given bytes.
-  virtual uint32_t
-  read_checksum( klv_read_iter_t data, size_t length ) const;
-
-  /// Write the given checksum packet.
-  virtual void
-  write_checksum( uint32_t checksum,
-                  klv_write_iter_t& data, size_t max_length ) const;
-
-  /// Return the length of the checksum packet.
-  virtual size_t
-  checksum_length() const;
+  /// Optionally the checksum format for this data format.
+  virtual klv_checksum_packet_format const*
+  checksum_format() const;
 
   /// Return the fixed length of this format, or 0 if length is variable.
   size_t
