@@ -113,7 +113,7 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
 if( KWIVER_ENABLE_FFMPEG )
   add_definitions( -DWITH_FFMPEG )
-  set( KWIVER_FFMPEG_ARROW kwiver_algo_ffmpeg )
+  set( KWIVER_FFMPEG_ARROW kwiver_algo_ffmpeg ${FFMPEG_LIBRARIES} )
 endif()
 
 kwiver_add_plugin( kwiver_processes
