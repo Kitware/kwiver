@@ -15,7 +15,7 @@ namespace kwiver
 
 using sprokit::process;
 
-create_config_trait( target_frame_rate, double, "1.0", "Target frame rate" );
+create_config_trait( target_frame_rate, double, "-1.0", "Target frame rate" );
 create_config_trait( burst_frame_count, unsigned, "0", "Burst frame count" );
 create_config_trait( burst_frame_break, unsigned, "0", "Burst frame break" );
 create_config_trait( renumber_frames, bool, "false", "Renumber output frames" );
@@ -176,7 +176,8 @@ void downsample_process
     push_datum_to_port_using_trait( frame_rate, sprokit::datum::complete_datum() );
   }
 
-  if( ts.has_valid_frame() || ts.has_valid_time() )
+  if( d->target_frame_rate_ > 0.0 &&
+      ( ts.has_valid_frame() || ts.has_valid_time() ) )
   {
     send_frame = !d->skip_frame( ts, frame_rate );
   }
