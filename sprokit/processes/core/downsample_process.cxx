@@ -7,6 +7,7 @@
 #include <kwiver_type_traits.h>
 
 #include <vital/types/timestamp.h>
+#include <vital/util/string.h>
 #include <vital/vital_config.h>
 
 namespace kwiver
@@ -19,8 +20,8 @@ create_config_trait( burst_frame_count, unsigned, "0", "Burst frame count" );
 create_config_trait( burst_frame_break, unsigned, "0", "Burst frame break" );
 create_config_trait( renumber_frames, bool, "false", "Renumber output frames" );
 create_config_trait( only_frames_with_dets, bool, "false", "Frames with dets only" );
-create_config_trait( start_time, double, "-1", "Start time (seconds) to pass frames" );
-create_config_trait( duration, double, "-1", "Maximum duration time (seconds)" );
+create_config_trait( start_time, std::string, "", "Start time to pass frames" );
+create_config_trait( duration, std::string, "", "Maximum duration time" );
 
 class downsample_process::priv
 {
@@ -99,9 +100,18 @@ void downsample_process
   d->burst_frame_break_ = config_value_using_trait( burst_frame_break );
   d->renumber_frames_ = config_value_using_trait( renumber_frames );
   d->only_frames_with_dets_ = config_value_using_trait( only_frames_with_dets );
-  d->start_time_ = config_value_using_trait( start_time );
-  d->duration_ = config_value_using_trait( duration );
 
+  std::string start_time_str = config_value_using_trait( start_time );
+  std::string duration_str = config_value_using_trait( duration );
+
+  if( !start_time_str.empty() )
+  {
+    d->start_time_ = vital::time_str_to_seconds( start_time_str );
+  }
+  if( !duration_str.empty() )
+  {
+    d->duration_ = vital::time_str_to_seconds( duration_str );
+  }
   if( d->duration_ > 0.0 && d->start_time_ < 0.0 )
   {
     d->start_time_ = 0.0;
