@@ -225,7 +225,7 @@ ffmpeg_video_output
 // ----------------------------------------------------------------------------
 bool
 ffmpeg_video_output
-::check_configuration( kv::config_block_sptr config ) const
+::check_configuration( kv::config_block_sptr VITAL_UNUSED config ) const
 {
   return true;
 }
