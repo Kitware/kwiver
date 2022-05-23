@@ -9,5 +9,8 @@ Bug Fixes
 
 Arrows: Core
 
+* Fixed race condition in close_loops_exhaustive that could result in a crash
+  when matching and merging feature tracks.
+
 * Fixed undefined behavior leading to a crash in track_features_core when the
   track set remained empty after the first frame.
