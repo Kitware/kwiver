@@ -23,6 +23,8 @@ create_config_trait( only_frames_with_dets, bool, "false", "Frames with dets onl
 create_config_trait( start_time, std::string, "", "Start time to pass frames" );
 create_config_trait( duration, std::string, "", "Maximum duration time" );
 
+create_port_trait( original_timestamp, timestamp, "Timestamp output" );
+
 class downsample_process::priv
 {
 public:
@@ -134,7 +136,7 @@ void downsample_process
   bool is_finished = false;
   bool send_frame = true;
 
-  kwiver::vital::timestamp ts;
+  kwiver::vital::timestamp orig_ts, ts;
   double frame_rate = -1.0;
 
   if( has_input_port_edge_using_trait( timestamp ) )
@@ -149,6 +151,7 @@ void downsample_process
     else
     {
       ts = grab_from_port_using_trait( timestamp );
+      orig_ts = ts;
     }
   }
 
@@ -223,6 +226,7 @@ void downsample_process
     }
 
     push_to_port_using_trait( timestamp, ts );
+    push_to_port_using_trait( original_timestamp, orig_ts );
   }
 
   for( size_t i = 0; i < 5; i++ )
@@ -250,7 +254,9 @@ void downsample_process
   if( is_finished )
   {
     const sprokit::datum_t dat = sprokit::datum::complete_datum();
+
     push_datum_to_port_using_trait( timestamp, dat );
+    push_datum_to_port_using_trait( original_timestamp, dat );
 
     for( size_t i = 0; i < 5; i++ )
     {
@@ -280,6 +286,7 @@ void downsample_process
   }
 
   declare_output_port_using_trait( timestamp, optional );
+  declare_output_port_using_trait( original_timestamp, optional );
   declare_output_port_using_trait( frame_rate, optional );
   for( size_t i = 0; i < 5; i++ )
   {
