@@ -162,18 +162,7 @@ void image_writer_process
 
     if( frame_time.has_valid_frame() )
     {
-      kwiver::vital::frame_id_t next_frame;
-      next_frame = frame_time.get_frame();
-
-      if( next_frame <= d->m_frame_number )
-      {
-        ++d->m_frame_number;
-        LOG_WARN( logger(), "Frame number from input timestamp ("
-                  << next_frame
-                  << ") is not greater than last frame number. "
-                  << "Adjusting frame number to "
-                  << d->m_frame_number );
-      }
+      d->m_frame_number = frame_time.get_frame();
     }
     else
     {
