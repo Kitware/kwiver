@@ -31,9 +31,11 @@ public:
   explicit priv( downsample_process* p );
   ~priv();
 
-  bool skip_frame( VITAL_UNUSED vital::timestamp const& ts, double frame_rate );
+  bool skip_frame( vital::timestamp const& ts, double frame_rate );
 
   downsample_process* parent;
+
+  typedef vital::timestamp::frame_t frame_t;
 
   double target_frame_rate_;
   unsigned burst_frame_count_;
@@ -43,6 +45,8 @@ public:
   double start_time_;
   double duration_;
 
+  // Buffer for old to new frame ids
+  std::map< frame_t, frame_t > frame_id_map_;
   // Time of the current frame (seconds)
   double ds_frame_time_;
   // Time of the last sent frame (ignoring burst filtering)
@@ -53,6 +57,10 @@ public:
 
   static port_t const port_inputs[5];
   static port_t const port_outputs[5];
+
+  // Adjust track IDs if timestamps get renumbered from the input to
+  // the output if the input datum is an object track set
+  sprokit::datum_t adjust_track_ids( const sprokit::datum_t& input );
 
 private:
   // Compute the frame number corresponding to time_seconds assuming a
@@ -128,6 +136,7 @@ void downsample_process
   d->burst_counter_ = 0;
   d->output_counter_ = 0;
   d->is_first_ = true;
+  d->frame_id_map_.clear();
 }
 
 void downsample_process
@@ -218,6 +227,7 @@ void downsample_process
     if( d->renumber_frames_ )
     {
       ts.set_frame( d->output_counter_++ );
+      d->frame_id_map_[ orig_ts.get_frame() ] = ts.get_frame();
     }
 
     if( ts.has_valid_frame() )
@@ -241,9 +251,9 @@ void downsample_process
       }
       else if( send_frame )
       {
-        if( d->only_frames_with_dets_ )
+        if( d->only_frames_with_dets_ && d->renumber_frames_ )
         {
-          //adjust track timestamps here
+          datum = d->adjust_track_ids( datum );
         }
 
         push_datum_to_port( d->port_outputs[i], datum );
@@ -277,6 +287,7 @@ void downsample_process
 
   declare_input_port_using_trait( timestamp, optional );
   declare_input_port_using_trait( frame_rate, optional );
+
   for( size_t i = 0; i < 5; i++ )
   {
     declare_input_port( priv::port_inputs[i],
@@ -288,6 +299,7 @@ void downsample_process
   declare_output_port_using_trait( timestamp, optional );
   declare_output_port_using_trait( original_timestamp, optional );
   declare_output_port_using_trait( frame_rate, optional );
+
   for( size_t i = 0; i < 5; i++ )
   {
     declare_output_port( priv::port_outputs[i],
@@ -315,8 +327,61 @@ int downsample_process::priv
   return static_cast< int >( std::floor( time_seconds * target_frame_rate_ + 1e-10 ) );
 }
 
+sprokit::datum_t downsample_process::priv
+::adjust_track_ids( const sprokit::datum_t& input )
+{
+  try
+  {
+    vital::object_track_set_sptr input_set =
+      input->get_datum< vital::object_track_set_sptr >();
+
+    if( !input_set || this->frame_id_map_.empty() )
+    {
+      return input;
+    }
+
+    vital::object_track_set_sptr adj_set =
+      std::dynamic_pointer_cast< vital::object_track_set >( input_set->clone() );
+
+    if( !adj_set )
+    {
+      return input;
+    }
+
+    for( auto trk : adj_set->tracks() )
+    {
+      for( auto trk_state : *trk )
+      {
+        if( !trk_state )
+        {
+          continue;
+        }
+
+        auto iter = frame_id_map_.find( trk_state->frame() );
+
+        if( iter == frame_id_map_.end() )
+        {
+          trk->remove( trk_state );
+        }
+        else
+        {
+          trk_state->set_frame( iter->second );
+        }
+      }
+    }
+
+    return sprokit::datum::new_datum( adj_set );
+  }
+  catch( ... )
+  {
+    return input;
+  }
+
+  return input;
+}
+
 bool downsample_process::priv
-::skip_frame( VITAL_UNUSED vital::timestamp const& ts,
+::skip_frame( vital::timestamp const& ts,
               double frame_rate )
 {
   ds_frame_time_ = ts.has_valid_time() ?
@@ -325,12 +390,15 @@ bool downsample_process::priv
   if( is_first_ )
   {
     // Triggers always sending the first frame
-    last_sent_frame_time_ = ( target_frame_count( ds_frame_time_ ) - 0.5 ) / target_frame_rate_;
+    last_sent_frame_time_ = ( target_frame_count( ds_frame_time_ ) - 0.5 )
+                                        / target_frame_rate_;
+
     is_first_ = false;
   }
 
   int elapsed_frames = target_frame_count( ds_frame_time_ )
-    - target_frame_count( last_sent_frame_time_ );
+        - target_frame_count( last_sent_frame_time_ );
+
   if( elapsed_frames <= 0 )
   {
     return true;
