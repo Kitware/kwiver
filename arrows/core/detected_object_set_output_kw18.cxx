@@ -43,7 +43,7 @@ public:
   priv( detected_object_set_output_kw18* parent)
     : m_parent( parent )
     , m_first( true )
-    , m_frame_number( 0 )
+    , m_frame_number( 1 )
     , m_write_tot( false )
     , m_write_types( true )
   {}
