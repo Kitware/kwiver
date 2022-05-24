@@ -24,11 +24,16 @@ public:
   PLUGIN_INFO( "vxl",
                "Use VXL (rrel) to robustly estimate a homography from matched features." )
 
-  // No configuration yet for this class.
-  /// \cond DoxygenSuppress
-  virtual void set_configuration(vital::config_block_sptr /*config*/) {}
-  virtual bool check_configuration(vital::config_block_sptr /*config*/) const { return true; }
-  /// \endcond
+  estimate_homography();
+  ~estimate_homography() override;
+
+  /// Get this algorithm's \link vital::config_block configuration block
+  /// \endlink.
+  vital::config_block_sptr get_configuration() const override;
+  /// Set this algorithm's properties via a config block.
+  void set_configuration( vital::config_block_sptr config ) override;
+  /// Check that the algorithm's currently configuration is valid.
+  bool check_configuration( vital::config_block_sptr config ) const override;
 
   /// Estimate a homography matrix from corresponding points
   ///
@@ -39,12 +44,16 @@ public:
   /// \param [out] inliers for each point pair, the value is true if
   ///                      this pair is an inlier to the homography estimate
   /// \param [in]  inlier_scale error distance tolerated for matches to be inliers
-  virtual vital::homography_sptr
+  vital::homography_sptr
   estimate(const std::vector<vital::vector_2d>& pts1,
            const std::vector<vital::vector_2d>& pts2,
            std::vector<bool>& inliers,
-           double inlier_scale = 1.0) const;
+           double inlier_scale = 1.0) const override;
   using vital::algo::estimate_homography::estimate;
+
+private:
+  class priv;
+  std::unique_ptr< priv > const d;
 
 };
 

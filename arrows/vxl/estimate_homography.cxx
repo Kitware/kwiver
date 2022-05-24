@@ -21,6 +21,75 @@ namespace kwiver {
 namespace arrows {
 namespace vxl {
 
+class estimate_homography::priv
+{
+public:
+  double max_outlier_frac = 0.8;
+
+  /// Write configuration into the provided config block
+  void get_configuration( config_block_sptr config ) const;
+  /// Set configuration from the provided config block
+  void set_configuration( config_block_sptr config );
+};
+
+void
+estimate_homography::priv
+::get_configuration( config_block_sptr config ) const
+{
+  config->set_value(
+    "max_outlier_frac", max_outlier_frac,
+    "Maximum expected fraction of outliers" );
+}
+
+void
+estimate_homography::priv
+::set_configuration( config_block_sptr in_config )
+{
+  config_block_sptr config = config_block::empty_config();
+  get_configuration( config );
+  config->merge_config( in_config );
+
+  max_outlier_frac = config->get_value< double >( "max_outlier_frac" );
+}
+
+estimate_homography
+::estimate_homography()
+  : d{ new priv{} }
+{}
+
+estimate_homography
+::~estimate_homography()
+= default;
+
+config_block_sptr
+estimate_homography
+::get_configuration() const
+{
+  auto config = algo::estimate_homography::get_configuration();
+  d->get_configuration( config );
+  return config;
+}
+
+void
+estimate_homography
+::set_configuration( vital::config_block_sptr in_config )
+{
+  d->set_configuration( std::move( in_config ) );
+}
+
+bool
+estimate_homography
+::check_configuration( vital::config_block_sptr config ) const
+{
+  priv p;
+  p.set_configuration( std::move( config ) );
+  if( p.max_outlier_frac < 0 || p.max_outlier_frac >= 1 )
+  {
+    return false;
+  }
+  return true;
+}
+
 /// Estimate a homography matrix from corresponding points
 homography_sptr
 estimate_homography
@@ -52,9 +121,9 @@ estimate_homography
   hg.set_prior_scale(inlier_scale);
 
   rrel_trunc_quad_obj msac;
-  // TODO expose these parameters
+  // TODO expose all these parameters
   rrel_ran_sam_search ransam( 42 );
-  ransam.set_sampling_params(0.80);
+  ransam.set_sampling_params( d->max_outlier_frac );
   ransam.set_trace_level(0);
 
   bool result = ransam.estimate( &hg, &msac );
