@@ -173,6 +173,9 @@ public:
 
   /// Destructor
   virtual ~object_track_set() = default;
+
+  /// Clone the object_track_set
+  virtual track_set_sptr clone( clone_type = clone_type::DEEP ) const;
 };
 
 /// Shared pointer for object_track_set type

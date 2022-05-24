@@ -59,4 +59,16 @@ object_track_state::clone ( clone_type ct ) const
   }
 }
 
+track_set_sptr
+object_track_set
+::clone( clone_type ct ) const
+{
+  track_set_implementation_uptr my_impl = impl_->clone( ct );
+
+  track_set_sptr ts =
+    std::make_shared< object_track_set >( std::move( my_impl ) );
+
+  return ts;
+}
+
 } } // end namespace vital
