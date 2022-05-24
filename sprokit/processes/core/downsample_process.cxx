@@ -126,9 +126,6 @@ void downsample_process
   d->burst_counter_ = 0;
   d->output_counter_ = 0;
   d->is_first_ = true;
-  d->only_frames_with_dets_ = false;
-  d->start_time_ = -1.0;
-  d->duration_ = -1.0;
 }
 
 void downsample_process
@@ -355,6 +352,8 @@ bool downsample_process::priv
 downsample_process::priv
 ::priv( downsample_process* p )
   : parent( p )
+  , start_time_( -1.0 )
+  , duration_( -1.0 )
 {
 }
 
