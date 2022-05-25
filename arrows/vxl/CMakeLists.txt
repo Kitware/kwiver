@@ -27,6 +27,7 @@ set(vxl_headers_public
   high_pass_filter.h
   image_container.h
   image_io.h
+  kd_tree.h
   match_features_constrained.h
   morphology.h
   optimize_cameras.h
@@ -58,6 +59,7 @@ set(vxl_sources
   high_pass_filter.cxx
   image_container.cxx
   image_io.cxx
+  kd_tree.cxx
   match_features_constrained.cxx
   morphology.cxx
   optimize_cameras.cxx
