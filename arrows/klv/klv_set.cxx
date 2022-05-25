@@ -479,18 +479,21 @@ klv_set_format< Key >
       klv_read_ber< size_t >( data, tracker.remaining() );
 
     // Value
+    klv_value value;
     auto const& traits = kt::tag_traits_from_key( m_traits, key );
-    auto value =
-      traits.format().read( data, tracker.verify( length_of_value ) );
 
     // Record entries before this one in the SDCC-FLP
-    if( value.type() == typeid( klv_1010_sdcc_flp ) )
+    auto const sdcc_format =
+      dynamic_cast< klv_1010_sdcc_flp_format const* >( &traits.format() );
+    if( sdcc_format )
     {
-      auto& sdcc = value.template get< klv_1010_sdcc_flp >();
-      auto const matrix_size = std::min( history.size(), sdcc.members.size() );
-      std::copy( history.end() - matrix_size,
-                 history.end(),
-                 sdcc.members.begin() );
+      auto format = *sdcc_format;
+      format.set_preceding( history );
+      value = format.read( data, tracker.verify( length_of_value ) );
+    }
+    else
+    {
+      value = traits.format().read( data, tracker.verify( length_of_value ) );
     }
 
     result.add( key, std::move( value ) );
@@ -563,8 +566,10 @@ klv_set_format< Key >
   }
 
   // Actually write each entry
-  for( auto const& entry : entries )
+  std::vector< klv_lds_key > history;
+  for( auto it = entries.begin(); it != entries.end(); ++it )
   {
+    auto const& entry = *it;
     auto const& key = entry->first;
     auto const& value = entry->second;
     auto const& traits = kt::tag_traits_from_key( m_traits, key );
@@ -577,7 +582,19 @@ klv_set_format< Key >
     klv_write_ber( length_of_value, data, tracker.remaining() );
 
     // Value
-    traits.format().write( value, data, tracker.remaining() );
+    auto const sdcc_format =
+      dynamic_cast< klv_1010_sdcc_flp_format const* >( &traits.format() );
+    if( sdcc_format )
+    {
+      auto format = *sdcc_format;
+      format.set_preceding( history );
+      format.write( value, data, tracker.remaining() );
+    }
+    else
+    {
+      traits.format().write( value, data, tracker.remaining() );
+    }
+    history.emplace_back( traits.tag() );
   }
 }
 

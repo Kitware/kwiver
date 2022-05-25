@@ -32,8 +32,12 @@ struct klv_1010_sdcc_flp
   std::vector< double > rho;
 
   // Directives concerning how that data is to be written
-  std::shared_ptr< klv_data_format > sigma_format;
-  std::shared_ptr< klv_data_format > rho_format;
+  size_t sigma_length;
+  size_t rho_length;
+
+  bool sigma_uses_imap;
+  bool rho_uses_imap;
+
   bool long_parse_control;
   bool sparse;
 };
@@ -52,12 +56,18 @@ class KWIVER_ALGO_KLV_EXPORT klv_1010_sdcc_flp_format
   : public klv_data_format_< klv_1010_sdcc_flp >
 {
 public:
+  using imap_from_key_fn =
+    klv_lengthless_imap_format ( * )( klv_lds_key, size_t );
+
   klv_1010_sdcc_flp_format();
 
-  klv_1010_sdcc_flp_format( double sigma_minimum, double sigma_maximum );
+  explicit klv_1010_sdcc_flp_format( imap_from_key_fn sigma_imap );
 
   std::string
   description() const override;
+
+  void
+  set_preceding( std::vector< klv_lds_key > const& preceding_keys );
 
 private:
   klv_1010_sdcc_flp
@@ -70,9 +80,8 @@ private:
   size_t
   length_of_typed( klv_1010_sdcc_flp const& value ) const override;
 
-  bool m_sigma_uses_imap;
-  double m_sigma_minimum;
-  double m_sigma_maximum;
+  imap_from_key_fn m_sigma_imap;
+  std::vector< klv_lds_key > m_preceding_keys;
 };
 
 } // namespace klv

@@ -42,8 +42,8 @@ auto const expected_result = klv_local_set{
         KLV_0601_PLATFORM_HEADING_ANGLE },
       { 1.0, 2.0, 0.0 },
       { -0.5, 0.0, 0.0 },
-      std::make_shared< klv_float_format >( 4 ),
-      std::make_shared< klv_imap_format >( 1.0, 1.0, 3 ),
+      4, 3,
+      false, true,
       true,
       true, } } };
 

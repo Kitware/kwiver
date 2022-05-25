@@ -540,16 +540,10 @@
 					"rho": [
 						0.5
 					],
-					"sigma-format": {
-						"type": "float",
-						"length": 4
-					},
-					"rho-format": {
-						"type": "imap",
-						"lower-bound": -1.0,
-						"upper-bound": 1.0,
-						"length": 3
-					},
+					"sigma-length": 4,
+					"rho-length": 3,
+					"sigma-uses-imap": false,
+					"rho-uses-imap": true,
 					"long-parse-control": true,
 					"sparse": false
 				}
