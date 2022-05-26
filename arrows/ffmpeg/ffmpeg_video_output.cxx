@@ -291,6 +291,7 @@ ffmpeg_video_output
   }
 
   // Find best pixel format
+  // TODO: Add config options so RGB24 is not hardcoded here
   auto pixel_format = avcodec_find_best_pix_fmt_of_list(
     d->codec->pix_fmts, AV_PIX_FMT_RGB24, false, nullptr );
 
@@ -484,23 +485,56 @@ ffmpeg_video_output
   // Fill in a few mandatory fields
   frame->width = image->width();
   frame->height = image->height();
-  frame->format = AV_PIX_FMT_RGB24;
+  switch( image->depth() )
+  {
+    case 1: frame->format = AV_PIX_FMT_GRAY8; break;
+    case 3: frame->format = AV_PIX_FMT_RGB24; break;
+    default:
+      VITAL_THROW( kv::invalid_value,
+                   "Image has unsupported depth: " +
+                   std::to_string( image->depth() ) );
+  }
+
+  if( image->get_image().pixel_traits() !=
+      kv::image_pixel_traits_of< uint8_t >() )
+  {
+    // TODO: Is there an existing conversion function somewhere?
+    VITAL_THROW(
+      kv::video_runtime_exception,
+      "Image has unsupported pixel traits (non-uint8)" );
+  }
 
   // Allocate storage based on those fields
-  if( av_frame_get_buffer( frame, 0 ) < 0 )
+  if( av_image_alloc( frame->data, frame->linesize,
+                      frame->width, frame->height,
+                      static_cast< AVPixelFormat >( frame->format ),
+                      sizeof( int ) ) < 0 )
   {
     VITAL_THROW( kv::video_runtime_exception,
                  "Failed to allocate frame data" );
   }
 
   // Give the frame the raw pixel data
-  auto const image_ptr =
-    static_cast< uint8_t* >( image->get_image().memory()->data() );
-  if( av_image_fill_arrays(
-        frame->data, frame->linesize, image_ptr, AV_PIX_FMT_RGB24,
-        image->width(), image->height(), 1 ) < 0 )
   {
-    VITAL_THROW( kv::video_runtime_exception, "Failed to fill frame image" );
+    size_t index = 0;
+    auto ptr = static_cast< uint8_t* >( image->get_image().first_pixel() );
+    auto const i_step = image->get_image().h_step();
+    auto const j_step = image->get_image().w_step();
+    auto const k_step = image->get_image().d_step();
+    for( size_t i = 0; i < image->height(); ++i )
+    {
+      for( size_t j = 0; j < image->width(); ++j )
+      {
+        for( size_t k = 0; k < image->depth(); ++k )
+        {
+          frame->data[ 0 ][ index++ ] = *ptr;
+          ptr += k_step;
+        }
+        ptr += j_step - k_step * image->depth();
+      }
+      ptr += i_step - j_step * image->width();
+      index += frame->linesize[ 0 ] - image->width() * image->depth();
+    }
   }
 
   // Create frame object to hold the image after conversion to the required
@@ -539,7 +573,8 @@ ffmpeg_video_output
   // Specify which conversion to perform
   d->image_conversion_context = sws_getCachedContext(
     d->image_conversion_context,
-    image->width(), image->height(), AV_PIX_FMT_RGB24,
+    image->width(), image->height(),
+    static_cast< AVPixelFormat >( frame->format ),
     image->width(), image->height(), d->codec_context->pix_fmt,
     SWS_BICUBIC, nullptr, nullptr, nullptr );
   if( !d->image_conversion_context )
