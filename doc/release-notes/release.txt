@@ -1,0 +1,13 @@
+KWIVER (unreleased) Release Notes
+=================================
+
+Updates
+-------
+
+Bug Fixes
+---------
+
+Arrows: Core
+
+* Fixed undefined behavior leading to a crash in track_features_core when the
+  track set remained empty after the first frame.
