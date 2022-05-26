@@ -19,3 +19,7 @@ Arrows
 Arrows: FFmpeg
 
 * Added basic configuration options to ffmpeg_video_output.
+
+Arrows: VXL
+
+* Added max_outlier_frac configuration option to estimate_homography.
