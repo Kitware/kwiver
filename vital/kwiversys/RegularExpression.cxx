@@ -37,6 +37,8 @@
 # include "RegularExpression.hxx.in"
 #endif
 
+#include <mutex>
+
 #include <stdio.h>
 #include <string.h>
 
@@ -295,6 +297,7 @@ const unsigned char MAGIC = 0234;
 /*
  * Global work variables for compile().
  */
+static std::mutex  compile_mut;
 static const char* regparse;    // Input-scan pointer.
 static       int   regnpar;     // () count.
 static       char  regdummy;
@@ -344,6 +347,8 @@ static int strcspn ();
 // for later pattern matching.
 
 bool RegularExpression::compile (const char* exp) {
+    std::lock_guard< std::mutex > lock( compile_mut );
+
     const char* scan;
     const char* longest;
     size_t      len;
