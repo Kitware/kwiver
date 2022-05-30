@@ -137,6 +137,16 @@ public:
   /// nothing.
   virtual void add_metadata( video_raw_metadata const& md );
 
+  /// Extract implementation-specific video encoding settings.
+  ///
+  /// The returned structure is intended to be passed to a video encoder of
+  /// similar implementation to produce similarly formatted output. The
+  /// returned value may not be identical to the one passed to this object via
+  /// open().
+  ///
+  /// \return Implementation video settings, or \c nullptr if none are needed.
+  virtual vital::video_settings_uptr implementation_settings() const;
+
   /// Return capabilities of concrete implementation.
   ///
   /// This method returns the capabilities of the algorithm implementation.

@@ -15,6 +15,10 @@
 # include <vital/types/image_container.h>
 # include <vital/types/timestamp.h>
 
+extern "C" {
+#include <libavcodec/avcodec.h>
+}
+
 namespace kwiver {
 
 namespace arrows {
@@ -49,8 +53,11 @@ public:
   void add_image(
     kwiver::vital::image_container_sptr const& image,
     kwiver::vital::timestamp const& ts ) override;
+  void add_image( vital::video_raw_image const& image );
 
   void add_metadata( kwiver::vital::metadata const& md ) override;
+
+  vital::video_settings_uptr implementation_settings() const override;
 
 private:
   class impl;

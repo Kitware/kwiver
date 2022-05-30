@@ -7,6 +7,8 @@
 
 #include "ffmpeg_init.h"
 #include "ffmpeg_video_input.h"
+#include "ffmpeg_video_raw_image.h"
+#include "ffmpeg_video_raw_metadata.h"
 #include "ffmpeg_video_settings.h"
 
 #include <arrows/klv/klv_convert_vital.h>
@@ -265,6 +267,8 @@ public:
   // Current image frame.
   vital::image_memory_sptr current_image_memory;
   kwiver::vital::image_container_sptr current_image;
+  std::shared_ptr< ffmpeg_video_raw_image > current_raw_image;
+  std::shared_ptr< ffmpeg_video_raw_metadata > current_raw_metadata;
 
   // local state
   bool frame_advanced = false;
@@ -405,6 +409,8 @@ public:
     f_frame = av_frame_alloc();
     f_filtered_frame = av_frame_alloc();
     f_packet = av_packet_alloc();
+    current_raw_image.reset( new ffmpeg_video_raw_image{} );
+    current_raw_metadata.reset( new ffmpeg_video_raw_metadata{} );
 
     // The MPEG 2 codec has a latency of 1 frame when encoded in an AVI
     // stream, so the pts of the last packet (stored in pts) is
@@ -449,6 +455,8 @@ public:
     is_draining = false;
     metadata.clear();
     f_video_stream = nullptr;
+    current_raw_image.reset();
+    current_raw_metadata.reset();
     av_frame_free( &f_frame );
     av_frame_free( &f_filtered_frame );
     av_packet_free( &f_packet );
@@ -596,6 +604,9 @@ public:
     frame_advanced = false;
     metadata.clear();
 
+    current_raw_image->packets.clear();
+    current_raw_metadata->packets.clear();
+
     // Quick return if the file isn't open.
     if( !is_opened() )
     {
@@ -613,6 +624,8 @@ public:
       // Video stream packet?
       if( f_packet->stream_index == f_video_stream->index )
       {
+        current_raw_image->packets.emplace_back( av_packet_alloc() );
+        av_packet_ref( current_raw_image->packets.back().get(), f_packet );
         auto const packet_begin = f_packet->data;
         auto const packet_end = f_packet->data + f_packet->size;
         for( auto const tag_type : { klv::MISP_TIMESTAMP_TAG_STRING,
@@ -656,6 +669,8 @@ public:
       {
         if( f_packet->stream_index == stream.stream->index )
         {
+          current_raw_metadata->packets.emplace_back( av_packet_alloc() );
+          av_packet_ref( current_raw_metadata->packets.back().get(), f_packet );
           stream.send_packet( f_packet );
           break;
         }
@@ -1168,6 +1183,8 @@ ffmpeg_video_input
                         false );
   this->set_capability( vital::algo::video_input::HAS_TIMEOUT, false );
   this->set_capability( vital::algo::video_input::IS_SEEKABLE, true );
+  this->set_capability( vital::algo::video_input::HAS_RAW_IMAGE, true );
+  this->set_capability( vital::algo::video_input::HAS_RAW_METADATA, false );
 
   ffmpeg_init();
 }
@@ -1523,6 +1540,14 @@ ffmpeg_video_input
 }
 
 // ----------------------------------------------------------------------------
+kv::video_raw_image_sptr
+ffmpeg_video_input
+::raw_frame_image()
+{
+  return d->current_raw_image;
+}
+
+// ----------------------------------------------------------------------------
 kwiver::vital::timestamp
 ffmpeg_video_input
 ::frame_timestamp() const
@@ -1546,6 +1571,14 @@ ffmpeg_video_input
 ::frame_metadata()
 {
   return d->current_metadata();
+}
+
+// ----------------------------------------------------------------------------
+kwiver::vital::video_raw_metadata_sptr
+ffmpeg_video_input
+::raw_frame_metadata()
+{
+  return d->current_raw_metadata;
 }
 
 // ----------------------------------------------------------------------------
@@ -1611,7 +1644,6 @@ ffmpeg_video_input
   result->klv_stream_count = d->klv_streams.size();
   return kwiver::vital::video_settings_uptr{ result };
 }
-
 
 } // namespace ffmpeg
 

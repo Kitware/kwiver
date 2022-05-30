@@ -59,6 +59,14 @@ video_output
 }
 
 // ----------------------------------------------------------------------------
+vital::video_settings_uptr
+video_output
+::implementation_settings() const
+{
+  return nullptr;
+}
+
+// ----------------------------------------------------------------------------
 void
 video_output
 ::set_capability( algorithm_capabilities::capability_name_t const& name,

@@ -7,6 +7,7 @@
 
 #include "arrows/ffmpeg/ffmpeg_init.h"
 #include "arrows/ffmpeg/ffmpeg_video_output.h"
+#include "arrows/ffmpeg/ffmpeg_video_raw_image.h"
 #include "arrows/ffmpeg/ffmpeg_video_settings.h"
 
 extern "C" {
@@ -613,9 +614,45 @@ ffmpeg_video_output
 // ----------------------------------------------------------------------------
 void
 ffmpeg_video_output
+::add_image( vital::video_raw_image const& image )
+{
+  auto const& ffmpeg_image =
+    dynamic_cast< ffmpeg_video_raw_image const& >( image );
+  for( auto const& packet : ffmpeg_image.packets )
+  {
+    if( av_interleaved_write_frame( d->format_context, packet.get() ) < 0 )
+    {
+      VITAL_THROW( kv::video_runtime_exception, "Failed to write packet" );
+    }
+  }
+  ++d->frame_count;
+}
+
+// ----------------------------------------------------------------------------
+void
+ffmpeg_video_output
 ::add_metadata( VITAL_UNUSED kwiver::vital::metadata const& md )
 {
   // TODO
+}
+
+// ----------------------------------------------------------------------------
+vital::video_settings_uptr
+ffmpeg_video_output
+::implementation_settings() const
+{
+  if( !d->video_stream )
+  {
+    return nullptr;
+  }
+
+  auto const result = new ffmpeg_video_settings{};
+  result->frame_rate = d->video_stream->avg_frame_rate;
+  result->parameters.reset( avcodec_parameters_alloc() );
+  avcodec_parameters_from_context( result->parameters.get(),
+                                   d->codec_context );
+  result->klv_stream_count = 0; // TODO
+  return kwiver::vital::video_settings_uptr{ result };
 }
 
 } // namespace ffmpeg
