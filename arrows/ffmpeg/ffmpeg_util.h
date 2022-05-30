@@ -15,6 +15,7 @@ extern "C" {
 }
 
 #include <memory>
+#include <string>
 
 namespace kwiver {
 
@@ -22,8 +23,12 @@ namespace arrows {
 
 namespace ffmpeg {
 
+// ----------------------------------------------------------------------------
+std::string error_string( int error_code );
+
 namespace ffmpeg_detail {
 
+// ----------------------------------------------------------------------------
 struct av_packet_deleter
 {
   void

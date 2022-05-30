@@ -6,6 +6,7 @@
 /// \brief Implementation file for video input using FFmpeg.
 
 #include "ffmpeg_init.h"
+#include "ffmpeg_util.h"
 #include "ffmpeg_video_input.h"
 #include "ffmpeg_video_raw_image.h"
 #include "ffmpeg_video_raw_metadata.h"
@@ -154,7 +155,7 @@ ffmpeg_klv_stream
     catch( kwiver::vital::metadata_exception const& e )
     {
       LOG_ERROR( kwiver::vital::get_logger( "klv" ),
-                 "error while parsing KLV packet: " << e.what() );
+        "Error while parsing KLV packet: " << e.what() );
       it = bytes.cend();
     }
   }
@@ -287,6 +288,23 @@ public:
   priv() {}
 
   // --------------------------------------------------------------------------
+  template< class... Args >
+  void log_error( Args... args )
+  {
+    std::stringstream ss;
+    bool dummy[] = { ( ss << args ).good()... };
+    ( void )dummy;
+    LOG_ERROR( logger, ss.str() );
+  }
+
+  // --------------------------------------------------------------------------
+  template< class... Args >
+  void log_error_code( int error_code, Args... args )
+  {
+    log_error( args..., ": ", error_string( error_code ) );
+  }
+
+  // --------------------------------------------------------------------------
 
   ///  @brief Whether the video was opened.
   ///
@@ -305,18 +323,22 @@ public:
   bool
   open( std::string video_name )
   {
+    int err;
+
     // Open the file
-    auto err =
-      avformat_open_input( &f_format_context, video_path.c_str(), NULL, NULL );
-    if( err != 0 )
+    err = avformat_open_input(
+      &f_format_context, video_path.c_str(), NULL, NULL );
+    if( err < 0 )
     {
-      LOG_ERROR( logger, "Error " << err << " trying to open " << video_name );
+      log_error_code( err, "Could not open video input `", video_path, "`" );
       return false;
     }
 
     // Get the stream information by reading a bit of the file
-    if( avformat_find_stream_info( f_format_context, NULL ) < 0 )
+    err = avformat_find_stream_info( f_format_context, NULL );
+    if( err < 0 )
     {
+      log_error_code( err, "Could not read stream information" );
       return false;
     }
 
@@ -341,7 +363,7 @@ public:
             unknown_stream_behavior == "klv" )
         {
           LOG_INFO( logger,
-                    "Treating unknown stream " << stream->index << " as KLV" );
+            "Treating unknown stream " << stream->index << " as KLV" );
           klv_streams.emplace_back( stream );
         }
         else
@@ -353,8 +375,7 @@ public:
 
     if( !f_video_stream )
     {
-      LOG_ERROR( logger,
-                 "Error: could not find a video stream in " << video_path );
+      log_error( "Could not find a video stream in the input" );
       return false;
     }
     auto const video_params = f_video_stream->codecpar;
@@ -368,49 +389,75 @@ public:
     std::string const codec_name =
       codec_descriptor ? codec_descriptor->long_name : "<unknown>";
 
+    LOG_INFO( logger, "Using input codec `" << codec_name << "`" );
+
     // Open the stream
     auto const codec = avcodec_find_decoder( video_params->codec_id );
     if( !codec )
     {
-      LOG_ERROR( logger,
-                 "Error: Codec " << codec_name << " "
-                 << "(" << video_params->codec_id << ") not found" );
+      log_error( "Could not find input codec `", codec_name, "`" );
       return false;
     }
 
-    // Copy context
+    // Allocate context
     f_video_encoding = avcodec_alloc_context3( codec );
-    if( avcodec_parameters_to_context( f_video_encoding, video_params ) > 0 )
+    if( !f_video_encoding )
     {
-      LOG_ERROR( logger,
-                 "Error: Could not fill codec context " << codec_name );
+      log_error(
+        "Could not allocate context for input codec `", codec_name, "`" );
+      return false;
+    }
+
+    // Fill in context
+    err = avcodec_parameters_to_context( f_video_encoding, video_params );
+    if( err < 0 )
+    {
+      log_error_code(
+        err, "Could not fill parameters for input codec `", codec_name, "`" );
       return false;
     }
 
     // Open codec
-    if( avcodec_open2( f_video_encoding, codec, NULL ) < 0 )
+    err = avcodec_open2( f_video_encoding, codec, NULL );
+    if( err < 0 )
     {
-      LOG_ERROR( logger,
-                 "Error: Could not open codec " << f_video_encoding->codec_id );
+      log_error_code( err, "Could not open input codec `", codec_name, "`" );
       return false;
     }
 
+    // Initialize filters
     if( !std::all_of( filter_desc.begin(), filter_desc.end(), isspace ) &&
         !init_filters( filter_desc ) )
     {
+      log_error( "Could not initialize filter graph" );
       return false;
     }
+
+    // Allocate frames
+    f_frame = av_frame_alloc();
+    f_filtered_frame = av_frame_alloc();
+    if( !f_frame || !f_filtered_frame )
+    {
+      log_error( "Could not allocate frame memory" );
+      return false;
+    }
+
+    // Allocate packet
+    f_packet = av_packet_alloc();
+    if( !f_packet )
+    {
+      log_error( "Could not allocate packet" );
+      return false;
+    }
+
+    // Allocate raw data containers
+    current_raw_image.reset( new ffmpeg_video_raw_image{} );
+    current_raw_metadata.reset( new ffmpeg_video_raw_metadata{} );
 
     // Use group of picture (GOP) size for seek back step if avaiable
     // If GOP size not available use 12 which is a common GOP size.
     f_backstep_size =
       ( f_video_encoding->gop_size > 0 ) ? f_video_encoding->gop_size : 12;
-
-    f_frame = av_frame_alloc();
-    f_filtered_frame = av_frame_alloc();
-    f_packet = av_packet_alloc();
-    current_raw_image.reset( new ffmpeg_video_raw_image{} );
-    current_raw_metadata.reset( new ffmpeg_video_raw_metadata{} );
 
     // The MPEG 2 codec has a latency of 1 frame when encoded in an AVI
     // stream, so the pts of the last packet (stored in pts) is
@@ -422,21 +469,38 @@ public:
     }
 
     // Start time taken from the first decodable frame
-    av_seek_frame( f_format_context, f_video_stream->index, 0,
-                   AVSEEK_FLAG_FRAME );
+    err = av_seek_frame(
+      f_format_context, f_video_stream->index, 0, AVSEEK_FLAG_FRAME );
+    if( err < 0 )
+    {
+      log_error_code( err, "Could not seek to beginning of video" );
+      return false;
+    }
+
+    // Read frames until we can successfully decode one
     int send_err;
     int recv_err;
     do {
-      // Read frames until we can successfully decode one
-      av_read_frame( f_format_context, f_packet );
+      err = av_read_frame( f_format_context, f_packet );
+      if( err < 0 )
+      {
+        log_error_code( err, "Could not read frame" );
+      }
+
       send_err = avcodec_send_packet( f_video_encoding, f_packet );
       recv_err = avcodec_receive_frame( f_video_encoding, f_frame );
       av_packet_unref( f_packet );
     } while( send_err || recv_err );
     f_start_time = f_frame->best_effort_timestamp;
+
     // Seek back to start
-    av_seek_frame( f_format_context, f_video_stream->index, 0,
-                   AVSEEK_FLAG_FRAME );
+    err = av_seek_frame(
+      f_format_context, f_video_stream->index, 0, AVSEEK_FLAG_FRAME );
+    if( err < 0 )
+    {
+      log_error_code( err, "Could not seek to beginning of video" );
+      return false;
+    }
     avcodec_flush_buffers( f_video_encoding );
 
     frame_advanced = false;
@@ -482,7 +546,7 @@ public:
       std::unique_ptr< AVFilterInOut*, decltype( deleter ) >;
 
     char args[ 512 ];
-    int ret = 0;
+    int err = 0;
     auto* const buffersrc = avfilter_get_by_name( "buffer" );
     auto* const buffersink = avfilter_get_by_name( "buffersink" );
     AVFilterInOut_ptr outputs( new AVFilterInOut*[ 1 ], deleter );
@@ -497,7 +561,7 @@ public:
     this->f_filter_graph = avfilter_graph_alloc();
     if( !outputs || !inputs || !f_filter_graph )
     {
-      LOG_ERROR( this->logger, "Failed to alloation filter graph" );
+      log_error( "Could not allocate filter graph" );
       return false;
     }
     // Buffer video source
@@ -509,29 +573,28 @@ public:
               time_base.num, time_base.den,
               f_video_encoding->sample_aspect_ratio.num,
               f_video_encoding->sample_aspect_ratio.den );
-    ret = avfilter_graph_create_filter( &f_filter_src_context, buffersrc, "in",
-                                        args, NULL, f_filter_graph );
-    if( ret < 0 )
+    err = avfilter_graph_create_filter(
+      &f_filter_src_context, buffersrc, "in", args, NULL, f_filter_graph );
+    if( err < 0 )
     {
-      LOG_ERROR( this->logger, "Cannot create buffer source" );
+      log_error_code( err, "Could not create buffer source" );
       return false;
     }
     // Buffer video sink
     // To terminate the filter chain.
-    ret = avfilter_graph_create_filter( &f_filter_sink_context,
-                                        buffersink, "out",
-                                        NULL, NULL, f_filter_graph );
-    if( ret < 0 )
+    err = avfilter_graph_create_filter(
+      &f_filter_sink_context, buffersink, "out", NULL, NULL, f_filter_graph );
+    if( err < 0 )
     {
-      LOG_ERROR( this->logger, "Cannot create buffer sink" );
+      log_error_code( err, "Could not create buffer sink" );
       return false;
     }
-    ret = av_opt_set_int_list( f_filter_sink_context, "pix_fmts", pix_fmts,
-                               AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN );
-    if( ret < 0 )
+    err = av_opt_set_int_list(
+      f_filter_sink_context, "pix_fmts", pix_fmts, AV_PIX_FMT_NONE,
+      AV_OPT_SEARCH_CHILDREN );
+    if( err < 0 )
     {
-      LOG_ERROR( this->logger, "Cannot set output pixel format" );
-      return false;
+      log_error_code( err, "Could not set output pixel format" );
     }
 
     // Set the endpoints for the filter graph. The filter_graph will
@@ -555,16 +618,19 @@ public:
     ( *inputs )->pad_idx = 0;
     ( *inputs )->next = NULL;
 
-    if( avfilter_graph_parse_ptr( f_filter_graph, filters_desc.c_str(),
-                                  inputs.get(), outputs.get(), NULL ) < 0 )
+    err = avfilter_graph_parse_ptr(
+      f_filter_graph, filters_desc.c_str(), inputs.get(), outputs.get(),
+      NULL );
+    if( err < 0 )
     {
-      LOG_ERROR( this->logger, "Failed to parse AV filter graph" );
+      log_error_code( err, "Could not parse filter graph" );
       return false;
     }
 
-    if( avfilter_graph_config( f_filter_graph, NULL ) < 0 )
+    err = avfilter_graph_config( f_filter_graph, NULL );
+    if( err < 0 )
     {
-      LOG_ERROR( this->logger, "Failed to configure AV filter graph" );
+      log_error_code( err, "Could not configure filter graph" );
       return false;
     }
 
@@ -576,11 +642,23 @@ public:
   int
   query_frame()
   {
-    auto const result = avcodec_receive_frame( f_video_encoding, f_frame );
+    auto const err = avcodec_receive_frame( f_video_encoding, f_frame );
 
-    if( result < 0 )
+    switch( err )
     {
-      return result;
+      case 0:
+        break;
+      case AVERROR_INVALIDDATA:
+      case AVERROR( EAGAIN ):
+      case AVERROR_EOF:
+        return err;
+      default:
+        if( err < 0 )
+        {
+          log_error_code( err, "Could not read decoded frame" );
+          return err;
+        }
+        break;
     }
 
     f_pts = f_frame->best_effort_timestamp;
@@ -591,7 +669,7 @@ public:
 
     frame_advanced = true;
 
-    return result;
+    return err;
   }
 
   // --------------------------------------------------------------------------
@@ -601,6 +679,8 @@ public:
   bool
   advance()
   {
+    int err;
+
     frame_advanced = false;
     metadata.clear();
 
@@ -619,13 +699,21 @@ public:
     }
 
     while( !frame_advanced && !is_draining &&
-           av_read_frame( f_format_context, f_packet ) >= 0 )
+           ( err = av_read_frame( f_format_context, f_packet ) ) >= 0 )
     {
       // Video stream packet?
       if( f_packet->stream_index == f_video_stream->index )
       {
+        // Record packet as raw image
         current_raw_image->packets.emplace_back( av_packet_alloc() );
-        av_packet_ref( current_raw_image->packets.back().get(), f_packet );
+        err = av_packet_ref(
+          current_raw_image->packets.back().get(), f_packet );
+        if( err < 0 )
+        {
+          log_error_code( err, "Could not give packet to raw image cache" );
+        }
+
+        // Find MISP timestamp
         auto const packet_begin = f_packet->data;
         auto const packet_end = f_packet->data + f_packet->size;
         for( auto const tag_type : { klv::MISP_TIMESTAMP_TAG_STRING,
@@ -641,25 +729,26 @@ public:
           }
         }
 
-        auto err = avcodec_send_packet( f_video_encoding, f_packet );
+        // Send packet to decoder
+        err = avcodec_send_packet( f_video_encoding, f_packet );
         if( err < 0 )
         {
-          LOG_ERROR( logger, "Error sending packet to decoder" );
+          log_error_code( err, "Could not feed packet to decoder" );
           return false;
         }
 
+        // Read frame from decoder
         err = query_frame();
-
-        // Ignore the frame and move to the next
-        if( err == AVERROR_INVALIDDATA || err == AVERROR( EAGAIN ) )
-        {
-          av_packet_unref( f_packet );
-          continue;
-        }
         if( err < 0 )
         {
-          LOG_ERROR( logger, "Error decoding packet" );
           av_packet_unref( f_packet );
+          if( err == AVERROR_INVALIDDATA || err == AVERROR( EAGAIN ) )
+          {
+            // No image produced but that's OK
+            continue;
+          }
+
+          // Things are not OK
           return false;
         }
       }
@@ -669,8 +758,17 @@ public:
       {
         if( f_packet->stream_index == stream.stream->index )
         {
+          // Record packet as raw KLV
           current_raw_metadata->packets.emplace_back( av_packet_alloc() );
-          av_packet_ref( current_raw_metadata->packets.back().get(), f_packet );
+          err = av_packet_ref(
+            current_raw_metadata->packets.back().get(), f_packet );
+          if( err < 0 )
+          {
+            log_error_code(
+              err, "Could not give packet to raw metadata cache" );
+          }
+
+          // Decode packet
           stream.send_packet( f_packet );
           break;
         }
@@ -680,15 +778,20 @@ public:
       av_packet_unref( f_packet );
     }
 
+    // Did av_read_frame() fail strangely?
+    if( err < 0 && err != AVERROR_EOF )
+    {
+      log_error_code( err, "Failed to read frame from video stream" );
+      return false;
+    }
+
     // End of video? Get all still-buffered frames from decoder
     if( !frame_advanced && !is_draining )
     {
-      is_draining = true;
+      // Ignore error code
       avcodec_send_packet( f_video_encoding, nullptr );
-      if( query_frame() < 0 )
-      {
-        frame_advanced = false;
-      }
+      frame_advanced = query_frame() >= 0;
+      is_draining = true;
     }
 
     // The cached frame is out of date, whether we managed to get a new
@@ -723,6 +826,8 @@ public:
   bool
   seek( uint64_t frame )
   {
+    int err;
+
     is_draining = false;
 
     // Time for frame before requested frame. The frame before is requested so
@@ -742,13 +847,14 @@ public:
         stream.reset();
       }
 
-      auto err =
-        av_seek_frame( f_format_context, f_video_stream->index, frame_ts,
-                       AVSEEK_FLAG_BACKWARD );
+      err = av_seek_frame(
+        f_format_context, f_video_stream->index, frame_ts,
+        AVSEEK_FLAG_BACKWARD );
       avcodec_flush_buffers( f_video_encoding );
 
       if( err < 0 )
       {
+        log_error_code( err, "Could not seek to timestamp ", frame_ts );
         return false;
       }
 
@@ -759,8 +865,7 @@ public:
       frame_ts -= f_backstep_size * stream_time_base_to_frame();
       if( ++num_of_attempts > max_seek_back_attempts )
       {
-        LOG_ERROR( logger,
-                   "Seek failed: unable to seek back to early timestamp" );
+        log_error( "Could not seek to frame: Exhausted maximum attempts" );
         return false;
       }
     } while( frame_number() > frame - 1 || !advance_successful );
@@ -775,7 +880,7 @@ public:
 
       if( frame_number() > frame - 1 )
       {
-        LOG_ERROR( logger, "seek went past requested frame." );
+        log_error( "Could not seek to frame: Unable to acquire image" );
         return false;
       }
     }
@@ -998,7 +1103,7 @@ public:
       else
       {
         LOG_ERROR( logger,
-                   "No MISP timestamp found for frame " << frame_number() );
+          "No MISP timestamp found for frame " << frame_number() );
       }
     }
 
@@ -1085,6 +1190,8 @@ public:
   void
   estimate_num_frames()
   {
+    int err;
+
     // is stream open?
     if( !this->is_opened() )
     {
@@ -1112,14 +1219,15 @@ public:
         {
           stream.reset();
         }
-        auto err =
-          av_seek_frame( f_format_context,f_video_stream->index, frame_ts,
-                         AVSEEK_FLAG_BACKWARD );
-        avcodec_flush_buffers( f_video_encoding );
         is_draining = false;
 
+        err = av_seek_frame(
+          f_format_context, f_video_stream->index, frame_ts,
+          AVSEEK_FLAG_BACKWARD );
+        avcodec_flush_buffers( f_video_encoding );
         if( err < 0 )
         {
+          log_error_code( err, "Could not seek to end of video" );
           break;
         }
 
@@ -1130,8 +1238,8 @@ public:
         frame_ts -= f_backstep_size * stream_time_base_to_frame();
       } while( !advance_successful );
 
-      LOG_DEBUG( this->logger,
-                 "Seeked to near end frame: " << this->frame_number() );
+      LOG_DEBUG( logger,
+        "Seeked to frame near end of video: " << frame_number() );
 
       // Step through the end of the video to find the last valid frame number
       do
@@ -1141,8 +1249,8 @@ public:
       // The number of frames is one greater than the last valid frame number
       ++number_of_frames;
 
-      LOG_DEBUG( this->logger,
-                 "Found " << number_of_frames << " video frames" );
+      LOG_DEBUG( logger,
+        "Found " << number_of_frames << " video frames" );
 
       // Set this flag so we do not have a count frames next time
       estimated_num_frames = true;
@@ -1378,13 +1486,13 @@ ffmpeg_video_input
     LOG_WARN( this->logger(), "Timeout argument is not supported." );
   }
 
-  bool ret = d->seek( frame_number );
-  d->end_of_video = !ret;
-  if( ret )
+  bool err = d->seek( frame_number );
+  d->end_of_video = !err;
+  if( err )
   {
     ts = this->frame_timestamp();
   }
-  return ret;
+  return err;
 }
 
 // ----------------------------------------------------------------------------
@@ -1392,6 +1500,8 @@ kwiver::vital::image_container_sptr
 ffmpeg_video_input
 ::frame_image()
 {
+  int err;
+
   // Quick return if the stream isn't valid
   if( !d->is_valid() )
   {
@@ -1421,24 +1531,29 @@ ffmpeg_video_input
       do
       {
         // Push the decoded frame into the filter graph
-        if( av_buffersrc_add_frame_flags( d->f_filter_src_context, d->f_frame,
-                                          AV_BUFFERSRC_FLAG_KEEP_REF ) < 0 )
+        err = av_buffersrc_add_frame_flags(
+          d->f_filter_src_context, d->f_frame, AV_BUFFERSRC_FLAG_KEEP_REF );
+        if( err < 0 )
         {
-          LOG_ERROR( this->logger(), "Error while feeding the filter graph" );
+          d->log_error_code( err, "Could not feed frame to filter graph" );
           return nullptr;
         }
         // Pull a filtered frame from the filter graph
         filtered_frame_ref = { d->f_filtered_frame, &av_frame_unref };
 
-        auto const ret = av_buffersink_get_frame( d->f_filter_sink_context,
-                                                  d->f_filtered_frame );
-        if( ret == AVERROR_EOF )
+        err = av_buffersink_get_frame(
+          d->f_filter_sink_context, d->f_filtered_frame );
+        if( err == AVERROR_EOF )
         {
           return nullptr;
         }
-        if( ret == AVERROR( EAGAIN ) )
+        if( err == AVERROR( EAGAIN ) )
         {
           continue;
+        }
+        if( err < 0 )
+        {
+          d->log_error_code( err, "Could not read frame from filter graph" );
         }
       } while( d->f_frame->best_effort_timestamp !=
                d->f_filtered_frame->best_effort_timestamp );
@@ -1483,19 +1598,29 @@ ffmpeg_video_input
     if( direct_copy )
     {
       int size = av_image_get_buffer_size( pix_fmt, width, height, 1 );
+      if( size < 0 )
+      {
+        d->log_error_code( size, "Could not get image buffer size" );
+        return nullptr;
+      }
       d->current_image_memory =
         std::make_shared< vital::image_memory >( size );
 
       AVFrame picture;
-      av_image_fill_arrays(
+      err = av_image_fill_arrays(
         picture.data, picture.linesize,
         static_cast< uint8_t* >( d->current_image_memory->data() ),
         pix_fmt, width, height, 1 );
+      if( err < 0 )
+      {
+        d->log_error_code( err, "Could not copy image data" );
+        return nullptr;
+      }
 
       auto framedata = const_cast< const uint8_t** >( frame->data );
-      av_image_copy( picture.data, picture.linesize,
-                     framedata, frame->linesize,
-                     pix_fmt, width, height );
+      av_image_copy(
+        picture.data, picture.linesize, framedata, frame->linesize,
+        pix_fmt, width, height );
     }
     else
     // If the pixel format is not recognized, convert the data into RGB_24
@@ -1513,18 +1638,29 @@ ffmpeg_video_input
 
       if( !d->f_software_context )
       {
-        LOG_ERROR( this->logger(), "Couldn't create conversion context" );
+        d->log_error( "Could not create conversion context" );
         return nullptr;
       }
 
       AVFrame rgb_frame;
-      av_image_fill_arrays(
+      err = av_image_fill_arrays(
         rgb_frame.data, rgb_frame.linesize,
         static_cast< uint8_t* >( d->current_image_memory->data() ),
         AV_PIX_FMT_RGB24, width, height, 1 );
+      if( err < 0 )
+      {
+        d->log_error_code( err, "Could not copy image data" );
+        return nullptr;
+      }
 
-      sws_scale( d->f_software_context, frame->data, frame->linesize,
-                 0, height, rgb_frame.data, rgb_frame.linesize );
+      err = sws_scale(
+        d->f_software_context, frame->data, frame->linesize, 0, height,
+        rgb_frame.data, rgb_frame.linesize );
+      if( err < 0 )
+      {
+        d->log_error_code( err, "Could not convert image format" );
+        return nullptr;
+      }
     }
 
     vital::image image(
@@ -1638,10 +1774,15 @@ ffmpeg_video_input
 
   auto const result = new ffmpeg_video_settings{};
   result->frame_rate = d->f_video_stream->avg_frame_rate;
-  result->parameters.reset( avcodec_parameters_alloc() );
-  avcodec_parameters_from_context( result->parameters.get(),
-                                   d->f_video_encoding );
   result->klv_stream_count = d->klv_streams.size();
+
+  int err = avcodec_parameters_from_context(
+    result->parameters.get(), d->f_video_encoding );
+  if( err < 0 )
+  {
+    d->log_error_code( err, "Could not fill codec parameters from context" );
+  }
+
   return kwiver::vital::video_settings_uptr{ result };
 }
 
