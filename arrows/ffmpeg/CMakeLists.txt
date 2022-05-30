@@ -38,6 +38,7 @@ kwiver_install_headers(
 
 set(ffmpeg_sources
   ffmpeg_init.cxx
+  ffmpeg_util.cxx
   ffmpeg_video_input.cxx
   ffmpeg_video_output.cxx
   ffmpeg_video_raw_image.cxx

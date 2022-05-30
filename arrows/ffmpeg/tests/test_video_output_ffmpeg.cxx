@@ -243,7 +243,6 @@ TEST_F ( ffmpeg_video_output, round_trip_direct )
       dynamic_cast< ffmpeg::ffmpeg_video_settings const* >(
         tmp_generic_settings.get() );
     if( !src_settings || !tmp_settings ||
-        !src_settings->parameters || !tmp_settings->parameters ||
         src_settings->parameters->codec_id !=
         tmp_settings->parameters->codec_id )
     {

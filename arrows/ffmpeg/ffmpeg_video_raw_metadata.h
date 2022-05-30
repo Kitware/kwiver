@@ -31,8 +31,10 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_raw_metadata
   ffmpeg_video_raw_metadata&
   operator=( ffmpeg_video_raw_metadata const& ) = delete;
 
-  std::list< ffmpeg_detail::av_packet_uptr > packets;
+  std::list< packet_uptr > packets;
 };
+using ffmpeg_video_raw_metadata_sptr =
+  std::shared_ptr< ffmpeg_video_raw_metadata >;
 
 } // namespace ffmpeg
 
