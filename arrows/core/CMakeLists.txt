@@ -41,6 +41,7 @@ set( plugin_core_headers
   match_tracks.h
   mesh_intersect.h
   mesh_operations.h
+  merge_detections_suppress_in_regions.h
   metadata_map_io_csv.h
   read_object_track_set_kw18.h
   read_track_descriptor_set_csv.h
@@ -118,6 +119,7 @@ set( plugin_core_sources
   match_tracks.cxx
   mesh_intersect.cxx
   mesh_operations.cxx
+  merge_detections_suppress_in_regions.cxx
   metadata_map_io_csv.cxx
   read_object_track_set_kw18.cxx
   read_track_descriptor_set_csv.cxx
