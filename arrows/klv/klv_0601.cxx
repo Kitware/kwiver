@@ -34,13 +34,6 @@ namespace arrows {
 
 namespace klv {
 
-namespace {
-
-constexpr size_t checksum_packet_length = 4;
-std::vector< uint8_t > const checksum_header = { KLV_0601_CHECKSUM, 2 };
-
-} // namespace <anonymous>
-
 // ----------------------------------------------------------------------------
 klv_tag_traits_lookup const&
 klv_0601_traits_lookup()
@@ -2642,16 +2635,6 @@ klv_0601_payload_list_format
 }
 
 // ----------------------------------------------------------------------------
-uint32_t
-klv_0601_local_set_format
-::calculate_checksum( klv_read_iter_t data, size_t length ) const
-{
-  return klv_running_sum_16( checksum_header.begin(), checksum_header.end(),
-                             klv_running_sum_16( data, data + length ),
-                             length % 2 );
-}
-
-// ----------------------------------------------------------------------------
 /// A sensor wavelength record.
 std::ostream&
 operator<<( std::ostream& os, klv_0601_wavelength_record const& value )
@@ -2753,48 +2736,11 @@ klv_0601_wavelength_record_format
 }
 
 // ----------------------------------------------------------------------------
-uint32_t
+klv_checksum_packet_format const*
 klv_0601_local_set_format
-::read_checksum( klv_read_iter_t data, size_t length ) const
+::checksum_format() const
 {
-  if( length < checksum_packet_length )
-  {
-    VITAL_THROW( kv::metadata_buffer_overflow,
-                 "packet too small; checksum is not present" );
-  }
-  data += length - checksum_packet_length;
-
-  if( !std::equal( checksum_header.cbegin(), checksum_header.cend(), data ) )
-  {
-    VITAL_THROW( kv::metadata_exception,
-                 "checksum header not present" );
-  }
-  data += checksum_header.size();
-
-  return klv_read_int< uint16_t >( data, 2 );
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_0601_local_set_format
-::write_checksum( uint32_t checksum,
-                  klv_write_iter_t& data, size_t max_length ) const
-{
-  if( max_length < checksum_packet_length )
-  {
-    VITAL_THROW( kv::metadata_buffer_overflow,
-                 "writing checksum packet overflows data buffer" );
-  }
-  data = std::copy( checksum_header.cbegin(), checksum_header.cend(), data );
-  klv_write_int( static_cast< uint16_t >( checksum ), data, 2 );
-}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_0601_local_set_format
-::checksum_length() const
-{
-  return checksum_packet_length;
+  return &m_checksum_format;
 }
 
 // ----------------------------------------------------------------------------
@@ -2815,7 +2761,8 @@ operator<<( std::ostream& os, klv_0601_tag tag )
 // ----------------------------------------------------------------------------
 klv_0601_local_set_format
 ::klv_0601_local_set_format()
-  : klv_local_set_format{ klv_0601_traits_lookup() }
+  : klv_local_set_format{ klv_0601_traits_lookup() },
+    m_checksum_format{ { KLV_0601_CHECKSUM, 2 } }
 {}
 
 // ----------------------------------------------------------------------------

@@ -87,7 +87,7 @@ TEST ( klv, read_write_1108_packet )
     0x06, 0x0E, 0x2B, 0x34, 0x02, 0x03, 0x01, 0x01,
     0x0E, 0x01, 0x03, 0x03, 0x1C, 0x00, 0x00, 0x00,
     102, };
-  auto const packet_footer = klv_bytes_t{ KLV_1108_CHECKSUM, 2, 0x89, 0x9F };
+  auto const packet_footer = klv_bytes_t{ KLV_1108_CHECKSUM, 2, 0x4A, 0xB4 };
 
   // Assemble the target packet's serialized form
   auto packet_bytes =

@@ -9,6 +9,7 @@
 
 #include "klv_all.h"
 #include "klv_blob.h"
+#include "klv_checksum.h"
 #include "klv_packet.h"
 #include "klv_series.hpp"
 
@@ -74,37 +75,11 @@ klv_data_format
 }
 
 // ----------------------------------------------------------------------------
-uint32_t
+klv_checksum_packet_format const*
 klv_data_format
-::calculate_checksum( VITAL_UNUSED klv_read_iter_t data,
-                      VITAL_UNUSED size_t length ) const
+::checksum_format() const
 {
-  return 0;
-}
-
-// ----------------------------------------------------------------------------
-uint32_t
-klv_data_format
-::read_checksum( VITAL_UNUSED klv_read_iter_t data,
-                 VITAL_UNUSED size_t length ) const
-{
-  return 0;
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_data_format
-::write_checksum( VITAL_UNUSED uint32_t checksum,
-                  VITAL_UNUSED klv_write_iter_t& data,
-                  VITAL_UNUSED size_t max_length ) const
-{}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_data_format
-::checksum_length() const
-{
-  return 0;
+  return nullptr;
 }
 
 // ----------------------------------------------------------------------------
