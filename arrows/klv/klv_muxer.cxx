@@ -115,6 +115,8 @@ klv_muxer
                         KLV_0903_PRECISION_TIMESTAMP );
   send_frame_local_set( KLV_PACKET_MISB_1002_LOCAL_SET, timestamp,
                         KLV_1002_PRECISION_TIMESTAMP );
+  send_frame_local_set( KLV_PACKET_MISB_1107_LOCAL_SET, timestamp,
+                        KLV_1107_PRECISION_TIMESTAMP );
   send_frame_1108( timestamp );
   send_frame_local_set( KLV_PACKET_MISB_1202_LOCAL_SET, timestamp );
   send_frame_1204( timestamp );

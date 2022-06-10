@@ -235,6 +235,12 @@ klv_local_set const test_0601_set = {
   { KLV_0601_MISSION_ID, klv_blob{ 0x00, 0xFF } } };
 
 // ---------------------------------------------------------------------------
+klv_local_set const test_1107_set = {
+  { KLV_1107_SLANT_RANGE_PEDIGREE,
+    KLV_1107_SLANT_RANGE_PEDIGREE_CALCULATED }
+};
+
+// ---------------------------------------------------------------------------
 klv_local_set const test_1108_metric_set = {
   { KLV_1108_METRIC_SET_NAME,
     std::string{ "VNIIRS" } },
@@ -263,6 +269,7 @@ std::vector< klv_timed_packet > const test_packets = {
   { { klv_0102_key(), test_0102_set }, kv::timestamp{ 0, 0 } },
   { { klv_0104_key(), test_0104_set }, kv::timestamp{} },
   { { klv_0601_key(), test_0601_set }, kv::timestamp{ 1024, 7 } },
+  { { klv_1107_key(), test_1107_set }, kv::timestamp{} },
   { { klv_1108_key(), test_1108_set }, kv::timestamp{ 2048, 8 } } };
 
 // ----------------------------------------------------------------------------

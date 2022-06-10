@@ -232,7 +232,16 @@ klv_1010_sdcc_flp_format
     parse_control |= value.sigma_uses_imap;
     parse_control <<= 4;
     parse_control |= value.sigma_length;
-    klv_write_ber_oid( parse_control, data, tracker.verify( 2 ) );
+    if( ( parse_control >> 8 ) == 0 )
+    {
+      *data = 0x80;
+      ++data;
+      klv_write_ber_oid( parse_control, data, tracker.verify( 1 ) );
+    }
+    else
+    {
+      klv_write_ber_oid( parse_control, data, tracker.verify( 2 ) );
+    }
   }
   else
   {

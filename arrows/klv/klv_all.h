@@ -29,6 +29,7 @@
 #include <arrows/klv/klv_0903_vtrackitem_pack.h>
 #include <arrows/klv/klv_1002.h>
 #include <arrows/klv/klv_1010.h>
+#include <arrows/klv/klv_1107.h>
 #include <arrows/klv/klv_1108.h>
 #include <arrows/klv/klv_1108_metric_set.h>
 #include <arrows/klv/klv_1202.h>
