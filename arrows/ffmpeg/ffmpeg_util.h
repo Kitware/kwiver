@@ -10,6 +10,8 @@
 
 #include <arrows/ffmpeg/kwiver_algo_ffmpeg_export.h>
 
+#include <vital/logger/logger.h>
+
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavfilter/avfilter.h>
@@ -29,6 +31,38 @@ namespace ffmpeg {
 
 // ----------------------------------------------------------------------------
 std::string error_string( int error_code );
+
+// --------------------------------------------------------------------------
+template< class... Args >
+inline void throw_error( Args... args )
+{
+  std::stringstream ss;
+  bool dummy[] = { ( ss << args ).good()... };
+  ( void )dummy;
+  throw std::runtime_error( ss.str() );
+}
+
+// --------------------------------------------------------------------------
+template< class... Args >
+inline int throw_error_code( int error_code, Args... args )
+{
+  if( error_code < 0 )
+  {
+    throw_error( args..., ": ", error_string( error_code ) );
+  }
+  return error_code;
+}
+
+// --------------------------------------------------------------------------
+template< class T, class... Args >
+inline T* throw_error_null( T* ptr, Args... args )
+{
+  if( !ptr )
+  {
+    throw_error( args... );
+  }
+  return ptr;
+}
 
 // ----------------------------------------------------------------------------
 #define DECLARE_PTRS( LOWER, UPPER )                                     \

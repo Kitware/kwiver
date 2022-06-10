@@ -7,7 +7,11 @@
 
 #include "ffmpeg_util.h"
 
+#include <vital/logger/logger.h>
+
 #include <array>
+
+namespace kv = kwiver::vital;
 
 namespace kwiver {
 
@@ -31,10 +35,24 @@ error_string( int error_code )
 // ----------------------------------------------------------------------------
 DEFINE_DELETER( format_context, AVFormatContext )
 {
+  // Close input if present
   if( ptr->iformat )
   {
     avformat_close_input( &ptr );
   }
+
+  // Close output if present
+  if( ptr && ptr->pb )
+  {
+    auto const err = avio_closep( &ptr->pb );
+    if( err < 0 )
+    {
+      LOG_ERROR(
+        kv::get_logger( "ffmpeg" ),
+        "Could not close I/O file: " << error_string( err ) );
+    }
+  }
+
   avformat_free_context( ptr );
 }
 

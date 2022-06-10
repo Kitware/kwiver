@@ -3,12 +3,14 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Implementation of FFmpeg video writer.
+/// Implementation of FFmpeg video writer.
 
 #include "arrows/ffmpeg/ffmpeg_init.h"
 #include "arrows/ffmpeg/ffmpeg_video_output.h"
 #include "arrows/ffmpeg/ffmpeg_video_raw_image.h"
 #include "arrows/ffmpeg/ffmpeg_video_settings.h"
+
+#include <vital/optional.h>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -29,30 +31,50 @@ namespace ffmpeg {
 class ffmpeg_video_output::impl
 {
 public:
-  impl();
+  struct open_video_state {
+    open_video_state(
+      impl& parent, std::string const& video_name,
+      ffmpeg_video_settings const& settings );
+    open_video_state( open_video_state const& ) = delete;
+    open_video_state( open_video_state&& ) = default;
+    ~open_video_state();
 
+    open_video_state&
+    operator=( open_video_state const& ) = delete;
+    open_video_state&
+    operator=( open_video_state&& ) = default;
+
+    void add_image(
+      kv::image_container_sptr const& image, kv::timestamp const& ts );
+    void add_image( vital::video_raw_image const& image );
+
+    bool write_next_packet();
+    void write_remaining_packets();
+
+    int64_t next_video_pts() const;
+
+    impl* parent;
+
+    size_t frame_count;
+    format_context_uptr format_context;
+    AVOutputFormat* output_format;
+    AVStream* video_stream;
+    AVStream* metadata_stream;
+    codec_context_uptr codec_context;
+    AVCodec* codec;
+    sws_context_uptr image_conversion_context;
+  };
+
+  impl();
   ~impl();
 
-  bool write_next_packet();
-
-  void write_remaining_packets();
-
-  int64_t next_video_pts() const;
-
-private:
-  friend class ffmpeg_video_output;
-
-  AVFormatContext* format_context;
-  AVOutputFormat* output_format;
-  AVStream* video_stream;
-  AVStream* metadata_stream;
-  AVCodecContext* codec_context;
-  AVCodec* codec;
-  SwsContext* image_conversion_context;
+  bool is_open() const;
+  void assert_open( std::string const& fn_name ) const;
 
   kv::logger_handle_t logger;
 
-  size_t frame_count;
+  kv::optional< open_video_state > video;
+
   size_t width;
   size_t height;
   AVRational frame_rate;
@@ -63,15 +85,8 @@ private:
 // ----------------------------------------------------------------------------
 ffmpeg_video_output::impl
 ::impl()
-  : format_context{ nullptr },
-    output_format{ nullptr },
-    video_stream{ nullptr },
-    metadata_stream{ nullptr },
-    codec_context{ nullptr },
-    codec{ nullptr },
-    image_conversion_context{ nullptr },
-    logger{},
-    frame_count{ 0 },
+  : logger{},
+    video{},
     width{ 0 },
     height{ 0 },
     frame_rate{ 0, 1 },
@@ -82,61 +97,29 @@ ffmpeg_video_output::impl
 }
 
 // ----------------------------------------------------------------------------
-ffmpeg_video_output::impl::~impl() {}
+ffmpeg_video_output::impl
+::~impl()
+{}
 
 // ----------------------------------------------------------------------------
 bool
 ffmpeg_video_output::impl
-::write_next_packet()
+::is_open() const
 {
-  auto packet = av_packet_alloc();
-
-  // Attempt to read next encoded packet
-  auto const success =
-    avcodec_receive_packet( codec_context, packet );
-
-  if( success == AVERROR( EAGAIN ) || success == AVERROR_EOF )
-  {
-    // Failed expectedly: no packet to read
-    av_packet_free( &packet );
-    return false;
-  }
-  if( success < 0 )
-  {
-    // Failed unexpectedly
-    av_packet_free( &packet );
-    VITAL_THROW( kv::video_runtime_exception, "Failed to receive packet" );
-  }
-
-  // Succeeded; write to file
-  if( av_interleaved_write_frame( format_context, packet ) < 0 )
-  {
-    VITAL_THROW( kv::video_runtime_exception, "Failed to write packet" );
-  }
-
-  return true;
+  return video.has_value();
 }
 
 // ----------------------------------------------------------------------------
 void
 ffmpeg_video_output::impl
-::write_remaining_packets()
+::assert_open( std::string const& fn_name ) const
 {
-  // Enter "draining mode" - i.e. signal end of file
-  avcodec_send_frame( codec_context, nullptr );
-
-  while( write_next_packet() ) {}
-}
-
-// ----------------------------------------------------------------------------
-int64_t
-ffmpeg_video_output::impl
-::next_video_pts() const
-{
-  return static_cast< int64_t >(
-    static_cast< double >( frame_count ) *
-    video_stream->time_base.den / video_stream->time_base.num /
-    codec_context->framerate.num * codec_context->framerate.den + 0.5 );
+  if( !is_open() )
+  {
+    VITAL_THROW(
+      kv::file_write_exception, "<unknown file>",
+      "Function " + fn_name + " called before successful open()" );
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -242,21 +225,100 @@ ffmpeg_video_output
     settings = &default_settings;
   }
 
-  // Allocate output format context
-  avformat_alloc_output_context2(
-    &d->format_context, nullptr, nullptr, video_name.c_str() );
-  if( !d->format_context )
+  d->video.emplace( *d, video_name, *settings );
+}
+
+// ----------------------------------------------------------------------------
+void
+ffmpeg_video_output
+::close()
+{
+  d->video.reset();
+}
+
+// ----------------------------------------------------------------------------
+bool
+ffmpeg_video_output
+::good() const
+{
+  return d->is_open();
+}
+
+// ----------------------------------------------------------------------------
+void
+ffmpeg_video_output
+::add_image( kv::image_container_sptr const& image, kv::timestamp const& ts )
+{
+  d->assert_open( "add_image()" );
+  d->video->add_image( image, ts );
+}
+
+// ----------------------------------------------------------------------------
+void
+ffmpeg_video_output
+::add_image( vital::video_raw_image const& image )
+{
+  d->assert_open( "add_image()" );
+  d->video->add_image( image );
+}
+
+// ----------------------------------------------------------------------------
+void
+ffmpeg_video_output
+::add_metadata( VITAL_UNUSED kwiver::vital::metadata const& md )
+{
+  // TODO
+}
+
+// ----------------------------------------------------------------------------
+vital::video_settings_uptr
+ffmpeg_video_output
+::implementation_settings() const
+{
+  if( !d->is_open() )
   {
-    VITAL_THROW( kv::video_runtime_exception,
-                 "Failed to allocate format context" );
+    return nullptr;
   }
-  d->output_format = d->format_context->oformat;
+
+  auto const result = new ffmpeg_video_settings{};
+  result->frame_rate = d->video->video_stream->avg_frame_rate;
+  avcodec_parameters_from_context( result->parameters.get(),
+                                   d->video->codec_context.get() );
+  result->klv_stream_count = 0; // TODO
+  return kwiver::vital::video_settings_uptr{ result };
+}
+
+// ----------------------------------------------------------------------------
+ffmpeg_video_output::impl::open_video_state
+::open_video_state(
+  impl& parent, std::string const& video_name,
+  ffmpeg_video_settings const& settings )
+  : parent{ &parent },
+    frame_count{ 0 },
+    format_context{ nullptr },
+    output_format{ nullptr },
+    video_stream{ nullptr },
+    metadata_stream{ nullptr },
+    codec_context{ nullptr },
+    codec{ nullptr },
+    image_conversion_context{ nullptr }
+{
+  // Allocate output format context
+  {
+    AVFormatContext* tmp = nullptr;
+    throw_error_code(
+      avformat_alloc_output_context2(
+        &tmp, nullptr, nullptr, video_name.c_str() ),
+      "Could not allocate format context" );
+    format_context.reset( tmp );
+  }
+  output_format = format_context->oformat;
 
   // Configure video codec
   auto const x264_codec = avcodec_find_encoder_by_name( "libx264" );
   auto const x265_codec = avcodec_find_encoder_by_name( "libx265" );
   AVCodec* requested_codec = nullptr;
-  switch( settings->parameters->codec_id )
+  switch( settings.parameters->codec_id )
   {
     case AV_CODEC_ID_H264:
       requested_codec = x264_codec;
@@ -265,223 +327,151 @@ ffmpeg_video_output
       requested_codec = x265_codec;
       break;
     default:
-      requested_codec = avcodec_find_encoder( settings->parameters->codec_id );
+      requested_codec = avcodec_find_encoder( settings.parameters->codec_id );
   }
   auto const config_codec =
-    avcodec_find_encoder_by_name( d->codec_name.c_str() );
+    avcodec_find_encoder_by_name( parent.codec_name.c_str() );
 
-  d->codec = avcodec_find_encoder( d->output_format->video_codec );
+  codec = avcodec_find_encoder( output_format->video_codec );
   for( auto const encoder : { requested_codec,
                               config_codec,
                               x265_codec,
                               x264_codec } )
   {
     // Ensure codec exists and is compatible with the output file format
-    if( encoder && avformat_query_codec( d->output_format,
-                                         encoder->id,
-                                         FF_COMPLIANCE_STRICT ) )
+    if( encoder &&
+        avformat_query_codec(
+          output_format, encoder->id, FF_COMPLIANCE_STRICT ) )
     {
-      d->codec = encoder;
+      codec = encoder;
       break;
     }
   }
-
-  if( !d->codec )
-  {
-    VITAL_THROW( kv::video_runtime_exception, "Failed to find codec" );
-  }
+  throw_error_null( codec, "Could not find output codec" );
+  LOG_INFO(
+    parent.logger,
+    "Using output codec `" << codec->long_name << "` (" << codec->name << ")" );
 
   // Find best pixel format
   // TODO: Add config options so RGB24 is not hardcoded here
   auto pixel_format = avcodec_find_best_pix_fmt_of_list(
-    d->codec->pix_fmts, AV_PIX_FMT_RGB24, false, nullptr );
+    codec->pix_fmts, AV_PIX_FMT_RGB24, false, nullptr );
 
   // Create and configure codec context
-  d->codec_context = avcodec_alloc_context3( d->codec );
-  if( !d->codec_context )
+  codec_context.reset(
+    throw_error_null(
+      avcodec_alloc_context3( codec ), "Could not allocate codec context" ) );
+  codec_context->time_base = av_inv_q( settings.frame_rate );
+  codec_context->framerate = settings.frame_rate;
+  codec_context->pix_fmt = pixel_format;
+  if( codec->id == settings.parameters->codec_id )
   {
-    VITAL_THROW( kv::video_runtime_exception,
-                 "Failed to allocate codec context" );
-  }
-  d->codec_context->time_base = av_inv_q( settings->frame_rate );
-  d->codec_context->framerate = settings->frame_rate;
-  d->codec_context->pix_fmt = pixel_format;
-  if( d->codec->id == settings->parameters->codec_id )
-  {
-    avcodec_parameters_to_context( d->codec_context,
-                                   settings->parameters.get() );
+    throw_error_code(
+      avcodec_parameters_to_context(
+        codec_context.get(), settings.parameters.get() ) );
   }
   else
   {
-    d->codec_context->width = settings->parameters->width;
-    d->codec_context->height = settings->parameters->height;
+    codec_context->width = settings.parameters->width;
+    codec_context->height = settings.parameters->height;
   }
 
   // Fill in backup parameters from config
-  if( d->codec_context->framerate.num <= 0 )
+  if( codec_context->framerate.num <= 0 )
   {
-    d->codec_context->framerate = d->frame_rate;
-    d->codec_context->time_base = av_inv_q( d->frame_rate );
+    codec_context->framerate = parent.frame_rate;
+    codec_context->time_base = av_inv_q( parent.frame_rate );
   }
-  if( d->codec_context->width <= 0 )
+  if( codec_context->width <= 0 )
   {
-    d->codec_context->width = d->width;
+    codec_context->width = parent.width;
   }
-  if( d->codec_context->height <= 0 )
+  if( codec_context->height <= 0 )
   {
-    d->codec_context->height = d->height;
+    codec_context->height = parent.height;
   }
-  if( d->codec_context->bit_rate <= 0 )
+  if( codec_context->bit_rate <= 0 )
   {
-    d->codec_context->bit_rate = d->bitrate;
+    codec_context->bit_rate = parent.bitrate;
   }
 
   // Ensure we have all the required information
-  if( d->codec_context->width <= 0 || d->codec_context->height <= 0 ||
-      d->codec_context->framerate.num <= 0 )
+  if( codec_context->width <= 0 || codec_context->height <= 0 ||
+      codec_context->framerate.num <= 0 )
   {
-    VITAL_THROW( kv::invalid_value,
-                 "ffmpeg_video_output requires width, height, and frame rate "
-                 "to be specified prior to calling open()" );
+    throw_error(
+      "FFmpeg video output requires width, height, and frame rate to be "
+      "specified prior to calling open()" );
   }
 
   // Create video stream
-  if( d->output_format->video_codec == AV_CODEC_ID_NONE )
+  if( output_format->video_codec == AV_CODEC_ID_NONE )
   {
-    VITAL_THROW( kv::invalid_value,
-                 std::string{} + "Specified format `" +
-                 d->output_format->long_name + "` does not support video" );
+    throw_error( "Output format does not support video" );
   }
 
-  d->video_stream = avformat_new_stream( d->format_context, d->codec );
-  if( !d->video_stream )
-  {
-    VITAL_THROW( kv::video_runtime_exception,
-                 "Failed to allocate video stream" );
-  }
-  d->video_stream->time_base = d->codec_context->time_base;
-  d->video_stream->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
-  d->video_stream->codecpar->codec_id = d->codec->id;
-  d->video_stream->codecpar->width = d->codec_context->width;
-  d->video_stream->codecpar->height = d->codec_context->height;
-  d->video_stream->codecpar->format = d->codec_context->pix_fmt;
+  video_stream =
+    throw_error_null(
+      avformat_new_stream( format_context.get(), codec ),
+      "Could not allocate video stream" );
+  video_stream->time_base = codec_context->time_base;
+  video_stream->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
+  video_stream->codecpar->codec_id = codec->id;
+  video_stream->codecpar->width = codec_context->width;
+  video_stream->codecpar->height = codec_context->height;
+  video_stream->codecpar->format = codec_context->pix_fmt;
 
-  if( avcodec_open2( d->codec_context, d->codec, nullptr ) < 0 )
-  {
-    VITAL_THROW( kv::video_runtime_exception, "Failed to open codec" );
-  }
+  throw_error_code(
+    avcodec_open2( codec_context.get(), codec, nullptr ),
+    "Could not open output codec" );
 
   av_dump_format(
-    d->format_context, d->video_stream->index, video_name.c_str(), 1 );
+    format_context.get(), video_stream->index, video_name.c_str(), 1 );
 
   // Open streams
-  if( avio_open( &d->format_context->pb,
-                 video_name.c_str(), AVIO_FLAG_WRITE ) < 0 )
-  {
-    VITAL_THROW( kv::file_write_exception, video_name,
-                 std::string{} + "Failed to open video file for writing" );
-  }
+  throw_error_code(
+    avio_open( &format_context->pb, video_name.c_str(), AVIO_FLAG_WRITE ),
+    "Could not open `", video_name, "` for writing" );
 
   auto const output_status =
-    avformat_init_output( d->format_context, nullptr );
+    avformat_init_output( format_context.get(), nullptr );
   if( output_status == AVSTREAM_INIT_IN_WRITE_HEADER )
   {
-    if( avformat_write_header( d->format_context, nullptr ) < 0 )
-    {
-      VITAL_THROW( kv::video_runtime_exception,
-                   "Failed to write video header" );
-    }
+    throw_error_code(
+      avformat_write_header( format_context.get(), nullptr ),
+      "Could not write video header" );
   }
-  else if( output_status != AVSTREAM_INIT_IN_INIT_OUTPUT )
-  {
-    VITAL_THROW( kv::video_runtime_exception,
-                 "Failed to initialize output stream" );
-  }
+  throw_error_code( output_status, "Could not initialize output stream" );
 }
 
 // ----------------------------------------------------------------------------
-void
-ffmpeg_video_output
-::close()
+ffmpeg_video_output::impl::open_video_state
+::~open_video_state()
 {
-  if( d->format_context )
+  if( format_context )
   {
-    d->write_remaining_packets();
+    write_remaining_packets();
 
     // Write closing bytes of video format
-    if( av_write_trailer( d->format_context ) < 0 )
+    auto err = av_write_trailer( format_context.get() );
+    if( err < 0 )
     {
-      VITAL_THROW( kv::video_runtime_exception, "Failed to write trailer" );
+      LOG_ERROR(
+        parent->logger,
+        "Could not write video trailer: " << error_string( err ) );
     }
-
-    // Close video file
-    if( d->format_context->pb )
-    {
-      if( avio_closep( &d->format_context->pb ) < 0 )
-      {
-        VITAL_THROW( kv::video_runtime_exception,
-                     "Failed to close video file" );
-      }
-    }
-
-    // Destroy video context
-    avcodec_free_context( &d->codec_context );
-
-    // Destroy video encoder
-    avformat_free_context( d->format_context );
-    d->format_context = nullptr;
   }
-
-  // Destroy image converter
-  if( d->image_conversion_context )
-  {
-    sws_freeContext( d->image_conversion_context );
-    d->image_conversion_context = nullptr;
-  }
-
-  d->codec = nullptr;
-
-  d->frame_count = 0;
-}
-
-// ----------------------------------------------------------------------------
-bool
-ffmpeg_video_output
-::good() const
-{
-  return d->format_context;
 }
 
 // ----------------------------------------------------------------------------
 void
-ffmpeg_video_output
+ffmpeg_video_output::impl::open_video_state
 ::add_image( kv::image_container_sptr const& image,
              VITAL_UNUSED kv::timestamp const& ts )
 {
-  // These structs ensure no memory leaks even when an exception is thrown.
-  // Could use std::unique_ptr, but the syntax is a bit less clean
-  struct frame_autodeleter
-  {
-    ~frame_autodeleter() { av_frame_free( &ptr ); }
-
-    AVFrame* ptr;
-  };
-
-  struct image_autodeleter
-  {
-    ~image_autodeleter() { av_freep( &ptr->data[ 0 ] ); }
-
-    AVFrame* ptr;
-  };
-
   // Create frame object to represent incoming image
-  auto const frame = av_frame_alloc();
-  if( !frame )
-  {
-    VITAL_THROW( kv::video_runtime_exception, "Failed to allocate frame" );
-  }
-
-  frame_autodeleter const frame_deleter{ frame };
+  frame_uptr frame{
+    throw_error_null( av_frame_alloc(), "Could not allocate frame" ) };
 
   // Fill in a few mandatory fields
   frame->width = image->width();
@@ -491,29 +481,19 @@ ffmpeg_video_output
     case 1: frame->format = AV_PIX_FMT_GRAY8; break;
     case 3: frame->format = AV_PIX_FMT_RGB24; break;
     default:
-      VITAL_THROW( kv::invalid_value,
-                   "Image has unsupported depth: " +
-                   std::to_string( image->depth() ) );
+      throw_error( "Image has unsupported depth: ", image->depth() );
   }
 
   if( image->get_image().pixel_traits() !=
       kv::image_pixel_traits_of< uint8_t >() )
   {
     // TODO: Is there an existing conversion function somewhere?
-    VITAL_THROW(
-      kv::video_runtime_exception,
-      "Image has unsupported pixel traits (non-uint8)" );
+    throw_error( "Image has unsupported pixel traits (non-uint8)" );
   }
 
   // Allocate storage based on those fields
-  if( av_image_alloc( frame->data, frame->linesize,
-                      frame->width, frame->height,
-                      static_cast< AVPixelFormat >( frame->format ),
-                      sizeof( int ) ) < 0 )
-  {
-    VITAL_THROW( kv::video_runtime_exception,
-                 "Failed to allocate frame data" );
-  }
+  throw_error_code(
+    av_frame_get_buffer( frame.get(), 32 ), "Could not allocate frame data" );
 
   // Give the frame the raw pixel data
   {
@@ -540,118 +520,110 @@ ffmpeg_video_output
 
   // Create frame object to hold the image after conversion to the required
   // pixel format
-  auto const converted_frame = av_frame_alloc();
-  if( !converted_frame )
-  {
-    VITAL_THROW( kv::video_runtime_exception, "Failed to allocate frame" );
-  }
-
-  frame_autodeleter const converted_frame_deleter{ converted_frame };
+  frame_uptr converted_frame{
+    throw_error_null( av_frame_alloc(), "Could not allocate frame" ) };
 
   // Fill in a few mandatory fields
   converted_frame->width = image->width();
   converted_frame->height = image->height();
-  converted_frame->format = d->codec_context->pix_fmt;
+  converted_frame->format = codec_context->pix_fmt;
 
   // Allocate storage based on those fields
-  if( av_frame_get_buffer( converted_frame, 0 ) < 0 )
-  {
-    VITAL_THROW( kv::video_runtime_exception,
-                 "Failed to allocate frame data" );
-  }
-
-  // Allocate a buffer to store the converted pixel data
-  if( av_image_alloc(
-        converted_frame->data, converted_frame->linesize,
-        image->width(), image->height(), d->codec_context->pix_fmt, 1 ) < 0 )
-  {
-    VITAL_THROW( kv::video_runtime_exception,
-                 "Failed to allocate frame image" );
-  }
-
-  image_autodeleter const converted_image_deleter{ converted_frame };
+  throw_error_code(
+    av_frame_get_buffer( converted_frame.get(), 32 ),
+    "Could not allocate frame data" );
 
   // Specify which conversion to perform
-  d->image_conversion_context = sws_getCachedContext(
-    d->image_conversion_context,
-    image->width(), image->height(),
-    static_cast< AVPixelFormat >( frame->format ),
-    image->width(), image->height(), d->codec_context->pix_fmt,
-    SWS_BICUBIC, nullptr, nullptr, nullptr );
-  if( !d->image_conversion_context )
-  {
-    VITAL_THROW( kv::video_runtime_exception,
-                 "Failed to create image conversion context" );
-  }
+  image_conversion_context.reset(
+    sws_getCachedContext(
+      image_conversion_context.release(),
+      image->width(), image->height(),
+      static_cast< AVPixelFormat >( frame->format ),
+      image->width(), image->height(),
+      static_cast< AVPixelFormat >( converted_frame->format ),
+      SWS_BICUBIC, nullptr, nullptr, nullptr ) );
 
   // Convert the pixel format
-  if( sws_scale(
-        d->image_conversion_context,
-        frame->data, frame->linesize,
-        0, image->height(),
-        converted_frame->data, converted_frame->linesize ) !=
-      static_cast< int >( image->height() ) )
-  {
-    VITAL_THROW( kv::video_runtime_exception,
-                 "Failed to convert frame image pixel format" );
-  }
+  throw_error_code(
+    sws_scale(
+      image_conversion_context.get(), frame->data, frame->linesize,
+      0, image->height(), converted_frame->data, converted_frame->linesize ),
+    "Could not convert frame image to target pixel format" );
 
   // Try to send image to video encoder
-  converted_frame->pts = d->next_video_pts();
-
-  if( avcodec_send_frame( d->codec_context, converted_frame ) < 0 )
-  {
-    VITAL_THROW( kv::video_runtime_exception,
-                 "Failed to send frame to encoder" );
-  }
+  converted_frame->pts = next_video_pts();
+  throw_error_code(
+    avcodec_send_frame( codec_context.get(), converted_frame.get() ),
+    "Could not send frame to encoder" );
 
   // Write encoded packets out
-  while( d->write_next_packet() );
+  while( write_next_packet() );
 
-  ++d->frame_count;
+  ++frame_count;
 }
 
 // ----------------------------------------------------------------------------
 void
-ffmpeg_video_output
-::add_image( vital::video_raw_image const& image )
+ffmpeg_video_output::impl::open_video_state
+::add_image( kv::video_raw_image const& image )
 {
   auto const& ffmpeg_image =
     dynamic_cast< ffmpeg_video_raw_image const& >( image );
   for( auto const& packet : ffmpeg_image.packets )
   {
-    if( av_interleaved_write_frame( d->format_context, packet.get() ) < 0 )
-    {
-      VITAL_THROW( kv::video_runtime_exception, "Failed to write packet" );
-    }
+    throw_error_code(
+      av_interleaved_write_frame( format_context.get(), packet.get() ),
+      "Could not write frame to file" );
   }
-  ++d->frame_count;
+  ++frame_count;
+}
+
+// ----------------------------------------------------------------------------
+bool
+ffmpeg_video_output::impl::open_video_state
+::write_next_packet()
+{
+  packet_uptr packet{
+    throw_error_null( av_packet_alloc(), "Could not allocate packet" ) };
+
+  // Attempt to read next encoded packet
+  auto const err = avcodec_receive_packet( codec_context.get(), packet.get() );
+
+  if( err == AVERROR( EAGAIN ) || err == AVERROR_EOF )
+  {
+    // Failed expectedly: no packet to read
+    return false;
+  }
+  throw_error_code( err, "Could not get next packet from encoder" );
+
+  // Succeeded; write to file
+  throw_error_code(
+    av_interleaved_write_frame( format_context.get(), packet.get() ),
+    "Could not write frame to file" );
+
+  return true;
 }
 
 // ----------------------------------------------------------------------------
 void
-ffmpeg_video_output
-::add_metadata( VITAL_UNUSED kwiver::vital::metadata const& md )
+ffmpeg_video_output::impl::open_video_state
+::write_remaining_packets()
 {
-  // TODO
+  // Enter "draining mode" - i.e. signal end of file
+  avcodec_send_frame( codec_context.get(), nullptr );
+
+  while( write_next_packet() ) {}
 }
 
 // ----------------------------------------------------------------------------
-vital::video_settings_uptr
-ffmpeg_video_output
-::implementation_settings() const
+int64_t
+ffmpeg_video_output::impl::open_video_state
+::next_video_pts() const
 {
-  if( !d->video_stream )
-  {
-    return nullptr;
-  }
-
-  auto const result = new ffmpeg_video_settings{};
-  result->frame_rate = d->video_stream->avg_frame_rate;
-  avcodec_parameters_from_context( result->parameters.get(),
-                                   d->codec_context );
-  result->klv_stream_count = 0; // TODO
-  return kwiver::vital::video_settings_uptr{ result };
+  return static_cast< int64_t >(
+    static_cast< double >( frame_count ) *
+    video_stream->time_base.den / video_stream->time_base.num /
+    codec_context->framerate.num * codec_context->framerate.den + 0.5 );
 }
 
 } // namespace ffmpeg
