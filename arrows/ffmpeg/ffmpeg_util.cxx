@@ -19,6 +19,59 @@ namespace arrows {
 
 namespace ffmpeg {
 
+
+// ----------------------------------------------------------------------------
+std::string
+pretty_codec_name( AVCodecID codec_id )
+{
+  std::stringstream ss;
+  auto const info = avcodec_descriptor_get( codec_id );
+  if( info )
+  {
+    ss << info->name << " (" << info->long_name << ")";
+  }
+  else
+  {
+    ss << "#" << codec_id << " (Unknown Codec)";
+  }
+  return ss.str();
+}
+
+// ----------------------------------------------------------------------------
+std::string
+pretty_codec_name( AVCodec const* codec )
+{
+  std::stringstream ss;
+  if( codec )
+  {
+    ss << codec->name << " (" << codec->long_name << ")";
+  }
+  else
+  {
+    ss << "(Null Codec)";
+  }
+  return ss.str();
+}
+
+// ----------------------------------------------------------------------------
+bool
+is_hardware_codec( AVCodec const* codec )
+{
+#if LIBAVCODEC_VERSION_MAJOR > 57
+  return ( codec->capabilities & AV_CODEC_CAP_HARDWARE );
+#else
+  // There's no reliable way to know with older versions of FFmpeg,
+  // so we'll just hardcode some names here
+  std::string name = codec->name;
+  return
+    ( name.find( "cuvid"   ) != name.npos ) ||
+    ( name.find( "nvenc"   ) != name.npos ) ||
+    ( name.find( "v4l2m2m" ) != name.npos ) ||
+    ( name.find( "vaapi"   ) != name.npos ) ||
+    ( name.find( "vdpau"   ) != name.npos );
+#endif
+}
+
 // ----------------------------------------------------------------------------
 std::string
 error_string( int error_code )
@@ -59,7 +112,10 @@ DEFINE_DELETER( format_context, AVFormatContext )
 // ----------------------------------------------------------------------------
 DEFINE_DELETER( codec_context, AVCodecContext )
 {
-  avcodec_flush_buffers( ptr );
+  if( ptr->codec )
+  {
+    avcodec_flush_buffers( ptr );
+  }
   avcodec_free_context( &ptr );
 }
 
@@ -97,6 +153,12 @@ DEFINE_DELETER( filter_in_out, AVFilterInOut )
 DEFINE_DELETER( sws_context, SwsContext )
 {
   sws_freeContext( ptr );
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_DELETER( hardware_device_context, AVBufferRef )
+{
+  av_buffer_unref( &ptr );
 }
 
 #undef DEFINE_DELETER

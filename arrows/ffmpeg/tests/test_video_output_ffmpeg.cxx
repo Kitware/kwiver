@@ -211,7 +211,13 @@ TEST_F ( ffmpeg_video_output, round_trip )
 
   // Determined experimentally. 6.5 / 256 is non-negligable compression, but
   // you can still see what the image is supposed to be
-  auto const image_epsilon = 6.5;
+  auto image_epsilon = 6.5;
+
+  // Hardware decoding produces a lower-quality image
+  if( is.get_configuration()->get_value< bool >( "cuda_enabled", false ) )
+  {
+    image_epsilon = 10.5;
+  }
 
   // Read the temporary file back in
   expect_eq_videos( src_path, tmp_path, image_epsilon );

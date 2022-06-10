@@ -270,12 +270,6 @@ TEST_F ( ffmpeg_video_input, read_video )
     auto img = input.frame_image();
     auto md = input.frame_metadata();
 
-    if( md.size() > 0 )
-    {
-      std::cout << "-----------------------------------\n" << std::endl;
-      kwiver::vital::print_metadata( std::cout, *md[ 0 ] );
-    }
-
     ++num_frames;
     EXPECT_EQ( num_frames, ts.get_frame() ) <<
       "Frame numbers should be sequential";
@@ -441,12 +435,6 @@ TEST_F ( ffmpeg_video_input, metadata_map )
   // at a minimum this is just the video name and timestamp
   EXPECT_EQ( md_map.size(), input.num_frames() );
 
-  for( auto md : md_map )
-  {
-    std::cout << "-----------------------------------\n" << std::endl;
-    kwiver::vital::print_metadata( std::cout, *md.second[ 0 ] );
-  }
-
   if( md_map.size() != input.num_frames() )
   {
     std::cout << "Found metadata on these frames: ";
@@ -457,78 +445,6 @@ TEST_F ( ffmpeg_video_input, metadata_map )
 
     std::cout << std::endl;
   }
-}
-
-// ----------------------------------------------------------------------------
-TEST_F ( ffmpeg_video_input, no_sync_metadata )
-{
-  std::map< int, std::set< uint64_t > > expected_md =
-  {
-    { 0, { 1221515219356000, 1221515219396000, 1221515219426000 } },
-    { 1, { 1221515219456000 } },
-    { 2, { 1221515219486000 } },
-    { 3, { 1221515219516000 } },
-    { 4, { 1221515219556000 } } };
-
-  kwiver::arrows::ffmpeg::ffmpeg_video_input vif;
-
-  auto config = vif.get_configuration();
-  // Turn off metadata syncing
-  config->set_value( "sync_metadata", "False" );
-  vif.set_configuration( config );
-
-  kwiver::vital::path_t video_path = data_dir + "/" + short_video_name;
-
-  // Open the video
-  vif.open( video_path );
-
-  auto const& caps = vif.get_implementation_capabilities();
-  EXPECT_TRUE(
-    caps.capability( kwiver::vital::algo::video_input::HAS_METADATA ) );
-
-  kwiver::vital::timestamp ts;
-
-  unsigned int frame_num = 0;
-  while( vif.next_frame( ts ) )
-  {
-    auto md_vect = vif.frame_metadata();
-
-    EXPECT_TRUE( md_vect.size() > 0 ) <<
-      "Each frame tested should have metadata present";
-
-    for( auto md : md_vect )
-    {
-      EXPECT_TRUE( md->has( kwiver::vital::VITAL_META_UNIX_TIMESTAMP ) ) <<
-        "Each of the first five frames should have a UNIX time stamp in" <<
-        " its metadata";
-
-      for( auto md_item : *md )
-      {
-        if( md_item.first == kwiver::vital::VITAL_META_UNIX_TIMESTAMP )
-        {
-          EXPECT_TRUE( expected_md[ frame_num ].find(
-                         md_item.second->as_uint64() ) !=
-                       expected_md[ frame_num ].end() ) <<
-            "UNIX time stamp " << md_item.second->as_uint64() <<
-            " was not found in metadata for frame " << frame_num;
-        }
-      }
-
-      EXPECT_EQ( 720, md->find( kwiver::vital::VITAL_META_IMAGE_WIDTH )
-                        .as_uint64() );
-      EXPECT_EQ( 480, md->find( kwiver::vital::VITAL_META_IMAGE_HEIGHT )
-                        .as_uint64() );
-    }
-
-    frame_num++;
-
-    if( frame_num >= expected_md.size() )
-    {
-      break;
-    }
-  }
-
-  vif.close();
 }
 
 // ----------------------------------------------------------------------------
