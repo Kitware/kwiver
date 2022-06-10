@@ -5,6 +5,7 @@
 /// \file
 /// Implementation of FFmpeg video writer.
 
+#include "arrows/ffmpeg/ffmpeg_cuda.h"
 #include "arrows/ffmpeg/ffmpeg_init.h"
 #include "arrows/ffmpeg/ffmpeg_video_output.h"
 #include "arrows/ffmpeg/ffmpeg_video_raw_image.h"
@@ -44,14 +45,14 @@ public:
     open_video_state&
     operator=( open_video_state&& ) = default;
 
+    bool try_codec( ffmpeg_video_settings const& settings );
+
     void add_image(
       kv::image_container_sptr const& image, kv::timestamp const& ts );
     void add_image( vital::video_raw_image const& image );
 
     bool write_next_packet();
     void write_remaining_packets();
-
-    int64_t next_video_pts() const;
 
     impl* parent;
 
@@ -61,7 +62,7 @@ public:
     AVStream* video_stream;
     AVStream* metadata_stream;
     codec_context_uptr codec_context;
-    AVCodec* codec;
+    AVCodec const* codec;
     sws_context_uptr image_conversion_context;
   };
 
@@ -71,27 +72,45 @@ public:
   bool is_open() const;
   void assert_open( std::string const& fn_name ) const;
 
+  void hardware_init();
+  void cuda_init();
+
+  AVHWDeviceContext* hardware_device() const;
+#ifdef KWIVER_ENABLE_FFMPEG_CUDA
+  AVCUDADeviceContext* cuda_device() const;
+#endif
+
   kv::logger_handle_t logger;
 
-  kv::optional< open_video_state > video;
+  hardware_device_context_uptr hardware_device_context;
 
   size_t width;
   size_t height;
   AVRational frame_rate;
   std::string codec_name;
   size_t bitrate;
+  bool cuda_enabled;
+  int cuda_device_index;
+
+  kv::optional< open_video_state > video;
 };
 
 // ----------------------------------------------------------------------------
 ffmpeg_video_output::impl
 ::impl()
   : logger{},
-    video{},
     width{ 0 },
     height{ 0 },
     frame_rate{ 0, 1 },
     codec_name{},
-    bitrate{ 0 }
+    bitrate{ 0 },
+#ifdef KWIVER_ENABLE_FFMPEG_CUDA
+    cuda_enabled{ true },
+#else
+    cuda_enabled{ false },
+#endif
+    cuda_device_index{ 0 },
+    video{}
 {
   ffmpeg_init();
 }
@@ -121,6 +140,67 @@ ffmpeg_video_output::impl
       "Function " + fn_name + " called before successful open()" );
   }
 }
+
+// ----------------------------------------------------------------------------
+void
+ffmpeg_video_output::impl
+::hardware_init()
+{
+  if( !hardware_device_context && cuda_enabled )
+  {
+    try
+    {
+      cuda_init();
+    }
+    catch( std::exception const& e )
+    {
+      LOG_ERROR( logger, "CUDA initialization failed: " << e.what() );
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+void
+ffmpeg_video_output::impl
+::cuda_init()
+{
+#ifdef KWIVER_ENABLE_FFMPEG_CUDA
+  hardware_device_context =
+    std::move( cuda_create_context( cuda_device_index ) );
+#else
+  LOG_DEBUG(
+    logger,
+    "Could not initialize CUDA: Not compiled with KWIVER_ENABLE_CUDA" );
+#endif
+}
+
+// ----------------------------------------------------------------------------
+AVHWDeviceContext*
+ffmpeg_video_output::impl
+::hardware_device() const
+{
+  if( !hardware_device_context )
+  {
+    return nullptr;
+  }
+  return reinterpret_cast< AVHWDeviceContext* >(
+    hardware_device_context->data );
+}
+
+// ----------------------------------------------------------------------------
+#ifdef KWIVER_ENABLE_FFMPEG_CUDA
+AVCUDADeviceContext*
+ffmpeg_video_output::impl
+::cuda_device() const
+{
+  if( !hardware_device() ||
+      hardware_device()->type != AV_HWDEVICE_TYPE_CUDA )
+  {
+    return nullptr;
+  }
+  return static_cast< AVCUDADeviceContext* >( hardware_device()->hwctx );
+}
+#endif
 
 // ----------------------------------------------------------------------------
 ffmpeg_video_output
@@ -172,6 +252,16 @@ ffmpeg_video_output
     "Desired bitrate in bits per second."
   );
 
+  config->set_value(
+    "cuda_enabled", d->cuda_enabled,
+    "When set to true, uses CUDA/NVENC to accelerate video encoding."
+  );
+  config->set_value(
+    "cuda_device_index", d->cuda_device_index,
+    "Integer index of the CUDA-enabled device to use for encoding. "
+    "Defaults to 0."
+  );
+
   return config;
 }
 
@@ -196,6 +286,21 @@ ffmpeg_video_output
   d->codec_name =
     config->get_value< std::string >( "codec_name", d->codec_name );
   d->bitrate = config->get_value< size_t >( "bitrate", d->bitrate );
+
+  d->cuda_enabled =
+    config->get_value< bool >(
+      "cuda_enabled", d->cuda_enabled );
+
+  if( !d->cuda_enabled && d->hardware_device() &&
+      d->hardware_device()->type == AV_HWDEVICE_TYPE_CUDA )
+  {
+    // Turn off the active CUDA instance
+    d->hardware_device_context.reset();
+  }
+
+  d->cuda_device_index =
+    config->get_value< int >(
+      "cuda_device_index", d->cuda_device_index );
 }
 
 // ----------------------------------------------------------------------------
@@ -225,6 +330,7 @@ ffmpeg_video_output
     settings = &default_settings;
   }
 
+  d->hardware_init();
   d->video.emplace( *d, video_name, *settings );
 }
 
@@ -314,116 +420,80 @@ ffmpeg_video_output::impl::open_video_state
   }
   output_format = format_context->oformat;
 
-  // Configure video codec
-  auto const x264_codec = avcodec_find_encoder_by_name( "libx264" );
-  auto const x265_codec = avcodec_find_encoder_by_name( "libx265" );
-  AVCodec* requested_codec = nullptr;
-  switch( settings.parameters->codec_id )
-  {
-    case AV_CODEC_ID_H264:
-      requested_codec = x264_codec;
-      break;
-    case AV_CODEC_ID_H265:
-      requested_codec = x265_codec;
-      break;
-    default:
-      requested_codec = avcodec_find_encoder( settings.parameters->codec_id );
-  }
-  auto const config_codec =
-    avcodec_find_encoder_by_name( parent.codec_name.c_str() );
+  // Prioritization scheme for codecs:
+  // (1) Match ffmpeg settings passed to constructor if present
+  // (2) Match configuration setting if present
+  // (3) Choose H.265 and H.264 over other codecs
+  // (4) Choose hardware codecs over software codecs
+  auto const codec_cmp =
+    [&]( AVCodec const* lhs, AVCodec const* rhs ) -> bool {
+      return
+        std::make_tuple(
+          lhs->id == settings.parameters->codec_id,
+          lhs->name == parent.codec_name,
+          lhs->id == AV_CODEC_ID_H265,
+          lhs->id == AV_CODEC_ID_H264,
+          is_hardware_codec( lhs ) ) >
+        std::make_tuple(
+          rhs->id == settings.parameters->codec_id,
+          rhs->name == parent.codec_name,
+          rhs->id == AV_CODEC_ID_H265,
+          rhs->id == AV_CODEC_ID_H264,
+          is_hardware_codec( rhs ) );
+    };
 
-  codec = avcodec_find_encoder( output_format->video_codec );
-  for( auto const encoder : { requested_codec,
-                              config_codec,
-                              x265_codec,
-                              x264_codec } )
+  std::multiset<
+    AVCodec const*, std::function< bool( AVCodec const*, AVCodec const* ) > >
+  possible_codecs{ codec_cmp };
+
+  // Find all compatible CUDA codecs
+#ifdef KWIVER_ENABLE_FFMPEG_CUDA
+  if( parent.cuda_device() )
   {
-    // Ensure codec exists and is compatible with the output file format
-    if( encoder &&
+    auto const cuda_codecs =
+      cuda_find_encoders( *output_format, *settings.parameters );
+    possible_codecs.insert( cuda_codecs.begin(), cuda_codecs.end() );
+  }
+#endif
+
+  // Find all compatible software codecs
+  AVCodec const* codec_ptr = nullptr;
+#if LIBAVCODEC_VERSION_MAJOR > 57
+  for( void* it = nullptr; ( codec_ptr = av_codec_iterate( &it ) ); )
+#else
+  while( ( codec_ptr = av_codec_next( codec_ptr ) ) )
+#endif
+  {
+    if( av_codec_is_encoder( codec_ptr ) &&
+        !is_hardware_codec( codec_ptr ) &&
+        !( codec_ptr->capabilities & AV_CODEC_CAP_EXPERIMENTAL ) &&
         avformat_query_codec(
-          output_format, encoder->id, FF_COMPLIANCE_STRICT ) )
+          output_format, codec_ptr->id, FF_COMPLIANCE_STRICT ) > 0 )
     {
-      codec = encoder;
-      break;
+      possible_codecs.emplace( codec_ptr );
     }
   }
-  throw_error_null( codec, "Could not find output codec" );
+
+  // Find the first compatible codec that works, in priority order
+  for( auto const possible_codec : possible_codecs )
+  {
+    codec = possible_codec;
+    if( try_codec( settings ) )
+    {
+      break;
+    }
+    else
+    {
+      codec = nullptr;
+    }
+  }
+
+  throw_error_null(
+    codec,
+    "Could not open video with any known output codec. ",
+    possible_codecs.size(), " codecs were tried." );
   LOG_INFO(
-    parent.logger,
-    "Using output codec `" << codec->long_name << "` (" << codec->name << ")" );
-
-  // Find best pixel format
-  // TODO: Add config options so RGB24 is not hardcoded here
-  auto pixel_format = avcodec_find_best_pix_fmt_of_list(
-    codec->pix_fmts, AV_PIX_FMT_RGB24, false, nullptr );
-
-  // Create and configure codec context
-  codec_context.reset(
-    throw_error_null(
-      avcodec_alloc_context3( codec ), "Could not allocate codec context" ) );
-  codec_context->time_base = av_inv_q( settings.frame_rate );
-  codec_context->framerate = settings.frame_rate;
-  codec_context->pix_fmt = pixel_format;
-  if( codec->id == settings.parameters->codec_id )
-  {
-    throw_error_code(
-      avcodec_parameters_to_context(
-        codec_context.get(), settings.parameters.get() ) );
-  }
-  else
-  {
-    codec_context->width = settings.parameters->width;
-    codec_context->height = settings.parameters->height;
-  }
-
-  // Fill in backup parameters from config
-  if( codec_context->framerate.num <= 0 )
-  {
-    codec_context->framerate = parent.frame_rate;
-    codec_context->time_base = av_inv_q( parent.frame_rate );
-  }
-  if( codec_context->width <= 0 )
-  {
-    codec_context->width = parent.width;
-  }
-  if( codec_context->height <= 0 )
-  {
-    codec_context->height = parent.height;
-  }
-  if( codec_context->bit_rate <= 0 )
-  {
-    codec_context->bit_rate = parent.bitrate;
-  }
-
-  // Ensure we have all the required information
-  if( codec_context->width <= 0 || codec_context->height <= 0 ||
-      codec_context->framerate.num <= 0 )
-  {
-    throw_error(
-      "FFmpeg video output requires width, height, and frame rate to be "
-      "specified prior to calling open()" );
-  }
-
-  // Create video stream
-  if( output_format->video_codec == AV_CODEC_ID_NONE )
-  {
-    throw_error( "Output format does not support video" );
-  }
-
-  video_stream =
-    throw_error_null(
-      avformat_new_stream( format_context.get(), codec ),
-      "Could not allocate video stream" );
-  video_stream->time_base = codec_context->time_base;
-  video_stream->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
-  video_stream->codecpar->codec_id = codec->id;
-  video_stream->codecpar->width = codec_context->width;
-  video_stream->codecpar->height = codec_context->height;
-  video_stream->codecpar->format = codec_context->pix_fmt;
-
-  throw_error_code(
-    avcodec_open2( codec_context.get(), codec, nullptr ),
-    "Could not open output codec" );
+    parent.logger, "Using output codec " << pretty_codec_name( codec ) );
 
   av_dump_format(
     format_context.get(), video_stream->index, video_name.c_str(), 1 );
@@ -461,6 +531,95 @@ ffmpeg_video_output::impl::open_video_state
         "Could not write video trailer: " << error_string( err ) );
     }
   }
+}
+
+// ----------------------------------------------------------------------------
+bool
+ffmpeg_video_output::impl::open_video_state
+::try_codec( ffmpeg_video_settings const& settings )
+{
+  LOG_DEBUG(
+    parent->logger, "Trying output codec: " << pretty_codec_name( codec ) );
+  // Find best pixel format
+  // TODO: Add config options so RGB24 is not hardcoded here
+  auto pixel_format = avcodec_find_best_pix_fmt_of_list(
+    codec->pix_fmts, AV_PIX_FMT_RGB24, false, nullptr );
+
+  // Create and configure codec context
+  codec_context.reset(
+    throw_error_null(
+      avcodec_alloc_context3( codec ), "Could not allocate codec context" ) );
+  codec_context->time_base = av_inv_q( settings.frame_rate );
+  codec_context->framerate = settings.frame_rate;
+  codec_context->pix_fmt = pixel_format;
+  if( codec->id == settings.parameters->codec_id )
+  {
+    throw_error_code(
+      avcodec_parameters_to_context(
+        codec_context.get(), settings.parameters.get() ) );
+  }
+  else
+  {
+    codec_context->width = settings.parameters->width;
+    codec_context->height = settings.parameters->height;
+  }
+
+  // Fill in backup parameters from config
+  if( codec_context->framerate.num <= 0 )
+  {
+    codec_context->framerate = parent->frame_rate;
+    codec_context->time_base = av_inv_q( parent->frame_rate );
+  }
+  if( codec_context->width <= 0 )
+  {
+    codec_context->width = parent->width;
+  }
+  if( codec_context->height <= 0 )
+  {
+    codec_context->height = parent->height;
+  }
+  if( codec_context->bit_rate <= 0 )
+  {
+    codec_context->bit_rate = parent->bitrate;
+  }
+
+  // Ensure we have all the required information
+  if( codec_context->width <= 0 || codec_context->height <= 0 ||
+      codec_context->framerate.num <= 0 )
+  {
+    throw_error(
+      "FFmpeg video output requires width, height, and frame rate to be "
+      "specified prior to calling open()" );
+  }
+
+  // Create video stream
+  if( output_format->video_codec == AV_CODEC_ID_NONE )
+  {
+    throw_error( "Output format does not support video" );
+  }
+
+  video_stream =
+    throw_error_null(
+      avformat_new_stream( format_context.get(), codec ),
+      "Could not allocate video stream" );
+  video_stream->time_base = codec_context->time_base;
+  video_stream->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
+  video_stream->codecpar->codec_id = codec->id;
+  video_stream->codecpar->width = codec_context->width;
+  video_stream->codecpar->height = codec_context->height;
+  video_stream->codecpar->format = codec_context->pix_fmt;
+
+  auto const err = avcodec_open2( codec_context.get(), codec, nullptr );
+  if( err < 0 )
+  {
+    LOG_WARN(
+      parent->logger,
+      "Could not open output codec: " << pretty_codec_name( codec )
+      << ": " << error_string( err ) );
+    return false;
+  }
+
+  return true;
 }
 
 // ----------------------------------------------------------------------------
@@ -553,7 +712,7 @@ ffmpeg_video_output::impl::open_video_state
     "Could not convert frame image to target pixel format" );
 
   // Try to send image to video encoder
-  converted_frame->pts = next_video_pts();
+  converted_frame->pts = frame_count;
   throw_error_code(
     avcodec_send_frame( codec_context.get(), converted_frame.get() ),
     "Could not send frame to encoder" );
@@ -615,17 +774,6 @@ ffmpeg_video_output::impl::open_video_state
   avcodec_send_frame( codec_context.get(), nullptr );
 
   while( write_next_packet() ) {}
-}
-
-// ----------------------------------------------------------------------------
-int64_t
-ffmpeg_video_output::impl::open_video_state
-::next_video_pts() const
-{
-  return static_cast< int64_t >(
-    static_cast< double >( frame_count ) *
-    video_stream->time_base.den / video_stream->time_base.num /
-    codec_context->framerate.num * codec_context->framerate.den + 0.5 );
 }
 
 } // namespace ffmpeg

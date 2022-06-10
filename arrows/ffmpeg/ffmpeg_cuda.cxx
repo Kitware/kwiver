@@ -34,6 +34,12 @@ kv::logger_handle_t logger()
   return kv::get_logger( "cuda" );
 }
 
+// ----------------------------------------------------------------------------
+std::string dimensions_to_string( size_t w, size_t h )
+{
+  return std::to_string( w ) + "x" + std::to_string( h );
+}
+
 } // namespace <anonymous>
 
 // ----------------------------------------------------------------------------
@@ -119,6 +125,84 @@ cuda_find_decoders( AVCodecParameters const& video_params )
     }
   }
   return result;
+}
+
+// ----------------------------------------------------------------------------
+std::vector< AVCodec const* >
+cuda_find_encoders(
+  AVOutputFormat const& output_format,
+  AVCodecParameters const& video_params )
+{
+  std::vector< AVCodec const* > result;
+  AVCodec const* codec_ptr = nullptr;
+#if LIBAVCODEC_VERSION_MAJOR > 57
+  for( void* it = nullptr; ( codec_ptr = av_codec_iterate( &it ) ); )
+#else
+  while( ( codec_ptr = av_codec_next( codec_ptr ) ) )
+#endif
+  {
+    // Only compatible NVENC encoders
+    if( av_codec_is_encoder( codec_ptr ) &&
+        is_hardware_codec( codec_ptr ) &&
+        !( codec_ptr->capabilities & AV_CODEC_CAP_EXPERIMENTAL ) &&
+        avformat_query_codec(
+          &output_format, codec_ptr->id, FF_COMPLIANCE_NORMAL ) &&
+        ( std::string{ codec_ptr->name }.rfind( "_nvenc" ) !=
+          std::string::npos ) )
+    {
+      result.emplace_back( codec_ptr );
+    }
+  }
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+hardware_device_context_uptr
+cuda_create_context( int device_index )
+{
+  // Initialize CUDA
+  throw_error_code_cuda( cuInit( 0 ), "Could not initialize CUDA" );
+
+  // Create FFmpeg CUDA context
+  hardware_device_context_uptr hw_context{
+    throw_error_null(
+      av_hwdevice_ctx_alloc( AV_HWDEVICE_TYPE_CUDA ),
+    "Could not allocate hardware device context" ) };
+
+  auto const cuda_hw_context =
+    static_cast< AVCUDADeviceContext* >(
+      reinterpret_cast< AVHWDeviceContext* >( hw_context->data )->hwctx );
+
+  // Acquire CUDA device
+  CUdevice cu_device;
+  throw_error_code_cuda(
+    cuDeviceGet( &cu_device, device_index ),
+    "Could not acquire CUDA device " + std::to_string( device_index ) );
+
+  constexpr size_t buffer_size = 128;
+  char buffer[ buffer_size ] = {};
+  cuDeviceGetName( buffer, buffer_size - 1, cu_device );
+  LOG_INFO(
+    kv::get_logger( "ffmpeg" ),
+    "Using CUDA device " << device_index << ": `" << buffer << "`" );
+
+  // Initialize FFmpeg CUDA context
+  throw_error_code_cuda(
+    cuCtxCreate( &cuda_hw_context->cuda_ctx, 0, cu_device ),
+    "Could not create CUDA context" );
+
+#if LIBAVCODEC_VERSION_MAJOR > 57
+  throw_error_code_cuda(
+    cuStreamCreate( &cuda_hw_context->stream, CU_STREAM_DEFAULT ),
+    "Could not create CUDA stream" );
+#endif
+
+  throw_error_code(
+    av_hwdevice_ctx_init( hw_context.get() ),
+    "Could not initialize hardware device context" );
+
+  // Only keep this hardware context if setup worked
+  return hw_context;
 }
 
 } // namespace ffmpeg
