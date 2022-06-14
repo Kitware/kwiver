@@ -9,5 +9,4 @@ sphinx_rtd_theme
 # Utility
 black
 ipython
-jedi < 0.18
 pip-tools

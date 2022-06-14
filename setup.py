@@ -17,8 +17,7 @@ with open(SCRIPT_DIR / "VERSION", "r") as f:
     VERSION = f.read().strip()
 
 
-# with open(SCRIPT_DIR / "README.rst", "r") as f:
-with open(SCRIPT_DIR / "README-v2.md", "r") as f:
+with open(SCRIPT_DIR / "README.md", "r") as f:
     LONG_DESCRIPTION = f.read()
 
 
