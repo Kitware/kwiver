@@ -53,7 +53,7 @@ jobs:
       - name: Uncrustify
         run: |
           cd ${REPO_PATH}
-          ./scripts/unix_uncrustify.sh --check
+          ./scripts/unix_uncrustify.bash --check
 
 #  lint:
 #    runs-on: ubuntu-latest
