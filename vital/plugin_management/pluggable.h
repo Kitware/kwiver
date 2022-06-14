@@ -128,6 +128,6 @@ CREATE_HAS_CHECK( get_default_config );
 // Clean up our macro.
 #undef CREATE_HAS_CHECK
 
-}// namespace kwiver::vital
+} // namespace kwiver::vital
 
 #endif //KWIVER_VITAL_PLUGGABLE_H_
