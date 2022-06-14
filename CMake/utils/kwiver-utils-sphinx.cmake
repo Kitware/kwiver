@@ -10,12 +10,13 @@ cmake_dependent_option(${CMAKE_PROJECT_NAME}_ENABLE_SPHINX_DOCS
   )
 
 function(kwiver_create_sphinx)
-   add_custom_target(sphinx-kwiver
-     COMMAND ${SPHINX_EXECUTABLE} -D breathe_projects.kwiver="${CMAKE_BINARY_DIR}/doc/kwiver/xml" ${CMAKE_SOURCE_DIR}/doc/manuals ${CMAKE_BINARY_DIR}/doc/sphinx
-  )
-  set_target_properties(sphinx-kwiver PROPERTIES FOLDER "Documentation")
-  # Our sphinx documentation uses the products of doxygen generation, so let's
-  # depend on that.
-  add_dependencies( sphinx-kwiver doxygen-kwiver )
-
+  if( ${CMAKE_PROJECT_NAME}_ENABLE_DOCS )
+    add_custom_target(sphinx-kwiver
+       COMMAND ${SPHINX_EXECUTABLE} -D breathe_projects.kwiver="${CMAKE_BINARY_DIR}/doc/kwiver/xml" ${CMAKE_SOURCE_DIR}/doc/manuals ${CMAKE_BINARY_DIR}/doc/sphinx
+    )
+    set_target_properties(sphinx-kwiver PROPERTIES FOLDER "Documentation")
+    # Our sphinx documentation uses the products of doxygen generation, so let's
+    # depend on that.
+    add_dependencies( sphinx-kwiver doxygen-kwiver )
+  endif( ${CMAKE_PROJECT_NAME}_ENABLE_DOCS )
 endfunction(kwiver_create_sphinx)
