@@ -19,7 +19,7 @@ CPP_FILE_SUFFIX_RE="(h|hpp|hxx|txx|cpp|cxx|cu)"
 # uncrustification. This is used when performing general file discovery (e.g.
 # not used when deducing from git status, explicit filepaths, etc.).
 CPP_SOURCE_DIRS=(
-  "arrows"
+#  "arrows"
 #  "examples"
   "CMake"
   "python"

@@ -317,7 +317,7 @@ private:
  */
 typedef std::shared_ptr< kwiver_logger > logger_handle_t;
 
-}// namespace vital
+} // namespace vital
 
 } // namespace kwiver
 

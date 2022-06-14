@@ -79,7 +79,7 @@ tokenize( std::string const& str, // i: string to tokenize
   }
 }
 
-}// namespace vital
+} // namespace vital
 
 } // namespace kwiver
 
