@@ -203,6 +203,36 @@ klv_string_format
 }
 
 // ----------------------------------------------------------------------------
+klv_bool_format
+::klv_bool_format() : klv_data_format_< bool >( 1 )
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_bool_format
+::description() const
+{
+  return "bool of " + m_length_constraints.description();
+}
+
+// ----------------------------------------------------------------------------
+bool
+klv_bool_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  return klv_read_int< uint8_t >( data, length );
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_bool_format
+::write_typed( bool const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  klv_write_int< uint8_t >( value, data, length );
+}
+
+// ----------------------------------------------------------------------------
 klv_uint_format
 ::klv_uint_format( klv_length_constraints const& length_constraints )
   : klv_data_format_< data_type >{ length_constraints }

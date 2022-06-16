@@ -7,7 +7,7 @@
 
 #include "klv_1206.h"
 
-#include <arrows/klv/klv_1303.hpp>
+#include <arrows/klv/klv_1303.h>
 #include <arrows/klv/klv_util.h>
 
 namespace kwiver {

@@ -376,6 +376,26 @@ protected:
 };
 
 // ----------------------------------------------------------------------------
+/// Treats data as a single boolean value.
+class KWIVER_ALGO_KLV_EXPORT klv_bool_format
+  : public klv_data_format_< bool >
+{
+public:
+  klv_bool_format();
+
+  std::string
+  description() const override;
+
+protected:
+  bool
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( bool const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+};
+
+// ----------------------------------------------------------------------------
 /// Interprets data as an unsigned integer.
 class KWIVER_ALGO_KLV_EXPORT klv_uint_format
   : public klv_data_format_< uint64_t >

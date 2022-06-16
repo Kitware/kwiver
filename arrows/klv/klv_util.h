@@ -57,13 +57,11 @@ std::ostream&
 operator<<( std::ostream& os, std::vector< T > const& value )
 {
   os << "{ ";
+  auto first = true;
   for( T const& item : value )
   {
+    first = first ? false : ( os << ", ", false );
     os << item;
-    if( &item != &value.back() )
-    {
-      os << ", ";
-    }
   }
   os << " }";
   return os;
