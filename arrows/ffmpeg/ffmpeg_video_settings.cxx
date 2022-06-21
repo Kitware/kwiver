@@ -7,6 +7,8 @@
 
 #include <arrows/ffmpeg/ffmpeg_video_settings.h>
 
+#include <stdexcept>
+
 namespace kwiver {
 
 namespace arrows {
@@ -19,7 +21,12 @@ ffmpeg_video_settings
   : frame_rate{ 0, 1 },
     parameters{ avcodec_parameters_alloc() },
     klv_stream_count{ 0 }
-{}
+{
+  if( !parameters )
+  {
+    throw std::runtime_error{ "Could not allocate AVCodecParameters" };
+  }
+}
 
 // ----------------------------------------------------------------------------
 ffmpeg_video_settings
@@ -31,6 +38,10 @@ ffmpeg_video_settings
     parameters{ avcodec_parameters_alloc() },
     klv_stream_count{ klv_stream_count }
 {
+  if( !parameters )
+  {
+    throw std::runtime_error{ "Could not allocate AVCodecParameters" };
+  }
   parameters->width = width;
   parameters->height = height;
 }

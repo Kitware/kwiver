@@ -170,10 +170,19 @@ void test_seek_frame( kwiver::vital::algo::video_input& vi )
   // Test valid seeks after invalid seeks
   valid_seeks = {11, 32, 21, 43};
 
-  for (auto requested_frame : in_valid_seeks)
+  for (auto requested_frame : valid_seeks)
   {
-    EXPECT_FALSE( vi.seek_frame( ts, requested_frame) );
-    EXPECT_NE( requested_frame, ts.get_frame() );
+    EXPECT_TRUE( vi.seek_frame( ts, requested_frame ) )
+      << "seek_frame should return true for requested_frame " << requested_frame;
+
+    auto img = vi.frame_image();
+
+    ASSERT_TRUE( !! img );
+
+    EXPECT_EQ( requested_frame, ts.get_frame() )
+      << "Frame number should match seek request";
+    EXPECT_EQ( requested_frame, decode_barcode( *img ) )
+      << "Frame number should match barcode in frame image";
   }
 
   EXPECT_EQ( 50, vi.num_frames() );

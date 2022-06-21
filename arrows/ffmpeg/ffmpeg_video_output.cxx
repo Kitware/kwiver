@@ -648,7 +648,6 @@ ffmpeg_video_output
 
   auto const result = new ffmpeg_video_settings{};
   result->frame_rate = d->video_stream->avg_frame_rate;
-  result->parameters.reset( avcodec_parameters_alloc() );
   avcodec_parameters_from_context( result->parameters.get(),
                                    d->codec_context );
   result->klv_stream_count = 0; // TODO

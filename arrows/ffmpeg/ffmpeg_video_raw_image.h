@@ -14,6 +14,7 @@
 #include <vital/types/video_raw_image.h>
 
 #include <list>
+#include <memory>
 
 namespace kwiver {
 
@@ -31,8 +32,9 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_raw_image
   ffmpeg_video_raw_image&
   operator=( ffmpeg_video_raw_image const& ) = delete;
 
-  std::list< ffmpeg_detail::av_packet_uptr > packets;
+  std::list< packet_uptr > packets;
 };
+using ffmpeg_video_raw_image_sptr = std::shared_ptr< ffmpeg_video_raw_image >;
 
 } // namespace ffmpeg
 

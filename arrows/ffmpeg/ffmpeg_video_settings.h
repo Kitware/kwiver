@@ -16,6 +16,8 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 }
 
+#include <memory>
+
 namespace kwiver {
 
 namespace arrows {
@@ -53,6 +55,7 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
   ffmpeg_detail::avcodec_parameters_uptr parameters;
   size_t klv_stream_count;
 };
+using ffmpeg_video_settings_uptr = std::unique_ptr< ffmpeg_video_settings >;
 
 } // namespace ffmpeg
 
