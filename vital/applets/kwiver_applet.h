@@ -110,16 +110,6 @@ public:
    */
   std::unique_ptr< cxxopts::Options > m_cmd_options;
 
-  // It is expected that implementations will not be constructed meaningfully
-  // from config blocks but instead use the input provided by command-line
-  // args.
-  template < typename T >
-  static vital::pluggable_sptr
-  from_config( vital::config_block const& cb )
-  {
-    return std::make_shared< T >()();
-  }
-
 protected:
   /**
    * @brief Get applet name
