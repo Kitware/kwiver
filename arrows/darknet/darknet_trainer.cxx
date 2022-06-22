@@ -62,10 +62,10 @@ public:
     , m_min_train_box_length( 5 )
     , m_batch_size( 64 )
     , m_batch_subdivisions( 16 )
-    , m_image_loaded_successfully( false )
-    , m_channel_count( 0 )
     , m_sample_counter( 0 )
     , m_truth_counter( 0 )
+    , m_image_loaded_successfully( false )
+    , m_channel_count( 0 )
   {}
 
   ~priv()
