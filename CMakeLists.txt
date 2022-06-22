@@ -222,6 +222,7 @@ add_subdirectory( vital )
 #if (KWIVER_ENABLE_TOOLS)
 #  add_subdirectory(tools)
 #endif()
+add_subdirectory(tools)
 
 if (KWIVER_ENABLE_PYTHON)
   add_subdirectory( python/kwiver )
