@@ -21,6 +21,8 @@ namespace core {
 class_probablity_filter::class_probablity_filter()
   : m_keep_all_classes( true )
   , m_threshold( 0.0 )
+  , m_required_count( 0 )
+  , m_top_category_only( false )
 {
 }
 
@@ -52,6 +54,12 @@ class_probablity_filter::get_configuration() const
                      "If this options is set to true, all classes are passed through this filter "
                      "if they are above the selected threshold." );
 
+  config->set_value( "required_count", m_required_count,
+                     "Required minimum detection count of each class to pass all detections" );
+
+  config->set_value( "top_category_only", m_top_category_only,
+                     "Whether to use the top category in the detection for filtering" );
+
   return config;
 }
 
@@ -77,6 +85,9 @@ set_configuration( vital::config_block_sptr config_in )
       m_keep_classes.insert( parsed );
     }
   }
+
+  this->m_required_count = config->get_value< unsigned > ( "required_count" );
+  this->m_top_category_only = config->get_value< bool > ( "top_category_only" );
 }
 
 // ----------------------------------------------------------------------------
@@ -108,7 +119,7 @@ filter( const vital::detected_object_set_sptr input_set ) const
   for ( auto det = input_set->cbegin(); det != ie; ++det )
   {
     bool det_selected( false );
-    auto out_dot = std::make_shared<vital::detected_object_type>( );
+    auto out_dot = std::make_shared<vital::detected_object_type>();
 
     // Make sure that there is an associated DOT
     auto input_dot = (*det)->type();
@@ -117,6 +128,18 @@ filter( const vital::detected_object_set_sptr input_set ) const
       // This is unexpected
       LOG_WARN( logger(), "No detected_object_type associated with a detected object" );
       continue;
+    }
+
+    if( m_top_category_only && !m_keep_all_classes )
+    {
+      std::string category;
+      double score;
+      input_dot->get_most_likely( category, score );
+
+      if( !m_keep_classes.count( category ) || score < m_threshold )
+      {
+        continue;
+      }
     }
 
     // Get list of class names that are above threshold
@@ -137,13 +160,19 @@ filter( const vital::detected_object_set_sptr input_set ) const
     // It this detection has been selected, add it to output list
     // Clone input detection and replace DOT.
     // Add to returned set
-    if (det_selected)
+    if( det_selected )
     {
       auto out_det = (*det)->clone();
       out_det->set_type( out_dot );
       ret_set->add( out_det );
     }
   } // end foreach detection
+
+  // filter based on required detection count
+  if( m_required_count && ret_set->size() < m_required_count )
+  {
+    return std::make_shared<vital::detected_object_set>();
+  }
 
   return ret_set;
 } // class_probablity_filter::filter
