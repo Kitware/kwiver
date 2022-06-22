@@ -17,6 +17,7 @@ class trampoline_say : public kv::say
 public:
   using say::say;
 
+  /// Pure virtual trampoline method
   std::string
   says() override
   {
@@ -48,7 +49,7 @@ PYBIND11_MODULE( _interface, m )
   m.def(
       "call_says",
       []( kv::say_sptr const& inst ) -> std::string {
-        py::print( "In C++ call_says" );
+        py::print( "In C++ `call_says()`, about to call `inst->says()`..." );
         return inst->says();
       },
       "Tester function to get the given implementation to speak."
