@@ -64,6 +64,8 @@ public:
     , m_batch_subdivisions( 16 )
     , m_image_loaded_successfully( false )
     , m_channel_count( 0 )
+    , m_sample_counter( 0 )
+    , m_truth_counter( 0 )
   {}
 
   ~priv()
@@ -93,6 +95,8 @@ public:
   int m_min_train_box_length;
   int m_batch_size;
   int m_batch_subdivisions;
+  int m_sample_counter;
+  int m_truth_counter;
 
   // Helper functions
   void format_images(
@@ -433,6 +437,8 @@ darknet_trainer
     header_args = header_args + "," + std::to_string( d->m_batch_size );
     header_args = header_args + "," + std::to_string( d->m_batch_subdivisions );
     header_args = header_args + "," + eq + d->m_net_config + eq;
+    header_args = header_args + "," + std::to_string( d->m_sample_counter );
+    header_args = header_args + "," + std::to_string( d->m_truth_counter );
     header_args = header_args + "," + eq + d->m_output_model_name + eq;
 
 #ifdef WIN32
@@ -884,6 +890,7 @@ darknet_trainer::priv
     for( std::string line : to_write )
     {
       fout << line << std::endl;
+      m_truth_counter++;
     }
 
     fout.close();
@@ -899,12 +906,11 @@ darknet_trainer::priv
                std::string& image, std::string& gt,
                VITAL_UNUSED const int len )
 {
-  static int sample_counter = 0;
-
-  sample_counter++;
+  static int file_id_counter = 0;
+  file_id_counter++;
 
   std::ostringstream ss;
-  ss << std::setw( 9 ) << std::setfill( '0' ) << sample_counter;
+  ss << std::setw( 9 ) << std::setfill( '0' ) << file_id_counter;
   std::string s = ss.str();
 
   image = output_folder + div + s + ".png";
@@ -936,6 +942,8 @@ darknet_trainer::priv
         new kwiver::arrows::ocv::image_container( image,
           kwiver::arrows::ocv::image_container::BGR_COLOR ) ) );
   }
+
+  m_sample_counter++;
 }
 
 int

@@ -60,7 +60,7 @@ def generate_kwiver_pipeline(
 
 def generate_yolo_headers(
     working_dir, labels, width, height, channels, filter_count,
-    batch_size, batch_subdivisions, input_model,
+    batch_size, batch_subdivisions, input_model, samp_count, gt_count,
     output_str="yolo", image_ext=".png", test_per=0.05 ):
 
   # Check arguments
@@ -74,6 +74,16 @@ def generate_yolo_headers(
   test_conf_file = output_str + "_test.cfg"
   train_file = output_str + ".data"
 
+  # Approximate
+  max_batches = 7500
+  if int( samp_count ) > max_batches:
+    max_batches = int( samp_count )
+  if max_batches > 100000:
+    max_batches = 100000
+
+  step1 = int( max_batches * 2 / 3 )
+  step2 = int( max_batches * 5 / 6 )
+
   # Dump out adjusted network file
   train_repl_strs = [ ["[-HEIGHT_INSERT-]",str(height)],
                       ["[-WIDTH_INSERT-]",str(width)],
@@ -81,6 +91,9 @@ def generate_yolo_headers(
                       ["[-FILTER_COUNT_INSERT-]",str(filter_count)],
                       ["[-BATCH_SIZE_INSERT-]",str(batch_size)],
                       ["[-BATCH_SUBDIVISIONS_INSERT-]",str(batch_subdivisions)],
+                      ["[-MAX_BATCHES-]",str(max_batches)],
+                      ["[-STEP1-]",str(step1)],
+                      ["[-STEP2-]",str(step2)],
                       ["[-CLASS_COUNT_INSERT-]",str(len(labels))] ]
 
   test_repl_strs = [ ["[-HEIGHT_INSERT-]",str(height)],
@@ -89,6 +102,9 @@ def generate_yolo_headers(
                      ["[-FILTER_COUNT_INSERT-]",str(filter_count)],
                      ["[-BATCH_SIZE_INSERT-]","1"],
                      ["[-BATCH_SUBDIVISIONS_INSERT-]","1"],
+                     ["[-MAX_BATCHES-]",str(max_batches)],
+                     ["[-STEP1-]",str(step1)],
+                     ["[-STEP2-]",str(step2)],
                      ["[-CLASS_COUNT_INSERT-]",str(len(labels))] ]
 
   output_train_cfg = working_dir + div + train_conf_file
