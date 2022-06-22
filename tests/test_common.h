@@ -14,39 +14,41 @@
 #ifndef KWIVER_TEST_TEST_COMMON_H_
 #define KWIVER_TEST_TEST_COMMON_H_
 
-#include <functional>
 #include <exception>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <string>
 
-#include <cstdlib>
-#include <cstdio>
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
 
 typedef std::string testname_t;
 
 // ------------------------------------------------------------------
-/// Report an error to stderr.
+
 /**
+ * @brief Report an error to stderr.
  * @param msg The message to report.
  */
-#define TEST_ERROR(msg)                         \
+#define TEST_ERROR( msg )                         \
   do                                            \
   {                                             \
     std::cerr << "Error: " << msg << std::endl; \
-  } while (false)
+  } while( false )
 
 // ------------------------------------------------------------------
-/// Attempt a code block that should throw some exception
+
 /**
+ * @brief Attempt a code block that should throw some exception
  * @param ex      Exception class or type to expect.
  * @param code    Block of code to execute in which we expect the given
  *                exception.
  * @param action  Message describing the action that should have caused
  *                the expected exception.
  */
-#define EXPECT_EXCEPTION(ex, code, action)  \
+#define EXPECT_EXCEPTION( ex, code, action )  \
   do                                        \
   {                                         \
     bool got_exception = false;             \
@@ -55,7 +57,7 @@ typedef std::string testname_t;
     {                                       \
       code;                                 \
     }                                       \
-    catch (ex const& e)                     \
+    catch ( ex const& e )                     \
     {                                       \
       got_exception = true;                 \
                                             \
@@ -63,31 +65,33 @@ typedef std::string testname_t;
                 << e.what()                 \
                 << std::endl;               \
     }                                       \
-    catch (std::exception const& e)         \
+    catch ( std::exception const& e )         \
     {                                       \
-      TEST_ERROR("Unexpected exception: "   \
-                 << e.what());              \
+      TEST_ERROR( "Unexpected exception: "   \
+                  << e.what() );              \
                                             \
       got_exception = true;                 \
     }                                       \
-    catch (...)                             \
+    catch ( ... )                             \
     {                                       \
-      TEST_ERROR("Non-standard exception"); \
+      TEST_ERROR( "Non-standard exception" ); \
                                             \
       got_exception = true;                 \
     }                                       \
                                             \
-    if (!got_exception)                     \
+    if( !got_exception )                     \
     {                                       \
-      TEST_ERROR("Did not get "             \
-                 "expected exception when " \
-                 << action);                \
+      TEST_ERROR( "Did not get "             \
+                  "expected exception when " \
+                  << action );                \
     }                                       \
-  } while (false)
+  } while( false )
 
 // ------------------------------------------------------------------
-/// Set-up macro defining the test case function map for the current file
+
 /**
+ * @brief Set-up macro defining the test case function map for the current file
+ *
  * This *MUST* be declared once at the top of every file containing test case
  * functions.
  *
@@ -95,24 +99,24 @@ typedef std::string testname_t;
  * argument signature for test cases declared in the file, i.e. if cases
  * needed to take in a path to a data directory or the like.
  * For example:
- \code
+ *  \code
  #define TEST_ARGS ()  // for a function that takes no args
  #define TEST_ARGS (sprokit::path_t const& pipe_file)
- \endcode
+ *  \endcode
  */
 #define DECLARE_TEST_MAP()                                    \
   namespace                                                   \
   {                                                           \
-    typedef std::function<void TEST_ARGS> test_function_t;    \
-    typedef std::map<testname_t, test_function_t> test_map_t; \
+  typedef std::function< void TEST_ARGS > test_function_t;    \
+  typedef std::map< testname_t, test_function_t > test_map_t; \
   }                                                           \
   test_map_t __all_tests;                                     \
   struct __add_test                                           \
   {                                                           \
-    __add_test(testname_t const& name,                        \
-               test_function_t const& func)                   \
+    __add_test( testname_t const& name,                        \
+                test_function_t const& func )                   \
     {                                                         \
-      __all_tests[name] = func;                               \
+      __all_tests[ name ] = func;                               \
     }                                                         \
   }                                                           \
 
@@ -126,11 +130,13 @@ typedef std::string testname_t;
     {                                                                   \
       std::cerr << "\t" << p.first << std::endl;                        \
     }                                                                   \
-  } while (false)
+  } while( false )
 
 // ------------------------------------------------------------------
-/// Add a CMake property to the next test declared
+
 /**
+ * @brief Add a CMake property to the next test declared
+ *
  * This is a hook for the CMake parsing code to set CTest test properties via
  * the ``set_tests_properties(...)`` CMake method. Properties declared are set
  * on the next test declared. The special property \a ENVIRONMENT can only be
@@ -142,48 +148,54 @@ typedef std::string testname_t;
  *
  * @sa IMPLEMENT_TEST(testname)
  */
-#define TEST_PROPERTY(property, value, ...)
+#define TEST_PROPERTY( property, value, ... )
 
 // ------------------------------------------------------------------
-/// Define a test case
+
 /**
+ * @brief Define a test case
  * @param testname  The name of the test case to define.
  * @sa TEST_PROPERTY
  */
-#define IMPLEMENT_TEST(testname)                       \
+#define IMPLEMENT_TEST( testname )                       \
   static void                                          \
   test_##testname TEST_ARGS;                           \
   static __add_test const                              \
-    __add_test_##testname(#testname, test_##testname); \
+  __add_test_##testname(#testname, test_##testname ); \
   void                                                 \
   test_##testname TEST_ARGS
 
 // ------------------------------------------------------------------
-/// Check the number of positional arguments given to the top level executable
+
 /**
+ * @brief Check the number of positional arguments given to the top level
+ * executable
+ *
  * @param numargs The number of arguments to expect after the name of the
  *                executable.
  */
-#define CHECK_ARGS(numargs)     \
+#define CHECK_ARGS( numargs )     \
   do                            \
   {                             \
-    if (argc != (numargs + 1))  \
+    if( argc != ( numargs + 1 ) )  \
     {                           \
-      TEST_ERROR("Expected "    \
-                 #numargs       \
-                 " arguments"); \
+      TEST_ERROR( "Expected "    \
+                  #numargs       \
+                  " arguments" ); \
                                 \
       std::cerr << std::endl;   \
-      DISPLAY_AVAILABLE_TESTS();\
+      DISPLAY_AVAILABLE_TESTS(); \
       std::cerr << std::endl;   \
                                 \
       return EXIT_FAILURE;      \
     }                           \
-  } while (false)
+  } while( false )
 
 // ------------------------------------------------------------------
-/// Run the a test case by a given name
+
 /**
+ * @brief Run the a test case by a given name
+ *
  * Find an run the test function associated with the given testname.
  * Parameters after the test name are the arguments to pass to the function.
  *
@@ -192,15 +204,15 @@ typedef std::string testname_t;
  *
  * @sa DECLARE_TEST_MAP(), IMPLEMENT_TEST(), CHECK_ARGS()
  */
-#define RUN_TEST(testname, ...)                 \
+#define RUN_TEST( testname, ... )                 \
   do                                            \
   {                                             \
     test_map_t::const_iterator const i =        \
-      __all_tests.find(testname);               \
+      __all_tests.find( testname );               \
                                                 \
-    if (i == __all_tests.end())                 \
+    if( i == __all_tests.end() )                 \
     {                                           \
-      TEST_ERROR("Unknown test: " << testname); \
+      TEST_ERROR( "Unknown test: " << testname ); \
                                                 \
       std::cerr << std::endl;                   \
       DISPLAY_AVAILABLE_TESTS();                \
@@ -213,56 +225,59 @@ typedef std::string testname_t;
                                                 \
     try                                         \
     {                                           \
-      func(__VA_ARGS__);                        \
+      func( __VA_ARGS__ );                        \
     }                                           \
-    catch (std::exception const& e)             \
+    catch ( std::exception const& e )             \
     {                                           \
-      TEST_ERROR("Unexpected exception: "       \
-                 << e.what());                  \
+      TEST_ERROR( "Unexpected exception: "       \
+                  << e.what() );                  \
                                                 \
       return EXIT_FAILURE;                      \
     }                                           \
                                                 \
     return EXIT_SUCCESS;                        \
-  } while (false)
+  } while( false )
 
 // ------------------------------------------------------------------
 //
 // Testing helper macros/methods
 //
 
-namespace kwiver {
-namespace testing {
+namespace kwiver::testing {
 
-/// Test double approximate equality to given epsilon
 /**
+ * @brief Test double approximate equality to given epsilon
  * @param value   The value subject for comparison.
  * @param target  The value to compare to.
  * @param epsilon The allowed varience.
  */
-inline bool is_almost(double const &value,
-                      double const &target,
-                      double const &epsilon)
+inline bool
+is_almost( double const& value,
+           double const& target,
+           double const& epsilon )
 {
-  return fabs(value - target) <= epsilon;
+  return fabs( value - target ) <= epsilon;
 }
 
 // ------------------------------------------------------------------
 /// \copydoc kwiver::testing::test_equal
-#define TEST_EQUAL(name, value, expected)                       \
+#define TEST_EQUAL( name, value, expected )                       \
   do                                                            \
   {                                                             \
-    if((value) != (expected))                                   \
+    if( ( value ) != ( expected ) )                                   \
     {                                                           \
-      TEST_ERROR("TEST_EQUAL check '" << name << "' failed:\n"  \
-                 << "    Expected: ``" << (expected) << "``\n"  \
-                 << "    Got     : ``" << (value) << "``");     \
+      TEST_ERROR( "TEST_EQUAL check '"  << name << "' failed:\n"  \
+                                        << "    Expected: ``" << ( expected ) << "``\n"  \
+                                        << "    Got     : ``" << ( value ) << \
+                  "``" );     \
     }                                                           \
-  } while(false)
+  } while( false )
 
 // ------------------------------------------------------------------
-/// General equality test with message generation on inequality
+
 /**
+ * @brief General equality test with message generation on inequality
+ *
  * Test equality between values with a '!=' expression. This wraps a standard
  * error response message.
  *
@@ -270,24 +285,28 @@ inline bool is_almost(double const &value,
  * @param value     The experimental value of the equality check.
  * @param expected  The expected value of the equality check.
  */
-template <typename ActualType, typename ExpectedType> inline
+template < typename ActualType, typename ExpectedType >
+inline
 bool
 test_equal( char const* name, ActualType const& value,
             ExpectedType const& expected )
 {
-  if (value != expected)
+  if( value != expected )
   {
-    TEST_ERROR("test_equal check '" << name << "' failed:\n"
-               << "    Expected: ``" << expected << "``\n"
-               << "    Got     : ``" << value << "``");
+    TEST_ERROR( "test_equal check '"    << name << "' failed:\n"
+                                        << "    Expected: ``" << expected << "``\n"
+                                        << "    Got     : ``" << value <<
+                "``" );
     return false;
   }
   return true;
 }
 
 // ------------------------------------------------------------------
-/// General range test with message generation on out of range
+
 /**
+ * @brief General range test with message generation on out of range
+ *
  * Test that a value is between two bounds with '<' expressions. This wraps a
  * standard error response message.
  *
@@ -295,43 +314,45 @@ test_equal( char const* name, ActualType const& value,
  * @param value     The experimental value of the equality check.
  * @param expected  The expected value of the equality check.
  */
-template <typename ValueType, typename BoundsType> inline
+template < typename ValueType, typename BoundsType >
+inline
 bool
 test_bound( char const* name, ValueType const& value,
             BoundsType const& lower, BoundsType const& upper )
 {
-  if ((value < lower) || (upper < value))
+  if( ( value < lower ) || ( upper < value ) )
   {
-    TEST_ERROR("test_bound check '" << name << "' failed:\n"
-               << "    Expected: in [``" << lower << "``, ``"
-                                         << upper << "``]\n"
-               << "    Got     : ``" << value << "``");
+    TEST_ERROR( "test_bound check '"    << name << "' failed:\n"
+                                        << "    Expected: in [``" << lower << "``, ``"
+                                        << upper << "``]\n"
+                                        << "    Got     : ``" << value <<
+                "``" );
     return false;
   }
   return true;
 }
 
 // ------------------------------------------------------------------
-/// Test double/float approximate equality to a given epsilon
+
 /**
+ * @brief Test double/float approximate equality to a given epsilon
  * @param name    An identifying name for the test.
  * @param value   The value subject for comparison.
  * @param target  The value to compare to.
  * @param epsilon The allowed varience.
  */
-#define TEST_NEAR(name, value, target, epsilon)                  \
+#define TEST_NEAR( name, value, target, epsilon )                  \
   do                                                             \
   {                                                              \
-    if(! kwiver::testing::is_almost(value, target, epsilon))      \
+    if( !kwiver::testing::is_almost( value, target, epsilon ) )      \
     {                                                            \
-      TEST_ERROR("TEST_NEAR check '" << name                     \
-                 << "' failed: (epsilon: " << (epsilon) << ")\n" \
-                 << "    Expected: " << (target) << "\n"         \
-                 << "    Got     : " << (value));                \
+      TEST_ERROR( "TEST_NEAR check '"   << name                     \
+                                        << "' failed: (epsilon: " << ( epsilon ) << ")\n" \
+                                        << "    Expected: " << ( target ) << "\n"         \
+                                        << "    Got     : " << ( value ) );                \
     }                                                            \
-  }while(false)
+  }while( false )
 
-} //end namespace testing
-} //end namespace kwiver
+} // namespace kwiver::testing
 
 #endif

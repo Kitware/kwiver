@@ -13,7 +13,8 @@
 using namespace kwiver::vital;
 
 // ----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int
+main( int argc, char** argv )
 {
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
@@ -24,7 +25,7 @@ int main(int argc, char** argv)
 //
 
 // ----------------------------------------------------------------------------
-TEST(logger, levels)
+TEST ( logger, levels )
 {
   logger_handle_t log2 = get_logger( "main.logger2" );
 
@@ -66,7 +67,7 @@ TEST(logger, levels)
 }
 
 // ----------------------------------------------------------------------------
-TEST(logger, factory)
+TEST ( logger, factory )
 {
   // Need to unset any logger factory specification so we will use the
   // default factory
@@ -82,7 +83,7 @@ TEST(logger, factory)
 }
 
 // ----------------------------------------------------------------------------
-TEST(logger, output)
+TEST ( logger, output )
 {
   logger_handle_t log2 = get_logger( "main.logger2" );
 

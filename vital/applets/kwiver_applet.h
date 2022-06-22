@@ -6,19 +6,18 @@
 #define KWIVER_TOOLS_KWIVER_APPLET_H
 
 #include <vital/applets/vital_applets_export.h>
-//#include <vital/plugin_management/plugin_info.h>
+// #include <vital/plugin_management/plugin_info.h>
 
 #include <vital/applets/cxxopts.hpp>
 #include <vital/config/config_block.h>
 #include <vital/plugin_management/pluggable.h>
 
-#include <ostream>
 #include <memory>
-#include <vector>
+#include <ostream>
 #include <string>
+#include <vector>
 
-namespace kwiver {
-namespace tools {
+namespace kwiver::tools {
 
 // forward type definition
 class applet_context;
@@ -34,6 +33,8 @@ class VITAL_APPLETS_EXPORT kwiver_applet : public vital::pluggable
 public:
   kwiver_applet();
   virtual ~kwiver_applet();
+
+  static std::string interface_name() { return "kwiver_applet"; }
 
   void initialize( kwiver::tools::applet_context* ctxt );
 
@@ -56,7 +57,7 @@ public:
    */
   static
   kwiver::vital::config_block_sptr
-    find_configuration(std::string const& file_name );
+  find_configuration( std::string const& file_name );
 
   /**
    * @brief Add command line options to parser.
@@ -68,28 +69,28 @@ public:
    * Command line specification is added directly to this->m_cmd_options.
    *
    * Positional arguments
-   \code
-   m_cmd_options.add_options()
-    ("input", "Input file", cxxopts::value<std::string>())
-    ("output", "Output file", cxxopts::value<std::string>())
-    ("positional", "Positional parameters",
-      cxxopts::value<std::vector<std::string>>())
-  ;
-
-  m_cmd_options.parse_positional({"input", "output", "positional"});
-
-  \endcode
-  *
-  * Adding command option groups
-  *
-  *
-\code
-m_cmd_options.add_option("group")
-( "I,path", "Add directory search path")
-;
-
-\endcode
-  */
+   *  \code
+   *  m_cmd_options.add_options()
+   *    ("input", "Input file", cxxopts::value<std::string>())
+   *    ("output", "Output file", cxxopts::value<std::string>())
+   *    ("positional", "Positional parameters",
+   *        cxxopts::value<std::vector<std::string>>())
+   *    ;
+   *
+   *  m_cmd_options.parse_positional({"input", "output", "positional"});
+   *
+   *  \endcode
+   *
+   * Adding command option groups
+   *
+   *
+   *  \code
+   *  m_cmd_options.add_option("group")
+   *    ( "I,path", "Add directory search path")
+   *    ;
+   *
+   *  \endcode
+   */
   virtual void add_command_options();
 
   /**
@@ -110,12 +111,16 @@ m_cmd_options.add_option("group")
   std::unique_ptr< cxxopts::Options > m_cmd_options;
 
   // It is expected that implementations will not be constructed meaningfully
-  // from config blocks but instead use the input provided by command-line args.
-  template< typename T>
-  static vital::pluggable_sptr from_config( vital::config_block const& cb ) { return std::make_shared<T>()(); }
+  // from config blocks but instead use the input provided by command-line
+  // args.
+  template < typename T >
+  static vital::pluggable_sptr
+  from_config( vital::config_block const& cb )
+  {
+    return std::make_shared< T >()();
+  }
 
 protected:
-
   /**
    * @brief Get applet name
    *
@@ -145,18 +150,17 @@ protected:
    *
    * @return Read only vector of args
    */
-  const std::vector<std::string>& applet_args() const;
+  const std::vector< std::string >& applet_args() const;
 
 private:
   /**
    * Context provided by the applet runner.
    */
-  kwiver::tools::applet_context* m_context {nullptr};
-
+  kwiver::tools::applet_context* m_context { nullptr };
 };
 
-typedef std::shared_ptr<kwiver_applet> kwiver_applet_sptr;
+typedef std::shared_ptr< kwiver_applet > kwiver_applet_sptr;
 
-} } // end namespace
+} // namespace kwiver::tools
 
 #endif /* KWIVER_TOOLS_KWIVER_APPLET_H */

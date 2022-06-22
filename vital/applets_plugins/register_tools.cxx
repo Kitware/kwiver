@@ -17,13 +17,13 @@ register_factories( kwiver::vital::plugin_loader& vpl )
   using namespace kwiver::tools;
   using kvpf = ::kwiver::vital::plugin_factory;
 
-  vpl.add_factory<kwiver_applet, config_explorer>( "explore-config" )
-    ->add_attribute( kvpf::PLUGIN_DESCRIPTION,
-                     "Explore configuration loading process.\n\n"
-                     "This program assists in debugging config loading "
-                     "problems. It loads a configuration and displays the "
-                     "contents or displays the search path." )
+  auto fact =
+    vpl.add_factory< kwiver_applet, config_explorer >( "explore-config" );
+  fact->add_attribute( kvpf::PLUGIN_DESCRIPTION,
+                       "Explore configuration loading process.\n\n"
+                       "This program assists in debugging config loading "
+                       "problems. It loads a configuration and displays the "
+                       "contents or displays the search path." )
     .add_attribute( kvpf::PLUGIN_MODULE_NAME, "vital_tool_group" )
     .add_attribute( kvpf::ALGORITHM_CATEGORY, kvpf::APPLET_CATEGORY );
-
 }

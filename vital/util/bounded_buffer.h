@@ -10,38 +10,40 @@
 #ifndef KWIVER_VITAL_UTIL_BOUNDED_BUFFER_H_
 #define KWIVER_VITAL_UTIL_BOUNDED_BUFFER_H_
 
-#include <condition_variable> //+ c++11 required
+#include <condition_variable> // + c++11 required
 #include <mutex>
-#include <vector>
 #include <stdexcept>
+#include <vector>
 
 #include <vital/noncopyable.h>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // ----------------------------------------------------------------
+
 /**
  * @brief Simple bounded buffer.
  *
  * This class represents a fixed size bounded buffer designed for
  * communication between threads.
  */
-template <class T>
+template < class T >
 class bounded_buffer : private vital::noncopyable
 {
 public:
-  typedef std::unique_lock<std::mutex> lock;
+  typedef std::unique_lock< std::mutex > lock;
 
   bounded_buffer( int size )
-  : begin(0),
-    end(0),
-    buffered(0),
-    circular_buf( size )
+    : begin( 0 ),
+      end( 0 ),
+      buffered( 0 ),
+      circular_buf( size )
   {
-    if (size < 1)
+    if( size < 1 )
     {
-      throw std::length_error( "Invalid length specified for bounded_buffer. Must be greater than zero.");
+      throw std::length_error(
+              "Invalid length specified for bounded_buffer. Must be greater "
+              "than 5zero." );
     }
   }
 
@@ -51,9 +53,10 @@ public:
    * This is a little abrupt, so the caller must ensure that there is
    * nothing of value in the buffer.
    */
-  void Reset()
+  void
+  Reset()
   {
-    lock lk(monitor);
+    lock lk( monitor );
     begin = 0;
     end = 0;
     buffered = 0;
@@ -71,16 +74,17 @@ public:
    *
    * @param[in] m Element to add to buffer.
    */
-  void Send (T const& m)
+  void
+  Send( T const& m )
   {
-    lock lk(monitor);
-    while (buffered == circular_buf.size())
+    lock lk( monitor );
+    while( buffered == circular_buf.size() )
     {
-      buffer_not_full.wait(lk);
+      buffer_not_full.wait( lk );
     }
 
-    circular_buf[end] = m;
-    end = (end+1) % circular_buf.size();
+    circular_buf[ end ] = m;
+    end = ( end + 1 ) % circular_buf.size();
     ++buffered;
 
     buffer_not_empty.notify_one();
@@ -94,16 +98,17 @@ public:
    *
    * @return The oldest
    */
-  T Receive()
+  T
+  Receive()
   {
-    lock lk(monitor);
-    while (buffered == 0)
+    lock lk( monitor );
+    while( buffered == 0 )
     {
-      buffer_not_empty.wait(lk);
+      buffer_not_empty.wait( lk );
     }
 
-    T i = circular_buf[begin];
-    begin = (begin+1) % circular_buf.size();
+    T i = circular_buf[ begin ];
+    begin = ( begin + 1 ) % circular_buf.size();
     --buffered;
 
     buffer_not_full.notify_one();
@@ -118,9 +123,10 @@ public:
    *
    * @return \b true if buffer is empty. \b false if not empty.
    */
-  bool Empty() const
+  bool
+  Empty() const
   {
-    return (buffered == 0);
+    return ( buffered == 0 );
   }
 
   /**
@@ -131,9 +137,10 @@ public:
    *
    * @return
    */
-  bool Full() const
+  bool
+  Full() const
   {
-    return  (buffered == circular_buf.size());
+    return ( buffered == circular_buf.size() );
   }
 
 private:
@@ -143,6 +150,6 @@ private:
   std::mutex monitor;
 };
 
-} } // end namespace
+} // namespace kwiver::vital
 
 #endif

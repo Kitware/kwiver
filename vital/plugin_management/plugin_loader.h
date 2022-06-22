@@ -7,14 +7,14 @@
 
 #include <vital/plugin_management/vital_vpm_export.h>
 
-#include <vital/types/core.h>
 #include <vital/logger/logger.h>
 #include <vital/plugin_management/plugin_factory.h>
+#include <vital/typedefs.h>
 
-#include <vector>
-#include <string>
 #include <map>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace kwiver::vital {
 
@@ -23,11 +23,10 @@ class plugin_factory;
 
 using plugin_factory_handle_t = std::shared_ptr< plugin_factory >;
 using plugin_factory_vector_t = std::vector< plugin_factory_handle_t >;
-using plugin_map_t            = std::map< std::string, plugin_factory_vector_t >;
-//using plugin_module_map_t     = std::map< std::string, path_t >;
+using plugin_map_t            = std::map< std::string,
+                                          plugin_factory_vector_t >;
 
 class plugin_loader_impl;
-
 
 /**
  * @brief Manage dynamically loading plugin modules from search paths given a
@@ -53,7 +52,8 @@ public:
 
   virtual ~plugin_loader();
 
-  // Search path stuff =========================================================
+  // Search path stuff ========================================================
+
   /**
    * @brief Add additional directories to search for plugins in.
    *
@@ -77,7 +77,8 @@ public:
   [[nodiscard]]
   path_list_t const& get_search_path() const;
 
-  // Loading Factories =========================================================
+  // Loading Factories ========================================================
+
   /**
    * @brief Load all reachable plugins.
    *
@@ -107,14 +108,16 @@ public:
   /**
    * @brief Load a single plugin file.
    *
-   * A "plugin file" in this case is the shared library that contains an exposed
+   * A "plugin file" in this case is the shared library that contains an
+   * exposed
    * `init_function`.
    *
    * @param file Filesystem path to the shared library file to load.
    */
   void load_plugin( path_t const& file );
 
-  // Factory Stuff =============================================================
+  // Factory Stuff ============================================================
+
   /**
    * @brief Get list of factories for interface type.
    *
@@ -126,26 +129,74 @@ public:
    * @return Vector of factories. (vector may be empty)
    */
   [[nodiscard]]
-  plugin_factory_vector_t const& get_factories( std::string const& type_name ) const;
+  plugin_factory_vector_t const& get_factories( std::string const& type_name )
+  const;
 
-  template< typename INTERFACE >
-  [[nodiscard]]
-  plugin_factory_vector_t const& get_factories() const {
-    return get_factories( typeid( INTERFACE ).name() );
+  template < typename INTERFACE >
+  plugin_factory_vector_t const&
+  get_factories() const
+  {
+    return get_factories( get_interface_name< INTERFACE >() );
   }
 
   /**
-   * @brief Register a factory to generate the CONCRETE class type, specifically
+   * @brief Add plugin_factory instance to this loader.
+   *
+   * This method adds the specified plugin factory instance to the plugin
+   * manager. This method is usually called from the plugin
+   * registration function in the loadable module to self-register all
+   * plugins in a module.
+   *
+   * Factory instances provide *MUST* have the following attributes set
+   * - INTERFACE_TYPE
+   * - CONCRETE_TYPE
+   * - PLUGIN_NAME
+   *
+   * Plugin factory objects are grouped under the interface type name,
+   * so all factories that create the same interface are together.
+   *
+   * By adding a factory, we set the PLUGIN_FILE_NAME attribute to be the name
+   * of library module it was added from.
+   *
+   * A factory may fail to be added if:
+   *   * It already exists in this loader based on the combo of INTERFACE_TYPE,
+   *     CONCRETE_TYPE and PLUGIN_NAME attributes.
+   *
+   * @param fact Plugin factory object to register
+   *
+   * @return A pointer is returned to the added factory. This may be used to
+   * set
+   * additional attributes to the factory.
+   *
+   * @throws plugin_already_exists
+   * If the factory being added looks to already have been added before.
+   *
+   * Example:
+   *  \code
+   *  void add_factories( plugin_loader* pm )
+   *  {
+   *  plugin_factory_handle_t fact = pm->add_factory( new foo_factory() );
+   *  fact->add_attribute( "file-type", "xml mit" );
+   *  }
+   *  \endcode
+   */
+  plugin_factory_handle_t add_factory( plugin_factory* fact );
+
+  /**
+   * @brief Register a factory to generate the CONCRETE class type,
+   * specifically
    * in relation to the given INTERFACE type.
    *
    * A plugin name must also be provided. This is to succinctly describe the
    * concrete type in relation to the interface type.
    * The factory created from this will check that the given interface descends
-   * from \ref pluggable and that the concrete class descends from the interface
+   * from \ref pluggable and that the concrete class descends from the
+   * interface
    * class.
    *
    * Plugin factory objects are grouped under an identifier of the interface
-   * type so all factories that create implementations of the same interface are
+   * type so all factories that create implementations of the same interface
+   * are
    * grouped together.
    *
    * Factories are created with the PLUGIN_FILE_NAME attribute set to be the
@@ -159,13 +210,14 @@ public:
    * self-register all plugins in a module.
    *
    * Example:
-   \code
-   void add_factories( plugin_loader* pm )
-   {
-     plugin_factory_handle_t fact = pm->add_factory<SomeInterface, SomeDerived>( "derived" );
-     fact->add_attribute( "file-type", "xml mit" );
-   }
-   \endcode
+   *  \code
+   *  void add_factories( plugin_loader* pm )
+   *  {
+   *    plugin_factory_handle_t fact =
+   *      pm->add_factory<SomeInterface, SomeDerived>( "derived" );
+   *    fact->add_attribute( "file-type", "xml mit" );
+   *  }
+   *  \endcode
    *
    * @param plugin_name String name to describe the concrete type that
    * implements the interface type.
@@ -177,20 +229,21 @@ public:
    * If the factory being added looks to already have been added before.
    *
    */
-  template< typename INTERFACE, typename CONCRETE >
-  plugin_factory_handle_t add_factory( std::string const& plugin_name )
+  template < typename INTERFACE, typename CONCRETE >
+  plugin_factory_handle_t
+  add_factory( std::string const& plugin_name )
   {
     // Call protected factory add method with the standard concrete plugin
     // factory.
     return add_factory(
-      new concrete_plugin_factory<INTERFACE, CONCRETE>( plugin_name )
-    );
+      new concrete_plugin_factory< INTERFACE, CONCRETE >( plugin_name )
+      );
   }
 
   // Alternative factory addition methods?
   // template interface/concrete, also take in "category" label?
 
-  // Map Accessors =============================================================
+  // Map Accessors ============================================================
 
   /**
    * @brief Get map of known plugins.
@@ -202,7 +255,7 @@ public:
   [[nodiscard]]
   plugin_map_t const& get_plugin_map() const;
 
-  // Deprecated? ===============================================================
+  // Deprecated? ==============================================================
 
 //  // TODO: This doesn't seem to be used anywhere
 //  /**
@@ -254,52 +307,15 @@ public:
 //  void add_filter( plugin_filter_handle_t f );
 
 protected:
-  friend class plugin_loader_impl;  // is this needed? I clearly don't remember what friend classes are.
+  // is this needed? I clearly don't remember what friend classes are.
+  friend class plugin_loader_impl;
 
   kwiver::vital::logger_handle_t m_logger;
 
-  /**
-   * @brief Add factory to manager.
-   *
-   * This method adds the specified plugin factory to the plugin
-   * manager. This method is usually called from the plugin
-   * registration function in the loadable module to self-register all
-   * plugins in a module.
-   *
-   * Plugin factory objects are grouped under the interface type name,
-   * so all factories that create the same interface are together.
-   *
-   * By adding a factory, we set the PLUGIN_FILE_NAME attribute to be the name
-   * of library module it was added from.
-   *
-   * A factory may fail to be added if:
-   *   * It already exists in this loader based on the combo of INTERFACE_TYPE,
-   *     CONCRETE_TYPE and PLUGIN_NAME attributes.
-   *
-   * @param fact Plugin factory object to register
-   *
-   * @return A pointer is returned to the added factory in case
-   * attributes need to be added to the factory.
-   *
-   * @throws plugin_already_exists
-   * If the factory being added looks to already have been added before.
-   *
-   * Example:
-   \code
-   void add_factories( plugin_loader* pm )
-   {
-     plugin_factory_handle_t fact = pm->add_factory( new foo_factory() );
-     fact->add_attribute( "file-type", "xml mit" );
-   }
-   \endcode
-   */
-  plugin_factory_handle_t add_factory( plugin_factory* fact );
-
 private:
-
   const std::unique_ptr< plugin_loader_impl > m_impl;
 }; // end class plugin_loader
 
-} // end namespace
+} // namespace kwiver::vital
 
 #endif

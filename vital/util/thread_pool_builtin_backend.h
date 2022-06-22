@@ -25,6 +25,7 @@
 #include <vector>
 
 namespace kwiver {
+
 namespace vital {
 
 /// A simple thread pool backend using C++11 standard library features
@@ -33,12 +34,13 @@ class thread_pool_builtin_backend
 {
 public:
   /// Constructor
-  thread_pool_builtin_backend(size_t num_threads=std::thread::hardware_concurrency())
-    : stop(false)
+  thread_pool_builtin_backend(
+    size_t num_threads = std::thread::hardware_concurrency() )
+    : stop( false )
   {
-    for(size_t i=0; i<num_threads; ++i)
+    for( size_t i = 0; i < num_threads; ++i )
     {
-      workers.emplace_back([this] { thread_worker_loop(); });
+      workers.emplace_back( [ this ]{ thread_worker_loop(); } );
     }
   }
 
@@ -46,11 +48,11 @@ public:
   ~thread_pool_builtin_backend()
   {
     {
-      std::unique_lock<std::mutex> lock(queue_mutex);
+      std::unique_lock< std::mutex > lock( queue_mutex );
       stop = true;
     }
     condition.notify_all();
-    for(std::thread &worker : workers)
+    for( std::thread& worker : workers )
     {
       worker.join();
     }
@@ -63,19 +65,21 @@ public:
   void thread_worker_loop();
 
   /// Enqueue a void() task
-  void enqueue_task(std::function<void()> func);
+  void enqueue_task( std::function< void() > func );
 
   /// Returns the number of worker threads
-  size_t num_threads() const { return workers.size(); }
+  size_t
+  num_threads() const { return workers.size(); }
 
   /// Returns the name of this backend
-  virtual const char* name() const { return static_name; }
+  virtual const char*
+  name() const { return static_name; }
 
   /// The task queue
-  std::queue< std::function<void()> > tasks;
+  std::queue< std::function< void() > > tasks;
 
   /// The collection of threads in the pool
-  std::vector<std::thread> workers;
+  std::vector< std::thread > workers;
 
   /// Mutex to synchronize access to the queue
   std::mutex queue_mutex;
@@ -88,20 +92,26 @@ public:
 };
 
 /// This function is executed in each thread to endlessly process tasks
-void thread_pool_builtin_backend::thread_worker_loop()
+void
+thread_pool_builtin_backend
+::thread_worker_loop()
 {
   // loop forever
   for(;;)
   {
-    std::function<void()> task;
+    std::function< void() > task;
 
     {
-      std::unique_lock<std::mutex> lock(this->queue_mutex);
-      this->condition.wait(lock,
-        [this]{ return this->stop || !this->tasks.empty(); });
-      if(this->stop && this->tasks.empty())
+      std::unique_lock< std::mutex > lock( this->queue_mutex );
+      this->condition.wait( lock,
+                            [ this ]{
+                              return this->stop || !this->tasks.empty();
+                            } );
+      if( this->stop && this->tasks.empty() )
+      {
         return;
-      task = std::move(this->tasks.front());
+      }
+      task = std::move( this->tasks.front() );
       this->tasks.pop();
     }
 
@@ -110,24 +120,28 @@ void thread_pool_builtin_backend::thread_worker_loop()
 }
 
 /// Enqueue a void function in the thread pool
-void thread_pool_builtin_backend::enqueue_task(std::function<void()> func)
+void
+thread_pool_builtin_backend
+::enqueue_task( std::function< void() > func )
 {
   // add the task to the queue as long as it still running
   {
-    std::unique_lock<std::mutex> lock(queue_mutex);
+    std::unique_lock< std::mutex > lock( queue_mutex );
     // don't allow enqueueing after stopping the pool
-    if(stop)
+    if( stop )
     {
-      throw std::runtime_error("enqueue on stopped thread_pool");
+      throw std::runtime_error( "enqueue on stopped thread_pool" );
     }
 
     // add the task to the queue
-    tasks.emplace(func);
+    tasks.emplace( func );
   }
   // notify one worker to start processing
   condition.notify_one();
 }
 
-} }   // end namespace
+} // namespace vital
+
+} // namespace kwiver
 
 #endif

@@ -8,31 +8,30 @@
  */
 
 #include "config_parser.h"
+#include <vital/config/token_type_config.h>
+#include <vital/util/string.h>
 #include <vital/util/token_expander.h>
+#include <vital/util/token_type_env.h>
 #include <vital/util/token_type_symtab.h>
 #include <vital/util/token_type_sysenv.h>
-#include <vital/util/token_type_env.h>
-#include <vital/util/string.h>
-#include <vital/config/token_type_config.h>
 
-#include <vital/logger/logger.h>
-#include <kwiversys/SystemTools.hxx>
 #include <kwiversys/RegularExpression.hxx>
+#include <kwiversys/SystemTools.hxx>
+#include <vital/logger/logger.h>
 
-#include <string>
-#include <cstring>
-#include <cerrno>
-#include <vector>
-#include <set>
-#include <fstream>
-#include <cctype>
 #include <algorithm>
-#include <iostream>
+#include <cctype>
+#include <cerrno>
+#include <cstring>
+#include <fstream>
 #include <functional>
+#include <iostream>
+#include <set>
 #include <sstream>
+#include <string>
+#include <vector>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 namespace {
 
@@ -41,13 +40,14 @@ typedef kwiversys::SystemTools ST;
 
 struct token_t
 {
-  enum type {
+  enum type
+  {
     TK_WORD = 101,              // LHS token
     TK_FLAG,                    // [xxx]
     TK_ASSIGN,                  // =
     TK_LOCAL_ASSIGN,            // :=
     TK_ERROR,
-    TK_EOF
+    TK_EOF,
   };
 
   type type;
@@ -55,6 +55,7 @@ struct token_t
 };
 
 // ------------------------------------------------------------------
+
 /**
  * \brief Block context structure.
  *
@@ -87,11 +88,13 @@ public:
   {
     m_token_expander.add_token_type( new kwiver::vital::token_type_env() );
     m_token_expander.add_token_type( new kwiver::vital::token_type_sysenv() );
-    m_token_expander.add_token_type( new kwiver::vital::token_type_config( m_config_block ) );
+    m_token_expander.add_token_type( new kwiver::vital::token_type_config(
+                                       m_config_block ) );
     m_token_expander.add_token_type( m_symtab );
   }
 
   // ------------------------------------------------------------------
+
   /**
    * \brief Process a single input file.
    *
@@ -102,9 +105,12 @@ public:
    * \throws config_file_not_found_exception if file could not be opened
    * \throw config_file_not_parsed_exception if there is a parse error
    */
-  void process_file( config_path_t const&  file_path)
+  void
+  process_file( config_path_t const&  file_path )
   {
-    auto file_path_sptr( std::make_shared< std::string >( ST::GetRealPath(file_path) ) );
+    auto file_path_sptr(
+      std::make_shared< std::string >( ST::GetRealPath( file_path ) )
+      );
     m_current_file = file_path;
 
     // Reset token parser since we are starting a new file
@@ -113,7 +119,7 @@ public:
 
     // Try to open the file
     std::ifstream in_stream( file_path.c_str() );
-    if ( ! in_stream )
+    if( !in_stream )
     {
       VITAL_THROW( config_file_not_found_exception,
                    file_path, std::strerror( errno ) );
@@ -124,41 +130,43 @@ public:
     m_include_stack.push_back( file_path_sptr );
 
     // Get directory part of the input file
-    config_path_t config_file_dir( kwiversys::SystemTools::GetFilenamePath( *file_path_sptr ) );
-    // if file_path has no directory prefix then use "." for the current directory
-    if ( "" == config_file_dir )
+    config_path_t config_file_dir( kwiversys::SystemTools::GetFilenamePath( *
+                                                                            file_path_sptr ) );
+    // if file_path has no directory prefix then use "." for the current
+    // directory
+    if( "" == config_file_dir )
     {
       config_file_dir = ".";
     }
 
-    while ( true )
+    while( true )
     {
       // Get next non-blank line. We are done if EOF is found.
       token_t token;
       get_token( in_stream, token );
 
-      if ( token.type == token_t::TK_EOF )
-      { // EOF found
+      if( token.type == token_t::TK_EOF )
+      {
+        // EOF found
         --m_file_count;
-        if ( 0 != m_include_stack.size() )
+        if( 0 != m_include_stack.size() )
         {
           m_include_stack.pop_back();
         }
 
-        if ( 0 == m_file_count )
+        if( 0 == m_file_count )
         {
           // check to see if the block stack is empty.
-          if ( 0 != m_block_stack.size() )
+          if( 0 != m_block_stack.size() )
           {
             std::stringstream msg;
 
             msg << "Unclosed blocks left at end of file:\n";
-            while ( 0 != m_block_stack.size() )
+            while( 0 != m_block_stack.size() )
             {
-              msg << "Block \"" << m_block_stack.back().m_block_name
-                  << "\" - Started at " << m_block_stack.back().m_file_name
-                  << ":" << m_block_stack.back().m_start_line
-                  << std::endl;
+              msg << "Block \"" << m_block_stack.back().m_block_name <<
+                "\" - Started at " << m_block_stack.back().m_file_name <<
+                ":" << m_block_stack.back().m_start_line << std::endl;
 
               m_block_stack.pop_back();
             }
@@ -167,7 +175,7 @@ public:
             m_parse_error = true;
           }
 
-          if ( m_parse_error )
+          if( m_parse_error )
           {
             VITAL_THROW( config_file_not_parsed_exception,
                          file_path, "Errors in config file" );
@@ -177,7 +185,7 @@ public:
       } // end EOF
 
       // ------------------------------------------------------------------
-      if ( token.value == "include" )
+      if( token.value == "include" )
       {
         /*
          * Handle "include" <file-path>
@@ -185,14 +193,15 @@ public:
         const int current_line( m_line_number ); // save current line number
 
         // Do a macro expansion of the file name
-        const std::string exp_filename = m_token_expander.expand_token( m_token_line );
+        const std::string exp_filename = m_token_expander.expand_token(
+                                           m_token_line );
 
         config_path_t resolv_filename = resolve_file_name( exp_filename );
-        if ( "" == resolv_filename ) // could not resolve
+        if( "" == resolv_filename )  // could not resolve
         {
           std::ostringstream sstr;
-          sstr << "file included from " << file_path << ":" << m_line_number
-               << " could not be found in search path.";
+          sstr  << "file included from " << file_path << ":" << m_line_number
+                << " could not be found in search path.";
 
           VITAL_THROW( config_file_not_found_exception,
                        exp_filename, sstr.str() );
@@ -200,25 +209,27 @@ public:
 
         flush_line(); // force read of new line
 
-        LOG_DEBUG( m_logger, "Including file \"" << resolv_filename << "\" at "
-                  << file_path << ":" << m_line_number );
+        LOG_DEBUG( m_logger,
+                   "Including file \""  << resolv_filename
+                                        << "\" at " << file_path
+                                        << ":" << m_line_number );
 
         // The file specified really must be a file.
-        if ( ! kwiversys::SystemTools::FileExists( resolv_filename ) )
+        if( !kwiversys::SystemTools::FileExists( resolv_filename ) )
         {
           std::ostringstream sstr;
-          sstr << "file included from " << file_path << ":" << m_line_number
-               << " could not be found in search path.";
+          sstr  << "file included from " << file_path << ":" << m_line_number
+                << " could not be found in search path.";
 
           VITAL_THROW( config_file_not_found_exception,
                        exp_filename, sstr.str() );
         }
 
-        if ( kwiversys::SystemTools::FileIsDirectory( resolv_filename ) )
+        if( kwiversys::SystemTools::FileIsDirectory( resolv_filename ) )
         {
           std::ostringstream sstr;
-          sstr << "file included from " << file_path << ":" << m_line_number
-               << " is not a regular file!";
+          sstr  << "file included from " << file_path << ":" << m_line_number
+                << " is not a regular file!";
 
           VITAL_THROW( config_file_not_found_exception,
                        resolv_filename, sstr.str() );
@@ -232,13 +243,13 @@ public:
       }
 
       // ------------------------------------------------------------------
-      if ( token.value == "block" )
+      if( token.value == "block" )
       {
         /*
          * Handle "block" <block-name>
          */
         get_token( in_stream, token ); // get block name
-        if ( token.type != token_t::TK_WORD )
+        if( token.type != token_t::TK_WORD )
         {
           // Unexpected token - syntax error
           LOG_ERROR( m_logger, "Invalid syntax in line \"" << m_last_line <<
@@ -259,8 +270,10 @@ public:
         m_current_context += token.value +
                              kwiver::vital::config_block::block_sep();
 
-        LOG_DEBUG( m_logger, "Starting new block \"" << m_current_context
-                  << "\" at " << file_path << ":" << m_line_number );
+        LOG_DEBUG( m_logger,
+                   "Starting new block \""      << m_current_context
+                                                << "\" at " << file_path
+                                                << ":" << m_line_number );
 
         m_block_stack.push_back( block_ctxt );
 
@@ -270,18 +283,18 @@ public:
       }
 
       // ------------------------------------------------------------------
-      if ( token.value == "endblock" )
+      if( token.value == "endblock" )
       {
         /*
          * Handled "endblock" keyword
          */
         flush_line(); // force starting a new line
 
-        if ( m_block_stack.empty() )
+        if( m_block_stack.empty() )
         {
           std::stringstream reason;
-          reason << "\"endblock\" found without matching \"block\" at "
-                 << file_path << ":" << m_line_number;
+          reason        << "\"endblock\" found without matching \"block\" at "
+                        << file_path << ":" << m_line_number;
 
           VITAL_THROW( config_file_not_parsed_exception,
                        file_path, reason.str() );
@@ -289,13 +302,13 @@ public:
 
         // Restore previous block context
         m_current_context = m_block_stack.back().m_previous_context;
-        m_block_stack.pop_back( );
+        m_block_stack.pop_back();
         continue;
       }
 
       // ------------------------------------------------------------------
-      bool rel_path(false);
-      if ( token.value == "relativepath" )
+      bool rel_path( false );
+      if( token.value == "relativepath" )
       {
         /*
          * Handle "relatiepath" <key> = <filepath>
@@ -306,7 +319,7 @@ public:
       }
 
       // This is supposed to be an LHS token
-      if ( token.type != token_t::TK_WORD )
+      if( token.type != token_t::TK_WORD )
       {
         // Unexpected token - syntax error
         LOG_ERROR( m_logger, "Invalid syntax in line \"" << m_last_line <<
@@ -335,15 +348,15 @@ public:
       // attributes.
       //
 
-      bool read_only(false); // read only attribute
+      bool read_only( false ); // read only attribute
 
-      while ( token.type == token_t::TK_FLAG )
+      while( token.type == token_t::TK_FLAG )
       {
         std::string upper = ST::UpperCase( token.value );
 
         // Currently only the RO (read only) flag is supported.
         // Others can be added here.
-        if ( upper.find( "[RO]" ) != std::string::npos )
+        if( upper.find( "[RO]" ) != std::string::npos )
         {
           read_only = true;
         }
@@ -351,7 +364,8 @@ public:
         else
         {
           LOG_ERROR( m_logger, "Unrecognized flags: \"" << token.value
-                     <<"\" at " << file_path << ":" << m_line_number );
+                                                        << "\" at " << file_path << ":" <<
+                     m_line_number );
           m_parse_error = true;
         }
 
@@ -360,7 +374,7 @@ public:
 
       // ------------------------------------------------------------------
       // This is supposed to be an assignment operator
-      if ( token.type == token_t::TK_ASSIGN )
+      if( token.type == token_t::TK_ASSIGN )
       {
         /*
          * Handle config entry definition
@@ -371,24 +385,25 @@ public:
         val = m_token_expander.expand_token( token.value );
 
         // prepend our current directory if this is a path
-        if ( rel_path )
+        if( rel_path )
         {
           config_path_t full = config_file_dir + "/" + val;
           val = full;
         }
 
         // Add key/value to config
-        LOG_DEBUG( m_logger, "Adding entry to config: \"" << key << "\" = \"" << val << "\"" );
+        LOG_DEBUG( m_logger,
+                   "Adding entry to config: \"" << key << "\" = \"" << val <<
+                   "\"" );
         m_config_block->set_value( key, val );
         m_config_block->set_location( key, file_path_sptr, m_line_number );
-        if ( read_only )
+        if( read_only )
         {
           m_config_block->mark_read_only( key );
         }
       }
-
       // This is supposed to be an assignment operator
-      else if ( token.type == token_t::TK_LOCAL_ASSIGN )
+      else if( token.type == token_t::TK_LOCAL_ASSIGN )
       {
         /*
          * Handle local symbol definition
@@ -398,22 +413,22 @@ public:
         val = m_token_expander.expand_token( token.value );
         m_symtab->add_entry( lhs, val );
       }
-
       else
       {
         // Unexpected token - syntax error
-        LOG_ERROR( m_logger, "Invalid syntax in line \"" << m_last_line
-                   <<  "\" at " << file_path << ":" << m_line_number );
+        LOG_ERROR( m_logger, "Invalid syntax in line \""        << m_last_line
+                                                                <<  "\" at " << file_path << ":" <<
+                   m_line_number );
         m_parse_error = true;
 
         flush_line(); // force starting a new line
         continue;
       }
-
     } // end while
   }
 
   // ----------------------------------------------------------------
+
   /**
    * @brief Read a line from the stream.
    *
@@ -422,15 +437,17 @@ public:
    * for the current file is updated.
    *
    * @param str[in]    Stream to read from
-   * @param line[out]  Next non-blank line in the file or an empty string for eof.
+   * @param line[out]  Next non-blank line in the file or an empty string for
+   * eof.
    *
    * @return \b true if line returned, \b false if end of file.
    */
-  bool get_line( std::istream& str, std::string& line )
+  bool
+  get_line( std::istream& str, std::string& line )
   {
-    while ( true )
+    while( true )
     {
-      if ( ! std::getline( str, line ) )
+      if( !std::getline( str, line ) )
       {
         // read failed.
         return false;
@@ -441,7 +458,7 @@ public:
 
       string_trim( line ); // trim off spaces
 
-      if ( line.size() == 0 )
+      if( line.size() == 0 )
       {
         // skip blank line
         continue;
@@ -449,13 +466,13 @@ public:
 
       // remove # comments
       size_t idx = line.find_first_of( "#" );
-      if ( idx != std::string::npos )
+      if( idx != std::string::npos )
       {
         line.erase( line.find_first_of( "#" ) );
         string_trim( line );
 
         // We may have made a blank line
-        if ( line.size() == 0 )
+        if( line.size() == 0 )
         {
           // skip blank line
           continue;
@@ -471,6 +488,7 @@ public:
   }
 
   // ------------------------------------------------------------------
+
   /**
    * @brief Get next token from the input stream.
    *
@@ -484,17 +502,20 @@ public:
    * @param[in] str Stream to read from
    * @param token[out] next token from line
    */
-  void get_token( std::istream& str, token_t & token )
+  void
+  get_token( std::istream& str, token_t& token )
   {
-    // Words are LHS tokens, which start with a letter, and can not end with a ':'
+    // Words are LHS tokens, which start with a letter, and can not end with a
+    // ':'
     // A *word* can contain these symbols "- _ : . /"
-    kwiversys::RegularExpression re_word( "^[a-zA-Z][-a-zA-Z0-9.:/_]+[-a-zA-Z0-9./_]" );
+    kwiversys::RegularExpression re_word(
+      "^[a-zA-Z][-a-zA-Z0-9.:/_]+[-a-zA-Z0-9./_]" );
     kwiversys::RegularExpression re_flag( "^\\[[a-zA-Z,]+\\]" );
 
     // Test for end of line while processing
-    if ( m_token_line.size() == 0)
+    if( m_token_line.size() == 0 )
     {
-      if ( ! get_line( str, m_token_line ) )
+      if( !get_line( str, m_token_line ) )
       {
         token.type = token_t::TK_EOF;
         token.value.clear();
@@ -502,34 +523,36 @@ public:
       }
     }
 
-    if ( m_token_line.substr(0, 2)  == ":=" )
+    if( m_token_line.substr( 0, 2 )  == ":=" )
     {
       token.type = token_t::TK_LOCAL_ASSIGN;
       token.value = m_token_line.substr( 2 ); // get rest of line
       string_trim( token.value );
       m_token_line.clear();
     }
-    else if ( m_token_line[0] == '=' )
+    else if( m_token_line[ 0 ] == '=' )
     {
       token.type = token_t::TK_ASSIGN;
       token.value = m_token_line.substr( 1 ); // get rest of line
       string_trim( token.value );
       m_token_line.clear();
     }
-    else if ( re_flag.find( m_token_line ) )
+    else if( re_flag.find( m_token_line ) )
     {
       token.type = token_t::TK_FLAG;
       token.value = re_flag.match( 0 );
 
-      m_token_line = m_token_line.substr( re_flag.end(0) ); // remove token from input
+      m_token_line = m_token_line.substr( re_flag.end( 0 ) ); // remove token
+                                                              // from input
       string_trim( m_token_line );
     }
-    else if ( re_word.find( m_token_line ) )
+    else if( re_word.find( m_token_line ) )
     {
       token.type = token_t::TK_WORD;
       token.value = re_word.match( 0 );
 
-      m_token_line = m_token_line.substr( re_word.end(0) ); // remove token from input
+      m_token_line = m_token_line.substr( re_word.end( 0 ) ); // remove token
+                                                              // from input
       string_trim( m_token_line );
     }
     else
@@ -543,33 +566,39 @@ public:
     }
 
     // handy for debugging
-    //+ std::cout << "--- type: " << token.type << "   returning token: \"" << token.value << "\"\n";
+    // + std::cout << "--- type: " << token.type << "   returning token: \"" <<
+    // token.value << "\"\n";
   }
 
   // ------------------------------------------------------------------
+
   /**
    * @brief Flush remaining line in parser.
    *
    * This method skips to the next character after the next new-line.
    */
-  void flush_line()
+  void
+  flush_line()
   {
     m_token_line.clear();
   }
 
   // ------------------------------------------------------------------
+
   /**
    * @brief Get name of current file being processed
    *
    *
    * @return Name of current file.
    */
-  std::string current_file() const
+  std::string
+  current_file() const
   {
     return m_current_file;
   }
 
   // ------------------------------------------------------------------
+
   /**
    * @brief Resolve file name against search path.
    *
@@ -581,10 +610,11 @@ public:
    *
    * @return Full file path, or empty string on failure.
    */
-  config_path_t resolve_file_name( config_path_t const& file_name )
+  config_path_t
+  resolve_file_name( config_path_t const& file_name )
   {
     // Test for absolute file name
-    if ( kwiversys::SystemTools::FileIsFullPath( file_name ) )
+    if( kwiversys::SystemTools::FileIsFullPath( file_name ) )
     {
       return file_name;
     }
@@ -593,7 +623,7 @@ public:
     // See if file can be found in the search path.
     std::string res_file =
       kwiversys::SystemTools::FindFile( file_name, this->m_search_path, true );
-    if ( "" != res_file )
+    if( "" != res_file )
     {
       return res_file;
     }
@@ -603,10 +633,12 @@ public:
     // remove duplicate paths.
     config_path_list_t include_paths;
     const auto eit = m_include_stack.rend();
-    for ( auto it = m_include_stack.rbegin(); it != eit; ++it )
+    for( auto it = m_include_stack.rbegin(); it != eit; ++it )
     {
-      config_path_t config_file_dir( kwiversys::SystemTools::GetFilenamePath( **it ) );
-      if ( "" == config_file_dir )
+      config_path_t config_file_dir( kwiversys::SystemTools::GetFilenamePath( *
+                                                                              *
+                                                                              it ) );
+      if( "" == config_file_dir )
       {
         config_file_dir = ".";
       }
@@ -636,7 +668,7 @@ public:
 
   // Include file stack. A file is pushed when it is opened. Popped
   // when closed.
-  std::vector< std::shared_ptr<std::string> > m_include_stack;
+  std::vector< std::shared_ptr< std::string > > m_include_stack;
 
   // current line number of input file
   int m_line_number;
@@ -720,4 +752,4 @@ config_parser
   return m_priv->m_config_block;
 }
 
-} } // end namespace
+} // namespace kwiver::vital

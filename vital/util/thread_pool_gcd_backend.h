@@ -4,19 +4,21 @@
 
 /**
  * \file
- * \brief Implementation of a thread pool backend using Apple Grand Central Dispatch
+ * \brief Implementation of a thread pool backend using Apple Grand Central
+ * Dispatch
  */
 
 #ifdef __APPLE__
 
 #ifndef KWIVER_VITAL_THREAD_POOL_GCD_BACKEND_H_
-#define KWIVER_VITAL_THREAD_POOL_GCD_BACKEND_H_
+# define KWIVER_VITAL_THREAD_POOL_GCD_BACKEND_H_
 
-#include <vital/util/thread_pool.h>
+# include <vital/util/thread_pool.h>
 
-#include <dispatch/dispatch.h>
+# include <dispatch/dispatch.h>
 
 namespace kwiver {
+
 namespace vital {
 
 /// A thread pool backend that uses Apple Grand Central Dispatch
@@ -28,21 +30,24 @@ public:
   static constexpr const char* static_name = "Apple GCD";
 
   /// Enqueue a void() task
-  void enqueue_task(std::function<void()> func)
+  void
+  enqueue_task( std::function< void() > func )
   {
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    std::function<void()>* f = new std::function<void()>(func);
-    dispatch_async_f(queue, f,
-        [] (void* ctx)
-        {
-          std::function<void()>* func = static_cast<std::function<void()>* >(ctx);
-          (*func)();
-          delete func;
-        });
+    dispatch_queue_t queue = dispatch_get_global_queue(
+      DISPATCH_QUEUE_PRIORITY_DEFAULT, 0 );
+    std::function< void() >* f = new std::function< void() >( func );
+    dispatch_async_f( queue, f,
+                      [](void* ctx){
+                        std::function< void() >* func =
+                          static_cast< std::function< void() >* >( ctx );
+                        ( *func )();
+                        delete func;
+                      } );
   }
 
   /// Returns the number of worker threads
-  size_t num_threads() const
+  size_t
+  num_threads() const
   {
     // GCD does not let you know how many threads it is using
     // but we would expected it to typically be the number of cores
@@ -50,14 +55,16 @@ public:
   }
 
   /// Returns the name of this backend
-  virtual const char* name() const
+  virtual const char*
+  name() const
   {
     return static_name;
   }
-
 };
 
-} }   // end namespace
+} // namespace vital
+
+} // namespace kwiver
 
 #endif
 

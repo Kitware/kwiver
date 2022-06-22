@@ -14,8 +14,7 @@
 
 #include <vital/exceptions/base.h>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // ------------------------------------------------------------------
 /// Generic image exception
@@ -24,6 +23,7 @@ class VITAL_EXCEPTIONS_EXPORT image_exception
 {
 public:
   /// Constructor
+
   /**
    * \param message     Description of circumstances surrounding error.
    */
@@ -39,8 +39,9 @@ protected:
 };
 
 // ------------------------------------------------------------------
-/// Exception for image type mismatch
+
 /**
+ * @brief Exception for image type mismatch
  * For when image type equality must be asserted.
  */
 class VITAL_EXCEPTIONS_EXPORT image_type_mismatch_exception
@@ -48,6 +49,7 @@ class VITAL_EXCEPTIONS_EXPORT image_type_mismatch_exception
 {
 public:
   /// Constructor
+
   /**
    * \param message     Description of circumstances surrounding error.
    */
@@ -58,8 +60,9 @@ public:
 };
 
 // ------------------------------------------------------------------
-/// Exception for image sizing mismatch
+
 /**
+ * @brief Exception for image sizing mismatch
  * For when image shape/size equality must be asserted.
  */
 class VITAL_EXCEPTIONS_EXPORT image_size_mismatch_exception
@@ -67,6 +70,7 @@ class VITAL_EXCEPTIONS_EXPORT image_size_mismatch_exception
 {
 public:
   /// Constructor
+
   /**
    * \param message     Description of circumstances surrounding error.
    * \param correct_w   Correct image width
@@ -90,6 +94,6 @@ public:
   size_t const m_given_h;
 };
 
-} } // end namespace
+} // namespace kwiver::vital
 
 #endif // VITAL_CORE_EXCEPTIONS_IMAGE_H

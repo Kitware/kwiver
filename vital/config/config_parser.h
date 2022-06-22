@@ -7,13 +7,13 @@
 
 #include <vital/config/config_block.h>
 
-#include <vital/noncopyable.h>
 #include <memory>
+#include <vital/noncopyable.h>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // ----------------------------------------------------------------
+
 /**
  * \brief Config file parser.
  *
@@ -31,20 +31,20 @@ namespace vital {
  * located by the calling logic.
  *
  * Example code:
-\code
-std::auto< kwiver::vital::config_parser> input_config( new kwiver::vital::config_parser() );
-input_config->add_search_path( "../config" );
-input_config->parse_config( filename );
-// Optionally, additional files can be parsed into the same config block.
-kwiver::vital::config_block_sptr blk = input_config->get_config();
-\endcode
+ *  \code
+ *  std::auto< kwiver::vital::config_parser> input_config( new
+ * kwiver::vital::config_parser() );
+ *  input_config->add_search_path( "../config" );
+ *  input_config->parse_config( filename );
+ *  // Optionally, additional files can be parsed into the same config block.
+ *  kwiver::vital::config_block_sptr blk = input_config->get_config();
+ *  \endcode
  *
  */
 class VITAL_CONFIG_EXPORT config_parser
   : private kwiver::vital::noncopyable
 {
 public:
-
   /**
    * \brief Create object
    *
@@ -53,6 +53,7 @@ public:
   ~config_parser();
 
 //@{
+
   /**
    * \brief Add directory to search path.
    *
@@ -64,6 +65,7 @@ public:
    */
   void add_search_path( config_path_t const& file_path );
   void add_search_path( config_path_list_t const& file_path );
+
 //@}
 
   /**
@@ -112,13 +114,12 @@ protected:
   // method to add token classes
 
 private:
-
   class priv;
 
   config_path_t m_config_file;
   const std::unique_ptr< priv > m_priv;
 };
 
-} } // end namespace
+} // namespace kwiver::vital
 
 #endif /* KWIVER_VITAL_CONFIG_PARSER_H */

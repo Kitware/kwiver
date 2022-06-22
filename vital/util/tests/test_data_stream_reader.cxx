@@ -14,14 +14,15 @@
 #include <sstream>
 
 // ----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int
+main( int argc, char** argv )
 {
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
 }
 
 // ----------------------------------------------------------------------------
-TEST(data_stream_reader,  test)
+TEST ( data_stream_reader,  test )
 {
   std::stringstream str;
 

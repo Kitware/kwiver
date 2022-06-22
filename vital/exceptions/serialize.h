@@ -14,8 +14,7 @@
 
 #include <vital/exceptions/base.h>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // ----------------------------------------------------------------------------
 class VITAL_EXCEPTIONS_EXPORT serialization_exception
@@ -28,6 +27,6 @@ public:
   virtual ~serialization_exception() noexcept;
 };
 
-} } // end namespace
+} // namespace kwiver::vital
 
 #endif // VITAL_CORE_EXCEPTIONS_SERIALIZATION_H_

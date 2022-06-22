@@ -17,19 +17,20 @@
 using namespace kwiver::vital;
 
 // ----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int
+main( int argc, char** argv )
 {
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
 }
 
 // ----------------------------------------------------------------------------
-TEST(any_converter, conversions)
+TEST ( any_converter, conversions )
 {
-  any_converter<int> any_to_int;
+  any_converter< int > any_to_int;
 
-  any_to_int.add_converter<uint8_t>();  // add converter from uint8_t;
-  any_to_int.add_converter<float>();    // add converter from float;
+  any_to_int.add_converter< uint8_t >();  // add converter from uint8_t;
+  any_to_int.add_converter< float >();    // add converter from float;
 
   std::any ui8 = uint8_t{ 123 };
   std::any fl = float{ 123.45f };
@@ -48,13 +49,15 @@ TEST(any_converter, conversions)
 
 // make a custom specialization
 namespace kwiver {
+
 namespace vital {
+
 namespace any_convert {
 
 // ----------------------------------------------------------------------------
 template <>
-struct converter<bool, std::string>
-  : public convert_base<bool>
+struct converter< bool, std::string >
+  : public convert_base< bool >
 {
   // --------------------------------------------------------------------------
   converter()
@@ -83,37 +86,45 @@ struct converter<bool, std::string>
   virtual ~converter() = default;
 
   // --------------------------------------------------------------------------
-  virtual bool can_convert( std::any const & data ) const
+  virtual bool
+  can_convert( std::any const& data ) const
   {
     return ( data.type() == typeid( std::string ) ) &&
-           convert_map.find( std::any_cast<std::string>( data ) ) != convert_map.end();
+           convert_map.find( std::any_cast< std::string >( data ) ) !=
+           convert_map.end();
   }
 
   // --------------------------------------------------------------------------
-  virtual bool convert( std::any const& data ) const
+  virtual bool
+  convert( std::any const& data ) const
   {
-    auto const it = convert_map.find( std::any_cast<std::string>( data ) );
-    if ( it != convert_map.end() )
+    auto const it = convert_map.find( std::any_cast< std::string >( data ) );
+    if( it != convert_map.end() )
     {
       return it->second;
     }
-    throw kwiver::vital::bad_any_cast( typeid( bool ).name(), typeid( std::string ).name() );
+    throw kwiver::vital::bad_any_cast( typeid( bool ).name(),
+                                       typeid( std::string ).name() );
   }
 
 private:
-  std::unordered_map<std::string, bool> convert_map;
+  std::unordered_map< std::string, bool > convert_map;
 };
 
-} } }     // end namespace
+} // namespace any_convert
+
+} // namespace vital
+
+} // namespace kwiver
 
 // ----------------------------------------------------------------------------
-TEST(any_converter, custom_converter)
+TEST ( any_converter, custom_converter )
 {
-  any_converter<bool> convert_to_bool;
+  any_converter< bool > convert_to_bool;
 
-  convert_to_bool.add_converter<bool>(); // self type needs to be added too
-  convert_to_bool.add_converter<int>();
-  convert_to_bool.add_converter<std::string>(); // Use custom converter
+  convert_to_bool.add_converter< bool >(); // self type needs to be added too
+  convert_to_bool.add_converter< int >();
+  convert_to_bool.add_converter< std::string >(); // Use custom converter
 
   std::string value;
 

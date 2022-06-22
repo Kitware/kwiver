@@ -132,8 +132,6 @@ configure_file(
 #
 # -- Creates library "vital_exceptions"
 add_subdirectory( exceptions )
-# -- NO LIBRARY YET -- (will) Creates library "vital_types"
-add_subdirectory( types )
 # -- Creates library "vital_util"
 add_subdirectory( util )
 # -- Creates library "vital_logger"
@@ -142,8 +140,12 @@ add_subdirectory( logger )
 # -- Creates library "vital_config"
 # Requires: vital_logger, vital_util (vital_types)
 add_subdirectory( config )
+# -- Creates library "vital_types"
+# Requires: vital_config
+add_subdirectory( types )
 # -- Creates library "vital_vpm"
 # Requires: vital_exceptions, vital_logger, vital_util
+# Uses common headers: typedefs.h
 add_subdirectory( plugin_management )
 # -- Created library "vital_applets"
 add_subdirectory( applets )
@@ -159,6 +161,7 @@ set( vital_public_headers
 # Shared pure headers with above "deps"
   bitflags.h
   noncopyable.h
+  typedefs.h
 
   algorithm_capabilities.h
 
@@ -347,6 +350,7 @@ target_link_libraries( vital
                   vital_util
                   vital_logger
                   vital_config
+                  vital_types
                   vital_vpm
                   vital_applets
                   Eigen3::Eigen
@@ -399,3 +403,5 @@ add_subdirectory( applets_plugins )
 #if (KWIVER_ENABLE_TESTS)
 #  add_subdirectory( tests )
 #endif()
+
+add_subdirectory( test_interface )

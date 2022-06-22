@@ -1,7 +1,10 @@
-void f() noexcept; // the function f() does not throw
-void (*fp)() noexcept(false); // fp points to a function that may throwint main()
+// the function f() does not throw
+void f() noexcept;
+// fp points to a function that may throwint main()
+void ( * fp )() noexcept( false );
 
-int main()
+int
+main()
 {
   return 0;
 }

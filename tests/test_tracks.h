@@ -5,7 +5,8 @@
 /**
  * \file
  *
- * \brief Various functions for creating a collections of tracks for running tests
+ * \brief Various functions for creating a collections of tracks for running
+ * tests
  *
  * These functions are shared by various tests
  */
@@ -17,8 +18,7 @@
 
 #include <vital/types/track_set.h>
 
-namespace kwiver {
-namespace testing {
+namespace kwiver::testing {
 
 // Generate a set of generic tracks
 //
@@ -33,24 +33,24 @@ namespace testing {
 //  if the number of tracks drops below min_tracks_per_frame, create new
 //  tracks to achieve max_tracks_per_frame.
 kwiver::vital::track_set_sptr
-generate_tracks( unsigned frames=100,
-                 unsigned max_tracks_per_frame=1000,
-                 unsigned min_tracks_per_frame=500,
+generate_tracks( unsigned frames = 100,
+                 unsigned max_tracks_per_frame = 1000,
+                 unsigned min_tracks_per_frame = 500,
                  double termination_fraction = 0.1,
                  double skip_fraction = 0.01,
                  double frame_drop_fraction = 0.01 )
 {
   using namespace kwiver::vital;
 
-  std::default_random_engine rand_gen(0);
-  std::uniform_real_distribution<double> uniform_dist(0.0, 1.0);
+  std::default_random_engine rand_gen( 0 );
+  std::uniform_real_distribution< double > uniform_dist( 0.0, 1.0 );
 
-  track_id_t track_id=0;
+  track_id_t track_id = 0;
   std::vector< track_sptr > all_tracks, active_tracks;
-  for( unsigned f=0; f<frames; ++f )
+  for( unsigned f = 0; f < frames; ++f )
   {
     // randomly decide to skip some frames
-    if( uniform_dist(rand_gen) < frame_drop_fraction )
+    if( uniform_dist( rand_gen ) < frame_drop_fraction )
     {
       continue;
     }
@@ -61,18 +61,18 @@ generate_tracks( unsigned frames=100,
       while( active_tracks.size() < max_tracks_per_frame )
       {
         auto t = track::create();
-        t->set_id(track_id++);
-        active_tracks.push_back(t);
-        all_tracks.push_back(t);
+        t->set_id( track_id++ );
+        active_tracks.push_back( t );
+        all_tracks.push_back( t );
       }
     }
 
     // add a state for each track to this frame
     for( auto t : active_tracks )
     {
-      if( t->empty() || uniform_dist(rand_gen) >= skip_fraction )
+      if( t->empty() || uniform_dist( rand_gen ) >= skip_fraction )
       {
-        t->append( std::make_shared<track_state>( f ) );
+        t->append( std::make_shared< track_state >( f ) );
       }
     }
 
@@ -80,18 +80,16 @@ generate_tracks( unsigned frames=100,
     std::vector< track_sptr > next_tracks;
     for( auto t : active_tracks )
     {
-      if( uniform_dist(rand_gen) >= termination_fraction )
+      if( uniform_dist( rand_gen ) >= termination_fraction )
       {
         next_tracks.push_back( t );
       }
     }
     active_tracks.swap( next_tracks );
-
   }
-  return std::make_shared<track_set>( all_tracks );
+  return std::make_shared< track_set >( all_tracks );
 }
 
-} // end namespace testing
-} // end namespace kwiver
+} // namespace kwiver::testing
 
 #endif

@@ -7,8 +7,7 @@
 
 #include <vital/vital_config.h>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 /**
  * Mixin class for making a class non-copyable.
@@ -16,7 +15,6 @@ namespace vital {
 class noncopyable
 {
 protected:
-
   noncopyable() = default;
   virtual ~noncopyable() = default;
 
@@ -24,6 +22,6 @@ protected:
   noncopyable& operator=( const noncopyable& ) = delete;
 };
 
-} }
+} // namespace kwiver::vital
 
 #endif /* VITAL_NONCOPYABLE_H */

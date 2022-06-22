@@ -4,13 +4,12 @@
 
 #include "data_stream_reader.h"
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
-data_stream_reader::
-data_stream_reader( std::istream& strm )
+data_stream_reader
+::data_stream_reader( std::istream& strm )
   : m_in_stream( strm ),
-  m_line_count( 0 )
+    m_line_count( 0 )
 {
   m_string_editor.add( new edit_operation::shell_comment() );
   m_string_editor.add( new edit_operation::right_trim() );
@@ -18,19 +17,19 @@ data_stream_reader( std::istream& strm )
 }
 
 data_stream_reader::
-  ~data_stream_reader()
-{ }
+~data_stream_reader()
+{}
 
 // ------------------------------------------------------------------
 bool
-data_stream_reader::
-getline( std::string& str )
+data_stream_reader
+::getline( std::string& str )
 {
   std::string line;
 
-  while ( true )
+  while( true )
   {
-    if ( ! std::getline( m_in_stream, line ) )
+    if( !std::getline( m_in_stream, line ) )
     {
       // read failed.
       return false;
@@ -38,7 +37,7 @@ getline( std::string& str )
 
     ++m_line_count;
 
-    if ( m_string_editor.edit( line ) )
+    if( m_string_editor.edit( line ) )
     {
       break;
     }
@@ -50,34 +49,33 @@ getline( std::string& str )
 
 // ------------------------------------------------------------------
 bool
-data_stream_reader::
-operator!()
+data_stream_reader::operator!()
 {
-  return ! m_in_stream.good();
+  return !m_in_stream.good();
 }
 
 // ------------------------------------------------------------------
 size_t
-data_stream_reader::
-line_number() const
+data_stream_reader
+::line_number() const
 {
-  return static_cast<size_t>(m_line_count);
+  return static_cast< size_t >( m_line_count );
 }
 
 // ------------------------------------------------------------------
 void
-data_stream_reader::
-reset_line_number( int num )
+data_stream_reader
+::reset_line_number( int num )
 {
   m_line_count = num;
 }
 
 // ------------------------------------------------------------------
 void
-data_stream_reader::
-add_editor( string_edit_operation* op )
+data_stream_reader
+::add_editor( string_edit_operation* op )
 {
   m_string_editor.add( op );
 }
 
-} }   // end namespace
+} // namespace kwiver::vital

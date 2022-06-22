@@ -14,19 +14,19 @@
 
 #include "thread_pool.h"
 
+#include <vital/logger/logger.h>
 #include <vital/util/thread_pool_builtin_backend.h>
 #include <vital/util/thread_pool_gcd_backend.h>
 #include <vital/util/thread_pool_sync_backend.h>
-#include <vital/logger/logger.h>
 
 namespace kwiver {
+
 namespace vital {
 
 /// Private implementation class
 class thread_pool::priv
 {
 public:
-
   priv()
     : logger( kwiver::vital::get_logger( "vital.thread_pool" ) )
   {
@@ -37,11 +37,13 @@ public:
   logger_handle_t logger;
 
   // a pointer to the active backend
-  std::unique_ptr<thread_pool::backend> backend;
+  std::unique_ptr< thread_pool::backend > backend;
 };
 
 /// Access the singleton instance of this class
-thread_pool& thread_pool::instance()
+thread_pool&
+thread_pool
+::instance()
 {
   static thread_pool instance;
 
@@ -49,44 +51,50 @@ thread_pool& thread_pool::instance()
 }
 
 // Constructor
-thread_pool::thread_pool()
-  : d_(new priv)
+thread_pool
+::thread_pool()
+  : d_( new priv )
 {
 }
 
 /// Returns the number of worker threads
-size_t thread_pool::num_threads() const
+size_t
+thread_pool
+::num_threads() const
 {
-  return d_->backend->num_threads();;
+  return d_->backend->num_threads();
 }
 
 /// Return the name of the active backend
 const char*
-thread_pool::active_backend() const
+thread_pool
+::active_backend() const
 {
   return d_->backend->name();
 }
 
 /// Return the names of the available backends
-std::vector<std::string>
-thread_pool::available_backends()
+std::vector< std::string >
+thread_pool
+::available_backends()
 {
-  static std::vector<std::string> available_backends_list = {
+  static std::vector< std::string > available_backends_list = {
 #if __APPLE__
     thread_pool_gcd_backend::static_name,
 #endif
     thread_pool_builtin_backend::static_name,
-    thread_pool_sync_backend::static_name
-  };
+    thread_pool_sync_backend::static_name };
 
   return available_backends_list;
 }
 
 /// Set the backend
-void thread_pool::set_backend(std::string const& backend_name)
+void
+thread_pool
+::set_backend( std::string const& backend_name )
 {
-#define TRY_BACKEND(T)                  \
-  if(backend_name == T::static_name)    \
+#define TRY_BACKEND( T )                  \
+  if( backend_name == T::static_name )    \
   {                                     \
     d_->backend.release();              \
     d_->backend.reset( new T() );       \
@@ -106,9 +114,13 @@ void thread_pool::set_backend(std::string const& backend_name)
 }
 
 /// Enqueue a void function in the thread pool
-void thread_pool::enqueue_task(std::function<void()> task)
+void
+thread_pool
+::enqueue_task( std::function< void() > task )
 {
-  d_->backend->enqueue_task(task);
+  d_->backend->enqueue_task( task );
 }
 
-} }   // end namespace
+} // namespace vital
+
+} // namespace kwiver

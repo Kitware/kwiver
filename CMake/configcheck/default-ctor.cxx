@@ -1,19 +1,20 @@
 struct Foo
 {
-  Foo() { }
-  Foo(const Foo&) = default;
+  Foo() {}
+  Foo( const Foo& ) = default;
   virtual ~Foo() = default; // c++11 feature
 };
 
 struct Bar
 {
-  Bar() { }
-  Bar(const Bar&) = delete;
+  Bar() {}
+  Bar( const Bar& ) = delete;
   Bar& operator=( const Bar& ) = delete;
-  virtual ~Bar() { }
+  virtual ~Bar() {}
 };
 
-int main()
+int
+main()
 {
   Foo foo;
   Bar bar;
