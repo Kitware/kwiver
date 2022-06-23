@@ -185,9 +185,21 @@ plugin_loader
   // Also, the human-readable plugin name.
   std::string interface_type, concrete_type, plugin_name;
   // TODO: Error if any of these are not set.
-  fact->get_attribute( plugin_factory::INTERFACE_TYPE, interface_type );
-  fact->get_attribute( plugin_factory::CONCRETE_TYPE, concrete_type );
-  fact->get_attribute( plugin_factory::PLUGIN_NAME, plugin_name );
+  if( !fact->get_attribute( plugin_factory::INTERFACE_TYPE, interface_type ) )
+  {
+    VITAL_THROW( plugin_factory_missing_required_attrs,
+                 "Missing required INTERFACE_TYPE attribute." );
+  }
+  if( !fact->get_attribute( plugin_factory::CONCRETE_TYPE, concrete_type ) )
+  {
+    VITAL_THROW( plugin_factory_missing_required_attrs,
+                 "Missing required CONCRETE_TYPE attribute." );
+  }
+  if( !fact->get_attribute( plugin_factory::PLUGIN_NAME, plugin_name ) )
+  {
+    VITAL_THROW( plugin_factory_missing_required_attrs,
+                 "Missing required PLUGIN_NAME attribute." );
+  }
 
   auto& fact_list = m_impl->m_plugin_map[ interface_type ];
   // Don't save this factory if we have already loaded it.
