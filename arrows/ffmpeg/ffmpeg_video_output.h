@@ -3,17 +3,17 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Declaration of FFmpeg video writer.
+/// Declaration of FFmpeg video writer.
 
 #ifndef KWIVER_ARROWS_FFMPEG_FFMPEG_VIDEO_OUTPUT_H
-# define KWIVER_ARROWS_FFMPEG_FFMPEG_VIDEO_OUTPUT_H
+#define KWIVER_ARROWS_FFMPEG_FFMPEG_VIDEO_OUTPUT_H
 
-# include <arrows/ffmpeg/kwiver_algo_ffmpeg_export.h>
+#include <arrows/ffmpeg/kwiver_algo_ffmpeg_export.h>
 
-# include <vital/algo/video_output.h>
+#include <vital/algo/video_output.h>
 
-# include <vital/types/image_container.h>
-# include <vital/types/timestamp.h>
+#include <vital/types/image_container.h>
+#include <vital/types/timestamp.h>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -51,11 +51,11 @@ public:
   bool good() const override;
 
   void add_image(
-    kwiver::vital::image_container_sptr const& image,
-    kwiver::vital::timestamp const& ts ) override;
+    vital::image_container_sptr const& image,
+    vital::timestamp const& ts ) override;
   void add_image( vital::video_raw_image const& image );
 
-  void add_metadata( kwiver::vital::metadata const& md ) override;
+  void add_metadata( vital::metadata const& md ) override;
 
   vital::video_settings_uptr implementation_settings() const override;
 

@@ -63,38 +63,6 @@ namespace ffmpeg {
 
 namespace {
 
-// --------------------------------------------------------------------------
-template< class... Args >
-inline void throw_error( Args... args )
-{
-  std::stringstream ss;
-  bool dummy[] = { ( ss << args ).good()... };
-  ( void )dummy;
-  throw std::runtime_error( ss.str() );
-}
-
-// --------------------------------------------------------------------------
-template< class... Args >
-inline int throw_error_code( int error_code, Args... args )
-{
-  if( error_code < 0 )
-  {
-    throw_error( args..., ": ", error_string( error_code ) );
-  }
-  return error_code;
-}
-
-// --------------------------------------------------------------------------
-template< class T, class... Args >
-inline T* throw_error_null( T* ptr, Args... args )
-{
-  if( !ptr )
-  {
-    throw_error( args... );
-  }
-  return ptr;
-}
-
 // ----------------------------------------------------------------------------
 struct ffmpeg_klv_stream
 {
