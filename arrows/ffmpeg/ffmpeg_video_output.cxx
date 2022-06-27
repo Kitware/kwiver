@@ -535,13 +535,15 @@ ffmpeg_video_output::impl::open_video_state
 
   // Specify which conversion to perform
   image_conversion_context.reset(
-    sws_getCachedContext(
-      image_conversion_context.release(),
-      image->width(), image->height(),
-      static_cast< AVPixelFormat >( frame->format ),
-      image->width(), image->height(),
-      static_cast< AVPixelFormat >( converted_frame->format ),
-      SWS_BICUBIC, nullptr, nullptr, nullptr ) );
+    throw_error_null(
+      sws_getCachedContext(
+        image_conversion_context.release(),
+        image->width(), image->height(),
+        static_cast< AVPixelFormat >( frame->format ),
+        image->width(), image->height(),
+        static_cast< AVPixelFormat >( converted_frame->format ),
+        SWS_BICUBIC, nullptr, nullptr, nullptr ),
+      "Could not create image conversion context" ) );
 
   // Convert the pixel format
   throw_error_code(

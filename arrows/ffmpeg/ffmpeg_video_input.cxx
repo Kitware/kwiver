@@ -466,11 +466,13 @@ ffmpeg_video_input::priv::frame_state
 
   // Get image converter
   parent->image_conversion_context.reset(
-    sws_getCachedContext(
-      parent->image_conversion_context.release(),
-      width, height, src_pix_fmt,
-      width, height, dst_pix_fmt,
-      SWS_BICUBIC, nullptr, nullptr, nullptr ) );
+    throw_error_null(
+      sws_getCachedContext(
+        parent->image_conversion_context.release(),
+        width, height, src_pix_fmt,
+        width, height, dst_pix_fmt,
+        SWS_BICUBIC, nullptr, nullptr, nullptr ),
+      "Could not create image conversion context" ) );
 
   // Setup frame to receive converted image
   processed_frame->width = width;
