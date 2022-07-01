@@ -60,7 +60,7 @@ private:
   std::set<std::string> m_keep_classes;
   double m_threshold;
   bool m_remove_non_class_scores;
-  bool m_required_count;
+  unsigned m_required_count;
   unsigned m_top_category_only;
 };
 
