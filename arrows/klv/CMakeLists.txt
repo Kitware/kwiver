@@ -18,6 +18,8 @@ set( sources
   klv_tag_traits.cxx
   klv_timeline.cxx
   klv_unimplemented.cxx
+  klv_update_intervals.cxx
+  klv_update_tracker.cxx
   klv_uuid.cxx
   klv_value.cxx
   klv_0102.cxx
@@ -69,6 +71,7 @@ set( public_headers
   klv_set.h
   klv_timeline.h
   klv_unimplemented.h
+  klv_update_intervals.h
   klv_value.h
   klv_0102.h
   klv_0104.h
@@ -108,7 +111,9 @@ set( public_headers
 set( private_headers
   klv_data_format.h
   klv_length_value.h
+  klv_key_traits.h
   klv_read_write.h
+  klv_update_tracker.h
   klv_util.h
 )
 
