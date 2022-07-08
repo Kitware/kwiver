@@ -383,7 +383,7 @@ public:
   vital::track_map_t m_track_map;
 
   // random-number engine used (Mersenne-Twister in this case)
-  std::mt19937 m_rng{std::random_device{}()};
+  mutable std::mt19937 m_rng{std::random_device{}()};
 
   double m_reverse_ba_error_ratio = 0.0;
   bool m_solution_was_fit_to_constraints = false;
@@ -2917,7 +2917,7 @@ initialize_cameras_landmarks::priv
   }
   if (!min_diff_cams.empty())
   {
-    std::random_shuffle(min_diff_cams.begin(), min_diff_cams.end());
+    std::shuffle(min_diff_cams.begin(), min_diff_cams.end(), m_rng);
     fid_to_register = min_diff_cams.begin()->first;
     closest_frame = min_diff_cams.begin()->second;
     return true;
@@ -2975,7 +2975,7 @@ initialize_cameras_landmarks::priv
   {
     lm_ids.push_back(lm.first);
   }
-  std::random_shuffle(lm_ids.begin(), lm_ids.end());
+  std::shuffle(lm_ids.begin(), lm_ids.end(), m_rng);
   map_landmark_t cur_landmarks_rand_sub;
   for (auto lm_id : lm_ids)
   {
