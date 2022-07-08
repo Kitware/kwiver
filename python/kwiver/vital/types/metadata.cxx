@@ -49,7 +49,7 @@ from_py( vital_metadata_tag tag, py::object data ) {
 // ----------------------------------------------------------------------------
 py::object
 to_py( metadata_value const& data ) {
-  return visit( to_py_visitor{}, data );
+  return kwiver::vital::visit( to_py_visitor{}, data );
 }
 
 // ----------------------------------------------------------------------------

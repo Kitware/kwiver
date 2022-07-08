@@ -310,8 +310,10 @@ compute_depth
   d_->ref_cam = cameras[ref_frame];
   vil_image_view<double> g;
 
-  cost_volume_callback_t cv_callback = std::bind1st(std::mem_fun(
-    &compute_depth::priv::cost_volume_update_callback), this->d_.get());
+  cost_volume_callback_t cv_callback =
+    [ this ]( unsigned int slice_num ) -> bool {
+      return this->d_->cost_volume_update_callback( slice_num );
+    };
   if (!compute_world_cost_volume(frames, cameras, ws.get(), ref_frame,
                                  d_->num_slices, d_->cost_volume,
                                  cv_callback, masks))
@@ -333,9 +335,9 @@ compute_depth
   }
   else
   {
-    std::function<bool (depth_refinement_monitor::update_data)> f;
-    f = std::bind1st(std::mem_fun(&compute_depth::priv::iterative_update_callback),
-                     this->d_.get());
+    auto f = [ this ]( depth_refinement_monitor::update_data data ) -> bool {
+      return this->d_->iterative_update_callback( data );
+    };
     depth_refinement_monitor *drm =
       new depth_refinement_monitor(f, d_->callback_interval);
     refine_depth(d_->cost_volume, g, height_map, d_->iterations,
