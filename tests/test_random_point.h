@@ -2,52 +2,69 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- *
- * \brief Functions for creating test points with added random Gaussian noise.
- *
- */
+/// \file
+/// Functions for creating test points with added random Gaussian noise.
 
-#ifndef ALGORITHMS_TEST_TEST_RANDOM_POINT_H_
-#define ALGORITHMS_TEST_TEST_RANDOM_POINT_H_
+#ifndef KWIVER_TESTS_TEST_RANDOM_POINT_H_
+#define KWIVER_TESTS_TEST_RANDOM_POINT_H_
 
-#include <vital/vital_config.h>
 #include <vital/types/vector.h>
+#include <vital/vital_config.h>
 
 #include <random>
 
 namespace kwiver {
+
 namespace testing {
 
-/// random number generator type
-typedef std::mt19937 rng_t;
+/// Random number generator type
+using rng_t = std::mt19937;
 
-/// normal distribution
-typedef std::normal_distribution<> norm_dist_t;
+/// Normal distribution
+using norm_dist_t = std::normal_distribution< double >;
 
-/// a global random number generator instance
+/// Global random number generator instance
 static rng_t rng;
 
 // ------------------------------------------------------------------
-inline
-kwiver::vital::vector_3d random_point3d(double stdev)
+// Limit occasional outliers in the normal distribution.
+inline double
+bounded_normal_noise( double stdev, double max_stdevs )
 {
+  auto result = 0.0;
+  if( stdev <= 0.0 || max_stdevs <= 0.0 )
+  {
+    return result;
+  }
+
   norm_dist_t norm( 0.0, stdev );
-  kwiver::vital::vector_3d v(norm(rng), norm(rng), norm(rng));
-  return v;
+  do
+  {
+    result = norm( rng );
+  } while( std::abs( result / stdev ) > max_stdevs );
+  return result;
 }
 
 // ------------------------------------------------------------------
-inline
-kwiver::vital::vector_2d random_point2d(double stdev)
+inline kwiver::vital::vector_3d
+random_point3d( double stdev )
 {
-  norm_dist_t norm( 0.0, stdev );
-  kwiver::vital::vector_2d v(norm(rng), norm(rng));
-  return v;
+  auto const generate =
+    [ stdev ](){ return bounded_normal_noise( stdev, 2.0 ); };
+  return { generate(), generate(), generate() };
+}
+
+// ------------------------------------------------------------------
+inline kwiver::vital::vector_2d
+random_point2d( double stdev )
+{
+  auto const generate =
+    [ stdev ](){ return bounded_normal_noise( stdev, 2.0 ); };
+  return { generate(), generate() };
 }
 
 } // end namespace testing
+
 } // end namespace kwiver
 
-#endif // ALGORITHMS_TEST_TEST_RANDOM_POINT_H_
+#endif
