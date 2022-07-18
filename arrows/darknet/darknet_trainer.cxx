@@ -62,8 +62,10 @@ public:
     , m_min_train_box_length( 5 )
     , m_batch_size( 64 )
     , m_batch_subdivisions( 16 )
-    , m_sample_counter( 0 )
-    , m_truth_counter( 0 )
+    , m_output_chip_counter( 0 )
+    , m_total_entry_counter( 0 )
+    , m_truth_chip_counter( 0 )
+    , m_no_truth_chip_counter( 0 )
     , m_image_loaded_successfully( false )
     , m_channel_count( 0 )
   {}
@@ -95,8 +97,10 @@ public:
   int m_min_train_box_length;
   int m_batch_size;
   int m_batch_subdivisions;
-  int m_sample_counter;
-  int m_truth_counter;
+  int m_output_chip_counter;
+  int m_total_entry_counter;
+  int m_truth_chip_counter;
+  int m_no_truth_chip_counter;
 
   // Helper functions
   void format_images(
@@ -437,8 +441,8 @@ darknet_trainer
     header_args = header_args + "," + std::to_string( d->m_batch_size );
     header_args = header_args + "," + std::to_string( d->m_batch_subdivisions );
     header_args = header_args + "," + eq + d->m_net_config + eq;
-    header_args = header_args + "," + std::to_string( d->m_sample_counter );
-    header_args = header_args + "," + std::to_string( d->m_truth_counter );
+    header_args = header_args + "," + std::to_string( d->m_output_chip_counter );
+    header_args = header_args + "," + std::to_string( d->m_total_entry_counter );
     header_args = header_args + "," + eq + d->m_output_model_name + eq;
 
 #ifdef WIN32
@@ -595,48 +599,8 @@ darknet_trainer::priv
   std::vector< kwiver::vital::detected_object_set_sptr > groundtruth,
   vital::category_hierarchy_sptr object_labels )
 {
-  double negative_ds_factor = -1.0;
-
-  if( m_max_neg_ratio > 0.0 && groundtruth.size() > 10 )
-  {
-    unsigned gt = 0, no_gt = 0;
-
-    for( unsigned i = 0; i < groundtruth.size(); ++i )
-    {
-      if( groundtruth[i] && !groundtruth[i]->empty() )
-      {
-        gt++;
-      }
-      else
-      {
-        no_gt++;
-      }
-    }
-
-    if( no_gt > 0 && gt > 0 )
-    {
-      double current_ratio = static_cast< double >( no_gt ) / gt;
-
-      if( current_ratio <= m_max_neg_ratio )
-      {
-        negative_ds_factor = m_max_neg_ratio / current_ratio;
-      }
-      else
-      {
-        negative_ds_factor = 1.0;
-      }
-    }
-  }
-
   for( unsigned fid = 0; fid < image_names.size(); ++fid )
   {
-    if( negative_ds_factor > 0.0 &&
-        ( !groundtruth[fid] || groundtruth[fid]->empty() ) &&
-        rand() / RAND_MAX > negative_ds_factor )
-    {
-      continue;
-    }
-
     const std::string image_fn = image_names[fid];
 
     // Scale and break up image according to settings
@@ -891,10 +855,25 @@ darknet_trainer::priv
   {
     std::ofstream fout( filename.c_str() );
 
+    if( m_max_neg_ratio > 0.0 && !to_write.empty() )
+    {
+      m_truth_chip_counter++;
+    }
+    else if( m_max_neg_ratio > 0.0 && to_write.empty() )
+    {
+      if( static_cast< double >( m_no_truth_chip_counter ) /
+            m_truth_chip_counter > m_max_neg_ratio )
+      {
+        return false;
+      }
+
+      m_no_truth_chip_counter++;
+    }
+
     for( std::string line : to_write )
     {
       fout << line << std::endl;
-      m_truth_counter++;
+      m_total_entry_counter++;
     }
 
     fout.close();
@@ -947,7 +926,7 @@ darknet_trainer::priv
           kwiver::arrows::ocv::image_container::BGR_COLOR ) ) );
   }
 
-  m_sample_counter++;
+  m_output_chip_counter++;
 }
 
 int
