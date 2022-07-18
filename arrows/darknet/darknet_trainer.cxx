@@ -617,9 +617,13 @@ darknet_trainer::priv
     {
       double current_ratio = static_cast< double >( no_gt ) / gt;
 
-      if( current_ratio > m_max_neg_ratio )
+      if( current_ratio <= m_max_neg_ratio )
       {
         negative_ds_factor = m_max_neg_ratio / current_ratio;
+      }
+      else
+      {
+        negative_ds_factor = 1.0;
       }
     }
   }
