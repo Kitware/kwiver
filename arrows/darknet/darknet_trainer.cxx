@@ -306,7 +306,7 @@ darknet_trainer
 
   std::string model_type = config->get_value< std::string >( "model_type" );
 
-  if( model_type != "yolov2" && model_type != "yolov3" && model_type != "yolov4" )
+  if( model_type.size() < 5 || model_type.substr( 0, 5 ) != "yolov" )
   {
     LOG_ERROR( d->m_logger, "invalid model type " << model_type );
     return false;
