@@ -1,31 +1,6 @@
-# ckwg +29
-# Copyright 2020 by Kitware, Inc.
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-#  * Redistributions of source code must retain the above copyright notice,
-#    this list of conditions and the following disclaimer.
-#
-#  * Redistributions in binary form must reproduce the above copyright notice,
-#    this list of conditions and the following disclaimer in the documentation
-#    and/or other materials provided with the distribution.
-#
-#  * Neither name of Kitware, Inc. nor the names of any contributors may be used
-#    to endorse or promote products derived from this software without specific
-#    prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
-# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# This file is part of KWIVER, and is distributed under the
+# OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+# https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 import logging
 
@@ -48,28 +23,16 @@ from .stabilize_many_images import (
 
 logger = logging.getLogger(__name__)
 
-def get_suppression_homogs_and_sizes(
-        multihomog, sizes, prev_multihomog, prev_sizes):
-    """Compute for each camera transformations to other frames that
-    suppress its detections and their sizes
+zero_homog_and_size = (np.empty((0, 3, 3)), np.empty((0, 2), dtype=int))
 
-    Returns a list of pairs, one per camera, where the first element
-    is an ndarray of homographies from the camera to suppressing
-    frames and the second is an ndarray of those frames' sizes.
+def get_self_suppression_homogs_and_sizes(multihomog, sizes):
+    """Get suppression homographies and sizes within a single timestep
+
+    Returns a value suitable for supplying as arg_suppress_boxes's
+    suppression_homogs_and_sizes argument.
 
     """
-    zero_homog_and_size = (np.empty((0, 3, 3)), np.empty((0, 2), dtype=int))
-    if prev_multihomog is None or multihomog.to_id != prev_multihomog.to_id:
-        prev_homogs_and_sizes = len(multihomog) * [zero_homog_and_size]
-    else:
-        prev_homogs_and_sizes = [
-            (to_prev[s], prev_sizes[s])
-            for cam, to_prev in enumerate(diff_homogs(
-                    multihomog.homogs, prev_multihomog.homogs,
-            ))
-            for s in [np.s_[max(0, cam - 1):min(cam + 2, len(prev_multihomog))]]
-        ]
-    curr_homogs_and_sizes = [
+    return [
         zero_homog_and_size if cam == hc else (to_curr[s], sizes[s])
         for cam, to_curr in enumerate(diff_homogs(
                 multihomog.homogs, multihomog.homogs,
@@ -79,13 +42,43 @@ def get_suppression_homogs_and_sizes(
         # stabilize_many_images works
         for s in [np.s_[min(cam + 1, hc):max(cam, hc + 1)]]
     ]
-    return [(np.concatenate([ph, ch]), np.concatenate([ps, cs]))
-            for (ph, ps), (ch, cs)
-            in zip(prev_homogs_and_sizes, curr_homogs_and_sizes)]
+
+def concat_suppression_homogs_and_sizes(*args):
+    """Combine multiple values suitable for supplying as
+    arg_suppress_boxes's suppression_homogs_and_sizes argument into
+    one
+
+    """
+    if not args:
+        raise ValueError("At least one argument required")
+    ncam = len(args[0])
+    if any(len(arg) != ncam for arg in args):
+        raise ValueError("Arguments must have a consistent number of cameras")
+    result = []
+    for args_single_cam in zip(*args):
+        homogs, sizes = zip(*args_single_cam)
+        result.append((np.concatenate(homogs), np.concatenate(sizes)))
+    return result
 
 def arg_suppress_boxes(box_lists, suppression_homogs_and_sizes):
-    """Return a list of iterables of bools, False when the corresponding
-    BBox should have been in the previous frame.
+    """Compute whether bounding boxes should be kept after suppression
+
+    Arguments:
+    - box_lists (list[list[.simple_homog_tracker.BBox]]): bounding
+      boxes, where the elements of the outer list correspond to the
+      different cameras
+    - suppression_homogs_and_sizes (list[tuple[ndarray, ndarray]]):
+      transformations to previous frames and those frames' sizes.  The
+      elements of the list correspond to the different cameras.  Each
+      pair holds:
+      - homogs: Nx3x3 ndarray whose first dimension corresponds to
+        the previous frames that suppress detections for this camera.
+        Each element is a homography that warps camera coordinates to
+        previous-frame coordinates.
+      - sizes: Nx2 ndarray with the image sizes of the previous frames
+
+    Returns list[list[bool]], False when the corresponding BBox's
+    center should have been in a previous frame.
 
     """
     def center_in_bounds(box, homogs, sizes):
@@ -160,8 +153,61 @@ def wrap_poly(poly, class_):
     return result
 
 @Transformer.decorate
-def suppress(suppression_poly_class=None):
+def find_prev_suppression_homogs_and_sizes():
+    """Get suppressing frames from the previous timestep
+
+    Only cameras with the same or an adjacent index are used to
+    suppress a given camera.
+
+    The .step call expects parameters two parameters, multihomog and
+    sizes, and returns a value suitable for supplying as
+    arg_suppress_boxes's suppression_homogs_and_sizes argument.
+
+    """
     prev_multihomog = prev_sizes = None
+    output = None
+    while True:
+        multihomog, sizes = yield output
+        if prev_multihomog is None or multihomog.to_id != prev_multihomog.to_id:
+            output = len(multihomog) * [zero_homog_and_size]
+        else:
+            output = [
+                (to_prev[s], prev_sizes[s])
+                for cam, to_prev in enumerate(diff_homogs(
+                        multihomog.homogs, prev_multihomog.homogs,
+                ))
+                for s in [np.s_[max(0, cam - 1)
+                                : min(cam + 2, len(prev_multihomog))]]
+            ]
+        prev_multihomog, prev_sizes = multihomog, sizes
+
+@Transformer.decorate
+def find_all_suppression_homogs_and_sizes():
+    frames_by_ref = {}
+    output = None
+    while True:
+        multihomog, sizes = yield output
+        try:
+            prev_homogs, prev_sizes = frames_by_ref[multihomog.to_id]
+        except KeyError:
+            prev_homogs, prev_sizes = [], zero_homog_and_size[1]
+            output = len(multihomog) * [zero_homog_and_size]
+        else:
+            output = [(
+                to_prev, prev_sizes,
+            ) for to_prev in diff_homogs(multihomog.homogs, prev_homogs)]
+        prev_homogs.extend(multihomog.homogs)
+        prev_sizes = np.concatenate([prev_sizes, sizes])
+        frames_by_ref[multihomog.to_id] = prev_homogs, prev_sizes
+
+@Transformer.decorate
+def suppress(suppression_poly_class=None, *, past_frames):
+    if past_frames == 'prev_neighbors':
+        fshs = find_prev_suppression_homogs_and_sizes()
+    elif past_frames == 'all':
+        fshs = find_all_suppression_homogs_and_sizes()
+    else:
+        raise ValueError("Invalid value for past_frames")
     output = None
     while True:
         dhss, = yield output
@@ -170,8 +216,9 @@ def suppress(suppression_poly_class=None):
         multihomog = MultiHomographyF2F.from_homographyf2fs(map(wrap_F2FHomography, homogs))
         do_lists = list(map(to_DetectedObject_list, do_sets))
         boxes = (map(get_DetectedObject_bbox, dos) for dos in do_lists)
-        shs = get_suppression_homogs_and_sizes(multihomog, sizes,
-                                               prev_multihomog, prev_sizes)
+        prev_shs = fshs.step(multihomog, sizes)
+        curr_shs = get_self_suppression_homogs_and_sizes(multihomog, sizes)
+        shs = concat_suppression_homogs_and_sizes(prev_shs, curr_shs)
         keep_its = arg_suppress_boxes(boxes, shs)
         if suppression_poly_class is None:
             poly_dets = [()] * len(do_lists)
@@ -183,7 +230,6 @@ def suppress(suppression_poly_class=None):
                 return np.where(p, p, 0)  # Replace -0 with 0
             poly_dets = ((wrap_poly(n(p), suppression_poly_class) for p in ps)
                          for ps in suppression_polys(shs, sizes))
-        prev_multihomog, prev_sizes = multihomog, sizes
         output = [
             DetectedObjectSet([*(do for k, do in zip(keep, dos) if k), *pd])
             for keep, dos, pd in zip(keep_its, do_lists, poly_dets)
@@ -197,6 +243,12 @@ class MulticamHomogDetSuppressor(KwiverProcess):
         add_declare_config(self, 'suppression_poly_class', '',
                            'If not empty, include polygons indicating the'
                            ' suppressed area with this class')
+        add_declare_config(self, 'past_frames', 'prev_neighbors', (
+            'Which past frames to use for suppression.  Valid values are'
+            ' "prev_neighbors" (previous frame and same and neighboring'
+            ' cameras only; this is the default) and "all" (all past frames'
+            ' and cameras)'
+        ))
 
         optional = process.PortFlags()
         required = process.PortFlags()
@@ -218,7 +270,8 @@ class MulticamHomogDetSuppressor(KwiverProcess):
         # XXX actually use this
         self._n_input = int(self.config_value('n_input'))
         spc = self.config_value('suppression_poly_class') or None
-        self._suppressor = suppress(spc)
+        pf = self.config_value('past_frames')
+        self._suppressor = suppress(spc, past_frames=pf)
         self._base_configure()
 
     def _step(self):
