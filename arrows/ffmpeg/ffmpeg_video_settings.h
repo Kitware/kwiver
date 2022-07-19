@@ -3,11 +3,12 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Declaration of FFmpeg video settings.
+/// Declaration of FFmpeg video settings.
 
 #ifndef KWIVER_ARROWS_FFMPEG_FFMPEG_VIDEO_SETTINGS_H_
 #define KWIVER_ARROWS_FFMPEG_FFMPEG_VIDEO_SETTINGS_H_
 
+#include <arrows/ffmpeg/ffmpeg_util.h>
 #include <arrows/ffmpeg/kwiver_algo_ffmpeg_export.h>
 
 #include <vital/types/video_settings.h>
@@ -24,22 +25,6 @@ namespace arrows {
 
 namespace ffmpeg {
 
-namespace ffmpeg_detail {
-
-struct avcodec_parameters_deleter
-{
-  void
-  operator()( AVCodecParameters* ptr ) const
-  {
-    avcodec_parameters_free( &ptr );
-  }
-};
-
-using avcodec_parameters_uptr =
-  std::unique_ptr< AVCodecParameters, avcodec_parameters_deleter >;
-
-} // namespace ffmpeg_detail
-
 // ----------------------------------------------------------------------------
 struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
   : public vital::video_settings
@@ -51,8 +36,10 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
     AVRational frame_rate,
     size_t klv_stream_count );
 
+  ~ffmpeg_video_settings();
+
   AVRational frame_rate;
-  ffmpeg_detail::avcodec_parameters_uptr parameters;
+  codec_parameters_uptr parameters;
   size_t klv_stream_count;
 };
 using ffmpeg_video_settings_uptr = std::unique_ptr< ffmpeg_video_settings >;
