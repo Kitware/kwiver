@@ -13,7 +13,7 @@ using namespace kwiver::arrows;
 
 using ocv::estimate_fundamental_matrix;
 
-static constexpr double ideal_tolerance = 1e-6;
+static constexpr double ideal_tolerance = 3e-6;
 static constexpr double outlier_tolerance = 0.01;
 
 // ----------------------------------------------------------------------------

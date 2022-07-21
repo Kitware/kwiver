@@ -192,12 +192,13 @@ TEST(estimate_fundamental_matrix, outlier_points)
   // extract corresponding image points
   unsigned int i = 0;
   std::vector<vector_2d> pts1, pts2;
+  kwiver::testing::rng_t rng( 1 );
   for ( auto const& track : tracks->tracks() )
   {
     if ( ++i % 3 == 0 )
     {
-      pts1.push_back( kwiver::testing::random_point2d( 1000.0 ) );
-      pts2.push_back( kwiver::testing::random_point2d( 1000.0 ) );
+      pts1.push_back( kwiver::testing::random_point2d( 1000.0, rng ) );
+      pts2.push_back( kwiver::testing::random_point2d( 1000.0, rng ) );
     }
     else
     {

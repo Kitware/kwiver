@@ -128,13 +128,14 @@ noisy_landmarks( kwiver::vital::landmark_map_sptr  landmarks,
 {
   using namespace kwiver::vital;
 
+  kwiver::testing::rng_t rng( 1 );
   landmark_map::map_landmark_t lm_map = landmarks->landmarks();
   for( landmark_map::map_landmark_t::value_type& p : lm_map )
   {
     landmark_sptr l = p.second->clone();
     landmark_d& lm = dynamic_cast<landmark_d&>(*l);
 
-    lm.set_loc( lm.get_loc() + random_point3d( stdev ) );
+    lm.set_loc( lm.get_loc() + random_point3d( stdev, rng ) );
     lm_map[p.first] = l;
   }
   return landmark_map_sptr( new simple_landmark_map( lm_map ) );
@@ -218,6 +219,7 @@ noisy_cameras( kwiver::vital::camera_map_sptr cameras,
   using namespace kwiver::vital;
 
   camera_map::map_camera_t cam_map;
+  kwiver::testing::rng_t rng( 1 );
   for( camera_map::map_camera_t::value_type const& p : cameras->cameras() )
   {
     auto cam_ptr = std::dynamic_pointer_cast<vital::camera_perspective>(p.second);
@@ -226,8 +228,8 @@ noisy_cameras( kwiver::vital::camera_map_sptr cameras,
     simple_camera_perspective& cam =
       dynamic_cast<simple_camera_perspective&>(*c);
 
-    cam.set_center( cam.get_center() + random_point3d( pos_stdev ) );
-    rotation_d rand_rot( random_point3d( rot_stdev ) );
+    cam.set_center( cam.get_center() + random_point3d( pos_stdev, rng ) );
+    rotation_d rand_rot( random_point3d( rot_stdev, rng ) );
     cam.set_rotation( cam.get_rotation() * rand_rot );
 
     cam_map[p.first] = c;
@@ -277,6 +279,7 @@ noisy_tracks( kwiver::vital::feature_track_set_sptr in_tracks, double stdev = 1.
 
   std::vector< track_sptr > tracks = in_tracks->tracks();
   std::vector< track_sptr > new_tracks;
+  kwiver::testing::rng_t rng( 1 );
   for( const track_sptr &t : tracks )
   {
     auto nt = track::create();
@@ -288,7 +291,7 @@ noisy_tracks( kwiver::vital::feature_track_set_sptr in_tracks, double stdev = 1.
       {
         continue;
       }
-      vector_2d loc = fts->feature->loc() + random_point2d(stdev);
+      vector_2d loc = fts->feature->loc() + random_point2d( stdev, rng );
       auto new_fts = std::make_shared<feature_track_state>(*fts);
       new_fts->feature = std::make_shared<feature_d>(loc);
       nt->append(new_fts);
@@ -307,7 +310,7 @@ add_outliers_to_tracks(kwiver::vital::feature_track_set_sptr in_tracks,
 {
   using namespace kwiver::vital;
 
-  std::srand(0);
+  kwiver::testing::rng_t rng( 1 );
   std::vector<track_sptr> tracks = in_tracks->tracks();
   std::vector<track_sptr> new_tracks;
   const int rand_thresh = static_cast<int>(outlier_frac * RAND_MAX);
@@ -325,7 +328,7 @@ add_outliers_to_tracks(kwiver::vital::feature_track_set_sptr in_tracks,
       }
       if(std::rand() < rand_thresh)
       {
-        vector_2d loc = fts->feature->loc() + random_point2d( stdev );
+        vector_2d loc = fts->feature->loc() + random_point2d( stdev, rng );
         auto new_fts = std::make_shared<feature_track_state>(*fts);
         new_fts->feature = std::make_shared<feature_d>(loc);
         nt->append( new_fts );

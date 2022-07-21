@@ -168,6 +168,7 @@ TEST(estimate_pnp, outlier_points)
   unsigned int i = 0;
   std::vector<vector_2d> pts_projs;
   std::vector<vector_3d> pts_3d;
+  kwiver::testing::rng_t rng( 1 );
   for (auto const& track : tracks->tracks())
   {
     auto lm_id = track->id();
@@ -176,7 +177,7 @@ TEST(estimate_pnp, outlier_points)
 
     if (++i % 3 == 0)
     {
-      pts_projs.push_back(kwiver::testing::random_point2d(1000.0));
+      pts_projs.push_back( kwiver::testing::random_point2d( 1000.0, rng ) );
     }
     else
     {
