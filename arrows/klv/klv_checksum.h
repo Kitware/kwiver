@@ -29,10 +29,9 @@ namespace klv {
 /// \param data_end Iterator to the end of a buffer of \c uint8_t.
 ///
 /// \return Running 16-bit sum of the data buffer.
-template < class Iterator >
 KWIVER_ALGO_KLV_EXPORT
 uint16_t
-klv_running_sum_16( Iterator data_begin, Iterator data_end,
+klv_running_sum_16( klv_read_iter_t data_begin, klv_read_iter_t data_end,
                     uint16_t initial_value = 0x0000, bool parity = false );
 
 // ----------------------------------------------------------------------------
@@ -46,10 +45,9 @@ klv_running_sum_16( Iterator data_begin, Iterator data_end,
 /// \param data_end Iterator to the end of a buffer of \c uint8_t.
 ///
 /// \return Checksum of the data buffer.
-template < class Iterator >
 KWIVER_ALGO_KLV_EXPORT
 uint16_t
-klv_crc_16_ccitt( Iterator data_begin, Iterator data_end,
+klv_crc_16_ccitt( klv_read_iter_t data_begin, klv_read_iter_t data_end,
                   uint16_t initial_value = 0xFFFF );
 
 // ----------------------------------------------------------------------------
@@ -63,10 +61,9 @@ klv_crc_16_ccitt( Iterator data_begin, Iterator data_end,
 /// \param data_end Iterator to the end of a buffer of \c uint8_t.
 ///
 /// \return Checksum of the data buffer.
-template < class Iterator >
 KWIVER_ALGO_KLV_EXPORT
 uint32_t
-klv_crc_32_mpeg( Iterator data_begin, Iterator data_end,
+klv_crc_32_mpeg( klv_read_iter_t data_begin, klv_read_iter_t data_end,
                  uint32_t initial_value = 0xFFFFFFFF );
 
 // ----------------------------------------------------------------------------

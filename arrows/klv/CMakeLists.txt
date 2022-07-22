@@ -70,6 +70,7 @@ set( public_headers
   klv_series.h
   klv_set.h
   klv_timeline.h
+  klv_types.h
   klv_unimplemented.h
   klv_update_intervals.h
   klv_value.h

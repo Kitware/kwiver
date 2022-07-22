@@ -59,9 +59,9 @@ template < class T >
 void
 test_read_int( vec_t const& data, size_t offset, size_t length, T value )
 {
-  auto it = data.cbegin() + offset;
+  auto it = &*data.cbegin() + offset;
   EXPECT_EQ( value, klv_read_int< T >( it, length ) );
-  EXPECT_EQ( it, data.cbegin() + offset + length );
+  EXPECT_EQ( it, &*data.cbegin() + offset + length );
 }
 
 // ----------------------------------------------------------------------------
@@ -69,9 +69,9 @@ template < class T, class E >
 void
 test_read_int_throw( vec_t const& data, size_t offset, size_t length )
 {
-  auto it = data.cbegin() + offset;
+  auto it = &*data.cbegin() + offset;
   EXPECT_THROW( klv_read_int< T >( it, length ), E );
-  EXPECT_EQ( it, data.cbegin() + offset );
+  EXPECT_EQ( it, &*data.cbegin() + offset );
 }
 
 // ----------------------------------------------------------------------------
@@ -144,11 +144,11 @@ void
 test_write_int( size_t length, T value )
 {
   vec_t data( length, 0xba );
-  auto it = data.begin();
+  auto it = &*data.begin();
   klv_write_int< T >( value, it, length );
-  EXPECT_EQ( it, data.begin() + length );
-  it = data.begin();
-  EXPECT_EQ( value, klv_read_int< T >( it, length ) );
+  EXPECT_EQ( it, &*data.begin() + length );
+  auto cit = &*data.cbegin();
+  EXPECT_EQ( value, klv_read_int< T >( cit, length ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -157,7 +157,7 @@ void
 test_write_int_throw( size_t length, T value )
 {
   vec_t data( length, 0xba );
-  auto it = data.begin();
+  auto it = &*data.begin();
   EXPECT_THROW( klv_write_int< T >( value, it, length ), E );
 }
 
@@ -311,9 +311,9 @@ template < class T >
 void
 test_read_ber( T value, vec_t const& data )
 {
-  auto it = data.begin();
+  auto it = &*data.begin();
   EXPECT_EQ( value, klv_read_ber< T >( it, data.size() ) );
-  EXPECT_EQ( data.end(), it );
+  EXPECT_EQ( &*data.end(), it );
 }
 
 // ----------------------------------------------------------------------------
@@ -321,9 +321,9 @@ template < class T, class E >
 void
 test_read_ber_throw( size_t length, vec_t const& data )
 {
-  auto it = data.begin();
+  auto it = &*data.begin();
   EXPECT_THROW( klv_read_ber< T >( it, length ), E );
-  EXPECT_EQ( data.begin(), it );
+  EXPECT_EQ( &*data.begin(), it );
 }
 
 // ----------------------------------------------------------------------------
@@ -380,9 +380,9 @@ void
 test_write_ber( uint64_t value, size_t length )
 {
   auto data = vec_t( length, 0xba );
-  auto it = data.begin();
+  auto it = &*data.begin();
   klv_write_ber( value, it, data.size() );
-  EXPECT_EQ( it, data.end() );
+  EXPECT_EQ( it, &*data.end() );
 
   // Avoid technically correct but bad-form encoding
   try
@@ -398,8 +398,8 @@ test_write_ber( uint64_t value, size_t length )
     // data.at() threw - data doesn't have 0 or 1 index
   }
 
-  it = data.begin();
-  EXPECT_EQ( value, klv_read_ber< uint64_t >( it, data.size() ) );
+  auto cit = &*data.cbegin();
+  EXPECT_EQ( value, klv_read_ber< uint64_t >( cit, data.size() ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -408,7 +408,7 @@ void
 test_write_ber_throw( uint64_t value, size_t length )
 {
   auto data = vec_t( length, 0xba );
-  auto it = data.begin();
+  auto it = &*data.begin();
   EXPECT_THROW( klv_write_ber( value, it, data.size() ), E );
 }
 
@@ -480,9 +480,9 @@ template < class T >
 void
 test_read_ber_oid( T value, vec_t const& data )
 {
-  auto it = data.cbegin();
+  auto it = &*data.cbegin();
   EXPECT_EQ( value, klv_read_ber_oid< T >( it, data.size() ) );
-  EXPECT_EQ( data.cend(), it );
+  EXPECT_EQ( &*data.cend(), it );
 }
 
 // ----------------------------------------------------------------------------
@@ -490,7 +490,7 @@ template < class T, class E >
 void
 test_read_ber_oid_throw( vec_t const& data )
 {
-  auto it = data.cbegin();
+  auto it = &*data.cbegin();
   EXPECT_THROW( klv_read_ber_oid< T >( it, data.size() ), E );
 }
 
@@ -550,13 +550,13 @@ void
 test_write_ber_oid( T value, size_t length )
 {
   auto data = vec_t( length, 0xba );
-  auto it = data.begin();
+  auto it = &*data.begin();
   klv_write_ber_oid< T >( value, it, length );
-  EXPECT_EQ( data.end(), it );
+  EXPECT_EQ( &*data.end(), it );
   // Avoid technically correct but bad-form encoding ( leading zero bytes )
   EXPECT_NE( data[ 0 ], 0x80 );
-  it = data.begin();
-  EXPECT_EQ( value, klv_read_ber_oid< T >( it, length ) );
+  auto cit = &*data.cbegin();
+  EXPECT_EQ( value, klv_read_ber_oid< T >( cit, length ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -565,7 +565,7 @@ void
 test_write_ber_oid_throw( T value, size_t length )
 {
   auto data = vec_t( length, 0xba );
-  auto it = data.begin();
+  auto it = &*data.begin();
   EXPECT_THROW( klv_write_ber_oid( value, it, length ), E );
 }
 
@@ -638,11 +638,11 @@ test_read_flint( T int_value, size_t length, double double_value,
                  double minimum, double maximum )
 {
   auto data = vec_t( length, 0xba );
-  auto it = data.begin();
+  auto it = &*data.begin();
   klv_write_int< T >( int_value, it, length );
-  it = data.begin();
+  auto cit = &*data.cbegin();
 
-  auto const result = klv_read_flint< T >( minimum, maximum, it, length );
+  auto const result = klv_read_flint< T >( minimum, maximum, cit, length );
   if( std::isnan( double_value ) )
   {
     // GTest won't print result value on fail, so do it manually
@@ -653,7 +653,7 @@ test_read_flint( T int_value, size_t length, double double_value,
   {
     EXPECT_DOUBLE_EQ( double_value, result );
   }
-  EXPECT_EQ( data.end(), it );
+  EXPECT_EQ( &*data.cend(), cit );
 }
 
 // ----------------------------------------------------------------------------
@@ -663,11 +663,11 @@ test_read_flint_throw( T int_value, size_t length, double minimum,
                        double maximum )
 {
   auto data = vec_t( length, 0xba );
-  auto it = data.begin();
+  auto it = &*data.begin();
   klv_write_int< T >( int_value, it, length );
-  it = data.begin();
-  EXPECT_THROW( klv_read_flint< T >( minimum, maximum, it, length ), E );
-  EXPECT_EQ( data.begin(), it );
+  auto cit = &*data.cbegin();
+  EXPECT_THROW( klv_read_flint< T >( minimum, maximum, cit, length ), E );
+  EXPECT_EQ( &*data.cbegin(), cit );
 }
 
 // ----------------------------------------------------------------------------
@@ -758,12 +758,12 @@ test_write_flint( size_t length, double value, double expected_value,
                   double minimum, double maximum )
 {
   auto data = vec_t( length, 0xba );
-  auto it = data.begin();
+  auto it = &*data.begin();
   klv_write_flint< T >( value, minimum, maximum, it, length );
-  EXPECT_EQ( data.end(), it );
-  it = data.begin();
+  EXPECT_EQ( &*data.end(), it );
+  auto cit = &*data.cbegin();
 
-  auto const result = klv_read_flint< T >( minimum, maximum, it, length );
+  auto const result = klv_read_flint< T >( minimum, maximum, cit, length );
   if( std::isnan( expected_value ) )
   {
     // GTest won't print result value on fail, so do it manually
@@ -782,7 +782,7 @@ test_write_flint( size_t length, double value, double expected_value,
       EXPECT_DOUBLE_EQ( expected_value, result );
     }
   }
-  EXPECT_EQ( data.end(), it );
+  EXPECT_EQ( &*data.cend(), cit );
 }
 
 // ----------------------------------------------------------------------------
@@ -800,10 +800,10 @@ test_write_flint_throw( size_t length, double value, double minimum,
                         double maximum )
 {
   auto data = vec_t( length, 0xba );
-  auto it = data.begin();
+  auto it = &*data.begin();
   EXPECT_THROW( klv_write_flint< T >( value, minimum, maximum, it, length ),
                 E );
-  EXPECT_EQ( data.begin(), it );
+  EXPECT_EQ( &*data.begin(), it );
 }
 
 // ----------------------------------------------------------------------------
@@ -866,7 +866,7 @@ TEST ( klv, write_flint )
 void
 test_read_float( double value, vec_t const& bytes )
 {
-  auto it = bytes.cbegin();
+  auto it = &*bytes.cbegin();
   auto const result = klv_read_float( it, bytes.size() );
   if( std::isnan( value ) )
   {
@@ -878,7 +878,7 @@ test_read_float( double value, vec_t const& bytes )
   {
     EXPECT_DOUBLE_EQ( value, result );
   }
-  EXPECT_EQ( bytes.cend(), it );
+  EXPECT_EQ( &*bytes.cend(), it );
 }
 
 // ----------------------------------------------------------------------------
@@ -886,7 +886,7 @@ template < class E >
 void
 test_read_float_throw( vec_t const& bytes )
 {
-  auto it = bytes.cbegin();
+  auto it = &*bytes.cbegin();
   EXPECT_THROW( klv_read_float( it, bytes.size() ), E );
 }
 
@@ -954,11 +954,11 @@ void
 test_write_float( double value, size_t length )
 {
   vec_t bytes( length, 0xba );
-  auto it = bytes.begin();
+  auto it = &*bytes.begin();
   klv_write_float( value, it, length );
-  EXPECT_EQ( it, bytes.end() );
-  it = bytes.begin();
-  auto const result = klv_read_float( it, length );
+  EXPECT_EQ( it, &*bytes.end() );
+  auto cit = &*bytes.cbegin();
+  auto const result = klv_read_float( cit, length );
   if( std::isnan( value ) )
   {
     // GTest won't print result value on fail, so do it manually
@@ -977,7 +977,7 @@ void
 test_write_float_throw( double value, size_t length )
 {
   vec_t bytes( length, 0xba );
-  auto it = bytes.begin();
+  auto it = &*bytes.begin();
   EXPECT_THROW( klv_write_float( value, it, bytes.size() ), E );
 }
 
@@ -1038,11 +1038,11 @@ test_read_imap( uint64_t int_value, size_t length, double double_value,
                 double minimum, double maximum )
 {
   auto data = vec_t( length, 0xba );
-  auto it = data.begin();
+  auto it = &*data.begin();
   klv_write_int< uint64_t >( int_value, it, length );
-  it = data.begin();
+  auto cit = &*data.cbegin();
 
-  auto const result = klv_read_imap( minimum, maximum, it, length );
+  auto const result = klv_read_imap( minimum, maximum, cit, length );
   if( std::isnan( double_value ) )
   {
     // GTest won't print result value on fail, so do it manually
@@ -1053,7 +1053,7 @@ test_read_imap( uint64_t int_value, size_t length, double double_value,
   {
     EXPECT_DOUBLE_EQ( double_value, result );
   }
-  EXPECT_EQ( data.end(), it );
+  EXPECT_EQ( &*data.cend(), cit );
 }
 
 // ----------------------------------------------------------------------------
@@ -1064,11 +1064,11 @@ test_read_imap_throw( uint64_t int_value, size_t length,
 {
   auto const write_length = std::max< size_t >( 1, length );
   auto data = vec_t( write_length, 0xba );
-  auto it = data.begin();
+  auto it = &*data.begin();
   klv_write_int< uint64_t >( int_value, it, write_length );
-  it = data.begin();
-  EXPECT_THROW( klv_read_imap( minimum, maximum, it, length ), E );
-  EXPECT_EQ( data.begin(), it );
+  auto cit = &*data.cbegin();
+  EXPECT_THROW( klv_read_imap( minimum, maximum, cit, length ), E );
+  EXPECT_EQ( &*data.cbegin(), cit );
 }
 
 // ----------------------------------------------------------------------------
@@ -1145,12 +1145,12 @@ test_write_imap( double value, double expected_value, size_t length,
                  double minimum, double maximum, bool force_exact = true )
 {
   auto data = vec_t( length, 0xba );
-  auto it = data.begin();
+  auto it = &*data.begin();
   klv_write_imap( value, minimum, maximum, it, data.size() );
-  EXPECT_EQ( data.end(), it );
-  it = data.begin();
+  EXPECT_EQ( &*data.end(), it );
+  auto cit = &*data.cbegin();
 
-  auto const result = klv_read_imap( minimum, maximum, it, data.size() );
+  auto const result = klv_read_imap( minimum, maximum, cit, data.size() );
   if( std::isnan( expected_value ) )
   {
     // GTest won't print result value on fail, so do it manually
@@ -1167,7 +1167,7 @@ test_write_imap( double value, double expected_value, size_t length,
     auto const precision = klv_imap_precision( minimum, maximum, length );
     EXPECT_NEAR( expected_value, result, precision / 2.0 );
   }
-  EXPECT_EQ( data.end(), it );
+  EXPECT_EQ( &*data.cend(), it );
 }
 
 // ----------------------------------------------------------------------------
@@ -1184,10 +1184,10 @@ test_write_imap_throw( double value, double minimum, double maximum,
                        size_t length )
 {
   auto data = vec_t( length, 0xba );
-  auto it = data.begin();
+  auto it = &*data.begin();
   EXPECT_THROW( klv_write_imap( value, minimum, maximum, it, data.size() ),
                 E );
-  EXPECT_EQ( data.begin(), it );
+  EXPECT_EQ( &*data.begin(), it );
 }
 
 // ----------------------------------------------------------------------------
@@ -1235,9 +1235,9 @@ TEST ( klv, write_imap )
 void
 test_read_string( std::string const& s, vec_t const& bytes )
 {
-  auto it = bytes.cbegin();
+  auto it = &*bytes.cbegin();
   EXPECT_EQ( s, klv_read_string( it, bytes.size() ) );
-  EXPECT_EQ( bytes.cend(), it );
+  EXPECT_EQ( &*bytes.cend(), it );
 }
 
 // ----------------------------------------------------------------------------
@@ -1261,9 +1261,9 @@ void
 test_write_string_throw( std::string const& s, size_t max_length )
 {
   auto data = vec_t( max_length, 0xba );
-  auto it = data.begin();
+  auto it = &*data.begin();
   EXPECT_THROW( klv_write_string( s, it, max_length ), E );
-  EXPECT_EQ( data.begin(), it );
+  EXPECT_EQ( &*data.begin(), it );
 }
 
 // ----------------------------------------------------------------------------
@@ -1285,11 +1285,11 @@ void
 test_write_string( std::string const& s )
 {
   auto data = vec_t( klv_string_length( s ), 0xba );
-  auto it = data.begin();
+  auto it = &*data.begin();
   klv_write_string( s, it, data.size() );
-  EXPECT_EQ( it, data.end() );
-  it = data.begin();
-  EXPECT_EQ( s, klv_read_string( it, data.size() ) );
+  EXPECT_EQ( it, &*data.end() );
+  auto cit = &*data.cbegin();
+  EXPECT_EQ( s, klv_read_string( cit, data.size() ) );
 }
 
 // ----------------------------------------------------------------------------

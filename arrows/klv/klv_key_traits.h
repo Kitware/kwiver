@@ -5,7 +5,12 @@
 /// \file
 /// Utility file to deal with local and universal sets in a unified manner.
 
+#ifndef KWIVER_ARROWS_KLV_KLV_KEY_TRAITS_H_
+#define KWIVER_ARROWS_KLV_KLV_KEY_TRAITS_H_
+
 #include <arrows/klv/klv_tag_traits.h>
+#include <arrows/klv/klv_types.h>
+#include <arrows/klv/klv_read_write.txx>
 
 namespace kwiver {
 
@@ -99,3 +104,5 @@ public:
 } // namespace arrows
 
 } // namespace kwiver
+
+#endif

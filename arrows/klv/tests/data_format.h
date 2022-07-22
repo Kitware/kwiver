@@ -118,11 +118,11 @@ test_read_write_packet( klv_value const& expected_result,
                  klv_ber_length( payload_bytes.size() + footer_bytes.size() ) +
                  payload_bytes.size() +
                  footer_bytes.size() );
-  auto bytes_it = packet_bytes.begin();
+  auto bytes_it = &*packet_bytes.begin();
   bytes_it = std::copy( key.cbegin(), key.cend(),
                         bytes_it );
   klv_write_ber( payload_bytes.size() + footer_bytes.size(), bytes_it,
-                 std::distance( bytes_it, packet_bytes.end() ) );
+                 std::distance( bytes_it, &*packet_bytes.end() ) );
   bytes_it = std::copy( payload_bytes.cbegin(), payload_bytes.cend(),
                         bytes_it );
   bytes_it = std::copy( footer_bytes.cbegin(), footer_bytes.cend(),

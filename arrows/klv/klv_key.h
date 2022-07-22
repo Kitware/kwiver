@@ -79,14 +79,8 @@ public:
 
   klv_uds_key();
 
-  template < class Iterator > explicit
-  klv_uds_key( Iterator bytes )
-  {
-    using iterated_t = typename std::decay< decltype( *bytes ) >::type;
-    static_assert( std::is_same< uint8_t, iterated_t >::value,
-                   "must be iterator to uint8_t" );
-    std::copy_n( bytes, length, m_key );
-  }
+  explicit
+  klv_uds_key( klv_read_iter_t bytes );
 
   // For easy construction from literals: klv_uds_key{ 0x..., 0x... };
   klv_uds_key( uint64_t word1, uint64_t word2 );
@@ -204,20 +198,9 @@ std::ostream& operator<<( std::ostream& os, klv_uds_key::wrapper_t category );
 /// \returns UDS key read in from \p data.
 ///
 /// \throws metadata_buffer_overflow When \p max_length is less than 16.
-template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
 klv_uds_key
-klv_read_uds_key( Iterator& data, size_t max_length )
-{
-  if( max_length < klv_uds_key::length )
-  {
-    VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
-                 "uds key overflows data buffer" );
-  }
-
-  auto const value = klv_uds_key( data );
-  data += klv_uds_key::length;
-  return value;
-}
+klv_read_uds_key( klv_read_iter_t& data, size_t max_length );
 
 // ----------------------------------------------------------------------------
 /// Write a 16-byte Universal Data Set key to a sequence of bytes.
@@ -227,17 +210,10 @@ klv_read_uds_key( Iterator& data, size_t max_length )
 /// \param max_length Maximum number of bytes to write.
 ///
 /// \throws metadata_buffer_overflow When \p max_length is less than 16.
-template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
 void
-klv_write_uds_key( klv_uds_key value, Iterator& data, size_t max_length )
-{
-  if( max_length < klv_uds_key::length )
-  {
-    VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
-                 "uds key overflows data buffer" );
-  }
-  data = std::copy( value.cbegin(), value.cend(), data );
-}
+klv_write_uds_key(
+  klv_uds_key value, klv_write_iter_t& data, size_t max_length );
 
 // ----------------------------------------------------------------------------
 /// Return the number of bytes required to store the given Universal Data Set
@@ -269,12 +245,9 @@ using klv_lds_key = uint16_t;
 ///
 /// \throws metadata_buffer_overflow When decoding would require reading more
 /// than \p max_length bytes.
-template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
 klv_lds_key
-klv_read_lds_key( Iterator& data, size_t max_length )
-{
-  return klv_read_ber_oid< klv_lds_key >( data, max_length );
-}
+klv_read_lds_key( klv_read_iter_t& data, size_t max_length );
 
 // ----------------------------------------------------------------------------
 /// Write a Local Data Set key to a sequence of bytes.
@@ -285,12 +258,10 @@ klv_read_lds_key( Iterator& data, size_t max_length )
 ///
 /// \throws metadata_buffer_overflow When encoding would require writing more
 /// than \p max_length bytes.
-template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
 void
-klv_write_lds_key( klv_lds_key value, Iterator& data, size_t max_length )
-{
-  klv_write_ber_oid( value, data, max_length );
-}
+klv_write_lds_key(
+  klv_lds_key value, klv_write_iter_t& data, size_t max_length );
 
 // ----------------------------------------------------------------------------
 /// Return the number of bytes required to store the given Local Data Set key.
