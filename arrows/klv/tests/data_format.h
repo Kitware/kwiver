@@ -26,9 +26,9 @@ void
 test_read_format( klv_value const& expected_result, klv_bytes_t const& bytes )
 {
   Format const format;
-  auto it = bytes.cbegin();
+  auto it = &*bytes.cbegin();
   auto const result = format.read( it, bytes.size() );
-  ASSERT_EQ( bytes.cend(), it );
+  ASSERT_EQ( &*bytes.cend(), it );
   ASSERT_EQ( expected_result.type(), result.type() )
         << "\n  --type difference--\n  "
         << kv::demangle( expected_result.type().name() )
@@ -48,11 +48,11 @@ test_write_format( klv_value const& value )
 {
   Format const format;
   klv_bytes_t bytes( format.length_of( value ) );
-  auto write_it = bytes.begin();
+  auto write_it = &*bytes.begin();
   format.write( value, write_it, bytes.size() );
-  ASSERT_EQ( bytes.end(), write_it );
+  ASSERT_EQ( &*bytes.end(), write_it );
 
-  auto read_it = bytes.cbegin();
+  auto read_it = &*bytes.cbegin();
   auto const result = format.read( read_it, bytes.size() );
   ASSERT_EQ( value.type(), result.type() )
         << "\n  --type difference--\n  "
@@ -72,9 +72,9 @@ test_read_write_format( klv_value const& expected_result,
                         klv_bytes_t const& bytes,
                         Format const& format = Format{} )
 {
-  auto it = bytes.cbegin();
+  auto it = &*bytes.cbegin();
   auto result = format.read( it, bytes.size() );
-  ASSERT_EQ( bytes.cend(), it );
+  ASSERT_EQ( &*bytes.cend(), it );
   ASSERT_EQ( expected_result.type(), result.type() )
         << "\n  --type difference--\n  "
         << kv::demangle( expected_result.type().name() )
@@ -87,11 +87,11 @@ test_read_write_format( klv_value const& expected_result,
         << format.to_string( result );
 
   klv_bytes_t buffer( format.length_of( result ) );
-  auto write_it = buffer.begin();
+  auto write_it = &*buffer.begin();
   format.write( result, write_it, buffer.size() );
-  ASSERT_EQ( buffer.end(), write_it );
+  ASSERT_EQ( &*buffer.end(), write_it );
 
-  auto read_it = buffer.cbegin();
+  auto read_it = &*buffer.cbegin();
   result = format.read( read_it, buffer.size() );
   ASSERT_EQ( expected_result.type(), result.type() )
         << "\n  --type difference--\n  "
@@ -132,16 +132,16 @@ test_read_write_packet( klv_value const& expected_result,
   auto const test_packet = klv_packet{ key, expected_result };
 
   // Deserialize
-  auto read_it = packet_bytes.cbegin();
+  auto read_it = &*packet_bytes.cbegin();
   auto const read_packet = klv_read_packet( read_it, packet_bytes.size() );
-  EXPECT_EQ( packet_bytes.cend(), read_it );
+  EXPECT_EQ( &*packet_bytes.cend(), read_it );
   EXPECT_EQ( test_packet, read_packet );
 
   // Reserialize
   klv_bytes_t written_bytes( klv_packet_length( read_packet ) );
-  auto write_it = written_bytes.begin();
+  auto write_it = &*written_bytes.begin();
   klv_write_packet( read_packet, write_it, written_bytes.size() );
-  EXPECT_EQ( written_bytes.end(), write_it );
+  EXPECT_EQ( &*written_bytes.end(), write_it );
   EXPECT_EQ( packet_bytes, written_bytes );
 }
 

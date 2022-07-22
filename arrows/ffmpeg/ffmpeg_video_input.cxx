@@ -140,13 +140,13 @@ ffmpeg_klv_stream
     }
   }
 
-  auto it = bytes.cbegin();
-  while( it != bytes.cend() )
+  auto it = &*bytes.cbegin();
+  while( it != &*bytes.cend() )
   {
     try
     {
       auto const length =
-        static_cast< size_t >( std::distance( it, bytes.cend() ) );
+        static_cast< size_t >( std::distance( it, &*bytes.cend() ) );
       packets.emplace_back( klv::klv_read_packet( it, length ) );
     }
     catch( kv::metadata_buffer_overflow const& )
@@ -158,13 +158,13 @@ ffmpeg_klv_stream
     {
       LOG_ERROR( kv::get_logger( "klv" ),
         "Error while parsing KLV packet: " << e.what() );
-      it = bytes.cend();
+      it = &*bytes.cend();
     }
   }
 
   // Weirdness here to get around CentOS compiler bug
   bytes.erase( bytes.begin(),
-               bytes.begin() + std::distance( bytes.cbegin(), it ) );
+               bytes.begin() + std::distance( &*bytes.cbegin(), it ) );
 
   if( packets.empty() )
   {

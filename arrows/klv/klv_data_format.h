@@ -32,8 +32,8 @@ namespace arrows {
 namespace klv {
 
 // ----------------------------------------------------------------------------
-using klv_read_iter_t = typename klv_bytes_t::const_iterator;
-using klv_write_iter_t = typename klv_bytes_t::iterator;
+using klv_read_iter_t = uint8_t const*;
+using klv_write_iter_t = uint8_t*;
 
 // ----------------------------------------------------------------------------
 class klv_checksum_packet_format;
