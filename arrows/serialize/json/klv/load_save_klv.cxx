@@ -1143,7 +1143,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
     {
       throw std::runtime_error( "uds key has incorrect number of bytes" );
     }
-    return klv_uds_key{ bytes.begin() };
+    return klv_uds_key{ bytes.data() };
   }
 
   klv_value load( std::type_info const& type )

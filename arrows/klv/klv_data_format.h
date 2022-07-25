@@ -8,11 +8,11 @@
 #ifndef KWIVER_ARROWS_KLV_KLV_DATA_FORMAT_H_
 #define KWIVER_ARROWS_KLV_KLV_DATA_FORMAT_H_
 
-#include "klv_blob.txx"
+#include "klv_blob.h"
 #include "klv_key.h"
 #include "klv_lengthy.h"
 #include "klv_read_write.txx"
-#include "klv_uuid.hpp"
+#include "klv_uuid.h"
 #include "klv_value.h"
 
 #include <arrows/klv/kwiver_algo_klv_export.h>
@@ -30,10 +30,6 @@ namespace kwiver {
 namespace arrows {
 
 namespace klv {
-
-// ----------------------------------------------------------------------------
-using klv_read_iter_t = typename klv_bytes_t::const_iterator;
-using klv_write_iter_t = typename klv_bytes_t::iterator;
 
 // ----------------------------------------------------------------------------
 class klv_checksum_packet_format;

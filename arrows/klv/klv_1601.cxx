@@ -52,13 +52,13 @@ geographic_sdcc_imap_params = {
 
 // ----------------------------------------------------------------------------
 uint64_t
-imap_to_int( double imap_value, double minimum, double maximum,
-             size_t length )
+imap_to_int( double imap_value, double minimum, double maximum, size_t length )
 {
   std::vector< uint8_t > bytes( length );
-  auto it = bytes.begin();
+  auto it = &*bytes.begin();
   klv_write_imap( imap_value, minimum, maximum, it, length );
-  return klv_read_int< uint64_t >( it = bytes.begin(), length );
+  auto cit = &*bytes.cbegin();
+  return klv_read_int< uint64_t >( cit, length );
 }
 
 // ----------------------------------------------------------------------------
@@ -67,9 +67,10 @@ int_to_imap( uint64_t int_value, double minimum, double maximum,
              size_t length )
 {
   std::vector< uint8_t > bytes( length );
-  auto it = bytes.begin();
+  auto it = &*bytes.begin();
   klv_write_int( int_value, it, length );
-  return klv_read_imap( minimum, maximum, it = bytes.begin(), length );
+  auto cit = &*bytes.cbegin();
+  return klv_read_imap( minimum, maximum, cit, length );
 }
 
 } // namespace

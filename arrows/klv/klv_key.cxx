@@ -28,6 +28,13 @@ klv_uds_key
 
 // ----------------------------------------------------------------------------
 klv_uds_key
+::klv_uds_key( klv_read_iter_t bytes )
+{
+  std::copy_n( bytes, length, m_key );
+}
+
+// ----------------------------------------------------------------------------
+klv_uds_key
 ::klv_uds_key( uint64_t word1, uint64_t word2 )
 {
   auto it = m_key;
@@ -231,10 +238,53 @@ operator<<( std::ostream& os, klv_uds_key const& key )
 }
 
 // ----------------------------------------------------------------------------
+klv_uds_key
+klv_read_uds_key( klv_read_iter_t& data, size_t max_length )
+{
+  if( max_length < klv_uds_key::length )
+  {
+    VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+                 "uds key overflows data buffer" );
+  }
+
+  auto const value = klv_uds_key( data );
+  data += klv_uds_key::length;
+  return value;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_write_uds_key(
+  klv_uds_key value, klv_write_iter_t& data, size_t max_length )
+{
+  if( max_length < klv_uds_key::length )
+  {
+    VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+                 "uds key overflows data buffer" );
+  }
+  data = std::copy( value.cbegin(), value.cend(), data );
+}
+
+// ----------------------------------------------------------------------------
 size_t
 klv_uds_key_length( klv_uds_key value )
 {
   return value.length;
+}
+
+// ----------------------------------------------------------------------------
+klv_lds_key
+klv_read_lds_key( klv_read_iter_t& data, size_t max_length )
+{
+  return klv_read_ber_oid< klv_lds_key >( data, max_length );
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_write_lds_key(
+  klv_lds_key value, klv_write_iter_t& data, size_t max_length )
+{
+  klv_write_ber_oid( value, data, max_length );
 }
 
 // ----------------------------------------------------------------------------

@@ -24,9 +24,8 @@ namespace klv {
 namespace {
 
 // ----------------------------------------------------------------------------
-template < class Iterator >
 klv_0903_sigma_pack
-klv_0903_read_sigma_pack( Iterator& data, size_t length )
+klv_0903_read_sigma_pack( klv_read_iter_t& data, size_t length )
 {
   auto const tracker = track_it( data, length );
   klv_0903_sigma_pack result;
@@ -37,10 +36,9 @@ klv_0903_read_sigma_pack( Iterator& data, size_t length )
 }
 
 // ----------------------------------------------------------------------------
-template < class Iterator >
 void
 klv_0903_write_sigma_pack( klv_0903_sigma_pack const& value,
-                           Iterator& data, size_t length )
+                           klv_write_iter_t& data, size_t length )
 {
   auto const tracker = track_it( data, length );
   klv_write_imap( value.east, 0.0, 650.0, data, tracker.verify( 2 ) );
@@ -56,9 +54,8 @@ klv_0903_sigma_pack_length()
 }
 
 // ----------------------------------------------------------------------------
-template < class Iterator >
 klv_0903_rho_pack
-klv_0903_read_rho_pack( Iterator& data, size_t length )
+klv_0903_read_rho_pack( klv_read_iter_t& data, size_t length )
 {
   auto const tracker = track_it( data, length );
   klv_0903_rho_pack result;
@@ -69,10 +66,9 @@ klv_0903_read_rho_pack( Iterator& data, size_t length )
 }
 
 // ----------------------------------------------------------------------------
-template < class Iterator >
 void
 klv_0903_write_rho_pack( klv_0903_rho_pack const& value,
-                         Iterator& data, size_t length )
+                         klv_write_iter_t& data, size_t length )
 {
   auto const tracker = track_it( data, length );
   klv_write_imap( value.east_north, -1.0, 1.0, data, tracker.verify( 2 ) );

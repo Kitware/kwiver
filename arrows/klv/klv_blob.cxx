@@ -7,6 +7,8 @@
 
 #include "klv_blob.h"
 
+#include <vital/exceptions.h>
+
 #include <iomanip>
 
 namespace kwiver {
@@ -100,6 +102,29 @@ operator<( klv_blob const& lhs, klv_blob const& rhs )
 {
   return std::lexicographical_compare( lhs->cbegin(), lhs->cend(),
                                        rhs->cbegin(), rhs->cend() );
+}
+
+// ----------------------------------------------------------------------------
+klv_blob
+klv_read_blob( klv_read_iter_t& data, size_t length )
+{
+  auto const begin = data;
+  auto const end = ( data += length );
+  return klv_bytes_t{ begin, end };
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_write_blob(
+  klv_blob const& value, klv_write_iter_t& data, size_t max_length )
+{
+  if( max_length < value->size() )
+  {
+    VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+                 "writing blob overruns end of data buffer" );
+  }
+
+  data = std::copy( value->cbegin(), value->cend(), data );
 }
 
 // ----------------------------------------------------------------------------
