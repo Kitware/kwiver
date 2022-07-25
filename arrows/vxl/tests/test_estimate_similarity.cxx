@@ -76,9 +76,10 @@ TEST(estimate_similarity, reprojection_100pts)
 
   cerr << "Constructing 100 original, random points (std dev: 1.0)" << endl;
   std::vector<vector_3d> original_points;
+  kwiver::testing::rng_t rng( 1 );
   for (int i=0; i < 100; ++i)
   {
-    original_points.push_back(kwiver::testing::random_point3d(1.0));
+    original_points.push_back( kwiver::testing::random_point3d( 1.0, rng ) );
   }
 
   cerr << "Constructing crafted similarity transformation" << endl;
@@ -140,9 +141,10 @@ TEST(estimate_similarity, reprojection_4pts)
   cerr << "Constructing 4 original, random points (std dev: 1.0)" << endl;
   std::vector<vector_3d> original_points;
   cerr << "Random points:" << endl;
+  kwiver::testing::rng_t rng( 1 );
   for (int i=0; i < 4; ++i)
   {
-    original_points.push_back(kwiver::testing::random_point3d(1.0));
+    original_points.push_back( kwiver::testing::random_point3d( 1.0, rng) );
     cerr << "\t" << original_points.back() << endl;
   }
 
@@ -183,9 +185,10 @@ TEST(estimate_similarity, reprojection_3pts)
   cerr << "Constructing 3 original, random points (std dev: 1.0)" << endl;
   std::vector<vector_3d> original_points;
   cerr << "Random points:" << endl;
+  kwiver::testing::rng_t rng( 1 );
   for (int i=0; i < 3; ++i)
   {
-    original_points.push_back(kwiver::testing::random_point3d(1.0));
+    original_points.push_back( kwiver::testing::random_point3d( 1.0, rng) );
     cerr << "\t" << original_points.back() << endl;
   }
 
@@ -225,9 +228,10 @@ TEST(estimate_similarity, reprojection_100pts_noisy)
 
   cerr << "Constructing 100 original, random points (std dev: 1.0)" << endl;
   std::vector<vector_3d> original_points;
+  kwiver::testing::rng_t rng( 1 );
   for (int i=0; i < 100; ++i)
   {
-    original_points.push_back(kwiver::testing::random_point3d(1.0));
+    original_points.push_back( kwiver::testing::random_point3d( 1.0, rng ) );
   }
 
   cerr << "Constructing crafted similarity transformation" << endl;
@@ -239,7 +243,8 @@ TEST(estimate_similarity, reprojection_100pts_noisy)
   std::vector<vector_3d> transformed_points;
   for (vector_3d o_vec : original_points)
   {
-    transformed_points.push_back((m_sim * o_vec) + kwiver::testing::random_point3d(0.01));
+    transformed_points.push_back(
+      ( m_sim * o_vec ) + kwiver::testing::random_point3d( 0.01, rng ) );
   }
 
   cerr << "Estimating similarity transformation between point sets" << endl;

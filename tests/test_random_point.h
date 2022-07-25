@@ -26,24 +26,21 @@ typedef std::mt19937 rng_t;
 /// normal distribution
 typedef std::normal_distribution<> norm_dist_t;
 
-/// a global random number generator instance
-static rng_t rng;
-
 // ------------------------------------------------------------------
 inline
-kwiver::vital::vector_3d random_point3d(double stdev)
+kwiver::vital::vector_3d random_point3d( double stdev, rng_t& rng )
 {
   norm_dist_t norm( 0.0, stdev );
-  kwiver::vital::vector_3d v(norm(rng), norm(rng), norm(rng));
+  kwiver::vital::vector_3d v( norm( rng ), norm( rng ), norm( rng ) );
   return v;
 }
 
 // ------------------------------------------------------------------
 inline
-kwiver::vital::vector_2d random_point2d(double stdev)
+kwiver::vital::vector_2d random_point2d( double stdev, rng_t& rng )
 {
   norm_dist_t norm( 0.0, stdev );
-  kwiver::vital::vector_2d v(norm(rng), norm(rng));
+  kwiver::vital::vector_2d v( norm( rng ), norm( rng ) );
   return v;
 }
 
