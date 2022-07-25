@@ -46,6 +46,11 @@ ffmpeg_video_settings
   parameters->height = height;
 }
 
+// ----------------------------------------------------------------------------
+ffmpeg_video_settings
+::~ffmpeg_video_settings()
+{}
+
 } // namespace ffmpeg
 
 } // namespace arrows
