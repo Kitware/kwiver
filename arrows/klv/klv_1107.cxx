@@ -77,7 +77,7 @@ sdcc_flp_sigma_imap( klv_lds_key key, size_t length )
         " does not support IMAP-encoded standard deviations" );
       break;
   }
-  return { bounds.lower(), bounds.upper(), length };
+  return { bounds, length };
 }
 
 } // namespace <anonymous>
@@ -146,7 +146,8 @@ klv_1107_traits_lookup()
       0 },
     { {},
       ENUM_AND_NAME( KLV_1107_SENSOR_ECEF_POSITION_X ),
-      std::make_shared< klv_imap_format >( -1.0e9, 1.0e9 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -1.0e9, 1.0e9 } ),
       "Sensor ECEF Position Component X",
       "Distance from the Earth's center of mass to the sensor reference point, "
       "along the geocentric axis which points towards the intersection of the "
@@ -154,7 +155,8 @@ klv_1107_traits_lookup()
       1 },
     { {},
       ENUM_AND_NAME( KLV_1107_SENSOR_ECEF_POSITION_Y ),
-      std::make_shared< klv_imap_format >( -1.0e9, 1.0e9 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -1.0e9, 1.0e9 } ),
       "Sensor ECEF Position Component Y",
       "Distance from the Earth's center of mass to the sensor reference point, "
       "along the cross product of the ECEF Z and X axes. This forms a "
@@ -162,7 +164,8 @@ klv_1107_traits_lookup()
       1 },
     { {},
       ENUM_AND_NAME( KLV_1107_SENSOR_ECEF_POSITION_Z ),
-      std::make_shared< klv_imap_format >( -1.0e9, 1.0e9 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -1.0e9, 1.0e9 } ),
       "Sensor ECEF Position Component Z",
       "Distance from the Earth's center of mass to the sensor reference point, "
       "along the geocentric axis which points towards the North Pole. Measured "
@@ -170,91 +173,104 @@ klv_1107_traits_lookup()
       1 },
     { {},
       ENUM_AND_NAME( KLV_1107_SENSOR_ECEF_VELOCITY_X ),
-      std::make_shared< klv_imap_format >( -25.0e3, 25.0e3 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -25.0e3, 25.0e3 } ),
       "Sensor ECEF Velocity Component X",
       "Rate of change of the Sensor ECEF Position Component X. Measured in "
       "meters per second.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_SENSOR_ECEF_VELOCITY_Y ),
-      std::make_shared< klv_imap_format >( -25.0e3, 25.0e3 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -25.0e3, 25.0e3 } ),
       "Sensor ECEF Velocity Component Y",
       "Rate of change of the Sensor ECEF Position Component Y. Measured in "
       "meters per second.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_SENSOR_ECEF_VELOCITY_Z ),
-      std::make_shared< klv_imap_format >( -25.0e3, 25.0e3 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -25.0e3, 25.0e3 } ),
       "Sensor ECEF Velocity Component Z",
       "Rate of change of the Sensor ECEF Position Component Z. Measured in "
       "meters per second.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_SENSOR_ABSOLUTE_AZIMUTH ),
-      std::make_shared< klv_imap_format >( 0.0, 2.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ 0.0, 2.0 } ),
       "Sensor Absolute Azimuth",
       "Angle from True North to the boresight vector projected onto the local "
       "horizontal plane, with a north-to-east rotation being positive. Measured in half-circles.",
       1 },
     { {},
       ENUM_AND_NAME( KLV_1107_SENSOR_ABSOLUTE_PITCH ),
-      std::make_shared< klv_imap_format >( -1.0, 1.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -1.0, 1.0 } ),
       "Sensor Absolute Pitch",
       "Angle between the boresight vector and the local horizontal plane, with "
       "angles above the horizontal being positive. Measured in half-circles.",
       1 },
     { {},
       ENUM_AND_NAME( KLV_1107_SENSOR_ABSOLUTE_ROLL ),
-      std::make_shared< klv_imap_format >( -1.0, 1.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -1.0, 1.0 } ),
       "Sensor Absolute Roll",
       "Angle between the boresight vector and the local horizontal plane, with "
       "clockwise rotations being positive. Measured in half-circles.",
       1 },
     { {},
       ENUM_AND_NAME( KLV_1107_SENSOR_ABSOLUTE_AZIMUTH_RATE ),
-      std::make_shared< klv_imap_format >( -1.0, 1.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -1.0, 1.0 } ),
       "Sensor Absolute Azimuth Rate",
       "Rate of change of the Sensor Absolute Azimuth. Measured in half-circles "
       "per second.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_SENSOR_ABSOLUTE_PITCH_RATE ),
-      std::make_shared< klv_imap_format >( -1.0, 1.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -1.0, 1.0 } ),
       "Sensor Absolute Pitch Rate",
       "Rate of change of the Sensor Absolute Pitch. Measured in half-circles "
       "per second.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_SENSOR_ABSOLUTE_ROLL_RATE ),
-      std::make_shared< klv_imap_format >( -1.0, 1.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -1.0, 1.0 } ),
       "Sensor Absolute Roll Rate",
       "Rate of change of the Sensor Absolute Roll. Measured in half-circles "
       "per second.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_BORESIGHT_OFFSET_DELTA_X ),
-      std::make_shared< klv_imap_format >( -300.0, 300.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -300.0, 300.0 } ),
       "Boresight Offset Delta X",
       "X component of the translation from the sensor reference point to the "
       "sensor perspective sensor. Measured in meters.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_BORESIGHT_OFFSET_DELTA_Y ),
-      std::make_shared< klv_imap_format >( -300.0, 300.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -300.0, 300.0 } ),
       "Boresight Offset Delta Y",
       "Y component of the translation from the sensor reference point to the "
       "sensor perspective sensor. Measured in meters.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_BORESIGHT_OFFSET_DELTA_Z ),
-      std::make_shared< klv_imap_format >( -300.0, 300.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -300.0, 300.0 } ),
       "Boresight Offset Delta Z",
       "Z component of the translation from the sensor reference point to the "
       "sensor perspective sensor. Measured in meters.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_BORESIGHT_DELTA_ANGLE_1 ),
-      std::make_shared< klv_imap_format >( -0.25, 0.25 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -0.25, 0.25 } ),
       "Boresight Delta Angle 1",
       "Rotation around the x axis to align the sensor reference axes with the "
       "sensor principal axes. This rotation is applied third. Measured in "
@@ -262,7 +278,8 @@ klv_1107_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_BORESIGHT_DELTA_ANGLE_2 ),
-      std::make_shared< klv_imap_format >( -0.25, 0.25 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -0.25, 0.25 } ),
       "Boresight Delta Angle 2",
       "Rotation around the y axis to align the sensor reference axes with the "
       "sensor principal axes. This rotation is applied second. Measured in "
@@ -270,7 +287,8 @@ klv_1107_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_BORESIGHT_DELTA_ANGLE_3 ),
-      std::make_shared< klv_imap_format >( -0.25, 0.25 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -0.25, 0.25 } ),
       "Boresight Delta Angle 3",
       "Rotation around the z axis to align the sensor reference axes with the "
       "sensor principal axes. This rotation is applied first. Measured in "
@@ -278,21 +296,24 @@ klv_1107_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_FOCAL_PLANE_PRINCIPAL_POINT_OFFSET_Y ),
-      std::make_shared< klv_imap_format >( -25.0, 25.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -25.0, 25.0 } ),
       "Focal Plane Principal Point Offset Y",
       "Vertical component of the translation on the focal plane from the "
       "center of the frame to the principal point. Measured in millimeters.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_FOCAL_PLANE_PRINCIPAL_POINT_OFFSET_X ),
-      std::make_shared< klv_imap_format >( -25.0, 25.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -25.0, 25.0 } ),
       "Focal Plane Principal Point Offset X",
       "Horizontal component of the translation on the focal plane from the "
       "center of the frame to the principal point. Measured in millimeters.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_EFFECTIVE_FOCAL_LENGTH ),
-      std::make_shared< klv_imap_format >( 0.0, 10000.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ 0.0, 10000.0 } ),
       "Sensor Calibrated / Effective Focal Length",
       "Distance from perspective center to the detector array. Measured in "
       "millimeters.",
@@ -390,13 +411,15 @@ klv_1107_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_PIXEL_SIZE_X ),
-      std::make_shared< klv_imap_format >( 1.0e-4, 1.0e-1 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ 1.0e-4, 1.0e-1 } ),
       "Pixel Size X",
       "Width of each pixel. Measured in millimeters.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_PIXEL_SIZE_Y ),
-      std::make_shared< klv_imap_format >( 1.0e-4, 1.0e-1 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ 1.0e-4, 1.0e-1 } ),
       "Pixel Size Y",
       "Height of each pixel. Measured in millimeters.",
       { 0, 1 } },
@@ -463,7 +486,8 @@ klv_1107_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1107_EFFECTIVE_FOCAL_LENGTH_EXTENDED ),
-      std::make_shared< klv_imap_format >( 0.0, 100000.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ 0.0, 100000.0 } ),
       "Sensor Calibrated / Effective Focal Length Extended",
       "Distance from perspective center to the detector array. Measured in "
       "millimeters.",

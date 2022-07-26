@@ -34,28 +34,32 @@ klv_0806_aoi_set_traits_lookup()
       1 },
     { { 0x060E2B3401010101, 0x0701020103070100 },
       ENUM_AND_NAME( KLV_0806_AOI_SET_CORNER_LATITUDE_POINT_1 ),
-      std::make_shared< klv_sflint_format >( -90.0, 90.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        vital::interval< double >{ -90.0, 90.0 }, 4 ),
       "AOI Corner 1 Latitude",
       "Northwest corner of area of interest. Measured in degrees, relative to "
       "WGS84 ellipsoid.",
       1 },
     { { 0x060E2B3401010101, 0x07010201030B0100 },
       ENUM_AND_NAME( KLV_0806_AOI_SET_CORNER_LONGITUDE_POINT_1 ),
-      std::make_shared< klv_sflint_format >( -180.0, 180.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        vital::interval< double >{ -180.0, 180.0 }, 4 ),
       "AOI Corner 1 Longitude",
       "Northwest corner of area of interest. Measured in degrees, relative to "
       "WGS84 ellipsoid.",
       1 },
     { { 0x060E2B3401010101, 0x0701020103090100 },
       ENUM_AND_NAME( KLV_0806_AOI_SET_CORNER_LATITUDE_POINT_3 ),
-      std::make_shared< klv_sflint_format >( -90.0, 90.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        vital::interval< double >{ -90.0, 90.0 }, 4 ),
       "AOI Corner 3 Latitude",
       "Southeast corner of area of interest. Measured in degrees, relative to "
       "WGS84 ellipsoid.",
       1 },
     { { 0x060E2B3401010101, 0x07010201030D0100 },
       ENUM_AND_NAME( KLV_0806_AOI_SET_CORNER_LONGITUDE_POINT_3 ),
-      std::make_shared< klv_sflint_format >( -180.0, 180.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        vital::interval< double >{ -180.0, 180.0 }, 4 ),
       "AOI Corner 3 Longitude",
       "Southeast corner of area of interest. Measured in degrees, relative to "
       "WGS84 ellipsoid.",

@@ -634,15 +634,16 @@ TEST ( klv, ber_oid_length )
 // ----------------------------------------------------------------------------
 template < class T >
 void
-test_read_flint( T int_value, size_t length, double double_value,
-                 double minimum, double maximum )
+test_read_flint(
+  T int_value, size_t length, double double_value,
+  double minimum, double maximum )
 {
   auto data = vec_t( length, 0xba );
   auto it = &*data.begin();
   klv_write_int< T >( int_value, it, length );
   auto cit = &*data.cbegin();
 
-  auto const result = klv_read_flint< T >( minimum, maximum, cit, length );
+  auto const result = klv_read_flint< T >( { minimum, maximum }, cit, length );
   if( std::isnan( double_value ) )
   {
     // GTest won't print result value on fail, so do it manually
@@ -659,25 +660,25 @@ test_read_flint( T int_value, size_t length, double double_value,
 // ----------------------------------------------------------------------------
 template < class T, class E >
 void
-test_read_flint_throw( T int_value, size_t length, double minimum,
-                       double maximum )
+test_read_flint_throw(
+  T int_value, size_t length, double minimum, double maximum )
 {
   auto data = vec_t( length, 0xba );
   auto it = &*data.begin();
   klv_write_int< T >( int_value, it, length );
   auto cit = &*data.cbegin();
-  EXPECT_THROW( klv_read_flint< T >( minimum, maximum, cit, length ), E );
+  EXPECT_THROW( klv_read_flint< T >( { minimum, maximum }, cit, length ), E );
   EXPECT_EQ( &*data.cbegin(), cit );
 }
 
 // ----------------------------------------------------------------------------
 template < class T >
 void
-test_read_flint_logic_error( T int_value, size_t length, double minimum,
-                             double maximum )
+test_read_flint_logic_error(
+  T int_value, size_t length, double minimum, double maximum )
 {
-  test_read_flint_throw< T, std::logic_error >( int_value, length, minimum,
-                                                maximum );
+  test_read_flint_throw< T, std::logic_error >(
+    int_value, length, minimum, maximum );
 }
 
 // ----------------------------------------------------------------------------
@@ -742,7 +743,6 @@ TEST ( klv, read_flint )
   auto test_uint_invalid_value = test_read_flint_logic_error< uint64_t >;
   auto test_sint_invalid_value = test_read_flint_logic_error< int64_t >;
   CALL_TEST( test_uint_invalid_value, 0, 1, 0.0, 0.0 );
-  CALL_TEST( test_uint_invalid_value, 0, 1, 0.0, -1.0 );
   CALL_TEST( test_uint_invalid_value, 0, 1, -double_inf, 0.0 );
   CALL_TEST( test_uint_invalid_value, 0, 1, 0.0, double_inf );
   CALL_TEST( test_uint_invalid_value, 0, 1, double_qnan, 0.0 );
@@ -759,11 +759,11 @@ test_write_flint( size_t length, double value, double expected_value,
 {
   auto data = vec_t( length, 0xba );
   auto it = &*data.begin();
-  klv_write_flint< T >( value, minimum, maximum, it, length );
+  klv_write_flint< T >( value, { minimum, maximum }, it, length );
   EXPECT_EQ( &*data.end(), it );
   auto cit = &*data.cbegin();
 
-  auto const result = klv_read_flint< T >( minimum, maximum, cit, length );
+  auto const result = klv_read_flint< T >( { minimum, maximum }, cit, length );
   if( std::isnan( expected_value ) )
   {
     // GTest won't print result value on fail, so do it manually
@@ -772,7 +772,7 @@ test_write_flint( size_t length, double value, double expected_value,
   }
   else
   {
-    auto const precision = klv_flint_precision( minimum, maximum, length );
+    auto const precision = klv_flint_precision( { minimum, maximum }, length );
     if( expected_value / precision < 1.0e15 )
     {
       EXPECT_NEAR( expected_value, result, precision );
@@ -788,7 +788,8 @@ test_write_flint( size_t length, double value, double expected_value,
 // ----------------------------------------------------------------------------
 template < class T >
 void
-test_write_flint( size_t length, double value, double minimum, double maximum )
+test_write_flint(
+  size_t length, double value, double minimum, double maximum )
 {
   test_write_flint< T >( length, value, value, minimum, maximum );
 }
@@ -796,12 +797,12 @@ test_write_flint( size_t length, double value, double minimum, double maximum )
 // ----------------------------------------------------------------------------
 template < class T, class E >
 void
-test_write_flint_throw( size_t length, double value, double minimum,
-                        double maximum )
+test_write_flint_throw(
+  size_t length, double value, double minimum, double maximum )
 {
   auto data = vec_t( length, 0xba );
   auto it = &*data.begin();
-  EXPECT_THROW( klv_write_flint< T >( value, minimum, maximum, it, length ),
+  EXPECT_THROW( klv_write_flint< T >( value, { minimum, maximum }, it, length ),
                 E );
   EXPECT_EQ( &*data.begin(), it );
 }
@@ -809,11 +810,11 @@ test_write_flint_throw( size_t length, double value, double minimum,
 // ----------------------------------------------------------------------------
 template < class T >
 void
-test_write_flint_logic_error( size_t length, double value, double minimum,
-                              double maximum )
+test_write_flint_logic_error(
+  size_t length, double value, double minimum, double maximum )
 {
-  test_write_flint_throw< T, std::logic_error >( length, value, minimum,
-                                                 maximum );
+  test_write_flint_throw< T, std::logic_error >(
+    length, value, minimum, maximum );
 }
 
 // ----------------------------------------------------------------------------
@@ -853,7 +854,6 @@ TEST ( klv, write_flint )
   auto test_uint_invalid_value = test_write_flint_logic_error< uint64_t >;
   auto test_sint_invalid_value = test_write_flint_logic_error< int64_t >;
   CALL_TEST( test_uint_invalid_value, 1, 0.0,  0.0,         0.0 );
-  CALL_TEST( test_uint_invalid_value, 1, 0.0,  0.0,        -1.0 );
   CALL_TEST( test_uint_invalid_value, 1, 0.0, -double_inf,  0.0 );
   CALL_TEST( test_uint_invalid_value, 1, 0.0,  0.0,         double_inf );
   CALL_TEST( test_uint_invalid_value, 1, 0.0,  double_qnan, 0.0 );
@@ -1034,15 +1034,16 @@ TEST ( klv, write_float )
 
 // ----------------------------------------------------------------------------
 void
-test_read_imap( uint64_t int_value, size_t length, double double_value,
-                double minimum, double maximum )
+test_read_imap(
+  uint64_t int_value, size_t length, double double_value,
+  double minimum, double maximum )
 {
   auto data = vec_t( length, 0xba );
   auto it = &*data.begin();
   klv_write_int< uint64_t >( int_value, it, length );
   auto cit = &*data.cbegin();
 
-  auto const result = klv_read_imap( minimum, maximum, cit, length );
+  auto const result = klv_read_imap( { minimum, maximum }, cit, length );
   if( std::isnan( double_value ) )
   {
     // GTest won't print result value on fail, so do it manually
@@ -1059,22 +1060,22 @@ test_read_imap( uint64_t int_value, size_t length, double double_value,
 // ----------------------------------------------------------------------------
 template < class E >
 void
-test_read_imap_throw( uint64_t int_value, size_t length,
-                      double minimum, double maximum )
+test_read_imap_throw(
+  uint64_t int_value, size_t length, double minimum, double maximum )
 {
   auto const write_length = std::max< size_t >( 1, length );
   auto data = vec_t( write_length, 0xba );
   auto it = &*data.begin();
   klv_write_int< uint64_t >( int_value, it, write_length );
   auto cit = &*data.cbegin();
-  EXPECT_THROW( klv_read_imap( minimum, maximum, cit, length ), E );
+  EXPECT_THROW( klv_read_imap( { minimum, maximum }, cit, length ), E );
   EXPECT_EQ( &*data.cbegin(), cit );
 }
 
 // ----------------------------------------------------------------------------
 void
-test_read_imap_type_overflow( uint64_t int_value, size_t length,
-                              double minimum, double maximum )
+test_read_imap_type_overflow(
+  uint64_t int_value, size_t length, double minimum, double maximum )
 {
   test_read_imap_throw< kv::metadata_type_overflow >(
     int_value, length, minimum, maximum );
@@ -1082,8 +1083,8 @@ test_read_imap_type_overflow( uint64_t int_value, size_t length,
 
 // ----------------------------------------------------------------------------
 void
-test_read_imap_logic_error( uint64_t int_value, size_t length,
-                            double minimum, double maximum )
+test_read_imap_logic_error(
+  uint64_t int_value, size_t length, double minimum, double maximum )
 {
   test_read_imap_throw< std::logic_error >(
     int_value, length, minimum, maximum );
@@ -1132,7 +1133,6 @@ TEST ( klv, read_imap )
   // Invalid arguments
   CALL_TEST( test_read_imap_logic_error, 0, 0,         0.0,         1.0 );
   CALL_TEST( test_read_imap_logic_error, 0, 1,         0.0,         0.0 );
-  CALL_TEST( test_read_imap_logic_error, 0, 1,         0.0,        -1.0 );
   CALL_TEST( test_read_imap_logic_error, 0, 1, -double_inf,         0.0 );
   CALL_TEST( test_read_imap_logic_error, 0, 1,         0.0, +double_inf );
   CALL_TEST( test_read_imap_logic_error, 0, 1, double_qnan,         0.0 );
@@ -1141,16 +1141,17 @@ TEST ( klv, read_imap )
 
 // ----------------------------------------------------------------------------
 void
-test_write_imap( double value, double expected_value, size_t length,
-                 double minimum, double maximum, bool force_exact = true )
+test_write_imap(
+  double value, double expected_value, size_t length,
+  double minimum, double maximum, bool force_exact = true )
 {
   auto data = vec_t( length, 0xba );
   auto it = &*data.begin();
-  klv_write_imap( value, minimum, maximum, it, data.size() );
+  klv_write_imap( value, { minimum, maximum }, it, data.size() );
   EXPECT_EQ( &*data.end(), it );
   auto cit = &*data.cbegin();
 
-  auto const result = klv_read_imap( minimum, maximum, cit, data.size() );
+  auto const result = klv_read_imap( { minimum, maximum }, cit, data.size() );
   if( std::isnan( expected_value ) )
   {
     // GTest won't print result value on fail, so do it manually
@@ -1164,7 +1165,7 @@ test_write_imap( double value, double expected_value, size_t length,
   }
   else
   {
-    auto const precision = klv_imap_precision( minimum, maximum, length );
+    auto const precision = klv_imap_precision( { minimum, maximum }, length );
     EXPECT_NEAR( expected_value, result, precision / 2.0 );
   }
   EXPECT_EQ( &*data.cend(), it );
@@ -1172,7 +1173,8 @@ test_write_imap( double value, double expected_value, size_t length,
 
 // ----------------------------------------------------------------------------
 void
-test_write_imap( double value, size_t length, double minimum, double maximum )
+test_write_imap(
+  double value, size_t length, double minimum, double maximum )
 {
   test_write_imap( value, value, length, minimum, maximum, false );
 }
@@ -1180,22 +1182,22 @@ test_write_imap( double value, size_t length, double minimum, double maximum )
 // ----------------------------------------------------------------------------
 template < class E >
 void
-test_write_imap_throw( double value, double minimum, double maximum,
-                       size_t length )
+test_write_imap_throw(
+  double value, double minimum, double maximum, size_t length )
 {
   auto data = vec_t( length, 0xba );
   auto it = &*data.begin();
-  EXPECT_THROW( klv_write_imap( value, minimum, maximum, it, data.size() ),
-                E );
+  EXPECT_THROW( klv_write_imap( value, { minimum, maximum }, it, data.size() ), E );
   EXPECT_EQ( &*data.begin(), it );
 }
 
 // ----------------------------------------------------------------------------
 void
-test_write_imap_logic_error( double value, double minimum, double maximum,
-                             size_t length )
+test_write_imap_logic_error(
+  double value, double minimum, double maximum, size_t length )
 {
-  test_write_imap_throw< std::logic_error >( value, minimum, maximum, length );
+  test_write_imap_throw< std::logic_error >(
+    value, minimum, maximum, length );
 }
 
 // ----------------------------------------------------------------------------

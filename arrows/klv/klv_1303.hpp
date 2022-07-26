@@ -116,7 +116,7 @@ klv_1303_mdap_format< Format >
       result.imap_params = kv::interval< double >{ minimum, maximum };
 
       using format_t = klv_lengthless_format< klv_imap_format >;
-      format.reset( new format_t{ minimum, maximum, result.element_size } );
+      format.reset( new format_t{ *result.imap_params, result.element_size } );
 
       break;
     }
@@ -193,7 +193,7 @@ klv_1303_mdap_format< Format >
       klv_write_float( minimum, data, tracker.verify( param_length ) );
       klv_write_float( maximum, data, tracker.verify( param_length ) );
       using format_t = klv_lengthless_format< klv_imap_format >;
-      format.reset( new format_t{ minimum, maximum, value.element_size } );
+      format.reset( new format_t{ *value.imap_params, value.element_size } );
       break;
     }
     case KLV_1303_APA_NATURAL:

@@ -110,13 +110,15 @@ klv_0903_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_HORIZONTAL_FOV ),
-      std::make_shared< klv_imap_format >( 0.0, 180.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ 0.0, 180.0 } ),
       "VMTI Horizontal FOV",
       "Horizonal field of view of sensor input to the VMTI process.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VERTICAL_FOV ),
-      std::make_shared< klv_imap_format >( 0.0, 180.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ 0.0, 180.0 } ),
       "VMTI Vertical FOV",
       "Vertical field of view of sensor input to the VMTI process.",
       { 0, 1 } },

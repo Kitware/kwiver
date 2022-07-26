@@ -44,67 +44,68 @@ _imap_signal_nan( bool sign_bit, size_t length )
 
 // ----------------------------------------------------------------------------
 _imap_terms
-_calculate_imap_terms( double minimum, double maximum, size_t length )
+_calculate_imap_terms(
+  vital::interval< double > const& interval, size_t length )
 {
   // ST1201, Section 8.1.2
-  auto const float_exponent = std::ceil( std::log2( maximum - minimum ) );
+  auto const float_exponent = std::ceil( std::log2( interval.span() ) );
   auto const int_exponent = 8.0 * length - 1.0;
 
   _imap_terms result = {};
   result.forward_scale = std::exp2( int_exponent - float_exponent );
   result.backward_scale = std::exp2( float_exponent - int_exponent );
-  result.zero_offset = ( minimum < 0 && maximum > 0 )
-                       ? result.forward_scale * minimum -
-                       std::floor( result.forward_scale * minimum )
+  result.zero_offset = interval.contains( 0.0, false, false )
+                       ? result.forward_scale * interval.lower() -
+                       std::floor( result.forward_scale * interval.lower() )
                        : 0.0;
   return result;
 }
 
 // ----------------------------------------------------------------------------
 size_t
-klv_imap_length( double minimum, double maximum, double precision )
+klv_imap_length( vital::interval< double > const& interval, double precision )
 {
   // ST1201, Section 8.1.1
-  _check_range_precision( minimum, maximum, precision );
+  _check_range_precision( interval, precision );
 
-  auto const length_bits = std::ceil( std::log2( maximum - minimum ) ) -
+  auto const length_bits = std::ceil( std::log2( interval.span() ) ) -
                            std::floor( std::log2( precision ) ) + 1.0;
   return static_cast< size_t >( std::ceil( length_bits / 8.0 ) );
 }
 
 // ----------------------------------------------------------------------------
 double
-klv_imap_precision( double minimum, double maximum, size_t length )
+klv_imap_precision( vital::interval< double > const& interval, size_t length )
 {
-  _check_range_length( minimum, maximum, length );
+  _check_range_length( interval, length );
 
   auto const length_bits = length * 8.0;
-  return std::exp2( std::log2( maximum - minimum ) - length_bits + 1 );
+  return std::exp2( std::log2( interval.span() ) - length_bits + 1 );
 }
 
 namespace {
 
 // ----------------------------------------------------------------------------
 void
-_check_range( double minimum, double maximum )
+_check_range( vital::interval< double > const& interval )
 {
-  if( !std::isfinite( minimum ) )
+  if( !std::isfinite( interval.lower() ) )
   {
     throw std::logic_error( "minimum must be finite" );
   }
 
-  if( !std::isfinite( maximum ) )
+  if( !std::isfinite( interval.upper() ) )
   {
     throw std::logic_error( "maximum must be finite" );
   }
 
-  if( std::isinf( maximum - minimum ) )
+  if( std::isinf( interval.span() ) )
   {
     VITAL_THROW( kv::metadata_type_overflow,
                  "span too large for double type" );
   }
 
-  if( !( minimum < maximum ) )
+  if( !( interval.lower() < interval.upper() ) )
   {
     throw std::logic_error( "minimum must be less than maximum" );
   }
@@ -114,16 +115,17 @@ _check_range( double minimum, double maximum )
 
 // ----------------------------------------------------------------------------
 void
-_check_range_precision( double minimum, double maximum, double precision )
+_check_range_precision(
+  vital::interval< double > const& interval, double precision )
 {
-  _check_range( minimum, maximum );
+  _check_range( interval );
 
   if( !std::isfinite( precision ) )
   {
     throw std::logic_error( "precision must be finite" );
   }
 
-  if( !( precision < maximum - minimum ) )
+  if( !( precision < interval.span() ) )
   {
     throw std::logic_error( "precision must be less than min-max span" );
   }
@@ -131,9 +133,9 @@ _check_range_precision( double minimum, double maximum, double precision )
 
 // ----------------------------------------------------------------------------
 void
-_check_range_length( double minimum, double maximum, size_t length )
+_check_range_length( vital::interval< double > const& interval, size_t length )
 {
-  _check_range( minimum, maximum );
+  _check_range( interval );
 
   if( !length )
   {
@@ -211,10 +213,11 @@ klv_write_float( double value, klv_write_iter_t& data, size_t length )
 // ----------------------------------------------------------------------------
 double
 klv_read_imap(
-  double minimum, double maximum, klv_read_iter_t& data, size_t length )
+  vital::interval< double > const& interval,
+  klv_read_iter_t& data, size_t length )
 {
   // Section 8.1.2
-  _check_range_length( minimum, maximum, length );
+  _check_range_length( interval, length );
 
   auto const int_value = klv_read_int< uint64_t >( data, length );
   auto value = static_cast< double >( int_value );
@@ -255,22 +258,23 @@ klv_read_imap(
   }
 
   // Normal value
-  auto const terms = _calculate_imap_terms( minimum, maximum, length );
-  value = terms.backward_scale * ( value - terms.zero_offset ) + minimum;
+  auto const terms = _calculate_imap_terms( interval, length );
+  value =
+    terms.backward_scale * ( value - terms.zero_offset ) + interval.lower();
 
   // Return exactly zero if applicable, overriding rounding errors. IMAP
   // specification considers this important
-  auto const precision = klv_imap_precision( minimum, maximum, length );
+  auto const precision = klv_imap_precision( interval, length );
   return ( std::abs( value ) < precision / 2.0 ) ? 0.0 : value;
 }
 
 // ----------------------------------------------------------------------------
 void
-klv_write_imap( double value, double minimum, double maximum,
+klv_write_imap( double value, vital::interval< double > const& interval,
                 klv_write_iter_t& data, size_t length )
 {
   // Section 8.1.2, 8.2.1
-  _check_range_length( minimum, maximum, length );
+  _check_range_length( interval, length );
 
   uint64_t int_value = 0;
   if( std::isnan( value ) )
@@ -280,21 +284,22 @@ klv_write_imap( double value, double minimum, double maximum,
     int_value = _imap_quiet_nan( std::signbit( value ), length );
   }
   // Out-of-range values set to infinity
-  else if( value < minimum )
+  else if( value < interval.lower() )
   {
     int_value = _imap_infinity( true, length );
   }
-  else if( value > maximum )
+  else if( value > interval.upper() )
   {
     int_value = _imap_infinity( false, length );
   }
   // Normal values
   else
   {
-    auto const terms = _calculate_imap_terms( minimum, maximum, length );
+    auto const terms = _calculate_imap_terms( interval, length );
     int_value =
-      static_cast< uint64_t >( terms.forward_scale * ( value - minimum ) +
-                               terms.zero_offset );
+      static_cast< uint64_t >(
+        terms.forward_scale * ( value - interval.lower() ) +
+        terms.zero_offset );
   }
 
   klv_write_int( int_value, data, length );
@@ -344,25 +349,25 @@ klv_write_string(
 
 // ----------------------------------------------------------------------------
 size_t
-klv_flint_length( double minimum, double maximum, double precision )
+klv_flint_length( vital::interval< double > const& interval, double precision )
 {
-  _check_range_precision( minimum, maximum, precision );
+  _check_range_precision( interval, precision );
 
   // Based on IMAP, but without the one extra bit IMAP uses for NaN, Inf
-  auto const length_bits = std::ceil( std::log2( maximum - minimum ) ) -
+  auto const length_bits = std::ceil( std::log2( interval.span() ) ) -
                            std::floor( std::log2( precision ) );
   return static_cast< size_t >( std::ceil( length_bits / 8.0 ) );
 }
 
 // ----------------------------------------------------------------------------
 double
-klv_flint_precision( double minimum, double maximum, size_t length )
+klv_flint_precision( vital::interval< double > const& interval, size_t length )
 {
-  _check_range_length( minimum, maximum, length );
+  _check_range_length( interval, length );
 
   // Based on IMAP, but without the one extra bit IMAP uses for NaN, Inf
   auto const length_bits = length * 8.0;
-  return std::exp2( std::log2( maximum - minimum ) - length_bits );
+  return std::exp2( std::log2( interval.span() ) - length_bits );
 }
 
 // ----------------------------------------------------------------------------
