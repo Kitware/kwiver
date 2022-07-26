@@ -161,7 +161,7 @@ auto const expected_result = klv_local_set{
   { KLV_0601_ALTITUDE_ABOVE_GROUND_LEVEL,      kld{ 2150.0000000000000 } },
   { KLV_0601_RADAR_ALTIMETER,                  kld{ 2154.5000000000000 } },
   { KLV_0601_CONTROL_COMMAND,
-    klv_0601_control_command{ 5, "Fly to Waypoint 1", 0 } },
+    klv_0601_control_command{ 5, "Fly to Waypoint 1", kv::nullopt } },
   { KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST,
     std::vector< uint64_t >{ 3, 7 } },
   { KLV_0601_SENSOR_AZIMUTH_RATE,              kld{  1.0 } },

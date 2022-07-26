@@ -445,7 +445,7 @@ struct KWIVER_ALGO_KLV_EXPORT klv_0601_control_command
 {
   uint16_t id;
   std::string string;
-  uint64_t timestamp;
+  vital::optional< uint64_t > timestamp;
 };
 
 // ----------------------------------------------------------------------------

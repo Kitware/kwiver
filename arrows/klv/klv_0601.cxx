@@ -1283,9 +1283,7 @@ operator<<( std::ostream& os, klv_0601_control_command const& value )
 {
   return os << "{ " << "ID: " << value.id
             << ", String: \"" << value.string
-            << "\", Timestamp: " << ( value.timestamp
-                                  ? std::to_string( value.timestamp )
-                                  : "(empty)" )
+            << "\", Timestamp: " << value.timestamp
             << " }";
 }
 
@@ -1320,20 +1318,9 @@ klv_0601_control_command_format
   }
 
   result.string = klv_read_string( data, length_of_string );
-  switch( tracker.remaining() )
+  if( tracker.remaining() )
   {
-    case 0:
-      result.timestamp = 0;
-      break;
-    case 8:
-      result.timestamp = klv_read_int< uint64_t >( data, 8 );
-      break;
-    default:
-      VITAL_THROW( kwiver::vital::metadata_exception,
-                   std::to_string( tracker.remaining() ) +
-                   " bytes left over for timestamp while parsing "
-                   "command pack; expected 0 or 8" );
-      break;
+    result.timestamp = klv_read_int< uint64_t >( data, tracker.verify( 8 ) );
   }
   return result;
 }
@@ -1352,12 +1339,7 @@ klv_0601_control_command_format
   klv_write_string( value.string, data, tracker.remaining() );
   if( value.timestamp )
   {
-    if( tracker.remaining() < 8 )
-    {
-      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
-                   "writing control command timestamp overflows buffer" );
-    }
-    klv_write_int( value.timestamp, data, 8 );
+    klv_write_int( *value.timestamp, data, tracker.verify( 8 ) );
   }
 }
 
