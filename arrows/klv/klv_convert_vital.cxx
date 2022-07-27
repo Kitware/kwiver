@@ -621,9 +621,11 @@ klv_1108_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
 
     if( best_metric_set )
     {
-      auto const value =
-        best_metric_set->at( KLV_1108_METRIC_SET_VALUE ).get< double >();
-      vital_data.add( metric.second, value );
+      auto const value = best_metric_set->at( KLV_1108_METRIC_SET_VALUE );
+      if( value.valid() )
+      {
+        vital_data.add( metric.second, value.get< double >() );
+      }
     }
   }
 }
