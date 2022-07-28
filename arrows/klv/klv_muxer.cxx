@@ -258,11 +258,18 @@ klv_muxer
       {
         if( tag == KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST )
         {
-          auto const& typed_value =
-            subentry.value.get< std::vector< uint64_t > >();
-          control_command_verify_list.insert(
-            control_command_verify_list.end(),
-            typed_value.cbegin(), typed_value.cend() );
+          if( subentry.value.valid() )
+          {
+            auto const& typed_value =
+              subentry.value.get< std::vector< uint64_t > >();
+            control_command_verify_list.insert(
+              control_command_verify_list.end(),
+              typed_value.cbegin(), typed_value.cend() );
+          }
+          else
+          {
+            set.add( tag, subentry.value );
+          }
         }
         else
         {
@@ -281,28 +288,36 @@ klv_muxer
     auto const it = entry.second.find( timestamp );
     if( it != entry.second.end() )
     {
-      switch( tag )
+      if( it->value.valid() )
       {
-        // List tags
-        case KLV_0601_WAVELENGTHS_LIST:
-          wavelength_list.emplace_back(
-            it->value.get< klv_0601_wavelength_record >() );
-          break;
-        case KLV_0601_PAYLOAD_LIST:
-          payload_list.emplace_back(
-            it->value.get< klv_0601_payload_record >() );
-          break;
-        case KLV_0601_WAYPOINT_LIST:
-          waypoint_list.emplace_back(
-            it->value.get< klv_0601_waypoint_record >() );
-          break;
+        switch( tag )
+        {
+          // List tags
+          case KLV_0601_WAVELENGTHS_LIST:
+            wavelength_list.emplace_back(
+              it->value.get< klv_0601_wavelength_record >() );
+            break;
+          case KLV_0601_PAYLOAD_LIST:
+            payload_list.emplace_back(
+              it->value.get< klv_0601_payload_record >() );
+            break;
+          case KLV_0601_WAYPOINT_LIST:
+            waypoint_list.emplace_back(
+              it->value.get< klv_0601_waypoint_record >() );
+            break;
 
-        // Non-list tags
-        case KLV_0601_SDCC_FLP:
-        case KLV_0601_CONTROL_COMMAND:
-        default:
-          set.add( tag, it->value );
-          break;
+          // Non-list tags
+          case KLV_0601_SDCC_FLP:
+          case KLV_0601_CONTROL_COMMAND:
+          default:
+            set.add( tag, it->value );
+            break;
+        }
+      }
+      else
+      {
+        // Just add blob values as they are
+        set.add( tag, it->value );
       }
     }
     else if( lookup.by_tag( entry.first.tag ).tag_count_range().upper() == 1 )

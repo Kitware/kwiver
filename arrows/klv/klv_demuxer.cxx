@@ -333,6 +333,12 @@ klv_demuxer
   {
     auto const tag = entry.first;
     auto const& value = entry.second;
+    if( !value.valid() )
+    {
+      demux_single_entry( standard, tag, {}, time_interval, value );
+      continue;
+    }
+
     switch( tag )
     {
       // Timestamp already implicitly encoded
@@ -398,8 +404,18 @@ klv_demuxer
   constexpr auto standard = KLV_PACKET_MISB_1108_LOCAL_SET;
 
   // Extract timestamp
-  auto const metric_period = value.at( KLV_1108_METRIC_PERIOD_PACK )
-    .get< klv_1108_metric_period_pack >();
+  auto const metric_period_range = value.all_at( KLV_1108_METRIC_PERIOD_PACK );
+  if( metric_period_range.size() != 1 ||
+      !metric_period_range.begin()->second.valid() )
+  {
+    LOG_ERROR(
+      kv::get_logger( "klv" ),
+      "demuxer: ST1108 packet has missing or invalid metric period pack "
+      "and will be dropped" );
+    return;
+  }
+  auto const metric_period =
+    metric_period_range.begin()->second.get< klv_1108_metric_period_pack >();
 
   // Valid for the period of time specified in METRIC_PERIOD_PACK field
   auto const time_interval =
