@@ -141,7 +141,7 @@ klv_read_packet( klv_read_iter_t& data, size_t max_length )
 
   // Read value
   auto const value =
-    format.read( data, length_of_value - checksum_length );
+    format.read( data, tracker.verify( length_of_value - checksum_length ) );
 
   // Ensure iterator ends correctly
   data += format.checksum_length();

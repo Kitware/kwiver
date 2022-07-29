@@ -19,3 +19,6 @@ Arrows: KLV
 
 * Fixed possible out-of-bounds memory read leading to crash when KLV parsing
   fails.
+
+* Fixed bug in KLV packet reader which failed to check if the packet's length
+  was larger than the available number of input bytes.
