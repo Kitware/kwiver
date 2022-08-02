@@ -152,10 +152,17 @@ close_loops_exhaustive
     all_matches[f] = pool.enqueue(match_func, f);
   }
 
+  std::map<vital::frame_id_t, track_pairs_t> all_matches_done;
+  // ensure all parallel jobs are finished before modifying input
+  for(auto& pair : all_matches)
+  {
+    all_matches_done[pair.first] = std::move(pair.second.get());
+  }
+
   // retrieve match results and stitch frames together
   for(vital::frame_id_t f = frame_number - 2; f >= last_frame; f-- )
   {
-    auto const& matches = all_matches[f].get();
+    auto const& matches = all_matches_done[f];
     size_t num_matched = matches.size();
     int num_linked = 0;
     if( num_matched >= d_->match_req )

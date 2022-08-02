@@ -131,6 +131,7 @@ public:
   klv_value
   read( klv_read_iter_t& data, size_t length ) const override final
   {
+    auto const begin = data;
     if( !length )
     {
       // Zero length: null / unknown value
@@ -147,7 +148,7 @@ public:
       // Return blob if parsing failed
       LOG_ERROR( kwiver::vital::get_logger( "klv" ),
                 "error occurred during parsing: " << e.what() );
-      return klv_read_blob( data, length );
+      return klv_read_blob( ( data = begin ), length );
     }
   }
 
