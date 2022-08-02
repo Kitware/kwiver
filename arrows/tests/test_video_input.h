@@ -86,12 +86,6 @@ void test_read_video_sublist( kwiver::vital::algo::video_input& vi )
     auto img = vi.frame_image();
     auto md = vi.frame_metadata();
 
-    if (md.size() > 0)
-    {
-      std::cout << "-----------------------------------\n" << std::endl;
-      kwiver::vital::print_metadata( std::cout, *md[0] );
-    }
-
     ++num_frames;
     ++frame_idx;
     EXPECT_EQ( frame_idx, ts.get_frame() )
@@ -114,12 +108,6 @@ void test_read_video_sublist_nth_frame( kwiver::vital::algo::video_input& vi )
   {
     auto img = vi.frame_image();
     auto md = vi.frame_metadata();
-
-    if (md.size() > 0)
-    {
-      std::cout << "-----------------------------------\n" << std::endl;
-      kwiver::vital::print_metadata( std::cout, *md[0] );
-    }
 
     num_frames += nth_frame_output;
     frame_idx += nth_frame_output;
@@ -269,12 +257,6 @@ void test_read_video_nth_frame( kwiver::vital::algo::video_input& vi )
   {
     auto img = vi.frame_image();
     auto md = vi.frame_metadata();
-
-    if (md.size() > 0)
-    {
-      std::cout << "-----------------------------------\n" << std::endl;
-      kwiver::vital::print_metadata( std::cout, *md[0] );
-    }
 
     ++num_frames;
     EXPECT_EQ( expected_frame_num, ts.get_frame() )

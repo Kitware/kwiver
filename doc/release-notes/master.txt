@@ -26,6 +26,8 @@ Arrows: FFmpeg
 
 * Added basic configuration options to ffmpeg_video_output.
 
+* Added CUVID video decoding support.
+
 Arrows: KLV
 
 * Implemented ST1107.

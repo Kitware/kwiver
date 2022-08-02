@@ -5,6 +5,7 @@
 /// \file
 /// \brief Implementation file for video input using FFmpeg.
 
+#include "ffmpeg_cuda.h"
 #include "ffmpeg_init.h"
 #include "ffmpeg_util.h"
 #include "ffmpeg_video_input.h"
@@ -41,6 +42,7 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
 #include <libavutil/opt.h>
+#include <libavutil/hwcontext.h>
 #include <libswscale/swscale.h>
 }
 
@@ -250,6 +252,7 @@ public:
     open_video_state( priv& parent, std::string const& path );
     ~open_video_state();
 
+    bool try_codec();
     void init_filters();
     bool advance();
     void seek( kv::frame_id_t frame_number );
@@ -271,6 +274,7 @@ public:
 
     format_context_uptr format_context;
     codec_context_uptr codec_context;
+    AVCodec const* codec;
 
     AVStream* video_stream;
 
@@ -294,11 +298,14 @@ public:
   ffmpeg_video_input& parent;
   kv::logger_handle_t logger;
 
-  bool sync_metadata;
+  hardware_device_context_uptr hardware_device_context;
+
   bool use_misp_timestamps;
   bool smooth_klv_packets;
   std::string unknown_stream_behavior;
   std::string filter_description;
+  bool cuda_enabled;
+  int cuda_device_index;
 
   kv::optional< open_video_state > video;
 
@@ -310,17 +317,32 @@ public:
   bool is_valid() const;
   void open( std::string const& path );
   void close();
+
+  void hardware_init();
+  void cuda_init();
+
+  AVHWDeviceContext* hardware_device() const;
+#ifdef KWIVER_ENABLE_FFMPEG_CUDA
+  AVCUDADeviceContext* cuda_device() const;
+#endif
 };
 
 // ----------------------------------------------------------------------------
 ffmpeg_video_input::priv
 ::priv( ffmpeg_video_input& parent )
   : parent( parent ),
-    sync_metadata{ true },
+    logger{ kv::get_logger( "ffmpeg_video_input" ) },
+    hardware_device_context{ nullptr },
     use_misp_timestamps{ false },
     smooth_klv_packets{ false },
     unknown_stream_behavior{ "klv" },
     filter_description{ "yadif=deint=1" },
+#ifdef KWIVER_ENABLE_FFMPEG_CUDA
+    cuda_enabled{ true },
+#else
+    cuda_enabled{ false },
+#endif
+    cuda_device_index{ 0 },
     video{}
 {}
 
@@ -363,6 +385,7 @@ void
 ffmpeg_video_input::priv
 ::open( std::string const& path )
 {
+  hardware_init();
   video.emplace( *this, path );
 }
 
@@ -373,6 +396,110 @@ ffmpeg_video_input::priv
 {
   video.reset();
 }
+
+// ----------------------------------------------------------------------------
+void
+ffmpeg_video_input::priv
+::hardware_init()
+{
+  if( !hardware_device_context && cuda_enabled )
+  {
+    try
+    {
+      cuda_init();
+    }
+    catch( std::exception const& e )
+    {
+      LOG_ERROR( logger, "CUDA initialization failed: " << e.what() );
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+void
+ffmpeg_video_input::priv
+::cuda_init()
+{
+#ifdef KWIVER_ENABLE_FFMPEG_CUDA
+  // Initialize CUDA
+  throw_error_code_cuda( cuInit( 0 ), "Could not initialize CUDA" );
+
+  // Create FFmpeg CUDA context
+  hardware_device_context_uptr hw_context{
+    throw_error_null(
+      av_hwdevice_ctx_alloc( AV_HWDEVICE_TYPE_CUDA ),
+    "Could not allocate hardware device context" ) };
+
+  auto const cuda_hw_context =
+    static_cast< AVCUDADeviceContext* >(
+      reinterpret_cast< AVHWDeviceContext* >( hw_context->data )->hwctx );
+
+  // Acquire CUDA device
+  CUdevice cu_device;
+  throw_error_code_cuda(
+    cuDeviceGet( &cu_device, cuda_device_index ),
+    "Could not acquire CUDA device " + std::to_string( cuda_device_index ) );
+
+  {
+    constexpr size_t buffer_size = 128;
+    char buffer[ buffer_size ] = {};
+    cuDeviceGetName( buffer, buffer_size - 1, cu_device );
+    LOG_INFO(
+      logger,
+      "Using CUDA device " << cuda_device_index << ": `" << buffer << "`" );
+  }
+
+  // Initialize FFmpeg CUDA context
+  throw_error_code_cuda(
+    cuCtxCreate( &cuda_hw_context->cuda_ctx, 0, cu_device ),
+    "Could not create CUDA context" );
+
+#if LIBAVCODEC_VERSION_MAJOR > 57
+  throw_error_code_cuda(
+    cuStreamCreate( &cuda_hw_context->stream, CU_STREAM_DEFAULT ),
+    "Could not create CUDA stream" );
+#endif
+
+  throw_error_code(
+    av_hwdevice_ctx_init( hw_context.get() ),
+    "Could not initialize hardware device context" );
+
+  // Only keep this hardware context if setup worked
+  hardware_device_context = std::move( hw_context );
+#else
+  LOG_DEBUG(
+    logger,
+    "Could not initialize CUDA: Not compiled with KWIVER_ENABLE_CUDA" );
+#endif
+}
+
+// ----------------------------------------------------------------------------
+AVHWDeviceContext*
+ffmpeg_video_input::priv
+::hardware_device() const
+{
+  if( !hardware_device_context )
+  {
+    return nullptr;
+  }
+  return reinterpret_cast< AVHWDeviceContext* >(
+    hardware_device_context->data );
+}
+
+// ----------------------------------------------------------------------------
+#ifdef KWIVER_ENABLE_FFMPEG_CUDA
+AVCUDADeviceContext*
+ffmpeg_video_input::priv
+::cuda_device() const
+{
+  if( !hardware_device() ||
+      hardware_device()->type != AV_HWDEVICE_TYPE_CUDA )
+  {
+    return nullptr;
+  }
+  return static_cast< AVCUDADeviceContext* >( hardware_device()->hwctx );
+}
+#endif
 
 // ----------------------------------------------------------------------------
 ffmpeg_video_input::priv::frame_state
@@ -412,6 +539,16 @@ ffmpeg_video_input::priv::frame_state
   if( image )
   {
     return image;
+  }
+
+  // Transfer frame data from hardware device
+  if( frame->hw_frames_ctx )
+  {
+    throw_error_code(
+      av_hwframe_transfer_data( processed_frame.get(), frame.get(), 0 ),
+      "Could not read frame data from hardware device" );
+    av_frame_unref( frame.get() );
+    av_frame_move_ref( frame.get(), processed_frame.get() );
   }
 
   // Run the frame through the filter graph
@@ -558,6 +695,7 @@ ffmpeg_video_input::priv::open_video_state
     path{ path },
     format_context{ nullptr },
     codec_context{ nullptr },
+    codec{ nullptr },
     video_stream{ nullptr },
     filter_graph{ nullptr },
     filter_sink_context{ nullptr },
@@ -624,33 +762,114 @@ ffmpeg_video_input::priv::open_video_state
 
   // Dig up information about the video's codec
   auto const video_params = video_stream->codecpar;
-  auto const codec_descriptor =
-    avcodec_descriptor_get( video_params->codec_id );
-  std::string const codec_name =
-    codec_descriptor ? codec_descriptor->long_name : "<unknown>";
+  auto const codec_id = video_params->codec_id;
+  LOG_INFO(
+    logger, "Video requires codec type: " << pretty_codec_name( codec_id ) );
 
-  LOG_INFO( logger, "Using input codec `" << codec_name << "`" );
+  // Codec prioritization scheme:
+  // (1) Choose hardware over software codecs
+  auto const codec_cmp =
+    [ & ]( AVCodec const* lhs, AVCodec const* rhs ) -> bool {
+      return
+        std::make_tuple( is_hardware_codec( lhs ) ) >
+        std::make_tuple( is_hardware_codec( rhs ) );
+    };
+  std::multiset<
+    AVCodec const*, std::function< bool( AVCodec const*, AVCodec const* ) > >
+  possible_codecs{ codec_cmp };
 
-  // Find appropriate codec
-  auto const codec = avcodec_find_decoder( video_params->codec_id );
-  throw_error_null( codec, "Could not find input codec `", codec_name, "`" );
-  LOG_INFO( logger, "Codec provided by `" << codec->name << "`" );
+  // Find all compatible CUDA codecs
+#ifdef KWIVER_ENABLE_FFMPEG_CUDA
+  if( parent.cuda_device() )
+  {
+    auto const cuda_codecs = cuda_find_decoders( *video_params );
+    possible_codecs.insert( cuda_codecs.begin(), cuda_codecs.end() );
+  }
+#endif
+
+  // Find all compatible software codecs
+  AVCodec const* codec_ptr = nullptr;
+#if LIBAVCODEC_VERSION_MAJOR > 57
+  for( void* it = nullptr; ( codec_ptr = av_codec_iterate( &it ) ); )
+#else
+  while( ( codec_ptr = av_codec_next( codec_ptr ) ) )
+#endif
+  {
+    if( codec_ptr->id == codec_id &&
+        av_codec_is_decoder( codec_ptr ) &&
+        !is_hardware_codec( codec_ptr ) &&
+        !( codec_ptr->capabilities & AV_CODEC_CAP_EXPERIMENTAL ) )
+    {
+      possible_codecs.emplace( codec_ptr );
+    }
+  }
+
+  // Find the first compatible codec that works, in priority order
+  for( auto const possible_codec : possible_codecs )
+  {
+    codec = possible_codec;
+    if( try_codec() )
+    {
+      break;
+    }
+    else
+    {
+      codec = nullptr;
+    }
+  }
+
+  throw_error_null(
+    codec,
+    "Could not open video with any known input codec. ",
+    possible_codecs.size(), " codecs were tried. ",
+    "Required codec type: ", pretty_codec_name( codec_id ) );
+  LOG_INFO(
+    logger, "Successfully loaded codec: " << pretty_codec_name( codec ) );
+}
+
+// ----------------------------------------------------------------------------
+ffmpeg_video_input::priv::open_video_state
+::~open_video_state()
+{}
+
+// ----------------------------------------------------------------------------
+bool
+ffmpeg_video_input::priv::open_video_state
+::try_codec()
+{
+  LOG_TRACE(
+    parent->logger, "Trying input codec: " << pretty_codec_name( codec ) );
 
   // Allocate context
   codec_context.reset(
     throw_error_null(
       avcodec_alloc_context3( codec ),
-      "Could not allocate context for input codec `", codec_name, "`" ) );
+      "Could not allocate context for input codec: ",
+      pretty_codec_name( codec ) ) );
 
   // Fill in context
   throw_error_code(
-    avcodec_parameters_to_context( codec_context.get(), video_params ),
-    "Could not fill parameters for input codec `", codec_name, "`" );
+    avcodec_parameters_to_context(
+      codec_context.get(), video_stream->codecpar ),
+    "Could not fill parameters for input codec: ",
+    pretty_codec_name( codec ) );
+
+  if( is_hardware_codec( codec ) )
+  {
+    codec_context->hw_device_ctx =
+      av_buffer_ref( parent->hardware_device_context.get() );
+  }
 
   // Open codec
-  throw_error_code(
-    avcodec_open2( codec_context.get(), codec, NULL ),
-    "Could not open input codec `", codec_name, "`" );
+  auto const err = avcodec_open2( codec_context.get(), codec, NULL );
+  if( err < 0 )
+  {
+    LOG_WARN(
+      parent->logger,
+      "Could not open input codec: " << pretty_codec_name( codec ) << ": "
+      << error_string( err ) );
+    return false;
+  }
 
   // Initialize filter graph
   init_filters();
@@ -678,6 +897,20 @@ ffmpeg_video_input::priv::open_video_state
 
       send_err = avcodec_send_packet( codec_context.get(), tmp_packet.get() );
       recv_err = avcodec_receive_frame( codec_context.get(), tmp_frame.get() );
+      if( recv_err != AVERROR_EOF && recv_err != AVERROR( EAGAIN ) )
+      {
+        throw_error_code( recv_err, "Could not read frame from decoder" );
+      }
+      if( send_err < 0 &&
+          send_err != AVERROR( EAGAIN ) &&
+          send_err != AVERROR_INVALIDDATA )
+      {
+        // There's something wrong with the codec setup; try a different one
+        LOG_WARN(
+          parent->logger, "Could not read beginning of video with codec "
+          << pretty_codec_name( codec ) << ": " << error_string( send_err ) );
+        return false;
+      }
       av_packet_unref( tmp_packet.get() );
     } while( send_err || recv_err );
     start_ts = tmp_frame->best_effort_timestamp;
@@ -689,12 +922,9 @@ ffmpeg_video_input::priv::open_video_state
       format_context.get(), video_stream->index, 0, AVSEEK_FLAG_FRAME ),
     "Could not seek to beginning of video" );
   avcodec_flush_buffers( codec_context.get() );
-}
 
-// ----------------------------------------------------------------------------
-ffmpeg_video_input::priv::open_video_state
-::~open_video_state()
-{}
+  return true;
+}
 
 // ----------------------------------------------------------------------------
 void
@@ -716,10 +946,14 @@ ffmpeg_video_input::priv::open_video_state
 
   // Create the input buffer
   {
+    auto const pix_fmt =
+      codec_context->hw_device_ctx
+      ? codec_context->sw_pix_fmt
+      : codec_context->pix_fmt;
     std::stringstream ss;
     ss << "video_size=" << codec_context->width << "x"
                         << codec_context->height
-      << ":pix_fmt=" << codec_context->pix_fmt
+      << ":pix_fmt=" << pix_fmt
       << ":time_base=" << video_stream->time_base.num << "/"
                        << video_stream->time_base.den
       << ":pixel_aspect=" << codec_context->sample_aspect_ratio.num << "/"
@@ -906,7 +1140,7 @@ ffmpeg_video_input::priv::open_video_state
       stream.demuxer.frame_time() +
       static_cast< uint64_t >( frame_delta * 1000000u );
     auto max_pts = INT64_MAX;
-    if( parent->sync_metadata && frame.has_value() )
+    if( frame.has_value() )
     {
       max_pts = frame->frame->best_effort_timestamp;
     }
@@ -1197,6 +1431,11 @@ ffmpeg_video_input::priv::open_video_state
       result->parameters.get(), codec_context.get() ),
     "Could not fill codec parameters from context" );
 
+  if( codec_context->hw_device_ctx )
+  {
+    result->parameters->format = codec_context->sw_pix_fmt;
+  }
+
   return std::move( result );
 }
 
@@ -1247,13 +1486,6 @@ ffmpeg_video_input
     "See details at https://ffmpeg.org/ffmpeg-filters.html" );
 
   config->set_value(
-    "sync_metadata", d->sync_metadata,
-    "When set to true will attempt to synchronize the metadata by "
-    "caching metadata packets whose timestamp is greater than the "
-    "current frame's timestamp until a frame is reached with timestamp "
-    "that is equal or greater than the metadata's timestamp." );
-
-  config->set_value(
     "use_misp_timestamps", d->use_misp_timestamps,
     "When set to true, will attempt to use correlate KLV packet data to "
     "frames using the MISP timestamps embedding in the frame packets. This is "
@@ -1271,8 +1503,16 @@ ffmpeg_video_input
   config->set_value(
     "unknown_stream_behavior", d->unknown_stream_behavior,
     "Set to 'klv' to treat unknown streams as KLV. "
-    "Set to 'ignore' to ignore unknown streams (default)."
-  );
+    "Set to 'ignore' to ignore unknown streams (default)." );
+
+  config->set_value(
+    "cuda_enabled", d->cuda_enabled,
+    "When set to true, uses CUDA/CUVID to accelerate video decoding." );
+
+  config->set_value(
+    "cuda_device_index", d->cuda_device_index,
+    "Integer index of the CUDA-enabled device to use for decoding. "
+    "Defaults to 0." );
 
   return config;
 }
@@ -1283,6 +1523,13 @@ void
 ffmpeg_video_input
 ::set_configuration( kv::config_block_sptr in_config )
 {
+  if( d->is_open() )
+  {
+    VITAL_THROW(
+      kv::video_config_exception,
+      "Cannot change video configuration while video is open" );
+  }
+
   // Starting with our generated kv::config_block to ensure that assumed
   // values are present
   // An alternative is to check for key presence before performing a
@@ -1299,10 +1546,6 @@ ffmpeg_video_input
     config->get_value< bool >(
       "use_misp_timestamps", d->use_misp_timestamps );
 
-  d->sync_metadata =
-    config->get_value< bool >(
-      "sync_metadata", d->sync_metadata );
-
   d->smooth_klv_packets =
     config->get_value< bool >(
       "smooth_klv_packets", d->smooth_klv_packets );
@@ -1310,6 +1553,21 @@ ffmpeg_video_input
   d->unknown_stream_behavior =
     config->get_value< std::string >(
       "unknown_stream_behavior", d->unknown_stream_behavior );
+
+  d->cuda_enabled =
+    config->get_value< bool >(
+      "cuda_enabled", d->cuda_enabled );
+
+  if( !d->cuda_enabled && d->hardware_device() &&
+      d->hardware_device()->type == AV_HWDEVICE_TYPE_CUDA )
+  {
+    // Turn off the active CUDA instance
+    d->hardware_device_context.reset();
+  }
+
+  d->cuda_device_index =
+    config->get_value< int >(
+      "cuda_device_index", d->cuda_device_index );
 }
 
 // ----------------------------------------------------------------------------
