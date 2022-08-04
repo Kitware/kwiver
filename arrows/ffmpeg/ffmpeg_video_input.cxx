@@ -257,9 +257,7 @@ public:
     bool advance();
     void seek( kv::frame_id_t frame_number );
     void set_video_metadata( kv::metadata& md );
-    AVRational start_time() const;
     AVRational curr_time() const;
-    AVRational end_time() const;
     AVRational duration() const;
     AVRational frame_rate() const;
     size_t num_frames() const;
@@ -1326,14 +1324,6 @@ ffmpeg_video_input::priv::open_video_state
 // ----------------------------------------------------------------------------
 AVRational
 ffmpeg_video_input::priv::open_video_state
-::start_time() const
-{
-  return av_mul_q( av_make_q( start_ts, 1 ), video_stream->time_base );
-}
-
-// ----------------------------------------------------------------------------
-AVRational
-ffmpeg_video_input::priv::open_video_state
 ::curr_time() const
 {
   if( !frame.has_value() )
@@ -1349,20 +1339,12 @@ ffmpeg_video_input::priv::open_video_state
 // ----------------------------------------------------------------------------
 AVRational
 ffmpeg_video_input::priv::open_video_state
-::end_time() const
+::duration() const
 {
   return av_mul_q(
     av_make_q(
       video_stream->start_time + video_stream->duration - start_ts, 1 ),
     video_stream->time_base );
-}
-
-// ----------------------------------------------------------------------------
-AVRational
-ffmpeg_video_input::priv::open_video_state
-::duration() const
-{
-  return av_sub_q( end_time(), start_time() );
 }
 
 // ----------------------------------------------------------------------------
