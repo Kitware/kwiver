@@ -58,6 +58,15 @@ inline int throw_error_code_cuda( CUresult error_code, Args... args )
 std::vector< AVCodec const* >
 cuda_find_decoders( AVCodecParameters const& video_params );
 
+// ----------------------------------------------------------------------------
+std::vector< AVCodec const* >
+cuda_find_encoders(
+  AVOutputFormat const& output_format,
+  AVCodecParameters const& video_params );
+
+// ----------------------------------------------------------------------------
+hardware_device_context_uptr cuda_create_context( int device_index );
+
 } // namespace ffmpeg
 
 } // namespace arrows

@@ -38,8 +38,8 @@ main( int argc, char** argv )
 namespace {
 
 constexpr uint64_t random_seed = 54321;
-constexpr size_t random_image_width = 96;
-constexpr size_t random_image_height = 64;
+constexpr size_t random_image_width = 256;
+constexpr size_t random_image_height = 128;
 
 } // namespace
 

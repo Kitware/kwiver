@@ -419,51 +419,8 @@ ffmpeg_video_input::priv
 ::cuda_init()
 {
 #ifdef KWIVER_ENABLE_FFMPEG_CUDA
-  // Initialize CUDA
-  throw_error_code_cuda( cuInit( 0 ), "Could not initialize CUDA" );
-
-  // Create FFmpeg CUDA context
-  hardware_device_context_uptr hw_context{
-    throw_error_null(
-      av_hwdevice_ctx_alloc( AV_HWDEVICE_TYPE_CUDA ),
-    "Could not allocate hardware device context" ) };
-
-  auto const cuda_hw_context =
-    static_cast< AVCUDADeviceContext* >(
-      reinterpret_cast< AVHWDeviceContext* >( hw_context->data )->hwctx );
-
-  // Acquire CUDA device
-  CUdevice cu_device;
-  throw_error_code_cuda(
-    cuDeviceGet( &cu_device, cuda_device_index ),
-    "Could not acquire CUDA device " + std::to_string( cuda_device_index ) );
-
-  {
-    constexpr size_t buffer_size = 128;
-    char buffer[ buffer_size ] = {};
-    cuDeviceGetName( buffer, buffer_size - 1, cu_device );
-    LOG_INFO(
-      logger,
-      "Using CUDA device " << cuda_device_index << ": `" << buffer << "`" );
-  }
-
-  // Initialize FFmpeg CUDA context
-  throw_error_code_cuda(
-    cuCtxCreate( &cuda_hw_context->cuda_ctx, 0, cu_device ),
-    "Could not create CUDA context" );
-
-#if LIBAVCODEC_VERSION_MAJOR > 57
-  throw_error_code_cuda(
-    cuStreamCreate( &cuda_hw_context->stream, CU_STREAM_DEFAULT ),
-    "Could not create CUDA stream" );
-#endif
-
-  throw_error_code(
-    av_hwdevice_ctx_init( hw_context.get() ),
-    "Could not initialize hardware device context" );
-
-  // Only keep this hardware context if setup worked
-  hardware_device_context = std::move( hw_context );
+  hardware_device_context =
+    std::move( cuda_create_context( cuda_device_index ) );
 #else
   LOG_DEBUG(
     logger,
