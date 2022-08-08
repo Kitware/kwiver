@@ -15,27 +15,71 @@ namespace arrows {
 
 namespace klv {
 
-namespace {
-
-// Indicates a functioning clock of unknown absolute-ness
-constexpr uint8_t default_status = 0x9F;
-
-} // namespace
-
 // ----------------------------------------------------------------------------
 misp_timestamp
 ::misp_timestamp()
-  : timestamp{ 0 }, status{ default_status } {}
+  : m_timestamp{ 0 }, m_status{ default_status }
+{}
 
 // ----------------------------------------------------------------------------
 misp_timestamp
-::misp_timestamp( uint64_t timestamp )
-  : timestamp{ timestamp }, status{ default_status } {}
+::misp_timestamp( std::chrono::microseconds timestamp, uint8_t status )
+  : m_timestamp{ timestamp }, m_status{ status }
+{}
 
 // ----------------------------------------------------------------------------
 misp_timestamp
-::misp_timestamp( uint64_t timestamp, uint8_t status )
-  : timestamp{ timestamp }, status{ status } {}
+::misp_timestamp( std::chrono::nanoseconds timestamp, uint8_t status )
+  : m_timestamp{ timestamp }, m_status{ status }
+{}
+
+// ----------------------------------------------------------------------------
+std::chrono::microseconds
+misp_timestamp
+::microseconds() const
+{
+  return std::chrono::microseconds{ ( m_timestamp.count() + 500 ) / 1000 };
+}
+
+// ----------------------------------------------------------------------------
+void
+misp_timestamp
+::set_microseconds( std::chrono::microseconds microseconds )
+{
+  m_timestamp = std::chrono::nanoseconds{ microseconds };
+}
+
+// ----------------------------------------------------------------------------
+std::chrono::nanoseconds
+misp_timestamp
+::nanoseconds() const
+{
+  return m_timestamp;
+}
+
+// ----------------------------------------------------------------------------
+void
+misp_timestamp
+::set_nanoseconds( std::chrono::nanoseconds nanoseconds )
+{
+  m_timestamp = nanoseconds;
+}
+
+// ----------------------------------------------------------------------------
+uint8_t
+misp_timestamp
+::status() const
+{
+  return m_status;
+}
+
+// ----------------------------------------------------------------------------
+void
+misp_timestamp
+::set_status( uint8_t status )
+{
+  m_status = status;
+}
 
 // ----------------------------------------------------------------------------
 klv_read_iter_t
@@ -64,14 +108,20 @@ find_misp_timestamp( klv_read_iter_t begin, klv_read_iter_t end,
 }
 
 // ----------------------------------------------------------------------------
+bool
+is_misp_timestamp_nano( klv_read_iter_t data )
+{
+  return std::equal(
+    misp_detail::tag_uuid_nano,
+    misp_detail::tag_uuid_nano + misp_detail::tag_length, data );
+}
+
+// ----------------------------------------------------------------------------
 misp_timestamp
 read_misp_timestamp( klv_read_iter_t& data )
 {
   // Skip tag to get to status and timestamp
-  auto const is_nano =
-    std::equal( misp_detail::tag_uuid_nano,
-                misp_detail::tag_uuid_nano + misp_detail::tag_length,
-                data );
+  auto const is_nano = is_misp_timestamp_nano( data );
   std::advance( data, misp_detail::tag_length );
 
   auto const status = *data;
@@ -91,30 +141,32 @@ read_misp_timestamp( klv_read_iter_t& data )
     ++data;
   }
 
-  if( is_nano )
+  if( !is_nano )
   {
-    timestamp = ( timestamp + 500 ) / 1000;
+    timestamp *= 1000;
   }
 
-  return { timestamp, status };
+  return { std::chrono::nanoseconds{ timestamp }, status };
 }
 
 // ----------------------------------------------------------------------------
 void
 write_misp_timestamp( misp_timestamp value, klv_write_iter_t& data,
-                      misp_timestamp_tag_type tag_type )
+                      misp_timestamp_tag_type tag_type, bool is_nano )
 {
   // Write tag
   auto const& tag =
     ( tag_type == MISP_TIMESTAMP_TAG_UUID )
-    ? misp_detail::tag_uuid
+    ? ( is_nano ? misp_detail::tag_uuid_nano : misp_detail::tag_uuid )
     : misp_detail::tag_string;
   data = std::copy( tag, tag + misp_detail::tag_length, data );
 
   // Write status
-  *data = value.status;
+  *data = value.status();
   ++data;
 
+  auto timestamp =
+    is_nano ? value.nanoseconds().count() : value.microseconds().count();
   for( auto const i :
        kwiver::vital::range::iota( misp_detail::timestamp_length ) )
   {
@@ -128,8 +180,8 @@ write_misp_timestamp( misp_timestamp value, klv_write_iter_t& data,
     {
       // Write the next most significant byte
       constexpr uint64_t mask = 0xFF << 7;
-      *data = value.timestamp & mask;
-      value.timestamp <<= 8;
+      *data = timestamp & mask;
+      timestamp <<= 8;
     }
     ++data;
   }
@@ -143,8 +195,16 @@ misp_timestamp_length()
 }
 
 // ----------------------------------------------------------------------------
-uint64_t
-misp_timestamp_now()
+std::chrono::microseconds
+misp_microseconds_now()
+{
+  return std::chrono::microseconds(
+    ( misp_nanoseconds_now().count() + 500 ) / 1000 );
+}
+
+// ----------------------------------------------------------------------------
+std::chrono::nanoseconds
+misp_nanoseconds_now()
 {
   // TODO (C++20) Use std::chrono::tai_clock instead. Make sure to adjust for
   // TAI epoch being different than Unix epoch.
@@ -152,8 +212,8 @@ misp_timestamp_now()
   // For now, we assume system_clock yields time since the Unix epoch,
   // including leap seconds, and estimate TAI from there.
   auto const time = std::chrono::system_clock::now().time_since_epoch();
-  auto const microseconds_utc =
-    std::chrono::duration_cast< std::chrono::microseconds >( time );
+  auto const nanoseconds_utc =
+    std::chrono::duration_cast< std::chrono::nanoseconds >( time );
 
   // Hardcoding this is a hack, but AFAIK there is no portable way to get the
   // true current number of leap seconds without C++20.
@@ -161,13 +221,13 @@ misp_timestamp_now()
 
   // UTC is 10 seconds behind TAI even without leap seconds.
   auto const tai_offset = std::chrono::seconds( 10 );
-  auto const microseconds_tai = microseconds_utc + tai_offset + leap_seconds;
+  auto const nanoseconds_tai = nanoseconds_utc + tai_offset + leap_seconds;
 
   // MISP time is (TAI since Unix epoch) - 8.000082 seconds.
   auto const misp_offset = std::chrono::microseconds( -8000082 );
-  auto const microseconds_misp = microseconds_tai + misp_offset;
+  auto const nanoseconds_misp = nanoseconds_tai + misp_offset;
 
-  return static_cast< uint64_t >( microseconds_misp.count() );
+  return nanoseconds_misp;
 }
 
 } // namespace klv

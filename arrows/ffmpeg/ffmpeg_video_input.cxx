@@ -611,7 +611,7 @@ ffmpeg_video_input::priv::frame_state
       parent->pts_to_misp_ts.find( frame->best_effort_timestamp );
     if( it != parent->pts_to_misp_ts.end() )
     {
-      misp_timestamp = it->second.timestamp;
+      misp_timestamp = it->second.microseconds().count();
     }
     else
     {
