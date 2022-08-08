@@ -94,19 +94,19 @@ struct KWIVER_ALGO_KLV_EXPORT _imap_terms
 // Calculates the derived terms needed for both IMAP reading and writing.
 KWIVER_ALGO_KLV_EXPORT
 _imap_terms
-_calculate_imap_terms( double minimum, double maximum, size_t length );
+_calculate_imap_terms( vital::interval< double > const& interval, size_t length );
 
 // ----------------------------------------------------------------------------
 // Throws invalid_value if arguments don't make sense
 KWIVER_ALGO_KLV_EXPORT
 void
-_check_range_precision( double minimum, double maximum, double precision );
+_check_range_precision( vital::interval< double > const& interval, double precision );
 
 // ----------------------------------------------------------------------------
 // Throws invalid_value if arguments don't make sense
 KWIVER_ALGO_KLV_EXPORT
 void
-_check_range_length( double minimum, double maximum, size_t length );
+_check_range_length( vital::interval< double > const& interval, size_t length );
 
 // ----------------------------------------------------------------------------
 template < class T >
@@ -349,14 +349,14 @@ klv_ber_oid_length( T value )
 template < class T >
 double
 klv_read_flint(
-  double minimum, double maximum, klv_read_iter_t& data, size_t length )
+  vital::interval< double > const& interval, klv_read_iter_t& data, size_t length )
 {
   KLV_ASSERT_INT( T );
 
-  _check_range_length( minimum, maximum, length );
+  _check_range_length( interval, length );
 
   // Before read to avoid moving iterator
-  if( std::is_signed< T >::value && minimum != -maximum )
+  if( std::is_signed< T >::value && interval.lower() != -interval.upper() )
   {
     throw std::logic_error( "range must be symmetrical around zero" );
   }
@@ -372,29 +372,29 @@ klv_read_flint(
       return std::numeric_limits< double >::quiet_NaN();
     }
 
-    auto const scale = maximum / _int_max< T >( length );
+    auto const scale = interval.upper() / _int_max< T >( length );
     return float_value * scale;
   }
   else
   {
-    auto const scale = ( maximum - minimum ) / _int_max< T >( length );
-    return float_value * scale + minimum;
+    auto const scale = interval.span() / _int_max< T >( length );
+    return float_value * scale + interval.lower();
   }
 }
 
 // ----------------------------------------------------------------------------
 template < class T >
 void
-klv_write_flint( double value, double minimum, double maximum,
+klv_write_flint( double value, vital::interval< double > const& interval,
                  klv_write_iter_t& data, size_t length )
 {
   // Ensure types are compatible with our assumptions
   KLV_ASSERT_INT( T );
 
-  _check_range_length( minimum, maximum, length );
+  _check_range_length( interval, length );
 
   // Check before NaN
-  if( std::is_signed< T >::value && minimum != -maximum )
+  if( std::is_signed< T >::value && interval.lower() != -interval.upper() )
   {
     throw std::logic_error( "range must be symmetrical around zero" );
   }
@@ -412,11 +412,11 @@ klv_write_flint( double value, double minimum, double maximum,
   // C++17: if constexpr
   if( std::is_signed< T >::value )
   {
-    auto const scale = max_int / maximum;
+    auto const scale = max_int / interval.upper();
     auto const float_value = value * scale;
     auto int_value = static_cast< T >( std::round( float_value ) );
 
-    if( minimum > value || value > maximum )
+    if( !interval.contains( value, true, true ) )
     {
       // Special invalid / out-of-range value
       int_value = min_int;
@@ -435,8 +435,8 @@ klv_write_flint( double value, double minimum, double maximum,
   }
   else
   {
-    auto const scale = max_int / ( maximum - minimum );
-    auto const float_value = ( value - minimum ) * scale;
+    auto const scale = max_int / interval.span();
+    auto const float_value = ( value - interval.lower() ) * scale;
     auto int_value = static_cast< T >( std::round( float_value ) );
 
     // Clamp the value to max/min range. This tests float_value instead of

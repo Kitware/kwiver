@@ -51,6 +51,12 @@ public:
     return m_upper;
   }
 
+  /// Return the difference between the lower and upper bounds.
+  T span() const
+  {
+    return m_upper - m_lower;
+  }
+
   /// Ensure the lower bound is at least \p new_lower.
   ///
   /// \throws invalid_argument If \p new_lower is greater than the current

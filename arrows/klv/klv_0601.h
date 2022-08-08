@@ -664,8 +664,8 @@ class KWIVER_ALGO_KLV_EXPORT klv_0601_view_domain_interval_format
   : public klv_data_format_< klv_0601_view_domain_interval >
 {
 public:
-  klv_0601_view_domain_interval_format( double start_mininum,
-                                        double start_maximum );
+  klv_0601_view_domain_interval_format(
+    vital::interval< double > const& start_interval );
 
   std::string
   description() const override;

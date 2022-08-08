@@ -532,35 +532,6 @@ public:
     }
   }
 
-  void save( klv_float_format const& )
-  {}
-
-  void save( klv_imap_format const& value )
-  {
-    save( "lower-bound", value.minimum() );
-    save( "upper-bound", value.maximum() );
-  }
-
-  void save( klv_data_format const& value )
-  {
-    auto const object_scope = push_object();
-    save( "type", find_format_name( typeid( value ) ) );
-    kv::visit_types<
-      klv_data_format_visitor,
-      klv_float_format,
-      klv_imap_format
-      >( { *this, value }, typeid( value ) );
-
-    if( value.fixed_length() )
-    {
-      save( "length", value.fixed_length() );
-    }
-    else
-    {
-      save( "length", nullptr );
-    }
-  }
-
   void save( klv_blob const& value )
   {
     save_base64( *value );
@@ -1054,24 +1025,6 @@ struct klv_json_loader : public klv_json_base< load_archive >
     return load< typename T::value_type >();
   }
 
-  LOAD_TEMPLATE( std::shared_ptr< klv_data_format > )
-  T load()
-  {
-    if( load_null() )
-    {
-      return nullptr;
-    }
-
-    auto const object_scope = push_object();
-    auto const& type = find_format_type( load< std::string >( "type" ) );
-    return kv::visit_types_return<
-      T,
-      klv_data_format_visitor,
-      klv_float_format,
-      klv_imap_format
-      >( { *this }, type );
-  }
-
   LOAD_CONTAINER_TEMPLATE( kv::interval )
   T load()
   {
@@ -1242,23 +1195,6 @@ struct klv_json_loader : public klv_json_base< load_archive >
       result.add( key, std::move( value ) );
     }
     return result;
-  }
-
-  LOAD_TEMPLATE( klv_float_format )
-  T load()
-  {
-    LOAD_VALUE( length, kv::optional< size_t > );
-    return length ? T{ *length } : T{};
-  }
-
-  LOAD_TEMPLATE( klv_imap_format )
-  T load()
-  {
-    LOAD_VALUE( lower_bound, double );
-    LOAD_VALUE( upper_bound, double );
-    LOAD_VALUE( length, kv::optional< size_t > );
-    return length ? T{ lower_bound, upper_bound, *length }
-                  : T{ lower_bound, upper_bound };
   }
 
   LOAD_TEMPLATE( klv_0601_airbase_locations )

@@ -559,7 +559,8 @@ class KWIVER_ALGO_KLV_EXPORT klv_sflint_format
   : public klv_data_format_< klv_lengthy< double > >
 {
 public:
-  klv_sflint_format( double minimum, double maximum, size_t fixed_length = 0 );
+  klv_sflint_format(
+    vital::interval< double > const& interval, size_t fixed_length = 0 );
 
   virtual
   ~klv_sflint_format() = default;
@@ -567,11 +568,8 @@ public:
   std::string
   description() const override;
 
-  double
-  minimum() const;
-
-  double
-  maximum() const;
+  vital::interval< double >
+  interval() const;
 
 protected:
   klv_lengthy< double >
@@ -588,8 +586,7 @@ protected:
   print_typed( std::ostream& os,
                klv_lengthy< double > const& value ) const override;
 
-  double m_minimum;
-  double m_maximum;
+  vital::interval< double > m_interval;
 };
 
 // ----------------------------------------------------------------------------
@@ -599,7 +596,8 @@ class KWIVER_ALGO_KLV_EXPORT klv_uflint_format
   : public klv_data_format_< klv_lengthy< double > >
 {
 public:
-  klv_uflint_format( double minimum, double maximum, size_t fixed_length = 0 );
+  klv_uflint_format(
+    vital::interval< double > const& interval, size_t fixed_length = 0 );
 
   virtual
   ~klv_uflint_format() = default;
@@ -607,11 +605,8 @@ public:
   std::string
   description() const override;
 
-  double
-  minimum() const;
-
-  double
-  maximum() const;
+  vital::interval< double >
+  interval() const;
 
 protected:
   klv_lengthy< double >
@@ -628,8 +623,7 @@ protected:
   print_typed( std::ostream& os,
                klv_lengthy< double > const& value ) const override;
 
-  double m_minimum;
-  double m_maximum;
+  vital::interval< double > m_interval;
 };
 
 // ----------------------------------------------------------------------------
@@ -638,16 +632,14 @@ class KWIVER_ALGO_KLV_EXPORT klv_imap_format
   : public klv_data_format_< klv_lengthy< double > >
 {
 public:
-  klv_imap_format( double minimum, double maximum, size_t fixed_length = 0 );
+  klv_imap_format(
+    vital::interval< double > const& interval, size_t fixed_length = 0 );
 
   std::string
   description() const override;
 
-  double
-  minimum() const;
-
-  double
-  maximum() const;
+  vital::interval< double >
+  interval() const;
 
 protected:
   klv_lengthy< double >
@@ -664,8 +656,7 @@ protected:
   print_typed( std::ostream& os,
                klv_lengthy< double > const& value ) const override;
 
-  double m_minimum;
-  double m_maximum;
+  vital::interval< double > m_interval;
 };
 
 // ----------------------------------------------------------------------------

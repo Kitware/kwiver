@@ -25,8 +25,9 @@ test_read_write_imap( klv_value const& expected_result,
 {
   using format_t =
     klv_1303_mdap_format< klv_lengthless_format< klv_imap_format > >;
-  test_read_write_format< format_t >( expected_result, input_bytes,
-                                      { minimum, maximum, fixed_length } );
+  test_read_write_format< format_t >(
+    expected_result, input_bytes,
+    { kwiver::vital::interval< double >{ minimum, maximum }, fixed_length } );
 }
 
 // ----------------------------------------------------------------------------

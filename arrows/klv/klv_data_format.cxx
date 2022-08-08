@@ -440,9 +440,9 @@ klv_float_format
 
 // ----------------------------------------------------------------------------
 klv_sflint_format
-::klv_sflint_format( double minimum, double maximum, size_t fixed_length )
-  : klv_data_format_< data_type >{ fixed_length }, m_minimum{ minimum },
-    m_maximum{ maximum }
+::klv_sflint_format(
+  vital::interval< double > const& interval, size_t fixed_length )
+  : klv_data_format_< data_type >{ fixed_length }, m_interval{ interval }
 {}
 
 // ----------------------------------------------------------------------------
@@ -450,8 +450,7 @@ klv_lengthy< double >
 klv_sflint_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
-  return { klv_read_flint< int64_t >( m_minimum, m_maximum, data, length ),
-           length };
+  return { klv_read_flint< int64_t >( m_interval, data, length ), length };
 }
 
 // ----------------------------------------------------------------------------
@@ -460,8 +459,7 @@ klv_sflint_format
 ::write_typed( klv_lengthy< double > const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  klv_write_flint< int64_t >( value.value, m_minimum, m_maximum,
-                              data, length );
+  klv_write_flint< int64_t >( value.value, m_interval, data, length );
 }
 
 // ----------------------------------------------------------------------------
@@ -495,32 +493,24 @@ klv_sflint_format
 ::description() const
 {
   std::stringstream ss;
-  ss    << "signed integer of " << length_description() << " mapped to range "
-        << "( " << m_minimum << ", " << m_maximum << " )";
+  ss << "signed integer of " << length_description()
+     << " mapped to range " << m_interval;
   return ss.str();
 }
 
 // ----------------------------------------------------------------------------
-double
+vital::interval< double >
 klv_sflint_format
-::minimum() const
+::interval() const
 {
-  return m_minimum;
-}
-
-// ----------------------------------------------------------------------------
-double
-klv_sflint_format
-::maximum() const
-{
-  return m_maximum;
+  return m_interval;
 }
 
 // ----------------------------------------------------------------------------
 klv_uflint_format
-::klv_uflint_format( double minimum, double maximum, size_t fixed_length )
-  : klv_data_format_< data_type >{ fixed_length }, m_minimum{ minimum },
-    m_maximum{ maximum }
+::klv_uflint_format(
+  vital::interval< double > const& interval, size_t fixed_length )
+  : klv_data_format_< data_type >{ fixed_length }, m_interval{ interval }
 {}
 
 // ----------------------------------------------------------------------------
@@ -528,8 +518,7 @@ klv_lengthy< double >
 klv_uflint_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
-  return { klv_read_flint< uint64_t >( m_minimum, m_maximum, data, length ),
-           length };
+  return { klv_read_flint< uint64_t >( m_interval, data, length ), length };
 }
 
 // ----------------------------------------------------------------------------
@@ -538,8 +527,7 @@ klv_uflint_format
 ::write_typed( klv_lengthy< double > const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  klv_write_flint< uint64_t >( value.value, m_minimum, m_maximum,
-                               data, length );
+  klv_write_flint< uint64_t >( value.value, m_interval, data, length );
 }
 
 // ----------------------------------------------------------------------------
@@ -574,39 +562,30 @@ klv_uflint_format
 {
   std::stringstream ss;
   ss    << "unsigned integer of " << length_description() <<
-        " mapped to range "
-        << "( " << m_minimum << ", " << m_maximum << " )";
+        " mapped to range " << m_interval;
   return ss.str();
 }
 
 // ----------------------------------------------------------------------------
-double
+vital::interval< double >
 klv_uflint_format
-::minimum() const
+::interval() const
 {
-  return m_minimum;
-}
-
-// ----------------------------------------------------------------------------
-double
-klv_uflint_format
-::maximum() const
-{
-  return m_maximum;
+  return m_interval;
 }
 
 // ----------------------------------------------------------------------------
 klv_imap_format
-::klv_imap_format( double minimum, double maximum, size_t fixed_length )
-  : klv_data_format_< data_type >{ fixed_length }, m_minimum{ minimum },
-    m_maximum{ maximum } {}
+::klv_imap_format( vital::interval< double > const& interval, size_t fixed_length )
+  : klv_data_format_< data_type >{ fixed_length }, m_interval{ interval }
+{}
 
 // ----------------------------------------------------------------------------
 klv_lengthy< double >
 klv_imap_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
-  return { klv_read_imap( m_minimum, m_maximum, data, length ), length };
+  return { klv_read_imap( m_interval, data, length ), length };
 }
 
 // ----------------------------------------------------------------------------
@@ -615,7 +594,7 @@ klv_imap_format
 ::write_typed( klv_lengthy< double > const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  klv_write_imap( value.value, m_minimum, m_maximum, data, length );
+  klv_write_imap( value.value, m_interval, data, length );
 }
 
 // ----------------------------------------------------------------------------
@@ -649,25 +628,16 @@ klv_imap_format
 ::description() const
 {
   std::stringstream ss;
-  ss    << "IMAP-encoded range ( " << m_minimum << ", " << m_maximum << " ), "
-        << "of " << length_description();
+  ss << "IMAP-encoded range " << m_interval << "of " << length_description();
   return ss.str();
 }
 
 // ----------------------------------------------------------------------------
-double
+vital::interval< double >
 klv_imap_format
-::minimum() const
+::interval() const
 {
-  return m_minimum;
-}
-
-// ----------------------------------------------------------------------------
-double
-klv_imap_format
-::maximum() const
-{
-  return m_maximum;
+  return m_interval;
 }
 
 } // namespace klv

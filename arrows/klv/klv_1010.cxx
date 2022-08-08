@@ -189,7 +189,7 @@ klv_1010_sdcc_flp_format
       }
       else if( result.rho_uses_imap )
       {
-        value = klv_read_imap( -1.0, 1.0, data,
+        value = klv_read_imap( { -1.0, 1.0 }, data,
                                tracker.verify( result.rho_length ) );
       }
       else
@@ -299,7 +299,7 @@ klv_1010_sdcc_flp_format
       }
       else if( value.rho_uses_imap )
       {
-        klv_write_imap( rho_value, -1.0, 1.0, data,
+        klv_write_imap( rho_value, { -1.0, 1.0 }, data,
                         tracker.verify( value.rho_length ) );
       }
       else
