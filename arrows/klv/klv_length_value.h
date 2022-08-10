@@ -83,7 +83,7 @@ write_trunc_lv_impl(
   auto const& item = std::get< 0 >( value );
   if( item )
   {
-    format.write_( *item, data, length );
+    klv_write_lv( *item, data, length, format );
   }
 }
 
@@ -107,7 +107,7 @@ write_trunc_lv_impl(
   if( tracker.remaining() )
   {
     auto const remaining = pop_tuple( value );
-    write_trunc_lv_impl( remaining, data, length, formats... );
+    write_trunc_lv_impl( remaining, data, tracker.remaining(), formats... );
   }
 }
 
