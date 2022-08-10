@@ -168,6 +168,7 @@ klv_local_set const test_0601_set = {
     KLV_0601_PLATFORM_STATUS_ACTIVE },
   { KLV_0601_SENSOR_CONTROL_MODE,
     KLV_0601_SENSOR_CONTROL_MODE_OFF },
+  { KLV_0601_ACTIVE_PAYLOADS, std::set< uint16_t >{ 0, 1, 3 } },
   { KLV_0601_WEAPONS_STORES,
     std::vector< klv_0601_weapons_store >{
       { 0, 1, 2, 3,

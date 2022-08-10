@@ -679,6 +679,17 @@
 			},
 			{
 				"key": {
+					"integer": 139,
+					"string": "Active Payloads"
+				},
+				"value": [
+					0,
+					1,
+					3
+				]
+			},
+			{
+				"key": {
 					"integer": 140,
 					"string": "Weapons Stores"
 				},
