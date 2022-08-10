@@ -479,7 +479,7 @@ klv_0601_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
     parse_geo_point( klv_data, standard, timestamp,
                      { KLV_0601_FRAME_CENTER_LATITUDE },
                      { KLV_0601_FRAME_CENTER_LONGITUDE },
-                     { KLV_0601_FRAME_CENTER_HEIGHT_ABOVE_ELLIPSOID,
+                     { KLV_0601_FRAME_CENTER_ELLIPSOID_HEIGHT,
                        KLV_0601_FRAME_CENTER_ELEVATION } );
   if( frame_center_location )
   {
