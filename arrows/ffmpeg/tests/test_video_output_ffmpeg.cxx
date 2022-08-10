@@ -158,6 +158,9 @@ expect_eq_videos( std::string const& src_path, std::string const& tmp_path,
        !src_is.end_of_video() && !tmp_is.end_of_video();
        src_is.next_frame( src_ts ), tmp_is.next_frame( tmp_ts ) )
   {
+    EXPECT_EQ( src_ts.get_frame(), tmp_ts.get_frame() );
+    EXPECT_EQ( src_ts.get_time_usec(), tmp_ts.get_time_usec() );
+
     auto const src_image = src_is.frame_image()->get_image();
     auto const tmp_image = tmp_is.frame_image()->get_image();
     expect_eq_images( src_image, tmp_image, image_epsilon );
