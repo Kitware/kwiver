@@ -54,6 +54,8 @@ public:
     bool write_next_packet();
     void write_remaining_packets();
 
+    int64_t next_video_pts() const;
+
     impl* parent;
 
     size_t frame_count;
@@ -712,7 +714,7 @@ ffmpeg_video_output::impl::open_video_state
     "Could not convert frame image to target pixel format" );
 
   // Try to send image to video encoder
-  converted_frame->pts = frame_count;
+  converted_frame->pts = next_video_pts();
   throw_error_code(
     avcodec_send_frame( codec_context.get(), converted_frame.get() ),
     "Could not send frame to encoder" );
@@ -774,6 +776,16 @@ ffmpeg_video_output::impl::open_video_state
   avcodec_send_frame( codec_context.get(), nullptr );
 
   while( write_next_packet() ) {}
+}
+
+// ----------------------------------------------------------------------------
+int64_t
+ffmpeg_video_output::impl::open_video_state
+::next_video_pts() const
+{
+  return static_cast< int64_t >(
+    frame_count / av_q2d( video_stream->time_base ) /
+    av_q2d( codec_context->framerate ) + 0.5 );
 }
 
 } // namespace ffmpeg
