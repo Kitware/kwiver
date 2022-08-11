@@ -22,3 +22,6 @@ Arrows: KLV
 
 * Fixed bug in KLV packet reader which failed to check if the packet's length
   was larger than the available number of input bytes.
+
+* Fixed bug in ST0601 view domain writer which would not write the length of
+  the final field.
