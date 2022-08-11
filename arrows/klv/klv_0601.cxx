@@ -613,7 +613,7 @@ klv_0601_traits_lookup()
       "Mode of operation of the event portrayed in the Motion Imagery.",
       { 0, 1 } },
     { {},
-      ENUM_AND_NAME( KLV_0601_FRAME_CENTER_HEIGHT_ABOVE_ELLIPSOID ),
+      ENUM_AND_NAME( KLV_0601_FRAME_CENTER_ELLIPSOID_HEIGHT ),
       std::make_shared< klv_uflint_format >(
         kv::interval< double >{ -900.0, 19000.0 }, 2 ),
       "Frame Center Height Above Ellipsoid",
