@@ -685,6 +685,22 @@ ffmpeg_video_input::priv::open_video_state
     auto const params = stream->codecpar;
     if( params->codec_type == AVMEDIA_TYPE_VIDEO )
     {
+      if( params->width <= 0 || params->height <= 0 )
+      {
+        LOG_ERROR(
+          logger,
+          "FFmpeg cannot determine the characteristics of video stream "
+          << stream->index << "; this stream will be ignored" );
+        continue;
+      }
+      if( video_stream )
+      {
+        LOG_WARN(
+          logger,
+          "Multiple video streams are not currently supported; stream "
+          << stream->index << " will be ignored" );
+        continue;
+      }
       video_stream = stream;
     }
     else if( params->codec_id == AV_CODEC_ID_SMPTE_KLV )
@@ -710,7 +726,7 @@ ffmpeg_video_input::priv::open_video_state
 
   // Confirm stream characteristics
   throw_error_null( video_stream,
-    "Could not find a video stream in the input" );
+    "Could not find a valid video stream in the input" );
   LOG_INFO( logger, "Found " << klv_streams.size() << " KLV stream(s)" );
 
   av_dump_format( format_context.get(), 0, path.c_str(), 0 );
