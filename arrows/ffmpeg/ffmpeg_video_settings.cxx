@@ -26,6 +26,7 @@ ffmpeg_video_settings
   {
     throw std::runtime_error{ "Could not allocate AVCodecParameters" };
   }
+  parameters->codec_type = AVMEDIA_TYPE_VIDEO;
 }
 
 // ----------------------------------------------------------------------------
@@ -42,6 +43,7 @@ ffmpeg_video_settings
   {
     throw std::runtime_error{ "Could not allocate AVCodecParameters" };
   }
+  parameters->codec_type = AVMEDIA_TYPE_VIDEO;
   parameters->width = width;
   parameters->height = height;
 }

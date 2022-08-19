@@ -542,18 +542,13 @@ ffmpeg_video_output::impl::open_video_state
 {
   LOG_DEBUG(
     parent->logger, "Trying output codec: " << pretty_codec_name( codec ) );
-  // Find best pixel format
-  // TODO: Add config options so RGB24 is not hardcoded here
-  auto pixel_format = avcodec_find_best_pix_fmt_of_list(
-    codec->pix_fmts, AV_PIX_FMT_RGB24, false, nullptr );
 
   // Create and configure codec context
   codec_context.reset(
     throw_error_null(
       avcodec_alloc_context3( codec ), "Could not allocate codec context" ) );
-  codec_context->time_base = av_inv_q( settings.frame_rate );
-  codec_context->framerate = settings.frame_rate;
-  codec_context->pix_fmt = pixel_format;
+
+  // Fill in fields from given settings
   if( codec->id == settings.parameters->codec_id )
   {
     throw_error_code(
@@ -565,8 +560,16 @@ ffmpeg_video_output::impl::open_video_state
     codec_context->width = settings.parameters->width;
     codec_context->height = settings.parameters->height;
   }
+  codec_context->time_base = av_inv_q( settings.frame_rate );
+  codec_context->framerate = settings.frame_rate;
 
   // Fill in backup parameters from config
+  if( codec_context->pix_fmt < 0 )
+  {
+    // TODO: Add config options so RGB24 is not hardcoded here
+    codec_context->pix_fmt = avcodec_find_best_pix_fmt_of_list(
+      codec->pix_fmts, AV_PIX_FMT_RGB24, false, nullptr );
+  }
   if( codec_context->framerate.num <= 0 )
   {
     codec_context->framerate = parent->frame_rate;
