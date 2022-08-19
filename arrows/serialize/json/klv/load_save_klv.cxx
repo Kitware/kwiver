@@ -91,6 +91,7 @@ using klv_type_list =
     std::set< klv_0601_generic_flag_data_bit >,
     std::set< klv_0601_positioning_method_source_bit >,
     std::set< klv_0601_weapon_engagement_status_bit >,
+    std::set< uint16_t >,
     std::string,
     std::vector< klv_0601_payload_record >,
     std::vector< klv_0601_wavelength_record >,
