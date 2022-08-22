@@ -1034,9 +1034,12 @@ ffmpeg_video_input::priv::open_video_state
           }
 
           // Send packet to decoder
-          throw_error_code(
-            avcodec_send_packet( codec_context.get(), packet.get() ),
-            "Decoder rejected packet" );
+          auto const send_err =
+            avcodec_send_packet( codec_context.get(), packet.get() );
+          if( send_err != AVERROR_INVALIDDATA )
+          {
+            throw_error_code( send_err, "Decoder rejected packet" );
+          }
         }
 
         // KLV packet
