@@ -75,6 +75,10 @@ inline T* throw_error_null( T* ptr, Args... args )
 }
 
 // ----------------------------------------------------------------------------
+// Wrapper around avformat_query_codec().
+bool format_supports_codec( AVOutputFormat const* format, AVCodecID codec_id );
+
+// ----------------------------------------------------------------------------
 #define DECLARE_PTRS( LOWER, UPPER )                                     \
 struct _ ## LOWER ## _deleter { void operator()( UPPER* ptr ) const; };  \
 using LOWER ## _uptr = std::unique_ptr< UPPER, _ ## LOWER ## _deleter >; \

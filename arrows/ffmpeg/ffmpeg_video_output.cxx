@@ -469,8 +469,7 @@ ffmpeg_video_output::impl::open_video_state
     if( av_codec_is_encoder( codec_ptr ) &&
         !is_hardware_codec( codec_ptr ) &&
         !( codec_ptr->capabilities & AV_CODEC_CAP_EXPERIMENTAL ) &&
-        avformat_query_codec(
-          output_format, codec_ptr->id, FF_COMPLIANCE_STRICT ) > 0 )
+        format_supports_codec( output_format, codec_ptr->id ) )
     {
       possible_codecs.emplace( codec_ptr );
     }

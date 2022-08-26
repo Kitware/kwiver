@@ -82,6 +82,21 @@ error_string( int error_code )
 }
 
 // ----------------------------------------------------------------------------
+bool
+format_supports_codec( AVOutputFormat const* format, AVCodecID codec_id )
+{
+  // FFmpeg isn't sure that H.264 and H.265 are supported by TS files, but
+  // they are.
+  if( format->name == std::string{ "mpegts" } &&
+      ( codec_id == AV_CODEC_ID_H264 || codec_id == AV_CODEC_ID_H265 ) )
+  {
+    return true;
+  }
+
+  return avformat_query_codec( format, codec_id, FF_COMPLIANCE_NORMAL ) > 0;
+}
+
+// ----------------------------------------------------------------------------
 #define DEFINE_DELETER( LOWER, UPPER ) \
   void _ ## LOWER ## _deleter::operator()( UPPER* ptr ) const
 

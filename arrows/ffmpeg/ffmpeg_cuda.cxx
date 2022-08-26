@@ -145,8 +145,7 @@ cuda_find_encoders(
     if( av_codec_is_encoder( codec_ptr ) &&
         is_hardware_codec( codec_ptr ) &&
         !( codec_ptr->capabilities & AV_CODEC_CAP_EXPERIMENTAL ) &&
-        avformat_query_codec(
-          &output_format, codec_ptr->id, FF_COMPLIANCE_NORMAL ) &&
+        format_supports_codec( &output_format, codec_ptr->id ) &&
         ( std::string{ codec_ptr->name }.rfind( "_nvenc" ) !=
           std::string::npos ) )
     {
