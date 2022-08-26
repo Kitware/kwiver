@@ -21,6 +21,8 @@
 kwiver::vital::path_t g_data_dir;
 
 namespace algo = kwiver::vital::algo;
+namespace ffmpeg = kwiver::arrows::ffmpeg;
+namespace kv = kwiver::vital;
 
 static int TOTAL_NUMBER_OF_FRAMES = 50;
 static std::string video_name = "videos/ffmpeg_video.mp4";
@@ -139,6 +141,76 @@ TEST_F ( ffmpeg_video_input, frame_image )
   EXPECT_TRUE( frame->get_image().is_contiguous() );
 
   EXPECT_EQ( decode_barcode( *frame ), 1 );
+}
+
+// ----------------------------------------------------------------------------
+// Verify that disabling imagery processing acts as expected and doesn't break
+// anything else.
+TEST_F( ffmpeg_video_input, imagery_disabled )
+{
+  ffmpeg::ffmpeg_video_input input;
+  auto const filename = data_dir + "/" + short_video_name;
+
+  auto config = input.get_configuration();
+  config->set_value< bool >( "imagery_enabled", false );
+  input.set_configuration( config );
+  input.open( filename );
+
+  EXPECT_FALSE( input.good() );
+  EXPECT_EQ( input.frame_image(), nullptr );
+
+  kv::frame_id_t frame_count = 0;
+  kv::timestamp ts;
+  while( input.next_frame( ts ) )
+  {
+    ++frame_count;
+    EXPECT_TRUE( input.good() );
+    EXPECT_EQ( input.frame_image(), nullptr );
+    EXPECT_EQ( ts.get_frame(), frame_count );
+
+    auto const md = input.frame_metadata();
+    ASSERT_FALSE( md.empty() );
+    ASSERT_TRUE( md.at( 0 )->has( kv::VITAL_META_UNIX_TIMESTAMP ) );
+  }
+
+  input.close();
+  EXPECT_FALSE( input.good() );
+}
+
+// ----------------------------------------------------------------------------
+// Verify that disabling KLV processing acts as expected and doesn't break
+// anything else.
+TEST_F( ffmpeg_video_input, klv_disabled )
+{
+  ffmpeg::ffmpeg_video_input input;
+  auto const filename = data_dir + "/" + video_name;
+
+  auto config = input.get_configuration();
+  config->set_value< bool >( "klv_enabled", false );
+  input.set_configuration( config );
+  input.open( filename );
+
+  EXPECT_FALSE( input.good() );
+  EXPECT_FALSE(
+    input.get_implementation_capabilities().capability(
+      algo::video_input::HAS_METADATA ) );
+
+  kv::frame_id_t frame_count = 0;
+  kv::timestamp ts;
+  while( input.next_frame( ts ) )
+  {
+    ++frame_count;
+    EXPECT_TRUE( input.good() );
+    EXPECT_NE( input.frame_image(), nullptr );
+    EXPECT_EQ( ts.get_frame(), frame_count );
+
+    auto const md = input.frame_metadata();
+    ASSERT_FALSE( md.empty() );
+    ASSERT_FALSE( md.at( 0 )->has( kv::VITAL_META_UNIX_TIMESTAMP ) );
+  }
+
+  input.close();
+  EXPECT_FALSE( input.good() );
 }
 
 // ----------------------------------------------------------------------------
