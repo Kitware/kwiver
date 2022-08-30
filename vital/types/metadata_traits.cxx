@@ -34,6 +34,10 @@ VITAL_META_##X, #X, typeid( type_of_tag< VITAL_META_##X > )
       "Unix Timestamp (microseconds)",
       "Number of microseconds since the Unix epoch, not counting leap "
       "seconds." },
+    { TRAITS_OF( UNIX_NANO_TIMESTAMP ),
+      "Unix Timestamp (nanoseconds)",
+      "Number of nanoseconds since the Unix epoch, not counting leap "
+      "seconds." },
     { TRAITS_OF( MISSION_ID ),
       "Mission ID",
       "Descriptive mission identifier to distinguish event or sortie." },

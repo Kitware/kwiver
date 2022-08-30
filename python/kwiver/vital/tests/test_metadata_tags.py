@@ -47,6 +47,7 @@ class TestVitalMetadataTags(unittest.TestCase):
             mt.tags.VITAL_META_UNKNOWN,
             mt.tags.VITAL_META_METADATA_ORIGIN,
             mt.tags.VITAL_META_UNIX_TIMESTAMP,
+            mt.tags.VITAL_META_UNIX_NANO_TIMESTAMP,
             mt.tags.VITAL_META_MISSION_ID,
             mt.tags.VITAL_META_MISSION_NUMBER,
             mt.tags.VITAL_META_PLATFORM_TAIL_NUMBER,

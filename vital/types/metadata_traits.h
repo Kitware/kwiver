@@ -30,6 +30,7 @@ template < vital_metadata_tag Tag > struct metadata_tag_static_traits;
 TAG_TYPE( VITAL_META_UNKNOWN, int );
 TAG_TYPE( VITAL_META_METADATA_ORIGIN, string_t );
 TAG_TYPE( VITAL_META_UNIX_TIMESTAMP, uint64_t );
+TAG_TYPE( VITAL_META_UNIX_NANO_TIMESTAMP, uint64_t );
 TAG_TYPE( VITAL_META_MISSION_ID, string_t );
 TAG_TYPE( VITAL_META_MISSION_NUMBER, string_t );
 TAG_TYPE( VITAL_META_PLATFORM_TAIL_NUMBER, string_t );
