@@ -30,13 +30,19 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
   : public vital::video_settings
 {
   ffmpeg_video_settings();
-
+  ffmpeg_video_settings( ffmpeg_video_settings const& other );
+  ffmpeg_video_settings( ffmpeg_video_settings&& other );
   ffmpeg_video_settings(
     size_t width, size_t height,
     AVRational frame_rate,
     size_t klv_stream_count );
 
   ~ffmpeg_video_settings();
+
+  ffmpeg_video_settings&
+  operator=( ffmpeg_video_settings const& other );
+  ffmpeg_video_settings&
+  operator=( ffmpeg_video_settings&& other );
 
   AVRational frame_rate;
   codec_parameters_uptr parameters;
