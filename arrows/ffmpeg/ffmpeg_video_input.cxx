@@ -1407,8 +1407,7 @@ ffmpeg_video_input::priv::open_video_state
     return {};
   }
   return kv::timestamp{
-    static_cast< kv::time_usec_t >(
-      av_q2d( av_mul_q( curr_time(), av_make_q( 1000000, 1 ) ) ) + 0.5 ),
+    static_cast< kv::time_usec_t >( av_q2d( curr_time() ) * 1000000.0 + 0.5 ),
     frame_number() + 1 };
 }
 
