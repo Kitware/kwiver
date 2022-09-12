@@ -1178,10 +1178,16 @@ ffmpeg_video_input::priv::open_video_state
   }
 
   // Seek to desired frame
-  auto flags = AVSEEK_FLAG_FRAME | AVSEEK_FLAG_BACKWARD;
+  auto converted_timestamp =
+    av_make_q( static_cast< int >( frame_number ), 1 );
+  converted_timestamp =
+    av_div_q( converted_timestamp, video_stream->time_base );
+  converted_timestamp = av_div_q( converted_timestamp, frame_rate() );
+
   throw_error_code(
     av_seek_frame(
-      format_context.get(), video_stream->index, frame_number, flags ),
+      format_context.get(), video_stream->index, converted_timestamp.num,
+      AVSEEK_FLAG_BACKWARD ),
     "Could not seek to frame ", frame_number );
   if( codec_context )
   {
