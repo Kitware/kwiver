@@ -31,6 +31,26 @@ ffmpeg_video_settings
 
 // ----------------------------------------------------------------------------
 ffmpeg_video_settings
+::ffmpeg_video_settings( ffmpeg_video_settings const& other )
+  : frame_rate{ other.frame_rate },
+    parameters{ avcodec_parameters_alloc() },
+    klv_stream_count{ other.klv_stream_count }
+{
+  throw_error_code(
+    avcodec_parameters_copy( parameters.get(), other.parameters.get() ),
+    "Could not copy codec parameters" );
+}
+
+// ----------------------------------------------------------------------------
+ffmpeg_video_settings
+::ffmpeg_video_settings( ffmpeg_video_settings&& other )
+  : frame_rate{ std::move( other.frame_rate ) },
+    parameters{ std::move( other.parameters ) },
+    klv_stream_count{ std::move( other.klv_stream_count ) }
+{}
+
+// ----------------------------------------------------------------------------
+ffmpeg_video_settings
 ::ffmpeg_video_settings(
   size_t width, size_t height,
   AVRational frame_rate,
@@ -52,6 +72,31 @@ ffmpeg_video_settings
 ffmpeg_video_settings
 ::~ffmpeg_video_settings()
 {}
+
+// ----------------------------------------------------------------------------
+ffmpeg_video_settings&
+ffmpeg_video_settings
+::operator=( ffmpeg_video_settings const& other )
+{
+  frame_rate = other.frame_rate;
+  parameters.reset( avcodec_parameters_alloc() );
+  throw_error_code(
+    avcodec_parameters_copy( parameters.get(), other.parameters.get() ),
+    "Could not copy codec parameters" );
+  klv_stream_count = other.klv_stream_count;
+  return *this;
+}
+
+// ----------------------------------------------------------------------------
+ffmpeg_video_settings&
+ffmpeg_video_settings
+::operator=( ffmpeg_video_settings&& other )
+{
+  frame_rate = std::move( other.frame_rate );
+  parameters = std::move( other.parameters );
+  klv_stream_count = std::move( other.klv_stream_count );
+  return *this;
+}
 
 } // namespace ffmpeg
 
