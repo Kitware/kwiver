@@ -1186,7 +1186,8 @@ ffmpeg_video_input::priv::open_video_state
 
   throw_error_code(
     av_seek_frame(
-      format_context.get(), video_stream->index, converted_timestamp.num,
+      format_context.get(), video_stream->index,
+      converted_timestamp.num + video_stream->start_time,
       AVSEEK_FLAG_BACKWARD ),
     "Could not seek to frame ", frame_number );
   if( codec_context )
