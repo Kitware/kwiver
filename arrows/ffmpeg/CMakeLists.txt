@@ -48,8 +48,11 @@ set(ffmpeg_sources
   )
 
 if(KWIVER_ENABLE_CUDA)
-  add_compile_definitions(KWIVER_ENABLE_FFMPEG_CUDA)
-  set(FFMPEG_CUDA_LIBRARIES cuda)
+  set(KWIVER_ENABLE_FFMPEG_CUDA ON CACHE BOOL "Enable use of CUVID/NVENC codecs")
+  if(KWIVER_ENABLE_FFMPEG_CUDA)
+    add_compile_definitions(KWIVER_ENABLE_FFMPEG_CUDA)
+    set(FFMPEG_CUDA_LIBRARIES cuda)
+  endif()
 endif()
 
 kwiver_add_library( kwiver_algo_ffmpeg
