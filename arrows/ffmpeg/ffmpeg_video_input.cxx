@@ -257,8 +257,8 @@ public:
     bool advance();
     void seek( kv::frame_id_t frame_number );
     void set_video_metadata( kv::metadata& md );
-    AVRational curr_time() const;
-    AVRational duration() const;
+    double curr_time() const;
+    double duration() const;
     AVRational frame_rate() const;
     size_t num_frames() const;
     kv::frame_id_t frame_number() const;
@@ -511,6 +511,9 @@ ffmpeg_video_input::priv::frame_state
     throw_error_code(
       av_hwframe_transfer_data( processed_frame.get(), frame.get(), 0 ),
       "Could not read frame data from hardware device" );
+    throw_error_code(
+      av_frame_copy_props( processed_frame.get(), frame.get() ),
+      "Could not copy frame properties" );
     av_frame_unref( frame.get() );
     av_frame_move_ref( frame.get(), processed_frame.get() );
   }
@@ -1177,37 +1180,66 @@ ffmpeg_video_input::priv::open_video_state
     stream.reset();
   }
 
-  // Seek to desired frame
-  auto converted_timestamp =
-    av_make_q( static_cast< int >( frame_number ), 1 );
-  converted_timestamp =
-    av_div_q( converted_timestamp, video_stream->time_base );
-  converted_timestamp = av_div_q( converted_timestamp, frame_rate() );
-
-  throw_error_code(
-    av_seek_frame(
-      format_context.get(), video_stream->index, converted_timestamp.num,
-      AVSEEK_FLAG_BACKWARD ),
-    "Could not seek to frame ", frame_number );
-  if( codec_context )
+  // Get to the desired frame by seeking some number of frames before it, then
+  // iterating forward. If we still don't have a frame image for that frame,
+  // try again by seeking even further back. Finding the last keyframe is
+  // necessary to properly form an image, and some decoders will buffer even
+  // more frames than that.
+  auto const backstep_size =
+    codec_context->gop_size ? codec_context->gop_size : 12;
+  constexpr size_t maximum_attempts = 5;
+  for( size_t i = 0; i < maximum_attempts; ++i )
   {
-    avcodec_flush_buffers( codec_context.get() );
+    // Increasing backstep intervals on further tries
+    size_t const backstep = i ? ( ( 1 << ( i - 1 ) ) * backstep_size ) : 1;
+
+    // Determine timestamp from frame number
+    int64_t converted_timestamp = frame_number - backstep;
+    converted_timestamp =
+      av_rescale( converted_timestamp, frame_rate().den, frame_rate().num );
+    converted_timestamp =
+      av_rescale(
+        converted_timestamp,
+        video_stream->time_base.den, video_stream->time_base.num );
+    converted_timestamp += start_ts;
+
+    // Do the seek
+    throw_error_code(
+      av_seek_frame(
+        format_context.get(), video_stream->index, converted_timestamp,
+        AVSEEK_FLAG_BACKWARD ),
+      "Could not seek to frame ", frame_number );
+    if( codec_context )
+    {
+      avcodec_flush_buffers( codec_context.get() );
+    }
+
+    // Move forward through frames until we get to the desired frame
+    do
+    {
+      advance();
+      if( at_eof )
+      {
+        throw_error(
+          "Could not seek to frame ", frame_number + 1, ": "
+          "End of file reached" );
+      }
+    } while( this->frame_number() < frame_number );
+
+    // Check for success
+    if( this->frame_number() == frame_number )
+    {
+      break;
+    }
   }
 
-  do
-  {
-    advance();
-    if( at_eof )
-    {
-      throw_error(
-        "Could not seek to frame ", frame_number, ": End of file reached" );
-    }
-  } while( this->frame_number() < frame_number );
-
+  // Check for failure
   if( this->frame_number() > frame_number )
   {
-    throw_error(
-      "Could not seek to frame ", frame_number, ": Could not acquire image" );
+    LOG_WARN(
+      kv::get_logger( "klv" ),
+      "Could not seek exactly to frame " << ( frame_number + 1 ) << ": "
+      "Ended up on frame " << ( this->frame_number() + 1 ) );
   }
 }
 
@@ -1341,29 +1373,29 @@ ffmpeg_video_input::priv::open_video_state
 }
 
 // ----------------------------------------------------------------------------
-AVRational
+double
 ffmpeg_video_input::priv::open_video_state
 ::curr_time() const
 {
-  if( !frame.has_value() )
+  if( !frame.has_value() ||
+      frame->frame->best_effort_timestamp == AV_NOPTS_VALUE )
   {
-    return av_make_q( 0, 0 );
+    return 0.0;
   }
 
-  return av_mul_q(
-    av_make_q( frame->frame->best_effort_timestamp - start_ts, 1 ),
-               video_stream->time_base );
+  return
+    static_cast< double >( frame->frame->best_effort_timestamp - start_ts ) *
+    av_q2d( video_stream->time_base );
 }
 
 // ----------------------------------------------------------------------------
-AVRational
+double
 ffmpeg_video_input::priv::open_video_state
 ::duration() const
 {
-  return av_mul_q(
-    av_make_q(
-      video_stream->start_time + video_stream->duration - start_ts, 1 ),
-    video_stream->time_base );
+  return
+    ( video_stream->start_time + video_stream->duration - start_ts ) *
+    av_q2d( video_stream->time_base );
 }
 
 // ----------------------------------------------------------------------------
@@ -1384,8 +1416,7 @@ size_t
 ffmpeg_video_input::priv::open_video_state
 ::num_frames() const
 {
-  return static_cast< size_t >(
-    av_q2d( av_mul_q( duration(), frame_rate() ) ) + 0.5 );
+  return static_cast< size_t >( duration() * av_q2d( frame_rate() ) + 0.5 );
 }
 
 // ----------------------------------------------------------------------------
@@ -1400,7 +1431,7 @@ ffmpeg_video_input::priv::open_video_state
   }
 
   return static_cast< kv::frame_id_t >(
-    av_q2d( av_mul_q( curr_time(), frame_rate() ) ) + 0.5 );
+    curr_time() * av_q2d( frame_rate() ) + 0.5 );
 }
 
 // ----------------------------------------------------------------------------
@@ -1413,7 +1444,7 @@ ffmpeg_video_input::priv::open_video_state
     return {};
   }
   return kv::timestamp{
-    static_cast< kv::time_usec_t >( av_q2d( curr_time() ) * 1000000.0 + 0.5 ),
+    static_cast< kv::time_usec_t >( curr_time() * 1000000.0 + 0.5 ),
     frame_number() + 1 };
 }
 
