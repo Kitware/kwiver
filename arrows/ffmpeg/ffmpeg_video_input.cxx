@@ -557,7 +557,7 @@ ffmpeg_video_input::priv::frame_state
   auto const params = parent->video_stream->codecpar;
   auto const width = static_cast< size_t >( params->width );
   auto const height = static_cast< size_t >( params->height );
-  auto const image_size = width * height * depth;
+  auto const image_size = width * height * depth + AV_INPUT_BUFFER_PADDING_SIZE;
 
   // Allocate enough space for the output image
   if( !image_memory || image_memory->size() < image_size )
