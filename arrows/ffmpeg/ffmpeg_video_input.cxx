@@ -642,6 +642,9 @@ ffmpeg_video_input::priv::frame_state
         misp_timestamp ? misp_timestamp : stream.demuxer.frame_time();
       auto stream_metadata =
         stream.vital_metadata( timestamp, parent->parent->smooth_klv_packets );
+      stream_metadata->add< kv::VITAL_META_UNIX_TIMESTAMP_SOURCE >(
+        misp_timestamp ? "misp" : "klv" );
+
       parent->set_video_metadata( *stream_metadata );
       metadata->emplace_back( std::move( stream_metadata ) );
     }

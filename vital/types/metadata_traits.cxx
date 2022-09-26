@@ -38,6 +38,10 @@ VITAL_META_##X, #X, typeid( type_of_tag< VITAL_META_##X > )
       "Unix Timestamp (nanoseconds)",
       "Number of nanoseconds since the Unix epoch, not counting leap "
       "seconds." },
+    { TRAITS_OF( UNIX_TIMESTAMP_SOURCE ),
+      "Unix Timestamp Source",
+      "Detail about where the Unix timestamp was derived from. Currently "
+      "permitted values: 'klv', 'misp'." },
     { TRAITS_OF( MISSION_ID ),
       "Mission ID",
       "Descriptive mission identifier to distinguish event or sortie." },
