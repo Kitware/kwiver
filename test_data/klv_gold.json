@@ -718,7 +718,12 @@
 					{
 						"id": 1,
 						"order": -3,
-						"info": 1,
+						"info": [
+							{
+								"integer": 0,
+								"string": "Mode Bit"
+							}
+						],
 						"location": null
 					}
 				]

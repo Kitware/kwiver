@@ -207,7 +207,9 @@ klv_local_set const test_0601_set = {
       { 7, 13.0, 14.0, "Wavelength" } } },
   { KLV_0601_WAYPOINT_LIST,
     std::vector< klv_0601_waypoint_record >{
-      { 1, -3, 1, kv::nullopt } } },
+      { 1, -3,
+        std::set< klv_0601_waypoint_info_bit >{ KLV_0601_WAYPOINT_INFO_BIT_MODE },
+        kv::nullopt } } },
   { KLV_0601_MIIS_CORE_IDENTIFIER,
     klv_1204_miis_id{
       2,
