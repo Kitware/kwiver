@@ -202,9 +202,10 @@ klv_packet_length( klv_packet const& packet )
   auto const checksum_format = format.checksum_format();
   auto const length_of_key = packet.key.length;
   auto const length_of_value = format.length_of( packet.value );
-  auto const length_of_length = klv_ber_length( length_of_value );
   auto const length_of_checksum =
     checksum_format ? *checksum_format->length_constraints().fixed() : 0;
+  auto const length_of_length =
+    klv_ber_length( length_of_value + length_of_checksum );
   return length_of_key + length_of_length + length_of_value +
          length_of_checksum;
 }
