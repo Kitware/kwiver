@@ -64,7 +64,7 @@ std::string
 klv_0903_vchip_local_set_format
 ::description() const
 {
-  return "vchip local set of " + length_description();
+  return "vchip local set of " + m_length_constraints.description();
 }
 
 } // namespace klv

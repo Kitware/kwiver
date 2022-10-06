@@ -37,7 +37,7 @@ std::string
 klv_0104_universal_set_format
 ::description() const
 {
-  return "ST 0104 universal set of " + length_description();
+  return "ST 0104 universal set of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------

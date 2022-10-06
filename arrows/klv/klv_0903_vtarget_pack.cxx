@@ -78,7 +78,7 @@ std::string
 klv_0903_fpa_index_format
 ::description() const
 {
-  return "fpa index pack of " + length_description();
+  return "fpa index pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -124,14 +124,14 @@ klv_0903_fpa_index_format
 // ----------------------------------------------------------------------------
 klv_0903_vtarget_pack_format
 ::klv_0903_vtarget_pack_format()
-  : klv_data_format_< klv_0903_vtarget_pack >{ 0 } {}
+{}
 
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_vtarget_pack_format
 ::description() const
 {
-  return "vtarget pack of " + length_description();
+  return "vtarget pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -398,7 +398,7 @@ std::string
 klv_0903_vtarget_local_set_format
 ::description() const
 {
-  return "vtarget local set of " + length_description();
+  return "vtarget local set of " + m_length_constraints.description();
 }
 
 } // namespace klv

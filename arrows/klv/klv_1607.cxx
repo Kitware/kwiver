@@ -26,7 +26,7 @@ std::string
 klv_1607_child_set_format
 ::description() const
 {
-  return "child set of " + length_description();
+  return "child set of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------

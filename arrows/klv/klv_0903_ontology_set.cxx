@@ -71,7 +71,7 @@ std::string
 klv_0903_ontology_local_set_format
 ::description() const
 {
-  return "ontology local set of " + length_description();
+  return "ontology local set of " + m_length_constraints.description();
 }
 
 } // namespace klv

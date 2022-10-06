@@ -33,7 +33,7 @@ std::string
 klv_0903_vobject_local_set_format
 ::description() const
 {
-  return "vobject local set of " + length_description();
+  return "vobject local set of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------

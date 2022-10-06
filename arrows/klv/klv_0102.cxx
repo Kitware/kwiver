@@ -286,7 +286,7 @@ std::string
 klv_0102_local_set_format
 ::description() const
 {
-  return "security local set of " + length_description();
+  return "security local set of " + m_length_constraints.description();
 }
 
 } // namespace klv

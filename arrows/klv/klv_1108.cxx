@@ -118,7 +118,7 @@ std::string
 klv_1108_metric_period_pack_format
 ::description() const
 {
-  return "metric period pack of " + length_description();
+  return "metric period pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -148,7 +148,7 @@ operator<<( std::ostream& os, klv_1108_window_corners_pack const& rhs )
 
 // ----------------------------------------------------------------------------
 klv_1108_window_corners_pack_format
-::klv_1108_window_corners_pack_format() : klv_data_format_< data_type >{ 0 }
+::klv_1108_window_corners_pack_format()
 {}
 
 // ----------------------------------------------------------------------------
@@ -194,7 +194,7 @@ std::string
 klv_1108_window_corners_pack_format
 ::description() const
 {
-  return "window corners pack of " + length_description();
+  return "window corners pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -224,7 +224,7 @@ std::string
 klv_1108_local_set_format
 ::description() const
 {
-  return "ST 1108 local set of " + length_description();
+  return "ST 1108 local set of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------

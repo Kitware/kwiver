@@ -44,7 +44,6 @@ operator<<( std::ostream& os, klv_1108_metric_implementer const& rhs )
 // ----------------------------------------------------------------------------
 klv_1108_metric_implementer_format
 ::klv_1108_metric_implementer_format()
-  : klv_data_format_< klv_1108_metric_implementer >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -90,7 +89,7 @@ std::string
 klv_1108_metric_implementer_format
 ::description() const
 {
-  return "metric implementer of " + length_description();
+  return "metric implementer of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
