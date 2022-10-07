@@ -185,10 +185,16 @@ void downsample_process
     push_datum_to_port_using_trait( frame_rate, sprokit::datum::complete_datum() );
   }
 
-  if( d->target_frame_rate_ > 0.0 &&
-      ( ts.has_valid_frame() || ts.has_valid_time() ) )
+  if( d->target_frame_rate_ > 0.0 )
   {
-    send_frame = !d->skip_frame( ts, frame_rate );
+    if( frame_rate > 0.0 && d->target_frame_rate_ >= frame_rate )
+    {
+      send_frame = true;
+    }
+    else if( ts.has_valid_frame() || ts.has_valid_time() )
+    {
+      send_frame = !d->skip_frame( ts, frame_rate );
+    }
   }
 
   if( d->start_time_ >= 0.0 &&
