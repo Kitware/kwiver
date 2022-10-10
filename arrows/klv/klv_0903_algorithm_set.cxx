@@ -33,7 +33,7 @@ klv_0903_algorithm_set_traits_lookup()
       0 },
     { {},
       ENUM_AND_NAME( KLV_0903_ALGORITHM_ID ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 3 } ),
       "ID",
       "Identifier for the algorithm used. The value 0 is reserved for future "
       "use.",
