@@ -92,7 +92,8 @@ klv_0806_traits_lookup()
       { 0, 1 } },
     { { 0x060E2B3401010103, 0x04010B0100000000 },
       ENUM_AND_NAME( KLV_0806_DIGITAL_VIDEO_FILE_FORMAT ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_string_format >(
+        klv_length_constraints{ 1, 127 } ),
       "Digital Video File Format",
       "Video compression being used. Examples: MPEG2, MPEG4, H.264, Analog "
       "FM.",
