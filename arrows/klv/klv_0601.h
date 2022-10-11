@@ -731,12 +731,32 @@ private:
 };
 
 // ----------------------------------------------------------------------------
+/// A set of bit values containing varied information about a waypoint.
+enum klv_0601_waypoint_info_bit : uint8_t
+{
+  // 0 = automated, 1 = manual
+  KLV_0601_WAYPOINT_INFO_BIT_MODE,
+  // 0 = pre-planned, 1 = ad-hoc
+  KLV_0601_WAYPOINT_INFO_BIT_SOURCE,
+  KLV_0601_WAYPOINT_INFO_BIT_ENUM_END,
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_waypoint_info_bit value );
+
+// ----------------------------------------------------------------------------
+using klv_0601_waypoint_info_format =
+  klv_enum_bitfield_format< klv_0601_waypoint_info_bit, klv_ber_oid_format >;
+
+// ----------------------------------------------------------------------------
 /// Aircraft destinations used to navigate the aircraft to certain locations.
 struct klv_0601_waypoint_record
 {
   uint16_t id;
   int16_t order;
-  kwiver::vital::optional< uint8_t > info;
+  kwiver::vital::optional< std::set< klv_0601_waypoint_info_bit > > info;
   kwiver::vital::optional< klv_0601_location_dlp > location;
 };
 

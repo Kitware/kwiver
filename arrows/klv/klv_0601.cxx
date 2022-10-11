@@ -2181,6 +2181,19 @@ klv_0601_view_domain_format
 
 // ----------------------------------------------------------------------------
 std::ostream&
+operator<<( std::ostream& os, klv_0601_waypoint_info_bit value )
+{
+  static std::string strings[ KLV_0601_WAYPOINT_INFO_BIT_ENUM_END + 1 ] = {
+    "Mode Bit",
+    "Source Bit",
+    "Unknown Waypoint Info Bit" };
+
+  os << strings[ std::min( value, KLV_0601_WAYPOINT_INFO_BIT_ENUM_END ) ];
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
 operator<<( std::ostream& os, klv_0601_waypoint_record const& value )
 {
   os << "{ "
@@ -2190,19 +2203,8 @@ operator<<( std::ostream& os, klv_0601_waypoint_record const& value )
      << "prosecution order: "
      << value.order
      << ", "
-     << "info: { "
-     << "mode: ";
-  auto const mode = *value.info & 1;
-  os << ( mode
-      ? "manual"
-      : "automated" )
-     << ", "
-     << "source: ";
-  auto const source = ( *value.info >> 1 ) & 1;
-  os << ( source
-      ? "ad hoc"
-      : "pre-planned" )
-     << " }"
+     << "info: "
+     << value.info
      << ", "
      << "location: "
      << value.location
@@ -2250,7 +2252,8 @@ klv_0601_waypoint_record_format
   if( tracker.remaining() )
   {
     // Read waypoint info value
-    result.info = klv_read_ber_oid< uint8_t >( data, tracker.verify( 1 ) );
+    result.info =
+      klv_0601_waypoint_info_format{}.read_( data, tracker.verify( 1 ) );
   }
 
   if( tracker.remaining() )
@@ -2280,7 +2283,8 @@ klv_0601_waypoint_record_format
   if( value.info )
   {
     // Write waypoint info value
-    klv_write_ber_oid( *value.info, data, tracker.verify( 1 ) );
+    klv_0601_waypoint_info_format{}
+      .write_( *value.info, data, tracker.verify( 1 ) );
   }
 
   if( value.location && value.info )

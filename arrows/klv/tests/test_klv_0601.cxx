@@ -233,16 +233,22 @@ auto const expected_result = klv_local_set{
   },
   { KLV_0601_WAYPOINT_LIST,
     std::vector< klv_0601_waypoint_record >{
-      { 0, 1, 3,
+      { 0, 1,
+        std::set< klv_0601_waypoint_info_bit >{
+          KLV_0601_WAYPOINT_INFO_BIT_MODE, KLV_0601_WAYPOINT_INFO_BIT_SOURCE },
         klv_0601_location_dlp{ 38.8894219398498535, -77.0351622104644775,
                                200.000000000000000 } },
-      { 1, 2, 2,
+      { 1, 2,
+        std::set< klv_0601_waypoint_info_bit >{
+          KLV_0601_WAYPOINT_INFO_BIT_SOURCE },
         klv_0601_location_dlp{ 38.8892679214477539, -77.0499181747436523,
                                250.000000000000000 } },
-      { 2, 32767, 1,
+      { 2, 32767,
+        std::set< klv_0601_waypoint_info_bit >{
+          KLV_0601_WAYPOINT_INFO_BIT_MODE },
         klv_0601_location_dlp{ 38.8897409439086914, -77.0129330158233643,
                                100.000000000000000 } },
-      { 3, -2, 0,
+      { 3, -2, std::set< klv_0601_waypoint_info_bit >{},
         klv_0601_location_dlp{ 38.8898218870162964, -77.0100920200347900,
                                300.000000000000000 } }
     } },

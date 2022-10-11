@@ -458,6 +458,7 @@ KLV_INSTANTIATE( klv_universal_set );
 KLV_INSTANTIATE( klv_uuid );
 KLV_INSTANTIATE( std::set< klv_0601_generic_flag_data_bit > );
 KLV_INSTANTIATE( std::set< klv_0601_positioning_method_source_bit > );
+KLV_INSTANTIATE( std::set< klv_0601_waypoint_info_bit > );
 KLV_INSTANTIATE( std::set< klv_0601_weapon_engagement_status_bit > );
 KLV_INSTANTIATE( std::set< klv_packet > );
 KLV_INSTANTIATE( std::set< uint16_t > );
