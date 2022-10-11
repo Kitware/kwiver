@@ -5,11 +5,13 @@
 set( sources
   register_applets.cxx
 
+  bundle_adjust_tool.cxx
   init_cameras_landmarks.cxx
   track_features.cxx
   )
 
 set( headers
+  bundle_adjust_tool.h
   init_cameras_landmarks.h
   track_features.h
   )
