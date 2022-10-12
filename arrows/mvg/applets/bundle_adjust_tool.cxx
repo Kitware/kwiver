@@ -488,7 +488,7 @@ struct bundle_adjust_tool::priv
   using mapID2FN = std::unordered_map<unsigned, kv::path_t>;
   mapID2FN camID2FN;
 
-  enum commandline_mode { SUCCESS, WRITE, FAIL, };
+  enum commandline_mode { SUCCESS, HELP, WRITE, FAIL, };
 
   commandline_mode
   process_command_line( cxxopts::ParseResult& cmd_args )
@@ -498,6 +498,10 @@ struct bundle_adjust_tool::priv
     static std::string opt_config;
     static std::string opt_out_config;
 
+    if ( cmd_args["help"].as<bool>() )
+    {
+      return HELP;
+    }
     if( cmd_args.count( "config" ) > 0 )
     {
       opt_config = cmd_args[ "config" ].as< std::string >();
@@ -1161,6 +1165,9 @@ bundle_adjust_tool
   {
     switch( d->process_command_line( command_args() ) )
     {
+      case priv::HELP:
+        std::cout << m_cmd_options->help();
+        return EXIT_SUCCESS;
       case priv::WRITE:
         return EXIT_SUCCESS;
       case priv::FAIL:
@@ -1237,6 +1244,7 @@ bundle_adjust_tool
 {
   m_cmd_options->custom_help( wrap_text( "[options]\n" ) );
   m_cmd_options->add_options()
+  ( "h,help",   "display applet usage" )
   ( "c,config", "configuration file for tool",
                                 cxxopts::value< std::string >() )
   ( "o,output-config",
