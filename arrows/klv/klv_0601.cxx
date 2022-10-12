@@ -2012,7 +2012,7 @@ klv_0601_airbase_locations_format
   return length_of_length_of_take_off_location +
          length_of_take_off_location +
          length_of_length_of_recovery_location +
-         length_of_take_off_location;
+         length_of_recovery_location;
 }
 
 // ----------------------------------------------------------------------------
