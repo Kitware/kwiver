@@ -143,7 +143,7 @@ class DetectedObjectSetOutputCoco(DetectedObjectSetOutput):
                          for i, d in enumerate(self.detections)],
             categories=[dict(id=i, name=c) for c, i in type(self).categories.items()],
             images=image_dict,
-        ), self.file)
+        ), self.file, indent=2)
         self.file.flush()
 
 def __vital_algorithm_register__():
