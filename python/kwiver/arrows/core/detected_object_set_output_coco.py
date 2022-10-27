@@ -31,6 +31,8 @@ import datetime
 import json
 import os
 
+from distutils.util import strtobool
+
 from kwiver.vital.algo import DetectedObjectSetOutput
 
 class DetectedObjectSetOutputCoco(DetectedObjectSetOutput):
@@ -55,6 +57,9 @@ class DetectedObjectSetOutputCoco(DetectedObjectSetOutput):
         # The first ID to be assigned to a category (and then counting
         # up from there)
         self.category_start_id = 1
+        # Have consistent category ids across multiple coco writers
+        # within the same program
+        self.global_categories = True
         # Optional auxiliary image information to write out to json file
         self.aux_image_labels = ""
         self.aux_image_extensions = ""
@@ -64,6 +69,7 @@ class DetectedObjectSetOutputCoco(DetectedObjectSetOutput):
     def get_configuration(self):
         cfg = super(DetectedObjectSetOutput, self).get_configuration()
         cfg.set_value("category_start_id", str(self.category_start_id))
+        cfg.set_value("global_categories", str(self.global_categories))
         cfg.set_value("aux_image_labels", ','.join(self.aux_image_labels))
         cfg.set_value("aux_image_extensions", ','.join(self.aux_image_extensions))
         return cfg
@@ -72,6 +78,7 @@ class DetectedObjectSetOutputCoco(DetectedObjectSetOutput):
         cfg = self.get_configuration()
         cfg.merge_config(cfg_in)
         self.category_start_id = int(cfg.get_value("category_start_id"))
+        self.global_categories = strtobool(cfg.get_value("global_categories"))
         self.aux_image_labels = str(cfg.get_value("aux_image_labels"))
         self.aux_image_extensions = str(cfg.get_value("aux_image_extensions"))
 
@@ -81,6 +88,8 @@ class DetectedObjectSetOutputCoco(DetectedObjectSetOutput):
         if len(self.aux_image_labels) != len(self.aux_image_extensions):
             print("Auxiliary image labels and extensions must be same size")
             return False
+        if not self.global_categories:
+            DetectedObjectSetOutputCoco.categories = {}
 
     def check_configuration(self, cfg):
         return True
@@ -110,12 +119,19 @@ class DetectedObjectSetOutputCoco(DetectedObjectSetOutput):
                 # Downstream applications expect ints, not floats
                 d['segmentation'] = [int(round(p)) for p in polygon]
             if det.type is not None:
-                d['category_id'] = type(self).categories.setdefault(
-                    det.type.get_most_likely_class(),
-                    len(type(self).categories) + self.category_start_id,
-                )
+                d['category_id'] = self.get_cat_id( det.type )
             self.detections.append(d)
         self.images.append(file_name)
+
+    def get_cat_id(self,dot):
+        if self.global_categories:
+            return type(self).categories.setdefault(
+                dot.get_most_likely_class(),
+                len(type(self).categories) + self.category_start_id)
+        else:
+            return self.categories.setdefault(
+                dot.get_most_likely_class(),
+                len(type(self).categories) + self.category_start_id)
 
     def fill_aux(self,file_name):
         output = []
@@ -133,6 +149,12 @@ class DetectedObjectSetOutputCoco(DetectedObjectSetOutput):
         else:
             image_dict = [dict(id=i, file_name=im)
                           for i, im in enumerate(self.images)]
+        if self.global_categories:
+            category_dict = [dict(id=i, name=c)
+                             for c, i in type(self).categories.items()]
+        else:
+            category_dict = [dict(id=i, name=c)
+                             for c, i in self.categories.items()]
         json.dump(dict(
             info=dict(
                 year=now.year,
@@ -141,7 +163,7 @@ class DetectedObjectSetOutputCoco(DetectedObjectSetOutput):
             ),
             annotations=[dict(d, id=i)
                          for i, d in enumerate(self.detections)],
-            categories=[dict(id=i, name=c) for c, i in type(self).categories.items()],
+            categories=category_dict,
             images=image_dict,
         ), self.file, indent=2)
         self.file.flush()
