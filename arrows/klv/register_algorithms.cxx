@@ -9,6 +9,7 @@
 
 #include <arrows/klv/kwiver_algo_klv_plugin_export.h>
 #include <arrows/klv/apply_child_klv.h>
+#include <arrows/klv/update_klv.h>
 
 namespace kwiver {
 
@@ -29,6 +30,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   }
 
   reg.register_algorithm< apply_child_klv >();
+  reg.register_algorithm< update_klv >();
 
   reg.mark_module_as_loaded();
 }

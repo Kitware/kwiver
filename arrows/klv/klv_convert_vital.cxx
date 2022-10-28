@@ -564,7 +564,7 @@ klv_1108_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
   // metric
   for( auto const& metric : metrics )
   {
-    klv_local_set const* best_metric_set = nullptr;
+    kv::optional< klv_local_set > best_metric_set;
     for( auto const& metric_set_entry :
          klv_data.all_at( standard, KLV_1108_METRIC_LOCAL_SET, timestamp ) )
     {
@@ -590,7 +590,7 @@ klv_1108_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
           best_metric_set->at( KLV_1108_METRIC_SET_TIME ) <
           metric_set.at( KLV_1108_METRIC_SET_TIME ) )
       {
-        best_metric_set = &metric_set;
+        best_metric_set = metric_set;
       }
     }
 
@@ -599,7 +599,8 @@ klv_1108_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
       auto const value = best_metric_set->at( KLV_1108_METRIC_SET_VALUE );
       if( value.valid() )
       {
-        vital_data.add( metric.second, value.get< double >() );
+        vital_data.add(
+          metric.second, value.get< klv_lengthy< double > >().value );
       }
     }
   }
