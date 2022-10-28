@@ -174,9 +174,6 @@ VITAL_META_##X, #X, typeid( type_of_tag< VITAL_META_##X > )
       "Corner Points (lon/lat)",
       "Four sided polygon representing the image bounds. The corners are "
       "ordered: upper left, upper right, lower right, lower left." },
-    { TRAITS_OF( ICING_DETECTED ),
-      "Icing Detected",
-      "Flag for icing detected at aircraft location." },
     { TRAITS_OF( WIND_DIRECTION ),
       "Wind Direction (degrees)",
       "Wind direction at aircraft location. This is the direction the wind is "

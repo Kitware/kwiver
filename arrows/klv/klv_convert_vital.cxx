@@ -424,19 +424,6 @@ klv_0601_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
   }
 
   // Convert enum to integer
-  auto const icing_detected =
-    klv_data.at( standard, KLV_0601_ICING_DETECTED, timestamp );
-  if( icing_detected.valid() )
-  {
-    using value_t = kv::type_of_tag< kv::VITAL_META_ICING_DETECTED >;
-
-    auto const value =
-      static_cast< value_t >(
-        icing_detected.get< klv_0601_icing_detected >() );
-    vital_data.add< kv::VITAL_META_ICING_DETECTED >( value );
-  }
-
-  // Convert enum to integer
   auto const sensor_fov_name =
     klv_data.at( standard, KLV_0601_SENSOR_FOV_NAME, timestamp );
   if( sensor_fov_name.valid() )

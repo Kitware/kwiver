@@ -87,7 +87,6 @@ class TestVitalMetadataTags(unittest.TestCase):
             mt.tags.VITAL_META_TARGET_WIDTH,
             mt.tags.VITAL_META_FRAME_CENTER,
             mt.tags.VITAL_META_CORNER_POINTS,
-            mt.tags.VITAL_META_ICING_DETECTED,
             mt.tags.VITAL_META_WIND_DIRECTION,
             mt.tags.VITAL_META_WIND_SPEED,
             mt.tags.VITAL_META_STATIC_PRESSURE,
