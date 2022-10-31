@@ -44,14 +44,14 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0903_pixel_run_format
 ::klv_0903_pixel_run_format()
-  : klv_data_format_< klv_0903_pixel_run >{ 0 } {}
+{}
 
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_pixel_run_format
 ::description() const
 {
-  return "pixel run of " + length_description();
+  return "pixel run of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -104,7 +104,7 @@ std::string
 klv_0903_vmask_local_set_format
 ::description() const
 {
-  return "vmask local set of " + length_description();
+  return "vmask local set of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------

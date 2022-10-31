@@ -90,7 +90,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_1002_enumerations_format
 ::klv_1002_enumerations_format()
-  : klv_data_format_< klv_1002_enumerations >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -98,7 +97,7 @@ std::string
 klv_1002_enumerations_format
 ::description() const
 {
-  return "range image enumerations of " + length_description();
+  return "range image enumerations of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -173,7 +172,6 @@ auto const plane_format = klv_float_format{};
 // ----------------------------------------------------------------------------
 klv_1002_section_data_pack_format
 ::klv_1002_section_data_pack_format()
-  : klv_data_format_< klv_1002_section_data_pack >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -181,7 +179,7 @@ std::string
 klv_1002_section_data_pack_format
 ::description() const
 {
-  return "section data pack of " + length_description();
+  return "section data pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -263,7 +261,7 @@ std::string
 klv_1002_local_set_format
 ::description() const
 {
-  return "range image local set of " + length_description();
+  return "range image local set of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------

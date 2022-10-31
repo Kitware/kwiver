@@ -1231,7 +1231,7 @@ std::string
 klv_0601_image_horizon_locations_format
 ::description() const
 {
-  return "image horizon locations of " + length_description();
+  return "image horizon locations of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -1305,7 +1305,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0601_image_horizon_pixel_pack_format
 ::klv_0601_image_horizon_pixel_pack_format()
-  : klv_data_format_< klv_0601_image_horizon_pixel_pack >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -1313,7 +1312,7 @@ std::string
 klv_0601_image_horizon_pixel_pack_format
 ::description() const
 {
-  return "image horizon pixel pack of " + length_description();
+  return "image horizon pixel pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -1381,7 +1380,7 @@ DEFINE_STRUCT_CMP(
 
 // ----------------------------------------------------------------------------
 klv_0601_control_command_format
-::klv_0601_control_command_format() : klv_data_format_< data_type >{ 0 }
+::klv_0601_control_command_format()
 {}
 
 // ----------------------------------------------------------------------------
@@ -1443,7 +1442,7 @@ std::string
 klv_0601_control_command_format
 ::description() const
 {
-  return "control command of " + length_description();
+  return "control command of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -1472,7 +1471,7 @@ DEFINE_STRUCT_CMP(
 
 // ----------------------------------------------------------------------------
 klv_0601_frame_rate_format
-::klv_0601_frame_rate_format() : klv_data_format_< data_type >{ 0 } {}
+::klv_0601_frame_rate_format() {}
 
 // ----------------------------------------------------------------------------
 klv_0601_frame_rate
@@ -1517,7 +1516,7 @@ std::string
 klv_0601_frame_rate_format
 ::description() const
 {
-  return "frame rate of " + length_description();
+  return "frame rate of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -1558,7 +1557,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0601_country_codes_format
 ::klv_0601_country_codes_format()
-  : klv_data_format_< klv_0601_country_codes >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -1566,7 +1564,7 @@ std::string
 klv_0601_country_codes_format
 ::description() const
 {
-  return "country codes pack of " + length_description();
+  return "country codes pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -1761,7 +1759,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0601_location_dlp_format
 ::klv_0601_location_dlp_format()
-  : klv_data_format_< klv_0601_location_dlp >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -1769,7 +1766,7 @@ std::string
 klv_0601_location_dlp_format
 ::description() const
 {
-  return "location pack of " + length_description();
+  return "location pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -1857,7 +1854,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0601_airbase_locations_format
 ::klv_0601_airbase_locations_format()
-  : klv_data_format_< klv_0601_airbase_locations >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -1865,7 +1861,7 @@ std::string
 klv_0601_airbase_locations_format
 ::description() const
 {
-  return "airbase locations pack of " + length_description();
+  return "airbase locations pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -2040,8 +2036,7 @@ klv_0601_view_domain_interval_format
 klv_0601_view_domain_interval_format
 ::klv_0601_view_domain_interval_format(
   vital::interval< double > const& start_interval )
-  : klv_data_format_< klv_0601_view_domain_interval >{ 0 },
-    m_start_format{ start_interval }
+  : m_start_format{ start_interval }
 {}
 
 // ----------------------------------------------------------------------------
@@ -2049,7 +2044,7 @@ std::string
 klv_0601_view_domain_interval_format
 ::description() const
 {
-  return "view domain interval of " + length_description();
+  return "view domain interval of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -2129,7 +2124,6 @@ klv_0601_view_domain_format
 // ----------------------------------------------------------------------------
 klv_0601_view_domain_format
 ::klv_0601_view_domain_format()
-  : klv_data_format_< klv_0601_view_domain >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -2137,7 +2131,7 @@ std::string
 klv_0601_view_domain_format
 ::description() const
 {
-  return "view domain pack of " + length_description();
+  return "view domain pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -2224,7 +2218,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0601_waypoint_record_format
 ::klv_0601_waypoint_record_format()
-  : klv_data_format_< klv_0601_waypoint_record >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -2232,7 +2225,7 @@ std::string
 klv_0601_waypoint_record_format
 ::description() const
 {
-  return "waypoint pack of " + length_description();
+  return "waypoint pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -2400,7 +2393,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0601_weapons_store_format
 ::klv_0601_weapons_store_format()
-  : klv_data_format_< klv_0601_weapons_store >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -2408,7 +2400,7 @@ std::string
 klv_0601_weapons_store_format
 ::description() const
 {
-  return "weapons store pack of " + length_description();
+  return "weapons store pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -2559,7 +2551,6 @@ DEFINE_STRUCT_CMP(
 /// Interprets data as a payload record.
 klv_0601_payload_record_format
 ::klv_0601_payload_record_format()
-  : klv_data_format_< klv_0601_payload_record >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -2567,7 +2558,7 @@ std::string
 klv_0601_payload_record_format
 ::description() const
 {
-  return "payload pack of " + length_description();
+  return "payload pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -2643,7 +2634,6 @@ klv_0601_payload_record_format
 /// Interprets data as a payload list.
 klv_0601_payload_list_format
 ::klv_0601_payload_list_format()
-  : klv_data_format_< std::vector< klv_0601_payload_record > >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -2651,7 +2641,7 @@ std::string
 klv_0601_payload_list_format
 ::description() const
 {
-  return "payload list pack of " + length_description();
+  return "payload list pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -2736,7 +2726,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0601_wavelength_record_format
 ::klv_0601_wavelength_record_format()
-  : klv_data_format_< klv_0601_wavelength_record >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -2744,7 +2733,7 @@ std::string
 klv_0601_wavelength_record_format
 ::description() const
 {
-  return "wavelength pack of " + length_description();
+  return "wavelength pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -2818,7 +2807,7 @@ std::string
 klv_0601_local_set_format
 ::description() const
 {
-  return "UAS datalink local set of " + length_description();
+  return "UAS datalink local set of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------

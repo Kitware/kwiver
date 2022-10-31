@@ -301,7 +301,8 @@ std::string
 klv_1206_local_set_format
 ::description() const
 {
-  return "SAR motion imagery local set of " + length_description();
+  return
+    "SAR motion imagery local set of " + m_length_constraints.description();
 }
 
 } // namespace klv

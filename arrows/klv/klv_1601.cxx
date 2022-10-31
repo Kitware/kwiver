@@ -86,7 +86,6 @@ operator<<( std::ostream& os, klv_1601_tag tag )
 // ----------------------------------------------------------------------------
 klv_1601_pixel_sdcc_format
 ::klv_1601_pixel_sdcc_format()
-  : klv_data_format_< klv_1303_mdap< double > >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -94,7 +93,7 @@ std::string
 klv_1601_pixel_sdcc_format
 ::description() const
 {
-  return "pixel sdcc mdarray of " + length_description();
+  return "pixel sdcc mdarray of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -185,7 +184,6 @@ klv_1601_pixel_sdcc_format
 // ----------------------------------------------------------------------------
 klv_1601_geographic_sdcc_format
 ::klv_1601_geographic_sdcc_format()
-  : klv_data_format_< klv_1303_mdap< double > >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -193,7 +191,7 @@ std::string
 klv_1601_geographic_sdcc_format
 ::description() const
 {
-  return "geographic sdcc mdarray of " + length_description();
+  return "geographic sdcc mdarray of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -386,7 +384,7 @@ std::string
 klv_1601_local_set_format
 ::description() const
 {
-  return "geo-registration local set of " + length_description();
+  return "geo-registration local set of " + m_length_constraints.description();
 }
 
 } // namespace klv

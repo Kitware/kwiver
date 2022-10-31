@@ -118,7 +118,7 @@ std::string
 klv_0806_aoi_set_format
 ::description() const
 {
-  return "area-of-interest local set of " + length_description();
+  return "area-of-interest local set of " + m_length_constraints.description();
 }
 
 } // namespace klv

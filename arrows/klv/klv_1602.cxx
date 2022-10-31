@@ -171,7 +171,7 @@ std::string
 klv_1602_local_set_format
 ::description() const
 {
-  return "composite imaging local set of " + length_description();
+  return "composite imaging local set of " + m_length_constraints.description();
 }
 
 } // namespace klv

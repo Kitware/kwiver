@@ -66,16 +66,14 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_1010_sdcc_flp_format
 ::klv_1010_sdcc_flp_format()
-  : klv_data_format_< klv_1010_sdcc_flp >{ 0 },
-    m_sigma_imap{},
+  : m_sigma_imap{},
     m_preceding_keys{}
 {}
 
 // ----------------------------------------------------------------------------
 klv_1010_sdcc_flp_format
 ::klv_1010_sdcc_flp_format( imap_from_key_fn sigma_imap )
-  : klv_data_format_< klv_1010_sdcc_flp >{ 0 },
-    m_sigma_imap{ sigma_imap },
+  : m_sigma_imap{ sigma_imap },
     m_preceding_keys{}
 {}
 
@@ -92,7 +90,7 @@ std::string
 klv_1010_sdcc_flp_format
 ::description() const
 {
-  return "SDCC-FLP of " + length_description();
+  return "SDCC-FLP of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------

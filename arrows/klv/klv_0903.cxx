@@ -167,7 +167,7 @@ std::string
 klv_0903_local_set_format
 ::description() const
 {
-  return "vmti local set of " + length_description();
+  return "vmti local set of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------

@@ -364,7 +364,7 @@ klv_set< Key >
 template < class Key >
 klv_set_format< Key >
 ::klv_set_format( klv_tag_traits_lookup const& traits )
-  : klv_data_format_< klv_set< Key > >{ 0 }, m_traits( traits )
+  : m_traits( traits )
 {}
 
 // ----------------------------------------------------------------------------

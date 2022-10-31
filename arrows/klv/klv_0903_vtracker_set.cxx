@@ -145,7 +145,7 @@ std::string
 klv_0903_vtracker_local_set_format
 ::description() const
 {
-  return "vtracker local set of " + length_description();
+  return "vtracker local set of " + m_length_constraints.description();
 }
 
 } // namespace arrows

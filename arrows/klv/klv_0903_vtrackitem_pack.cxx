@@ -51,14 +51,14 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0903_vtrackitem_pack_format
 ::klv_0903_vtrackitem_pack_format()
-  : klv_data_format_< klv_0903_vtrackitem_pack >{ 0 } {}
+{}
 
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_vtrackitem_pack_format
 ::description() const
 {
-  return "vtrackitem pack of " + length_description();
+  return "vtrackitem pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -321,7 +321,7 @@ std::string
 klv_0903_vtrackitem_local_set_format
 ::description() const
 {
-  return "vtrackitem local set of " + length_description();
+  return "vtrackitem local set of " + m_length_constraints.description();
 }
 
 } // namespace klv

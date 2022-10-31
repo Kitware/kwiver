@@ -176,7 +176,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0903_location_pack_format
 ::klv_0903_location_pack_format()
-  : klv_data_format_< klv_0903_location_pack >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -184,7 +183,7 @@ std::string
 klv_0903_location_pack_format
 ::description() const
 {
-  return "location pack of " + length_description();
+  return "location pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -257,7 +256,6 @@ klv_0903_location_pack_format
 // ----------------------------------------------------------------------------
 klv_0903_velocity_pack_format
 ::klv_0903_velocity_pack_format()
-  : klv_data_format_< klv_0903_velocity_pack >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -265,7 +263,7 @@ std::string
 klv_0903_velocity_pack_format
 ::description() const
 {
-  return "velocity/acceleration pack of " + length_description();
+  return "velocity/acceleration pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------

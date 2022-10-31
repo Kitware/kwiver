@@ -113,7 +113,7 @@ std::string
 klv_0806_poi_set_format
 ::description() const
 {
-  return "point-of-interest local set of " + length_description();
+  return "point-of-interest local set of " + m_length_constraints.description();
 }
 
 } // namespace klv

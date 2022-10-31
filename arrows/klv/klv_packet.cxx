@@ -126,7 +126,7 @@ klv_read_packet( klv_read_iter_t& data, size_t max_length )
   if( checksum_format )
   {
     auto const packet_length = tracker.traversed() + length_of_value;
-    checksum_length = checksum_format->fixed_length();
+    checksum_length = *checksum_format->length_constraints().fixed();
 
     auto it = tracker.begin() + packet_length - checksum_length;
     auto const expected_checksum =
@@ -169,7 +169,7 @@ klv_write_packet( klv_packet const& packet, klv_write_iter_t& data,
   auto const length = format.length_of( packet.value );
   auto const packet_length = klv_packet_length( packet );
   auto const checksum_length =
-    checksum_format ? checksum_format->fixed_length() : 0;
+    checksum_format ? *checksum_format->length_constraints().fixed() : 0;
   if( max_length < length + checksum_length )
   {
     VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
@@ -204,7 +204,7 @@ klv_packet_length( klv_packet const& packet )
   auto const length_of_value = format.length_of( packet.value );
   auto const length_of_length = klv_ber_length( length_of_value );
   auto const length_of_checksum =
-    checksum_format ? checksum_format->fixed_length() : 0;
+    checksum_format ? *checksum_format->length_constraints().fixed() : 0;
   return length_of_key + length_of_length + length_of_value +
          length_of_checksum;
 }

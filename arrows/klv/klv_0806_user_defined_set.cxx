@@ -75,7 +75,7 @@ std::string
 klv_0806_user_defined_data_type_id_format
 ::description() const
 {
-  return "user defined data type / id of " + length_description();
+  return "user defined data type / id of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -135,7 +135,6 @@ operator<<( std::ostream& os, klv_0806_user_defined_data_type value )
 // ----------------------------------------------------------------------------
 klv_0806_user_defined_data_format
 ::klv_0806_user_defined_data_format()
-  : klv_data_format_< klv_0806_user_defined_data >{ 0 }
 {
 }
 
@@ -144,7 +143,7 @@ std::string
 klv_0806_user_defined_data_format
 ::description() const
 {
-  return "user defined data of " + length_description();
+  return "user defined data of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -185,7 +184,7 @@ std::string
 klv_0806_user_defined_set_format
 ::description() const
 {
-  return "user defined local set of " + length_description();
+  return "user defined local set of " + m_length_constraints.description();
 }
 
 } // namespace klv
