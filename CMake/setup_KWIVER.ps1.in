@@ -1,0 +1,25 @@
+#
+# Script to source to setup the KWIVER environment
+#
+
+if ( $args[1] -eq "" ) {
+  $config = @CMAKE_BUILD_TYPE@
+ } else {
+  $config = $args[1]
+ }
+
+$this_dir = Split-Path -Path $MyInvocation.MyCommand.Path
+
+$ENV:PATH = "$this_dir/bin/$config;$this_dir/lib/$config/@kwiver_plugin_module_subdir@;$this_dir/lib/$config/@kwiver_plugin_process_subdir@;$this_dir/lib/$config/@kwiver_plugin_algorithms_subdir@;@EXTRA_WIN32_PATH@;$ENV:PATH"
+
+$ENV:KWIVER_PLUGIN_PATH = "$this_dir/lib/%config%/@kwiver_plugin_subdir@"
+
+$ENV:KWIVER_CONFIG_PATH = "$this_dir/share/kwiver/@KWIVER_VERSION@/config"
+
+# Set default log reporting level for default logger.
+# $ENV:KWIVER_DEFAULT_LOG_LEVEL = "info"
+
+# Additional pipeline include directories can be specified in the following env var.
+# $ENV:SPROKIT_PIPE_INCLUDE_PATH =
+
+# Append here

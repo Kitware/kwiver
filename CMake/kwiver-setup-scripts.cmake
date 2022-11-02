@@ -8,6 +8,8 @@ set(KWIVER_SETUP_BATCH_FILE    "${KWIVER_BINARY_DIR}/setup_KWIVER.bat" )
 list(APPEND SETUP_BATCH_FILES "${KWIVER_SETUP_BATCH_FILE}")
 # Set the bat to use when setting up a test
 set(KWIVER_TEST_BATCH_FILE ${KWIVER_SETUP_BATCH_FILE})
+# Create initial setup powershell script
+set(KWIVER_SETUP_POWERSHELL_FILE "${KWIVER_BINARY_DIR}/setup_KWIVER.ps1")
 
 set(LIBRARY_PATH_VAR "LD_LIBRARY_PATH")
 if( APPLE )
@@ -31,9 +33,14 @@ configure_file(
   ${KWIVER_SETUP_BATCH_FILE}
   @ONLY
   )
+configure_file(
+  ${KWIVER_CMAKE_DIR}/setup_KWIVER.ps1.in
+  ${KWIVER_SETUP_POWERSHELL_FILE}
+  @ONLY
+  )
 
 # install set up script
-option( KWIVER_INSTALL_SET_UP_SCRIPT "Creates a setup_KWIVER script (.sh and .bat) that will add properly add kwiver to a shell/cmd prompt" ON )
+option( KWIVER_INSTALL_SET_UP_SCRIPT "Creates a setup_KWIVER script (.sh, .bat, and .ps1) that will add properly add kwiver to a shell/cmd/powershell prompt" ON )
 mark_as_advanced( KWIVER_INSTALL_SET_UP_SCRIPT )
 
 if( KWIVER_INSTALL_SET_UP_SCRIPT )
@@ -41,6 +48,8 @@ if( KWIVER_INSTALL_SET_UP_SCRIPT )
     DESTINATION ${CMAKE_INSTALL_PREFIX} )
   if(WIN32)
     install( PROGRAMS   ${KWIVER_SETUP_BATCH_FILE}
+      DESTINATION ${CMAKE_INSTALL_PREFIX} )
+    install( PROGRAMS   ${KWIVER_SETUP_POWERSHELL_FILE}
       DESTINATION ${CMAKE_INSTALL_PREFIX} )
   endif()
 endif()
@@ -50,6 +59,11 @@ if ( fletch_FOUND )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PATH=${fletch_ROOT}/x64/${_vcVersion}/bin;%PATH%;\n" )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set GDAL_DATA=${GDAL_ROOT}/share/gdal\n" )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PROJ_LIB=${PROJ_ROOT}/share/proj\n" )
+
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "$ENV:PATH = \"${fletch_ROOT}/bin;$ENV:PATH\"\n" )
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "$ENV:PATH = \"${fletch_ROOT}/x64/${_vcVersion}/bin;$ENV:PATH\"\n" )
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "$ENV:GDAL_DATA = \"${GDAL_ROOT}/share/gdal\"\n" )
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "$ENV:PROJ_LIB = \"${PROJ_ROOT}/share/proj\"\n" )
 
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export ${LIBRARY_PATH_VAR}=${fletch_ROOT}/lib:$${LIBRARY_PATH_VAR}\n" )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export GDAL_DATA=${GDAL_ROOT}/share/gdal\n" )
@@ -80,10 +94,14 @@ if ( KWIVER_ENABLE_LOG4CPLUS )
 
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set VITAL_LOGGER_FACTORY=vital_log4cplus_logger\n" )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set LOG4CPLUS_CONFIGURATION=%~dp0/log4cplus.properties\n" )
+
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "$ENV:VITAL_LOGGER_FACTORY = \"vital_log4cplus_logger\"\n" )
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "$ENV:LOG4CPLUS_CONFIGURATION = \"$this_dir/log4cplus.properties\"\n" )
 endif()
 
 file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export KWIVER_DEFAULT_LOG_LEVEL=WARN\n" )
 file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set KWIVER_DEFAULT_LOG_LEVEL=WARN\n" )
+file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "$ENV:KWIVER_DEFAULT_LOG_LEVEL = \"WARN\"\n" )
 
 if (KWIVER_ENABLE_PYTHON)
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "# Python environment\n")
@@ -114,10 +132,27 @@ if (KWIVER_ENABLE_PYTHON)
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "\n:: set to suppress loading python modules/processes\n" )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "::set SPROKIT_NO_PYTHON_MODULES=false\n\n" )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set KWIVER_PYTHON_DEFAULT_LOG_LEVEL=WARN\n" )
+
+
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "# Python environment\n")
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "$ENV:PYTHON_LIBRARY = \"${PYTHON_LIBRARY}\"\n" )
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "$ENV:PYTHONPATH = \"$this_dir/lib/$config/python2.7/site-packages\"\n" )
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "\n# additional python mudules to load, separated by ':'\n" )
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "$ENV:SPROKIT_PYTHON_MODULES = \"" )
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "kwiver.sprokit.processes:" )
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "kwiver.sprokit.schedulers:" )
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "kwiver.sprokit.tests.processes:")
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "kwiver.vital.tests.alg:" )
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "kwiver.sprokit.processes.pytorch\"\n")
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "\n# set to suppress loading python modules/processes\n" )
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "#$ENV:SPROKIT_NO_PYTHON_MODULES = \"false\"\n\n" )
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "$ENV:KWIVER_PYTHON_DEFAULT_LOG_LEVEL = \"WARN\"\n" )
 endif()
 
 if ( KWIVER_ENABLE_MATLAB )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export LD_LIBRARY_PATH=${Matlab_LIBRARY_DIR}:$LD_LIBRARY_PATH\n" )
 
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PATH=${Matlab_LIBRARY_DIR};%PATH%\n" )
+
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "$ENV:PATH = \"${Matlab_LIBRARY_DIR};$ENV:PATH\"\n" )
 endif()
