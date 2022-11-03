@@ -114,6 +114,9 @@ public:
     }
   }
 
+  bool operator==( metadata_item const& other ) const;
+  bool operator!=( metadata_item const& other ) const;
+
   /// Test if the metadata item is valid.
   bool is_valid() const;
 
