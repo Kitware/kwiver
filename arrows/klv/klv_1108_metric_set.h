@@ -56,6 +56,12 @@ operator<<( std::ostream& os, klv_1108_metric_implementer const& rhs );
 DECLARE_CMP( klv_1108_metric_implementer )
 
 // ----------------------------------------------------------------------------
+/// Returns the implementer object to be used for KWIVER-derived metrics.
+KWIVER_ALGO_KLV_EXPORT
+klv_1108_metric_implementer const&
+klv_1108_kwiver_metric_implementer();
+
+// ----------------------------------------------------------------------------
 /// Interprets data as a KLV 1108 metric local set implementer.
 class KWIVER_ALGO_KLV_EXPORT klv_1108_metric_implementer_format
   : public klv_data_format_< klv_1108_metric_implementer >

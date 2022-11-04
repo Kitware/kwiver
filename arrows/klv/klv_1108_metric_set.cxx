@@ -42,6 +42,14 @@ operator<<( std::ostream& os, klv_1108_metric_implementer const& rhs )
 }
 
 // ----------------------------------------------------------------------------
+klv_1108_metric_implementer const&
+klv_1108_kwiver_metric_implementer()
+{
+  static klv_1108_metric_implementer const value{ "Kitware", "KWIVER" };
+  return value;
+}
+
+// ----------------------------------------------------------------------------
 klv_1108_metric_implementer_format
 ::klv_1108_metric_implementer_format()
 {}
