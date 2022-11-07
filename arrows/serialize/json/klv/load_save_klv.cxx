@@ -287,7 +287,14 @@ protected:
   set_next_name( std::string const& name )
   {
     m_next_name = name;
-    m_archive.setNextName( m_next_name.c_str() );
+    if( name.empty() )
+    {
+      m_archive.setNextName( nullptr );
+    }
+    else
+    {
+      m_archive.setNextName( m_next_name.c_str() );
+    }
   }
 
 private:
@@ -949,6 +956,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
     }
     catch( std::runtime_error const& )
     {
+      set_next_name( "" );
       return false;
     }
   }
@@ -1110,6 +1118,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
       }
       catch( std::runtime_error const& )
       {
+        set_next_name( "" );
         return {};
       }
     }
@@ -1272,7 +1281,9 @@ struct klv_json_loader : public klv_json_base< load_archive >
       locations = load< klv_0601_image_horizon_locations >();
     }
     catch( std::runtime_error const& )
-    {}
+    {
+      set_next_name( "" );
+    }
 
     return { std::move( x0 ),
              std::move( y0 ),

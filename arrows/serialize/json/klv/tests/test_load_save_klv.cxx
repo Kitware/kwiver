@@ -148,6 +148,7 @@ klv_local_set const test_1206_set = {
 klv_local_set const test_0601_set = {
   { KLV_0601_PRECISION_TIMESTAMP,
     uint64_t{ 1234 } },
+  { KLV_0601_PLATFORM_HEADING_ANGLE, {} },
   { KLV_0601_PLATFORM_TRUE_AIRSPEED,
     kld{ 2.345, 1 } },
   { KLV_0601_MISSION_ID,

@@ -101,6 +101,13 @@
 			},
 			{
 				"key": {
+					"integer": 5,
+					"string": "Platform Heading Angle"
+				},
+				"value": null
+			},
+			{
+				"key": {
 					"integer": 8,
 					"string": "Platform True Airspeed"
 				},
