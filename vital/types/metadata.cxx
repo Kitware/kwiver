@@ -12,11 +12,36 @@
 
 #include <typeindex>
 
+#include <cmath>
+
 namespace kwiver {
 
 namespace vital {
 
 namespace {
+
+// ----------------------------------------------------------------------------
+struct equality_visitor {
+  bool operator()( double lhs, double rhs ) const
+  {
+    return
+      lhs == rhs ||
+      ( std::isnan( lhs ) && std::isnan( rhs ) &&
+        ( std::signbit( lhs ) == std::signbit( rhs ) ) );
+  }
+
+  template< class T >
+  bool operator()( T const& lhs, T const& rhs ) const
+  {
+    return lhs == rhs;
+  }
+
+  template< class T1, class T2 >
+  bool operator()( T1 const&, T2 const& ) const
+  {
+    return false;
+  }
+};
 
 // ----------------------------------------------------------------------------
 struct print_visitor {
@@ -40,6 +65,7 @@ struct convert_from_any_visitor {
   any const& data;
 };
 
+
 } // namespace <anonymous>
 
 namespace metadata_detail {
@@ -54,6 +80,23 @@ convert_data< any >( vital_metadata_tag tag, any const& data ) {
 }
 
 } // namespace metadata_detail
+
+// ----------------------------------------------------------------------------
+bool
+metadata_item
+::operator==( metadata_item const& other ) const
+{
+  return
+    m_tag == other.m_tag && visit( equality_visitor{}, m_data, other.m_data );
+}
+
+// ----------------------------------------------------------------------------
+bool
+metadata_item
+::operator!=( metadata_item const& other ) const
+{
+  return !( *this == other );
+}
 
 // ----------------------------------------------------------------------------
 bool
