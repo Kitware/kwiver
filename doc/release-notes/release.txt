@@ -25,3 +25,5 @@ Arrows: KLV
 
 * Fixed bug in ST0601 view domain writer which would not write the length of
   the final field.
+
+* Added a missing type to the ST0601 KLV JSON exporter.
