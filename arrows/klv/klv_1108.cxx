@@ -325,6 +325,211 @@ klv_1108_traits_lookup()
   return lookup;
 }
 
+// ----------------------------------------------------------------------------
+klv_local_set
+klv_1108_create_index_set(
+  klv_local_set const& parent_set, klv_value const& metric_set_value )
+{
+  klv_local_set result;
+  for( auto const tag : { KLV_1108_ASSESSMENT_POINT,
+                          KLV_1108_WINDOW_CORNERS_PACK } )
+  {
+    auto const it = parent_set.find( tag );
+    if( it != parent_set.cend() )
+    {
+      result.add( tag, it->second );
+    }
+  }
+
+  if( metric_set_value.valid() )
+  {
+    auto const& metric_set = metric_set_value.get< klv_local_set >();
+    klv_local_set result_metric_set;
+    for( auto const tag : { KLV_1108_METRIC_SET_NAME,
+                            KLV_1108_METRIC_SET_VERSION,
+                            KLV_1108_METRIC_SET_IMPLEMENTER,
+                            KLV_1108_METRIC_SET_PARAMETERS } )
+    {
+      auto const it = metric_set.find( tag );
+      if( it != metric_set.cend() )
+      {
+        result_metric_set.add( tag, it->second );
+      }
+    }
+    result.add( KLV_1108_METRIC_LOCAL_SET, std::move( result_metric_set ) );
+  }
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+struct klv_compression_type_pair
+{
+  std::string vital;
+  klv_1108_compression_type klv;
+};
+
+// ----------------------------------------------------------------------------
+std::vector< klv_compression_type_pair > const&
+compression_type_pairs()
+{
+  static std::vector< klv_compression_type_pair > const pairs = {
+    { "N/A", KLV_1108_COMPRESSION_TYPE_UNCOMPRESSED },
+    { "H.262", KLV_1108_COMPRESSION_TYPE_H262 },
+    { "H.264", KLV_1108_COMPRESSION_TYPE_H264 },
+    { "H.265", KLV_1108_COMPRESSION_TYPE_H265 } };
+
+  return pairs;
+}
+
+// ----------------------------------------------------------------------------
+struct klv_compression_profile_pair
+{
+  std::string vital;
+  klv_1108_compression_profile klv;
+};
+
+// ----------------------------------------------------------------------------
+std::vector< klv_compression_profile_pair > const&
+compression_profile_pairs()
+{
+  static std::vector< klv_compression_profile_pair > const pairs = {
+    { "N/A", KLV_1108_COMPRESSION_PROFILE_UNCOMPRESSED },
+    { "Main", KLV_1108_COMPRESSION_PROFILE_MAIN },
+    { "Main 10", KLV_1108_COMPRESSION_PROFILE_MAIN_10 },
+    { "Constrained Baseline",
+      KLV_1108_COMPRESSION_PROFILE_CONSTRAINED_BASELINE },
+    { "High", KLV_1108_COMPRESSION_PROFILE_HIGH },
+    { "Main 4:2:2 12", KLV_1108_COMPRESSION_PROFILE_MAIN_4_2_2_12 },
+    { "Main 4:4:4 12", KLV_1108_COMPRESSION_PROFILE_MAIN_4_4_4_12 },
+    { "High 4:2:2", KLV_1108_COMPRESSION_PROFILE_HIGH_4_2_2 },
+    { "High 4:4:4 Predictive",
+      KLV_1108_COMPRESSION_PROFILE_HIGH_4_4_4_PREDICTIVE } };
+
+  return pairs;
+}
+
+// ----------------------------------------------------------------------------
+struct klv_compression_level_pair
+{
+  std::string vital;
+  std::string klv;
+};
+
+// ----------------------------------------------------------------------------
+std::vector< klv_compression_level_pair > const&
+compression_level_pairs()
+{
+  static std::vector< klv_compression_level_pair > const pairs = {
+    { "Low", "LL" },
+    { "Main", "ML" },
+    { "High-1440", "H14" },
+    { "High", "HL" } };
+
+  return pairs;
+}
+
+// ----------------------------------------------------------------------------
+template< class PairType >
+void convert_vital_to_klv_via_pairs(
+  kv::metadata const& vital_data, klv_local_set& klv_data,
+  kv::vital_metadata_tag vital_tag, klv_1108_tag klv_tag,
+  std::vector< PairType > const& pairs )
+{
+  auto const& item = vital_data.find( vital_tag );
+  if( !item || klv_data.has( klv_tag ) )
+  {
+    return;
+  }
+
+  for( auto const& pair : pairs )
+  {
+    if( pair.vital == item.template get< decltype( PairType::vital ) >() )
+    {
+      klv_data.add( klv_tag, pair.klv );
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+bool
+klv_1108_fill_in_metadata(
+  kv::metadata const& vital_data, klv_local_set& klv_data )
+{
+  // Assessment point
+  if( !klv_data.has( KLV_1108_ASSESSMENT_POINT ) )
+  {
+    klv_data.add(
+      KLV_1108_ASSESSMENT_POINT, KLV_1108_ASSESSMENT_POINT_ARCHIVE );
+  }
+
+  // Bitrate
+  auto const& bitrate_vital =
+    vital_data.find( kv::VITAL_META_VIDEO_BITRATE );
+  if( bitrate_vital && !klv_data.has( KLV_1108_STREAM_BITRATE ) )
+  {
+    // Convert from bps to kbps
+    auto const bitrate_klv = bitrate_vital.as_uint64() + 500 / 1000;
+    klv_data.add( KLV_1108_STREAM_BITRATE, bitrate_klv );
+  }
+
+  // Compression type
+  convert_vital_to_klv_via_pairs(
+    vital_data, klv_data, kv::VITAL_META_VIDEO_COMPRESSION_TYPE,
+    KLV_1108_COMPRESSION_TYPE, compression_type_pairs() );
+
+  // Compression profile
+  convert_vital_to_klv_via_pairs(
+    vital_data, klv_data, kv::VITAL_META_VIDEO_COMPRESSION_PROFILE,
+    KLV_1108_COMPRESSION_PROFILE, compression_profile_pairs() );
+
+  // Compression level
+  convert_vital_to_klv_via_pairs(
+    vital_data, klv_data, kv::VITAL_META_VIDEO_COMPRESSION_LEVEL,
+    KLV_1108_COMPRESSION_LEVEL, compression_level_pairs() );
+
+  // Compression ratio
+  auto const& frame_rate_vital =
+    vital_data.find( kv::VITAL_META_VIDEO_FRAME_RATE );
+  auto const& frame_width_vital =
+    vital_data.find( kv::VITAL_META_IMAGE_WIDTH );
+  auto const& frame_height_vital =
+    vital_data.find( kv::VITAL_META_IMAGE_HEIGHT );
+  if( frame_rate_vital && frame_width_vital && frame_height_vital &&
+      bitrate_vital && !klv_data.has( KLV_1108_COMPRESSION_RATIO ) )
+  {
+    auto const compression_ratio_klv =
+      24.0 * frame_width_vital.as_double() * frame_height_vital.as_double() *
+      frame_rate_vital.as_double() / bitrate_vital.as_double();
+    klv_data.add( KLV_1108_COMPRESSION_RATIO, compression_ratio_klv );
+  }
+
+  // Standard version
+  if( !klv_data.has( KLV_1108_DOCUMENT_VERSION ) )
+  {
+    klv_data.add( KLV_1108_DOCUMENT_VERSION, uint64_t{ 3 } );
+  }
+
+  // Determine if we have values for all tags we are concerned with here
+  for( auto const tag : {
+    KLV_1108_ASSESSMENT_POINT,
+    KLV_1108_COMPRESSION_TYPE,
+    KLV_1108_COMPRESSION_PROFILE,
+    KLV_1108_COMPRESSION_LEVEL,
+    KLV_1108_COMPRESSION_RATIO,
+    KLV_1108_STREAM_BITRATE,
+    KLV_1108_DOCUMENT_VERSION,
+  } )
+  {
+    if( !klv_data.has( tag ) )
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 } // namespace klv
 
 } // namespace arrows
