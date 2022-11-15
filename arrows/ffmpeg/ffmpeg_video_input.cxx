@@ -75,15 +75,15 @@ struct ffmpeg_klv_stream
 
   void send_packet( AVPacket* packet );
 
-  void advance( kv::optional< uint64_t > backup_timestamp = kv::nullopt,
-                int64_t max_pts = INT64_MAX );
+  void advance( kv::optional< uint64_t > backup_timestamp,
+                int64_t max_pts, int64_t max_pos );
 
   void reset();
 
   kv::metadata_sptr vital_metadata( uint64_t timestamp, bool smooth_packets );
 
   AVStream* stream;
-  std::multimap< int64_t, std::vector< uint8_t > > buffer;
+  std::vector< packet_uptr > buffer;
   std::vector< uint8_t > bytes;
   std::vector< klv::klv_packet > packets;
   klv::klv_timeline timeline;
@@ -117,28 +117,34 @@ ffmpeg_klv_stream
   {
     return;
   }
-  auto const begin = packet->data;
-  auto const end = begin + packet->size;
-  buffer.emplace( packet->pts, std::vector< uint8_t >{ begin, end } );
+  packet_uptr packet_ref{ av_packet_alloc() };
+  throw_error_null( packet_ref.get(), "Failed to allocate packet" );
+  throw_error_code(
+    av_packet_ref( packet_ref.get(), packet ),
+    "Failed to create packet reference" );
+  buffer.emplace_back( std::move( packet_ref ) );
 }
 
 // ----------------------------------------------------------------------------
 void
 ffmpeg_klv_stream
-::advance( kv::optional< uint64_t > backup_timestamp, int64_t max_pts )
+::advance(
+  kv::optional< uint64_t > backup_timestamp, int64_t max_pts, int64_t max_pos )
 {
   packets.clear();
 
   for( auto it = buffer.begin(); it != buffer.end(); )
   {
-    if( it->first <= max_pts || it->first == AV_NOPTS_VALUE )
+    auto const& packet = **it;
+    if( ( packet.pts != AV_NOPTS_VALUE && packet.pts <= max_pts ) ||
+        ( packet.pts == AV_NOPTS_VALUE && packet.pos <= max_pos ) )
     {
-      bytes.insert( bytes.end(), it->second.begin(), it->second.end() );
+      bytes.insert( bytes.end(), packet.data, packet.data + packet.size );
       it = buffer.erase( it );
     }
     else
     {
-      break;
+      ++it;
     }
   }
 
@@ -916,10 +922,19 @@ ffmpeg_video_input::priv::open_video_state
   }
 
   // Seek back to start
-  throw_error_code(
+  auto seek_err =
     av_seek_frame(
-      format_context.get(), video_stream->index, 0, AVSEEK_FLAG_FRAME ),
-    "Could not seek to beginning of video" );
+      format_context.get(), -1, INT64_MIN,
+      AVSEEK_FLAG_BYTE | AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY );
+  if( seek_err < 0 )
+  {
+    // Sometimes seeking by byte position is not allowed, so try by timestamp
+    throw_error_code(
+      av_seek_frame(
+        format_context.get(), -1, INT64_MIN,
+        AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY ),
+      "Could not seek to beginning of video" );
+  }
   avcodec_flush_buffers( codec_context.get() );
 
   return true;
@@ -1154,12 +1169,14 @@ ffmpeg_video_input::priv::open_video_state
       stream.demuxer.frame_time() +
       static_cast< uint64_t >( frame_delta * 1000000u );
     auto max_pts = INT64_MAX;
+    auto max_pos = INT64_MAX;
     if( frame.has_value() )
     {
       max_pts = frame->frame->best_effort_timestamp;
+      max_pos = frame->frame->pkt_pos;
     }
 
-    stream.advance( backup_timestamp, max_pts );
+    stream.advance( backup_timestamp, max_pts, max_pos );
   }
 
   return !parent->imagery_enabled || frame.has_value();
