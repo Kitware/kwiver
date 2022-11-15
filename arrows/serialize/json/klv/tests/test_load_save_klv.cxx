@@ -152,7 +152,7 @@ klv_local_set const test_0601_set = {
   { KLV_0601_PLATFORM_TRUE_AIRSPEED,
     kld{ 2.345, 1 } },
   { KLV_0601_MISSION_ID,
-    std::string{ "TEST STRING" } },
+    std::string{ "TEST\0STRING", 11 } },
   { KLV_0601_IMAGE_HORIZON_PIXEL_PACK,
     klv_0601_image_horizon_pixel_pack{
       1, 2, 3, 4,
