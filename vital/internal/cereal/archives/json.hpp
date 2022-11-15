@@ -114,6 +114,9 @@ namespace cereal
           //! Default options with no indentation
           static Options NoIndent(){ return Options( JSONWriter::kDefaultMaxDecimalPlaces, IndentChar::space, 0 ); }
 
+          //! Maximum floating-point precision
+          static int MaxPrecision(){ return JSONWriter::kDefaultMaxDecimalPlaces; }
+
           //! The character to use for indenting
           enum class IndentChar : char
           {

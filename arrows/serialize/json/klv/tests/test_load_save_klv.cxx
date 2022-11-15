@@ -230,7 +230,7 @@ klv_local_set const test_0601_set = {
   { KLV_0601_SDCC_FLP,
     klv_1010_sdcc_flp{
       { KLV_0601_SENSOR_LATITUDE, KLV_0601_SENSOR_LONGITUDE },
-      { 4.0, 2.0 },
+      { 4.0, 2.1e-64 },
       { 0.5 },
       4, 3,
       false, true,
@@ -278,7 +278,8 @@ std::vector< klv_timed_packet > const test_packets = {
 
 // ----------------------------------------------------------------------------
 auto const options = cereal::JSONOutputArchive::Options{
-  DBL_DIG + 1, cereal::JSONOutputArchive::Options::IndentChar::tab, 1 };
+  cereal::JSONOutputArchive::Options::MaxPrecision(),
+  cereal::JSONOutputArchive::Options::IndentChar::tab, 1 };
 
 // ----------------------------------------------------------------------------
 TEST_F ( load_save_klv, round_trip )
