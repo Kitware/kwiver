@@ -12,7 +12,6 @@
 #include <arrows/klv/klv_util.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
-#include <vital/optional.h>
 #include <vital/util/interval.h>
 
 #include <array>
@@ -59,7 +58,7 @@ struct KWIVER_ALGO_KLV_EXPORT klv_1303_mdap
   size_t element_size;
   klv_1303_apa apa;
   size_t apa_params_length;
-  kwiver::vital::optional< kwiver::vital::interval< double > > imap_params;
+  std::optional< kwiver::vital::interval< double > > imap_params;
 };
 
 // ----------------------------------------------------------------------------

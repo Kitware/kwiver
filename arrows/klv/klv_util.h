@@ -9,7 +9,6 @@
 #define KWIVER_ARROWS_KLV_KLV_UTIL_H_
 
 #include <vital/exceptions.h>
-#include <vital/optional.h>
 #include <vital/util/interval.h>
 
 #include <ostream>
@@ -38,7 +37,7 @@ operator<<( std::ostream& os, vital::interval< T > const& value )
 // ----------------------------------------------------------------------------
 template < class T >
 std::ostream&
-operator<<( std::ostream& os, kwiver::vital::optional< T > const& value )
+operator<<( std::ostream& os, std::optional< T > const& value )
 {
   if( value )
   {

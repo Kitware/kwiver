@@ -27,7 +27,7 @@ klv_update_intervals::key_t
 // ----------------------------------------------------------------------------
 klv_update_intervals::key_t
 ::key_t(
-  klv_top_level_tag standard, kwiver::vital::optional< klv_lds_key > tag )
+  klv_top_level_tag standard, std::optional< klv_lds_key > tag )
   : standard{ standard }, tag{ tag }
 {}
 

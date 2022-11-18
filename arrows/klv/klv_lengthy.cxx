@@ -9,8 +9,6 @@
 
 #include <arrows/klv/klv_util.h>
 
-#include <vital/optional.h>
-
 namespace kwiver {
 
 namespace arrows {
@@ -117,7 +115,7 @@ operator!=( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs )
   template bool operator!=( klv_lengthy< T > const&, klv_lengthy< T > const& )
 
 KLV_INSTANTIATE( double );
-KLV_INSTANTIATE( kwiver::vital::optional< double > );
+KLV_INSTANTIATE( std::optional< double > );
 
 } // namespace klv
 

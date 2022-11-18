@@ -9,7 +9,6 @@
 
 #include <vital/config/config_block.h>
 #include <vital/noncopyable.h>
-#include <vital/optional.h>
 
 #include "types.h"
 
@@ -249,7 +248,7 @@ public:
    *
    * \returns The next datum available from the edge, or \c boost::none if the timeout was reached.
    */
-  kwiver::vital::optional< edge_datum_t > try_get_datum( duration_t const& duration );
+  std::optional< edge_datum_t > try_get_datum( duration_t const& duration );
 
   /**
    * \brief Trigger the edge to flush all data and not accept any more data.

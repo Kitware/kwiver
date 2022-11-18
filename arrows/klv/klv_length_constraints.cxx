@@ -140,7 +140,7 @@ klv_length_constraints
 }
 
 // ----------------------------------------------------------------------------
-vital::optional< size_t >
+std::optional< size_t >
 klv_length_constraints
 ::fixed() const
 {
@@ -172,7 +172,7 @@ klv_length_constraints
 }
 
 // ----------------------------------------------------------------------------
-vital::optional< vital::interval< size_t > >
+std::optional< vital::interval< size_t > >
 klv_length_constraints
 ::interval() const
 {
@@ -188,7 +188,7 @@ klv_length_constraints
 }
 
 // ----------------------------------------------------------------------------
-vital::optional< std::set< size_t > >
+std::optional< std::set< size_t > >
 klv_length_constraints
 ::set() const
 {

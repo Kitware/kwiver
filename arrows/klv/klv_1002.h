@@ -15,8 +15,6 @@
 #include <arrows/klv/klv_util.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
-#include <vital/optional.h>
-
 namespace kwiver {
 
 namespace arrows {
@@ -132,10 +130,10 @@ struct KWIVER_ALGO_KLV_EXPORT klv_1002_section_data_pack
   uint32_t section_x;
   uint32_t section_y;
   klv_1303_mdap< double > measurements;
-  kwiver::vital::optional< klv_1303_mdap< double > > uncertainty;
-  kwiver::vital::optional< klv_lengthy< double > > plane_x_scale;
-  kwiver::vital::optional< klv_lengthy< double > > plane_y_scale;
-  kwiver::vital::optional< klv_lengthy< double > > plane_constant;
+  std::optional< klv_1303_mdap< double > > uncertainty;
+  std::optional< klv_lengthy< double > > plane_x_scale;
+  std::optional< klv_lengthy< double > > plane_y_scale;
+  std::optional< klv_lengthy< double > > plane_constant;
 };
 
 // ----------------------------------------------------------------------------

@@ -18,8 +18,6 @@
 #include "klv_util.h"
 #include "klv_series.h"
 
-#include "vital/optional.h"
-
 #include <ostream>
 
 namespace kwiver {
@@ -351,7 +349,7 @@ struct KWIVER_ALGO_KLV_EXPORT klv_0601_image_horizon_pixel_pack
   uint8_t y0;
   uint8_t x1;
   uint8_t y1;
-  kwiver::vital::optional< klv_0601_image_horizon_locations > locations;
+  std::optional< klv_0601_image_horizon_locations > locations;
 };
 
 // ----------------------------------------------------------------------------
@@ -445,7 +443,7 @@ struct KWIVER_ALGO_KLV_EXPORT klv_0601_control_command
 {
   uint16_t id;
   std::string string;
-  vital::optional< uint64_t > timestamp;
+  std::optional< uint64_t > timestamp;
 };
 
 // ----------------------------------------------------------------------------
@@ -528,9 +526,9 @@ private:
 struct klv_0601_country_codes
 {
   klv_0102_country_coding_method coding_method;
-  kwiver::vital::optional< std::string > overflight_country;
-  kwiver::vital::optional< std::string > operator_country;
-  kwiver::vital::optional< std::string > country_of_manufacture;
+  std::optional< std::string > overflight_country;
+  std::optional< std::string > operator_country;
+  std::optional< std::string > country_of_manufacture;
 };
 
 // ----------------------------------------------------------------------------
@@ -570,7 +568,7 @@ struct klv_0601_location_dlp
 {
   double latitude;
   double longitude;
-  kwiver::vital::optional< double > altitude;
+  std::optional< double > altitude;
 };
 
 // ----------------------------------------------------------------------------
@@ -607,8 +605,8 @@ private:
 /// Geographic location of the take-off site and recovery site.
 struct klv_0601_airbase_locations
 {
-  kwiver::vital::optional< klv_0601_location_dlp > take_off_location;
-  kwiver::vital::optional< klv_0601_location_dlp > recovery_location;
+  std::optional< klv_0601_location_dlp > take_off_location;
+  std::optional< klv_0601_location_dlp > recovery_location;
 };
 
 // ----------------------------------------------------------------------------
@@ -690,9 +688,9 @@ private:
 /// Relative Sensor Azimuth, Elevation and Roll Angles.
 struct klv_0601_view_domain
 {
-  kwiver::vital::optional< klv_0601_view_domain_interval > azimuth;
-  kwiver::vital::optional< klv_0601_view_domain_interval > elevation;
-  kwiver::vital::optional< klv_0601_view_domain_interval > roll;
+  std::optional< klv_0601_view_domain_interval > azimuth;
+  std::optional< klv_0601_view_domain_interval > elevation;
+  std::optional< klv_0601_view_domain_interval > roll;
 };
 
 // ----------------------------------------------------------------------------
@@ -756,8 +754,8 @@ struct klv_0601_waypoint_record
 {
   uint16_t id;
   int16_t order;
-  kwiver::vital::optional< std::set< klv_0601_waypoint_info_bit > > info;
-  kwiver::vital::optional< klv_0601_location_dlp > location;
+  std::optional< std::set< klv_0601_waypoint_info_bit > > info;
+  std::optional< klv_0601_location_dlp > location;
 };
 
 // ----------------------------------------------------------------------------

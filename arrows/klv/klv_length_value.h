@@ -12,8 +12,6 @@
 #include <arrows/klv/klv_util.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
-#include <vital/optional.h>
-
 #include <tuple>
 
 namespace kwiver {
@@ -75,7 +73,7 @@ template < class Format >
 void
 write_trunc_lv_impl(
   std::tuple<
-    kwiver::vital::optional< typename Format::data_type > const&
+    std::optional< typename Format::data_type > const&
     > const& value,
   klv_write_iter_t& data, size_t length,
   Format const& format )
@@ -95,8 +93,8 @@ template < class Format, class... Formats,
                                     bool >::type = true >
 void
 write_trunc_lv_impl(
-  std::tuple< kwiver::vital::optional< typename Format::data_type > const&,
-              kwiver::vital::optional< typename Formats::data_type > const&...
+  std::tuple< std::optional< typename Format::data_type > const&,
+              std::optional< typename Formats::data_type > const&...
               > const& value,
   klv_write_iter_t& data, size_t length,
   Format format, Formats const&... formats )
@@ -133,7 +131,7 @@ klv_read_lv(
 // If the length is 0, returns `nullopt`. `max_length` should be
 /// greater than 0.
 template < class Format >
-kwiver::vital::optional< typename Format::data_type >
+std::optional< typename Format::data_type >
 klv_read_opt_lv(
   klv_read_iter_t& data, size_t max_length,
   Format const& format )
@@ -153,7 +151,7 @@ klv_read_opt_lv(
 // Read in a value, defined by `format`, preceded by its BER-encoded length.
 // If `max_length` or the actual length is 0, returns `nullopt`.
 template < class Format >
-kwiver::vital::optional< typename Format::data_type >
+std::optional< typename Format::data_type >
 klv_read_trunc_lv(
   klv_read_iter_t& data, size_t max_length,
   Format const& format )
@@ -186,7 +184,7 @@ klv_write_lv(
 template < class Format >
 void
 klv_write_opt_lv(
-  kwiver::vital::optional< typename Format::data_type > const& value,
+  std::optional< typename Format::data_type > const& value,
   klv_write_iter_t& data, size_t max_length,
   Format const& format )
 {
@@ -205,7 +203,7 @@ template < class Format >
 void
 klv_write_trunc_lv(
   std::tuple<
-    kwiver::vital::optional< typename Format::data_type const& >
+    std::optional< typename Format::data_type const& >
     > const& value,
   klv_write_iter_t& data, size_t length,
   Format const& format )
@@ -224,8 +222,8 @@ template < class Format, class... Formats,
 void
 klv_write_trunc_lv(
   std::tuple<
-    kwiver::vital::optional< typename Format::data_type > const&,
-    kwiver::vital::optional< typename Formats::data_type > const&...
+    std::optional< typename Format::data_type > const&,
+    std::optional< typename Formats::data_type > const&...
     > const& value,
   klv_write_iter_t& data, size_t max_length,
   Format const& format, Formats const&... formats )
@@ -256,7 +254,7 @@ klv_length_of_lv( typename Format::data_type const& value,
 template < class Format >
 size_t
 klv_length_of_opt_lv(
-  kwiver::vital::optional< typename Format::data_type > const& value,
+  std::optional< typename Format::data_type > const& value,
   Format const& format )
 {
   auto const length = value ? format.length_of_( *value ) : 0;
@@ -268,7 +266,7 @@ klv_length_of_opt_lv(
 template < class Format >
 size_t
 klv_length_of_trunc_lv(
-  std::tuple< kwiver::vital::optional< typename Format::data_type > const&
+  std::tuple< std::optional< typename Format::data_type > const&
               > const& value,
   Format const& format )
 {
@@ -285,8 +283,8 @@ template < class Format, class... Formats,
                                     bool >::type = true >
 size_t
 klv_length_of_trunc_lv(
-  std::tuple< kwiver::vital::optional< typename Format::data_type > const&,
-              kwiver::vital::optional< typename Formats::data_type > const&...
+  std::tuple< std::optional< typename Format::data_type > const&,
+              std::optional< typename Formats::data_type > const&...
               > const& value,
   Format const& format, Formats const&... formats )
 {

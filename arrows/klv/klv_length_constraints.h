@@ -10,7 +10,6 @@
 
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
-#include <vital/optional.h>
 #include <vital/util/interval.h>
 #include <vital/util/variant/variant.hpp>
 
@@ -51,7 +50,7 @@ public:
   is_free() const;
 
   /// Returns the single value the length is fixed to, if it exists.
-  vital::optional< size_t >
+  std::optional< size_t >
   fixed() const;
 
   /// Returns the fixed length, or \p backup if the length is not fixed.
@@ -59,11 +58,11 @@ public:
   fixed_or( size_t backup ) const;
 
   /// Returns the interval of allowed lengths, if it exists.
-  vital::optional< vital::interval< size_t > >
+  std::optional< vital::interval< size_t > >
   interval() const;
 
   /// Returns the set of allowed lengths, if it exists.
-  vital::optional< std::set< size_t > >
+  std::optional< std::set< size_t > >
   set() const;
 
   /// Return a suggested, valid length.
@@ -82,7 +81,7 @@ private:
   vital::variant<
     vital::monostate, size_t, vital::interval< size_t >, std::set< size_t >
     > m_impl;
-  vital::optional< size_t > m_suggested;
+  std::optional< size_t > m_suggested;
 };
 
 } // namespace klv

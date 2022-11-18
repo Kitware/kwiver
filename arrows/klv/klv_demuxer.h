@@ -28,7 +28,7 @@ public:
   /// Incorporate \p packets into the timeline.
   void send_frame(
     std::vector< klv_packet > const& packets,
-    kwiver::vital::optional< uint64_t > backup_timestamp =
+    std::optional< uint64_t > backup_timestamp =
       kwiver::vital::nullopt );
 
   /// Return the timestamp of the most recent frame.

@@ -85,8 +85,8 @@ class edge::priv
     bool full_of_data() const;
     void complete_check() const;
 
-    bool push(edge_datum_t const& datum, kwiver::vital::optional<duration_t> const& duration = kwiver::vital::nullopt);
-    kwiver::vital::optional<edge_datum_t> pop(kwiver::vital::optional<duration_t> const& duration = kwiver::vital::nullopt);
+    bool push(edge_datum_t const& datum, std::optional<duration_t> const& duration = kwiver::vital::nullopt);
+    std::optional<edge_datum_t> pop(std::optional<duration_t> const& duration = kwiver::vital::nullopt);
 
     /// This flag indicates that this edge connection should or should
     /// not imply a dependency. Generally set to false if a backwards
@@ -271,7 +271,7 @@ edge
 }
 
 // ------------------------------------------------------------------
-kwiver::vital::optional<edge_datum_t>
+std::optional<edge_datum_t>
 edge
 ::try_get_datum(duration_t const& duration)
 {
@@ -408,7 +408,7 @@ edge::priv
 // ------------------------------------------------------------------
 bool
 edge::priv
-::push(edge_datum_t const& datum, kwiver::vital::optional<duration_t> const& duration)
+::push(edge_datum_t const& datum, std::optional<duration_t> const& duration)
 {
   {
     shared_lock_t const lock(complete_mutex);
@@ -454,9 +454,9 @@ edge::priv
 }
 
 // ------------------------------------------------------------------
-kwiver::vital::optional<edge_datum_t>
+std::optional<edge_datum_t>
 edge::priv
-::pop(kwiver::vital::optional<duration_t> const& duration)
+::pop(std::optional<duration_t> const& duration)
 {
   complete_check();
 
