@@ -14,6 +14,7 @@
 #include <vital/range/iota.h>
 #include <vital/util/visit.h>
 
+#include <optional>
 #include <stdexcept>
 
 using namespace kwiver::arrows::klv;
@@ -554,7 +555,7 @@ public:
   }
 
   template< class T >
-  void save( kv::optional< T > const& value )
+  void save( std::optional< T > const& value )
   {
     if( value )
     {
@@ -1023,12 +1024,12 @@ struct klv_json_loader : public klv_json_base< load_archive >
     return result;
   }
 
-  LOAD_CONTAINER_TEMPLATE( kv::optional )
+  LOAD_CONTAINER_TEMPLATE( std::optional )
   T load()
   {
     if( load_null() )
     {
-      return kv::nullopt;
+      return std::nullopt;
     }
 
     return load< typename T::value_type >();
@@ -1055,8 +1056,8 @@ struct klv_json_loader : public klv_json_base< load_archive >
   LOAD_TEMPLATE( klv_timed_packet )
   T load()
   {
-    LOAD_VALUE( frame, kv::optional< int64_t > );
-    LOAD_VALUE( microseconds, kv::optional< int64_t > );
+    LOAD_VALUE( frame, std::optional< int64_t > );
+    LOAD_VALUE( microseconds, std::optional< int64_t > );
     LOAD_VALUE( packet, klv_packet );
     LOAD_VALUE( stream_index, uint64_t );
     kv::timestamp ts;

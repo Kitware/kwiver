@@ -11,14 +11,14 @@
 #include "arrows/ffmpeg/ffmpeg_video_raw_image.h"
 #include "arrows/ffmpeg/ffmpeg_video_settings.h"
 
-#include <vital/optional.h>
-
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
 }
+
+#include <optional>
 
 namespace kv = kwiver::vital;
 
@@ -94,7 +94,7 @@ public:
   bool cuda_enabled;
   int cuda_device_index;
 
-  kv::optional< open_video_state > video;
+  std::optional< open_video_state > video;
 };
 
 // ----------------------------------------------------------------------------
