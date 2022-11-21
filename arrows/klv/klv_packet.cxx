@@ -216,7 +216,7 @@ klv_packet_timestamp( klv_packet const& packet )
 {
   if( !packet.value.valid() )
   {
-    return kv::nullopt;
+    return std::nullopt;
   }
 
   auto const get_local = [&]( klv_lds_key key ) -> std::optional< uint64_t > {
@@ -226,7 +226,7 @@ klv_packet_timestamp( klv_packet const& packet )
     {
       return it->second.get< uint64_t >();
     }
-    return kv::nullopt;
+    return std::nullopt;
   };
 
   std::optional< uint64_t > result;

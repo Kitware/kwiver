@@ -29,7 +29,7 @@ public:
   void send_frame(
     std::vector< klv_packet > const& packets,
     std::optional< uint64_t > backup_timestamp =
-      kwiver::vital::nullopt );
+      std::nullopt );
 
   /// Return the timestamp of the most recent frame.
   uint64_t frame_time() const;

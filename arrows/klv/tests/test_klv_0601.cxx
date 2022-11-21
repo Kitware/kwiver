@@ -160,7 +160,7 @@ auto const expected_result = klv_local_set{
   { KLV_0601_ALTITUDE_ABOVE_GROUND_LEVEL,      kld{ 2150.0000000000000 } },
   { KLV_0601_RADAR_ALTIMETER,                  kld{ 2154.5000000000000 } },
   { KLV_0601_CONTROL_COMMAND,
-    klv_0601_control_command{ 5, "Fly to Waypoint 1", kv::nullopt } },
+    klv_0601_control_command{ 5, "Fly to Waypoint 1", std::nullopt } },
   { KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST,
     std::vector< uint64_t >{ 3, 7 } },
   { KLV_0601_SENSOR_AZIMUTH_RATE,              kld{  1.0 } },
@@ -172,7 +172,7 @@ auto const expected_result = klv_local_set{
   { KLV_0601_COUNTRY_CODES,
     klv_0601_country_codes{
       KLV_0102_COUNTRY_CODING_METHOD_GENC_THREE_LETTER,
-      std::string{ "CAN" }, kv::nullopt, std::string{ "FRA" } } },
+      std::string{ "CAN" }, std::nullopt, std::string{ "FRA" } } },
   { KLV_0601_NUMBER_OF_NAVSATS_IN_VIEW,        uint64_t{ 7 } },
   { KLV_0601_POSITIONING_METHOD_SOURCE,
     std::set< klv_0601_positioning_method_source_bit >{

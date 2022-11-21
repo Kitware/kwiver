@@ -133,10 +133,10 @@ klv_local_set const test_1002_set = {
       2, 0,
       { { 2, 2 },
         { 100.0, 105.0, 95.0, 100.0 } },
-      kv::nullopt,
+      std::nullopt,
       kld{ 1.0 },
       kld{ 2.0 },
-      kv::nullopt } },
+      std::nullopt } },
   { KLV_1002_GENERALIZED_TRANSFORMATION_LOCAL_SET, test_1202_set } };
 
 // ---------------------------------------------------------------------------
@@ -199,8 +199,8 @@ klv_local_set const test_0601_set = {
     klv_0601_country_codes{
       KLV_0102_COUNTRY_CODING_METHOD_GENC_THREE_LETTER,
       std::string{ "USA" },
-      kv::nullopt,
-      kv::nullopt } },
+      std::nullopt,
+      std::nullopt } },
   { KLV_0601_PAYLOAD_LIST,
     std::vector< klv_0601_payload_record >{
       { 2, KLV_0601_PAYLOAD_TYPE_ELECTRO_OPTICAL, "Camera" } } },
@@ -211,7 +211,7 @@ klv_local_set const test_0601_set = {
     std::vector< klv_0601_waypoint_record >{
       { 1, -3,
         std::set< klv_0601_waypoint_info_bit >{ KLV_0601_WAYPOINT_INFO_BIT_MODE },
-        kv::nullopt } } },
+        std::nullopt } } },
   { KLV_0601_MIIS_CORE_IDENTIFIER,
     klv_1204_miis_id{
       2,
@@ -222,8 +222,8 @@ klv_local_set const test_0601_set = {
   { KLV_0601_VIEW_DOMAIN,
     klv_0601_view_domain{
       klv_0601_view_domain_interval{ 30.0, 60.0 },
-      kv::nullopt,
-      kv::nullopt } },
+      std::nullopt,
+      std::nullopt } },
   { KLV_0601_RVT_LOCAL_SET, test_0806_set },
   { KLV_0601_VMTI_LOCAL_SET, test_0903_set },
   { KLV_0601_RANGE_IMAGE_LOCAL_SET, test_1002_set },

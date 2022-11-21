@@ -215,8 +215,8 @@ TEST ( klv, demuxer_0601_special )
             { 1, KLV_0601_PAYLOAD_TYPE_ELECTRO_OPTICAL, "ACME VIS" } } },
         { KLV_0601_WAYPOINT_LIST,
           std::vector< klv_0601_waypoint_record >{
-            { 0, 1, kv::nullopt, kv::nullopt },
-            { 1, 2, kv::nullopt, kv::nullopt } } },
+            { 0, 1, std::nullopt, std::nullopt },
+            { 1, 2, std::nullopt, std::nullopt } } },
         { KLV_0601_WEAPON_FIRED, uint64_t{ 0xBA } },
         { KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST,
           std::vector< uint64_t >{ 0 } },
@@ -262,9 +262,9 @@ TEST ( klv, demuxer_0601_special )
             { 3, KLV_0601_PAYLOAD_TYPE_ELECTRO_OPTICAL, "ACME VIS 2" } } },
         { KLV_0601_WAYPOINT_LIST,
           std::vector< klv_0601_waypoint_record >{
-            { 0, 1, kv::nullopt, kv::nullopt },
-            { 2, 3, kv::nullopt, kv::nullopt },
-            { 3, 4, kv::nullopt, kv::nullopt } } },
+            { 0, 1, std::nullopt, std::nullopt },
+            { 2, 3, std::nullopt, std::nullopt },
+            { 3, 4, std::nullopt, std::nullopt } } },
         { KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST,
           std::vector< uint64_t >{ 1 } },
         { KLV_0601_SDCC_FLP,

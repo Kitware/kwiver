@@ -1028,7 +1028,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
   {
     if( load_null() )
     {
-      return kv::nullopt;
+      return std::nullopt;
     }
 
     return load< typename T::value_type >();

@@ -51,7 +51,7 @@ klv_update_intervals
   auto const it = m_map.find( key );
   if( it == m_map.end() )
   {
-    auto const jt = m_map.find( { key.standard, kv::nullopt } );
+    auto const jt = m_map.find( { key.standard, std::nullopt } );
     return ( jt == m_map.end() ) ? m_default : jt->second;
   }
   return it->second;

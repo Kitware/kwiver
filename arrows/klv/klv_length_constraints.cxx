@@ -151,7 +151,7 @@ klv_length_constraints
   }
   else
   {
-    return vital::nullopt;
+    return std::nullopt;
   }
 }
 
@@ -183,7 +183,7 @@ klv_length_constraints
   }
   else
   {
-    return vital::nullopt;
+    return std::nullopt;
   }
 }
 
@@ -199,7 +199,7 @@ klv_length_constraints
   }
   else
   {
-    return vital::nullopt;
+    return std::nullopt;
   }
 }
 

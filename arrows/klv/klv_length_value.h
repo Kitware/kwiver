@@ -140,7 +140,7 @@ klv_read_opt_lv(
   auto const length = klv_read_ber< size_t >( data, tracker.remaining() );
   if( !length )
   {
-    return kwiver::vital::nullopt;
+    return std::nullopt;
   }
 
   auto const value = format.read_( data, tracker.verify( length ) );
@@ -158,7 +158,7 @@ klv_read_trunc_lv(
 {
   return max_length
          ? klv_read_opt_lv( data, max_length, format )
-         : kwiver::vital::nullopt;
+         : std::nullopt;
 }
 
 // ----------------------------------------------------------------------------

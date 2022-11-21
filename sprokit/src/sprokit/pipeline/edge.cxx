@@ -85,8 +85,8 @@ class edge::priv
     bool full_of_data() const;
     void complete_check() const;
 
-    bool push(edge_datum_t const& datum, std::optional<duration_t> const& duration = kwiver::vital::nullopt);
-    std::optional<edge_datum_t> pop(std::optional<duration_t> const& duration = kwiver::vital::nullopt);
+    bool push(edge_datum_t const& datum, std::optional<duration_t> const& duration = std::nullopt);
+    std::optional<edge_datum_t> pop(std::optional<duration_t> const& duration = std::nullopt);
 
     /// This flag indicates that this edge connection should or should
     /// not imply a dependency. Generally set to false if a backwards
@@ -470,7 +470,7 @@ edge::priv
     {
       if (!cond_have_data.wait_for(lock, *duration, predicate))
       {
-        return kwiver::vital::nullopt;
+        return std::nullopt;
       }
     }
     else

@@ -107,7 +107,7 @@ parse_geo_point( klv_timeline const& klv_data,
   }
   if( !latitude.valid() )
   {
-    return kv::nullopt;
+    return std::nullopt;
   }
 
   klv_value longitude;
@@ -121,7 +121,7 @@ parse_geo_point( klv_timeline const& klv_data,
   }
   if( !longitude.valid() )
   {
-    return kv::nullopt;
+    return std::nullopt;
   }
 
   klv_value elevation;

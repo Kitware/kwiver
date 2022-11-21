@@ -79,7 +79,6 @@ set( vital_public_headers
   iterator.h
   math_constants.h
   noncopyable.h
-  optional.h
   set.h
   signal.h
 
