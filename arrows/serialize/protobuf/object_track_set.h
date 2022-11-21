@@ -24,8 +24,8 @@ public:
   object_track_set();
   virtual ~object_track_set();
 
-  std::shared_ptr< std::string > serialize( const vital::any& element ) override;
-  vital::any deserialize( const std::string& message ) override;
+  std::shared_ptr< std::string > serialize( const std::any& element ) override;
+  std::any deserialize( const std::string& message ) override;
 };
 
 } } } }       // end namespace kwiver

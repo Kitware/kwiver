@@ -164,7 +164,7 @@ serializer_process
 
       // Convert input datum to a serialized message
       auto datum = grab_datum_from_port( element.m_port_name );
-      auto local_datum = datum->get_datum<kwiver::vital::any>();
+      auto local_datum = datum->get_datum<std::any>();
       std::shared_ptr< std::string > message;
       try
       {

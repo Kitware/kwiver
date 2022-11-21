@@ -77,7 +77,7 @@ public:
   virtual bool equal_to( internal_base const& rhs ) const = 0;
   virtual std::ostream& print( std::ostream& os ) const = 0;
   virtual internal_base* clone() const = 0;
-  virtual kwiver::vital::any to_any() const = 0;
+  virtual std::any to_any() const = 0;
 };
 
 // ----------------------------------------------------------------------------
@@ -145,7 +145,7 @@ public:
     return new internal_< T >{ m_item };
   }
 
-  kwiver::vital::any
+  std::any
   to_any() const override final
   {
     return m_item;
@@ -213,11 +213,11 @@ klv_value
 }
 
 // ----------------------------------------------------------------------------
-kwiver::vital::any
+std::any
 klv_value
 ::to_any() const
 {
-  return m_item ? m_item->to_any() : kwiver::vital::any{};
+  return m_item ? m_item->to_any() : std::any{};
 }
 
 // ----------------------------------------------------------------------------

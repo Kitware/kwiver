@@ -7,7 +7,7 @@
 
 #include <arrows/serialize/json/activity_type.h>
 #include <vital/types/activity_type.h>
-#include <vital/any.h>
+
 namespace kwiver {
 namespace arrows {
 namespace python {

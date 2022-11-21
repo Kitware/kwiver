@@ -62,7 +62,7 @@ struct convert_from_any_visitor {
     return any_cast< T >( data );
   }
 
-  any const& data;
+  std::any const& data;
 };
 
 
@@ -73,7 +73,7 @@ namespace metadata_detail {
 // ----------------------------------------------------------------------------
 template<>
 metadata_value
-convert_data< any >( vital_metadata_tag tag, any const& data ) {
+convert_data< std::any >( vital_metadata_tag tag, std::any const& data ) {
   auto const& type = tag_traits_by_tag( tag ).type();
   auto const visitor = convert_from_any_visitor{ data };
   return visit_metadata_types_return< metadata_value >( visitor, type );
@@ -280,7 +280,7 @@ metadata
 // ----------------------------------------------------------------------------
 void
 metadata
-::add_any( vital_metadata_tag tag, any const& data )
+::add_any( vital_metadata_tag tag, std::any const& data )
 {
   if( tag_traits_by_tag( tag ).type() != data.type() )
   {
@@ -462,7 +462,7 @@ std::ostream& print_metadata( std::ostream& str, metadata const& metadata )
   {
     // process metada items
    std::string name = ix->second->name();
-   kwiver::vital::any data = ix->second->data();
+   std::any data = ix->second->data();
 
    str << "Metadata item: "
        << name

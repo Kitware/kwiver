@@ -8,7 +8,6 @@
 #define KWIVER_VITAL_UTIL_ANY_CONVERTER_H
 
 #include <vital/vital_config.h>
-#include <vital/any.h>
 
 #include <vector>
 #include <memory>
@@ -27,8 +26,8 @@ struct convert_base
   convert_base() = default;
   virtual ~convert_base() = default;
 
-  virtual bool can_convert( kwiver::vital::any const& data ) const = 0;
-  virtual DEST convert( kwiver::vital::any const& data ) const = 0;
+  virtual bool can_convert( std::any const& data ) const = 0;
+  virtual DEST convert( std::any const& data ) const = 0;
 };
 
 // ----------------------------------------------------------------------------
@@ -42,14 +41,14 @@ struct converter
   converter() = default;
   virtual ~converter() = default;
 
-  virtual bool can_convert( kwiver::vital::any const& data ) const override
+  virtual bool can_convert( std::any const& data ) const override
   {
     return data.type() == typeid( SRC );
   }
 
-  virtual DEST convert( kwiver::vital::any const& data ) const override
+  virtual DEST convert( std::any const& data ) const override
   {
-    return static_cast< DEST > ( kwiver::vital::any_cast< SRC > ( data ) );
+    return static_cast< DEST > ( std::any_cast< SRC > ( data ) );
   }
 };
 
@@ -58,15 +57,15 @@ template < typename SRC >
 struct converter<std::string, SRC>
   : public convert_base< std::string >
 {
-  virtual bool can_convert( kwiver::vital::any const& data ) const override
+  virtual bool can_convert( std::any const& data ) const override
   {
     return data.type() == typeid( SRC );
   }
 
-  virtual std::string convert( kwiver::vital::any const& data ) const override
+  virtual std::string convert( std::any const& data ) const override
   {
     std::stringstream str;
-    str << kwiver::vital::any_cast< SRC > ( data );
+    str << std::any_cast< SRC > ( data );
     return str.str();
   }
 };
@@ -78,14 +77,14 @@ template < typename SRC >
 struct converter<bool, SRC>
   : public convert_base< bool >
 {
-  virtual bool can_convert(kwiver::vital::any const& data) const override
+  virtual bool can_convert(std::any const& data) const override
   {
     return data.type() == typeid(SRC);
   }
 
-  virtual bool convert(kwiver::vital::any const& data) const override
+  virtual bool convert(std::any const& data) const override
   {
-    return kwiver::vital::any_cast< SRC > (data) != SRC(0);
+    return std::any_cast< SRC > (data) != SRC(0);
   }
 };
 
@@ -95,7 +94,7 @@ struct converter<bool, SRC>
 /// Generic converter for any value to specific type.
 ///
 /// This class represents a list of converters that can convert from an
-/// unspecified type in an kwiver::vital::any object to a specific
+/// unspecified type in an std::any object to a specific
 /// type.
 ///
 /// Example:
@@ -106,7 +105,7 @@ struct converter<bool, SRC>
 /// any_to_int.add_converter<float>();    // add converter from float;
 /// any_to_int.add_converter<int>();      // self type needs to be added too
 ///
-/// kwiver::vital::any some_data = ....;  // Get value in *any* object
+/// std::any some_data = ....;  // Get value in *any* object
 /// int ival = any_to_int.convert( some_data ); // convert reasonable types to int
 /// \endcode
 ///
@@ -148,15 +147,15 @@ struct converter<bool, SRC>
 ///
 /// virtual ~converter() = default;
 ///
-/// virtual bool can_convert( kwiver::vital::any const & data ) const
+/// virtual bool can_convert( std::any const & data ) const
 /// {
 ///  return ( data.type() == typeid( std::string ) ) &&
-///         convert_map.find( kwiver::vital::any_cast< std::string > ( data ) ) != convert_map.end();
+///         convert_map.find( std::any_cast< std::string > ( data ) ) != convert_map.end();
 /// }
 ///
-/// virtual bool convert( kwiver::vital::any const& data ) const
+/// virtual bool convert( std::any const& data ) const
 /// {
-///  auto it = convert_map.find( kwiver::vital::any_cast< std::string > ( data ) );
+///  auto it = convert_map.find( std::any_cast< std::string > ( data ) );
 ///  if ( it != convert_map.end() )
 ///  {
 ///    return it->second;
@@ -171,7 +170,7 @@ struct converter<bool, SRC>
 /// } } }     // end namespace
 ///
 /// // Define the converter
-/// kwiver::vital::any_converter< bool > convert_to_bool;
+/// std::any_converter< bool > convert_to_bool;
 ///
 /// // Add converters for specific types
 /// convert_to_bool.add_converter< bool > ();      // self type needs to be added too
@@ -206,7 +205,7 @@ public:
   any_converter() = default;
   virtual ~any_converter() = default;
 
-  /// Apply conversion to an kwiver::vital::any object.
+  /// Apply conversion to an std::any object.
   ///
   /// This method looks for a compatible conversion method that will
   /// allow the type in the parameter any to be converted to our
@@ -222,7 +221,7 @@ public:
   /// @return Value from parameter converted to desired type.
   ///
   /// @throws bad_any_cast if the conversion is not successful.
-  T convert( kwiver::vital::any const& data ) const
+  T convert( std::any const& data ) const
   {
     const auto eix = m_converter_list.end();
     for (auto ix = m_converter_list.begin(); ix != eix; ix++)
@@ -244,7 +243,7 @@ public:
   /// @param data The any object to be converted.
   ///
   /// @return \b true if value can be converted, \b false otherwise.
-  bool can_convert( kwiver::vital::any const& data ) const
+  bool can_convert( std::any const& data ) const
   {
     const auto eix = m_converter_list.end();
     for (auto ix = m_converter_list.begin(); ix != eix; ix++)

@@ -7,7 +7,6 @@
 
 #include <arrows/serialize/json/detected_object.h>
 #include <vital/types/detected_object.h>
-#include <vital/any.h>
 
 namespace kwiver {
 namespace arrows {

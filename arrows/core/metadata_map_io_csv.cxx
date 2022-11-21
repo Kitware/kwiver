@@ -7,7 +7,6 @@
 
 #include "metadata_map_io_csv.h"
 
-#include <vital/any.h>
 #include <vital/exceptions/algorithm.h>
 #include <vital/exceptions/io.h>
 #include <vital/types/geo_point.h>

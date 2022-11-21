@@ -9,7 +9,6 @@
 
 #include "types.h"
 
-#include <vital/any.h>
 #include <boost/operators.hpp>
 
 #include <string>
@@ -57,14 +56,14 @@ class SPROKIT_PIPELINE_EXPORT datum
     /**
      * \brief Create a datum with the #data type.
      *
-     * This method is for bindings to be able to create kwiver::vital::any objects
+     * This method is for bindings to be able to create std::any objects
      * manually.
      *
      * \param dat The data to pass through the edge.
      *
      * \returns A new datum containing a result.
      */
-    static datum_t new_datum(kwiver::vital::any const& dat);
+    static datum_t new_datum(std::any const& dat);
 
     /**
      * \brief Create a datum with the #data type.
@@ -140,7 +139,7 @@ class SPROKIT_PIPELINE_EXPORT datum
      * \brief Compare two data for equality.
      *
      * \note This returns false for two data packets which point to the same
-     * internal data since \c kwiver::vital::any does not give access to it without
+     * internal data since \c std::any does not give access to it without
      * knowing the type.
      *
      * \param dat The datum to compare to.
@@ -152,11 +151,11 @@ class SPROKIT_PIPELINE_EXPORT datum
   private:
     SPROKIT_PIPELINE_NO_EXPORT datum(type_t ty);
     SPROKIT_PIPELINE_NO_EXPORT datum(error_t const& err);
-    SPROKIT_PIPELINE_NO_EXPORT datum(kwiver::vital::any const& dat);
+    SPROKIT_PIPELINE_NO_EXPORT datum(std::any const& dat);
 
     type_t const m_type;
     error_t const m_error;
-    kwiver::vital::any const m_datum;
+    std::any const m_datum;
 };
 
 // ----------------------------------------------------------------------------
@@ -225,7 +224,7 @@ template <typename T>
 datum_t
 datum::new_datum(T const& dat)
 {
-  return new_datum(kwiver::vital::any(dat));
+  return new_datum(std::any(dat));
 }
 
 // ----------------------------------------------------------------------------
@@ -235,7 +234,7 @@ datum::get_datum() const
 {
   try
   {
-    return kwiver::vital::any_cast<T>(m_datum);
+    return std::any_cast<T>(m_datum);
   }
   catch (kwiver::vital::bad_any_cast const& e)
   {
@@ -250,7 +249,7 @@ datum::get_datum() const
 // ----------------------------------------------------------------------------
 template <>
 inline
-kwiver::vital::any
+std::any
 datum::get_datum() const
 {
   return m_datum;

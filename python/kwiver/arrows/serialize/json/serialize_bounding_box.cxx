@@ -7,7 +7,7 @@
 
 #include <arrows/serialize/json/bounding_box.h>
 #include <vital/types/bounding_box.h>
-#include <vital/any.h>
+
 namespace kwiver {
 namespace arrows {
 namespace python {

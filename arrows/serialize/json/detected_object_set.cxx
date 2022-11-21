@@ -33,10 +33,10 @@ detected_object_set::
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 detected_object_set::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
   kwiver::vital::detected_object_set_sptr obj =
-    kwiver::vital::any_cast< kwiver::vital::detected_object_set_sptr > ( element );
+    std::any_cast< kwiver::vital::detected_object_set_sptr > ( element );
 
   std::stringstream msg;
   msg << "detected_object_set ";
@@ -48,7 +48,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any detected_object_set::
+std::any detected_object_set::
 deserialize( const std::string& message )
 {
   std::stringstream msg(message);
@@ -68,7 +68,7 @@ deserialize( const std::string& message )
     load( ar, *obj );
   }
 
-  return kwiver::vital::any( kwiver::vital::detected_object_set_sptr( obj ) );
+  return std::any( kwiver::vital::detected_object_set_sptr( obj ) );
 }
 
 } } } }       // end namespace kwiver

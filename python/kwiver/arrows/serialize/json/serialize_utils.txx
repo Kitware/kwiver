@@ -5,7 +5,6 @@
 #ifndef KWIVER_PYTHON_ARROW_SERIALIZE_JSON_SERIALIZE_UTILS_H_
 #define KWIVER_PYTHON_ARROW_SERIALIZE_JSON_SERIALIZE_UTILS_H_
 
-#include <vital/any.h>
 #include <utility>
 #include <memory>
 
@@ -18,7 +17,7 @@ namespace json {
   std::string serialize( type t )
   {
     serializer serializer_algo{};
-    kwiver::vital::any any_t{ t };
+    std::any any_t{ t };
     return *serializer_algo.serialize(any_t);
   }
 
@@ -26,8 +25,8 @@ namespace json {
   type deserialize( const std::string& message )
   {
     serializer serializer_algo{};
-    kwiver::vital::any any_t{ serializer_algo.deserialize( message ) };
-    return kwiver::vital::any_cast< type >( any_t);
+    std::any any_t{ serializer_algo.deserialize( message ) };
+    return std::any_cast< type >( any_t);
   }
 
 }

@@ -8,8 +8,6 @@
 #include <arrows/klv/klv_blob.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
-#include <vital/any.h>
-
 #include <sstream>
 
 #ifndef KWIVER_ARROWS_KLV_KLV_VALUE_H_
@@ -41,7 +39,7 @@ private:
 // ----------------------------------------------------------------------------
 /// Type-erased container class for the values of KLV fields.
 ///
-/// It is necessary for this class to exist separately from kwiver::vital::any
+/// It is necessary for this class to exist separately from std::any
 /// to enforce that all contained values support comparison and stringstream
 /// operations. It also contains an optional embedded byte count - for some KLV
 /// data formats, the length can vary to reflect the precision of the numerical
@@ -57,7 +55,7 @@ public:
                !std::is_same< typename std::decay< T >::type,
                               klv_value >::value &&
                !std::is_same< typename std::decay< T >::type,
-                              kwiver::vital::any >::value >::type >
+                              std::any >::value >::type >
   klv_value( T&& value );
 
   klv_value( klv_value const& other );
@@ -81,7 +79,7 @@ public:
   swap( klv_value& rhs ) noexcept;
 
   /// Create an \c any object with a copy of this value.
-  kwiver::vital::any
+  std::any
   to_any() const;
 
   /// Check if the object contains no value.

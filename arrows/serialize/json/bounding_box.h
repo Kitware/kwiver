@@ -28,8 +28,8 @@ public:
   bounding_box();
   virtual ~bounding_box();
 
-  std::shared_ptr< std::string > serialize( const vital::any& elements ) override;
-  vital::any deserialize( const std::string& message ) override;
+  std::shared_ptr< std::string > serialize( const std::any& elements ) override;
+  std::any deserialize( const std::string& message ) override;
 };
 
 } } } }       // end namespace kwiver

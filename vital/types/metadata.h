@@ -8,7 +8,6 @@
 #ifndef KWIVER_VITAL_METADATA_H_
 #define KWIVER_VITAL_METADATA_H_
 
-#include <vital/any.h>
 #include <vital/exceptions/metadata.h>
 #include <vital/util/variant/variant.hpp>
 #include <vital/types/geo_point.h>
@@ -19,6 +18,7 @@
 #include <vital/util/visit.h>
 #include <vital/vital_export.h>
 
+#include <any>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -89,7 +89,7 @@ convert_data( VITAL_UNUSED vital_metadata_tag tag, T const& data )
 template<>
 VITAL_EXPORT
 metadata_value
-convert_data< any >( vital_metadata_tag tag, any const& data );
+convert_data< std::any >( vital_metadata_tag tag, std::any const& data );
 
 } // namespace metadata_detail
 
@@ -200,7 +200,7 @@ private:
 ///
 /// Metadata items from the different sources are converted into a
 /// small set of data types to simplify using these elements. Since the
-/// data item is represented as a kwiver::vital::any object, the actual
+/// data item is represented as a std::any object, the actual
 /// type of the data contained is difficult to deal with if it is not
 /// constrained. There are three data types that are highly recommended
 /// for representing metadata. These types are:
@@ -296,7 +296,7 @@ public:
                  new metadata_item{ tag, std::forward< T >( data ) } ) );
   }
 
-  void add_any( vital_metadata_tag tag, any const& data );
+  void add_any( vital_metadata_tag tag, std::any const& data );
 
   /// \brief Add metadata item to collection.
   ///
@@ -307,7 +307,7 @@ public:
   /// \tparam Tag Metadata tag value.
   /// \param data Metadata value.
   template < vital_metadata_tag Tag >
-  void add_any( any const& data )
+  void add_any( std::any const& data )
   {
     this->add_any( Tag, data );
   }
@@ -355,7 +355,7 @@ public:
   /// auto ix = metadata_collection->begin();
   /// vital_metadata_tag tag = ix->first;
   /// std::string name = ix->second->name();
-  /// kwiver::vital::any data = ix->second->data();
+  /// std::any data = ix->second->data();
   /// \endcode
   ///
   /// \return Iterator pointing to the first element in the collection.

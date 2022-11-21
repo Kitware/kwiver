@@ -94,12 +94,12 @@ void add_value_correct_type(ka::adapter_data_set &self, ::sprokit::process::port
 // See this issue for more information: https://github.com/pybind/pybind11/issues/912
 py::object get_port_data_correct_type(ka::adapter_data_set &self, ::sprokit::process::port_t const& port)
 {
-  kwiver::vital::any const any = self.get_port_data<kwiver::vital::any>(port);
+  std::any const any = self.get_port_data<std::any>(port);
 
   #define ADS_GET_OBJECT(TYPE) \
   if (any.is_type<TYPE>()) \
   { \
-    return py::cast(kwiver::vital::any_cast<TYPE>(any)); \
+    return py::cast(std::any_cast<TYPE>(any)); \
   }
 
   ADS_GET_OBJECT(int)
