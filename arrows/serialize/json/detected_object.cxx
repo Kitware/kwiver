@@ -35,7 +35,7 @@ serialize( const std::any& element )
 {
   // Get native data type from any
   kwiver::vital::detected_object_sptr obj =
-    std::any_cast< kwiver::vital::detected_object_sptr > ( element );
+    std::std::any_cast< kwiver::vital::detected_object_sptr > ( element );
 
   std::stringstream msg;
   msg << "detected_object ";

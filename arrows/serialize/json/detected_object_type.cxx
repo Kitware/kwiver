@@ -31,7 +31,7 @@ detected_object_type::
 serialize( const std::any& element )
 {
   kwiver::vital::detected_object_type dot =
-    std::any_cast< kwiver::vital::detected_object_type > ( element );
+    std::std::any_cast< kwiver::vital::detected_object_type > ( element );
 
   std::stringstream msg;
   msg << "detected_object_type ";

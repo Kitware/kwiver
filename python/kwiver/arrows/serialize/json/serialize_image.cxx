@@ -27,7 +27,7 @@ deserialize_image_using_json( const std::string& message )
   std::any any_image_container{
                                       serializer_algo.deserialize( message ) };
   kwiver::vital::image_container_sptr deserialized_image =
-    std::any_cast< kwiver::vital::image_container_sptr >(
+    std::std::any_cast< kwiver::vital::image_container_sptr >(
                                                          any_image_container );
   auto deserialized_simple_image =
     std::dynamic_pointer_cast< kwiver::vital::simple_image_container >(

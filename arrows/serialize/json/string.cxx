@@ -23,7 +23,7 @@ string::~string()
 std::shared_ptr< std::string > string::
 serialize( const std::any& element )
 {
-  const std::string data = std::any_cast< std::string >( element );
+  const std::string data = std::std::any_cast< std::string >( element );
   std::stringstream msg;
   msg << "string ";
   {

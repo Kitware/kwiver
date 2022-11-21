@@ -32,7 +32,7 @@ geo_polygon::
 serialize( const std::any& element )
 {
   kwiver::vital::geo_polygon_d bbox =
-    std::any_cast< kwiver::vital::geo_polygon_d > ( element );
+    std::std::any_cast< kwiver::vital::geo_polygon_d > ( element );
 
   std::ostringstream msg;
   msg << "geo_polygon "; // add type tag

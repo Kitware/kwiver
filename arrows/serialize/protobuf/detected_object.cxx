@@ -35,7 +35,7 @@ detected_object::
 serialize( const std::any& element )
 {
   kwiver::vital::detected_object det_object =
-    std::any_cast< kwiver::vital::detected_object > ( element );
+    std::std::any_cast< kwiver::vital::detected_object > ( element );
 
   std::ostringstream msg;
   msg << "detected_object "; // add type tag

@@ -8,6 +8,8 @@
 #include <arrows/klv/klv_blob.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
+#include <any>
+#include <memory>
 #include <sstream>
 
 #ifndef KWIVER_ARROWS_KLV_KLV_VALUE_H_

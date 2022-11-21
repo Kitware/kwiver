@@ -808,13 +808,13 @@ grab_value_from_port(::sprokit::process &self, ::sprokit::process::port_t const&
   object return_val = none();
   try
   {
-    return_val = std::any_cast<object>(any);
+    return_val = std::std::any_cast<object>(any);
   } catch(...){}
 
 #define CONVERT_ANY(T) \
   try \
   { \
-    return_val = cast<T>(std::any_cast<T>(any)); \
+    return_val = cast<T>(std::std::any_cast<T>(any)); \
   } catch(...){}
 
   CONVERT_ANY(int)

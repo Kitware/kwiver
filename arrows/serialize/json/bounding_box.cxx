@@ -31,7 +31,7 @@ bounding_box::
 serialize( const std::any& element )
 {
   kwiver::vital::bounding_box_d bbox =
-    std::any_cast< kwiver::vital::bounding_box_d > ( element );
+    std::std::any_cast< kwiver::vital::bounding_box_d > ( element );
 
   std::stringstream msg;
   msg << "bounding_box "; // add type tag

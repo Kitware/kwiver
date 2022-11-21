@@ -152,7 +152,7 @@ public:
 
   /// Get the value of the metadata item as a \c double.
   ///
-  /// \throws bad_any_cast If contained value is not a \c double.
+  /// \throws bad_std::any_cast If contained value is not a \c double.
   double as_double() const;
 
   /// Check if the metadata item contains a \c double value.
@@ -160,7 +160,7 @@ public:
 
   /// Get the value of the metadata item as a \c uint64_t.
   ///
-  /// \throws bad_any_cast If contained value is not a \c uint64_t.
+  /// \throws bad_std::any_cast If contained value is not a \c uint64_t.
   uint64_t as_uint64() const;
 
   /// Check if the metadata item contains a \c uint64_t value.

@@ -59,7 +59,7 @@ struct convert_from_any_visitor {
   template< class T >
   metadata_value operator()() const
   {
-    return any_cast< T >( data );
+    return std::any_cast< T >( data );
   }
 
   std::any const& data;
@@ -284,7 +284,7 @@ metadata
 {
   if( tag_traits_by_tag( tag ).type() != data.type() )
   {
-    throw bad_any_cast{ data.type_name(), tag_traits_by_tag( tag ).type_name() };
+    throw std::bad_any_cast{};
   }
   this->add( std::unique_ptr< metadata_item >( new metadata_item{ tag, data } ) );
 }

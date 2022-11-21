@@ -30,7 +30,7 @@ std::shared_ptr< std::string >
 timestamp::
 serialize( const std::any& element )
 {
-  kwiver::vital::timestamp tstamp = std::any_cast< kwiver::vital::timestamp > ( element );
+  kwiver::vital::timestamp tstamp = std::std::any_cast< kwiver::vital::timestamp > ( element );
   std::ostringstream msg;
   msg << "timestamp ";
   kwiver::protobuf::timestamp proto_tstamp;

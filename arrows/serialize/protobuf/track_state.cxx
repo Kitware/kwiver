@@ -32,7 +32,7 @@ namespace protobuf {
   serialize( const std::any& element )
   {
     kwiver::vital::track_state trk_state =
-      std::any_cast< kwiver::vital::track_state > ( element );
+      std::std::any_cast< kwiver::vital::track_state > ( element );
 
     std::ostringstream msg;
     msg << "track_state "; // add type tag

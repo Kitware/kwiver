@@ -11,6 +11,7 @@
 
 #include <boost/operators.hpp>
 
+#include <any>
 #include <string>
 
 /**
@@ -236,7 +237,7 @@ datum::get_datum() const
   {
     return std::any_cast<T>(m_datum);
   }
-  catch (kwiver::vital::bad_any_cast const& e)
+  catch (const std::bad_any_cast& e)
   {
     std::string const req_type_name = typeid(T).name();
     std::string const type_name = m_datum.type().name();

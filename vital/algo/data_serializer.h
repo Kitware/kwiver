@@ -11,6 +11,7 @@
 #include <vital/algo/algorithm.h>
 #include <vital/vital_config.h>
 
+#include <any>
 #include <map>
 #include <memory>
 #include <set>
@@ -69,7 +70,7 @@ public:
   ///
   /// @return Byte string of serialized data item.
   ///
-  /// @throws kwiver::vital::bad_any_cast
+  /// @throws kwiver::vital::bad_std::any_cast
   /// @throws kwiver::vital::serialization - for unexpected element name
   virtual std::shared_ptr< std::string > serialize( const std::any& element ) = 0;
 
@@ -97,7 +98,7 @@ public:
   /// @return Concrete data type, represented as an any, created from
   /// the input.
   ///
-  /// @throws kwiver::vital::bad_any_cast
+  /// @throws kwiver::vital::bad_std::any_cast
   /// @throws kwiver::vital::serialization - for unexpected element name
   virtual std::any deserialize( const std::string& message ) = 0;
 

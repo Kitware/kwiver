@@ -205,7 +205,7 @@ bad_datum_cast_exception
 bool
 any_equal(std::any const& a, std::any const& b)
 {
-  if (a.empty() && b.empty())
+  if (!a.has_value() && !b.has_value())
   {
     return true;
   }

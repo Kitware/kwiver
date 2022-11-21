@@ -99,7 +99,7 @@ py::object get_port_data_correct_type(ka::adapter_data_set &self, ::sprokit::pro
   #define ADS_GET_OBJECT(TYPE) \
   if (any.is_type<TYPE>()) \
   { \
-    return py::cast(std::any_cast<TYPE>(any)); \
+    return py::cast(std::std::any_cast<TYPE>(any)); \
   }
 
   ADS_GET_OBJECT(int)

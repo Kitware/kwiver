@@ -36,7 +36,7 @@ detected_object_set::
 serialize( const std::any& element )
 {
   kwiver::vital::detected_object_set_sptr obj =
-    std::any_cast< kwiver::vital::detected_object_set_sptr > ( element );
+    std::std::any_cast< kwiver::vital::detected_object_set_sptr > ( element );
 
   std::stringstream msg;
   msg << "detected_object_set ";

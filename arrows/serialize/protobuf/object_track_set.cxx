@@ -31,7 +31,7 @@ object_track_set::
 serialize( const std::any& element )
 {
   kwiver::vital::object_track_set_sptr obj_trk_set_sptr =
-    std::any_cast< kwiver::vital::object_track_set_sptr > ( element );
+    std::std::any_cast< kwiver::vital::object_track_set_sptr > ( element );
 
   std::ostringstream msg;
   msg << "object_track_set "; // add type tag

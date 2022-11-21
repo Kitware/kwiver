@@ -173,7 +173,7 @@ serializer_process
       }
       catch ( const kwiver::vital::vital_exception& e )
       {
-        // can be kwiver::vital::serialization_exception or kwiver::vital::bad_any_cast
+        // can be kwiver::vital::serialization_exception or kwiver::vital::bad_std::any_cast
         LOG_ERROR( logger(), "Error serializing data element \"" << element.m_element_name
                    << "\" for message type \"" << msg_spec_it.first << "\" : " << e.what() );
         break;

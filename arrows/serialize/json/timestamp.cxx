@@ -30,7 +30,7 @@ timestamp
 ::serialize( const std::any& element )
 {
   kwiver::vital::timestamp tstamp =
-    std::any_cast< kwiver::vital::timestamp > ( element );
+    std::std::any_cast< kwiver::vital::timestamp > ( element );
   std::stringstream msg;
   msg << "timestamp ";
   {

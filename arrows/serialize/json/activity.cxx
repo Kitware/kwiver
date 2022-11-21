@@ -33,7 +33,7 @@ activity::
 serialize( const std::any& element )
 {
   kwiver::vital::activity l_activity =
-    std::any_cast< kwiver::vital::activity > ( element );
+    std::std::any_cast< kwiver::vital::activity > ( element );
 
   std::stringstream msg;
   msg << "activity ";

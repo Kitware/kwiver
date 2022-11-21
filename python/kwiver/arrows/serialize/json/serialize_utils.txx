@@ -26,7 +26,7 @@ namespace json {
   {
     serializer serializer_algo{};
     std::any any_t{ serializer_algo.deserialize( message ) };
-    return std::any_cast< type >( any_t);
+    return std::std::any_cast< type >( any_t);
   }
 
 }

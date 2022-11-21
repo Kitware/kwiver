@@ -34,7 +34,7 @@ track::
 serialize( const std::any& element )
 {
   kwiver::vital::track_sptr trk_sptr =
-    std::any_cast< kwiver::vital::track_sptr > ( element );
+    std::std::any_cast< kwiver::vital::track_sptr > ( element );
   kwiver::arrows::serialize::json::track_item trk_item(trk_sptr);
   std::stringstream msg;
   msg << "track "; // add type tag

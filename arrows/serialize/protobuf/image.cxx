@@ -31,7 +31,7 @@ image::
 serialize( const std::any& element )
 {
   kwiver::vital::image_container_sptr img_sptr =
-    std::any_cast< kwiver::vital::image_container_sptr > ( element );
+    std::std::any_cast< kwiver::vital::image_container_sptr > ( element );
 
   std::ostringstream msg;
   msg << "image ";   // add type tag

@@ -300,7 +300,7 @@ datum_get_datum_correct_type(::sprokit::datum const& self)
   #define DATUM_GET_OBJECT(TYPE) \
   if (any.is_type<TYPE>()) \
   { \
-    return cast(std::any_cast<TYPE>(any)); \
+    return cast(std::std::any_cast<TYPE>(any)); \
   }
 
   DATUM_GET_OBJECT(int)
@@ -398,7 +398,7 @@ T
 datum_get_object(::sprokit::datum &self)
 {
   std::any const any = self.get_datum<std::any>();
-  return std::any_cast<T>(any);
+  return std::std::any_cast<T>(any);
 }
 }
 }

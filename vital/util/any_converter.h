@@ -9,6 +9,7 @@
 
 #include <vital/vital_config.h>
 
+#include <any>
 #include <vector>
 #include <memory>
 #include <sstream>
@@ -160,7 +161,7 @@ struct converter<bool, SRC>
 ///  {
 ///    return it->second;
 ///  }
-///  throw kwiver::vital::bad_any_cast( typeid( bool ).name(), typeid( std::string ).name() );
+///  throw kwiver::vital::bad_std::any_cast( typeid( bool ).name(), typeid( std::string ).name() );
 /// }
 ///
 /// private:
@@ -220,7 +221,7 @@ public:
   ///
   /// @return Value from parameter converted to desired type.
   ///
-  /// @throws bad_any_cast if the conversion is not successful.
+  /// @throws bad_std::any_cast if the conversion is not successful.
   T convert( std::any const& data ) const
   {
     const auto eix = m_converter_list.end();
@@ -233,7 +234,7 @@ public:
     } // end for
 
     // Throw exception
-    throw kwiver::vital::bad_any_cast( data.type().name(), typeid(T).name() );
+    throw std::bad_any_cast{};
   }
 
   /// Test to see if conversion can be done.

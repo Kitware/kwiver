@@ -164,7 +164,7 @@ public:
   /// @param name Name of attribute.
   ///
   /// @return Value of attribute.
-  /// @throws kwiver::vital::bad_any_cast if actual type does not match
+  /// @throws std::bad_any_cast if actual type does not match
   /// requested type.
   template<typename T>
   T get( const std::string& name ) const

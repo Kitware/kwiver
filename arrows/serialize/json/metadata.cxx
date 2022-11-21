@@ -78,7 +78,7 @@ metadata::
 serialize( const std::any& element )
 {
   const kwiver::vital::metadata_vector meta =
-    std::any_cast< kwiver::vital::metadata_vector > ( element );
+    std::std::any_cast< kwiver::vital::metadata_vector > ( element );
 
   std::stringstream msg;
   msg << "metadata "; // add type tag
