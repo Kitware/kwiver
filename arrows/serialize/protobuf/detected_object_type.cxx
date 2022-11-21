@@ -30,10 +30,10 @@ detected_object_type::
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 detected_object_type::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
   kwiver::vital::detected_object_type dot =
-    kwiver::vital::any_cast< kwiver::vital::detected_object_type > ( element );
+    std::any_cast< kwiver::vital::detected_object_type > ( element );
 
   std::ostringstream msg;
   msg << "detected_object_type "; // add type tag
@@ -50,7 +50,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any detected_object_type::
+std::any detected_object_type::
 deserialize( const std::string& message )
 {
   kwiver::vital::detected_object_type dot;
@@ -78,7 +78,7 @@ deserialize( const std::string& message )
     convert_protobuf( proto_dot, dot );
   }
 
-  return kwiver::vital::any(dot);
+  return std::any(dot);
 }
 
 } } } } // end namespace

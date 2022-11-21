@@ -51,12 +51,12 @@ clone() const
 // ----------------------------------------------------------------------------
 void
 attribute_set::
-add( const std::string& name, const kwiver::vital::any& val )
+add( const std::string& name, const std::any& val )
 {
 #ifdef VITAL_STD_MAP_UNIQUE_PTR_ALLOWED
-  m_attr_map[name] = std::make_unique<kwiver::vital::any>(val);
+  m_attr_map[name] = std::make_unique<std::any>(val);
 #else
-  m_attr_map[name] = std::make_shared<kwiver::vital::any>(val);
+  m_attr_map[name] = std::make_shared<std::any>(val);
 #endif
 }
 
@@ -108,7 +108,7 @@ empty() const
 }
 
 // ----------------------------------------------------------------------------
-kwiver::vital::any
+std::any
 attribute_set::
 data( const std::string& name ) const
 {

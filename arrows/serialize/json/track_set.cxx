@@ -31,10 +31,10 @@ track_set::
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 track_set::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
   kwiver::vital::track_set_sptr trk_set_sptr =
-    kwiver::vital::any_cast< kwiver::vital::track_set_sptr > ( element );
+    std::any_cast< kwiver::vital::track_set_sptr > ( element );
 
   std::stringstream msg;
   msg << "track_set "; // add type tag
@@ -47,7 +47,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any track_set::
+std::any track_set::
 deserialize( const std::string& message )
 {
   std::stringstream msg(message);
@@ -66,7 +66,7 @@ deserialize( const std::string& message )
     load( ar, trk_set_sptr );
   }
 
-  return kwiver::vital::any( trk_set_sptr );
+  return std::any( trk_set_sptr );
 }
 
 } } } }       // end namespace kwiver

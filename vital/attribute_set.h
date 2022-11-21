@@ -11,10 +11,10 @@
 #include <vital/vital_export.h>
 #include <vital/vital_config.h>
 
-#include <vital/any.h>
 #include <vital/noncopyable.h>
 #include <vital/exceptions/base.h>
 
+#include <any>
 #include <map>
 #include <string>
 #include <memory>
@@ -51,10 +51,10 @@ class VITAL_EXPORT attribute_set
   : private noncopyable
 {
 public:
-  #ifdef VITAL_STD_MAP_UNIQUE_PTR_ALLOWED
-  typedef std::unique_ptr< kwiver::vital::any > item_ptr;
+#ifdef VITAL_STD_MAP_UNIQUE_PTR_ALLOWED
+  typedef std::unique_ptr< std::any > item_ptr;
 #else
-  typedef std::shared_ptr< kwiver::vital::any > item_ptr;
+  typedef std::shared_ptr< std::any > item_ptr;
 #endif
   typedef std::map< std::string, item_ptr > attribute_map_t;
   typedef attribute_map_t::const_iterator const_iterator_t;
@@ -77,7 +77,7 @@ public:
   ///
   /// @param name Name of the attribute
   /// @param val Value of the attribute
-  void add( const std::string& name, const kwiver::vital::any& val );
+  void add( const std::string& name, const std::any& val );
 
   /// @brief Add typed attribute to set.
   ///
@@ -88,7 +88,7 @@ public:
   template<typename T>
   void add( const std::string& name, const T& val )
   {
-    add( name, kwiver::vital::any( val ) );
+    add( name, std::any( val ) );
   }
 
   /// @brief Does the attribute exist in the set.
@@ -155,7 +155,7 @@ public:
   ///
   /// @return Raw data for named attribute.
   /// @throws attribute_set_exception if named attribute is not in the set.
-  kwiver::vital::any data( const std::string& name ) const;
+  std::any data( const std::string& name ) const;
 
   /// @brief Get typed value from attribute set.
   ///
@@ -164,12 +164,12 @@ public:
   /// @param name Name of attribute.
   ///
   /// @return Value of attribute.
-  /// @throws kwiver::vital::bad_any_cast if actual type does not match
+  /// @throws std::bad_any_cast if actual type does not match
   /// requested type.
   template<typename T>
   T get( const std::string& name ) const
   {
-    return kwiver::vital::any_cast<T>( data(name ) );
+    return std::any_cast<T>( data(name ) );
   }
 
   /// @brief Is the attribute of expected type.

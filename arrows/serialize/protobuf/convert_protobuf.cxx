@@ -535,32 +535,32 @@ void convert_protobuf( const ::kwiver::protobuf::metadata&  proto,
   {
     const auto tag = static_cast< ::kwiver::vital::vital_metadata_tag >( mi.metadata_tag() );
     const auto& trait = ::kwiver::vital::tag_traits_by_tag( tag );
-    ::kwiver::vital::any data;
+    ::std::any data;
 
     if ( trait.type() == typeid( double ) )
     {
-      data = ::kwiver::vital::any( mi.double_value() );
+      data = ::std::any( mi.double_value() );
     }
     else if ( trait.type() == typeid( uint64_t ) )
     {
-      data = ::kwiver::vital::any( static_cast<uint64_t>(mi.int_value()) );
+      data = ::std::any( static_cast<uint64_t>(mi.int_value()) );
     }
     else if ( trait.type() == typeid(std::string) )
     {
       // is natively a string
-      data = ::kwiver::vital::any( mi.string_value() );
+      data = ::std::any( mi.string_value() );
     }
     else if ( trait.type() == typeid(::kwiver::vital::geo_point) )
     {
       ::kwiver::vital::geo_point pt;
       convert_protobuf( mi.geo_point_value(), pt );
-      data = ::kwiver::vital::any( pt );
+      data = ::std::any( pt );
     }
     else if ( trait.type() == typeid(::kwiver::vital::geo_polygon) )
     {
       ::kwiver::vital::geo_polygon poly;
       convert_protobuf( mi.geo_polygon_value(), poly );
-      data = ::kwiver::vital::any( poly );
+      data = ::std::any( poly );
     }
     else
     {

@@ -41,11 +41,11 @@ public:
   std::shared_ptr< std::string > serialize_map(
     vital::metadata_map::map_metadata_t const& frame_map );
   std::shared_ptr< std::string > serialize(
-    vital::any const& elements ) override;
+    std::any const& elements ) override;
 
   vital::metadata_map::map_metadata_t deserialize_map(
     std::string const& message );
-  vital::any deserialize( std::string const& message ) override;
+  std::any deserialize( std::string const& message ) override;
 };
 
 } // namespace json

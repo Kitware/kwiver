@@ -28,10 +28,10 @@ track::~track()
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 track::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
   kwiver::vital::track_sptr trk_sptr =
-    kwiver::vital::any_cast< kwiver::vital::track_sptr > ( element );
+    std::any_cast< kwiver::vital::track_sptr > ( element );
 
   std::ostringstream msg;
   msg << "track "; // add type tag
@@ -49,7 +49,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any track::
+std::any track::
 deserialize( const std::string& message )
 {
   auto trk_sptr = kwiver::vital::track::create();
@@ -77,7 +77,7 @@ deserialize( const std::string& message )
     convert_protobuf( proto_trk, trk_sptr );
   }
 
-  return kwiver::vital::any( trk_sptr );
+  return std::any( trk_sptr );
 }
 
 } } } } // end namespace

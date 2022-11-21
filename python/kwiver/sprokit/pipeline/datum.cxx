@@ -8,7 +8,6 @@
 #endif
 #include <pybind11/pybind11.h>
 #include <pybind11/stl_bind.h>
-#include <vital/any.h>
 #if WIN32
 #pragma warning (pop)
 #endif
@@ -286,8 +285,6 @@ datum_get_error(::sprokit::datum const& self)
 }
 
 // This converts straight to a pybind11::object.
-// For an explanation of the 'any.is_type<TYPE>()' call,
-// see the comment in python/kwiver/sprokit/adapters/adapter_data_set.cxx.
 object
 datum_get_datum_correct_type(::sprokit::datum const& self)
 {
@@ -296,12 +293,12 @@ datum_get_datum_correct_type(::sprokit::datum const& self)
     return none();
   }
 
-  kwiver::vital::any const any = self.get_datum<kwiver::vital::any>();
+  std::any const any = self.get_datum<std::any>();
 
   #define DATUM_GET_OBJECT(TYPE) \
-  if (any.is_type<TYPE>()) \
+  if (any.type() == typeid(TYPE)) \
   { \
-    return cast(kwiver::vital::any_cast<TYPE>(any)); \
+    return cast(std::any_cast<TYPE>(any)); \
   }
 
   DATUM_GET_OBJECT(int)
@@ -324,14 +321,14 @@ datum_get_datum_correct_type(::sprokit::datum const& self)
   #undef DATUM_GET_OBJECT
 
   std::string msg("Unable to convert object stored in datum. Data is of type: ");
-  msg += any.type_name();
+  msg += vital::demangle( any.type().name() );
   throw type_error(msg);
 }
 
 std::string
 datum_datum_type(::sprokit::datum const& self)
 {
-  kwiver::vital::any const any = self.get_datum<kwiver::vital::any>();
+  std::any const any = self.get_datum<std::any>();
 
   return any.type().name();
 }
@@ -398,8 +395,8 @@ template<class T>
 T
 datum_get_object(::sprokit::datum &self)
 {
-  kwiver::vital::any const any = self.get_datum<kwiver::vital::any>();
-  return kwiver::vital::any_cast<T>(any);
+  std::any const any = self.get_datum<std::any>();
+  return std::any_cast<T>(any);
 }
 }
 }

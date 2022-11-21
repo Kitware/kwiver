@@ -25,9 +25,9 @@ string::~string()
 
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string > string::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
-  const std::string data = kwiver::vital::any_cast< std::string >( element );
+  const std::string data = std::any_cast< std::string >( element );
   std::ostringstream msg;
   msg << "string ";
 
@@ -42,7 +42,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any string::deserialize( const std::string& message )
+std::any string::deserialize( const std::string& message )
 {
   std::string data;
   std::istringstream msg( message );
@@ -64,7 +64,7 @@ vital::any string::deserialize( const std::string& message )
     }
     convert_protobuf( proto_str, data);
   }
-  return kwiver::vital::any(data);
+  return std::any(data);
 }
 
 } } } }

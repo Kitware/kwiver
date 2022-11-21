@@ -16,7 +16,7 @@ namespace sprokit {
 
 // ------------------------------------------------------------------
 datum_t
-datum::new_datum(kwiver::vital::any const& dat)
+datum::new_datum(std::any const& dat)
 {
   return datum_t(new datum(dat));
 }
@@ -69,7 +69,7 @@ datum
   return m_error;
 }
 
-static bool any_equal(kwiver::vital::any const& a, kwiver::vital::any const& b);
+static bool any_equal(std::any const& a, std::any const& b);
 
 // ------------------------------------------------------------------
 bool
@@ -133,7 +133,7 @@ datum
 
 // ------------------------------------------------------------------
 datum
-::datum(kwiver::vital::any const& dat)
+::datum(std::any const& dat)
   : m_type(data)
   , m_error()
   , m_datum(dat)
@@ -203,9 +203,9 @@ bad_datum_cast_exception
 
 // ------------------------------------------------------------------
 bool
-any_equal(kwiver::vital::any const& a, kwiver::vital::any const& b)
+any_equal(std::any const& a, std::any const& b)
 {
-  if (a.empty() && b.empty())
+  if (!a.has_value() && !b.has_value())
   {
     return true;
   }

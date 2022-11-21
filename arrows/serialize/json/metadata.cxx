@@ -75,10 +75,10 @@ deserialize_map( const std::string& message )
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 metadata::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
   const kwiver::vital::metadata_vector meta =
-    kwiver::vital::any_cast< kwiver::vital::metadata_vector > ( element );
+    std::any_cast< kwiver::vital::metadata_vector > ( element );
 
   std::stringstream msg;
   msg << "metadata "; // add type tag
@@ -91,7 +91,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any metadata::
+std::any metadata::
 deserialize( const std::string& message )
 {
   std::stringstream msg(message);
@@ -110,7 +110,7 @@ deserialize( const std::string& message )
     load( ar, meta );
   }
 
-  return kwiver::vital::any(meta);
+  return std::any(meta);
 }
 
 } } } }       // end namespace kwiver

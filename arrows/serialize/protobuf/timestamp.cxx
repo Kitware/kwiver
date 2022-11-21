@@ -28,9 +28,9 @@ timestamp::~timestamp()
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 timestamp::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
-  kwiver::vital::timestamp tstamp = kwiver::vital::any_cast< kwiver::vital::timestamp > ( element );
+  kwiver::vital::timestamp tstamp = std::any_cast< kwiver::vital::timestamp > ( element );
   std::ostringstream msg;
   msg << "timestamp ";
   kwiver::protobuf::timestamp proto_tstamp;
@@ -46,7 +46,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any
+std::any
 timestamp::deserialize( const std::string& message )
 {
   kwiver::vital::timestamp tstamp;
@@ -71,7 +71,7 @@ timestamp::deserialize( const std::string& message )
     convert_protobuf( proto_tstamp, tstamp );
   }
 
-  return kwiver::vital::any( tstamp );
+  return std::any( tstamp );
 }
 
 } } } }

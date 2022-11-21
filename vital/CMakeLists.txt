@@ -71,7 +71,6 @@ set( vital_public_headers
   vital_types.h
 
   algorithm_capabilities.h
-  any.h
   attribute_set.h
   bitflags.h
   context.h

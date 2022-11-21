@@ -29,9 +29,9 @@ TEST(any_converter, conversions)
   any_to_int.add_converter<uint8_t>();  // add converter from uint8_t;
   any_to_int.add_converter<float>();    // add converter from float;
 
-  any ui8 = uint8_t{ 123 };
-  any fl = float{ 123.45f };
-  any cp = std::string{ "string" };
+  std::any ui8 = uint8_t{ 123 };
+  std::any fl = float{ 123.45f };
+  std::any cp = std::string{ "string" };
 
   EXPECT_TRUE( any_to_int.can_convert( uint8_t{ 123 } ) );
   EXPECT_EQ( 123,  any_to_int.convert( uint8_t{ 123 } ) );
@@ -41,7 +41,7 @@ TEST(any_converter, conversions)
 
   EXPECT_FALSE( any_to_int.can_convert( std::string{ "123" } ) );
   EXPECT_THROW( any_to_int.convert( std::string{ "123" } ),
-                bad_any_cast );
+                std::bad_any_cast );
 }
 
 // make a custom specialization
@@ -81,21 +81,21 @@ struct converter<bool, std::string>
   virtual ~converter() VITAL_DEFAULT_DTOR
 
   // --------------------------------------------------------------------------
-  virtual bool can_convert( any const & data ) const
+  virtual bool can_convert( std::any const & data ) const
   {
     return ( data.type() == typeid( std::string ) ) &&
-           convert_map.find( any_cast<std::string>( data ) ) != convert_map.end();
+           convert_map.find( std::any_cast<std::string>( data ) ) != convert_map.end();
   }
 
   // --------------------------------------------------------------------------
-  virtual bool convert( any const& data ) const
+  virtual bool convert( std::any const& data ) const
   {
-    auto const it = convert_map.find( any_cast<std::string>( data ) );
+    auto const it = convert_map.find( std::any_cast<std::string>( data ) );
     if ( it != convert_map.end() )
     {
       return it->second;
     }
-    throw bad_any_cast( typeid( bool ).name(), typeid( std::string ).name() );
+    throw std::bad_any_cast{};
   }
 
 private:
@@ -138,5 +138,5 @@ TEST(any_converter, custom_converter)
 
   EXPECT_FALSE( convert_to_bool.can_convert( std::string{ "foo" } ) );
   EXPECT_THROW( convert_to_bool.convert( std::string{ "foo" } ),
-                bad_any_cast );
+                std::bad_any_cast );
 }
