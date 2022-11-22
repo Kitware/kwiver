@@ -89,7 +89,7 @@
 					"integer": 3,
 					"string": "Mission ID"
 				},
-				"value": "TEST STRING"
+				"value": "TEST\u0000STRING"
 			},
 			{
 				"key": {
