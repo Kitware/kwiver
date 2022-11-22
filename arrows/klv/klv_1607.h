@@ -19,6 +19,20 @@ namespace arrows {
 namespace klv {
 
 // ----------------------------------------------------------------------------
+///
+enum klv_1607_child_policy
+{
+  KLV_1607_CHILD_POLICY_KEEP_NEITHER = 0,
+  KLV_1607_CHILD_POLICY_KEEP_CHILD   = ( 1 << 0 ),
+  KLV_1607_CHILD_POLICY_KEEP_PARENT  = ( 1 << 1 ),
+  KLV_1607_CHILD_POLICY_KEEP_BOTH    = KLV_1607_CHILD_POLICY_KEEP_CHILD |
+                                       KLV_1607_CHILD_POLICY_KEEP_PARENT,
+};
+
+using klv_1607_child_policy_fn =
+  std::function< klv_1607_child_policy( klv_lds_key ) >;
+
+// ----------------------------------------------------------------------------
 /// Interprets data as a KLV ST1607 amend or segment local set.
 class KWIVER_ALGO_KLV_EXPORT klv_1607_child_set_format
   : public klv_local_set_format
@@ -42,9 +56,10 @@ private:
 ///
 /// \return Modified \p parent.
 KWIVER_ALGO_KLV_EXPORT
-klv_local_set
-klv_1607_apply_child( klv_local_set const& parent,
-                      klv_local_set const& child );
+void
+klv_1607_apply_child(
+  klv_local_set& parent, klv_local_set const& child,
+  klv_1607_child_policy_fn const& policy_fn = nullptr );
 
 // ----------------------------------------------------------------------------
 /// Produce a 'diff' between two local sets in the form of a child local set.

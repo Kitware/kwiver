@@ -145,11 +145,11 @@ klv_set< Key >
 
 // ----------------------------------------------------------------------------
 template < class Key >
-void
+typename klv_set< Key >::iterator
 klv_set< Key >
 ::erase( const_iterator it )
 {
-  m_items.erase( it );
+  return m_items.erase( it );
 }
 
 // ----------------------------------------------------------------------------
