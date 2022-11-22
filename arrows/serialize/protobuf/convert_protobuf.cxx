@@ -650,7 +650,7 @@ void convert_protobuf( const ::kwiver::vital::metadata& metadata,
 
     proto_item->set_metadata_tag( tag );
 
-    ::kwiver::vital::visit( convert_visitor{ *proto_item }, metap->data() );
+    ::std::visit( convert_visitor{ *proto_item }, metap->data() );
   } //end for
 }
 

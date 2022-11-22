@@ -12,8 +12,8 @@
 #include <vital/internal/cereal/external/base64.hpp>
 
 #include <vital/range/iota.h>
-#include <vital/util/visit.h>
 
+#include <variant>
 #include <stdexcept>
 
 using namespace kwiver::arrows::klv;
@@ -487,7 +487,7 @@ public:
     auto const visitor = klv_value_visitor{ *this, value };
     try
     {
-      kv::visit_variant_types< klv_type_list >( visitor, value.type() );
+      std::visit_variant_types< klv_type_list >( visitor, value.type() );
     }
     catch( std::out_of_range const& e )
     {
@@ -1127,7 +1127,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
     auto const visitor = klv_value_visitor{ *this };
     try
     {
-      return kv::visit_variant_types_return< klv_value, klv_type_list >(
+      return std::visit_variant_types_return< klv_value, klv_type_list >(
         visitor, type );
     }
     catch( std::out_of_range const& e )

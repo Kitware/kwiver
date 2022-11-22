@@ -62,7 +62,7 @@ struct meta_item
 
     archive( ::cereal::make_nvp( "tag", m_tag ) );
 
-    kv::visit( save_visitor< Archive >{ archive }, m_value );
+    std::visit( save_visitor< Archive >{ archive }, m_value );
 
     // These two items are included to increase readability of the
     // serialized form and are not used when deserializing.
@@ -81,7 +81,7 @@ struct meta_item
     // Get associated traits to assist with decoding the data portion
     auto const& trait = kv::tag_traits_by_tag( m_tag );
 
-    kv::visit_metadata_types( load_visitor< Archive >{ archive, m_value },
+    std::visit_metadata_types( load_visitor< Archive >{ archive, m_value },
                               trait.type() );
   }
 
