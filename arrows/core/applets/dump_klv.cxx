@@ -24,6 +24,7 @@
 #include <vital/io/metadata_io.h>
 
 #include <vital/util/get_paths.h>
+#include <vital/util/thread_pool.h>
 #include <vital/util/wrap_text_block.h>
 
 #include <vital/types/metadata.h>
@@ -73,6 +74,9 @@ add_command_options()
     ( "e,exporter", "Choose the format of the exported KLV data. "
       "Current options are: csv, json, klv-json.",
       cxxopts::value< std::string >(), "format" )
+    ( "multithread",
+      "Use multithreading to accelerate encoding of frame images. "
+      "Number of worker threads is not configurable at this time." )
 
     // positional parameters
     ( "video-file", "Video input file", cxxopts::value< std::string >() )
@@ -235,6 +239,7 @@ dump_klv
   kv::timestamp ts;
   kv::wrap_text_block wtb;
   kv::metadata_map::map_metadata_t frame_metadata;
+  std::vector< std::future< void > > image_write_futures;
 
   wtb.set_indent_string( "    " );
 
@@ -303,7 +308,18 @@ dump_klv
       auto const filepath =
         kwiversys::SystemTools::JoinPath( { "", directory, filename } );
       auto const image = video_reader->frame_image();
-      image_writer->save( filepath, image );
+      auto const task = [ image_writer, image, filepath ] () {
+                          image_writer->save( filepath, image );
+                        };
+      if( cmd_args[ "multithread" ].as< bool >() )
+      {
+        image_write_futures.emplace_back(
+          vital::thread_pool::instance().enqueue( task ) );
+      }
+      else
+      {
+        task();
+      }
     }
 
     ++count;
@@ -325,6 +341,11 @@ dump_klv
     metadata_serializer_ptr->save( out_file, mms );
 
     std::cout << "Wrote KLV log to \"" << out_file << "\".\n";
+  }
+
+  for( auto& future : image_write_futures )
+  {
+    future.wait();
   }
 
   std::cout << "-- End of video --\n";
