@@ -154,6 +154,7 @@ algorithms_create_plugin( kwiver_algo_klv
   register_algorithms.cxx
   )
 
+  add_subdirectory(applets)
 
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory( tests )
